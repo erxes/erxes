@@ -15,11 +15,14 @@ import {
   DateSelect,
   SelectProjectTeam,
 } from '@/project/components/select';
+import {
+  OperationMembersChip,
+  OperationTagsChip,
+} from '@/operation/components/OperationChips';
 import { useGetProject } from '@/project/hooks/useGetProject';
 import { SelectProjectPriority } from '@/project/components/select/SelectProjectPriority';
 import { ActivityList } from '@/activity/components/ActivityList';
 import { SelectProjectStatus } from '@/project/components/select/SelectProjectStatus';
-import { SelectTags, SelectMember } from 'ui-modules';
 import { parseDescriptionBlocks } from '@/operation/utils/parseDescriptionBlocks';
 import { compactList } from '@/operation/utils/cursorList';
 
@@ -144,39 +147,56 @@ export const ProjectFields = ({ projectId }: { projectId: string }) => {
         onChange={(e) => setName(e.target.value)}
       />
       <div className="gap-2 flex flex-wrap w-full">
-        <SelectProjectStatus value={status} projectId={projectId} />
-        <SelectProjectPriority projectId={projectId} value={priority} />
+        <SelectProjectStatus
+          value={status}
+          projectId={projectId}
+          label={t('status')}
+        />
+        <SelectProjectPriority
+          projectId={projectId}
+          value={priority}
+          label={t('priority')}
+        />
         <SelectLead.Detail
           value={leadId ?? undefined}
           id={projectId}
           teamIds={teamIds}
+          label={t('lead')}
         />
-        <DateSelect.Detail value={startDate} id={projectId} type="start" />
-        <DateSelect.Detail value={targetDate} id={projectId} type="target" />
-        <SelectMember.CustomDetail
+        <DateSelect.Detail
+          value={startDate}
+          id={projectId}
+          type="start"
+          label={t('start-date')}
+        />
+        <DateSelect.Detail
+          value={targetDate}
+          id={projectId}
+          type="target"
+          label={t('target-date')}
+        />
+        <OperationMembersChip
           value={localMemberIds}
-          onValueChange={(value) => {
-            setLocalMemberIds(value as string[]);
-          }}
-          mode="multiple"
-          size="lg"
+          onValueChange={(value) =>
+            setLocalMemberIds(Array.isArray(value) ? value : [])
+          }
+          label={t('members')}
         />
         <SelectProjectTeam
           value={teamIds || []}
           projectId={projectId}
           variant="detail"
+          label={t('team')}
         />
-        <SelectTags.Detail
+        <OperationTagsChip
+          type="operation:project"
           value={tagIds ? compactList(tagIds) : []}
-          tagType="operation:project"
           onValueChange={(newTagIds) => {
             updateProject({
-              variables: {
-                _id: projectId,
-                tagIds: Array.isArray(newTagIds) ? newTagIds : [newTagIds],
-              },
+              variables: { _id: projectId, tagIds: newTagIds },
             });
           }}
+          label={t('tags')}
         />
       </div>
       <Separator className="my-4" />
