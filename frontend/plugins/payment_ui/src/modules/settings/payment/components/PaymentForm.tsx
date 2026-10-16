@@ -167,21 +167,15 @@ const createPaymentSchema = (selectedKind: string) => {
   });
 
   if (selectedKind === PaymentKind.QUICKQR) {
-    return quickQrSchema.extend(settingsFields);
-  }
-  if (selectedKind === PaymentKind.KHANBANK) {
-    return khanbankSchema.extend(settingsFields);
-  }
-  if (selectedKind === PaymentKind.TDB_CGW) {
-    return tdbCgwSchema.extend(settingsFields);
-  }
-  return baseSchema.extend(dynamicFields).extend(settingsFields);
-  if (selectedKind === PaymentKind.QUICKQR) {
   return quickQrSchema.extend(settingsFields);
 }
 
 if (selectedKind === PaymentKind.KHANBANK) {
   return khanbankSchema.extend(settingsFields);
+}
+
+if (selectedKind === PaymentKind.TDB_CGW) {
+  return tdbCgwSchema.extend(settingsFields);
 }
 
 if (selectedKind === PaymentKind.CORPORATE_GOLOMTBANK) {

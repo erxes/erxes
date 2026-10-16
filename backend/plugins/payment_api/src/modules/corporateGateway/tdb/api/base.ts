@@ -1,5 +1,6 @@
 import fetch, { HeadersInit, RequestInit } from 'node-fetch';
 import { TdbTokenResponse } from '@/corporateGateway/tdb/@types/tdb';
+import FormData from 'form-data';
 
 export class BaseApi {
   protected config: {
@@ -132,6 +133,51 @@ export class BaseApi {
     if (result?.success === false) {
       throw new Error(
         result?.msg || result?.message || 'TDB API request failed',
+      );
+    }
+
+    return result as T;
+  }
+  protected async requestMultipart<T>(args: {
+    path: string;
+    formData: FormData;
+  }): Promise<T> {
+    const token = await this.getAccessToken();
+
+    const response = await fetch(`${this.config.apiUrl}/${args.path}`, {
+      method: 'POST',
+      headers: {
+        ...args.formData.getHeaders(),
+        accept: 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: args.formData,
+    });
+
+    const responseText = await response.text();
+    let result: any;
+
+    try {
+      result = JSON.parse(responseText);
+    } catch {
+      throw new Error(`TDB API returned invalid JSON: ${responseText}`);
+    }
+
+    if (!response.ok) {
+      throw new Error(
+        result?.msg ||
+          result?.message ||
+          result?.error ||
+          `TDB API request failed with status ${response.status}`,
+      );
+    }
+
+    if (result?.success === false) {
+      throw new Error(
+        result?.msg ||
+          result?.message ||
+          result?.error ||
+          'TDB API request failed',
       );
     }
 

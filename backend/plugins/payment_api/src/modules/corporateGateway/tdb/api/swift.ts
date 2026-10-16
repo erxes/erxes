@@ -1,4 +1,5 @@
 import { BaseApi } from './base';
+import FormData from 'form-data';
 
 export interface TdbSwiftResponse<T> {
   success: boolean;
@@ -231,11 +232,23 @@ export class SwiftApi extends BaseApi {
    * BaseApi currently sends JSON, so this method needs
    * special multipart handling.
    */
-  async attachFile(transactionNumber: string, file: unknown) {
-    // Implement separately once multipart handling
-    // is added to BaseApi.
-    throw new Error(
-      'SWIFT attachFile requires multipart/form-data implementation',
-    );
+  async attachFile(transactionNumber: string, file: Buffer, filename: string) {
+    if (file.length > 10 * 1024 * 1024) {
+      throw new Error('SWIFT attachment must not exceed 10MB');
+    }
+
+    const formData = new FormData();
+
+    formData.append('transactionNumber', transactionNumber);
+    formData.append('file', file, {
+      filename,
+    });
+
+    return await this.requestMultipart<
+      TdbSwiftResponse<TdbSwiftAttachFileResponse>
+    >({
+      path: 'transfer/swift/attachfile',
+      formData,
+    });
   }
 }

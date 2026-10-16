@@ -10,8 +10,8 @@ export interface ITdbCgwPaymentConfig {
 }
 
 export class TdbCgwAPI {
-  private config: ITdbCgwPaymentConfig;
-  private models: IModels;
+  private readonly config: ITdbCgwPaymentConfig;
+  private readonly models: IModels;
 
   constructor(config: ITdbCgwPaymentConfig, models: IModels, _domain: string) {
     if (!config?.configId) {
@@ -62,7 +62,7 @@ export class TdbCgwAPI {
     return this.checkInvoice(transaction);
   }
 
-  async cancelInvoice(_transaction: ITransactionDocument) {
+  cancelInvoice(_transaction: ITransactionDocument) {
     return { success: true };
   }
 }
