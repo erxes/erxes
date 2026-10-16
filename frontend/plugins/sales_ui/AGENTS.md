@@ -235,6 +235,8 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
 
 ## Local Invariants
 
+- The deals page is called "Deals" (`t('deals')`) in the sidebar, the page
+  header and the page tab, so one place never has two names.
 - Page header breadcrumbs follow the shared pattern: crumbs are default ghost `Button`s (no `font-semibold`), the first crumb carries a 16px icon in the default text color, crumbs are separated by `Separator.Inline` or `Breadcrumb.Separator`, and settings pages carry no favorite toggle.
 - Whether loyalty is on is read at runtime (`useLoyaltyEnabled`, the loaded `pluginsConfigState`), never with `isEnabled('loyalty')`: that reads a build-time env that deployments such as SaaS do not set, which hid the Tier tab, the deal list's points column and the board card badge.
 - Expandable navigation rows end in the host sidebar's chevron:

@@ -36,9 +36,9 @@ export const SalesIndexPage = () => {
               <Breadcrumb.List className="gap-1 flex-nowrap min-w-0">
                 <Breadcrumb.Item className="shrink-0">
                   <Button variant="ghost" asChild>
-                    <Link to="/sales/deal">
+                    <Link to="/sales/deals">
                       <IconSandbox />
-                      {t('sales-pipeline', 'Sales Pipeline')}
+                      {t('deals', 'Deals')}
                     </Link>
                   </Button>
                 </Breadcrumb.Item>
