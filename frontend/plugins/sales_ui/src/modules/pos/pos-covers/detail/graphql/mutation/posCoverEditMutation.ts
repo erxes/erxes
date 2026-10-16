@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const POS_COVER_EDIT_MUTATION = gql`
+export const POS_COVER_EDIT_MUTATION = gql(`
   mutation PosCoversEdit($id: String!, $note: String) {
     posCoversEdit(_id: $id, note: $note) {
       _id
@@ -67,4 +67,4 @@ export const POS_COVER_EDIT_MUTATION = gql`
       }
     }
   }
-`;
+`);

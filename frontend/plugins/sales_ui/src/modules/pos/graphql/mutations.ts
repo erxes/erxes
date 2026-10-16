@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-const posAdd = gql`
+const posAdd = gql(`
   mutation PosAdd(
     $name: String
     $description: String
@@ -22,9 +22,9 @@ const posAdd = gql`
       _id
     }
   }
-`;
+`);
 
-const posEdit = gql`
+const posEdit = gql(`
   mutation posEdit(
     $_id: String!
     $name: String
@@ -170,15 +170,15 @@ const posEdit = gql`
       departmentTitle
     }
   }
-`;
+`);
 
-const posRemove = gql`
+const posRemove = gql(`
   mutation posRemove($_id: String!) {
     posRemove(_id: $_id)
   }
-`;
+`);
 
-const brandAdd = gql`
+const brandAdd = gql(`
   mutation brandsAdd($name: String!, $description: String, $emailConfig: JSON) {
     brandsAdd(
       name: $name
@@ -188,17 +188,17 @@ const brandAdd = gql`
       _id
     }
   }
-`;
+`);
 
-const saveProductGroups = gql`
+const saveProductGroups = gql(`
   mutation productGroupsBulkInsert($posId: String!, $groups: [GroupInput]) {
     productGroupsBulkInsert(posId: $posId, groups: $groups) {
       _id
     }
   }
-`;
+`);
 
-const saveSlots = gql`
+const saveSlots = gql(`
   mutation posSlotBulkUpdate($posId: String!, $slots: [SlotInput]) {
     posSlotBulkUpdate(posId: $posId, slots: $slots) {
       _id
@@ -208,9 +208,9 @@ const saveSlots = gql`
       option
     }
   }
-`;
+`);
 
-export default {
+export const mutations = {
   posAdd,
   posEdit,
   posRemove,

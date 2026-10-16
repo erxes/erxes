@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const GET_PRODUCTS = gql`
+export const GET_PRODUCTS = gql(`
   query ProductsMain(
     $type: String
     $categoryIds: [String]
@@ -65,9 +65,9 @@ export const GET_PRODUCTS = gql`
       }
     }
   }
-`;
+`);
 
-export const productCategories = gql`
+export const productCategories = gql(`
   query salesDealProductCategories {
     productCategories {
       _id
@@ -81,9 +81,9 @@ export const productCategories = gql`
       productCount
     }
   }
-`;
+`);
 
-export const productTags = gql`
+export const productTags = gql(`
   query salesDealProductTags($searchValue: String, $limit: Int) {
     tags(type: "core:product", searchValue: $searchValue, limit: $limit) {
       list {
@@ -94,9 +94,9 @@ export const productTags = gql`
       }
     }
   }
-`;
+`);
 
-export const productCategoryDetail = gql`
+export const productCategoryDetail = gql(`
   query productCategoryDetail($_id: String) {
     productCategoryDetail(_id: $_id) {
       _id
@@ -106,4 +106,4 @@ export const productCategoryDetail = gql`
       __typename
     }
   }
-`;
+`);

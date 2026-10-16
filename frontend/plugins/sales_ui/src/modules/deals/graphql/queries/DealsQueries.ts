@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const GET_DEALS_SEARCH_DROPDOWN = gql`
+export const GET_DEALS_SEARCH_DROPDOWN = gql(`
   query salesDealSearchDropdown(
     $limit: Int
     $cursor: String
@@ -97,9 +97,9 @@ export const GET_DEALS_SEARCH_DROPDOWN = gql`
       totalCount
     }
   }
-`;
+`);
 
-export const GET_DEALS = gql`
+export const GET_DEALS = gql(`
   query salesDealList(
     $initialStageId: String
     $stageId: String
@@ -276,9 +276,9 @@ export const GET_DEALS = gql`
       totalCount
     }
   }
-`;
+`);
 
-export const GET_DEAL_DETAIL = gql`
+export const GET_DEAL_DETAIL = gql(`
   query DealDetail($_id: String!) {
     dealDetail(_id: $_id) {
       _id
@@ -408,9 +408,9 @@ export const GET_DEAL_DETAIL = gql`
       boardId
     }
   }
-`;
+`);
 
-export const GET_ITEMS_COUNT_BY_ASSIGNED_USER = gql`
+export const GET_ITEMS_COUNT_BY_ASSIGNED_USER = gql(`
   query SalesItemsCountByAssignedUser(
     $pipelineId: String!
     $stackBy: String
@@ -420,4 +420,4 @@ export const GET_ITEMS_COUNT_BY_ASSIGNED_USER = gql`
       stackBy: $stackBy
     )
   }
-`;
+`);

@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const GET_PIPELINE_DETAIL = gql`
+export const GET_PIPELINE_DETAIL = gql(`
   query SalesPipelineDetail($_id: String!) {
     salesPipelineDetail(_id: $_id) {
       _id
@@ -30,9 +30,9 @@ export const GET_PIPELINE_DETAIL = gql`
       isPropertySelectionConfigured
     }
   }
-`;
+`);
 
-export const GET_PIPELINE_LABELS = gql`
+export const GET_PIPELINE_LABELS = gql(`
   query SalesPipelineLabels($pipelineId: String, $pipelineIds: [String]) {
     salesPipelineLabels(pipelineId: $pipelineId, pipelineIds: $pipelineIds) {
       _id
@@ -43,9 +43,9 @@ export const GET_PIPELINE_LABELS = gql`
       createdAt
     }
   }
-`;
+`);
 
-export const GET_PIPELINE_ASSIGNED_USERS = gql`
+export const GET_PIPELINE_ASSIGNED_USERS = gql(`
   query SalesPipelineAssignedUsers($_id: String!) {
     salesPipelineAssignedUsers(_id: $_id) {
       _id
@@ -55,9 +55,9 @@ export const GET_PIPELINE_ASSIGNED_USERS = gql`
       }
     }
   }
-`;
+`);
 
-export const GET_PIPELINE_LABEL_DETAIL = gql`
+export const GET_PIPELINE_LABEL_DETAIL = gql(`
   query SalesPipelineLabelDetail($_id: String!) {
     salesPipelineLabelDetail(_id: $_id) {
       _id
@@ -68,9 +68,9 @@ export const GET_PIPELINE_LABEL_DETAIL = gql`
       createdAt
     }
   }
-`;
+`);
 
-export const GET_PIPELINES = gql`
+export const GET_PIPELINES = gql(`
   query SalesPipelines(
     $boardId: String
     $isAll: Boolean
@@ -115,4 +115,4 @@ export const GET_PIPELINES = gql`
       totalCount
     }
   }
-`;
+`);

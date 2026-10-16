@@ -1,5 +1,6 @@
 import { useMutation, useQuery } from '@apollo/client';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { isDefined } from 'erxes-ui';
 import { useEffect } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { LOYALTY_RULE_TYPES, TLoyaltyRuleType } from '../constants';
@@ -24,7 +25,7 @@ const toRow = (rule: TLoyaltyTierRule): TLoyaltyTierRuleRow => ({
   boardId: rule.boardId || undefined,
   pipelineId: rule.pipelineId || undefined,
   earnProbability: rule.earn?.probability || undefined,
-  earnStageIds: rule.earn?.stageIds || [],
+  earnStageIds: rule.earn?.stageIds?.filter(isDefined) || [],
 });
 
 const toInput = (row: TLoyaltyTierRuleRow) => {
@@ -56,9 +57,7 @@ const emptyRow = (type: TLoyaltyRuleType): TLoyaltyTierRuleRow => ({
 
 /** Where deals set a tier, edited beside the points rules. */
 export const useLoyaltyTierRulesForm = (open: boolean, enabled: boolean) => {
-  const { data, loading, error } = useQuery<{
-    salesLoyaltyTierRules: TLoyaltyTierRule[];
-  }>(SALES_LOYALTY_TIER_RULES, {
+  const { data, loading, error } = useQuery(SALES_LOYALTY_TIER_RULES, {
     skip: !open || !enabled,
     fetchPolicy: 'cache-and-network',
   });
@@ -77,7 +76,7 @@ export const useLoyaltyTierRulesForm = (open: boolean, enabled: boolean) => {
 
   useEffect(() => {
     if (open && rules) {
-      form.reset({ rules: rules.map(toRow) });
+      form.reset({ rules: rules.filter(isDefined).map(toRow) });
     }
   }, [open, rules, form]);
 

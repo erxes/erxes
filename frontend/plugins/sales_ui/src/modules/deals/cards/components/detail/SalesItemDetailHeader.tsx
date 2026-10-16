@@ -1,19 +1,19 @@
 import { Button, CopyText, Input, Sheet, useFocusSheet } from 'erxes-ui';
 
 import { DealsActions } from '@/deals/actionBar/components/DealsActions';
-import { IDeal } from '@/deals/types/deals';
+import { MoveDealDropdown } from '@/deals/actionBar/components/MoveDealDropdown';
+import { useDealsContext } from '@/deals/context/DealContext';
+import { IDealDetail } from '@/deals/types/deals';
 import {
   IconLayoutSidebarLeftCollapse,
   IconLayoutSidebarLeftExpand,
   IconSettings,
 } from '@tabler/icons-react';
-import { MoveDealDropdown } from '@/deals/actionBar/components/MoveDealDropdown';
-import { useDealsContext } from '@/deals/context/DealContext';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 
-export const SalesItemDetailHeader = ({ deal }: { deal: IDeal }) => {
+export const SalesItemDetailHeader = ({ deal }: { deal: IDealDetail }) => {
   const { editDeals } = useDealsContext();
   const { t } = useTranslation('sales');
   const { isSidebarOpen, setIsSidebarOpen } = useFocusSheet();

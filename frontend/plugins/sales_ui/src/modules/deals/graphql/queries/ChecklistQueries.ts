@@ -1,6 +1,6 @@
-import gql from 'graphql-tag';
+import { gql } from '~/gql';
 
-export const GET_CHECKLISTS = gql`
+export const GET_CHECKLISTS = gql(`
   query salesChecklists($contentTypeId: String) {
     salesChecklists(contentTypeId: $contentTypeId) {
       _id
@@ -19,9 +19,9 @@ export const GET_CHECKLISTS = gql`
       percent
     }
   }
-`;
+`);
 
-export const GET_CHECKLIST_DETAIL = gql`
+export const GET_CHECKLIST_DETAIL = gql(`
   query salesChecklistDetail($_id: String!) {
     salesChecklistDetail(_id: $_id) {
       _id
@@ -40,4 +40,4 @@ export const GET_CHECKLIST_DETAIL = gql`
       percent
     }
   }
-`;
+`);

@@ -6,7 +6,7 @@
 - **Project:** `sales_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/sales_ui`
-- **Last synchronized:** `2026-10-15`
+- **Last synchronized:** `2026-10-16`
 
 ## Scope
 
@@ -244,6 +244,45 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
 
 ## Local Invariants
 
+- All Sales documents use `gql()` from `~/gql`; hooks and cache/subscription updates
+  infer their results from those documents. `eslint.config.js` enforces this
+  with Operation's rules: `graphql-tag` and `gql` from `@apollo/client` are
+  restricted imports, and Apollo hooks and `subscribeToMore` reject type
+  arguments. Derive row/detail aliases from
+  generated query types and keep local form types separate.
+  Keep only aliases with consumers; selector context, pagination, drag state,
+  attachment state, and Zod form types remain UI contracts.
+- Source-automation trigger `config` and deal relation POS `paidAmounts` are
+  JSON, narrowed in `automations/utils/sourceTriggers.ts` and
+  `widgets/relation/utils/posOrderPaidAmounts.ts`. Only object trigger configs
+  are read; the relation panel lists array payment entries only (legacy maps
+  stay hidden) and skips non-object entries. Payment selector rows alias the
+  generated `Payments` query. The automation board/pipeline/stage text skips its
+  query until all three ids are present.
+- Deal `productsData`, `paymentsData`, pipeline payment types, voucher results,
+  and event payloads remain JSON in the public API. Validate consumed structure
+  in Sales UI (`deals/utils/dealJson.ts` and the owning hook); preserve extra
+  JSON keys on round trips. Invalid editable data must show an error and block
+  saving, rather than becoming an empty form.
+  Legacy product rows can omit `_id`; preserve them without inventing row IDs
+  or rejecting the whole deal. Product mutation identifiers follow the existing
+  nullable GraphQL arguments.
+- List and detail deal subscriptions select the fields used by their respective
+  queries. Pipeline order events carry stored JSON, so move an existing card
+  immediately and refetch active lists for complete computed data.
+- `deals/utils/cursorList.ts` follows Operation's adapter for nullable PageInfo
+  booleans. Filter nullable list members before passing rows to UI components.
+  Keep the previous total when a later page returns a null count; accept an
+  explicit zero as the new total.
+  Memoize filtered query collections by the source array; form synchronization
+  and board effects rely on stable references when Apollo data is unchanged.
+- Memoize overview attachment inputs by the server attachment array so unrelated
+  rerenders cannot discard pending uploads. Relation-card section visibility
+  must use the same filtered collection passed to its renderer. Label forms
+  report a missing pipeline before attempting either add or edit.
+- Deal printing owns typed documents for the public Core document service;
+  their tooling snapshot does not change that service's runtime contract.
+
 - GraphQL documents are literal strings so codegen can read their complete
   variables, arguments, and selections. Do not reintroduce JavaScript string
   interpolation into query, mutation, or subscription documents.
@@ -252,9 +291,37 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   types. Watch/unwatch requests are idempotent and update only the acting user.
   Empty archives provide list/count/page metadata; successful label
   assignment and empty-stage sorting return success strings.
+- POS JSON configuration and report fields are narrowed in `pos/utils/posJson.ts`
+  and `pos/utils/posOrderJson.ts`; preserve extension keys and legacy numeric
+  screen timers. Payment amounts support both arrays and legacy maps. An order
+  payment's `type` may be null or missing; retain the entry in save payloads and
+  balance checks while excluding it from named payment inputs.
+  Summary pagination keeps its previous cache
+  result when either JSON page cannot be parsed.
+  An unchanged structured payment configuration retains its original JSON type;
+  nullable payment fields and numeric screen values retain their stored types
+  until edited.
+  Memoize parsed query objects before using them to reset forms. Invalid JSON
+  must be reported; never enable saving an empty replacement for failed data.
+- Order detail `items` is an array; `posOrderRecords.items` is the unwound row
+  object. Keep these two report shapes distinct.
+- A Cover's `user` is its assignee, while `createdUser` resolves `createdBy`.
+  Do not substitute one for the other when deriving display data. Covers list
+  rows keep the selected `user` for the assignee column.
+- Product-group saves project only `GroupInput` fields and refetch that POS's
+  groups before completing. Cover deletion removes each successfully deleted
+  id from every cached `posCovers` filter variant.
 - POS product-group saves use `productGroupsBulkInsert`. The Sales API has
   no `productGroupsAdd` or `cpSalesPipelineDetail` field; use implemented
   contracts rather than declaring documents for unsupported aliases.
+- Pipeline number configuration is literal prefix text with supported date
+  placeholders (`{year}`, `{month}`, `{day}`); send the original text and let
+  the API escape it for number lookup. The API matches that prefix at the
+  start of the stored number, followed only by digits. Do not pre-escape it
+  in the UI.
+- Send deal, POS, and address search text unchanged; the API owns regex
+  escaping and case-insensitive matching. Formatted-phone matching and the
+  shared stage/archive fuzzy-search behavior remain supported.
 - POS edit, product-group/slot saves, and deal-watch documents already declare
   required target ids matching the backend's non-null arguments. Other legacy
   documents still declare nullable inputs even where the backend validates a
@@ -273,6 +340,14 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
 - POS report operations use their report context in their names (Orders,
   ByItems, Covers, Items, or Summary), even when their selections are identical.
   Keep document exports stable for their existing hooks and selectors.
+  Identical POS list behavior lives in `pos/hooks/usePosSelector.ts`; each
+  report passes its own typed document and options. Its next page continues from
+  the request's effective `page`/`perPage` and the unfiltered row count
+  (`pos/utils/posSelectorPage.ts`). `posList` returns no total, so selectors
+  report the loaded length as their total and do not offer load-more.
+  Shared company/user selector row aliases in `pos/types/posSelector.ts`
+  follow the generated Orders selections.
+  Keep those selections compatible when reusing the aliases in another report.
 - Follow the `operation_ui` reference for codegen changes; inspect its existing
   implementation and, when needed, its merged migration diff before introducing
   a different pattern. Keep explicit Apollo refetch target names at their
@@ -359,6 +434,14 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   base-unit fields rather than an alternate metadata format.
   Backend omits info for base-unit selections. Acknowledgements compare such
   saves with root price/quantity, and the UI reconstructs editable base info.
+- The product replacement chooser keeps its cached initial selection. Its
+  `IProduct` assertion is limited to the shared `initialProducts` prop, which
+  reads only `_id`, `name`, and `code`; selected replacements come from the
+  shared chooser's full product query. Do not widen the Sales query types.
+- When subscription data temporarily lacks computed pipeline metadata, detail
+  views retain the last resolved metadata for the same deal only. Newer stored
+  fields (including archive status and explicit null/empty clears) must not be
+  replaced by the older complete snapshot (`utils/resolveDealDetail.ts`).
 - Deal product selectors may pass sales context such as `pipelineId` into
   shared `ui-modules` selectors, but must not import another plugin directly.
 - Expanded product view must render the same product workspace as the inline
@@ -388,6 +471,15 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
 
 ## Validation
 
+- `node --test frontend/plugins/sales_ui/src/modules/pos/utils/__tests__/*.test.cjs`
+- `node --test frontend/plugins/sales_ui/src/modules/automations/utils/__tests__/*.test.cjs`
+- Smoke POS settings save/reopen, product-group add/remove, order/item payment
+  details, filtered Cover deletion, Cover assignee display, and all POS report
+  routes.
+- Integrations smoke: POS/pipeline Automations tab list and remove, payment
+  selectors, deal relation POS orders panel, and the automation
+  board/pipeline/stage text.
+
 - `pnpm nx lint sales_ui`
 - `pnpm exec tsc -p frontend/plugins/sales_ui/tsconfig.app.json --noEmit`:
   no diagnostics may point into `frontend/plugins/sales_ui`. Report diagnostics
@@ -399,7 +491,11 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
 - Codegen startup smoke: with `src/gql/` absent, both the production build and
   `ENABLED_PLUGINS=sales pnpm dev:uis` must generate it before booting. During
   development, editing a GraphQL document must trigger the codegen watcher.
-- `node --test frontend/plugins/sales_ui/src/modules/deals/cards/components/detail/product/utils/__tests__/productUom.test.cjs`
+- `node --test frontend/plugins/sales_ui/src/modules/deals/utils/__tests__/dealJson.test.cjs frontend/plugins/sales_ui/src/modules/deals/cards/components/detail/product/utils/__tests__/productUom.test.cjs`
+- `node --test frontend/plugins/sales_ui/src/modules/deals/utils/__tests__/dealReviewRegressions.test.cjs`
+- Deals migration smoke: create/edit/watch a deal; move stages, edit labels and
+  checklists, and add/edit/remove products. Verify immediate list/detail updates
+  and subscription updates with no Apollo cache or missing-field warnings.
 - Deal UOM smoke scenario: in normal view select a sub-UOM, edit its price and
   quantity, save and reload; verify Advanced shows base price/quantity and the
   saved ratio. Switching units alone preserves totals; changing catalog ratios

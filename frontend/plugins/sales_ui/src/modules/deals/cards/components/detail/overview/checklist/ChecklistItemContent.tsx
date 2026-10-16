@@ -1,4 +1,9 @@
 import {
+  useChecklistItemsEdit,
+  useChecklistItemsRemove,
+} from '@/deals/cards/hooks/useChecklists';
+import { IconDotsVertical, IconRefresh, IconTrash } from '@tabler/icons-react';
+import {
   Button,
   Checkbox,
   DropdownMenu,
@@ -7,17 +12,12 @@ import {
   toast,
   useConfirm,
 } from 'erxes-ui';
-import { IconDotsVertical, IconRefresh, IconTrash } from '@tabler/icons-react';
-import {
-  useChecklistItemsEdit,
-  useChecklistItemsRemove,
-} from '@/deals/cards/hooks/useChecklists';
 import { useEffect, useRef, useState } from 'react';
 
-import { GET_STAGE_DETAIL } from '~/modules/deals/graphql/queries/StagesQueries';
-import { IChecklistItem } from '@/deals/types/checklists';
 import { useDealsAdd } from '@/deals/cards/hooks/useDeals';
+import { IChecklistItem } from '@/deals/types/checklists';
 import { useTranslation } from 'react-i18next';
+import { GET_STAGE_DETAIL } from '~/modules/deals/graphql/queries/StagesQueries';
 
 export const ChecklistItemContent = ({
   item,
@@ -31,7 +31,7 @@ export const ChecklistItemContent = ({
   dragHandle?: React.ReactNode;
 }>) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [content, setContent] = useState(item.content);
+  const [content, setContent] = useState(item.content ?? '');
   const savingContentRef = useRef(false);
   const { confirm } = useConfirm();
   const { t } = useTranslation('sales');
@@ -49,7 +49,7 @@ export const ChecklistItemContent = ({
   const { addDeals } = useDealsAdd();
 
   useEffect(() => {
-    setContent(item.content);
+    setContent(item.content ?? '');
   }, [item.content]);
 
   const removeItem = (id: string) => {
@@ -111,7 +111,7 @@ export const ChecklistItemContent = ({
     const trimmed = content.trim();
 
     if (!trimmed || trimmed === item.content) {
-      setContent(item.content);
+      setContent(item.content ?? '');
       setIsEditing(false);
       return;
     }
@@ -134,7 +134,7 @@ export const ChecklistItemContent = ({
       },
       onError: (error) => {
         savingContentRef.current = false;
-        setContent(item.content);
+        setContent(item.content ?? '');
         setItems((prev) =>
           prev.map((current) =>
             current._id === item._id
@@ -152,7 +152,7 @@ export const ChecklistItemContent = ({
   };
 
   const cancelEditing = () => {
-    setContent(item.content);
+    setContent(item.content ?? '');
     setIsEditing(false);
   };
 

@@ -1,12 +1,12 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const GET_ARCHIVED_STAGES_COUNT = gql`
+export const GET_ARCHIVED_STAGES_COUNT = gql(`
   query SalesArchivedStagesCount($pipelineId: String!, $search: String) {
     salesArchivedStagesCount(pipelineId: $pipelineId, search: $search)
   }
-`;
+`);
 
-export const GET_STAGES = gql`
+export const GET_STAGES = gql(`
   query salesDealStages(
     $isNotLost: Boolean
     $isAll: Boolean
@@ -62,6 +62,7 @@ export const GET_STAGES = gql`
       amount
       itemsTotalCount
       pipelineId
+      type
       code
       age
       defaultTick
@@ -74,9 +75,9 @@ export const GET_STAGES = gql`
       departmentIds
     }
   }
-`;
+`);
 
-export const GET_CONVERSION_STAGES = gql`
+export const GET_CONVERSION_STAGES = gql(`
   query salesDealConversionStages(
     $isNotLost: Boolean
     $isAll: Boolean
@@ -132,6 +133,7 @@ export const GET_CONVERSION_STAGES = gql`
       amount
       itemsTotalCount
       pipelineId
+      type
       code
       age
       defaultTick
@@ -148,9 +150,9 @@ export const GET_CONVERSION_STAGES = gql`
       inProcessDealsTotalCount
     }
   }
-`;
+`);
 
-export const GET_STAGE_DETAIL = gql`
+export const GET_STAGE_DETAIL = gql(`
   query SalesStageDetail($_id: String!) {
     salesStageDetail(_id: $_id) {
       _id
@@ -160,6 +162,7 @@ export const GET_STAGE_DETAIL = gql`
       amount
       itemsTotalCount
       pipelineId
+      type
       code
       age
       defaultTick
@@ -172,4 +175,4 @@ export const GET_STAGE_DETAIL = gql`
       departmentIds
     }
   }
-`;
+`);

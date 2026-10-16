@@ -1,5 +1,7 @@
 import { Resolver } from 'erxes-api-shared/core-types';
-import { cursorPaginate } from 'erxes-api-shared/utils';
+import { cursorPaginate, escapeRegExp } from 'erxes-api-shared/utils';
+import type { FilterQuery } from 'mongoose';
+import type { IAddressDocument } from '@/ecommerce/@types/address';
 import { IContext } from '~/connectionResolvers';
 
 export interface IListParams {
@@ -13,24 +15,19 @@ export interface IListParams {
   street: string;
 }
 
-const generateFilter = (params: IListParams) => {
+const generateFilter = (params: IListParams): FilterQuery<IAddressDocument> => {
   const { searchValue, customerId, aliasType, city, district, street } = params;
 
-  const filter: any = {};
-
-  const escapeRegExp = (value: string) =>
-    value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const filter: FilterQuery<IAddressDocument> = {};
 
   if (searchValue) {
-    const escaped = escapeRegExp(searchValue);
-
     filter.$or = [
-      { address1: { $regex: new RegExp(escaped, 'i') } },
-      { address2: { $regex: new RegExp(escaped, 'i') } },
-      { city: { $regex: new RegExp(escaped, 'i') } },
-      { district: { $regex: new RegExp(escaped, 'i') } },
-      { street: { $regex: new RegExp(escaped, 'i') } },
-      { phone: { $regex: new RegExp(escaped, 'i') } },
+      { address1: { $regex: escapeRegExp(searchValue), $options: 'i' } },
+      { address2: { $regex: escapeRegExp(searchValue), $options: 'i' } },
+      { city: { $regex: escapeRegExp(searchValue), $options: 'i' } },
+      { district: { $regex: escapeRegExp(searchValue), $options: 'i' } },
+      { street: { $regex: escapeRegExp(searchValue), $options: 'i' } },
+      { phone: { $regex: escapeRegExp(searchValue), $options: 'i' } },
     ];
   }
 

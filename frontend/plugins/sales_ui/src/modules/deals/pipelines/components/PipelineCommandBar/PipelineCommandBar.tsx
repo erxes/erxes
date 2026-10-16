@@ -1,4 +1,3 @@
-import React from 'react';
 import { CommandBar, RecordTable, Separator } from 'erxes-ui';
 import { PipelineDelete } from './PipelineDelete';
 import { useTranslation } from 'react-i18next';

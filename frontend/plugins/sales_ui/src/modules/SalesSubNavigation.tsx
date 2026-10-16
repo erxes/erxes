@@ -1,4 +1,10 @@
 import {
+  IconChevronRight,
+  IconDotsVertical,
+  IconLink,
+  IconSettings,
+} from '@tabler/icons-react';
+import {
   Button,
   Collapsible,
   DropdownMenu,
@@ -7,22 +13,17 @@ import {
   Skeleton,
   TextOverflowTooltip,
   cn,
+  isDefined,
   useMultiQueryState,
   useQueryState,
   useToast,
 } from 'erxes-ui';
-import {
-  IconDotsVertical,
-  IconLink,
-  IconSettings,
-  IconChevronRight,
-} from '@tabler/icons-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import { IBoard } from '@/deals/types/boards';
-import { useBoards } from '~/modules/deals/boards/hooks/useBoards';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useBoards } from '~/modules/deals/boards/hooks/useBoards';
 
 type TBoardSelection = {
   boardId: string;
@@ -46,7 +47,7 @@ function BoardItem({ board }: { board: IBoard }) {
     useMultiQueryState<TBoardSelection>(['boardId', 'pipelineId', 'stageId']);
 
   const isActive = boardId === board._id;
-  const pipelines = (board.pipelines || []).filter(
+  const pipelines = (board.pipelines?.filter(isDefined) || []).filter(
     (pipeline) => pipeline.status !== 'archived',
   );
 
@@ -238,7 +239,7 @@ const DealsNavigation = () => {
 
     if (!currentBoard) return;
 
-    const pipelines = (currentBoard.pipelines || []).filter(
+    const pipelines = (currentBoard.pipelines?.filter(isDefined) || []).filter(
       (pipeline) => pipeline.status !== 'archived',
     );
 

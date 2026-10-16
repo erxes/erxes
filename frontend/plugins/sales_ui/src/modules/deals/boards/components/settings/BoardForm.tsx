@@ -1,5 +1,11 @@
-import React from 'react';
-import { SubmitHandler } from 'react-hook-form';
+import {
+  useAddBoardForm,
+  useBoardAdd,
+  useBoardDetail,
+  useBoardEdit,
+} from '@/deals/boards/hooks/useBoards';
+import { TBoardForm } from '@/deals/types/boards';
+import { IconPlus } from '@tabler/icons-react';
 import {
   Button,
   Dialog,
@@ -10,17 +16,11 @@ import {
   toast,
   useQueryState,
 } from 'erxes-ui';
-import {
-  useAddBoardForm,
-  useBoardAdd,
-  useBoardDetail,
-  useBoardEdit,
-} from '@/deals/boards/hooks/useBoards';
-import { TBoardForm } from '@/deals/types/boards';
-import { IconPlus } from '@tabler/icons-react';
+import React from 'react';
+import { SubmitHandler } from 'react-hook-form';
 
 export const BoardForm = () => {
-  const [boardId, setBoardId] = useQueryState('boardId');
+  const [boardId, setBoardId] = useQueryState<string>('boardId');
 
   const { methods } = useAddBoardForm();
   const { handleSubmit, reset } = methods;
@@ -45,18 +45,17 @@ export const BoardForm = () => {
 
   const submitHandler: SubmitHandler<TBoardForm> = React.useCallback(
     async (data) => {
-      const manageBoard = boardId ? editBoard : addBoard;
       const successTitle = boardId ? 'Updated a board' : 'Created a board';
 
-      manageBoard({
-        variables: {
-          ...data,
-        },
-        onCompleted: () => {
-          toast({ title: successTitle });
-          handleClose();
-        },
-      });
+      const onCompleted = () => {
+        toast({ title: successTitle });
+        handleClose();
+      };
+      if (boardId) {
+        await editBoard({ variables: { ...data, _id: boardId }, onCompleted });
+      } else {
+        await addBoard({ variables: data, onCompleted });
+      }
     },
     [addBoard, editBoard, boardId, handleClose],
   );

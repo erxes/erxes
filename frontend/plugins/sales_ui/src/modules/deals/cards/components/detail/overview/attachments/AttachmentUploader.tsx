@@ -1,12 +1,11 @@
 import { Spinner, Upload, cn } from 'erxes-ui';
 import { useEffect, useState } from 'react';
 
-import { IconPaperclip } from '@tabler/icons-react';
-import { removeTypename } from '@/deals/utils/common';
-import { useAttachmentContext } from './AttachmentContext';
 import { useDealsContext } from '@/deals/context/DealContext';
+import { IAttachment, toAttachmentInput } from '@/deals/types/attachments';
+import { IconPaperclip } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
-import { IAttachment } from '@/deals/types/attachments';
+import { useAttachmentContext } from './AttachmentContext';
 
 const isAttachment = (fileInfo: unknown): fileInfo is IAttachment => {
   if (!fileInfo || typeof fileInfo !== 'object') return false;
@@ -57,7 +56,7 @@ export const AttachmentUploader = () => {
       uploadProgress.total > 0 &&
       uploadProgress.uploaded === uploadProgress.total
     ) {
-      const cleanAttachments = attachments.map(removeTypename);
+      const cleanAttachments = attachments.map(toAttachmentInput);
 
       editDeals({
         variables: {

@@ -1,9 +1,7 @@
 import type { ProductFilterState } from '@/deals/actionBar/types/actionBarTypes';
-import type { IProduct } from 'ui-modules';
+import type { DealProduct } from '@/deals/utils/dealJson';
 
-type FilterableProduct = IProduct & {
-  vendor?: { _id: string } | null;
-};
+type FilterableProduct = DealProduct;
 
 export const filterProducts = (
   products: FilterableProduct[],

@@ -26,11 +26,13 @@ import {
   useQueryState,
 } from 'erxes-ui';
 import { TFunction } from 'i18next';
-import { useState } from 'react';
 import type { ChangeEvent } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 
+import { BoardEmptyState } from '@/deals/boards/components/BoardEmptyState';
+import { useBoards } from '@/deals/boards/hooks/useBoards';
 import {
   usePipelineArchive,
   usePipelineCopy,
@@ -38,10 +40,8 @@ import {
   usePipelineRemove,
   usePipelines,
 } from '@/deals/boards/hooks/usePipelines';
-import { BoardEmptyState } from '@/deals/boards/components/BoardEmptyState';
-import { PipelineEmptyState } from '@/deals/pipelines/components/PipelineEmptyState';
 import { PipelineCommandBar } from '@/deals/pipelines/components/PipelineCommandBar';
-import { useBoards } from '@/deals/boards/hooks/useBoards';
+import { PipelineEmptyState } from '@/deals/pipelines/components/PipelineEmptyState';
 import { IPipeline } from '@/deals/types/pipelines';
 
 export const PipelineMoreColumnCell = ({
@@ -322,7 +322,6 @@ const PipelineRecordTable = () => {
     activeBoardId: string;
   }>(['contentType', 'searchValue', 'activeBoardId']);
 
-  const { contentType, searchValue } = queries;
   const { boards, loading: boardsLoading, error: boardsError } = useBoards();
   const hasSelectedBoard = boards?.some(
     (board) => board._id === queries.activeBoardId,
@@ -332,8 +331,6 @@ const PipelineRecordTable = () => {
     usePipelines({
       skip: !hasSelectedBoard,
       variables: {
-        type: contentType || '',
-        searchValue: searchValue ?? undefined,
         boardId: queries.activeBoardId || '',
         isAll: true,
       },

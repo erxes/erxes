@@ -1,17 +1,20 @@
-import { useState, useCallback, useEffect } from 'react';
+import { isRecord } from '@/deals/utils/dealJson';
 import { useQuery } from '@apollo/client';
-import { useUpdatePosSlots } from './useSlotAdd';
 import { useToast } from 'erxes-ui';
+import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { CustomNode } from '../slot/types';
+import type { PosSlotsQuery } from '~/gql/graphql';
 import { queries } from '../graphql';
+import { CustomNode } from '../slot/types';
+import { hasId } from '../utils/posJson';
+import { useUpdatePosSlots } from './useSlotAdd';
 
 interface UsePosSlotReturn {
   nodes: CustomNode[];
   setNodes: React.Dispatch<React.SetStateAction<CustomNode[]>>;
   loading: boolean;
   saving: boolean;
-  error: any;
+  error: Error | undefined;
   refetch: () => void;
   addSlot: (nodeData?: Partial<CustomNode['data']>) => CustomNode;
   updateSlot: (id: string, updates: Partial<CustomNode>) => void;
@@ -33,36 +36,43 @@ export function usePosSlots(posId: string): UsePosSlotReturn {
     errorPolicy: 'all',
   });
 
-  const transformSlotsToNodes = useCallback((slots: any[]): CustomNode[] => {
-    return slots.map((slot) => {
-      const x = Number(slot.option?.left) || 0;
-      const y = Number(slot.option?.top) || 0;
-      const width = Number(slot.option?.width) || 80;
-      const height = Number(slot.option?.height) || 80;
+  const transformSlotsToNodes = useCallback(
+    (slots: PosSlotsQuery['posSlots']): CustomNode[] => {
+      return (slots ?? []).filter(hasId).map((slot) => {
+        const option = isRecord(slot.option) ? slot.option : {};
+        const x = Number(option.left) || 0;
+        const y = Number(option.top) || 0;
+        const width = Number(option.width) || 80;
+        const height = Number(option.height) || 80;
 
-      return {
-        id: slot._id,
-        type: 'tableNode',
-        position: { x, y },
-        width,
-        height,
-        zIndex: Number(slot.option?.zIndex) || 0,
-        data: {
-          label: slot.name || `TABLE ${slot._id}`,
-          code: slot.code || slot._id,
-          color: slot.option?.color || '#4F46E5',
-          width: slot.option?.width || width,
-          height: slot.option?.height || height,
-          positionX: x,
-          positionY: y,
-          rounded: Number(slot.option?.borderRadius) || 0,
-          rotateAngle: Number(slot.option?.rotateAngle) || 0,
-          zIndex: Number(slot.option?.zIndex) || 0,
-          disabled: false,
-        },
-      };
-    });
-  }, []);
+        return {
+          id: slot._id,
+          type: 'tableNode',
+          position: { x, y },
+          width,
+          height,
+          zIndex: Number(option.zIndex) || 0,
+          data: {
+            label: slot.name || `TABLE ${slot._id}`,
+            code: slot.code || slot._id,
+            color:
+              typeof option.color === 'string' && option.color
+                ? option.color
+                : '#4F46E5',
+            width,
+            height,
+            positionX: x,
+            positionY: y,
+            rounded: Number(option.borderRadius) || 0,
+            rotateAngle: Number(option.rotateAngle) || 0,
+            zIndex: Number(option.zIndex) || 0,
+            disabled: false,
+          },
+        };
+      });
+    },
+    [],
+  );
 
   const transformNodesToSlots = useCallback(
     (nodesToTransform: CustomNode[], targetPosId: string) => {
@@ -113,7 +123,9 @@ export function usePosSlots(posId: string): UsePosSlotReturn {
 
         toast({
           title: t('slots-saved'),
-          description: t('slots-saved-description', { count: slotsData.length }),
+          description: t('slots-saved-description', {
+            count: slotsData.length,
+          }),
         });
 
         await refetch();

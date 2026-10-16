@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const POS_COMPANIES_QUERY = gql`
+export const POS_COMPANIES_QUERY = gql(`
   query salesPosOrdersCompanies(
     $segment: String
     $tagIds: [String]
@@ -105,4 +105,4 @@ export const POS_COMPANIES_QUERY = gql`
       totalCount
     }
   }
-`;
+`);

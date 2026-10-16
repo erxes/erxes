@@ -1,3 +1,10 @@
+import {
+  POS_CUSTOMER_DEFAULT_LAYOUT,
+  POS_CUSTOMER_IDENTITY_CODES,
+} from '@/pos/components/customerCreate/constants';
+import { mutations } from '@/pos/graphql/mutations';
+import { useCustomerFormFields } from '@/pos/hooks/useCustomerFormFields';
+import { usePosDetail } from '@/pos/hooks/usePosDetail';
 import { useMutation } from '@apollo/client';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'erxes-ui';
@@ -5,13 +12,6 @@ import { useEffect } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
-import {
-  POS_CUSTOMER_DEFAULT_LAYOUT,
-  POS_CUSTOMER_IDENTITY_CODES,
-} from '@/pos/components/customerCreate/constants';
-import mutations from '@/pos/graphql/mutations';
-import { useCustomerFormFields } from '@/pos/hooks/useCustomerFormFields';
-import { usePosDetail } from '@/pos/hooks/usePosDetail';
 
 const customerCreateSchema = z
   .object({
