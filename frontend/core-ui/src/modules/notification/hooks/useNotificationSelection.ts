@@ -27,14 +27,6 @@ export const useNotificationSelection = (
     keyboardBase.current = null;
   }, [filterKey, setSelected]);
 
-  useEffect(() => {
-    setSelected((previous) =>
-      previous.every((id) => ids.includes(id))
-        ? previous
-        : previous.filter((id) => ids.includes(id)),
-    );
-  }, [ids, setSelected]);
-
   useEffect(() => () => setSelected([]), [setSelected]);
 
   useEffect(() => {
@@ -75,11 +67,10 @@ export const useNotificationSelection = (
     }
     const cursorIndex = focusedId ? ids.indexOf(focusedId) : -1;
     const startIndex = cursorIndex === -1 ? anchorIndex : cursorIndex;
+    const initialIndex = direction === 1 ? 0 : ids.length - 1;
     const targetIndex =
       startIndex === -1
-        ? direction === 1
-          ? 0
-          : ids.length - 1
+        ? initialIndex
         : Math.max(0, Math.min(ids.length - 1, startIndex + direction));
     if (anchorIndex === -1) anchorIndex = targetIndex;
     anchor.current = ids[anchorIndex];
