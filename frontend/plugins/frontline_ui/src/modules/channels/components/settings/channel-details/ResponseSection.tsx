@@ -5,7 +5,7 @@ import { useGetResponses } from '@/responseTemplate/hooks/useGetResponses';
 import { useTranslation } from 'react-i18next';
 
 export const ResponseSection = ({ channel }: { channel: IChannelDetail }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.channels' });
   const navigate = useNavigate();
   const { totalCount } = useGetResponses({
     variables: { filter: { channelId: channel._id, limit: 1 } },

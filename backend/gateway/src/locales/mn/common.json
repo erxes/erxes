@@ -447,5 +447,11 @@
   "not-found": {
     "message": "Уучлаарай! Хуудас олдсонгүй.",
     "go-back": "Буцах"
+  },
+  "pending-approval": "зөвшөөрөл хүлээж буй",
+  "integrations": {
+    "config": {
+      "header": "Интеграцийн тохиргоо"
+    }
   }
 }

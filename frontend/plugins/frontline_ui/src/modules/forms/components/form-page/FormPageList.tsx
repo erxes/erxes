@@ -10,7 +10,7 @@ import { useTranslation } from 'react-i18next';
 import { FormsCreateButton } from './forms-create';
 
 export const FormPageList = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
   const [{ channelId, tagId, status, searchValue }] = useMultiQueryState<{
     channelId?: string;
     tagId?: string;

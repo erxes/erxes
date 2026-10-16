@@ -20,7 +20,7 @@ function CopyButton({
   text: string;
   label?: string;
 }) {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
   const [copied, setCopied] = useState(false);
 
   const handleCopy = () => {
@@ -72,7 +72,7 @@ export function FormInstallScript({
   channelId: string;
   inActionBar?: boolean;
 }) {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
   const [dialogOpen, setDialogOpen] = useState(false);
   const API = REACT_APP_WIDGETS_URL;
   const script = `<script>

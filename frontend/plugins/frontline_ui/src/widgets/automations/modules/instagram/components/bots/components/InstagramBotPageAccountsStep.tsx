@@ -14,7 +14,7 @@ export const InstagramBotPageAccountsStep = ({
 }: {
   accountId?: string;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.instagram' });
   const [selectedAccountId, setSelectedAccountId] = useAtom(
     selectedInstagramAccountAtom,
   );

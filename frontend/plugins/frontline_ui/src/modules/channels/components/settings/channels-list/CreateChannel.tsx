@@ -26,7 +26,7 @@ type Props = {
 };
 
 export const CreateChannel = ({ isIconOnly = false }: Props) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.channels' });
   const navigate = useNavigate();
   const form = useChannelsForm({});
   const { addChannel, loading } = useChannelAdd();

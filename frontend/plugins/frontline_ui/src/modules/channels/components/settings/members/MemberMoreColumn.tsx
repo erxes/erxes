@@ -12,7 +12,7 @@ import { IconTrash } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 
 export const MemberMoreColumnCell = ({ cell }: { cell: Cell<any, any> }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.channels' });
   const { memberId, channelId } = cell.row.original;
   const { confirm } = useConfirm();
   const { toast } = useToast();

@@ -29,7 +29,7 @@ import { useNoteTemplateSuggestions } from '@/activity/hooks/useNoteTemplateSugg
 import { useTranslation } from 'react-i18next';
 
 export const NoteInput = ({ contentId }: { contentId: string }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.activity' });
   const editor = useBlockEditor({
     placeholder: t('write-a-message', 'Write a message...'),
   });

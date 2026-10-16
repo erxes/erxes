@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { PipelineSettingsLink } from '@/pipelines/components/PipelineSettingsLink';
 
 export const PipelinesSection = ({ channel }: { channel: IChannelDetail }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.channels' });
   const { totalCount } = useGetPipelines({
     variables: { filter: { channelId: channel._id, limit: 1 } },
   });

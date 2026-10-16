@@ -11,7 +11,7 @@ import { InstagramBotPagesStep } from '~/widgets/automations/modules/instagram/c
 import { isOpenInstagramBotSecondarySheet } from '~/widgets/automations/modules/instagram/components/bots/states/instagramBotStates';
 
 const useActionButton = (accountId?: string) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.instagram' });
   const [activeStep, setStep] = useState(1);
 
   const selectedAccountId =
@@ -50,7 +50,7 @@ export const InstagramBotPageSelectorSteps = ({
   step: number;
   accountId?: string;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.instagram' });
   const { onClick, disabled, text, activeStep, setStep } =
     useActionButton(accountId);
 
