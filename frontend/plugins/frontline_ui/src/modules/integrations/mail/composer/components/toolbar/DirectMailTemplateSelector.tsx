@@ -1,27 +1,15 @@
-import { useDirectMailComposerContext } from '@/integrations/mail/composer/hooks/useDirectMailComposerFields';
+import { useDirectMailTemplateSelector } from '@/integrations/mail/composer/hooks/useDirectMailTemplateSelector';
 import { IconTemplate } from '@tabler/icons-react';
 import { Button } from 'erxes-ui';
-import { EmailTemplatePicker, useRenderEmailTemplate } from 'ui-modules';
+import { EmailTemplatePicker } from 'ui-modules';
 
 export const DirectMailTemplateSelector = () => {
-  const { editor, sending, failedDelivery } = useDirectMailComposerContext();
-  const renderTemplate = useRenderEmailTemplate();
-  const disabled = sending || Boolean(failedDelivery);
+  const { disabled, selectTemplate } = useDirectMailTemplateSelector();
   return (
     <EmailTemplatePicker
       disabled={disabled}
       side="top"
-      onSelect={async (template) => {
-        const blocks = await editor.tryParseHTMLToBlocks(
-          await renderTemplate(template),
-        );
-        editor.insertBlocks(
-          blocks,
-          editor.getTextCursorPosition().block,
-          'after',
-        );
-        editor.focus();
-      }}
+      onSelect={selectTemplate}
     >
       <Button
         type="button"

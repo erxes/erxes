@@ -45,7 +45,7 @@ export const useDirectMailComposer = (): DirectMailComposerState => {
     mailSendMail,
     mailMessageRetry,
   } = useDirectMailComposerStateContext();
-  const { reset, setValue, setError } = form;
+  const { reset, setValue, setError, getValues } = form;
   const { beginDraft, clearDraft } = useDirectMailDraft();
 
   useEffect(() => {
@@ -60,7 +60,15 @@ export const useDirectMailComposer = (): DirectMailComposerState => {
         return;
       }
 
-      if (target && (form.formState.isDirty || attachments.length)) {
+      const values = getValues();
+      if (
+        target &&
+        (form.formState.isDirty ||
+          values.subject.trim() ||
+          values.body.trim() ||
+          attachments.length ||
+          failedDelivery)
+      ) {
         setMinimized(false);
         if (detail.email !== target.email)
           toast({
@@ -97,7 +105,9 @@ export const useDirectMailComposer = (): DirectMailComposerState => {
     beginDraft,
     canComposeEmail,
     editor,
+    failedDelivery,
     form.formState.isDirty,
+    getValues,
     reset,
     sending,
     setAttachments,
