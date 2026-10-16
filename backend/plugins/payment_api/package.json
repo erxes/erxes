@@ -8,7 +8,8 @@
     "dev:widget": "pnpm --dir src/widget run dev",
     "build:widget": "pnpm --dir src/widget run build",
     "build": "tsc --project tsconfig.build.json && tsc-alias -p tsconfig.build.json && pnpm build:widget",
-    "start": "node -r tsconfig-paths/register dist/src/main.js"
+    "start": "node -r tsconfig-paths/register dist/src/main.js",
+    "schema:print": "tsx print-schema.ts"
   },
   "keywords": [],
   "author": "",
