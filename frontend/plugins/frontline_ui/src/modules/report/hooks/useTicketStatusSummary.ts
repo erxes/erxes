@@ -1,30 +1,27 @@
+import { isDefined } from 'erxes-ui';
 import { QueryHookOptions, useQuery } from '@apollo/client';
 import { GET_TICKET_STATUS_SUMMARY } from '@/report/graphql/queries/getTicketChart';
+import type {
+  ReportTicketStatusSummaryQuery,
+  ReportTicketStatusSummaryQueryVariables,
+} from '~/gql/graphql';
 
-export interface TicketStatusSummaryItem {
-  _id?: string | null;
-  statusType: number;
-  name: string;
-  group?: string | null;
-  color: string;
-  count: number;
-  percentage: number;
-}
-
-interface TicketStatusSummaryResponse {
-  reportTicketStatusSummary: TicketStatusSummaryItem[];
-}
+export type TicketStatusSummaryItem = NonNullable<
+  NonNullable<
+    ReportTicketStatusSummaryQuery['reportTicketStatusSummary']
+  >[number]
+>;
 
 export const useTicketStatusSummary = (
-  options?: QueryHookOptions<TicketStatusSummaryResponse>,
+  options?: QueryHookOptions<
+    ReportTicketStatusSummaryQuery,
+    ReportTicketStatusSummaryQueryVariables
+  >,
 ) => {
-  const { data, loading, error } = useQuery<TicketStatusSummaryResponse>(
-    GET_TICKET_STATUS_SUMMARY,
-    options,
-  );
+  const { data, loading, error } = useQuery(GET_TICKET_STATUS_SUMMARY, options);
 
   return {
-    statusSummary: data?.reportTicketStatusSummary,
+    statusSummary: data?.reportTicketStatusSummary?.filter(isDefined),
     loading,
     error,
   };

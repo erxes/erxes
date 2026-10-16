@@ -5,7 +5,7 @@ import { useSurveyDetail } from '@/survey/hooks/useSurveyDetail';
 export const SurveyDetailsBreadcrumb = () => {
   const { surveyId } = useParams<{ surveyId: string }>();
   const { survey, loading } = useSurveyDetail({
-    variables: { _id: surveyId },
+    variables: surveyId ? { _id: surveyId } : undefined,
     skip: !surveyId,
   });
 

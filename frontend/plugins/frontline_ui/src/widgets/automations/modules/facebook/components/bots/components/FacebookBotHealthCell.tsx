@@ -7,7 +7,7 @@ import { useFacebookBotHealthCell } from '~/widgets/automations/modules/facebook
 export const FacebookBotHealthCell = ({
   health,
 }: {
-  health?: IFacebookBotHealth;
+  health?: IFacebookBotHealth | null;
 }) => {
   const { t } = useTranslation('frontline');
   const { statusLabel, statusVariant, showDetails, detailItems } =

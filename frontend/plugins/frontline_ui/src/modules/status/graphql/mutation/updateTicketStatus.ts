@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const UPDATE_TICKET_STATUS = gql`
+export const UPDATE_TICKET_STATUS = gql(`
   mutation UpdateTicketStatus(
     $id: String!
     $name: String
@@ -49,4 +49,4 @@ export const UPDATE_TICKET_STATUS = gql`
       probability
     }
   }
-`;
+`);

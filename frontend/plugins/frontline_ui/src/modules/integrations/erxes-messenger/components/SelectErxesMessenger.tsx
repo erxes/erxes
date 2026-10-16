@@ -117,7 +117,7 @@ export const SelectErxesMessenger = ({
               fetchMore={() =>
                 handleFetchMore({ direction: EnumCursorDirection.FORWARD })
               }
-              totalCount={totalCount}
+              totalCount={totalCount ?? 0}
               currentLength={integrations.length}
             />
           </Command.List>

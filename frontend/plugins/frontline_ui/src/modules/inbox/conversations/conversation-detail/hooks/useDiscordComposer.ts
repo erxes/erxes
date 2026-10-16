@@ -38,7 +38,7 @@ export const useDiscordComposer = ({
         byUserId.set(person.userId, {
           id: person.userId,
           fullName: person.name || t('discord-user', 'Discord user'),
-          avatar: person.avatar,
+          avatar: person.avatar ?? undefined,
         });
       }
     }
@@ -55,7 +55,7 @@ export const useDiscordComposer = ({
         .map((person) => ({
           id: person.userId,
           fullName: person.name || t('discord-user', 'Discord user'),
-          avatar: person.avatar,
+          avatar: person.avatar ?? undefined,
         }));
     },
     [searchMembers, t],

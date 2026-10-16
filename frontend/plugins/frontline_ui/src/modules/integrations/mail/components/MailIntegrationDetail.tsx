@@ -1,5 +1,5 @@
 import { CellContext } from '@tanstack/react-table';
-import { IIntegrationDetail } from '@/integrations/types/Integration';
+import { IIntegration } from '@/integrations/types/Integration';
 import {
   Alert,
   Button,
@@ -28,8 +28,25 @@ import {
 import { MailConnectionCheck } from './MailConnectionCheck';
 import { MailIntegrationFormLayout } from './MailIntegrationFormLayout';
 import { useMailSendingReadiness } from '../hooks/useMailSendingReadiness';
+import { isRecord } from '@/shared/utils/isRecord';
 
 const MAIL_HEALTH_UNHEALTHY = 'unHealthy';
+
+const readMailDetails = (details: unknown) => {
+  const data = isRecord(details) && isRecord(details.data) ? details.data : {};
+  const text = (key: string) => {
+    const value = data[key];
+    return typeof value === 'string' ? value : undefined;
+  };
+
+  return {
+    address: text('address'),
+    forwardFrom: text('forwardFrom'),
+    senderName: text('senderName'),
+    healthStatus: text('healthStatus'),
+    error: text('error'),
+  };
+};
 
 const MailIntegrationBrandField = ({
   control,
@@ -80,14 +97,14 @@ const MailIntegrationEditForm = ({
   const sendingDomain =
     readiness?.cloudflare?.domain || readiness?.platform?.domain || null;
 
-  const details = integrationDetail?.details?.data ?? {};
+  const details = readMailDetails(integrationDetail?.details);
 
   useEffect(() => {
     if (!integrationDetail) {
       return;
     }
 
-    const d = integrationDetail.details?.data ?? {};
+    const d = readMailDetails(integrationDetail.details);
 
     form.reset({
       name: integrationDetail.name ?? '',
@@ -230,7 +247,7 @@ const MailIntegrationEditSheet = ({ id }: { id: string }) => {
 export const MailIntegrationActions = ({
   cell,
 }: {
-  cell: CellContext<IIntegrationDetail, unknown>;
+  cell: CellContext<IIntegration, unknown>;
 }) => <MailIntegrationEditSheet id={cell.row.original._id} />;
 
 export const MailIntegrationDetail = () => <MailIntegrationFormLayout />;

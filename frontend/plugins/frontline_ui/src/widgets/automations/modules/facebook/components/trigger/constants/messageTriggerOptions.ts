@@ -5,6 +5,7 @@ import {
   IconRocket,
   IconSnowflake,
 } from '@tabler/icons-react';
+import type { TMessageTriggerCondition } from '../types/messageTrigger';
 
 /**
  * An empty operator falls through `checkContentConditions` and never matches,
@@ -21,7 +22,12 @@ export const DIRECT_MESSAGE_OPERATOR_TYPES = [
   { label: 'End with', value: 'endWith' },
 ];
 
-export const MESSAGE_TRIGGER_CONDITIONS = [
+export const MESSAGE_TRIGGER_CONDITIONS: {
+  type: TMessageTriggerCondition['type'];
+  label: string;
+  icon: typeof IconRocket;
+  description: string;
+}[] = [
   {
     type: 'getStarted',
     label: 'Get Started',

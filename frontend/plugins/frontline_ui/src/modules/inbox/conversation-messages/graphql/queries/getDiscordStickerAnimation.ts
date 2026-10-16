@@ -1,7 +1,7 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const GET_DISCORD_STICKER_ANIMATION = gql`
+export const GET_DISCORD_STICKER_ANIMATION = gql(`
   query frontlineDiscordStickerAnimation($stickerId: String!) {
     discordStickerAnimation(stickerId: $stickerId)
   }
-`;
+`);

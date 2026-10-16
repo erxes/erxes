@@ -59,9 +59,9 @@ function DroppableArea({ id, colSpan, children }: DroppableAreaProps) {
   return (
     <div
       ref={setNodeRef}
-      className={`transition-colors ${colSpan === 6 ? 'col-span-6' : 'col-span-12'} ${
-        isOver ? 'bg-accent/50 rounded-lg' : ''
-      }`}
+      className={`transition-colors ${
+        colSpan === 6 ? 'col-span-6' : 'col-span-12'
+      } ${isOver ? 'bg-accent/50 rounded-lg' : ''}`}
     >
       {children}
     </div>
@@ -100,7 +100,9 @@ export const TicketReportsList = () => {
 
   const savedTicketCharts = useMemo(
     () =>
-      reportCharts.filter((chart) => ticketReportComponents[chart.chartType]),
+      reportCharts.filter(
+        (chart) => ticketReportComponents[chart.chartType ?? ''],
+      ),
     [reportCharts],
   );
 
@@ -183,16 +185,17 @@ export const TicketReportsList = () => {
     );
   };
 
-  const totalCount = priorityData?.reduce((s, r) => s + r.count, 0) ?? 0;
+  const totalCount = priorityData?.reduce((s, r) => s + (r.count ?? 0), 0) ?? 0;
   const noPriorityCount =
     priorityData?.find((p) => p.priority === 0)?.count ?? 0;
-  const priorityCards = priorityData?.filter((p) => p.priority > 0) ?? [];
+  const priorityCards =
+    priorityData?.filter((p) => (p.priority ?? 0) > 0) ?? [];
 
   const getCardConfig = (id: string) => {
     const savedChart: ReportChart | undefined = savedChartsById.get(id);
 
     if (savedChart) {
-      const Component = ticketReportComponents[savedChart.chartType];
+      const Component = ticketReportComponents[savedChart.chartType ?? ''];
       if (!Component) return null;
       return { title: savedChart.name, component: Component, savedChart };
     }
@@ -213,7 +216,7 @@ export const TicketReportsList = () => {
     if (!cardConfig) return null;
     const Component = cardConfig.component;
     const commonProps: ReportComponentProps = {
-      title: cardConfig.title,
+      title: cardConfig.title ?? '',
       cardId: id,
       savedChart: cardConfig.savedChart,
       colSpan: overrideColSpan ?? colSpan,
@@ -276,14 +279,17 @@ export const TicketReportsList = () => {
         {priorityCards.map((p) => (
           <KpiCard
             key={p.priority}
-            title={p.name}
+            title={p.name ?? ''}
             value={String(p.count)}
             subtitle={t('percent-of-total', '{{percent}}% of total', {
               percent: p.percentage,
             })}
-            icon={<PriorityIcon priority={p.priority} />}
-            valueStyle={{ color: p.color }}
-            iconStyle={{ backgroundColor: `${p.color}1a`, color: p.color }}
+            icon={<PriorityIcon priority={p.priority ?? 0} />}
+            valueStyle={{ color: p.color ?? undefined }}
+            iconStyle={{
+              backgroundColor: p.color ? `${p.color}1a` : undefined,
+              color: p.color ?? undefined,
+            }}
           />
         ))}
       </div>

@@ -114,7 +114,7 @@ export const CallHistoryList = ({
               value={callHistory._id + '|' + callHistory.customerPhone}
               onSelect={() => {
                 setCallUi('keypad');
-                setPhone(callHistory.customerPhone);
+                setPhone(callHistory.customerPhone ?? '');
               }}
             >
               {isMissedCall ? (
@@ -125,7 +125,7 @@ export const CallHistoryList = ({
                 <IconPhoneOutgoing className="text-success" />
               )}
               <span className={cn(isMissedCall && 'text-destructive')}>
-                {formatPhoneNumber({ value: callHistory.customerPhone })}
+                {formatPhoneNumber({ value: callHistory.customerPhone ?? '' })}
               </span>
               <span className="ml-auto text-accent-foreground">
                 {callHistory.callStartTime

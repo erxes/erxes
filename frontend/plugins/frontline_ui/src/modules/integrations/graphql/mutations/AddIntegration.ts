@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const ADD_INTEGRATION = gql`
+export const ADD_INTEGRATION = gql(`
   mutation IntegrationsCreateExternalIntegration(
     $kind: String!
     $name: String!
@@ -20,4 +20,4 @@ export const ADD_INTEGRATION = gql`
       _id
     }
   }
-`;
+`);

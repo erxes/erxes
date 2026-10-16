@@ -71,3 +71,11 @@ export const MISSED_REASON_META: Record<
     color: 'var(--muted-foreground)',
   },
 };
+
+export const getMissedReasonMeta = (reason: MissedReason) =>
+  MISSED_REASON_META[reason] ?? {
+    key: 'missed-reason-unknown',
+    label: reason,
+    hint: '',
+    color: 'var(--muted-foreground)',
+  };

@@ -430,7 +430,6 @@ export const integrationMutations = {
     }: {
       _id: string;
       messengerData: IMessengerData;
-      callData: any;
       brandId: string;
     },
     { models }: IContext,

@@ -1222,11 +1222,8 @@ console.log(JSON.stringify({customer}))
     }: {
       conversationId?: string;
       customerId?: string;
-      visitorId?: string;
       integrationId: string;
       message: string;
-      payload: string;
-      type: string;
     },
     { models }: IContext,
   ) {

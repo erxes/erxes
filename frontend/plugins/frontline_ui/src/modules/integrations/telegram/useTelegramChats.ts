@@ -25,13 +25,11 @@ export const useTelegramChats = (
   const client = useApolloClient();
   const user = useAtomValue(currentUserState);
   const [revision, setRevision] = useState(0);
-  useSubscription<{
-    conversationClientMessageInserted: { conversationId: string };
-  }>(TELEGRAM_CHAT_MESSAGE_INSERTED, {
-    variables: { userId: user?._id },
+  useSubscription(TELEGRAM_CHAT_MESSAGE_INSERTED, {
+    variables: user?._id ? { userId: user._id } : undefined,
     skip: !user?._id || !conversationIds.length,
     onData: ({ data }) => {
-      const id = data.data?.conversationClientMessageInserted.conversationId;
+      const id = data.data?.conversationClientMessageInserted?.conversationId;
       if (id && conversationIds.includes(id)) setRevision((value) => value + 1);
     },
   });
@@ -49,9 +47,7 @@ export const useTelegramChats = (
       // The server caps metadata queries at 100 conversations. Infinite scroll
       // can exceed that; cache-first batches retain labels for the whole list.
       for (let offset = 0; offset < ids.length; offset += 100) {
-        const { data } = await client.query<{
-          telegramConversationChats: TelegramChat[];
-        }>({
+        const { data } = await client.query({
           query: TELEGRAM_CHATS,
           fetchPolicy: revision ? 'network-only' : 'cache-first',
           variables: { conversationIds: ids.slice(offset, offset + 100) },

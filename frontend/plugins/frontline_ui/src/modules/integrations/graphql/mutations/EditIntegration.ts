@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const EDIT_INTEGRATION = gql`
+export const EDIT_INTEGRATION = gql(`
   mutation IntegrationsEditCommonFields(
     $_id: String!
     $name: String!
@@ -18,4 +18,4 @@ export const EDIT_INTEGRATION = gql`
       _id
     }
   }
-`;
+`);

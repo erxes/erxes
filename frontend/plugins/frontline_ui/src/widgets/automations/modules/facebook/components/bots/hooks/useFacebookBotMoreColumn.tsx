@@ -1,6 +1,5 @@
 import { useMutation } from '@apollo/client';
 import { FACEBOOK_BOTS_LIST } from '@/integrations/facebook/graphql/queries/facebookBots';
-import { IFacebookBot } from '@/integrations/facebook/types/FacebookBot';
 import { toast, useQueryState } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import {
@@ -17,31 +16,26 @@ export const useFacebookBotMoreColumn = (_id: string) => {
     {
       variables: { _id },
       update: (cache) => {
-        cache.updateQuery<{ facebookMessengerBots: IFacebookBot[] }>(
-          {
-            query: FACEBOOK_BOTS_LIST,
-          },
-          (data) => {
-            if (!data?.facebookMessengerBots) {
-              return data;
-            }
+        cache.updateQuery({ query: FACEBOOK_BOTS_LIST }, (data) => {
+          if (!data?.facebookMessengerBots) {
+            return data;
+          }
 
-            return {
-              facebookMessengerBots: data.facebookMessengerBots.map((bot) =>
-                bot._id === _id
-                  ? {
-                      ...bot,
-                      health: {
-                        ...bot.health,
-                        status: 'syncing',
-                        lastError: '',
-                      },
-                    }
-                  : bot,
-              ),
-            };
-          },
-        );
+          return {
+            facebookMessengerBots: data.facebookMessengerBots.map((bot) =>
+              bot?._id === _id && bot.health
+                ? {
+                    ...bot,
+                    health: {
+                      ...bot.health,
+                      status: 'syncing',
+                      lastError: '',
+                    },
+                  }
+                : bot,
+            ),
+          };
+        });
       },
       onCompleted: () =>
         toast({ title: t('repaired-successfully', 'Repaired successfully') }),
@@ -59,22 +53,17 @@ export const useFacebookBotMoreColumn = (_id: string) => {
     {
       variables: { _id },
       update: (cache) => {
-        cache.updateQuery<{ facebookMessengerBots: IFacebookBot[] }>(
-          {
-            query: FACEBOOK_BOTS_LIST,
-          },
-          (data) => {
-            if (!data?.facebookMessengerBots) {
-              return data;
-            }
+        cache.updateQuery({ query: FACEBOOK_BOTS_LIST }, (data) => {
+          if (!data?.facebookMessengerBots) {
+            return data;
+          }
 
-            return {
-              facebookMessengerBots: data.facebookMessengerBots.filter(
-                (bot) => bot._id !== _id,
-              ),
-            };
-          },
-        );
+          return {
+            facebookMessengerBots: data.facebookMessengerBots.filter(
+              (bot) => bot?._id !== _id,
+            ),
+          };
+        });
       },
       onCompleted: () =>
         toast({ title: t('removed-successfully', 'Removed successfully') }),

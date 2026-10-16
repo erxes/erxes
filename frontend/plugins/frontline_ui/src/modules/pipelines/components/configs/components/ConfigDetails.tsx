@@ -10,11 +10,9 @@ import { useTranslation } from 'react-i18next';
 
 export const ConfigDetails = () => {
   const { t } = useTranslation('frontline');
-  const [configId, setConfigId] = useQueryState('configId');
+  const [configId, setConfigId] = useQueryState<string>('configId');
   const { ticketConfigDetail } = useGetTicketConfigDetail({
-    variables: {
-      id: configId,
-    },
+    variables: configId ? { id: configId } : undefined,
     skip: !configId,
   });
   const { saveTicketsConfig, loading } = useSaveTicketsConfig();

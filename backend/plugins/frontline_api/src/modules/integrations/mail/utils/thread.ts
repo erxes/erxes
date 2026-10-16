@@ -77,7 +77,7 @@ const toThreadMessage = async (
       reactionEmoji,
       hasReplyTo: message.hasReplyTo ?? false,
       ...splitQuotedReply(body),
-      attachments: message.attachments,
+      attachments: message.attachments ?? [],
     },
   };
 };

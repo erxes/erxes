@@ -33,7 +33,7 @@ const fetchProxiedImageBlob = async (
   client: ApolloClient<object>,
   variables: CopyMessageImageTarget,
 ): Promise<Blob> => {
-  const { data } = await client.query<{ frontlineInstagramCopyImage: string }>({
+  const { data } = await client.query({
     query: FRONTLINE_INSTAGRAM_COPY_IMAGE,
     variables,
     fetchPolicy: 'no-cache',

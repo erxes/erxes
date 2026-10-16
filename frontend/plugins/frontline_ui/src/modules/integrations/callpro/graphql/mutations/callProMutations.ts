@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const CALL_PRO_CUSTOMER_SELECT = gql`
+export const CALL_PRO_CUSTOMER_SELECT = gql(`
   mutation callProCustomerSelect(
     $conversationId: String!
     $customerId: String!
@@ -15,4 +15,4 @@ export const CALL_PRO_CUSTOMER_SELECT = gql`
       callProPhone
     }
   }
-`;
+`);

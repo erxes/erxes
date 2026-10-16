@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-const GET_CONFIG_DETAIL = gql`
+const GET_CONFIG_DETAIL = gql(`
   query TicketConfigDetail($id: String!) {
     ticketConfigDetail(_id: $id) {
       name
@@ -53,6 +53,6 @@ const GET_CONFIG_DETAIL = gql`
       updatedAt
     }
   }
-`;
+`);
 
 export { GET_CONFIG_DETAIL };

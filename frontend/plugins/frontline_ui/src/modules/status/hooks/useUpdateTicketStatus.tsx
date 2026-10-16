@@ -1,5 +1,4 @@
 import { MutationFunctionOptions, useMutation } from '@apollo/client';
-import { ITicketStatus } from '@/status/types';
 import { UPDATE_TICKET_STATUS } from '@/status/graphql/mutation/updateTicketStatus';
 import { GET_TICKET_STATUS_BY_TYPE } from '@/status/graphql/query/getTicketStatusByType';
 import {
@@ -8,20 +7,22 @@ import {
 } from '@/status/graphql/query/getTicketStatusesByPipelines';
 import { useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-
-interface UpdateStatusMutationResponse {
-  updateStatus: ITicketStatus;
-}
+import type {
+  UpdateTicketStatusMutation,
+  UpdateTicketStatusMutationVariables,
+} from '~/gql/graphql';
 
 export const useUpdateTicketStatus = () => {
   const { t } = useTranslation('frontline');
   const { toast } = useToast();
-  const [updateStatus, { loading, error }] =
-    useMutation<UpdateStatusMutationResponse>(UPDATE_TICKET_STATUS);
+  const [updateStatus, { loading, error }] = useMutation(UPDATE_TICKET_STATUS);
 
   const handleUpdateStatus = (
-    options: MutationFunctionOptions<UpdateStatusMutationResponse, any>,
-  ): Promise<any> => {
+    options: MutationFunctionOptions<
+      UpdateTicketStatusMutation,
+      UpdateTicketStatusMutationVariables
+    >,
+  ) => {
     return updateStatus({
       ...options,
       onCompleted: (data) => {

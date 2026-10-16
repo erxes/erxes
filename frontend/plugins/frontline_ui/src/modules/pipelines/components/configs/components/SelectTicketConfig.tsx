@@ -52,7 +52,9 @@ export const SelectTicketConfigProvider = ({
   const effectiveChannelId = channelId || routeChannelId;
 
   const { ticketConfigs, loading, error } = useGetTicketConfigs({
-    variables: { channelId: effectiveChannelId as string },
+    variables: effectiveChannelId
+      ? { channelId: effectiveChannelId }
+      : undefined,
     skip: !effectiveChannelId,
   });
 

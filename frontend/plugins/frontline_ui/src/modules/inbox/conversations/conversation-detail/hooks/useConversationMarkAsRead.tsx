@@ -1,5 +1,5 @@
 import {
-  MutationHookOptions,
+  MutationFunctionOptions,
   useApolloClient,
   useMutation,
 } from '@apollo/client';
@@ -9,17 +9,14 @@ import { currentUserState } from 'ui-modules';
 import { useConversationContext } from '@/inbox/conversations/conversation-detail/hooks/useConversationContext';
 import { toast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import type {
+  ConversationMarkAsReadMutation,
+  ConversationMarkAsReadMutationVariables,
+} from '~/gql/graphql';
 
-type MarkConversationAsReadResponse = {
-  conversationMarkAsRead: {
-    _id: string;
-    __typename: 'Conversation';
-  };
-};
-
-type MarkConversationAsReadOptions = MutationHookOptions<
-  MarkConversationAsReadResponse,
-  { id: string }
+type MarkConversationAsReadOptions = MutationFunctionOptions<
+  ConversationMarkAsReadMutation,
+  ConversationMarkAsReadMutationVariables
 > & {
   force?: boolean;
 };
@@ -27,10 +24,7 @@ type MarkConversationAsReadOptions = MutationHookOptions<
 export const useConversationMarkAsRead = () => {
   const { t } = useTranslation('frontline');
   const client = useApolloClient();
-  const [markAsRead] = useMutation<
-    MarkConversationAsReadResponse,
-    { id: string }
-  >(MARK_AS_READ_CONVERSATION);
+  const [markAsRead] = useMutation(MARK_AS_READ_CONVERSATION);
   const currentUser = useAtomValue(currentUserState);
   const { readUserIds, _id } = useConversationContext();
 

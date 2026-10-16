@@ -85,7 +85,10 @@ export const TicketReportStatusValue = ({ ids }: { ids: string[] }) => {
   if (loading) return <Skeleton className="h-4 w-16" />;
   return (
     <>
-      <StatusInlineIcon statusType={status?.type} color={status?.color} />
+      <StatusInlineIcon
+        statusType={status?.type}
+        color={status?.color ?? undefined}
+      />
       {status?.name || t('unknown', 'Unknown')}
       {ids.length > 1 && ` +${ids.length - 1}`}
     </>

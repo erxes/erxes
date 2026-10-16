@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const SYNC_FACEBOOK_POST_STATS = gql`
+export const SYNC_FACEBOOK_POST_STATS = gql(`
   mutation ReportFacebookSyncPostStats($pageIds: [String], $limit: Int) {
     reportFacebookSyncPostStats(pageIds: $pageIds, limit: $limit) {
       pages
@@ -14,4 +14,4 @@ export const SYNC_FACEBOOK_POST_STATS = gql`
       }
     }
   }
-`;
+`);

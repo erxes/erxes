@@ -32,15 +32,6 @@ export const CONVERT_TYPE_OPTIONS: Record<
     multipleSelect: true,
     supportsDetails: true,
   },
-  task: {
-    pluginName: 'operation',
-    createAction: 'taskCreate',
-    propertyContentType: 'operation:task',
-    closeDateCode: 'targetDate',
-    stageMessage: 'Status is required',
-    multipleSelect: false,
-    supportsDetails: false,
-  },
 };
 
 export const CONVERT_TYPES = Object.keys(
@@ -52,7 +43,6 @@ export const buildConvertSchema = (type: ConversationConvertType) =>
     channelId: z.string().optional(),
     boardId: z.string().optional(),
     pipelineId: z.string().optional(),
-    teamId: z.string().optional(),
     stageId: z.string().min(1, CONVERT_TYPE_OPTIONS[type].stageMessage),
     name: z.string().trim().min(1, 'Name is required'),
     assignedUserIds: z.array(z.string()),

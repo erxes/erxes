@@ -7,10 +7,12 @@ import { IContext } from '~/connectionResolvers';
 export const cpTicketQueries = {
   cpGetTickets: async (
     _root: undefined,
-    { filter }: { filter: ITicketFilter & IOffsetPaginateParams },
+    args: { filter?: (Partial<ITicketFilter> & IOffsetPaginateParams) | null },
     { models, user, subdomain }: IContext,
   ) => {
-    const { page, perPage, createdBy } = filter || {};
+    const filter: Partial<ITicketFilter> & IOffsetPaginateParams =
+      args.filter ?? {};
+    const { page, perPage, createdBy } = filter;
 
     const query = await generateFilter(
       filter,
@@ -36,10 +38,12 @@ export const cpTicketQueries = {
   },
   cpGetTicketTotalCount: async (
     _root: undefined,
-    { filter }: { filter: ITicketFilter & IOffsetPaginateParams },
+    args: { filter?: (Partial<ITicketFilter> & IOffsetPaginateParams) | null },
     { models, user, subdomain }: IContext,
   ) => {
-    const { createdBy } = filter || {};
+    const filter: Partial<ITicketFilter> & IOffsetPaginateParams =
+      args.filter ?? {};
+    const { createdBy } = filter;
 
     const query = await generateFilter(
       filter,

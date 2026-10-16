@@ -1,42 +1,25 @@
 import { QueryHookOptions, useQuery } from '@apollo/client';
 import { CONVERSATION_MEMBER_PROGRESS } from '@/inbox/conversations/conversation-detail/graphql/queries/getInboxProgress';
-import { IConversationMemberProgress } from '@/inbox/types/Conversation';
-import { useEffect } from 'react';
-import { CONVERSATION_CHANGED } from '@/inbox/conversations/graphql/subscriptions/inboxSubscriptions';
+import { compactList } from '@/shared/utils/cursorList';
+import type {
+  ConversationMemberProgressQuery,
+  ConversationMemberProgressQueryVariables,
+} from '~/gql/graphql';
 
-interface IGetConversationMemberProgressResponse {
-  conversationMemberProgress: IConversationMemberProgress[];
-}
-
-interface IGetConversationMemberProgressVariables {
-  customerId: string;
-}
 export const useGetConversationMemberProgress = (
   options: QueryHookOptions<
-    IGetConversationMemberProgressResponse,
-    IGetConversationMemberProgressVariables
+    ConversationMemberProgressQuery,
+    ConversationMemberProgressQueryVariables
   >,
 ) => {
-  const { data, loading, refetch, subscribeToMore } = useQuery<
-    IGetConversationMemberProgressResponse,
-    IGetConversationMemberProgressVariables
-  >(CONVERSATION_MEMBER_PROGRESS, options);
+  const { data, loading, refetch } = useQuery(
+    CONVERSATION_MEMBER_PROGRESS,
+    options,
+  );
 
-  const conversationMemberProgress = data?.conversationMemberProgress;
-
-  useEffect(() => {
-    const unsubscribe = subscribeToMore({
-      document: CONVERSATION_CHANGED,
-      variables: { customerId: options.variables?.customerId },
-      updateQuery: () => {
-        refetch();
-      },
-    });
-
-    return () => {
-      unsubscribe();
-    };
-  }, [options.variables?.customerId, subscribeToMore, refetch]);
+  const conversationMemberProgress = compactList(
+    data?.conversationMemberProgress,
+  );
 
   return {
     conversationMemberProgress,

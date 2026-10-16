@@ -8,9 +8,7 @@ export function ChannelIntegrations() {
   const { t } = useTranslation('frontline');
   const { id: channelId } = useParams();
   const { integrations, loading } = useIntegrations({
-    variables: {
-      channelId: channelId,
-    },
+    variables: channelId ? { channelId } : undefined,
     skip: !channelId,
   });
   return (
