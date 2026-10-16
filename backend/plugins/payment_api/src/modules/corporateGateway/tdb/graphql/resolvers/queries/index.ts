@@ -1,7 +1,7 @@
 import configQueries from './configs';
-import orderQueries from './orders';
+import accountQueries from './accounts';
 
 export default {
   ...configQueries,
-  ...orderQueries,
+  ...accountQueries,
 };
