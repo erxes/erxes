@@ -24,24 +24,6 @@ export const SPINS_ADD_MUTATION = gql`
   }
 `;
 
-export const SPINS_ADD_MANY_MUTATION = gql`
-  mutation SpinsAddMany(
-    $campaignId: String
-    $ownerType: String
-    $ownerIds: [String]
-    $tagIds: [String]
-    $status: String
-  ) {
-    spinsAddMany(
-      campaignId: $campaignId
-      ownerType: $ownerType
-      ownerIds: $ownerIds
-      tagIds: $tagIds
-      status: $status
-    )
-  }
-`;
-
 export const SPINS_EDIT_MUTATION = gql`
   mutation SpinsEdit(
     $_id: String!

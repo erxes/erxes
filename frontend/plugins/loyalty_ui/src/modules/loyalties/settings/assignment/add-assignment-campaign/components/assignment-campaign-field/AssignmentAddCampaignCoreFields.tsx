@@ -39,7 +39,7 @@ export const AssignmentAddCampaignCoreFields: React.FC<
             <SelectSegment
               value={field.value?.[0] || ''}
               onValueChange={(id) => field.onChange(id ? [id] : [])}
-              contentTypes={['core:customer', 'core:lead']}
+              contentTypes={['core:contacts.customers', 'core:contacts.leads']}
             />
           </Form.Item>
         )}

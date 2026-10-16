@@ -26,24 +26,6 @@ export const DONATES_ADD_MUTATION = gql`
   }
 `;
 
-export const DONATES_ADD_MANY_MUTATION = gql`
-  mutation DonatesAddMany(
-    $campaignId: String
-    $ownerType: String
-    $ownerIds: [String]
-    $tagIds: [String]
-    $status: String
-  ) {
-    donatesAddMany(
-      campaignId: $campaignId
-      ownerType: $ownerType
-      ownerIds: $ownerIds
-      tagIds: $tagIds
-      status: $status
-    )
-  }
-`;
-
 export const DONATES_EDIT_MUTATION = gql`
   mutation DonatesEdit(
     $_id: String!

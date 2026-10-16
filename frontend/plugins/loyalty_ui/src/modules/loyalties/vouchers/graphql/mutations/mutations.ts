@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client';
 
 export const VOUCHERS_ADD_MUTATION = gql`
-  mutation VouchersAdd(
+  mutation LoyaltyVouchersAdd(
     $campaignId: String
     $ownerId: String
     $ownerType: String
@@ -92,14 +92,5 @@ export const DELETE_VOUCHERS_BY_FILTER_MUTATION = gql`
       toDate: $toDate
       searchValue: $searchValue
     )
-  }
-`;
-
-export const VOUCHER_RETURN_BILL_MUTATION = gql`
-  mutation VoucherReturnBill($_id: String!) {
-    voucherReturnBill(_id: $_id) {
-      _id
-      status
-    }
   }
 `;
