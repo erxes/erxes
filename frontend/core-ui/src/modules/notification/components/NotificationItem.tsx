@@ -1,10 +1,8 @@
-import { OrgLogoIcon } from '@/auth/components/Logo';
-import { IconBackspace, IconCommand } from '@tabler/icons-react';
-import { Badge, Button, cn, RelativeDateDisplay, Tooltip } from 'erxes-ui';
-import { useAtomValue } from 'jotai';
-import { useEffect, useState } from 'react';
+import { NotificationIcon } from '@/notification/components/NotificationIcon';
+import type { NotificationItemProps } from '@/notification/types/myInbox';
+import { Badge, Button, cn, RelativeDateDisplay } from 'erxes-ui';
+import { useEffect, useRef } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { pluginsConfigState, TNotification } from 'ui-modules';
 
 export const NotificationItem = ({
   _id,
@@ -13,17 +11,14 @@ export const NotificationItem = ({
   isRead,
   contentType = '',
   priority,
-}: TNotification) => {
+}: NotificationItemProps) => {
   const { id } = useParams();
   const isActive = id === _id;
-  const [showTooltip, setShowTooltip] = useState(false);
+  const linkRef = useRef<HTMLAnchorElement>(null);
 
   useEffect(() => {
     if (isActive) {
-      setShowTooltip(true);
-      setTimeout(() => {
-        setShowTooltip(false);
-      }, 3000);
+      linkRef.current?.scrollIntoView({ block: 'nearest' });
     }
   }, [isActive]);
 
@@ -36,7 +31,11 @@ export const NotificationItem = ({
         isActive && 'bg-primary/10 hover:bg-primary/10',
       )}
     >
-      <Link to={`/my-inbox/${_id}${window.location.search}`}>
+      <Link
+        ref={linkRef}
+        aria-current={isActive ? 'page' : undefined}
+        to={`/my-inbox/${_id}${window.location.search}`}
+      >
         <div
           className={cn(
             'size-8 bg-foreground/5 rounded-full flex-none flex items-center justify-center relative',
@@ -74,31 +73,7 @@ export const NotificationItem = ({
             </div>
           </div>
         </div>
-        <Tooltip open={showTooltip} onOpenChange={setShowTooltip}>
-          <Tooltip.Trigger asChild>
-            <div className="absolute top-1/2 right-0"></div>
-          </Tooltip.Trigger>
-          <Tooltip.Content side="right" align="center">
-            <div className="inline-flex flex-none items-center">
-              <IconCommand className="size-4" />
-              +
-              <IconBackspace className="size-4 mr-1" />
-              mark as read
-            </div>
-          </Tooltip.Content>
-        </Tooltip>
       </Link>
     </Button>
   );
-};
-
-const NotificationIcon = ({ contentType }: { contentType: string }) => {
-  const pluginName = contentType?.split(':')[0] || '';
-  const pluginMetaData = useAtomValue(pluginsConfigState)?.[pluginName + '_ui'];
-  if (pluginName === 'core') {
-    return <OrgLogoIcon className="size-5 text-primary" />;
-  }
-  const Icon = pluginMetaData?.icon;
-
-  return Icon ? <Icon className="size-4 text-muted-foreground" /> : null;
 };
