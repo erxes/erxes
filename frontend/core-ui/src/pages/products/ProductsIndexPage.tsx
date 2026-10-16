@@ -10,13 +10,12 @@ import { Can, Export, Import } from 'ui-modules';
 
 export const ProductsIndexPage = () => {
   return (
-    <PageContainer>
-      <ProductsHeader>
-        <ProductAddSheet />
-      </ProductsHeader>
-
-      <div className="flex overflow-hidden flex-auto">
-        <ProductSidebar />
+    <PageContainer className="flex-row">
+      <ProductSidebar />
+      <div className="flex min-w-0 flex-auto flex-col overflow-hidden">
+        <ProductsHeader>
+          <ProductAddSheet />
+        </ProductsHeader>
         <div className="flex overflow-hidden flex-col flex-auto w-full">
           <ProductsIndexPageContent />
         </div>

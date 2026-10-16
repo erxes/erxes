@@ -20,7 +20,7 @@ export const TeamGithubPage = () => {
               <Breadcrumb.Link asChild>
                 <Button
                   variant="ghost"
-                  className="font-semibold text-foreground"
+                  className="text-foreground"
                   onClick={() =>
                     navigate(`/settings/operation/team/details/${teamId}`)
                   }

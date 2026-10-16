@@ -2,6 +2,8 @@ import { IProduct, IProductData, SelectProductsBulk } from 'ui-modules';
 import { useTranslation } from 'react-i18next';
 
 import { calculateProductValues } from '@/deals/cards/components/detail/product/hooks/useProductCalculations';
+import { getProductDefaultUom } from '../utils/productUom';
+import type { ProductDataWithUom } from '../utils/productUom';
 import { useUpdateProductRecord } from '@/deals/cards/components/detail/product/hooks/useProductRecord';
 
 interface ProductEditSheetProps {
@@ -35,12 +37,14 @@ export const ProductEditSheet = ({
       return;
     }
 
-    const patch: Partial<IProductData> = {
+    const patch: Partial<ProductDataWithUom> = {
       productId: replacementProduct._id,
       product: replacementProduct,
       unitPrice: replacementProduct.unitPrice,
       globalUnitPrice: replacementProduct.unitPrice,
       unitPricePercent: 100,
+      uom: getProductDefaultUom(replacementProduct),
+      uomInfo: undefined,
     };
     const calculatedValues = calculateProductValues('discountPercent', {
       ...productData,

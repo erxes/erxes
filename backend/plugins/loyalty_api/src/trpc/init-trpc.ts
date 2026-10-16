@@ -22,9 +22,12 @@ const t = initTRPC.context<LoyaltyTRPCContext>().create();
 
 // Zod schemas
 
-const productSchema = z.object({
+export const saleQuantitySchema = z.number().positive();
+export const saleCountSchema = z.number().nonnegative();
+
+export const productSchema = z.object({
   productId: z.string(),
-  quantity: z.number().int().positive(),
+  quantity: saleQuantitySchema,
   unitPrice: z.number().nonnegative().optional(),
   price: z.number().nonnegative().optional(),
 });
@@ -33,10 +36,37 @@ const discountInfoSchema = z
   .object({
     couponCode: z.string().optional(),
     voucherId: z.string().optional(),
+    // The order or deal being priced, so its own held voucher passes.
+    targetId: z.string().optional(),
   })
   .optional();
 
-const checkLoyaltiesInput = z.object({
+const voucherTargetSchema = z.object({
+  targetType: z.string().min(1),
+  targetId: z.string().min(1),
+});
+
+const voucherHoldInput = z.object({
+  voucherId: z.string().min(1),
+  ownerType: z.string().min(1),
+  ownerId: z.string().min(1),
+  target: voucherTargetSchema,
+  totalAmount: z.number().min(0).optional(),
+  userId: z.string().optional(),
+});
+
+const voucherReleaseInput = z.object({
+  voucherId: z.string().min(1),
+  target: voucherTargetSchema,
+  userId: z.string().optional(),
+});
+
+const voucherTargetInput = z.object({
+  targetId: z.string().min(1),
+  userId: z.string().optional(),
+});
+
+export const checkLoyaltiesInput = z.object({
   ownerType: z.string().optional().default('customer'),
   ownerId: z
     .string()
@@ -51,21 +81,24 @@ const ownerSummaryInput = z.object({
   ownerId: z.string().min(1),
   // The sale's total, so reward vouchers can be checked against it.
   totalAmount: z.number().min(0).optional(),
+  targetId: z.string().optional(),
 });
 
-const confirmLoyaltiesInput = z.object({
+// Selling sides send null for what was not chosen and every line, bonus or
+// not; a strict shape here refused the whole confirmation.
+export const confirmLoyaltiesInput = z.object({
   checkInfo: z.record(
     z.object({
-      voucherId: z.string(),
-      count: z.number().int().nonnegative(),
+      voucherId: z.string().nullish(),
+      count: saleCountSchema.nullish(),
     }),
   ),
   extraInfo: z
     .object({
-      couponCode: z.string().optional(),
-      voucherId: z.string().optional(),
-      ownerType: z.string().optional(),
-      ownerId: z.string().optional(),
+      couponCode: z.string().nullish(),
+      voucherId: z.string().nullish(),
+      ownerType: z.string().nullish(),
+      ownerId: z.string().nullish(),
       targetid: z.string().optional(),
       targetId: z.string().optional(),
       targetType: z.string().optional(),
@@ -76,13 +109,13 @@ const confirmLoyaltiesInput = z.object({
     .optional(),
 });
 
-const pricingProductSchema = z.object({
+export const pricingProductSchema = z.object({
   _id: z.string().optional(),
   itemId: z.string().optional(),
   productId: z.string().optional(),
   unitPrice: z.number().nonnegative().optional(),
   price: z.number().nonnegative().optional(),
-  quantity: z.number().int().positive(),
+  quantity: saleQuantitySchema,
   manufacturedDate: z.string().nullish(),
   conditionCode: z.string().nullish(),
 });
@@ -92,7 +125,7 @@ const participantKindSchema = z.preprocess(
   z.enum(['customer', 'company', 'user']),
 );
 
-const checkPricingInput = z.object({
+export const checkPricingInput = z.object({
   prioritizeRule: z.string(),
   totalAmount: z.number().nonnegative(),
   departmentId: z.string().optional().default(''),
@@ -520,6 +553,33 @@ export const appRouter = t.router({
         const { models } = ctx;
         return await models.VoucherCampaigns.find(input || {}).lean();
       }),
+
+    // The selling side moves a picked voucher with its order: picked holds
+    // it, taken off releases it, paid uses it (confirmLoyalties), returned
+    // in full gives it back.
+    hold: t.procedure
+      .input(voucherHoldInput)
+      .mutation(async ({ ctx, input }) =>
+        ctx.models.Vouchers.holdVoucher(input),
+      ),
+
+    release: t.procedure
+      .input(voucherReleaseInput)
+      .mutation(async ({ ctx, input }) =>
+        ctx.models.Vouchers.releaseVoucher(input),
+      ),
+
+    releaseTarget: t.procedure
+      .input(voucherTargetInput)
+      .mutation(async ({ ctx, input }) =>
+        ctx.models.Vouchers.releaseTarget(input),
+      ),
+
+    returnTarget: t.procedure
+      .input(voucherTargetInput)
+      .mutation(async ({ ctx, input }) =>
+        ctx.models.Vouchers.returnTarget(input),
+      ),
   }),
   // At the top of appRouter in init-trpc.ts:
   health: t.procedure.query(() => ({ status: 'ok' })),

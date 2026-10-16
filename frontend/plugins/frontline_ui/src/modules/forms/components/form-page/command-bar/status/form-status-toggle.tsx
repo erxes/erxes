@@ -1,4 +1,7 @@
-import { GET_FORMS_LIST } from '@/forms/graphql/formQueries';
+import {
+  GET_FORMS_LIST,
+  GET_FORMS_TOTAL_COUNT,
+} from '@/forms/graphql/formQueries';
 import { useFormToggleStatus } from '@/forms/hooks/useFormToggleStatus';
 import { IconSquareToggle } from '@tabler/icons-react';
 import { Row } from '@tanstack/table-core';
@@ -27,7 +30,7 @@ export const FormStatusToggle = ({
             ids: formIds,
             status,
           },
-          refetchQueries: [GET_FORMS_LIST],
+          refetchQueries: [GET_FORMS_LIST, GET_FORMS_TOTAL_COUNT],
         });
         rows.forEach((row) => {
           row.toggleSelected(false);

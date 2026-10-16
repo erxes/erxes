@@ -8,6 +8,7 @@ import {
   IVoucherCampaignParams,
 } from '@/voucher/@types/voucherCampaign';
 import { CAMPAIGN_STATUS } from '~/constants';
+import { campaignIssuingSelector } from '@/voucher/services/voucherTerm';
 
 const generateFilter = async (
   models: IModels,
@@ -94,11 +95,9 @@ export const voucherCampaignQueries = {
 
     return models.VoucherCampaigns.find({
       status: CAMPAIGN_STATUS.ACTIVE,
-      startDate: { $lte: now },
-      endDate: { $gte: now },
+      ...campaignIssuingSelector(now),
     })
       .sort({ modifiedAt: -1 })
       .lean();
   },
-};  
-
+};

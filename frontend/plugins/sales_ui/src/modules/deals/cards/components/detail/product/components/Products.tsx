@@ -5,6 +5,7 @@ import { IProduct, IProductData } from 'ui-modules';
 import { IDeal } from '@/deals/types/deals';
 import { ProductsList } from './product-list/ProductsList';
 import { ProductsPayment } from './ProductPayment';
+import { DealVoucherRow } from '@/deals/loyaltyVouchers/components/DealVoucherRow';
 import { Tabs } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -31,6 +32,7 @@ export const Products = ({
           <Tabs.Trigger value="payment">{t('payments')}</Tabs.Trigger>
         </Tabs.List>
         <Tabs.Content value="product" className="mt-4 min-h-0 flex-1">
+          <DealVoucherRow deal={deal} />
           <ProductsList
             products={deal.products || ([] as IProduct[])}
             productsData={deal.productsData || ([] as IProductData[])}

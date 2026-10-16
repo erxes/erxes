@@ -1,4 +1,5 @@
 import { IProductData } from 'ui-modules';
+import type { ProductDataWithUom } from './productUom';
 
 export type DiscountInfo = {
   type: string;
@@ -7,7 +8,7 @@ export type DiscountInfo = {
   percent?: number;
 };
 
-export type ProductDataWithDiscountInfos = IProductData & {
+export type ProductDataWithDiscountInfos = ProductDataWithUom & {
   discountInfos?: DiscountInfo[];
 };
 

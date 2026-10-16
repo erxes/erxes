@@ -18,8 +18,8 @@ const ProjectsSettings = () => {
               <PageContainer>
                 <SettingsHeader
                   breadcrumbs={
-                    <Button variant="ghost" className="font-semibold">
-                      <IconClipboard className="w-4 h-4 text-accent-foreground" />
+                    <Button variant="ghost">
+                      <IconClipboard />
                       {t('projects')}
                     </Button>
                   }

@@ -58,16 +58,18 @@ export function CustomTypes() {
   );
 
   return (
-    <PageContainer>
-      <CustomTypesHeader>{headerActions}</CustomTypesHeader>
-      <div className="flex overflow-hidden flex-auto">
-        <CmsSidebar />
+    <PageContainer className="flex-row">
+      <CmsSidebar />
+      <div className="flex min-w-0 flex-auto flex-col overflow-hidden">
+        <CustomTypesHeader>{headerActions}</CustomTypesHeader>
         <div className="flex overflow-hidden flex-col flex-auto w-full">
           <div className="flex-auto">
             <div className="flex flex-col">
               <div className="flex pt-2 pl-4 justify-between items-center mb-2">
                 <div className="text-sm text-gray-600">
-                  {t('found-x-custom-types', { count: customTypes?.length || 0 })}
+                  {t('found-x-custom-types', {
+                    count: customTypes?.length || 0,
+                  })}
                 </div>
               </div>
               {!loading && (!customTypes || customTypes.length === 0) ? (
