@@ -1,5 +1,6 @@
 import { IconAlertTriangle, IconRefresh } from '@tabler/icons-react';
 import { Button, Empty } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 type DocumentsErrorStateProps = Readonly<{
   description?: string;
@@ -12,6 +13,8 @@ export function DocumentsErrorState({
   onRetry,
   title = 'Couldn’t load documents',
 }: DocumentsErrorStateProps) {
+  const { t } = useTranslation('documents', { keyPrefix: 'document' });
+
   return (
     <Empty className="h-full border-0 bg-transparent">
       <Empty.Header>
@@ -24,7 +27,7 @@ export function DocumentsErrorState({
       <Empty.Content>
         <Button variant="outline" onClick={onRetry}>
           <IconRefresh />
-          Try again
+          {t('try-again')}
         </Button>
       </Empty.Content>
     </Empty>

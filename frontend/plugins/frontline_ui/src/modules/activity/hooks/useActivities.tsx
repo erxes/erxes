@@ -1,92 +1,83 @@
-import { useEffect } from 'react';
-import { useQuery } from '@apollo/client';
+import { useQuery, useSubscription } from '@apollo/client';
 import { GET_ACTIVITIES } from '@/activity/graphql/queries/getActivityLogs';
-import { IActivity } from '@/activity/types';
-import { ICursorListResponse } from 'erxes-ui';
-
 import { ACTIVITY_CHANGED } from '@/activity/graphql/subscriptions/activityChanged';
+import { compactList, toCursorPageInfo } from '@/shared/utils/cursorList';
 import { useLocation } from 'react-router-dom';
-
-interface ISubscriptionData {
-  ticketActivityChanged: {
-    type: 'created' | 'updated' | 'removed';
-    activity: IActivity;
-  };
-}
 
 export const useActivities = (contentId: string) => {
   const location = useLocation();
   const isInInbox = location.pathname.includes('my-inbox');
 
-  const { data, loading, refetch, subscribeToMore } = useQuery<
-    ICursorListResponse<IActivity>
-  >(GET_ACTIVITIES, {
+  const { data, loading, refetch } = useQuery(GET_ACTIVITIES, {
     variables: { contentId },
     fetchPolicy: isInInbox ? 'network-only' : 'cache-first',
   });
 
-  const {
-    list: activities,
-    pageInfo,
-    totalCount,
-  } = data?.getTicketActivities || {};
+  const result = data?.getTicketActivities;
+  const activities = compactList(result?.list);
 
-  useEffect(() => {
-    const unsubscribe = subscribeToMore<ISubscriptionData>({
-      document: ACTIVITY_CHANGED,
-      variables: { contentId },
-      updateQuery: (prev, { subscriptionData }) => {
-        if (!subscriptionData.data) return prev;
+  useSubscription(ACTIVITY_CHANGED, {
+    variables: { contentId },
+    ignoreResults: true,
+    onData: ({ client, data: subData }) => {
+      const event = subData.data?.ticketActivityChanged;
+      const activity = event?.activity;
+      if (!activity?._id) return;
 
-        const { type, activity } = subscriptionData.data.ticketActivityChanged;
-        const currentList = prev?.getTicketActivities?.list;
-
-        if (!currentList) return prev;
-
-        let updatedList = currentList;
-
-        if (type === 'created') {
-          const exists = currentList.some(
-            (item: IActivity) => item._id === activity._id,
-          );
-          if (!exists) {
-            updatedList = [...currentList, activity];
-          }
+      if (event?.type === 'removed') {
+        const cacheId = client.cache.identify({
+          __typename: 'TicketActivity',
+          _id: activity._id,
+        });
+        if (cacheId) {
+          client.cache.evict({ id: cacheId });
+          client.cache.gc();
         }
-
-        if (type === 'updated') {
-          updatedList = currentList.map((item: IActivity) =>
-            item._id === activity._id ? { ...item, ...activity } : item,
-          );
-        }
-
-        if (type === 'removed') {
-          updatedList = currentList.filter(
-            (item: IActivity) => item._id !== activity._id,
-          );
-        }
-
-        return {
-          ...prev,
-          getTicketActivities: {
-            ...prev.getTicketActivities,
-            list: updatedList,
-            pageInfo: prev.getTicketActivities.pageInfo,
-            totalCount:
-              type === 'created'
-                ? prev.getTicketActivities.totalCount + 1
-                : type === 'removed'
-                  ? prev.getTicketActivities.totalCount - 1
-                  : prev.getTicketActivities.totalCount,
+        client.cache.updateQuery(
+          { query: GET_ACTIVITIES, variables: { contentId } },
+          (prev) => {
+            const result = prev?.getTicketActivities;
+            if (!result) return;
+            return {
+              ...prev,
+              getTicketActivities: {
+                ...result,
+                totalCount: (result.totalCount ?? 0) - 1,
+              },
+            };
           },
-        };
-      },
-    });
+        );
+        return;
+      }
 
-    return () => {
-      unsubscribe();
-    };
-  }, [contentId, subscribeToMore]);
+      if (event?.type === 'created') {
+        client.cache.updateQuery(
+          { query: GET_ACTIVITIES, variables: { contentId } },
+          (prev) => {
+            const result = prev?.getTicketActivities;
+            if (!result?.list) return;
+            if (result.list.some((item) => item?._id === activity._id)) {
+              return prev;
+            }
+            return {
+              ...prev,
+              getTicketActivities: {
+                ...result,
+                list: [...result.list, activity],
+                totalCount: (result.totalCount ?? 0) + 1,
+              },
+            };
+          },
+        );
+      }
+    },
+  });
 
-  return { activities, loading, refetch, pageInfo, totalCount };
+  return {
+    activities,
+    loading,
+    refetch,
+    pageInfo: toCursorPageInfo(result?.pageInfo),
+    totalCount: result?.totalCount,
+  };
 };

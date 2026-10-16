@@ -11,13 +11,8 @@ export const useCallQueueInitialList = ({
   queue?: string;
   setUpdatedAt?: (updatedAt: Date) => void;
 }) => {
-  const { data, loading } = useQuery<{
-    callQueueInitialList: string;
-  }>(CALL_QUEUE_INITIAL_LIST, {
-    variables: {
-      integrationId: integrationId,
-      queue: queue,
-    },
+  const { data, loading } = useQuery(CALL_QUEUE_INITIAL_LIST, {
+    variables: queue ? { queue } : undefined,
     skip: !integrationId || !queue,
     fetchPolicy: 'cache-and-network',
     onCompleted: () => {

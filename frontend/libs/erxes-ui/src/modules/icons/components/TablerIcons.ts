@@ -289,6 +289,8 @@ import {
   IconTicket,
   IconShoppingCart,
   IconShoppingCartPlus,
+  IconCrown,
+  IconStairs,
 } from '@tabler/icons-react';
 
 export const ALL_ICONS = {
@@ -582,4 +584,6 @@ export const ALL_ICONS = {
   IconTicket,
   IconShoppingCart,
   IconShoppingCartPlus,
+  IconCrown,
+  IconStairs,
 };

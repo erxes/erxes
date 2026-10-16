@@ -27,6 +27,10 @@ import {
   ProductsChangeCategoryContent,
   ProductsChangeCategoryTrigger,
 } from './ProductsChangeCategory';
+import {
+  ProductsSetConditionsContent,
+  ProductsSetConditionsTrigger,
+} from './ProductsSetConditions';
 
 const updateProductsTagCache = (
   cache: ApolloCache<unknown>,
@@ -91,7 +95,9 @@ export const ProductCommandBar = () => {
   return (
     <CommandBar open={selectedRows.length > 0}>
       <CommandBar.Bar>
-        <CommandBar.Value>{selectedRows.length} selected</CommandBar.Value>
+        <CommandBar.Value>
+          {t('selected', { count: selectedRows.length })}
+        </CommandBar.Value>
         <Can action="productsExportManage">
           <Separator.Inline />
           <Export
@@ -106,7 +112,7 @@ export const ProductCommandBar = () => {
           <Separator.Inline />
           <Button variant="secondary">
             <IconPlus />
-            Create
+            {t('create')}
           </Button>
         </Can>
         <Separator.Inline />
@@ -147,6 +153,11 @@ export const ProductCommandBar = () => {
                     </Can>
                     <Can action="productsUpdate">
                       <ProductsChangeCategoryTrigger
+                        setCurrentContent={setCurrentContent}
+                      />
+                    </Can>
+                    <Can action="productsUpdate">
+                      <ProductsSetConditionsTrigger
                         setCurrentContent={setCurrentContent}
                       />
                     </Can>
@@ -204,7 +215,7 @@ export const ProductCommandBar = () => {
                     ),
                   onError: (e: ApolloError) => {
                     toast({
-                      title: 'Error',
+                      title: t('error'),
                       description: e.message,
                       variant: 'destructive',
                     });
@@ -213,6 +224,12 @@ export const ProductCommandBar = () => {
               >
                 <TagsSelect.Content />
               </TagsSelect.Provider>
+            )}
+            {currentContent === 'conditions' && (
+              <ProductsSetConditionsContent
+                productIds={productIds}
+                setOpen={closeActionsPopover}
+              />
             )}
             {currentContent === 'category' && (
               <ProductsChangeCategoryContent

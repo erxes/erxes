@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { emailAddressColumns } from '@/settings/email-addresses/components/emailAddressColumns';
 import { EMAIL_ADDRESSES_CURSOR_SESSION_KEY } from '@/settings/email-addresses/constants';
 import { useEmailAddresses } from '@/settings/email-addresses/hooks/useEmailAddresses';
@@ -7,6 +8,7 @@ import { Button, RecordTable, toast } from 'erxes-ui';
 export const EmailAddressesRecordTable = ({
   email,
 }: { email?: string } = {}): JSX.Element => {
+  const { t } = useTranslation('settings', { keyPrefix: 'email-addresses' });
   const {
     list,
     loading,
@@ -39,7 +41,7 @@ export const EmailAddressesRecordTable = ({
             )
           }
         >
-          Retry
+          {t('retry')}
         </Button>
       </div>
     );
@@ -47,7 +49,7 @@ export const EmailAddressesRecordTable = ({
 
   return (
     <RecordTable.Provider
-      columns={emailAddressColumns}
+      columns={emailAddressColumns(t)}
       data={list}
       stickyColumns={['lane']}
       className="m-2"
@@ -86,11 +88,10 @@ export const EmailAddressesRecordTable = ({
                   className="mx-auto mb-4 text-muted-foreground"
                 />
                 <h3 className="mb-2 text-xl font-semibold">
-                  Nothing learned yet
+                  {t('nothing-learned-yet')}
                 </h3>
                 <p className="max-w-md text-muted-foreground">
-                  Every address erxes mails appears here once the provider says
-                  what happened to it — delivered, bounced or reported as spam.
+                  {t('nothing-learned-description')}
                 </p>
               </div>
             </div>

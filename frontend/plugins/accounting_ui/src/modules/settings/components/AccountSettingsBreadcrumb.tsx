@@ -17,15 +17,15 @@ export const AccountSettingsBreadcrumb = () => {
   const { pathname } = useLocation();
   return (
     <>
-      <Button variant="ghost" className="font-semibold">
-        <IconCashBanknote className="w-4 h-4 text-accent-foreground" />
+      <Button variant="ghost">
+        <IconCashBanknote />
         {pathname.startsWith('/settings/accounting/inventories')
           ? 'Бараа материал'
           : t('accounting-settings')}
       </Button>
       <Separator.Inline />
-      <Button variant="ghost" className="hover:bg-transparent font-semibold">
-        {routeLabel(pathname)}
+      <Button variant="ghost" className="hover:bg-transparent">
+        {t(routeLabel(pathname))}
       </Button>
     </>
   );

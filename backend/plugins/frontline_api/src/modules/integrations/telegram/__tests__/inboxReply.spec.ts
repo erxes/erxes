@@ -7,6 +7,10 @@ import { handleDiscordIntegration } from '@/integrations/discord/messageBroker';
 import { pConversationClientMessageInserted } from '@/inbox/graphql/resolvers/mutations/widget';
 import { graphqlPubsub, sendTRPCMessage } from 'erxes-api-shared/utils';
 
+jest.mock('erxes-api-shared/core-modules', () => ({
+  canGroup: jest.fn().mockResolvedValue(false),
+}));
+
 jest.mock('@/integrations/facebook/messageBroker', () => ({
   handleFacebookIntegration: jest.fn(),
 }));
@@ -53,13 +57,25 @@ const addMessage = jest.fn();
 const context = {
   subdomain: 'test-tenant',
   user: { _id: 'staff' },
+  checkPermission: jest.fn(),
   models: {
     Conversations: {
       getConversation,
       updateConversation: jest.fn(),
       setAutomatedReplyControl: jest.fn(),
     },
-    Integrations: { getIntegration },
+    Integrations: {
+      getIntegration,
+      findOne: jest.fn(() => ({
+        lean: jest.fn().mockResolvedValue({ channelId: 'channel' }),
+      })),
+    },
+    ChannelMembers: {
+      find: jest.fn(() => ({
+        distinct: jest.fn().mockResolvedValue(['channel']),
+      })),
+    },
+    Channels: { exists: jest.fn().mockResolvedValue({ _id: 'channel' }) },
     ConversationMessages: {
       addMessage,
       getMessage: jest.fn().mockResolvedValue(saved),

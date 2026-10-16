@@ -1,15 +1,14 @@
-import { AiAgentContextFileEditorDialog } from '@/automations/components/settings/components/agents/components/AiAgentContextFileEditorDialog';
 import { UploadDropzone } from '@/automations/components/settings/components/agents/components/DropFilesZone';
+import { useAiAgentDetailContext } from '@/automations/components/settings/components/agents/context/AiAgentDetailContext';
+import { getAiAgentFileMemoryKey } from '@/automations/components/settings/components/agents/hooks/useAiAgentMemoryItems';
 import { AUTOMATIONS_AI_AGENT_REINDEX } from '@/automations/components/settings/components/agents/graphql/automationsAiAgents';
 import { TAiAgentForm } from '@/automations/components/settings/components/agents/states/AiAgentFormSchema';
-import {
-  getNextContextFilesAfterEdit,
-  mapUploadedContextFiles,
-} from '@/automations/components/settings/components/agents/utils/contextFiles';
+import { mapUploadedContextFiles } from '@/automations/components/settings/components/agents/utils/contextFiles';
 import { Form, toast } from 'erxes-ui';
 import { useMutation } from '@apollo/client';
 import { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router';
 
 export const AI_AGENT_UI_LIMITS = {
@@ -27,9 +26,10 @@ export const formatBytes = (bytes: number) => {
 };
 
 export const AiAgentContextFilesForm = () => {
+  const { t } = useTranslation('automations');
   const { id } = useParams();
   const { control } = useFormContext<TAiAgentForm>();
-  const [editingFileId, setEditingFileId] = useState<string | null>(null);
+  const { openMemory } = useAiAgentDetailContext();
   const [reindexingFileId, setReindexingFileId] = useState<string | null>(null);
   const [reindex] = useMutation(AUTOMATIONS_AI_AGENT_REINDEX);
 
@@ -37,13 +37,14 @@ export const AiAgentContextFilesForm = () => {
     <div className="space-y-4">
       <div className="space-y-1">
         <p className="text-sm text-muted-foreground">
-          Attach markdown or plain text files that should be passed to the
-          external AI provider as runtime knowledge.
+          {t('settings-context-files-attach')}
         </p>
         <p className="text-xs text-muted-foreground">
-          Limits: up to {AI_AGENT_UI_LIMITS.maxFiles} files,{' '}
-          {formatBytes(AI_AGENT_UI_LIMITS.maxSingleFileBytes)} per file,{' '}
-          {formatBytes(AI_AGENT_UI_LIMITS.maxTotalContextBytes)} total.
+          {t('settings-context-files-limits', {
+            maxFiles: AI_AGENT_UI_LIMITS.maxFiles,
+            single: formatBytes(AI_AGENT_UI_LIMITS.maxSingleFileBytes),
+            total: formatBytes(AI_AGENT_UI_LIMITS.maxTotalContextBytes),
+          })}
         </p>
       </div>
 
@@ -52,8 +53,6 @@ export const AiAgentContextFilesForm = () => {
         name="context.files"
         render={({ field }) => {
           const files = field.value || [];
-          const editingFile =
-            files.find(({ id }) => id === editingFileId) || null;
 
           return (
             <Form.Item>
@@ -69,14 +68,12 @@ export const AiAgentContextFilesForm = () => {
                       ...mapUploadedContextFiles(uploadedFiles),
                     ]);
                   }}
-                  onFileDelete={(fileId) => {
-                    if (editingFileId === fileId) {
-                      setEditingFileId(null);
-                    }
-
-                    field.onChange(files.filter(({ id }) => fileId !== id));
-                  }}
-                  onFileClick={setEditingFileId}
+                  onFileDelete={(fileId) =>
+                    field.onChange(files.filter(({ id }) => fileId !== id))
+                  }
+                  onFileClick={(fileId) =>
+                    openMemory(getAiAgentFileMemoryKey(fileId))
+                  }
                   onFileReindex={
                     id
                       ? async (fileId) => {
@@ -87,14 +84,15 @@ export const AiAgentContextFilesForm = () => {
                               variables: { id, fileId },
                             });
                             toast({
-                              title: 'Reindex queued',
-                              description:
-                                'Knowledge chunks will refresh in the background.',
+                              title: t('settings-context-files-reindex-queued'),
+                              description: t(
+                                'settings-context-files-reindex-queued-description',
+                              ),
                               variant: 'success',
                             });
                           } catch (error) {
                             toast({
-                              title: 'Could not queue reindex',
+                              title: t('settings-context-files-reindex-failed'),
                               description: (error as Error).message,
                               variant: 'destructive',
                             });
@@ -107,27 +105,8 @@ export const AiAgentContextFilesForm = () => {
                   reindexingFileId={reindexingFileId}
                 />
               </Form.Control>
-              <AiAgentContextFileEditorDialog
-                open={!!editingFile}
-                file={editingFile}
-                onOpenChange={(open) => {
-                  if (!open) {
-                    setEditingFileId(null);
-                  }
-                }}
-                onSave={(nextFile) => {
-                  field.onChange(
-                    getNextContextFilesAfterEdit({
-                      files,
-                      fileId: nextFile.id,
-                      uploadedFile: nextFile,
-                    }),
-                  );
-                }}
-              />
               <Form.Description>
-                Keep files focused and compact so health checks stay green,
-                prompts stay small, and the provider responds quickly.
+                {t('settings-context-files-keep-focused')}
               </Form.Description>
               <Form.Message />
             </Form.Item>

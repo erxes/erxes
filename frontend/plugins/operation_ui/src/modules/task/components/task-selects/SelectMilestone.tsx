@@ -51,11 +51,13 @@ export const SelectMilestoneFormItem = ({
   projectId,
   scope,
   value,
+  label,
 }: {
   projectId?: string;
   scope?: string;
   onValueChange: (value: string) => void;
   value?: string;
+  label?: string;
 }) => {
   const [open, setOpen] = useState(false);
 
@@ -69,7 +71,7 @@ export const SelectMilestoneFormItem = ({
       projectId={projectId}
     >
       <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
-        <SelectTriggerOperation variant="form">
+        <SelectTriggerOperation variant="form" label={label}>
           <SelectMilestoneValue />
         </SelectTriggerOperation>
         <SelectOperationContent variant="form">
@@ -222,11 +224,13 @@ const SelectMilestoneRoot = ({
   taskId,
   variant,
   projectId,
+  label,
 }: {
   value: string;
   taskId: string;
   variant: `${SelectTriggerVariant}`;
   projectId?: string | null;
+  label?: string;
 }) => {
   const [open, setOpen] = useState(false);
   const { updateTask } = useUpdateTask();
@@ -246,7 +250,7 @@ const SelectMilestoneRoot = ({
       projectId={projectId}
     >
       <PopoverScoped open={open} onOpenChange={setOpen}>
-        <SelectTriggerOperation variant={variant}>
+        <SelectTriggerOperation variant={variant} label={label}>
           <SelectMilestoneValue />
         </SelectTriggerOperation>
         <SelectOperationContent variant={variant}>

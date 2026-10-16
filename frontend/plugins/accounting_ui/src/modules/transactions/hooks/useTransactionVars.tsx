@@ -1,13 +1,12 @@
-import { QueryHookOptions } from '@apollo/client';
+import type { AccountingAccTransactionsQueryVariables } from '~/gql/graphql';
 import {
-  ICursorListResponse,
   parseDateRangeFromString,
   useMultiQueryState,
   useRecordTableCursor,
 } from 'erxes-ui';
 import { ACCTRANSACTIONS_CURSOR_SESSION_KEY } from '~/modules/accountsSessionKeys';
 import { ACC_TRS__PER_PAGE } from '../types/constants';
-import { ITransaction, trsQueryParamTypes } from '../types/Transaction';
+import { trsQueryParamTypes } from '../types/Transaction';
 
 type TransactionFilterValue = string | boolean | Date | string[];
 type TransactionFilterVariables = Record<string, TransactionFilterValue>;
@@ -129,7 +128,7 @@ export const useTransactionsFilterVariables = () => {
 };
 
 export const useTransactionsVariables = (
-  variables?: QueryHookOptions<ICursorListResponse<ITransaction>>['variables'],
+  variables?: AccountingAccTransactionsQueryVariables,
 ) => {
   const queryParams = useTransactionsQueryParams();
 

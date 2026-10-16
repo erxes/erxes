@@ -1,18 +1,40 @@
 import {
   IVoucher,
   IVoucherDocument,
+  IVoucherHistoryEntry,
   IVoucherInput,
   IVoucherParams,
+  IVoucherTarget,
+  IVoucherTerms,
+  TVoucherHistoryAction,
 } from '@/voucher/@types/voucher';
-import { IVoucherCampaignDocument } from '@/voucher/@types/voucherCampaign';
+import {
+  IVoucherCampaign,
+  IVoucherCampaignDocument,
+} from '@/voucher/@types/voucherCampaign';
 import { VOUCHER_STATUS } from '@/voucher/constants';
 import { voucherSchema } from '@/voucher/db/definitions/voucher';
 import {
   ownersWithinLimit,
   VoucherOwnerLimitError,
 } from '@/voucher/services/ownerLimit';
+import {
+  holdStep,
+  mayApplyTo,
+  releaseStep,
+  useStep,
+  voucherRefusal,
+} from '@/voucher/services/voucherLifecycle';
+import {
+  addValidity,
+  isCampaignIssuing,
+  PICKED_SALE_VOUCHER_TYPES,
+  termsOfCampaign,
+  voucherExpiresAt,
+  voucherTerms,
+} from '@/voucher/services/voucherTerm';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
-import { Model } from 'mongoose';
+import { Model, UpdateQuery } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { IBuyParams } from '~/utils';
 
@@ -25,27 +47,122 @@ export interface IVoucherModel extends Model<IVoucherDocument> {
   removeVouchers(_ids: string[]): void;
   removeVouchersByFilter(params: IVoucherParams): Promise<number>;
 
-  checkVoucher({
-    voucherId,
-    ownerType,
-    ownerId,
-    totalAmount,
-  }: {
+  checkVoucher(
+    args: TOwnedVoucher & {
+      totalAmount?: number;
+      targetId?: string;
+    },
+  ): Promise<TSaleVoucherRules>;
+  holdVoucher(
+    args: TOwnedVoucher & {
+      target: IVoucherTarget;
+      totalAmount?: number;
+      userId?: string;
+    },
+  ): Promise<IVoucherDocument>;
+  releaseVoucher(args: {
     voucherId: string;
-    ownerType: string;
-    ownerId: string;
-    totalAmount?: number;
-  }): Promise<IVoucherCampaignDocument>;
-  redeemVoucher({
-    voucherId,
-    usageInfo,
-  }: {
+    target: IVoucherTarget;
+    userId?: string;
+  }): Promise<IVoucherDocument>;
+  useVoucher(
+    args: TOwnedVoucher & { target?: IVoucherTarget; userId?: string },
+  ): Promise<IVoucherDocument>;
+  useBonus(args: {
     voucherId: string;
-    usageInfo?: any;
+    count: number;
+    target?: IVoucherTarget;
+    userId?: string;
+  }): Promise<void>;
+  releaseTarget(args: { targetId: string; userId?: string }): Promise<number>;
+  returnTarget(args: { targetId: string; userId?: string }): Promise<number>;
+  cancelVoucher(args: {
+    _id: string;
+    reason: string;
+    userId?: string;
+  }): Promise<IVoucherDocument>;
+  markVoucherUsed(args: {
+    _id: string;
+    note: string;
+    userId?: string;
+  }): Promise<IVoucherDocument>;
+  extendVoucher(args: {
+    _id: string;
+    endDate: Date;
+    userId?: string;
   }): Promise<IVoucherDocument>;
 }
 
+type TOwnedVoucher = { voucherId: string; ownerType: string; ownerId: string };
+
+/** The campaign as this voucher applies it: its own terms over the campaign. */
+export type TSaleVoucherRules = IVoucherCampaign &
+  IVoucherTerms & { _id: string };
+
+const historyEntry = (
+  action: TVoucherHistoryAction,
+  {
+    by,
+    target,
+    note,
+  }: { by?: string; target?: Partial<IVoucherTarget>; note?: string } = {},
+): IVoucherHistoryEntry => ({
+  action,
+  at: new Date(),
+  ...(by ? { by } : {}),
+  ...(target?.targetId
+    ? { targetType: target.targetType, targetId: target.targetId }
+    : {}),
+  ...(note ? { note } : {}),
+});
+
+// The campaign's own term, unless the issuer gave one.
+const issuedConfig = (
+  campaign: IVoucherCampaignDocument,
+  issuedAt: Date,
+  config?: IVoucher['config'],
+) => {
+  if (config?.endDate || !campaign.validity) {
+    return config;
+  }
+
+  return { ...config, endDate: addValidity(issuedAt, campaign.validity) };
+};
+
 export const loadVoucherClass = (models: IModels, subdomain: string) => {
+  const getVoucherLean = async (_id: string) => {
+    const voucher = await models.Vouchers.findOne({ _id }).lean();
+
+    if (!voucher) {
+      throw new Error('Voucher not found');
+    }
+
+    return voucher;
+  };
+
+  // Moves it only if nobody moved it since it was read: two tills cannot
+  // both take one voucher.
+  const moveVoucher = async (
+    voucher: IVoucherDocument,
+    update: UpdateQuery<IVoucherDocument>,
+  ) => {
+    const moved = await models.Vouchers.findOneAndUpdate(
+      {
+        _id: voucher._id,
+        status: voucher.status,
+        'usedIn.targetId': voucher.usedIn?.targetId ?? null,
+      },
+      update,
+      { new: true },
+    );
+
+    if (!moved) {
+      throw new Error('The voucher changed meanwhile; try again');
+    }
+
+    return moved;
+  };
+
   class Voucher {
     public static async getVoucher(_id: string) {
       const voucherRule = await models.Vouchers.findOne({ _id });
@@ -70,8 +187,8 @@ export const loadVoucherClass = (models: IModels, subdomain: string) => {
         campaignId,
       );
 
-      if (voucherCampaign.startDate > now || voucherCampaign.endDate < now) {
-        throw new Error('Cannot create voucher: voucher is expired');
+      if (!isCampaignIssuing(voucherCampaign, now)) {
+        throw new Error('Cannot create voucher: campaign is not running');
       }
 
       const { refused, reason } = await ownersWithinLimit(
@@ -117,7 +234,15 @@ export const loadVoucherClass = (models: IModels, subdomain: string) => {
             createdAt: now,
             status: VOUCHER_STATUS.NEW,
             userId,
-            config,
+            config: issuedConfig(voucherCampaign, now, config),
+            terms: termsOfCampaign(voucherCampaign),
+            ...(doc.createdVia ? { createdVia: doc.createdVia } : {}),
+            history: [
+              historyEntry('issued', {
+                by: userId || doc.createdVia?.actorId,
+                note: doc.createdVia?.sourceName,
+              }),
+            ],
           });
       }
     }
@@ -135,8 +260,8 @@ export const loadVoucherClass = (models: IModels, subdomain: string) => {
         campaignId,
       );
 
-      if (voucherCampaign.startDate > now || voucherCampaign.endDate < now) {
-        throw new Error('Cannot create voucher: campaign is expired');
+      if (!isCampaignIssuing(voucherCampaign, now)) {
+        throw new Error('Cannot create voucher: campaign is not running');
       }
 
       if (tagIds?.length) {
@@ -208,6 +333,9 @@ export const loadVoucherClass = (models: IModels, subdomain: string) => {
                     createdAt: now,
                     status: VOUCHER_STATUS.NEW,
                     userId,
+                    config: issuedConfig(voucherCampaign, now),
+                    terms: termsOfCampaign(voucherCampaign),
+                    history: [historyEntry('issued', { by: userId })],
                   });
               }
             }),
@@ -222,7 +350,7 @@ export const loadVoucherClass = (models: IModels, subdomain: string) => {
     }
 
     public static async updateVoucher(_id: string, doc: IVoucher) {
-      const { ownerType, ownerId, status = 'new', userId = '' } = doc;
+      const { ownerType, ownerId, userId = '' } = doc;
 
       if (!ownerId || !ownerType) {
         throw new Error('Cannot create voucher: owner is undefined');
@@ -232,6 +360,13 @@ export const loadVoucherClass = (models: IModels, subdomain: string) => {
 
       if (!voucher) {
         throw new Error(`Voucher ${_id} not found`);
+      }
+
+      // A status moves only through its own steps (use, cancel, mark used).
+      if (doc.status && doc.status !== voucher.status) {
+        throw new Error(
+          "A voucher's status changes only by using, cancelling or marking it used",
+        );
       }
 
       const campaignId = doc.campaignId || voucher.campaignId;
@@ -248,7 +383,6 @@ export const loadVoucherClass = (models: IModels, subdomain: string) => {
             ownerType,
             ownerId,
             modifiedAt: now,
-            status,
             userId,
           },
         },
@@ -307,103 +441,370 @@ export const loadVoucherClass = (models: IModels, subdomain: string) => {
       ownerId,
       voucherId,
       totalAmount = 0,
-    }) {
+      targetId,
+    }: TOwnedVoucher & { totalAmount?: number; targetId?: string }) {
       const voucher = await models.Vouchers.findOne({
         _id: voucherId,
         ownerId,
         ownerType,
-      });
+      }).lean();
 
       if (!voucher) {
         throw new Error('Voucher not found');
       }
 
-      if (voucher.status !== 'new') {
-        throw new Error(`Voucher is ${voucher.status}`);
-      }
-
-      if (!voucher.campaignId) {
-        throw new Error('Voucher is not associated with any campaign');
+      // Free, or already this order's own.
+      if (!mayApplyTo(voucher, targetId)) {
+        throw new Error(voucherRefusal(voucher));
       }
 
       const voucherCampaign = await models.VoucherCampaigns.findOne({
         _id: voucher.campaignId,
-      });
+      }).lean();
 
       if (!voucherCampaign) {
         throw new Error('Campaign not found');
       }
 
-      if (voucherCampaign.voucherType !== 'reward') {
-        throw new Error('This voucher is not reward voucher type');
+      const terms = voucherTerms(voucher, voucherCampaign);
+
+      if (!PICKED_SALE_VOUCHER_TYPES.includes(terms.voucherType || '')) {
+        throw new Error('This voucher is not picked at a sale');
       }
 
       if (voucherCampaign.status !== 'active') {
         throw new Error('Campaign is not active');
       }
 
-      if (totalAmount && voucherCampaign.restrictions) {
-        const { minimumSpend, maximumSpend } = voucherCampaign.restrictions;
+      const { minimumSpend, maximumSpend } = (terms.restrictions || {}) as {
+        minimumSpend?: number;
+        maximumSpend?: number;
+      };
 
-        if (maximumSpend && maximumSpend < totalAmount) {
-          throw new Error(
-            `This voucher allows a maximum spend of ${maximumSpend}`,
-          );
-        }
-
-        if (minimumSpend && minimumSpend > totalAmount) {
-          throw new Error(
-            `This voucher requires a minimum spend of ${minimumSpend}`,
-          );
-        }
+      if (totalAmount && maximumSpend && maximumSpend < totalAmount) {
+        throw new Error(
+          `This voucher allows a maximum spend of ${maximumSpend}`,
+        );
       }
 
-      const currentDate = new Date();
+      if (totalAmount && minimumSpend && minimumSpend > totalAmount) {
+        throw new Error(
+          `This voucher requires a minimum spend of ${minimumSpend}`,
+        );
+      }
 
-      if (voucher?.config) {
-        const { endDate } = voucher.config;
+      // Used on this very order: re-pricing it later is not a new use.
+      const expiresAt = voucherExpiresAt(voucher, voucherCampaign);
 
-        if (endDate < currentDate) {
-          throw new Error(`This voucher is expired`);
-        }
+      if (
+        voucher.status !== VOUCHER_STATUS.LOSS &&
+        expiresAt &&
+        expiresAt < new Date()
+      ) {
+        throw new Error('This voucher is expired');
+      }
+
+      return { ...voucherCampaign, ...terms };
+    }
+
+    public static async holdVoucher({
+      voucherId,
+      ownerType,
+      ownerId,
+      target,
+      totalAmount,
+      userId,
+    }) {
+      await models.Vouchers.checkVoucher({
+        voucherId,
+        ownerType,
+        ownerId,
+        totalAmount,
+        targetId: target.targetId,
+      });
+
+      const voucher = await getVoucherLean(voucherId);
+
+      if (holdStep(voucher, target) === 'noop') {
+        return voucher;
+      }
+
+      return moveVoucher(voucher, {
+        $set: {
+          status: VOUCHER_STATUS.ONHOLD,
+          usedIn: target,
+          heldAt: new Date(),
+        },
+        $push: { history: historyEntry('held', { by: userId, target }) },
+      });
+    }
+
+    public static async releaseVoucher({ voucherId, target, userId }) {
+      const voucher = await getVoucherLean(voucherId);
+
+      if (releaseStep(voucher, target) === 'noop') {
+        return voucher;
+      }
+
+      return moveVoucher(voucher, {
+        $set: { status: VOUCHER_STATUS.NEW },
+        $unset: { usedIn: '', heldAt: '' },
+        $push: { history: historyEntry('released', { by: userId, target }) },
+      });
+    }
+
+    public static async useVoucher({
+      voucherId,
+      ownerType,
+      ownerId,
+      target,
+      userId,
+    }) {
+      const voucher = await models.Vouchers.findOne({
+        _id: voucherId,
+        ownerId,
+        ownerType,
+      }).lean();
+
+      if (!voucher) {
+        throw new Error('Voucher not found');
+      }
+
+      if (useStep(voucher, target) === 'noop') {
+        return voucher;
+      }
+
+      // Expired by now is refused, even if it was valid when picked.
+      await models.Vouchers.checkVoucher({
+        voucherId,
+        ownerType,
+        ownerId,
+        targetId: target?.targetId,
+      });
+
+      return moveVoucher(voucher, {
+        $set: {
+          status: VOUCHER_STATUS.LOSS,
+          usedAt: new Date(),
+          ...(target ? { usedIn: target } : {}),
+        },
+        $unset: { heldAt: '' },
+        $push: { history: historyEntry('used', { by: userId, target }) },
+      });
+    }
+
+    public static async useBonus({ voucherId, count, target, userId }) {
+      const voucher = await models.Vouchers.findOne({ _id: voucherId }).lean();
+
+      if (!voucher || !count) {
+        return;
+      }
+
+      const campaign = await models.VoucherCampaigns.findOne({
+        _id: voucher.campaignId,
+      }).lean();
+
+      if (!campaign) {
+        return;
+      }
+
+      const { bonusCount = 0 } = voucherTerms(voucher, campaign);
+      const earlier = voucher.bonusInfo || [];
+      // Another sync of the same order restates its count, not adds to it.
+      const repeated = earlier.some(
+        (use) => !!target && use.targetId === target.targetId,
+      );
+      const bonusInfo = [
+        ...earlier.filter((use) => !target || use.targetId !== target.targetId),
+        { usedCount: count, ...(target ? { targetId: target.targetId } : {}) },
+      ];
+      const usedCount = bonusInfo.reduce((sum, use) => sum + use.usedCount, 0);
+
+      await models.Vouchers.updateOne(
+        { _id: voucherId },
+        {
+          $set: {
+            bonusInfo,
+            ...(bonusCount - usedCount <= 0
+              ? {
+                  status: VOUCHER_STATUS.LOSS,
+                  usedAt: new Date(),
+                  ...(target ? { usedIn: target } : {}),
+                }
+              : {}),
+          },
+          ...(repeated
+            ? {}
+            : {
+                $push: {
+                  history: historyEntry('used', {
+                    by: userId,
+                    target,
+                    note: `${count} of ${bonusCount}`,
+                  }),
+                },
+              }),
+        },
+      );
+    }
+
+    public static async releaseTarget({ targetId, userId }) {
+      const { modifiedCount } = await models.Vouchers.updateMany(
+        { status: VOUCHER_STATUS.ONHOLD, 'usedIn.targetId': targetId },
+        {
+          $set: { status: VOUCHER_STATUS.NEW },
+          $unset: { usedIn: '', heldAt: '' },
+          $push: {
+            history: historyEntry('released', {
+              by: userId,
+              note: 'Order cancelled',
+            }),
+          },
+        },
+      );
+
+      return modifiedCount;
+    }
+
+    /** A fully returned order gives its vouchers back, with their own expiry. */
+    public static async returnTarget({ targetId, userId }) {
+      const returned = historyEntry('returned', {
+        by: userId,
+        target: { targetId },
+      });
+
+      const { modifiedCount } = await models.Vouchers.updateMany(
+        { status: VOUCHER_STATUS.LOSS, 'usedIn.targetId': targetId },
+        {
+          $set: { status: VOUCHER_STATUS.NEW },
+          $unset: { usedIn: '', usedAt: '' },
+          $push: { history: returned },
+        },
+      );
+
+      const bonusVouchers = await models.Vouchers.find({
+        'bonusInfo.targetId': targetId,
+      }).lean();
+
+      for (const voucher of bonusVouchers) {
+        await models.Vouchers.updateOne(
+          { _id: voucher._id },
+          {
+            $set: {
+              bonusInfo: (voucher.bonusInfo || []).filter(
+                (use) => use.targetId !== targetId,
+              ),
+              status: VOUCHER_STATUS.NEW,
+            },
+            $unset: { usedIn: '', usedAt: '' },
+            $push: { history: returned },
+          },
+        );
+      }
+
+      return modifiedCount + bonusVouchers.length;
+    }
+
+    public static async cancelVoucher({ _id, reason, userId }) {
+      if (!reason?.trim()) {
+        throw new Error('Say why the voucher is cancelled');
+      }
+
+      const voucher = await getVoucherLean(_id);
+
+      if (voucher.status !== VOUCHER_STATUS.NEW) {
+        throw new Error(
+          `Only an unused voucher can be cancelled: ${voucherRefusal(voucher)}`,
+        );
+      }
+
+      return moveVoucher(voucher, {
+        $set: {
+          status: VOUCHER_STATUS.CANCELLED,
+          cancelledAt: new Date(),
+          cancelledBy: userId,
+          cancelReason: reason.trim(),
+        },
+        $push: {
+          history: historyEntry('cancelled', {
+            by: userId,
+            note: reason.trim(),
+          }),
+        },
+      });
+    }
+
+    public static async markVoucherUsed({ _id, note, userId }) {
+      if (!note?.trim()) {
+        throw new Error('Say where the voucher was used');
+      }
+
+      const voucher = await getVoucherLean(_id);
+
+      if (voucher.status !== VOUCHER_STATUS.NEW) {
+        throw new Error(
+          `Only an unused voucher can be marked used: ${voucherRefusal(
+            voucher,
+          )}`,
+        );
+      }
+
+      return moveVoucher(voucher, {
+        $set: {
+          status: VOUCHER_STATUS.LOSS,
+          usedAt: new Date(),
+          usedIn: { targetType: 'manual', note: note.trim() },
+        },
+        $push: {
+          history: historyEntry('markedUsed', {
+            by: userId,
+            note: note.trim(),
+          }),
+        },
+      });
+    }
+
+    public static async extendVoucher({ _id, endDate, userId }) {
+      const voucher = await getVoucherLean(_id);
+
+      if (
+        ![VOUCHER_STATUS.NEW, VOUCHER_STATUS.ONHOLD].includes(
+          voucher.status || '',
+        )
+      ) {
+        throw new Error(
+          `Only an unused voucher can be extended: ${voucherRefusal(voucher)}`,
+        );
+      }
+
+      const campaign = await models.VoucherCampaigns.getVoucherCampaign(
+        voucher.campaignId,
+      );
+      const until = new Date(endDate);
+      const current = voucherExpiresAt(voucher, campaign);
+
+      if (until <= (current || new Date())) {
+        throw new Error('The new end must be later than the current one');
       }
 
       if (
-        (voucherCampaign.finishDateOfUse || voucherCampaign.endDate) <
-        currentDate
+        campaign.finishDateOfUse &&
+        until > new Date(campaign.finishDateOfUse)
       ) {
-        throw new Error('The campaign has ended and the voucher is expired');
-      }
-
-      return voucherCampaign;
-    }
-
-    public static async redeemVoucher({ voucherId, usageInfo }) {
-      const { ownerType, ownerId } = usageInfo || {};
-
-      const isValid = await this.checkVoucher({
-        ownerType,
-        ownerId,
-        voucherId,
-      });
-
-      if (!isValid) {
-        throw new Error('Invalid voucher code');
-      }
-
-      try {
-        return await models.Vouchers.findOneAndUpdate(
-          { _id: voucherId },
-          {
-            $set: {
-              status: VOUCHER_STATUS.LOSS,
-            },
-          },
-          { new: true },
+        throw new Error(
+          "The campaign's last day of use comes first; a voucher cannot outlast it",
         );
-      } catch (error) {
-        throw new Error(`Error occurred while redeeming voucher ${error}`);
       }
+
+      return moveVoucher(voucher, {
+        $set: { config: { ...voucher.config, endDate: until } },
+        $push: {
+          history: historyEntry('extended', {
+            by: userId,
+            note: until.toISOString(),
+          }),
+        },
+      });
     }
   }
 

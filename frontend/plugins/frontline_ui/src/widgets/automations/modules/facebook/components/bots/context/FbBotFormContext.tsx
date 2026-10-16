@@ -1,4 +1,4 @@
-import { IFacebookBot } from '@/integrations/facebook/types/FacebookBot';
+import { IFacebookBotDetail } from '@/integrations/facebook/types/FacebookBot';
 import {
   facebookBotFormSchema,
   TFacebookBotForm,
@@ -6,13 +6,29 @@ import {
 import { zodResolver } from '@hookform/resolvers/zod';
 import { createContext, ReactNode, useContext, useMemo } from 'react';
 import { DefaultValues, useForm, UseFormReturn } from 'react-hook-form';
+import { isDefined } from 'erxes-ui';
 import { generateAutomationElementId } from 'ui-modules';
 import { TFacebookBotPage } from '~/widgets/automations/modules/facebook/components/bots/hooks/useFacebookIntegrationBot';
 
 interface FbBotFormContextType {
   form: UseFormReturn<TFacebookBotForm>;
-  facebookMessengerBot?: IFacebookBot;
+  facebookMessengerBot?: IFacebookBotDetail;
 }
+
+const menuTypeSchema =
+  facebookBotFormSchema.shape.persistentMenus.element.shape.type;
+
+const toMenuType = (type?: string | null) => {
+  const parsed = menuTypeSchema.safeParse(type);
+
+  return parsed.success ? parsed.data : 'button';
+};
+
+const toBotTag = (tag?: string | null) => {
+  const parsed = facebookBotFormSchema.shape.tag.safeParse(tag);
+
+  return parsed.success ? parsed.data : 'CONFIRMED_EVENT_UPDATE';
+};
 
 const FbBotFormContext = createContext<FbBotFormContextType | null>(null);
 
@@ -22,21 +38,21 @@ export const FbBotFormProvider = ({
   page,
 }: {
   children: ReactNode;
-  facebookMessengerBot?: IFacebookBot;
+  facebookMessengerBot?: IFacebookBotDetail;
   // Set when the form is opened from an integration that already owns the
   // page, so the in-form page selector is skipped.
   page?: TFacebookBotPage;
 }) => {
   const defaultValues = useMemo<DefaultValues<TFacebookBotForm>>(() => {
     const persistentMenus = facebookMessengerBot?.persistentMenus?.length
-      ? facebookMessengerBot.persistentMenus.map(
-          ({ _id, text, type, link }) => ({
+      ? facebookMessengerBot.persistentMenus
+          .filter(isDefined)
+          .map(({ _id, text, type, link }) => ({
             _id: _id || generateAutomationElementId(),
             text: type === 'back_button' ? text || 'Back' : text || '',
-            type: type || 'button',
+            type: toMenuType(type),
             link: link || '',
-          }),
-        )
+          }))
       : [
           {
             _id: generateAutomationElementId(),
@@ -61,14 +77,14 @@ export const FbBotFormProvider = ({
     return {
       name: facebookMessengerBot?.name || '',
       persistentMenus,
-      iceBreakers: (facebookMessengerBot?.iceBreakers || []).map(
-        ({ _id, question }) => ({
+      iceBreakers: (facebookMessengerBot?.iceBreakers || [])
+        .filter(isDefined)
+        .map(({ _id, question }) => ({
           _id: _id || generateAutomationElementId(),
           question: question || '',
-        }),
-      ),
+        })),
       getStartedText: facebookMessengerBot?.getStartedText || '',
-      tag: facebookMessengerBot?.tag || 'CONFIRMED_EVENT_UPDATE',
+      tag: toBotTag(facebookMessengerBot?.tag),
       greetText: facebookMessengerBot?.greetText || '',
       handoffMessage:
         facebookMessengerBot?.handoffMessage ||

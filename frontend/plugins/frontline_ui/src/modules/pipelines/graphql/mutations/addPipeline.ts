@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const ADD_PIPELINE = gql`
+export const ADD_PIPELINE = gql(`
   mutation CreatePipeline(
     $name: String!
     $channelId: String!
@@ -48,4 +48,4 @@ export const ADD_PIPELINE = gql`
       userId
     }
   }
-`;
+`);

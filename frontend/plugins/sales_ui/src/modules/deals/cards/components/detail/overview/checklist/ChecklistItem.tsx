@@ -29,21 +29,26 @@ import { useTranslation } from 'react-i18next';
 export const ChecklistItem = ({
   item,
   stageId,
+  focusNewItem = false,
 }: Readonly<{
   item: IChecklist;
   stageId?: string;
+  focusNewItem?: boolean;
 }>) => {
   const [open, setOpen] = useState(false);
 
   const [items, setItems] = useState<IChecklistItem[]>(item.items ?? []);
   const [adding, setAdding] = useState(false);
   const [newItem, setNewItem] = useState('');
+  const [focusRequest, setFocusRequest] = useState(0);
   const [hideChecked, setHideChecked] = useState(false);
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [title, setTitle] = useState(item.title);
   const savingTitleRef = useRef(false);
+  const savingNewItemRef = useRef(false);
 
-  const { salesChecklistItemsAdd } = useChecklistItemsAdd();
+  const { salesChecklistItemsAdd, loading: addingItem } =
+    useChecklistItemsAdd();
   const { salesChecklistItemsReorder } = useChecklistItemsReorder();
   const { salesChecklistsEdit } = useChecklistsEdit();
   const { salesChecklistsRemove, salesChecklistsRemoveLoading, error } =
@@ -53,6 +58,13 @@ export const ChecklistItem = ({
   const checkedCount = items.filter((i) => i.isChecked).length;
 
   const { t } = useTranslation('sales');
+
+  useEffect(() => {
+    if (!focusNewItem) return;
+
+    setOpen(true);
+    setAdding(true);
+  }, [focusNewItem]);
 
   useEffect(() => {
     if (!Array.isArray(item.items)) return;
@@ -75,6 +87,8 @@ export const ChecklistItem = ({
   }, [error]);
 
   const handleAdd = async () => {
+    if (savingNewItemRef.current) return;
+
     const lines = newItem
       .split('\n')
       .map((line) => line.trim())
@@ -82,32 +96,40 @@ export const ChecklistItem = ({
 
     if (lines.length === 0) return;
 
+    savingNewItemRef.current = true;
     setNewItem('');
-    setAdding(false);
 
-    for (const [index, content] of lines.entries()) {
-      try {
-        const { data } = await salesChecklistItemsAdd({
-          variables: {
-            checklistId: item._id,
-            content,
-          },
-        });
+    try {
+      for (const [index, content] of lines.entries()) {
+        try {
+          const { data } = await salesChecklistItemsAdd({
+            variables: {
+              checklistId: item._id,
+              content,
+            },
+          });
 
-        if (data?.salesChecklistItemsAdd) {
+          if (!data?.salesChecklistItemsAdd) {
+            throw new Error(t('unknown-error'));
+          }
+
           setItems((prev) => [...prev, data.salesChecklistItemsAdd]);
+        } catch (addError) {
+          setNewItem((current) =>
+            [lines.slice(index).join('\n'), current].filter(Boolean).join('\n'),
+          );
+          toast({
+            title: t('error'),
+            description:
+              addError instanceof Error ? addError.message : t('unknown-error'),
+            variant: 'destructive',
+          });
+          return;
         }
-      } catch (addError) {
-        setNewItem(lines.slice(index).join('\n'));
-        setAdding(true);
-        toast({
-          title: t('error'),
-          description:
-            addError instanceof Error ? addError.message : t('unknown-error'),
-          variant: 'destructive',
-        });
-        return;
       }
+      setFocusRequest((current) => current + 1);
+    } finally {
+      savingNewItemRef.current = false;
     }
   };
 
@@ -347,6 +369,8 @@ export const ChecklistItem = ({
           setNewItem={setNewItem}
           handleAdd={handleAdd}
           handleKeyDown={handleKeyDown}
+          loading={addingItem}
+          focusRequest={focusRequest}
         />
       </Collapsible.Content>
     </Collapsible>

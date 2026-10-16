@@ -11,13 +11,20 @@ import {
 import { Node, useReactFlow } from '@xyflow/react';
 import { toast } from 'erxes-ui';
 import { useMemo } from 'react';
+import { useSavedConditionals } from '@/automations/components/builder/sidebar/hooks/useSavedConditionals';
 import {
+  AUTOMATION_CONDITIONALS_KEY,
+  finalizeAutomationConditionals,
   IAutomationsActionConfigConstants,
   splitAutomationNodeType,
   TAutomationAction,
+  TAutomationConditionalErrors,
+  TAutomationConditionals,
   TAutomationTrigger,
+  useAutomationConditionalsStore,
 } from 'ui-modules';
 import { useNodeErrorHandler } from '../../hooks/useNodeErrorHandler';
+import { useTranslation } from 'react-i18next';
 
 const getTargetType = (
   actionConstMap: Map<string, IAutomationsActionConfigConstants>,
@@ -36,7 +43,18 @@ const getTargetType = (
   return trigger?.type;
 };
 
+const describeConditionalErrors = (
+  errors: TAutomationConditionalErrors,
+  conditionals: TAutomationConditionals,
+) => {
+  const [id, [firstError]] = Object.entries(errors)[0];
+  const label = conditionals[id]?.label;
+
+  return label ? `${label}: ${firstError}` : firstError;
+};
+
 export const useAutomationActionContentSidebar = () => {
+  const { t } = useTranslation('automations');
   const {
     queryParams,
     setQueryParams,
@@ -58,6 +76,11 @@ export const useAutomationActionContentSidebar = () => {
 
   // Safely get currentAction, guard against -1
   const currentAction = currentIndex >= 0 ? actions[currentIndex] : null;
+
+  const conditionalsStore = useAutomationConditionalsStore(
+    currentAction?.id,
+    useSavedConditionals(currentAction?.config),
+  );
 
   const trigger = getTriggerOfAction(
     queryParams?.activeNodeId ?? '',
@@ -97,7 +120,7 @@ export const useAutomationActionContentSidebar = () => {
     setQueryParams({ activeNodeId: null });
     toggleSideBarOpen();
     toast({
-      title: 'Action configuration added successfully.',
+      title: t('sidebar-action-configuration-added'),
       variant: 'success',
     });
     currentAction && clearNodeError(currentAction.id);
@@ -105,8 +128,31 @@ export const useAutomationActionContentSidebar = () => {
 
   const onSaveActionConfig = (config: any) => {
     const prevConfig = currentAction?.config || {};
+    const merged = Object.fromEntries(
+      Object.entries({ ...prevConfig, ...config }).filter(
+        ([key]) => key !== AUTOMATION_CONDITIONALS_KEY,
+      ),
+    );
 
-    const updatedConfig = { ...prevConfig, ...config };
+    // Only conditionals the config still points at are kept, and all of them
+    // must be complete before anything is written
+    const { conditionals, errors } = finalizeAutomationConditionals(
+      merged,
+      conditionalsStore.getSnapshot(),
+    );
+
+    if (Object.keys(errors).length) {
+      conditionalsStore.setErrors(errors);
+      toast({
+        title: describeConditionalErrors(errors, conditionals),
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    const updatedConfig = Object.keys(conditionals).length
+      ? { ...merged, [AUTOMATION_CONDITIONALS_KEY]: conditionals }
+      : merged;
 
     setAutomationBuilderFormValue(
       `${AutomationNodesType.Actions}.${currentIndex}.config`,
@@ -129,6 +175,7 @@ export const useAutomationActionContentSidebar = () => {
     setQueryParams,
     toggleSideBarOpen,
     onSaveActionConfig,
+    conditionalsStore,
     pluginName,
     moduleName,
     trigger,

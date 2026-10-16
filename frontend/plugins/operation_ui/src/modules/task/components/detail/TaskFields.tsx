@@ -10,27 +10,24 @@ import { SelectMilestone } from '@/task/components/task-selects/SelectMilestone'
 import { SelectProject } from '@/task/components/task-selects/SelectProjectTask';
 import { SelectStatusTask } from '@/task/components/task-selects/SelectStatusTask';
 import { SelectTaskPriority } from '@/task/components/task-selects/SelectTaskPriority';
+import { SelectTagsTask } from '@/task/components/task-selects/SelectTagsTask';
 import { SelectTeamTask } from '@/task/components/task-selects/SelectTeamTask';
 import { useUpdateTask } from '@/task/hooks/useUpdateTask';
-import { ITaskDetail } from '@/task/types';
-import { Block } from '@blocknote/core';
+import type { ITaskDetail } from '@/task/types';
 import {
   BlockEditor,
   Separator,
   Textarea,
-  useBlockEditor,
-  Combobox,
   Button,
+  Spinner,
+  type IBlockEditor,
 } from 'erxes-ui';
 import { useEffect, useRef, useState } from 'react';
 import { useDebounce } from 'use-debounce';
-import { TagsSelect } from 'ui-modules';
-import {
-  IconBrandGithub,
-  IconExternalLink,
-  IconTags,
-} from '@tabler/icons-react';
+import { IconBrandGithub, IconExternalLink } from '@tabler/icons-react';
 import { parseDescriptionBlocks } from '@/operation/utils/parseDescriptionBlocks';
+import { useDescriptionEditor } from '@/operation/hooks/useDescriptionEditor';
+import { normalizeDescriptionBlocks } from '@/operation/utils/normalizeDescriptionBlocks';
 
 export const TaskFields = ({ task }: { task: ITaskDetail }) => {
   const { t } = useTranslation('operation');
@@ -52,27 +49,19 @@ export const TaskFields = ({ task }: { task: ITaskDetail }) => {
     githubRepoName,
   } = task || {};
 
-  const startDate = task?.startDate;
-  const description = task?.description;
-  const initialDescriptionContent = parseDescriptionBlocks(description);
-
-  const [descriptionContent, setDescriptionContent] = useState<
-    Block[] | undefined
-  >(initialDescriptionContent);
-
-  const editor = useBlockEditor({
-    initialContent: descriptionContent?.length ? descriptionContent : undefined,
-    placeholder: t('description-placeholder'),
-  });
+  const startDate = task.startDate;
+  const description = task.description;
+  const [descriptionContent, setDescriptionContent] =
+    useState<IBlockEditor['document']>();
+  const { editor, isReady: isDescriptionReady } = useDescriptionEditor(
+    description,
+    t('description-placeholder'),
+  );
   const { updateTask } = useUpdateTask();
   const [name, setName] = useState(_name);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
-  const handleDescriptionChange = async () => {
-    const content = await editor?.document;
-    if (content) {
-      content.pop();
-      setDescriptionContent(content as Block[]);
-    }
+  const handleDescriptionChange = (): void => {
+    setDescriptionContent(normalizeDescriptionBlocks(editor.document));
   };
 
   const [debouncedDescriptionContent] = useDebounce(descriptionContent, 1000);
@@ -140,88 +129,93 @@ export const TaskFields = ({ task }: { task: ITaskDetail }) => {
         value={name}
         onChange={(e) => setName(e.target.value)}
       />
-      <TagsSelect.Provider
-        mode="multiple"
-        value={compactList(tagIds)}
-        type="operation:task"
-        targetIds={[taskId]}
-      >
-        <div className="gap-2 flex flex-wrap w-full items-center">
-          <SelectStatusTask
-            variant="detail"
-            value={status}
-            id={taskId}
-            teamId={teamId}
-          />
-          <SelectTaskPriority
-            taskId={taskId}
-            value={priority}
-            variant="detail"
-          />
-          <SelectAssigneeTask
-            variant="detail"
-            value={assigneeId}
-            id={taskId}
-            teamIds={teamId ? [teamId] : undefined}
-          />
-          <DateSelectTask
-            value={startDate}
-            id={taskId}
-            type="startDate"
-            variant="detail"
-          />
-          <DateSelectTask
-            value={targetDate}
-            id={taskId}
-            type="targetDate"
-            variant="detail"
-          />
-          <SelectTeamTask
-            taskId={taskId}
-            value={teamId || ''}
-            variant="detail"
-          />
-          <SelectCycle
-            value={cycleId || ''}
-            taskId={taskId}
-            variant="detail"
-            teamId={teamId}
-          />
-
-          <SelectProject
-            value={projectId}
-            taskId={taskId}
-            variant="detail"
-            teamId={teamId}
-          />
-          <SelectEstimatedPoint
-            value={estimatePoint}
-            taskId={taskId}
-            teamId={teamId}
-            variant="detail"
-          />
-          <SelectMilestone
-            value={milestoneId || ''}
-            taskId={taskId}
-            projectId={projectId}
-            variant="detail"
-          />
-          <ConvertToProject task={task} />
-          <IconTags className="size-5 ml-2"></IconTags>
-          <TagsSelect.SelectedList />
-          <TagsSelect.Trigger variant="ICON" />
-          <Combobox.Content>
-            <TagsSelect.Content />
-          </Combobox.Content>
-        </div>
-      </TagsSelect.Provider>
+      <div className="gap-2 flex flex-wrap w-full items-center">
+        <SelectStatusTask
+          variant="detail"
+          value={status}
+          id={taskId}
+          teamId={teamId}
+          label={t('status')}
+        />
+        <SelectTaskPriority
+          taskId={taskId}
+          value={priority}
+          variant="detail"
+          label={t('priority')}
+        />
+        <SelectAssigneeTask
+          variant="detail"
+          value={assigneeId}
+          id={taskId}
+          teamIds={teamId ? [teamId] : undefined}
+          label={t('assignee')}
+        />
+        <DateSelectTask
+          value={startDate}
+          id={taskId}
+          type="startDate"
+          variant="input"
+          label={t('start-date')}
+        />
+        <DateSelectTask
+          value={targetDate}
+          id={taskId}
+          type="targetDate"
+          variant="input"
+          label={t('due-date')}
+        />
+        <SelectTeamTask
+          taskId={taskId}
+          value={teamId || ''}
+          variant="detail"
+          label={t('team')}
+        />
+        <SelectCycle
+          value={cycleId || ''}
+          taskId={taskId}
+          variant="detail"
+          teamId={teamId}
+          label={t('cycle')}
+        />
+        <SelectProject
+          value={projectId}
+          taskId={taskId}
+          variant="detail"
+          teamId={teamId}
+          label={t('project')}
+        />
+        <SelectEstimatedPoint
+          value={estimatePoint}
+          taskId={taskId}
+          teamId={teamId}
+          variant="detail"
+          label={t('estimate')}
+        />
+        <SelectMilestone
+          value={milestoneId || ''}
+          taskId={taskId}
+          projectId={projectId}
+          variant="detail"
+          label={t('milestone')}
+        />
+        <SelectTagsTask
+          taskId={taskId}
+          value={compactList(tagIds)}
+          label={t('tags')}
+        />
+        <ConvertToProject task={task} />
+      </div>
       <Separator className="mb-4 mt-2" />
       <div className="min-h-56 overflow-y-auto">
-        <BlockEditor
-          editor={editor}
-          onChange={handleDescriptionChange}
-          className="min-h-full read-only"
-        />
+        {isDescriptionReady ? (
+          <BlockEditor
+            editor={editor}
+            onChange={handleDescriptionChange}
+            className="min-h-full read-only"
+          />
+        ) : (
+          <Spinner />
+        )}
       </div>
       <ActivityList contentId={taskId} contentDetail={task} />
     </div>

@@ -36,9 +36,12 @@ export const checkLoyalties = async (subdomain: string, doc: IOrderInput) => {
             unitPrice: i.unitPrice,
           })),
         ],
+        // Loyalty takes a missing value, not null; the POS sends null when nothing is chosen.
         discountInfo: {
-          couponCode: doc.couponCode,
-          voucherId: doc.voucherId,
+          couponCode: doc.couponCode || undefined,
+          voucherId: doc.voucherId || undefined,
+          // Its own held voucher passes; one held by another order does not.
+          targetId: doc._id || undefined,
         },
       },
       defaultValue: {},

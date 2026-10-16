@@ -36,6 +36,7 @@ export const useVouchersVariables = (options: UseVouchersListOptions = {}) => {
       date,
       orderType,
       sortField: sortFieldQuery,
+      expiresWithin,
     },
   ] = useMultiQueryState<{
     status: string;
@@ -45,6 +46,7 @@ export const useVouchersVariables = (options: UseVouchersListOptions = {}) => {
     date: string;
     orderType: string;
     sortField: string;
+    expiresWithin: string;
   }>([
     'status',
     'voucherCampaignId',
@@ -53,6 +55,7 @@ export const useVouchersVariables = (options: UseVouchersListOptions = {}) => {
     'date',
     'orderType',
     'sortField',
+    'expiresWithin',
   ]);
 
   const [ownerId] = useQueryState<string>('ownerId');
@@ -75,6 +78,7 @@ export const useVouchersVariables = (options: UseVouchersListOptions = {}) => {
     toDate: dateRange?.to?.toISOString() || undefined,
     sortField,
     sortDirection,
+    expiresWithin: expiresWithin ? Number(expiresWithin) : undefined,
     ...options,
   };
 };

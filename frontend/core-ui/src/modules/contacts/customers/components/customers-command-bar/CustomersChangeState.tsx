@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useChangeCustomerState } from '@/contacts/customers/hooks/useChangeCustomerState';
 import { IconUserCheck } from '@tabler/icons-react';
 import { ApolloError } from '@apollo/client';
@@ -6,8 +7,8 @@ import { Button, DropdownMenu, RecordTable, useToast } from 'erxes-ui';
 import { ICustomer } from 'ui-modules';
 
 const LIFECYCLE_STATES = [
-  { label: 'Lead', value: 'lead' },
-  { label: 'Customer', value: 'customer' },
+  { labelKey: 'state-lead', value: 'lead' },
+  { labelKey: 'state-customer', value: 'customer' },
 ];
 
 type CustomerWithState = ICustomer & { state?: string };
@@ -22,6 +23,7 @@ export const CustomersChangeState = ({
   const { changeCustomerState } = useChangeCustomerState();
   const { table } = RecordTable.useRecordTable();
   const { toast } = useToast();
+  const { t } = useTranslation('contact', { keyPrefix: 'customer' });
 
   const currentState = rows.length === 1 ? rows[0].original.state : undefined;
 
@@ -33,18 +35,18 @@ export const CustomersChangeState = ({
     await changeCustomerState(customerIds, value, {
       onError: (e: ApolloError) => {
         toast({
-          title: 'Error',
+          title: t('error-title'),
           description: e.message,
           variant: 'destructive',
         });
       },
       onCompleted: () => {
-        const label =
-          LIFECYCLE_STATES.find((s) => s.value === value)?.label ?? value;
+        const state = LIFECYCLE_STATES.find((s) => s.value === value);
+        const label = state ? t(state.labelKey) : value;
         toast({
-          title: 'Success',
+          title: t('success-title'),
           variant: 'success',
-          description: `State changed to "${label}" successfully`,
+          description: t('state-changed', { label }),
         });
       },
     });
@@ -55,7 +57,7 @@ export const CustomersChangeState = ({
       <DropdownMenu.Trigger asChild>
         <Button variant="secondary">
           <IconUserCheck />
-          Change State
+          {t('change-state')}
         </Button>
       </DropdownMenu.Trigger>
       <DropdownMenu.Content>
@@ -67,7 +69,7 @@ export const CustomersChangeState = ({
               currentState === state.value ? 'bg-primary/10 font-medium' : ''
             }
           >
-            {state.label}
+            {t(state.labelKey)}
           </DropdownMenu.Item>
         ))}
       </DropdownMenu.Content>

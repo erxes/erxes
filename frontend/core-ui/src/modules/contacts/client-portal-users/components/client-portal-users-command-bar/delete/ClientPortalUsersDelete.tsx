@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { IconTrash } from '@tabler/icons-react';
 import { Button, RecordTable, useConfirm, useToast } from 'erxes-ui';
 import { CP_USERS_REMOVE } from '@/contacts/client-portal-users/graphql/cpUsersRemove';
@@ -12,6 +13,7 @@ export const ClientPortalUsersDelete = ({
   const { confirm } = useConfirm();
   const { table } = RecordTable.useRecordTable();
   const { toast } = useToast();
+  const { t } = useTranslation('contact', { keyPrefix: 'clientPortalUser' });
 
   const [cpUsersRemove, { loading }] = useMutation(CP_USERS_REMOVE, {
     refetchQueries: ['getClientPortalUsers'],
@@ -24,14 +26,14 @@ export const ClientPortalUsersDelete = ({
       disabled={loading}
       onClick={() =>
         confirm({
-          message: `Are you sure you want to delete the ${cpUserIds.length} selected client portal users?`,
-          options: { confirmationValue: 'delete', okLabel: 'Delete' },
+          message: t('confirm-delete-selected', { count: cpUserIds.length }),
+          options: { confirmationValue: 'delete', okLabel: t('action-delete') },
         }).then(() => {
           cpUsersRemove({
             variables: { ids: cpUserIds },
             onError: (e: ApolloError) => {
               toast({
-                title: 'Error',
+                title: t('error-title'),
                 description: e.message,
                 variant: 'destructive',
               });
@@ -39,9 +41,9 @@ export const ClientPortalUsersDelete = ({
             onCompleted: () => {
               table.setRowSelection({});
               toast({
-                title: 'Success',
+                title: t('success-title'),
                 variant: 'success',
-                description: 'Client portal users deleted successfully',
+                description: t('deleted-success'),
               });
             },
           });
@@ -49,7 +51,7 @@ export const ClientPortalUsersDelete = ({
       }
     >
       <IconTrash />
-      Delete
+      {t('action-delete')}
     </Button>
   );
 };

@@ -51,6 +51,11 @@ import { debugError } from '~/modules/posclient/debugError';
 import { assertPosUser } from '~/modules/posclient/utils/assertPosUser';
 import { cancelPosOrder } from '~/modules/posclient/utils/cancelOrder';
 import {
+  releaseOrderVouchers,
+  syncOrderVoucher,
+} from '~/modules/posclient/utils/orderVoucher';
+import { nanoid } from 'nanoid';
+import {
   IReturnOrderInput,
   returnPosOrder,
 } from '~/modules/posclient/utils/returnOrder';
@@ -115,7 +120,7 @@ const normalizeDateChangeValue = (value: unknown) => {
 const normalizeChangeValue = (
   field: EditableOrderChangeField,
   value: unknown,
-) => (field === 'dueDate' ? normalizeDateChangeValue(value) : (value ?? null));
+) => (field === 'dueDate' ? normalizeDateChangeValue(value) : value ?? null);
 
 const valuesAreEqual = (
   field: EditableOrderChangeField,
@@ -292,6 +297,22 @@ export const ordersAdd = async (
 
   await validateOrder(subdomain, models, config, doc);
 
+  // Held under the order's id before it exists, so no other till can take
+  // the voucher while this one is priced and saved.
+  if (doc.voucherId) {
+    doc._id = nanoid();
+
+    await syncOrderVoucher({
+      subdomain,
+      orderId: doc._id,
+      voucherId: doc.voucherId,
+      ownerType: customerType,
+      ownerId: customerId,
+      totalAmount,
+      userId: posUser?._id,
+    });
+  }
+
   const orderDoc = {
     totalAmount,
     type,
@@ -350,6 +371,7 @@ export const ordersAdd = async (
         isTake: item.isTake,
         status: ORDER_ITEM_STATUSES.NEW,
         manufacturedDate: item.manufacturedDate,
+        conditionCode: item.conditionCode,
         description: item.description,
         attachment: item.attachment,
         closeDate: item?.closeDate,
@@ -398,6 +420,10 @@ export const ordersAdd = async (
       `Error occurred when creating order: ${JSON.stringify(orderDoc)}`,
     );
 
+    if (doc._id) {
+      await releaseOrderVouchers(subdomain, doc._id, posUser?._id);
+    }
+
     return e;
   }
 };
@@ -423,6 +449,17 @@ export const ordersEdit = async (
   await validateOrder(subdomain, models, config, doc, order);
 
   const before = await getOrderChangeSnapshot(models, doc._id);
+
+  await syncOrderVoucher({
+    subdomain,
+    orderId: doc._id,
+    previousVoucherId: order.extraInfo?.voucherId,
+    voucherId: doc.voucherId,
+    ownerType: doc.customerType,
+    ownerId: doc.customerId,
+    totalAmount: doc.totalAmount,
+    userId: posUser?._id,
+  });
 
   await cleanOrderItems(doc._id, doc.items, models);
 
@@ -525,6 +562,7 @@ const getItemInput = (item) => {
     bonusCount: item.bonusCount,
     bonusVoucherId: item.bonusVoucherId,
     manufacturedDate: item.manufacturedDate,
+    conditionCode: item.conditionCode,
     description: item.description,
     attachment: item.attachment,
     closeDate: item.closeDate,

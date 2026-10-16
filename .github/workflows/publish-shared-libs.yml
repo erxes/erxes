@@ -129,7 +129,7 @@ jobs:
       - name: Publish to npm
         if: github.event.inputs.dry_run != true
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH }}
           OTP: ${{ github.event.inputs.otp }}
         run: |
           set -euo pipefail
@@ -140,7 +140,7 @@ jobs:
       - name: Dry-run publish to npm
         if: github.event.inputs.dry_run == true
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH }}
           OTP: ${{ github.event.inputs.otp }}
         run: |
           set -euo pipefail

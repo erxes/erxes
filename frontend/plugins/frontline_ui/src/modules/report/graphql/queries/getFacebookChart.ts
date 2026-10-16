@@ -1,15 +1,15 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const GET_FACEBOOK_PAGES = gql`
+export const GET_FACEBOOK_PAGES = gql(`
   query ReportFacebookPages {
     reportFacebookPages {
       _id
       name
     }
   }
-`;
+`);
 
-export const GET_FACEBOOK_SUMMARY = gql`
+export const GET_FACEBOOK_SUMMARY = gql(`
   query ReportFacebookSummary($filters: FacebookReportFilter) {
     reportFacebookSummary(filters: $filters) {
       posts
@@ -23,9 +23,9 @@ export const GET_FACEBOOK_SUMMARY = gql`
       botCoverage
     }
   }
-`;
+`);
 
-export const GET_FACEBOOK_ACTIVITY = gql`
+export const GET_FACEBOOK_ACTIVITY = gql(`
   query ReportFacebookActivity($filters: FacebookReportFilter) {
     reportFacebookActivity(filters: $filters) {
       date
@@ -34,9 +34,9 @@ export const GET_FACEBOOK_ACTIVITY = gql`
       comments
     }
   }
-`;
+`);
 
-export const GET_FACEBOOK_POSTS = gql`
+export const GET_FACEBOOK_POSTS = gql(`
   query ReportFacebookPosts($filters: FacebookReportFilter) {
     reportFacebookPosts(filters: $filters) {
       list {
@@ -58,9 +58,9 @@ export const GET_FACEBOOK_POSTS = gql`
       totalPages
     }
   }
-`;
+`);
 
-export const GET_FACEBOOK_BOTS = gql`
+export const GET_FACEBOOK_BOTS = gql(`
   query ReportFacebookBots($filters: FacebookReportFilter) {
     reportFacebookBots(filters: $filters) {
       _id
@@ -71,4 +71,4 @@ export const GET_FACEBOOK_BOTS = gql`
       percentage
     }
   }
-`;
+`);

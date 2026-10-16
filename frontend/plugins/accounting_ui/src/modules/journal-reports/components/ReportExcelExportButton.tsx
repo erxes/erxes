@@ -1,5 +1,6 @@
+import { useTranslation } from 'react-i18next';
 import { IconFileSpreadsheet } from '@tabler/icons-react';
-import { format } from 'date-fns';
+import { formatDate as format } from '@/utils/graphqlDate';
 import { Button, useQueryState, useToast } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
 import { useState, type RefObject } from 'react';
@@ -22,15 +23,16 @@ const formatQueryDate = (value: unknown) => {
 export const ReportExcelExportButton = ({
   reportContainerRef,
 }: IReportExcelExportButtonProps) => {
-  const [report] = useQueryState('report');
-  const [fromDate] = useQueryState('fromDate');
-  const [toDate] = useQueryState('toDate');
+  const { t } = useTranslation('accounting');
+  const [report] = useQueryState<string>('report');
+  const [fromDate] = useQueryState<string>('fromDate');
+  const [toDate] = useQueryState<string>('toDate');
   const organization = useAtomValue(currentOrganizationState);
   const { toast } = useToast();
   const [exporting, setExporting] = useState(false);
 
   const reportCode = typeof report === 'string' ? report : '';
-  const title = ReportRules[reportCode]?.title || 'Accounting report';
+  const title = t(ReportRules[reportCode]?.title || 'Accounting report');
 
   const handleExport = async () => {
     if (!reportContainerRef.current) {
@@ -47,16 +49,16 @@ export const ReportExcelExportButton = ({
           .join(' - '),
       });
       toast({
-        title: 'Амжилттай',
-        description: 'Тайланг Excel файлаар татлаа',
+        title: t('success'),
+        description: t('report-downloaded-as-an-excel-file'),
       });
     } catch (error) {
       toast({
-        title: 'Алдаа',
+        title: t('error'),
         description:
           error instanceof Error
-            ? error.message
-            : 'Excel файл үүсгэж чадсангүй',
+            ? t(error.message)
+            : t('unable-to-generate-the-excel-file'),
         variant: 'destructive',
       });
     } finally {
@@ -73,7 +75,7 @@ export const ReportExcelExportButton = ({
       className="print:hidden"
     >
       <IconFileSpreadsheet />
-      {exporting ? 'Excel бэлдэж байна...' : 'Excel татах'}
+      {exporting ? t('preparing-excel-file') : t('download-excel')}
     </Button>
   );
 };

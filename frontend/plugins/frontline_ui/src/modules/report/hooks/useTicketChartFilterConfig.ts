@@ -1,6 +1,12 @@
+import { isDefined } from 'erxes-ui';
 import { useAtomValue, useStore, WritableAtom } from 'jotai';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
+  getReportStatusChangedDateFilterAtom,
+  getReportUpdatedAtDateFilterAtom,
+  getReportDescriptionFilterAtom,
+  getReportStatusChangedByFilterAtom,
+  getReportUpdatedByFilterAtom,
   getReportChannelFilterAtom,
   getReportChartTypeAtom,
   getReportCompanyFilterAtom,
@@ -19,7 +25,9 @@ import {
 import {
   ReportChart,
   ReportChartFilters,
+  SavedReportChartFilters,
   TicketPropertyFilter,
+  isResponsesChartType,
 } from '@/report/types';
 
 const DEFAULT_FREQUENCY = 'day';
@@ -35,6 +43,15 @@ const dropEmptyFilters = (filters: ReportChartFilters): ReportChartFilters =>
 export const useTicketChartFilterConfig = (
   cardId: string,
 ): ReportChartFilters => {
+  const statusChangedDate = useAtomValue(
+    getReportStatusChangedDateFilterAtom(cardId),
+  );
+  const updatedAtDate = useAtomValue(getReportUpdatedAtDateFilterAtom(cardId));
+  const description = useAtomValue(getReportDescriptionFilterAtom(cardId));
+  const statusChangedByIds = useAtomValue(
+    getReportStatusChangedByFilterAtom(cardId),
+  );
+  const updatedByIds = useAtomValue(getReportUpdatedByFilterAtom(cardId));
   const date = useAtomValue(getReportDateFilterAtom(cardId));
   const state = useAtomValue(getReportStateFilterAtom(cardId));
   const statusIds = useAtomValue(getReportTicketStatusFilterAtom(cardId));
@@ -54,6 +71,11 @@ export const useTicketChartFilterConfig = (
   return useMemo(
     () =>
       dropEmptyFilters({
+        statusChangedDate,
+        updatedAtDate,
+        description,
+        statusChangedByIds,
+        updatedByIds,
         date,
         state,
         statusIds,
@@ -72,6 +94,11 @@ export const useTicketChartFilterConfig = (
         ),
       }),
     [
+      statusChangedDate,
+      updatedAtDate,
+      description,
+      statusChangedByIds,
+      updatedByIds,
       date,
       state,
       statusIds,
@@ -90,25 +117,27 @@ export const useTicketChartFilterConfig = (
 };
 
 const toPropertyFilters = (
-  filters: ReportChartFilters,
+  filters: SavedReportChartFilters,
 ): TicketPropertyFilter[] => {
-  const valueFilters = filters.propertyValueFilters || [];
-  const withValues = new Set(
-    valueFilters.map((propertyFilter) => propertyFilter.propertyId),
-  );
-
-  const withoutValues = (filters.propertyIds || [])
+  const valueFilters = (filters.propertyValueFilters ?? [])
+    .filter(isDefined)
+    .flatMap((filter): TicketPropertyFilter[] =>
+      filter.propertyId
+        ? [
+            {
+              propertyId: filter.propertyId,
+              type: filter.type ?? undefined,
+              values: (filter.values ?? []).filter(isDefined),
+            },
+          ]
+        : [],
+    );
+  const withValues = new Set(valueFilters.map((filter) => filter.propertyId));
+  const withoutValues = (filters.propertyIds ?? [])
+    .filter(isDefined)
     .filter((propertyId) => !withValues.has(propertyId))
     .map((propertyId) => ({ propertyId, values: [] }));
-
-  return [
-    ...valueFilters.map((propertyFilter) => ({
-      propertyId: propertyFilter.propertyId,
-      type: propertyFilter.type,
-      values: propertyFilter.values || [],
-    })),
-    ...withoutValues,
-  ];
+  return [...valueFilters, ...withoutValues];
 };
 
 export const useRestoreTicketChartFilters = (
@@ -126,27 +155,56 @@ export const useRestoreTicketChartFilters = (
 
     restoredChartId.current = chart._id;
 
-    const filters = chart.filters || {};
+    const filters: SavedReportChartFilters = chart.filters ?? {};
     const set = <T>(
       getAtom: (id: string) => WritableAtom<T, [T], void>,
       value: T,
     ) => store.set(getAtom(cardId), value);
 
+    set(getReportStatusChangedDateFilterAtom, filters.statusChangedDate || '');
+    set(getReportUpdatedAtDateFilterAtom, filters.updatedAtDate || '');
+    set(getReportDescriptionFilterAtom, filters.description || '');
+    set(
+      getReportStatusChangedByFilterAtom,
+      (filters.statusChangedByIds ?? []).filter(isDefined),
+    );
+    set(
+      getReportUpdatedByFilterAtom,
+      (filters.updatedByIds ?? []).filter(isDefined),
+    );
     set(getReportDateFilterAtom, filters.date || '');
     set(getReportStateFilterAtom, filters.state || DEFAULT_STATE);
-    set(getReportTicketStatusFilterAtom, filters.statusIds || []);
+    set(
+      getReportTicketStatusFilterAtom,
+      (filters.statusIds ?? []).filter(isDefined),
+    );
     set(getReportFrequencyFilterAtom, filters.frequency || DEFAULT_FREQUENCY);
     set(getReportGroupPropertyFilterAtom, filters.groupPropertyId || '');
-    set(getReportChannelFilterAtom, filters.channelIds || []);
-    set(getReportMemberFilterAtom, filters.memberIds || []);
-    set(getReportPipelineFilterAtom, filters.pipelineIds || []);
-    set(getReportTicketTagFilterAtom, filters.tagIds || []);
-    set(getReportCustomerFilterAtom, filters.customerIds || []);
-    set(getReportCompanyFilterAtom, filters.companyIds || []);
-    set(getReportPriorityFilterAtom, filters.priority || []);
+    set(
+      getReportChannelFilterAtom,
+      (filters.channelIds ?? []).filter(isDefined),
+    );
+    set(getReportMemberFilterAtom, (filters.memberIds ?? []).filter(isDefined));
+    set(
+      getReportPipelineFilterAtom,
+      (filters.pipelineIds ?? []).filter(isDefined),
+    );
+    set(getReportTicketTagFilterAtom, (filters.tagIds ?? []).filter(isDefined));
+    set(
+      getReportCustomerFilterAtom,
+      (filters.customerIds ?? []).filter(isDefined),
+    );
+    set(
+      getReportCompanyFilterAtom,
+      (filters.companyIds ?? []).filter(isDefined),
+    );
+    set(
+      getReportPriorityFilterAtom,
+      (filters.priority ?? []).filter(isDefined),
+    );
     set(getReportPropertyFilterAtom, toPropertyFilters(filters));
 
-    if (chart.visualType) {
+    if (isResponsesChartType(chart.visualType)) {
       set(getReportChartTypeAtom, chart.visualType);
     }
 

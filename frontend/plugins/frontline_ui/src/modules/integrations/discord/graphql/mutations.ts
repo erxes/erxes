@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const DISCORD_EDIT_MESSAGE = gql`
+export const DISCORD_EDIT_MESSAGE = gql(`
   mutation DiscordEditMessage(
     $conversationId: String!
     $messageId: String!
@@ -12,9 +12,9 @@ export const DISCORD_EDIT_MESSAGE = gql`
       content: $content
     )
   }
-`;
+`);
 
-export const DISCORD_DELETE_MESSAGE = gql`
+export const DISCORD_DELETE_MESSAGE = gql(`
   mutation DiscordDeleteMessage(
     $conversationId: String!
     $messageId: String!
@@ -24,4 +24,4 @@ export const DISCORD_DELETE_MESSAGE = gql`
       messageId: $messageId
     )
   }
-`;
+`);

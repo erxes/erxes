@@ -2,17 +2,15 @@ import type { Metadata } from 'next';
 import { Open_Sans } from 'next/font/google';
 import Script from 'next/script';
 import './globals.css';
-import { ApolloWrapper } from '@/modules/apollo/components/ApolloWrapper';
 import { SUBDOMAIN_PATTERN } from '@/modules/apollo/utils/env';
 import { readConfig } from '@/modules/config/api';
 import { readScopedCustomDomainSubdomain } from '@/modules/config/requestScope';
-import { SessionProvider } from '@/modules/auth/components/SessionProvider';
-import { LocaleProvider } from '@/modules/i18n/components/LocaleProvider';
 import { getLocale } from '@/modules/i18n/server';
 import { getPortalIdentity, getPortalSettings } from '@/modules/layout/api';
+import { AppProviders } from '@/modules/layout/components/AppProviders';
 import { PortalTheme } from '@/modules/layout/components/PortalTheme';
+import { RouteProgress } from '@/modules/layout/components/RouteProgress';
 import { site } from '@/modules/layout/constants/site';
-import { Toaster } from '@/modules/ui/components/Toaster';
 
 export const dynamic = 'force-dynamic';
 
@@ -51,7 +49,11 @@ export default async function RootLayout({
   const publishSubdomain = SUBDOMAIN_PATTERN.test(customDomainSubdomain);
 
   return (
-    <html lang={locale} className={`${openSans.variable} h-full`}>
+    <html
+      lang={locale}
+      className={`${openSans.variable} h-full`}
+      data-scroll-behavior="smooth"
+    >
       <head>
         <Script
           strategy="beforeInteractive"
@@ -75,14 +77,10 @@ export default async function RootLayout({
           </style>
         </noscript>
         <PortalTheme theme={theme} />
-        <LocaleProvider locale={locale}>
-          <ApolloWrapper appToken={config?.appToken ?? ''}>
-            <SessionProvider>
-              {children}
-              <Toaster />
-            </SessionProvider>
-          </ApolloWrapper>
-        </LocaleProvider>
+        <RouteProgress />
+        <AppProviders locale={locale} appToken={config?.appToken ?? ''}>
+          {children}
+        </AppProviders>
       </body>
     </html>
   );

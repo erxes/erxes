@@ -52,29 +52,17 @@ export default {
             if (filter.priority && task.priority !== filter.priority)
               return false;
 
-            if (
-              filter.startDate &&
-              new Date(task.startDate) < new Date(filter.startDate)
-            )
-              return false;
-
-            if (
-              filter.targetDate &&
-              new Date(task.targetDate) < new Date(filter.targetDate)
-            )
-              return false;
-
-            if (
-              filter.createdAt &&
-              new Date(task.createdAt) < new Date(filter.createdAt)
-            )
-              return false;
-
             if (filter.teamId && task.teamId !== filter.teamId) return false;
             if (filter.createdBy && task.createdBy !== filter.createdBy)
               return false;
-            if (filter.assigneeId && task.assigneeId !== filter.assigneeId)
+            if (filter.assigneeId === 'no-assignee') {
+              if (task.assigneeId != null) return false;
+            } else if (
+              filter.assigneeId &&
+              task.assigneeId !== filter.assigneeId
+            ) {
               return false;
+            }
             if (filter.cycleId && task.cycleId !== filter.cycleId) return false;
             if (filter.projectId && task.projectId !== filter.projectId)
               return false;

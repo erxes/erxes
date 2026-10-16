@@ -6,9 +6,10 @@ import { usePosDetail } from '@/pos/hooks/usePosDetail';
 
 interface PosEditProps {
   id?: string;
+  header?: React.ReactNode;
 }
 
-export const PosEdit = ({ id }: PosEditProps) => {
+export const PosEdit = ({ id, header }: PosEditProps) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { posDetail, loading, error } = usePosDetail(id);
 
@@ -26,14 +27,23 @@ export const PosEdit = ({ id }: PosEditProps) => {
 
   return (
     <div className="flex h-full min-h-0">
-      <PosEditSidebar posType={posDetail?.type} activeTab={activeTab} />
-      <MainContent
-        activeStep={activeTab}
+      <PosEditSidebar
+        posType={posDetail?.type}
+        activeTab={activeTab}
         posId={id}
-        posDetail={posDetail}
-        loading={loading}
-        error={error}
       />
+      <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
+        {header}
+        <div className="flex min-h-0 flex-1">
+          <MainContent
+            activeStep={activeTab}
+            posId={id}
+            posDetail={posDetail}
+            loading={loading}
+            error={error}
+          />
+        </div>
+      </div>
     </div>
   );
 };

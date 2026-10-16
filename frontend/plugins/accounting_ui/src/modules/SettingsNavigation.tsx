@@ -20,7 +20,7 @@ export const SettingsNavigation = () => {
             pathPrefix="accounting/"
           />
           <SettingsNavigationMenuLinkItem
-            name="Үндсэн хөрөнгө"
+            name={t('fixed-asset')}
             icon={IconBuildingWarehouse}
             path="/fixed-assets"
             pathPrefix="accounting/"

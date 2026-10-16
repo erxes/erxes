@@ -1,14 +1,15 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { format } from 'date-fns';
 import { useUpdateTicket } from '@/ticket/hooks/useUpdateTicket';
 import {
-  Calendar,
   RecordTableInlineCell,
   Combobox,
   PopoverScoped,
   Popover,
   Button,
   Form,
+  DatePicker,
+  useToast,
 } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { IconCalendarPlus, IconCalendarTime } from '@tabler/icons-react';
@@ -18,6 +19,7 @@ export enum DateSelectVariant {
   TABLE = 'table',
   FILTER = 'filter',
   DETAIL = 'detail',
+  INPUT = 'input',
   CARD = 'card',
   FORM = 'form',
 }
@@ -29,6 +31,7 @@ interface DateSelectContextType {
   error?: ApolloError;
   variant: DateSelectVariant;
   disabled?: boolean;
+  onClose?: () => void;
 }
 
 const DateSelectContext = React.createContext<DateSelectContextType | null>(
@@ -44,6 +47,15 @@ const useDateSelectContext = () => {
   }
   return context;
 };
+
+const toSingleDate = (date: unknown) =>
+  date instanceof Date ? date : undefined;
+
+const formatDateLabel = (date: Date) =>
+  format(
+    date,
+    date.getFullYear() === new Date().getFullYear() ? 'MMM d' : 'MMM d, yyyy',
+  );
 
 export const DateSelectProvider = ({
   children,
@@ -80,26 +92,30 @@ const DateSelectValue = ({ placeholder }: { placeholder?: string }) => {
   return (
     <>
       <IconCalendarTime className="size-4 text-muted-foreground" />
-      {format(
-        value,
-        value.getFullYear() === new Date().getFullYear()
-          ? 'MMM d'
-          : 'MMM d, yyyy',
-      )}
+      {formatDateLabel(value)}
     </>
   );
 };
 
 const DateSelectContent = () => {
-  const { value, onValueChange } = useDateSelectContext();
+  const { t } = useTranslation('frontline');
+  const { value, onValueChange, onClose } = useDateSelectContext();
 
   return (
-    <Calendar
-      mode="single"
-      selected={value}
-      onSelect={onValueChange}
-      defaultMonth={value}
-    />
+    <div
+      onKeyDownCapture={(e) => {
+        if (e.key === 'Enter') onClose?.();
+      }}
+    >
+      <DatePicker
+        inline
+        value={value}
+        onChange={(date) => onValueChange(toSingleDate(date))}
+        placeholder={t('select-date', 'Select date')}
+        clearLabel={t('clear', 'Clear')}
+        className="h-8"
+      />
+    </div>
   );
 };
 
@@ -142,6 +158,7 @@ export const DateSelectTicketRoot = ({
   scope,
   variant = DateSelectVariant.TABLE,
   disabled,
+  label,
 }: {
   value?: Date | string;
   id?: string;
@@ -149,34 +166,108 @@ export const DateSelectTicketRoot = ({
   scope?: string;
   variant?: `${DateSelectVariant}`;
   disabled?: boolean;
+  label?: string;
 }) => {
   const { t } = useTranslation('frontline');
+  const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const { updateTicket, loading, error } = useUpdateTicket();
+  const parsedValue = value ? new Date(value) : undefined;
+  const valueTime = parsedValue?.getTime();
+  const [dateValue, setDateValue] = useState<Date | undefined>(parsedValue);
 
-  const handleValueChange = (value?: Date) => {
-    if (id) {
-      updateTicket({
-        variables: {
-          _id: id,
-          [type]: value?.toISOString(),
-        },
-      });
-    }
+  const latestRequestRef = useRef(0);
+  const confirmedTimeRef = useRef(valueTime);
+
+  useEffect(() => {
+    confirmedTimeRef.current = valueTime;
+    setDateValue(valueTime === undefined ? undefined : new Date(valueTime));
+  }, [valueTime, id]);
+
+  const commitValue = (nextValue?: Date) => {
+    if (nextValue?.getTime() === dateValue?.getTime()) return;
+
+    setDateValue(nextValue);
+
+    if (!id) return;
+
+    const requestId = ++latestRequestRef.current;
+
+    updateTicket({
+      variables: {
+        _id: id,
+        [type]: nextValue ? nextValue.toISOString() : null,
+      },
+      onError: (e) => {
+        toast({
+          title: t('error', 'Error'),
+          description: e.message,
+          variant: 'destructive',
+        });
+
+        if (requestId !== latestRequestRef.current) return;
+
+        const confirmedTime = confirmedTimeRef.current;
+        setDateValue(
+          confirmedTime === undefined ? undefined : new Date(confirmedTime),
+        );
+      },
+    });
+  };
+
+  const handleValueChange = (nextValue?: Date) => {
+    commitValue(nextValue);
     setOpen(false);
   };
 
   const Content =
     variant === 'table' ? RecordTableInlineCell.Content : Combobox.Content;
 
+  if (variant === DateSelectVariant.INPUT && label) {
+    return (
+      <DateSelectProvider
+        value={dateValue}
+        onValueChange={handleValueChange}
+        variant={DateSelectVariant.INPUT}
+        loading={loading}
+        error={error}
+        disabled={disabled}
+        onClose={() => setOpen(false)}
+      >
+        <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
+          <Combobox.ChipTrigger
+            label={label}
+            disabled={disabled}
+            onClear={
+              dateValue && !disabled ? () => commitValue() : undefined
+            }
+            clearLabel={t('clear', 'Clear')}
+          >
+            {dateValue ? (
+              formatDateLabel(dateValue)
+            ) : (
+              <span className="text-accent-foreground">
+                {t('not-specified', 'Not specified')}
+              </span>
+            )}
+          </Combobox.ChipTrigger>
+          <Combobox.Content className="w-fit">
+            <DateSelectContent />
+          </Combobox.Content>
+        </PopoverScoped>
+      </DateSelectProvider>
+    );
+  }
+
   return (
     <DateSelectProvider
-      value={value ? new Date(value) : undefined}
+      value={dateValue}
       onValueChange={handleValueChange}
       variant={variant as DateSelectVariant}
       loading={loading}
       error={error}
       disabled={disabled}
+      onClose={() => setOpen(false)}
     >
       <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
         <DateSelectTrigger>
@@ -194,23 +285,49 @@ export const DateSelectTicketFormItem = ({
   value,
   onValueChange,
   placeholder,
+  label,
 }: {
   value?: Date | string;
   onValueChange?: (value?: Date) => void;
   placeholder?: string;
+  label?: string;
 }) => {
+  const { t } = useTranslation('frontline');
+  const [open, setOpen] = useState(false);
+  const dateValue = value ? new Date(value) : undefined;
+
   return (
     <DateSelectProvider
-      value={value ? new Date(value) : undefined}
-      onValueChange={(date) => onValueChange?.(date)}
+      value={dateValue}
+      onValueChange={(date) => {
+        onValueChange?.(date);
+        setOpen(false);
+      }}
       variant={DateSelectVariant.FORM}
+      onClose={() => setOpen(false)}
     >
-      <Popover>
-        <Form.Control>
-          <Combobox.TriggerBase className="w-fit h-7">
-            <DateSelectValue placeholder={placeholder} />
-          </Combobox.TriggerBase>
-        </Form.Control>
+      <Popover open={open} onOpenChange={setOpen}>
+        {label ? (
+          <Combobox.ChipTrigger
+            label={label}
+            onClear={dateValue ? () => onValueChange?.() : undefined}
+            clearLabel={t('clear', 'Clear')}
+          >
+            {dateValue ? (
+              formatDateLabel(dateValue)
+            ) : (
+              <span className="text-accent-foreground">
+                {t('not-specified', 'Not specified')}
+              </span>
+            )}
+          </Combobox.ChipTrigger>
+        ) : (
+          <Form.Control>
+            <Combobox.TriggerBase className="w-fit h-7">
+              <DateSelectValue placeholder={placeholder} />
+            </Combobox.TriggerBase>
+          </Form.Control>
+        )}
         <Popover.Content className="w-fit">
           <DateSelectContent />
         </Popover.Content>

@@ -27,6 +27,8 @@ export interface IAutomationExecAction {
   attempt?: number;
   // Set on workflow node actions: links to the child execution for drill-in
   childExecutionId?: string;
+  // Which row each conditional value used, keyed by conditional id
+  conditionalMatches?: Record<string, string>;
   // Deferred actions only: matches the completion callback to this attempt so
   // a stale or retried job can never overwrite a newer one.
   jobId?: string;
@@ -54,6 +56,8 @@ export interface IAutomationExecution {
   nextActionId?: string;
   targetId: string;
   target: any;
+  // Relation measures the trigger's re-enrollment watches, by rule.
+  watched?: Record<string, unknown>;
   status: string;
   description: string;
   actions?: IAutomationExecAction[];
@@ -118,6 +122,7 @@ const execActionSchema = new Schema({
   nextActionId: { type: String },
   result: { type: Object },
   childExecutionId: { type: String },
+  conditionalMatches: { type: Object },
   errorCode: { type: String },
   skipReason: { type: String },
   attempt: { type: Number },
@@ -137,6 +142,7 @@ export const automationExecutionSchema = new Schema({
   nextActionId: { type: String },
   targetId: { type: String, required: true, index: true },
   target: { type: Object },
+  watched: { type: Object },
   status: {
     type: String,
     enum: AUTOMATION_EXECUTION_STATUS.ALL,

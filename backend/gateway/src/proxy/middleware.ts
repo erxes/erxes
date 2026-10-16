@@ -1,7 +1,7 @@
 import * as dotenv from 'dotenv';
 import { Express } from 'express';
 import { createProxyMiddleware, fixRequestBody } from 'http-proxy-middleware';
-import { Agent } from 'http';
+import { Agent, ServerResponse } from 'http';
 import { apolloRouterPort } from '~/apollo-router';
 import { ErxesProxyTarget } from '~/proxy/targets';
 
@@ -10,11 +10,15 @@ dotenv.config();
 const { NODE_ENV } = process.env;
 const DEBUG_GATEWAY_AUTH = process.env.DEBUG_GATEWAY_AUTH === 'true';
 
+// The agent's own `timeout` only emits an event; without `proxyTimeout` a
+// stalled download holds its pooled socket forever and starves core traffic.
+const PROXY_IDLE_TIMEOUT_MS = 60_000;
+
 const proxyAgent = new Agent({
   keepAlive: true,
   maxSockets: 100,
   maxFreeSockets: 20,
-  timeout: 60000,
+  timeout: PROXY_IDLE_TIMEOUT_MS,
 });
 
 export const proxyReq = (proxyReq, req: any) => {
@@ -75,7 +79,15 @@ export const proxyReq = (proxyReq, req: any) => {
   }
 };
 
-export const proxyRes = (proxyRes, req: any) => {
+export const proxyRes = (proxyRes, req: any, res: ServerResponse) => {
+  // An upstream cut off mid-stream (e.g. by proxyTimeout) never ends the
+  // client response, so close it rather than leave the connection hanging.
+  proxyRes.on('close', () => {
+    if (!res.writableEnded) {
+      res.destroy();
+    }
+  });
+
   if (DEBUG_GATEWAY_AUTH && req.originalUrl?.startsWith('/graphql')) {
     console.log(
       JSON.stringify({
@@ -144,6 +156,7 @@ export function applyProxyToCore(app: Express, targets: ErxesProxyTarget[]) {
       target:
         NODE_ENV === 'production' ? core.address : 'http://localhost:3300',
       agent: proxyAgent,
+      proxyTimeout: PROXY_IDLE_TIMEOUT_MS,
       on: {
         proxyReq,
         proxyRes,

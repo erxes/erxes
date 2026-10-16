@@ -10,30 +10,22 @@ import {
   SelectStage,
   TagsSelect,
 } from 'ui-modules';
-import { DealChipTrigger } from '@/deals/components/deal-selects/DealChipTrigger';
-
-/**
- * Inline chips for the deal detail field row.
- *
- * Each one wraps a shared select's Provider/Value/Content in a local trigger
- * rather than using its root component, because the roots render a chevron.
- * Multi-select chips stay open so several values can be picked in one go;
- * single-select chips close on pick.
- */
 
 const ChipPopover = ({
   open,
   onOpenChange,
+  label,
   value,
   children,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  label?: string;
   value: React.ReactNode;
   children: React.ReactNode;
 }) => (
   <Popover open={open} onOpenChange={onOpenChange}>
-    <DealChipTrigger>{value}</DealChipTrigger>
+    <Combobox.ChipTrigger label={label}>{value}</Combobox.ChipTrigger>
     <Combobox.Content>{children}</Combobox.Content>
   </Popover>
 );
@@ -41,6 +33,7 @@ const ChipPopover = ({
 type ChipProps = {
   value?: string[] | string;
   onValueChange: (value: string | string[]) => void;
+  label?: string;
 };
 
 export const DealAssigneeChip = ({
@@ -48,7 +41,9 @@ export const DealAssigneeChip = ({
   onValueChange,
   placeholder,
   mode = 'multiple',
+  label,
 }: ChipProps & { placeholder?: string; mode?: 'single' | 'multiple' }) => {
+  const { t } = useTranslation('sales');
   const [open, setOpen] = useState(false);
 
   return (
@@ -64,6 +59,7 @@ export const DealAssigneeChip = ({
       <ChipPopover
         open={open}
         onOpenChange={setOpen}
+        label={label || t('assigned-to')}
         value={<SelectMember.Value placeholder={placeholder} />}
       >
         <SelectMember.Content />
@@ -76,6 +72,7 @@ export const DealTagsChip = ({
   value,
   onValueChange,
   showSelectedTagsOutside = true,
+  label,
 }: ChipProps & { showSelectedTagsOutside?: boolean }) => {
   const { t } = useTranslation('sales');
   let tagIds: string[] = [];
@@ -94,11 +91,9 @@ export const DealTagsChip = ({
       onValueChange={onValueChange}
     >
       <div className="flex flex-wrap items-center gap-2">
-        <TagsSelect.Trigger
-          variant="outline"
-          placeholder={t('select-tags')}
-          showValue
-        />
+        <Combobox.ChipTrigger label={label || t('tags')}>
+          <TagsSelect.Value placeholder={t('select-tags')} showValue />
+        </Combobox.ChipTrigger>
         {showSelectedTagsOutside ? <TagsSelect.SelectedList /> : null}
         <Combobox.Content>
           <TagsSelect.Content />
@@ -108,7 +103,12 @@ export const DealTagsChip = ({
   );
 };
 
-export const DealBranchesChip = ({ value, onValueChange }: ChipProps) => {
+export const DealBranchesChip = ({
+  value,
+  onValueChange,
+  label,
+}: ChipProps) => {
+  const { t } = useTranslation('sales');
   const [open, setOpen] = useState(false);
 
   return (
@@ -123,6 +123,7 @@ export const DealBranchesChip = ({ value, onValueChange }: ChipProps) => {
       <ChipPopover
         open={open}
         onOpenChange={setOpen}
+        label={label || t('branch')}
         value={<SelectBranches.Value />}
       >
         <SelectBranches.Content />
@@ -131,7 +132,12 @@ export const DealBranchesChip = ({ value, onValueChange }: ChipProps) => {
   );
 };
 
-export const DealDepartmentsChip = ({ value, onValueChange }: ChipProps) => {
+export const DealDepartmentsChip = ({
+  value,
+  onValueChange,
+  label,
+}: ChipProps) => {
+  const { t } = useTranslation('sales');
   const [open, setOpen] = useState(false);
 
   return (
@@ -146,6 +152,7 @@ export const DealDepartmentsChip = ({ value, onValueChange }: ChipProps) => {
       <ChipPopover
         open={open}
         onOpenChange={setOpen}
+        label={label || t('department')}
         value={<SelectDepartments.Value />}
       >
         <SelectDepartments.Content />
@@ -158,6 +165,7 @@ export const DealStageChip = ({
   value,
   pipelineId,
   onValueChange,
+  label,
 }: ChipProps & { pipelineId?: string }) => {
   const [open, setOpen] = useState(false);
 
@@ -168,14 +176,13 @@ export const DealStageChip = ({
       pipelineId={pipelineId}
       onValueChange={(next, isAutoSelection) => {
         onValueChange(next);
-        // The provider auto-selects the first stage on load; that must not
-        // yank the popover shut while the user is choosing.
         if (!isAutoSelection) setOpen(false);
       }}
     >
       <ChipPopover
         open={open}
         onOpenChange={setOpen}
+        label={label}
         value={<SelectStage.Value />}
       >
         <SelectStage.Content />
@@ -188,7 +195,9 @@ export const DealCustomerChip = ({
   value,
   onValueChange,
   placeholder,
+  label,
 }: ChipProps & { placeholder?: string }) => {
+  const { t } = useTranslation('sales');
   const [open, setOpen] = useState(false);
 
   return (
@@ -204,6 +213,7 @@ export const DealCustomerChip = ({
       <ChipPopover
         open={open}
         onOpenChange={setOpen}
+        label={label || t('customer')}
         value={<SelectCustomer.Value placeholder={placeholder} />}
       >
         <SelectCustomer.Content />
@@ -216,7 +226,9 @@ export const DealCompanyChip = ({
   value,
   onValueChange,
   placeholder,
+  label,
 }: ChipProps & { placeholder?: string }) => {
+  const { t } = useTranslation('sales');
   const [open, setOpen] = useState(false);
 
   return (
@@ -232,6 +244,7 @@ export const DealCompanyChip = ({
       <ChipPopover
         open={open}
         onOpenChange={setOpen}
+        label={label || t('company')}
         value={<SelectCompany.Value placeholder={placeholder} />}
       >
         <SelectCompany.Content />
@@ -243,14 +256,15 @@ export const DealCompanyChip = ({
 export const DealBrokerTypeChip = ({
   value,
   options,
-  selectedPrefix,
+  label,
   onValueChange,
 }: {
   value: string;
   options: { value: string; label: string }[];
-  selectedPrefix: string;
+  label?: string;
   onValueChange: (value: string) => void;
 }) => {
+  const { t } = useTranslation('sales');
   const [open, setOpen] = useState(false);
   const selected = options.find((option) => option.value === value);
 
@@ -258,12 +272,8 @@ export const DealBrokerTypeChip = ({
     <ChipPopover
       open={open}
       onOpenChange={setOpen}
-      value={
-        <span className="truncate">
-          <span className="font-medium text-foreground">{selectedPrefix}:</span>{' '}
-          <Combobox.Value value={selected?.label} className="inline" />
-        </span>
-      }
+      label={label || t('broker')}
+      value={<Combobox.Value value={selected?.label} className="inline" />}
     >
       <Command>
         <Command.List>

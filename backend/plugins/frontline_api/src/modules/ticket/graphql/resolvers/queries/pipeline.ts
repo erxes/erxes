@@ -4,7 +4,7 @@ import {
   ITicketPipelineDocument,
 } from '@/ticket/@types/pipeline';
 import { FilterQuery } from 'mongoose';
-import { cursorPaginate } from 'erxes-api-shared/utils';
+import { cursorPaginate, escapeRegExp } from 'erxes-api-shared/utils';
 
 export const pipelineQueries = {
   getTicketPipeline: async (
@@ -27,7 +27,7 @@ export const pipelineQueries = {
     const filterQuery: FilterQuery<ITicketPipelineDocument> = {};
 
     if (filter.name) {
-      filterQuery.name = { $regex: filter.name, $options: 'i' };
+      filterQuery.name = { $regex: escapeRegExp(filter.name), $options: 'i' };
     }
 
     if (filter.createdAt) {

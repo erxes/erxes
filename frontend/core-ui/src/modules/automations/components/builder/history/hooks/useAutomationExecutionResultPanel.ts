@@ -8,8 +8,10 @@ import {
 } from '@/automations/utils/automationHistoryUtils/executionFormat';
 import { format, isValid } from 'date-fns';
 import { IAutomationHistory } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 export const useAutomationExecutionResultPanel = () => {
+  const { t } = useTranslation('automations');
   const { selectedAction, clearSelection } = useAutomationExecutionSelection();
   const { executionDetail } = useAutomationExecutionDetail();
   const { actionsConst } = useAutomation();
@@ -26,7 +28,7 @@ export const useAutomationExecutionResultPanel = () => {
     createdAtLabel:
       createdAt && isValid(createdAt)
         ? format(createdAt, 'yyyy-MM-dd HH:mm:ss')
-        : 'N/A',
+        : t('history-not-available'),
     durationLabel: formatExecutionDuration(selectedAction?.durationMs),
     executionStatus: executionDetail?.status as IAutomationHistory['status'],
     isWorkflowAction: selectedAction?.actionType === 'workflow',
@@ -34,7 +36,7 @@ export const useAutomationExecutionResultPanel = () => {
       actionsConst.find(({ type }) => type === selectedAction?.actionType)
         ?.label ||
       selectedAction?.actionType ||
-      'Action',
+      t('action'),
     onClose: clearSelection,
   };
 };

@@ -1,3 +1,4 @@
+import type { TFunction } from 'i18next';
 import { Cell, ColumnDef } from '@tanstack/react-table';
 import { IAdjustInventory } from '../types/AdjustInventory';
 import { Link } from 'react-router-dom';
@@ -107,7 +108,9 @@ const transactionMoreColumn = {
   size: 33,
 };
 
-export const adjustDetailTableColumns: ColumnDef<IAdjustInventory>[] = [
+export const adjustDetailTableColumns = (
+  t: TFunction<'accounting'>,
+): ColumnDef<IAdjustInventory>[] => [
   transactionMoreColumn,
   // {
   //   id: 'date',
@@ -117,28 +120,36 @@ export const adjustDetailTableColumns: ColumnDef<IAdjustInventory>[] = [
   // },
   {
     id: 'product',
-    header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Бараа" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconMoneybag} label={t('inventory')} />
+    ),
     accessorKey: 'product',
     cell: ({ row }) => <ProductCell row={row} />,
     size: 300,
   },
   {
     id: 'account',
-    header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Данс" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconMoneybag} label={t('account')} />
+    ),
     accessorKey: 'account',
     cell: ({ row }) => <AccountCell row={row} />,
     size: 300,
   },
   {
     id: 'branch',
-    header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Салбар" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconMoneybag} label={t('branch')} />
+    ),
     accessorKey: 'branch',
     cell: ({ row }) => <BranchCell row={row} />,
     size: 200,
   },
   {
     id: 'department',
-    header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Хэлтэс" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconMoneybag} label={t('department')} />
+    ),
     accessorKey: 'department',
     cell: ({ row }) => <DepartmentCell row={row} />,
     size: 200,
@@ -146,7 +157,7 @@ export const adjustDetailTableColumns: ColumnDef<IAdjustInventory>[] = [
   {
     id: 'remainder',
     header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label="Үлдэгдэл" />
+      <RecordTable.InlineHead icon={IconMoneybag} label={t('remainder')} />
     ),
     accessorKey: 'remainder',
     cell: ({ getValue }) => <NumberCell getValue={getValue} />,
@@ -154,7 +165,7 @@ export const adjustDetailTableColumns: ColumnDef<IAdjustInventory>[] = [
   {
     id: 'unitCost',
     header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label="Нэгж өртөг" />
+      <RecordTable.InlineHead icon={IconMoneybag} label={t('unit-cost')} />
     ),
     accessorKey: 'unitCost',
     cell: ({ getValue }) => <NumberCell getValue={getValue} />,
@@ -162,14 +173,16 @@ export const adjustDetailTableColumns: ColumnDef<IAdjustInventory>[] = [
   {
     id: 'cost',
     header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label="Нийт өртөг" />
+      <RecordTable.InlineHead icon={IconMoneybag} label={t('total-cost')} />
     ),
     accessorKey: 'cost',
     cell: ({ getValue }) => <NumberCell getValue={getValue} />,
   },
   {
     id: 'description',
-    header: () => <RecordTable.InlineHead icon={IconFile} label="Тайлбар" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconFile} label={t('description')} />
+    ),
     accessorKey: 'description',
     cell: ({ getValue, row }) => (
       <DescriptionCell getValue={getValue} row={row} />

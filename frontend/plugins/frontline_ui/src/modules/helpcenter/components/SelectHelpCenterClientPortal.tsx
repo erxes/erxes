@@ -4,6 +4,7 @@ import {
   Button,
   Combobox,
   Command,
+  isDefined,
   PopoverScoped,
   TextOverflowTooltip,
 } from 'erxes-ui';
@@ -11,17 +12,15 @@ import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { GET_HELP_CENTER_WEBSITE_OPTIONS } from '@/helpcenter/graphql/queries/getHelpCenterWebsiteOptions';
 import { SelectTriggerTicket } from '@/ticket/components/ticket-selects/SelectTicket';
+import type { FrontlineHelpCenterWebsiteOptionsQuery } from '~/gql/graphql';
 
-type TClientPortalOption = {
-  _id: string;
-  name?: string;
-  domain?: string;
-  token?: string;
-};
-
-type TClientPortalOptionsResponse = {
-  getClientPortals: { list: TClientPortalOption[] } | null;
-};
+type TClientPortalOption = NonNullable<
+  NonNullable<
+    NonNullable<
+      FrontlineHelpCenterWebsiteOptionsQuery['getClientPortals']
+    >['list']
+  >[number]
+>;
 
 export type TClientPortalChoice = {
   _id: string;
@@ -71,10 +70,14 @@ export const SelectHelpCenterClientPortal = ({
   const { t } = useTranslation('frontline');
   const [open, setOpen] = useState(false);
 
-  const { data, error, loading, refetch } =
-    useQuery<TClientPortalOptionsResponse>(GET_HELP_CENTER_WEBSITE_OPTIONS);
+  const { data, error, loading, refetch } = useQuery(
+    GET_HELP_CENTER_WEBSITE_OPTIONS,
+  );
 
-  const portals = useMemo(() => data?.getClientPortals?.list ?? [], [data]);
+  const portals = useMemo(
+    () => data?.getClientPortals?.list?.filter(isDefined) ?? [],
+    [data],
+  );
 
   const websites = useMemo(() => toWebsiteOptions(portals), [portals]);
 

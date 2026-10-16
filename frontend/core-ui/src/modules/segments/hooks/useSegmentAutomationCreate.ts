@@ -2,12 +2,22 @@ import { AUTOMATION_CONSTANTS } from '@/automations/graphql/automationQueries';
 import { ConstantsQueryResponse } from '@/automations/types';
 import { SEGMENT_MEMBERSHIP_EVENT } from '@/automations/utils/automationBuilderUtils/triggerFolks';
 import { useQuery } from '@apollo/client';
-import { useNavigate } from 'react-router';
-import { buildAutomationSeedLink, ISegment } from 'ui-modules';
+import { useLocation, useNavigate } from 'react-router';
+import {
+  automationReturnLinkSearch,
+  buildAutomationSeedLink,
+  ISegment,
+} from 'ui-modules';
 
 /** Opens the builder with this segment's enter/exit trigger already placed. */
 export const useSegmentAutomationCreate = (segment?: ISegment) => {
   const navigate = useNavigate();
+  const { pathname, search } = useLocation();
+  // The builder offers the way back to this segment, also once saved.
+  const returnTo = {
+    path: `${pathname}${search}`,
+    label: segment?.name || '',
+  };
 
   const { data, loading } = useQuery<ConstantsQueryResponse>(
     AUTOMATION_CONSTANTS,
@@ -33,9 +43,13 @@ export const useSegmentAutomationCreate = (segment?: ISegment) => {
           segmentId: segment._id,
         },
         name: segment.name,
+        returnTo,
       }),
     );
   };
 
-  return { canCreate, loading, createAutomation };
+  const editPath = (automationId: string) =>
+    `/automations/edit/${automationId}${automationReturnLinkSearch(returnTo)}`;
+
+  return { canCreate, loading, createAutomation, editPath };
 };

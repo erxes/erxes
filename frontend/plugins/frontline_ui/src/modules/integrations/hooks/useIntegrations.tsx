@@ -3,24 +3,34 @@ import {
   GET_INTEGRATIONS_BY_KIND,
   INTEGRATION_INLINE,
 } from '@/integrations/graphql/queries/getIntegrations';
-import { IIntegration } from '@/integrations/types/Integration';
+import { EnumCursorDirection, validateFetchMore } from 'erxes-ui';
 import {
-  EnumCursorDirection,
-  ICursorListResponse,
-  mergeCursorData,
-  validateFetchMore,
-} from 'erxes-ui';
+  compactList,
+  mergeCursorList,
+  toCursorPageInfo,
+} from '@/shared/utils/cursorList';
+import type {
+  IntegrationInlineQuery,
+  IntegrationInlineQueryVariables,
+  IntegrationsQuery,
+  IntegrationsQueryVariables,
+} from '~/gql/graphql';
 
 export const INTEGRATIONS_PER_PAGE = 30;
 
 export const useIntegrations = (
-  options?: QueryHookOptions<ICursorListResponse<IIntegration>>,
+  options?: QueryHookOptions<IntegrationsQuery, IntegrationsQueryVariables>,
 ) => {
-  const { data, loading, error, fetchMore } = useQuery<
-    ICursorListResponse<IIntegration>
-  >(GET_INTEGRATIONS_BY_KIND, options);
+  const { data, loading, error, fetchMore } = useQuery(
+    GET_INTEGRATIONS_BY_KIND,
+    options,
+  );
 
-  const { list: integrations, totalCount, pageInfo } = data?.integrations || {};
+  const integrations = data?.integrations?.list
+    ? compactList(data.integrations.list)
+    : undefined;
+  const pageInfo = toCursorPageInfo(data?.integrations?.pageInfo);
+  const totalCount = data?.integrations?.totalCount;
 
   const handleFetchMore = ({
     direction,
@@ -36,15 +46,16 @@ export const useIntegrations = (
         direction,
       },
       updateQuery: (prev, { fetchMoreResult }) => {
-        if (!fetchMoreResult) return prev;
+        if (!fetchMoreResult.integrations || !prev.integrations) return prev;
 
-        return Object.assign({}, prev, {
-          integrations: mergeCursorData({
+        return {
+          ...prev,
+          integrations: mergeCursorList(
             direction,
-            fetchMoreResult: fetchMoreResult.integrations,
-            prevResult: prev.integrations,
-          }),
-        });
+            prev.integrations,
+            fetchMoreResult.integrations,
+          ),
+        };
       },
     });
   };
@@ -60,11 +71,12 @@ export const useIntegrations = (
 };
 
 export const useIntegrationInline = (
-  options?: QueryHookOptions<{ integrationDetail: IIntegration }>,
+  options?: QueryHookOptions<
+    IntegrationInlineQuery,
+    IntegrationInlineQueryVariables
+  >,
 ) => {
-  const { data, loading } = useQuery<{
-    integrationDetail: IIntegration;
-  }>(INTEGRATION_INLINE, options);
+  const { data, loading } = useQuery(INTEGRATION_INLINE, options);
 
   return {
     integration: data?.integrationDetail,

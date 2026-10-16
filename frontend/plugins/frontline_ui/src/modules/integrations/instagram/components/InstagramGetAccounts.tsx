@@ -51,7 +51,7 @@ export const InstagramGetAccounts = () => {
   const onNext = () => setActiveStep(2);
 
   const filteredAccounts = instagramGetAccounts.filter((account) =>
-    account.name.toLowerCase().includes(searchTerm.toLowerCase()),
+    (account.name ?? '').toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   return (

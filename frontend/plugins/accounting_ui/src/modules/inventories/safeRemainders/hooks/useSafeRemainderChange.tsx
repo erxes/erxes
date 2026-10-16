@@ -1,11 +1,10 @@
 import {
   ApolloError,
   MutationFunctionOptions,
-  OperationVariables,
   useMutation,
 } from '@apollo/client';
 import { toast } from 'erxes-ui';
-import i18n from 'i18next';
+import { getI18n } from 'react-i18next';
 import {
   SAFE_REMAINDER_CANCEL,
   SAFE_REMAINDER_DO_TR,
@@ -19,10 +18,12 @@ import {
 } from '../graphql/safeRemainderQueries';
 
 type SafeRemainderMutationData = Record<string, unknown>;
-type SafeRemainderMutationOptions = MutationFunctionOptions<
-  SafeRemainderMutationData,
-  OperationVariables
->;
+type SafeRemainderMutationOptions = Pick<
+  MutationFunctionOptions<SafeRemainderMutationData>,
+  'onCompleted' | 'onError'
+> & {
+  variables?: { page?: number; perPage?: number };
+};
 
 const commonOptions = (
   id: string,
@@ -32,16 +33,19 @@ const commonOptions = (
   return {
     onError: (error: ApolloError) => {
       toast({
-        title: i18n.t('accounting:error'),
-        description: error.message,
+        title: getI18n().t('error', { ns: 'accounting' }),
+        description: getI18n().t(error.message, {
+          ns: 'accounting',
+          nsSeparator: false,
+        }),
         variant: 'destructive',
       });
       options?.onError?.(error);
     },
     onCompleted: (data: SafeRemainderMutationData) => {
       toast({
-        title: i18n.t('accounting:success'),
-        description: i18n.t(`accounting:${successMessage}`),
+        title: getI18n().t('success', { ns: 'accounting' }),
+        description: getI18n().t(successMessage, { ns: 'accounting' }),
       });
       options?.onCompleted?.(data);
     },
@@ -64,10 +68,7 @@ const commonOptions = (
 };
 
 export const useSafeRemainderReCalc = () => {
-  const [reCaclMutation, { loading }] = useMutation<
-    SafeRemainderMutationData,
-    OperationVariables
-  >(SAFE_REMAINDER_RECALC);
+  const [reCaclMutation, { loading }] = useMutation(SAFE_REMAINDER_RECALC);
 
   const reCalcSafeRemainder = (
     id: string,
@@ -90,10 +91,7 @@ export const useSafeRemainderReCalc = () => {
 };
 
 export const useSafeRemainderSubmit = () => {
-  const [submitMutation, { loading }] = useMutation<
-    SafeRemainderMutationData,
-    OperationVariables
-  >(SAFE_REMAINDER_SUBMIT);
+  const [submitMutation, { loading }] = useMutation(SAFE_REMAINDER_SUBMIT);
 
   const submitSafeRemainder = (
     id: string,
@@ -116,10 +114,7 @@ export const useSafeRemainderSubmit = () => {
 };
 
 export const useSafeRemainderCancel = () => {
-  const [cancelMutation, { loading }] = useMutation<
-    SafeRemainderMutationData,
-    OperationVariables
-  >(SAFE_REMAINDER_CANCEL);
+  const [cancelMutation, { loading }] = useMutation(SAFE_REMAINDER_CANCEL);
 
   const cancelSafeRemainder = (
     id: string,
@@ -142,10 +137,7 @@ export const useSafeRemainderCancel = () => {
 };
 
 export const useSafeRemainderDoTr = () => {
-  const [doTrMutation, { loading }] = useMutation<
-    SafeRemainderMutationData,
-    OperationVariables
-  >(SAFE_REMAINDER_DO_TR);
+  const [doTrMutation, { loading }] = useMutation(SAFE_REMAINDER_DO_TR);
 
   const doTrSafeRemainder = (
     id: string,
@@ -168,10 +160,7 @@ export const useSafeRemainderDoTr = () => {
 };
 
 export const useSafeRemainderUndoTr = () => {
-  const [undoTrMutation, { loading }] = useMutation<
-    SafeRemainderMutationData,
-    OperationVariables
-  >(SAFE_REMAINDER_UNDO_TR);
+  const [undoTrMutation, { loading }] = useMutation(SAFE_REMAINDER_UNDO_TR);
 
   const undoTrSafeRemainder = (
     id: string,

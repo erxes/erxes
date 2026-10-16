@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { SplitConditionForm } from '@/automations/components/builder/nodes/actions/split/components/SplitConditionForm';
 import { AutomationConfigFormWrapper } from '@/automations/components/builder/nodes/components/AutomationConfigFormWrapper';
 import { IconAlertCircle, IconPlus } from '@tabler/icons-react';
@@ -13,6 +14,7 @@ export const SplitConditionsConfigForm = ({
   currentAction,
   handleSave,
 }: TAutomationActionProps<TSplitConditionsConfigForm>) => {
+  const { t } = useTranslation('automations');
   const {
     form,
     addOption,
@@ -29,7 +31,7 @@ export const SplitConditionsConfigForm = ({
   if (!contentType) {
     return (
       <div className="px-4 text-sm text-muted-foreground">
-        Select a trigger to configure split conditions
+        {t('split-select-trigger')}
       </div>
     );
   }
@@ -46,20 +48,20 @@ export const SplitConditionsConfigForm = ({
       >
         <div className="flex items-center justify-between gap-2">
           <div>
-            <Label>Options</Label>
+            <Label>{t('split-options')}</Label>
             <p className="text-sm text-muted-foreground">
-              Build each split option with segment conditions.
+              {t('split-options-description')}
             </p>
           </div>
           <Button type="button" variant="secondary" onClick={addOption}>
             <IconPlus className="size-4" />
-            Add option
+            {t('split-add-option')}
           </Button>
         </div>
         {hasDirtyConditionOptions && (
           <div className="flex items-center gap-2 rounded-md border border-warning/30 bg-warning/10 px-3 py-2 text-xs text-warning">
             <IconAlertCircle className="size-4 shrink-0" />
-            Save each changed condition before saving the split configuration.
+            {t('split-save-conditions-warning')}
           </div>
         )}
         <div className="flex flex-col gap-3">
@@ -87,7 +89,7 @@ export const SplitConditionsConfigForm = ({
                       <Input
                         {...field}
                         className="h-8"
-                        placeholder="Option label"
+                        placeholder={t('split-option-label-placeholder')}
                       />
                       <Form.Message />
                     </Form.Item>

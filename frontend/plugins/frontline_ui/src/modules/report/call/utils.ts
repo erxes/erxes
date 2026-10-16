@@ -96,21 +96,21 @@ export function normalizeQueue(
 
 export function deduplicateIntegrations(
   integrations: Array<{
-    inboxId: string;
-    phone: string;
-    [key: string]: unknown;
+    inboxId: string | null;
+    phone: string | null;
   }>,
 ): Array<{ inboxId: string; phone: string }> {
   const map = new Map<string, { inboxId: string; phone: string }>();
   for (const integration of integrations) {
-    const phone = formatPhoneStr(integration.phone);
+    if (!integration.inboxId) continue;
+    const phone = formatPhoneStr(integration.phone ?? '');
     if (map.has(integration.inboxId)) {
       const existing = map.get(integration.inboxId)!;
       if (!existing.phone.includes(phone)) {
         existing.phone += `, ${phone}`;
       }
     } else {
-      map.set(integration.inboxId, { ...integration, phone });
+      map.set(integration.inboxId, { inboxId: integration.inboxId, phone });
     }
   }
   return Array.from(map.values());

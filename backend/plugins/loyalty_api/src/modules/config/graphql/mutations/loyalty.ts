@@ -1,7 +1,7 @@
 import { Resolver } from 'erxes-api-shared/core-types';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
-import { confirmVoucherSale } from '~/utils';
+import { confirmVoucherSale } from '~/utils/utils';
 
 export const loyaltyMutations: Record<string, Resolver> = {
   async shareScore(

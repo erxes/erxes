@@ -35,6 +35,9 @@ const SelectAssigneeValue = ({
   variant?: `${SelectTriggerVariant}`;
 }) => {
   const { memberIds, members, setMembers } = useSelectMemberContext();
+  if (memberIds.includes('no-assignee')) {
+    return <MembersInline memberIds={[]} allowUnassigned />;
+  }
   if (variant === SelectTriggerVariant.CARD) {
     return (
       <MembersInline.Provider
@@ -50,10 +53,14 @@ const SelectAssigneeValue = ({
   return <SelectMember.Value placeholder={placeholder || 'Select assignee'} />;
 };
 
-const SelectTeamMemberContent = () => {
+const SelectTeamMemberContent = ({
+  showUnassigned = true,
+}: {
+  showUnassigned?: boolean;
+}) => {
   const [search, setSearch] = useState('');
   const [debouncedSearch] = useDebounce(search, 500);
-  const currentUser = useAtomValue(currentUserState) as IUser;
+  const currentUser = useAtomValue(currentUserState);
   const { members } = useSelectMemberContext();
   const { users, loading, handleFetchMore, totalCount, error } = useUsers({
     variables: {
@@ -61,11 +68,12 @@ const SelectTeamMemberContent = () => {
     },
   });
 
-  const filteredUsers = users.filter((user) => user._id !== currentUser._id);
+  const filteredUsers = users.filter((user) => user._id !== currentUser?._id);
 
-  const membersList = [currentUser, ...filteredUsers].filter(
-    (user) => !members.find((member) => member._id === user._id),
-  );
+  const membersList = [
+    ...(currentUser ? [currentUser] : []),
+    ...filteredUsers,
+  ].filter((user) => !members.some((member) => member._id === user._id));
 
   return (
     <Command shouldFilter={false}>
@@ -89,7 +97,7 @@ const SelectTeamMemberContent = () => {
           </>
         )}
 
-        {!loading && <SelectMember.NoAssigneeItem />}
+        {!loading && showUnassigned && <SelectMember.NoAssigneeItem />}
         {!loading &&
           membersList.map((user: IUser) => (
             <SelectMember.CommandItem key={user._id} user={user} />
@@ -114,7 +122,7 @@ const SelectAssigneeFilterView = () => {
         mode="single"
         value={assignee || ''}
         onValueChange={(value) => {
-          setAssignee(value as string);
+          setAssignee(typeof value === 'string' ? value : 'no-assignee');
           resetFilterState();
         }}
       >
@@ -132,11 +140,7 @@ export const SelectAssigneeFilterBar = () => {
       mode="single"
       value={assignee || ''}
       onValueChange={(value) => {
-        if (value) {
-          setAssignee(value as string);
-        } else {
-          setAssignee(null);
-        }
+        setAssignee(typeof value === 'string' ? value : 'no-assignee');
         setOpen(false);
       }}
     >
@@ -160,12 +164,14 @@ const SelectAssigneeTicketRoot = ({
   variant,
   id,
   disabled,
+  label,
 }: {
   value: string;
   scope?: string;
   variant: `${SelectTriggerVariant}`;
   id?: string;
   disabled?: boolean;
+  label?: string;
 }) => {
   const { updateTicket } = useUpdateTicket();
   const [open, setOpen] = useState(false);
@@ -175,7 +181,7 @@ const SelectAssigneeTicketRoot = ({
       updateTicket({
         variables: {
           _id: id,
-          assigneeId: value,
+          assigneeId: Array.isArray(value) ? value[0] ?? null : value,
         },
       });
     }
@@ -193,6 +199,7 @@ const SelectAssigneeTicketRoot = ({
         <SelectTriggerTicket
           variant={variant === 'card' ? 'icon' : variant}
           disabled={disabled}
+          label={label}
         >
           <SelectAssigneeValue variant={variant} />
         </SelectTriggerTicket>
@@ -208,10 +215,12 @@ export const SelectAssigneeTicketFormItem = ({
   value,
   onValueChange,
   scope,
+  label,
 }: {
   value: string;
   onValueChange: (value: string) => void;
   scope?: string;
+  label?: string;
 }) => {
   const [open, setOpen] = useState(false);
   return (
@@ -225,7 +234,7 @@ export const SelectAssigneeTicketFormItem = ({
       allowUnassigned
     >
       <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
-        <SelectTriggerTicket variant="form">
+        <SelectTriggerTicket variant="form" label={label}>
           <SelectAssigneeValue />
         </SelectTriggerTicket>
         <Combobox.Content>

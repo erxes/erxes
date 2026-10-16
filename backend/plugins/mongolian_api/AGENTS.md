@@ -6,7 +6,7 @@
 - **Project:** `mongolian_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/mongolian_api`
-- **Last synchronized:** `2026-10-05`
+- **Last synchronized:** `2026-10-14`
 
 ## Scope
 
@@ -27,10 +27,12 @@
 - Stores exchange-rate rows in the tenant-scoped `exchange_rates` Mongo collection, one document per `date + mainCurrency + rateCurrency`.
 - Resolves active exchange rates by selecting the latest row whose `date` is less than or equal to the requested date.
 - Provides ebarimt, product-place, config, Erkhet sync-log, and MS Dynamic backend capabilities through plugin-owned modules.
+- Cursor-paginates put response lists by newest `createdAt` first and backs
+  that default order with a compound `{ createdAt, _id }` index.
 - Provides `erkhetRemainders` for callers that need Erkhet stock by product ids
   and sales pipeline/stage/POS remainder configuration.
 - Product places applies default product filters through the plugin `beforeResolvers` hook by reading the current user's `dealsProductsDefaultFilter` config from `subId`, supports multi-segment default filters, and runs split/place/pricing/print behavior only after a sales deal moves to a configured destination stage.
-- Product places publishes full printable receipt payloads through the `productPlacesResponded` GraphQL subscription.
+- Product places publishes session-scoped printable receipt payloads through the `productPlacesResponded` GraphQL subscription.
 
 ## Architecture
 
@@ -69,6 +71,9 @@
 - All models are tenant-scoped through `generateModels(subdomain)`.
 - Exchange rates are stored in `exchange_rates` with `date`, `mainCurrency`, `rateCurrency`, `rate`, `createdAt`, and `modifiedAt`.
 - Exchange-rate indexes cover `{ mainCurrency, rateCurrency, date }` and `{ rateCurrency, date }`.
+- Put response indexes include `{ createdAt: -1, _id: 1 }` for the default
+  cursor-paginated list order and `{ contentType, contentId, state, type }` for
+  receipt history lookups.
 - Other plugin-owned collections include `mongolian_configs`, `putresponses`, `ebarimt_product_rules`, `ebarimt_product_groups`, `syncerkhet_synclogs`, `msdynamics_synclogs`, and `msdynamics_customer_relation`.
 
 ## Local Invariants
@@ -86,8 +91,13 @@
 - Product-place place assignment evaluates every matching condition in order so
   later matching conditions may overwrite earlier branch/department values,
   matching the legacy productplaces plugin behavior.
-- Product-place print subscriptions keep receipt `content` as JSON so branch, department, product, and text payloads survive without narrowing the schema.
+- Product-place print subscriptions must carry the originating `sessionCode`
+  so multiple tabs or locations for the same user do not print each other's
+  receipts, and keep receipt `content` as JSON so branch, department, product,
+  and text payloads survive without narrowing the schema.
 - Plugin data access must remain tenant-scoped through generated models.
+- Put response list fallback ordering must remain `{ createdAt: -1 }`; cursor
+  pagination adds `_id` as a stable tie-breaker.
 - Product list decoration must not mutate core product names; Erkhet stock
   should be exposed through explicit remainder query responses.
 
@@ -96,5 +106,8 @@
 - `pnpm nx build mongolian_api`
 - `pnpm build`
 - `pnpm exec tsc -p backend/plugins/mongolian_api/tsconfig.json --noEmit`
+- Put response smoke scenario: open `/mongolian/put-response/put-response`
+  without filters and verify the first page returns newest rows without a
+  blocking collection sort.
 - Smoke scenario: create or upsert exchange-rate rows for multiple foreign currencies on the same date, then call `exchangeRates.getActiveRate` with a `Date` and verify the latest matching row is returned.
 - Product places smoke scenario: move a deal with products into a configured product-place stage and verify split/place/print runs once, while a non-stage deal edit does not trigger product-place side effects.

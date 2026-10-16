@@ -1,60 +1,30 @@
-import { IAttachment } from 'erxes-ui';
-import type { MailDeliveryStatus } from '@/integrations/mail/types/mailDelivery';
-export interface IActivityFormField {
-  label: string;
-  value: unknown;
-}
+import type {
+  GetTicketActivitiesQuery,
+  MailTicketReplyTargetQuery,
+  TicketGetNoteQuery,
+} from '~/gql/graphql';
 
-export interface IActivity {
-  _id: string;
-  module: string;
-  action: string;
-  contentId: string;
-  metadata: {
-    newValue: string;
-    previousValue?: string;
-    conversationId?: string;
-    ticketId?: string;
-    formId?: string;
-    formTitle?: string;
-    submissions?: IActivityFormField[];
-  };
-  createdBy: string;
-  createdAt: string;
-  updatedAt: string;
-}
-export interface INote {
-  _id: string;
-  content: string;
-  createdAt: string;
-  createdBy: string;
-  contentId: string;
-  mentions: string[];
-  attachments?: IAttachment[];
-  isInternal?: boolean;
-  mailMessageId?: string | null;
-  mailDelivery?: ITicketNoteMailDelivery | null;
-  unsavedAttachments?: ITicketNoteUnsavedAttachment[] | null;
-  updatedAt: string;
-}
+export type IActivity = NonNullable<
+  NonNullable<
+    NonNullable<GetTicketActivitiesQuery['getTicketActivities']>['list']
+  >[number]
+>;
 
-export interface ITicketNoteUnsavedAttachment {
-  name?: string | null;
-  url?: string | null;
-  type?: string | null;
-  size?: number | null;
-  error?: string | null;
-  expiresAt?: string | null;
-}
+export type IActivityFormField = NonNullable<
+  NonNullable<NonNullable<IActivity['metadata']>['submissions']>[number]
+>;
 
-export interface ITicketNoteMailDelivery {
-  status?: MailDeliveryStatus | null;
-  error?: string | null;
-  to?: string[] | null;
-  bouncedRecipients?: string[] | null;
-  retryable?: boolean | null;
-  canRetry?: boolean | null;
-}
+export type INote = NonNullable<TicketGetNoteQuery['ticketGetNote']>;
+
+export type ITicketNoteAttachment = NonNullable<
+  NonNullable<INote['attachments']>[number]
+>;
+
+export type ITicketNoteUnsavedAttachment = NonNullable<
+  NonNullable<INote['unsavedAttachments']>[number]
+>;
+
+export type ITicketNoteMailDelivery = NonNullable<INote['mailDelivery']>;
 
 export type TNoteKind =
   | 'internal'
@@ -63,10 +33,9 @@ export type TNoteKind =
   | 'emailSent'
   | 'customerVisible';
 
-export interface ITicketReplyTarget {
-  from: string;
-  to?: string | null;
-}
+export type ITicketReplyTarget = NonNullable<
+  MailTicketReplyTargetQuery['mailTicketReplyTarget']
+>;
 
 export interface INoteTemplateSuggestion {
   _id: string;

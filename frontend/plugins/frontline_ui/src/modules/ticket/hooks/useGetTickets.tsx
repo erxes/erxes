@@ -1,30 +1,30 @@
 import { GET_TICKETS } from '@/ticket/graphql/queries/getTickets';
 import { TICKET_LIST_CHANGED } from '@/ticket/graphql/subscriptions/ticketListChanged';
 import { ticketSortAtom } from '@/ticket/states/ticketSortState';
-import { ITicket } from '@/ticket/types';
+import {
+  compactList,
+  mergeCursorList,
+  toCursorPageInfo,
+} from '@/shared/utils/cursorList';
 import { QueryHookOptions, useQuery } from '@apollo/client';
 import {
   EnumCursorDirection,
-  ICursorListResponse,
   isUndefinedOrNull,
-  mergeCursorData,
   parseDateRangeFromString,
   useNonNullMultiQueryState,
   useToast,
   validateFetchMore,
 } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import type {
+  GetTicketsQuery,
+  GetTicketsQueryVariables,
+  ITicketFilter,
+} from '~/gql/graphql';
 
 const TICKETS_PER_PAGE = 30;
-
-interface ITicketChanged {
-  ticketListChanged: {
-    type: string;
-    ticket: ITicket;
-  };
-}
 
 export const TICKET_SORT_FIELDS = [
   { label: 'Updated', value: 'updatedAt' },
@@ -34,14 +34,15 @@ export const TICKET_SORT_FIELDS = [
 export type TicketSortField = (typeof TICKET_SORT_FIELDS)[number]['value'];
 
 export const useTicketsVariables = (
-  variables?: QueryHookOptions<ICursorListResponse<ITicket>>['variables'],
-) => {
+  variables?: ITicketFilter,
+): ITicketFilter => {
   const {
     searchValue,
     assignee,
     priority,
     statusId,
     state,
+    channelId,
     pipelineId,
     segments,
     createdStartDate,
@@ -54,9 +55,10 @@ export const useTicketsVariables = (
   } = useNonNullMultiQueryState<{
     searchValue: string;
     assignee: string;
-    priority: string;
+    priority: number;
     statusId: string;
     state: string;
+    channelId: string;
     pipelineId: string;
     segments: string[];
     createdStartDate: string;
@@ -72,6 +74,7 @@ export const useTicketsVariables = (
     'priority',
     'statusId',
     'state',
+    'channelId',
     'pipelineId',
     'segments',
     'createdStartDate',
@@ -97,6 +100,7 @@ export const useTicketsVariables = (
     assigneeId: assignee,
     priority: priority,
     statusId: statusId,
+    channelId: channelId,
     pipelineId: pipelineId,
     state: state,
     segmentIds: segments || undefined,
@@ -117,14 +121,14 @@ export const useTicketsVariables = (
 };
 
 export const useTickets = (
-  options?: QueryHookOptions<ICursorListResponse<ITicket>>,
+  options?: QueryHookOptions<GetTicketsQuery, GetTicketsQueryVariables> & {
+    variables?: ITicketFilter;
+  },
 ) => {
   const { t } = useTranslation('frontline');
   const variables = useTicketsVariables(options?.variables);
   const { toast } = useToast();
-  const { data, loading, fetchMore, subscribeToMore } = useQuery<
-    ICursorListResponse<ITicket>
-  >(GET_TICKETS, {
+  const { data, loading, fetchMore, subscribeToMore } = useQuery(GET_TICKETS, {
     ...options,
     variables: { filter: variables },
     skip: options?.skip || isUndefinedOrNull(variables.cursor),
@@ -138,20 +142,33 @@ export const useTickets = (
     },
   });
 
-  const { list: tickets, pageInfo, totalCount } = data?.getTickets || {};
+  const tickets = useMemo(
+    () =>
+      data?.getTickets?.list ? compactList(data.getTickets.list) : undefined,
+    [data?.getTickets?.list],
+  );
+  const pageInfo = useMemo(
+    () => toCursorPageInfo(data?.getTickets?.pageInfo),
+    [data?.getTickets?.pageInfo],
+  );
+  const totalCount = data?.getTickets?.totalCount ?? undefined;
 
   useEffect(() => {
-    const unsubscribe = subscribeToMore<ITicketChanged>({
+    const unsubscribe = subscribeToMore({
       document: TICKET_LIST_CHANGED,
       variables: { filter: variables },
       updateQuery: (prev, { subscriptionData }) => {
-        if (!subscriptionData.data) return prev;
+        const changed = subscriptionData.data?.ticketListChanged;
 
-        const { type, ticket } = subscriptionData.data.ticketListChanged;
+        if (!changed) return prev;
 
-        const currentList = prev?.getTickets?.list;
+        const { type, ticket } = changed;
 
-        if (!ticket || !currentList) return prev;
+        const currentList = prev?.getTickets?.list
+          ? compactList(prev.getTickets.list)
+          : undefined;
+
+        if (!ticket || !currentList || !prev.getTickets) return prev;
 
         const isRemoval = type === 'delete' || type === 'remove';
 
@@ -165,9 +182,7 @@ export const useTickets = (
           (!variables.statusId || ticket.statusId === variables.statusId);
 
         if (type === 'create') {
-          const exists = currentList.some(
-            (item: ITicket) => item._id === ticket._id,
-          );
+          const exists = currentList.some((item) => item._id === ticket._id);
           if (!exists && matchesFilter) {
             updatedList = [ticket, ...currentList];
             countDelta = 1;
@@ -176,18 +191,16 @@ export const useTickets = (
 
         if (type === 'update') {
           const wasPresent = currentList.some(
-            (item: ITicket) => item._id === ticket._id,
+            (item) => item._id === ticket._id,
           );
 
           if (!matchesFilter) {
-            updatedList = currentList.filter(
-              (item: ITicket) => item._id !== ticket._id,
-            );
+            updatedList = currentList.filter((item) => item._id !== ticket._id);
             if (wasPresent) {
               countDelta = -1;
             }
           } else if (wasPresent) {
-            updatedList = currentList.map((item: ITicket) =>
+            updatedList = currentList.map((item) =>
               item._id === ticket._id ? { ...item, ...ticket } : item,
             );
           } else if (matchesFilter) {
@@ -197,9 +210,7 @@ export const useTickets = (
         }
 
         if (isRemoval) {
-          updatedList = currentList.filter(
-            (item: ITicket) => item._id !== ticket._id,
-          );
+          updatedList = currentList.filter((item) => item._id !== ticket._id);
           countDelta = -1;
         }
 
@@ -209,7 +220,7 @@ export const useTickets = (
             ...prev.getTickets,
             list: updatedList,
             pageInfo: prev.getTickets.pageInfo,
-            totalCount: prev.getTickets.totalCount + countDelta,
+            totalCount: (prev.getTickets.totalCount ?? 0) + countDelta,
           },
         };
       },
@@ -241,15 +252,16 @@ export const useTickets = (
         },
       },
       updateQuery: (prev, { fetchMoreResult }) => {
-        if (!fetchMoreResult) return prev;
+        if (!fetchMoreResult.getTickets || !prev.getTickets) return prev;
 
-        return Object.assign({}, prev, {
-          getTickets: mergeCursorData({
+        return {
+          ...prev,
+          getTickets: mergeCursorList(
             direction,
-            fetchMoreResult: fetchMoreResult.getTickets,
-            prevResult: prev.getTickets,
-          }),
-        });
+            prev.getTickets,
+            fetchMoreResult.getTickets,
+          ),
+        };
       },
     });
   };

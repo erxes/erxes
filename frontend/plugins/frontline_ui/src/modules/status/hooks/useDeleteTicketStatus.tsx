@@ -4,13 +4,22 @@ import { MutationHookOptions, useMutation } from '@apollo/client';
 import { useToast } from 'erxes-ui';
 import { useParams } from 'react-router';
 import { useTranslation } from 'react-i18next';
+import type {
+  DeleteTicketStatusMutation,
+  DeleteTicketStatusMutationVariables,
+} from '~/gql/graphql';
 
 export const useDeleteTicketStatus = (type: number) => {
   const { t } = useTranslation('frontline');
   const { toast } = useToast();
   const { pipelineId } = useParams();
   const [_deleteStatus, { loading, error }] = useMutation(DELETE_TICKET_STATUS);
-  const deleteStatus = (options: MutationHookOptions) => {
+  const deleteStatus = (
+    options: MutationHookOptions<
+      DeleteTicketStatusMutation,
+      DeleteTicketStatusMutationVariables
+    >,
+  ) => {
     return _deleteStatus({
       refetchQueries: [
         {

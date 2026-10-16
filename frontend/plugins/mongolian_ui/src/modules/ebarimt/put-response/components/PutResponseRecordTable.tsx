@@ -22,6 +22,7 @@ export const PutResponseRecordTable = () => {
       <RecordTable.CursorProvider
         hasPreviousPage={hasPreviousPage}
         hasNextPage={hasNextPage}
+        loading={loading}
         dataLength={putResponses?.length}
         sessionKey={PUT_RESPONSE_CURSOR_SESSION_KEY}
       >
@@ -31,7 +32,9 @@ export const PutResponseRecordTable = () => {
             <RecordTable.CursorBackwardSkeleton
               handleFetchMore={handleFetchMore}
             />
-            {loading && <RecordTable.RowSkeleton rows={40} />}
+            {loading && !putResponses.length && (
+              <RecordTable.RowSkeleton rows={30} />
+            )}
             <RecordTable.RowList />
             <RecordTable.CursorForwardSkeleton
               handleFetchMore={handleFetchMore}

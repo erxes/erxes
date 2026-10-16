@@ -22,8 +22,9 @@ export const useCallEnabledIntegrations = () => {
 
   const enabledIntegrations = useMemo(
     () =>
-      (callUserIntegrations || []).filter((integration) =>
-        activeIds.has(integration.inboxId),
+      (callUserIntegrations || []).filter(
+        (integration) =>
+          !!integration.inboxId && activeIds.has(integration.inboxId),
       ),
     [callUserIntegrations, activeIds],
   );
@@ -31,25 +32,29 @@ export const useCallEnabledIntegrations = () => {
   const isEnabled = (inboxId: string) => activeIds.has(inboxId);
 
   const toggleIntegration = (integration: ICallConfig, checked: boolean) => {
+    const { inboxId } = integration;
+
+    if (!inboxId) {
+      return;
+    }
+
     if (checked) {
-      setEnabledIds(Array.from(new Set([...activeIds, integration.inboxId])));
+      setEnabledIds(Array.from(new Set([...activeIds, inboxId])));
       if (!callConfig?.isAvailable) {
         setCallConfig({ ...integration, isAvailable: true });
       }
       return;
     }
 
-    const remainingIds = Array.from(activeIds).filter(
-      (id) => id !== integration.inboxId,
-    );
+    const remainingIds = Array.from(activeIds).filter((id) => id !== inboxId);
     setEnabledIds(remainingIds);
 
-    if (callConfig?.inboxId !== integration.inboxId) {
+    if (callConfig?.inboxId !== inboxId) {
       return;
     }
 
-    const nextIntegration = (callUserIntegrations || []).find((item) =>
-      remainingIds.includes(item.inboxId),
+    const nextIntegration = (callUserIntegrations || []).find(
+      (item) => !!item.inboxId && remainingIds.includes(item.inboxId),
     );
 
     setCallConfig(

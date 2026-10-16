@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Sheet, Spinner, isDeeplyEqual, useQueryState } from 'erxes-ui';
 
 import { AccountingSheet } from '~/modules/layout/components/Sheet';
@@ -25,6 +26,7 @@ export const EditVatRowForm = () => {
   }, [vatRowDetail, reset]);
 
   const handleSubmit = (data: TVatRowForm) => {
+    if (!vatRowDetail) return;
     const initialData = {
       ...vatRowDetail,
     };
@@ -36,7 +38,7 @@ export const EditVatRowForm = () => {
     }
     editVatRow({
       variables: {
-        _id: vatRowDetail?._id,
+        _id: vatRowDetail._id,
         ...data,
       },
       onCompleted: () => {
@@ -59,6 +61,7 @@ export const EditVatRowForm = () => {
 };
 
 export const EditVatRow = () => {
+  const { t } = useTranslation('accounting');
   const [open, setOpen] = useQueryState<string>('vat_row_id');
   return (
     <Sheet
@@ -67,7 +70,7 @@ export const EditVatRow = () => {
         if (!isOpen) setOpen(null);
       }}
     >
-      <AccountingSheet title="НӨАТ-ын үзүүлэлт засах">
+      <AccountingSheet title={t('edit-vat-details')}>
         <EditVatRowForm />
       </AccountingSheet>
     </Sheet>

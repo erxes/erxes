@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const CUSTOM_DOMAIN_FIELDS = gql`
+export const CUSTOM_DOMAIN_FIELDS = gql(`
   fragment CustomDomainFields on FrontlineCustomDomain {
     isAvailable
     cnameTarget
@@ -18,13 +18,12 @@ export const CUSTOM_DOMAIN_FIELDS = gql`
       status
     }
   }
-`;
+`);
 
-export const GET_CUSTOM_DOMAIN = gql`
-  ${CUSTOM_DOMAIN_FIELDS}
+export const GET_CUSTOM_DOMAIN = gql(`
   query frontlineCustomDomain($helpCenterId: String!) {
     frontlineCustomDomain(helpCenterId: $helpCenterId) {
       ...CustomDomainFields
     }
   }
-`;
+`);

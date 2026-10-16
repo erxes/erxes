@@ -2,12 +2,14 @@ import { AUTOMATION_STATS_FILTER_SESSION_KEY } from '@/automations/constants';
 import { AutomationsHotKeyScope } from '@/automations/types';
 import { IconCalendar, IconCalendarPlus } from '@tabler/icons-react';
 import { Combobox, Command, Filter, useMultiQueryState } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 /**
  * Stats are only sliced by date — status is what the numbers explain, so
  * filtering it away would leave nothing to compare against.
  */
 export const AutomationStatsFilter = () => {
+  const { t } = useTranslation('automations');
   const [queries] = useMultiQueryState<{ createdAt: string }>(['createdAt']);
 
   return (
@@ -21,14 +23,14 @@ export const AutomationStatsFilter = () => {
           <Filter.View>
             <Command>
               <Filter.CommandInput
-                placeholder="Filter"
+                placeholder={t('stats-filter-placeholder')}
                 variant="secondary"
                 className="bg-background"
               />
               <Command.List className="p-1">
                 <Filter.Item value="createdAt">
                   <IconCalendar />
-                  Filter by created
+                  {t('stats-filter-by-created')}
                 </Filter.Item>
               </Command.List>
             </Command>
@@ -46,7 +48,7 @@ export const AutomationStatsFilter = () => {
         <Filter.BarItem queryKey="createdAt">
           <Filter.BarName>
             <IconCalendarPlus />
-            Filter by created at
+            {t('stats-filter-by-created-at')}
           </Filter.BarName>
           <Filter.Date filterKey="createdAt" />
         </Filter.BarItem>

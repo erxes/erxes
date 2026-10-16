@@ -14,6 +14,8 @@ export type TAutomationOutputVariable = {
   referenceType?: string;
   sourceType?: string;
   type?: string;
+  // Fixed choices, when the value can only be one of them
+  options?: { label: string; value: string }[];
 };
 
 export type TAutomationOutputPropertySource = {

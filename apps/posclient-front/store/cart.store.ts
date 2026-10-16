@@ -19,6 +19,7 @@ interface IUpdateItem {
   isTake?: boolean
   description?: string
   attachment?: { url?: string } | null
+  conditionCode?: string | null
   fromAdd?: boolean
   allowed?: boolean
   status?: IOrderItemStatus
@@ -81,6 +82,7 @@ export const addToCart = (
       isTake,
       description,
       attachment,
+      conditionCode,
     }) =>
       productId === product._id &&
       [ORDER_ITEM_STATUSES.NEW, ORDER_ITEM_STATUSES.CONFIRM].includes(
@@ -89,7 +91,8 @@ export const addToCart = (
       (itemManufacturedDate || "") === manufacturedDate &&
       !isTake &&
       !description &&
-      !attachment
+      !attachment &&
+      !conditionCode
   )
 
   if (prevItem) {

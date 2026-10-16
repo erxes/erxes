@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, Dialog, Form, Input, Checkbox, Select } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
@@ -33,6 +34,7 @@ export const BundleRuleItemForm = ({
   editingItem,
   editingIndex,
 }: IBundleRuleItemFormProps) => {
+  const { t } = useTranslation('product', { keyPrefix: 'bundle-rules' });
   const [selectedProducts, setSelectedProducts] = useState<
     { _id: string; name: string }[]
   >([]);
@@ -98,7 +100,7 @@ export const BundleRuleItemForm = ({
 
   const selectedProductsLabel = (() => {
     if (!selectedProducts.length) {
-      return 'Choose Product & service';
+      return t('choose-product-service');
     }
 
     const names = selectedProducts.map((p) => p.name).filter(Boolean);
@@ -107,7 +109,7 @@ export const BundleRuleItemForm = ({
 
     if (visibleNames.length === 0) {
       const count = selectedProducts.length;
-      return count === 1 ? '1 product' : `${count} products`;
+      return t('products-count', { count });
     }
 
     return remaining > 0
@@ -122,12 +124,12 @@ export const BundleRuleItemForm = ({
   ];
 
   const priceAdjustTypeOptions = [
-    { value: 'none', label: 'None' },
-    { value: 'default', label: 'Default' },
-    { value: 'round', label: 'Round' },
-    { value: 'floor', label: 'Floor' },
-    { value: 'ceil', label: 'Ceil' },
-    { value: 'endsWith9', label: 'Ends With 9' },
+    { value: 'none', label: t('adjust-none') },
+    { value: 'default', label: t('adjust-default') },
+    { value: 'round', label: t('adjust-round') },
+    { value: 'floor', label: t('adjust-floor') },
+    { value: 'ceil', label: t('adjust-ceil') },
+    { value: 'endsWith9', label: t('adjust-ends-with-9') },
   ];
 
   return (
@@ -136,8 +138,8 @@ export const BundleRuleItemForm = ({
         <Dialog.Header>
           <Dialog.Title>
             {editingIndex !== null && editingIndex !== undefined
-              ? 'Edit Bundle Rule Item'
-              : 'Add Bundle Rule Item'}
+              ? t('edit-item')
+              : t('add-item')}
           </Dialog.Title>
           <Dialog.Close />
         </Dialog.Header>
@@ -150,7 +152,7 @@ export const BundleRuleItemForm = ({
                 render={({ field }) => (
                   <Form.Item className="w-full">
                     <Form.Label>
-                      Code <span className="text-destructive">*</span>
+                      {t('code')} <span className="text-destructive">*</span>
                     </Form.Label>
                     <Form.Control>
                       <Select
@@ -158,7 +160,9 @@ export const BundleRuleItemForm = ({
                         onValueChange={field.onChange}
                       >
                         <Select.Trigger>
-                          <Select.Value placeholder="Select Bundle Condition" />
+                          <Select.Value
+                            placeholder={t('select-bundle-condition')}
+                          />
                         </Select.Trigger>
                         <Select.Content>
                           {bundleConditionOptions.map((option) => (
@@ -183,7 +187,8 @@ export const BundleRuleItemForm = ({
                 render={() => (
                   <Form.Item className="flex flex-col gap-1 w-full">
                     <Form.Label>
-                      Products <span className="text-destructive">*</span>
+                      {t('products')}{' '}
+                      <span className="text-destructive">*</span>
                     </Form.Label>
                     <Form.Control>
                       <SelectProductsBulk
@@ -208,7 +213,8 @@ export const BundleRuleItemForm = ({
                 render={({ field }) => (
                   <Form.Item className="w-full">
                     <Form.Label>
-                      Price Type <span className="text-destructive">*</span>
+                      {t('price-type')}{' '}
+                      <span className="text-destructive">*</span>
                     </Form.Label>
                     <Form.Control>
                       <Select
@@ -216,7 +222,7 @@ export const BundleRuleItemForm = ({
                         onValueChange={field.onChange}
                       >
                         <Select.Trigger>
-                          <Select.Value placeholder="Select Price Type" />
+                          <Select.Value placeholder={t('select-price-type')} />
                         </Select.Trigger>
                         <Select.Content>
                           {priceTypeOptions.map((option) => (
@@ -241,7 +247,7 @@ export const BundleRuleItemForm = ({
                 render={({ field }) => (
                   <Form.Item className="w-full">
                     <Form.Label>
-                      Price Adjust Type{' '}
+                      {t('price-adjust-type')}{' '}
                       <span className="text-destructive">*</span>
                     </Form.Label>
                     <Form.Control>
@@ -250,7 +256,9 @@ export const BundleRuleItemForm = ({
                         onValueChange={field.onChange}
                       >
                         <Select.Trigger>
-                          <Select.Value placeholder="Select Price Adjust Type" />
+                          <Select.Value
+                            placeholder={t('select-price-adjust-type')}
+                          />
                         </Select.Trigger>
                         <Select.Content>
                           {priceAdjustTypeOptions.map((option) => (
@@ -275,13 +283,13 @@ export const BundleRuleItemForm = ({
                 render={({ field }) => (
                   <Form.Item className="w-full">
                     <Form.Label>
-                      Price Adjust Factor{' '}
+                      {t('price-adjust-factor')}{' '}
                       <span className="text-destructive">*</span>
                     </Form.Label>
                     <Form.Control>
                       <Input
                         type="number"
-                        placeholder="Price Adjust Factor"
+                        placeholder={t('price-adjust-factor')}
                         {...field}
                         value={field.value ?? ''}
                         onChange={(e) => field.onChange(e.target.value)}
@@ -299,12 +307,13 @@ export const BundleRuleItemForm = ({
                   render={({ field }) => (
                     <Form.Item className="w-full">
                       <Form.Label>
-                        Quantity <span className="text-destructive">*</span>
+                        {t('quantity')}{' '}
+                        <span className="text-destructive">*</span>
                       </Form.Label>
                       <Form.Control>
                         <Input
                           type="number"
-                          placeholder="Quantity"
+                          placeholder={t('quantity')}
                           {...field}
                           value={field.value ?? ''}
                           onChange={(e) =>
@@ -325,12 +334,13 @@ export const BundleRuleItemForm = ({
                   render={({ field }) => (
                     <Form.Item className="w-full">
                       <Form.Label>
-                        Percent <span className="text-destructive">*</span>
+                        {t('percent')}{' '}
+                        <span className="text-destructive">*</span>
                       </Form.Label>
                       <Form.Control>
                         <Input
                           type="number"
-                          placeholder="Percent"
+                          placeholder={t('percent')}
                           {...field}
                           value={field.value ?? ''}
                           onChange={(e) =>
@@ -357,7 +367,7 @@ export const BundleRuleItemForm = ({
                         onCheckedChange={field.onChange}
                       />
                     </Form.Control>
-                    <Form.Label className="mb-0">Allow Skip</Form.Label>
+                    <Form.Label className="mb-0">{t('allow-skip')}</Form.Label>
                     <Form.Message />
                   </Form.Item>
                 )}
@@ -365,12 +375,12 @@ export const BundleRuleItemForm = ({
             </div>
             <Dialog.Footer className="flex gap-1 justify-end">
               <Button type="button" variant="outline" onClick={handleClose}>
-                Cancel
+                {t('cancel')}
               </Button>
               <Button type="submit">
                 {editingIndex !== null && editingIndex !== undefined
-                  ? 'Update'
-                  : 'Add'}
+                  ? t('update')
+                  : t('add')}
               </Button>
             </Dialog.Footer>
           </form>

@@ -24,7 +24,7 @@ export const SafeRemainderDetailTr = () => {
   const [id] = useQueryState<string>('id');
 
   const { safeRemainder, loading } = useSafeRemainderDetail({
-    variables: { _id: id },
+    variables: { _id: id ?? '' },
     skip: !id,
   });
 
@@ -34,7 +34,7 @@ export const SafeRemainderDetailTr = () => {
     loading: detailsLoading,
     handleFetchMore,
   } = useSafeRemainderDetails({
-    variables: { remainderId: id },
+    variables: { remainderId: id ?? '' },
     skip: !id,
   });
 
@@ -65,7 +65,9 @@ export const SafeRemainderDetailTr = () => {
             <Button
               variant="secondary"
               className="text-destructive"
-              onClick={() => removeSafeRemainder({ variables: { _id: id } })}
+              onClick={() =>
+                removeSafeRemainder({ variables: { _id: id ?? '' } })
+              }
             >
               <IconTrashX />
               {t('delete')}
@@ -123,7 +125,7 @@ export const SafeRemainderDetailTr = () => {
           <div className="flex items-center gap-2 text-sm">
             <span className="text-accent-foreground">{t('status')}:</span>
             <span className="text-primary font-bold">
-              {safeRemainder?.status}
+              {safeRemainder?.status ? t(safeRemainder.status) : ''}
             </span>
           </div>
           {renderEvents()}
@@ -133,7 +135,7 @@ export const SafeRemainderDetailTr = () => {
       <SafeRemainderDetailFilter />
 
       <RecordTable.Provider
-        columns={safeRemDetailTableColumns}
+        columns={safeRemDetailTableColumns(t)}
         data={safeRemainderItems || []}
         stickyColumns={[]}
         tableId="accounting_safe_remainder_transaction_detail_record_table_v2"

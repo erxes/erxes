@@ -6,6 +6,7 @@ import {
 } from '@/integrations/facebook/utils';
 import { getErrorMessage } from '@/integrations/utils';
 
+import { escapeRegExp } from 'erxes-api-shared/utils';
 export const STORY_LIFETIME_MS = 24 * 60 * 60 * 1000;
 
 type TGraphMessageAttachment = {
@@ -62,12 +63,10 @@ const isHostOf = (hostname: string, domain: string) =>
   hostname === domain || hostname.endsWith(`.${domain}`);
 
 const readOpenGraphValue = (html: string, property: string) => {
-  const escapedProperty = property.replace(
-    /[.*+?^${}()|[\]\\]/g,
-    String.raw`\$&`,
-  );
   const pattern = new RegExp(
-    `<meta[^>]+property=["']${escapedProperty}["'][^>]+content=["']([^"']*)`,
+    `<meta[^>]+property=["']${escapeRegExp(
+      property,
+    )}["'][^>]+content=["']([^"']*)`,
     'i',
   );
   return pattern.exec(html)?.[1]?.replace(/&amp;/g, '&');

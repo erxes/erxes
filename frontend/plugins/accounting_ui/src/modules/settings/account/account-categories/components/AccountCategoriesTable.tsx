@@ -1,3 +1,4 @@
+import type { TFunction } from 'i18next';
 import { Cell, ColumnDef } from '@tanstack/table-core';
 import { IAccountCategory } from '../types/AccountCategory';
 import {
@@ -26,6 +27,7 @@ import { useMemo } from 'react';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 
 const AccountCategoriesInitialSkeleton = ({ rows = 20 }: { rows?: number }) => {
+  const { t } = useTranslation('accounting');
   const rowKeys = useMemo(
     () => Array.from({ length: rows }, () => crypto.randomUUID()),
     [rows],
@@ -34,7 +36,7 @@ const AccountCategoriesInitialSkeleton = ({ rows = 20 }: { rows?: number }) => {
     <>
       {rowKeys.map((rowKey) => (
         <Table.Row key={rowKey} className="h-cell">
-          {accountCategoriesColumns.map((col, colIndex) => (
+          {accountCategoriesColumns(t).map((col, colIndex) => (
             <Table.Cell
               key={`${rowKey}-${col.id ?? colIndex}`}
               className="border-r-0 px-2"
@@ -49,6 +51,7 @@ const AccountCategoriesInitialSkeleton = ({ rows = 20 }: { rows?: number }) => {
 };
 
 export const AccountCategoriesTable = () => {
+  const { t } = useTranslation('accounting');
   const { accountCategories, loading } = useAccountCategories();
   const isInitialLoading = loading && !accountCategories?.length;
 
@@ -66,7 +69,7 @@ export const AccountCategoriesTable = () => {
 
   return (
     <RecordTable.Provider
-      columns={accountCategoriesColumns}
+      columns={accountCategoriesColumns(t)}
       data={
         isInitialLoading
           ? []
@@ -126,7 +129,11 @@ const AccountTextField = ({
       scope={`account-category-${_id}-${field}`}
       onSave={(value) => {
         editAccountCategory({
-          variables: { ...accountCategory, [field]: value },
+          variables: {
+            ...accountCategory,
+            name: accountCategory.name ?? '',
+            [field]: value,
+          },
         });
       }}
       className={'shadow-none rounded-none px-2'}
@@ -142,7 +149,7 @@ const AccountCategoryMoreColumnCell = ({
   cell: Cell<IAccountCategory & { hasChildren: boolean }, unknown>;
 }) => {
   const { t } = useTranslation('accounting');
-  const [, setOpen] = useQueryState('accountCategoryId');
+  const [, setOpen] = useQueryState<string>('accountCategoryId');
   const setAccountCategoryDetail = useSetAtom(accountCategoryDetailAtom);
   const { confirm } = useConfirm();
   const { removeAccountCategories } = useAccountCategoriesRemove();
@@ -216,6 +223,7 @@ const AccountCategoryParentCell = ({
         editAccountCategory({
           variables: {
             ...cell.row.original,
+            name: cell.row.original.name ?? '',
             parentId,
           },
         });
@@ -232,9 +240,9 @@ const accountCategoryMoreColumn = {
   size: 33,
 };
 
-export const accountCategoriesColumns: ColumnDef<
-  IAccountCategory & { hasChildren: boolean }
->[] = [
+export const accountCategoriesColumns = (
+  t: TFunction<'accounting'>,
+): ColumnDef<IAccountCategory & { hasChildren: boolean }>[] => [
   accountCategoryMoreColumn,
   RecordTable.checkboxColumn as ColumnDef<
     IAccountCategory & { hasChildren: boolean }
@@ -242,7 +250,7 @@ export const accountCategoriesColumns: ColumnDef<
   {
     id: 'code',
     accessorKey: 'code',
-    header: () => <RecordTable.InlineHead label="Код" />,
+    header: () => <RecordTable.InlineHead label={t('code')} />,
     cell: ({ cell }) => {
       const accountCategory = cell.row.original;
       return (
@@ -265,7 +273,7 @@ export const accountCategoriesColumns: ColumnDef<
   {
     id: 'name',
     accessorKey: 'name',
-    header: () => <RecordTable.InlineHead label="Нэр" />,
+    header: () => <RecordTable.InlineHead label={t('name')} />,
     cell: ({ cell }) => {
       return (
         <AccountTextField
@@ -281,14 +289,14 @@ export const accountCategoriesColumns: ColumnDef<
   {
     id: 'parentId',
     accessorKey: 'parentId',
-    header: () => <RecordTable.InlineHead label="Эцэг" />,
+    header: () => <RecordTable.InlineHead label={t('parent')} />,
     cell: ({ cell }) => <AccountCategoryParentCell cell={cell} />,
     size: 250,
   },
   {
     id: 'description',
     accessorKey: 'description',
-    header: () => <RecordTable.InlineHead label="Тайлбар" />,
+    header: () => <RecordTable.InlineHead label={t('description')} />,
     cell: ({ cell }) => {
       return (
         <AccountTextField

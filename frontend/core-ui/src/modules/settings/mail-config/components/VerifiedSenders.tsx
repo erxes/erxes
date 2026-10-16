@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { AddSenderDialog } from '@/settings/mail-config/components/AddSenderDialog';
 import { useSenderCreation } from '@/settings/mail-config/hooks/useSenderCreation';
 import {
@@ -31,6 +32,7 @@ export const VerifiedSenders = () => {
   const [search, setSearch] = useState('');
 
   const { confirm } = useConfirm();
+  const { t } = useTranslation('settings', { keyPrefix: 'mail-config' });
   const {
     supportsSenderVerification,
     singleSenders: senders,
@@ -45,7 +47,7 @@ export const VerifiedSenders = () => {
 
   const handleRemove = (email: string) => {
     confirm({
-      message: `Are you sure you want to remove this sender?`,
+      message: t('confirm-remove-sender'),
     }).then(() => removeVerifiedSender(email));
   };
 
@@ -71,7 +73,7 @@ export const VerifiedSenders = () => {
                 ))
               ) : (
                 <span className="text-muted-foreground font-medium">
-                  No senders yet
+                  {t('no-senders-yet')}
                 </span>
               )}
             </div>
@@ -81,7 +83,7 @@ export const VerifiedSenders = () => {
         <Combobox.Content className="p-0 min-w-[312px]" align="start">
           <Command>
             <Command.Input
-              placeholder="Search senders"
+              placeholder={t('search-senders')}
               value={search}
               onValueChange={setSearch}
             />
@@ -96,7 +98,7 @@ export const VerifiedSenders = () => {
                 </Command.Empty>
               ) : (
                 <Command.Empty className="py-5 px-3 text-center">
-                  No senders found.
+                  {t('no-senders-found')}
                 </Command.Empty>
               )}
 
@@ -109,7 +111,7 @@ export const VerifiedSenders = () => {
                   <span className="flex-1">{sender.value}</span>
                   {sender.status !== 'verified' && (
                     <span className="text-muted-foreground text-xs">
-                      awaiting confirmation
+                      {t('awaiting-confirmation')}
                     </span>
                   )}
                 </Command.Item>
@@ -126,7 +128,7 @@ export const VerifiedSenders = () => {
                     onClick={handleAdd}
                   >
                     <IconMailPlus />
-                    Add a sender address
+                    {t('add-sender-address')}
                   </Button>
                 </div>
               </>

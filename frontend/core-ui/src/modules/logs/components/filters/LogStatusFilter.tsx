@@ -11,16 +11,17 @@ import {
 } from 'erxes-ui';
 
 import { ILogStatusType } from '@/logs/types';
+import { useTranslation } from 'react-i18next';
 
 const LOG_STATUS_OPTIONS = [
   {
     value: ILogStatusType.SUCCESS,
-    label: 'Success',
+    labelKey: 'status-success',
     icon: IconProgressCheck,
   },
   {
     value: ILogStatusType.FAILED,
-    label: 'Failed',
+    labelKey: 'status-failed',
     icon: IconProgressX,
   },
 ] as const;
@@ -30,6 +31,7 @@ export const LogStatusFilter = ({
 }: {
   onValueChange?: () => void;
 }) => {
+  const { t } = useTranslation('common', { keyPrefix: 'logs' });
   const [queries, setQueries] = useMultiQueryState<{
     status: string;
     statusOperator: string;
@@ -41,7 +43,7 @@ export const LogStatusFilter = ({
     <Command shouldFilter={false}>
       <Command.List className="p-1">
         <Combobox.Empty />
-        {LOG_STATUS_OPTIONS.map(({ value, label, icon: Icon }) => (
+        {LOG_STATUS_OPTIONS.map(({ value, labelKey, icon: Icon }) => (
           <Command.Item
             key={value}
             value={value}
@@ -56,7 +58,7 @@ export const LogStatusFilter = ({
             }}
           >
             <Icon />
-            {label}
+            {t(labelKey)}
             {status === value && <IconCheck className="ml-auto" />}
           </Command.Item>
         ))}

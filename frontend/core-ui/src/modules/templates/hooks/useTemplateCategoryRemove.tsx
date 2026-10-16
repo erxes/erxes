@@ -2,6 +2,7 @@ import { TEMPLATE_CATEGORY_REMOVE } from '@/templates/graphql/mutations';
 import { MutationHookOptions, useMutation } from '@apollo/client';
 import { toast } from 'erxes-ui';
 import { QUERY_TEMPLATE_CATEGORIES } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 export interface ITemplateCategoryRemove {
   _ids?: string[];
@@ -12,6 +13,7 @@ export interface ITemplateCategoryRemoveResponse {
 }
 
 export const useTemplateCategoryRemove = () => {
+  const { t } = useTranslation('templates', { keyPrefix: 'template-category' });
   const [mutate, { loading }] = useMutation<
     ITemplateCategoryRemoveResponse,
     ITemplateCategoryRemove
@@ -36,8 +38,8 @@ export const useTemplateCategoryRemove = () => {
           onCompleted(data);
         }
         toast({
-          title: 'Success',
-          description: 'Category removed successfully',
+          title: t('success'),
+          description: t('remove-success'),
           variant: 'default',
         });
       },
@@ -46,7 +48,7 @@ export const useTemplateCategoryRemove = () => {
           onError(error);
         }
         toast({
-          title: 'Error',
+          title: t('error'),
           description: error.message,
           variant: 'destructive',
         });

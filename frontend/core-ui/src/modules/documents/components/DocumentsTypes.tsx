@@ -3,6 +3,7 @@ import { Sidebar, useMultiQueryState } from 'erxes-ui';
 import { DOCUMENTS_TYPES_SET } from '../constants';
 import { useDocumentsTypes } from '../hooks/useDocumentsTypes';
 import { IDocumentType } from '../types';
+import { useTranslation } from 'react-i18next';
 
 type DocumentsTypeQuery = {
   contentType: string;
@@ -16,12 +17,14 @@ function AllDocumentsMenu({
   isActive: boolean;
   onSelect: () => void;
 }) {
+  const { t } = useTranslation('documents', { keyPrefix: 'document' });
+
   return (
     <Sidebar.Menu>
       <Sidebar.MenuItem>
         <Sidebar.MenuButton onClick={onSelect} isActive={isActive}>
           <IconLayoutGrid />
-          All Documents
+          {t('all-documents')}
         </Sidebar.MenuButton>
       </Sidebar.MenuItem>
     </Sidebar.Menu>
@@ -59,6 +62,7 @@ function DocumentsTypeMenu({
 }
 
 export function DocumentsTypes() {
+  const { t } = useTranslation('documents', { keyPrefix: 'document' });
   const [{ contentType }, setQueries] = useMultiQueryState<DocumentsTypeQuery>([
     'contentType',
     'documentId',
@@ -75,8 +79,8 @@ export function DocumentsTypes() {
   }
 
   return (
-    <Sidebar collapsible="none" className="w-full border-r bg-muted/20">
-      <Sidebar.Group>
+    <Sidebar collapsible="none" className="w-full bg-transparent">
+      <Sidebar.Group className="pt-0">
         <Sidebar.GroupContent>
           <AllDocumentsMenu
             isActive={!contentType}
@@ -84,7 +88,7 @@ export function DocumentsTypes() {
           />
         </Sidebar.GroupContent>
         <Sidebar.GroupLabel className="h-12 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-          Document types
+          {t('document-types')}
         </Sidebar.GroupLabel>
         <Sidebar.GroupContent>
           <DocumentsTypeMenu

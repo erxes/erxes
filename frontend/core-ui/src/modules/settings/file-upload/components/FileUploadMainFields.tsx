@@ -5,6 +5,14 @@ import { UseFormReturn } from 'react-hook-form';
 import { UploadConfigFormT } from '@/settings/file-upload/types';
 import { useTranslation } from 'react-i18next';
 
+const MIME_TYPE_FIELDS = [
+  { name: 'UPLOAD_FILE_TYPES', labelKey: 'upload-file-types' },
+  {
+    name: 'WIDGETS_UPLOAD_FILE_TYPES',
+    labelKey: 'upload-file-types-of-widget',
+  },
+] as const;
+
 export function FileUploadMainFields({
   form,
   fileMimeTypesOptions,
@@ -21,52 +29,33 @@ export function FileUploadMainFields({
 
   return (
     <div className="grid grid-cols-1 gap-4">
-      <Form.Item className="w-full">
-        <Form.Field
-          name="UPLOAD_FILE_TYPES"
-          control={form.control}
-          render={({ field }: { field: any }) => (
-            <div className="space-y-2">
-              <Form.Label>{t('upload-file-types')}</Form.Label>
-              <MultipleSelector
-                {...field}
-                options={fileMimeTypesOptions}
-                badgeClassName={selectorBadgeClassName}
-                placeholder="Select option"
-                hideClearAllButton
-                hidePlaceholderWhenSelected
-                emptyIndicator={
-                  <p className="text-center text-sm">No results found</p>
-                }
-              />
-            </div>
-          )}
-        />
-        <Form.Message />
-      </Form.Item>
-      <Form.Item>
-        <Form.Field
-          name="WIDGETS_UPLOAD_FILE_TYPES"
-          control={form.control}
-          render={({ field }: { field: any }) => (
-            <div className="space-y-2">
-              <Form.Label>{t('upload-file-types-of-widget')}</Form.Label>
-              <MultipleSelector
-                {...field}
-                options={fileMimeTypesOptions}
-                badgeClassName={selectorBadgeClassName}
-                placeholder="Select option"
-                hideClearAllButton
-                hidePlaceholderWhenSelected
-                emptyIndicator={
-                  <p className="text-center text-sm">No results found</p>
-                }
-              />
-            </div>
-          )}
-        />
-        <Form.Message />
-      </Form.Item>
+      {MIME_TYPE_FIELDS.map(({ name, labelKey }) => (
+        <Form.Item key={name} className="w-full">
+          <Form.Field
+            name={name}
+            control={form.control}
+            render={({ field }: { field: any }) => (
+              <div className="space-y-2">
+                <Form.Label>{t(labelKey)}</Form.Label>
+                <MultipleSelector
+                  {...field}
+                  options={fileMimeTypesOptions}
+                  badgeClassName={selectorBadgeClassName}
+                  placeholder={t('select-option')}
+                  hideClearAllButton
+                  hidePlaceholderWhenSelected
+                  emptyIndicator={
+                    <p className="text-center text-sm">
+                      {t('no-results-found')}
+                    </p>
+                  }
+                />
+              </div>
+            )}
+          />
+          <Form.Message />
+        </Form.Item>
+      ))}
       <Form.Field
         control={form.control}
         name="FILE_SYSTEM_PUBLIC"

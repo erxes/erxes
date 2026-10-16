@@ -1,7 +1,12 @@
-import { OperationVariables, useQuery } from '@apollo/client';
+import type {
+  AccountingFixedAssetOwnerRecordsQuery,
+  AccountingFixedAssetOwnerRecordsQueryVariables,
+} from '~/gql/graphql';
+import type { QueryHookOptions } from '@apollo/client';
+import { toGraphqlView } from '@/utils/graphql';
+import { useQuery } from '@apollo/client';
 import { useMultiQueryState } from 'erxes-ui';
 import { GET_FXA_OWNER_RECORDS } from '../graphql/queries/fixedAssets';
-import { IFxaOwnerRecord } from '../types/FixedAsset';
 
 const FXA_OWNER_RECORDS_PER_PAGE = 20;
 
@@ -79,18 +84,27 @@ export const useFxaOwnerRecordVariables = () => {
   };
 };
 
-export const useFxaOwnerRecords = (options?: OperationVariables) => {
+export const useFxaOwnerRecords = (
+  options?: QueryHookOptions<
+    AccountingFixedAssetOwnerRecordsQuery,
+    AccountingFixedAssetOwnerRecordsQueryVariables
+  >,
+) => {
   const variables = useFxaOwnerRecordVariables();
-  const { data, loading, error, fetchMore, refetch } = useQuery<{
-    fxaOwnerRecords: IFxaOwnerRecord[];
-    fxaOwnerRecordsCount: number;
-  }>(GET_FXA_OWNER_RECORDS, {
+  const {
+    data: queryData,
+    loading,
+    error,
+    fetchMore,
+    refetch,
+  } = useQuery(GET_FXA_OWNER_RECORDS, {
     ...options,
     variables: {
       ...variables,
       ...options?.variables,
     },
   });
+  const data = toGraphqlView(queryData);
   const fxaOwnerRecords = data?.fxaOwnerRecords || [];
   const totalCount = data?.fxaOwnerRecordsCount || 0;
 

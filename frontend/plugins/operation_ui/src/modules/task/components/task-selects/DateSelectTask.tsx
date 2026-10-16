@@ -5,19 +5,20 @@ import { IconCalendarPlus, IconCalendarTime } from '@tabler/icons-react';
 import { format } from 'date-fns';
 import {
   Button,
-  Calendar,
   Combobox,
+  DatePicker,
   Form,
   Popover,
   PopoverScoped,
   RecordTableInlineCell,
 } from 'erxes-ui';
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 export enum DateSelectVariant {
   TABLE = 'table',
   FILTER = 'filter',
   DETAIL = 'detail',
+  INPUT = 'input',
   CARD = 'card',
   FORM = 'form',
 }
@@ -28,6 +29,7 @@ interface DateSelectContextType {
   loading?: boolean;
   error?: ApolloError;
   variant: DateSelectVariant;
+  onClose?: () => void;
 }
 
 const DateSelectContext = React.createContext<DateSelectContextType | null>(
@@ -43,6 +45,15 @@ const useDateSelectContext = () => {
   }
   return context;
 };
+
+const toSingleDate = (date: unknown) =>
+  date instanceof Date ? date : undefined;
+
+const formatDateLabel = (date: Date) =>
+  format(
+    date,
+    date.getFullYear() === new Date().getFullYear() ? 'MMM d' : 'MMM d, yyyy',
+  );
 
 export const DateSelectProvider = ({
   children,
@@ -79,26 +90,40 @@ const DateSelectValue = ({ placeholder }: { placeholder?: string }) => {
   return (
     <>
       <IconCalendarTime className="size-4 text-muted-foreground" />
-      {format(
-        value,
-        value.getFullYear() === new Date().getFullYear()
-          ? 'MMM d'
-          : 'MMM d, yyyy',
-      )}
+      {formatDateLabel(value)}
     </>
   );
 };
 
+const DateSelectChipValue = ({ value }: { value?: Date }) => {
+  const { t } = useTranslation('operation');
+
+  if (!value) {
+    return <span className="text-accent-foreground">{t('not-specified')}</span>;
+  }
+
+  return <>{formatDateLabel(value)}</>;
+};
+
 const DateSelectContent = () => {
-  const { value, onValueChange } = useDateSelectContext();
+  const { t } = useTranslation('operation');
+  const { value, onValueChange, onClose } = useDateSelectContext();
 
   return (
-    <Calendar
-      mode="single"
-      selected={value}
-      onSelect={onValueChange}
-      defaultMonth={value}
-    />
+    <div
+      onKeyDownCapture={(e) => {
+        if (e.key === 'Enter') onClose?.();
+      }}
+    >
+      <DatePicker
+        inline
+        value={value}
+        onChange={(date) => onValueChange(toSingleDate(date))}
+        placeholder={t('select-date')}
+        clearLabel={t('clear')}
+        className="h-8"
+      />
+    </div>
   );
 };
 
@@ -140,26 +165,58 @@ export const DateSelectTaskRoot = ({
   type,
   scope,
   variant = DateSelectVariant.TABLE,
+  label,
 }: {
   value?: Date | string | null;
   id?: string;
   type: 'startDate' | 'targetDate';
   scope?: string;
   variant?: `${DateSelectVariant}`;
+  label?: string;
 }) => {
   const { t } = useTranslation('operation');
   const [open, setOpen] = useState(false);
   const { updateTask, loading, error } = useUpdateTask();
+  const valueTime = value ? new Date(value).getTime() : undefined;
+  const [dateValue, setDateValue] = useState<Date | undefined>(
+    valueTime === undefined ? undefined : new Date(valueTime),
+  );
 
-  const handleValueChange = (value?: Date) => {
-    if (id) {
-      updateTask({
-        variables: {
-          _id: id,
-          [type]: value?.toISOString(),
-        },
-      });
-    }
+  const latestRequestRef = useRef(0);
+  const confirmedTimeRef = useRef(valueTime);
+
+  useEffect(() => {
+    confirmedTimeRef.current = valueTime;
+    setDateValue(valueTime === undefined ? undefined : new Date(valueTime));
+  }, [valueTime, id]);
+
+  const commitValue = (nextValue?: Date) => {
+    if (nextValue?.getTime() === dateValue?.getTime()) return;
+
+    setDateValue(nextValue);
+
+    if (!id) return;
+
+    const requestId = ++latestRequestRef.current;
+
+    updateTask({
+      variables: {
+        _id: id,
+        [type]: nextValue ? nextValue.toISOString() : null,
+      },
+      onError: () => {
+        if (requestId !== latestRequestRef.current) return;
+
+        const confirmedTime = confirmedTimeRef.current;
+        setDateValue(
+          confirmedTime === undefined ? undefined : new Date(confirmedTime),
+        );
+      },
+    });
+  };
+
+  const handleValueChange = (nextValue?: Date) => {
+    commitValue(nextValue);
     setOpen(false);
   };
 
@@ -168,16 +225,33 @@ export const DateSelectTaskRoot = ({
 
   return (
     <DateSelectProvider
-      value={value ? new Date(value) : undefined}
+      value={dateValue}
       onValueChange={handleValueChange}
       variant={variant as DateSelectVariant}
       loading={loading}
       error={error}
+      onClose={() => setOpen(false)}
     >
       <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
-        <DateSelectTrigger>
-          <DateSelectValue placeholder={t('not-specified')} />
-        </DateSelectTrigger>
+        {variant === DateSelectVariant.INPUT && label ? (
+          <Combobox.ChipTrigger
+            label={label}
+            onClear={dateValue ? () => commitValue() : undefined}
+            clearLabel={t('clear')}
+          >
+            <DateSelectChipValue value={dateValue} />
+          </Combobox.ChipTrigger>
+        ) : (
+          <DateSelectTrigger>
+            <DateSelectValue
+              placeholder={
+                variant === DateSelectVariant.INPUT
+                  ? t(type === 'startDate' ? 'start-date' : 'due-date')
+                  : t('not-specified')
+              }
+            />
+          </DateSelectTrigger>
+        )}
         <Content className="w-fit" onClick={(e) => e.stopPropagation()}>
           <DateSelectContent />
         </Content>
@@ -190,23 +264,43 @@ export const DateSelectTaskFormItem = ({
   value,
   onValueChange,
   placeholder,
+  label,
 }: {
   value?: Date | string | null;
   onValueChange?: (value?: Date) => void;
   placeholder?: string;
+  label?: string;
 }) => {
+  const { t } = useTranslation('operation');
+  const [open, setOpen] = useState(false);
+  const dateValue = value ? new Date(value) : undefined;
+
   return (
     <DateSelectProvider
-      value={value ? new Date(value) : undefined}
-      onValueChange={(date) => onValueChange?.(date)}
+      value={dateValue}
+      onValueChange={(date) => {
+        onValueChange?.(date);
+        setOpen(false);
+      }}
       variant={DateSelectVariant.FORM}
+      onClose={() => setOpen(false)}
     >
-      <Popover>
-        <Form.Control>
-          <Combobox.TriggerBase className="w-fit h-7">
-            <DateSelectValue placeholder={placeholder} />
-          </Combobox.TriggerBase>
-        </Form.Control>
+      <Popover open={open} onOpenChange={setOpen}>
+        {label ? (
+          <Combobox.ChipTrigger
+            label={label}
+            onClear={dateValue ? () => onValueChange?.() : undefined}
+            clearLabel={t('clear')}
+          >
+            <DateSelectChipValue value={dateValue} />
+          </Combobox.ChipTrigger>
+        ) : (
+          <Form.Control>
+            <Combobox.TriggerBase className="w-fit h-7">
+              <DateSelectValue placeholder={placeholder} />
+            </Combobox.TriggerBase>
+          </Form.Control>
+        )}
         <Popover.Content className="w-fit">
           <DateSelectContent />
         </Popover.Content>

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { AccountingHotkeyScope } from '@/types/AccountingHotkeyScope';
 import {
   Checkbox,
@@ -27,6 +28,7 @@ export const InventoryForm = ({
   form: ITransactionGroupForm;
   journalIndex: number;
 }) => {
+  const { t } = useTranslation('accounting');
   const { fields, append } = useFieldArray({
     control: form.control,
     name: `trDocs.${journalIndex}.details`,
@@ -88,7 +90,7 @@ export const InventoryForm = ({
         />
         <RemoveButton form={form} journalIndex={journalIndex} />
         <div>
-          <Label className="mr-3">Дэлгэрэнгүй харагдац</Label>
+          <Label className="mr-3">{t('detailed-view')}</Label>
           <Switch
             checked={showAdvancedView}
             onCheckedChange={(checked) => {
@@ -108,6 +110,7 @@ const InventoryTableHeader = ({
   form: ITransactionGroupForm;
   journalIndex: number;
 }) => {
+  const { t } = useTranslation('accounting');
   const showAdvancedView = useAtomValue(showAdvancedViewState);
   const trDoc = useWatch({
     control: form.control,
@@ -132,23 +135,23 @@ const InventoryTableHeader = ({
             />
           </div>
         </Table.Head>
-        <Table.Head>Данс</Table.Head>
-        <Table.Head>Бараа материал</Table.Head>
-        <Table.Head>Тоо хэмжээ</Table.Head>
-        <Table.Head>Нэгж үнэ</Table.Head>
-        <Table.Head>Дүн</Table.Head>
-        {trDoc.hasVat && <Table.Head>НӨАТ</Table.Head>}
-        {trDoc.hasCtax && <Table.Head>НХАТ</Table.Head>}
+        <Table.Head>{t('account')}</Table.Head>
+        <Table.Head>{t('inventory-label')}</Table.Head>
+        <Table.Head>{t('quantity-label')}</Table.Head>
+        <Table.Head>{t('unit-price')}</Table.Head>
+        <Table.Head>{t('amount')}</Table.Head>
+        {trDoc.hasVat && <Table.Head>{t('vat')}</Table.Head>}
+        {trDoc.hasCtax && <Table.Head>{t('city-tax')}</Table.Head>}
         {(trDoc.hasVat || trDoc.hasCtax) && (
           <>
-            <Table.Head>Татвартай нэгж үнэ</Table.Head>
-            <Table.Head>Татвартай дүн</Table.Head>
+            <Table.Head>{t('unit-price-including-tax')}</Table.Head>
+            <Table.Head>{t('amount-including-tax')}</Table.Head>
           </>
         )}
         {showAdvancedView && (
           <>
-            <Table.Head>Салбар</Table.Head>
-            <Table.Head>Хэлтэс</Table.Head>
+            <Table.Head>{t('branch')}</Table.Head>
+            <Table.Head>{t('department')}</Table.Head>
           </>
         )}
       </Table.Row>

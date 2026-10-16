@@ -93,116 +93,121 @@ const TechCards = lazy(() =>
 const AccountingSubSettings = () => {
   return (
     <Filter id="accounting-settings">
-      <div className="flex flex-col flex-auto overflow-hidden">
-        <SettingsHeader breadcrumbs={<AccountSettingsBreadcrumb />}>
-          <div className="flex ml-auto">
-            <AccountingTopbar />
+      <div className="flex flex-auto overflow-hidden">
+        <AccountingSidebar />
+        <div className="flex min-w-0 flex-auto flex-col overflow-hidden">
+          <SettingsHeader breadcrumbs={<AccountSettingsBreadcrumb />}>
+            <div className="flex ml-auto">
+              <AccountingTopbar />
+            </div>
+          </SettingsHeader>
+          <div className="flex flex-auto overflow-hidden">
+            <Suspense
+              fallback={
+                <div className="flex flex-auto justify-center items-center h-full w-full">
+                  <Spinner />
+                </div>
+              }
+            >
+              <Routes>
+                <Route path="config" element={<AccountingMainConfig />} />
+                <Route path="/config/accounts" element={<Accounts />} />
+                <Route
+                  path="/config/account-categories"
+                  element={<AccountCategories />}
+                />
+                <Route
+                  path="/config/fixed-assets"
+                  element={
+                    <Navigate
+                      to="/settings/accounting/fixed-assets/assets"
+                      replace
+                    />
+                  }
+                />
+                <Route
+                  path="/config/fixed-assets/categories"
+                  element={
+                    <Navigate
+                      to="/settings/accounting/fixed-assets/categories"
+                      replace
+                    />
+                  }
+                />
+                <Route
+                  path="/config/fixed-assets/accounts-config"
+                  element={
+                    <Navigate
+                      to="/settings/accounting/fixed-assets/accounts-config"
+                      replace
+                    />
+                  }
+                />
+                <Route
+                  path="/config/fixed-assets/assets"
+                  element={
+                    <Navigate
+                      to="/settings/accounting/fixed-assets/assets"
+                      replace
+                    />
+                  }
+                />
+                <Route
+                  path="/fixed-assets"
+                  element={
+                    <Navigate
+                      to="/settings/accounting/fixed-assets/assets"
+                      replace
+                    />
+                  }
+                />
+                <Route
+                  path="/fixed-assets/categories"
+                  element={<FixedAssetCategories />}
+                />
+                <Route
+                  path="/fixed-assets/accounts-config"
+                  element={<FixedAssetAccountConfigs />}
+                />
+                <Route path="/fixed-assets/assets" element={<FixedAssets />} />
+                <Route path="/config/vat-rows" element={<VatRows />} />
+                <Route path="/config/ctax-rows" element={<CTaxRows />} />
+                <Route path="/config/sync-deal" element={<SettingSyncDeal />} />
+                <Route
+                  path="/config/sync-deal-movement"
+                  element={<SettingSyncDealMovement />}
+                />
+                <Route
+                  path="/config/sync-deal-return"
+                  element={<SettingSyncDealReturn />}
+                />
+                <Route
+                  path="/config/sync-order"
+                  element={<SettingSyncOrder />}
+                />
+                <Route path="/config/permissions" element={<Permissions />} />
+                <Route
+                  path="/inventories"
+                  element={
+                    <Navigate
+                      to="/settings/accounting/inventories/tech-cards"
+                      replace
+                    />
+                  }
+                />
+                <Route path="/inventories/tech-cards" element={<TechCards />} />
+                <Route
+                  path="/config/tech-cards"
+                  element={
+                    <Navigate
+                      to="/settings/accounting/inventories/tech-cards"
+                      replace
+                    />
+                  }
+                />
+              </Routes>
+            </Suspense>
           </div>
-        </SettingsHeader>
-        <div className="flex flex-auto overflow-hidden">
-          <AccountingSidebar />
-          <Suspense
-            fallback={
-              <div className="flex flex-auto justify-center items-center h-full w-full">
-                <Spinner />
-              </div>
-            }
-          >
-            <Routes>
-              <Route path="config" element={<AccountingMainConfig />} />
-              <Route path="/config/accounts" element={<Accounts />} />
-              <Route
-                path="/config/account-categories"
-                element={<AccountCategories />}
-              />
-              <Route
-                path="/config/fixed-assets"
-                element={
-                  <Navigate
-                    to="/settings/accounting/fixed-assets/assets"
-                    replace
-                  />
-                }
-              />
-              <Route
-                path="/config/fixed-assets/categories"
-                element={
-                  <Navigate
-                    to="/settings/accounting/fixed-assets/categories"
-                    replace
-                  />
-                }
-              />
-              <Route
-                path="/config/fixed-assets/accounts-config"
-                element={
-                  <Navigate
-                    to="/settings/accounting/fixed-assets/accounts-config"
-                    replace
-                  />
-                }
-              />
-              <Route
-                path="/config/fixed-assets/assets"
-                element={
-                  <Navigate
-                    to="/settings/accounting/fixed-assets/assets"
-                    replace
-                  />
-                }
-              />
-              <Route
-                path="/fixed-assets"
-                element={
-                  <Navigate
-                    to="/settings/accounting/fixed-assets/assets"
-                    replace
-                  />
-                }
-              />
-              <Route
-                path="/fixed-assets/categories"
-                element={<FixedAssetCategories />}
-              />
-              <Route
-                path="/fixed-assets/accounts-config"
-                element={<FixedAssetAccountConfigs />}
-              />
-              <Route path="/fixed-assets/assets" element={<FixedAssets />} />
-              <Route path="/config/vat-rows" element={<VatRows />} />
-              <Route path="/config/ctax-rows" element={<CTaxRows />} />
-              <Route path="/config/sync-deal" element={<SettingSyncDeal />} />
-              <Route
-                path="/config/sync-deal-movement"
-                element={<SettingSyncDealMovement />}
-              />
-              <Route
-                path="/config/sync-deal-return"
-                element={<SettingSyncDealReturn />}
-              />
-              <Route path="/config/sync-order" element={<SettingSyncOrder />} />
-              <Route path="/config/permissions" element={<Permissions />} />
-              <Route
-                path="/inventories"
-                element={
-                  <Navigate
-                    to="/settings/accounting/inventories/tech-cards"
-                    replace
-                  />
-                }
-              />
-              <Route path="/inventories/tech-cards" element={<TechCards />} />
-              <Route
-                path="/config/tech-cards"
-                element={
-                  <Navigate
-                    to="/settings/accounting/inventories/tech-cards"
-                    replace
-                  />
-                }
-              />
-            </Routes>
-          </Suspense>
         </div>
       </div>
     </Filter>

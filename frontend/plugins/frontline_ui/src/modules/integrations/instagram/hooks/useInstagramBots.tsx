@@ -2,35 +2,28 @@ import {
   INSTAGRAM_BOTS_LIST,
   GET_INSTAGRAM_BOT_PROFILE,
 } from '../graphql/queries/instagramBots';
-import { IInstagramBot } from '../types/InstagramBot';
 import { useQuery } from '@apollo/client';
+import { isDefined } from 'erxes-ui';
 
 export const useInstagramBots = () => {
-  const { data, loading } = useQuery<{
-    instagramMessengerBots: IInstagramBot[];
-  }>(INSTAGRAM_BOTS_LIST);
+  const { data, loading } = useQuery(INSTAGRAM_BOTS_LIST);
 
-  const { instagramMessengerBots = [] } = data || {};
+  const bots = data?.instagramMessengerBots?.filter(isDefined) ?? [];
 
   return {
-    bots: instagramMessengerBots,
+    bots,
     loading,
   };
 };
 
 export const useInstagramBot = (botId: string) => {
-  const { data, loading } = useQuery<{ instagramMessengerBot: IInstagramBot }>(
-    GET_INSTAGRAM_BOT_PROFILE,
-    {
-      variables: { _id: botId },
-      skip: !botId,
-    },
-  );
-
-  const { instagramMessengerBot } = data || {};
+  const { data, loading } = useQuery(GET_INSTAGRAM_BOT_PROFILE, {
+    variables: { _id: botId },
+    skip: !botId,
+  });
 
   return {
-    bot: instagramMessengerBot,
+    bot: data?.instagramMessengerBot ?? undefined,
     loading,
   };
 };

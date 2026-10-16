@@ -8,8 +8,14 @@ import {
   getTotalAmounts,
   watchItem,
 } from '../../utils';
-import { refundDealPoints } from '../../utils/dealPoints';
+import {
+  refundDealPoints,
+  releaseDealVouchers,
+  returnDealVouchers,
+} from '../../utils/dealPoints';
 import { normalizeProductDiscountInfos } from '../../utils/discountInfos';
+import { normalizeProductCurrencies } from '../../utils/productCurrency';
+import { normalizeProductUomInfo } from '../../utils/productUom';
 import { dealSchema } from '../definitions/deals';
 import {
   generateDealUpdateActivityLogs,
@@ -52,7 +58,14 @@ export const loadDealClass = (
       // Calculate totals
       if (doc.productsData) {
         doc.productsData = normalizeProductDiscountInfos(
-          doc.productsData.filter((pd) => pd),
+          await normalizeProductUomInfo(
+            subdomain,
+            doc.productsData.filter((pd) => pd),
+          ),
+        );
+        doc.productsData = await normalizeProductCurrencies(
+          subdomain,
+          doc.productsData,
         );
         const totals = await getTotalAmounts(doc.productsData);
         Object.assign(doc, totals);
@@ -80,7 +93,14 @@ export const loadDealClass = (
 
       if (doc.productsData) {
         doc.productsData = normalizeProductDiscountInfos(
-          doc.productsData.filter((pd) => pd.productId),
+          await normalizeProductUomInfo(
+            subdomain,
+            doc.productsData.filter((pd) => pd.productId),
+          ),
+        );
+        doc.productsData = await normalizeProductCurrencies(
+          subdomain,
+          doc.productsData,
         );
         const totals = await getTotalAmounts(doc.productsData);
         Object.assign(doc, totals);
@@ -122,9 +142,11 @@ export const loadDealClass = (
     public static async removeDeals(_ids: string[]) {
       const deals = await models.Deals.find({ _id: { $in: _ids } });
 
-      // A removed deal keeps none of the points it spent or earned.
+      // A removed deal keeps none of the points or vouchers it used.
       for (const deal of deals) {
         await refundDealPoints(subdomain, deal._id, 'Deal removed');
+        await returnDealVouchers(subdomain, deal._id);
+        await releaseDealVouchers(subdomain, deal._id);
       }
 
       for (const deal of deals) {

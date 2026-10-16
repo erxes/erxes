@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const CONVERSATION_MEMBER_PROGRESS = gql`
+export const CONVERSATION_MEMBER_PROGRESS = gql(`
   query ConversationMemberProgress(
     $customerId: String!
     $fromDate: String
@@ -18,9 +18,9 @@ export const CONVERSATION_MEMBER_PROGRESS = gql`
       resolved
     }
   }
-`;
+`);
 
-export const CONVERSATION_SOURCE_PROGRESS = gql`
+export const CONVERSATION_SOURCE_PROGRESS = gql(`
   query ConversationSourceProgress(
     $customerId: String!
     $fromDate: String
@@ -49,9 +49,9 @@ export const CONVERSATION_SOURCE_PROGRESS = gql`
       }
     }
   }
-`;
+`);
 
-export const CONVERSATION_TAG_PROGRESS = gql`
+export const CONVERSATION_TAG_PROGRESS = gql(`
   query ConversationTagProgress(
     $customerId: String!
     $fromDate: String
@@ -80,9 +80,9 @@ export const CONVERSATION_TAG_PROGRESS = gql`
       }
     }
   }
-`;
+`);
 
-export const CONVERSATION_PROGRESS_CHART = gql`
+export const CONVERSATION_PROGRESS_CHART = gql(`
   query ConversationProgressChart(
     $customerId: String!
     $fromDate: String
@@ -103,4 +103,4 @@ export const CONVERSATION_PROGRESS_CHART = gql`
       }
     }
   }
-`;
+`);

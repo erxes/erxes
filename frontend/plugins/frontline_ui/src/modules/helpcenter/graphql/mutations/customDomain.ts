@@ -1,8 +1,6 @@
-import { gql } from '@apollo/client';
-import { CUSTOM_DOMAIN_FIELDS } from '@/helpcenter/graphql/queries/getCustomDomain';
+import { gql } from '~/gql';
 
-export const SAVE_CUSTOM_DOMAIN = gql`
-  ${CUSTOM_DOMAIN_FIELDS}
+export const SAVE_CUSTOM_DOMAIN = gql(`
   mutation frontlineCustomDomainSave(
     $helpCenterId: String!
     $hostname: String!
@@ -14,22 +12,20 @@ export const SAVE_CUSTOM_DOMAIN = gql`
       ...CustomDomainFields
     }
   }
-`;
+`);
 
-export const REFRESH_CUSTOM_DOMAIN = gql`
-  ${CUSTOM_DOMAIN_FIELDS}
+export const REFRESH_CUSTOM_DOMAIN = gql(`
   mutation frontlineCustomDomainRefresh($helpCenterId: String!) {
     frontlineCustomDomainRefresh(helpCenterId: $helpCenterId) {
       ...CustomDomainFields
     }
   }
-`;
+`);
 
-export const RESET_CUSTOM_DOMAIN = gql`
-  ${CUSTOM_DOMAIN_FIELDS}
+export const RESET_CUSTOM_DOMAIN = gql(`
   mutation frontlineCustomDomainReset($helpCenterId: String!) {
     frontlineCustomDomainReset(helpCenterId: $helpCenterId) {
       ...CustomDomainFields
     }
   }
-`;
+`);

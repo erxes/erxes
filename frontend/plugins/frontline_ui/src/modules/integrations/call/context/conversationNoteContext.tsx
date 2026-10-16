@@ -51,12 +51,12 @@ export const useCallConversationNoteContext = () => {
 
   const closeToPreviousMessage = checkTimeDifference(
     previousMessage?.createdAt || '',
-    createdAt,
+    createdAt ?? '',
   );
 
   const closeToNextMessage = checkTimeDifference(
     nextMessage?.createdAt || '',
-    createdAt,
+    createdAt ?? '',
   );
 
   return {

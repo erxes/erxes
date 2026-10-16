@@ -1,4 +1,5 @@
 import { IconArchiveOff } from '@tabler/icons-react';
+import { useMemo } from 'react';
 import { RecordTable } from 'erxes-ui';
 
 import { LOGS_CURSOR_SESSION_KEY } from '../constants/logFilter';
@@ -9,6 +10,7 @@ import { EmptyState } from '@/settings/components/EmptyState';
 import { useTranslation } from 'react-i18next';
 
 export const LogsRecordTable = () => {
+  const { t } = useTranslation('common', { keyPrefix: 'logs' });
   const {
     loading,
     totalCount,
@@ -17,14 +19,17 @@ export const LogsRecordTable = () => {
     hasNextPage,
     hasPreviousPage,
   } = useLogs();
+  const columns = useMemo(() => logColumns(t), [t]);
 
-  const { t } = useTranslation('settings', { keyPrefix: 'system-logs' });
+  const { t: tSystemLogs } = useTranslation('settings', {
+    keyPrefix: 'system-logs',
+  });
 
   const isEmpty = !loading && !totalCount;
 
   return (
     <RecordTable.Provider
-      columns={logColumns}
+      columns={columns}
       data={list}
       stickyColumns={['detail']}
       className="m-2"
@@ -52,8 +57,8 @@ export const LogsRecordTable = () => {
         {isEmpty && (
           <EmptyState
             icon={IconArchiveOff}
-            title={t('no-system-logs-found')}
-            description={t('system-logs-description')}
+            title={tSystemLogs('no-system-logs-found')}
+            description={tSystemLogs('system-logs-description')}
           />
         )}
         <LogDetailSheet />

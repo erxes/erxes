@@ -1,6 +1,7 @@
 import { ICursorPaginateParams } from 'erxes-api-shared/core-types';
 import { Document } from 'mongoose';
 import { ICommonCampaignDocument, ICommonCampaignFields } from '~/utils/common';
+import { IVoucherValidity } from '@/voucher/services/voucherTerm';
 
 export type TVoucherOwnerLimitPeriod = 'campaign' | 'year' | 'month';
 
@@ -10,7 +11,34 @@ export interface IVoucherOwnerLimit {
   period: TVoucherOwnerLimitPeriod;
 }
 
-export interface IVoucherCampaign extends ICommonCampaignFields {
+export const VOUCHER_AUTO_ISSUE_KINDS = ['birthday'] as const;
+export type TVoucherAutoIssueKind = (typeof VOUCHER_AUTO_ISSUE_KINDS)[number];
+
+export const VOUCHER_AUTO_ISSUE_ENGINES = ['broadcast', 'automation'] as const;
+export type TVoucherAutoIssueEngine =
+  (typeof VOUCHER_AUTO_ISSUE_ENGINES)[number];
+
+export interface IVoucherAutoIssuePart {
+  engine: TVoucherAutoIssueEngine;
+  id: string;
+}
+
+/**
+ * One way this campaign is handed out on its own: the core broadcast and
+ * automation that do it, kept together so they are switched and removed as one.
+ */
+export interface IVoucherAutoIssue {
+  kind: TVoucherAutoIssueKind;
+  segmentId: string;
+  parts: IVoucherAutoIssuePart[];
+}
+
+// A voucher campaign may run without a start or an end.
+export interface IVoucherCampaign
+  extends Omit<ICommonCampaignFields, 'startDate' | 'endDate'> {
+  startDate?: Date | null;
+  endDate?: Date | null;
+
   buyScore: number;
 
   score: number;
@@ -37,6 +65,8 @@ export interface IVoucherCampaign extends ICommonCampaignFields {
   value: number;
   restrictions: any;
   perOwnerLimit?: IVoucherOwnerLimit | null;
+  validity?: IVoucherValidity | null;
+  autoIssue?: IVoucherAutoIssue[];
 }
 
 export interface IVoucherCampaignDocument

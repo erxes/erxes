@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { IconFilter } from '@tabler/icons-react';
 import { RecordTable } from 'erxes-ui';
 import { useBundleConditions } from '@/products/settings/hooks/useBundleConditions';
@@ -9,6 +10,7 @@ import { BundleConditionSheet } from './BundleConditionSheet';
 export const BundleConditionRecordTable = () => {
   const variables = useBundleConditionsVariables();
   const { bundleConditions, loading } = useBundleConditions(variables);
+  const { t } = useTranslation('product', { keyPrefix: 'bundle-conditions' });
 
   if (!loading && (bundleConditions?.length ?? 0) === 0) {
     return <EmptyStateRow />;
@@ -16,7 +18,7 @@ export const BundleConditionRecordTable = () => {
 
   return (
     <RecordTable.Provider
-      columns={bundleConditionColumns}
+      columns={bundleConditionColumns(t)}
       data={bundleConditions || []}
       className="h-full"
       stickyColumns={['more', 'checkbox', 'name']}
@@ -36,15 +38,14 @@ export const BundleConditionRecordTable = () => {
 };
 
 function EmptyStateRow() {
+  const { t } = useTranslation('product', { keyPrefix: 'bundle-conditions' });
   return (
     <div className="flex flex-col gap-2 justify-center items-center p-6 w-full h-full text-center">
       <IconFilter size={64} stroke={1.5} className="text-muted-foreground" />
       <h2 className="text-lg font-semibold text-muted-foreground">
-        No bundle conditions yet
+        {t('empty-title')}
       </h2>
-      <p className="mb-4 text-md text-muted-foreground">
-        Get started by creating your first bundle condition.
-      </p>
+      <p className="mb-4 text-md text-muted-foreground">{t('empty-hint')}</p>
       <BundleConditionSheet />
     </div>
   );

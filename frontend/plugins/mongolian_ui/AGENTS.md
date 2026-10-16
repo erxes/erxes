@@ -6,7 +6,7 @@
 - **Project:** `mongolian_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/mongolian_ui`
-- **Last synchronized:** `2026-10-06`
+- **Last synchronized:** `2026-10-14`
 
 ## Scope
 
@@ -54,9 +54,12 @@
 - Product places segment pickers use the shared `ui-modules` `SelectSegment`
   component with `core:products.products` for product segment selection.
 - Product places listens to the `productPlacesResponded` subscription from the
-  floating widget and opens printable receipt HTML for the current user.
+  floating widget and opens printable receipt HTML only when the payload
+  `sessionCode` matches the current tab's `sessionStorage.sessioncode`.
 - Renders cursor-paginated `RecordTable` lists for put responses and related
   sync history/checking screens.
+- Put response pagination preserves the full loaded range's start/end cursors,
+  prepends backward pages, and allows only one load-more request at a time.
 - Registers a product remainder provider that lets shared product choosers
   overlay Erkhet remainders when a `remainderConfig` exists for the active
   sales pipeline.
@@ -97,9 +100,9 @@
   `/mongolian/msdynamic/*`.
 - Floating eBarimt response widget that listens for `ebarimtResponded` and
   opens printable deal receipt HTML.
-- Floating product-places response widget that listens for
-  `productPlacesResponded` and prints the JSON receipt content returned by the
-  backend.
+- Floating product-places response widget that listens for the session-scoped
+  `productPlacesResponded` payload and prints the JSON receipt content returned
+  by the backend.
 - Product chooser remainder provider through `CONFIG.widgets.productRemainderProviders`.
 - Settings routes mounted by `./mongolianSettings`, including `ebarimt/*`,
   `msdynamic/*`, `product-places/*`, `sync-erkhet/*`, and
@@ -140,6 +143,8 @@
 
 ## Local Invariants
 
+- Page header breadcrumbs follow the shared pattern: crumbs are default ghost `Button`s (no `font-semibold`), the first crumb carries a 16px icon in the default text color, crumbs are separated by `Separator.Inline` or `Breadcrumb.Separator`, and settings pages carry no favorite toggle.
+- Page-level side menus render `Sidebar.Panel` from `erxes-ui`, which keeps its own open state (`sidebarPanelOpenState`), separate from the host's context column. The panel sits beside the page header, never under it: the page is a row of the panel and a column holding the header and content. The panel passes its heading as `label`, which renders a 48px title row with optional `actions` and the collapse toggle on the right, level with the page header; when collapsed, the toggle moves into the header's panel slot. Do not add a second heading or an in-panel `Sidebar.PanelTrigger` row. Keep `<Sidebar collapsible="none">` for sidebars inside sheets and dialogs. `SettingsLayout`, `ErkhetSettings`, `PutResponseLayout`, `SyncErkhetLayout` and `MsdynamicLayout` render their panel beside the header column.
 - Use `erxes-ui` and `ui-modules`; do not import Radix primitives directly.
 - Keep integration-specific files inside the owning integration folder unless a
   shared plugin folder already exists for that concern.
@@ -154,6 +159,8 @@
   Mongolian UI task.
 - Settings route shells must keep `min-h-0`/bounded overflow on flex content
   panes so nested tables and forms remain scrollable.
+- Put response cursor skeletons receive query loading state, including fetch-more;
+  page merges use the public `mergeCursorData` helper to preserve both boundaries.
 - The product remainder provider must no-op when no sales `pipelineId` or no
   `remainderConfig` exists for that pipeline.
 
@@ -171,6 +178,9 @@
 - Put response smoke scenario: open `/mongolian/put-response/put-response` with
   rows where `date` is `null`; the table renders without `Invalid time value`
   and displays `createdAt` relatively when available.
+- Put response pagination smoke scenario: open the list from its first page,
+  scroll forward through multiple pages, and verify no backward request appears
+  after appending a page; backward loads prepend rows and preserve the end cursor.
 - Deal eBarimt print smoke scenario: receive an `ebarimtResponded`
   subscription payload with `headerText`, `footerText`, and optional
   `receiptIcon`; the popup waits for receipt images before opening print.

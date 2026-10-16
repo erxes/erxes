@@ -8,6 +8,7 @@ import { SelectCycle } from '@/task/components/task-selects/SelectCycle';
 import { SelectEstimatedPoint } from '@/task/components/task-selects/SelectEstimatedPointTask';
 import { SelectProject } from '@/task/components/task-selects/SelectProjectTask';
 import { SelectStatusTask } from '@/task/components/task-selects/SelectStatusTask';
+import { SelectTagsTask } from '@/task/components/task-selects/SelectTagsTask';
 import { useCreateTask } from '@/task/hooks/useCreateTask';
 import { taskCreateDefaultValuesState } from '@/task/states/taskCreateSheetState';
 import { TaskHotKeyScope } from '@/task/TaskHotkeyScope';
@@ -34,7 +35,7 @@ import { useAtom, useAtomValue } from 'jotai';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useParams } from 'react-router-dom';
-import { SelectTags, currentUserState } from 'ui-modules';
+import { currentUserState } from 'ui-modules';
 import { SelectMilestone } from '../task-selects/SelectMilestone';
 
 export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
@@ -204,6 +205,7 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
                     value={field.value || ''}
                     onValueChange={(value) => field.onChange(value)}
                     form={form}
+                    label={t('status')}
                   />
                 </Form.Item>
               )}
@@ -217,6 +219,7 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
                   <SelectPriority.FormItem
                     value={field.value || 0}
                     onValueChange={(value) => field.onChange(value)}
+                    label={t('priority')}
                   />
                 </Form.Item>
               )}
@@ -229,10 +232,11 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
                   <Form.Label className="sr-only">{t('assignee')}</Form.Label>
                   <SelectAssigneeTask.FormItem
                     value={field.value || ''}
-                    onValueChange={(value: any) => {
+                    onValueChange={(value: string) => {
                       field.onChange(value);
                     }}
                     teamIds={form.getValues('teamId') || _teamId}
+                    label={t('assignee')}
                   />
                 </Form.Item>
               )}
@@ -245,10 +249,11 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
                   <Form.Label className="sr-only">{t('project')}</Form.Label>
                   <SelectProject.FormItem
                     value={field.value || ''}
-                    onValueChange={(value: any) => {
+                    onValueChange={(value: string | null) => {
                       field.onChange(value || undefined);
                     }}
                     teamId={form.getValues('teamId') || undefined}
+                    label={t('project')}
                   />
                 </Form.Item>
               )}
@@ -261,10 +266,11 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
                   <Form.Label className="sr-only">{t('milestone')}</Form.Label>
                   <SelectMilestone.FormItem
                     value={field.value || ''}
-                    onValueChange={(value: any) => {
-                      field.onChange(value);
+                    onValueChange={(value: string) => {
+                      field.onChange(value || undefined);
                     }}
                     projectId={form.getValues('projectId') || undefined}
+                    label={t('milestone')}
                   />
                 </Form.Item>
               )}
@@ -286,6 +292,7 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
                       'form',
                       'Estimate Point',
                     )}
+                    label={t('estimate')}
                   />
                 </Form.Item>
               )}
@@ -298,10 +305,11 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
                   <Form.Label className="sr-only">{t('cycle')}</Form.Label>
                   <SelectCycle.FormItem
                     value={field.value || ''}
-                    onValueChange={(value: any) => {
-                      field.onChange(value);
+                    onValueChange={(value: string) => {
+                      field.onChange(value || undefined);
                     }}
                     teamId={form.getValues('teamId') || undefined}
+                    label={t('cycle')}
                   />
                 </Form.Item>
               )}
@@ -314,8 +322,8 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
                   <Form.Label className="sr-only">{t('start-date')}</Form.Label>
                   <DateSelectTask.FormItem
                     value={field.value}
-                    placeholder={t('start-date')}
                     onValueChange={(value) => field.onChange(value)}
+                    label={t('start-date')}
                   />
                 </Form.Item>
               )}
@@ -325,13 +333,11 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
               control={form.control}
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label className="sr-only">
-                    {t('target-date')}
-                  </Form.Label>
+                  <Form.Label className="sr-only">{t('due-date')}</Form.Label>
                   <DateSelectTask.FormItem
                     value={field.value}
                     onValueChange={(value) => field.onChange(value)}
-                    placeholder={t('target-date')}
+                    label={t('due-date')}
                   />
                 </Form.Item>
               )}
@@ -342,11 +348,10 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
               render={({ field }) => (
                 <Form.Item>
                   <Form.Label className="sr-only">{t('tags')}</Form.Label>
-                  <SelectTags.FormItem
-                    tagType="operation:task"
-                    mode="multiple"
+                  <SelectTagsTask.FormItem
                     value={field.value || []}
                     onValueChange={(value) => field.onChange(value)}
+                    label={t('tags')}
                   />
                 </Form.Item>
               )}

@@ -55,7 +55,7 @@ export const TopicSettings = () => {
   return (
     <KnowledgeBaseLayout
       topicId={topicId}
-      topicTitle={topic?.title}
+      topicTitle={topic?.title ?? undefined}
       section="kbsettings"
       actions={
         <Button

@@ -27,19 +27,19 @@ export const TransactionListPage = () => {
     return (
       <div className="space-y-6">
         <div className="rounded-lg border bg-muted/30 p-4 space-y-2">
-          <h4 className="text-sm font-semibold">{t('Тэмдэгтийн тайлбар')}</h4>
+          <h4 className="text-sm font-semibold">{t('symbol-legend')}</h4>
           <div className="grid gap-2 sm:grid-cols-2">
             <div className="rounded-md border bg-background p-3">
               <p className="text-xs font-mono font-semibold text-primary">**</p>
               <p className="text-sm mt-1">
-                {t('Нэг ажил гүйлгээний хувьд нэг л бөглөнө.')}
+                {t('complete-once-for-each-business-transaction')}
               </p>
             </div>
             <div className="rounded-md border bg-background p-3">
               <p className="text-xs font-mono font-semibold text-primary">*</p>
               <p className="text-sm mt-1">
                 {t(
-                  'Олон бичилттэй баримтын хувьд нэг л мөр нь бөглөгдөнө. Хоосон бол өмнөх мөрийн үргэлжлэл баримт гэж ойлгогдоно.',
+                  'complete-only-one-row-for-a-voucher-with-multiple-entries-a-blank-value-indicates-a-continuation-of-the-preceding-voucher-row',
                 )}
               </p>
             </div>
@@ -48,7 +48,7 @@ export const TransactionListPage = () => {
 
         <div className="space-y-3">
           <h4 className="text-sm font-semibold">
-            {t('Журнал баганад боломжтой утгууд')}
+            {t('available-journal-values')}
           </h4>
           <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
             {ORIGIN_TR_JOURNALS.map((j) => (
@@ -56,7 +56,7 @@ export const TransactionListPage = () => {
                 key={j}
                 className="flex items-center justify-between rounded-md border bg-background px-3 py-2"
               >
-                <span className="text-sm">{TR_JOURNAL_LABELS[j]}</span>
+                <span className="text-sm">{t(TR_JOURNAL_LABELS[j] || '')}</span>
                 <span className="text-xs font-mono rounded bg-muted px-2 py-0.5 text-muted-foreground">
                   {j}
                 </span>
@@ -69,82 +69,82 @@ export const TransactionListPage = () => {
 
         <div className="space-y-3">
           <h4 className="text-sm font-semibold">
-            {t('Нэмэлт мэдээллийн талбарууд (журнал бүрээр)')}
+            {t('additional-information-fields-by-journal')}
           </h4>
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="rounded-lg border p-3 space-y-2">
               <p className="text-sm font-medium">
-                {t('Гадаад валютын гүйлгээ')}
+                {t('foreign-currency-transaction')}
               </p>
               <ul className="text-sm text-muted-foreground space-y-1">
                 <li>
                   <span className="font-mono text-xs rounded bg-muted px-1.5 py-0.5 mr-2">
                     CF1
                   </span>
-                  <span>{t('Ханшийн зөрүүний данс')}</span>
+                  <span>{t('exchange-rate-difference-account')}</span>
                 </li>
               </ul>
             </div>
             <div className="rounded-lg border p-3 space-y-2">
-              <p className="text-sm font-medium">{t('Дотоод хөдөлгөөн')}</p>
+              <p className="text-sm font-medium">{t('internal-transfer')}</p>
               <ul className="text-sm text-muted-foreground space-y-1">
                 <li>
                   <span className="font-mono text-xs rounded bg-muted px-1.5 py-0.5 mr-2">
                     CF1
                   </span>
-                  <span>{t('Шилжүүлэх данс')}</span>
+                  <span>{t('transfer-account')}</span>
                 </li>
                 <li>
                   <span className="font-mono text-xs rounded bg-muted px-1.5 py-0.5 mr-2">
                     CF2
                   </span>
-                  <span>{t('Шилжүүлэх салбар')}</span>
+                  <span>{t('transfer-branch')}</span>
                 </li>
                 <li>
                   <span className="font-mono text-xs rounded bg-muted px-1.5 py-0.5 mr-2">
                     CF3
                   </span>
-                  <span>{t('Шилжүүлэх хэлтэс')}</span>
+                  <span>{t('transfer-department')}</span>
                 </li>
               </ul>
             </div>
             <div className="rounded-lg border p-3 space-y-2">
-              <p className="text-sm font-medium">{t('Борлуулалт')}</p>
+              <p className="text-sm font-medium">{t('sales')}</p>
               <ul className="text-sm text-muted-foreground space-y-1">
                 <li>
                   <span className="font-mono text-xs rounded bg-muted px-1.5 py-0.5 mr-2">
                     CF1
                   </span>
-                  <span>{t('Бэлэн бүтээгдэхүүний данс')}</span>
+                  <span>{t('finished-goods-account')}</span>
                 </li>
                 <li>
                   <span className="font-mono text-xs rounded bg-muted px-1.5 py-0.5 mr-2">
                     CF2
                   </span>
-                  <span>{t('ББӨ данс')}</span>
+                  <span>{t('cost-of-goods-sold-account')}</span>
                 </li>
               </ul>
             </div>
             <div className="rounded-lg border p-3 space-y-2">
-              <p className="text-sm font-medium">{t('Борлуулалтын буцаалт')}</p>
+              <p className="text-sm font-medium">{t('sales-return-label-2')}</p>
               <ul className="text-sm text-muted-foreground space-y-1">
                 <li>
                   <span className="font-mono text-xs rounded bg-muted px-1.5 py-0.5 mr-2">
                     CF1
                   </span>
-                  <span>{t('Буцаах баримтын дугаар')}</span>
+                  <span>{t('return-voucher-number')}</span>
                 </li>
                 <li>
                   <span className="font-mono text-xs rounded bg-muted px-1.5 py-0.5 mr-2">
                     CF2
                   </span>
-                  <span>{t('Бэлэн бүтээгдэхүүний данс')}</span>
+                  <span>{t('finished-goods-account')}</span>
                 </li>
                 <li>
                   <span className="font-mono text-xs rounded bg-muted px-1.5 py-0.5 mr-2">
                     CF3
                   </span>
-                  <span>{t('ББӨ данс')}</span>
+                  <span>{t('cost-of-goods-sold-account')}</span>
                 </li>
               </ul>
             </div>
@@ -161,7 +161,7 @@ export const TransactionListPage = () => {
           <AddTransaction>
             <Button>
               <IconPlus />
-              {t('Гүйлгээ нэмэх')}
+              {t('add-transaction-label')}
               <Kbd>C</Kbd>
             </Button>
           </AddTransaction>
@@ -182,7 +182,7 @@ export const TransactionListPage = () => {
             pluginName="accounting"
             moduleName="account"
             collectionName="transactions"
-            title={t('Гүйлгээ импортлох')}
+            title={t('import-transactions')}
           >
             <Dialog>
               <Dialog.Trigger asChild>
@@ -191,12 +191,12 @@ export const TransactionListPage = () => {
                   className="mt-1 w-full justify-start gap-2 border border-primary/30 bg-primary/10 text-primary hover:bg-primary/15 hover:text-primary"
                 >
                   <IconHelpCircle className="size-4" />
-                  {t('Гарын авлага харах')}
+                  {t('view-import-guide')}
                 </Button>
               </Dialog.Trigger>
               <Dialog.ContentCombined
-                title={t('Гүйлгээ импортлох')}
-                description={t('Импортын гарын авлага болон талбарын тайлбар')}
+                title={t('import-transactions')}
+                description={t('import-guide-and-field-descriptions')}
                 className="w-[min(1100px,90vw)] max-w-[min(1100px,90vw)] sm:max-w-[min(1100px,90vw)] h-[85vh] overflow-hidden grid-rows-[auto_1fr]"
               >
                 <ScrollArea className="h-full mx-6 px-6 pb-2">

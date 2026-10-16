@@ -13,15 +13,21 @@ import {
   calculatePriceAdjust,
 } from '~/modules/pricing/utils/rule';
 import { getAllowedProducts } from '~/modules/pricing/utils/product';
+import { getOwnerSummary } from '~/utils/ownerSummary';
+import { TScoreSkip } from '@/score/@types/earnTable';
+import { applyOwnerTier, tierForPurchase } from '@/score/services/purchaseTier';
 
 export type LoyaltyTRPCContext = ITRPCContext<{ models: IModels }>;
 const t = initTRPC.context<LoyaltyTRPCContext>().create();
 
 // Zod schemas
 
-const productSchema = z.object({
+export const saleQuantitySchema = z.number().positive();
+export const saleCountSchema = z.number().nonnegative();
+
+export const productSchema = z.object({
   productId: z.string(),
-  quantity: z.number().int().positive(),
+  quantity: saleQuantitySchema,
   unitPrice: z.number().nonnegative().optional(),
   price: z.number().nonnegative().optional(),
 });
@@ -30,10 +36,37 @@ const discountInfoSchema = z
   .object({
     couponCode: z.string().optional(),
     voucherId: z.string().optional(),
+    // The order or deal being priced, so its own held voucher passes.
+    targetId: z.string().optional(),
   })
   .optional();
 
-const checkLoyaltiesInput = z.object({
+const voucherTargetSchema = z.object({
+  targetType: z.string().min(1),
+  targetId: z.string().min(1),
+});
+
+const voucherHoldInput = z.object({
+  voucherId: z.string().min(1),
+  ownerType: z.string().min(1),
+  ownerId: z.string().min(1),
+  target: voucherTargetSchema,
+  totalAmount: z.number().min(0).optional(),
+  userId: z.string().optional(),
+});
+
+const voucherReleaseInput = z.object({
+  voucherId: z.string().min(1),
+  target: voucherTargetSchema,
+  userId: z.string().optional(),
+});
+
+const voucherTargetInput = z.object({
+  targetId: z.string().min(1),
+  userId: z.string().optional(),
+});
+
+export const checkLoyaltiesInput = z.object({
   ownerType: z.string().optional().default('customer'),
   ownerId: z
     .string()
@@ -43,19 +76,29 @@ const checkLoyaltiesInput = z.object({
   discountInfo: discountInfoSchema,
 });
 
-const confirmLoyaltiesInput = z.object({
+const ownerSummaryInput = z.object({
+  ownerType: z.enum(['customer', 'company', 'user']),
+  ownerId: z.string().min(1),
+  // The sale's total, so reward vouchers can be checked against it.
+  totalAmount: z.number().min(0).optional(),
+  targetId: z.string().optional(),
+});
+
+// Selling sides send null for what was not chosen and every line, bonus or
+// not; a strict shape here refused the whole confirmation.
+export const confirmLoyaltiesInput = z.object({
   checkInfo: z.record(
     z.object({
-      voucherId: z.string(),
-      count: z.number().int().nonnegative(),
+      voucherId: z.string().nullish(),
+      count: saleCountSchema.nullish(),
     }),
   ),
   extraInfo: z
     .object({
-      couponCode: z.string().optional(),
-      voucherId: z.string().optional(),
-      ownerType: z.string().optional(),
-      ownerId: z.string().optional(),
+      couponCode: z.string().nullish(),
+      voucherId: z.string().nullish(),
+      ownerType: z.string().nullish(),
+      ownerId: z.string().nullish(),
       targetid: z.string().optional(),
       targetId: z.string().optional(),
       targetType: z.string().optional(),
@@ -66,14 +109,15 @@ const confirmLoyaltiesInput = z.object({
     .optional(),
 });
 
-const pricingProductSchema = z.object({
+export const pricingProductSchema = z.object({
   _id: z.string().optional(),
   itemId: z.string().optional(),
   productId: z.string().optional(),
   unitPrice: z.number().nonnegative().optional(),
   price: z.number().nonnegative().optional(),
-  quantity: z.number().int().positive(),
+  quantity: saleQuantitySchema,
   manufacturedDate: z.string().nullish(),
+  conditionCode: z.string().nullish(),
 });
 
 const participantKindSchema = z.preprocess(
@@ -81,7 +125,7 @@ const participantKindSchema = z.preprocess(
   z.enum(['customer', 'company', 'user']),
 );
 
-const checkPricingInput = z.object({
+export const checkPricingInput = z.object({
   prioritizeRule: z.string(),
   totalAmount: z.number().nonnegative(),
   departmentId: z.string().optional().default(''),
@@ -137,6 +181,69 @@ const spendInput = z.object({
   actorId: z.string().optional(),
 });
 
+const purchaseInput = z.object({
+  totalAmount: z.number().min(0),
+  paidAmount: z.number().min(0),
+  items: z
+    .array(
+      z.object({
+        productId: z.string(),
+        amount: z.number(),
+        discounted: z.boolean().optional(),
+      }),
+    )
+    .optional(),
+});
+
+// What a purchase earns as it stands now; saying it again moves the standing
+// entry to the new amount instead of adding another.
+const earnInput = z.object({
+  ownerType: z.string(),
+  ownerId: z.string(),
+  campaignId: z.string(),
+  targetId: z.string(),
+  targetType: z.string(),
+  serviceName: z.string().optional(),
+  actorId: z.string().optional(),
+  purchase: purchaseInput,
+});
+
+// What a purchase would earn, asked before it is paid; nothing is written.
+const earnPreviewInput = z.object({
+  ownerType: z.string(),
+  ownerId: z.string(),
+  rules: z.array(
+    z.object({
+      campaignId: z.string(),
+      earnRowKeys: z.array(z.string()).optional(),
+    }),
+  ),
+  purchase: purchaseInput,
+});
+
+// The tier one purchase earns by amount, written straight to the owner.
+const applyPurchaseTierInput = z.object({
+  ownerType: z.string(),
+  ownerId: z.string(),
+  accountTypeId: z.string(),
+  bands: z
+    .array(
+      z.object({
+        tier: z.string(),
+        min: z.number().nullish(),
+        max: z.number().nullish(),
+      }),
+    )
+    .min(1),
+  onlyUpgrade: z.boolean().optional(),
+  totalAmount: z.number().min(0),
+  // The record paid for and who saved it, kept on the tier log.
+  targetId: z.string().optional(),
+  targetType: z.string().optional(),
+  targetName: z.string().optional(),
+  actorId: z.string().optional(),
+});
+
 const refundInput = z.object({
   targetId: z.string(),
   description: z.string().optional(),
@@ -180,6 +287,13 @@ export const appRouter = t.router({
           )) || {}
         );
       }),
+
+    // Balances, tiers and sale vouchers for the owner a selling screen serves.
+    ownerSummary: t.procedure
+      .input(ownerSummaryInput)
+      .query(async ({ ctx, input }) =>
+        getOwnerSummary(ctx.models, ctx.subdomain, input),
+      ),
 
     confirmLoyalties: t.procedure
       .input(confirmLoyaltiesInput)
@@ -238,6 +352,7 @@ export const appRouter = t.router({
           price: p.unitPrice ?? p.price ?? 0,
           quantity: p.quantity,
           manufacturedDate: p.manufacturedDate || new Date().toISOString(),
+          conditionCode: p.conditionCode || undefined,
         }));
 
         return await checkPricing({
@@ -373,6 +488,55 @@ export const appRouter = t.router({
         ctx.models.ScoreCampaigns.spend(input),
       ),
 
+    earn: t.procedure.input(earnInput).mutation(async ({ ctx, input }) => {
+      const skips: TScoreSkip[] = [];
+      const log = await ctx.models.ScoreCampaigns.earn(input, (found) =>
+        skips.push(...found),
+      );
+
+      return { changeScore: Number(log?.changeScore) || 0, skips };
+    }),
+
+    earnPreview: t.procedure
+      .input(earnPreviewInput)
+      .query(async ({ ctx, input }) =>
+        ctx.models.ScoreCampaigns.previewEarnRules(input),
+      ),
+
+    applyPurchaseTier: t.procedure
+      .input(applyPurchaseTierInput)
+      .mutation(async ({ ctx, input }) => {
+        const accountType =
+          await ctx.models.LoyaltyAccountTypes.getActiveAccountType(
+            input.accountTypeId,
+          );
+        const outcome = tierForPurchase(
+          accountType.tiers,
+          { bands: input.bands },
+          input.totalAmount,
+        );
+
+        if ('skip' in outcome) {
+          return { changed: false, skip: outcome.skip };
+        }
+
+        return applyOwnerTier({
+          models: ctx.models,
+          subdomain: ctx.subdomain,
+          accountType,
+          ownerType: input.ownerType,
+          ownerId: input.ownerId,
+          tier: outcome.tier,
+          keepHigher: input.onlyUpgrade,
+          via: {
+            createdBy: input.actorId,
+            targetId: input.targetId,
+            targetType: input.targetType,
+            targetName: input.targetName,
+          },
+        });
+      }),
+
     refund: t.procedure
       .input(refundInput)
       .mutation(async ({ ctx, input }) =>
@@ -389,6 +553,33 @@ export const appRouter = t.router({
         const { models } = ctx;
         return await models.VoucherCampaigns.find(input || {}).lean();
       }),
+
+    // The selling side moves a picked voucher with its order: picked holds
+    // it, taken off releases it, paid uses it (confirmLoyalties), returned
+    // in full gives it back.
+    hold: t.procedure
+      .input(voucherHoldInput)
+      .mutation(async ({ ctx, input }) =>
+        ctx.models.Vouchers.holdVoucher(input),
+      ),
+
+    release: t.procedure
+      .input(voucherReleaseInput)
+      .mutation(async ({ ctx, input }) =>
+        ctx.models.Vouchers.releaseVoucher(input),
+      ),
+
+    releaseTarget: t.procedure
+      .input(voucherTargetInput)
+      .mutation(async ({ ctx, input }) =>
+        ctx.models.Vouchers.releaseTarget(input),
+      ),
+
+    returnTarget: t.procedure
+      .input(voucherTargetInput)
+      .mutation(async ({ ctx, input }) =>
+        ctx.models.Vouchers.returnTarget(input),
+      ),
   }),
   // At the top of appRouter in init-trpc.ts:
   health: t.procedure.query(() => ({ status: 'ok' })),

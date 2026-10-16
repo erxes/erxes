@@ -9,7 +9,7 @@ const SegmentsIndexPage = lazy(
 
 export const SegmentRoutes = () => {
   return (
-    <Suspense fallback={<Spinner />}>
+    <Suspense fallback={<Spinner withMascot />}>
       <Routes>
         <Route path={SegmentsPath.Index} element={<SegmentsIndexPage />} />
         <Route path={SegmentsPath.Detail} element={<SegmentsIndexPage />} />

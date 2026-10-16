@@ -2,8 +2,10 @@ import { useAutomationVariableBrowserContext } from '../context/AutomationVariab
 import { AutomationOutputPropertySourceFields } from './AutomationOutputPropertySourceFields';
 import { AutomationVariableBrowserEmptyState } from './AutomationVariableBrowserEmptyState';
 import { AutomationVariableBrowserSection } from './AutomationVariableBrowserSection';
+import { useTranslation } from 'react-i18next';
 
 export const AutomationVariableBrowserCustomProperties = () => {
+  const { t } = useTranslation('automations');
   const {
     buildVariablePath,
     buildVariablePayload,
@@ -14,7 +16,7 @@ export const AutomationVariableBrowserCustomProperties = () => {
   } = useAutomationVariableBrowserContext();
 
   return (
-    <AutomationVariableBrowserSection title="Custom Properties">
+    <AutomationVariableBrowserSection title={t('sidebar-custom-properties')}>
       {mergedPropertySource ? (
         <AutomationOutputPropertySourceFields
           source={mergedPropertySource}
@@ -25,7 +27,9 @@ export const AutomationVariableBrowserCustomProperties = () => {
           onInsertVariable={onInsertVariable}
         />
       ) : (
-        <AutomationVariableBrowserEmptyState text="No property sources available." />
+        <AutomationVariableBrowserEmptyState
+          text={t('sidebar-no-property-sources')}
+        />
       )}
     </AutomationVariableBrowserSection>
   );

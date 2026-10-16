@@ -1,173 +1,169 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const safeRemainderFields = `
-  _id
-  createdAt
-  createdBy
-  modifiedAt
-  modifiedBy
-
-  date
-  description
-
-  status
-  branchId
-  departmentId
-  productCategoryId
-
-  branch {
-    _id
-    code
-    title
-  }
-  department {
-    _id
-    code
-    title
-  }
-  productCategory {
-    _id
-    code
-    name
-  }
-  modifiedUser {
-    _id
-    details {
-      avatar
-      fullName
-    }
-  }
-
-  incomeRule
-  incomeTrId
-  outRule
-  outTrId
-  saleRule
-  saleTrId
-  costIncreaseRule
-  costDecreaseRule
-  costIncreaseTrId
-  costDecreaseTrId
-`;
-
-export const safeRemainderItemFields = `
-  _id
-  branchId
-  departmentId
-
-  preCount
-  count
-  status
-  remainderId
-  createdAt
-  createdBy
-  modifiedAt
-  modifiedBy
-  order
-
-  product {
-    _id
-    code
-    name
-  }
-  productId
-  uom
-
-  trInfo
-`;
-
-const safeRemFilterParamDefs = `
-  $searchValue: String
-  $departmentId: String
-  $branchId: String
-
-  $beginDate: Date
-  $endDate: Date
-  $productId: String
-
-  $createdUserId: String
-  $modifiedUserId: String
-  $createdStartDate: Date
-  $createdEndDate: Date
-  $updatedStartDate: Date
-  $updatedEndDate: Date
-`;
-
-const safeRemFilterParams = `
-  searchValue: $searchValue
-  departmentId: $departmentId
-  branchId: $branchId
-  beginDate: $beginDate
-  endDate: $endDate
-  productId: $productId
-  createdUserId: $createdUserId
-  modifiedUserId: $modifiedUserId
-  createdStartDate: $createdStartDate
-  createdEndDate: $createdEndDate
-  updatedStartDate: $updatedStartDate
-  updatedEndDate: $updatedEndDate
-`;
-
-const commonParamDefs = `
-  $page: Int,
-  $perPage: Int,
-  $sortField: String,
-  $sortDirection: Int
-`;
-
-const commonParams = `
-  page: $page,
-  perPage: $perPage
-  sortField: $sortField,
-  sortDirection: $sortDirection
-`;
-
-export const SAFE_REMAINDERS_QUERY = gql`
-  query SafeRemainders(${safeRemFilterParamDefs}, ${commonParamDefs}) {
-    safeRemainders(${safeRemFilterParams}, ${commonParams}) {
-      remainders {
-        ${safeRemainderFields}
-      }
-      totalCount
-      
-    }
-  }
-`;
-export const SAFE_REMAINDER_DETAIL_QUERY = gql`
-  query SafeRemainderDetail($_id: String!) {
-    safeRemainderDetail(_id: $_id) {
-      ${safeRemainderFields}
-    }
-  }
-`;
-
-export const SAFE_REMAINDER_DETAILS_QUERY = gql`
-  query SafeRemainderItems(
-    $remainderId: String!
-    $status: String
-    $productCategoryIds: [String]
-    $diffType: String
-    $searchValue: String
-    $page: Int
-    $perPage: Int
+export const SAFE_REMAINDERS_QUERY = gql(`
+query accountingSafeRemainders($searchValue: String, $departmentId: String, $branchId: String, $beginDate: Date, $endDate: Date, $productId: String, $createdUserId: String, $modifiedUserId: String, $createdStartDate: Date, $createdEndDate: Date, $updatedStartDate: Date, $updatedEndDate: Date, $page: Int, $perPage: Int, $sortField: String, $sortDirection: Int) {
+  safeRemainders(
+    searchValue: $searchValue
+    departmentId: $departmentId
+    branchId: $branchId
+    beginDate: $beginDate
+    endDate: $endDate
+    productId: $productId
+    createdUserId: $createdUserId
+    modifiedUserId: $modifiedUserId
+    createdStartDate: $createdStartDate
+    createdEndDate: $createdEndDate
+    updatedStartDate: $updatedStartDate
+    updatedEndDate: $updatedEndDate
+    page: $page
+    perPage: $perPage
+    sortField: $sortField
+    sortDirection: $sortDirection
   ) {
-    safeRemainderItems(
-      remainderId: $remainderId,
-      status: $status,
-      productCategoryIds: $productCategoryIds,
-      diffType: $diffType,
-      searchValue: $searchValue
-      page: $page
-      perPage: $perPage
-    ) {
-      ${safeRemainderItemFields}
+    remainders {
+      _id
+      createdAt
+      createdBy
+      modifiedAt
+      modifiedBy
+      date
+      description
+      status
+      branchId
+      departmentId
+      productCategoryId
+      branch {
+        _id
+        code
+        title
+      }
+      department {
+        _id
+        code
+        title
+      }
+      productCategory {
+        _id
+        code
+        name
+      }
+      modifiedUser {
+        _id
+        details {
+          avatar
+          fullName
+        }
+      }
+      incomeRule
+      incomeTrId
+      outRule
+      outTrId
+      saleRule
+      saleTrId
+      costIncreaseRule
+      costDecreaseRule
+      costIncreaseTrId
+      costDecreaseTrId
     }
-    safeRemainderItemsCount(
-      remainderId: $remainderId,
-      status: $status,
-      productCategoryIds: $productCategoryIds,
-      diffType: $diffType,
-      searchValue: $searchValue
-    )
+    totalCount
   }
-`;
+}
+`);
+export const SAFE_REMAINDER_DETAIL_QUERY = gql(`
+query accountingSafeRemainderDetail($_id: String!) {
+  safeRemainderDetail(_id: $_id) {
+    _id
+    createdAt
+    createdBy
+    modifiedAt
+    modifiedBy
+    date
+    description
+    status
+    branchId
+    departmentId
+    productCategoryId
+    branch {
+      _id
+      code
+      title
+    }
+    department {
+      _id
+      code
+      title
+    }
+    productCategory {
+      _id
+      code
+      name
+    }
+    modifiedUser {
+      _id
+      details {
+        avatar
+        fullName
+      }
+    }
+    incomeRule
+    incomeTrId
+    outRule
+    outTrId
+    saleRule
+    saleTrId
+    costIncreaseRule
+    costDecreaseRule
+    costIncreaseTrId
+    costDecreaseTrId
+  }
+}
+`);
+
+export const SAFE_REMAINDER_DETAILS_QUERY = gql(`
+query accountingSafeRemainderItems($remainderId: String!, $status: String, $productCategoryIds: [String], $diffType: String, $searchValue: String, $page: Int, $perPage: Int) {
+  safeRemainderItems(
+    remainderId: $remainderId
+    status: $status
+    productCategoryIds: $productCategoryIds
+    diffType: $diffType
+    searchValue: $searchValue
+    page: $page
+    perPage: $perPage
+  ) {
+    _id
+    branchId
+    departmentId
+    preCount
+    count
+    status
+    remainderId
+    createdAt
+    createdBy
+    modifiedAt
+    modifiedBy
+    order
+    product {
+      _id
+      code
+      name
+    }
+    productId
+    uom
+    trInfo {
+      activeCost
+      unitCost
+      isCostExplicit
+      lastIncomePrice
+      isSale
+      unitPrice
+    }
+  }
+  safeRemainderItemsCount(
+    remainderId: $remainderId
+    status: $status
+    productCategoryIds: $productCategoryIds
+    diffType: $diffType
+    searchValue: $searchValue
+  )
+}
+`);

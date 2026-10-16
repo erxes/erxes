@@ -17,25 +17,27 @@ export const GET_TECH_CARD_PRODUCT_UNITS = gql`
   }
 `;
 
-export const techCardFields = `
-  _id
-  code
-  name
-  description
-  duration
-  durationType
-  status
-  inputs {
-    productId
-    uom
-    quantity
-    costRatio
-  }
-  outputs {
-    productId
-    uom
-    quantity
-    costRatio
+export const techCardFields = gql`
+  fragment AccountingTechCardFields on TechCard {
+    _id
+    code
+    name
+    description
+    duration
+    durationType
+    status
+    inputs {
+      productId
+      uom
+      quantity
+      costRatio
+    }
+    outputs {
+      productId
+      uom
+      quantity
+      costRatio
+    }
   }
 `;
 
@@ -57,17 +59,19 @@ export const GET_TECH_CARDS = gql`
       sortDirection: $sortDirection
     ) {
       techCards {
-        ${techCardFields}
+        ...AccountingTechCardFields
       }
       totalCount
     }
   }
+  ${techCardFields}
 `;
 
 export const GET_TECH_CARD_DETAIL = gql`
   query AccountingTechCardDetail($_id: String!) {
     techCardDetail(_id: $_id) {
-      ${techCardFields}
+      ...AccountingTechCardFields
     }
   }
+  ${techCardFields}
 `;

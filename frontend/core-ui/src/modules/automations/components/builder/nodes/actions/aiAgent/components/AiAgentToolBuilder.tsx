@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import {
   TAiAgentConfigForm,
   TAiAgentToolFormValue,
@@ -13,6 +14,7 @@ import {
 import { generateAutomationElementId } from 'ui-modules';
 
 export const AiAgentToolBuilder = () => {
+  const { t } = useTranslation('automations');
   const { control } = useFormContext<TAiAgentConfigForm>();
   const { fields, append, remove } = useFieldArray({ control, name: 'tools' });
   const tools: TAiAgentToolFormValue[] =
@@ -20,13 +22,8 @@ export const AiAgentToolBuilder = () => {
 
   return (
     <Form.Item>
-      <Form.Label>Tools</Form.Label>
-      <Form.Description>
-        Every tool appears on the node with a connect handle — wire it to a
-        workflow or action on the canvas. Helper tools run the wired workflow
-        during generation and feed the result back into the reply; handoff tools
-        end the reply and continue execution there.
-      </Form.Description>
+      <Form.Label>{t('ai-agent-tools')}</Form.Label>
+      <Form.Description>{t('ai-agent-tools-description')}</Form.Description>
 
       <div className="flex flex-col gap-3 py-2">
         {fields.map((field, index) => (
@@ -50,7 +47,7 @@ export const AiAgentToolBuilder = () => {
           })
         }
       >
-        Add tool
+        {t('ai-agent-add-tool')}
       </Button>
     </Form.Item>
   );
@@ -65,6 +62,7 @@ const AiAgentToolRow = ({
   tool?: TAiAgentToolFormValue;
   onRemove: (index: number) => void;
 }) => {
+  const { t } = useTranslation('automations');
   const { control } = useFormContext<TAiAgentConfigForm>();
 
   return (
@@ -73,7 +71,12 @@ const AiAgentToolRow = ({
         <Controller
           name={`tools.${index}.name`}
           control={control}
-          render={({ field }) => <Input {...field} placeholder="Tool name" />}
+          render={({ field }) => (
+            <Input
+              {...field}
+              placeholder={t('ai-agent-tool-name-placeholder')}
+            />
+          )}
         />
         <Controller
           name={`tools.${index}.kind`}
@@ -84,8 +87,12 @@ const AiAgentToolRow = ({
                 <Select.Value />
               </Select.Trigger>
               <Select.Content>
-                <Select.Item value="helper">Helper</Select.Item>
-                <Select.Item value="handoff">Handoff</Select.Item>
+                <Select.Item value="helper">
+                  {t('ai-agent-tool-kind-helper')}
+                </Select.Item>
+                <Select.Item value="handoff">
+                  {t('ai-agent-tool-kind-handoff')}
+                </Select.Item>
               </Select.Content>
             </Select>
           )}
@@ -107,14 +114,14 @@ const AiAgentToolRow = ({
         render={({ field }) => (
           <Textarea
             {...field}
-            placeholder="Describe when the AI should use this tool"
+            placeholder={t('ai-agent-tool-description-placeholder')}
           />
         )}
       />
 
       {!tool?.description && (
         <p className="text-xs text-muted-foreground">
-          A clear description strongly improves when the AI picks this tool.
+          {t('ai-agent-tool-description-hint')}
         </p>
       )}
     </div>

@@ -22,9 +22,10 @@ export const TECH_CARD_ADD = gql`
       outputs: $outputs
       status: $status
     ) {
-      ${techCardFields}
+      ...AccountingTechCardFields
     }
   }
+  ${techCardFields}
 `;
 
 export const TECH_CARD_EDIT = gql`
@@ -50,9 +51,10 @@ export const TECH_CARD_EDIT = gql`
       outputs: $outputs
       status: $status
     ) {
-      ${techCardFields}
+      ...AccountingTechCardFields
     }
   }
+  ${techCardFields}
 `;
 
 export const TECH_CARD_REMOVE = gql`

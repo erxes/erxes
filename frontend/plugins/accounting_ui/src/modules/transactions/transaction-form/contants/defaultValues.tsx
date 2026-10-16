@@ -23,11 +23,14 @@ import {
 } from '../types/JournalForms';
 
 const trDataWrapper = (doc?: Partial<ITransaction>) => {
+  const { extraData, followInfos, followExtras, ...base } = doc ?? {};
   return {
-    ...doc,
+    ...base,
+    extraData,
+    followInfos,
     _id: doc?._id ?? getTempId(),
     customerType: doc?.customerType || CustomerType.CUSTOMER,
-    side: doc?.side,
+    side: doc?.side ?? '',
   };
 };
 
@@ -54,30 +57,20 @@ const getInventoryDetailFollowInfos = (
     (splitInfo: { detailId?: string }) => splitInfo.detailId === detail._id,
   );
   const currentInvSplit = detail.followInfos?.invSplit;
-  const invSplit = currentInvSplit
-    ? {
-        ...currentInvSplit,
-        hasSplit:
-          typeof currentInvSplit.hasSplit === 'boolean'
-            ? currentInvSplit.hasSplit
-            : Boolean(currentInvSplit.productId),
-      }
-    : legacySplitInfo
+  const invSplit =
+    currentInvSplit ||
+    (legacySplitInfo
       ? {
-          hasSplit: true,
-          productId: legacySplitInfo.productId,
-          ratio: legacySplitInfo.ratio,
+          hasSplit: true as const,
+          productId: legacySplitInfo.productId ?? '',
+          ratio: legacySplitInfo.ratio ?? 0,
         }
-      : undefined;
+      : undefined);
 
   return invSplit
     ? {
         ...detail.followInfos,
-        invSplit: {
-          hasSplit: invSplit.hasSplit,
-          productId: invSplit.productId,
-          ratio: invSplit.ratio,
-        },
+        invSplit,
       }
     : detail.followInfos;
 };
@@ -128,6 +121,10 @@ const CASH_JOURNAL_DEFAULT_VALUES = (
     details: [
       {
         ...trDetailWrapper(doc?.details?.[0]),
+        followInfos: {
+          currencyDiffAccountId:
+            doc?.details?.[0]?.followInfos?.currencyDiffAccountId ?? '',
+        },
       },
     ],
   };
@@ -201,6 +198,12 @@ const INV_INCOME_JOURNAL_DEFAULT_VALUES = (
   return {
     ...trDataWrapper(doc),
     journal: TrJournalEnum.INV_INCOME,
+    extraData: doc?.extraData
+      ? {
+          ...doc.extraData,
+          invIncomeExpenses: doc.extraData.invIncomeExpenses ?? [],
+        }
+      : undefined,
     side: TR_SIDES.DEBIT,
     ...DEFAULT_VAT_VALUES(doc),
     ...DEFAULT_CTAX_VALUES(doc),
@@ -291,6 +294,11 @@ const INV_MOVE_JOURNAL_DEFAULT_VALUES = (
   return {
     ...trDataWrapper(doc),
     journal: TrJournalEnum.INV_MOVE,
+    followExtras: undefined,
+    followInfos: {
+      ...doc?.followInfos,
+      moveInAccountId: doc?.followInfos?.moveInAccountId ?? '',
+    },
     side: TR_SIDES.CREDIT,
     details: doc?.details?.length
       ? doc?.details.map((det) => ({
@@ -320,6 +328,11 @@ const INV_SALE_JOURNAL_DEFAULT_VALUES = (
   return {
     ...trDataWrapper(doc),
     journal: TrJournalEnum.INV_SALE,
+    followInfos: {
+      ...doc?.followInfos,
+      saleOutAccountId: doc?.followInfos?.saleOutAccountId ?? '',
+      saleCostAccountId: doc?.followInfos?.saleCostAccountId ?? '',
+    },
     side: TR_SIDES.CREDIT,
     ...DEFAULT_VAT_VALUES(doc),
     ...DEFAULT_CTAX_VALUES(doc),
@@ -350,6 +363,11 @@ const INV_SALE_RETURN_JOURNAL_DEFAULT_VALUES = (
   return {
     ...trDataWrapper(doc),
     journal: TrJournalEnum.INV_SALE_RETURN,
+    followInfos: {
+      ...doc?.followInfos,
+      saleOutAccountId: doc?.followInfos?.saleOutAccountId ?? '',
+      saleCostAccountId: doc?.followInfos?.saleCostAccountId ?? '',
+    },
     side: TR_SIDES.DEBIT,
     ...DEFAULT_VAT_VALUES(doc),
     ...DEFAULT_CTAX_VALUES(doc),
@@ -378,28 +396,30 @@ const FXA_FOLLOW_INFOS_DEFAULT_VALUES = (doc?: Partial<ITransaction>) => {
   return {
     saleOutAccountId:
       doc?.followInfos?.saleOutAccountId ||
-      doc?.followInfos?.fixedAssetAccountId,
+      doc?.followInfos?.fixedAssetAccountId ||
+      '',
     accumulatedDepreciationAccountId:
-      doc?.followInfos?.accumulatedDepreciationAccountId,
+      doc?.followInfos?.accumulatedDepreciationAccountId ?? '',
     depreciationExpenseAccountId:
       doc?.followInfos?.depreciationExpenseAccountId,
     saleCostAccountId:
-      doc?.followInfos?.saleCostAccountId || doc?.followInfos?.lossAccountId,
+      doc?.followInfos?.saleCostAccountId ||
+      doc?.followInfos?.lossAccountId ||
+      '',
     revaluationReserveAccountId: doc?.followInfos?.revaluationReserveAccountId,
     deferredTaxAssetAccountId: doc?.followInfos?.deferredTaxAssetAccountId,
     deferredTaxLiabilityAccountId:
       doc?.followInfos?.deferredTaxLiabilityAccountId,
     incomeTaxExpenseAccountId: doc?.followInfos?.incomeTaxExpenseAccountId,
-    moveInBranchId: doc?.followInfos?.moveInBranchId,
+    moveInBranchId: doc?.followInfos?.moveInBranchId ?? '',
     moveInDepartmentId: doc?.followInfos?.moveInDepartmentId,
     ownerId: doc?.followInfos?.ownerId || doc?.followInfos?.responsibleUserId,
-    fxaIncomeDetails: doc?.followInfos?.fxaIncomeDetails || [],
   };
 };
 
 const fxaDetailsDefaultValues = (doc?: Partial<ITransaction>) =>
   doc?.details?.length
-    ? doc?.details.map((det) => ({
+    ? doc.details.map((det) => ({
         ...trDetailWrapper(det),
         fixedAssetId: det.fixedAssetId || '',
         fixedAssetCategoryId: det.fixedAssetCategoryId || '',
@@ -491,10 +511,20 @@ const FXA_SALE_JOURNAL_DEFAULT_VALUES = (
   };
 };
 
-export const JOURNALS_BY_JOURNAL = (
+/* eslint-disable no-redeclare */
+export function JOURNALS_BY_JOURNAL(
+  journal: TrJournalEnum.FXA_INCOME,
+  doc?: Partial<ITransaction>,
+): TFxaIncomeJournal;
+export function JOURNALS_BY_JOURNAL(
   journal: string,
   doc?: Partial<ITransaction>,
-): TTrDoc => {
+): TTrDoc;
+export function JOURNALS_BY_JOURNAL(
+  journal: string,
+  doc?: Partial<ITransaction>,
+): TTrDoc {
+  /* eslint-enable no-redeclare */
   doc ??= {
     details: [] as ITrDetail[],
   } as ITransaction;
@@ -506,6 +536,9 @@ export const JOURNALS_BY_JOURNAL = (
   let result: Partial<TTrDoc>;
 
   switch (journal) {
+    case TrJournalEnum.TAX:
+      result = TAX_JOURNAL_DEFAULT_VALUES(doc);
+      break;
     case TrJournalEnum.CASH:
       result = CASH_JOURNAL_DEFAULT_VALUES(doc);
       break;
@@ -567,4 +600,4 @@ export const JOURNALS_BY_JOURNAL = (
       break;
   }
   return result as TTrDoc;
-};
+}

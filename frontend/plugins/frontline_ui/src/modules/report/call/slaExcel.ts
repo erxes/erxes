@@ -1,7 +1,7 @@
 import ExcelJS from 'exceljs';
 import { downloadExcel } from '@/report/utils/exportCsv';
 import type { SlaReport } from './types';
-import { MISSED_REASON_META } from './components/SlaSection/slaUtils';
+import { getMissedReasonMeta } from './components/SlaSection/slaUtils';
 import { NO_QUEUE } from './utils';
 
 type Translate = (key: string, fallback: string) => string;
@@ -146,8 +146,8 @@ export async function downloadSlaExcel({
     ],
     report.missedReasons.map((row) => [
       t(
-        MISSED_REASON_META[row.reason].key,
-        MISSED_REASON_META[row.reason].label,
+        getMissedReasonMeta(row.reason).key,
+        getMissedReasonMeta(row.reason).label,
       ).replace('{{seconds}}', String(report.shortAbandonSeconds)),
       row.count,
       missedTotal ? row.count / missedTotal : '',
