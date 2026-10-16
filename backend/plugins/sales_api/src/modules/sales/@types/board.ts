@@ -6,6 +6,8 @@ export interface IBoard {
   userId?: string;
   order?: number;
   type?: string;
+  status?: 'active' | 'archived';
+  archiveInProgress?: boolean;
 }
 
 export interface IBoardDocument extends IBoard, Document {

@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { BoardsList } from '~/modules/deals/boards/components/settings/BoardsList';
 import { IconSandbox } from '@tabler/icons-react';
 import { PipelineFormBar } from '@/deals/pipelines/components/PipelineFormBar';
-import PipelineRecordTable from '@/deals/pipelines/components/PipelineRecordTable';
+import { PipelineRecordTable } from '@/deals/pipelines/components/PipelineRecordTable';
 import { SettingsHeader } from 'ui-modules';
 
 const PosSettingsPage = lazy(() =>
