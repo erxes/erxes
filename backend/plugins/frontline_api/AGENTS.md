@@ -320,6 +320,8 @@
   to 10 uploaded images (passed as storage keys) staged as unpublished photos and
   published as one carousel, under a per-page hourly rate limit and an audit log
   of every attempt.
+- Lists the latest posts of the connected pages to a client portal
+  (`facebookGetPosts`), the 2.x query sites use to show a brand's Facebook feed.
 - Resolves the Meta app per integration kind, so page posting can run on its own
   `FACEBOOK_POST_APP_ID`/`FACEBOOK_POST_APP_SECRET` credentials while Messenger
   keeps the shared app.
@@ -516,6 +518,7 @@ The root router mounts its authenticated webhook at `/telegram`.
 | Call SLA report          | `src/modules/reports/callSlaService.ts`                                                                                                                          | Inbound answered ÷ offered, callbacks count as answered, missed reasons, series, queues, breaches                                                                                                                      |
 | FB automation            | `src/modules/integrations/facebook/meta/automation/`                                                                                                             | Comment/message triggers and actions, bot message generation                                                                                                                                                           |
 | FB page posting          | `src/modules/integrations/facebook/postService.ts`, `postGuard.ts`                                                                                               | Post publishing pipeline (validation, photo staging, cleanup, permalink) and its rate limit + audit log                                                                                                                |
+| FB client portal         | `src/modules/integrations/facebook/graphql/resolvers/clientPortal.ts`                                                                                            | `facebookGetPosts`: recent posts of connected pages, read from a client portal session                                                                                                                                 |
 | FB app resolution        | `src/modules/integrations/facebook/commonUtils.ts`                                                                                                               | `resolveFacebookApp`, `facebookAppSelector`, `facebookAccountSelector`                                                                                                                                                 |
 | FB messenger services    | `src/modules/integrations/facebook/services/`                                                                                                                    | `messengerSend` (messaging params, bot text send with tag retry), `messageEvents` (reaction replace, message publish, reply-to), `automatedReplyControl`, `conversationSync`, `messageNormalization`, `messagePreview` |
 | IG messenger services    | `src/modules/integrations/instagram/services/`, `normalizeMessage.ts`                                                                                            | `messageEvents` (sender reaction replace, inbox publish), `copyInstagramImage` (allow-listed image proxy), webhook payload normalization to the shared message contract                                                |
@@ -969,6 +972,18 @@ agentExtension?, callbackWindowMinutes?, breachLimit?)` — inbound-only service
   departments resolve through core tRPC `find`; statuses and channels through
   this plugin's models. Property values are returned raw; the UI maps option
   labels.
+- GraphQL (client portal, `forClientPortal`): `facebookGetPosts(channelIds:
+[String], brandIds: [String], limit: Int): [FacebookPosts!]!` keeps the 2.x
+  name and arguments, so a site written against 2.x calls it unchanged. It
+  selects the active (`isActive` not `false`) `facebook-post` inbox
+  `Integrations`, narrowed by `brandId` and `channelId` when either list is
+  non-empty (both lists narrow together; comma-joined ids, the form 2.0.7–2.11
+  accepted, are split and empty values ignored), then reads
+  their pages and page tokens from `FacebookIntegrations` by `erxesApiId`.
+  Each page is fetched once through `fetchPagesPostsList`, and the posts are
+  merged newest first and cut to `limit` (default 20, at most 100, below 1 is
+  rejected). A page whose Graph API call fails is logged and skipped. Without
+  a client portal token the call is rejected.
 - GraphQL Facebook reports — `reportFacebookPages`, `reportFacebookSummary`,
   `reportFacebookActivity`, `reportFacebookPosts`, `reportFacebookBots`. All but
   the first take a `FacebookReportFilter` (`date`, `fromDate`, `toDate`,
@@ -1244,6 +1259,11 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 ## Local Invariants
 
+- `facebookGetPosts` keeps its 2.x name, argument list and `forClientPortal`
+  wrapper: external client portal sites call it as written for 2.x, and it must
+  never become `skipPermission`. Brand and channel live on the inbox
+  `Integrations` record, never on `FacebookIntegrations`, so the brand/channel
+  filter runs there and the Facebook record is reached by `erxesApiId`.
 - A `scheduled` article is published by a delayed BullMQ job on the
   `knowledgeBaseScheduledPublish` queue (`frontline`), never by a cross-tenant
   cron. `knowledgeBaseArticlesAdd` / `Edit` call `scheduleArticlePublish` with
@@ -1425,6 +1445,10 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - Move a form, survey, response template, ticket pipeline and integration
   between two channels and confirm each leaves the source channel's list,
   appears in the destination's, and survives a reload.
+- Call `facebookGetPosts(brandIds: [<brand>], limit: 5)` with a client
+  portal's `x-app-token` and confirm it returns that brand's newest page posts
+  across its connected Facebook post integrations; the same call without the
+  token is rejected.
 - Change a client portal's domain in core, then save the help center that
   points at it and confirm `url` and `erxesAppToken` followed the change while
   `clientPortalId` stayed put.

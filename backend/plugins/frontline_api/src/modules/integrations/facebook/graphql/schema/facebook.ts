@@ -251,6 +251,7 @@ export const queries = `
   facebookConversationMessages(conversationId: String! getFirst: Boolean, ${pageParams}): [FacebookConversationMessage]
   facebookConversationMessagesCount(conversationId: String!): Int
   facebookGetPost(erxesApiId: String): FacebookPost
+  facebookGetPosts(channelIds: [String], brandIds: [String], limit: Int): [FacebookPosts!]!
   facebookHasTaggedMessages(conversationId: String!): Boolean
 
   facebookPostMessages(conversationId: String! getFirst: Boolean, ${pageParams}): [FacebookPostMessage]
