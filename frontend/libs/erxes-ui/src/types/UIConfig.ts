@@ -124,6 +124,30 @@ export type TPropertyInputProps = {
   disabled?: boolean;
 };
 
+/**
+ * How a plugin appears in the shell: its entry in the plugin picker, its own
+ * sidebar and its color. Plugins that use the same `name` share one entry, and
+ * the first plugin that sets `color`, `description` or `logo` brands it.
+ */
+export type IUIPlugin = {
+  name: string;
+  defaultPath?: string;
+  icon: React.ElementType;
+  /** Any CSS color. Fills the logo and tints primary accents inside it. */
+  color?: string;
+  /** One line under the plugin name in the picker. */
+  description?: string;
+  /**
+   * SVG content for a 48×48 viewBox, drawn on the plugin color, where
+   * `currentColor` is that color. Without it the logo shows `icon`.
+   */
+  logo?: React.ReactNode;
+  /** Sidebar menu items, rendered inside the plugin sidebar's main menu. */
+  content: () => React.ReactNode;
+  /** Extra sidebar groups below the main menu. */
+  subGroup?: () => React.ReactNode;
+};
+
 export type IUIConfig = {
   name: string;
   path: string;
@@ -133,13 +157,7 @@ export type IUIConfig = {
   hasFloatingWidget?: boolean;
   settingsOnly?: boolean;
   settingsNavigation?: () => React.ReactNode;
-  navigationGroup?: {
-    name: string;
-    defaultPath?: string;
-    icon: React.ElementType;
-    content: () => React.ReactNode;
-    subGroup?: () => React.ReactNode;
-  };
+  plugin?: IUIPlugin;
 
   widgets?: {
     relationWidgets?: {
@@ -188,6 +206,7 @@ export type ICoreModule = {
   name: string;
   icon?: React.ElementType;
   path: string;
+  description?: string;
   hasSettings?: boolean;
   settingsOnly?: boolean;
   submenus?: {

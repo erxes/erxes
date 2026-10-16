@@ -6,7 +6,7 @@
 - **Project:** `loyalty_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/loyalty_ui`
-- **Last synchronized:** `2026-10-14`
+- **Last synchronized:** `2026-10-16`
 
 ## Scope
 
@@ -89,6 +89,7 @@
 
 ### Provides
 
+- `CONFIG.plugin` in `src/config.tsx` registers the `loyalty` plugin with the shell: its picker entry, sidebar `content`, and brand `color`, `description` and `logo` (a 48×48 SVG glyph where `currentColor` is the plugin color).
 - Module Federation frontend routes and components configured by this plugin's
   exposed pricing and loyalty UI modules.
 - Pricing GraphQL operations including `PricingPlanDetail` and pricing

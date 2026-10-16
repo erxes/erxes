@@ -6,6 +6,8 @@ import {
 } from 'react-router-dom';
 import { currentUserState, useVersion } from 'ui-modules';
 
+import { HomeRoutes } from '@/app/components/HomeRoutes';
+import { ResumeLastApp } from '@/home/components/ResumeLastApp';
 import { AppPath } from '@/types/paths/AppPath';
 import { AutomationRoutes } from '@/app/components/AutomationRoutes';
 import { BroadcastRoutes } from '@/app/components/BroadcastRoutes';
@@ -87,10 +89,9 @@ export const useCreateAppRouter = () => {
                 </OnboardingGuard>
               }
             >
-              <Route
-                path={AppPath.Index}
-                element={<Navigate to={AppPath.MyInbox} />}
-              />
+              <Route path={AppPath.Index} element={<ResumeLastApp />} />
+              <Route path={AppPath.HomeCatchAll} element={<HomeRoutes />} />
+
               <Route
                 path={AppPath.SettingsCatchAll}
                 element={<SettingsRoutes />}

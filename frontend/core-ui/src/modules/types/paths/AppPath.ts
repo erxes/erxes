@@ -9,6 +9,8 @@ export enum AppPath {
 
   //main
   Index = '/',
+  Home = 'home',
+  HomeCatchAll = `/${Home}/*`,
   Settings = 'settings',
   SettingsCatchAll = `/${Settings}/*`,
   MainOnboarding = '/welcome',

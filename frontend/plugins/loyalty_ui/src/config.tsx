@@ -13,8 +13,22 @@ export const CONFIG: IUIConfig = {
       <LoyaltySettingsNavigation />
     </Suspense>
   ),
-  navigationGroup: {
+  plugin: {
     name: 'loyalty',
+    color: 'oklch(0.63 0.165 55)',
+    description: 'Vouchers, coupons, scores and spins',
+    logo: (
+      <>
+        <path
+          d="M10 16a2 2 0 0 1 2-2h24a2 2 0 0 1 2 2v4.2a3.8 3.8 0 0 0 0 7.6V32a2 2 0 0 1-2 2H12a2 2 0 0 1-2-2v-4.2a3.8 3.8 0 0 0 0-7.6z"
+          fill="#fff"
+        />
+        <path
+          d="M24 17.6l1.65 4.23 4.53.26-3.52 2.88 1.16 4.39L24 26.9l-3.82 2.46 1.16-4.39-3.52-2.88 4.53-.26z"
+          fill="currentColor"
+        />
+      </>
+    ),
     defaultPath: 'loyalty/scores',
     icon: IconAward,
     content: () => (

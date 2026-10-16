@@ -6,7 +6,7 @@
 - **Project:** `content_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/content_ui`
-- **Last synchronized:** `2026-10-14`
+- **Last synchronized:** `2026-10-16`
 
 ## Scope
 
@@ -47,6 +47,7 @@
 
 ### Provides
 
+- `CONFIG.plugin` in `src/config.tsx` registers the `content` plugin with the shell: its picker entry, sidebar `content`, and brand `color`, `description` and `logo` (a 48×48 SVG glyph where `currentColor` is the plugin color).
 - Module Federation exposes `./config` and `./content`.
 - Routes mounted under `/content`, including `/content/cms` and
   `/content/web-builder`.

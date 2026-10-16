@@ -24,6 +24,7 @@ export const GET_CORE_MODULES = (
       name: t('contacts'),
       icon: IconAddressBook,
       path: 'contacts',
+      description: 'Customers, leads and companies',
       submenus: [
         {
           name: t('customers'),
@@ -61,11 +62,13 @@ export const GET_CORE_MODULES = (
       name: t('segments'),
       icon: IconChartPie,
       path: 'segments',
+      description: 'Rule-based audiences',
     },
     {
       name: t('automations'),
       icon: IconAffiliate,
       path: 'automations',
+      description: 'Triggers and workflows',
       submenus: [
         {
           name: t('automations'),
@@ -88,11 +91,13 @@ export const GET_CORE_MODULES = (
       name: t('broadcasts'),
       icon: IconBroadcast,
       path: 'broadcasts',
+      description: 'Email, SMS and push campaigns',
     },
     {
       name: t('documents'),
       icon: IconFile,
       path: 'documents',
+      description: 'Printable templates and contracts',
     },
   ];
 
@@ -101,6 +106,7 @@ export const GET_CORE_MODULES = (
       name: t('templates'),
       icon: IconBrandDatabricks,
       path: 'templates',
+      description: 'Reusable starters for every app',
     });
   }
 

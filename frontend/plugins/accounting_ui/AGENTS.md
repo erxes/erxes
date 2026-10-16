@@ -6,7 +6,7 @@
 - **Project:** `accounting_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/accounting_ui`
-- **Last synchronized:** `2026-10-14`
+- **Last synchronized:** `2026-10-16`
 
 ## Scope
 
@@ -102,6 +102,7 @@
 
 ### Provides
 
+- `CONFIG.plugin` in `src/config.tsx` registers the `accounting` plugin with the shell: its picker entry, sidebar `content`, and brand `color`, `description` and `logo` (a 48×48 SVG glyph where `currentColor` is the plugin color).
 - Module Federation exposes defined in `module-federation.config.ts`.
 - Accounting routes exposed through `src/modules/AccountingMain.tsx` and navigation registered from `src/config.tsx`.
 - Accounting relation widget exports from `src/widgets/relation/RelationWidgets.tsx`.

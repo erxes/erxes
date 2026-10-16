@@ -1,6 +1,11 @@
 import { IUIConfig } from 'erxes-ui';
 import { useAtom } from 'jotai';
-import { type ComponentType, type ElementType, useMemo } from 'react';
+import {
+  type ComponentType,
+  type ElementType,
+  type ReactNode,
+  useMemo,
+} from 'react';
 import { useTranslation } from 'react-i18next';
 import { pluginsConfigState, usePermissionCheck, useVersion } from 'ui-modules';
 import { GET_CORE_MODULES } from '~/plugins/constants/core-plugins.constants';
@@ -41,6 +46,9 @@ export type NavigationGroupContent = ComponentType;
 
 export interface NavigationGroupResult {
   icon?: ElementType;
+  color?: string;
+  description?: string;
+  logo?: ReactNode;
   contents: NavigationGroupContent[];
   defaultPath: string;
   subGroups: NavigationGroupContent[];
@@ -61,55 +69,58 @@ export const usePluginsNavigationGroups = () => {
     }
 
     return Object.values(pluginsMetaData).reduce<NavigationGroups>(
-      (acc, plugin) => {
-        if (!plugin?.modules?.length) return acc;
+      (acc, config) => {
+        if (!config?.modules?.length) return acc;
 
-        if (plugin.settingsOnly) return acc;
+        if (config.settingsOnly) return acc;
 
-        if (isLoaded && !isWildcard && !hasPluginPermission(plugin.name)) {
+        if (isLoaded && !isWildcard && !hasPluginPermission(config.name)) {
           return acc;
         }
 
-        const groupName = plugin.navigationGroup?.name || plugin.name;
+        const groupName = config.plugin?.name || config.name;
 
         const existingGroup = acc[groupName] || {
           contents: [],
           defaultPath:
-            plugin.navigationGroup?.defaultPath ||
-            plugin.path ||
-            plugin.modules?.[0]?.path ||
+            config.plugin?.defaultPath ||
+            config.path ||
+            config.modules?.[0]?.path ||
             '',
           subGroups: [],
           modules: [],
         };
 
-        const newContent = plugin.navigationGroup?.content;
+        const newContent = config.plugin?.content;
         const updatedContents = newContent
           ? [...existingGroup.contents, newContent]
           : existingGroup.contents;
 
-        const newSubGroup = plugin.navigationGroup?.subGroup;
+        const newSubGroup = config.plugin?.subGroup;
         const updatedSubGroups = newSubGroup
           ? [...existingGroup.subGroups, newSubGroup]
           : existingGroup.subGroups;
 
         acc[groupName] = {
           name: groupName,
+          color: existingGroup.color ?? config.plugin?.color,
+          description: existingGroup.description ?? config.plugin?.description,
+          logo: existingGroup.logo ?? config.plugin?.logo,
           icon:
-            plugin.navigationGroup?.icon ||
-            plugin.icon ||
+            config.plugin?.icon ||
+            config.icon ||
             existingGroup.icon ||
-            plugin.modules?.[0]?.icon,
+            config.modules?.[0]?.icon,
           contents: updatedContents,
           defaultPath:
-            plugin.navigationGroup?.defaultPath ||
+            config.plugin?.defaultPath ||
             existingGroup.defaultPath ||
-            plugin.path ||
-            plugin.modules?.[0]?.path ||
+            config.path ||
+            config.modules?.[0]?.path ||
             '',
           subGroups: updatedSubGroups,
-          modules: [...existingGroup.modules, ...(plugin.modules || [])],
-          i18n: plugin.i18n || existingGroup.i18n,
+          modules: [...existingGroup.modules, ...(config.modules || [])],
+          i18n: config.i18n || existingGroup.i18n,
         };
 
         return acc;

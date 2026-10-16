@@ -86,7 +86,9 @@ export const normalizeVisitedPageTabs = (value: unknown): IVisitedPageTab[] => {
   }
 
   const seenIds = new Set<string>();
+  const seenPathnames = new Set<string>();
 
+  // One tab per page: a later tab for an already open page is dropped.
   return value.reduce<IVisitedPageTab[]>((tabs, tab) => {
     if (!isStoredVisitedPageTab(tab)) {
       return tabs;
@@ -100,12 +102,14 @@ export const normalizeVisitedPageTabs = (value: unknown): IVisitedPageTab[] => {
 
     if (
       !shouldTrackVisitedPage(normalizedTab.pathname) ||
-      seenIds.has(normalizedTab.id)
+      seenIds.has(normalizedTab.id) ||
+      seenPathnames.has(normalizedTab.pathname)
     ) {
       return tabs;
     }
 
     seenIds.add(normalizedTab.id);
+    seenPathnames.add(normalizedTab.pathname);
     tabs.push(normalizedTab);
 
     return tabs;
@@ -207,11 +211,6 @@ export const getVisitedPageTabLabel = (
 
   return toRouteSegmentLabel(currentPageSegment, labels.details);
 };
-
-export const getVisitedPageTabTitle = (
-  pageLabel: string,
-  pluginLabel?: string,
-) => (pluginLabel ? `${pluginLabel} | ${pageLabel}` : pageLabel);
 
 export const updateVisitedPageTab = (
   tabs: unknown,

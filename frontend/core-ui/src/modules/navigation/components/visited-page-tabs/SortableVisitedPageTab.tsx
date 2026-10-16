@@ -6,7 +6,7 @@ import {
   IconX,
 } from '@tabler/icons-react';
 import { Button, cn, ContextMenu, Tabs } from 'erxes-ui';
-import type { ElementType } from 'react';
+import type { ReactNode } from 'react';
 import { useCallback, useEffect, useRef } from 'react';
 
 export const SortableVisitedPageTab = ({
@@ -19,7 +19,7 @@ export const SortableVisitedPageTab = ({
   canCloseOtherTabs,
   canCloseTabsToRight,
   hideTabsLabel,
-  icon: Icon,
+  icon,
   isActive,
   label,
   onClose,
@@ -38,7 +38,8 @@ export const SortableVisitedPageTab = ({
   canCloseOtherTabs: boolean;
   canCloseTabsToRight: boolean;
   hideTabsLabel: string;
-  icon: ElementType;
+  /** Shown before the label, such as the owning plugin's logo. */
+  icon: ReactNode;
   isActive: boolean;
   label: string;
   onClose: () => void;
@@ -82,7 +83,7 @@ export const SortableVisitedPageTab = ({
         <div
           ref={setTabRef}
           className={cn(
-            'group/tab flex h-6 min-w-20 max-w-40 shrink-0 items-center rounded-md border border-transparent text-accent-foreground transition-[background-color,border-color,box-shadow,color,opacity] hover:bg-accent/70 hover:text-foreground data-[active=true]:border-border data-[active=true]:bg-background data-[active=true]:text-foreground data-[active=true]:shadow-sm',
+            'group/tab flex h-7 min-w-20 max-w-44 shrink-0 items-center rounded-md border border-transparent text-accent-foreground transition-[background-color,border-color,box-shadow,color,opacity] hover:bg-accent/70 hover:text-foreground data-[active=true]:border-border data-[active=true]:bg-background data-[active=true]:text-foreground data-[active=true]:shadow-sm',
             isDragging && 'z-10 opacity-40',
           )}
           data-active={isActive}
@@ -96,14 +97,9 @@ export const SortableVisitedPageTab = ({
           <Tabs.Trigger
             value={tabId}
             title={label}
-            className="h-full min-w-0 flex-1 justify-start gap-1 rounded-md bg-transparent px-1.5 text-[11px] font-medium text-inherit shadow-none hover:bg-transparent data-[state=active]:bg-transparent data-[state=active]:text-inherit data-[state=active]:shadow-none data-[state=active]:hover:bg-transparent"
+            className="h-full min-w-0 flex-1 justify-start gap-1.5 rounded-md bg-transparent px-2 text-xs font-medium text-inherit shadow-none hover:bg-transparent data-[state=active]:bg-transparent data-[state=active]:text-inherit data-[state=active]:shadow-none data-[state=active]:hover:bg-transparent"
           >
-            <Icon
-              className={cn(
-                'size-3 shrink-0 text-muted-foreground',
-                isActive && 'text-primary',
-              )}
-            />
+            {icon}
             <span className="truncate">{label}</span>
           </Tabs.Trigger>
           <Button

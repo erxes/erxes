@@ -680,6 +680,7 @@ owns the setup form and connection actions.
 
 ### Provides
 
+- `CONFIG.plugin` in `src/config.tsx` registers the `frontline` plugin with the shell: its picker entry, sidebar `content`, and brand `color`, `description` and `logo` (a 48×48 SVG glyph where `currentColor` is the plugin color).
 - Routes `frontline/forms` (list), `frontline/forms/create` (builder wizard),
   `frontline/forms/:formId` (builder wizard on an existing form),
   `frontline/forms/submissions/:formId` and `frontline/forms/preview`, all
@@ -1106,7 +1107,7 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
   filter. Its `Badge` keeps rendering the raw status string, and an unknown
   status falls back to the neutral dashed-circle badge.
 
-- `CONFIG` keeps a top-level `icon` alongside `navigationGroup.icon`. The host
+- `CONFIG` keeps a top-level `icon` alongside `plugin.icon`. The host
   reads only the top-level one for a `frontline:*` notification's avatar in My
   Inbox, and renders nothing when it is missing.
 - A form's `leadData` may be `null` (forms written without the builder), so

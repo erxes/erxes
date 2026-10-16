@@ -18,7 +18,7 @@ import { useAtom } from 'jotai';
 import { useCallback, useLayoutEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
-const HOME_PAGE_PATH = `/${AppPath.MyInbox}`;
+const HOME_PAGE_PATH = `/${AppPath.Home}`;
 
 export const useVisitedPageTabs = () => {
   const { pathname, search } = useLocation();
@@ -55,8 +55,14 @@ export const useVisitedPageTabs = () => {
     const matchingTab = currentTabs.find(
       (tab) => tab.pathname === activePathname,
     );
+    // A page that is already open in another tab switches to that tab
+    // instead of opening a second copy in the current one.
     const tabId =
-      existingActiveTab?.id ?? matchingTab?.id ?? createVisitedPageTabId();
+      (existingActiveTab?.pathname === activePathname
+        ? existingActiveTab.id
+        : matchingTab?.id) ??
+      existingActiveTab?.id ??
+      createVisitedPageTabId();
 
     if (tabId !== currentTabId) {
       selectVisitedPageTab(tabId);

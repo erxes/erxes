@@ -1,4 +1,3 @@
-import { MyInboxHeader } from '@/notification/components/MyInboxHeader';
 import { Resizable, useIsMobile } from 'erxes-ui';
 import { useParams } from 'react-router-dom';
 
@@ -17,14 +16,7 @@ export const MyInboxLayout = ({
   if (isMobile) {
     return (
       <div className="flex flex-1 flex-col overflow-hidden">
-        {id ? (
-          <>
-            <MyInboxHeader />
-            <NotificationContent />
-          </>
-        ) : (
-          <Notifications />
-        )}
+        {id ? <NotificationContent /> : <Notifications />}
       </div>
     );
   }
@@ -36,8 +28,8 @@ export const MyInboxLayout = ({
     >
       <Resizable.Panel
         minSize={20}
-        defaultSize={30}
-        className="hidden sm:flex min-w-80 max-w-lg"
+        defaultSize={32}
+        className="hidden min-w-80 max-w-lg border-r sm:flex"
       >
         <Notifications />
       </Resizable.Panel>
