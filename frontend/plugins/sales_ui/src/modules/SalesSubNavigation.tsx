@@ -24,7 +24,7 @@ import { IBoard } from '@/deals/types/boards';
 import { useBoardArchiveSubscription } from '@/deals/boards/hooks/useBoardArchiveSubscription';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useBoards } from '~/modules/deals/boards/hooks/useBoards';
+import { useBoards } from '@/deals/boards/hooks/useBoards';
 
 type TBoardSelection = {
   boardId: string;
