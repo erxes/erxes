@@ -114,6 +114,9 @@ export class AccountsApi extends BaseApi {
 
     const transactions = response.txn ?? [];
     const expectedDescription = args.description.trim();
+    if (!expectedDescription) {
+      return undefined;
+    }
 
     return transactions.find((item) => {
       const statementDescription = item.txndesc?.trim();

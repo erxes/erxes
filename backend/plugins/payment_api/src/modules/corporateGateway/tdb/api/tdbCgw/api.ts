@@ -1,7 +1,7 @@
 import { PAYMENT_STATUS } from '~/constants';
 import { IModels } from '~/connectionResolvers';
 import { ITransactionDocument } from '~/modules/payment/@types/transactions';
-
+import { AccountsApi } from '../accounts';
 export interface ITdbCgwPaymentConfig {
   configId: string;
   accountNumber: string;
@@ -54,8 +54,39 @@ export class TdbCgwAPI {
     };
   }
 
-  async checkInvoice(_transaction: ITransactionDocument) {
-    return PAYMENT_STATUS.PENDING;
+  async checkInvoice(transaction: ITransactionDocument) {
+    const config = await this.getConfig();
+
+    const accountsApi = new AccountsApi({
+      apiUrl: config.apiUrl,
+      clientId: config.clientId,
+      clientSecret: config.clientSecret,
+    });
+
+    const description = transaction.description?.trim();
+
+    if (!description) {
+      return PAYMENT_STATUS.PENDING;
+    }
+
+    const createdAt = new Date(transaction.createdAt);
+    const now = new Date();
+
+    const formatDate = (date: Date) =>
+      `${date.getFullYear()}/${String(date.getMonth() + 1).padStart(
+        2,
+        '0',
+      )}/${String(date.getDate()).padStart(2, '0')}`;
+
+    const matchedTransaction = await accountsApi.findTransaction({
+      accountNumberOrIban: this.config.iban || this.config.accountNumber,
+      amount: transaction.amount,
+      description,
+      from: formatDate(createdAt),
+      to: formatDate(now),
+    });
+
+    return matchedTransaction ? PAYMENT_STATUS.PAID : PAYMENT_STATUS.PENDING;
   }
 
   async manualCheck(transaction: ITransactionDocument) {
