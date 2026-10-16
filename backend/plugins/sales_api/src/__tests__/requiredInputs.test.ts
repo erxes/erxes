@@ -3,10 +3,8 @@ import {
   defaultFieldResolver,
   graphql,
   GraphQLFieldResolver,
-  Kind,
-  parse,
-  print,
 } from 'graphql';
+import { selectFields } from './helpers/graphql';
 import type { IContext } from '../connectionResolvers';
 import posMutations from '../modules/pos/graphql/resolvers/mutations/pos';
 import orderQueries from '../modules/pos/graphql/resolvers/queries/orders';
@@ -66,17 +64,6 @@ jest.mock('../modules/sales/utils/discountInfos', () => ({
 
 // Use the actual argument SDL and resolvers. Output stubs keep these input
 // boundary tests independent of federation and unrelated entity resolvers.
-const selectFields = (sdl: string, names: string[]): string => {
-  const definition = parse(`type Root { ${sdl} }`).definitions[0];
-  if (definition.kind !== Kind.OBJECT_TYPE_DEFINITION) {
-    throw new Error('Expected root fields');
-  }
-  return (definition.fields || [])
-    .filter((field) => names.includes(field.name.value))
-    .map((field) => print(field))
-    .join('\n');
-};
-
 const schema = buildSchema(`
   scalar JSON
   scalar Date

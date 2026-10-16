@@ -247,6 +247,14 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
 - GraphQL documents are literal strings so codegen can read their complete
   variables, arguments, and selections. Do not reintroduce JavaScript string
   interpolation into query, mutation, or subscription documents.
+- Deal watch responses include the persisted `_id` and `isWatched` state;
+  preserve the optimistic update and cache handling when adopting generated
+  types. Watch/unwatch requests are idempotent and update only the acting user.
+  Empty archives provide list/count/page metadata; successful label
+  assignment and empty-stage sorting return success strings.
+- POS product-group saves use `productGroupsBulkInsert`. The Sales API has
+  no `productGroupsAdd` or `cpSalesPipelineDetail` field; use implemented
+  contracts rather than declaring documents for unsupported aliases.
 - POS edit, product-group/slot saves, and deal-watch documents already declare
   required target ids matching the backend's non-null arguments. Other legacy
   documents still declare nullable inputs even where the backend validates a

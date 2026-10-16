@@ -8,6 +8,7 @@ import {
   validSearchText,
 } from 'erxes-api-shared/utils';
 import moment from 'moment';
+import type { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import {
   IArchiveArgs,
@@ -74,27 +75,26 @@ const numberCalculator = (size: number, num?: any, skip?: boolean) => {
   return num;
 };
 
-export const watchItem = async (
-  collection: any,
+export const watchItem = async <T>(
+  collection: Model<T>,
   _id: string,
   isAdd: boolean,
   userId: string,
-) => {
-  const item = await collection.findOne({ _id });
+): Promise<T | null> => {
+  // Older records can have a null/missing array. The condition prevents this
+  // initialization from replacing watchers added by another request.
+  await collection.updateOne(
+    { _id, watchedUserIds: null },
+    { $set: { watchedUserIds: [] } },
+  );
 
-  const watchedUserIds = item.watchedUserIds || [];
-
-  if (isAdd) {
-    watchedUserIds.push(userId);
-  } else {
-    const index = watchedUserIds.indexOf(userId);
-
-    watchedUserIds.splice(index, 1);
-  }
-
-  await collection.updateOne({ _id }, { $set: { watchedUserIds } });
-
-  return collection.findOne({ _id });
+  return collection.findOneAndUpdate(
+    { _id },
+    isAdd
+      ? { $addToSet: { watchedUserIds: userId } }
+      : { $pull: { watchedUserIds: userId } },
+    { new: true },
+  );
 };
 
 export const boardNumberGenerator = async (
@@ -415,7 +415,16 @@ export const archivedItems = async (models: IModels, params: IArchiveArgs) => {
     return { list, pageInfo, totalCount };
   }
 
-  return {};
+  return {
+    list: [],
+    totalCount: 0,
+    pageInfo: {
+      hasNextPage: false,
+      hasPreviousPage: false,
+      startCursor: null,
+      endCursor: null,
+    },
+  };
 };
 
 export const archivedItemsCount = async (
