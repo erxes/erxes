@@ -27,7 +27,9 @@ export const PipelineLabelsCommandList = ({
       items={pipelineLabels || []}
       loading={loading}
       totalCount={pipelineLabels?.length || 0}
-      handleFetchMore={() => {}}
+      handleFetchMore={() => {
+        // This query returns every pipeline label; there is no next page.
+      }}
       onSelect={onSelect}
       getKey={(label) => label._id || ''}
       renderItem={(label) => <LabelBadge label={label} />}

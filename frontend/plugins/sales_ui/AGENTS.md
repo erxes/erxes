@@ -280,6 +280,11 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   document; do not invent a backend operation to keep unused frontend code.
 - POS Summary row `_id` values come from the report's `paidDate` group key.
   Do not pass them to POS configuration or order deletion mutations.
+- POS settings do not receive a `Pos.type` field: the Sales SDL and settings
+  query do not expose one. Do not derive settings tabs or badges from it.
+- POS item detail forms use `pos-items/types/posItemType.ts`; the Items report
+  does not mount a separate POS selector. Orders hooks import their named
+  documents directly from `orders/graphql/queries`.
 - POS By Items displays product sales aggregates and does not own catalog
   product deletion. Do not wire its report rows to Core's `productsRemove`.
 - Codegen scans all Sales UI TypeScript documents, excluding only its generated
@@ -307,6 +312,14 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   passes a translated `label` by default so the field is named.
 - Deal property detail must filter by the deal's `pipelineId` selection.
 - Pipeline and POS mutations must refresh or update Apollo state immediately.
+- Pipeline archive keeps optional hook variables intact; the row action supplies
+  the required `_id` when it invokes the mutation.
+- POS category mappings use `SelectCategory`'s `value`/`onValueChange` contract
+  in single mode, normalizing string/array values and clearing to an empty id.
+- Stage name inputs use a mutable nullable ref so React Hook Form registration
+  and autofocus both receive the same input element. Sortable drag overlays stay
+  portaled to `document.body`; its React 18 portal assertion is confined to the
+  React DOM boundary where installed type packages resolve different versions.
 - POS creation refetches the explicit POS query names that are currently active,
   preserving each query's variables. Unmounted report queries must not produce
   Apollo unknown-query warnings.
@@ -359,6 +372,11 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
 
 ## Validation
 
+- `pnpm nx lint sales_ui`
+- `pnpm exec tsc -p frontend/plugins/sales_ui/tsconfig.app.json --noEmit`:
+  no diagnostics may point into `frontend/plugins/sales_ui`. Report diagnostics
+  in shared libraries separately; do not suppress them or change those libraries
+  as part of a Sales migration layer.
 - Export the API schema with `pnpm nx run sales_api:schema:print --skip-nx-cache`.
 - `pnpm nx run sales_ui:codegen --skip-nx-cache`
 - `pnpm nx build sales_ui`

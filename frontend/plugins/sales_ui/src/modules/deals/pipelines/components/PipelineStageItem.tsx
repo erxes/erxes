@@ -76,7 +76,7 @@ export const PipelineStageItem = (props: Props) => {
   } = props;
 
   const [showExtraFields, setShowExtraFields] = useState(false);
-  const nameInputRef = useRef<HTMLInputElement>(null);
+  const nameInputRef = useRef<HTMLInputElement | null>(null);
   const { t } = useTranslation('sales');
   const { errors } = useFormState({
     control,
