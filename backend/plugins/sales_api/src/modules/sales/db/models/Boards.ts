@@ -149,7 +149,6 @@ export const loadBoardClass = (
           preview.dealCount,
           user._id,
         );
-        // Mark the board archived only after every descendant write succeeds.
         await models.Boards.updateOne(
           { _id },
           {

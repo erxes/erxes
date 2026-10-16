@@ -119,7 +119,6 @@ export const useBoardArchive = (): UseBoardArchiveResult => {
           ({ extensions }) => extensions?.code === 'ARCHIVE_INCOMPLETE',
         )
       ) {
-        // Some child writes succeeded; refresh even if the progress event was missed.
         await refetchBoardArchiveQueries(client).catch(() => undefined);
       }
     } finally {
