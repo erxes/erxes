@@ -15,6 +15,7 @@ import { ProductsInline } from 'ui-modules';
 import { useTechCardRemove } from '../hooks/useTechCardMutations';
 import { useTechCards } from '../hooks/useTechCards';
 import { ITechCard, ITechCardItem } from '../types/TechCard';
+import { TechCardListStatus } from './TechCardListStatus';
 
 const ProductListCell = ({ items }: { items: ITechCardItem[] }) => {
   const productIds = items.map((item) => item.productId).filter(Boolean);
@@ -134,7 +135,11 @@ const techCardColumns: ColumnDef<ITechCard>[] = [
 const TechCardsCommandbar = () => null;
 
 export const TechCardsTable = () => {
-  const { techCards, loading, totalCount, handleFetchMore } = useTechCards();
+  const { techCards, loading, totalCount, handleFetchMore, error, refetch } =
+    useTechCards();
+
+  if (error || (!loading && !techCards.length))
+    return <TechCardListStatus error={error} retry={() => void refetch()} />;
 
   return (
     <SettingsRowsTable

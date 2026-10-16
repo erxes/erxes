@@ -8,6 +8,8 @@ export const TECH_CARD_ADD = gql`
     $description: String
     $duration: Float
     $durationType: String
+    $laborCosts: [TechCardCostInput!]
+    $overheadCosts: [TechCardCostInput!]
     $inputs: [TechCardItemInput]!
     $outputs: [TechCardItemInput]!
     $status: String
@@ -18,6 +20,8 @@ export const TECH_CARD_ADD = gql`
       description: $description
       duration: $duration
       durationType: $durationType
+      laborCosts: $laborCosts
+      overheadCosts: $overheadCosts
       inputs: $inputs
       outputs: $outputs
       status: $status
@@ -36,6 +40,8 @@ export const TECH_CARD_EDIT = gql`
     $description: String
     $duration: Float
     $durationType: String
+    $laborCosts: [TechCardCostInput!]
+    $overheadCosts: [TechCardCostInput!]
     $inputs: [TechCardItemInput]!
     $outputs: [TechCardItemInput]!
     $status: String
@@ -47,6 +53,8 @@ export const TECH_CARD_EDIT = gql`
       description: $description
       duration: $duration
       durationType: $durationType
+      laborCosts: $laborCosts
+      overheadCosts: $overheadCosts
       inputs: $inputs
       outputs: $outputs
       status: $status

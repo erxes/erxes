@@ -1,14 +1,18 @@
 import { useQuery } from '@apollo/client';
 import { GET_TECH_CARDS } from '../graphql/techCardQueries';
 import { ITechCard } from '../types/TechCard';
+import { useTechCardFilters } from './useTechCardFilters';
 
 const TECH_CARD_PER_PAGE = 20;
 
 export const useTechCards = () => {
-  const { data, loading, fetchMore } = useQuery<{
+  const filters = useTechCardFilters();
+  const { data, loading, fetchMore, error, refetch } = useQuery<{
     techCards: { techCards: ITechCard[]; totalCount: number };
   }>(GET_TECH_CARDS, {
+    notifyOnNetworkStatusChange: true,
     variables: {
+      ...filters,
       page: 1,
       perPage: TECH_CARD_PER_PAGE,
       sortField: 'modifiedAt',
@@ -19,7 +23,11 @@ export const useTechCards = () => {
   const rows = data?.techCards?.techCards || [];
 
   const handleFetchMore = () => {
-    if (!rows.length) {
+    if (
+      loading ||
+      !rows.length ||
+      rows.length >= (data?.techCards?.totalCount ?? 0)
+    ) {
       return;
     }
 
@@ -43,6 +51,8 @@ export const useTechCards = () => {
     techCards: rows,
     totalCount: data?.techCards?.totalCount || 0,
     loading,
+    error,
+    refetch,
     handleFetchMore,
   };
 };

@@ -1,4 +1,12 @@
-import { ITechCardItem } from '~/modules/inventories/@types/techCards';
+import {
+  ITechCard,
+  ITechCardItem,
+} from '~/modules/inventories/@types/techCards';
+
+export const TechCard = {
+  laborCosts: (card: ITechCard) => card.laborCosts ?? [],
+  overheadCosts: (card: ITechCard) => card.overheadCosts ?? [],
+};
 
 export const TechCardItem = {
   product(item: ITechCardItem) {

@@ -15,6 +15,8 @@ const defaultValues: TTechCardForm = {
   description: '',
   duration: undefined,
   durationType: 'minut',
+  laborCosts: [],
+  overheadCosts: [],
   status: 'active',
   inputs: [{ productId: '', uom: '', quantity: 1 }],
   outputs: [{ productId: '', uom: '', quantity: 1, costRatio: 1 }],

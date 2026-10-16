@@ -84,7 +84,12 @@ export const AccountingTopbar = () => {
     );
   }
 
-  if (pathname === '/settings/accounting/inventories/tech-cards') {
+  if (
+    [
+      '/settings/accounting/inventories/tech-cards',
+      '/settings/accounting/inventories/tech-card-outputs',
+    ].includes(pathname)
+  ) {
     return (
       <div className="flex items-center gap-3">
         <AddTechCard />

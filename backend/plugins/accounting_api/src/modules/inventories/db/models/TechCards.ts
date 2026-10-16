@@ -4,6 +4,7 @@ import {
   ITechCard,
   ITechCardDocument,
   ITechCardItem,
+  ITechCardCost,
 } from '../../@types/techCards';
 import { techCardSchema } from '../definitions/techCards';
 
@@ -102,6 +103,38 @@ export interface ITechCardModel extends Model<ITechCardDocument> {
 }
 
 export const loadTechCardClass = (models: IModels) => {
+  const validateEstimatedCosts = async (params: ITechCard) => {
+    const costs: {
+      laborCosts: ITechCardCost[];
+      overheadCosts: ITechCardCost[];
+    } = {
+      laborCosts: [],
+      overheadCosts: [],
+    };
+    const accountIds = new Set<string>();
+    for (const group of ['laborCosts', 'overheadCosts'] as const) {
+      for (const [index, row] of (params[group] ?? []).entries()) {
+        const label = `${group} row ${index + 1}`;
+        if (!row.name?.trim()) throw new Error(`${label} name is required`);
+        if (!Number.isFinite(row.amount) || row.amount < 0) {
+          throw new Error(`${label} must be a finite non-negative amount`);
+        }
+        const accountId = row.accountId?.trim();
+        if (!accountId) throw new Error(`${label} posting account is required`);
+        costs[group].push({
+          name: row.name.trim(),
+          amount: row.amount,
+          accountId,
+        });
+        accountIds.add(accountId);
+      }
+    }
+    for (const _id of accountIds) {
+      await models.Accounts.getAccount({ _id, status: 'active' });
+    }
+    return costs;
+  };
+
   class TechCard {
     public static async getTechCard(_id: string) {
       const techCard = await models.TechCards.findOne({ _id }).lean();
@@ -116,6 +149,7 @@ export const loadTechCardClass = (models: IModels) => {
     public static async createTechCard(params: ITechCard, userId: string) {
       const { inputs, outputs, duration, durationType } =
         validateTechCard(params);
+      const estimatedCosts = await validateEstimatedCosts(params);
 
       return await models.TechCards.create({
         code: params.code,
@@ -123,6 +157,7 @@ export const loadTechCardClass = (models: IModels) => {
         description: params.description,
         duration,
         durationType,
+        ...estimatedCosts,
         inputs,
         outputs,
         status: params.status || 'active',
@@ -138,9 +173,13 @@ export const loadTechCardClass = (models: IModels) => {
       userId: string,
     ) {
       const { _id } = params;
-      await models.TechCards.getTechCard(_id);
+      const existing = await models.TechCards.getTechCard(_id);
       const { inputs, outputs, duration, durationType } =
         validateTechCard(params);
+      const estimatedCosts = await validateEstimatedCosts({
+        ...existing,
+        ...params,
+      });
 
       await models.TechCards.updateOne(
         { _id },
@@ -151,6 +190,7 @@ export const loadTechCardClass = (models: IModels) => {
             description: params.description,
             ...(durationType === 'real' ? {} : { duration }),
             durationType,
+            ...estimatedCosts,
             inputs,
             outputs,
             status: params.status || 'active',

@@ -197,6 +197,10 @@ const AccountingSubSettings = () => {
                 />
                 <Route path="/inventories/tech-cards" element={<TechCards />} />
                 <Route
+                  path="/inventories/tech-card-outputs"
+                  element={<TechCards unwindOutputs />}
+                />
+                <Route
                   path="/config/tech-cards"
                   element={
                     <Navigate

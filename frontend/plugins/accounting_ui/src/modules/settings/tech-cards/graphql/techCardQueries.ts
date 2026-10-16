@@ -25,6 +25,16 @@ export const techCardFields = gql`
     description
     duration
     durationType
+    laborCosts {
+      name
+      amount
+      accountId
+    }
+    overheadCosts {
+      name
+      amount
+      accountId
+    }
     status
     inputs {
       productId
@@ -45,6 +55,11 @@ export const GET_TECH_CARDS = gql`
   query AccountingTechCards(
     $searchValue: String
     $status: String
+    $laborCostName: String
+    $overheadCostName: String
+    $inputProductId: String
+    $outputProductId: String
+    $durationType: String
     $page: Int
     $perPage: Int
     $sortField: String
@@ -53,6 +68,11 @@ export const GET_TECH_CARDS = gql`
     techCards(
       searchValue: $searchValue
       status: $status
+      laborCostName: $laborCostName
+      overheadCostName: $overheadCostName
+      inputProductId: $inputProductId
+      outputProductId: $outputProductId
+      durationType: $durationType
       page: $page
       perPage: $perPage
       sortField: $sortField
@@ -71,6 +91,46 @@ export const GET_TECH_CARD_DETAIL = gql`
   query AccountingTechCardDetail($_id: String!) {
     techCardDetail(_id: $_id) {
       ...AccountingTechCardFields
+    }
+  }
+  ${techCardFields}
+`;
+
+export const GET_TECH_CARD_OUTPUTS = gql`
+  query AccountingTechCardOutputs(
+    $searchValue: String
+    $laborCostName: String
+    $overheadCostName: String
+    $inputProductId: String
+    $outputProductId: String
+    $durationType: String
+    $page: Int
+    $perPage: Int
+  ) {
+    techCardOutputs(
+      searchValue: $searchValue
+      laborCostName: $laborCostName
+      overheadCostName: $overheadCostName
+      inputProductId: $inputProductId
+      outputProductId: $outputProductId
+      durationType: $durationType
+      page: $page
+      perPage: $perPage
+    ) {
+      rows {
+        _id
+        techCard {
+          ...AccountingTechCardFields
+        }
+        output {
+          productId
+          uom
+          quantity
+          costRatio
+        }
+        outputIndex
+      }
+      totalCount
     }
   }
   ${techCardFields}

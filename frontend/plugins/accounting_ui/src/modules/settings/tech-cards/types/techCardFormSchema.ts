@@ -20,6 +20,12 @@ const itemSchema = z.object({
   costRatio: z.number().finite().min(0).optional(),
 });
 
+const costSchema = z.object({
+  name: z.string().trim().min(1, 'Зардлын нэр оруулна уу'),
+  amount: z.number().finite().min(0, 'Дүн 0-ээс багагүй байна'),
+  accountId: z.string().trim().min(1, 'Бичилт хийх данс сонгоно уу'),
+});
+
 export const techCardFormSchema = z
   .object({
     code: z.string().optional(),
@@ -27,6 +33,8 @@ export const techCardFormSchema = z
     description: z.string().optional(),
     duration: z.number().min(0).optional(),
     durationType: durationTypeSchema,
+    laborCosts: z.array(costSchema),
+    overheadCosts: z.array(costSchema),
     inputs: z.array(itemSchema).min(1, 'Орц бараа нэмнэ үү'),
     outputs: z.array(itemSchema).min(1, 'Гарц бараа нэмнэ үү'),
     status: z.string().optional(),

@@ -15,6 +15,7 @@ import {
 import { useEffect, useMemo } from 'react';
 import { UseFormReturn, useFieldArray, useWatch } from 'react-hook-form';
 import { SelectProduct } from 'ui-modules';
+import { TechCardCosts } from './TechCardCosts';
 import { GET_TECH_CARD_PRODUCT_UNITS } from '../graphql/techCardQueries';
 import { TTechCardForm } from '../types/TechCard';
 import { TECH_CARD_DURATION_TYPES } from '../types/techCardFormSchema';
@@ -320,7 +321,9 @@ export const TechCardForm = ({
     () =>
       Array.from(
         new Set(
-          [...inputs, ...outputs].map((item) => item.productId).filter(Boolean),
+          [...(inputs ?? []), ...(outputs ?? [])]
+            .map((item) => item.productId)
+            .filter(Boolean),
         ),
       ),
     [inputs, outputs],
@@ -500,6 +503,8 @@ export const TechCardForm = ({
               </Button>
             </div>
           )}
+          <TechCardCosts form={form} name="laborCosts" title="Хөдөлмөр" />
+          <TechCardCosts form={form} name="overheadCosts" title="Нэмэгдэл" />
           <TechCardItems
             form={form}
             name="inputs"

@@ -31,7 +31,7 @@ const withToast = (
 
 export const useTechCardAdd = () => {
   const [mutate, { loading }] = useMutation(TECH_CARD_ADD, {
-    refetchQueries: ['AccountingTechCards'],
+    refetchQueries: ['AccountingTechCards', 'AccountingTechCardOutputs'],
   });
 
   return {
@@ -43,7 +43,7 @@ export const useTechCardAdd = () => {
 
 export const useTechCardEdit = () => {
   const [mutate, { loading }] = useMutation(TECH_CARD_EDIT, {
-    refetchQueries: ['AccountingTechCards'],
+    refetchQueries: ['AccountingTechCards', 'AccountingTechCardOutputs'],
   });
 
   return {
@@ -55,7 +55,7 @@ export const useTechCardEdit = () => {
 
 export const useTechCardRemove = () => {
   const [mutate, { loading }] = useMutation(TECH_CARD_REMOVE, {
-    refetchQueries: ['AccountingTechCards'],
+    refetchQueries: ['AccountingTechCards', 'AccountingTechCardOutputs'],
   });
 
   return {

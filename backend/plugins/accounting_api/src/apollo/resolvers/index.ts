@@ -40,7 +40,10 @@ import {
 import ReserveRem from '@/inventories/graphql/resolvers/customResolvers/reserveRem';
 import SafeRemainderItem from '@/inventories/graphql/resolvers/customResolvers/safeRemainderItem';
 import SafeRemainder from '@/inventories/graphql/resolvers/customResolvers/safeRemainder';
-import { TechCardItem } from '@/inventories/graphql/resolvers/customResolvers/techCard';
+import {
+  TechCard,
+  TechCardItem,
+} from '@/inventories/graphql/resolvers/customResolvers/techCard';
 import {
   ReserveRems as QueriesReserveRem,
   SafeRemainderItems as QueriesSafeRemainderItem,
@@ -73,6 +76,7 @@ const resolvers: any = {
   SafeRemainderItem,
   SafeRemainder,
   TechCardItem,
+  TechCard,
 
   Mutation: {
     ...MutationsAccountCategory,

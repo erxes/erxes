@@ -170,6 +170,11 @@ export const CONFIG: IUIConfig = {
       icon: IconFlagStar,
       path: 'settings/accounting/inventories',
     },
+    {
+      name: 'inventory-tech-card-outputs',
+      icon: IconFlagStar,
+      path: 'settings/accounting/inventories/tech-card-outputs',
+    },
   ],
   widgets: {
     relationWidgets: [

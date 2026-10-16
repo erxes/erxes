@@ -11,6 +11,15 @@ const techCardItemSchema = new Schema(
   { _id: false },
 );
 
+const techCardCostSchema = new Schema(
+  {
+    name: { type: String, required: true, trim: true, label: 'Name' },
+    amount: { type: Number, required: true, min: 0, label: 'Amount' },
+    accountId: { type: String, required: true, label: 'Posting account' },
+  },
+  { _id: false },
+);
+
 export const techCardSchema = schemaWrapper(
   new Schema({
     _id: mongooseStringRandomId,
@@ -19,6 +28,16 @@ export const techCardSchema = schemaWrapper(
     description: { type: String, optional: true, label: 'Description' },
     duration: { type: Number, optional: true, min: 0, label: 'Duration' },
     durationType: { type: String, optional: true, label: 'Duration type' },
+    laborCosts: {
+      type: [techCardCostSchema],
+      default: [],
+      label: 'Labor costs',
+    },
+    overheadCosts: {
+      type: [techCardCostSchema],
+      default: [],
+      label: 'Overhead costs',
+    },
     inputs: { type: [techCardItemSchema], default: [], label: 'Input items' },
     outputs: { type: [techCardItemSchema], default: [], label: 'Output items' },
     status: { type: String, default: 'active', label: 'Status' },

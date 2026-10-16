@@ -34,6 +34,8 @@ export const EditTechCardForm = () => {
           techCardDetail.durationType,
         ),
         status: techCardDetail.status || 'active',
+        laborCosts: techCardDetail.laborCosts ?? [],
+        overheadCosts: techCardDetail.overheadCosts ?? [],
         inputs: techCardDetail.inputs,
         outputs: techCardDetail.outputs,
       });
@@ -55,6 +57,8 @@ export const EditTechCardForm = () => {
           : techCardDetail.duration ?? undefined,
       durationType: normalizeTechCardDurationType(techCardDetail.durationType),
       status: techCardDetail.status || 'active',
+      laborCosts: techCardDetail.laborCosts ?? [],
+      overheadCosts: techCardDetail.overheadCosts ?? [],
       inputs: techCardDetail.inputs,
       outputs: techCardDetail.outputs,
     };

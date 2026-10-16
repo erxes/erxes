@@ -1,4 +1,16 @@
 export const types = `
+  type TechCardCost {
+    name: String!
+    amount: Float!
+    accountId: String!
+  }
+
+  input TechCardCostInput {
+    name: String!
+    amount: Float!
+    accountId: String!
+  }
+
   type TechCardItem {
     productId: String
     product: Product
@@ -21,6 +33,8 @@ export const types = `
     description: String
     duration: Float
     durationType: String
+    laborCosts: [TechCardCost!]!
+    overheadCosts: [TechCardCost!]!
     inputs: [TechCardItem]
     outputs: [TechCardItem]
     status: String
@@ -34,17 +48,37 @@ export const types = `
     techCards: [TechCard],
     totalCount: Float,
   }
+
+  type TechCardOutputRow {
+    _id: String!
+    techCard: TechCard!
+    output: TechCardItem!
+    outputIndex: Int!
+  }
+
+  type TechCardOutputs {
+    rows: [TechCardOutputRow!]!
+    totalCount: Int!
+  }
+`;
+
+const techCardListParams = `
+  searchValue: String,
+  status: String,
+  laborCostName: String,
+  overheadCostName: String,
+  inputProductId: String,
+  outputProductId: String,
+  durationType: String,
+  page: Int,
+  perPage: Int,
+  sortField: String,
+  sortDirection: Int,
 `;
 
 export const queries = `
-  techCards(
-    searchValue: String,
-    status: String,
-    page: Int,
-    perPage: Int,
-    sortField: String,
-    sortDirection: Int,
-  ): TechCards
+  techCards(${techCardListParams}): TechCards
+  techCardOutputs(${techCardListParams}): TechCardOutputs
   techCardDetail(_id: String!): TechCard
 `;
 
@@ -55,6 +89,8 @@ export const mutations = `
     description: String,
     duration: Float,
     durationType: String,
+    laborCosts: [TechCardCostInput!],
+    overheadCosts: [TechCardCostInput!],
     inputs: [TechCardItemInput]!,
     outputs: [TechCardItemInput]!,
     status: String,
@@ -66,6 +102,8 @@ export const mutations = `
     description: String,
     duration: Float,
     durationType: String,
+    laborCosts: [TechCardCostInput!],
+    overheadCosts: [TechCardCostInput!],
     inputs: [TechCardItemInput]!,
     outputs: [TechCardItemInput]!,
     status: String,
