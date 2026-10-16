@@ -515,16 +515,6 @@ export const TechCardForm = ({
               </Button>
             </div>
           )}
-          <TechCardCosts
-            form={form}
-            name="laborCosts"
-            title={t('tech-card-labor')}
-          />
-          <TechCardCosts
-            form={form}
-            name="overheadCosts"
-            title={t('tech-card-overhead')}
-          />
           <TechCardItems
             form={form}
             name="inputs"
@@ -541,6 +531,16 @@ export const TechCardForm = ({
             products={products}
             uoms={uoms}
             unitsLoading={unitsLoading}
+          />
+          <TechCardCosts
+            form={form}
+            name="laborCosts"
+            title={t('tech-card-labor')}
+          />
+          <TechCardCosts
+            form={form}
+            name="overheadCosts"
+            title={t('tech-card-overhead')}
           />
         </div>
 
