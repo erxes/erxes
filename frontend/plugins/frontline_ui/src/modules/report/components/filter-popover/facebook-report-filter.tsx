@@ -203,18 +203,22 @@ const PageFilterView = ({
           <span>{t('all-facebook-pages', 'All Facebook pages')}</span>
         </div>
       </Command.Item>
-      {pages.map((page) => (
-        <Command.Item
-          key={page._id}
-          value={page._id}
-          onSelect={() => handleSelect(page._id)}
-        >
-          <div className="flex items-center gap-2">
-            {value.includes(page._id) && <IconCheck className="size-4" />}
-            <span>{page.name}</span>
-          </div>
-        </Command.Item>
-      ))}
+      {pages.flatMap((page) => {
+        const pageId = page._id;
+        if (!pageId) return [];
+        return [
+          <Command.Item
+            key={page._id}
+            value={pageId}
+            onSelect={() => handleSelect(pageId)}
+          >
+            <div className="flex items-center gap-2">
+              {value.includes(pageId) && <IconCheck className="size-4" />}
+              <span>{page.name}</span>
+            </div>
+          </Command.Item>,
+        ];
+      })}
     </Command.List>
   );
 };

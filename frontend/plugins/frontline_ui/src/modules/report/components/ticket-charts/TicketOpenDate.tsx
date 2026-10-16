@@ -5,6 +5,7 @@ import {
   cn,
   RecordTable,
   RecordTableInlineCell,
+  isDefined,
 } from 'erxes-ui';
 import { FrontlineCard } from '../frontline-card/FrontlineCard';
 import { useTicketDate } from '@/report/hooks/useTicketOpenDate';
@@ -89,7 +90,13 @@ export const TicketOpenDate = ({
     },
   });
 
-  const allData = useMemo(() => ticketDate || [], [ticketDate]);
+  const allData = useMemo(
+    () =>
+      (ticketDate ?? [])
+        .filter(isDefined)
+        .map((row) => ({ date: row.date ?? '', count: row.count ?? 0 })),
+    [ticketDate],
+  );
   const {
     pagedData: chartData,
     page,
@@ -245,7 +252,7 @@ export const TicketOpenBarChart = memo(function TicketOpenBarChart({
           label={{ value: 'Count', angle: -90, position: 'insideLeft' }}
         />
         <Tooltip content={<ChartTooltipContent />} />
-        <Legend content={(props: any) => <CustomLegendContent {...props} />} />
+        <Legend content={(props) => <CustomLegendContent {...props} />} />
       </BarChart>
     </ChartContainer>
   );
@@ -293,7 +300,7 @@ export const TicketOpenLineChart = memo(function TicketOpenLineChart({
           label={{ value: 'Count', angle: -90, position: 'insideLeft' }}
         />
         <Tooltip content={<ChartTooltipContent />} />
-        <Legend content={(props: any) => <CustomLegendContent {...props} />} />
+        <Legend content={(props) => <CustomLegendContent {...props} />} />
       </AreaChart>
     </ChartContainer>
   );
@@ -349,7 +356,7 @@ export const TicketOpenPieChart = memo(function TicketOpenPieChart({
           ))}
         </Pie>
         <Legend
-          content={(props: any) => (
+          content={(props) => (
             <CustomLegendContent
               {...props}
               onMouseEnter={(d: LegendPayload) =>
@@ -399,7 +406,7 @@ export const TicketOpenRadarChart = memo(function TicketOpenRadarChart({
           fill="var(--primary)"
           fillOpacity={0.3}
         />
-        <Legend content={(props: any) => <CustomLegendContent {...props} />} />
+        <Legend content={(props) => <CustomLegendContent {...props} />} />
         <Tooltip content={<ChartTooltipContent />} />
       </RadarChart>
     </ChartContainer>

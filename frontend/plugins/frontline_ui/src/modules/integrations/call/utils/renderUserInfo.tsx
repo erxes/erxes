@@ -1,6 +1,9 @@
+import { ICustomer } from '@/integrations/call/types/callTypes';
+import type { CallsCustomerDetailQuery } from '~/gql/graphql';
+
 export const renderUserInfo = (
-  customer: any,
-  customerDetail: any,
+  customer: Partial<ICustomer> | null | undefined,
+  customerDetail: CallsCustomerDetailQuery['callsCustomerDetail'] | undefined,
   phoneNumber?: string,
 ) => {
   if (!customer) {
@@ -34,17 +37,10 @@ export const renderUserInfo = (
           {customer?.primaryPhone}
         </div>
       )}
-      {!customer &&
-        customerDetail?.primaryPhone &&
-        displayName !== customerDetail.primaryPhone && (
-          <div className="text-accent-foreground text-sm">
-            {customerDetail?.primaryPhone}
-          </div>
-        )}
 
       {!customerDetail && customer.primaryEmail && (
         <div className="text-accent-foreground text-sm">
-          {customer?.primaryEmail || customerDetail?.primaryPhone}
+          {customer.primaryEmail}
         </div>
       )}
     </div>

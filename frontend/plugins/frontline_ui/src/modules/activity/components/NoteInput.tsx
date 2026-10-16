@@ -108,7 +108,7 @@ export const NoteInput = ({ contentId }: NoteInputProps) => {
           trimmedContent as Parameters<typeof getMentionedUserIds>[0],
         ),
         attachments: attachments
-          .filter((file) => !!file.url)
+          .filter((file): file is typeof file & { url: string } => !!file.url)
           .map(({ name, url, type, size }) => ({ name, url, type, size })),
         isInternal: isInternalNote,
       },

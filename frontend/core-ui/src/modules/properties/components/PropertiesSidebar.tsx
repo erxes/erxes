@@ -6,13 +6,17 @@ import { usePropertyTypes } from '../hooks/usePropertyTypes';
 
 export const PropertiesSidebar = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });
+  const { t: tSidebar } = useTranslation('common', { keyPrefix: 'sidebar' });
   const { propertyTypes } = usePropertyTypes();
 
   return (
-    <Sidebar collapsible="none" className="border-r flex-none">
+    <Sidebar.Panel
+      className="border-r flex-none"
+      label={tSidebar('properties')}
+    >
       {Object.entries(propertyTypes).map(([pluginName, propertyTypes]) => (
         <Sidebar.Group key={pluginName}>
-          <Sidebar.GroupLabel className="mb-1">
+          <Sidebar.GroupLabel>
             {t(`plugin.${pluginName}`, `${pluginName} properties`)}
           </Sidebar.GroupLabel>
           <Sidebar.GroupContent>
@@ -26,7 +30,7 @@ export const PropertiesSidebar = () => {
           </Sidebar.GroupContent>
         </Sidebar.Group>
       ))}
-    </Sidebar>
+    </Sidebar.Panel>
   );
 };
 

@@ -94,7 +94,11 @@ export const loadNoteClass = (models: IModels) => {
       subdomain: string;
       userId: string;
     }): Promise<INoteDocument> {
-      if (doc.contentId && !doc.statusId) {
+      if (!doc.contentId) {
+        throw new Error('Ticket id is required');
+      }
+
+      if (!doc.statusId) {
         const ticket = await models.Ticket.findOne(
           { _id: doc.contentId },
           { statusId: 1 },

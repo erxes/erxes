@@ -10,6 +10,7 @@ import {
   SelectUnit,
   SelectUsersGroup,
 } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 export const InviteRow = ({
   userIndex,
@@ -21,6 +22,7 @@ export const InviteRow = ({
   const { selectedUsers, fields } = useUserInviteContext();
   const { control, formState } = useFormContext<TUserForm>();
   const { errors } = formState;
+  const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
   return (
     <InviteMemberRowContext.Provider
       value={{
@@ -58,7 +60,7 @@ export const InviteRow = ({
                 <Form.Control>
                   <Input
                     {...field}
-                    placeholder="Email"
+                    placeholder={t('email')}
                     type={'email'}
                     autoComplete="new-email"
                     className={cn(
@@ -85,7 +87,7 @@ export const InviteRow = ({
                 <Form.Control>
                   <Input
                     {...field}
-                    placeholder="Password"
+                    placeholder={t('password')}
                     autoComplete={`new-password`}
                     type="password"
                     className={cn(

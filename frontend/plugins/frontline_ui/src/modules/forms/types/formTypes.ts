@@ -1,5 +1,6 @@
-import { IChannel } from '@/channels/types';
-import { IAttachment } from 'erxes-ui';
+import type { FormDetailQuery, FormsQuery } from '~/gql/graphql';
+import { z } from 'zod';
+import { LEAD_DATA_SCHEMA } from '../constants/formSchema';
 
 export type FieldValidatorType = 'PRESET' | 'CUSTOM' | 'NONE';
 export type FieldValidatorPresetKey =
@@ -25,61 +26,17 @@ export interface IFormFieldLogics {
   logicValue?: any;
 }
 
-export interface IForm {
-  _id: string;
-  channelId?: string;
-  name: string;
-  title: string;
-  code: string;
-  type: string;
-  description: string;
-  numberOfPages: number;
-  status: string;
-  buttonText: string;
-  fields: IFormField[];
-  leadData: ILeadData;
-  channel?: IChannel;
-  integrationId?: string;
-}
+export type IForm = NonNullable<
+  NonNullable<NonNullable<FormsQuery['forms']>['list']>[number]
+>;
 
-export interface ICallout {
-  title?: string;
-  body?: string;
-  buttonText?: string;
-  featuredImage?: string | null;
-  skip?: boolean;
-}
+export type IFormDetail = NonNullable<FormDetailQuery['formDetail']>;
 
-export interface ILeadData {
-  appearance: string;
-  loadType: string;
-  saveAsCustomer?: boolean;
-  callout?: ICallout;
-  thankTitle: string;
-  thankContent: string;
-  thankImage: IAttachment;
-  primaryColor: string;
-  successImage: string;
-  steps: Record<string, { name: string; description: string; order: number }>;
-}
+export type ILeadData = z.infer<typeof LEAD_DATA_SCHEMA>;
 
-export interface IFormField {
-  _id: string;
-  column: number;
-  content: string;
-  description: string;
-  isRequired: boolean;
-  options: string[];
-  order: number;
-  pageNumber: number;
-  text: string;
-  type: string;
-  validation: string;
-  logics?: IFormFieldLogics[];
-  logicAction: string;
-  allowSearch?: boolean;
-  validator?: IFieldValidator;
-}
+export type IFormField = NonNullable<
+  NonNullable<IFormDetail['fields']>[number]
+>;
 
 export interface IFormSetupPayload {
   title: string;

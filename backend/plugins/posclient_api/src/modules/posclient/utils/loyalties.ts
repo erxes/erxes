@@ -40,6 +40,8 @@ export const checkLoyalties = async (subdomain: string, doc: IOrderInput) => {
         discountInfo: {
           couponCode: doc.couponCode || undefined,
           voucherId: doc.voucherId || undefined,
+          // Its own held voucher passes; one held by another order does not.
+          targetId: doc._id || undefined,
         },
       },
       defaultValue: {},

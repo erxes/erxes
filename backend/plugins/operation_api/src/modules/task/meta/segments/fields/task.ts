@@ -54,7 +54,7 @@ export const TASK_SEGMENT_FIELDS: SegmentFieldMeta[] = [
   }),
 
   SegmentField.date({ key: 'startDate', label: 'Start date' }),
-  SegmentField.date({ key: 'targetDate', label: 'Target date' }),
+  SegmentField.date({ key: 'targetDate', label: 'Due date' }),
   SegmentField.date({ key: 'statusChangedDate', label: 'Status changed date' }),
   SegmentField.date({ key: 'createdAt', label: 'Created at' }),
   SegmentField.date({ key: 'updatedAt', label: 'Modified at' }),

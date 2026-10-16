@@ -1,6 +1,6 @@
-import { gql, useQuery } from '@apollo/client';
+import { useQuery } from '@apollo/client';
 import { CALL_HISTORY_LIST } from '@/integrations/call/graphql/queries/callHistoryList';
-import type { CallHistoryEntry, CallHistoryPage } from '../types';
+import type { CallHistoryEntry } from '../types';
 import { useCallFilters } from './useCallFilters';
 
 export const CALL_HISTORY_PAGE_SIZE = 25;
@@ -21,9 +21,7 @@ export function useCallHistoryList({
   const { startDate, endDate, integrationId, queueId, direction } =
     useCallFilters();
 
-  const { data, previousData, loading, error } = useQuery<{
-    callHistoryList: CallHistoryPage;
-  }>(gql(CALL_HISTORY_LIST), {
+  const { data, previousData, loading, error } = useQuery(CALL_HISTORY_LIST, {
     variables: {
       startDate,
       endDate,

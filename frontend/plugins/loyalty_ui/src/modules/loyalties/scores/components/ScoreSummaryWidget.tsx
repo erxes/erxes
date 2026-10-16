@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { OwnerVouchersCard } from '@/loyalties/vouchers/components/OwnerVouchersCard';
 import {
   IconChartHistogram,
   IconTrendingUp,
@@ -178,6 +179,7 @@ export const ScoreSummaryWidget = ({
       <ScrollArea className="flex-auto">
         <div className="p-4 flex flex-col gap-3">
           <LoyaltyAccountCard ownerType={ownerType} ownerId={ownerId} />
+          <OwnerVouchersCard ownerType={ownerType} ownerId={ownerId} />
           <ScoreStatCards stats={stats} loading={loading} />
         </div>
       </ScrollArea>

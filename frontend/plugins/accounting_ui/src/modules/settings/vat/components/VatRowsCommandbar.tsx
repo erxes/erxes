@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import {
   Button,
   CommandBar,
@@ -10,12 +11,14 @@ import { useVatRowsRemove } from '../hooks/useVatRowsRemove';
 import { IconTrash } from '@tabler/icons-react';
 
 export const VatRowsCommandbar = () => {
+  const { t } = useTranslation('accounting');
   const { table } = RecordTable.useRecordTable();
   return (
     <CommandBar open={table.getFilteredSelectedRowModel().rows.length > 0}>
       <CommandBar.Bar>
         <CommandBar.Value onClose={() => table.setRowSelection({})}>
-          {table.getFilteredSelectedRowModel().rows.length} сонгосон
+          {table.getFilteredSelectedRowModel().rows.length}{' '}
+          {t('selected-label-4')}
         </CommandBar.Value>
         <Separator.Inline />
         <VatRowsDelete />
@@ -25,16 +28,17 @@ export const VatRowsCommandbar = () => {
 };
 
 export const VatRowsDelete = () => {
+  const { t } = useTranslation('accounting');
   const { table } = RecordTable.useRecordTable();
   const { confirm } = useConfirm();
   const { removeVatRows, loading } = useVatRowsRemove();
 
   const handleDelete = () => {
     confirm({
-      message: 'Эдгээр НӨАТ-ын мөрийг устгахдаа итгэлтэй байна уу?',
+      message: t('are-you-sure-you-want-to-delete-these-vat-rows'),
       options: {
-        okLabel: 'Устгах',
-        cancelLabel: 'Болих',
+        okLabel: t('delete'),
+        cancelLabel: t('cancel-label'),
       },
     }).then(() => {
       const vatRowIds = table
@@ -45,7 +49,7 @@ export const VatRowsDelete = () => {
         variables: { vatRowIds },
         onError: (error: Error) => {
           toast({
-            title: 'Алдаа',
+            title: t('error'),
             description: error.message,
             variant: 'destructive',
           });
@@ -53,8 +57,8 @@ export const VatRowsDelete = () => {
         onCompleted: () => {
           table.setRowSelection({});
           toast({
-            title: 'Амжилттай',
-            description: 'НӨАТ-ын мөрийг устгалаа',
+            title: t('success'),
+            description: t('vat-row-deleted-successfully'),
           });
         },
       });
@@ -64,7 +68,7 @@ export const VatRowsDelete = () => {
   return (
     <Button variant="secondary" disabled={loading} onClick={handleDelete}>
       <IconTrash />
-      Устгах
+      {t('delete')}
     </Button>
   );
 };

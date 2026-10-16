@@ -12,6 +12,7 @@ import type {
 } from '../types/responseTemplateSuggestions';
 import type { ComposerBlockEditor } from '../types/composer';
 import { MAX_TEMPLATE_SUGGESTIONS } from '@/inbox/constants/responseTemplateSuggestions';
+import { toResponseTemplateText } from '@/responseTemplate/utils/toResponseTemplateText';
 
 export const useResponseTemplateSuggestions = ({
   editor,
@@ -39,7 +40,7 @@ export const useResponseTemplateSuggestions = ({
         ? (responses || [])
             .slice(0, MAX_TEMPLATE_SUGGESTIONS)
             .map((response) => ({
-              ...response,
+              ...toResponseTemplateText(response),
               preview: getPreviewText(response.content || ''),
             }))
         : [],

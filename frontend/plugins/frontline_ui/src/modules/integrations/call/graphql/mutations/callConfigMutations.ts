@@ -1,13 +1,7 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const UPDATE_CALL_CONFIGS = gql`
+export const UPDATE_CALL_CONFIGS = gql(`
   mutation callsUpdateConfigs($configsMap: JSON!) {
     callsUpdateConfigs(configsMap: $configsMap)
   }
-`;
-
-export const CALL_INTEGRATION_UPDATE = gql`
-  mutation callsUpdateIntegration($configsMap: JSON!) {
-    callsUpdateIntegration(configsMap: $configsMap)
-  }
-`;
+`);

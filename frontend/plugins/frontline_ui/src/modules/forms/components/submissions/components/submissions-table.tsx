@@ -8,6 +8,7 @@ import {
   RecordTable,
   RecordTableInlineCell,
   RelativeDateDisplay,
+  isDefined,
   parseFilesAsAttachments,
   readImage,
   useQueryState,
@@ -69,7 +70,7 @@ function buildColumnsAndRows(submissions: IFormSubmission[]): {
 } {
   const fieldMetaMap = new Map<string, FieldMeta>();
   for (const submission of submissions) {
-    for (const item of submission.submissions) {
+    for (const item of (submission.submissions ?? []).filter(isDefined)) {
       if (item.formFieldText && !fieldMetaMap.has(item.formFieldText)) {
         fieldMetaMap.set(item.formFieldText, {
           text: item.formFieldText,
@@ -251,7 +252,7 @@ function buildColumnsAndRows(submissions: IFormSubmission[]): {
       _id: submission._id,
       __submittedAt: submission.createdAt,
     };
-    for (const item of submission.submissions) {
+    for (const item of (submission.submissions ?? []).filter(isDefined)) {
       if (item.formFieldText) {
         row[item.formFieldText] =
           typeof item.value === 'object'

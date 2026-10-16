@@ -1,48 +1,74 @@
-import { useAtom } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 import { ThemeOption, themeState, ThemeValue } from 'erxes-ui';
-import { useEffect } from 'react';
+import { useEffect, useSyncExternalStore } from 'react';
+
+const SYSTEM_DARK_QUERY = '(prefers-color-scheme: dark)';
+
+export const resolveThemeValue = (selected: ThemeOption): ThemeValue => {
+  if (selected === 'system') {
+    return window.matchMedia(SYSTEM_DARK_QUERY).matches ? 'dark' : 'light';
+  }
+
+  return selected;
+};
+
+const subscribeToSystemTheme = (onChange: () => void) => {
+  const mediaQuery = window.matchMedia(SYSTEM_DARK_QUERY);
+
+  mediaQuery.addEventListener('change', onChange);
+
+  return () => mediaQuery.removeEventListener('change', onChange);
+};
+
+const getSystemPrefersDark = () => window.matchMedia(SYSTEM_DARK_QUERY).matches;
+
+export const useResolvedTheme = (): ThemeValue => {
+  const theme = useAtomValue(themeState);
+  const systemPrefersDark = useSyncExternalStore(
+    subscribeToSystemTheme,
+    getSystemPrefersDark,
+  );
+
+  if (theme === 'system') {
+    return systemPrefersDark ? 'dark' : 'light';
+  }
+
+  return theme;
+};
+
+const applyThemeValue = (html: HTMLElement, themeValue: ThemeValue) => {
+  const otherValue = themeValue === 'light' ? 'dark' : 'light';
+
+  if (
+    html.classList.contains(themeValue) &&
+    !html.classList.contains(otherValue) &&
+    html.style.colorScheme === themeValue
+  ) {
+    return;
+  }
+
+  html.classList.remove(otherValue);
+  html.classList.add(themeValue);
+  html.style.colorScheme = themeValue;
+};
 
 export const ThemeEffect = () => {
   const [theme] = useAtom(themeState);
 
-  function getThemeValue(selected: ThemeOption): ThemeValue {
-    if (selected === 'system') {
-      if (window !== undefined) {
-        return window.matchMedia('(prefers-color-scheme: dark)').matches
-          ? 'dark'
-          : 'light';
-      }
-
-      // Default to light theme if we can't detect the system preference
-      return 'light';
-    }
-
-    return selected;
-  }
-
   useEffect(() => {
-    const html = document.querySelector('html');
-    if (!html) return;
+    const html = document.documentElement;
+    const applySelectedTheme = () =>
+      applyThemeValue(html, resolveThemeValue(theme));
 
-    const themeValue = getThemeValue(theme);
-
-    // Add media query listener for system theme changes
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    const handleSystemThemeChange = (e: MediaQueryListEvent) => {
+    const mediaQuery = window.matchMedia(SYSTEM_DARK_QUERY);
+    const handleSystemThemeChange = () => {
       if (theme === 'system') {
-        const newThemeValue = e.matches ? 'dark' : 'light';
-        html.classList.remove(newThemeValue === 'light' ? 'dark' : 'light');
-        html.classList.add(newThemeValue);
-        html.style.colorScheme = newThemeValue;
+        applySelectedTheme();
       }
     };
 
     mediaQuery.addEventListener('change', handleSystemThemeChange);
 
-    /**
-     * Temporarily disable transitions to prevent
-     * the theme change from flashing.
-     */
     const css = document.createElement('style');
     css.appendChild(
       document.createTextNode(
@@ -57,21 +83,21 @@ export const ThemeEffect = () => {
     );
     document.head.appendChild(css);
 
-    html.classList.remove(themeValue === 'light' ? 'dark' : 'light');
-    html.classList.add(themeValue);
-    // Ensures that native elements respect the theme, e.g. the scrollbar.
-    html.style.colorScheme = themeValue;
+    applySelectedTheme();
 
-    /**
-     * Re-enable transitions after the theme has been set,
-     * and force the browser to repaint.
-     */
-    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-    window.getComputedStyle(css).opacity;
+    window.getComputedStyle(css).getPropertyValue('opacity');
     document.head.removeChild(css);
+
+    const observer = new MutationObserver(applySelectedTheme);
+
+    observer.observe(html, {
+      attributes: true,
+      attributeFilter: ['class', 'style'],
+    });
 
     return () => {
       mediaQuery.removeEventListener('change', handleSystemThemeChange);
+      observer.disconnect();
     };
   }, [theme]);
 

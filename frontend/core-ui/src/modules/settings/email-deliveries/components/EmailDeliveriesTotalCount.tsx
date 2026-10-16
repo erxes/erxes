@@ -1,7 +1,9 @@
+import { useTranslation } from 'react-i18next';
 import { useEmailDeliveries } from '@/settings/email-deliveries/hooks/useEmailDeliveries';
 import { Skeleton } from 'erxes-ui';
 
 export const EmailDeliveriesTotalCount = () => {
+  const { t } = useTranslation('settings', { keyPrefix: 'email-deliveries' });
   const { totalCount, loading } = useEmailDeliveries();
 
   return (
@@ -9,7 +11,7 @@ export const EmailDeliveriesTotalCount = () => {
       {loading && totalCount === 0 ? (
         <Skeleton className="w-20 h-4 inline-block mt-1.5" />
       ) : (
-        `${totalCount} records found`
+        t('records-found', { totalCount })
       )}
     </div>
   );

@@ -39,7 +39,7 @@ export const AdjustmentHeader = ({
                 value={kind.value}
                 className="capitalize"
               >
-                {t(kind.label)}
+                {t(kind.label, { nsSeparator: false })}
               </Select.Item>
             ))}
           </Select.Content>

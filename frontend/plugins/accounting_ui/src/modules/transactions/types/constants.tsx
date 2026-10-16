@@ -37,39 +37,40 @@ export enum TrJournalEnum {
 }
 
 export const TR_JOURNAL_LABELS = {
-  [TrJournalEnum.MAIN]: 'Ерөнхий',
-  [TrJournalEnum.TAX]: 'Татвар',
-  [TrJournalEnum.CASH]: 'Касс',
-  [TrJournalEnum.BANK]: 'Харилцах',
-  [TrJournalEnum.RECEIVABLE]: 'Авлага',
-  [TrJournalEnum.PAYABLE]: 'Өглөг',
-  [TrJournalEnum.EXCHANGE_DIFF]: 'Ханшийн зөрүү',
+  [TrJournalEnum.MAIN]: 'general',
+  [TrJournalEnum.TAX]: 'tax',
+  [TrJournalEnum.CASH]: 'cash-label',
+  [TrJournalEnum.BANK]: 'bank',
+  [TrJournalEnum.RECEIVABLE]: 'accounts-receivable',
+  [TrJournalEnum.PAYABLE]: 'accounts-payable',
+  [TrJournalEnum.EXCHANGE_DIFF]: 'exchange-rate-difference',
 
-  [TrJournalEnum.INV_INCOME]: 'Барааны орлого',
-  [TrJournalEnum.INV_OUT]: 'Барааны зарлага',
-  [TrJournalEnum.INV_JUSTIFY]: 'Барааны өртөг залруулга',
+  [TrJournalEnum.INV_INCOME]: 'inventory-receipt',
+  [TrJournalEnum.INV_OUT]: 'inventory-issue',
+  [TrJournalEnum.INV_JUSTIFY]: 'inventory-cost-adjustment',
 
-  [TrJournalEnum.INV_MOVE]: 'Дотоод хөдөлгөөн',
-  [TrJournalEnum.INV_MOVE_IN]: 'Дот.Хөд орлого',
+  [TrJournalEnum.INV_MOVE]: 'internal-transfer',
+  [TrJournalEnum.INV_MOVE_IN]: 'internal-transfer-receipt',
 
-  [TrJournalEnum.INV_SALE]: 'Борлуулалт',
-  [TrJournalEnum.INV_SALE_OUT]: 'Борлуулалт-зарлага',
-  [TrJournalEnum.INV_SALE_COST]: 'Борлуулалт-ББӨ',
+  [TrJournalEnum.INV_SALE]: 'sales',
+  [TrJournalEnum.INV_SALE_OUT]: 'sales-inventory-issue',
+  [TrJournalEnum.INV_SALE_COST]: 'sales-cost-of-goods-sold',
 
-  [TrJournalEnum.INV_SALE_RETURN]: 'Борлуулалтын Буцаалт',
-  [TrJournalEnum.INV_SALE_RETURN_OUT]: 'Б.Буцаалт-зарлага',
-  [TrJournalEnum.INV_SALE_RETURN_COST]: 'Б.Буцаалт-ББӨ',
+  [TrJournalEnum.INV_SALE_RETURN]: 'sales-return-label',
+  [TrJournalEnum.INV_SALE_RETURN_OUT]: 'sales-return-inventory-issue',
+  [TrJournalEnum.INV_SALE_RETURN_COST]: 'sales-return-cost-of-goods-sold',
 
-  [TrJournalEnum.FXA_INCOME]: 'Үндсэн хөрөнгийн орлого',
-  [TrJournalEnum.FXA_OUT]: 'Үндсэн хөрөнгийн зарлага',
-  [TrJournalEnum.FXA_DEP]: 'Үндсэн хөрөнгийн элэгдэл',
-  [TrJournalEnum.FXA_DEP_IN]: 'Үндсэн хөрөнгийн хур.элэгдэл орлого',
-  [TrJournalEnum.FXA_DEP_OUT]: 'Үндсэн хөрөнгийн хур.элэгдэл зарлага',
-  [TrJournalEnum.FXA_SALE_OUT]: 'Үндсэн хөрөнгийн борлуулалт-зарлага',
-  [TrJournalEnum.FXA_SALE_COST]: 'Үндсэн хөрөнгийн борлуулалт-ББӨ',
-  [TrJournalEnum.FXA_MOVE]: 'Үндсэн хөрөнгийн хөдөлгөөн',
-  [TrJournalEnum.FXA_MOVE_IN]: 'Үндсэн хөрөнгийн хөдөлгөөн-орлого',
-  [TrJournalEnum.FXA_SALE]: 'Үндсэн хөрөнгийн борлуулалт',
+  [TrJournalEnum.FXA_INCOME]: 'fixed-asset-acquisition',
+  [TrJournalEnum.FXA_OUT]: 'fixed-asset-disposal',
+  [TrJournalEnum.FXA_DEP]: 'fixed-asset-depreciation',
+  [TrJournalEnum.FXA_DEP_IN]:
+    'fixed-asset-acquisition-accumulated-depreciation',
+  [TrJournalEnum.FXA_DEP_OUT]: 'fixed-asset-disposal-accumulated-depreciation',
+  [TrJournalEnum.FXA_SALE_OUT]: 'fixed-asset-sale-disposal',
+  [TrJournalEnum.FXA_SALE_COST]: 'fixed-asset-sale-cost-of-goods-sold',
+  [TrJournalEnum.FXA_MOVE]: 'fixed-asset-transfer',
+  [TrJournalEnum.FXA_MOVE_IN]: 'fixed-asset-transfer-receipt',
+  [TrJournalEnum.FXA_SALE]: 'fixed-asset-sale',
 };
 
 export const TR_PERFECT_JOURNALS = [
@@ -102,31 +103,31 @@ export const TR_SIDES = {
   ALL: ['dt', 'ct'],
   ENUM: { DT: 'dt', CT: 'ct' } as const,
   OPTIONS: [
-    { value: 'dt', label: 'Дебет' },
-    { value: 'ct', label: 'Кредит' },
+    { value: 'dt', label: 'debit' },
+    { value: 'ct', label: 'credit' },
   ],
   FUND_OPTIONS: [
-    { value: 'dt', label: 'Орлого' },
-    { value: 'ct', label: 'Зарлага' },
+    { value: 'dt', label: 'receipt' },
+    { value: 'ct', label: 'issue' },
   ],
   JUSTIFY_OPTIONS: [
-    { value: 'dt', label: 'Өртөг өсөх' },
-    { value: 'ct', label: 'Өртөг буурах' },
+    { value: 'dt', label: 'cost-increase' },
+    { value: 'ct', label: 'cost-decrease' },
   ],
   RECEIVABLE_OPTIONS: [
-    { value: 'dt', label: 'Үүсгэх' },
-    { value: 'ct', label: 'Хаах' },
+    { value: 'dt', label: 'create' },
+    { value: 'ct', label: 'close' },
   ],
   PAYABLE_OPTIONS: [
-    { value: 'dt', label: 'Хаах' },
-    { value: 'ct', label: 'Үүсгэх' },
+    { value: 'dt', label: 'close' },
+    { value: 'ct', label: 'create' },
   ],
 };
 
 export const INV_INCOME_EXPENSE_TYPES = [
-  { value: 'amount', label: 'Дүн' },
-  { value: 'count', label: 'Тоо' },
-  { value: 'weight', label: 'Жин' },
+  { value: 'amount', label: 'amount' },
+  { value: 'count', label: 'quantity' },
+  { value: 'weight', label: 'weight' },
 ];
 
 export const TR_STATUSES = {
@@ -162,20 +163,20 @@ export const TR_STATUSES = {
 
 export const TR_STATUS_LABELS: Record<string, string> = {
   // future level
-  plan: 'Төлөвлөгөөт',
+  plan: 'planned',
   // conversation level
-  draft: 'Ноорог',
-  mentioned: 'Хүсэлт',
-  approved: 'Зөвшөөрсөн',
-  rejeced: 'Татгалзсан',
-  returned: 'Хариу хүсэлт',
+  draft: 'draft',
+  mentioned: 'request',
+  approved: 'authorized',
+  rejeced: 'rejected',
+  returned: 'response-request',
   // business level
-  progress: 'Хэрэгжүүлж буй',
-  assigned: 'Баталгаажуулах',
-  confirmed: 'Баталсан',
-  canelled: 'Цуцалсан',
+  progress: 'in-progress',
+  assigned: 'approve',
+  confirmed: 'approved-label',
+  canelled: 'cancelled',
 
-  complete: 'Бүрэн',
+  complete: 'complete-label',
 };
 
 export const TR_STATUS_OPTIONS = TR_STATUSES.ALL.map((status) => ({

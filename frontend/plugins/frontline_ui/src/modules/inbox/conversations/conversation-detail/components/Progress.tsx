@@ -36,7 +36,7 @@ const DISPLAY_STATUSES: ConversationStatus[] = [
 export const Progress = ({ customerId }: ProgressProps) => {
   const { t } = useTranslation('frontline');
   const { conversationProgressChart, loading } = useConversationProgressChart({
-    variables: { customerId },
+    variables: customerId ? { customerId } : undefined,
     skip: !customerId,
   });
 

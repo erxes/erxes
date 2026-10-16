@@ -1,17 +1,19 @@
 import { Sidebar } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { Link, useParams } from 'react-router-dom';
 import { useNotificationPluginsTypes } from '../hooks/useNotificationPluginsTypes';
 
 export const NotificationSettingsSidebar = () => {
   const { event } = useParams<{ event: string }>();
+  const { t } = useTranslation('common', { keyPrefix: 'sidebar' });
 
   const { pluginsNotifications } = useNotificationPluginsTypes();
 
   return (
-    <Sidebar collapsible="none" className="flex-none border-r">
+    <Sidebar.Panel className="flex-none border-r" label={t('notification')}>
       {(pluginsNotifications || []).map(({ pluginName, modules }) => (
         <Sidebar.Group key={pluginName}>
-          <Sidebar.GroupLabel className="mb-1">{`${pluginName} plugin`}</Sidebar.GroupLabel>
+          <Sidebar.GroupLabel>{`${pluginName} plugin`}</Sidebar.GroupLabel>
           <Sidebar.GroupContent>
             <Sidebar.Menu>
               {(modules || []).map(({ name: moduleName }) => {
@@ -34,6 +36,6 @@ export const NotificationSettingsSidebar = () => {
           </Sidebar.GroupContent>
         </Sidebar.Group>
       ))}
-    </Sidebar>
+    </Sidebar.Panel>
   );
 };

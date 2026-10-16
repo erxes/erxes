@@ -12,12 +12,25 @@ export type IInvSplitDetailInfo =
       ratio: number;
     };
 
+export interface ITrDetailFollowInfos extends Record<string, unknown> {
+  preDeprecation?: number;
+  salvageValue?: number;
+  fixedAssetTotalCount?: number;
+  fixedAssetTotalAmount?: number;
+  depreciationStartDate?: Date;
+  currencyDiffAccountId?: string;
+  moveInBranchId?: string;
+  moveInDepartmentId?: string;
+  invSplit?: IInvSplitDetailInfo;
+  perCost?: number;
+}
+
 export interface ITrDetail {
   _id?: string;
   accountId: string;
   branchId?: string;
   departmentId?: string;
-  followInfos?: any;
+  followInfos?: ITrDetailFollowInfos;
   originId?: string;
   originType?: string;
   originSubId?: string;

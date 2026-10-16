@@ -1,7 +1,9 @@
 import type { ComposerBlockEditor } from './composer';
-import type { IResponseTemplate } from '@/responseTemplate/types';
+import type { toResponseTemplateText } from '@/responseTemplate/utils/toResponseTemplateText';
 
-export type ResponseTemplateSuggestion = IResponseTemplate & {
+export type ResponseTemplateSuggestion = ReturnType<
+  typeof toResponseTemplateText
+> & {
   preview: string;
 };
 export type ResponseTemplateSuggestionsOptions = {

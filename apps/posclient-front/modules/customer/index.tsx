@@ -32,9 +32,8 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area"
 
 import useOrderCU from "../orders/hooks/useOrderCU"
-import { CouponInput } from "./components/CouponInput"
 import { CustomerAddDialog } from "./components/CustomerAddDialog"
-import { CustomerLoyaltyPanel } from "./components/CustomerLoyaltyPanel"
+import { LoyaltySummary } from "./components/LoyaltySummary"
 import CustomerType from "./CustomerType"
 import { queries } from "./graphql"
 import { useCustomerForm } from "./hooks/useCustomerForm"
@@ -178,8 +177,7 @@ const Customer = () => {
           </PopoverContent>
         </Popover>
       </div>
-      <CustomerLoyaltyPanel />
-      <CouponInput />
+      <LoyaltySummary />
       <CustomerAddDialog
         open={addOpen}
         rows={rows}

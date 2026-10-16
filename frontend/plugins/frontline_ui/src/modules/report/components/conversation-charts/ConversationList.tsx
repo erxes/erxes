@@ -8,6 +8,7 @@ import {
   Button,
   RecordTable,
   RecordTableInlineCell,
+  isDefined,
 } from 'erxes-ui';
 import { ConversationListItem, ReportChart } from '@/report/types';
 import { formatDate } from 'date-fns';
@@ -92,7 +93,9 @@ export const ConversationList = ({
         },
       });
 
-      const items = result.data?.reportConversationExport || [];
+      const items = (result.data?.reportConversationExport ?? []).filter(
+        isDefined,
+      );
       if (!items.length) return;
 
       const workbook = new ExcelJS.Workbook();
@@ -112,7 +115,7 @@ export const ConversationList = ({
         fgColor: { argb: 'FFE9ECEF' },
       };
 
-      const formatDateVal = (v?: string) => {
+      const formatDateVal = (v?: string | null) => {
         if (!v) return '';
         try {
           return formatDate(new Date(v), 'yyyy-MM-dd HH:mm');
@@ -224,7 +227,8 @@ export const ConversationList = ({
     );
   }
 
-  const { totalCount, totalPages } = conversationList;
+  const totalCount = conversationList.totalCount ?? 0;
+  const totalPages = conversationList.totalPages ?? 0;
 
   return (
     <FrontlineCard
@@ -239,7 +243,9 @@ export const ConversationList = ({
         <div
           className={isFetching ? 'opacity-50 pointer-events-none' : undefined}
         >
-          <ConversationListTable conversationList={conversationList.list} />
+          <ConversationListTable
+            conversationList={conversationList.list.filter(isDefined)}
+          />
         </div>
         <Pagination
           page={page}
@@ -426,7 +432,9 @@ export const conversationListColumns = (
       }
       return (
         <RecordTableInlineCell>
-          <MembersInline.Provider memberIds={readUsers.map((user) => user._id)}>
+          <MembersInline.Provider
+            memberIds={readUsers.map((user) => user?._id).filter(isDefined)}
+          >
             <MembersInline.Avatar size="sm" />
             <MembersInline.Title className="text-xs text-muted-foreground" />
           </MembersInline.Provider>
@@ -445,7 +453,7 @@ export const conversationListColumns = (
 export const MoreCell = ({
   cell,
 }: {
-  cell: Cell<ConversationListItem, any>;
+  cell: Cell<ConversationListItem, unknown>;
 }) => {
   const { _id } = cell.row.original || {};
   const navigate = useNavigate();

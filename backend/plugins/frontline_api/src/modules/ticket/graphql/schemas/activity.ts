@@ -17,7 +17,7 @@ export const types = `
     }
 
     type TicketActivity {
-        _id: String
+        _id: String!
         action: String
         contentId: String
         module: String

@@ -58,13 +58,13 @@ export function Tag() {
   );
 
   return (
-    <PageContainer>
-      <TagsHeader>
-        <HeaderLanguageTabs />
-        {headerActions}
-      </TagsHeader>
-      <div className="flex overflow-hidden flex-auto">
-        <CmsSidebar />
+    <PageContainer className="flex-row">
+      <CmsSidebar />
+      <div className="flex min-w-0 flex-auto flex-col overflow-hidden">
+        <TagsHeader>
+          <HeaderLanguageTabs />
+          {headerActions}
+        </TagsHeader>
         <div className="flex flex-col w-full overflow-hidden flex-auto">
           <div className="px-4 pt-2">
             <TagsFilter />
@@ -72,10 +72,7 @@ export function Tag() {
           {!loading && (!tags || tags.length === 0) ? (
             <div className="rounded-lg overflow-hidden">
               {searchValue ? (
-                <EmptyState
-                  icon={IconTags}
-                  title={t('no-tags-found')}
-                />
+                <EmptyState icon={IconTags} title={t('no-tags-found')} />
               ) : (
                 <EmptyState
                   icon={IconTags}

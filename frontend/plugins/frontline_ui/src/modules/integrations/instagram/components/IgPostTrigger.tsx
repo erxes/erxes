@@ -1,4 +1,4 @@
-import { Button, Popover, Skeleton } from 'erxes-ui';
+import { Button, Popover, Skeleton, isDefined } from 'erxes-ui';
 import { useIgPost } from '../hooks/useIgPost';
 import DOMPurify from 'dompurify';
 import { IconBrowserShare, IconExternalLink } from '@tabler/icons-react';
@@ -42,14 +42,16 @@ export const IgPostTrigger = ({ erxesApiId }: { erxesApiId: string }) => {
         <div className="overflow-y-auto flex-1">
           <div dangerouslySetInnerHTML={{ __html: sanitized }} />
           {!!attachments?.length &&
-            attachments.map((attachment) => (
-              <img
-                key={attachment.url}
-                src={attachment.url}
-                alt={attachment.url}
-                loading="lazy"
-              />
-            ))}
+            attachments
+              .filter(isDefined)
+              .map((attachment) => (
+                <img
+                  key={attachment}
+                  src={attachment}
+                  alt={attachment}
+                  loading="lazy"
+                />
+              ))}
         </div>
         <Button
           variant="secondary"
@@ -57,7 +59,11 @@ export const IgPostTrigger = ({ erxesApiId }: { erxesApiId: string }) => {
           className="w-full mt-3 flex-none"
           asChild
         >
-          <a href={permalink_url} target="_blank" rel="noopener noreferrer">
+          <a
+            href={permalink_url ?? undefined}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             {t('view-post')} <IconExternalLink />
           </a>
         </Button>

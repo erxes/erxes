@@ -1,29 +1,9 @@
-import { IAccountCategory } from '../account-categories/types/AccountCategory';
+import type { AccountingAccountDetailQuery } from '~/gql/graphql';
+import type { GraphqlView } from '@/utils/graphql';
 
-export interface IAccount {
-  _id: string;
-  createdAt: Date;
-  code: string;
-  name: string;
-  categoryId?: string;
-  parentId?: string;
-  currency: string;
-  kind: string;
-  journal: string;
-  description?: string;
-  branchId?: string;
-  departmentId?: string;
-  scopeBrandIds?: string[];
-  status: string;
-  isTemp: boolean;
-  isOutBalance: boolean;
-  mergedIds?: string[];
-  extra?: {
-    bank?: string;
-    bankAccount?: string;
-  };
-  category?: IAccountCategory;
-}
+export type IAccount = GraphqlView<
+  NonNullable<AccountingAccountDetailQuery['accountDetail']>
+>;
 
 export enum AccountKind {
   ACTIVE = 'active',
@@ -31,8 +11,8 @@ export enum AccountKind {
 }
 
 export const ACCOUNT_KIND_LABELS = {
-  [AccountKind.ACTIVE]: 'Актив',
-  [AccountKind.PASSIVE]: 'Пассив',
+  [AccountKind.ACTIVE]: 'assets',
+  [AccountKind.PASSIVE]: 'liabilities-and-equity',
 };
 
 export enum AccountStatus {
@@ -41,8 +21,8 @@ export enum AccountStatus {
 }
 
 export const ACCOUNT_STATUS_LABELS = {
-  [AccountStatus.ACTIVE]: 'Идэвхтэй',
-  [AccountStatus.DELETED]: 'Устгасан',
+  [AccountStatus.ACTIVE]: 'active',
+  [AccountStatus.DELETED]: 'deleted',
 };
 
 export enum JournalEnum {

@@ -3,8 +3,10 @@ import { QUERY_TEMPLATES } from '@/templates/graphql/queries';
 import { MutationHookOptions, useMutation } from '@apollo/client';
 import { toast } from 'erxes-ui';
 import { useNavigate } from 'react-router';
+import { useTranslation } from 'react-i18next';
 
 export const useTemplateAction = () => {
+  const { t } = useTranslation('templates', { keyPrefix: 'template' });
   const navigate = useNavigate();
 
   const [_useTemplate, { loading }] = useMutation(USE_TEMPLATE, {
@@ -22,7 +24,7 @@ export const useTemplateAction = () => {
 
     if (!result.data?.templateUse) {
       toast({
-        title: 'Template use failed',
+        title: t('use-failed'),
         variant: 'destructive',
       });
 

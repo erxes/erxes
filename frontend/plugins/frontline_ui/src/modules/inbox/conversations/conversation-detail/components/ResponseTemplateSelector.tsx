@@ -17,6 +17,7 @@ import {
   useGetResponses,
 } from '@/responseTemplate/hooks/useGetResponses';
 import { useEffect, useRef, useState } from 'react';
+import { toResponseTemplateText } from '@/responseTemplate/utils/toResponseTemplateText';
 import type { ReactNode } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 
@@ -111,7 +112,9 @@ export const ResponseTemplateSelector: React.FC<
     });
   }, [debouncedSearch, selectedChannel, refetch]);
 
-  const templates: ResponseTemplate[] = responses ?? [];
+  const templates: ResponseTemplate[] = (responses ?? []).map(
+    toResponseTemplateText,
+  );
 
   useEffect(() => {
     isFetchingRef.current = false;

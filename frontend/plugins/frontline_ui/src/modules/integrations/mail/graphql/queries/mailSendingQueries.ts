@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const MAIL_SENDING_READINESS_QUERY = gql`
+export const MAIL_SENDING_READINESS_QUERY = gql(`
   query mailSendingReadiness {
     mailSendingReadiness {
       ready
@@ -18,4 +18,4 @@ export const MAIL_SENDING_READINESS_QUERY = gql`
       __typename
     }
   }
-`;
+`);

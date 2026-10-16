@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const REPORT_CHART_FIELDS = gql`
+export const REPORT_CHART_FIELDS = gql(`
   fragment ReportChartFields on ReportChart {
     _id
     name
@@ -8,6 +8,11 @@ export const REPORT_CHART_FIELDS = gql`
     visualType
     colSpan
     filters {
+      statusChangedDate
+      updatedAtDate
+      description
+      statusChangedByIds
+      updatedByIds
       date
       fromDate
       toDate
@@ -22,6 +27,8 @@ export const REPORT_CHART_FIELDS = gql`
       tagIds
       customerIds
       companyIds
+      pageIds
+      searchValue
       propertyIds
       priority
       propertyValueFilters {
@@ -31,13 +38,12 @@ export const REPORT_CHART_FIELDS = gql`
       }
     }
   }
-`;
+`);
 
-export const GET_REPORT_CHARTS = gql`
+export const GET_REPORT_CHARTS = gql(`
   query ReportCharts($chartType: String) {
     reportCharts(chartType: $chartType) {
       ...ReportChartFields
     }
   }
-  ${REPORT_CHART_FIELDS}
-`;
+`);

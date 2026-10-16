@@ -1,5 +1,6 @@
 import { useGetPipeline } from '@/pipelines/hooks/useGetPipeline';
 import { useTicketPermissions } from '@/ticket/hooks/useTicketPermissions';
+import { compactList } from '@/shared/utils/cursorList';
 import { ITicket } from '@/ticket/types';
 import { IconRepeat } from '@tabler/icons-react';
 import { Row } from '@tanstack/table-core';
@@ -48,14 +49,14 @@ export const TicketCommandBar = () => {
   // Prefer the selection's own pipeline so a status change can never target a
   // pipeline the selected tickets do not belong to.
   const sharedPipelineId = getSharedValue(
-    selectedTickets.map((ticket) => ticket.pipelineId),
+    selectedTickets.map((ticket) => ticket.pipelineId ?? undefined),
   );
   const pipelineId =
     sharedPipelineId ||
     (selectedTickets.length === 0 ? pipelineIdParam || undefined : undefined);
 
   const channelId = getSharedValue(
-    selectedTickets.map((ticket) => ticket.channelId),
+    selectedTickets.map((ticket) => ticket.channelId ?? undefined),
   );
 
   const { pipeline } = useGetPipeline(pipelineId || undefined);
@@ -63,10 +64,14 @@ export const TicketCommandBar = () => {
     useTicketPermissions({ pipeline });
 
   const sharedAssignedMembers = getSharedValues(
-    selectedTickets.map((ticket) => ticket.assignedMembers),
+    selectedTickets.map((ticket) =>
+      ticket.assignedMembers ? compactList(ticket.assignedMembers) : undefined,
+    ),
   );
   const sharedTagIds = getSharedValues(
-    selectedTickets.map((ticket) => ticket.tagIds),
+    selectedTickets.map((ticket) =>
+      ticket.tagIds ? compactList(ticket.tagIds) : undefined,
+    ),
   );
   const allArchived =
     selectedTickets.length > 0 &&

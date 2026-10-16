@@ -3,7 +3,13 @@ import { HAS_ATTACHMENT } from '@/inbox/constants/messengerConstants';
 import { MessageContent } from '@/inbox/conversation-messages/components/MessageContent';
 import { activeConversationState } from '@/inbox/conversations/states/activeConversationState';
 import { useCallConversationNoteContext } from '@/integrations/call/context/conversationNoteContext';
-import { Button, cn, IAttachment, RelativeDateDisplay } from 'erxes-ui';
+import {
+  Button,
+  cn,
+  IAttachment,
+  isDefined,
+  RelativeDateDisplay,
+} from 'erxes-ui';
 import { useAtomValue } from 'jotai';
 import React from 'react';
 import { CustomersInline, MembersInline } from 'ui-modules';
@@ -35,11 +41,14 @@ export const InternalNotes = (): JSX.Element => {
             asChild
           >
             <div>
-              <MessageContent content={content} internal={internal} />
+              <MessageContent
+                content={content ?? ''}
+                internal={internal ?? undefined}
+              />
               {separateNext && (
                 <div className="text-muted-foreground mt-1">
-                  <RelativeDateDisplay value={createdAt}>
-                    <RelativeDateDisplay.Value value={createdAt} />
+                  <RelativeDateDisplay value={createdAt ?? ''}>
+                    <RelativeDateDisplay.Value value={createdAt ?? ''} />
                   </RelativeDateDisplay>
                 </div>
               )}
@@ -48,7 +57,14 @@ export const InternalNotes = (): JSX.Element => {
         ) : (
           <div className={cn(separatePrevious ? 'mt-2' : 'mt-8')} />
         )}
-        <Attachments attachments={attachments} />
+        <Attachments
+          attachments={attachments?.filter(isDefined).map((attachment) => ({
+            url: attachment.url,
+            name: attachment.name ?? '',
+            type: attachment.type ?? '',
+            size: attachment.size ?? 0,
+          }))}
+        />
       </div>
     </MessageWrapper>
   );

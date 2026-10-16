@@ -1,16 +1,23 @@
-import { cn, Sidebar, useQueryState } from 'erxes-ui';
+import { Sidebar, cn, useQueryState } from 'erxes-ui';
+
 import { useTagTypes } from 'ui-modules/modules/tags-new/hooks/useTagTypes';
+import { useTranslation } from 'react-i18next';
 
 export const TagsSidebar = ({ className }: { className?: string }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'tags' });
+  const { t: tSidebar } = useTranslation('common', { keyPrefix: 'sidebar' });
   const { types } = useTagTypes();
   const [type, setType] = useQueryState<string>('tagType');
 
   return (
-    <Sidebar collapsible="none" className={cn('border-r flex-none', className)}>
+    <Sidebar.Panel
+      className={cn('border-r flex-none', className)}
+      label={tSidebar('tags')}
+    >
       {Object.entries(types).map(([key, value]) => (
         <Sidebar.Group key={key}>
           <Sidebar.GroupLabel>
-            {key === 'core' ? 'Core tags' : `${key} tags`}
+            {key === 'core' ? t('core-tags') : t('type-tags', { type: key })}
           </Sidebar.GroupLabel>
           <Sidebar.GroupContent>
             <Sidebar.Menu>
@@ -20,7 +27,7 @@ export const TagsSidebar = ({ className }: { className?: string }) => {
                     isActive={type === null}
                     onClick={() => setType(null)}
                   >
-                    Workspace tags
+                    {t('workspace-tags')}
                   </Sidebar.MenuButton>
                 </Sidebar.MenuItem>
               )}
@@ -30,7 +37,9 @@ export const TagsSidebar = ({ className }: { className?: string }) => {
                     isActive={type === _type.contentType}
                     onClick={() => setType(_type.contentType)}
                   >
-                    {_type.description} tags
+                    {t('type-tags', {
+                      type: _type.description,
+                    })}
                   </Sidebar.MenuButton>
                 </Sidebar.MenuItem>
               ))}
@@ -38,6 +47,6 @@ export const TagsSidebar = ({ className }: { className?: string }) => {
           </Sidebar.GroupContent>
         </Sidebar.Group>
       ))}
-    </Sidebar>
+    </Sidebar.Panel>
   );
 };

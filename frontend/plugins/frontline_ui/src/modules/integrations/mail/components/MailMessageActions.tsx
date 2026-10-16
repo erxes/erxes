@@ -31,7 +31,7 @@ export const AttachmentChip: React.FC<{ attachment: Attachment }> = ({
       </span>
       {Boolean(attachment.size) && (
         <span className="text-[#5f6368]">
-          {formatAttachmentSize(attachment.size)}
+          {formatAttachmentSize(attachment.size ?? undefined)}
         </span>
       )}
     </>

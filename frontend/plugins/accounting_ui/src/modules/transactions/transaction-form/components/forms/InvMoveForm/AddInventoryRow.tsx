@@ -1,3 +1,5 @@
+import { toInvCostMap } from '../../../hooks/useGetInvCostInfo';
+import { useTranslation } from 'react-i18next';
 import { useApolloClient } from '@apollo/client';
 import { IconPlus } from '@tabler/icons-react';
 import { Button } from 'erxes-ui';
@@ -24,6 +26,7 @@ export const AddDetailRowButton = ({
   journalIndex: number;
   append: (detail: TInvDetail | TInvDetail[]) => void;
 }) => {
+  const { t } = useTranslation('accounting');
   const client = useApolloClient();
   const { control } = form;
 
@@ -63,7 +66,7 @@ export const AddDetailRowButton = ({
         onClick={() => append(getDetailDefaultValues())}
       >
         <IconPlus />
-        Шинэ мөр
+        {t('new-row')}
       </Button>
       <SelectProductsBulk
         productIds={[]}
@@ -71,9 +74,7 @@ export const AddDetailRowButton = ({
           let currentCostInfo: IInvCostInfo = {};
 
           if (lastDetail?.accountId) {
-            const { data } = await client.query<{
-              getAccCurrentCost: IInvCostInfo;
-            }>({
+            const { data } = await client.query({
               query: GET_ACC_CURRENT_COST_QUERY,
               variables: {
                 productIds,
@@ -84,7 +85,7 @@ export const AddDetailRowButton = ({
               },
               fetchPolicy: 'network-only',
             });
-            currentCostInfo = data.getAccCurrentCost;
+            currentCostInfo = toInvCostMap(data.getAccCurrentCost);
           }
 
           append(
@@ -103,7 +104,7 @@ export const AddDetailRowButton = ({
       >
         <Button variant="secondary" className="bg-border">
           <IconPlus />
-          Олон бараа нэмэх
+          {t('add-multiple-products')}
         </Button>
       </SelectProductsBulk>
     </>

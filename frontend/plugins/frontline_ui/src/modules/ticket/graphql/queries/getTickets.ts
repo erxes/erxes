@@ -1,36 +1,18 @@
-import { gql } from '@apollo/client';
-import { GQL_PAGE_INFO } from 'erxes-ui';
+import { gql } from '~/gql';
 
-export const GET_TICKETS = gql`
+export const GET_TICKETS = gql(`
   query GetTickets($filter: ITicketFilter) {
     getTickets(filter: $filter) {
       list {
-        _id
-        name
-        description
-        statusId
-        priority
-        labelIds
-        tagIds
-        assigneeId
-        assignedMembers
-        userId
-        startDate
-        targetDate
-        createdAt
-        createdBy
-        updatedAt
-        channelId
-        branchId
-        departmentId
-        statusChangedDate
-        number
-        pipelineId
-        state
-        propertiesData
+        ...FrontlineTicketFields
       }
-      ${GQL_PAGE_INFO}
       totalCount
+      pageInfo {
+        hasNextPage
+        hasPreviousPage
+        startCursor
+        endCursor
+      }
     }
   }
-`;
+`);

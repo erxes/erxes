@@ -12,20 +12,17 @@ export type TMessageTriggerDirectConditions = NonNullable<
 >;
 
 export type TMessageTriggerPersistentMenuIds = NonNullable<
-  Extract<
-    TMessageTriggerCondition,
-    { type: 'persistentMenu' }
-  >['persistentMenuIds']
+  TMessageTriggerCondition['persistentMenuIds']
 >;
 
 export type TMessageTriggerIceBreakerIds = NonNullable<
-  Extract<TMessageTriggerCondition, { type: 'iceBreaker' }>['iceBreakerIds']
+  TMessageTriggerCondition['iceBreakerIds']
 >;
 
 export type TMessageTriggerSourceMode = NonNullable<
-  Extract<TMessageTriggerCondition, { type: 'open_thread' }>['sourceMode']
+  TMessageTriggerCondition['sourceMode']
 >;
 
 export type TMessageTriggerSourceIds = NonNullable<
-  Extract<TMessageTriggerCondition, { type: 'open_thread' }>['sourceIds']
+  TMessageTriggerCondition['sourceIds']
 >;

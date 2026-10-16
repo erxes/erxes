@@ -6,7 +6,7 @@
 - **Project:** `posclient_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/posclient_api`
-- **Last synchronized:** `2026-10-10`
+- **Last synchronized:** `2026-10-15`
 
 ## Scope
 
@@ -50,7 +50,8 @@
 - Serves POS product list and count queries with category, tag, price, remainder, discount, similarity, and product `propertiesData` filters.
 - Calculates daily reports for authorized POS admins and cashiers with report permission.
 - Order items keep an optional `conditionCode` (code of the core product condition a unit is sold under; saved by ordersAdd/Edit and the order-utils item writer, passed to loyalty `checkPricing`, synced to sales). Synced products keep core's `conditionCodes` (schema field; products synced before it existed need a re-sync).
-- Shows the cashier the order's chosen customer's loyalty: `poscCustomerLoyalty` passes loyalty's `ownerSummary` through (wallets, tiers, sale vouchers); null when loyalty is not running.
+- Shows the cashier the order's chosen customer's loyalty: `poscCustomerLoyalty(customerId, totalAmount, orderId)` passes loyalty's `ownerSummary` through (wallets, tiers, sale vouchers with `status` / `heldFor`; `orderId` lets the voucher this order holds read as its own); null when loyalty is not running.
+- A picked voucher is held for its order (`utils/orderVoucher.ts`): `ordersAdd` makes the order's `_id` ahead (nanoid) and calls loyalty `voucher.hold` before pricing, releasing it if the save fails; `ordersEdit` releases the voucher taken off and holds the one picked; `cancelPosOrder` calls `voucher.releaseTarget`. `checkLoyalties` sends the order id as `discountInfo.targetId`. Vouchers are online-only: when loyalty cannot be reached the save fails with "Vouchers need a connection to loyalty…", never silently.
 - Lets POS admins, and cashiers with `permissionConfig.cashiers.createCustomer`,
   register Core customers through the synced `customerCreateConfig` layout.
 - Persists order item `discountInfos` so pricing, loyalty/voucher, score, and direct/manual discounts keep their source, amount, and percent breakdown.
@@ -104,7 +105,7 @@
 - `poscCustomerForm: PosCustomerForm` returns `canCreate` and the resolved
   form `rows` (system fields plus live `core:customer` properties).
 - `poscCustomerLoyalty(customerId: String!, totalAmount: Float): PosCustomerLoyalty` (logged-in POS user).
-- `poscLoyaltyPreview(items, customerId, couponCode, voucherId): PosLoyaltyPreview { lines, bonuses }` runs the same `checkPricing` then `checkLoyalties` an order save runs, without saving. `lines` holds each line whose price changes, keyed by the caller's line `key` (a product can sit on several lines under different conditions), with its discount percent and resulting `unitPrice`; the percent is negative when the line costs more (a condition may give less than a `posBase` plan baked in at sync). `bonuses` are the bonus products pricing would append as new lines (`{productId, name, count}`, name from the synced product); a bonus whose product is already a cart line is discounted in place and shows in `lines`. Display only; the saved order stays authoritative.
+- `poscLoyaltyPreview(items, customerId, couponCode, voucherId, orderId): PosLoyaltyPreview { lines, bonuses }` runs the same `checkPricing` then `checkLoyalties` an order save runs, without saving. `lines` holds each line whose price changes, keyed by the caller's line `key` (a product can sit on several lines under different conditions), with its discount percent and resulting `unitPrice`; the percent is negative when the line costs more (a condition may give less than a `posBase` plan baked in at sync). `bonuses` are the bonus products pricing would append as new lines (`{productId, name, count}`, name from the synced product); a bonus whose product is already a cart line is discounted in place and shows in `lines`. Display only; the saved order stays authoritative.
 - `poscLoyaltyEarnPreview(items, totalAmount, customerId, orderType)` (`utils/loyaltyEarn.ts`) reads core tRPC `automation.findActive` for active `sales:pos.orders.event` automations with a loyalty Adjust score, keeps the triggers a paid order of this POS would start (event `paid` or unset, `posId`/`posToken` this POS or empty, order type if set; payment type and branches before the action are not evaluated), and asks loyalty `score.earnPreview` with the actions' `campaignId`/`earnRowKeys`, counting the whole total as paid. Returns `{ hasRules, earns: [{walletName, points, reasons, error}] }`; without a customer only `hasRules`. Lookups use `throwOnError` so a broken preview shows instead of a silent zero.
 - `poscProductConditions(productId)` reads the synced product's `conditionCodes` and resolves them through core tRPC `productConditions.find` (codes with no condition are left out), so a cart line can pick one. Cart lines never keep the product's codes themselves; a stored copy went stale when conditions changed after the line was added.
 - `poscCouponCheck(code: String!, customerId: String, totalAmount: Float): String` runs loyalty `coupon.checkCoupon` with `throwOnError` and returns the campaign title, so the cashier sees a refused code before it reaches the order. It refuses every code unless `config.acceptCoupons` (synced from the sales POS, off by default) is on.
@@ -118,7 +119,8 @@
 - Synced `isShowRemainder`, `isCheckRemainder`, and `checkExcludeCategoryIds`
   from sales POS configuration.
 - Loyalty `score.checkSpend` validates point payment amounts against the order
-  total before payment completion.
+  total and the owner's balance before payment completion. It is called with
+  `throwOnError`, so a refusal stops the payment instead of being swallowed.
 - Synced POS config fields including `adminIds`, `cashierIds`, `token`, `permissionConfig`, and `customerCreateConfig`.
 - Loyalty tRPC `loyalty.ownerSummary` and `coupon.checkCoupon`.
 - Core tRPC `fields.find`, `customers.findActiveCustomers`, and
@@ -158,7 +160,8 @@
 - `Configs.permissionConfig.cashiers.seeReport` controls cashier access to `dailyReport`.
 - Order item discounts store the aggregate `discountAmount`/`discountPercent` plus per-source `discountInfos`.
 - Product `propertiesData` filters are encoded as `fieldId:operator:value` conditions separated by semicolons and are parsed by the shared property filter util; a `g:<groupId>/<fieldId>` key targets one row of a repeating group through `$elemMatch`.
-- The hourly remainder repeatable job runs on `posclient-hourly-sync-remainder`; it dispatches tenant-scoped `posclient-sync-remainder` jobs that must include `subdomain`.
+- The remainder scheduler runs daily at 20:00 UTC (`0 20 * * *`, timezone `UTC`), which is 04:00 the following day in Ulaanbaatar, on `posclient-hourly-sync-remainder`; it dispatches tenant-scoped `posclient-sync-remainder` jobs that must include `subdomain` (SaaS organizations or `os` for self-hosted deployments). Organizations with missing, non-string, or blank subdomains are skipped before enqueueing, with an organization-ID warning.
+- Worker startup removes the legacy `posclient-hourly-sync-remainder` scheduler from `posclient-sync-remainder` and cleans failed jobs from both remainder queues. Scheduler and tenant jobs are removed on completion or terminal failure. A job with missing, non-string, or blank tenant data completes with `{ skipped: true, reason: 'missing-subdomain' }` before model access; its warning includes job ID, name, and repeat key. Valid tenant sync errors still propagate. Queue metadata remains while the queues are in use.
 
 ## Local Invariants
 
@@ -189,8 +192,9 @@
   requests; `isCheckRemainder` controls order validation using synced per-token
   `isCheckRems` flags, which include category exclusions. Validation can fetch
   Core inventory balances with display disabled. `saveRemainder` controls
-  remainder persistence and the existing hourly sync.
+  remainder persistence and the daily sync.
 - POS client report queries must require a logged-in POS user.
+- An order is priced `checkPricing` first, then `checkLoyalties` (the same order as the preview): a voucher or coupon comes off the priced amount, and a `posBase` plan's condition logic never reads a voucher discount as the discount sync baked in (which used to cancel it).
 - `checkLoyalties` sends loyalty `undefined`, never `null`, for an unchosen `couponCode`/`voucherId`: loyalty's zod input rejects null and the swallowed error would drop every loyalty discount.
 - `sendTRPCMessage` swallows errors unless `throwOnError` is set; a check whose failure must reach the cashier (like `poscCouponCheck`) passes it.
 - `orderChangeLogs` must require a logged-in POS admin, filter by the current
@@ -220,6 +224,7 @@
   `source: cart`, `action: update` and item-specific details. Admin audit UI
   displays the action and keeps action-less historical entries readable.
 - `pnpm nx build posclient_api`
+- `node --test backend/plugins/posclient_api/src/worker/__tests__/remainder.test.cjs`
 - `node --test backend/plugins/posclient_api/src/modules/posclient/graphql/resolvers/mutations/__tests__/orders.test.cjs`
 - `node --test backend/plugins/posclient_api/src/modules/posclient/utils/__tests__/cancelOrder.test.cjs`
 - `node --test backend/plugins/posclient_api/src/modules/posclient/graphql/resolvers/customResolvers/__tests__/orderChangeLog.test.cjs`

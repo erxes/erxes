@@ -3,6 +3,7 @@ import { Polygons } from '@/auth/components/Polygons';
 import { cn, Spinner, TextEffect } from 'erxes-ui';
 import { AnimatePresence, motion, Variants } from 'motion/react';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export const LoadingScreen = () => {
   return (
@@ -30,6 +31,7 @@ export const LoadingScreen = () => {
   );
 };
 export const TextAnimation = () => {
+  const { t } = useTranslation('common', { keyPrefix: 'auth' });
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showMoreText, setShowMoreText] = useState(false);
 
@@ -64,7 +66,7 @@ export const TextAnimation = () => {
           key={currentIndex}
         >
           {currentIndex === 0 && (
-            <p className="text-primary text-sm">Welcome</p>
+            <p className="text-primary text-sm">{t('welcome')}</p>
           )}
 
           {currentIndex === 1 && (
@@ -75,11 +77,9 @@ export const TextAnimation = () => {
                   showMoreText && '-translate-x-1/2',
                 )}
               >
-                Just a moment...
+                {t('just-a-moment')}
                 {showMoreText && (
-                  <TextEffect per="char">
-                    good things come to those who wait!
-                  </TextEffect>
+                  <TextEffect per="char">{t('good-things-come')}</TextEffect>
                 )}
               </div>
             </div>

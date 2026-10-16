@@ -1,6 +1,10 @@
 import * as dotenv from 'dotenv';
 import { redis } from './redis';
-import { getSaasOrganizationDetail } from './saas';
+import {
+  getGlobalProfileV2Plugins,
+  getSaasOrganizationDetail,
+  isGlobalProfileV2,
+} from './saas';
 import { getEnv } from './utils';
 import { IOrganizationCharge } from '../core-types';
 import { sendWorkerQueue } from './mq-worker';
@@ -61,6 +65,16 @@ export const getAvailablePlugins = async (
     const organizationInfo = await getSaasOrganizationDetail({
       subdomain,
     });
+
+    if (isGlobalProfileV2(organizationInfo)) {
+      const enabled = [
+        ...ENABLED_PLUGINS.split(','),
+        ...ENABLED_API_PLUGINS.split(','),
+      ];
+      const plugins = await getGlobalProfileV2Plugins(organizationInfo);
+
+      return ['core', ...plugins.filter((plugin) => enabled.includes(plugin))];
+    }
 
     const charges = organizationInfo.charge as IOrganizationCharge;
 

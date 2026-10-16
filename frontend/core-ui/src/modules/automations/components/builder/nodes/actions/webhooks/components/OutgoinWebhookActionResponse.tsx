@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { ActionResultComponentProps } from '@/automations/components/builder/nodes/types/coreAutomationActionTypes';
 import { Badge } from 'erxes-ui';
 import { ActionResult } from 'ui-modules';
@@ -29,13 +30,14 @@ type TWebhookHistoryResult = {
 };
 
 const useOutgoingWebhookResult = (result?: TWebhookHistoryResult) => {
+  const { t } = useTranslation('automations');
   const request = result?.request || {};
   const response = result?.response;
   const error = result?.error;
   const attemptCount = result?.meta?.attemptCount || error?.attemptCount;
 
   const statusText = error
-    ? error.message || error.phase || 'Request failed'
+    ? error.message || error.phase || t('webhook-request-failed')
     : `${response?.status ?? 'N/A'} ${response?.statusText || ''}`.trim();
 
   return {
@@ -62,6 +64,7 @@ export const OutgoinWebhookActionResponse = ({
     statusText,
     responseBody,
   } = useOutgoingWebhookResult(result);
+  const { t } = useTranslation('automations');
 
   return (
     <>
@@ -69,29 +72,38 @@ export const OutgoinWebhookActionResponse = ({
         {statusText}
         {attemptCount ? (
           <Badge variant="secondary" className="ml-2">
-            {attemptCount} attempt{attemptCount > 1 ? 's' : ''}
+            {t('webhook-attempt', { count: attemptCount })}
           </Badge>
         ) : null}
       </ActionResult.Status>
 
       <ActionResult.Fields>
-        <ActionResult.Field label="Method" value={request.method} />
-        <ActionResult.Field label="URL" value={request.url} />
         <ActionResult.Field
-          label="Type"
+          label={t('webhook-field-method')}
+          value={request.method}
+        />
+        <ActionResult.Field
+          label={t('webhook-field-url')}
+          value={request.url}
+        />
+        <ActionResult.Field
+          label={t('webhook-field-type')}
           value={response?.contentType || request.headers?.['Content-Type']}
         />
-        <ActionResult.Field label="Phase" value={error?.phase} />
+        <ActionResult.Field
+          label={t('webhook-field-phase')}
+          value={error?.phase}
+        />
       </ActionResult.Fields>
 
       {request.bodyText ? (
-        <ActionResult.Body title="Request body">
+        <ActionResult.Body title={t('webhook-request-body')}>
           <ActionResult.Json value={request.bodyText} />
         </ActionResult.Body>
       ) : null}
 
       {responseBody !== undefined ? (
-        <ActionResult.Body title="Response body">
+        <ActionResult.Body title={t('webhook-response-body')}>
           <ActionResult.Json value={responseBody} />
         </ActionResult.Body>
       ) : null}

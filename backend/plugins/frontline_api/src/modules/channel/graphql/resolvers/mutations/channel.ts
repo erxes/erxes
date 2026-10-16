@@ -154,8 +154,14 @@ export const channelMutations = {
       );
     }
 
+    const uniqueMemberIds = [...new Set(memberIds)].filter(Boolean);
+
+    if (!uniqueMemberIds.length) {
+      throw new Error('Member ids are required');
+    }
+
     return models.ChannelMembers.createChannelMembers(
-      memberIds.map((memberId) => ({
+      uniqueMemberIds.map((memberId) => ({
         memberId,
         channelId: _id,
         role: ChannelMemberRoles.MEMBER,

@@ -22,6 +22,7 @@ const afterMutationInput = z.object({
   updatedDocument: z.unknown().optional(),
   object: z.unknown().optional(),
   user: z.unknown().optional(),
+  sessionCode: z.string().optional(),
 });
 
 export const productPlacesTrpcRouter = t.router({
@@ -45,10 +46,11 @@ export const productPlacesTrpcRouter = t.router({
         deal: z.unknown(),
         sourceStageId: z.string().nullable(),
         userId: z.string(),
+        sessionCode: z.string().optional(),
       }),
     )
     .mutation(async ({ input, ctx }) => {
-      const { deal, sourceStageId, userId } = input;
+      const { deal, sourceStageId, userId, sessionCode } = input;
       const { subdomain } = ctx;
 
       await afterMutationHandlers(subdomain, {
@@ -57,6 +59,7 @@ export const productPlacesTrpcRouter = t.router({
         updatedDocument: deal,
         object: { stageId: sourceStageId },
         user: userId,
+        sessionCode,
       });
 
       return { success: true };

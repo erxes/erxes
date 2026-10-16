@@ -28,7 +28,7 @@ export const types = `
     originalCost: Float
     salvageValue: Float
     openingBookValue: Float
-    openingAccumulatedDepreciation: Float
+    preDeprecation: Float
     depreciationAmount: Float
     bookDepreciationAmount: Float
     closingAccumulatedDepreciation: Float

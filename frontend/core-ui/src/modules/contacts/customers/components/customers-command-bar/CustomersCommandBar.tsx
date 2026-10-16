@@ -42,6 +42,9 @@ export const CustomersCommandBar = () => {
   >('main');
   const [fieldSelectionOpen, setFieldSelectionOpen] = useState(false);
   const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
+  const { t: tContact } = useTranslation('contact', {
+    keyPrefix: 'customer',
+  });
   const { t: tBroadcast } = useTranslation('broadcasts');
   const { t: tExport } = useTranslation('importExport');
   const { setContacts } = useBroadcastContacts();
@@ -75,7 +78,9 @@ export const CustomersCommandBar = () => {
   return (
     <CommandBar open={selectedRows.length > 0}>
       <CommandBar.Bar>
-        <CommandBar.Value>{selectedRows.length} selected</CommandBar.Value>
+        <CommandBar.Value>
+          {tContact('selected', { selectedCount: selectedRows.length })}
+        </CommandBar.Value>
         <Can action="tagsTag">
           <>
             <Separator.Inline />
@@ -104,7 +109,7 @@ export const CustomersCommandBar = () => {
                 },
                 onError: (e: ApolloError) => {
                   toast({
-                    title: 'Error',
+                    title: tContact('error-title'),
                     description: e.message,
                     variant: 'destructive',
                   });

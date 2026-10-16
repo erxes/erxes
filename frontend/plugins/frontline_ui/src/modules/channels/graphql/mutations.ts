@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-const ADD_CHANNEL = gql`
+const ADD_CHANNEL = gql(`
   mutation ChannelAdd(
     $name: String!
     $icon: String
@@ -25,9 +25,9 @@ const ADD_CHANNEL = gql`
       memberCount
     }
   }
-`;
+`);
 
-const UPDATE_CHANNEL = gql`
+const UPDATE_CHANNEL = gql(`
   mutation ChannelUpdate(
     $id: String!
     $name: String
@@ -51,9 +51,9 @@ const UPDATE_CHANNEL = gql`
       memberCount
     }
   }
-`;
+`);
 
-const REMOVE_CHANNEL = gql`
+const REMOVE_CHANNEL = gql(`
   mutation ChannelRemove($id: String!) {
     channelRemove(_id: $id) {
       _id
@@ -65,10 +65,10 @@ const REMOVE_CHANNEL = gql`
       memberCount
     }
   }
-`;
+`);
 
-const ADD_CHANNEL_MEMBERS = gql`
-  mutation ChannelAddMembers($id: String!, $memberIds: [String]) {
+const ADD_CHANNEL_MEMBERS = gql(`
+  mutation ChannelAddMembers($id: String!, $memberIds: [String!]!) {
     channelAddMembers(_id: $id, memberIds: $memberIds) {
       _id
       memberId
@@ -87,9 +87,9 @@ const ADD_CHANNEL_MEMBERS = gql`
       role
     }
   }
-`;
+`);
 
-const REMOVE_CHANNEL_MEMBER = gql`
+const REMOVE_CHANNEL_MEMBER = gql(`
   mutation ChannelRemoveMember($channelId: String!, $memberId: String!) {
     channelRemoveMember(channelId: $channelId, memberId: $memberId) {
       _id
@@ -98,16 +98,16 @@ const REMOVE_CHANNEL_MEMBER = gql`
       channelId
     }
   }
-`;
+`);
 
-const REMOVE_CHANNEL_MEMBERS = gql`
+const REMOVE_CHANNEL_MEMBERS = gql(`
   mutation ChannelRemoveMembers($channelId: String!, $memberId: String!) {
     channelRemoveMember(channelId: $channelId, memberId: $memberId) {
       __typename
     }
   }
-`;
-const UPDATE_CHANNEL_MEMBER = gql`
+`);
+const UPDATE_CHANNEL_MEMBER = gql(`
   mutation ChannelUpdateMember($id: String!, $role: String) {
     channelUpdateMember(_id: $id, role: $role) {
       _id
@@ -127,9 +127,9 @@ const UPDATE_CHANNEL_MEMBER = gql`
       }
     }
   }
-`;
+`);
 
-const MOVE_CHANNEL_RESOURCES = gql`
+const MOVE_CHANNEL_RESOURCES = gql(`
   mutation ChannelMoveResources(
     $resourceType: ChannelResourceType!
     $resourceIds: [String!]!
@@ -149,7 +149,7 @@ const MOVE_CHANNEL_RESOURCES = gql`
       targetChannelName
     }
   }
-`;
+`);
 
 export {
   ADD_CHANNEL,

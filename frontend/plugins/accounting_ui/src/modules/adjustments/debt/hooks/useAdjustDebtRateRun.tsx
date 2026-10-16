@@ -1,4 +1,7 @@
-import { OperationVariables, useMutation } from '@apollo/client';
+import type { ApolloError } from '@apollo/client';
+import type { GraphqlMutationOptions } from '@/utils/graphqlMutation';
+import { useMutation } from '@apollo/client';
+import { useTranslation } from 'react-i18next';
 import { toast } from 'erxes-ui';
 import { ADJUST_DEBT_RATE_DETAIL_QUERY } from '../graphql/adjustDebtRateQueries';
 import {
@@ -7,6 +10,7 @@ import {
 } from '../graphql/adjustDebtRateRun';
 
 export const useAdjustDebtRateRun = (_id: string) => {
+  const { t } = useTranslation('accounting');
   const [calculateMutation, { loading: calculateLoading }] = useMutation(
     ADJUST_DEBT_RATE_CALCULATE,
   );
@@ -14,12 +18,17 @@ export const useAdjustDebtRateRun = (_id: string) => {
     ADJUST_DEBT_RATE_DO_TRANSACTION,
   );
 
-  const mutationOptions = (options?: OperationVariables) => ({
+  const mutationOptions = (
+    options?: Pick<
+      GraphqlMutationOptions<typeof ADJUST_DEBT_RATE_CALCULATE>,
+      'variables' | 'onError'
+    >,
+  ) => ({
     ...options,
     variables: { _id, ...options?.variables },
-    onError: (error: Error) => {
+    onError: (error: ApolloError) => {
       toast({
-        title: 'Error',
+        title: t('error'),
         description: error.message,
         variant: 'destructive',
       });
@@ -34,25 +43,31 @@ export const useAdjustDebtRateRun = (_id: string) => {
     awaitRefetchQueries: true,
   });
 
-  const calculateAdjustDebtRate = (options?: OperationVariables) =>
+  const calculateAdjustDebtRate = (
+    options?: GraphqlMutationOptions<typeof ADJUST_DEBT_RATE_CALCULATE>,
+  ) =>
     calculateMutation({
       ...mutationOptions(options),
       onCompleted: (data) => {
         toast({
-          title: 'Success',
-          description: 'Debt rate adjustment calculated successfully',
+          title: t('success'),
+          description: t('Debt rate adjustment calculated successfully'),
         });
         options?.onCompleted?.(data);
       },
     });
 
-  const runAdjustDebtRate = (options?: OperationVariables) =>
+  const runAdjustDebtRate = (
+    options?: GraphqlMutationOptions<typeof ADJUST_DEBT_RATE_DO_TRANSACTION>,
+  ) =>
     runMutation({
       ...mutationOptions(options),
       onCompleted: (data) => {
         toast({
-          title: 'Success',
-          description: 'Debt rate adjustment transaction created successfully',
+          title: t('success'),
+          description: t(
+            'Debt rate adjustment transaction created successfully',
+          ),
         });
         options?.onCompleted?.(data);
       },

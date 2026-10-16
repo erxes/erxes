@@ -24,6 +24,7 @@ import { useUpdateTicket } from '@/ticket/hooks/useUpdateTicket';
 
 interface SelectPriorityContextType {
   value: number;
+  selectedValues?: number[];
   onValueChange: (value: number) => void;
   variant?: `${SelectTriggerVariant}`;
 }
@@ -44,11 +45,13 @@ const useSelectPriorityContext = () => {
 const SelectPriorityProvider = ({
   children,
   value = 0,
+  selectedValues,
   onValueChange,
   variant,
 }: {
   children: React.ReactNode;
   value?: number;
+  selectedValues?: number[];
   onValueChange: (value: number) => void;
   variant?: `${SelectTriggerVariant}`;
 }) => {
@@ -56,6 +59,7 @@ const SelectPriorityProvider = ({
     <SelectPriorityContext.Provider
       value={{
         value,
+        selectedValues,
         onValueChange,
         variant,
       }}
@@ -95,7 +99,7 @@ const SelectPriorityValue = () => {
 };
 
 const SelectPriorityCommandItem = ({ priority }: { priority: number }) => {
-  const { onValueChange, value } = useSelectPriorityContext();
+  const { onValueChange, value, selectedValues } = useSelectPriorityContext();
   const priorityLabel = PROJECT_PRIORITIES_OPTIONS[priority];
   return (
     <Command.Item
@@ -106,13 +110,20 @@ const SelectPriorityCommandItem = ({ priority }: { priority: number }) => {
         <PriorityIcon priority={priority} />
         <PriorityTitle priority={priority} />
       </div>
-      <Combobox.Check checked={value === priority} />
+      <Combobox.Check
+        checked={
+          selectedValues
+            ? selectedValues.includes(priority)
+            : value === priority
+        }
+      />
     </Command.Item>
   );
 };
 
-const SelectPriorityContent = () => {
+const SelectPriorityContent = ({ onClear }: { onClear?: () => void }) => {
   const { t } = useTranslation('frontline');
+  const { selectedValues } = useSelectPriorityContext();
   return (
     <Command>
       <Command.Input placeholder={t('search-priority', 'Search priority')} />
@@ -120,6 +131,12 @@ const SelectPriorityContent = () => {
         {t('no-priority-found', 'No priority found')}
       </Command.Empty>
       <Command.List>
+        {onClear && (
+          <Command.Item value="all" onSelect={onClear}>
+            {t('all-priorities', 'All Priorities')}
+            <Combobox.Check checked={selectedValues?.length === 0} />
+          </Command.Item>
+        )}
         {PROJECT_PRIORITIES_OPTIONS.map((priority, index) => (
           <SelectPriorityCommandItem key={priority} priority={index} />
         ))}
@@ -135,6 +152,7 @@ const SelectPriorityRoot = ({
   variant,
   id,
   disabled,
+  label,
 }: {
   value?: number;
   onValueChange?: (value: number) => void;
@@ -142,6 +160,7 @@ const SelectPriorityRoot = ({
   variant: `${SelectTriggerVariant}`;
   id?: string;
   disabled?: boolean;
+  label?: string;
 }) => {
   const { updateTicket } = useUpdateTicket();
   const [open, setOpen] = useState(false);
@@ -165,7 +184,11 @@ const SelectPriorityRoot = ({
       variant={variant}
     >
       <PopoverScoped scope={scope} open={open} onOpenChange={setOpen}>
-        <SelectTriggerTicket variant={variant} disabled={disabled}>
+        <SelectTriggerTicket
+          variant={variant}
+          disabled={disabled}
+          label={label}
+        >
           {variant === SelectTriggerVariant.TABLE ? (
             <SelectPriorityBadgeValue />
           ) : (
@@ -224,9 +247,11 @@ const SelectPriorityFilterBar = ({ scope }: { scope?: string }) => {
 export const SelectPriorityFormItem = ({
   value,
   onValueChange,
+  label,
 }: {
   value: number;
   onValueChange: (value: number) => void;
+  label?: string;
 }) => {
   const [open, setOpen] = useState(false);
   return (
@@ -238,7 +263,7 @@ export const SelectPriorityFormItem = ({
       }}
     >
       <PopoverScoped open={open} onOpenChange={setOpen}>
-        <SelectTriggerTicket variant="form">
+        <SelectTriggerTicket variant="form" label={label}>
           <SelectPriorityValue />
         </SelectTriggerTicket>
         <SelectTicketContent variant="form">

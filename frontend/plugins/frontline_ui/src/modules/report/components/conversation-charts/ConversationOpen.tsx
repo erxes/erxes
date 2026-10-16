@@ -1,4 +1,5 @@
 import {
+  isDefined,
   ChartContainer,
   ChartTooltipContent,
   RecordTable,
@@ -105,7 +106,7 @@ export const OpenBarChart = memo(function OpenBarChart({
           label={{ value: 'Count', angle: -90, position: 'insideLeft' }}
         />
         <Tooltip content={<ChartTooltipContent />} />
-        <Legend content={(props: any) => <CustomLegendContent {...props} />} />
+        <Legend content={(props) => <CustomLegendContent {...props} />} />
       </BarChart>
     </ChartContainer>
   );
@@ -163,7 +164,7 @@ export const OpenLineChart = memo(function OpenLineChart({
           label={{ value: 'Count', angle: -90, position: 'insideLeft' }}
         />
         <Tooltip content={<ChartTooltipContent />} />
-        <Legend content={(props: any) => <CustomLegendContent {...props} />} />
+        <Legend content={(props) => <CustomLegendContent {...props} />} />
       </AreaChart>
     </ChartContainer>
   );
@@ -236,7 +237,7 @@ export const OpenPieChart = memo(function OpenPieChart({
           ))}
         </Pie>
         <Legend
-          content={(props: any) => (
+          content={(props) => (
             <CustomLegendContent
               {...props}
               onMouseEnter={(data: LegendPayload) => {
@@ -306,7 +307,7 @@ export const OpenRadarChart = memo(function OpenRadarChart({
           fill="var(--primary)"
           fillOpacity={0.3}
         />
-        <Legend content={(props: any) => <CustomLegendContent {...props} />} />
+        <Legend content={(props) => <CustomLegendContent {...props} />} />
         <Tooltip content={<ChartTooltipContent />} />
       </RadarChart>
     </ChartContainer>
@@ -401,7 +402,10 @@ export const ConversationOpen = ({
   });
 
   const allData = useMemo(
-    () => reports?.reportConversationOpenDate || [],
+    () =>
+      (reports?.reportConversationOpenDate ?? [])
+        .filter(isDefined)
+        .map((row) => ({ date: row.date ?? '', count: row.count ?? 0 })),
     [reports],
   );
   const {

@@ -184,7 +184,10 @@ export const useLoyaltySourceAutomations = ({
               : undefined;
           })
           .find((found): found is IRelationSettingsTriggerScope => !!found);
-        const steps = (actions || []).filter(({ type }) => type === actionType);
+        // A fixed-points step feeds a wallet directly, not a campaign.
+        const steps = (actions || []).filter(
+          ({ type, config }) => type === actionType && config?.mode !== 'fixed',
+        );
 
         if (!scope || !steps.length) {
           return [];

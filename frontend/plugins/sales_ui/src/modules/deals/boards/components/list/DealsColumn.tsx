@@ -15,7 +15,8 @@ import {
 import { ColumnDef } from '@tanstack/table-core';
 import { DateSelectDeal } from '@/deals/components/deal-selects/DateSelectDeal';
 import { IDeal } from '@/deals/types/deals';
-import { isEnabled, RecordTable } from 'erxes-ui';
+import { RecordTable } from 'erxes-ui';
+import { useLoyaltyEnabled } from '@/deals/loyaltyRules/hooks/useLoyaltyEnabled';
 import { SelectAssigneeDeal } from '@/deals/components/deal-selects/SelectAssigneeDeal';
 import { SelectDealPriority } from '@/deals/components/deal-selects/SelectDealPriority';
 import { dealsMoreColumn } from './DealsMoreColumn';
@@ -37,6 +38,7 @@ export const DealsColumn = (): ColumnDef<IDeal>[] => {
   const { moveDealStage } = useMoveDealStage();
   const checkBoxColumn = RecordTable.checkboxColumn as ColumnDef<IDeal>;
   const { t } = useTranslation('sales');
+  const loyaltyEnabled = useLoyaltyEnabled();
 
   return [
     checkBoxColumn,
@@ -191,6 +193,6 @@ export const DealsColumn = (): ColumnDef<IDeal>[] => {
       size: 240,
     },
     // Read from loyalty for the loaded deals; absent when it is off.
-    ...(isEnabled('loyalty') ? [loyaltyPointsColumn] : []),
+    ...(loyaltyEnabled ? [loyaltyPointsColumn] : []),
   ];
 };

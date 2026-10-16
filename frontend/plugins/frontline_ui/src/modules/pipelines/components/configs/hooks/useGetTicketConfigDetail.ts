@@ -1,20 +1,23 @@
 import { QueryHookOptions, useQuery } from '@apollo/client';
-import { IConfig } from './useGetTicketConfigs';
 import { GET_CONFIG_DETAIL } from '../graphql';
+import type {
+  TicketConfigDetailQuery,
+  TicketConfigDetailQueryVariables,
+} from '~/gql/graphql';
 
-interface ITicketConfigDetailResponse {
-  ticketConfigDetail: IConfig;
-}
+export type ITicketConfigDetail = NonNullable<
+  TicketConfigDetailQuery['ticketConfigDetail']
+>;
 
 export const useGetTicketConfigDetail = (
-  options?: QueryHookOptions<ITicketConfigDetailResponse>,
+  options?: QueryHookOptions<
+    TicketConfigDetailQuery,
+    TicketConfigDetailQueryVariables
+  >,
 ) => {
-  const { data, loading } = useQuery<ITicketConfigDetailResponse>(
-    GET_CONFIG_DETAIL,
-    options,
-  );
+  const { data, loading } = useQuery(GET_CONFIG_DETAIL, options);
   return {
-    ticketConfigDetail: data?.ticketConfigDetail,
+    ticketConfigDetail: data?.ticketConfigDetail ?? undefined,
     loading,
   };
 };

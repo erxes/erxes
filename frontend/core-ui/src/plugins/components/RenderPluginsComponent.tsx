@@ -1,16 +1,18 @@
-import { loadRemote } from '@module-federation/enhanced/runtime';
-import { Spinner } from 'erxes-ui';
-import { Suspense, useEffect, useState } from 'react';
+import * as Sentry from '@sentry/react';
+
 import {
   RemoteComponent,
   RemoteComponentProps,
   RemoteModule,
   resolveRemoteComponent,
 } from '../utils/resolveRemoteComponent';
-import { RenderPluginsComponentErrorState } from './RenderPluginsComponentErrorState';
-import { RenderPluginsComponentCrashState } from './RenderPluginsComponentCrashState';
+import { Suspense, useEffect, useState } from 'react';
+
 import { ErrorBoundary } from 'react-error-boundary';
-import * as Sentry from '@sentry/react';
+import { RenderPluginsComponentCrashState } from './RenderPluginsComponentCrashState';
+import { RenderPluginsComponentErrorState } from './RenderPluginsComponentErrorState';
+import { Spinner } from 'erxes-ui';
+import { loadRemote } from '@module-federation/enhanced/runtime';
 
 export function RenderPluginsComponent({
   pluginName,
@@ -89,15 +91,21 @@ export function RenderPluginsComponent({
       <ErrorBoundary
         FallbackComponent={RenderPluginsComponentCrashState}
         resetKeys={[pluginName, remoteModuleName]}
-        onError={(error, info) =>
+        onError={(error, info) => {
+          // The fallback hides the error; keep it visible for debugging.
+          console.error(
+            `[${pluginName}/${remoteModuleName}] render failed`,
+            error,
+            info.componentStack,
+          );
           Sentry.captureException(error, {
             extra: {
               pluginName,
               remoteModuleName,
               componentStack: info.componentStack,
             },
-          })
-        }
+          });
+        }}
       >
         <Plugin key={`${pluginName}-${remoteModuleName}`} {...(props || {})} />
       </ErrorBoundary>

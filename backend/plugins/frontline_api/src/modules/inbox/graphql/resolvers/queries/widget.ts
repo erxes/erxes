@@ -73,17 +73,6 @@ const getWidgetMessages = (models: IModels, conversationId: string) => {
 };
 
 export const widgetQueries: Record<string, Resolver> = {
-  async widgetsGetMessengerIntegration(
-    _root,
-    args: { brandCode: string },
-    { models }: IContext,
-  ) {
-    return models.Integrations.getWidgetIntegration(
-      args.brandCode,
-      'messenger',
-    );
-  },
-
   async widgetsConversations(
     _root,
     args: { integrationId: string; customerId?: string; visitorId?: string },

@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-const GET_RESPONSE = gql`
+const GET_RESPONSE = gql(`
   query ResponseTemplate($id: String!) {
     responseTemplate(_id: $id) {
       _id
@@ -12,6 +12,6 @@ const GET_RESPONSE = gql`
       files
     }
   }
-`;
+`);
 
 export { GET_RESPONSE };

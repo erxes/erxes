@@ -183,11 +183,13 @@ export const SelectEstimatedPointRoot = ({
   taskId,
   teamId,
   variant,
+  label,
 }: {
   value?: number | null;
   taskId: string;
   teamId: string;
   variant: `${SelectTriggerVariant}`;
+  label?: string;
 }) => {
   const [open, setOpen] = useState(false);
   const { updateTask } = useUpdateTask();
@@ -208,7 +210,7 @@ export const SelectEstimatedPointRoot = ({
       variant={variant}
     >
       <PopoverScoped open={open} onOpenChange={setOpen}>
-        <SelectTriggerOperation variant={variant}>
+        <SelectTriggerOperation variant={variant} label={label}>
           <SelectEstimatedPointValue />
         </SelectTriggerOperation>
         <SelectOperationContent variant={variant}>
@@ -224,11 +226,13 @@ export const SelectEstimatedPointFormItem = ({
   teamId,
   onValueChange,
   scope,
+  label,
 }: {
   value: number;
   teamId: string;
   onValueChange: (value: number) => void;
   scope: string;
+  label?: string;
 }) => {
   const [open, setOpen] = useState(false);
   return (
@@ -241,7 +245,7 @@ export const SelectEstimatedPointFormItem = ({
       teamId={teamId}
     >
       <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
-        <SelectTriggerOperation variant="form">
+        <SelectTriggerOperation variant="form" label={label}>
           <SelectEstimatedPointValue />
         </SelectTriggerOperation>
         <SelectOperationContent variant="form">

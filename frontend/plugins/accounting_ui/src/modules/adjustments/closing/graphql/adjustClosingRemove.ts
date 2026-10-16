@@ -1,7 +1,7 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const ADJUST_CLOSING_REMOVE = gql`
-  mutation AdjustClosingRemove($_id: String!) {
-    adjustClosingRemove(_id: $_id)
-  }
-`;
+export const ADJUST_CLOSING_REMOVE = gql(`
+mutation accountingAdjustClosingRemove($_id: String!) {
+  adjustClosingRemove(_id: $_id)
+}
+`);

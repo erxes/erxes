@@ -1,22 +1,25 @@
-import { OperationVariables, useMutation } from '@apollo/client';
+import type { GraphqlMutationOptions } from '@/utils/graphqlMutation';
+import { useMutation } from '@apollo/client';
+import { useTranslation } from 'react-i18next';
 import { recordTableCursorAtomFamily, toast } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
 import { ACCOUNTS_CURSOR_SESSION_KEY } from '~/modules/accountsSessionKeys';
 import { ACCOUNTS_ADD } from '../graphql/mutations/accounts';
 
 export const useAccountAdd = () => {
+  const { t } = useTranslation('accounting');
   const setCursor = useSetAtom(
     recordTableCursorAtomFamily(ACCOUNTS_CURSOR_SESSION_KEY),
   );
 
   const [_addAccount, { loading }] = useMutation(ACCOUNTS_ADD);
 
-  const addAccount = (options: OperationVariables) => {
+  const addAccount = (options: GraphqlMutationOptions<typeof ACCOUNTS_ADD>) => {
     return _addAccount({
       ...options,
       onError: (error) => {
         toast({
-          title: 'Алдаа',
+          title: t('error'),
           description: error.message,
           variant: 'destructive',
         });
@@ -26,7 +29,7 @@ export const useAccountAdd = () => {
         setCursor('');
         options?.onCompleted?.(data);
       },
-      refetchQueries: ['AccountsMain'],
+      refetchQueries: ['accountingAccountsMain'],
     });
   };
 

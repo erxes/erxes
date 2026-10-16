@@ -1,6 +1,6 @@
 import { IAttachment, IPropertyField } from 'erxes-api-shared/core-types';
 
-export type ConversationConvertType = 'ticket' | 'deal' | 'task';
+export type ConversationConvertType = 'ticket' | 'deal';
 
 export interface IConversationConvert {
   _id: string;

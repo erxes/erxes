@@ -95,9 +95,11 @@ const SelectMemberProvider = ({
 const SelectMemberValue = ({
   placeholder,
   size,
+  showInactive,
 }: {
   placeholder?: string;
   size?: AvatarProps['size'];
+  showInactive?: boolean;
 }) => {
   const { memberIds, members, setMembers, allowUnassigned } =
     useSelectMemberContext();
@@ -110,6 +112,7 @@ const SelectMemberValue = ({
       placeholder={placeholder}
       size={size}
       allowUnassigned={allowUnassigned}
+      showInactive={showInactive}
     />
   );
 };

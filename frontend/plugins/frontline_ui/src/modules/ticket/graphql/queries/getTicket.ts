@@ -1,32 +1,10 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const GET_TICKET = gql`
+export const GET_TICKET = gql(`
   query GetTicket($_id: String!) {
     getTicket(_id: $_id) {
-      _id
-      name
-      description
-      statusId
-      priority
-      labelIds
-      tagIds
-      assigneeId
-      assignedMembers
-      userId
-      startDate
-      targetDate
-      createdAt
-      updatedAt
-      createdBy
-      channelId
-      branchId
-      departmentId
-      statusChangedDate
-      number
-      pipelineId
+      ...FrontlineTicketFields
       isSubscribed
-      state
-      propertiesData
       attachments {
         name
         url
@@ -36,4 +14,4 @@ export const GET_TICKET = gql`
       }
     }
   }
-`;
+`);

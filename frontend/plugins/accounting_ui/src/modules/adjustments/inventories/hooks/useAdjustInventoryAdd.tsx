@@ -1,11 +1,15 @@
-import { OperationVariables, useMutation } from '@apollo/client';
+import type { ApolloError } from '@apollo/client';
+import type { GraphqlMutationOptions } from '@/utils/graphqlMutation';
+import { useMutation } from '@apollo/client';
 import { ADJUST_INVENTORY_ADD } from '../graphql/adjustInventoryAdd';
 import { toast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { ADJUST_INVENTORIES_QUERY } from '../graphql/adjustInventoryQueries';
 
-export const useAdjustInventoryAdd = (options?: OperationVariables) => {
+export const useAdjustInventoryAdd = (
+  options?: GraphqlMutationOptions<typeof ADJUST_INVENTORY_ADD>,
+) => {
   const { t } = useTranslation('accounting');
   const navigate = useNavigate();
 
@@ -14,10 +18,12 @@ export const useAdjustInventoryAdd = (options?: OperationVariables) => {
     options,
   );
 
-  const addAdjustInventory = (options?: OperationVariables) => {
+  const addAdjustInventory = (
+    options?: GraphqlMutationOptions<typeof ADJUST_INVENTORY_ADD>,
+  ) => {
     return _addAdjustInventory({
       ...options,
-      onError: (error: Error) => {
+      onError: (error: ApolloError) => {
         toast({
           title: t('error'),
           description: error.message,
@@ -25,12 +31,12 @@ export const useAdjustInventoryAdd = (options?: OperationVariables) => {
         });
         options?.onError?.(error);
       },
-      onCompleted: () => {
+      onCompleted: (data) => {
         toast({
           title: t('success'),
           description: t('adjust-inventory-created-successfully'),
         });
-        options?.onCompleted();
+        options?.onCompleted?.(data);
       },
       refetchQueries: [
         {
@@ -43,7 +49,7 @@ export const useAdjustInventoryAdd = (options?: OperationVariables) => {
       ],
       awaitRefetchQueries: true,
       update: (_cache, { data }) => {
-        const newId = data?.adjustInventoryAdd[0]?.id;
+        const newId = data?.adjustInventoryAdd?._id;
 
         const pathname = newId
           ? `/accounting/adjustment/inventory/edit?id=${newId}`

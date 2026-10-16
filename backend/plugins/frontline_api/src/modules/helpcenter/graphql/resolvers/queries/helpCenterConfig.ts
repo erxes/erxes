@@ -1,5 +1,5 @@
 import { Resolver } from 'erxes-api-shared/core-types';
-import { defaultPaginate } from 'erxes-api-shared/utils';
+import { defaultPaginate, escapeRegExp } from 'erxes-api-shared/utils';
 import { helpCenterIdForHost } from '@/customdomain/service';
 import { normalizeHelpCenterUrl } from '@/helpcenter/utils/helpCenterConfig';
 import { IContext, IModels } from '~/connectionResolvers';
@@ -11,21 +11,16 @@ export interface IListArgs {
   brandId?: string;
 }
 
-const escapeRegExp = (value: string) =>
-  value.replace(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
-
 const buildQuery = ({ searchValue, brandId }: IListArgs) => {
   const query: Record<string, unknown> = {};
 
   const search = searchValue?.trim();
 
   if (search) {
-    const safeSearch = escapeRegExp(search);
-
     query.$or = [
-      { title: { $regex: `.*${safeSearch}.*`, $options: 'i' } },
-      { description: { $regex: `.*${safeSearch}.*`, $options: 'i' } },
-      { url: { $regex: `.*${safeSearch}.*`, $options: 'i' } },
+      { title: { $regex: `.*${escapeRegExp(search)}.*`, $options: 'i' } },
+      { description: { $regex: `.*${escapeRegExp(search)}.*`, $options: 'i' } },
+      { url: { $regex: `.*${escapeRegExp(search)}.*`, $options: 'i' } },
     ];
   }
 

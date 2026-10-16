@@ -6,8 +6,8 @@ export const types = `
     pipelineId: String!
     description: String
     color: String
-    order: Int
-    type: Int
+    order: Int!
+    type: Int!
     createdAt: Date
     updatedAt: Date
     visibilityType: String
@@ -24,13 +24,25 @@ export const types = `
     status: TicketStatus
   }
 
+  type TicketStatusChoice {
+    value: String!
+    label: String!
+    color: String
+    type: Int!
+    visibilityType: String
+    memberIds: [String]
+    canMoveMemberIds: [String]
+    canEditMemberIds: [String]
+    departmentIds: [String]
+  }
+
 
 `;
 
 export const queries = `
   getTicketStatus(_id: String!): TicketStatus
-  getAccessibleTicketStatuses(pipelineId: String!): JSON
-  getTicketStatusesChoicesPipeline(pipelineId: String!): JSON
+  getAccessibleTicketStatuses(pipelineId: String!): [TicketStatusChoice!]!
+  getTicketStatusesChoicesPipeline(pipelineId: String!): [TicketStatusChoice!]!
   getTicketStatusesByType(pipelineId: String! , type: Int!): [TicketStatus]
   cpGetTicketStatus(_id: String!): TicketStatus
   `;
@@ -52,7 +64,7 @@ export const mutations = `
     description: String
     color: String
     order: Int
-    type: Int
+    type: Int!
     ${statusParams}
   ): TicketStatus
 

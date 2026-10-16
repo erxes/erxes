@@ -1,5 +1,9 @@
 import { IContext } from '~/connectionResolvers';
 import { IVatRow } from '@/accounting/@types/vatRow';
+import {
+  validateRequiredId,
+  validateRequiredIds,
+} from '../../validateRequired';
 
 const vatRowsMutations = {
   /**
@@ -24,6 +28,7 @@ const vatRowsMutations = {
     { models, checkPermission }: IContext,
   ) {
     await checkPermission('manageTaxRows');
+    validateRequiredId(_id);
     await models.VatRows.getVatRow({
       _id,
     });
@@ -42,6 +47,7 @@ const vatRowsMutations = {
     { models, checkPermission }: IContext,
   ) {
     await checkPermission('removeTaxRows');
+    validateRequiredIds(vatRowIds, 'vatRowIds');
     await models.VatRows.find({
       _id: { $in: vatRowIds },
     }).lean();
@@ -51,4 +57,4 @@ const vatRowsMutations = {
   },
 };
 
-export default vatRowsMutations;
+export { vatRowsMutations };

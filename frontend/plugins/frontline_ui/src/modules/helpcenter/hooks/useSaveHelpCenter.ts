@@ -22,8 +22,8 @@ export const useSaveHelpCenter = ({ onSaved }: { onSaved: () => void }) => {
         toast({
           title: t('success'),
           description: isEditing
-            ? t('kb-topic-saved', 'Topic saved')
-            : t('kb-topic-created', 'Topic created'),
+            ? t('help-center-saved', 'Help center saved')
+            : t('help-center-created', 'Help center created'),
           variant: 'success',
         });
         onSaved();

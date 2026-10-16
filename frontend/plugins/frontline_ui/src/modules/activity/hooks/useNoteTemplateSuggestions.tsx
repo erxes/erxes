@@ -3,6 +3,7 @@ import type {
   INoteTemplateSuggestion,
   NoteTemplateSuggestionsOptions,
 } from '@/activity/types';
+import { toResponseTemplateText } from '@/responseTemplate/utils/toResponseTemplateText';
 import { getPreviewText } from '@/inbox/types/inbox';
 import { useGetResponses } from '@/responseTemplate/hooks/useGetResponses';
 import { toast } from 'erxes-ui';
@@ -34,8 +35,8 @@ export const useNoteTemplateSuggestions = ({
       debouncedSearchValue && enabled
         ? (responses || [])
             .slice(0, MAX_TEMPLATE_SUGGESTIONS)
-            .map((response: INoteTemplateSuggestion) => ({
-              ...response,
+            .map((response) => ({
+              ...toResponseTemplateText(response),
               preview: getPreviewText(response.content || ''),
             }))
         : [],

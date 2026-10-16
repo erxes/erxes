@@ -1,5 +1,6 @@
 import { SelectVerifiedSender } from '@/settings/mail-config/components/SelectVerifiedSender';
 import { splitAutomationNodeType } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 /**
  * Answers the prerequisites core itself owns.
@@ -19,6 +20,7 @@ export const CoreTemplateRequirement = ({
   value: unknown;
   onChange: (value: unknown | null) => void;
 }) => {
+  const { t } = useTranslation('automations');
   // `core:<module>.<what>`
   const [, moduleName, what] = splitAutomationNodeType(kind);
 
@@ -33,7 +35,7 @@ export const CoreTemplateRequirement = ({
             ? onChange({ value: address, name: sender?.name })
             : onChange(null)
         }
-        placeholder="Select a verified sender"
+        placeholder={t('template-select-verified-sender')}
       />
     );
   }

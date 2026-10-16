@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { addingTagAtom } from '@/settings/tags/states/addingTagAtom';
 import { tagGroupsAtomFamily } from '@/settings/tags/states/tagGroupsAtom';
 import { SettingsHotKeyScope } from '@/types/SettingsHotKeyScope';
@@ -24,6 +25,7 @@ import { useState } from 'react';
 import { ITag, useTagEdit, useTagRemove } from 'ui-modules';
 
 export const TagsListRowOptionMenu = ({ tag }: { tag: ITag }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'tags' });
   const [menuContent, setMenuContent] = useState<'main' | 'groupSelect'>(
     'main',
   );
@@ -82,7 +84,7 @@ export const TagsListRowOptionMenu = ({ tag }: { tag: ITag }) => {
                 }}
               >
                 <IconTransform />
-                Convert to {tag.isGroup ? 'tag' : 'group'}
+                {tag.isGroup ? t('convert-to-tag') : t('convert-to-group')}
               </Command.Item>
               {tag.isGroup ? (
                 <Command.Item
@@ -92,12 +94,12 @@ export const TagsListRowOptionMenu = ({ tag }: { tag: ITag }) => {
                   }}
                 >
                   <IconPlus />
-                  Add tag to group
+                  {t('add-tag-to-group')}
                 </Command.Item>
               ) : (
                 <Command.Item onSelect={() => setMenuContent('groupSelect')}>
                   <IconArrowMoveRight />
-                  {!tag.parentId ? 'Move to group' : 'Change group'}
+                  {!tag.parentId ? t('move-to-group-item') : t('change-group')}
                   <IconCaretRightFilled className="size-5 absolute right-1 text-accent-foreground" />
                 </Command.Item>
               )}
@@ -106,7 +108,7 @@ export const TagsListRowOptionMenu = ({ tag }: { tag: ITag }) => {
                 onSelect={() => removeTag(tag._id)}
               >
                 <IconTrash />
-                Delete
+                {t('delete')}
               </Command.Item>
             </Command.List>
           </Command>
@@ -116,9 +118,9 @@ export const TagsListRowOptionMenu = ({ tag }: { tag: ITag }) => {
             <Command.Input
               variant="secondary"
               focusOnMount
-              placeholder="Search tag groups"
+              placeholder={t('search-tag-groups')}
             />
-            <Command.Empty>No groups found</Command.Empty>
+            <Command.Empty>{t('no-groups-found')}</Command.Empty>
             <Command.List className="[&>div>div]:cursor-pointer">
               {tagGroupsFiltered.map((group) => (
                 <Command.Item

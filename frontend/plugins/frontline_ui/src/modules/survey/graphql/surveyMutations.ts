@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const SURVEY_ADD = gql`
+export const SURVEY_ADD = gql(`
   mutation surveyAdd(
     $title: String!
     $channelId: String
@@ -18,9 +18,9 @@ export const SURVEY_ADD = gql`
       _id
     }
   }
-`;
+`);
 
-export const SURVEY_EDIT = gql`
+export const SURVEY_EDIT = gql(`
   mutation surveyEdit(
     $_id: String!
     $title: String!
@@ -83,15 +83,15 @@ export const SURVEY_EDIT = gql`
       status
     }
   }
-`;
+`);
 
-export const SURVEY_REMOVE = gql`
+export const SURVEY_REMOVE = gql(`
   mutation surveyRemove($_ids: [String!]!) {
     surveyRemove(_ids: $_ids)
   }
-`;
+`);
 
-export const SURVEY_TOGGLE_STATUS = gql`
+export const SURVEY_TOGGLE_STATUS = gql(`
   mutation surveyToggleStatus(
     $_ids: [String!]!
     $status: String!
@@ -99,12 +99,12 @@ export const SURVEY_TOGGLE_STATUS = gql`
   ) {
     surveyToggleStatus(_ids: $_ids, status: $status, reason: $reason)
   }
-`;
+`);
 
-export const SURVEY_SEND_TO_CONVERSATION = gql`
+export const SURVEY_SEND_TO_CONVERSATION = gql(`
   mutation surveySendToConversation($_id: String!, $conversationId: String!) {
     surveySendToConversation(_id: $_id, conversationId: $conversationId) {
       _id
     }
   }
-`;
+`);

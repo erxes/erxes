@@ -1,6 +1,6 @@
-import gql from 'graphql-tag';
+import { gql } from '~/gql';
 
-export const FACEBOOK_BOT_AUTOMATIONS = gql`
+export const FACEBOOK_BOT_AUTOMATIONS = gql(`
   query FacebookBotAutomations($triggerTypes: [String]) {
     automations(triggerTypes: $triggerTypes) {
       _id
@@ -13,4 +13,4 @@ export const FACEBOOK_BOT_AUTOMATIONS = gql`
       }
     }
   }
-`;
+`);

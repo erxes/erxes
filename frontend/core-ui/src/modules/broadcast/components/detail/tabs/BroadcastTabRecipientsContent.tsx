@@ -122,7 +122,10 @@ const BroadcastRecipients = ({
               <Select.Content>
                 {runs.map((run) => (
                   <Select.Item key={run._id} value={run._id}>
-                    Run {run.runCount} · {run.totalCount} recipients
+                    {t('recipients.run-option', {
+                      runCount: run.runCount,
+                      totalCount: run.totalCount,
+                    })}
                   </Select.Item>
                 ))}
               </Select.Content>
@@ -314,15 +317,12 @@ const RecipientRow =
     selected: TBroadcastRecipient | null,
     onSelect: (recipient: TBroadcastRecipient) => void,
   ) =>
-  ({ original, ...props }: React.ComponentProps<typeof RecordTable.Row>) =>
-    (
-      <RecordTable.Row
-        {...props}
-        original={original}
-        className="cursor-pointer"
-        onClick={() => onSelect(original)}
-        {...(selected?._id === original?._id
-          ? { 'data-state': 'selected' }
-          : {})}
-      />
-    );
+  ({ original, ...props }: React.ComponentProps<typeof RecordTable.Row>) => (
+    <RecordTable.Row
+      {...props}
+      original={original}
+      className="cursor-pointer"
+      onClick={() => onSelect(original)}
+      {...(selected?._id === original?._id ? { 'data-state': 'selected' } : {})}
+    />
+  );

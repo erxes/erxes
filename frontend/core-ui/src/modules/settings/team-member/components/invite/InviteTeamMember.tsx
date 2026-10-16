@@ -24,7 +24,7 @@ export function InviteTeamMember() {
             {t('invite-team-members')}
           </Dialog.Title>
           <Dialog.Description className="sr-only">
-            Add a new account
+            {t('add-new-account')}
           </Dialog.Description>
           <Dialog.Close asChild>
             <Button
@@ -37,9 +37,7 @@ export function InviteTeamMember() {
           </Dialog.Close>
         </Dialog.Header>
         <div className="flex flex-col gap-6 px-3 pb-3">
-          <span className="text-accent-foreground">
-            {t('notify')}
-          </span>
+          <span className="text-accent-foreground">{t('notify')}</span>
           <InviteForm setIsOpen={setIsOpen} />
         </div>
       </Dialog.Content>

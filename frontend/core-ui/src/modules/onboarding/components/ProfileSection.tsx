@@ -10,6 +10,7 @@ import { useState } from 'react';
 import { useUserEdit } from '@/settings/team-member/hooks/useUserEdit';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useTranslation } from 'react-i18next';
 
 const passwordSchema = z
   .string()
@@ -84,6 +85,7 @@ const PasswordField = ({
 };
 
 export const ProfileSection = ({ onContinue }: { onContinue: () => void }) => {
+  const { t } = useTranslation('common', { keyPrefix: 'onboarding' });
   const [currentUser] = useAtom(currentUserState);
   const hasPassword = !!currentUser?.hasPassword;
   const { usersEdit } = useUserEdit();
@@ -118,7 +120,7 @@ export const ProfileSection = ({ onContinue }: { onContinue: () => void }) => {
       },
       onError: (error) => {
         toast({
-          title: 'Error updating user',
+          title: t('error-updating-user'),
           description: error.message,
           variant: 'destructive',
         });
@@ -143,12 +145,12 @@ export const ProfileSection = ({ onContinue }: { onContinue: () => void }) => {
         className="flex flex-col gap-2 text-center mb-2"
       >
         <h2 className="text-2xl font-semibold text-foreground">
-          Create your profile
+          {t('create-profile')}
         </h2>
         <p className="text-sm text-muted-foreground">
           {hasPassword
-            ? 'Add your details and pick a username'
-            : 'Add your details and secure your account'}
+            ? t('profile-description-username')
+            : t('profile-description-secure')}
         </p>
       </motion.div>
       <motion.div
@@ -194,7 +196,7 @@ export const ProfileSection = ({ onContinue }: { onContinue: () => void }) => {
                             />
                           </div>
                           <Form.Description className="text-xs">
-                            Upload a profile picture to help identify you.
+                            {t('upload-profile-picture')}
                           </Form.Description>
                         </div>
                       </Upload.Root>
@@ -209,11 +211,11 @@ export const ProfileSection = ({ onContinue }: { onContinue: () => void }) => {
                 name="firstName"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>First name</Form.Label>
+                    <Form.Label>{t('first-name')}</Form.Label>
                     <Form.Control>
                       <Input
                         type="text"
-                        placeholder="First name"
+                        placeholder={t('first-name')}
                         autoFocus
                         {...field}
                       />
@@ -227,9 +229,13 @@ export const ProfileSection = ({ onContinue }: { onContinue: () => void }) => {
                 name="lastName"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>Last name</Form.Label>
+                    <Form.Label>{t('last-name')}</Form.Label>
                     <Form.Control>
-                      <Input type="text" placeholder="Last name" {...field} />
+                      <Input
+                        type="text"
+                        placeholder={t('last-name')}
+                        {...field}
+                      />
                     </Form.Control>
                     <Form.Message />
                   </Form.Item>
@@ -241,9 +247,9 @@ export const ProfileSection = ({ onContinue }: { onContinue: () => void }) => {
               control={form.control}
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Username</Form.Label>
+                  <Form.Label>{t('username')}</Form.Label>
                   <Form.Control>
-                    <Input type="text" placeholder="Username" {...field} />
+                    <Input type="text" placeholder={t('username')} {...field} />
                   </Form.Control>
                   <Form.Message />
                 </Form.Item>
@@ -254,17 +260,17 @@ export const ProfileSection = ({ onContinue }: { onContinue: () => void }) => {
                 <PasswordField
                   control={form.control}
                   name="password"
-                  placeholder="Password"
+                  placeholder={t('password')}
                 />
                 <PasswordField
                   control={form.control}
                   name="passwordConfirmation"
-                  placeholder="Confirm password"
+                  placeholder={t('confirm-password')}
                 />
               </>
             )}
             <Button type="submit" className="w-full cursor-pointer" size="lg">
-              Continue
+              {t('continue')}
             </Button>
           </form>
         </Form>

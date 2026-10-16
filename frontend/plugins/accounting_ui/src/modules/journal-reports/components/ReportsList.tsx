@@ -1,16 +1,19 @@
-import { IconCaretRightFilled, IconReport } from '@tabler/icons-react';
 import { Collapsible, IconComponent, Sidebar } from 'erxes-ui';
-import { useAtom } from 'jotai';
-import { activeReportState } from '../states/renderingReportsStates';
+import { IconChevronRight, IconReport } from '@tabler/icons-react';
 import { ReportRuleGroups, ReportRules } from '../types/reportsMap';
 
+import { activeReportState } from '../states/renderingReportsStates';
+import { useAtom } from 'jotai';
+import { useTranslation } from 'react-i18next';
+
 export const ReportsList = () => {
+  const { t } = useTranslation('accounting');
   const [activeReport, setActiveReport] = useAtom(activeReportState);
 
   return (
-    <Sidebar
-      collapsible="none"
-      className="w-56 flex-none overflow-y-auto overflow-x-hidden border-r lg:w-64 2xl:w-[21rem]"
+    <Sidebar.Panel
+      className="w-56 flex-none border-r lg:w-64 2xl:w-[21rem]"
+      label={t('Reports')}
     >
       {ReportRuleGroups.map((group) => (
         <Collapsible
@@ -21,8 +24,10 @@ export const ReportsList = () => {
           <Sidebar.Group className="py-1.5">
             <Sidebar.GroupLabel asChild>
               <Collapsible.Trigger className="flex items-center gap-2">
-                <IconCaretRightFilled className="size-3.5 transition-transform group-data-[state=open]/report-list:rotate-90" />
-                <span>{group.label}</span>
+                <span className="flex shrink-0 transition-transform duration-250 ease-[cubic-bezier(0.22,1,0.36,1)] group-data-[state=open]/report-list:rotate-90 motion-reduce:transition-none">
+                  <IconChevronRight className="size-3.5" />
+                </span>
+                <span>{t(group.label || '', { nsSeparator: false })}</span>
               </Collapsible.Trigger>
             </Sidebar.GroupLabel>
             <Collapsible.Content>
@@ -44,7 +49,7 @@ export const ReportsList = () => {
                           <IconReport className="mt-0.5 shrink-0" />
                         )}
                         <span className="min-w-0 flex-1 break-words font-normal leading-snug">
-                          {ReportRules[repKey].title}
+                          {t(ReportRules[repKey].title || '')}
                         </span>
                       </Sidebar.MenuButton>
                     </Sidebar.MenuItem>
@@ -55,6 +60,6 @@ export const ReportsList = () => {
           </Sidebar.Group>
         </Collapsible>
       ))}
-    </Sidebar>
+    </Sidebar.Panel>
   );
 };
