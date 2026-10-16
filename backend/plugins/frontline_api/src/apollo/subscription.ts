@@ -1,4 +1,4 @@
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { escapeRegExp, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { withFilter } from 'graphql-subscriptions';
 
 export default {
@@ -15,7 +15,7 @@ export default {
 			conversationBotTypingStatus(_id: String!): JSON
       queueRealtimeUpdate(extension: String): String
       callSessionUpdated(inboxIntegrationId: String, uniqueid: String, extension: String): CallSession
-      ticketPipelineChanged(filter: TicketsPipelineFilter): TicketSubscription
+      ticketPipelineChanged(_id: String!): PipelineSubscription
       ticketPipelineListChanged: PipelineSubscription
       ticketChanged(_id: String!): TicketSubscription
       ticketListChanged(filter: ITicketFilter): TicketSubscription
@@ -131,7 +131,7 @@ export default {
             }
 
             if (filter.name) {
-              const regex = new RegExp(filter.name, 'i');
+              const regex = new RegExp(escapeRegExp(filter.name), 'i');
               if (!regex.test(ticket.name)) return false;
             }
 

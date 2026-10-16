@@ -16,6 +16,7 @@ import {
   Command,
   Form,
   Input,
+  isDefined,
   Popover,
   Select,
   Spinner,
@@ -515,8 +516,7 @@ const SelectMessengerAutomation = ({
     variables: { triggerTypes: ['frontline:inbox.messages'] },
   });
 
-  const automations: { _id: string; name: string; status: string }[] =
-    data?.automations || [];
+  const automations = data?.automations?.filter(isDefined) ?? [];
 
   const selected = automations.find((a) => a._id === value);
 
@@ -527,8 +527,8 @@ const SelectMessengerAutomation = ({
           {loading
             ? t('loading')
             : selected
-              ? selected.name
-              : t('select-an-automation')}
+            ? selected.name
+            : t('select-an-automation')}
         </span>
       </Combobox.Trigger>
       <Combobox.Content>

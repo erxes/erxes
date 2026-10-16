@@ -962,5 +962,21 @@
   "pos-accept-coupons-hint": "Shows a coupon code input at the till.",
   "pos-earn-tier-hint": "A paid order sets the customer's tier in this wallet by its amount; a return keeps it.",
   "loyalty-tier-badge-sets": "Sets tier → {{wallet}} · {{rule}}",
-  "loyalty-deal-points": "Loyalty points"
+  "loyalty-deal-points": "Loyalty points",
+  "deal-voucher": "Voucher",
+  "deal-voucher-title": "Vouchers and coupon",
+  "deal-voucher-vouchers": "Customer's vouchers",
+  "deal-voucher-until": "Until {{date}}",
+  "deal-voucher-auto": "Auto",
+  "deal-voucher-applied": "Applied",
+  "deal-voucher-apply": "Apply",
+  "deal-voucher-none": "This customer has no vouchers",
+  "deal-voucher-coupon": "Coupon",
+  "deal-voucher-remove": "Remove",
+  "deal-voucher-coupon-placeholder": "Coupon code",
+  "deal-voucher-more_one": "+{{count}} voucher",
+  "deal-voucher-more_other": "+{{count}} vouchers",
+  "deal-voucher-empty": "No voucher or coupon",
+  "deal-voucher-open": "Vouchers",
+  "deal-voucher-settled": "Used on this deal"
 }

@@ -3,6 +3,7 @@ import { IconUserCancel } from '@tabler/icons-react';
 import {
   Avatar,
   AvatarProps,
+  Badge,
   Combobox,
   Tooltip,
   cn,
@@ -10,7 +11,7 @@ import {
   readImage,
 } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
-import { useCallback, useEffect, useState } from 'react';
+import { Fragment, useCallback, useEffect, useState } from 'react';
 import type { Dispatch, ReactNode, SetStateAction } from 'react';
 import { currentUserState } from 'ui-modules/states';
 
@@ -22,6 +23,26 @@ import { USER_STATUS_CHANGED } from 'ui-modules/modules/team-members/graphql/sub
 import { useMemberInline } from 'ui-modules/modules/team-members/hooks';
 import { IUser } from 'ui-modules/modules/team-members/types/TeamMembers';
 
+const getMemberLabel = (member: IUser, showInactive?: boolean) => {
+  if (!showInactive) return member.details?.fullName;
+
+  const name =
+    member.details?.fullName ||
+    member.username ||
+    member.email ||
+    'Unknown member';
+  if (member.isActive !== false) return name;
+
+  return (
+    <span className="inline-flex items-center gap-1">
+      <span>{name}</span>
+      <Badge variant="destructive" className="h-5 px-1.5 text-[11px] shrink-0">
+        Inactive
+      </Badge>
+    </span>
+  );
+};
+
 export const MembersInlineRoot = ({
   members,
   memberIds,
@@ -30,6 +51,7 @@ export const MembersInlineRoot = ({
   className,
   size = 'lg',
   allowUnassigned,
+  showInactive,
 }: {
   members?: IUser[];
   memberIds?: string[];
@@ -38,6 +60,7 @@ export const MembersInlineRoot = ({
   className?: string;
   size?: AvatarProps['size'];
   allowUnassigned?: boolean;
+  showInactive?: boolean;
 }) => {
   return (
     <MembersInlineProvider
@@ -47,6 +70,7 @@ export const MembersInlineRoot = ({
       updateMembers={updateMembers}
       size={size}
       allowUnassigned={allowUnassigned}
+      showInactive={showInactive}
     >
       <MembersInlineAvatar size={size} />
       <MembersInlineTitle className={className} />
@@ -62,6 +86,7 @@ export const MembersInlineProvider = ({
   updateMembers,
   size,
   allowUnassigned,
+  showInactive = false,
 }: {
   children?: ReactNode;
   memberIds?: string[];
@@ -70,6 +95,7 @@ export const MembersInlineProvider = ({
   updateMembers?: Dispatch<SetStateAction<IUser[]>>;
   size?: AvatarProps['size'];
   allowUnassigned?: boolean;
+  showInactive?: boolean;
 }) => {
   const [_members, _setMembers] = useState<IUser[]>(members || []);
   const [inactiveMemberIds, setInactiveMemberIds] = useState<string[]>([]);
@@ -98,7 +124,7 @@ export const MembersInlineProvider = ({
   return (
     <MembersInlineContext.Provider
       value={{
-        members: activeMembers,
+        members: showInactive ? currentMembers : activeMembers,
         loading: false,
         memberIds: memberIds,
         placeholder: isUndefinedOrNull(placeholder)
@@ -107,6 +133,7 @@ export const MembersInlineProvider = ({
         updateMembers: updateMembers || _setMembers,
         size,
         allowUnassigned,
+        showInactive,
       }}
     >
       <Tooltip.Provider>{children}</Tooltip.Provider>
@@ -129,8 +156,9 @@ const MemberInlineEffectComponent = ({
   onActiveChange: (memberId: string, isActive: boolean) => void;
 }) => {
   const currentUser = useAtomValue(currentUserState) as IUser;
-  const { updateMembers } = useMembersInlineContext();
-  const skip = !memberId || memberId === currentUser?._id;
+  const { updateMembers, showInactive } = useMembersInlineContext();
+  const skip =
+    !memberId || memberId === 'no-assignee' || memberId === currentUser?._id;
   const { userDetail } = useMemberInline({
     variables: {
       _id: memberId,
@@ -149,16 +177,19 @@ const MemberInlineEffectComponent = ({
     statusChangedUser?._id === memberId ? statusChangedUser : userDetail;
 
   useEffect(() => {
-    if (!updateMembers) return;
+    if (!updateMembers || !memberId || memberId === 'no-assignee') return;
 
-    if (resolvedUser?.isActive === false) {
-      onActiveChange(memberId, false);
-      updateMembers((prev) => prev.filter(({ _id }) => _id !== memberId));
-    } else if (resolvedUser) {
-      onActiveChange(memberId, true);
+    if (resolvedUser?._id === memberId) {
+      const isActive = resolvedUser.isActive !== false;
+      onActiveChange(memberId, isActive);
       updateMembers((prev) => {
-        if (prev.some((m) => m._id === memberId)) return prev;
-        return [...prev, { ...resolvedUser, _id: memberId }];
+        const existing = prev.find(({ _id }) => _id === memberId);
+        if (!isActive && !showInactive) {
+          return existing ? prev.filter(({ _id }) => _id !== memberId) : prev;
+        }
+        if (existing === resolvedUser || (existing && !showInactive))
+          return prev;
+        return [...prev.filter(({ _id }) => _id !== memberId), resolvedUser];
       });
     }
     if (currentUser?._id === memberId) {
@@ -168,7 +199,14 @@ const MemberInlineEffectComponent = ({
         return [currentUser, ...prev];
       });
     }
-  }, [resolvedUser, currentUser, memberId, onActiveChange, updateMembers]);
+  }, [
+    resolvedUser,
+    currentUser,
+    memberId,
+    onActiveChange,
+    showInactive,
+    updateMembers,
+  ]);
 
   return null;
 };
@@ -180,7 +218,7 @@ export const MembersInlineAvatar = ({
 }: AvatarProps & {
   containerClassName?: string;
 }) => {
-  const { members, loading, memberIds, size, allowUnassigned } =
+  const { members, loading, memberIds, size, allowUnassigned, showInactive } =
     useMembersInlineContext();
   const currentUser = useAtomValue(currentUserState) as IUser;
 
@@ -226,13 +264,25 @@ export const MembersInlineAvatar = ({
           </Avatar>
         </Tooltip.Trigger>
         <Tooltip.Content>
-          <p>{fullName}</p>
+          {getMemberLabel(member, showInactive)}
         </Tooltip.Content>
       </Tooltip>
     );
   };
 
   if (activeMembers.length === 0) {
+    if (showInactive && memberIds?.some((id) => id && id !== 'no-assignee')) {
+      return (
+        <Tooltip>
+          <Tooltip.Trigger asChild>
+            <Avatar size={size || 'lg'} className={className} {...props}>
+              <Avatar.Fallback>?</Avatar.Fallback>
+            </Avatar>
+          </Tooltip.Trigger>
+          <Tooltip.Content>Unknown member</Tooltip.Content>
+        </Tooltip>
+      );
+    }
     if (allowUnassigned) {
       return (
         <IconUserCancel className="text-muted-foreground flex-none size-4" />
@@ -263,7 +313,12 @@ export const MembersInlineAvatar = ({
             </Avatar>
           </Tooltip.Trigger>
           <Tooltip.Content>
-            <p>{restMembers.map((m) => m.details?.fullName).join(', ')}</p>
+            {restMembers.map((member, index) => (
+              <Fragment key={member._id}>
+                {index > 0 && ', '}
+                {getMemberLabel(member, showInactive)}
+              </Fragment>
+            ))}
           </Tooltip.Content>
         </Tooltip>
       )}
@@ -278,16 +333,20 @@ export const MembersInlineTitle = ({ className }: { className?: string }) => {
     placeholder,
     allowUnassigned,
     memberIds,
+    showInactive,
   } = useMembersInlineContext();
   const currentUser = useAtomValue(currentUserState) as IUser;
 
-  const activeMembers = memberIds?.length
+  const activeMembers = memberIds
     ? allMembers.filter((m) => memberIds.includes(m._id))
     : allMembers;
-  const isCurrentUser = activeMembers.some((m) => m._id === currentUser._id);
+  const isCurrentUser = activeMembers.some((m) => m._id === currentUser?._id);
 
   const getDisplayValue = () => {
     if (!activeMembers || activeMembers.length === 0) {
+      if (showInactive && memberIds?.some((id) => id && id !== 'no-assignee')) {
+        return 'Unknown member';
+      }
       if (allowUnassigned) {
         return (
           <span className="capitalize text-muted-foreground/80">
@@ -299,7 +358,7 @@ export const MembersInlineTitle = ({ className }: { className?: string }) => {
     }
 
     if (activeMembers.length === 1) {
-      return activeMembers?.[0].details?.fullName;
+      return getMemberLabel(activeMembers[0], showInactive);
     }
 
     if (isCurrentUser) {
@@ -309,7 +368,9 @@ export const MembersInlineTitle = ({ className }: { className?: string }) => {
       }
 
       const otherMember = activeMembers.find((m) => m._id !== currentUser._id);
-      return `You and ${otherMember?.details?.fullName}`;
+      return (
+        <>You and {otherMember && getMemberLabel(otherMember, showInactive)}</>
+      );
     }
 
     return `${activeMembers.length} members`;

@@ -16,7 +16,7 @@ export const types = `
   }
 
   type Ticket {
-    _id: String
+    _id: String!
     name: String
     description: String
     pipelineId: String
@@ -148,8 +148,9 @@ const updateTicketParams = `
   channelId: String
   pipelineId: String
   statusId: String
-  destinationStatusId: String
   priority: Int
+  branchId: String
+  departmentId: String
   labelIds: [String]
   tagIds: [String]
   assigneeId: String

@@ -15,8 +15,8 @@ import { InboxMessagesSkeleton } from '@/inbox/components/InboxMessagesSkeleton'
 import { useIntegrationInline } from '@/integrations/hooks/useIntegrations';
 import { NoConversationSelected } from './NoConversationSelected';
 import { ConversationMarkAsReadEffect } from './ConversationMarkAsReadEffect';
-import { IConversation } from '@/inbox/types/Conversation';
-import { IIntegration } from '@/integrations/types/Integration';
+import { toConversationContextValue } from '@/inbox/conversations/utils/conversationContext';
+import { isRecord } from '@/shared/utils/isRecord';
 import { MessageInputIntegrationWrapper } from '@/integrations/components/MessageInputIntegrationWrapper';
 import { messageExtraInfoState } from '../states/messageExtraInfoState';
 import { messageReplyState } from '../states/messageReplyState';
@@ -49,20 +49,17 @@ export const ConversationDetail = () => {
       ? activeConversationCandidate
       : null;
 
+  const detailId = conversationId || relatedConversationId;
   const { conversationDetail, loading } = useConversationDetail({
-    variables: {
-      _id: conversationId || relatedConversationId,
-    },
-    skip: !conversationId && !relatedConversationId,
+    variables: detailId ? { _id: detailId } : undefined,
+    skip: !detailId,
     fetchPolicy: isInInbox ? 'network-only' : 'cache-and-network',
   });
 
   const { integrationId } = currentConversation || conversationDetail || {};
 
   const { integration } = useIntegrationInline({
-    variables: {
-      _id: integrationId,
-    },
+    variables: integrationId ? { _id: integrationId } : undefined,
     skip: !integrationId,
   });
 
@@ -78,15 +75,14 @@ export const ConversationDetail = () => {
     return <NoConversationSelected />;
   }
 
-  const conversationAllDetails = {
-    ...currentConversation,
-    ...conversationDetail,
+  const conversationAllDetails = toConversationContextValue({
+    _id: conversationDetail?._id ?? currentConversation?._id ?? conversationId,
+    conversation: currentConversation,
+    detail: conversationDetail,
     integration,
     loading,
-  } as IConversation & {
-    integration?: IIntegration;
-    loading?: boolean;
-  };
+  });
+  const { propertiesData } = conversationAllDetails;
 
   return (
     <div ref={detailRef} className="relative flex h-full overflow-hidden">
@@ -124,9 +120,9 @@ export const ConversationDetail = () => {
         </ConversationProvider>
       </div>
       <ConversationSideWidget
-        customerId={conversationAllDetails?.customerId || ''}
-        _id={conversationAllDetails?._id || ''}
-        propertiesData={conversationAllDetails?.propertiesData}
+        customerId={conversationAllDetails.customerId || ''}
+        _id={conversationAllDetails._id}
+        propertiesData={isRecord(propertiesData) ? propertiesData : undefined}
         asSheet={isCompact}
         boundaryRef={detailRef}
       />

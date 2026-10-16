@@ -43,8 +43,16 @@ const poscCustomerForm = gql`
 `
 
 const poscCustomerLoyalty = gql`
-  query poscCustomerLoyalty($customerId: String!, $totalAmount: Float) {
-    poscCustomerLoyalty(customerId: $customerId, totalAmount: $totalAmount) {
+  query poscCustomerLoyalty(
+    $customerId: String!
+    $totalAmount: Float
+    $orderId: String
+  ) {
+    poscCustomerLoyalty(
+      customerId: $customerId
+      totalAmount: $totalAmount
+      orderId: $orderId
+    ) {
       accountNumber
       status
       wallets {
@@ -65,6 +73,8 @@ const poscCustomerLoyalty = gql`
         kind
         value
         expiresAt
+        status
+        heldFor
         autoApplied
         applicable
         reason
@@ -93,12 +103,14 @@ const poscLoyaltyPreview = gql`
     $customerId: String
     $couponCode: String
     $voucherId: String
+    $orderId: String
   ) {
     poscLoyaltyPreview(
       items: $items
       customerId: $customerId
       couponCode: $couponCode
       voucherId: $voucherId
+      orderId: $orderId
     ) {
       lines {
         key

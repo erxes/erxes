@@ -1,50 +1,30 @@
 import { useQuery, useSubscription } from '@apollo/client';
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import {
   MAIL_CONVERSATION_DETAIL_QUERY,
   MAIL_CONVERSATION_INTERNAL_NOTES_QUERY,
   MAIL_MESSAGE_INSERTED_SUBSCRIPTION,
 } from '@/integrations/mail/graphql/queries/mailQueries';
-import type { MailMessage } from '@/integrations/mail/types/mailThread';
 import { toast } from 'erxes-ui';
-import type { IMessage } from '@/inbox/types/Conversation';
 import { mergeMailInternalNotes } from '@/integrations/mail/utils/mailInternalNotes';
+import { toMessage } from '@/inbox/conversation-messages/utils/toMessage';
+import { compactList } from '@/shared/utils/cursorList';
 
 const PAGE_SIZE = 20;
 const MAX_PAGE_SIZE = 500;
 const NOTES_PAGE_SIZE = 20;
 
-interface MailConversationDetailResponse {
-  mailConversationDetail: {
-    messages: MailMessage[];
-    hasMore: boolean;
-  } | null;
-}
-
-interface MailConversationNotesResponse {
-  mailConversationInternalNotes: IMessage[];
-  mailConversationInternalNotesCount: number;
-}
-
-interface MailMessageInsertedResponse {
-  conversationMessageInserted: {
-    _id: string;
-    internal: boolean | null;
-  } | null;
-}
-
 export const useMailThreadData = (conversationId?: string) => {
   const [limit, setLimit] = useState(PAGE_SIZE);
-  const { data, previousData, loading, error, refetch } =
-    useQuery<MailConversationDetailResponse>(MAIL_CONVERSATION_DETAIL_QUERY, {
-      variables: {
-        conversationId,
-        limit,
-      },
+  const { data, previousData, loading, error, refetch } = useQuery(
+    MAIL_CONVERSATION_DETAIL_QUERY,
+    {
+      variables: conversationId ? { conversationId, limit } : undefined,
       skip: !conversationId,
       fetchPolicy: 'cache-and-network',
       notifyOnNetworkStatusChange: true,
-    });
+    },
+  );
   const {
     data: notesData,
     previousData: previousNotesData,
@@ -52,58 +32,57 @@ export const useMailThreadData = (conversationId?: string) => {
     loading: notesLoading,
     error: notesError,
     refetch: refetchNotes,
-  } = useQuery<MailConversationNotesResponse>(
-    MAIL_CONVERSATION_INTERNAL_NOTES_QUERY,
-    {
-      variables: { conversationId, notesSkip: 0, notesLimit: NOTES_PAGE_SIZE },
-      skip: !conversationId,
-      fetchPolicy: 'cache-and-network',
-      notifyOnNetworkStatusChange: true,
-    },
-  );
+  } = useQuery(MAIL_CONVERSATION_INTERNAL_NOTES_QUERY, {
+    variables: conversationId
+      ? { conversationId, notesSkip: 0, notesLimit: NOTES_PAGE_SIZE }
+      : undefined,
+    skip: !conversationId,
+    fetchPolicy: 'cache-and-network',
+    notifyOnNetworkStatusChange: true,
+  });
 
-  useSubscription<MailMessageInsertedResponse>(
-    MAIL_MESSAGE_INSERTED_SUBSCRIPTION,
-    {
-      variables: { _id: conversationId },
-      skip: !conversationId,
-      onData: ({ data: subscriptionData }) => {
-        const message = subscriptionData.data?.conversationMessageInserted;
-        if (!message) return;
+  useSubscription(MAIL_MESSAGE_INSERTED_SUBSCRIPTION, {
+    variables: conversationId ? { _id: conversationId } : undefined,
+    skip: !conversationId,
+    onData: ({ data: subscriptionData }) => {
+      const message = subscriptionData.data?.conversationMessageInserted;
+      if (!message) return;
 
-        if (!message.internal) {
-          refetch().catch((err: Error) => {
-            toast({ title: err.message, variant: 'destructive' });
-          });
-          return;
-        }
-
-        fetchMoreNotes({
-          variables: { notesSkip: 0 },
-          updateQuery: (previous, { fetchMoreResult }) => {
-            if (!fetchMoreResult) return previous;
-            return {
-              ...fetchMoreResult,
-              mailConversationInternalNotes: mergeMailInternalNotes(
-                previous.mailConversationInternalNotes,
-                fetchMoreResult.mailConversationInternalNotes,
-              ),
-            };
-          },
-        }).catch((err: Error) => {
+      if (!message.internal) {
+        refetch().catch((err: Error) => {
           toast({ title: err.message, variant: 'destructive' });
         });
-      },
+        return;
+      }
+
+      fetchMoreNotes({
+        variables: { notesSkip: 0 },
+        updateQuery: (previous, { fetchMoreResult }) => {
+          if (!fetchMoreResult) return previous;
+          return {
+            ...fetchMoreResult,
+            mailConversationInternalNotes: mergeMailInternalNotes(
+              previous.mailConversationInternalNotes,
+              fetchMoreResult.mailConversationInternalNotes,
+            ),
+          };
+        },
+      }).catch((err: Error) => {
+        toast({ title: err.message, variant: 'destructive' });
+      });
     },
-  );
+  });
 
   const detail =
     data?.mailConversationDetail ?? previousData?.mailConversationDetail;
-  const messages = detail?.messages ?? [];
-  const internalNotes =
+  const messages = compactList(detail?.messages);
+  const rawInternalNotes =
     notesData?.mailConversationInternalNotes ??
-    previousNotesData?.mailConversationInternalNotes ??
-    [];
+    previousNotesData?.mailConversationInternalNotes;
+  const internalNotes = useMemo(
+    () => (rawInternalNotes ?? []).map(toMessage),
+    [rawInternalNotes],
+  );
   const notesCount =
     notesData?.mailConversationInternalNotesCount ??
     previousNotesData?.mailConversationInternalNotesCount ??

@@ -60,7 +60,7 @@ export const types = `
     }
 
     type KnowledgeBaseCategory {
-      _id: String
+      _id: String!
       code: String
       title: String
       description: String
@@ -79,7 +79,7 @@ export const types = `
     }
 
     type KnowledgeBaseParentCategory {
-      _id: String
+      _id: String!
       code: String
       title: String
       description: String

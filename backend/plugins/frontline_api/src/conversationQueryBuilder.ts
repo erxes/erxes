@@ -3,7 +3,7 @@ import {
   CONVERSATION_AUTOMATION_STATUS,
   CONVERSATION_STATUSES,
 } from '@/inbox/db/definitions/constants';
-import { fixDate, sendTRPCMessage } from 'erxes-api-shared/utils';
+import { escapeRegExp, fixDate, sendTRPCMessage } from 'erxes-api-shared/utils';
 import * as _ from 'underscore';
 import { IModels } from '~/connectionResolvers';
 
@@ -112,7 +112,7 @@ export default class Builder {
   public userRelevanceQuery() {
     return [
       { userRelevance: { $exists: false } },
-      { userRelevance: new RegExp(this.user.code || '') },
+      { userRelevance: new RegExp(escapeRegExp(this.user.code || '')) },
     ];
   }
 
@@ -403,22 +403,19 @@ export default class Builder {
     const isPhoneSearch =
       digits.length >= 4 && digits.length >= value.length / 2;
 
-    const escapeRegex = (str: string) =>
-      str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-
     const customerQuery = isPhoneSearch
       ? {
           $or: [
-            { primaryPhone: { $regex: escapeRegex(digits) } },
-            { phones: { $regex: escapeRegex(digits) } },
+            { primaryPhone: { $regex: escapeRegExp(digits) } },
+            { phones: { $regex: escapeRegExp(digits) } },
           ],
         }
       : {
           $or: [
-            { firstName: { $regex: escapeRegex(value), $options: 'i' } },
-            { lastName: { $regex: escapeRegex(value), $options: 'i' } },
-            { primaryEmail: { $regex: escapeRegex(value), $options: 'i' } },
-            { primaryPhone: { $regex: escapeRegex(value) } },
+            { firstName: { $regex: escapeRegExp(value), $options: 'i' } },
+            { lastName: { $regex: escapeRegExp(value), $options: 'i' } },
+            { primaryEmail: { $regex: escapeRegExp(value), $options: 'i' } },
+            { primaryPhone: { $regex: escapeRegExp(value) } },
           ],
         };
 
@@ -441,7 +438,7 @@ export default class Builder {
 
     if (!isPhoneSearch) {
       orConditions.push({
-        content: { $regex: escapeRegex(value), $options: 'i' },
+        content: { $regex: escapeRegExp(value), $options: 'i' },
       });
     }
 
@@ -449,16 +446,14 @@ export default class Builder {
       this.queries?.integrations?.integrationId?.$in || [];
 
     if (isPhoneSearch && availableIntegrationIds.length) {
-      const digitsRegex = escapeRegex(digits);
-
       const cdrConversationIds = await this.models.CallCdrs.distinct(
         'conversationId',
         {
           conversationId: { $exists: true, $nin: [null, ''] },
           inboxIntegrationId: { $in: availableIntegrationIds },
           $or: [
-            { src: { $regex: digitsRegex } },
-            { dst: { $regex: digitsRegex } },
+            { src: { $regex: escapeRegExp(digits) } },
+            { dst: { $regex: escapeRegExp(digits) } },
           ],
         },
       );

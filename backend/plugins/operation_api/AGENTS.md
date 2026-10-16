@@ -6,7 +6,7 @@
 - **Project:** `operation_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/operation_api`
-- **Last synchronized:** `2026-10-07`
+- **Last synchronized:** `2026-10-13`
 
 ## Scope
 
@@ -32,6 +32,8 @@
   queue and the sweep run elsewhere.
 
 ## Current Capabilities
+
+- Task list queries and exports share validated, inclusive date ranges for start, target, creation, update, and completion dates; completion ranges also restrict results to completed tasks.
 
 - A task or project an automation creates records `createdVia` — what produced
   it, which run, and for whom — and is created as that actor. `getAutomationUserId`
@@ -125,6 +127,8 @@ propertiesData? } })`
   GraphQL type does not expose it; import/export read it.
 
 ## Local Invariants
+
+- Task date filters use paired `startDateStartDate`/`startDateEndDate`, `targetDateStartDate`/`targetDateEndDate`, `createdStartDate`/`createdEndDate`, `updatedStartDate`/`updatedEndDate`, and `completedStartDate`/`completedEndDate` bounds through `src/modules/task/utils/dateFilters.ts`. Reject invalid or reversed bounds; subscription events leave date membership to the client refetch so tasks moving out of a range are removed.
 
 - `Task` exposes `_id`, `name`, `status`, `teamId`, `createdAt` and `updatedAt` as non-null, and `Triage` exposes `_id`, `name`, `teamId`, `createdAt` and `updatedAt` as non-null. `Project` exposes `_id`, `name`, `teamIds` (non-null items), `createdAt` and `updatedAt` as non-null, and `Milestone` exposes `_id`, `name` and `projectId` as non-null. They are `required` or timestamped in the Mongoose schemas since 3.0. `createProject` and `updateProject` enforce the same contract on writes because the update path uses `findOneAndUpdate` without validators: an explicit null or blank `name` throws, and `teamIds` throws if it is null or contains a null/blank item (an empty array is allowed). Fields with only a default (`priority`, `number`, `estimatePoint`, `icon`, `status`) stay nullable because list queries use `.lean()`, which does not apply defaults to older documents.
 - `removeTask` returns and publishes the task as it was before deletion, with `type: 'delete'`.
@@ -225,42 +229,3 @@ propertiesData? } })`
 - Build a task segment on an assignee, confirm the preview count matches the
   task list filtered the same way, then confirm `segmentIds` lands on those
   tasks after the rebuild.
-
-## Recent Changes
-
-<!-- Newest first. Keep at most 10 entries. -->
-
-### `2026-09-29` — Escaped user-controlled regexes
-
-- **Summary:** Every user-controlled string that reaches a Mongo `$regex` or
-  `new RegExp` is escaped with `escapeRegExp`; dead `if (!filter)` guards in
-  the subscription filter are gone.
-- **Affected areas:** subscription filters, task/triage/milestone queries,
-  task and project export handlers, task model.
-- **Contracts changed:** `None` — filter semantics are unchanged; a `name`
-  search for `a.b` now matches the literal text instead of `a` + any char.
-
-### `2026-09-29` — Resolver contracts and template permissions
-
-- **Summary:** `operationCancelTriage` now sets the triage status to cancelled,
-  dead `getMyTeams` and deprecated `teamUpdateMember` are gone, `teamUpdate`
-  syncs members when `memberIds` is sent, `createProject` persists `icon`,
-  `updateStatus` returns the updated document, `moveCycle` no longer rolls
-  over cancelled tasks, and every template operation checks a permission.
-- **Affected areas:** triage/team/project mutations and queries, cycle model
-  and worker, template resolvers, task filter handling.
-- **Contracts changed:** `ITaskFilter.estimate` and `teamUpdateMember`
-  removed (never read, no callers); `teamUpdate` honors `memberIds` with
-  `teamMemberManage`.
-
-### `2026-09-29` — Required ids and filters
-
-- **Summary:** Mutations that act by id now declare it non-null, resolvers throw
-  actionable errors for missing ids, and list resolvers default a missing
-  `filter` to `{}` instead of crashing.
-- **Affected areas:** cycle/team GraphQL schemas, cycle model guards,
-  task/triage/project/team query resolvers.
-- **Contracts changed:** `removeCycle`, `endCycle`, `getCycle` take
-  `_id: String!`; `getTeamEstimateChoises` takes `teamId: String!`;
-  `createCycle`, `updateCycle` take `input: CycleInput!`; `teamAddMembers`
-  takes `memberIds: [String]!`.

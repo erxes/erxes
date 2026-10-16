@@ -1,14 +1,14 @@
-import type { ChannelScope } from '@/channels/types';
 import type { composeSchema } from '@/integrations/mail/composer/utils/directMailComposer';
 import type { MailAttachmentInput } from '@/integrations/mail/types/mailDelivery';
 import type { z } from 'zod';
+import type {
+  FrontlineMailSendersQuery,
+  FrontlineMailVerifiedContactsQuery,
+} from '~/gql/graphql';
 
-export interface MailSender {
-  channelScope: ChannelScope;
-  integrationId: string;
-  name: string;
-  address: string;
-}
+export type MailSender = NonNullable<
+  NonNullable<FrontlineMailSendersQuery['mailSenders']>[number]
+>;
 
 export interface ComposeEmailTarget {
   integrationId?: string;
@@ -20,20 +20,12 @@ export interface ComposeEmailTarget {
 
 export type ComposeValues = z.infer<typeof composeSchema>;
 
-export interface MailRecipientContact {
-  _id: string;
-  firstName?: string;
-  lastName?: string;
-  primaryEmail?: string;
-  emails?: string[];
-  emailValidationStatus?: string;
-}
+export type MailRecipientsResult = FrontlineMailVerifiedContactsQuery;
 
-export interface MailRecipientsResult {
-  customers: {
-    list: MailRecipientContact[];
-    pageInfo: { endCursor?: string; hasNextPage: boolean };
-  };
-}
+export type MailRecipientContact = NonNullable<
+  NonNullable<
+    NonNullable<FrontlineMailVerifiedContactsQuery['customers']>['list']
+  >[number]
+>;
 
 export type ComposerAttachment = MailAttachmentInput & { id: string };

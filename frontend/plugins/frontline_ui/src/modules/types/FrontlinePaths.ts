@@ -1,6 +1,7 @@
 export enum FrontlinePaths {
   Frontline = 'frontline',
   Inbox = '/inbox',
+  Tickets = '/tickets',
   TicketTags = '/ticket-tags',
   Calls = '/calls',
   IntegrationConfig = '/config',
@@ -24,6 +25,7 @@ export enum FrontlinePaths {
   Reports = '/reports',
   Forms = '/forms',
   FormCreate = '/forms/create',
+  SurveyCreate = '/surveys/create',
   ChannelSurveys = '/:id/surveys',
   SurveysCreate = '/:id/surveys/create',
   SurveyDetail = '/:id/surveys/:surveyId',

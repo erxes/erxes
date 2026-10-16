@@ -1,40 +1,27 @@
+import { QueryHookOptions, useQuery } from '@apollo/client';
+import { EnumCursorDirection, validateFetchMore } from 'erxes-ui';
 import {
-  OperationVariables,
-  QueryHookOptions,
-  QueryResult,
-  useQuery,
-} from '@apollo/client';
-import {
-  EnumCursorDirection,
-  ICursorListResponse,
-  mergeCursorData,
-  validateFetchMore,
-} from 'erxes-ui';
-import { IFormSubmission } from '../types';
+  compactList,
+  mergeCursorList,
+  toCursorPageInfo,
+} from '@/shared/utils/cursorList';
 import { GET_FORM_SUBMISSIONS } from '../graphql/queries';
+import type {
+  FrontlineFormSubmissionsQuery,
+  FrontlineFormSubmissionsQueryVariables,
+} from '~/gql/graphql';
 
 const SUBMISSIONS_PER_PAGE = 24;
 
-type FormSubmissionsQueryResult = ICursorListResponse<IFormSubmission>;
-
-interface UseGetFormSubmissionsResult {
-  submissions: IFormSubmission[];
-  totalCount: number | undefined;
-  pageInfo: FormSubmissionsQueryResult[string]['pageInfo'] | undefined;
-  loading: boolean;
-  error: QueryResult<FormSubmissionsQueryResult, OperationVariables>['error'];
-  handleFetchMore: (options: { direction: EnumCursorDirection }) => void;
-  refetch: QueryResult<
-    FormSubmissionsQueryResult,
-    OperationVariables
-  >['refetch'];
-}
-
 export const useGetFormSubmissions = (
-  options?: QueryHookOptions,
-): UseGetFormSubmissionsResult => {
-  const { data, loading, error, fetchMore, refetch } =
-    useQuery<FormSubmissionsQueryResult>(GET_FORM_SUBMISSIONS, {
+  options?: QueryHookOptions<
+    FrontlineFormSubmissionsQuery,
+    FrontlineFormSubmissionsQueryVariables
+  >,
+) => {
+  const { data, loading, error, fetchMore, refetch } = useQuery(
+    GET_FORM_SUBMISSIONS,
+    {
       ...options,
       fetchPolicy: 'network-only',
       nextFetchPolicy: 'cache-first',
@@ -43,9 +30,12 @@ export const useGetFormSubmissions = (
         limit: SUBMISSIONS_PER_PAGE,
         ...options?.variables,
       },
-    });
+    },
+  );
 
-  const { list, totalCount, pageInfo } = data?.formSubmissions || {};
+  const submissions = compactList(data?.formSubmissions?.list);
+  const pageInfo = toCursorPageInfo(data?.formSubmissions?.pageInfo);
+  const totalCount = data?.formSubmissions?.totalCount ?? undefined;
 
   const handleFetchMore = ({
     direction,
@@ -60,20 +50,24 @@ export const useGetFormSubmissions = (
         direction,
       },
       updateQuery: (prev, { fetchMoreResult }) => {
-        if (!fetchMoreResult) return prev;
-        return Object.assign({}, prev, {
-          formSubmissions: mergeCursorData({
+        if (!fetchMoreResult.formSubmissions || !prev.formSubmissions) {
+          return prev;
+        }
+
+        return {
+          ...prev,
+          formSubmissions: mergeCursorList(
             direction,
-            fetchMoreResult: fetchMoreResult.formSubmissions,
-            prevResult: prev.formSubmissions,
-          }),
-        });
+            prev.formSubmissions,
+            fetchMoreResult.formSubmissions,
+          ),
+        };
       },
     });
   };
 
   return {
-    submissions: list || [],
+    submissions,
     totalCount,
     pageInfo,
     loading,

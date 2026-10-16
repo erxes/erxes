@@ -10,6 +10,7 @@ export interface IUsersInlineContext {
   size?: AvatarProps['size'];
   updateMembers?: Dispatch<SetStateAction<IUser[]>>;
   allowUnassigned?: boolean;
+  showInactive?: boolean;
 }
 
 export const MembersInlineContext = createContext<IUsersInlineContext | null>(

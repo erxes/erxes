@@ -7,7 +7,11 @@ import {
 import { IconCornerDownRight, IconTrash, IconX } from '@tabler/icons-react';
 import { Button, Form, Select } from 'erxes-ui';
 import { useState } from 'react';
-import { PlaceholderInput, TPlaceholderInputSuggestion } from 'ui-modules';
+import {
+  AutomationConditionalField,
+  PlaceholderInput,
+  TPlaceholderInputSuggestion,
+} from 'ui-modules';
 
 interface LocalRuleProps {
   index: number;
@@ -21,6 +25,7 @@ export const ManagePropertyRule = ({
   index,
 }: LocalRuleProps) => {
   const {
+    form,
     control,
     setValue,
     groups,
@@ -121,45 +126,40 @@ export const ManagePropertyRule = ({
         </Button>
       </div>
       <div className="mb-4">
-        <Form.Field
-          control={control}
-          name={`rules.${index}.value`}
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>{t('value')}</Form.Label>
-
-              {CustomInput ? (
-                <ManagePropertyCustomInput
-                  CustomInput={CustomInput}
-                  value={field.value ?? ''}
-                  onChange={field.onChange}
-                  meta={rule?.meta}
-                  onMetaChange={(meta) =>
-                    setValue(`rules.${index}.meta`, meta, {
-                      shouldDirty: true,
-                    })
-                  }
-                  disabled={placeholderInputProps.isDisabled}
-                />
-              ) : (
-                <PlaceholderInput
-                  propertyType={propertyType}
-                  value={field.value ?? ''}
-                  onChange={field.onChange}
-                  disabled={[TPlaceholderInputSuggestion.Attribute]}
-                  isExpression={rule.isExpression}
-                  onChangeInputMode={(mode) =>
-                    handleUpdate({ isExpression: mode === 'expression' })
-                  }
-                  {...placeholderInputProps}
-                >
-                  <PlaceholderInput.Header />
-                </PlaceholderInput>
-              )}
-
-              <Form.Message />
-            </Form.Item>
-          )}
+        <AutomationConditionalField
+          form={form}
+          names={[`rules.${index}.value`, `rules.${index}.meta`]}
+          label={t('value')}
+          render={({ field, form: valueForm }) =>
+            CustomInput ? (
+              <ManagePropertyCustomInput
+                CustomInput={CustomInput}
+                value={field.value ?? ''}
+                onChange={field.onChange}
+                meta={valueForm.watch(`rules.${index}.meta`)}
+                onMetaChange={(meta) =>
+                  valueForm.setValue(`rules.${index}.meta`, meta, {
+                    shouldDirty: true,
+                  })
+                }
+                disabled={placeholderInputProps.isDisabled}
+              />
+            ) : (
+              <PlaceholderInput
+                propertyType={propertyType}
+                value={field.value ?? ''}
+                onChange={field.onChange}
+                disabled={[TPlaceholderInputSuggestion.Attribute]}
+                isExpression={rule.isExpression}
+                onChangeInputMode={(mode) =>
+                  handleUpdate({ isExpression: mode === 'expression' })
+                }
+                {...placeholderInputProps}
+              >
+                <PlaceholderInput.Header />
+              </PlaceholderInput>
+            )
+          }
         />
 
         {!CustomInput &&

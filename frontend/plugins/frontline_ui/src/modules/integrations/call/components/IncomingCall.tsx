@@ -14,6 +14,8 @@ import { Button, getPluginAssetsUrl, toast } from 'erxes-ui';
 import { useAtom, useAtomValue } from 'jotai';
 import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import { TAddCallCustomer } from '@/integrations/call/hooks/useAddCustomer';
+import { ICustomer } from '@/integrations/call/types/callTypes';
 
 export const IncomingCallAudio = () => {
   const { t } = useTranslation('frontline');
@@ -57,8 +59,8 @@ export const IncomingCall = ({
   integrationName,
   loading,
 }: {
-  addCustomer: any;
-  customer: any;
+  addCustomer: TAddCallCustomer;
+  customer: Partial<ICustomer>;
   integrationName: string;
   loading: boolean;
 }) => {

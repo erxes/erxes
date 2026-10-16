@@ -6,7 +6,7 @@
 - **Project:** `mongolian_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/mongolian_ui`
-- **Last synchronized:** `2026-10-11`
+- **Last synchronized:** `2026-10-14`
 
 ## Scope
 
@@ -54,7 +54,8 @@
 - Product places segment pickers use the shared `ui-modules` `SelectSegment`
   component with `core:products.products` for product segment selection.
 - Product places listens to the `productPlacesResponded` subscription from the
-  floating widget and opens printable receipt HTML for the current user.
+  floating widget and opens printable receipt HTML only when the payload
+  `sessionCode` matches the current tab's `sessionStorage.sessioncode`.
 - Renders cursor-paginated `RecordTable` lists for put responses and related
   sync history/checking screens.
 - Put response pagination preserves the full loaded range's start/end cursors,
@@ -99,9 +100,9 @@
   `/mongolian/msdynamic/*`.
 - Floating eBarimt response widget that listens for `ebarimtResponded` and
   opens printable deal receipt HTML.
-- Floating product-places response widget that listens for
-  `productPlacesResponded` and prints the JSON receipt content returned by the
-  backend.
+- Floating product-places response widget that listens for the session-scoped
+  `productPlacesResponded` payload and prints the JSON receipt content returned
+  by the backend.
 - Product chooser remainder provider through `CONFIG.widgets.productRemainderProviders`.
 - Settings routes mounted by `./mongolianSettings`, including `ebarimt/*`,
   `msdynamic/*`, `product-places/*`, `sync-erkhet/*`, and
@@ -142,14 +143,8 @@
 
 ## Local Invariants
 
-- Page-level side menus render `Sidebar.Panel` from `erxes-ui`, which keeps its
-  own open state (`sidebarPanelOpenState`), separate from the host's context
-  column. Never stack two headings: a menu without a heading passes one as
-  `label` (header row with the heading, optional `actions` and the collapse
-  toggle); a menu that starts with its own heading row (group label, collapsible
-  or accordion trigger) omits `label` and ends that row with
-  `Sidebar.PanelTrigger`. Keep `<Sidebar collapsible="none">` for sidebars
-  inside sheets and dialogs.
+- Page header breadcrumbs follow the shared pattern: crumbs are default ghost `Button`s (no `font-semibold`), the first crumb carries a 16px icon in the default text color, crumbs are separated by `Separator.Inline` or `Breadcrumb.Separator`, and settings pages carry no favorite toggle.
+- Page-level side menus render `Sidebar.Panel` from `erxes-ui`, which keeps its own open state (`sidebarPanelOpenState`), separate from the host's context column. The panel sits beside the page header, never under it: the page is a row of the panel and a column holding the header and content. The panel passes its heading as `label`, which renders a 48px title row with optional `actions` and the collapse toggle on the right, level with the page header; when collapsed, the toggle moves into the header's panel slot. Do not add a second heading or an in-panel `Sidebar.PanelTrigger` row. Keep `<Sidebar collapsible="none">` for sidebars inside sheets and dialogs. `SettingsLayout`, `ErkhetSettings`, `PutResponseLayout`, `SyncErkhetLayout` and `MsdynamicLayout` render their panel beside the header column.
 - Use `erxes-ui` and `ui-modules`; do not import Radix primitives directly.
 - Keep integration-specific files inside the owning integration folder unless a
   shared plugin folder already exists for that concern.

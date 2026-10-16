@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const CONVERSATION_SET_AUTOMATED_REPLY_CONTROL = gql`
+export const CONVERSATION_SET_AUTOMATED_REPLY_CONTROL = gql(`
   mutation ConversationSetAutomatedReplyControl(
     $_id: String!
     $status: String!
@@ -12,7 +12,13 @@ export const CONVERSATION_SET_AUTOMATED_REPLY_CONTROL = gql`
       reason: $reason
     ) {
       _id
-      automatedReplyControl
+      automatedReplyControl {
+        status
+        pausedUntil
+        reason
+        updatedAt
+        updatedBy
+      }
     }
   }
-`;
+`);

@@ -1,0 +1,125 @@
+# Public core-api GraphQL contract snapshot consumed by frontline UI.
+# Generated from the core-api subgraph SDL; lists only what frontline documents select.
+# This is codegen input, not frontline API SDL.
+
+# backend/core-api/src/modules/automations/graphql/schema/types.ts
+
+type Automation {
+  _id: String!
+  name: String
+  status: String
+  triggers: [Trigger]
+}
+
+# backend/core-api/src/modules/organization/brand/graphql/schema.ts
+
+extend type Brand {
+  name: String
+}
+
+# backend/core-api/src/modules/clientportal/graphql/schemas/clientPortal.ts
+
+type ClientPortal {
+  _id: String!
+  domain: String
+  name: String!
+  token: String
+}
+
+# backend/core-api/src/modules/clientportal/graphql/schemas/clientPortal.ts
+
+type ClientPortalListResponse {
+  list: [ClientPortal]
+}
+
+# backend/core-api/src/modules/contacts/graphql/schemas/customer.ts
+
+extend type Customer {
+  avatar: String
+  code: String
+  createdAt: Date
+  email: String
+  firstName: String
+  getTags: [Tag]
+  lastName: String
+  middleName: String
+  phone: String
+  phones: [String]
+  primaryEmail: String
+  primaryPhone: String
+  tagIds: [String]
+}
+
+# backend/core-api/src/modules/properties/graphql/schemas/systemField.ts
+
+type PropertySystemField {
+  code: String!
+  isRequired: Boolean!
+  isVisibleToCreate: Boolean!
+  logics: JSON
+  name: String!
+}
+
+# core-api root fields
+
+extend type Query {
+  automations(page: Int, perPage: Int, ids: [String], excludeIds: [String], searchValue: String, sortField: String, sortDirection: Int, status: String, tagIds: [String], createdByIds: [String], updatedByIds: [String], createdAtFrom: Date, createdAtTo: Date, updatedAtFrom: Date, updatedAtTo: Date, triggerTypes: [String], actionTypes: [String], triggerSegmentId: String): [Automation]
+  brandDetail(_id: String!): Brand
+  getClientPortals(filter: IClientPortalFilter): ClientPortalListResponse
+  propertySystemFields(contentType: String!): [PropertySystemField!]!
+}
+
+# backend/core-api/src/modules/tags/graphql/schemas.ts
+
+extend type Tag {
+  colorCode: String
+  createdAt: Date
+  name: String
+  objectCount: Int
+  order: String
+  parentId: String
+  relatedIds: [String]
+  totalObjectCount: Int
+  type: String
+}
+
+# backend/core-api/src/modules/automations/graphql/schema/types.ts
+
+type Trigger {
+  config: JSON
+  id: String
+  type: String
+}
+
+# backend/core-api/src/modules/organization/team-member/graphql/schema.ts
+
+extend type User {
+  details: UserDetailsType
+  email: String
+  isActive: Boolean
+  isOnboarded: Boolean
+  username: String
+}
+
+# backend/core-api/src/modules/organization/team-member/graphql/schema.ts
+
+type UserDetailsType {
+  avatar: String
+  firstName: String
+  fullName: String
+  lastName: String
+  position: String
+}
+
+# backend/core-api/src/modules/clientportal/graphql/schemas/clientPortal.ts
+
+input IClientPortalFilter {
+  _id: String
+  limit: Int
+  cursor: String
+  cursorMode: CURSOR_MODE
+  direction: CURSOR_DIRECTION
+  orderBy: JSON
+  sortMode: String
+  aggregationPipeline: [JSON]
+}

@@ -29,11 +29,24 @@ const isBothSides = (
   typeof value === 'object' &&
   ('prev' in (value as object) || 'current' in (value as object));
 
+// The records a change touched, as they were and as they are.
+export type SegmentTouched = { prev?: unknown[]; current?: unknown[] };
+
+const valuesAt = (documents: unknown[] | undefined, path: string) => {
+  const values = (documents || []).flatMap((doc) => {
+    const value = at(doc, path);
+    return value === undefined ? [] : [value].flat();
+  });
+
+  return values.length ? values : undefined;
+};
+
 export const segmentJoinChanges = async (
   contentType: string,
   diff: SegmentDiff | undefined,
+  touched: SegmentTouched = {},
 ): Promise<SegmentJoinChanges | undefined> => {
-  if (!diff) {
+  if (!diff && !touched.prev?.length && !touched.current?.length) {
     return undefined;
   }
 
@@ -48,18 +61,20 @@ export const segmentJoinChanges = async (
   const changes: SegmentJoinChanges = {};
 
   for (const path of paths) {
-    const updated = at(diff.updated, path);
+    const updated = at(diff?.updated, path);
+    const both = isBothSides(updated);
 
-    if (isBothSides(updated)) {
-      changes[path] = { prev: updated.prev, next: updated.current };
-      continue;
-    }
+    // A record reaches whoever it points at, whether or not that field moved;
+    // the diff only stands in where no document was at hand.
+    const prev =
+      valuesAt(touched.prev, path) ??
+      (both ? updated.prev : at(diff?.removed, path));
+    const next =
+      valuesAt(touched.current, path) ??
+      (both ? updated.current : at(diff?.added, path));
 
-    const added = at(diff.added, path);
-    const removed = at(diff.removed, path);
-
-    if (added !== undefined || removed !== undefined) {
-      changes[path] = { prev: removed, next: added };
+    if (prev !== undefined || next !== undefined) {
+      changes[path] = { prev, next };
     }
   }
 

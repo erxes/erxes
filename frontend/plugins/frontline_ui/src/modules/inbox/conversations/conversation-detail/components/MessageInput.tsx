@@ -230,7 +230,7 @@ export const MessageInput = ({
 
       <ComposerToolbar
         conversationId={conversationId}
-        integrationChannelId={integration?.channelId}
+        integrationChannelId={integration?.channelId ?? undefined}
         isDiscord={isDiscord}
         isTelegram={isTelegram}
         isMessenger={isMessenger}

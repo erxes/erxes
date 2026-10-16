@@ -72,7 +72,8 @@ export const useManagePropertyRule = ({
   sourceType: string;
   index: number;
 }) => {
-  const { control, setValue } = useFormContext<TManagePropertiesForm>();
+  const form = useFormContext<TManagePropertiesForm>();
+  const { control, setValue } = form;
   const rule = useWatch({ control, name: `rules.${index}` });
   const { fields = [] } = useGetFieldsProperties(propertyType, {
     source: 'automations',
@@ -173,6 +174,7 @@ export const useManagePropertyRule = ({
   ]);
 
   return {
+    form,
     control,
     setValue,
     rule,

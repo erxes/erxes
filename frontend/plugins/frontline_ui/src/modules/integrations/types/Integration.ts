@@ -1,38 +1,24 @@
-import { IChannel } from '@/channels/types';
+import type {
+  IntegrationDetailQuery,
+  IntegrationsGetUsedTypesByChannelQuery,
+  IntegrationsGetUsedTypesQuery,
+  IntegrationsQuery,
+} from '~/gql/graphql';
 
-export interface IIntegration {
-  _id: string;
-  name: string;
-  brandId?: string;
-  kind: string;
-  channelId: string;
-  channel: any;
-  // Returned by the integrations list query (GET_INTEGRATIONS_BY_KIND).
-  isActive?: boolean;
-}
+export type IIntegration = NonNullable<
+  NonNullable<NonNullable<IntegrationsQuery['integrations']>['list']>[number]
+>;
 
-export interface IIntegrationDetail extends IIntegration {
-  languageCode?: string;
-  code?: string;
-  tagIds?: string[];
-  createdAt?: string;
-  leadData?: string;
-  messengerData?: string;
-  uiOptions?: string;
-  isConnected?: boolean;
-  departmentIds?: string[];
-  details?: any;
-  callData?: any;
-  isActive: boolean;
-  healthStatus: {
-    status: 'healthy' | string;
-    error?: string;
-  };
-  channel: IChannel;
-}
+export type IIntegrationDetail = NonNullable<
+  IntegrationDetailQuery['integrationDetail']
+>;
 
-export interface IIntegrationType {
-  _id: string;
-  name: string;
-  unreadConversationCount?: number;
-}
+export type IIntegrationType = NonNullable<
+  NonNullable<IntegrationsGetUsedTypesQuery['integrationsGetUsedTypes']>[number]
+>;
+
+export type IIntegrationTypeByChannel = NonNullable<
+  NonNullable<
+    IntegrationsGetUsedTypesByChannelQuery['integrationsGetUsedTypesByChannel']
+  >[number]
+>;

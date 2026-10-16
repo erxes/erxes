@@ -1,7 +1,5 @@
-import type { IMessage } from '@/inbox/types/Conversation';
-
 export const mergeMailInternalNotes = <
-  T extends Pick<IMessage, '_id' | 'createdAt'>,
+  T extends { _id: string; createdAt?: string | null },
 >(
   previous: T[],
   incoming: T[],
@@ -11,8 +9,8 @@ export const mergeMailInternalNotes = <
 
   return [...notesById.values()].sort(
     (left, right) =>
-      new Date(left.createdAt).getTime() -
-        new Date(right.createdAt).getTime() ||
+      new Date(left.createdAt ?? 0).getTime() -
+        new Date(right.createdAt ?? 0).getTime() ||
       (left._id < right._id ? -1 : Number(left._id > right._id)),
   );
 };

@@ -4,7 +4,7 @@ import { MockedProvider } from '@apollo/client/testing';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { Provider, createStore } from 'jotai';
 import { toast } from 'erxes-ui';
-import type { IIntegrationDetail } from '@/integrations/types/Integration';
+import type { IIntegration } from '@/integrations/types/Integration';
 import {
   TelegramIntegrationActions,
   TelegramIntegrationDetail,
@@ -68,7 +68,7 @@ const bot = {
 };
 const cell = {
   row: { original: { _id: 'integration' } },
-} as unknown as CellContext<IIntegrationDetail, unknown>;
+} as unknown as CellContext<IIntegration, unknown>;
 beforeEach(() => jest.clearAllMocks());
 
 test.each([true, false])(

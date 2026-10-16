@@ -67,8 +67,8 @@ export const types = `
     selectedStatusId: String!
     pipelineId: String!
     channelId: String!
-    createdAt: String
-    updatedAt: String
+    createdAt: Date
+    updatedAt: Date
     parentId: String
     formFields: TicketFormFields
     propertyFields: [TicketPropertyField]

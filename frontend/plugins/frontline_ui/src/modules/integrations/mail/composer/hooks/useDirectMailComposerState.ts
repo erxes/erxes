@@ -3,7 +3,6 @@ import type {
   ComposeEmailTarget,
   ComposerAttachment,
   ComposeValues,
-  MailSender,
 } from '@/integrations/mail/composer/types/directMailComposer';
 import { composeSchema } from '@/integrations/mail/composer/utils/directMailComposer';
 import {
@@ -12,6 +11,7 @@ import {
 } from '@/integrations/mail/hooks/useMailConversationDetail';
 import type { MailDeliveryOutcome } from '@/integrations/mail/types/mailDelivery';
 import { useQuery } from '@apollo/client';
+import { compactList } from '@/shared/utils/cursorList';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useBlockEditor } from 'erxes-ui';
 import { useCallback, useMemo, useState } from 'react';
@@ -36,16 +36,17 @@ export const useDirectMailComposerState = (): DirectMailComposerStore => {
     loading: sendersLoading,
     error: sendersError,
     refetch,
-  } = useQuery<{
-    mailSenders: MailSender[];
-  }>(MAIL_SENDERS_QUERY, {
+  } = useQuery(MAIL_SENDERS_QUERY, {
     skip: !target || !canComposeEmail,
     fetchPolicy: 'cache-and-network',
   });
   const { mailSendMail, loading } = useMailSendMail();
   const { mailMessageRetry, loading: retryLoading } = useMailMessageRetry();
   const editor = useBlockEditor({ placeholder: "Type '/' for commands" });
-  const senders = useMemo(() => data?.mailSenders ?? [], [data?.mailSenders]);
+  const senders = useMemo(
+    () => compactList(data?.mailSenders),
+    [data?.mailSenders],
+  );
   const form = useForm<ComposeValues>({
     resolver: zodResolver(composeSchema),
     defaultValues: {

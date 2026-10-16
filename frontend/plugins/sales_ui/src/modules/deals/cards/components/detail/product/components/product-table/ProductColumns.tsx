@@ -6,6 +6,10 @@ import {
   ProductCalculatedNumberField,
   ProductDiscountNumberField,
   ProductNumberField,
+  baseUom,
+  uomInfoUom,
+  uomInfoUnitPrice,
+  uomInfoQuantity,
 } from './getProductColumns';
 import {
   CURRENCY_CODES,
@@ -80,13 +84,16 @@ export const productColumns = (t: TFunction): ColumnDef<IProductData>[] => [
     },
     size: 240,
   },
+  uomInfoUom(t),
+  uomInfoUnitPrice(t),
+  uomInfoQuantity(t),
   {
     id: 'unitPrice',
     accessorKey: 'unitPrice',
     header: () => (
       <RecordTable.InlineHead
         icon={IconCurrencyDollar}
-        label={t('unit-price')}
+        label={t('base-unit-price', 'Base unit price')}
       />
     ),
     cell: ({ cell }) => {
@@ -119,7 +126,7 @@ export const productColumns = (t: TFunction): ColumnDef<IProductData>[] => [
     header: () => (
       <RecordTable.InlineHead
         icon={IconPentagonNumber1}
-        label={t('quantity')}
+        label={t('base-quantity', 'Base quantity')}
       />
     ),
     cell: ({ cell }) => {
@@ -136,6 +143,7 @@ export const productColumns = (t: TFunction): ColumnDef<IProductData>[] => [
     },
     size: 100,
   },
+  baseUom(t),
   {
     id: 'discountPercent',
     accessorKey: 'discountPercent',
@@ -177,7 +185,7 @@ export const productColumns = (t: TFunction): ColumnDef<IProductData>[] => [
     accessorKey: 'amount',
     accessorFn: (row) => {
       const quantity = row.quantity || 0;
-      const unitPrice = row.unitPrice || row.product?.unitPrice || 0;
+      const unitPrice = row.unitPrice ?? row.product?.unitPrice ?? 0;
       const discount = row.discount || 0;
 
       return quantity * unitPrice - discount;

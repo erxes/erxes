@@ -73,7 +73,17 @@ export const useAutomationCoreNodeOutput = ({
     .map((field: any) => ({
       key: field.fieldName.trim(),
       label: field.fieldName.trim(),
-      type: field.dataType === 'option' ? 'string' : field.dataType,
+      type: field.dataType,
+      // Option fields keep their values so conditions can offer them
+      options:
+        field.dataType === 'option'
+          ? (field.options || [])
+              .filter((option: { value?: string }) => option?.value)
+              .map((option: { value: string }) => ({
+                label: option.value,
+                value: option.value,
+              }))
+          : undefined,
     }));
 
   const aiAgentVariables = aiAgentAttributeFields.length

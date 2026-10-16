@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const UPDATE_TICKET_MUTATION = gql`
+export const UPDATE_TICKET_MUTATION = gql(`
   mutation UpdateTicket(
     $_id: String!
     $name: String
@@ -9,6 +9,8 @@ export const UPDATE_TICKET_MUTATION = gql`
     $pipelineId: String
     $statusId: String
     $priority: Int
+    $branchId: String
+    $departmentId: String
     $labelIds: [String]
     $tagIds: [String]
     $assigneeId: String
@@ -28,6 +30,8 @@ export const UPDATE_TICKET_MUTATION = gql`
       pipelineId: $pipelineId
       statusId: $statusId
       priority: $priority
+      branchId: $branchId
+      departmentId: $departmentId
       labelIds: $labelIds
       tagIds: $tagIds
       assigneeId: $assigneeId
@@ -44,6 +48,8 @@ export const UPDATE_TICKET_MUTATION = gql`
       description
       statusId
       priority
+      branchId
+      departmentId
       labelIds
       tagIds
       assigneeId
@@ -64,4 +70,4 @@ export const UPDATE_TICKET_MUTATION = gql`
       }
     }
   }
-`;
+`);

@@ -1,30 +1,22 @@
-import { MutationHookOptions, useMutation } from '@apollo/client';
+import { MutationFunctionOptions, useMutation } from '@apollo/client';
 import { CONVERSATION_SET_AUTOMATED_REPLY_CONTROL } from '../graphql/mutations/conversationAutomatedReplyControl';
-import { IConversation } from '@/inbox/types/Conversation';
 import { toast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-
-interface IConversationAutomatedReplyControlVariables {
-  _id: string;
-  status: 'active' | 'human_active';
-  reason: 'manual';
-}
-
-interface IConversationAutomatedReplyControlResponse {
-  conversationSetAutomatedReplyControl: IConversation;
-}
+import type {
+  ConversationSetAutomatedReplyControlMutation,
+  ConversationSetAutomatedReplyControlMutationVariables,
+} from '~/gql/graphql';
 
 export const useConversationAutomatedReplyControl = () => {
   const { t } = useTranslation('frontline');
-  const [setAutomatedReplyControl, { loading }] = useMutation<
-    IConversationAutomatedReplyControlResponse,
-    IConversationAutomatedReplyControlVariables
-  >(CONVERSATION_SET_AUTOMATED_REPLY_CONTROL);
+  const [setAutomatedReplyControl, { loading }] = useMutation(
+    CONVERSATION_SET_AUTOMATED_REPLY_CONTROL,
+  );
 
   const handleSetAutomatedReplyControl = (
-    options: MutationHookOptions<
-      IConversationAutomatedReplyControlResponse,
-      IConversationAutomatedReplyControlVariables
+    options: MutationFunctionOptions<
+      ConversationSetAutomatedReplyControlMutation,
+      ConversationSetAutomatedReplyControlMutationVariables
     >,
   ) => {
     setAutomatedReplyControl({

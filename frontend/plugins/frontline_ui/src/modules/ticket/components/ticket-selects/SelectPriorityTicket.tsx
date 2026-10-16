@@ -152,6 +152,7 @@ const SelectPriorityRoot = ({
   variant,
   id,
   disabled,
+  label,
 }: {
   value?: number;
   onValueChange?: (value: number) => void;
@@ -159,6 +160,7 @@ const SelectPriorityRoot = ({
   variant: `${SelectTriggerVariant}`;
   id?: string;
   disabled?: boolean;
+  label?: string;
 }) => {
   const { updateTicket } = useUpdateTicket();
   const [open, setOpen] = useState(false);
@@ -182,7 +184,11 @@ const SelectPriorityRoot = ({
       variant={variant}
     >
       <PopoverScoped scope={scope} open={open} onOpenChange={setOpen}>
-        <SelectTriggerTicket variant={variant} disabled={disabled}>
+        <SelectTriggerTicket
+          variant={variant}
+          disabled={disabled}
+          label={label}
+        >
           {variant === SelectTriggerVariant.TABLE ? (
             <SelectPriorityBadgeValue />
           ) : (
@@ -241,9 +247,11 @@ const SelectPriorityFilterBar = ({ scope }: { scope?: string }) => {
 export const SelectPriorityFormItem = ({
   value,
   onValueChange,
+  label,
 }: {
   value: number;
   onValueChange: (value: number) => void;
+  label?: string;
 }) => {
   const [open, setOpen] = useState(false);
   return (
@@ -255,7 +263,7 @@ export const SelectPriorityFormItem = ({
       }}
     >
       <PopoverScoped open={open} onOpenChange={setOpen}>
-        <SelectTriggerTicket variant="form">
+        <SelectTriggerTicket variant="form" label={label}>
           <SelectPriorityValue />
         </SelectTriggerTicket>
         <SelectTicketContent variant="form">

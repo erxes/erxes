@@ -1,27 +1,21 @@
+import { isDefined } from 'erxes-ui';
 import { QueryHookOptions, useQuery } from '@apollo/client';
 import { GET_TICKET_SOURCE } from '@/report/graphql/queries/getTicketChart';
-
-interface TicketSource {
-  _id: string;
-  name: string;
-  count: number;
-  percentage: number;
-}
-
-interface TicketSourceResponse {
-  reportTicketSource: TicketSource[];
-}
+import type {
+  ReportTicketSourceQuery,
+  ReportTicketSourceQueryVariables,
+} from '~/gql/graphql';
 
 export const useTicketSource = (
-  options?: QueryHookOptions<TicketSourceResponse>,
+  options?: QueryHookOptions<
+    ReportTicketSourceQuery,
+    ReportTicketSourceQueryVariables
+  >,
 ) => {
-  const { data, loading, error } = useQuery<TicketSourceResponse>(
-    GET_TICKET_SOURCE,
-    options,
-  );
+  const { data, loading, error } = useQuery(GET_TICKET_SOURCE, options);
 
   return {
-    ticketSources: data?.reportTicketSource,
+    ticketSources: data?.reportTicketSource?.filter(isDefined),
     loading,
     error,
   };

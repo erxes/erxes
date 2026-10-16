@@ -1,19 +1,23 @@
-import { ICategory } from '@/knowledgebase/types';
 import {
   groupCategoriesByParent,
   ROOT_CATEGORY_KEY,
+  TCategoryNode,
 } from '../groupCategoriesByParent';
 
 const category = (
   _id: string,
   title: string,
   parentCategoryId?: string,
-): ICategory => ({ _id, title, parentCategoryId });
+): TCategoryNode => ({
+  _id,
+  title,
+  parentCategoryId: parentCategoryId ?? null,
+});
 
-const titlesOf = (groups: Map<string, ICategory[]>, key: string) =>
+const titlesOf = (groups: Map<string, TCategoryNode[]>, key: string) =>
   (groups.get(key) ?? []).map((item) => item.title);
 
-const countAll = (groups: Map<string, ICategory[]>) =>
+const countAll = (groups: Map<string, TCategoryNode[]>) =>
   [...groups.values()].reduce((total, group) => total + group.length, 0);
 
 describe('groupCategoriesByParent', () => {

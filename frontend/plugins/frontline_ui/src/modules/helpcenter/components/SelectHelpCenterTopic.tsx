@@ -2,6 +2,7 @@ import { useQuery } from '@apollo/client';
 import {
   Combobox,
   Command,
+  isDefined,
   PopoverScoped,
   TextOverflowTooltip,
 } from 'erxes-ui';
@@ -9,8 +10,6 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { GET_HELP_CENTER_TOPIC_OPTIONS } from '@/helpcenter/graphql/queries/getHelpCenterTopicOptions';
 import { SelectTriggerTicket } from '@/ticket/components/ticket-selects/SelectTicket';
-
-type TTopicOption = { _id: string; title?: string };
 
 export const SelectHelpCenterTopic = ({
   value,
@@ -26,11 +25,11 @@ export const SelectHelpCenterTopic = ({
   const { t } = useTranslation('frontline');
   const [open, setOpen] = useState(false);
 
-  const { data, loading } = useQuery<{
-    knowledgeBaseTopics: TTopicOption[];
-  }>(GET_HELP_CENTER_TOPIC_OPTIONS, { variables: { perPage: 100 } });
+  const { data, loading } = useQuery(GET_HELP_CENTER_TOPIC_OPTIONS, {
+    variables: { perPage: 100 },
+  });
 
-  const topics = data?.knowledgeBaseTopics ?? [];
+  const topics = data?.knowledgeBaseTopics?.filter(isDefined) ?? [];
   const selected = topics.find((topic) => topic._id === value);
 
   return (

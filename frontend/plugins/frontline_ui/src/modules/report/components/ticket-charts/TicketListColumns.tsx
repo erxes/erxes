@@ -1,4 +1,4 @@
-import { Badge, RecordTable, RecordTableInlineCell } from 'erxes-ui';
+import { Badge, RecordTable, RecordTableInlineCell, isDefined } from 'erxes-ui';
 import {
   BranchesInline,
   DepartmentsInline,
@@ -22,6 +22,12 @@ import { StatusInlineIcon } from '@/status/components/StatusInline';
 import { PriorityBadge } from '@/ticket/components/ticket-selects/PriorityInline';
 import { useGetChannels } from '@/channels/hooks/useGetChannels';
 import { useGetPipeline } from '@/pipelines/hooks/useGetPipeline';
+
+const isPropertyRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null && !Array.isArray(value);
+
+const readProperty = (value: unknown, key: string): unknown =>
+  isPropertyRecord(value) ? value[key] : undefined;
 
 const TICKET_LIST_ACTION_COLUMN = 'more';
 
@@ -58,7 +64,8 @@ const TICKET_EXPORT_VALUES: Partial<
   Record<string, (ticket: TicketExportItem) => string>
 > = {
   name: (ticket) => ticket.name ?? '',
-  description: (ticket) => ticketDescriptionText(ticket.description),
+  description: (ticket) =>
+    ticketDescriptionText(ticket.description ?? undefined),
   statusChangedDate: (ticket) =>
     formatDateValue(ticket.statusChangedDate, EXPORT_DATE_FORMAT),
   updatedAt: (ticket) => formatDateValue(ticket.updatedAt, EXPORT_DATE_FORMAT),
@@ -100,7 +107,9 @@ const toPropertyText = (
   }
 
   if (typeof value === 'object') {
-    const { name, label, title } = value as Record<string, unknown>;
+    const name = readProperty(value, 'name');
+    const label = readProperty(value, 'label');
+    const title = readProperty(value, 'title');
     const text = name ?? label ?? title;
     return typeof text === 'string' ? text : '';
   }
@@ -279,7 +288,11 @@ export const useTicketExportColumns = () => {
               key: id,
               header,
               getValue: (ticket: TicketExportItem) =>
-                toPropertyText(field, ticket.propertiesData?.[field._id], t),
+                toPropertyText(
+                  field,
+                  readProperty(ticket.propertiesData, field._id),
+                  t,
+                ),
             },
           ];
         }
@@ -312,7 +325,7 @@ export const useTicketListColumns = (): ColumnDef<TicketListItem>[] => {
       cell: ({ row }) => (
         <PropertyCell
           field={field}
-          value={row.original.propertiesData?.[field._id]}
+          value={readProperty(row.original.propertiesData, field._id)}
         />
       ),
     }));
@@ -379,12 +392,12 @@ export const useTicketListColumns = (): ColumnDef<TicketListItem>[] => {
                   backgroundColor: status.color
                     ? `${status.color}1a`
                     : undefined,
-                  color: status.color,
+                  color: status.color ?? undefined,
                 }}
               >
                 <StatusInlineIcon
-                  statusType={status.type}
-                  color={status.color}
+                  statusType={status.type ?? undefined}
+                  color={status.color ?? undefined}
                   className="size-3"
                 />
                 <span className="truncate">{status.name}</span>
@@ -428,7 +441,7 @@ export const useTicketListColumns = (): ColumnDef<TicketListItem>[] => {
         accessorKey: 'assigneeId',
         cell: ({ row }) => (
           <MemberCell
-            memberId={row.original.assigneeId}
+            memberId={row.original.assigneeId ?? undefined}
             emptyValue={t('unassigned', 'Unassigned')}
           />
         ),
@@ -437,7 +450,9 @@ export const useTicketListColumns = (): ColumnDef<TicketListItem>[] => {
         id: 'createdBy',
         header: t('created-by', 'Created by'),
         accessorKey: 'createdBy',
-        cell: ({ row }) => <MemberCell memberId={row.original.createdBy} />,
+        cell: ({ row }) => (
+          <MemberCell memberId={row.original.createdBy ?? undefined} />
+        ),
       },
       {
         id: 'channel',
@@ -468,7 +483,7 @@ export const useTicketListColumns = (): ColumnDef<TicketListItem>[] => {
         accessorKey: 'tagIds',
         size: 200,
         cell: ({ cell }) => {
-          const tagIds = (cell.getValue() as string[] | undefined) ?? [];
+          const tagIds = cell.row.original.tagIds?.filter(isDefined) ?? [];
           return (
             <RecordTableInlineCell className="gap-1 overflow-hidden">
               {tagIds.length ? (
@@ -542,7 +557,9 @@ export const useTicketListColumns = (): ColumnDef<TicketListItem>[] => {
         accessorKey: 'description',
         size: 280,
         cell: ({ row }) => {
-          const text = ticketDescriptionText(row.original.description);
+          const text = ticketDescriptionText(
+            row.original.description ?? undefined,
+          );
           return (
             <RecordTableInlineCell className="text-xs">
               {text ? (
@@ -576,7 +593,7 @@ export const useTicketListColumns = (): ColumnDef<TicketListItem>[] => {
         accessorKey: 'statusChangedBy',
         size: 200,
         cell: ({ row }) => (
-          <MemberCell memberId={row.original.statusChangedBy} />
+          <MemberCell memberId={row.original.statusChangedBy ?? undefined} />
         ),
       },
       {
@@ -584,7 +601,9 @@ export const useTicketListColumns = (): ColumnDef<TicketListItem>[] => {
         header: t('modified-by', 'Modified by'),
         accessorKey: 'updatedBy',
         size: 200,
-        cell: ({ row }) => <MemberCell memberId={row.original.updatedBy} />,
+        cell: ({ row }) => (
+          <MemberCell memberId={row.original.updatedBy ?? undefined} />
+        ),
       },
       ...propertyColumns,
     ];

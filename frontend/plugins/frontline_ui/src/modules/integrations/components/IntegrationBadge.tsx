@@ -9,9 +9,7 @@ export const ConversationIntegrationBadge = ({
   integrationId?: string;
 }) => {
   const { integration } = useIntegrationInline({
-    variables: {
-      _id: integrationId,
-    },
+    variables: integrationId ? { _id: integrationId } : undefined,
     skip: !integrationId,
   });
   const { kind } = integration || {};

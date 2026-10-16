@@ -41,7 +41,7 @@ function ChannelItem({ channel }: ChannelItemProps) {
                 disabled={channel.pipelineCount === 0}
               >
                 <IconComponent
-                  name={channel.icon}
+                  name={channel.icon ?? undefined}
                   className="text-accent-foreground shrink-0"
                 />
                 <TextOverflowTooltip

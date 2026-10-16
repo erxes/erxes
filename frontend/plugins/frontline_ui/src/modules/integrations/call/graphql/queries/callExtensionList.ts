@@ -1,7 +1,11 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const CALL_EXTENSION_LIST = gql`
+export const CALL_EXTENSION_LIST = gql(`
   query CallExtensionList($integrationId: String!) {
-    callExtensionList(integrationId: $integrationId)
+    callExtensionList(integrationId: $integrationId) {
+      extension
+      fullname
+      status
+    }
   }
-`;
+`);

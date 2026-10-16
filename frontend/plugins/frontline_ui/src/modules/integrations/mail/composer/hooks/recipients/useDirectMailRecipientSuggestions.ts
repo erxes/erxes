@@ -1,6 +1,5 @@
 import { MAIL_VERIFIED_CONTACTS_QUERY } from '@/integrations/mail/composer/graphql/queries/mailRecipients';
 import { useDirectMailRecipientStateContext } from '@/integrations/mail/composer/hooks/recipients/useDirectMailRecipientStateContext';
-import type { MailRecipientsResult } from '@/integrations/mail/composer/types/directMailComposer';
 import type { RecipientSuggestions } from '@/integrations/mail/composer/types/directMailRecipientSuggestions';
 import { useQuery } from '@apollo/client';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -14,11 +13,13 @@ export const useDirectMailRecipientSuggestions = (): RecipientSuggestions => {
   const sentinelRef = useRef<HTMLDivElement>(null);
   const isFetchingRef = useRef(false);
 
-  const { data, previousData, loading, error, fetchMore, refetch } =
-    useQuery<MailRecipientsResult>(MAIL_VERIFIED_CONTACTS_QUERY, {
+  const { data, previousData, loading, error, fetchMore, refetch } = useQuery(
+    MAIL_VERIFIED_CONTACTS_QUERY,
+    {
       variables: { searchValue },
       skip: !searchReady,
-    });
+    },
+  );
 
   const contacts = data ?? previousData;
 

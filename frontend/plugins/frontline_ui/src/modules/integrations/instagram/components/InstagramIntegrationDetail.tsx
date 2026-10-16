@@ -1,6 +1,6 @@
 import { CellContext } from '@tanstack/react-table';
 import { InstagramIntegrationFormSheet } from './InstagramIntegrationForm';
-import { IIntegrationDetail } from '@/integrations/types/Integration';
+import { IIntegration } from '@/integrations/types/Integration';
 import {
   Button,
   Dialog,
@@ -74,7 +74,7 @@ export const InstagramIntegrationDetail = ({
 export const InstagramIntegrationActions = ({
   cell,
 }: {
-  cell: CellContext<IIntegrationDetail, unknown>;
+  cell: CellContext<IIntegration, unknown>;
 }) => {
   return <InstagramIntegrationEditSheet id={cell.row.original._id} />;
 };

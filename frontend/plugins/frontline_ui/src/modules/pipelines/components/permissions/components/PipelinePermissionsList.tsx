@@ -16,6 +16,7 @@ import {
 import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useGetPipeline } from '@/pipelines/hooks/useGetPipeline';
+import { compactList } from '@/shared/utils/cursorList';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useUpdatePipeline } from '@/pipelines/hooks/useUpdatePipeline';
 import { useEffect, useState, useRef, memo } from 'react';
@@ -264,17 +265,16 @@ export const PipelinePermissionsList = memo(() => {
       !initialValuesRef.current ||
       initialValuesRef.current._id !== pipeline._id
     ) {
-      const formValues = {
+      const formValues: PermissionState = {
         _id: pipeline._id || '',
         dayAfterCreated: pipeline.isCheckDate || false,
         branchOnly: pipeline.isCheckBranch || false,
         myTicketsOnly: pipeline.isCheckUser || false,
         departmentOnly: pipeline.isCheckDepartment || false,
-        selectedUsers: pipeline.excludeCheckUserIds || [],
-        visibility: (pipeline.visibility?.trim() || 'public') as
-          | 'public'
-          | 'private',
-        memberIds: pipeline.memberIds || [],
+        selectedUsers: compactList(pipeline.excludeCheckUserIds),
+        visibility:
+          pipeline.visibility?.trim() === 'private' ? 'private' : 'public',
+        memberIds: compactList(pipeline.memberIds),
       };
 
       if (!initialValuesRef.current) {
@@ -325,7 +325,7 @@ export const PipelinePermissionsList = memo(() => {
 
       updatePipeline({
         variables: {
-          _id: pipelineId,
+          _id: pipeline._id,
           excludeCheckUserIds: formValues.selectedUsers,
           isCheckDate: formValues.dayAfterCreated,
           isCheckBranch: formValues.branchOnly,
@@ -353,7 +353,7 @@ export const PipelinePermissionsList = memo(() => {
           isUpdatingRef.current = false;
         });
     }
-  }, [form, formValues, pipeline, pipelineId, t, updatePipeline]);
+  }, [form, formValues, pipeline, t, updatePipeline]);
 
   if (pipelineLoading || statusesLoading) {
     return <Spinner containerClassName="py-32" />;

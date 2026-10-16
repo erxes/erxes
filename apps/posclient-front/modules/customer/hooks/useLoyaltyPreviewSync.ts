@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { cartAtom } from "@/store/cart.store"
 import {
+  activeOrderIdAtom,
   couponCodeAtom,
   customerAtom,
   customerTypeAtom,
@@ -35,6 +36,7 @@ export const useLoyaltyPreviewSync = () => {
   const customerType = useAtomValue(customerTypeAtom)
   const couponCode = useAtomValue(couponCodeAtom)
   const voucherId = useAtomValue(voucherIdAtom)
+  const orderId = useAtomValue(activeOrderIdAtom)
   const setPreview = useSetAtom(loyaltyPreviewAtom)
   const setPreviewBonuses = useSetAtom(loyaltyPreviewBonusesAtom)
 
@@ -70,6 +72,7 @@ export const useLoyaltyPreviewSync = () => {
       customerId,
       couponCode,
       voucherId,
+      orderId: orderId || undefined,
     },
     skip,
     fetchPolicy: "cache-and-network",

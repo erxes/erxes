@@ -1,6 +1,6 @@
 export const types = `
     type TicketNote {
-        _id: String
+        _id: String!
         content: String
         contentId: String
         createdBy: String
@@ -19,7 +19,7 @@ export const types = `
 
 const createNoteParams = `
     content: String
-    contentId: String
+    contentId: String!
     mentions: [String]
     attachments: [AttachmentInput]
     isInternal: Boolean

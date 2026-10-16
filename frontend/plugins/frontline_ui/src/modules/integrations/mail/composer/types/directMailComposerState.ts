@@ -14,6 +14,7 @@ import type { ApolloError, QueryResult } from '@apollo/client';
 import type { IBlockEditor } from 'erxes-ui';
 import type { Dispatch, SetStateAction } from 'react';
 import type { UseFormReturn } from 'react-hook-form';
+import type { FrontlineMailSendersQuery } from '~/gql/graphql';
 
 export interface DirectMailComposerState {
   canComposeEmail: boolean;
@@ -54,7 +55,7 @@ export interface DirectMailComposerStore
   setShowCc: Dispatch<SetStateAction<boolean>>;
   setShowBcc: Dispatch<SetStateAction<boolean>>;
   integrationId: string;
-  refetch: QueryResult<{ mailSenders: MailSender[] }>['refetch'];
+  refetch: QueryResult<FrontlineMailSendersQuery>['refetch'];
   mailSendMail: ReturnType<typeof useMailSendMail>['mailSendMail'];
   mailMessageRetry: ReturnType<typeof useMailMessageRetry>['mailMessageRetry'];
 }

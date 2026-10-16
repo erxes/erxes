@@ -1,8 +1,8 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const ADD_CONVERSATION_MESSAGE = gql`
+export const ADD_CONVERSATION_MESSAGE = gql(`
   mutation ConversationMessageAdd(
-    $conversationId: String
+    $conversationId: String!
     $content: String
     $mentionedUserIds: [String]
     $internal: Boolean
@@ -29,4 +29,4 @@ export const ADD_CONVERSATION_MESSAGE = gql`
       extraData
     }
   }
-`;
+`);

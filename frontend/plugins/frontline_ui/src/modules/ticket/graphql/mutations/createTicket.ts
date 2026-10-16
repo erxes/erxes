@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const CREATE_TICKET = gql`
+export const CREATE_TICKET = gql(`
   mutation CreateTicket(
     $name: String!
     $statusId: String!
@@ -35,28 +35,7 @@ export const CREATE_TICKET = gql`
       assignedMembers: $assignedMembers
       attachments: $attachments
     ) {
-      _id
-      name
-      description
-      statusId
-      priority
-      branchId
-      departmentId
-      labelIds
-      tagIds
-      assigneeId
-      assignedMembers
-      userId
-      startDate
-      targetDate
-      createdAt
-      createdBy
-      updatedAt
-      channelId
-      statusChangedDate
-      number
-      pipelineId
-      state
+      ...FrontlineTicketFields
     }
   }
-`;
+`);

@@ -2,7 +2,7 @@ import { Attachments, useConfirm } from 'erxes-ui';
 import { useEffect, useRef, useState } from 'react';
 
 import { IconPaperclip } from '@tabler/icons-react';
-import { removeTypename } from '@/utils';
+import { toAttachmentInput } from '@/ticket/utils/ticketAttachments';
 import { useUpdateTicket } from '@/ticket/hooks/useUpdateTicket';
 import { IAttachment } from '@/ticket/types/attachments';
 
@@ -45,7 +45,7 @@ const AttachmentUploader = ({ id, attachments }: Props) => {
       uploadProgress.total > 0 &&
       uploadProgress.uploaded === uploadProgress.total
     ) {
-      const cleanAttachments = attachmentsRef.current.map(removeTypename);
+      const cleanAttachments = attachmentsRef.current.map(toAttachmentInput);
 
       updateTicket({
         variables: {

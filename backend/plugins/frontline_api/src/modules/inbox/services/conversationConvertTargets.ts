@@ -53,13 +53,6 @@ const toPriorityNumber = (priority?: string) => {
     : 0;
 };
 
-const withoutNullish = <T extends Record<string, unknown>>(doc: T) =>
-  Object.fromEntries(
-    Object.entries(doc).filter(
-      ([, value]) => value !== null && value !== undefined,
-    ),
-  ) as Partial<T>;
-
 const validatePropertiesData = async (
   subdomain: string,
   propertiesData?: IConversationConvert['customFieldsData'],
@@ -262,76 +255,10 @@ const dealHandler: IConvertTargetHandler = {
   },
 };
 
-const taskHandler: IConvertTargetHandler = {
-  contentType: 'operation:task',
-  relateCustomer: true,
-  requiredStageMessage: 'Status is required',
-
-  findExisting: async ({ subdomain }, _conversationId, relatedIds) => {
-    if (!relatedIds.length) {
-      return null;
-    }
-
-    return sendTRPCMessage({
-      subdomain,
-      pluginName: 'operation',
-      method: 'query',
-      module: 'task',
-      action: 'findOne',
-      input: { _ids: relatedIds },
-      defaultValue: null,
-    });
-  },
-
-  getUrl: async (_subdomain, { _id }) => `/operation/tasks/${_id}`,
-
-  create: async (
-    { subdomain, user, checkPermission },
-    { doc, name, stageId, assignedUserIds },
-  ) => {
-    await checkPermission('taskCreate');
-
-    const task: { _id: string } | undefined = await sendTRPCMessage({
-      subdomain,
-      pluginName: 'operation',
-      method: 'mutation',
-      module: 'task',
-      action: 'createFromSource',
-      input: {
-        userId: user._id,
-        doc: withoutNullish({
-          name,
-          status: stageId,
-          description: doc.description,
-          priority: toPriorityNumber(doc.priority),
-          assigneeId: assignedUserIds[0],
-          labelIds: doc.labelIds,
-          tagIds: doc.tagIds,
-          startDate: doc.startDate,
-          targetDate: doc.closeDate,
-          propertiesData: await validatePropertiesData(
-            subdomain,
-            doc.customFieldsData,
-          ),
-        }),
-      },
-      context: { userId: user._id },
-      throwOnError: true,
-    });
-
-    if (!task?._id) {
-      throw new Error('Operation plugin is not available');
-    }
-
-    return task._id;
-  },
-};
-
 export const CONVERT_TARGET_HANDLERS: Record<
   ConversationConvertType,
   IConvertTargetHandler
 > = {
   ticket: ticketHandler,
   deal: dealHandler,
-  task: taskHandler,
 };
