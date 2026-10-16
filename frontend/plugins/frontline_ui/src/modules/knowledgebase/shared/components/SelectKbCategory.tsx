@@ -74,7 +74,7 @@ export const SelectKbCategory = ({
             {options.map((category) => (
               <Command.Item
                 key={category._id}
-                value={category.title}
+                value={category.title ?? ''}
                 onSelect={() => handleSelect(category._id)}
               >
                 <TextOverflowTooltip

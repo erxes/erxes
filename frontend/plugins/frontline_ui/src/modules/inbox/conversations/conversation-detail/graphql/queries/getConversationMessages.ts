@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const GET_CONVERSATION_MESSAGES = gql`
+export const GET_CONVERSATION_MESSAGES = gql(`
   query ConversationMessages(
     $conversationId: String!
     $skip: Int
@@ -16,9 +16,25 @@ export const GET_CONVERSATION_MESSAGES = gql`
       _id
       mid
       messageKind
-      providerData
-      replyTo
-      reactions
+      providerData {
+        messageId
+        attachmentType
+        fallbackReason
+        previewText
+        previewUrl
+        shareType
+        storyUrl
+      }
+      replyTo {
+        messageId
+        content
+        authorName
+      }
+      reactions {
+        senderId
+        emoji
+        reaction
+      }
       deliveryStatus
       expiresAt
       conversationId
@@ -43,4 +59,4 @@ export const GET_CONVERSATION_MESSAGES = gql`
     }
     conversationMessagesTotalCount(conversationId: $conversationId)
   }
-`;
+`);

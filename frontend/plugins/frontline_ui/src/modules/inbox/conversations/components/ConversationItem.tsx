@@ -92,7 +92,10 @@ export const ConversationItem = ({
               </div>
               <div className="w-auto text-left flex-none truncate flex items-center gap-1 text-xs">
                 {channel && (
-                  <IconComponent name={channel?.icon} className="size-3" />
+                  <IconComponent
+                    name={channel.icon ?? undefined}
+                    className="size-3"
+                  />
                 )}
                 {channel && <span title={channel.name}>{channel.name}</span>}
               </div>
@@ -313,7 +316,9 @@ const ConversationSelector = ({
             className=""
           />
         )}
-        <ConversationIntegrationBadge integrationId={integrationId} />
+        <ConversationIntegrationBadge
+          integrationId={integrationId ?? undefined}
+        />
       </div>
     </div>
   );

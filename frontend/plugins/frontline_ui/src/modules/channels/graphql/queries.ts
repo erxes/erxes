@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-const GET_CHANNELS = gql`
+const GET_CHANNELS = gql(`
   query frontlineChannelList(
     $name: String
     $userId: String
@@ -29,9 +29,9 @@ const GET_CHANNELS = gql`
       integrationKinds
     }
   }
-`;
+`);
 
-const GET_CHANNEL = gql`
+const GET_CHANNEL = gql(`
   query GetChannel($id: String!) {
     getChannel(_id: $id) {
       _id
@@ -44,9 +44,9 @@ const GET_CHANNEL = gql`
       memberCount
     }
   }
-`;
+`);
 
-const GET_CHANNEL_MEMBERS = gql`
+const GET_CHANNEL_MEMBERS = gql(`
   query GetChannelMembers($channelId: String, $channelIds: [String]) {
     getChannelMembers(channelId: $channelId, channelIds: $channelIds) {
       _id
@@ -57,6 +57,7 @@ const GET_CHANNEL_MEMBERS = gql`
         email
         username
         isActive
+        isOnboarded
         details {
           firstName
           lastName
@@ -67,9 +68,9 @@ const GET_CHANNEL_MEMBERS = gql`
       role
     }
   }
-`;
+`);
 
-const GET_MY_CHANNELS = gql`
+const GET_MY_CHANNELS = gql(`
   query GetMyChannels($name: String, $sortField: String, $sortDirection: Int) {
     getMyChannels(
       name: $name
@@ -88,11 +89,11 @@ const GET_MY_CHANNELS = gql`
       unreadConversationCount
     }
   }
-`;
+`);
 
 // Reading this provisions the caller's personal channel on the API side if they
 // do not have one yet, so it is safe to call from the settings page directly.
-const GET_PERSONAL_CHANNEL = gql`
+const GET_PERSONAL_CHANNEL = gql(`
   query GetPersonalChannel {
     getPersonalChannel {
       _id
@@ -106,7 +107,7 @@ const GET_PERSONAL_CHANNEL = gql`
       integrationCount
     }
   }
-`;
+`);
 
 export {
   GET_CHANNELS,

@@ -10,9 +10,7 @@ import {
 import { ICustomDomain } from '@/helpcenter/types';
 
 export const useCustomDomain = (helpCenterId: string) => {
-  const { data, loading, error, refetch } = useQuery<{
-    frontlineCustomDomain: ICustomDomain | null;
-  }>(GET_CUSTOM_DOMAIN, {
+  const { data, loading, error, refetch } = useQuery(GET_CUSTOM_DOMAIN, {
     variables: { helpCenterId },
     fetchPolicy: 'cache-and-network',
   });

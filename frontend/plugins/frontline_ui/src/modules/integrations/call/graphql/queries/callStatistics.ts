@@ -1,4 +1,6 @@
-export const callReportsDashboard = `
+import { gql } from '~/gql';
+
+export const callReportsDashboard = gql(`
   query CallReportsDashboard(
     $startDate: String!
     $endDate: String!
@@ -44,9 +46,9 @@ export const callReportsDashboard = `
       longestCall
     }
   }
-`;
+`);
 
-export const CALL_KPI_SCORECARD = `
+export const CALL_KPI_SCORECARD = gql(`
   query CallKpiScorecard($startDate: String!, $endDate: String!, $integrationId: String, $queueId: String, $direction: String) {
     callKpiScorecard(startDate: $startDate, endDate: $endDate, integrationId: $integrationId, queueId: $queueId, direction: $direction) {
       callstotal
@@ -58,9 +60,9 @@ export const CALL_KPI_SCORECARD = `
       occupancy
     }
   }
-`;
+`);
 
-export const CALL_VOLUME_SERIES = `
+export const CALL_VOLUME_SERIES = gql(`
   query CallVolumeSeries($startDate: String!, $endDate: String!, $integrationId: String, $queueId: String, $direction: String) {
     callVolumeSeries(startDate: $startDate, endDate: $endDate, integrationId: $integrationId, queueId: $queueId, direction: $direction) {
       day
@@ -71,18 +73,18 @@ export const CALL_VOLUME_SERIES = `
       abandoned
     }
   }
-`;
+`);
 
-export const CALL_CARRIER_BREAKDOWN = `
+export const CALL_CARRIER_BREAKDOWN = gql(`
   query CallCarrierBreakdown($startDate: String!, $endDate: String!, $integrationId: String, $queueId: String, $direction: String) {
     callCarrierBreakdown(startDate: $startDate, endDate: $endDate, integrationId: $integrationId, queueId: $queueId, direction: $direction) {
       name
       value
     }
   }
-`;
+`);
 
-export const CALL_HEATMAP = `
+export const CALL_HEATMAP = gql(`
   query CallHeatmap($startDate: String!, $endDate: String!, $integrationId: String, $queueId: String, $direction: String) {
     callHeatmap(startDate: $startDate, endDate: $endDate, integrationId: $integrationId, queueId: $queueId, direction: $direction) {
       dow
@@ -93,9 +95,9 @@ export const CALL_HEATMAP = `
       answerRate
     }
   }
-`;
+`);
 
-export const CALL_HEATMAP_DAILY = `
+export const CALL_HEATMAP_DAILY = gql(`
   query CallHeatmapDaily($startDate: String!, $endDate: String!, $integrationId: String, $queueId: String, $direction: String) {
     callHeatmapDaily(startDate: $startDate, endDate: $endDate, integrationId: $integrationId, queueId: $queueId, direction: $direction) {
       day
@@ -105,9 +107,9 @@ export const CALL_HEATMAP_DAILY = `
       noAnswer
     }
   }
-`;
+`);
 
-export const CALL_TOP_NUMBERS = `
+export const CALL_TOP_NUMBERS = gql(`
   query CallTopNumbers($startDate: String!, $endDate: String!, $integrationId: String, $queueId: String, $direction: String, $limit: Int) {
     callTopNumbers(startDate: $startDate, endDate: $endDate, integrationId: $integrationId, queueId: $queueId, direction: $direction, limit: $limit) {
       number
@@ -118,9 +120,9 @@ export const CALL_TOP_NUMBERS = `
       duration
     }
   }
-`;
+`);
 
-export const CALL_CALLBACK_STATS = `
+export const CALL_CALLBACK_STATS = gql(`
   query GetCallbackStats($startDate: String!, $endDate: String!, $integrationId: String, $queueId: String) {
     getCallbackStats(startDate: $startDate, endDate: $endDate, integrationId: $integrationId, queueId: $queueId) {
       queue
@@ -132,9 +134,9 @@ export const CALL_CALLBACK_STATS = `
       averageCallbackTime
     }
   }
-`;
+`);
 
-export const CALL_SLA_REPORT = `
+export const CALL_SLA_REPORT = gql(`
   query CallSlaReport($startDate: String!, $endDate: String!, $integrationId: String, $queueId: String, $agentExtension: String, $callbackWindowMinutes: Int, $breachLimit: Int) {
     callSlaReport(startDate: $startDate, endDate: $endDate, integrationId: $integrationId, queueId: $queueId, agentExtension: $agentExtension, callbackWindowMinutes: $callbackWindowMinutes, breachLimit: $breachLimit) {
       shortAbandonSeconds
@@ -196,4 +198,4 @@ export const CALL_SLA_REPORT = `
       }
     }
   }
-`;
+`);

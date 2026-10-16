@@ -3,13 +3,11 @@ import { useQuery } from '@apollo/client';
 
 export const useEMIntegrationDetail = ({ id }: { id: string | false }) => {
   const { data, loading } = useQuery(EM_INTEGRATION_DETAIL_QUERY, {
-    variables: {
-      _id: id,
-    },
+    variables: id ? { _id: id } : undefined,
     skip: !id,
   });
 
-  const { integrationDetail } = data || {};
+  const integrationDetail = data?.integrationDetail ?? undefined;
 
   return { integrationDetail, loading };
 };

@@ -1,11 +1,55 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const MAIL_CONVERSATION_DETAIL_QUERY = gql`
+export const MAIL_CONVERSATION_DETAIL_QUERY = gql(`
   query mailConversationDetail($conversationId: String!, $limit: Int) {
     mailConversationDetail(conversationId: $conversationId, limit: $limit) {
       messages {
         _id
-        mailData
+        mailData {
+          messageId
+          providerMessageId
+          inReplyTo
+          references
+          type
+          deliveryStatus
+          deliveryError
+          deliveryRetryable
+          bouncedRecipients
+          envelopeFrom
+          senderMismatch
+          from {
+            name
+            email
+          }
+          to {
+            name
+            email
+          }
+          cc {
+            name
+            email
+          }
+          bcc {
+            name
+            email
+          }
+          subject
+          body
+          reactionEmoji
+          hasReplyTo
+          newContent
+          replies
+          attachments {
+            filename
+            mimeType
+            type
+            size
+            url
+            contentId
+            disposition
+            error
+          }
+        }
         createdAt
         __typename
       }
@@ -13,9 +57,9 @@ export const MAIL_CONVERSATION_DETAIL_QUERY = gql`
       __typename
     }
   }
-`;
+`);
 
-export const MAIL_CONVERSATION_INTERNAL_NOTES_QUERY = gql`
+export const MAIL_CONVERSATION_INTERNAL_NOTES_QUERY = gql(`
   query mailConversationInternalNotes(
     $conversationId: String!
     $notesSkip: Int
@@ -46,26 +90,42 @@ export const MAIL_CONVERSATION_INTERNAL_NOTES_QUERY = gql`
       customerId
       botData
       messageKind
-      providerData
-      replyTo
-      reactions
+      providerData {
+        messageId
+        attachmentType
+        fallbackReason
+        previewText
+        previewUrl
+        shareType
+        storyUrl
+      }
+      replyTo {
+        messageId
+        content
+        authorName
+      }
+      reactions {
+        senderId
+        emoji
+        reaction
+      }
       deliveryStatus
       expiresAt
     }
     mailConversationInternalNotesCount(conversationId: $conversationId)
   }
-`;
+`);
 
-export const MAIL_MESSAGE_INSERTED_SUBSCRIPTION = gql`
+export const MAIL_MESSAGE_INSERTED_SUBSCRIPTION = gql(`
   subscription conversationMessageInserted($_id: String!) {
     conversationMessageInserted(_id: $_id) {
       _id
       internal
     }
   }
-`;
+`);
 
-export const MAIL_CONVERSATION_DRAFTS_QUERY = gql`
+export const MAIL_CONVERSATION_DRAFTS_QUERY = gql(`
   query mailConversationDrafts($conversationId: String!) {
     mailConversationDrafts(conversationId: $conversationId) {
       _id
@@ -78,13 +138,13 @@ export const MAIL_CONVERSATION_DRAFTS_QUERY = gql`
       createdAt
     }
   }
-`;
+`);
 
-export const MAIL_DRAFT_CHANGED_SUBSCRIPTION = gql`
+export const MAIL_DRAFT_CHANGED_SUBSCRIPTION = gql(`
   subscription mailDraftChanged($conversationId: String!) {
     mailDraftChanged(conversationId: $conversationId) {
       _id
       status
     }
   }
-`;
+`);

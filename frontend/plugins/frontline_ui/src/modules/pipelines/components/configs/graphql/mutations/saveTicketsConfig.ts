@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-const SAVE_TICKETS_CONFIG = gql`
+const SAVE_TICKETS_CONFIG = gql(`
   mutation TicketSaveConfig($input: TicketConfigInput!) {
     ticketSaveConfig(input: $input) {
       name
@@ -52,6 +52,6 @@ const SAVE_TICKETS_CONFIG = gql`
       updatedAt
     }
   }
-`;
+`);
 
 export { SAVE_TICKETS_CONFIG };

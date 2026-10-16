@@ -1,8 +1,9 @@
 import { useTranslation } from 'react-i18next';
 import { useInstagramBot } from '@/integrations/instagram/hooks/useInstagramBots';
-import { IInstagramBot } from '@/integrations/instagram/types/InstagramBot';
+import { IInstagramBotProfile } from '@/integrations/instagram/types/InstagramBot';
 import { Avatar, Label, Separator, Spinner } from 'erxes-ui';
 import { AutomationTriggerConfigProps } from 'ui-modules';
+import { hasBotItemId } from '~/widgets/automations/modules/facebook/components/bots/utils/hasBotItemId';
 import { TMessageTriggerFormCondition } from '../states/messageTriggerFormSchema';
 import { MESSAGE_TRIGGER_CONDITIONS } from '../constants/messageTriggerForm';
 
@@ -42,7 +43,7 @@ const BotProfile = ({
   bot,
   loading,
 }: {
-  bot?: IInstagramBot;
+  bot?: IInstagramBotProfile;
   loading: boolean;
 }) => {
   const { t } = useTranslation('frontline');
@@ -64,7 +65,7 @@ const BotProfile = ({
 
 const renderDescriptionContent = (
   condition: TMessageTriggerFormCondition,
-  bot?: IInstagramBot,
+  bot?: IInstagramBotProfile,
 ) => {
   if (condition.type === 'direct') {
     return (condition?.conditions || []).map(({ keywords = [] }) =>
@@ -74,9 +75,10 @@ const renderDescriptionContent = (
 
   if (condition.type === 'persistentMenu') {
     const { persistentMenuIds = [] } = condition || {};
-    const { persistentMenus = [] } = bot || {};
+    const persistentMenus = bot?.persistentMenus || [];
 
     return persistentMenus
+      .filter(hasBotItemId)
       .filter(({ _id }) => persistentMenuIds.includes(_id))
       .map(({ text }) => text)
       .join(',');
@@ -93,7 +95,7 @@ const Condition = ({
 }: {
   index: number;
   condition: TMessageTriggerFormCondition;
-  bot?: IInstagramBot;
+  bot?: IInstagramBotProfile;
   totalCount: number;
 }) => {
   const { t } = useTranslation('frontline');
@@ -116,7 +118,10 @@ const Condition = ({
         <p className="font-semibold text-sm">{label}</p>
         <span className="text-accent-foreground">
           {description}
-          <span className="text-primary">{` ${renderDescriptionContent(condition, bot)}`}</span>
+          <span className="text-primary">{` ${renderDescriptionContent(
+            condition,
+            bot,
+          )}`}</span>
         </span>
       </div>
       {renderORSeparator()}

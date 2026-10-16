@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const GET_CONVERSATION_MESSAGES = gql`
+export const GET_CONVERSATION_MESSAGES = gql(`
   query FacebookConversationMessages(
     $conversationId: String!
     $getFirst: Boolean
@@ -13,6 +13,7 @@ export const GET_CONVERSATION_MESSAGES = gql`
       skip: $skip
       limit: $limit
     ) {
+      __typename
       _id
       mid
       content
@@ -40,16 +41,4 @@ export const GET_CONVERSATION_MESSAGES = gql`
     }
     facebookConversationMessagesCount(conversationId: $conversationId)
   }
-`;
-
-export const GET_CONVERSATION_MESSAGES_COUNT = gql`
-  query FacebookConversationMessagesCount($conversationId: String!) {
-    facebookConversationMessagesCount(conversationId: $conversationId)
-  }
-`;
-
-export const HAS_TAGGED_MESSAGES = gql`
-  query FacebookHasTaggedMessages($conversationId: String!) {
-    facebookHasTaggedMessages(conversationId: $conversationId)
-  }
-`;
+`);

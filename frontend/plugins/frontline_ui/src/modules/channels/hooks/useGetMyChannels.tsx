@@ -1,10 +1,11 @@
 import { useQuery, QueryHookOptions } from '@apollo/client';
-import { IChannel } from '@/channels/types';
+import { useMemo } from 'react';
 import { GET_MY_CHANNELS } from '@/channels/graphql';
-
-interface IGetMyChannelsQueryResponse {
-  getMyChannels: IChannel[];
-}
+import { compactList } from '@/shared/utils/cursorList';
+import type {
+  GetMyChannelsQuery,
+  GetMyChannelsQueryVariables,
+} from '~/gql/graphql';
 
 /**
  * Every consumer asks for the same order so they render consistently and share
@@ -14,18 +15,18 @@ interface IGetMyChannelsQueryResponse {
 const MY_CHANNELS_ORDER = { sortField: 'name', sortDirection: 1 };
 
 export const useGetMyChannels = (
-  options?: QueryHookOptions<IGetMyChannelsQueryResponse>,
+  options?: QueryHookOptions<GetMyChannelsQuery, GetMyChannelsQueryVariables>,
 ) => {
-  const { data, loading, refetch } = useQuery<IGetMyChannelsQueryResponse>(
-    GET_MY_CHANNELS,
-    {
-      fetchPolicy: 'cache-and-network',
-      ...options,
-      variables: { ...MY_CHANNELS_ORDER, ...options?.variables },
-    },
-  );
+  const { data, loading, refetch } = useQuery(GET_MY_CHANNELS, {
+    fetchPolicy: 'cache-and-network',
+    ...options,
+    variables: { ...MY_CHANNELS_ORDER, ...options?.variables },
+  });
 
-  const channels = data?.getMyChannels;
+  const channels = useMemo(
+    () => (data?.getMyChannels ? compactList(data.getMyChannels) : undefined),
+    [data?.getMyChannels],
+  );
 
   return { channels, loading, refetch };
 };

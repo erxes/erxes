@@ -65,7 +65,7 @@ export const Transfer = () => {
           variant: 'destructive',
         });
       }
-    } catch (e) {
+    } catch {
       toast({
         title: t('transfer'),
         description: t('something-went-wrong'),
@@ -90,7 +90,7 @@ export const Transfer = () => {
             {callExtensionList?.map((extension) => (
               <Select.Primitive.Item
                 key={extension.extension}
-                value={extension.extension}
+                value={extension.extension ?? ''}
                 className={cn(
                   'relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-2 pr-8 text-sm outline-hidden focus:bg-accent data-disabled:pointer-events-none data-disabled:opacity-50',
                 )}

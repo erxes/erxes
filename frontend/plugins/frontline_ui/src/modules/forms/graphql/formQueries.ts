@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const GET_FORMS_LIST = gql`
+export const GET_FORMS_LIST = gql(`
   query Forms(
     $type: String
     $channelId: String
@@ -55,9 +55,9 @@ export const GET_FORMS_LIST = gql`
       }
     }
   }
-`;
+`);
 
-export const GET_FORM_DETAIL = gql`
+export const GET_FORM_DETAIL = gql(`
   query FormDetail($id: String!) {
     formDetail(_id: $id) {
       _id
@@ -103,9 +103,9 @@ export const GET_FORM_DETAIL = gql`
       integrationId
     }
   }
-`;
+`);
 
-export const GET_FORMS_TOTAL_COUNT = gql`
+export const GET_FORMS_TOTAL_COUNT = gql(`
   query FormsTotalCount(
     $type: String
     $channelId: String
@@ -136,9 +136,9 @@ export const GET_FORMS_TOTAL_COUNT = gql`
       byStatus
     }
   }
-`;
+`);
 
-export const GET_FORMS_CHANNEL_LIST = gql`
+export const GET_FORMS_CHANNEL_LIST = gql(`
   query frontlineFormsChannelList(
     $name: String
     $sortField: String
@@ -155,4 +155,4 @@ export const GET_FORMS_CHANNEL_LIST = gql`
       scope
     }
   }
-`;
+`);

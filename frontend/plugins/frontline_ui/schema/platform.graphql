@@ -65,7 +65,6 @@ type PropertySystemField {
 extend type Query {
   automations(page: Int, perPage: Int, ids: [String], excludeIds: [String], searchValue: String, sortField: String, sortDirection: Int, status: String, tagIds: [String], createdByIds: [String], updatedByIds: [String], createdAtFrom: Date, createdAtTo: Date, updatedAtFrom: Date, updatedAtTo: Date, triggerTypes: [String], actionTypes: [String], triggerSegmentId: String): [Automation]
   brandDetail(_id: String!): Brand
-  getClientPortal(_id: String): ClientPortal
   getClientPortals(filter: IClientPortalFilter): ClientPortalListResponse
   propertySystemFields(contentType: String!): [PropertySystemField!]!
 }
@@ -98,6 +97,7 @@ extend type User {
   details: UserDetailsType
   email: String
   isActive: Boolean
+  isOnboarded: Boolean
   username: String
 }
 

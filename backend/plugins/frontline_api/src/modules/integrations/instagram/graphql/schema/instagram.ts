@@ -123,13 +123,41 @@ export const types = `
     link: String
   }
 
+  type InstagramConfig {
+    _id: String!
+    code: String
+    value: JSON
+  }
+
+  type InstagramBotAccount {
+    _id: String!
+    name: String
+  }
+
+  type InstagramBotPage {
+    id: String
+    name: String
+  }
+
+  type InstagramAccount {
+    _id: String!
+    kind: String
+    name: String
+  }
+
+  type InstagramPage {
+    id: String
+    name: String
+    isUsed: Boolean
+  }
+
   type InstagramMessengerBot {
-    _id: String
+    _id: String!
     name:String
     accountId: String
-    account:JSON
+    account: InstagramBotAccount
     pageId: String
-    page: JSON
+    page: InstagramBotPage
     createdAt: Date
     persistentMenus:[InstagramBotPersistentMenuType]
     profileUrl:String
@@ -142,13 +170,13 @@ export const types = `
 
 export const queries = `
   frontlineInstagramCopyImage(conversationId: String!, messageId: String!, url: String!): String!
-  instagramGetAccounts(kind: String): JSON
+  instagramGetAccounts(kind: String): [InstagramAccount]
   instagramGetIntegrations(kind: String): JSON
   instagramGetIntegrationDetail(erxesApiId: String): JSON
-  instagramGetConfigs: JSON
+  instagramGetConfigs: [InstagramConfig]
   instagramGetComments(conversationId: String!, getFirst: Boolean, ${pageParams}): [InstagramPostMessage]
   instagramGetCommentCount(${commentQueryParamDefs}): JSON
-  instagramGetPages(accountId: String! kind: String!): JSON
+  instagramGetPages(accountId: String! kind: String!): [InstagramPage]
   instagramConversationDetail(_id: String!): JSON
   instagramConversationMessages(conversationId: String! getFirst: Boolean, ${pageParams}): [InstagramConversationMessage]
   instagramConversationMessagesCount(conversationId: String!): Int
@@ -160,8 +188,8 @@ export const queries = `
   instagramMessengerBotsTotalCount:Int
   instagramMessengerBots:[InstagramMessengerBot]
   instagramMessengerBot(_id:String):InstagramMessengerBot
-  instagramGetBotPosts(botId:String):JSON
-  instagramGetBotPost(botId:String,postId:String):JSON
+  instagramGetBotPosts(botId:String):[InstagramPosts]
+  instagramGetBotPost(botId:String,postId:String):InstagramPosts
 `;
 
 export const mutations = `

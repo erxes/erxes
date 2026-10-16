@@ -10,10 +10,24 @@ import {
   GET_SURVEY_LIST,
   GET_SURVEY_TOTAL_COUNT,
 } from '@/survey/graphql/surveyQueries';
+import type {
+  SurveyAddMutation,
+  SurveyAddMutationVariables,
+  SurveyEditMutation,
+  SurveyEditMutationVariables,
+  SurveyRemoveMutation,
+  SurveyRemoveMutationVariables,
+  SurveySendToConversationMutation,
+  SurveySendToConversationMutationVariables,
+  SurveyToggleStatusMutation,
+  SurveyToggleStatusMutationVariables,
+} from '~/gql/graphql';
 
 const refetchSurveyQueries = [GET_SURVEY_LIST, GET_SURVEY_TOTAL_COUNT];
 
-export const useSurveyAdd = (options?: MutationHookOptions) => {
+export const useSurveyAdd = (
+  options?: MutationHookOptions<SurveyAddMutation, SurveyAddMutationVariables>,
+) => {
   const [addSurvey, { loading }] = useMutation(SURVEY_ADD, {
     refetchQueries: refetchSurveyQueries,
     ...options,
@@ -22,7 +36,12 @@ export const useSurveyAdd = (options?: MutationHookOptions) => {
   return { addSurvey, loading };
 };
 
-export const useSurveyEdit = (options?: MutationHookOptions) => {
+export const useSurveyEdit = (
+  options?: MutationHookOptions<
+    SurveyEditMutation,
+    SurveyEditMutationVariables
+  >,
+) => {
   const [editSurvey, { loading }] = useMutation(SURVEY_EDIT, {
     refetchQueries: refetchSurveyQueries,
     ...options,
@@ -31,7 +50,12 @@ export const useSurveyEdit = (options?: MutationHookOptions) => {
   return { editSurvey, loading };
 };
 
-export const useSurveyRemove = (options?: MutationHookOptions) => {
+export const useSurveyRemove = (
+  options?: MutationHookOptions<
+    SurveyRemoveMutation,
+    SurveyRemoveMutationVariables
+  >,
+) => {
   const [removeSurveys, { loading }] = useMutation(SURVEY_REMOVE, {
     refetchQueries: refetchSurveyQueries,
     ...options,
@@ -40,7 +64,12 @@ export const useSurveyRemove = (options?: MutationHookOptions) => {
   return { removeSurveys, loading };
 };
 
-export const useSurveyToggleStatus = (options?: MutationHookOptions) => {
+export const useSurveyToggleStatus = (
+  options?: MutationHookOptions<
+    SurveyToggleStatusMutation,
+    SurveyToggleStatusMutationVariables
+  >,
+) => {
   const [toggleSurveyStatus, { loading }] = useMutation(SURVEY_TOGGLE_STATUS, {
     refetchQueries: refetchSurveyQueries,
     ...options,
@@ -49,7 +78,12 @@ export const useSurveyToggleStatus = (options?: MutationHookOptions) => {
   return { toggleSurveyStatus, loading };
 };
 
-export const useSurveySendToConversation = (options?: MutationHookOptions) => {
+export const useSurveySendToConversation = (
+  options?: MutationHookOptions<
+    SurveySendToConversationMutation,
+    SurveySendToConversationMutationVariables
+  >,
+) => {
   const [sendSurvey, { loading }] = useMutation(SURVEY_SEND_TO_CONVERSATION, {
     ...options,
   });

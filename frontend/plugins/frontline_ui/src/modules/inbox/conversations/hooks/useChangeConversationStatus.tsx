@@ -1,7 +1,21 @@
-import { MutationHookOptions, useMutation } from '@apollo/client';
+import { MutationFunctionOptions, useMutation } from '@apollo/client';
 import { toast } from 'erxes-ui';
 import { CONVERSATION_CHANGE_STATUS } from '@/inbox/conversations/graphql/mutations/conversationChangeStatus';
 import { useTranslation } from 'react-i18next';
+import type {
+  ConversationsChangeStatusMutation,
+  ConversationsChangeStatusMutationVariables,
+} from '~/gql/graphql';
+
+type ChangeConversationStatusOptions = Omit<
+  MutationFunctionOptions<
+    ConversationsChangeStatusMutation,
+    ConversationsChangeStatusMutationVariables
+  >,
+  'variables'
+> & {
+  variables?: { ids: string[]; status: string };
+};
 
 export const useChangeConversationStatus = () => {
   const { t } = useTranslation('frontline');
@@ -16,7 +30,9 @@ export const useChangeConversationStatus = () => {
     'GetMyChannels',
   ];
 
-  const handleChangeConversationStatus = (options: MutationHookOptions) => {
+  const handleChangeConversationStatus = (
+    options: ChangeConversationStatusOptions,
+  ) => {
     const callerRefetchQueries = options.refetchQueries;
     const refetchQueries = Array.isArray(callerRefetchQueries)
       ? [...new Set([...callerRefetchQueries, ...REQUIRED_REFETCH_QUERIES])]
@@ -27,7 +43,7 @@ export const useChangeConversationStatus = () => {
       refetchQueries,
       update: (cache, data, mutationOptions) => {
         try {
-          options.variables?.ids.forEach((id: string) => {
+          options.variables?.ids.forEach((id) => {
             cache.modify({
               id: cache.identify({ __typename: 'Conversation', _id: id }),
               fields: {

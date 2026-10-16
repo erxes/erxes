@@ -40,7 +40,7 @@ export const Categories = () => {
   return (
     <KnowledgeBaseLayout
       topicId={topicId}
-      topicTitle={topic?.title}
+      topicTitle={topic?.title ?? undefined}
       section="categories"
       actions={
         <Button onClick={() => setIsCreateOpen(true)} className="py-1 h-7">

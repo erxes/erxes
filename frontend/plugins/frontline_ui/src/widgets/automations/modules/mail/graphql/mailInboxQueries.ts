@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const MAIL_INBOXES_QUERY = gql`
+export const MAIL_INBOXES_QUERY = gql(`
   query mailInboxes {
     mailInboxes {
       _id
@@ -8,4 +8,4 @@ export const MAIL_INBOXES_QUERY = gql`
       address
     }
   }
-`;
+`);

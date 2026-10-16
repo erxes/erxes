@@ -10,7 +10,7 @@ import { KbFormSheet } from '@/knowledgebase/shared/components/KbFormSheet';
 import { KbTextField } from '@/knowledgebase/shared/components/KbTextField';
 import { SelectKbCategory } from '@/knowledgebase/shared/components/SelectKbCategory';
 import { SelectKbTopic } from '@/knowledgebase/shared/components/SelectKbTopic';
-import { ICategory } from '@/knowledgebase/types';
+import { ICategoryFields } from '@/knowledgebase/types';
 
 const categorySchema = z.object({
   title: z.string().trim().min(1, { message: 'Title is required' }),
@@ -39,7 +39,7 @@ export const CategoryDrawer = ({
   onClose,
   onSaved,
 }: {
-  category?: ICategory;
+  category?: ICategoryFields;
   topicId: string;
   isOpen: boolean;
   onClose: () => void;

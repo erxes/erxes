@@ -107,7 +107,7 @@ export const PersonalInboxNav = () => {
         }
         icon={
           <IconComponent
-            name={personalChannel?.icon}
+            name={personalChannel?.icon ?? undefined}
             className="size-3.5 text-accent-foreground shrink-0"
           />
         }

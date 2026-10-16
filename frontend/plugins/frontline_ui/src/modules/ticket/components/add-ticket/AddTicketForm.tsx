@@ -105,7 +105,9 @@ export const AddTicketForm = ({
           variant: 'default',
         });
         onClose();
-        onComplete?.(data.createTicket._id);
+        if (data.createTicket) {
+          onComplete?.(data.createTicket._id);
+        }
       },
     });
   };

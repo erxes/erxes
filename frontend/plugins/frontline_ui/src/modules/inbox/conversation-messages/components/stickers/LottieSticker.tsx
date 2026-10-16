@@ -3,6 +3,7 @@ import type { AnimationItem } from 'lottie-web';
 import { Skeleton } from 'erxes-ui';
 import { useQuery } from '@apollo/client';
 import { GET_DISCORD_STICKER_ANIMATION } from '@/inbox/conversation-messages/graphql/queries/getDiscordStickerAnimation';
+import { isRecord } from '@/shared/utils/isRecord';
 
 export const LottieSticker = ({
   stickerId,
@@ -15,10 +16,12 @@ export const LottieSticker = ({
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [loading, setLoading] = useState(true);
-  const { data, error } = useQuery<{
-    discordStickerAnimation: Record<string, unknown>;
-  }>(GET_DISCORD_STICKER_ANIMATION, { variables: { stickerId } });
-  const animationData = data?.discordStickerAnimation;
+  const { data, error } = useQuery(GET_DISCORD_STICKER_ANIMATION, {
+    variables: { stickerId },
+  });
+  const animationData = isRecord(data?.discordStickerAnimation)
+    ? data.discordStickerAnimation
+    : undefined;
 
   useEffect(() => {
     if (error) onError('Unable to load Discord sticker');

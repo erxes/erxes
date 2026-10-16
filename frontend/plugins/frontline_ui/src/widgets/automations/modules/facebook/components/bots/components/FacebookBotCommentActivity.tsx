@@ -5,6 +5,7 @@ import {
   Label,
   Skeleton,
   formatDateISOStringToRelativeDate,
+  isDefined,
 } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import {
@@ -17,20 +18,19 @@ import { useFacebookBotDelivery } from '~/widgets/automations/modules/facebook/c
 /** What this bot's page has been replying under its posts. */
 export const FacebookBotCommentActivity = ({ bot }: { bot?: IFacebookBot }) => {
   const { t } = useTranslation('frontline');
-  const { delivery, loading } = useFacebookBotDelivery(bot?._id);
+  const { delivery, loading } = useFacebookBotDelivery(bot?._id ?? undefined);
   const {
     stats,
     total,
     loading: statsLoading,
-  } = useFacebookBotCommentReplyStats(bot?._id);
+  } = useFacebookBotCommentReplyStats(bot?._id ?? undefined);
 
   if (!bot?._id) {
     return null;
   }
 
   const blockedUntil = bot.health?.sendBlockedUntil;
-  const isBlocked =
-    Boolean(blockedUntil) && new Date(blockedUntil as string) > new Date();
+  const isBlocked = !!blockedUntil && new Date(blockedUntil) > new Date();
 
   return (
     <div className="flex flex-col gap-2">
@@ -42,13 +42,13 @@ export const FacebookBotCommentActivity = ({ bot }: { bot?: IFacebookBot }) => {
         })}
       </p>
 
-      {isBlocked && (
+      {isBlocked && blockedUntil && (
         <p className="flex items-start gap-1.5 text-xs text-warning">
           <IconAlertTriangle className="mt-0.5 size-3.5 shrink-0" />
           {t('public-replies-paused-until', {
             defaultValue:
               'Facebook refused a public reply, so they are paused until {{until}}. Private replies are unaffected.',
-            until: new Date(blockedUntil as string).toLocaleString(),
+            until: new Date(blockedUntil).toLocaleString(),
           })}
         </p>
       )}
@@ -69,18 +69,18 @@ export const FacebookBotCommentActivity = ({ bot }: { bot?: IFacebookBot }) => {
           <div className="flex flex-wrap items-center gap-3 text-sm">
             <DeliveryCount
               label={t('queued', { defaultValue: 'Queued' })}
-              value={delivery.pending}
+              value={delivery.pending ?? 0}
             />
             <DeliveryCount
               label={t('sent', { defaultValue: 'Sent' })}
-              value={delivery.sent}
+              value={delivery.sent ?? 0}
             />
             <DeliveryCount
               label={t('failed', { defaultValue: 'Failed' })}
-              value={delivery.failed}
+              value={delivery.failed ?? 0}
             />
           </div>
-          {delivery.nextSendAt && delivery.pending > 0 && (
+          {delivery.nextSendAt && (delivery.pending ?? 0) > 0 && (
             <span className="text-xs text-muted-foreground">
               {t('next-public-reply-at', {
                 defaultValue: 'Next public reply at {{at}}',
@@ -137,7 +137,7 @@ const ReplyStatRow = ({
   total: number;
 }) => {
   const { t } = useTranslation('frontline');
-  const share = total ? Math.round((stat.total / total) * 100) : 0;
+  const share = total ? Math.round(((stat.total ?? 0) / total) * 100) : 0;
 
   return (
     <div className="flex flex-col gap-1 rounded-md border px-3 py-2">
@@ -153,12 +153,12 @@ const ReplyStatRow = ({
         <span>
           {t('sent', { defaultValue: 'Sent' })} {stat.sent}
         </span>
-        {stat.failed > 0 && (
+        {(stat.failed ?? 0) > 0 && (
           <span className="text-destructive">
             {t('failed', { defaultValue: 'Failed' })} {stat.failed}
           </span>
         )}
-        {stat.pending > 0 && (
+        {(stat.pending ?? 0) > 0 && (
           <span>
             {t('queued', { defaultValue: 'Queued' })} {stat.pending}
           </span>
@@ -173,15 +173,15 @@ const ReplyStatRow = ({
         <p className="truncate text-xs text-destructive">{stat.lastError}</p>
       )}
 
-      {stat.posts?.length > 0 && (
+      {(stat.posts?.length ?? 0) > 0 && (
         <div className="flex flex-col gap-0.5 border-t pt-1">
           <span className="text-xs text-muted-foreground">
             {t('used-under-posts', {
               defaultValue: 'Used under {{count}} post',
-              count: stat.postCount,
+              count: stat.postCount ?? 0,
             })}
           </span>
-          {stat.posts.map((post) => (
+          {stat.posts?.filter(isDefined).map((post) => (
             <ReplyPostRow key={post.postId} post={post} />
           ))}
         </div>
@@ -193,7 +193,7 @@ const ReplyStatRow = ({
 const ReplyPostRow = ({ post }: { post: TFacebookBotCommentReplyPost }) => {
   // The post's own text is what identifies it; the id only survives as a
   // fallback for a post erxes never opened a conversation for.
-  const label = post.content?.trim() || `#${post.postId.slice(-6)}`;
+  const label = post.content?.trim() || `#${post.postId?.slice(-6) ?? ''}`;
   const body = (
     <>
       <span className="min-w-0 flex-1 truncate">{label}</span>

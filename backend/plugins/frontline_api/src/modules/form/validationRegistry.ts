@@ -127,6 +127,7 @@ export async function validateField(
     let pattern: RegExp;
     try {
       // Flags are intentionally omitted — the client provides the raw pattern only.
+      // eslint-disable-next-line no-restricted-syntax -- admin-defined validation pattern; length-capped and run with a timeout
       pattern = new RegExp(customRegex);
     } catch {
       throw new Error('The custom regex pattern is invalid.');

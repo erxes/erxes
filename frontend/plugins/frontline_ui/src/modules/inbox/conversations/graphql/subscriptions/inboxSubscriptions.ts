@@ -1,29 +1,37 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const conversationChanged = gql`
-  subscription FrontlineLegacyConversationChanged($_id: String!) {
-    conversationChanged(_id: $_id) {
-      type
-    }
-  }
-`;
-
-export const CONVERSATION_CHANGED = gql`
+export const CONVERSATION_CHANGED = gql(`
   subscription conversationChanged($_id: String!) {
     conversationChanged(_id: $_id) {
       type
     }
   }
-`;
+`);
 
-const CONVERSATION_MESSAGE_FIELDS = gql`
+export const CONVERSATION_MESSAGE_FIELDS = gql(`
   fragment FrontlineConversationMessageFields on ConversationMessage {
     _id
     mid
     messageKind
-    providerData
-    replyTo
-    reactions
+    providerData {
+      messageId
+      attachmentType
+      fallbackReason
+      previewText
+      previewUrl
+      shareType
+      storyUrl
+    }
+    replyTo {
+      messageId
+      content
+      authorName
+    }
+    reactions {
+      senderId
+      emoji
+      reaction
+    }
     deliveryStatus
     expiresAt
     conversationId
@@ -48,27 +56,25 @@ const CONVERSATION_MESSAGE_FIELDS = gql`
     relatedMessage
     fromBot
   }
-`;
+`);
 
-export const CONVERSATION_MESSAGE_INSERTED = gql`
-  ${CONVERSATION_MESSAGE_FIELDS}
+export const CONVERSATION_MESSAGE_INSERTED = gql(`
   subscription FrontlineConversationMessageInserted($_id: String!) {
     conversationMessageInserted(_id: $_id) {
       ...FrontlineConversationMessageFields
     }
   }
-`;
+`);
 
-export const CONVERSATION_MESSAGE_UPDATED = gql`
-  ${CONVERSATION_MESSAGE_FIELDS}
+export const CONVERSATION_MESSAGE_UPDATED = gql(`
   subscription FrontlineConversationMessageUpdated($_id: String!) {
     conversationMessageUpdated(_id: $_id) {
       ...FrontlineConversationMessageFields
     }
   }
-`;
+`);
 
-export const CONVERSATION_CLIENT_MESSAGE_INSERTED = gql`
+export const CONVERSATION_CLIENT_MESSAGE_INSERTED = gql(`
   subscription conversationClientMessageInserted($userId: String!) {
     conversationClientMessageInserted(userId: $userId) {
       _id
@@ -77,9 +83,9 @@ export const CONVERSATION_CLIENT_MESSAGE_INSERTED = gql`
       createdAt
     }
   }
-`;
+`);
 
-export const CONVERSATION_UNREAD_COUNT_CHANGED = gql`
+export const CONVERSATION_UNREAD_COUNT_CHANGED = gql(`
   subscription FrontlineConversationUnreadCountChanged {
     conversationUnreadCountChanged {
       conversationId
@@ -87,9 +93,9 @@ export const CONVERSATION_UNREAD_COUNT_CHANGED = gql`
       unreadConversationCount
     }
   }
-`;
+`);
 
-export const CONVERSATION_CLIENT_TYPING_STATUS_CHANGED = gql`
+export const CONVERSATION_CLIENT_TYPING_STATUS_CHANGED = gql(`
   subscription conversationClientTypingStatusChanged($_id: String!) {
     conversationClientTypingStatusChanged(_id: $_id) {
       conversationId
@@ -98,26 +104,4 @@ export const CONVERSATION_CLIENT_TYPING_STATUS_CHANGED = gql`
       text
     }
   }
-`;
-
-export const CONVERSATION_EXTERNAL_INTEGRATION_MESSAGE_INSERTED = gql`
-  subscription conversationExternalIntegrationMessageInserted {
-    conversationExternalIntegrationMessageInserted
-  }
-`;
-
-const customerConnectionChanged = `
-  subscription customerConnectionChanged ($_id: String!) {
-    customerConnectionChanged (_id: $_id) {
-      _id
-      status
-    }
-  }
-`;
-
-export const inboxSubscriptions = {
-  conversationChanged,
-  conversationClientTypingStatusChanged:
-    CONVERSATION_CLIENT_TYPING_STATUS_CHANGED,
-  customerConnectionChanged,
-};
+`);

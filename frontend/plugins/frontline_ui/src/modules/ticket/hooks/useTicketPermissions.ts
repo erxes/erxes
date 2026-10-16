@@ -1,14 +1,14 @@
 import { currentUserState } from 'ui-modules';
 import { useAtomValue } from 'jotai';
-import type { IPipeline } from '@/pipelines/types';
+import type { IPipelineDetail } from '@/pipelines/types';
 
 export interface IStatusPermissions {
   value: string;
-  memberIds?: string[];
-  canMoveMemberIds?: string[];
-  canEditMemberIds?: string[];
-  departmentIds?: string[];
-  visibilityType?: string;
+  memberIds?: (string | null)[] | null;
+  canMoveMemberIds?: (string | null)[] | null;
+  canEditMemberIds?: (string | null)[] | null;
+  departmentIds?: (string | null)[] | null;
+  visibilityType?: string | null;
 }
 
 export interface ITicketPermissions {
@@ -21,7 +21,7 @@ export interface ITicketPermissions {
 }
 
 interface UseTicketPermissionsParams {
-  pipeline?: IPipeline;
+  pipeline?: IPipelineDetail;
   status?: IStatusPermissions;
   assigneeId?: string;
 }

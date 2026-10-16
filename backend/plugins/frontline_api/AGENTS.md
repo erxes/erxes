@@ -429,10 +429,11 @@
   SES or SendGrid path: mail enters and leaves through Cloudflare only.
 - Ticket boards/pipelines, response templates, forms, knowledgebase articles,
   and report aggregations.
-- Converts an inbox conversation into a ticket (created here), a deal (created
-  by `sales` over tRPC) or a task (created by `operation` over tRPC), relates the
-  new item to the conversation and its customer, and refuses a second item of
-  the same kind for one conversation.
+- Converts an inbox conversation into a ticket (created here) or a deal
+  (created by `sales` over tRPC), relates the new item to the conversation and
+  its customer, and refuses a second item of the same kind for one
+  conversation. There is no task target; `conversationConvertToCard` rejects
+  `type: "task"` as an unsupported convert type.
 - Read-only inbox, integration, and form-submission tRPC procedures are
   exposed to AI agents through `/agent-tools/manifest` and `/agent-tools/call`
   via `.meta(agentMeta(...))` annotations; every other procedure remains
@@ -581,6 +582,10 @@ The root router mounts its authenticated webhook at `/telegram`.
   the existing content/attachment/poll contracts plus `extraData.telegram`.
   `telegramDisconnectBot` pauses locally before provider cleanup; its Boolean
   reports whether remote webhook removal was confirmed.
+  `telegramMessageLinkPreviews` returns `[TelegramLinkPreview!]!` (`type`,
+  `url`, `title`, optional `description`, `provider { name }`, optional
+  `image { url }`), never `JSON`; it is `[]` when the message is missing,
+  internal, outside the user's visible channels, or has no links.
 
 - GraphQL: help center configs — `helpCenterConfig(_id)`,
   `helpCenterConfigs(page, perPage, searchValue, brandId)`,
@@ -588,15 +593,14 @@ The root router mounts its authenticated webhook at `/telegram`.
   `helpCenterConfigUpdate(config: HelpCenterConfigInput!)` (create-or-update,
   keyed on `config._id`) and `helpCenterConfigRemove(_id)`. Reads check
   `showHelpCenter`, writes check `helpCenterManage`.
-- GraphQL: `helpCenterGetConfigByDomain(clientPortalName: String): HelpCenterConfig` —
+- GraphQL: `helpCenterGetConfigByDomain: HelpCenterConfig` —
   the published site's own bootstrap read, the help center counterpart of the
   1.x `clientPortalGetConfigByDomain` lookup. It is the **one public operation
   in this module** (`wrapperConfig.skipPermission`): the site calling it has no
   staff user, no `cpUser` and no client portal header yet, because the domain
-  is how it discovers which help center it is. Like the 1.x signature it
-  mirrors, `clientPortalName` is accepted but not read: the query resolver's
-  `getByHost` takes the domain from the request's `Origin` header alone, so a
-  server-side caller must set that header itself. After the same
+  is how it discovers which help center it is. It takes no arguments: the
+  query resolver's `getByHost` takes the domain from the request's `Origin`
+  header alone, so a server-side caller must set that header itself. After the same
   normalization the write path applies, it returns the config whose `url`
   starts with that origin (escaped, case-insensitive, ending at a `/` or the
   end of the string), and throws `Not found` when no origin was supplied or no
@@ -605,6 +609,25 @@ The root router mounts its authenticated webhook at `/telegram`.
   config), and never widen it into a list.
 - GraphQL: `HelpCenterConfig.brand` resolves the federated `Brand`; its
   `kbTopic` resolves the `KnowledgeBaseTopic` named by `kbTopicId`.
+- GraphQL Facebook and Instagram settings: `facebookGetConfigs` /
+  `instagramGetConfigs` return `[FacebookConfig]` / `[InstagramConfig]`
+  (`_id`, `code`, `value: JSON`, like `CallConfig`), and `facebookCreatePost`
+  returns `FacebookCreatePostResult` (`postId`, `permalinkUrl`). The
+  `*UpdateConfigs`, `integrationsRepair` and `instagramRepair` results stay
+  `JSON`.
+- GraphQL Call Pro: `callProCustomersByPhone` returns `[Customer]`, the core
+  federated entity this plugin extends by `_id`; the resolver still returns the
+  core customer documents and the gateway resolves the selected fields from
+  core.
+- GraphQL ticket activity and notes: `TicketActivity._id` and `TicketNote._id`
+  are non-null — every activity list, subscription payload, and note query or
+  mutation (`ticketGetNote`, `ticketCreateNote`, `mailTicketNoteRetry`)
+  resolves a stored document.
+- GraphQL knowledge base: `KnowledgeBaseCategory._id` and
+  `KnowledgeBaseParentCategory._id` are non-null — every category field
+  (`categories`, `parentCategories`, `childrens`, list, detail, add, edit)
+  resolves a stored category document. `KnowledgeBaseTopic` exposes `brand`,
+  not `brandId`.
 - Nothing in this module is named `clientPortal*`, and it must stay that way.
   `core-api` owns the real client portal — portal users, auth, OAuth — and
   already publishes its own `ClientPortalConfigInput` with different fields; two
@@ -644,6 +667,11 @@ customerId, visitorId)` returns the voter's own selections for the
 - GraphQL (federated subgraph): `getChannel`, `getChannels`, `getMyChannels`,
   `getChannelMembers`; `channelAdd`, `channelUpdate`, `channelRemove`,
   `channelAddMembers`, `channelRemoveMember(s)`, `channelUpdateMember`.
+  `Channel`'s field-resolved counts (`memberCount`, `pipelineCount`,
+  `responseTemplateCount`, `formCount`, `integrationCount`,
+  `conversationCount`, `unreadConversationCount`), `hasTickets` and
+  `integrationKinds` are non-null: every one of those resolvers returns a
+  number, a boolean or an array.
 - GraphQL: `getMyChannels(name, sortField, sortDirection)` — the caller's
   memberships, sorted in the database. `sortField` accepts `name` or `createdAt`
   and falls back to `createdAt` for anything else; `sortDirection` is `1` or
@@ -660,6 +688,18 @@ customerId, visitorId)` returns the voter's own selections for the
   `conversationCounts` always returns a `responded` / `standby` / `handoff`
   count alongside `unassigned` / `participating` / `starred` / `resolved` /
   `awaitingResponse`.
+- GraphQL `Conversation.automatedReplyControl` is
+  `ConversationAutomatedReplyControl` (`status`, `pausedUntil`, `reason`,
+  `updatedAt`, `updatedBy`, all nullable: `status` has only a Mongoose
+  default), matching `automatedReplyControlSchema`. `propertiesData`,
+  `customFieldsData` and `conversationCounts` stay `JSON`.
+- GraphQL `ConversationMessage.providerData`, `replyTo` and `reactions` are
+  `ConversationMessageProviderData`, `ConversationMessageReplyTo` and
+  `[ConversationMessageReaction]`, matching the message subschemas. Every
+  field stays nullable, including the Mongoose-required `replyTo.messageId`
+  and `reactions.senderId`, since no stored data proved them. `extraData`,
+  `botData` and `formWidgetData` stay `JSON`, as do the Facebook and
+  Instagram message copies of these fields (stored as `Mixed`).
 - GraphQL: `getChannels` returns **team channels only** on every branch
   (`channelIds`, `integrationId`, see-everything, and membership), including the
   caller's own personal channel. Personal inboxes are reached only through
@@ -696,6 +736,14 @@ accountId, brandId, data)` — `channelId` is **nullable** for every kind;
   `[integrationsGetUsedTypesByChannel]` (its own type, not the shared
   `integrationsGetUsedTypes`), carrying `conversationCount` and
   `unreadConversationCount` per kind for the matched channels.
+  Each entry's `_id`, `name` and counts are non-null; the list wrappers stay
+  nullable.
+- GraphQL `Integration` outputs: `healthStatus` is `IntegrationHealthStatus`
+  (`status: String!`, `error`), `healthy` when the provider reports nothing;
+  `facebookPage` is `[IntegrationFacebookPage!]` (`pageId: String!`, plus the
+  Graph API `id` and `name`), `null` for non-Facebook kinds or when no page
+  token resolves. `details` (kind-specific; mail returns `{ status, data }`),
+  `instagramPage`, `leadData`, `messengerData` and `uiOptions` stay `JSON`.
 - tRPC `appRouter` consumed by other services, including
   `inbox.updateUserChannels({ channelIds, userId })` — replaces a user's team
   channel memberships; never touches their personal channel.
@@ -709,6 +757,34 @@ accountId, brandId, data)` — `channelId` is **nullable** for every kind;
     `inbox.integrations.count`, `inbox.getIntegrationKinds` —
     `showIntegrations`
   - `form.submissionsByConversation` — `showFormSubmissions`
+- GraphQL Facebook bot and page contracts read as object types, not `JSON`:
+  `FacebookMessengerBot._id` is non-null; its `account` is `FacebookBotAccount`
+  (`_id`, `name`) and its `page` is `FacebookBotPage` (`id`, `name` from the
+  Graph API, `null` when the page token is rejected).
+  `facebookGetAccounts` returns `[FacebookAccount]` (`_id`, `kind`, `name`,
+  never a token), `facebookGetPages` returns `[FacebookPage]` (`id`, `name`,
+  `isUsed`; `[]` when the Graph API call fails), `facebookGetIntegrations`
+  returns `[FacebookIntegrationRecord]` (`_id`, `kind`, `accountId`,
+  `erxesApiId`, `facebookPageIds`), and `facebookGetBotPosts` /
+  `facebookGetBotPost` return `FacebookPosts`. Bot remove and repair results
+  stay `JSON`.
+- GraphQL Instagram bot contracts mirror Facebook's: `InstagramMessengerBot._id`
+  is non-null; its `account` is `InstagramBotAccount` (`_id`, `name`) and its
+  `page` is `InstagramBotPage` (`id`, `name` from the Graph API, `null` when
+  the call fails). `instagramGetAccounts` returns `[InstagramAccount]` (`_id`,
+  `kind`, `name`; the resolver still loads the whole account, so the object
+  type is what keeps the token off the wire), `instagramGetPages` returns
+  `[InstagramPage]` (`id`, `name`, `isUsed`), and `instagramGetBotPosts` /
+  `instagramGetBotPost` return `InstagramPosts`. Bot add, update, remove and
+  repair results, `instagramGetIntegrations` and
+  `instagramGetIntegrationDetail` stay `JSON`.
+- GraphQL `DiscordParticipant` (from `discordConversationParticipants` and
+  `discordChannelMembers.members`) has non-null `userId` and `name`: the
+  participants resolver drops customers without a Discord user id and falls
+  back to `Discord user` for the name, and channel members come from the
+  Discord user id and `nick`, `global_name` or `username`. Keep both
+  guarantees in any new resolver that returns this type. `customerId` and
+  `avatar` stay nullable.
 - HTTP routes in `src/routes.ts` and provider webhooks under
   `src/modules/integrations/*`: Express webhook routes `/facebook/*` and
   `/instagram/*`, including the OAuth entry points `/facebook/fblogin`,
@@ -748,16 +824,24 @@ accountId, brandId, data)` — `channelId` is **nullable** for every kind;
 - GraphQL: `mailConversationDetail(conversationId!, limit): MailConversationMessages`
   — a `{ messages, hasMore }` window over the **newest** `limit` messages of a
   thread (default 20, server cap 500), returned oldest first. Each message
-  carries `mailData` with the addresses, body, the quoted-reply split
+  carries non-null `mailData: MailThreadMessageData!` with the addresses,
+  body, the quoted-reply split
   (`newContent` / `replies`), attachments, the delivery fields
   (`deliveryStatus`, `deliveryError`, `deliveryRetryable`, `bouncedRecipients`),
-  and the inbound sender check (`envelopeFrom`, `senderMismatch`).
+  and the inbound sender check (`envelopeFrom`, `senderMismatch`). Address and
+  attachment entries use `MailThreadAddress` and `MailThreadAttachment`;
+  attachment `size` is `Float`. Resolver-normalized lists, booleans and body
+  are non-null; optional stored fields, including timestamps, remain nullable.
 - GraphQL: `mailSendMail(...)` and `mailMessageRetry(_id!)` — both require
   `conversationMessageAdd` and return only the delivery outcome of the stored
-  message (`_id`, `deliveryStatus`, `deliveryError`, `bouncedRecipients`), so the
+  message as `MailDeliveryOutcome` (`_id`, `deliveryStatus`, `deliveryError`,
+  non-null `bouncedRecipients`), so the
   caller reads what actually happened instead of assuming success. `mailSendMail`
   persists the message **before** the transport call, so a send failure never
   loses an agent's reply.
+- GraphQL: `mailSendReaction` also returns `MailDeliveryOutcome`;
+  `mailDraftApprove` returns that object with `draftId`. These structured
+  results require field selections rather than the former JSON selection.
 - GraphQL: `mailCheckConnection: MailConnectionCheck` — requires
   `integrationsEdit`. Signs a request with this deployment's tenant key and posts
   it to the mail worker's `POST /verify`, which delivers a probe back to whatever
@@ -782,7 +866,19 @@ accountId, brandId, data)` — `channelId` is **nullable** for every kind;
 - GraphQL `callQueueList(integrationId)` — the queues configured on the call
   integration, each merged with its `CallQueueStatistics` row when the PBX has
   reported one. A queue with no live statistics is still listed, as
-  `{ queue, integrationId }`.
+  `{ queue, integrationId }`. It returns `[CallQueueStatistic]`, and every
+  counter stays nullable because that fallback row carries none.
+- GraphQL `callsGetConfigs` returns `[CallConfig]` (`_id`, `code`, `value`).
+  `value` stays `JSON` because the model stores it as a free-form `Object`.
+- GraphQL `callsIntegrationDetail` and `callUserIntegrations` return
+  `operators` as `[CallOperator]` (`userId`, `gsUsername`, `gsPassword`,
+  `gsForwardAgent`), all nullable because the model stores operators as a
+  free-form `Object`. The `CallIntegrationConfigs` input keeps
+  `operators: JSON`.
+- GraphQL `callExtensionList(integrationId)` returns `[CallExtension]`
+  (`extension`, `fullname`, `status`) read from the PBX `listAccount` reply,
+  filtered to the integration's operators. It returns `[]` when the PBX has no
+  accounts and throws when the PBX request fails, never a string.
 - GraphQL call reports — `callGetQueueStats`, `callGetAgentStats`,
   `getCallbackStats`, `callKpiScorecard`, `callVolumeSeries`,
   `callCarrierBreakdown`, `callHeatmap`, `callTopNumbers`. All eight read
@@ -791,6 +887,9 @@ accountId, brandId, data)` — `channelId` is **nullable** for every kind;
   `CallVolumePoint.noAnswer` and `HeatCell.noAnswer` count every call in the
   bucket that no human answered, in both directions — unlike
   `CallVolumePoint.abandoned`, which stays inbound-only.
+- `CallVolumePoint.day`, `CallDayHourCell.day` and `CallSlaPoint.day` are
+  non-null: each bucket is keyed by the PBX day of a call that has a `start`,
+  and calls without one are skipped, so every row carries its day.
 - GraphQL `callHeatmapDaily(startDate, endDate, integrationId?, queueId?,
 direction?)` — the same CDR read as `callHeatmap`, bucketed by **calendar PBX
   day × hour** instead of day-of-week, for the spreadsheet export of the report.
@@ -897,6 +996,17 @@ errors }` — `missingInErxes` is the number of Meta posts this deployment has
   applied only by `reportFacebookPosts`, never by the summary, activity, or bot
   queries. The term is escaped before it becomes a `RegExp`, so a user typing
   `a.b(c` searches for that literal string instead of crashing the resolver.
+- `Ticket._id` is non-null; every other `Ticket` field stays nullable because
+  the Mongoose schema requires none of them and `updateTicket` can clear them.
+- `getAccessibleTicketStatuses(pipelineId!)` and
+  `getTicketStatusesChoicesPipeline(pipelineId!)` return
+  `[TicketStatusChoice!]!`; `value`, `label` and `type` are non-null. The
+  accessible variant fills only `value`, `label`, `color`, `type`,
+  `canMoveMemberIds` and `canEditMemberIds`; the pipeline variant adds
+  `memberIds`, `departmentIds` and `visibilityType`.
+- `TicketStatus.type` and `order` are non-null. `Status.updateStatus` drops a
+  null `type` or `order` from its `$set`, so `updateTicketStatus` can never
+  clear them; keep that guard if the method changes.
 - `ITicketFilter.branchIds: [String]` / `departmentIds: [String]` — the ticket
   list's branch and department filters. `generateFilter` turns a non-empty list
   into `branchId` / `departmentId` `$in`, and the `ticketListChanged`
@@ -935,7 +1045,8 @@ errors }` — `missingInErxes` is the number of Meta posts this deployment has
   from the `frontline:ticket` field groups, each `{ fieldId, groupId, label,
 placeholder, order, isRequired, type, options }`, where `type` and `options`
   are copied from the core field definition on save so the messenger widget can
-  render the right control without querying core. The widget bootstrap
+  render the right control without querying core. `createdAt` / `updatedAt`
+  are `Date`, like `Pipeline`'s. The widget bootstrap
   (`widgetsMessengerConnect`) returns the whole document as `ticketConfig: JSON`,
   so both lists reach the messenger widget without a schema change there.
 - GraphQL: `widgetTicketCreated(name, description, attachments, statusId,
@@ -1051,7 +1162,7 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - GraphQL: help center configs — `helpCenterConfig(_id)`,
   `helpCenterConfigs(page, perPage, searchValue, brandId)`,
   `helpCenterConfigsTotalCount(searchValue, brandId)`,
-  `helpCenterGetConfigByDomain(clientPortalName)` (the published site's own
+  `helpCenterGetConfigByDomain` (the published site's own
   bootstrap read, the one operation in this module that skips the permission
   check), `helpCenterConfigUpdate(config: HelpCenterConfigInput!)`
   (create-or-update, keyed on `config._id`) and `helpCenterConfigRemove(_id)`.
@@ -1234,10 +1345,66 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   added there, never as another `if` branch.
 - `print-schema.ts` must exit the process itself: `erxes-api-shared/utils`
   opens a Redis client on import that would otherwise keep it alive.
+- Stored timestamps are `Date` in the SDL, never `String`: a `String` field
+  serializes a stored `Date` as epoch milliseconds.
+- Mail thread serialization in `integrations/mail/utils/thread.ts` always
+  supplies `attachments: message.attachments ?? []`; never rely on Mongoose
+  defaults alone for the non-null attachment list. Preserve explicit
+  defaults for references, bounced recipients, booleans and body. Delivery
+  status remains `String` in the SDL so historical values can still be read.
+- An argument a resolver cannot run without is non-null in the SDL:
+  `responseTemplatesEdit(_id)`, `conversationMessageAdd(conversationId)`,
+  `conversationMarkAsRead(_id)`, `ticketCreateNote(contentId)`,
+  `addTicketStatus(type)`, and `[String!]!` for
+  `channelAddMembers`/`channelRemoveMembers(memberIds)` and
+  `formsRemove(_ids)`. The write methods still reject the empty values GraphQL
+  lets through: `ResponseTemplates.updateResponseTemplate` (`_id`),
+  `Note.createNote` (`contentId`, which also covers the client portal, widget
+  and mail note paths) and `Status.addStatus` (`type`). `channelAddMembers`
+  drops empty and repeated ids before inserting and rejects a list that ends
+  up empty.
+- `createPipeline(channelId: String!)` requires the channel, which the
+  Mongoose schema already marks required, and `Pipeline.addPipeline` rejects
+  an empty one. `updatePipeline` keeps `channelId` optional, so both
+  mutations declare it themselves instead of through the shared
+  `pipelineParams`.
+- Every query, mutation and subscription declared in the SDL has a resolver,
+  and every resolver is declared. Report resolvers are registered under
+  `Query` only. `ticketPipelineChanged(_id: String!)` returns
+  `PipelineSubscription`, the `{ type, pipeline }` payload the pipeline
+  mutations publish.
+- Every argument declared in the SDL is read by its resolver. The only
+  exception is the shared cursor parameters from `erxes-api-shared`
+  (`cursorMode`, `sortMode`, `aggregationPipeline`), which the plugin does not
+  own. `integrationsSaveMessengerConfigs` and
+  `integrationsSaveMessengerAppearanceData` take no `channelId`: the messenger
+  create and edit mutations set the channel.
+- Any request-driven value (filter, params, args, searchValue, queue) that
+  reaches a `$regex` or `new RegExp()` goes through `escapeRegExp` from
+  `erxes-api-shared/utils` first, called inline in the pattern. The
+  plugin-local ESLint `no-restricted-syntax` rules in `eslint.config.js`
+  (copied from operation_api) fail the lint otherwise. Three patterns are
+  regexes on purpose and carry an `eslint-disable-next-line` with the reason:
+  the admin-defined `customRegex` in `form/validationRegistry.ts`
+  (length-capped, run with a timeout), the field `regexValidation` in
+  `form/db/models/Forms.ts`, and `MAIL_TAG` in `mail/utils/textFormat.ts`,
+  built from a constant tag list.
+- Optional filter objects default to `{}` before use: `getTickets`,
+  `cpGetTickets`, `cpGetTicketTotalCount` and `responseTemplates`.
+  `userConversations` rejects a missing `_id`, because `$in: [undefined]`
+  matches every conversation that has no `participatedUserIds` field.
+  `frontlineFieldsBulkAction` accepts `updatedFields` without `newFields`.
+- These arguments stay nullable on purpose: `conversationsAssign`
+  `assignedUserId` (null unassigns), `callAddCustomer` `inboxIntegrationId` /
+  `queueName` (either one finds the integration), the `updateTicketStatus`
+  fields (a patch), `ticketCreateNote` `content` (a note may carry only
+  attachments), and the `instagramGetPosts` filters (a missing one means no
+  filter).
 
 ## Validation
 
-- `pnpm nx lint frontline_api`
+- `pnpm nx lint frontline_api` - runs ESLint with the plugin-local
+  `eslint.config.js` (regex-escaping rules).
 - `pnpm nx build frontline_api`
 - `pnpm nx run frontline_api:schema:print` - writes `generated/schema.graphql`.
 - `pnpm nx test frontline_api` — Jest over `src/**/*.test.ts` and the
@@ -1276,37 +1443,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   rejection throws instead of silently keeping the unvalidated input, and
   clearing every property to `{}` stays `{}` on the next read rather than
   reverting to any legacy value.
-
-## Recent Changes
-
-<!-- Newest first. Keep at most 10 entries. -->
-
-### `2026-10-06` — Telegram group upgrades and attachment URLs
-
-- **Summary:** Retains the reply target for first-seen group upgrades and downloads absolute attachment URLs from their stated host.
-- **Affected areas:** Telegram conversation mapping, reply attachment reader and regression tests.
-- **Contracts changed:** None; existing migration metadata and attachment input shapes are preserved.
-
-### `2026-10-06` — Telegram previews and review hygiene
-
-- **Summary:** Preserves captionless media and poll previews and documents Telegram lifecycle contracts while cleaning up test fixtures.
-- **Affected areas:** Telegram ingestion/content adapters, module documentation and regression tests.
-- **Contracts changed:** None; previews use the existing conversation content field.
-
-### `2026-10-06` — Complete long Telegram replies and connection edits
-
-- **Summary:** Sends long text and caption overflow in ordered parts and lets Telegram common-field edits complete successfully.
-- **Affected areas:** Telegram reply delivery, edit synchronization, inbox integration dispatcher and regression tests.
-- **Contracts changed:** Optional `extraData.telegram.textChunked` metadata; existing inbox and GraphQL shapes are preserved.
-
-### `2026-10-06` — Telegram review fixes
-
-- **Summary:** Restores Telegram kind discovery, permits local disconnect/removal during provider failures and bounds link parsing work.
-- **Affected areas:** Inbox kind map, Telegram lifecycle, link previews and regression tests.
-- **Contracts changed:** `telegramDisconnectBot` returns remote-cleanup confirmation after local deactivation; provider cleanup failures no longer block removal.
-
-### `2026-10-06` — Telegram integration on the current inbox architecture
-
-- **Summary:** Adds Telegram setup, webhook ingestion and replies through the existing provider dispatcher and inbox persistence flow.
-- **Affected areas:** `src/modules/integrations/telegram`, inbox provider dispatch, model registration and routes.
-- **Contracts changed:** Telegram bot lifecycle/status GraphQL and `/telegram/receive/:_id`; provider metadata uses `extraData.telegram`.

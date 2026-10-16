@@ -79,7 +79,7 @@ const ChannelItem = ({
         <IconCheck className="" />
       ) : (
         <IconComponent
-          name={icon}
+          name={icon ?? undefined}
           className="size-3 text-accent-foreground shrink-0"
         />
       )}

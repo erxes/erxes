@@ -23,10 +23,14 @@ export const usePauseAgent = () => {
     });
 
   const pauseAgent = (status: string) => {
+    if (!callConfig?.inboxId) {
+      return;
+    }
+
     changeAgentStatus({
       variables: {
         status,
-        integrationId: callConfig?.inboxId,
+        integrationId: callConfig.inboxId,
       },
     });
   };

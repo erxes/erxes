@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const getCallConversationNotes = gql`
+export const getCallConversationNotes = gql(`
   query callConversationNotes(
     $conversationId: String!
     $getFirst: Boolean
@@ -29,4 +29,4 @@ export const getCallConversationNotes = gql`
       }
     }
   }
-`;
+`);

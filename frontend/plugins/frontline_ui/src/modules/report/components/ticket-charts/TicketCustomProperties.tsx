@@ -300,7 +300,7 @@ const TicketCustomPropertyRankedBars = memo(
     if (isGrouped) {
       const index = new Map<string, number>();
       for (const p of properties) {
-        const key = p.group || p.name;
+        const key = p.group || p.name || '';
         if (!index.has(key)) {
           index.set(key, groups.length);
           groups.push({ label: key, rows: [] });
@@ -327,7 +327,7 @@ const TicketCustomPropertyRankedBars = memo(
           tabIndex={clickable ? 0 : undefined}
           onClick={
             clickable
-              ? () => onBarClick?.(String(p._id), p.name, count)
+              ? () => onBarClick?.(String(p._id), p.name ?? '', count)
               : undefined
           }
           className={cn(
@@ -426,7 +426,7 @@ const TicketCustomPropertyRankedBars = memo(
                               )}
                             />
                             <span
-                              title={r.name}
+                              title={r.name ?? undefined}
                               className="text-muted-foreground min-w-0 flex-1 truncate text-sm"
                             >
                               {r.name}
@@ -458,7 +458,7 @@ const TicketCustomPropertyRankedBars = memo(
         ) : (
           <div className="flex flex-col">
             {properties.map((p, index) =>
-              renderBar(p, p._id, index < 2, index + 1),
+              renderBar(p, p._id ?? '', index < 2, index + 1),
             )}
           </div>
         )}
@@ -558,8 +558,8 @@ export const TicketCustomPropertyBarChart = memo(
               cursor={onBarClick ? 'pointer' : undefined}
               onClick={
                 onBarClick
-                  ? (data: any) => {
-                      const row = data?.payload ?? data;
+                  ? (_data, index) => {
+                      const row = chartData[index];
                       if (row?.id) {
                         onBarClick(String(row.id), row.property);
                       }
@@ -587,7 +587,7 @@ export const TicketCustomPropertyBarChart = memo(
             <Tooltip
               cursor={{ fill: 'var(--muted)', opacity: 0.3 }}
               content={<ChartTooltipContent />}
-              formatter={(v: number, _name: string, props: any) => [
+              formatter={(v: number, _name: string, props) => [
                 `${v} (${props.payload.percentage}%)`,
                 'Count',
               ]}
@@ -669,9 +669,7 @@ export const TicketCustomPropertyLineChart = memo(
             activeDot={{ r: 4 }}
             strokeLinecap="round"
           />
-          <Legend
-            content={(props: any) => <CustomLegendContent {...props} />}
-          />
+          <Legend content={(props) => <CustomLegendContent {...props} />} />
           <Tooltip content={<ChartTooltipContent />} />
         </AreaChart>
       </ChartContainer>
@@ -720,7 +718,7 @@ export const TicketCustomPropertyPieChart = memo(
             ))}
           </Pie>
           <Legend
-            content={(props: any) => (
+            content={(props) => (
               <CustomLegendContent
                 {...props}
                 onMouseEnter={(d: LegendPayload) =>
@@ -800,12 +798,10 @@ export const TicketCustomPropertyRadarChart = memo(
             fill="var(--success)"
             fillOpacity={0.3}
           />
-          <Legend
-            content={(props: any) => <CustomLegendContent {...props} />}
-          />
+          <Legend content={(props) => <CustomLegendContent {...props} />} />
           <Tooltip
             content={<ChartTooltipContent />}
-            formatter={(v: number, name: string, props: any) =>
+            formatter={(v: number, name: string, props) =>
               name === 'Percentage'
                 ? [
                     props.payload.percentageOriginal?.toFixed(1) + '%',

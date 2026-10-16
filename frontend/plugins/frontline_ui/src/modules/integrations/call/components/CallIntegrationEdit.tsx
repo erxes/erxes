@@ -1,6 +1,6 @@
 import { callEditSheetAtom } from '@/integrations/call/states/callEditSheetAtom';
 import { useAtom } from 'jotai';
-import { Sheet, Spinner, toast } from 'erxes-ui';
+import { isDefined, Sheet, Spinner, toast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -43,6 +43,7 @@ export const CallIntegrationEdit = () => {
   });
 
   const onSubmit = (data: z.infer<typeof CALL_INTEGRATION_FORM_SCHEMA>) => {
+    if (!integrationId) return;
     editIntegration({
       variables: {
         _id: integrationId,
@@ -103,7 +104,13 @@ export const CallIntegrationEdit = () => {
         queues: Array.isArray(callsIntegrationDetail?.queues)
           ? callsIntegrationDetail?.queues.join(',')
           : callsIntegrationDetail?.queues || '',
-        operators: callsIntegrationDetail?.operators || '',
+        operators: (callsIntegrationDetail?.operators ?? [])
+          .filter(isDefined)
+          .map((operator) => ({
+            userId: operator.userId ?? undefined,
+            gsUsername: operator.gsUsername ?? '',
+            gsPassword: operator.gsPassword ?? '',
+          })),
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

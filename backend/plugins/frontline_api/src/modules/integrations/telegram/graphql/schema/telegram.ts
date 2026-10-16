@@ -42,10 +42,27 @@ export const types = `
     maxConnections: Int
     allowedUpdates: [String!]
   }
+
+  type TelegramLinkPreviewProvider {
+    name: String!
+  }
+
+  type TelegramLinkPreviewImage {
+    url: String!
+  }
+
+  type TelegramLinkPreview {
+    type: String!
+    url: String!
+    title: String!
+    description: String
+    provider: TelegramLinkPreviewProvider!
+    image: TelegramLinkPreviewImage
+  }
 `;
 
 export const queries = `
-  telegramMessageLinkPreviews(messageId: String!): JSON
+  telegramMessageLinkPreviews(messageId: String!): [TelegramLinkPreview!]!
   telegramConversationChats(conversationIds: [String!]!): [TelegramConversationChat!]!
   telegramBots: [TelegramBot!]!
   telegramBot(_id: String!): TelegramBot!

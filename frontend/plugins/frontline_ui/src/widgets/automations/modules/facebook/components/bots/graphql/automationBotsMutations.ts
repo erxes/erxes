@@ -1,6 +1,6 @@
-import gql from 'graphql-tag';
+import { gql } from '~/gql';
 
-const ADD_FACEBOOK_BOT = gql`
+const ADD_FACEBOOK_BOT = gql(`
   mutation FacebookMessengerAddBot(
     $name: String
     $accountId: String
@@ -31,25 +31,7 @@ const ADD_FACEBOOK_BOT = gql`
       isEnabledBackBtn: $isEnabledBackBtn
       backButtonText: $backButtonText
     ) {
-      _id
-      name
-      account
-      accountId
-      createdAt
-      page
-      pageId
-      profileUrl
-      persistentMenus {
-        _id
-        text
-        type
-        link
-      }
-      iceBreakers {
-        _id
-        question
-      }
-      getStartedText
+      ...FacebookMessengerBotListFields
       greetText
       handoffMessage
       automationActiveMessage
@@ -57,18 +39,11 @@ const ADD_FACEBOOK_BOT = gql`
       tag
       isEnabledBackBtn
       backButtonText
-      health {
-        status
-        isSubscribed
-        isProfileSynced
-        lastSyncedAt
-        lastVerifiedAt
-      }
     }
   }
-`;
+`);
 
-const UPDATE_FACEBOOK_BOT = gql`
+const UPDATE_FACEBOOK_BOT = gql(`
   mutation FacebookMessengerUpdateBot(
     $_id: String
     $name: String
@@ -101,25 +76,7 @@ const UPDATE_FACEBOOK_BOT = gql`
       isEnabledBackBtn: $isEnabledBackBtn
       backButtonText: $backButtonText
     ) {
-      _id
-      name
-      account
-      accountId
-      createdAt
-      page
-      pageId
-      profileUrl
-      persistentMenus {
-        _id
-        text
-        type
-        link
-      }
-      iceBreakers {
-        _id
-        question
-      }
-      getStartedText
+      ...FacebookMessengerBotListFields
       greetText
       handoffMessage
       automationActiveMessage
@@ -127,28 +84,21 @@ const UPDATE_FACEBOOK_BOT = gql`
       tag
       isEnabledBackBtn
       backButtonText
-      health {
-        status
-        isSubscribed
-        isProfileSynced
-        lastSyncedAt
-        lastVerifiedAt
-      }
     }
   }
-`;
+`);
 
-const REMOVE_FACEBOOK_BOT = gql`
+const REMOVE_FACEBOOK_BOT = gql(`
   mutation FacebookMessengerRemoveBot($_id: String) {
     facebookMessengerRemoveBot(_id: $_id)
   }
-`;
+`);
 
-const REPAIR_FACEBOOK_BOT = gql`
+const REPAIR_FACEBOOK_BOT = gql(`
   mutation FacebookMessengerRepairBot($_id: String) {
     facebookMessengerRepairBot(_id: $_id)
   }
-`;
+`);
 
 export {
   ADD_FACEBOOK_BOT,

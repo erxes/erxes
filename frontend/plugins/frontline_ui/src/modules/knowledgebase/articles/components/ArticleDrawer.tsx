@@ -5,6 +5,7 @@ import {
   Editor,
   Form,
   InfoCard,
+  isDefined,
   MultipleSelector,
   readImage,
   Select,
@@ -24,10 +25,11 @@ import { KbTextField } from '@/knowledgebase/shared/components/KbTextField';
 import { ScheduleDateField } from '@/knowledgebase/articles/components/ScheduleDateField';
 import { SelectKbCategory } from '@/knowledgebase/shared/components/SelectKbCategory';
 import { SelectKbTopic } from '@/knowledgebase/shared/components/SelectKbTopic';
+import { toKbAttachment } from '@/knowledgebase/utils/toKbAttachment';
 
 const attachmentSchema = z.object({
   url: z.string(),
-  name: z.string().optional(),
+  name: z.string(),
   type: z.string().optional(),
   size: z.number().optional(),
   duration: z.number().optional(),
@@ -218,10 +220,14 @@ export const ArticleDrawer = ({
             categoryId: article.categoryId || categoryId,
             status: article.status || 'draft',
             isPrivate: article.isPrivate ?? false,
-            reactionChoices: article.reactionChoices ?? [],
-            image: article.image ?? undefined,
-            attachments: article.attachments ?? [],
-            pdfAttachment: article.pdfAttachment ?? undefined,
+            reactionChoices: (article.reactionChoices ?? []).filter(isDefined),
+            image: article.image ? toKbAttachment(article.image) : undefined,
+            attachments: (article.attachments ?? [])
+              .filter(isDefined)
+              .map(toKbAttachment),
+            pdfAttachment: article.pdfAttachment?.pdf
+              ? { pdf: toKbAttachment(article.pdfAttachment.pdf) }
+              : undefined,
             scheduledDate: article.scheduledDate ?? undefined,
           }
         : emptyArticle(topicId, categoryId),

@@ -1,12 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const ADD_ACTIVE_SESSION = gql`
-  mutation CallUpdateActiveSession {
-    callUpdateActiveSession
-  }
-`;
-
-export const CALL_CUSTOMER_ADD = gql`
+export const CALL_CUSTOMER_ADD = gql(`
   mutation CallAddCustomer(
     $inboxIntegrationId: String
     $primaryPhone: String
@@ -43,6 +37,7 @@ export const CALL_CUSTOMER_ADD = gql`
           relatedIds
         }
         email
+        primaryEmail
         primaryPhone
         tagIds
         lastName
@@ -51,15 +46,15 @@ export const CALL_CUSTOMER_ADD = gql`
       }
     }
   }
-`;
+`);
 
-export const CALL_PAUSE_AGENT = gql`
+export const CALL_PAUSE_AGENT = gql(`
   mutation callsPauseAgent($status: String!, $integrationId: String!) {
     callsPauseAgent(status: $status, integrationId: $integrationId)
   }
-`;
+`);
 
-export const CALL_TRANSFER = gql`
+export const CALL_TRANSFER = gql(`
   mutation callTransfer(
     $extensionNumber: String!
     $integrationId: String!
@@ -71,10 +66,10 @@ export const CALL_TRANSFER = gql`
       direction: $direction
     )
   }
-`;
+`);
 
-export const CALL_SYNC_RECORD_FILE = `
+export const CALL_SYNC_RECORD_FILE = gql(`
   mutation callSyncRecordFile($acctId: String!, $inboxId: String!) {
     callSyncRecordFile(acctId: $acctId, inboxId: $inboxId)
   }
-`;
+`);

@@ -1,40 +1,34 @@
 import { useQuery } from '@apollo/client';
 import { GET_CONVERSATION_MESSAGES } from '@/integrations/instagram/graphql/queries/igConversationQueries';
 import { useQueryState } from 'erxes-ui';
-import type { IInstagramConversationMessage } from '@/integrations/instagram/types/InstagramTypes';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { CONVERSATION_MESSAGE_INSERTED } from '@/inbox/conversations/graphql/subscriptions/inboxSubscriptions';
-
-export interface IInstagramConversationMessagesQuery {
-  instagramConversationMessages: IInstagramConversationMessage[];
-  instagramConversationMessagesCount: number;
-}
-export interface IInstagramConversationMessagesQueryVariables {
-  _id?: string;
-  conversationId?: string;
-  limit?: number;
-  skip?: number;
-  getFirst?: boolean;
-}
+import { toMessage } from '@/inbox/conversation-messages/utils/toMessage';
+import { compactList } from '@/shared/utils/cursorList';
 
 export const INSTAGRAM_CONVERSATION_MESSAGES_LIMIT = 20;
 
 export const useInstagramConversationMessages = () => {
   const [conversationId] = useQueryState<string>('conversationId');
 
-  const { data, loading, error, fetchMore, subscribeToMore, client } = useQuery<
-    IInstagramConversationMessagesQuery,
-    IInstagramConversationMessagesQueryVariables
-  >(GET_CONVERSATION_MESSAGES, {
-    variables: {
-      conversationId: conversationId || '',
-      limit: INSTAGRAM_CONVERSATION_MESSAGES_LIMIT,
+  const { data, loading, error, fetchMore, subscribeToMore, client } = useQuery(
+    GET_CONVERSATION_MESSAGES,
+    {
+      variables: conversationId
+        ? { conversationId, limit: INSTAGRAM_CONVERSATION_MESSAGES_LIMIT }
+        : undefined,
+      skip: !conversationId,
+      fetchPolicy: 'cache-and-network',
     },
-    skip: !conversationId,
-    fetchPolicy: 'cache-and-network',
-  });
+  );
 
-  const { instagramConversationMessages } = data || {};
+  const instagramConversationMessages = useMemo(
+    () =>
+      data?.instagramConversationMessages
+        ? compactList(data.instagramConversationMessages).map(toMessage)
+        : undefined,
+    [data?.instagramConversationMessages],
+  );
 
   const totalCount = Math.max(
     data?.instagramConversationMessagesCount || 0,
@@ -52,20 +46,20 @@ export const useInstagramConversationMessages = () => {
       },
       updateQuery: (prev, { fetchMoreResult }) => {
         if (!fetchMoreResult) return prev;
-        const existingIds = new Set(
-          (prev.instagramConversationMessages || []).map((m) => m._id),
+        const previousMessages = compactList(
+          prev.instagramConversationMessages,
         );
-        const uniqueNewMessages =
-          fetchMoreResult.instagramConversationMessages.filter(
-            (m) => !existingIds.has(m._id),
-          );
+        const existingIds = new Set(previousMessages.map((m) => m._id));
+        const uniqueNewMessages = compactList(
+          fetchMoreResult.instagramConversationMessages,
+        ).filter((m) => !existingIds.has(m._id));
         if (!uniqueNewMessages.length) {
           return prev;
         }
         return {
           instagramConversationMessages: [
             ...uniqueNewMessages,
-            ...prev.instagramConversationMessages,
+            ...previousMessages,
           ],
           instagramConversationMessagesCount:
             fetchMoreResult.instagramConversationMessagesCount,
@@ -76,29 +70,29 @@ export const useInstagramConversationMessages = () => {
 
   useEffect(() => {
     if (!conversationId) return;
-    const unsubscribe = subscribeToMore<{
-      conversationMessageInserted: IInstagramConversationMessage;
-    }>({
+    const unsubscribe = subscribeToMore({
       document: CONVERSATION_MESSAGE_INSERTED,
-      variables: { _id: conversationId || '' },
+      variables: { _id: conversationId },
       updateQuery: (prev, { subscriptionData }) => {
-        if (!prev || !subscriptionData.data) return prev;
+        const newMessage = subscriptionData.data?.conversationMessageInserted;
 
-        const newMessage = subscriptionData.data.conversationMessageInserted;
+        if (!prev || !newMessage) return prev;
 
-        const messageExists = prev.instagramConversationMessages.some(
+        const previousMessages = compactList(
+          prev.instagramConversationMessages,
+        );
+        const messageExists = previousMessages.some(
           (msg) => msg._id === newMessage._id,
         );
 
         if (messageExists) {
           return {
             ...prev,
-            instagramConversationMessages:
-              prev.instagramConversationMessages.map((message) =>
-                message._id === newMessage._id
-                  ? { ...message, reactions: newMessage.reactions }
-                  : message,
-              ),
+            instagramConversationMessages: previousMessages.map((message) =>
+              message._id === newMessage._id
+                ? { ...message, reactions: newMessage.reactions }
+                : message,
+            ),
           };
         }
 
@@ -124,7 +118,7 @@ export const useInstagramConversationMessages = () => {
         return {
           ...prev,
           instagramConversationMessages: [
-            ...prev.instagramConversationMessages,
+            ...previousMessages,
             {
               ...newMessage,
               conversationId,
@@ -132,7 +126,7 @@ export const useInstagramConversationMessages = () => {
             },
           ],
           instagramConversationMessagesCount:
-            prev.instagramConversationMessagesCount + 1,
+            (prev.instagramConversationMessagesCount ?? 0) + 1,
         };
       },
     });

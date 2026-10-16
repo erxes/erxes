@@ -1,4 +1,4 @@
-import { Button, Spinner, Tooltip, useToast } from 'erxes-ui';
+import { Button, Spinner, Tooltip, useToast, isDefined } from 'erxes-ui';
 import { IconRefresh } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 
@@ -21,11 +21,20 @@ export const SyncFacebookStatsButton = ({
       onCompleted: (data) => {
         const result = data.reportFacebookSyncPostStats;
 
+        if (!result) {
+          toast({
+            variant: 'destructive',
+            title: t('facebook-sync-failed', 'Sync failed'),
+          });
+          return;
+        }
+
         if (result.errors?.length) {
           toast({
             variant: 'destructive',
             title: t('facebook-sync-partial', 'Some pages could not be synced'),
             description: result.errors
+              .filter(isDefined)
               .map((error) => `${error.pageId}: ${error.message}`)
               .join('\n'),
           });

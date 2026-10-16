@@ -2,6 +2,7 @@ import { useFacebookBot } from '@/integrations/facebook/hooks/useFacebookBots';
 import { IconSnowflake } from '@tabler/icons-react';
 import { Checkbox, Spinner, cn } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import { hasBotItemId } from '~/widgets/automations/modules/facebook/components/bots/utils/hasBotItemId';
 import { useFacebookBotTriggerClaims } from '../../hooks/useFacebookBotTriggerClaims';
 import { TriggerClaimNote } from './TriggerClaimNote';
 
@@ -19,9 +20,9 @@ export const IceBreakerSelector = ({
   const { t } = useTranslation('frontline');
   const { bot, loading } = useFacebookBot(botId);
   const { claims } = useFacebookBotTriggerClaims(botId, currentTriggerId);
-  const iceBreakers = (bot?.iceBreakers || []).filter(({ question }) =>
-    Boolean(question),
-  );
+  const iceBreakers = (bot?.iceBreakers ?? [])
+    .filter(hasBotItemId)
+    .filter(({ question }) => Boolean(question));
 
   if (loading) {
     return <Spinner />;

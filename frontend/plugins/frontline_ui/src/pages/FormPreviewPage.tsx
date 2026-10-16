@@ -1,4 +1,5 @@
 import { FormPreview } from '@/forms/components/FormPreview';
+import { LEAD_DATA_SCHEMA } from '@/forms/constants/formSchema';
 import { useFormDetail } from '@/forms/hooks/useFormDetail';
 import {
   formSetSetupAtom,
@@ -24,7 +25,8 @@ export const FormPreviewPage = () => {
 
   useLayoutEffect(() => {
     const primaryColor =
-      formDetail?.leadData?.primaryColor ?? formGeneral?.primaryColor;
+      LEAD_DATA_SCHEMA.parse(formDetail?.leadData).primaryColor ??
+      formGeneral?.primaryColor;
 
     if (primaryColor && hexToOklch(primaryColor)) {
       document.documentElement.style.setProperty(

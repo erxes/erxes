@@ -1,8 +1,6 @@
 import type { ReactNode, RefObject } from 'react';
-import type {
-  MailDeliveryOutcome,
-  MailDeliveryStatus,
-} from '@/integrations/mail/types/mailDelivery';
+import type { MailDeliveryOutcome } from '@/integrations/mail/types/mailDelivery';
+import type { MailConversationDetailQuery } from '~/gql/graphql';
 
 export interface MailComposePayload {
   subject: string;
@@ -14,51 +12,21 @@ export interface MailComposePayload {
   references?: string[];
 }
 
-export interface EmailAddress {
-  name?: string;
-  email?: string;
-}
+export type MailMessage = NonNullable<
+  NonNullable<
+    NonNullable<
+      MailConversationDetailQuery['mailConversationDetail']
+    >['messages']
+  >[number]
+>;
 
-export interface Attachment {
-  filename?: string;
-  mimeType?: string;
-  size?: number;
-  url?: string;
-  contentId?: string;
-  disposition?: 'attachment' | 'inline';
-  error?: string;
-}
+export type MailData = MailMessage['mailData'];
 
-export interface MailData {
-  messageId?: string;
-  providerMessageId?: string;
-  inReplyTo?: string;
-  references?: string[];
-  type?: 'INBOX' | 'SENT';
-  from?: EmailAddress[];
-  to?: EmailAddress[];
-  cc?: EmailAddress[];
-  bcc?: EmailAddress[];
-  subject?: string;
-  body?: string;
-  reactionEmoji?: string;
-  hasReplyTo?: boolean;
-  newContent?: string;
-  replies?: string;
-  attachments?: Attachment[];
-  deliveryStatus?: MailDeliveryStatus;
-  deliveryError?: string;
-  deliveryRetryable?: boolean;
-  bouncedRecipients?: string[];
-  envelopeFrom?: string;
-  senderMismatch?: boolean;
-}
+export type EmailAddress = MailData['from'][number];
 
-export interface MailMessage {
-  _id: string;
-  createdAt: string;
-  mailData: MailData;
-}
+export type Attachment = NonNullable<
+  NonNullable<MailData['attachments']>[number]
+>;
 
 export type ComposeMode = 'reply' | 'replyAll' | 'forward' | 'new';
 

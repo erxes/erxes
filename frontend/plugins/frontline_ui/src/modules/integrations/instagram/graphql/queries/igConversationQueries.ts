@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const GET_CONVERSATION_MESSAGES = gql`
+export const GET_CONVERSATION_MESSAGES = gql(`
   query InstagramConversationMessages(
     $conversationId: String!
     $getFirst: Boolean
@@ -13,6 +13,7 @@ export const GET_CONVERSATION_MESSAGES = gql`
       skip: $skip
       limit: $limit
     ) {
+      __typename
       _id
       content
       conversationId
@@ -38,52 +39,4 @@ export const GET_CONVERSATION_MESSAGES = gql`
     }
     instagramConversationMessagesCount(conversationId: $conversationId)
   }
-`;
-
-export const GET_CONVERSATION_MESSAGES_COUNT = gql`
-  query InstagramConversationMessagesCount($conversationId: String!) {
-    instagramConversationMessagesCount(conversationId: $conversationId)
-  }
-`;
-
-export const HAS_TAGGED_MESSAGES = gql`
-  query InstagramHasTaggedMessages($conversationId: String!) {
-    instagramHasTaggedMessages(conversationId: $conversationId)
-  }
-`;
-
-export const GET_POST_MESSAGES = gql`
-  query InstagramPostMessages(
-    $conversationId: String!
-    $getFirst: Boolean
-    $skip: Int
-    $limit: Int
-  ) {
-    instagramPostMessages(
-      conversationId: $conversationId
-      getFirst: $getFirst
-      skip: $skip
-      limit: $limit
-    ) {
-      _id
-      content
-      conversationId
-      customerId
-      userId
-      createdAt
-      commentId
-      messageKind
-      providerData
-      replyTo
-      reactions
-      deliveryStatus
-      expiresAt
-      attachments {
-        url
-        name
-        type
-        size
-      }
-    }
-  }
-`;
+`);

@@ -15,6 +15,8 @@ export const ResponseDetail = () => {
   const { updateResponse } = useUpdateResponse();
 
   const handleSubmit = (data: TUpdateResponseForm) => {
+    if (!responseId) return;
+
     updateResponse({
       variables: { ...data, id: responseId },
       onCompleted: (res) => {
@@ -51,7 +53,11 @@ export const ResponseDetail = () => {
           <div className="w-full p-4">
             <CreateResponseForm
               onSubmit={handleSubmit}
-              defaultValues={response}
+              defaultValues={{
+                _id: response._id,
+                name: response.name ?? '',
+                content: response.content ?? '',
+              }}
               type="update"
             />
           </div>

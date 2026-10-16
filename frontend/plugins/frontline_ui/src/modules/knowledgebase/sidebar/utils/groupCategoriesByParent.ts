@@ -1,16 +1,23 @@
-import { ICategory } from '@/knowledgebase/types';
+import { ICategoryFields } from '@/knowledgebase/types';
 
 export const ROOT_CATEGORY_KEY = '';
 
-const byTitle = (a: ICategory, b: ICategory) =>
+export type TCategoryNode = Pick<
+  ICategoryFields,
+  '_id' | 'title' | 'parentCategoryId'
+>;
+
+const byTitle = (a: TCategoryNode, b: TCategoryNode) =>
   (a.title || '').localeCompare(b.title || '', undefined, {
     numeric: true,
     sensitivity: 'base',
   });
 
-export const groupCategoriesByParent = (categories: ICategory[]) => {
+export const groupCategoriesByParent = <T extends TCategoryNode>(
+  categories: T[],
+) => {
   const ids = new Set(categories.map((category) => category._id));
-  const childrenOf = new Map<string, ICategory[]>();
+  const childrenOf = new Map<string, T[]>();
 
   categories.forEach((category) => {
     const parentId =
@@ -21,10 +28,10 @@ export const groupCategoriesByParent = (categories: ICategory[]) => {
     childrenOf.set(parentId, [...(childrenOf.get(parentId) ?? []), category]);
   });
 
-  const groups = new Map<string, ICategory[]>();
+  const groups = new Map<string, T[]>();
   const visited = new Set<string>();
 
-  const attach = (parentId: string, children: ICategory[]) => {
+  const attach = (parentId: string, children: T[]) => {
     const fresh = children.filter((child) => !visited.has(child._id));
 
     if (fresh.length === 0) return;

@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const GET_CONVERSATIONS = gql`
+export const GET_CONVERSATIONS = gql(`
   query Conversations(
     $channelId: String
     $integrationId: String
@@ -103,4 +103,4 @@ export const GET_CONVERSATIONS = gql`
       }
     }
   }
-`;
+`);

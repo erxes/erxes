@@ -31,7 +31,7 @@ export const ReportChartActions = ({
     {savedChart && (
       <RemoveReportChartButton
         chartId={savedChart._id}
-        chartName={savedChart.name}
+        chartName={savedChart.name ?? ''}
       />
     )}
   </>

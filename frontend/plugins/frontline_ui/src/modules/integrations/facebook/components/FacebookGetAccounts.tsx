@@ -8,7 +8,10 @@ import {
   RadioGroup,
   Spinner,
 } from 'erxes-ui';
-import { useFacebookAccounts } from '@/integrations/facebook/hooks/useFacebookAccounts';
+import {
+  TFacebookAccount,
+  useFacebookAccounts,
+} from '@/integrations/facebook/hooks/useFacebookAccounts';
 import { IconBrandFacebook } from '@tabler/icons-react';
 import { useAtom, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
@@ -29,7 +32,7 @@ const FacebookAccountRow = ({
   selectedAccount,
   onSelect,
 }: {
-  account: { _id: string; name: string };
+  account: TFacebookAccount;
   selectedAccount: string | undefined;
   onSelect: (id: string) => void;
 }) => {
@@ -95,7 +98,7 @@ export const FacebookGetAccounts = () => {
   const onNext = () => setActiveStep(2);
 
   const filteredAccounts = facebookGetAccounts.filter((account) =>
-    account.name.toLowerCase().includes(searchTerm.toLowerCase()),
+    (account.name ?? '').toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   return (
