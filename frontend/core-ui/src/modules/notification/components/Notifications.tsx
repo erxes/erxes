@@ -22,12 +22,10 @@ import { useInView } from 'react-intersection-observer';
 import { useNavigate, useParams } from 'react-router-dom';
 import { TNotificationStatus } from 'ui-modules';
 
-const STATUS_TABS: { value: TNotificationStatus; label: string }[] = [
-  { value: 'unread', label: 'Unread' },
-  { value: 'all', label: 'All' },
-];
+const STATUS_TABS: TNotificationStatus[] = ['unread', 'all'];
 
 const InboxHeader = () => {
+  const { t } = useTranslation('common', { keyPrefix: 'notification' });
   const { unreadNotificationsCount } = useUnreadNotificationCount();
   const { markAllRead, markingAllRead } = useInboxActions();
   const [{ notificationStatus }, setQueries] = useMultiQueryState<{
@@ -38,14 +36,14 @@ const InboxHeader = () => {
   return (
     <div className="flex shrink-0 flex-col gap-2 border-b px-3 pt-3 pb-2">
       <div className="flex items-center gap-1">
-        <h1 className="flex-1 px-1 text-base font-semibold">Inbox</h1>
+        <h1 className="flex-1 px-1 text-base font-semibold">{t('inbox')}</h1>
         <NotificationsFilters />
         <NotificationSort />
         <Button
           variant="ghost"
           size="icon"
-          aria-label="Mark all as read"
-          title="Mark all as read"
+          aria-label={t('mark-all-read')}
+          title={t('mark-all-read')}
           disabled={!unreadNotificationsCount || markingAllRead}
           onClick={markAllRead}
         >
@@ -53,7 +51,7 @@ const InboxHeader = () => {
         </Button>
       </div>
       <div className="flex gap-1" role="tablist">
-        {STATUS_TABS.map(({ value, label }) => (
+        {STATUS_TABS.map((value) => (
           <Button
             key={value}
             role="tab"
@@ -69,7 +67,7 @@ const InboxHeader = () => {
               })
             }
           >
-            {label}
+            {t(value)}
             {value === 'unread' && unreadNotificationsCount > 0 && (
               <span className="font-mono text-xs tabular-nums text-primary">
                 {unreadNotificationsCount}
@@ -126,9 +124,9 @@ const NotificationList = () => {
           <IconInbox className="size-6" />
         </span>
         <div>
-          <p className="text-sm font-medium">You're all caught up</p>
+          <p className="text-sm font-medium">{t('all-caught-up')}</p>
           <p className="text-xs text-muted-foreground">
-            New notifications from any plugin land here.
+            {t('empty-description')}
           </p>
         </div>
       </div>
@@ -139,16 +137,16 @@ const NotificationList = () => {
   const groups =
     !notificationOrderBy || notificationOrderBy === 'new'
       ? groupNotificationsByDay(visible)
-      : [{ label: '', items: visible }];
+      : [{ day: null, items: visible }];
 
   return (
     <ScrollArea className="min-h-0 flex-1" viewportClassName="[&>div]:block!">
       <div className="flex flex-col gap-3 p-2">
-        {groups.map(({ label, items }) => (
-          <section key={label || 'all'} className="flex flex-col gap-0.5">
-            {label && (
+        {groups.map(({ day, items }) => (
+          <section key={day ?? 'all'} className="flex flex-col gap-0.5">
+            {day && (
               <h2 className="px-3 pt-1 pb-1 font-mono text-xs font-medium text-muted-foreground uppercase">
-                {label}
+                {t(day)}
               </h2>
             )}
             {items.map((notification) => (

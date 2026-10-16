@@ -129,6 +129,7 @@ export function SettingsSidebar({
 
 /** Every plugin with settings, so admins can reach them from one place. */
 function PluginSettingsGroup() {
+  const { t } = useTranslation('common', { keyPrefix: 'shell' });
   const { getSettings } = useAppSettings();
   const plugins = useNavigationActivities().flatMap((app) => {
     const path = app.kind === 'plugin' ? getSettings(app.id).path : null;
@@ -137,7 +138,7 @@ function PluginSettingsGroup() {
   });
 
   return (
-    <SettingsNavigationGroup name="Plugins">
+    <SettingsNavigationGroup name={t('plugins')}>
       {plugins.map(({ app, path }) => (
         <SidebarLink
           key={app.id}

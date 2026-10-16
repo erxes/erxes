@@ -5,6 +5,7 @@ import { useInboxActions } from '@/notification/hooks/useInboxActions';
 import { useNotificationApp } from '@/notification/hooks/useNotificationApp';
 import { IconArchive } from '@tabler/icons-react';
 import { Avatar, Button, cn, readImage } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { Link, useParams } from 'react-router-dom';
 import { TNotification } from 'ui-modules';
 
@@ -44,6 +45,7 @@ export const NotificationItem = ({
   priority,
   fromUser,
 }: TNotification) => {
+  const { t } = useTranslation('common', { keyPrefix: 'notification' });
   const { id } = useParams();
   const isActive = id === _id;
   const { label: appLabel } = useNotificationApp(contentType);
@@ -115,15 +117,15 @@ export const NotificationItem = ({
       {!isRead && (
         <span
           className="mt-2 size-2 shrink-0 rounded-full bg-primary group-hover/item:invisible"
-          aria-label="Unread"
+          aria-label={t('unread')}
         />
       )}
       <Button
         variant="ghost"
         size="icon"
         className="absolute top-1.5 right-1.5 z-10 size-7 text-muted-foreground opacity-0 group-hover/item:opacity-100 focus-visible:opacity-100"
-        aria-label="Archive"
-        title="Archive"
+        aria-label={t('archive')}
+        title={t('archive')}
         disabled={archiving}
         onClick={() => archiveNotification(_id)}
       >

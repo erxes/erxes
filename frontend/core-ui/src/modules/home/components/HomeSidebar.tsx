@@ -16,18 +16,21 @@ import {
   IconStar,
 } from '@tabler/icons-react';
 import { ScrollArea, Sidebar } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
 
+const INBOX_PATH = `/${AppPath.MyInbox}`;
+
 const HOME_LINKS = [
-  { label: 'For you', to: `/${AppPath.Home}`, icon: IconHome },
-  { label: 'Inbox', to: `/${AppPath.MyInbox}`, icon: IconInbox },
+  { labelKey: 'for-you', to: `/${AppPath.Home}`, icon: IconHome },
+  { labelKey: 'inbox', to: INBOX_PATH, icon: IconInbox },
   {
-    label: 'Recent',
+    labelKey: 'recent',
     to: `/${AppPath.Home}${HomePath.Recent}`,
     icon: IconClock,
   },
   {
-    label: 'Starred',
+    labelKey: 'starred',
     to: `/${AppPath.Home}${HomePath.Starred}`,
     icon: IconStar,
   },
@@ -66,11 +69,12 @@ const AppGroup = ({
 
 /** Workspace-wide navigation: your pages first, then every app. */
 export const HomeSidebar = () => {
+  const { t } = useTranslation('common', { keyPrefix: 'shell' });
   const { pathname } = useLocation();
   const activities = useNavigationActivities();
   const { unreadNotificationsCount } = useUnreadNotificationCount();
   const isActive = (to: string) =>
-    to === `/${AppPath.MyInbox}`
+    to === INBOX_PATH
       ? pathname.startsWith(to)
       : pathname.replace(/\/$/, '') === to;
 
@@ -79,15 +83,15 @@ export const HomeSidebar = () => {
       <ScrollArea className="min-h-0 flex-1">
         <Sidebar.Group className="px-2 py-1">
           <Sidebar.Menu>
-            {HOME_LINKS.map(({ label, to, icon: Icon }) => (
+            {HOME_LINKS.map(({ labelKey, to, icon: Icon }) => (
               <SidebarLink
                 key={to}
                 to={to}
                 icon={<Icon />}
                 isActive={isActive(to)}
               >
-                {label}
-                {label === 'Inbox' && unreadNotificationsCount > 0 && (
+                {t(labelKey)}
+                {to === INBOX_PATH && unreadNotificationsCount > 0 && (
                   <span className="ml-auto font-mono text-xs tabular-nums text-primary">
                     {unreadNotificationsCount}
                   </span>
@@ -97,11 +101,11 @@ export const HomeSidebar = () => {
           </Sidebar.Menu>
         </Sidebar.Group>
         <AppGroup
-          label="Plugins"
+          label={t('plugins')}
           apps={activities.filter((activity) => activity.kind === 'plugin')}
         />
         <AppGroup
-          label="Shared"
+          label={t('shared')}
           apps={activities.filter((activity) => activity.kind === 'core')}
         />
       </ScrollArea>
@@ -110,7 +114,7 @@ export const HomeSidebar = () => {
           to={WORKSPACE_SETTINGS_PATH}
           icon={<IconBuildingCommunity />}
         >
-          Workspace settings
+          {t('workspace-settings')}
         </SidebarLink>
       </SidebarFooter>
     </>

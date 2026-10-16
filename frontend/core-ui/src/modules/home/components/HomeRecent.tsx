@@ -7,17 +7,16 @@ import {
   HomePage,
 } from '@/home/components/HomeList';
 import { useRecentPages } from '@/navigation/hooks/useRecentPages';
+import { useTranslation } from 'react-i18next';
 
 export const HomeRecent = () => {
+  const { t } = useTranslation('common', { keyPrefix: 'shell' });
   const recent = useRecentPages();
 
   return (
-    <HomePage
-      title="Recent"
-      description="Pages you opened in any plugin, newest first"
-    >
+    <HomePage title={t('recent')} description={t('recent-description')}>
       {recent.length === 0 ? (
-        <HomeEmpty>Pages you open in any plugin show up here.</HomeEmpty>
+        <HomeEmpty>{t('recent-empty')}</HomeEmpty>
       ) : (
         <HomeList>
           {recent.map((page) => (

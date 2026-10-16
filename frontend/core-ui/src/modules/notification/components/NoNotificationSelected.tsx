@@ -1,8 +1,10 @@
 import { useUnreadNotificationCount } from '@/notification/hooks/useUnreadNotificationCount';
 import { IconInbox } from '@tabler/icons-react';
 import { Kbd } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 export const NoNotificationSelected = () => {
+  const { t } = useTranslation('common', { keyPrefix: 'notification' });
   const { unreadNotificationsCount } = useUnreadNotificationCount();
 
   return (
@@ -13,18 +15,18 @@ export const NoNotificationSelected = () => {
       <div>
         <p className="text-base font-medium">
           {unreadNotificationsCount > 0
-            ? `${unreadNotificationsCount} unread`
-            : 'Nothing new'}
+            ? t('unread-count', { count: unreadNotificationsCount })
+            : t('nothing-new')}
         </p>
         <p className="text-sm text-muted-foreground">
-          Pick a notification to see the deal, task or message behind it.
+          {t('pick-notification')}
         </p>
       </div>
       <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
         <Kbd>J</Kbd>
         <Kbd>K</Kbd>
-        to move ·<Kbd>⌘ ⌫</Kbd>
-        to mark read and hide
+        {t('to-move')} ·<Kbd>⌘ ⌫</Kbd>
+        {t('to-mark-read-hide')}
       </p>
     </div>
   );

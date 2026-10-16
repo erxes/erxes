@@ -978,5 +978,6 @@
   "deal-voucher-more_other": "+{{count}} voucher",
   "deal-voucher-empty": "Voucher, coupon байхгүй",
   "deal-voucher-open": "Voucher",
-  "deal-voucher-settled": "Энэ deal дээр ашиглагдсан"
+  "deal-voucher-settled": "Энэ deal дээр ашиглагдсан",
+  "plugin-description": "Хэлцлийн дамжлага ба POS"
 }

@@ -1280,5 +1280,6 @@
   "edit-own-records": "Edit own records",
   "view-own-records": "View own records",
   "modified": "Modified",
-  "modified-date": "Modified date"
+  "modified-date": "Modified date",
+  "plugin-description": "Ledger, journals and adjustments"
 }

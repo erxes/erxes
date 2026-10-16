@@ -12,6 +12,7 @@ import { IconCheck, IconSettings } from '@tabler/icons-react';
 import { Command, Kbd, Popover } from 'erxes-ui';
 import { ReactNode, useState } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
+import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 const RECENT_APPS_LIMIT = 3;
@@ -21,6 +22,7 @@ const groupHeading =
 
 /** Searchable list of every app, opened by the `children` trigger. */
 export const AppLauncher = ({ children }: { children: ReactNode }) => {
+  const { t } = useTranslation('common', { keyPrefix: 'shell' });
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState('');
   const navigate = useNavigate();
@@ -75,13 +77,15 @@ export const AppLauncher = ({ children }: { children: ReactNode }) => {
                   {app.label}
                 </span>
                 <span className="block truncate text-xs text-muted-foreground">
-                  {place.label ? `Resume · ${place.label}` : app.description}
+                  {place.label
+                    ? t('resume-page', { page: place.label })
+                    : app.description}
                 </span>
               </span>
               {current?.id === app.id && (
                 <IconCheck
                   className="text-primary"
-                  aria-label="Current plugin"
+                  aria-label={t('current-plugin')}
                 />
               )}
             </Command.Item>
@@ -102,7 +106,7 @@ export const AppLauncher = ({ children }: { children: ReactNode }) => {
           <div className="flex items-center gap-2 border-b pr-3">
             <Command.Input
               variant="primary"
-              placeholder="Find a plugin"
+              placeholder={t('find-plugin')}
               wrapperClassName="flex-1 border-b-0 h-11"
               value={search}
               onValueChange={setSearch}
@@ -111,7 +115,7 @@ export const AppLauncher = ({ children }: { children: ReactNode }) => {
             <Kbd>⌘J</Kbd>
           </div>
           <Command.List className="m-0 max-h-[min(32rem,70vh)] p-1">
-            <Command.Empty>No plugin matches that name.</Command.Empty>
+            <Command.Empty>{t('no-plugin-match')}</Command.Empty>
             <Command.Group>
               <Command.Item
                 value="home for you recent starred"
@@ -123,24 +127,27 @@ export const AppLauncher = ({ children }: { children: ReactNode }) => {
                 </span>
                 <span className="min-w-0 flex-1">
                   <span className="block truncate text-sm font-medium">
-                    Home
+                    {t('home')}
                   </span>
                   <span className="block truncate text-xs text-muted-foreground">
-                    For you, recent and starred
+                    {t('home-description')}
                   </span>
                 </span>
                 {isHome && (
-                  <IconCheck className="text-primary" aria-label="Current" />
+                  <IconCheck
+                    className="text-primary"
+                    aria-label={t('current')}
+                  />
                 )}
               </Command.Item>
             </Command.Group>
-            {!search && renderGroup('Recent', recentApps, 'recent ')}
+            {!search && renderGroup(t('recent'), recentApps, 'recent ')}
             {renderGroup(
-              'Plugins',
+              t('plugins'),
               activities.filter((activity) => activity.kind === 'plugin'),
             )}
             {renderGroup(
-              'Shared',
+              t('shared'),
               activities.filter((activity) => activity.kind === 'core'),
             )}
             <Command.Separator className="my-1" />
@@ -151,7 +158,7 @@ export const AppLauncher = ({ children }: { children: ReactNode }) => {
                 className="gap-2 rounded-md"
               >
                 <IconSettings />
-                Workspace settings
+                {t('workspace-settings')}
               </Command.Item>
             </Command.Group>
           </Command.List>

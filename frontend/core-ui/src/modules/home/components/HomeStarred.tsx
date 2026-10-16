@@ -6,14 +6,16 @@ import {
   HomePage,
 } from '@/home/components/HomeList';
 import { useStarredPages } from '@/navigation/hooks/useStarredPages';
+import { useTranslation } from 'react-i18next';
 
 export const HomeStarred = () => {
+  const { t } = useTranslation('common', { keyPrefix: 'shell' });
   const starred = useStarredPages();
 
   return (
-    <HomePage title="Starred" description="Pages you starred in any plugin">
+    <HomePage title={t('starred')} description={t('starred-description')}>
       {starred.length === 0 ? (
-        <HomeEmpty>Pages you star show up here.</HomeEmpty>
+        <HomeEmpty>{t('starred-empty')}</HomeEmpty>
       ) : (
         <HomeList>
           {starred.map((page) => (

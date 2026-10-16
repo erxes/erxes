@@ -1133,5 +1133,6 @@
   "voucher-expires-within": "Expires within",
   "voucher-expires-within-option_one": "{{count}} day",
   "voucher-expires-within-option_other": "{{count}} days",
-  "voucher-expires-within-option": "{{count}} days"
+  "voucher-expires-within-option": "{{count}} days",
+  "plugin-description": "Vouchers, coupons, scores and spins"
 }

@@ -663,5 +663,6 @@
   "loading-stages": "Loading stages...",
   "select-stage": "Select stage",
   "no-stages-found": "No stages found",
-  "pipeline-not-selected": "Pipeline not selected"
+  "pipeline-not-selected": "Pipeline not selected",
+  "plugin-description": "Hotel PMS and tour management"
 }

@@ -1812,5 +1812,6 @@
   "customdomain-status-active": "Active",
   "customdomain-status-pending": "Pending",
   "retry": "Try again",
-  "no-tags-found": "No tags found"
+  "no-tags-found": "No tags found",
+  "plugin-description": "Inbox, tickets, calls and forms"
 }

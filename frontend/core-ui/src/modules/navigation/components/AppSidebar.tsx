@@ -19,6 +19,7 @@ import {
   IconStar,
 } from '@tabler/icons-react';
 import { ScrollArea, Sidebar } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
 
 const CoreAppMenu = ({ app }: { app: INavigationActivity }) => {
@@ -46,6 +47,7 @@ const CoreAppMenu = ({ app }: { app: INavigationActivity }) => {
 };
 
 const AppSettingsMenu = ({ app }: { app: INavigationActivity }) => {
+  const { t } = useTranslation('common', { keyPrefix: 'shell' });
   const { getSettings } = useAppSettings();
   const { placeOf } = useAppPlaces();
 
@@ -54,7 +56,7 @@ const AppSettingsMenu = ({ app }: { app: INavigationActivity }) => {
       <Sidebar.Group className="px-2 pt-2 pb-0">
         <Sidebar.Menu>
           <SidebarLink to={placeOf(app).to} icon={<IconChevronLeft />}>
-            Back to {app.label}
+            {t('back-to', { name: app.label })}
           </SidebarLink>
         </Sidebar.Menu>
       </Sidebar.Group>
@@ -67,6 +69,7 @@ const AppSettingsMenu = ({ app }: { app: INavigationActivity }) => {
 
 /** The user's starred pages inside this app, one click away. */
 const AppStarred = ({ app }: { app: INavigationActivity }) => {
+  const { t } = useTranslation('common', { keyPrefix: 'shell' });
   const { pathname, search } = useLocation();
   const starred = useStarredPages().filter((page) => page.app?.id === app.id);
 
@@ -75,7 +78,7 @@ const AppStarred = ({ app }: { app: INavigationActivity }) => {
   return (
     <Sidebar.Group className="px-2 py-1">
       <Sidebar.GroupLabel className="font-mono uppercase">
-        Starred
+        {t('starred')}
       </Sidebar.GroupLabel>
       <Sidebar.Menu>
         {starred.map((page) => (
@@ -108,6 +111,7 @@ const MobileAppHeader = ({ app }: { app: INavigationActivity }) => {
 
 /** The current app's own pages, or its settings when inside /settings. */
 export const AppSidebar = () => {
+  const { t } = useTranslation('common', { keyPrefix: 'shell' });
   const { pathname } = useLocation();
   const app = useCurrentApp();
   const { getSettings, appPluginNames } = useAppSettings();
@@ -142,14 +146,14 @@ export const AppSidebar = () => {
             to={WORKSPACE_SETTINGS_PATH}
             icon={<IconBuildingCommunity />}
           >
-            Workspace settings
+            {t('workspace-settings')}
           </SidebarLink>
         </SidebarFooter>
       )}
       {!isSettings && settings?.path && (
         <SidebarFooter>
           <SidebarLink to={settings.path} icon={<IconSettings />}>
-            {app?.label} settings
+            {t('app-settings', { name: app?.label })}
           </SidebarLink>
         </SidebarFooter>
       )}

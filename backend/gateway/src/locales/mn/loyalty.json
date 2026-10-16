@@ -1129,5 +1129,6 @@
   "owner-vouchers-none": "Хэрэглэх voucher алга",
   "owner-vouchers-closed": "{{count}} ашигласан, цуцалсан эсвэл дууссан",
   "voucher-expires-within": "Дуусах хугацаа",
-  "voucher-expires-within-option": "{{count}} хоногт"
+  "voucher-expires-within-option": "{{count}} хоногт",
+  "plugin-description": "Ваучер, купон, оноо, эргүүлэг"
 }

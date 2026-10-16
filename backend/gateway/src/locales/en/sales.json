@@ -978,5 +978,6 @@
   "deal-voucher-more_other": "+{{count}} vouchers",
   "deal-voucher-empty": "No voucher or coupon",
   "deal-voucher-open": "Vouchers",
-  "deal-voucher-settled": "Used on this deal"
+  "deal-voucher-settled": "Used on this deal",
+  "plugin-description": "Deal pipelines and POS"
 }

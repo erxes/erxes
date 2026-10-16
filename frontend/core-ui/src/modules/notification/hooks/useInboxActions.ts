@@ -4,6 +4,7 @@ import {
 } from '@/notification/graphql/notificationMutations';
 import { useMutation } from '@apollo/client';
 import { toast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 const REFETCH_QUERIES = ['Notifications', 'UnreadNotificationsCount'];
 
@@ -11,6 +12,7 @@ const showError = (error: Error) =>
   toast({ title: error.message, variant: 'destructive' });
 
 export const useInboxActions = () => {
+  const { t } = useTranslation('common', { keyPrefix: 'notification' });
   const [archive, { loading: archiving }] = useMutation(ARCHIVE_NOTIFICATION, {
     refetchQueries: REFETCH_QUERIES,
     onError: showError,
@@ -21,7 +23,7 @@ export const useInboxActions = () => {
       refetchQueries: REFETCH_QUERIES,
       onCompleted: () =>
         toast({
-          title: 'All notifications marked as read',
+          title: t('all-marked-read'),
           variant: 'success',
         }),
       onError: showError,
@@ -33,7 +35,7 @@ export const useInboxActions = () => {
       archive({
         variables: { id },
         onCompleted: () =>
-          toast({ title: 'Notification archived', variant: 'success' }),
+          toast({ title: t('notification-archived'), variant: 'success' }),
       }),
     archiving,
     markAllRead: () => markAllRead(),

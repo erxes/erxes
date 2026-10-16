@@ -18,17 +18,18 @@ import { useQuery } from '@apollo/client';
 import { IconBell } from '@tabler/icons-react';
 import { Skeleton } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
+import { useTranslation } from 'react-i18next';
 import { currentUserState, TNotification } from 'ui-modules';
 
 const PREVIEW_SIZE = 6;
 
-const greeting = () => {
+const greetingKey = () => {
   const hour = new Date().getHours();
 
-  if (hour < 12) return 'Good morning';
-  if (hour < 18) return 'Good afternoon';
+  if (hour < 12) return 'good-morning';
+  if (hour < 18) return 'good-afternoon';
 
-  return 'Good evening';
+  return 'good-evening';
 };
 
 type NotificationGroup = {
@@ -64,23 +65,26 @@ const useUnreadByApp = () => {
   return { groups, loading };
 };
 
-const groupLabel = ({ key, app }: NotificationGroup) =>
+const groupLabel = ({ key, app }: NotificationGroup, workspaceLabel: string) =>
   app?.label ??
-  (key === 'core' ? 'Workspace' : key.charAt(0).toUpperCase() + key.slice(1));
+  (key === 'core'
+    ? workspaceLabel
+    : key.charAt(0).toUpperCase() + key.slice(1));
 
 const WaitingOnYou = () => {
+  const { t } = useTranslation('common', { keyPrefix: 'shell' });
   const { groups, loading } = useUnreadByApp();
   const total = groups.reduce((sum, group) => sum + group.items.length, 0);
 
   return (
     <HomeSection
-      label="Waiting on you"
+      label={t('waiting-on-you')}
       count={total}
-      action={{ label: 'Open inbox', to: `/${AppPath.MyInbox}` }}
+      action={{ label: t('open-inbox'), to: `/${AppPath.MyInbox}` }}
     >
       {loading && <Skeleton className="h-48 rounded-lg" />}
       {!loading && groups.length === 0 && (
-        <HomeEmpty>You're all caught up.</HomeEmpty>
+        <HomeEmpty>{t('all-caught-up')}</HomeEmpty>
       )}
       {groups.length > 0 && (
         <HomeList>
@@ -90,9 +94,9 @@ const WaitingOnYou = () => {
               to={`/${AppPath.MyInbox}/${group.items[0]._id}`}
               leading={<HomeItemMark app={group.app} icon={IconBell} />}
               title={group.items[0].title}
-              subtitle={`${groupLabel(group)}${
+              subtitle={`${groupLabel(group, t('workspace'))}${
                 group.items.length > 1
-                  ? ` · ${group.items.length - 1} more`
+                  ? ` · ${t('more-count', { count: group.items.length - 1 })}`
                   : ''
               }`}
               trailing={<HomeItemTime date={group.items[0].createdAt} />}
@@ -105,19 +109,20 @@ const WaitingOnYou = () => {
 };
 
 const JumpBackIn = () => {
+  const { t } = useTranslation('common', { keyPrefix: 'shell' });
   const recent = useRecentPages();
 
   return (
     <HomeSection
-      label="Jump back in"
+      label={t('jump-back-in')}
       action={
         recent.length > PREVIEW_SIZE
-          ? { label: 'View all', to: `/${AppPath.Home}${HomePath.Recent}` }
+          ? { label: t('view-all'), to: `/${AppPath.Home}${HomePath.Recent}` }
           : undefined
       }
     >
       {recent.length === 0 ? (
-        <HomeEmpty>Pages you open in any plugin show up here.</HomeEmpty>
+        <HomeEmpty>{t('recent-empty')}</HomeEmpty>
       ) : (
         <HomeList>
           {recent.slice(0, PREVIEW_SIZE).map((page) => (
@@ -137,20 +142,21 @@ const JumpBackIn = () => {
 };
 
 const Starred = () => {
+  const { t } = useTranslation('common', { keyPrefix: 'shell' });
   const starred = useStarredPages();
 
   return (
     <HomeSection
-      label="Starred"
+      label={t('starred')}
       count={starred.length}
       action={
         starred.length > PREVIEW_SIZE
-          ? { label: 'View all', to: `/${AppPath.Home}${HomePath.Starred}` }
+          ? { label: t('view-all'), to: `/${AppPath.Home}${HomePath.Starred}` }
           : undefined
       }
     >
       {starred.length === 0 ? (
-        <HomeEmpty>Pages you star show up here.</HomeEmpty>
+        <HomeEmpty>{t('starred-empty')}</HomeEmpty>
       ) : (
         <HomeList>
           {starred.slice(0, PREVIEW_SIZE).map((page) => (
@@ -170,6 +176,7 @@ const Starred = () => {
 
 /** Workspace home: what you were doing, what you starred, what needs you. */
 export const HomeForYou = () => {
+  const { t } = useTranslation('common', { keyPrefix: 'shell' });
   const currentUser = useAtomValue(currentUserState);
   const firstName =
     currentUser?.details?.firstName ||
@@ -182,7 +189,7 @@ export const HomeForYou = () => {
 
   return (
     <HomePage
-      title={`${greeting()}${firstName ? `, ${firstName}` : ''}`}
+      title={`${t(greetingKey())}${firstName ? `, ${firstName}` : ''}`}
       description={today}
     >
       <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_20rem]">

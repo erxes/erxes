@@ -3,6 +3,7 @@ import { useInboxActions } from '@/notification/hooks/useInboxActions';
 import { useNotificationApp } from '@/notification/hooks/useNotificationApp';
 import { IconArchive, IconChevronLeft } from '@tabler/icons-react';
 import { Button, RelativeDateDisplay, useIsMobile } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
 import { TNotification } from 'ui-modules';
 
@@ -12,6 +13,7 @@ export const NotificationToolbar = ({
 }: {
   notification: TNotification;
 }) => {
+  const { t } = useTranslation('common', { keyPrefix: 'notification' });
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const { label } = useNotificationApp(notification.contentType);
@@ -22,7 +24,10 @@ export const NotificationToolbar = ({
     <div className="flex h-12 shrink-0 items-center gap-2.5 border-b px-3">
       {isMobile && (
         <Button variant="ghost" size="icon" asChild>
-          <Link to={`/my-inbox${window.location.search}`} aria-label="Back">
+          <Link
+            to={`/my-inbox${window.location.search}`}
+            aria-label={t('back')}
+          >
             <IconChevronLeft />
           </Link>
         </Button>
@@ -46,7 +51,7 @@ export const NotificationToolbar = ({
         }
       >
         <IconArchive />
-        Archive
+        {t('archive')}
       </Button>
     </div>
   );

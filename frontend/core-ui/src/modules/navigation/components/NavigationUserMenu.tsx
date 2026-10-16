@@ -20,6 +20,7 @@ export const NavigationUserMenu = () => {
   const { handleLogout } = useAuth();
   const { t: organizationT } = useTranslation('organization');
   const { t: sidebarT } = useTranslation('common', { keyPrefix: 'sidebar' });
+  const { t: shellT } = useTranslation('common', { keyPrefix: 'shell' });
   const userDetails = currentUser?.details;
   const userName = userDetails?.fullName || sidebarT('profile');
   const tabs = useAtomValue(visitedPageTabsState);
@@ -61,7 +62,9 @@ export const NavigationUserMenu = () => {
           onClick={() => setTabsVisible(!tabsVisible)}
         >
           <IconLayoutNavbarExpand />
-          {tabsVisible ? 'Hide page tabs' : `Show page tabs (${tabs.length})`}
+          {tabsVisible
+            ? shellT('hide-page-tabs')
+            : shellT('show-page-tabs', { count: tabs.length })}
         </DropdownMenu.Item>
         <ThemeSelector />
         <SelectLanguages />
