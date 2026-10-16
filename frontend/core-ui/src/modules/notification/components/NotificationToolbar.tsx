@@ -44,7 +44,7 @@ export const NotificationToolbar = () => {
       <Button
         variant="ghost"
         className="ml-auto"
-        title="Ctrl/Cmd + Backspace"
+        title="Ctrl/Cmd + Backspace / Delete"
         disabled={!notification || loading || dismissing}
         onClick={() => {
           void dismissNotification();

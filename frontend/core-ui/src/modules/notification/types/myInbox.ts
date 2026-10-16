@@ -1,4 +1,5 @@
 import type { ApolloError } from '@apollo/client';
+import type { MouseEvent } from 'react';
 import type { TNotification } from 'ui-modules';
 
 export type MarkNotificationAsRead = (id: string) => Promise<boolean>;
@@ -27,7 +28,11 @@ export interface UseNotificationResult extends UseNotificationNavigationResult {
 export type NotificationItemProps = Pick<
   TNotification,
   '_id' | 'createdAt' | 'message' | 'isRead' | 'contentType' | 'priority'
->;
+> & {
+  selected: boolean;
+  selectionFocused: boolean;
+  onOpen: (event: MouseEvent<HTMLAnchorElement>) => void;
+};
 
 export interface NotificationIconProps {
   contentType: string;
@@ -39,4 +44,27 @@ export interface UseNotificationListResult {
   inViewRef: (node?: Element | null) => void;
   isEmpty: boolean;
   hasMore: boolean;
+}
+
+export interface NotificationSelection {
+  selectedIds: string[];
+  focusedId: string | null;
+  select: (id: string, shiftKey: boolean) => void;
+  extend: (direction: 1 | -1) => void;
+  setAnchor: (id: string) => void;
+  clear: () => void;
+}
+
+export interface UseNotificationListActionsResult
+  extends Pick<NotificationSelection, 'selectedIds' | 'focusedId' | 'clear'> {
+  markingAsRead: boolean;
+  markSelectedAsRead: () => Promise<void>;
+  onOpen: (id: string, event: MouseEvent<HTMLAnchorElement>) => void;
+}
+
+export interface NotificationSelectionToolbarProps {
+  selectedCount: number;
+  markingAsRead: boolean;
+  onMarkAsRead: () => Promise<void>;
+  onClear: () => void;
 }

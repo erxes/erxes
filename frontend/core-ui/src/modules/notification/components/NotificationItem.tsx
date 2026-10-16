@@ -11,29 +11,37 @@ export const NotificationItem = ({
   isRead,
   contentType = '',
   priority,
+  selected,
+  selectionFocused,
+  onOpen,
 }: NotificationItemProps) => {
   const { id } = useParams();
   const isActive = id === _id;
   const linkRef = useRef<HTMLAnchorElement>(null);
 
   useEffect(() => {
-    if (isActive) {
+    if (isActive || selectionFocused) {
       linkRef.current?.scrollIntoView({ block: 'nearest' });
     }
-  }, [isActive]);
+  }, [isActive, selectionFocused]);
 
   return (
     <Button
       asChild
       variant="ghost"
       className={cn(
-        'justify-start h-auto rounded-lg p-2 items-start overflow-hidden relative',
-        isActive && 'bg-primary/10 hover:bg-primary/10',
+        'justify-start h-auto rounded-lg p-2 items-start overflow-hidden relative select-none',
+        (isActive || selected) && 'bg-primary/10 hover:bg-primary/10',
+        selectionFocused && 'ring-1 ring-inset ring-primary/30',
       )}
     >
       <Link
         ref={linkRef}
         aria-current={isActive ? 'page' : undefined}
+        onClick={onOpen}
+        onMouseDown={(event) => {
+          if (event.shiftKey) event.preventDefault();
+        }}
         to={`/my-inbox/${_id}${window.location.search}`}
       >
         <div

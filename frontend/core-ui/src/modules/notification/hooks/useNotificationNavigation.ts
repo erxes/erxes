@@ -1,11 +1,14 @@
-import { hiddenNotificationIdsState } from '@/notification/states/notificationState';
+import {
+  hiddenNotificationIdsState,
+  selectedNotificationIdsState,
+} from '@/notification/states/notificationState';
 import { MyInboxHotkeyScope } from '@/notification/types/notifications';
 import type {
   UseNotificationNavigationOptions,
   UseNotificationNavigationResult,
 } from '@/notification/types/myInbox';
 import { useScopedHotkeys } from 'erxes-ui';
-import { useAtom } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 import { useLayoutEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import type { TNotification } from 'ui-modules';
@@ -20,6 +23,7 @@ export const useNotificationNavigation = ({
   const { search, key: locationKey } = useLocation();
   const navigate = useNavigate();
   const { notifications } = useNotifications();
+  const selectedNotificationIds = useAtomValue(selectedNotificationIdsState);
   const [hiddenNotificationIds, setHiddenNotificationIds] = useAtom(
     hiddenNotificationIdsState,
   );
@@ -102,7 +106,7 @@ export const useNotificationNavigation = ({
     hotkeyOptions,
   );
   useScopedHotkeys(
-    'mod+backspace',
+    'ctrl+backspace,meta+backspace,ctrl+delete,meta+delete',
     () => {
       void dismissNotification();
     },
@@ -115,8 +119,14 @@ export const useNotificationNavigation = ({
       search,
       navigate,
       handleMarkAsRead,
+      selectedNotificationIds.length,
     ],
-    hotkeyOptions,
+    {
+      ...hotkeyOptions,
+      ignoreEventWhen: (event) =>
+        selectedNotificationIds.length > 0 ||
+        shouldIgnoreNotificationHotkey(event),
+    },
   );
 
   return {
