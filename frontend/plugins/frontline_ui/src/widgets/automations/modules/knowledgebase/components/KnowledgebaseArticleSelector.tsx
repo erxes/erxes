@@ -1,11 +1,20 @@
-import { gql, useQuery } from '@apollo/client';
-import { Badge, Button, Checkbox, Command, cn, Spinner } from 'erxes-ui';
+import { useQuery } from '@apollo/client';
+import {
+  Badge,
+  Button,
+  Checkbox,
+  Command,
+  cn,
+  isDefined,
+  Spinner,
+} from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDebounce } from 'use-debounce';
 import { AutomationAiKnowledgeSourceSelectorProps } from 'ui-modules';
+import { gql } from '~/gql';
 
-const FRONTLINE_AI_KNOWLEDGE_ARTICLES = gql`
+const FRONTLINE_AI_KNOWLEDGE_ARTICLES = gql(`
   query frontlineAiKnowledgeArticles(
     $searchValue: String
     $page: Int
@@ -27,19 +36,7 @@ const FRONTLINE_AI_KNOWLEDGE_ARTICLES = gql`
       status
     }
   }
-`;
-
-type TKnowledgeBaseArticleOption = {
-  _id: string;
-  code?: string;
-  title?: string;
-  summary?: string;
-  status?: string;
-};
-
-type TFrontlineAiKnowledgeArticlesResponse = {
-  knowledgeBaseArticles?: TKnowledgeBaseArticleOption[];
-};
+`);
 
 export const KnowledgebaseArticleSelector = ({
   value,
@@ -49,19 +46,15 @@ export const KnowledgebaseArticleSelector = ({
   const { t } = useTranslation('automations');
   const [searchValue, setSearchValue] = useState('');
   const [debouncedSearchValue] = useDebounce(searchValue, 300);
-  const { data, loading, error } =
-    useQuery<TFrontlineAiKnowledgeArticlesResponse>(
-      FRONTLINE_AI_KNOWLEDGE_ARTICLES,
-      {
-        variables: {
-          searchValue: debouncedSearchValue || undefined,
-          page: 1,
-          perPage: 100,
-          status: 'publish',
-        },
-      },
-    );
-  const articles = data?.knowledgeBaseArticles || [];
+  const { data, loading, error } = useQuery(FRONTLINE_AI_KNOWLEDGE_ARTICLES, {
+    variables: {
+      searchValue: debouncedSearchValue || undefined,
+      page: 1,
+      perPage: 100,
+      status: 'publish',
+    },
+  });
+  const articles = data?.knowledgeBaseArticles?.filter(isDefined) ?? [];
   const statusesByArticleId = new Map(
     statuses.map((status) => [status.sourceId, status]),
   );

@@ -26,7 +26,8 @@ import {
 } from '@/integrations/call/states/callStates';
 import { useCallDuration } from '@/integrations/call/hooks/useCallDuration';
 import { refetchNewMessagesState } from '@/inbox/conversations/states/newMessagesCountState';
-import { ICustomer } from '@/integrations/call/types/callTypes';
+import { ICallChannels, ICustomer } from '@/integrations/call/types/callTypes';
+import type { CallsCustomerDetailQuery } from '~/gql/graphql';
 import { renderUserInfo } from '@/integrations/call/utils/renderUserInfo';
 import { extractPhoneNumberFromCounterpart } from '@/integrations/call/utils/callUtils';
 import { useCustomerDetail } from '@/integrations/call/hooks/useCustomerDetail';
@@ -37,8 +38,8 @@ export const InCall = ({
   channels,
   loading,
 }: {
-  customer: any;
-  channels: any;
+  customer: Partial<ICustomer>;
+  channels: ICallChannels | undefined;
   loading: boolean;
 }) => {
   const { t } = useTranslation('frontline');
@@ -47,7 +48,7 @@ export const InCall = ({
   const phoneNumber = extractPhoneNumberFromCounterpart(
     sipState.callCounterpart || '',
   );
-  const { customerDetail, loading: CallLoading } = useCustomerDetail({
+  const { customerDetail } = useCustomerDetail({
     phoneNumber,
   });
 
@@ -236,9 +237,9 @@ const CallInfo = ({
   phoneNumber,
   loading,
 }: {
-  customerDetail: any;
-  customer: ICustomer;
-  channels: any;
+  customerDetail: CallsCustomerDetailQuery['callsCustomerDetail'] | undefined;
+  customer: Partial<ICustomer>;
+  channels: ICallChannels | undefined;
   phoneNumber: string;
   loading: boolean;
 }) => {

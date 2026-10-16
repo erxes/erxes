@@ -1,4 +1,5 @@
 import { PermissionState, StatusItem } from '@/pipelines/types';
+import { compactList } from '@/shared/utils/cursorList';
 import {
   Badge,
   Combobox,
@@ -32,15 +33,8 @@ type MemberPermissionConfig = {
   type: MemberType;
 };
 
-type PermissionStatus = StatusItem & {
-  canEditMemberIds?: string[];
-  canMoveMemberIds?: string[];
-  memberIds?: string[];
-  visibilityType?: 'public' | 'private';
-};
-
 type StatusPermissionControlProps = {
-  status: PermissionStatus;
+  status: StatusItem;
   updateStatus: StatusPermissionUpdate;
   values: PermissionState;
 };
@@ -63,6 +57,12 @@ const MEMBER_PERMISSIONS: MemberPermissionConfig[] = [
   },
 ];
 
+const toVisibility = (
+  value: string | null | undefined,
+  fallback: 'public' | 'private',
+): 'public' | 'private' =>
+  value === 'public' || value === 'private' ? value : fallback;
+
 const EMPTY_MEMBER_PERMISSIONS: Record<MemberType, string[]> = {
   memberIds: [],
   canMoveMemberIds: [],
@@ -79,23 +79,23 @@ export const StatusPermissionControl = ({
   const [memberStates, setMemberStates] = useState<
     Record<MemberType, string[]>
   >({
-    memberIds: status.memberIds || [],
-    canMoveMemberIds: status.canMoveMemberIds || [],
-    canEditMemberIds: status.canEditMemberIds || [],
+    memberIds: compactList(status.memberIds),
+    canMoveMemberIds: compactList(status.canMoveMemberIds),
+    canEditMemberIds: compactList(status.canEditMemberIds),
   });
   const [visibility, setVisibility] = useState<'public' | 'private'>(
-    status.visibilityType || values.visibility,
+    toVisibility(status.visibilityType, values.visibility),
   );
   const isInitialized = useRef(false);
 
   useEffect(() => {
     if (isInitialized.current) return;
 
-    setVisibility(status.visibilityType || values.visibility);
+    setVisibility(toVisibility(status.visibilityType, values.visibility));
     setMemberStates({
-      memberIds: status.memberIds || [],
-      canMoveMemberIds: status.canMoveMemberIds || [],
-      canEditMemberIds: status.canEditMemberIds || [],
+      memberIds: compactList(status.memberIds),
+      canMoveMemberIds: compactList(status.canMoveMemberIds),
+      canEditMemberIds: compactList(status.canEditMemberIds),
     });
     isInitialized.current = true;
   }, [status, values.visibility]);

@@ -2,17 +2,10 @@ import { useMutation } from '@apollo/client';
 import { toast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { RETRY_TICKET_NOTE_MAIL } from '@/activity/graphql/mutations/retryTicketNoteMail';
-import { INote } from '@/activity/types';
-
-interface IRetryTicketNoteMailResponse {
-  mailTicketNoteRetry: Pick<INote, '_id' | 'mailMessageId' | 'mailDelivery'>;
-}
 
 export const useRetryTicketNoteMail = () => {
   const { t } = useTranslation('frontline');
-  const [retry, { loading }] = useMutation<IRetryTicketNoteMailResponse>(
-    RETRY_TICKET_NOTE_MAIL,
-  );
+  const [retry, { loading }] = useMutation(RETRY_TICKET_NOTE_MAIL);
 
   const retryTicketNoteMail = (noteId: string) =>
     retry({

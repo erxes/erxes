@@ -3,7 +3,7 @@ import { propertyDataPath } from 'erxes-api-shared/core-modules';
 import { IReportChartFilters } from '@/reports/@types/chart';
 import { IReportFilters } from '@/reports/@types/reportFilters';
 import { IModels } from '~/connectionResolvers';
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { escapeRegExp, sendTRPCMessage } from 'erxes-api-shared/utils';
 
 export const sourceMap: Record<string, string> = {
   'facebook-messenger': 'facebook-messenger',
@@ -383,7 +383,7 @@ export function buildTicketMatch(filters: IReportFilters) {
   const description = filters.description?.trim();
   if (description) {
     match.description = {
-      $regex: description.replace(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`),
+      $regex: escapeRegExp(description),
       $options: 'i',
     };
   }
@@ -490,7 +490,7 @@ export function buildTicketMatch(filters: IReportFilters) {
 
       andConditions.push({
         $or: [
-          { [fieldPath]: { $regex: `^${dateKey}` } },
+          { [fieldPath]: { $regex: `^${escapeRegExp(dateKey)}` } },
           {
             $expr: {
               $eq: [dateStringExpression, dateKey],

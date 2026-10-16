@@ -14,6 +14,7 @@ export const useAdjustScoreActionForm = ({
     ...options,
     defaultValues: {
       action: 'add',
+      mode: 'campaign',
       attribution: '',
       campaignId: '',
       ...currentConfig,

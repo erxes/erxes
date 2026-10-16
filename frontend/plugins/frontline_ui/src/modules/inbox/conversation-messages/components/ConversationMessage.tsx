@@ -72,7 +72,7 @@ export const MessageWrapper = ({ children }: { children: React.ReactNode }) => {
         !separateNext && 'px-11',
         !customerId && 'pl-11',
         !userId && 'pr-11',
-        formWidgetData && 'pb-4',
+        !!formWidgetData && 'pb-4',
       )}
     >
       {!!customerId && separateNext && (

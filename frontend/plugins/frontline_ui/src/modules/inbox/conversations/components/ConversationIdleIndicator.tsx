@@ -1,6 +1,6 @@
 import { Button, Tooltip } from 'erxes-ui';
 import { useContext } from 'react';
-import type { IConversation } from '@/inbox/types/Conversation';
+import type { IConversationContextValue } from '@/inbox/types/Conversation';
 import { ConversationIdleClockContext } from '../context/ConversationIdleClockContext';
 import {
   conversationIdleSince,
@@ -11,7 +11,7 @@ import { useConversationIdleTranslation } from '../idleTranslations';
 export const ConversationIdleIndicator = ({
   conversation,
 }: {
-  conversation: IConversation;
+  conversation: IConversationContextValue;
 }) => {
   const { t } = useConversationIdleTranslation();
   const now = useContext(ConversationIdleClockContext) ?? Date.now();

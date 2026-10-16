@@ -280,6 +280,10 @@ export const conversationQueries = {
     { _id, perPage, ...args }: { _id: string; perPage: number },
     { models }: IContext,
   ) {
+    if (!_id) {
+      throw new Error('User id is required');
+    }
+
     const query = { participatedUserIds: { $in: [_id] } };
 
     const { list, totalCount, pageInfo } =

@@ -1,19 +1,16 @@
-import { IAttachment } from 'erxes-ui';
+import type {
+  CallAddCustomerMutation,
+  CallConversationNotesQuery,
+  CallUserIntegrationsQuery,
+} from '~/gql/graphql';
 
-export interface ICallConfig {
-  _id: string;
-  inboxId: string;
-  name?: string;
-  phone: string;
-  wsServer: string;
-  operators: { userId: string; gsUsername: string; gsPassword: string }[];
-  queues: string[];
-  srcTrunk: string;
-  dstTrunk: string;
-}
-export interface ICallConfigDoc extends ICallConfig {
+export type ICallConfig = NonNullable<
+  NonNullable<CallUserIntegrationsQuery['callUserIntegrations']>[number]
+>;
+
+export type ICallConfigDoc = ICallConfig & {
   isAvailable: boolean;
-}
+};
 
 export interface ICallQueueAgent {
   member_extension: string;
@@ -43,36 +40,16 @@ export interface ICallQueueRealtimeSnapshot {
   stats: Record<string, unknown>;
 }
 
-export interface ICallConversationNote {
-  _id: string;
-  content: string;
-  createdAt: string;
-  attachments: IAttachment[];
-  customerId?: string;
-  userId?: string;
-  internal?: boolean;
-}
+type CallAddCustomerResult = NonNullable<
+  CallAddCustomerMutation['callAddCustomer']
+>;
 
-export interface ICustomerDoc {
-  firstName?: string;
-  middleName?: string;
-  lastName?: string;
-  phones?: any[];
-  primaryPhone?: string;
-}
+export type ICallConversationNote = NonNullable<
+  NonNullable<CallConversationNotesQuery['callConversationNotes']>[number]
+>;
 
-export interface ICustomer extends ICustomerDoc {
-  _id: string;
-  getTags?: ITag[];
-}
+export type ICustomer = NonNullable<CallAddCustomerResult['customer']>;
 
-export interface ITag {
-  _id: string;
-  type: string;
-  name: string;
-  colorCode: string;
-  objectCount?: number;
-  parentId?: string;
-  order?: string;
-  totalObjectCount?: number;
-}
+export type ICallChannels = CallAddCustomerResult['channels'];
+
+export type ITag = NonNullable<NonNullable<ICustomer['getTags']>[number]>;

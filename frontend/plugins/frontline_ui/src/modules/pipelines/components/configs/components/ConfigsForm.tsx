@@ -1,6 +1,8 @@
 import { Combobox, Form, Input, PopoverScoped, Separator } from 'erxes-ui';
 
 import { TPipelineConfig } from '@/pipelines/types';
+import { compactList } from '@/shared/utils/cursorList';
+import type { ITicketConfigDetail } from '../hooks/useGetTicketConfigDetail';
 import { UseFormReturn } from 'react-hook-form';
 import { SelectStatusTicket } from '@/ticket/components/ticket-selects/SelectStatusTicket';
 import { useEffect, useState } from 'react';
@@ -11,8 +13,23 @@ import { useTranslation } from 'react-i18next';
 
 type Props = {
   form: UseFormReturn<TPipelineConfig>;
-  defaultValues?: TPipelineConfig;
+  defaultValues?: ITicketConfigDetail;
 };
+
+const toPipelineConfigFormValues = (
+  config: ITicketConfigDetail,
+): TPipelineConfig => ({
+  name: config.name,
+  channelId: config.channelId,
+  pipelineId: config.pipelineId,
+  selectedStatusId: config.selectedStatusId,
+  parentId: config.parentId ?? undefined,
+  formFields: config.formFields,
+  propertyFields: compactList(config.propertyFields).map((field) => ({
+    ...field,
+    options: compactList(field.options),
+  })),
+});
 
 export const ConfigsForm = ({ form, defaultValues }: Props) => {
   const { t } = useTranslation('frontline');
@@ -21,10 +38,7 @@ export const ConfigsForm = ({ form, defaultValues }: Props) => {
 
   useEffect(() => {
     if (defaultValues) {
-      form.reset({
-        ...defaultValues,
-        propertyFields: defaultValues.propertyFields ?? [],
-      });
+      form.reset(toPipelineConfigFormValues(defaultValues));
     }
   }, [defaultValues, form]);
 

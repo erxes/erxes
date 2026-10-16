@@ -262,7 +262,7 @@ const PipelineMailConnected = ({
               )}
 
             <MailAddressCallout
-              address={integration.address}
+              address={integration.address ?? ''}
               description="pipeline-mail-forward-here-description"
               descriptionFallback="Set up forwarding from your mailbox to this address, or write to it directly. Anything sent there opens a ticket in this pipeline."
             />
@@ -277,7 +277,7 @@ const PipelineMailConnected = ({
 
             <MailSenderPreview
               senderName={senderName}
-              address={integration.address}
+              address={integration.address ?? ''}
             />
           </InfoCard.Content>
         </InfoCard>

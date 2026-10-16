@@ -15,7 +15,7 @@ export const FormEdit = ({ setName }: { setName?: (name: string) => void }) => {
   useEffect(() => {
     if (formDetail) {
       formSetSetup(formDetail);
-      setName?.(formDetail.name);
+      setName?.(formDetail.name ?? '');
       setLoadingSetup(false);
     }
   }, [formDetail, formSetSetup, setName]);

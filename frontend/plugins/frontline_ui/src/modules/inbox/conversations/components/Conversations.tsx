@@ -5,6 +5,8 @@ import {
 import { IconInbox, IconLoader } from '@tabler/icons-react';
 
 import { ConversationContext } from '@/inbox/conversations/context/ConversationContext';
+import { toCustomerInline } from '@/inbox/conversations/utils/conversationContext';
+import { compactList } from '@/shared/utils/cursorList';
 import { ConversationListContext } from '@/inbox/conversations/context/ConversationListContext';
 import { IConversation } from '@/inbox/types/Conversation';
 import { useConversations } from '@/inbox/conversations/hooks/useConversations';
@@ -81,11 +83,11 @@ export const Conversations = () => {
   const renderConversationItem = (conversation: IConversation) => (
     <ConversationRowProvider key={conversation._id} conversation={conversation}>
       <ConversationItem
-        channelInfo={
-          channelMap.get(conversation._id) ?? {
-            channelName: telegramChatLabel(telegramChats.get(conversation._id)),
-          }
-        }
+        channelInfo={{
+          channelName:
+            channelMap.get(conversation._id)?.channelName ??
+            telegramChatLabel(telegramChats.get(conversation._id)),
+        }}
         channelInfoPending={
           (channelInfoLoading &&
             isDiscordConversation(conversation) &&
@@ -182,7 +184,9 @@ const ConversationRowProvider = ({
   const value = useMemo(
     () => ({
       ...conversation,
-      tagIds: conversation.tagIds ?? [],
+      customer: toCustomerInline(conversation.customer),
+      integration: conversation.integration ?? undefined,
+      tagIds: compactList(conversation.tagIds),
     }),
     [conversation],
   );

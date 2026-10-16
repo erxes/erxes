@@ -5,6 +5,7 @@ import { UseFormReturn } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { VoucherFormValues } from '../../constants/voucherFormSchema';
 import { toOwnerLimit } from '../../utils/voucherOwnerLimit';
+import { toVoucherTerm } from '../../utils/voucherTerm';
 import { useAddVoucher } from '../../hooks/useAddVoucher';
 import {
   VoucherTab,
@@ -48,9 +49,6 @@ export const VoucherTabs = ({ onOpenChange, form }: Props) => {
   const toNumber = (value: any) =>
     value === '' || value == null ? undefined : Number(value);
 
-  const formatDate = (date: any) =>
-    date instanceof Date ? date.toISOString() : date;
-
   const handleSubmit = form.handleSubmit(
     (data) => {
       const variables = {
@@ -63,8 +61,7 @@ export const VoucherTabs = ({ onOpenChange, form }: Props) => {
         value: toNumber(data.value),
         buyScore: toNumber(data.buyScore),
 
-        startDate: formatDate(data.startDate),
-        endDate: formatDate(data.endDate),
+        ...toVoucherTerm(data),
 
         restrictions: {
           minimumSpend: toNumber(data.minimumSpend),

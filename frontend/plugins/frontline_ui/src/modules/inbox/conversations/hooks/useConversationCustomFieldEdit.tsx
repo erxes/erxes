@@ -1,37 +1,35 @@
-import { MutationHookOptions, useMutation } from '@apollo/client';
+import { MutationFunctionOptions, useMutation } from '@apollo/client';
 import { CONVERSATION_EDIT_CUSTOM_FIELDS } from '../graphql/mutations/conversationEditCustomFields';
-import { IConversation } from '@/inbox/types/Conversation';
 import { toast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import type {
+  ConversationEditCustomFieldsMutation,
+  ConversationEditCustomFieldsMutationVariables,
+} from '~/gql/graphql';
 
 type IConversationEditCustomFieldsVariables = {
   _id: string;
   propertiesData?: Record<string, unknown>;
-} & Record<string, unknown>;
-
-interface IConversationEditCustomFieldsResponse {
-  conversationEditCustomFields: IConversation;
-}
+};
 
 export const useConversationCustomFieldEdit = () => {
   const { t } = useTranslation('frontline');
-  const [editCustomFields, { loading }] = useMutation<
-    IConversationEditCustomFieldsResponse,
-    IConversationEditCustomFieldsVariables
-  >(CONVERSATION_EDIT_CUSTOM_FIELDS);
+  const [editCustomFields, { loading }] = useMutation(
+    CONVERSATION_EDIT_CUSTOM_FIELDS,
+  );
 
   const mutate = (
     variables: IConversationEditCustomFieldsVariables,
-    options?: MutationHookOptions<
-      IConversationEditCustomFieldsResponse,
-      IConversationEditCustomFieldsVariables
+    options?: MutationFunctionOptions<
+      ConversationEditCustomFieldsMutation,
+      ConversationEditCustomFieldsMutationVariables
     >,
   ) => {
     editCustomFields({
       variables,
       optimisticResponse: {
         conversationEditCustomFields: {
-          __typename: 'Conversation' as const,
+          __typename: 'Conversation',
           _id: variables._id,
           propertiesData: variables.propertiesData ?? {},
         },

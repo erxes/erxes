@@ -47,7 +47,7 @@ export const types = `
   }
 
   type CallVolumePoint {
-    day: Date
+    day: Date!
     incoming: Int
     outgoing: Int
     answered: Int
@@ -70,7 +70,7 @@ export const types = `
   }
 
   type CallDayHourCell {
-    day: Date
+    day: Date!
     hour: Int
     total: Int
     answered: Int
@@ -152,7 +152,7 @@ export const types = `
   }
 
   type CallSlaPoint {
-    day: Date
+    day: Date!
     offeredCalls: Int!
     answeredCalls: Int!
     breachedCalls: Int!

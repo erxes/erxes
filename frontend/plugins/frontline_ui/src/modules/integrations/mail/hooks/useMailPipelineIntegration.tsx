@@ -1,4 +1,5 @@
-import { DocumentNode, useMutation, useQuery } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
+import type { ApolloError } from '@apollo/client';
 import { useEffect } from 'react';
 import { toast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
@@ -9,32 +10,17 @@ import {
   MAIL_PIPELINE_FORWARD_VERIFIED_MUTATION,
   MAIL_PIPELINE_UPDATE_MUTATION,
 } from '../graphql/mutations/mailPipelineMutations';
+import type { MailPipelineIntegrationQuery } from '~/gql/graphql';
 
 const AWAITING_POLL_INTERVAL_MS = 10000;
 
-export interface IMailForwardVerification {
-  from?: string | null;
-  subject?: string | null;
-  code?: string | null;
-  link?: string | null;
-  excerpt?: string | null;
-  receivedAt?: string | null;
-}
+export type IMailPipelineIntegration = NonNullable<
+  MailPipelineIntegrationQuery['mailPipelineIntegration']
+>;
 
-export interface IMailPipelineIntegration {
-  _id: string;
-  pipelineId: string;
-  statusId?: string | null;
-  name?: string | null;
-  address: string;
-  senderName?: string | null;
-  forwardFrom?: string | null;
-  forwardPendingAt?: string | null;
-  awaitingForwardVerification?: boolean | null;
-  forwardVerification?: IMailForwardVerification | null;
-  healthStatus?: string | null;
-  error?: string | null;
-}
+export type IMailForwardVerification = NonNullable<
+  IMailPipelineIntegration['forwardVerification']
+>;
 
 export interface IMailPipelineSettings {
   senderName?: string;
@@ -51,17 +37,18 @@ export const isWaitingForForwardVerification = (
 ) =>
   Boolean(
     integration?.awaitingForwardVerification &&
-    !integration.forwardVerification,
+      !integration.forwardVerification,
   );
 
 export const useMailPipelineIntegration = (pipelineId?: string) => {
-  const { data, loading, error, startPolling, stopPolling } = useQuery<{
-    mailPipelineIntegration: IMailPipelineIntegration | null;
-  }>(MAIL_PIPELINE_INTEGRATION_QUERY, {
-    variables: { pipelineId },
-    skip: !pipelineId,
-    fetchPolicy: 'cache-and-network',
-  });
+  const { data, loading, error, startPolling, stopPolling } = useQuery(
+    MAIL_PIPELINE_INTEGRATION_QUERY,
+    {
+      variables: pipelineId ? { pipelineId } : undefined,
+      skip: !pipelineId,
+      fetchPolicy: 'cache-and-network',
+    },
+  );
 
   const integration = data?.mailPipelineIntegration ?? null;
   const waiting = isWaitingForForwardVerification(integration);
@@ -83,63 +70,89 @@ export const useMailPipelineIntegration = (pipelineId?: string) => {
   };
 };
 
-const useToastedMutation = (
-  document: DocumentNode,
+const usePipelineMailMutationOptions = (
   successKey: string,
   fallback: string,
 ) => {
   const { t } = useTranslation('frontline');
-  const [mutate, { loading }] = useMutation(document);
 
-  const run = (pipelineId: string, settings?: IMailPipelineSettings) =>
-    mutate({
-      variables: { pipelineId, ...settings },
-      refetchQueries: refetchIntegration(pipelineId),
-      awaitRefetchQueries: true,
-      onCompleted: () => toast({ title: t(successKey, fallback) }),
-      onError: (mutationError) =>
-        toast({ title: mutationError.message, variant: 'destructive' }),
-    });
-
-  return { run, loading };
+  return (pipelineId: string) => ({
+    refetchQueries: refetchIntegration(pipelineId),
+    awaitRefetchQueries: true,
+    onCompleted: () => toast({ title: t(successKey, fallback) }),
+    onError: (mutationError: ApolloError) =>
+      toast({ title: mutationError.message, variant: 'destructive' }),
+  });
 };
 
 export const useMailPipelineConnect = () => {
-  const { run, loading } = useToastedMutation(
-    MAIL_PIPELINE_CONNECT_MUTATION,
+  const [mutate, { loading }] = useMutation(MAIL_PIPELINE_CONNECT_MUTATION);
+  const mutationOptions = usePipelineMailMutationOptions(
     'pipeline-mail-connected',
     'This pipeline now has its own mail address',
   );
 
-  return { connectPipelineMail: run, loading };
+  const connectPipelineMail = (
+    pipelineId: string,
+    settings?: IMailPipelineSettings,
+  ) =>
+    mutate({
+      ...mutationOptions(pipelineId),
+      variables: { pipelineId, ...settings },
+    });
+
+  return { connectPipelineMail, loading };
 };
 
 export const useMailPipelineUpdate = () => {
-  const { run, loading } = useToastedMutation(
-    MAIL_PIPELINE_UPDATE_MUTATION,
+  const [mutate, { loading }] = useMutation(MAIL_PIPELINE_UPDATE_MUTATION);
+  const mutationOptions = usePipelineMailMutationOptions(
     'pipeline-mail-updated',
     'Mail settings saved',
   );
 
-  return { updatePipelineMail: run, loading };
+  const updatePipelineMail = (
+    pipelineId: string,
+    settings?: IMailPipelineSettings,
+  ) =>
+    mutate({
+      ...mutationOptions(pipelineId),
+      variables: { pipelineId, ...settings },
+    });
+
+  return { updatePipelineMail, loading };
 };
 
 export const useMailPipelineForwardVerified = () => {
-  const { run, loading } = useToastedMutation(
+  const [mutate, { loading }] = useMutation(
     MAIL_PIPELINE_FORWARD_VERIFIED_MUTATION,
+  );
+  const mutationOptions = usePipelineMailMutationOptions(
     'pipeline-mail-forward-verified',
     'Forwarding is set up, incoming mail now opens tickets',
   );
 
-  return { markForwardVerified: run, loading };
+  const markForwardVerified = (pipelineId: string) =>
+    mutate({
+      ...mutationOptions(pipelineId),
+      variables: { pipelineId },
+    });
+
+  return { markForwardVerified, loading };
 };
 
 export const useMailPipelineDisconnect = () => {
-  const { run, loading } = useToastedMutation(
-    MAIL_PIPELINE_DISCONNECT_MUTATION,
+  const [mutate, { loading }] = useMutation(MAIL_PIPELINE_DISCONNECT_MUTATION);
+  const mutationOptions = usePipelineMailMutationOptions(
     'pipeline-mail-disconnected',
     'This pipeline no longer receives mail',
   );
 
-  return { disconnectPipelineMail: run, loading };
+  const disconnectPipelineMail = (pipelineId: string) =>
+    mutate({
+      ...mutationOptions(pipelineId),
+      variables: { pipelineId },
+    });
+
+  return { disconnectPipelineMail, loading };
 };

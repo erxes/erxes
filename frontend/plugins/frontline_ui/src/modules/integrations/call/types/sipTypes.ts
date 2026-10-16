@@ -80,12 +80,8 @@ export interface SipProviderProps {
   extraHeaders?: ExtraHeaders;
   iceServers?: IceServers;
   debug?: boolean;
-  createSession?: () => void;
 }
 export interface SipContextValue {
-  sip: {
-    createSession?: () => void;
-  };
   registerSip: () => void;
   unregisterSip: () => void;
   reconnectSip: () => void;

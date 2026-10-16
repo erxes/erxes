@@ -9,12 +9,12 @@ export const ErkhetSyncBreadcrumb = () => {
   const { t } = useTranslation('mongolian');
   return (
     <>
-      <Button variant="ghost" className="font-semibold">
-        <IconCashBanknote className="w-4 h-4 text-accent-foreground" />
+      <Button variant="ghost">
+        <IconCashBanknote />
         {t('settings')}
       </Button>
       <Separator.Inline />
-      <Button variant="ghost" className="hover:bg-transparent font-semibold">
+      <Button variant="ghost" className="hover:bg-transparent">
         {t(SETTINGS_ROUTES[pathname as keyof typeof SETTINGS_ROUTES])}
       </Button>
     </>

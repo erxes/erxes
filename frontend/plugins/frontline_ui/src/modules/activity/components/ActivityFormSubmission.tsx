@@ -1,6 +1,6 @@
-import { IActivity, IActivityFormField } from '@/activity/types';
+import { IActivity } from '@/activity/types';
 import { IconExternalLink } from '@tabler/icons-react';
-import { Badge, Button } from 'erxes-ui';
+import { Badge, Button, isDefined } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 
@@ -17,7 +17,9 @@ export const ActivityFormSubmission = ({
   metadata: IActivity['metadata'];
 }) => {
   const { t } = useTranslation('frontline');
-  const { formTitle, submissions = [], conversationId } = metadata || {};
+  const formTitle = metadata?.formTitle;
+  const conversationId = metadata?.conversationId;
+  const submissions = (metadata?.submissions ?? []).filter(isDefined);
 
   return (
     <div className="flex flex-col gap-1 w-full">

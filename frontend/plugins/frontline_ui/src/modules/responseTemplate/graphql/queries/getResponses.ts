@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-const GET_RESPONSES = gql`
+const GET_RESPONSES = gql(`
   query ResponseTemplates($filter: ResponseTemplatesFilter) {
     responseTemplates(filter: $filter) {
       list {
@@ -21,6 +21,6 @@ const GET_RESPONSES = gql`
       totalCount
     }
   }
-`;
+`);
 
 export { GET_RESPONSES };

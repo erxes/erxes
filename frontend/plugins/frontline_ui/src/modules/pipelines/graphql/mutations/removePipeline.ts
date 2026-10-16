@@ -1,7 +1,7 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const REMOVE_PIPELINE = gql`
+export const REMOVE_PIPELINE = gql(`
   mutation RemovePipeline($id: String!) {
     removePipeline(_id: $id)
   }
-`;
+`);

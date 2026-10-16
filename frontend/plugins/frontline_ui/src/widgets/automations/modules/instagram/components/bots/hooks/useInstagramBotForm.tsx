@@ -8,7 +8,6 @@ import { useMutation, useQuery } from '@apollo/client';
 import { toast, useQueryState } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
-import { generateAutomationElementId } from 'ui-modules';
 import { z } from 'zod';
 import {
   ADD_INSTAGRAM_BOT,
@@ -19,7 +18,6 @@ import {
   isOpenInstagramBotSecondarySheet,
   isOpenInstagramBotSheet,
 } from '~/widgets/automations/modules/instagram/components/bots/states/instagramBotStates';
-import { InstagramBotDetailQueryResponse } from '~/widgets/automations/modules/instagram/components/bots/types/instagramBotTypes';
 
 export const useInstagramBotSave = () => {
   const { t } = useTranslation('frontline');
@@ -72,15 +70,13 @@ export const useInstagramBotSave = () => {
 };
 
 export const useInstagramBotForm = (instagramBotId: string | null) => {
-  const { data, loading: loadingDetail } =
-    useQuery<InstagramBotDetailQueryResponse>(INSTAGRAM_BOT_DETAIL, {
-      variables: { _id: instagramBotId },
-      skip: !instagramBotId,
-    });
-  const { instagramMessengerBot } = data || {};
+  const { data, loading: loadingDetail } = useQuery(INSTAGRAM_BOT_DETAIL, {
+    variables: instagramBotId ? { _id: instagramBotId } : undefined,
+    skip: !instagramBotId,
+  });
 
   return {
     loadingDetail,
-    instagramMessengerBot,
+    instagramMessengerBot: data?.instagramMessengerBot ?? undefined,
   };
 };

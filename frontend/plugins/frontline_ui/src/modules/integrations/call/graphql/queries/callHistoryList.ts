@@ -1,4 +1,6 @@
-export const CALL_HISTORY_LIST = `
+import { gql } from '~/gql';
+
+export const CALL_HISTORY_LIST = gql(`
   query callHistoryList(
     $startDate: String!
     $endDate: String!
@@ -55,4 +57,4 @@ export const CALL_HISTORY_LIST = `
       }
     }
   }
-`;
+`);

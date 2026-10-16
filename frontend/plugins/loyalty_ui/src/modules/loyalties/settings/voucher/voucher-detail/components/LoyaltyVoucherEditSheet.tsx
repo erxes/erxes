@@ -20,6 +20,7 @@ import {
   VoucherFormValues,
 } from '../../constants/voucherFormSchema';
 import { useVoucherDetailWithQuery } from '../hooks/useVoucherDetailWithQuery';
+import { fromVoucherTerm } from '../../utils/voucherTerm';
 
 type Props = {
   voucherId?: string;
@@ -56,12 +57,7 @@ export const LoyaltyVoucherEditSheet = ({ voucherId }: Props) => {
         description: voucherDetail.description || '',
         status: voucherDetail.status || 'active',
         value: voucherDetail.value || 0,
-        startDate: voucherDetail.startDate
-          ? new Date(voucherDetail.startDate)
-          : undefined,
-        endDate: voucherDetail.endDate
-          ? new Date(voucherDetail.endDate)
-          : undefined,
+        ...fromVoucherTerm(voucherDetail),
         kind: voucherDetail.kind || '',
         minimumSpend: restrictions.minimumSpend ?? undefined,
         maximumSpend: restrictions.maximumSpend ?? undefined,

@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const CONVERSATION_ASSIGN = gql`
+export const CONVERSATION_ASSIGN = gql(`
   mutation conversationsAssign(
     $conversationIds: [String]!
     $assignedUserId: String
@@ -26,4 +26,4 @@ export const CONVERSATION_ASSIGN = gql`
       }
     }
   }
-`;
+`);

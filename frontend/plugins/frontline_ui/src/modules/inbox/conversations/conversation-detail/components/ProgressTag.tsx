@@ -14,7 +14,7 @@ interface TagStats {
 export const ProgressTags = ({ customerId }: { customerId?: string }) => {
   const { t } = useTranslation('frontline');
   const { conversationTagProgress } = useGetConversationTagProgress({
-    variables: { customerId },
+    variables: customerId ? { customerId } : undefined,
     skip: !customerId,
   });
 

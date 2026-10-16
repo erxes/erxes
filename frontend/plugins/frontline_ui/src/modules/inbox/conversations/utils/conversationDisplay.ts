@@ -1,4 +1,7 @@
-import type { IConversation } from '@/inbox/types/Conversation';
+import { compactList } from '@/shared/utils/cursorList';
+import { toMemberUser } from '@/channels/utils/channelMembers';
+import type { IUser } from 'ui-modules';
+import type { IConversationContextValue } from '@/inbox/types/Conversation';
 
 const compactCount = new Intl.NumberFormat('en', {
   notation: 'compact',
@@ -7,10 +10,15 @@ const compactCount = new Intl.NumberFormat('en', {
 export const formatConversationCount = (count: number): string =>
   count < 10_000 ? count.toLocaleString('en') : compactCount.format(count);
 export const conversationAssigneeIds = (
-  conversation: Pick<IConversation, 'assignedUserId' | 'assignedUserIds'>,
+  conversation: Pick<
+    IConversationContextValue,
+    'assignedUserId' | 'assignedUserIds'
+  >,
 ): string[] =>
-  conversation.assignedUserIds ??
-  (conversation.assignedUserId ? [conversation.assignedUserId] : []);
+  compactList(
+    conversation.assignedUserIds ??
+      (conversation.assignedUserId ? [conversation.assignedUserId] : []),
+  );
 
 type IntegrationAppearance = {
   label: string;
@@ -77,3 +85,16 @@ export const integrationAppearance = (kind?: string): IntegrationAppearance =>
     label: kind || 'Integration',
     avatarClass: 'bg-muted text-muted-foreground',
   };
+
+export const conversationAssignees = (
+  conversation: Pick<
+    IConversationContextValue,
+    'assignedUsers' | 'assignedUser'
+  >,
+): IUser[] =>
+  (
+    conversation.assignedUsers ??
+    (conversation.assignedUser ? [conversation.assignedUser] : [])
+  )
+    .map(toMemberUser)
+    .filter((member): member is IUser => member !== undefined);

@@ -11,6 +11,12 @@ export interface IProductData {
   _id?: string;
   productId: string;
   uom: string;
+  uomInfo?: {
+    uom?: string;
+    ratio?: number;
+    unitPrice?: number;
+    quantity?: number;
+  };
   currency: string;
   quantity: number;
   unitPrice: number;

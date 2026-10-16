@@ -1,4 +1,8 @@
-import type { IConversation } from '@/inbox/types/Conversation';
+import { toMessage } from '@/inbox/conversation-messages/utils/toMessage';
+import type {
+  IConversationContextValue,
+  IMessage,
+} from '@/inbox/types/Conversation';
 import type { ConversationPreviewLabel } from '../translations';
 
 type MessagePreview = {
@@ -25,7 +29,7 @@ const stripTags = (content: string): string => {
 };
 
 export const conversationMessagePreview = (
-  conversation: Pick<IConversation, 'content' | 'lastMessage'>,
+  conversation: Pick<IConversationContextValue, 'content' | 'lastMessage'>,
 ): MessagePreview => {
   const message = conversation.lastMessage;
   const content = message ? message.content || '' : conversation.content || '';
@@ -37,12 +41,10 @@ export const conversationMessagePreview = (
   if (/<video\b/i.test(content)) return { content: '', labelKey: 'video' };
   if (/<audio\b/i.test(content)) return { content: '', labelKey: 'audio' };
   if (!message) return { content: '', labelKey: 'noMessages' };
-  return messageMetadataPreview(message);
+  return messageMetadataPreview(toMessage(message));
 };
 
-const messageMetadataPreview = (
-  message: NonNullable<IConversation['lastMessage']>,
-): MessagePreview => {
+const messageMetadataPreview = (message: IMessage): MessagePreview => {
   const { messageKind, attachments, extraData, providerData } = message;
   if (messageKind === 'sticker' || extraData?.stickers?.length)
     return { content: '', labelKey: 'sticker' };
@@ -74,8 +76,8 @@ const messageMetadataPreview = (
 };
 
 const attachmentPreview = (
-  attachments: NonNullable<IConversation['lastMessage']>['attachments'],
-  extraData: NonNullable<IConversation['lastMessage']>['extraData'],
+  attachments: IMessage['attachments'],
+  extraData: IMessage['extraData'],
 ): MessagePreview => {
   if (attachments?.length)
     return attachments[0].name

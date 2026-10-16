@@ -6,8 +6,8 @@ export function StructureSettingsBreadcrumb() {
   const { t } = useTranslation('settings', { keyPrefix: 'structure' });
   return (
     <>
-      <Button variant="ghost" className="font-semibold">
-        <IconChartPie2 className="w-4 h-4 text-accent-foreground" />
+      <Button variant="ghost">
+        <IconChartPie2 />
         {t('structure')}
       </Button>
     </>

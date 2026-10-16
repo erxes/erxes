@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const FORM_WIDGET_DATA = gql`
+export const FORM_WIDGET_DATA = gql(`
   query FormWidgetData(
     $conversationId: String!
     $skip: Int
@@ -21,4 +21,4 @@ export const FORM_WIDGET_DATA = gql`
       customerId
     }
   }
-`;
+`);

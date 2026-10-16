@@ -43,6 +43,10 @@ export const loadPipelineClass = (models: IModels) => {
     public static async addPipeline(
       doc: ITicketPipeline,
     ): Promise<ITicketPipelineDocument> {
+      if (!doc.channelId) {
+        throw new Error('Channel id is required');
+      }
+
       const pipeline = await models.Pipeline.create(doc);
       await models.Status.createDefaultStatuses(pipeline._id);
       return pipeline;

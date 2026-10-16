@@ -57,7 +57,7 @@ export const automationFacebookBotsColumns: ColumnDef<IFacebookBot>[] = [
     accessorKey: 'account',
     header: () => <RecordTable.InlineHead label="Account" />,
     cell: ({ cell }) => {
-      const { name = '-' } = cell.getValue() || ({} as any);
+      const name = cell.row.original.account?.name ?? '-';
       return (
         <RecordTableInlineCell className="truncate">
           {name}
@@ -72,12 +72,12 @@ export const automationFacebookBotsColumns: ColumnDef<IFacebookBot>[] = [
     header: () => <RecordTable.InlineHead label="Page" />,
     cell: ({ cell }) => {
       const { profileUrl = '' } = cell.row.original || {};
-      const { name = '-' } = cell.getValue() || ({} as any);
+      const name = cell.row.original.page?.name ?? '-';
       return (
         <RecordTableInlineCell className="min-w-0">
           <div className="flex min-w-0 items-center gap-2">
             <Avatar>
-              <Avatar.Image src={profileUrl} />
+              <Avatar.Image src={profileUrl ?? undefined} />
               <Avatar.Fallback>{name}</Avatar.Fallback>
             </Avatar>
             <span className="truncate">{name}</span>
@@ -92,9 +92,7 @@ export const automationFacebookBotsColumns: ColumnDef<IFacebookBot>[] = [
     accessorKey: 'health',
     header: () => <RecordTable.InlineHead label="Health" />,
     cell: ({ cell }) => (
-      <FacebookBotHealthCell
-        health={cell.getValue() as IFacebookBot['health']}
-      />
+      <FacebookBotHealthCell health={cell.row.original.health} />
     ),
     size: 150,
   },
@@ -104,8 +102,8 @@ export const automationFacebookBotsColumns: ColumnDef<IFacebookBot>[] = [
     header: () => <RecordTable.InlineHead label="Created By" />,
     cell: ({ cell }) => (
       <FacebookBotUserCell
-        user={cell.getValue() as IFacebookBot['createdUser']}
-        fallback={cell.row.original.createdBy}
+        user={cell.row.original.createdUser}
+        fallback={cell.row.original.createdBy ?? undefined}
       />
     ),
     size: 180,
@@ -116,8 +114,8 @@ export const automationFacebookBotsColumns: ColumnDef<IFacebookBot>[] = [
     header: () => <RecordTable.InlineHead label="Updated By" />,
     cell: ({ cell }) => (
       <FacebookBotUserCell
-        user={cell.getValue() as IFacebookBot['updatedUser']}
-        fallback={cell.row.original.updatedBy}
+        user={cell.row.original.updatedUser}
+        fallback={cell.row.original.updatedBy ?? undefined}
       />
     ),
     size: 180,

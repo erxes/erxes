@@ -9,7 +9,7 @@ import { Document, FilterQuery, FlattenMaps, Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { createActivity } from '~/modules/ticket/utils/ticket';
 import { createNotifications } from '~/utils/notifications';
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { escapeRegExp, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { createPermissionValidator } from '@/ticket/utils/permissionValidator';
 import {
   isClosingStatus,
@@ -54,7 +54,8 @@ export const loadTicketClass = (
       params: ITicketFilter,
     ): Promise<FlattenMaps<ITicketDocument>[] | Document[]> {
       const query = {} as FilterQuery<ITicketDocument>;
-      if (params.name) query.name = { $regex: params.name, $options: 'i' };
+      if (params.name)
+        query.name = { $regex: escapeRegExp(params.name), $options: 'i' };
       if (params.assigneeId) query.assigneeId = params.assigneeId;
       if (params.channelId) query.channelId = params.channelId;
       if (params.pipelineId) query.pipelineId = params.pipelineId;

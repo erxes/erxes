@@ -1,4 +1,5 @@
 import { TTierBandsConfig } from '@/score/services/tierBands';
+import { IVoucherValidity } from '@/voucher/services/voucherTerm';
 import {
   TAutomationProducers,
   TAutomationProducersInput,
@@ -51,6 +52,10 @@ export type LoyaltyAutomationExecution =
 export type LoyaltyAutomationAction = LoyaltyReceiveActionsInput['action'];
 
 export type AdjustScoreActionConfig = {
+  // `fixed` gives `points` into a wallet; otherwise a campaign's table earns.
+  mode?: 'campaign' | 'fixed';
+  accountTypeId?: string;
+  points?: number;
   campaignId?: string;
   action?: LoyaltyScoreAction;
   attribution?: string;
@@ -78,7 +83,8 @@ export type IssueVoucherActionConfig = {
   ownerId?: string;
   ownerIds?: string[];
   attribution?: string;
-  customRule?: {
+  // Overrides the campaign's validity; `duration` is the older one-step form.
+  customRule?: Partial<IVoucherValidity> & {
     duration?: 'month' | 'week' | 'day' | 'minute';
   };
 };

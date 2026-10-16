@@ -1,4 +1,4 @@
-import { IFacebookBot } from '@/integrations/facebook/types/FacebookBot';
+import { IFacebookBotProfile } from '@/integrations/facebook/types/FacebookBot';
 import { TCommentTriggerForm } from './commentTrigger';
 import { TMessageTriggerCondition } from './messageTrigger';
 
@@ -22,7 +22,7 @@ export type TTriggerConditionSummaryItem = {
 };
 
 export type TTriggerConfigSummaryResult = {
-  bot?: IFacebookBot;
+  bot?: IFacebookBotProfile;
   loading: boolean;
   conditionSummaries: TTriggerConditionSummaryItem[];
 };

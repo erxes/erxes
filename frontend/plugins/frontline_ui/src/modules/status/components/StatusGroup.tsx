@@ -128,7 +128,10 @@ export const Status = ({
         onClick={openEditSheet}
         variant="ghost"
       >
-        <StatusSwatch color={status.color} statusType={status.type} />
+        <StatusSwatch
+          color={status.color ?? undefined}
+          statusType={status.type}
+        />
         <span className="flex min-w-0 flex-col gap-1">
           <span className="truncate text-sm capitalize leading-tight">
             {status.name}
@@ -136,7 +139,7 @@ export const Status = ({
           {Boolean(status.description) && (
             <span
               className="truncate text-xs leading-tight text-muted-foreground"
-              title={status.description}
+              title={status.description ?? undefined}
             >
               {status.description}
             </span>
@@ -211,9 +214,7 @@ export const StatusGroup = ({
   statusType: number;
 }) => {
   const { t } = useTranslation('frontline');
-  const { statuses = [], loading } = useGetTicketStatus({
-    variables: { type: statusType },
-  });
+  const { statuses = [], loading } = useGetTicketStatus(statusType);
   const { updateStatus } = useUpdateTicketStatus();
   const { toast } = useToast();
   const sensors = useSensors(

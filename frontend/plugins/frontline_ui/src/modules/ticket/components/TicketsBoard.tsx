@@ -52,8 +52,8 @@ export const TicketsBoard = () => {
   const { statuses, loading } = useGetAccessibleTicketStatuses({
     variables: {
       pipelineId: pipelineId || '',
-      channelId: channelId || '',
     },
+    skip: !pipelineId,
   });
 
   const columns = statuses?.map((status) => ({
@@ -119,7 +119,7 @@ export const TicketsBoard = () => {
       return;
     }
 
-    const previousStatusId = activeItem?.statusId;
+    const previousStatusId = activeItem?.statusId ?? '';
 
     updateTicket({
       variables: {
@@ -160,7 +160,7 @@ export const TicketsBoard = () => {
     );
     setTicketCountByBoard((prev) => ({
       ...prev,
-      [activeItem?.statusId]: prev[activeItem?.statusId] - 1 || 0,
+      [previousStatusId]: prev[previousStatusId] - 1 || 0,
       [overColumn]: (prev[overColumn] || 0) + 1,
     }));
   };
@@ -224,7 +224,7 @@ export const TicketsBoardCards = ({
           ...previoustickets,
           ...tickets.map((ticket) => ({
             id: ticket._id,
-            column: ticket.statusId,
+            column: ticket.statusId ?? column.id,
             sort: ticket.updatedAt,
           })),
         ];

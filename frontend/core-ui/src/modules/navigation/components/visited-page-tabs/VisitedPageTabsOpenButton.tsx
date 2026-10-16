@@ -41,7 +41,7 @@ export const VisitedPageTabsOpenButton = () => {
     : 'Control+Alt+T';
 
   return (
-    <div className="absolute top-0 left-[calc(var(--navigation-panel-toggle-space,0rem)+0.25rem)] z-30 flex h-13 items-center gap-1 pt-1">
+    <div className="absolute top-0 left-[calc(var(--navigation-panel-toggle-space,0rem)+0.25rem)] z-30 flex h-12 items-center gap-1">
       <ContextMenu>
         <Tooltip>
           <ContextMenu.Trigger asChild>

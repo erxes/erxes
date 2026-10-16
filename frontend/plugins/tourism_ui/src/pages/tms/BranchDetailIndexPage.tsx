@@ -131,77 +131,85 @@ export const BranchDetailIndexPage = () => {
 
   return (
     <div className="flex flex-col h-full">
-      <PageHeader>
-        <PageHeader.Start>
-          <Breadcrumb>
-            <Breadcrumb.List className="gap-2">
-              <Breadcrumb.Item>
-                <Button variant="ghost" asChild>
-                  <Link to={basePath}>
-                    <IconBox />
-                    {t('tms-index-breadcrumb')}
-                  </Link>
-                </Button>
-              </Breadcrumb.Item>
+      <BranchDetailView
+        header={
+          <PageHeader>
+            <PageHeader.Start>
+              <Breadcrumb>
+                <Breadcrumb.List className="gap-2">
+                  <Breadcrumb.Item>
+                    <Button variant="ghost" asChild>
+                      <Link to={basePath}>
+                        <IconBox />
+                        {t('tms-index-breadcrumb')}
+                      </Link>
+                    </Button>
+                  </Breadcrumb.Item>
 
-              <Breadcrumb.Separator />
-
-              <Breadcrumb.Item>
-                <Select value={branchId || ''} onValueChange={onSelectBranch}>
-                  <Select.Trigger className="w-60">
-                    <Select.Value
-                      placeholder={
-                        listLoading
-                          ? t('loading-branches')
-                          : selectedBranch?.name || t('select-branch')
-                      }
-                    />
-                  </Select.Trigger>
-                  <Select.Content>
-                    {list.map((branch) => (
-                      <Select.Item key={branch._id} value={branch._id}>
-                        {branch.name || t('unnamed-branch')}
-                      </Select.Item>
-                    ))}
-                  </Select.Content>
-                </Select>
-              </Breadcrumb.Item>
-
-              {availableLanguages.length > 0 && (
-                <>
                   <Breadcrumb.Separator />
 
                   <Breadcrumb.Item>
-                    <Select value={activeLang} onValueChange={onSelectLanguage}>
-                      <Select.Trigger className="w-[180px]">
-                        <Select.Value placeholder={t('select-language')} />
+                    <Select
+                      value={branchId || ''}
+                      onValueChange={onSelectBranch}
+                    >
+                      <Select.Trigger className="w-60">
+                        <Select.Value
+                          placeholder={
+                            listLoading
+                              ? t('loading-branches')
+                              : selectedBranch?.name || t('select-branch')
+                          }
+                        />
                       </Select.Trigger>
                       <Select.Content>
-                        {availableLanguages.map((lang) => (
-                          <Select.Item key={lang.value} value={lang.value}>
-                            {lang.label}
+                        {list.map((branch) => (
+                          <Select.Item key={branch._id} value={branch._id}>
+                            {branch.name || t('unnamed-branch')}
                           </Select.Item>
                         ))}
                       </Select.Content>
                     </Select>
                   </Breadcrumb.Item>
-                </>
-              )}
-            </Breadcrumb.List>
-          </Breadcrumb>
 
-          <Separator.Inline />
+                  {availableLanguages.length > 0 && (
+                    <>
+                      <Breadcrumb.Separator />
 
-          <PageHeader.FavoriteToggleButton
-            breadcrumb={favoriteBreadcrumb}
-            icon="IconBox"
-          />
-        </PageHeader.Start>
+                      <Breadcrumb.Item>
+                        <Select
+                          value={activeLang}
+                          onValueChange={onSelectLanguage}
+                        >
+                          <Select.Trigger className="w-[180px]">
+                            <Select.Value placeholder={t('select-language')} />
+                          </Select.Trigger>
+                          <Select.Content>
+                            {availableLanguages.map((lang) => (
+                              <Select.Item key={lang.value} value={lang.value}>
+                                {lang.label}
+                              </Select.Item>
+                            ))}
+                          </Select.Content>
+                        </Select>
+                      </Breadcrumb.Item>
+                    </>
+                  )}
+                </Breadcrumb.List>
+              </Breadcrumb>
 
-        <PageHeader.End>{renderCreateSheet()}</PageHeader.End>
-      </PageHeader>
+              <Separator.Inline />
 
-      <BranchDetailView />
+              <PageHeader.FavoriteToggleButton
+                breadcrumb={favoriteBreadcrumb}
+                icon="IconBox"
+              />
+            </PageHeader.Start>
+
+            <PageHeader.End>{renderCreateSheet()}</PageHeader.End>
+          </PageHeader>
+        }
+      />
     </div>
   );
 };

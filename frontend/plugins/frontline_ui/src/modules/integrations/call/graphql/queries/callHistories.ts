@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const CALL_HISTORIES = gql`
+export const CALL_HISTORIES = gql(`
   query CallHistories(
     $integrationId: String
     $limit: Int
@@ -34,4 +34,4 @@ export const CALL_HISTORIES = gql`
       skip: $skip
     )
   }
-`;
+`);

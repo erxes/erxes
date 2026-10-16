@@ -7,9 +7,14 @@ import { usePricingDetail } from '@/pricing/hooks/usePricingDetail';
 interface PricingEditProps {
   id?: string;
   onSaveActionChange?: (action: ReactNode | null) => void;
+  header?: ReactNode;
 }
 
-export const PricingEdit = ({ id, onSaveActionChange }: PricingEditProps) => {
+export const PricingEdit = ({
+  id,
+  onSaveActionChange,
+  header,
+}: PricingEditProps) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { pricingDetail, loading, error } = usePricingDetail(id);
 
@@ -55,14 +60,19 @@ export const PricingEdit = ({ id, onSaveActionChange }: PricingEditProps) => {
     <div className="flex h-full">
       <PricingEditSidebar activeTab={activeTab} pricingDetail={pricingDetail} />
 
-      <PricingMainContent
-        activeStep={activeTab}
-        pricingId={id}
-        pricingDetail={pricingDetail}
-        loading={loading}
-        error={error}
-        onSaveActionChange={onSaveActionChange}
-      />
+      <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
+        {header}
+        <div className="flex min-h-0 flex-1">
+          <PricingMainContent
+            activeStep={activeTab}
+            pricingId={id}
+            pricingDetail={pricingDetail}
+            loading={loading}
+            error={error}
+            onSaveActionChange={onSaveActionChange}
+          />
+        </div>
+      </div>
     </div>
   );
 };

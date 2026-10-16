@@ -1,5 +1,3 @@
-import { IFieldLogicRule } from 'ui-modules';
-
 export interface IConversationConvertAttachment {
   url: string;
   name: string;
@@ -7,13 +5,7 @@ export interface IConversationConvertAttachment {
   type: string;
 }
 
-export type ConversationConvertType = 'ticket' | 'deal' | 'task';
-
-export interface IConversationConvertedItem {
-  _id: string;
-  type: ConversationConvertType;
-  url: string;
-}
+export type ConversationConvertType = 'ticket' | 'deal';
 
 export interface IConversationConvertVariables {
   _id: string;
@@ -30,25 +22,4 @@ export interface IConversationConvertVariables {
   tagIds?: string[];
   startDate?: Date;
   closeDate?: Date;
-}
-
-export interface IConvertSystemField {
-  code: string;
-  name: string;
-  isVisibleToCreate: boolean;
-  isRequired: boolean;
-  logics: IFieldLogicRule[];
-}
-
-export interface IConvertTaskTeam {
-  _id: string;
-  name: string;
-  icon?: string;
-}
-
-export interface IConvertTaskStatus {
-  label: string;
-  value: string;
-  color?: string;
-  type?: number;
 }

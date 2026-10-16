@@ -21,10 +21,12 @@ export const SelectTriggerTicket = ({
   children,
   variant,
   disabled,
+  label,
 }: {
   children: React.ReactNode;
   variant: `${SelectTriggerVariant}`;
   disabled?: boolean;
+  label?: string;
 }) => {
   if (variant === SelectTriggerVariant.TABLE) {
     return (
@@ -57,6 +59,13 @@ export const SelectTriggerTicket = ({
   }
 
   if (variant === SelectTriggerVariant.FORM) {
+    if (label) {
+      return (
+        <Combobox.ChipTrigger label={label} disabled={disabled}>
+          {children}
+        </Combobox.ChipTrigger>
+      );
+    }
     return (
       <Form.Control>
         <Combobox.TriggerBase className="w-fit h-7 font-medium max-w-64">
@@ -79,6 +88,14 @@ export const SelectTriggerTicket = ({
           {children}
         </Button>
       </Popover.Trigger>
+    );
+  }
+
+  if (variant === SelectTriggerVariant.DETAIL && label) {
+    return (
+      <Combobox.ChipTrigger label={label} disabled={disabled}>
+        {children}
+      </Combobox.ChipTrigger>
     );
   }
 

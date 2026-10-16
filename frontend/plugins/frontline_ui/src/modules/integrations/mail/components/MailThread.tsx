@@ -273,7 +273,7 @@ export const MailThread: React.FC<MailThreadProps> = ({
           defaultBody={
             composeMode === 'forward' ? buildQuote(composeTarget) : ''
           }
-          replyToMessageId={composeTarget.mailData.messageId}
+          replyToMessageId={composeTarget.mailData.messageId ?? undefined}
           references={composeTarget.mailData.references ?? []}
           sending={sending}
           onSend={onSend}

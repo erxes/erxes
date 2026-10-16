@@ -45,7 +45,10 @@ import { ConversationActions } from '@/inbox/conversations/conversation-detail/c
 import { ConversationConvert } from '@/inbox/conversations/conversation-detail/components/convert/ConversationConvert';
 import { useTranslation } from 'react-i18next';
 import { type SyntheticEvent, useRef, useState } from 'react';
-import { conversationAssigneeIds } from '../../utils/conversationDisplay';
+import {
+  conversationAssigneeIds,
+  conversationAssignees,
+} from '../../utils/conversationDisplay';
 
 const stopEventPropagation = (event: SyntheticEvent) => {
   event.stopPropagation();
@@ -211,7 +214,7 @@ const AssignConversation = ({
 }) => {
   const { t } = useTranslation('frontline');
   const conversation = useConversationContext();
-  const { _id, assignedUsers } = conversation;
+  const { _id } = conversation;
   const { assignConversations, loading } = useAssignConversations();
   const [pendingIds, setPendingIds] = useState<string[] | null>(null);
   const busy = useRef(false);
@@ -249,7 +252,7 @@ const AssignConversation = ({
       <SelectMember.Provider
         mode="multiple"
         value={pendingIds ?? conversationAssigneeIds(conversation)}
-        members={assignedUsers?.filter((member) => member !== null)}
+        members={conversationAssignees(conversation)}
         disabled={loading || pendingIds !== null}
         allowUnassigned
         onValueChange={(value) => {

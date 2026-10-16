@@ -39,6 +39,7 @@ import { useTranslation } from 'react-i18next';
 import { INTEGRATION_ICONS } from '@/integrations/constants/integrationImages';
 import {
   conversationAssigneeIds,
+  conversationAssignees,
   integrationAppearance,
 } from '../utils/conversationDisplay';
 import { ConversationIdleIndicator } from './ConversationIdleIndicator';
@@ -124,9 +125,9 @@ export const ConversationItem = ({
             )}
           >
             {(updatedAt || createdAt) && (
-              <RelativeDateDisplay value={updatedAt || createdAt}>
+              <RelativeDateDisplay value={updatedAt || createdAt || ''}>
                 <RelativeDateDisplay.Value
-                  value={updatedAt || createdAt}
+                  value={updatedAt || createdAt || ''}
                   isShort
                 />
               </RelativeDateDisplay>
@@ -159,9 +160,7 @@ const ConversationAssignees = () => {
   const conversation = useConversationContext();
   const ids = conversationAssigneeIds(conversation);
   if (!ids.length) return null;
-  const members =
-    conversation.assignedUsers?.filter((member) => member !== null) ??
-    (conversation.assignedUser ? [conversation.assignedUser] : []);
+  const members = conversationAssignees(conversation);
   return (
     <div className="ml-auto flex shrink-0 items-center -space-x-1">
       {ids.slice(0, 2).map((id) => (

@@ -3,6 +3,7 @@ import { useQuery } from '@apollo/client';
 import { IconList } from '@tabler/icons-react';
 import { Checkbox, cn, Spinner } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import { hasBotItemId } from '~/widgets/automations/modules/facebook/components/bots/utils/hasBotItemId';
 import {
   TMessageTriggerFormDirectMessage,
   TMessageTriggerFormPersistentMenu,
@@ -40,7 +41,9 @@ export const InstagramBotPersistenceMenuSelector = ({
 
   if (loading) return <Spinner />;
 
-  const { persistentMenus = [] } = instagramMessengerBot || {};
+  const persistentMenus = (instagramMessengerBot?.persistentMenus ?? []).filter(
+    hasBotItemId,
+  );
 
   if (!persistentMenus.length) {
     return (
@@ -68,7 +71,7 @@ export const InstagramBotPersistenceMenuSelector = ({
   return (
     <div className="p-4">
       {persistentMenus.map(
-        ({ _id, text, type }: any, index: number) =>
+        ({ _id, text, type }, index) =>
           type !== 'link' && (
             <div
               key={_id}

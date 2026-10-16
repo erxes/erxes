@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const GET_CONVERSATION_DETAIL = gql`
+export const GET_CONVERSATION_DETAIL = gql(`
   query ConversationDetail($_id: String!) {
     conversationDetail(_id: $_id) {
       _id
@@ -12,19 +12,28 @@ export const GET_CONVERSATION_DETAIL = gql`
       assignedUserIds
       assignedUsers {
         _id
-        username
         email
+        username
         isActive
+        isOnboarded
         details {
-          avatar
+          firstName
+          lastName
           fullName
+          avatar
         }
       }
       readUserIds
       customerId
       updatedAt
       status
-      automatedReplyControl
+      automatedReplyControl {
+        status
+        pausedUntil
+        reason
+        updatedAt
+        updatedBy
+      }
       callProAudio
       callProPotentialCustomerIds
       callProPhone
@@ -43,4 +52,4 @@ export const GET_CONVERSATION_DETAIL = gql`
       }
     }
   }
-`;
+`);

@@ -1,20 +1,20 @@
 import {
   ConversationStatus,
-  type IConversation,
+  type IConversationContextValue,
 } from '@/inbox/types/Conversation';
 
 export const CONVERSATION_IDLE_TIMEOUT = 5 * 60_000;
 
 export const conversationIdleSince = (
   conversation: Pick<
-    IConversation,
+    IConversationContextValue,
     'status' | 'integration' | 'lastMessage' | 'createdAt'
   >,
 ): number | null => {
   const kind = conversation.integration?.kind;
   if (
     !kind ||
-    conversation.status === undefined ||
+    conversation.status == null ||
     conversation.status === ConversationStatus.CLOSED ||
     kind === 'form' ||
     kind === 'lead' ||
@@ -27,8 +27,8 @@ export const conversationIdleSince = (
 
   const timestamp = Date.parse(
     conversation.lastMessage === null
-      ? conversation.createdAt
-      : conversation.lastMessage.createdAt,
+      ? conversation.createdAt ?? ''
+      : conversation.lastMessage.createdAt ?? '',
   );
   return Number.isFinite(timestamp) ? timestamp : null;
 };

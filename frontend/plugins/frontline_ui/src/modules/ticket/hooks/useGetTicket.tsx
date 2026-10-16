@@ -1,34 +1,32 @@
 import { GET_TICKET } from '@/ticket/graphql/queries/getTicket';
 import { TICKET_CHANGED } from '@/ticket/graphql/subscriptions/ticketChanged';
-import { ITicket } from '@/ticket/types';
 import { QueryHookOptions, useQuery } from '@apollo/client';
 import { useEffect } from 'react';
+import type { GetTicketQuery, GetTicketQueryVariables } from '~/gql/graphql';
 
-interface IGetTicketQueryResponse {
-  getTicket: ITicket;
-}
+export const useGetTicket = (
+  options: QueryHookOptions<GetTicketQuery, GetTicketQueryVariables>,
+) => {
+  const { data, loading, refetch, subscribeToMore, error } = useQuery(
+    GET_TICKET,
+    options,
+  );
 
-interface ITicketChanged {
-  ticketChanged: {
-    type: string;
-    ticket: ITicket;
-  };
-}
-
-export const useGetTicket = (options: QueryHookOptions) => {
-  const { data, loading, refetch, subscribeToMore, error } =
-    useQuery<IGetTicketQueryResponse>(GET_TICKET, options);
-
-  const ticket = data?.getTicket;
+  const ticket = data?.getTicket ?? undefined;
+  const ticketId = ticket?._id;
 
   useEffect(() => {
-    const unsubscribe = subscribeToMore<ITicketChanged>({
-      document: TICKET_CHANGED,
-      variables: { _id: ticket?._id },
-      updateQuery: (prev, { subscriptionData }) => {
-        if (!subscriptionData.data) return prev;
+    if (!ticketId) return;
 
-        const { type, ticket: newTicket } = subscriptionData.data.ticketChanged;
+    const unsubscribe = subscribeToMore({
+      document: TICKET_CHANGED,
+      variables: { _id: ticketId },
+      updateQuery: (prev, { subscriptionData }) => {
+        const changed = subscriptionData.data?.ticketChanged;
+
+        if (!changed) return prev;
+
+        const { type, ticket: newTicket } = changed;
 
         if (type === 'delete' || !newTicket) return prev;
 
@@ -44,7 +42,7 @@ export const useGetTicket = (options: QueryHookOptions) => {
     return () => {
       unsubscribe();
     };
-  }, [ticket?._id, subscribeToMore]);
+  }, [ticketId, subscribeToMore]);
 
   return { ticket, loading, refetch, error };
 };
