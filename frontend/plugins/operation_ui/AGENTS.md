@@ -6,7 +6,7 @@
 - **Project:** `operation_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/operation_ui`
-- **Last synchronized:** `2026-10-14`
+- **Last synchronized:** `2026-10-16`
 
 ## Scope
 
@@ -69,6 +69,7 @@
 
 ### Provides
 
+- `CONFIG.plugin` in `src/config.tsx` registers the `operation` plugin with the shell: its picker entry, sidebar `content`, and brand `color`, `description` and `logo` (a 48×48 SVG glyph where `currentColor` is the plugin color).
 - Module Federation exposes: `./config`, `./operation`, `./operationSettings`, `./relationWidget`, `./notificationWidget`, and `./automationsWidget`.
 - Frontend navigation paths under `operation/*` and `settings/operation/*` registered from `src/config.tsx`.
 - Relation widget names `tasks` and `projects`, plus property input `taskStatus`.

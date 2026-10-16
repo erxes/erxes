@@ -1,112 +1,84 @@
-import { Sidebar, cn, useQueryState } from 'erxes-ui';
-import { useAtom, useAtomValue } from 'jotai';
-
-import { FloatingWidgets } from '@/widgets/components/FloatingWidgets';
-import { GlobalSearch } from '@/search/components/GlobalSearch';
-import { MainNavigationBar } from '@/navigation/components/MainNavigationBar';
-import { MobileNavigationTrigger } from '@/navigation/components/MobileNavigationTrigger';
-import { NavigationContextPanel } from '@/navigation/components/navigation-activity-rail/NavigationContextPanel';
+import { WelcomeNotificationEffect } from '@/app/effect-components/WelcomeNotificationEffect';
+import { HomeSidebar } from '@/home/components/HomeSidebar';
+import { isHomePath } from '@/home/utils/isHomePath';
+import { AppBar } from '@/navigation/components/AppBar';
+import { AppSidebar } from '@/navigation/components/AppSidebar';
+import { useRememberAppPlace } from '@/navigation/hooks/useAppPlaces';
 import {
   getSectionKey,
   PAGE_ENTER_KEYFRAMES,
   useEnterAnimation,
 } from '@/navigation/hooks/useEnterAnimation';
-import { VisitedPageTabs } from '@/navigation/components/visited-page-tabs/VisitedPageTabs';
-import { VisitedPageTabsOpenButton } from '@/navigation/components/visited-page-tabs/VisitedPageTabsOpenButton';
-import {
-  navigationResizingState,
-  navigationSidebarOpenState,
-  navigationSidebarWidthState,
-} from '@/navigation/states/navigationPanelState';
-import { type ReactNode, useRef } from 'react';
+import { useAppTheme } from '@/navigation/hooks/useAppTheme';
+import { useCurrentApp } from '@/navigation/hooks/useCurrentApp';
+import { navigationSidebarOpenState } from '@/navigation/states/navigationPanelState';
+import { GlobalSearch } from '@/search/components/GlobalSearch';
+import { AppPath } from '@/types/paths/AppPath';
+import { FloatingWidgets } from '@/widgets/components/FloatingWidgets';
+import { Sidebar, useQueryState } from 'erxes-ui';
+import { useAtom } from 'jotai';
+import { useRef } from 'react';
 import { Outlet, useLocation } from 'react-router';
-import { WelcomeNotificationEffect } from '@/app/effect-components/WelcomeNotificationEffect';
-import { visitedPageTabsVisibleState } from '@/navigation/states/visitedPageTabsState';
 
-const NavigationWorkspace = () => {
-  const { isMobile } = Sidebar.useSidebar();
-  const tabsVisible = useAtomValue(visitedPageTabsVisibleState);
+const AppSheet = () => {
   const { pathname } = useLocation();
   const pageRef = useRef<HTMLDivElement>(null);
 
   useEnterAnimation(pageRef, getSectionKey(pathname), PAGE_ENTER_KEYFRAMES);
 
   return (
-    <Sidebar.Inset
-      className={cn(
-        'h-svh grow-0 shrink basis-full overflow-hidden shadow-sidebar-inset',
-        tabsVisible && 'pt-10',
-      )}
-    >
-      <div className="relative flex min-h-0 flex-1 has-[>[data-navigation-context-toggle]]:[--navigation-panel-toggle-space:2.5rem]">
-        {!isMobile && <NavigationContextPanel />}
+    <div className="flex h-svh min-w-0 flex-1 flex-col pt-12">
+      <main className="relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-background">
+        <FloatingWidgets />
         <div
-          className={cn(
-            'relative flex min-w-0 flex-1 flex-col overflow-hidden',
-            isMobile &&
-              '[--navigation-panel-toggle-space:2.5rem] [--navigation-top-controls-space:2.25rem]',
-            !tabsVisible &&
-              '[--visited-page-tabs-open-button-space:2.75rem] [--navigation-top-controls-space:2.25rem]',
-          )}
+          ref={pageRef}
+          className="relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden"
         >
-          <MobileNavigationTrigger />
-          <VisitedPageTabsOpenButton />
-          <FloatingWidgets />
-          <div
-            ref={pageRef}
-            className="relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden"
-          >
-            <Outlet />
-          </div>
+          <Outlet />
         </div>
-      </div>
-    </Sidebar.Inset>
-  );
-};
-
-const NavigationSidebarProvider = ({ children }: { children: ReactNode }) => {
-  const [sidebarOpen, setSidebarOpen] = useAtom(navigationSidebarOpenState);
-  const sidebarWidth = useAtomValue(navigationSidebarWidthState);
-  const resizing = useAtomValue(navigationResizingState);
-
-  return (
-    <Sidebar.Provider
-      className={cn(
-        'w-screen',
-        resizing && 'cursor-col-resize select-none **:transition-none!',
-      )}
-      open={sidebarOpen}
-      onOpenChange={setSidebarOpen}
-      sidebarKeyboardShortcut={false}
-      sidebarWidth={sidebarWidth ? `${sidebarWidth}px` : '15rem'}
-      sidebarWidthIcon="3rem"
-    >
-      {children}
-    </Sidebar.Provider>
+      </main>
+    </div>
   );
 };
 
 export const DefaultLayout = () => {
+  const [sidebarOpen, setSidebarOpen] = useAtom(navigationSidebarOpenState);
   const [inPreview] = useQueryState<boolean>('inPreview');
-  const tabsVisible = useAtomValue(visitedPageTabsVisibleState);
+  const { pathname } = useLocation();
+  const app = useCurrentApp();
+
+  useRememberAppPlace();
+  useAppTheme(app);
 
   if (inPreview) {
     return <Outlet />;
   }
 
+  const isHome = isHomePath(pathname);
+  const withSidebar =
+    isHome || !!app || pathname.startsWith(`/${AppPath.Settings}`);
+
   return (
-    <NavigationSidebarProvider>
-      <VisitedPageTabs />
+    <Sidebar.Provider
+      className="w-screen bg-sidebar"
+      open={sidebarOpen}
+      onOpenChange={setSidebarOpen}
+      sidebarKeyboardShortcut={false}
+      sidebarWidth="15rem"
+    >
       <GlobalSearch />
       <WelcomeNotificationEffect />
-      <Sidebar
-        collapsible="icon"
-        variant="sidebar"
-        className={cn('p-0', tabsVisible && 'pt-10')}
-      >
-        <MainNavigationBar />
-      </Sidebar>
-      <NavigationWorkspace />
-    </NavigationSidebarProvider>
+      <AppBar withSidebar={withSidebar} />
+      {withSidebar && (
+        <Sidebar
+          collapsible="offcanvas"
+          variant="sidebar"
+          className="top-12 h-[calc(100svh-3rem)]!"
+        >
+          {isHome ? <HomeSidebar /> : <AppSidebar />}
+        </Sidebar>
+      )}
+      <AppSheet />
+    </Sidebar.Provider>
   );
 };

@@ -1,6 +1,7 @@
 import { SortableVisitedPageTab } from '@/navigation/components/visited-page-tabs/SortableVisitedPageTab';
 import { VisitedPageTabsContent } from '@/navigation/components/visited-page-tabs/VisitedPageTabsContent';
 import { VisitedPageTabsNewButton } from '@/navigation/components/visited-page-tabs/VisitedPageTabsNewButton';
+import { AppLogo } from '@/navigation/components/AppLogo';
 import { VisitedPageTabsShortcutGuide } from '@/navigation/components/visited-page-tabs/VisitedPageTabsShortcutGuide';
 import { useNavigationActivities } from '@/navigation/hooks/useNavigationActivities';
 import { usePluginsModules } from '@/navigation/hooks/usePluginsModules';
@@ -8,10 +9,7 @@ import { useVisitedPageTabs } from '@/navigation/hooks/useVisitedPageTabs';
 import { useVisitedPageTabsKeyboardShortcuts } from '@/navigation/hooks/useVisitedPageTabsKeyboardShortcuts';
 import { visitedPageTabsVisibleState } from '@/navigation/states/visitedPageTabsState';
 import { findNavigationActivityByPath } from '@/navigation/utils/navigationActivities';
-import {
-  getVisitedPageTabLabel,
-  getVisitedPageTabTitle,
-} from '@/navigation/utils/visitedPageTabs';
+import { getVisitedPageTabLabel } from '@/navigation/utils/visitedPageTabs';
 import { isMacPlatform } from '@/navigation/utils/visitedPageTabShortcuts';
 import {
   KeyboardSensor,
@@ -22,12 +20,7 @@ import {
 } from '@dnd-kit/core';
 import type { DragEndEvent } from '@dnd-kit/core';
 import { sortableKeyboardCoordinates } from '@dnd-kit/sortable';
-import {
-  IconApps,
-  IconFile,
-  IconLayoutNavbarCollapse,
-} from '@tabler/icons-react';
-import { Button } from 'erxes-ui';
+import { IconFile } from '@tabler/icons-react';
 import { useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
@@ -70,8 +63,6 @@ export const VisitedPageTabs = () => {
   const isMac = isMacPlatform();
   const closeAriaShortcut = isMac ? 'Meta+Alt+W' : 'Control+Alt+W';
   const closeShortcutLabel = isMac ? '⌘ ⌥ W' : 'Ctrl Alt W';
-  const toggleTabsAriaShortcut = isMac ? 'Meta+Alt+T' : 'Control+Alt+T';
-  const toggleTabsShortcutLabel = isMac ? '⌘ ⌥ T' : 'Ctrl Alt T';
 
   useVisitedPageTabsKeyboardShortcuts({
     activeTabId,
@@ -101,7 +92,7 @@ export const VisitedPageTabs = () => {
   return (
     <nav
       aria-label={t('navigation.visited-pages')}
-      className="fixed inset-x-0 top-0 z-40 flex h-10 items-center gap-1.5 border-b bg-muted px-2"
+      className="hidden h-12 min-w-0 flex-1 items-center md:flex"
     >
       <div className="flex min-w-0 flex-1 items-center overflow-hidden">
         <VisitedPageTabsContent
@@ -124,7 +115,6 @@ export const VisitedPageTabs = () => {
               activities,
               tab.pathname,
             );
-            const Icon = activity ? activity.icon || IconApps : IconFile;
             const translatedPageLabel =
               activity?.kind === 'plugin'
                 ? i18n.t(pageLabel.toLowerCase().replace(/\s+/g, '-'), {
@@ -132,10 +122,9 @@ export const VisitedPageTabs = () => {
                     defaultValue: pageLabel,
                   })
                 : pageLabel;
-            const label = getVisitedPageTabTitle(
-              translatedPageLabel,
-              activity?.kind === 'plugin' ? activity.label : undefined,
-            );
+            // The plugin logo already names the plugin, so the tab shows
+            // only the page.
+            const label = translatedPageLabel;
 
             return (
               <SortableVisitedPageTab
@@ -153,7 +142,13 @@ export const VisitedPageTabs = () => {
                   defaultValue: 'Close tabs to the right',
                 })}
                 hideTabsLabel={t('navigation.hide-tabs-row')}
-                icon={Icon}
+                icon={
+                  activity ? (
+                    <AppLogo activity={activity} size={14} />
+                  ) : (
+                    <IconFile className="size-3.5 shrink-0 text-muted-foreground" />
+                  )
+                }
                 isActive={tab.id === activeTabId}
                 label={label}
                 onClose={() => closeVisitedPageTab(tab.id)}
@@ -167,18 +162,6 @@ export const VisitedPageTabs = () => {
           })}
         </VisitedPageTabsContent>
       </div>
-      <Button
-        aria-keyshortcuts={toggleTabsAriaShortcut}
-        aria-label={t('navigation.hide-tabs-row')}
-        className="size-8 shrink-0 text-muted-foreground"
-        onClick={() => setTabsVisible(false)}
-        size="icon"
-        title={`${t('navigation.hide-tabs-row')} (${toggleTabsShortcutLabel})`}
-        type="button"
-        variant="ghost"
-      >
-        <IconLayoutNavbarCollapse className="size-4" />
-      </Button>
       <VisitedPageTabsShortcutGuide />
     </nav>
   );

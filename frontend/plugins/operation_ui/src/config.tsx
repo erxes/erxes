@@ -43,8 +43,41 @@ export const CONFIG: IUIConfig = {
       <OperationSettingsNavigation />
     </Suspense>
   ),
-  navigationGroup: {
+  plugin: {
     name: 'operation',
+    color: 'oklch(0.54 0.18 300)',
+    description: 'Projects, tasks and teams',
+    logo: (
+      <>
+        <rect
+          x="10.5"
+          y="11"
+          width="7.5"
+          height="26"
+          rx="2.5"
+          fill="#fff"
+          opacity=".55"
+        />
+        <rect x="20.25" y="11" width="7.5" height="18" rx="2.5" fill="#fff" />
+        <rect
+          x="30"
+          y="11"
+          width="7.5"
+          height="11"
+          rx="2.5"
+          fill="#fff"
+          opacity=".55"
+        />
+        <path
+          d="M27.5 33l3 3 6.5-7.5"
+          stroke="#fff"
+          strokeWidth="3.2"
+          fill="none"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </>
+    ),
     defaultPath: 'operation/projects',
     icon: IconListCheck,
     content: () => (

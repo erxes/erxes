@@ -231,9 +231,11 @@ export const CONFIG: IUIConfig = {
       <${PascalCaseName}SettingsNavigation />
     </Suspense>
   ),
-  navigationGroup: {
+  plugin: {
     name: '${kebabCaseName}',
     icon: IconSandbox,
+    color: 'oklch(0.55 0.15 250)',
+    description: '${PascalCaseName} app',
     content: () => (
       <Suspense fallback={<div />}>
         <${PascalCaseName}Navigation />

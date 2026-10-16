@@ -726,5 +726,6 @@
   "only-has-bill-id": "Зөвхөн нэхэмжлэлийн дугаартай",
   "only-has-return-bill-id": "Зөвхөн буцаах нэхэмжлэлийн дугаартай",
   "both": "Хоёулаа",
-  "both-not": "Хоёулаа байхгүй"
+  "both-not": "Хоёулаа байхгүй",
+  "plugin-description": "eBarimt, Erkhet, MS Dynamics-тэй синхрончлол"
 }

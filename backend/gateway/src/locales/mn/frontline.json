@@ -1812,5 +1812,6 @@
   "customdomain-status-active": "Идэвхтэй",
   "customdomain-status-pending": "Хүлээгдэж буй",
   "retry": "Дахин оролдох",
-  "no-tags-found": "Шошго олдсонгүй"
+  "no-tags-found": "Шошго олдсонгүй",
+  "plugin-description": "Инбокс, тикет, дуудлага, форм"
 }

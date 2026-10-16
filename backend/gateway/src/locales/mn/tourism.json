@@ -663,5 +663,6 @@
   "loading-stages": "Үе шат ачааллаж байна...",
   "select-stage": "Үе шат сонгох",
   "no-stages-found": "Үе шат олдсонгүй",
-  "pipeline-not-selected": "Дамжлага сонгогдоогүй"
+  "pipeline-not-selected": "Дамжлага сонгогдоогүй",
+  "plugin-description": "Зочид буудлын PMS ба аяллын удирдлага"
 }

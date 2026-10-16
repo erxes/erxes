@@ -80,13 +80,25 @@ export const getVisitedPageTabLocation = ({
   search,
 }: IVisitedPageTab) => `${pathname}${search ?? ''}`;
 
+/**
+ * The page a tab stands for. Every My Inbox notification is one page, so
+ * opening notifications reuses the inbox tab instead of adding tabs.
+ */
+export const getVisitedPageTabKey = (pathname: string) =>
+  normalizeVisitedPagePathname(pathname).replace(
+    /^\/my-inbox\/.+$/,
+    '/my-inbox',
+  );
+
 export const normalizeVisitedPageTabs = (value: unknown): IVisitedPageTab[] => {
   if (!Array.isArray(value)) {
     return [];
   }
 
   const seenIds = new Set<string>();
+  const seenPathnames = new Set<string>();
 
+  // One tab per page: a later tab for an already open page is dropped.
   return value.reduce<IVisitedPageTab[]>((tabs, tab) => {
     if (!isStoredVisitedPageTab(tab)) {
       return tabs;
@@ -100,12 +112,14 @@ export const normalizeVisitedPageTabs = (value: unknown): IVisitedPageTab[] => {
 
     if (
       !shouldTrackVisitedPage(normalizedTab.pathname) ||
-      seenIds.has(normalizedTab.id)
+      seenIds.has(normalizedTab.id) ||
+      seenPathnames.has(getVisitedPageTabKey(normalizedTab.pathname))
     ) {
       return tabs;
     }
 
     seenIds.add(normalizedTab.id);
+    seenPathnames.add(getVisitedPageTabKey(normalizedTab.pathname));
     tabs.push(normalizedTab);
 
     return tabs;
@@ -207,11 +221,6 @@ export const getVisitedPageTabLabel = (
 
   return toRouteSegmentLabel(currentPageSegment, labels.details);
 };
-
-export const getVisitedPageTabTitle = (
-  pageLabel: string,
-  pluginLabel?: string,
-) => (pluginLabel ? `${pluginLabel} | ${pageLabel}` : pageLabel);
 
 export const updateVisitedPageTab = (
   tabs: unknown,

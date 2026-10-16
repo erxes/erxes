@@ -13,8 +13,26 @@ export const CONFIG: IUIConfig = {
   name: 'insurance',
   path: 'insurance',
   icon: IconSandbox,
-  navigationGroup: {
+  plugin: {
     name: 'insurance',
+    color: 'oklch(0.5 0.1 232)',
+    description: 'Contracts, products and risks',
+    logo: (
+      <>
+        <path
+          d="M24 9.5l12.5 4.7v8.6c0 7.6-5.1 12.8-12.5 15.7-7.4-2.9-12.5-8.1-12.5-15.7v-8.6z"
+          fill="#fff"
+        />
+        <path
+          d="M18.5 24.2l3.8 3.8 7.4-7.6"
+          stroke="currentColor"
+          strokeWidth="3.2"
+          fill="none"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </>
+    ),
     defaultPath: 'insurance/types',
     icon: IconSandbox,
     content: () => (

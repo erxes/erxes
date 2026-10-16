@@ -322,5 +322,6 @@
   "relation": {
     "user-assignedTasks": "Хариуцсан даалгаврууд",
     "user-createdTasks": "Үүсгэсэн даалгаврууд"
-  }
+  },
+  "plugin-description": "Төсөл, даалгавар, баг"
 }

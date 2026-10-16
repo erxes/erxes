@@ -723,5 +723,6 @@
   "only-has-bill-id": "Only has bill id",
   "only-has-return-bill-id": "Only has return bill id",
   "both": "Both",
-  "both-not": "Both not"
+  "both-not": "Both not",
+  "plugin-description": "eBarimt, Erkhet and MS Dynamics sync"
 }

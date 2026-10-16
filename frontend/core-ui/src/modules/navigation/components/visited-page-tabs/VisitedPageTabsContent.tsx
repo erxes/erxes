@@ -19,11 +19,11 @@ const VisitedPageTabsList = ({
   items: string[];
   trailingAction: ReactNode;
 }>) => (
-  <ScrollArea.Root className="group/tabs-scroll h-10 w-full" type="auto">
-    <ScrollArea.Viewport className="h-10 w-full">
+  <ScrollArea.Root className="group/tabs-scroll h-12 w-full" type="auto">
+    <ScrollArea.Viewport className="h-12 w-full">
       <Tabs.List
         variant="segment"
-        className="flex h-10 w-max min-w-full items-center justify-start gap-1 rounded-none bg-transparent px-0 group-has-data-[state=visible]/tabs-scroll:pb-1"
+        className="flex h-12 w-max min-w-full items-center justify-start gap-1 rounded-none bg-transparent px-0 group-has-data-[state=visible]/tabs-scroll:pb-1"
       >
         <SortableContext items={items} strategy={horizontalListSortingStrategy}>
           {children}
@@ -32,7 +32,7 @@ const VisitedPageTabsList = ({
       </Tabs.List>
     </ScrollArea.Viewport>
     <ScrollArea.Bar
-      className="z-10 h-1.5 border-0 bg-transparent p-0 opacity-60 transition-opacity group-hover/tabs-scroll:opacity-100 hover:opacity-100"
+      className="z-10 h-1.5 border-0 bg-transparent p-0 opacity-0 transition-opacity group-hover/tabs-scroll:opacity-100 hover:opacity-100"
       orientation="horizontal"
     />
   </ScrollArea.Root>

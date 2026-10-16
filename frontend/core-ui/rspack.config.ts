@@ -4,6 +4,7 @@ import {
   withModuleFederation,
 } from '@nx/rspack/module-federation';
 import { DefinePlugin } from '@rspack/core';
+import { resolve } from 'path';
 
 import baseConfig from './module-federation.config';
 
@@ -14,7 +15,13 @@ const config: ModuleFederationConfig = {
 export default composePlugins(
   withNx(),
   withReact(),
-  withModuleFederation(config, { dts: false }),
+  withModuleFederation(config, {
+    dts: false,
+    runtimePlugins:
+      process.env.NODE_ENV === 'production'
+        ? []
+        : [resolve(__dirname, 'src/devRemotesRuntimePlugin.ts')],
+  }),
   (config: any) => {
     // Define environment variables
     config.plugins?.push(
@@ -57,6 +64,7 @@ export default composePlugins(
 
     config.devServer = {
       ...config.devServer,
+      allowedHosts: 'all',
       client: {
         ...config.devServer?.client,
         logging: 'error',
@@ -75,6 +83,18 @@ export default composePlugins(
     config.stats = 'errors-warnings';
 
     if (process.env.NODE_ENV !== 'production') {
+      // Pairs with src/devRemotesRuntimePlugin.ts, which points remotes here.
+      config.devServer.proxy = [
+        ...(config.devServer.proxy ?? []),
+        {
+          context: ['/__remotes'],
+          target: 'http://localhost',
+          router: (req: { url: string }) =>
+            `http://localhost:${req.url.split('/')[2]}`,
+          pathRewrite: { '^/__remotes/\\d+': '' },
+        },
+      ];
+
       config.watchOptions = {
         ...config.watchOptions,
         ignored: ['**/node_modules/**', '**/dist/**', '**/.nx/**'],

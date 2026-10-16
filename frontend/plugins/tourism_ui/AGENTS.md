@@ -6,7 +6,7 @@
 - **Project:** `tourism_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/tourism_ui`
-- **Last synchronized:** `2026-10-14`
+- **Last synchronized:** `2026-10-16`
 
 ## Scope
 
@@ -43,6 +43,7 @@
 
 ### Provides
 
+- `CONFIG.plugin` in `src/config.tsx` registers the `tourism` plugin with the shell: its picker entry, sidebar `content`, and brand `color`, `description` and `logo` (a 48×48 SVG glyph where `currentColor` is the plugin color).
 - Module Federation exposes: `./config`, `./pms`, `./pmsSettings`, `./tms`, `./tmsSettings`, and `./tourism`.
 - Frontend navigation paths under `tourism/pms` and `tourism/tms` registered from `src/config.tsx`.
 

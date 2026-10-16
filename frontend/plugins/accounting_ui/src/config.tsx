@@ -60,8 +60,61 @@ export const CONFIG: IUIConfig = {
       <SettingsNavigation />
     </Suspense>
   ),
-  navigationGroup: {
+  plugin: {
     name: 'accounting',
+    color: 'oklch(0.53 0.12 178)',
+    description: 'Ledger, journals and adjustments',
+    logo: (
+      <>
+        <rect x="10" y="12" width="28" height="4.5" rx="2.25" fill="#fff" />
+        <rect x="22.5" y="16" width="3" height="21" rx="1.5" fill="#fff" />
+        <rect
+          x="11"
+          y="21"
+          width="8.5"
+          height="3"
+          rx="1.5"
+          fill="#fff"
+          opacity=".55"
+        />
+        <rect
+          x="11"
+          y="27"
+          width="6"
+          height="3"
+          rx="1.5"
+          fill="#fff"
+          opacity=".55"
+        />
+        <rect
+          x="28.5"
+          y="21"
+          width="8.5"
+          height="3"
+          rx="1.5"
+          fill="#fff"
+          opacity=".55"
+        />
+        <rect
+          x="28.5"
+          y="27"
+          width="8.5"
+          height="3"
+          rx="1.5"
+          fill="#fff"
+          opacity=".55"
+        />
+        <rect
+          x="28.5"
+          y="33"
+          width="5"
+          height="3"
+          rx="1.5"
+          fill="#fff"
+          opacity=".55"
+        />
+      </>
+    ),
     defaultPath: 'accounting/main',
     icon: IconCashBanknote,
     content: () => (

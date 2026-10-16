@@ -1,104 +1,136 @@
 import { OrgLogoIcon } from '@/auth/components/Logo';
-import { IconBackspace, IconCommand } from '@tabler/icons-react';
-import { Badge, Button, cn, RelativeDateDisplay, Tooltip } from 'erxes-ui';
-import { useAtomValue } from 'jotai';
-import { useEffect, useState } from 'react';
+import { timeAgo } from '@/home/utils/timeAgo';
+import { AppLogo } from '@/navigation/components/AppLogo';
+import { useInboxActions } from '@/notification/hooks/useInboxActions';
+import { useNotificationApp } from '@/notification/hooks/useNotificationApp';
+import { IconArchive } from '@tabler/icons-react';
+import { Avatar, Button, cn, readImage } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { Link, useParams } from 'react-router-dom';
-import { pluginsConfigState, TNotification } from 'ui-modules';
+import { TNotification } from 'ui-modules';
+
+const PRIORITY_STYLES: Partial<Record<TNotification['priority'], string>> = {
+  urgent: 'text-destructive',
+  high: 'text-warning',
+};
+
+export const NotificationMark = ({
+  contentType,
+  size = 32,
+}: {
+  contentType?: string;
+  size?: number;
+}) => {
+  const { app } = useNotificationApp(contentType);
+
+  if (app) return <AppLogo activity={app} size={size} />;
+
+  return (
+    <span
+      className="grid shrink-0 place-items-center rounded-[23%] border bg-background [&>img]:size-1/2! [&>svg]:size-1/2!"
+      style={{ width: size, height: size }}
+    >
+      <OrgLogoIcon className="text-primary" />
+    </span>
+  );
+};
 
 export const NotificationItem = ({
   _id,
   createdAt = '',
+  title,
   message,
   isRead,
   contentType = '',
   priority,
+  fromUser,
 }: TNotification) => {
+  const { t } = useTranslation('common', { keyPrefix: 'notification' });
   const { id } = useParams();
   const isActive = id === _id;
-  const [showTooltip, setShowTooltip] = useState(false);
-
-  useEffect(() => {
-    if (isActive) {
-      setShowTooltip(true);
-      setTimeout(() => {
-        setShowTooltip(false);
-      }, 3000);
-    }
-  }, [isActive]);
+  const { label: appLabel } = useNotificationApp(contentType);
+  const { archiveNotification, archiving } = useInboxActions();
+  const sender = fromUser?.details?.fullName;
 
   return (
-    <Button
-      asChild
-      variant="ghost"
+    <div
       className={cn(
-        'justify-start h-auto rounded-lg p-2 items-start overflow-hidden relative',
-        isActive && 'bg-primary/10 hover:bg-primary/10',
+        'group/item relative flex items-start gap-3 rounded-lg px-3 py-2.5 transition-colors hover:bg-accent/60',
+        isActive && 'bg-accent hover:bg-accent',
       )}
     >
-      <Link to={`/my-inbox/${_id}${window.location.search}`}>
-        <div
-          className={cn(
-            'size-8 bg-foreground/5 rounded-full flex-none flex items-center justify-center relative',
-            isActive && 'text-primary',
-          )}
-        >
-          <NotificationIcon contentType={contentType} />
-          {!isRead && (
-            <div className="size-1.5 absolute bg-destructive rounded-full top-1.5 right-1.5" />
-          )}
-        </div>
-        <div className="flex-auto space-y-2 overflow-hidden">
-          <div className="flex items-center justify-between">
-            <h4
+      {isActive && (
+        <span className="absolute inset-y-2 left-0 w-0.5 rounded-full bg-primary" />
+      )}
+      <span className="relative mt-0.5 shrink-0">
+        <NotificationMark contentType={contentType} />
+        {fromUser && (
+          <Avatar className="absolute -right-1.5 -bottom-1.5 size-[18px] ring-2 ring-sidebar">
+            <Avatar.Image
+              src={readImage(fromUser.details?.avatar || '')}
+              alt={sender}
+            />
+            <Avatar.Fallback className="text-[9px]">
+              {sender?.charAt(0)}
+            </Avatar.Fallback>
+          </Avatar>
+        )}
+      </span>
+      <Link
+        to={`/my-inbox/${_id}${window.location.search}`}
+        className="min-w-0 flex-1 after:absolute after:inset-0"
+      >
+        <span className="flex items-baseline gap-2">
+          <span
+            className={cn(
+              'min-w-0 flex-1 truncate text-sm',
+              isRead ? 'text-muted-foreground' : 'font-semibold',
+            )}
+          >
+            {title || message}
+          </span>
+          <span className="shrink-0 font-mono text-xs text-muted-foreground tabular-nums group-hover/item:invisible">
+            {timeAgo(createdAt)}
+          </span>
+        </span>
+        {title && message && (
+          <span className="block truncate text-xs text-muted-foreground">
+            {message}
+          </span>
+        )}
+        <span className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
+          <span className="truncate">
+            {[appLabel, sender].filter(Boolean).join(' · ')}
+          </span>
+          {PRIORITY_STYLES[priority] && (
+            <span
               className={cn(
-                'line-clamp-1 truncate',
-                isRead ? 'text-muted-foreground' : 'text-semibold',
-                isActive && 'text-foreground',
+                'shrink-0 font-medium capitalize',
+                PRIORITY_STYLES[priority],
               )}
             >
-              {message}
-            </h4>
-          </div>
-          <div className={cn('text-xs flex items-center justify-between')}>
-            <div className="flex items-center gap-2">
-              <Badge className="capitalize" variant="secondary">
-                {priority}
-              </Badge>
-            </div>
-
-            <div
-              className={cn(isRead ? 'text-muted-foreground' : 'text-semibold')}
-            >
-              <RelativeDateDisplay.Value value={createdAt} />
-            </div>
-          </div>
-        </div>
-        <Tooltip open={showTooltip} onOpenChange={setShowTooltip}>
-          <Tooltip.Trigger asChild>
-            <div className="absolute top-1/2 right-0"></div>
-          </Tooltip.Trigger>
-          <Tooltip.Content side="right" align="center">
-            <div className="inline-flex flex-none items-center">
-              <IconCommand className="size-4" />
-              +
-              <IconBackspace className="size-4 mr-1" />
-              mark as read
-            </div>
-          </Tooltip.Content>
-        </Tooltip>
+              · {priority}
+            </span>
+          )}
+        </span>
       </Link>
-    </Button>
+      {!isRead && (
+        <span
+          className="mt-2 size-2 shrink-0 rounded-full bg-primary group-hover/item:invisible"
+          aria-label={t('unread')}
+        />
+      )}
+      <Button
+        variant="ghost"
+        size="icon"
+        className="absolute top-1.5 right-1.5 z-10 size-7 text-muted-foreground opacity-0 group-hover/item:opacity-100 focus-visible:opacity-100"
+        aria-label={t('archive')}
+        title={t('archive')}
+        disabled={archiving}
+        onClick={() => archiveNotification(_id)}
+      >
+        <IconArchive />
+      </Button>
+    </div>
   );
-};
-
-const NotificationIcon = ({ contentType }: { contentType: string }) => {
-  const pluginName = contentType?.split(':')[0] || '';
-  const pluginMetaData = useAtomValue(pluginsConfigState)?.[pluginName + '_ui'];
-  if (pluginName === 'core') {
-    return <OrgLogoIcon className="size-5 text-primary" />;
-  }
-  const Icon = pluginMetaData?.icon;
-
-  return Icon ? <Icon className="size-4 text-muted-foreground" /> : null;
 };

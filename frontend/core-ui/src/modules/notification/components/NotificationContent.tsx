@@ -1,5 +1,6 @@
 import { CoreNotificationContent } from '@/notification/components/contents/CoreNotificationContent';
 import { NoNotificationSelected } from '@/notification/components/NoNotificationSelected';
+import { NotificationToolbar } from '@/notification/components/NotificationToolbar';
 import { UnknownSystemNotificationContent } from '@/notification/components/contents/system/UnknownSystemNotificationContent';
 import { useNotification } from '@/notification/hooks/useNotification';
 import { ScrollArea, Spinner } from 'erxes-ui';
@@ -23,15 +24,18 @@ export const NotificationContent = () => {
   }
 
   return (
-    <ScrollArea
-      className="overflow-hidden h-full"
-      viewportClassName="[&>div]:lg:min-h-dvh"
-    >
-      <NotificationContentWrapper
-        key={notification._id}
-        notification={notification}
-      />
-    </ScrollArea>
+    <div className="flex h-full min-h-0 flex-col">
+      <NotificationToolbar notification={notification} />
+      <ScrollArea
+        className="min-h-0 flex-1 overflow-hidden"
+        viewportClassName="[&>div]:lg:min-h-dvh"
+      >
+        <NotificationContentWrapper
+          key={notification._id}
+          notification={notification}
+        />
+      </ScrollArea>
+    </div>
   );
 };
 

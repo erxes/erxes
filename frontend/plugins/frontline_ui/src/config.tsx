@@ -56,8 +56,26 @@ export const CONFIG: IUIConfig = {
       <FrontlineSettingsNavigation />
     </Suspense>
   ),
-  navigationGroup: {
+  plugin: {
     name: 'frontline',
+    color: 'oklch(0.55 0.18 252)',
+    description: 'Inbox, tickets, calls and forms',
+    logo: (
+      <>
+        <path
+          d="M22 11h13a3 3 0 0 1 3 3v8a3 3 0 0 1-3 3h-1v4l-4.5-4H22z"
+          fill="#fff"
+          opacity=".55"
+        />
+        <path
+          d="M12 18h16a3 3 0 0 1 3 3v9a3 3 0 0 1-3 3h-9l-5.5 4.5V33H12a3 3 0 0 1-3-3v-9a3 3 0 0 1 3-3z"
+          fill="#fff"
+        />
+        <circle cx="15" cy="25.5" r="1.7" fill="currentColor" />
+        <circle cx="20" cy="25.5" r="1.7" fill="currentColor" />
+        <circle cx="25" cy="25.5" r="1.7" fill="currentColor" />
+      </>
+    ),
     defaultPath: 'frontline/inbox',
     icon: IconStackFront,
     content: () => (

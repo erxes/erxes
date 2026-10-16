@@ -6,7 +6,7 @@
 - **Project:** `mongolian_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/mongolian_ui`
-- **Last synchronized:** `2026-10-14`
+- **Last synchronized:** `2026-10-16`
 
 ## Scope
 
@@ -93,6 +93,7 @@
 
 ### Provides
 
+- `CONFIG.plugin` in `src/config.tsx` registers the `mongolian` plugin with the shell: its picker entry, sidebar `content`, and brand `color`, `description` and `logo` (a 48×48 SVG glyph where `currentColor` is the plugin color).
 - Module Federation exposes: `./config`, `./mongolian`,
   `./mongolianSettings`, `./widgets`, and `./floatingWidget`.
 - Frontend routes mounted by `./mongolian`, including

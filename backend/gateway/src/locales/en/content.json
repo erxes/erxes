@@ -483,5 +483,6 @@
   "value": "Value",
   "refresh": "Refresh",
   "retry": "Try again",
-  "add": "Add"
+  "add": "Add",
+  "plugin-description": "CMS posts and web builder"
 }

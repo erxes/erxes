@@ -44,8 +44,27 @@ export const CONFIG: IUIConfig = {
       <SalesSettingsNavigation />
     </Suspense>
   ),
-  navigationGroup: {
+  plugin: {
     name: 'sales',
+    color: 'oklch(0.55 0.16 150)',
+    description: 'Deal pipelines and POS',
+    logo: (
+      <>
+        <rect
+          x="11"
+          y="12"
+          width="26"
+          height="4.5"
+          rx="2.25"
+          fill="#fff"
+          opacity=".6"
+        />
+        <path
+          d="M12.5 19.5h23l-8 9.5v6.2a1.5 1.5 0 0 1-.9 1.4l-4 1.7a1.5 1.5 0 0 1-2.1-1.4V29z"
+          fill="#fff"
+        />
+      </>
+    ),
     defaultPath: 'sales/deals',
     icon: IconBriefcase,
     content: () => (

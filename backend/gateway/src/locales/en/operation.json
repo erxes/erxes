@@ -322,5 +322,6 @@
   "relation": {
     "user-assignedTasks": "Assigned tasks",
     "user-createdTasks": "Created tasks"
-  }
+  },
+  "plugin-description": "Projects, tasks and teams"
 }

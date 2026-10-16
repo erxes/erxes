@@ -7,7 +7,7 @@ export const MainNavigation = () => {
   return (
     <>
       <NavigationMenuLinkItem
-        name={t('sales-pipeline')}
+        name={t('deals')}
         path="sales/deals"
         icon={IconSandbox}
       />

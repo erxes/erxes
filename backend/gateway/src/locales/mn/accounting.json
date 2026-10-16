@@ -1280,5 +1280,6 @@
   "edit-own-records": "Өөрийн үүсгэснийг засна",
   "view-own-records": "Өөрийнхийгөө уншина",
   "modified": "Өөрчилсөн",
-  "modified-date": "Өөрчилсөн огноо"
+  "modified-date": "Өөрчилсөн огноо",
+  "plugin-description": "Ерөнхий дэвтэр, журнал, залруулга"
 }

@@ -25,8 +25,45 @@ export const CONFIG: IUIConfig = {
       <SettingsNavigation />
     </Suspense>
   ),
-  navigationGroup: {
+  plugin: {
     name: 'mongolian',
+    color: 'oklch(0.55 0.19 27)',
+    description: 'eBarimt, Erkhet and MS Dynamics sync',
+    logo: (
+      <>
+        <path
+          d="M13 10.5h22v27.5l-3.67-2.5-3.67 2.5-3.66-2.5-3.67 2.5-3.66-2.5L13 38z"
+          fill="#fff"
+        />
+        <rect
+          x="16.5"
+          y="14.5"
+          width="7"
+          height="7"
+          rx="1.2"
+          fill="currentColor"
+        />
+        <rect x="18.6" y="16.6" width="2.8" height="2.8" fill="#fff" />
+        <rect
+          x="16.5"
+          y="25"
+          width="15"
+          height="2.4"
+          rx="1.2"
+          fill="currentColor"
+          opacity=".55"
+        />
+        <rect
+          x="16.5"
+          y="29.5"
+          width="10"
+          height="2.4"
+          rx="1.2"
+          fill="currentColor"
+          opacity=".55"
+        />
+      </>
+    ),
     defaultPath: 'mongolian/put-response',
     icon: IconSandbox,
     content: () => (

@@ -15,6 +15,12 @@ export const useNavigationActivities = (): INavigationActivity[] => {
     keyPrefix: 'core-modules',
   });
   const { isLoaded, hasModulePermission, isWildcard } = usePermissionCheck();
+  // Plugin translations load only when a plugin page renders. The shell
+  // shows every plugin's description, so it loads all of their namespaces.
+  const { ready: pluginTranslationsReady } = useTranslation(
+    Object.keys(navigationGroups),
+    { useSuspense: false },
+  );
 
   return useMemo(() => {
     const pluginActivities = Object.entries(navigationGroups)
@@ -34,6 +40,15 @@ export const useNavigationActivities = (): INavigationActivity[] => {
           id: name,
           label,
           icon: group.icon,
+          color: group.color,
+          description:
+            group.description && pluginTranslationsReady
+              ? i18n.t('plugin-description', {
+                  ns: name,
+                  defaultValue: group.description,
+                })
+              : group.description,
+          logo: group.logo,
           kind: 'plugin',
           modules: group.modules,
           defaultPath: group.defaultPath,
@@ -53,6 +68,7 @@ export const useNavigationActivities = (): INavigationActivity[] => {
           id: `core:${module.path}`,
           label: module.name,
           icon: module.icon,
+          description: module.description,
           kind: 'core',
           modules: [module],
           defaultPath: module.path,
@@ -67,6 +83,7 @@ export const useNavigationActivities = (): INavigationActivity[] => {
     isLoaded,
     isWildcard,
     navigationGroups,
+    pluginTranslationsReady,
     t,
     version,
   ]);

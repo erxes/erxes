@@ -6,7 +6,7 @@
 - **Project:** `insurance_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/insurance_ui`
-- **Last synchronized:** `2026-09-09`
+- **Last synchronized:** `2026-10-16`
 
 ## Scope
 
@@ -41,6 +41,7 @@
 
 ### Provides
 
+- `CONFIG.plugin` in `src/config.tsx` registers the `insurance` plugin with the shell: its picker entry, sidebar `content`, and brand `color`, `description` and `logo` (a 48×48 SVG glyph where `currentColor` is the plugin color).
 - Module Federation exposes: `./config`, `./insurance`, `./insuranceSettings`, and `./widgets`.
 - Frontend navigation paths under `insurance/*` registered from `src/config.tsx`.
 
