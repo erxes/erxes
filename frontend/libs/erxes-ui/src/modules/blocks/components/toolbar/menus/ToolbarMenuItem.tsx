@@ -1,4 +1,4 @@
-import type { ToolbarMenuItemProps } from '../../../types/toolbar/ToolbarMenuItemProps';
+import type { ToolbarMenuItemProps } from 'erxes-ui/modules/blocks/types/toolbar/ToolbarMenuItemProps';
 import { components } from '@blocknote/shadcn';
 import { cn } from 'erxes-ui/lib';
 import { DropdownMenu } from 'erxes-ui/components';

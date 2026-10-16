@@ -1,10 +1,10 @@
 import { useComponentsContext } from '@blocknote/react';
 import { useMemo } from 'react';
-import { ToolbarSelect } from '../../components/toolbar/menus/ToolbarSelect';
-import { ToolbarMenuItem } from '../../components/toolbar/menus/ToolbarMenuItem';
-import { ToolbarMenuDropdown } from '../../components/toolbar/menus/ToolbarMenuDropdown';
-import { ToolbarFormattingButton } from '../../components/toolbar/buttons/ToolbarFormattingButton';
-import { ToolbarRoot } from '../../components/toolbar/ToolbarRoot';
+import { ToolbarSelect } from 'erxes-ui/modules/blocks/components/toolbar/menus/ToolbarSelect';
+import { ToolbarMenuItem } from 'erxes-ui/modules/blocks/components/toolbar/menus/ToolbarMenuItem';
+import { ToolbarMenuDropdown } from 'erxes-ui/modules/blocks/components/toolbar/menus/ToolbarMenuDropdown';
+import { ToolbarFormattingButton } from 'erxes-ui/modules/blocks/components/toolbar/buttons/ToolbarFormattingButton';
+import { ToolbarRoot } from 'erxes-ui/modules/blocks/components/toolbar/ToolbarRoot';
 
 export const useToolbarComponents = (): ReturnType<
   typeof useComponentsContext

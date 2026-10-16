@@ -1,6 +1,6 @@
 import type { ChangeEvent } from 'react';
 import type { EditorMentionItem } from 'ui-modules';
-import type { ComposerBlockEditor } from './composer';
+import type { ComposerBlockEditor } from '@/inbox/conversations/conversation-detail/types/composer';
 import type { InboxHotkeyScope } from '@/inbox/types/InboxHotkeyScope';
 import type { PollDraft } from '@/inbox/conversations/conversation-detail/components/PollComposer';
 

@@ -4,10 +4,10 @@ import {
   useSelectedBlocks,
 } from '@blocknote/react';
 import { IconPhoto } from '@tabler/icons-react';
-import { IMAGE_STYLE_PRESETS } from './CustomImageBlock';
-import type { ImageStyle } from './CustomImageBlock';
-import { IMAGE_STYLE_OPTIONS } from '../constant/toolbar/imageStyleOptions';
-import type { IBlockEditor } from '../types/index';
+import { IMAGE_STYLE_PRESETS } from 'erxes-ui/modules/blocks/components/CustomImageBlock';
+import type { ImageStyle } from 'erxes-ui/modules/blocks/components/CustomImageBlock';
+import { IMAGE_STYLE_OPTIONS } from 'erxes-ui/modules/blocks/constant/toolbar/imageStyleOptions';
+import type { IBlockEditor } from 'erxes-ui/modules/blocks/types/index';
 
 export const ImageStyleButton = () => {
   const editor = useBlockNoteEditor<

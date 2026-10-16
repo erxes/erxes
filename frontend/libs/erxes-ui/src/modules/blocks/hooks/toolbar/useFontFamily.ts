@@ -3,8 +3,8 @@ import {
   useEditorContentOrSelectionChange,
 } from '@blocknote/react';
 import { useState } from 'react';
-import type { IBlockEditor } from '../../types';
-import type { FontFamilyState } from '../../types/toolbar/FontFamily';
+import type { IBlockEditor } from 'erxes-ui/modules/blocks/types';
+import type { FontFamilyState } from 'erxes-ui/modules/blocks/types/toolbar/FontFamily';
 
 export const useFontFamily = (): FontFamilyState => {
   const editor = useBlockNoteEditor<

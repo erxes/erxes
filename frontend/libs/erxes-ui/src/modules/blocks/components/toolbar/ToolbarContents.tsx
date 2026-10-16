@@ -12,10 +12,10 @@ import {
   TextAlignButton,
   UnnestBlockButton,
 } from '@blocknote/react';
-import { FontFamilyButton } from '../FontFamilyButton';
-import { ImageStyleButton } from '../ImageStyleButton';
+import { FontFamilyButton } from 'erxes-ui/modules/blocks/components/FontFamilyButton';
+import { ImageStyleButton } from 'erxes-ui/modules/blocks/components/ImageStyleButton';
 
-import { useToolbarComponents } from '../../hooks/toolbar/useToolbarComponents';
+import { useToolbarComponents } from 'erxes-ui/modules/blocks/hooks/toolbar/useToolbarComponents';
 
 export const ToolbarContents = () => {
   const toolbarComponents = useToolbarComponents();

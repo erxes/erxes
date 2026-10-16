@@ -1,4 +1,4 @@
-import type { EditorVisibleBounds } from '../../types/toolbar/EditorVisibleBounds';
+import type { EditorVisibleBounds } from 'erxes-ui/modules/blocks/types/toolbar/EditorVisibleBounds';
 
 export const getEditorVisibleBounds = (
   editor: HTMLElement,

@@ -11,7 +11,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { IconLock } from '@tabler/icons-react';
 import { Attachments } from '@/inbox/conversation-messages/components/MessageAttachments';
-import type { MailInternalNotesProps } from '../types/MailInternalNotesProps';
+import type { MailInternalNotesProps } from '@/integrations/mail/types/MailInternalNotesProps';
 
 export const MailInternalNotes = ({
   notes,

@@ -9,8 +9,8 @@ import { useGetResponses } from '@/responseTemplate/hooks/useGetResponses';
 import type {
   ResponseTemplateSuggestion,
   ResponseTemplateSuggestionsOptions,
-} from '../types/responseTemplateSuggestions';
-import type { ComposerBlockEditor } from '../types/composer';
+} from '@/inbox/conversations/conversation-detail/types/responseTemplateSuggestions';
+import type { ComposerBlockEditor } from '@/inbox/conversations/conversation-detail/types/composer';
 import { MAX_TEMPLATE_SUGGESTIONS } from '@/inbox/constants/responseTemplateSuggestions';
 import { toResponseTemplateText } from '@/responseTemplate/utils/toResponseTemplateText';
 

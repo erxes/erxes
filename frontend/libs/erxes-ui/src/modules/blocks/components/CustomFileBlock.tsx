@@ -12,7 +12,7 @@ import {
 import { IconFile } from '@tabler/icons-react';
 import { Spinner } from 'erxes-ui/components';
 import { FC } from 'react';
-import { readImage } from '../../../utils/core';
+import { readImage } from 'erxes-ui/utils/core';
 
 type FileRenderProps = ReactCustomBlockRenderProps<
   typeof fileBlockConfig,

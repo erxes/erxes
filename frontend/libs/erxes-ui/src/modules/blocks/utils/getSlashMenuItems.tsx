@@ -2,7 +2,7 @@ import { getDefaultReactSlashMenuItems } from '@blocknote/react';
 import type { DefaultReactSuggestionItem } from '@blocknote/react';
 import { filterSuggestionItems } from '@blocknote/core';
 import { IconPhoto } from '@tabler/icons-react';
-import type { BlockEditorProps } from '../types';
+import type { BlockEditorProps } from 'erxes-ui/modules/blocks/types';
 
 export const getSlashMenuItems = (
   query: string,

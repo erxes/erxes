@@ -5,12 +5,15 @@ import {
   defaultStyleSpecs,
   createStyleSpec,
 } from '@blocknote/core';
-import { Attribute, Mention } from '../components/BlockEditor';
-import { customFileBlock } from '../components/CustomFileBlock';
-import { customImageBlock } from '../components/CustomImageBlock';
-import { documentPlaceholderBlock } from '../components/DocumentPlaceholderBlock';
-import { galleryBlock } from '../components/GalleryBlock';
-import { customVideoBlock } from '../components/CustomVideoBlock';
+import {
+  Attribute,
+  Mention,
+} from 'erxes-ui/modules/blocks/components/BlockEditor';
+import { customFileBlock } from 'erxes-ui/modules/blocks/components/CustomFileBlock';
+import { customImageBlock } from 'erxes-ui/modules/blocks/components/CustomImageBlock';
+import { documentPlaceholderBlock } from 'erxes-ui/modules/blocks/components/DocumentPlaceholderBlock';
+import { galleryBlock } from 'erxes-ui/modules/blocks/components/GalleryBlock';
+import { customVideoBlock } from 'erxes-ui/modules/blocks/components/CustomVideoBlock';
 
 export const fontFamily = createStyleSpec(
   {

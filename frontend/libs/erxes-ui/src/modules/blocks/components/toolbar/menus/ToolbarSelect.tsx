@@ -1,7 +1,7 @@
 import { useComponentsContext } from '@blocknote/react';
 import type { ComponentProps } from '@blocknote/react';
 import { IconChevronDown } from '@tabler/icons-react';
-import { ToolbarMenuItem } from './ToolbarMenuItem';
+import { ToolbarMenuItem } from 'erxes-ui/modules/blocks/components/toolbar/menus/ToolbarMenuItem';
 
 export const ToolbarSelect = ({
   items,

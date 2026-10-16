@@ -1,14 +1,14 @@
 import { INTERNAL_NOTE_BACKGROUND } from '@/inbox/constants/internalNoteStyles';
 import { Button, RelativeDateDisplay, cn, useQueryState } from 'erxes-ui';
-import { useFbMessengerMessageContext } from '../contexts/FbMessengerMessageContext';
+import { useFbMessengerMessageContext } from '@/integrations/facebook/contexts/FbMessengerMessageContext';
 import { useAtomValue } from 'jotai';
 import { activeConversationState } from '@/inbox/conversations/states/activeConversationState';
 import { CustomersInline, MembersInline } from 'ui-modules';
 import { MessageContent } from '@/inbox/conversation-messages/components/MessageContent';
 import { HAS_ATTACHMENT } from '@/inbox/constants/messengerConstants';
-import { FbMessengerBotMessageItem } from './FbMessengerBotMessageBlocks/FbMessengerBotMessageItem';
-import { FbMessengerMessageAttachments } from './FbMessengerMessageAttachments';
-import { FacebookMessageRelationNotice } from './FacebookMessageRelationNotice';
+import { FbMessengerBotMessageItem } from '@/integrations/facebook/components/FbMessengerBotMessageBlocks/FbMessengerBotMessageItem';
+import { FbMessengerMessageAttachments } from '@/integrations/facebook/components/FbMessengerMessageAttachments';
+import { FacebookMessageRelationNotice } from '@/integrations/facebook/components/FacebookMessageRelationNotice';
 import { useEffect, useRef } from 'react';
 
 export const FbMessengerMessage = () => {

@@ -1,4 +1,4 @@
-import type { FormattingShortcut } from '../../types/toolbar/FormattingShortcut';
+import type { FormattingShortcut } from 'erxes-ui/modules/blocks/types/toolbar/FormattingShortcut';
 
 export const isCodeFormattingShortcut = (
   event: FormattingShortcut,

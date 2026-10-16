@@ -1,6 +1,6 @@
-import type { ToolbarFormattingButtonProps } from '../../../types/toolbar/ToolbarFormattingButtonProps';
-import { useCodeActive } from '../../../hooks/toolbar/useCodeActive';
-import { CODE_INCOMPATIBLE_CONTROLS } from '../../../constant/toolbar/codeIncompatibleControls';
+import type { ToolbarFormattingButtonProps } from 'erxes-ui/modules/blocks/types/toolbar/ToolbarFormattingButtonProps';
+import { useCodeActive } from 'erxes-ui/modules/blocks/hooks/toolbar/useCodeActive';
+import { CODE_INCOMPATIBLE_CONTROLS } from 'erxes-ui/modules/blocks/constant/toolbar/codeIncompatibleControls';
 import { components } from '@blocknote/shadcn';
 import { forwardRef } from 'react';
 

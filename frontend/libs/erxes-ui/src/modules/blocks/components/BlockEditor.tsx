@@ -1,5 +1,5 @@
-import { BarcodeAttribute } from './BarcodeAttribute';
-import { getSlashMenuItems } from '../utils/getSlashMenuItems';
+import { BarcodeAttribute } from 'erxes-ui/modules/blocks/components/BarcodeAttribute';
+import { getSlashMenuItems } from 'erxes-ui/modules/blocks/utils/getSlashMenuItems';
 import {
   createReactInlineContentSpec,
   SuggestionMenuController,
@@ -11,13 +11,13 @@ import { cn } from 'erxes-ui/lib';
 import { themeState } from 'erxes-ui/state';
 import { useAtomValue } from 'jotai';
 import { KeyboardEvent, MouseEvent, useRef, useState } from 'react';
-import { BlockEditorProps } from '../types';
-import { SlashMenu } from './SlashMenu';
-import { Toolbar } from './Toolbar';
-import { isEmptyBlock } from '../utils/isEmptyBlock';
-import { TableHandleWithRemove } from './TableHandleWithRemove';
-import { editorUIComponents } from '../constant/toolbar/editorUIComponents';
-import { isCodeFormattingShortcut } from '../utils/toolbar/isCodeFormattingShortcut';
+import { BlockEditorProps } from 'erxes-ui/modules/blocks/types';
+import { SlashMenu } from 'erxes-ui/modules/blocks/components/SlashMenu';
+import { Toolbar } from 'erxes-ui/modules/blocks/components/Toolbar';
+import { isEmptyBlock } from 'erxes-ui/modules/blocks/utils/isEmptyBlock';
+import { TableHandleWithRemove } from 'erxes-ui/modules/blocks/components/TableHandleWithRemove';
+import { editorUIComponents } from 'erxes-ui/modules/blocks/constant/toolbar/editorUIComponents';
+import { isCodeFormattingShortcut } from 'erxes-ui/modules/blocks/utils/toolbar/isCodeFormattingShortcut';
 
 export const BlockEditor = ({
   editor,

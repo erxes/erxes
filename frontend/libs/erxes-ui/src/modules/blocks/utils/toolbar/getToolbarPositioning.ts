@@ -1,5 +1,5 @@
-import { getEditorVisibleBounds } from './getEditorVisibleBounds';
-import type { ToolbarPositioningOptions } from '../../types/toolbar/ToolbarPositioningOptions';
+import { getEditorVisibleBounds } from 'erxes-ui/modules/blocks/utils/toolbar/getEditorVisibleBounds';
+import type { ToolbarPositioningOptions } from 'erxes-ui/modules/blocks/types/toolbar/ToolbarPositioningOptions';
 
 export const getToolbarPositioning = (
   getEditorElement: () => HTMLElement | undefined,

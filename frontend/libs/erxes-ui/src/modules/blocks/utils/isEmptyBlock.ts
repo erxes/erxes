@@ -1,4 +1,4 @@
-import type { EditorBlock } from '../types/EditorBlock';
+import type { EditorBlock } from 'erxes-ui/modules/blocks/types/EditorBlock';
 
 export const isEmptyBlock = (block?: EditorBlock) => {
   if (!block) {
