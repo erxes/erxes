@@ -19,6 +19,12 @@ export const EditTechCardForm = () => {
   const { editTechCard, loading: editLoading } = useTechCardEdit();
   const form = useForm<TTechCardForm>({
     resolver: zodResolver(getTechCardFormSchema(t)),
+    defaultValues: {
+      inputs: [],
+      outputs: [],
+      laborCosts: [],
+      overheadCosts: [],
+    },
   });
   const { reset } = form;
 
@@ -38,8 +44,8 @@ export const EditTechCardForm = () => {
         status: techCardDetail.status || 'active',
         laborCosts: techCardDetail.laborCosts ?? [],
         overheadCosts: techCardDetail.overheadCosts ?? [],
-        inputs: techCardDetail.inputs,
-        outputs: techCardDetail.outputs,
+        inputs: techCardDetail.inputs ?? [],
+        outputs: techCardDetail.outputs ?? [],
       });
     }
   }, [reset, techCardDetail]);
@@ -61,8 +67,8 @@ export const EditTechCardForm = () => {
       status: techCardDetail.status || 'active',
       laborCosts: techCardDetail.laborCosts ?? [],
       overheadCosts: techCardDetail.overheadCosts ?? [],
-      inputs: techCardDetail.inputs,
-      outputs: techCardDetail.outputs,
+      inputs: techCardDetail.inputs ?? [],
+      outputs: techCardDetail.outputs ?? [],
     };
 
     if (isDeeplyEqual(data, initialData)) {

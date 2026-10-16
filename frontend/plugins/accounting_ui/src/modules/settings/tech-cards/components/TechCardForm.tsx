@@ -133,7 +133,7 @@ const TechCardItems = ({
           </Table.Header>
           <Table.Body>
             {fields.map((field, index) => {
-              const product = products.get(items[index]?.productId);
+              const product = products.get(items?.[index]?.productId);
               const unitOptions = Array.from(
                 new Set(
                   [
@@ -144,7 +144,7 @@ const TechCardItems = ({
                     .filter(Boolean),
                 ),
               );
-              const savedUnit = uomToCode(uoms, items[index]?.uom);
+              const savedUnit = uomToCode(uoms, items?.[index]?.uom);
               if (savedUnit && !unitOptions.includes(savedUnit)) {
                 unitOptions.push(savedUnit);
               }
@@ -366,7 +366,7 @@ export const TechCardForm = ({
 
   useEffect(() => {
     for (const name of ['inputs', 'outputs'] as const) {
-      form.getValues(name).forEach((item, index) => {
+      (form.getValues(name) ?? []).forEach((item, index) => {
         const product = products.get(item.productId);
         if (!item.uom && product?.uom) {
           form.setValue(`${name}.${index}.uom`, uomToCode(uoms, product.uom), {
