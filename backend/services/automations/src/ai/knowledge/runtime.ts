@@ -58,7 +58,7 @@ const buildActionSearchText = (actionConfig: TAiAgentActionConfig) => {
     .join('\n');
 };
 
-const mapSharedKnowledgeDocumentToChunk = (
+export const mapSharedKnowledgeDocumentToChunk = (
   doc: IKnowledgeChunkDocument,
 ): TAiKnowledgeChunk => {
   return {

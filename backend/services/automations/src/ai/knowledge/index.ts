@@ -9,3 +9,4 @@ export * from './indexer';
 export * from './runtime';
 export * from './sharedIndexer';
 export * from './sourceIndexer';
+export * from './agentKnowledge';

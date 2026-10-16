@@ -4,10 +4,12 @@ import { TAiBridgeMessage } from '../bridge';
 import { formatAiConversationStateForPrompt } from '../memory/conversationState';
 import { TAiAgentActionConfig, TAiAgentObjectField } from './contract';
 import { buildAiInputFromContext } from './context';
+import { AI_KNOWLEDGE_FULL_CONTEXT_MAX_BYTES } from '../knowledge/agentKnowledge';
 
 // One ceiling for everything the context sections may contribute, so adding a
-// new source cannot silently grow every prompt.
-const MAX_CONTEXT_SECTION_BYTES = 24_000;
+// new source cannot silently grow every prompt. It fits a knowledge read whole
+// plus the agent's always-on files.
+const MAX_CONTEXT_SECTION_BYTES = AI_KNOWLEDGE_FULL_CONTEXT_MAX_BYTES + 24_000;
 
 const buildContextSection = (files: TAiAgentLoadedContextFile[]) => {
   const sections: string[] = [];
@@ -78,8 +80,26 @@ const buildFieldsSpec = (fields: TAiAgentObjectField[]) =>
     })
     .join('\n');
 
+// How much of the organization's knowledge this reply can see: all of it in
+// context, all of it behind a section index, or only what one search returned.
+export type TAiKnowledgeReach = 'whole' | 'indexed' | 'retrieved';
+
+const KNOWLEDGE_REACH_RULES: Record<TAiKnowledgeReach, string[]> = {
+  whole: [
+    "The context documents hold the organization's complete knowledge: what is not in them is not offered, and you say so plainly.",
+  ],
+  indexed: [
+    "The knowledge index lists the organization's complete knowledge: what no section covers is not offered, and you say so plainly.",
+  ],
+  retrieved: [
+    'Context documents are partial: retrieval returns only what matched this message, so absence from them is not proof that something does not exist.',
+    'If an item appears in any provided context source, do not deny it because another source omits it.',
+  ],
+};
+
 const buildAutomationSystemInstruction = (
   actionConfig: TAiAgentActionConfig,
+  knowledgeReach: TAiKnowledgeReach,
 ) => {
   if (actionConfig.goalType === 'generateText') {
     const captureFields = getGenerateTextCaptureFields(actionConfig);
@@ -106,9 +126,10 @@ const buildAutomationSystemInstruction = (
       'Ask for contact details only when the latest user message shows real interest or asks to register, schedule, buy, or receive follow-up.',
       'Your job is to produce the exact final reply requested by the instruction.',
       'Do not simulate back-and-forth, and do not invent missing facts.',
+      'This reply is all you can do: you cannot check anything afterwards or get back to the customer, so never promise to and never ask them to wait.',
       'Use only the provided instruction, source data, memory, and context documents.',
-      'Context documents are partial: retrieval returns only what matched this message, so absence from them is not proof that something does not exist.',
-      'If an item appears in any provided context source, do not deny it because another source omits it.',
+      ...KNOWLEDGE_REACH_RULES[knowledgeReach],
+      'Copy prices and other numbers exactly as the source writes them; never rescale, convert, or correct one because it looks implausible.',
       'Do not infer stock availability, delivery timing, discounts, or policies unless a context source explicitly states them.',
       'Do not mention items, prices, or policies that are absent from all provided context sources.',
       'If information is missing, stay generic rather than fabricating details.',
@@ -248,6 +269,7 @@ export const buildAiActionMessages = ({
   inputData,
   aiContext,
   memory,
+  knowledgeReach = 'retrieved',
 }: {
   systemPrompt?: string;
   files: TAiAgentLoadedContextFile[];
@@ -255,12 +277,15 @@ export const buildAiActionMessages = ({
   inputData: unknown;
   aiContext?: TAiContext | null;
   memory?: Record<string, unknown>;
+  knowledgeReach?: TAiKnowledgeReach;
 }): TAiBridgeMessage[] => {
   const inputText = buildAiInputFromContext({ inputData, aiContext });
   const contextSection = buildContextSection(files);
   const memorySection = buildMemorySection(memory);
-  const automationSystemInstruction =
-    buildAutomationSystemInstruction(actionConfig);
+  const automationSystemInstruction = buildAutomationSystemInstruction(
+    actionConfig,
+    knowledgeReach,
+  );
 
   const systemContent = [
     systemPrompt?.trim()

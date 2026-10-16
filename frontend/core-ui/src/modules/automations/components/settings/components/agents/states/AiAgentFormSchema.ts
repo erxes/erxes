@@ -394,7 +394,7 @@ export const normalizeAiAgentFormValues = (
     } as Partial<TAiAgentConnection>),
   },
   runtime: {
-    temperature: detail?.runtime?.temperature ?? 0.2,
+    temperature: detail?.runtime?.temperature ?? 0,
     maxTokens: detail?.runtime?.maxTokens ?? 2000,
     timeoutMs: detail?.runtime?.timeoutMs ?? 15000,
   },

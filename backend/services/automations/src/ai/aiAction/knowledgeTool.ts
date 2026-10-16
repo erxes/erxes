@@ -1,61 +1,39 @@
 import type { IModels } from '../../connectionResolver';
 import type { TAiAgentInput } from '../aiAgent';
-import { searchAiAgentKnowledge } from '../knowledge';
+import {
+  searchAiAgentKnowledge,
+  searchAiAgentKnowledgeSection,
+  toPublicKnowledgeTitle,
+  type TAiAgentKnowledge,
+} from '../knowledge';
 import type { TAiToolRuntime } from './tools';
 
 export const AI_KNOWLEDGE_TOOL_ID = 'agent:knowledge-search';
 export const AI_KNOWLEDGE_TOOL_NAME = 'search_knowledge';
 
-const MAX_TOOL_RESULT_CONTENT_CHARS = 1200;
+const MAX_TOOL_RESULT_CONTENT_CHARS = 2000;
 
-// An uploaded document's file name says nothing a customer needs and everything
-// an attacker wants, so only a real human-written title survives.
-const INTERNAL_FILE_NAME =
-  /\.(md|markdown|txt|pdf|docx?|csv|json|ya?ml|html?)$/i;
+const TOOL_DESCRIPTION = [
+  "Read the organization's knowledge and return the passages of the chosen sections.",
+  'Pick every section from the knowledge index given in the instructions that could hold the answer, exactly as written there — section names may be in another language than the customer’s words.',
+  'Add a query only to narrow a large section, using the words the index itself uses — that is the language the knowledge is written in, which may differ from the customer’s.',
+  'An empty result means the knowledge does not contain it — say so instead of guessing.',
+].join(' ');
 
-const toPublicTitle = (title?: string) => {
-  const trimmed = (title || '').trim();
-
-  return trimmed && !INTERNAL_FILE_NAME.test(trimmed) ? trimmed : undefined;
-};
-
-const buildToolDescription = (agent: TAiAgentInput) => {
-  const modules = [
-    ...new Set(
-      (agent.context.knowledgeSources || []).map((source) => source.moduleName),
-    ),
-  ];
-  const scope = modules.length
-    ? `Indexed sources: ${modules.join(
-        ', ',
-      )}, plus the agent's uploaded reference documents.`
-    : `Covers the agent's uploaded reference documents.`;
-
-  return [
-    "Search the organization's indexed knowledge and return the passages that match a question.",
-    scope,
-    'Call this before answering any question about facts you do not already have in this conversation: policies, procedures, prices, availability, schedules, or product details.',
-    'Write the query in the language the customer used, using the words they would appear under rather than repeating the sentence verbatim.',
-    'An empty result means the knowledge does not contain it — say so instead of guessing.',
-  ].join(' ');
-};
-
+// Only a knowledge too large for the prompt is searched; the model chooses the
+// section from the index, so a question in any language finds its passages.
 export const buildAiKnowledgeTool = ({
   models,
   agentId,
   agent,
+  knowledge,
 }: {
   models: IModels;
   agentId: string;
   agent: TAiAgentInput;
+  knowledge: TAiAgentKnowledge;
 }): TAiToolRuntime | null => {
-  const { retrieval, knowledgeSources, files } = agent.context;
-
-  if (retrieval?.mode !== 'tool' || !retrieval?.enabled) {
-    return null;
-  }
-
-  if (!knowledgeSources?.length && !files?.length) {
+  if (knowledge.kind !== 'indexed') {
     return null;
   }
 
@@ -64,34 +42,70 @@ export const buildAiKnowledgeTool = ({
     kind: 'helper',
     definition: {
       name: AI_KNOWLEDGE_TOOL_NAME,
-      description: buildToolDescription(agent),
+      description: TOOL_DESCRIPTION,
       parameters: {
         type: 'object',
         properties: {
+          sections: {
+            type: 'array',
+            items: { type: 'string', enum: knowledge.sections },
+            description: 'The knowledge sections to read.',
+          },
           query: {
             type: 'string',
-            description: 'What to look for, in the customer’s own language.',
+            description:
+              'Optional keywords, in the language of the knowledge index.',
           },
         },
-        required: ['query'],
+        required: ['sections'],
       },
     },
     execute: async (args) => {
-      const chunks = await searchAiAgentKnowledge({
-        models,
-        agentId,
-        agent,
-        searchText: String(args.query ?? ''),
-      });
+      const sections = Array.isArray(args.sections)
+        ? args.sections.filter(
+            (section): section is string => typeof section === 'string',
+          )
+        : [];
+      const query = String(args.query ?? '');
+      const chunkIds = [
+        ...new Set(
+          sections.flatMap(
+            (section) => knowledge.chunkIdsBySection.get(section) || [],
+          ),
+        ),
+      ];
+      // Unknown sections still get a whole-knowledge keyword search rather
+      // than a hard failure the model would answer around.
+      const chunks = chunkIds.length
+        ? await searchAiAgentKnowledgeSection({ models, chunkIds, query })
+        : await searchAiAgentKnowledge({
+            models,
+            agentId,
+            agent,
+            searchText: [...sections, query].filter(Boolean).join(' '),
+          });
 
-      return {
-        found: chunks.length,
-        results: chunks.map((chunk) => ({
-          title: toPublicTitle(chunk.title) || toPublicTitle(chunk.fileName),
-          url: chunk.sourceUrl,
-          content: chunk.content.slice(0, MAX_TOOL_RESULT_CONTENT_CHARS),
-        })),
-      };
+      if (!chunks.length) {
+        return 'No passages found.';
+      }
+
+      // Plain text, like knowledge read whole: inside JSON a passage's line
+      // breaks become "\n" and a figure loses the line that qualifies it.
+      return chunks
+        .map((chunk) => {
+          const title =
+            toPublicKnowledgeTitle(chunk.title) ||
+            toPublicKnowledgeTitle(chunk.fileName);
+          const heading = [title, chunk.sourceUrl].filter(Boolean).join(' — ');
+
+          return [
+            heading ? `[${heading}]` : '',
+            chunk.content.slice(0, MAX_TOOL_RESULT_CONTENT_CHARS),
+          ]
+            .filter(Boolean)
+            .join('\n');
+        })
+        .join('\n\n');
     },
   };
 };

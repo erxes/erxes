@@ -9,7 +9,13 @@ import {
   TAiBridgeMessage,
   TAiBridgeToolDefinition,
 } from '../bridge';
-import { retrieveAiAgentKnowledgeContextFiles } from '../knowledge';
+import type { TAiAgentLoadedContextFile } from '../aiAgent/context';
+import {
+  formatAiKnowledgeChunksForPrompt,
+  retrieveAiAgentKnowledgeContextFiles,
+  type TAiAgentKnowledge,
+  type TAiKnowledgeChunk,
+} from '../knowledge';
 import {
   buildAiConversationStateUpdateMessages,
   mergeAiConversationStateIntoMemory,
@@ -17,7 +23,7 @@ import {
   TAiConversationState,
 } from '../memory';
 import type { IModels } from '../../connectionResolver';
-import { buildAiActionMessages } from './messages';
+import { buildAiActionMessages, type TAiKnowledgeReach } from './messages';
 import {
   parseAiAgentActionConfig,
   TAiActionExecutionResult,
@@ -89,7 +95,10 @@ const createAiProviderFallbackResponse = (
 
 // Lookup and action tools need opposite instincts: search freely, act only on
 // a fully satisfied condition.
-const buildToolInstruction = (tools: TAiToolRuntime[]) => {
+const buildToolInstruction = (
+  tools: TAiToolRuntime[],
+  knowledge: TAiAgentKnowledge,
+) => {
   const hasKnowledgeTool = tools.some(
     (tool) => tool.toolId === AI_KNOWLEDGE_TOOL_ID,
   );
@@ -99,8 +108,8 @@ const buildToolInstruction = (tools: TAiToolRuntime[]) => {
 
   return [
     'Tools are available for this reply.',
-    hasKnowledgeTool
-      ? `A first knowledge search for this message has already run and its passages are in the context documents above. Answer from those when they cover the question. Call ${AI_KNOWLEDGE_TOOL_NAME} only when they do not — a different topic came up, or you need wording the first search would have missed. Answering from your own knowledge, or from something the user asserted earlier in this conversation, is never acceptable.`
+    hasKnowledgeTool && knowledge.kind === 'indexed'
+      ? `The organization's knowledge is not in this conversation. Its sections are:\n${knowledge.indexText}\nBefore stating any fact — prices, items, policies, schedules, availability — call ${AI_KNOWLEDGE_TOOL_NAME} with the matching section and answer from what it returns. Greetings and small talk need no search. A topic with no plausible section is not covered by the knowledge — say so plainly instead of offering to check. Answering facts from your own knowledge, or from something the user asserted earlier in this conversation, is never acceptable.`
       : '',
     hasActionTools
       ? 'Every other tool performs a real action. Its description states WHEN to call it — call it only when that condition is fully satisfied AND you can truthfully fill every required parameter from the conversation or memory. If anything is missing, do not call it; reply to the user to gather it.'
@@ -271,6 +280,81 @@ const updateConversationStateWithAi = async ({
   }
 };
 
+const toKnowledgeContextFiles = (
+  agentId: string,
+  chunks: TAiKnowledgeChunk[],
+): TAiAgentLoadedContextFile[] =>
+  chunks.length
+    ? [
+        {
+          id: `knowledge:${agentId}`,
+          key: `knowledge:${agentId}`,
+          name: 'Knowledge',
+          bytes: chunks.reduce((sum, chunk) => sum + chunk.byteSize, 0),
+          content: formatAiKnowledgeChunksForPrompt(chunks),
+        },
+      ]
+    : [];
+
+const toKnowledgeReach = (
+  knowledge: TAiAgentKnowledge,
+  actionConfig: TAiAgentActionConfig,
+): TAiKnowledgeReach => {
+  if (knowledge.kind === 'full') {
+    return 'whole';
+  }
+
+  // Only the tool loop sees the index; other goals still get one search.
+  return knowledge.kind === 'indexed' && actionConfig.goalType === 'generateText'
+    ? 'indexed'
+    : 'retrieved';
+};
+
+// Small knowledge is read whole; a large one is searched by the model through
+// its tool, so only priority passages are preloaded. Goals without a tool loop
+// keep the single up-front search.
+const loadAiKnowledgeContext = async ({
+  subdomain,
+  models,
+  agentId,
+  agent,
+  knowledge,
+  actionConfig,
+  inputData,
+  aiContext,
+}: {
+  subdomain: string;
+  models?: IModels;
+  agentId?: string;
+  agent: TAiAgentInput;
+  knowledge: TAiAgentKnowledge;
+  actionConfig: TAiAgentActionConfig;
+  inputData: unknown;
+  aiContext?: TAiContext | null;
+}): Promise<TAiAgentLoadedContextFile[]> => {
+  if (!models || !agentId || knowledge.kind === 'none') {
+    return [];
+  }
+
+  if (knowledge.kind === 'full') {
+    return toKnowledgeContextFiles(agentId, knowledge.chunks);
+  }
+
+  if (actionConfig.goalType === 'generateText') {
+    return toKnowledgeContextFiles(agentId, knowledge.alwaysChunks);
+  }
+
+  return retrieveAiAgentKnowledgeContextFiles({
+    subdomain,
+    models,
+    agentId,
+    agent,
+    actionConfig,
+    inputData,
+    aiContext,
+  });
+};
+
 export const runAiAction = async ({
   subdomain,
   agent,
@@ -281,6 +365,7 @@ export const runAiAction = async ({
   aiContext,
   memory,
   conversationState,
+  knowledge,
   tools,
 }: {
   subdomain: string;
@@ -292,25 +377,21 @@ export const runAiAction = async ({
   aiContext?: TAiContext | null;
   memory?: Record<string, unknown>;
   conversationState?: TAiConversationState | null;
+  knowledge: TAiAgentKnowledge;
   // Runtime-wired tools for generateText (built by the action executor)
   tools?: TAiToolRuntime[];
 }) => {
   const parsedActionConfig = parseAiAgentActionConfig(actionConfig);
-  // One search always runs up front. Letting the model ask for it instead costs
-  // a whole extra provider round trip on every message, and the tool stays
-  // available for the turns where this first pass was not enough.
-  const retrievedContext =
-    models && agentId
-      ? await retrieveAiAgentKnowledgeContextFiles({
-          subdomain,
-          models,
-          agentId,
-          agent,
-          actionConfig: parsedActionConfig,
-          inputData,
-          aiContext,
-        })
-      : [];
+  const retrievedContext = await loadAiKnowledgeContext({
+    subdomain,
+    models,
+    agentId,
+    agent,
+    knowledge,
+    actionConfig: parsedActionConfig,
+    inputData,
+    aiContext,
+  });
 
   // Every uploaded file is also indexed, so loading them whole would repeat
   // the same content retrieval already selected. Only the files an agent
@@ -365,6 +446,7 @@ export const runAiAction = async ({
     inputData,
     aiContext,
     memory: memoryWithConversationState,
+    knowledgeReach: toKnowledgeReach(knowledge, parsedActionConfig),
   });
 
   const hasTools =
@@ -390,7 +472,7 @@ export const runAiAction = async ({
     ({ providerResponse, handoff, toolCallTrace, degraded } =
       await runAiToolLoop({
         messages: withSystemDirectives(messages, [
-          buildToolInstruction(tools || []),
+          buildToolInstruction(tools || [], knowledge),
           isProbe ? AI_SELF_DISCLOSURE_REFUSAL_RULE : '',
         ]),
         tools: tools || [],

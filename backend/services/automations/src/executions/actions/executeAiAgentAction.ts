@@ -7,6 +7,7 @@ import {
   parseAiAgentInput,
   persistAiActionMemory,
   persistAiConversationState,
+  resolveAiAgentKnowledge,
   runAiAction,
   TAiActionExecutionResult,
   TAiAgentActionConfig,
@@ -116,6 +117,11 @@ export const executeAiAgentAction = async (
       execution,
       action.id,
     );
+    const knowledge = await resolveAiAgentKnowledge({
+      models,
+      agentId: aiAgentId,
+      agent: parsedAgent,
+    });
     // Two registries meet here: action tools come from the canvas node, the
     // knowledge tool follows the agent wherever it is used.
     const knowledgeTool =
@@ -124,6 +130,7 @@ export const executeAiAgentAction = async (
             models,
             agentId: aiAgentId,
             agent: parsedAgent,
+            knowledge,
           })
         : null;
     const actionTools = await buildAiAgentTools({
@@ -146,6 +153,7 @@ export const executeAiAgentAction = async (
       aiContext,
       memory,
       conversationState,
+      knowledge,
       tools: tools.length ? tools : undefined,
     });
     console.timeEnd(timerLabel);
