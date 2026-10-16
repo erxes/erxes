@@ -1,9 +1,3 @@
-import {
-  GQL_CURSOR_PARAMS,
-  GQL_CURSOR_PARAM_DEFS,
-  GQL_PAGE_INFO,
-} from 'erxes-ui';
-
 import { gql } from '@apollo/client';
 
 export const GET_PRODUCTS = gql`
@@ -17,7 +11,10 @@ export const GET_PRODUCTS = gql`
     $segment: String
     $sortField: String
     $sortDirection: Int
-     ${GQL_CURSOR_PARAM_DEFS}
+    $cursor: String
+    $cursorMode: CURSOR_MODE
+    $direction: CURSOR_DIRECTION
+    $limit: Int
   ) {
     productsMain(
       type: $type
@@ -29,7 +26,10 @@ export const GET_PRODUCTS = gql`
       segment: $segment
       sortField: $sortField
       sortDirection: $sortDirection
-      ${GQL_CURSOR_PARAMS}
+      cursor: $cursor
+      cursorMode: $cursorMode
+      direction: $direction
+      limit: $limit
     ) {
       list {
         _id
@@ -53,16 +53,22 @@ export const GET_PRODUCTS = gql`
         type
         vendor {
           _id
-            primaryName
-          }
+          primaryName
         }
-        ${GQL_PAGE_INFO}
+      }
+      totalCount
+      pageInfo {
+        hasNextPage
+        hasPreviousPage
+        startCursor
+        endCursor
+      }
     }
   }
 `;
 
 export const productCategories = gql`
-  query ProductCategories {
+  query salesDealProductCategories {
     productCategories {
       _id
       parentId
@@ -78,12 +84,14 @@ export const productCategories = gql`
 `;
 
 export const productTags = gql`
-  query Tags($searchValue: String, $perPage: Int) {
-    tags(type: "core:product", searchValue: $searchValue, perPage: $perPage) {
-      _id
-      colorCode
-      order
-      name
+  query salesDealProductTags($searchValue: String, $limit: Int) {
+    tags(type: "core:product", searchValue: $searchValue, limit: $limit) {
+      list {
+        _id
+        colorCode
+        order
+        name
+      }
     }
   }
 `;

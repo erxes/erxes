@@ -214,7 +214,13 @@ export const usePipelineEdit = () => {
     editPipeline({
       ...options,
       variables,
-      refetchQueries: ['SalesPipelines', 'SalesBoards', 'SalesStages'],
+      refetchQueries: [
+        'SalesPipelines',
+        'SalesBoards',
+        'salesDealStages',
+        'salesDealConversionStages',
+        'SalesStages', // Still used by shared selectors and Loyalty.
+      ],
       awaitRefetchQueries: true,
       update: (cache, { data: { salesPipelinesEdit } }) => {
         if (salesPipelinesEdit) {

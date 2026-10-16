@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client';
 
 export const POS_ORDERS_SUMMARY_QUERY = gql`
-  query posOrdersSummary(
+  query salesPosOrdersSummary(
     $page: Int
     $perPage: Int
     $sortField: String

@@ -4,7 +4,6 @@ import {
   secondPosSummaryColumns,
   generateOtherPaymentColumns,
 } from './PosSummaryColumns';
-import { PosSummaryCommandBar } from '@/pos/pos-summary/components/pos-summary-command-bar/PosSummaryCommandBar';
 import { usePosSummaryList } from '~/modules/pos/pos-summary/hooks/UsePosSummaryList';
 import { IconShoppingCartX } from '@tabler/icons-react';
 import { useMemo } from 'react';
@@ -74,7 +73,6 @@ export const PosSummaryRecordTable = ({ posId }: { posId?: string }) => {
           </div>
         )}
       </RecordTable.CursorProvider>
-      <PosSummaryCommandBar />
     </RecordTable.Provider>
   );
 };

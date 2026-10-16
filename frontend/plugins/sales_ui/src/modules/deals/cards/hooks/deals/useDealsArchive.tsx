@@ -32,7 +32,11 @@ export function useDealsArchive(options?: MutationHookOptions) {
   const archiveDeals = (stageId: string) =>
     archiveDealsBase({
       variables: { stageId },
-      refetchQueries: ['Deals'],
+      refetchQueries: [
+        'salesDealList',
+        'salesDealSearchDropdown',
+        'Deals', // Still used by the Mongolian plugin's synced-deals query.
+      ],
     });
 
   return {

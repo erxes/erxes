@@ -6,7 +6,7 @@
 - **Project:** `sales_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/sales_api`
-- **Last synchronized:** `2026-10-14`
+- **Last synchronized:** `2026-10-15`
 
 ## Scope
 
@@ -32,6 +32,9 @@
 
 ## Current Capabilities
 
+- `pnpm nx run sales_api:schema:print` exports the existing subgraph schema,
+  including subscriptions, to `generated/schema.graphql` for type-generation
+  tooling without starting the Sales service or executing resolvers.
 - Deal product rows persist optional `uomInfo: { uom, ratio, unitPrice, quantity }`
   for entry values. Writes derive base price (`info.unitPrice * ratio`), base
   quantity (`info.quantity / ratio`), taxes and amount before totals/discounts.
@@ -79,6 +82,7 @@
 
 | Area                       | Path                                                      | Responsibility                                                                                       |
 | -------------------------- | --------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| Schema export              | `print-schema.ts`                                         | Print the Sales subgraph and subscriptions for GraphQL type-generation tooling.                       |
 | Runtime                    | `src/main.ts`, `src/connectionResolvers.ts`, `src/trpc`   | Start the plugin, load tenant-scoped models, and expose tRPC procedures.                             |
 | Sales models               | `src/modules/sales/db`                                    | Store deals, boards, pipelines, stages, labels, and sales metadata.                                  |
 | Sales GraphQL              | `src/modules/sales/graphql`, `src/apollo`                 | Provide sales schemas, resolvers, mutations, queries, and subscriptions.                             |
@@ -262,6 +266,18 @@
 
 ## Local Invariants
 
+- `generated/schema.graphql` is generated and gitignored; edit the owning SDL
+  files and re-run `schema:print` instead of editing the exported schema.
+  The exported schema must preserve the runtime field types, nullability, and
+  subscription definitions; document conversion does not redefine the API.
+  The exporter exits explicitly because shared utility imports open Redis
+  clients that would otherwise keep the command running.
+- `sales_api:schema:print` is uncached so shared SDL helpers, dependency
+  versions, and TypeScript path changes cannot restore an outdated schema.
+  `sales_ui:codegen` depends on this export and hashes the resulting SDL.
+- Public fields owned by other services belong in the frontend's tooling
+  snapshot (`frontend/plugins/sales_ui/schema/platform.graphql`), not in Sales
+  runtime SDL. Do not add backend fields just to satisfy frontend codegen.
 - `productsData.uomInfo` is the entry input; derive root `uom`, `quantity`,
   `unitPrice`, and amounts in base units before calculating deal totals.
   Preserve saved ratios, and sync info values after server-side pricing changes
@@ -486,6 +502,8 @@
 
 ## Validation
 
+- `pnpm nx run sales_api:schema:print --skip-nx-cache`
+- `pnpm nx lint sales_api`
 - POS catalog sync smoke: sync more than 100 products with base pricing and
   verify discounts apply to products on both sides of each batch boundary.
 - `pnpm nx build sales_api`

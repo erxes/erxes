@@ -6,7 +6,7 @@ export const usePosInline = (options?: any) => {
     posDetail: IPos;
   }>(
     gql`
-      query posDetail($_id: String!) {
+      query salesPosSummaryInlineDetail($_id: String!) {
         posDetail(_id: $_id) {
           _id
           name

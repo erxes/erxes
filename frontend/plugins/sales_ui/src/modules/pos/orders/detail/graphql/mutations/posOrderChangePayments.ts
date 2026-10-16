@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client';
 
 export const POS_ORDER_CHANGE_PAYMENTS = gql`
-  mutation PosOrderChangePayments(
+  mutation salesPosOrderChangePayments(
     $id: String!
     $cashAmount: Float
     $mobileAmount: Float

@@ -182,7 +182,18 @@ const Products: React.FC<ProductsProps> = ({
             serviceChargeApplicableProductId:
               data.serviceChargeApplicableProductId || null,
           },
-          refetchQueries: ['posDetail'],
+          refetchQueries: [
+            'salesPosSettingsDetail',
+            'salesPosOrdersInlineDetail',
+            'salesPosOrdersSelectDetail',
+            'salesPosCoversInlineDetail',
+            'salesPosCoversSelectDetail',
+            'salesPosItemsInlineDetail',
+            'salesPosItemsSelectDetail',
+            'salesPosSummaryInlineDetail',
+            'salesPosSummarySelectDetail',
+            'posDetail', // Still used by the Mongolian plugin's POS sync screens.
+          ],
         });
 
         toast({

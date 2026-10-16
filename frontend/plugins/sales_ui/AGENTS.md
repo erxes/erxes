@@ -6,7 +6,7 @@
 - **Project:** `sales_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/sales_ui`
-- **Last synchronized:** `2026-10-14`
+- **Last synchronized:** `2026-10-15`
 
 ## Scope
 
@@ -25,6 +25,9 @@
 
 ## Current Capabilities
 
+- POS Summary displays order aggregates from `posOrdersGroupSummary`, with
+  filters, payment columns, and totals. Its table has no row selection or
+  create/delete actions; summary rows are report groups, not stored records.
 - POS product settings independently persist `isShowRemainder` for display and
   `isCheckRemainder` for preventing negative stock, with category exclusions.
 
@@ -188,6 +191,7 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
 | POS customer form   | `frontend/plugins/sales_ui/src/modules/pos/components/customerCreate`                                | POS customer registration settings and layout sheet                              |
 | POS GraphQL         | `frontend/plugins/sales_ui/src/modules/pos/graphql`                                                  | Provides POS queries and mutations used by settings screens                      |
 | POS types           | `frontend/plugins/sales_ui/src/modules/pos/types`                                                    | Describes POS configuration data consumed by the UI                              |
+| GraphQL tooling     | `frontend/plugins/sales_ui/codegen.ts`, `frontend/plugins/sales_ui/schema/platform.graphql`           | Validates documents against the exported Sales schema and consumed public contracts |
 
 ## Contracts
 
@@ -207,6 +211,12 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
 ### Consumes
 
 - `sales_api` GraphQL pipeline, deal, product, and POS contracts.
+- For type-generation tooling, `pnpm nx run sales_api:schema:print` exports
+  Sales' schema to `backend/plugins/sales_api/generated/schema.graphql`.
+  `codegen.ts` combines this Sales subgraph with `schema/platform.graphql`,
+  a snapshot of the public Core, Accounting, Loyalty, Mongolian, Operation,
+  Payment, and POS client fields selected by Sales documents. Each snapshot
+  definition identifies its source; it is tooling input, not runtime API SDL.
 - `sales_api` `salesLoyaltyRules`, `salesLoyaltyRulesSave`, `salesLoyaltyTierRules`, `salesLoyaltyTierRulesSave`, `SalesStage.loyaltyPoints`, `Pos.earnTier`; loyalty `loyaltyAccountTypes` (tier wallets); core `automations` (competing-writer warning); `ui-modules` score campaign list (`useLoyaltyScoreCampaign`).
 - Core properties through public `ui-modules` property hooks with
   `contentType: 'sales:deal'` and, for the POS customer form,
@@ -234,6 +244,54 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
 
 ## Local Invariants
 
+- GraphQL documents are literal strings so codegen can read their complete
+  variables, arguments, and selections. Do not reintroduce JavaScript string
+  interpolation into query, mutation, or subscription documents.
+- Give distinct GraphQL operations unique Sales-prefixed names, including
+  queries selecting the same backend field for different screens. Before
+  renaming an operation, check repository-wide string references such as
+  Apollo `refetchQueries` and `include`; preserve the document's exports,
+  variables, arguments, and selections.
+  Check generated TypeScript names too: operation names differing only in
+  letter case can generate the same PascalCase identifiers.
+- POS report operations use their report context in their names (Orders,
+  ByItems, Covers, Items, or Summary), even when their selections are identical.
+  Keep document exports stable for their existing hooks and selectors.
+- Follow the `operation_ui` reference for codegen changes; inspect its existing
+  implementation and, when needed, its merged migration diff before introducing
+  a different pattern. Keep explicit Apollo refetch target names at their
+  callers. When splitting a reused operation name, retain every intended target
+  and update those names with the renamed operations. Legacy names
+  `Deals`, `SalesStages`, `posList`, and `posDetail` still target shared or
+  other-plugin queries; do not remove them solely because Sales uses new names.
+- Keep public-contract snapshots faithful to their owning SDL, including
+  arguments and nullability. Do not add fields to the snapshot to make an
+  unsupported operation validate. Including a contract does not register its
+  service with the runtime gateway.
+- Product tags use Core's `tags(limit: ...) { list { ... } }` contract. Sales
+  board counts take no arguments; assigned-user counts take `pipelineId` and
+  `stackBy`.
+  Stage conversion statistics select `compareNextStage` and the
+  `initialDealsTotalCount`, `stayedDealsTotalCount`, and
+  `inProcessDealsTotalCount` fields provided by Sales.
+- Before removing an unsupported document, verify its hook, named or object
+  exports, and federation entry points have no consumers. Follow Operation's
+  migration pattern of removing an unused hook together with its unsupported
+  document; do not invent a backend operation to keep unused frontend code.
+- POS Summary row `_id` values come from the report's `paidDate` group key.
+  Do not pass them to POS configuration or order deletion mutations.
+- POS By Items displays product sales aggregates and does not own catalog
+  product deletion. Do not wire its report rows to Core's `productsRemove`.
+- Codegen scans all Sales UI TypeScript documents, excluding only its generated
+  `src/gql/` output. Generated files are ignored by Git and ESLint. Its scalar
+  mapping is `Date` input `string | Date`, output `string`, and `JSON` as `unknown`.
+- `build` and `serve` depend on `codegen`, which first runs the uncached
+  `sales_api:schema:print` target. Codegen caches its output against the exported
+  SDL, `schema/**/*.graphql`, `codegen.ts`, and authored TypeScript documents.
+- `codegen:watch` has no dependencies and must not be a dependency of `serve`:
+  the watcher never exits. With Sales enabled, `pnpm dev:uis` generates types,
+  starts the watcher, then starts the host and Sales remote.
+
 - Page header breadcrumbs follow the shared pattern: crumbs are default ghost `Button`s (no `font-semibold`), the first crumb carries a 16px icon in the default text color, crumbs are separated by `Separator.Inline` or `Breadcrumb.Separator`, and settings pages carry no favorite toggle.
 - Whether loyalty is on is read at runtime (`useLoyaltyEnabled`, the loaded `pluginsConfigState`), never with `isEnabled('loyalty')`: that reads a build-time env that deployments such as SaaS do not set, which hid the Tier tab, the deal list's points column and the board card badge.
 - Expandable navigation rows end in the host sidebar's chevron:
@@ -249,6 +307,9 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   passes a translated `label` by default so the field is named.
 - Deal property detail must filter by the deal's `pipelineId` selection.
 - Pipeline and POS mutations must refresh or update Apollo state immediately.
+- POS creation refetches the explicit POS query names that are currently active,
+  preserving each query's variables. Unmounted report queries must not produce
+  Apollo unknown-query warnings.
 - An enabled POS customer form must keep `primaryEmail` or `primaryPhone`;
   the last one placed cannot be hidden. Featured (plugin-owned) customer
   properties are not offered.
@@ -298,7 +359,12 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
 
 ## Validation
 
+- Export the API schema with `pnpm nx run sales_api:schema:print --skip-nx-cache`.
+- `pnpm nx run sales_ui:codegen --skip-nx-cache`
 - `pnpm nx build sales_ui`
+- Codegen startup smoke: with `src/gql/` absent, both the production build and
+  `ENABLED_PLUGINS=sales pnpm dev:uis` must generate it before booting. During
+  development, editing a GraphQL document must trigger the codegen watcher.
 - `node --test frontend/plugins/sales_ui/src/modules/deals/cards/components/detail/product/utils/__tests__/productUom.test.cjs`
 - Deal UOM smoke scenario: in normal view select a sub-UOM, edit its price and
   quantity, save and reload; verify Advanced shows base price/quantity and the

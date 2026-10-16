@@ -1,5 +1,4 @@
 import { QueryHookOptions, useQuery, gql } from '@apollo/client';
-import { posCommonFields } from '../graphql/queries/posQuery';
 
 export interface IPosInline {
   _id: string;
@@ -12,9 +11,59 @@ export interface IPosInlineQuery {
 }
 
 const POS_DETAIL_QUERY = gql`
-  query posDetail($_id: String!) {
+  query salesPosItemsInlineDetail($_id: String!) {
     posDetail(_id: $_id) {
-      ${posCommonFields}
+      _id
+      name
+      description
+      orderPassword
+      scopeBrandIds
+      pdomain
+      createdAt
+      token
+      adminIds
+      cashierIds
+      paymentIds
+      paymentTypes
+      user {
+        _id
+        details {
+          avatar
+          fullName
+        }
+      }
+      isOnline
+      onServer
+      branchId
+      departmentId
+      allowBranchIds
+      beginNumber
+      maxSkipNumber
+      waitingScreen
+      kitchenScreen
+      kioskMachine
+      uiOptions
+      cardsConfig
+      catProdMappings {
+        _id
+        categoryId
+        code
+        name
+        productId
+      }
+      initialCategoryIds
+      kioskExcludeCategoryIds
+      kioskExcludeProductIds
+      deliveryConfig
+      permissionConfig
+      allowTypes
+      isShowRemainder
+      isCheckRemainder
+      checkExcludeCategoryIds
+      saveRemainder
+      banFractions
+      branchTitle
+      departmentTitle
     }
   }
 `;

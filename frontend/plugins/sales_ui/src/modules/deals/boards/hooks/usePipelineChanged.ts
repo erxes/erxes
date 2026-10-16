@@ -50,7 +50,13 @@ export const usePipelineChanged = (pipelineId?: string) => {
       }
 
       if (payload.action === 'stageStatusChanged') {
-        void client.refetchQueries({ include: ['SalesStages'] });
+        void client.refetchQueries({
+          include: [
+            'salesDealStages',
+            'salesDealConversionStages',
+            'SalesStages', // Still used by shared selectors and Loyalty.
+          ],
+        });
         return;
       }
 
