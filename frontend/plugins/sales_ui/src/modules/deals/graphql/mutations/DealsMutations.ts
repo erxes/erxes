@@ -1,6 +1,6 @@
-import gql from 'graphql-tag';
+import { gql } from '~/gql';
 
-export const ADD_DEALS = gql`
+export const ADD_DEALS = gql(`
   mutation dealsAdd(
     $name: String
     $companyIds: [String]
@@ -69,9 +69,9 @@ export const ADD_DEALS = gql`
       name
     }
   }
-`;
+`);
 
-export const EDIT_DEALS = gql`
+export const EDIT_DEALS = gql(`
   mutation dealsEdit(
     $_id: String!
     $name: String
@@ -244,17 +244,17 @@ export const EDIT_DEALS = gql`
       stageId
     }
   }
-`;
+`);
 
-export const REMOVE_DEALS = gql`
+export const REMOVE_DEALS = gql(`
   mutation dealsRemove($_id: String!) {
     dealsRemove(_id: $_id) {
       _id
     }
   }
-`;
+`);
 
-export const DEALS_CHANGE = gql`
+export const DEALS_CHANGE = gql(`
   mutation dealsChange(
     $itemId: String!
     $aboveItemId: String
@@ -381,24 +381,25 @@ export const DEALS_CHANGE = gql`
       stageId
     }
   }
-`;
+`);
 
-export const DEALS_WATCH = gql`
+export const DEALS_WATCH = gql(`
   mutation dealsWatch($_id: String!, $isAdd: Boolean!) {
     dealsWatch(_id: $_id, isAdd: $isAdd) {
+      __typename
       _id
       isWatched
     }
   }
-`;
+`);
 
-export const DEALS_ARCHIVE = gql`
+export const DEALS_ARCHIVE = gql(`
   mutation dealsArchive($stageId: String!, $processId: String) {
     dealsArchive(stageId: $stageId, processId: $processId)
   }
-`;
+`);
 
-export const DEALS_COPY = gql`
+export const DEALS_COPY = gql(`
   mutation dealsCopy($_id: String!, $processId: String) {
     dealsCopy(_id: $_id, processId: $processId) {
       _id
@@ -513,4 +514,4 @@ export const DEALS_COPY = gql`
       stageId
     }
   }
-`;
+`);

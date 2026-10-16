@@ -11,7 +11,7 @@ import { useTranslation } from 'react-i18next';
 
 export const PosSummaryRecordTable = ({ posId }: { posId?: string }) => {
   const { t } = useTranslation('sales');
-  const { posSummaryList, handleFetchMore, loading, pageInfo, columns } =
+  const { posSummaryList, handleFetchMore, loading, error, pageInfo, columns } =
     usePosSummaryList({ posId });
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
   const allColumns = useMemo(
@@ -26,6 +26,13 @@ export const PosSummaryRecordTable = ({ posId }: { posId?: string }) => {
     [columns, posSummaryList, t],
   );
   const columnsKey = allColumns.map((c) => c.id || '').join('|');
+  if (error)
+    return (
+      <p role="alert" className="m-3 text-destructive">
+        {error.message}
+      </p>
+    );
+
   return (
     <RecordTable.Provider
       key={columnsKey}

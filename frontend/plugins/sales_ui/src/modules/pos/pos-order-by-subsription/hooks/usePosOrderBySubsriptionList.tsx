@@ -1,26 +1,15 @@
+import { useMemo } from 'react';
+import { hasId } from '@/pos/utils/posJson';
+import { toPosSubscriptionRow, readPosData } from '@/pos/utils/posOrderJson';
 import { useQuery } from '@apollo/client';
-import { POS_ORDER_BY_SUBSCRIPTION } from '~/modules/pos/pos-order-by-subsription/graphql/queries/queries';
 import { useMultiQueryState } from 'erxes-ui';
+import type { PosOrderBySubscriptionsQueryVariables } from '~/gql/graphql';
+import { POS_ORDER_BY_SUBSCRIPTION } from '~/modules/pos/pos-order-by-subsription/graphql/queries/queries';
 
 const POS_PER_PAGE = 30;
 
-interface UsePosOrderBySubscriptionOptions {
-  posId?: string;
-  [key: string]: any;
-}
-
-interface UsePosOrderBySubscriptionReturn {
-  loading: boolean;
-  posOrderBySubscriptionList: any[];
-  totalCount: number;
-  handleFetchMore: () => void;
-  pageInfo: {
-    hasNextPage: boolean;
-    hasPreviousPage: boolean;
-    startCursor: null;
-    endCursor: null;
-  };
-}
+type UsePosOrderBySubscriptionOptions =
+  PosOrderBySubscriptionsQueryVariables & { posId?: string };
 
 export const usePosOrderBySubscriptionVariables = (
   options: UsePosOrderBySubscriptionOptions = {},
@@ -45,19 +34,31 @@ export const usePosOrderBySubscriptionVariables = (
 
 export const usePosOrderBySubscriptionList = (
   options: UsePosOrderBySubscriptionOptions = {},
-): UsePosOrderBySubscriptionReturn => {
+) => {
   const variables = usePosOrderBySubscriptionVariables(options);
 
-  const { data, loading, fetchMore } = useQuery(POS_ORDER_BY_SUBSCRIPTION, {
-    variables,
-  });
+  const { data, loading, error, fetchMore } = useQuery(
+    POS_ORDER_BY_SUBSCRIPTION,
+    {
+      variables,
+    },
+  );
 
-  const posOrderBySubscriptionList = data?.PosOrderBySubscriptions || [];
+  const parsed = useMemo(
+    () =>
+      readPosData(() =>
+        (data?.posOrderBySubscriptions ?? [])
+          .filter(hasId)
+          .map(toPosSubscriptionRow),
+      ),
+    [data?.posOrderBySubscriptions],
+  );
+  const posOrderBySubscriptionList = parsed.value ?? [];
 
-  const totalCount = data?.PosOrderBySubscriptionsTotalCount || 0;
+  const totalCount = 0;
 
   const handleFetchMore = () => {
-    if (!data?.PosOrderBySubscriptions) {
+    if (!data?.posOrderBySubscriptions) {
       return;
     }
 
@@ -71,9 +72,9 @@ export const usePosOrderBySubscriptionList = (
           return prev;
         }
         return Object.assign({}, prev, {
-          PosOrderBySubscriptions: [
-            ...(prev.PosOrderBySubscriptions || []),
-            ...fetchMoreResult.PosOrderBySubscriptions,
+          posOrderBySubscriptions: [
+            ...(prev.posOrderBySubscriptions || []),
+            ...(fetchMoreResult.posOrderBySubscriptions ?? []),
           ],
         });
       },
@@ -82,6 +83,7 @@ export const usePosOrderBySubscriptionList = (
 
   return {
     loading,
+    error: error ?? parsed.error,
     posOrderBySubscriptionList,
     totalCount,
     handleFetchMore,

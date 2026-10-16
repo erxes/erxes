@@ -1,20 +1,20 @@
-import {
-  useToast,
-  Sheet,
-  Button,
-  Input,
-  Textarea,
-  Label,
-  Form,
-} from 'erxes-ui';
-import { ApolloError } from '@apollo/client';
 import { usePosAdd } from '@/pos/hooks/usePosAdd';
-import { useForm } from 'react-hook-form';
-import { ProductGroup } from '@/pos/pos-detail/types/IPos';
 import { usePosEditProductGroup } from '@/pos/hooks/usePosEditProductGroup';
-import { useRef, useState } from 'react';
-import type { CustomNode } from '@/pos/slot/types';
 import { useUpdatePosSlots } from '@/pos/hooks/useSlotAdd';
+import { ProductGroup } from '@/pos/pos-detail/types/IPos';
+import type { CustomNode } from '@/pos/slot/types';
+import { ApolloError } from '@apollo/client';
+import {
+  Button,
+  Form,
+  Input,
+  Label,
+  Sheet,
+  Textarea,
+  useToast,
+} from 'erxes-ui';
+import { useRef, useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 
 interface PosCreateDialogProps {
@@ -110,15 +110,12 @@ export const PosCreate = ({
 
           if (posId && productGroupsRef.current.length > 0) {
             try {
-              await productGroupSave(
-                {
-                  variables: {
-                    posId,
-                    groups: productGroupsRef.current,
-                  },
+              await productGroupSave({
+                variables: {
+                  posId,
+                  groups: productGroupsRef.current,
                 },
-                ['groups'],
-              );
+              });
             } catch {
               toast({
                 title: t('warning'),
@@ -210,7 +207,9 @@ export const PosCreate = ({
     <Sheet open={open} onOpenChange={handleOpenChange}>
       <Sheet.View className="flex-col p-0 h-full max-h-screen sm:max-w-md">
         <Sheet.Header className="px-5 shrink-0">
-          <Sheet.Title className="text-lg font-bold">{t('pos-create')}</Sheet.Title>
+          <Sheet.Title className="text-lg font-bold">
+            {t('pos-create')}
+          </Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
 
@@ -255,7 +254,6 @@ export const PosCreate = ({
                   className="bg-background"
                 />
               </div>
-
             </div>
 
             <Sheet.Footer className="px-5 py-4 border-t bg-background">

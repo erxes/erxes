@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const PRODUCT_CATEGORIES_QUERY = gql`
+export const PRODUCT_CATEGORIES_QUERY = gql(`
   query salesPosByItemsProductCategories(
     $ids: [String]
     $parentId: String
@@ -43,4 +43,4 @@ export const PRODUCT_CATEGORIES_QUERY = gql`
       similarities
     }
   }
-`;
+`);

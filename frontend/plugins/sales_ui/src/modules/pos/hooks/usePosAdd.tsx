@@ -3,17 +3,14 @@ import {
   useApolloClient,
   useMutation,
 } from '@apollo/client';
+import { PosAddMutation, PosAddMutationVariables } from '~/gql/graphql';
 import { mutations } from '../graphql';
-import { AddPosDetailResult, AddPosDetailVariables } from '../types/mutations';
 
 export function usePosAdd(
-  options?: MutationHookOptions<AddPosDetailResult, AddPosDetailVariables>,
+  options?: MutationHookOptions<PosAddMutation, PosAddMutationVariables>,
 ) {
   const client = useApolloClient();
-  const [posAdd, { loading, error }] = useMutation<
-    AddPosDetailResult,
-    AddPosDetailVariables
-  >(mutations.posAdd, {
+  const [posAdd, { loading, error }] = useMutation(mutations.posAdd, {
     ...options,
     // Report queries are mounted only while their screens are open.
     refetchQueries: () =>

@@ -1,5 +1,7 @@
+import { isRecord } from '@/deals/utils/dealJson';
 import { useQuery } from '@apollo/client';
-import { useWatch, Control } from 'react-hook-form';
+import { isDefined } from 'erxes-ui';
+import { Control, useWatch } from 'react-hook-form';
 import { ADJUST_SCORE_ACTION_TYPE, LOYALTY_RULE_TYPES } from '../constants';
 import { SALES_LOYALTY_RULE_AUTOMATIONS } from '../graphql/loyaltyRulesQueries';
 import { TLoyaltyRuleRow, TLoyaltyRulesForm } from '../types';
@@ -9,13 +11,6 @@ const DEAL_TRIGGER_TYPES = [
   'sales:sales.deals.probability',
   'sales:sales.deals.stageChanged',
 ];
-
-type TAutomation = {
-  _id: string;
-  name?: string;
-  status?: string;
-  actions?: { type: string; config?: { campaignId?: string } }[];
-};
 
 // A narrower rule of the same campaign takes over where it reaches.
 const overridesWider = (row: TLoyaltyRuleRow, rows: TLoyaltyRuleRow[]) =>
@@ -37,28 +32,30 @@ export const useLoyaltyRuleNotes = (
 ) => {
   const rows = useWatch({ control, name: 'rules' }) || [];
 
-  const { data } = useQuery<{ automations: TAutomation[] }>(
-    SALES_LOYALTY_RULE_AUTOMATIONS,
-    {
-      variables: {
-        triggerTypes: DEAL_TRIGGER_TYPES,
-        actionTypes: [ADJUST_SCORE_ACTION_TYPE],
-      },
-      skip: !enabled,
+  const { data } = useQuery(SALES_LOYALTY_RULE_AUTOMATIONS, {
+    variables: {
+      triggerTypes: DEAL_TRIGGER_TYPES,
+      actionTypes: [ADJUST_SCORE_ACTION_TYPE],
     },
-  );
+    skip: !enabled,
+  });
 
   const ruleCampaignIds = new Set(rows.map((row) => row.scoreCampaignId));
-  const competingAutomations = (data?.automations || []).filter(
-    ({ status, actions }) =>
-      status === 'active' &&
-      (actions || []).some(
-        ({ type, config }) =>
-          type === ADJUST_SCORE_ACTION_TYPE &&
-          !!config?.campaignId &&
-          ruleCampaignIds.has(config.campaignId),
-      ),
-  );
+  const competingAutomations = (data?.automations || [])
+    .filter(isDefined)
+    .filter(
+      ({ status, actions }) =>
+        status === 'active' &&
+        (actions || [])
+          .filter(isDefined)
+          .some(
+            ({ type, config }) =>
+              type === ADJUST_SCORE_ACTION_TYPE &&
+              isRecord(config) &&
+              typeof config.campaignId === 'string' &&
+              ruleCampaignIds.has(config.campaignId),
+          ),
+    );
 
   return {
     overrides: (index: number) =>

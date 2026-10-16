@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const POS_QUERY = gql`
+export const POS_QUERY = gql(`
   query salesPosSummaryPosList(
     $page: Int
     $perPage: Int
@@ -66,4 +66,4 @@ export const POS_QUERY = gql`
       departmentTitle
     }
   }
-`;
+`);

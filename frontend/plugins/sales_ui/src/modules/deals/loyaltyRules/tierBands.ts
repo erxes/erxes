@@ -1,11 +1,13 @@
+import type { SalesLoyaltyTierWalletsQuery } from '~/gql/graphql';
+
 export type TTierBand = { tier: string; min?: number; max?: number };
 
-export type TLoyaltyTier = {
-  key: string;
-  name: string;
-  order: number;
-  deprecated?: boolean | null;
-};
+type TierWallet = NonNullable<
+  NonNullable<SalesLoyaltyTierWalletsQuery['loyaltyAccountTypes']>[number]
+>;
+export type TLoyaltyTier = NonNullable<
+  NonNullable<TierWallet['tiers']>[number]
+>;
 
 // What a purchase needs to pick a tier from its amount.
 export type TTierBandsValue = {

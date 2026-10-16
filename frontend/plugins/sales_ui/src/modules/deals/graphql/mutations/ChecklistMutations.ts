@@ -1,6 +1,6 @@
-import gql from 'graphql-tag';
+import { gql } from '~/gql';
 
-export const ADD_CHECKLISTS = gql`
+export const ADD_CHECKLISTS = gql(`
   mutation salesChecklistsAdd($contentTypeId: String, $title: String) {
     salesChecklistsAdd(contentTypeId: $contentTypeId, title: $title) {
       _id
@@ -19,9 +19,9 @@ export const ADD_CHECKLISTS = gql`
       percent
     }
   }
-`;
+`);
 
-export const EDIT_CHECKLISTS = gql`
+export const EDIT_CHECKLISTS = gql(`
   mutation salesChecklistsEdit(
     $_id: String!
     $contentTypeId: String
@@ -48,17 +48,17 @@ export const EDIT_CHECKLISTS = gql`
       percent
     }
   }
-`;
+`);
 
-export const REMOVE_CHECKLISTS = gql`
+export const REMOVE_CHECKLISTS = gql(`
   mutation salesChecklistsRemove($_id: String!) {
     salesChecklistsRemove(_id: $_id) {
       _id
     }
   }
-`;
+`);
 
-export const CHECKLIST_ITEMS_ADD = gql`
+export const CHECKLIST_ITEMS_ADD = gql(`
   mutation salesChecklistItemsAdd(
     $checklistId: String
     $isChecked: Boolean
@@ -70,13 +70,15 @@ export const CHECKLIST_ITEMS_ADD = gql`
       content: $content
     ) {
       _id
+      checklistId
+      order
       isChecked
       content
     }
   }
-`;
+`);
 
-export const CHECKLIST_ITEMS_EDIT = gql`
+export const CHECKLIST_ITEMS_EDIT = gql(`
   mutation salesChecklistItemsEdit(
     $_id: String!
     $checklistId: String
@@ -90,24 +92,26 @@ export const CHECKLIST_ITEMS_EDIT = gql`
       content: $content
     ) {
       _id
+      checklistId
+      order
       isChecked
       content
     }
   }
-`;
+`);
 
-export const CHECKLIST_ITEMS_REMOVE = gql`
+export const CHECKLIST_ITEMS_REMOVE = gql(`
   mutation salesChecklistItemsRemove($_id: String!) {
     salesChecklistItemsRemove(_id: $_id) {
       _id
     }
   }
-`;
+`);
 
-export const CHECKLIST_ITEMS_ORDER = gql`
+export const CHECKLIST_ITEMS_ORDER = gql(`
   mutation salesChecklistItemsOrder($_id: String!, $destinationIndex: Int) {
     salesChecklistItemsOrder(_id: $_id, destinationIndex: $destinationIndex) {
       _id
     }
   }
-`;
+`);

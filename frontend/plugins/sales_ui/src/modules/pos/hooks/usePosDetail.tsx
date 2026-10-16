@@ -1,23 +1,24 @@
 import { useQuery } from '@apollo/client';
-import queries from '../graphql/queries';
-import { IPos } from '../types/pos';
-
-interface IPosDetailQueryResponse {
-  posDetail: IPos;
-}
+import { useMemo } from 'react';
+import { queries } from '../graphql/queries';
+import { toPosDetail } from '../utils/posJson';
 
 export const usePosDetail = (posId?: string) => {
-  const { data, loading, error } = useQuery<IPosDetailQueryResponse>(
-    queries.posDetail,
-    {
-      variables: { _id: posId },
-      skip: !posId,
-    },
-  );
+  const { data, loading, error } = useQuery(queries.posDetail, {
+    variables: posId ? { _id: posId } : undefined,
+    skip: !posId,
+  });
+  const parsed = useMemo(() => {
+    try {
+      return {
+        posDetail: data?.posDetail ? toPosDetail(data.posDetail) : undefined,
+      };
+    } catch (cause) {
+      return {
+        error: cause instanceof Error ? cause : new Error(String(cause)),
+      };
+    }
+  }, [data?.posDetail]);
 
-  return {
-    posDetail: data?.posDetail,
-    loading,
-    error,
-  };
+  return { posDetail: parsed.posDetail, loading, error: error ?? parsed.error };
 };

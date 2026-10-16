@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-const posList = gql`
+const posList = gql(`
   query salesPosSettingsList(
     $page: Int
     $perPage: Int
@@ -72,9 +72,9 @@ const posList = gql`
       departmentTitle
     }
   }
-`;
+`);
 
-const productGroups = gql`
+const productGroups = gql(`
   query productGroups($posId: String!) {
     productGroups(posId: $posId) {
       _id
@@ -84,9 +84,9 @@ const productGroups = gql`
       excludedProductIds
     }
   }
-`;
+`);
 
-const posSlots = gql`
+const posSlots = gql(`
   query posSlots($posId: String!) {
     posSlots(posId: $posId) {
       _id
@@ -96,9 +96,9 @@ const posSlots = gql`
       option
     }
   }
-`;
+`);
 
-const posDetail = gql`
+const posDetail = gql(`
   query salesPosSettingsDetail($_id: String!) {
     posDetail(_id: $_id) {
       _id
@@ -161,21 +161,21 @@ const posDetail = gql`
       productDetails
     }
   }
-`;
+`);
 
-const posEnv = gql`
+const posEnv = gql(`
   query posEnv {
     posEnv
   }
-`;
+`);
 
-const posOrdersSummary = gql`
+const posOrdersSummary = gql(`
   query salesPosCustomerOrdersSummary($customerId: String) {
     posOrdersSummary(customerId: $customerId)
   }
-`;
+`);
 
-const ebarimtProductRules = gql`
+const ebarimtProductRules = gql(`
   query EbarimtProductRules($searchValue: String, $kind: String) {
     ebarimtProductRules(searchValue: $searchValue, kind: $kind) {
       totalCount
@@ -185,9 +185,9 @@ const ebarimtProductRules = gql`
       }
     }
   }
-`;
+`);
 
-const fieldsCombinedByContentType = gql`
+const fieldsCombinedByContentType = gql(`
   query FieldsCombinedByContentType(
     $contentType: String!
     $usageType: String
@@ -205,9 +205,9 @@ const fieldsCombinedByContentType = gql`
       onlyDates: $onlyDates
     )
   }
-`;
+`);
 
-const ProductCategories = gql`
+const ProductCategories = gql(`
   query salesPosSettingsProductCategories {
     productCategories {
       _id
@@ -218,9 +218,9 @@ const ProductCategories = gql`
       productCount
     }
   }
-`;
+`);
 
-export default {
+export const queries = {
   posList,
   productGroups,
   posDetail,

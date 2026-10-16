@@ -58,12 +58,10 @@ const generateFilterPosQuery = async (models, params, currentUserId) => {
   }
 
   if (search) {
-    const searchRegex = new RegExp(escapeRegExp(search), 'i');
-
     query.$or = [
-      { number: { $regex: searchRegex } },
-      { origin: { $regex: searchRegex } },
-      { description: { $regex: searchRegex } },
+      { number: { $regex: escapeRegExp(search), $options: 'i' } },
+      { origin: { $regex: escapeRegExp(search), $options: 'i' } },
+      { description: { $regex: escapeRegExp(search), $options: 'i' } },
     ];
   }
 
@@ -819,12 +817,14 @@ const queries = {
       productQuery.$or = [
         {
           name: {
-            $regex: new RegExp(`.*${escapeRegExp(params.searchValue)}.*`, 'i'),
+            $regex: `.*${escapeRegExp(params.searchValue)}.*`,
+            $options: 'i',
           },
         },
         {
           code: {
-            $regex: new RegExp(`.*${escapeRegExp(params.searchValue)}.*`, 'i'),
+            $regex: `.*${escapeRegExp(params.searchValue)}.*`,
+            $options: 'i',
           },
         },
       ];

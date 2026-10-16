@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const CHECKLIST_DETAIL_CHANGED = gql`
+export const CHECKLIST_DETAIL_CHANGED = gql(`
   subscription salesChecklistDetailChanged($_id: String!) {
     salesChecklistDetailChanged(_id: $_id) {
       _id
@@ -19,9 +19,9 @@ export const CHECKLIST_DETAIL_CHANGED = gql`
       percent
     }
   }
-`;
+`);
 
-export const CHECKLISTS_CHANGED = gql`
+export const CHECKLISTS_CHANGED = gql(`
   subscription salesChecklistsChanged(
     $contentType: String!
     $contentTypeId: String!
@@ -46,4 +46,4 @@ export const CHECKLISTS_CHANGED = gql`
       percent
     }
   }
-`;
+`);

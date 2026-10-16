@@ -6,7 +6,7 @@
 - **Project:** `sales_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/sales_api`
-- **Last synchronized:** `2026-10-15`
+- **Last synchronized:** `2026-10-16`
 
 ## Scope
 
@@ -266,6 +266,19 @@
 
 ## Local Invariants
 
+- POS configuration, order items/payments, and aggregate report values remain
+  JSON scalar outputs. Order details return an items array; item reports unwind
+  it into a single object. Frontend narrowing must preserve those contracts,
+  including nullable payment fields and existing numeric screen values.
+  Stored order payment entries may omit `type` or contain `type: null`;
+  frontend parsing must not make that optional field required.
+  The deal relation panel (`posOrders(dealId)`) also reads `paidAmounts` as a
+  JSON array of `{ type, title, amount }` entries.
+- Deal product rows, payments, pipeline payment types, and pipeline event data
+  remain JSON scalar contracts. Sales UI validates the fields it consumes;
+  changing these outputs to object selections requires a coordinated API and
+  caller migration. Do not change their scalar shape solely for frontend types.
+
 - `generated/schema.graphql` is generated and gitignored; edit the owning SDL
   files and re-run `schema:print` instead of editing the exported schema.
   The exported schema must preserve the runtime field types, nullability, and
@@ -275,6 +288,9 @@
 - `sales_api:schema:print` is uncached so shared SDL helpers, dependency
   versions, and TypeScript path changes cannot restore an outdated schema.
   `sales_ui:codegen` depends on this export and hashes the resulting SDL.
+  Every Sales UI document is generated-typed and lint-enforced, so renaming or
+  removing an SDL field fails the `sales_ui` codegen/build; update the UI
+  documents in the same change.
 - Public fields owned by other services belong in the frontend's tooling
   snapshot (`frontend/plugins/sales_ui/schema/platform.graphql`), not in Sales
   runtime SDL. Do not add backend fields just to satisfy frontend codegen.
@@ -289,6 +305,21 @@
 - Label assignment returns `success` after publishing the updated deal. Stage
   sorting returns `ok` even for an empty stage. An archive with no stages
   returns an empty list, zero count, and empty pagination metadata.
+- Deal-number lookup escapes the configured prefix after date substitution
+  with the shared `escapeRegExp` helper. Anchor the prefix at the start (`^`)
+  in both pipeline and deal fallback lookups so longer, unrelated prefixes
+  cannot supply the counter. Keep the numeric `[0-9]+$` suffix as regex syntax;
+  date placeholders, padding, and reset behavior stay intact.
+- Request text used in regex patterns goes through `escapeRegExp` from
+  `erxes-api-shared/utils`. The plugin-local ESLint config follows Operation's
+  rule and requires escaping at each construction site, covering both
+  `new RegExp(...)` and `RegExp(...)`. The guard checks only the first (pattern)
+  argument; flags do not need regex escaping. Prefer escaped string
+  `$regex` values with `$options`, including queries sent over tRPC.
+  Phone lookup first limits input to digits, escapes them, then adds fixed
+  `\D*` separators; its two documented lint exceptions preserve formatted-phone
+  matching. Stage/archive fuzzy searches use the public `regexSearchText`
+  helper, which escapes metacharacters itself; do not double-escape its input.
 - Every Sales Query/Mutation field must have an explicitly registered
   resolver, and every registered root resolver must appear in SDL. The
   `resolverParity` tests compare the assembled registries and declarations.

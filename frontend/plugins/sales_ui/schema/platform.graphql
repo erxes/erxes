@@ -585,3 +585,22 @@ type UserDetailsType {
   avatar: String
   fullName: String
 }
+
+# backend/core-api/src/modules/documents/graphql/schema.ts
+type Document {
+  _id: String!
+  name: String!
+  code: String
+  content: String
+}
+
+type DocumentListResponse {
+  list: [Document]
+  pageInfo: PageInfo
+  totalCount: Int
+}
+
+extend type Query {
+  documents(contentType: String, limit: Int): DocumentListResponse
+  documentsProcess(_id: String, replacerIds: [String], config: JSON): String
+}
