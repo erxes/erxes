@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import type { TFunction } from 'i18next';
 
 export const TECH_CARD_DURATION_TYPES = [
   'real',
@@ -13,54 +14,76 @@ export const normalizeTechCardDurationType = (value?: string) => {
   return durationTypeSchema.safeParse(value).data ?? 'minut';
 };
 
-const itemSchema = z.object({
-  productId: z.string().min(1, 'Бараа сонгоно уу'),
-  uom: z.string().optional(),
-  quantity: z.number().positive('Тоо хэмжээ 0-ээс их байх ёстой'),
-  costRatio: z.number().finite().min(0).optional(),
-});
+export const getTechCardFormSchema = (t: TFunction<'accounting'>) => {
+  const itemSchema = z.object({
+    productId: z.string().min(1, t('tech-card-select-product')),
+    uom: z.string().optional(),
+    quantity: z
+      .number({
+        required_error: t('tech-card-quantity-positive'),
+        invalid_type_error: t('tech-card-quantity-positive'),
+      })
+      .finite(t('tech-card-quantity-positive'))
+      .positive(t('tech-card-quantity-positive')),
+    costRatio: z
+      .number()
+      .finite(t('tech-card-ratio-nonnegative'))
+      .min(0, t('tech-card-ratio-nonnegative'))
+      .optional(),
+  });
 
-const costSchema = z.object({
-  name: z.string().trim().min(1, 'Зардлын нэр оруулна уу'),
-  amount: z.number().finite().min(0, 'Дүн 0-ээс багагүй байна'),
-  accountId: z.string().trim().min(1, 'Бичилт хийх данс сонгоно уу'),
-});
+  const costSchema = z.object({
+    name: z.string().trim().min(1, t('tech-card-enter-cost-name')),
+    amount: z
+      .number({
+        required_error: t('tech-card-amount-nonnegative'),
+        invalid_type_error: t('tech-card-amount-nonnegative'),
+      })
+      .finite(t('tech-card-amount-nonnegative'))
+      .min(0, t('tech-card-amount-nonnegative')),
+    accountId: z.string().trim().min(1, t('tech-card-select-posting-account')),
+  });
 
-export const techCardFormSchema = z
-  .object({
-    code: z.string().optional(),
-    name: z.string().min(1, 'Нэр оруулна уу'),
-    description: z.string().optional(),
-    duration: z.number().min(0).optional(),
-    durationType: durationTypeSchema,
-    laborCosts: z.array(costSchema),
-    overheadCosts: z.array(costSchema),
-    inputs: z.array(itemSchema).min(1, 'Орц бараа нэмнэ үү'),
-    outputs: z.array(itemSchema).min(1, 'Гарц бараа нэмнэ үү'),
-    status: z.string().optional(),
-  })
-  .superRefine((data, ctx) => {
-    if (data.durationType !== 'real' && data.duration === undefined) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ['duration'],
-        message: 'Үргэлжлэх хугацаа оруулна уу',
-      });
-    }
-    const totalCostRatio = data.outputs.reduce(
-      (sum, item) => sum + (item.costRatio ?? 0),
-      0,
-    );
+  return z
+    .object({
+      code: z.string().optional(),
+      name: z.string().min(1, t('tech-card-enter-name')),
+      description: z.string().optional(),
+      duration: z
+        .number()
+        .finite(t('tech-card-duration-nonnegative'))
+        .min(0, t('tech-card-duration-nonnegative'))
+        .optional(),
+      durationType: durationTypeSchema,
+      laborCosts: z.array(costSchema),
+      overheadCosts: z.array(costSchema),
+      inputs: z.array(itemSchema).min(1, t('tech-card-add-input')),
+      outputs: z.array(itemSchema).min(1, t('tech-card-add-output')),
+      status: z.string().optional(),
+    })
+    .superRefine((data, ctx) => {
+      if (data.durationType !== 'real' && data.duration === undefined) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['duration'],
+          message: t('tech-card-enter-duration'),
+        });
+      }
+      const totalCostRatio = data.outputs.reduce(
+        (sum, item) => sum + (item.costRatio ?? 0),
+        0,
+      );
 
-    if (!Number.isFinite(totalCostRatio) || totalCostRatio <= 0) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ['outputs'],
-        message: 'Гарцын өртгийн харьцааны нийлбэр 0-ээс их байх ёстой',
-      });
-    }
-  })
-  .transform((data) => ({
-    ...data,
-    duration: data.durationType === 'real' ? undefined : data.duration,
-  }));
+      if (!Number.isFinite(totalCostRatio) || totalCostRatio <= 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['outputs'],
+          message: t('tech-card-output-ratio-positive'),
+        });
+      }
+    })
+    .transform((data) => ({
+      ...data,
+      duration: data.durationType === 'real' ? undefined : data.duration,
+    }));
+};

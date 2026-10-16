@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Button, Empty } from 'erxes-ui';
 
 export const TechCardListStatus = ({
@@ -6,19 +7,22 @@ export const TechCardListStatus = ({
 }: {
   error?: Error;
   retry: () => void;
-}) => (
-  <Empty role={error ? 'alert' : 'status'}>
-    <Empty.Header>
-      <Empty.Description>
-        {error ? 'Жагсаалтыг ачаалж чадсангүй.' : 'Тохирох бүртгэл алга.'}
-      </Empty.Description>
-    </Empty.Header>
-    {error && (
-      <Empty.Content>
-        <Button type="button" variant="secondary" onClick={retry}>
-          Дахин оролдох
-        </Button>
-      </Empty.Content>
-    )}
-  </Empty>
-);
+}) => {
+  const { t } = useTranslation('accounting');
+  return (
+    <Empty role={error ? 'alert' : 'status'}>
+      <Empty.Header>
+        <Empty.Description>
+          {error ? t('tech-card-list-load-failed') : t('tech-card-no-results')}
+        </Empty.Description>
+      </Empty.Header>
+      {error && (
+        <Empty.Content>
+          <Button type="button" variant="secondary" onClick={retry}>
+            {t('tech-card-retry')}
+          </Button>
+        </Empty.Content>
+      )}
+    </Empty>
+  );
+};

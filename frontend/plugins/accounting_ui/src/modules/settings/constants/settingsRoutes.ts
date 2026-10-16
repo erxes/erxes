@@ -16,8 +16,9 @@ export const SETTINGS_ROUTES = {
 };
 
 export const INVENTORY_SETTINGS_ROUTES = {
-  '/settings/accounting/inventories/tech-cards': 'Дамжлага',
-  '/settings/accounting/inventories/tech-card-outputs': 'Дамжлага задгай',
+  '/settings/accounting/inventories/tech-cards': 'tech-card-production-stage',
+  '/settings/accounting/inventories/tech-card-outputs':
+    'tech-card-production-stage-outputs',
 };
 
 export enum ACCOUNTING_SETTINGS_CODES {

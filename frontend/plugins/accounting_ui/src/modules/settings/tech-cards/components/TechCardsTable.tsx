@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import { Cell, ColumnDef } from '@tanstack/react-table';
 import {
   MoreActionsCell,
@@ -36,6 +38,7 @@ const TechCardMoreColumnCell = ({
 }: {
   cell: Cell<ITechCard, unknown>;
 }) => {
+  const { t } = useTranslation('accounting');
   const [, setOpen] = useQueryState('tech_card_id');
   const { confirm } = useConfirm();
   const { removeTechCard } = useTechCardRemove();
@@ -44,17 +47,17 @@ const TechCardMoreColumnCell = ({
 
   const handleDelete = () =>
     confirm({
-      message: 'Энэ технологийн картыг устгах уу?',
+      message: t('tech-card-confirm-delete'),
       options: {
-        okLabel: 'Устгах',
-        cancelLabel: 'Болих',
+        okLabel: t('delete'),
+        cancelLabel: t('cancel'),
       },
     }).then(() => {
       removeTechCard({
         variables: { _id: cell.row.original._id },
         onError: (error: Error) => {
           toast({
-            title: 'Алдаа',
+            title: t('error'),
             description: error.message,
             variant: 'destructive',
           });
@@ -70,15 +73,17 @@ const techCardMoreColumn: ColumnDef<ITechCard> = {
   cell: TechCardMoreColumnCell,
 };
 
-const techCardColumns: ColumnDef<ITechCard>[] = [
+const getTechCardColumns = (
+  t: TFunction<'accounting'>,
+): ColumnDef<ITechCard>[] => [
   techCardMoreColumn,
   {
     id: 'code',
     accessorKey: 'code',
-    header: () => <RecordTable.InlineHead label="Код" />,
+    header: () => <RecordTable.InlineHead label={t('code')} />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
-        {(cell.getValue() as string) || '-'}
+        {cell.getValue<string>() || '-'}
       </RecordTableInlineCell>
     ),
     size: 140,
@@ -86,35 +91,45 @@ const techCardColumns: ColumnDef<ITechCard>[] = [
   {
     id: 'name',
     accessorKey: 'name',
-    header: () => <RecordTable.InlineHead label="Дамжлага" />,
+    header: () => (
+      <RecordTable.InlineHead label={t('tech-card-production-stage')} />
+    ),
     cell: ({ cell }) => (
-      <RecordTableInlineCell>{cell.getValue() as string}</RecordTableInlineCell>
+      <RecordTableInlineCell>{cell.getValue<string>()}</RecordTableInlineCell>
     ),
     size: 220,
   },
   {
     id: 'inputs',
     accessorKey: 'inputs',
-    header: () => <RecordTable.InlineHead label="Орц бараа" />,
+    header: () => (
+      <RecordTable.InlineHead label={t('tech-card-input-products')} />
+    ),
     cell: ({ row }) => <ProductListCell items={row.original.inputs} />,
     size: 260,
   },
   {
     id: 'outputs',
     accessorKey: 'outputs',
-    header: () => <RecordTable.InlineHead label="Гарц бараа" />,
+    header: () => (
+      <RecordTable.InlineHead label={t('tech-card-output-products')} />
+    ),
     cell: ({ row }) => <ProductListCell items={row.original.outputs} />,
     size: 260,
   },
   {
     id: 'duration',
     accessorKey: 'duration',
-    header: () => <RecordTable.InlineHead label="Хугацаа" />,
+    header: () => <RecordTable.InlineHead label={t('tech-card-duration')} />,
     cell: ({ row }) => (
       <RecordTableInlineCell>
-        {[row.original.duration, row.original.durationType]
-          .filter(Boolean)
-          .join(' ') || '-'}
+        {row.original.durationType === 'real'
+          ? t('tech-card-duration-real')
+          : `${row.original.duration ?? '-'} ${
+              row.original.durationType
+                ? t(`tech-card-duration-${row.original.durationType}`)
+                : ''
+            }`}
       </RecordTableInlineCell>
     ),
     size: 150,
@@ -122,7 +137,7 @@ const techCardColumns: ColumnDef<ITechCard>[] = [
   {
     id: 'status',
     accessorKey: 'status',
-    header: () => <RecordTable.InlineHead label="Төлөв" />,
+    header: () => <RecordTable.InlineHead label={t('status')} />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         {(cell.getValue() as string) || '-'}
@@ -135,6 +150,7 @@ const techCardColumns: ColumnDef<ITechCard>[] = [
 const TechCardsCommandbar = () => null;
 
 export const TechCardsTable = () => {
+  const { t } = useTranslation('accounting');
   const { techCards, loading, totalCount, handleFetchMore, error, refetch } =
     useTechCards();
 
@@ -143,7 +159,7 @@ export const TechCardsTable = () => {
 
   return (
     <SettingsRowsTable
-      columns={techCardColumns}
+      columns={getTechCardColumns(t)}
       data={techCards}
       loading={loading}
       totalCount={totalCount}

@@ -26,7 +26,7 @@ export const SettingsNavigation = () => {
             pathPrefix="accounting/"
           />
           <SettingsNavigationMenuLinkItem
-            name="Бараа материал"
+            name={t('inventory')}
             icon={IconPackages}
             path="/inventories"
             pathPrefix="accounting/"

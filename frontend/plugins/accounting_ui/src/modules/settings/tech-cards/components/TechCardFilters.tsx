@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { IconClock, IconSearch } from '@tabler/icons-react';
 import {
   Combobox,
@@ -11,17 +12,18 @@ import { useTechCardFilters } from '../hooks/useTechCardFilters';
 import { TECH_CARD_DURATION_TYPES } from '../types/techCardFormSchema';
 
 const textFilters = [
-  { key: 'searchValue', label: 'Хайлт' },
-  { key: 'laborCostName', label: 'Хөдөлмөрийн нэр' },
-  { key: 'overheadCostName', label: 'Нэмэгдлийн нэр' },
+  { key: 'searchValue', label: 'search' },
+  { key: 'laborCostName', label: 'tech-card-labor-name' },
+  { key: 'overheadCostName', label: 'tech-card-overhead-name' },
 ] as const;
 
 const TechCardDurationFilter = () => {
+  const { t } = useTranslation('accounting');
   const [durationType, setDurationType] = useQueryState<string>('durationType');
   const { resetFilterState } = useFilterContext();
   return (
     <Command>
-      <Command.Input placeholder="Хугацааны нэгж" focusOnMount />
+      <Command.Input placeholder={t('tech-card-duration-type')} focusOnMount />
       <Command.List>
         {TECH_CARD_DURATION_TYPES.map((value) => (
           <Command.Item
@@ -32,7 +34,7 @@ const TechCardDurationFilter = () => {
               resetFilterState();
             }}
           >
-            {value}
+            {t(`tech-card-duration-${value}`)}
             <Combobox.Check checked={durationType === value} />
           </Command.Item>
         ))}
@@ -42,6 +44,7 @@ const TechCardDurationFilter = () => {
 };
 
 export const TechCardFilters = () => {
+  const { t } = useTranslation('accounting');
   const filters = useTechCardFilters();
   const hasFilters = Object.values(filters).some(Boolean);
   return (
@@ -51,7 +54,7 @@ export const TechCardFilters = () => {
           <Filter.BarItem key={key} queryKey={key}>
             <Filter.BarName>
               <IconSearch />
-              {label}
+              {t(label)}
             </Filter.BarName>
             <Filter.BarButton filterKey={key} inDialog>
               {filters[key]}
@@ -60,21 +63,23 @@ export const TechCardFilters = () => {
         ))}
         <SelectProduct.FilterBar
           filterKey="inputProductId"
-          label="Орц бараа"
+          label={t('tech-card-input-products')}
           mode="single"
         />
         <SelectProduct.FilterBar
           filterKey="outputProductId"
-          label="Гарц бараа"
+          label={t('tech-card-output-products')}
           mode="single"
         />
         <Filter.BarItem queryKey="durationType">
           <Filter.BarName>
             <IconClock />
-            Хугацааны нэгж
+            {t('tech-card-duration-type')}
           </Filter.BarName>
           <Filter.BarButton filterKey="durationType" inDialog>
-            {filters.durationType}
+            {filters.durationType
+              ? t(`tech-card-duration-${filters.durationType}`)
+              : ''}
           </Filter.BarButton>
         </Filter.BarItem>
         <Filter.Popover scope="tech-card-filter">
@@ -82,7 +87,7 @@ export const TechCardFilters = () => {
           <Combobox.Content>
             <Filter.View>
               <Command>
-                <Filter.CommandInput placeholder="Шүүлтүүр" />
+                <Filter.CommandInput placeholder={t('filter')} />
                 <Command.List>
                   {textFilters.map(({ key, label }) => (
                     <Filter.Item key={key} value={key} inDialog>
@@ -92,15 +97,15 @@ export const TechCardFilters = () => {
                   ))}
                   <SelectProduct.FilterItem
                     value="inputProductId"
-                    label="Орц бараа"
+                    label={t('tech-card-input-products')}
                   />
                   <SelectProduct.FilterItem
                     value="outputProductId"
-                    label="Гарц бараа"
+                    label={t('tech-card-output-products')}
                   />
                   <Filter.Item value="durationType" inDialog>
                     <IconClock />
-                    Хугацааны нэгж
+                    {t('tech-card-duration-type')}
                   </Filter.Item>
                 </Command.List>
               </Command>

@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import { IconEdit } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/react-table';
 import {
@@ -13,14 +15,15 @@ import { ITechCardOutputRow } from '../types/TechCard';
 import { TechCardListStatus } from './TechCardListStatus';
 
 const EditOutputCard = ({ cardId }: { cardId: string }) => {
+  const { t } = useTranslation('accounting');
   const [, setOpen] = useQueryState<string>('tech_card_id');
   return (
     <Button
       type="button"
       variant="ghost"
       size="icon"
-      title="Технологийн карт засах"
-      aria-label="Технологийн карт засах"
+      title={t('tech-card-edit')}
+      aria-label={t('tech-card-edit')}
       onClick={() => setOpen(cardId)}
     >
       <IconEdit />
@@ -28,7 +31,9 @@ const EditOutputCard = ({ cardId }: { cardId: string }) => {
   );
 };
 
-const columns: ColumnDef<ITechCardOutputRow>[] = [
+const getColumns = (
+  t: TFunction<'accounting'>,
+): ColumnDef<ITechCardOutputRow>[] => [
   {
     id: 'edit',
     size: 32,
@@ -37,7 +42,7 @@ const columns: ColumnDef<ITechCardOutputRow>[] = [
   },
   {
     id: 'code',
-    header: () => <RecordTable.InlineHead label="Код" />,
+    header: () => <RecordTable.InlineHead label={t('code')} />,
     size: 140,
     cell: ({ row }) => (
       <RecordTableInlineCell>
@@ -47,7 +52,9 @@ const columns: ColumnDef<ITechCardOutputRow>[] = [
   },
   {
     id: 'name',
-    header: () => <RecordTable.InlineHead label="Дамжлага" />,
+    header: () => (
+      <RecordTable.InlineHead label={t('tech-card-production-stage')} />
+    ),
     size: 220,
     cell: ({ row }) => (
       <RecordTableInlineCell>
@@ -57,7 +64,9 @@ const columns: ColumnDef<ITechCardOutputRow>[] = [
   },
   {
     id: 'output',
-    header: () => <RecordTable.InlineHead label="Гарц бараа" />,
+    header: () => (
+      <RecordTable.InlineHead label={t('tech-card-output-products')} />
+    ),
     size: 260,
     cell: ({ row }) => (
       <RecordTableInlineCell>
@@ -67,7 +76,7 @@ const columns: ColumnDef<ITechCardOutputRow>[] = [
   },
   {
     id: 'uom',
-    header: () => <RecordTable.InlineHead label="Нэгж" />,
+    header: () => <RecordTable.InlineHead label={t('tech-card-unit')} />,
     size: 100,
     cell: ({ row }) => (
       <RecordTableInlineCell>
@@ -77,7 +86,7 @@ const columns: ColumnDef<ITechCardOutputRow>[] = [
   },
   {
     id: 'quantity',
-    header: () => <RecordTable.InlineHead label="Тоо хэмжээ" />,
+    header: () => <RecordTable.InlineHead label={t('quantity')} />,
     size: 120,
     cell: ({ row }) => (
       <RecordTableInlineCell>
@@ -87,7 +96,7 @@ const columns: ColumnDef<ITechCardOutputRow>[] = [
   },
   {
     id: 'costRatio',
-    header: () => <RecordTable.InlineHead label="Өртгийн харьцаа" />,
+    header: () => <RecordTable.InlineHead label={t('tech-card-cost-ratio')} />,
     size: 150,
     cell: ({ row }) => (
       <RecordTableInlineCell>
@@ -97,14 +106,16 @@ const columns: ColumnDef<ITechCardOutputRow>[] = [
   },
   {
     id: 'duration',
-    header: () => <RecordTable.InlineHead label="Хугацаа" />,
+    header: () => <RecordTable.InlineHead label={t('tech-card-duration')} />,
     size: 150,
     cell: ({ row }) => (
       <RecordTableInlineCell>
         {row.original.techCard.durationType === 'real'
-          ? 'real'
+          ? t('tech-card-duration-real')
           : `${row.original.techCard.duration ?? '-'} ${
-              row.original.techCard.durationType ?? ''
+              row.original.techCard.durationType
+                ? t(`tech-card-duration-${row.original.techCard.durationType}`)
+                : ''
             }`}
       </RecordTableInlineCell>
     ),
@@ -114,13 +125,14 @@ const columns: ColumnDef<ITechCardOutputRow>[] = [
 const Commandbar = () => null;
 
 export const TechCardOutputsTable = () => {
+  const { t } = useTranslation('accounting');
   const { rows, loading, error, refetch, totalCount, handleFetchMore } =
     useTechCardOutputs();
   if (error || (!loading && !rows.length))
     return <TechCardListStatus error={error} retry={() => void refetch()} />;
   return (
     <SettingsRowsTable
-      columns={columns}
+      columns={getColumns(t)}
       data={rows}
       loading={loading}
       totalCount={totalCount}

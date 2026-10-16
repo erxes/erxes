@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IconPlus } from '@tabler/icons-react';
 import { Button, Sheet } from 'erxes-ui';
@@ -6,7 +7,7 @@ import { useState } from 'react';
 import { AccountingSheet } from '~/modules/layout/components/Sheet';
 import { useTechCardAdd } from '../hooks/useTechCardMutations';
 import { TTechCardForm } from '../types/TechCard';
-import { techCardFormSchema } from '../types/techCardFormSchema';
+import { getTechCardFormSchema } from '../types/techCardFormSchema';
 import { TechCardForm } from './TechCardForm';
 
 const defaultValues: TTechCardForm = {
@@ -27,8 +28,9 @@ export const AddTechCardForm = ({
 }: {
   setOpen: (open: boolean) => void;
 }) => {
+  const { t } = useTranslation('accounting');
   const form = useForm<TTechCardForm>({
-    resolver: zodResolver(techCardFormSchema),
+    resolver: zodResolver(getTechCardFormSchema(t)),
     defaultValues,
   });
   const { addTechCard, loading } = useTechCardAdd();
@@ -47,6 +49,7 @@ export const AddTechCardForm = ({
 };
 
 export const AddTechCard = () => {
+  const { t } = useTranslation('accounting');
   const [open, setOpen] = useState(false);
 
   return (
@@ -54,10 +57,10 @@ export const AddTechCard = () => {
       <Sheet.Trigger asChild>
         <Button>
           <IconPlus />
-          Технологийн карт нэмэх
+          {t('tech-card-add')}
         </Button>
       </Sheet.Trigger>
-      <AccountingSheet title="Технологийн карт нэмэх" className="sm:max-w-4xl">
+      <AccountingSheet title={t('tech-card-add')} className="sm:max-w-4xl">
         <AddTechCardForm setOpen={setOpen} />
       </AccountingSheet>
     </Sheet>

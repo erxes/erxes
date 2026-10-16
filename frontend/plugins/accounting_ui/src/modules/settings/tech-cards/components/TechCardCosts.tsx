@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
 import {
   Button,
@@ -21,6 +22,7 @@ export const TechCardCosts = ({
   name: 'laborCosts' | 'overheadCosts';
   title: string;
 }) => {
+  const { t } = useTranslation('accounting');
   const { fields, append, remove } = useFieldArray({
     control: form.control,
     name,
@@ -36,18 +38,18 @@ export const TechCardCosts = ({
           onClick={() => append({ name: '', amount: 0, accountId: '' })}
         >
           <IconPlus />
-          Мөр нэмэх
+          {t('tech-card-add-row')}
         </Button>
       </div>
       <div className="overflow-x-auto">
         <Table className="min-w-[560px]" aria-label={title}>
           <Table.Header>
             <Table.Row>
-              <Table.Head>Нэр</Table.Head>
-              <Table.Head className="w-32">Дүн</Table.Head>
-              <Table.Head className="w-60">Данс</Table.Head>
+              <Table.Head>{t('name')}</Table.Head>
+              <Table.Head className="w-32">{t('amount')}</Table.Head>
+              <Table.Head className="w-60">{t('account')}</Table.Head>
               <Table.Head className="w-8">
-                <span className="sr-only">Мөр хасах</span>
+                <span className="sr-only">{t('tech-card-remove-row')}</span>
               </Table.Head>
             </Table.Row>
           </Table.Header>
@@ -60,7 +62,7 @@ export const TechCardCosts = ({
                     name={`${name}.${index}.name`}
                     render={({ field }) => (
                       <Form.Item className="space-y-0">
-                        <Form.Label className="sr-only">Нэр</Form.Label>
+                        <Form.Label className="sr-only">{t('name')}</Form.Label>
                         <PopoverScoped
                           scope={`${name}.${index}.name`}
                           closeOnEnter
@@ -85,7 +87,9 @@ export const TechCardCosts = ({
                     name={`${name}.${index}.amount`}
                     render={({ field }) => (
                       <Form.Item className="space-y-0">
-                        <Form.Label className="sr-only">Дүн</Form.Label>
+                        <Form.Label className="sr-only">
+                          {t('amount')}
+                        </Form.Label>
                         <PopoverScoped
                           scope={`${name}.${index}.amount`}
                           closeOnEnter
@@ -113,7 +117,9 @@ export const TechCardCosts = ({
                     name={`${name}.${index}.accountId`}
                     render={({ field }) => (
                       <Form.Item className="space-y-0">
-                        <Form.Label className="sr-only">Данс</Form.Label>
+                        <Form.Label className="sr-only">
+                          {t('account')}
+                        </Form.Label>
                         <SelectAccount
                           value={field.value}
                           onValueChange={field.onChange}
@@ -131,8 +137,11 @@ export const TechCardCosts = ({
                     variant="ghost"
                     size="icon"
                     className="h-8 w-8"
-                    aria-label={`${title}: ${index + 1}-р мөр хасах`}
-                    title="Мөр хасах"
+                    aria-label={t('tech-card-remove-group-row', {
+                      group: title,
+                      row: index + 1,
+                    })}
+                    title={t('tech-card-remove-row')}
                     onClick={() => remove(index)}
                   >
                     <IconTrash />
@@ -143,7 +152,7 @@ export const TechCardCosts = ({
             {fields.length === 0 && (
               <Table.Row>
                 <Table.Cell colSpan={4} className="px-2 text-muted-foreground">
-                  Зардал нэмээгүй
+                  {t('tech-card-no-costs')}
                 </Table.Cell>
               </Table.Row>
             )}

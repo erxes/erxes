@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
 import { useQuery } from '@apollo/client';
 import {
@@ -88,6 +89,7 @@ const TechCardItems = ({
   uoms: TechCardUom[];
   unitsLoading: boolean;
 }) => {
+  const { t } = useTranslation('accounting');
   const { fields, append, remove } = useFieldArray<TTechCardForm>({
     control: form.control,
     name,
@@ -108,7 +110,7 @@ const TechCardItems = ({
         <Form.Label>{title}</Form.Label>
         <Button type="button" variant="secondary" size="sm" onClick={addItem}>
           <IconPlus />
-          Мөр нэмэх
+          {t('tech-card-add-row')}
         </Button>
       </div>
 
@@ -116,14 +118,16 @@ const TechCardItems = ({
         <Table className="min-w-[560px]" aria-label={title}>
           <Table.Header>
             <Table.Row>
-              <Table.Head>Бараа</Table.Head>
-              <Table.Head className="w-24">Нэгж</Table.Head>
-              <Table.Head className="w-28">Тоо хэмжээ</Table.Head>
+              <Table.Head>{t('product')}</Table.Head>
+              <Table.Head className="w-24">{t('tech-card-unit')}</Table.Head>
+              <Table.Head className="w-28">{t('quantity')}</Table.Head>
               {showCostRatio && (
-                <Table.Head className="w-36">Өртгийн харьцаа</Table.Head>
+                <Table.Head className="w-36">
+                  {t('tech-card-cost-ratio')}
+                </Table.Head>
               )}
               <Table.Head className="w-8">
-                <span className="sr-only">Мөр хасах</span>
+                <span className="sr-only">{t('tech-card-remove-row')}</span>
               </Table.Head>
             </Table.Row>
           </Table.Header>
@@ -155,7 +159,9 @@ const TechCardItems = ({
                       name={`${name}.${index}.productId`}
                       render={({ field: productField }) => (
                         <Form.Item className="space-y-0">
-                          <Form.Label className="sr-only">Бараа</Form.Label>
+                          <Form.Label className="sr-only">
+                            {t('product')}
+                          </Form.Label>
                           <SelectProduct
                             mode="single"
                             value={productField.value}
@@ -179,7 +185,9 @@ const TechCardItems = ({
                       name={`${name}.${index}.uom`}
                       render={({ field: uomField }) => (
                         <Form.Item className="space-y-0">
-                          <Form.Label className="sr-only">Нэгж</Form.Label>
+                          <Form.Label className="sr-only">
+                            {t('tech-card-unit')}
+                          </Form.Label>
                           <Select
                             value={uomToCode(uoms, uomField.value)}
                             onValueChange={uomField.onChange}
@@ -214,7 +222,7 @@ const TechCardItems = ({
                       render={({ field: quantityField }) => (
                         <Form.Item className="space-y-0">
                           <Form.Label className="sr-only">
-                            Тоо хэмжээ
+                            {t('quantity')}
                           </Form.Label>
                           <PopoverScoped
                             scope={`${name}.${index}.quantity`}
@@ -246,7 +254,7 @@ const TechCardItems = ({
                         render={({ field: ratioField }) => (
                           <Form.Item className="space-y-0">
                             <Form.Label className="sr-only">
-                              Өртгийн харьцаа
+                              {t('tech-card-cost-ratio')}
                             </Form.Label>
                             <PopoverScoped
                               scope={`${name}.${index}.costRatio`}
@@ -277,8 +285,11 @@ const TechCardItems = ({
                       variant="ghost"
                       size="icon"
                       className="h-8 w-8"
-                      aria-label={`${title}: ${index + 1}-р мөр хасах`}
-                      title="Мөр хасах"
+                      aria-label={t('tech-card-remove-group-row', {
+                        group: title,
+                        row: index + 1,
+                      })}
+                      title={t('tech-card-remove-row')}
                       onClick={() => remove(index)}
                       disabled={fields.length === 1}
                     >
@@ -309,6 +320,7 @@ export const TechCardForm = ({
   onSubmit: (data: TTechCardForm) => void;
   loading: boolean;
 }) => {
+  const { t } = useTranslation('accounting');
   const [inputs, outputs] = useWatch({
     control: form.control,
     name: ['inputs', 'outputs'],
@@ -379,7 +391,7 @@ export const TechCardForm = ({
               name="code"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Код</Form.Label>
+                  <Form.Label>{t('code')}</Form.Label>
                   <Form.Control>
                     <Input {...field} value={field.value ?? ''} />
                   </Form.Control>
@@ -393,7 +405,7 @@ export const TechCardForm = ({
               name="name"
               render={({ field }) => (
                 <Form.Item className="md:col-span-2">
-                  <Form.Label>Дамжлага</Form.Label>
+                  <Form.Label>{t('tech-card-production-stage')}</Form.Label>
                   <Form.Control>
                     <Input {...field} />
                   </Form.Control>
@@ -407,7 +419,7 @@ export const TechCardForm = ({
               name="durationType"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Хугацааны нэгж</Form.Label>
+                  <Form.Label>{t('tech-card-duration-type')}</Form.Label>
                   <Select
                     value={field.value}
                     onValueChange={(value) => {
@@ -428,7 +440,7 @@ export const TechCardForm = ({
                     <Select.Content>
                       {TECH_CARD_DURATION_TYPES.map((value) => (
                         <Select.Item key={value} value={value}>
-                          {value}
+                          {t(`tech-card-duration-${value}`)}
                         </Select.Item>
                       ))}
                     </Select.Content>
@@ -444,7 +456,7 @@ export const TechCardForm = ({
                 name="duration"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>Үргэлжлэх хугацаа</Form.Label>
+                    <Form.Label>{t('tech-card-duration')}</Form.Label>
                     <Form.Control>
                       <NumberInput
                         value={field.value}
@@ -463,7 +475,7 @@ export const TechCardForm = ({
               name="status"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Төлөв</Form.Label>
+                  <Form.Label>{t('status')}</Form.Label>
                   <Form.Control>
                     <Input {...field} value={field.value ?? ''} />
                   </Form.Control>
@@ -478,7 +490,7 @@ export const TechCardForm = ({
             name="description"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Тайлбар</Form.Label>
+                <Form.Label>{t('description')}</Form.Label>
                 <Form.Control>
                   <Textarea {...field} value={field.value ?? ''} />
                 </Form.Control>
@@ -492,23 +504,31 @@ export const TechCardForm = ({
               className="flex items-center gap-2 text-sm text-destructive"
               role="alert"
             >
-              Барааны хэмжих нэгжийг ачаалж чадсангүй.
+              {t('tech-card-units-load-failed')}
               <Button
                 type="button"
                 variant="ghost"
                 size="sm"
                 onClick={() => void refetch()}
               >
-                Дахин оролдох
+                {t('tech-card-retry')}
               </Button>
             </div>
           )}
-          <TechCardCosts form={form} name="laborCosts" title="Хөдөлмөр" />
-          <TechCardCosts form={form} name="overheadCosts" title="Нэмэгдэл" />
+          <TechCardCosts
+            form={form}
+            name="laborCosts"
+            title={t('tech-card-labor')}
+          />
+          <TechCardCosts
+            form={form}
+            name="overheadCosts"
+            title={t('tech-card-overhead')}
+          />
           <TechCardItems
             form={form}
             name="inputs"
-            title="Орц бараа"
+            title={t('tech-card-input-products')}
             products={products}
             uoms={uoms}
             unitsLoading={unitsLoading}
@@ -516,7 +536,7 @@ export const TechCardForm = ({
           <TechCardItems
             form={form}
             name="outputs"
-            title="Гарц бараа"
+            title={t('tech-card-output-products')}
             showCostRatio
             products={products}
             uoms={uoms}
@@ -527,7 +547,7 @@ export const TechCardForm = ({
         <Sheet.Footer className="shrink-0 border-t bg-background">
           <Sheet.Close asChild>
             <Button variant="outline" size="lg">
-              Болих
+              {t('cancel')}
             </Button>
           </Sheet.Close>
 
@@ -540,7 +560,7 @@ export const TechCardForm = ({
             }
             size="lg"
           >
-            {loading ? <Spinner /> : 'Хадгалах'}
+            {loading ? <Spinner /> : t('save')}
           </Button>
         </Sheet.Footer>
       </form>

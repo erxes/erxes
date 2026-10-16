@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Sheet, Spinner, isDeeplyEqual, useQueryState } from 'erxes-ui';
 import { useEffect } from 'react';
@@ -8,15 +9,16 @@ import { useTechCardEdit } from '../hooks/useTechCardMutations';
 import { TTechCardForm } from '../types/TechCard';
 import {
   normalizeTechCardDurationType,
-  techCardFormSchema,
+  getTechCardFormSchema,
 } from '../types/techCardFormSchema';
 import { TechCardForm } from './TechCardForm';
 
 export const EditTechCardForm = () => {
+  const { t } = useTranslation('accounting');
   const { techCardDetail, closeDetail, loading } = useTechCardDetail();
   const { editTechCard, loading: editLoading } = useTechCardEdit();
   const form = useForm<TTechCardForm>({
-    resolver: zodResolver(techCardFormSchema),
+    resolver: zodResolver(getTechCardFormSchema(t)),
   });
   const { reset } = form;
 
@@ -94,6 +96,7 @@ export const EditTechCardForm = () => {
 };
 
 export const EditTechCard = () => {
+  const { t } = useTranslation('accounting');
   const [open, setOpen] = useQueryState<string>('tech_card_id');
 
   return (
@@ -105,7 +108,7 @@ export const EditTechCard = () => {
         }
       }}
     >
-      <AccountingSheet title="Технологийн карт засах" className="sm:max-w-4xl">
+      <AccountingSheet title={t('tech-card-edit')} className="sm:max-w-4xl">
         <EditTechCardForm />
       </AccountingSheet>
     </Sheet>

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { techCardFormSchema } from './techCardFormSchema';
+import { getTechCardFormSchema } from './techCardFormSchema';
 
 export interface ITechCardItem {
   productId: string;
@@ -28,7 +28,7 @@ export interface ITechCard {
   status?: string;
 }
 
-export type TTechCardForm = z.infer<typeof techCardFormSchema>;
+export type TTechCardForm = z.infer<ReturnType<typeof getTechCardFormSchema>>;
 
 export interface ITechCardOutputRow {
   _id: string;

@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import { OperationVariables, useMutation } from '@apollo/client';
 import { toast } from 'erxes-ui';
 import {
@@ -9,11 +11,12 @@ import {
 const withToast = (
   options: OperationVariables,
   successDescription: string,
+  t: TFunction<'accounting'>,
 ) => ({
   ...options,
   onError: (error: Error) => {
     toast({
-      title: 'Алдаа',
+      title: t('error'),
       description: error.message,
       variant: 'destructive',
     });
@@ -21,7 +24,7 @@ const withToast = (
   },
   onCompleted: (data: unknown) => {
     toast({
-      title: 'Амжилттай',
+      title: t('success'),
       description: successDescription,
       variant: 'success',
     });
@@ -30,37 +33,40 @@ const withToast = (
 });
 
 export const useTechCardAdd = () => {
+  const { t } = useTranslation('accounting');
   const [mutate, { loading }] = useMutation(TECH_CARD_ADD, {
     refetchQueries: ['AccountingTechCards', 'AccountingTechCardOutputs'],
   });
 
   return {
     addTechCard: (options: OperationVariables) =>
-      mutate(withToast(options, 'Технологийн карт нэмэгдлээ')),
+      mutate(withToast(options, t('tech-card-added'), t)),
     loading,
   };
 };
 
 export const useTechCardEdit = () => {
+  const { t } = useTranslation('accounting');
   const [mutate, { loading }] = useMutation(TECH_CARD_EDIT, {
     refetchQueries: ['AccountingTechCards', 'AccountingTechCardOutputs'],
   });
 
   return {
     editTechCard: (options: OperationVariables) =>
-      mutate(withToast(options, 'Технологийн карт шинэчлэгдлээ')),
+      mutate(withToast(options, t('tech-card-updated'), t)),
     loading,
   };
 };
 
 export const useTechCardRemove = () => {
+  const { t } = useTranslation('accounting');
   const [mutate, { loading }] = useMutation(TECH_CARD_REMOVE, {
     refetchQueries: ['AccountingTechCards', 'AccountingTechCardOutputs'],
   });
 
   return {
     removeTechCard: (options: OperationVariables) =>
-      mutate(withToast(options, 'Технологийн карт устгагдлаа')),
+      mutate(withToast(options, t('tech-card-deleted'), t)),
     loading,
   };
 };
