@@ -45,7 +45,7 @@ export const ConversationDetailLayout = ({
               className={
                 collapsed
                   ? 'z-30 bg-border/60 after:hidden'
-                  : 'z-30 bg-border/60 hover:bg-border [&>div]:h-9 [&>div]:w-4 [&>div]:rounded-md [&>div]:border-border [&>div]:bg-background [&>div]:text-muted-foreground [&>div]:shadow-sm'
+                  : 'z-50 bg-border/60 hover:bg-border [&>div]:h-9 [&>div]:w-4 [&>div]:rounded-md [&>div]:border-border [&>div]:bg-background [&>div]:text-muted-foreground [&>div]:shadow-sm'
               }
               onDragging={resetAutoResize}
               onKeyUp={collapsed ? undefined : resetAutoResize}
