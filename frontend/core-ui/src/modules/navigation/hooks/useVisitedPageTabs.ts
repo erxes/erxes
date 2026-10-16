@@ -6,6 +6,7 @@ import { AppPath } from '@/types/paths/AppPath';
 import {
   createVisitedPageTabId,
   getVisitedPageTabCloseDestination,
+  getVisitedPageTabKey,
   getVisitedPageTabLocation,
   insertVisitedPageTabAfter,
   moveVisitedPageTab,
@@ -52,13 +53,15 @@ export const useVisitedPageTabs = () => {
     const existingActiveTab = currentTabs.find(
       (tab) => tab.id === currentTabId,
     );
+    const activeKey = getVisitedPageTabKey(activePathname);
     const matchingTab = currentTabs.find(
-      (tab) => tab.pathname === activePathname,
+      (tab) => getVisitedPageTabKey(tab.pathname) === activeKey,
     );
     // A page that is already open in another tab switches to that tab
     // instead of opening a second copy in the current one.
     const tabId =
-      (existingActiveTab?.pathname === activePathname
+      (existingActiveTab &&
+      getVisitedPageTabKey(existingActiveTab.pathname) === activeKey
         ? existingActiveTab.id
         : matchingTab?.id) ??
       existingActiveTab?.id ??

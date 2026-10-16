@@ -17,20 +17,15 @@ const dayLabel = (createdAt: string) => {
   return 'Older';
 };
 
-/** Splits an already sorted list into Today, Yesterday, This week, Older. */
-export const groupNotificationsByDay = (notifications: TNotification[]) =>
-  notifications.reduce<{ label: string; items: TNotification[] }[]>(
-    (groups, notification) => {
-      const label = dayLabel(notification.createdAt);
-      const last = groups[groups.length - 1];
+/** Groups notifications under Today, Yesterday, This week and Older. */
+export const groupNotificationsByDay = (notifications: TNotification[]) => {
+  const groups = new Map<string, TNotification[]>();
 
-      if (last?.label === label) {
-        last.items.push(notification);
-      } else {
-        groups.push({ label, items: [notification] });
-      }
+  notifications.forEach((notification) => {
+    const label = dayLabel(notification.createdAt);
 
-      return groups;
-    },
-    [],
-  );
+    groups.set(label, [...(groups.get(label) ?? []), notification]);
+  });
+
+  return [...groups].map(([label, items]) => ({ label, items }));
+};

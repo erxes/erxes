@@ -80,6 +80,16 @@ export const getVisitedPageTabLocation = ({
   search,
 }: IVisitedPageTab) => `${pathname}${search ?? ''}`;
 
+/**
+ * The page a tab stands for. Every My Inbox notification is one page, so
+ * opening notifications reuses the inbox tab instead of adding tabs.
+ */
+export const getVisitedPageTabKey = (pathname: string) =>
+  normalizeVisitedPagePathname(pathname).replace(
+    /^\/my-inbox\/.+$/,
+    '/my-inbox',
+  );
+
 export const normalizeVisitedPageTabs = (value: unknown): IVisitedPageTab[] => {
   if (!Array.isArray(value)) {
     return [];
@@ -103,13 +113,13 @@ export const normalizeVisitedPageTabs = (value: unknown): IVisitedPageTab[] => {
     if (
       !shouldTrackVisitedPage(normalizedTab.pathname) ||
       seenIds.has(normalizedTab.id) ||
-      seenPathnames.has(normalizedTab.pathname)
+      seenPathnames.has(getVisitedPageTabKey(normalizedTab.pathname))
     ) {
       return tabs;
     }
 
     seenIds.add(normalizedTab.id);
-    seenPathnames.add(normalizedTab.pathname);
+    seenPathnames.add(getVisitedPageTabKey(normalizedTab.pathname));
     tabs.push(normalizedTab);
 
     return tabs;
