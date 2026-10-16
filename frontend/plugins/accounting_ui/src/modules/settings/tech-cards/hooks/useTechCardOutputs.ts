@@ -4,7 +4,7 @@ import { ITechCardOutputRow } from '../types/TechCard';
 import { useTechCardFilters } from './useTechCardFilters';
 
 export const useTechCardOutputs = () => {
-  const filters = useTechCardFilters();
+  const filters = useTechCardFilters(true);
   const { data, loading, error, refetch, fetchMore } = useQuery<{
     techCardOutputs: { rows: ITechCardOutputRow[]; totalCount: number };
   }>(GET_TECH_CARD_OUTPUTS, {

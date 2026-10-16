@@ -55,6 +55,8 @@ export const GET_TECH_CARDS = gql`
   query AccountingTechCards(
     $searchValue: String
     $status: String
+    $hasLabor: Boolean
+    $hasOverhead: Boolean
     $laborCostName: String
     $overheadCostName: String
     $inputProductId: String
@@ -68,6 +70,8 @@ export const GET_TECH_CARDS = gql`
     techCards(
       searchValue: $searchValue
       status: $status
+      hasLabor: $hasLabor
+      hasOverhead: $hasOverhead
       laborCostName: $laborCostName
       overheadCostName: $overheadCostName
       inputProductId: $inputProductId
@@ -99,6 +103,10 @@ export const GET_TECH_CARD_DETAIL = gql`
 export const GET_TECH_CARD_OUTPUTS = gql`
   query AccountingTechCardOutputs(
     $searchValue: String
+    $status: String
+    $hasLabor: Boolean
+    $hasOverhead: Boolean
+    $duplicatedOutput: Boolean
     $laborCostName: String
     $overheadCostName: String
     $inputProductId: String
@@ -109,6 +117,10 @@ export const GET_TECH_CARD_OUTPUTS = gql`
   ) {
     techCardOutputs(
       searchValue: $searchValue
+      status: $status
+      hasLabor: $hasLabor
+      hasOverhead: $hasOverhead
+      duplicatedOutput: $duplicatedOutput
       laborCostName: $laborCostName
       overheadCostName: $overheadCostName
       inputProductId: $inputProductId

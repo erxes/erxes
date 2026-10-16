@@ -1,44 +1,23 @@
 import { useTranslation } from 'react-i18next';
 import type { TFunction } from 'i18next';
-import { IconEdit } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/react-table';
-import {
-  Button,
-  RecordTable,
-  RecordTableInlineCell,
-  useQueryState,
-} from 'erxes-ui';
+import { RecordTable, RecordTableInlineCell } from 'erxes-ui';
 import { ProductsInline } from 'ui-modules';
-import { SettingsRowsTable } from '../../components/SettingsRowsTable';
+import {
+  moreColumn,
+  SettingsRowsTable,
+} from '../../components/SettingsRowsTable';
 import { useTechCardOutputs } from '../hooks/useTechCardOutputs';
 import { ITechCardOutputRow } from '../types/TechCard';
 import { TechCardListStatus } from './TechCardListStatus';
-
-const EditOutputCard = ({ cardId }: { cardId: string }) => {
-  const { t } = useTranslation('accounting');
-  const [, setOpen] = useQueryState<string>('tech_card_id');
-  return (
-    <Button
-      type="button"
-      variant="ghost"
-      size="icon"
-      title={t('tech-card-edit')}
-      aria-label={t('tech-card-edit')}
-      onClick={() => setOpen(cardId)}
-    >
-      <IconEdit />
-    </Button>
-  );
-};
+import { TechCardActions } from './TechCardActions';
 
 const getColumns = (
   t: TFunction<'accounting'>,
 ): ColumnDef<ITechCardOutputRow>[] => [
   {
-    id: 'edit',
-    size: 32,
-    header: '',
-    cell: ({ row }) => <EditOutputCard cardId={row.original.techCard._id} />,
+    ...moreColumn,
+    cell: ({ row }) => <TechCardActions cardId={row.original.techCard._id} />,
   },
   {
     id: 'code',
@@ -139,7 +118,7 @@ export const TechCardOutputsTable = () => {
       handleFetchMore={handleFetchMore}
       Commandbar={Commandbar}
       tableId="accounting_tech_card_outputs_record_table"
-      stickyColumns={['edit']}
+      stickyColumns={['more']}
     />
   );
 };

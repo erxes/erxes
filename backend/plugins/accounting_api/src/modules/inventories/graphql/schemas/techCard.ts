@@ -67,6 +67,8 @@ const techCardListParams = `
   status: String,
   laborCostName: String,
   overheadCostName: String,
+  hasLabor: Boolean,
+  hasOverhead: Boolean,
   inputProductId: String,
   outputProductId: String,
   durationType: String,
@@ -78,7 +80,7 @@ const techCardListParams = `
 
 export const queries = `
   techCards(${techCardListParams}): TechCards
-  techCardOutputs(${techCardListParams}): TechCardOutputs
+  techCardOutputs(${techCardListParams} duplicatedOutput: Boolean): TechCardOutputs
   techCardDetail(_id: String!): TechCard
 `;
 

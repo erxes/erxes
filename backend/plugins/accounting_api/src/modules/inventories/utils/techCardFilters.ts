@@ -1,6 +1,10 @@
 import { escapeRegExp } from 'erxes-api-shared/utils';
 import { FilterQuery, PipelineStage } from 'mongoose';
-import { ITechCardDocument, ITechCardListParams } from '../@types/techCards';
+import {
+  ITechCardDocument,
+  ITechCardListParams,
+  ITechCardOutputListParams,
+} from '../@types/techCards';
 
 export const getTechCardFilter = (
   params: ITechCardListParams,
@@ -11,6 +15,10 @@ export const getTechCardFilter = (
     $options: 'i',
   });
   if (params.status) query.status = params.status;
+  if (typeof params.hasLabor === 'boolean')
+    query['laborCosts.0'] = { $exists: params.hasLabor };
+  if (typeof params.hasOverhead === 'boolean')
+    query['overheadCosts.0'] = { $exists: params.hasOverhead };
   if (params.durationType) query.durationType = params.durationType;
   if (params.inputProductId) query['inputs.productId'] = params.inputProductId;
   if (params.outputProductId)
@@ -44,7 +52,7 @@ export const getTechCardSort = (
 };
 
 export const getTechCardOutputsPipeline = (
-  params: ITechCardListParams,
+  params: ITechCardOutputListParams,
 ): PipelineStage[] => {
   const page = Math.max(1, Math.floor(params.page ?? 1));
   const perPage = Math.min(100, Math.max(1, Math.floor(params.perPage ?? 20)));
@@ -56,6 +64,41 @@ export const getTechCardOutputsPipeline = (
   ];
   if (params.outputProductId)
     pipeline.push({ $match: { 'outputs.productId': params.outputProductId } });
+  if (typeof params.duplicatedOutput === 'boolean') {
+    pipeline.push(
+      {
+        $lookup: {
+          from: 'tech_cards',
+          let: { cardId: '$_id', productId: '$outputs.productId' },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $ne: ['$_id', '$$cardId'] },
+                    {
+                      $in: [
+                        '$$productId',
+                        { $ifNull: ['$outputs.productId', []] },
+                      ],
+                    },
+                  ],
+                },
+              },
+            },
+            { $limit: 1 },
+            { $project: { _id: 1 } },
+          ],
+          as: 'matchingOutputCards',
+        },
+      },
+      {
+        $match: {
+          'matchingOutputCards.0': { $exists: params.duplicatedOutput },
+        },
+      },
+    );
+  }
   pipeline.push(
     { $sort: { ...sort, outputIndex: 1 } },
     {

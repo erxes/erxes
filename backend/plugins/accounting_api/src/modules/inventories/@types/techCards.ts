@@ -39,6 +39,8 @@ export interface ITechCardListParams {
   status?: string;
   laborCostName?: string;
   overheadCostName?: string;
+  hasLabor?: boolean;
+  hasOverhead?: boolean;
   inputProductId?: string;
   outputProductId?: string;
   durationType?: string;
@@ -53,4 +55,8 @@ export interface ITechCardOutputRow {
   techCard: ITechCardDocument;
   output: ITechCardItem;
   outputIndex: number;
+}
+
+export interface ITechCardOutputListParams extends ITechCardListParams {
+  duplicatedOutput?: boolean;
 }

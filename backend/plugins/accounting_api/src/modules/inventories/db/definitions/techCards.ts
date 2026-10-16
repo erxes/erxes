@@ -50,3 +50,4 @@ export const techCardSchema = schemaWrapper(
 
 techCardSchema.index({ name: 1 });
 techCardSchema.index({ code: 1 });
+techCardSchema.index({ 'outputs.productId': 1 });

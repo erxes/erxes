@@ -12,7 +12,7 @@ export const TechCardsPage = ({
   return (
     <PageContainer className="flex-1 min-w-0">
       <PageSubHeader>
-        <TechCardFilters />
+        <TechCardFilters unwindOutputs={unwindOutputs} />
       </PageSubHeader>
       {unwindOutputs ? <TechCardOutputsTable /> : <TechCardsTable />}
       <EditTechCard />

@@ -1,23 +1,16 @@
 import { useTranslation } from 'react-i18next';
 import type { TFunction } from 'i18next';
-import { Cell, ColumnDef } from '@tanstack/react-table';
+import { ColumnDef } from '@tanstack/react-table';
 import {
-  MoreActionsCell,
   SettingsRowsTable,
   moreColumn,
 } from '~/modules/settings/components/SettingsRowsTable';
-import {
-  RecordTable,
-  RecordTableInlineCell,
-  toast,
-  useConfirm,
-  useQueryState,
-} from 'erxes-ui';
+import { RecordTable, RecordTableInlineCell } from 'erxes-ui';
 import { ProductsInline } from 'ui-modules';
-import { useTechCardRemove } from '../hooks/useTechCardMutations';
 import { useTechCards } from '../hooks/useTechCards';
 import { ITechCard, ITechCardItem } from '../types/TechCard';
 import { TechCardListStatus } from './TechCardListStatus';
+import { TechCardActions } from './TechCardActions';
 
 const ProductListCell = ({ items }: { items: ITechCardItem[] }) => {
   const productIds = items.map((item) => item.productId).filter(Boolean);
@@ -33,44 +26,9 @@ const ProductListCell = ({ items }: { items: ITechCardItem[] }) => {
   );
 };
 
-const TechCardMoreColumnCell = ({
-  cell,
-}: {
-  cell: Cell<ITechCard, unknown>;
-}) => {
-  const { t } = useTranslation('accounting');
-  const [, setOpen] = useQueryState('tech_card_id');
-  const { confirm } = useConfirm();
-  const { removeTechCard } = useTechCardRemove();
-
-  const handleEdit = () => setOpen(cell.row.original._id);
-
-  const handleDelete = () =>
-    confirm({
-      message: t('tech-card-confirm-delete'),
-      options: {
-        okLabel: t('delete'),
-        cancelLabel: t('cancel'),
-      },
-    }).then(() => {
-      removeTechCard({
-        variables: { _id: cell.row.original._id },
-        onError: (error: Error) => {
-          toast({
-            title: t('error'),
-            description: error.message,
-            variant: 'destructive',
-          });
-        },
-      });
-    });
-
-  return <MoreActionsCell onEdit={handleEdit} onDelete={handleDelete} />;
-};
-
 const techCardMoreColumn: ColumnDef<ITechCard> = {
   ...moreColumn,
-  cell: TechCardMoreColumnCell,
+  cell: ({ row }) => <TechCardActions cardId={row.original._id} />,
 };
 
 const getTechCardColumns = (

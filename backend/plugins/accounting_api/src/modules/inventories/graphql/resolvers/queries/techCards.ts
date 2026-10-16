@@ -2,6 +2,7 @@ import { paginate } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import {
   ITechCardListParams,
+  ITechCardOutputListParams,
   ITechCardOutputRow,
 } from '../../../@types/techCards';
 import {
@@ -31,7 +32,7 @@ const techCardQueries = {
 
   techCardOutputs: async (
     _root: undefined,
-    params: ITechCardListParams,
+    params: ITechCardOutputListParams,
     { models, checkPermission }: IContext,
   ) => {
     await checkPermission('readTechCards');

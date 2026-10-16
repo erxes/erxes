@@ -7,18 +7,53 @@ export type TechCardFilterParams = {
   inputProductId?: string;
   outputProductId?: string;
   durationType?: string;
+  status?: string;
+  hasLabor?: boolean;
+  hasOverhead?: boolean;
+  duplicatedOutput?: boolean;
 };
 
-export const useTechCardFilters = (): TechCardFilterParams => {
-  const [filters] = useMultiQueryState<TechCardFilterParams>([
+type TechCardFilterQueryParams = Omit<
+  TechCardFilterParams,
+  'hasLabor' | 'hasOverhead' | 'duplicatedOutput'
+> & {
+  hasLabor?: string | boolean;
+  hasOverhead?: string | boolean;
+  duplicatedOutput?: string | boolean;
+};
+
+export const useTechCardFilters = (
+  unwindOutputs = false,
+): TechCardFilterParams => {
+  const [filters] = useMultiQueryState<TechCardFilterQueryParams>([
     'searchValue',
     'laborCostName',
     'overheadCostName',
     'inputProductId',
     'outputProductId',
     'durationType',
+    'status',
+    'hasLabor',
+    'hasOverhead',
+    ...(unwindOutputs ? ['duplicatedOutput' as const] : []),
   ]);
-  return Object.fromEntries(
-    Object.entries(filters).map(([key, value]) => [key, value || undefined]),
-  );
+  return {
+    ...Object.fromEntries(
+      Object.entries(filters).map(([key, value]) => [key, value || undefined]),
+    ),
+    hasLabor: parseTechCardBooleanFilter(filters.hasLabor),
+    hasOverhead: parseTechCardBooleanFilter(filters.hasOverhead),
+    duplicatedOutput: unwindOutputs
+      ? parseTechCardBooleanFilter(filters.duplicatedOutput)
+      : undefined,
+  };
 };
+
+export const parseTechCardBooleanFilter = (
+  value?: string | boolean | null,
+): boolean | undefined =>
+  value === true || value === 'true'
+    ? true
+    : value === false || value === 'false'
+    ? false
+    : undefined;

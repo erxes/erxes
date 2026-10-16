@@ -1,0 +1,50 @@
+import { renderHook } from '@testing-library/react';
+import { useMultiQueryState } from 'erxes-ui';
+import {
+  parseTechCardBooleanFilter,
+  useTechCardFilters,
+} from '../useTechCardFilters';
+
+jest.mock('erxes-ui', () => ({ useMultiQueryState: jest.fn() }));
+
+test.each([
+  ['true', true],
+  ['false', false],
+  [true, true],
+  [false, false],
+  ['', undefined],
+  ['invalid', undefined],
+  [null, undefined],
+  [undefined, undefined],
+])('parses cost-presence query %s as %s', (value, expected) => {
+  expect(parseTechCardBooleanFilter(value)).toBe(expected);
+});
+
+test('preserves booleans already parsed by the shared query-state hook', () => {
+  jest.mocked(useMultiQueryState).mockReturnValue([
+    {
+      hasLabor: false,
+      hasOverhead: true,
+      status: 'inactive',
+      durationType: null,
+    },
+    jest.fn(),
+  ]);
+  const { result } = renderHook(() => useTechCardFilters());
+  expect(result.current).toEqual({
+    hasLabor: false,
+    hasOverhead: true,
+    status: 'inactive',
+    durationType: undefined,
+  });
+});
+
+test('duplicate-output filtering is enabled only for the unwound list', () => {
+  jest
+    .mocked(useMultiQueryState)
+    .mockReturnValue([{ duplicatedOutput: false }, jest.fn()]);
+  const { result } = renderHook(() => useTechCardFilters(true));
+  expect(result.current.duplicatedOutput).toBe(false);
+  const main = renderHook(() => useTechCardFilters());
+  expect(main.result.current.duplicatedOutput).toBeUndefined();
+});

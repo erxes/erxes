@@ -1,9 +1,19 @@
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { IconClock, IconSearch } from '@tabler/icons-react';
+import {
+  IconCircleCheck,
+  IconClock,
+  IconCoin,
+  IconCopy,
+  IconSearch,
+} from '@tabler/icons-react';
 import {
   Combobox,
+  Button,
   Command,
+  Dialog,
   Filter,
+  Input,
   useFilterContext,
   useQueryState,
 } from 'erxes-ui';
@@ -17,36 +27,147 @@ const textFilters = [
   { key: 'overheadCostName', label: 'tech-card-overhead-name' },
 ] as const;
 
-const TechCardDurationFilter = () => {
+const optionFilters = [
+  {
+    key: 'duplicatedOutput',
+    Icon: IconCopy,
+    label: 'tech-card-duplicated-output',
+    options: [
+      { value: 'true', label: 'yes' },
+      { value: 'false', label: 'no' },
+    ],
+  },
+  {
+    key: 'durationType',
+    Icon: IconClock,
+    label: 'tech-card-duration-type',
+    options: TECH_CARD_DURATION_TYPES.map((value) => ({
+      value,
+      label: `tech-card-duration-${value}`,
+    })),
+  },
+  {
+    key: 'hasLabor',
+    Icon: IconCoin,
+    label: 'tech-card-has-labor',
+    options: [
+      { value: 'true', label: 'yes' },
+      { value: 'false', label: 'no' },
+    ],
+  },
+  {
+    key: 'hasOverhead',
+    Icon: IconCoin,
+    label: 'tech-card-has-overhead',
+    options: [
+      { value: 'true', label: 'yes' },
+      { value: 'false', label: 'no' },
+    ],
+  },
+  {
+    key: 'status',
+    Icon: IconCircleCheck,
+    label: 'status',
+    options: [
+      { value: 'active', label: 'active' },
+      { value: 'inactive', label: 'inactive' },
+    ],
+  },
+] as const;
+
+const TechCardTextFilter = ({
+  filterKey,
+  label,
+}: {
+  filterKey: string;
+  label: string;
+}) => {
   const { t } = useTranslation('accounting');
-  const [durationType, setDurationType] = useQueryState<string>('durationType');
+  const [query, setQuery] = useQueryState<string>(filterKey);
+  const [value, setValue] = useState(query ?? '');
   const { resetFilterState } = useFilterContext();
   return (
-    <Command>
-      <Command.Input placeholder={t('tech-card-duration-type')} focusOnMount />
-      <Command.List>
-        {TECH_CARD_DURATION_TYPES.map((value) => (
-          <Command.Item
-            key={value}
-            value={value}
-            onSelect={() => {
-              setDurationType(value === durationType ? null : value);
-              resetFilterState();
-            }}
-          >
-            {t(`tech-card-duration-${value}`)}
-            <Combobox.Check checked={durationType === value} />
-          </Command.Item>
-        ))}
-      </Command.List>
-    </Command>
+    <Dialog.Content>
+      <form
+        className="space-y-4"
+        onSubmit={(event) => {
+          event.preventDefault();
+          setQuery(value.trim() || null);
+          resetFilterState();
+        }}
+      >
+        <Dialog.Header>
+          <Dialog.Title>{t('filter-by', { label: t(label) })}</Dialog.Title>
+        </Dialog.Header>
+        <Input
+          aria-label={t(label)}
+          value={value}
+          onChange={(event) => setValue(event.target.value)}
+          autoFocus
+        />
+        <Dialog.Footer>
+          <Button type="button" variant="secondary" onClick={resetFilterState}>
+            {t('cancel')}
+          </Button>
+          <Button type="submit">{t('apply')}</Button>
+        </Dialog.Footer>
+      </form>
+    </Dialog.Content>
   );
 };
 
-export const TechCardFilters = () => {
+const TechCardOptionFilter = ({
+  filterKey,
+  label,
+  options,
+}: {
+  filterKey: string;
+  label: string;
+  options: readonly { value: string; label: string }[];
+}) => {
   const { t } = useTranslation('accounting');
-  const filters = useTechCardFilters();
-  const hasFilters = Object.values(filters).some(Boolean);
+  const [selected, setSelected] = useQueryState<string | boolean>(filterKey);
+  const { resetFilterState } = useFilterContext();
+  return (
+    <Dialog.Content>
+      <Dialog.Header>
+        <Dialog.Title>{t('filter-by', { label: t(label) })}</Dialog.Title>
+      </Dialog.Header>
+      <Command>
+        <Command.Input placeholder={t(label)} focusOnMount />
+        <Command.List>
+          {options.map(({ value, label: optionLabel }) => (
+            <Command.Item
+              key={value}
+              value={t(optionLabel)}
+              onSelect={() => {
+                setSelected(value === String(selected) ? null : value);
+                resetFilterState();
+              }}
+            >
+              {t(optionLabel)}
+              <Combobox.Check checked={String(selected) === value} />
+            </Command.Item>
+          ))}
+        </Command.List>
+      </Command>
+    </Dialog.Content>
+  );
+};
+
+export const TechCardFilters = ({
+  unwindOutputs = false,
+}: {
+  unwindOutputs?: boolean;
+}) => {
+  const { t } = useTranslation('accounting');
+  const filters = useTechCardFilters(unwindOutputs);
+  const availableOptionFilters = optionFilters.filter(
+    ({ key }) => unwindOutputs || key !== 'duplicatedOutput',
+  );
+  const hasFilters = Object.values(filters).some(
+    (value) => value !== undefined,
+  );
   return (
     <Filter id="tech-card-filters">
       <Filter.Bar>
@@ -71,17 +192,27 @@ export const TechCardFilters = () => {
           label={t('tech-card-output-products')}
           mode="single"
         />
-        <Filter.BarItem queryKey="durationType">
-          <Filter.BarName>
-            <IconClock />
-            {t('tech-card-duration-type')}
-          </Filter.BarName>
-          <Filter.BarButton filterKey="durationType" inDialog>
-            {filters.durationType
-              ? t(`tech-card-duration-${filters.durationType}`)
-              : ''}
-          </Filter.BarButton>
-        </Filter.BarItem>
+        {availableOptionFilters
+          .filter(({ key }) => filters[key] !== undefined)
+          .map(({ key, label, options, Icon }) => (
+            <div
+              key={key}
+              className="flex h-7 items-stretch gap-px rounded bg-muted text-sm font-medium shadow-xs"
+            >
+              <Filter.BarName>
+                <Icon />
+                {t(label)}
+              </Filter.BarName>
+              <Filter.BarButton filterKey={key} inDialog>
+                {t(
+                  options.find(
+                    (option) => option.value === String(filters[key]),
+                  )?.label ?? '',
+                )}
+              </Filter.BarButton>
+              <Filter.BarClose filterKey={key} />
+            </div>
+          ))}
         <Filter.Popover scope="tech-card-filter">
           <Filter.Trigger isFiltered={hasFilters} />
           <Combobox.Content>
@@ -92,7 +223,7 @@ export const TechCardFilters = () => {
                   {textFilters.map(({ key, label }) => (
                     <Filter.Item key={key} value={key} inDialog>
                       <IconSearch />
-                      {label}
+                      {t(label)}
                     </Filter.Item>
                   ))}
                   <SelectProduct.FilterItem
@@ -103,10 +234,12 @@ export const TechCardFilters = () => {
                     value="outputProductId"
                     label={t('tech-card-output-products')}
                   />
-                  <Filter.Item value="durationType" inDialog>
-                    <IconClock />
-                    {t('tech-card-duration-type')}
-                  </Filter.Item>
+                  {availableOptionFilters.map(({ key, label, Icon }) => (
+                    <Filter.Item key={key} value={key} inDialog>
+                      <Icon />
+                      {t(label)}
+                    </Filter.Item>
+                  ))}
                 </Command.List>
               </Command>
             </Filter.View>
@@ -122,12 +255,18 @@ export const TechCardFilters = () => {
         </Filter.Popover>
       </Filter.Bar>
       <Filter.Dialog>
-        <Filter.View filterKey="durationType" inDialog>
-          <TechCardDurationFilter />
-        </Filter.View>
-        {textFilters.map(({ key }) => (
+        {availableOptionFilters.map(({ key, label, options }) => (
           <Filter.View key={key} filterKey={key} inDialog>
-            <Filter.DialogStringView filterKey={key} />
+            <TechCardOptionFilter
+              filterKey={key}
+              label={label}
+              options={options}
+            />
+          </Filter.View>
+        ))}
+        {textFilters.map(({ key, label }) => (
+          <Filter.View key={key} filterKey={key} inDialog>
+            <TechCardTextFilter filterKey={key} label={label} />
           </Filter.View>
         ))}
       </Filter.Dialog>

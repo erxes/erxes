@@ -5,6 +5,74 @@ import {
 } from '../../../../utils/techCardFilters';
 import queries from '../techCards';
 
+test.each([true, false])(
+  'duplicate output filter %s checks other cards before paging',
+  (duplicatedOutput) => {
+    const pipeline = getTechCardOutputsPipeline({
+      duplicatedOutput,
+      searchValue: 'assembly',
+      status: 'active',
+    });
+    const lookupIndex = pipeline.findIndex((stage) => '$lookup' in stage);
+    const facetIndex = pipeline.findIndex((stage) => '$facet' in stage);
+    expect(lookupIndex).toBeGreaterThan(2);
+    expect(lookupIndex).toBeLessThan(facetIndex);
+    expect(pipeline[lookupIndex]).toEqual({
+      $lookup: {
+        from: 'tech_cards',
+        let: { cardId: '$_id', productId: '$outputs.productId' },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [
+                  { $ne: ['$_id', '$$cardId'] },
+                  {
+                    $in: [
+                      '$$productId',
+                      { $ifNull: ['$outputs.productId', []] },
+                    ],
+                  },
+                ],
+              },
+            },
+          },
+          { $limit: 1 },
+          { $project: { _id: 1 } },
+        ],
+        as: 'matchingOutputCards',
+      },
+    });
+    expect(pipeline[lookupIndex + 1]).toEqual({
+      $match: { 'matchingOutputCards.0': { $exists: duplicatedOutput } },
+    });
+    expect(pipeline[lookupIndex]).not.toHaveProperty('$lookup.localField');
+    expect(pipeline[lookupIndex]).not.toHaveProperty('$lookup.foreignField');
+  },
+);
+
+test.each([true, false])(
+  'cost presence filters preserve %s alongside status',
+  (present) => {
+    const params = {
+      hasLabor: present,
+      hasOverhead: !present,
+      status: 'inactive',
+    };
+    const expected = {
+      'laborCosts.0': { $exists: present },
+      'overheadCosts.0': { $exists: !present },
+      status: 'inactive',
+    };
+    expect(getTechCardFilter(params)).toEqual(expected);
+    expect(getTechCardOutputsPipeline(params)[0]).toEqual({ $match: expected });
+  },
+);
+
+test('omitted cost presence filters do not constrain arrays', () => {
+  expect(getTechCardFilter({})).toEqual({});
+});
+
 test('filters combine card text, cost names, input/output products, and duration', () => {
   const filter = getTechCardFilter({
     searchValue: 'step',
