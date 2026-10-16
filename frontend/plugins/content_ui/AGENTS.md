@@ -100,6 +100,19 @@
 - `src/widgets` is for plugin widget exports, not general shared CMS UI.
 - Keep hooks, GraphQL documents, states, constants, and types near the feature
   they support.
+- `tsconfig.app.json` type-checks every file under `src`, including files no
+  Rspack entry or expose reaches. Delete orphaned files instead of leaving them
+  pointing at removed modules.
+- Pages reuse the posts `MediaSection`: `IPageFormData` keeps the five
+  `MediaFormData` fields with the same types. React Hook Form's
+  `UseFormReturn` is invariant, so `PageSidebarPanel` casts its form at that
+  prop, as `AddPostForm` does for its columns.
+- Two more casts stay at external type boundaries, each with a one-line reason:
+  - `createPortal` results are cast to React 18's `ReactPortal`. pnpm links
+    `@types/react-dom` to React 19 types, but the runtime is React 18.
+  - `CmsPostEditor` casts its `BLOCK_SCHEMA` blocks to `useBlockEditor`'s
+    `initialContent` type. That type uses the default BlockNote schema, while
+    the editor itself is built with `BLOCK_SCHEMA`.
 
 ### UI Conventions
 
@@ -201,6 +214,8 @@
 
 ## Validation
 
+- `npx tsc -p frontend/plugins/content_ui/tsconfig.app.json --noEmit | rg content_ui`
+  prints nothing. The shared libraries' own errors are filtered out.
 - `pnpm nx lint content_ui`
 - `pnpm nx run content_ui:codegen --skip-nx-cache`
 - `pnpm nx build content_ui`

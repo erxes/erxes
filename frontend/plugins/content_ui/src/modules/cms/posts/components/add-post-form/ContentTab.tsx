@@ -14,10 +14,10 @@ export interface PostUrlSource {
   count?: number | null;
 }
 
-export interface SelectOption {
+export type SelectOption = {
   label: string;
   value: string;
-}
+};
 
 export interface CustomType {
   _id: string;
