@@ -1,8 +1,8 @@
-import { gql } from '@apollo/client';
-export const CREATE_TICKET_NOTE = gql`
+import { gql } from '~/gql';
+export const CREATE_TICKET_NOTE = gql(`
   mutation TicketCreateNote(
     $content: String
-    $contentId: String
+    $contentId: String!
     $mentions: [String]
     $attachments: [AttachmentInput]
     $isInternal: Boolean
@@ -39,4 +39,4 @@ export const CREATE_TICKET_NOTE = gql`
       updatedAt
     }
   }
-`;
+`);

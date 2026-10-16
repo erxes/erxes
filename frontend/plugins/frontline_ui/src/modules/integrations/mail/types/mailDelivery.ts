@@ -1,4 +1,19 @@
+import type { MailSendMailMutation } from '~/gql/graphql';
+
 export type MailDeliveryStatus = 'pending' | 'sent' | 'bounced' | 'failed';
+
+const MAIL_DELIVERY_STATUSES: MailDeliveryStatus[] = [
+  'pending',
+  'sent',
+  'bounced',
+  'failed',
+];
+
+/** The schema types delivery status as a string; only known statuses get a badge. */
+export const toMailDeliveryStatus = (
+  value?: string | null,
+): MailDeliveryStatus | undefined =>
+  MAIL_DELIVERY_STATUSES.find((status) => status === value);
 
 export interface MailAttachmentInput {
   name?: string;
@@ -25,9 +40,6 @@ export interface MailSendMailVariables {
   customerId?: string;
 }
 
-export interface MailDeliveryOutcome {
-  _id: string;
-  deliveryStatus?: MailDeliveryStatus;
-  deliveryError?: string;
-  bouncedRecipients?: string[];
-}
+export type MailDeliveryOutcome = NonNullable<
+  MailSendMailMutation['mailSendMail']
+>;

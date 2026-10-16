@@ -1,4 +1,5 @@
 import { useQuery } from '@apollo/client';
+import { isDefined } from 'erxes-ui';
 import { useMemo } from 'react';
 import { FACEBOOK_MESSAGE_TRIGGER_TYPE } from '~/widgets/automations/modules/facebook/components/bots/constants';
 import { FACEBOOK_BOT_AUTOMATIONS } from '~/widgets/automations/modules/facebook/components/bots/graphql/botAutomationsQueries';
@@ -26,22 +27,16 @@ export type TBotMessageTriggerConfig = {
   }>;
 };
 
-type TAutomationRecord = {
-  _id: string;
-  name?: string;
-  status?: string;
-  triggers?: Array<{
-    id: string;
-    type: string;
-    config?: TBotMessageTriggerConfig;
-  }>;
-};
-
 export type TBotAutomationTrigger = {
   id: string;
   type: string;
   config: TBotMessageTriggerConfig;
 };
+
+const isBotTriggerConfig = (
+  config: unknown,
+): config is TBotMessageTriggerConfig =>
+  typeof config === 'object' && config !== null && !Array.isArray(config);
 
 export type TBotAutomation = {
   _id: string;
@@ -62,32 +57,34 @@ export const useFacebookBotAutomations = (
     () => (Array.isArray(triggerType) ? triggerType : [triggerType]),
     [triggerType],
   );
-  const { data, loading } = useQuery<{ automations: TAutomationRecord[] }>(
-    FACEBOOK_BOT_AUTOMATIONS,
-    {
-      variables: { triggerTypes },
-      skip: !botId,
-    },
-  );
+  const { data, loading } = useQuery(FACEBOOK_BOT_AUTOMATIONS, {
+    variables: { triggerTypes },
+    skip: !botId,
+  });
 
   const automations = useMemo<TBotAutomation[]>(() => {
     if (!botId) {
       return [];
     }
 
-    return (data?.automations || []).reduce<TBotAutomation[]>(
-      (matched, automation) => {
-        const triggers = (automation.triggers || [])
-          .filter(
-            (trigger) =>
-              triggerTypes.includes(trigger.type) &&
-              trigger.config?.botId === botId,
-          )
-          .map(({ id, type, config }) => ({
-            id,
-            type,
-            config: config as TBotMessageTriggerConfig,
-          }));
+    return (data?.automations ?? [])
+      .filter(isDefined)
+      .reduce<TBotAutomation[]>((matched, automation) => {
+        const triggers = (automation.triggers ?? []).flatMap((trigger) => {
+          const config = trigger?.config;
+
+          if (
+            !trigger?.id ||
+            !trigger.type ||
+            !triggerTypes.includes(trigger.type) ||
+            !isBotTriggerConfig(config) ||
+            config.botId !== botId
+          ) {
+            return [];
+          }
+
+          return [{ id: trigger.id, type: trigger.type, config }];
+        });
 
         if (!triggers.length) {
           return matched;
@@ -98,13 +95,11 @@ export const useFacebookBotAutomations = (
           {
             _id: automation._id,
             name: automation.name || automation._id,
-            status: automation.status,
+            status: automation.status ?? undefined,
             triggers,
           },
         ];
-      },
-      [],
-    );
+      }, []);
   }, [botId, data, triggerTypes]);
 
   return { automations, loading };

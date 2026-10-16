@@ -7,9 +7,7 @@ export const useCallGetConfigs = ({
   skip = false,
 }: { skip?: boolean } = {}) => {
   const { t } = useTranslation('frontline');
-  const { data, loading } = useQuery<{
-    callsGetConfigs: { _id: string; code: string; value: string }[];
-  }>(CALL_GET_CONFIGS, {
+  const { data, loading } = useQuery(CALL_GET_CONFIGS, {
     skip,
     onError: (e) => {
       toast({
@@ -24,9 +22,11 @@ export const useCallGetConfigs = ({
 
   const callConfigs: Record<string, string> = {};
 
-  (callsGetConfigs || []).forEach(
-    (conf) => (callConfigs[conf.code] = conf.value),
-  );
+  (callsGetConfigs || []).forEach((conf) => {
+    if (conf?.code && typeof conf.value === 'string') {
+      callConfigs[conf.code] = conf.value;
+    }
+  });
 
   return { loading, callConfigs };
 };

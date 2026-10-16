@@ -1,7 +1,7 @@
 import { useTicketRemove } from '@/ticket/hooks/useRemoveTicket';
 import { useToggleTicketArchive } from '@/ticket/hooks/useToggleTicketArchive';
 import { useUpdateTicket } from '@/ticket/hooks/useUpdateTicket';
-import { ITicket } from '@/ticket/types';
+import { ITicketDetail } from '@/ticket/types';
 import {
   IconBell,
   IconBellOff,
@@ -13,7 +13,7 @@ import { Button, DropdownMenu, useConfirm, useToast } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-export const TicketDetailActions = ({ ticket }: { ticket: ITicket }) => {
+export const TicketDetailActions = ({ ticket }: { ticket: ITicketDetail }) => {
   const { t } = useTranslation('frontline');
   const { confirm } = useConfirm();
   const { toast } = useToast();

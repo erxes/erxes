@@ -1,33 +1,38 @@
 import { QueryHookOptions, useQuery } from '@apollo/client';
-import { isUndefinedOrNull } from 'erxes-ui';
+import { isDefined, isUndefinedOrNull } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
 import { useEffect } from 'react';
 import { HELP_CENTERS_PER_PAGE } from '@/helpcenter/constants';
 import { GET_HELP_CENTERS } from '@/helpcenter/graphql/queries/getHelpCenters';
 import { helpCenterTotalCountAtom } from '@/helpcenter/states/helpCentersTotalCountState';
-import { IHelpCenter, IHelpCenterListResponse } from '@/helpcenter/types';
 import {
   TSearchBrandFilters,
   useSearchBrandFilters,
 } from '@/knowledgebase/shared/hooks/useSearchBrandFilters';
+import type {
+  FrontlineHelpCenterListQuery,
+  FrontlineHelpCenterListQueryVariables,
+} from '~/gql/graphql';
+
+type THelpCentersQueryOptions = QueryHookOptions<
+  FrontlineHelpCenterListQuery,
+  FrontlineHelpCenterListQueryVariables
+>;
 
 const useHelpCentersQuery = (
   filters: TSearchBrandFilters,
-  options?: QueryHookOptions<IHelpCenterListResponse>,
+  options?: THelpCentersQueryOptions,
 ) => {
-  const { data, loading, error, refetch } = useQuery<IHelpCenterListResponse>(
-    GET_HELP_CENTERS,
-    {
-      ...options,
-      variables: {
-        page: 1,
-        perPage: HELP_CENTERS_PER_PAGE,
-        ...filters,
-      },
+  const { data, loading, error, refetch } = useQuery(GET_HELP_CENTERS, {
+    ...options,
+    variables: {
+      page: 1,
+      perPage: HELP_CENTERS_PER_PAGE,
+      ...filters,
     },
-  );
+  });
 
-  const helpCenters: IHelpCenter[] | undefined = data?.helpCenterConfigs;
+  const helpCenters = data?.helpCenterConfigs?.filter(isDefined);
 
   return {
     helpCenters,
@@ -38,9 +43,7 @@ const useHelpCentersQuery = (
   };
 };
 
-export const useHelpCenters = (
-  options?: QueryHookOptions<IHelpCenterListResponse>,
-) => {
+export const useHelpCenters = (options?: THelpCentersQueryOptions) => {
   const setHelpCenterTotalCount = useSetAtom(helpCenterTotalCountAtom);
   const filters = useSearchBrandFilters();
   const { helpCenters, loading, error, refetch, serverTotalCount } =
@@ -54,6 +57,5 @@ export const useHelpCenters = (
   return { helpCenters, loading, error, refetch, totalCount: serverTotalCount };
 };
 
-export const useAllHelpCenters = (
-  options?: QueryHookOptions<IHelpCenterListResponse>,
-) => useHelpCentersQuery({}, options);
+export const useAllHelpCenters = (options?: THelpCentersQueryOptions) =>
+  useHelpCentersQuery({}, options);

@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const GET_POST = gql`
+export const GET_POST = gql(`
   query facebookGetPost($erxesApiId: String!) {
     facebookGetPost(erxesApiId: $erxesApiId) {
       _id
@@ -9,4 +9,4 @@ export const GET_POST = gql`
       attachments
     }
   }
-`;
+`);

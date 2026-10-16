@@ -3,12 +3,21 @@ import { ADD_TICKET_STATUS } from '@/status/graphql/mutation/addTicketStatus';
 import { useToast } from 'erxes-ui';
 import { GET_TICKET_STATUS_BY_TYPE } from '@/status/graphql/query/getTicketStatusByType';
 import { useTranslation } from 'react-i18next';
+import type {
+  AddTicketStatusMutation,
+  AddTicketStatusMutationVariables,
+} from '~/gql/graphql';
 
 export const useAddTicketStatus = () => {
   const { t } = useTranslation('frontline');
   const { toast } = useToast();
   const [_addStatus, { loading, error }] = useMutation(ADD_TICKET_STATUS);
-  const addStatus = (options: MutationFunctionOptions) => {
+  const addStatus = (
+    options: MutationFunctionOptions<
+      AddTicketStatusMutation,
+      AddTicketStatusMutationVariables
+    >,
+  ) => {
     return _addStatus({
       ...options,
       onCompleted: (data) => {

@@ -2,6 +2,7 @@ import { GET_INTEGRATIONS } from '@/integrations/facebook/graphql/queries/fbInte
 import { useFacebookBots } from '@/integrations/facebook/hooks/useFacebookBots';
 import { IntegrationType } from '@/types/Integration';
 import { useQuery } from '@apollo/client';
+import { isDefined } from 'erxes-ui';
 import { useMemo } from 'react';
 
 export type TFacebookBotPage = {
@@ -9,26 +10,18 @@ export type TFacebookBotPage = {
   pageId: string;
 };
 
-type TFacebookIntegrationRecord = {
-  erxesApiId?: string;
-  accountId?: string;
-  facebookPageIds?: string[];
-};
-
 export const useFacebookIntegrationBot = (integrationId: string) => {
-  const { data, loading } = useQuery<{
-    facebookGetIntegrations: TFacebookIntegrationRecord[];
-  }>(GET_INTEGRATIONS, {
+  const { data, loading } = useQuery(GET_INTEGRATIONS, {
     variables: { kind: IntegrationType.FACEBOOK_MESSENGER },
   });
 
   const { bots, loading: botsLoading } = useFacebookBots();
 
   return useMemo(() => {
-    const integration = (data?.facebookGetIntegrations || []).find(
-      ({ erxesApiId }) => erxesApiId === integrationId,
-    );
-    const pageIds = integration?.facebookPageIds || [];
+    const integration = data?.facebookGetIntegrations
+      ?.filter(isDefined)
+      .find(({ erxesApiId }) => erxesApiId === integrationId);
+    const pageIds = integration?.facebookPageIds?.filter(isDefined) ?? [];
     // The setup wizard binds one page per integration; a legacy multi-page
     // record has no single page a bot could be attached to.
     const pageId = pageIds.length === 1 ? pageIds[0] : undefined;

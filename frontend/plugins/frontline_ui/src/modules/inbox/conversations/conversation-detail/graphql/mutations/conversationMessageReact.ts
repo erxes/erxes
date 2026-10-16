@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const CONVERSATION_MESSAGE_REACT = gql`
+export const CONVERSATION_MESSAGE_REACT = gql(`
   mutation FrontlineConversationMessageReact(
     $conversationId: String!
     $messageId: String!
@@ -14,9 +14,9 @@ export const CONVERSATION_MESSAGE_REACT = gql`
       remove: $remove
     )
   }
-`;
+`);
 
-export const CONVERSATION_MESSAGE_PIN = gql`
+export const CONVERSATION_MESSAGE_PIN = gql(`
   mutation FrontlineConversationMessagePin(
     $conversationId: String!
     $messageId: String!
@@ -28,4 +28,4 @@ export const CONVERSATION_MESSAGE_PIN = gql`
       remove: $remove
     )
   }
-`;
+`);

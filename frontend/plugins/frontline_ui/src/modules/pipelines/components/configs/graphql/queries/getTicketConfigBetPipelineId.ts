@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-const GET_TICKET_CONFIG_BY_PIPELINE_ID = gql`
+const GET_TICKET_CONFIG_BY_PIPELINE_ID = gql(`
   query TicketConfig($pipelineId: String!) {
     ticketConfig(pipelineId: $pipelineId) {
       name
@@ -53,6 +53,6 @@ const GET_TICKET_CONFIG_BY_PIPELINE_ID = gql`
       updatedAt
     }
   }
-`;
+`);
 
 export { GET_TICKET_CONFIG_BY_PIPELINE_ID };

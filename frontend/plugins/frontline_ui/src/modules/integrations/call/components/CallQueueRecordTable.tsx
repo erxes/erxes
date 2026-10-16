@@ -29,7 +29,7 @@ export const CallQueueRecordTable = ({
   const { inboxId } = callConfig || {};
 
   const { callQueueList, loading } = useCallQueueList({
-    variables: { inboxId },
+    variables: inboxId ? { inboxId } : undefined,
     skip: !inboxId,
   });
 
@@ -203,8 +203,8 @@ function CallQueueSummaryCell({
       <HoverCard.Trigger asChild>
         <CallQueueTrigger
           basePath={basePath}
-          queue={queue}
-          queueChairman={queuechairman}
+          queue={queue ?? ''}
+          queueChairman={queuechairman ?? ''}
         />
       </HoverCard.Trigger>
       <HoverCard.Content
@@ -220,27 +220,27 @@ function CallQueueSummaryCell({
           <div className="grid grid-cols-2 gap-1 pb-3">
             <CallQueueRate
               label={t('abandoned')}
-              totalCalls={totalCalls}
-              value={abandonedRate}
+              totalCalls={totalCalls ?? 0}
+              value={abandonedRate ?? 0}
               variant="destructive"
             />
             <CallQueueRate
               label={t('success-rate-label')}
-              totalCalls={totalCalls}
-              value={answeredRate}
+              totalCalls={totalCalls ?? 0}
+              value={answeredRate ?? 0}
               variant="success"
             />
           </div>
-          <CallQueueStat label={t('total')} value={totalCalls} />
-          <CallQueueStat label={t('answered')} value={answeredCalls} />
-          <CallQueueStat label={t('abandoned')} value={abandonedCalls} />
+          <CallQueueStat label={t('total')} value={totalCalls ?? 0} />
+          <CallQueueStat label={t('answered')} value={answeredCalls ?? 0} />
+          <CallQueueStat label={t('abandoned')} value={abandonedCalls ?? 0} />
           <CallQueueStat
             label={t('average-wait-time')}
-            value={formatSeconds(avgWait)}
+            value={formatSeconds(avgWait ?? 0)}
           />
           <CallQueueStat
             label={t('average-talk-time')}
-            value={formatSeconds(avgTalk)}
+            value={formatSeconds(avgTalk ?? 0)}
           />
         </div>
       </HoverCard.Content>

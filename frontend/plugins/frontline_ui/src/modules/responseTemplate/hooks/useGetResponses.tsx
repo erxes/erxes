@@ -1,25 +1,31 @@
 import { NetworkStatus, QueryHookOptions, useQuery } from '@apollo/client';
 import { GET_RESPONSES } from '@/responseTemplate/graphql/queries/getResponses';
+import { EnumCursorDirection, validateFetchMore } from 'erxes-ui';
 import {
-  EnumCursorDirection,
-  ICursorListResponse,
-  mergeCursorData,
-  validateFetchMore,
-} from 'erxes-ui';
-import { IResponseTemplate } from '../types';
+  compactList,
+  mergeCursorList,
+  toCursorPageInfo,
+} from '@/shared/utils/cursorList';
+import type {
+  ResponseTemplatesQuery,
+  ResponseTemplatesQueryVariables,
+} from '~/gql/graphql';
 
 export const RESPONSES_PER_PAGE = 24;
 
-export const useGetResponses = (options?: QueryHookOptions) => {
+export const useGetResponses = (
+  options?: QueryHookOptions<
+    ResponseTemplatesQuery,
+    ResponseTemplatesQueryVariables
+  >,
+) => {
   const baseFilter = {
     limit: RESPONSES_PER_PAGE,
     orderBy: { createdAt: -1 },
     ...options?.variables?.filter,
   };
 
-  const { data, fetchMore, networkStatus, refetch } = useQuery<
-    ICursorListResponse<IResponseTemplate>
-  >(GET_RESPONSES, {
+  const { data, fetchMore, networkStatus, refetch } = useQuery(GET_RESPONSES, {
     fetchPolicy: 'cache-and-network',
     notifyOnNetworkStatusChange: true,
     ...options,
@@ -28,11 +34,11 @@ export const useGetResponses = (options?: QueryHookOptions) => {
     },
   });
 
-  const {
-    list: responses,
-    totalCount,
-    pageInfo,
-  } = data?.responseTemplates || {};
+  const responses = data?.responseTemplates?.list
+    ? compactList(data.responseTemplates.list)
+    : undefined;
+  const totalCount = data?.responseTemplates?.totalCount ?? undefined;
+  const pageInfo = toCursorPageInfo(data?.responseTemplates?.pageInfo);
 
   const isInitialLoad = networkStatus === NetworkStatus.loading;
   const isRefetching =
@@ -54,14 +60,17 @@ export const useGetResponses = (options?: QueryHookOptions) => {
         },
       },
       updateQuery: (prev, { fetchMoreResult }) => {
-        if (!fetchMoreResult) return prev;
-        return Object.assign({}, prev, {
-          responseTemplates: mergeCursorData({
+        if (!fetchMoreResult.responseTemplates || !prev.responseTemplates) {
+          return prev;
+        }
+        return {
+          ...prev,
+          responseTemplates: mergeCursorList(
             direction,
-            fetchMoreResult: fetchMoreResult.responseTemplates,
-            prevResult: prev.responseTemplates,
-          }),
-        });
+            prev.responseTemplates,
+            fetchMoreResult.responseTemplates,
+          ),
+        };
       },
     });
   };

@@ -8,10 +8,7 @@ const REACTION_MIME_TYPE = 'text/vnd.google.email-reaction+json';
 const graphemes = (value: string): string[] => {
   const Segmenter = (
     Intl as typeof Intl & {
-      Segmenter: new (
-        locale: string,
-        options: { granularity: 'grapheme' },
-      ) => {
+      Segmenter: new (locale: string, options: { granularity: 'grapheme' }) => {
         segment: (input: string) => Iterable<{ segment: string }>;
       };
     }
@@ -64,7 +61,7 @@ export const mailReactionFromMessage = (
     messageId: message._id,
     emoji,
     sender: mailData.from?.[0]?.name || mailData.from?.[0]?.email || 'Someone',
-    senderAddress: mailData.from?.[0]?.email,
+    senderAddress: mailData.from?.[0]?.email ?? undefined,
     isOwn: mailData.type === 'SENT',
     targetMessageId,
   };

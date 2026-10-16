@@ -3,16 +3,14 @@ import {
   GET_INTEGRATION_KINDS,
   GET_INTEGRATION_KINDS_BY_CHANNEL,
 } from '../graphql/queries/getIntegrations';
-import { IIntegrationType } from '../types/Integration';
 import { ChannelScope } from '@/channels/types';
+import { compactList } from '@/shared/utils/cursorList';
 
 export const useUsedIntegrationTypes = () => {
-  const { data, loading } = useQuery<{
-    integrationsGetUsedTypes: IIntegrationType[];
-  }>(GET_INTEGRATION_KINDS);
+  const { data, loading } = useQuery(GET_INTEGRATION_KINDS);
 
   return {
-    integrationTypes: data?.integrationsGetUsedTypes || [],
+    integrationTypes: compactList(data?.integrationsGetUsedTypes),
     loading,
   };
 };
@@ -31,16 +29,14 @@ export const useUsedIntegrationTypesByChannel = ({
   scope?: ChannelScope;
   skip?: boolean;
 }) => {
-  const { data, loading } = useQuery<{
-    integrationsGetUsedTypesByChannel: IIntegrationType[];
-  }>(GET_INTEGRATION_KINDS_BY_CHANNEL, {
+  const { data, loading } = useQuery(GET_INTEGRATION_KINDS_BY_CHANNEL, {
     variables: { channelId, scope },
     skip,
     fetchPolicy: 'cache-and-network',
   });
 
   return {
-    integrationTypes: data?.integrationsGetUsedTypesByChannel || [],
+    integrationTypes: compactList(data?.integrationsGetUsedTypesByChannel),
     loading,
   };
 };

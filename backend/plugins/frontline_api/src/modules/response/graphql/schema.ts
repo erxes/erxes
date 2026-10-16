@@ -43,7 +43,7 @@ export const mutations = `
     files: [String]
   ): ResponseTemplate
   responseTemplatesEdit(
-    _id: String,
+    _id: String!,
     name: String!,
     content: String,
     channelId: String,

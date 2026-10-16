@@ -1,6 +1,6 @@
 import { INSTAGRAM_AUTH_SUCCESS_MESSAGE } from '@/integrations/constants/authMessages';
 import { useIntegrationReauth } from '@/integrations/hooks/useIntegrationReauth';
-import { IIntegrationDetail } from '@/integrations/types/Integration';
+import { IIntegration } from '@/integrations/types/Integration';
 import { IconTool } from '@tabler/icons-react';
 import { CellContext } from '@tanstack/react-table';
 import { Spinner, toast } from 'erxes-ui';
@@ -8,7 +8,7 @@ import { useTranslation } from 'react-i18next';
 import { useIgIntegrationsRepair } from '../hooks/useIgIntegrationsRepair';
 
 type Props = {
-  cell: CellContext<IIntegrationDetail, unknown>;
+  cell: CellContext<IIntegration, unknown>;
 };
 
 export const InstagramIntegrationRepair = ({ cell }: Props) => {

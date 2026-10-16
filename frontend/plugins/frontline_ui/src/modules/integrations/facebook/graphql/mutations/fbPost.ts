@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const FACEBOOK_CREATE_POST = gql`
+export const FACEBOOK_CREATE_POST = gql(`
   mutation FacebookCreatePost(
     $erxesApiId: String!
     $pageId: String!
@@ -14,6 +14,9 @@ export const FACEBOOK_CREATE_POST = gql`
       message: $message
       link: $link
       imageKeys: $imageKeys
-    )
+    ) {
+      postId
+      permalinkUrl
+    }
   }
-`;
+`);

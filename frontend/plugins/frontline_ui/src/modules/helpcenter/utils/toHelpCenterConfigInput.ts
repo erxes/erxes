@@ -1,3 +1,4 @@
+import { isDefined } from 'erxes-ui';
 import {
   createDefaultFooter,
   createDefaultHeader,
@@ -17,6 +18,7 @@ export const toCmsConfigsInput = (
   helpCenter: IHelpCenter,
 ): IHelpCenterCmsConfig[] => {
   const cmsConfigs = (helpCenter.cmsConfigs ?? [])
+    .filter(isDefined)
     .map(({ cmsId, cmsAppToken }) => ({
       cmsId: cmsId ?? '',
       cmsAppToken: cmsAppToken ?? '',
@@ -73,9 +75,9 @@ export const toFooterInput = (
     logo: footer.logo ?? '',
     description: footer.description ?? '',
     copyright: footer.copyright ?? '',
-    columns: (footer.columns ?? []).map((column) => ({
+    columns: (footer.columns ?? []).filter(isDefined).map((column) => ({
       heading: column.heading ?? '',
-      links: (column.links ?? []).map((link) => ({
+      links: (column.links ?? []).filter(isDefined).map((link) => ({
         label: link.label ?? '',
         url: link.url ?? '',
       })),
@@ -113,7 +115,9 @@ export const toHelpCenterConfigInput = (
     ticketPipelineId: helpCenter.ticketPipelineId ?? '',
     ticketStatusId: helpCenter.ticketStatusId ?? '',
     formChannelId: helpCenter.formChannelId ?? '',
-    formIds: helpCenter.formChannelId ? helpCenter.formIds ?? [] : [],
+    formIds: helpCenter.formChannelId
+      ? (helpCenter.formIds ?? []).filter(isDefined)
+      : [],
     cmsId: helpCenter.cmsId ?? '',
     cmsAppToken: helpCenter.cmsAppToken ?? '',
     cmsConfigs: toCmsConfigsInput(helpCenter),

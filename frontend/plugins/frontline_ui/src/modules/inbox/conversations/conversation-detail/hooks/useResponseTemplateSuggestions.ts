@@ -6,13 +6,15 @@ import type { PartialBlock } from '@blocknote/core';
 import { useGetChannels } from '@/channels/hooks/useGetChannels';
 import { getPreviewText } from '@/inbox/types/inbox';
 import { useGetResponses } from '@/responseTemplate/hooks/useGetResponses';
-import type { IResponseTemplate } from '@/responseTemplate/types';
+import { toResponseTemplateText } from '@/responseTemplate/utils/toResponseTemplateText';
 
 const MAX_SUGGESTIONS = 5;
 
 type MessageEditor = ReturnType<typeof useBlockEditor>;
 
-export type ResponseTemplateSuggestion = IResponseTemplate & {
+export type ResponseTemplateSuggestion = ReturnType<
+  typeof toResponseTemplateText
+> & {
   preview: string;
 };
 
@@ -43,7 +45,7 @@ export const useResponseTemplateSuggestions = ({
     () =>
       debouncedSearchValue && enabled
         ? (responses || []).slice(0, MAX_SUGGESTIONS).map((response) => ({
-            ...response,
+            ...toResponseTemplateText(response),
             preview: getPreviewText(response.content || ''),
           }))
         : [],

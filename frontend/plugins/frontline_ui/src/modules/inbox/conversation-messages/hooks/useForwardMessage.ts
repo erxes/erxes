@@ -7,7 +7,8 @@ import { useConversationMessageAdd } from '@/inbox/conversations/conversation-de
 import { useConversationContext } from '@/inbox/conversations/conversation-detail/hooks/useConversationContext';
 import { useConversationMessageContext } from '@/inbox/conversations/conversation-detail/hooks/useConversationMessageContext';
 import { GET_CONVERSATIONS } from '@/inbox/conversations/graphql/queries/getConversations';
-import type { IConversation } from '@/inbox/types/Conversation';
+import { readFacebookDelivery } from '@/integrations/facebook/types/FacebookReplyDelivery';
+import { compactList } from '@/shared/utils/cursorList';
 import {
   forwardMessageSchema,
   type ForwardMessageForm,
@@ -31,16 +32,14 @@ export const useForwardMessage = (
   >({});
   const selectedId = form.watch('destinationId');
   const { addConversationMessage, loading } = useConversationMessageAdd();
-  const { data, loading: conversationsLoading } = useQuery<{
-    conversations: { list: IConversation[] };
-  }>(GET_CONVERSATIONS, {
+  const { data, loading: conversationsLoading } = useQuery(GET_CONVERSATIONS, {
     variables: { limit: 50, status: 'open' },
     skip: !open,
     fetchPolicy: 'cache-and-network',
   });
   const conversations = useMemo(
     () =>
-      (data?.conversations?.list || []).filter(
+      compactList(data?.conversations?.list).filter(
         (conversation) => conversation._id !== sourceConversationId,
       ),
     [data?.conversations?.list, sourceConversationId],
@@ -79,8 +78,9 @@ export const useForwardMessage = (
           'FacebookConversationMessages',
         ],
       });
-      const delivery =
-        result.data?.conversationMessageAdd.extraData?.facebookDelivery;
+      const delivery = readFacebookDelivery(
+        result.data?.conversationMessageAdd?.extraData,
+      );
       if (delivery?.status === 'partial') {
         const remaining = outgoingAttachments.filter(
           ({ url }) => !delivery.sentAttachmentUrls.includes(url),

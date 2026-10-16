@@ -1,7 +1,7 @@
 import { IAttachment } from 'erxes-ui';
 import { z } from 'zod';
 
-const FIELD_VALIDATOR_SCHEMA = z
+export const FIELD_VALIDATOR_SCHEMA = z
   .object({
     type: z.enum(['PRESET', 'CUSTOM', 'NONE']),
     presetKey: z
@@ -87,3 +87,45 @@ export const FORM_CONTENT_SCHEMA = z.object({
     }),
   ),
 });
+
+const isAttachment = (value: unknown): value is IAttachment =>
+  typeof value === 'object' &&
+  value !== null &&
+  'url' in value &&
+  typeof value.url === 'string';
+
+// `leadData` is a free-form JSON field the widget reads too. Every leaf falls
+// back on its own, so one malformed value never drops the rest of the form.
+export const LEAD_DATA_SCHEMA = z
+  .object({
+    appearance: z.string().optional().catch(undefined),
+    loadType: z.string().optional().catch(undefined),
+    saveAsCustomer: z.boolean().optional().catch(undefined),
+    primaryColor: z.string().optional().catch(undefined),
+    callout: z
+      .object({
+        title: z.string().optional().catch(undefined),
+        body: z.string().optional().catch(undefined),
+        buttonText: z.string().optional().catch(undefined),
+        featuredImage: z.string().nullish().catch(undefined),
+        skip: z.boolean().optional().catch(undefined),
+      })
+      .optional()
+      .catch(undefined),
+    thankTitle: z.string().optional().catch(undefined),
+    thankContent: z.string().optional().catch(undefined),
+    thankImage: z.custom<IAttachment>(isAttachment).nullish().catch(undefined),
+    successImage: z.string().optional().catch(undefined),
+    steps: z
+      .record(
+        z.string(),
+        z.object({
+          name: z.string().optional().catch(undefined),
+          description: z.string().optional().catch(undefined),
+          order: z.number().catch(0),
+        }),
+      )
+      .optional()
+      .catch(undefined),
+  })
+  .catch({});

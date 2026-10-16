@@ -196,7 +196,7 @@ const SelectPipelineCreateForm = ({
       onCompleted: ({ createPipeline }) => {
         toast({ title: t('success', 'Success!'), variant: 'success' });
         onBack();
-        onValueChange(createPipeline._id);
+        if (createPipeline) onValueChange(createPipeline._id);
       },
       onError: (error) =>
         toast({

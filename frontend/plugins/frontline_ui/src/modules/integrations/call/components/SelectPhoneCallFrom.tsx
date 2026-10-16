@@ -13,7 +13,7 @@ export const SelectPhoneCallFrom = () => {
     <div className="space-y-2">
       <Label htmlFor="call-from">{t('call-from')}</Label>
       <Select
-        value={callConfig?.isAvailable ? callConfig.inboxId : ''}
+        value={callConfig?.isAvailable ? callConfig.inboxId ?? '' : ''}
         onValueChange={selectCallFrom}
       >
         <Select.Trigger id="call-from" type="button">
@@ -21,10 +21,13 @@ export const SelectPhoneCallFrom = () => {
         </Select.Trigger>
         <Select.Content className="z-110">
           {enabledIntegrations.map((integration) => (
-            <Select.Item key={integration._id} value={integration.inboxId}>
+            <Select.Item
+              key={integration._id}
+              value={integration.inboxId ?? ''}
+            >
               {integration.name ||
                 formatPhoneNumber({
-                  value: integration.phone,
+                  value: integration.phone ?? '',
                   defaultCountry: 'MN',
                 })}
             </Select.Item>

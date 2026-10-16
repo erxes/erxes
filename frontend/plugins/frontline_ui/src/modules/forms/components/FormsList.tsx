@@ -126,7 +126,7 @@ export const FormsMoreColumnCell = ({
   const [moveOpen, setMoveOpen] = useState(false);
 
   return (
-    <DownloadResponsesAction formId={_id} formName={name}>
+    <DownloadResponsesAction formId={_id} formName={name ?? ''}>
       {(downloadResponsesAction) => (
         <DropdownMenu open={open} onOpenChange={setOpen}>
           <DropdownMenu.Trigger asChild>
@@ -134,7 +134,7 @@ export const FormsMoreColumnCell = ({
           </DropdownMenu.Trigger>
           <DropdownMenu.Content side="bottom" align="start">
             <FormInstallScript
-              formId={code}
+              formId={code ?? ''}
               channelId={channelId as string}
               inActionBar
             />
@@ -150,7 +150,11 @@ export const FormsMoreColumnCell = ({
             <OpenLiveForm formId={_id} channelId={channelId as string} />
             <OpenSubmissionsAction formId={_id} />
             {downloadResponsesAction}
-            <FormToggleStatus formId={_id} status={status} setOpen={setOpen} />
+            <FormToggleStatus
+              formId={_id}
+              status={status ?? ''}
+              setOpen={setOpen}
+            />
             <DropdownMenu.Item
               onSelect={() => {
                 setOpen(false);
@@ -160,7 +164,10 @@ export const FormsMoreColumnCell = ({
               <IconArrowBarToRight />
               {t('move-to-channel', 'Move to Channel')}
             </DropdownMenu.Item>
-            <RemoveForm formId={_id} title={cell.row.original.name} />
+            <RemoveForm
+              formId={_id}
+              title={cell.row.original.name ?? undefined}
+            />
           </DropdownMenu.Content>
           <MoveToChannelDialog
             open={moveOpen}

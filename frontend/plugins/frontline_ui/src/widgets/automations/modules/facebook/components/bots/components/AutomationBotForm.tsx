@@ -23,7 +23,7 @@ export const AutomationBotForm = ({
   // integration opens. Creating one still needs the account and page steps.
   const page = facebookMessengerBot?.pageId
     ? {
-        accountId: facebookMessengerBot.accountId,
+        accountId: facebookMessengerBot.accountId ?? '',
         pageId: facebookMessengerBot.pageId,
       }
     : undefined;
