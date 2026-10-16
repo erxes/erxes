@@ -6,7 +6,7 @@
 - **Project:** `content_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/content_api`
-- **Last synchronized:** `2026-10-13`
+- **Last synchronized:** `2026-10-16`
 
 ## Scope
 
@@ -38,6 +38,7 @@
 | Social delivery | `src/modules/cms/postiz`     | Signed bridge, delivery queue and triggered runs.      |
 | Web Builder     | `src/modules/webbuilder`     | Websites and page persistence.                         |
 | Permissions     | `src/meta/permissions.ts`    | CMS actions, language grants and default groups.       |
+| Schema print    | `print-schema.ts`            | Prints the subgraph SDL to `generated/schema.graphql`. |
 
 ## Contracts
 
@@ -45,6 +46,7 @@
 
 - CMS and Web Builder GraphQL through `src/apollo`, including `cmsPostiz*` sharing, validation, refresh and delivery operations.
 - `cmsPostsSharePostiz` permission, included in CMS Journalist 1, Journalist 2, Editor and Admin default groups; excluded from CMS Viewer.
+- The printed subgraph SDL (`schema:print`, gitignored `generated/schema.graphql`) is the contract `content_ui` codegen validates its documents against.
 
 ### Consumes
 
@@ -73,12 +75,14 @@
 - Enqueue/retry accepts tenant context only from the server; conflicting saved tenants are rejected. Delivery history excludes records explicitly bound to another tenant while retaining legacy records for recovery visibility.
 - Never remove JWT or delivery ledgers to stop/retry CMS work. Coordinate both API versions on rollout/rollback.
 - Docker's installer stage uses `NODE_OPTIONS=--jitless`, matching agent_api's QEMU workaround. The runtime stage must not inherit it; dependency-install failures must not be swallowed by optional file pruning.
+- `print-schema.ts` builds the subgraph from `src/apollo/typeDefs` only (there is no `src/apollo/subscription.ts`) and ends with `process.exit`, because `erxes-api-shared/utils` opens Redis on import. An SDL change can break `content_ui` codegen; run it before delivery.
 
 ## Validation
 
+- `pnpm nx lint content_api`
+- `pnpm nx build content_api` (when `erxes-api-shared:build` runs in the same invocation, `build:packageJson` can read a half-written shared `dist` and report missing `erxes-api-shared/utils` exports; rerun once the shared build is cached)
 - `pnpm nx run content_api:schema:print` - prints this subgraph's SDL to `generated/schema.graphql` (gitignored) offline, for `gateway:schema:compose`.
-- `pnpm nx build content_api`
 - `node --test backend/plugins/content_api/test/dockerfile.test.cjs`
 - `pnpm exec tsc --noEmit -p backend/plugins/content_api/tsconfig.json`
 - `pnpm exec jest --config backend/plugins/content_api/jest.postiz.cjs --runInBand`
-- No Nx `lint` or `test` target is defined.
+- No Nx `test` target is defined.
