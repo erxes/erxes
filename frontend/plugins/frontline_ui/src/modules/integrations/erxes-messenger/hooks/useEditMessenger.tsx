@@ -96,7 +96,7 @@ export const useEditMessenger = () => {
         await Promise.all(saves);
 
         await client.refetchQueries({
-          include: ['Integrations', 'integrationDetail'],
+          include: ['Integrations', 'ErxesMessengerIntegrationDetail'],
         });
 
         onComplete?.();

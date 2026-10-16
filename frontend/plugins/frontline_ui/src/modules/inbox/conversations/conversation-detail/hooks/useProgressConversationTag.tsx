@@ -9,7 +9,7 @@ interface IGetConversationTagProgressResponse {
 }
 
 interface IGetConversationTagProgressVariables {
-  customerId: string;
+  customerId?: string;
 }
 export const useGetConversationTagProgress = (
   options: QueryHookOptions<

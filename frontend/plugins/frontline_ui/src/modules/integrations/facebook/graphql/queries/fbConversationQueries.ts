@@ -1,9 +1,5 @@
 import { gql } from '@apollo/client';
 
-const commonCommentAndMessageFields = `
-  content
-  conversationId
-`;
 export const GET_CONVERSATION_MESSAGES = gql`
   query FacebookConversationMessages(
     $conversationId: String!
@@ -16,11 +12,11 @@ export const GET_CONVERSATION_MESSAGES = gql`
       getFirst: $getFirst
       skip: $skip
       limit: $limit
-    )
-   {
+    ) {
       _id
       mid
-      ${commonCommentAndMessageFields}
+      content
+      conversationId
       customerId
       userId
       fromBot

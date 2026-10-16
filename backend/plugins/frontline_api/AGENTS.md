@@ -479,6 +479,9 @@
   `email`, then `phone` — one `companies.findOne` query per selector, stopping
   at the first hit — so a repeat connect updates the existing company instead
   of creating a duplicate.
+- `pnpm schema:print` writes the full subgraph schema, including the
+  subscription fields from `src/apollo/subscription.ts`, to
+  `generated/schema.graphql` without Redis, Mongo or a running service.
 
 ## Architecture
 
@@ -492,6 +495,7 @@ The root router mounts its authenticated webhook at `/telegram`.
 | Bootstrap                | `src/main.ts`                                                                                                                                                    | `startPlugin({ name: 'frontline', port: 3304 })`, wires tRPC, routes, meta, and every surface                                                                                                                          |
 | Models                   | `src/connectionResolvers.ts`                                                                                                                                     | Per-subdomain model container for all modules                                                                                                                                                                          |
 | GraphQL                  | `src/apollo/`                                                                                                                                                    | Aggregated `typeDefs` and `resolvers` across modules                                                                                                                                                                   |
+| Schema print             | `print-schema.ts`                                                                                                                                                | Prints the subgraph schema for `frontline_ui` codegen (`generated/`, gitignored)                                                                                                                                       |
 | tRPC                     | `src/init-trpc.ts`                                                                                                                                               | `appRouter` for service-to-service calls                                                                                                                                                                               |
 | Agent tool metadata      | `src/trpc/agentMeta.ts`                                                                                                                                          | Local `agentMeta` helper for agent-callable tRPC annotations                                                                                                                                                           |
 | HTTP                     | `src/routes.ts`                                                                                                                                                  | Mounts the `/facebook`, `/instagram`, `/mail`, and (when enabled) `/callpro` webhook routers                                                                                                                           |
@@ -1084,6 +1088,9 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - Automation types — trigger `frontline:mail.messages` (target
   `TMailTriggerTarget`), actions `frontline:mail.messages.create` (Send Email)
   and `frontline:mail.drafts.create` (Draft Email Reply).
+- Nx target `schema:print` (cached, output `generated/schema.graphql`),
+  consumed by `frontline_ui:codegen` together with the UI's own core snapshot
+  `schema/platform.graphql`.
 
 ### Consumes
 
@@ -1225,11 +1232,14 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - `reactToConversationMessage` routes by integration kind through its
   `REACTION_HANDLERS` map (react + publish pair); a new reaction-capable kind is
   added there, never as another `if` branch.
+- `print-schema.ts` must exit the process itself: `erxes-api-shared/utils`
+  opens a Redis client on import that would otherwise keep it alive.
 
 ## Validation
 
 - `pnpm nx lint frontline_api`
 - `pnpm nx build frontline_api`
+- `pnpm nx run frontline_api:schema:print` - writes `generated/schema.graphql`.
 - `pnpm nx test frontline_api` — Jest over `src/**/*.test.ts` and the
   Telegram `src/**/*.spec.ts` suites (`jest.config.ts`, `tsconfig.spec.json`).
   Both suffixes are excluded from `tsconfig.build.json`; prefer `.test.ts` for

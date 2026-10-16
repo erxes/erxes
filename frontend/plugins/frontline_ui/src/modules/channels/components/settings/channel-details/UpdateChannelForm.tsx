@@ -60,7 +60,7 @@ export const UpdateChannelForm = ({ channel }: { channel: IChannel }) => {
                   <Form.Control>
                     <IconPicker
                       onValueChange={field.onChange}
-                      value={field.value}
+                      value={field.value ?? undefined}
                     />
                   </Form.Control>
                   <Form.Message />

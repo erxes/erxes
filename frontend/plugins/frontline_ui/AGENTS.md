@@ -573,6 +573,10 @@
 - The Ticket List card's Excel download exports exactly the columns currently
   visible in its table, in their on-screen order and with the same headers,
   including property columns. It is disabled until the table has rendered.
+- GraphQL codegen (`client-preset`) validates every GraphQL document against
+  the printed `frontline_api` schema, the core snapshot
+  `schema/platform.graphql` and `codegen/external-plugins.graphql`, and
+  generates result and variable types into `src/gql/`.
 
 ## Architecture
 
@@ -594,6 +598,7 @@ owns the setup form and connection actions.
 | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
 | Host registration         | `src/config.tsx`                                                                                                                                  | `CONFIG` — navigation, settings, widgets, property inputs, routes, and Module Federation exposes                                                |
 | Federation                | `module-federation.config.ts`                                                                                                                     | Remote name `frontline_ui` and its exposes                                                                                                      |
+| GraphQL codegen           | `codegen.ts`, `schema/platform.graphql`, `codegen/external-plugins.graphql`                                                                       | Generates `src/gql/` (gitignored) from the printed `frontline_api` schema, the core snapshot and the optional-plugin mirror                     |
 | Routes                    | `src/modules/FrontlineMain.tsx`, `src/pages/`                                                                                                     | Routed pages for inbox, ticket, forms, call, channels                                                                                           |
 | Navigation groups         | `src/modules/FrontlineSubGroups.tsx`                                                                                                              | Route-aware sidebar sub-groups for every frontline page                                                                                         |
 | Report navigation         | `src/modules/report/constants/reportSections.ts`                                                                                                  | Report board paths, labels, icons and path matching shared by `ReportIndexPage`, which renders the boards as header tabs                        |
@@ -884,6 +889,13 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
   `note-email-sent-to`, `ticket-reply-not-delivered`,
   `email-delivery-stuck-hint`, `email-delivery-resent` and
   `attachment-not-saved-days`.
+- The printed `frontline_api` subgraph schema from its `schema:print` Nx
+  target, consumed only at codegen time.
+- Core types and fields this plugin selects, declared for codegen only in
+  `schema/platform.graphql`.
+- Optional plugin queries `getTeams`, `getStatusesChoicesByTeam` (operation)
+  and `contentCMSList` (content), declared for codegen only in
+  `codegen/external-plugins.graphql`.
 
 ## Data and State
 
@@ -2124,6 +2136,31 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 - Instagram send/reaction toasts map provider errors through ordered
   `InstagramErrorRule` lists; adding a case means adding a rule with its own
   `instagram-*` i18n key, keeping existing keys and fallback copy unchanged.
+- GraphQL documents interpolate no string snippets: codegen drops `${...}`
+  text, so an interpolated selection is sent at runtime but missing from
+  validation and the generated types. A shared field set is a `gql` fragment
+  defined in this plugin. In a `gql()` document from `~/gql` it is spread by
+  name only and never interpolated; the generated document embeds it. The
+  inbox message inserted and updated subscriptions share
+  `FrontlineConversationMessageFields`, so an update replaces a message with
+  the same full shape.
+- `src/gql/` is generated and gitignored; `build` and `serve` depend on the
+  `codegen` target, which depends on `frontline_api:schema:print` only. The
+  plugin never depends on core's or an optional plugin's printed schema.
+- `schema/platform.graphql` snapshots only the core types and fields frontline
+  documents select, each block headed by its `backend/core-api/src` SDL
+  source. When a document selects another core field, or core changes one it
+  selects, update the snapshot from that source; codegen fails on a field the
+  snapshot lacks.
+- `codegen/external-plugins.graphql` mirrors only the optional-plugin
+  operations and fields this plugin selects, copied from operation_api and
+  content_api SDL; extend it by hand when a document selects more of them.
+- Operation names are unique within the plugin even ignoring case, because
+  codegen PascalCases them into type names. `refetchQueries` strings name
+  operations, so a rename updates them in the same change.
+- The Facebook message-trigger condition schema is one flat object keyed by a
+  `type` enum, not a discriminated union, so its derived types index the fields
+  directly; `Extract<..., { type: ... }>` on it collapses to `never`.
 
 ## Validation
 
@@ -2137,11 +2174,19 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   Rename an article inline, change its status and category, filter by status,
   bulk-delete from the command bar, edit and delete a category from the
   sidebar, then delete the topic from its `kbsettings` danger zone.
+- `pnpm nx run frontline_ui:codegen --skip-nx-cache` - validates every
+  document against the printed `frontline_api` schema and the core snapshot;
+  `build` and `serve` run it first.
 - `pnpm nx build frontline_ui`
 - `pnpm nx test frontline_ui` — includes the knowledge base sidebar's
   `groupCategoriesByParent` and `withoutEmptyCode` specs.
-- `pnpm nx lint frontline_ui` and `pnpm exec tsc --noEmit -p frontend/plugins/frontline_ui/tsconfig.app.json` from the repository root;
-  distinguish existing baseline failures from regressions in touched files.
+- `pnpm nx lint frontline_ui` from the repository root; distinguish existing
+  baseline lint failures from regressions in touched files.
+- `npx tsc --noEmit -p frontend/plugins/frontline_ui/tsconfig.app.json` - no
+  errors under `frontend/plugins/frontline_ui`; errors reported inside
+  `frontend/libs` are pre-existing and owned by those libraries.
+- `project.json` defines `build`, `serve`, `serve-static`, `test`, and
+  `codegen`.
 - `pnpm nx test frontline_ui` — the project defines a Jest test target for
   Telegram setup/rendering and inbox composer regression coverage.
   Composer send regression tests import `hooks/composer/useComposerSend`;

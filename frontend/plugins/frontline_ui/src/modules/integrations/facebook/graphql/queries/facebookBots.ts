@@ -1,61 +1,61 @@
 import gql from 'graphql-tag';
 
-const FACEBOOK_BOT_FIELDS = `
-  _id
-  name
-  account
-  accountId
-  createdAt
-  updatedAt
-  createdBy
-  updatedBy
-  createdUser {
-    _id
-    username
-    email
-    details {
-      fullName
-      avatar
-    }
-  }
-  updatedUser {
-    _id
-    username
-    email
-    details {
-      fullName
-      avatar
-    }
-  }
-  page
-  pageId
-  profileUrl
-  persistentMenus {
-    _id,text,type,link
-  }
-  iceBreakers {
-    _id,question
-  }
-  getStartedText
-  health {
-    status
-    isSubscribed
-    isProfileSynced
-    lastSyncedAt
-    lastVerifiedAt
-    lastError
-    sendBlockedUntil
-    sendBlockReason
-    sendBlockCount
-  }
-`;
-
 export const FACEBOOK_BOTS_LIST = gql`
-    query FacebookMessengerBots {
-      facebookMessengerBots {
-        ${FACEBOOK_BOT_FIELDS}
+  query FacebookMessengerBots {
+    facebookMessengerBots {
+      _id
+      name
+      account
+      accountId
+      createdAt
+      updatedAt
+      createdBy
+      updatedBy
+      createdUser {
+        _id
+        username
+        email
+        details {
+          fullName
+          avatar
+        }
+      }
+      updatedUser {
+        _id
+        username
+        email
+        details {
+          fullName
+          avatar
+        }
+      }
+      page
+      pageId
+      profileUrl
+      persistentMenus {
+        _id
+        text
+        type
+        link
+      }
+      iceBreakers {
+        _id
+        question
+      }
+      getStartedText
+      health {
+        status
+        isSubscribed
+        isProfileSynced
+        lastSyncedAt
+        lastVerifiedAt
+        lastError
+        sendBlockedUntil
+        sendBlockReason
+        sendBlockCount
       }
     }
+  }
 `;
 
 export const FACEBOOK_BOTS_TOTAL_COUNT = gql`
@@ -65,22 +65,72 @@ export const FACEBOOK_BOTS_TOTAL_COUNT = gql`
 `;
 
 export const FACEBOOK_BOT_DETAIL = gql`
-    query FacebootMessengerBot($_id:String) {
-      facebookMessengerBot(_id:$_id) {
-        ${FACEBOOK_BOT_FIELDS}
-        greetText
-        handoffMessage
-        automationActiveMessage
-        handoffPauseMinutes
-        tag
-        isEnabledBackBtn
-        backButtonText
+  query FacebootMessengerBot($_id: String) {
+    facebookMessengerBot(_id: $_id) {
+      _id
+      name
+      account
+      accountId
+      createdAt
+      updatedAt
+      createdBy
+      updatedBy
+      createdUser {
+        _id
+        username
+        email
+        details {
+          fullName
+          avatar
+        }
       }
+      updatedUser {
+        _id
+        username
+        email
+        details {
+          fullName
+          avatar
+        }
+      }
+      page
+      pageId
+      profileUrl
+      persistentMenus {
+        _id
+        text
+        type
+        link
+      }
+      iceBreakers {
+        _id
+        question
+      }
+      getStartedText
+      health {
+        status
+        isSubscribed
+        isProfileSynced
+        lastSyncedAt
+        lastVerifiedAt
+        lastError
+        sendBlockedUntil
+        sendBlockReason
+        sendBlockCount
+      }
+      greetText
+      handoffMessage
+      automationActiveMessage
+      handoffPauseMinutes
+      tag
+      isEnabledBackBtn
+      backButtonText
     }
+  }
 `;
 
 export const GET_FACEBOOK_BOT_PROFILE = gql`
-  query FacebootMessengerBot($_id: String) {
+  query FacebookMessengerBotProfile($_id: String) {
     facebookMessengerBot(_id: $_id) {
       _id
       name

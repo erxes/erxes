@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client';
 
 export const EM_INTEGRATION_DETAIL_QUERY = gql`
-  query integrationDetail($_id: String!) {
+  query ErxesMessengerIntegrationDetail($_id: String!) {
     integrationDetail(_id: $_id) {
       _id
       name

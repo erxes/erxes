@@ -13,13 +13,13 @@ export const GET_INTEGRATION_DETAIL = gql`
 `;
 
 export const GET_PAGES = gql`
-  query FacebookGetPages($accountId: String!, $kind: String!) {
+  query FacebookIntegrationPages($accountId: String!, $kind: String!) {
     facebookGetPages(accountId: $accountId, kind: $kind)
   }
 `;
 
 export const GET_ACCOUNTS = gql`
-  query FacebookGetAccounts($kind: String) {
+  query FacebookIntegrationAccounts($kind: String) {
     facebookGetAccounts(kind: $kind)
   }
 `;

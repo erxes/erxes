@@ -1,9 +1,5 @@
 import { gql } from '@apollo/client';
 
-const commonCommentAndMessageFields = `
-  content
-  conversationId
-`;
 export const getCallConversationNotes = gql`
   query callConversationNotes(
     $conversationId: String!
@@ -16,10 +12,10 @@ export const getCallConversationNotes = gql`
       getFirst: $getFirst
       skip: $skip
       limit: $limit
-    )
-   {
+    ) {
       _id
-      ${commonCommentAndMessageFields}
+      content
+      conversationId
       customerId
       userId
       createdAt

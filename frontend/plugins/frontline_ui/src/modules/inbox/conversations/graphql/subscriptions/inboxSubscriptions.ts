@@ -1,24 +1,13 @@
 import { gql } from '@apollo/client';
-import { ATTACHMENT_GQL } from 'erxes-ui';
-import messageFields, {
-  STRUCTURED_MESSAGE_FIELDS,
-} from '@/inbox/conversations/graphql/subscriptions/messageFields';
 
 export const conversationChanged = gql`
-  subscription conversationChanged($_id: String!) {
+  subscription FrontlineLegacyConversationChanged($_id: String!) {
     conversationChanged(_id: $_id) {
       type
     }
   }
 `;
 
-export const conversationMessageInserted = gql`
-  subscription FrontlineLegacyConversationMessageInserted($_id: String!) {
-    conversationMessageInserted(_id: $_id) {
-      ${messageFields}
-    }
-  }
-`;
 export const CONVERSATION_CHANGED = gql`
   subscription conversationChanged($_id: String!) {
     conversationChanged(_id: $_id) {
@@ -27,38 +16,54 @@ export const CONVERSATION_CHANGED = gql`
   }
 `;
 
-const CONVERSATION_MESSAGE_FIELDS = `
-      _id
-      ${STRUCTURED_MESSAGE_FIELDS}
-      conversationId
-      content
-      formWidgetData
-      extraData
-      ${ATTACHMENT_GQL}
-      internal
-      fromBot
-      createdAt
-      isCustomerRead
-      userId
-      customerId
-      botData
-      source
-      relatedMessage
-      fromBot
+const CONVERSATION_MESSAGE_FIELDS = gql`
+  fragment FrontlineConversationMessageFields on ConversationMessage {
+    _id
+    mid
+    messageKind
+    providerData
+    replyTo
+    reactions
+    deliveryStatus
+    expiresAt
+    conversationId
+    content
+    formWidgetData
+    extraData
+    attachments {
+      url
+      name
+      type
+      size
+      duration
+    }
+    internal
+    fromBot
+    createdAt
+    isCustomerRead
+    userId
+    customerId
+    botData
+    source
+    relatedMessage
+    fromBot
+  }
 `;
 
 export const CONVERSATION_MESSAGE_INSERTED = gql`
+  ${CONVERSATION_MESSAGE_FIELDS}
   subscription FrontlineConversationMessageInserted($_id: String!) {
     conversationMessageInserted(_id: $_id) {
-      ${CONVERSATION_MESSAGE_FIELDS}
+      ...FrontlineConversationMessageFields
     }
   }
 `;
 
 export const CONVERSATION_MESSAGE_UPDATED = gql`
+  ${CONVERSATION_MESSAGE_FIELDS}
   subscription FrontlineConversationMessageUpdated($_id: String!) {
     conversationMessageUpdated(_id: $_id) {
-      ${CONVERSATION_MESSAGE_FIELDS}
+      ...FrontlineConversationMessageFields
     }
   }
 `;
@@ -112,7 +117,6 @@ const customerConnectionChanged = `
 
 export const inboxSubscriptions = {
   conversationChanged,
-  conversationMessageInserted,
   conversationClientTypingStatusChanged:
     CONVERSATION_CLIENT_TYPING_STATUS_CHANGED,
   customerConnectionChanged,

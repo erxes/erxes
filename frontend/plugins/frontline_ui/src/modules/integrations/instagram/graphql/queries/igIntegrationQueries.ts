@@ -13,13 +13,13 @@ export const GET_INTEGRATION_DETAIL = gql`
 `;
 
 export const GET_PAGES = gql`
-  query InstagramGetPages($accountId: String!, $kind: String!) {
+  query InstagramIntegrationPages($accountId: String!, $kind: String!) {
     instagramGetPages(accountId: $accountId, kind: $kind)
   }
 `;
 
 export const GET_ACCOUNTS = gql`
-  query InstagramGetAccounts($kind: String) {
+  query InstagramIntegrationAccounts($kind: String) {
     instagramGetAccounts(kind: $kind)
   }
 `;

@@ -38,7 +38,7 @@ export const useCreateMessenger = () => {
 
     createMessengerMutation({
       variables: createVariables,
-      refetchQueries: ['Integrations', 'integrationDetail'],
+      refetchQueries: ['Integrations', 'ErxesMessengerIntegrationDetail'],
       async onCompleted({ integrationsCreateMessengerIntegration }) {
         const { _id } = integrationsCreateMessengerIntegration;
 

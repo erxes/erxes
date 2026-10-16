@@ -1,9 +1,4 @@
 import { gql } from '@apollo/client';
-import {
-  GQL_CURSOR_PARAM_DEFS,
-  GQL_CURSOR_PARAMS,
-  GQL_PAGE_INFO,
-} from 'erxes-ui';
 
 export const GET_FORMS_LIST = gql`
   query Forms(
@@ -14,7 +9,10 @@ export const GET_FORMS_LIST = gql`
     $searchValue: String
     $orderBy: JSON
     $skip: Int
-    ${GQL_CURSOR_PARAM_DEFS}
+    $cursor: String
+    $cursorMode: CURSOR_MODE
+    $direction: CURSOR_DIRECTION
+    $limit: Int
   ) {
     forms(
       type: $type
@@ -24,7 +22,10 @@ export const GET_FORMS_LIST = gql`
       searchValue: $searchValue
       orderBy: $orderBy
       skip: $skip
-      ${GQL_CURSOR_PARAMS}
+      cursor: $cursor
+      cursorMode: $cursorMode
+      direction: $direction
+      limit: $limit
     ) {
       list {
         _id
@@ -45,7 +46,13 @@ export const GET_FORMS_LIST = gql`
         title
         type
       }
-      ${GQL_PAGE_INFO}
+      totalCount
+      pageInfo {
+        hasNextPage
+        hasPreviousPage
+        startCursor
+        endCursor
+      }
     }
   }
 `;
@@ -106,7 +113,10 @@ export const GET_FORMS_TOTAL_COUNT = gql`
     $status: String
     $searchValue: String
     $orderBy: JSON
-    ${GQL_CURSOR_PARAM_DEFS}
+    $cursor: String
+    $cursorMode: CURSOR_MODE
+    $direction: CURSOR_DIRECTION
+    $limit: Int
   ) {
     formsTotalCount(
       type: $type
@@ -115,7 +125,10 @@ export const GET_FORMS_TOTAL_COUNT = gql`
       status: $status
       searchValue: $searchValue
       orderBy: $orderBy
-      ${GQL_CURSOR_PARAMS}
+      cursor: $cursor
+      cursorMode: $cursorMode
+      direction: $direction
+      limit: $limit
     ) {
       total
       byTag

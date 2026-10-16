@@ -1,10 +1,5 @@
 import { gql } from '@apollo/client';
 
-const commonMessageFields = `
-  content
-  conversationId
-`;
-
 export const GET_CONVERSATION_MESSAGES = gql`
   query InstagramConversationMessages(
     $conversationId: String!
@@ -19,7 +14,8 @@ export const GET_CONVERSATION_MESSAGES = gql`
       limit: $limit
     ) {
       _id
-      ${commonMessageFields}
+      content
+      conversationId
       customerId
       userId
       createdAt
@@ -70,7 +66,8 @@ export const GET_POST_MESSAGES = gql`
       limit: $limit
     ) {
       _id
-      ${commonMessageFields}
+      content
+      conversationId
       customerId
       userId
       createdAt

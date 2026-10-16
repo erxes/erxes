@@ -1,5 +1,14 @@
 import { gql } from '@apollo/client';
-import { ATTACHMENT_FRAGMENT } from 'erxes-ui';
+
+const KB_ATTACHMENT_FIELDS = gql`
+  fragment FrontlineKbAttachmentFields on Attachment {
+    name
+    url
+    type
+    size
+    duration
+  }
+`;
 
 export const KB_AUTHOR_FIELDS = gql`
   fragment FrontlineKbAuthorFields on User {
@@ -170,24 +179,24 @@ export const ARTICLES = gql`
 
 export const ARTICLE_DETAIL = gql`
   ${KB_ARTICLE_FIELDS}
-  ${ATTACHMENT_FRAGMENT}
+  ${KB_ATTACHMENT_FIELDS}
   query frontlineKbArticleDetail($_id: String!) {
     knowledgeBaseArticleDetail(_id: $_id) {
       ...FrontlineKbArticleFields
       content
       reactionChoices
       image {
-        ...AttachmentFragment
+        ...FrontlineKbAttachmentFields
       }
       attachments {
-        ...AttachmentFragment
+        ...FrontlineKbAttachmentFields
       }
       pdfAttachment {
         pdf {
-          ...AttachmentFragment
+          ...FrontlineKbAttachmentFields
         }
         pages {
-          ...AttachmentFragment
+          ...FrontlineKbAttachmentFields
         }
       }
     }

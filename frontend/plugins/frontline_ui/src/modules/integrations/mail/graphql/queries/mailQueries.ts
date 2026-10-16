@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client';
-import { ATTACHMENT_GQL } from 'erxes-ui';
 
 export const MAIL_CONVERSATION_DETAIL_QUERY = gql`
   query mailConversationDetail($conversationId: String!, $limit: Int) {
@@ -17,15 +16,29 @@ export const MAIL_CONVERSATION_DETAIL_QUERY = gql`
 `;
 
 export const MAIL_CONVERSATION_INTERNAL_NOTES_QUERY = gql`
-  query mailConversationInternalNotes($conversationId: String!, $notesSkip: Int, $notesLimit: Int) {
-    mailConversationInternalNotes(conversationId: $conversationId, skip: $notesSkip, limit: $notesLimit) {
+  query mailConversationInternalNotes(
+    $conversationId: String!
+    $notesSkip: Int
+    $notesLimit: Int
+  ) {
+    mailConversationInternalNotes(
+      conversationId: $conversationId
+      skip: $notesSkip
+      limit: $notesLimit
+    ) {
       _id
       mid
       conversationId
       content
       formWidgetData
       extraData
-      ${ATTACHMENT_GQL}
+      attachments {
+        url
+        name
+        type
+        size
+        duration
+      }
       createdAt
       internal
       fromBot
@@ -52,21 +65,17 @@ export const MAIL_MESSAGE_INSERTED_SUBSCRIPTION = gql`
   }
 `;
 
-const MAIL_DRAFT_FIELDS = `
-  _id
-  sourceMessageId
-  to
-  subject
-  body
-  senderMismatch
-  status
-  createdAt
-`;
-
 export const MAIL_CONVERSATION_DRAFTS_QUERY = gql`
   query mailConversationDrafts($conversationId: String!) {
     mailConversationDrafts(conversationId: $conversationId) {
-      ${MAIL_DRAFT_FIELDS}
+      _id
+      sourceMessageId
+      to
+      subject
+      body
+      senderMismatch
+      status
+      createdAt
     }
   }
 `;
