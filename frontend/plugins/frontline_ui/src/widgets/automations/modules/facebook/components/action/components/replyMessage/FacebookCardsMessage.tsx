@@ -522,7 +522,6 @@ const FacebookCardsMessageContent = () => {
 export const FacebookCardsMessage = ({
   index,
 }: FacebookMessageProps<{ type: 'card' }>) => {
-  const { t } = useTranslation('frontline', { keyPrefix: 'modules.facebook' });
   const { control } = useReplyMessageAction();
 
   return (

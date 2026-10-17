@@ -133,7 +133,7 @@ const MessengerBotList = ({
     return (
       <div className="flex flex-col items-center gap-2 text-accent-foreground">
         <IconRobotFace />
-        <p>{t('no-bots-configured', "There's no bots configured")}</p>
+        <p>{t('no-bots-configured', 'No bots are configured')}</p>
         <Button variant="secondary" asChild>
           <Link to={`/settings/automations/bots/facebook-messenger-bots`}>
             <Label>
