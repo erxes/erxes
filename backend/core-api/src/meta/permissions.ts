@@ -726,6 +726,34 @@ export const permissions: IPermissionConfig = {
         },
       ],
     },
+    {
+      name: 'agents',
+      description: 'AI agents',
+      scopeField: null,
+      ownerFields: [],
+
+      scopes: [{ name: 'all', description: 'All agents access' }],
+
+      actions: [
+        {
+          title: 'View agents',
+          name: 'showAgents',
+          description: 'View agents',
+          always: true,
+        },
+        {
+          title: 'Use agents chat',
+          name: 'agentsChat',
+          description: 'Use agents chat',
+        },
+        {
+          title: 'Manage agents settings',
+          name: 'manageAgentsSettings',
+          description:
+            'Manage tenant-wide agents settings (code mode toggle)',
+        },
+      ],
+    },
   ],
   defaultGroups: [
     {
@@ -887,6 +915,12 @@ export const permissions: IPermissionConfig = {
           actions: ['logsRead'],
           scope: 'all',
         },
+        {
+          plugin: 'core',
+          module: 'agents',
+          actions: ['showAgents', 'agentsChat', 'manageAgentsSettings'],
+          scope: 'all',
+        },
       ],
     },
     {
@@ -923,6 +957,12 @@ export const permissions: IPermissionConfig = {
           module: 'broadcasts',
           actions: ['broadcastRead', 'broadcastCreate', 'broadcastUpdate'],
           scope: 'own',
+        },
+        {
+          plugin: 'core',
+          module: 'agents',
+          actions: ['showAgents', 'agentsChat'],
+          scope: 'all',
         },
       ],
     },
@@ -1063,6 +1103,12 @@ export const permissions: IPermissionConfig = {
           module: 'internalNotes',
           actions: ['internalNotesManage'],
           scope: 'own',
+        },
+        {
+          plugin: 'core',
+          module: 'agents',
+          actions: ['showAgents'],
+          scope: 'all',
         },
       ],
     },

@@ -9,6 +9,7 @@ export default {
             activityLogInserted(userId: String, targetId: String): ActivityLog
             userStatusChanged(_id: String): User
             broadcastChanged(engageMessageId: String): JSON
+            agentsThreadsChanged: AgentsThreadsChanged
 		`,
   generateResolvers: (graphqlPubsub) => {
     return {
@@ -86,6 +87,23 @@ export default {
           (payload, { engageMessageId }) =>
             !engageMessageId ||
             payload.broadcastChanged.engageMessageId === engageMessageId,
+        ),
+      },
+
+      /*
+       * Agents chat sidebar refresh signal: transient per-user event
+       * carrying only { userId }, delivered only to the owning subscriber.
+       */
+      agentsThreadsChanged: {
+        resolve: (payload) => payload.agentsThreadsChanged,
+        subscribe: withFilter(
+          () => graphqlPubsub.asyncIterator('agentsThreadsChanged'),
+          (payload, _args, context) => {
+            const event = payload && payload.agentsThreadsChanged;
+            const userId = context && context.user && context.user._id;
+
+            return !!userId && !!event && event.userId === userId;
+          },
         ),
       },
     };

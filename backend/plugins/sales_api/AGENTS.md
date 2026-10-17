@@ -6,7 +6,7 @@
 - **Project:** `sales_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/sales_api`
-- **Last synchronized:** `2026-10-14`
+- **Last synchronized:** `2026-10-17`
 
 ## Scope
 
@@ -192,8 +192,9 @@
   Mongolian `productRules.find` with a `data` filter before sending products.
 - Read-only deal, stage, pipeline, POS, and POS-order tRPC procedures are
   exposed to AI agents through `/agent-tools/manifest` and `/agent-tools/call`
-  via `.meta(agentMeta(...))` annotations; every other procedure remains
-  invisible to agents.
+  via `.meta(agentMeta(...))` annotations. Narrow `deal.add`, `deal.edit`,
+  and `deal.move` mutations resolve the acting user from signed context and
+  reuse existing deal services; unannotated procedures remain invisible.
 
 ## Architecture
 
@@ -364,6 +365,7 @@
 - Agent-callable tRPC tools (admit-only via `.meta({ agent })`), each gated by
   the listed sales permission action:
   - `deal.findOne`, `deal.find`, `deal.count`, `deal.getLink` — `showDeals`
+  - `deal.add` — `dealsAdd`; `deal.edit`, `deal.move` — `dealsEdit`
   - `stage.findOne`, `stage.find` — `showDeals`
   - `pipeline.findOne` — `pipelinesWatch`
   - `pos.findOne`, `pos.find` — `posRead`

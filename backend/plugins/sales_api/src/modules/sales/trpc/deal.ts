@@ -1,10 +1,13 @@
-import { initTRPC } from '@trpc/server';
-import { ITRPCContext } from 'erxes-api-shared/utils';
+import { initTRPC, TRPCError } from '@trpc/server';
+import { IUserDocument } from 'erxes-api-shared/core-types';
+import { ITRPCContext, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { z } from 'zod';
 import { IModels } from '~/connectionResolvers';
 import { agentMeta } from '~/trpc/agentMeta';
+import { IDeal } from '~/modules/sales/@types';
 import {
   addDeal,
+  changeDeal,
   editDeal,
 } from '~/modules/sales/graphql/resolvers/mutations/utils';
 import { generateFilter } from '~/modules/sales/graphql/resolvers/queries/deals';
@@ -20,6 +23,45 @@ import { syncWrittenDealPoints } from '~/modules/sales/utils/dealPoints';
 export type SalesTRPCContext = ITRPCContext<{ models: IModels }>;
 
 const t = initTRPC.context<SalesTRPCContext>().create();
+
+const agentRecordId = z.string().regex(/^[A-Za-z0-9_-]{1,64}$/);
+const agentIdList = z.array(agentRecordId).max(20);
+const agentIsoDate = z
+  .string()
+  .refine((value) => !Number.isNaN(Date.parse(value)), {
+    message: 'Use an ISO date such as "2026-11-15"',
+  });
+const agentShortText = z.string().trim().min(1).max(200);
+const agentDescriptionText = z.string().trim().max(5000);
+
+// Every agent write runs as the user whose chat session issued it; the
+// HMAC-signed context carries that user's id, resolved through core.
+const requireAgentUser = async (ctx: {
+  subdomain: string;
+  userId?: string;
+}): Promise<IUserDocument> => {
+  const user = ctx.userId
+    ? ((await sendTRPCMessage({
+        subdomain: ctx.subdomain,
+
+        pluginName: 'core',
+        method: 'query',
+        module: 'users',
+        action: 'findOne',
+        input: { query: { _id: ctx.userId } },
+        defaultValue: null,
+      })) as IUserDocument | null)
+    : null;
+
+  if (!user) {
+    throw new TRPCError({
+      code: 'UNAUTHORIZED',
+      message: 'Acting user not found',
+    });
+  }
+
+  return user;
+};
 
 const publishDealSubscription = t.procedure
   .input(z.any())
@@ -377,6 +419,180 @@ export const dealTrpcRouter = t.router({
           throw new Error(error?.message || 'Failed to create activity log');
         }
       }),
+
+    add: t.procedure
+      .meta(
+        agentMeta(
+          'Create a deal as the acting user: { name, stageId, description?, startDate?, closeDate? (ISO date such as "2026-11-15"), assignedUserIds?, customerIds?, companyIds? }. Resolve the pipeline with pipeline.findOne and its stages with stage.find first; never guess a stageId. Products and payments are not set here. Returns the created deal.',
+          { module: 'deal', action: 'dealsAdd' },
+        ),
+      )
+      .input(
+        z.object({
+          name: agentShortText,
+          stageId: agentRecordId,
+          description: agentDescriptionText.optional(),
+          startDate: agentIsoDate.optional(),
+          closeDate: agentIsoDate.optional(),
+          assignedUserIds: agentIdList.optional(),
+          customerIds: agentIdList.optional(),
+          companyIds: agentIdList.optional(),
+        }),
+      )
+      .mutation(async ({ ctx, input }) => {
+        const { models, subdomain } = ctx;
+        const user = await requireAgentUser(ctx);
+
+        const stage = await models.Stages.findOne({
+          _id: input.stageId,
+        }).lean();
+        if (!stage) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: 'Stage not found',
+          });
+        }
+
+        const doc: IDeal = {
+          name: input.name,
+          stageId: input.stageId,
+        };
+        if (input.description !== undefined) {
+          doc.description = input.description;
+        }
+        if (input.startDate !== undefined) {
+          doc.startDate = new Date(input.startDate);
+        }
+        if (input.closeDate !== undefined) {
+          doc.closeDate = new Date(input.closeDate);
+        }
+        if (input.assignedUserIds !== undefined) {
+          doc.assignedUserIds = input.assignedUserIds;
+        }
+        if (input.customerIds !== undefined) {
+          doc.customerIds = input.customerIds;
+        }
+        if (input.companyIds !== undefined) {
+          doc.companyIds = input.companyIds;
+        }
+
+        return addDeal({
+          models,
+          subdomain,
+          user,
+          doc: doc as IDeal & { processId: string; aboveItemId: string },
+        });
+      }),
+
+    edit: t.procedure
+      .meta(
+        agentMeta(
+          "Update an existing deal's details: { _id, name?, description?, startDate?, closeDate?, assignedUserIds? }. Only the fields you pass change; assignedUserIds replaces the whole list. Use deal.move to change its stage. Call deal.findOne first to confirm the deal.",
+          { module: 'deal', action: 'dealsEdit' },
+        ),
+      )
+      .input(
+        z.object({
+          _id: agentRecordId,
+          name: agentShortText.optional(),
+          description: agentDescriptionText.optional(),
+          startDate: agentIsoDate.optional(),
+          closeDate: agentIsoDate.optional(),
+          assignedUserIds: agentIdList.optional(),
+        }),
+      )
+      .mutation(async ({ ctx, input }) => {
+        const { models, subdomain } = ctx;
+
+        const { _id, ...fields } = input;
+
+        const doc: Partial<IDeal> = {};
+        if (fields.name !== undefined) {
+          doc.name = fields.name;
+        }
+        if (fields.description !== undefined) {
+          doc.description = fields.description;
+        }
+        if (fields.startDate !== undefined) {
+          doc.startDate = new Date(fields.startDate);
+        }
+        if (fields.closeDate !== undefined) {
+          doc.closeDate = new Date(fields.closeDate);
+        }
+        if (fields.assignedUserIds !== undefined) {
+          doc.assignedUserIds = fields.assignedUserIds;
+        }
+
+        if (!Object.keys(doc).length) {
+          throw new TRPCError({
+            code: 'BAD_REQUEST',
+            message: 'Provide at least one field to update',
+          });
+        }
+
+        const deal = await models.Deals.findOne({ _id }).lean();
+        if (!deal) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: 'Deal not found',
+          });
+        }
+
+        const user = await requireAgentUser(ctx);
+
+        return editDeal({
+          models,
+          subdomain,
+          _id,
+          processId: ctx.processId ?? '',
+          doc: doc as IDeal,
+          user,
+        });
+      }),
+
+    move: t.procedure
+      .meta(
+        agentMeta(
+          'Move a deal to another stage: { _id, stageId }. Resolve the target stage with stage.find ({ pipelineId }) first; it may be in the same or another pipeline. Returns the updated deal.',
+          { module: 'deal', action: 'dealsEdit' },
+        ),
+      )
+      .input(
+        z.object({
+          _id: agentRecordId,
+          stageId: agentRecordId,
+        }),
+      )
+      .mutation(async ({ ctx, input }) => {
+        const { models, subdomain } = ctx;
+        const user = await requireAgentUser(ctx);
+
+        const { _id, stageId } = input;
+
+        const deal = await models.Deals.findOne({ _id }).lean();
+        if (!deal) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: 'Deal not found',
+          });
+        }
+
+        const stage = await models.Stages.findOne({ _id: stageId }).lean();
+        if (!stage) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: 'Stage not found',
+          });
+        }
+
+        return changeDeal(subdomain, models, user._id, {
+          itemId: _id,
+          destinationStageId: stageId,
+          sourceStageId: deal.stageId,
+          processId: ctx.processId,
+        });
+      }),
+
     subscriptionWrapper: publishDealSubscription,
     // those create and update procedures are for system user, because of user missing
     create: createDealProcedure,

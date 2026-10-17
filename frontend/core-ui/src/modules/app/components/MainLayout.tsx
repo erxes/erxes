@@ -18,10 +18,58 @@ import {
   navigationSidebarOpenState,
   navigationSidebarWidthState,
 } from '@/navigation/states/navigationPanelState';
-import { type ReactNode, useRef } from 'react';
+import { type ReactNode, lazy, Suspense, useRef } from 'react';
+import { agentSidePanelOpenState } from '@/agent/states/agentPanelStates';
 import { Outlet, useLocation } from 'react-router';
 import { WelcomeNotificationEffect } from '@/app/effect-components/WelcomeNotificationEffect';
 import { visitedPageTabsVisibleState } from '@/navigation/states/visitedPageTabsState';
+
+// Lazy: keeps the agent chat bundle (ai SDK, markdown, artifact
+// converters) out of the main chunk until the panel first opens.
+const AgentSidePanel = lazy(() =>
+  import('@/agent/components/AgentSidePanel').then((module) => ({
+    default: module.AgentSidePanel,
+  })),
+);
+
+// Lazy too: the tray pulls in the vendored bot engine, which nobody
+// needs before first paint.
+const AgentTray = lazy(() =>
+  import('@/agent/components/AgentTray').then((module) => ({
+    default: module.AgentTray,
+  })),
+);
+
+const AgentTrayMount = () => (
+  <Suspense fallback={null}>
+    <AgentTray />
+  </Suspense>
+);
+
+// Gate first, then lazy: the agent chunk only loads when the panel is
+// actually opened, not on app start. Once opened the panel stays mounted
+// (hidden when closed) so its chat stream — and the tray's activity
+// feed — keeps running; it never mounts on `/agent*` where the full
+// page owns the chat.
+const AgentPanelMount = () => {
+  const open = useAtomValue(agentSidePanelOpenState);
+  const { pathname } = useLocation();
+  const everOpenedRef = useRef(open);
+
+  if (open) {
+    everOpenedRef.current = true;
+  }
+
+  if (!everOpenedRef.current || pathname.startsWith('/agent')) {
+    return null;
+  }
+
+  return (
+    <Suspense fallback={null}>
+      <AgentSidePanel />
+    </Suspense>
+  );
+};
 
 const NavigationWorkspace = () => {
   const { isMobile } = Sidebar.useSidebar();
@@ -59,6 +107,8 @@ const NavigationWorkspace = () => {
             <Outlet />
           </div>
         </div>
+        <AgentPanelMount />
+        <AgentTrayMount />
       </div>
     </Sidebar.Inset>
   );

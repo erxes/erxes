@@ -13,6 +13,12 @@ import { ClientPortalDetailPage } from '~/pages/settings/client-portal/ClientPor
 import { ClientPortalPage } from '~/pages/settings/client-portal/ClientPortalPage';
 import { TeamMemberSettingsRoutes } from '@/settings/team-member/components/TeamMemberSettingsRoutes';
 
+const AgentSettingsRoutes = lazy(() =>
+  import('~/pages/settings/agent/AgentSettingsRoutes').then((module) => ({
+    default: module.AgentSettingsRoutes,
+  })),
+);
+
 const SettingsProfile = lazy(() =>
   import('~/pages/settings/account/ProfilePage').then((module) => ({
     default: module.SettingsProfilePage,
@@ -229,6 +235,10 @@ export function SettingsRoutes() {
         <Route
           path={SettingsWorkspacePath.ProductsCatchAll}
           element={<ProductsSettingsRoutes />}
+        />
+        <Route
+          path={SettingsWorkspacePath.AgentCatchAll}
+          element={<AgentSettingsRoutes />}
         />
         <Route
           path={SettingsWorkspacePath.AutomationsCatchAll}

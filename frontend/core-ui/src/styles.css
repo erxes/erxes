@@ -461,3 +461,61 @@
     transition: none;
   }
 }
+
+/* Agent tray status glow: a blurred halo behind the bot (see
+ * modules/agent/utils/trayGlow.ts for the state → animation map). */
+.agent-tray-glow {
+  transform-origin: center;
+  will-change: opacity, transform;
+}
+@keyframes tray-glow-pulse {
+  0%,
+  100% {
+    opacity: 0.45;
+    transform: scale(0.92);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.16);
+  }
+}
+@keyframes tray-glow-flash {
+  0% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.05);
+  }
+}
+@keyframes tray-glow-twice {
+  0% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+  22% {
+    opacity: 0.3;
+    transform: scale(0.96);
+  }
+  45% {
+    opacity: 1;
+    transform: scale(1.14);
+  }
+  70% {
+    opacity: 0.25;
+    transform: scale(0.98);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  /* The halo is a status signal: keep it, just don't pulse it. */
+  .agent-tray-glow {
+    animation: none !important;
+    opacity: 0.7;
+    transform: none;
+  }
+}
