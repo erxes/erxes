@@ -72,7 +72,7 @@
 
 | Area                  | Path                                                                                                      | Responsibility                                                                          |
 | --------------------- | --------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
-| App sidebar | `frontend/plugins/loyalty_ui/src/Sidebar.tsx` | `LoyaltySidebar` (app sidebar), `LoyaltySidebarFooter` (Settings link) and `LoyaltySettingsLayout` (settings sidebar for `./loyaltySettings`), all rendered through `AppLayout` |
+| App sidebar | `frontend/plugins/loyalty_ui/src/Sidebar.tsx` | `LoyaltySidebar` (app sidebar) and `LoyaltySidebarFooter` (Settings link), rendered by the `./loyalty` entry through `AppLayout` |
 | Pricing entry points  | `src/modules/pricing/Main.tsx`, `src/pages/pricing`                                                       | Pricing route and list/detail composition.                                              |
 | Pricing create form   | `src/modules/pricing/create-pricing/**`                                                                   | New pricing plan form and submission mapping.                                           |
 | Pricing edit forms    | `src/modules/pricing/edit-pricing/**`                                                                     | Sectioned pricing detail editing UI.                                                    |
@@ -132,13 +132,17 @@
   `LoyaltySidebar`. Core-ui draws only the top `CoreTab` bar; `navigationGroup` in
   `src/config.tsx` supplies just the tab name, icon and `defaultPath` and takes
   no `content`/`subGroup`.
-- The plugin owns its settings too. `LoyaltySidebarFooter` pins a Settings
-  link (`/settings/loyalty`) to the bottom of the app sidebar, and `src/LoyaltySettings.tsx`
-  (the `./loyaltySettings` expose) wraps its routes in `LoyaltySettingsLayout`:
-  `AppLayout` (`id="loyalty:settings"`) with the plugin's settings
-  navigation and a Back link to the app. Core-ui renders these routes bare
-  and no longer lists them in organization settings; `settingsNavigation`
-  in `src/config.tsx` is what tells core the plugin owns its settings.
+- `LoyaltySidebarFooter` pins a Settings link to the bottom of the app
+  sidebar. Under `/settings/loyalty/…` core-ui frames the settings pages
+  (the `./loyaltySettings` expose renders content only — never wrap it in
+  `AppLayout`): the sidebar is this plugin's `settingsNavigation` from
+  `src/config.tsx`, plus core's Tags/Properties entries when the plugin
+  registers tag or property types (`/settings/loyalty/tags`,
+  `/settings/loyalty/properties`, filtered to this plugin's types), and a
+  Back link to the app. Keep `settingsNavigation` defined: it is how core
+  knows the plugin has its own settings.
+  `settingsNavigation` renders no `Sidebar.GroupLabel`: core titles the
+  sidebar "<Plugin> settings" and appends Tags/Properties to the same list.
 - Page-level side menus render `Sidebar.Panel` from `erxes-ui`, which keeps its
   own open state (`sidebarPanelOpenState`), separate from the plugin's
   `AppLayout` sidebar. Never stack two headings: a menu without a heading passes one as

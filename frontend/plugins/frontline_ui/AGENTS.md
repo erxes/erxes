@@ -506,7 +506,7 @@ owns the setup form and connection actions.
 
 | Area                      | Path                                                                                                                                              | Responsibility                                                                                                                                  |
 | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| App sidebar | `frontend/plugins/frontline_ui/src/Sidebar.tsx` | `FrontlineSidebar` (app sidebar), `FrontlineSidebarFooter` (Settings link) and `FrontlineSettingsLayout` (settings sidebar for `./frontlineSettings`), all rendered through `AppLayout` |
+| App sidebar | `frontend/plugins/frontline_ui/src/Sidebar.tsx` | `FrontlineSidebar` (app sidebar) and `FrontlineSidebarFooter` (Settings link), rendered by the `./frontline` entry through `AppLayout` |
 | Host registration         | `src/config.tsx`                                                                                                                                  | `CONFIG` — navigation, settings, widgets, property inputs, routes, and Module Federation exposes                                                |
 | Federation                | `module-federation.config.ts`                                                                                                                     | Remote name `frontline_ui` and its exposes                                                                                                      |
 | Routes                    | `src/modules/FrontlineMain.tsx`, `src/pages/`                                                                                                     | Routed pages for inbox, ticket, forms, call, channels                                                                                           |
@@ -874,13 +874,17 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
   `FrontlineSidebar`. Core-ui draws only the top `CoreTab` bar; `navigationGroup` in
   `src/config.tsx` supplies just the tab name, icon and `defaultPath` and takes
   no `content`/`subGroup`.
-- The plugin owns its settings too. `FrontlineSidebarFooter` pins a Settings
-  link (`/settings/frontline/channels`) to the bottom of the app sidebar, and `src/modules/FrontlineSettings.tsx`
-  (the `./frontlineSettings` expose) wraps its routes in `FrontlineSettingsLayout`:
-  `AppLayout` (`id="frontline:settings"`) with the plugin's settings
-  navigation and a Back link to the app. Core-ui renders these routes bare
-  and no longer lists them in organization settings; `settingsNavigation`
-  in `src/config.tsx` is what tells core the plugin owns its settings.
+- `FrontlineSidebarFooter` pins a Settings link to the bottom of the app
+  sidebar. Under `/settings/frontline/…` core-ui frames the settings pages
+  (the `./frontlineSettings` expose renders content only — never wrap it in
+  `AppLayout`): the sidebar is this plugin's `settingsNavigation` from
+  `src/config.tsx`, plus core's Tags/Properties entries when the plugin
+  registers tag or property types (`/settings/frontline/tags`,
+  `/settings/frontline/properties`, filtered to this plugin's types), and a
+  Back link to the app. Keep `settingsNavigation` defined: it is how core
+  knows the plugin has its own settings.
+  `settingsNavigation` renders no `Sidebar.GroupLabel`: core titles the
+  sidebar "<Plugin> settings" and appends Tags/Properties to the same list.
 - The conversations filter bar header (`ConversationsHeader`) uses
   `bg-background`, matching the host's `PageHeader` and `PageSubHeader`, never
   the sidebar tint.

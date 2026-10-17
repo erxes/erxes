@@ -152,7 +152,7 @@
 
 | Area                | Path                                                                                                 | Responsibility                                                                   |
 | ------------------- | ---------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
-| App sidebar | `frontend/plugins/sales_ui/src/Sidebar.tsx` | `SalesSidebar` (app sidebar), `SalesSidebarFooter` (Settings link) and `SalesSettingsLayout` (settings sidebar for `./salesSettings`), all rendered through `AppLayout` |
+| App sidebar | `frontend/plugins/sales_ui/src/Sidebar.tsx` | `SalesSidebar` (app sidebar) and `SalesSidebarFooter` (Settings link), rendered by the `./sales` entry through `AppLayout` |
 | Registration        | `frontend/plugins/sales_ui/src/config.tsx`                                                           | Sales routes, navigation, and remote registration                                |
 | Dev server          | `frontend/plugins/sales_ui/rspack.config.ts`                                                         | Module Federation development serving and watch ignore rules                     |
 | Pipeline editor     | `frontend/plugins/sales_ui/src/modules/deals/pipelines`                                              | Pipeline form, stages, product config, and property selection                    |
@@ -214,13 +214,17 @@
   `SalesSidebar`. Core-ui draws only the top `CoreTab` bar; `navigationGroup` in
   `src/config.tsx` supplies just the tab name, icon and `defaultPath` and takes
   no `content`/`subGroup`.
-- The plugin owns its settings too. `SalesSidebarFooter` pins a Settings
-  link (`/settings/sales`) to the bottom of the app sidebar, and `src/pages/SalesSettingsIndexPage.tsx`
-  (the `./salesSettings` expose) wraps its routes in `SalesSettingsLayout`:
-  `AppLayout` (`id="sales:settings"`) with the plugin's settings
-  navigation and a Back link to the app. Core-ui renders these routes bare
-  and no longer lists them in organization settings; `settingsNavigation`
-  in `src/config.tsx` is what tells core the plugin owns its settings.
+- `SalesSidebarFooter` pins a Settings link to the bottom of the app
+  sidebar. Under `/settings/sales/…` core-ui frames the settings pages
+  (the `./salesSettings` expose renders content only — never wrap it in
+  `AppLayout`): the sidebar is this plugin's `settingsNavigation` from
+  `src/config.tsx`, plus core's Tags/Properties entries when the plugin
+  registers tag or property types (`/settings/sales/tags`,
+  `/settings/sales/properties`, filtered to this plugin's types), and a
+  Back link to the app. Keep `settingsNavigation` defined: it is how core
+  knows the plugin has its own settings.
+  `settingsNavigation` renders no `Sidebar.GroupLabel`: core titles the
+  sidebar "<Plugin> settings" and appends Tags/Properties to the same list.
 - Whether loyalty is on is read at runtime (`useLoyaltyEnabled`, the loaded `pluginsConfigState`), never with `isEnabled('loyalty')`: that reads a build-time env that deployments such as SaaS do not set, which hid the Tier tab, the deal list's points column and the board card badge.
 - Expandable navigation rows end in the host sidebar's chevron:
   `IconChevronRight` (`size-3.5`, muted) inside a span that rotates 90° when

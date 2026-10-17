@@ -43,7 +43,8 @@
     "more-actions": "More actions",
     "organization-settings": "Organization settings",
     "app-settings": "Settings",
-    "back-to-app": "Back to {{name}}"
+    "back-to-app": "Back to {{name}}",
+    "plugin-settings-title": "{{name}} settings"
   },
   "core-modules": {
     "_": "Core modules",
@@ -454,14 +455,15 @@
     "good-morning": "Good morning, {{name}}",
     "good-afternoon": "Good afternoon, {{name}}",
     "good-evening": "Good evening, {{name}}",
-    "starred": "Starred",
-    "starred-empty": "Star a page from its sidebar menu to keep it here.",
-    "notifications": "New notifications",
-    "notifications-empty": "You're all caught up.",
-    "view-all": "View all",
-    "installed-plugins": "Installed plugins",
-    "plugins-empty": "No plugins are installed yet.",
-    "core-modules": "Core modules",
-    "core-modules-empty": "No core modules are available to you."
+    "starred": "Your favorites",
+    "starred-empty": "Star the pages you use most and they'll be waiting for you here.",
+    "notifications": "What's new for you",
+    "notifications-empty": "You're all caught up — nothing new right now.",
+    "view-all": "Open inbox",
+    "installed-plugins": "Your plugins",
+    "plugins-empty": "No plugins yet — once your workspace adds some, they'll show up here.",
+    "core-modules": "Your tools",
+    "core-modules-empty": "You don't have access to any tools yet. Ask an admin to give you access.",
+    "subtitle": "Here's what's waiting for you today."
   }
 }

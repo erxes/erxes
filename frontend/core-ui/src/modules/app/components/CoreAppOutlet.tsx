@@ -9,7 +9,8 @@ import { SettingsSidebar } from '@/settings/components/SettingsSidebar';
 import { AppPath } from '@/types/paths/AppPath';
 import { findAppActivityByPath } from '@/navigation/utils/navigationActivities';
 import { useNavigationActivities } from '@/navigation/hooks/useNavigationActivities';
-import { usePluginSettingsActivity } from '@/navigation/hooks/usePluginSettingsActivity';
+import { PluginSettingsLayout } from '@/settings/components/PluginSettingsLayout';
+import { usePluginSettingsApp } from '@/navigation/hooks/usePluginSettingsActivity';
 import { useTranslation } from 'react-i18next';
 
 const getCoreModuleSidebar = (
@@ -32,17 +33,26 @@ const getCoreModuleSidebar = (
 };
 
 /**
- * Plugin routes (their app and their own settings) render bare: the plugin
- * entry draws its own sidebar and pages. Core apps (organization settings,
- * core modules) get their sidebar from core.
+ * Plugin app routes render bare: the plugin entry draws its own sidebar and
+ * pages. A plugin's own settings get core's frame around its settings
+ * navigation (plus the tags/properties it uses). Core apps (organization
+ * settings, core modules) get their sidebar from core.
  */
 export const CoreAppOutlet = () => {
   const activities = useNavigationActivities();
-  const pluginSettingsActivity = usePluginSettingsActivity();
+  const pluginSettingsApp = usePluginSettingsApp();
   const { pathname } = useLocation();
   const { t } = useTranslation('common', { keyPrefix: 'navigation' });
 
-  if (!pluginSettingsActivity && pathname.includes(`/${AppPath.Settings}`)) {
+  if (pluginSettingsApp) {
+    return (
+      <PluginSettingsLayout app={pluginSettingsApp}>
+        <Outlet />
+      </PluginSettingsLayout>
+    );
+  }
+
+  if (pathname.includes(`/${AppPath.Settings}`)) {
     return (
       <AppLayout
         id="core:settings"
@@ -54,8 +64,7 @@ export const CoreAppOutlet = () => {
     );
   }
 
-  const activity =
-    pluginSettingsActivity || findAppActivityByPath(activities, pathname);
+  const activity = findAppActivityByPath(activities, pathname);
 
   const sidebar =
     activity?.kind === 'core' ? getCoreModuleSidebar(activity, pathname) : null;

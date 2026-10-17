@@ -5,7 +5,6 @@ import { SettingsHeader } from 'ui-modules';
 import { PersonalChannelBreadcrumb } from '@/channels/components/settings/personal-channel/PersonalChannelBreadcrumb';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { usePermissionCheck } from 'ui-modules';
-import { FrontlineSettingsLayout } from '~/Sidebar';
 
 const ConfigsSettings = lazy(() => import('@/integrations-config/Settings'));
 
@@ -69,10 +68,4 @@ const FrontlineSettings = () => {
   );
 };
 
-const FrontlineSettingsWithLayout = () => (
-  <FrontlineSettingsLayout>
-    <FrontlineSettings />
-  </FrontlineSettingsLayout>
-);
-
-export default FrontlineSettingsWithLayout;
+export default FrontlineSettings;

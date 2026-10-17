@@ -1,8 +1,6 @@
-import { IconArrowLeft, IconSettings } from '@tabler/icons-react';
-import { AppLayout, AppLayoutFooterLink, Sidebar } from 'erxes-ui';
-import type { ReactNode } from 'react';
+import { IconSettings } from '@tabler/icons-react';
+import { AppLayoutFooterLink, Sidebar } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { OperationSettingsNavigation } from '@/OperationSettingsNavigation';
 import { MainNavigation } from '@/navigation/MainNavigation';
 import { TeamsNavigation } from '@/navigation/TeamsNavigation';
 
@@ -30,31 +28,5 @@ export const OperationSidebarFooter = () => {
       name={t('app-settings')}
       icon={IconSettings}
     />
-  );
-};
-
-/** The plugin's settings pages with its own settings sidebar. */
-export const OperationSettingsLayout = ({
-  children,
-}: {
-  children: ReactNode;
-}) => {
-  const { t } = useTranslation('common', { keyPrefix: 'navigation' });
-
-  return (
-    <AppLayout
-      id="operation:settings"
-      title={t('app-settings')}
-      sidebar={<OperationSettingsNavigation />}
-      footer={
-        <AppLayoutFooterLink
-          path="operation/projects"
-          name={t('back-to-app', { name: 'Operation' })}
-          icon={IconArrowLeft}
-        />
-      }
-    >
-      {children}
-    </AppLayout>
   );
 };

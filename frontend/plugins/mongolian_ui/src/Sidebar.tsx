@@ -1,8 +1,6 @@
-import { IconArrowLeft, IconSettings } from '@tabler/icons-react';
-import { AppLayout, AppLayoutFooterLink, Sidebar } from 'erxes-ui';
-import type { ReactNode } from 'react';
+import { IconSettings } from '@tabler/icons-react';
+import { AppLayoutFooterLink, Sidebar } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { SettingsNavigation } from '@/SettingsNavigation';
 import { MainNavigation } from '@/MainNavigation';
 
 /** The plugin's own sidebar, rendered by its entry through `AppLayout`. */
@@ -26,31 +24,5 @@ export const MongolianSidebarFooter = () => {
       name={t('app-settings')}
       icon={IconSettings}
     />
-  );
-};
-
-/** The plugin's settings pages with its own settings sidebar. */
-export const MongolianSettingsLayout = ({
-  children,
-}: {
-  children: ReactNode;
-}) => {
-  const { t } = useTranslation('common', { keyPrefix: 'navigation' });
-
-  return (
-    <AppLayout
-      id="mongolian:settings"
-      title={t('app-settings')}
-      sidebar={<SettingsNavigation />}
-      footer={
-        <AppLayoutFooterLink
-          path="mongolian/put-response"
-          name={t('back-to-app', { name: 'Mongolian' })}
-          icon={IconArrowLeft}
-        />
-      }
-    >
-      {children}
-    </AppLayout>
   );
 };

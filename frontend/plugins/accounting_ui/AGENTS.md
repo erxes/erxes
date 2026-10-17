@@ -75,7 +75,7 @@
 
 | Area                | Path                                                                            | Responsibility                                                                                                  |
 | ------------------- | ------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
-| App sidebar | `frontend/plugins/accounting_ui/src/Sidebar.tsx` | `AccountingSidebar` (app sidebar), `AccountingSidebarFooter` (Settings link) and `AccountingSettingsLayout` (settings sidebar for `./accountingSettings`), all rendered through `AppLayout` |
+| App sidebar | `frontend/plugins/accounting_ui/src/Sidebar.tsx` | `AccountingSidebar` (app sidebar) and `AccountingSidebarFooter` (Settings link), rendered by the `./accounting` entry through `AppLayout` |
 | GraphQL generation | `frontend/plugins/accounting_ui/codegen.ts` | Validates static feature documents against accounting SDL and consumed platform contracts; emits ignored `src/gql/`. |
 | Runtime             | `src/main.ts`                                                                   | Starts the accounting UI remote.                                                                                |
 | Dev server config   | `rspack.config.ts`                                                              | Configures Module Federation development serving and ignores generated folders during watch mode.               |
@@ -156,13 +156,17 @@
   `AccountingSidebar`. Core-ui draws only the top `CoreTab` bar; `navigationGroup` in
   `src/config.tsx` supplies just the tab name, icon and `defaultPath` and takes
   no `content`/`subGroup`.
-- The plugin owns its settings too. `AccountingSidebarFooter` pins a Settings
-  link (`/settings/accounting/config`) to the bottom of the app sidebar, and `src/modules/AccountingSettings.tsx`
-  (the `./accountingSettings` expose) wraps its routes in `AccountingSettingsLayout`:
-  `AppLayout` (`id="accounting:settings"`) with the plugin's settings
-  navigation and a Back link to the app. Core-ui renders these routes bare
-  and no longer lists them in organization settings; `settingsNavigation`
-  in `src/config.tsx` is what tells core the plugin owns its settings.
+- `AccountingSidebarFooter` pins a Settings link to the bottom of the app
+  sidebar. Under `/settings/accounting/…` core-ui frames the settings pages
+  (the `./accountingSettings` expose renders content only — never wrap it in
+  `AppLayout`): the sidebar is this plugin's `settingsNavigation` from
+  `src/config.tsx`, plus core's Tags/Properties entries when the plugin
+  registers tag or property types (`/settings/accounting/tags`,
+  `/settings/accounting/properties`, filtered to this plugin's types), and a
+  Back link to the app. Keep `settingsNavigation` defined: it is how core
+  knows the plugin has its own settings.
+  `settingsNavigation` renders no `Sidebar.GroupLabel`: core titles the
+  sidebar "<Plugin> settings" and appends Tags/Properties to the same list.
 - Accounting UI labels, mutation feedback, and validation messages use the `accounting` translation namespace while retaining generated GraphQL inference and null-safe view adapters.
 - `graphql-codegen-plugin.ts` prepares documents before the first compile and regenerates them on accounting source changes through `beforeRun`/`watchRun`, excluding generated files to avoid rebuild loops. Do not invoke nested Nx commands from config evaluation or rely only on target dependencies for host-launched remotes.
 

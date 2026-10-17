@@ -32,6 +32,7 @@ export const HomeGreeting = () => {
       <h1 className="text-2xl font-semibold tracking-tight">
         {t(getGreetingKey(now.getHours()), { name })}
       </h1>
+      <p className="text-sm text-muted-foreground">{t('subtitle')}</p>
     </div>
   );
 };

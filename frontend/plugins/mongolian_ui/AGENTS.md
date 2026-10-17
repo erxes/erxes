@@ -74,7 +74,7 @@
 
 | Area               | Path                                                                       | Responsibility                                                     |
 | ------------------ | -------------------------------------------------------------------------- | ------------------------------------------------------------------ |
-| App sidebar | `frontend/plugins/mongolian_ui/src/Sidebar.tsx` | `MongolianSidebar` (app sidebar), `MongolianSidebarFooter` (Settings link) and `MongolianSettingsLayout` (settings sidebar for `./mongolianSettings`), all rendered through `AppLayout` |
+| App sidebar | `frontend/plugins/mongolian_ui/src/Sidebar.tsx` | `MongolianSidebar` (app sidebar) and `MongolianSidebarFooter` (Settings link), rendered by the `./mongolian` entry through `AppLayout` |
 | Module Federation  | `frontend/plugins/mongolian_ui/module-federation.config.ts`                | Public exposes for config, routes, widgets, and floating widget.   |
 | Dev server config  | `frontend/plugins/mongolian_ui/rspack.config.ts`                           | Module Federation development serving and watch ignore rules.      |
 | Navigation config  | `frontend/plugins/mongolian_ui/src/config.tsx`                             | Plugin navigation groups and module paths.                         |
@@ -149,13 +149,17 @@
   `MongolianSidebar`. Core-ui draws only the top `CoreTab` bar; `navigationGroup` in
   `src/config.tsx` supplies just the tab name, icon and `defaultPath` and takes
   no `content`/`subGroup`.
-- The plugin owns its settings too. `MongolianSidebarFooter` pins a Settings
-  link (`/settings/mongolian`) to the bottom of the app sidebar, and `src/modules/MongolianSettings.tsx`
-  (the `./mongolianSettings` expose) wraps its routes in `MongolianSettingsLayout`:
-  `AppLayout` (`id="mongolian:settings"`) with the plugin's settings
-  navigation and a Back link to the app. Core-ui renders these routes bare
-  and no longer lists them in organization settings; `settingsNavigation`
-  in `src/config.tsx` is what tells core the plugin owns its settings.
+- `MongolianSidebarFooter` pins a Settings link to the bottom of the app
+  sidebar. Under `/settings/mongolian/…` core-ui frames the settings pages
+  (the `./mongolianSettings` expose renders content only — never wrap it in
+  `AppLayout`): the sidebar is this plugin's `settingsNavigation` from
+  `src/config.tsx`, plus core's Tags/Properties entries when the plugin
+  registers tag or property types (`/settings/mongolian/tags`,
+  `/settings/mongolian/properties`, filtered to this plugin's types), and a
+  Back link to the app. Keep `settingsNavigation` defined: it is how core
+  knows the plugin has its own settings.
+  `settingsNavigation` renders no `Sidebar.GroupLabel`: core titles the
+  sidebar "<Plugin> settings" and appends Tags/Properties to the same list.
 - Page-level side menus render `Sidebar.Panel` from `erxes-ui`, which keeps its
   own open state (`sidebarPanelOpenState`), separate from the plugin's
   `AppLayout` sidebar. Never stack two headings: a menu without a heading passes one as

@@ -1,8 +1,6 @@
-import { IconArrowLeft, IconSettings } from '@tabler/icons-react';
-import { AppLayout, AppLayoutFooterLink, Sidebar } from 'erxes-ui';
-import type { ReactNode } from 'react';
+import { IconSettings } from '@tabler/icons-react';
+import { AppLayoutFooterLink, Sidebar } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { SettingsNavigation } from '@/SettingsNavigation';
 import { AdjustmentNavigation } from '@/AdjustmentNavigation';
 import { InventoriesNavigation } from '@/InventoriesNavigation';
 import { JournalNavigation } from '@/JournalNavigation';
@@ -38,31 +36,5 @@ export const AccountingSidebarFooter = () => {
       name={t('app-settings')}
       icon={IconSettings}
     />
-  );
-};
-
-/** The plugin's settings pages with its own settings sidebar. */
-export const AccountingSettingsLayout = ({
-  children,
-}: {
-  children: ReactNode;
-}) => {
-  const { t } = useTranslation('common', { keyPrefix: 'navigation' });
-
-  return (
-    <AppLayout
-      id="accounting:settings"
-      title={t('app-settings')}
-      sidebar={<SettingsNavigation />}
-      footer={
-        <AppLayoutFooterLink
-          path="accounting/main"
-          name={t('back-to-app', { name: 'Accounting' })}
-          icon={IconArrowLeft}
-        />
-      }
-    >
-      {children}
-    </AppLayout>
   );
 };

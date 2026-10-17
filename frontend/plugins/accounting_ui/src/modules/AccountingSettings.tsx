@@ -5,7 +5,6 @@ import { SettingsHeader } from 'ui-modules';
 import { AccountSettingsBreadcrumb } from './settings/components/AccountSettingsBreadcrumb';
 import { AccountingTopbar } from './settings/components/AccountingTopbar';
 import { AccountingSidebar } from './settings/components/Sidebar';
-import { AccountingSettingsLayout } from '~/Sidebar';
 
 const AccountingMainConfig = lazy(() =>
   import('~/pages/SettingsPage').then((module) => ({
@@ -193,10 +192,4 @@ const AccountingSettings = () => {
   );
 };
 
-const AccountingSettingsWithLayout = () => (
-  <AccountingSettingsLayout>
-    <AccountingSettings />
-  </AccountingSettingsLayout>
-);
-
-export default AccountingSettingsWithLayout;
+export default AccountingSettings;

@@ -7,7 +7,6 @@ export const OperationSettingsNavigation = () => {
   const { t } = useTranslation('operation');
   return (
     <Sidebar.Group>
-      <Sidebar.GroupLabel className="h-4">{t('operation')}</Sidebar.GroupLabel>
       <Sidebar.GroupContent className="pt-1">
         <Sidebar.Menu>
           <SettingsNavigationMenuLinkItem

@@ -6,7 +6,6 @@ import ProductPlacesSettings from '@/productplaces/components/ProductPlacesSetti
 import ErkhetSettings from '@/erkhet-sync/settings/components/ErkhetSettings';
 import ExchangeRatesPage from '@/exchangeRates/Main';
 import MsdynamicSettingsPage from '~/pages/msdynamic/MsdynamicSettingsPage';
-import { MongolianSettingsLayout } from '~/Sidebar';
 
 const MongolianSettings = () => {
   return (
@@ -25,10 +24,4 @@ const MongolianSettings = () => {
   );
 };
 
-const MongolianSettingsWithLayout = () => (
-  <MongolianSettingsLayout>
-    <MongolianSettings />
-  </MongolianSettingsLayout>
-);
-
-export default MongolianSettingsWithLayout;
+export default MongolianSettings;

@@ -1,8 +1,6 @@
-import { IconArrowLeft, IconSettings } from '@tabler/icons-react';
-import { AppLayout, AppLayoutFooterLink, Sidebar } from 'erxes-ui';
-import type { ReactNode } from 'react';
+import { IconSettings } from '@tabler/icons-react';
+import { AppLayoutFooterLink, Sidebar } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { FrontlineSettingsNavigation } from '@/FrontlineSettingsNavigation';
 import { FrontlineNavigation } from '@/FrontlineNavigation';
 import { FrontlineSubGroups } from '@/FrontlineSubGroups';
 
@@ -30,31 +28,5 @@ export const FrontlineSidebarFooter = () => {
       name={t('app-settings')}
       icon={IconSettings}
     />
-  );
-};
-
-/** The plugin's settings pages with its own settings sidebar. */
-export const FrontlineSettingsLayout = ({
-  children,
-}: {
-  children: ReactNode;
-}) => {
-  const { t } = useTranslation('common', { keyPrefix: 'navigation' });
-
-  return (
-    <AppLayout
-      id="frontline:settings"
-      title={t('app-settings')}
-      sidebar={<FrontlineSettingsNavigation />}
-      footer={
-        <AppLayoutFooterLink
-          path="frontline/inbox"
-          name={t('back-to-app', { name: 'Frontline' })}
-          icon={IconArrowLeft}
-        />
-      }
-    >
-      {children}
-    </AppLayout>
   );
 };

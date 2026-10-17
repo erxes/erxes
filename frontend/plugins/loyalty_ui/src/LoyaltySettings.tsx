@@ -3,7 +3,6 @@ import { Navigate, Route, Routes } from 'react-router';
 
 import { LoyaltySettingsPaths } from './types/settingsPaths';
 import PricingSettings from './pages/pricing/PricingSettingsPage';
-import { LoyaltySettingsLayout } from '~/Sidebar';
 
 const LoyaltyScorePage = lazy(() =>
   import('~/pages/loyalties-config/LoyaltyScorePage').then((module) => ({
@@ -78,11 +77,4 @@ const LoyaltySettings = () => {
     </Routes>
   );
 };
-
-const LoyaltySettingsWithLayout = () => (
-  <LoyaltySettingsLayout>
-    <LoyaltySettings />
-  </LoyaltySettingsLayout>
-);
-
-export default LoyaltySettingsWithLayout;
+export default LoyaltySettings;

@@ -1,8 +1,6 @@
-import { IconArrowLeft, IconSettings } from '@tabler/icons-react';
-import { AppLayout, AppLayoutFooterLink, Sidebar } from 'erxes-ui';
-import type { ReactNode } from 'react';
+import { IconSettings } from '@tabler/icons-react';
+import { AppLayoutFooterLink, Sidebar } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { SalesSettingsNavigation } from '@/SalesSettingsNavigation';
 import { MainNavigation } from '@/MainNavigation';
 import { SalesSubNavigation } from '@/SalesSubNavigation';
 import { PosOrderNavigation } from '@/pos/PosOrderNavigation';
@@ -32,27 +30,5 @@ export const SalesSidebarFooter = () => {
       name={t('app-settings')}
       icon={IconSettings}
     />
-  );
-};
-
-/** The plugin's settings pages with its own settings sidebar. */
-export const SalesSettingsLayout = ({ children }: { children: ReactNode }) => {
-  const { t } = useTranslation('common', { keyPrefix: 'navigation' });
-
-  return (
-    <AppLayout
-      id="sales:settings"
-      title={t('app-settings')}
-      sidebar={<SalesSettingsNavigation />}
-      footer={
-        <AppLayoutFooterLink
-          path="sales/deals"
-          name={t('back-to-app', { name: 'Sales' })}
-          icon={IconArrowLeft}
-        />
-      }
-    >
-      {children}
-    </AppLayout>
   );
 };

@@ -43,7 +43,8 @@
     "more-actions": "Нэмэлт үйлдлүүд",
     "organization-settings": "Байгууллагын тохиргоо",
     "app-settings": "Тохиргоо",
-    "back-to-app": "{{name}} руу буцах"
+    "back-to-app": "{{name}} руу буцах",
+    "plugin-settings-title": "{{name}} тохиргоо"
   },
   "core-modules": {
     "_": "Үндсэн модулиуд",
@@ -455,14 +456,15 @@
     "good-morning": "Өглөөний мэнд, {{name}}",
     "good-afternoon": "Өдрийн мэнд, {{name}}",
     "good-evening": "Оройн мэнд, {{name}}",
-    "starred": "Одтой",
-    "starred-empty": "Хуудсыг хажуугийн цэсээсээ одоор тэмдэглэж энд хадгална уу.",
-    "notifications": "Шинэ мэдэгдлүүд",
-    "notifications-empty": "Шинэ мэдэгдэл алга.",
-    "view-all": "Бүгдийг харах",
-    "installed-plugins": "Суулгасан плагинууд",
-    "plugins-empty": "Одоогоор плагин суулгаагүй байна.",
-    "core-modules": "Үндсэн модулиуд",
-    "core-modules-empty": "Танд нээлттэй үндсэн модуль алга."
+    "starred": "Таны дуртай хуудсууд",
+    "starred-empty": "Байнга ашигладаг хуудсаа одоор тэмдэглээд эндээс хялбар нээгээрэй.",
+    "notifications": "Танд ирсэн шинэ зүйлс",
+    "notifications-empty": "Бүгдийг харсан байна — одоогоор шинэ зүйл алга.",
+    "view-all": "Инбокс нээх",
+    "installed-plugins": "Таны плагинууд",
+    "plugins-empty": "Одоогоор плагин алга — нэмэгдмэгц энд харагдана.",
+    "core-modules": "Таны хэрэгслүүд",
+    "core-modules-empty": "Танд нээлттэй хэрэгсэл алга. Админаас эрх хүснэ үү.",
+    "subtitle": "Өнөөдөр таныг хүлээж буй зүйлс энд байна."
   }
 }
