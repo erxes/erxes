@@ -168,7 +168,7 @@ export const TransactionListPage = () => {
         </div>
       </AccountingHeader>
       <PageSubHeader>
-        <TransactionsFilter afterBar={<TrsTotalCount />} />
+        <TransactionsFilter afterBar={<TrsTotalCount />} sidebarFilters />
         <Can action="transactionsExportManage">
           <Export
             pluginName="accounting"

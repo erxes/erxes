@@ -22,6 +22,12 @@ const JournalNavigation = lazy(() =>
   })),
 );
 
+const ReceiptsNavigation = lazy(() =>
+  import('@/ReceiptsNavigation').then((mod) => ({
+    default: mod.ReceiptsNavigation,
+  })),
+);
+
 const CheckSyncNavigation = lazy(() =>
   import('@/check-synced/components/CheckSyncNavigation').then((mod) => ({
     default: mod.CheckSyncNavigation,
@@ -74,6 +80,7 @@ export const CONFIG: IUIConfig = {
     ),
     subGroup: () => (
       <Suspense fallback={<div />}>
+        <ReceiptsNavigation />
         <JournalNavigation />
         <CheckSyncNavigation />
       </Suspense>

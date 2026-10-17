@@ -6,7 +6,7 @@
 - **Project:** `accounting_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/accounting_ui`
-- **Last synchronized:** `2026-10-14`
+- **Last synchronized:** `2026-10-16`
 
 ## Scope
 
@@ -35,7 +35,7 @@
 - Provides adjustment navigation and pages for inventory, fixed asset, fund rate, and debt rate adjustments.
 - Provides closing adjustment navigation and pages for temporary account closing.
 - Lists the check-sync rule pages (deal, POS order) in the `CheckSyncNavigation` navigation sub group, shown only on `/accounting/check-sync` routes, so the check-sync page carries no in-page sidebar.
-- Navigation `content` renders the five module links (`MainNavigation`) followed by the adjustment, inventory and fixed asset sections, each a `NavigationSection` row (icon, label, chevron) that unfolds its links with a grid-row transition and opens whenever the route enters its own section (path-segment match) and otherwise keeps the user's open or closed choice; the host unfolds them in the main sidebar. Never use `NavigationMenuGroup` there — its muted, uppercase-styled group label reads as a disabled heading inside the main sidebar. Navigation `subGroup` holds only page-level menus the host lists in its context column: `JournalNavigation` (the transaction journals, only on `/accounting/records`, selected through the `journal` query param) and `CheckSyncNavigation`. Keep section entry points in `content`: an always-rendered sub group would occupy the context column on every accounting page and leave any page with its own side menu (journal reports) with three columns.
+- Navigation `content` renders the five module links (`MainNavigation`) followed by the adjustment, inventory and fixed asset sections, each a `NavigationSection` row (icon, label, chevron) that unfolds its links with a grid-row transition and opens whenever the route enters its own section (path-segment match) and otherwise keeps the user's open or closed choice; the host unfolds them in the main sidebar. Never use `NavigationMenuGroup` there — its muted, uppercase-styled group label reads as a disabled heading inside the main sidebar. Navigation `subGroup` holds only page-level menus the host lists in its context column: `ReceiptsNavigation` (branch, department, and journal groups, only on `/accounting/main`, each item toggling the `branchId`, `departmentId`, or `journal` query param), `JournalNavigation` (the transaction journals, only on `/accounting/records`, selected through the `journal` query param) and `CheckSyncNavigation`. Keep section entry points in `content`: an always-rendered sub group would occupy the context column on every accounting page and leave any page with its own side menu (journal reports) with three columns.
 - Opens fund, debt, and closing adjustment create/edit forms in `AccountingSheet` panels where those forms exist.
 - Uses system `dealCurrency` options for fund/debt adjustment main and foreign currency fields plus account currency selectors; rate adjustment main currency defaults from system `mainCurrency`.
 - Fetches spot rate from the existing exchange-rate hook when adjustment date, main currency, and foreign currency are selected.
@@ -65,6 +65,7 @@
 - Fixed asset disposal follow previews run only for unsaved transactions; persisted edit forms keep Mongo-backed main details and generated follow transactions until the backend recalculates them on save.
 - Fixed asset navigation includes an "Үндсэн хөрөнгө" section with an owner-record list and a branch/department fixed asset remainder page; the redundant fixed asset settings and direct internal-move shortcuts are not shown there.
 - The in-form add-transaction dropdown can create cash, bank, receivable, payable, or main transaction tabs directly from a selected account by resolving the account journal and pre-filling the first detail account; journal-only additions start with an empty account.
+- The add-transaction dropdown (`AddTransaction`) renders its journal groups from the `ADD_TRANSACTION_GROUPS` config as a single column of icon-labelled groups (general, cash and bank, calculation, inventory, fixed asset), aligns to the trigger end, and caps its height to the available viewport space with vertical scrolling; the erxes-ui `DropdownMenu.Content` defaults to `overflow-hidden`, so long menus must override it locally. A disabled "Adjustment" item stays at the end, under the fixed asset group.
 - Related account override inputs keep focus while users type and persist custom debit and credit code lists independently.
 - Empty related account overrides are omitted on submit so backend-calculated default debit/credit related accounts remain active, and the related-account editor falls back to default `dt/ct` codes when `customDt/customCt` are empty.
 - Accounting settings pages manage accounts, account categories, permissions, VAT, CTAX, and sync configuration; VAT/CTAX row access is guarded by the unified tax-row permission actions.
@@ -157,6 +158,7 @@
 - Closing detail forms reuse the generated `IAdjustClosing` view type rather than defining an identical detail alias.
 
 - Saved transaction JSON metadata must not silently become undefined when validation fails; reject invalid metadata before initializing an editable transaction form. Optional null values remain absent and valid extension fields remain intact.
+- The receipts page (`/accounting/main`) passes `sidebarFilters` to `TransactionsFilter`, so branch, department, and journal live only in `ReceiptsNavigation`; every other page using `TransactionsFilter` keeps them in its filter bar and popover.
 - Transaction subscriptions must depend on a stable serialized filter key, not the per-render variables object, so ordinary renders do not cancel pending refreshes.
 
 - Keep GraphQL operation text static and named, without string interpolation. Apollo hooks infer from generated documents; do not supply manual response generics.
