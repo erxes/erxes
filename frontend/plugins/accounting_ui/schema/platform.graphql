@@ -153,11 +153,24 @@ extend type Product {
   category: ProductCategory
   shortName: String
   uom: String
+  subUoms: JSON
   unitPrice: Float
   type: String
   inventories: JSON
   remainder: JSON
   weight: Float
+}
+
+# backend/core-api/src/modules/products/graphql/schemas/uom.ts
+
+type Uom {
+  _id: String!
+  name: String
+  code: String
+}
+
+extend type Query {
+  uoms: [Uom]
 }
 
 # backend/core-api/src/modules/products/graphql/schemas/category.ts

@@ -84,6 +84,12 @@ const Permissions = lazy(() =>
   })),
 );
 
+const TechCards = lazy(() =>
+  import('~/pages/TechCardsPage').then((module) => ({
+    default: module.TechCardsPage,
+  })),
+);
+
 const AccountingSubSettings = () => {
   return (
     <Filter id="accounting-settings">
@@ -180,6 +186,29 @@ const AccountingSubSettings = () => {
                   element={<SettingSyncOrder />}
                 />
                 <Route path="/config/permissions" element={<Permissions />} />
+                <Route
+                  path="/inventories"
+                  element={
+                    <Navigate
+                      to="/settings/accounting/inventories/tech-cards"
+                      replace
+                    />
+                  }
+                />
+                <Route path="/inventories/tech-cards" element={<TechCards />} />
+                <Route
+                  path="/inventories/tech-card-outputs"
+                  element={<TechCards unwindOutputs />}
+                />
+                <Route
+                  path="/config/tech-cards"
+                  element={
+                    <Navigate
+                      to="/settings/accounting/inventories/tech-cards"
+                      replace
+                    />
+                  }
+                />
               </Routes>
             </Suspense>
           </div>

@@ -15,6 +15,12 @@ export const SETTINGS_ROUTES = {
   '/settings/accounting/config/sync-order': 'pos-order-rule-label',
 };
 
+export const INVENTORY_SETTINGS_ROUTES = {
+  '/settings/accounting/inventories/tech-cards': 'tech-card-production-stage',
+  '/settings/accounting/inventories/tech-card-outputs':
+    'tech-card-production-stage-outputs',
+};
+
 export enum ACCOUNTING_SETTINGS_CODES {
   SYNC_DEAL = 'syncDeal',
   SYNC_DEAL_MOVEMENT = 'syncDealMovement',

@@ -103,9 +103,14 @@ import {
   ISafeRemainderModel,
   loadSafeRemainderClass,
 } from './modules/inventories/db/models/SafeRemainders';
+import {
+  ITechCardModel,
+  loadTechCardClass,
+} from './modules/inventories/db/models/TechCards';
 import { IReserveRemDocument } from './modules/inventories/@types/reserveRems';
 import { ISafeRemainderItemDocument } from './modules/inventories/@types/safeRemainderItems';
 import { ISafeRemainderDocument } from './modules/inventories/@types/safeRemainders';
+import { ITechCardDocument } from './modules/inventories/@types/techCards';
 export interface IModels {
   Accounts: IAccountModel;
   Transactions: ITransactionModel;
@@ -129,6 +134,7 @@ export interface IModels {
   ReserveRems: IReserveRemModel;
   SafeRemainderItems: ISafeRemainderItemModel;
   SafeRemainders: ISafeRemainderModel;
+  TechCards: ITechCardModel;
   AdjustClosings: IAdjustClosingEntryModel;
 }
 
@@ -266,6 +272,10 @@ export const loadClasses = (
   models.SafeRemainders = db.model<ISafeRemainderDocument, ISafeRemainderModel>(
     'safe_remainders',
     loadSafeRemainderClass(models),
+  );
+  models.TechCards = db.model<ITechCardDocument, ITechCardModel>(
+    'tech_cards',
+    loadTechCardClass(models),
   );
 
   return models;

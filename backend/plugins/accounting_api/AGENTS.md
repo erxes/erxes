@@ -6,7 +6,7 @@
 - **Project:** `accounting_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/accounting_api`
-- **Last synchronized:** `2026-10-13`
+- **Last synchronized:** `2026-10-16`
 
 ## Scope
 
@@ -42,6 +42,7 @@
 - Stores related debit/credit account codes without nested subdocument ids, normalizes empty related-account overrides before transaction persistence, and recalculates related codes from all transactions sharing the same `ptrId`.
 - Provides account, account category, permission, tax row, inventory, fixed asset, and journal report GraphQL contracts.
 - Provides safe remainder GraphQL list, detail, item list/count, create, edit, remove, recalculate, submit, cancel, transaction-run, transaction-undo, item edit, item bulk edit, and item remove contracts guarded by safe remainder permissions.
+- Provides inventory technology card GraphQL list, detail, create, edit, and remove contracts for production-stage master data with input products, output products, units, quantities, output cost-allocation ratios, and duration.
 - Safe remainder creation uses the selected product category, while recalculation filters products only by that remainder's existing item product ids, including imports outside the category; it stores each item's current total inventory cost, preserves counted zero values, and defaults non-explicit counted total cost from the refreshed quantity and value.
 - Safe remainder bulk import supports deterministic `skip`, `last`, and `add` duplicate rules; `skip` never overwrites an existing census row, `add` sums duplicate counts and explicit total costs, and imported products are recalculated immediately even when they fall outside the original category.
 - Generates journal report transaction/detail filters, source transaction-kind to current journal filters, grouping keys, date buckets, line records, shared drill-down rows for every report base unless explicitly disabled, and account/customer/product/fixed-asset/user/content enrichment from shared `ReportBase` definitions; filters support pointer, customer/company tags, product category/code/name, fixed-asset category/code/name, and created/modified/assigned users, account enrichment includes currency metadata, product metadata enrichment is fetched from core in batches of at most 1000 ids, and inventory adjustment kind `28` maps only to the cost-only `invJustify` journal.
@@ -72,6 +73,7 @@
 | Inventory splitting | `src/modules/accounting/utils/invSplit.ts`                   | Normalizes split inputs and synchronizes cost-neutral `invOut`/`invIncome` follow transactions.                         |
 | Cost adjustment     | `src/modules/accounting/utils/invJustify.ts`                 | Owns inventory cost-adjustment save, side validation, inventory synchronization, and removal behavior.                  |
 | Safe remainders     | `src/modules/inventories`                                    | Owns inventory count snapshots, typed item transaction metadata, bulk import updates, and generated transactions.       |
+| Technology cards    | `src/modules/inventories`                                    | Owns production-stage technology card master data for inventory input/output recipes.                                   |
 | Census calculation  | `src/modules/inventories/utils/safeRemainderTransactions.ts` | Purely calculates income, out, sale, and remaining cost-adjustment details from counted quantity and target value.      |
 | Journal reports     | `src/modules/accounting/utils/journalReports`                | Builds shared filters, aggregation groups, period splits, and display enrichment for journal reports.                   |
 | Report bases        | `src/modules/accounting/utils/journalReports/strategies`     | Groups report base definitions by main, fund, debt, inventory, and fixed asset report families.                         |
@@ -97,6 +99,9 @@
 - Transaction journal enum accepts `invJustify`, with dedicated read, manage, and remove permission actions; `side: "dt"` means cost increase and `side: "ct"` means cost decrease.
 - GraphQL query `fixedAssetLocationRemainders(searchValue, fixedAssetId, categoryId, branchId, departmentId, date, limit)`, returning positive fixed asset quantities grouped by fixed asset, branch, and department.
 - Permission actions `readSafeRemainders`, `manageSafeRemainders`, `removeSafeRemainders`, and `viewSafeRemainderItemCounts` under the `safeRemainder` module.
+- Permission actions `readTechCards`, `manageTechCards`, and `removeTechCards` under the `techCard` module.
+- Technology card GraphQL contracts: `techCards`, `techCardDetail`, `techCardAdd`, `techCardEdit`, and `techCardRemove`.
+- `techCards` and `techCardOutputs` accept shared search, labor/overhead name, input/output product, duration-type, and status filters. `techCardOutputs` unwinds outputs before counting/pagination, returns the source card plus one output and its index, and identifies each row by card id plus output index. Output-product filters apply again after unwind so unrelated outputs are excluded; products shared by different cards remain separate rows.
 - Safe remainder GraphQL fields expose `costIncreaseRule`, `costDecreaseRule`, `costIncreaseTrId`, and `costDecreaseTrId`; item `trInfo` carries active/target total cost, explicit-cost state, last income price, sale flag, and sale price metadata.
 - Fixed asset category GraphQL contracts expose `defaultAnnualDepreciationRate` and `defaultTaxAnnualDepreciationRate`; fixed asset contracts expose `annualDepreciationRate` and `taxAnnualDepreciationRate`. Useful-life years are derived UI/helper values only and are not persisted by the accounting API.
 - GraphQL query `fxaOwnerRecords(searchValue, ids, fixedAssetIds, fixedAssetId, categoryId, action, status, ownerId, balanceOnly, createdFrom, createdTo, transactionId, page, perPage, limit)`, returning owner-record ledger rows or fixed asset/owner balance rows when `balanceOnly` is true.
@@ -125,6 +130,7 @@
 - Inventory cost adjustment transaction details keep `count` at zero and store the cost delta in `amount`; adjustment calculation includes those rows in inventory cost while leaving remainder quantity unchanged.
 - Current inventory cost is derived from the latest published adjustment detail for the requested account/product/location plus business-active real-inventory transaction detail movements strictly after the adjustment date; when no published adjustment exists, calculation starts from all business-active movements.
 - Safe remainder items persist backend-derived current total cost separately from imported target total cost, while safe remainder documents retain independent cost-increase and cost-decrease parent transaction ids for redo and undo.
+- Technology cards persist in `tech_cards`; each card stores production-stage code/name/description, optional duration, input product rows, and output product rows with raw cost-allocation ratios. Allocation shares are derived as each ratio divided by the sum of output ratios; stored values are not normalized to percentages.
 - Accounting transaction indexes focus on journal, detail account, date-range, and cursor sort paths for transaction lists; journal reports prefilter indexed detail fields before unwind and keep exact detail matching after unwind.
 - Journal reports do not persist state; they aggregate tenant-scoped transaction documents and enrich rows from accounting accounts, fixed assets, and core branch, department, customer, product, user, and synced-content public contracts.
 - Fixed asset category, fixed asset, fixed asset owner record, fixed asset adjustment, inventory remainder, reserve remainder, tax, and accounting setting collections remain owned by this plugin.
@@ -139,6 +145,11 @@
 - Fixed asset owner records generated from transactions must assign a per-fixed-asset fallback sequence when the source row omits one so legacy databases with a unique `fixedAssetId + sequence` index do not reject multiple unsequenced owner rows.
 
 ## Local Invariants
+
+- `techCardOutputs(duplicatedOutput: Boolean)` checks whether each output product appears on another card in the same tenant, independently of other list filters. The source card is excluded, duplicate filtering precedes count/pagination, and `outputs.productId` has an index for the tenant-local self lookup.
+- Technology card duplicate lookups use `let` plus `pipeline` with `$expr` and a null-safe output-product array; do not combine `pipeline` with `localField`/`foreignField`, because deployed MongoDB versions may reject that newer syntax.
+
+- Both technology card lists accept optional `hasLabor` and `hasOverhead` booleans combined with other filters. Presence means the corresponding cost array has a first element; false matches empty or missing arrays, not a zero amount.
 
 - Tax row filter builders are synchronous; resolver barrels re-export named resolver objects directly while retaining their public aliases. Import payload type checks use `TypeError` with actionable messages.
 
@@ -175,6 +186,9 @@
 - Deal movement sync must resolve product-row `branchId`/`departmentId` first, then deal-level branch/department, then configured defaults; when the deal location side is destination, source details use default source location and generated `invMoveIn` details use deal/product location, and vice versa for source-side configs. It must cost source details from active inventory cost for the configured source account and effective source location, excluding the existing synced movement during resync.
 - Deal and POS order sale sync must preserve sale journal validation. Missing payment, receivable, or cash/bank account configuration skips only those payment rows; actual paid amounts must be deducted before checking account configuration, and the sync must not invent balancing rows solely to force `ptrStatus: ok`.
 - Safe remainder item `preCount` must return `0` and `diffType` filters must be ignored for users without `viewSafeRemainderItemCounts` so they cannot compare the system inventory balance with counted inventory.
+- Technology cards must have at least one positive-quantity input row and one positive-quantity output row; output cost-allocation ratios must be finite non-negative numbers with a positive finite total and no percentage cap.
+- Technology card duration types are `real`, `minut`, `hour`, and `day`; fixed units require a finite non-negative duration. `real` stores no duration, including unsetting a previously saved value on edit. Legacy `минут` and omitted duration types normalize to `minut` on save.
+- Technology card estimated costs use only `laborCosts` and `overheadCosts` arrays of `{ name, amount, accountId }` rows. Both default to empty arrays; each row requires a trimmed name, finite non-negative amount, and active tenant-owned posting account. Schema, GraphQL, and model logic must not retain scalar cost/account fields or conversions. These remain card settings for subsequent production posting.
 - Inventory adjustment outgoing-cost fixes may adjust only related debit transactions in `main`, `receivable`, and `payable` journals; cash and bank debit amounts are explicit payment amounts and must not be rewritten by cost recalculation.
 - Inventory adjustment grouping must use detail-level branch/department when present and fall back to transaction root branch/department so mixed-location transaction rows cost against the correct location.
 - Journal report filters that target transaction details must be applied after `$unwind` so unrelated detail rows from the same transaction are not included in report sums.
@@ -215,5 +229,6 @@
 - Smoke scenario: calculate a closing adjustment, edit a detail entry tax percent, run transactions, and verify `taxImpactValue`, grouped details, and linked transaction ids are stored.
 - Smoke scenario: run `journalReportData` and `journalReportMore` for every registered report with account/category/currency, `trKind`, pointer, customer/product/fixed-asset/user/content grouping, and branch/department grouping filters, then verify grouped totals and detail rows match every selected hierarchy value.
 - Smoke scenario: recalculate a safe remainder and test equal, higher, and lower counted quantities; verify income absorbs positive target-value differences, negative income is zero with a capped decrease adjustment, out/sale uses active cost, and remaining increases/decreases create balanced `invJustify` parents after quantity transactions.
+- Smoke scenario: create, edit, list, and remove a technology card with multiple input products and three output products at cost ratios `1, 1, 2`; verify raw ratios persist, totals above 100 are accepted, and negative or all-zero ratios are rejected.
 - Smoke scenario: create and edit inventory income plus internal movement with five details and enable `details[].followInfos.invSplit` on three; verify exactly one linked three-detail `invOut` and one linked three-detail `invIncome` share a pointer different from the source transaction, total cost is unchanged, converted quantity/unit price follow the ratio, and removing the source reverses both inventory effects.
 - Smoke scenario: configure deal movement sync for a stage, choose inventory source/destination accounts, default source/destination branch/department, and source vs destination deal-location side; move a deal with product rows into that stage and verify the generated `invMove` and `invMoveIn` rows keep the configured side defaults plus product/deal branch and department on the selected side, and use active cost rather than the deal product sale price.

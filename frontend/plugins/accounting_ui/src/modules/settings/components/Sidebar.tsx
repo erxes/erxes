@@ -1,7 +1,10 @@
 import { Separator, Sidebar } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { Link, useLocation } from 'react-router';
-import { SETTINGS_ROUTES } from '../constants/settingsRoutes';
+import {
+  INVENTORY_SETTINGS_ROUTES,
+  SETTINGS_ROUTES,
+} from '../constants/settingsRoutes';
 
 const FIXED_ASSET_SETTINGS_ROUTES = {
   '/settings/accounting/fixed-assets/accounts-config': 'account-configuration',
@@ -17,6 +20,8 @@ export const AccountingSidebar = () => {
   );
   const routes = isFixedAssetSettings
     ? FIXED_ASSET_SETTINGS_ROUTES
+    : pathname.startsWith('/settings/accounting/inventories')
+    ? INVENTORY_SETTINGS_ROUTES
     : SETTINGS_ROUTES;
 
   return (

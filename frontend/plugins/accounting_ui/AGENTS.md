@@ -6,7 +6,7 @@
 - **Project:** `accounting_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/accounting_ui`
-- **Last synchronized:** `2026-10-14`
+- **Last synchronized:** `2026-10-16`
 
 ## Scope
 
@@ -50,6 +50,7 @@
 - Accounting sync settings include a deal movement rule page that captures the target sales stage, source/destination inventory accounts, default source/destination branch and department, and whether deal/product branch and department apply to the movement source or destination; deal movement check/resync uses its own `/accounting/check-sync/deal-movement` route and rule picker.
 - The inventory cost adjustment journal has an independent form, supports single or bulk product selection, hides quantity input, shows current remainder and unit cost, accepts a per-unit cost delta, calculates the after-adjustment unit cost, and submits cost-only rows.
 - Safe remainder counting opens one import sheet with separate TXT and CSV tabs; TXT and CSV rows with blank total cost default counted total cost from active unit cost and counted quantity, while CSV accepts explicit `totalCost` and legacy `unitCost` aliases.
+- Settings expose `Бараа материал` alongside Accounting and `Үндсэн хөрөнгө` as an independent entry at `/settings/accounting/inventories`, with its own `Дамжлага` sidebar item at `/settings/accounting/inventories/tech-cards`. Users can create, edit, list, and delete production-stage technology cards with `Орц бараа` and `Гарц бараа`, units, quantities, output cost-allocation ratios, and duration. The former `/settings/accounting/config/tech-cards` route redirects to this page.
 - Safe remainder detail tables expose persistent user-controlled column order and subtly highlight editable counted quantity and total-cost inputs.
 - Safe remainder quantity and counted total cost are the editable census values; derived debit/credit and adjustment amounts are read-only previews, and detail actions disable together while any census mutation is running.
 - Inventory income can allocate additional expenses by amount, count, or editable total line weight; line weight initializes from core product weight multiplied by count.
@@ -84,6 +85,7 @@
 | Inventory splitting | `src/modules/transactions/transaction-form/components/forms/InventorySplit.tsx` | Owns split form context, row settings, batched unit lookup, ratio calculation, and unsaved follow previews.     |
 | Cost adjustment     | `src/modules/transactions/transaction-form/components/forms/InvJustifyForm`     | Owns inventory cost-adjustment fields, product rows, calculations, bulk add, and removal UI.                    |
 | Safe remainders     | `src/modules/inventories/safeRemainders/components/SafeRemainderDetail.tsx`     | Coordinates inventory count detail data, status actions, header, and extracted tab/import surfaces.             |
+| Technology cards    | `src/modules/settings/tech-cards`                                               | Owns inventory technology card settings list, form, GraphQL documents, and mutation hooks.                      |
 | Census tables       | `src/modules/inventories/safeRemainders/components/SafeRemainderDetailTabs.tsx` | Owns declarative count/income/out/sale/adjustment table configuration, filtering, pagination, and hotkeys.      |
 | Census calculations | `src/modules/inventories/safeRemainders/utils/safeRemainderTransactions.ts`     | Calculates frontend transaction previews from count and total-value differences.                                |
 | Transaction export  | `src/pages/TransactionListPage.tsx`, `src/pages/TrRecordListPage.tsx`           | Provides filtered and selected-row export actions for main and journal record lists.                            |
@@ -114,6 +116,10 @@
 - Accounting API GraphQL contracts for transactions, reports, settings, inventory/fixed asset adjustments, fund rate adjustments, and debt rate adjustments, including journal report `trKind`, grouped drill-down, `ptrId`, and detail-row filters.
 - Inventory cost adjustment transactions consume the `invJustify` journal contract and the existing `getAccCurrentCost` helper for current unit cost and remainder display; debit means cost increase and credit means cost decrease.
 - Safe remainder item `trInfo` consumes optional active/target total cost, explicit-cost state, last income price, sale flag, and sale price metadata; CSV import sends editable counted-cost/sale metadata while active cost remains backend-derived.
+- Technology card settings consume `techCards`, `techCardDetail`, `techCardAdd`, `techCardEdit`, and `techCardRemove`; create/edit/remove mutations refetch `AccountingTechCards` and show toast feedback.
+- `Дамжлага задгай` at `/settings/accounting/inventories/tech-card-outputs` consumes `techCardOutputs`, displays one source-card/output row with unit, quantity, cost ratio, and duration, and opens the source card editor. Both card views share URL filters for `searchValue`, `laborCostName`, `overheadCostName`, `inputProductId`, `outputProductId`, and `durationType`; mutations refetch both `AccountingTechCards` and `AccountingTechCardOutputs`.
+- Technology card list pages use `PageContainer`/`PageSubHeader`, `SettingsRowsTable`, and shared `Empty` states. Duration selection belongs to the shared `Filter`/`Command` flow alongside other filters; retain shared component styling rather than fixed-width standalone selectors or custom table padding.
+- Technology card labels, navigation, filters, accessibility text, confirmation/toast messages, and validation use English-based keys in the `accounting` namespace, with EN/MN resources in gateway `src/locales/{en,mn}/accounting.json`. `getTechCardFormSchema(t)` constructs localized validation; persisted duration/status codes and product/unit data are independent of display language.
 - Platform import/export contract for `accounting:account.transactions` filtered and selected-id exports.
 - Fixed asset location remainder contract `fixedAssetLocationRemainder(fixedAssetId, branchId, departmentId, date, excludeTransactionId)` for disposal/move/sale row count limits.
 - Fixed asset location remainder list contract `fixedAssetLocationRemainders(searchValue, fixedAssetId, categoryId, branchId, departmentId, date, limit)` for the fixed asset remainder page.
@@ -141,6 +147,14 @@
 - Deal movement sync settings persist under the accounting config code `syncDealMovement`; each row uses the configured stage id as its config `subId`, and the check/resync page keeps a separate filter/table session from regular deal sync.
 - Inventory cost adjustment detail state stores `count: 0`, `unitPrice` as the absolute per-unit cost delta, and `amount` as delta multiplied by current remainder; quantity is display-only, while editing after-unit cost derives the delta and increase/decrease side from its difference against current unit cost.
 - Safe remainder blank counted cost defaults proportionally from active total cost; when quantity increases while active total is zero, the increased quantity uses `lastIncomePrice`. Explicit manual or CSV total cost, including zero, must bypass this fallback.
+- Technology card form state is owned by React Hook Form and Zod; each card keeps separate `inputs` and `outputs` arrays, with output rows carrying raw cost-allocation ratios that default to one. Ratios have no percentage cap and must have a positive finite total; a row's allocation share is its ratio divided by that total.
+- Technology card GraphQL documents share the `AccountingTechCardFields` fragment; selections must remain statically readable by the accounting GraphQL codegen pipeline.
+- The plugin's platform SDL snapshot includes core product `subUoms` and the `uoms` query consumed by technology card unit selection.
+- Technology card duration selectors expose `real`, `minut`, `hour`, and `day`. `real` hides and clears duration; fixed units require a non-negative duration. Create defaults to `minut`, and edit normalizes the legacy `минут` value to that option.
+- Technology card forms render separate `Хөдөлмөр` (`laborCosts`) and `Нэмэгдэл` (`overheadCosts`) editable tables. Each group supports any number of named amount/account rows, including none. Added rows require name, non-negative amount, and a write-permitted posting account; GraphQL uses only these arrays with no scalar cost/account fields or conversions.
+- Each technology card cost table has a shared `Switch` that controls visibility only. Empty groups start collapsed; form reset/detail loading initializes each switch from that group's saved rows. Hiding preserves rows, removing the final row leaves the current switch state unchanged, and group validation errors reveal the table.
+- Technology card edit forms initialize all row arrays to empty before asynchronous detail loading. Product-unit synchronization must tolerate unset/reset arrays and preserve already selected units when detail data arrives.
+- Technology card forms batch selected input/output product `uom` and `subUoms` lookups through `AccountingTechCardProductUnits`. Selecting a different product clears the previous unit and defaults to its main unit when loaded; existing saved unit choices remain intact. Unit selectors offer the product's main and additional units, display master-unit names, and store unit codes.
 - Safe remainder transaction labels and cost tabs must normalize adjustment differences from `-0.005` through `0.005` to zero, matching backend journal generation.
 - Inventory row defaults initialize count to one; bulk-added rows also initialize all count-derived amount and weight values, batch journal-specific last-price, product, or current-cost lookup before append, and preserve sale/sale-return follow-journal unit cost by generated detail id.
 - Jotai atoms under `src/modules/transactions/transaction-form/states` hold transaction form UI state, tax percentages, follow transactions, and rendering selections.
@@ -149,6 +163,10 @@
 - Closing detail state is owned by Apollo queries/refetches; percent edits and calculate/run mutations refetch detail state immediately.
 
 ## Local Invariants
+
+- The output-unwound technology card list alone exposes the translated `duplicatedOutput` yes/no filter. Its leading `more` column shares `TechCardActions` with the card list: edit and confirmed delete target the source card id, not the derived output-row id; mutations refetch both lists.
+
+- Technology card list filters use localized menu labels and dialog titles/actions. Both card and output lists accept status plus `hasLabor`/`hasOverhead`; URL strings `true` and `false` become explicit GraphQL booleans, and false remains an active filter.
 
 - Page header breadcrumbs follow the shared pattern: crumbs are default ghost `Button`s (no `font-semibold`), the first crumb carries a 16px icon in the default text color, crumbs are separated by `Separator.Inline` or `Breadcrumb.Separator`, and settings pages carry no favorite toggle. The accounting settings sidebar and breadcrumb translate `SETTINGS_ROUTES` keys with `t()`; never render a raw key.
 - Accounting UI labels, mutation feedback, and validation messages use the `accounting` translation namespace while retaining generated GraphQL inference and null-safe view adapters.
@@ -168,6 +186,7 @@
 - GraphQL operation names in new accounting UI code must be prefixed with `Accounting`.
 - Safe remainder TXT imports must remain headerless `code,count` and preserve the backend-derived current total cost; CSV imports require `productCode,count,totalCost,isSale,unitPrice`, accept legacy `unitCost` or `trInfo.unitCost` as total-cost aliases, and must never accept `activeCost` as authoritative file input.
 - Safe remainder table source order is the fallback for browsers without saved preferences; existing user-controlled column order must continue to override that fallback through the stable versioned table preference key.
+- Technology card settings must render `Орц бараа` and `Гарц бараа` as separate editable `erxes-ui` `Table` sections with product, unit, quantity, and row-removal columns, plus output-only `Өртгийн харьцаа` without a percent sign. Match transaction product rows with unpadded cells, ghost `SelectProduct` selectors, and `PopoverScoped`/`RecordTableInlineCell` editors. Keep at least one input and one output row, default new quantities to one, preserve field-level validation messages, and allow horizontal scrolling on narrow screens.
 - Safe remainder income debit value must remain derived from counted total cost; it must not expose a second editor for the same target value.
 - Create/update/remove/calculate/run mutations must show success/error feedback and refresh or subscribe so users do not need a manual reload.
 - Transaction form save buttons must visually distinguish draft-group statuses without changing the create/update submit path.
@@ -248,3 +267,4 @@
 - Smoke scenario: generate every journal report with and without "Дэлгэрэнгүй", "Хоосон мөр харуулах", and "Гүйлгээний төрөл"; verify parent/footer totals remain correct, double-click a summary row to reopen the same report with all row hierarchy filters and detailed mode, then double-click a detailed transaction to open its edit screen.
 - Smoke scenario: generate each journal report with filters, optionally expand account-statement details, click "Excel татах", and verify the downloaded `.xlsx` contains the visible headers, grouped rows, calculated totals, and expanded detail rows.
 - Smoke scenario: import a headerless `code,count` TXT and verify it retains system total cost, then import a `productCode,count,totalCost,isSale,unitPrice` CSV and verify positive total-value differences are absorbed by income, negative income is floored at zero with the remainder shown under adjustment subtract, and out/sale rows derive unit cost from current total cost before remaining add/subtract adjustments.
+- Smoke scenario: select the independent `Бараа материал` settings entry, verify it opens `/settings/accounting/inventories/tech-cards` with its own `Дамжлага` sidebar item, create a card with multiple input and output products at ratios `1, 1, 2`, edit quantities/duration/cost ratios including totals above 100, verify the list refreshes without manual reload, then remove the card and confirm it disappears.

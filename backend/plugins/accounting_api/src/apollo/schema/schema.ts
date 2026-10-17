@@ -85,6 +85,11 @@ import {
   inputTypes as safeRemainderItemInputTypes,
 } from '~/modules/inventories/graphql/schemas/safeRemainderItem';
 import {
+  mutations as techCardMutations,
+  queries as techCardQueries,
+  types as techCardTypes,
+} from '~/modules/inventories/graphql/schemas/techCard';
+import {
   mutations as fixedAssetMutations,
   queries as fixedAssetQueries,
   types as fixedAssetTypes,
@@ -137,6 +142,7 @@ export const types = `
   ${safeRemainderTypes}
   ${safeRemainderItemTypes}
   ${safeRemainderItemInputTypes}
+  ${techCardTypes}
 `;
 
 export const queries = `
@@ -160,6 +166,7 @@ export const queries = `
   ${reserveRemsQueries}
   ${safeRemainderQueries}
   ${safeRemainderItemQueries}
+  ${techCardQueries}
 `;
 
 export const mutations = `
@@ -182,6 +189,7 @@ export const mutations = `
   ${reserveRemsMutations}
   ${safeRemainderMutations}
   ${safeRemainderItemMutations}
+  ${techCardMutations}
 `;
 
 export default { types, queries, mutations };

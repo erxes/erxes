@@ -76,6 +76,12 @@ const SAFE_REMAINDER_ACTIONS = {
   viewItemCounts: 'viewSafeRemainderItemCounts',
 } as const;
 
+const TECH_CARD_ACTIONS = {
+  read: 'readTechCards',
+  manage: 'manageTechCards',
+  remove: 'removeTechCards',
+} as const;
+
 const CONFIG_ACTIONS = {
   read: 'readAccountingConfigs',
   manage: 'manageAccountingConfigs',
@@ -105,6 +111,7 @@ const allAdjFundRateActions = Object.values(ADJ_FUND_RATE_ACTIONS);
 const allAdjDebtRateActions = Object.values(ADJ_DEBT_RATE_ACTIONS);
 const allAdjClosingActions = Object.values(ADJ_CLOSING_ACTIONS);
 const allSafeRemainderActions = Object.values(SAFE_REMAINDER_ACTIONS);
+const allTechCardActions = Object.values(TECH_CARD_ACTIONS);
 const allConfigActions = Object.values(CONFIG_ACTIONS);
 const allCheckSyncActions = Object.values(CHECK_SYNC_ACTIONS);
 const allPermissionActions = Object.values(ACCOUNT_PERMISSION_ACTIONS);
@@ -495,7 +502,8 @@ export const permissions: IPermissionConfig = {
         {
           title: 'Manage safe remainders',
           name: SAFE_REMAINDER_ACTIONS.manage,
-          description: 'Create, update, submit, recalculate, and run safe remainders',
+          description:
+            'Create, update, submit, recalculate, and run safe remainders',
         },
         {
           title: 'Remove safe remainders',
@@ -505,7 +513,35 @@ export const permissions: IPermissionConfig = {
         {
           title: 'View safe remainder item counts',
           name: SAFE_REMAINDER_ACTIONS.viewItemCounts,
-          description: 'View system item counts and use difference filters on safe remainder items',
+          description:
+            'View system item counts and use difference filters on safe remainder items',
+        },
+      ],
+    },
+    // --- config---
+    {
+      name: 'techCard',
+      description: 'Inventory technology card management',
+      scopes: [
+        { name: 'own', description: 'Technology cards created by the user' },
+        { name: 'all', description: 'All technology cards' },
+      ],
+      actions: [
+        {
+          title: 'View technology cards',
+          name: TECH_CARD_ACTIONS.read,
+          description: 'View inventory technology cards',
+          always: true,
+        },
+        {
+          title: 'Manage technology cards',
+          name: TECH_CARD_ACTIONS.manage,
+          description: 'Create and update inventory technology cards',
+        },
+        {
+          title: 'Remove technology cards',
+          name: TECH_CARD_ACTIONS.remove,
+          description: 'Delete inventory technology cards',
         },
       ],
     },
@@ -621,6 +657,12 @@ export const permissions: IPermissionConfig = {
         },
         {
           plugin: 'accounting',
+          module: 'techCard',
+          actions: [...allTechCardActions],
+          scope: 'all',
+        },
+        {
+          plugin: 'accounting',
           module: 'config',
           actions: [...allConfigActions],
           scope: 'all',
@@ -702,6 +744,12 @@ export const permissions: IPermissionConfig = {
           plugin: 'accounting',
           module: 'safeRemainder',
           actions: [SAFE_REMAINDER_ACTIONS.read],
+          scope: 'all',
+        },
+        {
+          plugin: 'accounting',
+          module: 'techCard',
+          actions: [TECH_CARD_ACTIONS.read],
           scope: 'all',
         },
         {
