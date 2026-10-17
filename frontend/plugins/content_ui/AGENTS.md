@@ -6,7 +6,7 @@
 - **Project:** `content_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/content_ui`
-- **Last synchronized:** `2026-10-14`
+- **Last synchronized:** `2026-10-16`
 
 ## Scope
 
@@ -42,6 +42,8 @@
 | Web Builder   | `frontend/plugins/content_ui/src/modules/web-builder` | Owns Web Builder UI.                                                                    |
 | Pages         | `frontend/plugins/content_ui/src/pages`               | Provides route-level pages.                                                             |
 | Widgets       | `frontend/plugins/content_ui/src/widgets`             | Provides plugin widget exports.                                                         |
+| Codegen       | `frontend/plugins/content_ui/codegen.ts`              | Validates documents and generates the gitignored `src/gql` types.                       |
+| Platform SDL  | `frontend/plugins/content_ui/schema/platform.graphql` | Snapshot of the core-api and agent_api fields content documents select.                 |
 
 ## Contracts
 
@@ -54,7 +56,10 @@
 ### Consumes
 
 - Public `erxes-ui` and `ui-modules` APIs.
-- Content plugin GraphQL APIs through Apollo Client.
+- Content plugin GraphQL APIs through Apollo Client, typed from the
+  `content_api` printed SDL (`backend/plugins/content_api/generated/schema.graphql`).
+- Core-api `getClientPortals` and CMS author `User` fields, and agent_api
+  `agentPostizTenantEnabled`, typed from `schema/platform.graphql`.
 
 ## Data and State
 
@@ -95,6 +100,19 @@
 - `src/widgets` is for plugin widget exports, not general shared CMS UI.
 - Keep hooks, GraphQL documents, states, constants, and types near the feature
   they support.
+- `tsconfig.app.json` type-checks every file under `src`, including files no
+  Rspack entry or expose reaches. Delete orphaned files instead of leaving them
+  pointing at removed modules.
+- Pages reuse the posts `MediaSection`: `IPageFormData` keeps the five
+  `MediaFormData` fields with the same types. React Hook Form's
+  `UseFormReturn` is invariant, so `PageSidebarPanel` casts its form at that
+  prop, as `AddPostForm` does for its columns.
+- Two more casts stay at external type boundaries, each with a one-line reason:
+  - `createPortal` results are cast to React 18's `ReactPortal`. pnpm links
+    `@types/react-dom` to React 19 types, but the runtime is React 18.
+  - `CmsPostEditor` casts its `BLOCK_SCHEMA` blocks to `useBlockEditor`'s
+    `initialContent` type. That type uses the default BlockNote schema, while
+    the editor itself is built with `BLOCK_SCHEMA`.
 
 ### UI Conventions
 
@@ -123,9 +141,22 @@
   exists.
 - Name GraphQL queries and mutations with the plugin or module prefix plus the
   operation purpose, such as `cmsPageList`; operation names must be unique.
+  Codegen rejects a name used by two documents with different bodies.
+- When renaming an operation, update every `refetchQueries` string that names
+  it. Post form selectors use `CmsPostCategories` and `CmsPostTags`; the
+  `'CmsCategories'` and `'CmsTags'` refetch strings target the category and
+  tag pages.
 - Search `src/modules/cms/graphql` before adding an operation; this plugin still
   has shared legacy CMS queries and mutations.
-- Reuse fragments such as `PageInfoFragment` before duplicating fields.
+- Codegen validates every document under `src` except tests against the
+  `content_api` SDL plus `schema/platform.graphql`. A document that selects a
+  core-api or agent_api field missing from the snapshot fails codegen: add the
+  field to the snapshot under its source-path comment.
+- Codegen drops `${...}` interpolation text, so interpolated field strings are
+  invisible to it. Share fields through a local `gql` fragment spread by name,
+  such as `CmsSocialDeliveryFields`.
+- Test files are excluded from codegen because they define mock documents that
+  reuse real operation names.
 - For cursor lists, follow the `useRecordTableCursor`, `validateFetchMore`, and
   `RecordTable.CursorProvider` pattern.
 - Do not change backend GraphQL contracts from this frontend plugin unless
@@ -183,7 +214,10 @@
 
 ## Validation
 
-- `pnpm nx lint content_ui` (when a lint target is defined)
+- `npx tsc -p frontend/plugins/content_ui/tsconfig.app.json --noEmit | rg content_ui`
+  prints nothing. The shared libraries' own errors are filtered out.
+- `pnpm nx lint content_ui`
+- `pnpm nx run content_ui:codegen --skip-nx-cache`
 - `pnpm nx build content_ui`
 - `pnpm nx test content_ui`
 - Create or edit a CMS post with blank paragraphs and a Tab-indented paragraph,
@@ -200,4 +234,6 @@
 - Forgetting `websiteId` in CMS routes, variables, links, or drawer props.
 - Adding shared CMS UI to `src/widgets` instead of `src/modules/cms/shared`.
 - Changing backend schema or API assumptions from the UI layer.
+- Calling Rspack directly, which skips codegen and leaves `src/gql/` stale.
+  `pnpm nx build`, `pnpm nx serve`, and `pnpm dev:uis` regenerate it.
 - Writing React or TypeScript tutorial content in this file instead of local rules.

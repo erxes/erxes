@@ -8,7 +8,7 @@ import { DocumentsUploader } from '../../DocumentsUploader';
 import { AttachmentsUploader } from '../../AttachmentsUploader';
 
 type MediaFormData = {
-  thumbnail?: string | { url: string; name: string };
+  thumbnail?: { url: string; name?: string; type?: string } | null;
   gallery?: string[];
   videoUrl?: string;
   documents?: string[];

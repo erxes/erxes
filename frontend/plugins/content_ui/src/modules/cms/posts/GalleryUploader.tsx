@@ -2,7 +2,14 @@ import { Button, cn, useErxesUpload } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { IconGripVertical, IconUpload, IconX } from '@tabler/icons-react';
 import { readImage } from 'erxes-ui/utils/core';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  ReactPortal,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import {
   DndContext,
   DragEndEvent,
@@ -247,20 +254,23 @@ export const GalleryUploader = ({
                 ))}
               </div>
             </SortableContext>
-            {createPortal(
-              <DragOverlay>
-                {activeUrl && activeIndex !== -1 ? (
-                  <div className="aspect-square w-24 rounded-md overflow-hidden relative border bg-muted shadow-lg ring-2 ring-primary cursor-grabbing group">
-                    <GalleryThumbnail
-                      url={activeUrl}
-                      index={activeIndex}
-                      dragging
-                    />
-                  </div>
-                ) : null}
-              </DragOverlay>,
-              document.body,
-            )}
+            {/* @types/react-dom resolves React 19 types; the runtime is React 18. */}
+            {
+              createPortal(
+                <DragOverlay>
+                  {activeUrl && activeIndex !== -1 ? (
+                    <div className="aspect-square w-24 rounded-md overflow-hidden relative border bg-muted shadow-lg ring-2 ring-primary cursor-grabbing group">
+                      <GalleryThumbnail
+                        url={activeUrl}
+                        index={activeIndex}
+                        dragging
+                      />
+                    </div>
+                  ) : null}
+                </DragOverlay>,
+                document.body,
+              ) as ReactPortal
+            }
           </DndContext>
           {uploadProps.loading && (
             <div className="absolute inset-0 bg-white/50 flex items-center justify-center">

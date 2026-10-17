@@ -1,4 +1,15 @@
 import { DatePicker } from 'erxes-ui';
+import type { ComponentProps } from 'react';
+
+type DatePickerValue = Parameters<
+  ComponentProps<typeof DatePicker>['onChange']
+>[0];
+
+const toPickedDate = (d: DatePickerValue): Date | undefined => {
+  if (d instanceof Date) return d;
+  if (Array.isArray(d)) return d[0];
+  return undefined;
+};
 
 interface DateTimeInputProps {
   value: Date | undefined;
@@ -11,8 +22,8 @@ export const DateTimeInput = ({
   onChange,
   placeholder,
 }: DateTimeInputProps) => {
-  const handleDateChange = (d: Date | Date[] | undefined) => {
-    const picked = Array.isArray(d) ? d[0] : d;
+  const handleDateChange = (d: DatePickerValue) => {
+    const picked = toPickedDate(d);
     if (!picked) {
       onChange(undefined);
       return;

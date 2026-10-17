@@ -97,7 +97,7 @@ interface CategoryFormData {
   description?: string;
   parentId?: string;
   status: 'active' | 'inactive';
-  customFieldsData?: { field: string; value?: CustomFieldValue }[];
+  customFieldsData?: { field: string; value?: unknown }[];
   [key: `customFields.${string}`]: CustomFieldValue | undefined; // Allow dynamic custom field properties
 }
 
@@ -163,6 +163,22 @@ const categoryToFormValues = (
     status: category.status === 'inactive' ? 'inactive' : 'active',
     customFieldsData: category.customFieldsData || [],
   };
+};
+
+const isStringArray = (value: unknown): value is string[] =>
+  Array.isArray(value) && value.every((item: unknown) => typeof item === 'string');
+
+const toCustomFieldValue = (value: unknown): CustomFieldValue => {
+  if (typeof value === 'number') return String(value);
+  if (
+    typeof value === 'string' ||
+    typeof value === 'boolean' ||
+    value === null ||
+    value === undefined
+  ) {
+    return value;
+  }
+  return isStringArray(value) ? value : undefined;
 };
 
 const hasTranslationValue = (data?: TranslationData): boolean => {
@@ -387,7 +403,7 @@ export function CmsCategoryDrawer({
     (fieldId: string): CustomFieldValue => {
       const currentData = form.watch('customFieldsData') || [];
       const item = currentData.find((item) => item.field === fieldId);
-      return item?.value ?? '';
+      return toCustomFieldValue(item?.value) ?? '';
     },
     [form],
   );
@@ -549,7 +565,7 @@ export function CmsCategoryDrawer({
     },
   );
 
-  const onSubmit = (data: CategoryFormData) => {
+  const onSubmit = (data: CategoryFormType) => {
     const isNonDefaultLang =
       Boolean(selectedLanguage) &&
       Boolean(defaultLanguage) &&

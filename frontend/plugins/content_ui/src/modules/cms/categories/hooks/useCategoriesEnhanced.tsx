@@ -33,6 +33,11 @@ interface CategoriesQueryVariables {
 
 export const CATEGORIES_PER_PAGE = 30;
 
+const EMPTY_PAGE_INFO: IRecordTableCursorPageInfo = {
+  hasNextPage: false,
+  hasPreviousPage: false,
+};
+
 export const useCategoriesVariables = (
   variables?: CategoriesQueryVariables,
 ) => {
@@ -111,8 +116,9 @@ export const useCategories = (
         if (!fetchMoreResult) return prev;
 
         const isForward = direction === EnumCursorDirection.FORWARD;
-        const fetchPageInfo = fetchMoreResult.cmsCategories?.pageInfo || {};
-        const prevPageInfo = prev.cmsCategories?.pageInfo || {};
+        const fetchPageInfo =
+          fetchMoreResult.cmsCategories?.pageInfo || EMPTY_PAGE_INFO;
+        const prevPageInfo = prev.cmsCategories?.pageInfo || EMPTY_PAGE_INFO;
         const fetchList = fetchMoreResult.cmsCategories?.list || [];
         const prevList = prev.cmsCategories?.list || [];
 

@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client';
 
 export const POST_CMS_TAGS = gql`
-  query CmsTags(
+  query CmsPostTags(
     $clientPortalId: String
     $cursor: String
     $limit: Int

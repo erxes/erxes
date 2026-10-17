@@ -29,10 +29,12 @@ export const CmsTranslatableBadge = ({
   missingClassName = 'text-red-500 border-red-300',
 }: CmsTranslatableBadgeProps) => {
   const hasValue = !!value?.trim();
+  const missingBadgeVariant =
+    missingVariant === 'outline' ? null : missingVariant;
 
   if (!hasValue) {
     return (
-      <Badge variant={missingVariant} className={cn(missingClassName)}>
+      <Badge variant={missingBadgeVariant} className={cn(missingClassName)}>
         {prefix}
         {placeholder}
       </Badge>
@@ -41,7 +43,7 @@ export const CmsTranslatableBadge = ({
 
   return (
     <Badge
-      variant={missing ? missingVariant : 'secondary'}
+      variant={missing ? missingBadgeVariant : 'secondary'}
       className={cn(missing && missingClassName)}
     >
       {prefix}

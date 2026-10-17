@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { ComponentProps, useState } from 'react';
 import { Form, Input, Tabs } from 'erxes-ui';
 import { UseFormReturn } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
@@ -126,7 +126,16 @@ export const PageSidebarPanel = (props: PageSidebarPanelProps) => {
       </div>
       <div className="p-4 space-y-4">
         {activeTab === 'content' && <ContentTab {...props} />}
-        {activeTab === 'media' && <MediaSection form={props.form} />}
+        {activeTab === 'media' && (
+          // RHF's UseFormReturn is invariant; MediaSection only touches media fields IPageFormData shares.
+          <MediaSection
+            form={
+              props.form as unknown as ComponentProps<
+                typeof MediaSection
+              >['form']
+            }
+          />
+        )}
       </div>
     </div>
   );
