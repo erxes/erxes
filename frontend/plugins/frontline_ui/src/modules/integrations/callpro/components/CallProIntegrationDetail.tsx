@@ -21,7 +21,9 @@ export const CallProIntegrationActions = ({
 }: {
   cell: CellContext<IIntegration, unknown>;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const setEditId = useSetAtom(callProEditSheetAtom);
 
   return (

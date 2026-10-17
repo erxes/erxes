@@ -14,7 +14,9 @@ type Props = {
 };
 
 export const FacebookIntegrationRepair = ({ cell }: Props) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const { _id, healthStatus } = cell.row.original;
   const { integrationType } = useParams();
   const kind = integrationType || 'facebook-messenger';

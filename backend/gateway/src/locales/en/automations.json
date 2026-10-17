@@ -982,5 +982,30 @@
   "settings-agent-saved-added": "Successfully added",
   "settings-bots-not-found": "Bot settings not found.",
   "runs": "Runs",
-  "stats": "Stats"
+  "stats": "Stats",
+  "messenger-message-trigger": {
+    "validation-error-title": "Validation error",
+    "validation-error-description": "Select at least one event type",
+    "description": "Select which messenger widget events should trigger this automation.",
+    "messenger": "Erxes Messenger",
+    "all-messengers": "All erxes messengers",
+    "messenger-description": "Leave empty to trigger on every erxes messenger.",
+    "triggers": "Triggers",
+    "event-required": "Select at least one event type",
+    "no-events-selected": "No events selected",
+    "node-messenger": "Messenger",
+    "node-events": "Events",
+    "event-direct-message": "Direct Message",
+    "event-get-started": "Get Started",
+    "event-quick-reply": "Quick Reply",
+    "event-customer-registration": "Customer Registration",
+    "event-ticket-form-submission": "Ticket Form Submission",
+    "event-request-create-ticket": "Request Create Ticket",
+    "event-direct-message-description": "Fires when the customer sends any text message (default)",
+    "event-get-started-description": "Fires when the customer clicks the Get Started button",
+    "event-quick-reply-description": "Fires when the customer clicks a quick reply button",
+    "event-customer-registration-description": "Fires when the customer submits their contact information",
+    "event-ticket-form-submission-description": "Fires when the customer submits a ticket creation form with name and description",
+    "event-request-create-ticket-description": "Fires when the customer clicks the Create Ticket button in the persistent menu"
+  }
 }

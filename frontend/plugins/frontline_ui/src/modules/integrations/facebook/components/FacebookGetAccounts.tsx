@@ -68,7 +68,9 @@ const FacebookAccountRow = ({
 };
 
 export const FacebookGetAccounts = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const { isPost } = useFbIntegrationContext();
   const integrationKind = isPost ? 'facebook-post' : 'facebook-messenger';
   const { facebookGetAccounts, loading, refetch } =

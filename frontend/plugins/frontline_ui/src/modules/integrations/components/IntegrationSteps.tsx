@@ -14,7 +14,9 @@ export const IntegrationSteps = ({
   description?: string;
   className?: string;
 }) => {
-  const { t, i18n } = useTranslation('frontline');
+  const { t, i18n } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const progressLabel = t('integration-step-progress', {
     step,
     total: stepsLength,

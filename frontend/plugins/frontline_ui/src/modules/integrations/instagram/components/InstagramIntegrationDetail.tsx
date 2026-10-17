@@ -80,7 +80,9 @@ export const InstagramIntegrationActions = ({
 };
 
 export const InstagramIntegrationEditSheet = ({ id }: { id: string }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const [open, setOpen] = useState(false);
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -104,7 +106,9 @@ export const InstagramIntegrationEditForm = ({
   id: string;
   setOpen: (open: boolean) => void;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const { loading, integrationDetail } = useIntegrationDetail({
     integrationId: id,
   });

@@ -24,7 +24,9 @@ export const CallIntegrationActions = ({
 }: {
   cell: CellContext<IIntegration, unknown>;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const setEditId = useSetAtom(callEditSheetAtom);
 
   return (
@@ -46,7 +48,9 @@ export const CallIntegrationConnect = ({
 }: {
   integrationId: string;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const { callUserIntegrations } = useCallUserIntegration();
   const { isEnabled, toggleIntegration } = useCallEnabledIntegrations();
 

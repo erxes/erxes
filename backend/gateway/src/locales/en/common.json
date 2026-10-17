@@ -446,5 +446,23 @@
   "not-found": {
     "message": "Oops! Page not found.",
     "go-back": "Go back"
-  }
+  },
+  "issueDetected": "Issue detected",
+  "loading": "Loading...",
+  "notAvailable": "Not available",
+  "status": "Status",
+  "page": "Page",
+  "bot": "Bot",
+  "updatedAt": "Updated at",
+  "openBotSettings": "Open bot settings",
+  "healthy": "Healthy",
+  "facebookBotHealthyDescription": "This bot is connected, subscribed, and ready to handle Facebook Messenger automations.",
+  "needsRepair": "Needs repair",
+  "facebookBotDegradedDescription": "This bot needs attention before Messenger automations can run reliably again.",
+  "broken": "Broken",
+  "facebookBotBrokenDescription": "The connection is currently unavailable, so Messenger automations may stop working.",
+  "syncing": "Syncing",
+  "facebookBotSyncingDescription": "The bot is being verified and synced with Facebook right now.",
+  "unknown": "Unknown",
+  "facebookBotUnknownDescription": "We could not determine the latest bot health details from this notification."
 }

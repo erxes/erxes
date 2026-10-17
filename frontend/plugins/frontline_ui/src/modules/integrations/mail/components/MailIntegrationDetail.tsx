@@ -53,7 +53,9 @@ const MailIntegrationBrandField = ({
 }: {
   control: Control<MailFormValues>;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   return (
     <Form.Field
       name="brandId"
@@ -83,7 +85,9 @@ const MailIntegrationEditForm = ({
   id: string;
   setOpen: (open: boolean) => void;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const { loading, integrationDetail } = useIntegrationDetail({
     integrationId: id,
   });
@@ -226,7 +230,9 @@ const MailIntegrationEditForm = ({
 };
 
 const MailIntegrationEditSheet = ({ id }: { id: string }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const [open, setOpen] = useState(false);
 
   return (

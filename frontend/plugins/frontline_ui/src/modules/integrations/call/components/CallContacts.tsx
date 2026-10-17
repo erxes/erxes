@@ -17,7 +17,9 @@ import { callUiAtom } from '@/integrations/call/states/callUiAtom';
 import { callNumberState } from '@/integrations/call/states/callWidgetStates';
 
 export const CallContacts = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const [search, setSearch] = useState('');
   const [debouncedSearch] = useDebounce(search, 500);
   const setCallUi = useSetAtom(callUiAtom);
