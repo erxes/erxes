@@ -14,7 +14,7 @@ export const MessageTriggerForm = ({
   onSaveTriggerConfig,
   formRef,
 }: AutomationTriggerFormProps<TMessageTriggerForm>) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.facebook' });
   const { form, botId, activeConditionType, setActiveConditionType } =
     useMessageTriggerForm({
       activeTrigger,

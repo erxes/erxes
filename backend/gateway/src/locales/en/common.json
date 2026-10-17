@@ -40,7 +40,8 @@
     "move-down": "Move down in sidebar",
     "pin": "Pin",
     "unpin": "Unpin",
-    "more-actions": "More actions"
+    "more-actions": "More actions",
+    "resize-sidebar": "Resize sidebar"
   },
   "core-modules": {
     "_": "Core modules",

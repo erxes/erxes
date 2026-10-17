@@ -4,7 +4,9 @@ import { useTranslation } from 'react-i18next';
 import { KbEmptyState } from '@/knowledgebase/shared/components/KbStates';
 
 export const TopicsEmptyState = ({ onCreate }: { onCreate: () => void }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.knowledgebase',
+  });
 
   return (
     <KbEmptyState

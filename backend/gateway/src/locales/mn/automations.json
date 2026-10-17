@@ -982,5 +982,8 @@
   "settings-agent-saved-added": "Амжилттай нэмэгдлээ",
   "settings-bots-not-found": "Ботын тохиргоо олдсонгүй",
   "runs": "Ажиллалтууд",
-  "stats": "Статистик"
+  "stats": "Статистик",
+  "facebook-open-thread-info-title": "Open Thread нь referral үйл явдал дээр ажиллана",
+  "facebook-open-thread-info-description": "Зарим суваг зөвхөн дарахад referral webhook илгээдэггүй. Энэ триггер зөвхөн Meta-аас open thread referral үйл явдал ирэх үед ажиллана.",
+  "facebook-open-thread-info-hint": "Автоматжуулалтыг найдвартай эхлүүлэх шаардлагатай бол Direct Message ашиглаж, харилцагч мессеж илгээсний дараа ажиллуулна уу."
 }

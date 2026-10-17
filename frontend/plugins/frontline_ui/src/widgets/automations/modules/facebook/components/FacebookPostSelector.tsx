@@ -31,7 +31,7 @@ export const FacebookPostSelector = ({
   selectedPostId?: string;
   onSelect: (id: string) => void;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.facebook' });
   const [isOpen, setOpen] = useState(false);
 
   return (
@@ -68,7 +68,7 @@ const FacebookSelectedPost = ({
   botId: string;
   selectedPostId?: string;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.facebook' });
   const { data, loading } = useQuery(FACEBOOK_GET_BOT_POST, {
     variables: { botId, postId: selectedPostId },
     skip: !botId || !selectedPostId,
@@ -171,7 +171,7 @@ const FacebookPost = ({
   onSelect: (id: string) => void;
   post: TFacebookBotPost;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.facebook' });
   return (
     <Card
       className={cn('overflow-hidden', {

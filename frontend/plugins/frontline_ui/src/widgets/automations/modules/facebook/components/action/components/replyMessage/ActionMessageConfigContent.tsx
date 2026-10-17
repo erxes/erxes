@@ -42,7 +42,7 @@ const ActionConfigMessage = ({
   message: TBotMessage;
   actionData: TAutomationAction<TMessageActionForm>;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.facebook' });
   const { _id, type } = message;
   switch (type) {
     case 'text':

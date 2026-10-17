@@ -219,7 +219,7 @@ const FacebookCardsMessageProvider = ({
 };
 
 const FacebookCardsMessageHeader = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.facebook' });
   const { addPage, cards } = useFacebookCardsMessage();
 
   return (
@@ -352,6 +352,7 @@ const FacebookCardPageNumber = ({
 };
 
 const FacebookSelectedCardMessageHeader = () => {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.facebook' });
   const { cards, removeSelectedCard, selectedCard, selectedCardIndex } =
     useFacebookCardsMessage();
 
@@ -366,7 +367,10 @@ const FacebookSelectedCardMessageHeader = () => {
           {selectedCard.label || `Page ${selectedCardIndex + 1}`}
         </p>
         <p className="text-xs text-muted-foreground">
-          Card {selectedCardIndex + 1} of {cards.length}
+          {t('card-x-of-y', {
+            current: selectedCardIndex + 1,
+            total: cards.length,
+          })}
         </p>
       </div>
       <Button
@@ -403,7 +407,7 @@ const FacebookSelectedCardImage = () => {
 };
 
 const FacebookSelectedCardTitleField = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.facebook' });
   const { selectedCard, updateSelectedCard } = useFacebookCardsMessage();
 
   if (!selectedCard) {
@@ -429,7 +433,7 @@ const FacebookSelectedCardTitleField = () => {
 };
 
 const FacebookSelectedCardSubtitleField = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.facebook' });
   const { selectedCard, updateSelectedCard } = useFacebookCardsMessage();
 
   if (!selectedCard) {
@@ -485,7 +489,7 @@ const FacebookSelectedCardMessage = () => (
 );
 
 const FacebookSelectedCardMessagePlaceholder = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.facebook' });
   const { addPage, cards } = useFacebookCardsMessage();
 
   return (
@@ -518,7 +522,6 @@ const FacebookCardsMessageContent = () => {
 export const FacebookCardsMessage = ({
   index,
 }: FacebookMessageProps<{ type: 'card' }>) => {
-  const { t } = useTranslation('frontline');
   const { control } = useReplyMessageAction();
 
   return (

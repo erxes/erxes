@@ -15,7 +15,7 @@ const BOT_TRIGGER_TYPES = [
 
 /** Automations already listening to this bot, linked from its own form. */
 export const FacebookBotAutomations = ({ botId }: { botId?: string }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.facebook' });
   const { automations, loading } = useFacebookBotAutomations(
     botId,
     BOT_TRIGGER_TYPES,

@@ -17,7 +17,9 @@ export const SelectKbTopic = ({
   onValueChange: (topicId: string) => void;
   scope?: string;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.knowledgebase',
+  });
   const [open, setOpen] = useState(false);
   const { topics, loading } = useTopicOptions();
 

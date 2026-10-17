@@ -11,7 +11,7 @@ export const AutomationBotForm = ({
 }: {
   facebookBotId: string | null;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.facebook' });
   const { loadingDetail, facebookMessengerBot } =
     useFacebookBotForm(facebookBotId);
 

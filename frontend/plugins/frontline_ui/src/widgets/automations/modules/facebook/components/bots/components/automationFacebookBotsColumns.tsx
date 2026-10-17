@@ -1,5 +1,6 @@
 import { IFacebookBot } from '@/integrations/facebook/types/FacebookBot';
 import { ColumnDef } from '@tanstack/table-core';
+import { TFunction } from 'i18next';
 import {
   Avatar,
   RecordTable,
@@ -39,12 +40,14 @@ const FacebookBotUserCell = ({
   );
 };
 
-export const automationFacebookBotsColumns: ColumnDef<IFacebookBot>[] = [
+export const automationFacebookBotsColumns = (
+  t: TFunction,
+): ColumnDef<IFacebookBot>[] => [
   facebookBotMoreColumn(),
   {
     id: 'name',
     accessorKey: 'name',
-    header: () => <RecordTable.InlineHead label="Name" />,
+    header: () => <RecordTable.InlineHead label={t('name')} />,
     cell: ({ cell }) => (
       <RecordTableInlineCell className="truncate font-medium">
         {cell.getValue() as string}
@@ -55,7 +58,7 @@ export const automationFacebookBotsColumns: ColumnDef<IFacebookBot>[] = [
   {
     id: 'account',
     accessorKey: 'account',
-    header: () => <RecordTable.InlineHead label="Account" />,
+    header: () => <RecordTable.InlineHead label={t('account')} />,
     cell: ({ cell }) => {
       const name = cell.row.original.account?.name ?? '-';
       return (
@@ -69,7 +72,7 @@ export const automationFacebookBotsColumns: ColumnDef<IFacebookBot>[] = [
   {
     id: 'page',
     accessorKey: 'page',
-    header: () => <RecordTable.InlineHead label="Page" />,
+    header: () => <RecordTable.InlineHead label={t('page')} />,
     cell: ({ cell }) => {
       const { profileUrl = '' } = cell.row.original || {};
       const name = cell.row.original.page?.name ?? '-';
@@ -90,7 +93,7 @@ export const automationFacebookBotsColumns: ColumnDef<IFacebookBot>[] = [
   {
     id: 'health',
     accessorKey: 'health',
-    header: () => <RecordTable.InlineHead label="Health" />,
+    header: () => <RecordTable.InlineHead label={t('health')} />,
     cell: ({ cell }) => (
       <FacebookBotHealthCell health={cell.row.original.health} />
     ),
@@ -99,7 +102,7 @@ export const automationFacebookBotsColumns: ColumnDef<IFacebookBot>[] = [
   {
     id: 'createdBy',
     accessorFn: (row) => row.createdUser,
-    header: () => <RecordTable.InlineHead label="Created By" />,
+    header: () => <RecordTable.InlineHead label={t('created-by')} />,
     cell: ({ cell }) => (
       <FacebookBotUserCell
         user={cell.row.original.createdUser}
@@ -111,7 +114,7 @@ export const automationFacebookBotsColumns: ColumnDef<IFacebookBot>[] = [
   {
     id: 'updatedBy',
     accessorFn: (row) => row.updatedUser,
-    header: () => <RecordTable.InlineHead label="Updated By" />,
+    header: () => <RecordTable.InlineHead label={t('updated-by')} />,
     cell: ({ cell }) => (
       <FacebookBotUserCell
         user={cell.row.original.updatedUser}
@@ -123,7 +126,7 @@ export const automationFacebookBotsColumns: ColumnDef<IFacebookBot>[] = [
   {
     id: 'createdAt',
     accessorKey: 'createdAt',
-    header: () => <RecordTable.InlineHead label="Created" />,
+    header: () => <RecordTable.InlineHead label={t('created')} />,
     cell: ({ cell }) => (
       <RecordTableInlineCell className="truncate text-sm">
         <RelativeDateDisplay value={cell.getValue() as string}>
@@ -136,7 +139,7 @@ export const automationFacebookBotsColumns: ColumnDef<IFacebookBot>[] = [
   {
     id: 'updatedAt',
     accessorKey: 'updatedAt',
-    header: () => <RecordTable.InlineHead label="Updated" />,
+    header: () => <RecordTable.InlineHead label={t('updated')} />,
     cell: ({ cell }) => (
       <RecordTableInlineCell className="truncate text-sm">
         <RelativeDateDisplay value={cell.getValue() as string}>

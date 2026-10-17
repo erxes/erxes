@@ -15,7 +15,7 @@ const getCloudflareStreamIframe = (url: string): string | null => {
 };
 
 const VideoAttachments = ({ attachments }: { attachments: IAttachment[] }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   const { handleRemoveImage, removingUrl } = useAttachmentContext();
   const { loading } = useCreateTicket();
 

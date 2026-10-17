@@ -982,5 +982,8 @@
   "settings-agent-saved-added": "Successfully added",
   "settings-bots-not-found": "Bot settings not found.",
   "runs": "Runs",
-  "stats": "Stats"
+  "stats": "Stats",
+  "facebook-open-thread-info-title": "Open Thread works on referral events",
+  "facebook-open-thread-info-description": "Some channels do not send referral webhooks on click only. This trigger runs only when Meta sends an open thread referral event.",
+  "facebook-open-thread-info-hint": "If you need a reliable automation start, use Direct Message and trigger after the customer sends a message."
 }
