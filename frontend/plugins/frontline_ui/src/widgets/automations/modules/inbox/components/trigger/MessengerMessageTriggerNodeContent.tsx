@@ -8,6 +8,8 @@ const EVENT_LABEL_KEYS: Record<string, string> = {
   getStarted: 'event-get-started',
   quickReply: 'event-quick-reply',
   customerRegistration: 'event-customer-registration',
+  ticketFormSubmission: 'event-ticket-form-submission',
+  requestCreateTicket: 'event-request-create-ticket',
 };
 
 type TMessengerMessageCondition = {

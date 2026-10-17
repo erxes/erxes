@@ -101,6 +101,9 @@ const ResponseCardActions = ({
   channelId: string;
   responseId: string;
 }) => {
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.response-template',
+  });
   const navigate = useNavigate();
   const { removeResponse, loading } = useRemoveResponse();
   const { confirm } = useConfirm();
@@ -113,7 +116,10 @@ const ResponseCardActions = ({
 
   const handleDelete = () => {
     confirm({
-      message: 'Are you sure you want to delete this response?',
+      message: t(
+        'confirm-delete-response',
+        'Are you sure you want to delete this response?',
+      ),
       options: { confirmationValue: 'delete' },
     }).then(() => {
       removeResponse({ variables: { id: responseId } });
@@ -132,14 +138,15 @@ const ResponseCardActions = ({
         <Command shouldFilter={false}>
           <Command.List>
             <Command.Item value="edit" onSelect={handleEdit}>
-              <IconEdit /> Edit
+              <IconEdit /> {t('edit', 'Edit')}
             </Command.Item>
             <Command.Item
               value="delete"
               onSelect={handleDelete}
               className="text-destructive"
             >
-              {loading ? <Spinner size="sm" /> : <IconTrash />} Delete
+              {loading ? <Spinner size="sm" /> : <IconTrash />}{' '}
+              {t('delete', 'Delete')}
             </Command.Item>
           </Command.List>
         </Command>
