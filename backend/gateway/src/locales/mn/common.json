@@ -451,7 +451,7 @@
   "pending-approval": "зөвшөөрөл хүлээж буй",
   "integrations": {
     "config": {
-      "header": "Интеграцийн тохиргоо"
+      "header": "Холболтын тохиргоо"
     }
   }
 }
