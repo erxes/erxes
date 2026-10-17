@@ -1,4 +1,6 @@
 import { lazy, Suspense } from 'react';
+import { AppLayout } from 'erxes-ui';
+import { TourismSidebar } from '~/Sidebar';
 import { Navigate, Route, Routes } from 'react-router-dom';
 
 const Tms = lazy(() =>
@@ -20,14 +22,16 @@ const Pms = lazy(() =>
 
 const App = () => {
   return (
-    <Suspense fallback={<div />}>
-      <Routes>
-        <Route path="/" element={<Navigate to="tms" replace />} />
-        <Route path="tms" element={<Tms />} />
-        <Route path="tms/branches/:branchId" element={<TmsBranchDetail />} />
-        <Route path="pms" element={<Pms />} />
-      </Routes>
-    </Suspense>
+    <AppLayout id="tourism" title="Tourism" sidebar={<TourismSidebar />}>
+      <Suspense fallback={<div />}>
+        <Routes>
+          <Route path="/" element={<Navigate to="tms" replace />} />
+          <Route path="tms" element={<Tms />} />
+          <Route path="tms/branches/:branchId" element={<TmsBranchDetail />} />
+          <Route path="pms" element={<Pms />} />
+        </Routes>
+      </Suspense>
+    </AppLayout>
   );
 };
 

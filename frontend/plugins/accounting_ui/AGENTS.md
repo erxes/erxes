@@ -6,7 +6,7 @@
 - **Project:** `accounting_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/accounting_ui`
-- **Last synchronized:** `2026-10-13`
+- **Last synchronized:** `2026-10-17`
 
 ## Scope
 
@@ -35,7 +35,7 @@
 - Provides adjustment navigation and pages for inventory, fixed asset, fund rate, and debt rate adjustments.
 - Provides closing adjustment navigation and pages for temporary account closing.
 - Lists the check-sync rule pages (deal, POS order) in the `CheckSyncNavigation` navigation sub group, shown only on `/accounting/check-sync` routes, so the check-sync page carries no in-page sidebar.
-- Navigation `content` renders the five module links (`MainNavigation`) followed by the adjustment, inventory and fixed asset sections, each a `NavigationSection` row (icon, label, chevron) that unfolds its links with a grid-row transition and opens whenever the route enters its own section (path-segment match) and otherwise keeps the user's open or closed choice; the host unfolds them in the main sidebar. Never use `NavigationMenuGroup` there — its muted, uppercase-styled group label reads as a disabled heading inside the main sidebar. Navigation `subGroup` holds only page-level menus the host lists in its context column: `JournalNavigation` (the transaction journals, only on `/accounting/records`, selected through the `journal` query param) and `CheckSyncNavigation`. Keep section entry points in `content`: an always-rendered sub group would occupy the context column on every accounting page and leave any page with its own side menu (journal reports) with three columns.
+- `AccountingSidebar` (`src/Sidebar.tsx`) renders the five module links (`MainNavigation`) followed by the adjustment, inventory and fixed asset sections, each a `NavigationSection` row (icon, label, chevron) that unfolds its links with a grid-row transition and opens whenever the route enters its own section (path-segment match) and otherwise keeps the user's open or closed choice. Never use `NavigationMenuGroup` there — its muted, uppercase-styled group label reads as a disabled heading. Below them it renders the route-aware page menus `JournalNavigation` (the transaction journals, only on `/accounting/records`, selected through the `journal` query param) and `CheckSyncNavigation`; keep them route-gated so pages with their own side menu (journal reports) do not show an extra menu on every accounting page.
 - Opens fund, debt, and closing adjustment create/edit forms in `AccountingSheet` panels where those forms exist.
 - Uses system `dealCurrency` options for fund/debt adjustment main and foreign currency fields plus account currency selectors; rate adjustment main currency defaults from system `mainCurrency`.
 - Fetches spot rate from the existing exchange-rate hook when adjustment date, main currency, and foreign currency are selected.
@@ -75,6 +75,7 @@
 
 | Area                | Path                                                                            | Responsibility                                                                                                  |
 | ------------------- | ------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| App sidebar | `frontend/plugins/accounting_ui/src/Sidebar.tsx` | `AccountingSidebar` (app sidebar), `AccountingSidebarFooter` (Settings link) and `AccountingSettingsLayout` (settings sidebar for `./accountingSettings`), all rendered through `AppLayout` |
 | GraphQL generation | `frontend/plugins/accounting_ui/codegen.ts` | Validates static feature documents against accounting SDL and consumed platform contracts; emits ignored `src/gql/`. |
 | Runtime             | `src/main.ts`                                                                   | Starts the accounting UI remote.                                                                                |
 | Dev server config   | `rspack.config.ts`                                                              | Configures Module Federation development serving and ignores generated folders during watch mode.               |
@@ -150,6 +151,18 @@
 
 ## Local Invariants
 
+- The plugin owns its whole app sidebar. `src/modules/AccountingMain.tsx` (the `./accounting`
+  expose) wraps its routes in `erxes-ui` `AppLayout` (`id="accounting"`) with
+  `AccountingSidebar`. Core-ui draws only the top `CoreTab` bar; `navigationGroup` in
+  `src/config.tsx` supplies just the tab name, icon and `defaultPath` and takes
+  no `content`/`subGroup`.
+- The plugin owns its settings too. `AccountingSidebarFooter` pins a Settings
+  link (`/settings/accounting/config`) to the bottom of the app sidebar, and `src/modules/AccountingSettings.tsx`
+  (the `./accountingSettings` expose) wraps its routes in `AccountingSettingsLayout`:
+  `AppLayout` (`id="accounting:settings"`) with the plugin's settings
+  navigation and a Back link to the app. Core-ui renders these routes bare
+  and no longer lists them in organization settings; `settingsNavigation`
+  in `src/config.tsx` is what tells core the plugin owns its settings.
 - Accounting UI labels, mutation feedback, and validation messages use the `accounting` translation namespace while retaining generated GraphQL inference and null-safe view adapters.
 - `graphql-codegen-plugin.ts` prepares documents before the first compile and regenerates them on accounting source changes through `beforeRun`/`watchRun`, excluding generated files to avoid rebuild loops. Do not invoke nested Nx commands from config evaluation or rely only on target dependencies for host-launched remotes.
 
@@ -163,7 +176,7 @@
 - Nullable SDL fields remain nullable in generated types. `src/modules/utils/graphql.ts` normalizes display values while retaining immutable Apollo reference identity; `graphqlCursor.ts` adapts nullable platform PageInfo through public `erxes-ui` cursor helpers without changing shared SDL.
 - Inventory cost and last-income-price operations select structured rows and map them to product dictionaries only at the UI boundary. Persisted bank, inventory expense, sale/movement, and fixed asset form metadata must survive edit/refetch.
 - Expandable navigation rows and section headers use the host sidebar's chevron: `IconChevronRight` (`size-3.5`) inside a span that rotates 90° when open, never a filled caret, so the rotation stays on the compositor and matches the main sidebar. Tailwind group names on these rows stay accounting-specific (`group/accounting-nav-section`): the host sidebar is an open ancestor, so a shared name such as `navigation-section` would rotate every closed chevron.
-- Page-level side menus render `Sidebar.Panel` from `erxes-ui`, which keeps its own open state (`sidebarPanelOpenState`), separate from the host's context column. Never stack two headings: a menu without a heading passes one as `label` (header row with the heading, optional `actions` and the collapse toggle); a menu that starts with its own heading row (group label, collapsible or accordion trigger) omits `label` and ends that row with `Sidebar.PanelTrigger`. Keep `<Sidebar collapsible="none">` for sidebars inside sheets and dialogs.
+- Page-level side menus render `Sidebar.Panel` from `erxes-ui`, which keeps its own open state (`sidebarPanelOpenState`), separate from the plugin's `AppLayout` sidebar. Never stack two headings: a menu without a heading passes one as `label` (header row with the heading, optional `actions` and the collapse toggle); a menu that starts with its own heading row (group label, collapsible or accordion trigger) omits `label` and ends that row with `Sidebar.PanelTrigger`. Keep `<Sidebar collapsible="none">` for sidebars inside sheets and dialogs.
 - GraphQL operation names in new accounting UI code must be prefixed with `Accounting`.
 - Safe remainder TXT imports must remain headerless `code,count` and preserve the backend-derived current total cost; CSV imports require `productCode,count,totalCost,isSale,unitPrice`, accept legacy `unitCost` or `trInfo.unitCost` as total-cost aliases, and must never accept `activeCost` as authoritative file input.
 - Safe remainder table source order is the fallback for browsers without saved preferences; existing user-controlled column order must continue to override that fallback through the stable versioned table preference key.

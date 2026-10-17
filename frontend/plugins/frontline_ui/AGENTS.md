@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-10-13`
+- **Last synchronized:** `2026-10-17`
 
 ## Scope
 
@@ -506,6 +506,7 @@ owns the setup form and connection actions.
 
 | Area                      | Path                                                                                                                                              | Responsibility                                                                                                                                  |
 | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| App sidebar | `frontend/plugins/frontline_ui/src/Sidebar.tsx` | `FrontlineSidebar` (app sidebar), `FrontlineSidebarFooter` (Settings link) and `FrontlineSettingsLayout` (settings sidebar for `./frontlineSettings`), all rendered through `AppLayout` |
 | Host registration         | `src/config.tsx`                                                                                                                                  | `CONFIG` — navigation, settings, widgets, property inputs, routes, and Module Federation exposes                                                |
 | Federation                | `module-federation.config.ts`                                                                                                                     | Remote name `frontline_ui` and its exposes                                                                                                      |
 | Routes                    | `src/modules/FrontlineMain.tsx`, `src/pages/`                                                                                                     | Routed pages for inbox, ticket, forms, call, channels                                                                                           |
@@ -868,6 +869,18 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
 
 ## Local Invariants
 
+- The plugin owns its whole app sidebar. `src/modules/FrontlineMain.tsx` (the `./frontline`
+  expose) wraps its routes in `erxes-ui` `AppLayout` (`id="frontline"`) with
+  `FrontlineSidebar`. Core-ui draws only the top `CoreTab` bar; `navigationGroup` in
+  `src/config.tsx` supplies just the tab name, icon and `defaultPath` and takes
+  no `content`/`subGroup`.
+- The plugin owns its settings too. `FrontlineSidebarFooter` pins a Settings
+  link (`/settings/frontline/channels`) to the bottom of the app sidebar, and `src/modules/FrontlineSettings.tsx`
+  (the `./frontlineSettings` expose) wraps its routes in `FrontlineSettingsLayout`:
+  `AppLayout` (`id="frontline:settings"`) with the plugin's settings
+  navigation and a Back link to the app. Core-ui renders these routes bare
+  and no longer lists them in organization settings; `settingsNavigation`
+  in `src/config.tsx` is what tells core the plugin owns its settings.
 - The conversations filter bar header (`ConversationsHeader`) uses
   `bg-background`, matching the host's `PageHeader` and `PageSubHeader`, never
   the sidebar tint.
@@ -880,8 +893,8 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
   stays the same compact size as the host's My inbox count
   (`h-5 min-w-5 rounded-full px-1.5 text-[11px] tabular-nums`).
 - Page-level side menus render `Sidebar.Panel` from `erxes-ui`, which keeps its
-  own open state (`sidebarPanelOpenState`), separate from the host's context
-  column. Never stack two headings: a menu without a heading passes one as
+  own open state (`sidebarPanelOpenState`), separate from the plugin's
+  `AppLayout` sidebar. Never stack two headings: a menu without a heading passes one as
   `label` (header row with the heading, optional `actions` and the collapse
   toggle); a menu that starts with its own heading row (group label, collapsible
   or accordion trigger) omits `label` and ends that row with
@@ -1778,7 +1791,7 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   never filter the tree. Article, category and topic writes all refetch
   `TOPICS`, so tree titles and per-category article counts stay live.
 - The sidebar is an erxes-ui `Sidebar.Panel` (collapsible, `w-60`, its own
-  open state) without a `label`, laid out like the host's context column on
+  open state) without a `label`, laid out like the `AppLayout` sidebar on
   the Tickets/Forms pages: `KnowledgeBaseLayout` puts the panel full height to
   the left of the `PageContainer`, so its first row — "Knowledge Base"
   (`text-sm font-medium`, `h-12` to line up with `PageHeader`) with a `size-8`
@@ -1788,8 +1801,8 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   panel's built-in `label` is not used either, because its mono face differs
   from the other headings. When collapsed the panel still portals its expand trigger
   into the page header's `data-sidebar-panel-slot`.
-  The panel resizes like the host's main sidebar: `sidebar/components/KbResizeHandle`
-  (a copy of core-ui's `NavigationResizeHandle`) sits on its right edge —
+  The panel resizes like the `erxes-ui` `AppLayout` sidebar: `sidebar/components/KbResizeHandle`
+  (same drag/keyboard/double-click behaviour) sits on its right edge —
   drag or arrow keys between `KB_SIDEBAR_MIN_WIDTH` (180) and
   `KB_SIDEBAR_MAX_WIDTH` (480), double-click to reset. The width lives in
   `kbSidebarWidthAtom` (`atomWithStorage` under `frontline:kb-sidebar-width`,
@@ -1812,8 +1825,8 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   chevron and no topic icon (a deliberate exception to the expandable-row
   chevron rule above, asked for by the product owner), and there is no "All
   articles" child — the topic
-  row is that link. Opening and closing copies the host's main sidebar
-  (`core-ui` `NavigationDisclosure`) through the plugin's own
+  row is that link. Opening and closing copies core-ui's
+  `NavigationDisclosure` (settings sidebar) through the plugin's own
   `sidebar/components/KbDisclosure`: a `grid-rows-[0fr]`/`[1fr]` transition
   (250ms, `cubic-bezier(0.22,1,0.36,1)`) with an opacity fade, children
   mounted on first open and kept mounted afterwards. The topic row is a plain

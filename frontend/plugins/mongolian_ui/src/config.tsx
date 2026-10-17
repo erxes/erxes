@@ -4,12 +4,6 @@ import { lazy, Suspense } from 'react';
 import { mongolianProductRemainderProvider } from '@/erkhet-sync/product-remainders/productRemainderProvider';
 import { SEARCH_PROVIDERS } from '~/searchProviders';
 
-const MainNavigation = lazy(() =>
-  import('@/MainNavigation').then((module) => ({
-    default: module.MainNavigation,
-  })),
-);
-
 const SettingsNavigation = lazy(() =>
   import('@/SettingsNavigation').then((module) => ({
     default: module.SettingsNavigation,
@@ -29,11 +23,6 @@ export const CONFIG: IUIConfig = {
     name: 'mongolian',
     defaultPath: 'mongolian/put-response',
     icon: IconSandbox,
-    content: () => (
-      <Suspense fallback={<div />}>
-        <MainNavigation />
-      </Suspense>
-    ),
   },
   widgets: {
     productRemainderProviders: [mongolianProductRemainderProvider],

@@ -1,24 +1,22 @@
 import { NAVIGATION_EASE_CSS } from '@/navigation/constants/navigationMotion';
 import { RefObject, useLayoutEffect, useRef } from 'react';
 
+// Fade only: the area below the top bar includes the app's own sidebar, so
+// sliding it reads as a jump.
 export const PAGE_ENTER_KEYFRAMES: Keyframe[] = [
-  { opacity: 0, transform: 'translateY(6px)' },
-  { opacity: 1, transform: 'none' },
+  { opacity: 0.4 },
+  { opacity: 1 },
 ];
 
-export const CONTEXT_ENTER_KEYFRAMES: Keyframe[] = [
-  { opacity: 0, transform: 'translateX(-8px)' },
-  { opacity: 1, transform: 'none' },
-];
-
-export const getSectionKey = (pathname: string) =>
-  pathname.split('/').filter(Boolean).slice(0, 2).join('/');
+/** The open app (plugin or core module); page changes inside it animate in AppLayout. */
+export const getAppKey = (pathname: string) =>
+  pathname.split('/').filter(Boolean)[0] || '';
 
 export const useEnterAnimation = (
   ref: RefObject<HTMLElement | null>,
   key: string,
   keyframes: Keyframe[],
-  duration = 220,
+  duration = 160,
 ) => {
   const previousKey = useRef(key);
   const animation = useRef<Animation | null>(null);

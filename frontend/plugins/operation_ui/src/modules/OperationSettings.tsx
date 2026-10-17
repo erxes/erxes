@@ -14,6 +14,7 @@ import { TemplateFormPage } from '~/pages/TemplateFormPage';
 import { GithubIntegrationPage } from '~/pages/GithubIntegrationPage';
 import { OperationPaths } from '~/types/paths';
 import { CreateTeam } from '@/team/components/team-list/CreateTeam';
+import { OperationSettingsLayout } from '~/Sidebar';
 
 const OperationSettings = () => {
   const { t } = useTranslation('operation');
@@ -78,4 +79,10 @@ const OperationSettings = () => {
   );
 };
 
-export default OperationSettings;
+const OperationSettingsWithLayout = () => (
+  <OperationSettingsLayout>
+    <OperationSettings />
+  </OperationSettingsLayout>
+);
+
+export default OperationSettingsWithLayout;

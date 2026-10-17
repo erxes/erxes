@@ -137,8 +137,6 @@ export type IUIConfig = {
     name: string;
     defaultPath?: string;
     icon: React.ElementType;
-    content: () => React.ReactNode;
-    subGroup?: () => React.ReactNode;
   };
 
   widgets?: {

@@ -1,7 +1,8 @@
 import { Navigate, Route, Routes } from 'react-router';
 import { Suspense, lazy } from 'react';
 
-import { Spinner } from 'erxes-ui';
+import { Spinner, AppLayout } from 'erxes-ui';
+import { SalesSidebar, SalesSidebarFooter } from '~/Sidebar';
 
 const DealsMain = lazy(() =>
   import('~/pages/SalesIndexPage').then((module) => ({
@@ -17,13 +18,20 @@ const PosMain = lazy(() =>
 
 const SalesMain = () => {
   return (
-    <Suspense fallback={<Spinner />}>
-      <Routes>
-        <Route index element={<Navigate to="deals" replace />} />
-        <Route path="/deals" element={<DealsMain />} />
-        <Route path="/pos/*" element={<PosMain />} />
-      </Routes>
-    </Suspense>
+    <AppLayout
+      id="sales"
+      title="Sales"
+      sidebar={<SalesSidebar />}
+      footer={<SalesSidebarFooter />}
+    >
+      <Suspense fallback={<Spinner />}>
+        <Routes>
+          <Route index element={<Navigate to="deals" replace />} />
+          <Route path="/deals" element={<DealsMain />} />
+          <Route path="/pos/*" element={<PosMain />} />
+        </Routes>
+      </Suspense>
+    </AppLayout>
   );
 };
 

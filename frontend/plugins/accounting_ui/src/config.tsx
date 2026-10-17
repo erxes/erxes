@@ -10,42 +10,6 @@ import { IUIConfig } from 'erxes-ui';
 import { lazy, Suspense } from 'react';
 import { SEARCH_PROVIDERS } from '~/searchProviders';
 
-const MainNavigation = lazy(() =>
-  import('@/MainNavigation').then((module) => ({
-    default: module.MainNavigation,
-  })),
-);
-
-const JournalNavigation = lazy(() =>
-  import('@/JournalNavigation').then((mod) => ({
-    default: mod.JournalNavigation,
-  })),
-);
-
-const CheckSyncNavigation = lazy(() =>
-  import('@/check-synced/components/CheckSyncNavigation').then((mod) => ({
-    default: mod.CheckSyncNavigation,
-  })),
-);
-
-const AdjustmentNavigation = lazy(() =>
-  import('@/AdjustmentNavigation').then((mod) => ({
-    default: mod.AdjustmentNavigation,
-  })),
-);
-
-const InventoriesNavigation = lazy(() =>
-  import('@/InventoriesNavigation').then((mod) => ({
-    default: mod.InventoriesNavigation,
-  })),
-);
-
-const FixedAssetsNavigation = lazy(() =>
-  import('@/fixedAssets/FixedAssetsNavigation').then((mod) => ({
-    default: mod.FixedAssetsNavigation,
-  })),
-);
-
 const SettingsNavigation = lazy(() =>
   import('@/SettingsNavigation').then((module) => ({
     default: module.SettingsNavigation,
@@ -64,20 +28,6 @@ export const CONFIG: IUIConfig = {
     name: 'accounting',
     defaultPath: 'accounting/main',
     icon: IconCashBanknote,
-    content: () => (
-      <Suspense fallback={<div />}>
-        <MainNavigation />
-        <AdjustmentNavigation />
-        <InventoriesNavigation />
-        <FixedAssetsNavigation />
-      </Suspense>
-    ),
-    subGroup: () => (
-      <Suspense fallback={<div />}>
-        <JournalNavigation />
-        <CheckSyncNavigation />
-      </Suspense>
-    ),
   },
   modules: [
     {

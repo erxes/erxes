@@ -40,7 +40,10 @@
     "move-down": "Move down in sidebar",
     "pin": "Pin",
     "unpin": "Unpin",
-    "more-actions": "More actions"
+    "more-actions": "More actions",
+    "organization-settings": "Organization settings",
+    "app-settings": "Settings",
+    "back-to-app": "Back to {{name}}"
   },
   "core-modules": {
     "_": "Core modules",

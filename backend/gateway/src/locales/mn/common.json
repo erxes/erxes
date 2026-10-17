@@ -40,7 +40,10 @@
     "move-down": "Sidebar-д доош зөөх",
     "pin": "Тогтоох",
     "unpin": "Тогтоолтыг цуцлах",
-    "more-actions": "Нэмэлт үйлдлүүд"
+    "more-actions": "Нэмэлт үйлдлүүд",
+    "organization-settings": "Байгууллагын тохиргоо",
+    "app-settings": "Тохиргоо",
+    "back-to-app": "{{name}} руу буцах"
   },
   "core-modules": {
     "_": "Үндсэн модулиуд",

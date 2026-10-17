@@ -6,7 +6,7 @@
 - **Project:** `sales_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/sales_ui`
-- **Last synchronized:** `2026-10-12`
+- **Last synchronized:** `2026-10-17`
 
 ## Scope
 
@@ -152,6 +152,7 @@
 
 | Area                | Path                                                                                                 | Responsibility                                                                   |
 | ------------------- | ---------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| App sidebar | `frontend/plugins/sales_ui/src/Sidebar.tsx` | `SalesSidebar` (app sidebar), `SalesSidebarFooter` (Settings link) and `SalesSettingsLayout` (settings sidebar for `./salesSettings`), all rendered through `AppLayout` |
 | Registration        | `frontend/plugins/sales_ui/src/config.tsx`                                                           | Sales routes, navigation, and remote registration                                |
 | Dev server          | `frontend/plugins/sales_ui/rspack.config.ts`                                                         | Module Federation development serving and watch ignore rules                     |
 | Pipeline editor     | `frontend/plugins/sales_ui/src/modules/deals/pipelines`                                              | Pipeline form, stages, product config, and property selection                    |
@@ -208,6 +209,18 @@
 
 ## Local Invariants
 
+- The plugin owns its whole app sidebar. `src/modules/Main.tsx` (the `./sales`
+  expose) wraps its routes in `erxes-ui` `AppLayout` (`id="sales"`) with
+  `SalesSidebar`. Core-ui draws only the top `CoreTab` bar; `navigationGroup` in
+  `src/config.tsx` supplies just the tab name, icon and `defaultPath` and takes
+  no `content`/`subGroup`.
+- The plugin owns its settings too. `SalesSidebarFooter` pins a Settings
+  link (`/settings/sales`) to the bottom of the app sidebar, and `src/pages/SalesSettingsIndexPage.tsx`
+  (the `./salesSettings` expose) wraps its routes in `SalesSettingsLayout`:
+  `AppLayout` (`id="sales:settings"`) with the plugin's settings
+  navigation and a Back link to the app. Core-ui renders these routes bare
+  and no longer lists them in organization settings; `settingsNavigation`
+  in `src/config.tsx` is what tells core the plugin owns its settings.
 - Whether loyalty is on is read at runtime (`useLoyaltyEnabled`, the loaded `pluginsConfigState`), never with `isEnabled('loyalty')`: that reads a build-time env that deployments such as SaaS do not set, which hid the Tier tab, the deal list's points column and the board card badge.
 - Expandable navigation rows end in the host sidebar's chevron:
   `IconChevronRight` (`size-3.5`, muted) inside a span that rotates 90° when
@@ -216,7 +229,7 @@
 - Expandable group rows (boards, POS) use `rounded-lg`; an active board row is
   gray (`bg-foreground/5 text-foreground`) while its active pipeline item keeps
   the purple `Sidebar.MenuButton` active tint, so the two never stack purple.
-- Page-level side menus render `Sidebar.Panel` from `erxes-ui`, which keeps its own open state (`sidebarPanelOpenState`), separate from the host's context column. Never stack two headings: a menu without a heading passes one as `label` (header row with the heading, optional `actions` and the collapse toggle); a menu that starts with its own heading row (group label, collapsible or accordion trigger) omits `label` and ends that row with `Sidebar.PanelTrigger`. Keep `<Sidebar collapsible="none">` for sidebars inside sheets and dialogs. `LeftSidebarLoading` renders the same panel with the trigger beside its first placeholder row.
+- Page-level side menus render `Sidebar.Panel` from `erxes-ui`, which keeps its own open state (`sidebarPanelOpenState`), separate from the plugin's `AppLayout` sidebar. Never stack two headings: a menu without a heading passes one as `label` (header row with the heading, optional `actions` and the collapse toggle); a menu that starts with its own heading row (group label, collapsible or accordion trigger) omits `label` and ends that row with `Sidebar.PanelTrigger`. Keep `<Sidebar collapsible="none">` for sidebars inside sheets and dialogs. `LeftSidebarLoading` renders the same panel with the trigger beside its first placeholder row.
 - Property choices must come only from Core `sales:deal` fields.
 - Deal detail chips render through `DealChipTrigger`; every chip except stage
   passes a translated `label` by default so the field is named.

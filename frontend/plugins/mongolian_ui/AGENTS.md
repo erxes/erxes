@@ -6,7 +6,7 @@
 - **Project:** `mongolian_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/mongolian_ui`
-- **Last synchronized:** `2026-10-14`
+- **Last synchronized:** `2026-10-17`
 
 ## Scope
 
@@ -74,6 +74,7 @@
 
 | Area               | Path                                                                       | Responsibility                                                     |
 | ------------------ | -------------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| App sidebar | `frontend/plugins/mongolian_ui/src/Sidebar.tsx` | `MongolianSidebar` (app sidebar), `MongolianSidebarFooter` (Settings link) and `MongolianSettingsLayout` (settings sidebar for `./mongolianSettings`), all rendered through `AppLayout` |
 | Module Federation  | `frontend/plugins/mongolian_ui/module-federation.config.ts`                | Public exposes for config, routes, widgets, and floating widget.   |
 | Dev server config  | `frontend/plugins/mongolian_ui/rspack.config.ts`                           | Module Federation development serving and watch ignore rules.      |
 | Navigation config  | `frontend/plugins/mongolian_ui/src/config.tsx`                             | Plugin navigation groups and module paths.                         |
@@ -143,9 +144,21 @@
 
 ## Local Invariants
 
+- The plugin owns its whole app sidebar. `src/modules/MongolianMain.tsx` (the `./mongolian`
+  expose) wraps its routes in `erxes-ui` `AppLayout` (`id="mongolian"`) with
+  `MongolianSidebar`. Core-ui draws only the top `CoreTab` bar; `navigationGroup` in
+  `src/config.tsx` supplies just the tab name, icon and `defaultPath` and takes
+  no `content`/`subGroup`.
+- The plugin owns its settings too. `MongolianSidebarFooter` pins a Settings
+  link (`/settings/mongolian`) to the bottom of the app sidebar, and `src/modules/MongolianSettings.tsx`
+  (the `./mongolianSettings` expose) wraps its routes in `MongolianSettingsLayout`:
+  `AppLayout` (`id="mongolian:settings"`) with the plugin's settings
+  navigation and a Back link to the app. Core-ui renders these routes bare
+  and no longer lists them in organization settings; `settingsNavigation`
+  in `src/config.tsx` is what tells core the plugin owns its settings.
 - Page-level side menus render `Sidebar.Panel` from `erxes-ui`, which keeps its
-  own open state (`sidebarPanelOpenState`), separate from the host's context
-  column. Never stack two headings: a menu without a heading passes one as
+  own open state (`sidebarPanelOpenState`), separate from the plugin's
+  `AppLayout` sidebar. Never stack two headings: a menu without a heading passes one as
   `label` (header row with the heading, optional `actions` and the collapse
   toggle); a menu that starts with its own heading row (group label, collapsible
   or accordion trigger) omits `label` and ends that row with

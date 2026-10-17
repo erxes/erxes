@@ -6,7 +6,7 @@
 - **Project:** `operation_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/operation_ui`
-- **Last synchronized:** `2026-10-13`
+- **Last synchronized:** `2026-10-17`
 
 ## Scope
 
@@ -45,6 +45,7 @@
 
 | Area                    | Path                                                                                     | Responsibility                                                                                                               |
 | ----------------------- | ---------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| App sidebar | `frontend/plugins/operation_ui/src/Sidebar.tsx` | `OperationSidebar` (app sidebar), `OperationSidebarFooter` (Settings link) and `OperationSettingsLayout` (settings sidebar for `./operationSettings`), all rendered through `AppLayout` |
 | Runtime                 | `frontend/plugins/operation_ui/src/main.ts`                                              | Starts the operation UI remote.                                                                                              |
 | Federation config       | `frontend/plugins/operation_ui/module-federation.config.ts`                              | Exposes config, routes, settings, widgets, notifications, and automation entry.                                              |
 | Dev server config       | `frontend/plugins/operation_ui/rspack.config.ts`                                         | Module Federation development serving and watch ignore rules.                                                                |
@@ -88,6 +89,18 @@
 
 ## Local Invariants
 
+- The plugin owns its whole app sidebar. `src/modules/OperationMain.tsx` (the `./operation`
+  expose) wraps its routes in `erxes-ui` `AppLayout` (`id="operation"`) with
+  `OperationSidebar`. Core-ui draws only the top `CoreTab` bar; `navigationGroup` in
+  `src/config.tsx` supplies just the tab name, icon and `defaultPath` and takes
+  no `content`/`subGroup`.
+- The plugin owns its settings too. `OperationSidebarFooter` pins a Settings
+  link (`/settings/operation/team`) to the bottom of the app sidebar, and `src/modules/OperationSettings.tsx`
+  (the `./operationSettings` expose) wraps its routes in `OperationSettingsLayout`:
+  `AppLayout` (`id="operation:settings"`) with the plugin's settings
+  navigation and a Back link to the app. Core-ui renders these routes bare
+  and no longer lists them in organization settings; `settingsNavigation`
+  in `src/config.tsx` is what tells core the plugin owns its settings.
 - Keep user-facing task labels as Due date while retaining `targetDate` in storage and API fields. Date-filtered task lists must refetch inside `useSubscription.onData` before applying create/delete cache changes; updates can move a task into or out of a range.
 
 - Expandable navigation rows end in the host sidebar's chevron: `IconChevronRight` (`size-3.5`, muted) inside a span that rotates 90° when open, never a filled caret, so the rotation stays on the compositor and matches the main sidebar. Expandable group trigger buttons use `rounded-lg` like `Sidebar.MenuButton`.

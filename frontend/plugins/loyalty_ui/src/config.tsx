@@ -2,7 +2,6 @@ import { IconAward } from '@tabler/icons-react';
 import { IUIConfig } from 'erxes-ui';
 import { LoyaltySettingsNavigation } from '~/LoyaltySettingsNavigation';
 import { Suspense } from 'react';
-import { MainNavigation } from '@/navigation/MainNavigation';
 import { SEARCH_PROVIDERS } from '~/searchProviders';
 
 export const CONFIG: IUIConfig = {
@@ -17,11 +16,6 @@ export const CONFIG: IUIConfig = {
     name: 'loyalty',
     defaultPath: 'loyalty/scores',
     icon: IconAward,
-    content: () => (
-      <Suspense fallback={<div />}>
-        <MainNavigation />
-      </Suspense>
-    ),
   },
   modules: [
     {

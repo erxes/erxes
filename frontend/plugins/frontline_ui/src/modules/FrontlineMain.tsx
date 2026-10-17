@@ -1,4 +1,6 @@
 import { lazy, Suspense } from 'react';
+import { AppLayout } from 'erxes-ui';
+import { FrontlineSidebar, FrontlineSidebarFooter } from '~/Sidebar';
 import { Navigate, Route, Routes } from 'react-router';
 
 const CallDashboardIndexPage = lazy(() =>
@@ -92,43 +94,53 @@ const FormSubmissionIndexPage = lazy(() =>
 
 const IntegrationsMain = () => {
   return (
-    <Suspense fallback={<div />}>
-      <Routes>
-        <Route path="/inbox" element={<Inbox />} />
-        <Route path="/tickets" element={<Ticket />} />
-        <Route
-          path="/calls"
-          element={<Navigate to="/frontline/calls/dashboard" replace />}
-        />
-        <Route path="/calls/dashboard" element={<CallDashboardIndexPage />} />
-        <Route
-          path="/calls/dashboard/:id"
-          element={<CallDashboardDetailPage />}
-        />
-        <Route path="/calls/statistics" element={<CallStatisticsIndexPage />} />
-        <Route
-          path="/calls/statistics/:id"
-          element={
-            <CallDashboardDetailPage backPath="/frontline/calls/statistics" />
-          }
-        />
-        <Route path="/calls/:id" element={<CallDashboardDetailPage />} />
-        <Route path="/reports/*" element={<Report />} />
-        <Route path="/forms" element={<FormsView />}>
-          <Route index element={<Forms />} />
-          <Route path="create" element={<FormCreatePage />} />
-          <Route path=":formId" element={<FormDetailPage />} />
+    <AppLayout
+      id="frontline"
+      title="Frontline"
+      sidebar={<FrontlineSidebar />}
+      footer={<FrontlineSidebarFooter />}
+    >
+      <Suspense fallback={<div />}>
+        <Routes>
+          <Route path="/inbox" element={<Inbox />} />
+          <Route path="/tickets" element={<Ticket />} />
           <Route
-            path="submissions/:formId"
-            element={<FormSubmissionIndexPage />}
+            path="/calls"
+            element={<Navigate to="/frontline/calls/dashboard" replace />}
           />
-        </Route>
-        <Route path="/forms/preview" element={<FormPreviewPage />} />
-        <Route path="/surveys" element={<Surveys />} />
-        <Route path="/knowledgebase/*" element={<KnowledgeBase />} />
-        <Route path="/helpcenter" element={<HelpCenter />} />
-      </Routes>
-    </Suspense>
+          <Route path="/calls/dashboard" element={<CallDashboardIndexPage />} />
+          <Route
+            path="/calls/dashboard/:id"
+            element={<CallDashboardDetailPage />}
+          />
+          <Route
+            path="/calls/statistics"
+            element={<CallStatisticsIndexPage />}
+          />
+          <Route
+            path="/calls/statistics/:id"
+            element={
+              <CallDashboardDetailPage backPath="/frontline/calls/statistics" />
+            }
+          />
+          <Route path="/calls/:id" element={<CallDashboardDetailPage />} />
+          <Route path="/reports/*" element={<Report />} />
+          <Route path="/forms" element={<FormsView />}>
+            <Route index element={<Forms />} />
+            <Route path="create" element={<FormCreatePage />} />
+            <Route path=":formId" element={<FormDetailPage />} />
+            <Route
+              path="submissions/:formId"
+              element={<FormSubmissionIndexPage />}
+            />
+          </Route>
+          <Route path="/forms/preview" element={<FormPreviewPage />} />
+          <Route path="/surveys" element={<Surveys />} />
+          <Route path="/knowledgebase/*" element={<KnowledgeBase />} />
+          <Route path="/helpcenter" element={<HelpCenter />} />
+        </Routes>
+      </Suspense>
+    </AppLayout>
   );
 };
 

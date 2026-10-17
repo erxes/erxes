@@ -1,4 +1,6 @@
 import { Suspense } from 'react';
+import { AppLayout } from 'erxes-ui';
+import { OperationSidebar, OperationSidebarFooter } from '~/Sidebar';
 import { Navigate, Route, Routes } from 'react-router';
 
 import { TasksPage } from '~/pages/TasksPage';
@@ -13,37 +15,44 @@ import { TriagePage } from '~/pages/TriagePage';
 
 const OperationMain = () => {
   return (
-    <Suspense fallback={<div />}>
-      <Routes>
-        <Route path="/" element={<Navigate to="tasks" replace />} />
-        <Route path="tasks" element={<TasksPage />} />
-        <Route path="tasks/created" element={<TasksPage />} />
-        <Route path="tasks/:taskId" element={<TaskDetailPage />} />
-
-        <Route path="projects" element={<ProjectsPage />} />
-        <Route path="projects/:projectId" element={<ProjectLayout />}>
-          <Route index element={<Navigate to="overview" replace />} />
-          <Route path="overview" element={<ProjectDetailPage />} />
-          <Route path="tasks" element={<TasksLayout />} />
-        </Route>
-
-        <Route path="team/:teamId">
-          <Route index element={<Navigate to="tasks" replace />} />
-          <Route path="projects" element={<ProjectsPage />} />
-          <Route path="triage" element={<TriagePage />} />
-          <Route path="triage/:triageId" element={<TriagePage />} />
+    <AppLayout
+      id="operation"
+      title="Operation"
+      sidebar={<OperationSidebar />}
+      footer={<OperationSidebarFooter />}
+    >
+      <Suspense fallback={<div />}>
+        <Routes>
+          <Route path="/" element={<Navigate to="tasks" replace />} />
           <Route path="tasks" element={<TasksPage />} />
-          <Route path="cycles" element={<CyclesPage />} />
-          <Route path="cycles/:cycleId" element={<CycleDetailPage />} />
+          <Route path="tasks/created" element={<TasksPage />} />
           <Route path="tasks/:taskId" element={<TaskDetailPage />} />
+
+          <Route path="projects" element={<ProjectsPage />} />
           <Route path="projects/:projectId" element={<ProjectLayout />}>
             <Route index element={<Navigate to="overview" replace />} />
             <Route path="overview" element={<ProjectDetailPage />} />
             <Route path="tasks" element={<TasksLayout />} />
           </Route>
-        </Route>
-      </Routes>
-    </Suspense>
+
+          <Route path="team/:teamId">
+            <Route index element={<Navigate to="tasks" replace />} />
+            <Route path="projects" element={<ProjectsPage />} />
+            <Route path="triage" element={<TriagePage />} />
+            <Route path="triage/:triageId" element={<TriagePage />} />
+            <Route path="tasks" element={<TasksPage />} />
+            <Route path="cycles" element={<CyclesPage />} />
+            <Route path="cycles/:cycleId" element={<CycleDetailPage />} />
+            <Route path="tasks/:taskId" element={<TaskDetailPage />} />
+            <Route path="projects/:projectId" element={<ProjectLayout />}>
+              <Route index element={<Navigate to="overview" replace />} />
+              <Route path="overview" element={<ProjectDetailPage />} />
+              <Route path="tasks" element={<TasksLayout />} />
+            </Route>
+          </Route>
+        </Routes>
+      </Suspense>
+    </AppLayout>
   );
 };
 

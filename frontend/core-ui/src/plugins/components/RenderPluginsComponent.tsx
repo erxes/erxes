@@ -3,16 +3,18 @@ import * as Sentry from '@sentry/react';
 import {
   RemoteComponent,
   RemoteComponentProps,
-  RemoteModule,
-  resolveRemoteComponent,
 } from '../utils/resolveRemoteComponent';
+import {
+  getLoadedRemoteComponent,
+  getRemoteComponentKey,
+  loadRemoteComponent,
+} from '../utils/loadRemoteComponent';
 import { Suspense, useEffect, useState } from 'react';
 
 import { ErrorBoundary } from 'react-error-boundary';
 import { RenderPluginsComponentCrashState } from './RenderPluginsComponentCrashState';
 import { RenderPluginsComponentErrorState } from './RenderPluginsComponentErrorState';
 import { Spinner } from 'erxes-ui';
-import { loadRemote } from '@module-federation/enhanced/runtime';
 
 export function RenderPluginsComponent({
   pluginName,
@@ -25,28 +27,38 @@ export function RenderPluginsComponent({
   props?: RemoteComponentProps;
   withMascot?: boolean;
 }) {
-  const [Plugin, setPlugin] = useState<RemoteComponent | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  // A plugin loaded before renders on the first frame: switching apps must
+  // not flash the loader, since the plugin draws its own sidebar.
+  const [Plugin, setPlugin] = useState<RemoteComponent | null>(
+    () =>
+      getLoadedRemoteComponent(
+        getRemoteComponentKey(pluginName, remoteModuleName),
+      ) || null,
+  );
+  const [isLoading, setIsLoading] = useState(!Plugin);
   const [hasError, setHasError] = useState<{ message: string } | null>(null);
 
   useEffect(() => {
+    const cached = getLoadedRemoteComponent(
+      getRemoteComponentKey(pluginName, remoteModuleName),
+    );
+
+    if (cached) {
+      setPlugin(() => cached);
+      setIsLoading(false);
+      setHasError(null);
+      return;
+    }
+
     const loadPlugin = async () => {
       try {
         setIsLoading(true);
         setHasError(null);
 
-        const remoteModule = await loadRemote<RemoteModule>(
-          `${pluginName}/${remoteModuleName}`,
-          { from: 'runtime' },
-        );
-        const remoteComponent = resolveRemoteComponent(
-          remoteModule,
+        const remoteComponent = await loadRemoteComponent(
+          pluginName,
           remoteModuleName,
         );
-
-        if (!remoteComponent) {
-          throw new Error('Plugin module is empty or invalid');
-        }
 
         setPlugin(() => remoteComponent);
       } catch (error) {
