@@ -1,14 +1,25 @@
 import { useBoardRemove, useBoards } from '@/deals/boards/hooks/useBoards';
-import { IconPencil, IconTrash } from '@tabler/icons-react';
-import { Sidebar, Skeleton, useConfirm, useQueryState } from 'erxes-ui';
+import { IconDots, IconPencil, IconTrash } from '@tabler/icons-react';
+import {
+  Badge,
+  DropdownMenu,
+  Sidebar,
+  Skeleton,
+  TextOverflowTooltip,
+  useConfirm,
+  useQueryState,
+} from 'erxes-ui';
 import { useEffect, useMemo } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { BoardArchiveMenuItem } from './BoardArchiveMenuItem';
+import { useBoardArchiveSubscription } from '@/deals/boards/hooks/useBoardArchiveSubscription';
 
 import { BoardForm } from '@/deals/boards/components/settings/BoardForm';
 import { IBoard } from '@/deals/types/boards';
 import { useTranslation } from 'react-i18next';
 
 export const BoardsList = () => {
+  useBoardArchiveSubscription();
   const navigate = useNavigate();
   const location = useLocation();
   const searchParams = useMemo(
@@ -17,17 +28,28 @@ export const BoardsList = () => {
   );
   const activeBoardId = searchParams.get('activeBoardId');
 
-  const { boards, loading } = useBoards();
+  const { boards, loading, error } = useBoards({
+    variables: { includeArchived: true },
+  });
 
   useEffect(() => {
-    if (!loading && boards && boards.length > 0 && !activeBoardId) {
-      const firstBoardId = boards[0]._id;
-      searchParams.set('activeBoardId', firstBoardId);
+    if (
+      !loading &&
+      !error &&
+      boards &&
+      !boards.some((board) => board._id === activeBoardId)
+    ) {
+      const firstBoardId = boards[0]?._id;
+      if (firstBoardId) searchParams.set('activeBoardId', firstBoardId);
+      else if (activeBoardId) searchParams.delete('activeBoardId');
+      else return;
+      searchParams.delete('pipelineId');
+      searchParams.delete('tab');
       navigate(`${location.pathname}?${searchParams.toString()}`, {
         replace: true,
       });
     }
-  }, [boards, loading, activeBoardId, navigate, location, searchParams]);
+  }, [boards, loading, error, activeBoardId, navigate, location, searchParams]);
 
   const { t } = useTranslation('sales');
 
@@ -51,6 +73,14 @@ export const BoardsList = () => {
                   <Skeleton className="w-full h-4 my-1" />
                 </Sidebar.MenuItem>
               ))}
+            {error && (
+              <p className="p-3 text-sm text-destructive">{error.message}</p>
+            )}
+            {!loading && !error && !boards?.length && (
+              <p className="p-3 text-sm text-muted-foreground">
+                {t('no-boards', 'No boards')}
+              </p>
+            )}
           </Sidebar.Menu>
         </Sidebar.GroupContent>
       </Sidebar.Group>
@@ -64,6 +94,7 @@ const BoardMenuItem = ({ board }: { board: IBoard }) => {
   const { t } = useTranslation('sales');
 
   const isActive = board._id === activeBoardId;
+  const isArchived = board.status === 'archived';
 
   const { removeBoard, loading: removeLoading } = useBoardRemove();
 
@@ -78,34 +109,55 @@ const BoardMenuItem = ({ board }: { board: IBoard }) => {
   };
 
   return (
-    <div className="group relative flex items-center justify-between w-full hover:bg-gray-100 transition-colors duration-200">
-      <Link
-        className="w-full"
-        to={`/settings/sales/deals?activeBoardId=${board._id}`}
-      >
-        <Sidebar.MenuButton className="h-auto" isActive={isActive}>
-          {board.name}
-        </Sidebar.MenuButton>
-      </Link>
-      <div
-        className={`absolute right-0 top-0 bottom-0 flex items-center gap-1 opacity-0 ${
-          isActive ? 'bg-primary/20' : 'bg-gray-100'
-        } translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 pr-2`}
-      >
-        <button
-          onClick={() => setBoardId(board._id)}
-          className="text-gray-400 hover:text-blue-500 p-1 rounded transition-colors"
+    <>
+      <Sidebar.MenuButton asChild className="h-8" isActive={isActive}>
+        <Link to={`/settings/sales/deals?activeBoardId=${board._id}`}>
+          <TextOverflowTooltip
+            value={board.name}
+            className="min-w-0 flex-1 text-left"
+          />
+          {isArchived && (
+            <Badge
+              variant="warning"
+              className="h-5 shrink-0 border-yellow-200 bg-yellow-100 text-yellow-800"
+            >
+              {t('archived', 'Archived')}
+            </Badge>
+          )}
+        </Link>
+      </Sidebar.MenuButton>
+      <DropdownMenu>
+        <DropdownMenu.Trigger asChild>
+          <Sidebar.MenuAction
+            showOnHover
+            aria-label={`${board.name}: ${t('action')}`}
+            disabled={removeLoading}
+            className="text-muted-foreground"
+          >
+            <IconDots />
+          </Sidebar.MenuAction>
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content
+          align="end"
+          sideOffset={8}
+          className="min-w-72"
         >
-          <IconPencil className="w-4 h-4" />
-        </button>
-        <button
-          onClick={() => onRemove(board._id)}
-          disabled={removeLoading}
-          className="text-gray-400 hover:text-red-500 p-1 rounded transition-colors"
-        >
-          <IconTrash className="w-4 h-4" />
-        </button>
-      </div>
-    </div>
+          <DropdownMenu.Item onSelect={() => setBoardId(board._id)}>
+            <IconPencil />
+            {t('edit')}
+          </DropdownMenu.Item>
+          <BoardArchiveMenuItem board={board} disabled={removeLoading} />
+          <DropdownMenu.Separator />
+          <DropdownMenu.Item
+            onSelect={() => onRemove(board._id)}
+            disabled={removeLoading}
+            className="text-destructive focus:text-destructive"
+          >
+            <IconTrash />
+            {t('delete')}
+          </DropdownMenu.Item>
+        </DropdownMenu.Content>
+      </DropdownMenu>
+    </>
   );
 };
