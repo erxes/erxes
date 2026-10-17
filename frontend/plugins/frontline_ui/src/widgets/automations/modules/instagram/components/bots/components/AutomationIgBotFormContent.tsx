@@ -25,7 +25,7 @@ import { useIgBotFormContext } from '../context/IgBotFormContext';
 import { AutomationBotFormEffect } from './AutomationBotFormEffect';
 
 export const AutomationIgBotFormContent = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.instagram' });
   const { form } = useIgBotFormContext();
   const [isOptionalOpen, setOptionalOpen] = useState(false);
   const { onSave, onSaveloading } = useInstagramBotSave();
@@ -209,7 +209,7 @@ const IgBotFormSecondarySheet = ({
   accountId: string;
   pageId: string;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.instagram' });
   const [isOpenAccountSheet, setOpenAccountSheet] = useAtom(
     isOpenInstagramBotSecondarySheet,
   );

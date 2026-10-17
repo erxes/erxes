@@ -273,6 +273,6 @@ export type FormGroupKey = 'basic' | 'core:customer';
 export type GroupedFields = Record<FormGroupKey, FormFieldType[]>;
 
 export interface FormGroupMetadata {
-  label: string;
+  labelKey: string;
   description?: string;
 }

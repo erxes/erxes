@@ -62,7 +62,7 @@ const PipelineCreatedByCell = ({ cell }: PipelineCellProps) => {
 };
 
 const PipelineDeleteItem = ({ pipelineId }: { pipelineId: string }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.pipelines' });
   const { confirm } = useConfirm();
   const { removePipeline, loading } = usePipelineRemove();
 
@@ -92,7 +92,7 @@ const PipelineDeleteItem = ({ pipelineId }: { pipelineId: string }) => {
 };
 
 const PipelineMoreCell = ({ cell }: PipelineCellProps) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.pipelines' });
   const { _id, channelId } = cell.row.original;
   const [menuOpen, setMenuOpen] = useState(false);
   const [moveOpen, setMoveOpen] = useState(false);
@@ -133,7 +133,7 @@ const PipelineMoreCell = ({ cell }: PipelineCellProps) => {
 };
 
 const usePipelineColumns = (): ColumnDef<IPipeline>[] => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.pipelines' });
 
   return [
     {
@@ -196,7 +196,7 @@ const usePipelineColumns = (): ColumnDef<IPipeline>[] => {
 };
 
 export const PipelinesList = ({ channelId }: { channelId: string }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.pipelines' });
   const columns = usePipelineColumns();
   const setCreatePipelineOpen = useSetAtom(createPipelineSheetState);
   const { pipelines, loading } = useGetPipelines({

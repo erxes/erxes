@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 export const FormsSection = ({ channel }: { channel: IChannelDetail }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.channels' });
   const navigate = useNavigate();
   const { total } = useFormsTotalCount({
     variables: {

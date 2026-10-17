@@ -41,7 +41,7 @@ import { MoveToChannelDialog } from '@/channels/components/move-resources/MoveTo
 import { ChannelResourceType } from '@/channels/types';
 
 const SurveyMoreColumnCell = ({ cell }: { cell: Cell<ISurvey, unknown> }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.survey' });
   const [open, setOpen] = useState(false);
   const [moveOpen, setMoveOpen] = useState(false);
   const [rejectOpen, setRejectOpen] = useState(false);
@@ -199,7 +199,9 @@ export const surveyColumns: ColumnDef<ISurvey>[] = [
     accessorKey: 'title',
     id: 'title',
     header: function SurveyTitleHeader() {
-      const { t } = useTranslation('frontline');
+      const { t } = useTranslation('frontline', {
+        keyPrefix: 'modules.survey',
+      });
       return <RecordTable.InlineHead label={t('col-name')} icon={IconLabel} />;
     },
     cell: function SurveyTitleCell({ cell }) {
@@ -224,7 +226,9 @@ export const surveyColumns: ColumnDef<ISurvey>[] = [
     accessorKey: 'question',
     id: 'question',
     header: function SurveyQuestionHeader() {
-      const { t } = useTranslation('frontline');
+      const { t } = useTranslation('frontline', {
+        keyPrefix: 'modules.survey',
+      });
       return (
         <RecordTable.InlineHead
           label={t('survey-question', 'Question')}
@@ -241,7 +245,9 @@ export const surveyColumns: ColumnDef<ISurvey>[] = [
     accessorKey: 'steps',
     id: 'steps',
     header: function SurveyStepsHeader() {
-      const { t } = useTranslation('frontline');
+      const { t } = useTranslation('frontline', {
+        keyPrefix: 'modules.survey',
+      });
       return (
         <RecordTable.InlineHead
           label={t('survey-steps', 'Steps')}
@@ -262,7 +268,9 @@ export const surveyColumns: ColumnDef<ISurvey>[] = [
     accessorKey: 'status',
     id: 'status',
     header: function SurveyStatusHeader() {
-      const { t } = useTranslation('frontline');
+      const { t } = useTranslation('frontline', {
+        keyPrefix: 'modules.survey',
+      });
       return (
         <RecordTable.InlineHead label={t('status')} icon={IconToggleRight} />
       );
@@ -300,7 +308,9 @@ export const surveyColumns: ColumnDef<ISurvey>[] = [
   {
     id: 'createdBy',
     header: function SurveyCreatedByHeader() {
-      const { t } = useTranslation('frontline');
+      const { t } = useTranslation('frontline', {
+        keyPrefix: 'modules.survey',
+      });
       return (
         <RecordTable.InlineHead
           label={t('created-by', 'Created by')}
@@ -309,7 +319,9 @@ export const surveyColumns: ColumnDef<ISurvey>[] = [
       );
     },
     cell: function SurveyCreatedByCell({ cell }) {
-      const { t } = useTranslation('frontline');
+      const { t } = useTranslation('frontline', {
+        keyPrefix: 'modules.survey',
+      });
       const { createdCpUser, createdCpUserId, createdUser } = cell.row.original;
 
       if (!createdCpUserId) {
@@ -344,7 +356,9 @@ export const surveyColumns: ColumnDef<ISurvey>[] = [
     accessorKey: 'sentCount',
     id: 'sentCount',
     header: function SurveySentCountHeader() {
-      const { t } = useTranslation('frontline');
+      const { t } = useTranslation('frontline', {
+        keyPrefix: 'modules.survey',
+      });
       return (
         <RecordTable.InlineHead
           label={t('survey-sent', 'Survey sent')}
@@ -363,7 +377,9 @@ export const surveyColumns: ColumnDef<ISurvey>[] = [
     accessorKey: 'createdAt',
     id: 'createdAt',
     header: function SurveyCreatedAtHeader() {
-      const { t } = useTranslation('frontline');
+      const { t } = useTranslation('frontline', {
+        keyPrefix: 'modules.survey',
+      });
       return (
         <RecordTable.InlineHead
           label={t('created-at')}

@@ -8,7 +8,7 @@ export const ActivityAssignee = ({
 }: {
   metadata: IActivity['metadata'];
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.activity' });
   const previousValue = metadata?.previousValue;
   const newValue = metadata?.newValue;
 

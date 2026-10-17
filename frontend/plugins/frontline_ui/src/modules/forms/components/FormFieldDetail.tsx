@@ -78,7 +78,7 @@ export const FormFieldDetail = ({
   stepId: UniqueIdentifier;
   handleClose: () => void;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
   const { handleChangeField, handleDeleteField, fields, getFieldValue } =
     useFormDnd();
 

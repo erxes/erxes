@@ -19,7 +19,7 @@ export const useNoteTemplateSuggestions = ({
   editor: TNoteEditor;
   enabled: boolean;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.activity' });
   const [searchValue, setSearchValue] = useState('');
   const [debouncedSearchValue] = useDebounce(searchValue, 300);
   const [isDropdownDismissed, setIsDropdownDismissed] = useState(false);

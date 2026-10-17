@@ -46,7 +46,7 @@ const BotProfile = ({
   bot?: IInstagramBotProfile;
   loading: boolean;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.instagram' });
   if (loading) return <Spinner />;
   if (!bot) return null;
 
@@ -98,7 +98,7 @@ const Condition = ({
   bot?: IInstagramBotProfile;
   totalCount: number;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.instagram' });
   if (!condition?.isSelected) return null;
 
   const { label, description } =

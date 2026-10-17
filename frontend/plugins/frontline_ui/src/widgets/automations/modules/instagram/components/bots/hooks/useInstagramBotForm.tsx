@@ -20,7 +20,7 @@ import {
 } from '~/widgets/automations/modules/instagram/components/bots/states/instagramBotStates';
 
 export const useInstagramBotSave = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.instagram' });
   const [instagramBotId, setInstagramBotId] =
     useQueryState<string>('instagramBotId');
   const resetForm = useSetAtom(resetInstagramAddStateAtom);

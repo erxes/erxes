@@ -9,7 +9,7 @@ import { useSurveyDetail } from '@/survey/hooks/useSurveyDetail';
 import { surveySetSetupAtom } from '@/survey/states/surveySetupStates';
 
 export const SurveyEdit = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.survey' });
   const { surveyId } = useParams<{ surveyId: string }>();
   const [isSetup, setIsSetup] = useState(false);
   const seededSurveyId = useRef<string | null>(null);

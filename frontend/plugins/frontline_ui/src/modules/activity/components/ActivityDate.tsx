@@ -10,7 +10,7 @@ export const ActivityDate = ({
   metadata: IActivity['metadata'];
   type: 'start' | 'end';
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.activity' });
   const previousValue = metadata?.previousValue;
   const newValue = metadata?.newValue;
 

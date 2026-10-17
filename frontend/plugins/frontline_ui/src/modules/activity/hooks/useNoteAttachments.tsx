@@ -4,7 +4,7 @@ import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 export const useNoteAttachments = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.activity' });
   const { upload, isLoading } = useUpload();
   const [attachments, setAttachments] = useState<INoteAttachment[]>([]);
   const [attachmentPreview, setAttachmentPreview] =
