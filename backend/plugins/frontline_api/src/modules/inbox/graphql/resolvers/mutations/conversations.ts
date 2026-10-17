@@ -6,7 +6,12 @@ import {
 } from '@/inbox/db/definitions/constants';
 import { convertConversation } from '@/inbox/services/conversationConvert';
 import { IConversationConvert } from '@/inbox/@types/conversationConvert';
-import { graphqlPubsub, markResolvers } from 'erxes-api-shared/utils';
+import {
+  graphqlPubsub,
+  markResolvers,
+  sendTRPCMessage,
+} from 'erxes-api-shared/utils';
+import { getConversationAssigneeIds } from '@/inbox/utils/conversationAssignees';
 import type { IContext, IModels } from '~/connectionResolvers';
 import { createNotifications } from '~/utils/notifications';
 import {
@@ -46,16 +51,64 @@ export const conversationMutations = {
     {
       conversationIds,
       assignedUserId,
-    }: { conversationIds: string[]; assignedUserId: string },
-    { user, models, subdomain }: IContext,
+      assignedUserIds,
+    }: {
+      conversationIds: string[];
+      assignedUserId?: string | null;
+      assignedUserIds?: string[] | null;
+    },
+    { user, models, subdomain, checkPermission }: IContext,
   ) {
+    await checkPermission('conversationsAssign');
+    if (assignedUserIds != null && assignedUserId != null) {
+      throw new Error(
+        'Provide either assignedUserIds or assignedUserId, not both',
+      );
+    }
+    const ids = getConversationAssigneeIds({ assignedUserId, assignedUserIds });
+    if (!conversationIds.length || conversationIds.some((id) => !id)) {
+      throw new Error('Select at least one conversation');
+    }
+    if (assignedUserIds?.some((id) => !id.trim())) {
+      throw new Error('Assignee IDs must not be empty');
+    }
+    const previous = await models.Conversations.find({
+      _id: { $in: conversationIds },
+    }).lean();
+    const addedIds = ids.filter((id) =>
+      previous.some(
+        (conversation) =>
+          !getConversationAssigneeIds(conversation).includes(id),
+      ),
+    );
+    if (addedIds.length) {
+      const users: Array<{ _id: string }> = await sendTRPCMessage({
+        subdomain,
+        pluginName: 'core',
+        module: 'users',
+        method: 'query',
+        action: 'find',
+        input: {
+          query: { _id: { $in: addedIds }, isActive: { $ne: false } },
+          fields: { _id: 1 },
+        },
+        throwOnError: true,
+      });
+      if (users.length !== addedIds.length)
+        throw new Error('Select active members of this workspace');
+    }
     const conversations: IConversationDocument[] =
       await models.Conversations.assignUserConversation(
         conversationIds,
-        assignedUserId,
+        undefined,
+        ids,
       );
 
-    publishConversationsChanged(subdomain, conversationIds, 'assigneeChanged');
+    await publishConversationsChanged(
+      subdomain,
+      conversationIds,
+      'assigneeChanged',
+    );
 
     await sendNotifications(subdomain, {
       user,
@@ -63,17 +116,38 @@ export const conversationMutations = {
       type: 'conversationAssigneeChange',
     });
 
-    if (assignedUserId && assignedUserId !== user?._id) {
-      await createNotifications({
-        contentType: 'inbox',
-        contentTypeId: conversationIds?.[0],
-        fromUserId: user?._id,
-        subdomain,
-        notificationType: 'inboxAssignee',
-        userIds: [assignedUserId],
-        action: 'assignee',
-      });
-    }
+    await Promise.all(
+      conversations.map(async (conversation) => {
+        const old = previous.find((item) => item._id === conversation._id);
+        const previousIds = getConversationAssigneeIds(old ?? {});
+        const added = ids.filter(
+          (id) => id !== user._id && !previousIds.includes(id),
+        );
+        const removed = previousIds.filter(
+          (id) => id !== user._id && !ids.includes(id),
+        );
+        if (removed.length)
+          await createNotifications({
+            contentType: 'inbox',
+            contentTypeId: conversation._id,
+            fromUserId: user._id,
+            subdomain,
+            notificationType: 'inboxAssignee',
+            userIds: removed,
+            action: 'unassign',
+          });
+        if (added.length)
+          await createNotifications({
+            contentType: 'inbox',
+            contentTypeId: conversation._id,
+            fromUserId: user?._id,
+            subdomain,
+            notificationType: 'inboxAssignee',
+            userIds: added,
+            action: 'assignee',
+          });
+      }),
+    );
     return conversations;
   },
 

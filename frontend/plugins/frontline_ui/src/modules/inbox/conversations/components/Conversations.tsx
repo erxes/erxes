@@ -18,9 +18,10 @@ import { ConversationItem } from '@/inbox/conversations/components/ConversationI
 import { ConversationThreadList } from '@/inbox/conversations/components/ConversationChannelSection';
 import { isDiscordConversation } from '@/inbox/conversations/utils/channelGroups';
 import { useDiscordConversationChannels } from '@/integrations/discord/hooks/useDiscordSetup';
-import { useMemo } from 'react';
+import { useMemo, type ReactNode } from 'react';
 import { ConversationActions } from '@/inbox/conversations/components/ConversationActions';
 import { useTranslation } from 'react-i18next';
+import { ConversationIdleClockProvider } from '../context/ConversationIdleClockContext';
 
 const ConversationsLoading = () => (
   <div className="divide-y" aria-label="Loading conversations">
@@ -80,15 +81,7 @@ export const Conversations = () => {
     useTelegramChats(telegramIds);
 
   const renderConversationItem = (conversation: IConversation) => (
-    <ConversationContext.Provider
-      key={conversation._id}
-      value={{
-        ...conversation,
-        customer: toCustomerInline(conversation.customer),
-        integration: conversation.integration ?? undefined,
-        tagIds: compactList(conversation.tagIds),
-      }}
-    >
+    <ConversationRowProvider key={conversation._id} conversation={conversation}>
       <ConversationItem
         channelInfo={{
           channelName:
@@ -105,7 +98,7 @@ export const Conversations = () => {
         }
         onConversationSelect={handleConversationSelect}
       />
-    </ConversationContext.Provider>
+    </ConversationRowProvider>
   );
 
   const renderContent = () => {
@@ -164,7 +157,9 @@ export const Conversations = () => {
             ref={containerRef}
             onScroll={handleScroll}
           >
-            {renderContent()}
+            <ConversationIdleClockProvider>
+              {renderContent()}
+            </ConversationIdleClockProvider>
           </div>
           {fetchingMore && (
             <div className="pointer-events-none absolute inset-x-0 bottom-2 flex justify-center">
@@ -176,5 +171,28 @@ export const Conversations = () => {
         </div>
       </div>
     </ConversationListContext.Provider>
+  );
+};
+
+const ConversationRowProvider = ({
+  conversation,
+  children,
+}: {
+  conversation: IConversation;
+  children: ReactNode;
+}) => {
+  const value = useMemo(
+    () => ({
+      ...conversation,
+      customer: toCustomerInline(conversation.customer),
+      integration: conversation.integration ?? undefined,
+      tagIds: compactList(conversation.tagIds),
+    }),
+    [conversation],
+  );
+  return (
+    <ConversationContext.Provider value={value}>
+      {children}
+    </ConversationContext.Provider>
   );
 };

@@ -30,6 +30,11 @@ export const CONVERSATION_SEGMENT_FIELDS: SegmentFieldMeta[] = [
     query: { name: 'users', labelField: 'email' },
   }),
   SegmentField.lookup({
+    key: 'assignedUserIds',
+    label: 'Assigned users',
+    query: { name: 'users', labelField: 'email' },
+  }),
+  SegmentField.lookup({
     key: 'tagIds',
     label: 'Tags',
     query: {
