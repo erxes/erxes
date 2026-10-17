@@ -997,15 +997,15 @@
     "node-events": "Үйл явдлууд",
     "event-direct-message": "Шууд мессеж",
     "event-get-started": "Эхлэх",
-    "event-quick-reply": "Түргэн хариулт",
-    "event-customer-registration": "Үйлчлүүлэгчийн бүртгэл",
+    "event-quick-reply": "Хурдан хариу",
+    "event-customer-registration": "Харилцагчийн бүртгэл",
     "event-ticket-form-submission": "Тикет формын илгээлт",
     "event-request-create-ticket": "Тикет үүсгэх хүсэлт",
-    "event-direct-message-description": "Үйлчлүүлэгч дурын текст мессеж илгээхэд ажиллана (анхдагч)",
-    "event-get-started-description": "Үйлчлүүлэгч Эхлэх товчийг дарахад ажиллана",
-    "event-quick-reply-description": "Үйлчлүүлэгч түргэн хариултын товчийг дарахад ажиллана",
-    "event-customer-registration-description": "Үйлчлүүлэгч холбоо барих мэдээллээ илгээхэд ажиллана",
-    "event-ticket-form-submission-description": "Үйлчлүүлэгч нэр болон тайлбартай тикет үүсгэх форм илгээхэд ажиллана",
-    "event-request-create-ticket-description": "Үйлчлүүлэгч байнгын цэс дэх Тикет үүсгэх товчийг дарахад ажиллана"
+    "event-direct-message-description": "Харилцагч дурын текст мессеж илгээхэд ажиллана (анхдагч)",
+    "event-get-started-description": "Харилцагч Эхлэх товчийг дарахад ажиллана",
+    "event-quick-reply-description": "Харилцагч хурдан хариуны товчийг дарахад ажиллана",
+    "event-customer-registration-description": "Харилцагч холбоо барих мэдээллээ илгээхэд ажиллана",
+    "event-ticket-form-submission-description": "Харилцагч нэр болон тайлбартай тикет үүсгэх форм илгээхэд ажиллана",
+    "event-request-create-ticket-description": "Харилцагч байнгын цэс дэх Тикет үүсгэх товчийг дарахад ажиллана"
   }
 }
