@@ -89,6 +89,11 @@
 
 ## Local Invariants
 
+- "Your teams" collapsibles in `TeamsNavigation` are controlled by
+  `openTeamsNavigationState` (localStorage `operation:open-teams-navigation`),
+  and the team in the current route (`/operation/team/:teamId/…`) always
+  unfolds. Keep them controlled: the app sidebar remounts whenever the user
+  switches app tabs, so uncontrolled open state would be lost.
 - The plugin owns its whole app sidebar. `src/modules/OperationMain.tsx` (the `./operation`
   expose) wraps its routes in `erxes-ui` `AppLayout` (`id="operation"`) with
   `OperationSidebar`. Core-ui draws only the top `CoreTab` bar; `navigationGroup` in

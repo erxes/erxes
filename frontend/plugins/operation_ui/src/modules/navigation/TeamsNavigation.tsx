@@ -1,8 +1,10 @@
 import { useTranslation } from 'react-i18next';
 import { useGetTeams } from '@/team/hooks/useGetTeams';
-import { useAtomValue } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 import { currentUserState } from 'ui-modules';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
+import { openTeamsNavigationState } from '@/navigation/states/openTeamsNavigationState';
 import {
   Button,
   Collapsible,
@@ -44,8 +46,37 @@ interface TeamItemProps {
 
 function TeamItem({ team }: TeamItemProps) {
   const { t } = useTranslation('operation');
+  const { pathname } = useLocation();
+  const [openTeamIds, setOpenTeamIds] = useAtom(openTeamsNavigationState);
+  const teamPath = `/operation/team/${team._id}`;
+  const isInTeam = pathname === teamPath || pathname.startsWith(`${teamPath}/`);
+  const open = openTeamIds.includes(team._id);
+
+  const setOpen = (next: boolean) =>
+    setOpenTeamIds((ids) => {
+      if (next) {
+        return ids.includes(team._id) ? ids : [...ids, team._id];
+      }
+
+      return ids.filter((id) => id !== team._id);
+    });
+
+  // The team being viewed is always unfolded, e.g. after switching back
+  // to operation from another app.
+  useEffect(() => {
+    if (isInTeam) {
+      setOpenTeamIds((ids) =>
+        ids.includes(team._id) ? ids : [...ids, team._id],
+      );
+    }
+  }, [isInTeam, setOpenTeamIds, team._id]);
+
   return (
-    <Collapsible className="group/collapsible">
+    <Collapsible
+      className="group/collapsible"
+      open={open}
+      onOpenChange={setOpen}
+    >
       <Sidebar.Group className="p-0">
         <div className="w-full relative group/trigger hover:cursor-pointer">
           <Collapsible.Trigger asChild>

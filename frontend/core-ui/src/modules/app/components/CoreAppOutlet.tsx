@@ -7,7 +7,7 @@ import { Outlet, useLocation } from 'react-router-dom';
 import { SegmentsContextNavigation } from '@/segments/components/SegmentsSidebar';
 import { SettingsSidebar } from '@/settings/components/SettingsSidebar';
 import { AppPath } from '@/types/paths/AppPath';
-import { findNavigationActivityByPath } from '@/navigation/utils/navigationActivities';
+import { findAppActivityByPath } from '@/navigation/utils/navigationActivities';
 import { useNavigationActivities } from '@/navigation/hooks/useNavigationActivities';
 import { usePluginSettingsActivity } from '@/navigation/hooks/usePluginSettingsActivity';
 import { useTranslation } from 'react-i18next';
@@ -55,7 +55,7 @@ export const CoreAppOutlet = () => {
   }
 
   const activity =
-    pluginSettingsActivity || findNavigationActivityByPath(activities, pathname);
+    pluginSettingsActivity || findAppActivityByPath(activities, pathname);
 
   const sidebar =
     activity?.kind === 'core' ? getCoreModuleSidebar(activity, pathname) : null;

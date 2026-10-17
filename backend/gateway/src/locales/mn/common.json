@@ -450,5 +450,19 @@
   "not-found": {
     "message": "Уучлаарай! Хуудас олдсонгүй.",
     "go-back": "Буцах"
+  },
+  "home": {
+    "good-morning": "Өглөөний мэнд, {{name}}",
+    "good-afternoon": "Өдрийн мэнд, {{name}}",
+    "good-evening": "Оройн мэнд, {{name}}",
+    "starred": "Одтой",
+    "starred-empty": "Хуудсыг хажуугийн цэсээсээ одоор тэмдэглэж энд хадгална уу.",
+    "notifications": "Шинэ мэдэгдлүүд",
+    "notifications-empty": "Шинэ мэдэгдэл алга.",
+    "view-all": "Бүгдийг харах",
+    "installed-plugins": "Суулгасан плагинууд",
+    "plugins-empty": "Одоогоор плагин суулгаагүй байна.",
+    "core-modules": "Үндсэн модулиуд",
+    "core-modules-empty": "Танд нээлттэй үндсэн модуль алга."
   }
 }

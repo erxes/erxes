@@ -449,5 +449,19 @@
   "not-found": {
     "message": "Oops! Page not found.",
     "go-back": "Go back"
+  },
+  "home": {
+    "good-morning": "Good morning, {{name}}",
+    "good-afternoon": "Good afternoon, {{name}}",
+    "good-evening": "Good evening, {{name}}",
+    "starred": "Starred",
+    "starred-empty": "Star a page from its sidebar menu to keep it here.",
+    "notifications": "New notifications",
+    "notifications-empty": "You're all caught up.",
+    "view-all": "View all",
+    "installed-plugins": "Installed plugins",
+    "plugins-empty": "No plugins are installed yet.",
+    "core-modules": "Core modules",
+    "core-modules-empty": "No core modules are available to you."
   }
 }
