@@ -11,7 +11,7 @@ export const ConversationDetailLayout = ({
   children: React.ReactNode;
   input: React.ReactNode;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const collapsed = useAtomValue(isInternalNoteCollapsedState);
   const {
     panelGroupRef,

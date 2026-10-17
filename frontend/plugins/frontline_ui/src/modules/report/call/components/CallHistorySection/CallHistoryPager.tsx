@@ -16,7 +16,7 @@ export function CallHistoryPager({
   callerCount: number;
   onPageChange: (page: number) => void;
 }) {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
 
   const lastPage = Math.max(1, Math.ceil(totalCount / pageSize));
   const from = totalCount === 0 ? 0 : (page - 1) * pageSize + 1;

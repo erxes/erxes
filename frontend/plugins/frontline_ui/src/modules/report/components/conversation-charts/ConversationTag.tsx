@@ -11,6 +11,7 @@ import { useConversationTags } from '@/report/hooks/useConversationTags';
 import { SelectChartType } from '../select-chart-type/SelectChartType';
 import { ChartExportButton } from '../chart-export/ChartExportButton';
 import { ColumnDef } from '@tanstack/table-core';
+import { TFunction } from 'i18next';
 import {
   Area,
   AreaChart,
@@ -66,7 +67,7 @@ export const ConversationTag = ({
   colSpan = 6,
   onColSpanChange,
 }: ConversationTagProps) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const { id, filterConfig, queryFilters, filtersRestored } =
     useConversationChartCard({ title, cardId, savedChart });
   const [chartType, setChartType] = useAtom(getReportChartTypeAtom(id));
@@ -123,7 +124,7 @@ export const ConversationTag = ({
       <FrontlineCard
         id={id}
         title={title}
-        description="Conversation statistics by tag"
+        description={t('conversation-statistics-by-tag')}
         colSpan={colSpan}
         onColSpanChange={onColSpanChange}
       >
@@ -140,7 +141,7 @@ export const ConversationTag = ({
       <FrontlineCard
         id={id}
         title={title}
-        description="Conversation statistics by tag"
+        description={t('conversation-statistics-by-tag')}
         colSpan={colSpan}
         onColSpanChange={onColSpanChange}
       >
@@ -150,7 +151,7 @@ export const ConversationTag = ({
               {t('error-loading-data', 'Error loading data')}
             </Alert.Title>
             <Alert.Description>
-              {error.message || 'Failed to load conversation tags'}
+              {error.message || t('failed-to-load-conversation-tags')}
             </Alert.Description>
           </Alert>
         </FrontlineCard.Content>
@@ -163,7 +164,7 @@ export const ConversationTag = ({
       <FrontlineCard
         id={id}
         title={title}
-        description="No conversation tags found."
+        description={t('no-conversation-tags-found')}
         colSpan={colSpan}
         onColSpanChange={onColSpanChange}
       >
@@ -179,7 +180,7 @@ export const ConversationTag = ({
     <FrontlineCard
       id={id}
       title={title}
-      description="Conversation statistics by tag"
+      description={t('conversation-statistics-by-tag')}
       colSpan={colSpan}
       onColSpanChange={onColSpanChange}
     >
@@ -224,6 +225,7 @@ export const ConversationTag = ({
 export const TagBarChart = memo(function TagBarChart({
   conversationTags,
 }: TagChartProps) {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const chartConfig = useMemo(
     () => ({
       count: {
@@ -302,7 +304,7 @@ export const TagBarChart = memo(function TagBarChart({
           domain={stackedYAxisDomain}
           tickLine={false}
           axisLine={false}
-          label={{ value: 'Count', angle: -90, position: 'insideLeft' }}
+          label={{ value: t('count'), angle: -90, position: 'insideLeft' }}
         />
         <Bar dataKey="count" fill="var(--primary)" name="Count">
           <LabelList
@@ -326,9 +328,9 @@ export const TagBarChart = memo(function TagBarChart({
           content={<ChartTooltipContent />}
           formatter={(value: number, name: string, props: any) => {
             if (name === 'Percentage') {
-              return [props.payload.percentage?.toFixed(1) + '%', 'Percentage'];
+              return [props.payload.percentage?.toFixed(1) + '%', t('percentage')];
             }
-            return [value, name === 'Count' ? 'Count' : name];
+            return [value, name === 'Count' ? t('count') : name];
           }}
         />
       </BarChart>
@@ -339,6 +341,7 @@ export const TagBarChart = memo(function TagBarChart({
 export const TagLineChart = memo(function TagLineChart({
   conversationTags,
 }: TagChartProps) {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const chartConfig = useMemo(
     () => ({
       count: {
@@ -398,7 +401,7 @@ export const TagLineChart = memo(function TagLineChart({
           domain={countYAxisDomain}
           tickLine={false}
           axisLine={false}
-          label={{ value: 'Count', angle: -90, position: 'insideLeft' }}
+          label={{ value: t('count'), angle: -90, position: 'insideLeft' }}
         />
         <YAxis
           yAxisId="percentage"
@@ -407,7 +410,7 @@ export const TagLineChart = memo(function TagLineChart({
           tickLine={false}
           axisLine={false}
           label={{
-            value: 'Percentage (%)',
+            value: t('percentage-percent'),
             angle: 90,
             position: 'insideRight',
           }}
@@ -531,6 +534,7 @@ export const TagPieChart = memo(function TagPieChart({
 export const TagRadarChart = memo(function TagRadarChart({
   conversationTags,
 }: TagChartProps) {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const chartConfig = useMemo(
     () => ({
       count: {
@@ -614,7 +618,7 @@ export const TagRadarChart = memo(function TagRadarChart({
             if (name === 'Percentage') {
               return [
                 props.payload.percentageOriginal?.toFixed(1) + '%',
-                'Percentage',
+                t('percentage'),
               ];
             }
             return [value, name];
@@ -628,11 +632,12 @@ export const TagRadarChart = memo(function TagRadarChart({
 export const TagRecordTableChart = memo(function TagRecordTableChart({
   conversationTags,
 }: TagChartProps) {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   return (
     <div className="bg-sidebar w-full rounded-lg [&_th]:last-of-type:text-right">
       <RecordTable.Provider
         data={conversationTags}
-        columns={tagRecordTableColumns}
+        columns={tagRecordTableColumns(t)}
         className="m-3"
       >
         <RecordTable.Scroll>
@@ -648,10 +653,12 @@ export const TagRecordTableChart = memo(function TagRecordTableChart({
   );
 });
 
-export const tagRecordTableColumns: ColumnDef<TagData>[] = [
+export const tagRecordTableColumns = (
+  t: TFunction,
+): ColumnDef<TagData>[] => [
   {
     id: 'name',
-    header: 'Tag',
+    header: t('tag'),
     accessorKey: 'name',
     cell: ({ cell }) => {
       return (
@@ -663,7 +670,7 @@ export const tagRecordTableColumns: ColumnDef<TagData>[] = [
   },
   {
     id: 'count',
-    header: 'Data',
+    header: t('data'),
     accessorKey: 'count',
     size: 28,
     cell: ({ cell }) => {

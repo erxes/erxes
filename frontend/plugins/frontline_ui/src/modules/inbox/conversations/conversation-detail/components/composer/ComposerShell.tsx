@@ -37,7 +37,7 @@ const ComposerShellHeader = ({
   onlyInternal: boolean;
   onCollapse: () => void;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   return (
     <div
       data-composer-header
@@ -87,7 +87,7 @@ export const ComposerShell = ({
   onDrop,
   onInternalNoteChange,
 }: ComposerShellProps) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const collapsed = useAtomValue(isInternalNoteCollapsedState);
   const setCollapsed = useSetAtom(isInternalNoteCollapsedState);
   const isInternalNote = useAtomValue(isInternalState);

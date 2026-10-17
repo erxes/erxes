@@ -38,6 +38,7 @@ import {
 import { SelectChartType } from '../select-chart-type/SelectChartType';
 import { ChartExportButton } from '../chart-export/ChartExportButton';
 import { ColumnDef } from '@tanstack/table-core';
+import { TFunction } from 'i18next';
 import { MembersInline } from 'ui-modules';
 import { CustomLegendContent } from '../chart/legend';
 import { type LegendPayload } from 'recharts';
@@ -71,7 +72,7 @@ export const ConversationResponse = ({
   colSpan = 6,
   onColSpanChange,
 }: ConversationResponseProps) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const { id, filterConfig, queryFilters, filtersRestored } =
     useConversationChartCard({ title, cardId, savedChart });
   const [chartType, setChartType] = useAtom(getReportChartTypeAtom(id));
@@ -131,7 +132,7 @@ export const ConversationResponse = ({
       <FrontlineCard
         id={id}
         title={title}
-        description="Message response statistics by user"
+        description={t('message-response-statistics-by-user')}
         colSpan={colSpan}
         onColSpanChange={onColSpanChange}
       >
@@ -148,7 +149,7 @@ export const ConversationResponse = ({
       <FrontlineCard
         id={id}
         title={title}
-        description="Message response statistics by user"
+        description={t('message-response-statistics-by-user')}
         colSpan={colSpan}
         onColSpanChange={onColSpanChange}
       >
@@ -158,7 +159,7 @@ export const ConversationResponse = ({
               {t('error-loading-data', 'Error loading data')}
             </Alert.Title>
             <Alert.Description>
-              {error.message || 'Failed to load conversation responses'}
+              {error.message || t('failed-to-load-conversation-responses')}
             </Alert.Description>
           </Alert>
         </FrontlineCard.Content>
@@ -170,7 +171,7 @@ export const ConversationResponse = ({
       <FrontlineCard
         id={id}
         title={title}
-        description="No conversation responses found."
+        description={t('no-conversation-responses-found')}
         colSpan={colSpan}
         onColSpanChange={onColSpanChange}
       >
@@ -186,7 +187,7 @@ export const ConversationResponse = ({
     <FrontlineCard
       id={id}
       title={title}
-      description="Message response statistics by user"
+      description={t('message-response-statistics-by-user')}
       colSpan={colSpan}
       onColSpanChange={onColSpanChange}
     >
@@ -231,6 +232,7 @@ export const ConversationResponse = ({
 export const ResponseBarChart = memo(function ResponseBarChart({
   conversationResponses,
 }: ResponseChartProps) {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const chartConfig = useMemo(
     () => ({
       messageCount: {
@@ -320,7 +322,7 @@ export const ResponseBarChart = memo(function ResponseBarChart({
           domain={stackedYAxisDomain}
           tickLine={false}
           axisLine={false}
-          label={{ value: 'Message Count', angle: -90, position: 'insideLeft' }}
+          label={{ value: t('message-count'), angle: -90, position: 'insideLeft' }}
         />
         <Bar dataKey="messageCount" fill="var(--primary)" name="Message Count">
           <LabelList
@@ -344,9 +346,9 @@ export const ResponseBarChart = memo(function ResponseBarChart({
           content={<ChartTooltipContent />}
           formatter={(value: number, name: string, props) => {
             if (name === 'Percentage') {
-              return [props.payload.percentage?.toFixed(1) + '%', 'Percentage'];
+              return [props.payload.percentage?.toFixed(1) + '%', t('percentage')];
             }
-            return [value, name === 'Message Count' ? 'Message Count' : name];
+            return [value, name === 'Message Count' ? t('message-count') : name];
           }}
         />
       </BarChart>
@@ -357,6 +359,7 @@ export const ResponseBarChart = memo(function ResponseBarChart({
 export const ResponseLineChart = memo(function ResponseLineChart({
   conversationResponses,
 }: ResponseChartProps) {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const chartConfig = useMemo(
     () => ({
       messageCount: {
@@ -428,7 +431,7 @@ export const ResponseLineChart = memo(function ResponseLineChart({
           domain={messageCountYAxisDomain}
           tickLine={false}
           axisLine={false}
-          label={{ value: 'Message Count', angle: -90, position: 'insideLeft' }}
+          label={{ value: t('message-count'), angle: -90, position: 'insideLeft' }}
         />
         <YAxis
           yAxisId="percentage"
@@ -437,7 +440,7 @@ export const ResponseLineChart = memo(function ResponseLineChart({
           tickLine={false}
           axisLine={false}
           label={{
-            value: 'Percentage (%)',
+            value: t('percentage-percent'),
             angle: 90,
             position: 'insideRight',
           }}
@@ -567,6 +570,7 @@ export const ResponsePieChart = memo(function ResponsePieChart({
 export const ResponseRadarChart = memo(function ResponseRadarChart({
   conversationResponses,
 }: ResponseChartProps) {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const chartConfig = useMemo(
     () => ({
       messageCount: {
@@ -656,7 +660,7 @@ export const ResponseRadarChart = memo(function ResponseRadarChart({
             if (name === 'Percentage') {
               return [
                 props.payload.percentageOriginal?.toFixed(1) + '%',
-                'Percentage',
+                t('percentage'),
               ];
             }
             return [value, name];
@@ -670,10 +674,11 @@ export const ResponseRadarChart = memo(function ResponseRadarChart({
 export const ResponseRecordTableChart = memo(function ResponseRecordTableChart({
   conversationResponses,
 }: ResponseChartProps) {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   return (
     <div className="bg-sidebar w-full rounded-lg [&_th]:last-of-type:text-right">
       <RecordTable.Provider
-        columns={responseRecordTableColumns}
+        columns={responseRecordTableColumns(t)}
         data={conversationResponses}
         className="m-3"
       >
@@ -690,10 +695,12 @@ export const ResponseRecordTableChart = memo(function ResponseRecordTableChart({
   );
 });
 
-export const responseRecordTableColumns: ColumnDef<ConversationUserMessageStat>[] =
+export const responseRecordTableColumns = (
+  t: TFunction,
+): ColumnDef<ConversationUserMessageStat>[] =>
   [
     {
-      header: 'User',
+      header: t('user'),
       accessorKey: 'user',
       cell: ({ cell }) => (
         <RecordTableInlineCell className="text-xs">
@@ -706,7 +713,7 @@ export const responseRecordTableColumns: ColumnDef<ConversationUserMessageStat>[
       ),
     },
     {
-      header: 'Message Count',
+      header: t('message-count'),
       accessorKey: 'messageCount',
       size: 50,
       cell: ({ cell }) => (

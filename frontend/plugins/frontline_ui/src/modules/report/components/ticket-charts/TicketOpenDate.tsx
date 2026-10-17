@@ -72,7 +72,7 @@ export const TicketOpenDate = ({
   colSpan = 6,
   onColSpanChange,
 }: TicketOpenDateProps) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const { id, filterConfig, queryFilters, filtersRestored } =
     useTicketChartCard({ title, cardId, savedChart });
   const setChartType = useSetAtom(getReportChartTypeAtom(id));
@@ -138,7 +138,7 @@ export const TicketOpenDate = ({
       <FrontlineCard
         id={id}
         title={title}
-        description="Tickets opened over time"
+        description={t('tickets-opened-over-time')}
         colSpan={colSpan}
         onColSpanChange={onColSpanChange}
       >
@@ -153,7 +153,7 @@ export const TicketOpenDate = ({
       <FrontlineCard
         id={id}
         title={title}
-        description="Tickets opened over time"
+        description={t('tickets-opened-over-time')}
         colSpan={colSpan}
         onColSpanChange={onColSpanChange}
       >
@@ -189,7 +189,7 @@ export const TicketOpenDate = ({
     <FrontlineCard
       id={id}
       title={title}
-      description="Tickets opened over time"
+      description={t('tickets-opened-over-time')}
       colSpan={colSpan}
       onColSpanChange={onColSpanChange}
     >
@@ -218,6 +218,7 @@ export const TicketOpenDate = ({
 export const TicketOpenBarChart = memo(function TicketOpenBarChart({
   chartData,
 }: ChartProps) {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const chartConfig = useMemo(
     () => ({ count: { label: 'Count', color: 'var(--primary)' } }),
     [],
@@ -230,7 +231,7 @@ export const TicketOpenBarChart = memo(function TicketOpenBarChart({
         margin={{ top: 24, right: 10, left: 10, bottom: 60 }}
       >
         <CartesianGrid vertical={false} strokeDasharray="3 3" />
-        <Bar dataKey="count" fill="var(--primary)" name="Count">
+        <Bar dataKey="count" fill="var(--primary)" name={t('count')}>
           <LabelList
             dataKey="count"
             position="top"
@@ -249,7 +250,7 @@ export const TicketOpenBarChart = memo(function TicketOpenBarChart({
         <YAxis
           tickLine={false}
           axisLine={false}
-          label={{ value: 'Count', angle: -90, position: 'insideLeft' }}
+          label={{ value: t('count'), angle: -90, position: 'insideLeft' }}
         />
         <Tooltip content={<ChartTooltipContent />} />
         <Legend content={(props) => <CustomLegendContent {...props} />} />
@@ -261,6 +262,7 @@ export const TicketOpenBarChart = memo(function TicketOpenBarChart({
 export const TicketOpenLineChart = memo(function TicketOpenLineChart({
   chartData,
 }: ChartProps) {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const chartConfig = useMemo(
     () => ({ count: { label: 'Count', color: 'var(--primary)' } }),
     [],
@@ -282,7 +284,7 @@ export const TicketOpenLineChart = memo(function TicketOpenLineChart({
           stroke="var(--primary)"
           fill="url(#tk-open-primary)"
           strokeWidth={2}
-          name="Count"
+          name={t('count')}
           dot={false}
           activeDot={{ r: 4 }}
         />
@@ -297,7 +299,7 @@ export const TicketOpenLineChart = memo(function TicketOpenLineChart({
         <YAxis
           tickLine={false}
           axisLine={false}
-          label={{ value: 'Count', angle: -90, position: 'insideLeft' }}
+          label={{ value: t('count'), angle: -90, position: 'insideLeft' }}
         />
         <Tooltip content={<ChartTooltipContent />} />
         <Legend content={(props) => <CustomLegendContent {...props} />} />
@@ -375,6 +377,7 @@ export const TicketOpenPieChart = memo(function TicketOpenPieChart({
 export const TicketOpenRadarChart = memo(function TicketOpenRadarChart({
   chartData,
 }: ChartProps) {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const chartConfig = useMemo(
     () => ({ count: { label: 'Count', color: 'var(--primary)' } }),
     [],
@@ -400,7 +403,7 @@ export const TicketOpenRadarChart = memo(function TicketOpenRadarChart({
           axisLine={false}
         />
         <Radar
-          name="Count"
+          name={t('count')}
           dataKey="count"
           stroke="var(--primary)"
           fill="var(--primary)"
@@ -416,10 +419,11 @@ export const TicketOpenRadarChart = memo(function TicketOpenRadarChart({
 export const TicketOpenTableChart = memo(function TicketOpenTableChart({
   chartData,
 }: ChartProps) {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const columns: ColumnDef<{ date: string; count: number }>[] = [
     {
       id: 'date',
-      header: 'Date',
+      header: t('date'),
       accessorKey: 'date',
       cell: ({ cell }) => (
         <RecordTableInlineCell className="px-4 text-xs">
@@ -429,7 +433,7 @@ export const TicketOpenTableChart = memo(function TicketOpenTableChart({
     },
     {
       id: 'count',
-      header: 'Count',
+      header: t('count'),
       accessorKey: 'count',
       cell: ({ cell }) => (
         <RecordTableInlineCell className="px-3 text-xs flex items-center justify-end text-muted-foreground">

@@ -63,7 +63,7 @@ export const TicketSource = ({
   colSpan = 6,
   onColSpanChange,
 }: TicketSourceProps) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const { id, filterConfig, queryFilters, filtersRestored } =
     useTicketChartCard({ title, cardId, savedChart });
   const [chartType, setChartType] = useAtom(getReportChartTypeAtom(id));
@@ -120,7 +120,7 @@ export const TicketSource = ({
       <FrontlineCard
         id={id}
         title={title}
-        description="Tickets by source"
+        description={t('tickets-by-source')}
         colSpan={colSpan}
         onColSpanChange={onColSpanChange}
       >
@@ -137,7 +137,7 @@ export const TicketSource = ({
       <FrontlineCard
         id={id}
         title={title}
-        description="Tickets by source"
+        description={t('tickets-by-source')}
         colSpan={colSpan}
         onColSpanChange={onColSpanChange}
       >
@@ -158,7 +158,7 @@ export const TicketSource = ({
       <FrontlineCard
         id={id}
         title={title}
-        description="No ticket sources found."
+        description={t('no-ticket-sources-found')}
         colSpan={colSpan}
         onColSpanChange={onColSpanChange}
       >
@@ -174,7 +174,7 @@ export const TicketSource = ({
     <FrontlineCard
       id={id}
       title={title}
-      description="Tickets by source"
+      description={t('tickets-by-source')}
       colSpan={colSpan}
       onColSpanChange={onColSpanChange}
     >
@@ -233,6 +233,7 @@ export const TicketSourceBarChart = memo(function TicketSourceBarChart({
 }: {
   sources: SourceData[];
 }) {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const chartConfig = useMemo(
     () => ({ count: { label: 'Count', color: 'var(--primary)' } }),
     [],
@@ -257,9 +258,9 @@ export const TicketSourceBarChart = memo(function TicketSourceBarChart({
         <YAxis
           tickLine={false}
           axisLine={false}
-          label={{ value: 'Count', angle: -90, position: 'insideLeft' }}
+          label={{ value: t('count'), angle: -90, position: 'insideLeft' }}
         />
-        <Bar dataKey="count" fill="var(--primary)" name="Count">
+        <Bar dataKey="count" fill="var(--primary)" name={t('count')}>
           <LabelList
             dataKey="count"
             position="top"
@@ -279,6 +280,7 @@ export const TicketSourceLineChart = memo(function TicketSourceLineChart({
 }: {
   sources: SourceData[];
 }) {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const chartConfig = useMemo(
     () => ({
       count: { label: 'Count', color: 'var(--primary)' },
@@ -308,7 +310,7 @@ export const TicketSourceLineChart = memo(function TicketSourceLineChart({
           yAxisId="count"
           tickLine={false}
           axisLine={false}
-          label={{ value: 'Count', angle: -90, position: 'insideLeft' }}
+          label={{ value: t('count'), angle: -90, position: 'insideLeft' }}
         />
         <YAxis
           yAxisId="percentage"
@@ -316,7 +318,7 @@ export const TicketSourceLineChart = memo(function TicketSourceLineChart({
           tickLine={false}
           axisLine={false}
           label={{
-            value: 'Percentage (%)',
+            value: t('percentage-percent'),
             angle: 90,
             position: 'insideRight',
           }}
@@ -409,6 +411,7 @@ export const TicketSourceRadarChart = memo(function TicketSourceRadarChart({
 }: {
   sources: SourceData[];
 }) {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const chartConfig = useMemo(
     () => ({
       count: { label: 'Count', color: 'var(--primary)' },
@@ -474,7 +477,7 @@ export const TicketSourceRadarChart = memo(function TicketSourceRadarChart({
             name === 'Percentage'
               ? [
                   props.payload.percentageOriginal?.toFixed(1) + '%',
-                  'Percentage',
+                  t('percentage'),
                 ]
               : [v, name]
           }
@@ -489,10 +492,11 @@ export const TicketSourceTableChart = memo(function TicketSourceTableChart({
 }: {
   sources: SourceData[];
 }) {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const columns: ColumnDef<SourceData>[] = [
     {
       id: '_id',
-      header: 'Source',
+      header: t('source'),
       accessorKey: '_id',
       cell: ({ cell }) => (
         <RecordTableInlineCell className="px-4 text-xs">
@@ -503,7 +507,7 @@ export const TicketSourceTableChart = memo(function TicketSourceTableChart({
     },
     {
       id: 'name',
-      header: 'Name',
+      header: t('name'),
       accessorKey: 'name',
       cell: ({ cell }) => (
         <RecordTableInlineCell className="px-4 text-xs truncate">
@@ -513,7 +517,7 @@ export const TicketSourceTableChart = memo(function TicketSourceTableChart({
     },
     {
       id: 'count',
-      header: 'Data',
+      header: t('data'),
       accessorKey: 'count',
       size: 28,
       cell: ({ cell }) => {

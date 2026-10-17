@@ -49,7 +49,7 @@ const WORK_ITEMS: Array<{
 ];
 
 export const InboxWorkNav = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const { counts, error, loading } = useInboxWorkCounts();
   const [filters, setFilters] = useMultiQueryState<TInboxNavigationFilters>(
     INBOX_NAVIGATION_FILTER_KEYS,

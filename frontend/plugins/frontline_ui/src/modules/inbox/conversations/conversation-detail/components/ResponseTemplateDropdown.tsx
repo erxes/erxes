@@ -29,7 +29,7 @@ const TemplateSuggestionDetails = ({
   isSelected: boolean;
   channelName?: string;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
 
   return (
     <div className="min-w-0">
@@ -107,7 +107,7 @@ export const ResponseTemplateDropdown = ({
   onSelect,
   loading = false,
 }: ResponseTemplateDropdownProps) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   return (
     <Popover open>
       <Popover.Anchor asChild>

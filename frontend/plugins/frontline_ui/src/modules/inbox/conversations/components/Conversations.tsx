@@ -40,7 +40,7 @@ const ConversationsLoading = () => (
 );
 
 export const Conversations = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const {
     totalCount,
     conversations,

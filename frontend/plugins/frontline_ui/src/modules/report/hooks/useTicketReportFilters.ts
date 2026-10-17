@@ -22,7 +22,7 @@ import {
 } from '@/report/states';
 
 export const useTicketReportFilters = (cardId: string) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const [statusChangedDate, setStatusChangedDate] = useAtom(
     getReportStatusChangedDateFilterAtom(cardId),
   );

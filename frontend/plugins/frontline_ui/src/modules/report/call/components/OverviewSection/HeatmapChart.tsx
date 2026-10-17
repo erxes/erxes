@@ -24,7 +24,7 @@ const METRIC_HUE: Record<HeatMetric, string> = {
 export const HeatmapChart = memo(function HeatmapChart({
   cells,
 }: HeatmapChartProps) {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const [metric, setMetric] = useState<HeatMetric>('total');
   const [exporting, setExporting] = useState(false);
   const { startDate, endDate, dateRangeLabel } = useCallFilters();

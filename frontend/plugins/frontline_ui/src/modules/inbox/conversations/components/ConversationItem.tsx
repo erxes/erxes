@@ -43,7 +43,7 @@ export const ConversationItem = ({
   channelInfo?: { channelName?: string };
   channelInfoPending?: boolean;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const inboxLayout = useInboxLayout();
 
   const { createdAt, updatedAt, customer, integration } =
