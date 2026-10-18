@@ -25,17 +25,17 @@ export const CoreTabUserMenu = () => {
       <DropdownMenu.Trigger asChild>
         <Button
           aria-label={sidebarT('profile')}
-          className="size-8 shrink-0 p-0"
+          className="size-7 shrink-0 p-0"
           size="icon"
           title={userName}
           variant="ghost"
         >
-          <Avatar className="size-7 rounded-lg">
+          <Avatar className="size-6 rounded-md">
             <Avatar.Image
               src={readImage(userDetails?.avatar || '')}
               alt={userName}
             />
-            <Avatar.Fallback className="rounded-lg text-xs">
+            <Avatar.Fallback className="rounded-md text-xs">
               {userName.charAt(0)}
             </Avatar.Fallback>
           </Avatar>

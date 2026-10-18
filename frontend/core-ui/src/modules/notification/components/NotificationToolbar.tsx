@@ -15,7 +15,7 @@ export const NotificationToolbar = () => {
   } = useNotificationContext();
   const { t } = useTranslation('common', { keyPrefix: 'notification' });
   return (
-    <div className="flex h-13 shrink-0 items-center gap-1 border-b px-3">
+    <div className="box-content flex h-10 shrink-0 items-center gap-1 border-b px-3">
       <Button
         variant="ghost"
         size="icon"

@@ -16,7 +16,12 @@ import {
   horizontalListSortingStrategy,
   useSortable,
 } from '@dnd-kit/sortable';
-import { IconApps, IconArrowBarToRight, IconX } from '@tabler/icons-react';
+import {
+  IconApps,
+  IconArrowBarToRight,
+  IconGripVertical,
+  IconX,
+} from '@tabler/icons-react';
 import { Button, ContextMenu, cn } from 'erxes-ui';
 import { useCallback, useEffect, useRef } from 'react';
 
@@ -87,7 +92,7 @@ const CoreTabAppTab = ({
           }
           data-active={active}
           className={cn(
-            'group/tab flex h-8 min-w-24 max-w-48 shrink-0 cursor-default items-center gap-1.5 rounded-md border border-transparent pr-1 pl-2.5 text-sm font-medium text-muted-foreground transition-[background-color,border-color,box-shadow,color,opacity] select-none hover:bg-accent/70 hover:text-foreground',
+            'group/tab flex h-7 min-w-24 max-w-48 shrink-0 cursor-default items-center gap-1.5 rounded-md border border-transparent pr-1 pl-2.5 text-sm font-medium text-muted-foreground transition-[background-color,border-color,box-shadow,color,opacity] select-none hover:bg-accent/70 hover:text-foreground',
             'data-[active=true]:border-border data-[active=true]:bg-background data-[active=true]:text-foreground data-[active=true]:shadow-xs',
             isDragging && 'z-10 opacity-60',
           )}
@@ -107,12 +112,23 @@ const CoreTabAppTab = ({
             }
           }}
         >
-          <Icon
-            className={cn(
-              'size-4 shrink-0 text-muted-foreground',
-              active && 'text-primary',
-            )}
-          />
+          {/* On hover the icon turns into a grip: tabs can be dragged. */}
+          <span className="relative size-4 shrink-0">
+            <Icon
+              className={cn(
+                'size-4 text-muted-foreground transition-opacity group-hover/tab:opacity-0',
+                active && 'text-primary',
+                isDragging && 'opacity-0',
+              )}
+            />
+            <IconGripVertical
+              aria-hidden
+              className={cn(
+                'absolute inset-0 size-4 text-muted-foreground opacity-0 transition-opacity group-hover/tab:opacity-100',
+                isDragging && 'opacity-100',
+              )}
+            />
+          </span>
           <span className="min-w-0 flex-1 truncate">{activity.label}</span>
           {activity.platformMismatch && (
             <span

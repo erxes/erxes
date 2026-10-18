@@ -154,7 +154,7 @@ const AppLayoutFloatingButton = ({
   icon: React.ReactNode;
   onClick: () => void;
 }) => (
-  <div className="absolute top-0 left-0 z-30 flex h-12 w-10 items-center justify-center bg-sidebar">
+  <div className="absolute top-0 left-0 z-30 flex h-10 w-10 items-center justify-center bg-sidebar">
     <Button
       aria-expanded={false}
       aria-label={label}
@@ -296,7 +296,7 @@ const AppLayoutDesktop = ({
           className="flex h-full flex-col"
           style={{ minWidth: currentWidth }}
         >
-          <div className="flex h-12 shrink-0 items-center px-2">
+          <div className="flex h-10 shrink-0 items-center px-2">
             <div className="min-w-0 flex-1 truncate px-2 text-sm font-medium">
               {title}
             </div>

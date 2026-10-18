@@ -67,7 +67,7 @@ export const CoreTabFavorites = () => {
       <Popover.Trigger asChild>
         <Button
           aria-label={t('favorites')}
-          className="size-8 shrink-0"
+          className="size-7 shrink-0"
           size="icon"
           title={t('favorites')}
           type="button"

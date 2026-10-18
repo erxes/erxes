@@ -16,16 +16,24 @@ import { RenderPluginsComponentCrashState } from './RenderPluginsComponentCrashS
 import { RenderPluginsComponentErrorState } from './RenderPluginsComponentErrorState';
 import { Spinner } from 'erxes-ui';
 
+const QuietCrashState = () => null;
+
 export function RenderPluginsComponent({
   pluginName,
   remoteModuleName,
   props,
   withMascot,
+  quiet,
 }: {
   pluginName: string;
   remoteModuleName: string;
   props?: RemoteComponentProps;
   withMascot?: boolean;
+  /**
+   * Render nothing while loading or after a failure, for overlays (floating
+   * widgets) that must never take page space.
+   */
+  quiet?: boolean;
 }) {
   // A plugin loaded before renders on the first frame: switching apps must
   // not flash the loader, since the plugin draws its own sidebar.
@@ -76,6 +84,10 @@ export function RenderPluginsComponent({
   }, [pluginName, remoteModuleName]);
 
   if (hasError) {
+    if (quiet) {
+      return null;
+    }
+
     return (
       <RenderPluginsComponentErrorState
         pluginName={pluginName}
@@ -87,7 +99,7 @@ export function RenderPluginsComponent({
     );
   }
 
-  const loader = (
+  const loader = quiet ? null : (
     <div className="flex justify-center items-center h-full">
       <Spinner withMascot={withMascot} />
     </div>
@@ -101,7 +113,9 @@ export function RenderPluginsComponent({
     <Suspense fallback={loader}>
       {/* One plugin breaking while drawing must not take its host down. */}
       <ErrorBoundary
-        FallbackComponent={RenderPluginsComponentCrashState}
+        FallbackComponent={
+          quiet ? QuietCrashState : RenderPluginsComponentCrashState
+        }
         resetKeys={[pluginName, remoteModuleName]}
         onError={(error, info) => {
           // The fallback hides the error; keep it visible for debugging.

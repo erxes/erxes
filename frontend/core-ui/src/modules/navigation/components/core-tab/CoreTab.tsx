@@ -19,7 +19,7 @@ import { useTranslation } from 'react-i18next';
 
 const coreTabIconClassName = (active: boolean) =>
   cn(
-    'relative size-8 shrink-0',
+    'relative size-7 shrink-0',
     active && 'bg-primary/10 text-primary hover:bg-primary/15',
   );
 
@@ -70,15 +70,15 @@ export const CoreTab = () => {
   }, [activeActivityId, routeActivityId, setActiveActivityId]);
 
   return (
-    <header className="flex h-12 shrink-0 items-center gap-1 border-b bg-sidebar px-2">
+    <header className="flex h-10 shrink-0 items-center gap-1 border-b bg-sidebar px-2">
       <Button
         asChild
-        className="size-8 shrink-0 px-0"
+        className="size-7 shrink-0 px-0"
         size="icon"
         variant="ghost"
       >
         <Link aria-label={companyName} title={companyName} to={AppPath.Index}>
-          <span className="flex size-7 items-center justify-center rounded-lg border border-border/60 bg-background shadow-xs [&>img]:size-5! [&>svg]:size-5!">
+          <span className="flex size-6 items-center justify-center rounded-md border border-border/60 bg-background shadow-xs [&>img]:size-4! [&>svg]:size-4!">
             <OrgLogoIcon className="text-primary" />
           </span>
         </Link>
@@ -101,7 +101,7 @@ export const CoreTab = () => {
         <Button
           aria-keyshortcuts="Control+M Meta+M"
           aria-label={t('search')}
-          className="h-8 gap-2 px-2.5 text-muted-foreground"
+          className="h-7 gap-2 px-2.5 text-muted-foreground"
           title={t('search')}
           type="button"
           variant="ghost"
