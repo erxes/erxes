@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-10-13`
+- **Last synchronized:** `2026-10-16`
 
 ## Scope
 
@@ -87,6 +87,18 @@
 - Other plugins' modules or state.
 
 ## Current Capabilities
+
+- AI knowledge source selector (`widgets/automations/modules/knowledgebase`):
+  a topic/category tree above the article list. Checking a topic or category
+  sends `config.topicIds` / `config.categoryIds` (hand-picked articles move to
+  `config.articleIds`) so the source is indexed whole and filtered, including
+  articles filed there later; with no rule, articles stay plain source ids.
+- Ticket automation forms: **Create ticket** has an attachments (conversation
+  media ids) field.
+- Ticket and note attachments group by type prefix, so bare conversation types
+  (`image`, `audio`, `file`) render like MIME types; audio plays inline. Media
+  at an external URL (not `read-file`) — what a customer sent — stays covered
+  as "Sent by customer · not reviewed" until someone chooses to show it.
 
 - Telegram setup derives its public address from `REACT_APP_API_URL` and the
   existing `/pl:frontline` gateway route. Local/non-public API addresses require
@@ -867,6 +879,11 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
   state and deliberately not persisted.
 
 ## Local Invariants
+
+- Customer media is recognised by its URL (`isUnverifiedAttachment` in
+  `ticket/hooks/useUnverifiedAttachments.ts`): uploads here are storage keys
+  read through `read-file`; anything else came from a conversation and is
+  covered until revealed. Never autoplay it.
 
 - The conversations filter bar header (`ConversationsHeader`) uses
   `bg-background`, matching the host's `PageHeader` and `PageSubHeader`, never
@@ -2108,6 +2125,12 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-10-16` — Knowledge scope tree and ticket media
+
+- **Summary:** Topic/category scope for the AI knowledge base source, attachments on the Create ticket action, audio and non-MIME ticket attachments, and covered customer media.
+- **Affected areas:** `widgets/automations/modules/{knowledgebase,ticket}`, `ticket/components/attachments`, `activity/components/NoteInputReadOnly.tsx`.
+- **Contracts changed:** New GraphQL operation `frontlineAiKnowledgeTopics`; knowledge source config keys `topicIds`, `categoryIds`, `articleIds`.
 
 ### `2026-10-06` — Telegram metadata promise handling
 

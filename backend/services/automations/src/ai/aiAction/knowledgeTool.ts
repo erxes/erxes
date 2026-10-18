@@ -11,6 +11,8 @@ import type { TAiToolRuntime } from './tools';
 export const AI_KNOWLEDGE_TOOL_ID = 'agent:knowledge-search';
 export const AI_KNOWLEDGE_TOOL_NAME = 'search_knowledge';
 
+export const AI_KNOWLEDGE_EMPTY_RESULT = 'No passages found.';
+
 const MAX_TOOL_RESULT_CONTENT_CHARS = 2000;
 
 const TOOL_DESCRIPTION = [
@@ -86,7 +88,7 @@ export const buildAiKnowledgeTool = ({
           });
 
       if (!chunks.length) {
-        return 'No passages found.';
+        return AI_KNOWLEDGE_EMPTY_RESULT;
       }
 
       // Plain text, like knowledge read whole: inside JSON a passage's line

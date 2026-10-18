@@ -1,7 +1,7 @@
 import { TAiContext } from 'erxes-api-shared/core-modules';
 import { TAiAgentLoadedContextFile } from '../aiAgent/context';
 import { TAiBridgeMessage } from '../bridge';
-import { formatAiConversationStateForPrompt } from '../memory/conversationState';
+import { AI_MEMORY_RECALL_TOOL_NAME } from '../memory/recall';
 import { TAiAgentActionConfig, TAiAgentObjectField } from './contract';
 import { buildAiInputFromContext } from './context';
 import { AI_KNOWLEDGE_FULL_CONTEXT_MAX_BYTES } from '../knowledge/agentKnowledge';
@@ -34,22 +34,45 @@ const buildContextSection = (files: TAiAgentLoadedContextFile[]) => {
   return sections.join('\n\n');
 };
 
+const PAST_ACTION_KEYS = ['pastActions', 'olderPastActions'];
+
+// Long-term memory: what this agent's tools already did here. A record's
+// "current" is its state now, so one that stopped taking follow-ups says so.
+const buildPastActionsSection = (memory: Record<string, unknown>) => {
+  const pastActions = Array.isArray(memory.pastActions)
+    ? memory.pastActions
+    : [];
+
+  if (!pastActions.length) {
+    return '';
+  }
+
+  const olderCount = Number(memory.olderPastActions) || 0;
+
+  return [
+    'What your tools already did for this conversation or customer (newest first). Use it to recognise a request you already handled instead of repeating it:',
+    JSON.stringify(pastActions, null, 2),
+    olderCount
+      ? `${olderCount} older actions are not shown; read them with ${AI_MEMORY_RECALL_TOOL_NAME} if this message refers to something earlier.`
+      : '',
+  ]
+    .filter(Boolean)
+    .join('\n');
+};
+
 const buildMemorySection = (memory?: Record<string, unknown>) => {
   if (!memory || !Object.keys(memory).length) {
     return '';
   }
 
-  const conversationStateSection = formatAiConversationStateForPrompt(
-    memory.conversationState,
-  );
   const savedMemory = Object.fromEntries(
-    Object.entries(memory).filter(([key]) => key !== 'conversationState'),
+    Object.entries(memory).filter(([key]) => !PAST_ACTION_KEYS.includes(key)),
   );
   const savedMemorySection = Object.keys(savedMemory).length
     ? `Saved memory:\n${JSON.stringify(savedMemory, null, 2)}`
     : '';
 
-  return [conversationStateSection, savedMemorySection]
+  return [buildPastActionsSection(memory), savedMemorySection]
     .filter(Boolean)
     .join('\n\n');
 };
@@ -127,6 +150,7 @@ const buildAutomationSystemInstruction = (
       'Your job is to produce the exact final reply requested by the instruction.',
       'Do not simulate back-and-forth, and do not invent missing facts.',
       'This reply is all you can do: you cannot check anything afterwards or get back to the customer, so never promise to and never ask them to wait.',
+      'Media the customer sent appears as a [media <id> <type>] marker. You cannot see or hear it: acknowledge that it was received, never describe what it shows, and ask in words for what you need, such as where it happened.',
       'Use only the provided instruction, source data, memory, and context documents.',
       ...KNOWLEDGE_REACH_RULES[knowledgeReach],
       'Copy prices and other numbers exactly as the source writes them; never rescale, convert, or correct one because it looks implausible.',
@@ -162,10 +186,16 @@ const buildAutomationSystemInstruction = (
   ].join('\n');
 };
 
+// The last line of a prompt is what a model obeys; when tools are offered it
+// must not say "reply only", or a tool that applies is never called.
+const TOOL_FIRST_LINE =
+  'If one of your tools applies to this message, call it instead of replying.';
+
 const buildUserPrompt = (
   actionConfig: TAiAgentActionConfig,
   inputText: string,
   systemPrompt?: string,
+  hasTools = false,
 ) => {
   if (actionConfig.goalType === 'generateText') {
     const taskInstruction = actionConfig.prompt.trim();
@@ -182,7 +212,11 @@ const buildUserPrompt = (
     const captureSection = captureFields.length
       ? [
           '',
-          'While writing the reply, also silently extract the following capture fields from the conversation:',
+          // Without this the model took an extracted phone as already saved
+          // and replied instead of calling the update tool.
+          hasTools
+            ? 'While writing the reply, also silently extract the following capture fields from the conversation. Extracting a field does not save it anywhere; only a tool call records it:'
+            : 'While writing the reply, also silently extract the following capture fields from the conversation:',
           buildFieldsSpec(captureFields),
           '',
           'Response format (valid JSON only, no code fences):',
@@ -195,9 +229,16 @@ const buildUserPrompt = (
           '  }',
           '}',
           '',
-          'Now respond with the JSON object only, starting with "{".',
+          hasTools
+            ? `${TOOL_FIRST_LINE} Otherwise respond with the JSON object only, starting with "{".`
+            : 'Now respond with the JSON object only, starting with "{".',
         ]
-      : ['', 'Return only the final deliverable text.'];
+      : [
+          '',
+          hasTools
+            ? `${TOOL_FIRST_LINE} Otherwise return only the final deliverable text.`
+            : 'Return only the final deliverable text.',
+        ];
 
     return [
       'Write a fresh conversational reply to the latest user message.',
@@ -270,6 +311,7 @@ export const buildAiActionMessages = ({
   aiContext,
   memory,
   knowledgeReach = 'retrieved',
+  hasTools = false,
 }: {
   systemPrompt?: string;
   files: TAiAgentLoadedContextFile[];
@@ -278,6 +320,7 @@ export const buildAiActionMessages = ({
   aiContext?: TAiContext | null;
   memory?: Record<string, unknown>;
   knowledgeReach?: TAiKnowledgeReach;
+  hasTools?: boolean;
 }): TAiBridgeMessage[] => {
   const inputText = buildAiInputFromContext({ inputData, aiContext });
   const contextSection = buildContextSection(files);
@@ -312,7 +355,7 @@ export const buildAiActionMessages = ({
       role: 'user',
       content: [
         memorySection,
-        buildUserPrompt(actionConfig, inputText, systemPrompt),
+        buildUserPrompt(actionConfig, inputText, systemPrompt, hasTools),
       ]
         .filter(Boolean)
         .join('\n\n'),

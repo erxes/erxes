@@ -32,6 +32,8 @@ import {
 import { useMemo } from 'react';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useUnverifiedAttachments } from '@/ticket/hooks/useUnverifiedAttachments';
+import { UnverifiedAttachmentCover } from '@/ticket/components/attachments/UnverifiedAttachmentCover';
 
 interface NoteInputReadOnlyProps {
   newValueId: string;
@@ -286,6 +288,18 @@ const NoteReadOnlyAttachment = ({
   attachment: IAttachment;
   single: boolean;
 }) => {
+  const { isCovered, reveal } = useUnverifiedAttachments();
+
+  if (attachment.type?.startsWith('image') && isCovered(attachment.url)) {
+    return (
+      <div
+        className={cn('relative rounded', single ? 'h-40 w-64' : 'h-32 w-full')}
+      >
+        <UnverifiedAttachmentCover onReveal={() => reveal(attachment.url)} />
+      </div>
+    );
+  }
+
   if (attachment.type?.startsWith('image')) {
     return (
       <a

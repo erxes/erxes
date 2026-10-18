@@ -52,7 +52,7 @@ export type TAiAgentRuntimeNote =
 
 const DEFAULT_RUNTIME = {
   temperature: 0,
-  maxTokens: 500,
+  maxTokens: 2000,
   timeoutMs: 15000,
 } as const;
 

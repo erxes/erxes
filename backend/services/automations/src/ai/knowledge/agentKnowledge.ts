@@ -3,6 +3,7 @@ import type { IAiAgentKnowledgeSourceBindingDocument } from '../../mongo/aiAgent
 import type { IKnowledgeChunkDocument } from '../../mongo/knowledgeChunk';
 import type { TAiAgentInput } from '../aiAgent';
 import { fitChunksWithinBytes, retrieveAiKnowledgeChunks } from './retrieve';
+import { loadAiKnowledgeRouteHints } from './routes';
 import { mapSharedKnowledgeDocumentToChunk } from './runtime';
 import {
   AI_AGENT_FILE_KNOWLEDGE_SOURCE_TYPE,
@@ -178,7 +179,7 @@ const buildKnowledgeIndex = (rows: TSectionRow[]) => {
   // A large knowledge lists only its top level, so the index stays readable.
   const listChildren = leafCount <= MAX_INDEX_SECTIONS;
   const chunkIdsBySection = new Map<string, string[]>();
-  const lines: string[] = [];
+  const lines: Array<{ top: string; text: string }> = [];
 
   for (const [top, children] of tree) {
     if (chunkIdsBySection.size >= MAX_INDEX_SECTIONS) {
@@ -196,15 +197,18 @@ const buildKnowledgeIndex = (rows: TSectionRow[]) => {
         );
       }
 
-      lines.push(`- ${top}${AI_KNOWLEDGE_SECTION_SEPARATOR}${named.join(', ')}`);
+      lines.push({
+        top,
+        text: `- ${top}${AI_KNOWLEDGE_SECTION_SEPARATOR}${named.join(', ')}`,
+      });
     } else {
-      lines.push(`- ${top}`);
+      lines.push({ top, text: `- ${top}` });
     }
   }
 
   return {
     sections: [...chunkIdsBySection.keys()],
-    indexText: lines.join('\n'),
+    lines,
     chunkIdsBySection,
   };
 };
@@ -266,9 +270,26 @@ export const resolveAiAgentKnowledge = async ({
       .lean<IKnowledgeChunkDocument[]>(),
   ]);
 
+  const { sections, lines, chunkIdsBySection } = buildKnowledgeIndex(rows);
+  const hintsByTop = await loadAiKnowledgeRouteHints({
+    models,
+    agentId,
+    sections,
+  });
+
   return {
     kind: 'indexed',
-    ...buildKnowledgeIndex(rows),
+    sections,
+    indexText: lines
+      .map(({ top, text }) => {
+        const hints = hintsByTop.get(top);
+
+        return hints?.length
+          ? `${text} (asked as: ${hints.map((hint) => `"${hint}"`).join(', ')})`
+          : text;
+      })
+      .join('\n'),
+    chunkIdsBySection,
     alwaysChunks: alwaysDocs.map(mapSharedKnowledgeDocumentToChunk),
   };
 };

@@ -6,7 +6,7 @@
 - **Project:** `sales_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/sales_api`
-- **Last synchronized:** `2026-10-14`
+- **Last synchronized:** `2026-10-17`
 
 ## Scope
 
@@ -259,6 +259,10 @@
   `POS_CUSTOMER_SYSTEM_FIELDS` and `property:<fieldId>` entries.
 
 ## Local Invariants
+
+- Set property handlers pass `targetActionId: action.targetActionId` to
+  `getSetPropertySelector`, so a Manage properties action targeting an earlier
+  action (Find object, Create) updates that action's record, not the trigger's.
 
 - `productsData.uomInfo` is the entry input; derive root `uom`, `quantity`,
   `unitPrice`, and amounts in base units before calculating deal totals.

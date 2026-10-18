@@ -72,7 +72,12 @@ export const AutomationDetailPage = () => {
 
   return (
     <PageContainer>
-      <AutomationBuilder detail={detail} seed={id ? undefined : seed} />
+      {/* Remount per automation: the builder reads its defaults only once. */}
+      <AutomationBuilder
+        key={id ?? 'new'}
+        detail={detail}
+        seed={id ? undefined : seed}
+      />
     </PageContainer>
   );
 };

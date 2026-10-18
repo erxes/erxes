@@ -10,3 +10,4 @@ export * from './runtime';
 export * from './sharedIndexer';
 export * from './sourceIndexer';
 export * from './agentKnowledge';
+export * from './routes';
