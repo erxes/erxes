@@ -363,7 +363,7 @@ const MessageRow = memo(
 const TranscriptSkeleton = ({ width }: { width: AgentChatWidth }) => (
   <div
     className={cn(
-      'mx-auto w-full space-y-4 py-4 sm:py-6',
+      'mx-auto w-full min-w-0 space-y-4 py-4 sm:py-6',
       AGENT_CHAT_WIDTH_CLASSES[width],
       AGENT_CHAT_WIDTH_PADDING[width],
     )}
@@ -554,13 +554,18 @@ export const MessageList = ({
   }
 
   return (
-    <div className="relative flex min-h-0 flex-1 flex-col">
-      <ScrollArea.Root className="min-h-0 flex-1">
-        <ScrollArea.Viewport ref={viewportRef} onScroll={handleScroll}>
+    <div className="relative flex min-h-0 min-w-0 flex-1 flex-col">
+      <ScrollArea.Root className="min-h-0 min-w-0 flex-1">
+        <ScrollArea.Viewport
+          ref={viewportRef}
+          onScroll={handleScroll}
+          // Radix's display:table wrapper otherwise grows to long tool labels.
+          className="min-w-0 [&>div]:block! [&>div]:min-w-0"
+        >
           <div
             ref={contentRef}
             className={cn(
-              'mx-auto w-full space-y-4 py-4 sm:space-y-6 sm:py-6',
+              'mx-auto w-full min-w-0 space-y-4 py-4 sm:space-y-6 sm:py-6',
               AGENT_CHAT_WIDTH_CLASSES[width],
               AGENT_CHAT_WIDTH_PADDING[width],
             )}

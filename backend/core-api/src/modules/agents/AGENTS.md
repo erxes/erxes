@@ -107,6 +107,9 @@ plugin; ported from the former private `erxes-agent` service). It provides:
 - GraphQL is the only CRM execution path. Identity is never model-controlled;
   the gateway resolves the signed acting user and existing resolvers authorize
   every call. Do not reintroduce tRPC metadata, allowlists or raw-Mongo tools.
+- GraphQL execution uses `gatewayUrl`: `GATEWAY_URL` takes precedence over
+  `DOMAIN/gateway`; without either, local development uses `REACT_APP_API_URL`
+  or `http://localhost:4000`. Server-side fetches require an absolute URL.
 - ESM-only packages (`ai`, `@mastra/*`, `@ai-sdk/anthropic`) load via
   `await import(...)` at point of use; type-only imports carry
   `with { 'resolution-mode': 'import' }`. core-api compiles

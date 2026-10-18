@@ -127,6 +127,9 @@ turn. A single-step card names the action.
 
 ## Invariants
 
+- Keep the transcript and panel flex children shrinkable (`min-w-0` /
+  `min-h-0`). The scroll viewport's direct content wrapper must use block
+  layout: Radix's default table layout lets long step labels widen the chat.
 - erxes-ui / ui-modules components only; no direct `@radix-ui`, no
   `console.log`, no `any`, named exports.
 - `ai` is ESM-only — pure util/test files must keep `import type`

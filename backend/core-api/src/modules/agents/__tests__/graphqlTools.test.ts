@@ -16,7 +16,7 @@ jest.mock('erxes-api-shared/utils', () => {
     ...auth,
     ...responseLimit,
     getEnv: ({ name, defaultValue }: { name: string; defaultValue?: string }) =>
-      process.env[name] ?? defaultValue ?? '',
+      process.env[name] || defaultValue || '',
     getPluginAddress: jest.fn(),
     getPlugins: jest.fn(),
   };
@@ -285,6 +285,60 @@ describe('callGraphql', () => {
       variables: { page: 1 },
     });
   });
+
+  it.each([
+    {
+      gateway: '',
+      domain: '',
+      api: '',
+      expected: 'http://localhost:4000/graphql',
+    },
+    {
+      gateway: '',
+      domain: '',
+      api: 'http://localhost:4010/',
+      expected: 'http://localhost:4010/graphql',
+    },
+    {
+      gateway: '',
+      domain: 'https://tenant.example.test',
+      api: '',
+      expected: 'https://tenant.example.test/gateway/graphql',
+    },
+    {
+      gateway: 'https://private-gateway.test/',
+      domain: 'https://workspace.test',
+      api: '',
+      expected: 'https://private-gateway.test/graphql',
+    },
+  ])(
+    'resolves an absolute gateway address: $expected',
+    async ({ gateway, domain, api, expected }) => {
+      const previous = {
+        DOMAIN: process.env.DOMAIN,
+        REACT_APP_API_URL: process.env.REACT_APP_API_URL,
+      };
+      process.env.GATEWAY_URL = gateway;
+      process.env.DOMAIN = domain;
+      process.env.REACT_APP_API_URL = api;
+      try {
+        fetchSpy.mockResolvedValue(
+          graphqlResponse({ data: { customers: [] } }),
+        );
+        const result = await runCall(
+          { query: 'query Customers { customers { _id } }' } as TCallInput,
+          context,
+        );
+        expect(result).toMatchObject({ status: 'ok' });
+        expect(fetchSpy.mock.calls[0][0]).toBe(expected);
+      } finally {
+        for (const [key, value] of Object.entries(previous)) {
+          if (value === undefined) delete process.env[key];
+          else process.env[key] = value;
+        }
+      }
+    },
+  );
 
   it('returns partial data together with sanitized errors', async () => {
     fetchSpy.mockResolvedValue(

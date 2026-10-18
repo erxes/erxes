@@ -191,14 +191,14 @@ const AgentSidePanelInner = ({ isMobile }: { isMobile: boolean }) => {
   ) : null;
 
   const body = (
-    <div className="flex h-full min-h-0 flex-col">
+    <div className="flex h-full min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
       {header}
       <ChatPanel
-          chat={chat}
-          width="full"
-          variant="panel"
-          contextRow={contextRow}
-        />
+        chat={chat}
+        width="full"
+        variant="panel"
+        contextRow={contextRow}
+      />
     </div>
   );
 
@@ -222,14 +222,14 @@ const AgentSidePanelInner = ({ isMobile }: { isMobile: boolean }) => {
     <aside
       ref={panelRef}
       className={cn(
-        'absolute inset-y-0 right-0 z-50 flex min-h-0 max-w-full border-l bg-background shadow-xl',
+        'absolute inset-y-0 right-0 z-50 flex min-h-0 min-w-0 max-w-full overflow-hidden border-l bg-background shadow-xl',
         !open && 'hidden',
       )}
       style={{ width }}
       aria-label={t('panel-label', 'AI chat panel')}
       aria-hidden={!open}
     >
-      <div className="relative flex min-w-0 flex-1 flex-col">
+      <div className="relative flex min-h-0 min-w-0 flex-1 flex-col">
         <AgentPanelResizeHandle
           label={t('resize', 'Resize panel')}
           panelRef={panelRef}

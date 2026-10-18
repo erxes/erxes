@@ -3,7 +3,16 @@ import { getEnv } from 'erxes-api-shared/utils';
 export const gatewayUrl = (subdomain?: string) => {
   const explicit = getEnv({ name: 'GATEWAY_URL', subdomain, defaultValue: '' });
 
-  return explicit || `${getEnv({ name: 'DOMAIN', subdomain })}/gateway`;
+  const domain = getEnv({ name: 'DOMAIN', subdomain });
+  const fallback = domain
+    ? `${domain}/gateway`
+    : getEnv({
+        name: 'REACT_APP_API_URL',
+        subdomain,
+        defaultValue: 'http://localhost:4000',
+      });
+
+  return (explicit || fallback).replace(/\/+$/, '');
 };
 
 export const coreUrl = (subdomain?: string) =>
