@@ -6,7 +6,7 @@
 - **Project:** `loyalty_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/loyalty_ui`
-- **Last synchronized:** `2026-10-14`
+- **Last synchronized:** `2026-10-18`
 
 ## Scope
 
@@ -75,6 +75,7 @@
 
 | Area                  | Path                                                                                                      | Responsibility                                                                          |
 | --------------------- | --------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| App sidebar | `frontend/plugins/loyalty_ui/src/Sidebar.tsx` | `LoyaltySidebar` (app sidebar) and `LoyaltySidebarFooter` (Settings link), rendered by the `./loyalty` entry through `AppLayout` |
 | Pricing entry points  | `src/modules/pricing/Main.tsx`, `src/pages/pricing`                                                       | Pricing route and list/detail composition.                                              |
 | Pricing create form   | `src/modules/pricing/create-pricing/**`                                                                   | New pricing plan form and submission mapping.                                           |
 | Pricing edit forms    | `src/modules/pricing/edit-pricing/**`                                                                     | Sectioned pricing detail editing UI.                                                    |
@@ -129,8 +130,24 @@
 
 ## Local Invariants
 
+- The plugin owns its whole app sidebar. `src/modules/loyalties/SubNavigations.tsx` (the `./loyalty`
+  expose) wraps its routes in `erxes-ui` `AppLayout` (`id="loyalty"`) with
+  `LoyaltySidebar`. Core-ui draws only the top `CoreTab` bar; `navigationGroup` in
+  `src/config.tsx` supplies just the tab name, icon and `defaultPath` and takes
+  no `content`/`subGroup`.
+- `LoyaltySidebarFooter` pins a Settings link to the bottom of the app
+  sidebar. Under `/settings/loyalty/…` core-ui frames the settings pages
+  (the `./loyaltySettings` expose renders content only — never wrap it in
+  `AppLayout`): the sidebar is this plugin's `settingsNavigation` from
+  `src/config.tsx`, plus core's Tags/Properties entries when the plugin
+  registers tag or property types (`/settings/loyalty/tags`,
+  `/settings/loyalty/properties`, filtered to this plugin's types), and a
+  Back link to the app. Keep `settingsNavigation` defined: it is how core
+  knows the plugin has its own settings.
+  `settingsNavigation` renders no `Sidebar.GroupLabel`: core titles the
+  sidebar "<Plugin> settings" and appends Tags/Properties to the same list.
 - Page header breadcrumbs follow the shared pattern: crumbs are default ghost `Button`s (no `font-semibold`), the first crumb carries a 16px icon in the default text color, crumbs are separated by `Separator.Inline` or `Breadcrumb.Separator`, and settings pages carry no favorite toggle. `LoyaltyMainLayout` renders its title as that ghost-button crumb, not a plain span.
-- Page-level side menus render `Sidebar.Panel` from `erxes-ui`, which keeps its own open state (`sidebarPanelOpenState`), separate from the host's context column. The panel sits beside the page header, never under it: the page is a row of the panel and a column holding the header and content. The panel passes its heading as `label`, which renders a 48px title row with optional `actions` and the collapse toggle on the right, level with the page header; when collapsed, the toggle moves into the header's panel slot. Do not add a second heading or an in-panel `Sidebar.PanelTrigger` row. Keep `<Sidebar collapsible="none">` for sidebars inside sheets and dialogs. `PricingEdit` takes the pricing page header as `header` so `PricingEditSidebar` sits beside it.
+- Page-level side menus render `Sidebar.Panel` from `erxes-ui`, which keeps its own open state (`sidebarPanelOpenState`), separate from the plugin's `AppLayout` sidebar. The panel sits beside the page header, never under it: the page is a row of the panel and a column holding the header and content. The panel passes its heading as `label`, which renders a 48px title row with optional `actions` and the collapse toggle on the right, level with the page header; when collapsed, the toggle moves into the header's panel slot. Do not add a second heading or an in-panel `Sidebar.PanelTrigger` row. Keep `<Sidebar collapsible="none">` for sidebars inside sheets and dialogs. `PricingEdit` takes the pricing page header as `header` so `PricingEditSidebar` sits beside it.
 - Account types are labelled "Wallet(s)" (en) / "Хэтэвч" (mn) everywhere users see them, as balances inside the owner's loyalty account ("Account" / "Данс"); identifiers, routes, GraphQL documents and translation keys keep `accountType` / `loyalty-account-type`.
 - Pricing UI changes stay inside `frontend/plugins/loyalty_ui`.
 - Pricing form save mappings must preserve empty optional selectors as no

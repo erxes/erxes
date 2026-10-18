@@ -6,7 +6,6 @@ export const SalesSettingsNavigation = () => {
   const { t } = useTranslation('sales');
   return (
     <Sidebar.Group>
-      <Sidebar.GroupLabel className="h-4">{t('sales')}</Sidebar.GroupLabel>
       <Sidebar.GroupContent className="pt-1">
         <Sidebar.Menu>
           <SettingsNavigationMenuLinkItem

@@ -68,3 +68,30 @@ export const findNavigationActivityByPath = (
         getLongestMatchingPathLength(left, normalizedPathname),
     )[0];
 };
+
+/**
+ * The app owning a path: the best module match, else the activity whose
+ * default path shares the first segment (nested plugin pages such as
+ * `frontline/calls/:id` match no registered module path).
+ */
+export const findAppActivityByPath = (
+  activities: INavigationActivity[],
+  pathname: string,
+) => {
+  const matched = findNavigationActivityByPath(activities, pathname);
+
+  if (matched) {
+    return matched;
+  }
+
+  const [appSegment] = normalizePath(pathname).split('/');
+
+  if (!appSegment) {
+    return undefined;
+  }
+
+  return activities.find(
+    (activity) =>
+      normalizePath(activity.defaultPath).split('/')[0] === appSegment,
+  );
+};

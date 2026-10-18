@@ -8,7 +8,6 @@ export const LoyaltySettingsNavigation = () => {
   const { t } = useTranslation('loyalty');
   return (
     <Sidebar.Group>
-      <Sidebar.GroupLabel className="h-4">Loyalty</Sidebar.GroupLabel>
       <Sidebar.GroupContent className="pt-1">
         <Sidebar.Menu>
           {LOYALTY_SETTINGS_PAGES.map(({ path, label, icon }) => (

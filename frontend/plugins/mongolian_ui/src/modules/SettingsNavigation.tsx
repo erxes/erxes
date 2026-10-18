@@ -12,7 +12,6 @@ export const SettingsNavigation = () => {
   const { t } = useTranslation('mongolian');
   return (
     <Sidebar.Group>
-      <Sidebar.GroupLabel className="h-4">{t('mongolian')}</Sidebar.GroupLabel>
       <Sidebar.GroupContent className="pt-1">
         <Sidebar.Menu>
           <SettingsNavigationMenuLinkItem

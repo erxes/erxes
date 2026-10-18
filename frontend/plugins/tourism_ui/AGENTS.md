@@ -6,7 +6,7 @@
 - **Project:** `tourism_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/tourism_ui`
-- **Last synchronized:** `2026-10-14`
+- **Last synchronized:** `2026-10-18`
 
 ## Scope
 
@@ -29,6 +29,7 @@
 
 | Area              | Path                                                      | Responsibility                                                 |
 | ----------------- | --------------------------------------------------------- | -------------------------------------------------------------- |
+| App sidebar | `frontend/plugins/tourism_ui/src/Sidebar.tsx` | `TourismSidebar`: the plugin's whole app sidebar, rendered by the `./tourism` entry through `AppLayout` |
 | Runtime           | `frontend/plugins/tourism_ui/src/main.ts`                 | Starts the tourism UI remote.                                  |
 | Federation config | `frontend/plugins/tourism_ui/module-federation.config.ts` | Exposes config, PMS, TMS, settings, and tourism route entries. |
 | Dev server config | `frontend/plugins/tourism_ui/rspack.config.ts`            | Module Federation development serving and watch ignore rules.  |
@@ -60,7 +61,12 @@
 
 ## Local Invariants
 
-- Page-level side menus render `Sidebar.Panel` from `erxes-ui`, which keeps its own open state (`sidebarPanelOpenState`), separate from the host's context column. The panel sits beside the page header, never under it: the page is a row of the panel and a column holding the header and content. The panel passes its heading as `label`, which renders a 48px title row with optional `actions` and the collapse toggle on the right, level with the page header; when collapsed, the toggle moves into the header's panel slot. Do not add a second heading or an in-panel `Sidebar.PanelTrigger` row. Keep `<Sidebar collapsible="none">` for sidebars inside sheets and dialogs. `BranchDetailView` takes the branch page header as `header` and renders it in its loading and not-found states too.
+- The plugin owns its whole app sidebar. `src/modules/main/Main.tsx` (the `./tourism`
+  expose) wraps its routes in `erxes-ui` `AppLayout` (`id="tourism"`) with
+  `TourismSidebar`. Core-ui draws only the top `CoreTab` bar; `navigationGroup` in
+  `src/config.tsx` supplies just the tab name, icon and `defaultPath` and takes
+  no `content`/`subGroup`.
+- Page-level side menus render `Sidebar.Panel` from `erxes-ui`, which keeps its own open state (`sidebarPanelOpenState`), separate from the plugin's `AppLayout` sidebar. The panel sits beside the page header, never under it: the page is a row of the panel and a column holding the header and content. The panel passes its heading as `label`, which renders a 48px title row with optional `actions` and the collapse toggle on the right, level with the page header; when collapsed, the toggle moves into the header's panel slot. Do not add a second heading or an in-panel `Sidebar.PanelTrigger` row. Keep `<Sidebar collapsible="none">` for sidebars inside sheets and dialogs. `BranchDetailView` takes the branch page header as `header` and renders it in its loading and not-found states too.
 - Keep tourism-specific UI inside `frontend/plugins/tourism_ui`.
 - Module Federation exposes, route paths, and named exports must stay aligned.
 - Use `erxes-ui` and `ui-modules`; do not import another plugin's source.

@@ -11,12 +11,7 @@ interface IFavoritesResponse {
 }
 
 const normalizePath = (path: string) =>
-  path
-    .split(/[?#]/)[0]
-    .replace('_ui', '')
-    .split('/')
-    .filter(Boolean)
-    .join('/');
+  path.split(/[?#]/)[0].replace('_ui', '').split('/').filter(Boolean).join('/');
 
 export const useNavigationFavorite = ({
   breadcrumb,

@@ -8,7 +8,14 @@ import {
   SettingsWorkspacePath,
 } from '@/types/paths/SettingsPath';
 import { Skeleton } from 'erxes-ui';
-import { useVersion } from 'ui-modules';
+import { pluginsConfigState, useVersion } from 'ui-modules';
+import { useAtomValue } from 'jotai';
+import { PermissionRouteGuard } from '@/auth/components/PermissionRouteGuard';
+import { PropertiesScopeContext } from '@/properties/context/PropertiesScopeContext';
+import {
+  getPluginSettingsPath,
+  hasOwnAppSettings,
+} from '@/navigation/utils/pluginSettings';
 import { ClientPortalDetailPage } from '~/pages/settings/client-portal/ClientPortalDetailPage';
 import { ClientPortalPage } from '~/pages/settings/client-portal/ClientPortalPage';
 import { TeamMemberSettingsRoutes } from '@/settings/team-member/components/TeamMemberSettingsRoutes';
@@ -146,6 +153,10 @@ const StructureSettings = lazy(() =>
 
 export function SettingsRoutes() {
   const isOs = useVersion();
+  const pluginsConfig = useAtomValue(pluginsConfigState);
+  const appPlugins = Object.values(pluginsConfig || {}).filter(
+    hasOwnAppSettings,
+  );
 
   return (
     <Suspense fallback={<Skeleton />}>
@@ -252,6 +263,37 @@ export function SettingsRoutes() {
           path={SettingsWorkspacePath.Broadcast}
           element={<BroadcastSettings />}
         />
+        {/* Organization tags/properties inside a plugin's own settings,
+            filtered to that plugin; these outrank its `<path>/*` remote. */}
+        {appPlugins.map((plugin) => (
+          <Route
+            key={`${plugin.name}-tags`}
+            path={`${plugin.path}/tags`}
+            element={
+              <PermissionRouteGuard plugin={plugin.name} module="tags">
+                <TagsPage pluginName={plugin.name} />
+              </PermissionRouteGuard>
+            }
+          />
+        ))}
+        {appPlugins.map((plugin) => (
+          <Route
+            key={`${plugin.name}-properties`}
+            path={`${plugin.path}/properties/*`}
+            element={
+              <PermissionRouteGuard plugin={plugin.name} module="properties">
+                <PropertiesScopeContext.Provider
+                  value={{
+                    basePath: `${getPluginSettingsPath(plugin)}/properties`,
+                    pluginName: plugin.name,
+                  }}
+                >
+                  <PropertiesSettingsRoutes />
+                </PropertiesScopeContext.Provider>
+              </PermissionRouteGuard>
+            }
+          />
+        ))}
         {getPluginsSettingsRoutes()}
       </Routes>
       <SettingsPageEffect />

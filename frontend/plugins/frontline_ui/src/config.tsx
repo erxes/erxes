@@ -14,18 +14,6 @@ import { IUIConfig, TActivityRowProps, TPropertyInputProps } from 'erxes-ui';
 import { lazy, Suspense } from 'react';
 import { SEARCH_PROVIDERS } from '~/searchProviders';
 
-const FrontlineNavigation = lazy(() =>
-  import('@/FrontlineNavigation').then((module) => ({
-    default: module.FrontlineNavigation,
-  })),
-);
-
-const FrontlineSubGroups = lazy(() =>
-  import('@/FrontlineSubGroups').then((module) => ({
-    default: module.FrontlineSubGroups,
-  })),
-);
-
 const FrontlineSettingsNavigation = lazy(() =>
   import('@/FrontlineSettingsNavigation').then((module) => ({
     default: module.FrontlineSettingsNavigation,
@@ -60,16 +48,6 @@ export const CONFIG: IUIConfig = {
     name: 'frontline',
     defaultPath: 'frontline/inbox',
     icon: IconStackFront,
-    content: () => (
-      <Suspense fallback={<div />}>
-        <FrontlineNavigation />
-      </Suspense>
-    ),
-    subGroup: () => (
-      <Suspense fallback={<div />}>
-        <FrontlineSubGroups />
-      </Suspense>
-    ),
   },
   widgets: {
     relationWidgets: [

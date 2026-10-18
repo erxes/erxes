@@ -6,7 +6,7 @@
 - **Project:** `mongolian_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/mongolian_ui`
-- **Last synchronized:** `2026-10-14`
+- **Last synchronized:** `2026-10-17`
 
 ## Scope
 
@@ -74,6 +74,7 @@
 
 | Area               | Path                                                                       | Responsibility                                                     |
 | ------------------ | -------------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| App sidebar | `frontend/plugins/mongolian_ui/src/Sidebar.tsx` | `MongolianSidebar` (app sidebar) and `MongolianSidebarFooter` (Settings link), rendered by the `./mongolian` entry through `AppLayout` |
 | Module Federation  | `frontend/plugins/mongolian_ui/module-federation.config.ts`                | Public exposes for config, routes, widgets, and floating widget.   |
 | Dev server config  | `frontend/plugins/mongolian_ui/rspack.config.ts`                           | Module Federation development serving and watch ignore rules.      |
 | Navigation config  | `frontend/plugins/mongolian_ui/src/config.tsx`                             | Plugin navigation groups and module paths.                         |
@@ -143,8 +144,24 @@
 
 ## Local Invariants
 
+- The plugin owns its whole app sidebar. `src/modules/MongolianMain.tsx` (the `./mongolian`
+  expose) wraps its routes in `erxes-ui` `AppLayout` (`id="mongolian"`) with
+  `MongolianSidebar`. Core-ui draws only the top `CoreTab` bar; `navigationGroup` in
+  `src/config.tsx` supplies just the tab name, icon and `defaultPath` and takes
+  no `content`/`subGroup`.
+- `MongolianSidebarFooter` pins a Settings link to the bottom of the app
+  sidebar. Under `/settings/mongolian/…` core-ui frames the settings pages
+  (the `./mongolianSettings` expose renders content only — never wrap it in
+  `AppLayout`): the sidebar is this plugin's `settingsNavigation` from
+  `src/config.tsx`, plus core's Tags/Properties entries when the plugin
+  registers tag or property types (`/settings/mongolian/tags`,
+  `/settings/mongolian/properties`, filtered to this plugin's types), and a
+  Back link to the app. Keep `settingsNavigation` defined: it is how core
+  knows the plugin has its own settings.
+  `settingsNavigation` renders no `Sidebar.GroupLabel`: core titles the
+  sidebar "<Plugin> settings" and appends Tags/Properties to the same list.
 - Page header breadcrumbs follow the shared pattern: crumbs are default ghost `Button`s (no `font-semibold`), the first crumb carries a 16px icon in the default text color, crumbs are separated by `Separator.Inline` or `Breadcrumb.Separator`, and settings pages carry no favorite toggle.
-- Page-level side menus render `Sidebar.Panel` from `erxes-ui`, which keeps its own open state (`sidebarPanelOpenState`), separate from the host's context column. The panel sits beside the page header, never under it: the page is a row of the panel and a column holding the header and content. The panel passes its heading as `label`, which renders a 48px title row with optional `actions` and the collapse toggle on the right, level with the page header; when collapsed, the toggle moves into the header's panel slot. Do not add a second heading or an in-panel `Sidebar.PanelTrigger` row. Keep `<Sidebar collapsible="none">` for sidebars inside sheets and dialogs. `SettingsLayout`, `ErkhetSettings`, `PutResponseLayout`, `SyncErkhetLayout` and `MsdynamicLayout` render their panel beside the header column.
+- Page-level side menus render `Sidebar.Panel` from `erxes-ui`, which keeps its own open state (`sidebarPanelOpenState`), separate from the plugin's `AppLayout` sidebar. The panel sits beside the page header, never under it: the page is a row of the panel and a column holding the header and content. The panel passes its heading as `label`, which renders a 48px title row with optional `actions` and the collapse toggle on the right, level with the page header; when collapsed, the toggle moves into the header's panel slot. Do not add a second heading or an in-panel `Sidebar.PanelTrigger` row. Keep `<Sidebar collapsible="none">` for sidebars inside sheets and dialogs. `SettingsLayout`, `ErkhetSettings`, `PutResponseLayout`, `SyncErkhetLayout` and `MsdynamicLayout` render their panel beside the header column.
 - Use `erxes-ui` and `ui-modules`; do not import Radix primitives directly.
 - Keep integration-specific files inside the owning integration folder unless a
   shared plugin folder already exists for that concern.

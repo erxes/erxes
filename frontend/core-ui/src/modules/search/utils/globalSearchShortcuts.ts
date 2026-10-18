@@ -1,4 +1,4 @@
-import { isMacPlatform } from '@/navigation/utils/visitedPageTabShortcuts';
+import { isMacPlatform } from '@/search/utils/isMacPlatform';
 import { TGlobalSearchCategory } from '@/search/types/GlobalSearch';
 
 interface IGlobalSearchShortcutEvent {
