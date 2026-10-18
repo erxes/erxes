@@ -1,20 +1,18 @@
 'use client';
 
-import { IProduct, IProductData } from 'ui-modules';
-
-import { IDeal } from '@/deals/types/deals';
-import { ProductsList } from './product-list/ProductsList';
-import { ProductsPayment } from './ProductPayment';
 import { DealVoucherRow } from '@/deals/loyaltyVouchers/components/DealVoucherRow';
+import { IDealDetail } from '@/deals/types/deals';
 import { Tabs } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { ProductsList } from './product-list/ProductsList';
+import { ProductsPayment } from './ProductPayment';
 
 export const Products = ({
   deal,
   refetch,
 }: {
-  deal: IDeal;
+  deal: IDealDetail;
   refetch: () => void;
 }) => {
   const [activeTab, setActiveTab] = useState<string>('product');
@@ -34,8 +32,8 @@ export const Products = ({
         <Tabs.Content value="product" className="mt-4 min-h-0 flex-1">
           <DealVoucherRow deal={deal} />
           <ProductsList
-            products={deal.products || ([] as IProduct[])}
-            productsData={deal.productsData || ([] as IProductData[])}
+            products={deal.products}
+            productsData={deal.productsData}
             dealId={deal._id}
             pipelineId={deal.pipelineId || deal.pipeline?._id}
             refetch={refetch}

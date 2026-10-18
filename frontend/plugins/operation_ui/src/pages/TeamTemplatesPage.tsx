@@ -21,7 +21,7 @@ export const TeamTemplatesPage = () => {
                     variant="ghost"
                     className="text-foreground"
                     onClick={() =>
-                      navigate(`/settings/operation/team/details/${id}`)
+                      navigate(`/operation/settings/team/details/${id}`)
                     }
                   >
                     <IconArrowLeft size={16} className="stroke-foreground" />

@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-10-16`
+- **Last synchronized:** `2026-10-18`
 
 ## Scope
 
@@ -123,7 +123,7 @@
   choice leaves the install closed.
 
 - Polls are split across two routes, mirroring how forms are laid out.
-  `settings/frontline/channels/:id/polls` manages the channel's polls: the
+  `frontline/settings/channels/:id/polls` manages the channel's polls: the
   settings breadcrumb resolves to `Channels / <channel> / Polls` and carries the
   `Create poll` button on the right, the sub-header holds only the status/search
 - A form can be created from the plugin's own forms page, not only from a
@@ -134,7 +134,7 @@
   `FORM_GENERAL_CREATE_SCHEMA` when no `formId` param is present, and
   `useFormMutate` reads the picked channel out of the setup state. Cancelling or
   finishing returns to `frontline/forms`; the settings flow
-  (`settings/frontline/channels/:id/forms/create`) still returns to the
+  (`frontline/settings/channels/:id/forms/create`) still returns to the
   channel's forms page.
 - The `frontline/forms` sidebar Channels group (`ChooseChannel`), the
   sub-header's channel filter (`FormChannelFilterView`, in place of the shared
@@ -173,7 +173,7 @@
   moves `Call from` to another switched-on one, or disconnects when none is left.
 - Every channel-owned resource row carries a **Move to channel** action:
   integrations, ticket pipelines, forms, surveys and response templates, in the
-  `⋮` menu of their list inside `settings/frontline/channels/:id/…` (and on the
+  `⋮` menu of their list inside `frontline/settings/channels/:id/…` (and on the
   global `/frontline/forms` page). It opens one shared `MoveToChannelDialog`
   showing the current channel, a destination picker that excludes the current
   channel, a confirmation line once a destination is picked, and
@@ -184,7 +184,7 @@
   source channel. A successful move toasts, refetches the resource's list
   queries and the channel counters, and clears the selection.
 - Surveys are split across two routes, mirroring how forms are laid out.
-  `settings/frontline/channels/:id/surveys` manages the channel's surveys: the
+  `frontline/settings/channels/:id/surveys` manages the channel's surveys: the
   settings breadcrumb resolves to `Channels / <channel> / Surveys` and carries the
   `Create survey` button on the right, the sub-header holds only the status/search
   filters and the record count, and the page renders a `RecordTable` list, the
@@ -219,8 +219,8 @@
   badge without a tooltip means there is no standing rejection. `Archive`/`Unarchive` stays
   reserved for surveys that have been live.
 - Creating and editing a survey is a full-page step wizard on
-  `settings/frontline/channels/:id/surveys/create`,
-  `settings/frontline/channels/:id/surveys/:surveyId` and
+  `frontline/settings/channels/:id/surveys/create`,
+  `frontline/settings/channels/:id/surveys/:surveyId` and
   `frontline/surveys/create`, laid out exactly like the
   form builder: a left panel carrying `IntegrationSteps` (STEP badge, progress
   bar, description) over the current step's fields, a live preview on the right,
@@ -271,7 +271,7 @@
   record table, with its row actions and command bar; the choice persists in
   `surveyViewAtom` (`localStorage` key `surveyView`, default `grid`). Each
   board card is a link to the survey's edit wizard under its channel settings
-  (`settings/frontline/channels/:channelId/surveys/:surveyId`).
+  (`frontline/settings/channels/:channelId/surveys/:surveyId`).
 - Deleting surveys always asks first, like forms: the row menu's red `Delete`
   confirms with `confirm-delete-survey-title` and the command bar's `Delete`
   with `confirm-delete-surveys` (pluralised) through `useConfirm` before
@@ -407,7 +407,7 @@
   `channelId` and clears `integrationType`.
 - Channel creation from either the settings page or the Team inbox group; the
   form sends no `scope`, so the API creates a `team` channel.
-- A `Personal channel` settings route (`/settings/frontline/personal-channel`)
+- A `Personal channel` settings route (`/frontline/settings/personal-channel`)
   acting as the profile for the user's private inbox: name, icon, description,
   and its integrations — the same catalogue a team channel offers. Opening it is
   what provisions the channel — there is no create button anywhere for personal
@@ -610,6 +610,7 @@ owns the setup form and connection actions.
 
 | Area                      | Path                                                                                                                                              | Responsibility                                                                                                                                  |
 | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| App sidebar | `frontend/plugins/frontline_ui/src/Sidebar.tsx` | `FrontlineSidebar` (app sidebar) and `FrontlineSidebarFooter` (Settings link), rendered by the `./frontline` entry through `AppLayout` |
 | Host registration         | `src/config.tsx`                                                                                                                                  | `CONFIG` — navigation, settings, widgets, property inputs, routes, and Module Federation exposes                                                |
 | Federation                | `module-federation.config.ts`                                                                                                                     | Remote name `frontline_ui` and its exposes                                                                                                      |
 | GraphQL codegen           | `codegen.ts`, `schema/platform.graphql`                                                                                                           | Generates `src/gql/` (gitignored) from the printed `frontline_api` schema and the core snapshot                                                 |
@@ -689,14 +690,14 @@ owns the setup form and connection actions.
   and `FrontlineMain`) — the survey results board — and
   `frontline/surveys/create` (`FrontlinePaths.SurveyCreate`) — the create
   wizard; both render inside the `SurveyView` layout and its `SurveyPageHeader`.
-- Settings route `settings/frontline/channels/:id/surveys` (registered in the
+- Settings route `frontline/settings/channels/:id/surveys` (registered in the
   channels `Settings.tsx` as `FrontlinePaths.ChannelSurveys`) — the channel's
   survey management page — plus `FrontlinePaths.SurveysCreate`
   (`/:id/surveys/create`) and `FrontlinePaths.SurveyDetail` (`/:id/surveys/:surveyId`)
   for the wizard.
 
 - Module Federation exposes declared in `module-federation.config.ts` /
-  `src/config.tsx`: `./config`, `./frontline`, `./frontlineSettings`,
+  `src/config.tsx`: `./config`, `./frontline`,
   `./knowledgebase`, `./automationsWidget`, `./notificationWidget`,
   `./relationWidget`, `./floatingWidget`, `./selectErxesMessenger`.
 - `CONFIG` with `name: 'frontline'`, `path: 'frontline'`, default navigation
@@ -982,6 +983,24 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
 
 ## Local Invariants
 
+- The plugin owns its whole app sidebar. `src/modules/FrontlineMain.tsx` (the `./frontline`
+  expose) wraps its routes in `erxes-ui` `AppLayout` (`id="frontline"`) with
+  `FrontlineSidebar`. Core-ui draws only the top `CoreTab` bar; `navigationGroup` in
+  `src/config.tsx` supplies just the tab name, icon and `defaultPath` and takes
+  no `content`/`subGroup`.
+- `FrontlineSidebarFooter` pins a Settings link to the bottom of the app
+  sidebar. The plugin owns its settings at `/frontline/settings/*`, served by its
+  own entry: the entry's top-level `<Routes>` sends `settings/*` to
+  `FrontlineSettingsLayout` (`src/Sidebar.tsx`, an `AppLayout` titled
+  "<Plugin> settings" with a Back link to the app) and `*` to the app
+  `AppLayout`. Settings pages render inside `PluginSettingsRoutes`
+  (`ui-modules`), which also serves `tags` and `properties/*` scoped to
+  this plugin's types; the settings sidebar appends
+  `PluginSharedSettingsNavigation`, which lists Tags/Properties only when the
+  plugin registers those types. Core organization settings never list
+  plugin settings, `config.tsx` has no `settingsNavigation`, and there is
+  no `./frontlineSettings` expose; old `/settings/frontline/…` URLs are redirected
+  by core. The settings navigation renders no `Sidebar.GroupLabel`.
 - Page header breadcrumbs follow the shared pattern: crumbs are default ghost `Button`s (no `font-semibold`), the first crumb carries a 16px icon in the default text color, crumbs are separated by `Separator.Inline` or `Breadcrumb.Separator`, and settings pages carry no favorite toggle.
 - The conversations filter bar header (`ConversationsHeader`) uses
   `bg-background`, matching the host's `PageHeader` and `PageSubHeader`, never
@@ -995,8 +1014,8 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
   stays the same compact size as the host's My inbox count
   (`h-5 min-w-5 rounded-full px-1.5 text-[11px] tabular-nums`).
 - Page-level side menus render `Sidebar.Panel` from `erxes-ui`, which keeps its
-  own open state (`sidebarPanelOpenState`), separate from the host's context
-  column. Never stack two headings: a menu without a heading passes one as
+  own open state (`sidebarPanelOpenState`), separate from the plugin's
+  `AppLayout` sidebar. Never stack two headings: a menu without a heading passes one as
   `label` (header row with the heading, optional `actions` and the collapse
   toggle); a menu that starts with its own heading row (group label, collapsible
   or accordion trigger) omits `label` and ends that row with
@@ -1081,7 +1100,7 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
   left to drop instead), while **Space** picks the field up, arrows move it and
   **Space** drops it; Space's keyup is prevented so it never clicks the button.
 - The form builder runs under two route families — `frontline/forms/*` and
-  `settings/frontline/channels/:id/forms/*` — and tells them apart by the `id`
+  `frontline/settings/channels/:id/forms/*` — and tells them apart by the `id`
   route param, never by a flag. `FormsCreateButton`, `FormMutateLayout`'s cancel
   and `useFormMutate`'s post-save navigation each read `useParams().id` and fall
   back to the `frontline/forms` path when it is absent; a new builder surface
@@ -1456,7 +1475,7 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
   mutation's error toast rather than as a filtered-out option.
 - A survey is always created with a channel. The wizard runs under two route
   families — `frontline/surveys/create` and
-  `settings/frontline/channels/:id/surveys/*` — and tells them apart by the `id`
+  `frontline/settings/channels/:id/surveys/*` — and tells them apart by the `id`
   route param through `useSurveySetupChannel`, never by a flag. Under settings
   the channel is the `:id` param; on `frontline/surveys/create` it is the
   General step's channel select, required by `SURVEY_GENERAL_CREATE_SCHEMA`.
@@ -1968,7 +1987,7 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   never filter the tree. Article, category and topic writes all refetch
   `TOPICS`, so tree titles and per-category article counts stay live.
 - The sidebar is an erxes-ui `Sidebar.Panel` (collapsible, `w-60`, its own
-  open state) without a `label`, laid out like the host's context column on
+  open state) without a `label`, laid out like the `AppLayout` sidebar on
   the Tickets/Forms pages: `KnowledgeBaseLayout` puts the panel full height to
   the left of the `PageContainer`, so its first row — "Knowledge Base"
   (`text-sm font-medium`, `h-12` to line up with `PageHeader`) with a `size-8`
@@ -1978,8 +1997,8 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   panel's built-in `label` is not used either, because its mono face differs
   from the other headings. When collapsed the panel still portals its expand trigger
   into the page header's `data-sidebar-panel-slot`.
-  The panel resizes like the host's main sidebar: `sidebar/components/KbResizeHandle`
-  (a copy of core-ui's `NavigationResizeHandle`) sits on its right edge —
+  The panel resizes like the `erxes-ui` `AppLayout` sidebar: `sidebar/components/KbResizeHandle`
+  (same drag/keyboard/double-click behaviour) sits on its right edge —
   drag or arrow keys between `KB_SIDEBAR_MIN_WIDTH` (180) and
   `KB_SIDEBAR_MAX_WIDTH` (480), double-click to reset. The width lives in
   `kbSidebarWidthAtom` (`atomWithStorage` under `frontline:kb-sidebar-width`,
@@ -2002,8 +2021,8 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   chevron and no topic icon (a deliberate exception to the expandable-row
   chevron rule above, asked for by the product owner), and there is no "All
   articles" child — the topic
-  row is that link. Opening and closing copies the host's main sidebar
-  (`core-ui` `NavigationDisclosure`) through the plugin's own
+  row is that link. Opening and closing copies core-ui's
+  `NavigationDisclosure` (settings sidebar) through the plugin's own
   `sidebar/components/KbDisclosure`: a `grid-rows-[0fr]`/`[1fr]` transition
   (250ms, `cubic-bezier(0.22,1,0.36,1)`) with an opacity fade, children
   mounted on first open and kept mounted afterwards. The topic row is a plain
@@ -2501,7 +2520,7 @@ null }`, fall back to the route pipeline and skip without one; never pass
   and confirm it resumes webhook registration without another integration;
   select files in quick succession and confirm the combined size guard includes
   pending uploads and releases capacity after removal or composer reset.
-- Smoke (move to channel): in `settings/frontline/channels/:id`, open each of
+- Smoke (move to channel): in `frontline/settings/channels/:id`, open each of
   Integrations, Pipelines, Forms, Surveys and Response templates, use `⋮` →
   `Move to channel`, pick another channel and confirm the row leaves this list
   at once, shows up under the destination channel, and is still there after a

@@ -9,31 +9,31 @@ import {
 } from '@/deals/states/dealsBoardState';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import type {
-  BoardDealColumn,
-  ColumnPaginationState,
-} from '@/deals/types/boards';
-import { DealsBoardCard } from './DealsBoardCard';
-import { BoardEmptyState } from './BoardEmptyState';
-import { DealsBoardColumn } from './DealsBoardColumn';
-import { GenericBoard } from './common/GenericBoard';
-import { NoStagesWarning } from '@/deals/components/common/NoStagesWarning';
-import { PipelineEmptyState } from '@/deals/pipelines/components/PipelineEmptyState';
-import { StagesLoading } from '@/deals/components/loading/StagesLoading';
+import { useBoards } from '@/deals/boards/hooks/useBoards';
 import { useColumnPagination } from '@/deals/boards/hooks/useColumnPagination';
 import { useDealsBoardData } from '@/deals/boards/hooks/useDealsBoardData';
-import { useBoards } from '@/deals/boards/hooks/useBoards';
 import { usePipelineChanged } from '@/deals/boards/hooks/usePipelineChanged';
 import { useDealsChange } from '@/deals/cards/hooks/useDeals';
-import { getDealsQueryVariables } from '@/deals/utils/queryVariables';
-import { useQueryState } from 'erxes-ui';
-import { useSearchParams } from 'react-router-dom';
+import { NoStagesWarning } from '@/deals/components/common/NoStagesWarning';
+import { StagesLoading } from '@/deals/components/loading/StagesLoading';
+import { PipelineEmptyState } from '@/deals/pipelines/components/PipelineEmptyState';
 import { useStagesOrder } from '@/deals/stage/hooks/useStages';
-import { useAtom, useSetAtom } from 'jotai';
 import {
   dealCountByBoardAtom,
   dealTotalCountAtom,
 } from '@/deals/states/dealsTotalCountState';
+import type {
+  BoardDealColumn,
+  ColumnPaginationState,
+} from '@/deals/types/boards';
+import { getDealsQueryVariables } from '@/deals/utils/queryVariables';
+import { isDefined, useQueryState } from 'erxes-ui';
+import { useAtom, useSetAtom } from 'jotai';
+import { useSearchParams } from 'react-router-dom';
+import { BoardEmptyState } from './BoardEmptyState';
+import { DealsBoardCard } from './DealsBoardCard';
+import { DealsBoardColumn } from './DealsBoardColumn';
+import { GenericBoard } from './common/GenericBoard';
 
 const PAGE_SIZE = 20;
 
@@ -128,8 +128,8 @@ export const DealsBoard = () => {
     setAllDealsMap({});
     locallyMovedIdsRef.current = {};
 
-    resetColumns.forEach((col: { _id: string; itemsTotalCount?: number }) => {
-      initColumn(col._id, col.itemsTotalCount);
+    resetColumns.forEach((col) => {
+      initColumn(col._id, col.itemsTotalCount ?? undefined);
     });
 
     setFetchMoreTriggers({});
@@ -274,7 +274,9 @@ export const DealsBoard = () => {
     !boardsLoading &&
     !boardsError &&
     board &&
-    !(board.pipelines || []).some((pipeline) => pipeline.status !== 'archived')
+    !(board.pipelines?.filter(isDefined) || []).some(
+      (pipeline) => pipeline.status !== 'archived',
+    )
   ) {
     return <PipelineEmptyState boardId={board._id} />;
   }

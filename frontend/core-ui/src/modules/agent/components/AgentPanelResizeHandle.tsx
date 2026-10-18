@@ -1,4 +1,4 @@
-import { navigationResizingState } from '@/navigation/states/navigationPanelState';
+import { agentSidePanelResizingState } from '../states/agentPanelStates';
 import { cn } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
 import {
@@ -15,10 +15,8 @@ const clamp = (value: number, min: number, max: number) =>
   Math.round(Math.min(max, Math.max(min, value)));
 
 /**
- * Right-docked variant of `NavigationResizeHandle`: dragging left widens
- * the panel, ArrowLeft grows it, and the handle sits on the panel's left
- * edge. Kept inside the agent module so the shared navigation handle
- * stays untouched.
+ * Right-docked resize handle: dragging left widens the panel, ArrowLeft
+ * grows it, and the handle sits on the panel's left edge.
  */
 export const AgentPanelResizeHandle = ({
   label,
@@ -37,7 +35,7 @@ export const AgentPanelResizeHandle = ({
   onReset: () => void;
   className?: string;
 }) => {
-  const setResizing = useSetAtom(navigationResizingState);
+  const setResizing = useSetAtom(agentSidePanelResizingState);
   const drag = useRef<{ startX: number; startWidth: number } | null>(null);
 
   useEffect(() => () => setResizing(false), [setResizing]);

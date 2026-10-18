@@ -86,16 +86,6 @@ export const AddMappingSheet: React.FC<AddMappingSheetProps> = ({
 
   const isEditing = !!editingMapping;
 
-  const handleCategorySelect: React.ReactEventHandler<HTMLButtonElement> &
-    ((categoryId: string) => void) = (value) => {
-    const categoryId =
-      typeof value === 'string' ? value : value?.currentTarget?.value;
-
-    if (categoryId) {
-      form.setValue('categoryId', categoryId);
-    }
-  };
-
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       {!isEditing && (
@@ -119,8 +109,12 @@ export const AddMappingSheet: React.FC<AddMappingSheetProps> = ({
             <div className="space-y-2">
               <Label htmlFor="categoryId">{t('PRODUCT-CATEGORY')}</Label>
               <SelectCategory
-                selected={form.watch('categoryId')}
-                onSelect={handleCategorySelect}
+                mode="single"
+                value={form.watch('categoryId')}
+                onValueChange={(value) => {
+                  const categoryId = Array.isArray(value) ? value[0] : value;
+                  form.setValue('categoryId', categoryId || '');
+                }}
               />
             </div>
 
@@ -135,7 +129,8 @@ export const AddMappingSheet: React.FC<AddMappingSheetProps> = ({
 
             <div className="space-y-2">
               <Label htmlFor="name">
-                {t('product-name-contains')} <span className="text-red-500">*</span>
+                {t('product-name-contains')}{' '}
+                <span className="text-red-500">*</span>
               </Label>
               <Input
                 id="name"
@@ -146,7 +141,7 @@ export const AddMappingSheet: React.FC<AddMappingSheetProps> = ({
               />
               {form.formState.errors.name && (
                 <p className="text-sm text-red-500">
-                  {form.formState.errors.name.message as string}
+                  {form.formState.errors.name.message}
                 </p>
               )}
             </div>

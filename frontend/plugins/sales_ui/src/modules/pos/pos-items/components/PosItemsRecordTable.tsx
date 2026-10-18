@@ -6,11 +6,19 @@ import { useTranslation } from 'react-i18next';
 
 export const PosItemsRecordTable = ({ posId }: { posId?: string }) => {
   const { t } = useTranslation('sales');
-  const { posItemList, handleFetchMore, loading, pageInfo } = usePosItemsList({
-    posId,
-  });
+  const { posItemList, handleFetchMore, loading, error, pageInfo } =
+    usePosItemsList({
+      posId,
+    });
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
   if (loading) return <Spinner />;
+  if (error)
+    return (
+      <p role="alert" className="m-3 text-destructive">
+        {error.message}
+      </p>
+    );
+
   return (
     <RecordTable.Provider
       columns={PosItemColumns(t)}

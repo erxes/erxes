@@ -1,8 +1,12 @@
 import { atomWithStorage } from 'jotai/utils';
 
-export const navigationActivityOrderState = atomWithStorage<string[] | null>(
+/**
+ * The user's order of plugins and core modules in the app switcher (activity
+ * ids). Ids not listed keep their default order after the listed ones.
+ */
+export const navigationActivityOrderState = atomWithStorage<string[]>(
   'navigation:activity-order',
-  null,
+  [],
   undefined,
   { getOnInit: true },
 );

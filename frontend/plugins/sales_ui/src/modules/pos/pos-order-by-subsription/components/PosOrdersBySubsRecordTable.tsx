@@ -6,8 +6,20 @@ import { useTranslation } from 'react-i18next';
 
 export const PosOrdersBySubsRecordTable = ({ posId }: { posId?: string }) => {
   const { t } = useTranslation('sales');
-  const { posOrderBySubscriptionList, handleFetchMore, loading, pageInfo } =
-    usePosOrderBySubscriptionList({ posId });
+  const {
+    posOrderBySubscriptionList,
+    handleFetchMore,
+    loading,
+    error,
+    pageInfo,
+  } = usePosOrderBySubscriptionList({ posId });
+
+  if (error)
+    return (
+      <p role="alert" className="m-3 text-destructive">
+        {error.message}
+      </p>
+    );
 
   return (
     <RecordTable.Provider

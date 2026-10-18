@@ -109,11 +109,7 @@ router.get('/get-frontend-plugins', async (_req: Request, res: Response) => {
       const plugins = await getGlobalProfileV2Plugins(organizationInfo);
 
       for (const pluginName of plugins) {
-        // Company Brain (agent) loads from the plugins CDN like the default below.
-        if (
-          pluginName === 'agent' ||
-          enabledPluginsArray.includes(pluginName)
-        ) {
+        if (enabledPluginsArray.includes(pluginName)) {
           remotes.push({
             name: remoteName(pluginName),
             entry: await getPluginEntry(pluginName),
@@ -144,8 +140,9 @@ router.get('/get-frontend-plugins', async (_req: Request, res: Response) => {
 
     const hasAgentUi = remotes.some((remote) => remote.name === 'agent_ui');
 
-    // Every original-profile workspace gets Company Brain (agent). A v2
-    // workspace only gets it when its Stripe customer has the agent plugin.
+    // Original-profile workspaces keep Company Brain (agent) until they move to
+    // the v2 profile. A v2 workspace gets it like any other plugin: from its
+    // Stripe customer, and only while agent is in ENABLED_PLUGINS.
     if (!hasAgentUi && !isV2) {
       remotes.push({
         name: 'agent_ui',

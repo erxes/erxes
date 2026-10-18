@@ -6,27 +6,35 @@ export const tdbConfigSchema = new Schema(
     description: { type: String },
     createdAt: { type: Date, default: Date.now },
 
-    // TDB E-Commerce
     apiUrl: {
       type: String,
       required: true,
-      default: 'https://acsmc.tdbmlabs.mn:8000/order',
+      default: 'https://api-sandbox.tdbmlabs.mn:8443',
     },
-    username: { type: String, required: true },
-    password: { type: String, required: true },
+
+    clientId: {
+      type: String,
+      required: true,
+    },
+
+    clientSecret: {
+      type: String,
+      required: true,
+    },
+
     testMode: { type: Boolean, default: true },
   },
   {
     timestamps: false,
     toJSON: {
       transform(_doc, ret) {
-        delete ret.password;
+        delete ret.clientSecret;
         return ret;
       },
     },
     toObject: {
       transform(_doc, ret) {
-        delete ret.password;
+        delete ret.clientSecret;
         return ret;
       },
     },

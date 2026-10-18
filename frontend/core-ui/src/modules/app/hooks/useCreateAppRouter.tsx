@@ -14,6 +14,7 @@ import { ContactsRoutes } from '@/app/components/ContactsRoutes';
 import { DefaultLayout } from '@/app/components/MainLayout';
 import { DocumentsRoutes } from '@/app/components/DocumentsRoutes';
 import ForgotPasswordPage from '~/pages/auth/ForgotPasswordPage';
+import { HomePage } from '~/pages/home/HomePage';
 import { ImportExportRoutes } from '../components/ImportExportRoutes';
 import { LogRoutes } from '@/app/components/LogRoutes';
 import { MainOnboardingPage } from '~/pages/onboarding/MainOnboardingPage';
@@ -97,10 +98,7 @@ export const useCreateAppRouter = () => {
                 </OnboardingGuard>
               }
             >
-              <Route
-                path={AppPath.Index}
-                element={<Navigate to={AppPath.MyInbox} />}
-              />
+              <Route path={AppPath.Index} element={<HomePage />} />
               <Route
                 path={AppPath.SettingsCatchAll}
                 element={<SettingsRoutes />}

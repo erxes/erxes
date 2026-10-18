@@ -1,3 +1,4 @@
+import { usePropertiesScope } from '@/properties/context/PropertiesScopeContext';
 import { Sheet, toast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router';
@@ -6,6 +7,7 @@ import { needsToRefreshState } from '../states/needsToRefresh';
 import { IPropertyForm, PropertyForm, useAddProperty } from 'ui-modules';
 
 export const AddProperty = () => {
+  const { basePath: propertiesBasePath } = usePropertiesScope();
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });
   const { groupId, type } = useParams<{
     groupId: string;
@@ -15,7 +17,7 @@ export const AddProperty = () => {
   const setNeedsToRefresh = useSetAtom(needsToRefreshState);
   const navigate = useNavigate();
 
-  const handleClose = () => navigate(`/settings/properties/${type}`);
+  const handleClose = () => navigate(`${propertiesBasePath}/${type}`);
 
   const onSubmit = (data: IPropertyForm) => {
     addProperty({

@@ -32,7 +32,7 @@ const IntegrationsConfigRoute = () => {
   }
 
   if (!hasActionPermission('integrationsEdit')) {
-    return <Navigate to="/settings" replace />;
+    return <Navigate to="/frontline/settings/channels" replace />;
   }
 
   return <ConfigsSettings />;

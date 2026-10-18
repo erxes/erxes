@@ -362,16 +362,6 @@ export const GET_SETTINGS_SUB_NAVIGATION = (
   },
 });
 
-export const findSettingsSubNavigation = (
-  subNavigation: Record<string, TSettingSubNavigation>,
-  pathname: string,
-) =>
-  Object.entries(subNavigation).find(([path]) => {
-    const itemPath = settingsPath(path);
-
-    return pathname === itemPath || pathname.startsWith(`${itemPath}/`);
-  })?.[1];
-
 export const SETTINGS_PERMISSION_MAP: Record<string, string> = {
   [SettingsWorkspacePath.Agent]: 'agents',
   [SettingsWorkspacePath.TeamMember]: 'teamMembers',

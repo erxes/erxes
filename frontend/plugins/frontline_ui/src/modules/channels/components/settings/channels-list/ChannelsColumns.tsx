@@ -25,7 +25,7 @@ const ChannelNameCell = ({ cell }: CellContext<IChannel, unknown>) => {
   const navigate = useNavigate();
 
   const onClick = () => {
-    navigate(`/settings/frontline/channels/${_id}`);
+    navigate(`/frontline/settings/channels/${_id}`);
   };
 
   return (

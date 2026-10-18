@@ -109,7 +109,7 @@ export const KnowledgeBaseSidebar = () => {
       className={cn('flex-none border-r', resizing && 'transition-none')}
       style={width ? { width } : undefined}
     >
-      <div className="flex gap-1 items-center px-2 h-12 shrink-0">
+      <div className="flex gap-1 items-center px-2 h-10 shrink-0">
         <span className="block flex-1 px-2 min-w-0 text-sm font-medium truncate">
           {t('knowledge-base', 'Knowledge Base')}
         </span>

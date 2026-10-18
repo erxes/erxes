@@ -12,6 +12,7 @@ import { withoutPointPayments } from '~/modules/sales/utils/dealPoints';
 import { normalizeProductDiscountInfos } from '~/modules/sales/utils/discountInfos';
 import { normalizeProductCurrencies } from '~/modules/sales/utils/productCurrency';
 import { normalizeProductUomInfo } from '~/modules/sales/utils/productUom';
+import { validateProductDataInput } from '~/modules/sales/utils/productDataInput';
 import {
   checkAssignedUserFromPData,
   copyChecklists,
@@ -156,6 +157,9 @@ export const dealMutations: Record<string, Resolver> = {
     { user, models, checkPermission }: IContext,
   ) {
     await checkPermission('dealsWatch');
+    if (!_id) {
+      throw new Error('_id is required');
+    }
     return models.Deals.watchDeal(_id, isAdd, user._id);
   },
 
@@ -312,6 +316,13 @@ export const dealMutations: Record<string, Resolver> = {
   ) {
     await checkPermission('dealsEdit');
     await checkPermission('dealsProductsEdit');
+    if (!dealId || !dataId) {
+      throw new Error('dealId and dataId are required');
+    }
+    if (!doc || typeof doc !== 'object' || Array.isArray(doc)) {
+      throw new Error('doc must be a product object');
+    }
+    validateProductDataInput(doc);
     const deal = await models.Deals.getDeal(dealId);
 
     if (!deal.productsData?.length) {
@@ -418,6 +429,13 @@ export const dealMutations: Record<string, Resolver> = {
     },
     { models, user, subdomain }: IContext,
   ) {
+    if (!dealId || !dataId) {
+      throw new Error('dealId and dataId are required');
+    }
+    if (!doc || typeof doc !== 'object' || Array.isArray(doc)) {
+      throw new Error('doc must be a product object');
+    }
+    validateProductDataInput(doc);
     const deal = await models.Deals.getDeal(dealId);
 
     if (!deal.productsData?.length) {
@@ -512,6 +530,12 @@ export const dealMutations: Record<string, Resolver> = {
   ) {
     await checkPermission('dealsEdit');
     await checkPermission('dealsProductsEdit');
+    if (!dealId) {
+      throw new Error('dealId is required');
+    }
+    if (!Array.isArray(dataIds)) {
+      throw new Error('dataIds must be an array');
+    }
     const deal = await models.Deals.getDeal(dealId);
 
     const oldPData = (deal.productsData || []).filter(

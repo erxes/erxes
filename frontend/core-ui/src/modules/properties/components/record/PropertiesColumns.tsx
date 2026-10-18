@@ -1,3 +1,4 @@
+import { usePropertiesScope } from '@/properties/context/PropertiesScopeContext';
 import {
   Badge,
   Checkbox,
@@ -100,6 +101,7 @@ const PropertiesMoreColumnCell = ({
   cell: Cell<IField, unknown>;
   contentType: string;
 }) => {
+  const { basePath: propertiesBasePath } = usePropertiesScope();
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });
   const { _id, groupId, owner, name } = cell.row.original;
   const setArchiveTarget = useSetAtom(archiveTargetState);
@@ -127,7 +129,7 @@ const PropertiesMoreColumnCell = ({
           <Can action="fieldsManage">
             <DropdownMenu.Item asChild>
               <Link
-                to={`/settings/properties/${contentType}/${groupId}/${_id}`}
+                to={`${propertiesBasePath}/${contentType}/${groupId}/${_id}`}
               >
                 <IconEdit />
                 {t('edit', 'Edit')}

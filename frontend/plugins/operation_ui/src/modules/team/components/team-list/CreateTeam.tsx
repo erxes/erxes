@@ -52,7 +52,7 @@ export const CreateTeam = () => {
         onCompleted: (data) => {
           toast({ title: t('success') });
           if (data.teamAdd) {
-            navigate(`/settings/operation/team/details/${data.teamAdd._id}`);
+            navigate(`/operation/settings/team/details/${data.teamAdd._id}`);
           }
           form.reset();
           _setOpen(false);

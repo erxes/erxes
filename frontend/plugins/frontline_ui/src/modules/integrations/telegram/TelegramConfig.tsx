@@ -35,12 +35,12 @@ export const TelegramConfigCollapse = () => {
           </ol>
           <div className="flex flex-wrap gap-2">
             <Button asChild>
-              <Link to="/settings/frontline/personal-channel">
+              <Link to="/frontline/settings/personal-channel">
                 {t('personalInbox')}
               </Link>
             </Button>
             <Button asChild variant="outline">
-              <Link to="/settings/frontline/channels">{t('teamInboxes')}</Link>
+              <Link to="/frontline/settings/channels">{t('teamInboxes')}</Link>
             </Button>
           </div>
         </div>

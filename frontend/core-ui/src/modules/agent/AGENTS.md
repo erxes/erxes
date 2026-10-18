@@ -12,8 +12,9 @@ The `agent` module is the core-ui surface for the core-api `agents` backend
   sidebar (`agentThreadsSidebarOpenState`); page header: sidebar/drawer
   toggle, `AI Agent` › thread-title breadcrumb, `AgentThreadActionsMenu`,
   Capabilities / width / Settings buttons, primary `New conversation`;
-- the global `AgentSidePanel` docked right inside `NavigationWorkspace`
-  (`modules/app/components/MainLayout.tsx`) — resizable 360–720px
+- the global `AgentSidePanel` docked right inside `AppWorkspace`
+  (`modules/app/components/MainLayout.tsx`), beside the new `CoreAppOutlet`;
+  the floating `AgentTray` mounts outside the animated page — resizable 360–720px
   (persisted), Sheet on mobile, never rendered on `/agent*` so only one
   chat instance exists per thread;
 - the `NavigationAgentButton` rail entry (after `NavigationInboxButton`,
@@ -113,7 +114,8 @@ turn. A single-step card names the action.
 - `states/agentPanelStates.ts` — `agentSidePanelOpenState`,
   `agentSidePanelWidthState`, `agentChatWidthState`,
   `agentThreadsSidebarOpenState` (localStorage via `atomWithStorage`),
-  `agentSidePanelThreadRequestState` (one-shot, plain `atom`).
+  `agentSidePanelThreadRequestState` (one-shot, plain `atom`), and
+  `agentSidePanelResizingState` (transient drag state owned by the agent).
 - `states/agentChatContext.ts` — `AgentChatThreadContext` (current
   transcript thread id for chips).
 - sessionStorage (per surface/thread): `agents-prompt:<scope>`,

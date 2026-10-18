@@ -1,30 +1,43 @@
-import { checklistFields } from "../mutations/ChecklistMutations";
-import gql from "graphql-tag";
+import { gql } from '~/gql';
 
-const commonParams = `
-  $contentTypeId: String
-`;
-
-const commonParamDefs = `
-  contentTypeId: $contentTypeId,
-`;
-
-export const GET_CHECKLISTS = gql`
-  query salesChecklists(
-    ${commonParams}
-  ) {
-    salesChecklists(
-      ${commonParamDefs}
-    ) {
-         ${checklistFields}
+export const GET_CHECKLISTS = gql(`
+  query salesChecklists($contentTypeId: String) {
+    salesChecklists(contentTypeId: $contentTypeId) {
+      _id
+      contentType
+      contentTypeId
+      title
+      createdUserId
+      createdDate
+      items {
+        _id
+        checklistId
+        isChecked
+        content
+        order
+      }
+      percent
     }
   }
-`;
+`);
 
-export const GET_CHECKLIST_DETAIL = gql`
+export const GET_CHECKLIST_DETAIL = gql(`
   query salesChecklistDetail($_id: String!) {
     salesChecklistDetail(_id: $_id) {
-      ${checklistFields}
+      _id
+      contentType
+      contentTypeId
+      title
+      createdUserId
+      createdDate
+      items {
+        _id
+        checklistId
+        isChecked
+        content
+        order
+      }
+      percent
     }
   }
-`;
+`);

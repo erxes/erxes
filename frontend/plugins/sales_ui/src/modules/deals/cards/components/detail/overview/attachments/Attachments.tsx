@@ -1,7 +1,7 @@
+import { useTranslation } from 'react-i18next';
+import { useAttachmentContext } from './AttachmentContext';
 import FileAttachments from './FileAttachments';
 import { MediaAttachments } from './MediaAttachments';
-import { useAttachmentContext } from './AttachmentContext';
-import { useTranslation } from 'react-i18next';
 
 const fileTypes = [
   'text/plain',
@@ -26,10 +26,10 @@ export const Attachments = () => {
   }
 
   const mediaAttachments = attachments.filter((attachment) =>
-    attachment.type.startsWith('image/'),
+    attachment.type?.startsWith('image/'),
   );
   const fileAttachments = attachments.filter((attachment) =>
-    fileTypes.includes(attachment.type),
+    fileTypes.includes(attachment.type ?? ''),
   );
 
   if (mediaAttachments.length === 0 && fileAttachments.length === 0) {

@@ -6,7 +6,7 @@
 - **Project:** `accounting_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/accounting_ui`
-- **Last synchronized:** `2026-10-14`
+- **Last synchronized:** `2026-10-18`
 
 ## Scope
 
@@ -35,7 +35,7 @@
 - Provides adjustment navigation and pages for inventory, fixed asset, fund rate, and debt rate adjustments.
 - Provides closing adjustment navigation and pages for temporary account closing.
 - Lists the check-sync rule pages (deal, POS order) in the `CheckSyncNavigation` navigation sub group, shown only on `/accounting/check-sync` routes, so the check-sync page carries no in-page sidebar.
-- Navigation `content` renders the five module links (`MainNavigation`) followed by the adjustment, inventory and fixed asset sections, each a `NavigationSection` row (icon, label, chevron) that unfolds its links with a grid-row transition and opens whenever the route enters its own section (path-segment match) and otherwise keeps the user's open or closed choice; the host unfolds them in the main sidebar. Never use `NavigationMenuGroup` there — its muted, uppercase-styled group label reads as a disabled heading inside the main sidebar. Navigation `subGroup` holds only page-level menus the host lists in its context column: `JournalNavigation` (the transaction journals, only on `/accounting/records`, selected through the `journal` query param) and `CheckSyncNavigation`. Keep section entry points in `content`: an always-rendered sub group would occupy the context column on every accounting page and leave any page with its own side menu (journal reports) with three columns.
+- `AccountingSidebar` (`src/Sidebar.tsx`) renders the five module links (`MainNavigation`) followed by the adjustment, inventory and fixed asset sections, each a `NavigationSection` row (icon, label, chevron) that unfolds its links with a grid-row transition and opens whenever the route enters its own section (path-segment match) and otherwise keeps the user's open or closed choice. Never use `NavigationMenuGroup` there — its muted, uppercase-styled group label reads as a disabled heading. Below them it renders the route-aware page menus `JournalNavigation` (the transaction journals, only on `/accounting/records`, selected through the `journal` query param) and `CheckSyncNavigation`; keep them route-gated so pages with their own side menu (journal reports) do not show an extra menu on every accounting page.
 - Opens fund, debt, and closing adjustment create/edit forms in `AccountingSheet` panels where those forms exist.
 - Uses system `dealCurrency` options for fund/debt adjustment main and foreign currency fields plus account currency selectors; rate adjustment main currency defaults from system `mainCurrency`.
 - Fetches spot rate from the existing exchange-rate hook when adjustment date, main currency, and foreign currency are selected.
@@ -75,6 +75,7 @@
 
 | Area                | Path                                                                            | Responsibility                                                                                                  |
 | ------------------- | ------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| App sidebar | `frontend/plugins/accounting_ui/src/Sidebar.tsx` | `AccountingSidebar` (app sidebar) and `AccountingSidebarFooter` (Settings link), rendered by the `./accounting` entry through `AppLayout` |
 | GraphQL generation | `frontend/plugins/accounting_ui/codegen.ts` | Validates static feature documents against accounting SDL and consumed platform contracts; emits ignored `src/gql/`. |
 | Runtime             | `src/main.ts`                                                                   | Starts the accounting UI remote.                                                                                |
 | Dev server config   | `rspack.config.ts`                                                              | Configures Module Federation development serving and ignores generated folders during watch mode.               |
@@ -150,6 +151,24 @@
 
 ## Local Invariants
 
+- The plugin owns its whole app sidebar. `src/modules/AccountingMain.tsx` (the `./accounting`
+  expose) wraps its routes in `erxes-ui` `AppLayout` (`id="accounting"`) with
+  `AccountingSidebar`. Core-ui draws only the top `CoreTab` bar; `navigationGroup` in
+  `src/config.tsx` supplies just the tab name, icon and `defaultPath` and takes
+  no `content`/`subGroup`.
+- `AccountingSidebarFooter` pins a Settings link to the bottom of the app
+  sidebar. The plugin owns its settings at `/accounting/settings/*`, served by its
+  own entry: the entry's top-level `<Routes>` sends `settings/*` to
+  `AccountingSettingsLayout` (`src/Sidebar.tsx`, an `AppLayout` titled
+  "<Plugin> settings" with a Back link to the app) and `*` to the app
+  `AppLayout`. Settings pages render inside `PluginSettingsRoutes`
+  (`ui-modules`), which also serves `tags` and `properties/*` scoped to
+  this plugin's types; the settings sidebar appends
+  `PluginSharedSettingsNavigation`, which lists Tags/Properties only when the
+  plugin registers those types. Core organization settings never list
+  plugin settings, `config.tsx` has no `settingsNavigation`, and there is
+  no `./accountingSettings` expose; old `/settings/accounting/…` URLs are redirected
+  by core. The settings navigation renders no `Sidebar.GroupLabel`.
 - Page header breadcrumbs follow the shared pattern: crumbs are default ghost `Button`s (no `font-semibold`), the first crumb carries a 16px icon in the default text color, crumbs are separated by `Separator.Inline` or `Breadcrumb.Separator`, and settings pages carry no favorite toggle. The accounting settings sidebar and breadcrumb translate `SETTINGS_ROUTES` keys with `t()`; never render a raw key.
 - Accounting UI labels, mutation feedback, and validation messages use the `accounting` translation namespace while retaining generated GraphQL inference and null-safe view adapters.
 - `graphql-codegen-plugin.ts` prepares documents before the first compile and regenerates them on accounting source changes through `beforeRun`/`watchRun`, excluding generated files to avoid rebuild loops. Do not invoke nested Nx commands from config evaluation or rely only on target dependencies for host-launched remotes.
@@ -164,7 +183,7 @@
 - Nullable SDL fields remain nullable in generated types. `src/modules/utils/graphql.ts` normalizes display values while retaining immutable Apollo reference identity; `graphqlCursor.ts` adapts nullable platform PageInfo through public `erxes-ui` cursor helpers without changing shared SDL.
 - Inventory cost and last-income-price operations select structured rows and map them to product dictionaries only at the UI boundary. Persisted bank, inventory expense, sale/movement, and fixed asset form metadata must survive edit/refetch.
 - Expandable navigation rows and section headers use the host sidebar's chevron: `IconChevronRight` (`size-3.5`) inside a span that rotates 90° when open, never a filled caret, so the rotation stays on the compositor and matches the main sidebar. Tailwind group names on these rows stay accounting-specific (`group/accounting-nav-section`): the host sidebar is an open ancestor, so a shared name such as `navigation-section` would rotate every closed chevron.
-- Page-level side menus render `Sidebar.Panel` from `erxes-ui`, which keeps its own open state (`sidebarPanelOpenState`), separate from the host's context column. The panel sits beside the page header, never under it: the page is a row of the panel and a column holding the header and content. The panel passes its heading as `label`, which renders a 48px title row with optional `actions` and the collapse toggle on the right, level with the page header; when collapsed, the toggle moves into the header's panel slot. Do not add a second heading or an in-panel `Sidebar.PanelTrigger` row. Keep `<Sidebar collapsible="none">` for sidebars inside sheets and dialogs. `AccountingSubSettings` and `JournalReports` render `AccountingSidebar` and `ReportsList` beside their headers; `ReportsList` uses the `Reports` label.
+- Page-level side menus render `Sidebar.Panel` from `erxes-ui`, which keeps its own open state (`sidebarPanelOpenState`), separate from the plugin's `AppLayout` sidebar. The panel sits beside the page header, never under it: the page is a row of the panel and a column holding the header and content. The panel passes its heading as `label`, which renders a 40px title row with optional `actions` and the collapse toggle on the right, level with the page header; when collapsed, the toggle moves into the header's panel slot. Do not add a second heading or an in-panel `Sidebar.PanelTrigger` row. Keep `<Sidebar collapsible="none">` for sidebars inside sheets and dialogs. `AccountingSubSettings` and `JournalReports` render `AccountingSidebar` and `ReportsList` beside their headers; `ReportsList` uses the `Reports` label.
 - GraphQL operation names in new accounting UI code must be prefixed with `Accounting`.
 - Safe remainder TXT imports must remain headerless `code,count` and preserve the backend-derived current total cost; CSV imports require `productCode,count,totalCost,isSale,unitPrice`, accept legacy `unitCost` or `trInfo.unitCost` as total-cost aliases, and must never accept `activeCost` as authoritative file input.
 - Safe remainder table source order is the fallback for browsers without saved preferences; existing user-controlled column order must continue to override that fallback through the stable versioned table preference key.
@@ -236,7 +255,7 @@
 - Smoke scenario: open `/accounting/main` and `/accounting/records`, apply journal/search/date/account filters, export without selection, then select rows and export again to verify filtered and selected-id exports start successfully.
 - Smoke scenario: in inventory sale, income, out, and move rows, change products and verify `unitPrice` plus amount/follow cost values refresh without a manual page reload; in a sale row, change quantity repeatedly and verify both generated follow transactions keep the fetched active unit cost.
 - Smoke scenario: in inventory internal movement, enable "Дэлгэрэнгүй харагдац", set different source and destination branch/department values per detail row, verify `TBalance` shows generated `invMoveIn` rows at the destination detail locations, then save/refetch and confirm the source and destination row locations remain visible.
-- Smoke scenario: open `/settings/accounting/config/sync-deal-movement`, add and edit a rule with source/destination inventory accounts, default source/destination locations, and each deal-location side option; verify the rule appears only in `/accounting/check-sync/deal-movement`, then check/resync deals there and confirm regular `/accounting/check-sync/deal` still lists only sale/return rules.
+- Smoke scenario: open `/accounting/settings/config/sync-deal-movement`, add and edit a rule with source/destination inventory accounts, default source/destination locations, and each deal-location side option; verify the rule appears only in `/accounting/check-sync/deal-movement`, then check/resync deals there and confirm regular `/accounting/check-sync/deal` still lists only sale/return rules.
 - Smoke scenario: create inventory cost increase and decrease transactions, add multiple products, verify current remainder/current unit cost display, enter per-unit deltas, confirm after-unit cost and total amount recalculate, then save without changing quantity.
 - Smoke scenario: in inventory income, out, move, sale, and sale return, use "Олон бараа нэмэх" and verify one journal-specific bulk lookup fills every selected row with count one plus matching amount/weight/follow values; then change one row's product, including back to its initial product, and verify only that row's fill values refresh.
 - Smoke scenario: in inventory income and internal movement, verify only the source unit appears as a split-related table column, open each row's leading action sheet, enable "Задлах эсэх", select result products, enter ratios, verify result units appear in the sheet, confirm `TBalance` shows linked `invOut` and `invIncome` rows with unchanged total cost and converted count/unit price, then save, refetch, edit, disable one split, and verify follow rows update immediately.

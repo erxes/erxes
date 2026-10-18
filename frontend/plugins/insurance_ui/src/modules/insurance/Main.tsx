@@ -1,4 +1,11 @@
+import { PluginSettingsRoutes } from 'ui-modules';
 import { lazy, Suspense } from 'react';
+import { AppLayout, Spinner } from 'erxes-ui';
+import {
+  InsuranceSidebar,
+  InsuranceSettingsLayout,
+  InsuranceSidebarFooter,
+} from '~/Sidebar';
 import { Route, Routes } from 'react-router';
 
 const IndexPage = lazy(() =>
@@ -103,42 +110,83 @@ const ContractTemplatesPage = lazy(() =>
  */
 const insuranceMain = () => {
   return (
-    <Suspense
-      fallback={
-        <div className="flex items-center justify-center h-screen">
-          <div className="flex flex-col items-center gap-4">
-            <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-            <p className="text-sm text-muted-foreground">Loading...</p>
-          </div>
-        </div>
-      }
+    <AppLayout
+      id="insurance"
+      title="Insurance"
+      sidebar={<InsuranceSidebar />}
+      footer={<InsuranceSidebarFooter />}
     >
-      <Routes>
-        <Route path="/vendors" element={<VendorsPage />} />
-        <Route path="/vendors/:id" element={<VendorDetailPage />} />
-        <Route path="/vendor-users" element={<VendorUsersPage />} />
-        <Route path="/products" element={<ProductsPage />} />
-        <Route path="/risks" element={<RiskTypesPage />} />
-        <Route path="/types" element={<InsuranceTypesPage />} />
-        <Route path="/contracts" element={<ContractsPage />} />
-        <Route path="/contracts/:id" element={<ContractDetailPage />} />
-        <Route path="/contracts/:id/pdf" element={<ContractPdfEditorPage />} />
-        <Route path="/contract-templates" element={<ContractTemplatesPage />} />
-        <Route
-          path="/contract-templates/:id/edit"
-          element={<ContractTemplateEditorPage />}
-        />
-        <Route
-          path="/contract-templates/:id/preview"
-          element={<ContractTemplateEditorPage />}
-        />
-        <Route path="/customers" element={<CustomersPage />} />
-        <Route path="/car-insurance" element={<CarInsurancePage />} />
-        <Route path="/citizen-insurance" element={<CitizenInsurancePage />} />
-        <Route path="/regions" element={<RegionsPage />} />
-      </Routes>
-    </Suspense>
+      <Suspense
+        fallback={
+          <div className="flex items-center justify-center h-screen">
+            <div className="flex flex-col items-center gap-4">
+              <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+              <p className="text-sm text-muted-foreground">Loading...</p>
+            </div>
+          </div>
+        }
+      >
+        <Routes>
+          <Route path="/vendors" element={<VendorsPage />} />
+          <Route path="/vendors/:id" element={<VendorDetailPage />} />
+          <Route path="/vendor-users" element={<VendorUsersPage />} />
+          <Route path="/products" element={<ProductsPage />} />
+          <Route path="/risks" element={<RiskTypesPage />} />
+          <Route path="/types" element={<InsuranceTypesPage />} />
+          <Route path="/contracts" element={<ContractsPage />} />
+          <Route path="/contracts/:id" element={<ContractDetailPage />} />
+          <Route
+            path="/contracts/:id/pdf"
+            element={<ContractPdfEditorPage />}
+          />
+          <Route
+            path="/contract-templates"
+            element={<ContractTemplatesPage />}
+          />
+          <Route
+            path="/contract-templates/:id/edit"
+            element={<ContractTemplateEditorPage />}
+          />
+          <Route
+            path="/contract-templates/:id/preview"
+            element={<ContractTemplateEditorPage />}
+          />
+          <Route path="/customers" element={<CustomersPage />} />
+          <Route path="/car-insurance" element={<CarInsurancePage />} />
+          <Route path="/citizen-insurance" element={<CitizenInsurancePage />} />
+          <Route path="/regions" element={<RegionsPage />} />
+        </Routes>
+      </Suspense>
+    </AppLayout>
   );
 };
 
-export default insuranceMain;
+const InsuranceSettingsRoutes = lazy(
+  () => import('~/modules/insurance/Settings'),
+);
+// JSX needs a capitalised name.
+const InsuranceAppRoutes = insuranceMain;
+
+/** The plugin owns its settings too: `/insurance/settings/*` has its own sidebar. */
+const InsuranceEntry = () => (
+  <Routes>
+    <Route
+      path="settings/*"
+      element={
+        <InsuranceSettingsLayout>
+          <Suspense fallback={<Spinner />}>
+            <PluginSettingsRoutes
+              pluginName="insurance"
+              basePath="/insurance/settings"
+            >
+              <InsuranceSettingsRoutes />
+            </PluginSettingsRoutes>
+          </Suspense>
+        </InsuranceSettingsLayout>
+      }
+    />
+    <Route path="*" element={<InsuranceAppRoutes />} />
+  </Routes>
+);
+
+export default InsuranceEntry;

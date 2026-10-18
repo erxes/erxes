@@ -39,7 +39,7 @@ const invoicesSearchProvider = defineSearchProvider<TInvoiceNode>({
     matchFields: invoice.description
       ? [{ label: 'Description', value: invoice.description }]
       : undefined,
-    path: '/settings/payment/invoices',
+    path: '/payment/invoices',
   }),
 });
 

@@ -15,8 +15,8 @@ export const EBarimtSidebar = () => {
                 key={path}
                 to={
                   path
-                    ? `/settings/mongolian/ebarimt/${path}`
-                    : '/settings/mongolian/ebarimt'
+                    ? `/mongolian/settings/ebarimt/${path}`
+                    : '/mongolian/settings/ebarimt'
                 }
               >
                 {t(label)}

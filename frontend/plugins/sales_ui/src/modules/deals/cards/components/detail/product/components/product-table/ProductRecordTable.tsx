@@ -1,3 +1,4 @@
+import type { DealProductData } from '@/deals/utils/dealJson';
 import {
   branch,
   currency,
@@ -8,13 +9,13 @@ import {
 } from './getProductColumns';
 
 import { ColumnDef } from '@tanstack/table-core';
-import { IProductData } from 'ui-modules';
+
 import { IconShoppingCart } from '@tabler/icons-react';
-import { ProductCommandBar } from '../../product-command-bar/ProductCommandBar';
 import { Empty, RecordTable } from 'erxes-ui';
-import { productColumns } from './ProductColumns';
 import { useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import { ProductCommandBar } from '../../product-command-bar/ProductCommandBar';
+import { productColumns } from './ProductColumns';
 
 const UOM_INFO_COLUMN_IDS = [
   'uomInfo.uom',
@@ -58,7 +59,7 @@ export const ProductsRecordTable = ({
   showTaxView,
   hasProductFilters,
 }: {
-  products: IProductData[];
+  products: DealProductData[];
   refetch: () => void;
   showAdvancedView: boolean;
   showTaxView: boolean;
@@ -66,7 +67,7 @@ export const ProductsRecordTable = ({
 }) => {
   const { t } = useTranslation('sales');
 
-  const columns = useMemo<ColumnDef<IProductData>[]>(() => {
+  const columns = useMemo<ColumnDef<DealProductData>[]>(() => {
     const baseColumns = productColumns(t).filter(
       (column) =>
         (showTaxView || column.id !== 'isVatApplied') &&

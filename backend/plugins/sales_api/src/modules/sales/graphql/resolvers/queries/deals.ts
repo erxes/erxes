@@ -145,7 +145,7 @@ const getDealIdsByCustomerPhone = async (
     return [];
   }
 
-  const phonePattern = phoneDigits.split('').join('\\D*');
+  const phonePattern = escapeRegExp(phoneDigits).split('').join('\\D*');
   const customers: Array<{ _id: unknown }> = await sendTRPCMessage({
     subdomain,
     pluginName: 'core',
@@ -155,7 +155,9 @@ const getDealIdsByCustomerPhone = async (
     input: {
       query: {
         $or: [
+          // eslint-disable-next-line no-restricted-syntax -- Escaped digits plus fixed \D* separators preserve formatted-phone matching.
           { primaryPhone: { $regex: phonePattern } },
+          // eslint-disable-next-line no-restricted-syntax -- Same escaped-digit pattern as primaryPhone above.
           { phones: { $regex: phonePattern } },
         ],
       },
@@ -453,15 +455,14 @@ export const generateFilter = async (
   }
 
   if (search) {
-    const escaped = escapeRegExp(search);
     const customerDealIds = await getDealIdsByCustomerPhone(subdomain, search);
     const createdAtFilter = getCreatedAtSearchFilter(search);
 
     Object.assign(filter, {
       $or: [
-        { name: { $regex: escaped, $options: 'i' } },
-        { number: { $regex: escaped, $options: 'i' } },
-        { description: { $regex: escaped, $options: 'i' } },
+        { name: { $regex: escapeRegExp(search), $options: 'i' } },
+        { number: { $regex: escapeRegExp(search), $options: 'i' } },
+        { description: { $regex: escapeRegExp(search), $options: 'i' } },
         ...(customerDealIds.length ? [{ _id: { $in: customerDealIds } }] : []),
         ...(createdAtFilter ? [createdAtFilter] : []),
       ],

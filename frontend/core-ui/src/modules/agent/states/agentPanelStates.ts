@@ -8,7 +8,7 @@ import {
 
 /**
  * Docked AI chat side panel: open flag and last width persist across
- * sessions. The panel renders inside `NavigationWorkspace` so the page
+ * sessions. The panel renders inside `AppWorkspace` so the page
  * stays usable while chatting.
  */
 export const agentSidePanelOpenState = atomWithStorage<boolean>(
@@ -24,6 +24,8 @@ export const agentSidePanelWidthState = atomWithStorage<number>(
   undefined,
   { getOnInit: true },
 );
+
+export const agentSidePanelResizingState = atom(false);
 
 export const AGENT_SIDE_PANEL_MIN_WIDTH = 360;
 export const AGENT_SIDE_PANEL_MAX_WIDTH = 720;
