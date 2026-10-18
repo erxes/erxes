@@ -462,8 +462,8 @@
     "view-all": "Open inbox",
     "installed-plugins": "Your plugins",
     "plugins-empty": "No plugins yet — once your workspace adds some, they'll show up here.",
-    "core-modules": "Your tools",
-    "core-modules-empty": "You don't have access to any tools yet. Ask an admin to give you access.",
+    "core-modules": "Core modules",
+    "core-modules-empty": "You don't have access to any core modules yet. Ask an admin to give you access.",
     "subtitle": "Here's what's waiting for you today."
   }
 }
