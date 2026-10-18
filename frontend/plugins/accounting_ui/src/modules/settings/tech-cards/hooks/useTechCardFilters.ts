@@ -51,9 +51,8 @@ export const useTechCardFilters = (
 
 export const parseTechCardBooleanFilter = (
   value?: string | boolean | null,
-): boolean | undefined =>
-  value === true || value === 'true'
-    ? true
-    : value === false || value === 'false'
-    ? false
-    : undefined;
+): boolean | undefined => {
+  if (value === true || value === 'true') return true;
+  if (value === false || value === 'false') return false;
+  return undefined;
+};

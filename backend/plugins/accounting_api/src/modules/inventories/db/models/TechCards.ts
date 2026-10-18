@@ -129,9 +129,11 @@ export const loadTechCardClass = (models: IModels) => {
         accountIds.add(accountId);
       }
     }
-    for (const _id of accountIds) {
-      await models.Accounts.getAccount({ _id, status: 'active' });
-    }
+    await Promise.all(
+      Array.from(accountIds, (_id) =>
+        models.Accounts.getAccount({ _id, status: 'active' }),
+      ),
+    );
     return costs;
   };
 

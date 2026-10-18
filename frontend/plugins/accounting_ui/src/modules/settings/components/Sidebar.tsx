@@ -18,11 +18,14 @@ export const AccountingSidebar = () => {
   const isFixedAssetSettings = pathname.startsWith(
     '/settings/accounting/fixed-assets',
   );
-  const routes = isFixedAssetSettings
-    ? FIXED_ASSET_SETTINGS_ROUTES
-    : pathname.startsWith('/settings/accounting/inventories')
+  const accountingRoutes = pathname.startsWith(
+    '/settings/accounting/inventories',
+  )
     ? INVENTORY_SETTINGS_ROUTES
     : SETTINGS_ROUTES;
+  const routes = isFixedAssetSettings
+    ? FIXED_ASSET_SETTINGS_ROUTES
+    : accountingRoutes;
 
   return (
     <Sidebar.Panel

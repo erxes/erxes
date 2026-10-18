@@ -79,17 +79,17 @@ const getTechCardColumns = (
     id: 'duration',
     accessorKey: 'duration',
     header: () => <RecordTable.InlineHead label={t('tech-card-duration')} />,
-    cell: ({ row }) => (
-      <RecordTableInlineCell>
-        {row.original.durationType === 'real'
+    cell: ({ row }) => {
+      const { duration, durationType } = row.original;
+      const unitLabel = durationType
+        ? t(`tech-card-duration-${durationType}`)
+        : '';
+      const durationLabel =
+        durationType === 'real'
           ? t('tech-card-duration-real')
-          : `${row.original.duration ?? '-'} ${
-              row.original.durationType
-                ? t(`tech-card-duration-${row.original.durationType}`)
-                : ''
-            }`}
-      </RecordTableInlineCell>
-    ),
+          : `${duration ?? '-'} ${unitLabel}`;
+      return <RecordTableInlineCell>{durationLabel}</RecordTableInlineCell>;
+    },
     size: 150,
   },
   {

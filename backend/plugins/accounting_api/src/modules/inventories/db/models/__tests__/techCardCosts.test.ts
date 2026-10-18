@@ -110,6 +110,35 @@ test('a missing or inactive account prevents persistence', async () => {
   expect(create).not.toHaveBeenCalled();
 });
 
+test('independent account reads start together and all finish before persistence', async () => {
+  const { statics, create, getAccount } = setup();
+  const complete: (() => void)[] = [];
+  getAccount.mockImplementation(
+    () =>
+      new Promise<void>((resolve) => {
+        complete.push(resolve);
+      }),
+  );
+  const saving = statics.createTechCard(
+    {
+      ...baseCard,
+      laborCosts: [{ name: 'Assembly', amount: 100, accountId: 'labor' }],
+      overheadCosts: [
+        { name: 'Electricity', amount: 200, accountId: 'overhead' },
+      ],
+    },
+    'user',
+  );
+  expect(getAccount).toHaveBeenCalledTimes(2);
+  expect(create).not.toHaveBeenCalled();
+  complete[0]();
+  await Promise.resolve();
+  expect(create).not.toHaveBeenCalled();
+  complete[1]();
+  await saving;
+  expect(create).toHaveBeenCalledTimes(1);
+});
+
 test('cost rows require a name', async () => {
   const { statics, create } = setup();
   await expect(
