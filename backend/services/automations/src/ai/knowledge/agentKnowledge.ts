@@ -4,7 +4,10 @@ import type { IKnowledgeChunkDocument } from '../../mongo/knowledgeChunk';
 import type { TAiAgentInput } from '../aiAgent';
 import { fitChunksWithinBytes, retrieveAiKnowledgeChunks } from './retrieve';
 import { loadAiKnowledgeRouteHints } from './routes';
-import { mapSharedKnowledgeDocumentToChunk } from './runtime';
+import {
+  mapSharedKnowledgeDocumentToChunk,
+  searchAiAgentKnowledge,
+} from './runtime';
 import {
   AI_AGENT_FILE_KNOWLEDGE_SOURCE_TYPE,
   getKnowledgeSourceIdentity,
@@ -331,4 +334,43 @@ export const searchAiAgentKnowledgeSection = async ({
   return ranked.length
     ? ranked
     : fitChunksWithinBytes(chunks, SECTION_RESULT_MAX_BYTES).chunks;
+};
+
+// Section names are written by the organization and need not say what they
+// hold, so a chosen section only ranks its passages higher: the query is
+// matched against the whole knowledge and a misleading name cannot hide it.
+export const searchAiAgentKnowledgeByQuery = async ({
+  models,
+  agentId,
+  agent,
+  query,
+  sections,
+  chunkIds,
+}: {
+  models: IModels;
+  agentId: string;
+  agent: TAiAgentInput;
+  query: string;
+  sections: string[];
+  chunkIds: string[];
+}) => {
+  const sectionDocs = chunkIds.length
+    ? await models.KnowledgeChunks.find(
+        { _id: { $in: chunkIds } },
+        { embedding: 0 },
+      ).lean<IKnowledgeChunkDocument[]>()
+    : [];
+
+  return searchAiAgentKnowledge({
+    models,
+    agentId,
+    agent,
+    searchText: query,
+    keywords: sections,
+    extraCandidates: sectionDocs.map(mapSharedKnowledgeDocumentToChunk),
+    limits: {
+      topK: SECTION_RESULT_TOP_K,
+      maxContextBytes: SECTION_RESULT_MAX_BYTES,
+    },
+  });
 };

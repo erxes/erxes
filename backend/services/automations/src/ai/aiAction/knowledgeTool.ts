@@ -2,6 +2,7 @@ import type { IModels } from '../../connectionResolver';
 import type { TAiAgentInput } from '../aiAgent';
 import {
   searchAiAgentKnowledge,
+  searchAiAgentKnowledgeByQuery,
   searchAiAgentKnowledgeSection,
   toPublicKnowledgeTitle,
   type TAiAgentKnowledge,
@@ -13,17 +14,17 @@ export const AI_KNOWLEDGE_TOOL_NAME = 'search_knowledge';
 
 export const AI_KNOWLEDGE_EMPTY_RESULT = 'No passages found.';
 
-const MAX_TOOL_RESULT_CONTENT_CHARS = 2000;
-
 const TOOL_DESCRIPTION = [
-  "Read the organization's knowledge and return the passages of the chosen sections.",
-  'Pick every section from the knowledge index given in the instructions that could hold the answer, exactly as written there — section names may be in another language than the customer’s words.',
-  'Add a query only to narrow a large section, using the words the index itself uses — that is the language the knowledge is written in, which may differ from the customer’s.',
+  "Search the organization's knowledge and return the passages that match.",
+  'Put in query the words that name what the customer asks about — a product or model name, a place, a policy or topic — as the knowledge would write them; the knowledge may be in another language than the customer’s words, so add those words too.',
+  'The query is matched against the whole knowledge. Sections from the knowledge index are optional: passages inside them rank higher.',
+  'To read a whole section, for example to list what it offers, give the section without a query.',
   'An empty result means the knowledge does not contain it — say so instead of guessing.',
 ].join(' ');
 
-// Only a knowledge too large for the prompt is searched; the model chooses the
-// section from the index, so a question in any language finds its passages.
+// Only a knowledge too large for the prompt is searched. The query finds the
+// passages; the index's sections only rank them, since a name need not say
+// what it holds.
 export const buildAiKnowledgeTool = ({
   models,
   agentId,
@@ -51,15 +52,16 @@ export const buildAiKnowledgeTool = ({
           sections: {
             type: 'array',
             items: { type: 'string', enum: knowledge.sections },
-            description: 'The knowledge sections to read.',
+            description:
+              'Optional sections to rank first, or to read whole when there is no query.',
           },
           query: {
             type: 'string',
             description:
-              'Optional keywords, in the language of the knowledge index.',
+              'Words that name what is asked about, in the language of the knowledge and the customer.',
           },
         },
-        required: ['sections'],
+        required: [],
       },
     },
     execute: async (args) => {
@@ -78,13 +80,22 @@ export const buildAiKnowledgeTool = ({
       ];
       // Unknown sections still get a whole-knowledge keyword search rather
       // than a hard failure the model would answer around.
-      const chunks = chunkIds.length
+      const chunks = query.trim()
+        ? await searchAiAgentKnowledgeByQuery({
+            models,
+            agentId,
+            agent,
+            query,
+            sections,
+            chunkIds,
+          })
+        : chunkIds.length
         ? await searchAiAgentKnowledgeSection({ models, chunkIds, query })
         : await searchAiAgentKnowledge({
             models,
             agentId,
             agent,
-            searchText: [...sections, query].filter(Boolean).join(' '),
+            searchText: sections.join(' '),
           });
 
       if (!chunks.length) {
@@ -100,10 +111,7 @@ export const buildAiKnowledgeTool = ({
             toPublicKnowledgeTitle(chunk.fileName);
           const heading = [title, chunk.sourceUrl].filter(Boolean).join(' — ');
 
-          return [
-            heading ? `[${heading}]` : '',
-            chunk.content.slice(0, MAX_TOOL_RESULT_CONTENT_CHARS),
-          ]
+          return [heading ? `[${heading}]` : '', chunk.content]
             .filter(Boolean)
             .join('\n');
         })

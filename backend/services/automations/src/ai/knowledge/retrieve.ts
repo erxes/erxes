@@ -16,6 +16,27 @@ import {
 const DEFAULT_TOP_K = 5;
 const DEFAULT_MAX_CONTEXT_BYTES = 8000;
 
+const buildTermWeights = (chunks: TAiKnowledgeChunk[], terms: string[]) => {
+  const texts = chunks.map((chunk) =>
+    normalizeKnowledgeText(
+      [
+        chunk.title || '',
+        chunk.content,
+        ...chunk.keywords,
+        ...chunk.headingPath,
+      ].join(' '),
+    ),
+  );
+
+  return new Map(
+    terms.map((term) => {
+      const count = texts.filter((text) => text.includes(term)).length;
+
+      return [term, Math.log(1 + texts.length / Math.max(count, 1))];
+    }),
+  );
+};
+
 export const fitChunksWithinBytes = (
   chunks: TAiKnowledgeChunk[],
   maxContextBytes: number,
@@ -94,9 +115,10 @@ export const retrieveAiKnowledgeChunks = ({
         }))
     : [];
 
-  const scored = chunks
-    .filter((chunk) => chunk.priority !== 'always')
-    .map((chunk) => scoreAiKnowledgeChunk(chunk, fullQuery))
+  const rankedChunks = chunks.filter((chunk) => chunk.priority !== 'always');
+  const termWeights = buildTermWeights(rankedChunks, terms);
+  const scored = rankedChunks
+    .map((chunk) => scoreAiKnowledgeChunk(chunk, fullQuery, termWeights))
     .filter((item) => item.matchScore >= minScore)
     .sort((a, b) => b.score - a.score);
 
