@@ -137,6 +137,16 @@ export type IUIConfig = {
     name: string;
     defaultPath?: string;
     icon: React.ElementType;
+    /**
+     * @deprecated Ignored by core-ui since 3.2.25: a plugin draws its own
+     * sidebar by wrapping its routed entry in `AppLayout`. Kept so existing
+     * configs still type-check; it will be removed in a later minor release.
+     */
+    content?: () => React.ReactNode;
+    /**
+     * @deprecated Ignored by core-ui since 3.2.25; see `content`.
+     */
+    subGroup?: () => React.ReactNode;
   };
 
   widgets?: {

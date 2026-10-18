@@ -5,7 +5,7 @@ import {
   IconLayoutSidebarLeftExpand,
   IconMenu2,
 } from '@tabler/icons-react';
-import { type PrimitiveAtom, useAtom } from 'jotai';
+import { useAtom } from 'jotai';
 
 import { Button } from 'erxes-ui/components/button';
 import { Separator } from 'erxes-ui/components/separator';
@@ -19,9 +19,21 @@ const APP_LAYOUT_MIN_WIDTH = 180;
 const APP_LAYOUT_MAX_WIDTH = 480;
 const APP_LAYOUT_KEYBOARD_STEP = 16;
 
+const createOpenAtom = (id: string) =>
+  atomWithStorage<boolean>(`app-layout:${id}:open`, true, undefined, {
+    getOnInit: true,
+  });
+
+const createWidthAtom = (id: string) =>
+  atomWithStorage<number | null>(`app-layout:${id}:width`, null, undefined, {
+    getOnInit: true,
+  });
+
+// Derived from the factories so the type matches under every tsconfig
+// (the declaration build is non-strict, which widens atomWithStorage).
 type TAppLayoutAtoms = {
-  open: PrimitiveAtom<boolean>;
-  width: PrimitiveAtom<number | null>;
+  open: ReturnType<typeof createOpenAtom>;
+  width: ReturnType<typeof createWidthAtom>;
 };
 
 const appLayoutAtoms = new Map<string, TAppLayoutAtoms>();
@@ -34,15 +46,8 @@ const getAppLayoutAtoms = (id: string) => {
   }
 
   const atoms: TAppLayoutAtoms = {
-    open: atomWithStorage<boolean>(`app-layout:${id}:open`, true, undefined, {
-      getOnInit: true,
-    }),
-    width: atomWithStorage<number | null>(
-      `app-layout:${id}:width`,
-      null,
-      undefined,
-      { getOnInit: true },
-    ),
+    open: createOpenAtom(id),
+    width: createWidthAtom(id),
   };
 
   appLayoutAtoms.set(id, atoms);
