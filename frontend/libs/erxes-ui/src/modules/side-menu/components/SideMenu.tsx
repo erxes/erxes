@@ -91,7 +91,7 @@ export const SideMenuSidebar = forwardRef<
     <Tabs.List
       ref={ref}
       className={cn(
-        'w-16 flex-none border-l bg-sidebar h-full py-2 flex flex-col items-center justify-start gap-1.5',
+        'w-12 flex-none border-l bg-sidebar h-full py-3 flex flex-col items-center justify-start gap-3',
         className,
       )}
       {...props}
@@ -115,7 +115,7 @@ export const SideMenuTrigger = forwardRef<
       <Tabs.Trigger
         ref={ref}
         className={cn(
-          'size-8 bg-sidebar data-[state=active]:bg-primary/10 data-[state=active]:text-foreground data-[state=active]:shadow-none [&_svg]:size-4 data-[state=active]:after:hidden [&_svg]:text-primary hover:bg-primary/10 data-[state=active]:hover:bg-primary/10 rounded',
+          'size-10 bg-sidebar data-[state=active]:bg-primary/10 data-[state=active]:text-foreground data-[state=active]:shadow-none [&_svg]:size-5 data-[state=active]:after:hidden [&_svg]:text-primary hover:bg-primary/10 data-[state=active]:hover:bg-primary/10 rounded',
           className,
         )}
         onClick={(e) => {
@@ -126,7 +126,7 @@ export const SideMenuTrigger = forwardRef<
         asChild
       >
         <Tooltip.Trigger>
-          {!!Icon && <Icon className="size-4 flex-none" />}
+          {!!Icon && <Icon className="size-5 flex-none" />}
         </Tooltip.Trigger>
       </Tabs.Trigger>
 

@@ -237,7 +237,7 @@ const FocusSheetSideTabsList = forwardRef<
     <Tabs.List
       ref={ref}
       className={cn(
-        'w-16 flex-none border-l bg-sidebar h-full py-2 flex flex-col items-center justify-start gap-1.5 border-b-0',
+        'w-12 flex-none border-l bg-sidebar h-full py-3 flex flex-col items-center justify-start gap-3 border-b-0',
         className,
       )}
       {...props}
@@ -263,7 +263,7 @@ const FocusSheetSideTabsTrigger = forwardRef<
         <Tabs.Trigger
           ref={ref}
           className={cn(
-            'size-8 bg-sidebar data-[state=active]:bg-primary/10 data-[state=active]:text-foreground data-[state=active]:shadow-none [&_svg]:size-4 data-[state=active]:after:hidden [&_svg]:text-primary hover:bg-primary/10 data-[state=active]:hover:bg-primary/10 rounded group/side-tabs-trigger',
+            'size-10 bg-sidebar data-[state=active]:bg-primary/10 data-[state=active]:text-foreground data-[state=active]:shadow-none [&_svg]:size-5 data-[state=active]:after:hidden [&_svg]:text-primary hover:bg-primary/10 data-[state=active]:hover:bg-primary/10 rounded group/side-tabs-trigger',
             className,
           )}
           value={value}
@@ -276,14 +276,14 @@ const FocusSheetSideTabsTrigger = forwardRef<
           {!!Icon && (
             <Icon
               className={cn(
-                'size-4 flex-none',
+                'size-5 flex-none',
                 activeSideTab === value &&
                   'group-hover/side-tabs-trigger:hidden',
               )}
             />
           )}
           {activeSideTab === value && (
-            <IconX className="size-4 flex-none hidden group-hover/side-tabs-trigger:block" />
+            <IconX className="size-5 flex-none hidden group-hover/side-tabs-trigger:block" />
           )}
         </Tabs.Trigger>
       </Tooltip.Trigger>
