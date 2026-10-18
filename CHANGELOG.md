@@ -1,5 +1,24 @@
 
 
+## [3.3.2](https://github.com/erxes/erxes/compare/3.3.1...3.3.2) (2026-10-18)
+
+
+### Reverts
+
+* revert sidebar icon width ([44e00cd](https://github.com/erxes/erxes/commit/44e00cd22685d94ef9afb885045d57546c427e0e))
+
+## [3.3.1](https://github.com/erxes/erxes/compare/3.3.0...3.3.1) (2026-10-18)
+
+
+### Bug Fixes
+
+* sales deal detail ([179520b](https://github.com/erxes/erxes/commit/179520b71efbf6e135727da8c137161968ac959d))
+
+
+### Features
+
+* change breadcrumbs height and top navigation bar style ([82e8b94](https://github.com/erxes/erxes/commit/82e8b948e01eaa10cbd2d1dcf148fcfde260a9f5))
+
 # [3.3.0](https://github.com/erxes/erxes/compare/3.2.25...3.3.0) (2026-10-18)
 
 

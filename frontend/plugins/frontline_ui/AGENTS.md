@@ -88,6 +88,18 @@
 
 ## Current Capabilities
 
+- AI knowledge source selector (`widgets/automations/modules/knowledgebase`):
+  a topic/category tree above the article list. Checking a topic or category
+  sends `config.topicIds` / `config.categoryIds` (hand-picked articles move to
+  `config.articleIds`) so the source is indexed whole and filtered, including
+  articles filed there later; with no rule, articles stay plain source ids.
+- Ticket automation forms: **Create ticket** has an attachments (conversation
+  media ids) field.
+- Ticket and note attachments group by type prefix, so bare conversation types
+  (`image`, `audio`, `file`) render like MIME types; audio plays inline. Media
+  at an external URL (not `read-file`) — what a customer sent — stays covered
+  as "Sent by customer · not reviewed" until someone chooses to show it.
+
 - Telegram setup derives its public address from `REACT_APP_API_URL` and the
   existing `/pl:frontline` gateway route. Local/non-public API addresses require
   an explicit HTTPS tunnel; custom deployments can override the address.
@@ -610,7 +622,7 @@ owns the setup form and connection actions.
 
 | Area                      | Path                                                                                                                                              | Responsibility                                                                                                                                  |
 | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| App sidebar | `frontend/plugins/frontline_ui/src/Sidebar.tsx` | `FrontlineSidebar` (app sidebar) and `FrontlineSidebarFooter` (Settings link), rendered by the `./frontline` entry through `AppLayout` |
+| App sidebar               | `frontend/plugins/frontline_ui/src/Sidebar.tsx`                                                                                                   | `FrontlineSidebar` (app sidebar) and `FrontlineSidebarFooter` (Settings link), rendered by the `./frontline` entry through `AppLayout`          |
 | Host registration         | `src/config.tsx`                                                                                                                                  | `CONFIG` — navigation, settings, widgets, property inputs, routes, and Module Federation exposes                                                |
 | Federation                | `module-federation.config.ts`                                                                                                                     | Remote name `frontline_ui` and its exposes                                                                                                      |
 | GraphQL codegen           | `codegen.ts`, `schema/platform.graphql`                                                                                                           | Generates `src/gql/` (gitignored) from the printed `frontline_api` schema and the core snapshot                                                 |
@@ -982,6 +994,11 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
   state and deliberately not persisted.
 
 ## Local Invariants
+
+- Customer media is recognised by its URL (`isUnverifiedAttachment` in
+  `ticket/hooks/useUnverifiedAttachments.ts`): uploads here are storage keys
+  read through `read-file`; anything else came from a conversation and is
+  covered until revealed. Never autoplay it.
 
 - The plugin owns its whole app sidebar. `src/modules/FrontlineMain.tsx` (the `./frontline`
   expose) wraps its routes in `erxes-ui` `AppLayout` (`id="frontline"`) with
@@ -2480,6 +2497,7 @@ null }`, fall back to the route pipeline and skip without one; never pass
 - The Facebook message-trigger condition schema is one flat object keyed by a
   `type` enum, not a discriminated union, so its derived types index the fields
   directly; `Extract<..., { type: ... }>` on it collapses to `never`.
+- `Sheet.Header` is a fixed 40px row. A header with a visible second line (subtitle, record number, description) adds `h-auto py-2` so it sizes to its content; detail-page title rows are `h-10`, level with `PageHeader`.
 
 ## Validation
 
@@ -2616,3 +2634,45 @@ null }`, fall back to the route pipeline and skip without one; never pass
   open a Call Pro conversation — the recording plays, and a conversation with
   several candidates shows the picker until a customer is chosen, after which
   the picker is replaced by the confirm/switch control without a reload.
+  <<<<<<< HEAD
+
+## Recent Changes
+
+<!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-10-16` — Knowledge scope tree and ticket media
+
+- **Summary:** Topic/category scope for the AI knowledge base source, attachments on the Create ticket action, audio and non-MIME ticket attachments, and covered customer media.
+- **Affected areas:** `widgets/automations/modules/{knowledgebase,ticket}`, `ticket/components/attachments`, `activity/components/NoteInputReadOnly.tsx`.
+- **Contracts changed:** New GraphQL operation `frontlineAiKnowledgeTopics`; knowledge source config keys `topicIds`, `categoryIds`, `articleIds`.
+
+### `2026-10-06` — Telegram metadata promise handling
+
+- **Summary:** Handles chat-label loader promises explicitly while preserving failure fallbacks and later recovery.
+- **Affected areas:** `useTelegramChats.ts` and chat-label regression tests.
+- **Contracts changed:** None.
+
+### `2026-10-06` — Telegram setup recovery and attachment guards
+
+- **Summary:** Recovers setup after interrupted responses, validates cumulative attachment sizes and tightens Telegram rendering hygiene.
+- **Affected areas:** Telegram setup/media presentation, inbox attachment hook, documentation and regression tests.
+- **Contracts changed:** None; uses existing bot queries, upload callbacks and inbox contracts.
+
+### `2026-10-06` — Telegram review fixes
+
+- **Summary:** Keeps disconnect usable with revoked tokens, explains unconfirmed webhook cleanup and avoids repeated URL suffix scans.
+- **Affected areas:** Telegram setup, translations, link rendering, webhook URL helper and regression tests.
+- **Contracts changed:** Consumes `telegramDisconnectBot` Boolean as provider-cleanup confirmation after local deactivation.
+
+### `2026-10-06` — Telegram config entry and automatic setup defaults
+
+- **Summary:** Adds Telegram guidance to Integrations config and derives production webhook addresses and connection names while retaining local/custom overrides.
+- **Affected areas:** `src/pages/IntegrationConfigPage.tsx`, Telegram setup/config components, webhook URL helper/tests and plugin-owned translations.
+- **Contracts changed:** None; existing routes and per-bot setup are reused.
+
+### `2026-10-06` — Telegram on the native composer and message components
+
+- **Summary:** Integrates Telegram setup and message presentation using the current inbox composer, replies and attachment renderer.
+- **Affected areas:** `src/modules/integrations/telegram`, inbox provider metadata, composer hooks, message actions and integration menus.
+- # **Contracts changed:** Adds the Telegram integration kind and optional message metadata; consumes the existing canonical reply mutation with Telegram provider IDs.
+  > > > > > > > b5737b8f9a6f3d229cf63081569bfebc7196a29c

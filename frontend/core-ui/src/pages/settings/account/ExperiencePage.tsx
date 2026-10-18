@@ -8,7 +8,7 @@ export const SettingsExperiencePage = () => {
   const { t } = useTranslation('common', { keyPrefix: 'sidebar' });
   return (
     <section className="mx-auto max-w-2xl w-full">
-      <div className="px-4 h-16 flex items-center">
+      <div className="px-4 h-10 flex items-center">
         <SettingsBreadcrumbs />
       </div>
       <h2 className="font-semibold text-lg mt-4 mb-12 px-4">

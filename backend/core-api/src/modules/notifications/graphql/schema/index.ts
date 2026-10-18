@@ -116,6 +116,7 @@ export const types = `
 
     suppressedAt: Date
     suppressionReason: String
+    screenReason: String
     suppressedBy: String
 
     releasedAt: Date

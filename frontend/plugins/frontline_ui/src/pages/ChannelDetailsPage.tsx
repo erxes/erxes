@@ -11,7 +11,7 @@ export const ChannelDetailsPage = () => {
   return (
     <ScrollArea className="flex-1">
       <div className="h-full flex flex-col">
-        <div className="px-4 h-16 flex items-center shrink-0">
+        <div className="px-4 h-10 flex items-center shrink-0">
           <Breadcrumb>
             <Breadcrumb.List>
               <Breadcrumb.Item>

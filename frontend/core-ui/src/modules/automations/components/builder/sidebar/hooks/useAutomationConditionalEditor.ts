@@ -1,3 +1,4 @@
+import { arrayMove } from '@dnd-kit/sortable';
 import { TAutomationConditional, TAutomationConditionalRow } from 'ui-modules';
 import {
   createEmptyConditionalRow,
@@ -25,18 +26,8 @@ export const useAutomationConditionalEditor = ({
   const removeRow = (rowId: string) =>
     setRows(rows.filter((row) => row.id !== rowId));
 
-  const moveRow = (rowId: string, direction: -1 | 1) => {
-    const index = rows.findIndex((row) => row.id === rowId);
-    const target = index + direction;
-
-    if (index === -1 || target < 0 || target >= rows.length) {
-      return;
-    }
-
-    const next = [...rows];
-    [next[index], next[target]] = [next[target], next[index]];
-    setRows(next);
-  };
+  const reorderRows = (from: number, to: number) =>
+    setRows(arrayMove(rows, from, to));
 
   const updateRow = (
     rowId: string,
@@ -51,7 +42,7 @@ export const useAutomationConditionalEditor = ({
     rows,
     addRow,
     removeRow,
-    moveRow,
+    reorderRows,
     updateRow,
     updateOtherwise,
     errors: validateAutomationConditional(conditional),

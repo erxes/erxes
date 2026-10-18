@@ -927,6 +927,26 @@ const getAutomationBaseType = (type: string) => {
     : `${pluginName}:${moduleName}`;
 };
 
+// The record an earlier action produced or found: Create returns targetId,
+// Find object returns objectId and the object itself.
+const getTargetActionRecord = (
+  execution: IPropertyProps<unknown>['execution'],
+  targetActionId: string,
+) => {
+  const result = (execution.actions || []).find(
+    ({ actionId }) => actionId === targetActionId,
+  )?.result as
+    | { targetId?: unknown; objectId?: unknown; object?: unknown }
+    | undefined;
+  const object =
+    result?.object && typeof result.object === 'object'
+      ? (result.object as Record<string, unknown>)
+      : {};
+  const id = result?.objectId ?? result?.targetId ?? object._id;
+
+  return { id: id == null ? '' : String(id), object };
+};
+
 export const getSetPropertySelector = async ({
   subdomain,
   module,
@@ -934,6 +954,7 @@ export const getSetPropertySelector = async ({
   targetType,
   relation,
   targetPath,
+  targetActionId,
 }: {
   subdomain: string;
   module: string;
@@ -944,9 +965,17 @@ export const getSetPropertySelector = async ({
     relatedContentType: string;
   };
   targetPath?: string;
+  // Set when the action's target is an earlier action's record, not the
+  // trigger's: the record's id has to come from that action, not the trigger.
+  targetActionId?: string;
 }) => {
-  const target = execution.target || {};
-  const targetId = String(execution.targetId || target._id || '');
+  const actionRecord = targetActionId
+    ? getTargetActionRecord(execution, targetActionId)
+    : undefined;
+  const target = actionRecord ? actionRecord.object : execution.target || {};
+  const targetId = actionRecord
+    ? actionRecord.id
+    : String(execution.targetId || target._id || '');
 
   if (targetPath) {
     const { found, value } = getValueByPath(target, targetPath);

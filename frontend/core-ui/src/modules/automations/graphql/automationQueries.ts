@@ -136,6 +136,19 @@ export const AUTOMATIONS_MAIN_LIST = gql`
   }
 `;
 
+export const AUTOMATIONS_SWITCHER_LIST = gql`
+  query AutomationsSwitcherList(${AUTOMATION_MAIN_LIST_PARAMS}) {
+    automationsMain(${AUTOMATION_MAIN_LIST_PARAMS_DEFS}) {
+      list {
+        _id
+        name
+        status
+      }
+      ${GQL_PAGE_INFO}
+    }
+  }
+`;
+
 export const AUTOMATION_HISTORIES = gql`
   query AutomationHistories(${AUTOMATION_HISTORIES_PARAMS}) {
     automationHistories(${AUTOMATION_HISTORIES_PARAMS_DEFS}) {

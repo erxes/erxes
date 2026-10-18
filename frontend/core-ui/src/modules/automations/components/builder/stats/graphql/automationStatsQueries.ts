@@ -51,3 +51,38 @@ export const AUTOMATION_STATS = gql`
     }
   }
 `;
+
+export const AUTOMATION_ACTIVITY = gql`
+  query AutomationActivity(
+    $automationId: String!
+    $beginDate: Date!
+    $endDate: Date!
+    $buckets: Int!
+    $actionId: String
+  ) {
+    automationActivity(
+      automationId: $automationId
+      beginDate: $beginDate
+      endDate: $endDate
+      buckets: $buckets
+      actionId: $actionId
+    ) {
+      bucketMs
+      traces {
+        start
+        total
+        complete
+        error
+        waiting
+      }
+      latency {
+        start
+        count
+        p50Ms
+        p95Ms
+      }
+      p50Ms
+      p95Ms
+    }
+  }
+`;

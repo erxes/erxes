@@ -13,6 +13,7 @@ export const ticketActionConfigFormSchema = z.object({
   labelIds: z.string().optional(),
   tagIds: z.string().optional(),
   companyIds: z.string().optional(),
+  attachmentIds: z.string().optional(),
 });
 
 export type TTicketActionConfigForm = z.infer<

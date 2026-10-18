@@ -66,7 +66,7 @@ export const SideMenuContentHeader = forwardRef<
       <div
         ref={ref}
         className={cn(
-          'h-11 px-5 flex items-center gap-2 flex-none bg-background',
+          'h-10 px-4 flex items-center gap-2 flex-none bg-background',
           className,
         )}
         {...props}
@@ -91,7 +91,7 @@ export const SideMenuSidebar = forwardRef<
     <Tabs.List
       ref={ref}
       className={cn(
-        'w-16 flex-none border-l bg-sidebar h-full py-3 flex flex-col items-center justify-start gap-3',
+        'w-12 flex-none border-l bg-sidebar h-full py-3 flex flex-col items-center justify-start gap-3',
         className,
       )}
       {...props}

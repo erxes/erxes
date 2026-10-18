@@ -21,7 +21,7 @@ import {
   RelationSettingsWidgetProvider,
   RelationWidgetProvider,
 } from 'ui-modules';
-import { IconsProvider } from 'erxes-ui';
+import { IconsProvider, Spinner } from 'erxes-ui';
 import { optionalProvider } from '@/widgets/utils/optionalProvider';
 
 const SafeRelationSettingsWidgetProvider = optionalProvider(
@@ -52,7 +52,7 @@ export const Providers = () => {
               RecordPickerWidget={RecordPickerWidgetsComponent}
               recordPickerWidgetsModules={useRecordPickerWidgetsModules()}
             >
-              <Suspense fallback={<div>Loading...</div>}>
+              <Suspense fallback={<Spinner withMascot />}>
                 <Outlet />
               </Suspense>
             </SafeRecordPickerWidgetProvider>
