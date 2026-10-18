@@ -1,5 +1,8 @@
-import { IconSettings } from '@tabler/icons-react';
-import { AppLayoutFooterLink, Sidebar } from 'erxes-ui';
+import { PluginSharedSettingsNavigation } from 'ui-modules';
+import { SettingsNavigation } from '@/SettingsNavigation';
+import type { ReactNode } from 'react';
+import { IconSettings, IconArrowLeft } from '@tabler/icons-react';
+import { AppLayoutFooterLink, Sidebar, AppLayout } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { AdjustmentNavigation } from '@/AdjustmentNavigation';
 import { InventoriesNavigation } from '@/InventoriesNavigation';
@@ -32,9 +35,43 @@ export const AccountingSidebarFooter = () => {
 
   return (
     <AppLayoutFooterLink
-      path="settings/accounting/config"
+      path="accounting/settings/config"
       name={t('app-settings')}
       icon={IconSettings}
     />
+  );
+};
+
+/** The plugin's settings pages (`/accounting/settings/*`) with their own sidebar. */
+export const AccountingSettingsLayout = ({
+  children,
+}: {
+  children: ReactNode;
+}) => {
+  const { t } = useTranslation('common', { keyPrefix: 'navigation' });
+
+  return (
+    <AppLayout
+      id="accounting:settings"
+      title={t('plugin-settings-title', { name: 'Accounting' })}
+      sidebar={
+        <>
+          <SettingsNavigation />
+          <PluginSharedSettingsNavigation
+            pluginName="accounting"
+            pathPrefix="accounting/settings"
+          />
+        </>
+      }
+      footer={
+        <AppLayoutFooterLink
+          path="accounting/main"
+          name={t('back-to-app', { name: 'Accounting' })}
+          icon={IconArrowLeft}
+        />
+      }
+    >
+      {children}
+    </AppLayout>
   );
 };

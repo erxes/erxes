@@ -21,7 +21,7 @@ export const ChannelHeader = () => {
               <Button
                 variant="ghost"
                 className="text-foreground"
-                onClick={() => navigate(`/settings/frontline/channels/${id}`)}
+                onClick={() => navigate(`/frontline/settings/channels/${id}`)}
               >
                 <IconArrowLeft size={16} className="stroke-foreground" />
                 {t('channel-settings', 'Channel Settings')}

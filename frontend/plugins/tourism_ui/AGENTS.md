@@ -44,7 +44,7 @@
 
 ### Provides
 
-- Module Federation exposes: `./config`, `./pms`, `./pmsSettings`, `./tms`, `./tmsSettings`, and `./tourism`.
+- Module Federation exposes: `./config`, `./pms`, `./tms`, and `./tourism`.
 - Frontend navigation paths under `tourism/pms` and `tourism/tms` registered from `src/config.tsx`.
 
 ### Consumes

@@ -1,4 +1,4 @@
-import { IUIConfig, SettingsNavigationMenuLinkItem, Sidebar } from 'erxes-ui';
+import { NavigationMenuLinkItem, Sidebar } from 'erxes-ui';
 import { IconHierarchy2, IconTag } from '@tabler/icons-react';
 
 import { usePermissionCheck } from 'ui-modules';
@@ -12,9 +12,12 @@ import { useTranslation } from 'react-i18next';
  * entirely for plugins with neither.
  */
 export const PluginSharedSettingsNavigation = ({
-  plugin,
+  pluginName,
+  pathPrefix,
 }: {
-  plugin: IUIConfig;
+  pluginName: string;
+  /** The plugin's settings base, e.g. `sales/settings`. */
+  pathPrefix: string;
 }) => {
   const { t } = useTranslation('common');
   const { types } = useTagTypes();
@@ -22,9 +25,9 @@ export const PluginSharedSettingsNavigation = ({
   const { isLoaded, isWildcard, hasModulePermission } = usePermissionCheck();
   const canUse = (module: string) =>
     !isLoaded || isWildcard || hasModulePermission(module);
-  const showTags = Boolean(types[plugin.name]?.length) && canUse('tags');
+  const showTags = Boolean(types[pluginName]?.length) && canUse('tags');
   const showProperties =
-    Boolean(propertyTypes[plugin.name]?.length) && canUse('properties');
+    Boolean(propertyTypes[pluginName]?.length) && canUse('properties');
 
   if (!showTags && !showProperties) {
     return null;
@@ -36,16 +39,16 @@ export const PluginSharedSettingsNavigation = ({
       <Sidebar.GroupContent>
         <Sidebar.Menu>
           {showTags && (
-            <SettingsNavigationMenuLinkItem
-              pathPrefix={plugin.path}
+            <NavigationMenuLinkItem
+              pathPrefix={pathPrefix}
               path="/tags"
               name={t('sidebar.tags')}
               icon={IconTag}
             />
           )}
           {showProperties && (
-            <SettingsNavigationMenuLinkItem
-              pathPrefix={plugin.path}
+            <NavigationMenuLinkItem
+              pathPrefix={pathPrefix}
               path="/properties"
               name={t('sidebar.properties', 'Properties')}
               icon={IconHierarchy2}

@@ -4,7 +4,7 @@ import {
   IconUserCircle,
 } from '@tabler/icons-react';
 import { FrontlinePaths } from '@/types/FrontlinePaths';
-import { SettingsNavigationMenuLinkItem, Sidebar } from 'erxes-ui';
+import { NavigationMenuLinkItem, Sidebar } from 'erxes-ui';
 import { Can } from 'ui-modules';
 
 export const FrontlineSettingsNavigation = () => {
@@ -12,22 +12,22 @@ export const FrontlineSettingsNavigation = () => {
     <Sidebar.Group>
       <Sidebar.GroupContent className="pt-1">
         <Sidebar.Menu>
-          <SettingsNavigationMenuLinkItem
-            pathPrefix={FrontlinePaths.Frontline}
+          <NavigationMenuLinkItem
+            pathPrefix="frontline/settings"
             path={FrontlinePaths.Channels}
             name="Channels"
             icon={IconInbox}
           />
 
-          <SettingsNavigationMenuLinkItem
-            pathPrefix={FrontlinePaths.Frontline}
+          <NavigationMenuLinkItem
+            pathPrefix="frontline/settings"
             path={FrontlinePaths.PersonalChannel}
             name="Personal channel"
             icon={IconUserCircle}
           />
           <Can action="integrationsEdit">
-            <SettingsNavigationMenuLinkItem
-              pathPrefix={FrontlinePaths.Frontline}
+            <NavigationMenuLinkItem
+              pathPrefix="frontline/settings"
               path={FrontlinePaths.IntegrationConfig}
               name="Integrations Config"
               icon={IconPlugConnected}

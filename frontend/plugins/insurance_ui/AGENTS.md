@@ -6,7 +6,7 @@
 - **Project:** `insurance_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/insurance_ui`
-- **Last synchronized:** `2026-10-17`
+- **Last synchronized:** `2026-10-18`
 
 ## Scope
 
@@ -42,7 +42,7 @@
 
 ### Provides
 
-- Module Federation exposes: `./config`, `./insurance`, `./insuranceSettings`, and `./widgets`.
+- Module Federation exposes: `./config`, `./insurance`, and `./widgets`.
 - Frontend navigation paths under `insurance/*` registered from `src/config.tsx`.
 
 ### Consumes

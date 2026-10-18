@@ -22,7 +22,7 @@ export const SalesItemDetailHeader = ({ deal }: { deal: IDealDetail }) => {
   const pipelineId = deal.pipeline?._id || deal.pipelineId;
   const productConfigUrl =
     boardId && pipelineId
-      ? `/settings/sales/deals?${new URLSearchParams({
+      ? `/sales/settings/deals?${new URLSearchParams({
           activeBoardId: boardId,
           pipelineId,
           tab: 'productConfig',

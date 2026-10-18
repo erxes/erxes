@@ -14,12 +14,6 @@ import { IUIConfig, TActivityRowProps, TPropertyInputProps } from 'erxes-ui';
 import { lazy, Suspense } from 'react';
 import { SEARCH_PROVIDERS } from '~/searchProviders';
 
-const FrontlineSettingsNavigation = lazy(() =>
-  import('@/FrontlineSettingsNavigation').then((module) => ({
-    default: module.FrontlineSettingsNavigation,
-  })),
-);
-
 const TicketStatusPropertyInput = lazy(() =>
   import('@/ticket/components/ticket-selects/TicketStatusPropertyInput').then(
     (module) => ({
@@ -39,11 +33,6 @@ export const CONFIG: IUIConfig = {
   path: 'frontline',
   icon: IconStackFront,
   hasFloatingWidget: true,
-  settingsNavigation: () => (
-    <Suspense fallback={<div />}>
-      <FrontlineSettingsNavigation />
-    </Suspense>
-  ),
   navigationGroup: {
     name: 'frontline',
     defaultPath: 'frontline/inbox',
@@ -128,17 +117,17 @@ export const CONFIG: IUIConfig = {
     {
       name: 'channels',
       icon: IconMail,
-      path: 'settings/frontline/channels',
+      path: 'frontline/settings/channels',
     },
     {
       name: 'personal-channel',
       icon: IconMail,
-      path: 'settings/frontline/personal-channel',
+      path: 'frontline/settings/personal-channel',
     },
     {
       name: 'integrations-config',
       icon: IconSettings,
-      path: 'settings/frontline/config',
+      path: 'frontline/settings/config',
     },
   ],
   searchProviders: SEARCH_PROVIDERS,

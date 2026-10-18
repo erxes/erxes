@@ -112,7 +112,7 @@ const SurveyMoreColumnCell = ({ cell }: { cell: Cell<ISurvey, unknown> }) => {
       <DropdownMenu.Content side="bottom" align="start">
         <DropdownMenu.Item asChild>
           <Link
-            to={`/settings/frontline/channels/${channelId}/surveys/${survey._id}`}
+            to={`/frontline/settings/channels/${channelId}/surveys/${survey._id}`}
           >
             <IconEdit />
             {t('edit')}
@@ -209,7 +209,7 @@ export const surveyColumns: ColumnDef<ISurvey>[] = [
       return (
         <RecordTableInlineCell>
           <Link
-            to={`/settings/frontline/channels/${channelId}/surveys/${cell.row.original._id}`}
+            to={`/frontline/settings/channels/${channelId}/surveys/${cell.row.original._id}`}
           >
             <RecordTableInlineCell.Anchor>
               {cell.getValue() as string}

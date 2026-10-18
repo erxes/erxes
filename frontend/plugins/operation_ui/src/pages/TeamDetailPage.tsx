@@ -18,7 +18,7 @@ export const TeamDetailPage = () => {
                 <Button
                   variant="ghost"
                   className="text-foreground"
-                  onClick={() => navigate('/settings/operation/team')}
+                  onClick={() => navigate('/operation/settings/team')}
                 >
                   <IconArrowLeft size={16} className="stroke-foreground" />
                   {t('teams')}

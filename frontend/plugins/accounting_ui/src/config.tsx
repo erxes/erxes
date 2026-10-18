@@ -7,23 +7,11 @@ import {
   IconScale,
 } from '@tabler/icons-react';
 import { IUIConfig } from 'erxes-ui';
-import { lazy, Suspense } from 'react';
 import { SEARCH_PROVIDERS } from '~/searchProviders';
-
-const SettingsNavigation = lazy(() =>
-  import('@/SettingsNavigation').then((module) => ({
-    default: module.SettingsNavigation,
-  })),
-);
 
 export const CONFIG: IUIConfig = {
   name: 'accounting',
   path: 'accounting',
-  settingsNavigation: () => (
-    <Suspense fallback={<div />}>
-      <SettingsNavigation />
-    </Suspense>
-  ),
   navigationGroup: {
     name: 'accounting',
     defaultPath: 'accounting/main',
@@ -108,12 +96,12 @@ export const CONFIG: IUIConfig = {
     {
       name: 'config',
       icon: IconCashBanknote,
-      path: 'settings/accounting/config',
+      path: 'accounting/settings/config',
     },
     {
       name: 'fixed-assets',
       icon: IconCashBanknote,
-      path: 'settings/accounting/fixed-assets',
+      path: 'accounting/settings/fixed-assets',
     },
   ],
   widgets: {

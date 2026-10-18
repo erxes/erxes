@@ -12,20 +12,9 @@ const DealStagePropertyInput = lazy(() =>
   ),
 );
 
-const SalesSettingsNavigation = lazy(() =>
-  import('@/SalesSettingsNavigation').then((module) => ({
-    default: module.SalesSettingsNavigation,
-  })),
-);
-
 export const CONFIG: IUIConfig = {
   name: 'sales',
   path: 'sales',
-  settingsNavigation: () => (
-    <Suspense fallback={<div />}>
-      <SalesSettingsNavigation />
-    </Suspense>
-  ),
   navigationGroup: {
     name: 'sales',
     defaultPath: 'sales/deals',
@@ -45,12 +34,12 @@ export const CONFIG: IUIConfig = {
     {
       name: 'POS settings',
       icon: IconBriefcase,
-      path: 'settings/sales/pos',
+      path: 'sales/settings/pos',
     },
     {
       name: 'Deals settings',
       icon: IconBriefcase,
-      path: 'settings/sales/deals',
+      path: 'sales/settings/deals',
     },
   ],
   widgets: {

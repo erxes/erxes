@@ -95,3 +95,10 @@ export const findAppActivityByPath = (
       normalizePath(activity.defaultPath).split('/')[0] === appSegment,
   );
 };
+
+/**
+ * Organization settings (`/settings`, `/settings/…`) only — a plugin's own
+ * settings (`/sales/settings/…`) belong to that plugin's app.
+ */
+export const isOrganizationSettingsPath = (pathname: string) =>
+  pathname === '/settings' || pathname.startsWith('/settings/');

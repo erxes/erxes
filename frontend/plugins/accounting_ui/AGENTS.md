@@ -157,16 +157,18 @@
   `src/config.tsx` supplies just the tab name, icon and `defaultPath` and takes
   no `content`/`subGroup`.
 - `AccountingSidebarFooter` pins a Settings link to the bottom of the app
-  sidebar. Under `/settings/accounting/…` core-ui frames the settings pages
-  (the `./accountingSettings` expose renders content only — never wrap it in
-  `AppLayout`): the sidebar is this plugin's `settingsNavigation` from
-  `src/config.tsx`, plus core's Tags/Properties entries when the plugin
-  registers tag or property types (`/settings/accounting/tags`,
-  `/settings/accounting/properties`, filtered to this plugin's types), and a
-  Back link to the app. Keep `settingsNavigation` defined: it is how core
-  knows the plugin has its own settings.
-  `settingsNavigation` renders no `Sidebar.GroupLabel`: core titles the
-  sidebar "<Plugin> settings" and appends Tags/Properties to the same list.
+  sidebar. The plugin owns its settings at `/accounting/settings/*`, served by its
+  own entry: the entry's top-level `<Routes>` sends `settings/*` to
+  `AccountingSettingsLayout` (`src/Sidebar.tsx`, an `AppLayout` titled
+  "<Plugin> settings" with a Back link to the app) and `*` to the app
+  `AppLayout`. Settings pages render inside `PluginSettingsRoutes`
+  (`ui-modules`), which also serves `tags` and `properties/*` scoped to
+  this plugin's types; the settings sidebar appends
+  `PluginSharedSettingsNavigation`, which lists Tags/Properties only when the
+  plugin registers those types. Core organization settings never list
+  plugin settings, `config.tsx` has no `settingsNavigation`, and there is
+  no `./accountingSettings` expose; old `/settings/accounting/…` URLs are redirected
+  by core. The settings navigation renders no `Sidebar.GroupLabel`.
 - Page header breadcrumbs follow the shared pattern: crumbs are default ghost `Button`s (no `font-semibold`), the first crumb carries a 16px icon in the default text color, crumbs are separated by `Separator.Inline` or `Breadcrumb.Separator`, and settings pages carry no favorite toggle. The accounting settings sidebar and breadcrumb translate `SETTINGS_ROUTES` keys with `t()`; never render a raw key.
 - Accounting UI labels, mutation feedback, and validation messages use the `accounting` translation namespace while retaining generated GraphQL inference and null-safe view adapters.
 - `graphql-codegen-plugin.ts` prepares documents before the first compile and regenerates them on accounting source changes through `beforeRun`/`watchRun`, excluding generated files to avoid rebuild loops. Do not invoke nested Nx commands from config evaluation or rely only on target dependencies for host-launched remotes.
@@ -253,7 +255,7 @@
 - Smoke scenario: open `/accounting/main` and `/accounting/records`, apply journal/search/date/account filters, export without selection, then select rows and export again to verify filtered and selected-id exports start successfully.
 - Smoke scenario: in inventory sale, income, out, and move rows, change products and verify `unitPrice` plus amount/follow cost values refresh without a manual page reload; in a sale row, change quantity repeatedly and verify both generated follow transactions keep the fetched active unit cost.
 - Smoke scenario: in inventory internal movement, enable "Дэлгэрэнгүй харагдац", set different source and destination branch/department values per detail row, verify `TBalance` shows generated `invMoveIn` rows at the destination detail locations, then save/refetch and confirm the source and destination row locations remain visible.
-- Smoke scenario: open `/settings/accounting/config/sync-deal-movement`, add and edit a rule with source/destination inventory accounts, default source/destination locations, and each deal-location side option; verify the rule appears only in `/accounting/check-sync/deal-movement`, then check/resync deals there and confirm regular `/accounting/check-sync/deal` still lists only sale/return rules.
+- Smoke scenario: open `/accounting/settings/config/sync-deal-movement`, add and edit a rule with source/destination inventory accounts, default source/destination locations, and each deal-location side option; verify the rule appears only in `/accounting/check-sync/deal-movement`, then check/resync deals there and confirm regular `/accounting/check-sync/deal` still lists only sale/return rules.
 - Smoke scenario: create inventory cost increase and decrease transactions, add multiple products, verify current remainder/current unit cost display, enter per-unit deltas, confirm after-unit cost and total amount recalculate, then save without changing quantity.
 - Smoke scenario: in inventory income, out, move, sale, and sale return, use "Олон бараа нэмэх" and verify one journal-specific bulk lookup fills every selected row with count one plus matching amount/weight/follow values; then change one row's product, including back to its initial product, and verify only that row's fill values refresh.
 - Smoke scenario: in inventory income and internal movement, verify only the source unit appears as a split-related table column, open each row's leading action sheet, enable "Задлах эсэх", select result products, enter ratios, verify result units appear in the sheet, confirm `TBalance` shows linked `invOut` and `invIncome` rows with unchanged total cost and converted count/unit price, then save, refetch, edit, disable one split, and verify follow rows update immediately.

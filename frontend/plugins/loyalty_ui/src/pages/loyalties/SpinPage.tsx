@@ -13,7 +13,7 @@ const SpinHeaderActions = () => {
   return (
     <div className="flex items-center gap-2">
       <Button variant="outline" size="sm" asChild>
-        <Link to="/settings/loyalty/config/spin">
+        <Link to="/loyalty/settings/config/spin">
           <IconSettings className="size-4" />
           {t('go-to-settings')}
         </Link>

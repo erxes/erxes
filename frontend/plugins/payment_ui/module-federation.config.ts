@@ -16,7 +16,7 @@ const config: ModuleFederationConfig = {
   name: 'payment_ui',
   exposes: {
     './config': './src/config.tsx',
-    './paymentSettings': './src/modules/payment/Settings.tsx',
+    './payment': './src/modules/payment/Main.tsx',
     './widgets': './src/widgets/Widgets.tsx',
     './relationWidget': './src/widgets/relation/RelationWidgets.tsx',
   },

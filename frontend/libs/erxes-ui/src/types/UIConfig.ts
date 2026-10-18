@@ -131,8 +131,12 @@ export type IUIConfig = {
   i18n?: boolean;
   i18nNamespace?: string;
   hasFloatingWidget?: boolean;
-  settingsOnly?: boolean;
-  settingsNavigation?: () => React.ReactNode;
+  /**
+   * erxes platform versions this plugin is built for, as a semver range
+   * (e.g. `'~3.2'`, `'>=3.2.25 <3.4'`). Core warns — and still loads the
+   * plugin — when the running platform is outside the range.
+   */
+  platform?: string;
   navigationGroup?: {
     name: string;
     defaultPath?: string;

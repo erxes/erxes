@@ -4,6 +4,7 @@ import { type ElementType, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { pluginsConfigState, usePermissionCheck, useVersion } from 'ui-modules';
 import { GET_CORE_MODULES } from '~/plugins/constants/core-plugins.constants';
+import { getPlatformMismatch } from '~/plugins/utils/pluginConfigSchema';
 
 export const usePluginsModules = () => {
   const [pluginsMetaData] = useAtom(pluginsConfigState);
@@ -42,6 +43,7 @@ export interface NavigationGroupResult {
   defaultPath: string;
   modules: NonNullable<IUIConfig['modules']>;
   name: string;
+  platformMismatch?: string;
   i18n?: boolean;
 }
 
@@ -59,8 +61,6 @@ export const usePluginsNavigationGroups = () => {
     return Object.values(pluginsMetaData).reduce<NavigationGroups>(
       (acc, plugin) => {
         if (!plugin?.modules?.length) return acc;
-
-        if (plugin.settingsOnly) return acc;
 
         if (isLoaded && !isWildcard && !hasPluginPermission(plugin.name)) {
           return acc;
@@ -92,6 +92,9 @@ export const usePluginsNavigationGroups = () => {
             '',
           modules: [...existingGroup.modules, ...(plugin.modules || [])],
           i18n: plugin.i18n || existingGroup.i18n,
+          platformMismatch:
+            getPlatformMismatch(plugin, process.env.ERXES_VERSION) ??
+            existingGroup.platformMismatch,
         };
 
         return acc;

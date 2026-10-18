@@ -1,5 +1,8 @@
-import { IconSettings } from '@tabler/icons-react';
-import { AppLayoutFooterLink, Sidebar } from 'erxes-ui';
+import { PluginSharedSettingsNavigation } from 'ui-modules';
+import { FrontlineSettingsNavigation } from '@/FrontlineSettingsNavigation';
+import type { ReactNode } from 'react';
+import { IconSettings, IconArrowLeft } from '@tabler/icons-react';
+import { AppLayoutFooterLink, Sidebar, AppLayout } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { FrontlineNavigation } from '@/FrontlineNavigation';
 import { FrontlineSubGroups } from '@/FrontlineSubGroups';
@@ -24,9 +27,43 @@ export const FrontlineSidebarFooter = () => {
 
   return (
     <AppLayoutFooterLink
-      path="settings/frontline/channels"
+      path="frontline/settings/channels"
       name={t('app-settings')}
       icon={IconSettings}
     />
+  );
+};
+
+/** The plugin's settings pages (`/frontline/settings/*`) with their own sidebar. */
+export const FrontlineSettingsLayout = ({
+  children,
+}: {
+  children: ReactNode;
+}) => {
+  const { t } = useTranslation('common', { keyPrefix: 'navigation' });
+
+  return (
+    <AppLayout
+      id="frontline:settings"
+      title={t('plugin-settings-title', { name: 'Frontline' })}
+      sidebar={
+        <>
+          <FrontlineSettingsNavigation />
+          <PluginSharedSettingsNavigation
+            pluginName="frontline"
+            pathPrefix="frontline/settings"
+          />
+        </>
+      }
+      footer={
+        <AppLayoutFooterLink
+          path="frontline/inbox"
+          name={t('back-to-app', { name: 'Frontline' })}
+          icon={IconArrowLeft}
+        />
+      }
+    >
+      {children}
+    </AppLayout>
   );
 };

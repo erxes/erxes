@@ -19,7 +19,7 @@ export const ChannelDetailsPage = () => {
                   <Button
                     variant="ghost"
                     className="text-foreground"
-                    onClick={() => navigate('/settings/frontline/channels')}
+                    onClick={() => navigate('/frontline/settings/channels')}
                   >
                     <IconArrowLeft size={16} className="stroke-foreground" />
                     {t('channels', 'Channels')}

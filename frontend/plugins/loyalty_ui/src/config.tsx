@@ -1,17 +1,10 @@
 import { IconAward } from '@tabler/icons-react';
 import { IUIConfig } from 'erxes-ui';
-import { LoyaltySettingsNavigation } from '~/LoyaltySettingsNavigation';
-import { Suspense } from 'react';
 import { SEARCH_PROVIDERS } from '~/searchProviders';
 
 export const CONFIG: IUIConfig = {
   name: 'loyalty',
   path: 'loyalty',
-  settingsNavigation: () => (
-    <Suspense fallback={<div />}>
-      <LoyaltySettingsNavigation />
-    </Suspense>
-  ),
   navigationGroup: {
     name: 'loyalty',
     defaultPath: 'loyalty/scores',
@@ -68,12 +61,12 @@ export const CONFIG: IUIConfig = {
     {
       name: 'configs',
       icon: IconAward,
-      path: 'settings/loyalty/config',
+      path: 'loyalty/settings/config',
     },
     {
       name: 'pricing',
       icon: IconAward,
-      path: 'settings/loyalty/pricing',
+      path: 'loyalty/settings/pricing',
     },
   ],
   widgets: {

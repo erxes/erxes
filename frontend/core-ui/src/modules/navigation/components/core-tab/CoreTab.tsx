@@ -1,6 +1,7 @@
 import { Button, activePluginState, cn } from 'erxes-ui';
 import { IconInbox, IconSearch, IconSettings } from '@tabler/icons-react';
 import { INBOX_TAB_ID, useAppTabs } from '@/navigation/hooks/useAppTabs';
+import { isOrganizationSettingsPath } from '@/navigation/utils/navigationActivities';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 
 import { AppPath } from '@/types/paths/AppPath';
@@ -14,7 +15,6 @@ import { OrgLogoIcon } from '@/auth/components/Logo';
 import { currentOrganizationState } from 'ui-modules';
 import { globalSearchOpenState } from '@/search/states/globalSearchState';
 import { useEffect } from 'react';
-import { usePluginSettingsActivity } from '@/navigation/hooks/usePluginSettingsActivity';
 import { useTranslation } from 'react-i18next';
 
 const coreTabIconClassName = (active: boolean) =>
@@ -43,14 +43,12 @@ export const CoreTab = () => {
   const organization = useAtomValue(currentOrganizationState);
   const [activeActivityId, setActiveActivityId] = useAtom(activePluginState);
   const setSearchOpen = useSetAtom(globalSearchOpenState);
-  const pluginSettingsActivity = usePluginSettingsActivity();
   const { t } = useTranslation('common', { keyPrefix: 'navigation' });
   const { t: sidebarT } = useTranslation('common', { keyPrefix: 'sidebar' });
   const routeActivityId = routeActivity?.id;
   const isInboxActive = routeActivityId === INBOX_TAB_ID;
   const { pathname } = useLocation();
-  const isOrganizationSettings =
-    !pluginSettingsActivity && pathname.startsWith(`/${AppPath.Settings}`);
+  const isOrganizationSettings = isOrganizationSettingsPath(pathname);
   const inboxActivity = activities.find(
     (activity) => activity.id === INBOX_TAB_ID,
   );

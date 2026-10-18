@@ -32,7 +32,7 @@ export const TemplateFormPage = () => {
               <Breadcrumb.Item>
                 <Breadcrumb.Link asChild className="flex items-center gap-1">
                   <Button variant="ghost" className="text-foreground" asChild>
-                    <Link to={`/settings/operation/team/templates/${teamId}`}>
+                    <Link to={`/operation/settings/team/templates/${teamId}`}>
                       <IconArrowLeft
                         size={16}
                         className="stroke-foreground mr-2"
@@ -52,7 +52,7 @@ export const TemplateFormPage = () => {
               template={template ?? undefined}
               onCancel={() => navigate(-1)}
               afterSave={() =>
-                navigate(`/settings/operation/team/templates/${teamId}`)
+                navigate(`/operation/settings/team/templates/${teamId}`)
               }
             />
           </div>

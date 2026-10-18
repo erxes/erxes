@@ -1,5 +1,5 @@
 import { IconAdjustmentsAlt, IconBuildingWarehouse } from '@tabler/icons-react';
-import { SettingsNavigationMenuLinkItem, Sidebar } from 'erxes-ui';
+import { NavigationMenuLinkItem, Sidebar } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
 export const SettingsNavigation = () => {
@@ -8,17 +8,17 @@ export const SettingsNavigation = () => {
     <Sidebar.Group>
       <Sidebar.GroupContent className="pt-1">
         <Sidebar.Menu>
-          <SettingsNavigationMenuLinkItem
+          <NavigationMenuLinkItem
             name={t('accounting')}
             icon={IconAdjustmentsAlt}
             path="/config"
-            pathPrefix="accounting/"
+            pathPrefix="accounting/settings"
           />
-          <SettingsNavigationMenuLinkItem
+          <NavigationMenuLinkItem
             name={t('fixed-asset')}
             icon={IconBuildingWarehouse}
             path="/fixed-assets"
-            pathPrefix="accounting/"
+            pathPrefix="accounting/settings"
           />
         </Sidebar.Menu>
       </Sidebar.GroupContent>

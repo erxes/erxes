@@ -1,7 +1,12 @@
+import { PluginSettingsRoutes } from 'ui-modules';
 import { lazy, Suspense } from 'react';
 import { Route, Routes } from 'react-router';
 import { Spinner, AppLayout } from 'erxes-ui';
-import { AccountingSidebar, AccountingSidebarFooter } from '~/Sidebar';
+import {
+  AccountingSidebar,
+  AccountingSidebarFooter,
+  AccountingSettingsLayout,
+} from '~/Sidebar';
 import { PageChangeEffect } from './app/AccountingPageChangeEffect';
 
 const TransactionList = lazy(() =>
@@ -234,4 +239,32 @@ const PluginAccounting = () => {
   );
 };
 
-export default PluginAccounting;
+const AccountingSettingsRoutes = lazy(
+  () => import('~/modules/AccountingSettings'),
+);
+// JSX needs a capitalised name.
+const AccountingAppRoutes = PluginAccounting;
+
+/** The plugin owns its settings too: `/accounting/settings/*` has its own sidebar. */
+const AccountingEntry = () => (
+  <Routes>
+    <Route
+      path="settings/*"
+      element={
+        <AccountingSettingsLayout>
+          <Suspense fallback={<Spinner />}>
+            <PluginSettingsRoutes
+              pluginName="accounting"
+              basePath="/accounting/settings"
+            >
+              <AccountingSettingsRoutes />
+            </PluginSettingsRoutes>
+          </Suspense>
+        </AccountingSettingsLayout>
+      }
+    />
+    <Route path="*" element={<AccountingAppRoutes />} />
+  </Routes>
+);
+
+export default AccountingEntry;

@@ -123,7 +123,7 @@
   choice leaves the install closed.
 
 - Polls are split across two routes, mirroring how forms are laid out.
-  `settings/frontline/channels/:id/polls` manages the channel's polls: the
+  `frontline/settings/channels/:id/polls` manages the channel's polls: the
   settings breadcrumb resolves to `Channels / <channel> / Polls` and carries the
   `Create poll` button on the right, the sub-header holds only the status/search
 - A form can be created from the plugin's own forms page, not only from a
@@ -134,7 +134,7 @@
   `FORM_GENERAL_CREATE_SCHEMA` when no `formId` param is present, and
   `useFormMutate` reads the picked channel out of the setup state. Cancelling or
   finishing returns to `frontline/forms`; the settings flow
-  (`settings/frontline/channels/:id/forms/create`) still returns to the
+  (`frontline/settings/channels/:id/forms/create`) still returns to the
   channel's forms page.
 - The `frontline/forms` sidebar Channels group (`ChooseChannel`), the
   sub-header's channel filter (`FormChannelFilterView`, in place of the shared
@@ -173,7 +173,7 @@
   moves `Call from` to another switched-on one, or disconnects when none is left.
 - Every channel-owned resource row carries a **Move to channel** action:
   integrations, ticket pipelines, forms, surveys and response templates, in the
-  `⋮` menu of their list inside `settings/frontline/channels/:id/…` (and on the
+  `⋮` menu of their list inside `frontline/settings/channels/:id/…` (and on the
   global `/frontline/forms` page). It opens one shared `MoveToChannelDialog`
   showing the current channel, a destination picker that excludes the current
   channel, a confirmation line once a destination is picked, and
@@ -184,7 +184,7 @@
   source channel. A successful move toasts, refetches the resource's list
   queries and the channel counters, and clears the selection.
 - Surveys are split across two routes, mirroring how forms are laid out.
-  `settings/frontline/channels/:id/surveys` manages the channel's surveys: the
+  `frontline/settings/channels/:id/surveys` manages the channel's surveys: the
   settings breadcrumb resolves to `Channels / <channel> / Surveys` and carries the
   `Create survey` button on the right, the sub-header holds only the status/search
   filters and the record count, and the page renders a `RecordTable` list, the
@@ -219,8 +219,8 @@
   badge without a tooltip means there is no standing rejection. `Archive`/`Unarchive` stays
   reserved for surveys that have been live.
 - Creating and editing a survey is a full-page step wizard on
-  `settings/frontline/channels/:id/surveys/create`,
-  `settings/frontline/channels/:id/surveys/:surveyId` and
+  `frontline/settings/channels/:id/surveys/create`,
+  `frontline/settings/channels/:id/surveys/:surveyId` and
   `frontline/surveys/create`, laid out exactly like the
   form builder: a left panel carrying `IntegrationSteps` (STEP badge, progress
   bar, description) over the current step's fields, a live preview on the right,
@@ -271,7 +271,7 @@
   record table, with its row actions and command bar; the choice persists in
   `surveyViewAtom` (`localStorage` key `surveyView`, default `grid`). Each
   board card is a link to the survey's edit wizard under its channel settings
-  (`settings/frontline/channels/:channelId/surveys/:surveyId`).
+  (`frontline/settings/channels/:channelId/surveys/:surveyId`).
 - Deleting surveys always asks first, like forms: the row menu's red `Delete`
   confirms with `confirm-delete-survey-title` and the command bar's `Delete`
   with `confirm-delete-surveys` (pluralised) through `useConfirm` before
@@ -407,7 +407,7 @@
   `channelId` and clears `integrationType`.
 - Channel creation from either the settings page or the Team inbox group; the
   form sends no `scope`, so the API creates a `team` channel.
-- A `Personal channel` settings route (`/settings/frontline/personal-channel`)
+- A `Personal channel` settings route (`/frontline/settings/personal-channel`)
   acting as the profile for the user's private inbox: name, icon, description,
   and its integrations — the same catalogue a team channel offers. Opening it is
   what provisions the channel — there is no create button anywhere for personal
@@ -690,14 +690,14 @@ owns the setup form and connection actions.
   and `FrontlineMain`) — the survey results board — and
   `frontline/surveys/create` (`FrontlinePaths.SurveyCreate`) — the create
   wizard; both render inside the `SurveyView` layout and its `SurveyPageHeader`.
-- Settings route `settings/frontline/channels/:id/surveys` (registered in the
+- Settings route `frontline/settings/channels/:id/surveys` (registered in the
   channels `Settings.tsx` as `FrontlinePaths.ChannelSurveys`) — the channel's
   survey management page — plus `FrontlinePaths.SurveysCreate`
   (`/:id/surveys/create`) and `FrontlinePaths.SurveyDetail` (`/:id/surveys/:surveyId`)
   for the wizard.
 
 - Module Federation exposes declared in `module-federation.config.ts` /
-  `src/config.tsx`: `./config`, `./frontline`, `./frontlineSettings`,
+  `src/config.tsx`: `./config`, `./frontline`,
   `./knowledgebase`, `./automationsWidget`, `./notificationWidget`,
   `./relationWidget`, `./floatingWidget`, `./selectErxesMessenger`.
 - `CONFIG` with `name: 'frontline'`, `path: 'frontline'`, default navigation
@@ -989,16 +989,18 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
   `src/config.tsx` supplies just the tab name, icon and `defaultPath` and takes
   no `content`/`subGroup`.
 - `FrontlineSidebarFooter` pins a Settings link to the bottom of the app
-  sidebar. Under `/settings/frontline/…` core-ui frames the settings pages
-  (the `./frontlineSettings` expose renders content only — never wrap it in
-  `AppLayout`): the sidebar is this plugin's `settingsNavigation` from
-  `src/config.tsx`, plus core's Tags/Properties entries when the plugin
-  registers tag or property types (`/settings/frontline/tags`,
-  `/settings/frontline/properties`, filtered to this plugin's types), and a
-  Back link to the app. Keep `settingsNavigation` defined: it is how core
-  knows the plugin has its own settings.
-  `settingsNavigation` renders no `Sidebar.GroupLabel`: core titles the
-  sidebar "<Plugin> settings" and appends Tags/Properties to the same list.
+  sidebar. The plugin owns its settings at `/frontline/settings/*`, served by its
+  own entry: the entry's top-level `<Routes>` sends `settings/*` to
+  `FrontlineSettingsLayout` (`src/Sidebar.tsx`, an `AppLayout` titled
+  "<Plugin> settings" with a Back link to the app) and `*` to the app
+  `AppLayout`. Settings pages render inside `PluginSettingsRoutes`
+  (`ui-modules`), which also serves `tags` and `properties/*` scoped to
+  this plugin's types; the settings sidebar appends
+  `PluginSharedSettingsNavigation`, which lists Tags/Properties only when the
+  plugin registers those types. Core organization settings never list
+  plugin settings, `config.tsx` has no `settingsNavigation`, and there is
+  no `./frontlineSettings` expose; old `/settings/frontline/…` URLs are redirected
+  by core. The settings navigation renders no `Sidebar.GroupLabel`.
 - Page header breadcrumbs follow the shared pattern: crumbs are default ghost `Button`s (no `font-semibold`), the first crumb carries a 16px icon in the default text color, crumbs are separated by `Separator.Inline` or `Breadcrumb.Separator`, and settings pages carry no favorite toggle.
 - The conversations filter bar header (`ConversationsHeader`) uses
   `bg-background`, matching the host's `PageHeader` and `PageSubHeader`, never
@@ -1098,7 +1100,7 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
   left to drop instead), while **Space** picks the field up, arrows move it and
   **Space** drops it; Space's keyup is prevented so it never clicks the button.
 - The form builder runs under two route families — `frontline/forms/*` and
-  `settings/frontline/channels/:id/forms/*` — and tells them apart by the `id`
+  `frontline/settings/channels/:id/forms/*` — and tells them apart by the `id`
   route param, never by a flag. `FormsCreateButton`, `FormMutateLayout`'s cancel
   and `useFormMutate`'s post-save navigation each read `useParams().id` and fall
   back to the `frontline/forms` path when it is absent; a new builder surface
@@ -1473,7 +1475,7 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
   mutation's error toast rather than as a filtered-out option.
 - A survey is always created with a channel. The wizard runs under two route
   families — `frontline/surveys/create` and
-  `settings/frontline/channels/:id/surveys/*` — and tells them apart by the `id`
+  `frontline/settings/channels/:id/surveys/*` — and tells them apart by the `id`
   route param through `useSurveySetupChannel`, never by a flag. Under settings
   the channel is the `:id` param; on `frontline/surveys/create` it is the
   General step's channel select, required by `SURVEY_GENERAL_CREATE_SCHEMA`.
@@ -2518,7 +2520,7 @@ null }`, fall back to the route pipeline and skip without one; never pass
   and confirm it resumes webhook registration without another integration;
   select files in quick succession and confirm the combined size guard includes
   pending uploads and releases capacity after removal or composer reset.
-- Smoke (move to channel): in `settings/frontline/channels/:id`, open each of
+- Smoke (move to channel): in `frontline/settings/channels/:id`, open each of
   Integrations, Pipelines, Forms, Surveys and Response templates, use `⋮` →
   `Move to channel`, pick another channel and confirm the row leaves this list
   at once, shows up under the destination channel, and is still there after a

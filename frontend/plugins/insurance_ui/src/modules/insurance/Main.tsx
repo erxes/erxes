@@ -1,6 +1,11 @@
+import { PluginSettingsRoutes } from 'ui-modules';
 import { lazy, Suspense } from 'react';
-import { AppLayout } from 'erxes-ui';
-import { InsuranceSidebar } from '~/Sidebar';
+import { AppLayout, Spinner } from 'erxes-ui';
+import {
+  InsuranceSidebar,
+  InsuranceSettingsLayout,
+  InsuranceSidebarFooter,
+} from '~/Sidebar';
 import { Route, Routes } from 'react-router';
 
 const IndexPage = lazy(() =>
@@ -105,7 +110,12 @@ const ContractTemplatesPage = lazy(() =>
  */
 const insuranceMain = () => {
   return (
-    <AppLayout id="insurance" title="Insurance" sidebar={<InsuranceSidebar />}>
+    <AppLayout
+      id="insurance"
+      title="Insurance"
+      sidebar={<InsuranceSidebar />}
+      footer={<InsuranceSidebarFooter />}
+    >
       <Suspense
         fallback={
           <div className="flex items-center justify-center h-screen">
@@ -151,4 +161,32 @@ const insuranceMain = () => {
   );
 };
 
-export default insuranceMain;
+const InsuranceSettingsRoutes = lazy(
+  () => import('~/modules/insurance/Settings'),
+);
+// JSX needs a capitalised name.
+const InsuranceAppRoutes = insuranceMain;
+
+/** The plugin owns its settings too: `/insurance/settings/*` has its own sidebar. */
+const InsuranceEntry = () => (
+  <Routes>
+    <Route
+      path="settings/*"
+      element={
+        <InsuranceSettingsLayout>
+          <Suspense fallback={<Spinner />}>
+            <PluginSettingsRoutes
+              pluginName="insurance"
+              basePath="/insurance/settings"
+            >
+              <InsuranceSettingsRoutes />
+            </PluginSettingsRoutes>
+          </Suspense>
+        </InsuranceSettingsLayout>
+      }
+    />
+    <Route path="*" element={<InsuranceAppRoutes />} />
+  </Routes>
+);
+
+export default InsuranceEntry;

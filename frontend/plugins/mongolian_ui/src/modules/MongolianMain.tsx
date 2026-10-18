@@ -1,6 +1,11 @@
-import { Suspense } from 'react';
-import { AppLayout } from 'erxes-ui';
-import { MongolianSidebar, MongolianSidebarFooter } from '~/Sidebar';
+import { PluginSettingsRoutes } from 'ui-modules';
+import { Suspense, lazy } from 'react';
+import { AppLayout, Spinner } from 'erxes-ui';
+import {
+  MongolianSidebar,
+  MongolianSidebarFooter,
+  MongolianSettingsLayout,
+} from '~/Sidebar';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { CheckCategoryPage } from '~/pages/CheckCategoryPage';
 import { CheckPosOrdersPage } from '~/pages/CheckPosOrdersPage';
@@ -70,4 +75,32 @@ const MongolianMain = () => {
   );
 };
 
-export default MongolianMain;
+const MongolianSettingsRoutes = lazy(
+  () => import('~/modules/MongolianSettings'),
+);
+// JSX needs a capitalised name.
+const MongolianAppRoutes = MongolianMain;
+
+/** The plugin owns its settings too: `/mongolian/settings/*` has its own sidebar. */
+const MongolianEntry = () => (
+  <Routes>
+    <Route
+      path="settings/*"
+      element={
+        <MongolianSettingsLayout>
+          <Suspense fallback={<Spinner />}>
+            <PluginSettingsRoutes
+              pluginName="mongolian"
+              basePath="/mongolian/settings"
+            >
+              <MongolianSettingsRoutes />
+            </PluginSettingsRoutes>
+          </Suspense>
+        </MongolianSettingsLayout>
+      }
+    />
+    <Route path="*" element={<MongolianAppRoutes />} />
+  </Routes>
+);
+
+export default MongolianEntry;

@@ -16,21 +16,10 @@ const TaskStatusPropertyInput = lazy(() =>
   ),
 );
 
-const OperationSettingsNavigation = lazy(() =>
-  import('@/OperationSettingsNavigation').then((mod) => ({
-    default: mod.OperationSettingsNavigation,
-  })),
-);
-
 export const CONFIG: IUIConfig = {
   name: 'operation',
   path: 'operation',
   icon: IconListCheck,
-  settingsNavigation: () => (
-    <Suspense fallback={<div />}>
-      <OperationSettingsNavigation />
-    </Suspense>
-  ),
   navigationGroup: {
     name: 'operation',
     defaultPath: 'operation/projects',
@@ -58,12 +47,12 @@ export const CONFIG: IUIConfig = {
     {
       name: 'teams',
       icon: IconListCheck,
-      path: 'settings/operation/teams',
+      path: 'operation/settings/teams',
     },
     {
       name: 'github-integration',
       icon: IconListCheck,
-      path: 'settings/operation/github',
+      path: 'operation/settings/github',
     },
   ],
   widgets: {

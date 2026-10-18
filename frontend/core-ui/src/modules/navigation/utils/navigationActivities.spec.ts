@@ -1,5 +1,8 @@
 import { INavigationActivity } from '@/navigation/types/NavigationActivity';
-import { findAppActivityByPath } from '@/navigation/utils/navigationActivities';
+import {
+  findAppActivityByPath,
+  isOrganizationSettingsPath,
+} from '@/navigation/utils/navigationActivities';
 
 const frontline: INavigationActivity = {
   id: 'frontline',
@@ -41,5 +44,15 @@ describe('findAppActivityByPath', () => {
   it('returns nothing outside any app', () => {
     expect(findAppActivityByPath(activities, '/')).toBeUndefined();
     expect(findAppActivityByPath(activities, '/my-inbox')).toBeUndefined();
+  });
+});
+
+describe('isOrganizationSettingsPath', () => {
+  it('matches organization settings only', () => {
+    expect(isOrganizationSettingsPath('/settings')).toBe(true);
+    expect(isOrganizationSettingsPath('/settings/tags')).toBe(true);
+    expect(isOrganizationSettingsPath('/sales/settings')).toBe(false);
+    expect(isOrganizationSettingsPath('/sales/settings/pos')).toBe(false);
+    expect(isOrganizationSettingsPath('/settingsfoo')).toBe(false);
   });
 });

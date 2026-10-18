@@ -1,7 +1,12 @@
+import { PluginSettingsRoutes } from 'ui-modules';
 import { Routes, Route } from 'react-router';
 import { lazy, Suspense } from 'react';
 import { Spinner, AppLayout } from 'erxes-ui';
-import { LoyaltySidebar, LoyaltySidebarFooter } from '~/Sidebar';
+import {
+  LoyaltySidebar,
+  LoyaltySidebarFooter,
+  LoyaltySettingsLayout,
+} from '~/Sidebar';
 import { LoyaltyMainLayout } from './components/LoyaltyMainLayout';
 
 const VoucherPage = lazy(() =>
@@ -91,4 +96,30 @@ const LoyaltyNavigationRoutes = () => {
   );
 };
 
-export default LoyaltyNavigationRoutes;
+const LoyaltySettingsRoutes = lazy(() => import('~/LoyaltySettings'));
+// JSX needs a capitalised name.
+const LoyaltyAppRoutes = LoyaltyNavigationRoutes;
+
+/** The plugin owns its settings too: `/loyalty/settings/*` has its own sidebar. */
+const LoyaltyEntry = () => (
+  <Routes>
+    <Route
+      path="settings/*"
+      element={
+        <LoyaltySettingsLayout>
+          <Suspense fallback={<Spinner />}>
+            <PluginSettingsRoutes
+              pluginName="loyalty"
+              basePath="/loyalty/settings"
+            >
+              <LoyaltySettingsRoutes />
+            </PluginSettingsRoutes>
+          </Suspense>
+        </LoyaltySettingsLayout>
+      }
+    />
+    <Route path="*" element={<LoyaltyAppRoutes />} />
+  </Routes>
+);
+
+export default LoyaltyEntry;

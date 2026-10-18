@@ -6,7 +6,7 @@
 - **Project:** `mongolian_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/mongolian_ui`
-- **Last synchronized:** `2026-10-17`
+- **Last synchronized:** `2026-10-18`
 
 ## Scope
 
@@ -35,7 +35,7 @@
 - POS-in eBarimt settings include receipt behavior toggles for copy printing,
   summary quantity display, and clean tax price display.
 - Product places settings include stage, split, print, and default product
-  filter configuration screens under `settings/mongolian/product-places/*`.
+  filter configuration screens under `mongolian/settings/product-places/*`.
 - Product places configuration screens render code-scoped `mnConfigs` rows in
   `RecordTable` lists and manage create/edit/delete through a right-side
   `Sheet`; place, split, and print config rows display board, pipeline, and
@@ -79,7 +79,7 @@
 | Dev server config  | `frontend/plugins/mongolian_ui/rspack.config.ts`                           | Module Federation development serving and watch ignore rules.      |
 | Navigation config  | `frontend/plugins/mongolian_ui/src/config.tsx`                             | Plugin navigation groups and module paths.                         |
 | Main routes        | `frontend/plugins/mongolian_ui/src/modules/MongolianMain.tsx`              | Route tree mounted under `/mongolian`.                             |
-| Settings routes    | `frontend/plugins/mongolian_ui/src/modules/MongolianSettings.tsx`          | Settings route tree mounted in the core settings shell.            |
+| Settings routes    | `frontend/plugins/mongolian_ui/src/modules/MongolianSettings.tsx`          | Settings route tree mounted by the plugin's own `settings/*` route.            |
 | eBarimt            | `frontend/plugins/mongolian_ui/src/modules/ebarimt`                        | eBarimt put responses, filters, tables, and settings UI.           |
 | eBarimt print      | `frontend/plugins/mongolian_ui/src/modules/ebarimt/responded`              | Popup receipt HTML for deal eBarimt responses.                     |
 | Erkhet sync        | `frontend/plugins/mongolian_ui/src/modules/erkhet-sync`                    | Erkhet checking, sync, and settings UI.                            |
@@ -95,7 +95,7 @@
 ### Provides
 
 - Module Federation exposes: `./config`, `./mongolian`,
-  `./mongolianSettings`, `./widgets`, and `./floatingWidget`.
+  `./widgets`, and `./floatingWidget`.
 - Frontend routes mounted by `./mongolian`, including
   `/mongolian/put-response/*`, `/mongolian/sync-erkhet/*`, and
   `/mongolian/msdynamic/*`.
@@ -105,7 +105,7 @@
   `productPlacesResponded` payload and prints the JSON receipt content returned
   by the backend.
 - Product chooser remainder provider through `CONFIG.widgets.productRemainderProviders`.
-- Settings routes mounted by `./mongolianSettings`, including `ebarimt/*`,
+- Settings routes under `/mongolian/settings/*`, including `ebarimt/*`,
   `msdynamic/*`, `product-places/*`, `sync-erkhet/*`, and
   `exchange-rates/*`.
 - POS-in eBarimt config values may include `hasCopy`, `hasSumQty`, and
@@ -150,16 +150,18 @@
   `src/config.tsx` supplies just the tab name, icon and `defaultPath` and takes
   no `content`/`subGroup`.
 - `MongolianSidebarFooter` pins a Settings link to the bottom of the app
-  sidebar. Under `/settings/mongolian/…` core-ui frames the settings pages
-  (the `./mongolianSettings` expose renders content only — never wrap it in
-  `AppLayout`): the sidebar is this plugin's `settingsNavigation` from
-  `src/config.tsx`, plus core's Tags/Properties entries when the plugin
-  registers tag or property types (`/settings/mongolian/tags`,
-  `/settings/mongolian/properties`, filtered to this plugin's types), and a
-  Back link to the app. Keep `settingsNavigation` defined: it is how core
-  knows the plugin has its own settings.
-  `settingsNavigation` renders no `Sidebar.GroupLabel`: core titles the
-  sidebar "<Plugin> settings" and appends Tags/Properties to the same list.
+  sidebar. The plugin owns its settings at `/mongolian/settings/*`, served by its
+  own entry: the entry's top-level `<Routes>` sends `settings/*` to
+  `MongolianSettingsLayout` (`src/Sidebar.tsx`, an `AppLayout` titled
+  "<Plugin> settings" with a Back link to the app) and `*` to the app
+  `AppLayout`. Settings pages render inside `PluginSettingsRoutes`
+  (`ui-modules`), which also serves `tags` and `properties/*` scoped to
+  this plugin's types; the settings sidebar appends
+  `PluginSharedSettingsNavigation`, which lists Tags/Properties only when the
+  plugin registers those types. Core organization settings never list
+  plugin settings, `config.tsx` has no `settingsNavigation`, and there is
+  no `./mongolianSettings` expose; old `/settings/mongolian/…` URLs are redirected
+  by core. The settings navigation renders no `Sidebar.GroupLabel`.
 - Page header breadcrumbs follow the shared pattern: crumbs are default ghost `Button`s (no `font-semibold`), the first crumb carries a 16px icon in the default text color, crumbs are separated by `Separator.Inline` or `Breadcrumb.Separator`, and settings pages carry no favorite toggle.
 - Page-level side menus render `Sidebar.Panel` from `erxes-ui`, which keeps its own open state (`sidebarPanelOpenState`), separate from the plugin's `AppLayout` sidebar. The panel sits beside the page header, never under it: the page is a row of the panel and a column holding the header and content. The panel passes its heading as `label`, which renders a 48px title row with optional `actions` and the collapse toggle on the right, level with the page header; when collapsed, the toggle moves into the header's panel slot. Do not add a second heading or an in-panel `Sidebar.PanelTrigger` row. Keep `<Sidebar collapsible="none">` for sidebars inside sheets and dialogs. `SettingsLayout`, `ErkhetSettings`, `PutResponseLayout`, `SyncErkhetLayout` and `MsdynamicLayout` render their panel beside the header column.
 - Use `erxes-ui` and `ui-modules`; do not import Radix primitives directly.

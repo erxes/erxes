@@ -80,7 +80,11 @@ const CoreTabAppTab = ({
           role="tab"
           aria-selected={active}
           tabIndex={active ? 0 : -1}
-          title={activity.label}
+          title={
+            activity.platformMismatch
+              ? `${activity.label} — ${activity.platformMismatch}`
+              : activity.label
+          }
           data-active={active}
           className={cn(
             'group/tab flex h-8 min-w-24 max-w-48 shrink-0 cursor-default items-center gap-1.5 rounded-md border border-transparent pr-1 pl-2.5 text-sm font-medium text-muted-foreground transition-[background-color,border-color,box-shadow,color,opacity] select-none hover:bg-accent/70 hover:text-foreground',
@@ -110,6 +114,12 @@ const CoreTabAppTab = ({
             )}
           />
           <span className="min-w-0 flex-1 truncate">{activity.label}</span>
+          {activity.platformMismatch && (
+            <span
+              aria-label={activity.platformMismatch}
+              className="size-1.5 shrink-0 rounded-full bg-amber-500"
+            />
+          )}
           <Button
             aria-label={closeLabel}
             className={cn(

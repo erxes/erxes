@@ -70,8 +70,8 @@
 
 ### Provides
 
-- Module Federation exposes: `./config`, `./operation`, `./operationSettings`, `./relationWidget`, `./notificationWidget`, and `./automationsWidget`.
-- Frontend navigation paths under `operation/*` and `settings/operation/*` registered from `src/config.tsx`.
+- Module Federation exposes: `./config`, `./operation`, `./relationWidget`, `./notificationWidget`, and `./automationsWidget`.
+- Frontend navigation paths under `operation/*` and `operation/settings/*` registered from `src/config.tsx`.
 - Relation widget names `tasks` and `projects`, plus property input `taskStatus`.
 
 ### Consumes
@@ -94,22 +94,29 @@
 
 ## Local Invariants
 
+- "Your teams" collapsibles in `TeamsNavigation` are controlled by
+  `openTeamsNavigationState` (localStorage `operation:open-teams-navigation`),
+  and the team in the current route (`/operation/team/:teamId/…`) always
+  unfolds. Keep them controlled: the app sidebar remounts whenever the user
+  switches app tabs, so uncontrolled open state would be lost.
 - The plugin owns its whole app sidebar. `src/modules/OperationMain.tsx` (the `./operation`
   expose) wraps its routes in `erxes-ui` `AppLayout` (`id="operation"`) with
   `OperationSidebar`. Core-ui draws only the top `CoreTab` bar; `navigationGroup` in
   `src/config.tsx` supplies just the tab name, icon and `defaultPath` and takes
   no `content`/`subGroup`.
 - `OperationSidebarFooter` pins a Settings link to the bottom of the app
-  sidebar. Under `/settings/operation/…` core-ui frames the settings pages
-  (the `./operationSettings` expose renders content only — never wrap it in
-  `AppLayout`): the sidebar is this plugin's `settingsNavigation` from
-  `src/config.tsx`, plus core's Tags/Properties entries when the plugin
-  registers tag or property types (`/settings/operation/tags`,
-  `/settings/operation/properties`, filtered to this plugin's types), and a
-  Back link to the app. Keep `settingsNavigation` defined: it is how core
-  knows the plugin has its own settings.
-  `settingsNavigation` renders no `Sidebar.GroupLabel`: core titles the
-  sidebar "<Plugin> settings" and appends Tags/Properties to the same list.
+  sidebar. The plugin owns its settings at `/operation/settings/*`, served by its
+  own entry: the entry's top-level `<Routes>` sends `settings/*` to
+  `OperationSettingsLayout` (`src/Sidebar.tsx`, an `AppLayout` titled
+  "<Plugin> settings" with a Back link to the app) and `*` to the app
+  `AppLayout`. Settings pages render inside `PluginSettingsRoutes`
+  (`ui-modules`), which also serves `tags` and `properties/*` scoped to
+  this plugin's types; the settings sidebar appends
+  `PluginSharedSettingsNavigation`, which lists Tags/Properties only when the
+  plugin registers those types. Core organization settings never list
+  plugin settings, `config.tsx` has no `settingsNavigation`, and there is
+  no `./operationSettings` expose; old `/settings/operation/…` URLs are redirected
+  by core. The settings navigation renders no `Sidebar.GroupLabel`.
 - Page header breadcrumbs follow the shared pattern: crumbs are default ghost `Button`s (no `font-semibold`), the first crumb carries a 16px icon in the default text color, crumbs are separated by `Separator.Inline` or `Breadcrumb.Separator`, and settings pages carry no favorite toggle.
 - Keep user-facing task labels as Due date while retaining `targetDate` in storage and API fields. Date-filtered task lists must refetch inside `useSubscription.onData` before applying create/delete cache changes; updates can move a task into or out of a range.
 

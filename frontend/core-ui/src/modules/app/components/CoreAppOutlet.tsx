@@ -7,10 +7,11 @@ import { Outlet, useLocation } from 'react-router-dom';
 import { SegmentsContextNavigation } from '@/segments/components/SegmentsSidebar';
 import { SettingsSidebar } from '@/settings/components/SettingsSidebar';
 import { AppPath } from '@/types/paths/AppPath';
-import { findAppActivityByPath } from '@/navigation/utils/navigationActivities';
+import {
+  findAppActivityByPath,
+  isOrganizationSettingsPath,
+} from '@/navigation/utils/navigationActivities';
 import { useNavigationActivities } from '@/navigation/hooks/useNavigationActivities';
-import { PluginSettingsLayout } from '@/settings/components/PluginSettingsLayout';
-import { usePluginSettingsApp } from '@/navigation/hooks/usePluginSettingsActivity';
 import { useTranslation } from 'react-i18next';
 
 const getCoreModuleSidebar = (
@@ -33,26 +34,16 @@ const getCoreModuleSidebar = (
 };
 
 /**
- * Plugin app routes render bare: the plugin entry draws its own sidebar and
- * pages. A plugin's own settings get core's frame around its settings
- * navigation (plus the tags/properties it uses). Core apps (organization
- * settings, core modules) get their sidebar from core.
+ * Plugin routes render bare: the plugin entry draws its own sidebar, pages
+ * and settings. Core apps (organization settings, core modules) get their
+ * sidebar from core.
  */
 export const CoreAppOutlet = () => {
   const activities = useNavigationActivities();
-  const pluginSettingsApp = usePluginSettingsApp();
   const { pathname } = useLocation();
   const { t } = useTranslation('common', { keyPrefix: 'navigation' });
 
-  if (pluginSettingsApp) {
-    return (
-      <PluginSettingsLayout app={pluginSettingsApp}>
-        <Outlet />
-      </PluginSettingsLayout>
-    );
-  }
-
-  if (pathname.includes(`/${AppPath.Settings}`)) {
+  if (isOrganizationSettingsPath(pathname)) {
     return (
       <AppLayout
         id="core:settings"

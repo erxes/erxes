@@ -37,6 +37,7 @@ export const useNavigationActivities = (): INavigationActivity[] => {
           kind: 'plugin',
           modules: group.modules,
           defaultPath: group.defaultPath,
+          platformMismatch: group.platformMismatch,
         };
       });
 

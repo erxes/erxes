@@ -91,10 +91,10 @@ export const IntegrationDetailPage = () => {
           className="text-muted-foreground"
           onClick={() => {
             if (!id) {
-              navigate('/settings/frontline/channels');
+              navigate('/frontline/settings/channels');
               return;
             }
-            navigate(`/settings/frontline/channels/${id}`);
+            navigate(`/frontline/settings/channels/${id}`);
           }}
         >
           <IconChevronLeft />

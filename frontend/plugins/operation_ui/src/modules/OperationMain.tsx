@@ -1,6 +1,11 @@
-import { Suspense } from 'react';
-import { AppLayout } from 'erxes-ui';
-import { OperationSidebar, OperationSidebarFooter } from '~/Sidebar';
+import { PluginSettingsRoutes } from 'ui-modules';
+import { Suspense, lazy } from 'react';
+import { AppLayout, Spinner } from 'erxes-ui';
+import {
+  OperationSidebar,
+  OperationSidebarFooter,
+  OperationSettingsLayout,
+} from '~/Sidebar';
 import { Navigate, Route, Routes } from 'react-router';
 
 import { TasksPage } from '~/pages/TasksPage';
@@ -56,4 +61,32 @@ const OperationMain = () => {
   );
 };
 
-export default OperationMain;
+const OperationSettingsRoutes = lazy(
+  () => import('~/modules/OperationSettings'),
+);
+// JSX needs a capitalised name.
+const OperationAppRoutes = OperationMain;
+
+/** The plugin owns its settings too: `/operation/settings/*` has its own sidebar. */
+const OperationEntry = () => (
+  <Routes>
+    <Route
+      path="settings/*"
+      element={
+        <OperationSettingsLayout>
+          <Suspense fallback={<Spinner />}>
+            <PluginSettingsRoutes
+              pluginName="operation"
+              basePath="/operation/settings"
+            >
+              <OperationSettingsRoutes />
+            </PluginSettingsRoutes>
+          </Suspense>
+        </OperationSettingsLayout>
+      }
+    />
+    <Route path="*" element={<OperationAppRoutes />} />
+  </Routes>
+);
+
+export default OperationEntry;

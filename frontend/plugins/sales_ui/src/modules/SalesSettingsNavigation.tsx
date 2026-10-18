@@ -1,5 +1,5 @@
 import { IconCashRegister, IconLayoutKanban } from '@tabler/icons-react';
-import { SettingsNavigationMenuLinkItem, Sidebar } from 'erxes-ui';
+import { NavigationMenuLinkItem, Sidebar } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
 export const SalesSettingsNavigation = () => {
@@ -8,15 +8,15 @@ export const SalesSettingsNavigation = () => {
     <Sidebar.Group>
       <Sidebar.GroupContent className="pt-1">
         <Sidebar.Menu>
-          <SettingsNavigationMenuLinkItem
-            pathPrefix="sales"
+          <NavigationMenuLinkItem
+            pathPrefix="sales/settings"
             path="/deals"
             name={t('deals')}
             icon={IconLayoutKanban}
           />
 
-          <SettingsNavigationMenuLinkItem
-            pathPrefix="sales"
+          <NavigationMenuLinkItem
+            pathPrefix="sales/settings"
             path="/pos"
             name={t('pos')}
             icon={IconCashRegister}

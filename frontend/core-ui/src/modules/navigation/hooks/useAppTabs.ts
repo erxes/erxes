@@ -5,11 +5,13 @@ import { AppPath } from '@/types/paths/AppPath';
 import { INavigationActivity } from '@/navigation/types/NavigationActivity';
 import { IconInbox } from '@tabler/icons-react';
 import { appLastLocationState } from '@/navigation/states/appLastLocationState';
-import { findAppActivityByPath } from '@/navigation/utils/navigationActivities';
+import {
+  findAppActivityByPath,
+  isOrganizationSettingsPath,
+} from '@/navigation/utils/navigationActivities';
 import { openAppTabsState } from '@/navigation/states/openAppTabsState';
 import { useAtom } from 'jotai';
 import { useNavigationActivities } from '@/navigation/hooks/useNavigationActivities';
-import { usePluginSettingsActivity } from '@/navigation/hooks/usePluginSettingsActivity';
 import { useTranslation } from 'react-i18next';
 import {
   closeAppTab,
@@ -29,7 +31,6 @@ const toHomePath = (activity: INavigationActivity) =>
  */
 export const useAppTabs = () => {
   const navigationActivities = useNavigationActivities();
-  const pluginSettingsActivity = usePluginSettingsActivity();
   const { t } = useTranslation('common', { keyPrefix: 'sidebar' });
   const { pathname, search } = useLocation();
   const navigate = useNavigate();
@@ -51,10 +52,11 @@ export const useAppTabs = () => {
     [navigationActivities, t],
   );
 
-  const isSettings = pathname.includes(`/${AppPath.Settings}`);
-  // A plugin's own settings belong to its app tab.
+  const isSettings = isOrganizationSettingsPath(pathname);
+  // Organization settings is not an app tab; plugin settings live under the
+  // plugin's own path, so they resolve to its tab.
   const routeActivity = isSettings
-    ? pluginSettingsActivity
+    ? undefined
     : findAppActivityByPath(activities, pathname);
   const routeActivityId = routeActivity?.id;
   const location = `${pathname}${search}`;

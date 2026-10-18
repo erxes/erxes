@@ -36,7 +36,7 @@ export const getPipelinePath = (
   pipelineId: string,
   segment: TPipelineTabSegment,
 ) => {
-  const base = `/settings/frontline/channels/${channelId}/pipelines/${pipelineId}`;
+  const base = `/frontline/settings/channels/${channelId}/pipelines/${pipelineId}`;
 
   return segment ? `${base}/${segment}` : base;
 };

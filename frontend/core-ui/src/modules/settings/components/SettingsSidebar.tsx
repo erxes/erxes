@@ -7,21 +7,18 @@ import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { NavigationMenuLinkItem, Sidebar, cn } from 'erxes-ui';
 import React, { useEffect, useMemo, useState } from 'react';
-import { pluginsConfigState, usePermissionCheck, useVersion } from 'ui-modules';
+import { usePermissionCheck, useVersion } from 'ui-modules';
 
 import { AppPath } from '@/types/paths/AppPath';
 import { GET_CORE_MODULES } from '~/plugins/constants/core-plugins.constants';
 import { NavigationDisclosure } from '@/navigation/components/app-sidebar/NavigationDisclosure';
 import { findActiveNavigationPath } from '@/navigation/utils/navigationPathMatch';
-import { useAtomValue } from 'jotai';
 import { usePageTrackerStore } from 'react-page-tracker';
 import { useSettingsSubNavigation } from '@/settings/hooks/useSettingsSubNavigation';
 import { useTranslation } from 'react-i18next';
 
 export function SettingsSidebar() {
-  const pluginsMetaData = useAtomValue(pluginsConfigState) || {};
-  const { isLoaded, isWildcard, hasModulePermission, hasPluginPermission } =
-    usePermissionCheck();
+  const { isLoaded, isWildcard, hasModulePermission } = usePermissionCheck();
 
   const version = useVersion();
   const { t } = useTranslation('common', { keyPrefix: 'sidebar' });
@@ -38,19 +35,6 @@ export function SettingsSidebar() {
       return hasModulePermission(requiredModule);
     });
   };
-
-  // Plugins with an app keep their settings in their own sidebar; only
-  // settings-only plugins (no app) are listed in organization settings.
-  const pluginsWithSettingsNavigations = Object.values(pluginsMetaData)
-    .filter((plugin) => {
-      if (!plugin.settingsNavigation || !plugin.settingsOnly) return false;
-      if (!isLoaded || isWildcard) return true;
-      return hasPluginPermission(plugin.name);
-    })
-    .map((plugin) => ({
-      Navigation: plugin.settingsNavigation,
-      name: plugin.name,
-    }));
 
   const filteredNav = filterByPermission(sidebar.nav);
   const filteredDeveloper = filterByPermission(sidebar.developer);
@@ -111,10 +95,6 @@ export function SettingsSidebar() {
             />
           ))}
         </SettingsNavigationGroup>
-
-        {pluginsWithSettingsNavigations.map(
-          ({ Navigation, name }) => Navigation && <Navigation key={name} />,
-        )}
       </Sidebar.Content>
     </>
   );

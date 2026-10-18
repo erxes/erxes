@@ -1,6 +1,11 @@
+import { PluginSettingsRoutes } from 'ui-modules';
 import { lazy, Suspense } from 'react';
-import { AppLayout } from 'erxes-ui';
-import { FrontlineSidebar, FrontlineSidebarFooter } from '~/Sidebar';
+import { AppLayout, Spinner } from 'erxes-ui';
+import {
+  FrontlineSidebar,
+  FrontlineSidebarFooter,
+  FrontlineSettingsLayout,
+} from '~/Sidebar';
 import { Navigate, Route, Routes } from 'react-router';
 
 const CallDashboardIndexPage = lazy(() =>
@@ -125,7 +130,10 @@ const IntegrationsMain = () => {
             path="/calls/dashboard/:id"
             element={<CallDashboardDetailPage />}
           />
-          <Route path="/calls/statistics" element={<CallStatisticsIndexPage />} />
+          <Route
+            path="/calls/statistics"
+            element={<CallStatisticsIndexPage />}
+          />
           <Route
             path="/calls/statistics/:id"
             element={
@@ -156,4 +164,32 @@ const IntegrationsMain = () => {
   );
 };
 
-export default IntegrationsMain;
+const FrontlineSettingsRoutes = lazy(
+  () => import('~/modules/FrontlineSettings'),
+);
+// JSX needs a capitalised name.
+const FrontlineAppRoutes = IntegrationsMain;
+
+/** The plugin owns its settings too: `/frontline/settings/*` has its own sidebar. */
+const FrontlineEntry = () => (
+  <Routes>
+    <Route
+      path="settings/*"
+      element={
+        <FrontlineSettingsLayout>
+          <Suspense fallback={<Spinner />}>
+            <PluginSettingsRoutes
+              pluginName="frontline"
+              basePath="/frontline/settings"
+            >
+              <FrontlineSettingsRoutes />
+            </PluginSettingsRoutes>
+          </Suspense>
+        </FrontlineSettingsLayout>
+      }
+    />
+    <Route path="*" element={<FrontlineAppRoutes />} />
+  </Routes>
+);
+
+export default FrontlineEntry;

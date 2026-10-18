@@ -251,16 +251,18 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   `src/config.tsx` supplies just the tab name, icon and `defaultPath` and takes
   no `content`/`subGroup`.
 - `SalesSidebarFooter` pins a Settings link to the bottom of the app
-  sidebar. Under `/settings/sales/…` core-ui frames the settings pages
-  (the `./salesSettings` expose renders content only — never wrap it in
-  `AppLayout`): the sidebar is this plugin's `settingsNavigation` from
-  `src/config.tsx`, plus core's Tags/Properties entries when the plugin
-  registers tag or property types (`/settings/sales/tags`,
-  `/settings/sales/properties`, filtered to this plugin's types), and a
-  Back link to the app. Keep `settingsNavigation` defined: it is how core
-  knows the plugin has its own settings.
-  `settingsNavigation` renders no `Sidebar.GroupLabel`: core titles the
-  sidebar "<Plugin> settings" and appends Tags/Properties to the same list.
+  sidebar. The plugin owns its settings at `/sales/settings/*`, served by its
+  own entry: the entry's top-level `<Routes>` sends `settings/*` to
+  `SalesSettingsLayout` (`src/Sidebar.tsx`, an `AppLayout` titled
+  "<Plugin> settings" with a Back link to the app) and `*` to the app
+  `AppLayout`. Settings pages render inside `PluginSettingsRoutes`
+  (`ui-modules`), which also serves `tags` and `properties/*` scoped to
+  this plugin's types; the settings sidebar appends
+  `PluginSharedSettingsNavigation`, which lists Tags/Properties only when the
+  plugin registers those types. Core organization settings never list
+  plugin settings, `config.tsx` has no `settingsNavigation`, and there is
+  no `./salesSettings` expose; old `/settings/sales/…` URLs are redirected
+  by core. The settings navigation renders no `Sidebar.GroupLabel`.
 - All Sales documents use `gql()` from `~/gql`; hooks and cache/subscription updates
   infer their results from those documents. `eslint.config.js` enforces this
   with Operation's rules: `graphql-tag` and `gql` from `@apollo/client` are
