@@ -796,7 +796,7 @@ export const loadCustomerClass = (
           action: 'update',
           docId: _id,
           currentDocument: updatedCustomer.toObject(),
-          prevDocument: customer.toObject(),
+          prevDocument: customer,
         });
         generateCustomerUpdateActivityLogs(
           { subdomain, models },
