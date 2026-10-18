@@ -18,7 +18,7 @@ import {
   formatDateISOStringToRelativeDate,
   toast,
 } from 'erxes-ui';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { PageHeader } from 'ui-modules';
 
@@ -53,10 +53,12 @@ export const AgentSettingsConnectionPage = () => {
 
   const [provider, setProvider] = useState('');
   const [apiKey, setApiKey] = useState('');
+  useEffect(() => {
+    setApiKey('');
+    setShowKey(false);
+  }, [provider]);
   const [showKey, setShowKey] = useState(false);
-  const [removingProvider, setRemovingProvider] = useState<string | null>(
-    null,
-  );
+  const [removingProvider, setRemovingProvider] = useState<string | null>(null);
 
   const refetchQueries = [{ query: AGENTS_CONNECTIONS }];
 
@@ -106,7 +108,10 @@ export const AgentSettingsConnectionPage = () => {
     }
 
     void upsertConnection({
-      variables: { provider: trimmedProvider, apiKey: apiKey.trim() },
+      variables: {
+        provider: trimmedProvider,
+        ...(apiKey.trim() ? { apiKey: apiKey.trim() } : {}),
+      },
     });
   };
 
@@ -166,8 +171,8 @@ export const AgentSettingsConnectionPage = () => {
                   Configured providers
                 </Label>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  Each provider keeps its own key; the chat's model picker
-                  lists models from every configured provider.
+                  Each provider keeps its own key; the chat's model picker lists
+                  models from every configured provider.
                 </p>
               </div>
 
@@ -223,7 +228,9 @@ export const AgentSettingsConnectionPage = () => {
                           variant="ghost"
                           size="icon"
                           className="size-7 shrink-0 text-muted-foreground hover:text-destructive"
-                          aria-label={`Remove ${getProviderLabel(connection.provider)} key`}
+                          aria-label={`Remove ${getProviderLabel(
+                            connection.provider,
+                          )} key`}
                           onClick={() =>
                             setRemovingProvider(connection.provider)
                           }
@@ -332,8 +339,8 @@ export const AgentSettingsConnectionPage = () => {
               {removingProvider && (
                 <ProviderIcon provider={removingProvider} className="size-5" />
               )}
-              Remove {removingProvider ? getProviderLabel(removingProvider) : ''}{' '}
-              key
+              Remove{' '}
+              {removingProvider ? getProviderLabel(removingProvider) : ''} key
             </AlertDialog.Title>
             <AlertDialog.Description>
               This provider disappears from the chat's model picker until a new

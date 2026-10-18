@@ -1,3 +1,4 @@
+import { PermissionRouteGuard } from '@/auth/components/PermissionRouteGuard';
 import { lazy, Suspense } from 'react';
 import { Navigate, Route, Routes } from 'react-router';
 import { EmailTemplatesSettingsRoutes } from '@/emailTemplates/components/EmailTemplatesSettingsRoutes';
@@ -241,7 +242,13 @@ export function SettingsRoutes() {
         />
         <Route
           path={SettingsWorkspacePath.AgentCatchAll}
-          element={<AgentSettingsRoutes />}
+          element={
+            <PermissionRouteGuard module="agents">
+              <Suspense fallback={<div />}>
+                <AgentSettingsRoutes />
+              </Suspense>
+            </PermissionRouteGuard>
+          }
         />
         <Route
           path={SettingsWorkspacePath.AutomationsCatchAll}

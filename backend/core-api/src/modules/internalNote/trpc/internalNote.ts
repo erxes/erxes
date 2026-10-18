@@ -5,7 +5,6 @@ import { z } from 'zod';
 import { IModels } from '~/connectionResolvers';
 import { CoreTRPCContext } from '~/init-trpc';
 import { addInternalNote } from '~/modules/internalNote/services';
-import { agentMeta } from '~/utils/agentMeta';
 
 const t = initTRPC.context<CoreTRPCContext>().create();
 
@@ -18,7 +17,10 @@ const requireAgentUser = async (ctx: {
   userId?: string;
 }) => {
   const user = ctx.userId
-    ? await ctx.models.Users.findOne({ _id: ctx.userId }).lean()
+    ? await ctx.models.Users.findOne(
+        { _id: ctx.userId, isActive: { $ne: false } },
+        '_id email details isOwner groupIds brandIds username code branchIds departmentIds permissionGroupIds customPermissions',
+      ).lean()
     : null;
 
   if (!user) {
@@ -64,12 +66,6 @@ export const textToNoteBlocks = (text: string): string => {
 export const internalNoteTrpcRouter = t.router({
   internalNotes: t.router({
     add: t.procedure
-      .meta(
-        agentMeta(
-          'Add an internal note to a customer, company, or deal: { contentType: "core:customer" | "core:company" | "sales:deal", contentTypeId, content }. Notes are visible to the team only, never to the customer. content is plain text; line breaks become paragraphs. Returns the created note.',
-          { module: 'internalNotes', action: 'internalNotesManage' },
-        ),
-      )
       .input(
         z.object({
           contentType: z.enum([

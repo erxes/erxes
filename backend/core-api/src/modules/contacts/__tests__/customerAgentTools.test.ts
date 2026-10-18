@@ -87,7 +87,7 @@ describe('customers.add', () => {
       primaryPhone: '+9911',
       emails: ['jane@example.com'],
       phones: ['+9911'],
-    });
+    }, actingUser);
     expect(result).toEqual({
       _id: 'c1',
       doc: {
@@ -223,23 +223,9 @@ describe('customers.edit', () => {
   });
 });
 
-describe('customers agent metadata', () => {
-  it('exposes add/edit with their permissions and keeps internal writes invisible', () => {
-    expect(agentMetaOf('customers.add')?.permission).toEqual({
-      module: 'contacts',
-      action: 'contactsCreate',
-    });
-    expect(agentMetaOf('customers.edit')?.permission).toEqual({
-      module: 'contacts',
-      action: 'contactsUpdate',
-    });
-
-    for (const path of [
-      'customers.createCustomer',
-      'customers.updateCustomer',
-      'customers.updateOne',
-    ]) {
-      expect(agentMetaOf(path)).toBeUndefined();
-    }
+describe('internal tRPC procedures', () => {
+  it('does not expose agent metadata', () => {
+    expect(agentMetaOf('customers.add')).toBeUndefined();
+    expect(agentMetaOf('customers.edit')).toBeUndefined();
   });
 });

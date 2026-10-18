@@ -78,7 +78,7 @@ export const ArtifactCard = ({ artifact }: IArtifactCardProps) => {
       }
     };
 
-    generate();
+    void generate();
 
     return () => {
       cancelled = true;

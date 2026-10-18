@@ -4,7 +4,6 @@ import { z } from 'zod';
 import { syncCustomerContactToCPUsers } from '@/clientportal/services/user/contactService';
 import { IModels } from '~/connectionResolvers';
 import { CoreTRPCContext } from '~/init-trpc';
-import { agentMeta } from '~/utils/agentMeta';
 import { createOrUpdate } from '../utils';
 
 const t = initTRPC.context<CoreTRPCContext>().create();
@@ -50,12 +49,6 @@ const requireAgentUser = async (ctx: {
 export const customerRouter = t.router({
   customers: t.router({
     find: t.procedure
-      .meta(
-        agentMeta(
-          'Search customers (people) with a MongoDB-style filter. Input: { query: {...} }, e.g. { query: { primaryEmail: "a@b.com" } } or { query: { tagIds: ["tagId"] } }. Returns full customer documents. Use customers.findOne when you already know a unique key, and customers.count when you only need the total number.',
-          { module: 'contacts', action: 'contactsRead' },
-        ),
-      )
       .input(z.object({ query: z.any() }))
       .query(async ({ ctx, input }) => {
         const { query } = input;
@@ -65,12 +58,6 @@ export const customerRouter = t.router({
       }),
 
     findOne: t.procedure
-      .meta(
-        agentMeta(
-          'Get a single customer by a unique key: { _id }, { customerPrimaryEmail }, { customerPrimaryPhone }, or { customerCode }. Deleted customers are excluded automatically. Returns {} when nothing matches. Always call this before customers.updateCustomer to confirm the record and read its current values.',
-          { module: 'contacts', action: 'contactsRead' },
-        ),
-      )
       .input(z.any())
       .query(async ({ ctx, input }) => {
         const query = input?.query || input?.selector || input;
@@ -107,12 +94,6 @@ export const customerRouter = t.router({
       }),
 
     findActiveCustomers: t.procedure
-      .meta(
-        agentMeta(
-          'List active (non-deleted) customers with optional projection and pagination: { query, fields, skip, limit }, e.g. fields: { primaryEmail: 1, firstName: 1 } to return only those columns. Prefer customers.find unless you need field projection or pagination.',
-          { module: 'contacts', action: 'contactsRead' },
-        ),
-      )
       .input(
         z.object({
           query: z.any(),
@@ -147,12 +128,6 @@ export const customerRouter = t.router({
       }),
 
     count: t.procedure
-      .meta(
-        agentMeta(
-          'Count customers matching a MongoDB-style filter: { query: {...} }. Use this for "how many customers ..." questions instead of fetching full records.',
-          { module: 'contacts', action: 'contactsRead' },
-        ),
-      )
       .input(z.object({ query: z.any() }))
       .query(async ({ ctx, input }) => {
         const { query } = input;
@@ -162,16 +137,10 @@ export const customerRouter = t.router({
       }),
 
     add: t.procedure
-      .meta(
-        agentMeta(
-          'Create a customer (person) as the acting user. Input: { firstName?, lastName?, middleName?, primaryEmail?, primaryPhone?, code?, position?, department?, description?, state? ("lead" | "customer"), ownerId? } with at least one of firstName, lastName, primaryEmail or primaryPhone. Check customers.findOne with { customerPrimaryEmail } or { customerPrimaryPhone } first so you do not create a duplicate. Returns the created customer.',
-          { module: 'contacts', action: 'contactsCreate' },
-        ),
-      )
       .input(z.object(customerWriteFields))
       .mutation(async ({ ctx, input }) => {
         const { models } = ctx;
-        await requireAgentUser(ctx);
+        const user = await requireAgentUser(ctx);
 
         const { firstName, lastName, primaryEmail, primaryPhone } = input;
 
@@ -198,16 +167,10 @@ export const customerRouter = t.router({
           doc.phones = [primaryPhone];
         }
 
-        return models.Customers.createCustomer(doc);
+        return models.Customers.createCustomer(doc, user);
       }),
 
     edit: t.procedure
-      .meta(
-        agentMeta(
-          'Update fields on an existing customer: { _id, ...fields to change } using the same fields as customers.add. Only the fields you pass change. Call customers.findOne first to confirm the record and its current values, and tell the user what will change.',
-          { module: 'contacts', action: 'contactsUpdate' },
-        ),
-      )
       .input(z.object({ _id: agentRecordId, ...customerWriteFields }))
       .mutation(async ({ ctx, input }) => {
         const { models } = ctx;

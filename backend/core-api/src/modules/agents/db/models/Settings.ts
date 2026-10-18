@@ -1,9 +1,7 @@
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { agentsSettingsSchema } from '@/agents/db/definitions/settings';
-import {
-  IAgentsSettingsDocument,
-} from '@/agents/@types/settings';
+import { IAgentsSettingsDocument } from '@/agents/@types/settings';
 
 export interface IAgentsSettingsUpdateInput {
   codeModeEnabled?: boolean;
@@ -11,8 +9,7 @@ export interface IAgentsSettingsUpdateInput {
   approvalMode?: string;
 }
 
-export interface IAgentsSettingsModel
-  extends Model<IAgentsSettingsDocument> {
+export interface IAgentsSettingsModel extends Model<IAgentsSettingsDocument> {
   /**
    * Returns the tenant's settings document, creating it with schema
    * defaults on first read. Tenant isolation is handled by the
@@ -28,6 +25,8 @@ export interface IAgentsSettingsModel
   ): Promise<IAgentsSettingsDocument>;
 }
 
+const SETTINGS_ID = '000000000000000000000001';
+
 export const loadAgentsSettingsClass = (models: IModels) => {
   class AgentsSettings {
     public static async getSettings(): Promise<IAgentsSettingsDocument> {
@@ -39,9 +38,20 @@ export const loadAgentsSettingsClass = (models: IModels) => {
         return existing;
       }
 
-      const created = await models.AgentsSettings.create({});
+      const created = await models.AgentsSettings.findOneAndUpdate(
+        { _id: SETTINGS_ID },
+        {
+          $setOnInsert: {
+            codeModeEnabled: false,
+            codeModeEnvironment: 'in-process',
+            approvalMode: 'writes',
+          },
+        },
+        { new: true, upsert: true, setDefaultsOnInsert: true },
+      ).lean<IAgentsSettingsDocument>();
 
-      return created.toObject() as IAgentsSettingsDocument;
+      if (!created) throw new Error('Agents settings not found');
+      return created;
     }
 
     public static async updateSettings(
@@ -61,10 +71,11 @@ export const loadAgentsSettingsClass = (models: IModels) => {
         set.approvalMode = input.approvalMode;
       }
 
+      const settings = await models.AgentsSettings.getSettings();
       const doc = await models.AgentsSettings.findOneAndUpdate(
-        {},
+        { _id: settings._id },
         { $set: set },
-        { new: true, upsert: true },
+        { new: true },
       ).lean<IAgentsSettingsDocument>();
 
       if (!doc) {

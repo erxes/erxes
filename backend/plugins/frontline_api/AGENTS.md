@@ -436,10 +436,8 @@
   its customer, and refuses a second item of the same kind for one
   conversation. There is no task target; `conversationConvertToCard` rejects
   `type: "task"` as an unsupported convert type.
-- Read-only inbox, integration, and form-submission tRPC procedures are
-  exposed to AI agents through `/agent-tools/manifest` and `/agent-tools/call`
-  via `.meta(agentMeta(...))` annotations; every other procedure remains
-  invisible to agents.
+- Agents use the public GraphQL API as the acting user; tRPC remains an
+  internal service contract without agent metadata.
 - A help center points at a client portal by **`clientPortalId`**, and keeps
   that portal's `domain` in `url` and its `token` in `erxesAppToken` as derived
   copies. The copies exist because `ClientPortal` is not a federated entity and
@@ -500,7 +498,6 @@ The root router mounts its authenticated webhook at `/telegram`.
 | GraphQL                  | `src/apollo/`                                                                                                                                                    | Aggregated `typeDefs` and `resolvers` across modules                                                                                                                                                                   |
 | Schema print             | `print-schema.ts`                                                                                                                                                | Prints the subgraph schema for `frontline_ui` codegen (`generated/`, gitignored)                                                                                                                                       |
 | tRPC                     | `src/init-trpc.ts`                                                                                                                                               | `appRouter` for service-to-service calls                                                                                                                                                                               |
-| Agent tool metadata      | `src/trpc/agentMeta.ts`                                                                                                                                          | Local `agentMeta` helper for agent-callable tRPC annotations                                                                                                                                                           |
 | HTTP                     | `src/routes.ts`                                                                                                                                                  | Mounts the `/facebook`, `/instagram`, `/mail`, and (when enabled) `/callpro` webhook routers                                                                                                                           |
 | Platform extensions      | `src/meta/`                                                                                                                                                      | automations, permissions, notifications, segments, references, import/export                                                                                                                                           |
 | Channels                 | `src/modules/channel/`                                                                                                                                           | Channel + ChannelMember models, schema, resolvers, role checks                                                                                                                                                         |
@@ -536,7 +533,6 @@ The root router mounts its authenticated webhook at `/telegram`.
 | Models                   | `src/connectionResolvers.ts`                                                                                                                                     | Per-subdomain model container for all modules                                                                                                                                                                          |
 | GraphQL                  | `src/apollo/`                                                                                                                                                    | Aggregated `typeDefs` and `resolvers` across modules                                                                                                                                                                   |
 | tRPC                     | `src/init-trpc.ts`                                                                                                                                               | `appRouter` for service-to-service calls                                                                                                                                                                               |
-| Agent tool metadata      | `src/trpc/agentMeta.ts`                                                                                                                                          | Local `agentMeta` helper for agent-callable tRPC annotations                                                                                                                                                           |
 | HTTP                     | `src/routes.ts`                                                                                                                                                  | Mounts the `/facebook`, `/instagram`, `/mail`, and (when enabled) `/callpro` webhook routers                                                                                                                           |
 | Platform extensions      | `src/meta/`                                                                                                                                                      | automations, permissions, notifications, segments, references, import/export                                                                                                                                           |
 | Channels                 | `src/modules/channel/`                                                                                                                                           | Channel + ChannelMember models, schema, resolvers, role checks                                                                                                                                                         |
@@ -750,16 +746,9 @@ accountId, brandId, data)` — `channelId` is **nullable** for every kind;
 - tRPC `appRouter` consumed by other services, including
   `inbox.updateUserChannels({ channelIds, userId })` — replaces a user's team
   channel memberships; never touches their personal channel.
-- Agent-callable tRPC tools (admit-only via `.meta({ agent })`), each gated by
-  the listed frontline permission action:
-  - `inbox.conversations.findOne`, `inbox.conversations.count`,
-    `inbox.getConversationsList`, `inbox.conversationMessages.findOne`,
-    `inbox.conversationMessages.find` — `showConversations`
-  - `inbox.conversations.changeStatus` — `conversationsChangeStatus`
-  - `inbox.integrations.findOne`, `inbox.integrations.find`,
-    `inbox.integrations.count`, `inbox.getIntegrationKinds` —
-    `showIntegrations`
-  - `form.submissionsByConversation` — `showFormSubmissions`
+- Agents discover the GraphQL schema and execute through the gateway as the
+  acting user. Internal tRPC procedures carry no agent metadata.
+
 - GraphQL Facebook bot and page contracts read as object types, not `JSON`:
   `FacebookMessengerBot._id` is non-null; its `account` is `FacebookBotAccount`
   (`_id`, `name`) and its `page` is `FacebookBotPage` (`id`, `name` from the

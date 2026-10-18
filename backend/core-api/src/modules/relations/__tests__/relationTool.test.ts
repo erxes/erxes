@@ -123,26 +123,9 @@ describe('relation.findRelatedIds', () => {
     ).rejects.toThrow(/plugin:type/);
   });
 
-  it('carries agent meta permission contacts.contactsRead; existing procedures carry none', () => {
-    const defs = agentProcedures();
-    const findRelatedIds = defs['relation.findRelatedIds'];
-    const meta = findRelatedIds._def.meta as {
-      agent?: { permission?: { module: string; action: string } };
-    };
-
-    expect(meta.agent?.permission).toEqual({
-      module: 'contacts',
-      action: 'contactsRead',
-    });
-
-    for (const [path, proc] of Object.entries(defs)) {
-      if (path === 'relation.findRelatedIds') {
-        continue;
-      }
-
-      expect(
-        (proc._def.meta as Record<string, unknown> | undefined)?.agent,
-      ).toBeUndefined();
+  it('does not expose agent metadata on any internal procedure', () => {
+    for (const proc of Object.values(agentProcedures())) {
+      expect(proc._def.meta?.agent).toBeUndefined();
     }
   });
 });

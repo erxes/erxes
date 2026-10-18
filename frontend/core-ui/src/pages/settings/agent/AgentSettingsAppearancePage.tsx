@@ -45,6 +45,38 @@ interface IBotThumbProps {
   frozenAt: number;
 }
 
+const BotThumb = ({
+  paper,
+  appearance,
+  paletteColor,
+  size,
+  state,
+  shape,
+  color: thumbColor,
+  expression,
+  frozenAt,
+}: IBotThumbProps & {
+  paper: string;
+  appearance: { shape: ShapeId; expression: ExpressionId };
+  paletteColor: ColorId;
+}) => (
+  <span
+    className="inline-flex items-center justify-center overflow-hidden rounded-full"
+    style={{ background: paper }}
+  >
+    <BloubAvatar
+      size={size}
+      state={state}
+      shape={shape ?? appearance.shape}
+      color={thumbColor ?? paletteColor}
+      expression={expression ?? appearance.expression}
+      paper={paper}
+      frozenAt={frozenAt}
+      role="presentation"
+    />
+  </span>
+);
+
 /**
  * Per-device bot appearance: shape, colour, rest expression, and whether
  * the floating tray shows. Nothing here touches the server — the
@@ -71,31 +103,6 @@ export const AgentSettingsAppearancePage = () => {
     setPreviewKey((key) => key + 1);
   };
 
-  const BotThumb = ({
-    size,
-    state,
-    shape,
-    color: thumbColor,
-    expression,
-    frozenAt,
-  }: IBotThumbProps) => (
-    <span
-      className="inline-flex items-center justify-center overflow-hidden rounded-full"
-      style={{ background: paper }}
-    >
-      <BloubAvatar
-        size={size}
-        state={state}
-        shape={shape ?? appearance.shape}
-        color={thumbColor ?? color}
-        expression={expression ?? appearance.expression}
-        paper={paper}
-        frozenAt={frozenAt}
-        role="presentation"
-      />
-    </span>
-  );
-
   return (
     <div className="flex h-full flex-col">
       <PageHeader>
@@ -113,9 +120,7 @@ export const AgentSettingsAppearancePage = () => {
               <Breadcrumb.Separator />
               <Breadcrumb.Item>
                 <Button variant="ghost" asChild>
-                  <Link to="/settings/agent">
-                    {t('settings', 'Settings')}
-                  </Link>
+                  <Link to="/settings/agent">{t('settings', 'Settings')}</Link>
                 </Button>
               </Breadcrumb.Item>
               <Breadcrumb.Separator />
@@ -189,7 +194,15 @@ export const AgentSettingsAppearancePage = () => {
                   className="h-auto p-2"
                   aria-label={t(`shape-${id}`)}
                 >
-                  <BotThumb size={40} state="idle" shape={id} frozenAt={POSES.idle} />
+                  <BotThumb
+                    paper={paper}
+                    appearance={appearance}
+                    paletteColor={color}
+                    size={40}
+                    state="idle"
+                    shape={id}
+                    frozenAt={POSES.idle}
+                  />
                 </ToggleGroup.Item>
               ))}
             </ToggleGroup>
@@ -243,6 +256,9 @@ export const AgentSettingsAppearancePage = () => {
                   aria-label={t(`expression-${id}`)}
                 >
                   <BotThumb
+                    paper={paper}
+                    appearance={appearance}
+                    paletteColor={color}
                     size={40}
                     state="idle"
                     expression={id}
@@ -271,7 +287,10 @@ export const AgentSettingsAppearancePage = () => {
                 onCheckedChange={(checked) =>
                   setAppearance({ trayEnabled: checked })
                 }
-                aria-label={t('appearance-show-tray', 'Show floating assistant')}
+                aria-label={t(
+                  'appearance-show-tray',
+                  'Show floating assistant',
+                )}
               />
             </div>
             <Button
@@ -312,7 +331,14 @@ export const AgentSettingsAppearancePage = () => {
                   onClick={() => playState(id)}
                   aria-label={t(`state-${id}`)}
                 >
-                  <BotThumb size={40} state={id} frozenAt={POSES[id]} />
+                  <BotThumb
+                    paper={paper}
+                    appearance={appearance}
+                    paletteColor={color}
+                    size={40}
+                    state={id}
+                    frozenAt={POSES[id]}
+                  />
                   <span className="text-[10px] text-muted-foreground">
                     {t(`state-${id}`)}
                   </span>

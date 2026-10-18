@@ -37,17 +37,22 @@ export class AgentsReadFileError extends Error {
 
 export const isPrivateIpv4 = (ip: string): boolean => {
   const parts = ip.split('.').map(Number);
-  if (parts.length !== 4 || parts.some((part) => Number.isNaN(part) || part < 0 || part > 255)) {
+  if (
+    parts.length !== 4 ||
+    parts.some((part) => Number.isNaN(part) || part < 0 || part > 255)
+  ) {
     return true;
   }
-  const [a, b] = parts;
+  const [a, b, c] = parts;
   return (
     a === 0 ||
     a === 10 ||
     a === 127 ||
     (a === 169 && b === 254) ||
     (a === 172 && b >= 16 && b <= 31) ||
-    (a === 192 && b === 168) ||
+    (a === 192 && (b === 168 || (b === 0 && c === 0))) ||
+    (a === 198 && (b === 18 || b === 19)) ||
+    a >= 224 ||
     (a === 100 && b >= 64 && b <= 127)
   );
 };
@@ -77,13 +82,38 @@ export const isPrivateIp = (ip: string): boolean => {
     return isPrivateIpv4(ip);
   }
   if (version === 6) {
-    const normalized = ip.toLowerCase();
+    const normalized = new URL(`http://[${ip}]/`).hostname.slice(1, -1);
+    const [head, tail] = normalized.split('::');
+    const left = head ? head.split(':') : [];
+    const right = tail ? tail.split(':') : [];
+    const words =
+      tail !== undefined
+        ? [
+            ...left,
+            ...Array<string>(8 - left.length - right.length).fill('0'),
+            ...right,
+          ]
+        : left;
+    const values = words.map((word) => Number.parseInt(word, 16));
+    const embeddedIpv4 = (hi: number, lo: number) =>
+      `${hi >> 8}.${hi & 255}.${lo >> 8}.${lo & 255}`;
+    if (values[0] === 0x2002) {
+      return isPrivateIpv4(embeddedIpv4(values[1], values[2]));
+    }
+    if (
+      values[0] === 0x64 &&
+      values[1] === 0xff9b &&
+      values.slice(2, 6).every((word) => word === 0)
+    ) {
+      return isPrivateIpv4(embeddedIpv4(values[6], values[7]));
+    }
     return (
       normalized === '::' ||
       normalized === '::1' ||
       normalized.startsWith('fc') ||
       normalized.startsWith('fd') ||
-      normalized.startsWith('fe80:')
+      /^fe[89a-f]/.test(normalized) ||
+      normalized.startsWith('ff')
     );
   }
   return true;
@@ -97,11 +127,17 @@ export const expandIpv4Hostname = (host: string): string | null => {
   if (/^\d+$/.test(host)) {
     const n = Number(host);
     if (n >= 0 && n <= 0xffffffff) {
-      return `${(n >>> 24) & 255}.${(n >>> 16) & 255}.${(n >>> 8) & 255}.${n & 255}`;
+      return `${(n >>> 24) & 255}.${(n >>> 16) & 255}.${(n >>> 8) & 255}.${
+        n & 255
+      }`;
     }
   }
   const parts = host.split('.');
-  if (!parts.length || parts.length > 4 || !parts.every((part) => /^\d+$/.test(part))) {
+  if (
+    !parts.length ||
+    parts.length > 4 ||
+    !parts.every((part) => /^\d+$/.test(part))
+  ) {
     return null;
   }
   const nums = parts.map(Number);
@@ -111,11 +147,18 @@ export const expandIpv4Hostname = (host: string): string | null => {
   if (parts.length === 4 && nums.every((n) => n <= 255)) {
     return nums.join('.');
   }
-  if (parts.length === 3 && nums[0] <= 255 && nums[1] <= 255 && nums[2] <= 0xffff) {
+  if (
+    parts.length === 3 &&
+    nums[0] <= 255 &&
+    nums[1] <= 255 &&
+    nums[2] <= 0xffff
+  ) {
     return `${nums[0]}.${nums[1]}.${(nums[2] >> 8) & 255}.${nums[2] & 255}`;
   }
   if (parts.length === 2 && nums[0] <= 255 && nums[1] <= 0xffffff) {
-    return `${nums[0]}.${(nums[1] >> 16) & 255}.${(nums[1] >> 8) & 255}.${nums[1] & 255}`;
+    return `${nums[0]}.${(nums[1] >> 16) & 255}.${(nums[1] >> 8) & 255}.${
+      nums[1] & 255
+    }`;
   }
   return null;
 };
@@ -148,7 +191,9 @@ export const extractReadFileKey = (url: URL): string | null => {
 export const isStorageKeyReference = (value: string): boolean =>
   Boolean(value.trim()) && !/^[a-z][a-z0-9+.-]*:/i.test(value.trim());
 
-export const lookupPublicAddresses = async (hostname: string): Promise<string[]> => {
+export const lookupPublicAddresses = async (
+  hostname: string,
+): Promise<string[]> => {
   const expanded = expandIpv4Hostname(hostname);
   if (expanded) {
     if (isPrivateIpv4(expanded)) {
@@ -170,7 +215,9 @@ export const lookupPublicAddresses = async (hostname: string): Promise<string[]>
   return ips;
 };
 
-export const assertReadableFileUrl = async (raw: string): Promise<{
+export const assertReadableFileUrl = async (
+  raw: string,
+): Promise<{
   url: URL;
   addresses: string[];
 }> => {
@@ -342,7 +389,10 @@ const downloadHttp = async (
 /** Test seam. Production uses pinned HTTP(S) requests. */
 export const httpTransport = { download: downloadHttp };
 
-const readStorageKey = async (subdomain: string, raw: string): Promise<Buffer> => {
+const readStorageKey = async (
+  subdomain: string,
+  raw: string,
+): Promise<Buffer> => {
   const value = raw.trim();
   if (
     !value ||
@@ -386,7 +436,9 @@ const readStorageKey = async (subdomain: string, raw: string): Promise<Buffer> =
       signal,
     );
     if (!bytes) {
-      throw new AgentsReadFileError('Could not read the image from file storage. Please upload it again.');
+      throw new AgentsReadFileError(
+        'Could not read the image from file storage. Please upload it again.',
+      );
     }
     if (bytes.length > AGENTS_READ_FILE_MAX_BYTES) {
       throw new AgentsReadFileError('File is too large to read.');
@@ -421,7 +473,11 @@ const classify = (
     return { kind: 'text', mimeType: mimeType || 'text/plain' };
   }
   const asText = bytes.toString('utf8');
-  if (bytes.length && Buffer.from(asText, 'utf8').equals(bytes) && !asText.includes('\0')) {
+  if (
+    bytes.length &&
+    Buffer.from(asText, 'utf8').equals(bytes) &&
+    !asText.includes('\0')
+  ) {
     return { kind: 'text', mimeType: mimeType || 'text/plain' };
   }
   return { kind: 'binary', mimeType: mimeType || 'application/octet-stream' };
@@ -478,7 +534,11 @@ const urlsFromStoredMessages = (messages: unknown[]): string[] => {
         continue;
       }
       for (const file of files) {
-        if (file && typeof file === 'object' && typeof (file as { url?: unknown }).url === 'string') {
+        if (
+          file &&
+          typeof file === 'object' &&
+          typeof (file as { url?: unknown }).url === 'string'
+        ) {
           urls.push((file as { url: string }).url);
         }
       }
@@ -592,13 +652,20 @@ export const buildReadFileTool = async () => {
       let allowed = Array.isArray(stamped)
         ? stamped.filter((entry): entry is string => typeof entry === 'string')
         : [];
-      if (!isAllowedAttachmentUrl(url, allowed) && typeof threadId === 'string' && typeof userId === 'string') {
+      if (
+        !isAllowedAttachmentUrl(url, allowed) &&
+        typeof threadId === 'string' &&
+        typeof userId === 'string'
+      ) {
         const { getAgentsMemory } = await import('./memory.js');
         const memory = await getAgentsMemory(subdomain);
         const thread = await memory.getThreadById({ threadId });
         if (thread && thread.resourceId === userId) {
           const recalled = await memory.recall({ threadId, perPage: 20 });
-          allowed = [...allowed, ...urlsFromStoredMessages(recalled.messages ?? [])];
+          allowed = [
+            ...allowed,
+            ...urlsFromStoredMessages(recalled.messages ?? []),
+          ];
         }
       }
 

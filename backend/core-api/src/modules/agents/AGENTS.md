@@ -13,19 +13,17 @@ plugin; ported from the former private `erxes-agent` service). It provides:
 - a Mastra **DurableAgent** chat over SSE with durable suspend/resume
   (destructive-tool approval, `ask_user` questions), per-turn provider/model/
   `thinkingLevel` selection, and generated thread titles;
-- a two-tier **tool bridge** (`searchTools` + `callTool`) that routes through
-  every service's admit-only `/agent-tools/manifest` + `/agent-tools/call`
-  (HMAC `x-erxes-agent-auth`, per-user permission enforced by the owning
-  service). Tool ids are `${plugin}.trpc.${path}`;
-- **code mode**: optional tenant flag adds `execute_typescript` (Mastra
-  `createCodeMode` + QuickJS WASM sandbox, 15s cap, allow-list
-  `{ searchTools, callTool: safeCallTool }` — never `askUser`; `safeCallTool`
-  refuses approval-gated ids with `APPROVAL_REQUIRED`);
-- **references**: `callTool` success returns `{ status:'ok', result,
+- GraphQL discovery (`searchGraphql`) and execution (`callGraphql`) through
+  the gateway as the acting user, using a fresh HMAC-signed identity header.
+  `graphqlPolicy.ts` denies authentication, credential and system-security
+  operations; other queries/mutations use existing resolver permissions;
+- optional code mode exposes only `searchGraphql` and `callGraphql` in a
+  QuickJS sandbox; approval-gated mutations must run interactively in chat;
+- **references**: `callGraphql` success returns `{ status:'ok', data,
   references? }` — `references.ts` maps known tool ids to
   `[[type:id:label]]` tokens the model may copy verbatim into replies (types:
   customer, company, user, product, branch, department, unit, brand, deal,
-  conversation). Additive only — code-mode programs reading `.result` are
+  conversation). Additive only — code-mode programs reading `.data` are
   unaffected;
 - **pageContext**: `POST /agents/chat` accepts `pageContext: { path, record? }
   ` — strictly validated (path starts `/`, ≤200 chars, no control chars;
@@ -37,11 +35,9 @@ plugin; ported from the former private `erxes-agent` service). It provides:
 - tenant-wide `AgentsSettings` on `agents_settings` (`codeModeEnabled`,
   `codeModeEnvironment: 'in-process'`, `approvalMode: 'writes' |
   'destructive'` — default `'writes'`, stamped per run into RequestContext;
-  `'writes'` makes every mutation tool call (and code-mode `safeCallTool`)
-  suspend for approval; `'destructive'` gates by `HIGH_RISK_ACTION`
-  (remove/delete/merge/destroy/archive/purge/send/reply/broadcast/publish)
-  on the last path segment — the manifest marks every mutation
-  `destructive`, so `descriptor.destructive` is intentionally unused there).
+  `'writes'` asks before every GraphQL mutation; `'destructive'` asks before
+  deletes, merges, archives, publishes and customer-facing sends/replies.
+
 
 ## Surfaces
 
@@ -87,21 +83,15 @@ plugin; ported from the former private `erxes-agent` service). It provides:
 - `pubsub.ts` — process-wide `RedisStreamsPubSub` (key prefix `core-agents`,
   `REDIS_HOST`/`REDIS_PORT`/`REDIS_PASSWORD`) for cross-replica `observe`
   replay.
-- `tools.ts` — `searchTools`/`callTool`, manifest cache (60s), exported
-  `requiresApproval` predicate (shared by `callTool`'s approval gate and
-  the `agentsTools` catalog), `ALWAYS_CONFIRM_TOOLS` (`frontline.trpc.inbox.conversations
-  .changeStatus` — declared as a query so it escapes the manifest's
-  mutation→destructive flag; keep entries as full `${plugin}.trpc.${path}`
-  ids).
+- `graphqlTools.ts` — live schema discovery, capabilities catalog and bounded
+  GraphQL execution; `tools.ts` — request identity and error helpers.
 - `references.ts` — token grammar, toolId→type table, label pickers, result
   walking, sanitization (max 25 tokens, label ≤80 chars).
 - `requestContext.ts` — JSON-safe per-run snapshot
   (subdomain/userId/provider/model/thinkingLevel/codeModeEnabled/
   approvalMode/threadId/attachmentUrls); never secrets.
-- `agentTools.ts` — `/agent-tools/manifest` + `/agent-tools/call` HTTP client.
 - `codeMode.ts`, `askUser.ts`, `readFile.ts`, `fileBinding.ts`,
-  `fileTimeout.ts`, `fileValidation.ts`, `toolContracts.ts`,
-  `toolSchemaCompatibility.ts`, `mongo44Compatibility.ts`,
+  `fileTimeout.ts`, `fileValidation.ts`, `toolSchemaCompatibility.ts`, `mongo44Compatibility.ts`,
   `providerModels.ts`, `providers.ts`, `threadsEvents.ts`.
 - `db/` — `AgentsConnection` + `AgentsSettings` models (registered in
   `src/connectionResolvers.ts`); `graphql/` — schemas + thin resolvers.
@@ -114,8 +104,9 @@ plugin; ported from the former private `erxes-agent` service). It provides:
   `JWT_TOKEN_SECRET` is unset (fail closed).
 - Threads/messages/approvals live in `{db}_agents_memory` only — never the
   base DB's legacy `mastra_*` collections.
-- Tool identity is never model-controlled; `/agent-tools/call` is the
-  permission gate. Never add a GraphQL/raw-Mongo fallback tool.
+- GraphQL is the only CRM execution path. Identity is never model-controlled;
+  the gateway resolves the signed acting user and existing resolvers authorize
+  every call. Do not reintroduce tRPC metadata, allowlists or raw-Mongo tools.
 - ESM-only packages (`ai`, `@mastra/*`, `@ai-sdk/anthropic`) load via
   `await import(...)` at point of use; type-only imports carry
   `with { 'resolution-mode': 'import' }`. core-api compiles

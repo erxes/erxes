@@ -1,11 +1,11 @@
 /**
  * Clickable record references for the chat agent.
  *
- * `callTool` results carry a `references` list of tokens the model may copy
+ * `callGraphql` results carry a `references` list of tokens the model may copy
  * verbatim into its reply; the UI renders each `[[type:id:label]]` token as a
  * link to that record. The model never invents tokens — it only reuses the
  * ones returned here, so extraction is deliberately conservative: only known
- * tool ids, only documents carrying a well-formed `_id`, labels capped and
+ * record types, only documents carrying a well-formed `_id`, labels capped and
  * sanitized.
  */
 
@@ -94,8 +94,7 @@ const LABEL_PICKERS: Record<
   },
   product: (doc) => stringField(doc, 'name') ?? stringField(doc, 'code'),
   branch: (doc) => stringField(doc, 'title') ?? stringField(doc, 'code'),
-  department: (doc) =>
-    stringField(doc, 'title') ?? stringField(doc, 'code'),
+  department: (doc) => stringField(doc, 'title') ?? stringField(doc, 'code'),
   unit: (doc) => stringField(doc, 'title') ?? stringField(doc, 'code'),
   brand: (doc) => stringField(doc, 'name'),
   deal: (doc) => stringField(doc, 'name'),
@@ -106,62 +105,6 @@ const LABEL_PICKERS: Record<
 
     return content ? content.slice(0, CONVERSATION_SNIPPET_LENGTH) : undefined;
   },
-};
-
-/**
- * Maps agent tool ids (`${plugin}.trpc.${path}`) to a reference type.
- * `excluded` prefixes win over the entry's own prefix so nested routers
- * (e.g. `products.rules.find`) never produce the parent type.
- */
-const REFERENCE_TABLE: {
-  plugin: string;
-  pathPrefix: string;
-  type: IAgentReferenceType;
-  excluded?: string[];
-}[] = [
-  { plugin: 'core', pathPrefix: 'customers.', type: 'customer' },
-  { plugin: 'core', pathPrefix: 'companies.', type: 'company' },
-  { plugin: 'core', pathPrefix: 'users.', type: 'user' },
-  {
-    plugin: 'core',
-    pathPrefix: 'products.',
-    type: 'product',
-    excluded: ['products.rules.'],
-  },
-  { plugin: 'core', pathPrefix: 'branches.', type: 'branch' },
-  { plugin: 'core', pathPrefix: 'departments.', type: 'department' },
-  { plugin: 'core', pathPrefix: 'units.', type: 'unit' },
-  { plugin: 'core', pathPrefix: 'brands.', type: 'brand' },
-  { plugin: 'sales', pathPrefix: 'deal.', type: 'deal' },
-  {
-    plugin: 'frontline',
-    pathPrefix: 'inbox.conversations.',
-    type: 'conversation',
-  },
-];
-
-const typeForToolId = (toolId: string): IAgentReferenceType | undefined => {
-  const match = /^([^.]+)\.trpc\.(.+)$/.exec(toolId);
-
-  if (!match) {
-    return undefined;
-  }
-
-  const [, plugin, path] = match;
-
-  for (const entry of REFERENCE_TABLE) {
-    if (entry.plugin !== plugin || !path.startsWith(entry.pathPrefix)) {
-      continue;
-    }
-
-    if (entry.excluded?.some((prefix) => path.startsWith(prefix))) {
-      return undefined;
-    }
-
-    return entry.type;
-  }
-
-  return undefined;
 };
 
 /**
@@ -232,16 +175,14 @@ const collectDocuments = (result: unknown): Record<string, unknown>[] => {
 
 /**
  * Extracts `[[type:id:label]]` reference tokens from a tool call result.
- * Unknown tool ids produce none. Records without a well-formed string `_id`
+ * Unknown record types produce none. Records without a well-formed string `_id`
  * are skipped. Tokens are unique and capped at MAX_REFERENCES.
  */
 export const extractAgentReferences = (
-  toolId: string,
+  type: string,
   result: unknown,
 ): string[] => {
-  const type = typeForToolId(toolId);
-
-  if (!type) {
+  if (!isAgentReferenceType(type)) {
     return [];
   }
 

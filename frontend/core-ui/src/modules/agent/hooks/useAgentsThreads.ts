@@ -156,23 +156,26 @@ export const useAgentsThreads = (): IUseAgentsThreadsResult => {
 
   // Defensive client-side filter: only `pinned === true` ever lands in the
   // pinned group, whatever the server returned.
-  const pinnedThreads =
-    canViewThreads && !permissionDenied
-      ? pinnedData?.agentsThreads?.threads.filter(
-          (thread) => thread.pinned === true,
-        )
-      : undefined;
-  const pinnedIds = new Set(
-    (pinnedThreads ?? []).map((thread) => thread.id),
+  const allowed = canViewThreads && !permissionDenied;
+  const pinnedThreads = useMemo(
+    () =>
+      allowed
+        ? pinnedData?.agentsThreads?.threads.filter(
+            (thread) => thread.pinned === true,
+          )
+        : undefined,
+    [allowed, pinnedData],
   );
-  const threads = canViewThreads && !permissionDenied
-    ? result?.threads?.filter((thread) => !pinnedIds.has(thread.id))
-    : undefined;
+  const threads = useMemo(() => {
+    if (!allowed) return undefined;
+    const pinnedIds = new Set((pinnedThreads ?? []).map((thread) => thread.id));
+    return result?.threads?.filter((thread) => !pinnedIds.has(thread.id));
+  }, [allowed, pinnedThreads, result]);
   const errorMessage = !isLoaded
     ? undefined
     : !canViewThreads || permissionDenied
-      ? AGENTS_ACCESS_REQUIRED
-      : error?.message;
+    ? AGENTS_ACCESS_REQUIRED
+    : error?.message;
   const isLoading = !isLoaded || (canViewThreads && loading);
 
   // The chat surfaces re-render on every streamed delta; a memoized result

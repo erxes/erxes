@@ -1,3 +1,4 @@
+import { isPrivateIp } from '@/agents/readFile';
 jest.mock('dns/promises', () => ({
   lookup: jest.fn(async (hostname: string) => {
     if (hostname === '127.0.0.1' || hostname === 'localhost') {
@@ -35,7 +36,10 @@ jest.mock('erxes-api-shared/utils', () => ({
 }));
 
 import { Readable } from 'stream';
-import { readFileFromStorage, readFileStreamFromStorage } from 'erxes-api-shared/utils';
+import {
+  readFileFromStorage,
+  readFileStreamFromStorage,
+} from 'erxes-api-shared/utils';
 import {
   AGENTS_READ_IMAGE_MAX_BYTES,
   assertReadableFileUrl,
@@ -110,9 +114,9 @@ describe('assertReadableFileUrl', () => {
 describe('isStorageKeyReference', () => {
   it('treats platform keys as keys, not urls', () => {
     expect(isStorageKeyReference('abcshot.png')).toBe(true);
-    expect(isStorageKeyReference('https://imagedelivery.net/abc/shot.png')).toBe(
-      false,
-    );
+    expect(
+      isStorageKeyReference('https://imagedelivery.net/abc/shot.png'),
+    ).toBe(false);
     expect(isStorageKeyReference('file:///etc/passwd')).toBe(false);
   });
 });
@@ -184,40 +188,73 @@ describe('readAgentsUploadedFile', () => {
   it('reads Cloudflare Images keys through the CDN-aware platform reader when R2 misses', async () => {
     const key = 'tenant-bucket/uploaded-image.png';
     jest.mocked(readFileStreamFromStorage).mockResolvedValue(
-      new Readable({ read() { this.destroy(new Error('NoSuchKey')); } }),
+      new Readable({
+        read() {
+          this.destroy(new Error('NoSuchKey'));
+        },
+      }),
     );
     jest.mocked(readFileFromStorage).mockResolvedValue(png);
-    await expect(readAgentsUploadedFile({
-      subdomain: 'acme', url: key, allowedUrls: [key],
-    })).resolves.toMatchObject({
-      kind: 'image', mimeType: 'image/png', imageBase64: png.toString('base64'),
+    await expect(
+      readAgentsUploadedFile({
+        subdomain: 'acme',
+        url: key,
+        allowedUrls: [key],
+      }),
+    ).resolves.toMatchObject({
+      kind: 'image',
+      mimeType: 'image/png',
+      imageBase64: png.toString('base64'),
     });
-    expect(readFileFromStorage).toHaveBeenCalledWith({ subdomain: 'acme', key });
+    expect(readFileFromStorage).toHaveBeenCalledWith({
+      subdomain: 'acme',
+      key,
+    });
   });
 
   it('keeps the image byte limit on CDN-aware storage reads', async () => {
-    jest.mocked(readFileStreamFromStorage).mockRejectedValue(new Error('NoSuchKey'));
-    jest.mocked(readFileFromStorage).mockResolvedValue(
-      Buffer.concat([png, Buffer.alloc(AGENTS_READ_IMAGE_MAX_BYTES)]),
-    );
-    await expect(readAgentsUploadedFile({
-      subdomain: 'acme', url: 'large.png', allowedUrls: ['large.png'],
-    })).rejects.toThrow('Images must be at most 2 MiB');
+    jest
+      .mocked(readFileStreamFromStorage)
+      .mockRejectedValue(new Error('NoSuchKey'));
+    jest
+      .mocked(readFileFromStorage)
+      .mockResolvedValue(
+        Buffer.concat([png, Buffer.alloc(AGENTS_READ_IMAGE_MAX_BYTES)]),
+      );
+    await expect(
+      readAgentsUploadedFile({
+        subdomain: 'acme',
+        url: 'large.png',
+        allowedUrls: ['large.png'],
+      }),
+    ).rejects.toThrow('Images must be at most 2 MiB');
   });
 
   it('reports missing CDN images without passing metadata to the model', async () => {
-    jest.mocked(readFileStreamFromStorage).mockRejectedValue(new Error('NoSuchKey'));
+    jest
+      .mocked(readFileStreamFromStorage)
+      .mockRejectedValue(new Error('NoSuchKey'));
     jest.mocked(readFileFromStorage).mockResolvedValue(null);
-    await expect(readAgentsUploadedFile({
-      subdomain: 'acme', url: 'missing.png', allowedUrls: ['missing.png'],
-    })).rejects.toThrow('Could not read the image from file storage');
+    await expect(
+      readAgentsUploadedFile({
+        subdomain: 'acme',
+        url: 'missing.png',
+        allowedUrls: ['missing.png'],
+      }),
+    ).rejects.toThrow('Could not read the image from file storage');
   });
 
   it('does not use the buffered fallback for non-image keys', async () => {
-    jest.mocked(readFileStreamFromStorage).mockRejectedValue(new Error('NoSuchKey'));
-    await expect(readAgentsUploadedFile({
-      subdomain: 'acme', url: 'missing.csv', allowedUrls: ['missing.csv'],
-    })).rejects.toThrow('NoSuchKey');
+    jest
+      .mocked(readFileStreamFromStorage)
+      .mockRejectedValue(new Error('NoSuchKey'));
+    await expect(
+      readAgentsUploadedFile({
+        subdomain: 'acme',
+        url: 'missing.csv',
+        allowedUrls: ['missing.csv'],
+      }),
+    ).rejects.toThrow('NoSuchKey');
     expect(readFileFromStorage).not.toHaveBeenCalled();
   });
 
@@ -290,26 +327,52 @@ describe('readAgentsUploadedFile', () => {
       type: 'content',
       value: [
         { type: 'text', text: 'Image (image/png)' },
-        { type: 'image-data', data: png.toString('base64'), mimeType: 'image/png' },
+        {
+          type: 'image-data',
+          data: png.toString('base64'),
+          mimeType: 'image/png',
+        },
       ],
     });
   });
 
   it('binds CDN image bytes directly while preserving mixed text attachments', async () => {
     httpTransport.download = jest.fn(async (url: URL) => ({
-      bytes: png, mimeType: 'image/png', url: url.toString(),
+      bytes: png,
+      mimeType: 'image/png',
+      url: url.toString(),
     }));
     const csv = 'name,code\nTea,1\n';
-    jest.mocked(readFileStreamFromStorage).mockResolvedValue(Readable.from([Buffer.from(csv)]));
-    const message = await prepareAgentsFileMessage('acme', {
-      id: 'u1', role: 'user', parts: [{ type: 'text', text: 'Compare these' }],
-    }, [
-      { name: 'shot.png', url: 'https://imagedelivery.net/shot.png', type: 'image/png', size: png.length },
-      { name: 'products.csv', url: 'products.csv', type: 'text/csv', size: Buffer.byteLength(csv) },
-    ]);
+    jest
+      .mocked(readFileStreamFromStorage)
+      .mockResolvedValue(Readable.from([Buffer.from(csv)]));
+    const message = await prepareAgentsFileMessage(
+      'acme',
+      {
+        id: 'u1',
+        role: 'user',
+        parts: [{ type: 'text', text: 'Compare these' }],
+      },
+      [
+        {
+          name: 'shot.png',
+          url: 'https://imagedelivery.net/shot.png',
+          type: 'image/png',
+          size: png.length,
+        },
+        {
+          name: 'products.csv',
+          url: 'products.csv',
+          type: 'text/csv',
+          size: Buffer.byteLength(csv),
+        },
+      ],
+    );
     expect(httpTransport.download).toHaveBeenCalled();
     expect(message.parts).toContainEqual({
-      type: 'file', mediaType: 'image/png', url: `data:image/png;base64,${png.toString('base64')}`,
+      type: 'file',
+      mediaType: 'image/png',
+      url: `data:image/png;base64,${png.toString('base64')}`,
     });
     expect(JSON.stringify(message)).toContain('Tea,1');
     expect(JSON.stringify(message)).toContain('Compare these');
@@ -321,11 +384,13 @@ describe('readAgentsUploadedFile', () => {
       mimeType: 'image/png',
       url: url.toString(),
     }));
-    await expect(readAgentsUploadedFile({
-      subdomain: 'acme',
-      url: 'https://imagedelivery.net/large.png',
-      allowedUrls: ['https://imagedelivery.net/large.png'],
-    })).rejects.toThrow('Images must be at most 2 MiB');
+    await expect(
+      readAgentsUploadedFile({
+        subdomain: 'acme',
+        url: 'https://imagedelivery.net/large.png',
+        allowedUrls: ['https://imagedelivery.net/large.png'],
+      }),
+    ).rejects.toThrow('Images must be at most 2 MiB');
   });
 
   it('does not treat svg as a model image', async () => {
@@ -341,5 +406,21 @@ describe('readAgentsUploadedFile', () => {
         allowedUrls: ['https://imagedelivery.net/abc/shot.svg'],
       }),
     ).resolves.toMatchObject({ kind: 'binary' });
+  });
+});
+
+describe('non-public and tunneled attachment addresses', () => {
+  it.each([
+    '198.18.0.1',
+    '198.19.255.254',
+    '192.0.0.8',
+    '224.0.0.1',
+    '255.255.255.255',
+    'fec0::1',
+    'ff02::1',
+    '64:ff9b::7f00:1',
+    '2002:c0a8:101::1',
+  ])('rejects %s', (ip) => {
+    expect(isPrivateIp(ip)).toBe(true);
   });
 });

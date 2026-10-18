@@ -16,11 +16,6 @@ export const AGENTS_TOOLS = gql`
         method
         description
         requiresApproval
-        allowed
-        permission {
-          module
-          action
-        }
         inputFields {
           name
           type
@@ -31,11 +26,6 @@ export const AGENTS_TOOLS = gql`
     }
   }
 `;
-
-export interface IAgentsToolPermission {
-  module?: string | null;
-  action?: string | null;
-}
 
 export interface IAgentsToolField {
   name?: string | null;
@@ -51,8 +41,6 @@ export interface IAgentsTool {
   method?: string | null;
   description?: string | null;
   requiresApproval: boolean;
-  allowed: boolean;
-  permission?: IAgentsToolPermission | null;
   inputFields?: IAgentsToolField[] | null;
 }
 

@@ -83,7 +83,9 @@ const readSelectedThreadId = (
   scope: IAgentsSessionScope,
 ): string | undefined => {
   try {
-    return sessionStorage.getItem(SELECTED_THREAD_STORAGE_KEY(scope)) || undefined;
+    return (
+      sessionStorage.getItem(SELECTED_THREAD_STORAGE_KEY(scope)) || undefined
+    );
   } catch {
     return undefined;
   }
@@ -106,9 +108,7 @@ const writeSelectedThreadId = (
   }
 };
 
-const readStoredActiveRunId = (
-  threadId: string,
-): string | undefined => {
+const readStoredActiveRunId = (threadId: string): string | undefined => {
   try {
     const current =
       sessionStorage.getItem(ACTIVE_RUN_STORAGE_KEY(threadId)) || undefined;
@@ -166,7 +166,9 @@ const writeStoredActiveRunId = (
   }
 };
 
-const readInFlightPrompt = (threadId: string): UIMessage['parts'] | undefined => {
+const readInFlightPrompt = (
+  threadId: string,
+): UIMessage['parts'] | undefined => {
   try {
     const raw = sessionStorage.getItem(IN_FLIGHT_PROMPT_STORAGE_KEY(threadId));
     return raw ? decodeInFlightPrompt(raw) : undefined;
@@ -313,9 +315,9 @@ export interface IUseAgentsChatResult {
  *   so a run that finished during the reload still shows its reply)
  *   without the two surfaces restoring each other's selection,
  */
-export const useAgentsChat = (
-  options?: { sessionScope?: IAgentsSessionScope },
-): IUseAgentsChatResult => {
+export const useAgentsChat = (options?: {
+  sessionScope?: IAgentsSessionScope;
+}): IUseAgentsChatResult => {
   const sessionScope = options?.sessionScope ?? 'page';
   const [threadId, setThreadId] = useState<string | undefined>();
   // Start in the thread-loading state when this surface has a stored
@@ -332,6 +334,7 @@ export const useAgentsChat = (
   const [canReconnect, setCanReconnect] = useState(false);
 
   const threadIdRef = useRef<string | undefined>(undefined);
+  const threadSelectionRef = useRef(0);
   const selectionRef = useRef<IAgentsRequestSelection>({});
   const pageContextRef = useRef<IAgentsPageContext | undefined>(undefined);
   const navigation = useNavigationCatalog();
@@ -371,17 +374,14 @@ export const useAgentsChat = (
     }
   }, [sessionScope]);
 
-  const setActiveRunId = useCallback(
-    (runId: string | undefined) => {
-      activeRunIdRef.current = runId;
-      setCanReconnect(runId !== undefined);
+  const setActiveRunId = useCallback((runId: string | undefined) => {
+    activeRunIdRef.current = runId;
+    setCanReconnect(runId !== undefined);
 
-      if (threadIdRef.current) {
-        writeStoredActiveRunId(threadIdRef.current, runId);
-      }
-    },
-    [],
-  );
+    if (threadIdRef.current) {
+      writeStoredActiveRunId(threadIdRef.current, runId);
+    }
+  }, []);
 
   const transport = useMemo(
     () =>
@@ -435,11 +435,7 @@ export const useAgentsChat = (
     // every other terminal outcome — including generic and provider errors
     // (a 4xx/5xx before the run existed leaves no run to reconnect to).
     onFinish: ({ message, isAbort, isDisconnect }) => {
-      if (
-        !isAbort &&
-        !isDisconnect &&
-        !messageHasPendingSuspension(message)
-      ) {
+      if (!isAbort && !isDisconnect && !messageHasPendingSuspension(message)) {
         setActiveRunId(undefined);
       }
     },
@@ -472,10 +468,10 @@ export const useAgentsChat = (
         typeof first === 'string'
           ? first
           : first && 'text' in first && typeof first.text === 'string'
-            ? first.text
-            : first && 'parts' in first && first.parts
-              ? encodeInFlightPrompt(first.parts)
-              : undefined;
+          ? first.text
+          : first && 'parts' in first && first.parts
+          ? encodeInFlightPrompt(first.parts)
+          : undefined;
 
       if (threadIdRef.current && text && text.trim()) {
         try {
@@ -596,12 +592,15 @@ export const useAgentsChat = (
     useLazyQuery<IAgentsThreadDetailData>(AGENTS_THREAD_DETAIL);
 
   const startNewConversation = useCallback(async () => {
+    const selection = ++threadSelectionRef.current;
     // Stop consuming the old thread before replacing shared SDK message
     // state. Await the abort so in-flight chunks from the previous thread
     // cannot land after the transcript is cleared. The durable run can
     // continue server-side and its session entry stays available if the
     // user opens that thread again.
     await stop();
+    if (selection !== threadSelectionRef.current) return;
+    setLoadingThread(false);
 
     // Clear the active run id reactively and in the ref, and drop this
     // surface's selected-thread pointer — but do NOT touch the old
@@ -619,17 +618,20 @@ export const useAgentsChat = (
 
   const openThread = useCallback(
     async (nextThreadId: string) => {
+      const selection = ++threadSelectionRef.current;
       setLoadingThread(true);
 
       try {
         // Prevent chunks from the previously selected thread from being
         // applied after this hook replaces the shared SDK transcript.
         await stop();
+        if (selection !== threadSelectionRef.current) return;
 
         const result = await loadThreadDetail({
           variables: { threadId: nextThreadId },
           fetchPolicy: 'network-only',
         });
+        if (selection !== threadSelectionRef.current) return;
         const detail = result.data?.agentsThreadDetail;
 
         if (!detail) {
@@ -715,6 +717,7 @@ export const useAgentsChat = (
               // this point because React may not have re-rendered the
               // status change yet).
               if (
+                selection !== threadSelectionRef.current ||
                 threadIdRef.current !== nextThreadId ||
                 activeRunIdRef.current
               ) {
@@ -741,6 +744,7 @@ export const useAgentsChat = (
 
                 if (
                   !refetchedMessages ||
+                  selection !== threadSelectionRef.current ||
                   threadIdRef.current !== nextThreadId ||
                   activeRunIdRef.current ||
                   statusRef.current !== 'ready'
@@ -761,6 +765,7 @@ export const useAgentsChat = (
 
                   if (
                     count > storedCount ||
+                    selection !== threadSelectionRef.current ||
                     threadIdRef.current !== nextThreadId ||
                     activeRunIdRef.current
                   ) {
@@ -772,11 +777,10 @@ export const useAgentsChat = (
                   // few times, spaced 500ms, stopping as soon as the
                   // persisted reply lands. Never an open polling loop.
                   for (let tries = 0; tries < 4; tries += 1) {
-                    await new Promise((resolve) =>
-                      setTimeout(resolve, 500),
-                    );
+                    await new Promise((resolve) => setTimeout(resolve, 500));
 
                     if (
+                      selection !== threadSelectionRef.current ||
                       threadIdRef.current !== nextThreadId ||
                       activeRunIdRef.current
                     ) {
@@ -803,7 +807,7 @@ export const useAgentsChat = (
             });
         }
       } finally {
-        setLoadingThread(false);
+        if (selection === threadSelectionRef.current) setLoadingThread(false);
       }
     },
     [

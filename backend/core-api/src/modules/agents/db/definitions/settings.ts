@@ -12,8 +12,7 @@ export const AGENTS_CODE_MODE_ENVIRONMENTS = ['in-process'] as const;
  * Which tool calls hold the run for human approval:
  * - `'writes'` (default): every mutation — creates, updates, deletes,
  *   sends — plus the always-confirm list;
- * - `'destructive'`: only manifest-flagged destructive tools and the
- *   always-confirm list.
+ * - `'destructive'`: deletes, merges, archives and customer-facing sends/replies.
  */
 export const AGENTS_APPROVAL_MODES = ['writes', 'destructive'] as const;
 

@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import type { UIMessage } from 'ai';
 
 import {
@@ -46,7 +48,9 @@ describe('groupAgentWorkSteps', () => {
     const items = groupAgentWorkSteps([
       reasoningPart('thinking'),
       toolPart('searchTools', 'output-available', { intent: 'deals' }),
-      toolPart('callTool', 'output-available', { toolId: 'sales.trpc.deal.find' }),
+      toolPart('callTool', 'output-available', {
+        toolId: 'sales.trpc.deal.find',
+      }),
       textPart('done'),
       toolPart('callTool', 'input-available', { toolId: 'x.trpc.y.z' }),
     ]);
@@ -93,9 +97,7 @@ describe('groupAgentWorkSteps', () => {
       toolPart('askUser', 'output-available', {}, {}),
     ]);
 
-    expect(items).toEqual([
-      expect.objectContaining({ kind: 'part' }),
-    ]);
+    expect(items).toEqual([expect.objectContaining({ kind: 'part' })]);
   });
 });
 
@@ -114,9 +116,9 @@ describe('agentStepLabel', () => {
   });
 
   it('labels searchTools with the intent', () => {
-    expect(
-      agentStepLabel(tool('searchTools', { intent: 'open deals' })),
-    ).toBe('Searched tools for "open deals"');
+    expect(agentStepLabel(tool('searchTools', { intent: 'open deals' }))).toBe(
+      'Searched tools for "open deals"',
+    );
   });
 
   it('labels callTool reads', () => {
@@ -190,9 +192,9 @@ describe('agentStepLabel', () => {
   });
 
   it('falls back to a generic label for an unparseable callGraphql input', () => {
-    expect(
-      agentStepLabel(tool('callGraphql', { query: '{ broken {' })),
-    ).toBe('Ran a GraphQL request');
+    expect(agentStepLabel(tool('callGraphql', { query: '{ broken {' }))).toBe(
+      'Ran a GraphQL request',
+    );
     expect(agentStepLabel(tool('callGraphql', {}))).toBe(
       'Ran a GraphQL request',
     );
@@ -216,12 +218,12 @@ describe('describeToolCall', () => {
   });
 
   it('omits variables from callGraphql args when absent', () => {
-    expect(
-      describeToolCall('callGraphql', { query: '{ customers }' }),
-    ).toEqual({
-      label: 'query customers',
-      args: { query: '{ customers }' },
-    });
+    expect(describeToolCall('callGraphql', { query: '{ customers }' })).toEqual(
+      {
+        label: 'query customers',
+        args: { query: '{ customers }' },
+      },
+    );
   });
 
   it('falls back to a generic label for a missing or invalid query', () => {
@@ -262,7 +264,11 @@ describe('activeAgentStepLabel', () => {
       activeAgentStepLabel([
         {
           kind: 'tool',
-          tool: { toolCallId: 'a', toolName: 'callTool', state: 'output-available' },
+          tool: {
+            toolCallId: 'a',
+            toolName: 'callTool',
+            state: 'output-available',
+          },
         },
         { kind: 'reasoning', text: 'working' },
       ]),
@@ -274,7 +280,11 @@ describe('activeAgentStepLabel', () => {
       activeAgentStepLabel([
         {
           kind: 'tool',
-          tool: { toolCallId: 'a', toolName: 'callTool', state: 'output-available' },
+          tool: {
+            toolCallId: 'a',
+            toolName: 'callTool',
+            state: 'output-available',
+          },
         },
       ]),
     ).toBeUndefined();
@@ -284,8 +294,28 @@ describe('activeAgentStepLabel', () => {
 describe('work-steps summary pluralisation', () => {
   // The component calls t('step-count', { count }) — i18next resolves the
   // _one/_other forms; these keys must exist in both shipped locales.
-  const en = require('../../../../../../backend/gateway/src/locales/en/common.json');
-  const mn = require('../../../../../../backend/gateway/src/locales/mn/common.json');
+  const en = JSON.parse(
+    readFileSync(
+      resolve(
+        __dirname,
+        '../../../../../../backend',
+        'gateway',
+        'src/locales/en/common.json',
+      ),
+      'utf8',
+    ),
+  ) as { agent: Record<string, string> };
+  const mn = JSON.parse(
+    readFileSync(
+      resolve(
+        __dirname,
+        '../../../../../../backend',
+        'gateway',
+        'src/locales/mn/common.json',
+      ),
+      'utf8',
+    ),
+  ) as { agent: Record<string, string> };
 
   it('has singular and plural step-count forms in both locales', () => {
     expect(en.agent['step-count_one']).toBe('{{count}} step');

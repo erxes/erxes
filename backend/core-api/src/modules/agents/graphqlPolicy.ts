@@ -6,7 +6,8 @@ import {
   type SelectionSetNode,
 } from 'graphql';
 import type { AgentsApprovalMode } from '@/agents/@types/settings';
-import { HIGH_RISK_ACTION } from './tools';
+const HIGH_RISK_ACTION =
+  /(remove|delete|merge|destroy|archive|purge|send|reply|broadcast|publish)/i;
 
 /**
  * Parse-time policy for the `callGraphql` tool.
@@ -27,9 +28,21 @@ export interface IAgentGraphqlOperation {
   document: DocumentNode;
 }
 
-/** Root fields that mint, rotate, or destroy credentials are refused. */
-export const AGENT_GRAPHQL_DENIED_FIELD =
-  /(login|logout|password|otp|magiclink|signup|signin|token)/i;
+/** Deny system operations, without a business-operation admission list. */
+export const AGENT_GRAPHQL_DENIED_FIELD = {
+  test(field: string): boolean {
+    const words = field
+      .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+      .replace(/([A-Z])([A-Z][a-z])/g, '$1 $2')
+      .replace(/_/g, ' ')
+      .toLowerCase();
+    return (
+      /\b(login|logout|password|passwords|otp|tokens?|credentials?|secrets?|oauth|sso|sessions?|invitations?|permissions?)\b/.test(words) ||
+      /\b(sign up|sign in|magic link|two factor|2fa|api key)\b/.test(words) ||
+      /^(apps?(Add|Edit|Revoke|Remove|Detail|List|TotalCount)?|users(CreateOwner|Edit|EditProfile|SetActiveStatus|SetActiveStatusBatch|Invite)|inviteUser|agentsConnections|agentsConnectionUpsert|agentsConnectionRemove|agentsSettingsUpdate|__schema|__type|_service|_entities)$/i.test(field)
+    );
+  },
+};
 
 const policyError = (code: string, message: string): Error =>
   Object.assign(new Error(message), { code });
@@ -46,7 +59,12 @@ const collectRootFields = (
         fields.add(selection.name.value);
       }
     } else if (selection.kind === 'InlineFragment') {
-      collectRootFields(selection.selectionSet, fragments, seenFragments, fields);
+      collectRootFields(
+        selection.selectionSet,
+        fragments,
+        seenFragments,
+        fields,
+      );
     } else {
       const fragment = fragments.get(selection.name.value);
 
@@ -102,7 +120,7 @@ export const parseAgentGraphqlOperation = (
     selected = operations[0];
   }
 
-  if (!selected) {
+  if (!selected || operations.length !== 1) {
     throw policyError(
       'GRAPHQL_OPERATION_NOT_ALLOWED',
       operationName

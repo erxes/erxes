@@ -1,11 +1,6 @@
 import { buildGraphqlTools } from '@/agents/graphqlTools';
 import { decodeAgentToolsAuthHeader } from 'erxes-api-shared/utils/agent-tools/auth';
 
-jest.mock('@/agents/agentTools', () => ({
-  callAgentTool: jest.fn(),
-  listAgentToolManifests: jest.fn(),
-}));
-
 // Only service discovery is mocked; the auth header codec and the response
 // size guard keep their real implementations so the signed header round-trip
 // and the response cap are exercised for real.
@@ -20,13 +15,8 @@ jest.mock('erxes-api-shared/utils', () => {
   return {
     ...auth,
     ...responseLimit,
-    getEnv: ({
-      name,
-      defaultValue,
-    }: {
-      name: string;
-      defaultValue?: string;
-    }) => process.env[name] ?? defaultValue ?? '',
+    getEnv: ({ name, defaultValue }: { name: string; defaultValue?: string }) =>
+      process.env[name] ?? defaultValue ?? '',
     getPluginAddress: jest.fn(),
     getPlugins: jest.fn(),
   };
@@ -52,9 +42,7 @@ type TBridge = Awaited<ReturnType<typeof buildGraphqlTools>>;
 type TSearchInput = Parameters<
   NonNullable<TBridge['searchGraphql']['execute']>
 >[0];
-type TCallInput = Parameters<
-  NonNullable<TBridge['callGraphql']['execute']>
->[0];
+type TCallInput = Parameters<NonNullable<TBridge['callGraphql']['execute']>>[0];
 
 const buildContext = (values: Record<string, unknown>) => ({
   requestContext: { get: (key: string) => values[key] },
@@ -176,10 +164,7 @@ describe('searchGraphql', () => {
     const dateSpy = jest.spyOn(Date, 'now').mockReturnValue(1_700_000_000_000);
 
     try {
-      const result = await runSearch(
-        { intent: 'customers list' },
-        context,
-      );
+      const result = await runSearch({ intent: 'customers list' }, context);
 
       expect(result.matched).toBeGreaterThanOrEqual(1);
       const customers = result.fields.find((f) => f.field === 'customers');
@@ -201,9 +186,7 @@ describe('searchGraphql', () => {
 
   it('merges "extend type Query" SDL and survives a failing service', async () => {
     stubSchemaSources({ fail: ['contacts'] });
-    const dateSpy = jest
-      .spyOn(Date, 'now')
-      .mockReturnValue(1_700_000_100_000);
+    const dateSpy = jest.spyOn(Date, 'now').mockReturnValue(1_700_000_100_000);
 
     try {
       const result = await runSearch({ intent: 'deals' }, context);
@@ -218,9 +201,7 @@ describe('searchGraphql', () => {
 
   it('excludes authentication fields from the catalog', async () => {
     stubSchemaSources();
-    const dateSpy = jest
-      .spyOn(Date, 'now')
-      .mockReturnValue(1_700_000_200_000);
+    const dateSpy = jest.spyOn(Date, 'now').mockReturnValue(1_700_000_200_000);
 
     try {
       const result = await runSearch({ intent: 'login' }, context);
@@ -233,9 +214,7 @@ describe('searchGraphql', () => {
 
   it('flags mutations for approval in writes mode, high-risk only in destructive mode', async () => {
     stubSchemaSources();
-    const dateSpy = jest
-      .spyOn(Date, 'now')
-      .mockReturnValue(1_700_000_300_000);
+    const dateSpy = jest.spyOn(Date, 'now').mockReturnValue(1_700_000_300_000);
 
     try {
       const writesResult = await runSearch(
@@ -329,6 +308,7 @@ describe('callGraphql', () => {
     expect(result).toEqual({
       status: 'ok',
       data: { customers: [{ _id: 'c1' }] },
+      references: ['[[customer:c1:c1]]'],
       errors: [
         {
           message: 'denied field',
@@ -353,10 +333,7 @@ describe('callGraphql', () => {
       ),
     );
 
-    const result = await runCall(
-      { query: '{ nope }' } as TCallInput,
-      context,
-    );
+    const result = await runCall({ query: '{ nope }' } as TCallInput, context);
 
     expect(result).toMatchObject({
       status: 'error',
@@ -371,10 +348,7 @@ describe('callGraphql', () => {
     const big = 'x'.repeat(70 * 1024);
     fetchSpy.mockResolvedValue(graphqlResponse({ data: { dump: big } }));
 
-    const result = await runCall(
-      { query: '{ dump }' } as TCallInput,
-      context,
-    );
+    const result = await runCall({ query: '{ dump }' } as TCallInput, context);
 
     expect(result).toMatchObject({
       status: 'error',
@@ -411,10 +385,10 @@ describe('callGraphql', () => {
   it('omits threadId from the signed header when none is stamped', async () => {
     fetchSpy.mockResolvedValue(graphqlResponse({ data: { ok: true } }));
 
-    await runCall(
-      { query: '{ customers }' } as TCallInput,
-      { subdomain: 'tenant', userId: 'user-1' },
-    );
+    await runCall({ query: '{ customers }' } as TCallInput, {
+      subdomain: 'tenant',
+      userId: 'user-1',
+    });
 
     const [, init] = fetchSpy.mock.calls[0] as [string, RequestInit];
     const headers = init.headers as Record<string, string>;

@@ -67,12 +67,12 @@ export const fetchProviderModels = async ({
     );
   }
 
-  const payload = (await response
-    .json()
-    .catch(() => null)) as { data?: Array<{ id?: unknown }> } | null;
+  const payload = (await response.json().catch(() => null)) as {
+    data?: Array<{ id?: unknown }>;
+  } | null;
   const ids = (payload?.data ?? [])
     .map((item) => (typeof item?.id === 'string' ? item.id.trim() : ''))
     .filter((id) => id.length > 0);
 
-  return Array.from(new Set(ids)).sort();
+  return Array.from(new Set(ids)).sort((a, b) => a.localeCompare(b));
 };

@@ -1,3 +1,4 @@
+import { extractGraphqlReferences } from './graphqlReferences';
 import { z } from 'zod';
 import type { Tool } from '@mastra/core/tools' with {
   'resolution-mode': 'import',
@@ -41,7 +42,7 @@ import {
  * GraphQL access for the agents module.
  *
  * `searchGraphql` lets the model discover workspace queries/mutations when
- * no admit-only tool fits; `callGraphql` executes ONE operation through the
+ * the user requests workspace data or an action; `callGraphql` executes ONE operation through the
  * gateway's public `/graphql` — the same path the UI uses — authenticated
  * with the HMAC agent-auth header so the gateway loads the acting user's
  * document and every resolver's own permission checks apply unchanged.
@@ -350,6 +351,21 @@ const sanitizeGraphqlErrors = (errors: unknown): IGraphqlErrorEntry[] => {
 
 // @mastra/core/tools is ESM-only under nodenext; load it dynamically (like the
 // other Mastra entries) and build the two tools once per process.
+export const listGraphqlCapabilities = async () => {
+  const schema = await loadMergedSchema();
+  return schema ? collectRootFields(schema).map((entry) => ({
+    id: `graphql.${entry.operation}.${entry.name}`,
+    plugin: 'graphql',
+    module: entry.operation,
+    path: entry.name,
+    method: entry.operation,
+    description: entry.field.description ?? fieldSignature(entry.field),
+    inputFields: entry.field.args.map((arg) => ({
+      name: arg.name, type: String(arg.type), required: String(arg.type).endsWith('!'),
+    })),
+  })) : [];
+};
+
 let graphqlToolsPromise:
   | Promise<{ searchGraphql: MastraTool; callGraphql: MastraTool }>
   | null = null;
@@ -363,7 +379,7 @@ export const buildGraphqlTools = async (): Promise<{
       searchGraphql: createTool({
         id: 'searchGraphql',
         description:
-          'Search the workspace GraphQL API — the same API the erxes UI uses — for queries and mutations relevant to the user\'s goal. Returns matching root fields with signatures and the SDL of their argument and return types. Use when searchTools has no fitting tool.',
+          'Search the workspace GraphQL API — the same API the erxes UI uses — for queries and mutations relevant to the user\'s goal. Returns matching root fields with signatures and the SDL of their argument and return types. Use this to discover the operation and its fields before calling callGraphql.',
         inputSchema: z.object({
           intent: z
             .string()
@@ -448,7 +464,7 @@ export const buildGraphqlTools = async (): Promise<{
           const operationName = input?.operationName;
 
           if (typeof query !== 'string') {
-            return false;
+            return true;
           }
 
           try {
@@ -460,7 +476,7 @@ export const buildGraphqlTools = async (): Promise<{
               readApprovalMode(ctx),
             );
           } catch {
-            return false;
+            return true;
           }
         },
         execute: async ({ query, variables, operationName }, context) => {
@@ -538,9 +554,14 @@ export const buildGraphqlTools = async (): Promise<{
               );
             }
 
+            const schema = schemaCache?.schema;
+            const references = schema
+              ? extractGraphqlReferences(schema, parseAgentGraphqlOperation(query, operationName).document, data)
+              : [];
             return {
               status: 'ok',
               data,
+              ...(references.length ? { references } : {}),
               ...(errors.length ? { errors } : {}),
             };
           }

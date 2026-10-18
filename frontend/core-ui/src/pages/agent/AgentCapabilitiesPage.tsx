@@ -18,7 +18,6 @@ import {
   Input,
   Skeleton,
   ToggleGroup,
-  Tooltip,
   cn,
 } from 'erxes-ui';
 import { PageHeader } from 'ui-modules';
@@ -30,7 +29,7 @@ import {
 } from '@/agent/graphql/tools';
 import { AppPath } from '@/types/paths/AppPath';
 
-type IFilter = 'all' | 'available' | 'asks-first';
+type IFilter = 'all' | 'asks-first';
 
 const PLUGIN_LABELS: Record<string, string> = {
   core: 'Core',
@@ -39,8 +38,7 @@ const PLUGIN_LABELS: Record<string, string> = {
 };
 
 const pluginLabel = (plugin: string): string =>
-  PLUGIN_LABELS[plugin] ??
-  plugin.charAt(0).toUpperCase() + plugin.slice(1);
+  PLUGIN_LABELS[plugin] ?? plugin.charAt(0).toUpperCase() + plugin.slice(1);
 
 /** `findWithChild` → `Find with child`; `cpUsers` → `Cp users`. */
 const humanizeSegment = (segment: string): string =>
@@ -49,8 +47,7 @@ const humanizeSegment = (segment: string): string =>
     .replace(/[_-]+/g, ' ')
     .trim()
     .toLowerCase()
-    .replace(/^\w/, (c) => c.toUpperCase()) ||
-  segment;
+    .replace(/^\w/, (c) => c.toUpperCase()) || segment;
 
 /** `deal.findOne` → { module: 'deal', action: 'findOne' }. */
 const splitPath = (path: string): { module: string; action: string } => {
@@ -61,7 +58,9 @@ const splitPath = (path: string): { module: string; action: string } => {
 };
 
 const ToolRow = ({ tool }: { tool: IAgentsTool }) => {
-  const { t } = useTranslation('common', { keyPrefix: 'agent.capabilities-page' });
+  const { t } = useTranslation('common', {
+    keyPrefix: 'agent.capabilities-page',
+  });
   const [open, setOpen] = useState(false);
   const fields = tool.inputFields ?? [];
 
@@ -69,7 +68,6 @@ const ToolRow = ({ tool }: { tool: IAgentsTool }) => {
     <div
       className={cn(
         'flex w-full items-start gap-3 px-4 py-3 text-left',
-        !tool.allowed && 'opacity-60',
       )}
     >
       <div className="min-w-0 flex-1">
@@ -105,27 +103,6 @@ const ToolRow = ({ tool }: { tool: IAgentsTool }) => {
           <Badge variant="secondary" className="text-[10px] font-medium">
             {t('asks-first', 'Asks first')}
           </Badge>
-        )}
-        {!tool.allowed && (
-          <Tooltip.Provider delayDuration={200}>
-            <Tooltip>
-              <Tooltip.Trigger asChild>
-                <Badge
-                  variant="secondary"
-                  className="cursor-default text-[10px] font-medium text-muted-foreground"
-                >
-                  {t('no-access', 'No access')}
-                </Badge>
-              </Tooltip.Trigger>
-              <Tooltip.Content>
-                {t(
-                  'missing-permission',
-                  'Requires the "{{action}}" permission',
-                  { action: tool.permission?.action ?? '—' },
-                )}
-              </Tooltip.Content>
-            </Tooltip>
-          </Tooltip.Provider>
         )}
         <IconChevronDown
           className={cn(
@@ -194,9 +171,6 @@ export const AgentCapabilitiesPage = () => {
     const query = search.trim().toLowerCase();
 
     return tools.filter((tool) => {
-      if (filter === 'available' && !tool.allowed) {
-        return false;
-      }
       if (filter === 'asks-first' && !tool.requiresApproval) {
         return false;
       }
@@ -214,7 +188,7 @@ export const AgentCapabilitiesPage = () => {
 
     for (const tool of filtered) {
       const pluginBucket = byPlugin.get(tool.plugin) ?? new Map();
-      const moduleKey = splitPath(tool.path ?? '').module || '_root';
+      const moduleKey = tool.module || '_root';
       const list = pluginBucket.get(moduleKey) ?? [];
 
       list.push(tool);
@@ -232,7 +206,6 @@ export const AgentCapabilitiesPage = () => {
   }, [filtered]);
 
   const approvalCount = tools.filter((tool) => tool.requiresApproval).length;
-  const unavailableCount = tools.filter((tool) => !tool.allowed).length;
 
   return (
     <div className="flex h-full flex-col text-sm">
@@ -292,7 +265,10 @@ export const AgentCapabilitiesPage = () => {
             <div className="flex flex-col items-center gap-3 py-16 text-center">
               <IconAlertCircle className="size-8 text-destructive" />
               <p className="text-sm text-muted-foreground">
-                {t('capabilities-load-error', "Couldn't load the capabilities list.")}
+                {t(
+                  'capabilities-load-error',
+                  "Couldn't load the capabilities list.",
+                )}
               </p>
               <p className="text-xs text-destructive/80">{error.message}</p>
               <Button variant="outline" size="sm" onClick={() => refetch()}>
@@ -313,12 +289,17 @@ export const AgentCapabilitiesPage = () => {
                     <p className="text-xs text-muted-foreground">
                       {t(
                         'capabilities-summary',
-                        '{{total}} tools · {{approval}} ask before running · {{unavailable}} not available to you',
+                        '{{total}} GraphQL operations · {{approval}} ask before running',
                         {
                           total: tools.length,
                           approval: approvalCount,
-                          unavailable: unavailableCount,
                         },
+                      )}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {t(
+                        'capabilities-permissions',
+                        'Your permissions are checked when each operation runs.',
                       )}
                     </p>
                   </div>
@@ -355,12 +336,6 @@ export const AgentCapabilitiesPage = () => {
                       {t('capabilities-all', 'All')}
                     </ToggleGroup.Item>
                     <ToggleGroup.Item
-                      value="available"
-                      className="h-9 px-3 text-xs"
-                    >
-                      {t('capabilities-available', 'Available to me')}
-                    </ToggleGroup.Item>
-                    <ToggleGroup.Item
                       value="asks-first"
                       className="h-9 px-3 text-xs"
                     >
@@ -383,7 +358,7 @@ export const AgentCapabilitiesPage = () => {
                   <p className="text-sm text-muted-foreground">
                     {t(
                       'capabilities-empty',
-                      'No tools are enabled for this workspace yet.',
+                      'No GraphQL operations are available yet.',
                     )}
                   </p>
                 </div>

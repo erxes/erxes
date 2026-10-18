@@ -3,7 +3,6 @@ import { IUserDocument } from 'erxes-api-shared/core-types';
 import { ITRPCContext, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { z } from 'zod';
 import { IModels } from '~/connectionResolvers';
-import { agentMeta } from '~/trpc/agentMeta';
 import { IDeal } from '~/modules/sales/@types';
 import {
   addDeal,
@@ -48,7 +47,7 @@ const requireAgentUser = async (ctx: {
         method: 'query',
         module: 'users',
         action: 'findOne',
-        input: { query: { _id: ctx.userId } },
+        input: { query: { _id: ctx.userId, isActive: { $ne: false } } },
         defaultValue: null,
       })) as IUserDocument | null)
     : null;
@@ -131,12 +130,6 @@ const updateDealProcedure = t.procedure
 export const dealTrpcRouter = t.router({
   deal: {
     findOne: t.procedure
-      .meta(
-        agentMeta(
-          'Get a single deal by any MongoDB-style query, e.g. { _id } or { name: "..." }. Returns null when nothing matches. Call this before updating a deal, and use deal.getLink to give the user a link to it.',
-          { module: 'deal', action: 'showDeals' },
-        ),
-      )
       .input(z.any())
       .query(async ({ ctx, input }) => {
         const { models } = ctx;
@@ -144,12 +137,6 @@ export const dealTrpcRouter = t.router({
       }),
 
     find: t.procedure
-      .meta(
-        agentMeta(
-          'Search deals with a MongoDB-style filter: { query: {...}, skip?, limit?, sort? }, e.g. { query: { stageId: "..." } } or { query: { assignedUserIds: { $in: ["userId"] } } }. Pass a plain filter object without query to match directly. Resolve stage names to stageId with stage.find and pipeline names with pipeline.findOne first.',
-          { module: 'deal', action: 'showDeals' },
-        ),
-      )
       .input(z.any())
       .query(async ({ ctx, input }) => {
         const { models } = ctx;
@@ -174,12 +161,6 @@ export const dealTrpcRouter = t.router({
     }),
 
     count: t.procedure
-      .meta(
-        agentMeta(
-          'Count deals matching a filter, e.g. { stageId: "..." }. Use for "how many deals ..." questions instead of deal.find.',
-          { module: 'deal', action: 'showDeals' },
-        ),
-      )
       .input(z.any())
       .query(async ({ ctx, input }) => {
         const { models } = ctx;
@@ -188,12 +169,6 @@ export const dealTrpcRouter = t.router({
       }),
 
     getLink: t.procedure
-      .meta(
-        agentMeta(
-          'Get the relative UI link to open a deal on its board: { _id }. Returns a path like "/deal/board?id=...&pipelineId=...&itemId=...". Use after deal.findOne/deal.find to point the user at a deal.',
-          { module: 'deal', action: 'showDeals' },
-        ),
-      )
       .input(z.any())
       .query(async ({ ctx, input }) => {
         const { models } = ctx;
@@ -421,12 +396,6 @@ export const dealTrpcRouter = t.router({
       }),
 
     add: t.procedure
-      .meta(
-        agentMeta(
-          'Create a deal as the acting user: { name, stageId, description?, startDate?, closeDate? (ISO date such as "2026-11-15"), assignedUserIds?, customerIds?, companyIds? }. Resolve the pipeline with pipeline.findOne and its stages with stage.find first; never guess a stageId. Products and payments are not set here. Returns the created deal.',
-          { module: 'deal', action: 'dealsAdd' },
-        ),
-      )
       .input(
         z.object({
           name: agentShortText,
@@ -485,12 +454,6 @@ export const dealTrpcRouter = t.router({
       }),
 
     edit: t.procedure
-      .meta(
-        agentMeta(
-          "Update an existing deal's details: { _id, name?, description?, startDate?, closeDate?, assignedUserIds? }. Only the fields you pass change; assignedUserIds replaces the whole list. Use deal.move to change its stage. Call deal.findOne first to confirm the deal.",
-          { module: 'deal', action: 'dealsEdit' },
-        ),
-      )
       .input(
         z.object({
           _id: agentRecordId,
@@ -551,12 +514,6 @@ export const dealTrpcRouter = t.router({
       }),
 
     move: t.procedure
-      .meta(
-        agentMeta(
-          'Move a deal to another stage: { _id, stageId }. Resolve the target stage with stage.find ({ pipelineId }) first; it may be in the same or another pipeline. Returns the updated deal.',
-          { module: 'deal', action: 'dealsEdit' },
-        ),
-      )
       .input(
         z.object({
           _id: agentRecordId,
@@ -601,12 +558,6 @@ export const dealTrpcRouter = t.router({
 
   stage: {
     findOne: t.procedure
-      .meta(
-        agentMeta(
-          'Get a single pipeline stage by any MongoDB-style query, e.g. { _id } or { name: "...", pipelineId: "..." }. Use to resolve a stage name to its _id for deal.find.',
-          { module: 'deal', action: 'showDeals' },
-        ),
-      )
       .input(z.any())
       .query(async ({ ctx, input }) => {
         const { models } = ctx;
@@ -614,12 +565,6 @@ export const dealTrpcRouter = t.router({
         return await models.Stages.findOne(rest).lean();
       }),
     find: t.procedure
-      .meta(
-        agentMeta(
-          "List stages ordered by position: { pipelineId? } or any MongoDB-style query. Pass pipelineId from pipeline.findOne to see a pipeline's stages in order.",
-          { module: 'deal', action: 'showDeals' },
-        ),
-      )
       .input(z.any())
       .query(async ({ ctx, input }) => {
         const { models } = ctx;
@@ -629,12 +574,6 @@ export const dealTrpcRouter = t.router({
   },
   pipeline: {
     findOne: t.procedure
-      .meta(
-        agentMeta(
-          'Get a single sales pipeline: { query: { name: "..." } } with optional { fields } projection, or { stageId } to resolve the pipeline containing a stage. Returns {} when nothing matches. Chain with stage.find to list its stages.',
-          { module: 'pipeline', action: 'pipelinesWatch' },
-        ),
-      )
       .input(z.any())
       .query(async ({ ctx, input }) => {
         const { models } = ctx;

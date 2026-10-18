@@ -1,7 +1,6 @@
 import { initTRPC, TRPCError } from '@trpc/server';
 import { z } from 'zod';
 import { CoreTRPCContext } from '~/init-trpc';
-import { agentMeta } from '~/utils/agentMeta';
 
 const t = initTRPC.context<CoreTRPCContext>().create();
 
@@ -63,12 +62,6 @@ export const relationTrpcRouter = t.router({
       }),
 
     findRelatedIds: t.procedure
-      .meta(
-        agentMeta(
-          'List the ids of records linked to a customer or company: { contentType, contentId, relatedContentType }, where one side is "core:customer" or "core:company". A customer\'s companies: { contentType: "core:customer", contentId, relatedContentType: "core:company" }; a company\'s customers: the reverse; a customer\'s or company\'s deals: relatedContentType "sales:deal". Returns { relatedIds, total, truncated }. Then fetch the records with their own tools, e.g. core.trpc.companies.find or sales.trpc.deal.find with { query: { _id: { $in: relatedIds } } }. Use this for any question about what a customer or company is linked to; their own records do not list these links.',
-          { module: 'contacts', action: 'contactsRead' },
-        ),
-      )
       .input(
         z.object({
           contentType: relationContentType,

@@ -3,14 +3,6 @@ import {
   requiresGraphqlApproval,
 } from '@/agents/graphqlPolicy';
 
-// graphqlPolicy imports HIGH_RISK_ACTION from tools.ts, which pulls in the
-// agent-tools HTTP client. Mock it so the real erxes-api-shared barrel (and
-// its eager redis client) never loads.
-jest.mock('@/agents/agentTools', () => ({
-  callAgentTool: jest.fn(),
-  listAgentToolManifests: jest.fn(),
-}));
-
 const expectPolicyError = (
   fn: () => unknown,
   code: string,
@@ -59,14 +51,13 @@ describe('parseAgentGraphqlOperation', () => {
     );
   });
 
-  it('selects the named operation from a multi-operation document', () => {
-    const parsed = parseAgentGraphqlOperation(
-      'query A { customers } mutation B { customersAdd(name: "x") { _id } }',
-      'B',
-    );
-
-    expect(parsed.operation).toBe('mutation');
-    expect(parsed.rootFields).toEqual(['customersAdd']);
+  it('rejects multiple operations even when one is named', () => {
+    expect(() =>
+      parseAgentGraphqlOperation(
+        'query A { customers } mutation B { customersAdd(name: "x") { _id } }',
+        'B',
+      ),
+    ).toThrow(/exactly one operation/);
   });
 
   it('rejects a missing operationName', () => {
@@ -119,9 +110,9 @@ describe('requiresGraphqlApproval', () => {
   const parsedFor = (document: string) => parseAgentGraphqlOperation(document);
 
   it('never gates queries', () => {
-    expect(
-      requiresGraphqlApproval(parsedFor('{ customers }'), 'writes'),
-    ).toBe(false);
+    expect(requiresGraphqlApproval(parsedFor('{ customers }'), 'writes')).toBe(
+      false,
+    );
     expect(
       requiresGraphqlApproval(parsedFor('{ customers }'), 'destructive'),
     ).toBe(false);
@@ -147,4 +138,33 @@ describe('requiresGraphqlApproval', () => {
       ),
     ).toBe(false);
   });
+});
+
+describe('system-operation deny policy', () => {
+  it.each([
+    'login',
+    'appsAdd', 'appDetail', 'usersCreateOwner', 'usersEdit', 'agentsSettingsUpdate',
+    'usersInvite',
+    'permissionGroupsEdit',
+    'agentsConnectionUpsert',
+    '__schema',
+  ])('refuses %s even behind aliases', (field) => {
+    expect(() =>
+      parseAgentGraphqlOperation(
+        `mutation Run { innocuous: ${field} { _id } }`,
+      ),
+    ).toThrow();
+  });
+  it('allows business operations without a procedure allowlist', () => {
+    expect(
+      parseAgentGraphqlOperation(
+        'mutation NewPlugin { inventoryRecount { _id } }',
+      ).rootFields,
+    ).toEqual(['inventoryRecount']);
+  });
+});
+
+
+it('does not mistake business names for authentication words', () => {
+  expect(parseAgentGraphqlOperation('query Products { hotProducts { _id } associations { _id } }').rootFields).toEqual(['hotProducts', 'associations']);
 });

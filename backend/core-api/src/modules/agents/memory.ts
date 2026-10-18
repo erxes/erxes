@@ -10,7 +10,8 @@ import type { Mastra } from '@mastra/core/mastra' with {
 import type { DurableAgent } from '@mastra/core/agent/durable' with {
   'resolution-mode': 'import',
 };
-import mongoose from 'mongoose';
+import type { Connection } from 'mongoose';
+import { generateModels } from '~/connectionResolvers';
 import { buildBaseAgentsAgent, AGENTS_MAX_STEPS } from '@/agents/agent';
 import { getAgentsPubSub } from '@/agents/pubsub';
 // MongoDB 4.4.25 compatible
@@ -41,8 +42,8 @@ const LAST_MESSAGES_WINDOW = 20;
  * Mongoose caches sub-connections by name, so calling this repeatedly is
  * cheap; it stays lazy because the connection may not be open at import time.
  */
-const agentsMemoryDbName = (): string => {
-  const base = mongoose.connection.db?.databaseName;
+const agentsMemoryDbName = (connection: Connection): string => {
+  const base = connection.db?.databaseName;
 
   if (!base) {
     throw new Error('Mongoose connection is not open yet.');
@@ -57,9 +58,12 @@ const agentsMemoryDbName = (): string => {
  * versions of the `Collection` typings, so the shared connection's collection
  * handle passes through one explicit, narrow cast at this boundary.
  */
-const mongooseConnectorHandler: ConnectorHandler = {
+const createConnectorHandler = (connection: Connection): ConnectorHandler => ({
   getCollection: async (collectionName) => {
-    const subDb = mongoose.connection.useDb(agentsMemoryDbName());
+    const subDb = connection.useDb(agentsMemoryDbName(connection), {
+      useCache: true,
+      noListener: true,
+    });
     const db = subDb.db;
 
     if (!db) {
@@ -73,7 +77,7 @@ const mongooseConnectorHandler: ConnectorHandler = {
   close: async () => {
     // Intentional no-op: the platform owns the shared connection lifecycle.
   },
-};
+});
 
 /**
  * The per-tenant agents runtime bundle: conversation memory, a minimal
@@ -93,7 +97,9 @@ export interface IAgentsRuntime {
   agent: DurableAgent;
 }
 
-const createAgentsRuntime = async (): Promise<IAgentsRuntime> => {
+const createAgentsRuntime = async (subdomain: string): Promise<IAgentsRuntime> => {
+  const models = await generateModels(subdomain);
+  const connection = models.Users.db;
   // All packages are loaded dynamically from CommonJS like the other
   // ESM-only Mastra entries used by this plugin.
   const [{ MongoDBStore }, { Memory }, { Mastra }, { createDurableAgent }] =
@@ -113,7 +119,7 @@ const createAgentsRuntime = async (): Promise<IAgentsRuntime> => {
 
   const storage = new MongoDBStore({
     id: MONGODB_STORE_ID,
-    connectorHandler: mongooseConnectorHandler,
+    connectorHandler: createConnectorHandler(connection),
   });
 
   // MongoDB 4.4.25 compatible
@@ -186,7 +192,7 @@ export const getAgentsRuntime = async (
     return cached;
   }
 
-  const creation = createAgentsRuntime();
+  const creation = createAgentsRuntime(subdomain);
 
   runtimeCache.set(subdomain, creation);
 

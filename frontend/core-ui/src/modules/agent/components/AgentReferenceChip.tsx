@@ -32,10 +32,10 @@ export interface IAgentReferenceChipProps {
  * Clicking inside the full `/agent` page also opens the side panel on the
  * same thread so the conversation survives the navigation.
  */
-export const AgentReferenceChip = ({
-  reference,
-}: IAgentReferenceChipProps) => {
-  const { t } = useTranslation('common', { keyPrefix: 'agent.reference-types' });
+export const AgentReferenceChip = ({ reference }: IAgentReferenceChipProps) => {
+  const { t } = useTranslation('common', {
+    keyPrefix: 'agent.reference-types',
+  });
   const navigate = useNavigate();
   const { pathname } = useLocation();
   // `resolvePath` targets (deal) need the client, but the chip must stay
@@ -55,13 +55,11 @@ export const AgentReferenceChip = ({
     !target.pluginRemote || Boolean(pluginsConfig?.[target.pluginRemote]);
   const permitted =
     isLoaded &&
-    (!target.permissionModule ||
-      hasModulePermission(target.permissionModule));
+    (!target.permissionModule || hasModulePermission(target.permissionModule));
 
   const pagePath =
     reference.type === 'page' ? decodeAgentPagePath(reference.id) : null;
-  const pageKnown =
-    pagePath !== null && isKnownCatalogPage(catalog, pagePath);
+  const pageKnown = pagePath !== null && isKnownCatalogPage(catalog, pagePath);
 
   const clickable =
     pluginReady && permitted && (reference.type !== 'page' || pageKnown);
@@ -95,7 +93,7 @@ export const AgentReferenceChip = ({
     }
 
     setResolving(true);
-    target
+    void target
       .resolvePath(reference.id, client)
       .catch(() => null)
       .then((resolved) => {

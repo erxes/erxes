@@ -72,6 +72,12 @@ jest.mock('mongoose', () => {
   };
 });
 
+jest.mock('~/connectionResolvers', () => ({
+  generateModels: jest.fn(async () => ({
+    Users: { db: jest.requireMock('mongoose').default.connection },
+  })),
+}));
+
 // `@mastra/mongodb` and `@mastra/memory` are ESM-only; the mocked modules are
 // retrieved through jest.requireMock so this CommonJS file never imports them.
 const { MongoDBStore: MockedMongoDBStore } = jest.requireMock(
@@ -208,6 +214,7 @@ describe('connectorHandler', () => {
 
     expect(fakeConnection.useDb).toHaveBeenCalledWith(
       'erxes_tenant_agents_memory',
+      { useCache: true, noListener: true },
     );
     expect(collection).toBeDefined();
     expect(collection.name).toBe('erxes_tenant_agents_memory.messages');
@@ -312,4 +319,27 @@ describe('getAgentsRuntime', () => {
     expect(recovered.mastra).toBeDefined();
     expect(MockedMastra).toHaveBeenCalledTimes(2);
   });
+});
+
+it('uses the resolved tenant connection instead of the root connection', async () => {
+  const tenantCollection = { name: 'tenant-isolated.messages' };
+  const tenantConnection = {
+    db: { databaseName: 'tenant-isolated' },
+    useDb: jest.fn(() => ({ db: { collection: () => tenantCollection } })),
+  };
+  const { generateModels } = jest.requireMock('~/connectionResolvers') as {
+    generateModels: jest.Mock;
+  };
+  generateModels.mockResolvedValueOnce({ Users: { db: tenantConnection } });
+  const runtime = await getAgentsRuntime('tenant-isolated');
+  expect(runtime.memory).toBeDefined();
+  const result = await lastStoreConfig().connectorHandler.getCollection(
+    'messages',
+  );
+  expect(result).toBe(tenantCollection);
+  expect(tenantConnection.useDb).toHaveBeenCalledWith(
+    'tenant-isolated_agents_memory',
+    { useCache: true, noListener: true },
+  );
+  expect(fakeConnection.useDb).not.toHaveBeenCalled();
 });

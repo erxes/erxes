@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useMemo } from 'react';
 
-import { buildSandboxedSrcDoc, readPreviewHeight } from './htmlSandbox';
+import { buildSandboxedSrcDoc } from './htmlSandbox';
 
 export const HtmlPreview = ({
   html,
@@ -9,33 +9,15 @@ export const HtmlPreview = ({
   html: string;
   title?: string;
 }) => {
-  const iframeRef = useRef<HTMLIFrameElement>(null);
-  const [height, setHeight] = useState(320);
-  const { channel, srcDoc } = useMemo(() => {
-    const channel = crypto.randomUUID();
-    return { channel, srcDoc: buildSandboxedSrcDoc(html, channel) };
-  }, [html]);
-
-  useEffect(() => {
-    setHeight(320);
-    const handleMessage = (event: MessageEvent<unknown>) => {
-      if (event.source !== iframeRef.current?.contentWindow) return;
-      const next = readPreviewHeight(event.data, channel);
-      if (next !== null) setHeight(next);
-    };
-    window.addEventListener('message', handleMessage);
-    return () => window.removeEventListener('message', handleMessage);
-  }, [channel]);
+  const srcDoc = useMemo(() => buildSandboxedSrcDoc(html), [html]);
 
   return (
     <iframe
-      ref={iframeRef}
       title={title}
-      sandbox="allow-scripts"
+      sandbox=""
       srcDoc={srcDoc}
       referrerPolicy="no-referrer"
-      className="block w-full border-0 bg-transparent"
-      style={{ height }}
+      className="block h-96 w-full border-0 bg-transparent"
     />
   );
 };

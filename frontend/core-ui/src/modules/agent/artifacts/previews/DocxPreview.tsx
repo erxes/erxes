@@ -31,7 +31,7 @@ export const DocxPreview = ({ blob }: IDocxPreviewProps) => {
       }
     };
 
-    render();
+    void render();
 
     return () => {
       cancelled = true;

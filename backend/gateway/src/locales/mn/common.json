@@ -190,7 +190,7 @@
     "email-delivery": "Имэйл хүргэлт",
     "import-export": "Импорт ба Экспорт",
     "message-pro": "Message Pro",
-    "agents": "Agents"
+    "agents": "AI туслах"
   },
   "plugin": {
     "_": "Плагин",
@@ -543,13 +543,14 @@
       "reports": "Тайлан"
     },
     "capabilities": "Чадварууд",
-    "capabilities-summary": "{{total}} хэрэгсэл · {{approval}} нь гүйцэтгэхийн өмнө асуудаг · {{unavailable}} нь танд байхгүй",
+    "capabilities-summary": "{{total}} GraphQL үйлдэл · {{approval}} нь зөвшөөрөл асууна",
+    "capabilities-permissions": "Үйлдэл бүрийг ажиллуулах үед таны эрхийг шалгана.",
     "capabilities-search": "Чадвар хайх…",
     "capabilities-all": "Бүгд",
     "capabilities-available": "Надад байгаа",
     "capabilities-asks-first": "Эхлээд асуудаг",
     "capabilities-unreachable": "Харьцаж чадсангүй:",
-    "capabilities-empty": "Энэ workspace-т одоогоор хэрэгсэл идэвхжээгүй байна.",
+    "capabilities-empty": "Одоогоор GraphQL үйлдэл байхгүй.",
     "capabilities-no-match": "Шүүлтүүрт тохирох чадвар алга.",
     "capabilities-load-error": "Чадварын жагсаалт ачаалагдсангүй.",
     "back-to-chat": "Чат руу буцах",
@@ -596,7 +597,7 @@
     "color-brun": "Хүрэн",
     "color-rouge": "Улаан",
     "color-orange": "Жүрж",
-    "color-ambre": "Сувд",
+    "color-ambre": "Хув",
     "color-vert": "Ногоон",
     "color-turquoise": "Оюу",
     "color-bleu": "Цэнхэр",

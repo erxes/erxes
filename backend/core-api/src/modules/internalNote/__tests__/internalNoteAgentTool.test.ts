@@ -171,11 +171,8 @@ describe('internalNotes.add', () => {
     ).rejects.toMatchObject({ code: 'PRECONDITION_FAILED' });
   });
 
-  it('carries agent meta with the internalNotesManage permission', () => {
-    expect(agentMetaOf('internalNotes.add')?.permission).toEqual({
-      module: 'internalNotes',
-      action: 'internalNotesManage',
-    });
+  it('does not expose agent metadata', () => {
+    expect(agentMetaOf('internalNotes.add')).toBeUndefined();
   });
 });
 

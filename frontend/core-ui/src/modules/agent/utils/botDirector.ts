@@ -200,20 +200,13 @@ export const directBot = (
     expiry = signals.justDroppedAt + DROPPED_WINK_MS;
   } else if (signals.idleForMs >= IDLE_SLEEP_MS) {
     decision = decide('sleep', RANK.asleep);
-  } else if (
-    signals.wokeAt !== null &&
-    now - signals.wokeAt <= WOKE_WIDE_MS
-  ) {
+  } else if (signals.wokeAt !== null && now - signals.wokeAt <= WOKE_WIDE_MS) {
     decision = decide('wide', RANK.asleep);
     expiry = signals.wokeAt + WOKE_WIDE_MS;
   } else if (signals.hovering) {
     decision = decide('idle', RANK.hover, 'heureux');
   } else {
-    decision = decide(
-      'idle',
-      RANK.rest,
-      signals.mood ?? appearanceExpression,
-    );
+    decision = decide('idle', RANK.rest, signals.mood ?? appearanceExpression);
   }
 
   /**
@@ -222,8 +215,7 @@ export const directBot = (
    */
   const previous = prev.decision;
   if (previous && previous.state !== decision.state) {
-    const holdEnd =
-      prev.since + minDurationOf(previous.state) * S;
+    const holdEnd = prev.since + minDurationOf(previous.state) * S;
     if (now < holdEnd && decision.priority > previous.priority) {
       return { ...previous, until: holdEnd };
     }
@@ -263,10 +255,9 @@ export const directBot = (
     }
   }
 
-  const until = boundaries.filter((b) => b > now).reduce(
-    (min, b) => Math.min(min, b),
-    Infinity,
-  );
+  const until = boundaries
+    .filter((b) => b > now)
+    .reduce((min, b) => Math.min(min, b), Infinity);
 
   return { ...decision, until };
 };
@@ -286,8 +277,7 @@ const subscribeReducedMotion = (onChange: () => void) => {
   return () => media.removeEventListener('change', onChange);
 };
 
-const getReducedMotion = () =>
-  window.matchMedia(REDUCED_MOTION_QUERY).matches;
+const getReducedMotion = () => window.matchMedia(REDUCED_MOTION_QUERY).matches;
 
 export interface IUseBotDirectorSignals {
   hovering: boolean;
@@ -358,8 +348,11 @@ export const botStatusKey = (
   return { key: 'nav-label', defaultValue: 'AI Agent' };
 };
 
+const randomFraction = () =>
+  crypto.getRandomValues(new Uint32Array(1))[0] / 0x100000000;
+
 const randomMoodDelay = () =>
-  MOOD_MIN_MS + Math.random() * (MOOD_MAX_MS - MOOD_MIN_MS);
+  MOOD_MIN_MS + randomFraction() * (MOOD_MAX_MS - MOOD_MIN_MS);
 
 export const useBotDirector = (
   signals: IUseBotDirectorSignals,
@@ -425,17 +418,14 @@ export const useBotDirector = (
   /* The showcase blocks are created once per triple press: passing the
    * avatar a fresh array every render would re-fire its cycle effect and
    * reset the montage to block 0 every frame, so it never finished. */
-  if (
-    triplePressedAt !== null &&
-    showcaseRef.current?.at !== triplePressedAt
-  ) {
+  if (triplePressedAt !== null && showcaseRef.current?.at !== triplePressedAt) {
     showcaseRef.current = {
       at: triplePressedAt,
       blocks: showcaseBlocks(),
     };
   }
   const showcase =
-    triplePressedAt !== null ? (showcaseRef.current?.blocks ?? null) : null;
+    triplePressedAt !== null ? showcaseRef.current?.blocks ?? null : null;
 
   const decision = directBot(
     {
@@ -505,7 +495,7 @@ export const useBotDirector = (
     const schedule = () => {
       moodTimerRef.current = setTimeout(() => {
         moodRef.current =
-          HUMEURS[Math.floor(Math.random() * HUMEURS.length)] ?? 'heureux';
+          HUMEURS[Math.floor(randomFraction() * HUMEURS.length)] ?? 'heureux';
         setTick((n) => n + 1);
         moodTimerRef.current = setTimeout(() => {
           moodRef.current = null;

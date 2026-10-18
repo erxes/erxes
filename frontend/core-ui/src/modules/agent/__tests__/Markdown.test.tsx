@@ -1,6 +1,6 @@
 /** @jest-environment jsdom */
 import { render, screen } from '@testing-library/react';
-import type { PropsWithChildren } from 'react';
+import type { PropsWithChildren, ComponentType, ReactNode } from 'react';
 
 import { Markdown } from '../components/Markdown';
 
@@ -12,9 +12,15 @@ import { Markdown } from '../components/Markdown';
 jest.mock('remark-gfm', () => () => null);
 
 jest.mock('react-markdown', () => {
-  const React = jest.requireActual('react');
-  const parseLinks = (text: string, components: any) => {
-    const out: unknown[] = [];
+  const React = jest.requireActual<typeof import('react')>('react');
+  type MockAnchorProps = PropsWithChildren<{ href?: string }>;
+  type MockComponents = {
+    a?: ComponentType<MockAnchorProps>;
+    p?: ComponentType<PropsWithChildren>;
+  };
+  type MockRendererProps = PropsWithChildren<{ components?: MockComponents }>;
+  const parseLinks = (text: string, components: MockComponents | undefined) => {
+    const out: ReactNode[] = [];
     const re = /\[([^\]]+)\]\(([^)]+)\)/g;
     let last = 0;
     let match: RegExpExecArray | null;
@@ -26,7 +32,7 @@ jest.mock('react-markdown', () => {
       }
       const A =
         components?.a ??
-        (({ href, children }: any) =>
+        (({ href, children }: MockAnchorProps) =>
           React.createElement('a', { href }, children));
       out.push(
         React.createElement(A, { key: `l${key++}`, href: match[2] }, match[1]),
@@ -41,7 +47,7 @@ jest.mock('react-markdown', () => {
 
   return {
     __esModule: true,
-    default: ({ children, components }: any) => {
+    default: ({ children, components }: MockRendererProps) => {
       const P = components?.p ?? 'p';
       return React.createElement(
         P,
@@ -111,9 +117,9 @@ describe('Markdown link rendering', () => {
   it('renders a mailto link as an anchor', () => {
     render(<Markdown content="Mail [us](mailto:a@b.co) today." />);
 
-    expect(
-      screen.getByRole('link', { name: 'us' }).getAttribute('href'),
-    ).toBe('mailto:a@b.co');
+    expect(screen.getByRole('link', { name: 'us' }).getAttribute('href')).toBe(
+      'mailto:a@b.co',
+    );
   });
 
   it('renders a relative workspace path as plain text, not a link', () => {

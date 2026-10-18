@@ -6,7 +6,7 @@ The `agent` module is the core-ui surface for the core-api `agents` backend
 - the full-page chat at `/agent` and `/agent/:threadId`
   (`pages/agent/AgentIndexPage.tsx`, permission-guarded `module="agents"`)
   plus `/agent/capabilities` (`pages/agent/AgentCapabilitiesPage.tsx`,
-  routed before `:threadId` — the tool catalog from `agentsTools`);
+  routed before `:threadId` — the GraphQL operation catalog from `agentsTools`);
 - chat width presets standard/wide/full (`utils/chatWidth.ts`, persisted
   `agentChatWidthState`, header `DropdownMenu` radio); collapsible thread
   sidebar (`agentThreadsSidebarOpenState`); page header: sidebar/drawer
@@ -78,7 +78,7 @@ The `agent` module is the core-ui surface for the core-api `agents` backend
 ## References
 
 `references/parseAgentReferences.ts` parses `[[<type>:<id>:<label>]]`
-tokens the model copies from `callTool` `references` — unknown type,
+tokens the model copies from `callGraphql` `references` — unknown type,
 malformed id (`[A-Za-z0-9_-]{1,64}`), bracket/newline in label, or an
 unclosed mid-stream token stays literal text.
 `references/agentReferenceTargets.ts` maps the ten types to record pages
@@ -101,7 +101,7 @@ normal send's `pageContext` (dismissible chip hides `record` only).
 assistant message into `AgentWorkSteps` ("N steps", shimmering while
 streaming); `step-start` parts are transparent, approvals/ask_user stay
 standalone. `agentStepLabel` derives the per-row label
-(`core.trpc.customers.find` → "Looked up customers",
+(`callGraphql` shows its operation/field name,
 `execute_typescript` → "Ran code", `readFile` → "Read <name>").
 
 `utils/transcriptRows.ts` merges consecutive assistant messages separated only
@@ -118,10 +118,9 @@ turn. A single-step card names the action.
   `agentSidePanelResizingState` (transient drag state owned by the agent).
 - `states/agentChatContext.ts` — `AgentChatThreadContext` (current
   transcript thread id for chips).
-- sessionStorage (per surface/thread): `agents-prompt:<scope>`,
-  `agents-selected-thread:<scope>`, `agents-model:<scope>`,
-  `agents-thinking:<scope>`, `agents-active-run:<threadId>`,
-  `agents-model:<threadId>`.
+- sessionStorage: `agents-selected-thread:<scope>`,
+  `agents-active-run:<threadId>`, `agents-in-flight-prompt:<threadId>`.
+  Model and thinking selections live in memory only.
 
 ## Invariants
 

@@ -10,7 +10,10 @@ class MockIntersectionObserver {
   }
   cb: IntersectionObserverCallback;
   observe = (target: Element) => {
-    this.cb([{ isIntersecting: true, target } as IntersectionObserverEntry], this as unknown as IntersectionObserver);
+    this.cb(
+      [{ isIntersecting: true, target } as IntersectionObserverEntry],
+      this as unknown as IntersectionObserver,
+    );
   };
   unobserve = () => undefined;
   disconnect = () => undefined;
@@ -18,16 +21,20 @@ class MockIntersectionObserver {
 
 describe('cycle playback', () => {
   it('advances blocks and calls onCycleEnd', () => {
-    (globalThis as Record<string, unknown>).IntersectionObserver = MockIntersectionObserver;
+    (globalThis as Record<string, unknown>).IntersectionObserver =
+      MockIntersectionObserver;
 
     // controllable rAF pump
     const queue: FrameRequestCallback[] = [];
     let now = 0;
-    (globalThis as Record<string, unknown>).requestAnimationFrame = (cb: FrameRequestCallback) => {
+    (globalThis as Record<string, unknown>).requestAnimationFrame = (
+      cb: FrameRequestCallback,
+    ) => {
       queue.push(cb);
       return queue.length;
     };
-    (globalThis as Record<string, unknown>).cancelAnimationFrame = () => undefined;
+    (globalThis as Record<string, unknown>).cancelAnimationFrame = () =>
+      undefined;
     const pump = (ms: number) => {
       const end = now + ms;
       while (now < end) {
@@ -60,10 +67,8 @@ describe('cycle playback', () => {
     act(() => pump(4000)); // past hexagon's 1.6s + alert's start
     const mid = pathOf();
     act(() => pump(4000)); // past alert
-    const after = pathOf();
+    expect(pathOf()).toBeTruthy();
 
-    console.log('paths differ mid:', before !== mid, 'end:', mid !== after);
-    console.log('onEnd calls:', onEnd.mock.calls.length);
     expect(onEnd).toHaveBeenCalled();
     expect(before !== mid).toBe(true);
   });

@@ -106,7 +106,7 @@ describe('deal.add', () => {
         method: 'query',
         module: 'users',
         action: 'findOne',
-        input: { query: { _id: 'user1' } },
+        input: { query: { _id: 'user1', isActive: { $ne: false } } },
         defaultValue: null,
       }),
     );
@@ -242,23 +242,10 @@ describe('deal.move', () => {
   });
 });
 
-describe('deal agent metadata', () => {
-  it('exposes add/edit/move with their permissions and keeps system procedures invisible', () => {
-    expect(agentMetaOf('deal.add')?.permission).toEqual({
-      module: 'deal',
-      action: 'dealsAdd',
-    });
-    expect(agentMetaOf('deal.edit')?.permission).toEqual({
-      module: 'deal',
-      action: 'dealsEdit',
-    });
-    expect(agentMetaOf('deal.move')?.permission).toEqual({
-      module: 'deal',
-      action: 'dealsEdit',
-    });
-
-    for (const path of ['deal.create', 'deal.updateOne']) {
-      expect(agentMetaOf(path)).toBeUndefined();
-    }
+describe('internal tRPC procedures', () => {
+  it('does not expose agent metadata', () => {
+    expect(agentMetaOf('deal.add')).toBeUndefined();
+    expect(agentMetaOf('deal.edit')).toBeUndefined();
+    expect(agentMetaOf('deal.move')).toBeUndefined();
   });
 });

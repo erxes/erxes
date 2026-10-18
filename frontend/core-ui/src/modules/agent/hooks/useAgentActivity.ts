@@ -17,15 +17,11 @@ import {
 const isToolPart = (part: UIMessage['parts'][number]) =>
   part.type === 'dynamic-tool' || part.type.startsWith('tool-');
 
-const lastAssistantOf = (
-  messages: UIMessage[],
-): UIMessage | undefined =>
+const lastAssistantOf = (messages: UIMessage[]): UIMessage | undefined =>
   [...messages].reverse().find((message) => message.role === 'assistant');
 
 /** The last assistant message has a tool call still gathering input. */
-const lastAssistantHasRunningTool = (
-  chat: IUseAgentsChatResult,
-): boolean =>
+const lastAssistantHasRunningTool = (chat: IUseAgentsChatResult): boolean =>
   lastAssistantOf(chat.messages)?.parts.some((part) => {
     const state = (part as { state?: string }).state;
     return (
@@ -80,8 +76,7 @@ export const useAgentActivity = (
   const busy = BUSY_PHASES.has(phase);
 
   useEffect(() => {
-    const finishedAt =
-      wasBusyRef.current && !busy ? Date.now() : null;
+    const finishedAt = wasBusyRef.current && !busy ? Date.now() : null;
 
     wasBusyRef.current = busy;
 
@@ -93,10 +88,13 @@ export const useAgentActivity = (
         finishedAt !== null && !panelOpen
           ? previous.unread + 1
           : panelOpen
-            ? 0
-            : previous.unread,
+          ? 0
+          : previous.unread,
       finishedAt: finishedAt ?? (busy ? null : previous.finishedAt),
-      errorAt: phase === 'error' ? Date.now() : previous.errorAt,
+      errorAt:
+        phase === 'error' && previous.phase !== 'error'
+          ? Date.now()
+          : previous.errorAt,
       hasConnection: loading ? previous.hasConnection : connections.length > 0,
     }));
   }, [phase, busy, panelOpen, loading, connections.length, setActivity]);

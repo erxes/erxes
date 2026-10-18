@@ -80,9 +80,9 @@ describe('getPageRecordFromLocation', () => {
 
 describe('deal.resolvePath', () => {
   const queryMock = (data: unknown) =>
-    ({ query: jest.fn(async () => ({ data })) }) as unknown as Parameters<
+    ({ query: jest.fn(async () => ({ data })) } as unknown as Parameters<
       NonNullable<(typeof AGENT_REFERENCE_TARGETS)['deal']['resolvePath']>
-    >[1];
+    >[1]);
 
   it('navigates with board + pipeline when the query resolves', async () => {
     const resolve = AGENT_REFERENCE_TARGETS.deal.resolvePath;
@@ -143,9 +143,9 @@ describe('decodeAgentPagePath', () => {
       '../references/agentReferenceTargets'
     );
     expect(decodeAgentPagePath(encode('/sales/deals'))).toBe('/sales/deals');
-    expect(
-      decodeAgentPagePath(encode('/settings/agent/appearance')),
-    ).toBe('/settings/agent/appearance');
+    expect(decodeAgentPagePath(encode('/settings/agent/appearance'))).toBe(
+      '/settings/agent/appearance',
+    );
   });
 
   it('rejects malformed, foreign, and control-char encodings', async () => {
@@ -155,6 +155,8 @@ describe('decodeAgentPagePath', () => {
     expect(decodeAgentPagePath('%%%not-base64')).toBeNull();
     expect(decodeAgentPagePath(encode('no-leading-slash'))).toBeNull();
     expect(decodeAgentPagePath(encode('https://evil.example'))).toBeNull();
+    expect(decodeAgentPagePath(encode('//evil.example'))).toBeNull();
+    expect(decodeAgentPagePath(encode('/\\evil.example'))).toBeNull();
     expect(decodeAgentPagePath(encode('/evil\npath'))).toBeNull();
     expect(decodeAgentPagePath('')).toBeNull();
   });

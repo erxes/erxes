@@ -149,7 +149,9 @@ export const AGENT_REFERENCE_TARGETS: Record<
       const boardId = deal?.boardId ?? deal?.pipeline?.boardId;
       const pipelineId = deal?.pipeline?._id;
       if (!boardId || !pipelineId) return null;
-      return `/sales/deals?boardId=${boardId}&pipelineId=${pipelineId}&salesItemId=${encodeURIComponent(id)}`;
+      return `/sales/deals?boardId=${boardId}&pipelineId=${pipelineId}&salesItemId=${encodeURIComponent(
+        id,
+      )}`;
     },
   },
   conversation: {
@@ -196,7 +198,12 @@ export const decodeAgentPagePath = (encoded: string): string | null => {
     }
     const path = decodeURIComponent(escaped);
 
-    if (!path.startsWith('/') || PAGE_PATH_BAD_CHAR_RE.test(path)) {
+    if (
+      !path.startsWith('/') ||
+      path.startsWith('//') ||
+      path.includes('\\') ||
+      PAGE_PATH_BAD_CHAR_RE.test(path)
+    ) {
       return null;
     }
     return path;

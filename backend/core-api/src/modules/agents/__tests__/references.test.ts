@@ -16,7 +16,7 @@ import { extractAgentReferences } from '@/agents/references';
 
 describe('extractAgentReferences', () => {
   it('maps core customers.* tools to customer tokens with a full name label', () => {
-    const tokens = extractAgentReferences('core.trpc.customers.find', [
+    const tokens = extractAgentReferences('customer', [
       {
         _id: 'cust1',
         firstName: 'Jane',
@@ -30,21 +30,21 @@ describe('extractAgentReferences', () => {
 
   it('falls back through customer label fields to email, phone, then code', () => {
     expect(
-      extractAgentReferences('core.trpc.customers.findOne', {
+      extractAgentReferences('customer', {
         _id: 'c1',
         primaryEmail: 'a@b.c',
       }),
     ).toEqual(['[[customer:c1:a@b.c]]']);
 
     expect(
-      extractAgentReferences('core.trpc.customers.findOne', {
+      extractAgentReferences('customer', {
         _id: 'c2',
         primaryPhone: '+123',
       }),
     ).toEqual(['[[customer:c2:+123]]']);
 
     expect(
-      extractAgentReferences('core.trpc.customers.findOne', {
+      extractAgentReferences('customer', {
         _id: 'c3',
         code: 'C-3',
       }),
@@ -53,7 +53,7 @@ describe('extractAgentReferences', () => {
 
   it('maps companies.* to company tokens preferring primaryName, then names[0], then email', () => {
     expect(
-      extractAgentReferences('core.trpc.companies.findOne', {
+      extractAgentReferences('company', {
         _id: 'co1',
         primaryName: 'Acme',
         names: ['Acme LLC'],
@@ -61,14 +61,14 @@ describe('extractAgentReferences', () => {
     ).toEqual(['[[company:co1:Acme]]']);
 
     expect(
-      extractAgentReferences('core.trpc.companies.findOne', {
+      extractAgentReferences('company', {
         _id: 'co2',
         names: ['Acme LLC', 'Other'],
       }),
     ).toEqual(['[[company:co2:Acme LLC]]']);
 
     expect(
-      extractAgentReferences('core.trpc.companies.findOne', {
+      extractAgentReferences('company', {
         _id: 'co3',
         names: [],
         primaryEmail: 'info@acme.io',
@@ -78,7 +78,7 @@ describe('extractAgentReferences', () => {
 
   it('maps users.* to user tokens preferring details.fullName, then username, then email', () => {
     expect(
-      extractAgentReferences('core.trpc.users.findOne', {
+      extractAgentReferences('user', {
         _id: 'u1',
         details: { fullName: 'Full Name' },
         username: 'uname',
@@ -86,7 +86,7 @@ describe('extractAgentReferences', () => {
     ).toEqual(['[[user:u1:Full Name]]']);
 
     expect(
-      extractAgentReferences('core.trpc.users.findOne', {
+      extractAgentReferences('user', {
         _id: 'u2',
         username: 'uname',
         email: 'u@x.io',
@@ -94,7 +94,7 @@ describe('extractAgentReferences', () => {
     ).toEqual(['[[user:u2:uname]]']);
 
     expect(
-      extractAgentReferences('core.trpc.users.findOne', {
+      extractAgentReferences('user', {
         _id: 'u3',
         email: 'u@x.io',
       }),
@@ -103,75 +103,61 @@ describe('extractAgentReferences', () => {
 
   it('maps products.* to product tokens (name, then code)', () => {
     expect(
-      extractAgentReferences('core.trpc.products.findOne', {
+      extractAgentReferences('product', {
         _id: 'p1',
         name: 'Tea',
       }),
     ).toEqual(['[[product:p1:Tea]]']);
 
     expect(
-      extractAgentReferences('core.trpc.products.find', [
-        { _id: 'p2', code: 'P-2' },
-      ]),
+      extractAgentReferences('product', [{ _id: 'p2', code: 'P-2' }]),
     ).toEqual(['[[product:p2:P-2]]']);
   });
 
   it('excludes nested product routers (rules) from the product type', () => {
     expect(
-      extractAgentReferences('core.trpc.products.rules.find', [
-        { _id: 'r1', name: 'rule' },
-      ]),
+      extractAgentReferences('unsupported', [{ _id: 'r1', name: 'rule' }]),
     ).toEqual([]);
 
     // productCategories / productUoms are different prefixes entirely.
     expect(
-      extractAgentReferences('core.trpc.productCategories.find', [
-        { _id: 'cat1', name: 'Cat' },
-      ]),
+      extractAgentReferences('unsupported', [{ _id: 'cat1', name: 'Cat' }]),
     ).toEqual([]);
     expect(
-      extractAgentReferences('core.trpc.productUoms.find', [
-        { _id: 'uom1', name: 'pc' },
-      ]),
+      extractAgentReferences('unsupported', [{ _id: 'uom1', name: 'pc' }]),
     ).toEqual([]);
   });
 
   it('maps structure routers to branch/department/unit tokens (title, then code)', () => {
     expect(
-      extractAgentReferences('core.trpc.branches.find', [
-        { _id: 'b1', title: 'HQ' },
-      ]),
+      extractAgentReferences('branch', [{ _id: 'b1', title: 'HQ' }]),
     ).toEqual(['[[branch:b1:HQ]]']);
     expect(
-      extractAgentReferences('core.trpc.departments.findOne', {
+      extractAgentReferences('department', {
         _id: 'd1',
         code: 'DEP-1',
       }),
     ).toEqual(['[[department:d1:DEP-1]]']);
     expect(
-      extractAgentReferences('core.trpc.units.find', [
-        { _id: 'un1', title: 'Unit A' },
-      ]),
+      extractAgentReferences('unit', [{ _id: 'un1', title: 'Unit A' }]),
     ).toEqual(['[[unit:un1:Unit A]]']);
   });
 
   it('maps brands.* and sales deal.*', () => {
     expect(
-      extractAgentReferences('core.trpc.brands.findOne', {
+      extractAgentReferences('brand', {
         _id: 'br1',
         name: 'Brand X',
       }),
     ).toEqual(['[[brand:br1:Brand X]]']);
     expect(
-      extractAgentReferences('sales.trpc.deal.find', [
-        { _id: 'deal1', name: 'Big Order' },
-      ]),
+      extractAgentReferences('deal', [{ _id: 'deal1', name: 'Big Order' }]),
     ).toEqual(['[[deal:deal1:Big Order]]']);
   });
 
   it('maps the agent write tools to customer/deal tokens by prefix', () => {
     expect(
-      extractAgentReferences('core.trpc.customers.add', {
+      extractAgentReferences('customer', {
         _id: 'cust9',
         firstName: 'Jane',
         lastName: 'Doe',
@@ -179,7 +165,7 @@ describe('extractAgentReferences', () => {
     ).toEqual(['[[customer:cust9:Jane Doe]]']);
 
     expect(
-      extractAgentReferences('sales.trpc.deal.move', {
+      extractAgentReferences('deal', {
         _id: 'deal9',
         name: 'Big Order',
       }),
@@ -188,7 +174,7 @@ describe('extractAgentReferences', () => {
 
   it('maps frontline inbox.conversations.* to a 40-char content snippet or the id', () => {
     expect(
-      extractAgentReferences('frontline.trpc.inbox.conversations.findOne', {
+      extractAgentReferences('conversation', {
         _id: 'cv1',
         content:
           'This is a fairly long conversation content body that exceeds forty characters.',
@@ -198,7 +184,7 @@ describe('extractAgentReferences', () => {
     ]);
 
     expect(
-      extractAgentReferences('frontline.trpc.inbox.conversations.findOne', {
+      extractAgentReferences('conversation', {
         _id: 'cv2',
       }),
     ).toEqual(['[[conversation:cv2:cv2]]']);
@@ -207,7 +193,7 @@ describe('extractAgentReferences', () => {
   it('walks one-level list wrappers (list, items, data)', () => {
     for (const key of ['list', 'items', 'data']) {
       expect(
-        extractAgentReferences('core.trpc.customers.find', {
+        extractAgentReferences('customer', {
           [key]: [{ _id: 'w1', firstName: 'A' }],
           total: 1,
         }),
@@ -216,7 +202,7 @@ describe('extractAgentReferences', () => {
 
     // A `data` document (not array) is picked up too.
     expect(
-      extractAgentReferences('frontline.trpc.inbox.conversations.findOne', {
+      extractAgentReferences('conversation', {
         status: 'success',
         data: { _id: 'cv9', content: 'hi' },
       }),
@@ -224,7 +210,7 @@ describe('extractAgentReferences', () => {
   });
 
   it('sanitizes labels: strips brackets and newlines, collapses whitespace, caps at 80 chars', () => {
-    const tokens = extractAgentReferences('sales.trpc.deal.findOne', {
+    const tokens = extractAgentReferences('deal', {
       _id: 'd1',
       name: 'Evil ]] name\nwith   spaces [[',
     });
@@ -232,7 +218,7 @@ describe('extractAgentReferences', () => {
     expect(tokens).toEqual(['[[deal:d1:Evil name with spaces]]']);
 
     const long = 'x'.repeat(200);
-    const longTokens = extractAgentReferences('sales.trpc.deal.findOne', {
+    const longTokens = extractAgentReferences('deal', {
       _id: 'd2',
       name: long,
     });
@@ -242,7 +228,7 @@ describe('extractAgentReferences', () => {
 
   it('falls back to the id when the label sanitizes to empty', () => {
     expect(
-      extractAgentReferences('sales.trpc.deal.findOne', {
+      extractAgentReferences('deal', {
         _id: 'd3',
         name: ' ]] [ [',
       }),
@@ -250,7 +236,7 @@ describe('extractAgentReferences', () => {
   });
 
   it('skips documents without a well-formed string _id', () => {
-    const tokens = extractAgentReferences('core.trpc.customers.find', [
+    const tokens = extractAgentReferences('customer', [
       { _id: 'ok-1', firstName: 'Ok' },
       { _id: 'bad id!', firstName: 'Bad' },
       { _id: '', firstName: 'Empty' },
@@ -268,25 +254,17 @@ describe('extractAgentReferences', () => {
       name: `N${i}`,
     }));
 
-    const tokens = extractAgentReferences('sales.trpc.deal.find', docs);
+    const tokens = extractAgentReferences('deal', docs);
 
     expect(new Set(tokens).size).toBe(tokens.length);
     expect(tokens).toHaveLength(25);
   });
 
   it('returns [] for unknown tool ids and non-record results', () => {
-    expect(
-      extractAgentReferences('core.trpc.tags.find', [{ _id: 't1' }]),
-    ).toEqual([]);
-    expect(extractAgentReferences('unknown.tool.id', { _id: 'x' })).toEqual(
-      [],
-    );
-    expect(
-      extractAgentReferences('core.trpc.customers.count', 42),
-    ).toEqual([]);
-    expect(extractAgentReferences('core.trpc.customers.find', null)).toEqual(
-      [],
-    );
-    expect(extractAgentReferences('core.trpc.customers.find', [])).toEqual([]);
+    expect(extractAgentReferences('unsupported', [{ _id: 't1' }])).toEqual([]);
+    expect(extractAgentReferences('unknown.tool.id', { _id: 'x' })).toEqual([]);
+    expect(extractAgentReferences('customer', 42)).toEqual([]);
+    expect(extractAgentReferences('customer', null)).toEqual([]);
+    expect(extractAgentReferences('customer', [])).toEqual([]);
   });
 });
