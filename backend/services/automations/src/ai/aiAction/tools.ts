@@ -22,6 +22,32 @@ export const MAX_AI_TOOL_ITERATIONS = 5;
 const stringifyToolResult = (result: unknown) =>
   typeof result === 'string' ? result : JSON.stringify(result ?? null);
 
+// Providers do not enforce the schema: a handoff that skips a required
+// argument, invents one, or names a value outside its list goes back to the
+// model to correct instead of routing the run on a guess.
+export const findInvalidToolArguments = (
+  { properties, required = [] }: TAiBridgeToolDefinition['parameters'],
+  args: Record<string, unknown>,
+) => [
+  ...required
+    .filter((name) => args[name] == null || args[name] === '')
+    .map((name) => `"${name}" is required.`),
+  ...Object.keys(args)
+    .filter((name) => !(name in properties) && args[name] != null)
+    .map((name) => `"${name}" is not a parameter of this tool.`),
+  ...Object.entries(properties).flatMap(([name, schema]) => {
+    const allowed = schema.enum || schema.items?.enum;
+    const values = args[name] == null ? [] : [args[name]].flat();
+    const invalid = allowed
+      ? values.filter((value) => !allowed.includes(value as string))
+      : [];
+
+    return invalid.length
+      ? [`"${name}" must be one of the listed values.`]
+      : [];
+  }),
+];
+
 type TAiUsage = {
   inputTokens?: number;
   outputTokens?: number;
@@ -93,6 +119,40 @@ export const runAiToolLoop = async ({
 
     if (handoffCall) {
       const tool = toolsByName.get(handoffCall.name);
+      const problems = tool
+        ? findInvalidToolArguments(
+            tool.definition.parameters,
+            handoffCall.arguments || {},
+          )
+        : [];
+
+      if (problems.length) {
+        const error = problems.join(' ');
+
+        trace.push({
+          name: handoffCall.name,
+          kind: 'handoff',
+          arguments: handoffCall.arguments || {},
+          error,
+        });
+        loopMessages.push(
+          {
+            role: 'assistant',
+            content: providerResponse.text || '',
+            toolCalls: [handoffCall],
+          },
+          {
+            role: 'tool',
+            content: JSON.stringify({ error }),
+            toolCallId: handoffCall.id,
+          },
+        );
+        providerResponse = await invoke(loopMessages, definitions);
+        addUsage(totalUsage, providerResponse.usage);
+        degraded = degraded || !!providerResponse.fallback;
+        continue;
+      }
+
       handoff = {
         toolId: tool?.toolId || handoffCall.name,
         name: handoffCall.name,
@@ -159,6 +219,8 @@ export const runAiToolLoop = async ({
   // Usage covers every provider call of the loop, not just the last one
   return {
     providerResponse: { ...providerResponse, usage: totalUsage },
+    // The conversation as the model last saw it, tool results included
+    messages: loopMessages,
     handoff,
     toolCallTrace: trace,
     degraded,

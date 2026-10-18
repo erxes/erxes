@@ -1,21 +1,8 @@
 import FileAttachments from './FileAttachments';
 import MediaAttachments from './MediaAttachments';
 import VideoAttachments from './VideoAttachments';
+import { AudioAttachments } from './AudioAttachments';
 import { useAttachmentContext } from './AttachmentContext';
-
-const fileTypes = [
-  'text/plain',
-  'application/pdf',
-  'application/msword',
-  'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // docx
-  'application/vnd.ms-excel',
-  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // xlsx
-  'application/vnd.ms-powerpoint',
-  'application/vnd.openxmlformats-officedocument.presentationml.presentation', // pptx
-];
-
-// const audioTypes = ['audio/mpeg', 'audio/mp3', 'audio/wav', 'audio/ogg'];
-// const videoTypes = ['video/mp4', 'video/webm', 'video/ogg'];
 
 const Attachments = () => {
   const { attachments } = useAttachmentContext();
@@ -29,18 +16,23 @@ const Attachments = () => {
     return null;
   }
 
-  const mediaAttachments = safeAttachments.filter((attachment) =>
-    attachment.type?.startsWith('image'),
+  // A type is a MIME type when uploaded here and a bare word ("image",
+  // "audio", "file") when it came from a conversation; both group by prefix.
+  const kindOf = (type?: string) =>
+    ['image', 'video', 'audio'].find((kind) => type?.startsWith(kind)) ||
+    'file';
+  const mediaAttachments = safeAttachments.filter(
+    (attachment) => kindOf(attachment.type) === 'image',
   );
-  const fileAttachments = safeAttachments.filter((attachment) =>
-    fileTypes.includes(attachment.type ?? ''),
+  const videoAttachments = safeAttachments.filter(
+    (attachment) => kindOf(attachment.type) === 'video',
   );
-  const videoAttachments = safeAttachments.filter((attachment) =>
-    attachment.type?.startsWith('video'),
+  const audioAttachments = safeAttachments.filter(
+    (attachment) => kindOf(attachment.type) === 'audio',
   );
-  // const audioAttachments = attachments.filter((attachment) =>
-  //   audioTypes.includes(attachment.type),
-  // );
+  const fileAttachments = safeAttachments.filter(
+    (attachment) => kindOf(attachment.type) === 'file',
+  );
 
   return (
     <div className="border-b">
@@ -53,6 +45,9 @@ const Attachments = () => {
         )}
         {videoAttachments.length > 0 && (
           <VideoAttachments attachments={videoAttachments} />
+        )}
+        {audioAttachments.length > 0 && (
+          <AudioAttachments attachments={audioAttachments} />
         )}
       </div>
     </div>

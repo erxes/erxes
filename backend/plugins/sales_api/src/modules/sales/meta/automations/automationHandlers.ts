@@ -91,6 +91,7 @@ export const salesAutomationHandlers = {
       targetType,
       relation: setPropertyTarget?.relation,
       targetPath: setPropertyTarget?.targetPath,
+      targetActionId: action.targetActionId,
     });
 
     const setPropertyArgs = {
