@@ -1,4 +1,5 @@
 import { useApolloClient, useMutation } from '@apollo/client';
+import { isDefined } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -12,12 +13,8 @@ import {
   CATEGORIES,
   TOPICS,
 } from '@/knowledgebase/graphql/queries';
-import {
-  IArticle,
-  IArticleDetailResponse,
-  IArticleDoc,
-  IKbAttachment,
-} from '@/knowledgebase/types';
+import { IArticle, IArticleDoc } from '@/knowledgebase/types';
+import { toKbAttachment } from '@/knowledgebase/utils/toKbAttachment';
 import { useKbToast } from '@/knowledgebase/shared/hooks/useKbToast';
 
 const ARTICLE_QUERIES = [ARTICLES, CATEGORIES, TOPICS];
@@ -53,24 +50,11 @@ export const useSaveArticle = () => {
   return { saveArticle, loading: adding || editing };
 };
 
-const toAttachmentInput = (
-  attachment?: IKbAttachment | null,
-): IKbAttachment | undefined =>
-  attachment
-    ? {
-        url: attachment.url,
-        name: attachment.name,
-        type: attachment.type,
-        size: attachment.size,
-        duration: attachment.duration,
-      }
-    : undefined;
-
 const useFetchArticleDetail = () => {
   const client = useApolloClient();
 
   return async (articleId: string) => {
-    const { data } = await client.query<IArticleDetailResponse>({
+    const { data } = await client.query({
       query: ARTICLE_DETAIL,
       variables: { _id: articleId },
       fetchPolicy: 'network-only',
@@ -94,10 +78,10 @@ const useUpdateArticle = () => {
       variables: {
         _id: article._id,
         doc: {
-          title: detail?.title ?? article.title,
+          title: detail?.title ?? article.title ?? '',
           summary: detail?.summary ?? article.summary,
           content: detail?.content || '<p></p>',
-          status: detail?.status ?? article.status,
+          status: detail?.status ?? article.status ?? 'draft',
           isPrivate: detail?.isPrivate ?? false,
           reactionChoices: detail?.reactionChoices ?? [],
           categoryId: detail?.categoryId ?? article.categoryId,
@@ -181,39 +165,40 @@ export const useDuplicateArticle = (topicId: string) => {
   });
 
   const duplicateArticle = (article: IArticle) =>
-    run(
-      async () => {
-        const detail = await fetchDetail(article._id);
+    run(async () => {
+      const detail = await fetchDetail(article._id);
 
-        if (!detail) {
-          throw new Error(t('kb-article-not-found', 'Article not found'));
-        }
+      if (!detail) {
+        throw new Error(t('kb-article-not-found', 'Article not found'));
+      }
 
-        const pdf = toAttachmentInput(detail.pdfAttachment?.pdf);
+      const pdf = detail.pdfAttachment?.pdf
+        ? toKbAttachment(detail.pdfAttachment.pdf)
+        : undefined;
 
-        await addArticle({
-          variables: {
-            doc: {
-              title: t('kb-article-copy-title', {
-                title: detail.title,
-                defaultValue: '{{title}} (copy)',
-              }),
-              summary: detail.summary,
-              content: detail.content || '<p></p>',
-              status: 'draft',
-              isPrivate: detail.isPrivate ?? false,
-              reactionChoices: detail.reactionChoices ?? [],
-              topicId,
-              categoryId: detail.categoryId,
-              image: toAttachmentInput(detail.image),
-              attachments: (detail.attachments ?? []).map(toAttachmentInput),
-              pdfAttachment: pdf ? { pdf } : undefined,
-            },
+      await addArticle({
+        variables: {
+          doc: {
+            title: t('kb-article-copy-title', {
+              title: detail.title,
+              defaultValue: '{{title}} (copy)',
+            }),
+            summary: detail.summary,
+            content: detail.content || '<p></p>',
+            status: 'draft',
+            isPrivate: detail.isPrivate ?? false,
+            reactionChoices: detail.reactionChoices ?? [],
+            topicId,
+            categoryId: detail.categoryId,
+            image: detail.image ? toKbAttachment(detail.image) : undefined,
+            attachments: (detail.attachments ?? [])
+              .filter(isDefined)
+              .map(toKbAttachment),
+            pdfAttachment: pdf ? { pdf } : undefined,
           },
-        });
-      },
-      t('kb-article-duplicated', 'Article duplicated as a draft'),
-    );
+        },
+      });
+    }, t('kb-article-duplicated', 'Article duplicated as a draft'));
 
   return { duplicateArticle, loading };
 };

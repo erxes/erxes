@@ -1,20 +1,20 @@
-import { useState } from 'react';
-import { Button, DropdownMenu } from 'erxes-ui';
-import { PrintDocument } from 'ui-modules';
+import { DealPrintDocument } from '@/deals/actionBar/components/DealPrintDocument';
+import { useDealActions } from '@/deals/actionBar/hooks/useDealActions';
+import { IDeal } from '@/deals/types/deals';
 import {
   IconArchive,
   IconCopy,
   IconDots,
+  IconDotsVertical,
+  IconEdit,
   IconEye,
   IconPrinter,
   IconTrash,
-  IconEdit,
-  IconDotsVertical,
 } from '@tabler/icons-react';
-import { IDeal } from '@/deals/types/deals';
+import { Button, DropdownMenu } from 'erxes-ui';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { DealPrintDocument } from '@/deals/actionBar/components/DealPrintDocument';
-import { useDealActions } from '@/deals/actionBar/hooks/useDealActions';
+import { PrintDocument } from 'ui-modules';
 
 export const DealsActions = ({
   deals,
@@ -23,7 +23,7 @@ export const DealsActions = ({
   variant = 'dropdown',
   watchOnly = false,
 }: {
-  deals: IDeal[];
+  deals: Pick<IDeal, '_id' | 'isWatched' | 'status'>[];
   selectedCount?: number;
   triggerLabel?: string;
   variant?: 'dropdown' | 'watch' | 'menu';

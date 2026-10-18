@@ -4,7 +4,7 @@ export const types = `
     name: String
     description: String
     apiUrl: String
-    username: String
+    clientId: String
     testMode: Boolean
   }
 
@@ -18,8 +18,8 @@ const mutationParams = `
     name: String!
     description: String
     apiUrl: String!
-    username: String!
-    password: String!
+    clientId: String!
+    clientSecret: String!
     testMode: Boolean
 `;
 
@@ -30,8 +30,8 @@ export const mutations = `
 `;
 
 const qryParams = `
-    page: Int
-    perPage: Int
+    limit: Int
+    cursor: String
 `;
 
 export const queries = `

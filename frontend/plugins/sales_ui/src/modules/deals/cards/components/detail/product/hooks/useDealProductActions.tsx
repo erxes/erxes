@@ -1,27 +1,31 @@
+import type { DealProduct, DealProductData } from '@/deals/utils/dealJson';
 import { Dispatch, SetStateAction, useCallback, useMemo, useRef } from 'react';
-import { IProduct, IProductData, currentUserState } from 'ui-modules';
+import { currentUserState } from 'ui-modules';
 
-import { AdjustmentByCurrency } from './useProductCalculations';
 import { useAtomValue } from 'jotai';
-import { useDealsCreateProductsData } from './mutations/useDealsCreateProductsData';
-import { useRemoveProducts } from './mutations/useRemoveProduct';
 import {
   ProductDataWithDiscountInfos,
   applyFooterDiscountPercent,
 } from '../utils/discountInfos';
+import { getProductDefaultUom, normalizeProductUom } from '../utils/productUom';
+import { useDealsCreateProductsData } from './mutations/useDealsCreateProductsData';
+import { useRemoveProducts } from './mutations/useRemoveProduct';
+import { AdjustmentByCurrency } from './useProductCalculations';
 
 interface UseDealProductActionsParams {
   tickUsed: boolean;
   tax: AdjustmentByCurrency;
   discount: AdjustmentByCurrency;
-  setLocalProductsData: Dispatch<SetStateAction<IProductData[]>>;
-  updateTotal: (productsData: IProductData[]) => void;
+  setLocalProductsData: Dispatch<SetStateAction<DealProductData[]>>;
+  updateTotal: (productsData: DealProductData[]) => void;
   calculatePerProductAmount: (
     type: string,
-    productData: IProductData,
+    productData: DealProductData,
     callUpdateTotal?: boolean,
   ) => void;
-  sortByStableProductOrder: (productsData: IProductData[]) => IProductData[];
+  sortByStableProductOrder: (
+    productsData: DealProductData[],
+  ) => DealProductData[];
 }
 
 const startProcess = () => {
@@ -49,10 +53,10 @@ export const useDealProductActions = ({
 
   // Deletions in flight: read by ProductsList's server-sync effect so a
   // pending delete isn't resurrected by a stale productsData snapshot.
-  const pendingProductDeletionsRef = useRef(new Set<string>());
+  const pendingProductDeletionsRef = useRef(new Set<DealProductData['_id']>());
 
   const appendRows = useCallback(
-    (rows: IProductData[]) => {
+    (rows: DealProductData[]) => {
       setLocalProductsData((prev) => {
         const next = [...prev, ...rows];
         updateTotal(next);
@@ -63,7 +67,7 @@ export const useDealProductActions = ({
   );
 
   const removeRows = useCallback(
-    (ids: string[]) => {
+    (ids: Array<DealProductData['_id']>) => {
       setLocalProductsData((prev) => {
         const next = prev.filter((row) => !ids.includes(row._id));
         updateTotal(next);
@@ -74,7 +78,7 @@ export const useDealProductActions = ({
   );
 
   const createProductsData = useCallback(
-    (docs: IProductData[], rows: IProductData[]) => {
+    (docs: DealProductData[], rows: DealProductData[]) => {
       const processId = startProcess();
 
       appendRows(rows);
@@ -92,12 +96,12 @@ export const useDealProductActions = ({
   );
 
   const addProducts = useCallback(
-    (selectedProducts: IProduct[]) => {
+    (selectedProducts: DealProduct[]) => {
       if (!selectedProducts?.length) return;
       const currency = currencies.length > 0 ? currencies[0] : 'MNT';
 
       const rows = selectedProducts.map((product) => {
-        const row: IProductData = {
+        const row: DealProductData = {
           tax: 0,
           taxPercent: tax[currency]?.percent || 0,
           discount: 0,
@@ -110,6 +114,7 @@ export const useDealProductActions = ({
           product,
           quantity: 1,
           productId: product._id,
+          uom: getProductDefaultUom(product),
           unitPrice: product.unitPrice,
           globalUnitPrice: product.unitPrice,
           unitPricePercent: 100,
@@ -117,7 +122,7 @@ export const useDealProductActions = ({
         };
 
         return applyFooterDiscountPercent(
-          row,
+          normalizeProductUom(row),
           discount[currency]?.percent || 0,
         );
       });
@@ -143,7 +148,7 @@ export const useDealProductActions = ({
   );
 
   const duplicateProduct = useCallback(
-    (productData: IProductData) => {
+    (productData: DealProductData) => {
       // The server persists docs verbatim, so send only persisted fields —
       // not the embedded product object or bundle conditions.
       const sourceProductData = productData as ProductDataWithDiscountInfos;
@@ -151,6 +156,7 @@ export const useDealProductActions = ({
         _id: crypto.randomUUID(),
         productId: productData.productId || productData.product?._id,
         uom: productData.uom,
+        uomInfo: sourceProductData.uomInfo,
         currency: productData.currency,
         quantity: productData.quantity,
         unitPrice: productData.unitPrice,
@@ -177,7 +183,7 @@ export const useDealProductActions = ({
   );
 
   const restoreDeletedProduct = useCallback(
-    (productData: IProductData) => {
+    (productData: DealProductData) => {
       pendingProductDeletionsRef.current.delete(productData._id);
       setLocalProductsData((prev) => {
         const alreadyRestored = prev.some(
@@ -200,7 +206,7 @@ export const useDealProductActions = ({
   );
 
   const deleteProduct = useCallback(
-    (productData: IProductData) => {
+    (productData: DealProductData) => {
       pendingProductDeletionsRef.current.add(productData._id);
       removeRows([productData._id]);
 

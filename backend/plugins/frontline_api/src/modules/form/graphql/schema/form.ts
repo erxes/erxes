@@ -78,12 +78,6 @@ export const types = `
     value: JSON
   }
 
-  type FormType {
-    title: String
-    description: String
-    contentType: String
-    icon: String
-  }
 
   type FormsTotalCount {
     total: Int
@@ -146,7 +140,6 @@ const commonFields = `
   buttonText: String,
   type: String!,
   numberOfPages: Int,
-  googleMapApiKey: String
 
   visibility: String
   leadData: JSON
@@ -187,8 +180,6 @@ export const queries = `
   formSubmissions(${formSubmissionQueryParams}, ${cursorParams}): SubmissionListResponse
   formSubmissionDetail(_id: String!): Submission
 
-  formsGetContentTypes: [FormType]
-
   cpForms(type: String, channelId: String, tagId: String, status: String, searchValue: String,${cursorParams}, skip: Int): FormListResponse
   cpFormDetail(_id: String!): Form
   
@@ -197,7 +188,7 @@ export const queries = `
 export const mutations = `
   formsAdd(${commonFields}): Form
   formsEdit(_id: String!, ${commonFields} ): Form
-  formsRemove(_ids: [String]): [String]
+  formsRemove(_ids: [String!]!): [String]
   formsToggleStatus(_ids: [String]!, status: String): Boolean
   formsDuplicate(_id: String!): Form
   formSubmissionsSave(${commonFormSubmissionFields}): Boolean

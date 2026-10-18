@@ -1,57 +1,68 @@
-import { gql } from '@apollo/client';
-import {
-  GQL_CURSOR_PARAM_DEFS,
-  GQL_CURSOR_PARAMS,
-  GQL_PAGE_INFO,
-} from 'erxes-ui';
+import { gql } from '~/gql';
 
-export const getIntegrations = gql`
-  query integrationsGetUsedTypes($limit: Int, $only: String) {
-    integrationsGetUsedTypes {
-      _id
-      name
-    }
-    conversationCounts(limit: $limit, only: $only)
-  }
-`;
-
-export const INTEGRATION_INLINE = gql`
+export const INTEGRATION_INLINE = gql(`
   query IntegrationInline($_id: String!) {
     integrationDetail(_id: $_id) {
       _id
       name
       kind
+      channelId
     }
   }
-`;
+`);
 
-export const GET_INTEGRATIONS_BY_KIND = gql`
-  query Integrations($kind: String, $searchValue: String, $channelId: String!, ${GQL_CURSOR_PARAM_DEFS}) {
-    integrations(kind: $kind, searchValue: $searchValue, channelId: $channelId, ${GQL_CURSOR_PARAMS}) {
+export const GET_INTEGRATIONS_BY_KIND = gql(`
+  query Integrations(
+    $kind: String
+    $searchValue: String
+    $channelId: String!
+    $cursor: String
+    $cursorMode: CURSOR_MODE
+    $direction: CURSOR_DIRECTION
+    $limit: Int
+  ) {
+    integrations(
+      kind: $kind
+      searchValue: $searchValue
+      channelId: $channelId
+      cursor: $cursor
+      cursorMode: $cursorMode
+      direction: $direction
+      limit: $limit
+    ) {
       list {
         _id
         name
         kind
         isActive
-        healthStatus
+        healthStatus {
+          status
+          error
+        }
         brandId
         channelId
       }
-      ${GQL_PAGE_INFO}
+      totalCount
+      pageInfo {
+        hasNextPage
+        hasPreviousPage
+        startCursor
+        endCursor
+      }
     }
   }
-`;
+`);
 
-export const GET_INTEGRATION_KINDS = gql`
+export const GET_INTEGRATION_KINDS = gql(`
   query IntegrationsGetUsedTypes {
     integrationsGetUsedTypes {
       _id
       name
     }
   }
-`;
+`);
 
-export const GET_INTEGRATION_KINDS_BY_CHANNEL = gql`
+export const GET_INTEGRATION_KINDS_BY_CHANNEL = gql(`
   query IntegrationsGetUsedTypesByChannel($channelId: String, $scope: String) {
     integrationsGetUsedTypesByChannel(channelId: $channelId, scope: $scope) {
       _id
@@ -59,4 +70,4 @@ export const GET_INTEGRATION_KINDS_BY_CHANNEL = gql`
       unreadConversationCount
     }
   }
-`;
+`);

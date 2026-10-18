@@ -1,15 +1,13 @@
-import { gql, useQuery } from '@apollo/client';
+import { isDefined } from 'erxes-ui';
+import { useQuery } from '@apollo/client';
 import { CALL_CARRIER_BREAKDOWN } from '@/integrations/call/graphql/queries/callStatistics';
-import type { CarrierSlice } from '../types';
 import { useCallFilters } from './useCallFilters';
 
 export function useCarrierBreakdown() {
   const { startDate, endDate, integrationId, queueId, direction } =
     useCallFilters();
 
-  const { data, loading, error } = useQuery<{
-    callCarrierBreakdown: CarrierSlice[];
-  }>(gql(CALL_CARRIER_BREAKDOWN), {
+  const { data, loading, error } = useQuery(CALL_CARRIER_BREAKDOWN, {
     variables: {
       startDate,
       endDate,
@@ -21,7 +19,7 @@ export function useCarrierBreakdown() {
   });
 
   return {
-    breakdown: data?.callCarrierBreakdown ?? [],
+    breakdown: data?.callCarrierBreakdown?.filter(isDefined) ?? [],
     loading,
     error,
   };

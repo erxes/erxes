@@ -14,9 +14,11 @@ export const useBoardPipelineStageInlineText = ({
   skip?: boolean;
 }) => {
   const { t } = useTranslation('sales');
+  const hasIds = !!boardId && !!pipelineId && !!stageId;
+  // The query needs all three ids; a partial config shows the empty labels.
   const { data, loading, error } = useQuery(GET_BOARD_PIPELINE_STAGE_NAME, {
-    variables: { boardId, pipelineId, stageId },
-    skip: skip,
+    variables: hasIds ? { boardId, pipelineId, stageId } : undefined,
+    skip: skip || !hasIds,
   });
 
   const boardName = data?.salesBoardDetail?.name || t('no-board');

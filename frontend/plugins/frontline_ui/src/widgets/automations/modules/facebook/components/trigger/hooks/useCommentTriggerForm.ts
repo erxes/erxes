@@ -27,7 +27,7 @@ export const useCommentTriggerForm = ({
   const form = useForm<TCommentTriggerForm>({
     resolver: zodResolver(commentTriggerSchema),
     defaultValues: {
-      postType: 'specific',
+      ...(config.postType ? {} : { postType: 'specific' as const }),
       ...(isNew ? { onlyFirstLevel: true } : {}),
       ...config,
     },

@@ -1,12 +1,14 @@
 'use client';
 
+import type { DealProductData } from '@/deals/utils/dealJson';
 import {
-  CheckInputField,
-  ProductAssigneeField,
-  ProductCalculatedNumberField,
-  ProductDiscountNumberField,
-  ProductNumberField,
-} from './getProductColumns';
+  IconCurrencyDollar,
+  IconDiamond,
+  IconLabel,
+  IconPentagonNumber1,
+  IconShoppingCart,
+  IconUser,
+} from '@tabler/icons-react';
 import {
   CURRENCY_CODES,
   CurrencyCode,
@@ -16,13 +18,16 @@ import {
   formatAmount,
 } from 'erxes-ui';
 import {
-  IconCurrencyDollar,
-  IconDiamond,
-  IconLabel,
-  IconPentagonNumber1,
-  IconUser,
-  IconShoppingCart,
-} from '@tabler/icons-react';
+  CheckInputField,
+  ProductAssigneeField,
+  ProductCalculatedNumberField,
+  ProductDiscountNumberField,
+  ProductNumberField,
+  baseUom,
+  uomInfoQuantity,
+  uomInfoUnitPrice,
+  uomInfoUom,
+} from './getProductColumns';
 import {
   ProductNameCell,
   getProductId,
@@ -30,14 +35,14 @@ import {
 } from './ProductNameCell';
 
 import { ColumnDef } from '@tanstack/table-core';
-import { IProductData } from 'ui-modules';
-import { ProductTypeIcon } from './ProductTypeIcon';
-import { productMoreColumn } from './ProductMoreColumn';
-import { TFunction } from 'i18next';
 
-export const productColumns = (t: TFunction): ColumnDef<IProductData>[] => [
+import { TFunction } from 'i18next';
+import { productMoreColumn } from './ProductMoreColumn';
+import { ProductTypeIcon } from './ProductTypeIcon';
+
+export const productColumns = (t: TFunction): ColumnDef<DealProductData>[] => [
   productMoreColumn(),
-  RecordTable.checkboxColumn as ColumnDef<IProductData>,
+  RecordTable.checkboxColumn as ColumnDef<DealProductData>,
   {
     id: 'type',
     accessorKey: 'product.type',
@@ -80,13 +85,16 @@ export const productColumns = (t: TFunction): ColumnDef<IProductData>[] => [
     },
     size: 240,
   },
+  uomInfoUom(t),
+  uomInfoUnitPrice(t),
+  uomInfoQuantity(t),
   {
     id: 'unitPrice',
     accessorKey: 'unitPrice',
     header: () => (
       <RecordTable.InlineHead
         icon={IconCurrencyDollar}
-        label={t('unit-price')}
+        label={t('base-unit-price', 'Base unit price')}
       />
     ),
     cell: ({ cell }) => {
@@ -119,7 +127,7 @@ export const productColumns = (t: TFunction): ColumnDef<IProductData>[] => [
     header: () => (
       <RecordTable.InlineHead
         icon={IconPentagonNumber1}
-        label={t('quantity')}
+        label={t('base-quantity', 'Base quantity')}
       />
     ),
     cell: ({ cell }) => {
@@ -136,6 +144,7 @@ export const productColumns = (t: TFunction): ColumnDef<IProductData>[] => [
     },
     size: 100,
   },
+  baseUom(t),
   {
     id: 'discountPercent',
     accessorKey: 'discountPercent',
@@ -177,7 +186,7 @@ export const productColumns = (t: TFunction): ColumnDef<IProductData>[] => [
     accessorKey: 'amount',
     accessorFn: (row) => {
       const quantity = row.quantity || 0;
-      const unitPrice = row.unitPrice || row.product?.unitPrice || 0;
+      const unitPrice = row.unitPrice ?? row.product?.unitPrice ?? 0;
       const discount = row.discount || 0;
 
       return quantity * unitPrice - discount;

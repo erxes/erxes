@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const MAIL_VERIFIED_CONTACTS_QUERY = gql`
+export const MAIL_VERIFIED_CONTACTS_QUERY = gql(`
   query frontlineMailVerifiedContacts($searchValue: String, $cursor: String) {
     customers: mailVerifiedContacts(
       searchValue: $searchValue
@@ -20,4 +20,4 @@ export const MAIL_VERIFIED_CONTACTS_QUERY = gql`
       }
     }
   }
-`;
+`);

@@ -1,28 +1,25 @@
+import { isDefined } from 'erxes-ui';
 import { QueryHookOptions, useQuery } from '@apollo/client';
 import { GET_TICKET_PRIORITY } from '@/report/graphql/queries/getTicketChart';
+import type {
+  ReportTicketPriorityQuery,
+  ReportTicketPriorityQueryVariables,
+} from '~/gql/graphql';
 
-export interface TicketPriorityItem {
-  priority: number;
-  name: string;
-  color: string;
-  count: number;
-  percentage: number;
-}
-
-interface TicketPriorityResponse {
-  reportTicketPriority: TicketPriorityItem[];
-}
+export type TicketPriorityItem = NonNullable<
+  NonNullable<ReportTicketPriorityQuery['reportTicketPriority']>[number]
+>;
 
 export const useTicketPriority = (
-  options?: QueryHookOptions<TicketPriorityResponse>,
+  options?: QueryHookOptions<
+    ReportTicketPriorityQuery,
+    ReportTicketPriorityQueryVariables
+  >,
 ) => {
-  const { data, loading, error } = useQuery<TicketPriorityResponse>(
-    GET_TICKET_PRIORITY,
-    options,
-  );
+  const { data, loading, error } = useQuery(GET_TICKET_PRIORITY, options);
 
   return {
-    priorityData: data?.reportTicketPriority,
+    priorityData: data?.reportTicketPriority?.filter(isDefined),
     loading,
     error,
   };

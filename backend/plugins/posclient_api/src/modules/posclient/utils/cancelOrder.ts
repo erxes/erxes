@@ -9,6 +9,7 @@ import {
   getOrderReceiptQuery,
   hasSuccessfulOrderReceipt,
 } from './orderReceipts';
+import { releaseOrderVouchers } from './orderVoucher';
 
 export const cancelPosOrder = async (
   models: IModels,
@@ -76,5 +77,6 @@ export const cancelPosOrder = async (
     status: { $ne: 'SUCCESS' },
   });
   await models.OrderItems.deleteMany({ orderId: _id });
+  await releaseOrderVouchers(subdomain, _id, userId);
   return models.Orders.deleteOne({ _id });
 };

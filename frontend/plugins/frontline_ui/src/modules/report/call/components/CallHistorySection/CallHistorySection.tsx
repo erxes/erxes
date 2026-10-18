@@ -332,8 +332,8 @@ export function CallHistorySection() {
             <ReportTable.Body>
               {entries.map((entry, index) => {
                 const when = formatWhen(entry.startedAt);
-                const carrierColor = CARRIER_COLOR_VAR[entry.carrier];
-                const tone = OUTCOME_TONE[entry.outcome] ?? 'warning';
+                const carrierColor = CARRIER_COLOR_VAR[entry.carrier ?? ''];
+                const tone = OUTCOME_TONE[entry.outcome ?? ''] ?? 'warning';
                 const rowNumber =
                   (page - 1) * CALL_HISTORY_PAGE_SIZE + index + 1;
 
@@ -392,19 +392,19 @@ export function CallHistorySection() {
                           >
                             {entry.carrier}
                           </span>
-                          {entry.repeatCount > 1 && (
+                          {(entry.repeatCount ?? 0) > 1 && (
                             <span
                               className="rounded bg-warning/15 px-1.5 py-px text-[10px] font-semibold text-warning"
                               title={t('repeat-caller-hint', {
                                 defaultValue:
                                   '{{count}} calls in this range, {{answered}} connected',
-                                count: entry.repeatCount,
-                                answered: entry.repeatAnswered,
+                                count: entry.repeatCount ?? 0,
+                                answered: entry.repeatAnswered ?? 0,
                               })}
                             >
                               {t('repeat-calls', {
                                 defaultValue: '{{count}}×',
-                                count: entry.repeatCount,
+                                count: entry.repeatCount ?? 0,
                               })}
                             </span>
                           )}
@@ -431,7 +431,7 @@ export function CallHistorySection() {
 
                     <ReportTable.Cell>
                       <ReportTable.Badge tone={tone}>
-                        {OUTCOME_LABEL[entry.outcome] ?? entry.outcome}
+                        {OUTCOME_LABEL[entry.outcome ?? ''] ?? entry.outcome}
                       </ReportTable.Badge>
                     </ReportTable.Cell>
 
@@ -471,10 +471,10 @@ export function CallHistorySection() {
                             </p>
                             <p className="font-mono text-[11px] text-muted-foreground">
                               {entry.agentExtension}
-                              {entry.rungCount > 1 &&
+                              {(entry.rungCount ?? 0) > 1 &&
                                 ` · ${t('rung-count', {
                                   defaultValue: '{{count}} rung',
-                                  count: entry.rungCount,
+                                  count: entry.rungCount ?? 0,
                                 })}`}
                             </p>
                           </div>
@@ -484,7 +484,7 @@ export function CallHistorySection() {
                           {entry.rungCount
                             ? t('rung-count', {
                                 defaultValue: '{{count}} rung',
-                                count: entry.rungCount,
+                                count: entry.rungCount ?? 0,
                               })
                             : t('nobody-rung', {
                                 defaultValue: 'nobody rung',

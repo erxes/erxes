@@ -1,27 +1,21 @@
+import { isDefined } from 'erxes-ui';
 import { QueryHookOptions, useQuery } from '@apollo/client';
 import { GET_CONVERSATION_SOURCE } from '@/report/graphql/queries/getChart';
-
-interface ConversationSource {
-  _id: string;
-  name: string;
-  count: number;
-  percentage: number;
-}
-
-interface ConversationSourcesResponse {
-  reportConversationSources: ConversationSource[];
-}
+import type {
+  ReportConversationSourcesQuery,
+  ReportConversationSourcesQueryVariables,
+} from '~/gql/graphql';
 
 export const useConversationSources = (
-  options: QueryHookOptions<ConversationSourcesResponse>,
+  options: QueryHookOptions<
+    ReportConversationSourcesQuery,
+    ReportConversationSourcesQueryVariables
+  >,
 ) => {
-  const { data, loading, error } = useQuery<ConversationSourcesResponse>(
-    GET_CONVERSATION_SOURCE,
-    options,
-  );
+  const { data, loading, error } = useQuery(GET_CONVERSATION_SOURCE, options);
 
   return {
-    conversationSources: data?.reportConversationSources,
+    conversationSources: data?.reportConversationSources?.filter(isDefined),
     loading,
     error,
   };

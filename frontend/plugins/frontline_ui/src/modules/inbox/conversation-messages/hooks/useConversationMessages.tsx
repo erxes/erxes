@@ -1,28 +1,39 @@
 import { useQuery } from '@apollo/client';
 import type { QueryHookOptions } from '@apollo/client';
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { GET_CONVERSATION_MESSAGES } from '@/inbox/conversations/conversation-detail/graphql/queries/getConversationMessages';
 import {
   CONVERSATION_MESSAGE_INSERTED,
   CONVERSATION_MESSAGE_UPDATED,
 } from '@/inbox/conversations/graphql/subscriptions/inboxSubscriptions';
-import type { IMessage } from '@/inbox/types/Conversation';
+import { toMessage } from '@/inbox/conversation-messages/utils/toMessage';
+import { compactList } from '@/shared/utils/cursorList';
+import type {
+  ConversationMessagesQuery,
+  ConversationMessagesQueryVariables,
+} from '~/gql/graphql';
 
 export const useConversationMessages = (
-  options: QueryHookOptions<{
-    conversationMessages: IMessage[];
-    conversationMessagesTotalCount: number;
-  }>,
+  options: QueryHookOptions<
+    ConversationMessagesQuery,
+    ConversationMessagesQueryVariables
+  >,
 ) => {
-  const { data, loading, fetchMore, subscribeToMore, client } = useQuery<{
-    conversationMessages: IMessage[];
-    conversationMessagesTotalCount: number;
-  }>(GET_CONVERSATION_MESSAGES, options);
+  const { data, loading, fetchMore, subscribeToMore, client } = useQuery(
+    GET_CONVERSATION_MESSAGES,
+    options,
+  );
 
-  const { conversationMessages, conversationMessagesTotalCount } = data || {
-    conversationMessages: [],
-    conversationMessagesTotalCount: 0,
-  };
+  const conversationMessages = useMemo(
+    () => compactList(data?.conversationMessages),
+    [data?.conversationMessages],
+  );
+  const conversationMessagesTotalCount =
+    data?.conversationMessagesTotalCount ?? 0;
+  const messages = useMemo(
+    () => conversationMessages.map(toMessage),
+    [conversationMessages],
+  );
 
   const conversationId = options.variables?.conversationId;
   const initialLimit = options.variables?.limit ?? 10;
@@ -54,20 +65,18 @@ export const useConversationMessages = (
       updateQuery: (prev, { fetchMoreResult }) => {
         if (!fetchMoreResult?.conversationMessages?.length) return prev;
 
+        const previousMessages = compactList(prev.conversationMessages);
         const existingIds = new Set(
-          prev.conversationMessages.map((message) => message._id),
+          previousMessages.map((message) => message._id),
         );
-        const uniqueMessages = fetchMoreResult.conversationMessages.filter(
-          (message) => !existingIds.has(message._id),
-        );
+        const uniqueMessages = compactList(
+          fetchMoreResult.conversationMessages,
+        ).filter((message) => !existingIds.has(message._id));
 
         if (!uniqueMessages.length) return prev;
 
         return {
-          conversationMessages: [
-            ...uniqueMessages,
-            ...prev.conversationMessages,
-          ],
+          conversationMessages: [...uniqueMessages, ...previousMessages],
           conversationMessagesTotalCount:
             fetchMoreResult.conversationMessagesTotalCount ??
             prev.conversationMessagesTotalCount,
@@ -97,28 +106,32 @@ export const useConversationMessages = (
   ]);
 
   useEffect(() => {
-    const unsubscribeInserted = subscribeToMore<{
-      conversationMessageInserted: IMessage;
-    }>({
+    if (!conversationId) {
+      return;
+    }
+
+    const unsubscribeInserted = subscribeToMore({
       document: CONVERSATION_MESSAGE_INSERTED,
       variables: {
         _id: conversationId,
       },
       updateQuery: (prev, { subscriptionData }) => {
-        if (!prev || !subscriptionData.data) return prev;
+        const newMessage = subscriptionData.data?.conversationMessageInserted;
 
-        const newMessage = subscriptionData.data.conversationMessageInserted;
+        if (!prev || !newMessage) return prev;
+
+        const previousMessages = compactList(prev.conversationMessages);
 
         // The same message id can be re-emitted to push an update (e.g. a Discord
         // survey's vote tallies refreshing on `extraData`). Replace the existing
         // copy in place so the card updates, rather than dropping the event as a
         // duplicate or appending a second bubble.
-        const existingIndex = prev.conversationMessages.findIndex(
-          (msg: IMessage) => msg._id === newMessage._id,
+        const existingIndex = previousMessages.findIndex(
+          (msg) => msg._id === newMessage._id,
         );
 
         if (existingIndex !== -1) {
-          const conversationMessages = [...prev.conversationMessages];
+          const conversationMessages = [...previousMessages];
           conversationMessages[existingIndex] = {
             ...conversationMessages[existingIndex],
             ...newMessage,
@@ -142,15 +155,13 @@ export const useConversationMessages = (
         }
 
         return {
-          conversationMessages: [...prev.conversationMessages, newMessage],
+          conversationMessages: [...previousMessages, newMessage],
           conversationMessagesTotalCount:
             (prev.conversationMessagesTotalCount || 0) + 1,
         };
       },
     });
-    const unsubscribeUpdated = subscribeToMore<{
-      conversationMessageUpdated: IMessage;
-    }>({
+    const unsubscribeUpdated = subscribeToMore({
       document: CONVERSATION_MESSAGE_UPDATED,
       variables: { _id: conversationId },
       updateQuery: (prev, { subscriptionData }) => {
@@ -158,12 +169,13 @@ export const useConversationMessages = (
         if (!prev || !message || message.conversationId !== conversationId) {
           return prev;
         }
-        if (!prev.conversationMessages.some(({ _id }) => _id === message._id)) {
+        const previousMessages = compactList(prev.conversationMessages);
+        if (!previousMessages.some(({ _id }) => _id === message._id)) {
           return prev;
         }
         return {
           ...prev,
-          conversationMessages: prev.conversationMessages.map((previous) =>
+          conversationMessages: previousMessages.map((previous) =>
             previous._id === message._id
               ? { ...previous, ...message }
               : previous,
@@ -178,7 +190,7 @@ export const useConversationMessages = (
   }, [client.cache, conversationId, subscribeToMore]);
 
   return {
-    messages: conversationMessages,
+    messages,
     totalCount: conversationMessagesTotalCount,
     loading,
     handleFetchMore,

@@ -1,3 +1,4 @@
+import { parseDealProductMutation } from '@/deals/utils/dealJson';
 import {
   ApolloError,
   MutationFunctionOptions,
@@ -5,6 +6,10 @@ import {
   useMutation,
 } from '@apollo/client';
 import { useCallback } from 'react';
+import type {
+  DealsDeleteProductDataMutation,
+  DealsDeleteProductDataMutationVariables,
+} from '~/gql/graphql';
 
 import { productRemove } from '@/deals/cards/components/detail/product/graphql/mutations/ProductsActions';
 import { useCurrentDealId } from '@/deals/cards/hooks/useCurrentDealId';
@@ -18,7 +23,7 @@ import {
 
 interface RemoveProductsVariables {
   processId: string;
-  dataIds: string[];
+  dataIds: DealsDeleteProductDataMutationVariables['dataIds'];
 }
 
 export const useRemoveProducts = () => {
@@ -32,7 +37,13 @@ export const useRemoveProducts = () => {
   // promise resolve on failure, hiding errors from this wrapper.
   const removeProducts = useCallback(
     async (
-      options: Omit<MutationFunctionOptions, 'variables'> & {
+      options: Omit<
+        MutationFunctionOptions<
+          DealsDeleteProductDataMutation,
+          DealsDeleteProductDataMutationVariables
+        >,
+        'variables'
+      > & {
         variables: RemoveProductsVariables;
       },
     ) => {
@@ -45,7 +56,9 @@ export const useRemoveProducts = () => {
           mutation: () =>
             mutateRemoveProducts(withDealIdVariables(executeOptions, dealId)),
           selectProductsData: (mutationResult) =>
-            mutationResult.data?.dealsDeleteProductData?.productsData,
+            parseDealProductMutation(
+              mutationResult.data?.dealsDeleteProductData,
+            ),
         });
 
         toast({
@@ -53,11 +66,16 @@ export const useRemoveProducts = () => {
           variant: 'success',
           ...DEAL_TOAST_OPTIONS,
         });
-        onCompleted?.(result.data);
+        if (result.data) onCompleted?.(result.data);
 
         return result;
       } catch (e) {
-        const apolloError = e as ApolloError;
+        const apolloError =
+          e instanceof ApolloError
+            ? e
+            : new ApolloError({
+                errorMessage: e instanceof Error ? e.message : String(e),
+              });
 
         toast({
           title: t('error'),

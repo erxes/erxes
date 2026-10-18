@@ -1,10 +1,10 @@
-import { useCallback, useEffect, useState } from 'react';
-import { Card } from 'erxes-ui';
-import { useTranslation } from 'react-i18next';
-import { ProductGroup } from '@/pos/pos-detail/types/IPos';
 import { AddGroupForm } from '@/pos/components/products/AddGroupForm';
-import { useProductGroups } from '@/pos/hooks/useProductGroups';
 import { usePosEditProductGroup } from '@/pos/hooks/usePosEditProductGroup';
+import { useProductGroups } from '@/pos/hooks/useProductGroups';
+import { ProductGroup } from '@/pos/pos-detail/types/IPos';
+import { Card } from 'erxes-ui';
+import { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface ProductGroupSaveState {
   isDirty: boolean;
@@ -31,19 +31,19 @@ export const ProductGroupsList: React.FC<ProductGroupsListProps> = ({
 
   const existingGroup = productGroups?.[0] || null;
 
-  const handleGroupSave = useCallback(async (group: ProductGroup) => {
-    if (!posId) return;
+  const handleGroupSave = useCallback(
+    async (group: ProductGroup) => {
+      if (!posId) return;
 
-    await productGroupSave(
-      {
+      await productGroupSave({
         variables: {
           posId,
           groups: [group],
         },
-      },
-      ['groups'],
-    );
-  }, [posId, productGroupSave]);
+      });
+    },
+    [posId, productGroupSave],
+  );
 
   const handleDirtyChange = useCallback((dirty: boolean) => {
     setIsDirty(dirty);

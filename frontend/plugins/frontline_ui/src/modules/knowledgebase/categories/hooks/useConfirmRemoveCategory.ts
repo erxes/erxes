@@ -8,7 +8,7 @@ export const useConfirmRemoveCategory = () => {
   const confirmRemove = useKbConfirmRemove();
 
   const confirmRemoveCategory = (
-    category: { _id: string; title?: string },
+    category: { _id: string; title?: string | null },
     onRemoved?: () => void,
   ) =>
     confirmRemove({

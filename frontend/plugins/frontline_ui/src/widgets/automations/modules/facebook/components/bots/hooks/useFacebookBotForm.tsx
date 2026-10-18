@@ -2,9 +2,14 @@ import {
   FACEBOOK_BOT_DETAIL,
   FACEBOOK_BOTS_LIST,
 } from '@/integrations/facebook/graphql/queries/facebookBots';
-import { IFacebookBot } from '@/integrations/facebook/types/FacebookBot';
 import { resetFacebookAddStateAtom } from '@/integrations/facebook/states/facebookStates';
-import { useMutation, useQuery } from '@apollo/client';
+import {
+  ApolloCache,
+  ApolloError,
+  useMutation,
+  useQuery,
+} from '@apollo/client';
+import { IFacebookBot } from '@/integrations/facebook/types/FacebookBot';
 import { toast, useQueryState } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
@@ -14,7 +19,6 @@ import {
   UPDATE_FACEBOOK_BOT,
 } from '~/widgets/automations/modules/facebook/components/bots/graphql/automationBotsMutations';
 import { facebookBotFormSchema } from '~/widgets/automations/modules/facebook/components/bots/states/facebookBotForm';
-import { FacebookBotDetailQueryResponse } from '~/widgets/automations/modules/facebook/components/bots/types/facebookBotTypes';
 
 export const useFacebookBotSave = (
   // Surfaces that open the form outside the bots settings page hold the bot in
@@ -26,82 +30,83 @@ export const useFacebookBotSave = (
   const facebookBotId = botId ?? queryBotId;
   const resetForm = useSetAtom(resetFacebookAddStateAtom);
 
-  const [save, { loading: onSaveloading }] = useMutation(
-    facebookBotId ? UPDATE_FACEBOOK_BOT : ADD_FACEBOOK_BOT,
-  );
+  const [addBot, { loading: adding }] = useMutation(ADD_FACEBOOK_BOT);
+  const [updateBot, { loading: updating }] = useMutation(UPDATE_FACEBOOK_BOT);
+
+  const writeSavedBot = (cache: ApolloCache<unknown>, savedBot: IFacebookBot) =>
+    cache.updateQuery({ query: FACEBOOK_BOTS_LIST }, (current) => {
+      if (!current?.facebookMessengerBots) {
+        return { facebookMessengerBots: [savedBot] };
+      }
+
+      const exists = current.facebookMessengerBots.some(
+        (bot) => bot?._id === savedBot._id,
+      );
+
+      return {
+        facebookMessengerBots: exists
+          ? current.facebookMessengerBots.map((bot) =>
+              bot?._id === savedBot._id ? savedBot : bot,
+            )
+          : [savedBot, ...current.facebookMessengerBots],
+      };
+    });
+
+  const onCompleted = () => {
+    toast({
+      title: t('save-successful', 'Save successful'),
+    });
+  };
+
+  const onError = (error: ApolloError) => {
+    toast({
+      variant: 'destructive',
+      title: t('something-went-wrong', 'Uh oh! Something went wrong.'),
+      description: error?.message,
+    });
+  };
 
   const onSave = (values: z.infer<typeof facebookBotFormSchema>) => {
-    const variables = {
-      ...values,
-      _id: facebookBotId || undefined,
-    };
-    save({
-      variables,
-      update: (cache, { data }) => {
-        const savedBot = facebookBotId
-          ? data?.facebookMessengerUpdateBot
-          : data?.facebookMessengerAddBot;
-
-        if (!savedBot) {
-          return;
-        }
-
-        cache.updateQuery<{ facebookMessengerBots: IFacebookBot[] }>(
-          {
-            query: FACEBOOK_BOTS_LIST,
-          },
-          (current) => {
-            if (!current?.facebookMessengerBots) {
-              return { facebookMessengerBots: [savedBot] };
-            }
-
-            const exists = current.facebookMessengerBots.some(
-              (bot) => bot._id === savedBot._id,
-            );
-
-            return {
-              facebookMessengerBots: exists
-                ? current.facebookMessengerBots.map((bot) =>
-                    bot._id === savedBot._id ? savedBot : bot,
-                  )
-                : [savedBot, ...current.facebookMessengerBots],
-            };
-          },
-        );
-      },
-      onCompleted: () => {
-        toast({
-          title: t('save-successful', 'Save successful'),
-        });
-      },
-      onError: (error) => {
-        toast({
-          variant: 'destructive',
-          title: t('something-went-wrong', 'Uh oh! Something went wrong.'),
-          description: error?.message,
-        });
-      },
-    });
+    if (facebookBotId) {
+      updateBot({
+        variables: { ...values, _id: facebookBotId },
+        update: (cache, { data }) => {
+          if (data?.facebookMessengerUpdateBot) {
+            writeSavedBot(cache, data.facebookMessengerUpdateBot);
+          }
+        },
+        onCompleted,
+        onError,
+      });
+    } else {
+      addBot({
+        variables: values,
+        update: (cache, { data }) => {
+          if (data?.facebookMessengerAddBot) {
+            writeSavedBot(cache, data.facebookMessengerAddBot);
+          }
+        },
+        onCompleted,
+        onError,
+      });
+    }
 
     resetForm();
   };
 
   return {
-    onSaveloading,
+    onSaveloading: adding || updating,
     onSave,
   };
 };
 
 export const useFacebookBotForm = (facebookBotId: string | null) => {
-  const { data, loading: loadingDetail } =
-    useQuery<FacebookBotDetailQueryResponse>(FACEBOOK_BOT_DETAIL, {
-      variables: { _id: facebookBotId },
-      skip: !facebookBotId,
-    });
-  const { facebookMessengerBot } = data || {};
-
+  const { data, loading: loadingDetail } = useQuery(FACEBOOK_BOT_DETAIL, {
+    variables: { _id: facebookBotId },
+    skip: !facebookBotId,
+  });
   return {
     loadingDetail,
-    facebookMessengerBot,
+    facebookMessengerBot: data?.facebookMessengerBot ?? undefined,
   };
 };

@@ -1,8 +1,8 @@
 import * as React from 'react';
 
 import {
-  IconChevronsRight,
   IconLayoutSidebarLeftCollapse,
+  IconLayoutSidebarLeftExpand,
   IconMenu2,
 } from '@tabler/icons-react';
 import { type PrimitiveAtom, useAtom } from 'jotai';
@@ -149,11 +149,11 @@ const AppLayoutFloatingButton = ({
   icon: React.ReactNode;
   onClick: () => void;
 }) => (
-  <div className="absolute top-0 left-0 z-30 flex h-13 w-10 items-center justify-center bg-sidebar pt-1">
+  <div className="absolute top-0 left-0 z-30 flex h-12 w-10 items-center justify-center bg-sidebar">
     <Button
       aria-expanded={false}
       aria-label={label}
-      className="size-8 shrink-0"
+      className="size-7 shrink-0"
       size="icon"
       title={label}
       type="button"
@@ -291,7 +291,7 @@ const AppLayoutDesktop = ({
           className="flex h-full flex-col"
           style={{ minWidth: currentWidth }}
         >
-          <div className="flex h-13 shrink-0 items-center px-2">
+          <div className="flex h-12 shrink-0 items-center px-2">
             <div className="min-w-0 flex-1 truncate px-2 text-sm font-medium">
               {title}
             </div>
@@ -329,7 +329,7 @@ const AppLayoutDesktop = ({
         {!open && (
           <AppLayoutFloatingButton
             label="Expand sidebar"
-            icon={<IconChevronsRight />}
+            icon={<IconLayoutSidebarLeftExpand />}
             onClick={() => setOpen(true)}
           />
         )}

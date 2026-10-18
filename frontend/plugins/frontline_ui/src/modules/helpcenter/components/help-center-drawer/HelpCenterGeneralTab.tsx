@@ -10,12 +10,10 @@ import {
 import { TFunction } from 'i18next';
 import { useState } from 'react';
 import { Control, UseFormReturn, useWatch } from 'react-hook-form';
-import { SelectHelpCenterCms } from '@/helpcenter/components/SelectHelpCenterCms';
 import { SelectHelpCenterForms } from '@/helpcenter/components/SelectHelpCenterForms';
 import { SelectHelpCenterTopic } from '@/helpcenter/components/SelectHelpCenterTopic';
 import { SelectHelpCenterClientPortal } from '@/helpcenter/components/SelectHelpCenterClientPortal';
 import { FULL_WIDTH_SELECT } from '@/helpcenter/constants';
-import { useHelpCenterCmsOptions } from '@/helpcenter/hooks/useHelpCenterCmsOptions';
 import { IHelpCenterConfigInput } from '@/helpcenter/types';
 import { SelectChannel } from '@/ticket/components/ticket-selects/SelectChannel';
 import { SelectPipeline } from '@/ticket/components/ticket-selects/SelectPipeline';
@@ -112,13 +110,6 @@ export function HelpCenterGeneralTab({
   const ticketPipelineId = useWatch({ control, name: 'ticketPipelineId' });
   const formChannelId = useWatch({ control, name: 'formChannelId' });
   const url = useWatch({ control, name: 'url' });
-
-  const {
-    cmsList,
-    loading: cmsLoading,
-    error: cmsError,
-    unavailable: cmsUnavailable,
-  } = useHelpCenterCmsOptions();
 
   return (
     <div className="flex flex-col gap-4">
@@ -398,32 +389,6 @@ export function HelpCenterGeneralTab({
           </div>
         </InfoCard.Content>
       </InfoCard>
-
-      {!cmsUnavailable && (
-        <InfoCard title={t('cms', 'CMS')}>
-          <InfoCard.Content>
-            <div className="grid gap-4 lg:grid-cols-2">
-              <Form.Field
-                control={control}
-                name="cmsConfigs"
-                render={({ field }) => (
-                  <Form.Item className={FULL_WIDTH_SELECT}>
-                    <Form.Label>{t('cms', 'CMS')}</Form.Label>
-                    <SelectHelpCenterCms
-                      value={field.value}
-                      cmsList={cmsList}
-                      loading={cmsLoading}
-                      error={cmsError}
-                      onValueChange={field.onChange}
-                    />
-                    <Form.Message />
-                  </Form.Item>
-                )}
-              />
-            </div>
-          </InfoCard.Content>
-        </InfoCard>
-      )}
     </div>
   );
 }

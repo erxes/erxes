@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const MAIL_SENDERS_QUERY = gql`
+export const MAIL_SENDERS_QUERY = gql(`
   query frontlineMailSenders {
     mailSenders {
       integrationId
@@ -8,4 +8,4 @@ export const MAIL_SENDERS_QUERY = gql`
       address
     }
   }
-`;
+`);

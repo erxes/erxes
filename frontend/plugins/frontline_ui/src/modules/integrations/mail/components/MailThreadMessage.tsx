@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { toMailDeliveryStatus } from '@/integrations/mail/types/mailDelivery';
 import {
   Button,
   formatDateISOStringToRelativeDate,
@@ -58,7 +59,9 @@ const MailMessageSenderDetails = ({
   const { mailData, createdAt } = message;
   const isSent = mailData.type === 'SENT';
   const sender = mailData.from?.[0];
-  const delivery = isSent ? mailData.deliveryStatus : undefined;
+  const delivery = isSent
+    ? toMailDeliveryStatus(mailData.deliveryStatus)
+    : undefined;
   const preview = expanded ? '' : mailMessagePreview(message);
   const label = sender?.name || sender?.email || '—';
   return expanded ? (
@@ -72,7 +75,7 @@ const MailMessageSenderDetails = ({
             <DeliveryBadge status={delivery} />
           )}
           <span className="text-[11px] text-[#5f6368] dark:text-[#9aa0a6] whitespace-nowrap">
-            {formatDateISOStringToRelativeDate(createdAt)}
+            {createdAt && formatDateISOStringToRelativeDate(createdAt)}
           </span>
         </span>
       </div>
@@ -89,7 +92,7 @@ const MailMessageSenderDetails = ({
             <DeliveryBadge status={delivery} />
           )}
           <span className="whitespace-nowrap text-[11px] text-muted-foreground">
-            {formatDateISOStringToRelativeDate(createdAt)}
+            {createdAt && formatDateISOStringToRelativeDate(createdAt)}
           </span>
         </span>
       </div>
@@ -112,14 +115,17 @@ const MailMessageHeader = ({
   const { mailData } = message;
   const isSent = mailData.type === 'SENT';
   const sender = mailData.from?.[0];
-  const bg = senderAvatarBg(sender?.name, sender?.email);
+  const bg = senderAvatarBg(
+    sender?.name ?? undefined,
+    sender?.email ?? undefined,
+  );
   const headerContent = (
     <div className="flex items-center gap-3">
       <div
         className="w-9 h-9 rounded-full flex-none flex items-center justify-center text-[14px] font-bold text-foreground select-none"
         style={{ background: bg }}
       >
-        {senderInitial(sender?.name, sender?.email)}
+        {senderInitial(sender?.name ?? undefined, sender?.email ?? undefined)}
       </div>
 
       <div className="flex-1 min-w-0">

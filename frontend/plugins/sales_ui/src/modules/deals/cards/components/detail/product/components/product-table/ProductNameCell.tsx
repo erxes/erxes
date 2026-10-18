@@ -1,17 +1,18 @@
+import type { DealProductData } from '@/deals/utils/dealJson';
 import { Badge, RecordTableInlineCell, cn } from 'erxes-ui';
 
 import { Cell } from '@tanstack/table-core';
-import { IProductData } from 'ui-modules';
-import { productRowActionsAtom } from '../../productTableAtom';
+
 import { useAtomValue } from 'jotai';
+import { productRowActionsAtom } from '../../productTableAtom';
 
 const DUPLICATE_PRODUCT_CELL_CLASS = 'bg-pink-50/80 dark:bg-pink-950/30';
 
-export const getProductId = (productData: IProductData) =>
+export const getProductId = (productData: DealProductData) =>
   productData.productId || productData.product?._id || '';
 
 export const hasDuplicateProductId = (
-  productsData: IProductData[],
+  productsData: DealProductData[],
   productId: string,
 ) => {
   if (!productId) {
@@ -29,7 +30,7 @@ export const ProductNameCell = ({
   cell,
   hasDuplicateProduct,
 }: {
-  cell: Cell<IProductData, unknown>;
+  cell: Cell<DealProductData, unknown>;
   hasDuplicateProduct: boolean;
 }) => {
   const product = cell.row.original.product;

@@ -1,10 +1,10 @@
 import { IconChevronRight } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { IChannel } from '@/channels/types';
+import { IChannelDetail } from '@/channels/types';
 import { useSurveyTotalCount } from '@/survey/hooks/useSurveyTotalCount';
 
-export const SurveysSection = ({ channel }: { channel: IChannel }) => {
+export const SurveysSection = ({ channel }: { channel: IChannelDetail }) => {
   const { t } = useTranslation('frontline');
   const navigate = useNavigate();
   const { totalCount } = useSurveyTotalCount({

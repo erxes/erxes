@@ -18,10 +18,11 @@ import { useChannelInline } from '@/inbox/channel/hooks/useChannelInline';
 import { ConversationIntegrationBadge } from '@/integrations/components/IntegrationBadge';
 import { format } from 'date-fns';
 import { Suspense, useState } from 'react';
+import { compactList } from '@/shared/utils/cursorList';
 import { ConversationContext } from '@/inbox/conversations/context/ConversationContext';
 import { ConversationDetailView } from './ConversationDetailView';
-import { IChannel } from '@/inbox/types/Channel';
-import { IIntegration } from '@/integrations/types/Integration';
+import type { ChannelInlineQuery } from '~/gql/graphql';
+import { toCustomerInline } from '@/inbox/conversations/utils/conversationContext';
 import { IntegrationType } from '@/types/Integration';
 import {
   CALL_STATUS_LABEL_KEYS,
@@ -45,11 +46,10 @@ export const ConversationRelationDetails = ({
     conversationDetail || {};
   const { channelId } = integration || {};
   const { channelDetail } = useChannelInline({
-    variables: {
-      id: channelId,
-    },
+    variables: channelId ? { id: channelId } : undefined,
     skip: !channelId,
   });
+  const customerInline = toCustomerInline(customer);
 
   const handleOpen = (open: boolean) => {
     if (!open) {
@@ -68,31 +68,19 @@ export const ConversationRelationDetails = ({
         content: conversationDetail?.content || '',
         createdAt: conversationDetail?.createdAt || '',
         updatedAt: conversationDetail?.updatedAt || '',
-        customer: {
-          _id: customer?._id || '',
-          firstName: customer?.firstName || '',
-          lastName: customer?.lastName || '',
-          avatar: customer?.avatar || '',
-        },
-        integration: {
-          _id: integration?._id || '',
-          name: integration?.name || '',
-          kind: integration?.kind || '',
-          channelId: integration?.channelId || '',
-          channel: integration?.channel || null,
-        },
-        tagIds: tagIds || [],
+        customer: customerInline,
+        tagIds: compactList(tagIds),
       }}
     >
       <Sheet open={open} onOpenChange={handleOpen}>
         <Sheet.Trigger>
           <ConversationRelationItem
             conversationId={conversationId}
-            customer={customer || ({} as ICustomerInline)}
-            integration={integration || ({} as IIntegration)}
+            customer={customerInline}
+            integrationId={integration?._id}
             createdAt={createdAt || ''}
             updatedAt={updatedAt || ''}
-            channelDetail={channelDetail || ({} as IChannel)}
+            channelDetail={channelDetail}
           />
         </Sheet.Trigger>
         <Sheet.View>
@@ -148,17 +136,17 @@ export const ConversationItemContent = () => {
 export const ConversationRelationItem = ({
   conversationId,
   customer,
-  integration,
+  integrationId,
   createdAt,
   updatedAt,
   channelDetail,
 }: {
   conversationId: string;
-  customer: ICustomerInline;
-  integration: IIntegration;
+  customer?: ICustomerInline;
+  integrationId?: string;
   createdAt: string;
   updatedAt: string;
-  channelDetail: IChannel;
+  channelDetail?: ChannelInlineQuery['getChannel'];
 }) => {
   return (
     <Card className="bg-background">
@@ -184,9 +172,7 @@ export const ConversationRelationItem = ({
                   size={conversationId ? 'xl' : 'lg'}
                   className=""
                 />
-                <ConversationIntegrationBadge
-                  integrationId={integration?._id}
-                />
+                <ConversationIntegrationBadge integrationId={integrationId} />
               </div>
             </div>
 
@@ -215,7 +201,7 @@ export const ConversationRelationItem = ({
               <div className="w-auto text-left flex-none truncate flex text-primary items-center gap-1 text-xs">
                 {channelDetail && (
                   <IconComponent
-                    name={channelDetail?.icon}
+                    name={channelDetail.icon ?? undefined}
                     className="size-3"
                   />
                 )}

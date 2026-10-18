@@ -15,6 +15,7 @@ import {
   ToggleGroup,
   Tooltip,
   cn,
+  isDefined,
 } from 'erxes-ui';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -78,7 +79,9 @@ export const FacebookBotSimulator = () => {
   ]);
 
   const { page } = useFacebookBotPages(accountId, pageId);
-  const { automations } = useFacebookBotAutomations(facebookMessengerBot?._id);
+  const { automations } = useFacebookBotAutomations(
+    facebookMessengerBot?._id ?? undefined,
+  );
   const preview = buildMessengerProfilePreview({
     persistentMenus,
     iceBreakers,
@@ -91,10 +94,16 @@ export const FacebookBotSimulator = () => {
   // exist once the bot is saved. Anything added since is not addressable yet.
   const savedKeys = useMemo(
     () =>
-      new Set([
-        ...(facebookMessengerBot?.persistentMenus || []).map(({ _id }) => _id),
-        ...(facebookMessengerBot?.iceBreakers || []).map(({ _id }) => _id),
-      ]),
+      new Set(
+        [
+          ...(facebookMessengerBot?.persistentMenus || []).map(
+            (menu) => menu?._id,
+          ),
+          ...(facebookMessengerBot?.iceBreakers || []).map(
+            (iceBreaker) => iceBreaker?._id,
+          ),
+        ].filter(isDefined),
+      ),
     [facebookMessengerBot],
   );
 
@@ -125,7 +134,7 @@ export const FacebookBotSimulator = () => {
       triggerType: FACEBOOK_MESSAGE_TRIGGER_TYPE,
       triggerConfig: { botId: facebookMessengerBot._id, conditions },
       actionType: FACEBOOK_MESSAGE_ACTION_TYPE,
-      name: facebookMessengerBot.name,
+      name: facebookMessengerBot.name ?? undefined,
     });
   }, [
     composerValue,
@@ -141,16 +150,16 @@ export const FacebookBotSimulator = () => {
         outcome: resolveDirectMessageOutcome(composerValue, automations),
       }
     : selectedItem
-      ? {
-          title: selectedItem.title,
-          outcome: resolveBotMenuOutcome(selectedItem, automations),
-        }
-      : selectedIceBreaker
-        ? {
-            title: selectedIceBreaker.question,
-            outcome: resolveIceBreakerOutcome(selectedIceBreaker, automations),
-          }
-        : undefined;
+    ? {
+        title: selectedItem.title,
+        outcome: resolveBotMenuOutcome(selectedItem, automations),
+      }
+    : selectedIceBreaker
+    ? {
+        title: selectedIceBreaker.question,
+        outcome: resolveIceBreakerOutcome(selectedIceBreaker, automations),
+      }
+    : undefined;
 
   return (
     <div className="flex h-full flex-col gap-3 p-4">
@@ -202,7 +211,7 @@ export const FacebookBotSimulator = () => {
         <MessengerFrame
           device={device}
           pageName={page?.name || t('your-page', { defaultValue: 'Your page' })}
-          profileUrl={facebookMessengerBot?.profileUrl}
+          profileUrl={facebookMessengerBot?.profileUrl ?? undefined}
           isMenuOpen={isMenuOpen}
           onToggleMenu={() => setMenuOpen((open) => !open)}
           composerValue={composerValue}
@@ -232,7 +241,7 @@ export const FacebookBotSimulator = () => {
             {view === 'welcome' ? (
               <WelcomeScreen
                 pageName={page?.name || ''}
-                profileUrl={facebookMessengerBot?.profileUrl}
+                profileUrl={facebookMessengerBot?.profileUrl ?? undefined}
                 greeting={preview.greeting}
                 iceBreakers={preview.iceBreakers}
                 savedKeys={savedKeys}

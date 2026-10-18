@@ -1,9 +1,9 @@
-import { IChannel } from '@/channels/types';
+import { IChannelDetail } from '@/channels/types';
 import { IconChevronRight } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
-export const MemberSection = ({ channel }: { channel: IChannel }) => {
+export const MemberSection = ({ channel }: { channel: IChannelDetail }) => {
   const { t } = useTranslation('frontline');
   const navigate = useNavigate();
 

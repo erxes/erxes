@@ -33,9 +33,12 @@ export const ticketQueries = {
 
   getTickets: async (
     _parent: undefined,
-    { filter }: { filter: ITicketFilter & ICursorPaginateParams },
+    args: { filter?: (Partial<ITicketFilter> & ICursorPaginateParams) | null },
     { models, user, subdomain }: IContext,
   ) => {
+    const filter: Partial<ITicketFilter> & ICursorPaginateParams =
+      args.filter ?? {};
+
     const query: FilterQuery<ITicketDocument> = await generateFilter(
       filter,
       user,

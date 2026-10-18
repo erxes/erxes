@@ -14,6 +14,7 @@ import {
   IconTextSize,
   IconChevronDown,
   IconDots,
+  IconDragDrop2,
   IconEdit,
   IconTrash,
   IconListCheck,
@@ -27,10 +28,12 @@ import {
   IconWorld,
 } from '@tabler/icons-react';
 import { FORM_FIELD_TYPES, GroupedFields } from '../constants/formFieldTypes';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { FormFieldDetail, FormFieldDetailSheet } from './FormFieldDetail';
 import { FORM_GROUP_LABELS } from '../constants/formGroupLabels';
 import { useTranslation } from 'react-i18next';
+
+const DRAG_DISTANCE = 10;
 
 export const FormDndField = ({
   field,
@@ -40,12 +43,19 @@ export const FormDndField = ({
   step: UniqueIdentifier;
 }) => {
   const [open, setOpen] = useState(false);
-  const { setNodeRef, listeners, isDragging, transform, transition } =
-    useSortable({
-      id: field,
-    });
-  const { getFieldValue, handleChangeField, newFieldId, clearNewFieldId } =
-    useFormDnd();
+  const pointerDownAt = useRef<{ x: number; y: number } | null>(null);
+  const {
+    attributes,
+    setNodeRef,
+    setActivatorNodeRef,
+    listeners,
+    isDragging,
+    transform,
+    transition,
+  } = useSortable({
+    id: field,
+  });
+  const { getFieldValue, newFieldId, clearNewFieldId } = useFormDnd();
   const fieldData = getFieldValue(step, field);
   const mounted = useMountStatus();
 
@@ -57,6 +67,31 @@ export const FormDndField = ({
   }, [newFieldId, field, clearNewFieldId]);
 
   const mountedWhileDragging = isDragging && !mounted;
+
+  const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const start = pointerDownAt.current;
+    pointerDownAt.current = null;
+    if (
+      start &&
+      Math.hypot(e.clientX - start.x, e.clientY - start.y) >= DRAG_DISTANCE
+    ) {
+      return;
+    }
+    setOpen(true);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>) => {
+    if (e.key !== 'Enter') return;
+    if (isDragging) {
+      e.preventDefault();
+      return;
+    }
+    e.stopPropagation();
+  };
+
+  const handleKeyUp = (e: React.KeyboardEvent<HTMLButtonElement>) => {
+    if (e.key === ' ') e.preventDefault();
+  };
 
   // const handleChangeSpan = (span: number) => {
   //   fieldData &&
@@ -70,16 +105,32 @@ export const FormDndField = ({
     <>
       <div
         className={cn(
-          'p-1 text-sm border rounded-md flex items-center px-2 [&>svg]:size-4 gap-2 min-w-0',
+          'group p-1 text-sm border rounded-md flex items-center px-2 gap-2 min-w-0 cursor-grab bg-background hover:border-muted-foreground/40',
           fieldData?.span === 2 && 'col-span-2',
           mountedWhileDragging && 'fade-in',
+          isDragging &&
+            'relative z-10 cursor-grabbing shadow-lg border-primary ring-2 ring-primary/20',
         )}
         ref={setNodeRef}
         style={{ transition, transform: CSS.Translate.toString(transform) }}
         {...listeners}
       >
-        <FormDndFieldIcon type={fieldData?.type ?? 'text'} />
-        <span className="truncate min-w-0">{fieldData?.label}</span>
+        <button
+          type="button"
+          ref={setActivatorNodeRef}
+          {...attributes}
+          className="flex flex-1 items-center gap-2 min-w-0 text-left cursor-[inherit] rounded-sm [&>svg]:size-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+          onPointerDown={(e) => {
+            pointerDownAt.current = { x: e.clientX, y: e.clientY };
+          }}
+          onClick={handleClick}
+          onKeyDown={handleKeyDown}
+          onKeyUp={handleKeyUp}
+        >
+          <IconDragDrop2 className="shrink-0 text-muted-foreground opacity-60 group-hover:opacity-100" />
+          <FormDndFieldIcon type={fieldData?.type ?? 'text'} />
+          <span className="truncate min-w-0">{fieldData?.label}</span>
+        </button>
         <FieldContextMenu fieldId={field} stepId={step} setOpen={setOpen} />
       </div>
       <FormFieldDetailSheet open={open} onOpenChange={setOpen}>
@@ -242,12 +293,17 @@ export const FieldContextMenu = ({
 
   return (
     <DropdownMenu open={_open} onOpenChange={_setOpen}>
-      <DropdownMenu.Trigger className="ml-auto">
-        <Button variant="ghost" size="icon" onClick={() => setOpen(true)}>
+      <DropdownMenu.Trigger asChild>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="ml-auto"
+          onClick={(e) => e.stopPropagation()}
+        >
           <IconDots />
         </Button>
       </DropdownMenu.Trigger>
-      <DropdownMenu.Content>
+      <DropdownMenu.Content onClick={(e) => e.stopPropagation()}>
         <DropdownMenu.Item onClick={() => setOpen(true)}>
           <IconEdit />
           {t('edit-attributes', 'Edit attributes')}

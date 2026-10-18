@@ -1,4 +1,4 @@
-import { Alert, Button, RecordTable } from 'erxes-ui';
+import { Alert, Button, RecordTable, isDefined } from 'erxes-ui';
 import { FrontlineCard } from '../frontline-card/FrontlineCard';
 import { useTicketList, TicketListItem } from '@/report/hooks/useTicketList';
 import { memo, useState, useCallback, useMemo, ReactNode } from 'react';
@@ -64,7 +64,7 @@ export const TicketList = ({
         filters: { ...queryFilters, limit: undefined },
       },
     });
-    const tickets = result.data?.reportTicketExport;
+    const tickets = result.data?.reportTicketExport?.filter(isDefined);
     if (tickets?.length && visibleColumns) {
       const buffer = await generateTicketExcel(
         tickets,

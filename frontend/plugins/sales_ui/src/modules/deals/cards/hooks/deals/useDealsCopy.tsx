@@ -1,4 +1,8 @@
 import { MutationHookOptions, useMutation } from '@apollo/client';
+import type {
+  DealsCopyMutation,
+  DealsCopyMutationVariables,
+} from '~/gql/graphql';
 
 import { DEALS_COPY } from '@/deals/graphql/mutations/DealsMutations';
 import { dealDetailSheetState } from '@/deals/states/dealDetailSheetState';
@@ -6,16 +10,15 @@ import { toast } from 'erxes-ui';
 import { useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
-export function useDealsCopy(options?: MutationHookOptions) {
+export function useDealsCopy(
+  options?: MutationHookOptions<DealsCopyMutation, DealsCopyMutationVariables>,
+) {
   const { t } = useTranslation('sales');
   const [_id] = useAtom(dealDetailSheetState);
 
   const [copyDeals, { loading, error }] = useMutation(DEALS_COPY, {
     ...options,
-    variables: {
-      ...options?.variables,
-      _id,
-    },
+    variables: _id ? { ...options?.variables, _id } : options?.variables,
     awaitRefetchQueries: true,
     onCompleted: (...args) => {
       toast({

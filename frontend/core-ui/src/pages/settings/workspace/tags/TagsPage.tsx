@@ -31,13 +31,14 @@ export const TagsPage = ({ pluginName }: { pluginName?: string }) => {
   }, [firstPluginType, isForeignType, setType]);
 
   return (
-    <PageContainer>
-      <SettingsHeader breadcrumbs={<TagsBreadcrumb />}>
-        <div className="ml-auto hidden md:block">
-          <TagAddButtons />
-        </div>
-      </SettingsHeader>
-      <div className="flex flex-col h-full">
+    <PageContainer className="flex-row">
+      <TagsSidebar className="max-md:hidden" pluginName={pluginName} />
+      <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
+        <SettingsHeader breadcrumbs={<TagsBreadcrumb />}>
+          <div className="ml-auto hidden md:block">
+            <TagAddButtons />
+          </div>
+        </SettingsHeader>
         <PageSubHeader className="flex justify-between items-center overflow-x-auto md:hidden">
           <div className="flex items-center gap-2">
             <span className="font-medium">{t('type-label')}</span>
@@ -48,8 +49,7 @@ export const TagsPage = ({ pluginName }: { pluginName?: string }) => {
           </div>
           <TagAddButtons className="md:hidden max-sm:flex-row-reverse" />
         </PageSubHeader>
-        <div className="flex h-full overflow-hidden flex-1">
-          <TagsSidebar className="max-md:hidden" pluginName={pluginName} />
+        <div className="flex min-h-0 flex-1 overflow-hidden">
           <TagsList />
         </div>
       </div>

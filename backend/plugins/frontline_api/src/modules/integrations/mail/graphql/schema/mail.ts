@@ -18,10 +18,59 @@ export const types = `
     pageInfo: MailVerifiedContactsPageInfo!
   }
 
+  type MailThreadAddress {
+    name: String
+    email: String
+  }
+
+  type MailThreadAttachment {
+    filename: String
+    mimeType: String
+    type: String
+    size: Float
+    url: String
+    contentId: String
+    disposition: String
+    error: String
+  }
+
+  type MailThreadMessageData {
+    messageId: String
+    providerMessageId: String
+    inReplyTo: String
+    references: [String!]!
+    type: String
+    deliveryStatus: String
+    deliveryError: String
+    deliveryRetryable: Boolean!
+    bouncedRecipients: [String!]!
+    envelopeFrom: String
+    senderMismatch: Boolean!
+    from: [MailThreadAddress!]!
+    to: [MailThreadAddress!]!
+    cc: [MailThreadAddress!]!
+    bcc: [MailThreadAddress!]!
+    subject: String
+    body: String!
+    reactionEmoji: String
+    hasReplyTo: Boolean!
+    newContent: String
+    replies: String
+    attachments: [MailThreadAttachment!]!
+  }
+
   type MailMessage {
     _id: String!
-    mailData: JSON
+    mailData: MailThreadMessageData!
     createdAt: Date
+  }
+
+  type MailDeliveryOutcome {
+    _id: String!
+    deliveryStatus: String
+    deliveryError: String
+    bouncedRecipients: [String!]!
+    draftId: String
   }
 
   type MailConversationMessages {
@@ -209,9 +258,9 @@ export const mutations = `
     references: [String]
     attachments: [JSON]
     customerId: String
-  ): JSON
+  ): MailDeliveryOutcome
 
-  mailSendReaction(conversationId: String!, messageId: String!, emoji: String!): JSON
+  mailSendReaction(conversationId: String!, messageId: String!, emoji: String!): MailDeliveryOutcome
 
   mailPipelineConnect(
     pipelineId: String!
@@ -233,10 +282,10 @@ export const mutations = `
 
   mailTicketNoteRetry(noteId: String!): TicketNote
 
-  mailMessageRetry(_id: String!): JSON
+  mailMessageRetry(_id: String!): MailDeliveryOutcome
 
   mailDraftSave(_id: String!, subject: String, body: String!): MailDraft
-  mailDraftApprove(_id: String!): JSON
+  mailDraftApprove(_id: String!): MailDeliveryOutcome
   mailDraftRemove(_id: String!): MailDraft
 
   mailCheckConnection: MailConnectionCheck

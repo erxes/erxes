@@ -5,17 +5,17 @@ import {
   IconPhone,
 } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
-import { TFunction } from 'i18next';
 import {
   RecordTable,
-  TextOverflowTooltip,
   RecordTableInlineCell,
   RelativeDateDisplay,
+  TextOverflowTooltip,
 } from 'erxes-ui';
+import { TFunction } from 'i18next';
 
-import { ICovers } from '@/pos/pos-covers/types/posCover';
-import { coverMoreColumn } from '@/pos/pos-covers/components/CoversMoreColumns';
 import { ClickablePosName } from '@/pos/pos-covers/components/ClickablePosName';
+import { coverMoreColumn } from '@/pos/pos-covers/components/CoversMoreColumns';
+import { ICovers } from '@/pos/pos-covers/types/posCover';
 
 export const coverColumns: (t: TFunction) => ColumnDef<ICovers>[] = (t) => [
   coverMoreColumn,
@@ -47,8 +47,8 @@ export const coverColumns: (t: TFunction) => ColumnDef<ICovers>[] = (t) => [
       );
     },
     sortingFn: (rowA, rowB) => {
-      const dateA = new Date(rowA.original.beginDate);
-      const dateB = new Date(rowB.original.beginDate);
+      const dateA = new Date(rowA.original.beginDate ?? 0);
+      const dateB = new Date(rowB.original.beginDate ?? 0);
       return dateA.getTime() - dateB.getTime();
     },
     size: 300,
@@ -69,8 +69,8 @@ export const coverColumns: (t: TFunction) => ColumnDef<ICovers>[] = (t) => [
       );
     },
     sortingFn: (rowA, rowB) => {
-      const dateA = new Date(rowA.original.endDate);
-      const dateB = new Date(rowB.original.endDate);
+      const dateA = new Date(rowA.original.endDate ?? 0);
+      const dateB = new Date(rowB.original.endDate ?? 0);
       return dateA.getTime() - dateB.getTime();
     },
     size: 300,

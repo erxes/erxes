@@ -1,14 +1,18 @@
 import { QueryHookOptions, useQuery } from '@apollo/client';
 import { GET_FORMS_LIST } from '../graphql/formQueries';
+import { EnumCursorDirection, validateFetchMore } from 'erxes-ui';
 import {
-  EnumCursorDirection,
-  mergeCursorData,
-  validateFetchMore,
-} from 'erxes-ui';
+  compactList,
+  mergeCursorList,
+  toCursorPageInfo,
+} from '@/shared/utils/cursorList';
+import type { FormsQuery, FormsQueryVariables } from '~/gql/graphql';
 
 const FORMS_PER_PAGE = 24;
 
-export const useFormsList = (options?: QueryHookOptions) => {
+export const useFormsList = (
+  options?: QueryHookOptions<FormsQuery, FormsQueryVariables>,
+) => {
   const { data, loading, fetchMore } = useQuery(GET_FORMS_LIST, {
     variables: {
       limit: FORMS_PER_PAGE,
@@ -19,7 +23,9 @@ export const useFormsList = (options?: QueryHookOptions) => {
     ...options,
   });
 
-  const { list: forms, totalCount, pageInfo } = data?.forms || {};
+  const forms = data?.forms?.list ? compactList(data.forms.list) : undefined;
+  const pageInfo = toCursorPageInfo(data?.forms?.pageInfo);
+  const totalCount = data?.forms?.totalCount;
 
   const handleFetchMore = ({
     direction,
@@ -34,14 +40,12 @@ export const useFormsList = (options?: QueryHookOptions) => {
         direction,
       },
       updateQuery: (prev, { fetchMoreResult }) => {
-        if (!fetchMoreResult) return prev;
-        return Object.assign({}, prev, {
-          forms: mergeCursorData({
-            direction,
-            fetchMoreResult: fetchMoreResult.forms,
-            prevResult: prev.forms,
-          }),
-        });
+        if (!fetchMoreResult.forms || !prev.forms) return prev;
+
+        return {
+          ...prev,
+          forms: mergeCursorList(direction, prev.forms, fetchMoreResult.forms),
+        };
       },
     });
   };

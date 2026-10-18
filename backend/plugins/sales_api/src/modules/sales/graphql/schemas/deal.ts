@@ -21,7 +21,7 @@ const inputDeps = `
 
   input SalesProductField {
     productId : String
-    quantity: Int
+    quantity: Float
     unitPrice: Float
   }
 `;
@@ -238,7 +238,7 @@ export const mutations = `
   dealsEdit(_id: String!, name: String, ${mutationParams}): Deal
   dealsChange(itemId: String!, aboveItemId: String, destinationStageId: String!, sourceStageId: String, processId: String): Deal
   dealsRemove(_id: String!): Deal
-  dealsWatch(_id: String, isAdd: Boolean): Deal
+  dealsWatch(_id: String!, isAdd: Boolean): Deal
   dealsCopy(_id: String!, processId: String): Deal
   dealsArchive(stageId: String!, processId: String): String
   dealsCreateProductsData(processId: String, dealId: String, docs: JSON): JSON

@@ -7,24 +7,24 @@ import { usePropertyTypes } from '../hooks/usePropertyTypes';
 
 export const PropertiesSidebar = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });
+  const { t: tSidebar } = useTranslation('common', { keyPrefix: 'sidebar' });
   const { propertyTypes } = usePropertyTypes();
   const { pluginName: scopePluginName } = usePropertiesScope();
   // Inside a plugin's settings only that plugin's types are listed.
   const groups = Object.entries(propertyTypes).filter(
     ([pluginName]) => !scopePluginName || pluginName === scopePluginName,
   );
-  const [firstPluginName] = groups.map(([pluginName]) => pluginName);
 
   return (
-    <Sidebar.Panel className="border-r flex-none">
+    <Sidebar.Panel
+      className="border-r flex-none"
+      label={tSidebar('properties')}
+    >
       {groups.map(([pluginName, propertyTypes]) => (
         <Sidebar.Group key={pluginName}>
-          <div className="mb-1 flex items-center">
-            <Sidebar.GroupLabel className="min-w-0 flex-1">
-              {t(`plugin.${pluginName}`, `${pluginName} properties`)}
-            </Sidebar.GroupLabel>
-            {pluginName === firstPluginName && <Sidebar.PanelTrigger />}
-          </div>
+          <Sidebar.GroupLabel>
+            {t(`plugin.${pluginName}`, `${pluginName} properties`)}
+          </Sidebar.GroupLabel>
           <Sidebar.GroupContent>
             <Sidebar.Menu>
               {propertyTypes.map((propertyType) => (

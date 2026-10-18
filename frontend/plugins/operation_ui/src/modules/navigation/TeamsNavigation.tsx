@@ -1,20 +1,12 @@
 import { useTranslation } from 'react-i18next';
-import { useGetTeams } from '@/team/hooks/useGetTeams';
-import { useAtom, useAtomValue } from 'jotai';
-import { currentUserState } from 'ui-modules';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { useEffect } from 'react';
-import { openTeamsNavigationState } from '@/navigation/states/openTeamsNavigationState';
+import { useGetTeam } from '@/team/hooks/useGetTeam';
+import { useMatch, useNavigate } from 'react-router-dom';
 import {
   Button,
-  Collapsible,
   DropdownMenu,
-  IconComponent,
   NavigationMenuGroup,
   NavigationMenuLinkItem,
-  Sidebar,
   Skeleton,
-  TextOverflowTooltip,
   useToast,
 } from 'erxes-ui';
 import {
@@ -25,14 +17,11 @@ import {
   IconLink,
   IconSettings,
   IconCaretLeftRight,
-  IconChevronRight,
 } from '@tabler/icons-react';
-
-import { ITeam } from '@/team/types';
 
 function LoadingSkeleton() {
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 px-4 py-4">
       {[1, 2, 3].map((i) => (
         <Skeleton key={i} className="w-full h-4" />
       ))}
@@ -40,137 +29,73 @@ function LoadingSkeleton() {
   );
 }
 
-interface TeamItemProps {
-  team: ITeam;
-}
-
-function TeamItem({ team }: TeamItemProps) {
+function ActiveTeamNavigation({ teamId }: Readonly<{ teamId: string }>) {
   const { t } = useTranslation('operation');
-  const { pathname } = useLocation();
-  const [openTeamIds, setOpenTeamIds] = useAtom(openTeamsNavigationState);
-  const teamPath = `/operation/team/${team._id}`;
-  const isInTeam = pathname === teamPath || pathname.startsWith(`${teamPath}/`);
-  const open = openTeamIds.includes(team._id);
+  const { team, loading } = useGetTeam(teamId);
 
-  const setOpen = (next: boolean) =>
-    setOpenTeamIds((ids) => {
-      if (next) {
-        return ids.includes(team._id) ? ids : [...ids, team._id];
-      }
+  if (loading && !team) {
+    return <LoadingSkeleton />;
+  }
 
-      return ids.filter((id) => id !== team._id);
-    });
-
-  // The team being viewed is always unfolded, e.g. after switching back
-  // to operation from another app.
-  useEffect(() => {
-    if (isInTeam) {
-      setOpenTeamIds((ids) =>
-        ids.includes(team._id) ? ids : [...ids, team._id],
-      );
-    }
-  }, [isInTeam, setOpenTeamIds, team._id]);
+  if (!team) {
+    return null;
+  }
 
   return (
-    <Collapsible
-      className="group/collapsible"
-      open={open}
-      onOpenChange={setOpen}
+    <NavigationMenuGroup
+      name={team.name ?? t('team')}
+      actions={<TeamActionsMenu teamId={team._id} />}
     >
-      <Sidebar.Group className="p-0">
-        <div className="w-full relative group/trigger hover:cursor-pointer">
-          <Collapsible.Trigger asChild>
-            <div className="w-full flex items-center justify-between">
-              <Button
-                variant="ghost"
-                className="px-2 flex min-w-0 justify-start rounded-lg"
-              >
-                <IconComponent
-                  name={team.icon ?? undefined}
-                  className="text-accent-foreground shrink-0"
-                />
-                <TextOverflowTooltip
-                  className="font-sans font-semibold normal-case flex-1 min-w-0"
-                  value={team.name ?? ''}
-                />
-                <span className="ml-auto flex shrink-0 transition-transform duration-250 ease-[cubic-bezier(0.22,1,0.36,1)] group-data-[state=open]/collapsible:rotate-90 motion-reduce:transition-none text-muted-foreground">
-                  <IconChevronRight className="size-3.5!" />
-                </span>
-              </Button>
-              <div className="size-5 min-w-5 mr-2"></div>
-            </div>
-          </Collapsible.Trigger>
-          <TeamActionsMenu team={team} />
-        </div>
-        <Collapsible.Content className="pt-1">
-          <Sidebar.GroupContent>
-            <Sidebar.Menu>
-              {team.triageEnabled && (
-                <NavigationMenuLinkItem
-                  name={t('triage')}
-                  pathPrefix="operation/team"
-                  path={`${team._id}/triage`}
-                  className="pl-6 font-medium"
-                  icon={IconCaretLeftRight}
-                />
-              )}
-              <NavigationMenuLinkItem
-                name={t('projects')}
-                pathPrefix="operation/team"
-                className="pl-6 font-medium"
-                icon={IconClipboard}
-                path={`${team._id}/projects`}
-              />
-              <NavigationMenuLinkItem
-                name={t('tasks')}
-                pathPrefix="operation/team"
-                path={`${team._id}/tasks`}
-                className="pl-6 font-medium"
-                icon={IconChecklist}
-              />
-              {team.cycleEnabled && (
-                <NavigationMenuLinkItem
-                  name={t('cycles')}
-                  pathPrefix="operation/team"
-                  path={`${team._id}/cycles`}
-                  className="pl-6 font-medium"
-                  icon={IconRestore}
-                />
-              )}
-            </Sidebar.Menu>
-          </Sidebar.GroupContent>
-        </Collapsible.Content>
-      </Sidebar.Group>
-    </Collapsible>
-  );
-}
-
-export function TeamsNavigation() {
-  const { t } = useTranslation('operation');
-  const currentUser = useAtomValue(currentUserState);
-  const { teams, loading } = useGetTeams({
-    variables: { userId: currentUser?._id },
-  });
-
-  return (
-    <NavigationMenuGroup name={t('your-teams')}>
-      {loading ? (
-        <LoadingSkeleton />
-      ) : (
-        teams?.map((team) => <TeamItem key={team._id} team={team} />)
+      {team.triageEnabled && (
+        <NavigationMenuLinkItem
+          name={t('triage')}
+          pathPrefix="operation/team"
+          path={`${team._id}/triage`}
+          icon={IconCaretLeftRight}
+        />
+      )}
+      <NavigationMenuLinkItem
+        name={t('projects')}
+        pathPrefix="operation/team"
+        path={`${team._id}/projects`}
+        icon={IconClipboard}
+      />
+      <NavigationMenuLinkItem
+        name={t('tasks')}
+        pathPrefix="operation/team"
+        path={`${team._id}/tasks`}
+        icon={IconChecklist}
+      />
+      {team.cycleEnabled && (
+        <NavigationMenuLinkItem
+          name={t('cycles')}
+          pathPrefix="operation/team"
+          path={`${team._id}/cycles`}
+          icon={IconRestore}
+        />
       )}
     </NavigationMenuGroup>
   );
 }
 
-const TeamActionsMenu = ({ team }: { team: ITeam }) => {
+export function TeamsNavigation() {
+  const teamId = useMatch('/operation/team/:teamId/*')?.params.teamId;
+
+  if (!teamId) {
+    return null;
+  }
+
+  return <ActiveTeamNavigation teamId={teamId} />;
+}
+
+const TeamActionsMenu = ({ teamId }: Readonly<{ teamId: string }>) => {
   const { t } = useTranslation('operation');
   const navigate = useNavigate();
 
   const { toast } = useToast();
 
   const handleCopyLink = async () => {
-    const teamLink = `${window.location.origin}/operation/team/${team._id}/tasks`;
+    const teamLink = `${window.location.origin}/operation/team/${teamId}/tasks`;
     try {
       await navigator.clipboard.writeText(teamLink);
       toast({
@@ -192,7 +117,7 @@ const TeamActionsMenu = ({ team }: { team: ITeam }) => {
         <Button
           variant="ghost"
           size="icon"
-          className="invisible group-hover/trigger:visible absolute top-1/2 -translate-y-1/2 right-1 text-muted-foreground"
+          className="size-5 text-muted-foreground"
           onClick={(e) => {
             e.stopPropagation();
           }}
@@ -203,50 +128,17 @@ const TeamActionsMenu = ({ team }: { team: ITeam }) => {
       <DropdownMenu.Content side="right" align="start" className="w-60 min-w-0">
         <DropdownMenu.Item
           className="cursor-pointer"
-          onSelect={(e) => {
-            navigate(`/settings/operation/team/details/${team._id}`);
+          onSelect={() => {
+            navigate(`/settings/operation/team/details/${teamId}`);
           }}
         >
           <IconSettings className="size-4" />
           {t('go-to-team-settings')}
         </DropdownMenu.Item>
-        <DropdownMenu.Item
-          onSelect={(e) => {
-            handleCopyLink();
-          }}
-          className="cursor-pointer"
-        >
+        <DropdownMenu.Item onSelect={handleCopyLink} className="cursor-pointer">
           <IconLink className="size-4" />
           {t('copy-link')}
         </DropdownMenu.Item>
-
-        {/* <DropdownMenu.Item className="cursor-pointer">
-          <IconArchive className="size-4" />
-          Archive team
-        </DropdownMenu.Item>
-        <DropdownMenu.Sub>
-          <DropdownMenu.SubTrigger className="text-base justify-between">
-            <span className="flex items-center gap-2">
-              <IconBell className="size-4" />
-              Subscribe
-            </span>
-            <IconChevronRight className="size-4" />
-          </DropdownMenu.SubTrigger>
-          <DropdownMenu.SubContent>
-            <DropdownMenu.Item onClick={(e) => e.preventDefault()}>
-              <Checkbox />
-              An issue is added to the team
-            </DropdownMenu.Item>
-            <DropdownMenu.Item onClick={(e) => e.preventDefault()}>
-              <Checkbox />
-              An issue is marked completed or cancelled
-            </DropdownMenu.Item>
-            <DropdownMenu.Item onClick={(e) => e.preventDefault()}>
-              <Checkbox />
-              An issue is added to the triage queue
-            </DropdownMenu.Item>
-          </DropdownMenu.SubContent>
-        </DropdownMenu.Sub> */}
       </DropdownMenu.Content>
     </DropdownMenu>
   );

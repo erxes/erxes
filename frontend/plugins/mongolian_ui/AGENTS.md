@@ -160,14 +160,8 @@
   knows the plugin has its own settings.
   `settingsNavigation` renders no `Sidebar.GroupLabel`: core titles the
   sidebar "<Plugin> settings" and appends Tags/Properties to the same list.
-- Page-level side menus render `Sidebar.Panel` from `erxes-ui`, which keeps its
-  own open state (`sidebarPanelOpenState`), separate from the plugin's
-  `AppLayout` sidebar. Never stack two headings: a menu without a heading passes one as
-  `label` (header row with the heading, optional `actions` and the collapse
-  toggle); a menu that starts with its own heading row (group label, collapsible
-  or accordion trigger) omits `label` and ends that row with
-  `Sidebar.PanelTrigger`. Keep `<Sidebar collapsible="none">` for sidebars
-  inside sheets and dialogs.
+- Page header breadcrumbs follow the shared pattern: crumbs are default ghost `Button`s (no `font-semibold`), the first crumb carries a 16px icon in the default text color, crumbs are separated by `Separator.Inline` or `Breadcrumb.Separator`, and settings pages carry no favorite toggle.
+- Page-level side menus render `Sidebar.Panel` from `erxes-ui`, which keeps its own open state (`sidebarPanelOpenState`), separate from the plugin's `AppLayout` sidebar. The panel sits beside the page header, never under it: the page is a row of the panel and a column holding the header and content. The panel passes its heading as `label`, which renders a 48px title row with optional `actions` and the collapse toggle on the right, level with the page header; when collapsed, the toggle moves into the header's panel slot. Do not add a second heading or an in-panel `Sidebar.PanelTrigger` row. Keep `<Sidebar collapsible="none">` for sidebars inside sheets and dialogs. `SettingsLayout`, `ErkhetSettings`, `PutResponseLayout`, `SyncErkhetLayout` and `MsdynamicLayout` render their panel beside the header column.
 - Use `erxes-ui` and `ui-modules`; do not import Radix primitives directly.
 - Keep integration-specific files inside the owning integration folder unless a
   shared plugin folder already exists for that concern.

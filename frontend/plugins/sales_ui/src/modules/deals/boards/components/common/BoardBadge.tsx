@@ -1,8 +1,8 @@
 import { Badge, Skeleton, TextOverflowTooltip, toast } from 'erxes-ui';
 
+import { useBoardDetail } from '@/deals/boards/hooks/useBoards';
 import { IBoard } from '@/deals/types/boards';
 import React from 'react';
-import { useBoardDetail } from '@/deals/boards/hooks/useBoards';
 import { useTranslation } from 'react-i18next';
 
 export const BoardBadge = React.forwardRef<
@@ -21,12 +21,10 @@ export const BoardBadge = React.forwardRef<
   ) => {
     const { t } = useTranslation('sales');
     const { boardDetail, loading } = useBoardDetail({
-      variables: {
-        _id: boardId,
-      },
+      variables: boardId ? { _id: boardId } : undefined,
       skip: !boardId,
       onCompleted: (data) => {
-        onCompleted?.(data?.salesBoardDetail);
+        if (data.salesBoardDetail) onCompleted?.(data.salesBoardDetail);
       },
       onError: (error) => {
         toast({

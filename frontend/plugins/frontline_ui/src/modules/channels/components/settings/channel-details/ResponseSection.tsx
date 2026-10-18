@@ -1,10 +1,10 @@
 import { IconChevronRight } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
-import { IChannel } from '@/channels/types';
+import { IChannelDetail } from '@/channels/types';
 import { useGetResponses } from '@/responseTemplate/hooks/useGetResponses';
 import { useTranslation } from 'react-i18next';
 
-export const ResponseSection = ({ channel }: { channel: IChannel }) => {
+export const ResponseSection = ({ channel }: { channel: IChannelDetail }) => {
   const { t } = useTranslation('frontline');
   const navigate = useNavigate();
   const { totalCount } = useGetResponses({

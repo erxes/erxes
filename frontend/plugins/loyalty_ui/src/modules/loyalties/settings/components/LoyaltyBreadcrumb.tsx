@@ -12,14 +12,12 @@ export const LoyaltyBreadcrumb = () => {
   return (
     <div className="flex items-center w-full justify-between">
       <div className="flex items-center gap-2">
-        <Button variant="ghost" className="font-semibold">
-          <IconCashBanknote className="w-4 h-4 text-accent-foreground" />
+        <Button variant="ghost">
+          <IconCashBanknote />
           {t('settings')}
         </Button>
         <Separator.Inline />
-        <Button variant="ghost" className="font-semibold">
-          {label ? t(label) : ''}
-        </Button>
+        <Button variant="ghost">{label ? t(label) : ''}</Button>
       </div>
     </div>
   );

@@ -1,9 +1,7 @@
-import { type TicketPropertyFilter } from '../types';
+import { type SourceData, type TicketPropertyFilter } from '../types';
 
-export const getTopSource = (
-  data: { _id: string; percentage: number; count: number }[],
-) => {
-  return [...data].sort((a, b) => b.percentage - a.percentage)[0];
+export const getTopSource = (data: SourceData[]) => {
+  return [...data].sort((a, b) => (b.percentage ?? 0) - (a.percentage ?? 0))[0];
 };
 
 export const getTicketPropertyFilterVariables = (

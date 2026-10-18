@@ -1,15 +1,14 @@
 import { useQuery } from '@apollo/client';
+import { isDefined } from 'erxes-ui';
 import { SALES_SCORE_CAMPAIGN_OPTIONS } from '../graphql/loyaltyRulesQueries';
-
-type TScoreCampaignOption = { _id: string; title: string; status?: string };
 
 const ACTIVE = 'active';
 
 export const useScoreCampaignTitles = () => {
-  const { data, loading, refetch } = useQuery<{
-    scoreCampaigns?: { list?: TScoreCampaignOption[] };
-  }>(SALES_SCORE_CAMPAIGN_OPTIONS, { fetchPolicy: 'cache-and-network' });
-  const campaigns = data?.scoreCampaigns?.list || [];
+  const { data, loading, refetch } = useQuery(SALES_SCORE_CAMPAIGN_OPTIONS, {
+    fetchPolicy: 'cache-and-network',
+  });
+  const campaigns = data?.scoreCampaigns?.list?.filter(isDefined) || [];
   const find = (id?: string | null) => campaigns.find(({ _id }) => _id === id);
 
   return {

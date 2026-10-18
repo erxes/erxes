@@ -1,25 +1,25 @@
 import {
-  IconLabel,
-  IconMobiledata,
   IconClock,
-  IconUser,
-  IconTag,
   IconFileText,
   IconFileX,
+  IconLabel,
+  IconMobiledata,
+  IconTag,
+  IconUser,
 } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
-import { TFunction } from 'i18next';
 import {
+  Badge,
   RecordTable,
-  TextOverflowTooltip,
   RecordTableInlineCell,
   RelativeDateDisplay,
-  Badge,
+  TextOverflowTooltip,
 } from 'erxes-ui';
+import { TFunction } from 'i18next';
 
+import { ordersMoreColumn } from '@/pos/orders/components/OrdersMoreColumn';
 import { IOrder } from '@/pos/types/order';
 import { IUser } from 'ui-modules/modules';
-import { ordersMoreColumn } from '@/pos/orders/components/OrdersMoreColumn';
 import { ClickableBillNumber } from './ClickableBillNumber';
 
 interface PaymentSummary {
@@ -33,11 +33,7 @@ interface PaymentRow {
 // posOrdersSummary keys are payment titles (e.g. 'Invoice', 'QPay')
 // paidAmounts items: { type, amount, title } — title may be missing on old data
 // Build two maps: by title AND by type, merge both for lookup
-interface IPaidAmount {
-  type?: string;
-  amount?: number;
-  title?: string;
-}
+type IPaidAmount = import('@/pos/utils/posOrderJson').PosPaidAmount;
 
 const getPaidAmountsMap = (
   paidAmounts: IPaidAmount[] | null | undefined,

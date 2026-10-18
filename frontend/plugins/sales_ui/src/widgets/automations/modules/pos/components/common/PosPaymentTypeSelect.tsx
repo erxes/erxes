@@ -1,3 +1,4 @@
+import { isRecord } from '@/deals/utils/dealJson';
 import { useGetPos } from '@/pos/hooks/useGetPos';
 import { Select } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
@@ -20,6 +21,14 @@ export const PosPaymentTypeSelect = ({
   const targetPosList = posId ? pos.filter((item) => item._id === posId) : pos;
   const paymentTypes = targetPosList
     .flatMap((item) => item.paymentTypes || [])
+    .filter(
+      (
+        item,
+      ): item is Record<string, unknown> & { type: string; title?: string } =>
+        isRecord(item) &&
+        typeof item.type === 'string' &&
+        (item.title == null || typeof item.title === 'string'),
+    )
     .filter(
       (paymentType, index, array) =>
         paymentType.type &&

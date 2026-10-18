@@ -1,4 +1,5 @@
 import { useGetPipeline } from '@/pipelines/hooks/useGetPipeline';
+import { compactList } from '@/shared/utils/cursorList';
 import { InfoCard, Spinner } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import {
@@ -72,7 +73,7 @@ export const TicketPipelineProperties = (props: Props) => {
     contentType: CONTENT_TYPE,
     limit: 100,
   });
-  const selectedIds = new Set(pipeline?.propertyIds || []);
+  const selectedIds = new Set(compactList(pipeline?.propertyIds));
 
   if (!pipelineLoading && pipeline?.isPropertySelectionConfigured !== true) {
     return (

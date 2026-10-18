@@ -60,8 +60,7 @@ export const PropertiesSettingsRoutes = () => {
           path="/:type/*"
           element={
             <PageContainer>
-              <PropertiesHeader />
-              <PropertiesLayout>
+              <PropertiesLayout header={<PropertiesHeader />}>
                 <PropertiesSettingsPage />
                 <Routes>
                   <Route path="/add" element={<AddPropertyFieldPage />} />

@@ -13,6 +13,9 @@ import { useTranslation } from 'react-i18next';
 
 const HOME_NOTIFICATIONS_LIMIT = 6;
 
+// Home has no inbox multi-select; the item's link opens it in the inbox.
+const openNotification = () => undefined;
+
 /** Latest unread notifications; live through the inbox subscription. */
 export const HomeNotifications = () => {
   const { notifications, loading } = useNotifications({
@@ -32,7 +35,13 @@ export const HomeNotifications = () => {
     return (
       <div className="flex flex-col gap-1">
         {notifications.map((notification) => (
-          <NotificationItem key={notification._id} {...notification} />
+          <NotificationItem
+            key={notification._id}
+            {...notification}
+            selected={false}
+            selectionFocused={false}
+            onOpen={openNotification}
+          />
         ))}
       </div>
     );

@@ -1,7 +1,11 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const GET_CONFIGS = gql`
+export const GET_CONFIGS = gql(`
   query InstagramGetConfigs {
-    instagramGetConfigs
+    instagramGetConfigs {
+      _id
+      code
+      value
+    }
   }
-`;
+`);

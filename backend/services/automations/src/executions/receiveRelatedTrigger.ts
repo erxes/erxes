@@ -86,7 +86,10 @@ export const receiveRelatedTrigger = async ({
     return;
   }
 
-  const changed = await segmentJoinChanges(type, eventUpdateDescription);
+  // The targets are the records as they now stand; the diff adds who they left.
+  const changed = await segmentJoinChanges(type, eventUpdateDescription, {
+    current: (targets || []).filter(Boolean),
+  });
 
   const segments = new Map<string, Promise<TriggerSegment | null>>();
   const subjects = new Map<string, Promise<Record<string, any> | null>>();

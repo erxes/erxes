@@ -26,7 +26,7 @@ export const PostMediaCard = ({
 
   const post = isFacebook ? facebookPost : instagramPost;
   const permalink = post?.permalink_url;
-  const thumbnail = post?.attachments?.[0]?.url || fallbackUrl;
+  const thumbnail = post?.attachments?.[0] || fallbackUrl;
   const label = permalink?.includes('/reel/') ? 'Reel' : 'Post';
 
   if (facebookLoading || instagramLoading) {

@@ -10,6 +10,9 @@ import {
 } from '~/modules/sales/utils';
 import { withoutPointPayments } from '~/modules/sales/utils/dealPoints';
 import { normalizeProductDiscountInfos } from '~/modules/sales/utils/discountInfos';
+import { normalizeProductCurrencies } from '~/modules/sales/utils/productCurrency';
+import { normalizeProductUomInfo } from '~/modules/sales/utils/productUom';
+import { validateProductDataInput } from '~/modules/sales/utils/productDataInput';
 import {
   checkAssignedUserFromPData,
   copyChecklists,
@@ -154,6 +157,9 @@ export const dealMutations: Record<string, Resolver> = {
     { user, models, checkPermission }: IContext,
   ) {
     await checkPermission('dealsWatch');
+    if (!_id) {
+      throw new Error('_id is required');
+    }
     return models.Deals.watchDeal(_id, isAdd, user._id);
   },
 
@@ -286,11 +292,11 @@ export const dealMutations: Record<string, Resolver> = {
       dealId,
       docs,
     }: { processId: string; dealId: string; docs: IProductData[] },
-    { models, checkPermission }: IContext,
+    { models, subdomain, checkPermission }: IContext,
   ) {
     await checkPermission('dealsEdit');
     await checkPermission('dealsProductsEdit');
-    return createProductsData({ models, processId, dealId, docs });
+    return createProductsData({ models, subdomain, processId, dealId, docs });
   },
 
   async dealsEditProductData(
@@ -306,10 +312,17 @@ export const dealMutations: Record<string, Resolver> = {
       dataId: string;
       doc: IProductData;
     },
-    { models, user, checkPermission }: IContext,
+    { models, user, subdomain, checkPermission }: IContext,
   ) {
     await checkPermission('dealsEdit');
     await checkPermission('dealsProductsEdit');
+    if (!dealId || !dataId) {
+      throw new Error('dealId and dataId are required');
+    }
+    if (!doc || typeof doc !== 'object' || Array.isArray(doc)) {
+      throw new Error('doc must be a product object');
+    }
+    validateProductDataInput(doc);
     const deal = await models.Deals.getDeal(dealId);
 
     if (!deal.productsData?.length) {
@@ -324,9 +337,15 @@ export const dealMutations: Record<string, Resolver> = {
       throw new Error('Deals productData not found');
     }
 
-    const productsData: IProductData[] = normalizeProductDiscountInfos(
-      (deal.productsData || []).map((data) =>
-        data._id === dataId ? { ...doc } : data,
+    const productsData = await normalizeProductCurrencies(
+      subdomain,
+      normalizeProductDiscountInfos(
+        await normalizeProductUomInfo(
+          subdomain,
+          (deal.productsData || []).map((data) =>
+            data._id === dataId ? { ...doc } : data,
+          ),
+        ),
       ),
     );
 
@@ -390,9 +409,9 @@ export const dealMutations: Record<string, Resolver> = {
       dealId,
       docs,
     }: { processId: string; dealId: string; docs: IProductData[] },
-    { models }: IContext,
+    { models, subdomain }: IContext,
   ) {
-    return createProductsData({ models, processId, dealId, docs });
+    return createProductsData({ models, subdomain, processId, dealId, docs });
   },
 
   async cpDealsEditProductData(
@@ -408,8 +427,15 @@ export const dealMutations: Record<string, Resolver> = {
       dataId: string;
       doc: IProductData;
     },
-    { models, user }: IContext,
+    { models, user, subdomain }: IContext,
   ) {
+    if (!dealId || !dataId) {
+      throw new Error('dealId and dataId are required');
+    }
+    if (!doc || typeof doc !== 'object' || Array.isArray(doc)) {
+      throw new Error('doc must be a product object');
+    }
+    validateProductDataInput(doc);
     const deal = await models.Deals.getDeal(dealId);
 
     if (!deal.productsData?.length) {
@@ -424,9 +450,15 @@ export const dealMutations: Record<string, Resolver> = {
       throw new Error('Deals productData not found');
     }
 
-    const productsData: IProductData[] = normalizeProductDiscountInfos(
-      (deal.productsData || []).map((data) =>
-        data._id === dataId ? { ...doc } : data,
+    const productsData = await normalizeProductCurrencies(
+      subdomain,
+      normalizeProductDiscountInfos(
+        await normalizeProductUomInfo(
+          subdomain,
+          (deal.productsData || []).map((data) =>
+            data._id === dataId ? { ...doc } : data,
+          ),
+        ),
       ),
     );
 
@@ -498,6 +530,12 @@ export const dealMutations: Record<string, Resolver> = {
   ) {
     await checkPermission('dealsEdit');
     await checkPermission('dealsProductsEdit');
+    if (!dealId) {
+      throw new Error('dealId is required');
+    }
+    if (!Array.isArray(dataIds)) {
+      throw new Error('dataIds must be an array');
+    }
     const deal = await models.Deals.getDeal(dealId);
 
     const oldPData = (deal.productsData || []).filter(

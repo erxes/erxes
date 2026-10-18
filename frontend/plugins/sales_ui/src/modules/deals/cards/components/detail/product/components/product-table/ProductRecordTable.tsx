@@ -1,20 +1,56 @@
+import type { DealProductData } from '@/deals/utils/dealJson';
 import {
   branch,
   currency,
   department,
   tax,
   taxPercent,
-  uom,
+  uomRatio,
 } from './getProductColumns';
 
 import { ColumnDef } from '@tanstack/table-core';
-import { IProductData } from 'ui-modules';
+
 import { IconShoppingCart } from '@tabler/icons-react';
-import { ProductCommandBar } from '../../product-command-bar/ProductCommandBar';
 import { Empty, RecordTable } from 'erxes-ui';
-import { productColumns } from './ProductColumns';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import { ProductCommandBar } from '../../product-command-bar/ProductCommandBar';
+import { productColumns } from './ProductColumns';
+
+const UOM_INFO_COLUMN_IDS = [
+  'uomInfo.uom',
+  'uomInfo.unitPrice',
+  'uomInfo.quantity',
+];
+const BASE_UOM_COLUMN_IDS = ['unitPrice', 'quantity', 'uom'];
+const UOM_COLUMN_IDS = [...UOM_INFO_COLUMN_IDS, ...BASE_UOM_COLUMN_IDS];
+
+const ProductUomColumnPosition = ({
+  showAdvancedView,
+}: {
+  showAdvancedView: boolean;
+}) => {
+  const { table } = RecordTable.useRecordTable();
+  const columnOrder = table.getState().columnOrder;
+
+  useEffect(() => {
+    const productIndex = columnOrder.indexOf('name');
+    const unitColumns = showAdvancedView ? UOM_COLUMN_IDS : UOM_INFO_COLUMN_IDS;
+    if (
+      productIndex === -1 ||
+      unitColumns.every(
+        (id, index) => columnOrder[productIndex + index + 1] === id,
+      )
+    )
+      return;
+
+    const nextOrder = columnOrder.filter((id) => !UOM_COLUMN_IDS.includes(id));
+    nextOrder.splice(nextOrder.indexOf('name') + 1, 0, ...unitColumns);
+    table.setColumnOrder(nextOrder);
+  }, [columnOrder, table, showAdvancedView]);
+
+  return null;
+};
 
 export const ProductsRecordTable = ({
   products,
@@ -23,7 +59,7 @@ export const ProductsRecordTable = ({
   showTaxView,
   hasProductFilters,
 }: {
-  products: IProductData[];
+  products: DealProductData[];
   refetch: () => void;
   showAdvancedView: boolean;
   showTaxView: boolean;
@@ -31,8 +67,12 @@ export const ProductsRecordTable = ({
 }) => {
   const { t } = useTranslation('sales');
 
-  const columns = useMemo<ColumnDef<IProductData>[]>(() => {
-    const baseColumns = productColumns(t);
+  const columns = useMemo<ColumnDef<DealProductData>[]>(() => {
+    const baseColumns = productColumns(t).filter(
+      (column) =>
+        (showTaxView || column.id !== 'isVatApplied') &&
+        (showAdvancedView || !BASE_UOM_COLUMN_IDS.includes(column.id || '')),
+    );
     if (!showAdvancedView && !showTaxView) return baseColumns;
 
     const newColumns = [...baseColumns];
@@ -48,7 +88,7 @@ export const ProductsRecordTable = ({
     if (showAdvancedView) {
       const amountIndex = newColumns.findIndex((col) => col.id === 'amount');
       if (amountIndex !== -1)
-        newColumns.splice(amountIndex + 1, 0, currency(t), uom(t));
+        newColumns.splice(amountIndex + 1, 0, currency(t), uomRatio(t));
 
       const assignedIndex = newColumns.findIndex(
         (col) => col.id === 'assignUserId',
@@ -77,6 +117,7 @@ export const ProductsRecordTable = ({
           : 'products_record_table'
       }
     >
+      <ProductUomColumnPosition showAdvancedView={showAdvancedView} />
       {products.length === 0 ? (
         <Empty className="border-0 bg-transparent">
           <Empty.Header>

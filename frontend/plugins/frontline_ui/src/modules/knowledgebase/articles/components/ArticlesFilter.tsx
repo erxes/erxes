@@ -72,7 +72,7 @@ const CategoryCommand = ({
         {(categories ?? []).map((category) => (
           <Command.Item
             key={category._id}
-            value={category.title}
+            value={category.title ?? ''}
             onSelect={() => onValueChange(category._id)}
           >
             {category.title || t('unnamed-category')}

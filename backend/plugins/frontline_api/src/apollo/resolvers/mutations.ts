@@ -15,8 +15,6 @@ import { helpCenterConfigMutations } from '@/helpcenter/graphql/resolvers/mutati
 import { customDomainMutations } from '@/customdomain/graphql/resolvers/mutations';
 import { reportChartMutations } from '@/reports/graphql/resolvers/chartMutations';
 import { reportFacebookMutations } from '@/reports/graphql/resolvers/facebookMutations';
-import { reportInboxQueries } from '@/reports/graphql/resolvers/inboxQueries';
-import { reportTicketQueries } from '@/reports/graphql/resolvers/ticketQueries';
 import { fieldMutations } from '~/modules/form/graphql/resolvers/mutations/fields';
 import { formMutations } from '~/modules/form/graphql/resolvers/mutations/forms';
 import { widgetFormMutation } from '~/modules/form/graphql/resolvers/mutations/widget';
@@ -48,8 +46,6 @@ export const mutations = {
   ...knowledgeBaseMutations,
   ...helpCenterConfigMutations,
   ...customDomainMutations,
-  ...reportInboxQueries,
-  ...reportTicketQueries,
   ...reportChartMutations,
   ...reportFacebookMutations,
 };

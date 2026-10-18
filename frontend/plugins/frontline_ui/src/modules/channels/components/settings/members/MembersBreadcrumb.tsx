@@ -7,9 +7,7 @@ export const MembersBreadcrumb = () => {
   const { id } = useParams<{ id: string }>();
   return (
     <Link to={`/settings/frontline/channels/${id}/members`}>
-      <Button variant="ghost" className="font-semibold">
-        {t('members-title', 'Members')}
-      </Button>
+      <Button variant="ghost">{t('members-title', 'Members')}</Button>
     </Link>
   );
 };

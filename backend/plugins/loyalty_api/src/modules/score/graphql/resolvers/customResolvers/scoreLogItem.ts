@@ -19,7 +19,13 @@ export default {
   },
 
   async totalScore(
-    { ownerType, ownerId, owner, campaignId }: IScoreLog & { owner?: any },
+    {
+      ownerType,
+      ownerId,
+      owner,
+      campaignId,
+      accountTypeId,
+    }: IScoreLog & { owner?: any },
     _args: undefined,
     { subdomain, models }: IContext,
   ) {
@@ -28,16 +34,17 @@ export default {
       lastOwner = await getLoyaltyOwner(subdomain, { ownerType, ownerId });
     }
 
-    const campaign = await models.ScoreCampaigns.findOne({
-      _id: campaignId,
-    }).lean();
+    // The wallet the entry wrote to; fixed points have no campaign to ask.
+    const source = accountTypeId
+      ? await models.LoyaltyAccountTypes.findOne({ _id: accountTypeId }).lean()
+      : await models.ScoreCampaigns.findOne({ _id: campaignId }).lean();
 
     return getOwnerBalance({
       models,
       subdomain,
       ownerType,
       ownerId,
-      fieldId: campaign?.fieldId,
+      fieldId: source?.fieldId,
       owner: lastOwner,
     });
   },

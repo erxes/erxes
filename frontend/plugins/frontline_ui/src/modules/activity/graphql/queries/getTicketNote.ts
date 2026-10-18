@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const GET_TICKET_NOTE = gql`
+export const GET_TICKET_NOTE = gql(`
   query TicketGetNote($id: String!) {
     ticketGetNote(_id: $id) {
       _id
@@ -36,4 +36,4 @@ export const GET_TICKET_NOTE = gql`
       updatedAt
     }
   }
-`;
+`);

@@ -296,6 +296,138 @@ export const checkDealPoints = async (
   }
 };
 
+// The deal's voucher and coupon are used where it earns, and given back with
+// its points; using them again on the same deal changes nothing.
+const confirmDealVouchers = (
+  subdomain: string,
+  dealId: string,
+  deal: IDeal,
+  customerId: string,
+  actorId?: string,
+) => {
+  const { voucherId, couponCode } = deal.extraData || {};
+
+  if (!voucherId && !couponCode) {
+    return;
+  }
+
+  return sendTRPCMessage({
+    subdomain,
+    pluginName: 'loyalty',
+    method: 'mutation',
+    module: 'loyalty',
+    action: 'confirmLoyalties',
+    input: {
+      checkInfo: {},
+      extraInfo: {
+        ...deal.extraData,
+        ownerType: 'customer',
+        ownerId: customerId,
+        targetType: 'sales',
+        targetId: dealId,
+        userId: actorId,
+      },
+    },
+    throwOnError: true,
+  });
+};
+
+const askVoucher = (
+  subdomain: string,
+  action: 'hold' | 'release' | 'releaseTarget',
+  input: Record<string, unknown>,
+) =>
+  sendTRPCMessage({
+    subdomain,
+    pluginName: 'loyalty',
+    method: 'mutation',
+    module: 'voucher',
+    action,
+    input,
+    throwOnError: true,
+  });
+
+/**
+ * Moves the deal's picked voucher with it: the one taken off is freed, the
+ * one picked is held for this deal (its first customer's) so nothing else
+ * can use it before the deal is won.
+ */
+export const syncDealVoucher = async ({
+  subdomain,
+  dealId,
+  previousVoucherId,
+  voucherId,
+  totalAmount,
+  userId,
+}: {
+  subdomain: string;
+  dealId: string;
+  previousVoucherId?: string;
+  voucherId?: string;
+  totalAmount?: number;
+  userId?: string;
+}) => {
+  const target = { targetType: 'sales', targetId: dealId };
+
+  if (previousVoucherId && previousVoucherId !== voucherId) {
+    await askVoucher(subdomain, 'release', {
+      voucherId: previousVoucherId,
+      target,
+      userId,
+    });
+  }
+
+  if (!voucherId) {
+    return;
+  }
+
+  const [customerId] = (await getCustomerIds(subdomain, dealId)) || [];
+
+  if (!customerId) {
+    throw new Error('Attach a customer to use their voucher');
+  }
+
+  await askVoucher(subdomain, 'hold', {
+    voucherId,
+    ownerType: 'customer',
+    ownerId: customerId,
+    target,
+    totalAmount: totalAmount || 0,
+    userId,
+  });
+};
+
+/** A deal refunded or removed before it was won lets go of what it held. */
+export const releaseDealVouchers = (
+  subdomain: string,
+  dealId: string,
+  userId?: string,
+) =>
+  sendTRPCMessage({
+    subdomain,
+    pluginName: 'loyalty',
+    method: 'mutation',
+    module: 'voucher',
+    action: 'releaseTarget',
+    input: { targetId: dealId, userId },
+    defaultValue: 0,
+  });
+
+export const returnDealVouchers = (
+  subdomain: string,
+  dealId: string,
+  actorId?: string,
+) =>
+  sendTRPCMessage({
+    subdomain,
+    pluginName: 'loyalty',
+    method: 'mutation',
+    module: 'voucher',
+    action: 'returnTarget',
+    input: { targetId: dealId, userId: actorId },
+    defaultValue: 0,
+  });
+
 export const refundDealPoints = (
   subdomain: string,
   dealId: string,
@@ -338,6 +470,8 @@ export const syncDealPoints = async ({
       'Deal moved to a refund stage',
       userId,
     );
+    await returnDealVouchers(subdomain, dealId, userId);
+    await releaseDealVouchers(subdomain, dealId, userId);
     return;
   }
 
@@ -368,6 +502,8 @@ export const syncDealPoints = async ({
   if (!plan.customerId) {
     return;
   }
+
+  await confirmDealVouchers(subdomain, dealId, deal, plan.customerId, userId);
 
   for (const { campaignId, totalAmount, paidAmount, items } of plan.earns) {
     await askLoyalty(subdomain, 'earn', {

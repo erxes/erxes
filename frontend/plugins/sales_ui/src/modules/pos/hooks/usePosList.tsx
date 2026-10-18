@@ -1,10 +1,14 @@
+import { isRecord } from '@/deals/utils/dealJson';
 import { useQuery } from '@apollo/client';
-import queries from '../graphql/queries';
-import { IPos } from '../types/pos';
+import type { SalesPosSettingsListQueryVariables } from '~/gql/graphql';
+import { queries } from '../graphql/queries';
+import { hasId } from '../utils/posJson';
 
 const POS_PER_PAGE = 30;
 
-export const usePosList = (options = {}) => {
+export const usePosList = (
+  options: SalesPosSettingsListQueryVariables = {},
+) => {
   const { data, loading, fetchMore } = useQuery(queries.posList, {
     variables: {
       perPage: POS_PER_PAGE,
@@ -13,7 +17,7 @@ export const usePosList = (options = {}) => {
   });
 
   const transformedPosList =
-    data?.posList?.map((pos: IPos) => ({
+    data?.posList?.filter(hasId).map((pos) => ({
       _id: pos._id,
       name: pos.name,
       isOnline: pos.isOnline || false,
@@ -22,7 +26,10 @@ export const usePosList = (options = {}) => {
       departmentTitle: pos.departmentTitle || '',
       createdAt: pos.createdAt,
       createdBy: pos?.user?.details?.fullName || 'Admin',
-      logo: pos?.uiOptions?.logo || '',
+      logo:
+        isRecord(pos.uiOptions) && typeof pos.uiOptions.logo === 'string'
+          ? pos.uiOptions.logo
+          : '',
       adminIds: pos?.adminIds,
       cashierIds: pos?.cashierIds,
       description: pos?.description,
@@ -43,7 +50,10 @@ export const usePosList = (options = {}) => {
           return prev;
         }
         return Object.assign({}, prev, {
-          posList: [...(prev.posList || []), ...fetchMoreResult.posList],
+          posList: [
+            ...(prev.posList || []),
+            ...(fetchMoreResult.posList ?? []),
+          ],
         });
       },
     });

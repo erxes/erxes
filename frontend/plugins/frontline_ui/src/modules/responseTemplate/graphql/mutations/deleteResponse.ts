@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const REMOVE_RESPONSE = gql`
+export const REMOVE_RESPONSE = gql(`
   mutation ResponseTemplatesRemove($id: String!) {
     responseTemplatesRemove(_id: $id) {
       _id
@@ -12,4 +12,4 @@ export const REMOVE_RESPONSE = gql`
       files
     }
   }
-`;
+`);

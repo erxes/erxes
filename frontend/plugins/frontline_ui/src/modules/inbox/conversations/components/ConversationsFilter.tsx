@@ -24,7 +24,8 @@ import {
   IconUserX,
 } from '@tabler/icons-react';
 import { SelectMember } from 'ui-modules';
-import { gql, useQuery } from '@apollo/client';
+import { useQuery } from '@apollo/client';
+import { gql } from '~/gql';
 import { SelectChannel } from '@/inbox/channel/components/SelectChannel';
 import { DiscordChannelFilterBar } from '@/integrations/discord/components/DiscordChannelFilterBar';
 import { ConversationStatus } from '@/inbox/types/Conversation';
@@ -35,6 +36,7 @@ import {
 } from '@/integrations/components/IntegrationTypeFilter';
 import { useTranslation } from 'react-i18next';
 import { useConversationFilterCounts } from '@/inbox/conversations/hooks/useConversationCounts';
+import { getDateFilterVariable } from '@/inbox/conversations/utils/useConversations';
 import {
   AutomationStatusFilterBar,
   AutomationStatusFilterItem,
@@ -57,14 +59,14 @@ type ConversationFilterQueries = {
   searchValue: string;
 };
 
-const FRONTLINE_INBOX_BRAND_FILTER_DETAIL = gql`
+const FRONTLINE_INBOX_BRAND_FILTER_DETAIL = gql(`
   query FrontlineInboxBrandFilterDetail($_id: String!) {
     brandDetail(_id: $_id) {
       _id
       name
     }
   }
-`;
+`);
 
 type ConversationFilterQueryValues = {
   [Key in keyof ConversationFilterQueries]:
@@ -230,8 +232,8 @@ export const FilterConversationsPopover = () => {
     integrationId: queries.integrationId,
     integrationType: queries.integrationType,
     brandId: queries.brandId,
-    startDate: parsedDate?.from,
-    endDate: parsedDate?.to,
+    startDate: getDateFilterVariable(parsedDate?.from),
+    endDate: getDateFilterVariable(parsedDate?.to),
     searchValue: queries.searchValue,
   });
 
@@ -404,10 +406,8 @@ const IntegrationFilterBar = () => {
 
 const BrandFilterBar = () => {
   const [brandId] = useQueryState<string>('brandId');
-  const { data, loading } = useQuery<{
-    brandDetail?: { _id: string; name?: string };
-  }>(FRONTLINE_INBOX_BRAND_FILTER_DETAIL, {
-    variables: { _id: brandId || '' },
+  const { data, loading } = useQuery(FRONTLINE_INBOX_BRAND_FILTER_DETAIL, {
+    variables: brandId ? { _id: brandId } : undefined,
     skip: !brandId,
   });
 

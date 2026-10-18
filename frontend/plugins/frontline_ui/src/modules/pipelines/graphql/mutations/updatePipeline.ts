@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const UPDATE_PIPELINE = gql`
+export const UPDATE_PIPELINE = gql(`
   mutation UpdatePipeline(
     $_id: String!
     $description: String
@@ -57,4 +57,4 @@ export const UPDATE_PIPELINE = gql`
       isPropertySelectionConfigured
     }
   }
-`;
+`);

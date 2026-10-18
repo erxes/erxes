@@ -1,21 +1,32 @@
 import { EDIT_INTEGRATION } from '@/integrations/graphql/mutations/EditIntegration';
 import { useMutation, MutationFunctionOptions } from '@apollo/client';
+import type {
+  IntegrationsEditCommonFieldsMutation,
+  IntegrationsEditCommonFieldsMutationVariables,
+} from '~/gql/graphql';
+
+type IntegrationEditOptions = MutationFunctionOptions<
+  IntegrationsEditCommonFieldsMutation,
+  IntegrationsEditCommonFieldsMutationVariables
+>;
 
 export const useIntegrationEdit = () => {
   const [editIntegration, { loading }] = useMutation(EDIT_INTEGRATION);
 
-  const mutate = (options: MutationFunctionOptions) => {
+  const mutate = (options: IntegrationEditOptions) => {
     editIntegration({
       ...options,
       update: (cache, { data }) => {
+        const integration = data?.integrationsEditCommonFields;
+        if (!integration) return;
+
         cache.modify({
-          id: cache.identify(data.integrationsEditCommonFields),
-          fields: Object.keys(options.variables || {}).reduce(
-            (fields: any, field) => {
-              fields[field] = () => options.variables?.[field];
-              return fields;
-            },
-            {},
+          id: cache.identify(integration),
+          fields: Object.fromEntries(
+            Object.entries(options.variables || {}).map(([field, value]) => [
+              field,
+              () => value,
+            ]),
           ),
         });
       },
@@ -30,12 +41,14 @@ export const useIntegrationEdit = () => {
 };
 
 export const useIntegrationEditField = (
-  cellData: MutationFunctionOptions['variables'],
+  cellData: IntegrationsEditCommonFieldsMutationVariables,
 ) => {
   const { editIntegration, loading } = useIntegrationEdit();
 
   const editIntegrationField = (
-    options: MutationFunctionOptions,
+    options: Omit<IntegrationEditOptions, 'variables'> & {
+      variables?: Partial<IntegrationsEditCommonFieldsMutationVariables>;
+    },
     skip = false,
   ) => {
     if (skip) return;

@@ -1,14 +1,7 @@
-import {
-  type ChangeEvent,
-  type KeyboardEvent,
-  type MouseEvent,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
-import { gql, useMutation } from '@apollo/client';
+import { useDealsEdit } from '@/deals/cards/hooks/useDeals';
+import { IDealDetail, IPaymentsData } from '@/deals/types/deals';
+import type { PaymentConfigItem } from '@/payments';
+import { useMutation } from '@apollo/client';
 import {
   IconCircleCheck,
   IconDeviceFloppy,
@@ -24,16 +17,24 @@ import {
   Sheet,
   useToast,
 } from 'erxes-ui';
-import { IDeal, IPaymentsData } from '@/deals/types/deals';
-import { useDealsEdit } from '@/deals/cards/hooks/useDeals';
-import { DealPointPaymentLimit } from './DealPointPaymentLimit';
-import { useTranslation } from 'react-i18next';
-import type { PaymentConfigItem } from '@/payments';
 import {
-  selectPaymentTypesForRender,
+  type ChangeEvent,
+  type KeyboardEvent,
+  type MouseEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
+import { useTranslation } from 'react-i18next';
+import { gql } from '~/gql';
+import {
   type PayInfo,
+  selectPaymentTypesForRender,
   updatePayInfoForScore,
 } from '../utils/updatePayInfoForScore';
+import { DealPointPaymentLimit } from './DealPointPaymentLimit';
 
 type PaymentConfig = {
   require?: string;
@@ -45,11 +46,11 @@ type PaymentConfig = {
 
 const EMPTY_PAYMENT_TYPES: PaymentConfigItem[] = [];
 
-const GENERATE_INVOICE_URL = gql`
+const GENERATE_INVOICE_URL = gql(`
   mutation SalesDealGenerateInvoiceUrl($input: InvoiceInput!) {
     generateInvoiceUrl(input: $input)
   }
-`;
+`);
 
 const parsePaymentConfig = (config: unknown): PaymentConfig => {
   if (!config) {
@@ -101,7 +102,7 @@ export const ProductsPayment = ({
   paymentsData: initialPaymentsData,
   onChangePaymentsData,
 }: {
-  deal: IDeal;
+  deal: IDealDetail;
   paymentsData?: IPaymentsData;
   onChangePaymentsData?: (data: IPaymentsData) => void;
 }) => {
@@ -722,7 +723,7 @@ export const ProductsPayment = ({
                   {paysWithPoints && (
                     <DealPointPaymentLimit
                       paymentType={paymentType}
-                      customerId={pointsCustomer?._id}
+                      customerId={pointsCustomer?._id ?? undefined}
                       dealId={deal._id}
                       totalAmount={total[defaultCurrency] || 0}
                       onLimit={handlePointLimit}

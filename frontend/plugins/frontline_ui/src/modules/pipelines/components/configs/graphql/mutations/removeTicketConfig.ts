@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-const REMOVE_TICKET_CONFIG = gql`
+const REMOVE_TICKET_CONFIG = gql(`
   mutation TicketRemoveConfig($id: String!) {
     ticketRemoveConfig(_id: $id) {
       name
@@ -39,6 +39,6 @@ const REMOVE_TICKET_CONFIG = gql`
       updatedAt
     }
   }
-`;
+`);
 
 export { REMOVE_TICKET_CONFIG };

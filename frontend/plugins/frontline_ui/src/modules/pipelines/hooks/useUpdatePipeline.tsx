@@ -6,11 +6,20 @@ import {
 import { UPDATE_PIPELINE } from '@/pipelines/graphql/mutations/updatePipeline';
 import { useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import type {
+  UpdatePipelineMutation,
+  UpdatePipelineMutationVariables,
+} from '~/gql/graphql';
 export const useUpdatePipeline = () => {
   const { t } = useTranslation('frontline');
   const { toast } = useToast();
   const [_updatePipeline, { loading }] = useMutation(UPDATE_PIPELINE);
-  const updatePipeline = (options: MutationFunctionOptions) => {
+  const updatePipeline = (
+    options: MutationFunctionOptions<
+      UpdatePipelineMutation,
+      UpdatePipelineMutationVariables
+    >,
+  ) => {
     return _updatePipeline({
       ...options,
       onCompleted: (data) => {

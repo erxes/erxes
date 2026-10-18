@@ -1,6 +1,6 @@
 import { DealSearchResult } from '@/deals/components/search/DealSearchResult';
 import { TDealSearchCategory } from '@/deals/types/dealSearch';
-import { IDeal } from '@/deals/types/deals';
+import { IDealSearch } from '@/deals/types/deals';
 import { getDealSearchPrompt } from '@/deals/utils/dealSearch';
 import { IconLoader2 } from '@tabler/icons-react';
 import { Skeleton } from 'erxes-ui';
@@ -9,7 +9,7 @@ import { useTranslation } from 'react-i18next';
 
 type TDealSearchResultsProps = {
   category: TDealSearchCategory;
-  deals: IDeal[];
+  deals: IDealSearch[];
   loading: boolean;
   loadingMore: boolean;
   nameSearch: string;
@@ -19,7 +19,7 @@ type TDealSearchResultsProps = {
   totalCount: number;
   hasNextPage?: boolean;
   loadMoreRef: Ref<HTMLDivElement>;
-  onSelect: (deal: IDeal) => void;
+  onSelect: (deal: IDealSearch) => void;
 };
 
 export const DealSearchResults = ({

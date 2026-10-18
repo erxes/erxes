@@ -11,13 +11,14 @@ import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { IUser } from 'ui-modules';
 
-import { ChannelScope, IChannel } from '@/channels/types';
+import { ChannelScope, IMyChannel } from '@/channels/types';
+import { toMemberUser } from '@/channels/utils/channelMembers';
 import { channelScopeOf } from '@/channels/utils/channelScope';
 import { useGetChannelMembers } from '@/channels/hooks/useGetChannelMembers';
 import { useGetMyChannels } from '@/channels/hooks/useGetMyChannels';
 import { CreateChannel } from '@/channels/components/settings/channels-list/CreateChannel';
 import { IntegrationTypeItem } from '@/integrations/components/ChooseIntegrationType';
-import type { IIntegrationType } from '@/integrations/types/Integration';
+import type { IIntegrationTypeByChannel } from '@/integrations/types/Integration';
 import { useUsedIntegrationTypesByChannel } from '@/integrations/hooks/useUsedIntegrationTypes';
 import {
   TConversationCounts,
@@ -65,8 +66,9 @@ export const TeamChannelsNav = () => {
   const membersByChannel = useMemo(() => {
     const grouped = new Map<string, IUser[]>();
     for (const { channelId: id, member } of members ?? []) {
-      if (!member) continue;
-      grouped.set(id, [...(grouped.get(id) ?? []), member]);
+      const user = toMemberUser(member);
+      if (!user) continue;
+      grouped.set(id, [...(grouped.get(id) ?? []), user]);
     }
     return grouped;
   }, [members]);
@@ -160,7 +162,7 @@ const TeamChannelItem = ({
   unreadCount,
   defaultOpen,
 }: {
-  channel: IChannel;
+  channel: IMyChannel;
   members: IUser[];
   unreadCount: number;
   defaultOpen: boolean;
@@ -190,7 +192,7 @@ const TeamChannelItem = ({
       name={channel.name}
       icon={
         <IconComponent
-          name={channel.icon}
+          name={channel.icon ?? undefined}
           className="size-3.5 text-accent-foreground shrink-0"
         />
       }
@@ -231,7 +233,7 @@ const useChannelIntegrationTypes = ({
   channelId: string;
   skip: boolean;
 }): {
-  integrationTypes: IIntegrationType[];
+  integrationTypes: IIntegrationTypeByChannel[];
   loading: boolean;
   awaitingCounts: TConversationCounts;
 } => {

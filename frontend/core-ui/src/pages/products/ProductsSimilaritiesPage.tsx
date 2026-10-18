@@ -28,16 +28,15 @@ export const ProductsSimilaritiesPage = () => {
   };
 
   return (
-    <PageContainer>
-      <ProductsHeader>
-        <Button onClick={handleNew}>
-          <IconPlus size={16} />
-          {t('new-similarity', 'New similarity')}
-        </Button>
-      </ProductsHeader>
-
-      <div className="flex overflow-hidden flex-auto">
-        <ProductSidebar />
+    <PageContainer className="flex-row">
+      <ProductSidebar />
+      <div className="flex min-w-0 flex-auto flex-col overflow-hidden">
+        <ProductsHeader>
+          <Button onClick={handleNew}>
+            <IconPlus size={16} />
+            {t('new-similarity', 'New similarity')}
+          </Button>
+        </ProductsHeader>
         <div className="flex overflow-hidden flex-col flex-auto p-3 w-full min-h-0">
           <SimilarityList onNew={handleNew} />
         </div>

@@ -1,6 +1,5 @@
-import { gql, useLazyQuery } from '@apollo/client';
+import { useLazyQuery } from '@apollo/client';
 import { CALL_HISTORY_LIST } from '@/integrations/call/graphql/queries/callHistoryList';
-import type { CallHistoryPage } from '../types';
 import { useCallFilters } from './useCallFilters';
 import { CALL_HISTORY_EXPORT_LIMIT } from '../callHistoryCsv';
 
@@ -18,9 +17,9 @@ export function useCallHistoryExport({
   const { startDate, endDate, integrationId, queueId, direction } =
     useCallFilters();
 
-  const [fetchAll, { loading }] = useLazyQuery<{
-    callHistoryList: CallHistoryPage;
-  }>(gql(CALL_HISTORY_LIST), { fetchPolicy: 'network-only' });
+  const [fetchAll, { loading }] = useLazyQuery(CALL_HISTORY_LIST, {
+    fetchPolicy: 'network-only',
+  });
 
   const loadForExport = async () => {
     const { data } = await fetchAll({
