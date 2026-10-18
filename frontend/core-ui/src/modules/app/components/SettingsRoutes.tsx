@@ -10,6 +10,7 @@ import {
 import { Skeleton } from 'erxes-ui';
 import { pluginsConfigState, useVersion } from 'ui-modules';
 import { useAtomValue } from 'jotai';
+import { PermissionRouteGuard } from '@/auth/components/PermissionRouteGuard';
 import { PropertiesScopeContext } from '@/properties/context/PropertiesScopeContext';
 import {
   getPluginSettingsPath,
@@ -268,7 +269,11 @@ export function SettingsRoutes() {
           <Route
             key={`${plugin.name}-tags`}
             path={`${plugin.path}/tags`}
-            element={<TagsPage pluginName={plugin.name} />}
+            element={
+              <PermissionRouteGuard plugin={plugin.name} module="tags">
+                <TagsPage pluginName={plugin.name} />
+              </PermissionRouteGuard>
+            }
           />
         ))}
         {appPlugins.map((plugin) => (
@@ -276,14 +281,16 @@ export function SettingsRoutes() {
             key={`${plugin.name}-properties`}
             path={`${plugin.path}/properties/*`}
             element={
-              <PropertiesScopeContext.Provider
-                value={{
-                  basePath: `${getPluginSettingsPath(plugin)}/properties`,
-                  pluginName: plugin.name,
-                }}
-              >
-                <PropertiesSettingsRoutes />
-              </PropertiesScopeContext.Provider>
+              <PermissionRouteGuard plugin={plugin.name} module="properties">
+                <PropertiesScopeContext.Provider
+                  value={{
+                    basePath: `${getPluginSettingsPath(plugin)}/properties`,
+                    pluginName: plugin.name,
+                  }}
+                >
+                  <PropertiesSettingsRoutes />
+                </PropertiesScopeContext.Provider>
+              </PermissionRouteGuard>
             }
           />
         ))}
