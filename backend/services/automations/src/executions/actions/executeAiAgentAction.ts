@@ -182,7 +182,11 @@ export const executeAiAgentAction = async (
       execution,
       actionConfig: parsedActionConfig,
       aiContext,
-      state: response.conversationState,
+      // A tool turned this topic into a record; its facts now live in pastActions.
+      state:
+        response.result.type === 'generateText' && response.result.handoff
+          ? { slots: {} }
+          : response.conversationState,
     });
 
     return {

@@ -16,6 +16,8 @@ import { resolveAiMemoryScopeKey } from './store';
 
 export type TAiConversationState = {
   slots: Record<string, unknown>;
+  // Set by code, never by the LLM, so a slot it preserves keeps aging.
+  slotUpdatedAt?: Record<string, string>;
   lastAskedField?: string;
   updatedAt?: string;
 };
@@ -38,6 +40,8 @@ const CONVERSATION_STATE_NAMESPACE = 'ai-agent:conversation-state';
 const CONVERSATION_STATE_DATA_KEY = 'conversationState';
 const DEFAULT_CONVERSATION_STATE_TTL_MINUTES = 1440;
 const MAX_STATE_CONTEXT_BYTES = 6000;
+const SLOT_MAX_AGE_MINUTES = 120;
+const SLOT_MAX_COUNT = 8;
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   !!value && typeof value === 'object' && !Array.isArray(value);
@@ -60,9 +64,17 @@ const parseStoredConversationState = (value: unknown): TAiConversationState => {
     typeof value.updatedAt === 'string' && value.updatedAt.trim()
       ? value.updatedAt.trim()
       : undefined;
+  const slotUpdatedAt = isRecord(value.slotUpdatedAt)
+    ? Object.fromEntries(
+        Object.entries(value.slotUpdatedAt).filter(
+          (entry): entry is [string, string] => typeof entry[1] === 'string',
+        ),
+      )
+    : undefined;
 
   return {
     slots,
+    ...(slotUpdatedAt ? { slotUpdatedAt } : {}),
     ...(lastAskedField ? { lastAskedField } : {}),
     ...(updatedAt ? { updatedAt } : {}),
   };
@@ -89,13 +101,67 @@ const compactSlots = (slots: Record<string, unknown>) =>
 
 const normalizeConversationState = (state?: unknown): TAiConversationState => {
   const parsedState = parseStoredConversationState(state);
+  const slots = compactSlots(parsedState.slots);
+  const slotUpdatedAt = parsedState.slotUpdatedAt
+    ? Object.fromEntries(
+        Object.entries(parsedState.slotUpdatedAt).filter(
+          ([key]) => key in slots,
+        ),
+      )
+    : undefined;
 
   return {
-    slots: compactSlots(parsedState.slots),
+    slots,
+    ...(slotUpdatedAt ? { slotUpdatedAt } : {}),
     ...(parsedState.lastAskedField
       ? { lastAskedField: parsedState.lastAskedField }
       : {}),
     ...(parsedState.updatedAt ? { updatedAt: parsedState.updatedAt } : {}),
+  };
+};
+
+const isSameSlotValue = (a: unknown, b: unknown) =>
+  JSON.stringify(a) === JSON.stringify(b);
+
+const stampSlotTimes = (
+  slots: Record<string, unknown>,
+  previous: TAiConversationState | null | undefined,
+  now: string,
+) =>
+  Object.fromEntries(
+    Object.keys(slots).map((key) => {
+      const previousAt = previous?.slotUpdatedAt?.[key] || previous?.updatedAt;
+      const unchanged =
+        !!previous &&
+        key in previous.slots &&
+        isSameSlotValue(previous.slots[key], slots[key]);
+
+      return [key, unchanged && previousAt ? previousAt : now];
+    }),
+  );
+
+// Documents written before slotUpdatedAt age by the state's updatedAt.
+export const boundAiConversationState = (
+  state: TAiConversationState,
+  now = Date.now(),
+): TAiConversationState => {
+  const kept = Object.keys(state.slots)
+    .map((key) => {
+      const at = state.slotUpdatedAt?.[key] || state.updatedAt || '';
+
+      return { key, at, time: Date.parse(at) };
+    })
+    .filter(
+      ({ time }) =>
+        !Number.isNaN(time) && now - time <= SLOT_MAX_AGE_MINUTES * 60_000,
+    )
+    .sort((a, b) => b.time - a.time)
+    .slice(0, SLOT_MAX_COUNT);
+
+  return {
+    ...state,
+    slots: Object.fromEntries(kept.map(({ key }) => [key, state.slots[key]])),
+    slotUpdatedAt: Object.fromEntries(kept.map(({ key, at }) => [key, at])),
   };
 };
 
@@ -137,10 +203,12 @@ export const parseAiConversationStateUpdate = ({
   try {
     const parsed = JSON.parse(stripJsonFence(text));
     const normalized = normalizeConversationState(parsed);
+    const now = new Date().toISOString();
 
     return {
       ...normalized,
-      updatedAt: new Date().toISOString(),
+      slotUpdatedAt: stampSlotTimes(normalized.slots, fallbackState, now),
+      updatedAt: now,
     };
   } catch (_error) {
     return fallbackState || null;
@@ -158,6 +226,7 @@ export const buildAiConversationStateUpdateMessages = ({
   }
 
   const latestUserText = getLatestUserText({ inputData, aiContext });
+  const { slots, lastAskedField } = normalizeConversationState(currentState);
 
   return [
     {
@@ -180,7 +249,11 @@ export const buildAiConversationStateUpdateMessages = ({
       role: 'user',
       content: [
         'Current conversation state:',
-        JSON.stringify(normalizeConversationState(currentState), null, 2),
+        JSON.stringify(
+          { slots, lastAskedField: lastAskedField || null },
+          null,
+          2,
+        ),
         '',
         buildAiHistorySection({
           aiContext,
@@ -225,8 +298,10 @@ export const loadAiConversationState = async ({
     scopeKey,
   }).lean();
 
-  return normalizeConversationState(
-    (memory?.data || {})[CONVERSATION_STATE_DATA_KEY],
+  return boundAiConversationState(
+    normalizeConversationState(
+      (memory?.data || {})[CONVERSATION_STATE_DATA_KEY],
+    ),
   );
 };
 
@@ -249,10 +324,8 @@ export const formatAiConversationStateForPrompt = (state?: unknown) => {
       2,
     ),
     '',
-    'Conversation state rules:',
-    '- Treat filled fields as already answered. Do not ask for them again unless the latest user message changes them.',
-    '- If the latest user message is short, use conversation state and recent history to interpret it.',
-    '- Answer the latest user question first, then ask only one next missing field if a follow-up is needed.',
+    // Calling slots "answered" pushed the agent to file new records (replay, 2026-10-18).
+    'These are facts the user gave earlier in this conversation. Use them to avoid asking again; they do not decide what the latest message is about. The latest user message wins.',
   ].join('\n');
 };
 
