@@ -73,7 +73,10 @@ The `agent` module is the core-ui surface for the core-api `agents` backend
   (`agentsFiles.ts` limits, `uploadAgentsFile.ts`), chips in the composer,
   image previews and download chips in history (`AttachedFiles`).
 - Artifacts: `artifacts/` splits tagged `html`/`xlsx`/`docx`/`pdf` fences
-  and renders previews/downloads (`MessageContent` → `Markdown`).
+  and renders previews/downloads (`MessageContent` → `Markdown`). HTML previews
+  sanitize an HTML-only fragment, strip document-level styles/scripts, and
+  run in a script-disabled iframe. DOCX import/render failures show the
+  download fallback.
 
 ## References
 

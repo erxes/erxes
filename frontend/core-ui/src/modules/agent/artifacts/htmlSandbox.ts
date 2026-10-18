@@ -6,10 +6,11 @@ const CSP_DIRECTIVES =
 /** Scripts and automatic navigation are disabled before any model content. */
 export const buildSandboxedSrcDoc = (html: string): string => {
   const content = DOMPurify.sanitize(html, {
-    WHOLE_DOCUMENT: true,
-    ADD_TAGS: ['style'],
+    WHOLE_DOCUMENT: false,
+    USE_PROFILES: { html: true },
     FORBID_TAGS: [
       'script',
+      'style',
       'meta',
       'base',
       'iframe',

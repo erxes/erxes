@@ -14,4 +14,16 @@ describe('HTML sandbox', () => {
     expect(source).toContain("default-src 'none'");
     expect(source).toContain("form-action 'none'");
   });
+
+  it('sanitizes full documents as HTML fragments without document-level styles', () => {
+    const source = buildSandboxedSrcDoc(
+      '<html><head><style>body { color: red }</style></head><body><p style="color: blue">Report</p><svg onload="alert(1)"><circle /></svg></body></html>',
+    );
+    expect(source).toContain('<p style="color: blue">Report</p>');
+    expect(source).not.toContain('<html');
+    expect(source).not.toContain('<head');
+    expect(source).not.toContain('<style');
+    expect(source).not.toContain('<svg');
+    expect(source).not.toContain('onload');
+  });
 });

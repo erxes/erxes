@@ -13,9 +13,8 @@ export const DocxPreview = ({ blob }: IDocxPreviewProps) => {
     setFailed(false);
 
     const render = async () => {
-      const { renderAsync } = await import('docx-preview');
-
       try {
+        const { renderAsync } = await import('docx-preview');
         if (cancelled || !containerRef.current) {
           return;
         }
