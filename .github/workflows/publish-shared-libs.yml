@@ -58,13 +58,7 @@ jobs:
           VERSION=$(node -e '
             const { execFileSync } = require("child_process");
             const base = require("./package.json").version;
-            const names = [
-              "@erxes/erxes-api-shared",
-              "@erxes/api-shared",
-              "@erxes/erxes-ui",
-              "@erxes/ui",
-              "@erxes/ui-modules",
-            ];
+            const names = ["@erxes/api-shared", "@erxes/ui", "@erxes/ui-modules"];
             const re = new RegExp("^" + base.replace(/\./g, "\\.") + "-(\\d+)$");
             let n = 0;
             for (const name of names) {
@@ -123,11 +117,6 @@ jobs:
             echo "staged $npm_name@$PUBLISH_VERSION at $staged"
           }
 
-          # Plugins install these as `"erxes-api-shared": "npm:@erxes/erxes-api-shared@<version>"`
-          # and `"erxes-ui": "npm:@erxes/erxes-ui@<version>"`.
-          stage backend/erxes-api-shared @erxes/erxes-api-shared
-          stage frontend/libs/erxes-ui @erxes/erxes-ui
-          # Same builds, kept for consumers of the previous package names.
           stage backend/erxes-api-shared @erxes/api-shared
           stage frontend/libs/erxes-ui @erxes/ui
           stage frontend/libs/ui-modules @erxes/ui-modules
