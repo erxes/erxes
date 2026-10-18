@@ -6,7 +6,7 @@
 - **Project:** `loyalty_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/loyalty_api`
-- **Last synchronized:** `2026-10-14`
+- **Last synchronized:** `2026-10-15`
 
 ## Scope
 
@@ -40,6 +40,10 @@
 - `loyaltyAccountTypesAdoptCampaignFields` turns the custom fields legacy campaigns write into account types in place (same field id, values recast to numbers); `loyaltyAccountTypeLegacyFieldCount` reports how many remain.
 - With purchase `items`, a campaign's total counts only items that pass its product/category/tag restrictions; discounted items are skipped only when `additionalConfig.discountCheck === true`. Without items the purchase `totalAmount` is used as is.
 - Pricing plans calculate product discounts through the loyalty pricing module and tRPC `pricing.checkPricing`.
+- Sale-side `loyalty.checkLoyalties`, `pricing.checkPricing`, and
+  `loyalty.confirmLoyalties` accept fractional product quantities/counts for
+  weighted POS items and deal rows; quantity-rule logic decides eligibility
+  from the decimal value and uses whole bundle counts only for `every` bonuses.
 - Product conditions price through any plan's `conditionRules [{conditionCode, discountType, discountValue, discountBonusProduct, priceAdjustType, priceAdjustFactor}]`, shaped like a quantity rule keyed by condition code (cleaned in `normalizePlanDoc`, since `updatePlan` writes through the raw collection: code required and unique per plan, `discountType` `default` | `subtraction` | `percentage` (≤100) | `bonus` (needs a product), value ≥ 0, known price adjust type). Matching is by core condition code, never id, so a removed condition that is recreated with the same code matches again; loyalty never checks that the code exists. In `checkPricing` the plan still decides whether it applies (its own price/quantity/expiry gates must pass); once it does, a line whose `conditionCode` (optional on `checkPricing` products) has a rule is priced by that rule alone (`calculateConditionRule`), overriding the plan discount and the plan's rules, so a condition may also give less: `default` keeps the plan's default discount, `subtraction`/`percentage` are off the unit price, `bonus` gives the product instead of a discount, then the rule's own price adjust. Fixed values hold no condition data. `pricingFixedValuesPage` returns each product's `productStatus`.
 - `posBase` plans are baked into POS unit prices at sync (`prioritizeRule: 'only'`). At checkout (`'exclude'`) a `posBase` plan with condition rules is still queried when a line has a condition, but prices only lines with a matching rule, skipping price/quantity/expiry rules: the line price is already baked, so the rule is evaluated on core's `unitPrice` (one tRPC `products.find` per call, only then; a product without a core `unitPrice` falls back to the line price, so nothing extra is taken) with the baked difference as the plan's default discount, and only the difference from what sync took is returned (negative when the condition gives less; a `bonus` rule returns the whole baked discount plus the product); everything else stays as synced.
 - tRPC `score.earnPreview({ ownerType, ownerId, rules: [{campaignId, earnRowKeys}], purchase })` answers what `earn` would give, writing nothing (`ScoreCampaigns.previewEarnRules` → `previewEarn`). It shares `evaluatePurchase` with `earn`, so a preview cannot disagree with a real earn; a zero carries `explainEmptyEarn` reasons (and `held-past-reset`), a rule that cannot earn (missing campaign, wrong owner type) returns `error` instead of failing the others. Callers say which rules apply; loyalty never reads automations.
@@ -150,11 +154,16 @@
 - Period-run lot moves are claimed first (`releasingAt`, `expiringAt`) so two runs never move the same lot; a release that stopped halfway is settled from the account's `pending` total, a stale expiry claim is dropped after 10 minutes. Campaign-less ledger entries carrying `accountTypeId` (resets) belong to that account type in repair and never to the default score.
 - A campaign's `fieldId` is derived from its account type and never accepted from clients; an account type's `ownerType` never changes; any campaign action (add, subtract, set) may write to any account type.
 - A campaign with score history cannot move to another account type; archived account types reject new ledger writes but their campaigns stay editable.
+- Sale-facing tRPC schemas must not require integer quantities for products or
+  bonus voucher usage; POS and deal callers may sell weighted products with
+  decimal counts. Confirmation must also accept null or omitted voucher IDs
+  and counts for sale lines without a selected bonus voucher.
 
 ## Validation
 
 - `pnpm nx build loyalty_api`
 - `pnpm nx test loyalty_api`
+- `pnpm nx test loyalty_api --testPathPattern saleQuantityInput`
 - `pnpm nx test loyalty_api --testPathPattern scoreTarget`
 - `pnpm nx test loyalty_api --testPathPattern publicDiscounts`
 - `pnpm nx test loyalty_api --testPathPattern afterProcess`

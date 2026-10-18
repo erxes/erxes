@@ -1,33 +1,47 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const CALL_GET_CONFIGS = gql`
+export const CALL_GET_CONFIGS = gql(`
   query callsGetConfigs {
-    callsGetConfigs
+    callsGetConfigs {
+      _id
+      code
+      value
+    }
   }
-`;
+`);
 
-export const CALL_INTEGRATION_DETAIL = gql`
+export const CALL_INTEGRATION_DETAIL = gql(`
   query callsIntegrationDetail($integrationId: String!) {
     callsIntegrationDetail(integrationId: $integrationId) {
       _id
       inboxId
       phone
       wsServer
-      operators
+      operators {
+        userId
+        gsUsername
+        gsPassword
+        gsForwardAgent
+      }
       queues
       srcTrunk
       dstTrunk
     }
   }
-`;
+`);
 
-export const CALL_USER_INTEGRATIONS = gql`
+export const CALL_USER_INTEGRATIONS = gql(`
   query callUserIntegrations {
     callUserIntegrations {
       _id
       inboxId
       name
-      operators
+      operators {
+        userId
+        gsUsername
+        gsPassword
+        gsForwardAgent
+      }
       phone
       wsServer
       queues
@@ -35,13 +49,14 @@ export const CALL_USER_INTEGRATIONS = gql`
       dstTrunk
     }
   }
-`;
+`);
 
-export const CALL_CUSTOMER_DETAIL = gql`
+export const CALL_CUSTOMER_DETAIL = gql(`
   query callsCustomerDetail($customerPhone: String) {
     callsCustomerDetail(customerPhone: $customerPhone) {
       _id
       firstName
+      lastName
       primaryPhone
       avatar
       phones
@@ -55,125 +70,16 @@ export const CALL_CUSTOMER_DETAIL = gql`
       }
     }
   }
-`;
+`);
 
-export const CALL_ACTIVE_SESSION = gql`
-  query callsActiveSession {
-    callsActiveSession {
-      _id
-      userId
-      lastLoginDeviceId
-    }
-  }
-`;
-
-export const CALL_HISTORIES = gql`
-  query CallHistories(
-    $limit: Int
-    $callStatus: String
-    $callType: String
-    $startDate: String
-    $endDate: String
-    $skip: Int
-    $integrationId: String
-    $searchValue: String
-  ) {
-    callHistories(
-      limit: $limit
-      callStatus: $callStatus
-      callType: $callType
-      startDate: $startDate
-      endDate: $endDate
-      skip: $skip
-      integrationId: $integrationId
-      searchValue: $searchValue
-    ) {
-      _id
-      operatorPhone
-      customerPhone
-      callDuration
-      callStartTime
-      callEndTime
-      callType
-      callStatus
-      timeStamp
-      modifiedAt
-      createdAt
-      createdBy
-      modifiedBy
-      extensionNumber
-      conversationId
-      customerId
-      customer {
-        _id
-        avatar
-        email
-        firstName
-        getTags {
-          _id
-          name
-          colorCode
-          type
-        }
-        phone
-        primaryEmail
-        primaryPhone
-        tagIds
-      }
-    }
-  }
-`;
-
-export const CALL_HISTORIES_TOTAL_COUNT = gql`
-  query callHistoriesTotalCount(
-    $limit: Int
-    $callStatus: String
-    $callType: String
-    $startDate: String
-    $endDate: String
-    $integrationId: String
-    $searchValue: String
-    $skip: Int
-  ) {
-    callHistoriesTotalCount(
-      limit: $limit
-      callStatus: $callStatus
-      callType: $callType
-      startDate: $startDate
-      endDate: $endDate
-      integrationId: $integrationId
-      searchValue: $searchValue
-      skip: $skip
-    )
-  }
-`;
-
-export const CALL_GET_AGENT_STATUS = gql`
+export const CALL_GET_AGENT_STATUS = gql(`
   query callGetAgentStatus {
     callGetAgentStatus
   }
-`;
+`);
 
-export const CALL_EXTENSION_LIST = gql`
-  query callExtensionList($integrationId: String!) {
-    callExtensionList(integrationId: $integrationId)
-  }
-`;
-
-export const CALL_QUEUE_INITIAL_LIST = gql`
+export const CALL_QUEUE_INITIAL_LIST = gql(`
   query callQueueInitialList($queue: String!) {
     callQueueInitialList(queue: $queue)
   }
-`;
-
-export const CALL_CUSTOMERS = gql`
-  query callCustomers($phoneNumber: String!) {
-    callCustomers(phoneNumber: $phoneNumber) {
-      primaryPhone
-      phone
-      lastName
-      firstName
-      _id
-    }
-  }
-`;
+`);

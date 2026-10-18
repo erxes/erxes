@@ -6,6 +6,7 @@ import { ApolloProvider } from '@apollo/client';
 import apolloClient from './apollo-provider/apolloClient';
 
 import { PluginConfigsProvidersEffect } from '@/plugins/providers/PluginConfigsProvidersEffect';
+import { PluginSettingsSlotsEffect } from '@/settings/components/PluginSettingsSlotsEffect';
 import { UserProviderEffect } from '@/auth/providers/UserProviderEffect';
 import { OrganizationProviderEffect } from '@/organization/providers/OrganizationProviderEffect';
 import { PermissionProviderEffect } from '@/auth/providers/PermissionProviderEffect';
@@ -37,6 +38,7 @@ export const Providers = () => {
       <UserProviderEffect />
       <PermissionProviderEffect />
       <PluginConfigsProvidersEffect />
+      <PluginSettingsSlotsEffect />
       <IconsProvider>
         <RelationWidgetProvider
           RelationWidget={WidgetsComponent}

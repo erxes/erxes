@@ -1,13 +1,16 @@
 import { QueryHookOptions, useQuery } from '@apollo/client';
 import { CALL_PRO_CONFIG } from '@/integrations/callpro/graphql/queries/callProQueries';
-import { ICallProConfig } from '@/integrations/callpro/types/callProTypes';
+import type {
+  CallProConfigQuery,
+  CallProConfigQueryVariables,
+} from '~/gql/graphql';
 
 export const useCallProConfig = (
-  options?: QueryHookOptions<{ callProConfig: ICallProConfig | null }>,
+  options?: QueryHookOptions<CallProConfigQuery, CallProConfigQueryVariables>,
 ) => {
   const { data, loading, error } = useQuery(CALL_PRO_CONFIG, options);
 
-  const { callProConfig } = data || {};
+  const callProConfig = data?.callProConfig ?? undefined;
 
   return {
     callProConfig,

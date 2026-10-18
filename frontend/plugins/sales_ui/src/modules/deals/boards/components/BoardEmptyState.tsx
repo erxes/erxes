@@ -54,7 +54,7 @@ export const BoardEmptyState = ({
       {!isSettings && (
         <Empty.Content>
           <Button asChild>
-            <Link to="/settings/sales/deals">
+            <Link to="/sales/settings/deals">
               <IconSettings />
               {t('go-to-settings', 'Go to Settings')}
             </Link>

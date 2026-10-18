@@ -1,13 +1,6 @@
-import { useQuery } from '@apollo/client';
 import { GET_STAGES } from '@/deals/graphql/queries/StagesQueries';
-
-interface Stage {
-  _id: string;
-  name: string;
-  order?: number;
-  pipelineId?: string;
-  itemsTotalCount?: number;
-}
+import { useQuery } from '@apollo/client';
+import { isDefined } from 'erxes-ui';
 
 interface UseSalesStagesProps {
   pipelineId?: string;
@@ -21,7 +14,7 @@ export const useSalesStages = ({ pipelineId }: UseSalesStagesProps) => {
     skip: !pipelineId,
   });
 
-  const stages: Stage[] = data?.salesStages || [];
+  const stages = data?.salesStages?.filter(isDefined) || [];
 
   return {
     stages,

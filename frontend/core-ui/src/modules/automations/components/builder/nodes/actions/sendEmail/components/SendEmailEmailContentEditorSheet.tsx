@@ -102,7 +102,7 @@ export const SendEmailEmailContentEditorSheet = ({
   return (
     <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
       <Sheet.View className="md:w-[calc(100vw-theme(spacing.4))] flex flex-col gap-0 transition-all duration-100 ease-out overflow-hidden flex-none sm:max-w-screen-2xl">
-        <Sheet.Header>
+        <Sheet.Header className="h-auto py-2">
           <div className="space-y-1">
             <Sheet.Title>{t('send-email-edit-content-title')}</Sheet.Title>
             <Sheet.Description>

@@ -1,34 +1,13 @@
-import { IAttachment } from 'erxes-ui';
+import type {
+  FrontlineTicketFieldsFragment,
+  GetTicketQuery,
+} from '~/gql/graphql';
 import { addTicketSchema } from './validations';
 import { z } from 'zod';
 
-export interface ITicket {
-  _id: string;
-  name: string;
-  description: string;
-  statusId: string;
-  priority: number;
-  labelIds: string[];
-  tagIds: string[];
-  assigneeId: string;
-  assignedMembers?: string[];
-  userId: string;
-  startDate: string;
-  targetDate: string;
-  createdAt: string;
-  updatedAt: string;
-  channelId: string;
-  branchId?: string;
-  departmentId?: string;
-  statusChangedDate: string;
-  number: number;
-  pipelineId: string;
-  createdBy: string;
-  isSubscribed?: boolean;
-  propertiesData?: Record<string, any>;
-  state?: string;
-  attachments?: IAttachment[];
-}
+export type ITicket = FrontlineTicketFieldsFragment;
+
+export type ITicketDetail = NonNullable<GetTicketQuery['getTicket']>;
 
 export type TAddTicket = z.infer<typeof addTicketSchema>;
 

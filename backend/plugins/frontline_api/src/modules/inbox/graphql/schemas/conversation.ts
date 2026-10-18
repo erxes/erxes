@@ -85,7 +85,7 @@ export const mutations = `
     remove: Boolean
   ): Boolean!
   conversationMessageAdd(
-    conversationId: String,
+    conversationId: String!,
     responseTemplateId: String,
     content: String,
     mentionedUserIds: [String],
@@ -113,7 +113,7 @@ export const mutations = `
   conversationsAssign(conversationIds: [String]!, assignedUserId: String): [Conversation]
   conversationsUnassign(_ids: [String]!): [Conversation]
   conversationsChangeStatus(_ids: [String]!, status: String!): [Conversation]
-  conversationMarkAsRead(_id: String): Conversation
+  conversationMarkAsRead(_id: String!): Conversation
   conversationAgentTyping(conversationId: String!, typing: Boolean): Boolean
   changeConversationOperator(_id: String!, operatorStatus: String!): JSON
   conversationSetAutomatedReplyControl(

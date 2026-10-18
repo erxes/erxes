@@ -1,7 +1,12 @@
 import { QueryHookOptions, useQuery } from '@apollo/client';
+import { isDefined } from 'erxes-ui';
+import { useMemo } from 'react';
 import { CATEGORIES_PER_PAGE } from '@/knowledgebase/constants';
 import { CATEGORIES } from '@/knowledgebase/graphql/queries';
-import { ICategoryListResponse } from '@/knowledgebase/types';
+import type {
+  FrontlineKbCategoriesQuery,
+  FrontlineKbCategoriesQueryVariables,
+} from '~/gql/graphql';
 
 export const categoriesQueryVariables = (topicId?: string) => ({
   topicIds: topicId ? [topicId] : [],
@@ -11,19 +16,24 @@ export const categoriesQueryVariables = (topicId?: string) => ({
 
 export const useCategories = (
   topicId?: string,
-  options?: QueryHookOptions<ICategoryListResponse>,
+  options?: QueryHookOptions<
+    FrontlineKbCategoriesQuery,
+    FrontlineKbCategoriesQueryVariables
+  >,
 ) => {
-  const { data, loading, error, refetch } = useQuery<ICategoryListResponse>(
-    CATEGORIES,
-    {
-      ...options,
-      skip: !topicId,
-      variables: categoriesQueryVariables(topicId),
-    },
+  const { data, loading, error, refetch } = useQuery(CATEGORIES, {
+    ...options,
+    skip: !topicId,
+    variables: categoriesQueryVariables(topicId),
+  });
+
+  const categories = useMemo(
+    () => data?.knowledgeBaseCategories?.filter(isDefined),
+    [data?.knowledgeBaseCategories],
   );
 
   return {
-    categories: data?.knowledgeBaseCategories,
+    categories,
     totalCount: data?.knowledgeBaseCategoriesTotalCount,
     loading,
     error,

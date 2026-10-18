@@ -43,9 +43,7 @@ export const useDeliveryToast = () => {
 export const useMailSendMail = () => {
   const { t } = useTranslation('frontline');
   const showDeliveryOutcome = useDeliveryToast();
-  const [sendMailMutation, { loading }] = useMutation<{
-    mailSendMail: MailDeliveryOutcome | null;
-  }>(MAIL_SEND_MAIL_MUTATION);
+  const [sendMailMutation, { loading }] = useMutation(MAIL_SEND_MAIL_MUTATION);
 
   const mailSendMail = (
     variables: MailSendMailVariables,
@@ -82,9 +80,7 @@ export const useMailSendMail = () => {
 export const useMailSendReaction = () => {
   const { t } = useTranslation('frontline');
   const showDeliveryOutcome = useDeliveryToast();
-  const [sendReaction, { loading }] = useMutation<{
-    mailSendReaction: MailDeliveryOutcome | null;
-  }>(MAIL_SEND_REACTION_MUTATION);
+  const [sendReaction, { loading }] = useMutation(MAIL_SEND_REACTION_MUTATION);
 
   const react = (conversationId: string, messageId: string, emoji: string) => {
     sendReaction({
@@ -113,9 +109,7 @@ export const useMailSendReaction = () => {
 export const useMailMessageRetry = () => {
   const { t } = useTranslation('frontline');
   const showDeliveryOutcome = useDeliveryToast();
-  const [retryMutation, { loading }] = useMutation<{
-    mailMessageRetry: MailDeliveryOutcome | null;
-  }>(MAIL_MESSAGE_RETRY_MUTATION);
+  const [retryMutation, { loading }] = useMutation(MAIL_MESSAGE_RETRY_MUTATION);
 
   const mailMessageRetry = (_id: string, onCompleted?: () => void) => {
     retryMutation({

@@ -1,36 +1,25 @@
 import { useQuery } from '@apollo/client';
+import { isDefined } from 'erxes-ui';
 import { useSearchParams } from 'react-router-dom';
 import { SALES_STAGE_LOYALTY_POINTS } from '../graphql/loyaltyRulesQueries';
-
-type TStageLoyaltyPoints = {
-  _id: string;
-  loyaltyPoints?: {
-    earns?: { campaignId: string; ruleType?: string }[];
-    refunds?: boolean;
-    tier?: { accountTypeId: string; ruleType?: string } | null;
-  } | null;
-};
 
 /** What the saved rules make of one stage of the pipeline being edited. */
 export const useStageLoyaltyPoints = (stageId: string) => {
   const [searchParams] = useSearchParams();
   const pipelineId = searchParams.get('pipelineId');
 
-  const { data } = useQuery<{ salesStages: TStageLoyaltyPoints[] }>(
-    SALES_STAGE_LOYALTY_POINTS,
-    {
-      variables: { pipelineId },
-      skip: !pipelineId,
-      fetchPolicy: 'cache-and-network',
-    },
-  );
+  const { data } = useQuery(SALES_STAGE_LOYALTY_POINTS, {
+    variables: pipelineId ? { pipelineId } : undefined,
+    skip: !pipelineId,
+    fetchPolicy: 'cache-and-network',
+  });
 
-  const points = data?.salesStages?.find(
-    ({ _id }) => _id === stageId,
-  )?.loyaltyPoints;
+  const points = data?.salesStages
+    ?.filter(isDefined)
+    .find(({ _id }) => _id === stageId)?.loyaltyPoints;
 
   return {
-    earns: points?.earns || [],
+    earns: points?.earns?.filter(isDefined) || [],
     refunds: !!points?.refunds,
     tier: points?.tier || null,
   };

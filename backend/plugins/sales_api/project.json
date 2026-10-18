@@ -56,6 +56,15 @@
       "options": {
         "jestConfig": "backend/plugins/sales_api/jest.config.ts"
       }
+    },
+    "schema:print": {
+      "executor": "nx:run-commands",
+      "cache": false,
+      "outputs": ["{projectRoot}/generated"],
+      "options": {
+        "cwd": "backend/plugins/sales_api",
+        "command": "pnpm schema:print"
+      }
     }
   }
 }

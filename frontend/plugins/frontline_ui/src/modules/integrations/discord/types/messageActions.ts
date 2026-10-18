@@ -1,10 +1,5 @@
 import { type ReactNode } from 'react';
 
-export type DiscordConversationChannel = {
-  channelId?: string;
-  guildId?: string;
-};
-
 export type MessageActionButtonProps = {
   label: string;
   tooltip: string;

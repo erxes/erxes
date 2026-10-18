@@ -1,7 +1,7 @@
 import { SOCIAL_PLATFORMS } from '@/integrations/erxes-messenger/constants/emStatesDefaultValues';
+import { TEMMessengerData } from '@/integrations/erxes-messenger/constants/emStoredDataSchema';
 import {
   EMLink,
-  MessengerSetupPayload,
   ProcessedLinks,
   SocialLinks,
 } from '@/integrations/erxes-messenger/types/EMStateTypes';
@@ -60,10 +60,7 @@ export const createDefaultOnlineHours = () => {
 const VALID_SCHEDULE_KEYS = new Set<string>(Object.values(Weekday));
 
 export const processOnlineHours = (
-  onlineHours?: Exclude<
-    MessengerSetupPayload['messengerData'],
-    undefined
-  >['onlineHours'],
+  onlineHours?: TEMMessengerData['onlineHours'],
 ) => {
   return onlineHours?.reduce((acc, { day, from, to }) => {
     if (!VALID_SCHEDULE_KEYS.has(day)) return acc;

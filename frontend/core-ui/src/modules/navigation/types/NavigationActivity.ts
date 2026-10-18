@@ -12,4 +12,6 @@ export interface INavigationActivity {
   kind: 'plugin' | 'core';
   modules: INavigationActivityModule[];
   defaultPath: string;
+  /** Set when the plugin declares a `platform` range this host is outside. */
+  platformMismatch?: string;
 }

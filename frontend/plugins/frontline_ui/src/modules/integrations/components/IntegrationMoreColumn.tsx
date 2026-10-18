@@ -3,7 +3,7 @@ import { IconArrowBarToRight } from '@tabler/icons-react';
 import { Popover, Command, Combobox, RecordTable } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
-import { IIntegrationDetail } from '../types/Integration';
+import { IIntegration } from '../types/Integration';
 import { ArchiveIntegration } from '@/integrations/components/ArchiveIntegration';
 import { RemoveIntegration } from '@/integrations/components/RemoveIntegration';
 import { IntegrationType } from '@/types/Integration';
@@ -70,7 +70,7 @@ const TelegramIntegrationActions = lazy(() =>
 export const IntegrationMoreColumnCell = ({
   cell,
 }: {
-  cell: CellContext<IIntegrationDetail, unknown>;
+  cell: CellContext<IIntegration, unknown>;
 }) => {
   const { t } = useTranslation('frontline');
   const { _id, name, isActive, channelId } = cell.row.original;
@@ -150,7 +150,11 @@ export const IntegrationMoreColumnCell = ({
                 {t('move-to-channel', 'Move to Channel')}
               </Command.Item>
               <Command.Item value="archive">
-                <ArchiveIntegration _id={_id} name={name} isActive={isActive} />
+                <ArchiveIntegration
+                  _id={_id}
+                  name={name}
+                  isActive={isActive ?? false}
+                />
               </Command.Item>
               <Command.Item value="remove">
                 <RemoveIntegration _id={_id} name={name} />
@@ -164,7 +168,7 @@ export const IntegrationMoreColumnCell = ({
         onOpenChange={setMoveOpen}
         resourceType={ChannelResourceType.INTEGRATION}
         resourceIds={[_id]}
-        sourceChannelId={channelId}
+        sourceChannelId={channelId ?? ''}
       />
     </>
   );
@@ -172,10 +176,10 @@ export const IntegrationMoreColumnCell = ({
 
 export const integrationMoreColumn = (
   showColumnSelector = false,
-): ColumnDef<IIntegrationDetail> => ({
+): ColumnDef<IIntegration> => ({
   id: 'more',
   header: showColumnSelector ? () => <RecordTable.ColumnSelector /> : undefined,
-  cell: (cell: CellContext<IIntegrationDetail, unknown>) => (
+  cell: (cell: CellContext<IIntegration, unknown>) => (
     <IntegrationMoreColumnCell cell={cell} />
   ),
   size: 33,

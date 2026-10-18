@@ -18,7 +18,7 @@ import { useTranslation } from 'react-i18next';
 export const ChannelSettingsBreadcrumb = () => {
   const { t } = useTranslation('frontline');
   const isMatchingLocation = useIsMatchingLocation(
-    '/settings/frontline/channels',
+    '/frontline/settings/channels',
   );
   const { id: channelId } = useParams<{ id: string }>();
 
@@ -58,9 +58,9 @@ export const ChannelSettingsBreadcrumb = () => {
 
   return (
     <>
-      <Link to="/settings/frontline/channels">
-        <Button variant="ghost" className="font-semibold">
-          <IconCircles className="w-4 h-4 text-accent-foreground" />
+      <Link to="/frontline/settings/channels">
+        <Button variant="ghost">
+          <IconCircles />
           {t('channels', 'Channels')}
         </Button>
       </Link>
@@ -89,8 +89,8 @@ export const ChannelSettingsBreadcrumb = () => {
           <Separator.Inline />
           <ChannelDetailBreadcrumb channelId={channelId} />
           <Separator.Inline />
-          <Link to={`/settings/frontline/channels/${channelId}/response`}>
-            <Button variant="ghost" className="font-semibold">
+          <Link to={`/frontline/settings/channels/${channelId}/response`}>
+            <Button variant="ghost">
               {t('response-templates', 'Response templates')}
             </Button>
           </Link>
@@ -111,10 +111,8 @@ export const ChannelSettingsBreadcrumb = () => {
       {isAnyPipelineRoute && (
         <>
           <Separator.Inline />
-          <Link to={`/settings/frontline/channels/${channelId}/pipelines`}>
-            <Button variant="ghost" className="font-semibold">
-              {t('pipelines', 'Pipelines')}
-            </Button>
+          <Link to={`/frontline/settings/channels/${channelId}/pipelines`}>
+            <Button variant="ghost">{t('pipelines', 'Pipelines')}</Button>
           </Link>
           {!isSpecificPipelineDetailRoute && (
             <span className="ml-auto">
@@ -137,10 +135,8 @@ export const ChannelSettingsBreadcrumb = () => {
           <Separator.Inline />
           <ChannelDetailBreadcrumb channelId={channelId} />
           <Separator.Inline />
-          <Link to={`/settings/frontline/channels/${channelId}/forms`}>
-            <Button variant="ghost" className="font-semibold">
-              {t('forms', 'Forms')}
-            </Button>
+          <Link to={`/frontline/settings/channels/${channelId}/forms`}>
+            <Button variant="ghost">{t('forms', 'Forms')}</Button>
           </Link>
           {!isMatchingLocation(FrontlinePaths.FormDetail) && (
             <span className="ml-auto">
@@ -155,10 +151,8 @@ export const ChannelSettingsBreadcrumb = () => {
           <Separator.Inline />
           <ChannelDetailBreadcrumb channelId={channelId} />
           <Separator.Inline />
-          <Link to={`/settings/frontline/channels/${channelId}/surveys`}>
-            <Button variant="ghost" className="font-semibold">
-              {t('surveys', 'Surveys')}
-            </Button>
+          <Link to={`/frontline/settings/channels/${channelId}/surveys`}>
+            <Button variant="ghost">{t('surveys', 'Surveys')}</Button>
           </Link>
           {!isMatchingLocation(FrontlinePaths.SurveyDetail) && (
             <span className="ml-auto">
@@ -179,9 +173,7 @@ export const ChannelSettingsBreadcrumb = () => {
       {isMatchingLocation(FrontlinePaths.SurveysCreate) && (
         <>
           <Separator.Inline />
-          <Button variant="ghost" className="font-semibold">
-            {t('create-survey', 'Create survey')}
-          </Button>
+          <Button variant="ghost">{t('create-survey', 'Create survey')}</Button>
         </>
       )}
 
@@ -196,9 +188,7 @@ export const ChannelSettingsBreadcrumb = () => {
       {isMatchingLocation(FrontlinePaths.FormsCreate) && (
         <>
           <Separator.Inline />
-          <Button variant="ghost" className="font-semibold">
-            {t('create-form', 'Create form')}
-          </Button>
+          <Button variant="ghost">{t('create-form', 'Create form')}</Button>
         </>
       )}
     </>

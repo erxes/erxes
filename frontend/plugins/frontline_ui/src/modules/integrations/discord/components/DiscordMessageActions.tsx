@@ -21,7 +21,6 @@ import type {
   OwnMessageActionsProps,
   EditMessageDialogActionsProps,
   EditMessageDialogProps,
-  DiscordConversationChannel,
 } from '@/integrations/discord/types/messageActions';
 import { copyToClipboard } from '@/integrations/discord/utils/messageActions';
 
@@ -136,9 +135,7 @@ export const DiscordMessageActions = ({
   const [editOpen, setEditOpen] = useState(false);
   const [draft, setDraft] = useState('');
 
-  const [loadChannel] = useLazyQuery<{
-    discordConversationChannel: DiscordConversationChannel | null;
-  }>(DISCORD_CONVERSATION_CHANNEL, {
+  const [loadChannel] = useLazyQuery(DISCORD_CONVERSATION_CHANNEL, {
     variables: { conversationId },
     fetchPolicy: 'cache-first',
   });

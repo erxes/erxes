@@ -1,5 +1,5 @@
 import { useGetConversationMemberProgress } from '@/inbox/conversations/conversation-detail/hooks/useProgressConversationByMember';
-import { IConversationMemberProgress } from '@/inbox/types/Conversation';
+import type { IConversationMemberProgress } from '@/inbox/types/Conversation';
 import { Button, ChartContainer, HoverCard } from 'erxes-ui';
 import { MembersInline } from 'ui-modules';
 import { PolarAngleAxis, RadialBar, RadialBarChart } from 'recharts';
@@ -8,8 +8,8 @@ import { useTranslation } from 'react-i18next';
 
 export const ProgressByAssignee = ({ customerId }: { customerId?: string }) => {
   const { t } = useTranslation('frontline');
-  const { conversationMemberProgress = [] } = useGetConversationMemberProgress({
-    variables: { customerId },
+  const { conversationMemberProgress } = useGetConversationMemberProgress({
+    variables: customerId ? { customerId } : undefined,
     skip: !customerId,
   });
 

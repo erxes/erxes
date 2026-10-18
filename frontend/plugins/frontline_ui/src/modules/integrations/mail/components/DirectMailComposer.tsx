@@ -1,5 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQuery } from '@apollo/client';
+import { compactList } from '@/shared/utils/cursorList';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { z } from 'zod';
@@ -13,7 +14,6 @@ import { DirectMailComposerFieldsContext } from '@/integrations/mail/hooks/useDi
 import type {
   ComposeEmailTarget,
   ComposeValues,
-  MailSender,
 } from '@/integrations/mail/types/directMailComposer';
 import {
   composeSchema,
@@ -38,13 +38,14 @@ export const DirectMailComposer = () => {
     loading: sendersLoading,
     error: sendersError,
     refetch,
-  } = useQuery<{
-    mailSenders: MailSender[];
-  }>(MAIL_SENDERS_QUERY, { skip: !target });
+  } = useQuery(MAIL_SENDERS_QUERY, { skip: !target });
   const { mailSendMail, loading } = useMailSendMail();
   const { mailMessageRetry, loading: retryLoading } = useMailMessageRetry();
   const sending = loading || retryLoading;
-  const senders = useMemo(() => data?.mailSenders ?? [], [data?.mailSenders]);
+  const senders = useMemo(
+    () => compactList(data?.mailSenders),
+    [data?.mailSenders],
+  );
   const form = useForm<ComposeValues>({
     resolver: zodResolver(composeSchema),
     defaultValues: {

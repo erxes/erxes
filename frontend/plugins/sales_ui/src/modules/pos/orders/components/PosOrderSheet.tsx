@@ -1,4 +1,5 @@
-import { gql, useQuery } from '@apollo/client';
+import { preserveUntypedPosPayments } from '@/pos/utils/posOrderJson';
+import { useQuery } from '@apollo/client';
 import {
   IconChessKnight,
   IconExternalLink,
@@ -6,7 +7,6 @@ import {
   IconTag,
 } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
-import { TFunction } from 'i18next';
 import {
   Button,
   Form,
@@ -17,17 +17,19 @@ import {
   TextOverflowTooltip,
   useToast,
 } from 'erxes-ui';
+import { TFunction } from 'i18next';
 import React from 'react';
-import { useTranslation } from 'react-i18next';
 import { SubmitHandler } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
+import { gql } from '~/gql';
 import { usePosOrderChangePayments } from '../detail/hooks/usePosOrderChangePayments';
 import { usePosOrderForm } from '../detail/hooks/usePosOrderForm';
 import { usePosOrderQuery } from '../detail/hooks/usePosOrderQuery';
 import { PosOrderForm } from '../detail/PosOrderForm';
 import { TPosOrderFormData, TPosOrderItem } from '../types/posOrderType';
 
-const POS_ORDER_TRANSACTIONS = gql`
+const POS_ORDER_TRANSACTIONS = gql(`
   query PosOrderTransactions($contentType: String!, $contentId: String!) {
     accTransactionsByContent(
       contentType: $contentType
@@ -44,14 +46,7 @@ const POS_ORDER_TRANSACTIONS = gql`
       }
     }
   }
-`;
-
-type PosOrderTransaction = {
-  _id: string;
-  parentId?: string;
-  ptrNumber?: string;
-  number?: string;
-};
+`);
 
 const itemColumns: (t: TFunction) => ColumnDef<TPosOrderItem>[] = (t) => [
   {
@@ -153,19 +148,14 @@ export const PosOrderSheet = () => {
   const { t } = useTranslation('sales');
   const orderItemColumns = React.useMemo(() => itemColumns(t), [t]);
   const { toast } = useToast();
-  const { posOrder, loading, refetch } = usePosOrderQuery(
+  const { posOrder, loading, error, refetch } = usePosOrderQuery(
     posOrderId || undefined,
   );
   const isAccountingEnabled = isEnabled('accounting');
-  const { data: transactionData } = useQuery<{
-    accTransactionsByContent: {
-      list: PosOrderTransaction[];
-      totalCount: number;
-    };
-  }>(POS_ORDER_TRANSACTIONS, {
+  const { data: transactionData } = useQuery(POS_ORDER_TRANSACTIONS, {
     variables: {
       contentType: 'sales:order',
-      contentId: posOrder?._id,
+      contentId: posOrder?._id ?? '',
     },
     fetchPolicy: 'network-only',
     skip: !isAccountingEnabled || !posOrder?._id,
@@ -179,7 +169,7 @@ export const PosOrderSheet = () => {
   const transactionNumber = transaction?.number || transaction?.ptrNumber;
   const transactionHref = transaction
     ? `/accounting/transaction/edit?parentId=${encodeURIComponent(
-        transaction.parentId || transaction._id,
+        transaction.parentId || transaction._id || '',
       )}`
     : '';
 
@@ -207,6 +197,7 @@ export const PosOrderSheet = () => {
 
   const submitHandler: SubmitHandler<TPosOrderFormData> = React.useCallback(
     async (data) => {
+      if (!posOrder || error) return;
       if (!posOrderId) return;
 
       try {
@@ -225,12 +216,16 @@ export const PosOrderSheet = () => {
         const cashAmount = Number(data.cashAmount) || 0;
         const mobileAmount = Number(data.mobileAmount) || 0;
 
-        const paidAmounts = Object.entries(data)
+        const editedPaidAmounts = Object.entries(data)
           .filter(([key]) => !['cashAmount', 'mobileAmount'].includes(key))
           .map(([type, amount]) => ({
             type,
             amount: Number(amount) || 0,
           }));
+        const paidAmounts = preserveUntypedPosPayments(
+          editedPaidAmounts,
+          posOrder?.paidAmounts,
+        );
         const expectedTotal = posOrder?.totalAmount ?? 0;
         const sum =
           Number(cashAmount || 0) +
@@ -279,8 +274,8 @@ export const PosOrderSheet = () => {
     },
     [
       posOrderId,
-      posOrder?.status,
-      posOrder?.totalAmount,
+      posOrder,
+      error,
       posOrderChangePayments,
       refetch,
       toast,
@@ -308,6 +303,11 @@ export const PosOrderSheet = () => {
               <Sheet.Close />
             </Sheet.Header>
             <Sheet.Content className="grow size-full flex flex-col px-5 py-4 overflow-auto">
+              {error && (
+                <p role="alert" className="text-destructive">
+                  {error.message}
+                </p>
+              )}
               {posOrder && (
                 <div className="flex flex-col gap-4 w-full my-4">
                   <div className="flex justify-between w-full gap-1">
@@ -346,7 +346,7 @@ export const PosOrderSheet = () => {
                       {t('date')}:
                     </span>
                     <span className="text-base font-medium">
-                      {new Date(posOrder.createdAt).toLocaleDateString()}
+                      {new Date(posOrder.createdAt ?? 0).toLocaleDateString()}
                     </span>
                   </div>
                   <div className="flex justify-between w-full gap-1">
@@ -426,13 +426,16 @@ export const PosOrderSheet = () => {
                     control={methods.control}
                     summary={paymentSummary}
                     paidAmounts={posOrder?.paidAmounts}
-                    posName={posOrder?.posName}
+                    posName={posOrder?.posName ?? undefined}
                   />
                 </div>
               )}
             </Sheet.Content>
             <Sheet.Footer>
-              <Button type="submit" disabled={mutationLoading || loading}>
+              <Button
+                type="submit"
+                disabled={mutationLoading || loading || !!error || !posOrder}
+              >
                 {t('save-payments-change')}
               </Button>
             </Sheet.Footer>

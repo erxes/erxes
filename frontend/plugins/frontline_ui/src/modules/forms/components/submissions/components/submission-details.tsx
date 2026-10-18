@@ -137,7 +137,7 @@ export const SubmissionDetails = () => {
   const { t } = useTranslation('frontline');
   const [submissionId, setSubmissionId] = useQueryState<string>('submissionId');
   const { submissionDetails, loading } = useGetFormSubmissionDetails({
-    variables: { _id: submissionId },
+    variables: submissionId ? { _id: submissionId } : undefined,
     skip: !submissionId,
   });
   const { form, fields } = useSubmissionDetailsForm(submissionDetails);

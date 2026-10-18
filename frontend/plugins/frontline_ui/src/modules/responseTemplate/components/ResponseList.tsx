@@ -44,7 +44,7 @@ const ResponseMoreCell = ({
   const [moveOpen, setMoveOpen] = useState(false);
 
   const handleEdit = () => {
-    navigate(`/settings/frontline/channels/${channelId}/response/${_id}`);
+    navigate(`/frontline/settings/channels/${channelId}/response/${_id}`);
   };
 
   const handleDelete = () => {
@@ -98,7 +98,7 @@ const ResponseMoreCell = ({
         onOpenChange={setMoveOpen}
         resourceType={ChannelResourceType.RESPONSE_TEMPLATE}
         resourceIds={[_id]}
-        sourceChannelId={channelId}
+        sourceChannelId={channelId ?? ''}
       />
     </>
   );
@@ -114,7 +114,7 @@ const ResponseNameCell = ({
   return (
     <RecordTableInlineCell
       onClick={() =>
-        navigate(`/settings/frontline/channels/${channelId}/response/${_id}`)
+        navigate(`/frontline/settings/channels/${channelId}/response/${_id}`)
       }
     >
       {cell.getValue() as string}
@@ -227,7 +227,7 @@ export const ResponseList = ({ channelId }: { channelId: string }) => {
 
   return (
     <RecordTable.Provider
-      columns={responseColumns as unknown as ColumnDef<IResponseTemplate>[]}
+      columns={responseColumns}
       data={responses || []}
       className="m-3"
     >

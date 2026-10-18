@@ -110,11 +110,6 @@ export const fieldsTypes = `
     isDisabled: Boolean
   }
 
-  input FrontlineOrderItem {
-    _id: String!
-    order: Int!
-  }
-
   input FrontlineLogicInput {
     fieldId: String
     tempFieldId: String
@@ -134,12 +129,6 @@ export const fieldsTypes = `
     ${fieldCommonFields}
   }
 
-  type FrontlineColumnConfigItem {
-    name: String
-    label: String
-    order: Int
-  }
-
   type FrontlineFieldListResponse {
     list: [FrontlineField],
     pageInfo: PageInfo
@@ -148,45 +137,9 @@ export const fieldsTypes = `
 `;
 
 export const fieldsQueries = `
-  frontlineFieldsGetTypes: [JSON]
-  frontlineGetFieldsInputTypes:[JSON]
   frontlineFields(contentType: String!, contentTypeId: String, isVisible: Boolean, searchable: Boolean, isVisibleToCreate: Boolean,isDefinedByErxes:Boolean,isDisabled:Boolean): FrontlineFieldListResponse
-  frontlineFieldsCombinedByContentType(contentType: String!, usageType: String, excludedNames: [String], segmentId: String, config: JSON, onlyDates: Boolean): JSON
-  frontlineFieldsDefaultColumnsConfig(contentType: String!): [FrontlineColumnConfigItem]
-  frontlineFieldsGetRelations(contentType: String!, isVisibleToCreate: Boolean, isVisible: Boolean): [FrontlineField]
-  frontlineFieldByCode(contentType: String!, code: String): FrontlineField
-`;
-
-const fieldsCommonFields = `
-  type: String
-  validation: String
-  regexValidation: String
-  text: String
-  description: String
-  code: String
-  options: [String]
-  locationOptions: [FrontlineLocationOptionInput]
-  isRequired: Boolean
-  order: Int
-  groupId: String
-  isVisible: Boolean
-  canHide: Boolean
-  associatedFieldId: String
-  logicAction: String
-  logics: [FrontlineLogicInput]
-  searchable: Boolean
-  showInCard: Boolean
-  objectListConfigs: [FrontlineObjectListConfigInput]
-  isVisibleToCreate: Boolean
-  validator: FieldValidatorInput
 `;
 
 export const fieldsMutations = `
-  frontlineFieldsAdd(contentType: String!, contentTypeId: String, ${fieldsCommonFields}): FrontlineField
   frontlineFieldsBulkAction(contentType: String!, contentTypeId: String, newFields:[FrontlineFieldItem], updatedFields:[FrontlineFieldItem], removedFieldIds:[String]): [FrontlineField]
-  frontlineFieldsEdit(_id: String!, ${fieldsCommonFields}): FrontlineField
-  frontlineFieldsRemove(_id: String!): FrontlineField
-  frontlineFieldsUpdateOrder(orders: [FrontlineOrderItem]): [FrontlineField]
-  frontlineFieldsUpdateVisible(_id: String!, isVisible: Boolean, isVisibleInDetail: Boolean) : FrontlineField
-  frontlineFieldsUpdateSystemFields(_id: String!, isVisibleToCreate: Boolean, isRequired: Boolean) : FrontlineField
 `;

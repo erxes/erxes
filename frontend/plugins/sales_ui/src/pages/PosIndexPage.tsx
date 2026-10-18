@@ -43,7 +43,7 @@ export const PosIndexPage = () => {
         </PageHeader.Start>
         <PageHeader.End>
           <Button variant="outline" asChild>
-            <Link to="/settings/sales/pos">
+            <Link to="/sales/settings/pos">
               <IconSettings />
               {t('go-to-settings')}
             </Link>

@@ -19,85 +19,80 @@ import {
 } from '@/integrations/erxes-messenger/states/erxesMessengerSetupStates';
 
 import { EnumResponseRate } from '@/integrations/erxes-messenger/types/ResponseRate';
-import { MessengerSetupPayload } from '@/integrations/erxes-messenger/types/EMStateTypes';
+import { IEMIntegrationDetail } from '@/integrations/erxes-messenger/types/EMStateTypes';
+import {
+  EM_MESSENGER_DATA_SCHEMA,
+  EM_UI_OPTIONS_SCHEMA,
+} from '@/integrations/erxes-messenger/constants/emStoredDataSchema';
 import { atom } from 'jotai';
+import { isDefined } from 'erxes-ui';
 
 /**
  * Atom for setting up messenger from existing configuration
  */
 export const erxesMessengerSetSetupAtom = atom(
   null,
-  (_, set, payload: MessengerSetupPayload) => {
+  (_, set, payload: IEMIntegrationDetail) => {
     try {
+      const messengerData = EM_MESSENGER_DATA_SCHEMA.parse(
+        payload.messengerData,
+      );
+      const uiOptions = EM_UI_OPTIONS_SCHEMA.parse(payload.uiOptions);
+
       const appearance = {
         primary: {
-          DEFAULT:
-            payload?.uiOptions?.primary?.DEFAULT || DEFAULT_COLORS.PRIMARY,
+          DEFAULT: uiOptions.primary?.DEFAULT || DEFAULT_COLORS.PRIMARY,
           foreground:
-            payload?.uiOptions?.primary?.foreground ||
-            DEFAULT_COLORS.FOREGROUND,
+            uiOptions.primary?.foreground || DEFAULT_COLORS.FOREGROUND,
         },
-        logo: payload?.uiOptions?.logo,
-        launcherLogo: payload?.uiOptions?.launcherLogo,
-        backgroundColor:
-          payload?.uiOptions?.backgroundColor || DEFAULT_COLORS.BACKGROUND,
-        heroStyleVariant: payload?.uiOptions?.heroStyleVariant,
-        navigationVariant: payload?.uiOptions?.navigationVariant,
+        logo: uiOptions.logo,
+        launcherLogo: uiOptions.launcherLogo,
+        backgroundColor: uiOptions.backgroundColor || DEFAULT_COLORS.BACKGROUND,
+        heroStyleVariant: uiOptions.heroStyleVariant,
+        navigationVariant: uiOptions.navigationVariant,
       };
       set(erxesMessengerSetupAppearanceAtom, appearance);
 
       // Set config
-      const channelId =
-        payload?.channel?._id ||
-        payload?.channels?.map((channel) => channel._id)?.[0] ||
-        '';
+      const channelId = payload.channel?._id || '';
       const config = {
-        name: payload?.name || '',
+        name: payload.name || '',
         channelId,
-        brandId: payload?.brandId,
-        ticketConfigIds: payload?.ticketConfigIds,
-        knowledgeBaseTopicId: payload?.messengerData?.knowledgeBaseTopicId,
+        brandId: payload.brandId ?? '',
+        ticketConfigIds: (payload.ticketConfigIds ?? []).filter(isDefined),
+        knowledgeBaseTopicId: messengerData.knowledgeBaseTopicId,
         botSetup: {
-          greetingMessage: payload?.messengerData?.botGreetMessage,
-          persistentMenu: (payload?.messengerData?.persistentMenus || []).map(
-            (menu: {
-              _id?: string;
-              name?: string;
-              text?: string;
-              type?: string;
-              link?: string;
-              contentType?: string;
-            }) => ({
-              text: menu.text ?? menu.name ?? '',
-              type: (menu.type === 'link' ? 'link' : 'button') as
-                | 'button'
-                | 'link',
-              link: menu.link ?? '',
-              contentType: menu.contentType ?? 'text',
-            }),
-          ),
-          botCheck: payload?.messengerData?.botCheck,
-          botShowInitialMessage: payload?.messengerData?.botShowInitialMessage,
-          automationId: payload?.messengerData?.automationId,
+          greetingMessage: messengerData.botGreetMessage,
+          persistentMenu: (messengerData.persistentMenus || []).map((menu) => ({
+            text: menu.text ?? menu.name ?? '',
+            type: (menu.type === 'link' ? 'link' : 'button') as
+              | 'button'
+              | 'link',
+            link: menu.link ?? '',
+            contentType: menu.contentType ?? 'text',
+          })),
+          botCheck: messengerData.botCheck,
+          botShowInitialMessage: messengerData.botShowInitialMessage,
+          automationId: messengerData.automationId,
         },
       };
 
       set(erxesMessengerSetupConfigAtom, config);
 
-      const messagesObj = payload?.messengerData?.messages;
+      const messagesObj = messengerData.messages;
       const languageCode =
-        payload?.languageCode ||
+        payload.languageCode ||
         (messagesObj ? Object.keys(messagesObj)[0] : undefined) ||
         DEFAULT_LANGUAGE;
 
       // Set greeting with processed links
       const greetingLinks = processGreetingLinks(
-        payload?.messengerData?.links,
-        payload?.messengerData?.externalLinks,
+        messengerData.links,
+        messengerData.externalLinks,
       );
 
       const greetings = {
-        supporterIds: payload?.messengerData?.supporterIds,
+        supporterIds: messengerData.supporterIds,
         title: messagesObj?.[languageCode]?.greetings?.title || '',
         message: messagesObj?.[languageCode]?.greetings?.message || '',
         links: greetingLinks,
@@ -106,11 +101,9 @@ export const erxesMessengerSetSetupAtom = atom(
       set(erxesMessengerSetupGreetingAtom, greetings);
 
       const defaultHours = createDefaultOnlineHours();
-      const processedHours = processOnlineHours(
-        payload?.messengerData?.onlineHours,
-      );
+      const processedHours = processOnlineHours(messengerData.onlineHours);
 
-      const rawResponseRate = payload?.messengerData?.responseRate
+      const rawResponseRate = messengerData.responseRate
         ?.replace('few ', '')
         ?.toLowerCase();
       const responseRate = (
@@ -120,47 +113,45 @@ export const erxesMessengerSetSetupAtom = atom(
         : EnumResponseRate.MINUTES;
 
       const hours = {
-        availabilityMethod: (payload?.messengerData?.availabilityMethod ===
-        'auto'
+        availabilityMethod: (messengerData.availabilityMethod === 'auto'
           ? 'auto'
           : 'manual') as 'auto' | 'manual',
         responseRate,
-        isOnline: payload?.messengerData?.isOnline ?? false,
+        isOnline: messengerData.isOnline ?? false,
         onlineHours: {
           ...defaultHours,
           ...processedHours,
         },
-        timezone: payload?.messengerData?.timezone ?? undefined,
-        displayOperatorTimezone: payload?.messengerData?.showTimezone ?? false,
-        hideMessengerDuringOfflineHours:
-          payload?.messengerData?.hideWhenOffline ?? false,
+        timezone: messengerData.timezone ?? undefined,
+        displayOperatorTimezone: messengerData.showTimezone ?? false,
+        hideMessengerDuringOfflineHours: messengerData.hideWhenOffline ?? false,
       };
 
       set(erxesMessengerSetupHoursAtom, hours);
 
       const settings = {
         languageCode,
-        requireAuth: payload?.messengerData?.requireAuth ?? false,
-        showChat: payload?.messengerData?.showChat ?? true,
-        showLauncher: payload?.messengerData?.showLauncher ?? true,
-        forceLogoutWhenResolve:
-          payload?.messengerData?.forceLogoutWhenResolve ?? false,
-        notifyCustomer: payload?.messengerData?.notifyCustomer ?? false,
-        showVideoCallRequest:
-          payload?.messengerData?.showVideoCallRequest ?? false,
-        isSupportInAppView: payload?.uiOptions?.isSupportInAppView ?? false,
-        websiteApps: (payload?.websiteMessengerApps ?? []).map((app) => ({
-          _id: app._id,
-          kind: app.kind ?? 'webstite',
-          showInInbox: app.showInInbox ?? false,
-          credentials: {
-            integrationId: app.credentials?.integrationId ?? '',
-            description: app.credentials?.description,
-            buttonText: app.credentials?.buttonText,
-            url: app.credentials?.url ?? '',
-          },
-          scopeBrandIds: [],
-        })),
+        requireAuth: messengerData.requireAuth ?? false,
+        showChat: messengerData.showChat ?? true,
+        showLauncher: messengerData.showLauncher ?? true,
+        forceLogoutWhenResolve: messengerData.forceLogoutWhenResolve ?? false,
+        notifyCustomer: messengerData.notifyCustomer ?? false,
+        showVideoCallRequest: messengerData.showVideoCallRequest ?? false,
+        isSupportInAppView: uiOptions.isSupportInAppView ?? false,
+        websiteApps: (payload.websiteMessengerApps ?? [])
+          .filter(isDefined)
+          .map((app) => ({
+            _id: app._id ?? undefined,
+            kind: app.kind ?? 'webstite',
+            showInInbox: app.showInInbox ?? false,
+            credentials: {
+              integrationId: app.credentials?.integrationId ?? '',
+              description: app.credentials?.description ?? undefined,
+              buttonText: app.credentials?.buttonText ?? undefined,
+              url: app.credentials?.url ?? '',
+            },
+            scopeBrandIds: [],
+          })),
       };
       set(erxesMessengerSetupSettingsAtom, settings);
 

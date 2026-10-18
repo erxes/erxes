@@ -17,7 +17,6 @@ const config: ModuleFederationConfig = {
   exposes: {
     './config': './src/config.tsx',
     './accounting': './src/modules/AccountingMain.tsx',
-    './accountingSettings': './src/modules/AccountingSettings.tsx',
     './relationWidget': './src/widgets/relation/RelationWidgets.tsx',
   },
 

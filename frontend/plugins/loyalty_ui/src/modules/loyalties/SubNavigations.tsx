@@ -1,6 +1,12 @@
+import { PluginSettingsRoutes } from 'ui-modules';
 import { Routes, Route } from 'react-router';
 import { lazy, Suspense } from 'react';
-import { Spinner } from 'erxes-ui';
+import { Spinner, AppLayout } from 'erxes-ui';
+import {
+  LoyaltySidebar,
+  LoyaltySidebarFooter,
+  LoyaltySettingsLayout,
+} from '~/Sidebar';
 import { LoyaltyMainLayout } from './components/LoyaltyMainLayout';
 
 const VoucherPage = lazy(() =>
@@ -59,28 +65,61 @@ const CouponPage = lazy(() =>
 
 const LoyaltyNavigationRoutes = () => {
   return (
-    <Suspense
-      fallback={
-        <div className="flex justify-center items-center h-full w-full">
-          <Spinner />
-        </div>
-      }
+    <AppLayout
+      id="loyalty"
+      title="Loyalty"
+      sidebar={<LoyaltySidebar />}
+      footer={<LoyaltySidebarFooter />}
     >
-      <LoyaltyMainLayout>
-        <Routes>
-          <Route path="vouchers" element={<VoucherPage />} />
-          <Route path="lotteries" element={<LotteryPage />} />
-          <Route path="spins" element={<SpinPage />} />
-          <Route path="donates" element={<DonatePage />} />
-          <Route path="scores" element={<ScorePage />} />
-          <Route path="accounts" element={<AccountPage />} />
-          <Route path="assignments" element={<AssignmentPage />} />
-          <Route path="agents" element={<AgentPage />} />
-          <Route path="coupons" element={<CouponPage />} />
-        </Routes>
-      </LoyaltyMainLayout>
-    </Suspense>
+      <Suspense
+        fallback={
+          <div className="flex justify-center items-center h-full w-full">
+            <Spinner />
+          </div>
+        }
+      >
+        <LoyaltyMainLayout>
+          <Routes>
+            <Route path="vouchers" element={<VoucherPage />} />
+            <Route path="lotteries" element={<LotteryPage />} />
+            <Route path="spins" element={<SpinPage />} />
+            <Route path="donates" element={<DonatePage />} />
+            <Route path="scores" element={<ScorePage />} />
+            <Route path="accounts" element={<AccountPage />} />
+            <Route path="assignments" element={<AssignmentPage />} />
+            <Route path="agents" element={<AgentPage />} />
+            <Route path="coupons" element={<CouponPage />} />
+          </Routes>
+        </LoyaltyMainLayout>
+      </Suspense>
+    </AppLayout>
   );
 };
 
-export default LoyaltyNavigationRoutes;
+const LoyaltySettingsRoutes = lazy(() => import('~/LoyaltySettings'));
+// JSX needs a capitalised name.
+const LoyaltyAppRoutes = LoyaltyNavigationRoutes;
+
+/** The plugin owns its settings too: `/loyalty/settings/*` has its own sidebar. */
+const LoyaltyEntry = () => (
+  <Routes>
+    <Route
+      path="settings/*"
+      element={
+        <LoyaltySettingsLayout>
+          <Suspense fallback={<Spinner />}>
+            <PluginSettingsRoutes
+              pluginName="loyalty"
+              basePath="/loyalty/settings"
+            >
+              <LoyaltySettingsRoutes />
+            </PluginSettingsRoutes>
+          </Suspense>
+        </LoyaltySettingsLayout>
+      }
+    />
+    <Route path="*" element={<LoyaltyAppRoutes />} />
+  </Routes>
+);
+
+export default LoyaltyEntry;

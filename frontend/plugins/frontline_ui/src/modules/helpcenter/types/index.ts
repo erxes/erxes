@@ -1,3 +1,8 @@
+import type {
+  CustomDomainFieldsFragment,
+  HelpCenterConfigFieldsFragment,
+} from '~/gql/graphql';
+
 export interface IHelpCenterStyles {
   mainLogo?: string;
   favicon?: string;
@@ -45,51 +50,7 @@ export interface IHelpCenterFooter {
   columns: IHelpCenterFooterColumn[];
 }
 
-export interface IHelpCenter {
-  _id: string;
-  title?: string;
-  description?: string;
-  url?: string;
-  erxesAppToken?: string;
-  clientPortalId?: string;
-  brandId?: string;
-  languageCode?: string;
-
-  kbToggle?: boolean;
-  kbLabel?: string;
-  kbTopicId?: string;
-
-  ticketToggle?: boolean;
-  ticketLabel?: string;
-  ticketChannelId?: string;
-  ticketPipelineId?: string;
-  ticketStatusId?: string;
-
-  formChannelId?: string;
-  formIds?: string[];
-
-  cmsId?: string;
-  cmsAppToken?: string;
-  cmsConfigs?: IHelpCenterCmsConfig[];
-
-  color?: string;
-  backgroundImage?: string;
-  styles?: IHelpCenterStyles | null;
-  header?: IHelpCenterHeader | null;
-  footer?: IHelpCenterFooter | null;
-
-  brand?: { _id: string; name?: string } | null;
-  createdAt?: string;
-}
-
-export interface IHelpCenterListResponse {
-  helpCenterConfigs: IHelpCenter[];
-  helpCenterConfigsTotalCount: number;
-}
-
-export interface IHelpCenterDetailResponse {
-  helpCenterConfig: IHelpCenter | null;
-}
+export type IHelpCenter = HelpCenterConfigFieldsFragment;
 
 export interface IHelpCenterConfigInput {
   _id?: string;
@@ -128,12 +89,6 @@ export interface IHelpCenterConfigInput {
 export interface IHelpCenterCmsConfig {
   cmsId: string;
   cmsAppToken: string;
-}
-
-export interface IHelpCenterCmsOption {
-  _id: string;
-  name?: string;
-  clientPortalId?: string;
 }
 
 export type THelpCenterTab = 'general' | 'appearance' | 'embed' | 'domain';
@@ -175,24 +130,10 @@ export enum HelpCenterHotKeyScope {
   HelpCentersPage = 'help-centers-page',
 }
 
-export interface ICustomDomainRecord {
-  type: string;
-  name: string;
-  value: string;
-  status: string;
-}
-
 // The workspace's help center domain, served by every help center whose url
 // matches it (or, failing that, the one on <subdomain>.helpcenter).
-export interface ICustomDomain {
-  isAvailable: boolean;
-  cnameTarget: string;
-  hostname?: string | null;
-  status?: string | null;
-  sslStatus?: string | null;
-  dnsStatus?: string | null;
-  isActive: boolean;
-  verificationErrors?: string[] | null;
-  lastCheckedAt?: string | null;
-  records: ICustomDomainRecord[];
-}
+export type ICustomDomain = CustomDomainFieldsFragment;
+
+export type ICustomDomainRecord = NonNullable<
+  NonNullable<ICustomDomain['records']>[number]
+>;

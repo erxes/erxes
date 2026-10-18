@@ -8,34 +8,11 @@ import {
   currentCallConversationIdAtom,
   historyIdAtom,
 } from '@/integrations/call/states/callStates';
+import type { CallSessionUpdatedSubscription } from '~/gql/graphql';
 
-export type CallSession = {
-  _id: string;
-  uniqueid: string;
-  inboxIntegrationId?: string;
-  conversationId?: string;
-  customerId?: string;
-  customerPhone: string;
-  operatorPhone?: string;
-  callType?: 'incoming' | 'outgoing';
-  status: 'ringing' | 'active' | 'ended' | 'missed' | 'failed';
-  queueName?: string;
-  answeredBy?: string;
-  answeredExtension?: string;
-  startedAt?: string;
-  answeredAt?: string;
-  endedAt?: string;
-  durationSec?: number;
-  hangupCause?: string;
-  recordUrl?: string;
-  ringingOperators?: Array<{
-    userId?: string;
-    extensionNumber: string;
-    state: 'ringing' | 'answered' | 'rejected' | 'noanswer';
-    ringedAt?: string;
-    answeredAt?: string;
-  }>;
-};
+export type CallSession = NonNullable<
+  CallSessionUpdatedSubscription['callSessionUpdated']
+>;
 
 export const useCurrentCallSession = () => {
   const config = useAtomValue(callConfigAtom);
@@ -45,9 +22,7 @@ export const useCurrentCallSession = () => {
   const setHistoryId = useSetAtom(historyIdAtom);
   const [session, setSession] = useState<CallSession | null>(null);
 
-  const extension = config?.operators?.find(
-    (op: any) => op.extensionNumber || op.gsUsername,
-  )?.gsUsername;
+  const extension = config?.operators?.find((op) => op?.gsUsername)?.gsUsername;
 
   const { data } = useSubscription(CALL_SESSION_UPDATED, {
     variables: {
@@ -58,7 +33,7 @@ export const useCurrentCallSession = () => {
   });
 
   useEffect(() => {
-    const next = data?.callSessionUpdated as CallSession | undefined;
+    const next = data?.callSessionUpdated;
     if (!next) return;
 
     setSession(next);

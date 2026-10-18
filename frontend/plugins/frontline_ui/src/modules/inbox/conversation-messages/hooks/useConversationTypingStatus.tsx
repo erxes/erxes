@@ -6,21 +6,13 @@ const TYPING_TTL = 12000;
 
 const PRUNE_INTERVAL = 1000;
 
-type TTypingEvent = {
-  conversationId: string;
-  customerId?: string;
-  customerName?: string;
-};
-
 type TTypist = { name: string; expiresAt: number };
 
 export const useConversationTypingStatus = (conversationId?: string) => {
   const [typists, setTypists] = useState<Record<string, TTypist>>({});
 
-  useSubscription<{
-    conversationClientTypingStatusChanged: TTypingEvent;
-  }>(CONVERSATION_CLIENT_TYPING_STATUS_CHANGED, {
-    variables: { _id: conversationId },
+  useSubscription(CONVERSATION_CLIENT_TYPING_STATUS_CHANGED, {
+    variables: conversationId ? { _id: conversationId } : undefined,
     skip: !conversationId,
     onData: ({ data }) => {
       const event = data.data?.conversationClientTypingStatusChanged;

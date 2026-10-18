@@ -1,4 +1,4 @@
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { escapeRegExp, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { ITicketPipelineDocument } from '@/ticket/@types/pipeline';
 
@@ -27,9 +27,7 @@ export async function generateTicketNumber(
 
   const { numberSize, numberConfig = '' } = pipeline;
   const replacedConfig = configReplacer(numberConfig);
-  const re = new RegExp(
-    replacedConfig.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '[0-9]+$',
-  );
+  const re = new RegExp(escapeRegExp(replacedConfig) + '[0-9]+$');
 
   const existing = await models.Pipeline.findOne({
     lastNum: re,
@@ -120,7 +118,7 @@ export async function applyNameConfig(
   let result = nameConfig;
 
   for (const serviceName of serviceNames) {
-    const re = new RegExp(`\\{\\b${serviceName}\\b.*?\\}`, 'g');
+    const re = new RegExp(`\\{\\b${escapeRegExp(serviceName)}\\b.*?\\}`, 'g');
     const serviceTokens = nameConfig.match(re) || [];
 
     for (const token of serviceTokens) {

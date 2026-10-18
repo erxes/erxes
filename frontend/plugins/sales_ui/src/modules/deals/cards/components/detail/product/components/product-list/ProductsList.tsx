@@ -1,29 +1,30 @@
-import { IProduct, IProductData, currentUserState } from 'ui-modules';
+import type { DealProduct, DealProductData } from '@/deals/utils/dealJson';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { currentUserState } from 'ui-modules';
 
-import { ProductEditSheet } from '../ProductEditSheet';
-import { ProductFooter } from '../ProductFooter';
-import { ProductsListHeader } from './ProductsListHeader';
-import { ProductsRecordTable } from '../product-table/ProductRecordTable';
 import { ProductFilterState } from '@/deals/actionBar/types/actionBarTypes';
-import { Dialog } from 'erxes-ui';
-import {
-  onLocalChangeAtom,
-  productRowActionsAtom,
-} from '../../productTableAtom';
-import { useDealProductActions } from '../../hooks/useDealProductActions';
 import { useDealsEdit } from '@/deals/cards/hooks/useDeals';
+import { DEAL_TOAST_OPTIONS } from '@/deals/constants/toast';
+import { Dialog } from 'erxes-ui';
+import { useDealProductActions } from '../../hooks/useDealProductActions';
 import { useProductCalculations } from '../../hooks/useProductCalculations';
 import {
   useSaveDealProducts,
   useSyncLocalProductsData,
   useVatPercent,
 } from '../../hooks/useProductsListState';
-import { DEAL_TOAST_OPTIONS } from '@/deals/constants/toast';
-import { filterProducts } from '../../utils/filterProducts';
+import {
+  onLocalChangeAtom,
+  productRowActionsAtom,
+} from '../../productTableAtom';
 import { ProductDataWithDiscountInfos } from '../../utils/discountInfos';
+import { filterProducts } from '../../utils/filterProducts';
 import { normalizeProductUom } from '../../utils/productUom';
+import { ProductsRecordTable } from '../product-table/ProductRecordTable';
+import { ProductEditSheet } from '../ProductEditSheet';
+import { ProductFooter } from '../ProductFooter';
+import { ProductsListHeader } from './ProductsListHeader';
 
 export const ProductsList = ({
   products,
@@ -33,8 +34,8 @@ export const ProductsList = ({
   refetch,
   tickUsed,
 }: {
-  products: IProduct[];
-  productsData: IProductData[];
+  products: DealProduct[];
+  productsData: DealProductData[];
   dealId: string;
   pipelineId?: string;
   refetch: () => void;
@@ -43,15 +44,15 @@ export const ProductsList = ({
   const currentUser = useAtomValue(currentUserState);
   const defaultCurrency = currentUser?.configs?.dealCurrency?.[0] || 'MNT';
   const [localProductsData, setLocalProductsData] =
-    useState<IProductData[]>(productsData);
+    useState<DealProductData[]>(productsData);
   const pendingProductPatchesRef = useRef<
-    Record<string, Partial<IProductData>>
+    Record<string, Partial<DealProductData>>
   >({});
-  const productOrderRef = useRef<string[]>(
+  const productOrderRef = useRef<Array<DealProductData['_id']>>(
     (productsData || []).map((data) => data._id),
   );
-  const productByIdRef = useRef<Record<string, IProduct>>(
-    products.reduce<Record<string, IProduct>>((acc, product) => {
+  const productByIdRef = useRef<Record<string, DealProduct>>(
+    products.reduce<Record<string, DealProduct>>((acc, product) => {
       acc[product._id] = product;
       return acc;
     }, {}),
@@ -76,7 +77,7 @@ export const ProductsList = ({
   const [showAdvancedView, setShowAdvancedView] = useState(false);
   const [showTaxView, setShowTaxView] = useState(false);
   const [showExpandedView, setShowExpandedView] = useState(false);
-  const [editingProduct, setEditingProduct] = useState<IProductData | null>(
+  const [editingProduct, setEditingProduct] = useState<DealProductData | null>(
     null,
   );
 
@@ -117,7 +118,7 @@ export const ProductsList = ({
       return filteredProducts.some((p) => p._id === record.product?._id);
     });
 
-  const sortByStableProductOrder = useCallback((data: IProductData[]) => {
+  const sortByStableProductOrder = useCallback((data: DealProductData[]) => {
     const ids = data.map((productData) => productData._id);
     productOrderRef.current = [
       ...productOrderRef.current.filter((id) => ids.includes(id)),
@@ -172,7 +173,7 @@ export const ProductsList = ({
   });
 
   const openProductEditSheet = useCallback(
-    (productData: IProductData) => setEditingProduct(productData),
+    (productData: DealProductData) => setEditingProduct(productData),
     [],
   );
 
@@ -192,8 +193,8 @@ export const ProductsList = ({
         );
 
         affectedProductData.forEach((productData) => {
-          pendingProductPatchesRef.current[productData._id] = {
-            ...pendingProductPatchesRef.current[productData._id],
+          pendingProductPatchesRef.current[String(productData._id)] = {
+            ...pendingProductPatchesRef.current[String(productData._id)],
             ...patch,
           };
         });

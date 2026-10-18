@@ -45,7 +45,7 @@ export const OnboardingSteps: TOnboardingStepItem[] = [
     description: 'Connect all your communication channels seamlessly.',
     action: {
       label: 'Try it out now',
-      to: '/settings/frontline/config',
+      to: '/frontline/settings/config',
     },
   },
   {

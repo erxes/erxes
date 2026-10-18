@@ -7,11 +7,20 @@ import { UPDATE_RESPONSE } from '@/responseTemplate/graphql/mutations/updateResp
 import { useToast } from 'erxes-ui';
 import { GET_RESPONSES } from '../graphql/queries/getResponses';
 import { useTranslation } from 'react-i18next';
+import type {
+  ResponseTemplatesEditMutation,
+  ResponseTemplatesEditMutationVariables,
+} from '~/gql/graphql';
 export const useUpdateResponse = () => {
   const { t } = useTranslation('frontline');
   const { toast } = useToast();
   const [_updateResponse, { loading }] = useMutation(UPDATE_RESPONSE);
-  const updateResponse = (options: MutationFunctionOptions) => {
+  const updateResponse = (
+    options: MutationFunctionOptions<
+      ResponseTemplatesEditMutation,
+      ResponseTemplatesEditMutationVariables
+    >,
+  ) => {
     return _updateResponse({
       ...options,
       onCompleted: (data) => {

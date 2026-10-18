@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const DISCORD_VALIDATE_TOKEN = gql`
+export const DISCORD_VALIDATE_TOKEN = gql(`
   query DiscordValidateToken($token: String!) {
     discordValidateToken(token: $token) {
       valid
@@ -11,9 +11,9 @@ export const DISCORD_VALIDATE_TOKEN = gql`
       error
     }
   }
-`;
+`);
 
-export const DISCORD_GUILDS = gql`
+export const DISCORD_GUILDS = gql(`
   query DiscordGuilds($token: String!) {
     discordGuilds(token: $token) {
       id
@@ -21,9 +21,9 @@ export const DISCORD_GUILDS = gql`
       icon
     }
   }
-`;
+`);
 
-export const DISCORD_GUILD_CHANNELS = gql`
+export const DISCORD_GUILD_CHANNELS = gql(`
   query DiscordGuildChannels($token: String!, $guildId: String!) {
     discordGuildChannels(token: $token, guildId: $guildId) {
       id
@@ -32,9 +32,9 @@ export const DISCORD_GUILD_CHANNELS = gql`
       parentName
     }
   }
-`;
+`);
 
-export const DISCORD_BOTS = gql`
+export const DISCORD_BOTS = gql(`
   query DiscordBots {
     discordBots {
       _id
@@ -43,9 +43,9 @@ export const DISCORD_BOTS = gql`
       channelId
     }
   }
-`;
+`);
 
-export const DISCORD_CONNECTED_SERVERS = gql`
+export const DISCORD_CONNECTED_SERVERS = gql(`
   query DiscordConnectedServers($channelId: String!) {
     discordConnectedServers(channelId: $channelId) {
       guildId
@@ -53,21 +53,21 @@ export const DISCORD_CONNECTED_SERVERS = gql`
       botId
     }
   }
-`;
+`);
 
-export const DISCORD_TAKEN_CHANNELS = gql`
+export const DISCORD_TAKEN_CHANNELS = gql(`
   query DiscordTakenChannels($channelId: String!) {
     discordTakenChannels(channelId: $channelId)
   }
-`;
+`);
 
-export const DISCORD_NAME_PRESETS = gql`
+export const DISCORD_NAME_PRESETS = gql(`
   query DiscordNamePresets($channelId: String!) {
     discordNamePresets(channelId: $channelId)
   }
-`;
+`);
 
-export const DISCORD_BOT_CHANNELS = gql`
+export const DISCORD_BOT_CHANNELS = gql(`
   query DiscordBotChannels($botId: String!) {
     discordBotChannels(botId: $botId) {
       id
@@ -76,9 +76,9 @@ export const DISCORD_BOT_CHANNELS = gql`
       parentName
     }
   }
-`;
+`);
 
-export const DISCORD_SERVERS = gql`
+export const DISCORD_SERVERS = gql(`
   query DiscordServers {
     discordServers {
       guildId
@@ -86,9 +86,9 @@ export const DISCORD_SERVERS = gql`
       integrationIds
     }
   }
-`;
+`);
 
-export const DISCORD_CONVERSATION_CHANNEL = gql`
+export const DISCORD_CONVERSATION_CHANNEL = gql(`
   query DiscordConversationChannel($conversationId: String!) {
     discordConversationChannel(conversationId: $conversationId) {
       channelId
@@ -98,9 +98,9 @@ export const DISCORD_CONVERSATION_CHANNEL = gql`
       parentChannelName
     }
   }
-`;
+`);
 
-export const DISCORD_CONVERSATION_PARTICIPANTS = gql`
+export const DISCORD_CONVERSATION_PARTICIPANTS = gql(`
   query DiscordConversationParticipants($conversationId: String!) {
     discordConversationParticipants(conversationId: $conversationId) {
       customerId
@@ -109,9 +109,9 @@ export const DISCORD_CONVERSATION_PARTICIPANTS = gql`
       avatar
     }
   }
-`;
+`);
 
-export const DISCORD_CHANNEL_MEMBERS = gql`
+export const DISCORD_CHANNEL_MEMBERS = gql(`
   query DiscordChannelMembers($conversationId: String!, $query: String!) {
     discordChannelMembers(conversationId: $conversationId, query: $query) {
       status
@@ -123,9 +123,9 @@ export const DISCORD_CHANNEL_MEMBERS = gql`
       }
     }
   }
-`;
+`);
 
-export const DISCORD_CONVERSATION_CHANNELS = gql`
+export const DISCORD_CONVERSATION_CHANNELS = gql(`
   query DiscordConversationChannels($conversationIds: [String!]!) {
     discordConversationChannels(conversationIds: $conversationIds) {
       conversationId
@@ -134,4 +134,4 @@ export const DISCORD_CONVERSATION_CHANNELS = gql`
       parentChannelName
     }
   }
-`;
+`);

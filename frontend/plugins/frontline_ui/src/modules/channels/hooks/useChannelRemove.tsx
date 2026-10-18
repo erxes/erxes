@@ -9,7 +9,7 @@ export const useChannelRemove = () => {
     onCompleted: (data) => {
       toast({ title: t('channel-removed', 'Channel removed successfully') });
     },
-    refetchQueries: ['GetChannels'],
+    refetchQueries: ['frontlineChannelList'],
   });
   return { removeChannel, loading, error };
 };

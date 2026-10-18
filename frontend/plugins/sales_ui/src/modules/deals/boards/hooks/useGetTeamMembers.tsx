@@ -1,19 +1,6 @@
 import { GET_TEAM_MEMBERS } from '@/deals/graphql/queries/getTeamMembers';
-import { IUser } from 'ui-modules';
 import { useQuery } from '@apollo/client';
-
-interface IGetTeamMembersQueryResponse {
-  getTeamMembers: ITeamMember[];
-}
-
-export interface ITeamMember {
-  _id: string;
-  memberId: string;
-  teamId: string;
-
-  member: IUser;
-  role?: string;
-}
+import { isDefined } from 'erxes-ui';
 
 export const useGetTeamMembers = ({
   teamIds,
@@ -26,14 +13,11 @@ export const useGetTeamMembers = ({
     }
     return { teamId: teamIds };
   };
-  const { data, loading, refetch } = useQuery<IGetTeamMembersQueryResponse>(
-    GET_TEAM_MEMBERS,
-    {
-      variables: getVariables(),
-    },
-  );
+  const { data, loading, refetch } = useQuery(GET_TEAM_MEMBERS, {
+    variables: getVariables(),
+  });
 
-  const members = data?.getTeamMembers;
+  const members = data?.getTeamMembers?.filter(isDefined);
 
   return { members, loading, refetch };
 };

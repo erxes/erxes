@@ -1,10 +1,10 @@
 import { IconChevronRight } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { IChannel } from '@/channels/types';
+import { IChannelDetail } from '@/channels/types';
 import { useSurveyTotalCount } from '@/survey/hooks/useSurveyTotalCount';
 
-export const SurveysSection = ({ channel }: { channel: IChannel }) => {
+export const SurveysSection = ({ channel }: { channel: IChannelDetail }) => {
   const { t } = useTranslation('frontline');
   const navigate = useNavigate();
   const { totalCount } = useSurveyTotalCount({
@@ -17,7 +17,7 @@ export const SurveysSection = ({ channel }: { channel: IChannel }) => {
     <div
       className="w-full shrink-0 border border-muted-foreground/15 rounded-md hover:bg-sidebar/50 cursor-pointer"
       onClick={() =>
-        navigate(`/settings/frontline/channels/${channel._id}/surveys`)
+        navigate(`/frontline/settings/channels/${channel._id}/surveys`)
       }
     >
       <section className="w-full p-4">

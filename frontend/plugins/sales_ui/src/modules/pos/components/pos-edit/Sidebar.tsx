@@ -8,14 +8,12 @@ import {
 } from 'ui-modules';
 
 interface PosEditSidebarProps {
-  posType?: string;
   activeTab: string;
   // Other plugins' tabs need a saved POS to work on.
   posId?: string;
 }
 
 export const PosEditSidebar = ({
-  posType,
   activeTab,
   posId,
 }: PosEditSidebarProps) => {

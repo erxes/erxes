@@ -23,7 +23,7 @@ type ProgressStatus = (typeof ALL_STATUSES)[number];
 export const ProgressSource = ({ customerId }: { customerId?: string }) => {
   const { t } = useTranslation('frontline');
   const { conversationSourceProgress } = useGetConversationSourceProgress({
-    variables: { customerId },
+    variables: customerId ? { customerId } : undefined,
     skip: !customerId,
   });
 

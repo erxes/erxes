@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-const GET_TICKET_CONFIGS = gql`
+const GET_TICKET_CONFIGS = gql(`
   query TicketConfigs($channelId: String!) {
     ticketConfigs(channelId: $channelId) {
       name
@@ -53,6 +53,6 @@ const GET_TICKET_CONFIGS = gql`
       updatedAt
     }
   }
-`;
+`);
 
 export { GET_TICKET_CONFIGS };

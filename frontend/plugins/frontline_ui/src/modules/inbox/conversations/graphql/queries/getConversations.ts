@@ -1,11 +1,6 @@
-import { gql } from '@apollo/client';
-import {
-  GQL_CURSOR_PARAM_DEFS,
-  GQL_CURSOR_PARAMS,
-  GQL_PAGE_INFO,
-} from 'erxes-ui';
+import { gql } from '~/gql';
 
-export const GET_CONVERSATIONS = gql`
+export const GET_CONVERSATIONS = gql(`
   query Conversations(
     $channelId: String
     $integrationId: String
@@ -26,7 +21,10 @@ export const GET_CONVERSATIONS = gql`
     $customerId: String
     $brandId: String
     $searchValue: String
-    ${GQL_CURSOR_PARAM_DEFS}
+    $cursor: String
+    $cursorMode: CURSOR_MODE
+    $direction: CURSOR_DIRECTION
+    $limit: Int
   ) {
     conversations(
       channelId: $channelId
@@ -48,52 +46,61 @@ export const GET_CONVERSATIONS = gql`
       customerId: $customerId
       brandId: $brandId
       searchValue: $searchValue
-      ${GQL_CURSOR_PARAMS}
+      cursor: $cursor
+      cursorMode: $cursorMode
+      direction: $direction
+      limit: $limit
     ) {
       list {
-      _id
-      content
-      createdAt
-      updatedAt
-      integrationId
-      customer {
         _id
-        firstName
-        middleName
-        lastName
-        primaryEmail
-        avatar
-        primaryPhone
-        __typename
-      }
-      readUserIds
-      tagIds
-      __typename
-      assignedUserId
-      assignedUser {
-        _id
-        details {
-          avatar
-          fullName
-        }
-      }
-      integration {
-        _id
-        channelId
-        kind
-        name
-        channel {
-          updatedAt
-          name
-          memberCount
-          icon
-          description
-          createdAt
+        content
+        createdAt
+        updatedAt
+        integrationId
+        customer {
           _id
+          firstName
+          middleName
+          lastName
+          primaryEmail
+          avatar
+          primaryPhone
+          __typename
+        }
+        readUserIds
+        tagIds
+        __typename
+        assignedUserId
+        assignedUser {
+          _id
+          details {
+            avatar
+            fullName
+          }
+        }
+        integration {
+          _id
+          channelId
+          kind
+          name
+          channel {
+            updatedAt
+            name
+            memberCount
+            icon
+            description
+            createdAt
+            _id
+          }
         }
       }
-    }
-      ${GQL_PAGE_INFO}
+      totalCount
+      pageInfo {
+        hasNextPage
+        hasPreviousPage
+        startCursor
+        endCursor
+      }
     }
   }
-`;
+`);

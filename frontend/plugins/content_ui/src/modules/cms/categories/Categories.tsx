@@ -53,10 +53,10 @@ export function Categories() {
   );
 
   return (
-    <PageContainer>
-      <CategoriesHeader>{headerActions}</CategoriesHeader>
-      <div className="flex overflow-hidden flex-auto">
-        <CmsSidebar />
+    <PageContainer className="flex-row">
+      <CmsSidebar />
+      <div className="flex min-w-0 flex-auto flex-col overflow-hidden">
+        <CategoriesHeader>{headerActions}</CategoriesHeader>
         <div className="flex flex-col w-full overflow-hidden flex-auto">
           <CategoriesRecordTable
             key={refetchTrigger}

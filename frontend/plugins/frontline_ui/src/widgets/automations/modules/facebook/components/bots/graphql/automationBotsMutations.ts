@@ -1,100 +1,104 @@
-import gql from 'graphql-tag';
+import { gql } from '~/gql';
 
-const FACEBOOK_BOT_MUTATION_FIELDS = `
-  _id
-  name
-  account
-  accountId
-  createdAt
-  page
-  pageId
-  profileUrl
-  persistentMenus {
-    _id
-    text
-    type
-    link
-  }
-  iceBreakers {
-    _id
-    question
-  }
-  getStartedText
-  greetText
-  handoffMessage
-  automationActiveMessage
-  handoffPauseMinutes
-  tag
-  isEnabledBackBtn
-  backButtonText
-  health {
-    status
-    isSubscribed
-    isProfileSynced
-    lastSyncedAt
-    lastVerifiedAt
-  }
-`;
-
-const FACEBOOK_BOT_PARAMS = `
-  $name: String,
-  $accountId: String,
-  $pageId: String,
-  $persistentMenus: [BotPersistentMenuInput],
-  $iceBreakers: [BotIceBreakerInput],
-  $getStartedText: String,
-  $greetText: String,
-  $handoffMessage: String,
-  $automationActiveMessage: String,
-  $handoffPauseMinutes: Int,
-  $tag: String,
-  $isEnabledBackBtn:Boolean,
-  $backButtonText:String
-`;
-
-const FACEBOOK_BOT_PARAMS_DEF = `
-  name: $name,
-  accountId: $accountId,
-  pageId: $pageId,
-  persistentMenus: $persistentMenus,
-  iceBreakers: $iceBreakers,
-  getStartedText: $getStartedText,
-  greetText: $greetText,
-  handoffMessage: $handoffMessage,
-  automationActiveMessage: $automationActiveMessage,
-  handoffPauseMinutes: $handoffPauseMinutes,
-  tag: $tag
-  isEnabledBackBtn: $isEnabledBackBtn,
-  backButtonText:$backButtonText
-`;
-
-const ADD_FACEBOOK_BOT = gql`
-  mutation FacebookMessengerAddBot(${FACEBOOK_BOT_PARAMS}) {
-    facebookMessengerAddBot(${FACEBOOK_BOT_PARAMS_DEF}) {
-      ${FACEBOOK_BOT_MUTATION_FIELDS}
+const ADD_FACEBOOK_BOT = gql(`
+  mutation FacebookMessengerAddBot(
+    $name: String
+    $accountId: String
+    $pageId: String
+    $persistentMenus: [BotPersistentMenuInput]
+    $iceBreakers: [BotIceBreakerInput]
+    $getStartedText: String
+    $greetText: String
+    $handoffMessage: String
+    $automationActiveMessage: String
+    $handoffPauseMinutes: Int
+    $tag: String
+    $isEnabledBackBtn: Boolean
+    $backButtonText: String
+  ) {
+    facebookMessengerAddBot(
+      name: $name
+      accountId: $accountId
+      pageId: $pageId
+      persistentMenus: $persistentMenus
+      iceBreakers: $iceBreakers
+      getStartedText: $getStartedText
+      greetText: $greetText
+      handoffMessage: $handoffMessage
+      automationActiveMessage: $automationActiveMessage
+      handoffPauseMinutes: $handoffPauseMinutes
+      tag: $tag
+      isEnabledBackBtn: $isEnabledBackBtn
+      backButtonText: $backButtonText
+    ) {
+      ...FacebookMessengerBotListFields
+      greetText
+      handoffMessage
+      automationActiveMessage
+      handoffPauseMinutes
+      tag
+      isEnabledBackBtn
+      backButtonText
     }
   }
-`;
+`);
 
-const UPDATE_FACEBOOK_BOT = gql`
-    mutation FacebookMessengerUpdateBot($_id: String,${FACEBOOK_BOT_PARAMS}) {
-      facebookMessengerUpdateBot(_id: $_id,${FACEBOOK_BOT_PARAMS_DEF}) {
-        ${FACEBOOK_BOT_MUTATION_FIELDS}
-      }
+const UPDATE_FACEBOOK_BOT = gql(`
+  mutation FacebookMessengerUpdateBot(
+    $_id: String
+    $name: String
+    $accountId: String
+    $pageId: String
+    $persistentMenus: [BotPersistentMenuInput]
+    $iceBreakers: [BotIceBreakerInput]
+    $getStartedText: String
+    $greetText: String
+    $handoffMessage: String
+    $automationActiveMessage: String
+    $handoffPauseMinutes: Int
+    $tag: String
+    $isEnabledBackBtn: Boolean
+    $backButtonText: String
+  ) {
+    facebookMessengerUpdateBot(
+      _id: $_id
+      name: $name
+      accountId: $accountId
+      pageId: $pageId
+      persistentMenus: $persistentMenus
+      iceBreakers: $iceBreakers
+      getStartedText: $getStartedText
+      greetText: $greetText
+      handoffMessage: $handoffMessage
+      automationActiveMessage: $automationActiveMessage
+      handoffPauseMinutes: $handoffPauseMinutes
+      tag: $tag
+      isEnabledBackBtn: $isEnabledBackBtn
+      backButtonText: $backButtonText
+    ) {
+      ...FacebookMessengerBotListFields
+      greetText
+      handoffMessage
+      automationActiveMessage
+      handoffPauseMinutes
+      tag
+      isEnabledBackBtn
+      backButtonText
     }
-`;
+  }
+`);
 
-const REMOVE_FACEBOOK_BOT = gql`
+const REMOVE_FACEBOOK_BOT = gql(`
   mutation FacebookMessengerRemoveBot($_id: String) {
     facebookMessengerRemoveBot(_id: $_id)
   }
-`;
+`);
 
-const REPAIR_FACEBOOK_BOT = gql`
+const REPAIR_FACEBOOK_BOT = gql(`
   mutation FacebookMessengerRepairBot($_id: String) {
     facebookMessengerRepairBot(_id: $_id)
   }
-`;
+`);
 
 export {
   ADD_FACEBOOK_BOT,

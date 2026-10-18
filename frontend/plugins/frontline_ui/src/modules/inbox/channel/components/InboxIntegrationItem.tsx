@@ -10,7 +10,7 @@ import { useTranslation } from 'react-i18next';
 
 import { FacebookPostSheet } from '@/integrations/facebook/components/FacebookPostSheet';
 import { INTEGRATION_ICONS } from '@/integrations/constants/integrationImages';
-import type { IIntegration } from '@/integrations/types/Integration';
+import type { IConversationIntegration } from '@/inbox/types/Conversation';
 import { IntegrationType } from '@/types/Integration';
 import {
   CLEARED_INBOX_NAVIGATION_FILTERS,
@@ -19,7 +19,7 @@ import {
 } from '@/inbox/types/InboxNavigation';
 
 type InboxIntegrationItemProps = Pick<
-  IIntegration,
+  IConversationIntegration,
   '_id' | 'channelId' | 'kind' | 'name'
 > & {
   awaitingCount?: number;

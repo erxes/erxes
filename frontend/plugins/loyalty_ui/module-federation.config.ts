@@ -17,7 +17,6 @@ const config: ModuleFederationConfig = {
   exposes: {
     './config': './src/config.tsx',
     './loyalty': './src/modules/loyalties/SubNavigations.tsx',
-    './loyaltySettings': './src/LoyaltySettings.tsx',
     './loyaltySettingsNavigation': './src/LoyaltySettingsNavigation.tsx',
     './widgets': './src/widgets/Widgets.tsx',
     './automationsWidget':

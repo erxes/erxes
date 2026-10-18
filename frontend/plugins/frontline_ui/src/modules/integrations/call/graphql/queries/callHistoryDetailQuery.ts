@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const CALL_HISTORY_DETAIL = gql`
+export const CALL_HISTORY_DETAIL = gql(`
   query CallHistoryDetail($conversationId: String) {
     callHistoryDetail(conversationId: $conversationId) {
       _id
@@ -23,4 +23,4 @@ export const CALL_HISTORY_DETAIL = gql`
       inboxIntegrationId
     }
   }
-`;
+`);

@@ -1,6 +1,6 @@
-import { Accordion, Sidebar } from 'erxes-ui';
-import { Link } from 'react-router-dom';
+import { Accordion, isDefined, Sidebar } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 
 import { useBoardDetail } from '@/deals/boards/hooks/useBoards';
 import { PipelineListLoading } from '@/deals/components/loading/PipelineListLoading';
@@ -23,7 +23,7 @@ export const PipelineList = ({
     return <PipelineListLoading />;
   }
 
-  const pipelines = boardDetail?.pipelines || [];
+  const pipelines = boardDetail?.pipelines?.filter(isDefined) || [];
 
   return (
     <>

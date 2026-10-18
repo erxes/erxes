@@ -1,23 +1,27 @@
 import { useQuery, QueryHookOptions } from '@apollo/client';
-import { IChannel } from '@/channels/types';
+import { useMemo } from 'react';
 import { GET_CHANNELS } from '@/channels/graphql';
-
-interface IGetChannelsQueryResponse {
-  getChannels: IChannel[];
-}
+import { compactList } from '@/shared/utils/cursorList';
+import type {
+  FrontlineChannelListQuery,
+  FrontlineChannelListQueryVariables,
+} from '~/gql/graphql';
 
 export const useGetChannels = (
-  options?: QueryHookOptions<IGetChannelsQueryResponse>,
+  options?: QueryHookOptions<
+    FrontlineChannelListQuery,
+    FrontlineChannelListQueryVariables
+  >,
 ) => {
-  const { data, loading, error, refetch } = useQuery<IGetChannelsQueryResponse>(
-    GET_CHANNELS,
-    {
-      fetchPolicy: 'cache-and-network',
-      ...options,
-    },
-  );
+  const { data, loading, error, refetch } = useQuery(GET_CHANNELS, {
+    fetchPolicy: 'cache-and-network',
+    ...options,
+  });
 
-  const channels = data?.getChannels;
+  const channels = useMemo(
+    () => (data?.getChannels ? compactList(data.getChannels) : undefined),
+    [data?.getChannels],
+  );
 
   return { channels, loading, error, refetch };
 };

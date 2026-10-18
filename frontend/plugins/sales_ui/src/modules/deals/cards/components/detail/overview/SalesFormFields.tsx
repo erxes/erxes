@@ -7,25 +7,25 @@ import {
   DealDepartmentsChip,
   DealTagsChip,
 } from '@/deals/components/deal-selects/DealDetailChips';
-import { Editor, Separator } from 'erxes-ui';
 import {
   areIdListsEqual,
   rejectOnMutationError,
   useOptimisticField,
 } from '@/deals/components/deal-selects/hooks/useOptimisticField';
+import { Editor, isDefined, Separator } from 'erxes-ui';
 import { useCallback, useRef, useState } from 'react';
 
+import { SelectLabels } from '@/deals/components/common/filters/SelectLabel';
+import { DateSelectDeal } from '@/deals/components/deal-selects/DateSelectDeal';
+import { SelectDealPriority } from '@/deals/components/deal-selects/SelectDealPriority';
+import { SelectDealStage } from '@/deals/components/deal-selects/SelectDealStage';
+import { useDealsContext } from '@/deals/context/DealContext';
+import { IDealDetail } from '@/deals/types/deals';
+import { useTranslation } from 'react-i18next';
 import { AttachmentUploader } from './attachments/AttachmentUploader';
 import { Attachments } from './attachments/Attachments';
 import { ChecklistOverview } from './checklist/ChecklistOverview';
 import { Checklists } from './checklist/Checklists';
-import { DateSelectDeal } from '@/deals/components/deal-selects/DateSelectDeal';
-import { IDeal } from '@/deals/types/deals';
-import { SelectDealPriority } from '@/deals/components/deal-selects/SelectDealPriority';
-import { SelectDealStage } from '@/deals/components/deal-selects/SelectDealStage';
-import { SelectLabels } from '@/deals/components/common/filters/SelectLabel';
-import { useDealsContext } from '@/deals/context/DealContext';
-import { useTranslation } from 'react-i18next';
 
 const ARRAY_KEYS = new Set([
   'assignedUserIds',
@@ -34,7 +34,7 @@ const ARRAY_KEYS = new Set([
   'departmentIds',
 ]);
 
-type BrokerType = NonNullable<IDeal['brokerType']> | '';
+type BrokerType = NonNullable<IDealDetail['brokerType']> | '';
 
 interface BrokerSelection {
   id: string;
@@ -60,11 +60,13 @@ const areBrokerSelectionsEqual = (
   right: BrokerSelection,
 ) => left.id === right.id && left.type === right.type;
 
-export const SalesFormFields = ({ deal }: { deal: IDeal }) => {
+export const SalesFormFields = ({ deal }: { deal: IDealDetail }) => {
   const { editDeals } = useDealsContext();
   const [newChecklistId, setNewChecklistId] = useState<string>();
   const descriptionRef = useRef<string | undefined>(undefined);
-  const lastSavedDescriptionRef = useRef<string | undefined>(deal.description);
+  const lastSavedDescriptionRef = useRef<string | undefined>(
+    deal.description ?? undefined,
+  );
 
   const { t } = useTranslation('sales');
   const {
@@ -94,27 +96,27 @@ export const SalesFormFields = ({ deal }: { deal: IDeal }) => {
   );
 
   const optimisticAssignedUsers = useOptimisticField({
-    value: assignedUserIds || [],
+    value: assignedUserIds?.filter(isDefined) || [],
     resetKey: _id,
     isEqual: areIdListsEqual,
     onCommit: (value) =>
       rejectOnMutationError(handleChange('assignedUserIds', value)),
   });
   const optimisticTags = useOptimisticField({
-    value: tagIds || [],
+    value: tagIds?.filter(isDefined) || [],
     resetKey: _id,
     isEqual: areIdListsEqual,
     onCommit: (value) => rejectOnMutationError(handleChange('tagIds', value)),
   });
   const optimisticBranches = useOptimisticField({
-    value: branchIds || [],
+    value: branchIds?.filter(isDefined) || [],
     resetKey: _id,
     isEqual: areIdListsEqual,
     onCommit: (value) =>
       rejectOnMutationError(handleChange('branchIds', value)),
   });
   const optimisticDepartments = useOptimisticField({
-    value: departmentIds || [],
+    value: departmentIds?.filter(isDefined) || [],
     resetKey: _id,
     isEqual: areIdListsEqual,
     onCommit: (value) =>
@@ -244,7 +246,9 @@ export const SalesFormFields = ({ deal }: { deal: IDeal }) => {
             mode="multiple"
             variant="detail"
             targetId={_id}
-            initialValue={labels?.map((label) => label._id || '') || []}
+            initialValue={
+              labels?.filter(isDefined).map((label) => label._id || '') || []
+            }
           />
           <DealTagsChip
             value={optimisticTags.value}
@@ -263,7 +267,7 @@ export const SalesFormFields = ({ deal }: { deal: IDeal }) => {
       <Separator className="mt-4" />
       <Checklists
         dealId={_id}
-        stageId={deal.stageId}
+        stageId={deal.stageId ?? undefined}
         newChecklistId={newChecklistId}
       />
       <div

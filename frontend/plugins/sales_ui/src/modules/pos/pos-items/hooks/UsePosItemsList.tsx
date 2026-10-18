@@ -1,24 +1,25 @@
-import { useQuery } from '@apollo/client';
-import queries from '~/modules/pos/pos-items/graphql/queries/queries';
 import { IPosItem } from '@/pos/pos-items/types/posItem';
+import { hasId } from '@/pos/utils/posJson';
+import { toPosItemRow, readPosData } from '@/pos/utils/posOrderJson';
+import { useQuery } from '@apollo/client';
 import {
-  useMultiQueryState,
   parseDateRangeFromString,
+  useMultiQueryState,
   useQueryState,
 } from 'erxes-ui';
-import { useMemo, useCallback, useEffect } from 'react';
 import { useSetAtom } from 'jotai';
+import { useCallback, useEffect, useMemo } from 'react';
+import type { PosOrderRecordsQueryVariables } from '~/gql/graphql';
+import { queries } from '~/modules/pos/pos-items/graphql/queries/queries';
 import { posItemsTotalCountAtom } from '../states/usePosItemsCounts';
 
 const POS_PER_PAGE = 30;
 
-interface UsePosItemsListOptions {
-  posId?: string;
-  [key: string]: unknown;
-}
+type UsePosItemsListOptions = PosOrderRecordsQueryVariables;
 
 interface UsePosItemsListReturn {
   loading: boolean;
+  error?: Error;
   posItemList: IPosItem[];
   totalCount: number;
   handleFetchMore: () => void;
@@ -101,20 +102,21 @@ export const usePosItemsList = (
   const variables = usePosItemsVariables(options);
   const setPosItemsTotalCount = useSetAtom(posItemsTotalCountAtom);
 
-  const { data, loading, fetchMore } = useQuery(
+  const { data, loading, error, fetchMore } = useQuery(
     queries.POS_ORDER_RECORDS_QUERY,
     {
       variables,
     },
   );
 
-  const posItemList = useMemo<IPosItem[]>(
+  const parsed = useMemo(
     () =>
-      data?.posOrderRecords?.map((posItem: IPosItem) => ({
-        ...posItem,
-      })) || [],
+      readPosData(() =>
+        (data?.posOrderRecords ?? []).filter(hasId).map(toPosItemRow),
+      ),
     [data?.posOrderRecords],
   );
+  const posItemList = parsed.value ?? [];
   const totalCount = useMemo(
     () => data?.posOrderRecordsCount || 0,
     [data?.posOrderRecordsCount],
@@ -151,6 +153,7 @@ export const usePosItemsList = (
 
   return {
     loading,
+    error: error ?? parsed.error,
     posItemList,
     totalCount,
     handleFetchMore,

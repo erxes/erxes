@@ -27,7 +27,7 @@ export const FormSetupSteps = () => {
           <div className="bg-background">
             <Preview.Toolbar
               path={
-                '/settings/frontline/forms' +
+                '/frontline/settings/forms' +
                 FrontlinePaths.FormPreview +
                 '?inPreview=true'
               }

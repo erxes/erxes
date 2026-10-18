@@ -1,22 +1,25 @@
 import { MutationHookOptions, useMutation } from '@apollo/client';
+import type {
+  DealsWatchMutation,
+  DealsWatchMutationVariables,
+} from '~/gql/graphql';
 
-import { DEALS_WATCH } from '@/deals/graphql/mutations/DealsMutations';
 import { DEAL_TOAST_OPTIONS } from '@/deals/constants/toast';
-import { dealDetailSheetState } from '@/deals/states/dealDetailSheetState';
+import { DEALS_WATCH } from '@/deals/graphql/mutations/DealsMutations';
 import { toast } from 'erxes-ui';
-import { useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
-export function useDealsWatch(options?: MutationHookOptions) {
+export function useDealsWatch(
+  options?: MutationHookOptions<
+    DealsWatchMutation,
+    DealsWatchMutationVariables
+  >,
+) {
   const { t } = useTranslation('sales');
-  const [_id] = useAtom(dealDetailSheetState);
 
   const [watchDeals, { loading, error }] = useMutation(DEALS_WATCH, {
     ...options,
-    variables: {
-      ...options?.variables,
-      _id,
-    },
+    variables: options?.variables,
     awaitRefetchQueries: true,
     onCompleted: (...args) => {
       toast({

@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useConfirmRemoveCategory } from '@/knowledgebase/categories/hooks/useConfirmRemoveCategory';
 import { KNOWLEDGE_BASE_PATH } from '@/knowledgebase/constants';
-import { ICategory } from '@/knowledgebase/types';
+import { ICategoryFields } from '@/knowledgebase/types';
 
 export const CategoryRowActions = ({
   topicId,
@@ -13,7 +13,7 @@ export const CategoryRowActions = ({
   onEdit,
 }: {
   topicId: string;
-  category: ICategory;
+  category: ICategoryFields;
   isActive: boolean;
   onEdit: () => void;
 }) => {

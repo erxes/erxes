@@ -1,6 +1,8 @@
-import { gql, useQuery } from '@apollo/client';
+import { useQuery } from '@apollo/client';
+import { gql } from '~/gql';
+import type { CallReportIntegrationsQuery } from '~/gql/graphql';
 
-export const CALL_REPORT_INTEGRATIONS = gql`
+export const CALL_REPORT_INTEGRATIONS = gql(`
   query callReportIntegrations {
     callReportIntegrations {
       _id
@@ -9,19 +11,13 @@ export const CALL_REPORT_INTEGRATIONS = gql`
       queues
     }
   }
-`;
+`);
 
-export interface CallReportIntegration {
-  _id: string;
-  inboxId: string;
-  phone: string;
-  queues: string[];
-}
+export type CallReportIntegration =
+  CallReportIntegrationsQuery['callReportIntegrations'][number];
 
 export function useCallReportIntegrations() {
-  const { data, loading, error } = useQuery<{
-    callReportIntegrations: CallReportIntegration[];
-  }>(CALL_REPORT_INTEGRATIONS);
+  const { data, loading, error } = useQuery(CALL_REPORT_INTEGRATIONS);
 
   return {
     integrations: data?.callReportIntegrations ?? [],
