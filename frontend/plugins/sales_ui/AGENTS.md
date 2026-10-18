@@ -490,6 +490,7 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   "Ended" badge as the trigger for a past close date. A padded `YYYY-MM-DD` or
   a calendar pick commits immediately; unpadded `YYYY-M-D` commits on Enter or
   blur; clearing sends `null` so the backend unsets the date.
+- `Sheet.Header` is a fixed 40px row. A header with a visible second line (subtitle, record number, description) adds `h-auto py-2` so it sizes to its content; detail-page title rows are `h-10`, level with `PageHeader`.
 
 ## Validation
 

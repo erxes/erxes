@@ -26,7 +26,7 @@ export const TemplateFormPage = () => {
   return (
     <PageContainer>
       <div className="h-full w-full bg-background overflow-auto">
-        <div className="px-4 h-16 flex items-center">
+        <div className="px-4 h-10 flex items-center">
           <Breadcrumb>
             <Breadcrumb.List>
               <Breadcrumb.Item>

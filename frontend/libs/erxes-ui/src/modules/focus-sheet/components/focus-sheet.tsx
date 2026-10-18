@@ -210,7 +210,7 @@ const FocusSheetSideContentHeader = forwardRef<
       <div
         ref={ref}
         className={cn(
-          'h-11 px-5 flex items-center gap-2 flex-none bg-background',
+          'h-10 px-4 flex items-center gap-2 flex-none bg-background',
           className,
         )}
         {...props}
@@ -237,7 +237,7 @@ const FocusSheetSideTabsList = forwardRef<
     <Tabs.List
       ref={ref}
       className={cn(
-        'w-16 flex-none border-l bg-sidebar h-full py-3 flex flex-col items-center justify-start gap-3 border-b-0',
+        'w-16 flex-none border-l bg-sidebar h-full py-2 flex flex-col items-center justify-start gap-1.5 border-b-0',
         className,
       )}
       {...props}
@@ -263,7 +263,7 @@ const FocusSheetSideTabsTrigger = forwardRef<
         <Tabs.Trigger
           ref={ref}
           className={cn(
-            'size-10 bg-sidebar data-[state=active]:bg-primary/10 data-[state=active]:text-foreground data-[state=active]:shadow-none [&_svg]:size-5 data-[state=active]:after:hidden [&_svg]:text-primary hover:bg-primary/10 data-[state=active]:hover:bg-primary/10 rounded group/side-tabs-trigger',
+            'size-8 bg-sidebar data-[state=active]:bg-primary/10 data-[state=active]:text-foreground data-[state=active]:shadow-none [&_svg]:size-4 data-[state=active]:after:hidden [&_svg]:text-primary hover:bg-primary/10 data-[state=active]:hover:bg-primary/10 rounded group/side-tabs-trigger',
             className,
           )}
           value={value}
@@ -276,14 +276,14 @@ const FocusSheetSideTabsTrigger = forwardRef<
           {!!Icon && (
             <Icon
               className={cn(
-                'size-5 flex-none',
+                'size-4 flex-none',
                 activeSideTab === value &&
                   'group-hover/side-tabs-trigger:hidden',
               )}
             />
           )}
           {activeSideTab === value && (
-            <IconX className="size-5 flex-none hidden group-hover/side-tabs-trigger:block" />
+            <IconX className="size-4 flex-none hidden group-hover/side-tabs-trigger:block" />
           )}
         </Tabs.Trigger>
       </Tooltip.Trigger>
@@ -306,7 +306,10 @@ const FocusSheetHeader = ({
 }) => {
   const { hasSidebar } = useFocusSheet();
   return (
-    <Sheet.Header className={cn('gap-2', className)} {...props}>
+    <Sheet.Header
+      className={cn('gap-2', description && 'h-auto py-2', className)}
+      {...props}
+    >
       {hasSidebar && <FocusSheetSidebarTrigger />}
       <div className="flex flex-col">
         <Sheet.Title>{title}</Sheet.Title>

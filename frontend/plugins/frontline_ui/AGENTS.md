@@ -2480,6 +2480,7 @@ null }`, fall back to the route pipeline and skip without one; never pass
 - The Facebook message-trigger condition schema is one flat object keyed by a
   `type` enum, not a discriminated union, so its derived types index the fields
   directly; `Extract<..., { type: ... }>` on it collapses to `never`.
+- `Sheet.Header` is a fixed 40px row. A header with a visible second line (subtitle, record number, description) adds `h-auto py-2` so it sizes to its content; detail-page title rows are `h-10`, level with `PageHeader`.
 
 ## Validation
 

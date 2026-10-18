@@ -10,7 +10,7 @@ export const ResponseDetailPage = () => {
 
   return (
     <div className="overflow-y-auto">
-      <div className="px-4 h-16 flex items-center fixed mb-4">
+      <div className="px-4 h-10 flex items-center fixed mb-4">
         <Breadcrumb>
           <Breadcrumb.List>
             <Breadcrumb.Item>

@@ -56,7 +56,7 @@ export const SalesItemDetailHeader = ({ deal }: { deal: IDealDetail }) => {
   };
 
   return (
-    <Sheet.Header className="gap-2 flex-row items-center space-y-0 pr-0">
+    <Sheet.Header className="gap-2 flex-row items-center space-y-0 pr-0 h-auto py-2">
       <Button
         variant="ghost"
         size="icon"

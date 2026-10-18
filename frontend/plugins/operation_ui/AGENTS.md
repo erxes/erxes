@@ -155,6 +155,7 @@
 - `SelectTriggerOperation` draws erxes-ui `Combobox.ChipTrigger` only for the `detail` and `form` variants when a `label` is passed; every other variant and unlabelled caller (project, triage and filter surfaces) keeps its plain trigger. Task selects' roots and `FormItem`s take `label` and pass it straight through.
 - `DateSelectTask` draws its labelled chip only for the `input` variant with a `label` (task detail passes `variant="input"`, as ticket detail does); `detail` and every other variant keep the plain trigger. The form chip is `DateSelectTask.FormItem` with a `label`.
 - `DateSelectTask` keeps its own `dateValue` state seeded from the `value` prop and resyncs on `value`/`id` change; `useUpdateTask` already toasts on error, so the date select's `onError` only rolls back. `DateSelectContent` catches Enter in the capture phase because `DatePicker` stops its propagation.
+- `Sheet.Header` is a fixed 40px row. A header with a visible second line (subtitle, record number, description) adds `h-auto py-2` so it sizes to its content; detail-page title rows are `h-10`, level with `PageHeader`.
 
 ## Validation
 

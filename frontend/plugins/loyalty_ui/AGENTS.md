@@ -166,6 +166,7 @@
   after creation.
 - Changing a score campaign's owner type clears its account type; archived account types
   are listed in the campaign selector only when the campaign already uses one.
+- `Sheet.Header` is a fixed 40px row. A header with a visible second line (subtitle, record number, description) adds `h-auto py-2` so it sizes to its content; detail-page title rows are `h-10`, level with `PageHeader`.
 
 ## Validation
 

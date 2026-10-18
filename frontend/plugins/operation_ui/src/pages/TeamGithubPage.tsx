@@ -13,7 +13,7 @@ export const TeamGithubPage = () => {
 
   return (
     <PageContainer>
-      <div className="flex h-16 items-center px-4">
+      <div className="flex h-10 items-center px-4">
         <Breadcrumb>
           <Breadcrumb.List>
             <Breadcrumb.Item>
