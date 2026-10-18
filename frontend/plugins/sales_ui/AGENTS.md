@@ -286,6 +286,9 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   Legacy product rows can omit `_id`; preserve them without inventing row IDs
   or rejecting the whole deal. Product mutation identifiers follow the existing
   nullable GraphQL arguments.
+  Legacy `paymentsData.totalAmount` may be a finite number: preserve it on
+  save and exclude it from editable payment entries and paid totals. Other
+  payment keys must still contain validated payment objects.
 - List and detail deal subscriptions select the fields used by their respective
   queries. Pipeline order events carry stored JSON, so move an existing card
   immediately and refetch active lists for complete computed data.
