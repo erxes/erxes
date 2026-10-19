@@ -13,7 +13,7 @@ const AssignmentHeaderActions = () => {
   return (
     <div className="flex items-center gap-2">
       <Button variant="outline" size="sm" asChild>
-        <Link to="/settings/loyalty/config/assignment">
+        <Link to="/loyalty/settings/config/assignment">
           <IconSettings className="size-4" />
           {t('go-to-settings')}
         </Link>

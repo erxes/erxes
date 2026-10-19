@@ -170,6 +170,11 @@ const aiAgentToolSchema = z.object({
   name: z.string().min(1),
   description: z.string().optional().default(''),
   kind: z.enum(['helper', 'handoff']),
+  // Output keys of the actions behind this tool kept in long-term memory
+  memorizeFields: z
+    .array(z.object({ actionId: z.string(), key: z.string() }))
+    .optional()
+    .default([]),
 });
 
 const generateTextSchema = z.object({

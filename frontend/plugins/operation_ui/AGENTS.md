@@ -49,6 +49,7 @@
 
 | Area                    | Path                                                                                     | Responsibility                                                                                                               |
 | ----------------------- | ---------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| App sidebar | `frontend/plugins/operation_ui/src/Sidebar.tsx` | `OperationSidebar` (app sidebar) and `OperationSidebarFooter` (Settings link), rendered by the `./operation` entry through `AppLayout` |
 | Runtime                 | `frontend/plugins/operation_ui/src/main.ts`                                              | Starts the operation UI remote.                                                                                              |
 | Federation config       | `frontend/plugins/operation_ui/module-federation.config.ts`                              | Exposes config, routes, settings, widgets, notifications, and automation entry.                                              |
 | Dev server config       | `frontend/plugins/operation_ui/rspack.config.ts`                                         | Module Federation development serving and watch ignore rules.                                                                |
@@ -69,8 +70,8 @@
 
 ### Provides
 
-- Module Federation exposes: `./config`, `./operation`, `./operationSettings`, `./relationWidget`, `./notificationWidget`, and `./automationsWidget`.
-- Frontend navigation paths under `operation/*` and `settings/operation/*` registered from `src/config.tsx`.
+- Module Federation exposes: `./config`, `./operation`, `./relationWidget`, `./notificationWidget`, and `./automationsWidget`.
+- Frontend navigation paths under `operation/*` and `operation/settings/*` registered from `src/config.tsx`.
 - Relation widget names `tasks` and `projects`, plus property input `taskStatus`.
 
 ### Consumes
@@ -93,6 +94,29 @@
 
 ## Local Invariants
 
+- "Your teams" collapsibles in `TeamsNavigation` are controlled by
+  `openTeamsNavigationState` (localStorage `operation:open-teams-navigation`),
+  and the team in the current route (`/operation/team/:teamId/…`) always
+  unfolds. Keep them controlled: the app sidebar remounts whenever the user
+  switches app tabs, so uncontrolled open state would be lost.
+- The plugin owns its whole app sidebar. `src/modules/OperationMain.tsx` (the `./operation`
+  expose) wraps its routes in `erxes-ui` `AppLayout` (`id="operation"`) with
+  `OperationSidebar`. Core-ui draws only the top `CoreTab` bar; `navigationGroup` in
+  `src/config.tsx` supplies just the tab name, icon and `defaultPath` and takes
+  no `content`/`subGroup`.
+- `OperationSidebarFooter` pins a Settings link to the bottom of the app
+  sidebar. The plugin owns its settings at `/operation/settings/*`, served by its
+  own entry: the entry's top-level `<Routes>` sends `settings/*` to
+  `OperationSettingsLayout` (`src/Sidebar.tsx`, an `AppLayout` titled
+  "<Plugin> settings" with a Back link to the app) and `*` to the app
+  `AppLayout`. Settings pages render inside `PluginSettingsRoutes`
+  (`ui-modules`), which also serves `tags` and `properties/*` scoped to
+  this plugin's types; the settings sidebar appends
+  `PluginSharedSettingsNavigation`, which lists Tags/Properties only when the
+  plugin registers those types. Core organization settings never list
+  plugin settings, `config.tsx` has no `settingsNavigation`, and there is
+  no `./operationSettings` expose; old `/settings/operation/…` URLs are redirected
+  by core. The settings navigation renders no `Sidebar.GroupLabel`.
 - Page header breadcrumbs follow the shared pattern: crumbs are default ghost `Button`s (no `font-semibold`), the first crumb carries a 16px icon in the default text color, crumbs are separated by `Separator.Inline` or `Breadcrumb.Separator`, and settings pages carry no favorite toggle.
 - Keep user-facing task labels as Due date while retaining `targetDate` in storage and API fields. Date-filtered task lists must refetch inside `useSubscription.onData` before applying create/delete cache changes; updates can move a task into or out of a range.
 
@@ -131,6 +155,7 @@
 - `SelectTriggerOperation` draws erxes-ui `Combobox.ChipTrigger` only for the `detail` and `form` variants when a `label` is passed; every other variant and unlabelled caller (project, triage and filter surfaces) keeps its plain trigger. Task selects' roots and `FormItem`s take `label` and pass it straight through.
 - `DateSelectTask` draws its labelled chip only for the `input` variant with a `label` (task detail passes `variant="input"`, as ticket detail does); `detail` and every other variant keep the plain trigger. The form chip is `DateSelectTask.FormItem` with a `label`.
 - `DateSelectTask` keeps its own `dateValue` state seeded from the `value` prop and resyncs on `value`/`id` change; `useUpdateTask` already toasts on error, so the date select's `onError` only rolls back. `DateSelectContent` catches Enter in the capture phase because `DatePicker` stops its propagation.
+- `Sheet.Header` is a fixed 40px row. A header with a visible second line (subtitle, record number, description) adds `h-auto py-2` so it sizes to its content; detail-page title rows are `h-10`, level with `PageHeader`.
 - Task and project list filters render the filter popover trigger as the first child of `Filter.Bar`, so the filter icon stays fixed while selected filter chips appear after it; total counts stay last.
 
 ## Validation

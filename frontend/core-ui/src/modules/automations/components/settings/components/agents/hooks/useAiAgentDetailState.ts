@@ -19,10 +19,12 @@ export const useAiAgentDetailState = ({
   detail,
   save,
   close,
+  persistStepInUrl,
 }: {
   detail?: TAiAgentFormDetail;
   save: () => void;
   close: () => void;
+  persistStepInUrl: boolean;
 }): TAiAgentDetailContext => {
   const isEditing = !!detail?._id;
   const {
@@ -39,9 +41,11 @@ export const useAiAgentDetailState = ({
   );
   const values = useWatch({ control });
   const { confirm } = useConfirm();
-  const { step, setStep } = useAiAgentStep({ isEditing });
+  const { step, setStep } = useAiAgentStep({ isEditing, persistStepInUrl });
   const health = useAiAgentHealth(detail?._id);
-  const { statuses: knowledgeStatuses } = useAiAgentKnowledgeSourceStatuses();
+  const { statuses: knowledgeStatuses } = useAiAgentKnowledgeSourceStatuses(
+    detail?._id,
+  );
   const [memoryKey, setMemoryKey] = useState(AI_AGENT_INSTRUCTIONS_KEY);
 
   const states = useMemo(

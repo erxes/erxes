@@ -4,6 +4,10 @@ import { useSetAtom } from 'jotai';
 import { useEffect } from 'react';
 import { loadingPluginsConfigState, pluginsConfigState } from 'ui-modules';
 import { i18nInstance } from '~/i18n';
+import {
+  getPlatformMismatch,
+  validatePluginConfig,
+} from '~/plugins/utils/pluginConfigSchema';
 
 type RemoteConfig = {
   CONFIG: IUIConfig;
@@ -41,10 +45,30 @@ export const PluginConfigsProvidersEffect = () => {
       const loadConfig = async () => {
         for (const remote of remotes) {
           try {
-            const remoteConfig = (await loadRemote(
-              `${remote.name}/config`,
-            )) as RemoteConfig;
-            const pluginConfig = remoteConfig.CONFIG;
+            const remoteConfig = (await loadRemote(`${remote.name}/config`)) as
+              | RemoteConfig
+              | undefined;
+            const validation = validatePluginConfig(
+              remote.name,
+              remoteConfig?.CONFIG,
+            );
+
+            if (!validation.ok) {
+              console.error(validation.message);
+              setLoadingPluginsConfig(false);
+              continue;
+            }
+
+            const pluginConfig = validation.config;
+            const mismatch = getPlatformMismatch(
+              pluginConfig,
+              process.env.ERXES_VERSION,
+            );
+
+            if (mismatch) {
+              // Loaded anyway: a mis-declared range must not hide a working plugin.
+              console.warn(`[erxes] Plugin "${remote.name}": ${mismatch}`);
+            }
 
             await loadPluginI18nNamespace(pluginConfig);
 

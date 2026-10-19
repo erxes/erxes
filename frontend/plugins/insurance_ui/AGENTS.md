@@ -6,7 +6,7 @@
 - **Project:** `insurance_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/insurance_ui`
-- **Last synchronized:** `2026-09-09`
+- **Last synchronized:** `2026-10-18`
 
 ## Scope
 
@@ -29,6 +29,7 @@
 
 | Area              | Path                                             | Responsibility                                      |
 | ----------------- | ------------------------------------------------ | --------------------------------------------------- |
+| App sidebar | `frontend/plugins/insurance_ui/src/Sidebar.tsx` | `InsuranceSidebar`: the plugin's whole app sidebar, rendered by the `./insurance` entry through `AppLayout` |
 | Runtime           | `frontend/plugins/insurance_ui/src/main.ts`      | Starts the insurance UI remote.                     |
 | Federation config | `frontend/plugins/insurance_ui/module-federation.config.ts` | Exposes config, insurance routes, settings, and widgets. |
 | Dev server config | `frontend/plugins/insurance_ui/rspack.config.ts` | Module Federation development serving and watch ignore rules. |
@@ -41,7 +42,7 @@
 
 ### Provides
 
-- Module Federation exposes: `./config`, `./insurance`, `./insuranceSettings`, and `./widgets`.
+- Module Federation exposes: `./config`, `./insurance`, and `./widgets`.
 - Frontend navigation paths under `insurance/*` registered from `src/config.tsx`.
 
 ### Consumes
@@ -58,6 +59,11 @@
 
 ## Local Invariants
 
+- The plugin owns its whole app sidebar. `src/modules/insurance/Main.tsx` (the `./insurance`
+  expose) wraps its routes in `erxes-ui` `AppLayout` (`id="insurance"`) with
+  `InsuranceSidebar`. Core-ui draws only the top `CoreTab` bar; `navigationGroup` in
+  `src/config.tsx` supplies just the tab name, icon and `defaultPath` and takes
+  no `content`/`subGroup`.
 - Keep insurance-specific UI inside `frontend/plugins/insurance_ui`.
 - Module Federation exposes, route paths, and named exports must stay aligned.
 - Use `erxes-ui` and `ui-modules`; do not import another plugin's source.

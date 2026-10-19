@@ -11,7 +11,7 @@ export function Teams() {
   const { teams, loading } = useGetTeams();
   const navigate = useNavigate();
   const onClick = (teamId: string) => {
-    navigate(`/settings/operation/team/details/${teamId}`);
+    navigate(`/operation/settings/team/details/${teamId}`);
   };
   return (
     <div className="overflow-auto h-full px-8 pb-4">

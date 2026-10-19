@@ -4,7 +4,7 @@ import { useFormContext, useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 
 const RUNTIME_DEFAULTS = {
-  temperature: 0.2,
+  temperature: 0,
   maxTokens: 2000,
   timeoutMs: 15000,
 };

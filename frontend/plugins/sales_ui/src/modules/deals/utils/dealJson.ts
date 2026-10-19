@@ -122,16 +122,37 @@ export const dealProductsSchema = z.array(dealProductDataSchema);
 export const parseDealProducts = (value: unknown): DealProductData[] =>
   dealProductsSchema.parse(value ?? []);
 
-export const paymentsDataSchema = z.record(
-  z
-    .object({
-      currency: optionalString,
-      amount: optionalNumber,
-      info: z.unknown(),
-    })
-    .passthrough(),
-);
+const paymentDataSchema = z
+  .object({
+    currency: optionalString,
+    amount: optionalNumber,
+    info: z.unknown(),
+  })
+  .passthrough();
+
+export const paymentsDataSchema = z
+  .record(z.union([paymentDataSchema, z.number().finite()]))
+  .superRefine((payments, ctx) => {
+    for (const [type, payment] of Object.entries(payments)) {
+      if (typeof payment === 'number' && type !== 'totalAmount') {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: [type],
+          message: 'Expected a payment object',
+        });
+      }
+    }
+  });
 export type DealPaymentsData = z.infer<typeof paymentsDataSchema>;
+
+// Legacy totalAmount is summary metadata, not an editable payment entry.
+export const readDealPayment = (
+  payments: DealPaymentsData,
+  type: string,
+): z.infer<typeof paymentDataSchema> | undefined => {
+  const payment = payments[type];
+  return typeof payment === 'number' ? undefined : payment;
+};
 
 export const paymentTypesSchema = z.array(
   z

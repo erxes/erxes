@@ -1,5 +1,6 @@
 import { AutomationBuilderSecondarySidebar } from '@/automations/components/builder/sidebar/components/AutomationBuilderSecondarySidebar';
 import { AutomationBuilderPrimarySidebar } from '@/automations/components/builder/sidebar/components/AutomationBuilderPrimarySidebar';
+import { AutomationBuilderSidebarDock } from '@/automations/components/builder/sidebar/components/AutomationBuilderSidebarDock';
 import { useAutomationBuilderSecondaryPanels } from '@/automations/components/builder/sidebar/hooks/useAutomationBuilderSecondaryPanels';
 import { useAutomationBuilderSidebarHooks } from '@/automations/components/builder/sidebar/hooks/useAutomationBuilderSidebarHooks';
 import { useAutomation } from '@/automations/context/AutomationProvider';
@@ -98,7 +99,7 @@ export const AutomationBuilderSidebar = () => {
               <div className="absolute inset-0">
                 <AutomationBuilderPrimarySidebar
                   activeNode={activeNode}
-                  canShowSecondarySidebar={canShowSecondarySidebar}
+                  showPanelToggles={canShowSecondarySidebar}
                   className="w-full border-l-0"
                   handleBack={handleBack}
                   handleClose={handleClose}
@@ -132,9 +133,11 @@ export const AutomationBuilderSidebar = () => {
             <AutomationBuilderSecondarySidebar panel={activePanel} />
           ) : null}
 
+          {canShowSecondarySidebar && <AutomationBuilderSidebarDock />}
+
           <AutomationBuilderPrimarySidebar
             activeNode={activeNode}
-            canShowSecondarySidebar={canShowSecondarySidebar}
+            showPanelToggles={false}
             className={sidebarWidthClasses}
             handleBack={handleBack}
             handleClose={handleClose}

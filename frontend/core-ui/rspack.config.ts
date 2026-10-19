@@ -6,6 +6,13 @@ import {
 import { DefinePlugin } from '@rspack/core';
 
 import baseConfig from './module-federation.config';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+
+// Platform version plugins declare compatibility against (`platform` in CONFIG).
+const ERXES_VERSION: string = JSON.parse(
+  readFileSync(resolve(__dirname, '../../package.json'), 'utf8'),
+).version;
 
 const config: ModuleFederationConfig = {
   ...baseConfig,
@@ -22,6 +29,7 @@ export default composePlugins(
         'process.env.REACT_APP_API_URL': JSON.stringify(
           process.env.REACT_APP_API_URL,
         ),
+        'process.env.ERXES_VERSION': JSON.stringify(ERXES_VERSION),
 
         'process.env.REACT_APP_IMAGE_CDN_URL': JSON.stringify(
           process.env.REACT_APP_IMAGE_CDN_URL,

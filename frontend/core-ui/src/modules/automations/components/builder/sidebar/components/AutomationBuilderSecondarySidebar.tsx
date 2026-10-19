@@ -42,7 +42,7 @@ export const AutomationBuilderSecondarySidebar = ({
               <AutomationBuilderVariablesHelpPopover />
             )}
             <AutomationBuilderSidebarHeaderActions
-              canShowSecondarySidebar={false}
+              showPanelToggles={false}
               handleBack={handleBack}
               handleClose={handleClose}
             />

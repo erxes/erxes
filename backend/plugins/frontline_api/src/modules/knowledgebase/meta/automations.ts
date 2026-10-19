@@ -10,6 +10,56 @@ export const FRONTLINE_KNOWLEDGEBASE_ARTICLE_SOURCE_KEY =
 
 const SCOPE_DEFAULT_LIMIT = 500;
 
+const toStringArray = (value: unknown): string[] =>
+  Array.isArray(value)
+    ? value.filter((item): item is string => typeof item === 'string' && !!item)
+    : [];
+
+// A chosen category stands for everything filed beneath it, so a category
+// added under it later is covered without anyone editing the agent.
+const resolveCategorySubtreeIds = async (
+  models: IModels,
+  categoryIds: string[],
+) => {
+  const resolved = new Set(categoryIds);
+  let frontier = categoryIds;
+
+  while (frontier.length) {
+    const children = await models.Category.find(
+      { parentCategoryId: { $in: frontier } },
+      { _id: 1 },
+    ).lean<Array<{ _id: string }>>();
+
+    frontier = children
+      .map(({ _id }) => _id)
+      .filter((childId) => !resolved.has(childId));
+    frontier.forEach((childId) => resolved.add(childId));
+  }
+
+  return [...resolved];
+};
+
+// The whole-source scope narrowed by a rule: whole topics, category subtrees
+// and individual articles. No rule means every published article.
+const buildArticleScopeFilter = async (
+  models: IModels,
+  config?: Record<string, unknown>,
+) => {
+  const topicIds = toStringArray(config?.topicIds);
+  const categoryIds = await resolveCategorySubtreeIds(
+    models,
+    toStringArray(config?.categoryIds),
+  );
+  const articleIds = toStringArray(config?.articleIds);
+  const rules = [
+    ...(topicIds.length ? [{ topicId: { $in: topicIds } }] : []),
+    ...(categoryIds.length ? [{ categoryId: { $in: categoryIds } }] : []),
+    ...(articleIds.length ? [{ _id: { $in: articleIds } }] : []),
+  ];
+
+  return rules.length ? { $or: rules } : {};
+};
+
 const getKnowledgeArticleUpdatedAt = (article: {
   modifiedDate?: Date;
   createdDate?: Date;
@@ -106,6 +156,7 @@ export const frontlineAiKnowledgeProvider = {
       scope,
       sourceIds = [],
       candidateSourceIds = [],
+      config,
       cursor,
       limit,
       skipTotalCount,
@@ -124,6 +175,7 @@ export const frontlineAiKnowledgeProvider = {
       // A single-document refresh narrows the scope to the changed article.
       const publishedSelector = {
         status: 'publish',
+        ...(await buildArticleScopeFilter(models, config)),
         ...(candidateSourceIds.length
           ? { _id: { $in: candidateSourceIds } }
           : {}),

@@ -22,6 +22,7 @@ import {
 import { generateModels } from '~/connectionResolvers';
 import { ticketAutomationProducers } from '~/modules/ticket/meta/automations';
 import { ticketsAutomationContants } from '~/modules/ticket/meta/automations/ticketAutomationsConstants';
+import { findTicketObject } from '~/modules/ticket/meta/automations/findTicketObject';
 
 const modules = {
   facebook: facebookAutomationWorkers,
@@ -43,6 +44,7 @@ export const automations = {
       ...discordConstants.actions,
       ...mailConstants.actions,
     ],
+    findObjectTargets: [...ticketsAutomationContants.findObjectTargets],
     triggers: [
       ...inboxAutomationConstants.triggers,
       ...facebookConstants.triggers,
@@ -103,4 +105,10 @@ export const automations = {
     extractModuleName: (input) => input.moduleName,
     generateModels,
   }),
+
+  findObject: async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return await findTicketObject(models, data);
+  },
 } as AutomationConfigs;

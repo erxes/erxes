@@ -7,10 +7,10 @@ export const screenNewAddresses = async (
 ) => {
   for (const email of emails || []) {
     try {
-      const { ok, reason } = await screenAddress(email);
+      const verdict = await screenAddress(email);
 
-      if (!ok && reason) {
-        await models.EmailAddresses.suppress(email, 'screened');
+      if (!verdict.ok) {
+        await models.EmailAddresses.screen(email, verdict.reason);
       }
     } catch (error) {
       console.error(`Failed to screen an email address: ${error.message}`);

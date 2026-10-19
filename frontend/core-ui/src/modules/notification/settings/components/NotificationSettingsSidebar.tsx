@@ -1,11 +1,22 @@
+import { IconSettings } from '@tabler/icons-react';
 import { Sidebar } from 'erxes-ui';
+import { useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useLocation, useParams } from 'react-router-dom';
+import { currentUserState, useVersion } from 'ui-modules';
 import { useNotificationPluginsTypes } from '../hooks/useNotificationPluginsTypes';
+
+const NOTIFICATION_CONFIG_PATH = '/settings/notification/config';
 
 export const NotificationSettingsSidebar = () => {
   const { event } = useParams<{ event: string }>();
+  const { pathname } = useLocation();
   const { t } = useTranslation('common', { keyPrefix: 'sidebar' });
+  const { t: notificationT } = useTranslation('common', {
+    keyPrefix: 'notification',
+  });
+  const currentUser = useAtomValue(currentUserState);
+  const isOs = useVersion();
 
   const { pluginsNotifications } = useNotificationPluginsTypes();
 
@@ -36,6 +47,23 @@ export const NotificationSettingsSidebar = () => {
           </Sidebar.GroupContent>
         </Sidebar.Group>
       ))}
+      {currentUser?.isOwner && isOs && (
+        <Sidebar.Footer className="sticky bottom-0 mt-auto bg-sidebar">
+          <Sidebar.Menu>
+            <Sidebar.MenuItem>
+              <Sidebar.MenuButton
+                isActive={pathname === NOTIFICATION_CONFIG_PATH}
+                asChild
+              >
+                <Link to={NOTIFICATION_CONFIG_PATH}>
+                  <IconSettings />
+                  <span>{notificationT('configuration')}</span>
+                </Link>
+              </Sidebar.MenuButton>
+            </Sidebar.MenuItem>
+          </Sidebar.Menu>
+        </Sidebar.Footer>
+      )}
     </Sidebar.Panel>
   );
 };

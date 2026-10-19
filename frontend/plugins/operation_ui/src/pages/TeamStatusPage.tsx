@@ -11,7 +11,7 @@ export const TeamStatusPage = () => {
 
   return (
     <div className="h-full overflow-auto">
-      <div className="px-4 h-16 flex items-center">
+      <div className="px-4 h-10 flex items-center">
         <Breadcrumb>
           <Breadcrumb.List>
             <Breadcrumb.Item>

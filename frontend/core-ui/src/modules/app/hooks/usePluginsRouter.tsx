@@ -25,24 +25,3 @@ export const getPluginsRoutes = () => {
     />
   ));
 };
-
-export const getPluginsSettingsRoutes = () => {
-  const [pluginsMetaData] = useAtom(pluginsConfigState);
-  const plugins = Object.values(pluginsMetaData || {});
-
-  return plugins.map((plugin) => (
-    <Route
-      key={plugin.name}
-      path={`/${plugin.path}/*`}
-      element={
-        <PermissionRouteGuard plugin={plugin.name}>
-          <RenderPluginsComponent
-            pluginName={`${plugin.name}_ui`}
-            remoteModuleName={`${plugin.name}Settings`}
-            withMascot
-          />
-        </PermissionRouteGuard>
-      }
-    />
-  ));
-};

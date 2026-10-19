@@ -44,7 +44,7 @@ const ResponseMoreCell = ({
   const [moveOpen, setMoveOpen] = useState(false);
 
   const handleEdit = () => {
-    navigate(`/settings/frontline/channels/${channelId}/response/${_id}`);
+    navigate(`/frontline/settings/channels/${channelId}/response/${_id}`);
   };
 
   const handleDelete = () => {
@@ -114,7 +114,7 @@ const ResponseNameCell = ({
   return (
     <RecordTableInlineCell
       onClick={() =>
-        navigate(`/settings/frontline/channels/${channelId}/response/${_id}`)
+        navigate(`/frontline/settings/channels/${channelId}/response/${_id}`)
       }
     >
       {cell.getValue() as string}
