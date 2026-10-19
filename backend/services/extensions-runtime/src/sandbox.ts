@@ -45,6 +45,16 @@ const grants = new Map<string, Grant>();
 
 export const findGrant = (id: string) => grants.get(id);
 
+// Uninstall revokes every live grant of the install before dropping its
+// collections, so a call still running can't write and recreate them.
+export const revokeGrants = (tenant: string, extId: string) => {
+  for (const [id, grant] of grants) {
+    if (grant.tenant === tenant && grant.extId === extId) {
+      grants.delete(id);
+    }
+  }
+};
+
 // ---- The pool.
 //
 // OSS workerd ignores `limits.cpuMs`, so a busy loop wedges its whole

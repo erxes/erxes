@@ -6,6 +6,7 @@ import { ApiError } from './errors';
 import { collectionName, dropCollections } from './hostDb';
 import { LIMITS } from './limits';
 import { pluginName, rebuildPermissions } from './permissions';
+import { revokeGrants } from './sandbox';
 
 export const InstallBody = z.object({
   id: z.string().regex(/^[a-z][a-z0-9-]*$/),
@@ -212,6 +213,7 @@ export const uninstall = async (
   }
 
   await models.Extensions.deleteOne({ _id: ext._id });
+  revokeGrants(tenant, extId);
 
   if (purge) {
     const versions = await models.ExtensionVersions.find({
