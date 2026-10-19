@@ -77,7 +77,9 @@ export const set = mutation({
       throw new ExtensionError('NOT_FOUND', 'This deal no longer exists');
     }
 
-    const stage = await erxes.sales.stages.get({ _id: deal.stageId });
+    const stage = deal.stageId
+      ? await erxes.sales.stages.get({ _id: deal.stageId })
+      : null;
 
     // Atomic: two saves at once leave one follow-up, the later one's.
     return db.followUps.updateOne(
