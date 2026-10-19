@@ -508,7 +508,7 @@ describe('GraphQL approval admission', () => {
       throw new Error('Missing approval predicate');
     return predicate({ query }, { requestContext: { approvalMode } });
   };
-  it('never suspends read queries, including schema queries rejected by policy', async () => {
+  it('never suspends read queries, including schema introspection', async () => {
     expect(await needsApproval('query Read { customers { _id } }')).toBe(false);
     expect(
       await needsApproval('query Inspect { __type(name: "Deal") { name } }'),
@@ -523,7 +523,7 @@ describe('GraphQL approval admission', () => {
     expect(await needsApproval('not graphql')).toBe(false);
     fetchSpy.mockRejectedValue(new Error('Must not fetch'));
     const output = await runCall(
-      { query: 'query Inspect { __type(name: "Deal") { name } }' },
+      { query: 'query Denied { agentsConnections { provider } }' },
       { subdomain: 'tenant', userId: 'user' },
     );
     expect(output.status).toBe('error');
@@ -546,5 +546,35 @@ describe('GraphQL approval admission', () => {
         'destructive',
       ),
     ).toBe(true);
+  });
+});
+
+it('forwards aliased introspection to the gateway as the acting user without producing record references', async () => {
+  const query =
+    'query AgentsSalesTypeFields { deal: __type(name: "Deal") { fields { name } } currency: __type(name: "DealTotalCurrency") { fields { name } } }';
+  fetchSpy.mockResolvedValue(
+    graphqlResponse({
+      data: {
+        deal: { fields: [{ name: '_id' }] },
+        currency: { fields: [{ name: 'currency' }] },
+      },
+    }),
+  );
+  const output = await runCall(
+    { query },
+    { subdomain: 'tenant', userId: 'user-1' },
+  );
+  expect(output.status).toBe('ok');
+  expect(output.data).toEqual({
+    deal: { fields: [{ name: '_id' }] },
+    currency: { fields: [{ name: 'currency' }] },
+  });
+  expect(output.referenceManifest).toBeUndefined();
+  const [url, init] = fetchSpy.mock.calls[0];
+  expect(url).toBe(`${TEST_GATEWAY}/graphql`);
+  expect(JSON.parse(init.body).query).toBe(query);
+  expect(decodeAgentToolsAuthHeader(init.headers)).toEqual({
+    subdomain: 'tenant',
+    userId: 'user-1',
   });
 });

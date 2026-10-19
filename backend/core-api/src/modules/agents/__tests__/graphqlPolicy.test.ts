@@ -101,7 +101,7 @@ describe('parseAgentGraphqlOperation', () => {
     expectPolicyError(
       () => parseAgentGraphqlOperation(`mutation M { ${field} }`),
       'GRAPHQL_OPERATION_NOT_ALLOWED',
-      /authentication operations are not available/,
+      /restricted by the agent security policy/,
     );
   });
 });
@@ -143,11 +143,14 @@ describe('requiresGraphqlApproval', () => {
 describe('system-operation deny policy', () => {
   it.each([
     'login',
-    'appsAdd', 'appDetail', 'usersCreateOwner', 'usersEdit', 'agentsSettingsUpdate',
+    'appsAdd',
+    'appDetail',
+    'usersCreateOwner',
+    'usersEdit',
+    'agentsSettingsUpdate',
     'usersInvite',
     'permissionGroupsEdit',
     'agentsConnectionUpsert',
-    '__schema',
   ])('refuses %s even behind aliases', (field) => {
     expect(() =>
       parseAgentGraphqlOperation(
@@ -164,7 +167,35 @@ describe('system-operation deny policy', () => {
   });
 });
 
-
 it('does not mistake business names for authentication words', () => {
-  expect(parseAgentGraphqlOperation('query Products { hotProducts { _id } associations { _id } }').rootFields).toEqual(['hotProducts', 'associations']);
+  expect(
+    parseAgentGraphqlOperation(
+      'query Products { hotProducts { _id } associations { _id } }',
+    ).rootFields,
+  ).toEqual(['hotProducts', 'associations']);
+});
+
+it('allows standard introspection, including aliased type lookups and schema fields', () => {
+  const parsed = parseAgentGraphqlOperation(`
+    query AgentsSalesTypeFields {
+      deal: __type(name: "Deal") { fields { name } }
+      currency: __type(name: "DealTotalCurrency") { fields { name } }
+      pipeline: __type(name: "SalesPipeline") { fields { name } }
+      schema: __schema { queryType { name } }
+    }
+  `);
+  expect(parsed.rootFields).toEqual(['__type', '__schema']);
+  expect(requiresGraphqlApproval(parsed, 'writes')).toBe(false);
+  expect(requiresGraphqlApproval(parsed, 'destructive')).toBe(false);
+});
+
+it('still denies an actual account/security operation alongside introspection', () => {
+  expect(() =>
+    parseAgentGraphqlOperation(`
+    query AgentsMixedIntrospection {
+      __type(name: "Deal") { name }
+      hidden: agentsConnections { provider }
+    }
+  `),
+  ).toThrow(/agentsConnections.*restricted by the agent security policy/);
 });

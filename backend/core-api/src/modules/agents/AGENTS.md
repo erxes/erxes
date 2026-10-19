@@ -21,7 +21,8 @@ plugin; ported from the former private `erxes-agent` service). It provides:
 - GraphQL discovery (`searchGraphql`) and execution (`callGraphql`) through
   the gateway as the acting user, using a fresh HMAC-signed identity header.
   `graphqlPolicy.ts` denies authentication, credential and system-security
-  operations; other queries/mutations use existing resolver permissions;
+  operations; standard `__type`/`__schema` introspection is allowed and follows
+  gateway configuration. Other queries/mutations use existing resolver permissions;
 - optional code mode exposes only `searchGraphql` and `callGraphql` in a
   QuickJS sandbox; approval-gated mutations must run interactively in chat.
   Its native output schema is Zod v4: extensions must import `zod/v4` too.

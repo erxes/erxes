@@ -28,7 +28,7 @@ export interface IAgentGraphqlOperation {
   document: DocumentNode;
 }
 
-/** Deny system operations, without a business-operation admission list. */
+/** Restrict account/security and federation entry points, without blocking schema introspection. */
 export const AGENT_GRAPHQL_DENIED_FIELD = {
   test(field: string): boolean {
     const words = field
@@ -37,9 +37,13 @@ export const AGENT_GRAPHQL_DENIED_FIELD = {
       .replace(/_/g, ' ')
       .toLowerCase();
     return (
-      /\b(login|logout|password|passwords|otp|tokens?|credentials?|secrets?|oauth|sso|sessions?|invitations?|permissions?)\b/.test(words) ||
+      /\b(login|logout|password|passwords|otp|tokens?|credentials?|secrets?|oauth|sso|sessions?|invitations?|permissions?)\b/.test(
+        words,
+      ) ||
       /\b(sign up|sign in|magic link|two factor|2fa|api key)\b/.test(words) ||
-      /^(apps?(Add|Edit|Revoke|Remove|Detail|List|TotalCount)?|users(CreateOwner|Edit|EditProfile|SetActiveStatus|SetActiveStatusBatch|Invite)|inviteUser|agentsConnections|agentsConnectionUpsert|agentsConnectionRemove|agentsSettingsUpdate|__schema|__type|_service|_entities)$/i.test(field)
+      /^(apps?(Add|Edit|Revoke|Remove|Detail|List|TotalCount)?|users(CreateOwner|Edit|EditProfile|SetActiveStatus|SetActiveStatusBatch|Invite)|inviteUser|agentsConnections|agentsConnectionUpsert|agentsConnectionRemove|agentsSettingsUpdate|_service|_entities)$/i.test(
+        field,
+      )
     );
   },
 };
@@ -156,7 +160,7 @@ export const parseAgentGraphqlOperation = (
     if (AGENT_GRAPHQL_DENIED_FIELD.test(field)) {
       throw policyError(
         'GRAPHQL_OPERATION_NOT_ALLOWED',
-        `The root field "${field}" is denied: authentication operations are not available to the agent.`,
+        `The root field "${field}" is denied: this operation is restricted by the agent security policy.`,
       );
     }
   }
