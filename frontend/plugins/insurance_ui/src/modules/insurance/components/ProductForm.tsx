@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Dialog, Button, Label, Input, Select } from 'erxes-ui';
 import { IconEye } from '@tabler/icons-react';
+import { nanoid } from 'nanoid';
 import {
   useCreateInsuranceProduct,
   useUpdateInsuranceProduct,
@@ -97,7 +98,7 @@ export const ProductForm = ({
   };
 
   const [durationFields, setDurationFields] = useState<
-    { duration: string; percentage: number }[]
+    { rowId: string; duration: string; percentage: number }[]
   >([]);
 
   const [durationTiers, setDurationTiers] = useState<DurationTier[]>([]);
@@ -139,6 +140,7 @@ export const ProductForm = ({
       if (percentageByDuration && typeof percentageByDuration === 'object') {
         const durationEntries = Object.entries(percentageByDuration).map(
           ([duration, percentage]) => ({
+            rowId: nanoid(),
             duration,
             percentage,
           }),
@@ -689,7 +691,7 @@ export const ProductForm = ({
                       onClick={() => {
                         setDurationFields([
                           ...durationFields,
-                          { duration: '', percentage: 0 },
+                          { rowId: nanoid(), duration: '', percentage: 0 },
                         ]);
                       }}
                     >
@@ -704,7 +706,7 @@ export const ProductForm = ({
                   ) : (
                     <div className="space-y-2">
                       {durationFields.map((field, index) => (
-                        <div key={index} className="flex gap-2 items-end">
+                        <div key={field.rowId} className="flex gap-2 items-end">
                           <div className="flex-1">
                             <Label className="text-xs">
                               {t('duration-months')}

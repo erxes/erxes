@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { nanoid } from 'nanoid';
 import {
   IconSandbox,
   IconBuilding,
@@ -54,12 +55,12 @@ export const VendorDetailPage = () => {
     number | string | undefined
   >(undefined);
   const [vendorDurationFields, setVendorDurationFields] = useState<
-    { duration: string; percentage: number }[]
+    { rowId: string; duration: string; percentage: number }[]
   >([]);
   const [editingProduct, setEditingProduct] =
     useState<InsuranceVendorProduct | null>(null);
   const [discountTiers, setDiscountTiers] = useState<
-    { minTravelers: number; discountPercent: number }[]
+    { rowId: string; minTravelers: number; discountPercent: number }[]
   >([]);
 
   const handleEdit = (user: VendorUser) => {
@@ -115,6 +116,7 @@ export const VendorDetailPage = () => {
         const durationFields = Object.entries(
           vp.pricingOverride.percentageByDuration,
         ).map(([duration, percentage]) => ({
+          rowId: nanoid(),
           duration,
           percentage,
         }));
@@ -131,6 +133,7 @@ export const VendorDetailPage = () => {
       setDiscountTiers(
         vp.discountTiers.map(
           (t: { minTravelers: number; discountPercent: number }) => ({
+            rowId: nanoid(),
             minTravelers: t.minTravelers,
             discountPercent: t.discountPercent,
           }),
@@ -181,7 +184,12 @@ export const VendorDetailPage = () => {
           pricingOverride,
           discountTiers:
             discountTiers.length > 0
-              ? discountTiers.filter((t) => t.minTravelers > 0)
+              ? discountTiers
+                  .filter((t) => t.minTravelers > 0)
+                  .map(({ minTravelers, discountPercent }) => ({
+                    minTravelers,
+                    discountPercent,
+                  }))
               : undefined,
         },
       });
@@ -547,7 +555,7 @@ export const VendorDetailPage = () => {
                   onClick={() => {
                     setVendorDurationFields([
                       ...vendorDurationFields,
-                      { duration: '', percentage: 0 },
+                      { rowId: nanoid(), duration: '', percentage: 0 },
                     ]);
                   }}
                 >
@@ -562,7 +570,7 @@ export const VendorDetailPage = () => {
               ) : (
                 <div className="space-y-2">
                   {vendorDurationFields.map((field, index) => (
-                    <div key={index} className="flex gap-2 items-end">
+                    <div key={field.rowId} className="flex gap-2 items-end">
                       <div className="flex-1">
                         <Label className="text-xs">{t('duration')}</Label>
                         <Input
@@ -630,7 +638,11 @@ export const VendorDetailPage = () => {
                   onClick={() => {
                     setDiscountTiers([
                       ...discountTiers,
-                      { minTravelers: 5, discountPercent: 10 },
+                      {
+                        rowId: nanoid(),
+                        minTravelers: 5,
+                        discountPercent: 10,
+                      },
                     ]);
                   }}
                 >
@@ -646,7 +658,7 @@ export const VendorDetailPage = () => {
               ) : (
                 <div className="space-y-2">
                   {discountTiers.map((tier, index) => (
-                    <div key={index} className="flex gap-2 items-end">
+                    <div key={tier.rowId} className="flex gap-2 items-end">
                       <div className="flex-1">
                         <Label className="text-xs">Хүний тоо (≥)</Label>
                         <Input

@@ -72,7 +72,7 @@
 - Module Federation exposes, route paths, and named exports must stay aligned.
 - GraphQL documents use static selections without JavaScript interpolation. Operation names start with `Insurance`; update string-based `refetchQueries` whenever an operation is renamed, preserving the backend field names, arguments, and selections.
 - Product/vendor pricing form shapes live in `src/modules/insurance/types/pricing.ts`. Preserve extra JSON keys and legacy string percentages; type cleanup must not introduce payload filtering or change pricing defaults/calculations.
-- Product/vendor duration and vendor discount rows edit/remove by their array position; changing an editable value must not change the row identity.
+- Product/vendor duration and vendor discount rows use stable UI-only `rowId` keys assigned when loaded or added. Preserve these keys during edits/removal and omit them from mutation variables; changing an editable value must not change the row identity.
 - Pricing configuration, vendor pricing overrides, and insured objects are existing JSON API contracts. Preserve their payloads and the form state that edits them when changing response types.
 - `src/gql/` is generated, gitignored, and excluded from lint/document scanning. Do not edit generated files manually; JSON maps to `unknown` and Date outputs to `string`.
 - Keep `codegen` in both build and serve dependencies. `codegen:watch` is a separate long-running target with no dependencies; the shared development launcher discovers both targets when Insurance is enabled.
