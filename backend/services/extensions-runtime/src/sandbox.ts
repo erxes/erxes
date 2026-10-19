@@ -37,9 +37,21 @@ export const HOST_TOKEN = createToken();
 // id. /db looks the id up here, so a call can reach only its own tenant, its
 // own install and that install's collections. The grant is revoked when the
 // call returns or times out, so a straggling db call from a killed run is
-// refused.
+// refused. It also carries the caller's session and the install's pinned
+// contracts, so a contract call runs as the caller and only on what the
+// install pinned.
 
-export type Grant = { tenant: string; extId: string; collections: string[] };
+export type Session = { token: string; hostname: string };
+
+export type Grant = {
+  tenant: string;
+  extId: string;
+  collections: string[];
+  uses: Record<string, number>;
+  session: Session;
+  // When the run times out (epoch ms).
+  deadline: number;
+};
 
 const grants = new Map<string, Grant>();
 
@@ -257,9 +269,11 @@ export type Run = {
   code: string;
   codeHash: string;
   collections: string[];
+  uses: Record<string, number>;
   name: string;
   input: unknown;
   user: { _id: string };
+  session: Session;
 };
 
 const fail = (code: string, message: string, ms: number): InvokeResult => ({
@@ -361,17 +375,23 @@ export const invoke = async (run: Run): Promise<InvokeResult> => {
   runningTotal++;
 
   const grant = randomUUID();
-  grants.set(grant, {
+  const granted: Grant = {
     tenant: run.tenant,
     extId: run.extId,
     collections: run.collections,
-  });
+    uses: run.uses,
+    session: run.session,
+    deadline: Date.now() + LIMITS.runTimeoutMs,
+  };
+  grants.set(grant, granted);
 
   let slot: Slot | undefined;
 
   try {
     slot = await acquire(run.tenant);
     await slot.ready;
+    // The run's own clock starts now, in callSlot.
+    granted.deadline = Date.now() + LIMITS.runTimeoutMs;
     return await callSlot(slot, grant, run);
   } finally {
     grants.delete(grant);

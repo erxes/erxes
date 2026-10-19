@@ -1495,6 +1495,9 @@ importers:
       erxes-api-shared:
         specifier: workspace:^
         version: link:../../erxes-api-shared
+      erxes-sdk:
+        specifier: workspace:^
+        version: link:../../../packages/sdk
       hono:
         specifier: ^4.13.13
         version: 4.13.13
@@ -1511,9 +1514,6 @@ importers:
       '@types/jsonwebtoken':
         specifier: ^9.0.9
         version: 9.0.9
-      erxes-sdk:
-        specifier: workspace:^
-        version: link:../../../packages/sdk
       esbuild:
         specifier: ^0.19.2
         version: 0.19.12

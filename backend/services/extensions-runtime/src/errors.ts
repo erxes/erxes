@@ -16,6 +16,7 @@ export class ApiError extends Error {
       | 415
       | 422
       | 429
+      | 502
       | 503
       | 504,
     readonly code: string,

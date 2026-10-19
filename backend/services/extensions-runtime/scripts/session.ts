@@ -2,7 +2,10 @@ import { randomUUID } from 'node:crypto';
 import jwt from 'jsonwebtoken';
 import { redis } from 'erxes-api-shared/utils';
 
-export const GATEWAY = process.env.EXT_GATEWAY_URL || 'http://localhost:4000';
+// EXT_GATEWAY_URL is the gateway's GraphQL endpoint, as the runtime reads it.
+export const GATEWAY = new URL(
+  process.env.EXT_GATEWAY_URL || 'http://localhost:4000/graphql',
+).origin;
 
 // Stand-in for a signed-in browser session: a normal erxes login token for
 // `userId`, the same shape and Redis key core-api's login writes. Needs the

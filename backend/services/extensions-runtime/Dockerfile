@@ -15,6 +15,7 @@ const dependencies = { \
   ...(service.dependencies || {}), \
 }; \
 delete dependencies['erxes-api-shared']; \
+delete dependencies['erxes-sdk']; \
 fs.writeFileSync( \
   'package.json', \
   JSON.stringify( \
@@ -53,6 +54,11 @@ COPY backend/erxes-api-shared/utils ./node_modules/erxes-api-shared/utils
 COPY backend/erxes-api-shared/core-types ./node_modules/erxes-api-shared/core-types
 COPY backend/erxes-api-shared/core-modules ./node_modules/erxes-api-shared/core-modules
 COPY backend/erxes-api-shared/package.json ./node_modules/erxes-api-shared/
+
+# The runtime loads the SDK's host contracts. Its package points at TypeScript
+# source for authors, so the image gets the compiled entry instead.
+COPY packages/sdk/dist ./node_modules/erxes-sdk/
+RUN echo '{"name":"erxes-sdk","main":"index.js"}' > ./node_modules/erxes-sdk/package.json
 
 COPY backend/services/extensions-runtime/dist ./dist
 

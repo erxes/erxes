@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto';
+import { findContract } from 'erxes-sdk';
 import { getPlugins } from 'erxes-api-shared/utils';
 import { z } from 'zod';
 import type { IModels } from './connectionResolver';
@@ -16,6 +17,17 @@ export const InstallBody = z.object({
   collections: z.array(z.string().regex(/^[a-zA-Z][a-zA-Z0-9_]*$/)),
   permissions: z.record(z.string(), z.record(z.string(), z.string())),
   functionPermissions: z.record(z.string(), z.string()),
+  // Only contract versions this runtime serves.
+  uses: z
+    .record(z.string(), z.number().int())
+    .default({})
+    .refine(
+      (uses) =>
+        Object.entries(uses).every(([host, version]) =>
+          findContract(host, version),
+        ),
+      { message: 'pins a host contract version this runtime does not serve' },
+    ),
   ui: z
     .object({
       remote: z.string(),
@@ -100,6 +112,7 @@ export const activateVersion = async (
         collections: build.collections,
         permissions: build.permissions,
         functionPermissions: build.functionPermissions,
+        uses: build.uses ?? {},
         status: 'installed',
         installedBy: build.installedBy,
         installedAt: new Date(),
@@ -178,6 +191,7 @@ export const installBuild = async (
     collections: body.collections,
     permissions: body.permissions,
     functionPermissions: body.functionPermissions,
+    uses: body.uses,
     uiRemote: ui?.remote,
     installedBy: userId,
   });
