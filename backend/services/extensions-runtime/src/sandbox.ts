@@ -51,18 +51,26 @@ export type Grant = {
   session: Session;
   // When the run times out (epoch ms).
   deadline: number;
+  // Aborted on revocation, so an upstream call still holding the caller's
+  // session (one the extension fired and never awaited) stops with the run.
+  abort: AbortController;
 };
 
 const grants = new Map<string, Grant>();
 
 export const findGrant = (id: string) => grants.get(id);
 
+const revoke = (id: string) => {
+  grants.get(id)?.abort.abort();
+  grants.delete(id);
+};
+
 // Uninstall revokes every live grant of the install before dropping its
 // collections, so a call still running can't write and recreate them.
 export const revokeGrants = (tenant: string, extId: string) => {
   for (const [id, grant] of grants) {
     if (grant.tenant === tenant && grant.extId === extId) {
-      grants.delete(id);
+      revoke(id);
     }
   }
 };
@@ -382,6 +390,7 @@ export const invoke = async (run: Run): Promise<InvokeResult> => {
     uses: run.uses,
     session: run.session,
     deadline: Date.now() + LIMITS.runTimeoutMs,
+    abort: new AbortController(),
   };
   grants.set(grant, granted);
 
@@ -394,7 +403,8 @@ export const invoke = async (run: Run): Promise<InvokeResult> => {
     granted.deadline = Date.now() + LIMITS.runTimeoutMs;
     return await callSlot(slot, grant, run);
   } finally {
-    grants.delete(grant);
+    // Every way a run ends comes through here: return, error, timeout kill.
+    revoke(grant);
     runningTotal--;
 
     const left = (runningByTenant.get(run.tenant) ?? 1) - 1;

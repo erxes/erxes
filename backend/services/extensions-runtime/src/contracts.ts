@@ -8,6 +8,7 @@ import {
 import { z } from 'zod';
 import { ApiError, invalidInput } from './errors';
 import { LIMITS } from './limits';
+import type { Grant } from './sandbox';
 
 const GATEWAY_URL =
   process.env.EXT_GATEWAY_URL || 'http://localhost:4000/graphql';
@@ -158,9 +159,10 @@ const GatewayBody = z.object({
 
 // The caller's own session and hostname, so the gateway resolves the same
 // tenant and user and the resolvers run their own permission checks. Ends by
-// `deadline`, so no upstream call outlives the run that made it.
+// `deadline`, and stops when the grant is revoked, so no upstream call
+// outlives the run that made it.
 export const gatewayUpstream =
-  (session: { token: string; hostname: string }, deadline: number): Upstream =>
+  ({ session, deadline, abort }: Grant): Upstream =>
   async ({ host, version, entry, input }) => {
     const document = served[host]?.[version]?.[entry.name];
 
@@ -185,9 +187,20 @@ export const gatewayUpstream =
           'nginx-hostname': session.hostname,
         },
         body: JSON.stringify({ query: document.query, variables: input }),
-        signal: AbortSignal.timeout(Math.max(timeoutMs, 0)),
+        signal: AbortSignal.any([
+          abort.signal,
+          AbortSignal.timeout(Math.max(timeoutMs, 0)),
+        ]),
       });
     } catch (e) {
+      if (abort.signal.aborted) {
+        throw new ApiError(
+          403,
+          'GRANT_EXPIRED',
+          `The call ended before ${host} answered ${entry.name}`,
+        );
+      }
+
       if (e instanceof DOMException && e.name === 'TimeoutError') {
         throw new ApiError(
           502,

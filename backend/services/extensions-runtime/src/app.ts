@@ -504,7 +504,7 @@ export const hostApp = new Hono()
       const data = await runContractCall(
         grant.uses,
         request,
-        gatewayUpstream(grant.session, grant.deadline),
+        gatewayUpstream(grant),
       );
 
       return c.json({ ok: true as const, data });
