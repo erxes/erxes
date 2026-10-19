@@ -9,7 +9,9 @@ import {
   archivedItems,
   archivedItemsCount,
   checkItemPermByUser,
+  getCompanyIds,
   getCreatedAtSearchFilter,
+  getCustomerIds,
   getItemList,
 } from '~/modules/sales/utils';
 import {
@@ -19,6 +21,7 @@ import {
   sendTRPCMessage,
 } from 'erxes-api-shared/utils';
 import { FilterQuery } from 'mongoose';
+import { contactFieldsReady } from 'erxes-api-shared/core-modules';
 import dealResolvers from '@/sales/graphql/resolvers/customResolvers/deal';
 import moment from 'moment';
 import { Resolver } from 'erxes-api-shared/core-types';
@@ -130,10 +133,16 @@ const getPipelineVisibilityFilter = async ({
   };
 };
 
-const getDealIdsByCustomerPhone = async (
+// Deals keep their contacts on themselves once the collection is migrated;
+// until then contact filters go through relations as before.
+const dealContactsReady = (models: IModels, subdomain: string) =>
+  contactFieldsReady(models.Deals, `${subdomain}:deals`);
+
+const getCustomerPhoneCondition = async (
+  models: IModels,
   subdomain: string,
   search: string,
-): Promise<string[]> => {
+): Promise<FilterQuery<IDealDocument> | null> => {
   const trimmedSearch = search.trim();
   const phoneDigits = trimmedSearch.replace(/\D/g, '');
 
@@ -142,7 +151,7 @@ const getDealIdsByCustomerPhone = async (
     phoneDigits.length >= 4 && /^[\d\s+()-]+$/.test(trimmedSearch);
 
   if (!isPhoneSearch) {
-    return [];
+    return null;
   }
 
   const phonePattern = escapeRegExp(phoneDigits).split('').join('\\D*');
@@ -169,10 +178,16 @@ const getDealIdsByCustomerPhone = async (
   });
 
   if (!customers.length) {
-    return [];
+    return null;
   }
 
-  return sendTRPCMessage({
+  const phoneCustomerIds = customers.map(({ _id }) => String(_id));
+
+  if (await dealContactsReady(models, subdomain)) {
+    return { customerIds: { $in: phoneCustomerIds } };
+  }
+
+  const dealIds: string[] = await sendTRPCMessage({
     subdomain,
     pluginName: 'core',
     method: 'query',
@@ -180,11 +195,13 @@ const getDealIdsByCustomerPhone = async (
     action: 'filterRelationIds',
     input: {
       contentType: 'core:customer',
-      contentIds: customers.map(({ _id }) => String(_id)),
+      contentIds: phoneCustomerIds,
       relatedContentType: 'sales:deal',
     },
     defaultValue: [],
   });
+
+  return dealIds.length ? { _id: { $in: dealIds } } : null;
 };
 
 export const generateFilter = async (
@@ -248,8 +265,8 @@ export const generateFilter = async (
     status
       ? { status }
       : noSkipArchive
-        ? {}
-        : { status: { $ne: SALES_STATUSES.ARCHIVED }, parentId: undefined },
+      ? {}
+      : { status: { $ne: SALES_STATUSES.ARCHIVED }, parentId: undefined },
   );
 
   let filterIds: string[] = [];
@@ -304,7 +321,25 @@ export const generateFilter = async (
     filter.departmentIds = { $in: departments.map((item) => item._id) };
   }
 
-  if (customerIds) {
+  const contactsReady =
+    customerIds ||
+    companyIds ||
+    relationType === 'core:customer' ||
+    relationType === 'core:company'
+      ? await dealContactsReady(models, subdomain)
+      : false;
+
+  if (contactsReady) {
+    if (customerIds) {
+      filter.customerIds = { $in: customerIds };
+    }
+
+    if (companyIds) {
+      filter.companyIds = { $in: companyIds };
+    }
+  }
+
+  if (!contactsReady && customerIds) {
     const relIds = await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
@@ -321,7 +356,7 @@ export const generateFilter = async (
     filterIds = relIds;
   }
 
-  if (companyIds) {
+  if (!contactsReady && companyIds) {
     const relIds = await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
@@ -340,7 +375,7 @@ export const generateFilter = async (
       : relIds;
   }
 
-  if (customerIds || companyIds) {
+  if (!contactsReady && (customerIds || companyIds)) {
     filter._id = { $in: filterIds };
   }
 
@@ -348,7 +383,11 @@ export const generateFilter = async (
     filter._id = { $in: _ids };
   }
 
-  if (relationType && relationId) {
+  if (contactsReady && relationType === 'core:customer' && relationId) {
+    filter.customerIds = relationId;
+  } else if (contactsReady && relationType === 'core:company' && relationId) {
+    filter.companyIds = relationId;
+  } else if (relationType && relationId) {
     const relIds = await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
@@ -455,7 +494,11 @@ export const generateFilter = async (
   }
 
   if (search) {
-    const customerDealIds = await getDealIdsByCustomerPhone(subdomain, search);
+    const customerPhoneCondition = await getCustomerPhoneCondition(
+      models,
+      subdomain,
+      search,
+    );
     const createdAtFilter = getCreatedAtSearchFilter(search);
 
     Object.assign(filter, {
@@ -463,7 +506,7 @@ export const generateFilter = async (
         { name: { $regex: escapeRegExp(search), $options: 'i' } },
         { number: { $regex: escapeRegExp(search), $options: 'i' } },
         { description: { $regex: escapeRegExp(search), $options: 'i' } },
-        ...(customerDealIds.length ? [{ _id: { $in: customerDealIds } }] : []),
+        ...(customerPhoneCondition ? [customerPhoneCondition] : []),
         ...(createdAtFilter ? [createdAtFilter] : []),
       ],
     });
@@ -1036,37 +1079,18 @@ export const dealQueries: Record<string, Resolver> = {
         unitPrice?: number;
       }>;
     },
-    { subdomain }: IContext,
+    { subdomain, models }: IContext,
   ) {
     const getOwner = async (): Promise<{
       ownerId?: string;
       ownerType?: 'customer' | 'company';
     }> => {
-      const getRelation = async (
-        contentType: 'core:customer' | 'core:company',
-      ) => {
-        const ids = await sendTRPCMessage({
-          subdomain,
-          pluginName: 'core',
-          module: 'relation',
-          action: 'getRelationIds',
-          input: {
-            contentType,
-            relatedContentType: 'sales:deal',
-            contentId: _id,
-          },
-          defaultValue: [],
-        });
-
-        return ids?.[0];
-      };
-
-      const customerId = await getRelation('core:customer');
+      const [customerId] = await getCustomerIds(subdomain, models, _id);
       if (customerId) {
         return { ownerId: customerId, ownerType: 'customer' };
       }
 
-      const companyId = await getRelation('core:company');
+      const [companyId] = await getCompanyIds(subdomain, models, _id);
       if (companyId) {
         return { ownerId: companyId, ownerType: 'company' };
       }

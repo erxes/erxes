@@ -1,3 +1,4 @@
+import { contactFieldsReady } from 'erxes-api-shared/core-modules';
 import crypto from 'crypto';
 import {
   IAttachment,
@@ -362,7 +363,7 @@ export const widgetMutations: Record<string, Resolver> = {
       deviceToken,
       visitorId,
     } = args;
-    console.log(JSON.stringify({args}, null, 2))
+    console.log(JSON.stringify({ args }, null, 2));
 
     const customData = data;
 
@@ -384,7 +385,7 @@ export const widgetMutations: Record<string, Resolver> = {
 
     let customer;
 
-    console.log({cachedCustomerId , email , phone , code})
+    console.log({ cachedCustomerId, email, phone, code });
 
     if (cachedCustomerId || email || phone || code) {
       customer = await sendTRPCMessage({
@@ -402,7 +403,7 @@ export const widgetMutations: Record<string, Resolver> = {
         },
       });
 
-console.log(JSON.stringify({customer}))
+      console.log(JSON.stringify({ customer }));
 
       const doc = {
         integrationId: integration._id,
@@ -412,40 +413,39 @@ console.log(JSON.stringify({customer}))
         isUser,
         deviceToken,
       };
-      
-      if(customer){
-        const updatedCustomer  = await sendTRPCMessage({
-            subdomain,
-            pluginName: 'core',
-            method: 'mutation',
-            module: 'customers',
-            action: 'updateMessengerCustomer',
-            input: {
-              _id: customer._id,
-              doc,
-              customData,
-            },
-          })
-          console.log({updatedCustomer})
 
-          // customer = updatedCustomer
-      }else {
+      if (customer) {
+        const updatedCustomer = await sendTRPCMessage({
+          subdomain,
+          pluginName: 'core',
+          method: 'mutation',
+          module: 'customers',
+          action: 'updateMessengerCustomer',
+          input: {
+            _id: customer._id,
+            doc,
+            customData,
+          },
+        });
+        console.log({ updatedCustomer });
+
+        // customer = updatedCustomer
+      } else {
         const newCustomer = await sendTRPCMessage({
-            subdomain,
-            pluginName: 'core',
-            method: 'mutation',
-            module: 'customers',
-            action: 'createMessengerCustomer',
-            input: {
-              doc,
-              customData,
-            },
-          });
+          subdomain,
+          pluginName: 'core',
+          method: 'mutation',
+          module: 'customers',
+          action: 'createMessengerCustomer',
+          input: {
+            doc,
+            customData,
+          },
+        });
 
-          console.log(JSON.stringify({newCustomer }, null, 2))
+        console.log(JSON.stringify({ newCustomer }, null, 2));
 
-
-          customer = newCustomer
+        customer = newCustomer;
       }
     }
 
@@ -559,7 +559,7 @@ console.log(JSON.stringify({customer}))
       }
     }
 
-    console.log({visitorId,cachedCustomerId,customer})
+    console.log({ visitorId, cachedCustomerId, customer });
 
     // if (visitorId && !cachedCustomerId && !customer) {
     //   const lead = await createVisitor(subdomain, visitorId);
@@ -1458,30 +1458,40 @@ console.log(JSON.stringify({customer}))
     if (!customer) {
       throw new Error('Customer not found');
     }
-    const relation = await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      method: 'query',
-      module: 'relation',
-      action: 'getRelationsByEntities',
-      input: {
-        entities: [
-          {
-            contentType: 'core:customer',
-            contentId: customer._id,
-          },
-        ],
-      },
-    });
-    const ticketEntity = relation?.entities?.find(
-      (e) => e.contentType === 'frontline:ticket',
-    );
+    // The customer's latest ticket: from the tickets once they keep their
+    // customers, else through relations.
+    let ticketIds: string[] | undefined;
 
-    if (!ticketEntity) throw new Error('No ticket relation found');
+    if (
+      !(await contactFieldsReady(
+        models.Ticket,
+        `${subdomain}:frontline_tickets`,
+      ))
+    ) {
+      ticketIds = await sendTRPCMessage({
+        subdomain,
+        pluginName: 'core',
+        method: 'query',
+        module: 'relation',
+        action: 'getRelationIds',
+        input: {
+          contentType: 'core:customer',
+          contentId: customer._id,
+          relatedContentType: 'frontline:ticket',
+        },
+        defaultValue: [],
+      });
+    }
 
-    const ticketId = ticketEntity.contentId;
-    const ticket = await models.Ticket.findOne({ _id: ticketId });
-    return ticket?.number || '';
+    const ticket = await models.Ticket.findOne(
+      ticketIds ? { _id: { $in: ticketIds } } : { customerIds: customer._id },
+    )
+      .sort({ createdAt: -1 })
+      .lean();
+
+    if (!ticket) throw new Error('No ticket relation found');
+
+    return ticket.number || '';
   },
 
   async widgetTicketCommentAdd(

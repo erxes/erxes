@@ -1,4 +1,4 @@
-import { fixNum, sendTRPCMessage } from 'erxes-api-shared/utils';
+import { fixNum } from 'erxes-api-shared/utils';
 import { nanoid } from 'nanoid';
 import { IModels } from '~/connectionResolvers';
 import {
@@ -16,7 +16,7 @@ import {
   subtractPreTaxAmount,
 } from './taxRules';
 import { getDealAccountingDate } from './dealDate';
-import { getJournal } from './utils';
+import { getDealOwner, getJournal } from './utils';
 
 export const dealToTrs = async ({
   subdomain,
@@ -106,39 +106,9 @@ export const dealToTrs = async ({
     details: [],
   };
 
-  const companyIds = await sendTRPCMessage({
-    subdomain,
-    pluginName: 'core',
-    module: 'relation',
-    action: 'getRelationIds',
-    input: {
-      contentType,
-      contentId,
-      relatedContentType: 'core:company',
-    },
-    defaultValue: [],
-  });
-
-  if (companyIds?.length) {
-    saleTrDoc.customerType = 'company';
-    saleTrDoc.customerId = companyIds[0];
-  } else {
-    const customerIds = await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      module: 'relation',
-      action: 'getRelationIds',
-      input: {
-        contentType,
-        contentId,
-        relatedContentType: 'core:customer',
-      },
-      defaultValue: [],
-    });
-
-    saleTrDoc.customerType = 'customer';
-    saleTrDoc.customerId = customerIds[0];
-  }
+  const owner = await getDealOwner(subdomain, deal);
+  saleTrDoc.customerType = owner.customerType;
+  saleTrDoc.customerId = owner.customerId;
 
   const paymentTypes = await getDealPaymentTypes(subdomain, deal);
   const { itemAmountPrePercent, preTaxPaymentTypes } = calcDealPreTaxPercent(

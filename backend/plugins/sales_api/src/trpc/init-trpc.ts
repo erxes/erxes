@@ -1,3 +1,7 @@
+import {
+  applyContactFieldsSync,
+  TContactFieldsSync,
+} from 'erxes-api-shared/core-modules';
 import { posTrpcRouter } from '@/pos/trpc/pos';
 import { dealTrpcRouter } from '@/sales/trpc/deal';
 import { documentTrpcRouter } from '@/sales/trpc/document';
@@ -54,6 +58,19 @@ export const appRouter = t.mergeRouters(
           return [];
         },
       ),
+    }),
+  }),
+  t.router({
+    contactFields: t.router({
+      // Core keeps these records' customerIds / companyIds in step with
+      // relations; see erxes-api-shared contact-fields.
+      sync: t.procedure
+        .input(z.custom<TContactFieldsSync>())
+        .mutation(async ({ ctx, input }) => {
+          const { models } = ctx;
+
+          await applyContactFieldsSync({ 'sales:deal': models.Deals }, input);
+        }),
     }),
   }),
 );

@@ -1,7 +1,10 @@
-import { propertyDataPath } from 'erxes-api-shared/core-modules';
+import {
+  contactFieldsReady,
+  propertyDataPath,
+} from 'erxes-api-shared/core-modules';
 import { IReportChartFilters } from '@/reports/@types/chart';
 import { IReportFilters } from '@/reports/@types/reportFilters';
-import { IModels } from '~/connectionResolvers';
+import { generateModels, IModels } from '~/connectionResolvers';
 import { escapeRegExp, sendTRPCMessage } from 'erxes-api-shared/utils';
 
 export const sourceMap: Record<string, string> = {
@@ -556,6 +559,24 @@ export async function narrowTicketMatchByContacts(
   subdomain: string,
 ) {
   if (!filters.customerIds?.length && !filters.companyIds?.length) {
+    return match;
+  }
+
+  // Tickets keep their contacts on themselves once the collection is
+  // migrated; until then contact filters go through relations as before.
+  const models = await generateModels(subdomain);
+
+  if (
+    await contactFieldsReady(models.Ticket, `${subdomain}:frontline_tickets`)
+  ) {
+    if (filters.customerIds?.length) {
+      match.customerIds = { $in: filters.customerIds };
+    }
+
+    if (filters.companyIds?.length) {
+      match.companyIds = { $in: filters.companyIds };
+    }
+
     return match;
   }
 

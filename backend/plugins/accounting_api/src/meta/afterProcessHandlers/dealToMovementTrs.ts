@@ -1,4 +1,5 @@
-import { fixNum, sendTRPCMessage } from 'erxes-api-shared/utils';
+import { getDealOwner } from './utils';
+import { fixNum } from 'erxes-api-shared/utils';
 import { nanoid } from 'nanoid';
 import { IModels } from '~/connectionResolvers';
 import {
@@ -264,39 +265,9 @@ export const dealToMovementTrs = async ({
     details: [],
   };
 
-  const companyIds = await sendTRPCMessage({
-    subdomain,
-    pluginName: 'core',
-    module: 'relation',
-    action: 'getRelationIds',
-    input: {
-      contentType,
-      contentId,
-      relatedContentType: 'core:company',
-    },
-    defaultValue: [],
-  });
-
-  if (companyIds?.length) {
-    moveTrDoc.customerType = 'company';
-    moveTrDoc.customerId = companyIds[0];
-  } else {
-    const customerIds = await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      module: 'relation',
-      action: 'getRelationIds',
-      input: {
-        contentType,
-        contentId,
-        relatedContentType: 'core:customer',
-      },
-      defaultValue: [],
-    });
-
-    moveTrDoc.customerType = 'customer';
-    moveTrDoc.customerId = customerIds[0];
-  }
+  const owner = await getDealOwner(subdomain, deal);
+  moveTrDoc.customerType = owner.customerType;
+  moveTrDoc.customerId = owner.customerId;
 
   for (const row of movementRows) {
     const { productData, count, source, destination } = row;

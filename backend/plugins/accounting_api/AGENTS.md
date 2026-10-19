@@ -6,7 +6,7 @@
 - **Project:** `accounting_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/accounting_api`
-- **Last synchronized:** `2026-10-15`
+- **Last synchronized:** `2026-10-20`
 
 ## Scope
 
@@ -140,6 +140,7 @@
 
 ## Local Invariants
 
+- Deal → transaction handlers (`meta/afterProcessHandlers/dealToTrs.ts`, `dealToMovementTrs.ts`) take the deal owner from `getDealOwner` (`meta/afterProcessHandlers/utils.ts`): first company, else first customer, from the deal's `customerIds` / `companyIds` when it has both, else core relations. Keep the completeness check local; this code runs under tests that mock `erxes-api-shared/utils`.
 - Tax row filter builders are synchronous; resolver barrels re-export named resolver objects directly while retaining their public aliases. Import payload type checks use `TypeError` with actionable messages.
 
 - Lookup ids and destructive id lists must be required in SDL when the resolver needs them; `graphql/validateRequired.ts` rejects blank ids and empty destructive batches. `accountsEdit` relies on its required SDL id and `getAccount` not-found check before update rather than duplicating single-id validation.

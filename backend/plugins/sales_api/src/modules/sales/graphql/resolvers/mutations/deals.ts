@@ -225,8 +225,8 @@ export const dealMutations: Record<string, Resolver> = {
 
     const clone = await models.Deals.createDeal(doc);
 
-    const companyIds = await getCompanyIds(subdomain, _id);
-    const customerIds = await getCustomerIds(subdomain, _id);
+    const companyIds = await getCompanyIds(subdomain, models, _id);
+    const customerIds = await getCustomerIds(subdomain, models, _id);
 
     await createRelations(subdomain, {
       dealId: clone._id,

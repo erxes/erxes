@@ -1,3 +1,4 @@
+import { sendContactFieldsSync } from '@/relations/utils/contactFieldsSync';
 import {
   customerSchema,
   customerSearchTokenConfig,
@@ -158,6 +159,14 @@ export const loadCustomerClass = (
       type: 'customer',
       newTypeId: newCustomerId,
       oldTypeIds: oldCustomerIds,
+    });
+
+    // Records keeping their customers as fields move to the merged one too.
+    await sendContactFieldsSync(subdomain, {
+      action: 'merge',
+      kind: 'customer',
+      oldIds: oldCustomerIds,
+      newId: newCustomerId,
     });
   };
 
@@ -377,6 +386,13 @@ export const loadCustomerClass = (
         docIds: customerIds,
         prevDocuments,
       });
+
+      await sendContactFieldsSync(subdomain, {
+        action: 'remove',
+        kind: 'customer',
+        ids: customerIds,
+      });
+
       return response;
     }
 
@@ -512,8 +528,6 @@ export const loadCustomerClass = (
       let customer: ICustomerDocument | null = null;
       const defaultFilter = { status: { $ne: 'deleted' } };
 
-
-
       if (!customer && email) {
         customer = await models.Customers.findOne({
           ...defaultFilter,
@@ -534,7 +548,7 @@ export const loadCustomerClass = (
           code,
         }).lean();
       }
-      if (!customer&&cachedCustomerId) {
+      if (!customer && cachedCustomerId) {
         customer = await models.Customers.findOne({
           ...defaultFilter,
           _id: cachedCustomerId,

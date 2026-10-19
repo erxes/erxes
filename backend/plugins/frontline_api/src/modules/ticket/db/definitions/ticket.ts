@@ -1,6 +1,9 @@
 import { Schema } from 'mongoose';
 import { mongooseStringRandomId, schemaWrapper } from 'erxes-api-shared/utils';
-import { attachmentSchema } from 'erxes-api-shared/core-modules';
+import {
+  contactFieldsSchemaPlugin,
+  attachmentSchema,
+} from 'erxes-api-shared/core-modules';
 
 const ticketSourceSurveySchema = new Schema(
   {
@@ -69,8 +72,20 @@ export const ticketSchema = schemaWrapper(
         label: 'Properties data',
       },
       // The ticket's contacts, kept on the ticket instead of core relations.
-      customerIds: { type: [String], label: 'Customers', index: true },
-      companyIds: { type: [String], label: 'Companies', index: true },
+      // Missing (not `[]`) until the ticket is migrated; see
+      // contactFieldsSchemaPlugin.
+      customerIds: {
+        type: [String],
+        label: 'Customers',
+        default: undefined,
+        index: true,
+      },
+      companyIds: {
+        type: [String],
+        label: 'Companies',
+        default: undefined,
+        index: true,
+      },
       customerFieldData: {
         type: Schema.Types.Mixed,
         optional: true,
@@ -89,3 +104,5 @@ export const ticketSchema = schemaWrapper(
 
 ticketSchema.index({ assigneeId: 1 }, { sparse: true });
 ticketSchema.index({ assignedMembers: 1 }, { sparse: true });
+
+ticketSchema.plugin(contactFieldsSchemaPlugin);
