@@ -275,28 +275,62 @@ export const runDbOp = async (
 // Creates the indexes a version declares. createIndex is a no-op for an
 // index that already exists as declared, so activating again or rolling back
 // is safe. Indexes an older version declared stay. Fails with INDEX_FAILED
-// when existing documents break a unique index or an index with the same keys
-// exists with other options; the caller then keeps the active version.
+// when existing documents break a unique index, an index with the same keys
+// exists with other options, or the builds run past LIMITS.indexBuildMs. The
+// caller then keeps the active version, so every index this attempt built is
+// dropped again: the old version must not start refusing writes it accepted.
 export const ensureIndexes = async (
   db: Connection,
   extId: string,
   indexes: Indexes,
 ) => {
-  for (const [collection, list] of Object.entries(indexes)) {
-    for (const { keys, unique = false } of list) {
+  const deadline = Date.now() + LIMITS.indexBuildMs;
+  const created: { collection: string; name: string }[] = [];
+  let current = '';
+
+  try {
+    for (const [collection, list] of Object.entries(indexes)) {
+      const coll = db.collection(collectionName(extId, collection));
+      // A collection that doesn't exist yet has no indexes: NamespaceNotFound.
+      const existing = new Set(
+        (
+          await coll.indexes().catch((e: { code?: number }) => {
+            if (e.code === 26) return [];
+            throw e;
+          })
+        ).map((index) => index.name),
+      );
+
+      for (const { keys, unique = false } of list) {
+        current = `${collection} on ${JSON.stringify(keys)}`;
+        const name = await coll.createIndex(keys, {
+          unique,
+          maxTimeMS: Math.max(1, deadline - Date.now()),
+        });
+
+        if (!existing.has(name)) {
+          existing.add(name);
+          created.push({ collection, name });
+        }
+      }
+    }
+  } catch (e) {
+    for (const { collection, name } of created) {
       await db
         .collection(collectionName(extId, collection))
-        .createIndex(keys, { unique })
-        .catch((e: unknown) => {
-          throw new ApiError(
-            409,
-            'INDEX_FAILED',
-            `Couldn't index ${collection} on ${JSON.stringify(keys)}: ${
-              e instanceof Error ? e.message : String(e)
-            }`,
-          );
-        });
+        .dropIndex(name)
+        .catch((dropError: unknown) =>
+          console.error(`couldn't drop ${extId} index ${name}`, dropError),
+        );
     }
+
+    throw new ApiError(
+      409,
+      'INDEX_FAILED',
+      `Couldn't index ${current}: ${
+        e instanceof Error ? e.message : String(e)
+      }`,
+    );
   }
 };
 

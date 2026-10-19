@@ -14,7 +14,9 @@ export const InstallBody = z.object({
   version: z.string().min(1),
   code: z.string().min(1).max(LIMITS.workerBytes),
   functions: z.array(z.string()),
-  collections: z.array(z.string().regex(/^[a-zA-Z][a-zA-Z0-9_]*$/)),
+  collections: z
+    .array(z.string().regex(/^[a-zA-Z][a-zA-Z0-9_]*$/))
+    .max(LIMITS.maxCollections),
   permissions: z.record(z.string(), z.record(z.string(), z.string())),
   functionPermissions: z.record(z.string(), z.string()),
   // Only contract versions this runtime serves.
@@ -29,27 +31,26 @@ export const InstallBody = z.object({
       { message: 'pins a host contract version this runtime does not serve' },
     ),
   // Plain ascending or descending keys on top-level fields, optionally
-  // unique. installBuild checks each names a declared collection.
+  // unique. installBuild checks each names a declared collection and caps
+  // the total.
   indexes: z
     .record(
       z.string(),
-      z
-        .array(
-          z
-            .object({
-              keys: z
-                .record(
-                  z.string().regex(/^[a-zA-Z][a-zA-Z0-9_]*$/),
-                  z.union([z.literal(1), z.literal(-1)]),
-                )
-                .refine((keys) => Object.keys(keys).length > 0, {
-                  message: 'an index needs at least one key',
-                }),
-              unique: z.boolean().optional(),
-            })
-            .strict(),
-        )
-        .max(10),
+      z.array(
+        z
+          .object({
+            keys: z
+              .record(
+                z.string().regex(/^[a-zA-Z][a-zA-Z0-9_]*$/),
+                z.union([z.literal(1), z.literal(-1)]),
+              )
+              .refine((keys) => Object.keys(keys).length > 0, {
+                message: 'an index needs at least one key',
+              }),
+            unique: z.boolean().optional(),
+          })
+          .strict(),
+      ),
     )
     .default({}),
   ui: z
@@ -172,6 +173,16 @@ export const installBuild = async (
   const strays = Object.keys(body.indexes).filter(
     (name) => !body.collections.includes(name),
   );
+
+  const indexCount = Object.values(body.indexes).flat().length;
+
+  if (indexCount > LIMITS.maxIndexes) {
+    throw new ApiError(
+      400,
+      'INVALID_INPUT',
+      `${id} declares ${indexCount} indexes; at most ${LIMITS.maxIndexes} are allowed`,
+    );
+  }
 
   if (strays.length > 0) {
     throw new ApiError(

@@ -24,6 +24,11 @@ export const LIMITS = {
   resultBytes: int('EXT_MAX_RESULT_BYTES', MB),
   dbResultBytes: int('EXT_MAX_DB_RESULT_BYTES', MB),
   findLimit: 500,
+  // What one install may declare, and how long activation may spend building
+  // its indexes in total.
+  maxCollections: 20,
+  maxIndexes: 20,
+  indexBuildMs: int('EXT_INDEX_BUILD_MS', 30_000),
   // Server-side time limit for one Mongo query, so a slow $regex can't hold
   // a connection.
   dbMaxTimeMs: 2000,
