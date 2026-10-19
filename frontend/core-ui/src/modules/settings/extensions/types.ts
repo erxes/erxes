@@ -24,6 +24,13 @@ export type ExtensionRun = {
   createdAt: string;
 };
 
+// A host contract version the runtime serves.
+export type ExtensionContract = {
+  host: string;
+  version: number;
+  entries: { name: string; kind: string; description: string }[];
+};
+
 // The parts of a built `.erxext.json` the owner approves before installing.
 // The runtime validates the whole bundle; this only reads what to show.
 export const ExtensionBundle = z.object({

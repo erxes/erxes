@@ -2,22 +2,14 @@ import { useRef, useState } from 'react';
 import { Button, Dialog, toast } from 'erxes-ui';
 import { IconUpload } from '@tabler/icons-react';
 import { extensionsApi } from '../extensionsApi';
-import { Extension, ExtensionBundle } from '../types';
+import { Extension, ExtensionBundle, ExtensionContract } from '../types';
 
-// What each contract version lets an extension do, as the SDK's contracts
-// define their entries. A pin missing here shows as just "host vN".
-const CONTRACT_ENTRIES: Record<string, Record<number, string[]>> = {
-  sales: { 1: ['read deals', 'read stages'] },
+type Pending = {
+  raw: unknown;
+  bundle: ExtensionBundle;
+  // What the runtime serves. Empty when it couldn't say.
+  contracts: ExtensionContract[];
 };
-
-const describeUse = (host: string, version: number) => {
-  const entries = CONTRACT_ENTRIES[host]?.[version];
-  return entries
-    ? `${host} v${version}: ${entries.join(', ')}`
-    : `${host} v${version}`;
-};
-
-type Pending = { raw: unknown; bundle: ExtensionBundle };
 
 export function InstallExtension({
   installed,
@@ -30,7 +22,9 @@ export function InstallExtension({
   const pick = async (file: File) => {
     try {
       const raw: unknown = JSON.parse(await file.text());
-      setPending({ raw, bundle: ExtensionBundle.parse(raw) });
+      const bundle = ExtensionBundle.parse(raw);
+      const contracts = await extensionsApi.contracts().catch(() => []);
+      setPending({ raw, bundle, contracts });
     } catch {
       toast({
         variant: 'destructive',
@@ -59,7 +53,15 @@ export function InstallExtension({
     }
   };
 
-  const uses = Object.entries(pending?.bundle.uses ?? {});
+  const uses = Object.entries(pending?.bundle.uses ?? {}).map(
+    ([host, version]) => ({
+      key: `${host}@${version}`,
+      label: `${host} v${version}`,
+      contract: pending?.contracts.find(
+        (c) => c.host === host && c.version === version,
+      ),
+    }),
+  );
   const permissions = Object.entries(pending?.bundle.permissions ?? {}).flatMap(
     ([module, actions]) =>
       Object.entries(actions).map(([action, title]) => ({
@@ -107,8 +109,23 @@ export function InstallExtension({
             <h4 className="font-semibold">Reads from erxes</h4>
             {uses.length ? (
               <ul className="list-disc pl-5">
-                {uses.map(([host, version]) => (
-                  <li key={host}>{describeUse(host, version)}</li>
+                {uses.map(({ key, label, contract }) => (
+                  <li key={key}>
+                    {contract ? label : `${label} (not served by this runtime)`}
+                    {contract && (
+                      <ul className="pl-4">
+                        {contract.entries.map((entry) => (
+                          <li key={entry.name}>
+                            <span className="font-mono">{entry.name}</span>
+                            <span className="text-muted-foreground">
+                              {' '}
+                              {entry.description}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </li>
                 ))}
               </ul>
             ) : (

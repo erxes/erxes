@@ -1,5 +1,5 @@
 import { REACT_APP_API_URL } from 'erxes-ui';
-import { Extension, ExtensionRun } from './types';
+import { Extension, ExtensionContract, ExtensionRun } from './types';
 
 type Envelope<T> =
   | { ok: true; data: T }
@@ -44,6 +44,7 @@ const enc = encodeURIComponent;
 
 export const extensionsApi = {
   list: () => request<Extension[]>('/installed'),
+  contracts: () => request<ExtensionContract[]>('/contracts'),
   runs: (extId: string) => request<ExtensionRun[]>(`/runs/${enc(extId)}`),
   install: (bundle: unknown) =>
     request<{ id: string; version: string }>('/install', bundle),
