@@ -1,14 +1,15 @@
 import { useMutation } from '@apollo/client';
 import { MANAGE_RELATIONS } from '../graphql/manageRelations';
-import { toast } from 'erxes-ui';
+import { IRelation, toast } from 'erxes-ui';
 import {
-  GET_RELATIONS_BY_CONTENT_IDS,
-  GET_RELATIONS_BY_ENTITY,
-} from '../graphql/getRelations';
+  addRelationsToCache,
+  removeUnkeptRelationsFromCache,
+} from '../relationsCache';
 
 export const useManageRelations = () => {
-  const [manageRelationsMutation, { loading, error }] =
-    useMutation(MANAGE_RELATIONS);
+  const [manageRelationsMutation, { loading, error }] = useMutation<{
+    manageRelations: IRelation[] | null;
+  }>(MANAGE_RELATIONS);
 
   // Sets the full list: ids missing from `relatedContentIds` are unlinked.
   const manageRelations = (
@@ -22,8 +23,15 @@ export const useManageRelations = () => {
   ) =>
     manageRelationsMutation({
       variables,
-      refetchQueries: [GET_RELATIONS_BY_ENTITY, GET_RELATIONS_BY_CONTENT_IDS],
-      awaitRefetchQueries: true,
+      update: (cache, { data }) => {
+        if (!data?.manageRelations) return;
+
+        removeUnkeptRelationsFromCache(cache, {
+          ...variables,
+          keptIds: variables.relatedContentIds,
+        });
+        addRelationsToCache(cache, data.manageRelations);
+      },
       onCompleted: () => {
         if (options?.silent) return;
 
