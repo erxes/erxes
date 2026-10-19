@@ -40,15 +40,9 @@ import {
 } from './installs';
 import { LIMITS } from './limits';
 import { actionName } from './permissions';
-import { findGrant, HOST_TOKEN, invoke, type Session } from './sandbox';
-import {
-  deleteSecret,
-  listSecrets,
-  loadSecrets,
-  redact,
-  SecretValue,
-  setSecret,
-} from './secrets';
+import { runFunction } from './runs';
+import { findGrant, HOST_TOKEN, type Session } from './sandbox';
+import { deleteSecret, listSecrets, SecretValue, setSecret } from './secrets';
 
 // Registered in service discovery, so the gateway proxies /pl:extensions/* here
 // after its user middleware has checked the session.
@@ -127,7 +121,9 @@ const signedIn: MiddlewareHandler<Env> = async (c, next) => {
     throw unauthenticated();
   }
 
-  if (decoded.typ) {
+  // `ext` marks a session the runtime minted for a trigger run. It only
+  // ever goes to the gateway, never back here.
+  if (decoded.typ || decoded.ext) {
     throw sessionOnly();
   }
 
@@ -262,47 +258,12 @@ export const app = new Hono<Env>()
 
     // An empty body is an empty input, not an error.
     const input: unknown = await c.req.json().catch(() => ({}));
-    const secrets = await loadSecrets(
-      models,
-      tenant,
-      extId,
-      Object.keys(ext.secrets ?? {}),
-    );
-    const result = await invoke({
-      tenant,
-      extId,
-      version: ext.version,
-      code: ext.code,
-      codeHash: ext.codeHash,
-      collections: ext.collections,
-      uses: ext.uses ?? {},
-      network: ext.network ?? [],
-      secrets,
-      name: fn,
-      input,
-      user: { _id: user._id },
-      session,
-    });
-
-    if (!result.ok) {
-      result.error.message = redact(result.error.message, secrets);
-    }
-
-    await models.ExtensionRuns.create({
-      subdomain: tenant,
-      extId,
-      version: ext.version,
+    const result = await runFunction(models, ext, {
       fn,
+      input,
       userId: user._id,
-      status: result.ok
-        ? 'ok'
-        : result.error.code === 'TIMEOUT'
-        ? 'timeout'
-        : 'error',
-      ...(!result.ok && {
-        error: { code: result.error.code, message: result.error.message },
-      }),
-      ms: result.ms,
+      session,
+      trigger: 'call',
     });
 
     if (!result.ok) {

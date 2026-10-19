@@ -42,8 +42,9 @@ export const HOST_TOKEN = createToken();
 // id. /db looks the id up here, so a call can reach only its own tenant, its
 // own install and that install's collections. The grant is revoked when the
 // call returns or times out, so a straggling db call from a killed run is
-// refused. It also carries the caller's session and the install's pinned
-// contracts, so a contract call runs as the caller and only on what the
+// refused. It also carries the caller's session (for a trigger, the session
+// runs.ts minted for the user it acts as) and the install's pinned
+// contracts, so a contract call runs as that user and only on what the
 // install pinned, and the install's network allowlist, so /egress reaches
 // only those hosts and only while the call runs.
 

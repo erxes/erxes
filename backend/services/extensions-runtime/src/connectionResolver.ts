@@ -60,14 +60,20 @@ const extensionSchema = new Schema<IExtensionDocument>({
   installedAt: { type: Date, default: Date.now },
 });
 
-// One function call: who ran what, how it ended and how long it took.
+// One function run: who ran what, what started it, how it ended and how long
+// it took.
 export interface IExtensionRunDocument {
   _id: string;
   subdomain: string;
   extId: string;
   version: string;
   fn: string;
+  trigger: 'call' | 'cron' | 'webhook' | 'event';
+  // The user the run acted as: the caller, or for a trigger the event's user
+  // or the installer.
   userId: string;
+  // A trigger's run: the owner whose install approval it ran under.
+  installerId?: string;
   status: 'ok' | 'error' | 'timeout';
   error?: { code: string; message: string };
   ms: number;
@@ -83,7 +89,13 @@ const extensionRunSchema = new Schema<IExtensionRunDocument>({
   extId: { type: String, required: true },
   version: { type: String, required: true },
   fn: { type: String, required: true },
+  trigger: {
+    type: String,
+    enum: ['call', 'cron', 'webhook', 'event'],
+    default: 'call',
+  },
   userId: { type: String, required: true },
+  installerId: { type: String },
   status: {
     type: String,
     enum: ['ok', 'error', 'timeout'],
