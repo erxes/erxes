@@ -18,6 +18,7 @@ import { sendSegmentChanged } from '../../segments/events';
 import { segmentJoinChanges, SegmentTouched } from '../../segments/joinChanges';
 import { INotificationData, sendNotification } from '../../notifications';
 import { logActivityLogError } from '../../logs/activityLog/utils';
+import { teeExtensionEvent } from '../../extensions/events';
 
 /** One id or many, as the action recorded it, with the empties dropped. */
 const toIdList = (ids?: string | string[]): string[] =>
@@ -116,6 +117,24 @@ export function createEventHandlers(
         sendSegmentChanged({ subdomain, contentType, docIds, changed }),
       )
       .catch(() => sendSegmentChanged({ subdomain, contentType, docIds }));
+
+    if (
+      action === DbLogActions.CREATE ||
+      action === DbLogActions.UPDATE ||
+      action === DbLogActions.DELETE
+    ) {
+      teeExtensionEvent(subdomain, {
+        type: `${contentType}.${action}`,
+        ids: docIds,
+        diff:
+          action === DbLogActions.UPDATE
+            ? payload?.updateDescription
+            : undefined,
+        userId,
+      }).catch((err) => {
+        console.error('teeExtensionEvent failed', err);
+      });
+    }
 
     if (action === DbLogActions.CREATE || action === DbLogActions.UPDATE) {
       const eventUpdateDescription = payload?.updateDescription;

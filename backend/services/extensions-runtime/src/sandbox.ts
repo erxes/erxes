@@ -26,6 +26,12 @@ import {
 //   nothing bounds egress across calls beyond the call concurrency limits.
 // - An install that declares network hosts loads a fresh isolate for every
 //   call (see supervisor.js), so its calls pay the bundle's startup each time.
+// - Record events are published best effort: a change made while Redis is
+//   unreachable, or by a process that dies before queueing it, runs no
+//   handler. Bulk writes (updateMany, bulkWrite, deleteMany) publish none.
+// - A trigger run's session is deleted when the run ends. If the runtime
+//   dies mid-run, the session stays valid in the gateway until its expiry,
+//   twice the run timeout.
 
 // Where workerd's Host entrypoint calls back into the runtime (loopback only).
 export const HOST_PORT = Number(process.env.EXT_HOST_PORT || 3321);

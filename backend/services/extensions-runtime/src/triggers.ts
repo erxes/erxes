@@ -1,12 +1,20 @@
 import { createHmac, timingSafeEqual } from 'node:crypto';
 import { type Job, type JobsOptions, Worker } from 'bullmq';
 import { parseExpression } from 'cron-parser';
+import {
+  EXTENSION_EVENTS_QUEUE,
+  extensionEventsKey,
+} from 'erxes-api-shared/core-modules';
 import { redis, sendWorkerQueue } from 'erxes-api-shared/utils';
 import { z } from 'zod';
-import type { IExtensionDocument, IModels } from './connectionResolver';
+import {
+  generateModels,
+  type IExtensionDocument,
+  type IModels,
+} from './connectionResolver';
 import { ApiError } from './errors';
 import { LIMITS } from './limits';
-import { REFUSED, runTrigger } from './runs';
+import { recordRun, REFUSED, runTrigger } from './runs';
 import { loadSecrets } from './secrets';
 
 // Every trigger run is one job on this queue, in Redis, so schedules survive
@@ -14,7 +22,19 @@ import { loadSecrets } from './secrets';
 const RUNS = ['extensions', 'runs'] as const;
 const runsQueue = () => sendWorkerQueue(...RUNS);
 
-// `name` is the trigger's name in the install's schedules or webhooks.
+// What the tee in erxes-api-shared publishes, and an event handler's input
+// without the tenant and event id.
+const EventJob = z.object({
+  tenant: z.string(),
+  eventId: z.string(),
+  type: z.string(),
+  _id: z.string(),
+  updatedFields: z.array(z.string()).optional(),
+  userId: z.string().optional(),
+});
+
+// `name` is the trigger's name in the install's schedules, webhooks or
+// events.
 const RunJob = z.discriminatedUnion('trigger', [
   z.object({
     tenant: z.string(),
@@ -31,6 +51,13 @@ const RunJob = z.discriminatedUnion('trigger', [
       headers: z.record(z.string(), z.string()),
       body: z.unknown(),
     }),
+  }),
+  z.object({
+    tenant: z.string(),
+    extId: z.string(),
+    trigger: z.literal('event'),
+    name: z.string(),
+    input: EventJob.omit({ tenant: true, eventId: true }),
   }),
 ]);
 
@@ -246,6 +273,102 @@ export const acceptWebhook = async (
   );
 };
 
+// ---- Record events
+
+// The event types the tenant's enabled installs subscribe to, where the tee
+// in erxes-api-shared reads them, so erxes publishes only those.
+const rebuildEventTypes = async (models: IModels, tenant: string) => {
+  const exts = await models.Extensions.find({
+    subdomain: tenant,
+    status: 'installed',
+  })
+    .select('events')
+    .lean();
+  const types = new Set(
+    exts.flatMap((ext) => Object.values(ext.events ?? {}).map((e) => e.on)),
+  );
+
+  await redis.set(extensionEventsKey(tenant), JSON.stringify([...types]));
+};
+
+// Whether the event is one the subscription asked for.
+const matches = (
+  { on, updatedFields }: { on: string; updatedFields?: string[] },
+  event: z.infer<typeof EventJob>,
+) =>
+  on === event.type &&
+  (!updatedFields ||
+    updatedFields.some((field) => event.updatedFields?.includes(field)));
+
+// One event becomes one run job per subscription that matches it. A handler
+// that writes the record it was told about makes another event; past
+// LIMITS.eventsPerRecordPerMinute runs for one record and install, the rest
+// in that minute are dropped and recorded as LOOP_DROPPED.
+const processEvent = async (job: Job<unknown>) => {
+  const event = EventJob.parse(job.data);
+  const { tenant, eventId, ...input } = event;
+  const models = await generateModels(tenant);
+  const exts = await models.Extensions.find({
+    subdomain: tenant,
+    status: 'installed',
+  })
+    .select('subdomain extId version events installedBy')
+    .lean();
+
+  for (const ext of exts) {
+    const subscriptions = Object.entries(ext.events ?? {}).filter(([, sub]) =>
+      matches(sub, event),
+    );
+
+    if (subscriptions.length === 0) {
+      continue;
+    }
+
+    const key = `extensions:loop:${tenant}:${ext.extId}:${event._id}`;
+    const count = await redis.incr(key);
+
+    if (count === 1) {
+      await redis.expire(key, 60);
+    }
+
+    if (count > LIMITS.eventsPerRecordPerMinute) {
+      for (const [, sub] of subscriptions) {
+        await recordRun(models, ext, {
+          fn: sub.function,
+          userId: event.userId ?? ext.installedBy,
+          trigger: 'event',
+          installerId: ext.installedBy,
+          result: {
+            ok: false,
+            error: {
+              code: 'LOOP_DROPPED',
+              message: `More than ${LIMITS.eventsPerRecordPerMinute} events for ${event._id} in a minute; this one was dropped`,
+            },
+            ms: 0,
+          },
+        });
+      }
+
+      continue;
+    }
+
+    await runsQueue().addBulk(
+      subscriptions.map(([name]) => ({
+        name: 'event',
+        data: { tenant, extId: ext.extId, trigger: 'event', name, input },
+        opts: {
+          ...RETRIED,
+          // A retried fan-out queues each run once.
+          deduplication: {
+            id: `${eventId}/${tenant}/${ext.extId}/${name}`,
+            ttl: DEDUP_TTL_MS,
+          },
+        },
+      })),
+    );
+  }
+};
+
 // After any change to an install: enable, disable, upgrade, rollback,
 // uninstall.
 export const syncTriggers = async (
@@ -254,17 +377,22 @@ export const syncTriggers = async (
   extId: string,
 ) => {
   await syncSchedules(models, tenant, extId);
+  await rebuildEventTypes(models, tenant);
 };
 
 // ---- Running jobs
 
 // The function a trigger names on the active build.
 const functionOf = (
-  ext: Pick<IExtensionDocument, 'schedules' | 'webhooks'>,
+  ext: Pick<IExtensionDocument, 'schedules' | 'webhooks' | 'events'>,
   { trigger, name }: z.infer<typeof RunJob>,
 ) =>
   own<{ function: string }>(
-    trigger === 'cron' ? ext.schedules : ext.webhooks,
+    trigger === 'cron'
+      ? ext.schedules
+      : trigger === 'webhook'
+      ? ext.webhooks
+      : ext.events,
     name,
   )?.function;
 
@@ -285,6 +413,8 @@ const processRun = async (job: Job<unknown>) => {
     name: data.name,
     fn: (ext) => functionOf(ext, data),
     input: inputOf(job, data),
+    // An event's run acts as the user who made the change, when known.
+    actAs: data.trigger === 'event' ? data.input.userId : undefined,
   });
 
   // A failed run is retried while the job has attempts left; a refused one
@@ -295,12 +425,19 @@ const processRun = async (job: Job<unknown>) => {
 };
 
 export const startTriggerWorkers = () => {
-  const worker = new Worker<unknown>(RUNS.join('-'), processRun, {
-    connection: redis,
-    concurrency: LIMITS.triggerConcurrency,
-  });
+  const workers = [
+    new Worker<unknown>(RUNS.join('-'), processRun, {
+      connection: redis,
+      concurrency: LIMITS.triggerConcurrency,
+    }),
+    new Worker<unknown>(EXTENSION_EVENTS_QUEUE.join('-'), processEvent, {
+      connection: redis,
+    }),
+  ];
 
-  worker.on('error', (e) => console.error('extension trigger worker', e));
+  workers.forEach((worker) =>
+    worker.on('error', (e) => console.error('extension trigger worker', e)),
+  );
 
-  return () => worker.close();
+  return () => Promise.all(workers.map((worker) => worker.close()));
 };

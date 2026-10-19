@@ -62,7 +62,7 @@ export const runFunction = async (
   return result;
 };
 
-const recordRun = (
+export const recordRun = (
   models: IModels,
   ext: Pick<IExtensionDocument, 'subdomain' | 'extId' | 'version'>,
   {

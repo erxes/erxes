@@ -49,6 +49,10 @@ export const LIMITS = {
   maxWebhooks: 10,
   webhookBytes: MB,
   maxEvents: 20,
+  // Event runs one install gets for one record in a minute. More are
+  // dropped, so a handler that writes the record it was told about can't
+  // loop forever.
+  eventsPerRecordPerMinute: 20,
   // Trigger runs one runtime instance works on at once. They also count
   // against the tenant and global limits below.
   triggerConcurrency: int('EXT_TRIGGER_CONCURRENCY', 8),
