@@ -39,6 +39,13 @@
         "command": "NODE_ENV=development pnpm dev"
       }
     },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/backend/plugins/insurance_api"],
+      "options": {
+        "jestConfig": "backend/plugins/insurance_api/jest.config.ts"
+      }
+    },
     "docker-build": {
       "dependsOn": ["build"],
       "command": "docker build -f backend/plugins/insurance_api/Dockerfile . -t erxes/erxes-next-insurance_api"
