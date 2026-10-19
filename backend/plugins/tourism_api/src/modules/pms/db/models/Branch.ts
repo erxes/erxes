@@ -37,7 +37,7 @@ export const loadPmsBranchClass = (models: IModels) => {
       return branch;
     }
 
-    public static async generateToken(length: number = 16): Promise<string> {
+    public static async generateToken(length = 16): Promise<string> {
       const buffer = await crypto.randomBytes(length);
       const token = buffer.toString('hex');
       return token;
