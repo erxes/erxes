@@ -245,18 +245,26 @@ it('attaches a selection preview and sends its screenshot and visible context wi
     screen.getByRole('textbox', { name: 'Message' }).getAttribute('disabled'),
   ).toBeNull();
   fireEvent.click(sendButton());
-  expect(onSend).toHaveBeenCalledWith('Explain this chart', [
-    expect.objectContaining({ type: 'image/png' }),
-    expect.objectContaining({ type: 'text/plain' }),
-  ]);
+  expect(upload).toHaveBeenCalledTimes(1);
+  expect(upload.mock.calls[0][0].type).toBe('image/png');
+  expect(onSend).toHaveBeenCalledWith(
+    'Explain this chart',
+    [],
+    [
+      expect.objectContaining({
+        title: 'Revenue chart',
+        path: '/sales',
+        text: 'Revenue 42',
+        snapshot: expect.objectContaining({ type: 'image/png' }),
+      }),
+    ],
+  );
   expect(screen.queryByRole('img')).toBeNull();
   expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:selection');
 });
 
 it('keeps failed selections in the draft with retry and aborts them when removed', async () => {
-  upload
-    .mockRejectedValueOnce(new Error('Offline'))
-    .mockResolvedValueOnce(meta('context.txt'));
+  upload.mockRejectedValueOnce(new Error('Offline'));
   render(
     <Composer
       status="ready"
@@ -271,17 +279,16 @@ it('keeps failed selections in the draft with retry and aborts them when removed
     expect(screen.getByRole('alert').textContent).toContain('Offline'),
   );
   expect(sendButton().disabled).toBe(true);
-  expect(upload.mock.calls[0][1]?.signal?.aborted).toBe(true);
   upload.mockImplementation(() => new Promise(() => undefined));
   fireEvent.click(screen.getByRole('button', { name: 'Retry' }));
-  const signal = upload.mock.calls[2][1]?.signal;
+  const signal = upload.mock.calls[1][1]?.signal;
   fireEvent.click(screen.getByRole('button', { name: 'Remove Revenue chart' }));
   expect(signal?.aborted).toBe(true);
   expect(screen.queryByRole('img')).toBeNull();
   expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:selection');
 });
 
-it('respects file slots and clears selection mode and preview URLs when threads change', async () => {
+it('keeps selection context separate from file slots and clears it on thread changes', async () => {
   upload.mockResolvedValue(meta('file.txt'));
   const props = {
     status: 'ready',
@@ -293,7 +300,7 @@ it('respects file slots and clears selection mode and preview URLs when threads 
   fireEvent.click(screen.getByRole('button', { name: 'Select on page' }));
   fireEvent.click(screen.getByRole('button', { name: 'Capture sample' }));
   await waitFor(() => expect(screen.getByText('Page selection')).toBeTruthy());
-  pick('one.txt', 'two.txt');
+  pick('one.txt', 'two.txt', 'three.txt', 'four.txt', 'five.txt');
   await act(async () => {
     await Promise.resolve();
   });
@@ -303,7 +310,7 @@ it('respects file slots and clears selection mode and preview URLs when threads 
         name: 'Select on page',
       }) as HTMLButtonElement
     ).disabled,
-  ).toBe(true);
+  ).toBe(false);
   rerender(<Composer {...props} draftScope="b" />);
   expect(screen.queryByRole('img')).toBeNull();
   expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:selection');

@@ -2477,3 +2477,28 @@ describe('POST /agents/chat — navigation catalog', () => {
     ).toBeUndefined();
   });
 });
+
+
+it('validates selected page context and binds its snapshot as model media', async () => {
+  const png = Buffer.from('89504e470d0a1a0a00000000', 'hex');
+  jest.mocked(readFileStreamFromStorage).mockResolvedValue(Readable.from([png]));
+  const selection = {
+    id: '47b58525-fceb-48ee-9262-dcd040c63bb2', title: 'Company', path: '/contacts', text: 'Company', width: 200, height: 60,
+    snapshot: { url: 'snapshot.png', type: 'image/png', size: png.length },
+  };
+  const res = buildRes();
+  await chatHandler(buildReq({ user: ACTING_USER, body: { messages: [{ id: 'selection', role: 'user', parts: [
+    { type: 'text', text: 'Report on this company' }, { type: 'data-agents-page-selections', data: { selections: [selection] } },
+  ] }] } }), res);
+  expect(streamMock).toHaveBeenCalled();
+  expect(JSON.stringify(streamMock.mock.calls[0][0])).toContain(`data:image/png;base64,${png.toString('base64')}`);
+  expect(JSON.stringify(streamMock.mock.calls[0][0])).not.toContain('data-agents-files');
+  expect(mockedBuildAgentsRequestContext).toHaveBeenCalledWith(expect.objectContaining({ attachmentUrls: ['snapshot.png'] }));
+});
+it('rejects malformed page context before accessing storage or starting the model', async () => {
+  const res = buildRes();
+  await chatHandler(buildReq({ user: ACTING_USER, body: { messages: [{ id: 'selection', role: 'user', parts: [
+    { type: 'text', text: 'Explain' }, { type: 'data-agents-page-selections', data: { selections: [{ title: 'incomplete' }] } },
+  ] }] } }), res);
+  expect(res.statusCode).toBe(400); expect(streamMock).not.toHaveBeenCalled();
+});

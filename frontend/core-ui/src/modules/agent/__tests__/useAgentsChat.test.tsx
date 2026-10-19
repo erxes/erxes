@@ -1,3 +1,4 @@
+import { pageSelectionsPart } from '../pageSelections';
 /** @jest-environment jsdom */
 import { act, renderHook } from '@testing-library/react';
 import { randomUUID } from 'crypto';
@@ -159,10 +160,13 @@ const editHistory = [
   },
 ];
 
-const mockEditableChat = (status = 'ready') => {
+const mockEditableChat = (
+  status = 'ready',
+  messages: unknown[] = editHistory,
+) => {
   const send = jest.fn(async () => undefined);
   (useChat as jest.Mock).mockReturnValue({
-    messages: editHistory,
+    messages,
     status,
     sendMessage: send,
     setMessages,
@@ -215,4 +219,33 @@ it('does not edit assistant messages or interrupt a streaming response', () => {
   act(() => result.current.editMessage('edit-me', 'Revised prompt'));
   act(() => result.current.editMessage('reply', 'Revised prompt'));
   expect(send).not.toHaveBeenCalled();
+});
+
+it('retains typed page selections when editing a question', () => {
+  const selection = pageSelectionsPart([
+    {
+      id: '47b58525-fceb-48ee-9262-dcd040c63bb2',
+      title: 'Company',
+      path: '/contacts',
+      text: 'Company',
+      width: 200,
+      height: 60,
+      snapshot: { url: 'snapshot.png', type: 'image/png', size: 68 },
+    },
+  ]);
+  const send = mockEditableChat('ready', [
+    {
+      id: 'selected',
+      role: 'user',
+      parts: [{ type: 'text', text: 'Question' }, selection],
+    },
+  ]);
+  const { result } = renderHook(() => useAgentsChat());
+  act(() => result.current.editMessage('selected', 'New question'));
+  expect(send).toHaveBeenCalledWith(
+    expect.objectContaining({
+      parts: [selection, { type: 'text', text: 'New question' }],
+    }),
+    expect.anything(),
+  );
 });

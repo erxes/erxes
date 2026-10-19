@@ -321,30 +321,3 @@ export const capturePageSelection = async (
     image,
   };
 };
-
-export const pageSelectionFiles = (
-  selection: IPageSelection,
-  id: string,
-): File[] => [
-  new File([selection.image], `page-selection-${id}.png`, {
-    type: 'image/png',
-  }),
-  new File(
-    [
-      JSON.stringify(
-        {
-          kind: 'User-selected page content',
-          title: selection.title,
-          path: selection.path,
-          frame: selection.frame,
-          viewport: { width: selection.width, height: selection.height },
-          visibleText: selection.text,
-        },
-        null,
-        2,
-      ),
-    ],
-    `page-selection-${id}.txt`,
-    { type: 'text/plain' },
-  ),
-];

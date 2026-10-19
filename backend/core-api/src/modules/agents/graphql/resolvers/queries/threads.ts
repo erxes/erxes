@@ -1,3 +1,4 @@
+import { migrateLegacyPageSelections } from '@/agents/pageSelections';
 import { ExpectedError } from 'erxes-api-shared/utils';
 import type { MastraMemory } from '@mastra/core/memory' with {
   'resolution-mode': 'import',
@@ -125,7 +126,13 @@ export const agentsThreadsQueries = {
         id: message.id,
         role: message.role,
         createdAt: message.createdAt,
-        content: message.content,
+        content:
+          message.role === 'user' && Array.isArray(message.content.parts)
+            ? {
+                ...message.content,
+                parts: migrateLegacyPageSelections(message.content.parts),
+              }
+            : message.content,
       })),
     };
   },

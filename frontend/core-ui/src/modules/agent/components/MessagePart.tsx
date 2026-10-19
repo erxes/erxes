@@ -1,3 +1,8 @@
+import {
+  AGENTS_PAGE_SELECTIONS_DATA_TYPE,
+  readPageSelectionsPart,
+} from '../pageSelections';
+import { PageSelectionContext } from './PageSelectionContext';
 import { isDataUIPart, isTextUIPart, isToolUIPart } from 'ai';
 import type { UIMessage } from 'ai';
 
@@ -172,13 +177,12 @@ export const hasVisibleParts = (
     }
 
     if (isToolUIPart(part)) {
-      return (
-        part.state !== 'output-error' ||
-        Boolean(part.errorText)
-      );
+      return part.state !== 'output-error' || Boolean(part.errorText);
     }
 
     if (isDataUIPart(part)) {
+      if (part.type === AGENTS_PAGE_SELECTIONS_DATA_TYPE)
+        return readPageSelectionsPart(part).length > 0;
       if (part.type === AGENTS_FILES_DATA_TYPE) {
         return readAgentsFilesPart(part).length > 0;
       }
@@ -286,6 +290,14 @@ export const MessagePartRenderer = ({
   // part stays in the message, so the card is dropped once its tool call is
   // resolved.
   if (isDataUIPart(part)) {
+    if (part.type === AGENTS_PAGE_SELECTIONS_DATA_TYPE)
+      return (
+        <>
+          {readPageSelectionsPart(part).map((selection) => (
+            <PageSelectionContext key={selection.id} selection={selection} />
+          ))}
+        </>
+      );
     if (part.type === AGENTS_FILES_DATA_TYPE) {
       const files = readAgentsFilesPart(part);
 

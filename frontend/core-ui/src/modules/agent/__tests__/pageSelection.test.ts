@@ -2,7 +2,6 @@
 import {
   capturePageSelection,
   isSelectableElement,
-  pageSelectionFiles,
   selectionGeometry,
   selectionVisibleText,
 } from '../utils/pageSelection';
@@ -106,7 +105,7 @@ it('extracts only visible bounded text, without markup, hidden labels, or form v
   ).toBe('Visible revenue');
 });
 
-it('captures with scroll restoration, crops to visible bounds, and emits normal image/text files', async () => {
+it('captures with scroll restoration, crops to visible bounds, and returns a snapshot with visible context', async () => {
   const node = element();
   node.setAttribute('aria-label', 'Revenue chart');
   const source = document.createElement('canvas');
@@ -114,11 +113,9 @@ it('captures with scroll restoration, crops to visible bounds, and emits normal 
   source.height = 100;
   jest.mocked(domToCanvas).mockResolvedValue(source);
   const draw = jest.fn();
-  jest
-    .spyOn(HTMLCanvasElement.prototype, 'getContext')
-    .mockReturnValue({
-      drawImage: draw,
-    } as unknown as CanvasRenderingContext2D);
+  jest.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue({
+    drawImage: draw,
+  } as unknown as CanvasRenderingContext2D);
   jest
     .spyOn(HTMLCanvasElement.prototype, 'toBlob')
     .mockImplementation((callback) =>
@@ -130,12 +127,9 @@ it('captures with scroll restoration, crops to visible bounds, and emits normal 
     expect.objectContaining({ features: { restoreScrollPosition: true } }),
   );
   expect(draw).toHaveBeenCalledWith(source, 0, 0, 200, 100, 0, 0, 200, 100);
-  const files = pageSelectionFiles(selection, 'id');
-  expect(files.map((file) => [file.name, file.type])).toEqual([
-    ['page-selection-id.png', 'image/png'],
-    ['page-selection-id.txt', 'text/plain'],
-  ]);
-  expect(files[0].size).toBe(3);
+  expect(selection.image.type).toBe('image/png');
+  expect(selection.image.size).toBe(3);
+  expect(selection.title).toBe('Revenue chart');
 });
 
 it('rejects removed and inaccessible embedded content instead of attaching a misleading image', async () => {

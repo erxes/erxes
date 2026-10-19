@@ -29,10 +29,11 @@ import { useTranslation } from 'react-i18next';
 import { uploadAgentsFile } from '../uploadAgentsFile';
 import { ChatInput } from './ChatInput';
 import { PageElementPicker } from './PageElementPicker';
+import type { IPageSelection } from '../utils/pageSelection';
 import {
-  pageSelectionFiles,
-  type IPageSelection,
-} from '../utils/pageSelection';
+  AGENTS_PAGE_SELECTION_MAX_PER_TURN,
+  type IAgentPageSelectionContext,
+} from '../pageSelections';
 
 export interface IComposerAttachment {
   localId: string;
@@ -42,10 +43,9 @@ export interface IComposerAttachment {
   status: 'uploading' | 'ready' | 'error';
   error?: string;
   file?: IAgentsFileMeta;
-  files?: IAgentsFileMeta[];
+  context?: IAgentPageSelectionContext;
   selection?: IPageSelection;
   previewUrl?: string;
-  sourceFiles?: File[];
 }
 
 export interface IComposerProps {
@@ -54,7 +54,11 @@ export interface IComposerProps {
   /** 'large' renders the taller page empty-state composer. */
   size?: 'default' | 'large';
   draftScope?: string;
-  onSend: (text: string, files: IAgentsFileMeta[]) => void;
+  onSend: (
+    text: string,
+    files: IAgentsFileMeta[],
+    selections?: IAgentPageSelectionContext[],
+  ) => void;
   onStop: () => void;
   pickers?: ReactNode;
   /** Optional page-context chip row above the textarea (side panel). */
@@ -103,7 +107,7 @@ export const Composer = ({
 
   const isStreaming = status === 'submitted' || status === 'streaming';
   const usedSlots = attachments.reduce(
-    (total, item) => total + (item.selection ? 2 : 1),
+    (total, item) => total + (item.selection ? 0 : 1),
     0,
   );
   useEffect(() => {
@@ -112,28 +116,34 @@ export const Composer = ({
   const trimmed = text.trim();
   const hasPending = attachments.some((item) => item.status === 'uploading');
   const hasError = attachments.some((item) => item.status === 'error');
-  const readyFiles = attachments.flatMap(
-    (item) => item.files ?? (item.file ? [item.file] : []),
+  const readyFiles = attachments.flatMap((item) =>
+    item.file ? [item.file] : [],
   );
+  const selectedContexts = attachments.flatMap((item) =>
+    item.context ? [item.context] : [],
+  );
+  const selectionCount = attachments.filter((item) => item.selection).length;
   const canSend =
     !disabled &&
     !isStreaming &&
     !hasPending &&
     !hasError &&
-    (trimmed.length > 0 || readyFiles.length > 0);
+    (trimmed.length > 0 ||
+      readyFiles.length > 0 ||
+      selectedContexts.length > 0);
 
   const send = () => {
     if (!canSend) {
       return;
     }
 
-    onSend(
+    const prompt =
       trimmed ||
-        (attachments.some((item) => item.selection)
-          ? 'About this page selection'
-          : AGENTS_FILE_ONLY_TEXT),
-      readyFiles,
-    );
+      (selectedContexts.length
+        ? 'About this page selection'
+        : AGENTS_FILE_ONLY_TEXT);
+    if (selectedContexts.length) onSend(prompt, readyFiles, selectedContexts);
+    else onSend(prompt, readyFiles);
     releasePreviews();
     attachmentsRef.current = [];
     setText('');
@@ -166,15 +176,7 @@ export const Composer = ({
     const readyTextBytes = attachments.reduce(
       (total, item) =>
         total +
-        (item.status === 'error'
-          ? 0
-          : item.sourceFiles
-          ? item.sourceFiles.reduce(
-              (sum, file) =>
-                sum + (isAgentsTextMimeType(file.type) ? file.size : 0),
-              0,
-            )
-          : isAgentsTextMimeType(item.mimeType)
+        (item.status !== 'error' && isAgentsTextMimeType(item.mimeType)
           ? item.size
           : 0),
       0,
@@ -255,39 +257,8 @@ export const Composer = ({
   };
 
   const uploadSelection = (item: IComposerAttachment) => {
-    const textBytes = [
-      ...attachmentsRef.current.filter(
-        (entry) => entry.localId !== item.localId,
-      ),
-      item,
-    ].reduce(
-      (total, entry) =>
-        total +
-        (entry.sourceFiles
-          ? entry.sourceFiles.reduce(
-              (sum, file) =>
-                sum + (isAgentsTextMimeType(file.type) ? file.size : 0),
-              0,
-            )
-          : isAgentsTextMimeType(entry.mimeType)
-          ? entry.size
-          : 0),
-      0,
-    );
-    if (textBytes > AGENTS_FILE_TEXT_TOTAL_MAX_BYTES) {
-      setAttachments((current) =>
-        current.map((entry) =>
-          entry.localId === item.localId
-            ? {
-                ...entry,
-                status: 'error',
-                error: 'Remove a text attachment, then retry this selection.',
-              }
-            : entry,
-        ),
-      );
-      return;
-    }
+    const selection = item.selection;
+    if (!selection) return;
     const controller = new AbortController();
     uploadsRef.current.set(item.localId, controller);
     setAttachments((current) =>
@@ -297,24 +268,41 @@ export const Composer = ({
           : entry,
       ),
     );
-    void Promise.all(
-      (item.sourceFiles ?? []).map((file) =>
-        uploadAgentsFile(file, { signal: controller.signal }),
-      ),
-    )
-      .then((files) => {
+    const image = new File(
+      [selection.image],
+      `selection-snapshot-${item.localId}.png`,
+      { type: 'image/png' },
+    );
+    void uploadAgentsFile(image, { signal: controller.signal })
+      .then((snapshot) => {
         if (!controller.signal.aborted)
           setAttachments((current) =>
             current.map((entry) =>
               entry.localId === item.localId
-                ? { ...entry, status: 'ready', files }
+                ? {
+                    ...entry,
+                    status: 'ready',
+                    context: {
+                      id: item.localId,
+                      title: selection.title,
+                      path: selection.path.slice(0, 200),
+                      frame: selection.frame?.slice(0, 80) || undefined,
+                      text: selection.text,
+                      width: selection.width,
+                      height: selection.height,
+                      snapshot: {
+                        url: snapshot.url,
+                        type: 'image/png',
+                        size: snapshot.size,
+                      },
+                    },
+                  }
                 : entry,
             ),
           );
       })
       .catch((error: unknown) => {
-        if (!controller.signal.aborted) {
-          controller.abort();
+        if (!controller.signal.aborted)
           setAttachments((current) =>
             current.map((entry) =>
               entry.localId === item.localId
@@ -322,12 +310,13 @@ export const Composer = ({
                     ...entry,
                     status: 'error',
                     error:
-                      error instanceof Error ? error.message : 'Upload failed.',
+                      error instanceof Error
+                        ? error.message
+                        : 'Could not attach selection.',
                   }
                 : entry,
             ),
           );
-        }
       })
       .finally(() => {
         if (uploadsRef.current.get(item.localId) === controller)
@@ -338,7 +327,6 @@ export const Composer = ({
   const attachSelection = (selection: IPageSelection) => {
     setSelecting(false);
     const localId = crypto.randomUUID();
-    const sourceFiles = pageSelectionFiles(selection, localId);
     const item: IComposerAttachment = {
       localId,
       name: selection.title,
@@ -346,7 +334,6 @@ export const Composer = ({
       size: selection.image.size,
       status: 'uploading',
       selection,
-      sourceFiles,
       previewUrl: URL.createObjectURL(selection.image),
     };
     setAttachments((current) => [...current, item]);
@@ -548,7 +535,7 @@ export const Composer = ({
                 disabled={
                   disabled ||
                   isStreaming ||
-                  usedSlots > AGENTS_FILE_MAX_PER_TURN - 2
+                  selectionCount >= AGENTS_PAGE_SELECTION_MAX_PER_TURN
                 }
                 onClick={() => setSelecting(true)}
                 aria-label="Select on page"

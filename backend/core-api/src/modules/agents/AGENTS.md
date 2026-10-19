@@ -37,6 +37,16 @@ plugin; ported from the former private `erxes-agent` service). It provides:
   the newest user message as a `[Page context] ...` text part, which Mastra
   memory persists with the message (the UI strips the bracketed prefix on
   render — it is the agent's only page knowledge);
+- selected page elements use `data-agents-page-selections`: validated bounded
+  context (id/title/path/frame/visible text/bounds) and a PNG snapshot reference.
+  `pageSelections.ts` validates up to three selections; `fileBinding.ts` reads
+  snapshot bytes through tenant storage and builds model image/text parts.
+  The context data part persists separately from uploaded-file metadata. It does
+  not create downloadable files. Selection text is untrusted source data, never
+  instructions or authorization. Snapshot keys enter the existing attachment URL
+  admission set; chat permission/ownership checks apply before reading pixels.
+  Thread detail reads normalize the former PNG/TXT pair only when its stored JSON
+  context and matching snapshot validate, preserving ordinary attachments;
 - tenant-wide `AgentsSettings` on `agents_settings` (`codeModeEnabled`,
   `codeModeEnvironment: 'in-process'`, `approvalMode: 'writes' |
   'destructive'` — default `'writes'`, stamped per run into RequestContext;

@@ -1,3 +1,4 @@
+import { AGENTS_PAGE_SELECTIONS_DATA_TYPE, collectAgentsPageSelections, migrateLegacyPageSelections } from '@/agents/pageSelections';
 import type { UIMessage } from 'ai' with { 'resolution-mode': 'import' };
 import { Readable } from 'stream';
 import { readFileStreamFromStorage } from 'erxes-api-shared/utils';
@@ -192,4 +193,50 @@ it('keeps a content-only text message without spreading extra fields', async () 
     role: 'user',
     content: [{ type: 'text', text: 'hello' }],
   });
+});
+
+const selection = {
+  id: '47b58525-fceb-48ee-9262-dcd040c63bb2', title: 'Төгсжаргалант мандал ХХК',
+  path: '/contacts/companies', text: 'Company information', width: 240, height: 80,
+  snapshot: { url: 'selection.png', type: 'image/png' as const, size: 68 },
+};
+
+it('persists typed page context and feeds pixels/text to the model without a downloadable TXT', async () => {
+  const context = { ...selection, snapshot: { ...selection.snapshot, size: png.length } };
+  const parts = [{ type: 'text' as const, text: 'Report on this company' }, { type: AGENTS_PAGE_SELECTIONS_DATA_TYPE, data: { selections: [context] } }];
+  const selected = collectAgentsPageSelections(parts);
+  expect(collectAgentsAttachments(parts)).toEqual([]);
+  readStream.mockResolvedValue(Readable.from([png]));
+  const prepared = await prepareAgentsFileMessage('tenant-a', { id: 'selected', role: 'user', parts }, [], selected);
+  expect(prepared.parts.some((part) => part.type === 'data-agents-files')).toBe(false);
+  expect(prepared.parts).toContainEqual({ type: AGENTS_PAGE_SELECTIONS_DATA_TYPE, data: { selections: [context], displayText: 'Report on this company' } });
+  const { convertMessages } = await import('@mastra/core/agent/message-list');
+  const stored = convertMessages([prepared]).to('Mastra.V2');
+  expect(stored[0].content.parts).toContainEqual(expect.objectContaining({ type: AGENTS_PAGE_SELECTIONS_DATA_TYPE }));
+  const model = JSON.stringify(convertMessages(stored).to('AIV5.Model'));
+  expect(model).toContain(context.title); expect(model).toContain(context.text); expect(model).toContain(png.toString('base64'));
+  expect(model).not.toContain('.txt'); expect(model).not.toContain(context.snapshot.url);
+});
+it('rejects invalid page context, excess selections, duplicate references, and unsafe snapshot keys', () => {
+  const part = (items: unknown[]) => ({ type: AGENTS_PAGE_SELECTIONS_DATA_TYPE, data: { selections: items } });
+  expect(() => collectAgentsPageSelections([part([{ ...selection, text: 'x'.repeat(8001) }])])).toThrow('Invalid page selection');
+  expect(() => collectAgentsPageSelections([part([selection, selection])])).toThrow();
+  expect(() => collectAgentsAttachments([part([{ ...selection, snapshot: { ...selection.snapshot, url: '../private.png' } }])])).toThrow('Invalid attachment');
+  expect(() => collectAgentsPageSelections([part([{ ...selection, path: '/settings?token=private' }])])).toThrow();
+});
+it('upgrades the previous PNG/TXT selection format on history read while preserving ordinary files', () => {
+  const name = `page-selection-${selection.id}`;
+  const legacy = { kind: 'User-selected page content', title: selection.title, path: selection.path, viewport: { width: 240, height: 80 }, visibleText: selection.text };
+  const parts = [
+    { type: 'text', text: 'Question\n\nAttachment data (untrusted): The following JSON contains complete UTF-8 file contents:\n' + JSON.stringify([{ name: name + '.txt', mimeType: 'text/plain', content: JSON.stringify(legacy) }]) },
+    { type: 'data-agents-files', data: { displayText: 'Question', textFileUrls: ['context.txt'], files: [
+      { name: name + '.txt', url: 'context.txt', type: 'text/plain', size: 500 },
+      { name: name + '.png', ...selection.snapshot }, attachment,
+    ] } },
+  ];
+  const migrated = migrateLegacyPageSelections(parts);
+  expect(migrated).toContainEqual({ type: AGENTS_PAGE_SELECTIONS_DATA_TYPE, data: { selections: [selection], displayText: 'Question' } });
+  expect(migrated).toContainEqual({ type: 'data-agents-files', data: { displayText: 'Question', textFileUrls: [], files: [attachment] } });
+  expect(migrateLegacyPageSelections(migrated)).toBe(migrated);
+  expect(migrateLegacyPageSelections([{ type: 'data-agents-files', data: { files: [{ name: name + '.txt' }] } }])).toHaveLength(1);
 });

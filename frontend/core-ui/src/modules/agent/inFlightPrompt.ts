@@ -1,3 +1,8 @@
+import {
+  agentsPageSelectionsSchema,
+  pageSelectionsPart,
+  readPageSelectionsPart,
+} from './pageSelections';
 import type { UIMessage } from 'ai';
 import {
   AGENTS_FILE_ONLY_TEXT,
@@ -12,11 +17,13 @@ export const encodeInFlightPrompt = (parts: UIMessage['parts']): string => {
     .flatMap((part) => (part.type === 'text' ? [part.text] : []))
     .join('\n\n');
   const files = parts.flatMap(readAgentsFilesPart);
-  if (!files.length) return text;
+  const selections = parts.flatMap(readPageSelectionsPart);
+  if (!files.length && !selections.length) return text;
   const userText = text.trim() || AGENTS_FILE_ONLY_TEXT;
   return JSON.stringify({
     text: userText,
     files,
+    ...(selections.length ? { selections } : {}),
   });
 };
 
@@ -32,7 +39,15 @@ export const decodeInFlightPrompt = (raw: string): UIMessage['parts'] => {
       Array.isArray(value.files) &&
       value.files.every(isAgentsFileMeta)
     ) {
-      return [{ type: 'text', text: value.text }, agentsFilesPart(value.files)];
+      const selections =
+        'selections' in value
+          ? agentsPageSelectionsSchema.safeParse(value.selections)
+          : undefined;
+      return [
+        { type: 'text', text: value.text },
+        ...(value.files.length ? [agentsFilesPart(value.files)] : []),
+        ...(selections?.success ? [pageSelectionsPart(selections.data)] : []),
+      ];
     }
   } catch {
     // Existing sessions stored the prompt as plain text.
@@ -59,4 +74,14 @@ export const inFlightPromptMatches = (
 ): boolean =>
   message.role === 'user' &&
   textKey(inFlight) === textKey(message.parts) &&
-  fileIdsKey(inFlight) === fileIdsKey(message.parts);
+  fileIdsKey(inFlight) === fileIdsKey(message.parts) &&
+  JSON.stringify(
+    inFlight
+      .flatMap(readPageSelectionsPart)
+      .map((selection) => [selection.id, selection.snapshot.url]),
+  ) ===
+    JSON.stringify(
+      message.parts
+        .flatMap(readPageSelectionsPart)
+        .map((selection) => [selection.id, selection.snapshot.url]),
+    );

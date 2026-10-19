@@ -1,3 +1,7 @@
+import {
+  collectAgentsPageSelections,
+  AgentsPageSelectionError,
+} from '@/agents/pageSelections';
 import type { UIMessage } from 'ai' with { 'resolution-mode': 'import' };
 import type { MastraMemory } from '@mastra/core/memory' with {
   'resolution-mode': 'import',
@@ -649,11 +653,18 @@ router.post('/agents/chat', async (req, res) => {
         'Use standard attachments instead of fileIds. Please attach the files again.',
       );
     }
+    const selections = collectAgentsPageSelections(
+      Array.isArray(newestMessage.parts) ? newestMessage.parts : [],
+    );
     const files = collectAgentsAttachments(
       Array.isArray(newestMessage.parts) ? newestMessage.parts : [],
     );
 
-    if (files.length > 0 || body.editMessageId !== undefined) {
+    if (
+      files.length > 0 ||
+      selections.length > 0 ||
+      body.editMessageId !== undefined
+    ) {
       await checkPermissionGroup(identity.subdomain, identity.user)('agentsChat');
     }
 
@@ -677,6 +688,7 @@ router.post('/agents/chat', async (req, res) => {
       identity.subdomain,
       { id: typeof newestMessage.id === 'string' ? newestMessage.id : randomUUID(), role: 'user', parts: newestMessage.parts },
       files,
+      selections,
     );
 
     // Page context is a model-only hint: a delimited text part prepended to
@@ -706,7 +718,10 @@ router.post('/agents/chat', async (req, res) => {
       codeModeEnabled: runSettings.codeModeEnabled,
       approvalMode: runSettings.approvalMode,
       threadId,
-      attachmentUrls: files.map((file) => file.url),
+      attachmentUrls: [
+        ...files.map((file) => file.url),
+        ...selections.map((selection) => selection.snapshot.url),
+      ],
       navigation,
     });
 
@@ -753,6 +768,7 @@ router.post('/agents/chat', async (req, res) => {
     await pipeModelOutput(res, threadId, result.output);
   } catch (error) {
     if (
+      error instanceof AgentsPageSelectionError ||
       error instanceof AgentsFileBindError ||
       error instanceof AgentsMessageEditError
     ) {

@@ -1,3 +1,4 @@
+import { pageSelectionsDisplayText } from './pageSelections';
 import type { DynamicToolUIPart, UIMessage } from 'ai';
 import { agentsFilesDisplayText } from './agentsFiles';
 
@@ -82,7 +83,9 @@ const mapToolInvocation = (
 };
 
 /** Maps one stored Mastra format-2 content part to a UIMessage part. */
-const mapPart = (part: IStoredMessagePart): UIMessage['parts'][number] | null => {
+const mapPart = (
+  part: IStoredMessagePart,
+): UIMessage['parts'][number] | null => {
   if (part.type === 'text' && typeof part.text === 'string') {
     return { type: 'text', text: part.text };
   }
@@ -135,18 +138,20 @@ export const mapStoredMessagesToUIMessages = (
       continue;
     }
 
-    const displayText = message.role === 'user'
-      ? agentsFilesDisplayText(parts)
-      : undefined;
+    const displayText =
+      message.role === 'user'
+        ? agentsFilesDisplayText(parts) ?? pageSelectionsDisplayText(parts)
+        : undefined;
     uiMessages.push({
       id: message.id,
       role: message.role,
-      parts: displayText !== undefined
-        ? [
-            { type: 'text', text: displayText },
-            ...parts.filter((part) => part.type !== 'text'),
-          ]
-        : parts,
+      parts:
+        displayText !== undefined
+          ? [
+              { type: 'text', text: displayText },
+              ...parts.filter((part) => part.type !== 'text'),
+            ]
+          : parts,
       metadata: {
         createdAt: message.createdAt,
       },

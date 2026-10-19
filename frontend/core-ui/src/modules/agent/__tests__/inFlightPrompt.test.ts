@@ -1,3 +1,4 @@
+import { pageSelectionsPart } from '../pageSelections';
 import { agentsFilesPart } from '../agentsFiles';
 import {
   decodeInFlightPrompt,
@@ -41,4 +42,38 @@ it('does not treat two file-only prompts with different files as the same turn',
   expect(inFlightPromptMatches(second, { role: 'user', parts: first })).toBe(
     false,
   );
+});
+
+const selection = {
+  id: '47b58525-fceb-48ee-9262-dcd040c63bb2',
+  title: 'Төгсжаргалант мандал ХХК',
+  path: '/contacts/companies',
+  text: 'Company information',
+  width: 240,
+  height: 80,
+  snapshot: { url: 'selection.png', type: 'image/png' as const, size: 68 },
+};
+
+it('restores typed page context during reconnect without manufacturing a file attachment', () => {
+  const parts = [
+    { type: 'text' as const, text: 'Explain this company' },
+    pageSelectionsPart([selection]),
+  ];
+  const restored = decodeInFlightPrompt(encodeInFlightPrompt(parts));
+  expect(restored).toEqual(parts);
+  expect(restored.some((part) => part.type === 'data-agents-files')).toBe(
+    false,
+  );
+  expect(inFlightPromptMatches(restored, { role: 'user', parts })).toBe(true);
+  expect(
+    inFlightPromptMatches(restored, {
+      role: 'user',
+      parts: [
+        parts[0],
+        pageSelectionsPart([
+          { ...selection, id: 'bf74b228-950a-4cce-b886-fe02079ade64' },
+        ]),
+      ],
+    }),
+  ).toBe(false);
 });
