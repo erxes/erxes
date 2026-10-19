@@ -99,7 +99,9 @@ export const WelcomeVideoPlayer = ({
             onLoadedData={handleLoaded}
             onTimeUpdate={handleTimeUpdate}
             preload="metadata"
-          />
+          >
+            <track kind="captions" />
+          </video>
         )}
       </div>
     </div>
