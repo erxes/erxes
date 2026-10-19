@@ -33,6 +33,10 @@ export const salesContract = defineContract('sales', 1, [
     description:
       'Read one deal by its _id, as the calling user sees it in sales. Returns null when no deal has that _id. priority is a string: "0" to "4" for deals set with the priority picker (No Priority, Minor, Medium, High, Critical), or a label such as "High" on older deals. Read-only.',
     kind: 'read',
+    // No clientPortalCard: with it, dealDetail skips the caller's checks.
+    field: 'dealDetail',
+    args: { _id: 'String!' },
+    notFound: 'Deal not found',
     input: z.object({ _id: z.string().min(1) }).strict(),
     output: DealSummary.nullable(),
   },
@@ -41,6 +45,8 @@ export const salesContract = defineContract('sales', 1, [
     description:
       "Read one pipeline stage by its _id, including the pipelineId it belongs to. Use it to go from a deal's stageId to its pipeline. Returns null when no stage has that _id. Read-only.",
     kind: 'read',
+    field: 'salesStageDetail',
+    args: { _id: 'String!' },
     input: z.object({ _id: z.string().min(1) }).strict(),
     output: StageSummary.nullable(),
   },

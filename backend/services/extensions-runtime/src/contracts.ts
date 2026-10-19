@@ -1,10 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import {
-  type Contract,
-  type ContractEntry,
-  type Contracts,
-  findContract,
-} from 'erxes-sdk';
+import { type ContractEntry, findContract, toDocument } from 'erxes-sdk';
 import { z } from 'zod';
 import { ApiError, invalidInput } from './errors';
 import { LIMITS } from './limits';
@@ -22,51 +17,8 @@ export const HostCallRequest = z.object({
 
 export type HostCallRequest = z.infer<typeof HostCallRequest>;
 
-// One contract entry as a GraphQL call through the gateway. `field` is the
-// root field the document selects; `notFound` is the resolver's error for a
-// missing record, which the contract answers with null.
-type Document = { query: string; field: string; notFound?: string };
-
-type EntryName<C extends Contract> = C['entries'][number]['name'];
-
-// Hand-written, one per entry, read-only fields of the sales SDL as it is.
-// Missing a document for an entry is a type error.
-const documents: {
-  [H in keyof Contracts]: {
-    [V in keyof Contracts[H]]: Contracts[H][V] extends Contract
-      ? Record<EntryName<Contracts[H][V]>, Document>
-      : never;
-  };
-} = {
-  sales: {
-    1: {
-      // No clientPortalCard: with it, dealDetail skips the caller's checks.
-      'deals.get': {
-        query: `query extSalesDealsGet($_id: String!) {
-          dealDetail(_id: $_id) {
-            _id name stageId priority description assignedUserIds
-          }
-        }`,
-        field: 'dealDetail',
-        notFound: 'Deal not found',
-      },
-      'stages.get': {
-        query: `query extSalesStagesGet($_id: String!) {
-          salesStageDetail(_id: $_id) { _id name order pipelineId }
-        }`,
-        field: 'salesStageDetail',
-      },
-    },
-  },
-};
-
-const served: Record<
-  string,
-  Record<number, Record<string, Document>> | undefined
-> = documents;
-
 // Messages the gateway and plugin resolvers raise for a caller they refuse.
-// Only these, and a document's notFound, reach the extension verbatim.
+// Only these, and an entry's notFound, reach the extension verbatim.
 const UNAUTHENTICATED = ['Login required'];
 const FORBIDDEN = [
   'Permission required',
@@ -163,17 +115,7 @@ const GatewayBody = z.object({
 // outlives the run that made it.
 export const gatewayUpstream =
   ({ session, deadline, abort }: Grant): Upstream =>
-  async ({ host, version, entry, input }) => {
-    const document = served[host]?.[version]?.[entry.name];
-
-    if (!document) {
-      throw upstreamFailure(
-        host,
-        entry.name,
-        `no document for ${host}@${version}`,
-      );
-    }
-
+  async ({ host, entry, input }) => {
     const timeoutMs = Math.min(LIMITS.upstreamTimeoutMs, deadline - Date.now());
     let res: Response;
 
@@ -186,7 +128,10 @@ export const gatewayUpstream =
           // getSubdomain reads this first, in the gateway and every subgraph.
           'nginx-hostname': session.hostname,
         },
-        body: JSON.stringify({ query: document.query, variables: input }),
+        body: JSON.stringify({
+          query: toDocument(host, entry),
+          variables: input,
+        }),
         signal: AbortSignal.any([
           abort.signal,
           AbortSignal.timeout(Math.max(timeoutMs, 0)),
@@ -225,10 +170,10 @@ export const gatewayUpstream =
     const message = body.data.errors?.[0]?.message;
 
     if (message === undefined) {
-      return body.data.data?.[document.field];
+      return body.data.data?.[entry.field];
     }
 
-    if (message === document.notFound) {
+    if (message === entry.notFound) {
       return null;
     }
 
