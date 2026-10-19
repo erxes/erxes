@@ -89,6 +89,7 @@ const getExtensionRemotes = async (
     signal: AbortSignal.timeout(2000),
   })
     .then((res) => (res.ok ? res.json() : []))
+    .then((remotes: unknown) => (Array.isArray(remotes) ? remotes : []))
     .catch(() => []);
 };
 
