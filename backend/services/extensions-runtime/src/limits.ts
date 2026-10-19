@@ -32,6 +32,16 @@ export const LIMITS = {
   // Server-side time limit for one Mongo query, so a slow $regex can't hold
   // a connection.
   dbMaxTimeMs: 2000,
+  // Outbound https from an extension that declares network hosts. The
+  // timeout is also cut to what's left of the run.
+  egressPerCall: int('EXT_EGRESS_PER_CALL', 50),
+  egressTimeoutMs: int('EXT_EGRESS_TIMEOUT_MS', 10_000),
+  egressRequestBytes: int('EXT_EGRESS_REQUEST_BYTES', MB),
+  egressResponseBytes: int('EXT_EGRESS_RESPONSE_BYTES', 5 * MB),
+  maxNetworkHosts: 20,
+  // Secrets one install may declare, and how long one value may be.
+  maxSecrets: 20,
+  secretValueChars: 8192,
   // Calls running at once, per tenant and in total.
   tenantConcurrency: int('EXT_TENANT_CONCURRENCY', 8),
   globalConcurrency: int('EXT_GLOBAL_CONCURRENCY', 64),
