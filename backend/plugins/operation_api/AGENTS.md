@@ -6,7 +6,7 @@
 - **Project:** `operation_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/operation_api`
-- **Last synchronized:** `2026-10-17`
+- **Last synchronized:** `2026-10-19`
 
 ## Scope
 
@@ -115,6 +115,7 @@ propertiesData? } })`
 
 ## Data and State
 
+- `operation_tasks` keeps its contacts as `customerIds` / `companyIds` (sparse indexes), being moved off core `relations` (`operation:task ↔ core:customer/company`, made by the relation widgets). Tasks have ObjectId `_id`s; `core-api` `commands/migrateRelationsToContactFields.ts` matches them in either form when backfilling.
 - Every model is generated from the request `subdomain`.
 - `operation_tasks` carries `segmentIds`, written only by the segmentation
   worker through `applyMembership`.

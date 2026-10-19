@@ -68,7 +68,9 @@ export const ticketSchema = schemaWrapper(
         optional: true,
         label: 'Properties data',
       },
-      companyIds: { type: [String], label: 'Companies' },
+      // The ticket's contacts, kept on the ticket instead of core relations.
+      customerIds: { type: [String], label: 'Customers', index: true },
+      companyIds: { type: [String], label: 'Companies', index: true },
       customerFieldData: {
         type: Schema.Types.Mixed,
         optional: true,
