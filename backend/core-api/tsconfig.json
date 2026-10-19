@@ -2,7 +2,8 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "baseUrl": ".",
-    "module": "commonjs",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
     "declaration": true,
     "removeComments": true,
     "emitDecoratorMetadata": true,
@@ -27,7 +28,13 @@
     "paths": {
       "~/*": ["./src/*"],
       "@/*": ["./src/modules/*"],
-      "erxes-api-shared/*": ["../erxes-api-shared/src/*"]
+      "erxes-api-shared/*": ["../erxes-api-shared/src/*"],
+      "@apollo/server/dist/esm/express4": [
+        "../../node_modules/@apollo/server/dist/cjs/express4/index.d.ts"
+      ],
+      "@mastra/core/llm/model/provider-options": [
+        "../../node_modules/@mastra/core/dist/llm/model/provider-options.d.ts"
+      ]
     }
   },
   "ts-node": {

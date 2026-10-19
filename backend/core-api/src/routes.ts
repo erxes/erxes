@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { router as agentsRoutes } from '~/modules/agents/routes';
 import { router as broadcastRoutes } from '~/modules/broadcast/routes';
 import { router as documentRoutes } from '~/modules/documents/routes';
 import { router as organizationRoutes } from '~/modules/organization/routes';
@@ -18,5 +19,6 @@ router.use(notificationRoutes);
 router.use(importExportRoutes);
 router.use(templateRoutes);
 router.use(oauthRoutes);
+router.use(agentsRoutes);
 
 export { router };

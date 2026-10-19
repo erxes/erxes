@@ -47,6 +47,14 @@
       }
     },
 
+    "test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "backend/core-api",
+        "command": "NODE_OPTIONS=--experimental-vm-modules pnpm exec jest --runInBand --forceExit"
+      }
+    },
+
     "docker-build": {
       "dependsOn": ["build"],
       "command": "docker build -f backend/core-api/Dockerfile . -t erxes/erxes-next-core-api"

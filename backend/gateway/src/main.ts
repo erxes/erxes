@@ -25,6 +25,7 @@ import {
 
 import {
   applyTrustProxy,
+  decodeAgentToolsAuthHeader,
   DEFAULT_JOB_OPTIONS,
   getPlugin,
   getPlugins,
@@ -96,7 +97,12 @@ const gatewayRateLimiter: RateLimitRequestHandler = rateLimit({
   max: 5000, // generous global cap per IP
   standardHeaders: true,
   legacyHeaders: false,
-  skip: (req) => req.path === '/health' || req.path.startsWith('/bullmq-board'),
+  // Signed agent calls all originate from core-api's address; a per-IP cap
+  // would throttle every tenant's agent together.
+  skip: (req) =>
+    req.path === '/health' ||
+    req.path.startsWith('/bullmq-board') ||
+    decodeAgentToolsAuthHeader(req.headers) !== null,
 });
 
 app.use(gatewayRateLimiter);
