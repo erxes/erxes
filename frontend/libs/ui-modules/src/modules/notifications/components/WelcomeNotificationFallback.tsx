@@ -1,71 +1,17 @@
-import {
-  IconBrandInstagramFilled,
-  IconBrandLinkedinFilled,
-  IconMailFilled,
-  IconBrandDiscordFilled,
-  IconBrandGithubFilled,
-} from '@tabler/icons-react';
 import { WelcomeMessageBackground } from 'ui-modules/modules/notifications/components/WelcomeMessageBackground';
 import { motion } from 'framer-motion';
-const COMING_SOON_VIDEO_SRC =
-  'https://pub-3bcba1ff529f4ce3bf25b4e16962c239.r2.dev/intro.mp4';
-const Socials = [
-  {
-    icon: <IconMailFilled className="size-5" />,
-    url: 'mailto:info@erxes.io',
-  },
-  {
-    icon: <IconBrandInstagramFilled className="size-5" />,
-    url: 'https://www.instagram.com/erxeshq/',
-  },
-  {
-    icon: <IconBrandLinkedinFilled className="size-5" />,
-    url: 'https://www.linkedin.com/company/erxes/',
-  },
-  {
-    icon: <IconBrandGithubFilled className="size-5" />,
-    url: 'https://github.com/erxes',
-  },
-  {
-    icon: <IconBrandDiscordFilled className="size-5" />,
-    url: 'https://discord.gg/qEaghUeG5C',
-  },
-];
-const SocialSection = () => (
-  <motion.div
-    initial={{ opacity: 0, y: 20 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ delay: 1.0 }}
-  >
-    <h3 className="text-base font-medium text-muted-foreground text-center mb-4">
-      Contact Us:
-    </h3>
-    <div className="flex flex-wrap justify-center gap-2">
-      {Socials.map((item) => {
-        return (
-          <a
-            href={item.url}
-            key={item.url}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <div className="bg-muted text-muted-foreground  rounded-sm p-[6px]">
-              {item.icon}
-            </div>
-          </a>
-        );
-      })}
-    </div>
-  </motion.div>
-);
+import { WelcomeSocialSection } from 'ui-modules/modules/notifications/components/WelcomeSocialSection';
+import {
+  WELCOME_FALLBACK_SOCIALS,
+  WELCOME_FALLBACK_VIDEO_SRC,
+} from 'ui-modules/modules/notifications/constants/welcome';
+import type { WelcomeNotificationFallbackProps } from 'ui-modules/modules/notifications/types/welcome';
 
 export const WelcomeNotificationFallback = ({
   pluginName,
-}: {
-  pluginName?: string;
-}) => {
+}: WelcomeNotificationFallbackProps) => {
   return (
-    <div className="container px-4 sm:px-8 md:px-20 py-12 lg:px-4 xl:px-12 relative h-full flex flex-col justify-center">
+    <div className="w-full min-w-0 overflow-x-clip px-4 sm:px-8 md:px-20 py-12 lg:px-4 xl:px-12 relative min-h-full flex flex-col justify-center">
       <WelcomeMessageBackground className="absolute inset-0 z-0" />
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -97,12 +43,12 @@ export const WelcomeNotificationFallback = ({
             transition={{ delay: 0.6 }}
           >
             <video
-              src={COMING_SOON_VIDEO_SRC}
+              src={WELCOME_FALLBACK_VIDEO_SRC}
               className={`w-full h-full transition-opacity duration-300 bg-background rounded-xl border border-foreground/10 overflow-hidden`}
               autoPlay
             />
           </motion.div>
-          <SocialSection />
+          <WelcomeSocialSection items={WELCOME_FALLBACK_SOCIALS} external />
         </div>
       </motion.div>
     </div>

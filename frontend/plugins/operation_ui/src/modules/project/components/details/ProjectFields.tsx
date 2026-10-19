@@ -1,127 +1,47 @@
-import {
-  Input,
-  IconPicker,
-  Separator,
-  useBlockEditor,
-  BlockEditor,
-} from 'erxes-ui';
+import type { ProjectFieldsProps } from '@/project/types/projectFields';
+import { Input, IconPicker, Separator, BlockEditor } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { useUpdateProject } from '@/project/hooks/useUpdateProject';
-import { useDebounce } from 'use-debounce';
-import { useEffect, useState } from 'react';
-import { Block } from '@blocknote/core';
 import {
   SelectLead,
   DateSelect,
   SelectProjectTeam,
 } from '@/project/components/select';
-import { useGetProject } from '@/project/hooks/useGetProject';
 import { SelectProjectPriority } from '@/project/components/select/SelectProjectPriority';
 import { ActivityList } from '@/activity/components/ActivityList';
 import { SelectProjectStatus } from '@/project/components/select/SelectProjectStatus';
 import { SelectTags, SelectMember } from 'ui-modules';
-import { parseDescriptionBlocks } from '@/operation/utils/parseDescriptionBlocks';
 import { compactList } from '@/operation/utils/cursorList';
+import { useProjectFieldsEditor } from '@/project/hooks/useProjectFieldsEditor';
 
-export const ProjectFields = ({ projectId }: { projectId: string }) => {
+export const ProjectFields = ({
+  projectId,
+  titleAction,
+}: ProjectFieldsProps) => {
   const { t } = useTranslation('operation');
-  const { project } = useGetProject(projectId);
-
+  const {
+    project,
+    editor,
+    name,
+    setName,
+    localMemberIds,
+    setLocalMemberIds,
+    handleDescriptionChange,
+    handleIconChange,
+    handleTagsChange,
+  } = useProjectFieldsEditor({
+    projectId,
+    descriptionPlaceholder: t('description-placeholder'),
+  });
   const {
     teamIds,
     priority,
     icon,
     status,
     leadId,
-    memberIds,
-    name: _name,
     startDate,
     targetDate,
-    description,
     tagIds,
   } = project || {};
-
-  const [descriptionContent, setDescriptionContent] = useState<
-    Block[] | undefined
-  >(parseDescriptionBlocks(description));
-  const editor = useBlockEditor({
-    initialContent: descriptionContent?.length ? descriptionContent : undefined,
-    placeholder: t('description-placeholder'),
-  });
-  const { updateProject } = useUpdateProject();
-
-  const memberIdList = memberIds ? compactList(memberIds) : [];
-
-  const [name, setName] = useState(_name);
-  const [localMemberIds, setLocalMemberIds] = useState<string[]>(memberIdList);
-  const [debouncedMemberIds] = useDebounce(localMemberIds, 1000);
-  const serverMemberIdsString = JSON.stringify(memberIdList);
-
-  useEffect(() => {
-    const currentServerIds = JSON.stringify(memberIdList);
-    const currentDebouncedIds = JSON.stringify(debouncedMemberIds);
-    const currentLocalIds = JSON.stringify(localMemberIds);
-
-    if (
-      currentDebouncedIds !== currentServerIds &&
-      currentLocalIds !== currentServerIds
-    ) {
-      updateProject({
-        variables: { _id: projectId, memberIds: debouncedMemberIds },
-      });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [debouncedMemberIds]);
-
-  useEffect(() => {
-    const currentLocalIds = JSON.stringify(localMemberIds);
-    const currentDebouncedIds = JSON.stringify(debouncedMemberIds);
-
-    if (
-      currentLocalIds === currentDebouncedIds &&
-      currentLocalIds !== serverMemberIdsString
-    ) {
-      setLocalMemberIds(memberIdList);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [serverMemberIdsString]);
-
-  const handleDescriptionChange = async () => {
-    const content = await editor?.document;
-    if (content) {
-      content.pop();
-      setDescriptionContent(content as Block[]);
-    }
-  };
-  const [debouncedDescriptionContent] = useDebounce(descriptionContent, 1000);
-  const [debouncedName] = useDebounce(name, 1000);
-  useEffect(() => {
-    if (!debouncedName || debouncedName === _name) return;
-    updateProject({
-      variables: {
-        _id: projectId,
-        name: debouncedName,
-      },
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [debouncedName]);
-
-  useEffect(() => {
-    if (!debouncedDescriptionContent) return;
-    if (
-      JSON.stringify(debouncedDescriptionContent) ===
-      JSON.stringify(parseDescriptionBlocks(description))
-    ) {
-      return;
-    }
-    updateProject({
-      variables: {
-        _id: projectId,
-        description: JSON.stringify(debouncedDescriptionContent),
-      },
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [debouncedDescriptionContent]);
   if (!project) return null;
 
   return (
@@ -131,18 +51,19 @@ export const ProjectFields = ({ projectId }: { projectId: string }) => {
         size="icon"
         className="w-min p-2"
         value={icon ?? undefined}
-        onValueChange={(_icon) => {
-          if (_icon !== icon) {
-            updateProject({ variables: { _id: projectId, icon: _icon } });
-          }
-        }}
+        onValueChange={handleIconChange}
       />
-      <Input
-        className="shadow-none focus-visible:shadow-none h-8 text-xl p-0"
-        placeholder={t('project-name')}
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-      />
+      <div className="flex items-start justify-between gap-4">
+        <div className="min-w-0 flex-1">
+          <Input
+            className="shadow-none focus-visible:shadow-none h-8 text-xl p-0"
+            placeholder={t('project-name')}
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
+        </div>
+        {titleAction}
+      </div>
       <div className="gap-2 flex flex-wrap w-full">
         <SelectProjectStatus value={status} projectId={projectId} />
         <SelectProjectPriority projectId={projectId} value={priority} />
@@ -169,14 +90,7 @@ export const ProjectFields = ({ projectId }: { projectId: string }) => {
         <SelectTags.Detail
           value={tagIds ? compactList(tagIds) : []}
           tagType="operation:project"
-          onValueChange={(newTagIds) => {
-            updateProject({
-              variables: {
-                _id: projectId,
-                tagIds: Array.isArray(newTagIds) ? newTagIds : [newTagIds],
-              },
-            });
-          }}
+          onValueChange={handleTagsChange}
         />
       </div>
       <Separator className="my-4" />
