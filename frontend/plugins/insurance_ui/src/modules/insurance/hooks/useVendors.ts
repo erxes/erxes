@@ -1,6 +1,7 @@
 import { useQuery, useMutation, MutationHookOptions } from '@apollo/client';
 import { queries, mutations } from '../graphql';
-import { InsuranceVendor } from '../types';
+import { InsuranceVendor, DiscountTier } from '../types';
+import type { PricingConfig } from '../types/pricing';
 
 export function useVendors() {
   const { data, loading, error, refetch } = useQuery(queries.VENDORS);
@@ -63,12 +64,22 @@ export function useUpdateVendor(
 export function useAddProductToVendor(
   options?: MutationHookOptions<
     { addProductToVendor: InsuranceVendor },
-    { vendorId: string; productId: string; pricingOverride?: any }
+    {
+      vendorId: string;
+      productId: string;
+      pricingOverride?: PricingConfig | null;
+      discountTiers?: DiscountTier[];
+    }
   >,
 ) {
   const [addProductToVendor, { loading, error }] = useMutation<
     { addProductToVendor: InsuranceVendor },
-    { vendorId: string; productId: string; pricingOverride?: any }
+    {
+      vendorId: string;
+      productId: string;
+      pricingOverride?: PricingConfig | null;
+      discountTiers?: DiscountTier[];
+    }
   >(mutations.ADD_PRODUCT_TO_VENDOR, {
     refetchQueries: ['InsuranceVendors', 'InsuranceVendor'],
     ...options,

@@ -33,7 +33,7 @@ import {
   useAddProductToVendor,
   useRemoveProductFromVendor,
 } from '~/modules/insurance/hooks';
-import { VendorUser } from '~/modules/insurance/types';
+import { InsuranceVendorProduct, VendorUser } from '~/modules/insurance/types';
 import { VendorUserForm } from '~/modules/insurance/components';
 
 export const VendorDetailPage = () => {
@@ -50,13 +50,14 @@ export const VendorDetailPage = () => {
   const [editingUser, setEditingUser] = useState<VendorUser | undefined>();
   const [isProductDialogOpen, setIsProductDialogOpen] = useState(false);
   const [selectedProductId, setSelectedProductId] = useState('');
-  const [vendorPercentage, setVendorPercentage] = useState<number | undefined>(
-    undefined,
-  );
+  const [vendorPercentage, setVendorPercentage] = useState<
+    number | string | undefined
+  >(undefined);
   const [vendorDurationFields, setVendorDurationFields] = useState<
     { duration: string; percentage: number }[]
   >([]);
-  const [editingProduct, setEditingProduct] = useState<any>(null);
+  const [editingProduct, setEditingProduct] =
+    useState<InsuranceVendorProduct | null>(null);
   const [discountTiers, setDiscountTiers] = useState<
     { minTravelers: number; discountPercent: number }[]
   >([]);
@@ -81,14 +82,14 @@ export const VendorDetailPage = () => {
   };
 
   const handleDelete = async (userId: string) => {
-    if (confirm(t('confirm-delete-user'))) {
+    if (window.confirm(t('confirm-delete-user'))) {
       await deleteVendorUser(userId);
       refetch();
     }
   };
 
   const handleRemoveProduct = async (productId: string) => {
-    if (confirm(t('remove-product-confirm'))) {
+    if (window.confirm(t('remove-product-confirm'))) {
       try {
         await removeProductFromVendor({
           variables: {
@@ -102,7 +103,7 @@ export const VendorDetailPage = () => {
     }
   };
 
-  const handleEditProduct = (vp: any) => {
+  const handleEditProduct = (vp: InsuranceVendorProduct) => {
     setEditingProduct(vp);
     setSelectedProductId(vp.product.id);
 
@@ -115,7 +116,7 @@ export const VendorDetailPage = () => {
           vp.pricingOverride.percentageByDuration,
         ).map(([duration, percentage]) => ({
           duration,
-          percentage: percentage as number,
+          percentage,
         }));
         setVendorDurationFields(durationFields);
       } else {
@@ -303,7 +304,7 @@ export const VendorDetailPage = () => {
               </div>
               {vendor.offeredProducts.length > 0 ? (
                 <div className="space-y-2">
-                  {vendor.offeredProducts.map((vp: any) => (
+                  {vendor.offeredProducts.map((vp: InsuranceVendorProduct) => (
                     <div
                       key={vp.product.id}
                       className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
@@ -560,8 +561,8 @@ export const VendorDetailPage = () => {
                 </p>
               ) : (
                 <div className="space-y-2">
-                  {vendorDurationFields.map((field) => (
-                    <div key={field.key} className="flex gap-2 items-end">
+                  {vendorDurationFields.map((field, index) => (
+                    <div key={index} className="flex gap-2 items-end">
                       <div className="flex-1">
                         <Label className="text-xs">{t('duration')}</Label>
                         <Input
@@ -644,11 +645,8 @@ export const VendorDetailPage = () => {
                 </p>
               ) : (
                 <div className="space-y-2">
-                  {discountTiers.map((tier) => (
-                    <div
-                      key={tier.minTravelers}
-                      className="flex gap-2 items-end"
-                    >
+                  {discountTiers.map((tier, index) => (
+                    <div key={index} className="flex gap-2 items-end">
                       <div className="flex-1">
                         <Label className="text-xs">Хүний тоо (≥)</Label>
                         <Input

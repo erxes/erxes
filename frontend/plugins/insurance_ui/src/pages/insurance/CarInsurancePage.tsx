@@ -97,6 +97,8 @@ export const CarInsurancePage = () => {
 
   // Get selected product for premium calculation
   const selectedProduct = products.find((p) => p.id === formData.productId);
+  const percentageByDuration =
+    selectedProduct?.pricingConfig?.percentageByDuration;
 
   // Get vendor's pricing override for the selected product
   const getVendorPricing = () => {
@@ -164,7 +166,7 @@ export const CarInsurancePage = () => {
   // Calculate premium based on effective percentage and assessed value
   const calculatePremium = () => {
     if (!selectedProduct || !insuredObject.assessedValue) return 0;
-    return insuredObject.assessedValue * (productPercentage / 100);
+    return insuredObject.assessedValue * (Number(productPercentage) / 100);
   };
 
   const calculatedPremium = calculatePremium();
@@ -488,7 +490,7 @@ export const CarInsurancePage = () => {
                       <label className="block text-sm font-medium mb-2">
                         {t('duration-required')}
                       </label>
-                      {selectedProduct?.pricingConfig?.percentageByDuration ? (
+                      {percentageByDuration ? (
                         <Select
                           value={
                             durationInMonths > 0
@@ -510,22 +512,20 @@ export const CarInsurancePage = () => {
                             <Select.Value placeholder={t('select-duration')} />
                           </Select.Trigger>
                           <Select.Content>
-                            {Object.keys(
-                              selectedProduct.pricingConfig
-                                .percentageByDuration,
-                            ).map((duration) => {
-                              const months = Number.parseFloat(
-                                duration.replace('months', ''),
-                              );
-                              const percentage =
-                                selectedProduct.pricingConfig
-                                  .percentageByDuration[duration];
-                              return (
-                                <Select.Item key={duration} value={duration}>
-                                  {months} {t('months')} ({percentage}%)
-                                </Select.Item>
-                              );
-                            })}
+                            {Object.keys(percentageByDuration).map(
+                              (duration) => {
+                                const months = Number.parseFloat(
+                                  duration.replace('months', ''),
+                                );
+                                const percentage =
+                                  percentageByDuration[duration];
+                                return (
+                                  <Select.Item key={duration} value={duration}>
+                                    {months} {t('months')} ({percentage}%)
+                                  </Select.Item>
+                                );
+                              },
+                            )}
                           </Select.Content>
                         </Select>
                       ) : (
