@@ -1,8 +1,8 @@
 import {
-  IconArrowUp,
   IconPaperclip,
   IconPlayerStop,
   IconPointer,
+  IconSend,
   IconX,
 } from '@tabler/icons-react';
 import { Button, Spinner, Tooltip } from 'erxes-ui';
@@ -576,7 +576,7 @@ export const Composer = ({
             disabled={!canSend}
             aria-label="Send message"
           >
-            <IconArrowUp className="size-4" />
+            <IconSend className="size-4" />
           </Button>
         )}
       </div>
