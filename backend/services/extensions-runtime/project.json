@@ -1,0 +1,42 @@
+{
+  "name": "extensions-runtime",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "backend/services/extensions-runtime/src",
+  "projectType": "application",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "nx:run-commands",
+      "cache": true,
+      "options": {
+        "cwd": "backend/services/extensions-runtime",
+        "commands": ["pnpm build"]
+      },
+      "dependsOn": ["^build", "build:packageJson"]
+    },
+
+    "build:packageJson": {
+      "executor": "@nx/js:tsc",
+      "options": {
+        "main": "backend/services/extensions-runtime/dist/src/main.js",
+        "tsConfig": "backend/services/extensions-runtime/tsconfig.build.json",
+        "outputPath": "backend/services/extensions-runtime/dist",
+        "updateBuildableProjectDepsInPackageJson": true,
+        "buildableProjectDepsInPackageJsonType": "dependencies"
+      }
+    },
+
+    "serve": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "backend/services/extensions-runtime",
+        "command": "NODE_ENV=development pnpm dev"
+      }
+    },
+
+    "docker-build": {
+      "dependsOn": ["build"],
+      "command": "docker build -f backend/services/extensions-runtime/Dockerfile . -t erxes/erxes-next-extensions-runtime"
+    }
+  }
+}
