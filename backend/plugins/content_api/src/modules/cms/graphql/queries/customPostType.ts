@@ -197,7 +197,6 @@ const queries: Record<string, Resolver> = {
 
     const query: any = {
       clientPortalId: clientPortal._id,
-      isActive: true,
     };
 
     if (searchValue) {

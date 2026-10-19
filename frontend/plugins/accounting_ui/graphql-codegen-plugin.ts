@@ -37,11 +37,11 @@ export class AccountingGraphqlCodegenPlugin {
   }
 
   private async generate(): Promise<void> {
-    const backendRoot = join(
-      __dirname,
-      '../../../backend/plugins/accounting_api',
+    await runFile(
+      'pnpm',
+      ['nx', 'run', 'gateway:schema:compose', '--parallel=2'],
+      { cwd: join(__dirname, '../../..') },
     );
-    await runFile('pnpm', ['schema:print'], { cwd: backendRoot });
 
     const cliRoot = dirname(
       require.resolve('@graphql-codegen/cli/package.json'),

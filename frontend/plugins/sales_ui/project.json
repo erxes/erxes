@@ -28,7 +28,14 @@
           "sourceMap": false,
           "rspackConfig": "frontend/plugins/sales_ui/rspack.config.prod.ts"
         }
-      }
+      },
+      "inputs": [
+        "production",
+        "^production",
+        {
+          "dependentTasksOutputFiles": "**/*.ts"
+        }
+      ]
     },
     "serve": {
       "executor": "@nx/rspack:module-federation-dev-server",
@@ -64,16 +71,17 @@
       "cache": true,
       "dependsOn": [
         {
-          "projects": ["sales_api"],
-          "target": "schema:print"
+          "projects": ["gateway"],
+          "target": "schema:compose"
         }
       ],
       "inputs": [
         "{projectRoot}/codegen.ts",
-        "{projectRoot}/schema/**/*.graphql",
         "{projectRoot}/src/**/*.{ts,tsx}",
         "!{projectRoot}/src/gql/**",
-        { "dependentTasksOutputFiles": "**/*.graphql" }
+        {
+          "dependentTasksOutputFiles": "**/*.graphql"
+        }
       ],
       "outputs": ["{projectRoot}/src/gql"],
       "options": {

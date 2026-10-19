@@ -6,9 +6,3 @@ export const types = `
     content: JSON
   }
 `;
-
-export const subscriptions = `
-  extend type Subscription {
-    productPlacesResponded(userId: String, sessionCode: String): ProductPlacesResponse!
-  }
-`;

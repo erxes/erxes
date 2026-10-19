@@ -12,6 +12,7 @@ import {
 import { useTranslation } from 'react-i18next';
 const OnboardingSteps: TOnboardingStepItem[] = [
   {
+    id: 'contacts',
     icon: <IconAddressBook className="size-5" />,
     title: 'Contacts',
     description: 'Keep all customer and lead information in one hub.',
@@ -21,6 +22,7 @@ const OnboardingSteps: TOnboardingStepItem[] = [
     },
   },
   {
+    id: 'products',
     icon: <IconShoppingCart className="size-5" />,
     title: 'Products',
     forOwner: true,
@@ -32,6 +34,7 @@ const OnboardingSteps: TOnboardingStepItem[] = [
     },
   },
   {
+    id: 'segments',
     icon: <IconChartPie className="size-5" />,
     title: 'Segments',
     forOwner: true,
@@ -43,6 +46,7 @@ const OnboardingSteps: TOnboardingStepItem[] = [
     },
   },
   {
+    id: 'automation',
     icon: <IconAffiliate className="size-5" />,
     title: 'Automation',
     forOwner: true,
@@ -53,6 +57,7 @@ const OnboardingSteps: TOnboardingStepItem[] = [
     },
   },
   {
+    id: 'documentation',
     icon: <IconFile className="size-5" />,
     title: 'Documentation',
     forOwner: true,

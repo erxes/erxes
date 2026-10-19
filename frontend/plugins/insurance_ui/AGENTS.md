@@ -6,7 +6,7 @@
 - **Project:** `insurance_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/insurance_ui`
-- **Last synchronized:** `2026-10-19`
+- **Last synchronized:** `2026-10-20`
 
 ## Scope
 
@@ -24,7 +24,7 @@
 - Registers insurance navigation and routes for types, products, risks, vendors, vendor users, customers, regions, and contracts.
 - Exposes insurance config, main routes, settings routes, and widgets through Module Federation.
 - Development Rspack serving ignores generated dependency/cache/output folders to keep local file watchers bounded.
-- Codegen validates all local GraphQL documents against the printed Insurance subgraph and generates client types before builds and serves.
+- Codegen validates all local GraphQL documents against the composed gateway schema and generates client types before builds and serves.
 
 ## Architecture
 
@@ -38,7 +38,7 @@
 | Insurance module  | `frontend/plugins/insurance_ui/src/modules/insurance`       | Owns insurance route composition and feature UI.                                                            |
 | Pages             | `frontend/plugins/insurance_ui/src/pages/insurance`         | Provides route-level insurance pages.                                                                       |
 | Widgets           | `frontend/plugins/insurance_ui/src/widgets`                 | Provides plugin widget exports.                                                                             |
-| Codegen           | `frontend/plugins/insurance_ui/codegen.ts`                  | Generates client documents/types in ignored `src/gql/` from the Insurance API schema                        |
+| Codegen           | `frontend/plugins/insurance_ui/codegen.ts`                  | Generates client documents/types in ignored `src/gql/` from `backend/gateway/generated/schema.graphql`      |
 
 ## Contracts
 
@@ -53,7 +53,7 @@
 - Insurance API contracts through the plugin's local GraphQL documents and hooks.
 - GraphQL query and mutation aggregates are named exports from `src/modules/insurance/graphql`; individual document exports remain available for direct imports.
 - React Router host mounting contracts from core UI Module Federation.
-- `insurance_api:schema:print` supplies `backend/plugins/insurance_api/generated/schema.graphql`; no running backend is needed for generation.
+- The composed client-facing schema from the `gateway:schema:compose` Nx target, consumed only at codegen time; no running backend is needed for generation.
 
 ## Data and State
 
@@ -73,7 +73,7 @@
 - GraphQL documents use static selections without JavaScript interpolation. Operation names start with `Insurance`; update string-based `refetchQueries` whenever an operation is renamed, preserving the backend field names, arguments, and selections.
 - Pricing configuration, vendor pricing overrides, and insured objects are existing JSON API contracts. Preserve their payloads and the form state that edits them when changing response types.
 - `src/gql/` is generated, gitignored, and excluded from lint/document scanning. Do not edit generated files manually; JSON maps to `unknown` and Date outputs to `string`.
-- Keep `codegen` in both build and serve dependencies. `codegen:watch` is a separate long-running target with no dependencies; the shared development launcher discovers both targets when Insurance is enabled.
+- Keep `codegen` in both build and serve dependencies, and keep the build's `dependentTasksOutputFiles` input so a schema-only change invalidates the cached bundle. `codegen:watch` is a separate long-running target with no dependencies; the shared development launcher discovers both targets when Insurance is enabled.
 - Use `erxes-ui` and `ui-modules`; do not import another plugin's source.
 - Dev watch ignores must not include plugin source directories required for hot reload.
 
