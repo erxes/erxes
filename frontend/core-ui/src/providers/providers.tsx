@@ -34,6 +34,7 @@ const SafeRelationSettingsWidgetProvider = optionalProvider(
 const SafeRecordPickerWidgetProvider = optionalProvider(
   RecordPickerWidgetProvider,
 );
+const SafeSlotProvider = optionalProvider(SlotProvider);
 
 const SlotRemote: RenderSlotRemote = ({ pluginName, expose, props }) => (
   <RenderPluginsComponent
@@ -64,13 +65,13 @@ export const Providers = () => {
               RecordPickerWidget={RecordPickerWidgetsComponent}
               recordPickerWidgetsModules={useRecordPickerWidgetsModules()}
             >
-              <SlotProvider RenderRemote={SlotRemote}>
+              <SafeSlotProvider RenderRemote={SlotRemote}>
                 <HostedExtensionsProvider>
                   <Suspense fallback={<Spinner withMascot />}>
                     <Outlet />
                   </Suspense>
                 </HostedExtensionsProvider>
-              </SlotProvider>
+              </SafeSlotProvider>
             </SafeRecordPickerWidgetProvider>
           </SafeRelationSettingsWidgetProvider>
         </RelationWidgetProvider>

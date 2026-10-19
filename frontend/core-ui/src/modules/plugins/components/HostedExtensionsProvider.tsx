@@ -1,9 +1,14 @@
 import { PermissionRouteGuard } from '@/auth/components/PermissionRouteGuard';
+import { optionalProvider } from '@/widgets/utils/optionalProvider';
 import { AppLayoutExtensionsProvider, type IUIConfig } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
 import { useMemo } from 'react';
 import { pluginsConfigState, usePermissionCheck } from 'ui-modules';
 import { RenderPluginsComponent } from '~/plugins/components/RenderPluginsComponent';
+
+const SafeAppLayoutExtensionsProvider = optionalProvider(
+  AppLayoutExtensionsProvider,
+);
 
 const ownsPath = (config: IUIConfig, pathname: string) =>
   pathname === `/${config.path}` || pathname.startsWith(`/${config.path}/`);
@@ -46,8 +51,8 @@ export const HostedExtensionsProvider = ({
   }, [plugins, isLoaded, isWildcard, hasPluginPermission]);
 
   return (
-    <AppLayoutExtensionsProvider value={value}>
+    <SafeAppLayoutExtensionsProvider value={value}>
       {children}
-    </AppLayoutExtensionsProvider>
+    </SafeAppLayoutExtensionsProvider>
   );
 };
