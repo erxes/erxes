@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import {
   type Contract,
   type ContractEntry,
@@ -64,6 +65,7 @@ const served: Record<
 > = documents;
 
 // Messages the gateway and plugin resolvers raise for a caller they refuse.
+// Only these, and a document's notFound, reach the extension verbatim.
 const UNAUTHENTICATED = ['Login required'];
 const FORBIDDEN = [
   'Permission required',
@@ -72,6 +74,18 @@ const FORBIDDEN = [
 ];
 
 export type Pins = Record<string, number>;
+
+// An upstream failure nobody mapped. Its details stay in the runtime's log;
+// the extension and run history get the correlation id to find them.
+const upstreamFailure = (host: string, name: string, detail: unknown) => {
+  const correlationId = randomUUID();
+  console.error(`[${correlationId}] ${host}.${name}`, detail);
+  return new ApiError(
+    502,
+    'UPSTREAM',
+    `erxes couldn't complete ${host}.${name} (${correlationId})`,
+  );
+};
 
 // The entry, if the install pinned its host and the pinned version has it.
 const pinnedEntry = (uses: Pins, host: string, name: string) => {
@@ -125,10 +139,10 @@ export const runContractCall = async (
   const output = await entry.output.safeParseAsync(data);
 
   if (!output.success) {
-    throw new ApiError(
-      502,
-      'UPSTREAM',
-      `${host} answered ${name} with a result that doesn't match ${host}@${version}: ${z.prettifyError(
+    throw upstreamFailure(
+      host,
+      name,
+      `result doesn't match ${host}@${version}: ${z.prettifyError(
         output.error,
       )}`,
     );
@@ -151,10 +165,10 @@ export const gatewayUpstream =
     const document = served[host]?.[version]?.[entry.name];
 
     if (!document) {
-      throw new ApiError(
-        502,
-        'UPSTREAM',
-        `No document for ${host}@${version} ${entry.name}`,
+      throw upstreamFailure(
+        host,
+        entry.name,
+        `no document for ${host}@${version}`,
       );
     }
 
@@ -174,22 +188,24 @@ export const gatewayUpstream =
         signal: AbortSignal.timeout(Math.max(timeoutMs, 0)),
       });
     } catch (e) {
-      throw new ApiError(
-        502,
-        'UPSTREAM',
-        e instanceof DOMException && e.name === 'TimeoutError'
-          ? `${host} didn't answer ${entry.name} within ${timeoutMs}ms`
-          : `${host} is unreachable: ${String(e)}`,
-      );
+      if (e instanceof DOMException && e.name === 'TimeoutError') {
+        throw new ApiError(
+          502,
+          'UPSTREAM',
+          `${host} didn't answer ${entry.name} within ${timeoutMs}ms`,
+        );
+      }
+
+      throw upstreamFailure(host, entry.name, e);
     }
 
     const body = GatewayBody.safeParse(await res.json().catch(() => null));
 
     if (!body.success) {
-      throw new ApiError(
-        502,
-        'UPSTREAM',
-        `The gateway answered ${res.status} without a GraphQL result`,
+      throw upstreamFailure(
+        host,
+        entry.name,
+        `gateway answered ${res.status} without a GraphQL result`,
       );
     }
 
@@ -211,5 +227,5 @@ export const gatewayUpstream =
       throw new ApiError(403, 'FORBIDDEN', message);
     }
 
-    throw new ApiError(502, 'UPSTREAM', message);
+    throw upstreamFailure(host, entry.name, message);
   };
