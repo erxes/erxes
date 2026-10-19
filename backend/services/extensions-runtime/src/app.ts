@@ -42,6 +42,7 @@ import { LIMITS } from './limits';
 import { actionName } from './permissions';
 import { runFunction } from './runs';
 import { findGrant, HOST_TOKEN, type Session } from './sandbox';
+import { acceptWebhook } from './triggers';
 import { deleteSecret, listSecrets, SecretValue, setSecret } from './secrets';
 
 // Registered in service discovery, so the gateway proxies /pl:extensions/* here
@@ -278,6 +279,25 @@ export const app = new Hono<Env>()
 
     return c.json({ ok: true as const, data: result.data });
   })
+
+  // ---- Signed webhooks from outside erxes. The gateway proxies them here
+  // without a session; the signature is the only credential.
+
+  .post(
+    '/webhooks/:installKey/:name',
+    maxBody(LIMITS.webhookBytes),
+    async (c) => {
+      const tenant = tenantOf(c);
+      await acceptWebhook(
+        await generateModels(tenant),
+        tenant,
+        c.req.param(),
+        c.req.raw.headers,
+        Buffer.from(await c.req.arrayBuffer()),
+      );
+      return c.json({ ok: true as const, data: { accepted: true } }, 202);
+    },
+  )
 
   // ---- Boot: core-api lists these remotes next to the plugin remotes.
 
