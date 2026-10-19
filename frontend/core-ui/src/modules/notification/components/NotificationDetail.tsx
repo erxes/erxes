@@ -29,8 +29,13 @@ export const NotificationDetail = () => {
     );
   } else if (notification) {
     content = (
-      <ScrollArea className="h-full overflow-hidden">
-        <NotificationContentWrapper key={notification._id} />
+      <ScrollArea
+        className="h-full overflow-hidden"
+        viewportClassName="[&>div]:!block [&>div]:h-full"
+      >
+        <NotificationContentWrapper
+          key={notification.contentType?.split(/[:.]/)[0]}
+        />
       </ScrollArea>
     );
   }

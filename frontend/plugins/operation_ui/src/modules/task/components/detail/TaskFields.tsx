@@ -1,3 +1,4 @@
+import type { TaskFieldsProps } from '@/task/types/taskFields';
 import { compactList } from '@/operation/utils/cursorList';
 import { useTranslation } from 'react-i18next';
 import { ActivityList } from '@/activity/components/ActivityList';
@@ -12,24 +13,11 @@ import { SelectStatusTask } from '@/task/components/task-selects/SelectStatusTas
 import { SelectTaskPriority } from '@/task/components/task-selects/SelectTaskPriority';
 import { SelectTagsTask } from '@/task/components/task-selects/SelectTagsTask';
 import { SelectTeamTask } from '@/task/components/task-selects/SelectTeamTask';
-import { useUpdateTask } from '@/task/hooks/useUpdateTask';
-import type { ITaskDetail } from '@/task/types';
-import {
-  BlockEditor,
-  Separator,
-  Textarea,
-  Button,
-  Spinner,
-  type IBlockEditor,
-} from 'erxes-ui';
-import { useEffect, useRef, useState } from 'react';
-import { useDebounce } from 'use-debounce';
+import { BlockEditor, Separator, Textarea, Button, Spinner } from 'erxes-ui';
 import { IconBrandGithub, IconExternalLink } from '@tabler/icons-react';
-import { parseDescriptionBlocks } from '@/operation/utils/parseDescriptionBlocks';
-import { useDescriptionEditor } from '@/operation/hooks/useDescriptionEditor';
-import { normalizeDescriptionBlocks } from '@/operation/utils/normalizeDescriptionBlocks';
+import { useTaskFieldsEditor } from '@/task/hooks/useTaskFieldsEditor';
 
-export const TaskFields = ({ task }: { task: ITaskDetail }) => {
+export const TaskFields = ({ task, titleAction }: TaskFieldsProps) => {
   const { t } = useTranslation('operation');
   const {
     _id: taskId,
@@ -37,7 +25,6 @@ export const TaskFields = ({ task }: { task: ITaskDetail }) => {
     priority,
     status,
     assigneeId,
-    name: _name,
     targetDate,
     projectId,
     estimatePoint,
@@ -50,57 +37,17 @@ export const TaskFields = ({ task }: { task: ITaskDetail }) => {
   } = task || {};
 
   const startDate = task.startDate;
-  const description = task.description;
-  const [descriptionContent, setDescriptionContent] =
-    useState<IBlockEditor['document']>();
-  const { editor, isReady: isDescriptionReady } = useDescriptionEditor(
-    description,
-    t('description-placeholder'),
-  );
-  const { updateTask } = useUpdateTask();
-  const [name, setName] = useState(_name);
-  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
-  const handleDescriptionChange = (): void => {
-    setDescriptionContent(normalizeDescriptionBlocks(editor.document));
-  };
-
-  const [debouncedDescriptionContent] = useDebounce(descriptionContent, 1000);
-  const [debouncedName] = useDebounce(name, 1000);
-
-  useEffect(() => {
-    if (!debouncedName || debouncedName === _name) return;
-    updateTask({
-      variables: {
-        _id: taskId,
-        name: debouncedName,
-      },
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [debouncedName]);
-  useEffect(() => {
-    if (!debouncedDescriptionContent) return;
-    if (
-      JSON.stringify(debouncedDescriptionContent) ===
-      JSON.stringify(parseDescriptionBlocks(description))
-    ) {
-      return;
-    }
-    updateTask({
-      variables: {
-        _id: taskId,
-        description: JSON.stringify(debouncedDescriptionContent),
-      },
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [debouncedDescriptionContent]);
-
-  useEffect(() => {
-    if (!textareaRef.current) {
-      return;
-    }
-    textareaRef.current.style.height = 'auto';
-    textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
-  }, [name]);
+  const {
+    name,
+    setName,
+    editor,
+    isDescriptionReady,
+    textareaRef,
+    handleDescriptionChange,
+  } = useTaskFieldsEditor({
+    task,
+    descriptionPlaceholder: t('description-placeholder'),
+  });
 
   return (
     <div className="flex flex-col gap-3">
@@ -121,14 +68,19 @@ export const TaskFields = ({ task }: { task: ITaskDetail }) => {
           </a>
         </Button>
       )}
-      <Textarea
-        ref={textareaRef}
-        className="shadow-none focus-visible:shadow-none p-0"
-        style={{ fontSize: '1.25rem', lineHeight: '1.75rem' }}
-        placeholder={t('task-name')}
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-      />
+      <div className="flex items-start justify-between gap-4">
+        <div className="min-w-0 flex-1">
+          <Textarea
+            ref={textareaRef}
+            className="shadow-none focus-visible:shadow-none p-0"
+            style={{ fontSize: '1.25rem', lineHeight: '1.75rem' }}
+            placeholder={t('task-name')}
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
+        </div>
+        {titleAction}
+      </div>
       <div className="gap-2 flex flex-wrap w-full items-center">
         <SelectStatusTask
           variant="detail"

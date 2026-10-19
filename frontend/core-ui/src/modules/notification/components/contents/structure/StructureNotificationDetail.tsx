@@ -1,3 +1,4 @@
+import type { StructureNotificationDetailProps } from '@/notification/types/notificationContent';
 import {
   IconBuildings,
   IconExternalLink,
@@ -11,28 +12,8 @@ import {
   Spinner,
   readImage,
 } from 'erxes-ui';
-import { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import { TNotification } from 'ui-modules';
 import { useTranslation } from 'react-i18next';
-
-type StructureDetailItem = {
-  label: string;
-  value?: ReactNode;
-};
-
-type StructureNotificationDetailProps = Pick<
-  TNotification,
-  'action' | 'createdAt' | 'fromUser'
-> & {
-  contentType: string;
-  details: StructureDetailItem[];
-  error?: { message: string };
-  loading: boolean;
-  name?: string;
-  openLabel: string;
-  openPath: string;
-};
 
 /** Returns the best available human-readable name for a notification actor. */
 const getUserDisplayName = (
@@ -55,7 +36,7 @@ export const StructureNotificationDetail = ({
   const { t } = useTranslation('common', { keyPrefix: 'notification' });
   if (loading) {
     return (
-      <div className="flex min-h-dvh items-center justify-center">
+      <div className="flex min-h-full items-center justify-center">
         <Spinner />
       </div>
     );
@@ -63,7 +44,7 @@ export const StructureNotificationDetail = ({
 
   if (error || !name) {
     return (
-      <div className="flex min-h-dvh items-center justify-center p-6">
+      <div className="flex min-h-full items-center justify-center p-6">
         <Empty>
           <Empty.Header>
             <Empty.Media variant="icon">
@@ -88,7 +69,7 @@ export const StructureNotificationDetail = ({
   );
 
   return (
-    <div className="mx-auto flex min-h-dvh w-full max-w-3xl flex-col px-6 py-8">
+    <div className="mx-auto flex min-h-full w-full max-w-3xl flex-col px-6 py-8">
       <div className="flex flex-wrap items-start gap-4 border-b pb-6">
         <div className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-accent text-muted-foreground">
           <IconBuildings className="size-6" />
