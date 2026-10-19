@@ -1,4 +1,5 @@
 import { Button, CopyText, Input, Sheet, useFocusSheet } from 'erxes-ui';
+import { Slot } from 'ui-modules';
 
 import { DealsActions } from '@/deals/actionBar/components/DealsActions';
 import { MoveDealDropdown } from '@/deals/actionBar/components/MoveDealDropdown';
@@ -105,6 +106,7 @@ export const SalesItemDetailHeader = ({ deal }: { deal: IDealDetail }) => {
             </Link>
           </Button>
         )}
+        <Slot name="sales.deal.detail.actions" props={{ dealId: deal._id }} />
         <MoveDealDropdown deal={deal} />
         <DealsActions deals={[deal]} variant="menu" />
       </div>
