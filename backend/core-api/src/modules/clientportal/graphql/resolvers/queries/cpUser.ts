@@ -29,7 +29,7 @@ const toFilterDate = (value?: string) => {
   const date = new Date(value);
 
   if (Number.isNaN(date.getTime())) {
-    throw new Error(`Invalid date in dateFilters: ${value}`);
+    throw new TypeError(`Invalid date in dateFilters: ${value}`);
   }
 
   return date;

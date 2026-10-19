@@ -9,7 +9,7 @@ import {
   useFilterContext,
   useFilterQueryState,
 } from 'erxes-ui';
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   SelectClientPortalContext,
@@ -31,14 +31,17 @@ export const SelectClientPortalProvider = ({
   value?: string | null;
   onValueChange: (value: string | null) => void;
 }) => {
-  const onSelect = (clientPortalId: string) => {
-    onValueChange(clientPortalId === value ? null : clientPortalId);
-  };
+  const contextValue = useMemo(
+    () => ({
+      value: value || undefined,
+      onSelect: (clientPortalId: string) =>
+        onValueChange(clientPortalId === value ? null : clientPortalId),
+    }),
+    [value, onValueChange],
+  );
 
   return (
-    <SelectClientPortalContext.Provider
-      value={{ value: value || undefined, onSelect }}
-    >
+    <SelectClientPortalContext.Provider value={contextValue}>
       {children}
     </SelectClientPortalContext.Provider>
   );
