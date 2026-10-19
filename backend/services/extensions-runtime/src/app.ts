@@ -69,15 +69,10 @@ const MACHINE_HEADERS = ['erxes-app-token', 'erxes-core-token', 'x-app-token'];
 
 // The session token the browser sent, as the gateway reads it: a bearer
 // header, else the auth-token cookie.
-const sessionToken = (c: Context) => {
-  const authorization = c.req.header('authorization');
-
-  if (authorization) {
-    return /^Bearer\s+(\S+)$/i.exec(authorization)?.[1];
-  }
-
-  return getCookie(c, 'auth-token');
-};
+// A bearer token wins; otherwise the auth-token cookie, as in the gateway.
+const sessionToken = (c: Context) =>
+  /^Bearer\s+(\S+)$/i.exec(c.req.header('authorization') ?? '')?.[1] ||
+  getCookie(c, 'auth-token');
 
 // Verifies the session itself, the way the gateway's userMiddleware does:
 // the JWT signature, the login token still stored in Redis, and an active
