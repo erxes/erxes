@@ -19,6 +19,10 @@ The `agent` module is the core-ui surface for the core-api `agents` backend
   resize from 320px up to 1,200px, leaving 320px for the workspace when space
   permits; record panels retain their 600px maximum. The left-edge grip also
   supports arrow keys (Shift for larger steps) and Home/End for width limits.
+  Pointer capture and a temporary viewport shield keep resize events out of HTML
+  frames. Drag paints are batched per animation frame; persisted width changes
+  only on release/cancel. Entrance animation never transitions drag width. Lost capture, missing primary button, blur, Escape and
+  unmount all clean up the drag.
   The shared panel displays either a record or Assistant. After first open,
   the chat stays mounted but hidden while closed or showing a record, keeping
   drafts, streams and activity alive. The header provides new chat, history,
@@ -38,9 +42,11 @@ The `agent` module is the core-ui surface for the core-api `agents` backend
   appearance. Older avatars are frozen thumbnails; the current avatar follows
   the pointer at rest and uses the thinking state while working. `BotBadge`
   freezes animation for reduced-motion users. The submitted state shares this
-  identity with a three-dot progress indicator. The header has no agent-name
-  label: `agentMessageActivity` derives its single live activity from the newest
-  text/reasoning/tool part. Step groups show history summaries only. A pending
+  identity as the only visible working indicator. Activity text remains available
+  to screen readers through a status region; no extra dots or visible status label
+  accompany it. `agentMessageActivity` derives that status from the newest
+  text/reasoning/tool part. Step groups use compact, unboxed disclosures with a
+  leading chevron and an indented history rail. A pending
   response header appears only before a visible assistant row exists, including
   during the submitted-to-streaming transition and hidden answer turns.
   Transcript entry/send motion respects reduced motion; file previews retain their full available width;
@@ -176,9 +182,8 @@ normal send's `pageContext` (dismissible chip hides `record` only).
 ## Work steps
 
 `utils/agentWorkSteps.ts` folds contiguous reasoning + tool parts of an
-assistant message into `AgentWorkSteps` ("N steps", shimmering while
-streaming); `step-start` parts are transparent, approvals/ask_user stay
-standalone. `agentStepLabel` derives the per-row label
+assistant message into compact `AgentWorkSteps` disclosures ("N steps");
+`step-start` parts are transparent, approvals/ask_user stay standalone. `agentStepLabel` derives the per-row label
 (`callGraphql` shows its operation/field name,
 `execute_typescript` → "Ran code", `readFile` → "Read <name>").
 

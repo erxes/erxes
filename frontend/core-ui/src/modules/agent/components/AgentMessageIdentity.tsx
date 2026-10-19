@@ -20,21 +20,8 @@ export const AgentMessageIdentity = ({
         className="ring-1 ring-border/60"
       />
       {activity && (
-        <span
-          role="status"
-          className="flex min-w-0 items-center gap-2 text-xs text-muted-foreground"
-        >
-          <span
-            className="agent-thinking-dots flex shrink-0 gap-0.5"
-            aria-hidden="true"
-          >
-            <span />
-            <span />
-            <span />
-          </span>
-          <span className="truncate" title={activity}>
-            {activity}
-          </span>
+        <span role="status" className="sr-only">
+          {activity}
         </span>
       )}
     </div>

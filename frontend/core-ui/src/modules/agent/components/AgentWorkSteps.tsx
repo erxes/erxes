@@ -39,22 +39,22 @@ export const AgentWorkSteps = ({ steps, streaming }: IAgentWorkStepsProps) => {
       onOpenChange={setOpen}
       className="my-1.5 first:mt-0 last:mb-0"
     >
-      <div className="rounded-lg bg-muted/30 text-foreground">
+      <div className="min-w-0 text-foreground">
         <Collapsible.Trigger asChild>
           <button
             type="button"
-            className="flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-xs text-muted-foreground transition-colors hover:text-foreground"
+            className="flex max-w-full items-center gap-1.5 rounded-md px-1 py-1.5 text-left text-xs text-muted-foreground transition-colors hover:bg-muted/40 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
-            <span className="min-w-0 flex-1 truncate">{summary}</span>
             <IconChevronRight
               className={cn(
-                'size-3.5 shrink-0 transition-transform',
+                'size-3 shrink-0 transition-transform motion-reduce:transition-none',
                 open && 'rotate-90',
               )}
             />
+            <span className="min-w-0 truncate">{summary}</span>
           </button>
         </Collapsible.Trigger>
-        <Collapsible.Content className="px-1.5 pb-1.5">
+        <Collapsible.Content className="ml-2.5 mt-1 border-l pl-3 pb-1.5">
           <ul className="space-y-0.5">
             {steps.map((step, index) => (
               <li key={step.kind === 'tool' ? step.tool.toolCallId : index}>

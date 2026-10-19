@@ -5,7 +5,8 @@ import {
   IconX,
 } from '@tabler/icons-react';
 import { Button, cn, DropdownMenu, Tabs } from 'erxes-ui';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 
 export interface IRecordSidePanelTab {
@@ -32,71 +33,140 @@ const RecordSidePanelResizeHandle = ({
   onWidthChange: (width: number) => void;
 }) => {
   const { t } = useTranslation('common', { keyPrefix: 'side-panel' });
-  const stopResize = useRef<(() => void) | null>(null);
-  useEffect(() => () => stopResize.current?.(), []);
+  const [dragging, setDragging] = useState(false);
+  const stopResize = useRef<((commit?: boolean) => void) | null>(null);
+  const onWidthChangeRef = useRef(onWidthChange);
+  onWidthChangeRef.current = onWidthChange;
+  useEffect(() => () => stopResize.current?.(false), []);
+  useEffect(() => {
+    stopResize.current?.();
+  }, [maxWidth]);
 
   const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
-    if (event.button !== 0) return;
+    if (event.button !== 0 || event.isPrimary === false) return;
     event.preventDefault();
     stopResize.current?.();
+    const handle = event.currentTarget;
+    const panel = handle.parentElement;
+    if (!panel) return;
+    const doc = handle.ownerDocument;
+    const view = doc.defaultView;
+    if (!view) return;
+    const pointerId = event.pointerId;
     const startX = event.clientX;
-    const startWidth =
-      event.currentTarget.parentElement?.getBoundingClientRect().width || width;
-    const previousCursor = document.body.style.cursor;
-    const previousUserSelect = document.body.style.userSelect;
+    const startWidth = panel.getBoundingClientRect().width || width;
+    let nextWidth = startWidth;
+    let frame: number | null = null;
+    const previousCursor = doc.body.style.cursor;
+    const previousUserSelect = doc.body.style.userSelect;
 
-    const handlePointerMove = (moveEvent: PointerEvent) =>
-      onWidthChange(
-        clampWidth(startWidth + startX - moveEvent.clientX, maxWidth),
-      );
-
-    const handlePointerUp = () => {
-      document.removeEventListener('pointermove', handlePointerMove);
-      document.removeEventListener('pointerup', handlePointerUp);
-      document.removeEventListener('pointercancel', handlePointerUp);
-      window.removeEventListener('blur', handlePointerUp);
-      document.body.style.cursor = previousCursor;
-      document.body.style.userSelect = previousUserSelect;
+    // Paint locally while dragging; the storage-backed owner only commits once.
+    const paint = () => {
+      frame = null;
+      panel.style.width = `${nextWidth}px`;
+      handle.setAttribute('aria-valuenow', String(nextWidth));
+    };
+    const stop = (commit = true) => {
+      if (stopResize.current !== stop) return;
       stopResize.current = null;
+      if (frame !== null) view.cancelAnimationFrame(frame);
+      doc.removeEventListener('pointermove', move, true);
+      doc.removeEventListener('pointerup', end, true);
+      doc.removeEventListener('pointercancel', end, true);
+      doc.removeEventListener('visibilitychange', visibilityChanged);
+      doc.removeEventListener('keydown', keyDown, true);
+      handle.removeEventListener('lostpointercapture', end);
+      view.removeEventListener('blur', blur);
+      if (handle.hasPointerCapture?.(pointerId))
+        handle.releasePointerCapture(pointerId);
+      doc.body.style.cursor = previousCursor;
+      doc.body.style.userSelect = previousUserSelect;
+      if (commit) {
+        paint();
+        setDragging(false);
+        if (nextWidth !== startWidth) onWidthChangeRef.current(nextWidth);
+      }
+    };
+    const move = (moveEvent: PointerEvent) => {
+      if (moveEvent.pointerId !== pointerId) return;
+      // Recover even when the browser/OS never delivered the release event.
+      if ((moveEvent.buttons & 1) === 0) {
+        stop();
+        return;
+      }
+      nextWidth = clampWidth(startWidth + startX - moveEvent.clientX, maxWidth);
+      if (frame === null) frame = view.requestAnimationFrame(paint);
+    };
+    const end = (endEvent: PointerEvent) => {
+      if (endEvent.pointerId === pointerId) stop();
+    };
+    const blur = () => stop();
+    const visibilityChanged = () => {
+      if (doc.visibilityState === 'hidden') stop();
+    };
+    const keyDown = (keyEvent: KeyboardEvent) => {
+      if (keyEvent.key === 'Escape') {
+        keyEvent.preventDefault();
+        keyEvent.stopPropagation();
+        stop();
+      }
     };
 
-    document.body.style.cursor = 'col-resize';
-    document.body.style.userSelect = 'none';
-    document.addEventListener('pointermove', handlePointerMove);
-    document.addEventListener('pointerup', handlePointerUp);
-    document.addEventListener('pointercancel', handlePointerUp);
-    window.addEventListener('blur', handlePointerUp);
-    stopResize.current = handlePointerUp;
+    stopResize.current = stop;
+    doc.body.style.cursor = 'col-resize';
+    doc.body.style.userSelect = 'none';
+    doc.addEventListener('pointermove', move, true);
+    doc.addEventListener('pointerup', end, true);
+    doc.addEventListener('pointercancel', end, true);
+    doc.addEventListener('visibilitychange', visibilityChanged);
+    doc.addEventListener('keydown', keyDown, true);
+    handle.addEventListener('lostpointercapture', end);
+    view.addEventListener('blur', blur);
+    handle.setPointerCapture?.(pointerId);
+    setDragging(true);
   };
 
   return (
-    <div
-      role="separator"
-      aria-orientation="vertical"
-      aria-label={t('resize', 'Resize side panel')}
-      aria-valuemin={SIDE_PANEL_WIDTH.min}
-      aria-valuemax={maxWidth}
-      aria-valuenow={width}
-      tabIndex={0}
-      title={t('drag-to-resize', 'Drag to resize')}
-      className="group absolute inset-y-0 -left-1.5 z-10 flex w-3 cursor-col-resize touch-none items-center justify-center hover:bg-primary/10 focus-visible:bg-primary/10 focus-visible:outline-none active:bg-primary/20"
-      onPointerDown={handlePointerDown}
-      onKeyDown={(event) => {
-        const step = event.shiftKey ? 64 : 16;
-        const widths: Record<string, number> = {
-          ArrowLeft: width + step,
-          ArrowRight: width - step,
-          Home: SIDE_PANEL_WIDTH.min,
-          End: maxWidth,
-        };
-        const nextWidth = widths[event.key];
-        if (nextWidth === undefined) return;
-        event.preventDefault();
-        onWidthChange(clampWidth(nextWidth, maxWidth));
-      }}
-    >
-      <span className="h-8 w-1 rounded-full bg-border transition-colors group-hover:bg-primary/60 group-focus-visible:bg-primary/60 group-active:bg-primary" />
-    </div>
+    <>
+      <div
+        role="separator"
+        aria-orientation="vertical"
+        aria-label={t('resize', 'Resize side panel')}
+        aria-valuemin={SIDE_PANEL_WIDTH.min}
+        aria-valuemax={maxWidth}
+        aria-valuenow={width}
+        tabIndex={0}
+        title={t('drag-to-resize', 'Drag to resize')}
+        data-resizing={dragging || undefined}
+        className="group absolute inset-y-0 -left-2 z-10 flex w-4 cursor-col-resize touch-none items-center justify-center outline-none after:absolute after:inset-y-0 after:w-px after:bg-transparent hover:after:bg-primary/50 focus-visible:after:bg-primary data-[resizing=true]:after:bg-primary"
+        onPointerDown={handlePointerDown}
+        onKeyDown={(event) => {
+          const step = event.shiftKey ? 64 : 16;
+          const widths: Record<string, number> = {
+            ArrowLeft: width + step,
+            ArrowRight: width - step,
+            Home: SIDE_PANEL_WIDTH.min,
+            End: maxWidth,
+          };
+          const nextWidth = widths[event.key];
+          if (nextWidth === undefined) return;
+          event.preventDefault();
+          onWidthChange(clampWidth(nextWidth, maxWidth));
+        }}
+      >
+        <span className="relative z-10 h-10 w-1 rounded-full bg-border transition-colors group-hover:bg-primary/60 group-focus-visible:bg-primary group-data-[resizing=true]:bg-primary" />
+      </div>
+      {dragging &&
+        createPortal(
+          // Keep embedded reports from swallowing pointer events during a resize.
+          <div
+            aria-hidden="true"
+            data-side-panel-resize-shield
+            className="fixed inset-0 z-50 cursor-col-resize touch-none select-none"
+          />,
+          document.body,
+        )}
+    </>
   );
 };
 
@@ -122,8 +192,8 @@ const RecordSidePanelRoot = ({
     <aside
       style={{ width: panelWidth }}
       className={cn(
-        'relative flex flex-col flex-none max-w-full min-h-0 border-l bg-background',
-        // Eases in from the right instead of popping open.
+        'relative flex flex-col flex-none max-w-full min-h-0 border-l bg-background transition-none',
+        // Animate entry only: duration-200 must never ease drag width changes.
         'animate-in fade-in-0 slide-in-from-right-8 duration-200 ease-out motion-reduce:animate-none',
         className,
       )}
