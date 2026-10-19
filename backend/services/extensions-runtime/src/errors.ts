@@ -6,7 +6,18 @@ import { z } from 'zod';
 // throw into a 500, so a bad request never takes the process down.
 export class ApiError extends Error {
   constructor(
-    readonly status: 400 | 401 | 403 | 404 | 409 | 413 | 422 | 429 | 503 | 504,
+    readonly status:
+      | 400
+      | 401
+      | 403
+      | 404
+      | 409
+      | 413
+      | 415
+      | 422
+      | 429
+      | 503
+      | 504,
     readonly code: string,
     message: string,
     readonly issues?: ErrorIssue[],

@@ -51,10 +51,17 @@ export const startWorkerd = async ({
   forwardLines(child.stderr, `[workerd:${supervisorPort}]`);
 
   const killChild = () => child.kill();
-  process.once('exit', killChild);
-  child.once('exit', () => {
+  const cleanUp = () => {
     process.off('exit', killChild);
     void rm(dir, { recursive: true, force: true });
+  };
+  process.once('exit', killChild);
+  child.once('exit', cleanUp);
+  // A failed spawn (ENOENT, EACCES, no resources) arrives here, not as a throw;
+  // unhandled, it would crash the runtime for every tenant.
+  child.once('error', (error) => {
+    console.error(`[workerd:${supervisorPort}] failed to start`, error);
+    cleanUp();
   });
 
   return child;

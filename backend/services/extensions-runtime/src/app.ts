@@ -82,6 +82,15 @@ const signedIn: MiddlewareHandler<Env> = async (c, next) => {
     throw sessionOnly();
   }
 
+  // A cross-site form can POST with the session cookie but can't send JSON
+  // without a CORS preflight, so every write must declare JSON.
+  if (
+    c.req.method !== 'GET' &&
+    !c.req.header('content-type')?.startsWith('application/json')
+  ) {
+    throw new ApiError(415, 'JSON_REQUIRED', 'Send the request as JSON');
+  }
+
   const token = sessionToken(c);
 
   if (!token) {

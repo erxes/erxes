@@ -145,6 +145,13 @@ export const installBuild = async (
   await assertNameIsFree(models, tenant, id);
 
   if (ui) {
+    // No version record yet, so leftover assets of this version are from an
+    // install that failed half way; clear them or the retry hits duplicates.
+    await models.ExtensionAssets.deleteMany({
+      subdomain: tenant,
+      extId: id,
+      version,
+    });
     await models.ExtensionAssets.insertMany(
       Object.entries(ui.files).map(([path, base64]) => ({
         _id: `${tenant}:${id}@${version}/${path}`,

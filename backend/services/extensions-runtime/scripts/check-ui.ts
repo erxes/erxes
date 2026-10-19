@@ -26,16 +26,26 @@ const tsc = spawnSync(
   { encoding: 'utf8' },
 );
 
+if (tsc.error) {
+  console.error(`could not run tsc: ${tsc.error.message}`);
+  process.exit(1);
+}
+
 // A diagnostic starts at column 0 with `file(line,col): error`; its wrapped
 // lines are indented.
-const diagnostics = tsc.stdout
-  .split('\n')
-  .reduce<string[][]>((all, line) => {
-    if (/^\S/.test(line)) all.push([line]);
-    else if (line.trim() && all.length > 0) all[all.length - 1].push(line);
-    return all;
-  }, [])
-  .filter(([first]) => !first.includes('frontend/libs/'));
+const all = tsc.stdout.split('\n').reduce<string[][]>((all, line) => {
+  if (/^\S/.test(line)) all.push([line]);
+  else if (line.trim() && all.length > 0) all[all.length - 1].push(line);
+  return all;
+}, []);
+const diagnostics = all.filter(([first]) => !first.includes('frontend/libs/'));
+
+// tsc failed without printing a diagnostic (a crash, out of memory): the check
+// never ran, so it can't pass.
+if (tsc.status !== 0 && all.length === 0) {
+  console.error(tsc.stderr || `tsc exited with ${tsc.status}`);
+  process.exit(1);
+}
 
 if (diagnostics.length > 0) {
   console.log(diagnostics.map((lines) => lines.join('\n')).join('\n'));
