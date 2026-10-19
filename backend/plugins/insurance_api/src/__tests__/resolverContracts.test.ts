@@ -16,21 +16,25 @@ import {
 jest.mock('erxes-api-shared/utils', () => ({ escapeRegExp: jest.fn() }));
 jest.mock('../modules/insurance/services/pdfGenerator', () => ({}));
 
+const declaredFieldNames = (rootType: string, fields: string) => {
+  const [definition] = parse(`type ${rootType} { ${fields} }`).definitions;
+  return definition.kind === Kind.OBJECT_TYPE_DEFINITION
+    ? (definition.fields ?? []).map(({ name }) => name.value).sort()
+    : [];
+};
+
 it.each([
   ['Query', queryFields, queries],
   ['Mutation', mutationFields, mutations],
 ] as const)(
-  'provides exactly the declared %s resolvers',
-  (name, fields, resolvers) => {
-    const definition = parse(`type ${name} { ${fields} }`).definitions[0];
-    if (definition.kind !== Kind.OBJECT_TYPE_DEFINITION) {
-      throw new Error('Expected root fields');
-    }
-    const declared = (definition.fields || []).map((field) => field.name.value);
-    expect(Object.keys(resolvers).sort()).toEqual(declared.sort());
-    for (const resolver of Object.values(resolvers)) {
-      expect(typeof resolver).toBe('function');
-    }
+  'registers a function for each declared %s field only',
+  (rootType, fields, registry) => {
+    expect(Object.keys(registry).sort()).toEqual(
+      declaredFieldNames(rootType, fields),
+    );
+    expect(
+      Object.entries(registry).filter(([, fn]) => typeof fn !== 'function'),
+    ).toEqual([]);
   },
 );
 
