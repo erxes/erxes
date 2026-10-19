@@ -76,7 +76,7 @@ export const usePostsColumns = (
   const location = useLocation();
   const { isMissing } = useIsTranslationMissing();
   const { customTypes } = useCustomTypes({
-    clientPortalId: cmsConfig?.clientPortalId,
+    clientPortalId: cmsConfig?.clientPortalId ?? undefined,
   });
 
   return [
@@ -156,7 +156,7 @@ export const usePostsColumns = (
             <TextOverflowTooltip
               value={
                 row.original.categories
-                  ?.map((category) => category.name)
+                  ?.map((category) => category?.name)
                   .join(', ') || ''
               }
               className="leading-normal"
@@ -173,7 +173,9 @@ export const usePostsColumns = (
         return (
           <RecordTableInlineCell>
             <TextOverflowTooltip
-              value={row.original.tags?.map((tag) => tag.name).join(', ') || ''}
+              value={
+                row.original.tags?.map((tag) => tag?.name).join(', ') || ''
+              }
               className="leading-normal"
             />
           </RecordTableInlineCell>
@@ -215,7 +217,7 @@ export const usePostsColumns = (
         const typeLabel =
           post.customPostType?.label ||
           customType?.label ||
-          (post.type === 'post' ? 'Post' : post.type);
+          (post.type === 'post' ? 'Post' : post.type ?? '');
         return (
           <RecordTableInlineCell>
             <TextOverflowTooltip value={typeLabel} className="leading-normal" />

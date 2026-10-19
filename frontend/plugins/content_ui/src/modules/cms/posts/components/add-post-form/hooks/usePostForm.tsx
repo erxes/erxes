@@ -10,9 +10,11 @@ import {
 } from '../../../../graphql/queries';
 import { createSlug } from '../../../../utils/createSlug';
 import { compactList } from '../../../../shared/utils';
-
-// A single custom-field value as stored on the form and in translation snapshots.
-type CustomFieldEntry = { field: string; value: CustomFieldValue };
+import type { PostQuery } from '~/gql/graphql';
+import {
+  CustomFieldEntry,
+  toCustomFieldEntries,
+} from '../../../../custom-fields/utils/toCustomFieldEntries';
 
 interface PostFormData {
   title: string;
@@ -39,57 +41,34 @@ interface PostFormData {
   customFieldsData?: { field: string; value: CustomFieldValue }[];
 }
 
-// Loosely-typed shape of a post as loaded from the API (list row or cmsPost).
-type TLoadedPost = {
-  _id?: string;
-  title?: string;
-  slug?: string;
-  excerpt?: string;
-  description?: string;
-  content?: string;
-  type?: string;
-  status?: NonNullable<PostFormData['status']>;
-  categoryIds?: string[];
-  categories?: { _id: string }[];
-  tagIds?: string[];
-  tags?: { _id: string }[];
-  featured?: boolean;
-  seoTitle?: string;
-  seoDescription?: string;
-  thumbnail?: NonNullable<PostFormData['thumbnail']>;
-  images?: { url: string }[];
-  videoUrl?: string;
-  documents?: { url: string }[];
-  attachments?: { url: string }[];
-  pdf?: string | null;
-  publishedDate?: string | Date | null;
-  scheduledDate?: string | Date | null;
-  autoArchiveDate?: string | Date | null;
-  customFieldsData?: CustomFieldEntry[];
-};
-
-/** Reads saved translation custom fields from their JSON scalar. */
-const toCustomFieldEntries = (customFieldsData: unknown): CustomFieldEntry[] =>
-  Array.isArray(customFieldsData)
-    ? (customFieldsData as CustomFieldEntry[])
-    : [];
+// A post as loaded by the CMS_POST detail query; before it resolves, only the
+// editing post's _id is known.
+type TLoadedPost = Partial<NonNullable<PostQuery['cmsPost']>>;
 
 /** Converts an API date value to a Date for the form, or null when absent. */
 const toDate = (value: string | Date | null | undefined) =>
   value ? new Date(value) : null;
 
 /** Extracts the attachment URLs from a loaded post's attachment list. */
-const toUrls = (items?: { url: string }[]) =>
-  (items || []).map((item) => item.url).filter(Boolean);
+const toUrls = (items?: ({ url: string } | null)[] | null) =>
+  compactList(items)
+    .map((item) => item.url)
+    .filter(Boolean);
 
 /** Maps a loaded post's media fields to their form values. */
 const buildMediaFormValues = (fullPost: TLoadedPost) => ({
-  thumbnail: fullPost.thumbnail || null,
+  thumbnail: fullPost.thumbnail
+    ? {
+        url: fullPost.thumbnail.url,
+        name: fullPost.thumbnail.name ?? undefined,
+        type: fullPost.thumbnail.type ?? undefined,
+      }
+    : null,
   gallery: toUrls(fullPost.images),
   videoUrl: fullPost.videoUrl || '',
   documents: toUrls(fullPost.documents),
   attachments: toUrls(fullPost.attachments),
-  pdf: fullPost.pdf || null,
+  pdf: null,
 });
 
 /** Maps a loaded post's scheduling fields to their form values. */
@@ -104,17 +83,18 @@ const buildScheduleFormValues = (fullPost: TLoadedPost) => ({
 const buildPostFormValues = (fullPost: TLoadedPost): PostFormData => ({
   title: fullPost.title || '',
   slug: fullPost.slug || '',
-  description: fullPost.excerpt || fullPost.description || '',
+  description: fullPost.excerpt || '',
   content: fullPost.content || '',
   type: fullPost.type || undefined,
   status: fullPost.status || undefined,
-  categoryIds:
-    fullPost.categoryIds || fullPost.categories?.map((c) => c._id) || [],
-  tagIds: fullPost.tagIds || fullPost.tags?.map((t) => t._id) || [],
+  categoryIds: fullPost.categoryIds
+    ? compactList(fullPost.categoryIds)
+    : compactList(fullPost.categories).map((c) => c._id),
+  tagIds: compactList(fullPost.tagIds),
   featured: Boolean(fullPost.featured),
   seoTitle: fullPost.seoTitle || '',
   seoDescription: fullPost.seoDescription || '',
-  customFieldsData: fullPost.customFieldsData || [],
+  customFieldsData: toCustomFieldEntries(fullPost.customFieldsData),
   ...buildMediaFormValues(fullPost),
   ...buildScheduleFormValues(fullPost),
 });
@@ -179,9 +159,8 @@ export const usePostForm = (editingPost?: { _id: string }) => {
     notifyOnNetworkStatusChange: false,
   });
 
-  const fullPost = (fullPostData?.cmsPost || editingPost) as
-    | TLoadedPost
-    | undefined;
+  const fullPost: TLoadedPost | undefined =
+    fullPostData?.cmsPost || editingPost;
 
   const { data: translationsData } = useQuery(CMS_TRANSLATIONS, {
     variables: { objectId: editingPost?._id, type: 'post' },

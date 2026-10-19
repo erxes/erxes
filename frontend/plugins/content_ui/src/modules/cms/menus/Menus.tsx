@@ -10,6 +10,7 @@ import { MenuDrawer } from './MenuDrawer';
 import { MenusHeader } from './components/MenusHeader';
 import { MenusRecordTable } from './components/MenusRecordTable';
 import { useMenus } from './hooks/useMenus';
+import { MenuItem } from './types/menuDrawerTypes';
 
 export function Menus() {
   const { t } = useTranslation('content');
@@ -20,7 +21,7 @@ export function Menus() {
   ];
   const { websiteId } = useParams();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [editingMenu, setEditingMenu] = useState<any>(null);
+  const [editingMenu, setEditingMenu] = useState<MenuItem | null>(null);
   const [kindFilter, setKindFilter] = useState<string | undefined>(undefined);
 
   const { menus, totalCount, loading, refetch } = useMenus({
@@ -33,7 +34,7 @@ export function Menus() {
     setIsDrawerOpen(true);
   };
 
-  const handleEditMenu = (menu: any) => {
+  const handleEditMenu = (menu: MenuItem) => {
     setEditingMenu(menu);
     setIsDrawerOpen(true);
   };
@@ -111,7 +112,7 @@ export function Menus() {
         }}
         onSuccess={refetch}
         clientPortalId={websiteId || ''}
-        menu={editingMenu}
+        menu={editingMenu ?? undefined}
       />
     </PageContainer>
   );

@@ -28,16 +28,14 @@ export const usePagesColumns = (
   const { isMissing } = useIsTranslationMissing();
 
   return [
-    pageMoreColumn(onEditPage, undefined, onRefetch) as ColumnDef<IPage>,
+    pageMoreColumn(onEditPage, undefined, onRefetch),
     RecordTable.checkboxColumn as ColumnDef<IPage>,
     {
       id: 'name',
       header: () => <RecordTable.InlineHead icon={IconUser} label={t('name')} />,
       accessorKey: 'name',
       cell: ({ row }) => {
-        const page = row.original as IPage & {
-          translations?: { language: string }[];
-        };
+        const page = row.original;
         const missing = isMissing(page.translations);
         return (
           <RecordTableInlineCell>

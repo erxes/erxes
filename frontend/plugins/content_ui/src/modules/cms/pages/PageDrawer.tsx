@@ -11,7 +11,11 @@ import { z } from 'zod';
 import { pageFormSchema } from '../constants/pageFormSchema';
 import { useEditPage } from './hooks/useEditPage';
 import { useAddPage } from './hooks/useAddPage';
-import { IPage, IPageDrawerProps, IPageFormData } from './types/pageTypes';
+import {
+  IPageDetail,
+  IPageDrawerProps,
+  IPageFormData,
+} from './types/pageTypes';
 import { CONTENT_CMS_LIST, CMS_CUSTOM_FIELD_GROUPS } from '../graphql/queries';
 import {
   useCmsTranslation,
@@ -20,6 +24,7 @@ import {
 import { cmsLanguageAtom } from '../shared/states/cmsLanguageState';
 import { compactList } from '../shared/utils';
 import { toFieldDefinitions } from '../custom-fields/utils/toFieldDefinitions';
+import { toCustomFieldEntries } from '../custom-fields/utils/toCustomFieldEntries';
 import { PageEditorColumn } from './components/PageEditorColumn';
 import { PageSidebarPanel } from './components/PageSidebarPanel';
 import {
@@ -400,12 +405,24 @@ export function PageDrawer({
         parentId: page.parentId || '',
         status: page.status || 'active',
         clientPortalId,
-        thumbnail: page.thumbnail || null,
-        gallery: (page.pageImages || []).map((i) => i.url).filter(Boolean),
+        thumbnail: page.thumbnail
+          ? {
+              url: page.thumbnail.url,
+              name: page.thumbnail.name ?? undefined,
+              type: page.thumbnail.type ?? undefined,
+            }
+          : null,
+        gallery: compactList(page.pageImages)
+          .map((i) => i.url)
+          .filter(Boolean),
         videoUrl: page.videoUrl || '',
-        documents: (page.documents || []).map((d) => d.url).filter(Boolean),
-        attachments: (page.attachments || []).map((a) => a.url).filter(Boolean),
-        customFieldsData: page.customFieldsData || [],
+        documents: compactList(page.documents)
+          .map((d) => d.url)
+          .filter(Boolean),
+        attachments: compactList(page.attachments)
+          .map((a) => a.url)
+          .filter(Boolean),
+        customFieldsData: toCustomFieldEntries(page.customFieldsData),
       });
     } else {
       form.reset({
@@ -467,7 +484,7 @@ export function PageDrawer({
   // so it must re-apply once they arrive — otherwise the content stays empty
   // until the user toggles languages.
   const appliedForPageRef = useRef<{
-    page: IPage | null;
+    page: IPageDetail | null;
     language: string;
     translations: Record<string, TranslationData>;
   } | null>(null);

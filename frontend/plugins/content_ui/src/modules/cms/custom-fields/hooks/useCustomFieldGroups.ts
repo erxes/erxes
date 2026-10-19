@@ -10,6 +10,8 @@ import {
 } from '../graphql/mutations';
 import { ICustomFieldGroup } from '../types/customFieldTypes';
 import { compareByOrder } from '../utils/comparators';
+import { toCustomFieldGroup } from '../utils/toFieldDefinitions';
+import { compactList } from '../../shared/utils';
 
 export const useCustomFieldGroups = (websiteId?: string) => {
   const { t } = useTranslation('content');
@@ -22,7 +24,8 @@ export const useCustomFieldGroups = (websiteId?: string) => {
   // only the groups themselves are sorted, by their `order` column.
   const groups = useMemo(
     () =>
-      [...((data?.cmsCustomFieldGroupList?.list || []) as ICustomFieldGroup[])]
+      compactList(data?.cmsCustomFieldGroupList?.list)
+        .map(toCustomFieldGroup)
         .sort(compareByOrder),
     [data?.cmsCustomFieldGroupList?.list],
   );

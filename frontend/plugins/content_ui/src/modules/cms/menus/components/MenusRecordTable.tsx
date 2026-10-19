@@ -40,7 +40,7 @@ import { MenuItem } from '../types/menuDrawerTypes';
 interface MenusRecordTableProps {
   clientPortalId: string;
   kind?: string;
-  onEdit: (menu: any) => void;
+  onEdit: (menu: MenuItem) => void;
 }
 
 const getParentKey = (menu?: MenuItem) => menu?.parentId || null;
@@ -105,7 +105,7 @@ const StaticMenuRow = ({
               {/* Simplified rendering for overlay to keep it fast */}
               {column.id === 'label' ? (
                 <span className="text-sm font-medium">
-                  {getDepthPrefix(menu.depth || 0) + menu.label}
+                  {getDepthPrefix(menu.depth || 0) + (menu.label ?? '')}
                 </span>
               ) : column.id === 'drag' ? (
                 <div className="flex h-full items-center justify-center text-muted-foreground">

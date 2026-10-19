@@ -1,21 +1,11 @@
+import type { CmsCategoriesQuery } from '~/gql/graphql';
 import { CustomFieldValue } from '../../posts/CustomFieldInput';
 
-export interface ICategory {
-  _id: string;
-  clientPortalId: string;
-  name: string;
-  slug: string;
-  description?: string;
-  status?: string;
-  parentId?: string;
-  parent?: ICategory;
-  translations?: { language: string; title?: string; content?: string }[];
-  customFieldsData?: { field: string; value: CustomFieldValue }[];
-  customFieldsMap?: Record<string, CustomFieldValue>;
-  createdAt?: string;
-  updatedAt?: string;
-  __typename?: string;
-}
+export type ICategory = NonNullable<
+  NonNullable<NonNullable<CmsCategoriesQuery['cmsCategories']>['list']>[number]
+>;
+
+export type ICategoryRow = ICategory & { _depth?: number };
 
 export interface IUser {
   _id: string;

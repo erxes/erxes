@@ -1,3 +1,22 @@
+import {
+  IconAt,
+  IconCalendarEvent,
+  IconChecks,
+  IconChevronDown,
+  IconCircleCheck,
+  IconFile,
+  IconLink,
+  IconListDetails,
+  IconNumbers,
+  IconPhoto,
+  IconShoppingCart,
+  IconSquareCheck,
+  IconTable,
+  IconTextScan2,
+  IconTextSize,
+} from '@tabler/icons-react';
+import type { CmsCustomFieldGroupListQuery } from '~/gql/graphql';
+
 export type FieldType =
   | 'text'
   | 'textarea'
@@ -34,42 +53,16 @@ export interface FieldFormValues {
   options: string;
 }
 
-export interface ICustomFieldGroup {
-  _id: string;
-  label: string;
-  code: string;
-  order?: number;
-  clientPortalId: string;
-  customPostTypeIds: string[];
-  customPostTypes?: Array<{
-    _id: string;
-    code: string;
-    label: string;
-    pluralLabel: string;
-  }>;
-  fields: ICustomField[];
-  enabledPageIds?: string[];
-  enabledCategoryIds?: string[];
-  enabledPostIds?: string[];
-}
-
-import {
-  IconAt,
-  IconCalendarEvent,
-  IconChecks,
-  IconChevronDown,
-  IconCircleCheck,
-  IconFile,
-  IconLink,
-  IconListDetails,
-  IconNumbers,
-  IconPhoto,
-  IconShoppingCart,
-  IconSquareCheck,
-  IconTable,
-  IconTextScan2,
-  IconTextSize,
-} from '@tabler/icons-react';
+export type ICustomFieldGroup = Omit<
+  NonNullable<
+    NonNullable<
+      NonNullable<
+        CmsCustomFieldGroupListQuery['cmsCustomFieldGroupList']
+      >['list']
+    >[number]
+  >,
+  'fields'
+> & { fields: ICustomField[] };
 
 export const FIELD_TYPES: {
   value: FieldType;

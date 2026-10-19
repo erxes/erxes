@@ -1,4 +1,4 @@
-import type { MenuLinkType } from '~/gql/graphql';
+import type { CmsMenuListQuery, MenuLinkType } from '~/gql/graphql';
 import { TranslationData } from '../../shared/hooks/useCmsTranslation';
 
 export interface GraphQLErrorEntry {
@@ -27,38 +27,19 @@ export interface MenuInput {
   translations?: TranslationInput[];
 }
 
-export interface MenuItem {
-  _id: string;
-  label: string | null;
-  parentId?: string | null;
-  kind?: string | null;
-  url?: string | null;
-  order?: number | null;
+export type MenuItem = NonNullable<
+  NonNullable<CmsMenuListQuery['cmsMenuList']>[number]
+> & {
   depth?: number;
   path?: string[];
-  translations?: ({ language: string | null } | null)[] | null;
-  [key: string]: unknown;
-}
-
-export interface MenuRecord {
-  _id: string;
-  label: string;
-  url?: string;
-  contentType?: string;
-  contentTypeId?: string;
-  type?: 'cms' | 'web';
-  linkType?: string;
-  kind?: string;
-  parentId?: string;
-  target?: string;
-}
+};
 
 export interface MenuDrawerProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess?: () => void;
   clientPortalId: string;
-  menu?: MenuRecord;
+  menu?: MenuItem;
 }
 
 export interface MenuFormData {

@@ -1,36 +1,14 @@
+import type { PageDetailQuery, PageListQuery } from '~/gql/graphql';
 import { CustomFieldValue } from '../../posts/CustomFieldInput';
 
-export interface IAttachment {
-  url: string;
-  name?: string;
-  type?: string;
-  size?: number;
-  duration?: number;
-}
+export type IPage = NonNullable<
+  NonNullable<NonNullable<PageListQuery['cmsPageList']>['pages']>[number]
+>;
 
-export interface IPage {
-  _id: string;
-  name: string;
-  slug: string;
-  description?: string;
-  parentId?: string;
-  status?: string;
-  createdAt: string;
-  updatedAt: string;
-  clientPortalId?: string;
-  thumbnail?: IAttachment | null;
-  pageImages?: IAttachment[];
-  video?: IAttachment | null;
-  videoUrl?: string;
-  audio?: IAttachment | null;
-  documents?: IAttachment[];
-  attachments?: IAttachment[];
-  customFieldsData?: { field: string; value: CustomFieldValue }[];
-  __typename?: string;
-}
+export type IPageDetail = NonNullable<PageDetailQuery['cmsPage']>;
 
 export interface IPageDrawerProps {
-  page?: IPage;
+  page?: IPageDetail;
   onClose: () => void;
   clientPortalId: string;
 }

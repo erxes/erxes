@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { ApolloError } from '@apollo/client';
 import { Row } from '@tanstack/table-core';
 import { useRemovePage } from '../../../hooks/useRemovePage';
+import { IPage } from '../../../types/pageTypes';
 
 export const PagesDelete = ({
   pagesIds,
@@ -11,7 +12,7 @@ export const PagesDelete = ({
   onRefetch,
 }: {
   pagesIds: string[];
-  rows: Row<any>[];
+  rows: Row<IPage>[];
   onRefetch?: () => void;
 }) => {
   const { t } = useTranslation('content');

@@ -29,6 +29,7 @@ import {
   WebsiteFormType,
 } from '../../constants/websiteFormSchema';
 import { IWebsite } from '../../types';
+import { compactList } from '../../shared/utils';
 
 interface WebsiteDrawerProps {
   website?: IWebsite;
@@ -78,9 +79,9 @@ export function WebsiteDrawer({
           name: website.name || '',
           description: website.description || '',
           domain: website.domain || '',
-          url: website.url || '',
+          url: '',
           kind: website.clientPortalId || '',
-          languages: website.languages || [],
+          languages: compactList(website.languages),
           language: website.language || '',
         });
       } else {

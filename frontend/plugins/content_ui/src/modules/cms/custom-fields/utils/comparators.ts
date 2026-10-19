@@ -1,8 +1,8 @@
 import { ICustomFieldGroup } from '../types/customFieldTypes';
 
 export const compareByLabel = (
-  a: { _id?: string; label?: string; code?: string },
-  b: { _id?: string; label?: string; code?: string },
+  a: { _id?: string; label?: string; code?: string | null },
+  b: { _id?: string; label?: string; code?: string | null },
 ) => {
   const aValue = a.label || a.code || a._id || '';
   const bValue = b.label || b.code || b._id || '';

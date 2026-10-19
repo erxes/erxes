@@ -1,15 +1,21 @@
+import {
+  EnumCursorDirection,
+  IRecordTableCursorPageInfo,
+  mergeCursorData,
+} from 'erxes-ui';
+
 /**
  * Finds a translation entry for a specific language from a list of translations.
  * @param translations - The list of translation entries.
  * @param language - The language code to find.
  * @returns The matching translation entry or undefined.
  */
-export const getTranslation = <T extends { language: string }>(
-  translations: T[] | undefined,
+export const getTranslation = <T extends { language: string | null }>(
+  translations: readonly (T | null)[] | null | undefined,
   language: string | undefined,
 ): T | undefined => {
   if (!translations || !language || language.trim() === '') return undefined;
-  return translations.find((t) => t.language === language);
+  return compactList(translations).find((t) => t.language === language);
 };
 
 interface RecordTableRow<T extends { _id: string }> {
@@ -26,6 +32,57 @@ export const getErrorMessage = (error: unknown) =>
 export const compactList = <T>(
   list: readonly (T | null)[] | null | undefined,
 ) => (list ?? []).filter((item): item is T => item !== null);
+
+type GqlPageInfo = {
+  hasNextPage: boolean | null;
+  hasPreviousPage: boolean | null;
+  startCursor: string | null;
+  endCursor: string | null;
+};
+
+type GqlCursorPage<T> = {
+  list: (T | null)[] | null | undefined;
+  pageInfo: GqlPageInfo | null | undefined;
+};
+
+export const toCursorPageInfo = (
+  pageInfo: GqlPageInfo | null | undefined,
+): IRecordTableCursorPageInfo | undefined =>
+  pageInfo
+    ? {
+        ...pageInfo,
+        hasNextPage: pageInfo.hasNextPage ?? false,
+        hasPreviousPage: pageInfo.hasPreviousPage ?? false,
+      }
+    : undefined;
+
+export const mergeCursorPage = <T>(
+  direction: EnumCursorDirection,
+  prev: GqlCursorPage<T>,
+  next: GqlCursorPage<T>,
+) => {
+  const merged = mergeCursorData({
+    direction,
+    fetchMoreResult: {
+      list: next.list ?? [],
+      pageInfo: toCursorPageInfo(next.pageInfo),
+    },
+    prevResult: {
+      list: prev.list ?? [],
+      pageInfo: toCursorPageInfo(prev.pageInfo),
+    },
+  });
+
+  return {
+    list: merged.list,
+    pageInfo: {
+      hasNextPage: merged.pageInfo.hasNextPage,
+      hasPreviousPage: merged.pageInfo.hasPreviousPage,
+      startCursor: merged.pageInfo.startCursor ?? null,
+      endCursor: merged.pageInfo.endCursor ?? null,
+    },
+  };
+};
 
 export type PostUrlField = '_id' | 'count' | 'slug';
 

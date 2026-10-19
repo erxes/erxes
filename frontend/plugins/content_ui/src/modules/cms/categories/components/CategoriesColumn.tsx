@@ -17,13 +17,24 @@ import {
   IconFolder,
   IconCalendarPlus,
 } from '@tabler/icons-react';
-import { ICategory } from '@/cms/categories/types/CategoriesType';
+import { ICategory, ICategoryRow } from '@/cms/categories/types/CategoriesType';
 import { useEditCategory } from '@/cms/categories/hooks/useEditCategory';
 import { useIsTranslationMissing } from '@/cms/shared/hooks/useIsTranslationMissing';
 import { CmsTranslatableBadge } from '@/cms/shared/components/CmsTranslatableBadge';
 import { useAtomValue } from 'jotai';
 import { cmsLanguageAtom } from '@/cms/shared/states/cmsLanguageState';
 import { getTranslation } from '@/cms/shared/utils';
+
+type ParentCategory =
+  | { name?: string | null; parent?: ParentCategory }
+  | null
+  | undefined;
+
+const getParentName = (parent: ParentCategory): string => {
+  if (!parent) return '';
+  if (parent.name) return parent.name;
+  return getParentName(parent.parent);
+};
 
 function getDepthPrefix(depth: number): string {
   if (depth <= 0) return '';
@@ -39,9 +50,9 @@ function getDepthPrefix(depth: number): string {
  */
 export const useCategoriesColumns = (
   clientPortalId: string,
-  onEdit?: (category: any) => void,
+  onEdit?: (category: ICategory) => void,
   onRefetch?: () => void,
-): ColumnDef<any>[] => {
+): ColumnDef<ICategoryRow>[] => {
   const { t } = useTranslation('content');
   const { editCategory } = useEditCategory();
   const { isMissing, isNonDefaultLanguage } = useIsTranslationMissing();
@@ -53,13 +64,13 @@ export const useCategoriesColumns = (
 
   return [
     categoryMoreColumn(clientPortalId, onEdit, undefined, onRefetch),
-    RecordTable.checkboxColumn as ColumnDef<any>,
+    RecordTable.checkboxColumn as ColumnDef<ICategoryRow>,
     {
       id: 'name',
       header: () => <RecordTable.InlineHead icon={IconUser} label={t('name')} />,
       accessorKey: 'name',
       cell: ({ cell }) => {
-        const original = cell.row.original as ICategory & { _depth?: number };
+        const original = cell.row.original;
         const translation = getTranslation(
           original.translations,
           selectedLanguage,
@@ -144,7 +155,7 @@ export const useCategoriesColumns = (
       ),
       accessorKey: 'description',
       cell: ({ cell, row }) => {
-        const category = row.original as ICategory;
+        const category = row.original;
         const translation = getTranslation(
           category.translations,
           selectedLanguage,
@@ -180,15 +191,6 @@ export const useCategoriesColumns = (
       header: () => <RecordTable.InlineHead icon={IconFolder} label={t('parent')} />,
       accessorKey: 'parentId',
       cell: ({ row }) => {
-        const getParentName = (parent: any): string => {
-          if (!parent) return '';
-          // If there's a parent with a name, return it
-          if (parent.name) return parent.name;
-          // If there's a nested parent, recursively get its name
-          if (parent.parent) return getParentName(parent.parent);
-          return '';
-        };
-
         const parentName = getParentName(row.original.parent);
 
         return <RecordTableInlineCell>{parentName}</RecordTableInlineCell>;

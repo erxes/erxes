@@ -5,6 +5,8 @@ import { useQuery } from '@apollo/client';
 import { gql } from '~/gql';
 import { useTranslation } from 'react-i18next';
 import { ICustomFieldGroup } from '../../types/customFieldTypes';
+import { ICustomPostType } from '../../../custom-types/types/customTypeTypes';
+import { compactList } from '../../../shared/utils';
 
 const PAGES_FOR_RULES = gql(`
   query PagesForRules($clientPortalId: String!) {
@@ -44,7 +46,7 @@ interface FieldGroupDrawerProps {
   onClose: () => void;
   onSubmit: (data: any) => void;
   editingGroup: ICustomFieldGroup | null;
-  customTypes: any[];
+  customTypes: ICustomPostType[];
   websiteId: string;
 }
 
@@ -105,19 +107,19 @@ export function FieldGroupDrawer({
     fetchPolicy: 'cache-first',
   });
 
-  const pages: ShowOnOption[] = (pagesData?.cmsPageList?.pages || []).map(
-    (p: any) => ({ label: p.name, value: p._id }),
+  const pages: ShowOnOption[] = compactList(pagesData?.cmsPageList?.pages).map(
+    (p) => ({ label: p.name ?? '', value: p._id }),
   );
 
-  const categories: ShowOnOption[] = (
-    categoriesData?.cmsCategories?.list || []
-  ).map((c: any) => ({ label: c.name, value: c._id }));
+  const categories: ShowOnOption[] = compactList(
+    categoriesData?.cmsCategories?.list,
+  ).map((c) => ({ label: c.name ?? '', value: c._id }));
 
-  const posts: ShowOnOption[] = (postsData?.cmsPostList?.posts || []).map(
-    (p: any) => ({ label: p.title || p._id, value: p._id }),
+  const posts: ShowOnOption[] = compactList(postsData?.cmsPostList?.posts).map(
+    (p) => ({ label: p.title || p._id, value: p._id }),
   );
 
-  const customTypeOptions: ShowOnOption[] = customTypes.map((t: any) => ({
+  const customTypeOptions: ShowOnOption[] = customTypes.map((t) => ({
     label: `${t.label} (${t.code})`,
     value: t._id,
   }));
@@ -129,14 +131,14 @@ export function FieldGroupDrawer({
 
   useEffect(() => {
     if (editingGroup) {
-      const enabledPageIds = editingGroup.enabledPageIds || [];
+      const enabledPageIds = compactList(editingGroup.enabledPageIds);
       groupForm.reset({
         label: editingGroup.label,
         code: editingGroup.code || '',
-        customPostTypeIds: editingGroup.customPostTypeIds || [],
+        customPostTypeIds: compactList(editingGroup.customPostTypeIds),
         enabledPageId: enabledPageIds[0] || '',
-        enabledCategoryIds: editingGroup.enabledCategoryIds || [],
-        enabledPostIds: editingGroup.enabledPostIds || [],
+        enabledCategoryIds: compactList(editingGroup.enabledCategoryIds),
+        enabledPostIds: compactList(editingGroup.enabledPostIds),
       });
     } else {
       groupForm.reset({

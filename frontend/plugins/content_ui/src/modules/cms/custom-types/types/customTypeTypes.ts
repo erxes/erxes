@@ -1,8 +1,5 @@
-export interface ICustomPostType {
-  _id: string;
-  code: string;
-  label: string;
-  pluralLabel: string;
-  description?: string | null;
-  createdAt: string | null;
-}
+import type { CmsCustomPostTypesQuery } from '~/gql/graphql';
+
+export type ICustomPostType = NonNullable<
+  NonNullable<CmsCustomPostTypesQuery['cmsCustomPostTypes']>[number]
+>;

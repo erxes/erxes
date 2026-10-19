@@ -2,16 +2,12 @@ import { useQuery, useMutation } from '@apollo/client';
 import { POST_DETAIL } from '../graphql/queries/postDetailQuery';
 import { POST_CMS_EDIT } from '../graphql/queries/postCmsEditQuery';
 import type { PostInput } from '~/gql/graphql';
-import { PostDetailResponse } from '../types';
 
 export const usePostDetail = (postId: string) => {
-  const { data, loading, error, refetch } = useQuery<PostDetailResponse>(
-    POST_DETAIL,
-    {
-      variables: { id: postId },
-      skip: !postId,
-    },
-  );
+  const { data, loading, error, refetch } = useQuery(POST_DETAIL, {
+    variables: { id: postId },
+    skip: !postId,
+  });
 
   const [editPost, { loading: editLoading, error: editError }] = useMutation(
     POST_CMS_EDIT,

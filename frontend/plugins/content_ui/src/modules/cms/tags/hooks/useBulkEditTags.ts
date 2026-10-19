@@ -1,4 +1,5 @@
 import { useMutation } from '@apollo/client';
+import type { PostTagInput } from '~/gql/graphql';
 import { CMS_TAGS_EDIT } from '../graphql/mutations';
 
 export const useBulkEditTags = () => {
@@ -6,10 +7,7 @@ export const useBulkEditTags = () => {
     refetchQueries: ['CmsTags'],
   });
 
-  const bulkEditTags = async (
-    ids: string[],
-    input: Record<string, unknown>,
-  ) => {
+  const bulkEditTags = async (ids: string[], input: PostTagInput) => {
     const results = await Promise.allSettled(
       ids.map((_id) => editTagMutation({ variables: { _id, input } })),
     );

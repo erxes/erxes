@@ -13,10 +13,11 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useRemovePage } from '../hooks/useRemovePage';
 import { ApolloError } from '@apollo/client';
+import { IPage } from '../types/pageTypes';
 
 interface PageMoreColumnCellProps {
-  cell: CellContext<any, unknown>;
-  onEdit?: (page: any) => void;
+  cell: CellContext<IPage, unknown>;
+  onEdit?: (page: IPage) => void;
   onDelete?: (pageId: string) => void;
   onRefetch?: () => void;
 }
@@ -113,13 +114,13 @@ export const PageMoreColumnCell = ({
 };
 
 export const pageMoreColumn = (
-  onEdit?: (page: any) => void,
+  onEdit?: (page: IPage) => void,
   onDelete?: (pageId: string) => void,
   onRefetch?: () => void,
 ) => ({
   id: 'more',
   header: () => <RecordTable.ColumnSelector />,
-  cell: (cell: CellContext<any, unknown>) => (
+  cell: (cell: CellContext<IPage, unknown>) => (
     <PageMoreColumnCell
       cell={cell}
       onEdit={onEdit}

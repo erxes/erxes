@@ -29,6 +29,7 @@ import {
   useCmsTranslation,
 } from '../shared/hooks/useCmsTranslation';
 import { cmsLanguageAtom } from '../shared/states/cmsLanguageState';
+import { ICategory } from './types';
 import { compactList } from '../shared/utils';
 import { toFieldDefinitions } from '../custom-fields/utils/toFieldDefinitions';
 
@@ -75,21 +76,8 @@ function buildTreeOptions(flat: IFlatCategory[]): ITreeOption[] {
   return result;
 }
 
-interface Category {
-  _id: string;
-  name: string | null;
-  slug: string | null;
-  clientPortalId: string;
-  createdAt: string | null;
-  description?: string | null;
-  parentId?: string | null;
-  status?: string | null;
-  customFieldsData?: unknown;
-  translations?: ({ language: string | null } | null)[] | null;
-}
-
 interface CmsCategoryDrawerProps {
-  category?: Partial<Category>;
+  category?: Partial<ICategory>;
   isOpen: boolean;
   onClose: () => void | Promise<void>;
   clientPortalId: string;
@@ -130,7 +118,7 @@ const EMPTY_FORM_VALUES: CategoryFormType = {
 };
 
 const collectDescendantIds = (
-  allCategories: Category[],
+  allCategories: ICategory[],
   rootId?: string,
 ): Set<string> => {
   const descendants = new Set<string>();
@@ -151,7 +139,7 @@ const collectDescendantIds = (
 };
 
 const categoryToFormValues = (
-  category?: Partial<Category>,
+  category?: Partial<ICategory>,
 ): CategoryFormType => {
   if (!category) return EMPTY_FORM_VALUES;
   return {
@@ -283,7 +271,7 @@ export function CmsCategoryDrawer({
     skip: !isOpen || !category?._id,
   });
 
-  const baseCategory: Partial<Category> | undefined =
+  const baseCategory: Partial<ICategory> | undefined =
     categoryDetailData?.cmsCategory || category;
 
   // Fetch custom field groups first to create schema
@@ -379,11 +367,11 @@ export function CmsCategoryDrawer({
     fetchPolicy: 'cache-first',
     skip: !isOpen,
   });
-  const allCategories: Category[] = compactList(catsData?.cmsCategories?.list);
+  const allCategories: ICategory[] = compactList(catsData?.cmsCategories?.list);
   const descendantIds = collectDescendantIds(allCategories, category?._id);
 
-  const rawParentOptions: Category[] = allCategories.filter(
-    (c: Category) => c._id !== category?._id && !descendantIds.has(c._id),
+  const rawParentOptions: ICategory[] = allCategories.filter(
+    (c: ICategory) => c._id !== category?._id && !descendantIds.has(c._id),
   );
 
   const parentOptions = buildTreeOptions(rawParentOptions);

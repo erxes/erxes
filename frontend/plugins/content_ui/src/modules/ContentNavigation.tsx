@@ -13,17 +13,16 @@ import { Link, useLocation } from 'react-router-dom';
 import { WebsiteDrawer } from './cms/components/websites/WebsiteDrawer';
 import { CONTENT_CMS_LIST } from './cms/graphql/queries';
 import { IWebsite } from './cms/types';
+import { compactList } from './cms/shared/utils';
 
 export const ContentNavigation = () => {
   const { t } = useTranslation('content');
   const { pathname } = useLocation();
   const [isWebsiteDrawerOpen, setIsWebsiteDrawerOpen] = useState(false);
   const [editingWebsite, setEditingWebsite] = useState<IWebsite>();
-  const { data, refetch } = useQuery<{
-    contentCMSList: IWebsite[];
-  }>(CONTENT_CMS_LIST);
+  const { data, refetch } = useQuery(CONTENT_CMS_LIST);
 
-  const cmsList = data?.contentCMSList || [];
+  const cmsList = compactList(data?.contentCMSList);
   const onlyCms = cmsList.length === 1 ? cmsList[0] : null;
   const cmsPath = onlyCms?.clientPortalId
     ? `/content/cms/${onlyCms.clientPortalId}/posts`
