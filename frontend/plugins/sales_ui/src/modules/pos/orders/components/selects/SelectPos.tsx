@@ -1,24 +1,23 @@
+import { IconLabel } from '@tabler/icons-react';
 import {
   cn,
   Combobox,
   Command,
   Filter,
   Form,
-  RecordTableInlineCell,
   Popover,
+  RecordTableInlineCell,
   useFilterContext,
   useQueryState,
 } from 'erxes-ui';
-import { useDebounce } from 'use-debounce';
-import React, { useState, useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { IconLabel } from '@tabler/icons-react';
-import { IPos } from '../../types/pos';
 import {
   SelectPosContext,
   useSelectPosContext,
 } from '../../context/SelectPosContext';
 import { usePos } from '../../hooks/useSelectPos';
+import { IPos } from '../../types/pos';
 import { PosInline } from '../PosInline';
 
 export const SelectPosProvider = ({
@@ -112,17 +111,9 @@ const SelectPosCommandItem = ({ pos }: { pos: IPos }) => {
 const SelectPosContent = ({ emptyLabel }: { emptyLabel?: string }) => {
   const { t } = useTranslation('sales');
   const [search, setSearch] = React.useState('');
-  const [debouncedSearch] = useDebounce(search, 500);
   const { pos: selectedPos, posIds, clear } = useSelectPosContext();
 
-  const {
-    posList = [],
-    loading,
-    handleFetchMore,
-    totalCount = 0,
-  } = usePos({
-    variables: { searchValue: debouncedSearch },
-  });
+  const { posList = [], loading, handleFetchMore, totalCount = 0 } = usePos({});
 
   return (
     <Command shouldFilter={false} id="pos-command-menu">

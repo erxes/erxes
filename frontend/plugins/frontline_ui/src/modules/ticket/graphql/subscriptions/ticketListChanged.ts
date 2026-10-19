@@ -1,31 +1,12 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const TICKET_LIST_CHANGED = gql`
+export const TICKET_LIST_CHANGED = gql(`
   subscription ticketListChanged($filter: ITicketFilter) {
     ticketListChanged(filter: $filter) {
       type
       ticket {
-        _id
-        name
-        description
-        statusId
-        priority
-        labelIds
-        tagIds
-        assigneeId
-        userId
-        startDate
-        targetDate
-        createdAt
-        updatedAt
-        channelId
-        branchId
-        departmentId
-        statusChangedDate
-        number
-        pipelineId
-        state
+        ...FrontlineTicketFields
       }
     }
   }
-`;
+`);

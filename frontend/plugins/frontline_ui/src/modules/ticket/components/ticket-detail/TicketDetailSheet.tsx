@@ -17,6 +17,7 @@ import { IconAlertCircle } from '@tabler/icons-react';
 import { useTicketCustomFieldEdit } from '@/ticket/hooks/useTicketCustomFieldEdit';
 import { TicketPipelineProperties } from './TicketPipelineProperties';
 import { TicketDetailActions } from './TicketDetailActions';
+import { isRecord } from '@/shared/utils/isRecord';
 
 export const TicketDetailSheet = ({
   hideRelationWidgetSideTabs = false,
@@ -26,7 +27,7 @@ export const TicketDetailSheet = ({
   const { t } = useTranslation('frontline');
   const [activeTicket, setActiveTicket] = useTicketDetailSheet();
   const { ticket, loading, error } = useGetTicket({
-    variables: { _id: activeTicket },
+    variables: activeTicket ? { _id: activeTicket } : undefined,
     skip: !activeTicket,
   });
   const [selectedTab, setSelectedTab] = useQueryState<string>('tab');
@@ -96,7 +97,11 @@ export const TicketDetailSheet = ({
                 <Tabs.Content value="properties" className="p-6">
                   <TicketPipelineProperties
                     pipelineId={ticket?.pipelineId || ''}
-                    propertiesData={ticket?.propertiesData || {}}
+                    propertiesData={
+                      isRecord(ticket?.propertiesData)
+                        ? ticket.propertiesData
+                        : {}
+                    }
                     mutateHook={useTicketCustomFieldEdit}
                     id={ticket?._id || ''}
                   />

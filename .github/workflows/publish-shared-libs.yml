@@ -1,9 +1,27 @@
+# Publishes the shared libraries plugins build against:
+#   backend/erxes-api-shared -> @erxes/api-shared
+#   frontend/libs/erxes-ui   -> @erxes/ui
+#   frontend/libs/ui-modules -> @erxes/ui-modules
+# All three always share one version. Plugins install them under aliases,
+# e.g. "erxes-ui": "npm:@erxes/ui@~3.2.25".
+#
+# Channels:
+#   next    every push to main that touches a library -> X.Y.Z-next.N, dist-tag `next`
+#           (X.Y.Z = root package.json version, or its next patch once that
+#           version is released as stable)
+#   release pushing a platform release tag (e.g. `3.2.25`, same tag as
+#           release.yml) -> X.Y.Z, dist-tag `latest`
+# Breaking library API changes need at least a minor version bump of the
+# platform, and a removed field should stay one release as an optional
+# @deprecated member first.
 name: Publish shared libs
 
 on:
   push:
     branches:
       - main
+    tags:
+      - '[0-9]*'
     paths:
       - 'backend/erxes-api-shared/**'
       - 'frontend/libs/erxes-ui/**'
@@ -11,8 +29,20 @@ on:
       - '.github/workflows/publish-shared-libs.yml'
   workflow_dispatch:
     inputs:
+      channel:
+        description: 'next = prerelease from main, release = stable version'
+        required: true
+        type: choice
+        options:
+          - next
+          - release
+        default: next
+      version:
+        description: 'Stable version to publish (release channel only, e.g. 3.2.25)'
+        required: false
+        type: string
       dry_run:
-        description: 'Build, pack and stage without publishing to npm'
+        description: 'Build, verify, pack and stage without publishing to npm'
         required: false
         type: boolean
         default: false
@@ -54,46 +84,87 @@ jobs:
 
       - name: Compute publish version
         id: version
+        env:
+          CHANNEL: ${{ github.ref_type == 'tag' && 'release' || github.event.inputs.channel || 'next' }}
+          RELEASE_VERSION: ${{ github.ref_type == 'tag' && github.ref_name || github.event.inputs.version }}
         run: |
-          VERSION=$(node -e '
+          node -e '
             const { execFileSync } = require("child_process");
-            const base = require("./package.json").version;
+            const { appendFileSync } = require("fs");
             const names = ["@erxes/api-shared", "@erxes/ui", "@erxes/ui-modules"];
-            const re = new RegExp("^" + base.replace(/\./g, "\\.") + "-(\\d+)$");
-            let n = 0;
-            for (const name of names) {
-              let versions = [];
+            const published = names.flatMap((name) => {
               try {
-                const out = execFileSync("npm", ["view", name, "versions", "--json"]).toString();
-                versions = JSON.parse(out.trim() || "[]");
+                const out = execFileSync("npm", ["view", name, "versions", "--json"]).toString().trim();
+                const versions = JSON.parse(out || "[]");
+                return Array.isArray(versions) ? versions : [versions];
               } catch (e) {
                 const t = `${e.stdout || ""}${e.stderr || ""}${e.message}`;
-                if (!t.includes("E404")) throw e;
+                if (t.includes("E404")) return [];
+                throw e;
               }
-              if (!Array.isArray(versions)) versions = [versions];
-              for (const v of versions) {
-                const m = re.exec(v);
-                if (m) n = Math.max(n, Number(m[1]));
+            });
+            const stable = /^(\d+)\.(\d+)\.(\d+)$/;
+            const channel = process.env.CHANNEL;
+            let version;
+            let distTag;
+
+            if (channel === "release") {
+              version = (process.env.RELEASE_VERSION || "").trim();
+              if (!stable.test(version)) {
+                throw new Error(`release version must look like 3.2.25, got "${version}"`);
               }
+              if (published.includes(version)) {
+                throw new Error(`${version} is already published`);
+              }
+              distTag = "latest";
+            } else {
+              let base = require("./package.json").version;
+              const [, major, minor, patch] = stable.exec(base);
+              // Prereleases must sort above the newest stable release.
+              if (published.includes(base)) base = `${major}.${minor}.${Number(patch) + 1}`;
+              const re = new RegExp("^" + base.replace(/\./g, "\\.") + "-next\\.(\\d+)$");
+              const n = Math.max(0, ...published.map((v) => Number((re.exec(v) || [])[1] || 0)));
+              version = `${base}-next.${n + 1}`;
+              distTag = "next";
             }
-            console.log(`${base}-${n + 1}`);
-          ')
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-          echo "publish version: $VERSION"
+
+            const [, major, minor, patch] = /^(\d+)\.(\d+)\.(\d+)/.exec(version);
+            // ui-modules accepts any erxes-ui build of the same minor line.
+            const peerRange = `>=${major}.${minor}.${patch}-0 <${major}.${Number(minor) + 1}.0`;
+            const out = process.env.GITHUB_OUTPUT;
+            appendFileSync(out, `version=${version}\ndist_tag=${distTag}\npeer_range=${peerRange}\n`);
+            console.log(`publish ${version} as ${distTag} (erxes-ui peer ${peerRange})`);
+          '
+
+      - name: Test libraries
+        run: pnpm nx run-many -t test -p erxes-ui ui-modules erxes-api-shared
 
       - name: Build libraries
         run: |
+          set -euo pipefail
           rm -rf backend/erxes-api-shared/dist frontend/libs/erxes-ui/dist frontend/libs/ui-modules/dist
           pnpm nx build erxes-api-shared
           test -f backend/erxes-api-shared/dist/erxes-api-shared.cjs.js
-          pnpm --filter erxes-ui run build:dts || true
-          test -f frontend/libs/erxes-ui/dist/index.d.ts
-          pnpm --filter ui-modules run build:dts || true
-          test -f frontend/libs/ui-modules/dist/index.d.ts
+
+          # Type errors are tolerated (consumers use skipLibCheck), but a
+          # declaration-emit error (TS4xxx/TS9xxx) drops whole files from
+          # dist/ and silently removes exports, so it fails the publish.
+          # erxes-ui first: ui-modules resolves erxes-ui through its dist/.
+          for lib in erxes-ui ui-modules; do
+            log="$RUNNER_TEMP/$lib-dts.log"
+            pnpm --filter "$lib" run build:dts > "$log" 2>&1 || true
+            cat "$log"
+            if grep -E "error TS(4|9)[0-9]{3}" "$log"; then
+              echo "::error::$lib declaration emit is incomplete"
+              exit 1
+            fi
+            test -f "frontend/libs/$lib/dist/index.d.ts"
+          done
 
       - name: Pack and stage libraries
         env:
           PUBLISH_VERSION: ${{ steps.version.outputs.version }}
+          PEER_RANGE: ${{ steps.version.outputs.peer_range }}
         run: |
           set -euo pipefail
           WORK="$GITHUB_WORKSPACE/tmp/shared-libs-publish"
@@ -122,36 +193,38 @@ jobs:
           stage frontend/libs/ui-modules @erxes/ui-modules
 
           (cd "$WORK/staged/@erxes/ui-modules" && \
-            npm pkg set "peerDependencies.erxes-ui=$PUBLISH_VERSION")
+            npm pkg set "peerDependencies.erxes-ui=$PEER_RANGE")
 
           rm -rf "$WORK/pack"
 
       - name: Publish to npm
-        if: github.event.inputs.dry_run != true
+        if: github.event.inputs.dry_run != 'true'
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH }}
           OTP: ${{ github.event.inputs.otp }}
+          DIST_TAG: ${{ steps.version.outputs.dist_tag }}
         run: |
           set -euo pipefail
           for dir in tmp/shared-libs-publish/staged/@erxes/*/; do
-            npm publish "$dir" --tag latest --access public ${OTP:+--otp="$OTP"}
+            npm publish "$dir" --tag "$DIST_TAG" --access public ${OTP:+--otp="$OTP"}
           done
 
       - name: Dry-run publish to npm
-        if: github.event.inputs.dry_run == true
+        if: github.event.inputs.dry_run == 'true'
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH }}
           OTP: ${{ github.event.inputs.otp }}
+          DIST_TAG: ${{ steps.version.outputs.dist_tag }}
         run: |
           set -euo pipefail
           for dir in tmp/shared-libs-publish/staged/@erxes/*/; do
-            npm publish "$dir" --tag latest --access public --dry-run ${OTP:+--otp="$OTP"}
+            npm publish "$dir" --tag "$DIST_TAG" --access public --dry-run ${OTP:+--otp="$OTP"}
             npm pack "$dir" --pack-destination tmp/shared-libs-publish
           done
           ls -l tmp/shared-libs-publish/*.tgz
 
       - name: Upload staged packages
-        if: github.event.inputs.dry_run == true
+        if: github.event.inputs.dry_run == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: shared-libs-staged

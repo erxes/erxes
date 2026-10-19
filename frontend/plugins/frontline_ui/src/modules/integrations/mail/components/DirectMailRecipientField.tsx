@@ -6,10 +6,7 @@ import { Controller, useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { MAIL_VERIFIED_CONTACTS_QUERY } from '@/integrations/mail/graphql/queries/mailRecipients';
 import { useDirectMailComposerFields } from '@/integrations/mail/hooks/useDirectMailComposerFields';
-import type {
-  ComposeValues,
-  MailRecipientsResult,
-} from '@/integrations/mail/types/directMailComposer';
+import type { ComposeValues } from '@/integrations/mail/types/directMailComposer';
 
 const VerifiedEmailSelect = ({
   value,
@@ -33,11 +30,13 @@ const VerifiedEmailSelect = ({
     return () => window.clearTimeout(timer);
   }, [search]);
 
-  const { data, loading, error, fetchMore, refetch } =
-    useQuery<MailRecipientsResult>(MAIL_VERIFIED_CONTACTS_QUERY, {
+  const { data, loading, error, fetchMore, refetch } = useQuery(
+    MAIL_VERIFIED_CONTACTS_QUERY,
+    {
       variables: { searchValue: searchValue || undefined },
       skip: !open,
-    });
+    },
+  );
   const { emails, targetCustomerId } = useDirectMailComposerFields();
   const options = useMemo(() => {
     const byEmail = new Map<

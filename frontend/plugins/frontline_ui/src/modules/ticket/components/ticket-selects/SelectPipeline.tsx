@@ -196,7 +196,7 @@ const SelectPipelineCreateForm = ({
       onCompleted: ({ createPipeline }) => {
         toast({ title: t('success', 'Success!'), variant: 'success' });
         onBack();
-        onValueChange(createPipeline._id);
+        if (createPipeline) onValueChange(createPipeline._id);
       },
       onError: (error) =>
         toast({
@@ -264,7 +264,7 @@ const SelectPipelineContent = ({ allowCreate }: { allowCreate?: boolean }) => {
                   ) : (
                     <Button asChild variant="secondary">
                       <Link
-                        to={`/settings/frontline/channels/${channelId}/pipelines`}
+                        to={`/frontline/settings/channels/${channelId}/pipelines`}
                       >
                         {t('add-pipeline', 'Add pipeline')}
                       </Link>

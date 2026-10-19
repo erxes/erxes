@@ -48,7 +48,6 @@ const SipProvider = ({
   iceServers = [],
   debug = false,
   children,
-  createSession,
 }: SipProviderProps & { children: React.ReactNode }) => {
   const { t } = useTranslation('frontline');
   const [callInfo] = useAtom(callInfoAtom);
@@ -676,9 +675,6 @@ const SipProvider = ({
   // Create context value
   const contextValue = useMemo(
     () => ({
-      sip: {
-        createSession,
-      },
       registerSip,
       unregisterSip,
       reconnectSip: reinitializeJsSIP,
@@ -694,7 +690,6 @@ const SipProvider = ({
       unhold,
     }),
     [
-      createSession,
       registerSip,
       unregisterSip,
       reinitializeJsSIP,

@@ -1,7 +1,7 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
 // Asked of loyalty, which owns the spending rules.
-export const SALES_DEAL_POINT_LIMIT = gql`
+export const SALES_DEAL_POINT_LIMIT = gql(`
   query SalesDealPointLimit(
     $campaignId: String!
     $ownerType: String!
@@ -23,4 +23,4 @@ export const SALES_DEAL_POINT_LIMIT = gql`
       blocked
     }
   }
-`;
+`);

@@ -4,7 +4,7 @@ import {
   TDealSearchCategory,
   TDealTextSearches,
 } from '@/deals/types/dealSearch';
-import { IDeal } from '@/deals/types/deals';
+import { IDealSearch } from '@/deals/types/deals';
 import { isDealSearchReady } from '@/deals/utils/dealSearch';
 import { TSearchSortOrder } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
@@ -70,7 +70,7 @@ export const useCommonDealSearch = () => {
     setDateRange(value ?? null);
   };
 
-  const selectDeal = (deal: IDeal) => {
+  const selectDeal = (deal: IDealSearch) => {
     const pipelineId = deal.pipeline?._id;
     const boardId = deal.boardId || deal.pipeline?.boardId;
 

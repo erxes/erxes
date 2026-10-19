@@ -15,13 +15,16 @@ import {
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { SurveyStepResults } from '@/survey/components/survey-results/SurveyStepResults';
-import { useSurveyList } from '@/survey/hooks/useSurveyList';
-import { ISurvey, ISurveyStepResult } from '@/survey/types/surveyTypes';
+import { useSurveyResultsList } from '@/survey/hooks/useSurveyList';
+import {
+  ISurveyStepResult,
+  ISurveyWithResults,
+} from '@/survey/types/surveyTypes';
 import { FrontlinePaths } from '@/types/FrontlinePaths';
 
-const SETTINGS_PATH = `/settings/${FrontlinePaths.Frontline}${FrontlinePaths.Channels}`;
+const SETTINGS_PATH = `/${FrontlinePaths.Frontline}/settings${FrontlinePaths.Channels}`;
 
-const SurveyResultCard = ({ survey }: { survey: ISurvey }) => {
+const SurveyResultCard = ({ survey }: { survey: ISurveyWithResults }) => {
   const { t } = useTranslation('frontline');
   const results = survey.results;
   const steps: ISurveyStepResult[] = results?.steps?.length
@@ -31,6 +34,7 @@ const SurveyResultCard = ({ survey }: { survey: ISurvey }) => {
         : [
             {
               _id: survey._id,
+              name: null,
               order: 0,
               question: survey.question,
               options: survey.options,
@@ -64,7 +68,7 @@ const SurveyResultCard = ({ survey }: { survey: ISurvey }) => {
           </p>
         </div>
         <Badge variant={survey.status === 'active' ? 'success' : 'secondary'}>
-          {t(survey.status)}
+          {survey.status ? t(survey.status) : null}
         </Badge>
       </div>
 
@@ -102,8 +106,7 @@ export const SurveyResultsBoard = () => {
     channelId?: string;
   }>(['status', 'searchValue', 'channelId']);
 
-  const { surveys, loading } = useSurveyList({
-    withResults: true,
+  const { surveys, loading } = useSurveyResultsList({
     variables: {
       status: status || undefined,
       searchValue: searchValue || undefined,

@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const CONVERSATION_CONVERT_TO_CARD = gql`
+export const CONVERSATION_CONVERT_TO_CARD = gql(`
   mutation ConversationConvertToCard(
     $_id: String!
     $type: String!
@@ -34,4 +34,4 @@ export const CONVERSATION_CONVERT_TO_CARD = gql`
       closeDate: $closeDate
     )
   }
-`;
+`);

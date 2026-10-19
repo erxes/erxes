@@ -1,6 +1,5 @@
 import { lazy, Suspense } from 'react';
 import { Navigate, Route, Routes } from 'react-router';
-import { getPluginsSettingsRoutes } from '@/app/hooks/usePluginsRouter';
 import { EmailTemplatesSettingsRoutes } from '@/emailTemplates/components/EmailTemplatesSettingsRoutes';
 import { SettingsPageEffect } from '@/settings/components/SettingsPageEffect';
 import {
@@ -8,7 +7,9 @@ import {
   SettingsWorkspacePath,
 } from '@/types/paths/SettingsPath';
 import { Skeleton } from 'erxes-ui';
-import { useVersion } from 'ui-modules';
+import { pluginsConfigState, useVersion } from 'ui-modules';
+import { useAtomValue } from 'jotai';
+import { PluginSettingsRedirect } from '@/settings/components/PluginSettingsRedirect';
 import { ClientPortalDetailPage } from '~/pages/settings/client-portal/ClientPortalDetailPage';
 import { ClientPortalPage } from '~/pages/settings/client-portal/ClientPortalPage';
 import { TeamMemberSettingsRoutes } from '@/settings/team-member/components/TeamMemberSettingsRoutes';
@@ -146,6 +147,8 @@ const StructureSettings = lazy(() =>
 
 export function SettingsRoutes() {
   const isOs = useVersion();
+  const pluginsConfig = useAtomValue(pluginsConfigState);
+  const plugins = Object.values(pluginsConfig || {});
 
   return (
     <Suspense fallback={<Skeleton />}>
@@ -252,7 +255,14 @@ export function SettingsRoutes() {
           path={SettingsWorkspacePath.Broadcast}
           element={<BroadcastSettings />}
         />
-        {getPluginsSettingsRoutes()}
+        {/* Plugin settings live in each plugin's own app now. */}
+        {plugins.map((plugin) => (
+          <Route
+            key={plugin.name}
+            path={`${plugin.path}/*`}
+            element={<PluginSettingsRedirect pluginPath={plugin.path} />}
+          />
+        ))}
       </Routes>
       <SettingsPageEffect />
     </Suspense>

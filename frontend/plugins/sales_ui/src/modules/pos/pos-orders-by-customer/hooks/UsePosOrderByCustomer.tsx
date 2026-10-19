@@ -1,4 +1,8 @@
+import { useMemo } from 'react';
+import { hasId } from '@/pos/utils/posJson';
+import { toPosCustomerRow, readPosData } from '@/pos/utils/posOrderJson';
 import { useQuery } from '@apollo/client';
+import type { PosOrderCustomersQueryVariables } from '~/gql/graphql';
 import { POS_ORDERS_BY_CUSTOMER } from '../graphql/queries/queries';
 
 const POS_PER_PAGE = 30;
@@ -6,19 +10,23 @@ const POS_PER_PAGE = 30;
 export const usePosOrderByCustomerList = (options: { posId?: string } = {}) => {
   const { posId, ...otherOptions } = options;
 
-  const variables: any = {
+  const variables: PosOrderCustomersQueryVariables = {
     perPage: POS_PER_PAGE,
     ...otherOptions,
   };
 
-  const { data, loading, fetchMore } = useQuery(POS_ORDERS_BY_CUSTOMER, {
+  const { data, loading, error, fetchMore } = useQuery(POS_ORDERS_BY_CUSTOMER, {
     variables,
   });
 
-  const transformedPosList =
-    data?.posOrderCustomers?.map((posOrderCustomers: any) => ({
-      ...posOrderCustomers,
-    })) || [];
+  const parsed = useMemo(
+    () =>
+      readPosData(() =>
+        (data?.posOrderCustomers ?? []).filter(hasId).map(toPosCustomerRow),
+      ),
+    [data?.posOrderCustomers],
+  );
+  const transformedPosList = parsed.value ?? [];
 
   const handleFetchMore = () => {
     if (!data?.posOrderCustomers) {
@@ -38,7 +46,7 @@ export const usePosOrderByCustomerList = (options: { posId?: string } = {}) => {
         return Object.assign({}, prev, {
           posOrderCustomers: [
             ...(prev.posOrderCustomers || []),
-            ...fetchMoreResult.posOrderCustomers,
+            ...(fetchMoreResult.posOrderCustomers ?? []),
           ],
         });
       },
@@ -47,12 +55,12 @@ export const usePosOrderByCustomerList = (options: { posId?: string } = {}) => {
 
   return {
     loading,
+    error: error ?? parsed.error,
     posOrderByCustomerList: transformedPosList,
-    totalCount: data?.posOrderCustomersTotalCount || 0,
+    totalCount: 0,
     handleFetchMore,
     pageInfo: {
-      hasNextPage:
-        transformedPosList.length < (data?.posOrderCustomersTotalCount || 0),
+      hasNextPage: false,
       hasPreviousPage: false,
       startCursor: null,
       endCursor: null,

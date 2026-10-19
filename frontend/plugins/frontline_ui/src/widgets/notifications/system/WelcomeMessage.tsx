@@ -17,6 +17,7 @@ import {
 
 export const OnboardingSteps: TOnboardingStepItem[] = [
   {
+    id: 'inbox',
     icon: <IconMail size={24} />,
     title: 'Inbox',
     forOwner: false,
@@ -28,6 +29,7 @@ export const OnboardingSteps: TOnboardingStepItem[] = [
     },
   },
   {
+    id: 'ticket',
     icon: <IconTicket size={24} />,
     title: 'Ticket',
     forOwner: false,
@@ -39,16 +41,18 @@ export const OnboardingSteps: TOnboardingStepItem[] = [
     },
   },
   {
+    id: 'integration',
     icon: <IconAffiliate size={24} />,
     title: 'Integration',
     forOwner: false,
     description: 'Connect all your communication channels seamlessly.',
     action: {
       label: 'Try it out now',
-      to: '/settings/frontline/config',
+      to: '/frontline/settings/config',
     },
   },
   {
+    id: 'help-center',
     icon: <IconInfoCircle size={24} />,
     title: 'Help Center',
     forOwner: false,
@@ -59,6 +63,7 @@ export const OnboardingSteps: TOnboardingStepItem[] = [
     },
   },
   {
+    id: 'messenger',
     icon: <IconMessage2 size={24} />,
     title: 'Messenger',
     forOwner: false,

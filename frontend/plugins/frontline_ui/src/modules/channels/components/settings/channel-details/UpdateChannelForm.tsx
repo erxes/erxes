@@ -1,19 +1,23 @@
 import { useChannelsForm } from '@/channels/hooks/useChannelsForm';
-import { IChannel, TChannelForm } from '@/channels/types';
+import { IChannelDetail, TChannelForm } from '@/channels/types';
 import { useChannelUpdate } from '@/channels/hooks/useChannelUpdate';
 import { Button, Form, IconPicker, Input, Textarea, useToast } from 'erxes-ui';
 import { SubmitHandler } from 'react-hook-form';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 
-export const UpdateChannelForm = ({ channel }: { channel: IChannel }) => {
+export const UpdateChannelForm = ({
+  channel,
+}: {
+  channel: Pick<IChannelDetail, '_id' | 'name' | 'description' | 'icon'>;
+}) => {
   const { t } = useTranslation('frontline');
   const { toast } = useToast();
   const { updateChannel } = useChannelUpdate();
   const form = useChannelsForm({
     defaultValues: {
       name: channel.name,
-      description: channel.description,
+      description: channel.description ?? undefined,
       icon: channel.icon,
     },
   });
@@ -60,7 +64,7 @@ export const UpdateChannelForm = ({ channel }: { channel: IChannel }) => {
                   <Form.Control>
                     <IconPicker
                       onValueChange={field.onChange}
-                      value={field.value}
+                      value={field.value ?? undefined}
                     />
                   </Form.Control>
                   <Form.Message />

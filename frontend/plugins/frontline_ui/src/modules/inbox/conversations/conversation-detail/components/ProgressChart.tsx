@@ -12,7 +12,7 @@ interface IProgressChartProps {
 export const ProgressChart = ({ customerId }: IProgressChartProps) => {
   const { t } = useTranslation('frontline');
   const { conversationProgressChart } = useConversationProgressChart({
-    variables: { customerId },
+    variables: customerId ? { customerId } : undefined,
     skip: !customerId,
   });
 

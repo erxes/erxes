@@ -1,4 +1,4 @@
-import { gql, useLazyQuery, useQuery } from '@apollo/client';
+import { useLazyQuery, useQuery } from '@apollo/client';
 import { CALL_SLA_REPORT } from '@/integrations/call/graphql/queries/callStatistics';
 import type { SlaReport } from '../types';
 import { useCallFilters } from './useCallFilters';
@@ -34,13 +34,10 @@ function useSlaVariables({
 export function useSlaReport(params: SlaReportParams) {
   const { integrationId, variables } = useSlaVariables(params);
 
-  const { data, loading, error } = useQuery<{ callSlaReport: SlaReport }>(
-    gql(CALL_SLA_REPORT),
-    {
-      variables: { ...variables, breachLimit: SLA_BREACH_LIMIT },
-      skip: !integrationId,
-    },
-  );
+  const { data, loading, error } = useQuery(CALL_SLA_REPORT, {
+    variables: { ...variables, breachLimit: SLA_BREACH_LIMIT },
+    skip: !integrationId,
+  });
 
   return {
     report: data?.callSlaReport ?? null,
@@ -52,9 +49,9 @@ export function useSlaReport(params: SlaReportParams) {
 export function useSlaExport(params: SlaReportParams) {
   const { variables } = useSlaVariables(params);
 
-  const [fetchReport, { loading }] = useLazyQuery<{
-    callSlaReport: SlaReport;
-  }>(gql(CALL_SLA_REPORT), { fetchPolicy: 'network-only' });
+  const [fetchReport, { loading }] = useLazyQuery(CALL_SLA_REPORT, {
+    fetchPolicy: 'network-only',
+  });
 
   const loadForExport = async (): Promise<SlaReport | null> => {
     const { data } = await fetchReport({

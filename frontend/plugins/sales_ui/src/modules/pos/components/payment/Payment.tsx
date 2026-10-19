@@ -1,17 +1,24 @@
-import { useCallback, useEffect, type ReactNode } from 'react';
-import { useMutation } from '@apollo/client';
-import { Button, Form, InfoCard, toast } from 'erxes-ui';
-import { useForm } from 'react-hook-form';
-import mutations from '@/pos/graphql/mutations';
+import {
+  restorePosPaymentConfig,
+  restorePosPaymentText,
+} from '@/pos/utils/posJson';
+import { toTierBands } from '@/deals/loyaltyRules/tierBands';
+import {
+  OtherPaymentsField,
+  PaymentIdsField,
+  type PaymentConfigItem,
+} from '@/payments';
+import { mutations } from '@/pos/graphql/mutations';
 import { usePosDetail } from '@/pos/hooks/usePosDetail';
-import { OtherPaymentsField, PaymentIdsField } from '@/payments';
-import { type PaymentConfigItem } from '@/payments';
+import { IPosEarnTier } from '@/pos/types/pos';
+import { useMutation } from '@apollo/client';
+import { Button, Form, InfoCard, isDefined, toast } from 'erxes-ui';
+import { useCallback, useEffect, type ReactNode } from 'react';
+import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
+import { AcceptCouponsField } from './AcceptCouponsField';
 import { EarnScoreCampaignsField } from './EarnScoreCampaignsField';
 import { PosEarnTierField } from './PosEarnTierField';
-import { AcceptCouponsField } from './AcceptCouponsField';
-import { IPosEarnTier } from '@/pos/types/pos';
-import { toTierBands } from '@/deals/loyaltyRules/tierBands';
 
 interface PaymentProps {
   posId?: string;
@@ -53,23 +60,28 @@ const Payment: React.FC<PaymentProps> = ({ posId, onSaveActionChange }) => {
     }
 
     const validPaymentTypes = (posDetail.paymentTypes ?? [])
-      .filter((payment): payment is PaymentConfigItem => !!payment._id)
-      .map(({ _id, type, title, icon, config, scoreCampaignId }) => ({
-        _id,
-        type,
-        title,
-        icon,
-        config,
-        scoreCampaignId,
-      }));
+      .filter((payment) => !!payment._id)
+      .map(({ _id, type, title, icon, config, scoreCampaignId }) => {
+        let configText: string | undefined;
+        if (typeof config === 'string') configText = config;
+        else if (config != null) configText = JSON.stringify(config);
+        return {
+          _id: _id ?? '',
+          type: type ?? '',
+          title: title ?? '',
+          icon: icon ?? '',
+          config: configText,
+          scoreCampaignId: scoreCampaignId ?? undefined,
+        };
+      });
 
     reset({
-      paymentIds: posDetail.paymentIds ?? [],
+      paymentIds: (posDetail.paymentIds ?? []).filter(isDefined),
       paymentTypes: validPaymentTypes,
       earnScoreCampaignId: posDetail.earnScoreCampaignId ?? '',
       earnTier: posDetail.earnTier
         ? {
-            accountTypeId: posDetail.earnTier.accountTypeId,
+            accountTypeId: posDetail.earnTier.accountTypeId ?? '',
             bands: toTierBands(posDetail.earnTier.bands),
             onlyUpgrade: !!posDetail.earnTier.onlyUpgrade,
           }
@@ -104,14 +116,22 @@ const Payment: React.FC<PaymentProps> = ({ posId, onSaveActionChange }) => {
             _id: posId,
             paymentIds: data.paymentIds,
             paymentTypes: data.paymentTypes.map(
-              ({ _id, type, title, icon, config, scoreCampaignId }) => ({
-                _id,
-                type,
-                title,
-                icon,
-                config,
-                scoreCampaignId,
-              }),
+              ({ _id, type, title, icon, config, scoreCampaignId }) => {
+                const original = posDetail?.paymentTypes.find(
+                  (payment) => payment._id === _id,
+                );
+                return {
+                  _id,
+                  type: restorePosPaymentText(type, original?.type),
+                  title: restorePosPaymentText(title, original?.title),
+                  icon: restorePosPaymentText(icon, original?.icon),
+                  config: restorePosPaymentConfig(config, original?.config),
+                  scoreCampaignId: restorePosPaymentText(
+                    scoreCampaignId,
+                    original?.scoreCampaignId,
+                  ),
+                };
+              },
             ),
             earnScoreCampaignId: data.earnScoreCampaignId || null,
             earnTier: data.earnTier,
@@ -132,7 +152,7 @@ const Payment: React.FC<PaymentProps> = ({ posId, onSaveActionChange }) => {
         });
       }
     },
-    [posEdit, posId, reset],
+    [posDetail?.paymentTypes, posEdit, posId, reset],
   );
 
   useEffect(() => {
@@ -206,4 +226,4 @@ const Payment: React.FC<PaymentProps> = ({ posId, onSaveActionChange }) => {
   );
 };
 
-export default Payment;
+export { Payment };

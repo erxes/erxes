@@ -1,14 +1,12 @@
 import { useQuery } from '@apollo/client';
 import { GET_PAYMENTS } from '@/payments/graphql/queries';
+import { isDefined } from 'erxes-ui';
+import { useMemo } from 'react';
+import type { PaymentsQuery } from '~/gql/graphql';
 
-export interface Payment {
-  _id: string;
-  name: string;
-  kind: string;
-  status: string;
-  config: any;
-  createdAt: string;
-}
+export type Payment = NonNullable<
+  NonNullable<PaymentsQuery['payments']>[number]
+>;
 
 export interface UsePaymentsProps {
   status?: string;
@@ -16,16 +14,18 @@ export interface UsePaymentsProps {
 }
 
 export const usePayments = ({ status, kind }: UsePaymentsProps = {}) => {
-  const { data, loading, error, refetch } = useQuery<{ payments: Payment[] }>(
-    GET_PAYMENTS,
-    {
-      variables: { status, kind },
-      fetchPolicy: 'cache-and-network',
-    },
+  const { data, loading, error, refetch } = useQuery(GET_PAYMENTS, {
+    variables: { status, kind },
+    fetchPolicy: 'cache-and-network',
+  });
+
+  const payments = useMemo(
+    () => (data?.payments ?? []).filter(isDefined),
+    [data?.payments],
   );
 
   return {
-    payments: data?.payments || [],
+    payments,
     loading,
     error,
     refetch,

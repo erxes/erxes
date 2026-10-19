@@ -1,25 +1,23 @@
+import { readCurrencyAmounts } from '@/deals/utils/dealJson';
 import {
   IconBuilding,
+  IconCategory,
   IconChartBar,
   IconLabel,
   IconMobiledata,
-  IconCategory,
 } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
 import {
   RecordTable,
-  TextOverflowTooltip,
   RecordTableInlineCell,
+  TextOverflowTooltip,
 } from 'erxes-ui';
 import { TFunction } from 'i18next';
 
 import { IPosByItems } from '@/pos/pos-by-items/types/PosByItemType';
 
-const getHourCount = (
-  counts: Record<string, number> | undefined,
-  hours: number[],
-): string => {
-  if (!counts) return '';
+const getHourCount = (value: unknown, hours: number[]): string => {
+  const counts = readCurrencyAmounts(value);
   const total = hours.reduce((sum, h) => sum + (counts[String(h)] || 0), 0);
   return total === 0 ? '' : String(total);
 };

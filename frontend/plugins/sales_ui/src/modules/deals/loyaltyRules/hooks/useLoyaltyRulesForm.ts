@@ -1,5 +1,6 @@
 import { useMutation, useQuery } from '@apollo/client';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { isDefined } from 'erxes-ui';
 import { useEffect } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { LOYALTY_RULE_TYPES, TLoyaltyRuleType } from '../constants';
@@ -22,8 +23,8 @@ const toRow = (rule: TLoyaltyRule): TLoyaltyRuleRow => ({
   pipelineId: rule.pipelineId || undefined,
   earnProbability: rule.earn?.probability || undefined,
   refundProbability: rule.refund?.probability || undefined,
-  earnStageIds: rule.earn?.stageIds || [],
-  refundStageIds: rule.refund?.stageIds || [],
+  earnStageIds: rule.earn?.stageIds?.filter(isDefined) || [],
+  refundStageIds: rule.refund?.stageIds?.filter(isDefined) || [],
 });
 
 // Stages are named by id only inside one pipeline, by probability elsewhere.
@@ -58,9 +59,10 @@ const emptyRow = (type: TLoyaltyRuleType): TLoyaltyRuleRow => ({
 
 /** The whole points configuration, edited in the dialog and saved at once. */
 export const useLoyaltyRulesForm = (open: boolean) => {
-  const { data, loading, error } = useQuery<{
-    salesLoyaltyRules: TLoyaltyRule[];
-  }>(SALES_LOYALTY_RULES, { skip: !open, fetchPolicy: 'cache-and-network' });
+  const { data, loading, error } = useQuery(SALES_LOYALTY_RULES, {
+    skip: !open,
+    fetchPolicy: 'cache-and-network',
+  });
 
   const form = useForm<TLoyaltyRulesForm>({
     resolver: zodResolver(loyaltyRulesFormSchema),
@@ -76,7 +78,7 @@ export const useLoyaltyRulesForm = (open: boolean) => {
 
   useEffect(() => {
     if (open && rules) {
-      form.reset({ rules: rules.map(toRow) });
+      form.reset({ rules: rules.filter(isDefined).map(toRow) });
     }
   }, [open, rules, form]);
 

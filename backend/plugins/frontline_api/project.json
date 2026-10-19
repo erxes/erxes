@@ -50,6 +50,7 @@
     "docker-build": {
       "dependsOn": ["build"],
       "command": "docker build -f backend/plugins/frontline_api/Dockerfile . -t erxes/erxes-next-frontline_api"
-    }
+    },
+    "schema:print": {}
   }
 }

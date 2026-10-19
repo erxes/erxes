@@ -1,5 +1,5 @@
+import type { DealProductData } from '@/deals/utils/dealJson';
 import type { ApolloClient } from '@apollo/client';
-import type { IProductData } from 'ui-modules';
 
 import { updateDealProductsCache } from './updateDealProductsCache';
 
@@ -22,7 +22,7 @@ interface SerializeDealProductMutationOptions<TResult> {
   client: ApolloClient<object>;
   dealId: string;
   mutation: () => Promise<TResult>;
-  selectProductsData: (result: TResult) => IProductData[] | undefined;
+  selectProductsData: (result: TResult) => DealProductData[];
 }
 
 export const serializeDealProductMutation = <TResult>({
@@ -37,9 +37,7 @@ export const serializeDealProductMutation = <TResult>({
     const mutationResult = await mutation();
     const productsData = selectProductsData(mutationResult);
 
-    if (productsData) {
-      updateDealProductsCache(client, dealId, productsData);
-    }
+    updateDealProductsCache(client, dealId, productsData);
 
     return mutationResult;
   });

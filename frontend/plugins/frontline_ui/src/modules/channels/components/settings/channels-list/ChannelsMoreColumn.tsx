@@ -25,7 +25,7 @@ export const ChannelsMoreColumnCell = ({
   const { confirm } = useConfirm();
 
   const handleEdit = () => {
-    navigate(`/settings/frontline/channels/${_id}`);
+    navigate(`/frontline/settings/channels/${_id}`);
   };
 
   const handleDelete = () => {

@@ -1,26 +1,27 @@
 import { useApolloClient, useQuery } from '@apollo/client';
 import { toast } from 'erxes-ui';
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { IProductData } from 'ui-modules';
+
 import { normalizeProductUom } from '@/deals/cards/components/detail/product/utils/productUom';
 import { useDealsEdit } from '@/deals/cards/hooks/useDeals';
 import { DEAL_TOAST_OPTIONS } from '@/deals/constants/toast';
 import { useLoyaltyEnabled } from '@/deals/loyaltyRules/hooks/useLoyaltyEnabled';
-import { IDeal } from '@/deals/types/deals';
+import { IDealDetail } from '@/deals/types/deals';
 import {
   DEAL_COUPON_CHECK,
   DEAL_SALE_VOUCHERS,
 } from '../graphql/dealVoucherQueries';
 import {
+  dealSaleVouchersSchema,
   groupDealVouchers,
-  IDealSaleVoucher,
 } from '../utils/dealVoucherGroups';
 
 /**
  * The deal's voucher and coupon: what its first customer may pick, and
  * saving a choice with the products so the deal is priced again.
  */
-export const useDealVouchers = (deal: IDeal) => {
+export const useDealVouchers = (deal: IDealDetail) => {
   const { t } = useTranslation('sales');
   const client = useApolloClient();
   const enabled = useLoyaltyEnabled();
@@ -30,19 +31,13 @@ export const useDealVouchers = (deal: IDeal) => {
 
   // Bonus lines a voucher added carry bonusCount; the shared type omits it.
   const totalAmount = (deal.productsData || [])
-    .filter(
-      (pd: IProductData & { bonusCount?: number }) =>
-        pd.tickUsed && !pd.bonusCount,
-    )
+    .filter((pd) => pd.tickUsed && !pd.bonusCount)
     .reduce((sum, pd) => sum + (Number(pd.amount) || 0), 0);
 
-  const { data, loading, refetch } = useQuery<{
-    loyaltyOwnerSaleVouchers?: {
-      vouchers: IDealSaleVoucher[];
-      settled: boolean;
-    } | null;
-  }>(DEAL_SALE_VOUCHERS, {
-    variables: { ownerId: customer?._id, totalAmount, targetId: deal._id },
+  const { data, loading, error, refetch } = useQuery(DEAL_SALE_VOUCHERS, {
+    variables: customer?._id
+      ? { ownerId: customer._id, totalAmount, targetId: deal._id }
+      : undefined,
     skip: !enabled || !customer?._id,
     fetchPolicy: 'cache-and-network',
   });
@@ -50,9 +45,16 @@ export const useDealVouchers = (deal: IDeal) => {
     toastOptions: DEAL_TOAST_OPTIONS,
   });
 
-  const vouchers = data?.loyaltyOwnerSaleVouchers?.vouchers || [];
+  const parsed = useMemo(
+    () =>
+      dealSaleVouchersSchema.safeParse(
+        data?.loyaltyOwnerSaleVouchers ?? { vouchers: [], settled: false },
+      ),
+    [data?.loyaltyOwnerSaleVouchers],
+  );
+  const vouchers = parsed.success ? parsed.data.vouchers : [];
   // Loyalty already used the pick on this deal; only a refund gives it back.
-  const readOnly = !!data?.loyaltyOwnerSaleVouchers?.settled;
+  const readOnly = !!error || !parsed.success || parsed.data.settled;
   const groups = groupDealVouchers(vouchers, voucherId);
   const pickable = groups.filter(
     ({ autoApplied, applicable, selected }) =>
@@ -65,6 +67,7 @@ export const useDealVouchers = (deal: IDeal) => {
     voucherId?: string | null;
     couponCode?: string | null;
   }) => {
+    if (readOnly) return false;
     try {
       // useDealsEdit has an onError, so a failure resolves without data.
       const result = await editDeals({
@@ -99,9 +102,7 @@ export const useDealVouchers = (deal: IDeal) => {
     if (!code) return null;
 
     try {
-      const { data: checked } = await client.query<{
-        loyaltyCouponCheck: string;
-      }>({
+      const { data: checked } = await client.query({
         query: DEAL_COUPON_CHECK,
         variables: {
           code,
@@ -129,6 +130,7 @@ export const useDealVouchers = (deal: IDeal) => {
   return {
     visible: enabled && (!!customer?._id || !!couponCode),
     loading,
+    error: error || (!parsed.success ? parsed.error : undefined),
     saving,
     readOnly,
     voucherId,

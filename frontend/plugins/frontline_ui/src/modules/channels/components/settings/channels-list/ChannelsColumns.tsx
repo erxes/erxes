@@ -1,4 +1,5 @@
 import { IChannel, IChannelMember } from '@/channels/types';
+import { toMemberUser } from '@/channels/utils/channelMembers';
 import { CellContext, ColumnDef } from '@tanstack/table-core';
 import { MembersInline } from 'ui-modules';
 import { channelsMoreColumn } from './ChannelsMoreColumn';
@@ -24,7 +25,7 @@ const ChannelNameCell = ({ cell }: CellContext<IChannel, unknown>) => {
   const navigate = useNavigate();
 
   const onClick = () => {
-    navigate(`/settings/frontline/channels/${_id}`);
+    navigate(`/frontline/settings/channels/${_id}`);
   };
 
   return (
@@ -104,9 +105,13 @@ export const useChannelsColumns = (
       ),
       cell: ({ cell }) => {
         const { _id } = cell.row.original;
-        const memberUsers = (membersByChannel[_id] ?? [])
-          .map((channelMember) => channelMember.member)
-          .filter((member) => member && member.isActive !== false);
+        const memberUsers = (membersByChannel[_id] ?? []).flatMap(
+          (channelMember) => {
+            const user = toMemberUser(channelMember.member);
+
+            return user && user.isActive !== false ? [user] : [];
+          },
+        );
 
         if (memberUsers.length === 0) {
           return (

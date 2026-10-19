@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const posCovers = gql`
+export const posCovers = gql(`
   query PosCovers(
     $startDate: Date
     $endDate: Date
@@ -78,4 +78,4 @@ export const posCovers = gql`
       }
     }
   }
-`;
+`);

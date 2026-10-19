@@ -59,6 +59,19 @@
     }
   ],
   "targetDefaults": {
+    "schema:print": {
+      "executor": "nx:run-commands",
+      "cache": true,
+      "inputs": [
+        "{projectRoot}/src/**/*.ts",
+        "{workspaceRoot}/scripts/print-subgraph-schema.ts",
+        "{workspaceRoot}/backend/erxes-api-shared/src/utils/apollo/**/*"
+      ],
+      "outputs": ["{projectRoot}/generated"],
+      "options": {
+        "command": "tsx --tsconfig {projectRoot}/tsconfig.json scripts/print-subgraph-schema.ts {projectRoot}"
+      }
+    },
     "e2e-ci--**/*": {
       "dependsOn": ["^build"]
     },

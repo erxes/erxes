@@ -1,21 +1,15 @@
+import { isRecord } from '@/deals/utils/dealJson';
 import { useQuery } from '@apollo/client';
 import { queries } from '../graphql';
 
-interface PosEnvQueryResponse {
-  posEnv: any;
-}
-
 export function usePosEnv() {
-  const { loading, error, data, refetch } = useQuery<PosEnvQueryResponse>(
-    queries.posEnv,
-    {
-      fetchPolicy: 'cache-and-network',
-      errorPolicy: 'all',
-      onError: (error) => {
-        console.error('PosEnv query error:', error.message);
-      },
+  const { loading, error, data, refetch } = useQuery(queries.posEnv, {
+    fetchPolicy: 'cache-and-network',
+    errorPolicy: 'all',
+    onError: (error) => {
+      console.error('PosEnv query error:', error.message);
     },
-  );
+  });
 
   const permissionError = error?.graphQLErrors?.some(
     (e) =>
@@ -27,7 +21,7 @@ export function usePosEnv() {
     loading,
     error,
     permissionError,
-    posEnv: data?.posEnv,
+    posEnv: isRecord(data?.posEnv) ? data.posEnv : undefined,
     refetch,
   };
 }

@@ -4,8 +4,12 @@ import { Empty, Spinner } from 'erxes-ui';
 import { IconInfoCircle } from '@tabler/icons-react';
 import { useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import type { TicketDetailsProps } from '@/ticket/types/ticketDetail';
 
-export const TicketDetails = ({ ticketId }: { ticketId: string }) => {
+export const TicketDetails = ({
+  ticketId,
+  titleAction,
+}: TicketDetailsProps) => {
   const { t } = useTranslation('frontline');
   const location = useLocation();
   const isInInbox = location.pathname.includes('my-inbox');
@@ -18,7 +22,7 @@ export const TicketDetails = ({ ticketId }: { ticketId: string }) => {
   }
   if (!ticket) {
     return (
-      <div className="flex min-h-dvh items-center justify-center p-6">
+      <div className="flex min-h-full items-center justify-center p-6">
         <Empty>
           <Empty.Header>
             <Empty.Media variant="icon">
@@ -41,5 +45,7 @@ export const TicketDetails = ({ ticketId }: { ticketId: string }) => {
       </div>
     );
   }
-  return <TicketFields ticket={ticket} />;
+  return (
+    <TicketFields key={ticket._id} ticket={ticket} titleAction={titleAction} />
+  );
 };

@@ -1,32 +1,20 @@
-export interface ITicketStatus {
-  _id: string;
-  channelId: string;
-  color: string;
-  createdAt: string;
-  description: string;
-  name: string;
-  order: number;
-  pipelineId: string;
-  type: number;
-  updatedAt: string;
-  visibilityType?: string;
-  memberIds?: string[];
-  canMoveMemberIds?: string[];
-  canEditMemberIds?: string[];
-  departmentIds?: string[];
-  state?: string;
-  probability?: number;
-  members?: string[];
-  department?: string;
-  canMoveMember?: boolean;
-  canEditMember?: boolean;
-}
+import type {
+  GetAccessibleTicketStatusesQuery,
+  GetTicketStatusesByTypeQuery,
+  GetTicketStatusesChoicesPipelineQuery,
+  GetTicketStatusQuery,
+} from '~/gql/graphql';
 
-export interface ITicketStatusChoice {
-  value: string;
-  label: string;
-  color: string;
-  type: number;
-  canMoveMemberIds?: string[];
-  canEditMemberIds?: string[];
-}
+export type ITicketStatus = NonNullable<
+  NonNullable<GetTicketStatusesByTypeQuery['getTicketStatusesByType']>[number]
+>;
+
+export type ITicketStatusDetail = NonNullable<
+  GetTicketStatusQuery['getTicketStatus']
+>;
+
+export type ITicketStatusChoice =
+  GetAccessibleTicketStatusesQuery['getAccessibleTicketStatuses'][number];
+
+export type ITicketStatusPermissionChoice =
+  GetTicketStatusesChoicesPipelineQuery['getTicketStatusesChoicesPipeline'][number];

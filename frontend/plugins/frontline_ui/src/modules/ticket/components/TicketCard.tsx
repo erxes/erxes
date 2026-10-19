@@ -18,6 +18,8 @@ import {
 import { atom, useAtomValue, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { TicketCardDetails } from '@/ticket/components/TicketCardProperties';
+import { compactList } from '@/shared/utils/cursorList';
+import { isRecord } from '@/shared/utils/isRecord';
 
 export const ticketBoardItemAtom = atom(
   (get) => (id: string) => get(allTicketsMapState)[id],
@@ -57,13 +59,13 @@ export const TicketCard = ({ id, column }: BoardCardProps) => {
     <div onClick={() => setActiveTicket(id)}>
       <div className="flex items-center justify-between h-9 px-1.5">
         <SelectDateTicket
-          value={startDate}
+          value={startDate ?? undefined}
           id={_id}
           type="startDate"
           variant="card"
         />
         <SelectDateTicket
-          value={targetDate}
+          value={targetDate ?? undefined}
           id={_id}
           type="targetDate"
           variant="card"
@@ -74,7 +76,7 @@ export const TicketCard = ({ id, column }: BoardCardProps) => {
         <div className="flex flex-col gap-1">
           <TextOverflowTooltip
             className="font-semibold max-w-52"
-            value={name}
+            value={name ?? undefined}
           />
           <div className="text-accent-foreground uppercase">
             {t('ticket-number', 'Ticket #{{number}}', { number })}
@@ -92,15 +94,23 @@ export const TicketCard = ({ id, column }: BoardCardProps) => {
               }))
             }
             id={_id}
-            pipelineId={pipelineId}
+            pipelineId={pipelineId ?? ''}
           />
-          <SelectPriorityTicket id={_id} value={priority} variant="card" />
-          <SelectTagsTicket id={_id} value={tagIds || []} variant="card" />
+          <SelectPriorityTicket
+            id={_id}
+            value={priority ?? undefined}
+            variant="card"
+          />
+          <SelectTagsTicket
+            id={_id}
+            value={compactList(tagIds)}
+            variant="card"
+          />
         </div>
       </div>
       <TicketCardDetails
-        tagIds={tagIds || []}
-        propertiesData={propertiesData}
+        tagIds={compactList(tagIds)}
+        propertiesData={isRecord(propertiesData) ? propertiesData : undefined}
         onTagsOverflowClick={() => openTicketTab('overview')}
         onPropertiesOverflowClick={() => openTicketTab('properties')}
       />
@@ -114,7 +124,11 @@ export const TicketCard = ({ id, column }: BoardCardProps) => {
           <IconCalendarEventFilled />
           {createdAt && format(new Date(createdAt), 'MMM d, yyyy HH:mm')}
         </Button>
-        <SelectAssigneeTicket variant="card" value={assigneeId} id={_id} />
+        <SelectAssigneeTicket
+          variant="card"
+          value={assigneeId ?? ''}
+          id={_id}
+        />
       </div>
     </div>
   );

@@ -23,8 +23,8 @@ export const useTicketChartCard = ({
 
   const queryFilters = useMemo(() => {
     const { date, statusChangedDate, updatedAtDate, ...rest } = filterConfig;
-    const stageRange = getFilters(statusChangedDate);
-    const modifiedRange = getFilters(updatedAtDate);
+    const stageRange = getFilters(statusChangedDate || undefined);
+    const modifiedRange = getFilters(updatedAtDate || undefined);
 
     return {
       ...getFilters(date || undefined),

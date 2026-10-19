@@ -145,11 +145,6 @@ export interface IIntegrationModel extends Model<IIntegrationDocument> {
     doc: IIntegrationBasicInfo,
   ): Promise<IIntegrationDocument>;
 
-  getWidgetIntegration(
-    brandCode: string,
-    kind: string,
-    brandObject?: boolean,
-  ): any;
   increaseViewCount(
     formId: string,
     get?: boolean,
@@ -477,18 +472,6 @@ export const loadClass = (models: IModels, subdomain: string) => {
       await models.Integrations.updateOne({ _id }, { $set: doc });
 
       return models.Integrations.findOne({ _id });
-    }
-
-    public static async getWidgetIntegration(
-      brandCode: string,
-      kind: string,
-      brandObject = false,
-    ) {
-      const integration = await models.Integrations.getIntegration({
-        kind,
-      });
-
-      return integration;
     }
 
     public static async increaseViewCount(formId: string, get = false) {

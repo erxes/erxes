@@ -8,6 +8,7 @@ import {
   TAutomationProducersInput,
 } from 'erxes-api-shared/core-modules';
 import { IModels } from '~/connectionResolvers';
+import { prepareTicketPropertyWrite } from '~/modules/ticket/meta/automations/ticketPropertyWrites';
 import { createTicketAction } from '~/modules/ticket/meta/automations/actions/createTicketAction';
 
 export const ticketAutomationProducers = {
@@ -47,6 +48,7 @@ export const ticketAutomationProducers = {
       targetType,
       relation: setPropertyTarget?.relation,
       targetPath: setPropertyTarget?.targetPath,
+      targetActionId: action.targetActionId,
     });
 
     return await setProperty({
@@ -59,8 +61,16 @@ export const ticketAutomationProducers = {
       selector,
       fetchItems: async (itemSelector) =>
         await models.Ticket.find(itemSelector).lean(),
-      update: async ({ selector: itemSelector, modifier }) =>
-        await models.Ticket.updateMany(itemSelector, modifier),
+      update: async ({ selector: itemSelector, modifier, item }) =>
+        await models.Ticket.updateMany(
+          itemSelector,
+          await prepareTicketPropertyWrite({
+            models,
+            modifier,
+            item,
+            target: (execution.target || {}) as Record<string, unknown>,
+          }),
+        ),
       targetType,
     });
   },

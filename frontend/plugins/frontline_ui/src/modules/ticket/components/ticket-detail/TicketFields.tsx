@@ -13,8 +13,9 @@ import { SelectStatusTicket } from '@/ticket/components/ticket-selects/SelectSta
 import { SelectTagsTicket } from '@/ticket/components/ticket-selects/SelectTagsTicket';
 import { useTicketPermissions } from '@/ticket/hooks/useTicketPermissions';
 import { useUpdateTicket } from '@/ticket/hooks/useUpdateTicket';
-import { ITicket } from '@/ticket/types';
-import { IAttachment } from '@/ticket/types/attachments';
+import type { TicketFieldsProps } from '@/ticket/types/ticketDetail';
+import { toTicketAttachments } from '@/ticket/utils/ticketAttachments';
+import { compactList } from '@/shared/utils/cursorList';
 import { Block } from '@blocknote/core';
 import {
   BlockEditor,
@@ -26,8 +27,8 @@ import {
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDebounce } from 'use-debounce';
-import { AttachmentProvider } from '../attachments/AttachmentContext';
-import AttachmentUploader from '../attachments/AttachmentUploader';
+import { AttachmentProvider } from '@/ticket/components/attachments/AttachmentContext';
+import AttachmentUploader from '@/ticket/components/attachments/AttachmentUploader';
 
 const LockedField = ({
   message,
@@ -45,7 +46,7 @@ const LockedField = ({
   </Tooltip>
 );
 
-export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
+export const TicketFields = ({ ticket, titleAction }: TicketFieldsProps) => {
   const { t } = useTranslation('frontline');
   const {
     _id: ticketId,
@@ -61,9 +62,13 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
     departmentId,
     tagIds,
     attachments,
+    startDate,
+    description,
   } = ticket || {};
-  const startDate = (ticket as any)?.startDate;
-  const description = (ticket as any)?.description;
+  const ticketAttachments = React.useMemo(
+    () => toTicketAttachments(attachments),
+    [attachments],
+  );
   const parseDescription = (desc: string | undefined): Block[] | undefined => {
     if (!desc) return undefined;
     try {
@@ -112,7 +117,7 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
     return undefined;
   };
 
-  const parsedDescription = parseDescription(description);
+  const parsedDescription = parseDescription(description ?? undefined);
   const initialDescriptionContent = parsedDescription;
 
   const [descriptionContent, setDescriptionContent] = useState<
@@ -124,8 +129,10 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
     initialContent: descriptionContent,
     placeholder: t('description-ellipsis', 'Description...'),
   });
-  const { pipeline } = useGetPipeline(pipelineId);
-  const { status: currentStatus } = useGetTicketStatusById(statusId);
+  const { pipeline } = useGetPipeline(pipelineId ?? undefined);
+  const { status: currentStatus } = useGetTicketStatusById(
+    statusId ?? undefined,
+  );
   const { canEditTicket, canMoveTicket } = useTicketPermissions({
     pipeline,
     status: currentStatus
@@ -140,7 +147,7 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
   });
 
   const { updateTicket } = useUpdateTicket();
-  const [name, setName] = useState(_name);
+  const [name, setName] = useState(_name ?? '');
 
   const handleDescriptionChange = async () => {
     const content = await editor?.document;
@@ -168,7 +175,7 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
     if (!ticketId) return;
     if (!debouncedDescriptionContent) return;
     if (debouncedDescriptionContent === loadedDescriptionRef.current) return;
-    const currentParsed = parseDescription(description);
+    const currentParsed = parseDescription(description ?? undefined);
     if (
       JSON.stringify(debouncedDescriptionContent) ===
       JSON.stringify(currentParsed)
@@ -187,16 +194,21 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
   return (
     <AttachmentProvider
       ticketId={ticketId}
-      initialAttachments={attachments || ([] as IAttachment[])}
+      initialAttachments={ticketAttachments}
     >
       <div className="flex flex-col gap-3 h-full px-5 py-8">
-        <Input
-          className="shadow-none focus-visible:shadow-none h-8 text-xl p-0"
-          placeholder={t('ticket-name', 'Ticket Name')}
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          disabled={!canEditTicket}
-        />{' '}
+        <div className="flex items-start justify-between gap-4">
+          <div className="min-w-0 flex-1">
+            <Input
+              className="shadow-none focus-visible:shadow-none h-8 text-xl p-0"
+              placeholder={t('ticket-name', 'Ticket Name')}
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              disabled={!canEditTicket}
+            />
+          </div>
+          {titleAction}
+        </div>
         <div className="gap-2 flex flex-wrap w-full items-center">
           <LockedField
             message={t(
@@ -205,7 +217,7 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
             )}
           >
             <SelectChannel
-              value={channelId}
+              value={channelId ?? ''}
               variant="detail"
               label={t('channel', 'Channel')}
               disabled
@@ -218,9 +230,9 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
             )}
           >
             <SelectPipeline
-              value={pipelineId}
+              value={pipelineId ?? ''}
               variant="detail"
-              channelId={channelId}
+              channelId={channelId ?? undefined}
               label={t('pipeline', 'Pipeline')}
               disabled
             />
@@ -241,29 +253,29 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
           />
           <SelectStatusTicket
             variant="detail"
-            value={statusId}
+            value={statusId ?? ''}
             id={ticketId}
-            pipelineId={pipelineId}
+            pipelineId={pipelineId ?? ''}
             label={t('status', 'Status')}
             disabled={!canMoveTicket}
           />
           <SelectPriorityTicket
             id={ticketId}
-            value={priority}
+            value={priority ?? undefined}
             variant="detail"
             label={t('priority', 'Priority')}
             disabled={!canEditTicket}
           />
           <SelectAssigneeTicket
             variant="detail"
-            value={assigneeId}
+            value={assigneeId ?? ''}
             id={ticketId}
             label={t('assignee', 'Assignee')}
             disabled={!canEditTicket}
           />
           <SelectAssignedMembersTicket
             variant="detail"
-            value={assignedMembers}
+            value={assignedMembers ? compactList(assignedMembers) : undefined}
             id={ticketId}
             label={t('members-title', 'Members')}
             disabled={!canEditTicket}
@@ -286,16 +298,13 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
           />
           <SelectTagsTicket
             id={ticketId}
-            value={tagIds || []}
+            value={compactList(tagIds)}
             variant="detail"
             label={t('tags', 'Tags')}
             disabled={!canEditTicket}
           />
         </div>
-        <AttachmentUploader
-          id={ticketId}
-          attachments={ticket?.attachments || []}
-        />
+        <AttachmentUploader id={ticketId} attachments={ticketAttachments} />
         <Separator className="mt-4" />
         <div className="min-h-56 overflow-y-auto">
           <BlockEditor

@@ -1,4 +1,5 @@
 import type { Block } from '@blocknote/core';
+import { readFacebookDelivery } from '@/integrations/facebook/types/FacebookReplyDelivery';
 import { getInstagramSendError } from '@/integrations/instagram/utils/instagramSendError';
 import {
   getBlockAttachments,
@@ -119,7 +120,7 @@ export const useComposerSend = ({
         },
         onCompleted: (result) => {
           const delivery = isFacebook
-            ? result.conversationMessageAdd.extraData?.facebookDelivery
+            ? readFacebookDelivery(result.conversationMessageAdd?.extraData)
             : undefined;
           if (delivery?.status === 'partial') {
             const remainingAttachments = allAttachments.filter(

@@ -1,5 +1,6 @@
 import { parseTemplateToBlocks } from '@/activity/utils/noteBlocks';
 import type { INoteTemplateSuggestion } from '@/activity/types';
+import { toResponseTemplateText } from '@/responseTemplate/utils/toResponseTemplateText';
 import { getPreviewText } from '@/inbox/types/inbox';
 import { useGetResponses } from '@/responseTemplate/hooks/useGetResponses';
 import { toast, useBlockEditor } from 'erxes-ui';
@@ -34,12 +35,10 @@ export const useNoteTemplateSuggestions = ({
   const suggestions = useMemo<INoteTemplateSuggestion[]>(
     () =>
       debouncedSearchValue && enabled
-        ? (responses || [])
-            .slice(0, MAX_SUGGESTIONS)
-            .map((response: INoteTemplateSuggestion) => ({
-              ...response,
-              preview: getPreviewText(response.content || ''),
-            }))
+        ? (responses || []).slice(0, MAX_SUGGESTIONS).map((response) => ({
+            ...toResponseTemplateText(response),
+            preview: getPreviewText(response.content || ''),
+          }))
         : [],
     [responses, debouncedSearchValue, enabled],
   );

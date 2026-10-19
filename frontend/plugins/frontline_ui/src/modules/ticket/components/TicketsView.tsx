@@ -84,11 +84,9 @@ export const TicketsViewControl = () => {
 export const TicketsView = () => {
   const view = useAtomValue(ticketViewAtom);
   const [pipelineId] = useQueryState<string | null>('pipelineId');
-  const [channelId] = useQueryState<string | null>('channelId');
   const { statuses, loading, error } = useGetAccessibleTicketStatuses({
     variables: {
       pipelineId: pipelineId || '',
-      channelId: channelId || '',
     },
     skip: !pipelineId,
   });

@@ -1,6 +1,7 @@
 import { PipelinePropertySelector } from '@/pipelines/components/PipelinePropertySelector';
 import { useGetPipeline } from '@/pipelines/hooks/useGetPipeline';
 import { useUpdatePipeline } from '@/pipelines/hooks/useUpdatePipeline';
+import { compactList } from '@/shared/utils/cursorList';
 import { Button, InfoCard, Spinner } from 'erxes-ui';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -14,7 +15,7 @@ export const PipelinePropertiesPage = () => {
   const [propertyIds, setPropertyIds] = useState<string[]>([]);
 
   useEffect(() => {
-    setPropertyIds(pipeline?.propertyIds || []);
+    setPropertyIds(compactList(pipeline?.propertyIds));
   }, [pipeline?.propertyIds]);
 
   return (
@@ -41,10 +42,11 @@ export const PipelinePropertiesPage = () => {
         <Button
           disabled={!pipeline || updating}
           onClick={() =>
+            pipeline &&
             updatePipeline({
               variables: {
-                _id: pipelineId,
-                name: pipeline?.name,
+                _id: pipeline._id,
+                name: pipeline.name,
                 propertyIds,
               },
             })

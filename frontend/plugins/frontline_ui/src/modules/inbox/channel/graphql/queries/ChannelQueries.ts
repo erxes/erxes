@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const CHANNEL_DETAIL_QUERY = gql`
+export const CHANNEL_DETAIL_QUERY = gql(`
   query ChannelInline($id: String!) {
     getChannel(_id: $id) {
       _id
@@ -8,4 +8,4 @@ export const CHANNEL_DETAIL_QUERY = gql`
       icon
     }
   }
-`;
+`);

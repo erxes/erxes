@@ -1,15 +1,21 @@
 import { useQuery } from '@apollo/client';
+import { isDefined } from 'erxes-ui';
+import { useMemo } from 'react';
 import { TOPICS_PER_PAGE } from '@/knowledgebase/constants';
 import { TOPICS, TOPIC_OPTIONS } from '@/knowledgebase/graphql/queries';
-import { ITopic, ITopicListResponse } from '@/knowledgebase/types';
 
 export const useTopics = () => {
-  const { data, loading, error } = useQuery<ITopicListResponse>(TOPICS, {
+  const { data, loading, error } = useQuery(TOPICS, {
     variables: { page: 1, perPage: TOPICS_PER_PAGE },
   });
 
+  const topics = useMemo(
+    () => data?.knowledgeBaseTopics?.filter(isDefined),
+    [data?.knowledgeBaseTopics],
+  );
+
   return {
-    topics: data?.knowledgeBaseTopics,
+    topics,
     totalCount: data?.knowledgeBaseTopicsTotalCount,
     loading,
     error,
@@ -17,11 +23,14 @@ export const useTopics = () => {
 };
 
 export const useTopicOptions = () => {
-  const { data, loading, error } = useQuery<{
-    knowledgeBaseTopics: Pick<ITopic, '_id' | 'title' | 'code'>[];
-  }>(TOPIC_OPTIONS, {
+  const { data, loading, error } = useQuery(TOPIC_OPTIONS, {
     variables: { perPage: TOPICS_PER_PAGE },
   });
 
-  return { topics: data?.knowledgeBaseTopics ?? [], loading, error };
+  const topics = useMemo(
+    () => data?.knowledgeBaseTopics?.filter(isDefined) ?? [],
+    [data?.knowledgeBaseTopics],
+  );
+
+  return { topics, loading, error };
 };

@@ -53,7 +53,7 @@ export const SalesIndexPage = () => {
             <CommonDealSearch />
             <Button variant="ghost" asChild>
               <Link
-                to={`/settings/sales/deals?${settingsSearchParams.toString()}`}
+                to={`/sales/settings/deals?${settingsSearchParams.toString()}`}
               >
                 <IconSettings />
                 {t('go-to-settings', 'Go to Settings')}

@@ -1,94 +1,52 @@
-export interface KpiScorecard {
-  callstotal: number;
+import type {
+  CallKpiScorecardQuery,
+  CallVolumeSeriesQuery,
+  CallCarrierBreakdownQuery,
+  CallHeatmapQuery,
+  CallHeatmapDailyQuery,
+  CallTopNumbersQuery,
+  GetCallbackStatsQuery,
+  CallReportsDashboardQuery,
+  CallHistoryListQuery,
+  CallSlaReportQuery,
+} from '~/gql/graphql';
+export type KpiScorecard = NonNullable<
+  CallKpiScorecardQuery['callKpiScorecard']
+>;
 
-  abandonment: number | null;
-  averageAnsweredTime: number | null;
+export type VolumePoint = NonNullable<
+  NonNullable<CallVolumeSeriesQuery['callVolumeSeries']>[number]
+>;
 
-  serviceLevel: number | null;
+export type CarrierSlice = NonNullable<
+  NonNullable<CallCarrierBreakdownQuery['callCarrierBreakdown']>[number]
+>;
 
-  averageSpeed: number | null;
-  firstCallResolution: number | null;
-  occupancy: number | null;
-}
-
-export interface VolumePoint {
-  day: string;
-  incoming: number;
-  outgoing: number;
-  answered: number;
-  noAnswer: number;
-  abandoned: number;
-}
-
-export interface CarrierSlice {
-  name: string;
-  value: number;
-}
-
-export interface HeatCell {
-  dow: number;
-  hour: number;
-  total: number;
-  answered: number;
-  noAnswer: number;
-  answerRate: number;
-}
+export type HeatCell = NonNullable<
+  NonNullable<CallHeatmapQuery['callHeatmap']>[number]
+>;
 
 export type HeatMetric = 'total' | 'answered' | 'noAnswer';
 
-export interface DayHourCell {
-  day: string;
-  hour: number;
-  total: number;
-  answered: number;
-  noAnswer: number;
-}
+export type DayHourCell = NonNullable<
+  NonNullable<CallHeatmapDailyQuery['callHeatmapDaily']>[number]
+>;
 
-export interface TopNumber {
-  number: string;
-  carrier: string;
-  attempts: number;
-  answered: number;
-  missed: number;
-  duration: number;
-}
+export type TopNumber = NonNullable<
+  NonNullable<CallTopNumbersQuery['callTopNumbers']>[number]
+>;
 
-export interface CallbackStat {
-  queue: string;
-  totalMissedCalls: number;
-  callbackAttempts: number;
-  successfulCallbacks: number;
-  callbackRate: number;
-  pendingCallbacks: number;
-  averageCallbackTime: number;
-}
+export type CallbackStat = NonNullable<
+  NonNullable<GetCallbackStatsQuery['getCallbackStats']>[number]
+>;
 
-export interface QueueStat {
-  queue: string;
-  totalCalls: number;
-  answeredCalls: number;
-  answeredRate: number;
-  abandonedCalls: number;
-  abandonedRate: number;
-  averageWaitTime: number;
-  averageTalkTime: number;
-}
+export type QueueStat = NonNullable<
+  NonNullable<CallReportsDashboardQuery['callGetQueueStats']>[number]
+>;
 
-export interface AgentStat {
-  agent: string;
-  agentName?: string;
-  totalCalls: number;
-  answeredCalls: number;
-  answeredRate: number;
-  missedCalls: number;
-  missedRate: number;
-  totalTalkTime: number;
-  averageTalkTime: number;
-  totalWaitTime: number;
-  averageWaitTime: number;
-  shortestCall: number;
-  longestCall: number;
-}
+export type AgentStat = NonNullable<
+  NonNullable<CallReportsDashboardQuery['callGetAgentStats']>[number]
+>;
 
 export interface Integration {
   inboxId: string;
@@ -117,110 +75,26 @@ export interface CallFilters {
   dateRangeLabel: string;
 }
 
-export interface CallHistoryEntry {
-  uniqueid: string;
-  startedAt: string | null;
-  endedAt: string | null;
-  customerPhone: string | null;
+export type CallHistoryEntry = CallHistoryPage['entries'][number];
 
-  customerName: string | null;
-  customerId: string | null;
-  carrier: string;
-  direction: 'incoming' | 'outgoing';
+export type CallHistoryAgent = CallHistoryPage['agents'][number];
 
-  outcome: string;
-  isAnswered: boolean;
+export type CallHistoryPage = NonNullable<
+  CallHistoryListQuery['callHistoryList']
+>;
 
-  waitTime: number | null;
-  talkTime: number;
-  agentExtension: string | null;
-  agentName: string | null;
-  rungCount: number;
-  queue: string | null;
-  recordUrl: string | null;
-  conversationId: string | null;
-  repeatCount: number;
-  repeatAnswered: number;
-}
+export type SlaTotals = SlaReport['summary'];
 
-export interface CallHistoryAgent {
-  extension: string;
-  name: string | null;
-}
+export type SlaQueue = SlaReport['queues'][number];
 
-export interface CallHistoryPage {
-  entries: CallHistoryEntry[];
-  totalCount: number;
-  callerCount: number;
+export type SlaPoint = SlaReport['series'][number];
 
-  agents: CallHistoryAgent[];
-}
+export type SlaBreach = SlaReport['breaches'][number];
 
-export interface SlaTotals {
-  totalCalls: number;
-  offeredCalls: number;
-  answeredCalls: number;
-  abandonedCalls: number;
-  shortAbandonedCalls: number;
-  calledBackCalls: number;
-  pendingCallbacks: number;
-  breachedCalls: number;
-  serviceLevel: number | null;
-}
+export type MissedReason = MissedReasonCount['reason'];
 
-export interface SlaQueue extends SlaTotals {
-  queue: string;
-}
+export type MissedReasonCount = SlaReport['missedReasons'][number];
 
-export interface SlaPoint {
-  day: string;
-  offeredCalls: number;
-  answeredCalls: number;
-  breachedCalls: number;
-  serviceLevel: number | null;
-}
+export type MissedHourCell = SlaReport['missedByHour'][number];
 
-export interface SlaBreach {
-  uniqueid: string;
-  startedAt: string | null;
-  customerPhone: string | null;
-  queue: string | null;
-  agent: string | null;
-  agentName: string | null;
-  waitTime: number;
-  isPendingCallback: boolean;
-}
-
-export type MissedReason =
-  | 'SHORT_HANGUP'
-  | 'VOICEMAIL'
-  | 'BUSY'
-  | 'FAILED'
-  | 'IVR'
-  | 'NOT_PICKED_UP'
-  | 'QUEUE_ABANDON';
-
-export interface MissedReasonCount {
-  reason: MissedReason;
-  count: number;
-  calledBack: number;
-}
-
-export interface MissedHourCell {
-  hour: number;
-  reason: MissedReason;
-  count: number;
-}
-
-export interface SlaReport {
-  shortAbandonSeconds: number;
-  callbackWindowMinutes: number;
-  agents: CallHistoryAgent[];
-  missedReasons: MissedReasonCount[];
-  missedByHour: MissedHourCell[];
-  summary: SlaTotals;
-  series: SlaPoint[];
-  queues: SlaQueue[];
-  breachCount: number;
-  breaches: SlaBreach[];
-}
+export type SlaReport = NonNullable<CallSlaReportQuery['callSlaReport']>;

@@ -1,15 +1,20 @@
+import { IDealDetail } from '@/deals/types/deals';
+import { isDefined, Separator } from 'erxes-ui';
+import { useMemo } from 'react';
 import { AttachmentProvider } from './attachments/AttachmentContext';
-import { Separator } from 'erxes-ui';
-import { IAttachment } from '@/deals/types/attachments';
-import { IDeal } from '@/deals/types/deals';
 import { SalesNoteAndComment } from './NoteAndComment';
 import { SalesFormFields } from './SalesFormFields';
 
-export const Overview = ({ deal }: { deal: IDeal }) => {
+export const Overview = ({ deal }: { deal: IDealDetail }) => {
+  const initialAttachments = useMemo(
+    () => deal.attachments?.filter(isDefined) ?? [],
+    [deal.attachments],
+  );
+
   return (
     <AttachmentProvider
       dealId={deal._id}
-      initialAttachments={deal.attachments || ([] as IAttachment[])}
+      initialAttachments={initialAttachments}
     >
       <div className="w-full xl:max-w-6xl mx-auto p-6 flex flex-col gap-3">
         <SalesFormFields deal={deal} />
