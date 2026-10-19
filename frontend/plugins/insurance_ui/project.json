@@ -6,6 +6,7 @@
   "tags": [],
   "targets": {
     "build": {
+      "dependsOn": ["^build", "codegen"],
       "executor": "@nx/rspack:rspack",
       "outputs": ["{options.outputPath}"],
       "defaultConfiguration": "production",
@@ -30,6 +31,7 @@
       }
     },
     "serve": {
+      "dependsOn": ["codegen"],
       "executor": "@nx/rspack:module-federation-dev-server",
       "options": {
         "buildTarget": "insurance_ui:build:development",
@@ -55,6 +57,36 @@
         "production": {
           "serveTarget": "insurance_ui:serve:production"
         }
+      }
+    },
+    "codegen": {
+      "executor": "nx:run-commands",
+      "cache": true,
+      "dependsOn": [
+        {
+          "projects": ["insurance_api"],
+          "target": "schema:print"
+        }
+      ],
+      "inputs": [
+        "{projectRoot}/codegen.ts",
+        "{projectRoot}/src/**/*.{ts,tsx}",
+        "!{projectRoot}/src/gql/**",
+        {
+          "dependentTasksOutputFiles": "**/*.graphql"
+        }
+      ],
+      "outputs": ["{projectRoot}/src/gql"],
+      "options": {
+        "cwd": "frontend/plugins/insurance_ui",
+        "command": "graphql-codegen --config codegen.ts"
+      }
+    },
+    "codegen:watch": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "frontend/plugins/insurance_ui",
+        "command": "graphql-codegen --config codegen.ts --watch"
       }
     }
   }

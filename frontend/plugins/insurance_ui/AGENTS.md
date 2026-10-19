@@ -24,19 +24,21 @@
 - Registers insurance navigation and routes for types, products, risks, vendors, vendor users, customers, regions, and contracts.
 - Exposes insurance config, main routes, settings routes, and widgets through Module Federation.
 - Development Rspack serving ignores generated dependency/cache/output folders to keep local file watchers bounded.
+- Codegen validates all local GraphQL documents against the printed Insurance subgraph and generates client types before builds and serves.
 
 ## Architecture
 
-| Area              | Path                                             | Responsibility                                      |
-| ----------------- | ------------------------------------------------ | --------------------------------------------------- |
-| App sidebar | `frontend/plugins/insurance_ui/src/Sidebar.tsx` | `InsuranceSidebar`: the plugin's whole app sidebar, rendered by the `./insurance` entry through `AppLayout` |
-| Runtime           | `frontend/plugins/insurance_ui/src/main.ts`      | Starts the insurance UI remote.                     |
-| Federation config | `frontend/plugins/insurance_ui/module-federation.config.ts` | Exposes config, insurance routes, settings, and widgets. |
-| Dev server config | `frontend/plugins/insurance_ui/rspack.config.ts` | Module Federation development serving and watch ignore rules. |
-| Plugin config     | `frontend/plugins/insurance_ui/src/config.tsx`   | Registers navigation, modules, and search providers. |
-| Insurance module  | `frontend/plugins/insurance_ui/src/modules/insurance` | Owns insurance route composition and feature UI.     |
-| Pages             | `frontend/plugins/insurance_ui/src/pages/insurance` | Provides route-level insurance pages.               |
-| Widgets           | `frontend/plugins/insurance_ui/src/widgets`      | Provides plugin widget exports.                     |
+| Area              | Path                                                        | Responsibility                                                                                              |
+| ----------------- | ----------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| App sidebar       | `frontend/plugins/insurance_ui/src/Sidebar.tsx`             | `InsuranceSidebar`: the plugin's whole app sidebar, rendered by the `./insurance` entry through `AppLayout` |
+| Runtime           | `frontend/plugins/insurance_ui/src/main.ts`                 | Starts the insurance UI remote.                                                                             |
+| Federation config | `frontend/plugins/insurance_ui/module-federation.config.ts` | Exposes config, insurance routes, settings, and widgets.                                                    |
+| Dev server config | `frontend/plugins/insurance_ui/rspack.config.ts`            | Module Federation development serving and watch ignore rules.                                               |
+| Plugin config     | `frontend/plugins/insurance_ui/src/config.tsx`              | Registers navigation, modules, and search providers.                                                        |
+| Insurance module  | `frontend/plugins/insurance_ui/src/modules/insurance`       | Owns insurance route composition and feature UI.                                                            |
+| Pages             | `frontend/plugins/insurance_ui/src/pages/insurance`         | Provides route-level insurance pages.                                                                       |
+| Widgets           | `frontend/plugins/insurance_ui/src/widgets`                 | Provides plugin widget exports.                                                                             |
+| Codegen           | `frontend/plugins/insurance_ui/codegen.ts`                  | Generates client documents/types in ignored `src/gql/` from the Insurance API schema                        |
 
 ## Contracts
 
@@ -51,6 +53,7 @@
 - Insurance API contracts through the plugin's local GraphQL documents and hooks.
 - GraphQL query and mutation aggregates are named exports from `src/modules/insurance/graphql`; individual document exports remain available for direct imports.
 - React Router host mounting contracts from core UI Module Federation.
+- `insurance_api:schema:print` supplies `backend/plugins/insurance_api/generated/schema.graphql`; no running backend is needed for generation.
 
 ## Data and State
 
@@ -69,6 +72,8 @@
 - Module Federation exposes, route paths, and named exports must stay aligned.
 - GraphQL documents use static selections without JavaScript interpolation. Operation names start with `Insurance`; update string-based `refetchQueries` whenever an operation is renamed, preserving the backend field names, arguments, and selections.
 - Pricing configuration, vendor pricing overrides, and insured objects are existing JSON API contracts. Preserve their payloads and the form state that edits them when changing response types.
+- `src/gql/` is generated, gitignored, and excluded from lint/document scanning. Do not edit generated files manually; JSON maps to `unknown` and Date outputs to `string`.
+- Keep `codegen` in both build and serve dependencies. `codegen:watch` is a separate long-running target with no dependencies; the shared development launcher discovers both targets when Insurance is enabled.
 - Use `erxes-ui` and `ui-modules`; do not import another plugin's source.
 - Dev watch ignores must not include plugin source directories required for hot reload.
 
@@ -76,5 +81,8 @@
 
 - `pnpm nx lint insurance_ui`
 - `pnpm nx build insurance_ui`
+- `pnpm nx run insurance_ui:codegen --skip-nx-cache`
+- `pnpm nx run insurance_ui:codegen:watch`
+- `pnpm nx test insurance_ui --passWithNoTests` (Jest is configured; there are currently no test files).
 - `pnpm exec tsc -p frontend/plugins/insurance_ui/tsconfig.app.json --noEmit` (distinguish plugin diagnostics from diagnostics in shared libraries).
 - Smoke scenario: open the insurance navigation and verify insurance type, product, risk, vendor, customer, region, and contract routes load through the remote.
