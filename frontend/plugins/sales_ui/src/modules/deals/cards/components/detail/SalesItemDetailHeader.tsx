@@ -108,7 +108,7 @@ export const SalesItemDetailHeader = ({ deal }: { deal: IDealDetail }) => {
         <MoveDealDropdown deal={deal} />
         <DealsActions deals={[deal]} variant="menu" />
       </div>
-      <div className="w-16 self-stretch shrink-0 border-l bg-sidebar flex items-center justify-center">
+      <div className="w-12 self-stretch shrink-0 border-l bg-sidebar flex items-center justify-center">
         <Sheet.Close className="ml-0" />
       </div>
     </Sheet.Header>

@@ -1,7 +1,7 @@
 import { hasId } from '@/pos/utils/posJson';
-import { ScrollArea, Spinner } from 'erxes-ui';
+import { ScrollArea, SideMenu, Spinner } from 'erxes-ui';
 
-import { IconReceipt } from '@tabler/icons-react';
+import { IconCashRegister, IconReceipt } from '@tabler/icons-react';
 import { PosOrderRow } from './PosOrderRow';
 import { POS_ORDERS_BY_DEAL } from '../graphql/posOrdersByDeal';
 import { useQuery } from '@apollo/client';
@@ -38,15 +38,21 @@ export const PosOrders = ({ contentId }: { contentId: string }) => {
   }
 
   return (
-    <ScrollArea
-      className="flex-auto"
-      viewportClassName="[&>div]:block! [&>div]:min-w-0"
-    >
-      <div className="flex flex-col gap-3 p-4">
-        {orders.map((order) => (
-          <PosOrderRow key={order._id} order={order} />
-        ))}
-      </div>
-    </ScrollArea>
+    <>
+      <SideMenu.Header
+        Icon={IconCashRegister}
+        label={t('pos-orders', 'POS orders')}
+      />
+      <ScrollArea
+        className="flex-auto"
+        viewportClassName="[&>div]:block! [&>div]:min-w-0"
+      >
+        <div className="flex flex-col gap-3 p-4">
+          {orders.map((order) => (
+            <PosOrderRow key={order._id} order={order} />
+          ))}
+        </div>
+      </ScrollArea>
+    </>
   );
 };

@@ -88,7 +88,7 @@ export const CustomerWidget = ({
   return (
     <SideMenu.Content
       value="customer"
-      className="bg-sidebar data-[state=active]:w-full"
+      className="bg-sidebar data-[state=active]:w-full data-[state=active]:border-l-0"
     >
       <CustomerWidgetHeader
         customerIds={customerIds}

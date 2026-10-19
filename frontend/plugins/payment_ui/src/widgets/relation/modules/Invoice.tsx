@@ -1,5 +1,5 @@
 import { IconInvoice } from '@tabler/icons-react';
-import { ScrollArea, Separator, Spinner } from 'erxes-ui';
+import { ScrollArea, SideMenu, Spinner } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
 import { IInvoice } from '~/modules/payment/types/Payment';
@@ -38,10 +38,7 @@ export const Invoice = ({
 
   return (
     <>
-      <div className="h-11 px-4 flex items-center gap-2 flex-none bg-background justify-between">
-        <span className="font-medium text-primary">{t('invoices')}</span>
-      </div>
-      <Separator />
+      <SideMenu.Header Icon={IconInvoice} label={t('invoices')} />
       <ScrollArea
         className="flex-auto"
         viewportClassName="[&>div]:block! [&>div]:min-w-0"

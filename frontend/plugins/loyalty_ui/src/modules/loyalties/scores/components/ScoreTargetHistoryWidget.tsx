@@ -1,5 +1,5 @@
-import { IconRefresh } from '@tabler/icons-react';
-import { Button, cn, ScrollArea, Separator, Spinner } from 'erxes-ui';
+import { IconHistory, IconRefresh } from '@tabler/icons-react';
+import { Button, cn, ScrollArea, SideMenu, Spinner } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { SafeRelativeDate } from '../../components/SafeRelativeDate';
 import { useTargetScoreLogs } from '../hooks/useTargetScoreLogs';
@@ -10,8 +10,6 @@ import { getOwnerName } from './ScoreColumns';
 const formatChange = (change: number) =>
   `${change > 0 ? '+' : ''}${change.toLocaleString()}`;
 
-// What a record (a deal, an order) earned, spent and gave back, the tiers it
-// moved, and for whom.
 export const ScoreTargetHistoryWidget = ({
   targetId,
 }: {
@@ -20,12 +18,14 @@ export const ScoreTargetHistoryWidget = ({
   const { t } = useTranslation('loyalty');
   const { logs, total, loading, error, refetching, refetch } =
     useTargetScoreLogs(targetId);
-  // Same reason to poll as the points: the record's plugin writes them.
   const tiers = useLoyaltyTierLogs({ targetId, pollInterval: 10_000 });
 
   return (
     <>
-      <div className="h-11 px-4 flex items-center gap-2 flex-none bg-background">
+      <SideMenu.Header Icon={IconHistory} label={t('target-score-history')}>
+        {logs.length > 0 && (
+          <span className="text-sm font-semibold">{formatChange(total)}</span>
+        )}
         <Button
           type="button"
           variant="ghost"
@@ -40,16 +40,7 @@ export const ScoreTargetHistoryWidget = ({
         >
           <IconRefresh className={cn('size-4', refetching && 'animate-spin')} />
         </Button>
-        <span className="font-medium text-primary">
-          {t('target-score-history')}
-        </span>
-        {logs.length > 0 && (
-          <span className="ml-auto text-sm font-semibold">
-            {formatChange(total)}
-          </span>
-        )}
-      </div>
-      <Separator />
+      </SideMenu.Header>
       <ScrollArea
         className="flex-auto"
         viewportClassName="[&>div]:block! [&>div]:min-w-0"

@@ -3,7 +3,7 @@ import { compactList } from '@/operation/utils/cursorList';
 import { IProject } from '@/project/types';
 import { IconClipboard } from '@tabler/icons-react';
 import { useQuery } from '@apollo/client';
-import { ScrollArea, Separator, Spinner } from 'erxes-ui';
+import { ScrollArea, SideMenu, Spinner } from 'erxes-ui';
 import { useCreateMultipleRelations, useRelations } from 'ui-modules';
 import { AddProjectRelation } from './AddProjectRelation';
 import { ProjectWidgetCard } from './ProjectWidgetCard';
@@ -87,11 +87,9 @@ export const Project = ({
 
   return (
     <>
-      <div className="h-11 px-4 flex items-center gap-2 flex-none bg-background justify-between">
-        <span className="font-medium text-primary">{t('projects')}</span>
+      <SideMenu.Header Icon={IconClipboard} label={t('projects')}>
         <AddProjectRelation onSelect={onSelect} />
-      </div>
-      <Separator />
+      </SideMenu.Header>
       <ScrollArea
         className="flex-auto"
         viewportClassName="[&>div]:block! [&>div]:min-w-0"

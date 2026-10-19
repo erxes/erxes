@@ -79,7 +79,7 @@ export const TrackedDataWidgets = ({
   return (
     <SideMenu.Content
       value="trackedData"
-      className="bg-sidebar data-[state=active]:w-full"
+      className="bg-sidebar data-[state=active]:w-full data-[state=active]:border-l-0"
     >
       <SideMenu.Header
         label={t('tracked-data', 'Tracked data')}

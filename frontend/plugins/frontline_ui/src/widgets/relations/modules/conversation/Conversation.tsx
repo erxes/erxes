@@ -1,6 +1,6 @@
 import { useConversations } from '@/inbox/conversations/hooks/useConversations';
-import { IconMessageOff } from '@tabler/icons-react';
-import { Separator } from 'erxes-ui';
+import { IconMail, IconMessageOff } from '@tabler/icons-react';
+import { SideMenu } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { IRelationWidgetProps, useRelations } from 'ui-modules';
 import { ConversationRelationDetails } from './ConversationDetails';
@@ -9,14 +9,10 @@ import { ConversationReportContent } from '@/inbox/conversations/conversation-de
 const ConversationWidgetHeader = () => {
   const { t } = useTranslation('frontline');
   return (
-    <>
-      <div className="h-11 px-4 flex items-center gap-2 flex-none bg-background justify-between">
-        <span className="font-medium text-primary">
-          {t('conversations', 'Conversations')}
-        </span>
-      </div>
-      <Separator />
-    </>
+    <SideMenu.Header
+      Icon={IconMail}
+      label={t('relation.customer-conversations', 'Conversations')}
+    />
   );
 };
 

@@ -1,8 +1,8 @@
 import { useConversationDetail } from '@/inbox/conversations/conversation-detail/hooks/useConversationDetail';
 import { AddTicketSheet } from '@/ticket/components/add-ticket/AddTicketSheet';
 import { ticketCreateDefaultValuesState } from '@/ticket/states/ticketCreateSheetState';
-import { IconTicketOff } from '@tabler/icons-react';
-import { ScrollArea, Separator, useQueryState } from 'erxes-ui';
+import { IconTicket, IconTicketOff } from '@tabler/icons-react';
+import { ScrollArea, SideMenu, useQueryState } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -98,17 +98,13 @@ export const TicketRelationWidget = ({
 
   return (
     <>
-      <div className="h-11 px-4 flex items-center gap-2 flex-none bg-background justify-between">
-        <span className="font-medium text-primary">
-          {t('tickets', 'Tickets')}
-        </span>
+      <SideMenu.Header Icon={IconTicket} label={t('tickets', 'Tickets')}>
         <AddTicketSheet
           onComplete={onComplete}
           variant="secondary"
           isRelation={true}
         />
-      </div>
-      <Separator />
+      </SideMenu.Header>
       <ScrollArea
         className="flex-auto"
         viewportClassName="[&>div]:block! [&>div]:min-w-0"

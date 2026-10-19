@@ -230,13 +230,10 @@ export const ScoreSummaryWidget = ({
 
   return (
     <>
-      <div className="h-11 px-4 flex items-center gap-2 flex-none bg-background">
-        <IconChartHistogram className="size-4 text-muted-foreground" />
-        <span className="font-medium text-primary">{t('score-summary')}</span>
+      <SideMenu.Header Icon={IconChartHistogram} label={t('score-summary')}>
         <Button
           variant="secondary"
           size="sm"
-          className="ml-auto"
           onClick={handleRepair}
           disabled={!ownerId || !ownerType || repairing}
         >
@@ -247,8 +244,7 @@ export const ScoreSummaryWidget = ({
           )}
           {t('repair')}
         </Button>
-      </div>
-      <Separator />
+      </SideMenu.Header>
       <ScrollArea
         className="flex-auto"
         viewportClassName="[&>div]:block! [&>div]:min-w-0"

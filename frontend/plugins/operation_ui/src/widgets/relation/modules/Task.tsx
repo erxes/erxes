@@ -1,6 +1,6 @@
 import { AddTriageSheet } from '@/triage/components/add-triage/AddTriageSheet';
-import { IconCaretLeftRight } from '@tabler/icons-react';
-import { ScrollArea, Separator, Spinner } from 'erxes-ui';
+import { IconCaretLeftRight, IconChecklist } from '@tabler/icons-react';
+import { ScrollArea, SideMenu, Spinner } from 'erxes-ui';
 import { useCreateMultipleRelations, useRelations } from 'ui-modules';
 import { TaskWidget } from './TaskWidget';
 import { useTranslation } from 'react-i18next';
@@ -73,13 +73,9 @@ export const Task = ({
 
   return (
     <>
-      <div className="h-11 px-4 flex items-center gap-2 flex-none bg-background justify-between">
-        <span className="font-medium text-primary">
-          {t('tasks-and-triages')}
-        </span>
+      <SideMenu.Header Icon={IconChecklist} label={t('tasks-and-triages')}>
         <AddTriageSheet onComplete={onComplete} variant="secondary" />
-      </div>
-      <Separator />
+      </SideMenu.Header>
       <ScrollArea
         className="flex-auto"
         viewportClassName="[&>div]:block! [&>div]:min-w-0"

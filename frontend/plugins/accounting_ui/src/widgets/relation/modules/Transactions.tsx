@@ -1,13 +1,13 @@
 import { toGraphqlView } from '@/utils/graphql';
 import { gql } from '~/gql';
 import { useQuery } from '@apollo/client';
-import { IconReceipt } from '@tabler/icons-react';
+import { IconArrowsExchange, IconReceipt } from '@tabler/icons-react';
 import {
   CurrencyCode,
   CurrencyFormatedDisplay,
-  FocusSheet,
   ScrollArea,
   Separator,
+  SideMenu,
   Spinner,
 } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
@@ -124,8 +124,8 @@ export const Transactions = ({
 
   return (
     <>
-      <FocusSheet.SideContentHeader
-        Icon={IconReceipt}
+      <SideMenu.Header
+        Icon={IconArrowsExchange}
         label={t('transactions-count', { count: totalCount })}
       />
       <ScrollArea

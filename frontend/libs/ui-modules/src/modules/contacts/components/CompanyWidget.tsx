@@ -136,7 +136,7 @@ export const CompanyWidget = ({
   return (
     <SideMenu.Content
       value="company"
-      className="bg-sidebar data-[state=active]:w-full"
+      className="bg-sidebar data-[state=active]:w-full data-[state=active]:border-l-0"
     >
       <CompanyWidgetHeader
         companyIds={companyIds}

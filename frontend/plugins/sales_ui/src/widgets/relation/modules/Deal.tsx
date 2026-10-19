@@ -1,5 +1,5 @@
-import { Button, ScrollArea, Separator, Spinner } from 'erxes-ui';
-import { IconCaretLeftRight, IconPlus } from '@tabler/icons-react';
+import { Button, ScrollArea, SideMenu, Spinner } from 'erxes-ui';
+import { IconCaretLeftRight, IconPlus, IconSandbox } from '@tabler/icons-react';
 import { useCreateMultipleRelations, useRelations } from 'ui-modules';
 
 import { AddDealSheet } from '@/deals/components/AddDealSheet';
@@ -87,8 +87,7 @@ export const Deal = ({
 
   return (
     <>
-      <div className="h-11 px-4 flex items-center gap-2 flex-none bg-background justify-between">
-        <span className="font-medium text-primary">{t('deals')}</span>
+      <SideMenu.Header Icon={IconSandbox} label={t('deals')}>
         <div className="flex gap-2 items-center">
           <Button variant="secondary" onClick={handleDealOpen}>
             <IconPlus />
@@ -96,8 +95,7 @@ export const Deal = ({
           <AddDealSheet onComplete={onComplete} showWorkflowFields={true} />
           <ChooseDealSheet onComplete={onComplete} />
         </div>
-      </div>
-      <Separator />
+      </SideMenu.Header>
       <ScrollArea
         className="flex-auto"
         viewportClassName="[&>div]:block! [&>div]:min-w-0"

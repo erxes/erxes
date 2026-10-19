@@ -72,7 +72,7 @@ export const TicketDetailSheet = ({
           {hideRelationWidgetSideTabs ? (
             <Sheet.Close className="ml-0" />
           ) : (
-            <div className="w-16 self-stretch shrink-0 border-l bg-sidebar flex items-center justify-center">
+            <div className="w-12 self-stretch shrink-0 border-l bg-sidebar flex items-center justify-center">
               <Sheet.Close className="ml-0" />
             </div>
           )}
