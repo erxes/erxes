@@ -25,6 +25,7 @@ on:
     paths:
       - 'backend/erxes-api-shared/**'
       - 'frontend/libs/erxes-ui/**'
+      - 'frontend/core-ui/src/styles.css'
       - 'frontend/libs/ui-modules/**'
       - '.github/workflows/publish-shared-libs.yml'
   workflow_dispatch:
@@ -146,11 +147,14 @@ jobs:
           pnpm nx build erxes-api-shared
           test -f backend/erxes-api-shared/dist/erxes-api-shared.cjs.js
 
+          pnpm nx build erxes-ui
+          pnpm --filter erxes-ui test:package
+
           # Type errors are tolerated (consumers use skipLibCheck), but a
           # declaration-emit error (TS4xxx/TS9xxx) drops whole files from
           # dist/ and silently removes exports, so it fails the publish.
-          # erxes-ui first: ui-modules resolves erxes-ui through its dist/.
-          for lib in erxes-ui ui-modules; do
+          # ui-modules resolves erxes-ui through its built declarations.
+          for lib in ui-modules; do
             log="$RUNNER_TEMP/$lib-dts.log"
             pnpm --filter "$lib" run build:dts > "$log" 2>&1 || true
             cat "$log"
@@ -170,7 +174,7 @@ jobs:
           WORK="$GITHUB_WORKSPACE/tmp/shared-libs-publish"
 
           stage() {
-            local dir="$1" npm_name="$2"
+            local dir="$1" npm_name="$2" source_dir="${3:-$1}"
             rm -rf "$WORK/pack" && mkdir -p "$WORK/pack"
             (cd "$dir" && pnpm pack --pack-destination "$WORK/pack")
 
@@ -183,13 +187,13 @@ jobs:
                 "publishConfig.access=public" \
                 "repository.type=git" \
                 "repository.url=git+https://github.com/erxes/erxes.git" \
-                "repository.directory=$dir" && \
+                "repository.directory=$source_dir" && \
               npm pkg delete devDependencies scripts)
             echo "staged $npm_name@$PUBLISH_VERSION at $staged"
           }
 
           stage backend/erxes-api-shared @erxes/api-shared
-          stage frontend/libs/erxes-ui @erxes/ui
+          stage frontend/libs/erxes-ui/dist @erxes/ui frontend/libs/erxes-ui
           stage frontend/libs/ui-modules @erxes/ui-modules
 
           (cd "$WORK/staged/@erxes/ui-modules" && \
