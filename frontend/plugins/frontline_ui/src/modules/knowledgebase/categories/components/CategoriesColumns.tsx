@@ -101,7 +101,7 @@ const IconCell = ({ cell }: { cell: Cell<TCategoryRow, unknown> }) => {
         category._id,
         'icon',
       )}
-      value={category.icon}
+      value={category.icon ?? undefined}
       onChange={(icon) => editCategoryField(category, { icon })}
     />
   );

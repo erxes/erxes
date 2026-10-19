@@ -1,28 +1,21 @@
+import { isDefined } from 'erxes-ui';
 import { QueryHookOptions, useQuery } from '@apollo/client';
 import { GET_TICKET_TAGS } from '@/report/graphql/queries/getTicketChart';
-
-interface TicketTag {
-  _id: string;
-  name: string;
-  count: number;
-  percentage: number;
-  colorCode?: string;
-}
-
-interface TicketTagsResponse {
-  reportTicketTags: TicketTag[];
-}
+import type {
+  ReportTicketTagsQuery,
+  ReportTicketTagsQueryVariables,
+} from '~/gql/graphql';
 
 export const useTicketTags = (
-  options?: QueryHookOptions<TicketTagsResponse>,
+  options?: QueryHookOptions<
+    ReportTicketTagsQuery,
+    ReportTicketTagsQueryVariables
+  >,
 ) => {
-  const { data, loading, error } = useQuery<TicketTagsResponse>(
-    GET_TICKET_TAGS,
-    options,
-  );
+  const { data, loading, error } = useQuery(GET_TICKET_TAGS, options);
 
   return {
-    ticketTags: data?.reportTicketTags,
+    ticketTags: data?.reportTicketTags?.filter(isDefined),
     loading,
     error,
   };

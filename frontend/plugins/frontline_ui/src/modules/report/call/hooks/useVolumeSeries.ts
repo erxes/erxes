@@ -1,15 +1,13 @@
-import { gql, useQuery } from '@apollo/client';
+import { isDefined } from 'erxes-ui';
+import { useQuery } from '@apollo/client';
 import { CALL_VOLUME_SERIES } from '@/integrations/call/graphql/queries/callStatistics';
-import type { VolumePoint } from '../types';
 import { useCallFilters } from './useCallFilters';
 
 export function useVolumeSeries() {
   const { startDate, endDate, integrationId, queueId, direction } =
     useCallFilters();
 
-  const { data, loading, error } = useQuery<{
-    callVolumeSeries: VolumePoint[];
-  }>(gql(CALL_VOLUME_SERIES), {
+  const { data, loading, error } = useQuery(CALL_VOLUME_SERIES, {
     variables: {
       startDate,
       endDate,
@@ -21,7 +19,7 @@ export function useVolumeSeries() {
   });
 
   return {
-    series: data?.callVolumeSeries ?? [],
+    series: data?.callVolumeSeries?.filter(isDefined) ?? [],
     loading,
     error,
   };

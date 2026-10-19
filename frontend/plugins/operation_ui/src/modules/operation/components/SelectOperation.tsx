@@ -20,10 +20,20 @@ export enum SelectTriggerVariant {
 export const SelectTriggerOperation = ({
   children,
   variant,
+  label,
 }: {
   children: React.ReactNode;
   variant: `${SelectTriggerVariant}`;
+  label?: string;
 }) => {
+  if (
+    label &&
+    (variant === SelectTriggerVariant.DETAIL ||
+      variant === SelectTriggerVariant.FORM)
+  ) {
+    return <Combobox.ChipTrigger label={label}>{children}</Combobox.ChipTrigger>;
+  }
+
   if (variant === SelectTriggerVariant.TABLE) {
     return (
       <RecordTableInlineCell.Trigger className="gap-1">

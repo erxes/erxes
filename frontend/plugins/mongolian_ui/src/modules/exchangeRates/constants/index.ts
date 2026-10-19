@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const EXCHANGE_RATES_PATH = '/settings/mongolian/exchange-rates';
+export const EXCHANGE_RATES_PATH = '/mongolian/settings/exchange-rates';
 
 export const EXCHANGE_RATE_ID_QUERY_KEY = 'exchange_rate_id';
 

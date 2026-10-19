@@ -133,7 +133,7 @@ export const NotificationTeamContent = ({
 
       <div>
         <Button variant="secondary" asChild>
-          <Link to={`/settings/operation/team/details/${team._id}`}>
+          <Link to={`/operation/settings/team/details/${team._id}`}>
             {t('open-team', 'Open team')}
           </Link>
         </Button>

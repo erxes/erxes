@@ -1,20 +1,14 @@
+import { queries } from '@/pos/graphql/queries';
 import { useQuery } from '@apollo/client';
-import queries from '@/pos/graphql/queries';
+import { useMemo } from 'react';
+import { z } from 'zod';
+import type { FieldsCombinedByContentTypeQueryVariables } from '~/gql/graphql';
 
-interface Field {
-  label: string;
-  name: string;
-  type?: string;
-}
-
-interface UseFieldsCombinedProps {
-  contentType: string;
-  usageType?: string;
-  excludedNames?: string[];
-  segmentId?: string;
-  config?: any;
-  onlyDates?: boolean;
-}
+const fieldSchema = z.array(
+  z
+    .object({ label: z.string(), name: z.string(), type: z.string().nullish() })
+    .passthrough(),
+);
 
 export const useFieldsCombined = ({
   contentType,
@@ -23,7 +17,7 @@ export const useFieldsCombined = ({
   segmentId,
   config,
   onlyDates,
-}: UseFieldsCombinedProps) => {
+}: FieldsCombinedByContentTypeQueryVariables) => {
   const { data, loading, error } = useQuery(
     queries.fieldsCombinedByContentType,
     {
@@ -39,11 +33,15 @@ export const useFieldsCombined = ({
     },
   );
 
-  const fields: Field[] = data?.fieldsCombinedByContentType || [];
+  const parsed = useMemo(
+    () => fieldSchema.safeParse(data?.fieldsCombinedByContentType ?? []),
+    [data?.fieldsCombinedByContentType],
+  );
+  const fields = parsed.success ? parsed.data : [];
 
   return {
     fields,
     loading,
-    error,
+    error: error ?? (parsed.success ? undefined : parsed.error),
   };
 };

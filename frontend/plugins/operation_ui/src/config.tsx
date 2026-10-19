@@ -16,47 +16,14 @@ const TaskStatusPropertyInput = lazy(() =>
   ),
 );
 
-const MainNavigation = lazy(() =>
-  import('@/navigation/MainNavigation').then((module) => ({
-    default: module.MainNavigation,
-  })),
-);
-
-const TeamsNavigation = lazy(() =>
-  import('@/navigation/TeamsNavigation').then((mod) => ({
-    default: mod.TeamsNavigation,
-  })),
-);
-
-const OperationSettingsNavigation = lazy(() =>
-  import('@/OperationSettingsNavigation').then((mod) => ({
-    default: mod.OperationSettingsNavigation,
-  })),
-);
-
 export const CONFIG: IUIConfig = {
   name: 'operation',
   path: 'operation',
   icon: IconListCheck,
-  settingsNavigation: () => (
-    <Suspense fallback={<div />}>
-      <OperationSettingsNavigation />
-    </Suspense>
-  ),
   navigationGroup: {
     name: 'operation',
     defaultPath: 'operation/projects',
     icon: IconListCheck,
-    content: () => (
-      <Suspense fallback={<div />}>
-        <MainNavigation />
-      </Suspense>
-    ),
-    subGroup: () => (
-      <Suspense fallback={<div />}>
-        <TeamsNavigation />
-      </Suspense>
-    ),
   },
   modules: [
     {
@@ -80,12 +47,12 @@ export const CONFIG: IUIConfig = {
     {
       name: 'teams',
       icon: IconListCheck,
-      path: 'settings/operation/teams',
+      path: 'operation/settings/teams',
     },
     {
       name: 'github-integration',
       icon: IconListCheck,
-      path: 'settings/operation/github',
+      path: 'operation/settings/github',
     },
   ],
   widgets: {

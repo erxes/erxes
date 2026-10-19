@@ -21,6 +21,14 @@ import {
   IAiAgentKnowledgeIndexRunDocument,
 } from './mongo/aiAgentKnowledgeIndexRun';
 import {
+  aiMemoryEventSchema,
+  IAiMemoryEventDocument,
+} from './mongo/aiMemoryEvent';
+import {
+  aiKnowledgeRouteSchema,
+  IAiKnowledgeRouteDocument,
+} from './mongo/aiKnowledgeRoute';
+import {
   AiAgentDocument,
   aiAgentSchema,
   automationExecutionSchema,
@@ -40,6 +48,8 @@ export interface IModels {
   KnowledgeChunks: Model<IKnowledgeChunkDocument>;
   AiAgentKnowledgeSourceBindings: Model<IAiAgentKnowledgeSourceBindingDocument>;
   AiAgentKnowledgeIndexRuns: Model<IAiAgentKnowledgeIndexRunDocument>;
+  AiKnowledgeRoutes: Model<IAiKnowledgeRouteDocument>;
+  AiMemoryEvents: Model<IAiMemoryEventDocument>;
 }
 
 export interface IContext extends IMainContext {
@@ -95,6 +105,16 @@ export const loadClasses = (db: Connection, subdomain: string): IModels => {
     'automations_ai_agent_knowledge_index_runs',
     aiAgentKnowledgeIndexRunSchema,
   );
+
+  models.AiKnowledgeRoutes = db.model<
+    IAiKnowledgeRouteDocument,
+    Model<IAiKnowledgeRouteDocument>
+  >('automations_ai_knowledge_routes', aiKnowledgeRouteSchema);
+
+  models.AiMemoryEvents = db.model<
+    IAiMemoryEventDocument,
+    Model<IAiMemoryEventDocument>
+  >('automations_ai_memory_events', aiMemoryEventSchema);
 
   return models;
 };

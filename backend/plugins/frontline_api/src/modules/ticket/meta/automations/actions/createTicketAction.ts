@@ -7,6 +7,11 @@ import { TCreatedVia } from 'erxes-api-shared/core-types';
 import { graphqlPubsub, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { ITicket } from '~/modules/ticket/@types/ticket';
+import {
+  relateTicketToConversation,
+  resolveConversationMedia,
+  resolveInboxConversationId,
+} from '~/modules/ticket/utils/conversationTickets';
 
 type TReceiveActionInput =
   TAutomationProducersInput[TAutomationProducers.RECEIVE_ACTIONS];
@@ -66,6 +71,20 @@ const toStringArray = (value: unknown): string[] | undefined => {
     .filter((item) => item.length > 0);
 
   return ids.length ? ids : undefined;
+};
+
+// A tool hands media ids over as an array, a placeholder as text: either a
+// JSON array or a comma-separated list.
+export const toMediaIds = (value: unknown): string[] => {
+  if (typeof value === 'string' && value.trim().startsWith('[')) {
+    try {
+      return toStringArray(JSON.parse(value)) || [];
+    } catch {
+      return [];
+    }
+  }
+
+  return toStringArray(value) || [];
 };
 
 const parseDate = (value: unknown): Date | undefined => {
@@ -164,7 +183,10 @@ const resolveUserId = async (
   if (fromConfig) return fromConfig;
 
   // Fall back to the conversation's assigned/responding user
-  const conversationId = getString(target, 'conversationId');
+  const conversationId = await resolveInboxConversationId(
+    models,
+    getString(target, 'conversationId'),
+  );
   if (conversationId) {
     const conversation = await models.Conversations.findOne(
       { _id: conversationId },
@@ -267,6 +289,23 @@ export const createTicketAction = async ({
   // Not who pressed create — nobody did. What produced it.
   doc.createdVia = getCreatedVia(toRecord(execution));
 
+  const targetConversationId = getString(target, 'conversationId');
+  const inboxConversationId = await resolveInboxConversationId(
+    models,
+    targetConversationId,
+  );
+  const attachments = await resolveConversationMedia({
+    models,
+    mediaIds: toMediaIds(resolvedConfig.attachmentIds),
+    conversationIds: [targetConversationId, inboxConversationId].filter(
+      (id): id is string => !!id,
+    ),
+  });
+
+  if (attachments.length) {
+    doc.attachments = attachments;
+  }
+
   if (doc.propertiesData) {
     doc.propertiesData = await sendTRPCMessage({
       subdomain,
@@ -280,6 +319,17 @@ export const createTicketAction = async ({
   }
 
   const ticket = await models.Ticket.addTicket(doc, userId, subdomain);
+
+  // Lets the conversation show its ticket and a later message find it open.
+  if (inboxConversationId) {
+    await relateTicketToConversation({
+      subdomain,
+      ticketId: ticket._id,
+      conversationId: inboxConversationId,
+      customerId: getString(target, 'customerId'),
+      userId,
+    });
+  }
 
   graphqlPubsub.publish(`ticketChanged:${ticket._id}`, {
     ticketChanged: { type: 'create', ticket },
@@ -297,5 +347,6 @@ export const createTicketAction = async ({
     statusId: ticket.statusId,
     priority: ticket.priority,
     assigneeId: ticket.assigneeId,
+    attachmentCount: attachments.length,
   };
 };

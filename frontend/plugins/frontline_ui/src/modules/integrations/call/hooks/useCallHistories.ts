@@ -1,19 +1,15 @@
 import { useQuery } from '@apollo/client';
+import { isDefined } from 'erxes-ui';
 import { CALL_HISTORIES } from '../graphql/queries/callHistories';
 import { useAtomValue } from 'jotai';
 import { callConfigAtom } from '@/integrations/call/states/sipStates';
+import type { CallHistoriesQuery } from '~/gql/graphql';
 
 export const CALL_HISTORIES_PER_PAGE = 20;
 
-export interface ICallHistoryItem {
-  _id: string;
-  callStartTime: string;
-  callStatus: string;
-  callType: string;
-  customerPhone: string;
-  extensionNumber: string;
-  conversationId: string;
-}
+export type ICallHistoryItem = NonNullable<
+  NonNullable<CallHistoriesQuery['callHistories']>[number]
+>;
 
 export const useCallHistories = ({
   missed,
@@ -26,10 +22,7 @@ export const useCallHistories = ({
 } = {}) => {
   const config = useAtomValue(callConfigAtom);
 
-  const { data, loading, fetchMore } = useQuery<{
-    callHistories: ICallHistoryItem[];
-    callHistoriesTotalCount: number;
-  }>(CALL_HISTORIES, {
+  const { data, loading, fetchMore } = useQuery(CALL_HISTORIES, {
     variables: {
       integrationId: config?.inboxId,
       limit: CALL_HISTORIES_PER_PAGE,
@@ -40,12 +33,13 @@ export const useCallHistories = ({
     skip: !config?.inboxId,
   });
 
-  const { callHistories, callHistoriesTotalCount } = data || {};
+  const callHistories = data?.callHistories?.filter(isDefined);
+  const callHistoriesTotalCount = data?.callHistoriesTotalCount;
 
   const handleFetchMore = () =>
     fetchMore({
       variables: {
-        skip: data?.callHistories.length || 0,
+        skip: data?.callHistories?.length || 0,
       },
       updateQuery: (prev, { fetchMoreResult }) => {
         if (!fetchMoreResult?.callHistories?.length) return prev;

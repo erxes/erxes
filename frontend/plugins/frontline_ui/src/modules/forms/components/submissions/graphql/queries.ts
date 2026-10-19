@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const GET_FORM_SUBMISSIONS = gql`
+export const GET_FORM_SUBMISSIONS = gql(`
   query frontlineFormSubmissions(
     $formId: String
     $customerId: String
@@ -47,9 +47,9 @@ export const GET_FORM_SUBMISSIONS = gql`
       }
     }
   }
-`;
+`);
 
-export const GET_SUBMISSION_DETAILS = gql`
+export const GET_SUBMISSION_DETAILS = gql(`
   query frontlineFormSubmissionDetail($_id: String!) {
     formSubmissionDetail(_id: $_id) {
       _id
@@ -71,4 +71,4 @@ export const GET_SUBMISSION_DETAILS = gql`
       }
     }
   }
-`;
+`);

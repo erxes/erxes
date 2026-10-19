@@ -3,20 +3,20 @@ import { CALL_CUSTOMER_ADD } from '../graphql/mutations/callMutations';
 
 import { toast } from 'erxes-ui';
 import { useState } from 'react';
-import { ICustomer } from '@/integrations/call/types/callTypes';
+import { ICallChannels, ICustomer } from '@/integrations/call/types/callTypes';
 import { useTranslation } from 'react-i18next';
 
 export const useAddCallCustomer = () => {
   const { t } = useTranslation('frontline');
   const [createCustomerMutation, { loading }] = useMutation(CALL_CUSTOMER_ADD);
-  const [customer, setCustomer] = useState<any>({} as ICustomer);
+  const [customer, setCustomer] = useState<Partial<ICustomer>>({});
 
-  const [channels, setChannels] = useState<any>();
+  const [channels, setChannels] = useState<ICallChannels>();
   const [integrationName, setIntegrationName] = useState<string>('');
   const addCustomer = (
     inboxId: string,
     phoneNumber: string,
-    queueName: any,
+    queueName?: string | null,
   ) => {
     createCustomerMutation({
       variables: {
@@ -25,7 +25,7 @@ export const useAddCallCustomer = () => {
         queueName: queueName || '',
       },
     })
-      .then(({ data }: any) => {
+      .then(({ data }) => {
         if (data?.callAddCustomer?.customer) {
           setCustomer(data.callAddCustomer.customer);
           setChannels(data.callAddCustomer.channels);
@@ -49,3 +49,7 @@ export const useAddCallCustomer = () => {
     loading,
   };
 };
+
+export type TAddCallCustomer = ReturnType<
+  typeof useAddCallCustomer
+>['addCustomer'];

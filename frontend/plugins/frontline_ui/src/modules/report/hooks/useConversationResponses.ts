@@ -1,20 +1,24 @@
+import { isDefined } from 'erxes-ui';
 import { QueryHookOptions, useQuery } from '@apollo/client';
 import { GET_CONVERSATION_RESPONSES } from '@/report/graphql/queries/getChart';
-import { ConversationUserMessageStat } from '../types';
+import type {
+  ReportConversationResponsesQuery,
+  ReportConversationResponsesQueryVariables,
+} from '~/gql/graphql';
 
-interface ConversationResponsesResponse {
-  reportConversationResponses: ConversationUserMessageStat[];
-}
 export const useConversationResponses = (
-  options?: QueryHookOptions<ConversationResponsesResponse>,
+  options?: QueryHookOptions<
+    ReportConversationResponsesQuery,
+    ReportConversationResponsesQueryVariables
+  >,
 ) => {
-  const { data, loading, error } = useQuery<ConversationResponsesResponse>(
+  const { data, loading, error } = useQuery(
     GET_CONVERSATION_RESPONSES,
     options,
   );
 
   return {
-    conversationResponses: data?.reportConversationResponses,
+    conversationResponses: data?.reportConversationResponses?.filter(isDefined),
     loading,
     error,
   };

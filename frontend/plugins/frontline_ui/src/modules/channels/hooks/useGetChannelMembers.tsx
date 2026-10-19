@@ -1,10 +1,7 @@
 import { GET_CHANNEL_MEMBERS } from '@/channels/graphql/queries';
-import { IChannelMember } from '@/channels/types';
+import { compactList } from '@/shared/utils/cursorList';
 import { useQuery } from '@apollo/client';
-
-interface IGetChannelMembersQueryResponse {
-  getChannelMembers: IChannelMember[];
-}
+import { useMemo } from 'react';
 
 export const useGetChannelMembers = ({
   channelIds,
@@ -17,13 +14,14 @@ export const useGetChannelMembers = ({
     ? [channelIds]
     : [];
 
-  const { data, loading, error } = useQuery<IGetChannelMembersQueryResponse>(
-    GET_CHANNEL_MEMBERS,
-    {
-      variables: { channelIds: normalizedIds },
-      skip: normalizedIds.length === 0,
-    },
+  const { data, loading, error } = useQuery(GET_CHANNEL_MEMBERS, {
+    variables: { channelIds: normalizedIds },
+    skip: normalizedIds.length === 0,
+  });
+  const members = useMemo(
+    () =>
+      data?.getChannelMembers ? compactList(data.getChannelMembers) : undefined,
+    [data?.getChannelMembers],
   );
-  const members = data?.getChannelMembers;
   return { members, loading, error };
 };

@@ -34,6 +34,9 @@ export const checklistMutations = {
     { models, user, checkPermission }: IContext,
   ) {
     await checkPermission('checklistsAdd');
+    if (!args.contentTypeId) {
+      throw new Error('contentTypeId is required');
+    }
     const checklist = await models.Checklists.createChecklist(args, user);
 
     checklistsChanged(checklist);
@@ -80,6 +83,9 @@ export const checklistMutations = {
     { user, models, checkPermission }: IContext,
   ) {
     await checkPermission('checklistsEdit');
+    if (!args.checklistId) {
+      throw new Error('checklistId is required');
+    }
     const checklistItem = await models.ChecklistItems.createChecklistItem(
       args,
       user,
@@ -128,6 +134,9 @@ export const checklistMutations = {
     { models, checkPermission }: IContext,
   ) {
     await checkPermission('checklistsEdit');
+    if (!Number.isInteger(destinationIndex)) {
+      throw new Error('destinationIndex must be an integer');
+    }
     return models.ChecklistItems.updateItemOrder(_id, destinationIndex);
   },
 };

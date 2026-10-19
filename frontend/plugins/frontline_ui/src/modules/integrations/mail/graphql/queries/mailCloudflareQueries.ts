@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const MAIL_CLOUDFLARE_CONNECTION_FIELDS = gql`
+export const MAIL_CLOUDFLARE_CONNECTION_FIELDS = gql(`
   fragment MailCloudflareConnectionFields on MailCloudflareConnection {
     zoneName
     accountName
@@ -19,18 +19,17 @@ export const MAIL_CLOUDFLARE_CONNECTION_FIELDS = gql`
     }
     __typename
   }
-`;
+`);
 
-export const MAIL_CLOUDFLARE_CONNECTION_QUERY = gql`
+export const MAIL_CLOUDFLARE_CONNECTION_QUERY = gql(`
   query mailCloudflareConnection {
     mailCloudflareConnection {
       ...MailCloudflareConnectionFields
     }
   }
-  ${MAIL_CLOUDFLARE_CONNECTION_FIELDS}
-`;
+`);
 
-export const MAIL_CLOUDFLARE_ZONES_QUERY = gql`
+export const MAIL_CLOUDFLARE_ZONES_QUERY = gql(`
   query mailCloudflareZones($token: String!) {
     mailCloudflareZones(token: $token) {
       id
@@ -42,9 +41,9 @@ export const MAIL_CLOUDFLARE_ZONES_QUERY = gql`
       __typename
     }
   }
-`;
+`);
 
-export const MAIL_CLOUDFLARE_SENDING_QUOTA_QUERY = gql`
+export const MAIL_CLOUDFLARE_SENDING_QUOTA_QUERY = gql(`
   query mailCloudflareSendingQuota {
     mailCloudflareSendingQuota {
       value
@@ -52,4 +51,4 @@ export const MAIL_CLOUDFLARE_SENDING_QUOTA_QUERY = gql`
       __typename
     }
   }
-`;
+`);

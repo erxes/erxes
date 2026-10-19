@@ -18,7 +18,7 @@ type Props = {
   onCancel: () => void;
 };
 
-const DEFAULT_API_URL = 'https://acsmc.tdbmlabs.mn:8000/order';
+const DEFAULT_API_URL = 'https://api-sandbox.tdbmlabs.mn:8443';
 
 export const TdbConfigForm = ({
   config,
@@ -32,8 +32,8 @@ export const TdbConfigForm = ({
     name: config?.name ?? '',
     description: config?.description ?? '',
     apiUrl: config?.apiUrl ?? DEFAULT_API_URL,
-    username: config?.username ?? '',
-    password: '',
+    clientId: config?.clientId ?? '',
+    clientSecret: config?.clientSecret ?? '',
     testMode: config?.testMode ?? true,
   });
 
@@ -110,33 +110,27 @@ export const TdbConfigForm = ({
             </div>
 
             <div className="space-y-1">
-              <Label htmlFor="username">{t('username')}</Label>
+              <Label htmlFor="clientId">{t('client-id')}</Label>
               <Input
-                id="username"
-                name="username"
+                id="clientId"
+                name="clientId"
                 autoComplete="off"
-                value={values.username}
+                value={values.clientId}
                 onChange={onChange}
               />
             </div>
 
             <div className="space-y-1">
-              <Label htmlFor="password">{t('password')}</Label>
+              <Label htmlFor="clientSecret">{t('client-secret')}</Label>
               <Input
-                id="password"
-                name="password"
+                id="clientSecret"
+                name="clientSecret"
                 type="password"
-                autoComplete="off"
-                value={values.password}
+                autoComplete="new-password"
+                value={values.clientSecret}
                 onChange={onChange}
               />
-              {config && (
-                <p className="text-xs text-muted-foreground">
-                  {t('leave-empty-keep-password')}
-                </p>
-              )}
             </div>
-
             <div className="flex items-center justify-between gap-3">
               <Label htmlFor="testMode">{t('environment')}</Label>
               <Switch

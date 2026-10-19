@@ -1,12 +1,17 @@
-import { useToast } from 'erxes-ui';
 import { MutationFunctionOptions, useMutation } from '@apollo/client';
-import { POS_ITEMS_CHANGE_PAYMENTS } from '../../graphql/mutations/posItemsChangePayments';
+import { useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import type {
+  SalesPosItemsChangePaymentsMutation,
+  SalesPosItemsChangePaymentsMutationVariables,
+} from '~/gql/graphql';
+import { POS_ITEMS_CHANGE_PAYMENTS } from '../../graphql/mutations/posItemsChangePayments';
 
 export const usePosItemChangePayments = (
-  options?: MutationFunctionOptions<{
-    posItemChangePayments: { _id: string };
-  }>,
+  options?: MutationFunctionOptions<
+    SalesPosItemsChangePaymentsMutation,
+    SalesPosItemsChangePaymentsMutationVariables
+  >,
 ) => {
   const { t } = useTranslation('sales');
   const { toast } = useToast();

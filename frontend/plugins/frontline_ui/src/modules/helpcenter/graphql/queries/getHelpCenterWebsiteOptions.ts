@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const GET_HELP_CENTER_WEBSITE_OPTIONS = gql`
+export const GET_HELP_CENTER_WEBSITE_OPTIONS = gql(`
   query frontlineHelpCenterWebsiteOptions {
     getClientPortals {
       list {
@@ -11,4 +11,4 @@ export const GET_HELP_CENTER_WEBSITE_OPTIONS = gql`
       }
     }
   }
-`;
+`);

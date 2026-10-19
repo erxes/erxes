@@ -39,6 +39,10 @@ export const loadStatusClass = (models: IModels) => {
     }
 
     public static async addStatus(doc: IStatus): Promise<IStatusDocument> {
+      if (!doc.type) {
+        throw new Error('Status type is required');
+      }
+
       const lastStatus = await models.Status.findOne({
         pipelineId: doc.pipelineId,
         type: doc.type,
@@ -58,9 +62,17 @@ export const loadStatusClass = (models: IModels) => {
     }
 
     public static async updateStatus(_id: string, doc: IStatus) {
+      const { type, order, ...fields } = doc;
+
       return await models.Status.findOneAndUpdate(
         { _id },
-        { $set: { ...doc } },
+        {
+          $set: {
+            ...fields,
+            ...(typeof type === 'number' && { type }),
+            ...(typeof order === 'number' && { order }),
+          },
+        },
         { new: true },
       );
     }

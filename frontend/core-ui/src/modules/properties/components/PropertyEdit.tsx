@@ -1,3 +1,4 @@
+import { usePropertiesScope } from '@/properties/context/PropertiesScopeContext';
 import { useNavigate, useParams } from 'react-router';
 import { Sheet, toast } from 'erxes-ui';
 import { useFieldDetail } from '../hooks/useFieldDetail';
@@ -8,6 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { IPropertyForm, PropertyForm } from 'ui-modules';
 
 export const PropertyEdit = () => {
+  const { basePath: propertiesBasePath } = usePropertiesScope();
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });
   const { id, type } = useParams<{
     groupId: string;
@@ -21,7 +23,7 @@ export const PropertyEdit = () => {
 
   const navigate = useNavigate();
 
-  const handleClose = () => navigate(`/settings/properties/${type}`);
+  const handleClose = () => navigate(`${propertiesBasePath}/${type}`);
 
   const [fieldType, ...relationType] = fieldDetail?.type?.split(':') || [];
 

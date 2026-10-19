@@ -1,13 +1,20 @@
-import gql from 'graphql-tag';
-import {
-  GQL_CURSOR_PARAM_DEFS,
-  GQL_CURSOR_PARAMS,
-  GQL_PAGE_INFO,
-} from 'erxes-ui';
+import { gql } from '~/gql';
 
-export const GET_ACTIVITIES = gql`
-  query getTicketActivities($contentId: String!, ${GQL_CURSOR_PARAM_DEFS}) {
-    getTicketActivities(contentId: $contentId, ${GQL_CURSOR_PARAMS}) {
+export const GET_ACTIVITIES = gql(`
+  query getTicketActivities(
+    $contentId: String!
+    $cursor: String
+    $cursorMode: CURSOR_MODE
+    $direction: CURSOR_DIRECTION
+    $limit: Int
+  ) {
+    getTicketActivities(
+      contentId: $contentId
+      cursor: $cursor
+      cursorMode: $cursorMode
+      direction: $direction
+      limit: $limit
+    ) {
       list {
         _id
         module
@@ -29,8 +36,14 @@ export const GET_ACTIVITIES = gql`
         createdAt
         updatedAt
       }
-      ${GQL_PAGE_INFO}
+      totalCount
+      pageInfo {
+        hasNextPage
+        hasPreviousPage
+        startCursor
+        endCursor
+      }
       totalCount
     }
   }
-`;
+`);

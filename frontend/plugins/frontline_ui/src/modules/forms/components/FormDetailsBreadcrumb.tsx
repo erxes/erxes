@@ -8,11 +8,9 @@ export const FormDetailsBreadcrumb = () => {
 
   return (
     <Link
-      to={`/settings/frontline/channels/${formDetail?.channelId}/forms/${formId}`}
+      to={`/frontline/settings/channels/${formDetail?.channelId}/forms/${formId}`}
     >
-      <Button variant="ghost" className="font-semibold">
-        {formDetail?.name}
-      </Button>
+      <Button variant="ghost">{formDetail?.name}</Button>
     </Link>
   );
 };

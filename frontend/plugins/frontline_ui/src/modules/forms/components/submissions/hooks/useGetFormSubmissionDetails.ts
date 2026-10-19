@@ -1,14 +1,20 @@
 import { QueryHookOptions, useQuery } from '@apollo/client';
-import { IFormSubmission } from '../types';
 import { GET_SUBMISSION_DETAILS } from '../graphql/queries';
+import type {
+  FrontlineFormSubmissionDetailQuery,
+  FrontlineFormSubmissionDetailQueryVariables,
+} from '~/gql/graphql';
 
-export const useGetFormSubmissionDetails = (options?: QueryHookOptions) => {
-  const { data, loading, error } = useQuery<{
-    formSubmissionDetail: IFormSubmission;
-  }>(GET_SUBMISSION_DETAILS, options);
+export const useGetFormSubmissionDetails = (
+  options?: QueryHookOptions<
+    FrontlineFormSubmissionDetailQuery,
+    FrontlineFormSubmissionDetailQueryVariables
+  >,
+) => {
+  const { data, loading, error } = useQuery(GET_SUBMISSION_DETAILS, options);
 
   return {
-    submissionDetails: data?.formSubmissionDetail,
+    submissionDetails: data?.formSubmissionDetail ?? undefined,
     loading,
     error,
   };

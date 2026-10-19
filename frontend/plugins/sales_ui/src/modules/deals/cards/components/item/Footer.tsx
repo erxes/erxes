@@ -1,14 +1,14 @@
+import { SelectAssigneeDeal } from '@/deals/components/deal-selects/SelectAssigneeDeal';
+import type { IDeal } from '@/deals/types/deals';
 import { IconCalendar, IconNumber } from '@tabler/icons-react';
 import dayjs from 'dayjs';
-import { IUser } from 'ui-modules';
-import { CopyText } from 'erxes-ui';
-import { SelectAssigneeDeal } from '@/deals/components/deal-selects/SelectAssigneeDeal';
+import { CopyText, isDefined } from 'erxes-ui';
 
 type Props = {
-  createdAt: Date;
+  createdAt: IDeal['createdAt'];
   id: string;
-  assignedUsers?: IUser[];
-  number?: string;
+  assignedUsers?: IDeal['assignedUsers'];
+  number?: IDeal['number'];
 };
 
 export const ItemFooter = ({
@@ -31,14 +31,21 @@ export const ItemFooter = ({
         ) : (
           <>
             <IconCalendar className="w-4 h-4" />
-            <span>{dayjs(createdAt).format('MMM DD, YYYY')}</span>
+            <span>
+              {createdAt ? dayjs(createdAt).format('MMM DD, YYYY') : ''}
+            </span>
           </>
         )}
       </div>
       <SelectAssigneeDeal
         variant="card"
         mode="multiple"
-        value={assignedUsers.map((user) => user?._id) || ['']}
+        value={
+          (assignedUsers ?? [])
+            .filter(isDefined)
+            .map((user) => user._id)
+            .filter(isDefined) || ['']
+        }
         id={id}
       />
     </div>

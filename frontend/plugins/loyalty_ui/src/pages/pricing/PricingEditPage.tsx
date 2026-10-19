@@ -15,47 +15,55 @@ export const PricingEditPage = () => {
   const [saveAction, setSaveAction] = useState<ReactNode | null>(null);
 
   const handlePricingChange = (pricingId: string) => {
-    navigate(`/settings/loyalty/pricing/${pricingId}`);
+    navigate(`/loyalty/settings/pricing/${pricingId}`);
   };
 
   const handleDeleteSuccess = () => {
-    navigate('/settings/loyalty/pricing');
+    navigate('/loyalty/settings/pricing');
   };
 
   return (
     <div className="flex flex-col h-full">
-      <PageHeader>
-        <PageHeaderStart>
-          <Breadcrumb>
-            <Breadcrumb.List className="gap-2">
-              <Breadcrumb.Item>
-                <Button variant="ghost" asChild>
-                  <Link to="/settings/loyalty/pricing">
-                    <IconCoins />
-                    {t('pricing')}
-                  </Link>
-                </Button>
-              </Breadcrumb.Item>
-              <Breadcrumb.Separator />
-              <Breadcrumb.Item>
-                <SelectPricing value={id} onValueChange={handlePricingChange} />
-              </Breadcrumb.Item>
-            </Breadcrumb.List>
-          </Breadcrumb>
-        </PageHeaderStart>
+      <PricingEdit
+        key={id}
+        id={id}
+        onSaveActionChange={setSaveAction}
+        header={
+          <PageHeader>
+            <PageHeaderStart>
+              <Breadcrumb>
+                <Breadcrumb.List className="gap-2">
+                  <Breadcrumb.Item>
+                    <Button variant="ghost" asChild>
+                      <Link to="/loyalty/settings/pricing">
+                        <IconCoins />
+                        {t('pricing')}
+                      </Link>
+                    </Button>
+                  </Breadcrumb.Item>
+                  <Breadcrumb.Separator />
+                  <Breadcrumb.Item>
+                    <SelectPricing
+                      value={id}
+                      onValueChange={handlePricingChange}
+                    />
+                  </Breadcrumb.Item>
+                </Breadcrumb.List>
+              </Breadcrumb>
+            </PageHeaderStart>
 
-        <PageHeaderEnd className="gap-2">
-          {id && (
-            <PricingDelete
-              pricingIds={id}
-              onDeleteSuccess={handleDeleteSuccess}
-            />
-          )}
-          {saveAction}
-        </PageHeaderEnd>
-      </PageHeader>
-
-      <PricingEdit key={id} id={id} onSaveActionChange={setSaveAction} />
+            <PageHeaderEnd className="gap-2">
+              {id && (
+                <PricingDelete
+                  pricingIds={id}
+                  onDeleteSuccess={handleDeleteSuccess}
+                />
+              )}
+              {saveAction}
+            </PageHeaderEnd>
+          </PageHeader>
+        }
+      />
     </div>
   );
 };

@@ -1,5 +1,5 @@
 import { IconPlus } from '@tabler/icons-react';
-import { Sidebar } from 'erxes-ui';
+import { isDefined, Sidebar } from 'erxes-ui';
 import { useMemo, useTransition } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
@@ -14,7 +14,7 @@ import {
   groupCategoriesByParent,
   ROOT_CATEGORY_KEY,
 } from '@/knowledgebase/sidebar/utils/groupCategoriesByParent';
-import { ICategory, ITopic } from '@/knowledgebase/types';
+import { ICategoryFields, ITopic } from '@/knowledgebase/types';
 
 export const TopicTreeItem = ({
   topic,
@@ -23,7 +23,7 @@ export const TopicTreeItem = ({
 }: {
   topic: ITopic;
   onAddCategory: (topicId: string) => void;
-  onEditCategory: (topicId: string, category: ICategory) => void;
+  onEditCategory: (topicId: string, category: ICategoryFields) => void;
 }) => {
   const { t } = useTranslation('frontline');
   const navigate = useNavigate();
@@ -33,7 +33,7 @@ export const TopicTreeItem = ({
   const [isNavigating, startNavigation] = useTransition();
 
   const categoryGroups = useMemo(
-    () => groupCategoriesByParent(topic.categories ?? []),
+    () => groupCategoriesByParent(topic.categories?.filter(isDefined) ?? []),
     [topic.categories],
   );
   const rootCategories = categoryGroups.get(ROOT_CATEGORY_KEY) ?? [];

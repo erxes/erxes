@@ -3,16 +3,14 @@ import {
   addingStatusState,
   editingStatusState,
 } from '@/settings/states/StatusStates';
-import { StatusInlineIcon } from '@/status/components/StatusInline';
+import { StatusNameColorField } from '@/status/components/StatusNameColorField';
 import { useAddTicketStatus } from '@/status/hooks/useAddTicketStatus';
 import { useUpdateTicketStatus } from '@/status/hooks/useUpdateTicketStatus';
 import { ITicketStatus } from '@/status/types';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   Button,
-  ColorPicker,
   Form,
-  Input,
   Sheet,
   Spinner,
   Textarea,
@@ -72,7 +70,7 @@ const StatusSheetForm = ({
     });
 
   const onSubmit = ({ name, description, color }: TStatusForm) => {
-    if (isEditing) {
+    if (editingStatus) {
       updateStatus({
         variables: {
           id: editingStatus._id,
@@ -85,6 +83,8 @@ const StatusSheetForm = ({
       });
       return;
     }
+
+    if (!pipelineId) return;
 
     addStatus({
       variables: { name, description, color, pipelineId, type: statusType },
@@ -107,7 +107,7 @@ const StatusSheetForm = ({
       >
         <Sheet.Header>
           <Sheet.Title className="capitalize">
-            {isEditing ? editingStatus.name : t('status', 'Status')}
+            {editingStatus ? editingStatus.name : t('status', 'Status')}
           </Sheet.Title>
           <Sheet.Description className="sr-only">
             {t('manage-ticket-statuses', 'Manage ticket statuses')}
@@ -115,50 +115,7 @@ const StatusSheetForm = ({
           <Sheet.Close />
         </Sheet.Header>
         <Sheet.Content className="flex flex-1 flex-col gap-4 overflow-y-auto px-5 py-4">
-          <Form.Field
-            control={form.control}
-            name="name"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>{t('name', 'Name')}</Form.Label>
-                <div className="flex items-center gap-2">
-                  <Form.Field
-                    control={form.control}
-                    name="color"
-                    render={({ field: colorField }) => (
-                      <ColorPicker.Provider
-                        value={colorField.value || '#000000'}
-                        onValueChange={colorField.onChange}
-                      >
-                        {/* `Combobox.TriggerBase` is `w-full` by default, so
-                            the size has to come through `className` where
-                            `cn` can win, not through an `asChild` button. */}
-                        <ColorPicker.Trigger
-                          aria-label={t('color', 'Color')}
-                          className="size-8 flex-none justify-center p-0"
-                          style={{
-                            backgroundColor: `${
-                              colorField.value || '#000000'
-                            }25`,
-                          }}
-                        >
-                          <StatusInlineIcon
-                            color={colorField.value}
-                            statusType={statusType}
-                          />
-                        </ColorPicker.Trigger>
-                        <ColorPicker.Content />
-                      </ColorPicker.Provider>
-                    )}
-                  />
-                  <Form.Control>
-                    <Input placeholder={t('name', 'Name')} {...field} />
-                  </Form.Control>
-                </div>
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
+          <StatusNameColorField form={form} statusType={statusType} />
           <Form.Field
             control={form.control}
             name="description"

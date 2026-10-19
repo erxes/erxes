@@ -10,6 +10,7 @@ export const FloatingWidgets = () => {
       pluginName={`${plugin.name}_ui`}
       remoteModuleName="floatingWidget"
       props={{ module: plugin.modules?.[0] }}
+      quiet
     />
   ));
 };

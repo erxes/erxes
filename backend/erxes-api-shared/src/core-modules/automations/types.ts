@@ -157,7 +157,44 @@ export type IAutomationDeferredMarker = {
   timeoutMinutes?: number;
 };
 
-export type IAutomationsActionConfig = {
+export const AUTOMATION_ACTION_CONTRIBUTIONS = {
+  // Acts on a record a sibling branch remembered: the agent picks which one.
+  REMEMBERED_RECORD_CHOICE: 'rememberedRecordChoice',
+} as const;
+
+export type TAutomationActionContribution =
+  (typeof AUTOMATION_ACTION_CONTRIBUTIONS)[keyof typeof AUTOMATION_ACTION_CONTRIBUTIONS];
+
+export type TAutomationRememberConfig = {
+  // What a later step calls the record when it picks one: 'ticket' → the
+  // agent names it as `ticketId`. Not a UI label or a record type.
+  as: string;
+  // Kept with the record so one can be told from another.
+  fields: string[];
+};
+
+export type TAutomationActionPlacement = {
+  /**
+   * Config this action takes when it runs after an action of the given type
+   * on the same path. The node's own config wins over it.
+   */
+  defaultsWhenAfter?: {
+    actionType: string;
+    config: Record<string, unknown>;
+  }[];
+  /**
+   * What this action adds to an earlier action of the given type on its
+   * path. The earlier action must list the kind in `accepts`, so no action
+   * reaches into another's config uninvited.
+   */
+  addsToPrevious?: {
+    actionType: string;
+    kind: TAutomationActionContribution;
+  }[];
+  accepts?: TAutomationActionContribution[];
+};
+
+export type IAutomationsActionConfig = TAutomationActionPlacement & {
   type?: string;
   moduleName?: string;
   collectionName?: string;
@@ -255,6 +292,11 @@ export type TAiContextHistoryItem = {
   meta?: Record<string, unknown>;
 };
 
+export type TAiMemoryScope = {
+  type: string;
+  id: string;
+};
+
 export type TAiContext = {
   version: 1;
   input?: {
@@ -266,6 +308,12 @@ export type TAiContext = {
   facts?: Record<string, unknown>;
   memory?: {
     scopeKey?: string;
+    /**
+     * Everything this run is about, as content type and id — the conversation,
+     * the customer. Long-term memory is written under all of them and read
+     * back by any, so it outlives the channel it was made in.
+     */
+    scopes?: TAiMemoryScope[];
   };
 };
 
@@ -365,6 +413,11 @@ export type TAutomationFindObjectResult = {
     field: string;
     value: string;
   };
+  // A later request about the same matter is added to this record (true) or
+  // starts a new one (false): an open ticket takes it, a resolved one does not.
+  // It says nothing about editing, assigning or reopening — people and other
+  // automations still change the record as before. Absent means true.
+  acceptsFollowUp?: boolean;
 };
 
 type TAutomationAdditionalAttribute = {

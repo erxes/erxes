@@ -56,7 +56,7 @@ export const ReportPageContainer = ({
 
   return (
     <PageContainer className="h-dvh print:h-auto print:block">
-      <header className="flex items-center justify-between h-13 px-3 box-border shrink-0 bg-sidebar overflow-auto styled-scroll print:hidden">
+      <header className="flex items-center justify-between h-10 px-3 box-border shrink-0 bg-sidebar overflow-auto styled-scroll print:hidden">
         <div className="flex items-center gap-2 flex-none pr-8">
           <Button variant="ghost">Report</Button>
           <Separator.Inline />

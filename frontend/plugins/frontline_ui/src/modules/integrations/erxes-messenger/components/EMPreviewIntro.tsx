@@ -11,7 +11,6 @@ import {
 import { cva } from 'class-variance-authority';
 import {
   Avatar,
-  Badge,
   Button,
   cn,
   Empty,
@@ -20,6 +19,7 @@ import {
   IconComponent,
   InfoCard,
   Input,
+  isDefined,
   Label,
   PhoneInput,
   readImage,
@@ -60,7 +60,6 @@ import {
 } from '../states/emPreviewStates';
 import { useQuery } from '@apollo/client';
 import { GET_KNOWLEDGE_BASE_TOPIC_DETAILS } from '@/knowledgebase/graphql/queries';
-import { IKnowledgeBaseTopic } from '@/knowledgebase/types';
 import { EMPreviewWebsiteApp } from './EMPreviewWebsiteApp';
 import { EMPreviewMessages } from './EMPreviewMessages';
 
@@ -818,17 +817,16 @@ export const EMPreviewFaq = () => {
   const heroStyle = appearance?.backgroundColor
     ? ({ '--color-hero': appearance.backgroundColor } as React.CSSProperties)
     : undefined;
-  const { data, loading } = useQuery<{
-    knowledgeBaseTopicDetail: IKnowledgeBaseTopic;
-  }>(GET_KNOWLEDGE_BASE_TOPIC_DETAILS, {
-    variables: {
-      _id: config?.knowledgeBaseTopicId,
-    },
-    skip: !config?.knowledgeBaseTopicId,
+  const knowledgeBaseTopicId = config?.knowledgeBaseTopicId;
+  const { data, loading } = useQuery(GET_KNOWLEDGE_BASE_TOPIC_DETAILS, {
+    variables: knowledgeBaseTopicId ? { _id: knowledgeBaseTopicId } : undefined,
+    skip: !knowledgeBaseTopicId,
   });
 
   const { knowledgeBaseTopicDetail } = data || {};
-  const { parentCategories, title, color } = knowledgeBaseTopicDetail || {};
+  const { title, color } = knowledgeBaseTopicDetail || {};
+  const parentCategories =
+    knowledgeBaseTopicDetail?.parentCategories?.filter(isDefined);
 
   if (loading) {
     return <Spinner containerClassName="py-32" />;

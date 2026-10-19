@@ -6,7 +6,7 @@ import { IconPhoto } from '@tabler/icons-react';
 
 interface EmailBodyProps {
   body?: string;
-  attachments?: { url?: string }[];
+  attachments?: { url?: string | null }[];
 }
 
 const REMOTE_SOURCE = /^https?:/i;
@@ -100,7 +100,7 @@ export const EmailBody: React.FC<EmailBodyProps> = ({ body, attachments }) => {
   const trustedUrls = useMemo(
     () =>
       (attachments ?? [])
-        .map((attachment) => resolveImageSource(attachment.url))
+        .map((attachment) => resolveImageSource(attachment.url ?? undefined))
         .filter((url) => REMOTE_SOURCE.test(url)),
     [attachments],
   );

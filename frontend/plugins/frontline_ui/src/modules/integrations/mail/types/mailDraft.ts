@@ -1,15 +1,10 @@
+import type { MailConversationDraftsQuery } from '~/gql/graphql';
+
 export type MailDraftStatus = 'pending' | 'sending' | 'sent';
 
-export interface MailDraft {
-  _id: string;
-  sourceMessageId?: string;
-  to?: string[];
-  subject?: string;
-  body?: string;
-  senderMismatch?: boolean;
-  status: MailDraftStatus;
-  createdAt?: string;
-}
+export type MailDraft = NonNullable<
+  NonNullable<MailConversationDraftsQuery['mailConversationDrafts']>[number]
+>;
 
 export interface MailDraftEdit {
   subject?: string;

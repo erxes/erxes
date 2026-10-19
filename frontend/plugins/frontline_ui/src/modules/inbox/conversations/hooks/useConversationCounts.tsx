@@ -9,15 +9,13 @@ import {
   INBOX_SIDEBAR_WORK_COUNTS,
 } from '@/inbox/conversations/graphql/queries/getConversationCounts';
 import { CONVERSATION_CLIENT_MESSAGE_INSERTED } from '@/inbox/conversations/graphql/subscriptions/inboxSubscriptions';
+import {
+  readCount,
+  readCountMap,
+} from '@/inbox/conversations/utils/conversationCounts';
+import type { FrontlineInboxConversationFilterCountsQueryVariables } from '~/gql/graphql';
 
 export type TConversationCounts = Record<string, number>;
-
-type TConversationCountsResponse = {
-  conversationCounts: {
-    byIntegrationTypes?: TConversationCounts;
-    byIntegrations?: TConversationCounts;
-  };
-};
 
 export type TInboxWorkCounts = {
   awaitingResponse: number;
@@ -26,43 +24,28 @@ export type TInboxWorkCounts = {
   unassigned: number;
 };
 
-type TConversationFilterCountsResponse = {
-  unresolved: number;
-  conversationCounts: {
-    unassigned?: number;
-    participating?: number;
-    awaitingResponse?: number;
-    resolved?: number;
-    responded?: number;
-    standby?: number;
-    handoff?: number;
-  };
-};
-
-type ConversationFilterCountVariables = {
-  channelId?: string | null;
-  integrationId?: string | null;
-  integrationType?: string | null;
-  brandId?: string | null;
-  startDate?: Date;
-  endDate?: Date;
-  searchValue?: string | null;
-};
-
 export const useConversationFilterCounts = (
-  variables: ConversationFilterCountVariables,
+  variables: FrontlineInboxConversationFilterCountsQueryVariables,
 ) => {
-  const { data, loading } = useQuery<TConversationFilterCountsResponse>(
-    CONVERSATION_FILTER_COUNTS,
-    {
-      variables,
-      fetchPolicy: 'cache-and-network',
-    },
-  );
+  const { data, loading } = useQuery(CONVERSATION_FILTER_COUNTS, {
+    variables,
+    fetchPolicy: 'cache-and-network',
+  });
+
+  const conversationCounts = data?.conversationCounts;
 
   return {
     counts: data
-      ? { ...data.conversationCounts, unresolved: data.unresolved }
+      ? {
+          unassigned: readCount(conversationCounts, 'unassigned'),
+          participating: readCount(conversationCounts, 'participating'),
+          awaitingResponse: readCount(conversationCounts, 'awaitingResponse'),
+          resolved: readCount(conversationCounts, 'resolved'),
+          responded: readCount(conversationCounts, 'responded'),
+          standby: readCount(conversationCounts, 'standby'),
+          handoff: readCount(conversationCounts, 'handoff'),
+          unresolved: data.unresolved ?? undefined,
+        }
       : undefined,
     loading,
   };
@@ -80,21 +63,21 @@ export const useAwaitingCountsByIntegrationType = ({
   channelId?: string;
   skip?: boolean;
 }): TUseAwaitingCountsByIntegrationTypeResult => {
-  const { data, loading } = useQuery<TConversationCountsResponse>(
-    CONVERSATION_COUNTS,
-    {
-      variables: {
-        only: 'byIntegrationTypes',
-        channelId,
-        awaitingResponse: 'true',
-      },
-      skip: skip || !channelId,
-      fetchPolicy: 'cache-and-network',
+  const { data, loading } = useQuery(CONVERSATION_COUNTS, {
+    variables: {
+      only: 'byIntegrationTypes',
+      channelId,
+      awaitingResponse: 'true',
     },
-  );
+    skip: skip || !channelId,
+    fetchPolicy: 'cache-and-network',
+  });
 
   return {
-    awaitingCounts: data?.conversationCounts?.byIntegrationTypes ?? {},
+    awaitingCounts: readCountMap(
+      data?.conversationCounts,
+      'byIntegrationTypes',
+    ),
     loading,
   };
 };
@@ -112,17 +95,15 @@ export const useConversationCountsByIntegration = ({
   channelId: string;
   skip?: boolean;
 }): TUseConversationCountsByIntegrationResult => {
-  const { data, loading } = useQuery<TConversationCountsResponse>(
+  const { data, loading } = useQuery(CONVERSATION_COUNTS, {
+    variables: { only: 'byIntegrations', channelId },
+    skip,
+    fetchPolicy: 'cache-and-network',
+  });
+
+  const { data: awaitingData, loading: awaitingLoading } = useQuery(
     CONVERSATION_COUNTS,
     {
-      variables: { only: 'byIntegrations', channelId },
-      skip,
-      fetchPolicy: 'cache-and-network',
-    },
-  );
-
-  const { data: awaitingData, loading: awaitingLoading } =
-    useQuery<TConversationCountsResponse>(CONVERSATION_COUNTS, {
       variables: {
         only: 'byIntegrations',
         channelId,
@@ -130,11 +111,15 @@ export const useConversationCountsByIntegration = ({
       },
       skip,
       fetchPolicy: 'cache-and-network',
-    });
+    },
+  );
 
   return {
-    counts: data?.conversationCounts?.byIntegrations ?? {},
-    awaitingCounts: awaitingData?.conversationCounts?.byIntegrations ?? {},
+    counts: readCountMap(data?.conversationCounts, 'byIntegrations'),
+    awaitingCounts: readCountMap(
+      awaitingData?.conversationCounts,
+      'byIntegrations',
+    ),
     loading: loading || awaitingLoading,
   };
 };
@@ -146,19 +131,18 @@ export type TUseInboxWorkCountsResult = {
 };
 
 export const useInboxWorkCounts = (): TUseInboxWorkCountsResult => {
-  const { data, loading, error } = useQuery<{
-    conversationCounts?: Partial<TInboxWorkCounts>;
-  }>(INBOX_SIDEBAR_WORK_COUNTS, {
+  const { data, loading, error } = useQuery(INBOX_SIDEBAR_WORK_COUNTS, {
     fetchPolicy: 'cache-and-network',
     variables: { unread: 'true' },
   });
 
   return {
     counts: {
-      awaitingResponse: data?.conversationCounts?.awaitingResponse ?? 0,
-      mentioned: data?.conversationCounts?.mentioned ?? 0,
-      participating: data?.conversationCounts?.participating ?? 0,
-      unassigned: data?.conversationCounts?.unassigned ?? 0,
+      awaitingResponse:
+        readCount(data?.conversationCounts, 'awaitingResponse') ?? 0,
+      mentioned: readCount(data?.conversationCounts, 'mentioned') ?? 0,
+      participating: readCount(data?.conversationCounts, 'participating') ?? 0,
+      unassigned: readCount(data?.conversationCounts, 'unassigned') ?? 0,
     },
     error,
     loading,
@@ -167,14 +151,12 @@ export const useInboxWorkCounts = (): TUseInboxWorkCountsResult => {
 
 export const useInboxUnreadConversationCount = () => {
   const userId = useAtomValue(currentUserState)?._id;
-  const { data, loading, refetch } = useQuery<{
-    conversationsTotalCount?: number;
-  }>(INBOX_UNREAD_CONVERSATION_COUNT, {
+  const { data, loading, refetch } = useQuery(INBOX_UNREAD_CONVERSATION_COUNT, {
     fetchPolicy: 'cache-and-network',
   });
 
   useSubscription(CONVERSATION_CLIENT_MESSAGE_INSERTED, {
-    variables: { userId },
+    variables: userId ? { userId } : undefined,
     skip: !userId,
     onData: () => {
       void refetch();

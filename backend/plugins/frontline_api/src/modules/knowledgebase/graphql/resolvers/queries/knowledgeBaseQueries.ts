@@ -1,9 +1,5 @@
-import { defaultPaginate } from 'erxes-api-shared/utils';
+import { defaultPaginate, escapeRegExp } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
-
-function escapeRegExp(value: string): string {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
 
 const findDetail = async (model, _id) => {
   return await model.findOne({ $or: [{ _id }, { code: _id }] });
@@ -24,10 +20,9 @@ const buildQuery = (args: any) => {
 
   const searchValue = args.searchValue?.trim();
   if (searchValue) {
-    const safeSearch = escapeRegExp(searchValue);
     qry.$or = ['title', 'description', 'code', 'summary', 'content'].map(
       (field) => ({
-        [field]: { $regex: `.*${safeSearch}.*`, $options: 'i' },
+        [field]: { $regex: `.*${escapeRegExp(searchValue)}.*`, $options: 'i' },
       }),
     );
   }

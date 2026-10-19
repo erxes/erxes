@@ -6,7 +6,7 @@
 - **Project:** `operation_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/operation_api`
-- **Last synchronized:** `2026-10-13`
+- **Last synchronized:** `2026-10-17`
 
 ## Scope
 
@@ -126,6 +126,10 @@ propertiesData? } })`
   GraphQL type does not expose it; import/export read it.
 
 ## Local Invariants
+
+- Set property handlers pass `targetActionId: action.targetActionId` to
+  `getSetPropertySelector`, so a Manage properties action targeting an earlier
+  action (Find object, Create) updates that action's record, not the trigger's.
 
 - Task date filters use paired `startDateStartDate`/`startDateEndDate`, `targetDateStartDate`/`targetDateEndDate`, `createdStartDate`/`createdEndDate`, `updatedStartDate`/`updatedEndDate`, and `completedStartDate`/`completedEndDate` bounds through `src/modules/task/utils/dateFilters.ts`. Reject invalid or reversed bounds; subscription events leave date membership to the client refetch so tasks moving out of a range are removed.
 

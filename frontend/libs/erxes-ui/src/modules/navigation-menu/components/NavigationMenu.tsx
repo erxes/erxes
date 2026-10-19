@@ -83,6 +83,11 @@ export const NavigationMenuLinkItem = forwardRef<
 
 NavigationMenuLinkItem.displayName = 'NavigationMenuLinkItem';
 
+/**
+ * @deprecated Links to `/settings/<pathPrefix>/…`, which now only redirects:
+ * plugin settings live in the plugin's own app. Use `NavigationMenuLinkItem`
+ * with `pathPrefix="<plugin>/settings"`.
+ */
 export const SettingsNavigationMenuLinkItem = forwardRef<
   React.ElementRef<typeof Sidebar.MenuButton>,
   React.ComponentProps<typeof NavigationMenuLinkItem>

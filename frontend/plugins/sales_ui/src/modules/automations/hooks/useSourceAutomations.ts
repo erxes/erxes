@@ -6,21 +6,12 @@ import {
   TAutomationReturnLink,
 } from 'ui-modules';
 import { SALES_SOURCE_AUTOMATIONS } from '../graphql/sourceAutomationsQuery';
+import { type TSourceTrigger, toSourceTriggers } from '../utils/sourceTriggers';
 
-export type TSourceTrigger = {
-  type: string;
-  config?: Record<string, unknown>;
-};
+export type { TSourceTrigger } from '../utils/sourceTriggers';
 
 // 'own': runs on this record only; 'all': on every record of its kind.
 export type TSourceScope = 'own' | 'all';
-
-type TAutomationRecord = {
-  _id: string;
-  name?: string;
-  status?: string;
-  triggers?: TSourceTrigger[];
-};
 
 export type TSourceAutomation = {
   _id: string;
@@ -55,31 +46,34 @@ export const useSourceAutomations = ({
     label,
   };
 
-  const { data, loading, error } = useQuery<{
-    automations: TAutomationRecord[];
-  }>(SALES_SOURCE_AUTOMATIONS, {
+  const { data, loading, error } = useQuery(SALES_SOURCE_AUTOMATIONS, {
     variables: { triggerTypes },
     skip: !newTrigger,
     // Automations are edited elsewhere; coming back must show the change.
     fetchPolicy: 'cache-and-network',
   });
 
-  const automations: TSourceAutomation[] = (data?.automations || []).flatMap(
-    ({ _id, name, status, triggers }) => {
-      const own = (triggers || []).flatMap((trigger) => {
-        const scope = triggerTypes.includes(trigger.type)
-          ? scopeOf(trigger)
-          : null;
+  const automations: TSourceAutomation[] = (data?.automations ?? []).flatMap(
+    (automation) => {
+      if (!automation) {
+        return [];
+      }
 
-        return scope ? [{ trigger, scope }] : [];
-      });
+      const { _id, name, status, triggers } = automation;
+      const own = toSourceTriggers(triggers, triggerTypes).flatMap(
+        (trigger) => {
+          const scope = scopeOf(trigger);
+
+          return scope ? [{ trigger, scope }] : [];
+        },
+      );
 
       return own.length
         ? [
             {
               _id,
               name: name || '',
-              status,
+              status: status ?? undefined,
               events: own
                 .map(({ trigger }) => describe(trigger))
                 .filter(Boolean),

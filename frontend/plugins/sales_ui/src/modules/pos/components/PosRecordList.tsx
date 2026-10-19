@@ -1,23 +1,23 @@
-import React from 'react';
-import { Badge, readImage } from 'erxes-ui';
-import { usePosList } from '@/pos/hooks/usePosList';
-import { IPos } from '@/pos/types/pos';
-import { IconPhotoCirclePlus } from '@tabler/icons-react';
-import { Link } from 'react-router-dom';
 import { PosEmptyState } from '@/pos/components/PosEmptyState';
+import { usePosList } from '@/pos/hooks/usePosList';
+import { IconPhotoCirclePlus } from '@tabler/icons-react';
+import { Badge, readImage } from 'erxes-ui';
+import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
+type PosListItem = ReturnType<typeof usePosList>['posList'][number];
 
 interface PosCardProps {
-  pos: IPos;
+  pos: PosListItem;
 }
 
 const PosCard: React.FC<PosCardProps> = ({ pos }) => {
   const { t } = useTranslation('sales');
-  const coverImage = pos?.logo || pos?.uiOptions?.logo;
+  const coverImage = pos.logo;
 
   return (
     <Link
-      to={`/settings/sales/pos/${pos._id}`}
+      to={`/sales/settings/pos/${pos._id}`}
       className="p-2 rounded-2xl border h-[200px]"
     >
       <div className="grid grid-cols-2 h-full">
@@ -25,7 +25,7 @@ const PosCard: React.FC<PosCardProps> = ({ pos }) => {
           {coverImage ? (
             <img
               src={readImage(coverImage)}
-              alt={pos.name}
+              alt={pos.name ?? ''}
               className="object-cover object-center w-full h-full"
             />
           ) : (
@@ -49,7 +49,9 @@ const PosCard: React.FC<PosCardProps> = ({ pos }) => {
               <p className="text-sm">{pos.description}</p>
             </div>
           )}
-          <Badge variant="default">{pos.adminIds?.length} / {pos.cashierIds?.length}</Badge>
+          <Badge variant="default">
+            {pos.adminIds?.length} / {pos.cashierIds?.length}
+          </Badge>
 
           {pos.branchTitle && (
             <div className="flex gap-2 items-center text-accent-foreground">
@@ -109,7 +111,7 @@ export const PosCardGrid = ({ onCreatePos }: PosCardGridProps) => {
   return (
     <div className="overflow-y-auto p-6 h-full">
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-3">
-        {posList?.map((pos: IPos) => (
+        {posList?.map((pos: PosListItem) => (
           <PosCard key={pos._id} pos={pos} />
         ))}
       </div>

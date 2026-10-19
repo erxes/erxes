@@ -1,5 +1,4 @@
 import { TAutomationCondition, TAutomationConditionalRow } from 'ui-modules';
-import { useState } from 'react';
 import { createEmptyCondition, describeConditionalRow } from 'ui-modules';
 
 export const useAutomationConditionalEditorRow = ({
@@ -10,11 +9,8 @@ export const useAutomationConditionalEditorRow = ({
   onChange: (patch: Partial<TAutomationConditionalRow>) => void;
 }) => {
   const conjunction = row.conjunction || 'and';
-  const [open, setOpen] = useState(true);
 
   return {
-    open,
-    setOpen,
     summary: describeConditionalRow(row),
     conjunction,
     toggleConjunction: () =>

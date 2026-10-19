@@ -1,7 +1,6 @@
-import { gql } from '@apollo/client';
-import { PIPELINE_INTEGRATION_FIELDS } from '../queries/mailPipelineQueries';
+import { gql } from '~/gql';
 
-export const MAIL_PIPELINE_CONNECT_MUTATION = gql`
+export const MAIL_PIPELINE_CONNECT_MUTATION = gql(`
   mutation mailPipelineConnect(
     $pipelineId: String!
     $senderName: String
@@ -14,12 +13,31 @@ export const MAIL_PIPELINE_CONNECT_MUTATION = gql`
       forwardFrom: $forwardFrom
       statusId: $statusId
     ) {
-      ${PIPELINE_INTEGRATION_FIELDS}
+      _id
+      pipelineId
+      statusId
+      name
+      address
+      senderName
+      forwardFrom
+      forwardPendingAt
+      awaitingForwardVerification
+      forwardVerification {
+        from
+        subject
+        code
+        link
+        excerpt
+        receivedAt
+      }
+      healthStatus
+      error
+      __typename
     }
   }
-`;
+`);
 
-export const MAIL_PIPELINE_UPDATE_MUTATION = gql`
+export const MAIL_PIPELINE_UPDATE_MUTATION = gql(`
   mutation mailPipelineUpdate(
     $pipelineId: String!
     $senderName: String
@@ -32,21 +50,59 @@ export const MAIL_PIPELINE_UPDATE_MUTATION = gql`
       forwardFrom: $forwardFrom
       statusId: $statusId
     ) {
-      ${PIPELINE_INTEGRATION_FIELDS}
+      _id
+      pipelineId
+      statusId
+      name
+      address
+      senderName
+      forwardFrom
+      forwardPendingAt
+      awaitingForwardVerification
+      forwardVerification {
+        from
+        subject
+        code
+        link
+        excerpt
+        receivedAt
+      }
+      healthStatus
+      error
+      __typename
     }
   }
-`;
+`);
 
-export const MAIL_PIPELINE_FORWARD_VERIFIED_MUTATION = gql`
+export const MAIL_PIPELINE_FORWARD_VERIFIED_MUTATION = gql(`
   mutation mailPipelineForwardVerified($pipelineId: String!) {
     mailPipelineForwardVerified(pipelineId: $pipelineId) {
-      ${PIPELINE_INTEGRATION_FIELDS}
+      _id
+      pipelineId
+      statusId
+      name
+      address
+      senderName
+      forwardFrom
+      forwardPendingAt
+      awaitingForwardVerification
+      forwardVerification {
+        from
+        subject
+        code
+        link
+        excerpt
+        receivedAt
+      }
+      healthStatus
+      error
+      __typename
     }
   }
-`;
+`);
 
-export const MAIL_PIPELINE_DISCONNECT_MUTATION = gql`
+export const MAIL_PIPELINE_DISCONNECT_MUTATION = gql(`
   mutation mailPipelineDisconnect($pipelineId: String!) {
     mailPipelineDisconnect(pipelineId: $pipelineId)
   }
-`;
+`);

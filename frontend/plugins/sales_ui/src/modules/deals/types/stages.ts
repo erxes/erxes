@@ -1,26 +1,7 @@
-export interface IStage {
-  _id: string;
-  name: string;
-  type: string;
-  probability: string;
-  index?: number;
-  itemId?: string;
-  unUsedAmount?: number;
-  amount?: number | string | null;
-  itemsTotalCount: number;
-  formId: string;
-  pipelineId: string;
-  visibility: string;
-  memberIds: string[];
-  canMoveMemberIds?: string[];
-  canEditMemberIds?: string[];
-  departmentIds: string[];
-  status: string;
-  order: number;
-  code?: string;
-  age?: number;
-  defaultTick?: boolean;
-}
+import type { SalesDealStagesQuery } from '~/gql/graphql';
+export type IStage = NonNullable<
+  NonNullable<SalesDealStagesQuery['salesStages']>[number]
+>;
 
 export interface ISelectStagesContext {
   stageIds: string[];
@@ -29,13 +10,5 @@ export interface ISelectStagesContext {
   onSelect: (stage: IStage) => void;
   loading: boolean;
   error: string | null;
-  pipelineId?: string;
-}
-
-export interface StagesInlineProps {
-  stageIds?: string[];
-  stages?: IStage[];
-  placeholder?: string;
-  updateStages?: (stages: IStage[]) => void;
   pipelineId?: string;
 }

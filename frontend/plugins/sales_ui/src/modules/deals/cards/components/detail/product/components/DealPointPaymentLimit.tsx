@@ -1,6 +1,6 @@
+import type { PaymentConfigItem } from '@/payments';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { PaymentConfigItem } from '@/payments';
 import { useDealPointLimit } from '../hooks/payment/useDealPointLimit';
 
 /**
@@ -68,8 +68,8 @@ export const DealPointPaymentLimit = ({
   return (
     <span className="text-xs text-muted-foreground">
       {t('points-available', {
-        points: limit.balance.toLocaleString(),
-        amount: limit.maxAmount.toLocaleString(),
+        points: (limit.balance ?? 0).toLocaleString(),
+        amount: (limit.maxAmount ?? 0).toLocaleString(),
       })}
     </span>
   );

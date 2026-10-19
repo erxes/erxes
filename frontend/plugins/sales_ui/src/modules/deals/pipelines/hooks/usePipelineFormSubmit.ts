@@ -1,3 +1,4 @@
+import { useConfirm, useQueryState, useToast } from 'erxes-ui';
 import type { FormEvent } from 'react';
 import { useCallback } from 'react';
 import type {
@@ -7,7 +8,6 @@ import type {
   UseFormReturn,
 } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { useConfirm, useQueryState, useToast } from 'erxes-ui';
 
 import {
   usePipelineAdd,
@@ -95,7 +95,6 @@ export const usePipelineFormSubmit = ({
 
   const submitHandler: SubmitHandler<TPipelineForm> = useCallback(
     (data) => {
-      const managePipeline = pipelineId ? pipelineEdit : addPipeline;
       const successTitle = pipelineId
         ? t('pipeline-updated')
         : t('pipeline-added');
@@ -111,13 +110,18 @@ export const usePipelineFormSubmit = ({
       void confirm({
         message: t('are-you-absolutely-sure-to-continue'),
       }).then(() => {
-        managePipeline({
-          variables,
-          onCompleted: () => {
-            toast({ title: successTitle });
-            onCompleted();
-          },
-        });
+        const handleCompleted = () => {
+          toast({ title: successTitle });
+          onCompleted();
+        };
+        if (pipelineId) {
+          void pipelineEdit({
+            variables: { ...variables, _id: pipelineId },
+            onCompleted: handleCompleted,
+          });
+        } else {
+          void addPipeline({ variables, onCompleted: handleCompleted });
+        }
       });
     },
     [addPipeline, confirm, onCompleted, pipelineEdit, pipelineId, t, toast],

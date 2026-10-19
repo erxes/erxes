@@ -1,9 +1,9 @@
-import { IChannel } from '@/channels/types';
+import { IChannelDetail } from '@/channels/types';
 import { IconChevronRight } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
-export const MemberSection = ({ channel }: { channel: IChannel }) => {
+export const MemberSection = ({ channel }: { channel: IChannelDetail }) => {
   const { t } = useTranslation('frontline');
   const navigate = useNavigate();
 
@@ -11,7 +11,7 @@ export const MemberSection = ({ channel }: { channel: IChannel }) => {
     <div
       className="w-full shrink-0 border border-muted-foreground/15 rounded-md hover:bg-sidebar/50 cursor-pointer"
       onClick={() =>
-        navigate(`/settings/frontline/channels/${channel._id}/members`)
+        navigate(`/frontline/settings/channels/${channel._id}/members`)
       }
     >
       <section className="w-full p-4">

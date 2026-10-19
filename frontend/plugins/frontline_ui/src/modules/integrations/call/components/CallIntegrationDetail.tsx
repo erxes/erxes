@@ -1,5 +1,5 @@
 import { CellContext } from '@tanstack/react-table';
-import { IIntegrationDetail } from '@/integrations/types/Integration';
+import { IIntegration } from '@/integrations/types/Integration';
 import { Switch, Tooltip } from 'erxes-ui';
 import { IconEdit } from '@tabler/icons-react';
 import { useSetAtom } from 'jotai';
@@ -22,7 +22,7 @@ export const CallIntegrationDetail = () => {
 export const CallIntegrationActions = ({
   cell,
 }: {
-  cell: CellContext<IIntegrationDetail, unknown>;
+  cell: CellContext<IIntegration, unknown>;
 }) => {
   const { t } = useTranslation('frontline');
   const setEditId = useSetAtom(callEditSheetAtom);

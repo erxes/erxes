@@ -5,58 +5,26 @@ import {
   useQuery,
   useSubscription,
 } from '@apollo/client';
+import { isDefined } from 'erxes-ui';
 import { TICKET_LIST_CHANGED } from '@/ticket/graphql/subscriptions/ticketListChanged';
 import { GET_TICKET_LIST } from '@/report/graphql/queries/getTicketChart';
-import { useCallback, useEffect, useRef, useState } from 'react';
-import type { useTicketChartCard } from './useTicketChartCard';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import type {
+  ReportTicketListQuery,
+  ReportTicketListQueryVariables,
+} from '~/gql/graphql';
 
-interface TicketListVariables {
-  filters: ReturnType<typeof useTicketChartCard>['queryFilters'] & {
-    page: number;
-    limit: number;
-  };
-}
+type TicketListData = NonNullable<ReportTicketListQuery['reportTicketList']>;
 
-export interface TicketListItem {
-  _id: string;
-  name: string;
-  number?: string;
-  statusId: string;
-  status?: {
-    _id: string;
-    name: string;
-    color?: string;
-    type?: number;
-  };
-  state?: string;
-  priority: number;
-  assigneeId: string;
-  createdAt: string;
-  description?: string;
-  updatedAt?: string;
-  statusChangedDate?: string;
-  statusChangedBy?: string;
-  updatedBy?: string;
-  targetDate?: string;
-  startDate?: string;
-  tagIds?: string[];
-  pipelineId?: string;
-  channelId?: string;
-  branchId?: string;
-  departmentId?: string;
-  createdBy?: string;
-  propertiesData?: Record<string, unknown>;
-}
+export type TicketListItem = NonNullable<
+  NonNullable<TicketListData['list']>[number]
+>;
 
 interface TicketListResult {
   list: TicketListItem[];
   totalCount: number;
   page: number;
   totalPages: number;
-}
-
-interface TicketListResponse {
-  reportTicketList: TicketListResult;
 }
 
 interface UseTicketListResult {
@@ -70,20 +38,34 @@ interface UseTicketListResult {
   error?: ApolloError;
 }
 
+const toTicketList = (data: TicketListData): TicketListResult => ({
+  list: data.list?.filter(isDefined) ?? [],
+  totalCount: data.totalCount ?? 0,
+  page: data.page ?? 1,
+  totalPages: data.totalPages ?? 0,
+});
+
 export const useTicketList = (
-  options: QueryHookOptions<TicketListResponse, TicketListVariables> & {
-    variables: TicketListVariables;
+  options: QueryHookOptions<
+    ReportTicketListQuery,
+    ReportTicketListQueryVariables
+  > & {
+    variables: ReportTicketListQueryVariables;
   },
 ): UseTicketListResult => {
-  const { data, loading, networkStatus, error, refetch, fetchMore } = useQuery<
-    TicketListResponse,
-    TicketListVariables
-  >(GET_TICKET_LIST, {
-    ...options,
-    fetchPolicy: 'network-only',
-    notifyOnNetworkStatusChange: true,
-  });
-  const ticketList = data?.reportTicketList;
+  const { data, loading, networkStatus, error, refetch, fetchMore } = useQuery(
+    GET_TICKET_LIST,
+    {
+      ...options,
+      fetchPolicy: 'network-only',
+      notifyOnNetworkStatusChange: true,
+    },
+  );
+  const ticketList = useMemo(
+    () =>
+      data?.reportTicketList ? toTicketList(data.reportTicketList) : undefined,
+    [data?.reportTicketList],
+  );
   const isFetchingMore = networkStatus === NetworkStatus.fetchMore;
   const hasNextPage = Boolean(
     ticketList && ticketList.page < ticketList.totalPages,
@@ -130,18 +112,18 @@ export const useTicketList = (
           filters: { ...options.variables.filters, page: ticketList.page + 1 },
         },
         updateQuery: (previous, { fetchMoreResult }) => {
-          if (requestRef.current !== request || !fetchMoreResult)
-            return previous;
-          const ids = new Set(
-            previous.reportTicketList.list.map(({ _id }) => _id),
-          );
+          const next = fetchMoreResult?.reportTicketList;
+          if (requestRef.current !== request || !next) return previous;
+          const previousList =
+            previous.reportTicketList?.list?.filter(isDefined) ?? [];
+          const ids = new Set(previousList.map(({ _id }) => _id));
           return {
             ...previous,
             reportTicketList: {
-              ...fetchMoreResult.reportTicketList,
+              ...next,
               list: [
-                ...previous.reportTicketList.list,
-                ...fetchMoreResult.reportTicketList.list.filter(
+                ...previousList,
+                ...(next.list?.filter(isDefined) ?? []).filter(
                   ({ _id }) => !ids.has(_id),
                 ),
               ],

@@ -1,22 +1,17 @@
 import { QueryHookOptions, useQuery } from '@apollo/client';
 import { GET_TICKET_OPEN } from '@/report/graphql/queries/getTicketChart';
-
-interface TicketMetric {
-  count: number;
-  percentage: number;
-}
-
-interface TicketOpenResponse {
-  reportTicketOpen: TicketMetric;
-}
+import type {
+  ReportTicketOpenQuery,
+  ReportTicketOpenQueryVariables,
+} from '~/gql/graphql';
 
 export const useTicketOpen = (
-  options?: QueryHookOptions<TicketOpenResponse>,
+  options?: QueryHookOptions<
+    ReportTicketOpenQuery,
+    ReportTicketOpenQueryVariables
+  >,
 ) => {
-  const { data, loading, error } = useQuery<TicketOpenResponse>(
-    GET_TICKET_OPEN,
-    options,
-  );
+  const { data, loading, error } = useQuery(GET_TICKET_OPEN, options);
 
   return {
     ticketOpen: data?.reportTicketOpen,

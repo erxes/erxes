@@ -11,15 +11,15 @@ export const ChannelDetailsPage = () => {
   return (
     <ScrollArea className="flex-1">
       <div className="h-full flex flex-col">
-        <div className="px-4 h-16 flex items-center shrink-0">
+        <div className="px-4 h-10 flex items-center shrink-0">
           <Breadcrumb>
             <Breadcrumb.List>
               <Breadcrumb.Item>
                 <Breadcrumb.Link asChild className="flex items-center gap-1">
                   <Button
                     variant="ghost"
-                    className="text-foreground font-semibold"
-                    onClick={() => navigate('/settings/frontline/channels')}
+                    className="text-foreground"
+                    onClick={() => navigate('/frontline/settings/channels')}
                   >
                     <IconArrowLeft size={16} className="stroke-foreground" />
                     {t('channels', 'Channels')}

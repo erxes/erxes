@@ -57,10 +57,6 @@ export const ConversationConvert = () => {
       convert: t('convert-to-a-deal', 'Convert to a deal'),
       goTo: t('go-to-a-deal', 'Go to a deal'),
     },
-    task: {
-      convert: t('convert-to-a-task', 'Convert to a task'),
-      goTo: t('go-to-a-task', 'Go to a task'),
-    },
   };
 
   const handleOpenChange = (open: boolean) => {
@@ -70,11 +66,11 @@ export const ConversationConvert = () => {
   };
 
   const items = availableTypes.map((type) => {
-    const converted = convertedItems.find((item) => item.type === type);
+    const convertedUrl = convertedItems.find((item) => item.type === type)?.url;
 
-    if (converted) {
+    if (convertedUrl) {
       return (
-        <DropdownMenu.Item key={type} onSelect={() => navigate(converted.url)}>
+        <DropdownMenu.Item key={type} onSelect={() => navigate(convertedUrl)}>
           <IconExternalLink className="size-4" />
           {labels[type].goTo}
         </DropdownMenu.Item>

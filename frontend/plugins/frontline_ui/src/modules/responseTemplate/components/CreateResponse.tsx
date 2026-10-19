@@ -56,9 +56,12 @@ export const CreateResponse = () => {
       onCompleted: (res) => {
         toast({ title: t('success', 'Success!') });
         setOpen(false);
-        navigate(
-          `/settings/frontline/channels/${channelId}/response/${res.createResponses._id}`,
-        );
+        const createdId = res.responseTemplatesAdd?._id;
+        if (createdId) {
+          navigate(
+            `/frontline/settings/channels/${channelId}/response/${createdId}`,
+          );
+        }
       },
       onError: (err) => {
         toast({

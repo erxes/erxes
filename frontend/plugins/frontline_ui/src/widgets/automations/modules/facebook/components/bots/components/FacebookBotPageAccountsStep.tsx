@@ -1,4 +1,7 @@
-import { useFacebookAccounts } from '@/integrations/facebook/hooks/useFacebookAccounts';
+import {
+  TFacebookAccount,
+  useFacebookAccounts,
+} from '@/integrations/facebook/hooks/useFacebookAccounts';
 import { selectedFacebookAccountAtom } from '@/integrations/facebook/states/facebookStates';
 import { IconPlus } from '@tabler/icons-react';
 import { Button, cn, Command, Input, RadioGroup, Spinner } from 'erxes-ui';
@@ -36,7 +39,7 @@ export const FacebookBotPageAccountsStep = ({
 
           <Button variant="ghost" className="text-primary" asChild>
             <Link
-              to="/settings/frontline/channels"
+              to="/frontline/settings/channels"
               target="_blank"
               rel="noreferrer"
             >
@@ -66,12 +69,7 @@ const FacebookBotPageAccountsStepContent = ({
   facebookGetAccounts,
 }: {
   loading: boolean;
-  facebookGetAccounts: {
-    _id: string;
-    name: string;
-    pageId: string | null;
-    pageName: string | null;
-  }[];
+  facebookGetAccounts: TFacebookAccount[];
 }) => {
   const [selectedAccountId, setSelectedAccountId] = useAtom(
     selectedFacebookAccountAtom,
@@ -91,7 +89,7 @@ const FacebookBotPageAccountsStepContent = ({
     return (
       <Command.Item
         key={account._id}
-        value={account.name}
+        value={account.name ?? ''}
         onSelect={() => handleSelect(account._id)}
         className={cn(
           'gap-3 border-t last-of-type:border-b rounded-none h-10 px-3 cursor-pointer',

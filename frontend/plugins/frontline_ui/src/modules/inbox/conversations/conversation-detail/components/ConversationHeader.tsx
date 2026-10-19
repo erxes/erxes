@@ -236,7 +236,7 @@ const AssignConversation = ({
     <div className="flex">
       <SelectMember.Provider
         mode="single"
-        value={assignedUserId}
+        value={assignedUserId ?? undefined}
         onValueChange={(value) => {
           handleAssignConversations(value);
           setOpen(false);

@@ -1,17 +1,8 @@
 import { useQuery } from '@apollo/client';
 import { Checkbox, Spinner } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import { compactList } from '@/shared/utils/cursorList';
 import { MAIL_INBOXES_QUERY } from '../../graphql/mailInboxQueries';
-
-interface MailInbox {
-  _id: string;
-  name?: string;
-  address?: string;
-}
-
-interface MailInboxesResponse {
-  mailInboxes: MailInbox[] | null;
-}
 
 interface MailInboxChecklistProps {
   value: string[];
@@ -23,8 +14,7 @@ export const MailInboxChecklist = ({
   onChange,
 }: MailInboxChecklistProps) => {
   const { t } = useTranslation('frontline');
-  const { data, loading, error } =
-    useQuery<MailInboxesResponse>(MAIL_INBOXES_QUERY);
+  const { data, loading, error } = useQuery(MAIL_INBOXES_QUERY);
 
   if (loading) {
     return <Spinner size="sm" />;
@@ -34,7 +24,7 @@ export const MailInboxChecklist = ({
     return <p className="text-sm text-destructive">{error.message}</p>;
   }
 
-  const inboxes = data?.mailInboxes ?? [];
+  const inboxes = compactList(data?.mailInboxes);
 
   if (!inboxes.length) {
     return (

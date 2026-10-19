@@ -100,8 +100,8 @@ export const MailDraftCard: React.FC<MailDraftCardProps> = ({
 
       {editing ? (
         <MailDraftEditForm
-          subject={draft.subject}
-          body={draft.body}
+          subject={draft.subject ?? undefined}
+          body={draft.body ?? undefined}
           saving={task === 'save'}
           onSave={save}
           onCancel={() => setEditing(false)}
@@ -112,7 +112,7 @@ export const MailDraftCard: React.FC<MailDraftCardProps> = ({
             <p className="text-[13px] font-medium text-foreground pb-1">
               {draft.subject || t('no-subject', '(No subject)')}
             </p>
-            <EmailBody body={draft.body} />
+            <EmailBody body={draft.body ?? undefined} />
           </div>
 
           <div className="flex items-center gap-2 px-4 h-12 border-t border-primary/20">

@@ -19,14 +19,12 @@ export const SyncErkhetBreadcrumb = () => {
 
   return (
     <>
-      <Button variant="ghost" className="font-semibold">
+      <Button variant="ghost">
         <IconCashBanknote className="w-4 h-4 mr-1.5" />
         {t('erkhet-sync')}
       </Button>
       <Separator.Inline />
-      <Button variant="ghost" className="font-semibold">
-        {currentLabel}
-      </Button>
+      <Button variant="ghost">{currentLabel}</Button>
       <Separator.Inline />
       <PageHeader.FavoriteToggleButton
         breadcrumb={favoriteBreadcrumb}

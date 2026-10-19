@@ -18,15 +18,15 @@ export const ProductsSimilarityGroupPage = () => {
   } = useSimilarityGroups();
 
   return (
-    <PageContainer>
-      <ProductsHeader>
-        <Button onClick={handleAddNew}>
-          <IconPlus size={16} />
-          {t('new-config', 'New Config')}
-        </Button>
-      </ProductsHeader>
-      <div className="flex overflow-hidden flex-auto">
-        <ProductSidebar />
+    <PageContainer className="flex-row">
+      <ProductSidebar />
+      <div className="flex min-w-0 flex-auto flex-col overflow-hidden">
+        <ProductsHeader>
+          <Button onClick={handleAddNew}>
+            <IconPlus size={16} />
+            {t('new-config', 'New Config')}
+          </Button>
+        </ProductsHeader>
         <div className="flex overflow-hidden flex-col flex-auto p-3 w-full min-h-0">
           <SimilarityGroupList
             groupsMap={groupsMap}

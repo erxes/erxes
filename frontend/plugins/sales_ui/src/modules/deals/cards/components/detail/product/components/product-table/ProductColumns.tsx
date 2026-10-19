@@ -1,16 +1,14 @@
 'use client';
 
+import type { DealProductData } from '@/deals/utils/dealJson';
 import {
-  CheckInputField,
-  ProductAssigneeField,
-  ProductCalculatedNumberField,
-  ProductDiscountNumberField,
-  ProductNumberField,
-  baseUom,
-  uomInfoUom,
-  uomInfoUnitPrice,
-  uomInfoQuantity,
-} from './getProductColumns';
+  IconCurrencyDollar,
+  IconDiamond,
+  IconLabel,
+  IconPentagonNumber1,
+  IconShoppingCart,
+  IconUser,
+} from '@tabler/icons-react';
 import {
   CURRENCY_CODES,
   CurrencyCode,
@@ -20,13 +18,16 @@ import {
   formatAmount,
 } from 'erxes-ui';
 import {
-  IconCurrencyDollar,
-  IconDiamond,
-  IconLabel,
-  IconPentagonNumber1,
-  IconUser,
-  IconShoppingCart,
-} from '@tabler/icons-react';
+  CheckInputField,
+  ProductAssigneeField,
+  ProductCalculatedNumberField,
+  ProductDiscountNumberField,
+  ProductNumberField,
+  baseUom,
+  uomInfoQuantity,
+  uomInfoUnitPrice,
+  uomInfoUom,
+} from './getProductColumns';
 import {
   ProductNameCell,
   getProductId,
@@ -34,14 +35,14 @@ import {
 } from './ProductNameCell';
 
 import { ColumnDef } from '@tanstack/table-core';
-import { IProductData } from 'ui-modules';
-import { ProductTypeIcon } from './ProductTypeIcon';
-import { productMoreColumn } from './ProductMoreColumn';
-import { TFunction } from 'i18next';
 
-export const productColumns = (t: TFunction): ColumnDef<IProductData>[] => [
+import { TFunction } from 'i18next';
+import { productMoreColumn } from './ProductMoreColumn';
+import { ProductTypeIcon } from './ProductTypeIcon';
+
+export const productColumns = (t: TFunction): ColumnDef<DealProductData>[] => [
   productMoreColumn(),
-  RecordTable.checkboxColumn as ColumnDef<IProductData>,
+  RecordTable.checkboxColumn as ColumnDef<DealProductData>,
   {
     id: 'type',
     accessorKey: 'product.type',

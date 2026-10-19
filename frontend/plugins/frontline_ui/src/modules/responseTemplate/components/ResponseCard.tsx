@@ -26,20 +26,16 @@ const stripHtml = (html?: string) =>
     .replace(/\s+/g, ' ')
     .trim();
 
-export const ResponseCard = ({
-  response,
-}: {
-  response: IResponseTemplate & { files?: string[] };
-}) => {
+export const ResponseCard = ({ response }: { response: IResponseTemplate }) => {
   const { t } = useTranslation('frontline');
   const navigate = useNavigate();
   const { _id, channelId, name, content, createdAt, files } = response;
 
-  const preview = stripHtml(content);
+  const preview = stripHtml(content ?? undefined);
   const fileCount = files?.length ?? 0;
 
   const openDetails = () => {
-    navigate(`/settings/frontline/channels/${channelId}/response/${_id}`);
+    navigate(`/frontline/settings/channels/${channelId}/response/${_id}`);
   };
 
   return (
@@ -59,7 +55,7 @@ export const ResponseCard = ({
         <Card.Title className="min-w-0 flex-1 truncate text-sm font-semibold leading-tight">
           {name}
         </Card.Title>
-        <ResponseCardActions channelId={channelId} responseId={_id} />
+        <ResponseCardActions channelId={channelId ?? ''} responseId={_id} />
       </div>
 
       <Card.Description className="line-clamp-3 min-h-[3rem] text-xs">
@@ -111,7 +107,7 @@ const ResponseCardActions = ({
 
   const handleEdit = () => {
     navigate(
-      `/settings/frontline/channels/${channelId}/response/${responseId}`,
+      `/frontline/settings/channels/${channelId}/response/${responseId}`,
     );
   };
 

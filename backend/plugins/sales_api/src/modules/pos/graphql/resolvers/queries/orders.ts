@@ -58,12 +58,10 @@ const generateFilterPosQuery = async (models, params, currentUserId) => {
   }
 
   if (search) {
-    const searchRegex = new RegExp(escapeRegExp(search), 'i');
-
     query.$or = [
-      { number: { $regex: searchRegex } },
-      { origin: { $regex: searchRegex } },
-      { description: { $regex: searchRegex } },
+      { number: { $regex: escapeRegExp(search), $options: 'i' } },
+      { origin: { $regex: escapeRegExp(search), $options: 'i' } },
+      { description: { $regex: escapeRegExp(search), $options: 'i' } },
     ];
   }
 
@@ -458,10 +456,13 @@ const queries = {
 
   posOrderDetail: async (
     _root,
-    { _id },
+    { _id }: { _id?: string | null },
     { models, subdomain, checkPermission }: IContext,
   ) => {
     await checkPermission('posOrderRead');
+    if (!_id) {
+      throw new Error('_id is required');
+    }
     const order = await models.PosOrders.findOne({ _id }).lean();
     if (!order) {
       throw new Error(`PosOrder ${_id} not found`);
@@ -816,12 +817,14 @@ const queries = {
       productQuery.$or = [
         {
           name: {
-            $regex: new RegExp(`.*${escapeRegExp(params.searchValue)}.*`, 'i'),
+            $regex: `.*${escapeRegExp(params.searchValue)}.*`,
+            $options: 'i',
           },
         },
         {
           code: {
-            $regex: new RegExp(`.*${escapeRegExp(params.searchValue)}.*`, 'i'),
+            $regex: `.*${escapeRegExp(params.searchValue)}.*`,
+            $options: 'i',
           },
         },
       ];

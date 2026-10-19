@@ -1,4 +1,5 @@
-import { IFacebookBot } from '@/integrations/facebook/types/FacebookBot';
+import { IFacebookBotProfile } from '@/integrations/facebook/types/FacebookBot';
+import { hasBotItemId } from '~/widgets/automations/modules/facebook/components/bots/utils/hasBotItemId';
 import {
   DIRECT_MESSAGE_OPERATOR_TYPES,
   MESSAGE_TRIGGER_CONDITIONS,
@@ -16,7 +17,7 @@ const getKeywordTexts = (
 /** What a condition is actually listening for, in the operator's own words. */
 export const buildConditionValue = (
   condition: TMessageTriggerCondition,
-  bot?: IFacebookBot,
+  bot?: IFacebookBotProfile,
 ) => {
   if (condition.type === 'direct') {
     const keywords = (condition.conditions || []).flatMap(({ keywords = [] }) =>
@@ -35,6 +36,7 @@ export const buildConditionValue = (
     const persistentMenus = bot?.persistentMenus || [];
 
     return persistentMenus
+      .filter(hasBotItemId)
       .filter(({ _id }) => persistentMenuIds.includes(_id))
       .map(({ text }) => text)
       .join(', ');
@@ -44,6 +46,7 @@ export const buildConditionValue = (
     const iceBreakerIds = condition.iceBreakerIds || [];
 
     return (bot?.iceBreakers || [])
+      .filter(hasBotItemId)
       .filter(({ _id }) => iceBreakerIds.includes(_id))
       .map(({ question }) => question)
       .join(', ');
@@ -65,7 +68,7 @@ export const buildSelectedConditionSummaries = ({
   bot,
 }: {
   conditions?: TMessageTriggerCondition[];
-  bot?: IFacebookBot;
+  bot?: IFacebookBotProfile;
 }): TTriggerConditionSummaryItem[] => {
   return conditions
     .filter(({ isSelected }) => isSelected)

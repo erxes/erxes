@@ -1,16 +1,28 @@
+import {
+  ICpTicketPipelineFilter,
+  ITicketPipelineDocument,
+} from '@/ticket/@types/pipeline';
 import { ITicketFilter } from '@/ticket/@types/ticket';
 import { generateFilter } from '@/ticket/utils';
 import { IOffsetPaginateParams } from 'erxes-api-shared/core-types';
-import { defaultPaginate, markResolvers } from 'erxes-api-shared/utils';
+import {
+  cursorPaginate,
+  defaultPaginate,
+  escapeRegExp,
+  markResolvers,
+} from 'erxes-api-shared/utils';
+import { FilterQuery } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
 
 export const cpTicketQueries = {
   cpGetTickets: async (
     _root: undefined,
-    { filter }: { filter: ITicketFilter & IOffsetPaginateParams },
+    args: { filter?: (Partial<ITicketFilter> & IOffsetPaginateParams) | null },
     { models, user, subdomain }: IContext,
   ) => {
-    const { page, perPage, createdBy } = filter || {};
+    const filter: Partial<ITicketFilter> & IOffsetPaginateParams =
+      args.filter ?? {};
+    const { page, perPage, createdBy } = filter;
 
     const query = await generateFilter(
       filter,
@@ -36,10 +48,12 @@ export const cpTicketQueries = {
   },
   cpGetTicketTotalCount: async (
     _root: undefined,
-    { filter }: { filter: ITicketFilter & IOffsetPaginateParams },
+    args: { filter?: (Partial<ITicketFilter> & IOffsetPaginateParams) | null },
     { models, user, subdomain }: IContext,
   ) => {
-    const { createdBy } = filter || {};
+    const filter: Partial<ITicketFilter> & IOffsetPaginateParams =
+      args.filter ?? {};
+    const { createdBy } = filter;
 
     const query = await generateFilter(
       filter,
@@ -61,6 +75,36 @@ export const cpTicketQueries = {
     { models }: IContext,
   ) => {
     return models.Status.getStatus(_id);
+  },
+
+  cpGetTicketPipelines: async (
+    _parent: undefined,
+    { filter = {} }: { filter?: ICpTicketPipelineFilter },
+    { models }: IContext,
+  ) => {
+    const { channelId, name, ...paginationParams } = filter;
+
+    // readable with only a portal token, so private pipelines never leave the API
+    const query: FilterQuery<ITicketPipelineDocument> = {
+      visibility: { $ne: 'private' },
+    };
+
+    if (channelId) {
+      query.channelId = channelId;
+    }
+
+    if (name) {
+      query.name = { $regex: escapeRegExp(name), $options: 'i' };
+    }
+
+    return cursorPaginate<ITicketPipelineDocument>({
+      model: models.Pipeline,
+      params: {
+        orderBy: { order: 'asc', createdAt: 'asc' },
+        ...paginationParams,
+      },
+      query,
+    });
   },
 
   cpTicketGetNotes: async (

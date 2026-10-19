@@ -1,39 +1,49 @@
 import { QueryHookOptions, useQuery } from '@apollo/client';
-import {
-  EnumCursorDirection,
-  mergeCursorData,
-  validateFetchMore,
-} from 'erxes-ui';
+import { useMemo } from 'react';
+import { EnumCursorDirection, validateFetchMore } from 'erxes-ui';
 import {
   GET_SURVEY_LIST,
   GET_SURVEY_RESULTS_LIST,
 } from '@/survey/graphql/surveyQueries';
-import { ISurvey } from '@/survey/types/surveyTypes';
+import {
+  compactList,
+  mergeCursorList,
+  toCursorPageInfo,
+} from '@/shared/utils/cursorList';
+import type {
+  SurveyListQuery,
+  SurveyListQueryVariables,
+  SurveyResultsListQuery,
+  SurveyResultsListQueryVariables,
+} from '~/gql/graphql';
 
 const SURVEYS_PER_PAGE = 24;
 
 export const useSurveyList = (
-  options?: QueryHookOptions & { withResults?: boolean },
+  options?: QueryHookOptions<SurveyListQuery, SurveyListQueryVariables>,
 ) => {
-  const { withResults, ...queryOptions } = options || {};
-
   const { data, loading, error, fetchMore, refetch } = useQuery(
-    withResults ? GET_SURVEY_RESULTS_LIST : GET_SURVEY_LIST,
+    GET_SURVEY_LIST,
     {
-      ...queryOptions,
+      ...options,
       variables: {
         limit: SURVEYS_PER_PAGE,
-        ...queryOptions?.variables,
+        ...options?.variables,
       },
       fetchPolicy: 'cache-and-network',
     },
   );
 
-  const {
-    list: surveys,
-    totalCount,
-    pageInfo,
-  } = data?.surveyList || ({} as { list?: ISurvey[] });
+  const surveys = useMemo(
+    () =>
+      data?.surveyList?.list ? compactList(data.surveyList.list) : undefined,
+    [data?.surveyList?.list],
+  );
+  const pageInfo = useMemo(
+    () => toCursorPageInfo(data?.surveyList?.pageInfo),
+    [data?.surveyList?.pageInfo],
+  );
+  const totalCount = data?.surveyList?.totalCount ?? undefined;
 
   const handleFetchMore = ({
     direction,
@@ -52,21 +62,22 @@ export const useSurveyList = (
         direction,
       },
       updateQuery: (prev, { fetchMoreResult }) => {
-        if (!fetchMoreResult) return prev;
+        if (!fetchMoreResult.surveyList || !prev.surveyList) return prev;
 
-        return Object.assign({}, prev, {
-          surveyList: mergeCursorData({
+        return {
+          ...prev,
+          surveyList: mergeCursorList(
             direction,
-            fetchMoreResult: fetchMoreResult.surveyList,
-            prevResult: prev.surveyList,
-          }),
-        });
+            prev.surveyList,
+            fetchMoreResult.surveyList,
+          ),
+        };
       },
     });
   };
 
   return {
-    surveys: surveys as ISurvey[] | undefined,
+    surveys,
     loading,
     error,
     totalCount,
@@ -74,4 +85,28 @@ export const useSurveyList = (
     handleFetchMore,
     refetch,
   };
+};
+
+export const useSurveyResultsList = (
+  options?: QueryHookOptions<
+    SurveyResultsListQuery,
+    SurveyResultsListQueryVariables
+  >,
+) => {
+  const { data, loading } = useQuery(GET_SURVEY_RESULTS_LIST, {
+    ...options,
+    variables: {
+      limit: SURVEYS_PER_PAGE,
+      ...options?.variables,
+    },
+    fetchPolicy: 'cache-and-network',
+  });
+
+  const surveys = useMemo(
+    () =>
+      data?.surveyList?.list ? compactList(data.surveyList.list) : undefined,
+    [data?.surveyList?.list],
+  );
+
+  return { surveys, loading };
 };

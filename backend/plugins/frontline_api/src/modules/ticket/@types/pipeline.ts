@@ -47,3 +47,8 @@ export interface TicketsPipelineFilter
   createdAt?: Date;
   applyVisibilityFilter?: boolean;
 }
+
+export interface ICpTicketPipelineFilter extends ICursorPaginateParams {
+  channelId?: string;
+  name?: string;
+}
