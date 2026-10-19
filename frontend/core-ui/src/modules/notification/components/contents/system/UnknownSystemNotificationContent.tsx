@@ -1,14 +1,13 @@
+import type { UnknownSystemNotificationContentProps } from '@/notification/types/notificationContent';
 import { IconInfoCircle } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 
 export const UnknownSystemNotificationContent = ({
   contentType,
-}: {
-  contentType?: string;
-}) => {
+}: UnknownSystemNotificationContentProps) => {
   const { t } = useTranslation('common', { keyPrefix: 'notification' });
   return (
-    <div className="h-dvh w-full flex flex-col items-center justify-center">
+    <div className="min-h-full w-full flex flex-col items-center justify-center">
       <div className="size-28 bg-sidebar rounded-2xl border border-dashed flex items-center justify-center">
         <IconInfoCircle
           size={32}

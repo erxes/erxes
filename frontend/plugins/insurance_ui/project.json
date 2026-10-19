@@ -28,7 +28,12 @@
           "sourceMap": false,
           "rspackConfig": "frontend/plugins/insurance_ui/rspack.config.prod.ts"
         }
-      }
+      },
+      "inputs": [
+        "production",
+        "^production",
+        { "dependentTasksOutputFiles": "**/*.ts" }
+      ]
     },
     "serve": {
       "dependsOn": ["codegen"],
@@ -64,8 +69,8 @@
       "cache": true,
       "dependsOn": [
         {
-          "projects": ["insurance_api"],
-          "target": "schema:print"
+          "projects": ["gateway"],
+          "target": "schema:compose"
         }
       ],
       "inputs": [
