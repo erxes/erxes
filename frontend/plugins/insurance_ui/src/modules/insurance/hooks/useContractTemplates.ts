@@ -6,36 +6,40 @@ import {
   useQuery,
 } from '@apollo/client';
 
-const CONTRACT_TEMPLATE_FIELDS = `
-  id
-  name
-  description
-  htmlContent
-  cssContent
-  version
-  status
-  createdAt
-  updatedAt
-`;
-
 const CONTRACT_TEMPLATES = gql`
-  query ContractTemplates {
+  query InsuranceContractTemplates {
     contractTemplates {
-      ${CONTRACT_TEMPLATE_FIELDS}
+      id
+      name
+      description
+      htmlContent
+      cssContent
+      version
+      status
+      createdAt
+      updatedAt
     }
   }
 `;
 
 const CONTRACT_TEMPLATE = gql`
-  query ContractTemplate($id: ID!) {
+  query InsuranceContractTemplate($id: ID!) {
     contractTemplate(id: $id) {
-      ${CONTRACT_TEMPLATE_FIELDS}
+      id
+      name
+      description
+      htmlContent
+      cssContent
+      version
+      status
+      createdAt
+      updatedAt
     }
   }
 `;
 
 const CREATE_CONTRACT_TEMPLATE = gql`
-  mutation CreateContractTemplate(
+  mutation InsuranceCreateContractTemplate(
     $name: String!
     $description: String
     $htmlContent: String
@@ -47,13 +51,21 @@ const CREATE_CONTRACT_TEMPLATE = gql`
       htmlContent: $htmlContent
       cssContent: $cssContent
     ) {
-      ${CONTRACT_TEMPLATE_FIELDS}
+      id
+      name
+      description
+      htmlContent
+      cssContent
+      version
+      status
+      createdAt
+      updatedAt
     }
   }
 `;
 
 const UPDATE_CONTRACT_TEMPLATE = gql`
-  mutation UpdateContractTemplate(
+  mutation InsuranceUpdateContractTemplate(
     $id: ID!
     $name: String
     $description: String
@@ -69,13 +81,21 @@ const UPDATE_CONTRACT_TEMPLATE = gql`
       cssContent: $cssContent
       status: $status
     ) {
-      ${CONTRACT_TEMPLATE_FIELDS}
+      id
+      name
+      description
+      htmlContent
+      cssContent
+      version
+      status
+      createdAt
+      updatedAt
     }
   }
 `;
 
 const DELETE_CONTRACT_TEMPLATE = gql`
-  mutation DeleteContractTemplate($id: ID!) {
+  mutation InsuranceDeleteContractTemplate($id: ID!) {
     deleteContractTemplate(id: $id) {
       success
     }
@@ -144,7 +164,7 @@ export function useCreateContractTemplate(
       cssContent?: string;
     }
   >(CREATE_CONTRACT_TEMPLATE, {
-    refetchQueries: ['ContractTemplates'],
+    refetchQueries: ['InsuranceContractTemplates'],
     ...options,
   });
 
@@ -175,7 +195,7 @@ export function useUpdateContractTemplate(
       status?: string;
     }
   >(UPDATE_CONTRACT_TEMPLATE, {
-    refetchQueries: ['ContractTemplates', 'ContractTemplate'],
+    refetchQueries: ['InsuranceContractTemplates', 'InsuranceContractTemplate'],
     ...options,
   });
 
@@ -192,7 +212,7 @@ export function useDeleteContractTemplate(
     { deleteContractTemplate: { success: boolean } },
     { id: string }
   >(DELETE_CONTRACT_TEMPLATE, {
-    refetchQueries: ['ContractTemplates'],
+    refetchQueries: ['InsuranceContractTemplates'],
     ...options,
   });
 

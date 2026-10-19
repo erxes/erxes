@@ -6,7 +6,7 @@
 - **Project:** `insurance_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/insurance_ui`
-- **Last synchronized:** `2026-10-18`
+- **Last synchronized:** `2026-10-19`
 
 ## Scope
 
@@ -49,6 +49,7 @@
 
 - Public UI APIs from `erxes-ui` and `ui-modules`.
 - Insurance API contracts through the plugin's local GraphQL documents and hooks.
+- GraphQL query and mutation aggregates are named exports from `src/modules/insurance/graphql`; individual document exports remain available for direct imports.
 - React Router host mounting contracts from core UI Module Federation.
 
 ## Data and State
@@ -66,10 +67,14 @@
   no `content`/`subGroup`.
 - Keep insurance-specific UI inside `frontend/plugins/insurance_ui`.
 - Module Federation exposes, route paths, and named exports must stay aligned.
+- GraphQL documents use static selections without JavaScript interpolation. Operation names start with `Insurance`; update string-based `refetchQueries` whenever an operation is renamed, preserving the backend field names, arguments, and selections.
+- Pricing configuration, vendor pricing overrides, and insured objects are existing JSON API contracts. Preserve their payloads and the form state that edits them when changing response types.
 - Use `erxes-ui` and `ui-modules`; do not import another plugin's source.
 - Dev watch ignores must not include plugin source directories required for hot reload.
 
 ## Validation
 
+- `pnpm nx lint insurance_ui`
 - `pnpm nx build insurance_ui`
+- `pnpm exec tsc -p frontend/plugins/insurance_ui/tsconfig.app.json --noEmit` (distinguish plugin diagnostics from diagnostics in shared libraries).
 - Smoke scenario: open the insurance navigation and verify insurance type, product, risk, vendor, customer, region, and contract routes load through the remote.

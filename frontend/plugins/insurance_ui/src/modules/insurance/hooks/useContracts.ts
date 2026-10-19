@@ -83,7 +83,7 @@ export function useCreateInsuranceContract() {
   const [createInsuranceContract, { loading, error }] = useMutation(
     mutations.CREATE_INSURANCE_CONTRACT,
     {
-      refetchQueries: ['Contracts', 'VendorContracts'],
+      refetchQueries: ['InsuranceContracts', 'InsuranceVendorContracts'],
     },
   );
 

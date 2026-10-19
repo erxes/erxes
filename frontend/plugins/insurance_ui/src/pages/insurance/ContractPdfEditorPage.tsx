@@ -16,7 +16,7 @@ import { useMutation, gql } from '@apollo/client';
 import { useTranslation } from 'react-i18next';
 
 const SAVE_CONTRACT_PDF = gql`
-  mutation SaveContractPDF($contractId: ID!, $pdfContent: String!) {
+  mutation InsuranceSaveContractPDF($contractId: ID!, $pdfContent: String!) {
     saveContractPDF(contractId: $contractId, pdfContent: $pdfContent) {
       id
       pdfContent
