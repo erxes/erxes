@@ -29,7 +29,7 @@ import { SettingsRoutes } from '@/app/components/SettingsRoutes';
 import { TemplateRoutes } from '../components/TemplateRoutes';
 import { UserProvider } from '@/auth/providers/UserProvider';
 import { getPluginsRoutes } from '@/app/hooks/usePluginsRouter';
-import { lazy } from 'react';
+import { lazy, Suspense } from 'react';
 import { useAtomValue } from 'jotai';
 
 const UserConfirmInvitationPage = lazy(
@@ -42,6 +42,16 @@ const DeviceAuthorizePage = lazy(
 );
 const CreateOwnerPage = lazy(
   () => import('~/pages/organization/CreateOwnerPage'),
+);
+const AgentIndexPage = lazy(() =>
+  import('~/pages/agent/AgentIndexPage').then((module) => ({
+    default: module.AgentIndexPage,
+  })),
+);
+const AgentCapabilitiesPage = lazy(() =>
+  import('~/pages/agent/AgentCapabilitiesPage').then((module) => ({
+    default: module.AgentCapabilitiesPage,
+  })),
 );
 
 const OnboardingGuard = ({ children }: { children: React.ReactNode }) => {
@@ -153,6 +163,39 @@ export const useCreateAppRouter = () => {
               <Route
                 path={AppPath.ImportExportCatchAll}
                 element={<ImportExportRoutes />}
+              />
+
+              <Route
+                path={AppPath.Agent}
+                element={
+                  <PermissionRouteGuard module="agents">
+                    <Suspense fallback={<div />}>
+                      <AgentIndexPage />
+                    </Suspense>
+                  </PermissionRouteGuard>
+                }
+              />
+
+              <Route
+                path={AppPath.AgentCapabilities}
+                element={
+                  <PermissionRouteGuard module="agents">
+                    <Suspense fallback={<div />}>
+                      <AgentCapabilitiesPage />
+                    </Suspense>
+                  </PermissionRouteGuard>
+                }
+              />
+
+              <Route
+                path={`${AppPath.Agent}/:threadId`}
+                element={
+                  <PermissionRouteGuard module="agents">
+                    <Suspense fallback={<div />}>
+                      <AgentIndexPage />
+                    </Suspense>
+                  </PermissionRouteGuard>
+                }
               />
 
               <Route
