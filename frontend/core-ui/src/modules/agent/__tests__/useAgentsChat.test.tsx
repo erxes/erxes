@@ -103,7 +103,7 @@ it('keeps the latest selected thread when an older request resolves last', async
     await openA;
   });
   expect(result.current.threadId).toBe('b');
-  expect(sessionStorage.getItem('agents-selected-thread:page')).toBe('b');
+  expect(sessionStorage.getItem('agents-selected-thread:panel')).toBe('b');
   expect(setMessages).toHaveBeenCalledTimes(1);
   expect(setMessages.mock.calls[0][0][0].id).toBe('b');
 });
@@ -125,7 +125,7 @@ it('does not restore a pending thread after starting a new conversation', async 
   });
   expect(result.current.threadId).toBeUndefined();
   expect(setMessages).toHaveBeenLastCalledWith([]);
-  expect(sessionStorage.getItem('agents-selected-thread:page')).toBeNull();
+  expect(sessionStorage.getItem('agents-selected-thread:panel')).toBeNull();
 });
 
 const editHistory = [

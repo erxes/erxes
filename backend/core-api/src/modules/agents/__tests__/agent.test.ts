@@ -200,6 +200,16 @@ describe('artifact output allowance', () => {
 });
 
 describe('base instructions', () => {
+  it('uses HTML for every reply and preserves the record-token contract inside HTML', () => {
+    expect(DEFAULT_INSTRUCTIONS).toContain('every user-facing reply is rendered HTML');
+    expect(DEFAULT_INSTRUCTIONS).toContain('Write assistant text directly as semantic HTML');
+    expect(DEFAULT_INSTRUCTIONS).toContain('Tokens work in HTML text nodes in replies and HTML deliverables');
+    expect(DEFAULT_INSTRUCTIONS).toContain('scripts and external resources are not');
+    expect(DEFAULT_INSTRUCTIONS).toContain('Text formatting never creates a file or a download button');
+    expect(DEFAULT_INSTRUCTIONS).toContain('use createArtifact only to deliver an actual report');
+    expect(DEFAULT_INSTRUCTIONS).not.toContain('html artifact <title>');
+    expect(DEFAULT_INSTRUCTIONS).not.toContain('tokens work only in plain prose');
+  });
   it('contains the lookup discipline and reference-link rules', () => {
     expect(DEFAULT_INSTRUCTIONS).toContain(
       'Never call a find or list tool with an empty or null filter',

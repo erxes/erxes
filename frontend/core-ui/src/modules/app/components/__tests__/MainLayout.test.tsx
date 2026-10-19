@@ -1,13 +1,7 @@
 /** @jest-environment jsdom */
 import { render, screen } from '@testing-library/react';
-import { createStore, Provider } from 'jotai';
 import type { HTMLAttributes, PropsWithChildren } from 'react';
 import { DefaultLayout } from '../MainLayout';
-import {
-  agentSidePanelOpenState,
-  agentSidePanelResizingState,
-} from '@/agent/states/agentPanelStates';
-
 jest.mock(
   'erxes-ui',
   () => ({
@@ -30,28 +24,6 @@ jest.mock('react-router', () => ({
   useLocation: () => ({ pathname: '/contacts' }),
   Outlet: () => null,
 }));
-jest.mock('react-hotkeys-hook', () => ({ useHotkeys: jest.fn() }));
-jest.mock(
-  'ui-modules',
-  () => ({
-    usePermissionCheck: () => ({
-      isLoaded: true,
-      hasActionPermission: () => true,
-    }),
-  }),
-  { virtual: true },
-);
-jest.mock(
-  '@/agent/states/agentPanelStates',
-  () => {
-    const { atom } = jest.requireActual<typeof import('jotai')>('jotai');
-    return {
-      agentSidePanelOpenState: atom(false),
-      agentSidePanelResizingState: atom(false),
-    };
-  },
-  { virtual: true },
-);
 jest.mock(
   '@/navigation/hooks/useEnterAnimation',
   () => ({
@@ -97,22 +69,7 @@ jest.mock(
   }),
   { virtual: true },
 );
-jest.mock(
-  '@/agent/components/AgentSidePanel',
-  () => ({
-    AgentSidePanel: () => <aside data-testid="agent-panel" />,
-  }),
-  { virtual: true },
-);
-jest.mock(
-  '@/agent/components/AgentTray',
-  () => ({
-    AgentTray: () => <button data-testid="agent-tray">Open agent</button>,
-  }),
-  { virtual: true },
-);
-
-it('keeps the full-height relation panel beside the navigation/workspace column and retains the agent tray', async () => {
+it('keeps the side panel beside the navigation/workspace column, outside the animated page', () => {
   render(<DefaultLayout />);
   const layout = screen.getByTestId('layout');
   const column = screen.getByTestId('navigation').parentElement;
@@ -120,21 +77,10 @@ it('keeps the full-height relation panel beside the navigation/workspace column 
   expect(column?.contains(screen.getByTestId('workspace'))).toBe(true);
   expect(screen.getByTestId('relation-panel').parentElement).toBe(layout);
   expect(layout.className.split(' ')).not.toContain('flex-col');
-  expect(await screen.findByTestId('agent-tray')).toBeTruthy();
-});
-
-it('shows agent chat inside the workspace while keeping the relation panel mounted', async () => {
-  const store = createStore();
-  store.set(agentSidePanelOpenState, true);
-  store.set(agentSidePanelResizingState, true);
-  render(
-    <Provider store={store}>
-      <DefaultLayout />
-    </Provider>,
-  );
-  const agent = await screen.findByTestId('agent-panel');
-  expect(agent.closest('main')).toBeTruthy();
-  expect(screen.getByTestId('relation-panel')).toBeTruthy();
-  expect(screen.queryByTestId('agent-tray')).toBeNull();
-  expect(screen.getByTestId('layout').className).toContain('cursor-col-resize');
+  expect(
+    screen
+      .getByTestId('workspace')
+      .closest('main')
+      ?.contains(screen.getByTestId('relation-panel')),
+  ).toBe(false);
 });

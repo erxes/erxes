@@ -386,60 +386,33 @@
   padding-right: 3.75rem;
 }
 
-/* Agent tray status glow: a blurred halo behind the bot (see
- * modules/agent/utils/trayGlow.ts for the state → animation map). */
-.agent-tray-glow {
-  transform-origin: center;
-  will-change: opacity, transform;
+/* Assistant: a little movement around the conversation, never inside reports. */
+.agent-thinking-dots > span {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: currentColor;
 }
-@keyframes tray-glow-pulse {
-  0%,
-  100% {
-    opacity: 0.45;
-    transform: scale(0.92);
+@media (prefers-reduced-motion: no-preference) {
+  .agent-message-enter {
+    animation: agent-message-arrive 260ms cubic-bezier(0.22, 1, 0.36, 1) both;
   }
-  50% {
-    opacity: 1;
-    transform: scale(1.16);
+  .agent-thinking-dots > span {
+    animation: agent-thinking-hop 1.2s ease-in-out infinite;
   }
+  .agent-thinking-dots > span:nth-child(2) { animation-delay: 120ms; }
+  .agent-thinking-dots > span:nth-child(3) { animation-delay: 240ms; }
+  .agent-send {
+    transition: transform 180ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .agent-send:not(:disabled):hover { transform: translateY(-2px); }
+  .agent-send:not(:disabled):active { transform: scale(0.92); }
 }
-@keyframes tray-glow-flash {
-  0% {
-    opacity: 1;
-    transform: scale(1.2);
-  }
-  100% {
-    opacity: 0;
-    transform: scale(1.05);
-  }
+@keyframes agent-message-arrive {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
 }
-@keyframes tray-glow-twice {
-  0% {
-    opacity: 1;
-    transform: scale(1.1);
-  }
-  22% {
-    opacity: 0.3;
-    transform: scale(0.96);
-  }
-  45% {
-    opacity: 1;
-    transform: scale(1.14);
-  }
-  70% {
-    opacity: 0.25;
-    transform: scale(0.98);
-  }
-  100% {
-    opacity: 0;
-    transform: scale(1);
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  /* The halo is a status signal: keep it, just don't pulse it. */
-  .agent-tray-glow {
-    animation: none !important;
-    opacity: 0.7;
-    transform: none;
-  }
+@keyframes agent-thinking-hop {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+  30% { transform: translateY(-3px); opacity: 1; }
 }

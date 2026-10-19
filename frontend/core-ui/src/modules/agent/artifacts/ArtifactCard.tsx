@@ -12,7 +12,7 @@ import { Suspense, lazy, useEffect, useState } from 'react';
 import { parseDelimitedTable } from './converters/csv';
 import { downloadBlob } from './download';
 import { HtmlPreview } from './HtmlPreview';
-import type { IArtifact } from './parseArtifacts';
+import type { IArtifact } from './types';
 
 const SpreadsheetPreview = lazy(() =>
   import('./previews/SpreadsheetPreview').then((m) => ({
@@ -126,7 +126,13 @@ export const ArtifactCard = ({ artifact }: IArtifactCardProps) => {
 
   const renderPreview = () => {
     if (artifact.type === 'html') {
-      return <HtmlPreview html={artifact.content} title={artifact.title} />;
+      return (
+        <HtmlPreview
+          html={artifact.content}
+          title={artifact.title}
+          references
+        />
+      );
     }
 
     if (artifact.type === 'xlsx') {

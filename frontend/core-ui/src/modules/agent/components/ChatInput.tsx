@@ -31,7 +31,7 @@ export const ChatInput = ({
   placeholder,
   disabled = false,
   maxHeight = 168,
-  minHeight,
+  minHeight = 20,
   ariaLabel,
   className,
 }: IChatInputProps) => {
@@ -44,12 +44,26 @@ export const ChatInput = ({
       return;
     }
 
-    // Measure from scratch: shrinking needs the height reset first, otherwise
-    // `scrollHeight` keeps reporting the previous (taller) box.
-    node.style.height = 'auto';
-    node.style.height = `${Math.min(node.scrollHeight, maxHeight)}px`;
-    node.style.overflowY = node.scrollHeight > maxHeight ? 'auto' : 'hidden';
-  }, [value, maxHeight]);
+    const resize = () => {
+      // Hidden panels report zero; always keep one usable line, then measure
+      // again when the panel becomes visible or its width changes.
+      node.style.height = 'auto';
+      const height = Math.max(minHeight, node.scrollHeight);
+      node.style.height = `${Math.min(height, maxHeight)}px`;
+      node.style.overflowY = height > maxHeight ? 'auto' : 'hidden';
+    };
+    resize();
+    if (typeof ResizeObserver === 'undefined') return;
+    let width = node.getBoundingClientRect().width;
+    const observer = new ResizeObserver(([entry]) => {
+      if (entry && entry.contentRect.width !== width) {
+        width = entry.contentRect.width;
+        resize();
+      }
+    });
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [value, maxHeight, minHeight]);
 
   return (
     <textarea

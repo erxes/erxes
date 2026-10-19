@@ -13,6 +13,11 @@ plugin; ported from the former private `erxes-agent` service). It provides:
 - a Mastra **DurableAgent** chat over SSE with durable suspend/resume
   (destructive-tool approval, `ask_user` questions), per-turn provider/model/
   `thinkingLevel` selection, and generated thread titles;
+- assistant text is semantic HTML reply content, without fences or file
+  controls. Actual reports/documents use the `createArtifact` tool's structured
+  result. Semantic HTML, responsive CSS and inline SVG render inline;
+  scripts/external resources are unavailable. Record reference tokens belong
+  verbatim in HTML text nodes, never attributes, links, styles or code;
 - GraphQL discovery (`searchGraphql`) and execution (`callGraphql`) through
   the gateway as the acting user, using a fresh HMAC-signed identity header.
   `graphqlPolicy.ts` denies authentication, credential and system-security
@@ -79,6 +84,11 @@ plugin; ported from the former private `erxes-agent` service). It provides:
 
 ## Key files
 
+- `createArtifact.ts` — local deliverables with bounded, validated HTML/CSV/
+  Markdown content. Returns `{ kind: 'artifact', version: 1, artifact }` with
+  type/title/safe filename/content; Mastra persists this as a normal tool result.
+  No CRM mutation or separate artifact database. Assistant text always remains
+  reply content; reports/files are delivered through this tool only.
 - `agent.ts` — instructions (incl. the References contract + `[Page context]`
   sentence), `AGENTS_MAX_STEPS` (32), thinking-level → per-provider options,
   BYOK model resolution with construction-safe fallback, `buildBaseAgentsAgent`.

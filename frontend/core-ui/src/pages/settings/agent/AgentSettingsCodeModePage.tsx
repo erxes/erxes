@@ -10,7 +10,12 @@ import {
   toast,
 } from 'erxes-ui';
 import { Link } from 'react-router-dom';
-import { PageHeader, usePermissionCheck } from 'ui-modules';
+import {
+  PageHeader,
+  usePermissionCheck,
+  SIDE_PANEL_CHAT_PATH,
+  useSidePanel,
+} from 'ui-modules';
 
 import {
   AGENTS_SETTINGS,
@@ -30,6 +35,7 @@ import { useAgentsSettings } from '@/agent/hooks/useAgentsSettings';
  * can change it — the switch is disabled for everyone else.
  */
 export const AgentSettingsCodeModePage = () => {
+  const { openPath } = useSidePanel();
   const { settings, loading, error } = useAgentsSettings();
   const { isLoaded, hasActionPermission } = usePermissionCheck();
 
@@ -73,11 +79,12 @@ export const AgentSettingsCodeModePage = () => {
           <Breadcrumb>
             <Breadcrumb.List className="gap-1">
               <Breadcrumb.Item>
-                <Button variant="ghost" asChild>
-                  <Link to="/agent">
-                    <IconCode />
-                    Agents
-                  </Link>
+                <Button
+                  variant="ghost"
+                  onClick={() => openPath(SIDE_PANEL_CHAT_PATH)}
+                >
+                  <IconCode />
+                  Agents
                 </Button>
               </Breadcrumb.Item>
               <Breadcrumb.Separator />
@@ -119,8 +126,8 @@ export const AgentSettingsCodeModePage = () => {
                   </Label>
                   <p className="max-w-sm text-xs text-muted-foreground">
                     Lets the agent write and run TypeScript in a sandbox to
-                    search, aggregate, and compute across your workspace
-                    tools, then answer with one result.
+                    search, aggregate, and compute across your workspace tools,
+                    then answer with one result.
                   </p>
                 </div>
                 <Switch

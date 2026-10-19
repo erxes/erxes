@@ -3,32 +3,28 @@
 The `agent` module is the core-ui surface for the core-api `agents` backend
 (ported from the former private `erxes-agent` plugin UI). It provides:
 
-- the full-page chat at `/agent` and `/agent/:threadId`
-  (`pages/agent/AgentIndexPage.tsx`, permission-guarded `module="agents"`)
-  plus `/agent/capabilities` (`pages/agent/AgentCapabilitiesPage.tsx`,
-  routed before `:threadId` — the GraphQL operation catalog from `agentsTools`).
-  Capabilities opens on a plugin overview (up to six plugins, total tool counts,
-  read/write counts) with monochrome plugin icons using theme tokens.
-  Selecting a plugin opens a 20-tool paginated browser with
-  search and read/write/approval filters. Operation signatures and inputs appear
-  only after opening a tool; zero-input tools also have usable details;
-- chat width presets standard/wide/full (`utils/chatWidth.ts`, persisted
-  `agentChatWidthState`, header `DropdownMenu` radio); collapsible thread
-  sidebar (`agentThreadsSidebarOpenState`); page header: sidebar/drawer
-  toggle, `AI Agent` › thread-title breadcrumb, `AgentThreadActionsMenu`,
-  Capabilities / width / Settings buttons, primary `New conversation`;
-- the global `AgentSidePanel` docked right inside `AppWorkspace`
-  (`modules/app/components/MainLayout.tsx`), beside the new `CoreAppOutlet`;
-  the relation side panel remains a full-height sibling of the main content
-  column, so opening agent chat does not replace the record panel;
-  the floating `AgentTray` mounts outside the animated page — resizable 360–720px
-  (persisted), Sheet on mobile, never rendered on `/agent*` so only one
-  chat instance exists per thread; `AgentTrayMount` also unmounts the tray
-  while the side panel is open, stopping its bot effects and animation engine.
-  The lightweight mount owns the permission-gated `mod+j` shortcut so it
-  remains available while the tray is unmounted;
-- the `NavigationAgentButton` rail entry (after `NavigationInboxButton`,
-  `mod+j` hotkey, hidden without the `agentsChat` action);
+- Assistant chat lives only in the shared side panel. There is no standalone
+  chat or capabilities page. `LegacyAgentRedirect` replaces old `/agent/*`
+  bookmarks with `/?panel=/chat`; an old thread id is forwarded through
+  `agentSidePanelThreadRequestState`. Settings stay at `/settings/agent/*`;
+- the top-bar `AssistantButton` (`CoreTab`) opens the shared `?panel=/chat`
+  route and owns the permission-gated `mod+j` shortcut and unread indicator.
+  There is no floating agent tray. The button and shortcut are unavailable
+  without `agentsChat`;
+- `side-panel/components/chat/AssistantPanel.tsx` lazy-loads our
+  `AgentSidePanel` chat content through `SidePanelChat` inside the public
+  `RecordSidePanel` shell. It is a full-height flex column beside the main
+  workspace, outside page animation: opening it shrinks the page, and it
+  shares the record panel's persisted width and resize handle. Assistant can
+  resize from 320px up to 1,200px, leaving 320px for the workspace when space
+  permits; record panels retain their 600px maximum. The left-edge grip also
+  supports arrow keys (Shift for larger steps) and Home/End for width limits.
+  The shared panel displays either a record or Assistant. After first open,
+  the chat stays mounted but hidden while closed or showing a record, keeping
+  drafts, streams and activity alive. The header provides new chat, history,
+  thread actions, Settings (keeps the panel open) and Close. `ChatInput`
+  retains one visible line and remeasures when the
+  hidden panel is shown or resized;
 - thread history (`ThreadList`): client-side filter, Pinned group first
   (`IconPin`), then Today / Yesterday / Previous 7 days / Older, "load
   more" pagination, hover `IconDots` menu (inline rename — Enter saves,
@@ -37,7 +33,17 @@ The `agent` module is the core-ui surface for the core-api `agents` backend
   `hooks/useAgentsThreadActions.ts` (rename/setPinned/remove + toasts,
   refetches `AgentsThreads` + `AgentsPinnedThreads`);
 - a Twenty-style transcript: work-steps grouping, approval card, ask_user
-  card, artifact cards, markdown + clickable record references;
+  card, artifact cards, rendered HTML replies + clickable record references;
+- agent turns use `AgentMessageIdentity` with the user's configured Bloub
+  appearance. Older avatars are frozen thumbnails; the current avatar follows
+  the pointer at rest and uses the thinking state while working. `BotBadge`
+  freezes animation for reduced-motion users. The submitted state shares this
+  identity with a three-dot progress indicator. The header has no agent-name
+  label: `agentMessageActivity` derives its single live activity from the newest
+  text/reasoning/tool part. Step groups show history summaries only. A pending
+  response header appears only before a visible assistant row exists, including
+  during the submitted-to-streaming transition and hidden answer turns.
+  Transcript entry/send motion respects reduced motion; file previews retain their full available width;
 - user turns have Copy and inline Edit actions (`components/UserMessage.tsx`).
   Save & resend uses the SDK's `messageId` replacement and sends
   `editMessageId` to rewind persisted history at that exact user turn. It
@@ -54,6 +60,18 @@ The `agent` module is the core-ui surface for the core-api `agents` backend
   `writes` default asks before every mutation), wired through
   `settingsPath('agent')` + `SettingsWorkspacePath.Agent` +
   `GET_SETTINGS_SUB_NAVIGATION`;
+- `ModelPicker` first lists connected providers plus the saved workspace default
+  text action at the bottom, with no decorative default icon or provider-search
+  field. Provider rows show bare brand marks and names; the saved-default shortcut is a
+  single muted row. The trigger uses a quiet ghost button. The model view does
+  not repeat provider marks/names on each row. Choosing a provider opens only its current/recent/saved model quick
+  picks (at most four), provider-scoped search and Browse all models. Back returns
+  to provider selection without changing the model. Reopening always starts with
+  providers, and neither step displays a model-count badge.
+  Device-local `agent:recent-models` remembers six explicit selections and is
+  intersected with the live catalog, so removed models/providers cannot return
+  as quick picks. Auto remains usable while model discovery loads or fails;
+  provider/model ids and the empty-value server-default contract are unchanged.
 - BYOK-gated composer: no configured connection shows an inline banner
   linking to the settings page and disables input.
 - assistant message action row under each turn (Copy; Regenerate on the
@@ -65,12 +83,9 @@ The `agent` module is the core-ui surface for the core-api `agents` backend
   (`## You` / `## AI Agent`, text parts only, `[Page context]` stripped,
   `metadata.agentsAnswer` turns skipped, tokens→labels outside code,
   Blob download `slugified-title.md` / `conversation-<date>.md`).
-- empty state (`ChatPanel` `variant`): 'page' = greeting by time of day +
-  `currentUser` first name, left-aligned `max-w-4xl`, large composer
-  (`Composer size="large"` → `ChatInput minHeight`), Kbd hint, "Try
-  asking" card grid from `constants/agentSuggestions.ts` (plugin-gated
-  prompts hidden via `pluginsConfigState`), capabilities link; 'panel' =
-  compact centered variant.
+- empty state (`ChatPanel`): compact centered greeting, composer and stacked
+  suggestions from `constants/agentSuggestions.ts` (plugin-gated prompts
+  hidden via `pluginsConfigState`). There is no full-page layout variant.
 
 ## Surfaces and contracts
 
@@ -88,16 +103,38 @@ The `agent` module is the core-ui surface for the core-api `agents` backend
   semantics: `openThread` (history restore + active-run reconnect +
   bounded re-read), `startNewConversation`, `submitAnswer` (ask_user
   resume), `sendMessage`, `retryLastTurn` (`regenerate`),
-  `setPageContext`. `sessionScope` (`page`/`panel`) separates each
-  surface's selected-thread restore; active runs are shared per thread.
+  `setPageContext`. The selected-thread namespace defaults to `panel`;
+  active runs remain keyed by thread. The legacy `page` storage namespace is
+  retained in the hook's type only for compatibility, with no page UI.
 - Attachments: up to 5 files/turn via platform `/upload-file`
   (`agentsFiles.ts` limits, `uploadAgentsFile.ts`), chips in the composer,
   image previews and download chips in history (`AttachedFiles`).
-- Artifacts: `artifacts/` splits tagged `html`/`xlsx`/`docx`/`pdf` fences
-  and renders previews/downloads (`MessageContent` → `Markdown`). HTML previews
-  sanitize an HTML-only fragment, strip document-level styles/scripts, and
-  run in a script-disabled iframe. DOCX import/render failures show the
-  download fallback.
+- Replies: `MessageContent` renders every assistant text segment through
+  `HtmlPreview`; `replyHtml.ts` converts legacy Markdown/prose into HTML.
+  HTML previews preserve isolated layout CSS and SVG. `htmlTheme.ts` uses native
+  CSSOM to normalize generated text/surface/border colors to renderer-owned
+  tokens, including inline `!important`, nested rules and legacy attributes.
+  Generated overrides of those tokens and opacity/filter text effects are
+  removed. SVG series retain their paints; text labels follow the theme.
+  Root/body surfaces are transparent. `HtmlPreview` syncs host tokens on content
+  updates and app theme changes without regenerating/reloading the frame. They
+  grow to content height and update the existing frame while streaming.
+  `htmlSandbox.ts` sanitizes content and enforces a restrictive CSP; the frame
+  permits same-origin for trusted parent sizing/portals but never model scripts.
+  `htmlReferences.ts` replaces valid text tokens with real `AgentReferenceChip`
+  portals, retaining permission-aware navigation; attributes, code, anchors,
+  styles and SVG never produce reference controls. User messages, approvals,
+  questions and editing keep their normal components.
+- Artifacts: only `createArtifact` tool parts produce file cards. Its versioned
+  `{ kind: 'artifact', version: 1, artifact: { type, title, filename, content } }`
+  result persists through the existing tool-message storage/history mapping.
+  `artifactResult.ts` validates results before `ArtifactToolResult` renders
+  `ArtifactCard` with source/download controls. Tool inputs never create a file
+  card; pending calls use the turn header's progress and show an interruption
+  notice after streaming stops. Invalid/failed results show an error. These tool parts stay
+  outside collapsed work steps. `parseArtifacts.ts` only decodes old fences for
+  readable reply display; no text fence, title or marker grants file controls.
+  DOCX/PDF conversion failures offer Retry.
 
 ## References
 
@@ -108,11 +145,9 @@ unclosed mid-stream token stays literal text.
 `references/agentReferenceTargets.ts` maps the ten types to record pages
 (same paths as `CORE_RESULT_PATHS`), icons, permission modules, and
 plugin availability (`sales_ui`/`frontline_ui` in `pluginsConfigState`).
-`AgentReferenceChip` renders chips inside assistant text (markdown
-`p/li/td/th/h1–h6/strong/em/blockquote` only — never code/pre/a or
-artifacts); unresolvable targets render as plain pills. A click inside
-`/agent` navigates AND opens the side panel on the same thread
-(`agentSidePanelThreadRequestState`).
+`AgentReferenceChip` renders chips inside HTML reply text (never code/pre/a,
+attributes, styles or SVG); unresolvable targets render as plain pills.
+Reference navigation preserves the open Assistant panel and its selected thread.
 `utils/pageContext.ts` strips a persisted leading `[Page context] …`
 text part from user bubbles; it is not rendered in the transcript.
 `references/getPageRecordFromLocation.ts` is the reverse lookup powering
@@ -135,13 +170,12 @@ turn. A single-step card names the action.
 
 ## State
 
-- `states/agentPanelStates.ts` — `agentSidePanelOpenState`,
-  `agentSidePanelWidthState`, `agentChatWidthState`,
-  `agentThreadsSidebarOpenState` (localStorage via `atomWithStorage`),
-  `agentSidePanelThreadRequestState` (one-shot, plain `atom`), and
-  `agentSidePanelResizingState` (transient drag state owned by the agent).
-- `states/agentChatContext.ts` — `AgentChatThreadContext` (current
-  transcript thread id for chips).
+- `states/agentPanelStates.ts` — `agentSidePanelThreadRequestState`
+  (one-shot, plain `atom`) for old thread bookmarks. Panel open state
+  is the shared `panel` URL query, and width uses `sidePanelWidthState` from
+  `ui-modules`; old independent agent panel/tray state is no longer consumed.
+- `states/agentActivityState.ts` — unread/working/awaiting activity from
+  `useAgentActivity`, displayed by the top-bar Assistant button.
 - sessionStorage: `agents-selected-thread:<scope>`,
   `agents-active-run:<threadId>`, `agents-in-flight-prompt:<threadId>`.
   Model and thinking selections live in memory only.

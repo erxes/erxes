@@ -1,5 +1,5 @@
 import { Button, Tooltip, activePluginState, cn } from 'erxes-ui';
-import { IconInbox, IconMessageCircle, IconSearch } from '@tabler/icons-react';
+import { IconInbox, IconSearch } from '@tabler/icons-react';
 import { INBOX_TAB_ID, useAppTabs } from '@/navigation/hooks/useAppTabs';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 
@@ -11,11 +11,8 @@ import { CoreTabUserMenu } from '@/navigation/components/core-tab/CoreTabUserMen
 import { Link } from 'react-router-dom';
 import { NotificationCount } from '@/notification/components/MyInboxNavigationItem';
 import { OrgLogoIcon } from '@/auth/components/Logo';
-import {
-  currentOrganizationState,
-  SIDE_PANEL_CHAT_PATH,
-  useSidePanel,
-} from 'ui-modules';
+import { currentOrganizationState } from 'ui-modules';
+import { AssistantButton } from '@/agent/components/AssistantButton';
 import { globalSearchOpenState } from '@/search/states/globalSearchState';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -46,12 +43,6 @@ export const CoreTab = () => {
   const organization = useAtomValue(currentOrganizationState);
   const [activeActivityId, setActiveActivityId] = useAtom(activePluginState);
   const setSearchOpen = useSetAtom(globalSearchOpenState);
-  const {
-    path: panelPath,
-    openPath: openPanelPath,
-    close: closePanel,
-  } = useSidePanel();
-  const isChatOpen = panelPath === SIDE_PANEL_CHAT_PATH;
   const { t } = useTranslation('common', { keyPrefix: 'navigation' });
   const { t: sidebarT } = useTranslation('common', { keyPrefix: 'sidebar' });
   const routeActivityId = routeActivity?.id;
@@ -134,21 +125,7 @@ export const CoreTab = () => {
               <NotificationCount dot />
             </Button>
           </CoreTabTooltip>
-          <CoreTabTooltip label={t('assistant', 'Assistant')}>
-            <Button
-              aria-label={t('assistant', 'Assistant')}
-              aria-pressed={isChatOpen}
-              className={coreTabIconClassName(isChatOpen)}
-              size="icon"
-              type="button"
-              variant="ghost"
-              onClick={() =>
-                isChatOpen ? closePanel() : openPanelPath(SIDE_PANEL_CHAT_PATH)
-              }
-            >
-              <IconMessageCircle className="size-4" />
-            </Button>
-          </CoreTabTooltip>
+          <AssistantButton />
           <CoreTabUserMenu />
         </div>
       </header>

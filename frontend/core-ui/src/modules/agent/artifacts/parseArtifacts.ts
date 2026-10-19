@@ -1,27 +1,14 @@
-export type ArtifactType = 'html' | 'xlsx' | 'docx' | 'pdf';
+import { ARTIFACT_TYPES, type ArtifactType, type IArtifact } from './types';
 
-export const ARTIFACT_TYPES: readonly ArtifactType[] = [
-  'html',
-  'xlsx',
-  'docx',
-  'pdf',
-];
-
-export interface IArtifact {
-  type: ArtifactType;
-  /** Display title; never empty (falls back to a labeled default). */
-  title: string;
-  /** Ready-to-use download filename with the correct extension. */
-  filename: string;
-  /** Raw fence body, verbatim except CRLF normalization. */
-  content: string;
+/** Compatibility decoder for old fenced messages; never grants file controls. */
+export interface ILegacyArtifact extends IArtifact {
   /** False when generation ended before the closing fence/document. */
   complete: boolean;
 }
 
 export type MessageSegment =
   | { kind: 'text'; text: string }
-  | { kind: 'artifact'; artifact: IArtifact };
+  | { kind: 'artifact'; artifact: ILegacyArtifact };
 
 interface IFenceOpen {
   fenceChar: '`' | '~';
@@ -120,7 +107,7 @@ const buildArtifact = (
   content: string,
   ordinal: number,
   complete = true,
-): IArtifact => {
+): ILegacyArtifact => {
   const title = sanitizeTitle(type, rawTitle);
   return {
     type,
@@ -159,7 +146,10 @@ export const splitArtifacts = (text: string): MessageSegment[] => {
 
   while (i < lines.length) {
     const open = parseOpenFence(lines[i]);
-    if (!open && /^ {0,3}(?:<!doctype\s+html\b|<html(?:\s|>))/i.test(lines[i])) {
+    if (
+      !open &&
+      /^ {0,3}(?:<!doctype\s+html\b|<html(?:\s|>))/i.test(lines[i])
+    ) {
       const start = i;
       const end = lines.findIndex(
         (line, index) => index >= start && /<\/html\s*>/i.test(line),

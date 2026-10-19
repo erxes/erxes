@@ -220,7 +220,7 @@ export const Composer = ({
   };
 
   return (
-    <div className="rounded-[22px] border bg-card shadow-sm transition-colors hover:border-foreground/20">
+    <div className="agent-composer rounded-[22px] border bg-card shadow-sm transition-[border-color,box-shadow] duration-200 hover:border-foreground/20 focus-within:border-primary/40 focus-within:shadow-[0_0_0_3px_color-mix(in_oklab,var(--primary)_8%,transparent)]">
       {contextRow && (
         <div className="flex flex-wrap items-center gap-1.5 px-3.5 pt-3 sm:px-4">
           {contextRow}
@@ -313,7 +313,7 @@ export const Composer = ({
           <Button
             variant="outline"
             size="icon"
-            className={`size-8 shrink-0 rounded-full ${
+            className={`agent-send size-8 shrink-0 rounded-full ${
               pickers ? '' : 'ml-auto'
             }`}
             onClick={onStop}
@@ -324,7 +324,7 @@ export const Composer = ({
         ) : (
           <Button
             size="icon"
-            className={`size-8 shrink-0 rounded-full ${
+            className={`agent-send size-8 shrink-0 rounded-full ${
               pickers ? '' : 'ml-auto'
             }`}
             onClick={send}

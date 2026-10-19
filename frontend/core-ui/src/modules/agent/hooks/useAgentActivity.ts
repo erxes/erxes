@@ -61,7 +61,7 @@ const BUSY_PHASES: ReadonlySet<AgentActivityPhase> = new Set([
  * Writes `agentActivityState` from the side-panel chat: phase, unread
  * replies (a finished turn while the panel is closed counts), error and
  * finish timestamps, and the BYOK connection gate — the signals the
- * floating tray's director turns into bot states. Mounted once with the
+ * top-bar Assistant button uses for its unread indicator. Mounted once with the
  * inner panel and kept alive while the panel is hidden.
  */
 export const useAgentActivity = (

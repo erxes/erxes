@@ -1,12 +1,14 @@
 import { isTextUIPart, isToolUIPart, type UIMessage } from 'ai';
+import { Button, ScrollArea, Skeleton, Tooltip, cn } from 'erxes-ui';
 import {
-  Button,
-  ScrollArea,
-  Skeleton,
-  Tooltip,
-  cn,
-} from 'erxes-ui';
-import { Fragment, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+  Fragment,
+  memo,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import {
   IconArrowDown,
   IconCheck,
@@ -16,18 +18,19 @@ import {
 import { useTranslation } from 'react-i18next';
 
 import { formatAskUserAnswers } from '../askUserAnswers';
+import { getReplyCopyText } from '../artifacts/replyText';
 import {
   hasVisibleParts,
   MessagePartRenderer,
   readMessageAskUserAnswerCard,
 } from './MessagePart';
 import { AgentWorkSteps } from './AgentWorkSteps';
-import { groupAgentWorkSteps } from '../utils/agentWorkSteps';
-import { extractPageContext } from '../utils/pageContext';
 import {
-  getMessageText,
-  isAgentsAnswerTurn,
-} from '../utils/messages';
+  agentMessageActivity,
+  groupAgentWorkSteps,
+} from '../utils/agentWorkSteps';
+import { extractPageContext } from '../utils/pageContext';
+import { getMessageText, isAgentsAnswerTurn } from '../utils/messages';
 import {
   AGENT_CHAT_WIDTH_CLASSES,
   AGENT_CHAT_WIDTH_PADDING,
@@ -35,6 +38,7 @@ import {
 } from '../utils/chatWidth';
 import { buildTranscriptRows } from '../utils/transcriptRows';
 import { UserMessage } from './UserMessage';
+import { AgentMessageIdentity } from './AgentMessageIdentity';
 
 export interface IMessageListProps {
   messages: UIMessage[];
@@ -50,7 +54,6 @@ export interface IMessageListProps {
   }) => void;
   answerBusy: boolean;
   onAnswer: (answer: string | string[] | (string | string[])[]) => void;
-  onRetryArtifact: (title: string) => void;
   onRetryTurn: () => void;
   onEditMessage: (messageId: string, text: string) => void;
   editingDisabled: boolean;
@@ -150,7 +153,6 @@ interface IMessageRowProps {
   }) => void;
   answerBusy: boolean;
   onAnswer: (answer: string | string[] | (string | string[])[]) => void;
-  onRetryArtifact: (title: string) => void;
   editing: boolean;
   editingDisabled: boolean;
   onEditingChange: (messageId: string | null) => void;
@@ -175,7 +177,6 @@ const MessageRow = memo(
     onApprovalRespond,
     answerBusy,
     onAnswer,
-    onRetryArtifact,
     editing,
     editingDisabled,
     onEditingChange,
@@ -195,7 +196,9 @@ const MessageRow = memo(
       }
 
       void navigator.clipboard
-        ?.writeText(text)
+        ?.writeText(
+          message.role === 'assistant' ? getReplyCopyText(text) : text,
+        )
         .then(() => {
           setCopied(true);
           setTimeout(() => setCopied(false), 1500);
@@ -231,7 +234,6 @@ const MessageRow = memo(
       onAnswer,
       answeredToolCallIds,
       isStreaming: isStreamingTail,
-      onRetryArtifact,
     };
 
     if (message.role === 'assistant') {
@@ -259,17 +261,22 @@ const MessageRow = memo(
               </span>
             </div>
           )}
-          <div className="group/assistant flex w-full flex-col">
-            <p className="mb-2 text-[11px] font-medium text-muted-foreground">
-              {t('title', 'AI Agent')}
-            </p>
+          <div className="group/assistant agent-message-enter flex w-full flex-col">
+            <AgentMessageIdentity
+              activity={
+                isStreamingTail
+                  ? agentMessageActivity(message.parts)
+                  : undefined
+              }
+              current={isLastAssistant}
+            />
             <div className="min-w-0 flex-1">
               {items.map((item, index) =>
                 item.kind === 'work' ? (
                   <AgentWorkSteps
                     key={`work-${index}`}
                     steps={item.steps}
-                    streaming={isStreamingTail}
+                    streaming={isStreamingTail && index === items.length - 1}
                   />
                 ) : (
                   <MessagePartRenderer
@@ -281,64 +288,65 @@ const MessageRow = memo(
                 ),
               )}
             </div>
-            {hasContent && (hasText || (isLastAssistant && !isStreamingTail)) && (
-              <div
-                className={cn(
-                  'mt-1 flex items-center gap-0.5 transition-opacity',
-                  isLastAssistant
-                    ? 'opacity-100'
-                    : 'opacity-100 sm:opacity-0 sm:group-hover/assistant:opacity-100 sm:group-focus-within/assistant:opacity-100',
-                )}
-              >
-                {hasText && (
-                  <Tooltip.Provider delayDuration={200}>
-                    <Tooltip>
-                      <Tooltip.Trigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="size-7"
-                          aria-label={t('copy', 'Copy')}
-                          onClick={copyText}
-                        >
-                          {copied ? (
-                            <IconCheck className="size-3.5 text-primary" />
-                          ) : (
-                            <IconCopy className="size-3.5" />
-                          )}
-                        </Button>
-                      </Tooltip.Trigger>
-                      <Tooltip.Content>{t('copy', 'Copy')}</Tooltip.Content>
-                    </Tooltip>
-                  </Tooltip.Provider>
-                )}
-                {isLastAssistant && !isStreamingTail && (
-                  <Tooltip.Provider delayDuration={200}>
-                    <Tooltip>
-                      <Tooltip.Trigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="size-7"
-                          aria-label={t('regenerate', 'Regenerate')}
-                          onClick={onRetryTurn}
-                        >
-                          <IconRefresh className="size-3.5" />
-                        </Button>
-                      </Tooltip.Trigger>
-                      <Tooltip.Content>
-                        {t('regenerate', 'Regenerate')}
-                      </Tooltip.Content>
-                    </Tooltip>
-                  </Tooltip.Provider>
-                )}
-                {createdAt !== null && (
-                  <span className="ml-1 text-[11px] text-muted-foreground">
-                    {formatTimestamp(createdAt)}
-                  </span>
-                )}
-              </div>
-            )}
+            {hasContent &&
+              (hasText || (isLastAssistant && !isStreamingTail)) && (
+                <div
+                  className={cn(
+                    'mt-1 flex items-center gap-0.5 transition-opacity',
+                    isLastAssistant
+                      ? 'opacity-100'
+                      : 'opacity-100 sm:opacity-0 sm:group-hover/assistant:opacity-100 sm:group-focus-within/assistant:opacity-100',
+                  )}
+                >
+                  {hasText && (
+                    <Tooltip.Provider delayDuration={200}>
+                      <Tooltip>
+                        <Tooltip.Trigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="size-7"
+                            aria-label={t('copy', 'Copy')}
+                            onClick={copyText}
+                          >
+                            {copied ? (
+                              <IconCheck className="size-3.5 text-primary" />
+                            ) : (
+                              <IconCopy className="size-3.5" />
+                            )}
+                          </Button>
+                        </Tooltip.Trigger>
+                        <Tooltip.Content>{t('copy', 'Copy')}</Tooltip.Content>
+                      </Tooltip>
+                    </Tooltip.Provider>
+                  )}
+                  {isLastAssistant && !isStreamingTail && (
+                    <Tooltip.Provider delayDuration={200}>
+                      <Tooltip>
+                        <Tooltip.Trigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="size-7"
+                            aria-label={t('regenerate', 'Regenerate')}
+                            onClick={onRetryTurn}
+                          >
+                            <IconRefresh className="size-3.5" />
+                          </Button>
+                        </Tooltip.Trigger>
+                        <Tooltip.Content>
+                          {t('regenerate', 'Regenerate')}
+                        </Tooltip.Content>
+                      </Tooltip>
+                    </Tooltip.Provider>
+                  )}
+                  {createdAt !== null && (
+                    <span className="ml-1 text-[11px] text-muted-foreground">
+                      {formatTimestamp(createdAt)}
+                    </span>
+                  )}
+                </div>
+              )}
           </div>
         </Fragment>
       );
@@ -389,10 +397,7 @@ const TranscriptSkeleton = ({ width }: { width: AgentChatWidth }) => (
     {[0.4, 0.8, 0.55].map((width, index) => (
       <div
         key={index}
-        className={cn(
-          'flex',
-          index === 1 ? 'justify-end' : 'justify-start',
-        )}
+        className={cn('flex', index === 1 ? 'justify-end' : 'justify-start')}
       >
         <Skeleton
           className="h-16 rounded-2xl"
@@ -418,7 +423,6 @@ export const MessageList = ({
   onApprovalRespond,
   answerBusy,
   onAnswer,
-  onRetryArtifact,
   onRetryTurn,
   onEditMessage,
   editingDisabled,
@@ -436,11 +440,14 @@ export const MessageList = ({
     if (loadingThread) setEditingMessageId(null);
   }, [loadingThread]);
 
-  const handleEditMessage = useCallback((messageId: string, text: string) => {
-    nearBottomRef.current = true;
-    setShowScrollDown(false);
-    onEditMessage(messageId, text);
-  }, [onEditMessage]);
+  const handleEditMessage = useCallback(
+    (messageId: string, text: string) => {
+      nearBottomRef.current = true;
+      setShowScrollDown(false);
+      onEditMessage(messageId, text);
+    },
+    [onEditMessage],
+  );
 
   const lastMessagePartsLength =
     messages[messages.length - 1]?.parts.length ?? 0;
@@ -542,29 +549,34 @@ export const MessageList = ({
   }, [loadingThread]);
 
   const lastAssistantIndex = messages.reduce(
-    (last, message, index) =>
-      message.role === 'assistant' ? index : last,
+    (last, message, index) => (message.role === 'assistant' ? index : last),
     -1,
   );
 
+  const rows = useMemo(
+    () => buildTranscriptRows(messages, isHiddenTurn),
+    [messages],
+  );
+  const lastRow = rows[rows.length - 1];
+  const inFlight = status === 'submitted' || status === 'streaming';
+  const activeResponseRow =
+    inFlight && lastRow?.message.role === 'assistant' ? lastRow.key : null;
+  const showPendingResponse = inFlight && activeResponseRow === null;
+
   const transcript = useMemo(
     () =>
-      buildTranscriptRows(messages, isHiddenTurn).map((row) => (
+      rows.map((row) => (
         <MessageRow
           key={row.key}
           message={row.message}
           previousMessage={row.previousMessage}
-          isStreamingTail={
-            row.lastIndex === messages.length - 1 &&
-            (status === 'streaming' || status === 'submitted')
-          }
+          isStreamingTail={row.key === activeResponseRow}
           isLastAssistant={row.lastIndex === lastAssistantIndex}
           onRetryTurn={onRetryTurn}
           approvalBusy={approvalBusy}
           onApprovalRespond={onApprovalRespond}
           answerBusy={answerBusy}
           onAnswer={onAnswer}
-          onRetryArtifact={onRetryArtifact}
           editing={row.message.id === editingMessageId}
           editingDisabled={editingDisabled}
           onEditingChange={setEditingMessageId}
@@ -572,15 +584,14 @@ export const MessageList = ({
         />
       )),
     [
-      messages,
+      rows,
       lastAssistantIndex,
-      status,
+      activeResponseRow,
       onRetryTurn,
       approvalBusy,
       onApprovalRespond,
       answerBusy,
       onAnswer,
-      onRetryArtifact,
       editingMessageId,
       editingDisabled,
       handleEditMessage,
@@ -603,20 +614,18 @@ export const MessageList = ({
           <div
             ref={contentRef}
             className={cn(
-              'mx-auto w-full min-w-0 space-y-4 py-4 sm:space-y-6 sm:py-6',
+              'mx-auto w-full min-w-0 space-y-3 py-4 sm:space-y-4 sm:py-5',
               AGENT_CHAT_WIDTH_CLASSES[width],
               AGENT_CHAT_WIDTH_PADDING[width],
             )}
           >
             {transcript}
-            {status === 'submitted' && (
-              <div className="flex w-full items-center gap-2 text-xs text-muted-foreground">
-                <span className="size-1.5 animate-pulse rounded-full bg-primary" />
-                <span
-                  className="bg-gradient-to-r from-muted-foreground via-foreground to-muted-foreground bg-[length:200%_100%] bg-clip-text text-transparent motion-safe:animate-text-shimmer"
-                >
-                  {t('working', 'Working…')}
-                </span>
+            {showPendingResponse && (
+              <div className="agent-message-enter">
+                <AgentMessageIdentity
+                  activity={t('working', 'Working…')}
+                  current
+                />
               </div>
             )}
             {error && status !== 'submitted' && status !== 'streaming' && (

@@ -5,6 +5,7 @@ import {
   IconX,
 } from '@tabler/icons-react';
 import { Button, cn, DropdownMenu, Tabs } from 'erxes-ui';
+import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 
 export interface IRecordSidePanelTab {
@@ -17,45 +18,85 @@ export interface IRecordSidePanelTab {
 // A record shown beside its list, the list staying usable: a header and tabs.
 export const SIDE_PANEL_WIDTH = { min: 320, max: 600, default: 400 };
 
-const clampWidth = (width: number) =>
-  Math.min(SIDE_PANEL_WIDTH.max, Math.max(SIDE_PANEL_WIDTH.min, width));
+const clampWidth = (width: number, maxWidth: number) =>
+  Math.min(maxWidth, Math.max(SIDE_PANEL_WIDTH.min, width));
 
 // Dragging the panel's left edge resizes it; leftwards makes it wider.
 const RecordSidePanelResizeHandle = ({
   width,
+  maxWidth,
   onWidthChange,
 }: {
   width: number;
+  maxWidth: number;
   onWidthChange: (width: number) => void;
 }) => {
+  const { t } = useTranslation('common', { keyPrefix: 'side-panel' });
+  const stopResize = useRef<(() => void) | null>(null);
+  useEffect(() => () => stopResize.current?.(), []);
+
   const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (event.button !== 0) return;
     event.preventDefault();
+    stopResize.current?.();
     const startX = event.clientX;
-    const startWidth = width;
+    const startWidth =
+      event.currentTarget.parentElement?.getBoundingClientRect().width || width;
+    const previousCursor = document.body.style.cursor;
+    const previousUserSelect = document.body.style.userSelect;
 
     const handlePointerMove = (moveEvent: PointerEvent) =>
-      onWidthChange(clampWidth(startWidth + startX - moveEvent.clientX));
+      onWidthChange(
+        clampWidth(startWidth + startX - moveEvent.clientX, maxWidth),
+      );
 
     const handlePointerUp = () => {
       document.removeEventListener('pointermove', handlePointerMove);
       document.removeEventListener('pointerup', handlePointerUp);
-      document.body.style.removeProperty('cursor');
-      document.body.style.removeProperty('user-select');
+      document.removeEventListener('pointercancel', handlePointerUp);
+      window.removeEventListener('blur', handlePointerUp);
+      document.body.style.cursor = previousCursor;
+      document.body.style.userSelect = previousUserSelect;
+      stopResize.current = null;
     };
 
     document.body.style.cursor = 'col-resize';
     document.body.style.userSelect = 'none';
     document.addEventListener('pointermove', handlePointerMove);
     document.addEventListener('pointerup', handlePointerUp);
+    document.addEventListener('pointercancel', handlePointerUp);
+    window.addEventListener('blur', handlePointerUp);
+    stopResize.current = handlePointerUp;
   };
 
   return (
     <div
       role="separator"
       aria-orientation="vertical"
-      className="absolute inset-y-0 -left-1 z-10 w-2 cursor-col-resize hover:bg-primary/20 active:bg-primary/30"
+      aria-label={t('resize', 'Resize side panel')}
+      aria-valuemin={SIDE_PANEL_WIDTH.min}
+      aria-valuemax={maxWidth}
+      aria-valuenow={width}
+      tabIndex={0}
+      title={t('drag-to-resize', 'Drag to resize')}
+      className="group absolute inset-y-0 -left-1.5 z-10 flex w-3 cursor-col-resize touch-none items-center justify-center hover:bg-primary/10 focus-visible:bg-primary/10 focus-visible:outline-none active:bg-primary/20"
       onPointerDown={handlePointerDown}
-    />
+      onKeyDown={(event) => {
+        const step = event.shiftKey ? 64 : 16;
+        const widths: Record<string, number> = {
+          ArrowLeft: width + step,
+          ArrowRight: width - step,
+          Home: SIDE_PANEL_WIDTH.min,
+          End: maxWidth,
+        };
+        const nextWidth = widths[event.key];
+        if (nextWidth === undefined) return;
+        event.preventDefault();
+        onWidthChange(clampWidth(nextWidth, maxWidth));
+      }}
+    >
+      <span className="h-8 w-1 rounded-full bg-border transition-colors group-hover:bg-primary/60 group-focus-visible:bg-primary/60 group-active:bg-primary" />
+    </div>
   );
 };
 
@@ -63,33 +104,41 @@ const RecordSidePanelResizeHandle = ({
 const RecordSidePanelRoot = ({
   className,
   width = SIDE_PANEL_WIDTH.default,
+  maxWidth = SIDE_PANEL_WIDTH.max,
   onWidthChange,
   children,
 }: {
   className?: string;
   width?: number;
+  // Larger surfaces can opt in without widening record panels.
+  maxWidth?: number;
   // Makes the panel resizable from its left edge.
   onWidthChange?: (width: number) => void;
   children: React.ReactNode;
-}) => (
-  <aside
-    style={{ width: clampWidth(width) }}
-    className={cn(
-      'relative flex flex-col flex-none max-w-full min-h-0 border-l bg-background',
-      // Eases in from the right instead of popping open.
-      'animate-in fade-in-0 slide-in-from-right-8 duration-200 ease-out motion-reduce:animate-none',
-      className,
-    )}
-  >
-    {onWidthChange && (
-      <RecordSidePanelResizeHandle
-        width={clampWidth(width)}
-        onWidthChange={onWidthChange}
-      />
-    )}
-    {children}
-  </aside>
-);
+}) => {
+  const upperBound = Math.max(SIDE_PANEL_WIDTH.min, maxWidth);
+  const panelWidth = clampWidth(width, upperBound);
+  return (
+    <aside
+      style={{ width: panelWidth }}
+      className={cn(
+        'relative flex flex-col flex-none max-w-full min-h-0 border-l bg-background',
+        // Eases in from the right instead of popping open.
+        'animate-in fade-in-0 slide-in-from-right-8 duration-200 ease-out motion-reduce:animate-none',
+        className,
+      )}
+    >
+      {onWidthChange && (
+        <RecordSidePanelResizeHandle
+          width={panelWidth}
+          maxWidth={upperBound}
+          onWidthChange={onWidthChange}
+        />
+      )}
+      {children}
+    </aside>
+  );
+};
 
 const RecordSidePanelHeader = ({
   avatar,

@@ -21,6 +21,7 @@ import {
 import { makeToolInputSchemaMongoCompatible } from '@/agents/toolSchemaCompatibility';
 import { buildAskUserTool } from '@/agents/askUser';
 import { buildFindPagesTool } from '@/agents/findPages';
+import { buildCreateArtifactTool } from '@/agents/createArtifact';
 import { buildReadFileTool } from '@/agents/readFile';
 import { buildGraphqlTools } from '@/agents/graphqlTools';
 import { buildCodeModeAddition } from '@/agents/codeMode';
@@ -53,33 +54,25 @@ Only say that a record, field, or link does not exist when a tool that returns t
 
 Make progress without an intake questionnaire. For low-risk, reversible presentation choices, choose a sensible default and mention it briefly when relevant. Once a report's subject is known, use the last complete calendar month unless the conversation specifies a period.
 
-Built-in report convention: a request to create, show, or update a report means a self-contained HTML report rendered inline in this chat. This includes short requests such as "report", "sales report", and equivalent requests in the user's language. The user does not need to say HTML. Deliver the actual report as one complete \`\`\`html <title> artifact using the HTML rules below; a plain-text or markdown-only report does not fulfill this default. Do not ask the user to choose between on-screen, HTML, spreadsheet, PDF, or document delivery. Carry this HTML format through report follow-ups and revisions. An explicit request for another format takes precedence. Questions about an existing report do not require generating a new artifact unless the user asks for one.
+Response presentation: every user-facing reply is rendered HTML, including short answers, confirmations, explanations, navigation replies and report follow-ups. Write assistant text directly as semantic HTML, with no outer Markdown code fence, artifact marker, filename or response title. A greeting is simply <p>Hello! How can I help?</p>. Use paragraphs, lists and real tables where useful; do not add dashboards, decorative cards or large headings to simple answers. The client renders text parts only as replies. Text formatting never creates a file or a download button. Put record reference tokens verbatim in HTML text nodes, never in attributes, links, styles or code. Styles and inline SVG are supported; scripts and external resources are not. Use inherited theme variables (--background, --foreground, --muted, --muted-foreground, --border, --primary) for light and dark views. Never include fake interactive controls: workspace actions belong to the existing tools and approval UI.
+
+Deliverables: use createArtifact only to deliver an actual report, dashboard, page, spreadsheet, PDF or document requested by the user. Its typed result is persisted separately from reply text and rendered as a file card with source/download controls. Never call createArtifact to display a greeting, confirmation, question, explanation or report commentary. Do not output deliverables in fenced chat text, and do not duplicate a delivered file's contents in the following reply. HTML rendering is a presentation choice; artifact creation is a separate operation.
+
+Built-in report convention: a request to create, show or update a report means an inline HTML report delivered through createArtifact with type html. This includes short requests such as "report", "sales report" and equivalent requests in the user's language. The user does not need to say HTML. Do not ask the user to choose a file format. Carry the report through revisions by calling createArtifact with the complete updated content. An explicit request for another file format takes precedence for that deliverable. Questions about an existing report require only an ordinary HTML reply unless the user asks to change or recreate the report.
 
 Use ask_user only when a missing detail materially changes the work, cannot be resolved from context or tools, or is needed to avoid an unintended action. A vague "I need a report" may need one question about its subject; it does not require questions about every date, style, and file format. Prefer one focused question; batch up to three related essentials when needed. Offer concrete choices with useful short descriptions, and put a sensible recommendation first when one exists. Do not add catch-all "Other", "Custom", or "Type my own" choices: the interface always supports a custom answer and additional details.
 
 Set selectionMode explicitly whenever providing options. Use multi_select for compatible choices the user could want together (report subjects, metrics, teams, channels); use single_select only for mutually exclusive alternatives (one reporting period or one destination). Do not force one choice when several can reasonably apply. After the answers arrive, act on both the selected options and the user's written details without repeating the questionnaire.
 
-When the user asks for a document, file, spreadsheet, page, or anything
-they would preview, download, or edit, you MUST deliver it as ONE complete
-fenced code block per artifact, with the type tag and a short title on the
-fence line. Never put the file's content in a plain or \`\`\`markdown fence —
-that renders as unreadable code and the user gets no file:
-- \`\`\`html <title> — a self-contained HTML document (inline styles/scripts
-  only; external URLs will not load). It renders directly in the chat at
-  the available width: use a responsive layout, compact styles, and natural
-  content height. Avoid fixed page widths, viewport-height layouts, outer
-  page padding, and redundant card frames. Complete the report content and
-  closing tags within the response; prefer concise CSS over lengthy decoration.
-- \`\`\`xlsx <title> — CSV rows; the first row is the header.
-- \`\`\`docx <title> / \`\`\`pdf <title> — markdown content: # headings,
-  **bold**, *italic*, \`inline code\`, lists, | pipe | tables |, > quotes,
-  and indented code. Never place a \`\`\` fence inside docx/pdf content —
-  indent code by 4 spaces instead.
-Always close every artifact fence. Keep prose outside the fences.
+createArtifact content formats (pass complete content as the tool's content field, without code fences):
+- html: a self-contained HTML document or fragment, using responsive CSS and inline SVG. It renders at the available width and natural content height. Avoid fixed page widths, viewport-height layouts, outer page padding and redundant card frames. Finish all closing tags; prefer concise CSS.
+- xlsx: CSV rows; the first row is the header.
+- docx / pdf: Markdown with headings, emphasis, lists, tables, quotes and indented code. Do not nest Markdown fences.
+Give each deliverable a short, meaningful title. Do not invent or use a filename to mark ordinary text as a file.
 
 Navigation: when the user asks where something is, how to open a page, or how to do something that happens on a specific screen, call findPages and answer with that page's reference token, followed by at most one short sentence about what to do there. Do not give click-by-click menu directions when a page token exists, and never list tools, tool ids, API names or permission names in replies — they are internal. If findPages finds nothing that fits, say so briefly and offer the closest match.
 
-References: tool results may include a "references" list of record tokens in the form [[type:id:label]]. When your reply mentions a specific record that appeared in a tool result, copy its token verbatim inline where you name it, e.g. "Top deal is [[deal:abc:Big Order]]". Never build or modify a token yourself and never invent ids — reuse only tokens the tool returned, exactly as given. Never place a token inside a code block, a link, or an artifact (\`\`\`html/\`\`\`xlsx/\`\`\`docx/\`\`\`pdf) — tokens work only in plain prose. Records that carry no token are named in plain text. Never write URLs or markdown links to workspace pages, including paths returned by tools; a record's reference token is how the user opens it. Page tokens returned by findPages work the same way.`;
+References: tool results may include a "references" list of record tokens in the form [[type:id:label]]. When your reply mentions a specific record that appeared in a tool result, copy its token verbatim inline where you name it, e.g. "<p>Top deal is [[deal:abc:Big Order]]</p>". Never build or modify a token yourself and never invent ids — reuse only tokens the tool returned, exactly as given. Tokens work in HTML text nodes in replies and HTML deliverables; never put them inside HTML attributes, links, styles, code examples or non-HTML files. Records that carry no token are named in plain text. Never write URLs or markdown links to workspace pages, including paths returned by tools; a record's reference token is how the user opens it. Page tokens returned by findPages work the same way.`;
 
 /** Current date is explicit; page context only ever arrives as a delimited "[Page context] ..." line. */
 export const buildAgentsInstructions = (
@@ -380,11 +373,13 @@ export const buildBaseAgentsAgent = async ({
     askUserTool,
     readFileTool,
     findPagesTool,
+    createArtifactTool,
   ] = await Promise.all([
     buildGraphqlTools(),
     buildAskUserTool(),
     buildReadFileTool(),
     buildFindPagesTool(),
+    buildCreateArtifactTool(),
   ]);
 
   // Code mode addition is also static — the tool itself doesn't change,
@@ -397,6 +392,7 @@ export const buildBaseAgentsAgent = async ({
   makeToolInputSchemaMongoCompatible(askUserTool);
   makeToolInputSchemaMongoCompatible(readFileTool);
   makeToolInputSchemaMongoCompatible(findPagesTool);
+  makeToolInputSchemaMongoCompatible(createArtifactTool);
   makeToolInputSchemaMongoCompatible(codeModeAddition.tool);
 
   return new Agent({
@@ -436,6 +432,7 @@ export const buildBaseAgentsAgent = async ({
         askUser: askUserTool,
         readFile: readFileTool,
         findPages: findPagesTool,
+        createArtifact: createArtifactTool,
         ...(codeModeEnabled
           ? { [codeModeAddition.tool.id]: codeModeAddition.tool }
           : {}),

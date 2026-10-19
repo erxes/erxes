@@ -12,6 +12,7 @@ import { BroadcastRoutes } from '@/app/components/BroadcastRoutes';
 import { ComponentsRoutes } from '../components/ComponentsRoutes';
 import { ContactsRoutes } from '@/app/components/ContactsRoutes';
 import { DefaultLayout } from '@/app/components/MainLayout';
+import { LegacyAgentRedirect } from '@/agent/components/LegacyAgentRedirect';
 import { DocumentsRoutes } from '@/app/components/DocumentsRoutes';
 import ForgotPasswordPage from '~/pages/auth/ForgotPasswordPage';
 import { HomePage } from '~/pages/home/HomePage';
@@ -29,7 +30,7 @@ import { SettingsRoutes } from '@/app/components/SettingsRoutes';
 import { TemplateRoutes } from '../components/TemplateRoutes';
 import { UserProvider } from '@/auth/providers/UserProvider';
 import { getPluginsRoutes } from '@/app/hooks/usePluginsRouter';
-import { lazy, Suspense } from 'react';
+import { lazy } from 'react';
 import { useAtomValue } from 'jotai';
 
 const UserConfirmInvitationPage = lazy(
@@ -42,16 +43,6 @@ const DeviceAuthorizePage = lazy(
 );
 const CreateOwnerPage = lazy(
   () => import('~/pages/organization/CreateOwnerPage'),
-);
-const AgentIndexPage = lazy(() =>
-  import('~/pages/agent/AgentIndexPage').then((module) => ({
-    default: module.AgentIndexPage,
-  })),
-);
-const AgentCapabilitiesPage = lazy(() =>
-  import('~/pages/agent/AgentCapabilitiesPage').then((module) => ({
-    default: module.AgentCapabilitiesPage,
-  })),
 );
 
 const OnboardingGuard = ({ children }: { children: React.ReactNode }) => {
@@ -166,36 +157,8 @@ export const useCreateAppRouter = () => {
               />
 
               <Route
-                path={AppPath.Agent}
-                element={
-                  <PermissionRouteGuard module="agents">
-                    <Suspense fallback={<div />}>
-                      <AgentIndexPage />
-                    </Suspense>
-                  </PermissionRouteGuard>
-                }
-              />
-
-              <Route
-                path={AppPath.AgentCapabilities}
-                element={
-                  <PermissionRouteGuard module="agents">
-                    <Suspense fallback={<div />}>
-                      <AgentCapabilitiesPage />
-                    </Suspense>
-                  </PermissionRouteGuard>
-                }
-              />
-
-              <Route
-                path={`${AppPath.Agent}/:threadId`}
-                element={
-                  <PermissionRouteGuard module="agents">
-                    <Suspense fallback={<div />}>
-                      <AgentIndexPage />
-                    </Suspense>
-                  </PermissionRouteGuard>
-                }
+                path={AppPath.AgentCatchAll}
+                element={<LegacyAgentRedirect />}
               />
 
               <Route

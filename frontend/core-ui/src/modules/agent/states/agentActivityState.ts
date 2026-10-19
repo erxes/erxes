@@ -20,8 +20,8 @@ export interface IAgentActivity {
 }
 
 /**
- * What the floating tray bot shows: written only by the side-panel chat
- * (sessionScope 'panel') through `useAgentActivityBridge`. The panel stays
+ * Activity shown by the top-bar Assistant button, written by the side-panel
+ * chat (sessionScope 'panel') through `useAgentActivity`. The panel stays
  * mounted once opened, so the stream — and therefore this atom — keeps
  * updating while it is closed.
  */

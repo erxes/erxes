@@ -39,29 +39,19 @@ export type IAgentsThinkingLevel =
   | 'medium'
   | 'high';
 
-/** Which chat surface owns this hook instance (page vs side panel). */
+/** Storage namespace; `page` is retained only for compatibility with old sessions. */
 export type IAgentsSessionScope = 'page' | 'panel';
 
 /**
- * sessionStorage keys for the selected thread are scoped by surface so the
- * full page and the side panel never restore each other's
- * conversations. A thread's active-run entry is deliberately shared by
- * every surface: the durable run belongs to the thread, so a run started
- * in the side panel is resumable from the full page after a refresh
- * (and vice versa) instead of showing a dead transcript for a run that
- * is still working server-side.
+ * The Assistant uses the panel namespace for its selected conversation.
+ * Legacy storage namespaces do not affect per-thread durable run entries.
  */
 const SELECTED_THREAD_STORAGE_KEY = (scope: IAgentsSessionScope): string =>
   `agents-selected-thread:${scope}`;
 
 /**
- * sessionStorage key persisting a thread's active run id. The entry is
- * shared by every surface (`page` and `panel`): a durable run belongs
- * to the thread, not the surface, so a run started in the floating
- * panel is resumable from the full page after a refresh and vice versa
- * — otherwise the second surface would show a dead transcript for a run
- * that is still working server-side. Only the selected-thread pointer is
- * surface-scoped.
+ * Persist a thread's durable run so Assistant can resume it after a refresh.
+ * The key remains independent of the selected-thread storage namespace.
  */
 const ACTIVE_RUN_STORAGE_KEY = (threadId: string): string =>
   `agents-active-run:${threadId}`;
@@ -311,17 +301,16 @@ export interface IUseAgentsChatResult {
  *   clean completion and on terminal errors (via `onFinish`), retained
  *   only on abort, disconnect, or a pending approval/ask_user suspension
  *   so reconnectable streams can resume under the same run,
- * - surface-scoped session restore: the selected thread id persists per
- *   `sessionScope` (`page` vs `panel`), so a browser refresh reopens
+ * - session restore: the selected thread id persists in the panel's
+ *   `sessionScope`, so a browser refresh reopens
  *   the same conversation through `openThread` (which resumes a stored
  *   live run, and re-reads the thread once after a non-replayed resume
  *   so a run that finished during the reload still shows its reply)
- *   without the two surfaces restoring each other's selection,
  */
 export const useAgentsChat = (options?: {
   sessionScope?: IAgentsSessionScope;
 }): IUseAgentsChatResult => {
-  const sessionScope = options?.sessionScope ?? 'page';
+  const sessionScope = options?.sessionScope ?? 'panel';
   const [threadId, setThreadId] = useState<string | undefined>();
   // Start in the thread-loading state when this surface has a stored
   // selection so a browser refresh restores the thread instead of

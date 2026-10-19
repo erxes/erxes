@@ -10,8 +10,8 @@ import { useAtom, useAtomValue } from 'jotai';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { companyCustomActivities } from '@/contacts/companies/company-detail/CompanyActivityRows';
+import { AssistantPanel } from './chat/AssistantPanel';
 import { justCreatedRecordState } from '@/side-panel/states/justCreatedRecordState';
-import { SidePanelChat } from './chat/SidePanelChat';
 import { SidePanelRelations } from './relations/SidePanelRelations';
 import { CompanyPanelDetail } from './details/CompanyPanelDetail';
 import { CompanyPanelProperties } from './details/CompanyPanelProperties';
@@ -273,10 +273,6 @@ export const SidePanelLayout = () => {
     }
   }, [justCreated, record?.contentId, setJustCreated]);
 
-  if (!open) {
-    return null;
-  }
-
   const renderRoute = () => {
     if (record) {
       return (
@@ -286,10 +282,6 @@ export const SidePanelLayout = () => {
           onClose={close}
         />
       );
-    }
-
-    if (path === SIDE_PANEL_CHAT_PATH) {
-      return <SidePanelChat onClose={close} />;
     }
 
     if (path === SIDE_PANEL_ROOT_PATH) {
@@ -318,8 +310,13 @@ export const SidePanelLayout = () => {
   };
 
   return (
-    <RecordSidePanel width={width} onWidthChange={setWidth}>
-      {renderRoute()}
-    </RecordSidePanel>
+    <>
+      {open && path !== SIDE_PANEL_CHAT_PATH && (
+        <RecordSidePanel key="record" width={width} onWidthChange={setWidth}>
+          {renderRoute()}
+        </RecordSidePanel>
+      )}
+      <AssistantPanel />
+    </>
   );
 };

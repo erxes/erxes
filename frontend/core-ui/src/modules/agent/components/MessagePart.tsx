@@ -13,6 +13,7 @@ import {
   type IAskUserAnswerEntry,
 } from '../askUserAnswers';
 import { MessageContent } from '../artifacts/MessageContent';
+import { ArtifactToolResult } from '../artifacts/ArtifactToolResult';
 import {
   AGENTS_FILES_DATA_TYPE,
   agentsFilesNotice,
@@ -40,7 +41,6 @@ export interface IMessagePartRendererProps {
   /** Tool calls already resolved somewhere in the message. */
   answeredToolCallIds: Set<string>;
   isStreaming?: boolean;
-  onRetryArtifact?: (title: string) => void;
 }
 
 /**
@@ -215,7 +215,6 @@ export const MessagePartRenderer = ({
   onAnswer,
   answeredToolCallIds,
   isStreaming = false,
-  onRetryArtifact,
 }: IMessagePartRendererProps) => {
   if (isTextUIPart(part)) {
     if (role === 'user') {
@@ -226,14 +225,7 @@ export const MessagePartRenderer = ({
       );
     }
 
-    return (
-      <MessageContent
-        content={part.text}
-        isStreaming={isStreaming && part.state !== 'done'}
-        retryDisabled={approvalBusy}
-        onRetryArtifact={onRetryArtifact}
-      />
-    );
+    return <MessageContent content={part.text} />;
   }
 
   if (isToolUIPart(part)) {
@@ -247,6 +239,10 @@ export const MessagePartRenderer = ({
 
     if (!tool) {
       return null;
+    }
+
+    if (tool.toolName === 'createArtifact') {
+      return <ArtifactToolResult tool={tool} isStreaming={isStreaming} />;
     }
 
     if (part.state === 'approval-requested' && tool.approval) {

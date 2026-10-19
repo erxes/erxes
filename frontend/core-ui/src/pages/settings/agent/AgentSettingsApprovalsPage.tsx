@@ -12,7 +12,12 @@ import {
 } from 'erxes-ui';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { PageHeader, usePermissionCheck } from 'ui-modules';
+import {
+  PageHeader,
+  usePermissionCheck,
+  SIDE_PANEL_CHAT_PATH,
+  useSidePanel,
+} from 'ui-modules';
 
 import {
   AGENTS_SETTINGS,
@@ -49,6 +54,7 @@ const MODES: {
  * everyone else.
  */
 export const AgentSettingsApprovalsPage = () => {
+  const { openPath } = useSidePanel();
   const { t } = useTranslation('common', { keyPrefix: 'agent' });
   const { settings, loading, error } = useAgentsSettings();
   const { isLoaded, hasActionPermission } = usePermissionCheck();
@@ -94,19 +100,18 @@ export const AgentSettingsApprovalsPage = () => {
           <Breadcrumb>
             <Breadcrumb.List className="gap-1">
               <Breadcrumb.Item>
-                <Button variant="ghost" asChild>
-                  <Link to="/agent">
-                    <IconShieldCheck />
-                    {t('title', 'AI Agent')}
-                  </Link>
+                <Button
+                  variant="ghost"
+                  onClick={() => openPath(SIDE_PANEL_CHAT_PATH)}
+                >
+                  <IconShieldCheck />
+                  {t('assistant', 'Assistant')}
                 </Button>
               </Breadcrumb.Item>
               <Breadcrumb.Separator />
               <Breadcrumb.Item>
                 <Button variant="ghost" asChild>
-                  <Link to="/settings/agent">
-                    {t('settings', 'Settings')}
-                  </Link>
+                  <Link to="/settings/agent">{t('settings', 'Settings')}</Link>
                 </Button>
               </Breadcrumb.Item>
               <Breadcrumb.Separator />
@@ -169,10 +174,7 @@ export const AgentSettingsApprovalsPage = () => {
               </RadioGroup>
               {!canManage && (
                 <p className="mt-4 rounded-lg border border-dashed p-3 text-xs text-muted-foreground">
-                  {t(
-                    'managed-by-admins',
-                    'Managed by your administrators.',
-                  )}
+                  {t('managed-by-admins', 'Managed by your administrators.')}
                 </p>
               )}
             </div>

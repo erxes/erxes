@@ -1,18 +1,10 @@
 import { IconPalette } from '@tabler/icons-react';
-import {
-  Breadcrumb,
-  Button,
-  Label,
-  Separator,
-  Switch,
-  toast,
-  ToggleGroup,
-} from 'erxes-ui';
+import { Breadcrumb, Button, Label, Separator, ToggleGroup } from 'erxes-ui';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { PageHeader } from 'ui-modules';
+import { PageHeader, SIDE_PANEL_CHAT_PATH, useSidePanel } from 'ui-modules';
 
 import { BloubAvatar } from '@/agent/bloub/BloubAvatar';
 import { defaultCycle } from '@/agent/bloub/engine/cycles';
@@ -32,8 +24,6 @@ import {
   agentBotAppearanceWriteState,
   useBotPalette,
 } from '@/agent/states/agentBotAppearanceState';
-import { agentTrayPositionState } from '@/agent/states/agentPanelStates';
-import { defaultTrayPosition } from '@/agent/utils/trayPosition';
 
 interface IBotThumbProps {
   size: number;
@@ -78,16 +68,14 @@ const BotThumb = ({
 );
 
 /**
- * Per-device bot appearance: shape, colour, rest expression, and whether
- * the floating tray shows. Nothing here touches the server — the
- * preference lives in localStorage, hence the "Saved on this device"
- * note under the title.
+ * Per-device chat bot appearance: shape, colour, and rest expression.
+ * Preferences live in localStorage, hence the "Saved on this device" note.
  */
 export const AgentSettingsAppearancePage = () => {
+  const { openPath } = useSidePanel();
   const { t } = useTranslation('common', { keyPrefix: 'agent' });
   const appearance = useAtomValue(agentBotAppearanceState);
   const setAppearance = useSetAtom(agentBotAppearanceWriteState);
-  const setTrayPosition = useSetAtom(agentTrayPositionState);
   const { paper, color } = useBotPalette();
 
   // Preview playback: a picked gallery state plays through the live
@@ -110,11 +98,12 @@ export const AgentSettingsAppearancePage = () => {
           <Breadcrumb>
             <Breadcrumb.List className="gap-1">
               <Breadcrumb.Item>
-                <Button variant="ghost" asChild>
-                  <Link to="/agent">
-                    <IconPalette />
-                    {t('title', 'AI Agent')}
-                  </Link>
+                <Button
+                  variant="ghost"
+                  onClick={() => openPath(SIDE_PANEL_CHAT_PATH)}
+                >
+                  <IconPalette />
+                  {t('assistant', 'Assistant')}
                 </Button>
               </Breadcrumb.Item>
               <Breadcrumb.Separator />
@@ -267,45 +256,6 @@ export const AgentSettingsAppearancePage = () => {
                 </ToggleGroup.Item>
               ))}
             </ToggleGroup>
-          </div>
-
-          <div className="rounded-xl border p-6">
-            <div className="flex items-start justify-between gap-4">
-              <div className="space-y-1.5">
-                <Label className="font-sans text-sm font-medium normal-case">
-                  {t('appearance-show-tray', 'Show floating assistant')}
-                </Label>
-                <p className="max-w-sm text-xs text-muted-foreground">
-                  {t(
-                    'appearance-show-tray-hint',
-                    'The movable bot that follows the chat and opens the panel.',
-                  )}
-                </p>
-              </div>
-              <Switch
-                checked={appearance.trayEnabled}
-                onCheckedChange={(checked) =>
-                  setAppearance({ trayEnabled: checked })
-                }
-                aria-label={t(
-                  'appearance-show-tray',
-                  'Show floating assistant',
-                )}
-              />
-            </div>
-            <Button
-              variant="outline"
-              size="sm"
-              className="mt-4"
-              onClick={() => {
-                setTrayPosition(defaultTrayPosition(window.innerHeight));
-                toast({
-                  title: t('appearance-reset-done', 'Tray position reset'),
-                });
-              }}
-            >
-              {t('appearance-reset-tray', 'Reset tray position')}
-            </Button>
           </div>
 
           <div className="rounded-xl border p-6">

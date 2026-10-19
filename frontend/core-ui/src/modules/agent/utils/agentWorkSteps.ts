@@ -8,13 +8,10 @@ type TUIPart = UIMessage['parts'][number];
 // Local predicates instead of the `ai` package's is*UIPart helpers: `ai`
 // is ESM-only and the module would pull it into every consumer (including
 // jest, which runs CJS) for three one-line checks.
-const isReasoningPart = (
-  part: TUIPart,
-): part is TUIPart & { text: string } => part.type === 'reasoning';
+const isReasoningPart = (part: TUIPart): part is TUIPart & { text: string } =>
+  part.type === 'reasoning';
 
-const isToolPart = (
-  part: TUIPart,
-): part is DynamicToolUIPart | ToolUIPart =>
+const isToolPart = (part: TUIPart): part is DynamicToolUIPart | ToolUIPart =>
   part.type === 'dynamic-tool' || part.type.startsWith('tool-');
 
 /** Normalized view of one tool part (live stream or mapped history). */
@@ -147,6 +144,7 @@ const isStandalonePart = (part: TUIPart): boolean => {
 
     return (
       /^ask_?user$/i.test(name) ||
+      name === 'createArtifact' ||
       part.state === 'approval-requested' ||
       part.state === 'approval-responded' ||
       part.state === 'output-denied'
@@ -216,8 +214,8 @@ const singularize = (noun: string): string =>
   noun.endsWith('ies')
     ? `${noun.slice(0, -3)}y`
     : noun.endsWith('s')
-      ? noun.slice(0, -1)
-      : noun;
+    ? noun.slice(0, -1)
+    : noun;
 
 const pluralize = (noun: string): string =>
   noun.endsWith('s') ? noun : `${noun}s`;
@@ -306,7 +304,9 @@ export const agentStepLabel = (step: TAgentWorkStep): string => {
 
     const fields = summary.fields.join(', ');
 
-    return summary.operation === 'query' ? `Queried ${fields}` : `Ran ${fields}`;
+    return summary.operation === 'query'
+      ? `Queried ${fields}`
+      : `Ran ${fields}`;
   }
 
   if (tool.toolName === 'callTool') {
@@ -331,24 +331,45 @@ export const agentStepLabel = (step: TAgentWorkStep): string => {
   return `Ran ${tool.toolName}`;
 };
 
-/** The last still-running step's label, for the streaming summary line. */
-export const activeAgentStepLabel = (
-  steps: TAgentWorkStep[],
-): string | undefined => {
-  for (let index = steps.length - 1; index >= 0; index -= 1) {
-    const step = steps[index];
-
-    if (step.kind === 'reasoning') {
-      return 'Thinking';
-    }
-
-    if (
-      step.tool.state === 'input-streaming' ||
-      step.tool.state === 'input-available'
-    ) {
-      return agentStepLabel(step);
+/** The newest meaningful part owns the turn's single live activity label. */
+export const agentMessageActivity = (parts: UIMessage['parts']): string => {
+  for (let index = parts.length - 1; index >= 0; index -= 1) {
+    const part = parts[index];
+    if (part.type === 'text' && 'text' in part && part.text.trim())
+      return 'Writing…';
+    if (isReasoningPart(part)) return 'Thinking…';
+    if (!isToolPart(part)) continue;
+    if (part.state !== 'input-streaming' && part.state !== 'input-available')
+      return 'Working…';
+    const name = toolNameOf(part);
+    const input = isRecord(part.input) ? part.input : {};
+    switch (name) {
+      case 'createArtifact':
+        return 'Creating file…';
+      case 'searchTools':
+      case 'searchGraphql':
+        return 'Searching workspace…';
+      case 'findPages':
+        return 'Finding a page…';
+      case 'readFile':
+        return typeof input.url === 'string'
+          ? `Reading ${readFileName(input.url)}`
+          : 'Reading file…';
+      case 'execute_typescript':
+        return 'Running code…';
+      case 'callGraphql': {
+        const summary = summarizeGraphqlCall(input);
+        return summary?.fields.length
+          ? `${
+              summary.operation === 'mutation' ? 'Running' : 'Querying'
+            } ${summary.fields.join(', ')}`
+          : 'Looking up workspace data…';
+      }
+      case 'askUser':
+        return 'Preparing a question…';
+      default:
+        return 'Working…';
     }
   }
-
-  return undefined;
+  return 'Working…';
 };

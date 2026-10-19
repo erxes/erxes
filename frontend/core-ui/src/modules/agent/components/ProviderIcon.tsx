@@ -19,18 +19,21 @@ const KIMI_K_PATH =
 interface IProviderIconProps {
   provider: string;
   className?: string;
+  variant?: 'tile' | 'plain';
 }
 
 const MonoMark = ({
   viewBox,
   path,
+  plain,
 }: {
   viewBox: string;
   path: string;
+  plain: boolean;
 }) => (
   <svg
     viewBox={viewBox}
-    className="size-[58%]"
+    className={plain ? 'size-full' : 'size-[58%]'}
     fill="currentColor"
     aria-hidden="true"
   >
@@ -54,13 +57,17 @@ const KimiMark = ({ className }: { className?: string }) => (
 export const ProviderIcon = ({
   provider,
   className = 'size-8',
+  variant = 'tile',
 }: IProviderIconProps) => {
   if (provider === 'openai' || provider === 'grok') {
     return (
       <span
-        className={`flex shrink-0 items-center justify-center rounded-md border bg-muted/60 text-foreground ${className}`}
+        className={`flex shrink-0 items-center justify-center ${
+          variant === 'tile' ? 'rounded-md border bg-muted/60' : ''
+        } text-foreground ${className}`}
       >
         <MonoMark
+          plain={variant === 'plain'}
           viewBox={provider === 'openai' ? '0 0 24 24' : '0 0 841.89 595.28'}
           path={provider === 'openai' ? OPENAI_PATH : XAI_PATH}
         />
@@ -77,6 +84,17 @@ export const ProviderIcon = ({
             <IconCode className="size-[70%]" aria-hidden="true" />
           </span>
         )}
+      </span>
+    );
+  }
+
+  if (variant === 'plain') {
+    return (
+      <span
+        className={`flex shrink-0 items-center justify-center text-xs font-medium uppercase text-muted-foreground ${className}`}
+        aria-hidden="true"
+      >
+        {provider.slice(0, 1)}
       </span>
     );
   }

@@ -14,16 +14,10 @@ import {
 
 /**
  * Pages always navigable for this user that no activity or settings
- * entry already names: the notifications inbox and the agent capability
- * catalog.
+ * entry already names: the notifications inbox.
  */
 const FIXED_PAGES: IAgentsNavigationEntry[] = [
   { path: '/my-inbox', label: 'My inbox' },
-  {
-    path: '/agent/capabilities',
-    label: 'AI agent capabilities',
-    group: 'AI agent',
-  },
 ];
 
 /**
@@ -43,11 +37,7 @@ export const useNavigationCatalog = (): IAgentsNavigationEntry[] => {
 
     return buildNavigationCatalog({
       activities,
-      settingsGroups: [
-        pathData.account,
-        pathData.nav,
-        pathData.developer,
-      ],
+      settingsGroups: [pathData.account, pathData.nav, pathData.developer],
       settingsSubNavigation,
       fixed: FIXED_PAGES,
     });

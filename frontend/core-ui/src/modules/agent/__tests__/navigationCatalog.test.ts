@@ -100,11 +100,11 @@ describe('buildNavigationCatalog', () => {
   it('includes fixed core pages', () => {
     const catalog = buildNavigationCatalog({
       activities: [],
-      fixed: [{ path: '/agent/capabilities', label: 'AI agent capabilities' }],
+      fixed: [{ path: '/my-inbox', label: 'My inbox' }],
     });
     expect(catalog).toContainEqual({
-      path: '/agent/capabilities',
-      label: 'AI agent capabilities',
+      path: '/my-inbox',
+      label: 'My inbox',
     });
   });
 

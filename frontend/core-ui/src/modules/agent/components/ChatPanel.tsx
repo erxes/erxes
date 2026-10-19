@@ -1,10 +1,14 @@
 import { IconX } from '@tabler/icons-react';
-import { Button, Kbd, cn } from 'erxes-ui';
-import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
+import { Button, cn } from 'erxes-ui';
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useAtomValue } from 'jotai';
-import { currentUserState } from 'ui-modules';
 
 import { useAgentsConnection } from '../hooks/useAgentsConnection';
 import { useAgentsModels } from '../hooks/useAgentsModels';
@@ -16,7 +20,6 @@ import { Composer } from './Composer';
 import { modelSelectionValue, ModelPicker } from './ModelPicker';
 import { MessageList } from './MessageList';
 import { ThinkingPicker } from './ThinkingPicker';
-import { AgentChatThreadContext } from '../states/agentChatContext';
 import {
   AGENT_CHAT_WIDTH_CLASSES,
   AGENT_CHAT_WIDTH_PADDING,
@@ -42,43 +45,15 @@ export interface IChatPanelProps {
   chat: IUseAgentsChatResult;
   /** Optional class for the panel root. */
   className?: string;
-  /** Transcript column width preset; defaults to 'standard'. */
+  /** Transcript column width; defaults to the full panel width. */
   width?: AgentChatWidth;
-  /** Empty-state layout: roomy left-aligned 'page' or compact 'panel'. */
-  variant?: 'page' | 'panel';
   /** Composer page-context chip row (side panel only). */
   contextRow?: ReactNode;
 }
 
 /**
- * "Good morning, <name>?" — time-of-day greeting with the signed-in user's
- * first name when known, falling back to the generic prompt.
- */
-const useGreeting = (): string => {
-  const { t } = useTranslation('common', { keyPrefix: 'agent' });
-  const currentUser = useAtomValue(currentUserState);
-  const hour = new Date().getHours();
-
-  const fallback = t('how-can-i-help', 'How can I help?');
-  const firstName = currentUser?.details?.firstName?.trim();
-
-  if (!firstName) {
-    return fallback;
-  }
-
-  const greeting =
-    hour < 12
-      ? t('greeting-morning', 'Good morning')
-      : hour < 18
-        ? t('greeting-afternoon', 'Good afternoon')
-        : t('greeting-evening', 'Good evening');
-
-  return `${greeting}, ${firstName}`;
-};
-
-/**
  * Complete agents chat surface: transcript, approval prompts, composer,
- * and error feedback. The owning page or side panel holds the
+ * and error feedback. The side panel holds the
  * `useAgentsChat` hook so it can also drive thread controls from the same
  * instance.
  *
@@ -90,12 +65,10 @@ const useGreeting = (): string => {
 export const ChatPanel = ({
   chat,
   className,
-  width = 'standard',
-  variant = 'panel',
+  width = 'full',
   contextRow,
 }: IChatPanelProps) => {
   const { t } = useTranslation('common', { keyPrefix: 'agent' });
-  const greeting = useGreeting();
   const suggestions = useAgentSuggestions();
   const {
     messages,
@@ -180,15 +153,6 @@ export const ChatPanel = ({
     [addToolApprovalResponse],
   );
 
-  const handleRetryArtifact = useCallback(
-    (title: string) => {
-      sendMessage({
-        text: `Please regenerate the incomplete artifact "${title}" as one complete artifact, including all content and the closing fence. Keep styles concise so it fits in one response.`,
-      });
-    },
-    [sendMessage],
-  );
-
   const errorBanner = error ? (
     <div className="flex items-start gap-2 border-b border-destructive/30 bg-destructive/10 px-3 py-2 text-[13px] text-destructive sm:text-sm">
       <BotBadge
@@ -250,6 +214,7 @@ export const ChatPanel = ({
         models={models}
         value={modelSelectionValue(chat.modelProvider, chat.modelId)}
         autoModel={autoModel}
+        defaultModels={connections}
         onChange={(value) => {
           if (!value) {
             chat.selectModel('', '');
@@ -279,7 +244,6 @@ export const ChatPanel = ({
     <Composer
       status={status}
       disabled={loadingThread || noConnection}
-      size={variant === 'page' ? 'large' : 'default'}
       draftScope={threadId ?? 'new'}
       onSend={(text, files) => {
         if (files.length > 0) {
@@ -297,36 +261,7 @@ export const ChatPanel = ({
     />
   );
 
-  const suggestionCards = (variant === 'page' ? (
-    <div className="grid w-full gap-2 sm:grid-cols-2">
-      {suggestions.map((suggestion) => {
-        const Icon = suggestion.icon;
-
-        return (
-          <button
-            key={suggestion.prompt}
-            type="button"
-            disabled={noConnection}
-            onClick={() => sendMessage({ text: suggestion.prompt })}
-            onPointerEnter={winkOnce}
-            className="flex items-start gap-3 rounded-xl bg-muted/40 p-3 text-left transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            <span className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-background text-muted-foreground">
-              <Icon className="size-4" />
-            </span>
-            <span className="min-w-0">
-              <span className="block text-xs text-muted-foreground">
-                {t(`suggestion-categories.${suggestion.category}`)}
-              </span>
-              <span className="mt-0.5 block text-[13px] leading-snug">
-                {suggestion.prompt}
-              </span>
-            </span>
-          </button>
-        );
-      })}
-    </div>
-  ) : (
+  const suggestionCards = (
     <div className="flex w-full flex-col gap-2">
       {suggestions.map((suggestion) => {
         const Icon = suggestion.icon;
@@ -338,7 +273,8 @@ export const ChatPanel = ({
             disabled={noConnection}
             onClick={() => sendMessage({ text: suggestion.prompt })}
             onPointerEnter={winkOnce}
-            className="flex items-center gap-2.5 rounded-xl bg-muted/40 px-3 py-2.5 text-left text-[13px] transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-60"
+            onFocus={winkOnce}
+            className="flex items-center gap-2.5 rounded-xl bg-muted/40 px-3 py-2.5 text-left text-[13px] transition-[background-color,transform] duration-200 hover:bg-muted motion-safe:hover:translate-x-1 motion-safe:active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-60"
           >
             <Icon className="size-4 shrink-0 text-muted-foreground" />
             <span className="min-w-0 truncate">{suggestion.prompt}</span>
@@ -346,115 +282,75 @@ export const ChatPanel = ({
         );
       })}
     </div>
-  ));
+  );
 
   if (isEmpty) {
     return (
-      <AgentChatThreadContext.Provider value={threadId}>
-        <div
-          className={cn(
-            'flex h-full min-h-0 min-w-0 flex-1 flex-col',
-            className,
-          )}
-        >
-          {errorBanner}
-          {connectionBanner}
-          <div className="min-h-0 flex-1 overflow-y-auto">
-            {variant === 'page' ? (
-              <div className="mx-auto flex min-h-full w-full max-w-4xl flex-col items-start justify-center gap-5 px-4 py-8 sm:px-8">
-                {heroBot(96)}
-                <div className="flex flex-col gap-1.5">
-                  <h2 className="text-2xl font-semibold tracking-tight">
-                    {greeting}
-                  </h2>
-                  <p className="text-sm text-muted-foreground">
-                    {t(
-                      'empty-subline',
-                      'Ask about your contacts, deals and inbox, or tell me what to change.',
-                    )}
-                  </p>
-                </div>
-                <div className="w-full">{composer}</div>
-                <p className="text-xs text-muted-foreground">
-                  <Kbd variant="foreground">Enter</Kbd> {t('to-send', 'to send')} ·{' '}
-                  <Kbd variant="foreground">Shift</Kbd>+<Kbd variant="foreground">Enter</Kbd>{' '}
-                  {t('for-new-line', 'for a new line')}
-                </p>
-                <p className="pt-2 text-xs font-medium text-muted-foreground">
-                  {t('try-asking', 'Try asking')}
-                </p>
-                {suggestionCards}
-                <Link
-                  to="/agent/capabilities"
-                  className="pt-1 text-[13px] text-primary underline-offset-4 hover:underline"
-                >
-                  {t('see-capabilities', 'See what the agent can do →')}
-                </Link>
-              </div>
-            ) : (
-              <div className="mx-auto flex min-h-full w-full max-w-xl flex-col items-center justify-center gap-5 px-4 py-6 sm:gap-6 sm:py-8 sm:max-w-2xl">
-                <div className="flex flex-col items-center gap-3 text-center sm:gap-4">
-                  {heroBot(56)}
-                  <div className="space-y-1">
-                    <h2 className="text-base font-semibold md:text-lg">
-                      {t('how-can-i-help', 'How can I help?')}
-                    </h2>
-                    <p className="text-xs text-muted-foreground">
-                      {t(
-                        'ask-anything',
-                        'Ask anything about your erxes workspace',
-                      )}
-                    </p>
-                  </div>
-                </div>
-                <div className="w-full">{composer}</div>
-                {suggestionCards}
-              </div>
-            )}
-          </div>
-        </div>
-      </AgentChatThreadContext.Provider>
-    );
-  }
-
-  return (
-    <AgentChatThreadContext.Provider value={threadId}>
       <div
         className={cn('flex h-full min-h-0 min-w-0 flex-1 flex-col', className)}
       >
         {errorBanner}
         {connectionBanner}
-        <MessageList
-          messages={messages}
-          width={width}
-          status={status}
-          loadingThread={loadingThread}
-          approvalBusy={isStreaming}
-          onApprovalRespond={handleApprovalRespond}
-          answerBusy={answerBusy || isStreaming}
-          onAnswer={submitAnswer}
-          onRetryArtifact={handleRetryArtifact}
-          onRetryTurn={retryLastTurn}
-          onEditMessage={chat.editMessage}
-          editingDisabled={
-            isStreaming || loadingThread || answerBusy || canReconnect || noConnection
-          }
-          error={error ? describeError(error) : undefined}
-        />
-        {/* `pb` keeps the composer clear of the iOS home indicator without
-            adding dead space on every other device. */}
-        <div className="bg-background/80 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-1 backdrop-blur">
-          <div
-            className={cn(
-              'mx-auto w-full',
-              AGENT_CHAT_WIDTH_CLASSES[width],
-              AGENT_CHAT_WIDTH_PADDING[width],
-            )}
-          >
-            {composer}
+        <div className="min-h-0 flex-1 overflow-y-auto">
+          <div className="mx-auto flex min-h-full w-full max-w-xl flex-col items-center justify-center gap-5 px-4 py-6 sm:gap-6 sm:py-8 sm:max-w-2xl">
+            <div className="flex flex-col items-center gap-3 text-center sm:gap-4">
+              {heroBot(72)}
+              <div className="space-y-1">
+                <h2 className="text-base font-semibold md:text-lg">
+                  {t('how-can-i-help', 'How can I help?')}
+                </h2>
+                <p className="text-xs text-muted-foreground">
+                  {t('ask-anything', 'Ask anything about your erxes workspace')}
+                </p>
+              </div>
+            </div>
+            <div className="w-full">{composer}</div>
+            {suggestionCards}
           </div>
         </div>
       </div>
-    </AgentChatThreadContext.Provider>
+    );
+  }
+
+  return (
+    <div
+      className={cn('flex h-full min-h-0 min-w-0 flex-1 flex-col', className)}
+    >
+      {errorBanner}
+      {connectionBanner}
+      <MessageList
+        messages={messages}
+        width={width}
+        status={status}
+        loadingThread={loadingThread}
+        approvalBusy={isStreaming}
+        onApprovalRespond={handleApprovalRespond}
+        answerBusy={answerBusy || isStreaming}
+        onAnswer={submitAnswer}
+        onRetryTurn={retryLastTurn}
+        onEditMessage={chat.editMessage}
+        editingDisabled={
+          isStreaming ||
+          loadingThread ||
+          answerBusy ||
+          canReconnect ||
+          noConnection
+        }
+        error={error ? describeError(error) : undefined}
+      />
+      {/* `pb` keeps the composer clear of the iOS home indicator without
+            adding dead space on every other device. */}
+      <div className="bg-background/80 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-1 backdrop-blur">
+        <div
+          className={cn(
+            'mx-auto w-full',
+            AGENT_CHAT_WIDTH_CLASSES[width],
+            AGENT_CHAT_WIDTH_PADDING[width],
+          )}
+        >
+          {composer}
+        </div>
+      </div>
+    </div>
   );
 };

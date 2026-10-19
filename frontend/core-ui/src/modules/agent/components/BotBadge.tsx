@@ -1,5 +1,6 @@
 import { useAtomValue } from 'jotai';
 import { cn } from 'erxes-ui';
+import { useReducedMotion } from 'framer-motion';
 
 import { BloubAvatar } from '../bloub/BloubAvatar';
 import type { ExpressionId } from '../bloub/engine/expressions';
@@ -37,6 +38,7 @@ export const BotBadge = ({
   className,
   'aria-label': ariaLabel,
 }: IBotBadgeProps) => {
+  const reducedMotion = useReducedMotion();
   const appearance = useAtomValue(agentBotAppearanceState);
   const { paper, color } = useBotPalette();
 
@@ -55,7 +57,7 @@ export const BotBadge = ({
         shape={appearance.shape}
         color={color}
         paper={paper}
-        frozenAt={frozenAt}
+        frozenAt={frozenAt ?? (reducedMotion ? 0 : undefined)}
         follow={follow}
         restartKey={restartKey}
         role={ariaLabel ? 'img' : 'presentation'}

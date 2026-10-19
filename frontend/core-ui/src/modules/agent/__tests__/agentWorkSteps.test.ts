@@ -4,7 +4,7 @@ import type { UIMessage } from 'ai';
 
 import {
   agentStepLabel,
-  activeAgentStepLabel,
+  agentMessageActivity,
   describeToolCall,
   groupAgentWorkSteps,
 } from '../utils/agentWorkSteps';
@@ -234,60 +234,53 @@ describe('describeToolCall', () => {
   });
 });
 
-describe('activeAgentStepLabel', () => {
-  it('reports the last in-flight step', () => {
+describe('agentMessageActivity', () => {
+  it('uses the newest tool rather than earlier reply text', () => {
     expect(
-      activeAgentStepLabel([
-        {
-          kind: 'tool',
-          tool: {
-            toolCallId: 'a',
-            toolName: 'searchTools',
-            state: 'output-available',
-          },
-        },
-        {
-          kind: 'tool',
-          tool: {
-            toolCallId: 'b',
-            toolName: 'callTool',
-            state: 'input-available',
-            input: { toolId: 'core.trpc.products.find' },
-          },
-        },
+      agentMessageActivity([
+        textPart('I will check.'),
+        toolPart('callGraphql', 'input-available', {
+          query: '{ deals { _id } }',
+        }),
+        { type: 'step-start' },
       ]),
-    ).toBe('Looked up products');
+    ).toBe('Querying deals');
   });
 
-  it('reports Thinking when the tail is reasoning', () => {
+  it('switches from tool execution to writing when reply text arrives', () => {
     expect(
-      activeAgentStepLabel([
-        {
-          kind: 'tool',
-          tool: {
-            toolCallId: 'a',
-            toolName: 'callTool',
-            state: 'output-available',
-          },
-        },
-        { kind: 'reasoning', text: 'working' },
+      agentMessageActivity([
+        toolPart('callGraphql', 'output-available', {
+          query: '{ deals { _id } }',
+        }),
+        textPart('The report is ready.'),
       ]),
-    ).toBe('Thinking');
+    ).toBe('Writing…');
   });
 
-  it('is undefined when nothing is in flight', () => {
+  it('switches from an earlier tool to new reasoning', () => {
     expect(
-      activeAgentStepLabel([
-        {
-          kind: 'tool',
-          tool: {
-            toolCallId: 'a',
-            toolName: 'callTool',
-            state: 'output-available',
-          },
-        },
+      agentMessageActivity([
+        toolPart('callGraphql', 'output-available'),
+        reasoningPart('Planning'),
       ]),
-    ).toBeUndefined();
+    ).toBe('Thinking…');
+  });
+
+  it('never describes a completed tool as still running', () => {
+    expect(
+      agentMessageActivity([toolPart('readFile', 'output-available')]),
+    ).toBe('Working…');
+  });
+
+  it('identifies file generation independently from reply text', () => {
+    expect(
+      agentMessageActivity([toolPart('createArtifact', 'input-streaming')]),
+    ).toBe('Creating file…');
+  });
+
+  it('has one default before any response part arrives', () => {
+    expect(agentMessageActivity([])).toBe('Working…');
   });
 });
 

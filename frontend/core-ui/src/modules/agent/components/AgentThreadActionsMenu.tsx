@@ -38,8 +38,8 @@ export interface IAgentThreadActionsMenuProps {
 }
 
 /**
- * Thread actions shared by the `/agent` page header and the side-panel
- * header: rename (validated dialog), pin toggle, markdown export, and
+ * Thread actions in the Assistant side-panel header:
+ * rename (validated dialog), pin toggle, markdown export, and
  * delete (AlertDialog). All mutations go through `useAgentsThreadActions`,
  * which refetches both thread lists and toasts success/failure.
  */

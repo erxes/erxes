@@ -1,6 +1,38 @@
 import { splitArtifacts } from '../parseArtifacts';
 
 describe('splitArtifacts', () => {
+  it('decodes legacy fences without granting a file presentation', () => {
+    const reply = splitArtifacts('```html Hello\n<p>Hello!</p>\n```');
+    expect(reply[0]).toMatchObject({
+      kind: 'artifact',
+      artifact: { title: 'Hello', content: '<p>Hello!</p>' },
+    });
+    const report = splitArtifacts(
+      '```html artifact Sales report\n<h1>Sales</h1>\n```',
+    );
+    expect(report[0]).toMatchObject({
+      kind: 'artifact',
+      artifact: {
+        title: 'artifact Sales report',
+        content: '<h1>Sales</h1>',
+      },
+    });
+  });
+
+  it('treats old deliverable markers as text metadata while decoding streaming HTML', () => {
+    expect(
+      splitArtifacts('~~~HTML ARTIFACT Monthly sales\n<section>'),
+    ).toMatchObject([
+      {
+        kind: 'artifact',
+        artifact: {
+          title: 'ARTIFACT Monthly sales',
+          complete: false,
+        },
+      },
+    ]);
+  });
+
   it('extracts a complete html artifact with surrounding text', () => {
     const text = [
       'Here is your page:',

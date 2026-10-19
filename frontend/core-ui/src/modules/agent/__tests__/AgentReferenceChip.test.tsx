@@ -1,14 +1,17 @@
 /** @jest-environment jsdom */
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import type { PropsWithChildren } from 'react';
 import { pluginsConfigState, usePermissionCheck } from 'ui-modules';
 import { createStore, Provider } from 'jotai';
 
 import { AgentReferenceChip } from '../components/AgentReferenceChip';
 
+const mockNavigate = jest.fn();
+let mockLocation = { pathname: '/contacts/customers', search: '' };
+
 jest.mock('react-router-dom', () => ({
-  useNavigate: () => jest.fn(),
-  useLocation: () => ({ pathname: '/contacts/customers', search: '' }),
+  useNavigate: () => mockNavigate,
+  useLocation: () => mockLocation,
 }));
 
 jest.mock('ui-modules', () => {
@@ -20,6 +23,8 @@ jest.mock('ui-modules', () => {
   return {
     pluginsConfigState: atom(null),
     usePermissionCheck: jest.fn(),
+    SIDE_PANEL_CHAT_PATH: '/chat',
+    SIDE_PANEL_QUERY_KEY: 'panel',
   };
 });
 
@@ -49,6 +54,7 @@ const mockPermissionCheck = jest.mocked(usePermissionCheck);
 
 beforeEach(() => {
   jest.clearAllMocks();
+  mockLocation = { pathname: '/contacts/customers', search: '' };
   mockPermissionCheck.mockReturnValue({
     isLoaded: true,
     hasActionPermission,
@@ -75,7 +81,10 @@ const renderChip = (
   const wrapper = ({ children }: PropsWithChildren) => (
     <Provider store={store}>{children}</Provider>
   );
-  return render(<AgentReferenceChip reference={ref} />, { wrapper });
+  return {
+    ...render(<AgentReferenceChip reference={ref} />, { wrapper }),
+    store,
+  };
 };
 
 describe('AgentReferenceChip', () => {
@@ -124,8 +133,18 @@ describe('AgentReferenceChip', () => {
     hasModulePermission.mockReturnValue(true);
     renderChip({ type: 'deal', id: 'd1', label: 'Big Order' }, ['sales_ui']);
 
-    expect(
-      screen.queryByRole('button', { name: /big order/i }),
-    ).not.toBeNull();
+    expect(screen.queryByRole('button', { name: /big order/i })).not.toBeNull();
+  });
+
+  it('keeps Assistant open when following a reference from the panel', () => {
+    hasModulePermission.mockReturnValue(true);
+    mockLocation = {
+      pathname: '/contacts/customers',
+      search: '?panel=%2Fchat',
+    };
+    renderChip({ type: 'customer', id: 'c1', label: 'Jane' });
+    fireEvent.click(screen.getByRole('button', { name: /jane/i }));
+    const destination = mockNavigate.mock.calls[0][0] as { search: string };
+    expect(new URLSearchParams(destination.search).get('panel')).toBe('/chat');
   });
 });

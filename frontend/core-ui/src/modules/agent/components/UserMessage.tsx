@@ -55,7 +55,7 @@ export const UserMessage = ({
   };
 
   return (
-    <div className="group/user flex w-full min-w-0 flex-col items-end gap-1.5">
+    <div className="group/user agent-message-enter flex w-full min-w-0 flex-col items-end gap-1.5">
       <p className="pr-1 text-[11px] font-medium text-muted-foreground">You</p>
       {editing ? (
         <form
@@ -108,7 +108,7 @@ export const UserMessage = ({
           </div>
         </form>
       ) : (
-        <div className="max-w-[min(90%,44rem)] rounded-2xl rounded-tr-md bg-muted/70 px-4 py-3 text-foreground [overflow-wrap:anywhere]">
+        <div className="max-w-[min(90%,44rem)] rounded-[20px] rounded-br-md bg-primary/[0.07] px-4 py-3 ring-1 ring-primary/10 dark:bg-muted/70 dark:ring-white/5 text-foreground [overflow-wrap:anywhere]">
           {children}
         </div>
       )}
