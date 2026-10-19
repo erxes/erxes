@@ -7,19 +7,19 @@ import {
 } from '../constants/settingsRoutes';
 
 const FIXED_ASSET_SETTINGS_ROUTES = {
-  '/settings/accounting/fixed-assets/accounts-config': 'account-configuration',
-  '/settings/accounting/fixed-assets/categories': 'category-label',
-  '/settings/accounting/fixed-assets/assets': 'fixed-assets',
+  '/accounting/settings/fixed-assets/accounts-config': 'account-configuration',
+  '/accounting/settings/fixed-assets/categories': 'category-label',
+  '/accounting/settings/fixed-assets/assets': 'fixed-assets',
 };
 
 export const AccountingSidebar = () => {
   const { pathname } = useLocation();
   const { t } = useTranslation('accounting');
   const isFixedAssetSettings = pathname.startsWith(
-    '/settings/accounting/fixed-assets',
+    '/accounting/settings/fixed-assets',
   );
   const accountingRoutes = pathname.startsWith(
-    '/settings/accounting/inventories',
+    '/accounting/settings/inventories',
   )
     ? INVENTORY_SETTINGS_ROUTES
     : SETTINGS_ROUTES;

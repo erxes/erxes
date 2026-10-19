@@ -1,3 +1,4 @@
+import { SalesFormType, salesFormSchema } from '@/deals/constants/formSchema';
 import {
   Button,
   Editor,
@@ -7,6 +8,7 @@ import {
   Sheet,
   Spinner,
 } from 'erxes-ui';
+import { useCallback, useEffect } from 'react';
 import {
   PropertyFormField,
   SelectCompany,
@@ -15,17 +17,15 @@ import {
   isFieldVisibleByLogic,
   useFields,
 } from 'ui-modules';
-import { SalesFormType, salesFormSchema } from '@/deals/constants/formSchema';
-import { useCallback, useEffect } from 'react';
 
+import { useDealsAdd } from '@/deals/cards/hooks/useDeals';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { IconInfoCircle } from '@tabler/icons-react';
+import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { SelectLabels } from '../../components/common/filters/SelectLabel';
 import WorkflowFields from './WorkflowFields';
-import { useDealsAdd } from '@/deals/cards/hooks/useDeals';
-import { useForm } from 'react-hook-form';
-import { useNavigate } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
-import { zodResolver } from '@hookform/resolvers/zod';
 
 export function AddCardForm({
   onCloseSheet,
@@ -81,7 +81,7 @@ export function AddCardForm({
       onCompleted: (data) => {
         form.reset();
         onCloseSheet();
-        onComplete?.(data.dealsAdd._id);
+        if (data.dealsAdd) onComplete?.(data.dealsAdd._id);
       },
     });
   };

@@ -162,11 +162,14 @@ function resolveFavoriteIcon(icon?: string): ElementType | undefined {
   };
 }
 
-export function useFavorites(): FavoriteModule[] {
+export function useFavoritesQuery(): {
+  favorites: FavoriteModule[];
+  loading: boolean;
+} {
   const currentUser = useAtomValue(currentUserState);
   const modules = usePluginsModules();
 
-  const { data } = useQuery<GetFavoritesResponse>(GET_FAVORITES, {
+  const { data, loading } = useQuery<GetFavoritesResponse>(GET_FAVORITES, {
     skip: !currentUser?._id,
   });
 
@@ -176,7 +179,7 @@ export function useFavorites(): FavoriteModule[] {
   );
   const favorites = data?.getFavoritesByCurrentUser ?? [];
 
-  return favorites.reduce<FavoriteModule[]>((acc, favorite) => {
+  const accessible = favorites.reduce<FavoriteModule[]>((acc, favorite) => {
     const allowedPath = getAllowedFavoritePath(favorite.path, allowedPaths);
 
     if (!allowedPath) {
@@ -200,4 +203,10 @@ export function useFavorites(): FavoriteModule[] {
 
     return acc;
   }, []);
+
+  return { favorites: accessible, loading };
+}
+
+export function useFavorites(): FavoriteModule[] {
+  return useFavoritesQuery().favorites;
 }

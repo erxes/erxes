@@ -1,23 +1,22 @@
-import { Button, DropdownMenu, Skeleton, useConfirm } from 'erxes-ui';
-import { IconArrowLeft, IconDots, IconPlus } from '@tabler/icons-react';
-import {
-  dealCreateDefaultValuesState,
-  dealCreateSheetState,
-} from '@/deals/states/dealCreateSheetState';
 import {
   useStagesEdit,
   useStagesRemove,
   useStagesSortItems,
 } from '@/deals/stage/hooks/useStages';
+import {
+  dealCreateDefaultValuesState,
+  dealCreateSheetState,
+} from '@/deals/states/dealCreateSheetState';
+import { IconArrowLeft, IconDots, IconPlus } from '@tabler/icons-react';
+import { Button, DropdownMenu, Skeleton, useConfirm } from 'erxes-ui';
 
-import { BoardDealColumn } from '@/deals/types/boards';
-import ItemProductProbabilities from './ItemProductProbabilities';
-import { PrintDialog } from './common/Print';
 import { useDealsArchive } from '@/deals/cards/hooks/useDeals';
+import { BoardDealColumn } from '@/deals/types/boards';
 import { useSetAtom } from 'jotai';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-
+import { ItemProductProbabilities } from './ItemProductProbabilities';
+import { PrintDialog } from './common/Print';
 
 type Props = {
   column: BoardDealColumn;
@@ -66,15 +65,26 @@ export const DealsBoardColumnHeader = ({
     });
   };
 
-  const getSortLabel = (sortType: string) =>
-    sortType === 'created-desc' ? t('sort-created-desc')
-    : sortType === 'created-asc' ? t('sort-created-asc')
-    : sortType === 'modified-desc' ? t('sort-modified-desc')
-    : sortType === 'modified-asc' ? t('sort-modified-asc')
-    : sortType === 'close-asc' ? t('sort-close-asc')
-    : sortType === 'close-desc' ? t('sort-close-desc')
-    : sortType === 'alphabetically-asc' ? t('sort-alphabetically')
-    : '';
+  const getSortLabel = (sortType: string) => {
+    switch (sortType) {
+      case 'created-desc':
+        return t('sort-created-desc');
+      case 'created-asc':
+        return t('sort-created-asc');
+      case 'modified-desc':
+        return t('sort-modified-desc');
+      case 'modified-asc':
+        return t('sort-modified-asc');
+      case 'close-asc':
+        return t('sort-close-asc');
+      case 'close-desc':
+        return t('sort-close-desc');
+      case 'alphabetically-asc':
+        return t('sort-alphabetically');
+      default:
+        return '';
+    }
+  };
 
   const handleSortOptionClick = (sortType: string) => {
     confirm({
@@ -202,9 +212,9 @@ export const DealsBoardColumnHeader = ({
         />
       )}
       <ItemProductProbabilities
-        totalAmount={amount as Record<string, number> | undefined}
-        unusedTotalAmount={unUsedAmount as Record<string, number> | undefined}
-        probability={probability}
+        totalAmount={amount}
+        unusedTotalAmount={unUsedAmount}
+        probability={probability ?? undefined}
       />
     </div>
   );

@@ -1,7 +1,9 @@
-export interface IPos {
-  _id: string;
-  name?: string;
-}
+import type { SalesPosSummarySelectDetailQuery } from '~/gql/graphql';
+
+export type IPos = Pick<
+  NonNullable<SalesPosSummarySelectDetailQuery['posDetail']>,
+  '_id' | 'name'
+> & { _id: string };
 export interface PosInlineProps {
   posIds?: string[];
   pos?: IPos[];

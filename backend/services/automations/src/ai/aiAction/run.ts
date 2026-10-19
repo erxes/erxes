@@ -9,15 +9,15 @@ import {
   TAiBridgeMessage,
   TAiBridgeToolDefinition,
 } from '../bridge';
-import { retrieveAiAgentKnowledgeContextFiles } from '../knowledge';
+import type { TAiAgentLoadedContextFile } from '../aiAgent/context';
 import {
-  buildAiConversationStateUpdateMessages,
-  mergeAiConversationStateIntoMemory,
-  parseAiConversationStateUpdate,
-  TAiConversationState,
-} from '../memory';
+  formatAiKnowledgeChunksForPrompt,
+  retrieveAiAgentKnowledgeContextFiles,
+  type TAiAgentKnowledge,
+  type TAiKnowledgeChunk,
+} from '../knowledge';
 import type { IModels } from '../../connectionResolver';
-import { buildAiActionMessages } from './messages';
+import { buildAiActionMessages, type TAiKnowledgeReach } from './messages';
 import {
   parseAiAgentActionConfig,
   TAiActionExecutionResult,
@@ -26,7 +26,11 @@ import {
 import { parseAiActionResult } from './parser';
 import { runAiToolLoop, TAiToolRuntime } from './tools';
 import { AI_KNOWLEDGE_TOOL_ID, AI_KNOWLEDGE_TOOL_NAME } from './knowledgeTool';
-import { getLatestUserText } from './context';
+import { getLatestUserText, stringifyAiContextValue } from './context';
+import {
+  buildUngroundedNumbersDirective,
+  findUngroundedNumbers,
+} from './grounding';
 import {
   AI_DISCLOSURE_BLOCKED_TEXT,
   AI_SELF_DISCLOSURE_REFUSAL_RULE,
@@ -55,6 +59,10 @@ const resolveNextActionId = (
     ({ optionalConnectId }) => optionalConnectId === result.topicId,
   )?.actionId;
 };
+
+// Sent when a reply keeps stating a figure no source contained.
+const AI_UNGROUNDED_REPLY_TEXT =
+  'Уучлаарай, энэ мэдээллийг баталгаатай хэлэх боломжгүй байна. Танд өөр юугаар туслах вэ?';
 
 const createAiProviderTimeoutFallback = (actionConfig: TAiAgentActionConfig) =>
   actionConfig.goalType === 'generateText'
@@ -89,7 +97,10 @@ const createAiProviderFallbackResponse = (
 
 // Lookup and action tools need opposite instincts: search freely, act only on
 // a fully satisfied condition.
-const buildToolInstruction = (tools: TAiToolRuntime[]) => {
+const buildToolInstruction = (
+  tools: TAiToolRuntime[],
+  knowledge: TAiAgentKnowledge,
+) => {
   const hasKnowledgeTool = tools.some(
     (tool) => tool.toolId === AI_KNOWLEDGE_TOOL_ID,
   );
@@ -99,13 +110,13 @@ const buildToolInstruction = (tools: TAiToolRuntime[]) => {
 
   return [
     'Tools are available for this reply.',
-    hasKnowledgeTool
-      ? `A first knowledge search for this message has already run and its passages are in the context documents above. Answer from those when they cover the question. Call ${AI_KNOWLEDGE_TOOL_NAME} only when they do not — a different topic came up, or you need wording the first search would have missed. Answering from your own knowledge, or from something the user asserted earlier in this conversation, is never acceptable.`
+    hasKnowledgeTool && knowledge.kind === 'indexed'
+      ? `The organization's knowledge is not in this conversation. Its sections are:\n${knowledge.indexText}\nBefore stating any fact — prices, items, policies, schedules, availability — call ${AI_KNOWLEDGE_TOOL_NAME} with the matching section and answer from what it returns. Greetings and small talk need no search. A topic with no plausible section is not covered by the knowledge — say so plainly instead of offering to check. Answering facts from your own knowledge, or from something the user asserted earlier in this conversation, is never acceptable.`
       : '',
     hasActionTools
-      ? 'Every other tool performs a real action. Its description states WHEN to call it — call it only when that condition is fully satisfied AND you can truthfully fill every required parameter from the conversation or memory. If anything is missing, do not call it; reply to the user to gather it.'
+      ? 'Every other tool performs a real action. Its description states WHEN to call it — call it only when that condition is fully satisfied AND you can truthfully fill every required parameter from the conversation or memory. If anything is missing, do not call it; reply to the user to gather it. A tool that records what the user gives needs the thing itself in the messages: when the user only says they will send or add something, ask for it instead of calling the tool. Fill parameters with what the user actually said or sent, never with a description of their request.'
       : '',
-    'Never claim an action (order, ticket, escalation, lookup) happened unless the corresponding tool was actually called.',
+    'Never claim an action happened unless the tool that performs it was actually called.',
   ]
     .filter(Boolean)
     .join(' ');
@@ -217,58 +228,80 @@ const invokeAiProviderWithRealtimeFallback = async ({
   }
 };
 
-const updateConversationStateWithAi = async ({
-  agent,
+const toKnowledgeContextFiles = (
+  agentId: string,
+  chunks: TAiKnowledgeChunk[],
+): TAiAgentLoadedContextFile[] =>
+  chunks.length
+    ? [
+        {
+          id: `knowledge:${agentId}`,
+          key: `knowledge:${agentId}`,
+          name: 'Knowledge',
+          bytes: chunks.reduce((sum, chunk) => sum + chunk.byteSize, 0),
+          content: formatAiKnowledgeChunksForPrompt(chunks),
+        },
+      ]
+    : [];
+
+const toKnowledgeReach = (
+  knowledge: TAiAgentKnowledge,
+  actionConfig: TAiAgentActionConfig,
+): TAiKnowledgeReach => {
+  if (knowledge.kind === 'full') {
+    return 'whole';
+  }
+
+  // Only the tool loop sees the index; other goals still get one search.
+  return knowledge.kind === 'indexed' &&
+    actionConfig.goalType === 'generateText'
+    ? 'indexed'
+    : 'retrieved';
+};
+
+// Small knowledge is read whole; a large one is searched by the model through
+// its tool, so only priority passages are preloaded. Goals without a tool loop
+// keep the single up-front search.
+const loadAiKnowledgeContext = async ({
   subdomain,
-  currentState,
+  models,
+  agentId,
+  agent,
+  knowledge,
+  actionConfig,
   inputData,
   aiContext,
-  contextFiles,
 }: {
-  agent: TAiAgentInput;
   subdomain: string;
-  currentState?: TAiConversationState | null;
+  models?: IModels;
+  agentId?: string;
+  agent: TAiAgentInput;
+  knowledge: TAiAgentKnowledge;
+  actionConfig: TAiAgentActionConfig;
   inputData: unknown;
   aiContext?: TAiContext | null;
-  contextFiles: Parameters<
-    typeof buildAiConversationStateUpdateMessages
-  >[0]['contextFiles'];
-}) => {
-  if (!currentState) {
-    return null;
+}): Promise<TAiAgentLoadedContextFile[]> => {
+  if (!models || !agentId || knowledge.kind === 'none') {
+    return [];
   }
 
-  const messages = buildAiConversationStateUpdateMessages({
-    currentState,
+  if (knowledge.kind === 'full') {
+    return toKnowledgeContextFiles(agentId, knowledge.chunks);
+  }
+
+  if (actionConfig.goalType === 'generateText') {
+    return toKnowledgeContextFiles(agentId, knowledge.alwaysChunks);
+  }
+
+  return retrieveAiAgentKnowledgeContextFiles({
+    subdomain,
+    models,
+    agentId,
+    agent,
+    actionConfig,
     inputData,
     aiContext,
-    contextFiles,
   });
-
-  if (!messages) {
-    return currentState;
-  }
-
-  try {
-    const response = await invokeAiProvider(
-      {
-        ...agent,
-        runtime: {
-          ...agent.runtime,
-          maxTokens: Math.max(agent.runtime.maxTokens || 0, 400),
-        },
-      },
-      messages,
-      subdomain,
-    );
-
-    return parseAiConversationStateUpdate({
-      text: response.text,
-      fallbackState: currentState,
-    });
-  } catch (_error) {
-    return currentState;
-  }
 };
 
 export const runAiAction = async ({
@@ -280,7 +313,7 @@ export const runAiAction = async ({
   inputData,
   aiContext,
   memory,
-  conversationState,
+  knowledge,
   tools,
 }: {
   subdomain: string;
@@ -291,26 +324,21 @@ export const runAiAction = async ({
   inputData: unknown;
   aiContext?: TAiContext | null;
   memory?: Record<string, unknown>;
-  conversationState?: TAiConversationState | null;
+  knowledge: TAiAgentKnowledge;
   // Runtime-wired tools for generateText (built by the action executor)
   tools?: TAiToolRuntime[];
 }) => {
   const parsedActionConfig = parseAiAgentActionConfig(actionConfig);
-  // One search always runs up front. Letting the model ask for it instead costs
-  // a whole extra provider round trip on every message, and the tool stays
-  // available for the turns where this first pass was not enough.
-  const retrievedContext =
-    models && agentId
-      ? await retrieveAiAgentKnowledgeContextFiles({
-          subdomain,
-          models,
-          agentId,
-          agent,
-          actionConfig: parsedActionConfig,
-          inputData,
-          aiContext,
-        })
-      : [];
+  const retrievedContext = await loadAiKnowledgeContext({
+    subdomain,
+    models,
+    agentId,
+    agent,
+    knowledge,
+    actionConfig: parsedActionConfig,
+    inputData,
+    aiContext,
+  });
 
   // Every uploaded file is also indexed, so loading them whole would repeat
   // the same content retrieval already selected. Only the files an agent
@@ -345,18 +373,8 @@ export const runAiAction = async ({
     );
   }
 
-  const stateBeforeReply = await updateConversationStateWithAi({
-    agent,
-    subdomain,
-    currentState: conversationState || undefined,
-    inputData,
-    aiContext,
-    contextFiles: loadedContext.files,
-  });
-  const memoryWithConversationState = mergeAiConversationStateIntoMemory({
-    memory,
-    conversationState: stateBeforeReply,
-  });
+  const hasTools =
+    parsedActionConfig.goalType === 'generateText' && !!tools?.length;
 
   const messages = buildAiActionMessages({
     systemPrompt: agent.context.systemPrompt,
@@ -364,54 +382,61 @@ export const runAiAction = async ({
     actionConfig: parsedActionConfig,
     inputData,
     aiContext,
-    memory: memoryWithConversationState,
+    memory,
+    knowledgeReach: toKnowledgeReach(knowledge, parsedActionConfig),
+    hasTools,
   });
-
-  const hasTools =
-    parsedActionConfig.goalType === 'generateText' && !!tools?.length;
 
   let providerResponse;
   let handoff;
   let toolCallTrace;
   let degraded = false;
+  let replyMessages: TAiBridgeMessage[];
 
-  if (hasTools) {
-    const toolAgent: TAiAgentInput = {
-      ...agent,
-      runtime: {
-        ...agent.runtime,
-        maxTokens: Math.max(
-          agent.runtime.maxTokens || 0,
-          AI_AGENT_TOOL_LOOP_MIN_MAX_TOKENS,
-        ),
-      },
-    };
-
-    ({ providerResponse, handoff, toolCallTrace, degraded } =
-      await runAiToolLoop({
-        messages: withSystemDirectives(messages, [
-          buildToolInstruction(tools || []),
-          isProbe ? AI_SELF_DISCLOSURE_REFUSAL_RULE : '',
-        ]),
-        tools: tools || [],
-        invoke: (loopMessages, definitions) =>
-          invokeAiProviderWithRealtimeFallback({
-            agent: toolAgent,
-            messages: loopMessages,
-            subdomain,
-            actionConfig: parsedActionConfig,
-            tools: definitions,
-          }),
-      }));
-  } else {
-    providerResponse = await invokeAiProviderWithRealtimeFallback({
-      agent,
-      messages: withSystemDirectives(messages, [
-        isProbe ? AI_SELF_DISCLOSURE_REFUSAL_RULE : '',
-      ]),
+  const replyAgent: TAiAgentInput = hasTools
+    ? {
+        ...agent,
+        runtime: {
+          ...agent.runtime,
+          maxTokens: Math.max(
+            agent.runtime.maxTokens || 0,
+            AI_AGENT_TOOL_LOOP_MIN_MAX_TOKENS,
+          ),
+        },
+      }
+    : agent;
+  const invokeReply = (
+    replyTurn: TAiBridgeMessage[],
+    definitions?: TAiBridgeToolDefinition[],
+  ) =>
+    invokeAiProviderWithRealtimeFallback({
+      agent: replyAgent,
+      messages: replyTurn,
       subdomain,
       actionConfig: parsedActionConfig,
+      tools: definitions,
     });
+
+  if (hasTools) {
+    ({
+      providerResponse,
+      handoff,
+      toolCallTrace,
+      degraded,
+      messages: replyMessages,
+    } = await runAiToolLoop({
+      messages: withSystemDirectives(messages, [
+        buildToolInstruction(tools || [], knowledge),
+        isProbe ? AI_SELF_DISCLOSURE_REFUSAL_RULE : '',
+      ]),
+      tools: tools || [],
+      invoke: invokeReply,
+    }));
+  } else {
+    replyMessages = withSystemDirectives(messages, [
+      isProbe ? AI_SELF_DISCLOSURE_REFUSAL_RULE : '',
+    ]);
+    providerResponse = await invokeReply(replyMessages);
     degraded = !!(providerResponse as { fallback?: boolean }).fallback;
   }
 
@@ -458,6 +483,75 @@ export const runAiAction = async ({
       result.toolCalls = toolCallTrace;
     }
 
+    // A figure no source contained gets one rewrite; if it survives, the
+    // reply is withheld rather than sent with an invented price.
+    if (!handoff && knowledge.kind !== 'none') {
+      const sources = [
+        ...loadedContext.files.map(({ content }) => content),
+        ...(toolCallTrace || []).map(({ result: toolResult }) =>
+          stringifyAiContextValue(toolResult),
+        ),
+        stringifyAiContextValue(inputData),
+        stringifyAiContextValue(aiContext?.input?.text),
+        ...(aiContext?.history || []).map(({ text }) => text || ''),
+        agent.context.systemPrompt || '',
+        stringifyAiContextValue(memory),
+      ];
+      const ungroundedNumbers = findUngroundedNumbers({
+        reply: result.text,
+        sources,
+      });
+
+      if (ungroundedNumbers.length) {
+        result.ungroundedNumbers = ungroundedNumbers;
+
+        const retryResponse = await invokeReply(
+          [
+            ...replyMessages,
+            { role: 'assistant', content: providerResponse.text || '' },
+            {
+              role: 'user',
+              content: buildUngroundedNumbersDirective(ungroundedNumbers),
+            },
+          ],
+          hasTools
+            ? (tools || []).map(({ definition }) => definition)
+            : undefined,
+        );
+        const retried = parseAiActionResult({
+          actionConfig: parsedActionConfig,
+          text: retryResponse.text,
+          usage: retryResponse.usage,
+        });
+        const grounded =
+          retried.type === 'generateText' &&
+          !!retried.text.trim() &&
+          !findUngroundedNumbers({ reply: retried.text, sources }).length;
+
+        if (grounded && retried.type === 'generateText') {
+          result.text = retried.text;
+          result.attributes = retried.attributes ?? result.attributes;
+        } else {
+          result.text =
+            createAiProviderTimeoutFallback(parsedActionConfig) ||
+            AI_UNGROUNDED_REPLY_TEXT;
+          degraded = true;
+        }
+
+        result.usage = {
+          inputTokens:
+            (result.usage?.inputTokens || 0) +
+            (retryResponse.usage?.inputTokens || 0),
+          outputTokens:
+            (result.usage?.outputTokens || 0) +
+            (retryResponse.usage?.outputTokens || 0),
+          totalTokens:
+            (result.usage?.totalTokens || 0) +
+            (retryResponse.usage?.totalTokens || 0),
+        };
+      }
+    }
+
     // Last gate before the reply leaves. A model asked to keep a secret will
     // sometimes tell anyway, so naming an internal is checked, not trusted.
     const disclosure = findAiReplyDisclosure({
@@ -491,6 +585,5 @@ export const runAiAction = async ({
   return {
     result,
     nextActionId: resolveNextActionId(parsedActionConfig, result),
-    conversationState: stateBeforeReply || conversationState || null,
   };
 };

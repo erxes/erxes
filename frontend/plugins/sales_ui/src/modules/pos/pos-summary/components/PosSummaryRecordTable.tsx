@@ -4,7 +4,6 @@ import {
   secondPosSummaryColumns,
   generateOtherPaymentColumns,
 } from './PosSummaryColumns';
-import { PosSummaryCommandBar } from '@/pos/pos-summary/components/pos-summary-command-bar/PosSummaryCommandBar';
 import { usePosSummaryList } from '~/modules/pos/pos-summary/hooks/UsePosSummaryList';
 import { IconShoppingCartX } from '@tabler/icons-react';
 import { useMemo } from 'react';
@@ -12,7 +11,7 @@ import { useTranslation } from 'react-i18next';
 
 export const PosSummaryRecordTable = ({ posId }: { posId?: string }) => {
   const { t } = useTranslation('sales');
-  const { posSummaryList, handleFetchMore, loading, pageInfo, columns } =
+  const { posSummaryList, handleFetchMore, loading, error, pageInfo, columns } =
     usePosSummaryList({ posId });
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
   const allColumns = useMemo(
@@ -27,6 +26,13 @@ export const PosSummaryRecordTable = ({ posId }: { posId?: string }) => {
     [columns, posSummaryList, t],
   );
   const columnsKey = allColumns.map((c) => c.id || '').join('|');
+  if (error)
+    return (
+      <p role="alert" className="m-3 text-destructive">
+        {error.message}
+      </p>
+    );
+
   return (
     <RecordTable.Provider
       key={columnsKey}
@@ -74,7 +80,6 @@ export const PosSummaryRecordTable = ({ posId }: { posId?: string }) => {
           </div>
         )}
       </RecordTable.CursorProvider>
-      <PosSummaryCommandBar />
     </RecordTable.Provider>
   );
 };

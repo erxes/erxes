@@ -1,18 +1,18 @@
-import { useCallback, useEffect, useState, type ReactNode } from 'react';
-import { useMutation } from '@apollo/client';
-import { Button, Form, InfoCard, Label, toast } from 'erxes-ui';
-import { useTranslation } from 'react-i18next';
-import { useForm } from 'react-hook-form';
-import { ProductGroupsList } from '@/pos/components/products/ProductGroupsList';
+import { MoreOptionsButton } from '@/pos/components/MoreOptionsButton';
 import { InitialProductCategories } from '@/pos/components/products/InitialProductCategories';
 import { KioskExcludeProducts } from '@/pos/components/products/KioskExcludeProducts';
 import { ProductAndCategoryMapping } from '@/pos/components/products/ProductAndCategoryMapping';
+import { ProductGroupsList } from '@/pos/components/products/ProductGroupsList';
 import { RemainderConfigs } from '@/pos/components/products/RemainderConfigs';
 import { ServiceCharge } from '@/pos/components/products/ServiceCharge';
-import { MoreOptionsButton } from '@/pos/components/MoreOptionsButton';
-import mutations from '@/pos/graphql/mutations';
+import { mutations } from '@/pos/graphql/mutations';
 import { usePosDetail } from '@/pos/hooks/usePosDetail';
 import { type CatProd } from '@/pos/pos-detail/types/IPos';
+import { useMutation } from '@apollo/client';
+import { Button, Form, InfoCard, isDefined, Label, toast } from 'erxes-ui';
+import { useCallback, useEffect, useState, type ReactNode } from 'react';
+import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 
 interface ProductsProps {
   posId?: string;
@@ -106,18 +106,35 @@ const Products: React.FC<ProductsProps> = ({
     }
 
     reset({
-      initialCategoryIds: posDetail.initialCategoryIds || [],
-      kioskExcludeCategoryIds: posDetail.kioskExcludeCategoryIds || [],
-      kioskExcludeProductIds: posDetail.kioskExcludeProductIds || [],
-      catProdMappings: posDetail.catProdMappings || [],
+      initialCategoryIds: (posDetail.initialCategoryIds ?? []).filter(
+        isDefined,
+      ),
+      kioskExcludeCategoryIds: (posDetail.kioskExcludeCategoryIds ?? []).filter(
+        isDefined,
+      ),
+      kioskExcludeProductIds: (posDetail.kioskExcludeProductIds ?? []).filter(
+        isDefined,
+      ),
+      catProdMappings: (posDetail.catProdMappings ?? [])
+        .filter(isDefined)
+        .map((mapping) => ({
+          ...mapping,
+          _id: mapping._id ?? '',
+          categoryId: mapping.categoryId ?? '',
+          productId: mapping.productId ?? '',
+          code: mapping.code ?? undefined,
+          name: mapping.name ?? undefined,
+        })),
       isShowRemainder: posDetail.isShowRemainder || false,
       isCheckRemainder: posDetail.isCheckRemainder || false,
-      checkExcludeCategoryIds: posDetail.checkExcludeCategoryIds || [],
+      checkExcludeCategoryIds: (posDetail.checkExcludeCategoryIds ?? []).filter(
+        isDefined,
+      ),
       saveRemainder: posDetail.saveRemainder || false,
       banFractions: posDetail.banFractions || false,
       serviceCharge:
         posDetail.serviceCharge === undefined ||
-          posDetail.serviceCharge === null
+        posDetail.serviceCharge === null
           ? ''
           : String(posDetail.serviceCharge),
       serviceChargeApplicableProductId:
@@ -177,12 +194,22 @@ const Products: React.FC<ProductsProps> = ({
             saveRemainder: data.saveRemainder,
             banFractions: data.banFractions,
 
-
             serviceCharge: parseServiceCharge(data.serviceCharge),
             serviceChargeApplicableProductId:
               data.serviceChargeApplicableProductId || null,
           },
-          refetchQueries: ['posDetail'],
+          refetchQueries: [
+            'salesPosSettingsDetail',
+            'salesPosOrdersInlineDetail',
+            'salesPosOrdersSelectDetail',
+            'salesPosCoversInlineDetail',
+            'salesPosCoversSelectDetail',
+            'salesPosItemsInlineDetail',
+            'salesPosItemsSelectDetail',
+            'salesPosSummaryInlineDetail',
+            'salesPosSummarySelectDetail',
+            'posDetail', // Still used by the Mongolian plugin's POS sync screens.
+          ],
         });
 
         toast({
@@ -198,11 +225,7 @@ const Products: React.FC<ProductsProps> = ({
         });
       }
     },
-    [
-      posEdit,
-      posId,
-      reset,
-    ],
+    [posEdit, posId, reset],
   );
 
   const handleHeaderSaveChanges = useCallback(async () => {
@@ -329,4 +352,4 @@ const Products: React.FC<ProductsProps> = ({
   );
 };
 
-export default Products;
+export { Products };

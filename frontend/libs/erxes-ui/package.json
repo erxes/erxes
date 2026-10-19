@@ -1,6 +1,6 @@
 {
   "name": "erxes-ui",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "erxes design system: UI primitives, business modules, hooks and shared frontend state",
   "license": "AGPL-3.0-only",
   "repository": {

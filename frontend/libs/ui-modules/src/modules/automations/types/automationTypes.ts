@@ -345,6 +345,11 @@ export type IAutomationsActionConfigConstants = {
   errorPolicy?: { supported?: boolean };
   /** The action creates records that belong to someone. */
   requiresActor?: boolean;
+  /** Config the action takes when it runs after an action of the given type. */
+  defaultsWhenAfter?: {
+    actionType: string;
+    config: Record<string, unknown>;
+  }[];
 };
 
 export type IAutomationNodeConfigConstants =

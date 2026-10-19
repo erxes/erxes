@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const DEALS_CREATE_PRODUCT_DATA = gql`
+export const DEALS_CREATE_PRODUCT_DATA = gql(`
   mutation DealsCreateProductsData(
     $processId: String
     $dealId: String
@@ -8,15 +8,15 @@ export const DEALS_CREATE_PRODUCT_DATA = gql`
   ) {
     dealsCreateProductsData(processId: $processId, dealId: $dealId, docs: $docs)
   }
-`;
+`);
 
-export const DEALS_EDIT_PRODUCT_DATA = gql`
+export const DEALS_EDIT_PRODUCT_DATA = gql(`
   mutation DealsEditProductData($processId: String, $dealId: String, $dataId: String, $doc: JSON) {
     dealsEditProductData(processId: $processId, dealId: $dealId, dataId: $dataId, doc: $doc)
   }
-`;
+`);
 
-export const productRemove = gql`
+export const productRemove = gql(`
   mutation DealsDeleteProductData(
     $processId: String
     $dealId: String
@@ -28,5 +28,4 @@ export const productRemove = gql`
       dataIds: $dataIds
     )
   }
-`;
-
+`);

@@ -1,35 +1,41 @@
+import { mergeCursorList, toCursorPageInfo } from '@/deals/utils/cursorList';
+import { toDealSubscriptionFilter } from '@/deals/utils/dealSubscriptionFilter';
+import {
+  QueryHookOptions,
+  SubscribeToMoreOptions,
+  useQuery,
+} from '@apollo/client';
 import {
   EnumCursorDirection,
-  ICursorListResponse,
+  isDefined,
   isUndefinedOrNull,
-  mergeCursorData,
   toast,
   useQueryState,
   validateFetchMore,
 } from 'erxes-ui';
-import { QueryHookOptions, useQuery } from '@apollo/client';
 import { useAtomValue, useSetAtom } from 'jotai';
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import type {
+  SalesDealListChangedSubscription,
+  SalesDealListChangedSubscriptionVariables,
+  SalesDealListQuery,
+  SalesDealListQueryVariables,
+} from '~/gql/graphql';
 
-import { DEAL_LIST_CHANGED } from '@/deals/graphql/subscriptions/dealListChange';
 import { GET_DEALS } from '@/deals/graphql/queries/DealsQueries';
-import { IDeal } from '@/deals/types/deals';
-import { currentUserState } from 'ui-modules';
+import { DEAL_LIST_CHANGED } from '@/deals/graphql/subscriptions/dealListChange';
 import { dealTotalCountAtom } from '@/deals/states/dealsTotalCountState';
 import { dealsViewAtom } from '@/deals/states/dealsViewState';
-
-interface IDealChanged {
-  salesDealListChanged: {
-    action: string;
-    deal?: IDeal | null;
-  };
-}
+import { IDeal } from '@/deals/types/deals';
+import { currentUserState } from 'ui-modules';
 
 // Subscriptions skip computed resolvers, so these arrive null even when they have a
 // value. Nulls on stored fields are real clears and are merged as-is.
 const COMPUTED_DEAL_FIELDS = new Set([
   'amount',
+  'pipeline',
+  'boardId',
   'assignedUsers',
   'branches',
   'companies',
@@ -93,13 +99,11 @@ const applyDealChange = (
 };
 
 export const useDeals = (
-  options?: QueryHookOptions<ICursorListResponse<IDeal>>,
+  options?: QueryHookOptions<SalesDealListQuery, SalesDealListQueryVariables>,
   pipelineId?: string,
 ) => {
   const { t } = useTranslation('sales');
-  const { data, loading, fetchMore, subscribeToMore } = useQuery<
-    ICursorListResponse<IDeal>
-  >(GET_DEALS, {
+  const { data, loading, fetchMore, subscribeToMore } = useQuery(GET_DEALS, {
     ...options,
     variables: { ...options?.variables },
     skip: options?.skip,
@@ -114,11 +118,19 @@ export const useDeals = (
   });
 
   const currentUser = useAtomValue(currentUserState);
-  const [qryStrPipelineId] = useQueryState('pipelineId');
+  const [qryStrPipelineId] = useQueryState<string>('pipelineId');
 
   const lastPipelineId = pipelineId || qryStrPipelineId || '';
 
-  const { list: deals, pageInfo, totalCount } = data?.deals || {};
+  const deals = useMemo(
+    () => data?.deals?.list?.filter(isDefined),
+    [data?.deals?.list],
+  );
+  const pageInfo = useMemo(
+    () => toCursorPageInfo(data?.deals?.pageInfo),
+    [data?.deals?.pageInfo],
+  );
+  const totalCount = data?.deals?.totalCount ?? undefined;
 
   const filterVariables = options?.variables;
   const subscriptionKey = JSON.stringify({
@@ -135,18 +147,25 @@ export const useDeals = (
   useEffect(() => {
     if (!currentUser?._id || !lastPipelineId) return;
 
-    const unsubscribe = subscribeToMore<IDealChanged>({
+    const subscriptionOptions: SubscribeToMoreOptions<
+      SalesDealListQuery,
+      SalesDealListChangedSubscriptionVariables,
+      SalesDealListChangedSubscription,
+      SalesDealListQueryVariables
+    > = {
       document: DEAL_LIST_CHANGED,
       variables: {
         pipelineId: lastPipelineId,
         userId: currentUser._id,
-        filter: filterVariablesRef.current,
+        filter: toDealSubscriptionFilter(filterVariablesRef.current),
       },
 
       updateQuery: (prev, { subscriptionData }) => {
         if (!prev?.deals?.list || !subscriptionData.data) return prev;
 
-        const { action, deal } = subscriptionData.data.salesDealListChanged;
+        const payload = subscriptionData.data.salesDealListChanged;
+        if (!payload?.action) return prev;
+        const { action, deal } = payload;
 
         if (!deal) return prev;
 
@@ -157,7 +176,7 @@ export const useDeals = (
             : action;
 
         const { list, countDelta } = applyDealChange(
-          prev.deals.list,
+          prev.deals.list.filter(isDefined),
           resolvedAction,
           deal,
         );
@@ -170,13 +189,13 @@ export const useDeals = (
             ...prev.deals,
             list,
             pageInfo: prev.deals.pageInfo,
-            totalCount: prev.deals.totalCount + countDelta,
+            totalCount: (prev.deals.totalCount ?? 0) + countDelta,
           },
         };
       },
-    });
+    };
 
-    return unsubscribe;
+    return subscribeToMore(subscriptionOptions);
   }, [
     currentUser?._id,
     dropsArchived,
@@ -205,23 +224,12 @@ export const useDeals = (
         direction,
       },
       updateQuery: (prev, { fetchMoreResult }) => {
-        if (!fetchMoreResult) return prev;
-        const mergedDeals = mergeCursorData({
-          direction,
-          fetchMoreResult: fetchMoreResult.deals,
-          prevResult: prev.deals,
-        });
+        if (!fetchMoreResult.deals) return prev;
         return {
           ...prev,
-          deals: {
-            ...mergedDeals,
-            totalCount: mergedDeals.totalCount ?? prev.deals.totalCount,
-            pageInfo: {
-              ...mergedDeals.pageInfo,
-              startCursor: mergedDeals.pageInfo.startCursor ?? '',
-              endCursor: mergedDeals.pageInfo.endCursor ?? '',
-            },
-          },
+          deals: prev.deals
+            ? mergeCursorList(direction, prev.deals, fetchMoreResult.deals)
+            : fetchMoreResult.deals,
         };
       },
     });

@@ -2,7 +2,7 @@ import { Sidebar } from 'erxes-ui';
 import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
-const BASE = '/settings/mongolian/product-places';
+const BASE = '/mongolian/settings/product-places';
 
 const SIDEBAR_ROUTES = {
   [`${BASE}/stage`]: 'stage-in-product-places-config',

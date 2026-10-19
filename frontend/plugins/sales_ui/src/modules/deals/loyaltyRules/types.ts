@@ -1,10 +1,18 @@
 import { z } from 'zod';
+import type {
+  SalesLoyaltyRulesQuery,
+  SalesLoyaltyTierRulesQuery,
+} from '~/gql/graphql';
 import { LOYALTY_RULE_TYPES } from './constants';
 
 const ruleRowSchema = z
   .object({
     _id: z.string().optional(),
-    type: z.nativeEnum(LOYALTY_RULE_TYPES),
+    type: z
+      .string()
+      .refine(
+        (value) => z.nativeEnum(LOYALTY_RULE_TYPES).safeParse(value).success,
+      ),
     scoreCampaignId: z.string(),
     boardId: z.string().optional(),
     pipelineId: z.string().optional(),
@@ -56,22 +64,18 @@ export const loyaltyRulesFormSchema = z.object({
 export type TLoyaltyRulesForm = z.infer<typeof loyaltyRulesFormSchema>;
 export type TLoyaltyRuleRow = TLoyaltyRulesForm['rules'][number];
 
-type TPlace = { probability?: string | null; stageIds?: string[] | null };
-
-export type TLoyaltyRule = {
-  _id: string;
-  type: TLoyaltyRuleRow['type'];
-  scoreCampaignId: string;
-  boardId?: string | null;
-  pipelineId?: string | null;
-  earn?: TPlace | null;
-  refund?: TPlace | null;
-};
+export type TLoyaltyRule = NonNullable<
+  NonNullable<SalesLoyaltyRulesQuery['salesLoyaltyRules']>[number]
+>;
 
 const tierRowSchema = z
   .object({
     _id: z.string().optional(),
-    type: z.nativeEnum(LOYALTY_RULE_TYPES),
+    type: z
+      .string()
+      .refine(
+        (value) => z.nativeEnum(LOYALTY_RULE_TYPES).safeParse(value).success,
+      ),
     accountTypeId: z.string(),
     bands: z.array(
       z.object({
@@ -120,13 +124,6 @@ export const loyaltyTierRulesFormSchema = z.object({
 export type TLoyaltyTierRulesForm = z.infer<typeof loyaltyTierRulesFormSchema>;
 export type TLoyaltyTierRuleRow = TLoyaltyTierRulesForm['rules'][number];
 
-export type TLoyaltyTierRule = {
-  _id: string;
-  type: TLoyaltyTierRuleRow['type'];
-  accountTypeId: string;
-  bands: { tier: string; min?: number | null; max?: number | null }[];
-  onlyUpgrade?: boolean | null;
-  boardId?: string | null;
-  pipelineId?: string | null;
-  earn?: TPlace | null;
-};
+export type TLoyaltyTierRule = NonNullable<
+  NonNullable<SalesLoyaltyTierRulesQuery['salesLoyaltyTierRules']>[number]
+>;

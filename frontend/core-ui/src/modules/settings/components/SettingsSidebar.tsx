@@ -7,24 +7,18 @@ import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { NavigationMenuLinkItem, Sidebar, cn } from 'erxes-ui';
 import React, { useEffect, useMemo, useState } from 'react';
-import { pluginsConfigState, usePermissionCheck, useVersion } from 'ui-modules';
+import { usePermissionCheck, useVersion } from 'ui-modules';
 
 import { AppPath } from '@/types/paths/AppPath';
 import { GET_CORE_MODULES } from '~/plugins/constants/core-plugins.constants';
-import { NavigationActivitySearchButton } from '@/navigation/components/navigation-activity-rail/NavigationActivitySearchButton';
-import { NavigationDisclosure } from '@/navigation/components/navigation-activity-rail/NavigationDisclosure';
+import { NavigationDisclosure } from '@/navigation/components/app-sidebar/NavigationDisclosure';
 import { findActiveNavigationPath } from '@/navigation/utils/navigationPathMatch';
-import { globalSearchOpenState } from '@/search/states/globalSearchState';
-import { getNavigationPlacement } from '@/navigation/utils/navigationPlacement';
-import { useAtomValue, useSetAtom } from 'jotai';
 import { usePageTrackerStore } from 'react-page-tracker';
 import { useSettingsSubNavigation } from '@/settings/hooks/useSettingsSubNavigation';
 import { useTranslation } from 'react-i18next';
 
 export function SettingsSidebar() {
-  const pluginsMetaData = useAtomValue(pluginsConfigState) || {};
-  const { isLoaded, isWildcard, hasModulePermission, hasPluginPermission } =
-    usePermissionCheck();
+  const { isLoaded, isWildcard, hasModulePermission } = usePermissionCheck();
 
   const version = useVersion();
   const { t } = useTranslation('common', { keyPrefix: 'sidebar' });
@@ -41,17 +35,6 @@ export function SettingsSidebar() {
       return hasModulePermission(requiredModule);
     });
   };
-
-  const pluginsWithSettingsNavigations = Object.values(pluginsMetaData)
-    .filter((plugin) => {
-      if (!plugin.settingsNavigation) return false;
-      if (!isLoaded || isWildcard) return true;
-      return hasPluginPermission(plugin.name);
-    })
-    .map((plugin) => ({
-      Navigation: plugin.settingsNavigation,
-      name: plugin.name,
-    }));
 
   const filteredNav = filterByPermission(sidebar.nav);
   const filteredDeveloper = filterByPermission(sidebar.developer);
@@ -112,10 +95,6 @@ export function SettingsSidebar() {
             />
           ))}
         </SettingsNavigationGroup>
-
-        {pluginsWithSettingsNavigations.map(
-          ({ Navigation, name }) => Navigation && <Navigation key={name} />,
-        )}
       </Sidebar.Content>
     </>
   );
@@ -133,7 +112,6 @@ function SettingsNavigationItem({
   subPaths?: TSettingSubPath[];
 }>) {
   const location = useLocation();
-  const { isMobile } = Sidebar.useSidebar();
   const itemPath = `/${AppPath.Settings}/${path}`;
   const inItem =
     location.pathname === itemPath ||
@@ -144,10 +122,7 @@ function SettingsNavigationItem({
     if (inItem) setOpen(true);
   }, [inItem]);
 
-  if (
-    !subPaths ||
-    (!isMobile && getNavigationPlacement(subPaths.length) === 'context')
-  ) {
+  if (!subPaths?.length) {
     return (
       <NavigationMenuLinkItem
         pathPrefix={AppPath.Settings}
@@ -237,14 +212,9 @@ export function SettingsExitButton() {
   const { t } = useTranslation('common', {
     keyPrefix: 'sidebar',
   });
-  const setSearchOpen = useSetAtom(globalSearchOpenState);
 
   return (
     <Sidebar.Header className="sticky top-0 z-10 bg-sidebar px-2 pt-0 pb-1 after:pointer-events-none after:absolute after:inset-x-0 after:top-full after:h-4 after:bg-gradient-to-b after:from-sidebar after:to-transparent">
-      <NavigationActivitySearchButton
-        expanded
-        onSearch={() => setSearchOpen(true)}
-      />
       <Sidebar.Menu>
         <Sidebar.MenuItem>
           <Sidebar.MenuButton onClick={handleExitSettings}>

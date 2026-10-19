@@ -1,3 +1,16 @@
+import { useQuery } from '@apollo/client';
+import { hasId } from '@/pos/utils/posJson';
+import {
+  cn,
+  Combobox,
+  Command,
+  Filter,
+  Form,
+  Popover,
+  PopoverScoped,
+  useFilterContext,
+  useQueryState,
+} from 'erxes-ui';
 import React, {
   createContext,
   useCallback,
@@ -5,46 +18,16 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import {
-  cn,
-  Combobox,
-  Command,
-  Filter,
-  Popover,
-  PopoverScoped,
-  Form,
-  useFilterContext,
-  useQueryState,
-} from 'erxes-ui';
+import type { PosCompany as ICompany } from '@/pos/types/posSelector';
 
 import { IconBuilding } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { POS_COMPANIES_QUERY } from '../../graphql/queries/posCompaniesQuery';
-import { useQuery } from '@apollo/client';
 import {
   SelectContent,
   SelectTrigger,
   SelectTriggerVariantType,
 } from './SelectShared';
-
-interface ICompany {
-  _id: string;
-  primaryName: string;
-  names?: string[];
-  avatar?: string;
-  size?: string;
-  website?: string;
-  industry?: string;
-  businessType?: string;
-  status?: string;
-  code?: string;
-  location?: string;
-  getTags?: Array<{
-    _id: string;
-    name: string;
-    colorCode?: string;
-  }>;
-}
 
 interface SelectCompaniesContextType {
   value: string;
@@ -88,7 +71,7 @@ export const SelectCompaniesProvider = ({
   });
 
   const companies = useMemo(
-    () => data?.companies?.list || [],
+    () => (data?.companies?.list ?? []).filter(hasId),
     [data?.companies?.list],
   );
 
@@ -178,7 +161,9 @@ const SelectCompaniesContent = () => {
         <Command.Input placeholder={t('search-companies')} />
         <Command.List>
           <div className="flex items-center justify-center py-4 h-32">
-            <span className="text-muted-foreground">{t('loading-companies')}</span>
+            <span className="text-muted-foreground">
+              {t('loading-companies')}
+            </span>
           </div>
         </Command.List>
       </Command>

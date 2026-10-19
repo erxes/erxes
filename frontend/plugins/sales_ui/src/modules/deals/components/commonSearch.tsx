@@ -64,7 +64,7 @@ export const CommonDealSearch = () => {
           resultsReady={search.resultsReady}
           searchSettled={search.searchSettled}
           totalCount={search.totalCount}
-          hasNextPage={search.pageInfo?.hasNextPage}
+          hasNextPage={search.pageInfo?.hasNextPage ?? false}
           loadMoreRef={search.loadMoreRef}
           onSelect={search.selectDeal}
         />

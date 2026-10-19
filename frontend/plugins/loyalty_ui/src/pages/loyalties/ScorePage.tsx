@@ -14,7 +14,7 @@ const ScoreHeaderActions = () => {
   return (
     <div className="flex items-center gap-2">
       <Button variant="outline" size="sm" asChild>
-        <Link to="/settings/loyalty/config/score">
+        <Link to="/loyalty/settings/config/score">
           <IconSettings className="size-4" />
           {t('go-to-settings')}
         </Link>

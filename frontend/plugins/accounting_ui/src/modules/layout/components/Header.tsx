@@ -50,7 +50,7 @@ export const AccountingHeader = ({
       <PageHeader.End>
         {!skipSettings && (
           <Button variant="outline" asChild>
-            <Link to="/settings/accounting">
+            <Link to="/accounting/settings">
               <IconSettings />
               {t('go-to-settings')}
             </Link>

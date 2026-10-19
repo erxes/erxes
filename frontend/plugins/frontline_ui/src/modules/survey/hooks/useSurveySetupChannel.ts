@@ -10,7 +10,7 @@ export const useSurveySetupChannel = () => {
     channelId: routeChannelId || general.channelId || undefined,
     isChannelRoute: Boolean(routeChannelId),
     returnPath: routeChannelId
-      ? `/settings/frontline/channels/${routeChannelId}/surveys`
+      ? `/frontline/settings/channels/${routeChannelId}/surveys`
       : '/frontline/surveys',
   };
 };

@@ -11,6 +11,8 @@ const voucherLine = (): IProductData => ({
   uom: 'pcs',
   currency: 'MNT',
   quantity: 1,
+  globalUnitPrice: 100_000,
+  unitPricePercent: 100,
   unitPrice: 100_000,
   discount: 1_000,
   discountPercent: 1,

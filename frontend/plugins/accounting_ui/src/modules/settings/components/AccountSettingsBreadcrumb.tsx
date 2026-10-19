@@ -19,7 +19,7 @@ export const AccountSettingsBreadcrumb = () => {
     <>
       <Button variant="ghost">
         <IconCashBanknote />
-        {pathname.startsWith('/settings/accounting/inventories')
+        {pathname.startsWith('/accounting/settings/inventories')
           ? t('inventory')
           : t('accounting-settings')}
       </Button>

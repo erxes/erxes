@@ -5,9 +5,16 @@ import { IconShoppingCartX } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 export const PosOrdersByCustomerRecordTable = () => {
   const { t } = useTranslation('sales');
-  const { posOrderByCustomerList, handleFetchMore, loading, pageInfo } =
+  const { posOrderByCustomerList, handleFetchMore, loading, error, pageInfo } =
     usePosOrderByCustomerList();
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
+  if (error)
+    return (
+      <p role="alert" className="m-3 text-destructive">
+        {error.message}
+      </p>
+    );
+
   return (
     <RecordTable.Provider
       columns={PosOrdersByCustomerColumns(t)}

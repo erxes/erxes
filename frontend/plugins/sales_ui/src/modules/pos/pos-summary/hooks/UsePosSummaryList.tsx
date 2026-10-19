@@ -1,13 +1,18 @@
-import { useQuery } from '@apollo/client';
-import queries from '~/modules/pos/pos-summary/graphql/queries/queries';
 import { IPosSummary } from '@/pos/pos-summary/types/posSummary';
 import {
-  useMultiQueryState,
+  mergePosSummaryPages,
+  posSummarySchema,
+  readPosData,
+} from '@/pos/utils/posOrderJson';
+import { useQuery } from '@apollo/client';
+import {
   parseDateRangeFromString,
+  useMultiQueryState,
   useQueryState,
 } from 'erxes-ui';
-import { useMemo, useCallback, useEffect } from 'react';
 import { useSetAtom } from 'jotai';
+import { useCallback, useEffect, useMemo } from 'react';
+import { queries } from '~/modules/pos/pos-summary/graphql/queries/queries';
 import { posSummaryTotalCountAtom } from '../states/usePosSummaryCounts';
 
 const POS_PER_PAGE = 30;
@@ -19,6 +24,7 @@ interface UsePosSummaryListOptions {
 
 interface UsePosSummaryListReturn {
   loading: boolean;
+  error?: Error;
   posSummaryList: IPosSummary[];
   totalCount: number;
   columns: Record<string, string>;
@@ -107,80 +113,80 @@ export const usePosSummaryList = (
   const variables = usePosSummaryVariables(options);
   const setPosSummaryTotalCount = useSetAtom(posSummaryTotalCountAtom);
 
-  const { data, loading, fetchMore } = useQuery(
+  const { data, loading, error, fetchMore } = useQuery(
     queries.POS_ORDER_GROUP_SUMMARY,
     { variables },
   );
 
+  const parsed = useMemo(
+    () =>
+      readPosData(() =>
+        posSummarySchema.parse(data?.posOrdersGroupSummary ?? {}),
+      ),
+    [data?.posOrdersGroupSummary],
+  );
+  const summary = parsed.value;
+
   const posSummaryList = useMemo<IPosSummary[]>(
     () =>
-      data?.posOrdersGroupSummary?.amounts?.map((item: any) => {
+      summary?.amounts?.map((item) => {
         const groupKey = item.paidDate || '-';
         return {
           _id: groupKey,
           paidDate: groupKey,
           number: groupKey,
           billId: '',
-          cashAmount: item.cashAmount || 0,
-          mobileAmount: item.mobileAmount || 0,
-          totalAmount: item.totalAmount || 0,
-          finalAmount: item.finalAmount || 0,
+          cashAmount: Number(item.cashAmount) || 0,
+          mobileAmount: Number(item.mobileAmount) || 0,
+          totalAmount: Number(item.totalAmount) || 0,
+          finalAmount: Number(item.finalAmount) || 0,
           amounts: {
-            count: item.count || 0,
-            cashAmount: item.cashAmount || 0,
-            mobileAmount: item.mobileAmount || 0,
-            invoice: item.invoice || 0,
-            qpayAmount: item.qpayAmount || 0,
+            count: Number(item.count) || 0,
+            cashAmount: Number(item.cashAmount) || 0,
+            mobileAmount: Number(item.mobileAmount) || 0,
+            invoice: Number(item.invoice) || 0,
+            qpayAmount: Number(item.qpayAmount) || 0,
           },
         };
       }) || [],
-    [data?.posOrdersGroupSummary?.amounts],
+    [summary?.amounts],
   );
   const totalCount = useMemo(
-    () => data?.posOrdersGroupSummary?.amounts?.length || 0,
-    [data?.posOrdersGroupSummary?.amounts],
+    () => summary?.amounts?.length || 0,
+    [summary?.amounts],
   );
 
   const handleFetchMore = useCallback(() => {
-    if (!data?.posOrdersGroupSummary?.amounts?.length) return;
+    if (!summary?.amounts?.length) return;
 
     fetchMore({
       variables: {
         page: Math.ceil(posSummaryList.length / POS_PER_PAGE) + 1,
         perPage: POS_PER_PAGE,
       },
-      updateQuery: (prev, { fetchMoreResult }) => {
-        if (!fetchMoreResult?.posOrdersGroupSummary?.amounts) {
-          return prev;
-        }
-        return {
-          ...prev,
-          posOrdersGroupSummary: {
-            amounts: [
-              ...(prev.posOrdersGroupSummary?.amounts || []),
-              ...(fetchMoreResult.posOrdersGroupSummary?.amounts || []),
-            ],
-            columns:
-              fetchMoreResult.posOrdersGroupSummary?.columns ||
-              prev.posOrdersGroupSummary?.columns,
-          },
-        };
-      },
+      updateQuery: (prev, { fetchMoreResult }) =>
+        mergePosSummaryPages(prev, fetchMoreResult),
     });
-  }, [posSummaryList.length, fetchMore, data?.posOrdersGroupSummary]);
+  }, [posSummaryList.length, fetchMore, summary?.amounts?.length]);
 
   useEffect(() => {
     if (!totalCount) return;
     setPosSummaryTotalCount(totalCount);
   }, [totalCount, setPosSummaryTotalCount]);
 
-  const columns = useMemo<Record<string, string>>(
-    () => data?.posOrdersGroupSummary?.columns || {},
-    [data?.posOrdersGroupSummary?.columns],
+  const columns = useMemo(
+    () =>
+      Object.fromEntries(
+        Object.entries(summary?.columns ?? {}).filter(
+          (entry): entry is [string, string] => typeof entry[1] === 'string',
+        ),
+      ),
+    [summary?.columns],
   );
 
   return {
     loading,
+    error: error ?? parsed.error,
     posSummaryList,
     totalCount,
     columns,

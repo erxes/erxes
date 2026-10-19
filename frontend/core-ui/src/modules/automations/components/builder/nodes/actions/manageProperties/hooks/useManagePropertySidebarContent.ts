@@ -73,10 +73,32 @@ export const useManagePropertySidebarContent = (
       return;
     }
 
-    if (!module && defaultPropertyType) {
-      setValue('module', defaultPropertyType);
+    // Before the targets load, the default falls back to the source type,
+    // which no property type option carries as its value.
+    if (loading || !propertyTypes.length) {
+      return;
     }
-  }, [defaultPropertyType, module, normalizedModule, setValue]);
+
+    if (!module) {
+      setValue('module', defaultPropertyType);
+      return;
+    }
+
+    // The module and its rules were picked for the previous target; a new
+    // target brings its own property types and fields.
+    if (!isPropertyTypeValid) {
+      setValue('module', defaultPropertyType);
+      setValue('rules', [{ field: '', operator: '' }]);
+    }
+  }, [
+    defaultPropertyType,
+    isPropertyTypeValid,
+    loading,
+    module,
+    normalizedModule,
+    propertyTypes.length,
+    setValue,
+  ]);
 
   useEffect(() => {
     if (!selectedPropertyTarget) {

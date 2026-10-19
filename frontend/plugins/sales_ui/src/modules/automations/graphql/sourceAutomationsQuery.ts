@@ -1,8 +1,8 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
 // Filtered by trigger type on the server; which record a trigger belongs to
 // is read from its config, so the hook narrows further.
-export const SALES_SOURCE_AUTOMATIONS = gql`
+export const SALES_SOURCE_AUTOMATIONS = gql(`
   query SalesSourceAutomations($triggerTypes: [String]) {
     automations(triggerTypes: $triggerTypes) {
       _id
@@ -15,4 +15,4 @@ export const SALES_SOURCE_AUTOMATIONS = gql`
       }
     }
   }
-`;
+`);

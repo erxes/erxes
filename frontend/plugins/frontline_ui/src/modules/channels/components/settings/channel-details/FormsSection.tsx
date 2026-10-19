@@ -17,7 +17,7 @@ export const FormsSection = ({ channel }: { channel: IChannelDetail }) => {
     <div
       className="w-full shrink-0 border border-muted-foreground/15 rounded-md hover:bg-sidebar/50 cursor-pointer"
       onClick={() =>
-        navigate(`/settings/frontline/channels/${channel._id}/forms`)
+        navigate(`/frontline/settings/channels/${channel._id}/forms`)
       }
     >
       <section className="w-full p-4">

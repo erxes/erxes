@@ -28,13 +28,20 @@ const AiAgentDetailView = ({
   save,
   close,
   requestCloseRef,
+  persistStepInUrl,
 }: {
   detail?: TAiAgentFormDetail;
   save: () => void;
   close: () => void;
   requestCloseRef: TRequestCloseRef;
+  persistStepInUrl: boolean;
 }) => {
-  const state = useAiAgentDetailState({ detail, save, close });
+  const state = useAiAgentDetailState({
+    detail,
+    save,
+    close,
+    persistStepInUrl,
+  });
 
   useEffect(() => {
     requestCloseRef.current = state.requestClose;
@@ -61,11 +68,13 @@ export const AutomationAiAgentDetail = ({
   handleSave,
   onClose,
   requestCloseRef,
+  persistStepInUrl,
 }: {
   detail?: TAiAgentFormDetail;
   handleSave: (input: AiAgentInput) => Promise<unknown>;
   onClose: () => void;
   requestCloseRef: TRequestCloseRef;
+  persistStepInUrl: boolean;
 }) => {
   const { t } = useTranslation('automations');
 
@@ -98,6 +107,7 @@ export const AutomationAiAgentDetail = ({
         save={() => void save()}
         close={onClose}
         requestCloseRef={requestCloseRef}
+        persistStepInUrl={persistStepInUrl}
       />
     </FormProvider>
   );

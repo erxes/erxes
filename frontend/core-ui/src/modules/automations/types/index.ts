@@ -255,6 +255,29 @@ export type TAutomationStats = {
   errorMessages: TAutomationStatsErrorMessage[];
 };
 
+export type TAutomationTraceBucket = {
+  start: string;
+  total: number;
+  complete: number;
+  error: number;
+  waiting: number;
+};
+
+export type TAutomationLatencyBucket = {
+  start: string;
+  count: number;
+  p50Ms?: number;
+  p95Ms?: number;
+};
+
+export type TAutomationActivity = {
+  bucketMs: number;
+  traces: TAutomationTraceBucket[];
+  latency: TAutomationLatencyBucket[];
+  p50Ms?: number;
+  p95Ms?: number;
+};
+
 export type AutomationTriggerSidebarCoreFormProps = {
   formRef: React.RefObject<{
     submit: () => void;

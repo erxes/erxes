@@ -58,7 +58,7 @@ const buildActionSearchText = (actionConfig: TAiAgentActionConfig) => {
     .join('\n');
 };
 
-const mapSharedKnowledgeDocumentToChunk = (
+export const mapSharedKnowledgeDocumentToChunk = (
   doc: IKnowledgeChunkDocument,
 ): TAiKnowledgeChunk => {
   return {
@@ -307,11 +307,20 @@ export const searchAiAgentKnowledge = async ({
   agentId,
   agent,
   searchText,
+  keywords = [],
+  extraCandidates = [],
+  limits,
 }: {
   models: IModels;
   agentId: string;
   agent: TAiAgentInput;
   searchText: string;
+  // Ranked higher when a passage carries them, never required.
+  keywords?: string[];
+  // Scored alongside the search's own candidates, so passages the caller
+  // already points at are not lost to the candidate window.
+  extraCandidates?: TAiKnowledgeChunk[];
+  limits?: { topK: number; maxContextBytes: number };
 }): Promise<TAiKnowledgeChunk[]> => {
   const retrieval = agent.context.retrieval;
 
@@ -328,7 +337,11 @@ export const searchAiAgentKnowledge = async ({
       sources: agent.context.knowledgeSources || [],
     }),
   ]);
-  const candidates = [...agentCandidates, ...sharedCandidates];
+  const candidates = [
+    ...agentCandidates,
+    ...sharedCandidates,
+    ...extraCandidates,
+  ];
 
   if (!candidates.length) {
     return [];
@@ -336,10 +349,10 @@ export const searchAiAgentKnowledge = async ({
 
   return retrieveAiKnowledgeChunks({
     chunks: candidates,
-    query: { text: searchText },
+    query: { text: searchText, keywords },
     config: {
-      topK: retrieval.topK,
-      maxContextBytes: retrieval.maxContextBytes,
+      topK: limits?.topK ?? retrieval.topK,
+      maxContextBytes: limits?.maxContextBytes ?? retrieval.maxContextBytes,
       minScore: retrieval.minScore,
     },
   }).chunks;

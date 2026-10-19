@@ -9,7 +9,7 @@ export const PersonalChannelBreadcrumb = () => {
 
   return (
     <Link
-      to={`/settings/${FrontlinePaths.Frontline}${FrontlinePaths.PersonalChannel}`}
+      to={`/${FrontlinePaths.Frontline}/settings${FrontlinePaths.PersonalChannel}`}
     >
       <Button variant="ghost">
         <IconUserCircle />

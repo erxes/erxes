@@ -1,39 +1,16 @@
 import { IconSandbox } from '@tabler/icons-react';
 import { IUIConfig } from 'erxes-ui/types';
-import { lazy, Suspense } from 'react';
 import { mongolianProductRemainderProvider } from '@/erkhet-sync/product-remainders/productRemainderProvider';
 import { SEARCH_PROVIDERS } from '~/searchProviders';
-
-const MainNavigation = lazy(() =>
-  import('@/MainNavigation').then((module) => ({
-    default: module.MainNavigation,
-  })),
-);
-
-const SettingsNavigation = lazy(() =>
-  import('@/SettingsNavigation').then((module) => ({
-    default: module.SettingsNavigation,
-  })),
-);
 
 export const CONFIG: IUIConfig = {
   name: 'mongolian',
   path: 'mongolian',
   hasFloatingWidget: true,
-  settingsNavigation: () => (
-    <Suspense fallback={<div />}>
-      <SettingsNavigation />
-    </Suspense>
-  ),
   navigationGroup: {
     name: 'mongolian',
     defaultPath: 'mongolian/put-response',
     icon: IconSandbox,
-    content: () => (
-      <Suspense fallback={<div />}>
-        <MainNavigation />
-      </Suspense>
-    ),
   },
   widgets: {
     productRemainderProviders: [mongolianProductRemainderProvider],
@@ -57,27 +34,27 @@ export const CONFIG: IUIConfig = {
     {
       name: 'ebarimt',
       icon: IconSandbox,
-      path: 'settings/mongolian/ebarimt',
+      path: 'mongolian/settings/ebarimt',
     },
     {
       name: 'erkhet-settings',
       icon: IconSandbox,
-      path: 'settings/mongolian/sync-erkhet',
+      path: 'mongolian/settings/sync-erkhet',
     },
     {
       name: 'product-places',
       icon: IconSandbox,
-      path: 'settings/mongolian/product-places',
+      path: 'mongolian/settings/product-places',
     },
     {
       name: 'exchange-rates',
       icon: IconSandbox,
-      path: 'settings/mongolian/exchange-rates',
+      path: 'mongolian/settings/exchange-rates',
     },
     {
       name: 'msdynamic-settings',
       icon: IconSandbox,
-      path: 'settings/mongolian/msdynamic',
+      path: 'mongolian/settings/msdynamic',
     },
   ],
   searchProviders: SEARCH_PROVIDERS,

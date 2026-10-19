@@ -1,9 +1,10 @@
 import { IUIConfig } from 'erxes-ui';
 import { useAtom } from 'jotai';
-import { type ComponentType, type ElementType, useMemo } from 'react';
+import { type ElementType, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { pluginsConfigState, usePermissionCheck, useVersion } from 'ui-modules';
 import { GET_CORE_MODULES } from '~/plugins/constants/core-plugins.constants';
+import { getPlatformMismatch } from '~/plugins/utils/pluginConfigSchema';
 
 export const usePluginsModules = () => {
   const [pluginsMetaData] = useAtom(pluginsConfigState);
@@ -37,15 +38,12 @@ export const usePluginsModules = () => {
   return modules;
 };
 
-export type NavigationGroupContent = ComponentType;
-
 export interface NavigationGroupResult {
   icon?: ElementType;
-  contents: NavigationGroupContent[];
   defaultPath: string;
-  subGroups: NavigationGroupContent[];
   modules: NonNullable<IUIConfig['modules']>;
   name: string;
+  platformMismatch?: string;
   i18n?: boolean;
 }
 
@@ -64,8 +62,6 @@ export const usePluginsNavigationGroups = () => {
       (acc, plugin) => {
         if (!plugin?.modules?.length) return acc;
 
-        if (plugin.settingsOnly) return acc;
-
         if (isLoaded && !isWildcard && !hasPluginPermission(plugin.name)) {
           return acc;
         }
@@ -73,25 +69,13 @@ export const usePluginsNavigationGroups = () => {
         const groupName = plugin.navigationGroup?.name || plugin.name;
 
         const existingGroup = acc[groupName] || {
-          contents: [],
           defaultPath:
             plugin.navigationGroup?.defaultPath ||
             plugin.path ||
             plugin.modules?.[0]?.path ||
             '',
-          subGroups: [],
           modules: [],
         };
-
-        const newContent = plugin.navigationGroup?.content;
-        const updatedContents = newContent
-          ? [...existingGroup.contents, newContent]
-          : existingGroup.contents;
-
-        const newSubGroup = plugin.navigationGroup?.subGroup;
-        const updatedSubGroups = newSubGroup
-          ? [...existingGroup.subGroups, newSubGroup]
-          : existingGroup.subGroups;
 
         acc[groupName] = {
           name: groupName,
@@ -100,16 +84,17 @@ export const usePluginsNavigationGroups = () => {
             plugin.icon ||
             existingGroup.icon ||
             plugin.modules?.[0]?.icon,
-          contents: updatedContents,
           defaultPath:
             plugin.navigationGroup?.defaultPath ||
             existingGroup.defaultPath ||
             plugin.path ||
             plugin.modules?.[0]?.path ||
             '',
-          subGroups: updatedSubGroups,
           modules: [...existingGroup.modules, ...(plugin.modules || [])],
           i18n: plugin.i18n || existingGroup.i18n,
+          platformMismatch:
+            getPlatformMismatch(plugin, process.env.ERXES_VERSION) ??
+            existingGroup.platformMismatch,
         };
 
         return acc;

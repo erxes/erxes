@@ -14,6 +14,8 @@ import { handleExecutionError } from './handleExecutionError';
 import { AutomationActionError } from './errorCodes';
 import { enqueueActionRetry, planActionFailure } from './actionErrorPolicy';
 import { recordHandledFailure } from './handledFailures';
+import { recordAiMemoryEvent } from '../ai/memory/events';
+import { generateModels } from '../connectionResolver';
 import { finalizeExecAction } from './executionActionMetrics';
 import { resolveAutomationErrorCode } from './errorCodes';
 import {
@@ -48,8 +50,22 @@ export const getTargetType = (
 ) => {
   if (action.targetActionId) {
     const targetAction = actionsMap[action.targetActionId];
-    const [type] = targetAction.type.split('.');
-    return type;
+
+    // A sibling tool branch of an AI agent lies outside a workflow's own map;
+    // its record still comes from memory, typed by the trigger.
+    if (!targetAction) {
+      return getTriggerTargetType(triggerType);
+    }
+
+    // Find object names what it found; a plugin action's type ends in its
+    // method ("plugin:module.collection.create"), which is not a record type.
+    if (targetAction.type === AUTOMATION_CORE_ACTIONS.FIND_OBJECT) {
+      return String(targetAction.config?.objectType || '');
+    }
+
+    const parts = targetAction.type.split('.');
+
+    return parts.length > 2 ? parts.slice(0, -1).join('.') : targetAction.type;
   }
   return getTriggerTargetType(triggerType);
 };
@@ -180,8 +196,9 @@ export const executeActions = async (
   );
 
   try {
-    const { action: runAction, conditionalMatches } =
-      await resolveActionForRun({ subdomain, execution, action });
+    const { action: runAction, conditionalMatches } = await resolveActionForRun(
+      { subdomain, execution, action },
+    );
     execAction.conditionalMatches = conditionalMatches;
 
     if (isCoreAction) {
@@ -250,6 +267,13 @@ export const executeActions = async (
         }
         actionResponse = createActionResponse.actionResponse;
         deferredMarker = createActionResponse.deferred;
+      } else {
+        // Plugins receive every action as "create"; any other method never
+        // reached them and used to pass as an empty success.
+        throw new AutomationActionError(
+          `Unsupported action method "${method}" for ${actionType}`,
+          AUTOMATION_ERROR_CODES.CONFIG_INVALID,
+        );
       }
     }
   } catch (e) {
@@ -303,6 +327,17 @@ export const executeActions = async (
       execAction,
       outcome.status,
     );
+
+    // Memory is a side record: failing to keep it never fails the run.
+    if (outcome.status !== AUTOMATION_ACTION_OUTCOMES.SKIPPED) {
+      await recordAiMemoryEvent({
+        models: await generateModels(subdomain),
+        execution,
+        execAction,
+      }).catch((error) =>
+        console.error('AI memory event was not recorded:', error),
+      );
+    }
   }
 
   return executeActions(

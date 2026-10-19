@@ -1,26 +1,25 @@
+import { IconLabel } from '@tabler/icons-react';
 import {
   cn,
   Combobox,
   Command,
   Filter,
   Form,
-  RecordTableInlineCell,
   Popover,
+  RecordTableInlineCell,
   useFilterContext,
   useQueryState,
 } from 'erxes-ui';
-import { useDebounce } from 'use-debounce';
-import React, { useState, useCallback } from 'react';
-import { IconLabel } from '@tabler/icons-react';
+import React, { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { IPos } from '../../types/pos';
 
-import { PosInline } from '../PosInline';
 import {
   SelectPosContext,
   useSelectPosContext,
 } from '../../context/SelectPosContext';
 import { usePos } from '../../hooks/useSelectPos';
+import { PosInline } from '../PosInline';
 
 export const SelectPosProvider = ({
   children,
@@ -105,17 +104,9 @@ const SelectPosCommandItem = ({ pos }: { pos: IPos }) => {
 
 const SelectPosContent = () => {
   const [search, setSearch] = React.useState('');
-  const [debouncedSearch] = useDebounce(search, 500);
   const { pos: selectedPos } = useSelectPosContext();
 
-  const {
-    posList = [],
-    loading,
-    handleFetchMore,
-    totalCount = 0,
-  } = usePos({
-    variables: { search: debouncedSearch },
-  });
+  const { posList = [], loading, handleFetchMore, totalCount = 0 } = usePos({});
 
   const { t } = useTranslation('sales');
   return (
