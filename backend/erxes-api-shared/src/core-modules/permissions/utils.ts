@@ -36,13 +36,39 @@ export const wrapPermission = (resolver: Resolver, resolverKey: string) => {
 export const extensionPermissionsKey = (subdomain: string) =>
   `extensions:permissions:${subdomain}`;
 
+// An extension may only define and grant its own actions: every module and
+// action name starts with `<plugin>.`, which no core or plugin action does.
+// Anything else is dropped, so a config can never grant e.g. permissionsManage.
+const ownOnly = (config: IPermissionConfig): IPermissionConfig => {
+  const own = (name: string) => name.startsWith(`${config.plugin}.`);
+
+  return {
+    ...config,
+    modules: config.modules
+      .filter((module) => own(module.name))
+      .map((module) => ({
+        ...module,
+        actions: module.actions.filter((action) => own(action.name)),
+      })),
+    defaultGroups: (config.defaultGroups || []).map((group) => ({
+      ...group,
+      permissions: group.permissions
+        .filter((p) => p.plugin === config.plugin && own(p.module))
+        .map((p) => ({
+          ...p,
+          actions: p.actions.filter((a) => a === '*' || own(a)),
+        })),
+    })),
+  };
+};
+
 export const getExtensionPermissionConfigs = async (
   subdomain: string,
 ): Promise<IPermissionConfig[]> => {
   const raw = await redis.get(
     extensionPermissionsKey(extensionTenant(subdomain)),
   );
-  return raw ? (JSON.parse(raw) as IPermissionConfig[]) : [];
+  return raw ? (JSON.parse(raw) as IPermissionConfig[]).map(ownOnly) : [];
 };
 
 type GrantedPermission = {
@@ -62,7 +88,7 @@ const resolveActionNames = async (
   if (!permission.plugin || !permission.module) return [];
 
   const plugin = await getPlugin(permission.plugin);
-  
+
   const modules: IPermissionModule[] =
     plugin?.config?.meta?.permissions?.modules ||
     extensions.find((config) => config.plugin === permission.plugin)?.modules ||
@@ -186,11 +212,7 @@ export const getGroupActionsMap = async (
     );
   }
 
-  await applyPermissions(
-    actionsMap,
-    user.customPermissions || [],
-    extensions,
-  );
+  await applyPermissions(actionsMap, user.customPermissions || [], extensions);
 
   await redis.set(cacheKey, JSON.stringify(actionsMap));
 
