@@ -989,6 +989,14 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
 
 ## Local Invariants
 
+- Relation widgets go through contacts: each lists the records linked to the
+  host itself, then the ones linked to the host's customers and companies
+  (`customerIds` / `companyIds` from `IRelationWidgetProps`, via
+  `useContactRelations`) under `RelationWidgetContactsSection`. New records
+  are linked with `useRelateRecord`, which also links them to those contacts.
+- Conversations belong to a customer by `customerId`, not by relation: the
+  conversation relation widget lists a contact's conversations through
+  `useConversations({ variables: { customerId } })`, one per host customer.
 - Customer media is recognised by its URL (`isUnverifiedAttachment` in
   `ticket/hooks/useUnverifiedAttachments.ts`): uploads here are storage keys
   read through `read-file`; anything else came from a conversation and is

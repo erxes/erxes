@@ -49,7 +49,9 @@
     "organization-settings": "Байгууллагын тохиргоо",
     "app-settings": "Тохиргоо",
     "back-to-app": "{{name}} руу буцах",
-    "plugin-settings-title": "{{name}} тохиргоо"
+    "plugin-settings-title": "{{name}} тохиргоо",
+    "assistant": "Туслах",
+    "back": "Буцах"
   },
   "core-modules": {
     "_": "Үндсэн модулиуд",
@@ -453,7 +455,8 @@
     "no-companies": "Одоогоор харуулах компани алга.",
     "add-company": "Компани нэмэх",
     "no-customers": "Одоогоор харуулах харилцагч алга.",
-    "add-customer": "Харилцагч нэмэх"
+    "add-customer": "Харилцагч нэмэх",
+    "through-contacts": "Харилцагчаар холбогдсон"
   },
   "error-handler": {
     "try-again": "Дахин оролдох"
@@ -501,5 +504,31 @@
     "core-modules": "Үндсэн модулиуд",
     "core-modules-empty": "Танд нээлттэй үндсэн модуль алга. Админаас эрх хүснэ үү.",
     "subtitle": "Өнөөдөр таныг хүлээж буй зүйлс энд байна."
+  },
+  "side-panel": {
+    "title": "Хажуу самбар",
+    "close": "Хаах",
+    "expand": "Бүтэн харах",
+    "more": "+{{count}} бусад",
+    "empty-title": "Нээлттэй зүйл алга",
+    "empty-description": "Бичлэг нээж, түүнтэй холбоотой бүх зүйлийг энд харна уу.",
+    "not-found-title": "Олдсонгүй",
+    "not-found-description": "Энэ холбоос ямар нэг бичлэг рүү заагаагүй байна.",
+    "detail": "Дэлгэрэнгүй",
+    "activity": "Үйл ажиллагаа",
+    "properties": "Шинж чанарууд",
+    "untitled": "Нэргүй",
+    "chat": {
+      "title": "Туслах",
+      "welcome-title": "Юугаар туслах вэ?",
+      "welcome-description": "Харилцагч, хэлцэл, даалгаврынхаа талаар асуугаарай.",
+      "suggestion-summary": "Нээлттэй хэлцлүүдийг минь товчил",
+      "suggestion-leads": "Аль боломжит харилцагчтай дахин холбогдох вэ?",
+      "suggestion-email": "Шинэ харилцагчид мэндчилгээний имэйл бич",
+      "placeholder": "Юу ч асуугаарай…",
+      "send": "Илгээх",
+      "not-connected": "Туслах одоогоор холбогдоогүй байна."
+    },
+    "relations": "Холбоосууд"
   }
 }

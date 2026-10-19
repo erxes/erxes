@@ -1,7 +1,15 @@
 import { AddTriageSheet } from '@/triage/components/add-triage/AddTriageSheet';
 import { IconCaretLeftRight } from '@tabler/icons-react';
-import { ScrollArea, Separator, Spinner } from 'erxes-ui';
-import { useCreateMultipleRelations, useRelations } from 'ui-modules';
+import { Spinner } from 'erxes-ui';
+import {
+  IRelationWidgetProps,
+  RelationWidgetContactsSection,
+  RelationWidgetEmptyState,
+  RelationWidgetList,
+  useContactRelations,
+  useRelateRecord,
+  useRelations,
+} from 'ui-modules';
 import { TaskWidget } from './TaskWidget';
 import { useTranslation } from 'react-i18next';
 
@@ -10,14 +18,11 @@ export const Task = ({
   contentType,
   customerId,
   companyId,
-}: {
-  contentId: string;
-  contentType: string;
-  customerId?: string;
-  companyId?: string;
-}) => {
+  customerIds,
+  companyIds,
+}: Omit<IRelationWidgetProps, 'module' | 'pluginName'>) => {
   const { t } = useTranslation('operation');
-  const { ownEntities, loading: loadingRelations } = useRelations({
+  const { relatedIds, loading: loadingRelations } = useRelations({
     variables: {
       contentId,
       contentType,
@@ -25,66 +30,57 @@ export const Task = ({
     },
   });
 
-  const { createMultipleRelations } = useCreateMultipleRelations();
+  const { relateRecord } = useRelateRecord({
+    contentType,
+    contentId,
+    relatedContentType: 'operation:task',
+    customerId,
+    companyId,
+    customerIds,
+    companyIds,
+  });
 
-  if (loadingRelations) {
+  const contactRecords = useContactRelations({
+    contentType,
+    contentId,
+    relatedContentType: 'operation:task',
+    customerId,
+    companyId,
+    customerIds,
+    companyIds,
+    excludeIds: relatedIds,
+  });
+
+  if (loadingRelations || contactRecords.loading) {
     return <Spinner containerClassName="py-20" />;
   }
 
-  const onComplete = (triageId: string) => {
-    const createRelation = (ct: string, cid: string) => ({
-      entities: [
-        { contentType: ct, contentId: cid },
-        { contentType: 'operation:task', contentId: triageId },
-      ],
-    });
-
-    const relationKeys = new Set<string>();
-
-    const relations = [
-      [contentType, contentId],
-      ...(customerId ? [['core:customer', customerId]] : []),
-      ...(companyId ? [['core:company', companyId]] : []),
-    ]
-      .filter(([ct, cid]) => {
-        const key = `${ct}:${cid}`;
-        if (relationKeys.has(key)) {
-          return false;
-        }
-        relationKeys.add(key);
-        return true;
-      })
-      .map(([ct, cid]) => createRelation(ct, cid));
-
-    createMultipleRelations(relations);
-  };
-
-  if (ownEntities?.length === 0) {
+  if (relatedIds.length === 0 && contactRecords.relatedIds.length === 0) {
     return (
-      <div className="flex flex-auto flex-col gap-4 justify-center items-center text-muted-foreground">
-        <div className="border border-dashed p-6 bg-background rounded-xl">
-          <IconCaretLeftRight />
-        </div>
-        <span className="text-sm">{t('no-triages-to-display')}</span>
-        <AddTriageSheet onComplete={onComplete} />
-      </div>
+      <RelationWidgetEmptyState
+        icon={IconCaretLeftRight}
+        message={t('no-triages-to-display')}
+      >
+        <AddTriageSheet onComplete={relateRecord} />
+      </RelationWidgetEmptyState>
     );
   }
 
   return (
-    <>
-      <div className="h-11 px-4 flex items-center gap-2 flex-none bg-background justify-between">
-        <span className="font-medium text-primary">{t('tasks-and-triages')}</span>
-        <AddTriageSheet onComplete={onComplete} />
-      </div>
-      <Separator />
-      <ScrollArea className="flex-auto">
-        <div className="flex flex-col gap-4 p-4">
-          {ownEntities?.map((entity) => (
-            <TaskWidget key={entity.contentId} taskId={entity.contentId} />
+    <RelationWidgetList
+      label={t('tasks-and-triages')}
+      actions={<AddTriageSheet onComplete={relateRecord} />}
+    >
+      {relatedIds.map((taskId) => (
+        <TaskWidget key={taskId} taskId={taskId} />
+      ))}
+      {contactRecords.relatedIds.length > 0 && (
+        <RelationWidgetContactsSection>
+          {contactRecords.relatedIds.map((taskId) => (
+            <TaskWidget key={taskId} taskId={taskId} />
           ))}
-        </div>
-      </ScrollArea>
-    </>
+        </RelationWidgetContactsSection>
+      )}
+    </RelationWidgetList>
   );
 };

@@ -2,6 +2,7 @@ import { Button, Spinner } from 'erxes-ui';
 import {
   CustomerWidget,
   IRelationWidgetProps,
+  RelationWidgetEmptyState,
   SelectCustomersBulk,
   useManageRelations,
   useRelations,
@@ -17,14 +18,16 @@ export const CustomerWidgets = ({
 }: IRelationWidgetProps) => {
   const { t } = useTranslation('common', { keyPrefix: 'widgets' });
   const { manageRelations } = useManageRelations();
-  const { ownEntities, loading } = useRelations({
+  const { relatedIds, loading } = useRelations({
     variables: {
       contentId,
       contentType,
       relatedContentType: 'core:customer',
     },
-    skip: customerId ? true : false,
+    skip: !!customerId,
   });
+
+  const canWrite = access === 'write';
 
   const handleSelectCustomers = (customerIds: string[]) => {
     manageRelations({
@@ -39,26 +42,23 @@ export const CustomerWidgets = ({
     return <Spinner className="size-4" />;
   }
 
-  const customerIds = customerId
-    ? [customerId]
-    : ownEntities?.map((entity) => entity.contentId);
+  const customerIds = customerId ? [customerId] : relatedIds;
 
-  if (ownEntities?.length === 0 && !customerId) {
+  if (!customerIds.length) {
     return (
-      <div className="flex flex-col flex-auto justify-center items-center gap-4 text-muted-foreground">
-        <div className="bg-background p-6 border border-dashed rounded-xl">
-          <IconUserSearch />
-        </div>
-        <span className="text-sm">{t('no-customers')}</span>
-        <SelectCustomersBulk onSelect={handleSelectCustomers}>
-          {access === 'write' && (
+      <RelationWidgetEmptyState
+        icon={IconUserSearch}
+        message={t('no-customers')}
+      >
+        {canWrite && (
+          <SelectCustomersBulk onSelect={handleSelectCustomers}>
             <Button variant="outline" size="sm">
               <IconPlus className="mr-2 w-4 h-4" />
               {t('add-customer')}
             </Button>
-          )}
-        </SelectCustomersBulk>
-      </div>
+          </SelectCustomersBulk>
+        )}
+      </RelationWidgetEmptyState>
     );
   }
 

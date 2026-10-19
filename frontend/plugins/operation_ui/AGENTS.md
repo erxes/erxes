@@ -6,7 +6,7 @@
 - **Project:** `operation_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/operation_ui`
-- **Last synchronized:** `2026-10-18`
+- **Last synchronized:** `2026-10-19`
 
 ## Scope
 
@@ -32,7 +32,7 @@
 - Runs as the `operation_ui` Module Federation remote on port `3006`.
 - Registers operation navigation for projects, tasks, team, teams settings, and GitHub integration settings.
 - The main menu lists Projects, My Tasks, and each of the current user's teams. The host context column shows only the active team's Triage, Projects, Tasks, and Cycles, with team-settings and copy-link actions, on `operation/team/:teamId/*` routes and stays hidden on every other operation route.
-- Provides relation widgets for tasks and projects, a task status property input, notification widgets, and automation widgets.
+- Provides relation widgets for tasks and projects, a task status property input, notification widgets, and automation widgets. Relation widgets also list tasks and projects linked to the host's customers and companies under a "Through contacts" section.
 - Task activity rows show the accepting member's avatar and name with a triage-acceptance action; the action component supplies only the action text while the shared activity wrapper supplies the actor and timestamp.
 - GitHub-created triages show a link to the originating repository issue above the name, like the task GitHub badge. Their creation timeline and relation widget card use the short "Created from GitHub issue" attribution; manually created triages retain their user attribution.
 - Task, project, and triage activity timelines use action-specific icons; assignee changes and triage acceptance show the actor's avatar and hover label instead. The sentence names each entry's creator, while assignee changes show the new assignee only in the change detail.
@@ -128,6 +128,12 @@
 - `ActivityIcon` is rendered inside `ActivityActor.Provider`. Assignee-change and triage-acceptance avatars, their hover labels, and every actor name resolve from `activity.createdBy`; never use `metadata.newValue` for the actor. Other modules retain action-specific icons, and changed field values belong in the entry body.
 - Module Federation exposes, route paths, widget names, and named exports must stay aligned.
 - Use `erxes-ui` and `ui-modules`; do not import another plugin's source.
+- Relation widgets go through contacts: each lists the records linked to the
+  host itself, then the ones linked to the host's customers and companies
+  (`customerIds` / `companyIds` from `IRelationWidgetProps`, via
+  `useContactRelations`) under `RelationWidgetContactsSection`. New records
+  are linked with `useRelateRecord`, which also links them to those contacts.
+- `TaskSideWidgets` renders the shared `RelationWidgetSideTabs` (operation's own widgets hidden) with Properties as an `extraTabs` entry; do not re-implement the side tabs.
 - Keep custom properties as a local panel in the existing task/project right-side `SideMenu`, separate from cross-record relation widget registration; do not duplicate the form in the main detail body.
 - The property side panel uses `SideMenu.Header` with a standard-size secondary Manage action to `/settings/properties/<contentType>` and a `p-4` scroll-content inset like neighboring right-rail widgets, while suppressing the shared form's redundant InfoCard shell; its scroll viewport wrapper must remain block-sized to the rail width so fields do not erase the right inset, and it fills the remaining rail height to center the empty state.
 - Task and triage detail editors use generated `ITaskDetail` and `ITriageDetail` types; `useDescriptionEditor` accepts nullable API descriptions and loads Markdown before exposing the editor. Description change state uses the public `IBlockEditor['document']` type.

@@ -158,6 +158,9 @@ export type IUIConfig = {
       name: string;
       icon?: React.ElementType;
       label?: string;
+      // Host record types the widget shows on, e.g. `core:customer`;
+      // every host when omitted.
+      contentTypes?: string[];
     }[];
     // Sections a plugin adds to another plugin's settings page, e.g. what a
     // POS or a pipeline sends to loyalty.

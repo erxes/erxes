@@ -132,8 +132,55 @@ export const loadRelationClass = (
   const entitiesOf = (relations: { entities?: IRelation['entities'] }[]) =>
     relations.flatMap((relation) => relation.entities || []);
 
+  const pairKey = (entities: IRelation['entities'] = []) =>
+    entities
+      .map(({ contentType, contentId }) => `${contentType}:${contentId}`)
+      .sort()
+      .join('|');
+
+  const pairQuery = (entities: IRelation['entities'] = []) => ({
+    $and: entities.map(({ contentType, contentId }) => ({
+      entities: { $elemMatch: { contentType, contentId } },
+    })),
+  });
+
+  // Drops relations already stored, or repeated in the same batch, so linking
+  // the same two records twice never leaves duplicate documents behind.
+  const withoutExisting = async (relations: IRelation[]) => {
+    const unique = lodash.uniqBy(relations, (relation) =>
+      pairKey(relation.entities),
+    );
+
+    // Malformed input is left for schema validation to reject.
+    const comparable = unique.filter(({ entities }) => entities?.length);
+
+    if (!comparable.length) {
+      return unique;
+    }
+
+    const existing = await models.Relations.find({
+      $or: comparable.map(({ entities }) => pairQuery(entities)),
+    }).lean();
+
+    const existingKeys = new Set(
+      existing.map((relation) => pairKey(relation.entities)),
+    );
+
+    return unique.filter(
+      (relation) => !existingKeys.has(pairKey(relation.entities)),
+    );
+  };
+
   class Relation {
     public static async createRelation({ relation }: { relation: IRelation }) {
+      const existing =
+        relation.entities?.length &&
+        (await models.Relations.findOne(pairQuery(relation.entities)));
+
+      if (existing) {
+        return existing;
+      }
+
       const created = await models.Relations.create(relation);
       const { subdomain, userId } = getContext();
 
@@ -155,18 +202,24 @@ export const loadRelationClass = (
     }: {
       relations: IRelation[];
     }) {
-      const created = await models.Relations.insertMany(relations);
+      const toCreate = await withoutExisting(relations);
+
+      if (!toCreate.length) {
+        return [];
+      }
+
+      const created = await models.Relations.insertMany(toCreate);
       const { subdomain, userId } = getContext();
 
       await generateRelationActivityLogs({
         subdomain,
         userId,
         createActivityLog,
-        added: toEntityPairs(relations),
+        added: toEntityPairs(toCreate),
         removed: [],
       });
 
-      await recheckEntities(entitiesOf(relations));
+      await recheckEntities(entitiesOf(toCreate));
 
       return created;
     }
@@ -292,7 +345,7 @@ export const loadRelationClass = (
             },
           },
         ],
-      });
+      }).sort({ createdAt: -1 });
       return relations;
     }
 

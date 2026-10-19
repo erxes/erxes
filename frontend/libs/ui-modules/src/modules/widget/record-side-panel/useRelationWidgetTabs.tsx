@@ -1,0 +1,86 @@
+import { useMemo } from 'react';
+import { StaticSideMenuTab } from '../components/RelationWidgetSideTabs';
+import { useRelatedContacts } from '../hooks/useRelatedContacts';
+import { getRelationWidgetLabel, resolveAccess } from '../utils';
+import {
+  useRelationWidget,
+  WidgetAccessProp,
+} from '../widget-provider/context/widgetContext';
+import { IRecordSidePanelTab } from './RecordSidePanel';
+
+// A relation widget as a tab, with the plugin it comes from ('core' for
+// core modules) so a host can group them.
+export type IRelationWidgetTab = IRecordSidePanelTab & { pluginName: string };
+
+/**
+ * Every enabled plugin's relation widget for a record, as side panel tabs.
+ * Each widget gets the record's contacts, so it also lists what reaches the
+ * record through its customers and companies.
+ */
+export const useRelationWidgetTabs = ({
+  contentType,
+  contentId,
+  customerId,
+  companyId,
+  access = 'write',
+  hiddenPlugins,
+  hiddenModules,
+}: {
+  contentType: string;
+  contentId: string;
+  customerId?: string;
+  companyId?: string;
+  access?: WidgetAccessProp;
+  hiddenPlugins?: string[];
+  hiddenModules?: string[];
+}): IRelationWidgetTab[] => {
+  const { RelationWidget, relationWidgetsModules } = useRelationWidget({
+    contentType,
+    hiddenPlugins,
+    hiddenModules,
+  });
+  const { customerIds, companyIds } = useRelatedContacts({
+    contentType,
+    contentId,
+    customerId,
+    companyId,
+  });
+
+  return useMemo(
+    () =>
+      relationWidgetsModules.map((module) => ({
+        value: `${module.pluginName}.${module.name}`,
+        pluginName: module.pluginName,
+        label: getRelationWidgetLabel(module),
+        icon: module.icon,
+        content: (
+          <StaticSideMenuTab value={module.name}>
+            <div className="flex flex-col flex-1 min-h-0 bg-sidebar">
+              <RelationWidget
+                module={module.name}
+                pluginName={module.pluginName}
+                contentId={contentId}
+                contentType={contentType}
+                customerId={customerId}
+                companyId={companyId}
+                customerIds={customerIds}
+                companyIds={companyIds}
+                access={resolveAccess(access, module.name)}
+              />
+            </div>
+          </StaticSideMenuTab>
+        ),
+      })),
+    [
+      relationWidgetsModules,
+      RelationWidget,
+      contentId,
+      contentType,
+      customerId,
+      companyId,
+      customerIds,
+      companyIds,
+      access,
+    ],
+  );
+};

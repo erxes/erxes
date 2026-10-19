@@ -4,6 +4,7 @@ import { CoreAppOutlet } from '@/app/components/CoreAppOutlet';
 import { CoreTab } from '@/navigation/components/core-tab/CoreTab';
 import { FloatingWidgets } from '@/widgets/components/FloatingWidgets';
 import { GlobalSearch } from '@/search/components/GlobalSearch';
+import { SidePanelLayout } from '@/side-panel/components/SidePanelLayout';
 import {
   getAppKey,
   PAGE_ENTER_KEYFRAMES,
@@ -38,16 +39,20 @@ export const DefaultLayout = () => {
   }
 
   // Core draws no sidebar; the provider only backs Sidebar.* parts used on
-  // pages without an AppLayout (apps nest their own provider).
+  // pages without an AppLayout (apps nest their own provider). The side
+  // panel runs the full window height, beside the top bar too.
   return (
     <Sidebar.Provider
-      className="h-svh w-screen flex-col overflow-hidden"
+      className="h-svh w-screen overflow-hidden"
       sidebarKeyboardShortcut={false}
     >
       <GlobalSearch />
       <WelcomeNotificationEffect />
-      <CoreTab />
-      <AppWorkspace />
+      <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
+        <CoreTab />
+        <AppWorkspace />
+      </div>
+      <SidePanelLayout />
     </Sidebar.Provider>
   );
 };

@@ -240,6 +240,11 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
 
 ## Local Invariants
 
+- Relation widgets go through contacts: each lists the records linked to the
+  host itself, then the ones linked to the host's customers and companies
+  (`customerIds` / `companyIds` from `IRelationWidgetProps`, via
+  `useContactRelations`) under `RelationWidgetContactsSection`. New records
+  are linked with `useRelateRecord`, which also links them to those contacts.
 - The plugin owns its whole app sidebar. `src/modules/Main.tsx` (the `./sales`
   expose) wraps its routes in `erxes-ui` `AppLayout` (`id="sales"`) with
   `SalesSidebar`. Core-ui draws only the top `CoreTab` bar; `navigationGroup` in

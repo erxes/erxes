@@ -2,13 +2,17 @@ import { useConversationDetail } from '@/inbox/conversations/conversation-detail
 import { AddTicketSheet } from '@/ticket/components/add-ticket/AddTicketSheet';
 import { ticketCreateDefaultValuesState } from '@/ticket/states/ticketCreateSheetState';
 import { IconTicketOff } from '@tabler/icons-react';
-import { ScrollArea, Separator, useQueryState } from 'erxes-ui';
+import { Spinner, useQueryState } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   IRelationWidgetProps,
-  useCreateMultipleRelations,
+  RelationWidgetContactsSection,
+  RelationWidgetEmptyState,
+  RelationWidgetList,
+  useContactRelations,
+  useRelateRecord,
   useRelations,
 } from 'ui-modules';
 import { TicketWidget } from './TicketWidget';
@@ -18,9 +22,11 @@ export const TicketRelationWidget = ({
   contentType,
   customerId,
   companyId,
+  customerIds,
+  companyIds,
 }: IRelationWidgetProps) => {
   const { t } = useTranslation('frontline');
-  const { ownEntities } = useRelations({
+  const { relatedIds, loading } = useRelations({
     variables: {
       contentId,
       contentType,
@@ -28,35 +34,26 @@ export const TicketRelationWidget = ({
     },
   });
 
-  const { createMultipleRelations } = useCreateMultipleRelations();
+  const { relateRecord } = useRelateRecord({
+    contentType,
+    contentId,
+    relatedContentType: 'frontline:ticket',
+    customerId,
+    companyId,
+    customerIds,
+    companyIds,
+  });
 
-  const onComplete = (ticketId: string) => {
-    const createRelation = (ct: string, cid: string) => ({
-      entities: [
-        { contentType: ct, contentId: cid },
-        { contentType: 'frontline:ticket', contentId: ticketId },
-      ],
-    });
-
-    const relationKeys = new Set<string>();
-
-    const relations = [
-      [contentType, contentId],
-      ...(customerId ? [['core:customer', customerId]] : []),
-      ...(companyId ? [['core:company', companyId]] : []),
-    ]
-      .filter(([ct, cid]) => {
-        const key = `${ct}:${cid}`;
-        if (relationKeys.has(key)) {
-          return false;
-        }
-        relationKeys.add(key);
-        return true;
-      })
-      .map(([ct, cid]) => createRelation(ct, cid));
-
-    createMultipleRelations(relations);
-  };
+  const contactRecords = useContactRelations({
+    contentType,
+    contentId,
+    relatedContentType: 'frontline:ticket',
+    customerId,
+    companyId,
+    customerIds,
+    companyIds,
+    excludeIds: relatedIds,
+  });
 
   const setTicketCreateDefaultValues = useSetAtom(
     ticketCreateDefaultValuesState,
@@ -78,44 +75,49 @@ export const TicketRelationWidget = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [conversationDetail]);
 
-  if (ownEntities?.length === 0) {
+  if (loading || contactRecords.loading) {
+    return <Spinner containerClassName="py-20" />;
+  }
+
+  if (relatedIds.length === 0 && contactRecords.relatedIds.length === 0) {
     return (
-      <div className="flex flex-auto flex-col gap-4 justify-center items-center text-muted-foreground">
-        <div className="border border-dashed p-6 bg-background rounded-xl">
-          <IconTicketOff />
-        </div>
-        <span className="text-sm">
-          {t('no-tickets-to-display', 'No tickets to display at the moment.')}
-        </span>
+      <RelationWidgetEmptyState
+        icon={IconTicketOff}
+        message={t(
+          'no-tickets-to-display',
+          'No tickets to display at the moment.',
+        )}
+      >
         <AddTicketSheet
-          onComplete={onComplete}
+          onComplete={relateRecord}
           variant="secondary"
           isRelation={true}
         />
-      </div>
+      </RelationWidgetEmptyState>
     );
   }
 
   return (
-    <>
-      <div className="h-11 px-4 flex items-center gap-2 flex-none bg-background justify-between">
-        <span className="font-medium text-primary">
-          {t('tickets', 'Tickets')}
-        </span>
+    <RelationWidgetList
+      label={t('tickets', 'Tickets')}
+      actions={
         <AddTicketSheet
-          onComplete={onComplete}
+          onComplete={relateRecord}
           variant="secondary"
           isRelation={true}
         />
-      </div>
-      <Separator />
-      <ScrollArea className="flex-auto">
-        <div className="flex flex-col gap-4 p-4">
-          {ownEntities?.map((entity) => (
-            <TicketWidget key={entity.contentId} ticketId={entity.contentId} />
+      }
+    >
+      {relatedIds.map((ticketId) => (
+        <TicketWidget key={ticketId} ticketId={ticketId} />
+      ))}
+      {contactRecords.relatedIds.length > 0 && (
+        <RelationWidgetContactsSection>
+          {contactRecords.relatedIds.map((ticketId) => (
+            <TicketWidget key={ticketId} ticketId={ticketId} />
           ))}
-        </div>
-      </ScrollArea>
-    </>
+        </RelationWidgetContactsSection>
+      )}
+    </RelationWidgetList>
   );
 };

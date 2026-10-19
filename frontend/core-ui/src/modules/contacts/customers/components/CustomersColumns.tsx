@@ -21,7 +21,6 @@ import {
   SexDisplay,
   SexField,
   readImage,
-  useQueryState,
   PopoverScoped,
   FullNameValue,
   ValidationStatus,
@@ -35,9 +34,8 @@ import {
   ICustomer,
   TagsSelect,
   useCustomerEdit,
+  useSidePanel,
 } from 'ui-modules';
-import { useSetAtom } from 'jotai';
-import { renderingCustomerDetailAtom } from '@/contacts/states/customerDetailStates';
 import clsx from 'clsx';
 import { TFunction } from 'i18next';
 import { customerMoreColumn } from './CustomerMoreColumn';
@@ -100,10 +98,7 @@ export const createCustomersColumns = (
       />
     ),
     cell: ({ cell }) => {
-      const [, setDetailOpen] = useQueryState('contactId');
-      const setRenderingCustomerDetail = useSetAtom(
-        renderingCustomerDetailAtom,
-      );
+      const { openRecord } = useSidePanel();
 
       const {
         firstName = '',
@@ -123,10 +118,9 @@ export const createCustomersColumns = (
         >
           <RecordTableInlineCell.Trigger>
             <RecordTableInlineCell.Anchor
-              onClick={() => {
-                setDetailOpen(_id);
-                setRenderingCustomerDetail(false);
-              }}
+              onClick={() =>
+                openRecord({ contentType: 'core:customer', contentId: _id })
+              }
             >
               <FullNameValue />
             </RecordTableInlineCell.Anchor>

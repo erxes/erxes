@@ -2,7 +2,9 @@ import { Button, Spinner } from 'erxes-ui';
 import {
   CompanyWidget,
   IRelationWidgetProps,
+  RelationWidgetEmptyState,
   SelectCompaniesBulk,
+  useContactRelations,
   useManageRelations,
   useRelations,
 } from 'ui-modules';
@@ -13,17 +15,30 @@ export const CompanyWidgets = ({
   contentId,
   contentType,
   companyId,
+  customerIds,
+  access,
 }: IRelationWidgetProps) => {
   const { t } = useTranslation('common', { keyPrefix: 'widgets' });
   const { manageRelations } = useManageRelations();
-  const { ownEntities, loading } = useRelations({
+  const { relatedIds, loading } = useRelations({
     variables: {
       contentId,
       contentType,
       relatedContentType: 'core:company',
     },
-    skip: companyId ? true : false,
+    skip: !!companyId,
   });
+
+  // A company is reached through a customer, never through another company.
+  const contactCompanies = useContactRelations({
+    contentType,
+    contentId,
+    relatedContentType: 'core:company',
+    customerIds,
+    excludeIds: companyId ? [companyId] : relatedIds,
+  });
+
+  const canWrite = access === 'write';
 
   const handleSelectCompanies = (companyIds: string[]) => {
     manageRelations({
@@ -34,36 +49,36 @@ export const CompanyWidgets = ({
     });
   };
 
-  if (loading) {
+  if (loading || contactCompanies.loading) {
     return <Spinner className="size-4" />;
   }
 
-  const companyIds = companyId
-    ? [companyId]
-    : ownEntities?.map((entity) => entity.contentId);
+  const companyIds = companyId ? [companyId] : relatedIds;
 
-  if (ownEntities?.length === 0) {
+  if (!companyIds.length && !contactCompanies.relatedIds.length) {
     return (
-      <div className="flex flex-auto flex-col gap-4 justify-center items-center text-muted-foreground">
-        <div className="border border-dashed p-6 bg-background rounded-xl">
-          <IconBuildingSkyscraper />
-        </div>
-        <span className="text-sm">{t('no-companies')}</span>
-        <SelectCompaniesBulk onSelect={handleSelectCompanies}>
-          <Button variant="outline" size="sm">
-            <IconPlus className="mr-2 h-4 w-4" />
-            {t('add-company')}
-          </Button>
-        </SelectCompaniesBulk>
-      </div>
+      <RelationWidgetEmptyState
+        icon={IconBuildingSkyscraper}
+        message={t('no-companies')}
+      >
+        {canWrite && (
+          <SelectCompaniesBulk onSelect={handleSelectCompanies}>
+            <Button variant="outline" size="sm">
+              <IconPlus className="mr-2 h-4 w-4" />
+              {t('add-company')}
+            </Button>
+          </SelectCompaniesBulk>
+        )}
+      </RelationWidgetEmptyState>
     );
   }
 
   return (
     <CompanyWidget
       companyIds={companyIds}
+      contactCompanyIds={contactCompanies.relatedIds}
       scope=" "
-      onManageCompanies={handleSelectCompanies}
+      onManageCompanies={canWrite ? handleSelectCompanies : undefined}
     />
   );
 };

@@ -49,7 +49,9 @@
     "organization-settings": "Organization settings",
     "app-settings": "Settings",
     "back-to-app": "Back to {{name}}",
-    "plugin-settings-title": "{{name}} settings"
+    "plugin-settings-title": "{{name}} settings",
+    "assistant": "Assistant",
+    "back": "Back"
   },
   "core-modules": {
     "_": "Core modules",
@@ -452,7 +454,8 @@
     "no-companies": "No companies to display at the moment.",
     "add-company": "Add Company",
     "no-customers": "No customers to display at the moment.",
-    "add-customer": "Add Customer"
+    "add-customer": "Add Customer",
+    "through-contacts": "Through contacts"
   },
   "error-handler": {
     "try-again": "Try Again"
@@ -500,5 +503,31 @@
     "core-modules": "Core modules",
     "core-modules-empty": "You don't have access to any core modules yet. Ask an admin to give you access.",
     "subtitle": "Here's what's waiting for you today."
+  },
+  "side-panel": {
+    "title": "Side panel",
+    "close": "Close",
+    "expand": "Open full view",
+    "more": "+{{count}} More",
+    "empty-title": "Nothing open",
+    "empty-description": "Open a record to see it and everything related to it here.",
+    "not-found-title": "Nothing here",
+    "not-found-description": "This panel link does not point to a record.",
+    "detail": "Detail",
+    "activity": "Activity",
+    "properties": "Properties",
+    "untitled": "Untitled",
+    "chat": {
+      "title": "Assistant",
+      "welcome-title": "How can I help?",
+      "welcome-description": "Ask about your customers, deals and tasks.",
+      "suggestion-summary": "Summarize my open deals",
+      "suggestion-leads": "Which leads need a follow-up?",
+      "suggestion-email": "Draft a welcome email for a new customer",
+      "placeholder": "Ask anything…",
+      "send": "Send",
+      "not-connected": "The assistant is not connected yet."
+    },
+    "relations": "Relations"
   }
 }
