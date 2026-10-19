@@ -178,7 +178,11 @@ export const parseDbOp = ({ op, args }: { op: DbOpName; args: unknown[] }) => {
       // Mongo inserts the filter's equality fields too. Each one being a field
       // of `set` means the inserted document is `set`, which the worker
       // validated as a whole.
-      const unset = Object.keys(query).filter((key) => !(key in set));
+      // Own keys only: `in` would also accept `constructor` or `toString`.
+      // (Object.hasOwn is ES2022; this project's lib stops at ES2021.)
+      const unset = Object.keys(query).filter(
+        (key) => !Object.prototype.hasOwnProperty.call(set, key),
+      );
 
       if (upsert && unset.length > 0) {
         throw new ApiError(
