@@ -12,7 +12,7 @@
 
 ### Owns
 
-- Tourism frontend routes, navigation, PMS and TMS modules, main tourism route composition, pages, widgets, assets, hooks, utilities, and search providers.
+- Tourism frontend routes, navigation, PMS and TMS modules, main tourism route composition, pages, assets, hooks, utilities, and search providers.
 
 ### Does not own
 
@@ -22,7 +22,7 @@
 
 - Runs as the `tourism_ui` Module Federation remote on port `3011`.
 - Registers tourism navigation for PMS and TMS.
-- Exposes PMS, PMS settings, TMS, TMS settings, tourism main routes, and plugin config through Module Federation.
+- Exposes PMS, TMS, tourism main routes, and plugin config through Module Federation.
 - Development Rspack serving ignores generated dependency/cache/output folders to keep local file watchers bounded.
 
 ## Architecture
@@ -31,14 +31,13 @@
 | ----------------- | --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
 | App sidebar       | `frontend/plugins/tourism_ui/src/Sidebar.tsx`             | `TourismSidebar`: the plugin's whole app sidebar, rendered by the `./tourism` entry through `AppLayout` |
 | Runtime           | `frontend/plugins/tourism_ui/src/main.ts`                 | Starts the tourism UI remote.                                                                           |
-| Federation config | `frontend/plugins/tourism_ui/module-federation.config.ts` | Exposes config, PMS, TMS, settings, and tourism route entries.                                          |
+| Federation config | `frontend/plugins/tourism_ui/module-federation.config.ts` | Exposes config, PMS, TMS, and tourism route entries.                                                    |
 | Dev server config | `frontend/plugins/tourism_ui/rspack.config.ts`            | Module Federation development serving and watch ignore rules.                                           |
 | Plugin config     | `frontend/plugins/tourism_ui/src/config.tsx`              | Registers navigation, modules, and search providers.                                                    |
 | PMS module        | `frontend/plugins/tourism_ui/src/modules/pms`             | Owns PMS route composition and UI.                                                                      |
 | TMS module        | `frontend/plugins/tourism_ui/src/modules/tms`             | Owns TMS route composition and UI.                                                                      |
 | Main module       | `frontend/plugins/tourism_ui/src/modules/main`            | Owns shared tourism route composition.                                                                  |
 | Pages             | `frontend/plugins/tourism_ui/src/pages`                   | Provides route-level PMS and TMS pages.                                                                 |
-| Widgets           | `frontend/plugins/tourism_ui/src/widgets`                 | Provides plugin widget exports.                                                                         |
 | Codegen           | `frontend/plugins/tourism_ui/codegen.ts`                  | Validates documents and generates the gitignored `src/gql` types.                                       |
 | Platform SDL      | `frontend/plugins/tourism_ui/schema/platform.graphql`     | Snapshot of the core-api, payment_api and loyalty_api fields tourism documents select.                  |
 
@@ -51,7 +50,9 @@
 
 ### Consumes
 
-- Public UI APIs from `erxes-ui` and `ui-modules`.
+- Public UI APIs from `erxes-ui` and `ui-modules`, plus one non-public hook:
+  PMS `SelectProducts` imports `useProducts` from
+  `ui-modules/modules/products/hooks/useProducts`.
 - Tourism plugin GraphQL APIs through Apollo Client, typed from the
   `tourism_api` printed SDL (`backend/plugins/tourism_api/generated/schema.graphql`).
 - Core-api `productCategories` and `User.details`, payment_api `payments`, and
@@ -86,6 +87,9 @@
   invisible to it. Share fields through a local `gql` fragment spread by name.
 - Operation names must be unique; codegen rejects a name used by two documents
   with different bodies.
+- `tsconfig.json` maps `ui-modules/*` as well as `ui-modules`. The `useProducts`
+  import above and `ui-modules`' own deep self-imports need it, or the type
+  check reports hundreds of shared-library errors.
 - `src/gql/` is generated and gitignored. `pnpm nx build`, `pnpm nx serve` and
   `pnpm dev:uis` regenerate it; calling Rspack directly skips codegen and leaves
   it stale.
@@ -95,4 +99,7 @@
 - `pnpm nx lint tourism_ui`
 - `pnpm nx run tourism_ui:codegen --skip-nx-cache`
 - `pnpm nx build tourism_ui`
-- Smoke scenario: open tourism PMS, TMS, PMS settings, and TMS settings routes through the remote.
+- `npx tsc -p frontend/plugins/tourism_ui/tsconfig.app.json --noEmit | rg tourism_ui`
+  prints nothing.
+- Smoke scenario: open `tourism/tms`, a TMS branch at
+  `tourism/tms/branches/:branchId`, and `tourism/pms` through the remote.
