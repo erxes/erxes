@@ -46,6 +46,7 @@
 - Insurance-type create/update operations accept optional `isCitizen`; `addProductToVendor` accepts optional `discountTiers` alongside its JSON pricing override. Frontend input types must retain these arguments.
 - Existing JSON fields for product `pricingConfig`, vendor-product `pricingOverride`, and contract `insuredObject`.
 - Vendor rename, add-product, and remove-product mutation responses populate each offered product's insurance type, risks, and regions, matching the read queries. Selecting region details must not make a completed write return a GraphQL null-field error.
+- `insuranceCustomer(id: ID!)` resolves through the request's tenant-scoped Customer model and returns null when the ID has no matching record. Root resolver keys must match the declared SDL fields; `customer` is not an Insurance root query.
 - Nx target `schema:print`, consumed by `insurance_ui:codegen`; `generated/` is ignored and regenerated rather than committed.
 
 ### Consumes
@@ -69,7 +70,7 @@
 
 - `pnpm nx lint insurance_api`
 - `pnpm nx build insurance_api`
-- `pnpm nx test insurance_api` (GraphQL vendor-response regression tests use real Mongoose population with the Mongo driver boundary mocked).
+- `pnpm nx test insurance_api` (root SDL/resolver parity, customer lookup, and vendor-response regressions; GraphQL execution and Mongoose hydration/population use mocked Mongo driver boundaries).
 - `pnpm nx run insurance_api:schema:print --skip-nx-cache`
 - `pnpm exec tsc -p backend/plugins/insurance_api/tsconfig.json --noEmit`
 - Smoke scenario: load insurance configuration and contracts through the local gateway; verify changes refetch in the UI and contract previews still render.
