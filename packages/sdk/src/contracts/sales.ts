@@ -7,14 +7,15 @@ import { defineContract } from './define';
 // changing what a field means) ships as sales@2 instead, and v1 stays served
 // while any install pins it.
 
-export const Priority = z.enum(['Critical', 'High', 'Normal', 'Low']);
-
 // z.object strips fields it doesn't declare, so a call returns only these.
 export const DealSummary = z.object({
   _id: z.string(),
   name: z.string().nullable(),
   stageId: z.string(),
-  priority: Priority.nullable(),
+  // Free-form in sales. Newer deals hold the priority picker's index, "0" to
+  // "4" (No Priority, Minor, Medium, High, Critical); older or API-written
+  // deals may hold a label such as "High" or "Normal".
+  priority: z.string().nullable(),
   description: z.string().nullable(),
   assignedUserIds: z.array(z.string()),
 });
@@ -30,7 +31,7 @@ export const salesContract = defineContract('sales', 1, [
   {
     name: 'deals.get',
     description:
-      'Read one deal by its _id, as the calling user sees it in sales. Returns null when no deal has that _id. Read-only.',
+      'Read one deal by its _id, as the calling user sees it in sales. Returns null when no deal has that _id. priority is a string: "0" to "4" for deals set with the priority picker (No Priority, Minor, Medium, High, Critical), or a label such as "High" on older deals. Read-only.',
     kind: 'read',
     input: z.object({ _id: z.string().min(1) }).strict(),
     output: DealSummary.nullable(),
