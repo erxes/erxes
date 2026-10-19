@@ -1,24 +1,19 @@
 import { QueryHookOptions, useQuery } from '@apollo/client';
 import { useMultiQueryState } from 'erxes-ui';
 import { GET_CATEGORIES } from '../graphql/queries';
-import { ICategory } from '../types/category';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useSetAtom } from 'jotai';
 import { categoryTotalCountAtom } from '../states/categoryCounts';
-
-type CategoriesQueryVariables = {
-  parentId?: string;
-  name?: string;
-  branchId?: string;
-  language?: string;
-};
+import type {
+  BmsTourCategoriesQuery,
+  BmsTourCategoriesQueryVariables,
+} from '~/gql/graphql';
+import { compactList } from '~/utils/cursorList';
 
 export const useCategories = (
   options?: QueryHookOptions<
-    {
-      bmsTourCategories: ICategory[];
-    },
-    CategoriesQueryVariables
+    BmsTourCategoriesQuery,
+    BmsTourCategoriesQueryVariables
   >,
 ) => {
   const [{ searchValue }] = useMultiQueryState<{ searchValue: string }>([
@@ -40,7 +35,10 @@ export const useCategories = (
     fetchPolicy: 'cache-and-network',
   });
 
-  const categories = data?.bmsTourCategories || [];
+  const categories = useMemo(
+    () => compactList(data?.bmsTourCategories),
+    [data?.bmsTourCategories],
+  );
 
   const setTotalCount = useSetAtom(categoryTotalCountAtom);
 

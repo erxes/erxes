@@ -16,7 +16,7 @@ export const buildTranslationsFromCategory = (
 ): CategoryCreateFormType['translations'] =>
   translationLanguages.map((lang) => {
     const existing = (category.translations || []).find(
-      (t) => t.language === lang,
+      (t) => t?.language === lang,
     );
     return {
       language: lang,
@@ -54,7 +54,7 @@ export const resolveMainLanguageName = (
   if (!effectiveLang) return category.name || '';
 
   const mainTranslation = category.translations?.find(
-    (t) => t.language === effectiveLang,
+    (t) => t?.language === effectiveLang,
   );
 
   return mainTranslation?.name || category.name || '';

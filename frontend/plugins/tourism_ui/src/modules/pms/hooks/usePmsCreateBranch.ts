@@ -1,16 +1,15 @@
-import { useMutation } from '@apollo/client';
+import { ApolloError, useMutation } from '@apollo/client';
 import { pmsMutations } from '@/pms/graphql/mutation';
 import { pmsQueries } from '@/pms/graphql/queries';
 import {
-  IPmsBranch,
   IPmsPaymentType,
   IPmsPipelineConfig,
   IPmsUiOptions,
 } from '@/pms/types/branch';
-
-interface PmsCreateBranchResponse {
-  pmsBranchAdd: IPmsBranch;
-}
+import type {
+  PmsBranchAddMutation,
+  PmsBranchAddMutationVariables,
+} from '~/gql/graphql';
 
 export interface PmsCreateBranchVariables {
   name: string;
@@ -26,7 +25,7 @@ export interface PmsCreateBranchVariables {
   paymentIds?: string[];
   paymentTypes?: IPmsPaymentType[];
   uiOptions?: IPmsUiOptions;
-  permissionConfig?: any;
+  permissionConfig?: unknown;
   pipelineConfig?: IPmsPipelineConfig;
   extraProductCategories?: string[];
   excludeExtraProductCategoryIds?: string[];
@@ -56,26 +55,26 @@ export const usePmsCreateBranch = ({
   page = 1,
   perPage = 50,
 }: UsePmsCreateBranchParams = {}) => {
-  const [createPmsBranchMutation, { loading, error }] = useMutation<
-    PmsCreateBranchResponse,
-    PmsCreateBranchVariables
-  >(pmsMutations.pmsBranchAdd, {
-    refetchQueries: [
-      {
-        query: pmsQueries.PmsBranchList,
-        variables: {
-          page,
-          perPage,
+  const [createPmsBranchMutation, { loading, error }] = useMutation(
+    pmsMutations.pmsBranchAdd,
+    {
+      refetchQueries: [
+        {
+          query: pmsQueries.PmsBranchList,
+          variables: {
+            page,
+            perPage,
+          },
         },
-      },
-    ],
-    awaitRefetchQueries: true,
-  });
+      ],
+      awaitRefetchQueries: true,
+    },
+  );
 
   const createPmsBranch = (options: {
-    variables: PmsCreateBranchVariables;
-    onCompleted?: (data: PmsCreateBranchResponse) => void;
-    onError?: (error: any) => void;
+    variables: PmsBranchAddMutationVariables;
+    onCompleted?: (data: PmsBranchAddMutation) => void;
+    onError?: (error: ApolloError) => void;
   }) => {
     return createPmsBranchMutation(options);
   };

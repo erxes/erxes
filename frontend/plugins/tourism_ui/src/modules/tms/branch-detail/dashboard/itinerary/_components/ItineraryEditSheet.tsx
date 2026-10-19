@@ -39,6 +39,8 @@ import {
   sanitizeTranslations,
   resolveMainLanguageName,
 } from '../utils/translationHelpers';
+import { toPersonCost } from '../utils/personCost';
+import { compactList } from '~/utils/cursorList';
 import { ItineraryBuilder } from '../itinerary-builder';
 import { useElements } from '../../elements/hooks/useElements';
 import { useAmenities } from '../../amenities/hooks/useAmenities';
@@ -153,31 +155,35 @@ export const ItineraryEditSheet = ({
 
   useEffect(() => {
     if (itinerary && open) {
-      const transformedGroupDays = (itinerary.groupDays || []).map((day) => ({
-        day: day.day,
-        title: day.title || '',
-        description: day.content || '',
-        elements: (day.elements || []).map((el) => el.elementId || ''),
-        amenities: (day.elementsQuick || []).map((el) => el.elementId || ''),
-        images: day.images || [],
-      }));
+      const transformedGroupDays = compactList(itinerary.groupDays).map(
+        (day) => ({
+          day: day.day ?? undefined,
+          title: day.title || '',
+          description: day.content || '',
+          elements: compactList(day.elements).map((el) => el.elementId || ''),
+          amenities: compactList(day.elementsQuick).map(
+            (el) => el.elementId || '',
+          ),
+          images: compactList(day.images),
+        }),
+      );
 
       form.reset({
-        name: resolveMainLanguageName(itinerary as any, mainLanguage),
+        name: resolveMainLanguageName(itinerary, mainLanguage),
         color: itinerary.color || '#4F46E5',
         content: itinerary.content || '',
         duration: itinerary.duration || 1,
-        images: itinerary.images || [],
+        images: compactList(itinerary.images),
         totalCost: itinerary.totalCost || 0,
         groupDays: transformedGroupDays,
         guideCost: itinerary.guideCost || 0,
         driverCost: itinerary.driverCost || 0,
         foodCost: itinerary.foodCost || 0,
         gasCost: itinerary.gasCost || 0,
-        personCost: itinerary.personCost || {},
+        personCost: toPersonCost(itinerary.personCost),
         guideCostExtra: itinerary.guideCostExtra || 0,
         translations: buildTranslationsFromItinerary(
-          itinerary as any,
+          itinerary,
           translationLanguages,
         ),
       });
@@ -278,9 +284,7 @@ export const ItineraryEditSheet = ({
 
     const totalCost = values.groupDays.reduce((sum, day) => {
       const dayCost = (day.elements || []).reduce((daySum, elementId) => {
-        const element = elementsData.find(
-          (el: { _id: string; cost?: number }) => el._id === elementId,
-        );
+        const element = elementsData.find((el) => el._id === elementId);
         return daySum + (element?.cost || 0);
       }, 0);
       return sum + dayCost;

@@ -1,129 +1,32 @@
 import { QueryHookOptions, useQuery } from '@apollo/client';
 import { GET_TOUR_DETAIL } from '../graphql/queries';
-import type { PricingOptionPriceInput } from '../utils/pricingOptions';
-import type { TourCustomFieldData } from '../utils/customFields';
+import type {
+  BmsTourDetailQuery,
+  BmsTourDetailQueryVariables,
+} from '~/gql/graphql';
 
-export interface IPricingOption {
-  _id: string;
-  title: string;
-  minPersons: number;
-  maxPersons?: number;
-  prices: PricingOptionPriceInput[];
-  pricePerPerson?: number;
-  accommodationType?: string;
-  domesticFlightPerPerson?: number;
-  singleSupplement?: number;
-  note?: string;
-}
+export type ITourDetail = NonNullable<BmsTourDetailQuery['bmsTourDetail']>;
 
-export interface IPricingOptionTranslation {
-  optionId: string;
-  title?: string;
-  accommodationType?: string;
-  note?: string;
-  prices?: PricingOptionPriceInput[];
-  pricePerPerson?: number;
-  domesticFlightPerPerson?: number;
-  singleSupplement?: number;
-}
+export type IPricingOption = NonNullable<
+  NonNullable<ITourDetail['pricingOptions']>[number]
+>;
 
-export interface ITourTranslation {
-  _id?: string;
-  objectId?: string;
-  language: string;
-  name?: string;
-  refNumber?: string;
-  content?: string;
-  info1?: string;
-  info2?: string;
-  info3?: string;
-  info4?: string;
-  info5?: string;
-  pricingOptions?: IPricingOptionTranslation[];
-}
+export type ITourTranslation = NonNullable<
+  NonNullable<ITourDetail['translations']>[number]
+>;
 
-export interface ITourGuide {
-  guideId: string;
-  type: string;
-}
+export type IPricingOptionTranslation = NonNullable<
+  NonNullable<ITourTranslation['pricingOptions']>[number]
+>;
 
-export interface ITourDetail {
-  _id: string;
-  branchId?: string;
-  language?: string;
-  groupCode?: string;
-  advanceCheck?: boolean;
-  advancePercent?: number;
-  content?: string;
-  cost?: number;
-  guides?: ITourGuide[];
-  date_status?:
-    | 'scheduled'
-    | 'unscheduled'
-    | 'running'
-    | 'completed'
-    | 'cancelled';
-  dateType?: 'fixed' | 'flexible';
-  duration?: number;
-  categoryIds?: string[];
-  endDate?: string;
-  availableFrom?: string;
-  availableTo?: string;
-  groupSize?: number;
-  imageThumbnail?: string;
-  images?: string[];
-  attachment?: {
-    url: string;
-    name: string;
-    type: string;
-    size: number;
-  } | null;
-  info1?: string;
-  info2?: string;
-  info3?: string;
-  info4?: string;
-  info5?: string;
-  itineraryId?: string;
-  joinPercent?: number;
-  name?: string;
-  personCost?: Record<string, any>;
-  refNumber?: string;
-  startDate?: string;
-  status?: string;
-  customTourTypeId?: string;
-  customTourType?: {
-    _id: string;
-    branchId?: string;
-    code?: string;
-    label?: string;
-    pluralLabel?: string;
-    description?: string;
-  } | null;
-  customFieldsData?: TourCustomFieldData[];
-  customFieldsMap?: Record<string, any>;
-  pricingOptions?: IPricingOption[];
-  translations?: ITourTranslation[];
-  createdAt?: string;
-  modifiedAt?: string;
-}
-
-type TourDetailQueryVariables = {
-  id: string;
-  language?: string;
-};
+export type ITourGuide = NonNullable<
+  NonNullable<ITourDetail['guides']>[number]
+>;
 
 export const useTourDetail = (
-  options?: QueryHookOptions<
-    {
-      bmsTourDetail: ITourDetail;
-    },
-    TourDetailQueryVariables
-  >,
+  options?: QueryHookOptions<BmsTourDetailQuery, BmsTourDetailQueryVariables>,
 ) => {
-  const { data, loading, error, refetch } = useQuery<
-    { bmsTourDetail: ITourDetail },
-    TourDetailQueryVariables
-  >(GET_TOUR_DETAIL, options);
+  const { data, loading, error, refetch } = useQuery(GET_TOUR_DETAIL, options);
 
   return {
     loading,

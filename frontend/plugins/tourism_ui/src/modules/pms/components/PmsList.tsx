@@ -20,6 +20,7 @@ import { MembersInline } from 'ui-modules';
 import { useVisitWebsite } from '~/hooks/useVisitWebsite';
 import CreatePmsForm from './CreatePmsForm';
 import { PmsCreateSheet } from './CreatePmsSheet';
+import { toPmsUiOptions } from '@/pms/utils/branchOptions';
 
 function PmsListEmpty() {
   const { t } = useTranslation('tourism');
@@ -48,7 +49,13 @@ function PmsListEmpty() {
   );
 }
 
-const BranchImage = ({ logo, name }: { logo?: string; name?: string }) => {
+const BranchImage = ({
+  logo,
+  name,
+}: {
+  logo?: string;
+  name?: string | null;
+}) => {
   const [imageLoading, setImageLoading] = useState(true);
 
   if (!logo) {
@@ -111,7 +118,10 @@ function PmsBranchCard({
       </div>
 
       <div className="w-full h-[140px] bg-accent/30 overflow-hidden flex items-center justify-center">
-        <BranchImage logo={branch.uiOptions?.logo} name={branch.name} />
+        <BranchImage
+          logo={toPmsUiOptions(branch.uiOptions).logo}
+          name={branch.name}
+        />
       </div>
 
       <div className="flex justify-between items-center px-3 py-2 border-t">
@@ -125,7 +135,9 @@ function PmsBranchCard({
           </span>
         </div>
 
-        <MembersInline.Provider memberIds={[branch.userId]}>
+        <MembersInline.Provider
+          memberIds={branch.userId ? [branch.userId] : []}
+        >
           <MembersInline.Avatar size="lg" />
         </MembersInline.Provider>
       </div>

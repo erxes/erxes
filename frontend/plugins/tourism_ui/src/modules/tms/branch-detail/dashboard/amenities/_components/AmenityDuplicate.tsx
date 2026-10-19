@@ -2,6 +2,7 @@ import { useConfirm, useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useCreateAmenity } from '../hooks/useCreateAmenity';
 import { IAmenity } from '../types/amenity';
+import { compactList } from '~/utils/cursorList';
 
 interface AmenityDuplicateProps {
   amenity: IAmenity;
@@ -26,12 +27,13 @@ export const AmenityDuplicate = ({
 
   const handleDuplicate = () => {
     const primaryLanguage = amenity.language;
-    const primaryTranslation = amenity.translations?.find(
+    const amenityTranslations = compactList(amenity.translations);
+    const primaryTranslation = amenityTranslations.find(
       (translation) => translation.language === primaryLanguage,
     );
     const primaryName = primaryTranslation?.name || amenity.name || '';
-    const translations = amenity.translations
-      ?.filter((translation) => translation.language !== primaryLanguage)
+    const translations = amenityTranslations
+      .filter((translation) => translation.language !== primaryLanguage)
       .map((translation) => ({
         language: translation.language,
         name: translation.name
@@ -47,12 +49,12 @@ export const AmenityDuplicate = ({
       .then(() => {
         createAmenity({
           variables: {
-            branchId: branchId || amenity.branchId,
+            branchId,
             name: `${primaryName}${duplicateSuffix}`,
             icon: amenity.icon,
             quick: amenity.quick,
             language: primaryLanguage,
-            translations: translations?.length ? translations : undefined,
+            translations: translations.length ? translations : undefined,
           },
           onCompleted: () => {
             toast({

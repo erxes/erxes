@@ -1,39 +1,35 @@
 import { useMutation } from '@apollo/client';
 import { pmsMutations } from '@/pms/graphql/mutation';
-
-interface PmsBranchRemoveResponse {
-  pmsBranchRemove: unknown;
-}
-
-interface PmsBranchRemoveVariables {
-  id: string;
-}
+import type {
+  PmsBranchRemoveMutation,
+  PmsBranchRemoveMutationVariables,
+} from '~/gql/graphql';
 
 export const usePmsRemoveBranch = () => {
-  const [removeBranchMutation, { loading, error }] = useMutation<
-    PmsBranchRemoveResponse,
-    PmsBranchRemoveVariables
-  >(pmsMutations.PmsBranchRemove, {
-    update(cache, result, options) {
-      if (!result.data?.pmsBranchRemove) {
-        return;
-      }
+  const [removeBranchMutation, { loading, error }] = useMutation(
+    pmsMutations.PmsBranchRemove,
+    {
+      update(cache, result, options) {
+        if (!result.data?.pmsBranchRemove) {
+          return;
+        }
 
-      const deletedId = options?.variables?.id;
+        const deletedId = options?.variables?.id;
 
-      if (!deletedId) {
-        return;
-      }
+        if (!deletedId) {
+          return;
+        }
 
-      cache.evict({ id: `PmsBranch:${deletedId}` });
-      cache.evict({ fieldName: 'pmsBranchList' });
-      cache.gc();
+        cache.evict({ id: `PmsBranch:${deletedId}` });
+        cache.evict({ fieldName: 'pmsBranchList' });
+        cache.gc();
+      },
     },
-  });
+  );
 
   const removeBranch = async (options: {
-    variables: PmsBranchRemoveVariables;
-    onCompleted?: (data: PmsBranchRemoveResponse) => void;
+    variables: PmsBranchRemoveMutationVariables;
+    onCompleted?: (data: PmsBranchRemoveMutation) => void;
     onError?: (error: unknown) => void;
   }) => {
     try {

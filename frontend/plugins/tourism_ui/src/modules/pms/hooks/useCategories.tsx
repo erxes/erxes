@@ -1,20 +1,31 @@
-import { OperationVariables, QueryHookOptions, useQuery } from '@apollo/client';
+import { QueryHookOptions, useQuery } from '@apollo/client';
+import { useMemo } from 'react';
 import { pmsQueries } from '@/pms/graphql/queries';
-import {
-  ProductCategoriesResponse,
-  UseProductCategoriesResult,
-} from '@/pms/types/types';
+import type {
+  PmsProductCategoriesQuery,
+  PmsProductCategoriesQueryVariables,
+} from '~/gql/graphql';
+import { compactList } from '~/utils/cursorList';
 
 export const useProductCategories = (
-  options?: QueryHookOptions<ProductCategoriesResponse, OperationVariables>,
-): UseProductCategoriesResult => {
-  const { data, loading, error } = useQuery<
-    ProductCategoriesResponse,
-    OperationVariables
-  >(pmsQueries.ProductCategories, options);
+  options?: QueryHookOptions<
+    PmsProductCategoriesQuery,
+    PmsProductCategoriesQueryVariables
+  >,
+) => {
+  const { data, loading, error } = useQuery(
+    pmsQueries.ProductCategories,
+    options,
+  );
+
+  const list = data?.productCategories;
+  const productCategories = useMemo(
+    () => (list ? compactList(list) : undefined),
+    [list],
+  );
 
   return {
-    productCategories: data?.productCategories,
+    productCategories,
     loading,
     error,
   };

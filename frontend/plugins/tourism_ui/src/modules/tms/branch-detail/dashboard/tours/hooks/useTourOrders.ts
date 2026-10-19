@@ -12,66 +12,23 @@ import {
   GET_TOUR_ORDER_CUSTOMER_IDS,
 } from '../graphql/queries';
 import { EDIT_TOUR_ORDER } from '../graphql/mutation';
+import type {
+  BmsOrderCustomerIdsQuery,
+  BmsOrderCustomerIdsQueryVariables,
+  BmsOrderEditMutation,
+  BmsOrderEditMutationVariables,
+  BmsOrdersQuery,
+  BmsOrdersQueryVariables,
+} from '~/gql/graphql';
+import { compactList } from '~/utils/cursorList';
 
-export interface ITourOrder {
-  _id: string;
-  branchId?: string;
-  customerId?: string;
-  tourId?: string;
-  amount?: number;
-  status?: string;
-  note?: string;
-  internalNote?: string;
-  numberOfPeople?: number;
-  type?: string;
-  additionalCustomers?: any[];
-  isChild?: boolean;
-  parent?: string;
-  createdAt?: string;
-}
-
-type OrderDetailQueryResult = {
-  bmsOrderDetail: ITourOrder;
-};
-
-type OrderDetailQueryVariables = {
-  id: string;
-};
-
-type TourOrdersQueryVariables = {
-  tourId?: string;
-  limit?: number;
-  cursor?: string;
-  direction?: string;
-};
-
-type TourOrdersQueryResult = {
-  bmsOrders: {
-    list: ITourOrder[];
-    totalCount: number;
-    pageInfo: {
-      hasNextPage: boolean;
-      hasPreviousPage: boolean;
-      startCursor: string;
-      endCursor: string;
-    };
-  };
-};
-
-type TourOrderCustomerIdsQueryResult = {
-  bmsOrderCustomerIds: string[];
-};
-
-type TourOrderCustomerIdsQueryVariables = {
-  tourId: string;
-};
+export type ITourOrder = NonNullable<
+  NonNullable<NonNullable<BmsOrdersQuery['bmsOrders']>['list']>[number]
+>;
 
 export const useTourOrderDetail = (orderId?: string, open?: boolean) => {
-  const { data, loading, error, refetch } = useQuery<
-    OrderDetailQueryResult,
-    OrderDetailQueryVariables
-  >(GET_TOUR_ORDER_DETAIL, {
-    variables: { id: orderId || '' },
+  const { data, loading, error, refetch } = useQuery(GET_TOUR_ORDER_DETAIL, {
+    variables: orderId ? { id: orderId } : undefined,
     skip: !orderId || open === false,
   });
 
@@ -90,7 +47,10 @@ export const useTourOrderDetail = (orderId?: string, open?: boolean) => {
 };
 
 export const useEditTourOrder = (
-  options?: MutationHookOptions<{ bmsOrderEdit: ITourOrder }, any>,
+  options?: MutationHookOptions<
+    BmsOrderEditMutation,
+    BmsOrderEditMutationVariables
+  >,
 ) => {
   const [editOrder, { loading, error }] = useMutation(EDIT_TOUR_ORDER, options);
 
@@ -98,18 +58,18 @@ export const useEditTourOrder = (
 };
 
 export const useTourOrders = (
-  options?: QueryHookOptions<TourOrdersQueryResult, TourOrdersQueryVariables>,
+  options?: QueryHookOptions<BmsOrdersQuery, BmsOrdersQueryVariables>,
 ) => {
-  const { data, loading, error, refetch } = useQuery<
-    TourOrdersQueryResult,
-    TourOrdersQueryVariables
-  >(GET_TOUR_ORDERS, options);
+  const { data, loading, error, refetch } = useQuery(GET_TOUR_ORDERS, options);
+
+  const list = data?.bmsOrders?.list;
+  const orders = useMemo(() => compactList(list), [list]);
 
   return {
     loading,
     error,
     refetch,
-    orders: data?.bmsOrders?.list ?? [],
+    orders,
     totalCount: data?.bmsOrders?.totalCount ?? 0,
     pageInfo: data?.bmsOrders?.pageInfo,
   };
@@ -117,20 +77,23 @@ export const useTourOrders = (
 
 export const useTourOrderCustomerIds = (
   options?: QueryHookOptions<
-    TourOrderCustomerIdsQueryResult,
-    TourOrderCustomerIdsQueryVariables
+    BmsOrderCustomerIdsQuery,
+    BmsOrderCustomerIdsQueryVariables
   >,
 ) => {
-  const { data, loading, error, refetch } = useQuery<
-    TourOrderCustomerIdsQueryResult,
-    TourOrderCustomerIdsQueryVariables
-  >(GET_TOUR_ORDER_CUSTOMER_IDS, options);
+  const { data, loading, error, refetch } = useQuery(
+    GET_TOUR_ORDER_CUSTOMER_IDS,
+    options,
+  );
+
+  const ids = data?.bmsOrderCustomerIds;
+  const customerIds = useMemo(() => compactList(ids), [ids]);
 
   return {
     loading,
     error,
     refetch,
-    customerIds: data?.bmsOrderCustomerIds ?? [],
+    customerIds,
   };
 };
 
@@ -141,9 +104,7 @@ export const useTourCustomers = (tourId?: string) => {
     error: idsError,
     refetch,
   } = useTourOrderCustomerIds({
-    variables: {
-      tourId: tourId || '',
-    },
+    variables: tourId ? { tourId } : undefined,
     skip: !tourId,
   });
 
