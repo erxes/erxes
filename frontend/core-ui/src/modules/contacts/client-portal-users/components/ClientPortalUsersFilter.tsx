@@ -70,6 +70,7 @@ export const ClientPortalUsersFilter = () => {
       sessionKey={CP_USERS_CURSOR_SESSION_KEY}
     >
       <Filter.Bar>
+        <ClientPortalUsersFilterPopover />
         <Filter.BarItem queryKey="searchValue">
           <Filter.BarName>
             <IconSearch />
@@ -79,7 +80,6 @@ export const ClientPortalUsersFilter = () => {
             {searchValue}
           </Filter.BarButton>
         </Filter.BarItem>
-        <ClientPortalUsersFilterPopover />
         <ClientPortalUsersTotalCount />
       </Filter.Bar>
     </Filter>

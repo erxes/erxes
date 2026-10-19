@@ -6,7 +6,7 @@
 - **Project:** `sales_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/sales_ui`
-- **Last synchronized:** `2026-10-16`
+- **Last synchronized:** `2026-10-19`
 
 ## Scope
 
@@ -468,6 +468,7 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   "Ended" badge as the trigger for a past close date. A padded `YYYY-MM-DD` or
   a calendar pick commits immediately; unpadded `YYYY-M-D` commits on Enter or
   blur; clearing sends `null` so the backend unsets the date.
+- The POS list filter (`modules/pos/pos/PosFilter.tsx`) renders `PosFilterPopover` as the first child of `Filter.Bar`, so the filter icon stays fixed while selected filter chips appear after it; the total count stays last.
 
 ## Validation
 

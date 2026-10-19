@@ -39,7 +39,6 @@ export const TemplatesFilter = () => {
     <PageSubHeader>
       <Filter id="templates-filter">
         <Filter.Bar className="overflow-auto styled-scroll">
-          <TemplateFilterBar queries={queries} />
           <div className="flex flex-wrap flex-1 items-center gap-2">
             <Filter.Popover scope={'templates-page'}>
               <Filter.Trigger isFiltered={hasFilters} />
@@ -48,6 +47,7 @@ export const TemplatesFilter = () => {
               </Combobox.Content>
             </Filter.Popover>
             <TemplateFilterDialog />
+            <TemplateFilterBar queries={queries} />
           </div>
         </Filter.Bar>
       </Filter>

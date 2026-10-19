@@ -6,7 +6,7 @@
 - **Project:** `loyalty_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/loyalty_ui`
-- **Last synchronized:** `2026-10-14`
+- **Last synchronized:** `2026-10-19`
 
 ## Scope
 
@@ -147,6 +147,7 @@
   after creation.
 - Changing a score campaign's owner type clears its account type; archived account types
   are listed in the campaign selector only when the campaign already uses one.
+- Loyalty list filters (donates, spin, coupons, assignments, agents, lotteries, scores, vouchers, accounts) render the filter popover trigger as the first child of `Filter.Bar`, so the filter icon stays fixed while selected filter chips appear after it; total counts stay last.
 
 ## Validation
 

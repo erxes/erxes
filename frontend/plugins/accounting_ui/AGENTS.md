@@ -6,7 +6,7 @@
 - **Project:** `accounting_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/accounting_ui`
-- **Last synchronized:** `2026-10-14`
+- **Last synchronized:** `2026-10-19`
 
 ## Scope
 
@@ -222,6 +222,7 @@
 - Inventory report remainder and cost movement totals must derive their sign from transaction side; debit adds and credit subtracts, including cost-only `invJustify` rows.
 - Journal report filter visibility and submitted query parameters must be declared in `src/modules/journal-reports/types/reportFilters.ts`; adding a field to a form without mapping it to applicable reports and its backend query parameter is not allowed.
 - Every journal report must offer detailed mode; summary-row drill-down must preserve the report and current filters while adding every selected group filter, and detailed transaction rows must open their transaction edit route on double-click.
+- Accounting list filters (transactions, accounts, permission settings, safe/reserve remainders, fixed asset remainders and owner records) render the filter popover trigger as the first child of `Filter.Bar`, so the filter icon stays fixed while selected filter chips appear after it; total counts and `afterBar` content stay last.
 
 ## Validation
 

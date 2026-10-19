@@ -6,7 +6,7 @@
 - **Project:** `content_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/content_ui`
-- **Last synchronized:** `2026-10-14`
+- **Last synchronized:** `2026-10-19`
 
 ## Scope
 
@@ -180,6 +180,7 @@
 3. Confirm the route and `websiteId` behavior
 4. Check whether GraphQL operations already exist
 5. Keep changes minimal and scoped to the feature
+- CMS list filters (posts, categories, tags, pages) render the filter popover trigger as the first child of `Filter.Bar`, so the filter icon stays fixed while selected filter chips appear after it; total counts stay last.
 
 ## Validation
 
