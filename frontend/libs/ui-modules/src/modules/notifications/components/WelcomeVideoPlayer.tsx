@@ -1,7 +1,9 @@
-import { cn } from 'erxes-ui';
+import { Button, cn } from 'erxes-ui';
 import { motion } from 'framer-motion';
 import { useWelcomeVideoPlayer } from 'ui-modules/modules/notifications/hooks/useWelcomeVideoPlayer';
 import type { WelcomeVideoPlayerProps } from 'ui-modules/modules/notifications/types/welcome';
+
+const MotionButton = motion.create(Button);
 
 export const WelcomeVideoPlayer = ({
   src,
@@ -25,11 +27,14 @@ export const WelcomeVideoPlayer = ({
           <div className="rounded-lg border overflow-x-auto border-foreground/10 bg-foreground/10 p-1 relative">
             <div className="flex gap-2 relative">
               {tabItems.map((item) => (
-                <motion.div
+                <MotionButton
                   key={item.label}
+                  variant="ghost"
+                  disabled={item.time === undefined}
+                  aria-pressed={activeTabLabel === item.label}
                   onClick={() => handleTabClick(item)}
                   className={cn(
-                    'flex items-center justify-center gap-2 font-medium text-[13px] py-2 px-2 rounded-[4px] text-center transition-colors relative z-10',
+                    'h-auto gap-2 text-[13px] py-2 px-2 rounded-[4px] text-center relative z-10',
                     activeTabLabel === item.label && 'text-primary',
                     item.time !== undefined &&
                       'cursor-pointer hover:text-primary',
@@ -57,7 +62,7 @@ export const WelcomeVideoPlayer = ({
                       }}
                     />
                   )}
-                </motion.div>
+                </MotionButton>
               ))}
             </div>
           </div>

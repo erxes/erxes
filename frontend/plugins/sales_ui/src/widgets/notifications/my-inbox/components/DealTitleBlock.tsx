@@ -7,7 +7,9 @@ export const DealTitleBlock = ({ deal }: DealTitleBlockProps) => {
   return (
     <div className="min-w-0">
       <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-        {deal.number ? `Deal #${deal.number}` : t('deal', 'Deal')}
+        {deal.number
+          ? t('deal-number', 'Deal #{{number}}', { number: deal.number })
+          : t('deal', 'Deal')}
       </p>
       <h2 className="mt-1 break-words text-2xl font-semibold text-foreground">
         {deal.name || t('untitled-deal', 'Untitled deal')}

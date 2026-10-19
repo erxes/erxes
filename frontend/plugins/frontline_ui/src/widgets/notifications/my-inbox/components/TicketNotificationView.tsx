@@ -6,13 +6,13 @@ import { TicketOpenButton } from '~/widgets/notifications/my-inbox/components/Ti
 export const TicketNotificationView = ({
   contentTypeId,
 }: TicketNotificationViewProps) => (
-  <div className="h-full w-full overflow-auto">
+  <div className="min-h-full w-full">
     <TicketDetailSheet />
     <div className="mx-auto w-full max-w-3xl p-6">
-      <div className="mb-4 flex justify-end">
-        <TicketOpenButton contentTypeId={contentTypeId} />
-      </div>
-      <TicketDetails ticketId={contentTypeId} />
+      <TicketDetails
+        ticketId={contentTypeId}
+        titleAction={<TicketOpenButton contentTypeId={contentTypeId} />}
+      />
     </div>
   </div>
 );

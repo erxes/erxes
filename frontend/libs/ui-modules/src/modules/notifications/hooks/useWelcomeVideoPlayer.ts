@@ -44,10 +44,8 @@ export const useWelcomeVideoPlayer = ({
         if (currentTime >= currentTab.time && currentTime < nextTab.time) {
           return currentTab.label;
         }
-      } else {
-        if (currentTime >= currentTab.time) {
-          return currentTab.label;
-        }
+      } else if (currentTime >= currentTab.time) {
+        return currentTab.label;
       }
     }
 

@@ -2,8 +2,10 @@ import type { ReactNode, RefObject } from 'react';
 export type TSocialItem = {
   icon: ReactNode;
   url: string;
+  label: string;
 };
 export type TOnboardingStepItem = {
+  id: string;
   icon: ReactNode;
   title: string;
   forOwner?: boolean;

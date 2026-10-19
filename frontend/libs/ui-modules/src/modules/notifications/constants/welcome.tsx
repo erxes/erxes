@@ -19,27 +19,33 @@ export const WELCOME_SOCIALS: TSocialItem[] = [
   {
     icon: <IconMailFilled className="size-5" />,
     url: 'mailto:info@erxes.io',
+    label: 'Email erxes',
   },
   {
     icon: <IconBrandInstagramFilled className="size-5" />,
     url: 'https://www.instagram.com/erxeshq/',
+    label: 'erxes on Instagram',
   },
   {
     icon: <IconBrandLinkedinFilled className="size-5" />,
     url: 'https://www.linkedin.com/company/erxes/',
+    label: 'erxes on LinkedIn',
   },
   {
     icon: <IconBrandGithubFilled className="size-5" />,
     url: 'https://github.com/erxes',
+    label: 'erxes on GitHub',
   },
   {
     icon: <IconBrandDiscordFilled className="size-5" />,
     url: 'https://discord.gg/qEaghUeG5C',
+    label: 'erxes on Discord',
   },
 ];
 
 export const OnboardingSteps: TOnboardingStepItem[] = [
   {
+    id: 'team-inbox',
     icon: <IconMail size={24} />,
     title: 'Team inbox',
     forOwner: false,
@@ -51,6 +57,7 @@ export const OnboardingSteps: TOnboardingStepItem[] = [
     },
   },
   {
+    id: 'ticket',
     icon: <IconTicket size={24} />,
     title: 'Ticket',
     forOwner: false,
@@ -62,6 +69,7 @@ export const OnboardingSteps: TOnboardingStepItem[] = [
     },
   },
   {
+    id: 'deal',
     icon: <IconBriefcase size={24} />,
     title: 'Deal',
     forOwner: false,
@@ -73,6 +81,7 @@ export const OnboardingSteps: TOnboardingStepItem[] = [
     },
   },
   {
+    id: 'business-messenger',
     icon: <IconMessageCircle size={24} />,
     title: 'Business messenger',
     forOwner: false,
@@ -84,6 +93,7 @@ export const OnboardingSteps: TOnboardingStepItem[] = [
     },
   },
   {
+    id: 'messenger',
     icon: <IconMessage2 size={24} />,
     title: 'Business messenger',
     forOwner: false,

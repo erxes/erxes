@@ -20,11 +20,12 @@ export const NotificationTaskDetail = ({
   });
   const { ref, height } = useScrollViewportHeight();
   const sideContentId = task?._id ?? triage?._id;
-  const openTo = task
-    ? `/operation/tasks/${task._id}`
-    : triage?.teamId
-    ? `/operation/team/${triage.teamId}/triage/${triage._id}`
-    : undefined;
+  let openTo: string | undefined;
+  if (task) {
+    openTo = `/operation/tasks/${task._id}`;
+  } else if (triage?.teamId) {
+    openTo = `/operation/team/${triage.teamId}/triage/${triage._id}`;
+  }
 
   return (
     <div ref={ref} className="flex w-full lg:min-h-full">
