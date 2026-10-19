@@ -1,4 +1,7 @@
-import { buildGraphqlTools } from '@/agents/graphqlTools';
+import {
+  buildGraphqlTools,
+  listGraphqlCapabilities,
+} from '@/agents/graphqlTools';
 import { decodeAgentToolsAuthHeader } from 'erxes-api-shared/utils/agent-tools/auth';
 
 // Only service discovery is mocked; the auth header codec and the response
@@ -151,6 +154,38 @@ const stubSchemaSources = (options?: { fail?: string[] }) => {
     return sdlResponse(DEALS_SDL);
   });
 };
+
+describe('listGraphqlCapabilities', () => {
+  it('preserves each root operation owner, including schema extensions', async () => {
+    stubSchemaSources();
+    const dateSpy = jest.spyOn(Date, 'now').mockReturnValue(1_699_999_900_000);
+    try {
+      const catalog = await listGraphqlCapabilities();
+      expect(catalog).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            path: 'customers',
+            plugin: 'contacts',
+            method: 'query',
+          }),
+          expect.objectContaining({
+            path: 'customersAdd',
+            plugin: 'contacts',
+            method: 'mutation',
+          }),
+          expect.objectContaining({
+            path: 'deals',
+            plugin: 'sales',
+            method: 'query',
+          }),
+        ]),
+      );
+      expect(catalog.some((entry) => entry.path === 'login')).toBe(false);
+    } finally {
+      dateSpy.mockRestore();
+    }
+  });
+});
 
 describe('searchGraphql', () => {
   const context = {

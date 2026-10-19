@@ -83,7 +83,8 @@ plugin; ported from the former private `erxes-agent` service). It provides:
 - `pubsub.ts` — process-wide `RedisStreamsPubSub` (key prefix `core-agents`,
   `REDIS_HOST`/`REDIS_PORT`/`REDIS_PASSWORD`) for cross-replica `observe`
   replay.
-- `graphqlTools.ts` — live schema discovery, capabilities catalog and bounded
+- `graphqlTools.ts` — live schema discovery, capabilities catalog (each root
+  operation retains its owning service/plugin from that service’s SDL) and bounded
   GraphQL execution; `tools.ts` — request identity and error helpers.
 - `references.ts` — token grammar, toolId→type table, label pickers, result
   walking, sanitization (max 25 tokens, label ≤80 chars).

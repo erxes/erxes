@@ -71,8 +71,11 @@ const SUBGRAPH_SDL_OPERATION_NAME = 'SubgraphIntrospectQuery';
 const ROOT_OPERATION_TYPES = new Set(['Query', 'Mutation', 'Subscription']);
 
 /** The merged workspace schema, or null when no service answered. */
-let schemaCache: { schema: GraphQLSchema | null; fetchedAt: number } | null =
-  null;
+let schemaCache: {
+  schema: GraphQLSchema | null;
+  fetchedAt: number;
+  owners: Map<string, string>;
+} | null = null;
 
 const fetchSubgraphSdl = async (plugin: string): Promise<string | null> => {
   try {
@@ -151,9 +154,34 @@ const loadMergedSchema = async (): Promise<GraphQLSchema | null> => {
   }
 
   const plugins = await getPlugins();
-  const sdls = (
-    await Promise.all(plugins.map((plugin) => fetchSubgraphSdl(plugin)))
-  ).filter((sdl): sdl is string => Boolean(sdl));
+  const sources = await Promise.all(
+    plugins.map(async (plugin) => ({ plugin, sdl: await fetchSubgraphSdl(plugin) })),
+  );
+  const sdls: string[] = [];
+  const owners = new Map<string, string>();
+
+  for (const { plugin, sdl } of sources) {
+    if (!sdl) continue;
+    sdls.push(sdl);
+    try {
+      for (const definition of parse(sdl).definitions) {
+        if (
+          (definition.kind === 'ObjectTypeDefinition' ||
+            definition.kind === 'ObjectTypeExtension') &&
+          (definition.name.value === 'Query' ||
+            definition.name.value === 'Mutation')
+        ) {
+          const operation = definition.name.value.toLowerCase();
+          for (const field of definition.fields ?? []) {
+            const key = `${operation}.${field.name.value}`;
+            if (!owners.has(key)) owners.set(key, plugin);
+          }
+        }
+      }
+    } catch {
+      // Schema construction below handles malformed SDL.
+    }
+  }
 
   let schema: GraphQLSchema | null = null;
 
@@ -171,7 +199,7 @@ const loadMergedSchema = async (): Promise<GraphQLSchema | null> => {
     }
   }
 
-  schemaCache = { schema, fetchedAt: now };
+  schemaCache = { schema, fetchedAt: now, owners };
 
   return schema;
 };
@@ -355,7 +383,7 @@ export const listGraphqlCapabilities = async () => {
   const schema = await loadMergedSchema();
   return schema ? collectRootFields(schema).map((entry) => ({
     id: `graphql.${entry.operation}.${entry.name}`,
-    plugin: 'graphql',
+    plugin: schemaCache?.owners.get(`${entry.operation}.${entry.name}`) ?? 'graphql',
     module: entry.operation,
     path: entry.name,
     method: entry.operation,

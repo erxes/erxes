@@ -6,7 +6,12 @@ The `agent` module is the core-ui surface for the core-api `agents` backend
 - the full-page chat at `/agent` and `/agent/:threadId`
   (`pages/agent/AgentIndexPage.tsx`, permission-guarded `module="agents"`)
   plus `/agent/capabilities` (`pages/agent/AgentCapabilitiesPage.tsx`,
-  routed before `:threadId` — the GraphQL operation catalog from `agentsTools`);
+  routed before `:threadId` — the GraphQL operation catalog from `agentsTools`).
+  Capabilities opens on a plugin overview (up to six plugins, total tool counts,
+  read/write counts) with monochrome plugin icons using theme tokens.
+  Selecting a plugin opens a 20-tool paginated browser with
+  search and read/write/approval filters. Operation signatures and inputs appear
+  only after opening a tool; zero-input tools also have usable details;
 - chat width presets standard/wide/full (`utils/chatWidth.ts`, persisted
   `agentChatWidthState`, header `DropdownMenu` radio); collapsible thread
   sidebar (`agentThreadsSidebarOpenState`); page header: sidebar/drawer
@@ -16,7 +21,10 @@ The `agent` module is the core-ui surface for the core-api `agents` backend
   (`modules/app/components/MainLayout.tsx`), beside the new `CoreAppOutlet`;
   the floating `AgentTray` mounts outside the animated page — resizable 360–720px
   (persisted), Sheet on mobile, never rendered on `/agent*` so only one
-  chat instance exists per thread;
+  chat instance exists per thread; `AgentTrayMount` also unmounts the tray
+  while the side panel is open, stopping its bot effects and animation engine.
+  The lightweight mount owns the permission-gated `mod+j` shortcut so it
+  remains available while the tray is unmounted;
 - the `NavigationAgentButton` rail entry (after `NavigationInboxButton`,
   `mod+j` hotkey, hidden without the `agentsChat` action);
 - thread history (`ThreadList`): client-side filter, Pinned group first

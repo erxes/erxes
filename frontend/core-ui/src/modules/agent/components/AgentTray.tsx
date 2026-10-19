@@ -3,7 +3,6 @@ import { useReducedMotion } from 'motion/react';
 import { Tooltip, useIsMobile } from 'erxes-ui';
 import { useAtom, useAtomValue } from 'jotai';
 import { useLocation } from 'react-router-dom';
-import { useHotkeys } from 'react-hotkeys-hook';
 import { usePermissionCheck } from 'ui-modules';
 import { useTranslation } from 'react-i18next';
 
@@ -84,13 +83,6 @@ export const AgentTray = () => {
   const director = useBotDirector(
     { hovering, dragging, justDroppedAt, panelOpenedAt, triplePressedAt },
     appearance.expression,
-  );
-
-  useHotkeys(
-    'mod+j',
-    () => setOpen((current) => !current),
-    { enabled: allowed, enableOnFormTags: true },
-    [setOpen],
   );
 
   useEffect(() => {
