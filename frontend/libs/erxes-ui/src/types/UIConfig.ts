@@ -3,6 +3,7 @@ import type {
   OperationVariables,
   QueryOptions,
 } from '@apollo/client';
+import type { Slots } from './Slots';
 
 export type TSearchPayload = Readonly<Record<string, unknown>>;
 
@@ -194,6 +195,8 @@ export type IUIConfig = {
     hasSegmentConfigWidget?: boolean;
   }[];
   searchProviders?: ISearchProvider[];
+  /** Maps a slot name to the expose of this plugin that fills it. */
+  slots?: { [K in keyof Slots]?: string };
   /**
    * The plugin an extension lives in, e.g. `'sales'`. Its `modules` show in
    * that plugin's sidebar and its pages render inside that plugin's layout,
