@@ -78,6 +78,100 @@ type RegisteredSecrets = Register extends { secrets: infer S extends Secrets }
   ? S
   : Record<never, never>;
 
+// ---- Triggers: runs nobody calls. Each names one of the extension's
+// functions by path. With no caller, the run acts as the owner who installed
+// the extension (an event's run acts as the user who made the change, when
+// there is one), and only through the install's pinned contracts. Install
+// refuses a trigger whose function doesn't exist.
+
+// Cron schedules, five fields in UTC, at most every 5 minutes, at most 10:
+//
+//   export const schedules = defineSchedules({
+//     digest: { cron: '0 9 * * *', function: 'digest.run' },
+//   });
+//
+// The function gets ScheduleInput.
+export type Schedules = Record<string, { cron: string; function: string }>;
+
+export const defineSchedules = <const S extends Schedules>(schedules: S) =>
+  schedules;
+
+export type ScheduleInput = { scheduledAt: string };
+
+// A secret this extension declared, by name.
+type SecretName = Register extends { secrets: infer S extends Secrets }
+  ? keyof S & string
+  : string;
+
+// Signed webhooks. Each gets a URL in Settings > Extensions,
+// `/webhooks/<install key>/<name>`. The runtime checks the HMAC of the raw
+// body with the named secret before anything else, and runs the function
+// later, off the request:
+//
+//   export const webhooks = defineWebhooks({
+//     github: {
+//       function: 'gh.onPush',
+//       signature: {
+//         secret: 'GITHUB_WEBHOOK_SECRET',
+//         header: 'x-hub-signature-256',
+//         algorithm: 'sha256',
+//         prefix: 'sha256=',
+//       },
+//     },
+//   });
+//
+// The header holds `prefix` and the hex digest. The function gets
+// WebhookInput.
+export type Webhook = {
+  function: string;
+  signature: {
+    secret: SecretName;
+    header: string;
+    algorithm: 'sha1' | 'sha256' | 'sha512';
+    prefix?: string;
+  };
+};
+
+export type Webhooks = Record<string, Webhook>;
+
+export const defineWebhooks = <const W extends Webhooks>(webhooks: W) =>
+  webhooks;
+
+// Only content-type, user-agent and x-* headers, lowercased. A JSON body
+// arrives parsed, anything else as text.
+export type WebhookInput = { headers: Record<string, string>; body: unknown };
+
+// Record events from erxes: `<plugin>:<module>.<collection>.<action>`, where
+// action is create, update or delete, e.g. 'sales:sales.deals.update'.
+// `updatedFields` keeps only updates that changed one of those top-level
+// fields:
+//
+//   export const events = defineEvents({
+//     dealMoved: {
+//       on: 'sales:sales.deals.update',
+//       updatedFields: ['stageId'],
+//       function: 'deals.onMove',
+//     },
+//   });
+//
+// The function gets EventInput: ids, never the record. Read it through a
+// pinned contract, so the plugin checks the run's permissions. Delivery is
+// best effort: an event erxes fails to publish is lost.
+export type Events = Record<
+  string,
+  { on: string; updatedFields?: string[]; function: string }
+>;
+
+export const defineEvents = <const E extends Events>(events: E) => events;
+
+export type EventInput = {
+  type: string;
+  _id: string;
+  updatedFields?: string[];
+  // The user who made the change, when erxes knows one.
+  userId?: string;
+};
+
 // Every function names the action a caller needs. 'public' means any
 // signed-in user.
 export type Permission = PermissionName | 'public';
@@ -145,7 +239,8 @@ export type Collection<T> = {
   deleteOne(filter: Filter): Promise<Stored<T> | null>;
 };
 
-// Everything runs as `user`, who passed the function's permission check.
+// Everything runs as `user`: the caller, who passed the function's
+// permission check, or for a trigger the user the run acts as.
 export type Ctx = {
   user: { _id: string };
   db: {
@@ -203,23 +298,28 @@ const isFunction = (value: unknown): value is ExtensionFunction =>
   'kind' in value &&
   (value.kind === 'query' || value.kind === 'mutation');
 
+const MANIFEST_EXPORTS = [
+  'schema',
+  'permissions',
+  'uses',
+  'indexes',
+  'network',
+  'secrets',
+  'schedules',
+  'webhooks',
+  'events',
+  'default',
+];
+
 // Reads an extension's server barrel: `schema`, `permissions`, `uses`,
-// `indexes`, `network`, `secrets`, plus one namespace per file
-// (`export * as agents from './agents'`). A function's name is its path,
-// `agents.list`.
+// `indexes`, `network`, `secrets`, `schedules`, `webhooks`, `events`, plus
+// one namespace per file (`export * as agents from './agents'`). A
+// function's name is its path, `agents.list`.
 export const collectExtension = (mod: Record<string, unknown>) => {
   const functions = new Map<string, ExtensionFunction>();
 
   for (const [name, value] of Object.entries(mod)) {
-    if (
-      name === 'schema' ||
-      name === 'permissions' ||
-      name === 'uses' ||
-      name === 'indexes' ||
-      name === 'network' ||
-      name === 'secrets' ||
-      name === 'default'
-    ) {
+    if (MANIFEST_EXPORTS.includes(name)) {
       continue;
     }
 
@@ -240,6 +340,20 @@ export const collectExtension = (mod: Record<string, unknown>) => {
   const indexes = (mod.indexes ?? {}) as Indexes;
   const network = (mod.network ?? []) as string[];
   const secrets = (mod.secrets ?? {}) as Secrets;
+  const schedules = (mod.schedules ?? {}) as Schedules;
+  const webhooks = (mod.webhooks ?? {}) as Webhooks;
+  const events = (mod.events ?? {}) as Events;
 
-  return { schema, permissions, uses, indexes, network, secrets, functions };
+  return {
+    schema,
+    permissions,
+    uses,
+    indexes,
+    network,
+    secrets,
+    schedules,
+    webhooks,
+    events,
+    functions,
+  };
 };
