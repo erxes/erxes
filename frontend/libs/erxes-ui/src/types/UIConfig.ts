@@ -199,9 +199,11 @@ export type IUIConfig = {
   slots?: { [K in keyof Slots]?: string };
   /**
    * The plugin an extension lives in, e.g. `'sales'`. Its `modules` show in
-   * that plugin's sidebar and its pages render inside that plugin's layout,
-   * so `path` and module paths must start with `<host>/`. It gets no
-   * launcher entry of its own.
+   * that plugin's main sidebar (`AppLayout` id `'sales'`). Its pages render
+   * inside whichever of the host's layouts owns the path (`'sales'` or
+   * `'sales:<name>'`, e.g. `sales/settings/x` renders in `'sales:settings'`),
+   * so `path` and module paths must start with `<host>/`. When paths overlap,
+   * the longest `path` wins. It gets no launcher entry of its own.
    */
   host?: string;
 };

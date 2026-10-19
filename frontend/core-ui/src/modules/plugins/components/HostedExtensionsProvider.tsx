@@ -40,7 +40,8 @@ const HostedPage = ({ config }: { config: IUIConfig }) => {
 };
 
 // Puts each extension with a `host` into that app's AppLayout: its modules in
-// the sidebar, its page in place of the app's own routes.
+// the main sidebar, its page in place of the app's own routes in any of the
+// host's layouts (`sales`, `sales:settings`).
 export const HostedExtensionsProvider = ({
   children,
 }: {
@@ -50,8 +51,8 @@ export const HostedExtensionsProvider = ({
   const { isLoaded, isWildcard, hasPluginPermission } = usePermissionCheck();
 
   const value = useMemo(() => {
-    const hosted = (layoutId: string) =>
-      Object.values(plugins ?? {}).filter((config) => config.host === layoutId);
+    const hosted = (host: string) =>
+      Object.values(plugins ?? {}).filter((config) => config.host === host);
 
     return {
       links: (layoutId: string) =>
@@ -62,7 +63,9 @@ export const HostedExtensionsProvider = ({
           )
           .flatMap((config) => config.modules ?? []),
       page: (layoutId: string, pathname: string) => {
-        const config = hosted(layoutId).find((c) => ownsPath(c, pathname));
+        const config = hosted(layoutId.split(':')[0])
+          .filter((c) => ownsPath(c, pathname))
+          .sort((a, b) => b.path.length - a.path.length)[0];
 
         return config ? <HostedPage config={config} /> : null;
       },
