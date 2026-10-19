@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const CMS_CUSTOM_POST_TYPES = gql`
+export const CMS_CUSTOM_POST_TYPES = gql(`
   query cmsCustomPostTypes($clientPortalId: String) {
     cmsCustomPostTypes(clientPortalId: $clientPortalId) {
       _id
@@ -11,4 +11,4 @@ export const CMS_CUSTOM_POST_TYPES = gql`
       createdAt
     }
   }
-`;
+`);

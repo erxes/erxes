@@ -1,8 +1,8 @@
 export type RawMenuItem = {
   _id: string;
-  label: string;
-  parentId?: string;
-  order?: number;
+  label: string | null;
+  parentId?: string | null;
+  order?: number | null;
   [key: string]: unknown;
 };
 
@@ -23,7 +23,7 @@ function compareMenuItems<T extends RawMenuItem>(
     return aOrder - bOrder;
   }
 
-  return a.label.localeCompare(b.label, locale, {
+  return (a.label ?? '').localeCompare(b.label ?? '', locale, {
     numeric: true,
     sensitivity: 'base',
   });

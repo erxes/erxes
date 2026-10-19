@@ -1,3 +1,5 @@
+import type { ContentCmsListQuery } from '~/gql/graphql';
+
 export type CmsAttachment = {
   url: string;
   name: string;
@@ -37,37 +39,14 @@ export type CmsAccessPolicy = 'open' | 'assigned';
 
 export type ClientPortalOption = {
   _id: string;
-  name?: string;
-  description?: string;
-  domain?: string;
+  name?: string | null;
+  description?: string | null;
+  domain?: string | null;
 };
 
-export type CmsSettingsData = {
-  _id?: string;
-  name?: string;
-  description?: string;
-  clientPortalId?: string;
-  content?: string;
-  domain?: string;
-  publicUrl?: string;
-  metaTitle?: string;
-  metaDescription?: string;
-  metaKeywords?: string[];
-  metaImage?: CmsAttachment | null;
-  googleTrackingId?: string;
-  googleTagManagerId?: string;
-  customScripts?: string[];
-  defaultPostStatus?: string;
-  allowComments?: boolean;
-  language?: string;
-  languages?: string[];
-  postUrlField?: string;
-  postUrlPrefix?: string;
-  siteLogo?: CmsAttachment | null;
-  favicon?: CmsAttachment | null;
-  accessPolicy?: CmsAccessPolicy;
-  assignedMemberIds?: string[];
-};
+export type CmsSettingsData = NonNullable<
+  NonNullable<ContentCmsListQuery['contentCMSList']>[number]
+>;
 
 export type UpdateSetting = <TKey extends keyof SettingsFormState>(
   key: TKey,

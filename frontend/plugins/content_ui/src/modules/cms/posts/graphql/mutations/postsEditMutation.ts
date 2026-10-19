@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const POSTS_EDIT = gql`
+export const POSTS_EDIT = gql(`
   mutation CmsPostsListEdit($id: String!, $input: PostInput!) {
     cmsPostsEdit(_id: $id, input: $input) {
       _id
@@ -66,4 +66,4 @@ export const POSTS_EDIT = gql`
       customFieldsMap
     }
   }
-`;
+`);

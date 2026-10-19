@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const CMS_CATEGORIES_ADD = gql`
+export const CMS_CATEGORIES_ADD = gql(`
   mutation CmsCategoriesAdd($input: PostCategoryInput!) {
     cmsCategoriesAdd(input: $input) {
       _id
@@ -19,4 +19,4 @@ export const CMS_CATEGORIES_ADD = gql`
       __typename
     }
   }
-`;
+`);

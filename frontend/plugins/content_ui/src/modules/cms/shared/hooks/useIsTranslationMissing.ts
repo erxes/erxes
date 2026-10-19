@@ -13,17 +13,19 @@ export const useIsTranslationMissing = () => {
   });
 
   const cmsConfig = data?.contentCMSList?.find(
-    (cms: { clientPortalId?: string }) => cms.clientPortalId === websiteId,
+    (cms) => cms?.clientPortalId === websiteId,
   );
 
   const defaultLanguage: string = cmsConfig?.language || 'en';
   const isNonDefaultLanguage =
     !!selectedLanguage && selectedLanguage !== defaultLanguage;
 
-  const isMissing = (translations?: { language: string }[]) => {
+  const isMissing = (
+    translations?: ({ language: string | null } | null)[] | null,
+  ) => {
     if (!isNonDefaultLanguage) return false;
     if (!translations || translations.length === 0) return true;
-    return !translations.some((t) => t.language === selectedLanguage);
+    return !translations.some((t) => t?.language === selectedLanguage);
   };
 
   return { isMissing, isNonDefaultLanguage };

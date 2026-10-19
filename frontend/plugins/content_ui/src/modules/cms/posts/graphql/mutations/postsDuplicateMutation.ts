@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const CMS_POSTS_DUPLICATE = gql`
+export const CMS_POSTS_DUPLICATE = gql(`
   mutation CmsPostsDuplicate($_id: String!) {
     cmsPostsDuplicate(_id: $_id) {
       _id
@@ -9,4 +9,4 @@ export const CMS_POSTS_DUPLICATE = gql`
       status
     }
   }
-`;
+`);

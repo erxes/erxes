@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const CMS_CUSTOM_FIELD_GROUP_ADD = gql`
+export const CMS_CUSTOM_FIELD_GROUP_ADD = gql(`
   mutation cmsCustomFieldGroupsAdd($input: CustomFieldGroupInput!) {
     cmsCustomFieldGroupsAdd(input: $input) {
       _id
@@ -21,9 +21,9 @@ export const CMS_CUSTOM_FIELD_GROUP_ADD = gql`
       fields
     }
   }
-`;
+`);
 
-export const CMS_CUSTOM_FIELD_GROUP_EDIT = gql`
+export const CMS_CUSTOM_FIELD_GROUP_EDIT = gql(`
   mutation cmsCustomFieldGroupsEdit(
     $_id: String!
     $input: CustomFieldGroupInput!
@@ -47,10 +47,10 @@ export const CMS_CUSTOM_FIELD_GROUP_EDIT = gql`
       fields
     }
   }
-`;
+`);
 
-export const CMS_CUSTOM_FIELD_GROUP_REMOVE = gql`
+export const CMS_CUSTOM_FIELD_GROUP_REMOVE = gql(`
   mutation cmsCustomFieldGroupsRemove($_id: String!) {
     cmsCustomFieldGroupsRemove(_id: $_id)
   }
-`;
+`);

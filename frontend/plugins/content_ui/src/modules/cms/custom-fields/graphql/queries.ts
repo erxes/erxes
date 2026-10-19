@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const CMS_CUSTOM_FIELD_GROUPS = gql`
+export const CMS_CUSTOM_FIELD_GROUPS = gql(`
   query cmsCustomFieldGroupList($clientPortalId: String!) {
     cmsCustomFieldGroupList(clientPortalId: $clientPortalId) {
       list {
@@ -23,4 +23,4 @@ export const CMS_CUSTOM_FIELD_GROUPS = gql`
       }
     }
   }
-`;
+`);

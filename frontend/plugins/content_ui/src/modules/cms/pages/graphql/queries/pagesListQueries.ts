@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const PAGE_LIST = gql`
+export const PAGE_LIST = gql(`
   query PageList(
     $clientPortalId: String!
     $searchValue: String
@@ -57,4 +57,4 @@ export const PAGE_LIST = gql`
       __typename
     }
   }
-`;
+`);

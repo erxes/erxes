@@ -72,7 +72,7 @@ const MoreCell = ({ row, onEdit, refetch }: MoreCellProps) => {
 interface LabelCellProps {
   cell: Cell<MenuItem, unknown>;
   refetch: () => void;
-  isMissing: (translations?: { language: string }[]) => boolean;
+  isMissing: (translations?: MenuItem['translations']) => boolean;
 }
 
 const LabelCell = ({ cell, refetch, isMissing }: LabelCellProps) => {

@@ -1,3 +1,5 @@
+import type { GetWebListQuery } from '~/gql/graphql';
+
 export interface IWebThumbnail {
   url?: string;
   name?: string;
@@ -6,16 +8,9 @@ export interface IWebThumbnail {
   duration?: number;
 }
 
-export interface IWeb {
-  _id: string;
-  name: string;
-  description?: string;
-  domain?: string;
-  templateType?: string;
-  templateId?: string;
-  clientPortalId?: string;
-  thumbnail?: IWebThumbnail;
-}
+export type IWeb = NonNullable<
+  NonNullable<GetWebListQuery['getWebList']>[number]
+>;
 
 export interface IWebInput {
   name: string;
@@ -44,6 +39,6 @@ export interface IWebCustomDomain {
 
 export interface IWebCustomDomains {
   isDeployed: boolean;
-  defaultDomain?: string | null;
+  defaultDomain: string | null;
   domains: IWebCustomDomain[];
 }

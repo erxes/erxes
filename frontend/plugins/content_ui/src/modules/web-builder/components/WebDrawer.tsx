@@ -21,6 +21,7 @@ import { TEMPLATE_TYPES } from '../constants';
 import { TemplateSelect } from './TemplateSelect';
 import { WebCustomDomain } from './WebCustomDomain';
 import { Uploader } from '@/cms/settings/components/Uploader';
+import { toCmsAttachment } from '@/cms/settings/utils/settingsHelpers';
 import { IconPhoto } from '@tabler/icons-react';
 
 interface SelectOption {
@@ -104,7 +105,7 @@ export const WebDrawer = () => {
         templateId: drawer.editingWeb?.templateId || '',
         clientPortalId: drawer.editingWeb?.clientPortalId || '',
         thumbnail: drawer.editingWeb?.thumbnail?.url
-          ? drawer.editingWeb.thumbnail
+          ? toCmsAttachment(drawer.editingWeb.thumbnail)
           : null,
       });
     }
@@ -113,13 +114,14 @@ export const WebDrawer = () => {
   const onClose = () => setDrawer({ open: false, editingWeb: null });
 
   const onSubmit = async ({ thumbnail, ...rest }: IWebInput) => {
-    const data: IWebInput = {
+    const data = {
       ...rest,
+      clientPortalId: rest.clientPortalId ?? '',
       // strip __typename from the queried attachment before sending as input
       thumbnail: thumbnail?.url
         ? {
             url: thumbnail.url,
-            name: thumbnail.name,
+            name: thumbnail.name ?? '',
             type: thumbnail.type,
             size: thumbnail.size,
             duration: thumbnail.duration,

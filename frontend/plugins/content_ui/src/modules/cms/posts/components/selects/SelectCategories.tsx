@@ -26,17 +26,14 @@ import {
   SelectTriggerVariantType,
 } from './SelectShared';
 import { useTranslation } from 'react-i18next';
+import type { CmsPostCategoriesQuery } from '~/gql/graphql';
+import { compactList } from '../../../shared/utils';
 
-interface ICategory {
-  _id: string;
-  name: string;
-  slug?: string;
-  description?: string;
-  status?: string;
-  clientPortalId?: string;
-  parentId?: string;
-  parent?: ICategory;
-}
+type ICategory = NonNullable<
+  NonNullable<
+    NonNullable<CmsPostCategoriesQuery['cmsCategories']>['list']
+  >[number]
+>;
 
 interface SelectCategoriesContextType {
   value: string;
@@ -73,7 +70,7 @@ export const SelectCategoriesProvider = ({
 }) => {
   const { data, loading } = useQuery(POST_CMS_CATEGORIES, {
     variables: {
-      clientPortalId,
+      clientPortalId: clientPortalId ?? '',
       limit: 100,
     },
     skip: clientPortalId == null,
@@ -81,8 +78,10 @@ export const SelectCategoriesProvider = ({
 
   const categories = useMemo(
     () =>
-      [...(data?.cmsCategories?.list || [])].sort((a, b) =>
-        (a?.name || '').localeCompare(b?.name || '', undefined, { numeric: true }),
+      compactList(data?.cmsCategories?.list).sort((a, b) =>
+        (a.name || '').localeCompare(b.name || '', undefined, {
+          numeric: true,
+        }),
       ),
     [data?.cmsCategories?.list],
   );

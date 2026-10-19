@@ -1,14 +1,7 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { useQuery } from '@apollo/client';
 import { CMS_TRANSLATIONS } from '../../graphql/queries';
-
-interface CmsTranslationRecord {
-  language: string;
-  title?: string;
-  content?: string;
-  excerpt?: string;
-  customFieldsData?: unknown[];
-}
+import { compactList } from '../utils';
 
 export interface TranslationData {
   title?: string;
@@ -81,12 +74,15 @@ export const useCmsTranslation = ({
     if (!translationsData?.cmsTranslations) return;
 
     const map: Record<string, TranslationData> = {};
-    translationsData.cmsTranslations.forEach((t: CmsTranslationRecord) => {
+    compactList(translationsData.cmsTranslations).forEach((t) => {
+      if (!t.language) return;
       map[t.language] = {
         title: t.title || '',
         content: t.content || '',
         excerpt: t.excerpt || '',
-        customFieldsData: t.customFieldsData || [],
+        customFieldsData: Array.isArray(t.customFieldsData)
+          ? t.customFieldsData
+          : [],
       };
     });
     setTranslations(map);

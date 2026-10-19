@@ -30,14 +30,12 @@ import {
   SelectTriggerVariantType,
 } from './SelectShared';
 import { useTranslation } from 'react-i18next';
+import type { CmsPostTagsQuery } from '~/gql/graphql';
+import { compactList } from '../../../shared/utils';
 
-interface ITag {
-  _id: string;
-  name: string;
-  slug?: string;
-  colorCode?: string;
-  clientPortalId?: string;
-}
+type ITag = NonNullable<
+  NonNullable<NonNullable<CmsPostTagsQuery['cmsTags']>['tags']>[number]
+>;
 
 interface SelectTagsContextType {
   value: string;
@@ -147,7 +145,10 @@ export const SelectTagsProvider = ({
     fetchRemainingTags();
   }, [fetchRemainingTags, open]);
 
-  const tags = useMemo(() => data?.cmsTags?.tags || [], [data?.cmsTags?.tags]);
+  const tags = useMemo(
+    () => compactList(data?.cmsTags?.tags),
+    [data?.cmsTags?.tags],
+  );
 
   const handleValueChange = useCallback(
     (tag: string) => {

@@ -2,7 +2,7 @@ import { useMutation, useQuery } from '@apollo/client';
 import { IconAlertCircle } from '@tabler/icons-react';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { Button, Form, Input, Sheet, toast } from 'erxes-ui';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { CONTENT_CMS_LIST } from '@/cms/graphql/queries';
@@ -12,6 +12,7 @@ import {
   useCmsTranslation,
 } from '@/cms/shared/hooks/useCmsTranslation';
 import { cmsLanguageAtom } from '@/cms/shared/states/cmsLanguageState';
+import { compactList } from '@/cms/shared/utils';
 import { CMS_TAGS_ADD, CMS_TAGS_EDIT } from '@/cms/tags/graphql/mutations';
 import { CMS_TAG_DETAIL } from '@/cms/tags/graphql/queries';
 import { createSlug } from '@/cms/utils/createSlug';
@@ -22,12 +23,6 @@ interface TagDrawerProps {
   isOpen: boolean;
   onClose: () => void;
   clientPortalId: string;
-}
-
-interface CmsConfig {
-  clientPortalId: string;
-  languages?: string[];
-  language?: string;
 }
 
 interface TagTranslationInput {
@@ -45,8 +40,15 @@ const getEmptyTagFormValues = (clientPortalId: string): TagFormData => ({
   clientPortalId,
 });
 
+interface TagFormSource {
+  name?: string | null;
+  slug?: string | null;
+  colorCode?: string | null;
+  clientPortalId?: string | null;
+}
+
 const tagToFormValues = (
-  tag: CmsTag | undefined,
+  tag: TagFormSource | undefined,
   clientPortalId: string,
 ): TagFormData => {
   if (!tag) return getEmptyTagFormValues(clientPortalId);
@@ -115,9 +117,12 @@ export function TagDrawer({
   });
 
   const cmsConfig = cmsData?.contentCMSList?.find(
-    (cms: CmsConfig) => cms.clientPortalId === clientPortalId,
+    (cms) => cms?.clientPortalId === clientPortalId,
   );
-  const availableLanguages: string[] = cmsConfig?.languages || [];
+  const availableLanguages = useMemo(
+    () => compactList(cmsConfig?.languages),
+    [cmsConfig?.languages],
+  );
   const defaultLanguage: string = cmsConfig?.language || 'en';
 
   const {
@@ -138,14 +143,14 @@ export function TagDrawer({
 
   const { data: tagDetailData } = useQuery(CMS_TAG_DETAIL, {
     variables: {
-      _id: tag?._id,
+      _id: tag?._id ?? '',
       clientPortalId,
     },
     fetchPolicy: 'network-only',
     skip: !isOpen || !tag?._id,
   });
 
-  const baseTag: CmsTag | undefined = tagDetailData?.cmsTag || tag;
+  const baseTag = tagDetailData?.cmsTag || tag;
 
   const form = useForm<TagFormData>({
     defaultValues: getEmptyTagFormValues(clientPortalId),

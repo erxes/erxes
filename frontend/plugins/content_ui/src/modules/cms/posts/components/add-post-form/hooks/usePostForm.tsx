@@ -9,6 +9,7 @@ import {
   CMS_EDIT_TRANSLATION,
 } from '../../../../graphql/queries';
 import { createSlug } from '../../../../utils/createSlug';
+import { compactList } from '../../../../shared/utils';
 
 // A single custom-field value as stored on the form and in translation snapshots.
 type CustomFieldEntry = { field: string; value: CustomFieldValue };
@@ -66,6 +67,12 @@ type TLoadedPost = {
   autoArchiveDate?: string | Date | null;
   customFieldsData?: CustomFieldEntry[];
 };
+
+/** Reads saved translation custom fields from their JSON scalar. */
+const toCustomFieldEntries = (customFieldsData: unknown): CustomFieldEntry[] =>
+  Array.isArray(customFieldsData)
+    ? (customFieldsData as CustomFieldEntry[])
+    : [];
 
 /** Converts an API date value to a Date for the form, or null when absent. */
 const toDate = (value: string | Date | null | undefined) =>
@@ -196,22 +203,15 @@ export const usePostForm = (editingPost?: { _id: string }) => {
           customFieldsData: CustomFieldEntry[];
         }
       > = {};
-      translationsData.cmsTranslations.forEach(
-        (t: {
-          language: string;
-          title: string;
-          content: string;
-          excerpt: string;
-          customFieldsData: CustomFieldEntry[];
-        }) => {
-          translationsMap[t.language] = {
-            title: t.title || '',
-            content: t.content || '',
-            excerpt: t.excerpt || '',
-            customFieldsData: t.customFieldsData || [],
-          };
-        },
-      );
+      compactList(translationsData.cmsTranslations).forEach((t) => {
+        if (!t.language) return;
+        translationsMap[t.language] = {
+          title: t.title || '',
+          content: t.content || '',
+          excerpt: t.excerpt || '',
+          customFieldsData: toCustomFieldEntries(t.customFieldsData),
+        };
+      });
       setTranslations(translationsMap);
     }
   }, [translationsData]);

@@ -20,13 +20,14 @@ import React, {
 import { useDebounce } from 'use-debounce';
 import { useQuery } from '@apollo/client';
 import { PAGE_LIST } from '../graphql/queries/pagesListQueries';
+import { compactList } from '../../shared/utils';
 
 // --- Types ---
 
 interface IRawPage {
   _id: string;
-  name?: string;
-  parentId?: string;
+  name?: string | null;
+  parentId?: string | null;
 }
 
 interface IPageItem {
@@ -90,7 +91,7 @@ const buildTree = (rawPages: IRawPage[]): IPageItem[] => {
       result.push({
         _id: item._id,
         name: item.name || '',
-        parentId: item.parentId,
+        parentId: item.parentId ?? undefined,
         order,
         hasChildren: childSet.has(item._id),
       });
@@ -120,7 +121,7 @@ const useParentPages = (websiteId: string, search?: string) => {
   });
 
   const pages: IPageItem[] = useMemo(() => {
-    const rawPages: IRawPage[] = data?.cmsPageList?.pages || [];
+    const rawPages: IRawPage[] = compactList(data?.cmsPageList?.pages);
     return buildTree(rawPages);
   }, [data]);
 

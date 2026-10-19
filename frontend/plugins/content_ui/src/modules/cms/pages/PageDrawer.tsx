@@ -1,7 +1,7 @@
 import { IconAlertCircle } from '@tabler/icons-react';
 import { Form, ScrollArea, toast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
 import { ApolloError, useQuery } from '@apollo/client';
 import { useSetAtom, useAtomValue } from 'jotai';
@@ -18,6 +18,8 @@ import {
   TranslationData,
 } from '../shared/hooks/useCmsTranslation';
 import { cmsLanguageAtom } from '../shared/states/cmsLanguageState';
+import { compactList } from '../shared/utils';
+import { toFieldDefinitions } from '../custom-fields/utils/toFieldDefinitions';
 import { PageEditorColumn } from './components/PageEditorColumn';
 import { PageSidebarPanel } from './components/PageSidebarPanel';
 import {
@@ -94,12 +96,6 @@ const blocksToHtml = (raw: string): string => {
 const normalizeContent = (raw: string): string => {
   return raw.trimStart().startsWith('[') ? blocksToHtml(raw) : raw;
 };
-
-interface CmsConfig {
-  clientPortalId: string;
-  languages?: string[];
-  language?: string;
-}
 
 interface GraphQLErrorEntry {
   message: string;
@@ -223,9 +219,12 @@ export function PageDrawer({
   });
 
   const cmsConfig = cmsData?.contentCMSList?.find(
-    (cms: CmsConfig) => cms.clientPortalId === clientPortalId,
+    (cms) => cms?.clientPortalId === clientPortalId,
   );
-  const availableLanguages: string[] = cmsConfig?.languages || [];
+  const availableLanguages = useMemo(
+    () => compactList(cmsConfig?.languages),
+    [cmsConfig?.languages],
+  );
   const defaultLanguage: string = cmsConfig?.language || 'en';
 
   const {
@@ -338,15 +337,27 @@ export function PageDrawer({
 
   const currentPageId = page?._id;
 
-  const fieldGroups: FieldGroup[] = (
-    customFieldsData?.cmsCustomFieldGroupList?.list || []
-  ).filter((group: any) => {
-    const ids: string[] = group.customPostTypeIds || [];
+  const fieldGroupList = useMemo(
+    () =>
+      compactList(customFieldsData?.cmsCustomFieldGroupList?.list).map(
+        (group) => ({
+          _id: group._id,
+          label: group.label,
+          customPostTypeIds: compactList(group.customPostTypeIds),
+          enabledPageIds: compactList(group.enabledPageIds),
+          fields: toFieldDefinitions(group.fields),
+        }),
+      ),
+    [customFieldsData],
+  );
+
+  const fieldGroups: FieldGroup[] = fieldGroupList.filter((group) => {
+    const ids: string[] = group.customPostTypeIds;
     // show if no restriction, or explicitly includes 'page'
     const showOnPage = ids.length === 0 || ids.includes('page');
     if (!showOnPage) return false;
     // if specific pages are set, only show for this page
-    const enabledPageIds: string[] = group.enabledPageIds || [];
+    const enabledPageIds: string[] = group.enabledPageIds;
     if (enabledPageIds.length > 0 && currentPageId) {
       return enabledPageIds.includes(currentPageId);
     }

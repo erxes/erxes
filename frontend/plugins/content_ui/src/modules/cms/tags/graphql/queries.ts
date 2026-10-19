@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const CMS_TAG_DETAIL = gql`
+export const CMS_TAG_DETAIL = gql(`
   query CmsTagDetail($_id: String!, $clientPortalId: String) {
     cmsTag(_id: $_id, clientPortalId: $clientPortalId) {
       _id
@@ -16,4 +16,4 @@ export const CMS_TAG_DETAIL = gql`
       }
     }
   }
-`;
+`);

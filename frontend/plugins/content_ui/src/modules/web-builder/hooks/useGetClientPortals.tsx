@@ -1,4 +1,6 @@
 import { useQuery } from '@apollo/client';
+import { useMemo } from 'react';
+import { compactList } from '@/cms/shared/utils';
 import { GET_CLIENT_PORTALS } from '../graphql/queries/getClientPortals';
 
 export interface IClientPortal {
@@ -11,7 +13,10 @@ export const useGetClientPortals = () => {
     fetchPolicy: 'cache-first',
   });
 
-  const portals: IClientPortal[] = data?.getClientPortals?.list || [];
+  const portals: IClientPortal[] = useMemo(
+    () => compactList(data?.getClientPortals?.list),
+    [data?.getClientPortals?.list],
+  );
 
   return { portals, loading };
 };

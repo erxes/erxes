@@ -1,10 +1,5 @@
+import type { MenuLinkType } from '~/gql/graphql';
 import { TranslationData } from '../../shared/hooks/useCmsTranslation';
-
-export interface CmsConfig {
-  clientPortalId: string;
-  languages?: string[];
-  language?: string;
-}
 
 export interface GraphQLErrorEntry {
   message: string;
@@ -24,7 +19,7 @@ export interface MenuInput {
   contentType?: string;
   contentTypeId?: string;
   type?: 'cms' | 'web';
-  linkType?: string;
+  linkType?: MenuLinkType;
   kind: string;
   parentId?: string;
   target?: string;
@@ -34,14 +29,14 @@ export interface MenuInput {
 
 export interface MenuItem {
   _id: string;
-  label: string;
-  parentId?: string;
-  kind?: string;
-  url?: string;
-  order?: number;
+  label: string | null;
+  parentId?: string | null;
+  kind?: string | null;
+  url?: string | null;
+  order?: number | null;
   depth?: number;
   path?: string[];
-  translations?: { language: string }[];
+  translations?: ({ language: string | null } | null)[] | null;
   [key: string]: unknown;
 }
 
@@ -81,9 +76,9 @@ export interface MenuFormData {
 
 export interface MenuContentItem {
   _id: string;
-  slug: string;
-  name?: string;
-  title?: string;
+  slug: string | null;
+  name?: string | null;
+  title?: string | null;
 }
 
 export interface MenuCustomType {

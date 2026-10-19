@@ -1,4 +1,5 @@
-import { gql, useQuery } from '@apollo/client';
+import { gql } from '~/gql';
+import { useQuery } from '@apollo/client';
 import { useAtomValue } from 'jotai';
 import { cmsLanguageAtom } from '~/modules/cms/shared/states/cmsLanguageState';
 import { CMS_CUSTOM_FIELD_GROUPS } from '../../../../custom-fields/graphql/queries';
@@ -8,7 +9,7 @@ import type { IWebsite } from '~/modules/cms/types';
 
 export type PostUrlField = '_id' | 'count' | 'slug';
 
-const COMBINED_CMS_DATA = gql`
+const COMBINED_CMS_DATA = gql(`
   query CombinedCmsData(
     $clientPortalId: String!
     $limit: Int
@@ -39,7 +40,7 @@ const COMBINED_CMS_DATA = gql`
       description
     }
   }
-`;
+`);
 
 interface IRawCategory {
   _id: string;

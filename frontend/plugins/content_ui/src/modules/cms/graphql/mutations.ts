@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const CONTENT_CREATE_CMS = gql`
+export const CONTENT_CREATE_CMS = gql(`
   mutation ContentCreateCMS($input: ContentCMSInput) {
     contentCreateCMS(input: $input) {
       _id
@@ -49,9 +49,9 @@ export const CONTENT_CREATE_CMS = gql`
       content
     }
   }
-`;
+`);
 
-export const CONTENT_UPDATE_CMS = gql`
+export const CONTENT_UPDATE_CMS = gql(`
   mutation ContentUpdateCMS($id: String!, $input: ContentCMSInput) {
     contentUpdateCMS(id: $id, input: $input) {
       _id
@@ -100,12 +100,12 @@ export const CONTENT_UPDATE_CMS = gql`
       content
     }
   }
-`;
+`);
 
-export const CONTENT_DELETE_CMS = gql`
+export const CONTENT_DELETE_CMS = gql(`
   mutation ContentDeleteCMS($id: String!) {
     contentDeleteCMS(id: $id)
   }
-`;
+`);
 
 // CMS: Custom Post Types

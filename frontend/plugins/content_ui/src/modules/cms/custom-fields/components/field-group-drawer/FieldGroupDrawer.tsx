@@ -2,11 +2,11 @@ import { Button, Sheet, Input, MultipleSelector } from 'erxes-ui';
 import { useForm, Controller } from 'react-hook-form';
 import { useEffect } from 'react';
 import { useQuery } from '@apollo/client';
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 import { useTranslation } from 'react-i18next';
 import { ICustomFieldGroup } from '../../types/customFieldTypes';
 
-const PAGES_FOR_RULES = gql`
+const PAGES_FOR_RULES = gql(`
   query PagesForRules($clientPortalId: String!) {
     cmsPageList(clientPortalId: $clientPortalId, limit: 100) {
       pages {
@@ -15,9 +15,9 @@ const PAGES_FOR_RULES = gql`
       }
     }
   }
-`;
+`);
 
-const CATEGORIES_FOR_RULES = gql`
+const CATEGORIES_FOR_RULES = gql(`
   query CategoriesForRules($clientPortalId: String!) {
     cmsCategories(clientPortalId: $clientPortalId, limit: 100) {
       list {
@@ -26,9 +26,9 @@ const CATEGORIES_FOR_RULES = gql`
       }
     }
   }
-`;
+`);
 
-const POSTS_FOR_RULES = gql`
+const POSTS_FOR_RULES = gql(`
   query PostsForRules($clientPortalId: String!) {
     cmsPostList(clientPortalId: $clientPortalId, limit: 100) {
       posts {
@@ -37,7 +37,7 @@ const POSTS_FOR_RULES = gql`
       }
     }
   }
-`;
+`);
 
 interface FieldGroupDrawerProps {
   isOpen: boolean;
