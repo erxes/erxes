@@ -26,6 +26,10 @@ import {
 } from '@/agents/agent';
 import { getAgentsRuntime } from '@/agents/memory';
 import { publishAgentsThreadsChanged } from '@/agents/threadsEvents';
+import {
+  AgentsMessageEditError,
+  withRewoundAgentsHistory,
+} from '@/agents/messageEditing';
 import { buildAgentsRequestContext } from '@/agents/requestContext';
 import type { IAgentsNavigationEntry } from '@/agents/requestContext';
 import {
@@ -565,6 +569,7 @@ router.post('/agents/chat', async (req, res) => {
     fileIds?: unknown;
     pageContext?: unknown;
     navigation?: unknown;
+    editMessageId?: string;
   };
 
   if (!Array.isArray(body.messages) || body.messages.length === 0) {
@@ -579,6 +584,21 @@ router.post('/agents/chat', async (req, res) => {
 
   if (!newestMessage || newestMessage.role !== 'user') {
     jsonError(res, 400, new Error('The newest message must be from the user.'));
+    return;
+  }
+
+  if (
+    body.editMessageId !== undefined &&
+    (typeof body.editMessageId !== 'string' ||
+      !body.editMessageId.trim() ||
+      body.editMessageId !== newestMessage.id ||
+      !body.threadId)
+  ) {
+    jsonError(
+      res,
+      400,
+      new Error('An edit must identify the user message and its existing thread.'),
+    );
     return;
   }
 
@@ -633,7 +653,7 @@ router.post('/agents/chat', async (req, res) => {
       Array.isArray(newestMessage.parts) ? newestMessage.parts : [],
     );
 
-    if (files.length > 0) {
+    if (files.length > 0 || body.editMessageId !== undefined) {
       await checkPermissionGroup(identity.subdomain, identity.user)('agentsChat');
     }
 
@@ -695,7 +715,7 @@ router.post('/agents/chat', async (req, res) => {
     // modelSettings go via stream options (not the Agent constructor's
     // model list) because durable serialization drops list-entry
     // modelSettings but serializes stream-level ones.
-    const result = await runtime.agent.stream([messageForModel], {
+    const start = () => runtime.agent.stream([messageForModel], {
       runId,
       maxSteps: AGENTS_MAX_STEPS,
       modelSettings: buildAgentsModelSettings(
@@ -719,9 +739,23 @@ router.post('/agents/chat', async (req, res) => {
       requestContext,
     });
 
+    const result = body.editMessageId
+      ? await withRewoundAgentsHistory({
+          memory: runtime.memory,
+          agent: runtime.agent,
+          threadId,
+          resourceId: identity.userId,
+          messageId: body.editMessageId,
+          start,
+        })
+      : await start();
+
     await pipeModelOutput(res, threadId, result.output);
   } catch (error) {
-    if (error instanceof AgentsFileBindError) {
+    if (
+      error instanceof AgentsFileBindError ||
+      error instanceof AgentsMessageEditError
+    ) {
       jsonError(res, error.statusCode, error);
       return;
     }

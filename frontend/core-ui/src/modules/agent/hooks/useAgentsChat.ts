@@ -16,6 +16,7 @@ import {
 } from '../askUserAnswers';
 import type { IAskUserQuestionEntry } from '../components/AskUserPrompt';
 import { mapStoredMessagesToUIMessages } from '../mapStoredMessages';
+import { extractPageContext } from '../utils/pageContext';
 import { useNavigationCatalog } from './useNavigationCatalog';
 import { agentNavigationCatalogState } from '../states/agentNavigationCatalogState';
 import type {
@@ -285,6 +286,8 @@ export interface IUseAgentsChatResult {
   setPageContext: (context: IAgentsPageContext | undefined) => void;
   /** Re-sends the last request after a stream error, when one exists. */
   retryLastTurn: () => void;
+  /** Replaces a user turn and continues from that exact point in stored history. */
+  editMessage: (messageId: string, text: string) => void;
 }
 
 /**
@@ -354,6 +357,12 @@ export const useAgentsChat = (options?: {
    * later send never replays it.
    */
   const pendingAnswerRef = useRef<IPendingAnswer | undefined>(undefined);
+  const pendingEditRef = useRef<
+    { messages: UIMessage[]; selection: number; messageId: string } | undefined
+  >(undefined);
+  const restoreEditRef = useRef<(messages: UIMessage[]) => void>(
+    () => undefined,
+  );
 
   /**
    * The most recent reconnect outcome, reported synchronously by the
@@ -403,6 +412,18 @@ export const useAgentsChat = (options?: {
         onReconnectOutcome: (reconnected) => {
           reconnectOutcomeRef.current = reconnected;
         },
+        onChatResponse: (accepted, messageId) => {
+          const edit = pendingEditRef.current;
+          if (edit?.messageId !== messageId) return;
+          pendingEditRef.current = undefined;
+          if (
+            !accepted &&
+            edit &&
+            edit.selection === threadSelectionRef.current
+          ) {
+            restoreEditRef.current(edit.messages);
+          }
+        },
         consumePendingAnswer: () => {
           const answer = pendingAnswerRef.current;
           pendingAnswerRef.current = undefined;
@@ -448,6 +469,7 @@ export const useAgentsChat = (options?: {
   // stream (the memoized transcript rows rely on that).
   const messagesRef = useRef(messages);
   messagesRef.current = messages;
+  restoreEditRef.current = setMessages;
   const statusRef = useRef(status);
   statusRef.current = status;
 
@@ -464,6 +486,14 @@ export const useAgentsChat = (options?: {
       ensureThreadId();
 
       const first: Parameters<typeof sdkSendMessage>[0] = args[0];
+      if (
+        typeof first !== 'object' ||
+        !first ||
+        !('messageId' in first) ||
+        !first.messageId
+      ) {
+        pendingEditRef.current = undefined;
+      }
       const text =
         typeof first === 'string'
           ? first
@@ -487,6 +517,47 @@ export const useAgentsChat = (options?: {
       return sdkSendMessage(...args);
     },
     [sdkSendMessage, ensureThreadId],
+  );
+
+  const editMessage = useCallback(
+    (messageId: string, text: string) => {
+      const message = messagesRef.current.find(
+        (entry) => entry.id === messageId,
+      );
+      if (
+        !text.trim() ||
+        !message ||
+        message.role !== 'user' ||
+        (statusRef.current !== 'ready' && statusRef.current !== 'error') ||
+        activeRunIdRef.current
+      )
+        return;
+
+      const { context, parts } = extractPageContext(message.parts);
+      // Keep attachments; the SDK replaces this exact turn and drops its tail.
+      pendingEditRef.current = {
+        messages: messagesRef.current,
+        selection: threadSelectionRef.current,
+        messageId,
+      };
+      clearError();
+      void sendMessage(
+        {
+          messageId,
+          parts: [
+            ...parts.filter((part) => part.type !== 'text'),
+            { type: 'text', text: text.trim() },
+          ],
+          metadata: message.metadata,
+        },
+        {
+          body: { editMessageId: messageId, pageContext: context },
+        },
+      ).catch(() => {
+        // Provider/transport failures surface through the chat's error banner.
+      });
+    },
+    [sendMessage, clearError],
   );
 
   const selectModel = useCallback((nextProvider: string, nextModel: string) => {
@@ -890,5 +961,6 @@ export const useAgentsChat = (options?: {
     resumeStream,
     setPageContext,
     retryLastTurn,
+    editMessage,
   };
 };

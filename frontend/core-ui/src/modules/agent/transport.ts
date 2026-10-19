@@ -80,6 +80,8 @@ export interface IAgentsChatTransportOptions {
    * be left alone (the replay is streaming the reply in already).
    */
   onReconnectOutcome?: (reconnected: boolean) => void;
+  /** Lets an optimistic edit restore its transcript when the server rejects it. */
+  onChatResponse?: (accepted: boolean, editMessageId: string) => void;
 }
 
 const selectionToBody = (
@@ -200,6 +202,7 @@ export class AgentsChatTransport
     onActiveRunId,
     consumePendingAnswer,
     onReconnectOutcome,
+    onChatResponse,
   }: IAgentsChatTransportOptions) {
     super({
       api: AGENTS_CHAT_URL,
@@ -241,6 +244,13 @@ export class AgentsChatTransport
         // A rejected fetch (network failure/abort) preserves it so the
         // live run stays reconnectable.
         const response = await fetch(input, init);
+        const request =
+          typeof init?.body === 'string'
+            ? (JSON.parse(init.body) as { editMessageId?: string })
+            : undefined;
+        if (request?.editMessageId) {
+          onChatResponse?.(response.ok, request.editMessageId);
+        }
 
         if (!response.ok) {
           onActiveRunId(undefined);

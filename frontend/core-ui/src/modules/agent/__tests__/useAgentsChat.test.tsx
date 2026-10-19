@@ -1,5 +1,6 @@
 /** @jest-environment jsdom */
 import { act, renderHook } from '@testing-library/react';
+import { randomUUID } from 'crypto';
 import { useAgentsChat } from '../hooks/useAgentsChat';
 
 jest.mock('ai', () => ({
@@ -11,7 +12,16 @@ jest.mock('@apollo/client', () => ({
   ...jest.requireActual('@apollo/client'),
   useLazyQuery: jest.fn(),
 }));
-jest.mock('../transport', () => ({ AgentsChatTransport: class {} }));
+let mockOnChatResponse: (accepted: boolean, messageId: string) => void;
+jest.mock('../transport', () => ({
+  AgentsChatTransport: class {
+    constructor(options: {
+      onChatResponse: (accepted: boolean, messageId: string) => void;
+    }) {
+      mockOnChatResponse = options.onChatResponse;
+    }
+  },
+}));
 jest.mock('../hooks/useNavigationCatalog', () => ({
   useNavigationCatalog: () => [],
 }));
@@ -43,6 +53,13 @@ const detail = (id: string) => ({
     },
   },
 });
+
+beforeAll(() =>
+  Object.defineProperty(crypto, 'randomUUID', {
+    value: randomUUID,
+    configurable: true,
+  }),
+);
 
 beforeEach(() => {
   sessionStorage.clear();
@@ -109,4 +126,93 @@ it('does not restore a pending thread after starting a new conversation', async 
   expect(result.current.threadId).toBeUndefined();
   expect(setMessages).toHaveBeenLastCalledWith([]);
   expect(sessionStorage.getItem('agents-selected-thread:page')).toBeNull();
+});
+
+const editHistory = [
+  { id: 'first', role: 'user', parts: [{ type: 'text', text: 'Hello' }] },
+  { id: 'reply', role: 'assistant', parts: [{ type: 'text', text: 'Hi' }] },
+  {
+    id: 'edit-me',
+    role: 'user',
+    parts: [
+      { type: 'text', text: '[Page context] The user is viewing /contacts.' },
+      { type: 'text', text: 'Old prompt' },
+      {
+        type: 'data-agents-files',
+        data: {
+          files: [
+            {
+              name: 'report.csv',
+              url: 'report-key',
+              type: 'text/csv',
+              size: 10,
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    id: 'later',
+    role: 'assistant',
+    parts: [{ type: 'text', text: 'Old answer' }],
+  },
+];
+
+const mockEditableChat = (status = 'ready') => {
+  const send = jest.fn(async () => undefined);
+  (useChat as jest.Mock).mockReturnValue({
+    messages: editHistory,
+    status,
+    sendMessage: send,
+    setMessages,
+    clearError: noop,
+    stop,
+    addToolApprovalResponse: noop,
+    resumeStream: noop,
+    regenerate: noop,
+  });
+  return send;
+};
+
+it('uses SDK message replacement while retaining the original attachments and page context', () => {
+  const send = mockEditableChat();
+  const { result } = renderHook(() => useAgentsChat());
+  act(() => result.current.editMessage('edit-me', '  Revised prompt  '));
+  expect(send).toHaveBeenCalledWith(
+    {
+      messageId: 'edit-me',
+      parts: [
+        editHistory[2].parts[2],
+        { type: 'text', text: 'Revised prompt' },
+      ],
+      metadata: undefined,
+    },
+    { body: { editMessageId: 'edit-me', pageContext: { path: '/contacts' } } },
+  );
+});
+
+it('restores the full transcript when the server rejects an edit', () => {
+  mockEditableChat();
+  const { result } = renderHook(() => useAgentsChat());
+  act(() => result.current.editMessage('edit-me', 'Revised prompt'));
+  act(() => mockOnChatResponse(false, 'edit-me'));
+  expect(setMessages).toHaveBeenLastCalledWith(editHistory);
+});
+
+it('does not restore a rejected edit into a different conversation', async () => {
+  mockEditableChat();
+  const { result } = renderHook(() => useAgentsChat());
+  act(() => result.current.editMessage('edit-me', 'Revised prompt'));
+  await act(async () => result.current.startNewConversation());
+  act(() => mockOnChatResponse(false, 'edit-me'));
+  expect(setMessages).toHaveBeenLastCalledWith([]);
+});
+
+it('does not edit assistant messages or interrupt a streaming response', () => {
+  const send = mockEditableChat('streaming');
+  const { result } = renderHook(() => useAgentsChat());
+  act(() => result.current.editMessage('edit-me', 'Revised prompt'));
+  act(() => result.current.editMessage('reply', 'Revised prompt'));
+  expect(send).not.toHaveBeenCalled();
 });

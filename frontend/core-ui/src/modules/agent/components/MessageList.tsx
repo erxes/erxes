@@ -6,7 +6,7 @@ import {
   Tooltip,
   cn,
 } from 'erxes-ui';
-import { Fragment, memo, useEffect, useMemo, useRef, useState } from 'react';
+import { Fragment, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   IconArrowDown,
   IconCheck,
@@ -34,6 +34,7 @@ import {
   type AgentChatWidth,
 } from '../utils/chatWidth';
 import { buildTranscriptRows } from '../utils/transcriptRows';
+import { UserMessage } from './UserMessage';
 
 export interface IMessageListProps {
   messages: UIMessage[];
@@ -51,6 +52,8 @@ export interface IMessageListProps {
   onAnswer: (answer: string | string[] | (string | string[])[]) => void;
   onRetryArtifact: (title: string) => void;
   onRetryTurn: () => void;
+  onEditMessage: (messageId: string, text: string) => void;
+  editingDisabled: boolean;
   error: string | undefined;
 }
 
@@ -148,6 +151,10 @@ interface IMessageRowProps {
   answerBusy: boolean;
   onAnswer: (answer: string | string[] | (string | string[])[]) => void;
   onRetryArtifact: (title: string) => void;
+  editing: boolean;
+  editingDisabled: boolean;
+  onEditingChange: (messageId: string | null) => void;
+  onEditMessage: (messageId: string, text: string) => void;
 }
 
 /**
@@ -169,6 +176,10 @@ const MessageRow = memo(
     answerBusy,
     onAnswer,
     onRetryArtifact,
+    editing,
+    editingDisabled,
+    onEditingChange,
+    onEditMessage,
   }: IMessageRowProps) => {
     const { t } = useTranslation('common', { keyPrefix: 'agent' });
     const [copied, setCopied] = useState(false);
@@ -249,6 +260,9 @@ const MessageRow = memo(
             </div>
           )}
           <div className="group/assistant flex w-full flex-col">
+            <p className="mb-2 text-[11px] font-medium text-muted-foreground">
+              {t('title', 'AI Agent')}
+            </p>
             <div className="min-w-0 flex-1">
               {items.map((item, index) =>
                 item.kind === 'work' ? (
@@ -273,7 +287,7 @@ const MessageRow = memo(
                   'mt-1 flex items-center gap-0.5 transition-opacity',
                   isLastAssistant
                     ? 'opacity-100'
-                    : 'opacity-0 group-hover/assistant:opacity-100 group-focus-within/assistant:opacity-100',
+                    : 'opacity-100 sm:opacity-0 sm:group-hover/assistant:opacity-100 sm:group-focus-within/assistant:opacity-100',
                 )}
               >
                 {hasText && (
@@ -343,18 +357,22 @@ const MessageRow = memo(
             </span>
           </div>
         )}
-        <div className="flex w-full flex-col items-end">
-          <div className="max-w-[min(85%,44rem)] rounded-2xl rounded-br-md bg-muted px-4 py-2.5 text-foreground">
-            {parts.map((part, partIndex) => (
-              <MessagePartRenderer
-                key={`${message.id}-${partIndex}`}
-                part={part}
-                role={message.role}
-                {...partProps}
-              />
-            ))}
-          </div>
-        </div>
+        <UserMessage
+          message={message}
+          editing={editing}
+          disabled={editingDisabled}
+          onEditingChange={onEditingChange}
+          onEdit={onEditMessage}
+        >
+          {parts.map((part, partIndex) => (
+            <MessagePartRenderer
+              key={`${message.id}-${partIndex}`}
+              part={part}
+              role={message.role}
+              {...partProps}
+            />
+          ))}
+        </UserMessage>
       </Fragment>
     );
   },
@@ -402,6 +420,8 @@ export const MessageList = ({
   onAnswer,
   onRetryArtifact,
   onRetryTurn,
+  onEditMessage,
+  editingDisabled,
   error,
 }: IMessageListProps) => {
   const { t } = useTranslation('common', { keyPrefix: 'agent' });
@@ -410,6 +430,17 @@ export const MessageList = ({
   const [showScrollDown, setShowScrollDown] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
   const prevLoadingThreadRef = useRef(loadingThread);
+  const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (loadingThread) setEditingMessageId(null);
+  }, [loadingThread]);
+
+  const handleEditMessage = useCallback((messageId: string, text: string) => {
+    nearBottomRef.current = true;
+    setShowScrollDown(false);
+    onEditMessage(messageId, text);
+  }, [onEditMessage]);
 
   const lastMessagePartsLength =
     messages[messages.length - 1]?.parts.length ?? 0;
@@ -534,6 +565,10 @@ export const MessageList = ({
           answerBusy={answerBusy}
           onAnswer={onAnswer}
           onRetryArtifact={onRetryArtifact}
+          editing={row.message.id === editingMessageId}
+          editingDisabled={editingDisabled}
+          onEditingChange={setEditingMessageId}
+          onEditMessage={handleEditMessage}
         />
       )),
     [
@@ -546,6 +581,9 @@ export const MessageList = ({
       answerBusy,
       onAnswer,
       onRetryArtifact,
+      editingMessageId,
+      editingDisabled,
+      handleEditMessage,
     ],
   );
 

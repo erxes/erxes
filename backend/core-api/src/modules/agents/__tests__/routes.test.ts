@@ -251,6 +251,7 @@ interface IMemoryFake {
   listThreads: jest.Mock;
   recall: jest.Mock;
   saveMessages: jest.Mock;
+  deleteMessages: jest.Mock;
 }
 
 const threadPage = (
@@ -284,6 +285,7 @@ const buildMemory = (): IMemoryFake => ({
   listThreads: jest.fn(async () => threadPage([])),
   recall: jest.fn(async () => messagePage([], null)),
   saveMessages: jest.fn(async ({ messages }) => ({ messages })),
+  deleteMessages: jest.fn(async () => undefined),
 });
 
 interface IStreamOptions {
@@ -551,6 +553,78 @@ describe('POST /agents/chat — authentication and validation', () => {
     expect(res.statusCode).toBe(500);
     expect(body(res).error).toBe('model exploded');
     expect(mockedPipe).not.toHaveBeenCalled();
+  });
+});
+
+describe('POST /agents/chat — editing an earlier turn', () => {
+  const request = {
+    messages: [userMessage('revised')],
+    threadId: 'own-thread',
+    editMessageId: 'm-revised',
+  };
+
+  it('rejects malformed targets before changing storage', async () => {
+    for (const invalid of [42, '', 'different-message']) {
+      const res = buildRes();
+      await chatHandler(
+        buildReq({
+          user: ACTING_USER,
+          body: { ...request, editMessageId: invalid },
+        }),
+        res,
+      );
+      expect(res.statusCode).toBe(400);
+    }
+    expect(memory.deleteMessages).not.toHaveBeenCalled();
+  });
+
+  it('checks ownership before reading or deleting any messages', async () => {
+    memory.getThreadById.mockResolvedValue({ resourceId: 'user-other' });
+    const res = buildRes();
+    await chatHandler(buildReq({ user: ACTING_USER, body: request }), res);
+    expect(res.statusCode).toBe(403);
+    expect(memory.recall).not.toHaveBeenCalled();
+    expect(memory.deleteMessages).not.toHaveBeenCalled();
+  });
+
+  it('rewinds stored history before streaming the edited prompt into the same thread', async () => {
+    memory.getThreadById.mockResolvedValue({ resourceId: 'user-1' });
+    memory.recall.mockResolvedValue(
+      messagePage(
+        [
+          { id: 'earlier', role: 'user' },
+          { id: 'm-revised', role: 'user' },
+          { id: 'old-reply', role: 'assistant' },
+        ],
+        null,
+      ),
+    );
+    const res = buildRes();
+    await chatHandler(buildReq({ user: ACTING_USER, body: request }), res);
+    expect(res.statusCode).toBe(200);
+    expect(memory.deleteMessages).toHaveBeenCalledWith([
+      'm-revised',
+      'old-reply',
+    ]);
+    expect(streamMock).toHaveBeenCalledWith(
+      [expect.objectContaining({ id: 'm-revised' })],
+      expect.objectContaining({
+        memory: expect.objectContaining({ thread: 'own-thread' }),
+      }),
+    );
+  });
+
+  it('returns a conflict when the thread is waiting for an answer', async () => {
+    memory.getThreadById.mockResolvedValue({ resourceId: 'user-1' });
+    listSuspendedRunsMock.mockResolvedValue({
+      runs: [{ runId: 'pending' }],
+      total: 1,
+    });
+    const res = buildRes();
+    await chatHandler(buildReq({ user: ACTING_USER, body: request }), res);
+    expect(res.statusCode).toBe(409);
+    expect(memory.deleteMessages).not.toHaveBeenCalled();
+    expect(streamMock).not.toHaveBeenCalled();
   });
 });
 

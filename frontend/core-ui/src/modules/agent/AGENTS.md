@@ -36,6 +36,17 @@ The `agent` module is the core-ui surface for the core-api `agents` backend
   refetches `AgentsThreads` + `AgentsPinnedThreads`);
 - a Twenty-style transcript: work-steps grouping, approval card, ask_user
   card, artifact cards, markdown + clickable record references;
+- user turns have Copy and inline Edit actions (`components/UserMessage.tsx`).
+  Save & resend uses the SDK's `messageId` replacement and sends
+  `editMessageId` to rewind persisted history at that exact user turn. It
+  retains attachments and original page context, restores the transcript on
+  HTTP rejection, and is disabled during active/suspended/reconnectable runs.
+  Later replies are replaced; previously executed workspace actions remain;
+- `AskUserPrompt` presents one question at a time with full-width choices,
+  custom text, progress navigation and retained drafts. Multi-question groups
+  have a review/edit step before explicit submission; answers keep the existing
+  positional string/string-array contract. `AskUserAnswered` is the persisted
+  summary in the transcript;
 - settings at `/settings/agent/*`: `connection` (BYOK), `code-mode`
   (admin-gated switch), `approvals` (admin-gated `approvalMode` radio —
   `writes` default asks before every mutation), wired through

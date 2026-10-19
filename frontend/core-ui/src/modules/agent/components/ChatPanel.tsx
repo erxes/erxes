@@ -435,6 +435,10 @@ export const ChatPanel = ({
           onAnswer={submitAnswer}
           onRetryArtifact={handleRetryArtifact}
           onRetryTurn={retryLastTurn}
+          onEditMessage={chat.editMessage}
+          editingDisabled={
+            isStreaming || loadingThread || answerBusy || canReconnect || noConnection
+          }
           error={error ? describeError(error) : undefined}
         />
         {/* `pb` keeps the composer clear of the iOS home indicator without

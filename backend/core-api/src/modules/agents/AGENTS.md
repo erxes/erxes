@@ -50,6 +50,13 @@ plugin; ported from the former private `erxes-agent` service). It provides:
   All require the gateway `user` header; chat also checks `agentsChat` when
   attachments are sent. Identity is stamped from the header into Mastra
   RequestContext — never from the body or the model.
+- Chat accepts optional `editMessageId`, matching the newest user message id
+  and an owned existing thread. `messageEditing.ts` checks active
+  and suspended runs, finds the exact stored user turn, removes that turn and
+  its suffix via Mastra Memory, then starts the edited turn in the same thread.
+  The route checks permission/ownership and validates attachments before any
+  rewind. Failed stream startup restores the removed messages. Editing does
+  not reverse business operations already executed by tools.
 - GraphQL (wired into `src/apollo/schema/schema.ts` + resolvers):
   `agentsConnections`, `agentsModels` (server-side provider /models fetch),
   `agentsConnectionUpsert`/`agentsConnectionRemove` (BYOK; key never read
