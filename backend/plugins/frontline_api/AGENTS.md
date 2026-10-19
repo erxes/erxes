@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-10-17`
+- **Last synchronized:** `2026-10-19`
 
 ## Scope
 
@@ -526,7 +526,7 @@
   `email`, then `phone` — one `companies.findOne` query per selector, stopping
   at the first hit — so a repeat connect updates the existing company instead
   of creating a duplicate.
-- `pnpm schema:print` writes the full subgraph schema, including the
+- `pnpm nx run frontline_api:schema:print` writes the full subgraph schema, including the
   subscription fields from `src/apollo/subscription.ts`, to
   `generated/schema.graphql` without Redis, Mongo or a running service.
 
@@ -542,7 +542,7 @@ The root router mounts its authenticated webhook at `/telegram`.
 | Bootstrap                | `src/main.ts`                                                                                                                                                    | `startPlugin({ name: 'frontline', port: 3304 })`, wires tRPC, routes, meta, and every surface                                                                                                                          |
 | Models                   | `src/connectionResolvers.ts`                                                                                                                                     | Per-subdomain model container for all modules                                                                                                                                                                          |
 | GraphQL                  | `src/apollo/`                                                                                                                                                    | Aggregated `typeDefs` and `resolvers` across modules                                                                                                                                                                   |
-| Schema print             | `print-schema.ts`                                                                                                                                                | Prints the subgraph schema for `frontline_ui` codegen (`generated/`, gitignored)                                                                                                                                       |
+| Schema print             | `scripts/print-subgraph-schema.ts`                                                                                                                                                | Prints the subgraph schema for `frontline_ui` codegen (`generated/`, gitignored)                                                                                                                                       |
 | tRPC                     | `src/init-trpc.ts`                                                                                                                                               | `appRouter` for service-to-service calls                                                                                                                                                                               |
 | Agent tool metadata      | `src/trpc/agentMeta.ts`                                                                                                                                          | Local `agentMeta` helper for agent-callable tRPC annotations                                                                                                                                                           |
 | HTTP                     | `src/routes.ts`                                                                                                                                                  | Mounts the `/facebook`, `/instagram`, `/mail`, and (when enabled) `/callpro` webhook routers                                                                                                                           |
@@ -1258,9 +1258,8 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - Automation types — trigger `frontline:mail.messages` (target
   `TMailTriggerTarget`), actions `frontline:mail.messages.create` (Send Email)
   and `frontline:mail.drafts.create` (Draft Email Reply).
-- Nx target `schema:print` (cached, output `generated/schema.graphql`),
-  consumed by `frontline_ui:codegen` together with the UI's own core snapshot
-  `schema/platform.graphql`.
+- Nx target `schema:print` uses the shared `scripts/print-subgraph-schema.ts` printer (cached, output `generated/schema.graphql`),
+  consumed by `gateway:schema:compose`; `frontline_ui:codegen` uses that composed schema.
 
 ### Consumes
 
@@ -1286,6 +1285,10 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   The portal account behind a ticket is resolved from its `cp:<id>` author with
   `cpUsers.get` by `{ id }` and then by `{ erxesCustomerId }`, because a ticket
   records whichever of the two the portal session carried.
+- `core` over tRPC — `notifications.sendMobileNotification` (mutation,
+  `{ title, body, receivers, data }`), which pushes a new chat message to the
+  assigned and participating agents' `deviceTokens`. The path is
+  `notifications.*`, not `core.*`; a wrong path fails silently.
 - `automations` over tRPC — `automations.trigger`. The path is
   `automations.trigger`, not `triggers.trigger`; `sendTRPCMessage` swallows a
   wrong path or a query/mutation mismatch and returns `defaultValue`, so a
@@ -1395,6 +1398,11 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   `cpGetTicketTotalCount` pass `skipPipelineVisibility` to `generateFilter`, so
   a customer sees their own `cp:<id>` tickets in private pipelines. Without
   `createdBy` the staff rules still apply.
+- `cpGetTicketPipelines` is readable with only a portal token (no `cpUser`
+  required), so it never returns private pipelines and returns the
+  `CpTicketPipeline` type (`_id`, `name`, `description`, `channelId`), never
+  the staff `Pipeline` type with its member, department, numbering and
+  `createdUser` fields. Keep any new client portal read on its own narrow type.
 - A converted ticket's "Go to" URL (`conversationConvertedItems`, built in
   `src/modules/inbox/services/conversationConvertTargets.ts`) carries the
   ticket's `channelId` and `pipelineId` with `ticketId`; without them the
@@ -1414,7 +1422,7 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - `reactToConversationMessage` routes by integration kind through its
   `REACTION_HANDLERS` map (react + publish pair); a new reaction-capable kind is
   added there, never as another `if` branch.
-- `print-schema.ts` must exit the process itself: `erxes-api-shared/utils`
+- `scripts/print-subgraph-schema.ts` must exit the process itself: `erxes-api-shared/utils`
   opens a Redis client on import that would otherwise keep it alive.
 - Stored timestamps are `Date` in the SDL, never `String`: a `String` field
   serializes a stored `Date` as epoch milliseconds.
@@ -1474,10 +1482,10 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 ## Validation
 
+- `pnpm nx run frontline_api:schema:print` - prints this subgraph's SDL to `generated/schema.graphql` (gitignored) offline, for `gateway:schema:compose`.
 - `pnpm nx lint frontline_api` - runs ESLint with the plugin-local
   `eslint.config.js` (regex-escaping rules).
 - `pnpm nx build frontline_api`
-- `pnpm nx run frontline_api:schema:print` - writes `generated/schema.graphql`.
 - `pnpm nx test frontline_api` — Jest over `src/**/*.test.ts` and the
   Telegram `src/**/*.spec.ts` suites (`jest.config.ts`, `tsconfig.spec.json`).
   Both suffixes are excluded from `tsconfig.build.json`; prefer `.test.ts` for

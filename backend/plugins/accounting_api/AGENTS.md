@@ -6,7 +6,7 @@
 - **Project:** `accounting_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/accounting_api`
-- **Last synchronized:** `2026-10-13`
+- **Last synchronized:** `2026-10-15`
 
 ## Scope
 
@@ -24,7 +24,7 @@
 
 ## Current Capabilities
 
-- Prints the federated accounting SDL without starting a server via `schema:print`; frontend codegen validates operations against this contract.
+- Prints the federated accounting SDL without starting a server via `schema:print`; `gateway:schema:compose` includes this subgraph in the schema used by accounting UI codegen.
 - Creates, updates, removes, links, prints, and reports accounting transactions across main, cash, bank, receivable, payable, tax, inventory, fixed asset, and exchange-difference journals.
 - Exports accounting transaction detail rows through the platform import/export worker using transaction, account, journal, date, status, currency, branch, department, customer, and selected-id filters, with startup-safe capability metadata for Core discovery.
 - Permission metadata exposes VAT and CTAX row access through one `taxRow` module, exposes inventory/fixed-asset/fund-rate/debt-rate/closing adjustments as separate modules, and gates transaction reads/mutations by source journal while allowing generated follow journals, including `exchangeDiff`, through the source journal's permission.
@@ -63,7 +63,7 @@
 
 | Area                | Path                                                         | Responsibility                                                                                                          |
 | ------------------- | ------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------- |
-| Schema export | `backend/plugins/accounting_api/print-schema.ts` | Exports the federated SDL to ignored `generated/schema.graphql` for accounting UI codegen. |
+| Schema export | `scripts/print-subgraph-schema.ts` | Shared Nx target default exports federated SDL to ignored `generated/schema.graphql` for gateway composition. |
 | Runtime             | `src/main.ts`                                                | Starts the accounting API plugin service.                                                                               |
 | Import/export       | `src/meta/import-export`                                     | Registers accounting import and transaction export types, headers, and row producers.                                   |
 | Apollo integration  | `src/apollo`                                                 | Registers accounting schema, resolvers, subscriptions, and federation wiring.                                           |
@@ -92,7 +92,7 @@
 - Adjustment detail fields include account/customer/branch/department grouping metadata, `mainBalance`, `currencyBalance`, `diff`, linked transaction ids, and validation state fields `beginDate`, `successDate`, `checkedAt`, `error`, and `warning`.
 - GraphQL query `getAccLastIncomePrice(productIds: [String!]!): [AccountingLastIncomePrice!]!` returns `{ productId, unitPrice }` rows; `getAccCurrentCost` returns `[AccCurrentCost!]!` rows with product id, remainder, total cost, and unit cost instead of a JSON dictionary.
 - Account `extra` and safe remainder item `trInfo` outputs have explicit object SDL types; corresponding mutation inputs remain JSON for compatibility with existing write paths.
-- `print-schema.ts` writes the ignored `generated/schema.graphql` consumed by accounting UI codegen; regenerate through `pnpm nx run accounting_api:schema:print` after SDL changes.
+- `schema:print` opts into the shared printer in `nx.json` and writes ignored `generated/schema.graphql`. `gateway:schema:compose` consumes it and generates the schema used by frontend codegen.
 - GraphQL query `fixedAssetLocationRemainder(fixedAssetId, branchId, departmentId, date, excludeTransactionId)`, returning the transaction-history quantity for one fixed asset at one branch/department location.
 - Transaction journal enum accepts `invJustify`, with dedicated read, manage, and remove permission actions; `side: "dt"` means cost increase and `side: "ct"` means cost decrease.
 - GraphQL query `fixedAssetLocationRemainders(searchValue, fixedAssetId, categoryId, branchId, departmentId, date, limit)`, returning positive fixed asset quantities grouped by fixed asset, branch, and department.
@@ -204,7 +204,7 @@
 
 ## Validation
 
-- `pnpm nx run accounting_api:schema:print --skip-nx-cache`
+- `pnpm nx run accounting_api:schema:print --skip-nx-cache` prints this subgraph offline for `gateway:schema:compose`.
 - `pnpm nx lint accounting_api`
 - `pnpm nx build accounting_api`
 - `pnpm nx test accounting_api`

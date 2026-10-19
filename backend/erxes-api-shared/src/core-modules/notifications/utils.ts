@@ -74,13 +74,17 @@ export const sendNotificationChannels = async (
     userIds: string[];
     notificationType?: string;
     fromUserId?: string;
+    contentTypeId?: string | Types.ObjectId;
   } & Partial<INotificationData>,
 ) => {
   const {
     notificationType: eventName,
     userIds,
     contentType,
+    contentTypeId,
     fromUserId,
+    title,
+    message,
   } = notification || {};
 
   if (!contentType) return;
@@ -98,7 +102,7 @@ export const sendNotificationChannels = async (
     defaultValue: [],
   });
 
-  const recipientIds: Record<string, string[]> = { email: [] };
+  const recipientIds: Record<string, string[]> = { email: [], mobile: [] };
 
   for (const userNotificationSetting of userNotificationSettings) {
     const { userId, events } = userNotificationSetting || {};
@@ -119,11 +123,16 @@ export const sendNotificationChannels = async (
       continue;
     }
 
-    if (!events?.[`${pluginName}:${moduleName}:${eventName}`]?.enabled) {
+    const eventSetting = events?.[`${pluginName}:${moduleName}:${eventName}`];
+
+    if (!eventSetting?.enabled) {
       continue;
     }
 
-    const channels = events?.[pluginName]?.channels || [];
+    const mutedChannels: string[] = eventSetting.mutedChannels || [];
+    const channels = (events?.[pluginName]?.channels || []).filter(
+      (channel: string) => !mutedChannels.includes(channel),
+    );
 
     if (!channels.length) {
       continue;
@@ -132,6 +141,32 @@ export const sendNotificationChannels = async (
     if (channels.includes('email')) {
       recipientIds['email'].push(userId);
     }
+
+    if (channels.includes('mobile')) {
+      recipientIds['mobile'].push(userId);
+    }
+  }
+
+  if (recipientIds['mobile'].length) {
+    await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      method: 'mutation',
+      module: 'notifications',
+      action: 'sendMobileNotification',
+      input: {
+        receivers: recipientIds['mobile'],
+        title,
+        body: message,
+        // FCM data values must be strings
+        data: {
+          contentType,
+          contentTypeId: String(contentTypeId ?? ''),
+          notificationType: eventName ?? '',
+        },
+      },
+      defaultValue: null,
+    });
   }
 
   if (recipientIds['email']?.length) {

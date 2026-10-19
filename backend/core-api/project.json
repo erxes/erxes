@@ -50,6 +50,7 @@
     "docker-build": {
       "dependsOn": ["build"],
       "command": "docker build -f backend/core-api/Dockerfile . -t erxes/erxes-next-core-api"
-    }
+    },
+    "schema:print": {}
   }
 }

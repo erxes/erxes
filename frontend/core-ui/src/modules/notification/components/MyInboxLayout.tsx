@@ -1,18 +1,13 @@
-import { MyInboxHeader } from '@/notification/components/MyInboxHeader';
 import { Resizable, useIsMobile } from 'erxes-ui';
+import type { ReactElement } from 'react';
 import { useParams } from 'react-router-dom';
+import { NotificationContent } from '@/notification/components/NotificationContent';
+import { Notifications } from '@/notification/components/Notifications';
+import { MyInboxHeader } from '@/notification/components/MyInboxHeader';
 
-type Props = {
-  Notifications: React.ComponentType;
-  NotificationContent: React.ComponentType;
-};
-
-export const MyInboxLayout = ({
-  Notifications,
-  NotificationContent,
-}: Props) => {
+export const MyInboxLayout = (): ReactElement => {
   const isMobile = useIsMobile();
-  const { id } = useParams();
+  const { id } = useParams<'id'>();
 
   if (isMobile) {
     return (

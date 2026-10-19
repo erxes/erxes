@@ -195,7 +195,8 @@ export const types = `
   input NotificationSettingsEventInput {
     event: String,
     enabled: Boolean,
-    channels: [String]
+    channels: [String],
+    mutedChannels: [String]
   }
 
   input NotificationSettingsChannelInput {
