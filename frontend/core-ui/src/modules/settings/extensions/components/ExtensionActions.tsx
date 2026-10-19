@@ -12,8 +12,9 @@ import { IconDots } from '@tabler/icons-react';
 import { extensionsApi } from '../extensionsApi';
 import { Extension } from '../types';
 import { ExtensionRunsSheet } from './ExtensionRunsSheet';
+import { ExtensionSecretsSheet } from './ExtensionSecretsSheet';
 
-type Open = 'version' | 'uninstall' | 'runs' | null;
+type Open = 'version' | 'uninstall' | 'runs' | 'secrets' | null;
 
 export function ExtensionActions({
   ext,
@@ -26,6 +27,7 @@ export function ExtensionActions({
 
   const otherVersions = ext.versions.filter((v) => v.version !== ext.version);
   const documents = Object.values(ext.documents).reduce((a, b) => a + b, 0);
+  const hasSecrets = Object.keys(ext.secrets ?? {}).length > 0;
 
   const close = () => {
     setOpen(null);
@@ -73,6 +75,11 @@ export function ExtensionActions({
           <DropdownMenu.Item onSelect={() => setOpen('runs')}>
             Run log
           </DropdownMenu.Item>
+          {hasSecrets && (
+            <DropdownMenu.Item onSelect={() => setOpen('secrets')}>
+              Secrets
+            </DropdownMenu.Item>
+          )}
           <DropdownMenu.Item onSelect={toggle}>
             {ext.status === 'installed' ? 'Disable' : 'Enable'}
           </DropdownMenu.Item>
@@ -96,6 +103,14 @@ export function ExtensionActions({
         open={open === 'runs'}
         onClose={close}
       />
+
+      {hasSecrets && (
+        <ExtensionSecretsSheet
+          extId={ext.extId}
+          open={open === 'secrets'}
+          onClose={close}
+        />
+      )}
 
       <Dialog
         open={open === 'version' || open === 'uninstall'}
@@ -158,7 +173,8 @@ export function ExtensionActions({
                   onCheckedChange={(checked) => setPurge(checked === true)}
                 />
                 <Label htmlFor={`purge-${ext.extId}`}>
-                  Also delete its data ({documents} documents). This can't be
+                  Also delete its data ({documents} documents)
+                  {hasSecrets && ' and the secrets you set'}. This can't be
                   undone.
                 </Label>
               </div>

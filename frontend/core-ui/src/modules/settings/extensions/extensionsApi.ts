@@ -1,5 +1,10 @@
 import { REACT_APP_API_URL } from 'erxes-ui';
-import { Extension, ExtensionContract, ExtensionRun } from './types';
+import {
+  Extension,
+  ExtensionContract,
+  ExtensionRun,
+  ExtensionSecret,
+} from './types';
 
 type Envelope<T> =
   | { ok: true; data: T }
@@ -16,11 +21,17 @@ export class ExtensionsUnavailableError extends Error {
 const isEnvelope = <T>(body: unknown): body is Envelope<T> =>
   typeof body === 'object' && body !== null && 'ok' in body;
 
-const request = async <T>(path: string, body?: unknown) => {
+// A body makes it a write, sent as JSON: the runtime refuses any other
+// content type on a cookie-authenticated write.
+const request = async <T>(
+  path: string,
+  body?: unknown,
+  method: 'POST' | 'PUT' | 'DELETE' = 'POST',
+) => {
   const response = await fetch(`${REACT_APP_API_URL}/pl:extensions${path}`, {
     credentials: 'include',
     ...(body !== undefined && {
-      method: 'POST',
+      method,
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify(body),
     }),
@@ -54,4 +65,10 @@ export const extensionsApi = {
   enable: (extId: string) => request(`/enable/${enc(extId)}`, {}),
   uninstall: (extId: string, purge: boolean) =>
     request(`/uninstall/${enc(extId)}`, { purge }),
+  secrets: (extId: string) =>
+    request<ExtensionSecret[]>(`/secrets/${enc(extId)}`),
+  setSecret: (extId: string, name: string, value: string) =>
+    request(`/secrets/${enc(extId)}/${enc(name)}`, { value }, 'PUT'),
+  clearSecret: (extId: string, name: string) =>
+    request(`/secrets/${enc(extId)}/${enc(name)}`, {}, 'DELETE'),
 };

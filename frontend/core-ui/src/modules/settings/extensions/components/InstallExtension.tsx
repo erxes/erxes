@@ -69,6 +69,8 @@ export function InstallExtension({
         title,
       })),
   );
+  const network = pending?.bundle.network ?? [];
+  const secrets = Object.entries(pending?.bundle.secrets ?? {});
   const current = installed.find((ext) => ext.extId === pending?.bundle.id);
 
   return (
@@ -144,6 +146,46 @@ export function InstallExtension({
                     {p.title}{' '}
                     <span className="font-mono text-muted-foreground">
                       {p.key}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-muted-foreground">None</p>
+            )}
+          </section>
+
+          <section className="space-y-1 text-sm">
+            <h4 className="font-semibold">Internet access</h4>
+            {network.length ? (
+              <>
+                <p className="text-muted-foreground">
+                  It can send requests over https to these hosts. A host
+                  starting with *. covers its subdomains.
+                </p>
+                <ul className="list-disc pl-5">
+                  {network.map((host) => (
+                    <li key={host} className="font-mono">
+                      {host}
+                    </li>
+                  ))}
+                </ul>
+              </>
+            ) : (
+              <p className="text-muted-foreground">None</p>
+            )}
+          </section>
+
+          <section className="space-y-1 text-sm">
+            <h4 className="font-semibold">Secrets you set after installing</h4>
+            {secrets.length ? (
+              <ul className="list-disc pl-5">
+                {secrets.map(([name, description]) => (
+                  <li key={name}>
+                    <span className="font-mono">{name}</span>
+                    <span className="text-muted-foreground">
+                      {' '}
+                      {description}
                     </span>
                   </li>
                 ))}

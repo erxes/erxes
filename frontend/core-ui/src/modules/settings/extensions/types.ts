@@ -12,6 +12,18 @@ export type Extension = {
   versions: ExtensionVersion[];
   // collection -> document count
   documents: Record<string, number>;
+  // Hosts it may fetch over https.
+  network?: string[];
+  // secret name -> description
+  secrets?: Record<string, string>;
+};
+
+// One declared secret. The runtime never sends its value.
+export type ExtensionSecret = {
+  name: string;
+  description: string;
+  set: boolean;
+  updatedAt: string | null;
 };
 
 export type ExtensionRun = {
@@ -40,6 +52,10 @@ export const ExtensionBundle = z.object({
   permissions: z.record(z.record(z.string())).default({}),
   // host contract -> pinned version, e.g. { sales: 1 }
   uses: z.record(z.number()).default({}),
+  // Hosts it may fetch over https, e.g. ['api.github.com', '*.slack.com']
+  network: z.array(z.string()).default([]),
+  // secret name -> description
+  secrets: z.record(z.string()).default({}),
 });
 
 export type ExtensionBundle = z.infer<typeof ExtensionBundle>;
