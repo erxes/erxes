@@ -132,7 +132,14 @@ The `agent` module is the core-ui surface for the core-api `agents` backend
   active runs remain keyed by thread. Switching sessions awaits SDK stream
   detachment before clearing the shared transcript, preserves the previous run id,
   and reattaches through the backend when that thread is reopened. Detachment is
-  not a backend cancellation command. The legacy `page` storage namespace is
+  not a backend cancellation command. The hook owns a native SDK `Chat` and passes
+  it to `useChat`, preserving `resumeStreamIsReplay`. The transport captures the
+  actual SDK-assigned pending user id before dispatch. History restore matches that
+  id and removes only the active response suffix before replay; it never appends
+  a synthetic turn based on prompt equality. Legacy prompt-only sessions strip
+  the hidden page-context prefix during migration. Manual reconnect uses the same
+  restore/replay path. Approval/question suspensions keep their stored cards.
+  The legacy `page` storage namespace is
   retained in the hook's type only for compatibility, with no page UI.
 - Attachments: up to 5 files/turn via platform `/upload-file`
   (`agentsFiles.ts` limits, `uploadAgentsFile.ts`), chips in the composer,

@@ -252,6 +252,7 @@ const userMessage = (text: string) => ({
 });
 
 interface IMemoryFake {
+  createThread: jest.Mock;
   getThreadById: jest.Mock;
   listThreads: jest.Mock;
   recall: jest.Mock;
@@ -286,6 +287,7 @@ const messagePage = (
 });
 
 const buildMemory = (): IMemoryFake => ({
+  createThread: jest.fn(async ({ threadId, resourceId }) => ({id:threadId,resourceId})),
   getThreadById: jest.fn(async () => null),
   listThreads: jest.fn(async () => threadPage([])),
   recall: jest.fn(async () => messagePage([], null)),
@@ -753,7 +755,7 @@ describe('POST /agents/chat — model input and identity', () => {
     expect(options.requestContext?.get('userId')).toBe('user-1');
   });
 
-  it('publishes the per-user threads-changed event when the turn finishes and when its title lands', async () => {
+  it('publishes after native thread creation, before generation, and again for completion and title', async () => {
     const res = buildRes();
     await chatHandler(
       buildReq({ user: ACTING_USER, body: { messages: [userMessage('hi')] } }),
@@ -762,8 +764,10 @@ describe('POST /agents/chat — model input and identity', () => {
 
     expect(res.statusCode).toBe(200);
 
-    // No event fires while the turn is still streaming.
-    expect(mockedPublishAgentsThreadsChanged).not.toHaveBeenCalled();
+    expect(memory.createThread).toHaveBeenCalledWith({threadId: expect.any(String), resourceId: 'user-1'});
+    expect(memory.createThread.mock.invocationCallOrder[0]).toBeLessThan(streamMock.mock.invocationCallOrder[0]);
+    expect(mockedPublishAgentsThreadsChanged).toHaveBeenCalledTimes(1);
+    expect(mockedPublishAgentsThreadsChanged.mock.invocationCallOrder[0]).toBeLessThan(streamMock.mock.invocationCallOrder[0]);
 
     const options = streamMock.mock.calls[0][1];
 
@@ -773,7 +777,7 @@ describe('POST /agents/chat — model input and identity', () => {
 
     // …and memory.onTitleGenerated later, once the async title is stored.
     options.memory?.onTitleGenerated?.();
-    expect(mockedPublishAgentsThreadsChanged).toHaveBeenCalledTimes(2);
+    expect(mockedPublishAgentsThreadsChanged).toHaveBeenCalledTimes(3);
   });
 
   it('pipes the Mastra stream through the AI SDK adapter to the response', async () => {

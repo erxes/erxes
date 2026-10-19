@@ -60,6 +60,8 @@ export interface IAgentsChatTransportOptions {
    * reconnects and on non-ok normal-chat HTTP responses.
    */
   onActiveRunId: (runId: string | undefined) => void;
+  /** Receives the SDK-assigned user message before request dispatch. */
+  onPendingMessage?: (message: UIMessage) => void;
   /**
    * Returns the ask_user answer awaiting submission, if any. The transport
    * consumes it exactly once in `sendMessages` — which the hook triggers
@@ -174,6 +176,10 @@ export class AgentsChatTransport
   extends DefaultChatTransport<UIMessage>
   implements ChatTransport<UIMessage>
 {
+  readonly resumeStreamIsReplay = true;
+
+  private readonly onPendingMessage?: (message: UIMessage) => void;
+
   private readonly getThreadId: () => string | undefined;
 
   private readonly onThreadId: (threadId: string) => void;
@@ -200,6 +206,7 @@ export class AgentsChatTransport
     onThreadId,
     getActiveRunId,
     onActiveRunId,
+    onPendingMessage,
     consumePendingAnswer,
     onReconnectOutcome,
     onChatResponse,
@@ -266,6 +273,7 @@ export class AgentsChatTransport
       },
     });
 
+    this.onPendingMessage = onPendingMessage;
     this.getThreadId = getThreadId;
     this.getRequestSelection = getRequestSelection;
     this.getPageContext = getPageContext;
@@ -297,6 +305,10 @@ export class AgentsChatTransport
       // Normal send: generate a fresh runId so the backend can track the
       // active run for reconnect. Approval/answer resumes keep the existing
       // run id (set by the original send or the prior resume).
+      const message = [...options.messages]
+        .reverse()
+        .find((entry) => entry.role === 'user');
+      if (message) this.onPendingMessage?.(message);
       this.onActiveRunId(crypto.randomUUID());
 
       return super.sendMessages(options);

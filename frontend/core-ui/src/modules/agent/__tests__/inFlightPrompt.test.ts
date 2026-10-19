@@ -1,9 +1,13 @@
+import type { UIMessage } from 'ai';
 import { pageSelectionsPart } from '../pageSelections';
 import { agentsFilesPart } from '../agentsFiles';
 import {
   decodeInFlightPrompt,
   encodeInFlightPrompt,
   inFlightPromptMatches,
+  encodeInFlightTurn,
+  decodeInFlightTurn,
+  restoreInFlightTurn,
 } from '../inFlightPrompt';
 
 it('preserves legacy text-only prompt storage', () => {
@@ -76,4 +80,73 @@ it('restores typed page context during reconnect without manufacturing a file at
       ],
     }),
   ).toBe(false);
+});
+
+const prompt: UIMessage = {
+  id: 'actual-sdk-user-id',
+  role: 'user',
+  parts: [{ type: 'text', text: 'Sales report in last month' }],
+};
+const savedUser: UIMessage = {
+  ...prompt,
+  parts: [
+    {
+      type: 'text',
+      text: '[Page context] The user is viewing /settings/products.',
+    },
+    ...prompt.parts,
+  ],
+};
+const savedReply: UIMessage = {
+  id: 'native-reply',
+  role: 'assistant',
+  parts: [{ type: 'text', text: 'Saved response' }],
+};
+it('matches legacy prompt context without inserting the reported second user bubble', () => {
+  expect(inFlightPromptMatches(prompt.parts, savedUser)).toBe(true);
+  expect(
+    restoreInFlightTurn(
+      [savedUser, savedReply],
+      decodeInFlightTurn('Sales report in last month'),
+      'thread',
+      true,
+    ),
+  ).toEqual([savedUser]);
+});
+it('restores by SDK message identity and replaces the active reply rather than appending a full replay', () => {
+  const turn = decodeInFlightTurn(encodeInFlightTurn(prompt));
+  expect(turn.id).toBe(prompt.id);
+  expect(
+    restoreInFlightTurn([savedUser, savedReply], turn, 'thread', true),
+  ).toEqual([savedUser]);
+  expect(
+    restoreInFlightTurn([savedUser, savedReply], turn, 'thread', false),
+  ).toEqual([savedUser, savedReply]);
+});
+it('preserves identical earlier prompts and uses the real pending id before storage catches up', () => {
+  const previous = { ...savedUser, id: 'previous-turn' };
+  const history = [previous, savedReply];
+  const turn = decodeInFlightTurn(encodeInFlightTurn(prompt));
+  expect(restoreInFlightTurn(history, turn, 'thread', true)).toEqual([
+    ...history,
+    prompt,
+  ]);
+  expect(
+    restoreInFlightTurn(
+      [...history, savedUser, { ...savedReply, id: 'active-reply' }],
+      turn,
+      'thread',
+      true,
+    ),
+  ).toEqual([...history, savedUser]);
+});
+it('does not remove a suspended reply that is waiting for user input', () => {
+  expect(
+    restoreInFlightTurn(
+      [savedUser, savedReply],
+      decodeInFlightTurn(encodeInFlightTurn(prompt)),
+      'thread',
+      false,
+    ),
+  ).toEqual([savedUser, savedReply]);
 });

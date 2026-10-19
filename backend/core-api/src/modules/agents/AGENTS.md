@@ -157,9 +157,10 @@ plugin; ported from the former private `erxes-agent` service). It provides:
   workflows store until encoded suspended runs have drained; every touch
   point carries a `// MongoDB 4.4.25 compatible` marker.
 - `agentsThreadsChanged` publishes stay transient per-user `{ userId }`
-  events from Mastra `onFinish`/`onTitleGenerated` hooks,
-  `agentsThreadUpdate`, and `agentsThreadRemove` — no other publish
-  points.
+  events after an accepted new thread is created through native Memory,
+  from Mastra `onFinish`/`onTitleGenerated` hooks, `agentsThreadUpdate`, and
+  `agentsThreadRemove`. Creation persists and publishes before model generation,
+  with an absent title so native asynchronous auto-titling still applies.
 - The resume routes share `findSuspendedToolCall` (kind-aware: approval vs
   ask_user, newest suspended run, ownership re-checked, wrong-kind → 409).
 - Every run entry point passes `maxSteps: 32`; resumes restore the original

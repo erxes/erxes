@@ -8,11 +8,15 @@ jest.mock('ai', () => ({
   isToolUIPart: () => false,
   lastAssistantMessageIsCompleteWithApprovalResponses: () => false,
 }));
-jest.mock('@ai-sdk/react', () => ({ useChat: jest.fn() }));
+jest.mock('@ai-sdk/react', () => ({
+  useChat: jest.fn(),
+  Chat: jest.fn(() => ({ stop: jest.fn() })),
+}));
 jest.mock('@apollo/client', () => ({
   ...jest.requireActual('@apollo/client'),
   useLazyQuery: jest.fn(),
 }));
+let mockPendingMessage: (message: import('ai').UIMessage) => void;
 let mockSetActiveRunId: (runId: string | undefined) => void;
 let mockOnChatResponse: (accepted: boolean, messageId: string) => void;
 jest.mock('../transport', () => ({
@@ -20,9 +24,11 @@ jest.mock('../transport', () => ({
     constructor(options: {
       onChatResponse: (accepted: boolean, messageId: string) => void;
       onActiveRunId: (runId: string | undefined) => void;
+      onPendingMessage: (message: import('ai').UIMessage) => void;
     }) {
       mockOnChatResponse = options.onChatResponse;
       mockSetActiveRunId = options.onActiveRunId;
+      mockPendingMessage = options.onPendingMessage;
     }
   },
 }));
@@ -33,7 +39,7 @@ jest.mock('../mapStoredMessages', () => ({
   mapStoredMessagesToUIMessages: (messages: unknown) => messages,
 }));
 
-import { useChat } from '@ai-sdk/react';
+import { Chat, useChat } from '@ai-sdk/react';
 import { useLazyQuery } from '@apollo/client';
 
 const load = jest.fn();
@@ -278,7 +284,7 @@ it('detaches the old stream without forgetting its durable run, then reattaches 
   });
   expect(result.current.threadId).toBe('old');
   await act(async () => {
-    const options = (useChat as jest.Mock).mock.calls.at(-1)?.[0] as {
+    const options = (Chat as jest.Mock).mock.calls.at(-1)?.[0] as {
       onFinish: (input: unknown) => void;
     };
     options.onFinish({
@@ -297,4 +303,59 @@ it('detaches the old stream without forgetting its durable run, then reattaches 
   await act(async () => result.current.openThread('old'));
   expect(resume).toHaveBeenCalledTimes(1);
   expect(result.current.canReconnect).toBe(true);
+});
+
+it('reopens the reported stored user/reply pair without manufacturing a second pair', async () => {
+  const resume = jest.fn(async () => undefined);
+  (useChat as jest.Mock).mockReturnValue({
+    messages: [],
+    status: 'ready',
+    sendMessage: noop,
+    setMessages,
+    clearError: noop,
+    stop,
+    addToolApprovalResponse: noop,
+    resumeStream: resume,
+    regenerate: noop,
+  });
+  const user = {
+    id: 'sdk-user',
+    role: 'user' as const,
+    parts: [{ type: 'text' as const, text: 'Sales report in last month' }],
+  };
+  load.mockResolvedValue(detail('old'));
+  const { result } = renderHook(() => useAgentsChat());
+  await act(async () => result.current.openThread('old'));
+  act(() => {
+    mockPendingMessage(user);
+    mockSetActiveRunId('live-run');
+  });
+  load.mockResolvedValue({
+    data: {
+      agentsThreadDetail: {
+        messages: [
+          {
+            ...user,
+            parts: [
+              {
+                type: 'text',
+                text: '[Page context] The user is viewing /settings/products.',
+              },
+              ...user.parts,
+            ],
+          },
+          {
+            id: 'stored-assistant',
+            role: 'assistant',
+            parts: [{ type: 'text', text: 'Already saved reply' }],
+          },
+        ],
+      },
+    },
+  });
+  await act(async () => result.current.openThread('old'));
+  expect(setMessages.mock.calls.at(-1)?.[0]).toEqual([
+    expect.objectContaining({ id: 'sdk-user', role: 'user' }),
+  ]);
+  expect(resume).toHaveBeenCalledTimes(1);
 });

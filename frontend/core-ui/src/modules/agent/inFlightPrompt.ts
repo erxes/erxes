@@ -1,3 +1,4 @@
+import { extractPageContext } from './utils/pageContext';
 import {
   agentsPageSelectionsSchema,
   pageSelectionsPart,
@@ -73,7 +74,7 @@ export const inFlightPromptMatches = (
   message: Pick<UIMessage, 'role' | 'parts'>,
 ): boolean =>
   message.role === 'user' &&
-  textKey(inFlight) === textKey(message.parts) &&
+  textKey(inFlight) === textKey(extractPageContext(message.parts).parts) &&
   fileIdsKey(inFlight) === fileIdsKey(message.parts) &&
   JSON.stringify(
     inFlight
@@ -85,3 +86,71 @@ export const inFlightPromptMatches = (
         .flatMap(readPageSelectionsPart)
         .map((selection) => [selection.id, selection.snapshot.url]),
     );
+
+/** Persist the actual SDK message identity before its HTTP request starts. */
+export interface IInFlightTurn {
+  id?: string;
+  parts: UIMessage['parts'];
+}
+export const encodeInFlightTurn = (message: UIMessage): string =>
+  JSON.stringify({
+    version: 1,
+    id: message.id,
+    prompt: encodeInFlightPrompt(message.parts),
+  });
+export const decodeInFlightTurn = (raw: string): IInFlightTurn => {
+  try {
+    const value: unknown = JSON.parse(raw);
+    if (
+      value &&
+      typeof value === 'object' &&
+      'version' in value &&
+      value.version === 1 &&
+      'id' in value &&
+      typeof value.id === 'string' &&
+      value.id.length > 0 &&
+      'prompt' in value &&
+      typeof value.prompt === 'string'
+    ) {
+      return { id: value.id, parts: decodeInFlightPrompt(value.prompt) };
+    }
+  } catch {
+    /* Legacy sessions stored only prompt text. */
+  }
+  return { parts: decodeInFlightPrompt(raw) };
+};
+
+/** A replay replaces its active turn's response; it must not append to stored
+ * output from the same run. Earlier turns, including identical prompts, stay. */
+export const restoreInFlightTurn = (
+  messages: UIMessage[],
+  turn: IInFlightTurn | undefined,
+  threadId: string,
+  replay: boolean,
+): UIMessage[] => {
+  let index = -1;
+  for (let cursor = messages.length - 1; cursor >= 0; cursor -= 1) {
+    const message = messages[cursor];
+    if (
+      message.role === 'user' &&
+      (!turn ||
+        (turn.id
+          ? message.id === turn.id
+          : inFlightPromptMatches(turn.parts, message)))
+    ) {
+      index = cursor;
+      break;
+    }
+  }
+  if (turn && index < 0) {
+    return [
+      ...messages,
+      {
+        id: turn.id ?? `${threadId}:in-flight-prompt`,
+        role: 'user',
+        parts: turn.parts,
+      },
+    ];
+  }
+  return replay && index >= 0 ? messages.slice(0, index + 1) : messages;
+};

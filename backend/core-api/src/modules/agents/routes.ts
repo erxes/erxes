@@ -154,7 +154,7 @@ const resolveOwnedThreadId = async ({
   identity: IRequestIdentity;
   /** Client-provided thread id, or empty/undefined to start a new thread. */
   requestedThreadId?: string;
-}): Promise<string> => {
+}): Promise<{ threadId: string; isNew: boolean }> => {
   const threadId = requestedThreadId?.trim() || randomUUID();
 
   // Only the acting user may continue an existing thread.
@@ -164,7 +164,7 @@ const resolveOwnedThreadId = async ({
     throw new HttpError(403, 'Thread belongs to another user.');
   }
 
-  return threadId;
+  return { threadId, isNew: !existing };
 };
 
 /**
@@ -715,7 +715,7 @@ router.post('/agents/chat', async (req, res) => {
     const thinkingLevel = parseThinkingLevel(body.thinkingLevel);
     const runSettings = await resolveRunSettings(models);
     const runtime = await getAgentsRuntime(identity.subdomain);
-    const threadId = await resolveOwnedThreadId({
+    const { threadId, isNew } = await resolveOwnedThreadId({
       memory: runtime.memory,
       identity,
       requestedThreadId: body.threadId,
@@ -742,6 +742,17 @@ router.post('/agents/chat', async (req, res) => {
           ],
         }
       : preparedMessage;
+
+    // A conversation exists when the accepted user request starts, not when
+    // model generation or asynchronous title generation eventually finishes.
+    // Use Mastra's native storage; preserve an absent title for auto-titling.
+    if (isNew) {
+      await runtime.memory.createThread({
+        threadId,
+        resourceId: identity.userId,
+      });
+      publishAgentsThreadsChanged(identity.userId);
+    }
 
     // Stamp the exact non-secret selection into RequestContext. This
     // snapshot lets a cross-request/cross-process resume re-fetch current

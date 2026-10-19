@@ -3,7 +3,7 @@ import {
   lastAssistantMessageIsCompleteWithApprovalResponses,
 } from 'ai';
 import type { UIMessage } from 'ai';
-import { useChat } from '@ai-sdk/react';
+import { Chat, useChat } from '@ai-sdk/react';
 import { useLazyQuery } from '@apollo/client';
 import { useSetAtom } from 'jotai';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -26,9 +26,10 @@ import type {
 } from '../transport';
 import { AgentsChatTransport } from '../transport';
 import {
-  decodeInFlightPrompt,
-  encodeInFlightPrompt,
-  inFlightPromptMatches,
+  decodeInFlightTurn,
+  encodeInFlightTurn,
+  restoreInFlightTurn,
+  type IInFlightTurn,
 } from '../inFlightPrompt';
 
 /** Thinking depth selectable per turn in the chat UI. */
@@ -58,9 +59,9 @@ const ACTIVE_RUN_STORAGE_KEY = (threadId: string): string =>
 
 /**
  * sessionStorage key persisting a thread's in-flight prompt (the newest
- * user message of the active run). Mastra persists nothing to memory
- * until the run finishes, so a mid-run refresh would otherwise restore
- * an EMPTY transcript — the user's prompt bubble disappears while the
+ * user message of the active run). During request startup, memory may
+ * not have saved the input yet, so a mid-run refresh can restore
+ * an empty transcript — the user's prompt bubble disappears while the
  * reply still streams in via reconnect replay. The prompt is stored when
  * a send starts and cleared when its run id is cleared (clean completion
  * or terminal error); on restore it is synthesized back ONLY while the
@@ -157,12 +158,10 @@ const writeStoredActiveRunId = (
   }
 };
 
-const readInFlightPrompt = (
-  threadId: string,
-): UIMessage['parts'] | undefined => {
+const readInFlightPrompt = (threadId: string): IInFlightTurn | undefined => {
   try {
     const raw = sessionStorage.getItem(IN_FLIGHT_PROMPT_STORAGE_KEY(threadId));
-    return raw ? decodeInFlightPrompt(raw) : undefined;
+    return raw ? decodeInFlightTurn(raw) : undefined;
   } catch {
     return undefined;
   }
@@ -398,6 +397,17 @@ export const useAgentsChat = (options?: {
         },
         getActiveRunId: () => activeRunIdRef.current,
         onActiveRunId: setActiveRunId,
+        onPendingMessage: (message) => {
+          if (!threadIdRef.current) return;
+          try {
+            sessionStorage.setItem(
+              IN_FLIGHT_PROMPT_STORAGE_KEY(threadIdRef.current),
+              encodeInFlightTurn(message),
+            );
+          } catch {
+            /* Storage is best effort; the server owns history. */
+          }
+        },
         onReconnectOutcome: (reconnected) => {
           reconnectOutcomeRef.current = reconnected;
         },
@@ -422,6 +432,32 @@ export const useAgentsChat = (options?: {
     [setActiveRunId, sessionScope],
   );
 
+  // Own the native Chat instance so the full-replay transport contract is
+  // preserved. useChat's internal transport wrapper forwards only methods.
+  const sdkChat = useMemo(
+    () =>
+      new Chat<UIMessage>({
+        transport,
+        sendAutomaticallyWhen:
+          lastAssistantMessageIsCompleteWithApprovalResponses,
+        onFinish: ({ message, isAbort, isDisconnect }) => {
+          if (
+            !isAbort &&
+            !isDisconnect &&
+            !messageHasPendingSuspension(message)
+          ) {
+            setActiveRunId(undefined);
+          }
+        },
+      }),
+    [transport, setActiveRunId],
+  );
+  useEffect(
+    () => () => {
+      void sdkChat.stop();
+    },
+    [sdkChat],
+  );
   const {
     messages,
     status,
@@ -433,23 +469,7 @@ export const useAgentsChat = (options?: {
     addToolApprovalResponse,
     resumeStream: sdkResumeStream,
     regenerate,
-  } = useChat<UIMessage>({
-    transport,
-    // Throttle message-state updates to one per 50ms so fast streams do not
-    // force a transcript re-render on every single chunk.
-    throttle: 50,
-    sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithApprovalResponses,
-    // Called when the stream ends. Retain the active run id only when the
-    // end was caused by an abort, a disconnect, or a pending suspension
-    // (approval/ask_user) so the user can reconnect or resume. Clear it on
-    // every other terminal outcome — including generic and provider errors
-    // (a 4xx/5xx before the run existed leaves no run to reconnect to).
-    onFinish: ({ message, isAbort, isDisconnect }) => {
-      if (!isAbort && !isDisconnect && !messageHasPendingSuspension(message)) {
-        setActiveRunId(undefined);
-      }
-    },
-  });
+  } = useChat<UIMessage>({ chat: sdkChat, throttle: 50 });
 
   // The SDK methods above are bound to a stable internal chat instance, so
   // they keep their identity across renders; the mutable values below are
@@ -466,9 +486,8 @@ export const useAgentsChat = (options?: {
    * Sends a turn after guaranteeing the conversation has a thread id, so the
    * very first request already carries one and every later turn pins the same
    * thread in the body. The newest user text is also persisted as the
-   * thread's in-flight prompt: Mastra persists nothing until the run
-   * finishes, so this is what a mid-run refresh restores the prompt bubble
-   * from (see `IN_FLIGHT_PROMPT_STORAGE_KEY`).
+   * thread's pending message is captured by the transport after the SDK
+   * assigns its id, so restoration uses identity rather than prompt text.
    */
   const sendMessage = useCallback(
     (...args: Parameters<typeof sdkSendMessage>) => {
@@ -483,26 +502,6 @@ export const useAgentsChat = (options?: {
       ) {
         pendingEditRef.current = undefined;
       }
-      const text =
-        typeof first === 'string'
-          ? first
-          : first && 'text' in first && typeof first.text === 'string'
-          ? first.text
-          : first && 'parts' in first && first.parts
-          ? encodeInFlightPrompt(first.parts)
-          : undefined;
-
-      if (threadIdRef.current && text && text.trim()) {
-        try {
-          sessionStorage.setItem(
-            IN_FLIGHT_PROMPT_STORAGE_KEY(threadIdRef.current),
-            text,
-          );
-        } catch {
-          // sessionStorage may be unavailable; the restore is best-effort.
-        }
-      }
-
       return sdkSendMessage(...args);
     },
     [sdkSendMessage, ensureThreadId],
@@ -707,48 +706,22 @@ export const useAgentsChat = (options?: {
         // setter so canReconnect updates reactively.
         const storedRunId = readStoredActiveRunId(nextThreadId);
 
-        // Mid-run, Mastra has persisted NOTHING yet (memory writes when
-        // the run finishes), so a refresh would restore an empty
-        // transcript and the user's prompt bubble would disappear while
-        // the reply still streams in through reconnect. Synthesize the
-        // prompt bubble from the in-flight prompt entry while the stored
-        // transcript does not contain it: once the run finishes and its
-        // messages persist, the entry is cleared and later restores read
-        // the real stored prompt instead.
-        const inFlightPrompt = storedRunId
-          ? readInFlightPrompt(nextThreadId)
-          : undefined;
-        const restoreMessages =
-          inFlightPrompt &&
-          !mappedMessages.some((message) =>
-            inFlightPromptMatches(inFlightPrompt, message),
-          )
-            ? [
-                ...mappedMessages,
-                {
-                  id: `${nextThreadId}:in-flight-prompt`,
-                  role: 'user' as const,
-                  parts: inFlightPrompt,
-                },
-              ]
-            : mappedMessages;
-
-        setMessages(restoreMessages);
-        clearError();
-
-        setActiveRunId(storedRunId);
-
-        // Only attempt active-stream reconnect when the stored messages
-        // do NOT end with a pending suspension (approval/ask_user). A
-        // suspended run is not "active" in the backend's listActiveRuns
-        // sense — the backend would return 204 and the transport would
-        // clear the run id, breaking subsequent approve/answer reconnect.
-        // When suspended, keep the stored run id so the user can still
-        // approve/answer and later reconnect if that resumed segment
-        // disconnects.
         const lastAssistant = [...mappedMessages]
           .reverse()
-          .find((m) => m.role === 'assistant');
+          .find((message) => message.role === 'assistant');
+        const replay =
+          Boolean(storedRunId) && !messageHasPendingSuspension(lastAssistant);
+        const restoreMessages = storedRunId
+          ? restoreInFlightTurn(
+              mappedMessages,
+              readInFlightPrompt(nextThreadId),
+              nextThreadId,
+              replay,
+            )
+          : mappedMessages;
+        setMessages(restoreMessages);
+        clearError();
+        setActiveRunId(storedRunId);
 
         if (storedRunId && !messageHasPendingSuspension(lastAssistant)) {
           // Reset the transport-reported outcome before the attempt, then
@@ -918,8 +891,8 @@ export const useAgentsChat = (options?: {
   }, [openThread, sessionScope, setMessages, clearError]);
 
   const resumeStream = useCallback(async () => {
-    await sdkResumeStream();
-  }, [sdkResumeStream]);
+    if (threadIdRef.current) await openThread(threadIdRef.current);
+  }, [openThread]);
 
   const retryLastTurn = useCallback(() => {
     void regenerate().catch(() => {
