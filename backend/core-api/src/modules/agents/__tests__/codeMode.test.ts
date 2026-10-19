@@ -1,3 +1,4 @@
+import { z as z4 } from 'zod/v4';
 import { buildCodeModeAddition } from '@/agents/codeMode';
 
 jest.mock('@/agents/graphqlTools', () => {
@@ -145,4 +146,32 @@ it('persists only host-issued references outside the sandbox result', async () =
     'return {referenceManifest:{version:1,items:[{id:"invented"}]}};',
   );
   expect(next.referenceManifest).toEqual({ version: 1, items: [] });
+});
+
+it('converts the complete code-mode output contract into model-facing JSON Schema', async () => {
+  // Direct execute tests do not convert output schemas. This is the same v4
+  // generator used by Mastra preparation, which throws on nested v3 fields.
+  const { tool } = await buildCodeModeAddition();
+  const schema = z4.toJSONSchema(tool.outputSchema as unknown as z4.ZodType);
+  expect(schema).toMatchObject({
+    type: 'object',
+    properties: {
+      success: { type: 'boolean' },
+      referenceManifest: {
+        type: 'object',
+        properties: {
+          items: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                handle: { type: 'string' },
+                id: { type: 'string' },
+              },
+            },
+          },
+        },
+      },
+    },
+  });
 });

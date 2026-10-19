@@ -189,6 +189,8 @@ export const createModelConfig = async (
     })(resolved.model);
   }
 
+  const id: `${string}/${string}` = `${resolved.provider}/${resolved.model}`;
+
   // OpenAI on its default endpoint must go through Mastra's native OpenAI
   // gateway (Responses API): the generic openai-compatible Chat Completions
   // client maps `maxOutputTokens` to `max_tokens`, which OpenAI's reasoning
@@ -202,14 +204,14 @@ export const createModelConfig = async (
     resolved.baseUrl === PROVIDER_DEFAULTS.openai.baseUrl
   ) {
     return {
-      id: `${resolved.provider}/${resolved.model}`,
+      id,
       apiKey: resolved.apiKey,
       headers: resolved.headers,
     };
   }
 
   return {
-    id: `${resolved.provider}/${resolved.model}`,
+    id,
     url: resolved.baseUrl,
     apiKey: resolved.apiKey,
     headers: resolved.headers,

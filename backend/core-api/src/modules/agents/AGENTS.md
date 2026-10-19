@@ -23,7 +23,11 @@ plugin; ported from the former private `erxes-agent` service). It provides:
   `graphqlPolicy.ts` denies authentication, credential and system-security
   operations; other queries/mutations use existing resolver permissions;
 - optional code mode exposes only `searchGraphql` and `callGraphql` in a
-  QuickJS sandbox; approval-gated mutations must run interactively in chat;
+  QuickJS sandbox; approval-gated mutations must run interactively in chat.
+  Its native output schema is Zod v4: extensions must import `zod/v4` too.
+  Mixing v3 fields into that object breaks model-facing conversion and makes
+  durable preparation discard the complete tool set. Regression coverage converts
+  the complete extended output schema, beyond executing sandbox programs;
 - **references**: successful native `callGraphql` and `findPages` outputs issue
   opaque `[[ref:<uuid>]]` handles with a versioned `referenceManifest`. Only
   schema-verified identities from the executed operation authorize handles;
@@ -166,6 +170,13 @@ plugin; ported from the former private `erxes-agent` service). It provides:
 - Every run entry point passes `maxSteps: 32`; resumes restore the original
   run's RequestContext snapshot (selection fields in the body are accepted
   but ignored).
+
+## Runtime dependencies
+
+Core-api declares its own Mastra dependencies in `backend/core-api/package.json`;
+updating the workspace root alone does not upgrade the running service. Keep both
+manifests aligned: core 1.78.0, memory 1.38.0, MongoDB 1.23.1, Redis Streams 0.6.3,
+AI SDK adapter 1.11.1 and QuickJS 0.1.3. Verify package resolution from core-api.
 
 ## Validation
 

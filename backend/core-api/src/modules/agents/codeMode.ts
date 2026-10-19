@@ -1,5 +1,6 @@
 import { AsyncLocalStorage } from 'node:async_hooks';
-import { z } from 'zod';
+// createCodeMode owns a Zod v4 output object; nested fields must use v4 too.
+import { z } from 'zod/v4';
 import type { IAgentsIssuedReference } from '@/agents/references';
 import type { Tool } from '@mastra/core/tools' with {
   'resolution-mode': 'import',
