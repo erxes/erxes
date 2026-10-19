@@ -1,10 +1,38 @@
 /** @jest-environment jsdom */
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react';
 import type { ButtonHTMLAttributes, ReactNode } from 'react';
 import { randomUUID } from 'crypto';
 import { Composer } from '../components/Composer';
 import { uploadAgentsFile } from '../uploadAgentsFile';
 import type { IAgentsFileMeta } from '../agentsFiles';
+import type { IPageElementPickerProps } from '../components/PageElementPicker';
+jest.mock('../components/PageElementPicker', () => ({
+  PageElementPicker: ({ onSelect, onCancel }: IPageElementPickerProps) => (
+    <div>
+      <button
+        onClick={() =>
+          onSelect({
+            title: 'Revenue chart',
+            path: '/sales',
+            text: 'Revenue 42',
+            width: 200,
+            height: 100,
+            image: new Blob(['png'], { type: 'image/png' }),
+          })
+        }
+      >
+        Capture sample
+      </button>
+      <button onClick={onCancel}>Cancel sample</button>
+    </div>
+  ),
+}));
 
 jest.mock(
   'erxes-ui',
@@ -14,6 +42,7 @@ jest.mock(
 
     return {
       toast: jest.fn(),
+      Spinner: () => <span />,
       Button: ({
         variant: _variant,
         size: _size,
@@ -21,7 +50,11 @@ jest.mock(
       }: ButtonHTMLAttributes<HTMLButtonElement> & {
         variant?: string;
         size?: string;
-      }) => <button {...props} />,
+      }) => {
+        void _variant;
+        void _size;
+        return <button {...props} />;
+      },
       Tooltip: Object.assign(Wrapper, {
         Provider: Wrapper,
         Trigger: Wrapper,
@@ -61,7 +94,11 @@ beforeAll(() =>
     configurable: true,
   }),
 );
-beforeEach(() => upload.mockReset());
+beforeEach(() => {
+  upload.mockReset();
+  URL.createObjectURL = jest.fn(() => 'blob:selection');
+  URL.revokeObjectURL = jest.fn();
+});
 
 it('keeps attachment guidance in the tooltip and still opens the file picker', () => {
   render(
@@ -177,4 +214,100 @@ it('aborts uploads on thread switch without restoring stale chips', async () => 
   expect(upload.mock.calls[0][1]?.signal?.aborted).toBe(true);
   await act(async () => complete(meta('first.txt')));
   expect(screen.queryByText('first.txt')).toBeNull();
+});
+
+it('attaches a selection preview and sends its screenshot and visible context with the question', async () => {
+  upload.mockImplementation(async (file) => ({
+    name: file.name,
+    url: file.name,
+    type: file.type,
+    size: file.size,
+  }));
+  const onSend = jest.fn();
+  render(
+    <Composer
+      status="ready"
+      disabled={false}
+      onSend={onSend}
+      onStop={jest.fn()}
+    />,
+  );
+  fireEvent.change(screen.getByRole('textbox', { name: 'Message' }), {
+    target: { value: 'Explain this chart' },
+  });
+  fireEvent.click(screen.getByRole('button', { name: 'Select on page' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Capture sample' }));
+  await waitFor(() => expect(sendButton().disabled).toBe(false));
+  expect(
+    screen.getByRole('img', { name: 'Selected Revenue chart' }),
+  ).toBeTruthy();
+  expect(
+    screen.getByRole('textbox', { name: 'Message' }).getAttribute('disabled'),
+  ).toBeNull();
+  fireEvent.click(sendButton());
+  expect(onSend).toHaveBeenCalledWith('Explain this chart', [
+    expect.objectContaining({ type: 'image/png' }),
+    expect.objectContaining({ type: 'text/plain' }),
+  ]);
+  expect(screen.queryByRole('img')).toBeNull();
+  expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:selection');
+});
+
+it('keeps failed selections in the draft with retry and aborts them when removed', async () => {
+  upload
+    .mockRejectedValueOnce(new Error('Offline'))
+    .mockResolvedValueOnce(meta('context.txt'));
+  render(
+    <Composer
+      status="ready"
+      disabled={false}
+      onSend={jest.fn()}
+      onStop={jest.fn()}
+    />,
+  );
+  fireEvent.click(screen.getByRole('button', { name: 'Select on page' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Capture sample' }));
+  await waitFor(() =>
+    expect(screen.getByRole('alert').textContent).toContain('Offline'),
+  );
+  expect(sendButton().disabled).toBe(true);
+  expect(upload.mock.calls[0][1]?.signal?.aborted).toBe(true);
+  upload.mockImplementation(() => new Promise(() => undefined));
+  fireEvent.click(screen.getByRole('button', { name: 'Retry' }));
+  const signal = upload.mock.calls[2][1]?.signal;
+  fireEvent.click(screen.getByRole('button', { name: 'Remove Revenue chart' }));
+  expect(signal?.aborted).toBe(true);
+  expect(screen.queryByRole('img')).toBeNull();
+  expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:selection');
+});
+
+it('respects file slots and clears selection mode and preview URLs when threads change', async () => {
+  upload.mockResolvedValue(meta('file.txt'));
+  const props = {
+    status: 'ready',
+    disabled: false,
+    onSend: jest.fn(),
+    onStop: jest.fn(),
+  };
+  const { rerender } = render(<Composer {...props} draftScope="a" />);
+  fireEvent.click(screen.getByRole('button', { name: 'Select on page' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Capture sample' }));
+  await waitFor(() => expect(screen.getByText('Page selection')).toBeTruthy());
+  pick('one.txt', 'two.txt');
+  await act(async () => {
+    await Promise.resolve();
+  });
+  expect(
+    (
+      screen.getByRole('button', {
+        name: 'Select on page',
+      }) as HTMLButtonElement
+    ).disabled,
+  ).toBe(true);
+  rerender(<Composer {...props} draftScope="b" />);
+  expect(screen.queryByRole('img')).toBeNull();
+  expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:selection');
+  fireEvent.click(screen.getByRole('button', { name: 'Select on page' }));
+  rerender(<Composer {...props} draftScope="c" />);
+  expect(screen.queryByRole('button', { name: 'Capture sample' })).toBeNull();
 });

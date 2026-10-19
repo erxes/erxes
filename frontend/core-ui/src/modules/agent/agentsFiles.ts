@@ -96,12 +96,13 @@ export const agentsFilesNotice = (part: UIMessage['parts'][number]): string => {
   const urls = part.data.textFileUrls;
   if (Array.isArray(urls)) {
     const included = files.filter((file) => urls.includes(file.url)).length;
-    if (included === files.length && included > 0) {
-      return 'Text contents supplied to the AI.';
-    }
-    if (included > 0) {
-      return 'Text contents supplied to the AI. Other files are download-only.';
-    }
+    const images = files.filter((file) =>
+      file.type.startsWith('image/'),
+    ).length;
+    if (included > 0 && images > 0)
+      return 'Image and text contents supplied to the AI.';
+    if (included > 0) return 'Text contents supplied to the AI.';
+    if (images > 0) return 'Images supplied to the AI.';
   }
   return '';
 };

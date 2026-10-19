@@ -72,6 +72,22 @@ The `agent` module is the core-ui surface for the core-api `agents` backend
   intersected with the live catalog, so removed models/providers cannot return
   as quick picks. Auto remains usable while model discovery loads or fails;
   provider/model ids and the empty-value server-default contract are unchanged.
+- `PageElementPicker` is the composer's Select on page mode. Trusted capture-phase
+  listeners inspect the app and accessible same-origin frames, including sandboxed
+  HTML reports. Selection clicks cannot activate the underlying controls. Escape
+  cancels; arrows choose parent/child elements. Visible bounds follow scrolling
+  ancestors and frame offsets. Cross-origin embedded content remains isolated.
+  `utils/pageSelection.ts` uses lazily loaded `modern-screenshot` with restored
+  scroll positions, crops to visible bounds, and excludes password/private/hidden
+  content. No DOM markup or input values are extracted as text. A selection is
+  a PNG (up to 2 MiB) plus bounded visible context in a TXT file, uploaded through
+  the standard attachment pipeline. The model receives validated native image
+  bytes and untrusted text through existing backend file binding; history,
+  reconnect and message editing preserve those references. Draft preview cards
+  support removal and upload retry. Each selection uses two of five file slots.
+  Thread changes/unmount abort uploads, cancel picking and release object URLs.
+  Composer controls use container queries so selection/model/thinking controls
+  remain readable at the minimum panel width.
 - BYOK-gated composer: no configured connection shows an inline banner
   linking to the settings page and disables input.
 - assistant message action row under each turn (Copy; Regenerate on the

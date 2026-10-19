@@ -46,7 +46,10 @@ describe('data-agents-files parts', () => {
         content: {
           format: 2,
           parts: [
-            { type: 'text', text: 'Add these products plus extracted CSV contents' },
+            {
+              type: 'text',
+              text: 'Add these products plus extracted CSV contents',
+            },
             part,
           ],
         },
@@ -76,8 +79,32 @@ describe('data-agents-files parts', () => {
     const message: UIMessage = {
       id: 'm1',
       role: 'user',
-      parts: [{ type: 'text', text: 'Uploaded files' }, agentsFilesPart([file])],
+      parts: [
+        { type: 'text', text: 'Uploaded files' },
+        agentsFilesPart([file]),
+      ],
     };
     expect(message.parts.flatMap(readAgentsFilesPart)).toEqual([file]);
   });
+});
+
+it('identifies a selected screenshot and its context as model-visible contents', () => {
+  const text = {
+    name: 'page-selection-id.txt',
+    url: 'selection.txt',
+    type: 'text/plain',
+    size: 10,
+  };
+  const image = {
+    name: 'page-selection-id.png',
+    url: 'selection.png',
+    type: 'image/png',
+    size: 100,
+  };
+  expect(
+    agentsFilesNotice({
+      type: AGENTS_FILES_DATA_TYPE,
+      data: { files: [image, text], textFileUrls: [text.url] },
+    }),
+  ).toBe('Image and text contents supplied to the AI.');
 });
