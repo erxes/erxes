@@ -198,6 +198,10 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
 
 ### Provides
 
+- UI slot `sales.deal.detail.actions` (props `{ dealId }`, declared in the
+  `erxes-ui` `Slots` map), rendered by `SalesItemDetailHeader` before the move
+  dropdown. Plugins and extensions fill it through `slots` in their `CONFIG`;
+  with no fill it renders nothing.
 - Deal trigger forms' optional stage fields (`SalesTriggerStageField`) pass
   `autoSelectFirst={false}`: `SelectStage` otherwise picks the first stage and
   silently narrows the trigger.

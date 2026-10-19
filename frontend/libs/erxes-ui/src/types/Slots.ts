@@ -2,6 +2,7 @@
 // here: the key is the slot name, the value is the props the host passes.
 export type Slots = {
   'core.customer.detail.sections': { customerId: string };
+  'sales.deal.detail.actions': { dealId: string };
 };
 
 export type SlotProps<N extends keyof Slots> = Slots[N];
