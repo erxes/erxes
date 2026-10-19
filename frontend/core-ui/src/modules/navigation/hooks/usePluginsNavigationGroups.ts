@@ -60,7 +60,8 @@ export const usePluginsNavigationGroups = () => {
 
     return Object.values(pluginsMetaData).reduce<NavigationGroups>(
       (acc, plugin) => {
-        if (!plugin?.modules?.length) return acc;
+        // A hosted extension lives in its host's sidebar, not the launcher.
+        if (!plugin?.modules?.length || plugin.host) return acc;
 
         if (isLoaded && !isWildcard && !hasPluginPermission(plugin.name)) {
           return acc;

@@ -7,7 +7,10 @@ import { PermissionRouteGuard } from '@/auth/components/PermissionRouteGuard';
 
 export const getPluginsRoutes = () => {
   const [pluginsMetaData] = useAtom(pluginsConfigState);
-  const plugins = Object.values(pluginsMetaData || {});
+  // A hosted extension's pages render inside its host's routes.
+  const plugins = Object.values(pluginsMetaData || {}).filter(
+    (config) => !config.host,
+  );
 
   return plugins.map((module) => (
     <Route

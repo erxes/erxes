@@ -194,6 +194,13 @@ export type IUIConfig = {
     hasSegmentConfigWidget?: boolean;
   }[];
   searchProviders?: ISearchProvider[];
+  /**
+   * The plugin an extension lives in, e.g. `'sales'`. Its `modules` show in
+   * that plugin's sidebar and its pages render inside that plugin's layout,
+   * so `path` and module paths must start with `<host>/`. It gets no
+   * launcher entry of its own.
+   */
+  host?: string;
 };
 
 export type ICoreModule = {
