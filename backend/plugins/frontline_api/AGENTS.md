@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-10-17`
+- **Last synchronized:** `2026-10-19`
 
 ## Scope
 
@@ -1286,6 +1286,10 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   The portal account behind a ticket is resolved from its `cp:<id>` author with
   `cpUsers.get` by `{ id }` and then by `{ erxesCustomerId }`, because a ticket
   records whichever of the two the portal session carried.
+- `core` over tRPC — `notifications.sendMobileNotification` (mutation,
+  `{ title, body, receivers, data }`), which pushes a new chat message to the
+  assigned and participating agents' `deviceTokens`. The path is
+  `notifications.*`, not `core.*`; a wrong path fails silently.
 - `automations` over tRPC — `automations.trigger`. The path is
   `automations.trigger`, not `triggers.trigger`; `sendTRPCMessage` swallows a
   wrong path or a query/mutation mismatch and returns `defaultValue`, so a

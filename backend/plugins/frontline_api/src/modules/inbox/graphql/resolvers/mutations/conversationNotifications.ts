@@ -160,7 +160,7 @@ const sendAgentMobileNotification = async (
       subdomain,
       pluginName: 'core',
       method: 'mutation',
-      module: 'core',
+      module: 'notifications',
       action: 'sendMobileNotification',
       input: {
         title,
