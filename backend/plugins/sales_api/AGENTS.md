@@ -6,7 +6,7 @@
 - **Project:** `sales_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/sales_api`
-- **Last synchronized:** `2026-10-17`
+- **Last synchronized:** `2026-10-19`
 
 ## Scope
 
@@ -82,7 +82,7 @@
 
 | Area                       | Path                                                      | Responsibility                                                                                       |
 | -------------------------- | --------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
-| Schema export              | `print-schema.ts`                                         | Print the Sales subgraph and subscriptions for GraphQL type-generation tooling.                      |
+| Schema export              | `scripts/print-subgraph-schema.ts`                                         | Print the Sales subgraph and subscriptions for GraphQL type-generation tooling.                      |
 | Runtime                    | `src/main.ts`, `src/connectionResolvers.ts`, `src/trpc`   | Start the plugin, load tenant-scoped models, and expose tRPC procedures.                             |
 | Sales models               | `src/modules/sales/db`                                    | Store deals, boards, pipelines, stages, labels, and sales metadata.                                  |
 | Sales GraphQL              | `src/modules/sales/graphql`, `src/apollo`                 | Provide sales schemas, resolvers, mutations, queries, and subscriptions.                             |
@@ -289,18 +289,16 @@
   subscription definitions; document conversion does not redefine the API.
   The exporter exits explicitly because shared utility imports open Redis
   clients that would otherwise keep the command running.
-- `sales_api:schema:print` is uncached so shared SDL helpers, dependency
-  versions, and TypeScript path changes cannot restore an outdated schema.
-  `sales_ui:codegen` depends on this export and hashes the resulting SDL.
+- `sales_api:schema:print` opts into the shared `nx.json` printer default.
+  Its cache inputs include Sales source, the shared printer, and shared Apollo SDL helpers.
+  `gateway:schema:compose` consumes this export; `sales_ui:codegen` hashes the composed SDL.
   Every Sales UI document is generated-typed and lint-enforced, so renaming or
   removing an SDL field fails the `sales_ui` codegen/build; update the UI
   documents in the same change.
-- Public fields owned by other services belong in the frontend's tooling
-  snapshot (`frontend/plugins/sales_ui/schema/platform.graphql`), not in Sales
-  runtime SDL. Do not add backend fields just to satisfy frontend codegen.
+- Public fields owned by other services come from the composed gateway schema, not Sales runtime SDL. Do not add backend fields just to satisfy frontend codegen.
 - `Pos` has no `type` field in its public GraphQL contract. Frontend settings
   must use the existing configuration fields rather than inventing this field
-  in handwritten types or the codegen snapshot.
+  in handwritten types or codegen inputs.
 - Deal and pipeline watch methods use atomic `$addToSet`/`$pull` updates and
   return the updated record, or null if it no longer exists. Repeated requests
   must not duplicate watchers or remove another user; concurrent requests must
@@ -575,7 +573,7 @@
 ## Validation
 
 - `pnpm exec tsc --noEmit -p backend/plugins/sales_api/tsconfig.json`
-- `pnpm nx run sales_api:schema:print --skip-nx-cache`
+- `pnpm nx run sales_api:schema:print --skip-nx-cache` prints this subgraph offline for `gateway:schema:compose`.
 - `pnpm nx lint sales_api`
 - POS catalog sync smoke: sync more than 100 products with base pricing and
   verify discounts apply to products on both sides of each batch boundary.

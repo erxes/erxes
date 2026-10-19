@@ -19,13 +19,17 @@ interface NotificationSettingsContext {
 
   module: PluginsNotificationConfigModules & { enabled?: boolean };
   events: Array<
-    PluginsNotificationConfigEvents & { enabled?: boolean; channels?: string[] }
+    PluginsNotificationConfigEvents & {
+      enabled?: boolean;
+      channels?: string[];
+      mutedChannels?: string[];
+    }
   >;
 
   toggleChannel: (channel: string) => void;
+  toggleEventChannel: (eventName: string, channel: string) => void;
   togglePlugin: (enabled: boolean) => void;
   toggleModule: (enabled: boolean) => void;
-  toggleEvent: (eventName: string, enabled: boolean) => void;
 }
 
 const NotificationContext = createContext<NotificationSettingsContext | null>(
@@ -94,18 +98,54 @@ export const NotificationSettingsProvider = ({
   };
 
   const toggleModule = async (enabled: boolean) => {
-    await updateNotificationSettingsEvent({
+    const moduleUpdate = updateNotificationSettingsEvent({
       event: `${pluginName}:${moduleName}`,
       enabled,
       channels: plugin.channels,
     });
+
+    if (!enabled) {
+      await moduleUpdate;
+      return;
+    }
+
+    // turning the group on selects, on all of the plugin's channels, only the
+    // events the user never set; a saved choice is left as it is
+    const untouched = currentEvents.filter(
+      (e) =>
+        !notificationSettings?.events?.[
+          `${pluginName}:${moduleName}:${e.name}`
+        ],
+    );
+
+    await Promise.all([
+      moduleUpdate,
+      ...untouched.map((e) =>
+        updateNotificationSettingsEvent({
+          event: `${pluginName}:${moduleName}:${e.name}`,
+          enabled: true,
+          channels: plugin.channels,
+          mutedChannels: [],
+        }),
+      ),
+    ]);
   };
 
-  const toggleEvent = async (eventName: string, enabled: boolean) => {
+  const toggleEventChannel = async (eventName: string, channel: string) => {
+    const current = currentEvents.find((e) => e.name === eventName);
+    const active = current?.enabled
+      ? plugin.channels.filter((c) => !current.mutedChannels?.includes(c))
+      : [];
+    const nextActive = active.includes(channel)
+      ? active.filter((c) => c !== channel)
+      : [...active, channel];
+
     await updateNotificationSettingsEvent({
       event: `${pluginName}:${moduleName}:${eventName}`,
-      enabled,
+      // with no channel left the event is off
+      enabled: nextActive.length > 0,
       channels: plugin.channels,
+      mutedChannels: plugin.channels.filter((c) => !nextActive.includes(c)),
     });
   };
 
@@ -116,9 +156,9 @@ export const NotificationSettingsProvider = ({
         module: currentModule,
         events: currentEvents,
         toggleChannel,
+        toggleEventChannel,
         togglePlugin,
         toggleModule,
-        toggleEvent,
       }}
     >
       {children}

@@ -14,7 +14,6 @@
       },
       "dependsOn": ["^build", "build:packageJson"]
     },
-
     "build:packageJson": {
       "executor": "@nx/js:tsc",
       "options": {
@@ -22,11 +21,9 @@
         "tsConfig": "backend/plugins/sales_api/tsconfig.build.json",
         "outputPath": "backend/plugins/sales_api/dist",
         "updateBuildableProjectDepsInPackageJson": true,
-
         "buildableProjectDepsInPackageJsonType": "dependencies"
       }
     },
-
     "start": {
       "executor": "nx:run-commands",
       "dependsOn": ["typecheck", "build"],
@@ -35,21 +32,17 @@
         "command": "NODE_ENV=development node dist/src/main.js"
       }
     },
-
     "serve": {
       "executor": "nx:run-commands",
-
       "options": {
         "cwd": "backend/plugins/sales_api",
         "command": "NODE_ENV=development pnpm dev"
       }
     },
-
     "docker-build": {
       "dependsOn": ["build"],
       "command": "docker build -f backend/plugins/sales_api/Dockerfile . -t erxes/erxes-next-sales_api"
     },
-
     "test": {
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
@@ -57,14 +50,6 @@
         "jestConfig": "backend/plugins/sales_api/jest.config.ts"
       }
     },
-    "schema:print": {
-      "executor": "nx:run-commands",
-      "cache": false,
-      "outputs": ["{projectRoot}/generated"],
-      "options": {
-        "cwd": "backend/plugins/sales_api",
-        "command": "pnpm schema:print"
-      }
-    }
+    "schema:print": {}
   }
 }

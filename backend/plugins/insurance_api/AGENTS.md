@@ -6,7 +6,7 @@
 - **Project:** `insurance_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/insurance_api`
-- **Last synchronized:** `2026-10-19`
+- **Last synchronized:** `2026-10-20`
 
 ## Scope
 
@@ -22,7 +22,7 @@
 
 - Starts the `insurance` service on port `33010` with GraphQL and tRPC.
 - Provides insurance configuration and contract operations, vendor-user login, travel-price calculation, and contract HTML/PDF generation.
-- Prints the existing subgraph SDL to `generated/schema.graphql` for frontend codegen without starting the plugin service.
+- `pnpm nx run insurance_api:schema:print` writes the existing subgraph SDL to `generated/schema.graphql` without Redis, Mongo or a running service. The shared `scripts/print-subgraph-schema.ts` does the printing; the target comes from the `schema:print` default in `nx.json`.
 
 ## Architecture
 
@@ -35,7 +35,6 @@
 | Persistence      | `src/modules/insurance/db`                                                 | Mongoose definitions, model methods, and migrations                      |
 | Pricing and PDFs | `src/modules/insurance/utils/pricing.ts`, `src/modules/insurance/services` | Price calculations and contract rendering                                |
 | tRPC             | `src/trpc/init-trpc.ts`                                                    | `insurance.health` procedure                                             |
-| Schema printing  | `print-schema.ts`                                                          | Builds and prints Insurance's existing subgraph SDL                      |
 
 ## Contracts
 
@@ -46,7 +45,7 @@
 - Insurance-type create/update operations accept optional `isCitizen`; `addProductToVendor` accepts optional `discountTiers` alongside its JSON pricing override. Frontend input types must retain these arguments.
 - Existing JSON fields for product `pricingConfig`, vendor-product `pricingOverride`, and contract `insuredObject`.
 - Vendor rename, add-product, and remove-product mutation responses populate each offered product's insurance type, risks, and regions, matching the read queries. Selecting region details must not make a completed write return a GraphQL null-field error.
-- Nx target `schema:print`, consumed by `insurance_ui:codegen`; `generated/` is ignored and regenerated rather than committed.
+- Nx target `schema:print` (cached, output `generated/schema.graphql`, gitignored), composed with every other subgraph by `gateway:schema:compose`.
 
 ### Consumes
 
@@ -63,7 +62,7 @@
 - Preserve request tenancy in every resolver and HTTP handler; vendor-user context is separate from the core user context.
 - Keep Insurance-owned schema, persistence, and services inside this plugin.
 - Do not change JSON field shapes or tighten output nullability solely to satisfy frontend types. Contract changes require resolver/write-path and stored-data evidence and compatibility review.
-- The schema printer imports only the existing type definitions, not service startup or models. It exits explicitly because shared utilities may open Redis clients on import.
+- `src/apollo/typeDefs.ts` must stay importable without service startup or models, because the shared printer imports it to build the subgraph SDL.
 
 ## Validation
 
