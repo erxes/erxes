@@ -12,6 +12,7 @@ import {
   AddInternalNote,
   FieldsInDetail,
   RelationWidgetSideTabs,
+  Slot,
 } from 'ui-modules';
 import { CustomerDetailGeneral } from './CustomerDetailGeneral';
 import { CustomerDetailFields } from './CustomerDetailFields';
@@ -60,6 +61,13 @@ export const CustomerDetail = () => {
                 <Tabs.Content value="overview" className="h-full">
                   <ScrollArea className="h-full">
                     <CustomerDetailFields />
+                    {!!customerDetail?._id && (
+                      <Slot
+                        name="core.customer.detail.sections"
+                        props={{ customerId: customerDetail._id }}
+                        className="px-6 pb-6"
+                      />
+                    )}
                   </ScrollArea>
                 </Tabs.Content>
                 <Tabs.Content value="properties" className="h-full">
