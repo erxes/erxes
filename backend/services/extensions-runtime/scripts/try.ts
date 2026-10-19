@@ -7,19 +7,25 @@
 // fixture.json: { "function": "<name>", "input": {...},
 //                 "db": { "<collection>": [<document>, ...] },
 //                 "tools": { "<host>.<entry>": <result>, ... } }
+// or, to run several calls at once against the same db,
+//               { "calls": [{ "function", "input" }, ...], "db", "tools" }.
+// The db keeps the extension's unique indexes: a write that would duplicate
+// one fails with CONFLICT, as in Mongo.
 // `tools` mocks contract calls: "sales.deals.get" answers
 // ctx.erxes.sales.deals.get. The call still needs the pin in `uses`, and
 // input and the mocked result still parse against the pinned contract.
-// Prints { ok, data | error, ms, writes } and exits 1 unless ok. `writes` are
-// the inserts, updates and deletes the extension made on its own collections.
+// Prints { ok, runs: [{ ok, data | error, ms }], writes, db } and exits 1
+// unless every run is ok. `writes` are the inserts, updates and deletes the
+// extension made on its own collections; `db` is what they left.
 import { randomUUID } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import { Query } from 'mingo';
 import { createServer } from 'node:http';
+import type { Indexes } from 'erxes-sdk';
 import { z } from 'zod';
 import { HostCallRequest, runContractCall } from '../src/contracts';
 import { ApiError } from '../src/errors';
-import { HostDbRequest, parseDbOp } from '../src/hostDb';
+import { conflict, HostDbRequest, parseDbOp } from '../src/hostDb';
 import { LIMITS } from '../src/limits';
 import { bundleExtension, describeExtension } from './bundle';
 import {
@@ -31,9 +37,12 @@ import {
 const HOST_PORT = Number(process.env.EXT_TRY_HOST_PORT || 3340);
 const SUPERVISOR_PORT = Number(process.env.EXT_TRY_SUPERVISOR_PORT || 3341);
 
+const Call = z.object({ function: z.string(), input: z.unknown().optional() });
+
 const fixtureSchema = z.object({
-  function: z.string(),
+  function: z.string().optional(),
   input: z.unknown().optional(),
+  calls: z.array(Call).optional(),
   db: z
     .record(z.string(), z.array(z.record(z.string(), z.unknown())))
     .default({}),
@@ -46,6 +55,7 @@ type Doc = Record<string, unknown>;
 // arrays.
 const runDbOp = (
   store: Record<string, Doc[]>,
+  indexes: Indexes,
   writes: { collection: string; op: string; doc: unknown }[],
   request: z.infer<typeof HostDbRequest>,
 ) => {
@@ -53,6 +63,27 @@ const runDbOp = (
   const docs = (store[request.collection] ??= []);
   const matches = () =>
     new Query(call.op === 'insertOne' ? {} : call.query).find<Doc>(docs);
+  // `doc` as it would be stored, checked against every unique index of the
+  // collection the way Mongo checks it.
+  const assertUnique = (doc: Doc, self?: Doc) => {
+    for (const { keys, unique } of indexes[request.collection] ?? []) {
+      const fields = Object.keys(keys);
+      const taken = docs.some(
+        (other) =>
+          other !== self &&
+          fields.every(
+            (f) => JSON.stringify(other[f]) === JSON.stringify(doc[f]),
+          ),
+      );
+
+      if (unique && taken) {
+        throw conflict(
+          request.collection,
+          Object.fromEntries(fields.map((f) => [f, doc[f]])),
+        );
+      }
+    }
+  };
   const write = (doc: Doc) => {
     writes.push({ collection: request.collection, op: call.op, doc });
     return doc;
@@ -80,14 +111,31 @@ const runDbOp = (
         createdAt: now,
         updatedAt: now,
       };
+      assertUnique(doc);
       docs.push(doc);
       return write(doc);
     }
     case 'updateOne': {
       const doc = matches().limit(1).all()[0];
-      return doc
-        ? write(Object.assign(doc, call.set, { updatedAt: now }))
-        : null;
+
+      if (doc) {
+        assertUnique({ ...doc, ...call.set }, doc);
+        return write(Object.assign(doc, call.set, { updatedAt: now }));
+      }
+
+      if (!call.upsert) {
+        return null;
+      }
+
+      const inserted = {
+        ...call.set,
+        _id: randomUUID(),
+        createdAt: now,
+        updatedAt: now,
+      };
+      assertUnique(inserted);
+      docs.push(inserted);
+      return write(inserted);
     }
     case 'deleteOne': {
       const doc = matches().limit(1).all()[0];
@@ -110,11 +158,16 @@ const main = async () => {
     JSON.parse(await readFile(fixturePath, 'utf8')),
   );
 
-  if (!ext.functions.includes(fixture.function)) {
+  const calls =
+    fixture.calls ??
+    (fixture.function
+      ? [{ function: fixture.function, input: fixture.input }]
+      : []);
+  const unknownFn = calls.find((c) => !ext.functions.includes(c.function));
+
+  if (calls.length === 0 || unknownFn) {
     throw new Error(
-      `function ${fixture.function} is not one of ${JSON.stringify(
-        ext.functions,
-      )}`,
+      `name a function, or calls, from ${JSON.stringify(ext.functions)}`,
     );
   }
 
@@ -124,7 +177,12 @@ const main = async () => {
 
   const handle = async (url: string | undefined, body: string) => {
     if (url !== '/contract') {
-      return runDbOp(store, writes, HostDbRequest.parse(JSON.parse(body)));
+      return runDbOp(
+        store,
+        ext.indexes,
+        writes,
+        HostDbRequest.parse(JSON.parse(body)),
+      );
     }
 
     return runContractCall(
@@ -186,27 +244,32 @@ const main = async () => {
     await waitUntilListening(`http://127.0.0.1:${SUPERVISOR_PORT}/`);
 
     const code = await bundleExtension(extDir);
-    const res = await fetch(`http://127.0.0.1:${SUPERVISOR_PORT}/invoke`, {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      signal: AbortSignal.timeout(LIMITS.runTimeoutMs),
-      body: JSON.stringify({
-        workerKey: `try:${ext.id}@${ext.version}`,
-        grant: 'try',
-        code,
-        name: fixture.function,
-        input: fixture.input,
-        user: { _id: 'try-user' },
-      }),
-    }).catch((e: unknown) => {
-      throw new Error(
-        `no response within ${LIMITS.runTimeoutMs}ms: ${String(e)}`,
-      );
-    });
+    const invoke = async ({ function: name, input }: z.infer<typeof Call>) => {
+      const res = await fetch(`http://127.0.0.1:${SUPERVISOR_PORT}/invoke`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        signal: AbortSignal.timeout(LIMITS.runTimeoutMs),
+        body: JSON.stringify({
+          workerKey: `try:${ext.id}@${ext.version}`,
+          grant: 'try',
+          code,
+          name,
+          input,
+          user: { _id: 'try-user' },
+        }),
+      }).catch((e: unknown) => {
+        throw new Error(
+          `no response within ${LIMITS.runTimeoutMs}ms: ${String(e)}`,
+        );
+      });
 
-    const run = (await res.json()) as { ok: boolean };
-    console.log(JSON.stringify({ ...run, writes }, null, 2));
-    exitCode = run.ok ? 0 : 1;
+      return { function: name, ...((await res.json()) as { ok: boolean }) };
+    };
+
+    const runs = await Promise.all(calls.map(invoke));
+    const ok = runs.every((run) => run.ok);
+    console.log(JSON.stringify({ ok, runs, writes, db: store }, null, 2));
+    exitCode = ok ? 0 : 1;
   } finally {
     workerd.kill('SIGKILL');
     stub.close();

@@ -55,21 +55,25 @@ const collection = (
     findOne: (filter) => op('findOne', filter),
     count: (filter: Filter = {}) => op('count', filter),
     insertOne: async (doc) => op('insertOne', await schema.parseAsync(doc)),
-    // Validate only the fields being set. `partial()` would still fill every
-    // other field's default and overwrite the stored value with it.
-    updateOne: async (filter, set) =>
+    // An upsert may insert `set`, so it's validated as a whole document.
+    // Otherwise validate only the fields being set: `partial()` would still
+    // fill every other field's default and overwrite the stored value with it.
+    updateOne: async (filter, set, options) =>
       op(
         'updateOne',
         filter,
-        await z
-          .object(
-            Object.fromEntries(
-              Object.keys(set)
-                .filter((key) => key in schema.shape)
-                .map((key) => [key, schema.shape[key]]),
-            ),
-          )
-          .parseAsync(set),
+        options?.upsert
+          ? await schema.parseAsync(set)
+          : await z
+              .object(
+                Object.fromEntries(
+                  Object.keys(set)
+                    .filter((key) => key in schema.shape)
+                    .map((key) => [key, schema.shape[key]]),
+                ),
+              )
+              .parseAsync(set),
+        options ?? {},
       ),
     deleteOne: (filter) => op('deleteOne', filter),
   };

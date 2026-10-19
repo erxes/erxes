@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import type { ErrorIssue } from 'erxes-sdk';
+import type { ErrorIssue, Indexes } from 'erxes-sdk';
 import type { Connection } from 'mongoose';
 import { z } from 'zod';
 import { ApiError, invalidInput } from './errors';
@@ -25,7 +25,11 @@ const ops = {
   findOne: z.tuple([json]),
   count: z.tuple([json]),
   insertOne: z.tuple([json]),
-  updateOne: z.tuple([json, json]),
+  updateOne: z.tuple([
+    json,
+    json,
+    z.object({ upsert: z.boolean().optional() }).strict().optional(),
+  ]),
   deleteOne: z.tuple([json]),
 };
 
@@ -167,17 +171,53 @@ export const parseDbOp = ({ op, args }: { op: DbOpName; args: unknown[] }) => {
         doc: plain('The document', parseArgs(ops.insertOne, args)[0]),
       } as const;
     case 'updateOne': {
-      const [query, set] = parseArgs(ops.updateOne, args);
+      const [query, set, { upsert = false } = {}] = parseArgs(
+        ops.updateOne,
+        args,
+      );
+      // Mongo inserts the filter's equality fields too. Each one being a field
+      // of `set` means the inserted document is `set`, which the worker
+      // validated as a whole.
+      const unset = Object.keys(query).filter((key) => !(key in set));
+
+      if (upsert && unset.length > 0) {
+        throw new ApiError(
+          400,
+          'INVALID_INPUT',
+          `An upsert's filter may only use fields its update sets, not ${unset.join(
+            ', ',
+          )}`,
+          unset.map((key) => ({
+            path: key,
+            message: 'not a field the update sets',
+          })),
+        );
+      }
+
       return {
         op,
         query: filter(query),
         set: plain('The update', set),
+        upsert,
       } as const;
     }
   }
 };
 
 const maxTimeMS = LIMITS.dbMaxTimeMs;
+
+// What a unique index refused, as the extension sees it.
+export const conflict = (collection: string, keyValue: unknown) =>
+  new ApiError(
+    409,
+    'CONFLICT',
+    `${collection} already has a document with ${JSON.stringify(keyValue)}`,
+  );
+
+export const isDuplicateKey = (
+  e: unknown,
+): e is { code: 11000; keyValue?: Record<string, unknown> } =>
+  typeof e === 'object' && e !== null && 'code' in e && e.code === 11000;
 
 export const runDbOp = async (
   db: Connection,
@@ -215,11 +255,44 @@ export const runDbOp = async (
     case 'updateOne':
       return coll.findOneAndUpdate(
         call.query,
-        { $set: { ...call.set, updatedAt: now } },
-        { returnDocument: 'after', maxTimeMS },
+        {
+          $set: { ...call.set, updatedAt: now },
+          ...(call.upsert && {
+            $setOnInsert: { _id: randomUUID(), createdAt: now },
+          }),
+        },
+        { returnDocument: 'after', upsert: call.upsert, maxTimeMS },
       );
     case 'deleteOne':
       return coll.findOneAndDelete(call.query, { maxTimeMS });
+  }
+};
+
+// Creates the indexes a version declares. createIndex is a no-op for an
+// index that already exists as declared, so activating again or rolling back
+// is safe. Indexes an older version declared stay. Fails with INDEX_FAILED
+// when existing documents break a unique index or an index with the same keys
+// exists with other options; the caller then keeps the active version.
+export const ensureIndexes = async (
+  db: Connection,
+  extId: string,
+  indexes: Indexes,
+) => {
+  for (const [collection, list] of Object.entries(indexes)) {
+    for (const { keys, unique = false } of list) {
+      await db
+        .collection(collectionName(extId, collection))
+        .createIndex(keys, { unique })
+        .catch((e: unknown) => {
+          throw new ApiError(
+            409,
+            'INDEX_FAILED',
+            `Couldn't index ${collection} on ${JSON.stringify(keys)}: ${
+              e instanceof Error ? e.message : String(e)
+            }`,
+          );
+        });
+    }
   }
 };
 

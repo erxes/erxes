@@ -19,7 +19,13 @@ import { z } from 'zod';
 import { generateModels } from './connectionResolver';
 import { gatewayUpstream, HostCallRequest, runContractCall } from './contracts';
 import { ApiError, invalidInput } from './errors';
-import { HostDbRequest, parseDbOp, runDbOp } from './hostDb';
+import {
+  conflict,
+  HostDbRequest,
+  isDuplicateKey,
+  parseDbOp,
+  runDbOp,
+} from './hostDb';
 import {
   activateVersion,
   InstallBody,
@@ -193,6 +199,7 @@ const maxBody = (maxSize: number) =>
 // are its own failures: 422.
 const STATUS_BY_CODE = new Map<string, ApiError['status']>([
   ['INVALID_INPUT', 400],
+  ['CONFLICT', 409],
   ['RESULT_TOO_LARGE', 413],
   ['SANDBOX_RESTARTED', 503],
   ['TIMEOUT', 504],
@@ -460,19 +467,21 @@ export const hostApp = new Hono()
 
       const call = parseDbOp(request);
       const models = await generateModels(grant.tenant);
-      // A duplicate key or a bad value is the extension's mistake: hand it the
-      // driver's message.
+      // A duplicate key arrives as CONFLICT. Any other driver error, a bad
+      // value say, is the extension's mistake: hand it the driver's message.
       const data = await runDbOp(
         models.Extensions.db,
         grant.extId,
         request.collection,
         call,
       ).catch((e: unknown) => {
-        throw new ApiError(
-          400,
-          'DB_ERROR',
-          e instanceof Error ? e.message : String(e),
-        );
+        throw isDuplicateKey(e)
+          ? conflict(request.collection, e.keyValue ?? {})
+          : new ApiError(
+              400,
+              'DB_ERROR',
+              e instanceof Error ? e.message : String(e),
+            );
       });
 
       if (

@@ -1,3 +1,4 @@
+import type { Indexes } from 'erxes-sdk';
 import { Connection, Model, Schema } from 'mongoose';
 import {
   createGenerateModels,
@@ -20,6 +21,8 @@ export interface IExtensionDocument {
   functionPermissions: Record<string, string>;
   // Host contract -> the version the build pinned, e.g. { sales: 1 }.
   uses: Record<string, number>;
+  // Collection -> the indexes the build declared, created on activation.
+  indexes: Indexes;
   // Module Federation remote name, when the extension ships a UI.
   uiRemote?: string;
   status: 'installed' | 'disabled';
@@ -39,6 +42,7 @@ const extensionSchema = new Schema<IExtensionDocument>({
   permissions: { type: Schema.Types.Mixed, default: {} },
   functionPermissions: { type: Schema.Types.Mixed, default: {} },
   uses: { type: Schema.Types.Mixed, default: {} },
+  indexes: { type: Schema.Types.Mixed, default: {} },
   uiRemote: { type: String },
   status: {
     type: String,
@@ -96,6 +100,7 @@ export type ExtensionBuild = Pick<
   | 'permissions'
   | 'functionPermissions'
   | 'uses'
+  | 'indexes'
   | 'uiRemote'
 >;
 
@@ -121,6 +126,7 @@ const extensionVersionSchema = new Schema<IExtensionVersionDocument>({
   permissions: { type: Schema.Types.Mixed, default: {} },
   functionPermissions: { type: Schema.Types.Mixed, default: {} },
   uses: { type: Schema.Types.Mixed, default: {} },
+  indexes: { type: Schema.Types.Mixed, default: {} },
   uiRemote: { type: String },
   installedBy: { type: String, required: true },
   installedAt: { type: Date, default: Date.now },
