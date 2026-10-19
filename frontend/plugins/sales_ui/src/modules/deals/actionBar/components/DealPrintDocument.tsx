@@ -1,43 +1,23 @@
+import {
+  SALES_DEAL_DOCUMENTS,
+  SALES_DEAL_PROCESS_DOCUMENT,
+} from '@/deals/graphql/queries/DocumentQueries';
 import { useLazyQuery, useQuery } from '@apollo/client';
 import { IconPrinter } from '@tabler/icons-react';
-import { Combobox, Command, DropdownMenu, toast } from 'erxes-ui';
+import { Combobox, Command, DropdownMenu, isDefined, toast } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { PrintDocument } from 'ui-modules';
-import {
-  DOCUMENTS_QUERY,
-  PROCESS_DOCUMENT,
-} from 'ui-modules/modules/documents/graphql/queries';
+import type { SalesDealDocumentsQuery } from '~/gql/graphql';
 
 import { IDeal } from '@/deals/types/deals';
 
 const DEAL_DOCUMENT_CONTENT_TYPE = 'sales:deal';
 const DOCUMENTS_LIMIT = 100;
 
-type DealDocument = {
-  _id: string;
-  name: string;
-};
-
-type DocumentsQueryData = {
-  documents?: {
-    list?: DealDocument[];
-  };
-};
-
-type DocumentsQueryVariables = {
-  contentType: string;
-  limit: number;
-};
-
-type ProcessDocumentData = {
-  documentsProcess?: string;
-};
-
-type ProcessDocumentVariables = {
-  _id: string;
-  replacerIds: string[];
-};
+type DealDocument = NonNullable<
+  NonNullable<NonNullable<SalesDealDocumentsQuery['documents']>['list']>[number]
+>;
 
 type DealPrintDocumentProps = {
   deals: Pick<IDeal, '_id'>[];
@@ -73,10 +53,7 @@ const DealPrintDocumentSubmenu = ({
   const { t } = useTranslation('sales');
   const [open, setOpen] = useState(false);
 
-  const { data, loading, error } = useQuery<
-    DocumentsQueryData,
-    DocumentsQueryVariables
-  >(DOCUMENTS_QUERY, {
+  const { data, loading, error } = useQuery(SALES_DEAL_DOCUMENTS, {
     variables: {
       contentType: DEAL_DOCUMENT_CONTENT_TYPE,
       limit: DOCUMENTS_LIMIT,
@@ -85,14 +62,14 @@ const DealPrintDocumentSubmenu = ({
     fetchPolicy: 'network-only',
   });
 
-  const [processDocument, { loading: processing }] = useLazyQuery<
-    ProcessDocumentData,
-    ProcessDocumentVariables
-  >(PROCESS_DOCUMENT, {
-    fetchPolicy: 'no-cache',
-  });
+  const [processDocument, { loading: processing }] = useLazyQuery(
+    SALES_DEAL_PROCESS_DOCUMENT,
+    {
+      fetchPolicy: 'no-cache',
+    },
+  );
 
-  const documents = data?.documents?.list ?? [];
+  const documents = data?.documents?.list?.filter(isDefined) ?? [];
 
   const handlePrint = async (document: DealDocument) => {
     const printWindow = window.open('', '_blank');

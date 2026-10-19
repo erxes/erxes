@@ -12,8 +12,9 @@ import {
   FORM_BULK_ACTION,
   CRAETE_LEAD_INTEGRATION,
 } from '../graphql/formMutations';
+import { GET_FORMS_TOTAL_COUNT } from '@/forms/graphql/formQueries';
 import { useMutation } from '@apollo/client';
-import { toast } from 'erxes-ui';
+import { isDefined, toast } from 'erxes-ui';
 import { useFormDetail } from './useFormDetail';
 import { useTranslation } from 'react-i18next';
 
@@ -47,18 +48,15 @@ export const useFormMutate = () => {
   const { addForm, isAddingForm, client: addFormClient } = useFormAdd();
   const { editForm, loading: isEditingForm } = useFormEdit();
   const [createLeadIntegration, { loading: isCreatingIntegration }] =
-    useMutation<{ integrationsCreateLeadIntegration: { _id: string } }>(
-      CRAETE_LEAD_INTEGRATION,
-      {
-        onError: (error) => {
-          toast({
-            title: t('error', 'Error'),
-            description: error.message,
-            variant: 'destructive',
-          });
-        },
+    useMutation(CRAETE_LEAD_INTEGRATION, {
+      onError: (error) => {
+        toast({
+          title: t('error', 'Error'),
+          description: error.message,
+          variant: 'destructive',
+        });
       },
-    );
+    });
 
   const [fieldsBulkAction, { loading: isFieldsBulkActionLoading }] =
     useMutation(FORM_BULK_ACTION, {
@@ -93,7 +91,7 @@ export const useFormMutate = () => {
             variables: buildEditFieldsVariables(
               id,
               formFields,
-              formDetail?.fields || [],
+              (formDetail?.fields ?? []).filter(isDefined),
             ),
             onCompleted: () => {
               toast({
@@ -130,10 +128,13 @@ export const useFormMutate = () => {
         variables: { name: formValues.name, channelId },
       });
       const integrationId =
-        integrationResult.data?.integrationsCreateLeadIntegration._id;
+        integrationResult.data?.integrationsCreateLeadIntegration?._id;
       await addForm({
         variables: { ...formValues, channelId, integrationId },
+        refetchQueries: [GET_FORMS_TOTAL_COUNT],
         onCompleted: ({ formsAdd }) => {
+          if (!formsAdd) return;
+
           fieldsBulkAction({
             variables: {
               contentType: 'form',
@@ -169,7 +170,7 @@ export const useFormMutate = () => {
     resetFormSetup();
     navigate(
       _channelId
-        ? `/settings/frontline/channels/${_channelId}/forms`
+        ? `/frontline/settings/channels/${_channelId}/forms`
         : '/frontline/forms',
     );
   };

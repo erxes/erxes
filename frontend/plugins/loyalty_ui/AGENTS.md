@@ -32,12 +32,12 @@
 - Options detail supports branch, department, board, and pipeline selection.
 - Board and pipeline selectors can clear an existing selection; clearing a board
   also clears the dependent pipeline in the options and stage forms.
-- Loyalty settings include an Account types page (`/settings/loyalty/config/account-type`)
+- Loyalty settings include an Account types page (`/loyalty/settings/config/account-type`)
   to create, rename, archive, and restore loyalty account types and to convert
   score fields used by older campaigns into account types.
 - The Scores page filters by campaign, owner type, owner, action, type, description and date; it has no source-record filter (a deal's board, pipeline, stage or number): loyalty keeps only `targetId`, and those filters, which read sales data loyalty does not own, were removed with their backend.
 - The Loyalty sidebar (`MainNavigation` `NAV_ITEMS`) lists Scores, Accounts, Vouchers, Coupons, Donates, Spins, Lotteries, Assignments, Agents in that order; the navigation group opens on Scores (`defaultPath: 'loyalty/scores'`).
-- The platform settings menu lists every loyalty settings page directly under Loyalty (Wallets, Score, Voucher, Lottery, Spin, Donate, Assignment, Coupon, then Pricing) from `LOYALTY_SETTINGS_PAGES` (`settings/constants/settingRoutes.ts`), rendered by `LoyaltySettingsNavigation`; the pages carry no inner sidebar. The wallet form's Expiry & reset section ends with a live preview (`LoyaltyAccountTypePeriodPreview` / `useLoyaltyAccountTypePeriodPreview`, query `LoyaltyAccountTypePeriodPreview` with the unsaved form values): when points earned today expire or become spendable, the next reset, what tiers become, the window before a reset in which purchases earn nothing, and for a saved wallet what the next reset would clear, keep and change. The Wallets page shows a period run panel (`LoyaltyPeriodRunPanel` / `useLoyaltyPeriodRunStatus`, query `LoyaltyPeriodRunStatus`): the next run time and time zone, what it will release, expire and reset, the last run, and a history popover; wallet mutations refetch it. `/settings/loyalty/config` has no page of its own and redirects to the wallets page (`config/account-type`). The former general config (currency ratio, share fee) is gone; neither value was read anywhere.
+- The loyalty settings sidebar lists every loyalty settings page (Wallets, Score, Voucher, Lottery, Spin, Donate, Assignment, Coupon, then Pricing) from `LOYALTY_SETTINGS_PAGES` (`settings/constants/settingRoutes.ts`), rendered by `LoyaltySettingsNavigation`; the pages carry no inner sidebar. The wallet form's Expiry & reset section ends with a live preview (`LoyaltyAccountTypePeriodPreview` / `useLoyaltyAccountTypePeriodPreview`, query `LoyaltyAccountTypePeriodPreview` with the unsaved form values): when points earned today expire or become spendable, the next reset, what tiers become, the window before a reset in which purchases earn nothing, and for a saved wallet what the next reset would clear, keep and change. The Wallets page shows a period run panel (`LoyaltyPeriodRunPanel` / `useLoyaltyPeriodRunStatus`, query `LoyaltyPeriodRunStatus`): the next run time and time zone, what it will release, expire and reset, the last run, and a history popover; wallet mutations refetch it. `/loyalty/settings/config` has no page of its own and redirects to the wallets page (`config/account-type`). The former general config (currency ratio, share fee) is gone; neither value was read anywhere.
 - The customer/company/team member relation widget shows the owner's loyalty account (number, status, balance per account type) and lets users freeze it with a reason or unfreeze it; account types choose what freezing blocks.
 - Score campaign create and edit sheets share `ScoreCampaignFormLayout`: a sidebar with General (name, description, order, account type, Add / Subtract / Set), Products (restrictions and "Exclude discounted items", `additionalConfig.discountCheck`) and Automations. There is no source choice: earning is decided by automations, spending and refunds by the selling side, so the form neither shows nor sends the campaign's `serviceName` (saved campaigns keep theirs); a failed save opens the first section with an error and marks sections that have errors.
 - The score campaign "Add" tab edits the earning table (rows × tier columns from the account type, conditions popover, caps, server-computed example) and the "Subtract" tab the spending rules.
@@ -75,6 +75,7 @@
 
 | Area                  | Path                                                                                                      | Responsibility                                                                          |
 | --------------------- | --------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| App sidebar | `frontend/plugins/loyalty_ui/src/Sidebar.tsx` | `LoyaltySidebar` (app sidebar) and `LoyaltySidebarFooter` (Settings link), rendered by the `./loyalty` entry through `AppLayout` |
 | Pricing entry points  | `src/modules/pricing/Main.tsx`, `src/pages/pricing`                                                       | Pricing route and list/detail composition.                                              |
 | Pricing create form   | `src/modules/pricing/create-pricing/**`                                                                   | New pricing plan form and submission mapping.                                           |
 | Pricing edit forms    | `src/modules/pricing/edit-pricing/**`                                                                     | Sectioned pricing detail editing UI.                                                    |
@@ -129,15 +130,27 @@
 
 ## Local Invariants
 
+- The plugin owns its whole app sidebar. `src/modules/loyalties/SubNavigations.tsx` (the `./loyalty`
+  expose) wraps its routes in `erxes-ui` `AppLayout` (`id="loyalty"`) with
+  `LoyaltySidebar`. Core-ui draws only the top `CoreTab` bar; `navigationGroup` in
+  `src/config.tsx` supplies just the tab name, icon and `defaultPath` and takes
+  no `content`/`subGroup`.
+- `LoyaltySidebarFooter` pins a Settings link to the bottom of the app
+  sidebar. The plugin owns its settings at `/loyalty/settings/*`, served by its
+  own entry: the entry's top-level `<Routes>` sends `settings/*` to
+  `LoyaltySettingsLayout` (`src/Sidebar.tsx`, an `AppLayout` titled
+  "<Plugin> settings" with a Back link to the app) and `*` to the app
+  `AppLayout`. Settings pages render inside `PluginSettingsRoutes`
+  (`ui-modules`), which also serves `tags` and `properties/*` scoped to
+  this plugin's types; the settings sidebar appends
+  `PluginSharedSettingsNavigation`, which lists Tags/Properties only when the
+  plugin registers those types. Core organization settings never list
+  plugin settings, `config.tsx` has no `settingsNavigation`, and there is
+  no `./loyaltySettings` expose; old `/settings/loyalty/…` URLs are redirected
+  by core. The settings navigation renders no `Sidebar.GroupLabel`.
+- Page header breadcrumbs follow the shared pattern: crumbs are default ghost `Button`s (no `font-semibold`), the first crumb carries a 16px icon in the default text color, crumbs are separated by `Separator.Inline` or `Breadcrumb.Separator`, and settings pages carry no favorite toggle. `LoyaltyMainLayout` renders its title as that ghost-button crumb, not a plain span.
+- Page-level side menus render `Sidebar.Panel` from `erxes-ui`, which keeps its own open state (`sidebarPanelOpenState`), separate from the plugin's `AppLayout` sidebar. The panel sits beside the page header, never under it: the page is a row of the panel and a column holding the header and content. The panel passes its heading as `label`, which renders a 40px title row with optional `actions` and the collapse toggle on the right, level with the page header; when collapsed, the toggle moves into the header's panel slot. Do not add a second heading or an in-panel `Sidebar.PanelTrigger` row. Keep `<Sidebar collapsible="none">` for sidebars inside sheets and dialogs. `PricingEdit` takes the pricing page header as `header` so `PricingEditSidebar` sits beside it.
 - Loyalty relation widget scroll areas (`ScoreSummaryWidget`, `ScoreTargetHistoryWidget`) pass `viewportClassName="[&>div]:block! [&>div]:min-w-0"` so their cards fit the fixed 320px relation side panel. `LoyaltyAccountCard` shows its tier-history and freeze actions as icon buttons with tooltips so the account row stays on one line in the panel. The owner `ScoreSummaryWidget` shows one points card (balance, earned/redeemed, redemption rate) and omits the workspace-wide `activeLoyaltyMembers`/`monthlyActiveUsers`, which `scoreLogStatistics` does not filter by owner; `ScoreStatCards` stays for the workspace `ScoreSummaryPanel`.
-- Page-level side menus render `Sidebar.Panel` from `erxes-ui`, which keeps its
-  own open state (`sidebarPanelOpenState`), separate from the host's context
-  column. Never stack two headings: a menu without a heading passes one as
-  `label` (header row with the heading, optional `actions` and the collapse
-  toggle); a menu that starts with its own heading row (group label, collapsible
-  or accordion trigger) omits `label` and ends that row with
-  `Sidebar.PanelTrigger`. Keep `<Sidebar collapsible="none">` for sidebars
-  inside sheets and dialogs.
 - Account types are labelled "Wallet(s)" (en) / "Хэтэвч" (mn) everywhere users see them, as balances inside the owner's loyalty account ("Account" / "Данс"); identifiers, routes, GraphQL documents and translation keys keep `accountType` / `loyalty-account-type`.
 - Pricing UI changes stay inside `frontend/plugins/loyalty_ui`.
 - Pricing form save mappings must preserve empty optional selectors as no
@@ -154,6 +167,7 @@
   after creation.
 - Changing a score campaign's owner type clears its account type; archived account types
   are listed in the campaign selector only when the campaign already uses one.
+- `Sheet.Header` is a fixed 40px row. A header with a visible second line (subtitle, record number, description) adds `h-auto py-2` so it sizes to its content; detail-page title rows are `h-10`, level with `PageHeader`.
 
 ## Validation
 

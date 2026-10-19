@@ -10,7 +10,7 @@ export function TopNumbersSection() {
   const { t } = useTranslation('frontline');
   const { numbers, loading } = useTopNumbers(20);
 
-  const busiest = Math.max(...numbers.map(({ attempts }) => attempts), 1);
+  const busiest = Math.max(...numbers.map(({ attempts }) => attempts ?? 0), 1);
 
   return (
     <SectionCard
@@ -55,7 +55,7 @@ export function TopNumbersSection() {
           </ReportTable.Header>
           <ReportTable.Body>
             {numbers.map((row, i) => {
-              const carrierColor = CARRIER_COLOR_VAR[row.carrier];
+              const carrierColor = CARRIER_COLOR_VAR[row.carrier ?? 'Other'];
               const isPodium = i < 3;
 
               return (
@@ -94,7 +94,7 @@ export function TopNumbersSection() {
                     </p>
                     <Meter
                       className="mt-1.5"
-                      value={(row.attempts / busiest) * 100}
+                      value={((row.attempts ?? 0) / busiest) * 100}
                       colorVar="var(--chart-5)"
                     />
                   </ReportTable.Cell>

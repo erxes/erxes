@@ -1,20 +1,20 @@
-import React, { useCallback, useState } from 'react';
-import { Badge, Spinner } from 'erxes-ui';
-import { useTranslation } from 'react-i18next';
-import { IPos } from '@/pos/types/pos';
-import { Properties } from '@/pos/components/properties';
-import { Slots } from '@/pos/components/slots';
+import { Appearance } from '@/pos/components/appearance';
+import { PosAutomations } from '@/pos/components/automations/PosAutomations';
+import { PosRelationSettings } from '@/pos/components/automations/PosRelationSettings';
+import { CustomerCreate } from '@/pos/components/customerCreate/CustomerCreate';
+import { DeliveryConfig } from '@/pos/components/deliveryConfig';
 import { Payment } from '@/pos/components/payment';
 import { Permission } from '@/pos/components/permission';
 import { Products } from '@/pos/components/products';
-import { Appearance } from '@/pos/components/appearance';
+import { Properties } from '@/pos/components/properties';
 import { ScreenConfig } from '@/pos/components/screenConfig';
-import { DeliveryConfig } from '@/pos/components/deliveryConfig';
+import { Slots } from '@/pos/components/slots';
 import { SyncCard } from '@/pos/components/syncCard';
-import { CustomerCreate } from '@/pos/components/customerCreate/CustomerCreate';
-import { PosAutomations } from '@/pos/components/automations/PosAutomations';
-import { PosRelationSettings } from '@/pos/components/automations/PosRelationSettings';
 import { POS_RELATION_TAB_PREFIX } from '@/pos/constants';
+import { IPos } from '@/pos/types/pos';
+import { Spinner } from 'erxes-ui';
+import React, { useCallback, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface MainContentProps {
   activeStep: string;
@@ -22,11 +22,6 @@ interface MainContentProps {
   posDetail?: IPos;
   loading: boolean;
   error?: Error;
-}
-
-export interface PosComponentProps {
-  posId?: string;
-  posType?: string;
 }
 
 export const MainContent: React.FC<MainContentProps> = ({
@@ -37,7 +32,6 @@ export const MainContent: React.FC<MainContentProps> = ({
   error,
 }) => {
   const { t } = useTranslation('sales');
-  const posType = posDetail?.type;
   const [headerSaveAction, setHeaderSaveAction] =
     useState<React.ReactNode | null>(null);
 
@@ -54,7 +48,7 @@ export const MainContent: React.FC<MainContentProps> = ({
         <PosRelationSettings
           moduleKey={activeStep.slice(POS_RELATION_TAB_PREFIX.length)}
           posId={posId}
-          posName={posDetail?.name}
+          posName={posDetail?.name ?? undefined}
         />
       );
     }
@@ -64,7 +58,6 @@ export const MainContent: React.FC<MainContentProps> = ({
         return (
           <Properties
             posId={posId}
-            posType={posType}
             onSaveActionChange={handleSaveActionChange}
           />
         );
@@ -72,17 +65,12 @@ export const MainContent: React.FC<MainContentProps> = ({
         return posId ? <Slots posId={posId} /> : null;
       case 'payments':
         return (
-          <Payment
-            posId={posId}
-            posType={posType}
-            onSaveActionChange={handleSaveActionChange}
-          />
+          <Payment posId={posId} onSaveActionChange={handleSaveActionChange} />
         );
       case 'permission':
         return (
           <Permission
             posId={posId}
-            posType={posType}
             onSaveActionChange={handleSaveActionChange}
           />
         );
@@ -94,20 +82,20 @@ export const MainContent: React.FC<MainContentProps> = ({
           />
         );
       case 'automations':
-        return <PosAutomations posId={posId} posName={posDetail?.name} />;
+        return (
+          <PosAutomations
+            posId={posId}
+            posName={posDetail?.name ?? undefined}
+          />
+        );
       case 'product':
         return (
-          <Products
-            posId={posId}
-            posType={posType}
-            onSaveActionChange={handleSaveActionChange}
-          />
+          <Products posId={posId} onSaveActionChange={handleSaveActionChange} />
         );
       case 'appearance':
         return (
           <Appearance
             posId={posId}
-            posType={posType}
             onSaveActionChange={handleSaveActionChange}
           />
         );
@@ -115,7 +103,6 @@ export const MainContent: React.FC<MainContentProps> = ({
         return (
           <ScreenConfig
             posId={posId}
-            posType={posType}
             onSaveActionChange={handleSaveActionChange}
           />
         );
@@ -123,24 +110,18 @@ export const MainContent: React.FC<MainContentProps> = ({
         return (
           <DeliveryConfig
             posId={posId}
-            posType={posType}
             onSaveActionChange={handleSaveActionChange}
           />
         );
       case 'sync':
         return (
-          <SyncCard
-            posId={posId}
-            posType={posType}
-            onSaveActionChange={handleSaveActionChange}
-          />
+          <SyncCard posId={posId} onSaveActionChange={handleSaveActionChange} />
         );
 
       default:
         return (
           <Properties
             posId={posId}
-            posType={posType}
             onSaveActionChange={handleSaveActionChange}
           />
         );
@@ -172,10 +153,6 @@ export const MainContent: React.FC<MainContentProps> = ({
           <h1 className="max-w-[100px] text-xl font-semibold truncate text-foreground">
             {posDetail?.name || t('new-pos')}
           </h1>
-
-          <Badge variant="secondary" className="text-xs shrink-0">
-            {posDetail?.type || 'N/A'}
-          </Badge>
         </div>
 
         <div className="flex gap-2 items-center shrink-0">

@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const RETRY_TICKET_NOTE_MAIL = gql`
+export const RETRY_TICKET_NOTE_MAIL = gql(`
   mutation MailTicketNoteRetry($noteId: String!) {
     mailTicketNoteRetry(noteId: $noteId) {
       _id
@@ -15,4 +15,4 @@ export const RETRY_TICKET_NOTE_MAIL = gql`
       }
     }
   }
-`;
+`);

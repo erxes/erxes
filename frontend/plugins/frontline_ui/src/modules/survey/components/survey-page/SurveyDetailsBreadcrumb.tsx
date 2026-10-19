@@ -5,7 +5,7 @@ import { useSurveyDetail } from '@/survey/hooks/useSurveyDetail';
 export const SurveyDetailsBreadcrumb = () => {
   const { surveyId } = useParams<{ surveyId: string }>();
   const { survey, loading } = useSurveyDetail({
-    variables: { _id: surveyId },
+    variables: surveyId ? { _id: surveyId } : undefined,
     skip: !surveyId,
   });
 
@@ -13,9 +13,5 @@ export const SurveyDetailsBreadcrumb = () => {
     return <Skeleton className="h-4 w-24" />;
   }
 
-  return (
-    <Button variant="ghost" className="font-semibold">
-      {survey?.title}
-    </Button>
-  );
+  return <Button variant="ghost">{survey?.title}</Button>;
 };

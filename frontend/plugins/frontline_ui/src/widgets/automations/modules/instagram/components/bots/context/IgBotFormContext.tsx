@@ -1,4 +1,4 @@
-import { IInstagramBot } from '@/integrations/instagram/types/InstagramBot';
+import { IInstagramBotDetail } from '@/integrations/instagram/types/InstagramBot';
 import {
   instagramBotFormSchema,
   TInstagramBotForm,
@@ -6,12 +6,28 @@ import {
 import { zodResolver } from '@hookform/resolvers/zod';
 import { createContext, ReactNode, useContext, useMemo } from 'react';
 import { DefaultValues, useForm, UseFormReturn } from 'react-hook-form';
+import { isDefined } from 'erxes-ui';
 import { generateAutomationElementId } from 'ui-modules';
 
 interface IgBotFormContextType {
   form: UseFormReturn<TInstagramBotForm>;
-  instagramMessengerBot?: TInstagramBotForm;
+  instagramMessengerBot?: IInstagramBotDetail;
 }
+
+const menuTypeSchema =
+  instagramBotFormSchema.shape.persistentMenus.element.shape.type;
+
+const toMenuType = (type?: string | null) => {
+  const parsed = menuTypeSchema.safeParse(type);
+
+  return parsed.success ? parsed.data : 'button';
+};
+
+const toBotTag = (tag?: string | null) => {
+  const parsed = instagramBotFormSchema.shape.tag.safeParse(tag);
+
+  return parsed.success ? parsed.data : 'CONFIRMED_EVENT_UPDATE';
+};
 
 const IgBotFormContext = createContext<IgBotFormContextType | null>(null);
 
@@ -20,20 +36,20 @@ export const IgBotFormProvider = ({
   instagramMessengerBot,
 }: {
   children: ReactNode;
-  instagramMessengerBot?: IInstagramBot;
+  instagramMessengerBot?: IInstagramBotDetail;
 }) => {
   const defaultValues = useMemo<DefaultValues<TInstagramBotForm>>(
     () => ({
       name: instagramMessengerBot?.name || '',
       persistentMenus: instagramMessengerBot?.persistentMenus?.length
-        ? instagramMessengerBot.persistentMenus.map(
-            ({ _id, text, type, link }) => ({
+        ? instagramMessengerBot.persistentMenus
+            .filter(isDefined)
+            .map(({ _id, text, type, link }) => ({
               _id: _id || generateAutomationElementId(),
               text: text || '',
-              type: (type || 'button') as 'button' | 'link',
+              type: toMenuType(type),
               link: link || '',
-            }),
-          )
+            }))
         : [
             {
               _id: generateAutomationElementId(),
@@ -42,7 +58,7 @@ export const IgBotFormProvider = ({
               link: '',
             },
           ],
-      tag: instagramMessengerBot?.tag || 'CONFIRMED_EVENT_UPDATE',
+      tag: toBotTag(instagramMessengerBot?.tag),
       greetText: instagramMessengerBot?.greetText || '',
       isEnabledBackBtn: instagramMessengerBot?.isEnabledBackBtn || false,
       backButtonText: instagramMessengerBot?.backButtonText || '',

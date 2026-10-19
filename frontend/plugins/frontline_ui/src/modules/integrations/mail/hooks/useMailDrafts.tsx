@@ -16,16 +16,9 @@ import {
   MAIL_DRAFT_REMOVE_MUTATION,
   MAIL_DRAFT_SAVE_MUTATION,
 } from '../graphql/mutations/mailMutations';
-import type { MailDeliveryOutcome } from '@/integrations/mail/types/mailDelivery';
-import type {
-  MailDraft,
-  MailDraftEdit,
-} from '@/integrations/mail/types/mailDraft';
+import type { MailDraftEdit } from '@/integrations/mail/types/mailDraft';
 import { useDeliveryToast } from '@/integrations/mail/hooks/useMailConversationDetail';
-
-interface MailConversationDraftsResponse {
-  mailConversationDrafts: MailDraft[] | null;
-}
+import { compactList } from '@/shared/utils/cursorList';
 
 const evictDraft = (cache: ApolloCache<unknown>, _id: string) => {
   cache.evict({ id: cache.identify({ __typename: 'MailDraft', _id }) });
@@ -36,23 +29,23 @@ export const useMailDrafts = (conversationId?: string) => {
   const { t } = useTranslation('frontline');
   const showDeliveryOutcome = useDeliveryToast();
 
-  const { data, loading, error, refetch } =
-    useQuery<MailConversationDraftsResponse>(MAIL_CONVERSATION_DRAFTS_QUERY, {
-      variables: { conversationId },
+  const { data, loading, error, refetch } = useQuery(
+    MAIL_CONVERSATION_DRAFTS_QUERY,
+    {
+      variables: conversationId ? { conversationId } : undefined,
       skip: !conversationId,
       fetchPolicy: 'cache-and-network',
-    });
+    },
+  );
 
   useSubscription(MAIL_DRAFT_CHANGED_SUBSCRIPTION, {
-    variables: { conversationId },
+    variables: conversationId ? { conversationId } : undefined,
     skip: !conversationId,
     onData: () => refetch(),
   });
 
   const [saveMutation] = useMutation(MAIL_DRAFT_SAVE_MUTATION);
-  const [approveMutation] = useMutation<{
-    mailDraftApprove: MailDeliveryOutcome | null;
-  }>(MAIL_DRAFT_APPROVE_MUTATION);
+  const [approveMutation] = useMutation(MAIL_DRAFT_APPROVE_MUTATION);
   const [removeMutation] = useMutation(MAIL_DRAFT_REMOVE_MUTATION);
 
   const onError = (error: ApolloError) =>
@@ -87,7 +80,7 @@ export const useMailDrafts = (conversationId?: string) => {
     });
 
   return {
-    drafts: data?.mailConversationDrafts ?? [],
+    drafts: compactList(data?.mailConversationDrafts),
     loading,
     error,
     saveDraft,

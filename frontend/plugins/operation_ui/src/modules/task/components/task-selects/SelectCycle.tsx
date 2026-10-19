@@ -88,11 +88,13 @@ export const SelectCycleFormItem = ({
   teamId,
   scope,
   value,
+  label,
 }: {
   teamId?: string;
   scope?: string;
   onValueChange: (value: string) => void;
   value?: string;
+  label?: string;
 }) => {
   const [open, setOpen] = useState(false);
 
@@ -106,7 +108,7 @@ export const SelectCycleFormItem = ({
       teamId={teamId}
     >
       <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
-        <SelectTriggerOperation variant="form">
+        <SelectTriggerOperation variant="form" label={label}>
           <SelectCycleValue />
         </SelectTriggerOperation>
         <SelectOperationContent variant="form">
@@ -252,16 +254,18 @@ const SelectCycleRootContent = ({
   open,
   setOpen,
   variant,
+  label,
 }: {
   open: boolean;
   setOpen: (open: boolean) => void;
   variant: `${SelectTriggerVariant}`;
+  label?: string;
 }) => {
   const { isCompleted } = useSelectCycleContext();
 
   return (
     <PopoverScoped open={open} onOpenChange={setOpen}>
-      <SelectTriggerOperation variant={variant}>
+      <SelectTriggerOperation variant={variant} label={label}>
         <SelectCycleValue />
       </SelectTriggerOperation>
       {!isCompleted && (
@@ -278,11 +282,13 @@ const SelectCycleRoot = ({
   taskId,
   teamId,
   variant,
+  label,
 }: {
   value: string;
   taskId: string;
   teamId: string;
   variant: `${SelectTriggerVariant}`;
+  label?: string;
 }) => {
   const [open, setOpen] = useState(false);
   const { updateTask } = useUpdateTask();
@@ -302,7 +308,12 @@ const SelectCycleRoot = ({
       teamId={teamId}
       taskId={taskId}
     >
-      <SelectCycleRootContent open={open} setOpen={setOpen} variant={variant} />
+      <SelectCycleRootContent
+        open={open}
+        setOpen={setOpen}
+        variant={variant}
+        label={label}
+      />
     </SelectCycleProvider>
   );
 };

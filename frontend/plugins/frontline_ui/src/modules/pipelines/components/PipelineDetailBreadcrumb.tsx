@@ -6,10 +6,8 @@ export const PipelineDetailBreadcrumb = () => {
   const { pipelineId, id } = useParams<{ pipelineId: string; id: string }>();
   const { pipeline } = useGetPipeline(pipelineId);
   return (
-    <Link to={`/settings/frontline/channels/${id}/pipelines/${pipelineId}`}>
-      <Button variant="ghost" className="font-semibold">
-        {pipeline?.name}
-      </Button>
+    <Link to={`/frontline/settings/channels/${id}/pipelines/${pipelineId}`}>
+      <Button variant="ghost">{pipeline?.name}</Button>
     </Link>
   );
 };

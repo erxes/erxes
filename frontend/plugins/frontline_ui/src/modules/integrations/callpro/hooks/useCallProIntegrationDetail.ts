@@ -4,16 +4,13 @@ import { toast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { CALL_PRO_INTEGRATION_DETAIL } from '@/integrations/callpro/graphql/queries/callProQueries';
 import { callProEditSheetAtom } from '@/integrations/callpro/states/callProEditSheetAtom';
-import { ICallProIntegrationDetail } from '@/integrations/callpro/types/callProTypes';
 
 export const useCallProIntegrationDetail = () => {
   const { t } = useTranslation('frontline');
   const integrationId = useAtomValue(callProEditSheetAtom);
 
-  const { data, loading } = useQuery<{
-    callProIntegrationDetail: ICallProIntegrationDetail | null;
-  }>(CALL_PRO_INTEGRATION_DETAIL, {
-    variables: { integrationId },
+  const { data, loading } = useQuery(CALL_PRO_INTEGRATION_DETAIL, {
+    variables: integrationId ? { integrationId } : undefined,
     skip: !integrationId,
     onError: (e) => {
       toast({
@@ -24,7 +21,7 @@ export const useCallProIntegrationDetail = () => {
     },
   });
 
-  const { callProIntegrationDetail } = data || {};
+  const callProIntegrationDetail = data?.callProIntegrationDetail ?? undefined;
 
   return { callProIntegrationDetail, loading };
 };

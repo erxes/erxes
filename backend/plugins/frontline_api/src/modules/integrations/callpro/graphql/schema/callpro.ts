@@ -13,7 +13,7 @@ export const types = `
 export const queries = `
   callProConfig: CallProConfig
   callProIntegrationDetail(integrationId: String!): CallProIntegrationDetail
-  callProCustomersByPhone(phone: String!): JSON
+  callProCustomersByPhone(phone: String!): [Customer]
 `;
 
 export const mutations = `

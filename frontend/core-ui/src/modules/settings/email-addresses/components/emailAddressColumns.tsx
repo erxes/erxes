@@ -1,13 +1,7 @@
-import {
-  EMAIL_LANE_OPTIONS,
-  EMAIL_SUPPRESSION_REASON_OPTIONS,
-} from '@/settings/email-addresses/constants';
+import { EMAIL_LANE_OPTIONS } from '@/settings/email-addresses/constants';
 import { ReleaseEmailAddressDialog } from '@/settings/email-addresses/components/ReleaseEmailAddressDialog';
-import {
-  IEmailAddress,
-  TEmailLane,
-  TEmailSuppressionReason,
-} from '@/settings/email-addresses/types';
+import { IEmailAddress, TEmailLane } from '@/settings/email-addresses/types';
+import { suppressionLabel } from '@/settings/email-addresses/utils';
 import {
   IconAt,
   IconBan,
@@ -37,10 +31,6 @@ const LANE_VARIANTS: Record<TEmailLane, 'success' | 'warning' | 'destructive'> =
 
 const laneLabel = (lane: TEmailLane) =>
   EMAIL_LANE_OPTIONS.find((option) => option.value === lane)?.label ?? lane;
-
-const reasonLabel = (reason: TEmailSuppressionReason) =>
-  EMAIL_SUPPRESSION_REASON_OPTIONS.find((option) => option.value === reason)
-    ?.label ?? reason;
 
 export const emailAddressColumns = (
   t: TFunction,
@@ -141,12 +131,12 @@ export const emailAddressColumns = (
       <RecordTable.InlineHead icon={IconBan} label={t('closed-for')} />
     ),
     cell: ({ cell }) => {
-      const reason = cell.getValue() as TEmailSuppressionReason | undefined;
+      const label = suppressionLabel(cell.row.original);
 
       return (
         <RecordTableInlineCell>
-          {reason ? (
-            reasonLabel(reason)
+          {label ? (
+            label
           ) : (
             <span className="text-muted-foreground">—</span>
           )}

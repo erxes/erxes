@@ -111,7 +111,7 @@ export const TemplateList = () => {
 
   const handleEdit = (template: any) => {
     navigate(
-      `/settings/operation/team/templates/${teamId}/edit/${template._id}`,
+      `/operation/settings/team/templates/${teamId}/edit/${template._id}`,
     );
   };
 
@@ -122,7 +122,7 @@ export const TemplateList = () => {
   };
 
   const handleAdd = () => {
-    navigate(`/settings/operation/team/templates/${teamId}/template-new`);
+    navigate(`/operation/settings/team/templates/${teamId}/template-new`);
   };
 
   const templates = data?.operationTemplates || [];

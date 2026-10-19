@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const POS_ORDER_GROUP_SUMMARY = gql`
+export const POS_ORDER_GROUP_SUMMARY = gql(`
   query Query(
     $page: Int
     $perPage: Int
@@ -48,8 +48,8 @@ export const POS_ORDER_GROUP_SUMMARY = gql`
       groupField: $groupField
     )
   }
-`;
+`);
 
-export default {
+export const queries = {
   POS_ORDER_GROUP_SUMMARY,
 };

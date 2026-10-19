@@ -2,42 +2,28 @@
 
 import { PIPELINE_CHANGED } from '@/deals/graphql/subscriptions/pipelineChange';
 import { useAllDealsMap, useDealsBoard } from '@/deals/states/dealsBoardState';
-import { IDeal } from '@/deals/types/deals';
 import { useApolloClient, useSubscription } from '@apollo/client';
+import { toast } from 'erxes-ui';
+import { z } from 'zod';
 
-type ISalesPipelinesChange =
-  | {
-      _id: string;
-      processId?: string;
-      action: 'orderUpdated';
-      data: {
-        item: IDeal;
-        aboveItemId?: string;
-        destinationStageId: string;
-        oldStageId?: string;
-      };
-    }
-  | {
-      _id: string;
-      processId?: string;
-      action: 'stageStatusChanged';
-      data: {
-        stageId: string;
-        status: string;
-      };
-    };
-
-interface ISalesPipelinesChangedPayload {
-  salesPipelinesChanged: ISalesPipelinesChange;
-}
+const pipelineOrderEventSchema = z.object({
+  item: z.object({
+    _id: z.string(),
+    stageId: z.string().nullish(),
+    order: z.number().nullish(),
+  }),
+  aboveItemId: z.string().nullish(),
+  destinationStageId: z.string(),
+  oldStageId: z.string().nullish(),
+});
 
 export const usePipelineChanged = (pipelineId?: string) => {
   const [, setBoardState] = useDealsBoard();
   const [, setAllDealsMap] = useAllDealsMap();
   const client = useApolloClient();
 
-  useSubscription<ISalesPipelinesChangedPayload>(PIPELINE_CHANGED, {
-    variables: { _id: pipelineId },
+  useSubscription(PIPELINE_CHANGED, {
+    variables: pipelineId ? { _id: pipelineId } : undefined,
     skip: !pipelineId,
     onData: ({ data: result }) => {
       const payload = result.data?.salesPipelinesChanged;
@@ -50,12 +36,34 @@ export const usePipelineChanged = (pipelineId?: string) => {
       }
 
       if (payload.action === 'stageStatusChanged') {
-        void client.refetchQueries({ include: ['SalesStages'] });
+        void client.refetchQueries({
+          include: [
+            'salesDealStages',
+            'salesDealConversionStages',
+            'SalesStages', // Still used by shared selectors and Loyalty.
+          ],
+        });
         return;
       }
 
-      const { item, aboveItemId, destinationStageId, oldStageId } =
-        payload.data;
+      if (payload.action !== 'orderUpdated') return;
+      const event = pipelineOrderEventSchema.safeParse(payload.data);
+      // Stored JSON cannot hydrate computed card fields. Refresh active lists
+      // after the immediate move, including when the moved card was not loaded.
+      void client
+        .refetchQueries({
+          include: [...client.getObservableQueries('active').values()]
+            .filter((query) => query.queryName === 'salesDealList')
+            .map((query) => query.options.query),
+        })
+        .catch((error: unknown) =>
+          toast({
+            title: error instanceof Error ? error.message : String(error),
+            variant: 'destructive',
+          }),
+        );
+      if (!event.success) return;
+      const { item, aboveItemId, destinationStageId, oldStageId } = event.data;
 
       if (!item?._id || !destinationStageId) return;
 
@@ -96,7 +104,8 @@ export const usePipelineChanged = (pipelineId?: string) => {
         destinationItems.splice(destIndex, 0, item._id);
         nextColumnItems[destinationStageId] = [...new Set(destinationItems)];
 
-        const prevItem = prev.items[item._id] || ({} as IDeal);
+        const prevItem = prev.items[item._id];
+        if (!prevItem) return prev;
 
         return {
           ...prev,
@@ -104,13 +113,7 @@ export const usePipelineChanged = (pipelineId?: string) => {
             ...prev.items,
             [item._id]: {
               ...prevItem,
-              ...item,
-              products: item.products ?? prevItem.products,
-              productsData: item.productsData ?? prevItem.productsData,
-              labels: item.labels ?? prevItem.labels,
-              tags: item.tags ?? prevItem.tags,
-              companies: item.companies ?? prevItem.companies,
-              customers: item.customers ?? prevItem.customers,
+              order: item.order ?? prevItem.order,
               stageId: destinationStageId,
               columnId: destinationStageId,
             },
@@ -120,19 +123,14 @@ export const usePipelineChanged = (pipelineId?: string) => {
       });
 
       setAllDealsMap((prev) => {
-        const prevItem = prev[item._id] || ({} as IDeal);
+        const prevItem = prev[item._id];
+        if (!prevItem) return prev;
 
         return {
           ...prev,
           [item._id]: {
             ...prevItem,
-            ...item,
-            products: item.products ?? prevItem.products,
-            productsData: item.productsData ?? prevItem.productsData,
-            labels: item.labels ?? prevItem.labels,
-            tags: item.tags ?? prevItem.tags,
-            companies: item.companies ?? prevItem.companies,
-            customers: item.customers ?? prevItem.customers,
+            order: item.order ?? prevItem.order,
             stageId: destinationStageId,
           },
         };

@@ -406,12 +406,14 @@ const SelectAssigneeTaskRoot = ({
   variant,
   id,
   teamIds,
+  label,
 }: {
   value?: string | null;
   scope?: string;
   variant: `${SelectTriggerVariant}`;
   teamIds?: string[] | string;
   id?: string;
+  label?: string;
 }) => {
   const { updateTask } = useUpdateTask();
   const [open, setOpen] = useState(false);
@@ -447,7 +449,7 @@ const SelectAssigneeTaskRoot = ({
   const trigger =
     variant === 'detail' && internalValue ? (
       <AssigneeHoverCard assigneeId={internalValue}>
-        <SelectTriggerOperation variant={variant}>
+        <SelectTriggerOperation variant={variant} label={label}>
           <SelectAssigneeValue variant={variant} />
           <Button
             variant="ghost"
@@ -461,7 +463,10 @@ const SelectAssigneeTaskRoot = ({
         </SelectTriggerOperation>
       </AssigneeHoverCard>
     ) : (
-      <SelectTriggerOperation variant={variant === 'card' ? 'icon' : variant}>
+      <SelectTriggerOperation
+        variant={variant === 'card' ? 'icon' : variant}
+        label={label}
+      >
         <SelectAssigneeValue variant={variant} />
       </SelectTriggerOperation>
     );
@@ -488,11 +493,13 @@ export const SelectAssigneeTaskFormItem = ({
   onValueChange,
   scope,
   teamIds,
+  label,
 }: {
   value: string;
   onValueChange: (value: string) => void;
   scope?: string;
   teamIds?: string[] | string;
+  label?: string;
 }) => {
   const [open, setOpen] = useState(false);
   return (
@@ -506,7 +513,7 @@ export const SelectAssigneeTaskFormItem = ({
       allowUnassigned
     >
       <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
-        <SelectTriggerOperation variant="form">
+        <SelectTriggerOperation variant="form" label={label}>
           <SelectAssigneeValue />
         </SelectTriggerOperation>
         <Combobox.Content>

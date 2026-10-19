@@ -1,5 +1,4 @@
 import { FACEBOOK_BOT_HEALTH_NOTIFICATION_DETAIL } from '@/integrations/facebook/graphql/queries/facebookBots';
-import { IFacebookBot } from '@/integrations/facebook/types/FacebookBot';
 import { useQuery } from '@apollo/client';
 import {
   IconAlertTriangle,
@@ -23,10 +22,6 @@ type TFacebookBotHealthMetadata = {
   pageId?: string;
   status?: string;
   reason?: string;
-};
-
-type TFacebookBotDetailQuery = {
-  facebookMessengerBot?: Pick<IFacebookBot, '_id' | 'name' | 'page' | 'pageId'>;
 };
 
 const statusVariantMap = {
@@ -75,19 +70,7 @@ const getStatus = (rawStatus?: string): TFacebookBotHealthStatus => {
   return 'unknown';
 };
 
-const getPageName = (
-  bot?: Pick<IFacebookBot, '_id' | 'name' | 'page' | 'pageId'>,
-) => {
-  if (bot?.page && typeof bot.page === 'object' && 'name' in bot.page) {
-    const pageName = (bot.page as { name?: unknown }).name;
-
-    if (typeof pageName === 'string' && pageName.trim()) {
-      return pageName;
-    }
-  }
-
-  return '';
-};
+const getPageName = (pageName?: string | null) => pageName?.trim() || '';
 
 export const useFacebookBotHealthNotification = ({
   metadata,
@@ -102,16 +85,13 @@ export const useFacebookBotHealthNotification = ({
 
   const status = getStatus(rawStatus);
 
-  const { data, loading } = useQuery<TFacebookBotDetailQuery>(
-    FACEBOOK_BOT_HEALTH_NOTIFICATION_DETAIL,
-    {
-      variables: { _id: botId },
-      skip: !botId,
-    },
-  );
+  const { data, loading } = useQuery(FACEBOOK_BOT_HEALTH_NOTIFICATION_DETAIL, {
+    variables: { _id: botId },
+    skip: !botId,
+  });
 
   const bot = data?.facebookMessengerBot;
-  const pageName = getPageName(bot);
+  const pageName = getPageName(bot?.page?.name);
   const botName = bot?.name || '';
 
   const statusView = buildStatusView(status, t);

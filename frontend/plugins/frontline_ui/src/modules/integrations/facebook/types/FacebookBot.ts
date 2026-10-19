@@ -1,61 +1,27 @@
-export type IFacebookBotPersistentMenu = {
-  _id: string;
-  text: string;
-  type: 'button' | 'link' | 'human_handoff' | 'back_button';
-  link?: string;
-};
+import type {
+  FacebookMessengerBotListFieldsFragment,
+  FacebookMessengerBotProfileQuery,
+  FacebootMessengerBotQuery,
+} from '~/gql/graphql';
 
-export type IFacebookBotIceBreaker = {
-  _id: string;
-  question: string;
-};
+export type IFacebookBot = FacebookMessengerBotListFieldsFragment;
 
-export type IFacebookBotHealth = {
-  status?: 'healthy' | 'degraded' | 'broken' | 'syncing';
-  isSubscribed?: boolean;
-  isProfileSynced?: boolean;
-  lastSyncedAt?: string;
-  lastVerifiedAt?: string;
-  lastError?: string;
-  // Public comment replies are paused until this time after Facebook refused one.
-  sendBlockedUntil?: string;
-  sendBlockReason?: string;
-  sendBlockCount?: number;
-};
+export type IFacebookBotDetail = NonNullable<
+  FacebootMessengerBotQuery['facebookMessengerBot']
+>;
 
-export type IFacebookBotUser = {
-  _id: string;
-  username?: string;
-  email?: string;
-  details?: {
-    fullName?: string;
-    avatar?: string;
-  };
-};
+export type IFacebookBotProfile = NonNullable<
+  FacebookMessengerBotProfileQuery['facebookMessengerBot']
+>;
 
-export type IFacebookBot = {
-  _id: string;
-  name: string;
-  account: any;
-  accountId: string;
-  createdAt: string;
-  updatedAt: string;
-  createdBy: string;
-  updatedBy: string;
-  createdUser?: IFacebookBotUser;
-  updatedUser?: IFacebookBotUser;
-  page: any;
-  pageId: string;
-  profileUrl: string;
-  persistentMenus: IFacebookBotPersistentMenu[];
-  iceBreakers?: IFacebookBotIceBreaker[];
-  getStartedText?: string;
-  greetText: string;
-  handoffMessage?: string;
-  automationActiveMessage?: string;
-  handoffPauseMinutes?: number;
-  tag: 'CONFIRMED_EVENT_UPDATE' | 'POST_PURCHASE_UPDATE' | 'ACCOUNT_UPDATE';
-  isEnabledBackBtn: boolean;
-  backButtonText: string;
-  health?: IFacebookBotHealth;
-};
+export type IFacebookBotPersistentMenu = NonNullable<
+  NonNullable<IFacebookBot['persistentMenus']>[number]
+>;
+
+export type IFacebookBotIceBreaker = NonNullable<
+  NonNullable<IFacebookBot['iceBreakers']>[number]
+>;
+
+export type IFacebookBotHealth = NonNullable<IFacebookBot['health']>;
+
+export type IFacebookBotUser = NonNullable<IFacebookBot['createdUser']>;

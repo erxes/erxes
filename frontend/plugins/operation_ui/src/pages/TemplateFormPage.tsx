@@ -26,17 +26,13 @@ export const TemplateFormPage = () => {
   return (
     <PageContainer>
       <div className="h-full w-full bg-background overflow-auto">
-        <div className="px-4 h-16 flex items-center">
+        <div className="px-4 h-10 flex items-center">
           <Breadcrumb>
             <Breadcrumb.List>
               <Breadcrumb.Item>
                 <Breadcrumb.Link asChild className="flex items-center gap-1">
-                  <Button
-                    variant="ghost"
-                    className="text-foreground font-semibold"
-                    asChild
-                  >
-                    <Link to={`/settings/operation/team/templates/${teamId}`}>
+                  <Button variant="ghost" className="text-foreground" asChild>
+                    <Link to={`/operation/settings/team/templates/${teamId}`}>
                       <IconArrowLeft
                         size={16}
                         className="stroke-foreground mr-2"
@@ -56,7 +52,7 @@ export const TemplateFormPage = () => {
               template={template ?? undefined}
               onCancel={() => navigate(-1)}
               afterSave={() =>
-                navigate(`/settings/operation/team/templates/${teamId}`)
+                navigate(`/operation/settings/team/templates/${teamId}`)
               }
             />
           </div>

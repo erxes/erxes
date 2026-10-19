@@ -1,4 +1,4 @@
-import { Form, Select } from 'erxes-ui';
+import { Form } from 'erxes-ui';
 import { ComponentType } from 'react';
 import { useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
@@ -7,10 +7,6 @@ import {
   SelectPipeline as SelectDealPipeline,
   SelectStage,
 } from 'ui-modules';
-import {
-  useConvertTaskStatuses,
-  useConvertTaskTeams,
-} from '@/inbox/conversations/hooks/useConvertTaskTargets';
 import { ConversationConvertType } from '@/inbox/conversations/types/conversationConvert';
 import { SelectChannel } from '@/ticket/components/ticket-selects/SelectChannel';
 import { SelectPipeline as SelectTicketPipeline } from '@/ticket/components/ticket-selects/SelectPipeline';
@@ -19,35 +15,6 @@ import { ConvertField, ConvertTargetRow } from './ConvertFields';
 import { TConvertFormReturn, toSingleValue } from './convertForm';
 
 type TTargetFieldsProps = { form: TConvertFormReturn };
-
-const ConvertOptionSelect = ({
-  value,
-  options,
-  placeholder,
-  disabled,
-  onValueChange,
-}: {
-  value: string;
-  options: { value: string; label: string }[];
-  placeholder: string;
-  disabled?: boolean;
-  onValueChange: (value: string) => void;
-}) => (
-  <Select value={value} disabled={disabled} onValueChange={onValueChange}>
-    <Form.Control>
-      <Select.Trigger>
-        <Select.Value placeholder={placeholder} />
-      </Select.Trigger>
-    </Form.Control>
-    <Select.Content>
-      {options.map((option) => (
-        <Select.Item key={option.value} value={option.value}>
-          {option.label}
-        </Select.Item>
-      ))}
-    </Select.Content>
-  </Select>
-);
 
 const TicketTargetFields = ({ form }: TTargetFieldsProps) => {
   const { t } = useTranslation('frontline');
@@ -165,61 +132,12 @@ const DealTargetFields = ({ form }: TTargetFieldsProps) => {
   );
 };
 
-const TaskTargetFields = ({ form }: TTargetFieldsProps) => {
-  const { t } = useTranslation('frontline');
-  const teamId = useWatch({ control: form.control, name: 'teamId' });
-  const { teams, loading: teamsLoading } = useConvertTaskTeams();
-  const { statuses, loading: statusesLoading } = useConvertTaskStatuses(teamId);
-
-  return (
-    <ConvertTargetRow columns={2}>
-      <Form.Field
-        name="teamId"
-        control={form.control}
-        render={({ field }) => (
-          <ConvertField label={t('team', 'Team')}>
-            <ConvertOptionSelect
-              value={field.value || ''}
-              disabled={teamsLoading}
-              placeholder={t('choose-team', 'Choose a team')}
-              options={teams.map((team) => ({
-                value: team._id,
-                label: team.name,
-              }))}
-              onValueChange={(value) => {
-                field.onChange(value);
-                form.setValue('stageId', '');
-              }}
-            />
-          </ConvertField>
-        )}
-      />
-      <Form.Field
-        name="stageId"
-        control={form.control}
-        render={({ field }) => (
-          <ConvertField label={t('status-label', 'Status')}>
-            <ConvertOptionSelect
-              value={field.value}
-              disabled={!teamId || statusesLoading}
-              placeholder={t('choose-status', 'Choose a status')}
-              options={statuses}
-              onValueChange={field.onChange}
-            />
-          </ConvertField>
-        )}
-      />
-    </ConvertTargetRow>
-  );
-};
-
 const TARGET_FIELDS: Record<
   ConversationConvertType,
   ComponentType<TTargetFieldsProps>
 > = {
   ticket: TicketTargetFields,
   deal: DealTargetFields,
-  task: TaskTargetFields,
 };
 
 export const ConvertTargetFields = ({

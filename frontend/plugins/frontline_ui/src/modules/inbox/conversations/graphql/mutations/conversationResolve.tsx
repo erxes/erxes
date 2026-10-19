@@ -1,7 +1,7 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const CONVERSATION_RESOLVE = gql`
+export const CONVERSATION_RESOLVE = gql(`
   mutation ConversationsResolve($ids: [String!]!) {
     conversationsResolve(ids: $ids)
   }
-`;
+`);

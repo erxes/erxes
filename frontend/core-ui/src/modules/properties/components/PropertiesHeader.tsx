@@ -1,3 +1,4 @@
+import { usePropertiesScope } from '@/properties/context/PropertiesScopeContext';
 import { Can, PageHeader } from 'ui-modules';
 import { Breadcrumb, Button } from 'erxes-ui';
 import { Link, useParams } from 'react-router-dom';
@@ -6,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { AddPropertyGroup } from './PropertyGroupAdd';
 
 export function PropertiesHeader() {
+  const { basePath: propertiesBasePath } = usePropertiesScope();
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });
   const { type } = useParams<{ type: string }>();
   return (
@@ -15,7 +17,7 @@ export function PropertiesHeader() {
           <Breadcrumb.List className="gap-1">
             <Breadcrumb.Item>
               <Button variant="ghost" asChild>
-                <Link to="/settings/properties">
+                <Link to={propertiesBasePath}>
                   <IconHierarchy2 />
                   {t('properties', 'Properties')}
                 </Link>
@@ -25,7 +27,7 @@ export function PropertiesHeader() {
             {type && (
               <Breadcrumb.Item>
                 <Button variant="ghost" asChild className="capitalize">
-                  <Link to={`/settings/properties?type=${type}`}>
+                  <Link to={`${propertiesBasePath}?type=${type}`}>
                     {t(
                       `content-type.${type.replace(':', '-')}`,
                       type.replace(':', ' '),
@@ -43,7 +45,7 @@ export function PropertiesHeader() {
         {type && (
           <Can action="fieldsManage">
             <Button asChild>
-              <Link to={`/settings/properties/${type}/add`}>
+              <Link to={`${propertiesBasePath}/${type}/add`}>
                 <IconPlus />
                 {t('add-field', 'Add field')}
               </Link>

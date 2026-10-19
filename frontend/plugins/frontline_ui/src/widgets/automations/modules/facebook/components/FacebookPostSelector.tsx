@@ -2,20 +2,25 @@ import {
   FACEBOOK_GET_BOT_POST,
   FACEBOOK_GET_BOT_POSTS,
 } from '@/integrations/facebook/graphql/queries/facebookBots';
-import { gql, useQuery } from '@apollo/client';
+import { useQuery } from '@apollo/client';
 import { IconImageInPicture } from '@tabler/icons-react';
 import {
   Button,
   Card,
   cn,
   Collapsible,
-  RelativeDateDisplay,
   Separator,
   Spinner,
+  isDefined,
 } from 'erxes-ui';
 import { format } from 'date-fns';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import type { FacebookGetBotPostsQuery } from '~/gql/graphql';
+
+type TFacebookBotPost = NonNullable<
+  NonNullable<FacebookGetBotPostsQuery['facebookGetBotPosts']>[number]
+>;
 
 export const FacebookPostSelector = ({
   botId,
@@ -38,8 +43,8 @@ export const FacebookPostSelector = ({
             {isOpen
               ? t('hide-posts', 'Hide posts')
               : selectedPostId
-                ? t('change-selected-post', 'Change selected post')
-                : t('select-post', 'Select post')}
+              ? t('change-selected-post', 'Change selected post')
+              : t('select-post', 'Select post')}
           </Button>
         </div>
       </Collapsible.Trigger>
@@ -64,16 +69,7 @@ const FacebookSelectedPost = ({
   selectedPostId?: string;
 }) => {
   const { t } = useTranslation('frontline');
-  const { data, loading } = useQuery<{
-    facebookGetBotPost: {
-      id: string;
-      message: string;
-      created_time: string;
-      full_picture: string;
-      picture: string;
-      permalink_url: string;
-    };
-  }>(FACEBOOK_GET_BOT_POST, {
+  const { data, loading } = useQuery(FACEBOOK_GET_BOT_POST, {
     variables: { botId, postId: selectedPostId },
     skip: !botId || !selectedPostId,
   });
@@ -120,7 +116,7 @@ const FacebookSelectedPost = ({
         </div>
 
         <a
-          href={facebookGetBotPost?.permalink_url}
+          href={facebookGetBotPost?.permalink_url ?? undefined}
           target="_blank"
           rel="noopener noreferrer"
           className="text-xs text-blue-600 hover:text-blue-800"
@@ -141,21 +137,16 @@ const FacebookPostsList = ({
   selectedPostId?: string;
   onSelect: (id: string) => void;
 }) => {
-  const { data, loading } = useQuery<{
-    facebookGetBotPosts: {
-      id: string;
-      message: string;
-      created_time: string;
-      full_picture: string;
-      picture: string;
-      permalink_url: string;
-    }[];
-  }>(FACEBOOK_GET_BOT_POSTS, { variables: { botId }, skip: !botId });
+  const { data, loading } = useQuery(FACEBOOK_GET_BOT_POSTS, {
+    variables: { botId },
+    skip: !botId,
+  });
 
   if (loading) {
     return <Spinner />;
   }
-  const { facebookGetBotPosts = [] } = data || {};
+  const facebookGetBotPosts =
+    data?.facebookGetBotPosts?.filter(isDefined) ?? [];
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-96 overflow-y-auto p-2">
@@ -178,14 +169,7 @@ const FacebookPost = ({
 }: {
   isSelected?: boolean;
   onSelect: (id: string) => void;
-  post: {
-    id: string;
-    message: string;
-    created_time: string;
-    full_picture: string;
-    picture: string;
-    permalink_url: string;
-  };
+  post: TFacebookBotPost;
 }) => {
   const { t } = useTranslation('frontline');
   return (
@@ -193,7 +177,7 @@ const FacebookPost = ({
       className={cn('overflow-hidden', {
         'shadow-lg ring-2 border-primary ring-primary/50': isSelected,
       })}
-      onClick={() => onSelect(post.id)}
+      onClick={() => post.id && onSelect(post.id)}
     >
       <div className="aspect-video overflow-hidden">
         {post?.full_picture ? (
@@ -216,11 +200,13 @@ const FacebookPost = ({
             {t('created-at', 'Created at')}
           </p>
           <p className="text-xs text-accent-foreground mb-3">
-            {format(post?.created_time, 'MMM dd, yyyy HH:mm')}
+            {post.created_time
+              ? format(post.created_time, 'MMM dd, yyyy HH:mm')
+              : ''}
           </p>
         </div>
         <a
-          href={post.permalink_url}
+          href={post.permalink_url ?? undefined}
           target="_blank"
           className="text-xs text-info hover:text-info/70"
         >

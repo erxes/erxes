@@ -1,16 +1,13 @@
 import { useQuery } from '@apollo/client';
 import { GET_POST } from '../graphql/queries/igPostQueries';
-import { IInstagramPost } from '../types/InstagramTypes';
 
 interface UseIgPostProps {
   erxesApiId?: string;
 }
 
 export function useIgPost({ erxesApiId }: UseIgPostProps = {}) {
-  const { data, loading, error } = useQuery<{
-    instagramGetPost: IInstagramPost;
-  }>(GET_POST, {
-    variables: { erxesApiId },
+  const { data, loading, error } = useQuery(GET_POST, {
+    variables: erxesApiId ? { erxesApiId } : undefined,
     skip: !erxesApiId,
   });
 

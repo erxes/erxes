@@ -6,12 +6,19 @@ export type TAiBridgeConnection = TAiAgentInput['connection'];
 export type TAiBridgeRuntime = TAiAgentInput['runtime'];
 
 // JSON-schema-ish function definition sent to the provider
+export type TAiBridgeToolParameter = {
+  type: string;
+  description?: string;
+  enum?: string[];
+  items?: { type: string; enum?: string[] };
+};
+
 export type TAiBridgeToolDefinition = {
   name: string;
   description?: string;
   parameters: {
     type: 'object';
-    properties: Record<string, { type: string; description?: string }>;
+    properties: Record<string, TAiBridgeToolParameter>;
     required?: string[];
   };
 };

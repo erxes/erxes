@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const ADD_TOPIC = gql`
+export const ADD_TOPIC = gql(`
   mutation frontlineKbTopicAdd($doc: KnowledgeBaseTopicDoc!) {
     knowledgeBaseTopicsAdd(doc: $doc) {
       _id
@@ -8,9 +8,9 @@ export const ADD_TOPIC = gql`
       description
     }
   }
-`;
+`);
 
-export const EDIT_TOPIC = gql`
+export const EDIT_TOPIC = gql(`
   mutation frontlineKbTopicEdit($_id: String!, $doc: KnowledgeBaseTopicDoc!) {
     knowledgeBaseTopicsEdit(_id: $_id, doc: $doc) {
       _id
@@ -27,24 +27,24 @@ export const EDIT_TOPIC = gql`
       }
     }
   }
-`;
+`);
 
-export const REMOVE_TOPIC = gql`
+export const REMOVE_TOPIC = gql(`
   mutation frontlineKbTopicRemove($_id: String!) {
     knowledgeBaseTopicsRemove(_id: $_id)
   }
-`;
+`);
 
-export const ADD_CATEGORY = gql`
+export const ADD_CATEGORY = gql(`
   mutation frontlineKbCategoryAdd($doc: KnowledgeBaseCategoryDoc!) {
     knowledgeBaseCategoriesAdd(doc: $doc) {
       _id
       title
     }
   }
-`;
+`);
 
-export const EDIT_CATEGORY = gql`
+export const EDIT_CATEGORY = gql(`
   mutation frontlineKbCategoryEdit(
     $_id: String!
     $doc: KnowledgeBaseCategoryDoc!
@@ -58,24 +58,24 @@ export const EDIT_CATEGORY = gql`
       parentCategoryId
     }
   }
-`;
+`);
 
-export const REMOVE_CATEGORY = gql`
+export const REMOVE_CATEGORY = gql(`
   mutation frontlineKbCategoryRemove($_id: String!) {
     knowledgeBaseCategoriesRemove(_id: $_id)
   }
-`;
+`);
 
-export const ADD_ARTICLE = gql`
+export const ADD_ARTICLE = gql(`
   mutation frontlineKbArticleAdd($doc: KnowledgeBaseArticleDoc!) {
     knowledgeBaseArticlesAdd(doc: $doc) {
       _id
       title
     }
   }
-`;
+`);
 
-export const EDIT_ARTICLE = gql`
+export const EDIT_ARTICLE = gql(`
   mutation frontlineKbArticleEdit(
     $_id: String!
     $doc: KnowledgeBaseArticleDoc!
@@ -90,10 +90,10 @@ export const EDIT_ARTICLE = gql`
       modifiedDate
     }
   }
-`;
+`);
 
-export const REMOVE_ARTICLE = gql`
+export const REMOVE_ARTICLE = gql(`
   mutation frontlineKbArticleRemove($_id: String!) {
     knowledgeBaseArticlesRemove(_id: $_id)
   }
-`;
+`);

@@ -133,7 +133,7 @@ export const NotificationChannelContent = ({
 
       <div className="flex flex-wrap gap-2">
         <Button variant="secondary" asChild>
-          <Link to={`/settings/frontline/channels/${channelDetail._id}`}>
+          <Link to={`/frontline/settings/channels/${channelDetail._id}`}>
             <IconExternalLink className="size-4" />
             {t('open-channel', 'Open channel')}
           </Link>

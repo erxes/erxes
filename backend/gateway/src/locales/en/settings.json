@@ -509,7 +509,8 @@
     "add-group-name": "Add group name",
     "tag-name-required": "Tag name is required",
     "group": "Group",
-    "type-label": "Type:"
+    "type-label": "Type:",
+    "plugin-no-types": "This plugin doesn't use tags yet."
   },
   "broadcast": {
     "_": "Broadcast",

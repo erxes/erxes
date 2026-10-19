@@ -33,7 +33,6 @@ test('quoted provider content stays literal and unsupported reaction emoji stays
       _id: 'reply',
       content: 'Reply',
       createdAt: '',
-      updatedAt: '',
       extraData: {
         telegram: {
           replyTo: {

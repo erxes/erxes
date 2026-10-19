@@ -30,7 +30,8 @@ type TPlaceholderFieldName =
   | 'targetDate'
   | 'labelIds'
   | 'tagIds'
-  | 'companyIds';
+  | 'companyIds'
+  | 'attachmentIds';
 
 type TPlaceholderFieldOptions = {
   propertyType: string;
@@ -265,6 +266,14 @@ export const CreateTicketActionConfigForm = ({
           enabled={[TPlaceholderInputSuggestion.CallCompany]}
         />
       </div>
+
+      <PlaceholderFormField
+        control={control}
+        name="attachmentIds"
+        label={t('ticket-attachment-media', 'Attachments (conversation media)')}
+        propertyType={propertyType}
+        selectMode="many"
+      />
     </Form>
   );
 };

@@ -117,8 +117,8 @@ export const useTicketsColumns = (): ColumnDef<ITicket>[] => {
           <SelectStatusTicket
             variant="table"
             id={cell.row.original._id}
-            value={cell.row.original.statusId}
-            pipelineId={cell.row.original.pipelineId}
+            value={cell.row.original.statusId ?? ''}
+            pipelineId={cell.row.original.pipelineId ?? ''}
             scope={clsx(
               TicketHotKeyScope.TicketTableCell,
               cell.row.original._id,
@@ -148,7 +148,7 @@ export const useTicketsColumns = (): ColumnDef<ITicket>[] => {
               </Tooltip.Content>
               <SelectChannel
                 variant="table"
-                value={cell.row.original.channelId}
+                value={cell.row.original.channelId ?? ''}
                 disabled
                 scope={clsx(
                   TicketHotKeyScope.TicketTableCell,
@@ -181,8 +181,8 @@ export const useTicketsColumns = (): ColumnDef<ITicket>[] => {
               </Tooltip.Content>
               <SelectPipeline
                 variant="table"
-                value={cell.row.original.pipelineId}
-                channelId={cell.row.original.channelId}
+                value={cell.row.original.pipelineId ?? ''}
+                channelId={cell.row.original.channelId ?? undefined}
                 disabled
                 scope={clsx(
                   TicketHotKeyScope.TicketTableCell,
@@ -257,7 +257,7 @@ export const useTicketsColumns = (): ColumnDef<ITicket>[] => {
           <SelectAssigneeTicket
             variant="table"
             id={cell.row.original._id}
-            value={cell.row.original.assigneeId}
+            value={cell.row.original.assigneeId ?? ''}
             scope={clsx(
               TicketHotKeyScope.TicketTableCell,
               cell.row.original._id,
@@ -280,7 +280,7 @@ export const useTicketsColumns = (): ColumnDef<ITicket>[] => {
       cell: ({ cell }) => {
         return (
           <SelectPriorityTicket
-            value={cell.row.original.priority}
+            value={cell.row.original.priority ?? undefined}
             variant="table"
             id={cell.row.original._id}
             scope={clsx(

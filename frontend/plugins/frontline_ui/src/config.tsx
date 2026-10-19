@@ -14,24 +14,6 @@ import { IUIConfig, TActivityRowProps, TPropertyInputProps } from 'erxes-ui';
 import { lazy, Suspense } from 'react';
 import { SEARCH_PROVIDERS } from '~/searchProviders';
 
-const FrontlineNavigation = lazy(() =>
-  import('@/FrontlineNavigation').then((module) => ({
-    default: module.FrontlineNavigation,
-  })),
-);
-
-const FrontlineSubGroups = lazy(() =>
-  import('@/FrontlineSubGroups').then((module) => ({
-    default: module.FrontlineSubGroups,
-  })),
-);
-
-const FrontlineSettingsNavigation = lazy(() =>
-  import('@/FrontlineSettingsNavigation').then((module) => ({
-    default: module.FrontlineSettingsNavigation,
-  })),
-);
-
 const TicketStatusPropertyInput = lazy(() =>
   import('@/ticket/components/ticket-selects/TicketStatusPropertyInput').then(
     (module) => ({
@@ -51,25 +33,10 @@ export const CONFIG: IUIConfig = {
   path: 'frontline',
   icon: IconStackFront,
   hasFloatingWidget: true,
-  settingsNavigation: () => (
-    <Suspense fallback={<div />}>
-      <FrontlineSettingsNavigation />
-    </Suspense>
-  ),
   navigationGroup: {
     name: 'frontline',
     defaultPath: 'frontline/inbox',
     icon: IconStackFront,
-    content: () => (
-      <Suspense fallback={<div />}>
-        <FrontlineNavigation />
-      </Suspense>
-    ),
-    subGroup: () => (
-      <Suspense fallback={<div />}>
-        <FrontlineSubGroups />
-      </Suspense>
-    ),
   },
   widgets: {
     relationWidgets: [
@@ -150,17 +117,17 @@ export const CONFIG: IUIConfig = {
     {
       name: 'channels',
       icon: IconMail,
-      path: 'settings/frontline/channels',
+      path: 'frontline/settings/channels',
     },
     {
       name: 'personal-channel',
       icon: IconMail,
-      path: 'settings/frontline/personal-channel',
+      path: 'frontline/settings/personal-channel',
     },
     {
       name: 'integrations-config',
       icon: IconSettings,
-      path: 'settings/frontline/config',
+      path: 'frontline/settings/config',
     },
   ],
   searchProviders: SEARCH_PROVIDERS,

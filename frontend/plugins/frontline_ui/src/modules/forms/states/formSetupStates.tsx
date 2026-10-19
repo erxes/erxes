@@ -9,10 +9,13 @@ import {
   FORM_CALLOUT_SCHEMA,
   FORM_CONTENT_SCHEMA,
   FORM_CONFIRMATION_SCHEMA,
+  FIELD_VALIDATOR_SCHEMA,
+  LEAD_DATA_SCHEMA,
 } from '../constants/formSchema';
 import { z } from 'zod';
 import { atom } from 'jotai';
-import { IForm } from '../types/formTypes';
+import { isDefined } from 'erxes-ui';
+import { IFormDetail } from '../types/formTypes';
 
 export const formSetupStepAtom = atomWithStorage<number>(
   FORM_STORAGE_KEYS.STEP,
@@ -63,7 +66,7 @@ export const formSetupValuesAtom = atom((get) => {
       type: 'lead',
       description: general.description,
       buttonText: general.buttonText,
-      numberOfPages: content.steps.length,
+      numberOfPages: Object.keys(content.steps).length,
       leadData: {
         appearance: general.appearance,
         loadType: general.loadType,
@@ -140,52 +143,55 @@ export const resetFormSetupAtom = atom(null, (_, set) => {
   set(settedFormDetailAtom, false);
 });
 
-export const formSetSetupAtom = atom(null, (_, set, payload: IForm) => {
+export const formSetSetupAtom = atom(null, (_, set, payload: IFormDetail) => {
+  const leadData = LEAD_DATA_SCHEMA.parse(payload.leadData);
+  const fields = (payload.fields ?? []).filter(isDefined);
+
   const general = {
     channelId: payload.channelId ?? '',
     title: payload.title ?? '',
     name: payload.title ?? '',
     description: payload.description ?? '',
     buttonText: payload.buttonText ?? '',
-    primaryColor: payload.leadData.primaryColor ?? '',
-    appearance: payload.leadData.appearance ?? 'iframe',
-    loadType: payload.leadData.loadType ?? 'embedded',
-    saveAsCustomer: payload.leadData.saveAsCustomer ?? false,
+    primaryColor: leadData.primaryColor ?? '',
+    appearance: leadData.appearance ?? 'iframe',
+    loadType: leadData.loadType ?? 'embedded',
+    saveAsCustomer: leadData.saveAsCustomer ?? false,
   };
 
   const callout = {
-    title: payload.leadData.callout?.title ?? '',
-    body: payload.leadData.callout?.body ?? '',
-    buttonText: payload.leadData.callout?.buttonText ?? '',
-    featuredImage: payload.leadData.callout?.featuredImage ?? null,
-    skip: payload.leadData.callout?.skip ?? false,
+    title: leadData.callout?.title ?? '',
+    body: leadData.callout?.body ?? '',
+    buttonText: leadData.callout?.buttonText ?? '',
+    featuredImage: leadData.callout?.featuredImage ?? null,
+    skip: leadData.callout?.skip ?? false,
   };
 
   const content = {
     steps: Object.fromEntries(
-      Object.entries(payload.leadData.steps || {}).map(([key, step]) => [
+      Object.entries(leadData.steps || {}).map(([key, step]) => [
         key,
         {
           name: step.name,
           description: step.description,
           order: step.order,
-          fields: payload.fields
+          fields: fields
             .filter((field) => field.pageNumber === step.order)
             .map((field) => ({
               id: field._id,
-              type: field.type,
+              type: field.type ?? '',
               label: field.text ?? '',
               description: field.description ?? '',
               placeholder: field.content || '',
-              options: field.options,
+              options: (field.options ?? []).filter(isDefined),
               span: field.column ?? 1,
               required: field.isRequired || false,
-              order: field.order,
+              order: field.order ?? 0,
               validation: field.validation,
-              logics: field.logics,
+              logics: (field.logics ?? []).filter(isDefined),
               logicAction: field.logicAction || '',
               allowSearch: field.allowSearch || false,
-              validator: field.validator,
+              validator: FIELD_VALIDATOR_SCHEMA.safeParse(field.validator).data,
               stepId: key,
             })),
         },
@@ -194,9 +200,9 @@ export const formSetSetupAtom = atom(null, (_, set, payload: IForm) => {
   };
 
   const confirmation = {
-    title: payload.leadData.thankTitle ?? '',
-    description: payload.leadData.thankContent ?? '',
-    image: payload.leadData.thankImage ?? null,
+    title: leadData.thankTitle ?? '',
+    description: leadData.thankContent ?? '',
+    image: leadData.thankImage ?? null,
   };
 
   set(formSetupStepAtom, FORM_SETUP_STEPS.GENERAL);

@@ -1,12 +1,12 @@
-import { useCallback, useEffect, type ReactNode } from 'react';
-import { useMutation } from '@apollo/client';
-import { Button, Form, InfoCard, Label, toast } from 'erxes-ui';
-import { useForm } from 'react-hook-form';
 import { AdminPermissions } from '@/pos/components/permission/AdminPermissions';
 import { CashierPermissions } from '@/pos/components/permission/CashierPermissions';
-import mutations from '@/pos/graphql/mutations';
+import { mutations } from '@/pos/graphql/mutations';
 import { usePosDetail } from '@/pos/hooks/usePosDetail';
 import { cleanData } from '@/pos/utils/cleanData';
+import { useMutation } from '@apollo/client';
+import { Button, Form, InfoCard, isDefined, Label, toast } from 'erxes-ui';
+import { useCallback, useEffect, type ReactNode } from 'react';
+import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 
 interface PermissionProps {
@@ -70,12 +70,12 @@ const Permission: React.FC<PermissionProps> = ({
     const cashierConfig = posDetail.permissionConfig?.cashiers;
 
     reset({
-      adminIds: posDetail.adminIds || [],
+      adminIds: (posDetail.adminIds ?? []).filter(isDefined),
       adminIsPrintTempBill: adminConfig?.isTempBill ?? false,
       adminDirectDiscount: adminConfig?.directDiscount ?? false,
       adminDirectDiscountLimit:
         adminConfig?.directDiscountLimit?.toString() || '',
-      cashierIds: posDetail.cashierIds || [],
+      cashierIds: (posDetail.cashierIds ?? []).filter(isDefined),
       cashierIsPrintTempBill: cashierConfig?.isTempBill ?? false,
       cashierSeeReport: cashierConfig?.seeReport ?? false,
       cashierCreateCustomer: cashierConfig?.createCustomer ?? false,
@@ -111,9 +111,7 @@ const Permission: React.FC<PermissionProps> = ({
               admins: {
                 isTempBill: data.adminIsPrintTempBill,
                 directDiscount: data.adminDirectDiscount,
-                directDiscountLimit: parseLimit(
-                  data.adminDirectDiscountLimit,
-                ),
+                directDiscountLimit: parseLimit(data.adminDirectDiscountLimit),
               },
               cashiers: {
                 isTempBill: data.cashierIsPrintTempBill,
@@ -141,12 +139,7 @@ const Permission: React.FC<PermissionProps> = ({
         });
       }
     },
-    [
-      posDetail?.permissionConfig,
-      posEdit,
-      posId,
-      reset,
-    ],
+    [posDetail?.permissionConfig, posEdit, posId, reset],
   );
 
   useEffect(() => {
@@ -223,4 +216,4 @@ const Permission: React.FC<PermissionProps> = ({
   );
 };
 
-export default Permission;
+export { Permission };

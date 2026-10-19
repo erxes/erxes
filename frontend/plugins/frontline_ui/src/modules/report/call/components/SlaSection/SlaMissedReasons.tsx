@@ -10,7 +10,7 @@ import type {
   MissedReason,
   MissedReasonCount,
 } from '../../types';
-import { MISSED_REASON_META, MISSED_REASON_ORDER } from './slaUtils';
+import { getMissedReasonMeta, MISSED_REASON_ORDER } from './slaUtils';
 
 interface SlaMissedReasonsProps {
   reasons: MissedReasonCount[];
@@ -28,8 +28,8 @@ export const SlaMissedReasons = memo(function SlaMissedReasons({
   const { t } = useTranslation('frontline');
 
   const labelOf = (reason: MissedReason): string =>
-    t(MISSED_REASON_META[reason].key, {
-      defaultValue: MISSED_REASON_META[reason].label,
+    t(getMissedReasonMeta(reason).key, {
+      defaultValue: getMissedReasonMeta(reason).label,
       seconds: shortAbandonSeconds,
     });
 
@@ -74,7 +74,7 @@ export const SlaMissedReasons = memo(function SlaMissedReasons({
   const chartConfig = Object.fromEntries(
     present.map((reason) => [
       reason,
-      { label: labelOf(reason), color: MISSED_REASON_META[reason].color },
+      { label: labelOf(reason), color: getMissedReasonMeta(reason).color },
     ]),
   );
 
@@ -90,7 +90,7 @@ export const SlaMissedReasons = memo(function SlaMissedReasons({
     <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]">
       <ul className="flex flex-col gap-3">
         {sorted.map((row) => {
-          const meta = MISSED_REASON_META[row.reason];
+          const meta = getMissedReasonMeta(row.reason);
 
           return (
             <li key={row.reason} className="flex flex-col gap-1">
@@ -155,7 +155,7 @@ export const SlaMissedReasons = memo(function SlaMissedReasons({
               dataKey={reason}
               name={labelOf(reason)}
               stackId="missed"
-              fill={MISSED_REASON_META[reason].color}
+              fill={getMissedReasonMeta(reason).color}
               maxBarSize={28}
               radius={index === present.length - 1 ? [3, 3, 0, 0] : 0}
             />

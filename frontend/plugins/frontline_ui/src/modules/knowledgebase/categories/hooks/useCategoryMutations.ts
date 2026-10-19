@@ -64,7 +64,7 @@ export const useEditCategoryField = (topicId: string) => {
       variables: {
         _id: category._id,
         doc: withoutEmptyCode({
-          title: category.title,
+          title: category.title ?? '',
           code: category.code,
           description: category.description,
           icon: category.icon || 'book',

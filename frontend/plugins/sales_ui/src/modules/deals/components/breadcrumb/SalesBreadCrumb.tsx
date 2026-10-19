@@ -1,3 +1,4 @@
+import { IconCards, IconLayoutCards } from '@tabler/icons-react';
 import {
   Breadcrumb,
   Button,
@@ -5,7 +6,6 @@ import {
   Skeleton,
   TextOverflowTooltip,
 } from 'erxes-ui';
-import { IconCards, IconLayoutCards } from '@tabler/icons-react';
 
 import { useBoardDetail } from '@/deals/boards/hooks/useBoards';
 import { usePipelineDetail } from '@/deals/boards/hooks/usePipelines';
@@ -19,12 +19,12 @@ export const SalesBreadCrumb = ({
   pipelineId?: string | null;
 }) => {
   const { boardDetail, loading: boardLoading } = useBoardDetail({
-    variables: { _id: boardId },
+    variables: boardId ? { _id: boardId } : undefined,
     skip: !boardId,
   });
 
   const { pipelineDetail, loading: pipelineLoading } = usePipelineDetail({
-    variables: { _id: pipelineId },
+    variables: pipelineId ? { _id: pipelineId } : undefined,
     skip: !pipelineId,
   });
 

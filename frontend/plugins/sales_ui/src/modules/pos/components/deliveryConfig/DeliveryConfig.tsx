@@ -1,12 +1,12 @@
-import { useCallback, useEffect, type ReactNode } from 'react';
-import { useMutation } from '@apollo/client';
-import { Button, Form, InfoCard, Label, toast } from 'erxes-ui';
-import { useForm } from 'react-hook-form';
-import { Stage } from '@/pos/components/deliveryConfig/Stage';
 import { DealUsers } from '@/pos/components/deliveryConfig/DealUsers';
-import mutations from '@/pos/graphql/mutations';
+import { Stage } from '@/pos/components/deliveryConfig/Stage';
+import { mutations } from '@/pos/graphql/mutations';
 import { usePosDetail } from '@/pos/hooks/usePosDetail';
 import { cleanData } from '@/pos/utils/cleanData';
+import { useMutation } from '@apollo/client';
+import { Button, Form, InfoCard, isDefined, Label, toast } from 'erxes-ui';
+import { useCallback, useEffect, type ReactNode } from 'react';
+import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 
 interface DeliveryConfigProps {
@@ -62,8 +62,8 @@ const DeliveryConfig: React.FC<DeliveryConfigProps> = ({
       pipelineId: config.pipelineId || '',
       stageId: config.stageId || '',
       mapCustomField: config.mapCustomField || '',
-      watchedUserIds: config.watchedUserIds || [],
-      assignedUserIds: config.assignedUserIds || [],
+      watchedUserIds: (config.watchedUserIds ?? []).filter(isDefined),
+      assignedUserIds: (config.assignedUserIds ?? []).filter(isDefined),
       productId: config.productId || '',
     });
   }, [posDetail, reset]);
@@ -205,4 +205,4 @@ const DeliveryConfig: React.FC<DeliveryConfigProps> = ({
   );
 };
 
-export default DeliveryConfig;
+export { DeliveryConfig };

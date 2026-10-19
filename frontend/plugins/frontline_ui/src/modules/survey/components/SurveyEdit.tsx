@@ -14,7 +14,7 @@ export const SurveyEdit = () => {
   const [isSetup, setIsSetup] = useState(false);
   const seededSurveyId = useRef<string | null>(null);
   const { survey, loading, error } = useSurveyDetail({
-    variables: { _id: surveyId },
+    variables: surveyId ? { _id: surveyId } : undefined,
     skip: !surveyId,
   });
   const surveySetSetup = useSetAtom(surveySetSetupAtom);

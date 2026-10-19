@@ -85,7 +85,7 @@ export const ScoreDetailSheet = ({
   return (
     <Sheet open={open} onOpenChange={onOpenChange} modal>
       <Sheet.View side="bottom" className="h-[70vh] p-0 flex flex-col">
-        <Sheet.Header className="border-b px-6 py-4 gap-3 shrink-0">
+        <Sheet.Header className="border-b px-6 py-4 gap-3 shrink-0 h-auto py-2">
           <div>
             <Sheet.Title>{ownerName || '—'}</Sheet.Title>
             <p className="text-xs text-muted-foreground mt-1 capitalize">

@@ -1,3 +1,4 @@
+import { hasId } from '@/pos/utils/posJson';
 import { ScrollArea, Spinner } from 'erxes-ui';
 
 import { IconReceipt } from '@tabler/icons-react';
@@ -5,17 +6,6 @@ import { PosOrderRow } from './PosOrderRow';
 import { POS_ORDERS_BY_DEAL } from '../graphql/posOrdersByDeal';
 import { useQuery } from '@apollo/client';
 import { useTranslation } from 'react-i18next';
-
-type IPosOrder = {
-  _id: string;
-  number?: string;
-  paidDate?: string;
-  totalAmount?: number;
-  cashAmount?: number;
-  mobileAmount?: number;
-  paidAmounts?: Array<{ type: string; amount: number; title?: string }>;
-  posName?: string;
-};
 
 export const PosOrders = ({ contentId }: { contentId: string }) => {
   const { t } = useTranslation('sales');
@@ -29,7 +19,7 @@ export const PosOrders = ({ contentId }: { contentId: string }) => {
     return <Spinner containerClassName="py-20" />;
   }
 
-  const orders: IPosOrder[] = data?.posOrders || [];
+  const orders = (data?.posOrders ?? []).filter(hasId);
 
   if (orders.length === 0) {
     return (

@@ -39,13 +39,13 @@ export const TicketWidgetCard = ({ ticket }: { ticket: ITicket }) => {
       <Card onClick={() => setActiveTicket(_id)}>
         <div className="flex items-center justify-between h-9 px-1.5">
           <SelectDateTicket
-            value={startDate}
+            value={startDate ?? undefined}
             id={_id}
             type="startDate"
             variant="card"
           />
           <SelectDateTicket
-            value={targetDate}
+            value={targetDate ?? undefined}
             id={_id}
             type="targetDate"
             variant="card"
@@ -62,11 +62,15 @@ export const TicketWidgetCard = ({ ticket }: { ticket: ITicket }) => {
           <div className="flex flex-wrap gap-1">
             <SelectStatusTicket
               variant="card"
-              value={statusId}
+              value={statusId ?? ''}
               id={_id}
-              pipelineId={pipelineId}
+              pipelineId={pipelineId ?? ''}
             />
-            <SelectPriorityTicket id={_id} value={priority} variant="card" />
+            <SelectPriorityTicket
+              id={_id}
+              value={priority ?? undefined}
+              variant="card"
+            />
           </div>
         </div>
         <Separator />
@@ -79,7 +83,11 @@ export const TicketWidgetCard = ({ ticket }: { ticket: ITicket }) => {
             <IconCalendarEventFilled />
             {createdAt && format(new Date(createdAt), 'MMM dd, yyyy')}
           </Button>
-          <SelectAssigneeTicket variant="card" value={assigneeId} id={_id} />
+          <SelectAssigneeTicket
+            variant="card"
+            value={assigneeId ?? ''}
+            id={_id}
+          />
         </div>
       </Card>
       <Suspense>

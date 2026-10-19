@@ -2,8 +2,6 @@ import { SettingsPath } from '@/types/paths/SettingsPath';
 import { PageContainer } from 'erxes-ui';
 import { lazy, Suspense } from 'react';
 import { Navigate, Outlet, Route, Routes } from 'react-router-dom';
-import { SettingsHeader } from 'ui-modules';
-import NotificationBreadcrumb from './NotificationSettingsBreadcrumb';
 import { NotificationSettingsLayout } from './NotificationSettingsLayout';
 
 const NotificationIndexPage = lazy(() =>
@@ -21,7 +19,6 @@ export const NotificationSettingsRoutes = () => {
         <Route
           element={
             <PageContainer>
-              <SettingsHeader breadcrumbs={<NotificationBreadcrumb />} />
               <Outlet />
             </PageContainer>
           }

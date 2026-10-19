@@ -111,7 +111,7 @@ const SheetHeader = ({
 }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
     className={cn(
-      'flex px-5 h-14 items-center bg-background border-b flex-none',
+      'flex px-5 h-10 items-center bg-background border-b flex-none',
       className,
     )}
     {...props}

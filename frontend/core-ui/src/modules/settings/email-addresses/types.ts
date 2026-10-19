@@ -4,7 +4,10 @@ export type TEmailSuppressionReason =
   | 'hard_bounce'
   | 'complaint'
   | 'unsubscribe'
+  | 'screened'
   | 'manual';
+
+export type TEmailScreenReason = 'syntax' | 'no_mx' | 'disposable' | 'random';
 
 export interface IEmailAddress {
   _id: string;
@@ -20,4 +23,5 @@ export interface IEmailAddress {
 
   suppressedAt?: string;
   suppressionReason?: TEmailSuppressionReason;
+  screenReason?: TEmailScreenReason;
 }

@@ -1,120 +1,117 @@
-import gql from 'graphql-tag';
+import { gql } from '~/gql';
 
-export const commonVariables = `
-  $contentTypeId: String,
-  $title: String
-`;
-
-export const commonParams = `
-  contentTypeId: $contentTypeId,
-  title: $title
-`;
-
-const commonItemVariables = `
-  $checklistId: String,
-  $isChecked: Boolean,
-  $content: String,
-`;
-
-const commonItemParams = `
-  checklistId: $checklistId,
-  isChecked: $isChecked,
-  content: $content,
-`;
-
-export const checklistFields = `
-  _id
-  contentType
-  contentTypeId
-  title
-  createdUserId
-  createdDate
-  items {
-    _id
-    checklistId
-    isChecked
-    content
-    order
-  }
-  percent
-`;
-
-export const ADD_CHECKLISTS = gql`
-  mutation salesChecklistsAdd(
-    ${commonVariables}
-  ) {
-    salesChecklistsAdd(
-      ${commonParams}
-    ) {
-      ${checklistFields}
+export const ADD_CHECKLISTS = gql(`
+  mutation salesChecklistsAdd($contentTypeId: String, $title: String) {
+    salesChecklistsAdd(contentTypeId: $contentTypeId, title: $title) {
+      _id
+      contentType
+      contentTypeId
+      title
+      createdUserId
+      createdDate
+      items {
+        _id
+        checklistId
+        isChecked
+        content
+        order
+      }
+      percent
     }
   }
-`;
+`);
 
-export const EDIT_CHECKLISTS = gql`
+export const EDIT_CHECKLISTS = gql(`
   mutation salesChecklistsEdit(
-    $_id: String!,
-    ${commonVariables}
+    $_id: String!
+    $contentTypeId: String
+    $title: String
   ) {
     salesChecklistsEdit(
-      _id: $_id,
-      ${commonParams}
+      _id: $_id
+      contentTypeId: $contentTypeId
+      title: $title
     ) {
-      ${checklistFields}
+      _id
+      contentType
+      contentTypeId
+      title
+      createdUserId
+      createdDate
+      items {
+        _id
+        checklistId
+        isChecked
+        content
+        order
+      }
+      percent
     }
   }
-`;
+`);
 
-export const REMOVE_CHECKLISTS = gql`
+export const REMOVE_CHECKLISTS = gql(`
   mutation salesChecklistsRemove($_id: String!) {
     salesChecklistsRemove(_id: $_id) {
       _id
     }
   }
-`;
+`);
 
-export const CHECKLIST_ITEMS_ADD = gql`
+export const CHECKLIST_ITEMS_ADD = gql(`
   mutation salesChecklistItemsAdd(
-    ${commonItemVariables}
+    $checklistId: String
+    $isChecked: Boolean
+    $content: String
   ) {
     salesChecklistItemsAdd(
-      ${commonItemParams}
+      checklistId: $checklistId
+      isChecked: $isChecked
+      content: $content
     ) {
       _id
+      checklistId
+      order
       isChecked
       content
     }
   }
-`;
+`);
 
-export const CHECKLIST_ITEMS_EDIT = gql`
+export const CHECKLIST_ITEMS_EDIT = gql(`
   mutation salesChecklistItemsEdit(
-    $_id: String!,
-    ${commonItemVariables}
+    $_id: String!
+    $checklistId: String
+    $isChecked: Boolean
+    $content: String
   ) {
     salesChecklistItemsEdit(
-      _id: $_id,
-      ${commonItemParams}
+      _id: $_id
+      checklistId: $checklistId
+      isChecked: $isChecked
+      content: $content
     ) {
       _id
+      checklistId
+      order
       isChecked
       content
     }
   }
-`;
+`);
 
-export const CHECKLIST_ITEMS_REMOVE = gql`
+export const CHECKLIST_ITEMS_REMOVE = gql(`
   mutation salesChecklistItemsRemove($_id: String!) {
     salesChecklistItemsRemove(_id: $_id) {
       _id
     }
   }
-`;
+`);
 
-export const CHECKLIST_ITEMS_ORDER = gql`
+export const CHECKLIST_ITEMS_ORDER = gql(`
   mutation salesChecklistItemsOrder($_id: String!, $destinationIndex: Int) {
     salesChecklistItemsOrder(_id: $_id, destinationIndex: $destinationIndex) {
       _id
     }
   }
-`;
+`);

@@ -2,20 +2,23 @@ import { GET_CONVERSATIONS } from '@/inbox/conversations/graphql/queries/getConv
 import { useQuery } from '@apollo/client';
 import type { QueryHookOptions } from '@apollo/client';
 import {
-  ConversationStatus,
-  type IConversation,
-} from '@/inbox/types/Conversation';
-import {
   EnumCursorDirection,
   EnumCursorMode,
-  ICursorListResponse,
   isUndefinedOrNull,
-  mergeCursorData,
   parseDateRangeFromString,
   useNonNullMultiQueryState,
   useToast,
   validateFetchMore,
 } from 'erxes-ui';
+import {
+  compactList,
+  mergeCursorList,
+  toCursorPageInfo,
+} from '@/shared/utils/cursorList';
+import type {
+  ConversationsQuery,
+  ConversationsQueryVariables,
+} from '~/gql/graphql';
 import { CONVERSATIONS_LIMIT } from '@/inbox/constants/conversationsConstants';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { CONVERSATION_CLIENT_MESSAGE_INSERTED } from '@/inbox/conversations/graphql/subscriptions/inboxSubscriptions';
@@ -39,10 +42,11 @@ import {
   compareConversationsByRecency,
   getBooleanFilterVariable,
   getConversationRecency,
+  getDateFilterVariable,
 } from '@/inbox/conversations/utils/useConversations';
 
 export const useConversations = (
-  options?: QueryHookOptions<ICursorListResponse<IConversation>>,
+  options?: QueryHookOptions<ConversationsQuery, ConversationsQueryVariables>,
 ) => {
   const {
     channelId,
@@ -79,8 +83,8 @@ export const useConversations = (
       mentioned: getBooleanFilterVariable(mentioned),
       unread: getBooleanFilterVariable(unread),
       status: status || '',
-      startDate: parsedDate?.from,
-      endDate: parsedDate?.to,
+      startDate: getDateFilterVariable(parsedDate?.from),
+      endDate: getDateFilterVariable(parsedDate?.to),
       brandId,
       searchValue,
       cursorMode: EnumCursorMode.INCLUSIVE,
@@ -108,23 +112,25 @@ export const useConversations = (
   const variables = options?.variables ?? filterVariables;
   const ownsInboxState = !options;
 
-  const { data, fetchMore, subscribeToMore, loading, refetch } = useQuery<
-    ICursorListResponse<IConversation>
-  >(GET_CONVERSATIONS, {
-    // The list unmounts in conversation detail. Refresh on returning so events
-    // received while it was absent cannot leave a stale preview or hide a chat.
-    fetchPolicy: 'cache-and-network',
-    ...options,
-    variables,
-  });
+  const { data, fetchMore, subscribeToMore, loading, refetch } = useQuery(
+    GET_CONVERSATIONS,
+    {
+      // The list unmounts in conversation detail. Refresh on returning so events
+      // received while it was absent cannot leave a stale preview or hide a chat.
+      fetchPolicy: 'cache-and-network',
+      ...options,
+      variables,
+    },
+  );
   const refetchRef = useRef(refetch);
   refetchRef.current = refetch;
   const { _id: userId } = useAtomValue(currentUserState) || {};
 
   const { conversations } = data || {};
-  const { totalCount = 0, pageInfo } = conversations || {};
+  const totalCount = conversations?.totalCount ?? 0;
+  const pageInfo = toCursorPageInfo(conversations?.pageInfo);
   const sortedList = useMemo(
-    () => [...(conversations?.list ?? [])].sort(compareConversationsByRecency),
+    () => compactList(conversations?.list).sort(compareConversationsByRecency),
     [conversations?.list],
   );
   const setNewMessagesCount = useSetAtom(newMessagesCountState);
@@ -197,14 +203,17 @@ export const useConversations = (
           limit: CONVERSATIONS_LIMIT,
         },
         updateQuery: (prev, { fetchMoreResult }) => {
-          if (!fetchMoreResult) return prev;
-          return Object.assign({}, prev, {
-            conversations: mergeCursorData({
+          if (!fetchMoreResult.conversations || !prev.conversations) {
+            return prev;
+          }
+          return {
+            ...prev,
+            conversations: mergeCursorList(
               direction,
-              fetchMoreResult: fetchMoreResult.conversations,
-              prevResult: prev.conversations,
-            }),
-          });
+              prev.conversations,
+              fetchMoreResult.conversations,
+            ),
+          };
         },
       });
     },
@@ -216,14 +225,7 @@ export const useConversations = (
       return;
     }
 
-    const unsubscribe = subscribeToMoreRef.current<{
-      conversationClientMessageInserted: {
-        _id: string;
-        conversationId: string;
-        content: string;
-        createdAt: string;
-      } | null;
-    }>({
+    const unsubscribe = subscribeToMoreRef.current({
       document: CONVERSATION_CLIENT_MESSAGE_INSERTED,
       variables: {
         userId,
@@ -248,22 +250,21 @@ export const useConversations = (
         }
 
         const conversationId = newMessage.conversationId;
-        const index =
-          prev?.conversations.list.findIndex(
-            (conversation) => conversation._id === conversationId,
-          ) ?? -1;
+        const list = compactList(prev?.conversations?.list);
+        const index = list.findIndex(
+          (conversation) => conversation._id === conversationId,
+        );
         // Not in the list yet, or nothing to order it by — let the server say.
-        if (!prev || index === -1 || !newMessage.createdAt) {
+        if (!prev?.conversations || index === -1 || !newMessage.createdAt) {
           scheduleRefetch();
           return prev;
         }
 
-        const list = [...prev.conversations.list];
         const [conversation] = list.splice(index, 1);
         list.unshift({
           ...conversation,
-          readUserIds: conversation.readUserIds?.filter((id) => id !== userId),
-          status: ConversationStatus.OPEN,
+          readUserIds:
+            conversation.readUserIds?.filter((id) => id !== userId) ?? null,
           content: newMessage.content,
           // Events can arrive out of order; recency must never move backwards.
           updatedAt:

@@ -1,22 +1,21 @@
-export type IInstagramBotPersistentMenu = {
-  _id: string;
-  text: string;
-  type: 'button' | 'link';
-  link: string;
-};
+import type {
+  InstagramMessengerBotProfileQuery,
+  InstagramMessengerBotQuery,
+  InstagramMessengerBotsQuery,
+} from '~/gql/graphql';
 
-export type IInstagramBot = {
-  _id: string;
-  name: string;
-  account: any;
-  accountId: string;
-  createdAt: string;
-  page: any;
-  pageId: string;
-  profileUrl: string;
-  persistentMenus: IInstagramBotPersistentMenu[];
-  greetText: string;
-  tag: 'CONFIRMED_EVENT_UPDATE' | 'POST_PURCHASE_UPDATE' | 'ACCOUNT_UPDATE';
-  isEnabledBackBtn: boolean;
-  backButtonText: string;
-};
+export type IInstagramBot = NonNullable<
+  NonNullable<InstagramMessengerBotsQuery['instagramMessengerBots']>[number]
+>;
+
+export type IInstagramBotDetail = NonNullable<
+  InstagramMessengerBotQuery['instagramMessengerBot']
+>;
+
+export type IInstagramBotProfile = NonNullable<
+  InstagramMessengerBotProfileQuery['instagramMessengerBot']
+>;
+
+export type IInstagramBotPersistentMenu = NonNullable<
+  NonNullable<IInstagramBot['persistentMenus']>[number]
+>;

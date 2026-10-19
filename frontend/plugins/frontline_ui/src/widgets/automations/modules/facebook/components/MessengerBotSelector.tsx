@@ -27,8 +27,7 @@ type Props = {
   botId?: string;
 };
 
-const getPageName = (bot?: IFacebookBot) =>
-  (bot?.page as { name?: string })?.name || '';
+const getPageName = (bot?: IFacebookBot) => bot?.page?.name || '';
 
 export const FacebookBotSelector = ({ botId, onSelect }: Props) => {
   const { t } = useTranslation('frontline');

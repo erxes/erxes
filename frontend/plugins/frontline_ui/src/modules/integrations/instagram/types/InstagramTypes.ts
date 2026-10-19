@@ -1,12 +1,4 @@
-import { IAttachment } from 'erxes-ui';
 import { IMessage } from '@/inbox/types/Conversation';
-
-export interface IInstagramPost {
-  _id: string;
-  content: string;
-  permalink_url: string;
-  attachments: IAttachment[];
-}
 
 export interface IInstagramConversationMessage extends IMessage {
   mid?: string;

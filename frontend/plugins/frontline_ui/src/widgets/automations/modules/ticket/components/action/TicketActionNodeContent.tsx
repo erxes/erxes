@@ -18,6 +18,7 @@ const LABELS: Partial<Record<keyof TTicketActionConfigForm, string>> = {
   labelIds: 'labels',
   tagIds: 'tags',
   companyIds: 'companies',
+  attachmentIds: 'ticket-attachment-media',
 };
 
 export const TicketActionNodeContent = ({
