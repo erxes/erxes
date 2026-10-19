@@ -9,7 +9,8 @@
     ".": "./src/index.ts",
     "./server": "./src/server.ts",
     "./worker": "./src/worker.ts",
-    "./react": "./src/react.ts"
+    "./react": "./src/react.ts",
+    "./contracts": "./src/contracts/index.ts"
   },
   "scripts": {
     "typecheck": "tsc -p tsconfig.json"

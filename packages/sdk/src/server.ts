@@ -1,4 +1,5 @@
 import type * as z from 'zod';
+import type { ContractClient, Contracts, Uses } from './contracts';
 import type { ErrorBody } from './errors';
 
 export { ExtensionError } from './errors';
@@ -32,6 +33,25 @@ type PermissionName = Register extends {
 }
   ? { [M in keyof P & string]: `${M}.${keyof P[M] & string}` }[keyof P & string]
   : string;
+
+// The host contracts the extension calls, each pinned to one version:
+//
+//   export const uses = defineUses({ sales: 1 });
+//
+// Register it next to the schema (`uses: typeof uses`) to type `ctx.erxes`.
+// A call to a host or version the install didn't pin fails with NOT_GRANTED.
+export const defineUses = <const U extends Uses>(uses: U) => uses;
+
+type RegisteredUses = Register extends { uses: infer U extends Uses }
+  ? U
+  : Record<never, never>;
+
+// `ctx.erxes.sales.deals.get({ _id })`, typed from the pinned contracts.
+export type Erxes = {
+  [H in keyof RegisteredUses & keyof Contracts]: ContractClient<
+    Contracts[H][RegisteredUses[H] & keyof Contracts[H]]
+  >;
+};
 
 // Every function names the action a caller needs. 'public' means any
 // signed-in user.
@@ -74,6 +94,7 @@ export type Ctx = {
   db: {
     [K in keyof RegisteredSchema]: Collection<z.output<RegisteredSchema[K]>>;
   };
+  erxes: Erxes;
 };
 
 export type FunctionKind = 'query' | 'mutation';
@@ -123,14 +144,19 @@ const isFunction = (value: unknown): value is ExtensionFunction =>
   'kind' in value &&
   (value.kind === 'query' || value.kind === 'mutation');
 
-// Reads an extension's server barrel: `schema`, plus one namespace per file
+// Reads an extension's server barrel: `schema`, `permissions`, `uses`, plus one namespace per file
 // (`export * as agents from './agents'`). A function's name is its path,
 // `agents.list`.
 export const collectExtension = (mod: Record<string, unknown>) => {
   const functions = new Map<string, ExtensionFunction>();
 
   for (const [name, value] of Object.entries(mod)) {
-    if (name === 'schema' || name === 'permissions' || name === 'default') {
+    if (
+      name === 'schema' ||
+      name === 'permissions' ||
+      name === 'uses' ||
+      name === 'default'
+    ) {
       continue;
     }
 
@@ -147,6 +173,7 @@ export const collectExtension = (mod: Record<string, unknown>) => {
 
   const schema = (mod.schema ?? {}) as Schema;
   const permissions = (mod.permissions ?? {}) as Permissions;
+  const uses = (mod.uses ?? {}) as Record<string, number>;
 
-  return { schema, permissions, functions };
+  return { schema, permissions, uses, functions };
 };
