@@ -1399,6 +1399,11 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   `cpGetTicketTotalCount` pass `skipPipelineVisibility` to `generateFilter`, so
   a customer sees their own `cp:<id>` tickets in private pipelines. Without
   `createdBy` the staff rules still apply.
+- `cpGetTicketPipelines` is readable with only a portal token (no `cpUser`
+  required), so it never returns private pipelines and returns the
+  `CpTicketPipeline` type (`_id`, `name`, `description`, `channelId`), never
+  the staff `Pipeline` type with its member, department, numbering and
+  `createdUser` fields. Keep any new client portal read on its own narrow type.
 - A converted ticket's "Go to" URL (`conversationConvertedItems`, built in
   `src/modules/inbox/services/conversationConvertTargets.ts`) carries the
   ticket's `channelId` and `pipelineId` with `ticketId`; without them the
