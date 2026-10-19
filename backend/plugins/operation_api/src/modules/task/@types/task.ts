@@ -27,6 +27,8 @@ export interface ITask {
   priority?: number;
   labelIds?: string[];
   tagIds?: string[];
+  customerIds?: string[];
+  companyIds?: string[];
   assigneeId?: string;
   createdBy?: string;
   cycleId?: string | null;

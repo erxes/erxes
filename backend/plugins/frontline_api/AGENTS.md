@@ -1296,6 +1296,7 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 ## Data and State
 
+- `frontline_tickets` keeps its contacts as `customerIds` / `companyIds` (indexed), being moved off core `relations` (`frontline:ticket ↔ core:customer/company`). `core-api` `commands/migrateRelationsToContactFields.ts` backfills them, merging into the existing `companyIds`. `conversations` keep their single `customerId` and are not migrated.
 - Models are generated per request subdomain. Telegram owns `telegram_bots`,
   `customers_telegram`, `conversations_telegram`, `conversation_messages_telegram`
   and `telegram_reactions`; canonical inbox history stays in Frontline's

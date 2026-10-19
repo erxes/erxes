@@ -250,6 +250,7 @@
 
 ## Data and State
 
+- `deals` keeps its contacts as `customerIds` / `companyIds` (indexed), being moved off core `relations` (`sales:deal ↔ core:customer/company`). `core-api` `commands/migrateRelationsToContactFields.ts` backfills them from relations; until reads switch over, relations stay the source the deal loader, filters, accounting and ebarimt read.
 - Tenant-scoped Mongo collections are loaded through plugin connection
   resolvers.
 - Deal stage browsing uses `stageId`; its total count filters archived and

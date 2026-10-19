@@ -142,6 +142,9 @@ export const dealSchema = schemaWrapper(
       assignedUserIds: { type: [String] },
       watchedUserIds: { type: [String] },
       labelIds: { type: [String] },
+      // The deal's contacts, kept on the deal instead of core relations.
+      customerIds: { type: [String], index: true },
+      companyIds: { type: [String], index: true },
       attachments: { type: [attachmentSchema], label: 'Attachments' },
       stageId: { type: String, index: true },
       initialStageId: {
