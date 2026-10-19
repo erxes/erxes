@@ -9,6 +9,11 @@
       "executor": "@nx/rspack:rspack",
       "outputs": ["{options.outputPath}"],
       "dependsOn": ["^build", "codegen"],
+      "inputs": [
+        "production",
+        "^production",
+        { "dependentTasksOutputFiles": "**/*.ts" }
+      ],
       "defaultConfiguration": "production",
       "options": {
         "target": "web",
@@ -64,13 +69,12 @@
       "cache": true,
       "dependsOn": [
         {
-          "projects": ["tourism_api"],
-          "target": "schema:print"
+          "projects": ["gateway"],
+          "target": "schema:compose"
         }
       ],
       "inputs": [
         "{projectRoot}/codegen.ts",
-        "{projectRoot}/schema/**/*.graphql",
         "{projectRoot}/src/**/*.{ts,tsx}",
         "!{projectRoot}/src/gql/**",
         {

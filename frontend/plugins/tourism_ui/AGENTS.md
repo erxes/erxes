@@ -38,8 +38,7 @@
 | TMS module        | `frontend/plugins/tourism_ui/src/modules/tms`             | Owns TMS route composition and UI.                                                                      |
 | Main module       | `frontend/plugins/tourism_ui/src/modules/main`            | Owns shared tourism route composition.                                                                  |
 | Pages             | `frontend/plugins/tourism_ui/src/pages`                   | Provides route-level PMS and TMS pages.                                                                 |
-| Codegen           | `frontend/plugins/tourism_ui/codegen.ts`                  | Validates documents and generates the gitignored `src/gql` types.                                       |
-| Platform SDL      | `frontend/plugins/tourism_ui/schema/platform.graphql`     | Snapshot of the core-api, payment_api and loyalty_api fields tourism documents select.                  |
+| Codegen           | `frontend/plugins/tourism_ui/codegen.ts`                  | Validates documents against the composed gateway schema; generates the gitignored `src/gql` types.      |
 
 ## Contracts
 
@@ -53,12 +52,13 @@
 - Public UI APIs from `erxes-ui` and `ui-modules`, plus one non-public hook:
   PMS `SelectProducts` imports `useProducts` from
   `ui-modules/modules/products/hooks/useProducts`.
-- Tourism plugin GraphQL APIs through Apollo Client, typed from the
-  `tourism_api` printed SDL (`backend/plugins/tourism_api/generated/schema.graphql`).
-- Core-api `productCategories` and `User.details`, payment_api `payments`, and
-  loyalty_api `pricingPlans`, typed from `schema/platform.graphql`. The PMS
-  payment and pricing-plan selectors query the payment and loyalty plugins, so
-  those queries fail when either plugin is not enabled.
+- Tourism, core-api (`productCategories`, `User.details`), payment_api
+  (`payments`) and loyalty_api (`pricingPlans`) GraphQL APIs through Apollo
+  Client, typed from the composed gateway schema
+  (`backend/gateway/generated/schema.graphql`, built by
+  `gateway:schema:compose`). The PMS payment and pricing-plan selectors query
+  the payment and loyalty plugins, so those queries fail at runtime when
+  either plugin is not enabled.
 - React Router host mounting contracts from core UI Module Federation.
 
 ## Data and State
@@ -80,9 +80,9 @@
 - Use `erxes-ui` and `ui-modules`; do not import another plugin's source.
 - Dev watch ignores must not include plugin source directories required for hot reload.
 - Codegen validates every document under `src` except tests against the
-  `tourism_api` SDL plus `schema/platform.graphql`. A document that selects a
-  field from core-api or another plugin that is missing from the snapshot fails
-  codegen: add the field to the snapshot under its source-path comment.
+  composed gateway schema, which holds every backend's subgraph. A field from
+  core-api or another plugin needs no local copy; fix a validation error in
+  the document, or in the backend that owns the field.
 - Codegen drops `${...}` interpolation text, so interpolated field strings are
   invisible to it. Share fields through a local `gql` fragment spread by name.
 - Operation names must be unique; codegen rejects a name used by two documents
@@ -97,6 +97,7 @@
 ## Validation
 
 - `pnpm nx lint tourism_ui`
+- `pnpm nx run gateway:schema:compose --parallel=2`
 - `pnpm nx run tourism_ui:codegen --skip-nx-cache`
 - `pnpm nx build tourism_ui`
 - `npx tsc -p frontend/plugins/tourism_ui/tsconfig.app.json --noEmit | rg tourism_ui`
