@@ -333,13 +333,15 @@ export default async function userMiddleware(
       return next();
     }
 
+    // Deactivating a user doesn't revoke their tokens, so a deactivated user
+    // is treated like a missing one here.
     const userDoc = await models.Users.findOne(
-      { _id: user._id },
+      { _id: user._id, isActive: { $ne: false } },
       '_id email details isOwner groupIds brandIds username code branchIds departmentIds permissionGroupIds customPermissions',
     ).lean();
 
     if (!userDoc) {
-      debugAuth(req, 'user-not-found', {
+      debugAuth(req, 'user-not-found-or-inactive', {
         subdomain,
         userId: user._id,
         tokenHash: hashToken(token),
