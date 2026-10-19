@@ -5,6 +5,7 @@ import {
   extensionTenant,
   type PermissionUser,
 } from 'erxes-api-shared/core-modules';
+import { contracts } from 'erxes-sdk';
 import { getSubdomain, redis } from 'erxes-api-shared/utils';
 import {
   Hono,
@@ -337,6 +338,26 @@ export const app = new Hono<Env>()
   })
 
   // ---- Install and lifecycle, owner only.
+
+  // The host contracts this runtime serves, for the install-approval dialog:
+  // names, kinds and descriptions, never schemas. Read from the same objects
+  // calls are checked against, so it can't drift from what runs.
+  .get('/contracts', signedIn, owner, (c) =>
+    c.json({
+      ok: true as const,
+      data: Object.values(contracts).flatMap((versions) =>
+        Object.values(versions).map(({ host, version, entries }) => ({
+          host,
+          version,
+          entries: entries.map(({ name, kind, description }) => ({
+            name,
+            kind,
+            description,
+          })),
+        })),
+      ),
+    }),
+  )
 
   .get('/installed', signedIn, owner, async (c) => {
     const { tenant } = c.get('caller');
