@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-10-18`
+- **Last synchronized:** `2026-10-19`
 
 ## Scope
 
@@ -593,8 +593,7 @@
   visible in its table, in their on-screen order and with the same headers,
   including property columns. It is disabled until the table has rendered.
 - GraphQL codegen (`client-preset`) validates every GraphQL document against
-  the printed `frontline_api` schema and the core snapshot
-  `schema/platform.graphql` only, and generates result and variable types
+  the composed gateway schema and generates result and variable types
   into `src/gql/`.
 - Mail documents, including provider setup and pipeline mail settings, use
   `gql()` from `~/gql`. Thread, draft, sender, connection, zone, quota and
@@ -625,7 +624,7 @@ owns the setup form and connection actions.
 | App sidebar               | `frontend/plugins/frontline_ui/src/Sidebar.tsx`                                                                                                   | `FrontlineSidebar` (app sidebar) and `FrontlineSidebarFooter` (Settings link), rendered by the `./frontline` entry through `AppLayout`          |
 | Host registration         | `src/config.tsx`                                                                                                                                  | `CONFIG` — navigation, settings, widgets, property inputs, routes, and Module Federation exposes                                                |
 | Federation                | `module-federation.config.ts`                                                                                                                     | Remote name `frontline_ui` and its exposes                                                                                                      |
-| GraphQL codegen           | `codegen.ts`, `schema/platform.graphql`                                                                                                           | Generates `src/gql/` (gitignored) from the printed `frontline_api` schema and the core snapshot                                                 |
+| GraphQL codegen           | `codegen.ts`                                                                                                           | Generates `src/gql/` (gitignored) from the composed gateway schema                                                 |
 | Routes                    | `src/modules/FrontlineMain.tsx`, `src/pages/`                                                                                                     | Routed pages for inbox, ticket, forms, call, channels                                                                                           |
 | Navigation groups         | `src/modules/FrontlineSubGroups.tsx`                                                                                                              | Route-aware sidebar sub-groups for every frontline page                                                                                         |
 | Report navigation         | `src/modules/report/constants/reportSections.ts`                                                                                                  | Report board paths, labels, icons and path matching shared by `ReportIndexPage`, which renders the boards as header tabs                        |
@@ -906,12 +905,7 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
   `note-email-sent-to`, `ticket-reply-not-delivered`,
   `email-delivery-stuck-hint`, `email-delivery-resent` and
   `attachment-not-saved-days`.
-- The printed `frontline_api` subgraph schema from its `schema:print` Nx
-  target, consumed only at codegen time.
-- Core types and fields this plugin selects, declared for codegen only in
-  `schema/platform.graphql`.
-- No optional plugin schema: no frontline document reads the operation or
-  content schema.
+- The composed gateway schema from `gateway:schema:compose`, consumed only at codegen time. Runtime requests continue through the published GraphQL contracts.
 
 ## Data and State
 
@@ -2469,21 +2463,12 @@ null }`, fall back to the route pipeline and skip without one; never pass
   hovered item, so a pie chart's highlight clears only when the pointer leaves
   the legend.
 - `src/gql/` is generated and gitignored; `build` and `serve` depend on the
-  `codegen` target, which depends on `frontline_api:schema:print` only. The
-  plugin never depends on core's or an optional plugin's printed schema.
+  `codegen` target, which depends on `gateway:schema:compose`. Build inputs hash generated TypeScript through `dependentTasksOutputFiles` so backend schema changes invalidate the bundle.
   `pnpm dev:uis` starts remotes without `dependsOn`, so
   `scripts/start-ui-dev.js` runs `codegen` once and then `codegen:watch`
   beside the dev server. `codegen:watch` has no `dependsOn` and stays out of
   `serve`, because a watcher never exits.
-- `schema/platform.graphql` snapshots only the core types and fields frontline
-  documents select, each block headed by its `backend/core-api/src` SDL
-  source. When a document selects another core field, or core changes one it
-  selects, update the snapshot from that source; codegen fails on a field the
-  snapshot lacks.
-- Codegen reads only the `frontline_api` printed schema and the core
-  snapshot. A document that selects an optional plugin's field fails
-  codegen; read such data through `frontline_api` instead of adding a schema
-  mirror.
+- Codegen reads only `backend/gateway/generated/schema.graphql`. Change public contracts in their owning backend; generated SDL is ignored and regenerated through Nx.
 - Operation names are unique within the plugin even ignoring case, because
   codegen PascalCases them into type names. `refetchQueries` strings name
   operations, so a rename updates them in the same change.
@@ -2512,7 +2497,7 @@ null }`, fall back to the route pipeline and skip without one; never pass
   bulk-delete from the command bar, edit and delete a category from the
   sidebar, then delete the topic from its `kbsettings` danger zone.
 - `pnpm nx run frontline_ui:codegen --skip-nx-cache` - validates every
-  document against the printed `frontline_api` schema and the core snapshot;
+  document against the composed gateway schema;
   `build` and `serve` run it first.
 - `pnpm nx build frontline_ui`
 - `pnpm nx test frontline_ui` — includes the knowledge base sidebar's
