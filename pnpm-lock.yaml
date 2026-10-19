@@ -1492,6 +1492,12 @@ importers:
       '@hono/zod-validator':
         specifier: ^0.9.1
         version: 0.9.1(hono@4.13.13)(zod@4.6.7)
+      bullmq:
+        specifier: ^5.40.0
+        version: 5.40.4
+      cron-parser:
+        specifier: ^4.9.0
+        version: 4.9.0
       erxes-api-shared:
         specifier: workspace:^
         version: link:../../erxes-api-shared

@@ -42,6 +42,16 @@ export const LIMITS = {
   // Secrets one install may declare, and how long one value may be.
   maxSecrets: 20,
   secretValueChars: 8192,
+  // Triggers one install may declare. A schedule fires at most every
+  // minScheduleMinutes; a webhook body is at most webhookBytes.
+  maxSchedules: 10,
+  minScheduleMinutes: 5,
+  maxWebhooks: 10,
+  webhookBytes: MB,
+  maxEvents: 20,
+  // Trigger runs one runtime instance works on at once. They also count
+  // against the tenant and global limits below.
+  triggerConcurrency: int('EXT_TRIGGER_CONCURRENCY', 8),
   // Calls running at once, per tenant and in total.
   tenantConcurrency: int('EXT_TENANT_CONCURRENCY', 8),
   globalConcurrency: int('EXT_GLOBAL_CONCURRENCY', 64),

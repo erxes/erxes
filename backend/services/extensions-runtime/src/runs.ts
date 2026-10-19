@@ -99,6 +99,7 @@ export const REFUSED = new Set([
   'DISABLED',
   'INSTALLER_INACTIVE',
   'USER_INACTIVE',
+  'UNKNOWN_TRIGGER',
   'UNKNOWN_FUNCTION',
 ]);
 
@@ -134,17 +135,25 @@ const mintSession = async (tenant: string, extId: string, userId: string) => {
 // extension, and reaches erxes only through the install's pinned contracts,
 // so it can do at most what both that user and the install's grants allow.
 // The install must be enabled and the user active, checked on every run;
-// a refusal is recorded like any other run. Returns undefined when the
-// extension is no longer installed.
+// a refusal is recorded like any other run. `fn` picks the function the
+// trigger names on the active build. Returns undefined when the extension is
+// no longer installed.
 export const runTrigger = async (
   tenant: string,
   extId: string,
   {
-    fn,
-    input,
     trigger,
+    name,
+    fn: functionOf,
+    input,
     actAs,
-  }: { fn: string; input: unknown; trigger: Trigger; actAs?: string },
+  }: {
+    trigger: Exclude<Trigger, 'call'>;
+    name: string;
+    fn: (ext: IExtensionDocument) => string | undefined;
+    input: unknown;
+    actAs?: string;
+  },
 ) => {
   const models = await generateModels(tenant);
   const ext = await models.Extensions.findById(`${tenant}:${extId}`).lean();
@@ -153,6 +162,7 @@ export const runTrigger = async (
     return undefined;
   }
 
+  const fn = functionOf(ext) ?? name;
   const userId = actAs ?? ext.installedBy;
   const refuse = async (code: string, message: string) => {
     const result: InvokeResult = { ok: false, error: { code, message }, ms: 0 };
@@ -168,6 +178,13 @@ export const runTrigger = async (
 
   if (ext.status !== 'installed') {
     return refuse('DISABLED', `${extId} is disabled`);
+  }
+
+  if (!functionOf(ext)) {
+    return refuse(
+      'UNKNOWN_TRIGGER',
+      `${extId}@${ext.version} has no ${trigger} ${name}`,
+    );
   }
 
   if (!ext.functions.includes(fn)) {

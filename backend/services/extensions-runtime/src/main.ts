@@ -2,6 +2,7 @@ import { serve } from '@hono/node-server';
 import { closeMongooose, redis } from 'erxes-api-shared/utils';
 import { app, hostApp, SERVICE_NAME } from './app';
 import { HOST_PORT, stopAll } from './sandbox';
+import { startTriggerWorkers } from './triggers';
 
 const PORT = Number(process.env.EXT_RUNTIME_PORT || 3320);
 // Where the gateway reaches this service. The default fits a gateway on the
@@ -24,7 +25,10 @@ const main = async () => {
   // The gateway proxies /pl:extensions/* to whatever address is registered here.
   await redis.set(`erxes-service-${SERVICE_NAME}`, ADDRESS);
 
+  const stopTriggers = startTriggerWorkers();
+
   const shutdown = async () => {
+    await stopTriggers();
     stopAll();
     server.close();
     hostServer.close();

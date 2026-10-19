@@ -12,6 +12,8 @@
   "dependencies": {
     "@hono/node-server": "^2.1.5",
     "@hono/zod-validator": "^0.9.1",
+    "bullmq": "^5.40.0",
+    "cron-parser": "^4.9.0",
     "erxes-api-shared": "workspace:^",
     "erxes-sdk": "workspace:^",
     "hono": "^4.13.13",
