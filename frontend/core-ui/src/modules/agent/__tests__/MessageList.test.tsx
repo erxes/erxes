@@ -6,9 +6,16 @@ import { MessageList, type IMessageListProps } from '../components/MessageList';
 
 jest.mock('react-i18next', () => ({
   useTranslation: () => ({
-    t: (key: string, options?: string | { defaultValue?: string; count?: number }) =>
-      typeof options === 'string' ? options :
-      (options?.defaultValue ?? key).replace('{{count}}', String(options?.count ?? '')),
+    t: (
+      key: string,
+      options?: string | { defaultValue?: string; count?: number },
+    ) =>
+      typeof options === 'string'
+        ? options
+        : (options?.defaultValue ?? key).replace(
+            '{{count}}',
+            String(options?.count ?? ''),
+          ),
   }),
 }));
 
@@ -210,4 +217,44 @@ it('keeps a single pending header if streaming starts before an assistant messag
   render(<MessageList {...props} status="streaming" messages={[user]} />);
   expect(screen.getAllByRole('status')).toHaveLength(1);
   expect(screen.getByRole('status').textContent).toBe('Working…');
+});
+
+it('shows only the latest response avatar across earlier replies, pending, streaming and settled turns', () => {
+  const history: UIMessage[] = [
+    { ...user, id: 'u1' },
+    { ...assistant([{ type: 'text', text: 'Earlier reply' }]), id: 'a1' },
+    { ...user, id: 'u2' },
+    { ...assistant([{ type: 'text', text: 'Previous reply' }]), id: 'a2' },
+  ];
+  const { rerender } = render(
+    <MessageList {...props} status="ready" messages={history} />,
+  );
+  expect(screen.getAllByTestId('bloub')).toHaveLength(1);
+  const nextUser = { ...user, id: 'u3' };
+  rerender(
+    <MessageList
+      {...props}
+      status="submitted"
+      messages={[...history, nextUser]}
+    />,
+  );
+  expect(screen.getAllByTestId('bloub')).toHaveLength(1);
+  expect(screen.getByRole('status').textContent).toBe('Working…');
+  const messages = [
+    ...history,
+    nextUser,
+    {
+      ...assistant([{ type: 'text' as const, text: 'Latest reply' }]),
+      id: 'a3',
+    },
+  ];
+  rerender(<MessageList {...props} status="streaming" messages={messages} />);
+  expect(screen.getAllByTestId('bloub')).toHaveLength(1);
+  expect(screen.getByRole('status').textContent).toBe('Writing…');
+  rerender(<MessageList {...props} status="ready" messages={messages} />);
+  expect(screen.getAllByTestId('bloub')).toHaveLength(1);
+  expect(screen.queryByRole('status')).toBeNull();
+  expect(screen.getByText('Earlier reply')).toBeTruthy();
+  expect(screen.getByText('Previous reply')).toBeTruthy();
+  expect(screen.getByText('Latest reply')).toBeTruthy();
 });

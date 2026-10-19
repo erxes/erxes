@@ -39,8 +39,10 @@ The `agent` module is the core-ui surface for the core-api `agents` backend
 - a Twenty-style transcript: work-steps grouping, approval card, ask_user
   card, artifact cards, rendered HTML replies + clickable record references;
 - agent turns use `AgentMessageIdentity` with the user's configured Bloub
-  appearance. Older avatars are frozen thumbnails; the current avatar follows
-  the pointer at rest and uses the thinking state while working. `BotBadge`
+  appearance. Only the latest response displays an avatar; earlier replies
+  have none. A pending response owns the sole avatar before streaming starts,
+  replacing the previous reply's icon. The current avatar follows the pointer
+  at rest and uses the thinking state while working. `BotBadge`
   freezes animation for reduced-motion users. The submitted state shares this
   identity as the only visible working indicator. Activity text remains available
   to screen readers through a status region; no extra dots or visible status label

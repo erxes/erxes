@@ -149,6 +149,8 @@ interface IMessageRowProps {
   isStreamingTail: boolean;
   /** Last assistant message in the transcript — gets Regenerate + always-visible actions. */
   isLastAssistant: boolean;
+  /** Only the current response owns the transcript avatar. */
+  showIdentity: boolean;
   onRetryTurn: () => void;
   approvalBusy: boolean;
   onApprovalRespond: (decision: {
@@ -177,6 +179,7 @@ const MessageRow = memo(
     previousMessage,
     isStreamingTail,
     isLastAssistant,
+    showIdentity,
     onRetryTurn,
     approvalBusy,
     onApprovalRespond,
@@ -270,14 +273,16 @@ const MessageRow = memo(
             </div>
           )}
           <div className="group/assistant agent-message-enter flex w-full flex-col">
-            <AgentMessageIdentity
-              activity={
-                isStreamingTail
-                  ? agentMessageActivity(message.parts)
-                  : undefined
-              }
-              current={isLastAssistant}
-            />
+            {showIdentity && (
+              <AgentMessageIdentity
+                activity={
+                  isStreamingTail
+                    ? agentMessageActivity(message.parts)
+                    : undefined
+                }
+                current
+              />
+            )}
             <div className="min-w-0 flex-1">
               {items.map((item, index) =>
                 item.kind === 'work' ? (
@@ -589,6 +594,9 @@ export const MessageList = ({
             previousMessage={row.previousMessage}
             isStreamingTail={row.key === activeResponseRow}
             isLastAssistant={row.lastIndex === lastAssistantIndex}
+            showIdentity={
+              row.lastIndex === lastAssistantIndex && !showPendingResponse
+            }
             onRetryTurn={onRetryTurn}
             approvalBusy={approvalBusy}
             onApprovalRespond={onApprovalRespond}
@@ -606,6 +614,7 @@ export const MessageList = ({
       referenceScopes,
       lastAssistantIndex,
       activeResponseRow,
+      showPendingResponse,
       onRetryTurn,
       approvalBusy,
       onApprovalRespond,
