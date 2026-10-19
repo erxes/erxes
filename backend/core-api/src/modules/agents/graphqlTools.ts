@@ -493,7 +493,7 @@ export const buildGraphqlTools = async (): Promise<{
           const operationName = input?.operationName;
 
           if (typeof query !== 'string') {
-            return true;
+            return false;
           }
 
           try {
@@ -505,7 +505,7 @@ export const buildGraphqlTools = async (): Promise<{
               readApprovalMode(ctx),
             );
           } catch {
-            return true;
+            return false;
           }
         },
         execute: async ({ query, variables, operationName }, context) => {

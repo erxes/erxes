@@ -1,7 +1,5 @@
-import {
-  isToolUIPart,
-  lastAssistantMessageIsCompleteWithApprovalResponses,
-} from 'ai';
+import { isToolUIPart } from 'ai';
+import { hasAgentsApprovalDecision } from '../approvalDecisions';
 import type { UIMessage } from 'ai';
 import { Chat, useChat } from '@ai-sdk/react';
 import { useLazyQuery } from '@apollo/client';
@@ -291,9 +289,9 @@ export interface IUseAgentsChatResult {
  *   response header is still captured when readable, but a cross-origin
  *   caller cannot read it unless the gateway exposes it, so it must never
  *   be the sole carrier of the id,
- * - automatic resend after an approval decision via the SDK's native
- *   `sendAutomaticallyWhen` predicate (the transport routes that resend to
- *   the backend's `/agents/approve` resume endpoint),
+ * - automatic resend after an approval decision via the SDK's
+ *   `sendAutomaticallyWhen` callback for Mastra's per-call suspension. The
+ *   transport routes the answered call to the backend's `/agents/approve` endpoint,
  * - active run id tracking for reconnect: generated per normal send,
  *   persisted per thread in sessionStorage (one shared entry per thread
  *   — a durable run belongs to the thread, not the surface), cleared on
@@ -438,8 +436,7 @@ export const useAgentsChat = (options?: {
     () =>
       new Chat<UIMessage>({
         transport,
-        sendAutomaticallyWhen:
-          lastAssistantMessageIsCompleteWithApprovalResponses,
+        sendAutomaticallyWhen: hasAgentsApprovalDecision,
         onFinish: ({ message, isAbort, isDisconnect }) => {
           if (
             !isAbort &&

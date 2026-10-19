@@ -1,4 +1,5 @@
-import { DefaultChatTransport, isToolUIPart } from 'ai';
+import { DefaultChatTransport } from 'ai';
+import { getAgentsApprovalDecision } from './approvalDecisions';
 import type { ChatTransport, UIMessage, UIMessageChunk } from 'ai';
 
 import {
@@ -106,54 +107,6 @@ const selectionToBody = (
   return body;
 };
 
-interface IApprovalDecision {
-  approved: boolean;
-  reason?: string;
-}
-
-/**
- * Finds the user's approval decision in the last assistant message, mirroring
- * the semantics of `lastAssistantMessageIsCompleteWithApprovalResponses`:
- * only tool parts after the last `step-start` of the last assistant message
- * count, and only an `approval-responded` part carries a decision.
- */
-const extractApprovalDecision = (
-  messages: UIMessage[],
-): IApprovalDecision | null => {
-  const lastMessage = messages[messages.length - 1];
-
-  if (!lastMessage || lastMessage.role !== 'assistant') {
-    return null;
-  }
-
-  let lastStepStartIndex = -1;
-
-  lastMessage.parts.forEach((part, index) => {
-    if (part.type === 'step-start') {
-      lastStepStartIndex = index;
-    }
-  });
-
-  for (
-    let index = lastMessage.parts.length - 1;
-    index > lastStepStartIndex;
-    index -= 1
-  ) {
-    const part = lastMessage.parts[index];
-
-    if (!isToolUIPart(part) || part.state !== 'approval-responded') {
-      continue;
-    }
-
-    return {
-      approved: part.approval?.approved === true,
-      reason: part.approval?.reason,
-    };
-  }
-
-  return null;
-};
-
 /**
  * Chat transport for erxes agents.
  *
@@ -166,9 +119,9 @@ const extractApprovalDecision = (
  *   captured through the transport's `fetch` middleware as advisory only —
  *   a cross-origin browser cannot read a custom header unless the gateway
  *   exposes it, so continuity must never depend on it.
- * - When the framework auto-resends after the user answered a tool approval
- *   (last message is the assistant's approval-responded message), the request
- *   is routed to `POST /agents/approve` with `{ threadId, approved, reason }`
+ * - When the user answers the current Mastra tool approval, the SDK auto-sends
+ *   without waiting on other input-available calls in that step. The request
+ *   routes to `POST /agents/approve` with `{ threadId, toolCallId, approved, reason }`
  *   because the backend resumes the suspended Mastra run through its own
  *   endpoint instead of re-running the whole transcript.
  */
@@ -299,7 +252,7 @@ export class AgentsChatTransport
       return this.postAnswerResume(pendingAnswer, options.abortSignal);
     }
 
-    const decision = extractApprovalDecision(options.messages);
+    const decision = getAgentsApprovalDecision(options.messages);
 
     if (!decision) {
       // Normal send: generate a fresh runId so the backend can track the
@@ -325,6 +278,7 @@ export class AgentsChatTransport
     const body: Record<string, unknown> = {
       threadId,
       approved: decision.approved,
+      toolCallId: decision.toolCallId,
       // The resumed run continues on the same provider/model/thinking the
       // UI used for the suspended turn.
       ...selectionToBody(this.getRequestSelection()),

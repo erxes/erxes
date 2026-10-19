@@ -1320,6 +1320,70 @@ describe('POST /agents/approve — destructive action approval resume', () => {
     );
   });
 
+  it.each([42, '', 'x'.repeat(201)])(
+    'rejects an invalid approval target (%s)',
+    async (toolCallId) => {
+      const res = buildRes();
+      await approveHandler(
+        buildReq({
+          user: ACTING_USER,
+          body: { threadId: 't1', approved: true, toolCallId },
+        }),
+        res,
+      );
+      expect(res.statusCode).toBe(400);
+      expect(approveToolCallMock).not.toHaveBeenCalled();
+    },
+  );
+
+  it('rejects a stale approval rather than applying it to the next suspended call', async () => {
+    memory.getThreadById.mockResolvedValue({ resourceId: 'user-1' });
+    listSuspendedRunsMock.mockResolvedValue({
+      runs: [suspendedRun('run-1')],
+      total: 1,
+    });
+    const res = buildRes();
+    await approveHandler(
+      buildReq({
+        user: ACTING_USER,
+        body: {
+          threadId: 't1',
+          approved: true,
+          toolCallId: 'old-call',
+        },
+      }),
+      res,
+    );
+    expect(res.statusCode).toBe(409);
+    expect(approveToolCallMock).not.toHaveBeenCalled();
+  });
+
+  it('resumes the explicitly answered call rather than the first listed approval', async () => {
+    memory.getThreadById.mockResolvedValue({ resourceId: 'user-1' });
+    const run = suspendedRun('run-1');
+    run.toolCalls?.push({
+      toolCallId: 'call-2',
+      toolName: 'callGraphql',
+      requiresApproval: true,
+    });
+    listSuspendedRunsMock.mockResolvedValue({ runs: [run], total: 1 });
+    const res = buildRes();
+    await approveHandler(
+      buildReq({
+        user: ACTING_USER,
+        body: {
+          threadId: 't1',
+          approved: false,
+          toolCallId: 'call-2',
+        },
+      }),
+      res,
+    );
+    expect(declineToolCallMock).toHaveBeenCalledWith(
+      expect.objectContaining({ toolCallId: 'call-2' }),
+    );
+  });
+
   it('maps unexpected resume failures to a JSON 500 instead of crashing', async () => {
     memory.getThreadById.mockResolvedValue({ resourceId: 'user-1' });
     listSuspendedRunsMock.mockResolvedValue({

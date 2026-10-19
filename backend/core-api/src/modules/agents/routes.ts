@@ -466,6 +466,7 @@ const findSuspendedToolCall = async (
   identity: IRequestIdentity,
   threadId: string,
   kind: ISuspensionKind,
+  requestedToolCallId?: string,
 ): Promise<ISuspendedToolCall> => {
   // Suspended runs live in persistent snapshot storage (the shared
   // MongoDBStore's workflows domain), so discovery works across requests
@@ -492,6 +493,13 @@ const findSuspendedToolCall = async (
   // instead of assuming position 0.
   const calls = run.toolCalls ?? [];
 
+  if (
+    requestedToolCallId &&
+    !calls.some((call) => call.toolCallId === requestedToolCallId)
+  ) {
+    throw new HttpError(409, 'This tool call is no longer awaiting a decision.');
+  }
+
   if (calls.length === 0) {
     // Degenerate snapshot (no reported calls): keep the historical
     // unscoped resume and let Mastra resolve the run's pending call from
@@ -500,7 +508,9 @@ const findSuspendedToolCall = async (
   }
 
   const toolCall = calls.find(
-    (call) => (call.requiresApproval === true) === (kind === 'approval'),
+    (call) =>
+      (!requestedToolCallId || call.toolCallId === requestedToolCallId) &&
+      (call.requiresApproval === true) === (kind === 'approval'),
   );
 
   if (!toolCall) {
@@ -851,6 +861,7 @@ router.post('/agents/approve', async (req, res) => {
   const body = (req.body || {}) as {
     threadId?: string;
     approved?: boolean;
+    toolCallId?: string;
     reason?: string;
     provider?: string;
     model?: string;
@@ -870,6 +881,20 @@ router.post('/agents/approve', async (req, res) => {
     return;
   }
 
+  if (
+    body.toolCallId !== undefined &&
+    (typeof body.toolCallId !== 'string' ||
+      !body.toolCallId.trim() ||
+      body.toolCallId.length > 200)
+  ) {
+    jsonError(
+      res,
+      400,
+      new Error('`toolCallId` must be a non-empty string of at most 200 characters.'),
+    );
+    return;
+  }
+
   const reason = typeof body.reason === 'string' ? body.reason.trim() : '';
 
   try {
@@ -883,6 +908,7 @@ router.post('/agents/approve', async (req, res) => {
       identity,
       threadId,
       'approval',
+      typeof body.toolCallId === 'string' ? body.toolCallId : undefined,
     );
 
     const options = buildResumeOptions({ suspended, identity, threadId, res });

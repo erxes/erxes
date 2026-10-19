@@ -68,7 +68,7 @@ plugin; ported from the former private `erxes-agent` service). It provides:
 - HTTP (mounted in `src/routes.ts` via `src/modules/agents/routes.ts`):
   `POST /agents/chat` (SSE; optional `runId` UUID, `provider`, `model`,
   `thinkingLevel`, `pageContext`; `X-Agents-Thread-Id` response header),
-  `POST /agents/approve` `{ threadId, approved, reason? }`,
+  `POST /agents/approve` `{ threadId, toolCallId?, approved, reason? }`,
   `POST /agents/answer` `{ threadId, answer }`,
   `POST /agents/chat/reconnect` `{ threadId, runId }` (SSE replay or 204).
   All require the gateway `user` header; chat also checks `agentsChat` when
@@ -167,6 +167,11 @@ plugin; ported from the former private `erxes-agent` service). It provides:
   with an absent title so native asynchronous auto-titling still applies.
 - The resume routes share `findSuspendedToolCall` (kind-aware: approval vs
   ask_user, newest suspended run, ownership re-checked, wrong-kind → 409).
+  Approval requests carry the answered `toolCallId`, checked against the current
+  suspension; stale ids return 409 rather than deciding another call. Legacy
+  callers without an id retain server discovery. Invalid/denied GraphQL inputs
+  return tool errors without approval or network execution; human approval never
+  grants an exception to GraphQL policy.
 - Every run entry point passes `maxSteps: 32`; resumes restore the original
   run's RequestContext snapshot (selection fields in the body are accepted
   but ignored).

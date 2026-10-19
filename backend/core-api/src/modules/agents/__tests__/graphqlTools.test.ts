@@ -500,3 +500,51 @@ describe('callGraphql', () => {
     expect(auth).not.toHaveProperty('threadId');
   });
 });
+
+describe('GraphQL approval admission', () => {
+  const needsApproval = async (query: string, approvalMode = 'writes') => {
+    const predicate = callGraphql.requireApproval;
+    if (typeof predicate !== 'function')
+      throw new Error('Missing approval predicate');
+    return predicate({ query }, { requestContext: { approvalMode } });
+  };
+  it('never suspends read queries, including schema queries rejected by policy', async () => {
+    expect(await needsApproval('query Read { customers { _id } }')).toBe(false);
+    expect(
+      await needsApproval('query Inspect { __type(name: "Deal") { name } }'),
+    ).toBe(false);
+  });
+  it('returns denied or malformed inputs as tool errors without asking for permission', async () => {
+    expect(
+      await needsApproval(
+        'mutation Denied { agentsConnectionRemove(provider: "openai") }',
+      ),
+    ).toBe(false);
+    expect(await needsApproval('not graphql')).toBe(false);
+    fetchSpy.mockRejectedValue(new Error('Must not fetch'));
+    const output = await runCall(
+      { query: 'query Inspect { __type(name: "Deal") { name } }' },
+      { subdomain: 'tenant', userId: 'user' },
+    );
+    expect(output.status).toBe('error');
+    expect(output.code).toBe('GRAPHQL_OPERATION_NOT_ALLOWED');
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
+  it('still gates valid mutations according to the run approval mode', async () => {
+    expect(
+      await needsApproval('mutation Add { customersAdd(name: "A") { _id } }'),
+    ).toBe(true);
+    expect(
+      await needsApproval(
+        'mutation Add { customersAdd(name: "A") { _id } }',
+        'destructive',
+      ),
+    ).toBe(false);
+    expect(
+      await needsApproval(
+        'mutation Delete { customersRemove(id: "1") }',
+        'destructive',
+      ),
+    ).toBe(true);
+  });
+});

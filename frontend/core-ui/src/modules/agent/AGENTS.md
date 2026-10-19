@@ -122,7 +122,11 @@ The `agent` module is the core-ui surface for the core-api `agents` backend
   approval/reconnect chunks, sends `credentials: 'include'`, reads
   `X-Agents-Thread-Id`, persists active runs per thread for reconnect,
   and reroutes approval/answer sends to `/agents/approve` and
-  `/agents/answer`.
+  `/agents/answer`. `approvalDecisions.ts` resumes the answered Mastra gate even
+  when later calls in the same model step remain input-available. Those calls
+  cannot execute until resume, so the SDK's all-tool-completed predicate would
+  deadlock. Decisions carry their exact `toolCallId`; outstanding approval cards
+  still require explicit answers, and older steps never authorize another send.
 - GraphQL documents in `graphql/` — `Agents*` prefixed operation names,
   consumed verbatim from the backend schema; `AgentsThreadsChanged` is a
   refetch signal only.
