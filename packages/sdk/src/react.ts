@@ -71,19 +71,21 @@ export const call = async <K extends FunctionKind, I, R>(
   );
   const body = (await res.json().catch(() => null)) as
     | { ok: true; data: R }
-    | { ok: false; error: ErrorBody }
+    | { ok: false; error?: ErrorBody }
     | null;
 
-  if (!body) {
-    throw new ExtensionError('HTTP_ERROR', `Request failed with ${res.status}`);
+  if (body?.ok === true) {
+    return body.data;
   }
 
-  if (!body.ok) {
+  // Not every failure is an envelope: the gateway answers a missing session
+  // with its own body.
+  if (body?.error) {
     const { code, message, issues } = body.error;
     throw new ExtensionError(code, message, issues);
   }
 
-  return body.data;
+  throw new ExtensionError('HTTP_ERROR', `Request failed with ${res.status}`);
 };
 
 // Live queries per extension. A mutation refetches every one of them, which
@@ -139,11 +141,13 @@ export const useQuery = <I, R>(ref: FunctionRef<'query', I, R>, input: I) => {
 
 export const useMutation = <I, R>(ref: FunctionRef<'mutation', I, R>) => {
   const { apiUrl, extId, path } = ref;
-  const [pending, setPending] = useState(false);
+  // Counts calls in flight, so overlapping mutations keep `pending` true until
+  // the last one finishes.
+  const [inFlight, setInFlight] = useState(0);
 
   const mutate = useCallback(
     async (input: I) => {
-      setPending(true);
+      setInFlight((n) => n + 1);
       try {
         const result = await call<'mutation', I, R>(
           { apiUrl, extId, path },
@@ -152,11 +156,13 @@ export const useMutation = <I, R>(ref: FunctionRef<'mutation', I, R>) => {
         invalidate(extId);
         return result;
       } finally {
-        setPending(false);
+        setInFlight((n) => n - 1);
       }
     },
     [apiUrl, extId, path],
   );
+
+  const pending = inFlight > 0;
 
   return { mutate, pending };
 };

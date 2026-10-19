@@ -38,7 +38,9 @@ type PermissionName = Register extends {
 export type Permission = PermissionName | 'public';
 
 // Collections the extension owns, stored per tenant as `ext.<id>.<name>`.
-// The worker validates every insert and update against the schema.
+// The worker validates every insert against the schema, and every update
+// against the schemas of the fields it sets. Refinements across fields (start
+// before end) aren't checked on partial updates: check them in the handler.
 export const defineSchema = <S extends Schema>(schema: S) => schema;
 
 // A document as stored: the extension's own fields plus the ids and
