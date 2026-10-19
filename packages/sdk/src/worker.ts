@@ -50,14 +50,14 @@ const collection = (
     find: (filter: Filter = {}, options = {}) => op('find', filter, options),
     findOne: (filter) => op('findOne', filter),
     count: (filter: Filter = {}) => op('count', filter),
-    insertOne: (doc) => op('insertOne', schema.parse(doc)),
+    insertOne: async (doc) => op('insertOne', await schema.parseAsync(doc)),
     // Validate only the fields being set. `partial()` would still fill every
     // other field's default and overwrite the stored value with it.
-    updateOne: (filter, set) =>
+    updateOne: async (filter, set) =>
       op(
         'updateOne',
         filter,
-        z
+        await z
           .object(
             Object.fromEntries(
               Object.keys(set)
@@ -65,7 +65,7 @@ const collection = (
                 .map((key) => [key, schema.shape[key]]),
             ),
           )
-          .parse(set),
+          .parseAsync(set),
       ),
     deleteOne: (filter) => op('deleteOne', filter),
   };
@@ -114,35 +114,33 @@ export const serve = (mod: Record<string, unknown>) => {
         return fail('UNKNOWN_FUNCTION', `no function ${name}`);
       }
 
-      const parsed = f.input.safeParse(input);
-
-      if (!parsed.success) {
-        return fail(
-          'INVALID_INPUT',
-          z.prettifyError(parsed.error),
-          toIssues(parsed.error.issues),
-        );
-      }
-
-      let data: unknown;
-
+      // One try around parsing and the handler: a refinement or transform can
+      // throw too, and it must come back as an envelope, not a rejection.
       try {
-        data = await f.handler(context(user, host), parsed.data);
+        const parsed = await f.input.safeParseAsync(input);
+
+        if (!parsed.success) {
+          return fail(
+            'INVALID_INPUT',
+            z.prettifyError(parsed.error),
+            toIssues(parsed.error.issues),
+          );
+        }
+
+        const data = await f.handler(context(user, host), parsed.data);
+
+        if (!f.output) {
+          return { ok: true, data };
+        }
+
+        const output = await f.output.safeParseAsync(data);
+
+        return output.success
+          ? { ok: true, data: output.data }
+          : fail('INVALID_OUTPUT', z.prettifyError(output.error));
       } catch (e) {
         return fromThrown(e);
       }
-
-      if (f.output) {
-        const output = f.output.safeParse(data);
-
-        if (!output.success) {
-          return fail('INVALID_OUTPUT', z.prettifyError(output.error));
-        }
-
-        data = output.data;
-      }
-
-      return { ok: true, data };
     }
   };
 };

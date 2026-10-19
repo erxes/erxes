@@ -49,6 +49,10 @@ export const createApi = <M>({
     },
   ) as Api<M>;
 
+// Longer than the runtime's own run limit, so a slow call fails with its real
+// error first; this only catches a stalled connection.
+const REQUEST_TIMEOUT_MS = 30_000;
+
 // Runs as the signed-in user: the session cookie goes along. Fails with an
 // ExtensionError carrying the server's code, message and field issues.
 export const call = async <K extends FunctionKind, I, R>(
@@ -62,6 +66,7 @@ export const call = async <K extends FunctionKind, I, R>(
       credentials: 'include',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify(input ?? {}),
+      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
     },
   );
   const body = (await res.json().catch(() => null)) as
