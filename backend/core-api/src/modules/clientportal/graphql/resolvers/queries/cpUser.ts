@@ -3,13 +3,13 @@ import { cursorPaginate, escapeRegExp } from 'erxes-api-shared/utils';
 import { SortOrder } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
 import { ICPUserDocument } from '@/clientportal/types/cpUser';
-import { getTokiConnection } from '~/modules/clientportal/utils';
 
 interface IClientPortalUserFilterParams {
   clientPortalId?: string;
   searchValue?: string;
   type?: 'customer' | 'company';
   isVerified?: boolean;
+  dateFilters?: string;
   limit?: number;
   cursor?: string;
   direction?: 'forward' | 'backward';
@@ -18,6 +18,48 @@ interface IClientPortalUserFilterParams {
   sortMode?: string;
   aggregationPipeline?: unknown[];
 }
+
+const CP_USER_DATE_FILTER_FIELDS = ['createdAt'] as const;
+
+const toFilterDate = (value?: string) => {
+  if (!value) {
+    return undefined;
+  }
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    throw new Error(`Invalid date in dateFilters: ${value}`);
+  }
+
+  return date;
+};
+
+const buildDateQuery = (dateFilters: string) => {
+  let parsed: Record<string, { gte?: string; lte?: string } | undefined>;
+
+  try {
+    parsed = JSON.parse(dateFilters);
+  } catch {
+    throw new Error('Invalid dateFilters JSON');
+  }
+
+  const query: Record<string, { $gte?: Date; $lte?: Date }> = {};
+
+  for (const field of CP_USER_DATE_FILTER_FIELDS) {
+    const gte = toFilterDate(parsed?.[field]?.gte);
+    const lte = toFilterDate(parsed?.[field]?.lte);
+
+    if (gte || lte) {
+      query[field] = {
+        ...(gte && { $gte: gte }),
+        ...(lte && { $lte: lte }),
+      };
+    }
+  }
+
+  return query;
+};
 
 export const cpUserQueries: Record<string, Resolver<any, any, IContext>> = {
   async clientPortalCurrentUser(
@@ -50,6 +92,10 @@ export const cpUserQueries: Record<string, Resolver<any, any, IContext>> = {
 
     if (typeof filter.isVerified === 'boolean') {
       query.isVerified = filter.isVerified;
+    }
+
+    if (filter.dateFilters) {
+      Object.assign(query, buildDateQuery(filter.dateFilters));
     }
 
     if (filter?.searchValue?.trim()) {
