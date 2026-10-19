@@ -35,7 +35,7 @@ export const createMoreColumn = (size = 33): ColumnDef<InsuranceContract> => ({
 export const contractNumberColumn: ColumnDef<InsuranceContract> = {
   id: 'contractNumber',
   accessorKey: 'contractNumber',
-  header: () => {
+  header: function ContractNumberHeader() {
     const { t } = useTranslation('insurance');
     return (
       <RecordTable.InlineHead icon={IconFileText} label={t('contract-no')} />
@@ -51,7 +51,7 @@ export const contractNumberColumn: ColumnDef<InsuranceContract> = {
 export const customerColumn: ColumnDef<InsuranceContract> = {
   id: 'customer',
   accessorKey: 'customer',
-  header: () => {
+  header: function ContractCustomerHeader() {
     const { t } = useTranslation('insurance');
     return <RecordTable.InlineHead icon={IconUser} label={t('customer')} />;
   },
@@ -70,7 +70,7 @@ export const customerColumn: ColumnDef<InsuranceContract> = {
 export const vendorColumn: ColumnDef<InsuranceContract> = {
   id: 'vendor',
   accessorKey: 'vendor',
-  header: () => {
+  header: function ContractVendorHeader() {
     const { t } = useTranslation('insurance');
     return <RecordTable.InlineHead icon={IconBuilding} label={t('vendor')} />;
   },
@@ -86,7 +86,7 @@ export const createProductColumn = (
 ): ColumnDef<InsuranceContract> => ({
   id: 'product',
   accessorKey: 'insuranceProduct',
-  header: () => {
+  header: function ContractProductHeader() {
     const { t } = useTranslation('insurance');
     return <RecordTable.InlineHead icon={icon} label={t('product')} />;
   },
@@ -102,7 +102,7 @@ export const createProductColumn = (
 export const chargedAmountColumn: ColumnDef<InsuranceContract> = {
   id: 'chargedAmount',
   accessorKey: 'chargedAmount',
-  header: () => {
+  header: function ContractAmountHeader() {
     const { t } = useTranslation('insurance');
     return (
       <RecordTable.InlineHead icon={IconCurrencyTugrik} label={t('amount')} />
@@ -118,7 +118,7 @@ export const chargedAmountColumn: ColumnDef<InsuranceContract> = {
 export const startDateColumn: ColumnDef<InsuranceContract> = {
   id: 'startDate',
   accessorKey: 'startDate',
-  header: () => {
+  header: function ContractStartDateHeader() {
     const { t } = useTranslation('insurance');
     return (
       <RecordTable.InlineHead icon={IconCalendar} label={t('start-date')} />
@@ -134,7 +134,7 @@ export const startDateColumn: ColumnDef<InsuranceContract> = {
 export const endDateColumn: ColumnDef<InsuranceContract> = {
   id: 'endDate',
   accessorKey: 'endDate',
-  header: () => {
+  header: function ContractEndDateHeader() {
     const { t } = useTranslation('insurance');
     return <RecordTable.InlineHead icon={IconCalendar} label={t('end-date')} />;
   },
@@ -148,13 +148,13 @@ export const endDateColumn: ColumnDef<InsuranceContract> = {
 export const paymentStatusColumn: ColumnDef<InsuranceContract> = {
   id: 'paymentStatus',
   accessorKey: 'paymentStatus',
-  header: () => {
+  header: function ContractPaymentStatusHeader() {
     const { t } = useTranslation('insurance');
     return (
       <RecordTable.InlineHead icon={IconCurrencyTugrik} label={t('status')} />
     );
   },
-  cell: ({ cell }) => {
+  cell: function ContractPaymentStatusCell({ cell }) {
     const { t } = useTranslation('insurance');
     const status = cell.getValue() as string;
     return (

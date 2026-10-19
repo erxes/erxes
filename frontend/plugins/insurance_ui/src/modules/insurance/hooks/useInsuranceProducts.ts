@@ -1,6 +1,6 @@
 import { useQuery, useMutation } from '@apollo/client';
 import { queries, mutations } from '../graphql';
-import { InsuranceProduct, CoveredRiskInput } from '../types';
+import { InsuranceProduct } from '../types';
 
 export function useInsuranceProducts() {
   const { data, loading, error, refetch } = useQuery(

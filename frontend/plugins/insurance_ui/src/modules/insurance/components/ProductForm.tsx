@@ -704,10 +704,7 @@ export const ProductForm = ({
                   ) : (
                     <div className="space-y-2">
                       {durationFields.map((field, index) => (
-                        <div
-                          key={field.duration || `dur-${index}`}
-                          className="flex gap-2 items-end"
-                        >
+                        <div key={index} className="flex gap-2 items-end">
                           <div className="flex-1">
                             <Label className="text-xs">
                               {t('duration-months')}
