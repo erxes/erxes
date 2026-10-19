@@ -1,0 +1,20 @@
+{
+  "name": "erxes-sdk",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Author SDK for erxes extensions",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./server": "./src/server.ts",
+    "./worker": "./src/worker.ts",
+    "./react": "./src/react.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "zod": "^4"
+  }
+}

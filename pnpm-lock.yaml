@@ -1822,6 +1822,12 @@ importers:
         specifier: ^5.7.3
         version: 5.8.3
 
+  packages/sdk:
+    dependencies:
+      zod:
+        specifier: ^4
+        version: 4.6.7
+
 packages:
 
   '@adobe/css-tools@4.3.3':
@@ -20505,6 +20511,9 @@ packages:
 
   zod@3.24.2:
     resolution: {integrity: sha512-lY7CDW43ECgW9u1TcT3IoXHflywfVqDYze4waEz812jR/bZ8FHDsl7pFQoSZTz5N+2NqRXs8GBwnAwo3ZNxqhQ==}
+
+  zod@4.6.7:
+    resolution: {integrity: sha512-g8W2D2kU6a8untc053fX1uVBKzM7yqAxW/3zwk83+6RyF2+SKOuV+c0wBDhUwzV1PaGapmZH+rmcUzPf+3CGwg==}
 
   zustand@4.5.6:
     resolution: {integrity: sha512-ibr/n1hBzLLj5Y+yUcU7dYw8p6WnIVzdJbnX+1YpaScvZVF2ziugqHs+LAmHw4lWO9c/zRj+K1ncgWDQuthEdQ==}
@@ -46070,6 +46079,8 @@ snapshots:
   zod@3.23.8: {}
 
   zod@3.24.2: {}
+
+  zod@4.6.7: {}
 
   zustand@4.5.6(@types/react@18.3.1)(immer@10.1.1)(react@18.3.1):
     dependencies:
