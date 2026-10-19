@@ -14,6 +14,10 @@
 // `tools` mocks contract calls: "sales.deals.get" answers
 // ctx.erxes.sales.deals.get. The call still needs the pin in `uses`, and
 // input and the mocked result still parse against the pinned contract.
+// `toolCases` answers by input instead, and can fail a call:
+//   "toolCases": { "sales.deals.get": [{ "input": { "_id": "d2" },
+//                  "error": { "code": "FORBIDDEN", "message": "..." } }] }
+// A call no case matches falls back to `tools`.
 // Prints { ok, runs: [{ ok, data | error, ms }], writes, db } and exits 1
 // unless every run is ok. `writes` are the inserts, updates and deletes the
 // extension made on its own collections; `db` is what they left.
@@ -47,6 +51,18 @@ const fixtureSchema = z.object({
     .record(z.string(), z.array(z.record(z.string(), z.unknown())))
     .default({}),
   tools: z.record(z.string(), z.unknown()).default({}),
+  toolCases: z
+    .record(
+      z.string(),
+      z.array(
+        z.object({
+          input: z.unknown(),
+          result: z.unknown().optional(),
+          error: z.object({ code: z.string(), message: z.string() }).optional(),
+        }),
+      ),
+    )
+    .default({}),
 });
 
 type Doc = Record<string, unknown>;
@@ -85,7 +101,11 @@ const runDbOp = (
     }
   };
   const write = (doc: Doc) => {
-    writes.push({ collection: request.collection, op: call.op, doc });
+    writes.push({
+      collection: request.collection,
+      op: call.op,
+      doc: { ...doc },
+    });
     return doc;
   };
   const now = new Date().toISOString();
@@ -188,8 +208,19 @@ const main = async () => {
     return runContractCall(
       ext.uses,
       HostCallRequest.parse(JSON.parse(body)),
-      async ({ host, entry }) => {
+      async ({ host, entry, input }) => {
         const key = `${host}.${entry.name}`;
+        const match = fixture.toolCases[key]?.find(
+          (c) => JSON.stringify(c.input) === JSON.stringify(input),
+        );
+
+        if (match?.error) {
+          throw new ApiError(400, match.error.code, match.error.message);
+        }
+
+        if (match) {
+          return match.result;
+        }
 
         if (!(key in fixture.tools)) {
           throw new ApiError(
