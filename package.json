@@ -94,6 +94,7 @@
     "docx-preview": "0.3.7",
     "dompurify": "^3.2.4",
     "dotenv": "^16.4.7",
+    "driver.js": "1.10.2",
     "emblor": "^1.4.8",
     "erxes-telemetry": "^1.0.4",
     "exceljs": "^4.4.0",

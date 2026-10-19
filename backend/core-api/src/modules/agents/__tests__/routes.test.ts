@@ -2502,3 +2502,68 @@ it('rejects malformed page context before accessing storage or starting the mode
   ] }] } }), res);
   expect(res.statusCode).toBe(400); expect(streamMock).not.toHaveBeenCalled();
 });
+
+describe('POST /agents/chat — current page elements', () => {
+  const pageElements = {
+    snapshotId: '76f0586e-d3be-4d52-b175-2328319a2454',
+    path: '/contacts',
+    elements: [
+      {
+        id: 'element-1',
+        label: 'Add customer',
+        role: 'button',
+        context: 'Customers',
+      },
+    ],
+  };
+  it('stamps only validated page metadata into the durable run context', async () => {
+    const res = buildRes();
+    await chatHandler(
+      buildReq({
+        user: ACTING_USER,
+        body: {
+          messages: [
+            {
+              id: 'guide',
+              role: 'user',
+              parts: [{ type: 'text', text: 'Where is Add customer?' }],
+            },
+          ],
+          pageElements: {
+            ...pageElements,
+            userId: 'spoofed',
+            selector: 'body',
+          },
+        },
+      }),
+      res,
+    );
+    expect(res.statusCode).toBe(200);
+    expect(mockedBuildAgentsRequestContext).toHaveBeenCalledWith(
+      expect.objectContaining({ userId: 'user-1', pageElements }),
+    );
+  });
+  it('ignores invalid page catalogs without rejecting the user question', async () => {
+    const res = buildRes();
+    await chatHandler(
+      buildReq({
+        user: ACTING_USER,
+        body: {
+          messages: [
+            {
+              id: 'guide',
+              role: 'user',
+              parts: [{ type: 'text', text: 'Where is Add customer?' }],
+            },
+          ],
+          pageElements: { ...pageElements, path: 'https://elsewhere.test' },
+        },
+      }),
+      res,
+    );
+    expect(res.statusCode).toBe(200);
+    expect(
+      mockedBuildAgentsRequestContext.mock.calls[0][0].pageElements,
+    ).toBeUndefined();
+  });
+});

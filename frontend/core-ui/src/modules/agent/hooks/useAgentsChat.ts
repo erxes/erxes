@@ -1,3 +1,5 @@
+import { capturePageElements } from '../focus/pageElements';
+import { dismissPageFocus, showLivePageFocus } from '../focus/pageFocus';
 import {
   isToolUIPart,
   lastAssistantMessageIsCompleteWithApprovalResponses,
@@ -388,6 +390,11 @@ export const useAgentsChat = (options?: {
         getRequestSelection: () => selectionRef.current,
         getPageContext: () => pageContextRef.current,
         getNavigation: () => navigationRef.current,
+        getPageElements: () => {
+          dismissPageFocus();
+          return capturePageElements();
+        },
+        onPageFocus: showLivePageFocus,
         onThreadId: (nextThreadId) => {
           threadIdRef.current = nextThreadId;
           setThreadId(nextThreadId);

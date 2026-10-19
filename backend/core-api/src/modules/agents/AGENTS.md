@@ -36,7 +36,7 @@ plugin; ported from the former private `erxes-agent` service). It provides:
   `^[A-Za-z0-9_-]{1,64}$`; invalid parts silently dropped) and prepended to
   the newest user message as a `[Page context] ...` text part, which Mastra
   memory persists with the message (the UI strips the bracketed prefix on
-  render — it is the agent's only page knowledge);
+  render). The current page-element catalog is separate UI metadata;
 - selected page elements use `data-agents-page-selections`: validated bounded
   context (id/title/path/frame/visible text/bounds) and a PNG snapshot reference.
   `pageSelections.ts` validates up to three selections; `fileBinding.ts` reads
@@ -47,6 +47,16 @@ plugin; ported from the former private `erxes-agent` service). It provides:
   admission set; chat permission/ownership checks apply before reading pixels.
   Thread detail reads normalize the former PNG/TXT pair only when its stored JSON
   context and matching snapshot validate, preserving ordinary attachments;
+- Page guidance: optional `pageElements` on a normal chat send is strictly
+  validated by `pageElements.ts` (snapshot UUID, local path, at most 240 unique
+  element ids with bounded label/role/context/frame strings). It is JSON-safe
+  RequestContext state, so approval/answer resumes retain the original catalog.
+  `findPageElements` searches Unicode labels and returns up to 12 exact references;
+  `focusPageElement` rejects ids/snapshots outside that run and returns a typed
+  `{kind:'page-focus',version:1,...,status:'requested'}` UI request. It cannot run
+  selectors, click, submit, navigate, grant permissions, or confirm client display.
+  Page metadata remains untrusted source data. The browser verifies current DOM
+  identity before showing Driver.js guidance. Other screens still use findPages.
 - tenant-wide `AgentsSettings` on `agents_settings` (`codeModeEnabled`,
   `codeModeEnvironment: 'in-process'`, `approvalMode: 'writes' |
   'destructive'` — default `'writes'`, stamped per run into RequestContext;
@@ -58,7 +68,7 @@ plugin; ported from the former private `erxes-agent` service). It provides:
 
 - HTTP (mounted in `src/routes.ts` via `src/modules/agents/routes.ts`):
   `POST /agents/chat` (SSE; optional `runId` UUID, `provider`, `model`,
-  `thinkingLevel`, `pageContext`; `X-Agents-Thread-Id` response header),
+  `thinkingLevel`, `pageContext`, `pageElements`; `X-Agents-Thread-Id` response header),
   `POST /agents/approve` `{ threadId, approved, reason? }`,
   `POST /agents/answer` `{ threadId, answer }`,
   `POST /agents/chat/reconnect` `{ threadId, runId }` (SSE replay or 204).

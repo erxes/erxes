@@ -1,3 +1,4 @@
+import { PageFocusResult } from './PageFocusResult';
 import {
   AGENTS_PAGE_SELECTIONS_DATA_TYPE,
   readPageSelectionsPart,
@@ -243,6 +244,15 @@ export const MessagePartRenderer = ({
 
     if (!tool) {
       return null;
+    }
+
+    if (
+      tool.toolName === 'focusPageElement' &&
+      part.state === 'output-available'
+    ) {
+      return (
+        <PageFocusResult output={'output' in part ? part.output : undefined} />
+      );
     }
 
     if (tool.toolName === 'createArtifact') {

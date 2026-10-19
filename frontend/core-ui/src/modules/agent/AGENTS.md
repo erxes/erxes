@@ -97,6 +97,22 @@ The `agent` module is the core-ui surface for the core-api `agents` backend
   validated stored context; filenames alone never change attachment semantics.
   Thread changes/unmount abort uploads, cancel picking and release object URLs.
   Composer controls use container queries at narrow panel widths.
+- Page guidance uses Driver.js 1.10.2, lazy-loaded by `focus/pageFocusDriver.ts`.
+  Every normal chat send captures bounded semantic labels/roles/context from the
+  app and same-origin report frames (`focus/pageElements.ts`, max 240 targets /
+  5,000 inspected nodes). Input values, editable drafts, hidden/private content,
+  raw DOM and selectors are excluded. Browser-only maps retain five snapshots of
+  exact DOM references, and reject detached, relabelled/recycled, or route/query-
+  changed targets. The shared `panel` query does not invalidate page references.
+  The server's `findPageElements`/`focusPageElement` use this run snapshot.
+  `focus/pageFocusStream.ts` observes only live native results on normal sends and
+  approval/answer resumes; reconnect/history never auto-replay UI effects. Tool
+  calls deduplicate, while `PageFocusResult` offers an explicit Show me action.
+  Driver renders an inert parent-document anchor over the actual visible bounds,
+  scrolls nested containers/frames, follows geometry changes, and dismisses on
+  stale/disappearing targets. Popover text uses textContent, never model HTML.
+  Escape, Close and Got it clean up and restore keyboard focus. Light/dark tokens
+  and reduced-motion preferences carry through. Guidance never clicks or edits.
 - BYOK-gated composer: no configured connection shows an inline banner
   linking to the settings page and disables input.
 - assistant message action row under each turn (Copy; Regenerate on the

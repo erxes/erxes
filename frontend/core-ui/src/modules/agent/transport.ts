@@ -1,3 +1,8 @@
+import type {
+  IPageElementCatalog,
+  IPageFocus,
+} from './focus/pageFocusContract';
+import { observePageFocus } from './focus/pageFocusStream';
 import { DefaultChatTransport, isToolUIPart } from 'ai';
 import type { ChatTransport, UIMessage, UIMessageChunk } from 'ai';
 
@@ -51,6 +56,8 @@ export interface IAgentsChatTransportOptions {
    * turn; resumes keep the original run's RequestContext snapshot.
    */
   getNavigation?: () => IAgentsNavigationEntry[] | undefined;
+  getPageElements?: () => IPageElementCatalog;
+  onPageFocus?: (toolCallId: string, focus: IPageFocus) => void;
   /** Called when the backend reports the thread id for this conversation. */
   onThreadId: (threadId: string) => void;
   /** Returns the currently active run id, if any. */
@@ -184,6 +191,11 @@ export class AgentsChatTransport
 
   private readonly getNavigation?: () => IAgentsNavigationEntry[] | undefined;
 
+  private readonly onPageFocus?: (
+    toolCallId: string,
+    focus: IPageFocus,
+  ) => void;
+
   private readonly getActiveRunId: () => string | undefined;
 
   private readonly onActiveRunId: (runId: string | undefined) => void;
@@ -197,6 +209,8 @@ export class AgentsChatTransport
     getRequestSelection,
     getPageContext,
     getNavigation,
+    getPageElements,
+    onPageFocus,
     onThreadId,
     getActiveRunId,
     onActiveRunId,
@@ -235,6 +249,9 @@ export class AgentsChatTransport
           body.navigation = navigation;
         }
 
+        const pageElements = getPageElements?.();
+        if (pageElements) body.pageElements = pageElements;
+
         return body;
       },
       fetch: async (input, init) => {
@@ -270,6 +287,7 @@ export class AgentsChatTransport
     this.getRequestSelection = getRequestSelection;
     this.getPageContext = getPageContext;
     this.getNavigation = getNavigation;
+    this.onPageFocus = onPageFocus;
     this.onThreadId = onThreadId;
     this.getActiveRunId = getActiveRunId;
     this.onActiveRunId = onActiveRunId;
@@ -299,7 +317,10 @@ export class AgentsChatTransport
       // run id (set by the original send or the prior resume).
       this.onActiveRunId(crypto.randomUUID());
 
-      return super.sendMessages(options);
+      return observePageFocus(
+        await super.sendMessages(options),
+        this.onPageFocus,
+      );
     }
 
     const threadId = this.getThreadId();
@@ -339,7 +360,10 @@ export class AgentsChatTransport
       throw new Error('The response body is empty.');
     }
 
-    return this.processResponseStream(response.body);
+    return observePageFocus(
+      this.processResponseStream(response.body),
+      this.onPageFocus,
+    );
   }
 
   /**
@@ -389,7 +413,10 @@ export class AgentsChatTransport
 
     const suspendedToolCallId = pendingAnswer.suspendedToolCallId;
 
-    return this.processResponseStream(response.body).pipeThrough(
+    return observePageFocus(
+      this.processResponseStream(response.body),
+      this.onPageFocus,
+    ).pipeThrough(
       new TransformStream<UIMessageChunk, UIMessageChunk>({
         transform(chunk, controller) {
           if (
