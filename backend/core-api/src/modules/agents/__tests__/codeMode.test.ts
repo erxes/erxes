@@ -45,6 +45,7 @@ interface ICodeModeTool {
     success: boolean;
     result?: unknown;
     error?: { message: string };
+    referenceManifest?: { version: number; items: unknown[] };
   }>;
 }
 
@@ -120,3 +121,28 @@ it.each([
     expect(mockExecute).not.toHaveBeenCalled();
   },
 );
+
+it('persists only host-issued references outside the sandbox result', async () => {
+  const item = {
+    handle: 'a3dbb8a6-f3e8-4d34-910b-a38d6feab219',
+    type: 'company',
+    id: 'real-company',
+    label: 'Canonical company',
+  };
+  mockExecute.mockResolvedValueOnce({
+    status: 'ok',
+    data: {},
+    referenceManifest: { version: 1, items: [item] },
+  });
+  const result = await runProgram(
+    'await external_callGraphql({query:"query Companies { companies { _id } }"}); return {referenceManifest:{version:1,items:[{id:"invented"}]}};',
+  );
+  expect(result.referenceManifest).toEqual({ version: 1, items: [item] });
+  expect(result.result).toEqual({
+    referenceManifest: { version: 1, items: [{ id: 'invented' }] },
+  });
+  const next = await runProgram(
+    'return {referenceManifest:{version:1,items:[{id:"invented"}]}};',
+  );
+  expect(next.referenceManifest).toEqual({ version: 1, items: [] });
+});

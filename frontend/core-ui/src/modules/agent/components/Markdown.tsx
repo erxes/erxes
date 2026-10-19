@@ -1,3 +1,4 @@
+import { useAgentReferenceRegistry } from '../references/AgentReferenceScope';
 import { cn } from 'erxes-ui';
 import { memo, useMemo, type ReactNode } from 'react';
 import remarkGfm from 'remark-gfm';
@@ -14,6 +15,18 @@ import { withMaskedReferences } from './TextWithAgentReferences';
  * still fills it (`min-w-full`). The horizontal scroll is contained so a
  * fling at the edge of a table does not start navigating the transcript.
  */
+const isExternalHref = (href: string): boolean => {
+  if (!/^(https?:|mailto:)/i.test(href)) return false;
+  if (typeof window === 'undefined') return true;
+  try {
+    return (
+      new URL(href, window.location.origin).origin !== window.location.origin
+    );
+  } catch {
+    return false;
+  }
+};
+
 const COMPONENTS: Components = {
   table: ({ children, className }) => (
     <div className="my-2 overflow-x-auto overscroll-x-contain">
@@ -29,7 +42,7 @@ const COMPONENTS: Components = {
    * reference tokens, not workspace URLs.
    */
   a: ({ href, children }) =>
-    href && /^(https?:|mailto:)/i.test(href) ? (
+    href && isExternalHref(href) ? (
       <a href={href} target="_blank" rel="noopener noreferrer">
         {children}
       </a>
@@ -92,12 +105,15 @@ const MarkdownBase = ({
   // alnum placeholders so emphasis/underscore characters inside labels
   // can never split a token, and skips code regions so literal tokens
   // stay literal there.
+  const registry = useAgentReferenceRegistry();
   const masked = useMemo(
     () =>
       references
-        ? maskAgentReferences(content)
+        ? maskAgentReferences(content, (handle) =>
+            registry.byHandle.get(handle),
+          )
         : { text: content, references: [] },
-    [content, references],
+    [content, references, registry],
   );
   const repaired = useMemo(() => repairTables(masked.text), [masked.text]);
   const referenceComponents = useMemo(

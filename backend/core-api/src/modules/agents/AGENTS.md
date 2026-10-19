@@ -24,12 +24,17 @@ plugin; ported from the former private `erxes-agent` service). It provides:
   operations; other queries/mutations use existing resolver permissions;
 - optional code mode exposes only `searchGraphql` and `callGraphql` in a
   QuickJS sandbox; approval-gated mutations must run interactively in chat;
-- **references**: `callGraphql` success returns `{ status:'ok', data,
-  references? }` — `references.ts` maps known tool ids to
-  `[[type:id:label]]` tokens the model may copy verbatim into replies (types:
-  customer, company, user, product, branch, department, unit, brand, deal,
-  conversation). Additive only — code-mode programs reading `.data` are
-  unaffected;
+- **references**: successful native `callGraphql` and `findPages` outputs issue
+  opaque `[[ref:<uuid>]]` handles with a versioned `referenceManifest`. Only
+  schema-verified identities from the executed operation authorize handles;
+  response aliases never rename identity fields. Code mode collects manifests
+  from actual host GraphQL calls with invocation-local AsyncLocalStorage, outside
+  the sandbox's returned JSON. The native `execute_typescript` result persists
+  that authoritative manifest separately from untrusted `result` content.
+  `POST /agents/references/resolve` accepts a record type/id and reads the live
+  schema's matching Detail query as the signed-in user. It returns the current
+  name and validated deal board/pipeline, or an unavailable response. It never
+  calls a model, accepts a model URL, or bypasses normal resolver permissions;
 - **pageContext**: `POST /agents/chat` accepts `pageContext: { path, record? }
   ` — strictly validated (path starts `/`, ≤200 chars, no control chars;
   record.type from the reference-type set; record.id matches
@@ -107,6 +112,11 @@ plugin; ported from the former private `erxes-agent` service). It provides:
   sub-database via the shared mongoose `connectorHandler`; installs the
   MongoDB 4.4 workflow-snapshot codec; `Mastra({ logger:false, workers:false,
   pubsub })`.
+- DurableAgent explicitly persists all workflow statuses. Reconnect and
+  concurrent-turn guards require stored running snapshots; Mastra's default skips
+  them with automatic crash recovery off. Terminal snapshots prevent completed
+  runs appearing active. Browser stream cancellation detaches observation and
+  never aborts backend execution. Automatic crash replay remains off.
 - `pubsub.ts` — process-wide `RedisStreamsPubSub` (key prefix `core-agents`,
   `REDIS_HOST`/`REDIS_PORT`/`REDIS_PASSWORD`) for cross-replica `observe`
   replay.

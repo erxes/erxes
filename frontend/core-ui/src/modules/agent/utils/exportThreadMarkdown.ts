@@ -1,3 +1,8 @@
+import {
+  buildAgentReferenceScopes,
+  referenceIdentity,
+  type IAgentReferenceRegistry,
+} from '../references/referenceRegistry';
 import type { TextUIPart, UIMessage } from 'ai';
 
 import {
@@ -23,13 +28,21 @@ export interface IBuildThreadMarkdownArgs {
  * `maskAgentReferences` masks only outside code regions, so tokens inside
  * code spans and fences stay literal.
  */
-const referencesToLabels = (text: string): string => {
-  const { text: masked, references } = maskAgentReferences(text);
-
-  return masked.replace(
-    AGENT_REFERENCE_PLACEHOLDER_PATTERN,
-    (match, index) => references[Number(index)]?.label ?? match,
+const referencesToLabels = (
+  text: string,
+  registry: IAgentReferenceRegistry,
+): string => {
+  const { text: masked, references } = maskAgentReferences(text, (handle) =>
+    registry.byHandle.get(handle),
   );
+
+  return masked.replace(AGENT_REFERENCE_PLACEHOLDER_PATTERN, (match, index) => {
+    const reference = references[Number(index)];
+    return reference
+      ? registry.byIdentity.get(referenceIdentity(reference))?.label ??
+          reference.label
+      : match;
+  });
 };
 
 /**
@@ -50,7 +63,8 @@ export const buildThreadMarkdown = ({
     '',
   ];
 
-  for (const message of messages) {
+  const scopes = buildAgentReferenceScopes(messages);
+  for (const [index, message] of messages.entries()) {
     if (message.role === 'user') {
       if (isAgentsAnswerTurn(message)) {
         continue;
@@ -64,7 +78,7 @@ export const buildThreadMarkdown = ({
         .trim();
 
       if (text) {
-        lines.push('## You', '', referencesToLabels(text), '');
+        lines.push('## You', '', referencesToLabels(text, scopes[index]), '');
       }
 
       continue;
@@ -74,7 +88,12 @@ export const buildThreadMarkdown = ({
       const text = getMessageText(message).trim();
 
       if (text) {
-        lines.push('## AI Agent', '', referencesToLabels(text), '');
+        lines.push(
+          '## AI Agent',
+          '',
+          referencesToLabels(text, scopes[index]),
+          '',
+        );
       }
     }
   }

@@ -268,3 +268,35 @@ describe('extractAgentReferences', () => {
     expect(extractAgentReferences('customer', [])).toEqual([]);
   });
 });
+
+it('issues opaque handles and persists canonical reference metadata with native tool results', async () => {
+  const { issueAgentReferences } = await import('@/agents/references');
+  const issued = issueAgentReferences(['[[customer:c1:Jane]]']);
+  expect(issued.references[0]).toMatch(/^\[\[ref:[a-f0-9-]{36}\]\]$/);
+  expect(issued.referenceManifest.items[0]).toMatchObject({
+    type: 'customer',
+    id: 'c1',
+    label: 'Jane',
+  });
+  const { convertMessages } = await import('@mastra/core/agent/message-list');
+  const stored = convertMessages([
+    {
+      id: 'result',
+      role: 'assistant' as const,
+      parts: [
+        {
+          type: 'dynamic-tool' as const,
+          toolName: 'callGraphql',
+          toolCallId: 'call',
+          state: 'output-available' as const,
+          input: {},
+          output: { status: 'ok', ...issued },
+        },
+      ],
+    },
+  ]).to('Mastra.V2');
+  expect(JSON.stringify(stored)).toContain(
+    issued.referenceManifest.items[0].handle,
+  );
+  expect(JSON.stringify(stored)).toContain('referenceManifest');
+});

@@ -201,14 +201,28 @@ describe('artifact output allowance', () => {
 
 describe('base instructions', () => {
   it('uses HTML for every reply and preserves the record-token contract inside HTML', () => {
-    expect(DEFAULT_INSTRUCTIONS).toContain('every user-facing reply is rendered HTML');
-    expect(DEFAULT_INSTRUCTIONS).toContain('Write assistant text directly as semantic HTML');
-    expect(DEFAULT_INSTRUCTIONS).toContain('Tokens work in HTML text nodes in replies and HTML deliverables');
-    expect(DEFAULT_INSTRUCTIONS).toContain('scripts and external resources are not');
-    expect(DEFAULT_INSTRUCTIONS).toContain('Text formatting never creates a file or a download button');
-    expect(DEFAULT_INSTRUCTIONS).toContain('use createArtifact only to deliver an actual report');
+    expect(DEFAULT_INSTRUCTIONS).toContain(
+      'every user-facing reply is rendered HTML',
+    );
+    expect(DEFAULT_INSTRUCTIONS).toContain(
+      'Write assistant text directly as semantic HTML',
+    );
+    expect(DEFAULT_INSTRUCTIONS).toContain(
+      'Put tokens in HTML text nodes only',
+    );
+    expect(DEFAULT_INSTRUCTIONS).toContain(
+      'scripts and external resources are not',
+    );
+    expect(DEFAULT_INSTRUCTIONS).toContain(
+      'Text formatting never creates a file or a download button',
+    );
+    expect(DEFAULT_INSTRUCTIONS).toContain(
+      'use createArtifact only to deliver an actual report',
+    );
     expect(DEFAULT_INSTRUCTIONS).not.toContain('html artifact <title>');
-    expect(DEFAULT_INSTRUCTIONS).not.toContain('tokens work only in plain prose');
+    expect(DEFAULT_INSTRUCTIONS).not.toContain(
+      'tokens work only in plain prose',
+    );
   });
   it('contains the lookup discipline and reference-link rules', () => {
     expect(DEFAULT_INSTRUCTIONS).toContain(
@@ -219,7 +233,7 @@ describe('base instructions', () => {
     );
     expect(DEFAULT_INSTRUCTIONS).toContain('check for duplicates');
     expect(DEFAULT_INSTRUCTIONS).toContain(
-      'Never write URLs or markdown links to workspace pages',
+      'never write or alter a record id, label, URL',
     );
   });
 
@@ -231,7 +245,7 @@ describe('base instructions', () => {
       'never list tools, tool ids, API names or permission names',
     );
     expect(DEFAULT_INSTRUCTIONS).toContain(
-      'Page tokens returned by findPages work the same way.',
+      'The application owns the displayed name and destination;',
     );
   });
 });

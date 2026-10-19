@@ -129,7 +129,10 @@ The `agent` module is the core-ui surface for the core-api `agents` backend
   bounded re-read), `startNewConversation`, `submitAnswer` (ask_user
   resume), `sendMessage`, `retryLastTurn` (`regenerate`),
   `setPageContext`. The selected-thread namespace defaults to `panel`;
-  active runs remain keyed by thread. The legacy `page` storage namespace is
+  active runs remain keyed by thread. Switching sessions awaits SDK stream
+  detachment before clearing the shared transcript, preserves the previous run id,
+  and reattaches through the backend when that thread is reopened. Detachment is
+  not a backend cancellation command. The legacy `page` storage namespace is
   retained in the hook's type only for compatibility, with no page UI.
 - Attachments: up to 5 files/turn via platform `/upload-file`
   (`agentsFiles.ts` limits, `uploadAgentsFile.ts`), chips in the composer,
@@ -163,21 +166,25 @@ The `agent` module is the core-ui surface for the core-api `agents` backend
 
 ## References
 
-`references/parseAgentReferences.ts` parses `[[<type>:<id>:<label>]]`
-tokens the model copies from `callGraphql` `references` — unknown type,
-malformed id (`[A-Za-z0-9_-]{1,64}`), bracket/newline in label, or an
-unclosed mid-stream token stays literal text.
-`references/agentReferenceTargets.ts` maps the ten types to record pages
-(same paths as `CORE_RESULT_PATHS`), icons, permission modules, and
-plugin availability (`sales_ui`/`frontline_ui` in `pluginsConfigState`).
-`AgentReferenceChip` renders chips inside HTML reply text (never code/pre/a,
-attributes, styles or SVG); unresolvable targets render as plain pills.
-Reference navigation preserves the open Assistant panel and its selected thread.
-`utils/pageContext.ts` strips a persisted leading `[Page context] …`
-text part from user bubbles; it is not rendered in the transcript.
-`references/getPageRecordFromLocation.ts` is the reverse lookup powering
-the side-panel composer: `{ path: pathname, record? }` rides the next
-normal send's `pageContext` (dismissible chip hides `record` only).
+`referenceRegistry.ts` derives per-message evidence only from successful native
+`callGraphql`, `findPages`, or `execute_typescript` manifests in that message or
+preceding history. Prose, user content, tool inputs, artifact content and nested
+sandbox results never authorize links. Unknown handles show “Reference unavailable”;
+unverified legacy tokens remain plain text. Scoped registries survive native
+Mastra history mapping. HTML/Markdown renderers bind opaque handles only in text
+nodes; code and attributes never become controls. Copy/export use canonical
+labels outside code. Model-authored workspace anchors remain plain text.
+
+`AgentReferenceChip` uses the registry's type/id/name. Record clicks call the
+fixed `/agents/references/resolve` endpoint and navigate only after the current
+record identity and location validate. Missing/deleted/denied records never
+navigate. Deals require verified board/pipeline metadata, without fallback routes.
+Pages require exact membership in the current navigation catalog. Registered
+route builders own destinations and preserve the Assistant panel. Async resolution
+cannot navigate after the chip unmounts or changes identity.
+
+`utils/pageContext.ts` strips persisted `[Page context]` from user bubbles.
+`references/getPageRecordFromLocation.ts` supplies the next send's page context.
 
 ## Work steps
 
@@ -217,8 +224,8 @@ turn. A single-step card names the action.
 - Permission gates mirror the backend: rail/panel need `agentsChat`,
   thread list needs `showAgents`, settings toggle needs
   `manageAgentsSettings`.
-- Never render a `[[token]]` the model produced differently — chips copy
-  the raw token; parsing never repairs or invents ids.
+- Clickable references require native tool evidence; canonical metadata and
+  registered routes own their labels/targets. Never repair or invent ids.
 
 ## Validation
 

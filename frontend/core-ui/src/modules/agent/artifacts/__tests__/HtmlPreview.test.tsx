@@ -1,3 +1,5 @@
+import { AgentReferenceScope } from '../../references/AgentReferenceScope';
+import { createAgentReferenceRegistry } from '../../references/referenceRegistry';
 /** @jest-environment jsdom */
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { HtmlPreview } from '../HtmlPreview';
@@ -61,10 +63,16 @@ it('renders styled HTML in a script-disabled frame, sizes to the response, and u
 
 it('renders real record controls in the frame and opens external links safely without frame navigation', async () => {
   render(
-    <HtmlPreview
-      html='<p>Open [[customer:c1:Acme]]</p><a href="https://example.com">Website</a><a href="/settings">Internal URL</a>'
-      references
-    />,
+    <AgentReferenceScope.Provider
+      value={createAgentReferenceRegistry([
+        { type: 'customer', id: 'c1', label: 'Acme' },
+      ])}
+    >
+      <HtmlPreview
+        html='<p>Open [[customer:c1:Acme]]</p><a href="https://example.com">Website</a><a href="/settings">Internal URL</a>'
+        references
+      />
+    </AgentReferenceScope.Provider>,
   );
   const frame = screen.getByTitle('HTML artifact preview') as HTMLIFrameElement;
   fireEvent.load(frame);
@@ -81,7 +89,8 @@ it('renders real record controls in the frame and opens external links safely wi
     '_blank',
     'noopener,noreferrer',
   );
-  fireEvent.click(document.querySelectorAll('a')[1]);
+  expect(document.querySelectorAll('a')).toHaveLength(1);
+  expect(document.body.textContent).toContain('Internal URL');
   expect(mockOpen).toHaveBeenCalledTimes(1);
   await act(async () => {
     await Promise.resolve();

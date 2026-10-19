@@ -1,3 +1,4 @@
+import { useAgentReferenceRegistry } from '../references/AgentReferenceScope';
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
@@ -20,11 +21,12 @@ export const HtmlPreview = ({
   title?: string;
   references?: boolean;
 }) => {
+  const registry = useAgentReferenceRegistry();
   const frame = useRef<HTMLIFrameElement>(null);
   const cleanup = useRef<(() => void) | null>(null);
   const refresh = useRef<(() => void) | null>(null);
-  const latest = useRef({ html, references });
-  latest.current = { html, references };
+  const latest = useRef({ html, references, registry });
+  latest.current = { html, references, registry };
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [height, setHeight] = useState(48);
   const [mounts, setMounts] = useState<IHtmlReferenceMount[]>([]);
@@ -37,7 +39,7 @@ export const HtmlPreview = ({
         timer.current = null;
         refresh.current?.();
       }, 120);
-  }, [html, references]);
+  }, [html, references, registry]);
   useEffect(
     () => () => {
       if (timer.current) clearTimeout(timer.current);
@@ -82,6 +84,23 @@ export const HtmlPreview = ({
         'text/html',
       );
       document.head.innerHTML = parsed.head.innerHTML;
+      // Workspace destinations can only come from verified reference metadata.
+      for (const anchor of Array.from(
+        parsed.body.querySelectorAll('a[href]'),
+      )) {
+        const href = anchor.getAttribute('href');
+        let allowed = false;
+        try {
+          const url = new URL(href ?? '', window.location.origin);
+          allowed =
+            url.protocol === 'mailto:' ||
+            ((url.protocol === 'https:' || url.protocol === 'http:') &&
+              url.origin !== window.location.origin);
+        } catch {
+          /* Unknown destinations remain plain text. */
+        }
+        if (!allowed) anchor.replaceWith(...Array.from(anchor.childNodes));
+      }
       document.body.innerHTML = parsed.body.innerHTML;
       // Full documents may style the root/body as well as their content.
       for (const [target, source] of [
@@ -96,7 +115,11 @@ export const HtmlPreview = ({
       }
       applyHtmlThemePolicy(document);
       syncTheme();
-      setMounts(latest.current.references ? mountHtmlReferences(document) : []);
+      setMounts(
+        latest.current.references
+          ? mountHtmlReferences(document, latest.current.registry)
+          : [],
+      );
       measure();
     };
     refresh.current();
@@ -123,7 +146,11 @@ export const HtmlPreview = ({
       if (!anchor) return;
       event.preventDefault();
       const href = anchor.getAttribute('href');
-      if (href && /^(https?:|mailto:)/i.test(href)) {
+      if (
+        href &&
+        /^(https?:|mailto:)/i.test(href) &&
+        new URL(href, window.location.origin).origin !== window.location.origin
+      ) {
         window.open(href, '_blank', 'noopener,noreferrer');
       }
     };

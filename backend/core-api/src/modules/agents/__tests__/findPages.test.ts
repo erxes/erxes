@@ -1,7 +1,4 @@
-import {
-  buildFindPagesTool,
-  rankNavigationEntries,
-} from '@/agents/findPages';
+import { buildFindPagesTool, rankNavigationEntries } from '@/agents/findPages';
 import type { IAgentsNavigationEntry } from '@/agents/requestContext';
 
 // Mastra's `createTool` wraps the user-provided execute with validation and a
@@ -36,8 +33,7 @@ const runTool = async (
     { query },
     {
       requestContext: {
-        get: (key: string) =>
-          key === 'navigation' ? navigation : undefined,
+        get: (key: string) => (key === 'navigation' ? navigation : undefined),
       },
     },
   );
@@ -108,7 +104,7 @@ describe('findPages tool', () => {
     expect(first.label).toBe('Customers');
     expect(first.group).toBe('Contacts');
     expect(first.path).toBe('/contacts/customers');
-    expect(first.reference).toMatch(/^\[\[page:[A-Za-z0-9_-]{1,64}:Customers\]\]$/);
+    expect(first.reference).toMatch(/^\[\[ref:[a-f0-9-]{36}\]\]$/);
   });
 
   it('caps results at 8', async () => {

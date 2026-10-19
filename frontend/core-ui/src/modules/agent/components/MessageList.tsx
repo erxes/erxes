@@ -1,3 +1,8 @@
+import {
+  AgentReferenceProvider,
+  useAgentReferenceRegistry,
+} from '../references/AgentReferenceScope';
+import { buildAgentReferenceScopes } from '../references/referenceRegistry';
 import { isTextUIPart, isToolUIPart, type UIMessage } from 'ai';
 import { Button, ScrollArea, Skeleton, Tooltip, cn } from 'erxes-ui';
 import {
@@ -183,6 +188,7 @@ const MessageRow = memo(
     onEditMessage,
   }: IMessageRowProps) => {
     const { t } = useTranslation('common', { keyPrefix: 'agent' });
+    const referenceRegistry = useAgentReferenceRegistry();
     const [copied, setCopied] = useState(false);
 
     const copyText = () => {
@@ -197,7 +203,9 @@ const MessageRow = memo(
 
       void navigator.clipboard
         ?.writeText(
-          message.role === 'assistant' ? getReplyCopyText(text) : text,
+          message.role === 'assistant'
+            ? getReplyCopyText(text, referenceRegistry)
+            : text,
         )
         .then(() => {
           setCopied(true);
@@ -563,28 +571,39 @@ export const MessageList = ({
     inFlight && lastRow?.message.role === 'assistant' ? lastRow.key : null;
   const showPendingResponse = inFlight && activeResponseRow === null;
 
+  const referenceScopes = useMemo(
+    () => buildAgentReferenceScopes(messages),
+    [messages],
+  );
+
   const transcript = useMemo(
     () =>
       rows.map((row) => (
-        <MessageRow
+        <AgentReferenceProvider
           key={row.key}
-          message={row.message}
-          previousMessage={row.previousMessage}
-          isStreamingTail={row.key === activeResponseRow}
-          isLastAssistant={row.lastIndex === lastAssistantIndex}
-          onRetryTurn={onRetryTurn}
-          approvalBusy={approvalBusy}
-          onApprovalRespond={onApprovalRespond}
-          answerBusy={answerBusy}
-          onAnswer={onAnswer}
-          editing={row.message.id === editingMessageId}
-          editingDisabled={editingDisabled}
-          onEditingChange={setEditingMessageId}
-          onEditMessage={handleEditMessage}
-        />
+          registry={referenceScopes[row.lastIndex]}
+        >
+          <MessageRow
+            key={row.key}
+            message={row.message}
+            previousMessage={row.previousMessage}
+            isStreamingTail={row.key === activeResponseRow}
+            isLastAssistant={row.lastIndex === lastAssistantIndex}
+            onRetryTurn={onRetryTurn}
+            approvalBusy={approvalBusy}
+            onApprovalRespond={onApprovalRespond}
+            answerBusy={answerBusy}
+            onAnswer={onAnswer}
+            editing={row.message.id === editingMessageId}
+            editingDisabled={editingDisabled}
+            onEditingChange={setEditingMessageId}
+            onEditMessage={handleEditMessage}
+          />
+        </AgentReferenceProvider>
       )),
     [
       rows,
+      referenceScopes,
       lastAssistantIndex,
       activeResponseRow,
       onRetryTurn,

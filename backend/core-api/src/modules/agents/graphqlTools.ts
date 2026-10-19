@@ -1,3 +1,4 @@
+import { issueAgentReferences } from './references';
 import { extractGraphqlReferences } from './graphqlReferences';
 import { z } from 'zod';
 import type { Tool } from '@mastra/core/tools' with {
@@ -146,7 +147,7 @@ const stubRootTypeDefs = (sdls: string[]): string[] => {
     .map((name) => `type ${name} { ${STUB_ROOT_FIELD}: Boolean }`);
 };
 
-const loadMergedSchema = async (): Promise<GraphQLSchema | null> => {
+export const loadMergedSchema = async (): Promise<GraphQLSchema | null> => {
   const now = Date.now();
 
   if (schemaCache && now - schemaCache.fetchedAt < SCHEMA_CACHE_TTL_MS) {
@@ -584,12 +585,12 @@ export const buildGraphqlTools = async (): Promise<{
 
             const schema = schemaCache?.schema;
             const references = schema
-              ? extractGraphqlReferences(schema, parseAgentGraphqlOperation(query, operationName).document, data)
+              ? extractGraphqlReferences(schema, parseAgentGraphqlOperation(query, operationName).document, data, operationName)
               : [];
             return {
               status: 'ok',
               data,
-              ...(references.length ? { references } : {}),
+              ...(references.length ? issueAgentReferences(references) : {}),
               ...(errors.length ? { errors } : {}),
             };
           }

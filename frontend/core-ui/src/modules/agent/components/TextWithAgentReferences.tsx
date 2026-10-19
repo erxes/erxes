@@ -1,3 +1,5 @@
+import { useAgentReferenceRegistry } from '../references/AgentReferenceScope';
+import { bindAgentReferenceHandles } from '../references/referenceRegistry';
 import { Children, type ReactNode } from 'react';
 
 import { AgentReferenceChip } from './AgentReferenceChip';
@@ -12,10 +14,12 @@ import { AGENT_REFERENCE_PLACEHOLDER_PATTERN } from '../references/maskAgentRefe
  * goes through `withMaskedReferences` instead.
  */
 export const TextWithAgentReferences = ({ text }: { text: string }) => {
-  const segments = parseAgentReferences(text);
+  const registry = useAgentReferenceRegistry();
+  const bound = bindAgentReferenceHandles(text, registry);
+  const segments = parseAgentReferences(bound);
 
   if (segments.length === 1 && segments[0].kind === 'text') {
-    return <>{text}</>;
+    return <>{bound}</>;
   }
 
   return (

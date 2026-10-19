@@ -1,4 +1,8 @@
 import {
+  agentsReferenceLookupSchema,
+  resolveAgentsReference,
+} from '@/agents/referenceResolution';
+import {
   collectAgentsPageSelections,
   AgentsPageSelectionError,
 } from '@/agents/pageSelections';
@@ -554,6 +558,39 @@ const buildResumeOptions = ({
 });
 
 export const router: Router = Router();
+
+/** Read the current record through the acting user's normal GraphQL permissions. */
+router.post('/agents/references/resolve', async (req, res) => {
+  const identity = getIdentity(req);
+  if (!identity) {
+    jsonError(res, 401, new Error('Unauthorized'));
+    return;
+  }
+  const parsed = agentsReferenceLookupSchema.safeParse(req.body);
+  if (!parsed.success) {
+    jsonError(res, 400, new Error('Invalid record reference.'));
+    return;
+  }
+  try {
+    await checkPermissionGroup(identity.subdomain, identity.user)('agentsChat');
+    const reference = await resolveAgentsReference(identity, parsed.data);
+    if (!reference) {
+      jsonError(
+        res,
+        404,
+        new Error('This record is unavailable or you no longer have access.'),
+      );
+      return;
+    }
+    res.json({ reference });
+  } catch {
+    jsonError(
+      res,
+      404,
+      new Error('This record is unavailable or you no longer have access.'),
+    );
+  }
+});
 
 router.post('/agents/chat', async (req, res) => {
   const identity = getIdentity(req);

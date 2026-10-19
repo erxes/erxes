@@ -1,3 +1,5 @@
+import { useAgentReferenceRegistry } from '../references/AgentReferenceScope';
+import { referenceNamesForHtmlExport } from '../references/referenceRegistry';
 import {
   IconCheck,
   IconCode,
@@ -37,6 +39,7 @@ interface IArtifactCardProps {
 }
 
 export const ArtifactCard = ({ artifact }: IArtifactCardProps) => {
+  const referenceRegistry = useAgentReferenceRegistry();
   const [copied, setCopied] = useState(false);
   const [copyFailed, setCopyFailed] = useState(false);
   const [showSource, setShowSource] = useState(false);
@@ -104,7 +107,10 @@ export const ArtifactCard = ({ artifact }: IArtifactCardProps) => {
     try {
       if (artifact.type === 'html') {
         downloadBlob(
-          new Blob([artifact.content], { type: 'text/html;charset=utf-8' }),
+          new Blob(
+            [referenceNamesForHtmlExport(artifact.content, referenceRegistry)],
+            { type: 'text/html;charset=utf-8' },
+          ),
           artifact.filename,
         );
       } else if (artifact.type === 'xlsx') {

@@ -20,13 +20,23 @@ describe('agentReferenceTargets', () => {
       ['department', '/settings/structures/departments?department_id=x1'],
       ['unit', '/settings/structures/units?unit_id=x1'],
       ['brand', '/settings/brands?brand_id=x1'],
-      ['deal', '/sales/deals?salesItemId=x1'],
       ['conversation', '/frontline/inbox?conversationId=x1'],
     ];
 
     for (const [type, expected] of cases) {
       expect(AGENT_REFERENCE_TARGETS[type].path('x1')).toBe(expected);
     }
+  });
+
+  it('requires verified location metadata for a deal and never guesses a page path', () => {
+    expect(AGENT_REFERENCE_TARGETS.deal.path('d1')).toBeNull();
+    expect(AGENT_REFERENCE_TARGETS.page.path('anything')).toBeNull();
+    expect(
+      AGENT_REFERENCE_TARGETS.deal.path('d1', {
+        boardId: 'b1',
+        pipelineId: 'p1',
+      }),
+    ).toBe('/sales/deals?boardId=b1&pipelineId=p1&salesItemId=d1');
   });
 
   it('marks plugin-backed targets', () => {
@@ -75,62 +85,6 @@ describe('getPageRecordFromLocation', () => {
     expect(
       getPageRecordFromLocation('/sales/deals', '?other=1'),
     ).toBeUndefined();
-  });
-});
-
-describe('deal.resolvePath', () => {
-  const queryMock = (data: unknown) =>
-    ({ query: jest.fn(async () => ({ data })) } as unknown as Parameters<
-      NonNullable<(typeof AGENT_REFERENCE_TARGETS)['deal']['resolvePath']>
-    >[1]);
-
-  it('navigates with board + pipeline when the query resolves', async () => {
-    const resolve = AGENT_REFERENCE_TARGETS.deal.resolvePath;
-    expect(resolve).toBeDefined();
-    const path = await resolve?.(
-      'deal-1',
-      queryMock({
-        dealDetail: {
-          _id: 'deal-1',
-          boardId: 'board-1',
-          pipeline: { _id: 'pipe-1', boardId: 'board-1' },
-        },
-      }),
-    );
-    expect(path).toBe(
-      '/sales/deals?boardId=board-1&pipelineId=pipe-1&salesItemId=deal-1',
-    );
-  });
-
-  it('falls back to pipeline.boardId when the deal has none', async () => {
-    const path = await AGENT_REFERENCE_TARGETS.deal.resolvePath?.(
-      'deal-1',
-      queryMock({
-        dealDetail: {
-          _id: 'deal-1',
-          boardId: null,
-          pipeline: { _id: 'pipe-1', boardId: 'board-9' },
-        },
-      }),
-    );
-    expect(path).toBe(
-      '/sales/deals?boardId=board-9&pipelineId=pipe-1&salesItemId=deal-1',
-    );
-  });
-
-  it('returns null when board or pipeline is missing', async () => {
-    for (const data of [
-      { dealDetail: null },
-      { dealDetail: { _id: 'd', boardId: 'b', pipeline: null } },
-      { dealDetail: { _id: 'd', boardId: null, pipeline: { _id: 'p' } } },
-    ]) {
-      expect(
-        await AGENT_REFERENCE_TARGETS.deal.resolvePath?.(
-          'deal-1',
-          queryMock(data),
-        ),
-      ).toBeNull();
-    }
   });
 });
 

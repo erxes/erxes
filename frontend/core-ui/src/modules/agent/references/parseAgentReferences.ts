@@ -33,6 +33,8 @@ export interface IAgentReference {
   type: TAgentReferenceType;
   id: string;
   label: string;
+  /** Canonical tool metadata for registered page destinations. */
+  path?: string;
 }
 
 export type TAgentReferenceSegment =
@@ -71,7 +73,8 @@ export const parseAgentReferences = (
       firstColon === -1 ? -1 : token.indexOf(':', firstColon + 1);
 
     const type = firstColon === -1 ? '' : token.slice(0, firstColon);
-    const id = secondColon === -1 ? '' : token.slice(firstColon + 1, secondColon);
+    const id =
+      secondColon === -1 ? '' : token.slice(firstColon + 1, secondColon);
     const label = secondColon === -1 ? '' : token.slice(secondColon + 1);
 
     if (

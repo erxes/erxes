@@ -152,6 +152,11 @@ const createAgentsRuntime = async (subdomain: string): Promise<IAgentsRuntime> =
   const durableAgent = createDurableAgent({
     agent: baseAgent,
     maxSteps: AGENTS_MAX_STEPS,
+    // Reconnect and concurrent-turn guards discover runs through workflow
+    // storage. Mastra's default skips running snapshots with recovery off,
+    // making an executing run invisible after the browser changes sessions.
+    // Persist terminal states too so a finished run never remains "running".
+    shouldPersistSnapshot: () => true,
     // Keep a short terminal replay window, then delete both Redis topics.
     // The bus's atomic idle TTL also bounds leftovers after crashes/errors.
     cleanupTimeoutMs: 30_000,

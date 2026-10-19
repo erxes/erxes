@@ -13,13 +13,16 @@ jest.mock('@apollo/client', () => ({
   ...jest.requireActual('@apollo/client'),
   useLazyQuery: jest.fn(),
 }));
+let mockSetActiveRunId: (runId: string | undefined) => void;
 let mockOnChatResponse: (accepted: boolean, messageId: string) => void;
 jest.mock('../transport', () => ({
   AgentsChatTransport: class {
     constructor(options: {
       onChatResponse: (accepted: boolean, messageId: string) => void;
+      onActiveRunId: (runId: string | undefined) => void;
     }) {
       mockOnChatResponse = options.onChatResponse;
+      mockSetActiveRunId = options.onActiveRunId;
     }
   },
 }));
@@ -248,4 +251,50 @@ it('retains typed page selections when editing a question', () => {
     }),
     expect.anything(),
   );
+});
+
+it('detaches the old stream without forgetting its durable run, then reattaches when reopened', async () => {
+  const resume = jest.fn(async () => undefined);
+  (useChat as jest.Mock).mockReturnValue({
+    messages: [],
+    status: 'ready',
+    sendMessage: noop,
+    setMessages,
+    clearError: noop,
+    stop,
+    addToolApprovalResponse: noop,
+    resumeStream: resume,
+    regenerate: noop,
+  });
+  load.mockResolvedValue(detail('old'));
+  const { result } = renderHook(() => useAgentsChat());
+  await act(async () => result.current.openThread('old'));
+  act(() => mockSetActiveRunId('durable-old-run'));
+  const ending = deferred();
+  stop.mockImplementationOnce(() => ending.promise as Promise<void>);
+  let switching!: Promise<void>;
+  await act(async () => {
+    switching = result.current.startNewConversation();
+  });
+  expect(result.current.threadId).toBe('old');
+  await act(async () => {
+    const options = (useChat as jest.Mock).mock.calls.at(-1)?.[0] as {
+      onFinish: (input: unknown) => void;
+    };
+    options.onFinish({
+      message: { parts: [] },
+      isAbort: true,
+      isDisconnect: false,
+    });
+    ending.resolve(undefined);
+    await switching;
+  });
+  expect(sessionStorage.getItem('agents-active-run:old')).toBe(
+    'durable-old-run',
+  );
+  expect(result.current.threadId).toBeUndefined();
+  expect(setMessages).toHaveBeenLastCalledWith([]);
+  await act(async () => result.current.openThread('old'));
+  expect(resume).toHaveBeenCalledTimes(1);
+  expect(result.current.canReconnect).toBe(true);
 });

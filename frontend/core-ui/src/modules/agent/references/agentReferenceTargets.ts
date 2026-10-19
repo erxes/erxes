@@ -12,13 +12,7 @@ import {
   type Icon,
 } from '@tabler/icons-react';
 
-import type { ApolloClient } from '@apollo/client';
-
-import { AGENTS_DEAL_REFERENCE_TARGET } from '../graphql/references';
-import {
-  AGENT_REFERENCE_ID_RE,
-  type TAgentReferenceType,
-} from './parseAgentReferences';
+import { type TAgentReferenceType } from './parseAgentReferences';
 
 /**
  * Where a record reference points: the record page path, its icon, the
@@ -46,17 +40,10 @@ export interface IAgentReferenceTarget {
    * exist. Core pages need none; `sales`/`frontline` come from plugins.
    */
   pluginRemote?: 'sales_ui' | 'frontline_ui';
-  path: (id: string) => string;
-  /**
-   * Optional async upgrade of `path(id)` — used when the record's URL
-   * needs parameters only the server knows (a deal's board/pipeline).
-   * Receives the RAW reference id and the Apollo client; returning null
-   * or throwing makes the chip fall back to `path(id)`.
-   */
-  resolvePath?: (
+  path: (
     id: string,
-    client: ApolloClient<object>,
-  ) => Promise<string | null>;
+    location?: { boardId: string; pipelineId: string },
+  ) => string | null;
 }
 
 export const AGENT_REFERENCE_TARGETS: Record<
@@ -125,34 +112,14 @@ export const AGENT_REFERENCE_TARGETS: Record<
     labelKey: 'deal',
     permissionModule: 'deal',
     pluginRemote: 'sales_ui',
-    path: (id) => `/sales/deals?salesItemId=${id}`,
-    /**
-     * The sales board page appends its default board/pipeline when the
-     * link carries only `salesItemId` — opening the deal on the wrong
-     * (usually empty) pipeline. Resolve them the same way the sales
-     * search provider does: `boardId` first, `pipeline.boardId` as the
-     * fallback, `pipeline._id` as the pipeline param.
-     */
-    resolvePath: async (id, client) => {
-      const { data } = await client.query<{
-        dealDetail?: {
-          boardId?: string | null;
-          pipeline?: { _id?: string | null; boardId?: string | null } | null;
-        } | null;
-      }>({
-        query: AGENTS_DEAL_REFERENCE_TARGET,
-        variables: { _id: id },
-        fetchPolicy: 'cache-first',
-      });
-
-      const deal = data?.dealDetail;
-      const boardId = deal?.boardId ?? deal?.pipeline?.boardId;
-      const pipelineId = deal?.pipeline?._id;
-      if (!boardId || !pipelineId) return null;
-      return `/sales/deals?boardId=${boardId}&pipelineId=${pipelineId}&salesItemId=${encodeURIComponent(
-        id,
-      )}`;
-    },
+    path: (id, location) =>
+      location
+        ? `/sales/deals?${new URLSearchParams({
+            boardId: location.boardId,
+            pipelineId: location.pipelineId,
+            salesItemId: id,
+          }).toString()}`
+        : null,
   },
   conversation: {
     type: 'conversation',
@@ -171,46 +138,11 @@ export const AGENT_REFERENCE_TARGETS: Record<
      * itself and navigates only when the decoded path is a known catalog
      * page (never an invented one).
      */
-    path: () => '/',
+    path: () => null,
   },
 };
 
-/** Reject control characters in a decoded page path. */
-// eslint-disable-next-line no-control-regex
-const PAGE_PATH_BAD_CHAR_RE = /[\x00-\x1f\x7f]/;
-
-/**
- * Decodes a `[[page:<base64url>:<label>]]` token's id back into a client
- * path. Returns null on malformed input — the caller renders the plain
- * pill so a garbage token can never navigate anywhere.
- */
-export const decodeAgentPagePath = (encoded: string): string | null => {
-  if (!AGENT_REFERENCE_ID_RE.test(encoded)) return null;
-
-  try {
-    const base64 = encoded.replace(/-/g, '+').replace(/_/g, '/');
-    const binary = atob(base64);
-    // UTF-8 decode without TextDecoder: escape each byte, then URI-decode.
-    // Malformed byte sequences throw inside decodeURIComponent → null.
-    let escaped = '';
-    for (let i = 0; i < binary.length; i++) {
-      escaped += `%${binary.charCodeAt(i).toString(16).padStart(2, '0')}`;
-    }
-    const path = decodeURIComponent(escaped);
-
-    if (
-      !path.startsWith('/') ||
-      path.startsWith('//') ||
-      path.includes('\\') ||
-      PAGE_PATH_BAD_CHAR_RE.test(path)
-    ) {
-      return null;
-    }
-    return path;
-  } catch {
-    return null;
-  }
-};
+export { decodeAgentPagePath } from './referencePagePath';
 
 /** Resolves whether a reference target is navigable for the current user. */
 export const getAgentReferenceTarget = (type: TAgentReferenceType) =>

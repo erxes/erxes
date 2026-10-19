@@ -1,3 +1,6 @@
+import { resolveAgentReference } from '../references/resolveAgentReference';
+import { useAgentReferenceRegistry } from '../references/AgentReferenceScope';
+import { referenceIdentity } from '../references/referenceRegistry';
 import { Tooltip, cn } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
 import {
@@ -6,10 +9,8 @@ import {
   SIDE_PANEL_QUERY_KEY,
   usePermissionCheck,
 } from 'ui-modules';
-import { getApolloContext } from '@apollo/client';
-import { useContext } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import {
   AGENT_REFERENCE_TARGETS,
@@ -34,7 +35,7 @@ export interface IAgentReferenceChipProps {
  * Keeps the Assistant side panel open while navigating to a record.
  */
 export const AgentReferenceChip = ({
-  reference,
+  reference: requestedReference,
   embedded = false,
 }: IAgentReferenceChipProps) => {
   const { t } = useTranslation('common', {
@@ -42,15 +43,36 @@ export const AgentReferenceChip = ({
   });
   const navigate = useNavigate();
   const { search } = useLocation();
-  // `resolvePath` targets (deal) need the client, but the chip must stay
-  // renderable without one — unlike `useApolloClient`, reading the context
-  // directly does not throw outside an ApolloProvider.
-  const client = useContext(getApolloContext()).client;
   const pluginsConfig = useAtomValue(pluginsConfigState);
   const { isLoaded, hasModulePermission } = usePermissionCheck();
-  const [resolving, setResolving] = useState(false);
+  const [resolution, setResolution] = useState<{
+    identity: string;
+    state: 'loading' | 'verified' | 'unavailable';
+    label?: string;
+  }>();
   const catalog = useAtomValue(agentNavigationCatalogState);
 
+  const registry = useAgentReferenceRegistry();
+  const canonical = registry.byIdentity.get(
+    referenceIdentity(requestedReference),
+  );
+  const reference = canonical ?? requestedReference;
+  const identity = referenceIdentity(reference);
+  const currentTarget = useRef(identity);
+  currentTarget.current = canonical ? identity : '';
+  const operation = useRef(0);
+  useEffect(
+    () => () => {
+      operation.current += 1;
+    },
+    [],
+  );
+  const resolving =
+    resolution?.identity === identity && resolution.state === 'loading';
+  const unavailable =
+    resolution?.identity === identity && resolution.state === 'unavailable';
+  const currentLabel =
+    resolution?.identity === identity ? resolution.label : undefined;
   const target = AGENT_REFERENCE_TARGETS[reference.type];
   const pluginReady =
     !target.pluginRemote || Boolean(pluginsConfig?.[target.pluginRemote]);
@@ -59,16 +81,27 @@ export const AgentReferenceChip = ({
     (!target.permissionModule || hasModulePermission(target.permissionModule));
 
   const pagePath =
-    reference.type === 'page' ? decodeAgentPagePath(reference.id) : null;
+    reference.type === 'page'
+      ? reference.path ?? decodeAgentPagePath(reference.id)
+      : null;
   const pageKnown = pagePath !== null && isKnownCatalogPage(catalog, pagePath);
 
   const clickable =
-    pluginReady && permitted && (reference.type !== 'page' || pageKnown);
+    Boolean(canonical) &&
+    pluginReady &&
+    permitted &&
+    (reference.type !== 'page' || pageKnown);
+  const displayLabel =
+    currentLabel ??
+    (reference.type === 'page'
+      ? catalog.find((page) => page.path === pagePath)?.label
+      : undefined) ??
+    reference.label;
   const typeLabel = t(target.labelKey, target.type);
   const Icon = target.icon;
 
   const handleClick = () => {
-    if (resolving) return;
+    if (resolving || !clickable) return;
 
     const navigateToTarget = (path: string) => {
       const panelOpen =
@@ -95,21 +128,24 @@ export const AgentReferenceChip = ({
       return;
     }
 
-    const fallback = () => target.path(encodeURIComponent(reference.id));
-
-    if (!target.resolvePath || !client) {
-      navigateToTarget(fallback());
-      return;
-    }
-
-    setResolving(true);
-    void target
-      .resolvePath(reference.id, client)
-      .catch(() => null)
-      .then((resolved) => {
-        navigateToTarget(resolved ?? fallback());
+    const request = ++operation.current;
+    setResolution({ identity, state: 'loading' });
+    void resolveAgentReference(reference)
+      .then((verified) => {
+        if (request !== operation.current || currentTarget.current !== identity)
+          return;
+        setResolution({ identity, state: 'verified', label: verified.label });
+        const path = target.path(
+          encodeURIComponent(verified.id),
+          verified.location,
+        );
+        if (!path) throw new Error('Missing record location');
+        navigateToTarget(path);
       })
-      .finally(() => setResolving(false));
+      .catch(() => {
+        if (request === operation.current && currentTarget.current === identity)
+          setResolution({ identity, state: 'unavailable' });
+      });
   };
 
   const chip = (
@@ -122,7 +158,10 @@ export const AgentReferenceChip = ({
       {reference.type !== 'page' && (
         <Icon className="size-3.5 shrink-0 text-muted-foreground" />
       )}
-      <span className="truncate">{reference.label}</span>
+      <span className="truncate">{displayLabel}</span>
+      {unavailable && (
+        <span className="text-[10px] text-muted-foreground">Unavailable</span>
+      )}
       {reference.type === 'page' && (
         <Icon className="size-3.5 shrink-0 text-muted-foreground" />
       )}
@@ -134,7 +173,7 @@ export const AgentReferenceChip = ({
       type="button"
       onClick={handleClick}
       className="inline-flex align-baseline"
-      aria-label={`${typeLabel}: ${reference.label}`}
+      aria-label={`${typeLabel}: ${displayLabel}`}
       aria-busy={resolving}
       disabled={resolving}
       title={embedded ? typeLabel : undefined}
@@ -145,6 +184,7 @@ export const AgentReferenceChip = ({
     chip
   );
 
+  if (!canonical) return <span>{requestedReference.label}</span>;
   if (embedded) return trigger;
 
   return (

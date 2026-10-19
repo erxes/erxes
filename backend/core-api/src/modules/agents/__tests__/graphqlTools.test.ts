@@ -397,7 +397,18 @@ describe('callGraphql', () => {
     expect(result).toEqual({
       status: 'ok',
       data: { customers: [{ _id: 'c1' }] },
-      references: ['[[customer:c1:c1]]'],
+      references: [expect.stringMatching(/^\[\[ref:[a-f0-9-]{36}\]\]$/)],
+      referenceManifest: {
+        version: 1,
+        items: [
+          expect.objectContaining({
+            handle: expect.any(String),
+            type: 'customer',
+            id: 'c1',
+            label: 'c1',
+          }),
+        ],
+      },
       errors: [
         {
           message: 'denied field',

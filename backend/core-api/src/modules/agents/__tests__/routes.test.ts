@@ -1,3 +1,4 @@
+import { resolveAgentsReference } from '@/agents/referenceResolution';
 /**
  * Route-level contract tests for the Agents HTTP surface.
  *
@@ -56,6 +57,10 @@ jest.mock('erxes-api-shared/core-modules', () => ({
 
 jest.mock('~/connectionResolvers', () => ({
   generateModels: jest.fn(),
+}));
+jest.mock('@/agents/referenceResolution', () => ({
+  ...jest.requireActual('@/agents/referenceResolution'),
+  resolveAgentsReference: jest.fn(),
 }));
 jest.mock('@/agents/agent', () => ({
   isAgentsThinkingLevel: (value: unknown) =>
@@ -2501,4 +2506,67 @@ it('rejects malformed page context before accessing storage or starting the mode
     { type: 'text', text: 'Explain' }, { type: 'data-agents-page-selections', data: { selections: [{ title: 'incomplete' }] } },
   ] }] } }), res);
   expect(res.statusCode).toBe(400); expect(streamMock).not.toHaveBeenCalled();
+});
+
+describe('POST /agents/references/resolve', () => {
+  const resolveHandler = getHandler('post', '/agents/references/resolve');
+  it('requires authentication and rejects model URLs or malformed identities', async () => {
+    const noAuth = buildRes();
+    await resolveHandler(
+      buildReq({ body: { type: 'customer', id: 'c1' } }),
+      noAuth,
+    );
+    expect(noAuth.statusCode).toBe(401);
+    const invalid = buildRes();
+    await resolveHandler(
+      buildReq({
+        user: ACTING_USER,
+        body: { type: 'customer', id: 'https://wrong.test' },
+      }),
+      invalid,
+    );
+    expect(invalid.statusCode).toBe(400);
+    expect(resolveAgentsReference).not.toHaveBeenCalled();
+  });
+  it('takes identity from the gateway and returns the current verified record', async () => {
+    jest
+      .mocked(resolveAgentsReference)
+      .mockResolvedValueOnce({
+        type: 'customer',
+        id: 'c1',
+        label: 'Current name',
+      });
+    const res = buildRes();
+    await resolveHandler(
+      buildReq({
+        user: ACTING_USER,
+        body: {
+          type: 'customer',
+          id: 'c1',
+          label: 'Spoofed',
+          userId: 'spoofed',
+        },
+      }),
+      res,
+    );
+    expect(res.body).toEqual({
+      reference: { type: 'customer', id: 'c1', label: 'Current name' },
+    });
+    expect(resolveAgentsReference).toHaveBeenCalledWith(
+      expect.objectContaining({ subdomain: 'tenant', userId: 'user-1' }),
+      { type: 'customer', id: 'c1' },
+    );
+  });
+  it('returns unavailable for a deleted or inaccessible record without a guessed path', async () => {
+    jest.mocked(resolveAgentsReference).mockResolvedValueOnce(undefined);
+    const res = buildRes();
+    await resolveHandler(
+      buildReq({ user: ACTING_USER, body: { type: 'customer', id: 'c1' } }),
+      res,
+    );
+    expect(res.statusCode).toBe(404);
+    expect(res.body).toEqual({
+      error: 'This record is unavailable or you no longer have access.',
+    });
+  });
 });

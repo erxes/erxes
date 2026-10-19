@@ -1,5 +1,8 @@
 import { z } from 'zod';
-import { AGENT_REFERENCE_ID_RE } from '@/agents/references';
+import {
+  issueAgentReferences,
+  AGENT_REFERENCE_ID_RE,
+} from '@/agents/references';
 import type { IAgentsNavigationEntry } from '@/agents/requestContext';
 
 /**
@@ -52,10 +55,7 @@ const entryTokens = (entry: IAgentsNavigationEntry): Set<string> =>
     ...tokenize(entry.path),
   ]);
 
-const scoreEntry = (
-  queryTokens: string[],
-  tokens: Set<string>,
-): number => {
+const scoreEntry = (queryTokens: string[], tokens: Set<string>): number => {
   let score = 0;
   for (const token of queryTokens) {
     if (tokens.has(token)) score += 1;
@@ -76,10 +76,14 @@ export const rankNavigationEntries = (
   if (queryTokens.length === 0) return [];
 
   return catalog
-    .map((entry) => ({ entry, score: scoreEntry(queryTokens, entryTokens(entry)) }))
+    .map((entry) => ({
+      entry,
+      score: scoreEntry(queryTokens, entryTokens(entry)),
+    }))
     .filter(({ score }) => score > 0)
     .sort(
-      (a, b) => b.score - a.score || a.entry.label.length - b.entry.label.length,
+      (a, b) =>
+        b.score - a.score || a.entry.label.length - b.entry.label.length,
     )
     .map(({ entry }) => ({
       label: entry.label,
@@ -113,9 +117,9 @@ export const buildFindPagesTool = async () => {
         .describe('What the user is trying to find or open'),
     }),
     execute: async ({ query }, context) => {
-      const navigation = (context?.requestContext as
-        | { get?(key: string): unknown }
-        | undefined)?.get?.('navigation');
+      const navigation = (
+        context?.requestContext as { get?(key: string): unknown } | undefined
+      )?.get?.('navigation');
 
       if (!Array.isArray(navigation) || navigation.length === 0) {
         return { pages: [], note: 'Page list unavailable for this client' };
@@ -126,7 +130,14 @@ export const buildFindPagesTool = async () => {
         navigation as IAgentsNavigationEntry[],
       );
 
-      return { pages };
+      const issued = issueAgentReferences(pages.map((page) => page.reference));
+      return {
+        pages: pages.map((page, index) => ({
+          ...page,
+          reference: issued.references[index],
+        })),
+        referenceManifest: issued.referenceManifest,
+      };
     },
   });
 };

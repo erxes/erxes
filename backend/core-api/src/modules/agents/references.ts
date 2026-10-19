@@ -1,3 +1,5 @@
+import { randomUUID } from 'crypto';
+
 /**
  * Clickable record references for the chat agent.
  *
@@ -213,4 +215,46 @@ export const extractAgentReferences = (
   }
 
   return tokens;
+};
+
+/** Native tool-result metadata, persisted by Mastra with the result. The model
+ * receives the token to copy; only this manifest can authorize a clickable chip. */
+export interface IAgentsIssuedReference {
+  handle: string;
+  type: IAgentReferenceType | 'page';
+  id: string;
+  label: string;
+  path?: string;
+}
+export const issueAgentReferences = (
+  tokens: string[],
+): {
+  references: string[];
+  referenceManifest: { version: 1; items: IAgentsIssuedReference[] };
+} => {
+  const items: IAgentsIssuedReference[] = [];
+  for (const token of tokens.slice(0, MAX_REFERENCES)) {
+    const match =
+      /^\[\[([a-z]+):([A-Za-z0-9_-]{1,64}):([^[\]\r\n]+)\]\]$/.exec(token);
+    if (!match || (!isAgentReferenceType(match[1]) && match[1] !== 'page'))
+      continue;
+    const type = match[1] as IAgentsIssuedReference['type'];
+    let path: string | undefined;
+    if (type === 'page') {
+      path = Buffer.from(match[2], 'base64url').toString('utf8');
+      if (!path.startsWith('/') || path.startsWith('//') || path.includes('\\'))
+        continue;
+    }
+    items.push({
+      handle: randomUUID(),
+      type,
+      id: match[2],
+      label: sanitizeLabel(match[3]),
+      ...(path ? { path } : {}),
+    });
+  }
+  return {
+    references: items.map((item) => `[[ref:${item.handle}]]`),
+    referenceManifest: { version: 1, items },
+  };
 };

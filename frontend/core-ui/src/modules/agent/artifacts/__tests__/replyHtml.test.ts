@@ -1,3 +1,4 @@
+import { createAgentReferenceRegistry } from '../../references/referenceRegistry';
 /** @jest-environment jsdom */
 import { replyToHtml } from '../replyHtml';
 import { buildSandboxedSrcDoc } from '../htmlSandbox';
@@ -27,7 +28,12 @@ it('preserves reference labels through legacy parsing and never turns tokens in 
     ),
     'text/html',
   );
-  const mounts = mountHtmlReferences(doc);
+  const mounts = mountHtmlReferences(
+    doc,
+    createAgentReferenceRegistry([
+      { type: 'customer', id: 'c1', label: 'Acme_**Team**' },
+    ]),
+  );
   expect(mounts.map(({ reference }) => reference)).toEqual([
     { type: 'customer', id: 'c1', label: 'Acme_**Team**' },
   ]);
@@ -43,8 +49,35 @@ it('supports reference chips inside raw HTML tables without trusting attributes 
     ),
     'text/html',
   );
-  const mounts = mountHtmlReferences(doc);
+  const mounts = mountHtmlReferences(
+    doc,
+    createAgentReferenceRegistry([
+      { type: 'deal', id: 'd1', label: 'Big & Small' },
+    ]),
+  );
   expect(mounts).toHaveLength(1);
   expect(mounts[0].reference.label).toBe('Big & Small');
   expect(mounts[0].element.closest('td')).not.toBeNull();
+});
+
+it('renders invented handles and legacy ids as non-clickable text', () => {
+  const doc = new DOMParser().parseFromString(
+    '<p>[[ref:invented]] [[customer:fake:Claimed name]]</p>',
+    'text/html',
+  );
+  expect(mountHtmlReferences(doc)).toEqual([]);
+  expect(doc.body.textContent).toBe('Reference unavailable Claimed name');
+});
+it('uses the registered canonical name even when legacy prose changes it', () => {
+  const doc = new DOMParser().parseFromString(
+    '<p>[[customer:c1:Wrong name]]</p>',
+    'text/html',
+  );
+  const mounts = mountHtmlReferences(
+    doc,
+    createAgentReferenceRegistry([
+      { type: 'customer', id: 'c1', label: 'Verified name' },
+    ]),
+  );
+  expect(mounts[0].reference.label).toBe('Verified name');
 });

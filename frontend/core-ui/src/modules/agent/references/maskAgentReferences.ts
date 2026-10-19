@@ -37,19 +37,28 @@ export interface IMaskedAgentReferences {
 const maskLine = (
   line: string,
   references: IAgentReference[],
+  resolveHandle?: (handle: string) => IAgentReference | undefined,
 ): string => {
   let out = '';
   let i = 0;
 
   const maskSegment = (segment: string): string =>
-    segment.replace(TOKEN_PATTERN, (match, type, id, label: string) => {
-      if (!isReferenceType(type) || !label.trim()) {
-        return match;
-      }
+    segment
+      .replace(/\[\[ref:([A-Za-z0-9_-]{1,64})\]\]/g, (raw, handle: string) => {
+        if (!resolveHandle) return raw;
+        const reference = resolveHandle(handle);
+        if (!reference) return 'Reference unavailable';
+        references.push(reference);
+        return `AGENTREF${references.length - 1}XREF`;
+      })
+      .replace(TOKEN_PATTERN, (match, type, id, label: string) => {
+        if (!isReferenceType(type) || !label.trim()) {
+          return match;
+        }
 
-      references.push({ type, id, label: label.trim() });
-      return `AGENTREF${references.length - 1}XREF`;
-    });
+        references.push({ type, id, label: label.trim() });
+        return `AGENTREF${references.length - 1}XREF`;
+      });
 
   while (i < line.length) {
     if (line[i] === '`') {
@@ -81,7 +90,10 @@ const maskLine = (
   return out;
 };
 
-export const maskAgentReferences = (text: string): IMaskedAgentReferences => {
+export const maskAgentReferences = (
+  text: string,
+  resolveHandle?: (handle: string) => IAgentReference | undefined,
+): IMaskedAgentReferences => {
   const references: IAgentReference[] = [];
   const lines = text.split('\n');
   let fenced = false;
@@ -92,7 +104,11 @@ export const maskAgentReferences = (text: string): IMaskedAgentReferences => {
     const fence = line.match(FENCE_PATTERN);
 
     if (fenced) {
-      if (fence && fence[1][0] === fenceChar && fence[1].length >= fenceLength) {
+      if (
+        fence &&
+        fence[1][0] === fenceChar &&
+        fence[1].length >= fenceLength
+      ) {
         fenced = false;
       }
       return line;
@@ -105,7 +121,7 @@ export const maskAgentReferences = (text: string): IMaskedAgentReferences => {
       return line;
     }
 
-    return maskLine(line, references);
+    return maskLine(line, references, resolveHandle);
   });
 
   return { text: masked.join('\n'), references };

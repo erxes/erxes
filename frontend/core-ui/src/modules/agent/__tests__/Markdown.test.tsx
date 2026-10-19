@@ -143,7 +143,7 @@ describe('Markdown link rendering', () => {
     expect(screen.getByText('down')).toBeTruthy();
   });
 
-  it('still resolves a reference token to a chip in normal prose', () => {
+  it('keeps a legacy reference as plain text without native tool evidence', () => {
     render(
       <Markdown
         references
@@ -154,7 +154,7 @@ describe('Markdown link rendering', () => {
     expect(screen.getByText('Eval Bolormaa Ganbat')).toBeTruthy();
     // Chip renders as a button, not a link.
     expect(
-      screen.getByRole('button', { name: /Eval Bolormaa Ganbat/ }),
-    ).toBeTruthy();
+      screen.queryByRole('button', { name: /Eval Bolormaa Ganbat/ }),
+    ).toBeNull();
   });
 });

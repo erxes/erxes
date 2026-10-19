@@ -1,3 +1,4 @@
+import type { IAgentReferenceRegistry } from '../references/referenceRegistry';
 import {
   parseInline,
   parseMarkdownBlocks,
@@ -38,7 +39,10 @@ const inlineHtml = (inlines: IMdInline[]): string =>
     .join('');
 
 /** Old threads and providers that ignore the format still use the same HTML view. */
-export const replyToHtml = (text: string): string => {
+export const replyToHtml = (
+  text: string,
+  registry?: IAgentReferenceRegistry,
+): string => {
   if (/^\s*</.test(text)) return text;
   // Decode old fenced responses for display only. A fence, filename or marker
   // in assistant text can never create a file card or downloadable artifact.
@@ -47,14 +51,17 @@ export const replyToHtml = (text: string): string => {
     return legacy
       .map((segment) =>
         segment.kind === 'text'
-          ? replyToHtml(segment.text)
+          ? replyToHtml(segment.text, registry)
           : segment.artifact.type === 'html'
           ? segment.artifact.content
           : `<pre><code>${escapeHtml(segment.artifact.content)}</code></pre>`,
       )
       .join('\n');
   }
-  const masked = maskAgentReferences(text);
+  const masked = maskAgentReferences(
+    text,
+    registry ? (handle) => registry.byHandle.get(handle) : undefined,
+  );
   const html = parseMarkdownBlocks(repairTables(masked.text))
     .map((block) => {
       switch (block.type) {

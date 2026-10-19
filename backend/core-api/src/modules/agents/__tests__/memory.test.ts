@@ -1,3 +1,4 @@
+import { spawnSync } from 'node:child_process';
 /**
  * Tenant memory lifecycle tests.
  *
@@ -342,4 +343,109 @@ it('uses the resolved tenant connection instead of the root connection', async (
     { useCache: true, noListener: true },
   );
   expect(fakeConnection.useDb).not.toHaveBeenCalled();
+});
+
+it('persists active and terminal workflow snapshots for reconnect without enabling automatic replay', async () => {
+  await getAgentsRuntime('snapshot-discovery');
+  const { createDurableAgent } = jest.requireMock(
+    '@mastra/core/agent/durable',
+  ) as {
+    createDurableAgent: jest.Mock;
+  };
+  const config = createDurableAgent.mock.calls.at(-1)?.[0] as {
+    shouldPersistSnapshot: (input: { workflowStatus: string }) => boolean;
+  };
+  for (const workflowStatus of [
+    'pending',
+    'running',
+    'paused',
+    'suspended',
+    'success',
+    'failed',
+    'canceled',
+  ]) {
+    expect(config.shouldPersistSnapshot({ workflowStatus })).toBe(true);
+  }
+  expect(lastMastraConfig()).not.toHaveProperty('recovery');
+});
+
+it('keeps a native run discoverable across disconnect, a second session, and reattachment', async () => {
+  await getAgentsRuntime('native-session-lifecycle');
+  const { createDurableAgent } = jest.requireMock(
+    '@mastra/core/agent/durable',
+  ) as { createDurableAgent: jest.Mock };
+  const options = createDurableAgent.mock.calls.at(-1)?.[0] as {
+    shouldPersistSnapshot: () => boolean;
+  };
+  // A separate process exercises the real installed ESM packages, outside
+  // this file's mocked constructors, using the production snapshot policy.
+  const script = `
+    import assert from 'node:assert/strict';
+    import { Agent } from '@mastra/core/agent';
+    import { createDurableAgent } from '@mastra/core/agent/durable';
+    import { Mastra } from '@mastra/core/mastra';
+    import { InMemoryStore } from '@mastra/core/storage';
+    import { Memory } from '@mastra/memory';
+    import { MockLanguageModelV3 } from 'ai/test';
+    import { toAISdkStream } from '@mastra/ai-sdk';
+    const gates = [Promise.withResolvers(), Promise.withResolvers()];
+    const started = [Promise.withResolvers(), Promise.withResolvers()];
+    let calls = 0;
+    const model = new MockLanguageModelV3({ doStream: async () => {
+      const index = calls++;
+      return { stream: new ReadableStream({ async start(c) {
+        c.enqueue({type:'text-start',id:'t'});
+        c.enqueue({type:'text-delta',id:'t',delta:'Before '});
+        started[index].resolve();
+        await gates[index].promise;
+        c.enqueue({type:'text-delta',id:'t',delta:'after disconnect'});
+        c.enqueue({type:'text-end',id:'t'});
+        c.enqueue({type:'finish',finishReason:{unified:'stop',raw:'stop'},usage:{inputTokens:{total:1},outputTokens:{total:1}}});
+        c.close();
+      }})};
+    }});
+    const storage = new InMemoryStore();
+    const memory = new Memory({storage,options:{generateTitle:false}});
+    const agent = createDurableAgent({agent:new Agent({id:'lifecycle',name:'Lifecycle',instructions:'Help',model,memory}), shouldPersistSnapshot:${options.shouldPersistSnapshot.toString()},cleanupTimeoutMs:100});
+    const mastra = new Mastra({agents:{test:agent},storage,workers:false,logger:false});
+    let completed = 0;
+    const first = await agent.stream('first session',{memory:{thread:'first',resource:'user'},onFinish:()=>completed++});
+    const client = toAISdkStream(first.output,{from:'agent',version:'v7'}).getReader();
+    await client.read();
+    await started[0].promise;
+    void client.cancel();
+    const active = await agent.listActiveRuns({threadId:'first',resourceId:'user'});
+    assert.equal(active.runs[0]?.runId,first.runId);
+    const second = await agent.stream('second session',{memory:{thread:'second',resource:'user'},onFinish:()=>completed++});
+    await started[1].promise;
+    gates[1].resolve();
+    for await (const chunk of second.output.fullStream) {}
+    const observed = await agent.observe(first.runId);
+    const reading = (async()=>{ for await (const chunk of observed.output.fullStream) {} })();
+    gates[0].resolve();
+    await reading;
+    for(let attempts=0;attempts<50;attempts++) {
+      const saved = await memory.recall({threadId:'first',resourceId:'user'});
+      if(JSON.stringify(saved.messages).includes('after disconnect')) break;
+      await new Promise(resolve=>setTimeout(resolve,10));
+    }
+    assert.ok(JSON.stringify((await memory.recall({threadId:'first',resourceId:'user'})).messages).includes('after disconnect'));
+    assert.ok(JSON.stringify((await memory.recall({threadId:'second',resourceId:'user'})).messages).includes('after disconnect'));
+    assert.equal((await agent.listActiveRuns({threadId:'first',resourceId:'user'})).runs.length,0);
+    assert.equal(completed,2);
+    first.cleanup(); second.cleanup(); observed.detach();
+    await mastra.shutdown();
+  `;
+  const process = spawnSync(
+    global.process.execPath,
+    ['--input-type=module', '-e', script],
+    {
+      cwd: global.process.cwd(),
+      encoding: 'utf8',
+      timeout: 15_000,
+    },
+  );
+  expect(process.error).toBeUndefined();
+  expect(process.stderr).toBe('');
+  expect(process.status).toBe(0);
 });
