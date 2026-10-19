@@ -3,6 +3,7 @@ import * as dotenv from 'dotenv';
 import {
   getSubdomain,
   redis,
+  sanitizeHeaders,
   setClientPortalHeader,
   setCPUserHeader,
   setUserHeader,
@@ -68,6 +69,10 @@ export default async function userMiddleware(
   res: Response,
   next: NextFunction,
 ) {
+  // Services trust the identity headers, and the router forwards every
+  // request header, so only this middleware may set them.
+  sanitizeHeaders(req.headers);
+
   const startedAt = Date.now();
   const url = req.headers['erxes-core-website-url'];
   const erxesCoreToken = req.headers['erxes-core-token'];
