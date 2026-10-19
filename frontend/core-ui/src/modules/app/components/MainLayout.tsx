@@ -10,7 +10,9 @@ import {
   useEnterAnimation,
 } from '@/navigation/hooks/useEnterAnimation';
 import { lazy, Suspense, useRef } from 'react';
-import { useAtomValue } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
+import { useHotkeys } from 'react-hotkeys-hook';
+import { usePermissionCheck } from 'ui-modules';
 import {
   agentSidePanelOpenState,
   agentSidePanelResizingState,
@@ -34,11 +36,30 @@ const AgentTray = lazy(() =>
   })),
 );
 
-const AgentTrayMount = () => (
-  <Suspense fallback={null}>
-    <AgentTray />
-  </Suspense>
-);
+const AgentTrayMount = () => {
+  const [open, setOpen] = useAtom(agentSidePanelOpenState);
+  const { pathname } = useLocation();
+  const { isLoaded, hasActionPermission } = usePermissionCheck();
+  const allowed = isLoaded && hasActionPermission('agentsChat');
+
+  useHotkeys(
+    'mod+j',
+    () => setOpen((current) => !current),
+    { enabled: allowed, enableOnFormTags: true },
+    [setOpen],
+  );
+
+  // Unmount the bot's effects and animation engine while chat is visible.
+  if (open || !allowed || pathname.startsWith('/agent')) {
+    return null;
+  }
+
+  return (
+    <Suspense fallback={null}>
+      <AgentTray />
+    </Suspense>
+  );
+};
 
 // Gate first, then lazy: the agent chunk only loads when the panel is
 // actually opened, not on app start. Once opened the panel stays mounted
