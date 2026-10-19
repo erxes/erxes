@@ -85,9 +85,9 @@ export const ProductForm = ({
   };
 
   const syncPercentageByDuration = (
-    fields: { duration: string; percentage: number }[],
+    fields: { duration: string; percentage: number | string }[],
   ) => {
-    const percentageByDuration: Record<string, number> = {};
+    const percentageByDuration: Record<string, number | string> = {};
     fields.forEach((f) => {
       if (f.duration) percentageByDuration[f.duration] = f.percentage;
     });
@@ -98,7 +98,7 @@ export const ProductForm = ({
   };
 
   const [durationFields, setDurationFields] = useState<
-    { rowId: string; duration: string; percentage: number }[]
+    { rowId: string; duration: string; percentage: number | string }[]
   >([]);
 
   const [durationTiers, setDurationTiers] = useState<DurationTier[]>([]);

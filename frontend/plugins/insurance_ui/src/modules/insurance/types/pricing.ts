@@ -16,7 +16,7 @@ export interface TravelFormula {
 // Existing JSON fields remain extensible; typing them must not strip other keys.
 export interface PricingConfig extends Record<string, unknown> {
   percentage?: number | string;
-  percentageByDuration?: Record<string, number>;
+  percentageByDuration?: Record<string, number | string>;
   baseRate?: number;
   dailyRate?: number;
   durationTiers?: DurationTier[];

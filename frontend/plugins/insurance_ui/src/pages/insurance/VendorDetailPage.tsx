@@ -55,7 +55,7 @@ export const VendorDetailPage = () => {
     number | string | undefined
   >(undefined);
   const [vendorDurationFields, setVendorDurationFields] = useState<
-    { rowId: string; duration: string; percentage: number }[]
+    { rowId: string; duration: string; percentage: number | string }[]
   >([]);
   const [editingProduct, setEditingProduct] =
     useState<InsuranceVendorProduct | null>(null);
@@ -153,7 +153,7 @@ export const VendorDetailPage = () => {
       let pricingOverride = null;
 
       if (vendorDurationFields.length > 0) {
-        const percentageByDuration: Record<string, number> = {};
+        const percentageByDuration: Record<string, number | string> = {};
         vendorDurationFields.forEach((f) => {
           if (f.duration) {
             percentageByDuration[f.duration] = f.percentage;
