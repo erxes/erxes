@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-10-13`
+- **Last synchronized:** `2026-10-19`
 
 ## Scope
 
@@ -868,6 +868,7 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
 
 ## Local Invariants
 
+- Relation widget lists inside a `ScrollArea` pass `viewportClassName="[&>div]:block! [&>div]:min-w-0"` so their content fits the fixed 320px relation side panel instead of overflowing it. The conversation relation widget hides `ConversationReportContent` on ticket records (`frontline:ticket`), where it lists the related conversations only; every other record keeps the report. The widget opens with a `Conversations` header like the tickets widget, and a ticket with no related conversation shows the shared dashed-icon empty state.
 - The conversations filter bar header (`ConversationsHeader`) uses
   `bg-background`, matching the host's `PageHeader` and `PageSubHeader`, never
   the sidebar tint.

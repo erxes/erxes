@@ -31,7 +31,11 @@ export const RelationWidgetSideTabs = ({
   return (
     <FocusSheet.SideTabs>
       {relationWidgetsModules.map((module) => (
-        <FocusSheet.SideContent key={module.name} value={module.name}>
+        <FocusSheet.SideContent
+          key={module.name}
+          value={module.name}
+          className="w-80 max-w-80 flex-none"
+        >
           <SideMenuContext.Provider
             // eslint-disable-next-line @typescript-eslint/no-empty-function
             value={{ activeTab: module.name, setActiveTab: () => {} }}

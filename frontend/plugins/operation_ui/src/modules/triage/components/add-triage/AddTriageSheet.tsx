@@ -2,6 +2,7 @@ import { IconPlus } from '@tabler/icons-react';
 import { TaskHotKeyScope } from '@/task/TaskHotkeyScope';
 import {
   Button,
+  ButtonProps,
   Sheet,
   usePreviousHotkeyScope,
   useScopedHotkeys,
@@ -14,8 +15,10 @@ import { useTranslation } from 'react-i18next';
 
 export const AddTriageSheet = ({
   onComplete: onCompleteProp,
+  variant,
 }: {
   onComplete?: (triageId: string) => void;
+  variant?: ButtonProps['variant'];
 }) => {
   const { t } = useTranslation('operation');
   const setHotkeyScope = useSetHotkeyScope();
@@ -42,7 +45,7 @@ export const AddTriageSheet = ({
   return (
     <Sheet open={open} onOpenChange={(open) => (open ? onOpen() : onClose())}>
       <Sheet.Trigger asChild>
-        <Button>
+        <Button variant={variant}>
           <IconPlus />
           {t('add-triage')}
         </Button>

@@ -263,7 +263,7 @@ const FocusSheetSideTabsTrigger = forwardRef<
         <Tabs.Trigger
           ref={ref}
           className={cn(
-            'size-10 bg-sidebar data-[state=active]:bg-primary/10 data-[state=active]:text-foreground data-[state=active]:shadow-none [&_svg]:size-5 data-[state=active]:after:hidden [&_svg]:text-primary hover:bg-primary/10 data-[state=active]:hover:bg-primary/10 rounded group/side-tabs-trigger',
+            'size-10 bg-sidebar rounded [&_svg]:size-5 [&_svg]:text-primary hover:bg-accent aria-selected:bg-primary/10 aria-selected:text-foreground aria-selected:shadow-none aria-selected:hover:bg-primary/15 after:hidden group/side-tabs-trigger',
             className,
           )}
           value={value}

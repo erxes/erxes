@@ -77,7 +77,10 @@ export const TrackedDataWidgets = ({
   const loading = isCompany ? companyLoading : customerLoading;
 
   return (
-    <SideMenu.Content value="trackedData" className="bg-sidebar">
+    <SideMenu.Content
+      value="trackedData"
+      className="bg-sidebar data-[state=active]:w-full"
+    >
       <SideMenu.Header
         label={t('tracked-data', 'Tracked data')}
         Icon={IconRadar}
@@ -85,8 +88,11 @@ export const TrackedDataWidgets = ({
       {loading ? (
         <Spinner containerClassName="py-6" />
       ) : (
-        <ScrollArea className="flex-1 min-h-0">
-          <div className="p-3">
+        <ScrollArea
+          className="flex-1 min-h-0"
+          viewportClassName="[&>div]:block! [&>div]:min-w-0"
+        >
+          <div className="p-4">
             <ul className="bg-background rounded-lg shadow-xs">
               {!isCompany && (
                 <>

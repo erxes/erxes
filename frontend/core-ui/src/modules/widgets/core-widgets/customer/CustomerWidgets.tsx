@@ -52,8 +52,8 @@ export const CustomerWidgets = ({
         <span className="text-sm">{t('no-customers')}</span>
         <SelectCustomersBulk onSelect={handleSelectCustomers}>
           {access === 'write' && (
-            <Button variant="outline" size="sm">
-              <IconPlus className="mr-2 w-4 h-4" />
+            <Button variant="secondary">
+              <IconPlus />
               {t('add-customer')}
             </Button>
           )}

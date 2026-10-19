@@ -1,4 +1,8 @@
-import { IconBriefcase, IconReceipt, IconSandbox } from '@tabler/icons-react';
+import {
+  IconBriefcase,
+  IconCashRegister,
+  IconSandbox,
+} from '@tabler/icons-react';
 import { Suspense, lazy } from 'react';
 
 import { IUIConfig, TPropertyInputProps } from 'erxes-ui';
@@ -90,8 +94,9 @@ export const CONFIG: IUIConfig = {
       },
       {
         name: 'posOrders',
-        icon: IconReceipt,
+        icon: IconCashRegister,
         label: 'POS orders',
+        contentTypes: ['sales:deal'],
       },
     ],
     propertyInputs: {

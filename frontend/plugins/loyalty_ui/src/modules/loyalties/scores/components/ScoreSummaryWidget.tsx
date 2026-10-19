@@ -87,6 +87,76 @@ const ScoreStatCards = ({
   );
 };
 
+const formatPoints = (value?: number | null) =>
+  Number(value ?? 0).toLocaleString();
+
+const PointsFigure = ({
+  icon,
+  label,
+  value,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+}) => (
+  <div className="flex min-w-0 flex-col gap-1 px-4 py-3">
+    <span className="flex items-center gap-1.5 truncate text-xs text-muted-foreground">
+      {icon}
+      {label}
+    </span>
+    <span className="text-sm font-semibold tabular-nums">{value}</span>
+  </div>
+);
+
+const OwnerPointsCard = ({
+  stats,
+  loading,
+}: {
+  stats: ScoreStats;
+  loading: boolean;
+}) => {
+  const { t } = useTranslation('loyalty');
+
+  if (loading) return <Spinner containerClassName="py-10" />;
+
+  const redemptionRate =
+    stats.redemptionRate == null
+      ? '—'
+      : `${Number(stats.redemptionRate).toFixed(1)}%`;
+
+  return (
+    <Card className="flex flex-col bg-background">
+      <div className="flex flex-col gap-1 px-4 pt-3 pb-4">
+        <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+          <IconCoins className="size-4 text-blue-500" />
+          {t('points-balance')}
+        </span>
+        <span className="text-2xl font-semibold tabular-nums">
+          {formatPoints(stats.totalPointBalance)}
+        </span>
+      </div>
+      <Separator />
+      <div className="grid grid-cols-2 divide-x">
+        <PointsFigure
+          icon={<IconTrendingUp className="size-3.5 text-green-500" />}
+          label={t('total-point-earned')}
+          value={formatPoints(stats.totalPointEarned)}
+        />
+        <PointsFigure
+          icon={<IconTrendingDown className="size-3.5 text-red-400" />}
+          label={t('total-point-redeemed')}
+          value={formatPoints(stats.totalPointRedeemed)}
+        />
+      </div>
+      <Separator />
+      <div className="flex items-center justify-between px-4 py-2.5 text-xs">
+        <span className="text-muted-foreground">{t('redemption-rates')}</span>
+        <span className="font-semibold tabular-nums">{redemptionRate}</span>
+      </div>
+    </Card>
+  );
+};
+
 const ScoreSummaryPanelContent = () => {
   const { t } = useTranslation('loyalty');
   const { stats, loading } = useScoreStatistics();
@@ -118,7 +188,10 @@ export const ScoreSummaryPanel = () => {
 
   return (
     <SideMenu value={open} onValueChange={setOpen}>
-      <SideMenu.Content value="score-summary" className="data-[state=active]:w-96">
+      <SideMenu.Content
+        value="score-summary"
+        className="data-[state=active]:w-96"
+      >
         <SideMenu.Header Icon={IconChartHistogram} label={t('score-summary')} />
         {open === 'score-summary' && <ScoreSummaryPanelContent />}
       </SideMenu.Content>
@@ -176,11 +249,14 @@ export const ScoreSummaryWidget = ({
         </Button>
       </div>
       <Separator />
-      <ScrollArea className="flex-auto">
+      <ScrollArea
+        className="flex-auto"
+        viewportClassName="[&>div]:block! [&>div]:min-w-0"
+      >
         <div className="p-4 flex flex-col gap-3">
           <LoyaltyAccountCard ownerType={ownerType} ownerId={ownerId} />
+          <OwnerPointsCard stats={stats} loading={loading} />
           <OwnerVouchersCard ownerType={ownerType} ownerId={ownerId} />
-          <ScoreStatCards stats={stats} loading={loading} />
         </div>
       </ScrollArea>
     </>

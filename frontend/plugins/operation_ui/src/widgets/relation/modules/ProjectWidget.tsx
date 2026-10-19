@@ -15,7 +15,10 @@ export const ProjectWidget = ({
 }) => {
   const { t } = useTranslation('operation');
   return (
-    <ScrollArea className="h-full flex-auto">
+    <ScrollArea
+      className="h-full flex-auto"
+      viewportClassName="[&>div]:block! [&>div]:min-w-0"
+    >
       <div className="flex flex-col gap-4 p-4">
         <div className="flex flex-col gap-2 items-center justify-center">
           <IconClipboard className="size-6 text-muted-foreground" />

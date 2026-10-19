@@ -50,8 +50,8 @@ export const CompanyWidgets = ({
         </div>
         <span className="text-sm">{t('no-companies')}</span>
         <SelectCompaniesBulk onSelect={handleSelectCompanies}>
-          <Button variant="outline" size="sm">
-            <IconPlus className="mr-2 h-4 w-4" />
+          <Button variant="secondary">
+            <IconPlus />
             {t('add-company')}
           </Button>
         </SelectCompaniesBulk>

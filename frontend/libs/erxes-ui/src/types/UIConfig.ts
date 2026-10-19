@@ -146,6 +146,7 @@ export type IUIConfig = {
       name: string;
       icon?: React.ElementType;
       label?: string;
+      contentTypes?: string[];
     }[];
     // Sections a plugin adds to another plugin's settings page, e.g. what a
     // POS or a pipeline sends to loyalty.

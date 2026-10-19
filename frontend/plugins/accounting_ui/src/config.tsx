@@ -1,9 +1,9 @@
 import {
   IconAdjustmentsCode,
+  IconArrowsExchange,
   IconBucketOff,
   IconCashBanknote,
   IconFlagStar,
-  IconReceipt,
   IconScale,
 } from '@tabler/icons-react';
 import { IUIConfig } from 'erxes-ui';
@@ -170,7 +170,8 @@ export const CONFIG: IUIConfig = {
     relationWidgets: [
       {
         name: 'transactions',
-        icon: IconReceipt,
+        icon: IconArrowsExchange,
+        contentTypes: ['sales:deal', 'sales:pos.orders'],
       },
     ],
   },

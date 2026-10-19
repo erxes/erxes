@@ -6,7 +6,7 @@
 - **Project:** `sales_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/sales_ui`
-- **Last synchronized:** `2026-10-14`
+- **Last synchronized:** `2026-10-19`
 
 ## Scope
 
@@ -234,6 +234,7 @@
 
 ## Local Invariants
 
+- Relation widget lists inside a `ScrollArea` pass `viewportClassName="[&>div]:block! [&>div]:min-w-0"` so their content fits the fixed 320px relation side panel instead of overflowing it. The `posOrders` relation widget declares `contentTypes: ['sales:deal']` because it queries orders by deal id; it must not appear on other records. Its rail icon is `IconCashRegister`, distinct from accounting's transactions widget.
 - Whether loyalty is on is read at runtime (`useLoyaltyEnabled`, the loaded `pluginsConfigState`), never with `isEnabled('loyalty')`: that reads a build-time env that deployments such as SaaS do not set, which hid the Tier tab, the deal list's points column and the board card badge.
 - Expandable navigation rows end in the host sidebar's chevron:
   `IconChevronRight` (`size-3.5`, muted) inside a span that rotates 90° when

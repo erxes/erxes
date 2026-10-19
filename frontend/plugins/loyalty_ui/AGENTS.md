@@ -6,7 +6,7 @@
 - **Project:** `loyalty_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/loyalty_ui`
-- **Last synchronized:** `2026-10-14`
+- **Last synchronized:** `2026-10-19`
 
 ## Scope
 
@@ -129,6 +129,7 @@
 
 ## Local Invariants
 
+- Loyalty relation widget scroll areas (`ScoreSummaryWidget`, `ScoreTargetHistoryWidget`) pass `viewportClassName="[&>div]:block! [&>div]:min-w-0"` so their cards fit the fixed 320px relation side panel. `LoyaltyAccountCard` shows its tier-history and freeze actions as icon buttons with tooltips so the account row stays on one line in the panel. The owner `ScoreSummaryWidget` shows one points card (balance, earned/redeemed, redemption rate) and omits the workspace-wide `activeLoyaltyMembers`/`monthlyActiveUsers`, which `scoreLogStatistics` does not filter by owner; `ScoreStatCards` stays for the workspace `ScoreSummaryPanel`.
 - Page-level side menus render `Sidebar.Panel` from `erxes-ui`, which keeps its
   own open state (`sidebarPanelOpenState`), separate from the host's context
   column. Never stack two headings: a menu without a heading passes one as

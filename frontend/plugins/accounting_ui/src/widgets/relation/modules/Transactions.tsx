@@ -128,7 +128,10 @@ export const Transactions = ({
         Icon={IconReceipt}
         label={t('transactions-count', { count: totalCount })}
       />
-      <ScrollArea className="flex-auto">
+      <ScrollArea
+        className="flex-auto"
+        viewportClassName="[&>div]:block! [&>div]:min-w-0"
+      >
         <div className="flex flex-col gap-3 p-4">
           {transactions.map((transaction) => (
             <a

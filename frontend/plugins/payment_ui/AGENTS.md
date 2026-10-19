@@ -6,7 +6,7 @@
 - **Project:** `payment_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/payment_ui`
-- **Last synchronized:** `2026-09-09`
+- **Last synchronized:** `2026-10-19`
 
 ## Scope
 
@@ -77,6 +77,7 @@
 
 ## Local Invariants
 
+- Relation widget lists inside a `ScrollArea` pass `viewportClassName="[&>div]:block! [&>div]:min-w-0"` so their content fits the fixed 320px relation side panel instead of overflowing it.
 - Sales board/pipeline/stage pickers must come from `ui-modules`. Do not add payment-local
   GraphQL documents for `salesBoards` / `salesPipelines` / `salesStages`.
 - **Never deep-import a context-bearing component from `erxes-ui`.** `module-federation.config.ts`

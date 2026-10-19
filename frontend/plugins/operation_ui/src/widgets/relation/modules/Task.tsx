@@ -66,7 +66,7 @@ export const Task = ({
           <IconCaretLeftRight />
         </div>
         <span className="text-sm">{t('no-triages-to-display')}</span>
-        <AddTriageSheet onComplete={onComplete} />
+        <AddTriageSheet onComplete={onComplete} variant="secondary" />
       </div>
     );
   }
@@ -74,11 +74,16 @@ export const Task = ({
   return (
     <>
       <div className="h-11 px-4 flex items-center gap-2 flex-none bg-background justify-between">
-        <span className="font-medium text-primary">{t('tasks-and-triages')}</span>
-        <AddTriageSheet onComplete={onComplete} />
+        <span className="font-medium text-primary">
+          {t('tasks-and-triages')}
+        </span>
+        <AddTriageSheet onComplete={onComplete} variant="secondary" />
       </div>
       <Separator />
-      <ScrollArea className="flex-auto">
+      <ScrollArea
+        className="flex-auto"
+        viewportClassName="[&>div]:block! [&>div]:min-w-0"
+      >
         <div className="flex flex-col gap-4 p-4">
           {ownEntities?.map((entity) => (
             <TaskWidget key={entity.contentId} taskId={entity.contentId} />

@@ -18,7 +18,7 @@ export const AddProjectRelation = ({
     <Sheet open={open} onOpenChange={setOpen}>
       <Sheet.Trigger asChild>
         {label ? (
-          <Button onClick={(e) => e.stopPropagation()}>
+          <Button variant="secondary" onClick={(e) => e.stopPropagation()}>
             <IconPlus className="size-4" />
             {label}
           </Button>

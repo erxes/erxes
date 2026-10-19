@@ -113,10 +113,7 @@ const CompanyWidgetHeader = ({
   onManageCompanies?: (companyIds: string[]) => void;
 }) => {
   return (
-    <div className="flex items-center justify-between bg-background border-b">
-      <div>
-        <SideMenu.Header label="Companies" Icon={IconBuilding} hideSeparator />
-      </div>
+    <SideMenu.Header label="Companies" Icon={IconBuilding} className="px-4">
       {onManageCompanies && (
         <SelectCompaniesBulk
           onSelect={onManageCompanies}
@@ -127,7 +124,7 @@ const CompanyWidgetHeader = ({
           </Button>
         </SelectCompaniesBulk>
       )}
-    </div>
+    </SideMenu.Header>
   );
 };
 
@@ -137,7 +134,10 @@ export const CompanyWidget = ({
   onManageCompanies,
 }: CompanyWidgetProps) => {
   return (
-    <SideMenu.Content value="company" className="bg-sidebar">
+    <SideMenu.Content
+      value="company"
+      className="bg-sidebar data-[state=active]:w-full"
+    >
       <CompanyWidgetHeader
         companyIds={companyIds}
         onManageCompanies={onManageCompanies}

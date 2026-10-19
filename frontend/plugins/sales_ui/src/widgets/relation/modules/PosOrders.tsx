@@ -48,7 +48,10 @@ export const PosOrders = ({ contentId }: { contentId: string }) => {
   }
 
   return (
-    <ScrollArea className="flex-auto">
+    <ScrollArea
+      className="flex-auto"
+      viewportClassName="[&>div]:block! [&>div]:min-w-0"
+    >
       <div className="flex flex-col gap-3 p-4">
         {orders.map((order) => (
           <PosOrderRow key={order._id} order={order} />

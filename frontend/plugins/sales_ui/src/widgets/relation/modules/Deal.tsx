@@ -98,7 +98,10 @@ export const Deal = ({
         </div>
       </div>
       <Separator />
-      <ScrollArea className="flex-auto">
+      <ScrollArea
+        className="flex-auto"
+        viewportClassName="[&>div]:block! [&>div]:min-w-0"
+      >
         <div className="flex flex-col gap-4 p-4">
           {ownEntities?.map((entity) => (
             <DealWidget key={entity.contentId} dealId={entity.contentId} />

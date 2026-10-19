@@ -6,7 +6,7 @@
 - **Project:** `operation_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/operation_ui`
-- **Last synchronized:** `2026-10-13`
+- **Last synchronized:** `2026-10-19`
 
 ## Scope
 
@@ -88,6 +88,7 @@
 
 ## Local Invariants
 
+- Relation widget lists inside a `ScrollArea` pass `viewportClassName="[&>div]:block! [&>div]:min-w-0"` so their content fits the fixed 320px relation side panel instead of overflowing it. Relation widget empty states (and the tasks widget header) use `variant="secondary"` for their add buttons; `AddTriageSheet` takes an optional `variant` that defaults to the primary button used on the triage pages.
 - Keep user-facing task labels as Due date while retaining `targetDate` in storage and API fields. Date-filtered task lists must refetch inside `useSubscription.onData` before applying create/delete cache changes; updates can move a task into or out of a range.
 
 - Expandable navigation rows end in the host sidebar's chevron: `IconChevronRight` (`size-3.5`, muted) inside a span that rotates 90° when open, never a filled caret, so the rotation stays on the compositor and matches the main sidebar. Expandable group trigger buttons use `rounded-lg` like `Sidebar.MenuButton`.

@@ -50,7 +50,10 @@ export const ScoreTargetHistoryWidget = ({
         )}
       </div>
       <Separator />
-      <ScrollArea className="flex-auto">
+      <ScrollArea
+        className="flex-auto"
+        viewportClassName="[&>div]:block! [&>div]:min-w-0"
+      >
         <div className="p-4 flex flex-col gap-2">
           {loading && <Spinner containerClassName="py-10" />}
           {error && <p className="text-sm text-destructive">{error.message}</p>}

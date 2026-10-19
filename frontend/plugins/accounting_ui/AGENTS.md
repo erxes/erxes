@@ -6,7 +6,7 @@
 - **Project:** `accounting_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/accounting_ui`
-- **Last synchronized:** `2026-10-13`
+- **Last synchronized:** `2026-10-19`
 
 ## Scope
 
@@ -150,6 +150,7 @@
 
 ## Local Invariants
 
+- Relation widget lists inside a `ScrollArea` pass `viewportClassName="[&>div]:block! [&>div]:min-w-0"` so their content fits the fixed 320px relation side panel instead of overflowing it. The `transactions` relation widget declares `contentTypes: ['sales:deal', 'sales:pos.orders']`, the only content types that create accounting transactions. Its rail icon is `IconArrowsExchange`, distinct from sales' POS orders widget.
 - Accounting UI labels, mutation feedback, and validation messages use the `accounting` translation namespace while retaining generated GraphQL inference and null-safe view adapters.
 - `graphql-codegen-plugin.ts` prepares documents before the first compile and regenerates them on accounting source changes through `beforeRun`/`watchRun`, excluding generated files to avoid rebuild loops. Do not invoke nested Nx commands from config evaluation or rely only on target dependencies for host-launched remotes.
 

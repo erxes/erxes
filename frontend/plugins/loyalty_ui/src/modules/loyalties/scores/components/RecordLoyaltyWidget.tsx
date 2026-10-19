@@ -26,12 +26,12 @@ export const RecordLoyaltyWidget = (props: {
       onValueChange={setTab}
       className="flex h-full flex-col overflow-hidden"
     >
-      <Tabs.List className="flex-none overflow-x-auto px-2">
-        <Tabs.Trigger value={RECORD_TAB}>
+      <Tabs.List className="flex w-full flex-none overflow-x-auto px-2">
+        <Tabs.Trigger value={RECORD_TAB} className="flex-1">
           {t('target-score-history')}
         </Tabs.Trigger>
         {customerIds.map((id) => (
-          <Tabs.Trigger key={id} value={id}>
+          <Tabs.Trigger key={id} value={id} className="flex-1">
             <CustomersInline customerIds={[id]} placeholder="—" />
           </Tabs.Trigger>
         ))}

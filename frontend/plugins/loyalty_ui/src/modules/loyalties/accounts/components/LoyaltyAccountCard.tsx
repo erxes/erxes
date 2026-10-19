@@ -4,8 +4,8 @@ import {
   IconLockOpen,
   IconWallet,
 } from '@tabler/icons-react';
-import { Badge, Button, Card, Spinner, useConfirm } from 'erxes-ui';
-import { useState } from 'react';
+import { Badge, Button, Card, Spinner, Tooltip, useConfirm } from 'erxes-ui';
+import { type ReactNode, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLoyaltyAccountFreeze } from '../hooks/useLoyaltyAccountFreeze';
 import { useLoyaltyAccountOfOwner } from '../hooks/useLoyaltyAccountOfOwner';
@@ -23,6 +23,33 @@ const STATUS_VARIANTS: Record<
   frozen: 'warning',
   closed: 'secondary',
 };
+
+const AccountAction = ({
+  label,
+  icon,
+  disabled,
+  onClick,
+}: {
+  label: string;
+  icon: ReactNode;
+  disabled?: boolean;
+  onClick: () => void;
+}) => (
+  <Tooltip>
+    <Tooltip.Trigger asChild>
+      <Button
+        variant="ghost"
+        size="icon"
+        aria-label={label}
+        disabled={disabled}
+        onClick={onClick}
+      >
+        {icon}
+      </Button>
+    </Tooltip.Trigger>
+    <Tooltip.Content>{label}</Tooltip.Content>
+  </Tooltip>
+);
 
 export const LoyaltyAccountCard = ({
   ownerType,
@@ -60,39 +87,39 @@ export const LoyaltyAccountCard = ({
 
   return (
     <Card className="bg-background px-4 py-3 flex flex-col gap-3">
-      <div className="flex items-center gap-2">
-        <IconWallet className="size-4 text-muted-foreground" />
-        <span className="text-sm font-semibold">{account.number}</span>
-        <Badge variant={STATUS_VARIANTS[account.status]}>
-          {t(`loyalty-account-status-${account.status}`)}
-        </Badge>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="ml-auto"
-          onClick={() => setTierHistoryOpen(true)}
-        >
-          <IconHistory />
-          {t('loyalty-tier-history')}
-        </Button>
-        {canFreeze && account.status === 'active' && (
-          <Button variant="ghost" size="sm" onClick={() => setFreezing(true)}>
-            <IconLock />
-            {t('loyalty-account-freeze')}
-          </Button>
-        )}
-        {canFreeze && account.status === 'frozen' && (
-          <Button
-            variant="ghost"
-            size="sm"
-            disabled={unfreezing}
-            onClick={onUnfreeze}
-          >
-            <IconLockOpen />
-            {t('loyalty-account-unfreeze')}
-          </Button>
-        )}
-      </div>
+      <Tooltip.Provider>
+        <div className="flex items-center gap-2">
+          <IconWallet className="size-4 flex-none text-muted-foreground" />
+          <span className="truncate text-sm font-semibold">
+            {account.number}
+          </span>
+          <Badge variant={STATUS_VARIANTS[account.status]}>
+            {t(`loyalty-account-status-${account.status}`)}
+          </Badge>
+          <div className="ml-auto flex flex-none items-center">
+            <AccountAction
+              label={t('loyalty-tier-history')}
+              icon={<IconHistory />}
+              onClick={() => setTierHistoryOpen(true)}
+            />
+            {canFreeze && account.status === 'active' && (
+              <AccountAction
+                label={t('loyalty-account-freeze')}
+                icon={<IconLock />}
+                onClick={() => setFreezing(true)}
+              />
+            )}
+            {canFreeze && account.status === 'frozen' && (
+              <AccountAction
+                label={t('loyalty-account-unfreeze')}
+                icon={<IconLockOpen />}
+                disabled={unfreezing}
+                onClick={onUnfreeze}
+              />
+            )}
+          </div>
+        </div>
+      </Tooltip.Provider>
       {account.status === 'frozen' && account.frozenReason && (
         <p className="text-xs text-muted-foreground">
           {t('reason')}: {account.frozenReason}

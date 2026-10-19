@@ -86,7 +86,10 @@ export const CustomerWidget = ({
   access: IRelationWidgetProps['access'];
 }) => {
   return (
-    <SideMenu.Content value="customer" className="bg-sidebar">
+    <SideMenu.Content
+      value="customer"
+      className="bg-sidebar data-[state=active]:w-full"
+    >
       <CustomerWidgetHeader
         customerIds={customerIds}
         onManageCustomers={onManageCustomers}
@@ -111,10 +114,7 @@ const CustomerWidgetHeader = ({
   access: IRelationWidgetProps['access'];
 }) => {
   return (
-    <div className="flex justify-between items-center bg-background border-b">
-      <div>
-        <SideMenu.Header label="Customers" Icon={IconUser} hideSeparator />
-      </div>
+    <SideMenu.Header label="Customers" Icon={IconUser} className="px-4">
       {onManageCustomers && (
         <SelectCustomersBulk
           onSelect={onManageCustomers}
@@ -127,7 +127,7 @@ const CustomerWidgetHeader = ({
           )}
         </SelectCustomersBulk>
       )}
-    </div>
+    </SideMenu.Header>
   );
 };
 
