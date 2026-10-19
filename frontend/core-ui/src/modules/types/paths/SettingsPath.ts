@@ -36,6 +36,7 @@ export enum SettingsWorkspacePath {
   ClientPortals = 'client-portals',
   AppTokens = 'app-tokens',
   OAuthClients = 'oauth-clients',
+  Extensions = 'extensions',
   ClienPortalsCatchAll = 'client-portals/*',
   Logs = 'logs',
   Broadcast = 'broadcast',
