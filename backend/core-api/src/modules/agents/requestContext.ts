@@ -2,7 +2,6 @@ import type { RequestContext } from '@mastra/core/request-context' with {
   'resolution-mode': 'import',
 };
 
-import type { IAgentsPageElements } from '@/agents/pageElements';
 import type { IAgentsThinkingLevel } from '@/agents/agent';
 import type { AgentsApprovalMode } from '@/agents/@types/settings';
 import type { IAgentsToolContext } from '@/agents/tools';
@@ -51,7 +50,6 @@ export interface IAgentsRequestContext extends IAgentsToolContext {
   attachmentUrls?: string[];
   /** The client's navigable page catalog for this run (`findPages`). */
   navigation?: IAgentsNavigationEntry[];
-  pageElements?: IAgentsPageElements;
 }
 
 export type IAgentsRequestContextInstance = RequestContext<IAgentsRequestContext>;
@@ -89,8 +87,6 @@ export const buildAgentsRequestContext = async (
   if (values.navigation) {
     requestContext.set('navigation', values.navigation);
   }
-
-  if (values.pageElements) requestContext.set('pageElements', values.pageElements);
 
   return requestContext;
 };

@@ -1,4 +1,3 @@
-import { parseAgentsPageElements } from '@/agents/pageElements';
 import {
   collectAgentsPageSelections,
   AgentsPageSelectionError,
@@ -574,7 +573,6 @@ router.post('/agents/chat', async (req, res) => {
     fileIds?: unknown;
     pageContext?: unknown;
     navigation?: unknown;
-    pageElements?: unknown;
     editMessageId?: string;
   };
 
@@ -725,7 +723,6 @@ router.post('/agents/chat', async (req, res) => {
         ...selections.map((selection) => selection.snapshot.url),
       ],
       navigation,
-      pageElements: parseAgentsPageElements(body.pageElements),
     });
 
     // Use the tenant's stable DurableAgent. The dynamic model callback

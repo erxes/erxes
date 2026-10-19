@@ -145,7 +145,6 @@ const isStandalonePart = (part: TUIPart): boolean => {
     return (
       /^ask_?user$/i.test(name) ||
       name === 'createArtifact' ||
-      name === 'focusPageElement' ||
       part.state === 'approval-requested' ||
       part.state === 'approval-responded' ||
       part.state === 'output-denied'
@@ -278,8 +277,6 @@ export const agentStepLabel = (step: TAgentWorkStep): string => {
 
   const { tool } = step;
 
-  if (tool.toolName === 'findPageElements') return 'Located page elements';
-
   if (tool.toolName === 'searchTools') {
     const intent =
       isRecord(tool.input) && typeof tool.input.intent === 'string'
@@ -352,10 +349,6 @@ export const agentMessageActivity = (parts: UIMessage['parts']): string => {
       case 'searchTools':
       case 'searchGraphql':
         return 'Searching workspace…';
-      case 'findPageElements':
-        return 'Finding an element…';
-      case 'focusPageElement':
-        return 'Showing where to look…';
       case 'findPages':
         return 'Finding a page…';
       case 'readFile':
