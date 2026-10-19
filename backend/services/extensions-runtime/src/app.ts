@@ -144,7 +144,11 @@ const signedIn: MiddlewareHandler<Env> = async (c, next) => {
     throw unauthenticated();
   }
 
-  c.set('caller', { user, tenant, session: { token, hostname: hostnameOf(c) } });
+  c.set('caller', {
+    user,
+    tenant,
+    session: { token, hostname: hostnameOf(c) },
+  });
   await next();
 };
 

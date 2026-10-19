@@ -158,10 +158,7 @@ export const gatewayUpstream =
       );
     }
 
-    const timeoutMs = Math.min(
-      LIMITS.upstreamTimeoutMs,
-      deadline - Date.now(),
-    );
+    const timeoutMs = Math.min(LIMITS.upstreamTimeoutMs, deadline - Date.now());
     let res: Response;
 
     try {
