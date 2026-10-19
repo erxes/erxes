@@ -8,6 +8,7 @@
     "build": {
       "executor": "@nx/rspack:rspack",
       "outputs": ["{options.outputPath}"],
+      "dependsOn": ["^build", "codegen"],
       "defaultConfiguration": "production",
       "options": {
         "target": "web",
@@ -31,6 +32,7 @@
     },
     "serve": {
       "executor": "@nx/rspack:module-federation-dev-server",
+      "dependsOn": ["codegen"],
       "options": {
         "buildTarget": "tourism_ui:build:development",
         "port": 3011
@@ -55,6 +57,37 @@
         "production": {
           "serveTarget": "tourism_ui:serve:production"
         }
+      }
+    },
+    "codegen": {
+      "executor": "nx:run-commands",
+      "cache": true,
+      "dependsOn": [
+        {
+          "projects": ["tourism_api"],
+          "target": "schema:print"
+        }
+      ],
+      "inputs": [
+        "{projectRoot}/codegen.ts",
+        "{projectRoot}/schema/**/*.graphql",
+        "{projectRoot}/src/**/*.{ts,tsx}",
+        "!{projectRoot}/src/gql/**",
+        {
+          "dependentTasksOutputFiles": "**/*.graphql"
+        }
+      ],
+      "outputs": ["{projectRoot}/src/gql"],
+      "options": {
+        "cwd": "frontend/plugins/tourism_ui",
+        "command": "graphql-codegen --config codegen.ts"
+      }
+    },
+    "codegen:watch": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "frontend/plugins/tourism_ui",
+        "command": "graphql-codegen --config codegen.ts --watch"
       }
     }
   }

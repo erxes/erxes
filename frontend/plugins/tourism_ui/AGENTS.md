@@ -6,7 +6,7 @@
 - **Project:** `tourism_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/tourism_ui`
-- **Last synchronized:** `2026-10-18`
+- **Last synchronized:** `2026-10-19`
 
 ## Scope
 
@@ -27,18 +27,20 @@
 
 ## Architecture
 
-| Area              | Path                                                      | Responsibility                                                 |
-| ----------------- | --------------------------------------------------------- | -------------------------------------------------------------- |
-| App sidebar | `frontend/plugins/tourism_ui/src/Sidebar.tsx` | `TourismSidebar`: the plugin's whole app sidebar, rendered by the `./tourism` entry through `AppLayout` |
-| Runtime           | `frontend/plugins/tourism_ui/src/main.ts`                 | Starts the tourism UI remote.                                  |
-| Federation config | `frontend/plugins/tourism_ui/module-federation.config.ts` | Exposes config, PMS, TMS, settings, and tourism route entries. |
-| Dev server config | `frontend/plugins/tourism_ui/rspack.config.ts`            | Module Federation development serving and watch ignore rules.  |
-| Plugin config     | `frontend/plugins/tourism_ui/src/config.tsx`              | Registers navigation, modules, and search providers.           |
-| PMS module        | `frontend/plugins/tourism_ui/src/modules/pms`             | Owns PMS route composition and UI.                             |
-| TMS module        | `frontend/plugins/tourism_ui/src/modules/tms`             | Owns TMS route composition and UI.                             |
-| Main module       | `frontend/plugins/tourism_ui/src/modules/main`            | Owns shared tourism route composition.                         |
-| Pages             | `frontend/plugins/tourism_ui/src/pages`                   | Provides route-level PMS and TMS pages.                        |
-| Widgets           | `frontend/plugins/tourism_ui/src/widgets`                 | Provides plugin widget exports.                                |
+| Area              | Path                                                      | Responsibility                                                                                          |
+| ----------------- | --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| App sidebar       | `frontend/plugins/tourism_ui/src/Sidebar.tsx`             | `TourismSidebar`: the plugin's whole app sidebar, rendered by the `./tourism` entry through `AppLayout` |
+| Runtime           | `frontend/plugins/tourism_ui/src/main.ts`                 | Starts the tourism UI remote.                                                                           |
+| Federation config | `frontend/plugins/tourism_ui/module-federation.config.ts` | Exposes config, PMS, TMS, settings, and tourism route entries.                                          |
+| Dev server config | `frontend/plugins/tourism_ui/rspack.config.ts`            | Module Federation development serving and watch ignore rules.                                           |
+| Plugin config     | `frontend/plugins/tourism_ui/src/config.tsx`              | Registers navigation, modules, and search providers.                                                    |
+| PMS module        | `frontend/plugins/tourism_ui/src/modules/pms`             | Owns PMS route composition and UI.                                                                      |
+| TMS module        | `frontend/plugins/tourism_ui/src/modules/tms`             | Owns TMS route composition and UI.                                                                      |
+| Main module       | `frontend/plugins/tourism_ui/src/modules/main`            | Owns shared tourism route composition.                                                                  |
+| Pages             | `frontend/plugins/tourism_ui/src/pages`                   | Provides route-level PMS and TMS pages.                                                                 |
+| Widgets           | `frontend/plugins/tourism_ui/src/widgets`                 | Provides plugin widget exports.                                                                         |
+| Codegen           | `frontend/plugins/tourism_ui/codegen.ts`                  | Validates documents and generates the gitignored `src/gql` types.                                       |
+| Platform SDL      | `frontend/plugins/tourism_ui/schema/platform.graphql`     | Snapshot of the core-api, payment_api and loyalty_api fields tourism documents select.                  |
 
 ## Contracts
 
@@ -50,7 +52,12 @@
 ### Consumes
 
 - Public UI APIs from `erxes-ui` and `ui-modules`.
-- Tourism API contracts through the plugin's local GraphQL documents and hooks.
+- Tourism plugin GraphQL APIs through Apollo Client, typed from the
+  `tourism_api` printed SDL (`backend/plugins/tourism_api/generated/schema.graphql`).
+- Core-api `productCategories` and `User.details`, payment_api `payments`, and
+  loyalty_api `pricingPlans`, typed from `schema/platform.graphql`. The PMS
+  payment and pricing-plan selectors query the payment and loyalty plugins, so
+  those queries fail when either plugin is not enabled.
 - React Router host mounting contracts from core UI Module Federation.
 
 ## Data and State
@@ -71,8 +78,21 @@
 - Module Federation exposes, route paths, and named exports must stay aligned.
 - Use `erxes-ui` and `ui-modules`; do not import another plugin's source.
 - Dev watch ignores must not include plugin source directories required for hot reload.
+- Codegen validates every document under `src` except tests against the
+  `tourism_api` SDL plus `schema/platform.graphql`. A document that selects a
+  field from core-api or another plugin that is missing from the snapshot fails
+  codegen: add the field to the snapshot under its source-path comment.
+- Codegen drops `${...}` interpolation text, so interpolated field strings are
+  invisible to it. Share fields through a local `gql` fragment spread by name.
+- Operation names must be unique; codegen rejects a name used by two documents
+  with different bodies.
+- `src/gql/` is generated and gitignored. `pnpm nx build`, `pnpm nx serve` and
+  `pnpm dev:uis` regenerate it; calling Rspack directly skips codegen and leaves
+  it stale.
 
 ## Validation
 
+- `pnpm nx lint tourism_ui`
+- `pnpm nx run tourism_ui:codegen --skip-nx-cache`
 - `pnpm nx build tourism_ui`
 - Smoke scenario: open tourism PMS, TMS, PMS settings, and TMS settings routes through the remote.
