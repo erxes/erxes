@@ -87,6 +87,10 @@
   invisible to it. Share fields through a local `gql` fragment spread by name.
 - Operation names must be unique; codegen rejects a name used by two documents
   with different bodies.
+- Variable types match the SDL argument types. Codegen rejects a nullable
+  variable passed to a non-null argument, such as `$ids: [String!]!` on the
+  element, amenity, itinerary and tour removes and `$id: String!` on
+  `BmsBranchEdit`.
 - `tsconfig.json` maps `ui-modules/*` as well as `ui-modules`. The `useProducts`
   import above and `ui-modules`' own deep self-imports need it, or the type
   check reports hundreds of shared-library errors.
