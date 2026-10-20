@@ -49,7 +49,7 @@ const MediaAttachments = ({ attachments }: { attachments: IAttachment[] }) => {
   return (
     <div className="py-4 px-8">
       <h4 className="uppercase text-sm text-muted-foreground pb-4">
-        {t('media-attachments', 'Media Attachments')}
+        {t('media-attachments')}
       </h4>
       <div className="relative">
         <div className="overflow-x-auto flex gap-4">

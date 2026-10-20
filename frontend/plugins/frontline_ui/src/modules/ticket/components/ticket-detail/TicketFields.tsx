@@ -127,7 +127,7 @@ export const TicketFields = ({ ticket, titleAction }: TicketFieldsProps) => {
 
   const editor = useBlockEditor({
     initialContent: descriptionContent,
-    placeholder: t('description-ellipsis', 'Description...'),
+    placeholder: t('description-ellipsis'),
   });
   const { pipeline } = useGetPipeline(pipelineId ?? undefined);
   const { status: currentStatus } = useGetTicketStatusById(
@@ -201,7 +201,7 @@ export const TicketFields = ({ ticket, titleAction }: TicketFieldsProps) => {
           <div className="min-w-0 flex-1">
             <Input
               className="shadow-none focus-visible:shadow-none h-8 text-xl p-0"
-              placeholder={t('ticket-name', 'Ticket Name')}
+              placeholder={t('ticket-name')}
               value={name}
               onChange={(e) => setName(e.target.value)}
               disabled={!canEditTicket}
@@ -210,9 +210,7 @@ export const TicketFields = ({ ticket, titleAction }: TicketFieldsProps) => {
           {titleAction}
         </div>
         <div className="gap-2 flex flex-wrap w-full items-center">
-          <LockedField
-            message={t('channel-cannot-be-changed')}
-          >
+          <LockedField message={t('channel-cannot-be-changed')}>
             <SelectChannel
               value={channelId ?? ''}
               variant="detail"
@@ -220,9 +218,7 @@ export const TicketFields = ({ ticket, titleAction }: TicketFieldsProps) => {
               disabled
             />
           </LockedField>
-          <LockedField
-            message={t('pipeline-cannot-be-changed')}
-          >
+          <LockedField message={t('pipeline-cannot-be-changed')}>
             <SelectPipeline
               value={pipelineId ?? ''}
               variant="detail"

@@ -29,16 +29,10 @@ export const TicketDetails = ({
               <IconInfoCircle />
             </Empty.Media>
             <Empty.Title>
-              {error
-                ? t('failed-to-load-ticket', 'Failed to load ticket')
-                : t('ticket-not-found', 'Ticket not found')}
+              {error ? t('failed-to-load-ticket') : t('ticket-not-found')}
             </Empty.Title>
             <Empty.Description>
-              {error?.message ||
-                t('ticket-no-longer-available', {
-                  defaultValue:
-                    'This ticket may have been removed or is no longer available.',
-                })}
+              {error?.message || t('ticket-no-longer-available')}
             </Empty.Description>
           </Empty.Header>
         </Empty>

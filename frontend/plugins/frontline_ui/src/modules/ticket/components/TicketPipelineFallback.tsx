@@ -21,29 +21,19 @@ export const TicketPipelineFallback = ({
           <IconBrandTrello />
         </Empty.Media>
         <Empty.Title>
-          {channelId
-            ? t('no-pipeline-yet', 'No pipeline yet')
-            : t('select-channel-first', { defaultValue: 'Select a channel' })}
+          {channelId ? t('no-pipeline-yet') : t('select-channel-first')}
         </Empty.Title>
         <Empty.Description>
           {channelId
-            ? t(
-                'create-pipeline-description',
-                'Create a pipeline to start organizing your board.',
-              )
-            : t('select-channel-for-tickets-description', {
-                defaultValue:
-                  'Choose or configure a channel before managing ticket pipelines.',
-              })}
+            ? t('create-pipeline-description')
+            : t('select-channel-for-tickets-description')}
         </Empty.Description>
       </Empty.Header>
       <Empty.Content>
         <Button variant="outline" asChild className="z-10">
           <Link to={settingsPath}>
             <IconSettings />
-            {channelId
-              ? t('manage-pipelines', 'Manage pipelines')
-              : t('manage-channels', { defaultValue: 'Manage channels' })}
+            {channelId ? t('manage-pipelines') : t('manage-channels')}
           </Link>
         </Button>
       </Empty.Content>
@@ -76,21 +66,16 @@ export const TicketStatusesFallback = ({
         <Empty.Media variant="icon">
           <IconBrandTrello />
         </Empty.Media>
-        <Empty.Title>
-          {t('no-ticket-lists', { defaultValue: 'No ticket lists available' })}
-        </Empty.Title>
+        <Empty.Title>{t('no-ticket-lists')}</Empty.Title>
         <Empty.Description>
-          {t('no-ticket-lists-description', {
-            defaultValue:
-              'Add a status list to this pipeline, or ask for access to an existing list.',
-          })}
+          {t('no-ticket-lists-description')}
         </Empty.Description>
       </Empty.Header>
       <Empty.Content>
         <Button variant="outline" asChild className="z-10">
           <Link to={settingsPath}>
             <IconSettings />
-            {t('manage-pipeline', { defaultValue: 'Manage pipeline' })}
+            {t('manage-pipeline')}
           </Link>
         </Button>
       </Empty.Content>
