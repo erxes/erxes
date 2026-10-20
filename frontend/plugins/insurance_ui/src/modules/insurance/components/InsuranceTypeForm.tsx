@@ -3,7 +3,8 @@ import { useState, useEffect } from 'react';
 import { Dialog, Button, Label, Input } from 'erxes-ui';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
 import { useCreateInsuranceType, useUpdateInsuranceType } from '../hooks';
-import { InsuranceType, AttributeInput } from '../types';
+import type { AttributeInput } from '~/gql/graphql';
+import type { InsuranceType } from '../types';
 
 interface InsuranceTypeFormProps {
   open: boolean;
@@ -31,7 +32,7 @@ export const InsuranceTypeForm = ({
   useEffect(() => {
     if (insuranceType) {
       setFormData({
-        name: insuranceType.name,
+        name: insuranceType.name ?? '',
         isCitizen: insuranceType.isCitizen || false,
         attributes: insuranceType.attributes || [],
       });
@@ -240,7 +241,7 @@ export const InsuranceTypeForm = ({
                     <input
                       type="checkbox"
                       id={`required-${index}`}
-                      checked={attr.required}
+                      checked={attr.required ?? false}
                       onChange={(e) =>
                         handleAttributeChange(
                           index,

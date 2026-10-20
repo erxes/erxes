@@ -215,7 +215,9 @@ export const ContractTemplateEditorPage = () => {
   };
 
   const handleReset = () => {
-    if (confirm('Анхны template руу буцаах уу? Таны өөрчлөлтүүд устана.')) {
+    if (
+      window.confirm('Анхны template руу буцаах уу? Таны өөрчлөлтүүд устана.')
+    ) {
       setTemplate(DEFAULT_TEMPLATE);
       localStorage.removeItem(TEMPLATE_STORAGE_KEY);
     }

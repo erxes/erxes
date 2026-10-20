@@ -1,8 +1,5 @@
+import { escapeRegExp } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
-
-const escapeRegex = (str: string): string => {
-  return str.replace(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
-};
 
 export const contractQueries = {
   contracts: Object.assign(
@@ -39,7 +36,7 @@ export const contractQueries = {
 
         if (str(args.contractNumber)) {
           query.contractNumber = {
-            $regex: escapeRegex(str(args.contractNumber)),
+            $regex: escapeRegExp(str(args.contractNumber)),
             $options: 'i',
           };
         }
@@ -62,7 +59,7 @@ export const contractQueries = {
 
         if (str(args.plateNumber)) {
           query['insuredObject.Улсын дугаар'] = {
-            $regex: escapeRegex(str(args.plateNumber)),
+            $regex: escapeRegExp(str(args.plateNumber)),
             $options: 'i',
           };
         }
@@ -70,7 +67,7 @@ export const contractQueries = {
         if (str(args.customerRegistration)) {
           const customers = await models.Customer.find({
             registrationNumber: {
-              $regex: escapeRegex(str(args.customerRegistration)),
+              $regex: escapeRegExp(str(args.customerRegistration)),
               $options: 'i',
             },
           }).select('_id');
@@ -82,7 +79,7 @@ export const contractQueries = {
         }
 
         if (str(args.searchValue)) {
-          const sv = escapeRegex(str(args.searchValue));
+          const sv = escapeRegExp(str(args.searchValue));
           const customers = await models.Customer.find({
             $or: [
               { firstName: { $regex: sv, $options: 'i' } },
@@ -264,7 +261,7 @@ export const contractQueries = {
       if (filters) {
         if (filters.contractNumber) {
           query.contractNumber = {
-            $regex: escapeRegex(filters.contractNumber),
+            $regex: escapeRegExp(filters.contractNumber),
             $options: 'i',
           };
         }
@@ -284,7 +281,7 @@ export const contractQueries = {
         if (filters.customerRegistration) {
           const customers = await models.Customer.find({
             registrationNumber: {
-              $regex: escapeRegex(filters.customerRegistration),
+              $regex: escapeRegExp(filters.customerRegistration),
               $options: 'i',
             },
           }).select('_id');
@@ -300,13 +297,13 @@ export const contractQueries = {
             $or: [
               {
                 firstName: {
-                  $regex: escapeRegex(filters.customerName),
+                  $regex: escapeRegExp(filters.customerName),
                   $options: 'i',
                 },
               },
               {
                 lastName: {
-                  $regex: escapeRegex(filters.customerName),
+                  $regex: escapeRegExp(filters.customerName),
                   $options: 'i',
                 },
               },
@@ -321,14 +318,14 @@ export const contractQueries = {
 
         if (filters.plateNumber) {
           query['insuredObject.Улсын дугаар'] = {
-            $regex: escapeRegex(filters.plateNumber),
+            $regex: escapeRegExp(filters.plateNumber),
             $options: 'i',
           };
         }
 
         if (filters.vehicleMark) {
           query['insuredObject.Тээврийн хэрэгслийн марк'] = {
-            $regex: escapeRegex(filters.vehicleMark),
+            $regex: escapeRegExp(filters.vehicleMark),
             $options: 'i',
           };
         }

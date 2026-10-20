@@ -311,16 +311,16 @@ export const IndexPage = () => {
                   >
                     <div className="flex-1">
                       <p className="font-medium">
-                        {contract.customer.firstName}{' '}
-                        {contract.customer.lastName}
+                        {contract.customer?.firstName}{' '}
+                        {contract.customer?.lastName}
                       </p>
                       <p className="text-sm text-muted-foreground">
-                        {contract.insuranceProduct.name}
+                        {contract.insuranceProduct?.name}
                       </p>
                     </div>
                     <div className="flex items-center gap-3">
                       <Badge variant="secondary">
-                        ₮{contract.chargedAmount.toLocaleString()}
+                        ₮{contract.chargedAmount?.toLocaleString()}
                       </Badge>
                       <Button variant="ghost" size="sm" asChild>
                         <Link to={`/insurance/contracts/${contract.id}`}>
