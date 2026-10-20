@@ -1,4 +1,5 @@
 import { Fragment } from 'react';
+import { useAtomValue } from 'jotai';
 import { IconInbox } from '@tabler/icons-react';
 import { Button, ScrollArea, Spinner } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
@@ -6,9 +7,11 @@ import { NotificationItem } from '@/notification/components/NotificationItem';
 import { NotificationSelectionToolbar } from '@/notification/components/NotificationSelectionToolbar';
 import { useNotificationList } from '@/notification/hooks/useNotificationList';
 import { useNotificationListActions } from '@/notification/hooks/useNotificationListActions';
+import { inboxDisplayOptionsState } from '@/notification/states/notificationState';
 
 export const NotificationList = () => {
   const { t } = useTranslation('common', { keyPrefix: 'notification' });
+  const { unreadFirst } = useAtomValue(inboxDisplayOptionsState);
   const {
     notifications,
     groups,
@@ -64,7 +67,7 @@ export const NotificationList = () => {
               </div>
             )}
             {groups.map(([label, items]) => (
-              <Fragment key={items[0]._id}>
+              <Fragment key={`${label}:${unreadFirst && items[0].isRead}`}>
                 {label && (
                   <h3 className="px-2 pt-2 text-xs font-semibold text-muted-foreground capitalize">
                     {label}
