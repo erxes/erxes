@@ -109,8 +109,10 @@ export const NotificationList = () => {
       {actions.selectedIds.length > 0 && (
         <NotificationSelectionToolbar
           selectedCount={actions.selectedIds.length}
-          markingAsRead={actions.markingAsRead}
+          pending={actions.pending}
+          allRead={actions.allRead}
           onMarkAsRead={actions.markSelectedAsRead}
+          onDelete={actions.deleteSelected}
           onClear={actions.clear}
         />
       )}

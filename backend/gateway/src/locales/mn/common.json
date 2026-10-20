@@ -321,6 +321,16 @@
     "reset-password": "Нууц үг сэргээх"
   },
   "notification": {
+    "delete": "Устгах",
+    "delete-failed": "Мэдэгдлүүдийг устгаж чадсангүй",
+    "notifications-deleted": "{{count}} мэдэгдлийг устгалаа",
+    "previous-notification": "Өмнөх мэдэгдэл",
+    "next-notification": "Дараагийн мэдэгдэл",
+    "mark-as-read-and-next": "Уншсан болгоод дараагийнх",
+    "mark-as-read": "Уншсан болгох",
+    "marked-as-read": "{{count}} мэдэгдлийг уншсан болголоо",
+    "selected-count": "{{count}} сонгосон",
+    "clear-selection": "Сонголт цэвэрлэх",
     "members-selected": "{{count}} сонгосон",
     "active-filters": "Идэвхтэй шүүлтүүрүүд",
     "remove-filter": "Шүүлтүүр арилгах",

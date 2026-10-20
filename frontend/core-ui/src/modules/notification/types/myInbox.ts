@@ -62,14 +62,18 @@ export interface NotificationSelection {
 
 export interface UseNotificationListActionsResult
   extends Pick<NotificationSelection, 'selectedIds' | 'focusedId' | 'clear'> {
-  markingAsRead: boolean;
+  pending: boolean;
+  allRead: boolean;
   markSelectedAsRead: () => Promise<void>;
+  deleteSelected: () => Promise<void>;
   onOpen: (id: string, event: MouseEvent<HTMLAnchorElement>) => void;
 }
 
 export interface NotificationSelectionToolbarProps {
   selectedCount: number;
-  markingAsRead: boolean;
+  pending: boolean;
+  allRead: boolean;
   onMarkAsRead: () => Promise<void>;
+  onDelete: () => Promise<void>;
   onClear: () => void;
 }

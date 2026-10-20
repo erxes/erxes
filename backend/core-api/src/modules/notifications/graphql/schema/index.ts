@@ -249,6 +249,7 @@ export const queries = `
 export const mutations = `
   emailAddressRelease(email:String!, note:String!):String
   emailRampRelease(note:String!):EmailRampStatus
+  coreNotificationsDelete(ids:[String!]!):[String!]!
   archiveNotification(_id:String!):String
   archiveNotifications(ids:[String], archiveAll:Boolean, filters:NotificationFilters):String
   markNotificationAsRead(_id:String!):JSON
