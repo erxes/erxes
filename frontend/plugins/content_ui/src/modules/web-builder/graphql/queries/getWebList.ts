@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const GET_WEB_LIST = gql`
+export const GET_WEB_LIST = gql(`
   query GetWebList {
     getWebList {
       _id
@@ -19,4 +19,4 @@ export const GET_WEB_LIST = gql`
       }
     }
   }
-`;
+`);

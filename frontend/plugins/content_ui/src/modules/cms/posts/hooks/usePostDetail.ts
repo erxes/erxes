@@ -1,7 +1,8 @@
 import { useQuery, useMutation } from '@apollo/client';
 import { POST_DETAIL } from '../graphql/queries/postDetailQuery';
 import { POST_CMS_EDIT } from '../graphql/queries/postCmsEditQuery';
-import { PostDetailResponse, PostEditVariables } from '../types';
+import type { PostInput } from '~/gql/graphql';
+import { PostDetailResponse } from '../types';
 
 export const usePostDetail = (postId: string) => {
   const { data, loading, error, refetch } = useQuery<PostDetailResponse>(
@@ -21,7 +22,7 @@ export const usePostDetail = (postId: string) => {
     },
   );
 
-  const handleEditPost = async (input: PostEditVariables['input']) => {
+  const handleEditPost = async (input: PostInput) => {
     if (!postId) {
       throw new Error('Post ID is required for editing');
     }

@@ -16,7 +16,8 @@ import {
   SettingsFormState,
   UpdateSetting,
 } from '../types/settingsTypes';
-import { buildPublicUrl } from '../utils/settingsHelpers';
+import { compactList } from '../../shared/utils';
+import { buildPublicUrl, toCmsAttachment } from '../utils/settingsHelpers';
 
 export const useSettingsForm = () => {
   const { t } = useTranslation('content');
@@ -68,8 +69,8 @@ export const useSettingsForm = () => {
 
   const cms: CmsSettingsData | undefined = useMemo(
     () =>
-      cmsData?.contentCMSList?.find(
-        (item: CmsSettingsData) => item.clientPortalId === websiteId,
+      compactList(cmsData?.contentCMSList).find(
+        (item) => item.clientPortalId === websiteId,
       ),
     [cmsData, websiteId],
   );
@@ -77,7 +78,7 @@ export const useSettingsForm = () => {
   const clientPortalList = websitesData?.getClientPortals?.list;
 
   const clientPortals = useMemo<ClientPortalOption[]>(
-    () => clientPortalList || [],
+    () => compactList(clientPortalList),
     [clientPortalList],
   );
 
@@ -105,8 +106,10 @@ export const useSettingsForm = () => {
 
     const domain =
       cms?.domain || clientPortal?.domain || DEFAULT_SETTINGS.domain;
-    const languages = cms?.languages?.length
-      ? cms.languages
+    const cmsLanguages = compactList(cms?.languages);
+    const cmsMetaKeywords = compactList(cms?.metaKeywords);
+    const languages = cmsLanguages.length
+      ? cmsLanguages
       : DEFAULT_SETTINGS.languages;
 
     setSettings({
@@ -122,10 +125,10 @@ export const useSettingsForm = () => {
       publicUrl: cms?.publicUrl || buildPublicUrl(domain),
       metaTitle: cms?.metaTitle || DEFAULT_SETTINGS.metaTitle,
       metaDescription: cms?.metaDescription || DEFAULT_SETTINGS.metaDescription,
-      metaKeywords: cms?.metaKeywords?.length
-        ? cms.metaKeywords
+      metaKeywords: cmsMetaKeywords.length
+        ? cmsMetaKeywords
         : DEFAULT_SETTINGS.metaKeywords,
-      metaImage: cms?.metaImage || DEFAULT_SETTINGS.metaImage,
+      metaImage: toCmsAttachment(cms?.metaImage) || DEFAULT_SETTINGS.metaImage,
       gaTrackingId: cms?.googleTrackingId || DEFAULT_SETTINGS.gaTrackingId,
       googleTagManagerId:
         cms?.googleTagManagerId || DEFAULT_SETTINGS.googleTagManagerId,
@@ -140,10 +143,10 @@ export const useSettingsForm = () => {
       languages,
       defaultLanguage:
         cms?.language || languages[0] || DEFAULT_SETTINGS.defaultLanguage,
-      siteLogo: cms?.siteLogo || DEFAULT_SETTINGS.siteLogo,
-      favicon: cms?.favicon || DEFAULT_SETTINGS.favicon,
+      siteLogo: toCmsAttachment(cms?.siteLogo) || DEFAULT_SETTINGS.siteLogo,
+      favicon: toCmsAttachment(cms?.favicon) || DEFAULT_SETTINGS.favicon,
       accessPolicy: cms?.accessPolicy === 'assigned' ? 'assigned' : 'open',
-      assignedMemberIds: cms?.assignedMemberIds || [],
+      assignedMemberIds: compactList(cms?.assignedMemberIds),
     });
     setHydratedSettingsKey(hydrationKey);
   }, [

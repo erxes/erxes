@@ -1,11 +1,12 @@
 import { ApolloError, useMutation, useQuery } from '@apollo/client';
 import { toast } from 'erxes-ui';
 import { useAtomValue, useSetAtom } from 'jotai';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { cmsLanguageAtom } from '../../shared/states/cmsLanguageState';
 import { useCmsTranslation } from '../../shared/hooks/useCmsTranslation';
+import { compactList } from '../../shared/utils';
 import {
   CMS_MENU_ADD,
   CMS_MENU_EDIT,
@@ -22,7 +23,6 @@ import {
   MENU_DETECT_QUERY,
 } from '../graphql/menuDrawerQueries';
 import {
-  CmsConfig,
   GraphQLErrorEntry,
   MenuContentItem,
   MenuCustomType,
@@ -100,9 +100,12 @@ export function useMenuDrawer({ isOpen, onClose, onSuccess, clientPortalId, menu
   });
 
   const cmsConfig = cmsData?.contentCMSList?.find(
-    (cms: CmsConfig) => cms.clientPortalId === clientPortalId,
+    (cms) => cms?.clientPortalId === clientPortalId,
   );
-  const availableLanguages: string[] = cmsConfig?.languages || [];
+  const availableLanguages = useMemo(
+    () => compactList(cmsConfig?.languages),
+    [cmsConfig?.languages],
+  );
   const defaultLanguage: string = cmsConfig?.language || 'en';
 
   const {
@@ -153,8 +156,8 @@ export function useMenuDrawer({ isOpen, onClose, onSuccess, clientPortalId, menu
     fetchPolicy: 'cache-and-network',
   });
 
-  const rawMenus: RawMenuItem[] = (menusData?.cmsMenuList || []).filter(
-    (m: RawMenuItem) => m._id !== menu?._id,
+  const rawMenus: RawMenuItem[] = compactList(menusData?.cmsMenuList).filter(
+    (m) => m._id !== menu?._id,
   );
 
   const parentOptions = buildFlatTree(
@@ -162,7 +165,7 @@ export function useMenuDrawer({ isOpen, onClose, onSuccess, clientPortalId, menu
     selectedLanguage || cmsLanguage || defaultLanguage || 'en',
   ).map((item) => ({
     _id: item._id,
-    label: getDepthPrefix(item.depth) + item.label,
+    label: getDepthPrefix(item.depth) + (item.label ?? ''),
   }));
 
   const linkType = form.watch('linkType');
@@ -211,10 +214,8 @@ export function useMenuDrawer({ isOpen, onClose, onSuccess, clientPortalId, menu
     if (url.startsWith('/category/') || url.startsWith('/tag/')) return;
     if (!url.startsWith('/')) return;
 
-    const detectedPages: { _id: string; slug: string }[] =
-      detectData.cmsPageList?.pages || [];
-    const detectedPosts: { _id: string; slug: string; customPostType?: { _id: string } }[] =
-      detectData.cmsPostList?.posts || [];
+    const detectedPages = compactList(detectData.cmsPageList?.pages);
+    const detectedPosts = compactList(detectData.cmsPostList?.posts);
 
     const matchedPage = detectedPages.find((p) => `/${p.slug}` === url);
     if (matchedPage) {
@@ -228,11 +229,15 @@ export function useMenuDrawer({ isOpen, onClose, onSuccess, clientPortalId, menu
     }
   }, [detectData, isEditing, menu?.url]);
 
-  const customTypes: MenuCustomType[] = customTypesData?.cmsCustomPostTypes || [];
-  const pages: MenuContentItem[] = pagesData?.cmsPageList?.pages || [];
-  const posts: MenuContentItem[] = postsData?.cmsPostList?.posts || [];
-  const categories: MenuContentItem[] = categoriesData?.cmsCategories?.list || [];
-  const tags: MenuContentItem[] = tagsData?.cmsTags?.tags || [];
+  const customTypes: MenuCustomType[] = compactList(
+    customTypesData?.cmsCustomPostTypes,
+  );
+  const pages: MenuContentItem[] = compactList(pagesData?.cmsPageList?.pages);
+  const posts: MenuContentItem[] = compactList(postsData?.cmsPostList?.posts);
+  const categories: MenuContentItem[] = compactList(
+    categoriesData?.cmsCategories?.list,
+  );
+  const tags: MenuContentItem[] = compactList(tagsData?.cmsTags?.tags);
 
   function handleError(error: ApolloError) {
     const permissionError = error.graphQLErrors?.some(

@@ -1,4 +1,6 @@
 import { ApolloError, useQuery } from '@apollo/client';
+import { useMemo } from 'react';
+import { compactList } from '../../shared/utils';
 import { CMS_CUSTOM_POST_TYPES } from '../graphql/queries';
 import { ICustomPostType } from '../types/customTypeTypes';
 
@@ -27,7 +29,10 @@ export function useCustomTypes({
     notifyOnNetworkStatusChange: true,
   });
 
-  const customTypes = data?.cmsCustomPostTypes || [];
+  const customTypes = useMemo(
+    () => compactList(data?.cmsCustomPostTypes),
+    [data?.cmsCustomPostTypes],
+  );
 
   return {
     customTypes,

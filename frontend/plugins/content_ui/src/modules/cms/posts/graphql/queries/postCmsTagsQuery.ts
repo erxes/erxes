@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const POST_CMS_TAGS = gql`
+export const POST_CMS_TAGS = gql(`
   query CmsPostTags(
     $clientPortalId: String
     $cursor: String
@@ -48,4 +48,4 @@ export const POST_CMS_TAGS = gql`
       __typename
     }
   }
-`;
+`);

@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const CONTENT_CMS_LIST = gql`
+export const CONTENT_CMS_LIST = gql(`
   query ContentCMSList {
     contentCMSList {
       _id
@@ -49,9 +49,9 @@ export const CONTENT_CMS_LIST = gql`
       }
     }
   }
-`;
+`);
 
-export const GET_WEBSITES = gql`
+export const GET_WEBSITES = gql(`
   query CmsWebsites {
     getClientPortals(filter: {}) {
       list {
@@ -65,9 +65,9 @@ export const GET_WEBSITES = gql`
       totalCount
     }
   }
-`;
+`);
 
-export const CMS_MENU_ADD = gql`
+export const CMS_MENU_ADD = gql(`
   mutation cmsAddMenu($input: MenuItemInput!) {
     cmsAddMenu(input: $input) {
       _id
@@ -84,9 +84,9 @@ export const CMS_MENU_ADD = gql`
       __typename
     }
   }
-`;
+`);
 
-export const CMS_MENU_EDIT = gql`
+export const CMS_MENU_EDIT = gql(`
   mutation cmsEditMenu($_id: String!, $input: MenuItemInput!) {
     cmsEditMenu(_id: $_id, input: $input) {
       _id
@@ -103,15 +103,15 @@ export const CMS_MENU_EDIT = gql`
       __typename
     }
   }
-`;
+`);
 
-export const CMS_MENU_REMOVE = gql`
+export const CMS_MENU_REMOVE = gql(`
   mutation cmsRemoveMenu($_id: String!) {
     cmsRemoveMenu(_id: $_id)
   }
-`;
+`);
 
-export const CMS_TAGS = gql`
+export const CMS_TAGS = gql(`
   query CmsTags(
     $clientPortalId: String
     $cursor: String
@@ -162,9 +162,9 @@ export const CMS_TAGS = gql`
       totalCount
     }
   }
-`;
+`);
 
-export const POSTS_ADD = gql`
+export const POSTS_ADD = gql(`
   mutation PostsAdd($input: PostInput!) {
     cmsPostsAdd(input: $input) {
       _id
@@ -173,9 +173,9 @@ export const POSTS_ADD = gql`
       __typename
     }
   }
-`;
+`);
 
-export const CMS_POSTS_EDIT = gql`
+export const CMS_POSTS_EDIT = gql(`
   mutation CmsPostsEdit($id: String!, $input: PostInput!) {
     cmsPostsEdit(_id: $id, input: $input) {
       _id
@@ -289,9 +289,9 @@ export const CMS_POSTS_EDIT = gql`
       __typename
     }
   }
-`;
+`);
 
-export const CMS_POST = gql`
+export const CMS_POST = gql(`
   query Post($id: String) {
     cmsPost(_id: $id) {
       _id
@@ -394,15 +394,15 @@ export const CMS_POST = gql`
       __typename
     }
   }
-`;
+`);
 
-export const CMS_POSTS_REMOVE = gql`
+export const CMS_POSTS_REMOVE = gql(`
   mutation CmsPostsRemove($id: String!) {
     cmsPostsRemove(_id: $id)
   }
-`;
+`);
 
-export const CMS_MENU_LIST = gql`
+export const CMS_MENU_LIST = gql(`
   query cmsMenuList(
     $clientPortalId: String
     $kind: String
@@ -438,9 +438,9 @@ export const CMS_MENU_LIST = gql`
       __typename
     }
   }
-`;
+`);
 
-export const GET_CLIENT_PORTALS = gql`
+export const GET_CLIENT_PORTALS = gql(`
   query getClientPortals($filter: IClientPortalFilter) {
     getClientPortals(filter: $filter) {
       list {
@@ -460,9 +460,9 @@ export const GET_CLIENT_PORTALS = gql`
       __typename
     }
   }
-`;
+`);
 
-export const CMS_CUSTOM_FIELD_GROUPS = gql`
+export const CMS_CUSTOM_FIELD_GROUPS = gql(`
   query cmsPageCustomFieldGroupList($clientPortalId: String!) {
     cmsCustomFieldGroupList(clientPortalId: $clientPortalId) {
       list {
@@ -484,9 +484,9 @@ export const CMS_CUSTOM_FIELD_GROUPS = gql`
       }
     }
   }
-`;
+`);
 
-export const CMS_CUSTOM_POST_TYPES = gql`
+export const CMS_CUSTOM_POST_TYPES = gql(`
   query cmsCustomPostTypes($clientPortalId: String) {
     cmsCustomPostTypes(clientPortalId: $clientPortalId) {
       _id
@@ -497,9 +497,9 @@ export const CMS_CUSTOM_POST_TYPES = gql`
       createdAt
     }
   }
-`;
+`);
 
-export const CMS_CUSTOM_POST_TYPE_ADD = gql`
+export const CMS_CUSTOM_POST_TYPE_ADD = gql(`
   mutation cmsCustomPostTypesAdd($input: CustomPostTypeInput!) {
     cmsCustomPostTypesAdd(input: $input) {
       _id
@@ -510,9 +510,9 @@ export const CMS_CUSTOM_POST_TYPE_ADD = gql`
       createdAt
     }
   }
-`;
+`);
 
-export const CMS_CUSTOM_POST_TYPE_EDIT = gql`
+export const CMS_CUSTOM_POST_TYPE_EDIT = gql(`
   mutation cmsCustomPostTypesEdit($_id: String!, $input: CustomPostTypeInput!) {
     cmsCustomPostTypesEdit(_id: $_id, input: $input) {
       _id
@@ -523,9 +523,9 @@ export const CMS_CUSTOM_POST_TYPE_EDIT = gql`
       createdAt
     }
   }
-`;
+`);
 
-export const CMS_TRANSLATIONS = gql`
+export const CMS_TRANSLATIONS = gql(`
   query cmsTranslations($objectId: String, $type: String) {
     cmsTranslations(objectId: $objectId, type: $type) {
       _id
@@ -538,9 +538,9 @@ export const CMS_TRANSLATIONS = gql`
       type
     }
   }
-`;
+`);
 
-export const CMS_EDIT_TRANSLATION = gql`
+export const CMS_EDIT_TRANSLATION = gql(`
   mutation cmsEditTranslation($input: TranslationInput!) {
     cmsEditTranslation(input: $input) {
       _id
@@ -553,4 +553,4 @@ export const CMS_EDIT_TRANSLATION = gql`
       type
     }
   }
-`;
+`);

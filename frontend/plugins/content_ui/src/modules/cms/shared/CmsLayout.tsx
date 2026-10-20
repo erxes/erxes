@@ -55,7 +55,6 @@ export function CmsLayout({
   // });
 
   const { data: websitesData } = useQuery(GET_WEBSITES, {
-    variables: { search: '' },
     skip: !websiteId,
     fetchPolicy: 'cache-first',
   });
@@ -65,11 +64,10 @@ export function CmsLayout({
   });
 
   const websiteName =
-    cmsData?.contentCMSList?.find((w: any) => w.clientPortalId === websiteId)
+    cmsData?.contentCMSList?.find((w) => w?.clientPortalId === websiteId)
       ?.name ||
-    websitesData?.clientPortalGetConfigs?.list?.find(
-      (w: any) => w._id === websiteId,
-    )?.name ||
+    websitesData?.getClientPortals?.list?.find((w) => w?._id === websiteId)
+      ?.name ||
     '';
 
   const navigationItems = [

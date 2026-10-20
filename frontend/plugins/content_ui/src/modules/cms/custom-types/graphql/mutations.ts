@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const CMS_CUSTOM_POST_TYPE_EDIT = gql`
+export const CMS_CUSTOM_POST_TYPE_EDIT = gql(`
   mutation cmsCustomPostTypesEdit($_id: String!, $input: CustomPostTypeInput!) {
     cmsCustomPostTypesEdit(_id: $_id, input: $input) {
       _id
@@ -11,10 +11,10 @@ export const CMS_CUSTOM_POST_TYPE_EDIT = gql`
       createdAt
     }
   }
-`;
+`);
 
-export const CMS_CUSTOM_POST_TYPE_REMOVE = gql`
+export const CMS_CUSTOM_POST_TYPE_REMOVE = gql(`
   mutation cmsCustomPostTypesRemove($_id: String!) {
     cmsCustomPostTypesRemove(_id: $_id)
   }
-`;
+`);

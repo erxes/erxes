@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const PAGE_DETAIL = gql`
+export const PAGE_DETAIL = gql(`
   query PageDetail($id: String!) {
     cmsPage(_id: $id) {
       _id
@@ -68,4 +68,4 @@ export const PAGE_DETAIL = gql`
       __typename
     }
   }
-`;
+`);

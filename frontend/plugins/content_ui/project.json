@@ -64,6 +64,14 @@
         }
       }
     },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "dependsOn": ["codegen"],
+      "options": {
+        "jestConfig": "frontend/plugins/content_ui/jest.config.ts",
+        "passWithNoTests": false
+      }
+    },
     "codegen": {
       "executor": "nx:run-commands",
       "cache": true,

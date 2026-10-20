@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from '@apollo/client';
 import { Button, Form, Input, Select, Sheet, Textarea, toast } from 'erxes-ui';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -29,6 +29,8 @@ import {
   useCmsTranslation,
 } from '../shared/hooks/useCmsTranslation';
 import { cmsLanguageAtom } from '../shared/states/cmsLanguageState';
+import { compactList } from '../shared/utils';
+import { toFieldDefinitions } from '../custom-fields/utils/toFieldDefinitions';
 
 interface ITreeOption {
   _id: string;
@@ -37,12 +39,15 @@ interface ITreeOption {
 
 interface IFlatCategory {
   _id: string;
-  name: string;
-  parentId?: string;
+  name: string | null;
+  parentId?: string | null;
 }
 
-const naturalSort = (a: string, b: string) =>
-  a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });
+const naturalSort = (a: string | null, b: string | null) =>
+  (a ?? '').localeCompare(b ?? '', undefined, {
+    numeric: true,
+    sensitivity: 'base',
+  });
 
 function buildTreeOptions(flat: IFlatCategory[]): ITreeOption[] {
   const result: ITreeOption[] = [];
@@ -52,7 +57,7 @@ function buildTreeOptions(flat: IFlatCategory[]): ITreeOption[] {
     if (visited.has(item._id)) return;
     visited.add(item._id);
     const prefix = depth > 0 ? '-'.repeat(depth) + ' ' : '';
-    result.push({ _id: item._id, label: prefix + item.name });
+    result.push({ _id: item._id, label: prefix + (item.name ?? '') });
     flat
       .filter((c) => c.parentId === item._id)
       .sort((a, b) => naturalSort(a.name, b.name))
@@ -64,7 +69,7 @@ function buildTreeOptions(flat: IFlatCategory[]): ITreeOption[] {
     .sort((a, b) => naturalSort(a.name, b.name))
     .forEach((root) => addWithChildren(root, 0));
   flat.forEach((c) => {
-    if (!visited.has(c._id)) result.push({ _id: c._id, label: c.name });
+    if (!visited.has(c._id)) result.push({ _id: c._id, label: c.name ?? '' });
   });
 
   return result;
@@ -72,15 +77,15 @@ function buildTreeOptions(flat: IFlatCategory[]): ITreeOption[] {
 
 interface Category {
   _id: string;
-  name: string;
-  slug: string;
+  name: string | null;
+  slug: string | null;
   clientPortalId: string;
-  createdAt: string;
-  description?: string;
-  parentId?: string;
-  status?: string;
-  customFieldsData?: { field: string; value?: CustomFieldValue }[];
-  translations?: { language: string }[];
+  createdAt: string | null;
+  description?: string | null;
+  parentId?: string | null;
+  status?: string | null;
+  customFieldsData?: unknown;
+  translations?: ({ language: string | null } | null)[] | null;
 }
 
 interface CmsCategoryDrawerProps {
@@ -99,12 +104,6 @@ interface CategoryFormData {
   status: 'active' | 'inactive';
   customFieldsData?: { field: string; value?: unknown }[];
   [key: `customFields.${string}`]: CustomFieldValue | undefined; // Allow dynamic custom field properties
-}
-
-interface CmsConfig {
-  clientPortalId: string;
-  languages?: string[];
-  language?: string;
 }
 
 interface CategoryTranslationInput {
@@ -161,7 +160,7 @@ const categoryToFormValues = (
     description: category.description || '',
     parentId: category.parentId || undefined,
     status: category.status === 'inactive' ? 'inactive' : 'active',
-    customFieldsData: category.customFieldsData || [],
+    customFieldsData: toCategoryCustomFields(category.customFieldsData),
   };
 };
 
@@ -189,7 +188,7 @@ const hasTranslationValue = (data?: TranslationData): boolean => {
 };
 
 const toCategoryCustomFields = (
-  customFieldsData?: unknown[],
+  customFieldsData: unknown,
 ): CategoryFormType['customFieldsData'] => {
   return Array.isArray(customFieldsData)
     ? (customFieldsData as CategoryFormType['customFieldsData'])
@@ -251,9 +250,12 @@ export function CmsCategoryDrawer({
   });
 
   const cmsConfig = cmsData?.contentCMSList?.find(
-    (cms: CmsConfig) => cms.clientPortalId === clientPortalId,
+    (cms) => cms?.clientPortalId === clientPortalId,
   );
-  const availableLanguages: string[] = cmsConfig?.languages || [];
+  const availableLanguages = useMemo(
+    () => compactList(cmsConfig?.languages),
+    [cmsConfig?.languages],
+  );
   const defaultLanguage: string = cmsConfig?.language || 'en';
 
   const {
@@ -274,7 +276,7 @@ export function CmsCategoryDrawer({
 
   const { data: categoryDetailData } = useQuery(CMS_CATEGORY_DETAIL, {
     variables: {
-      _id: category?._id,
+      _id: category?._id ?? '',
       clientPortalId,
     },
     fetchPolicy: 'network-only',
@@ -295,15 +297,27 @@ export function CmsCategoryDrawer({
 
   const currentCategoryId = category?._id;
 
-  const fieldGroups: FieldGroup[] = (
-    customFieldsData?.cmsCustomFieldGroupList?.list || []
-  ).filter((group: any) => {
-    const ids: string[] = group.customPostTypeIds || [];
+  const fieldGroupList = useMemo(
+    () =>
+      compactList(customFieldsData?.cmsCustomFieldGroupList?.list).map(
+        (group) => ({
+          _id: group._id,
+          label: group.label,
+          customPostTypeIds: compactList(group.customPostTypeIds),
+          enabledCategoryIds: compactList(group.enabledCategoryIds),
+          fields: toFieldDefinitions(group.fields),
+        }),
+      ),
+    [customFieldsData],
+  );
+
+  const fieldGroups: FieldGroup[] = fieldGroupList.filter((group) => {
+    const ids: string[] = group.customPostTypeIds;
     // show if no restriction, or explicitly includes 'category'
     const showOnCategory = ids.length === 0 || ids.includes('category');
     if (!showOnCategory) return false;
     // if specific categories are set, only show for this category
-    const enabledCategoryIds: string[] = group.enabledCategoryIds || [];
+    const enabledCategoryIds: string[] = group.enabledCategoryIds;
     if (enabledCategoryIds.length > 0 && currentCategoryId) {
       return enabledCategoryIds.includes(currentCategoryId);
     }
@@ -365,7 +379,7 @@ export function CmsCategoryDrawer({
     fetchPolicy: 'cache-first',
     skip: !isOpen,
   });
-  const allCategories: Category[] = catsData?.cmsCategories?.list || [];
+  const allCategories: Category[] = compactList(catsData?.cmsCategories?.list);
   const descendantIds = collectDescendantIds(allCategories, category?._id);
 
   const rawParentOptions: Category[] = allCategories.filter(
@@ -433,7 +447,7 @@ export function CmsCategoryDrawer({
     (): TranslationData => ({
       title: baseCategory?.name || '',
       content: baseCategory?.description || '',
-      customFieldsData: baseCategory?.customFieldsData || [],
+      customFieldsData: toCategoryCustomFields(baseCategory?.customFieldsData),
     }),
     [baseCategory],
   );

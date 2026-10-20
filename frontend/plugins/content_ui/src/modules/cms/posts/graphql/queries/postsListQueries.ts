@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const POSTS_LIST = gql`
+export const POSTS_LIST = gql(`
   query CmsPostList(
     $clientPortalId: String
     $limit: Int
@@ -149,4 +149,4 @@ export const POSTS_LIST = gql`
       totalCount
     }
   }
-`;
+`);

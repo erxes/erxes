@@ -203,15 +203,7 @@ export function CustomFields() {
         });
         setIsFieldDrawerOpen(false);
         setEditingField(null);
-        const result = await refetch();
-        if (result.data?.cmsCustomFieldGroupList?.list) {
-          const updatedGroup = result.data.cmsCustomFieldGroupList.list.find(
-            (g: ICustomFieldGroup) => g._id === latestGroup._id,
-          );
-          if (updatedGroup) {
-            setSelectedGroup(updatedGroup);
-          }
-        }
+        await refetch();
       },
     });
   };
@@ -258,15 +250,7 @@ export function CustomFields() {
         },
         onCompleted: async () => {
           toast({ title: t('success'), description: t('field-deleted') });
-          const result = await refetch();
-          if (result.data?.cmsCustomFieldGroupList?.list) {
-            const updatedGroup = result.data.cmsCustomFieldGroupList.list.find(
-              (g: ICustomFieldGroup) => g._id === latestGroup._id,
-            );
-            if (updatedGroup) {
-              setSelectedGroup(updatedGroup);
-            }
-          }
+          await refetch();
         },
       });
     });

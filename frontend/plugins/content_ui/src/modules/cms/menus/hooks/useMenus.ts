@@ -3,6 +3,7 @@ import { useMemo } from 'react';
 import { useAtomValue } from 'jotai';
 import { CMS_MENU_LIST } from '../../graphql/queries';
 import { cmsLanguageAtom } from '../../shared/states/cmsLanguageState';
+import { compactList } from '../../shared/utils';
 import { buildFlatTree } from '../menuUtils';
 
 export const useMenus = ({
@@ -32,7 +33,7 @@ export const useMenus = ({
   });
 
   const menus = useMemo(
-    () => buildFlatTree(data?.cmsMenuList || [], language || 'en'),
+    () => buildFlatTree(compactList(data?.cmsMenuList), language || 'en'),
     [data?.cmsMenuList, language],
   );
 

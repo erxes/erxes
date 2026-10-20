@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const WEB_CUSTOM_DOMAINS_FIELDS = gql`
+export const WEB_CUSTOM_DOMAINS_FIELDS = gql(`
   fragment WebCustomDomainsFields on WebCustomDomains {
     isDeployed
     defaultDomain
@@ -17,13 +17,12 @@ export const WEB_CUSTOM_DOMAINS_FIELDS = gql`
       }
     }
   }
-`;
+`);
 
-export const GET_WEB_CUSTOM_DOMAINS = gql`
-  ${WEB_CUSTOM_DOMAINS_FIELDS}
+export const GET_WEB_CUSTOM_DOMAINS = gql(`
   query WebCustomDomains($webId: String!) {
     webCustomDomains(webId: $webId) {
       ...WebCustomDomainsFields
     }
   }
-`;
+`);

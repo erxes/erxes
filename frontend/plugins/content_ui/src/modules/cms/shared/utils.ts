@@ -23,6 +23,10 @@ export const getRecordTableSelectedIds = <T extends { _id: string }>(
 export const getErrorMessage = (error: unknown) =>
   error instanceof Error ? error.message : undefined;
 
+export const compactList = <T>(
+  list: readonly (T | null)[] | null | undefined,
+) => (list ?? []).filter((item): item is T => item !== null);
+
 export type PostUrlField = '_id' | 'count' | 'slug';
 
 export interface PostUrlSource {

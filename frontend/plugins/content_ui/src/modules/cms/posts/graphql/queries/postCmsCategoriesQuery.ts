@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const POST_CMS_CATEGORIES = gql`
+export const POST_CMS_CATEGORIES = gql(`
   query CmsPostCategories(
     $clientPortalId: String!
     $searchValue: String
@@ -86,4 +86,4 @@ export const POST_CMS_CATEGORIES = gql`
       __typename
     }
   }
-`;
+`);

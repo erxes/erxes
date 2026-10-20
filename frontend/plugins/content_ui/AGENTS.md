@@ -119,6 +119,10 @@
   - `CmsPostEditor` casts its `BLOCK_SCHEMA` blocks to `useBlockEditor`'s
     `initialContent` type. That type uses the default BlockNote schema, while
     the editor itself is built with `BLOCK_SCHEMA`.
+- `customFieldsData` is a `JSON` scalar with no fixed value type.
+  `toCategoryCustomFields` and `usePostForm`'s `toCustomFieldEntries` check
+  `Array.isArray` and cast the entries the UI saved. Do not filter them by value
+  type: an entry written by another client would be dropped on the next save.
 
 ### UI Conventions
 
@@ -140,6 +144,25 @@
 ### Data and GraphQL
 
 - Use Apollo Client hooks already used in this plugin.
+- Every document is a `gql()` call imported from `~/gql`, never the `gql` tag
+  from `@apollo/client`. Hooks infer result and variable types from the
+  document.
+- Generated list items and arrays are nullable. Read them through `compactList`
+  from `cms/shared/utils`. It returns a new array on every call, so wrap it in
+  `useMemo` when the result reaches hook dependencies, context values, or
+  `useSyncedState`.
+- A required variable on a skipped query gets an empty-string fallback, such as
+  `_id: tag?._id ?? ''` with `skip: !tag?._id`.
+- Custom field group `fields` is a `JSON` scalar. Read it through
+  `custom-fields/utils/toFieldDefinitions`, which keeps entries with string
+  `_id`, `type` and `label`, as the stored field schema requires. Memoize the
+  converted groups: `ReorderableCustomFields` resets its local order whenever a
+  group's `fields` array changes identity.
+- Queried attachments are mapped to plain input objects before they reach a
+  form or mutation, through `toCmsAttachment` in
+  `cms/settings/utils/settingsHelpers`. Apollo adds `__typename` to results,
+  and `AttachmentInput` rejects it. `AttachmentInput.name` is required, so send
+  an empty string when the upload has no name.
 - Post edits refetch only the CMS post detail, cursor list, and translations.
   Never use `refetchQueries: 'all'` for CMS saves: it can execute another
   plugin's dormant query without required variables and reject a successful save.

@@ -9,15 +9,16 @@ export const useRemoveCategories = (
 
   const [removeCategory, { loading }] = useMutation(CMS_CATEGORIES_REMOVE, {
     onCompleted: (data, clientOptions) => {
+      const removedId = clientOptions?.variables?.id;
       const existingCategories = client.readQuery({
         query: CMS_CATEGORIES,
         variables: { clientPortalId, limit: 100 },
       });
+      const existingList = existingCategories?.cmsCategories;
 
-      if (existingCategories && clientOptions?.variables?.id) {
-        const updatedList = existingCategories.cmsCategories.list.filter(
-          (cat: any) => cat._id !== (clientOptions.variables as any).id,
-        );
+      if (existingList && removedId) {
+        const updatedList =
+          existingList.list?.filter((cat) => cat?._id !== removedId) ?? null;
 
         client.writeQuery({
           query: CMS_CATEGORIES,
@@ -25,7 +26,7 @@ export const useRemoveCategories = (
           data: {
             ...existingCategories,
             cmsCategories: {
-              ...existingCategories.cmsCategories,
+              ...existingList,
               list: updatedList,
             },
           },

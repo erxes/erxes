@@ -15,7 +15,7 @@ import { compareByOrder } from '../utils/comparators';
  */
 export const useCustomFieldOrdering = (websiteId?: string) => {
   const { data, refetch } = useQuery(CMS_CUSTOM_FIELD_GROUPS, {
-    variables: { clientPortalId: websiteId },
+    variables: { clientPortalId: websiteId ?? '' },
     skip: !websiteId,
     fetchPolicy: 'cache-first',
   });

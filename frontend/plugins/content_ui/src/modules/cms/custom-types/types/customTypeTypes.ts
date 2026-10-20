@@ -3,6 +3,6 @@ export interface ICustomPostType {
   code: string;
   label: string;
   pluralLabel: string;
-  description?: string;
-  createdAt: string;
+  description?: string | null;
+  createdAt: string | null;
 }

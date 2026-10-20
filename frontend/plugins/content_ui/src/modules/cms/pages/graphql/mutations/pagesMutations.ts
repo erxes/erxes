@@ -1,5 +1,5 @@
-import { gql } from '@apollo/client';
-export const PAGES_ADD = gql`
+import { gql } from '~/gql';
+export const PAGES_ADD = gql(`
   mutation PagesAdd($input: PageInput!) {
     cmsPagesAdd(input: $input) {
       _id
@@ -30,9 +30,9 @@ export const PAGES_ADD = gql`
       __typename
     }
   }
-`;
+`);
 
-export const PAGES_EDIT = gql`
+export const PAGES_EDIT = gql(`
   mutation PagesEdit($_id: String!, $input: PageInput!) {
     cmsPagesEdit(_id: $_id, input: $input) {
       _id
@@ -63,10 +63,10 @@ export const PAGES_EDIT = gql`
       __typename
     }
   }
-`;
+`);
 
-export const PAGES_REMOVE = gql`
+export const PAGES_REMOVE = gql(`
   mutation PagesRemove($id: String!) {
     cmsPagesRemove(_id: $id)
   }
-`;
+`);
