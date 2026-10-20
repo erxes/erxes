@@ -1,31 +1,42 @@
 import { QueryHookOptions, useQuery } from '@apollo/client';
 import {
   EnumCursorDirection,
-  IRecordTableCursorPageInfo,
   parseDateRangeFromString,
   useMultiQueryState,
   useRecordTableCursor,
   validateFetchMore,
 } from 'erxes-ui';
+import type {
+  CmsPostListQuery,
+  CmsPostListQueryVariables,
+  PostDateField,
+  PostStatus,
+} from '~/gql/graphql';
 import { POSTS_LIST } from '../graphql/queries/postsListQueries';
 import { POSTS_CURSOR_SESSION_KEY } from '../constants/postsCursorSessionKey';
-import { Posts } from '../types/postsType';
 import { useSetAtom, useAtomValue } from 'jotai';
 import { postsTotalCountAtom } from '../states/postsCounts';
 import { cmsLanguageAtom } from '../../shared/states/cmsLanguageState';
-import { useEffect } from 'react';
+import {
+  compactList,
+  mergeCursorPage,
+  toCursorPageInfo,
+} from '../../shared/utils';
+import { useEffect, useMemo } from 'react';
 
 export const POSTS_PER_PAGE = 30;
 
-export const usePostsVariables = (
-  variables?: QueryHookOptions<{
-    cmsPostList: {
-      posts: Posts[];
-      totalCount: number;
-      pageInfo: IRecordTableCursorPageInfo;
-    };
-  }>['variables'],
-) => {
+const POST_STATUSES: readonly PostStatus[] = [
+  'archived',
+  'draft',
+  'published',
+  'scheduled',
+];
+
+const toPostStatus = (value?: string | null) =>
+  POST_STATUSES.find((postStatus) => postStatus === value);
+
+export const usePostsVariables = (variables?: CmsPostListQueryVariables) => {
   const language = useAtomValue(cmsLanguageAtom);
 
   const [
@@ -72,7 +83,7 @@ export const usePostsVariables = (
     sessionKey: POSTS_CURSOR_SESSION_KEY,
   });
 
-  let dateField: string | undefined;
+  let dateField: PostDateField | undefined;
   let dateFrom: Date | undefined;
   let dateTo: Date | undefined;
 
@@ -111,7 +122,7 @@ export const usePostsVariables = (
     sortField: sortField || 'createdAt',
     sortDirection: parsedSortDirection ?? '-1',
     searchValue: searchValue || undefined,
-    status: status === 'all' ? undefined : status || undefined,
+    status: toPostStatus(status),
     type: type || undefined,
     tagIds: tags || undefined,
     categoryIds,
@@ -124,26 +135,29 @@ export const usePostsVariables = (
   };
 };
 
-export const usePosts = (options?: QueryHookOptions) => {
+export const usePosts = (
+  options?: QueryHookOptions<CmsPostListQuery, CmsPostListQueryVariables>,
+) => {
   const setPostsTotalCount = useSetAtom(postsTotalCountAtom);
   const variables = usePostsVariables(options?.variables);
-  const { data, loading, fetchMore, refetch } = useQuery<{
-    cmsPostList: {
-      posts: Posts[];
-      totalCount: number;
-      pageInfo: IRecordTableCursorPageInfo;
-    };
-  }>(POSTS_LIST, {
+  const { data, loading, fetchMore, refetch } = useQuery(POSTS_LIST, {
     ...options,
     skip: options?.skip,
     variables,
     fetchPolicy: 'network-only',
   });
 
-  const { posts = [], totalCount = 0, pageInfo } = data?.cmsPostList || {};
+  const posts = useMemo(
+    () => compactList(data?.cmsPostList?.posts),
+    [data?.cmsPostList?.posts],
+  );
+  const pageInfo = useMemo(
+    () => toCursorPageInfo(data?.cmsPostList?.pageInfo),
+    [data?.cmsPostList?.pageInfo],
+  );
+  const totalCount = data?.cmsPostList?.totalCount ?? 0;
 
   useEffect(() => {
-    if (totalCount === undefined) return;
     setPostsTotalCount(totalCount);
   }, [totalCount, setPostsTotalCount]);
 
@@ -171,36 +185,28 @@ export const usePosts = (options?: QueryHookOptions) => {
         direction,
       },
       updateQuery: (prev, { fetchMoreResult }) => {
-        if (!fetchMoreResult) return prev;
+        if (!fetchMoreResult.cmsPostList || !prev.cmsPostList) return prev;
 
-        const isForward = direction === EnumCursorDirection.FORWARD;
-        const fetchPageInfo = fetchMoreResult.cmsPostList?.pageInfo || {};
-        const prevPageInfo = prev.cmsPostList?.pageInfo || {};
-        const fetchPosts = fetchMoreResult.cmsPostList?.posts || [];
-        const prevPosts = prev.cmsPostList?.posts || [];
+        const merged = mergeCursorPage(
+          direction,
+          {
+            list: prev.cmsPostList.posts,
+            pageInfo: prev.cmsPostList.pageInfo,
+          },
+          {
+            list: fetchMoreResult.cmsPostList.posts,
+            pageInfo: fetchMoreResult.cmsPostList.pageInfo,
+          },
+        );
 
-        return Object.assign({}, prev, {
+        return {
+          ...prev,
           cmsPostList: {
             ...fetchMoreResult.cmsPostList,
-            posts: isForward
-              ? [...prevPosts, ...fetchPosts]
-              : [...fetchPosts, ...prevPosts],
-            pageInfo: {
-              endCursor: isForward
-                ? fetchPageInfo.endCursor
-                : prevPageInfo.endCursor,
-              hasNextPage: isForward
-                ? fetchPageInfo.hasNextPage
-                : prevPageInfo.hasNextPage,
-              hasPreviousPage: isForward
-                ? prevPageInfo.hasPreviousPage
-                : fetchPageInfo.hasPreviousPage,
-              startCursor: isForward
-                ? prevPageInfo.startCursor
-                : fetchPageInfo.startCursor,
-            },
+            posts: merged.list,
+            pageInfo: merged.pageInfo,
           },
-        });
+        };
       },
     });
   };

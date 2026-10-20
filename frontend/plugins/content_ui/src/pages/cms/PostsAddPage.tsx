@@ -74,7 +74,7 @@ export const PostsAddPage = ({
         {clientPortalId && !loading && (
           <AddPostForm
             websiteId={clientPortalId}
-            editingPost={post}
+            editingPost={post ?? undefined}
             onFormReady={handleFormReady}
             onClose={handleClose}
           />

@@ -119,10 +119,15 @@
   - `CmsPostEditor` casts its `BLOCK_SCHEMA` blocks to `useBlockEditor`'s
     `initialContent` type. That type uses the default BlockNote schema, while
     the editor itself is built with `BLOCK_SCHEMA`.
-- `customFieldsData` is a `JSON` scalar with no fixed value type.
-  `toCategoryCustomFields` and `usePostForm`'s `toCustomFieldEntries` check
-  `Array.isArray` and cast the entries the UI saved. Do not filter them by value
-  type: an entry written by another client would be dropped on the next save.
+- `JSON` scalars the UI reads structure from are cast once, after
+  `Array.isArray`, at a named helper. Never filter their entries: the UI writes
+  these arrays back in full, so a dropped entry would be deleted.
+  - Custom field group `fields`: `custom-fields/utils/toFieldDefinitions`
+    (`toCustomFields`, `toFieldDefinitions`, `toCustomFieldGroup`).
+  - `customFieldsData`: `custom-fields/utils/toCustomFieldEntries` for posts
+    and pages, and `toCategoryCustomFields` in the category drawer.
+- `cmsPostsSendNotification` returns `JSON`; `useSendPostNotification` reads
+  `recipientCount` through a type guard and treats anything else as zero.
 
 ### UI Conventions
 
@@ -146,18 +151,24 @@
 - Use Apollo Client hooks already used in this plugin.
 - Every document is a `gql()` call imported from `~/gql`, never the `gql` tag
   from `@apollo/client`. Hooks infer result and variable types from the
-  document.
+  document and never take type arguments. `eslint.config.js` enforces both;
+  tests are exempt from the import rule because their mock documents are not
+  codegen documents.
+- Response types are derived from the generated query types, as in
+  `posts/types/postsType.ts`. Never hand-write a response interface or cast
+  query data to one. A table row type adds only UI fields, such as
+  `ICategoryRow`'s `_depth`.
+- URL filter values are narrowed to their schema enum before they reach query
+  variables, such as `toPostStatus` and `toCategoryStatus`; an unknown value
+  means no filter.
 - Generated list items and arrays are nullable. Read them through `compactList`
   from `cms/shared/utils`. It returns a new array on every call, so wrap it in
   `useMemo` when the result reaches hook dependencies, context values, or
   `useSyncedState`.
 - A required variable on a skipped query gets an empty-string fallback, such as
   `_id: tag?._id ?? ''` with `skip: !tag?._id`.
-- Custom field group `fields` is a `JSON` scalar. Read it through
-  `custom-fields/utils/toFieldDefinitions`, which keeps entries with string
-  `_id`, `type` and `label`, as the stored field schema requires. Memoize the
-  converted groups: `ReorderableCustomFields` resets its local order whenever a
-  group's `fields` array changes identity.
+- Memoize converted custom field groups: `ReorderableCustomFields` resets its
+  local order whenever a group's `fields` array changes identity.
 - Queried attachments are mapped to plain input objects before they reach a
   form or mutation, through `toCmsAttachment` in
   `cms/settings/utils/settingsHelpers`. Apollo adds `__typename` to results,
@@ -190,7 +201,11 @@
 - Test files are excluded from codegen because they define mock documents that
   reuse real operation names.
 - For cursor lists, follow the `useRecordTableCursor`, `validateFetchMore`, and
-  `RecordTable.CursorProvider` pattern.
+  `RecordTable.CursorProvider` pattern. The SDL `PageInfo` booleans are
+  nullable: read page info through `toCursorPageInfo` and merge `fetchMore`
+  pages with `mergeCursorPage`, both in `cms/shared/utils`, as `usePosts` does.
+- Post and page removal hooks write no cache; their callers refetch the list
+  after the mutation resolves.
 - Do not change backend GraphQL contracts from this frontend plugin unless
   explicitly requested.
 

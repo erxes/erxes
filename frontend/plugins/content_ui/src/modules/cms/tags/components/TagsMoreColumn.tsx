@@ -11,11 +11,12 @@ import {
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { useRemoveTag } from '../hooks/useRemoveTag';
+import { CmsTag } from '../types/tagTypes';
 
 interface TagMoreColumnCellProps {
-  cell: CellContext<any, unknown>;
+  cell: CellContext<CmsTag, unknown>;
   clientPortalId: string;
-  onEdit?: (tag: any) => void;
+  onEdit?: (tag: CmsTag) => void;
   onDelete?: (tagId: string) => void;
   onRefetch?: () => void;
 }
@@ -110,13 +111,13 @@ export const TagMoreColumnCell = ({
 
 export const tagMoreColumn = (
   clientPortalId: string,
-  onEdit?: (tag: any) => void,
+  onEdit?: (tag: CmsTag) => void,
   onDelete?: (tagId: string) => void,
   onRefetch?: () => void,
 ) => ({
   id: 'more',
   header: () => <RecordTable.ColumnSelector />,
-  cell: (cell: CellContext<any, unknown>) => (
+  cell: (cell: CellContext<CmsTag, unknown>) => (
     <TagMoreColumnCell
       cell={cell}
       clientPortalId={clientPortalId}

@@ -13,11 +13,12 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useRemoveCategories } from '../hooks/useRemoveCategories';
 import { ApolloError } from '@apollo/client';
+import { ICategory, ICategoryRow } from '../types';
 
 interface CategoryMoreColumnCellProps {
-  cell: CellContext<any, unknown>;
+  cell: CellContext<ICategoryRow, unknown>;
   clientPortalId: string;
-  onEdit?: (category: any) => void;
+  onEdit?: (category: ICategory) => void;
   onDelete?: (categoryId: string) => void;
   onRefetch?: () => void;
 }
@@ -119,13 +120,13 @@ export const CategoryMoreColumnCell = ({
 
 export const categoryMoreColumn = (
   clientPortalId: string,
-  onEdit?: (category: any) => void,
+  onEdit?: (category: ICategory) => void,
   onDelete?: (categoryId: string) => void,
   onRefetch?: () => void,
 ) => ({
   id: 'more',
   header: () => <RecordTable.ColumnSelector />,
-  cell: (cell: CellContext<any, unknown>) => (
+  cell: (cell: CellContext<ICategoryRow, unknown>) => (
     <CategoryMoreColumnCell
       cell={cell}
       clientPortalId={clientPortalId}

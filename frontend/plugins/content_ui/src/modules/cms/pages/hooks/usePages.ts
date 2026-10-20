@@ -1,30 +1,26 @@
 import { QueryHookOptions, useQuery } from '@apollo/client';
 import {
   EnumCursorDirection,
-  IRecordTableCursorPageInfo,
   useMultiQueryState,
   useRecordTableCursor,
   validateFetchMore,
 } from 'erxes-ui';
+import type { PageListQuery, PageListQueryVariables } from '~/gql/graphql';
 import { PAGE_LIST } from '../graphql/queries/pagesListQueries';
 import { PAGES_CURSOR_SESSION_KEY } from '../constants/pagesCursorSessionKey';
-import { IPage } from '../types/pageTypes';
 import { useSetAtom, useAtomValue } from 'jotai';
 import { pagesTotalCountAtom } from '../states/pagesCounts';
 import { cmsLanguageAtom } from '../../shared/states/cmsLanguageState';
-import { useEffect } from 'react';
+import {
+  compactList,
+  mergeCursorPage,
+  toCursorPageInfo,
+} from '../../shared/utils';
+import { useEffect, useMemo } from 'react';
 
 export const PAGES_PER_PAGE = 30;
 
-export const usePagesVariables = (
-  variables?: QueryHookOptions<{
-    cmsPageList: {
-      pages: IPage[];
-      totalCount: number;
-      pageInfo: IRecordTableCursorPageInfo;
-    };
-  }>['variables'],
-) => {
+export const usePagesVariables = (variables: PageListQueryVariables) => {
   const [{ searchValue }] = useMultiQueryState<{ searchValue: string }>([
     'searchValue',
   ]);
@@ -44,25 +40,28 @@ export const usePagesVariables = (
   };
 };
 
-export const usePages = (options?: QueryHookOptions) => {
+export const usePages = (
+  options: QueryHookOptions<PageListQuery, PageListQueryVariables> & {
+    variables: PageListQueryVariables;
+  },
+) => {
   const setPagesTotalCount = useSetAtom(pagesTotalCountAtom);
-  const variables = usePagesVariables(options?.variables);
-  const { data, loading, fetchMore, refetch } = useQuery<{
-    cmsPageList: {
-      pages: IPage[];
-      totalCount: number;
-      pageInfo: IRecordTableCursorPageInfo;
-    };
-  }>(PAGE_LIST, {
+  const variables = usePagesVariables(options.variables);
+  const { data, loading, fetchMore, refetch } = useQuery(PAGE_LIST, {
     ...options,
-    variables: {
-      ...options?.variables,
-      ...variables,
-    },
+    variables,
     fetchPolicy: 'network-only',
   });
 
-  const { pages = [], totalCount, pageInfo } = data?.cmsPageList || {};
+  const pages = useMemo(
+    () => compactList(data?.cmsPageList?.pages),
+    [data?.cmsPageList?.pages],
+  );
+  const pageInfo = useMemo(
+    () => toCursorPageInfo(data?.cmsPageList?.pageInfo),
+    [data?.cmsPageList?.pageInfo],
+  );
+  const totalCount = data?.cmsPageList?.totalCount;
   const safeTotalCount = totalCount ?? 0;
   useEffect(() => {
     setPagesTotalCount(totalCount ?? null);
@@ -95,36 +94,28 @@ export const usePages = (options?: QueryHookOptions) => {
         direction,
       },
       updateQuery: (prev, { fetchMoreResult }) => {
-        if (!fetchMoreResult) return prev;
+        if (!fetchMoreResult.cmsPageList || !prev.cmsPageList) return prev;
 
-        const isForward = direction === EnumCursorDirection.FORWARD;
-        const fetchPageInfo = fetchMoreResult.cmsPageList?.pageInfo || {};
-        const prevPageInfo = prev.cmsPageList?.pageInfo || {};
-        const fetchPages = fetchMoreResult.cmsPageList?.pages || [];
-        const prevPages = prev.cmsPageList?.pages || [];
+        const merged = mergeCursorPage(
+          direction,
+          {
+            list: prev.cmsPageList.pages,
+            pageInfo: prev.cmsPageList.pageInfo,
+          },
+          {
+            list: fetchMoreResult.cmsPageList.pages,
+            pageInfo: fetchMoreResult.cmsPageList.pageInfo,
+          },
+        );
 
-        return Object.assign({}, prev, {
+        return {
+          ...prev,
           cmsPageList: {
             ...fetchMoreResult.cmsPageList,
-            pages: isForward
-              ? [...prevPages, ...fetchPages]
-              : [...fetchPages, ...prevPages],
-            pageInfo: {
-              endCursor: isForward
-                ? fetchPageInfo.endCursor
-                : prevPageInfo.endCursor,
-              hasNextPage: isForward
-                ? fetchPageInfo.hasNextPage
-                : prevPageInfo.hasNextPage,
-              hasPreviousPage: isForward
-                ? prevPageInfo.hasPreviousPage
-                : fetchPageInfo.hasPreviousPage,
-              startCursor: isForward
-                ? prevPageInfo.startCursor
-                : fetchPageInfo.startCursor,
-            },
+            pages: merged.list,
+            pageInfo: merged.pageInfo,
           },
-        });
+        };
       },
     });
   };

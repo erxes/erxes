@@ -1,6 +1,7 @@
 import { ApolloError, useQuery } from '@apollo/client';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
+import type { Cursor_Mode } from '~/gql/graphql';
 import { CMS_TAGS } from '../graphql/queries';
 import { cmsLanguageAtom } from '../shared/states/cmsLanguageState';
 import {
@@ -11,26 +12,20 @@ import {
 } from 'erxes-ui';
 import { TAGS_CURSOR_SESSION_KEY } from '../tags/constants/tagsCursorSessionKey';
 import { tagsTotalCountAtom } from '../tags/states/tagsCounts';
-
-export interface CmsTag {
-  _id: string;
-  name: string;
-  slug: string;
-  clientPortalId: string;
-  colorCode: string;
-  createdAt: string;
-  updatedAt?: string;
-  translations?: { language: string; title?: string }[];
-}
+import { CmsTag } from '../tags/types/tagTypes';
+import {
+  compactList,
+  mergeCursorPage,
+  toCursorPageInfo,
+} from '../shared/utils';
 
 export interface UseTagsProps {
   clientPortalId?: string;
-  type?: string;
   searchValue?: string;
   cursor?: string;
   limit?: number;
   fetchAll?: boolean;
-  cursorMode?: string;
+  cursorMode?: Cursor_Mode;
   direction?: 'forward' | 'backward';
   sortField?: string;
   sortMode?: string;
@@ -50,22 +45,8 @@ interface UseTagsResult {
 
 export const TAGS_PER_PAGE = 30;
 
-const EMPTY_PAGE_INFO: IRecordTableCursorPageInfo = {
-  hasNextPage: false,
-  hasPreviousPage: false,
-};
-
-interface CmsTagsQueryResult {
-  cmsTags?: {
-    tags?: CmsTag[];
-    totalCount?: number;
-    pageInfo?: IRecordTableCursorPageInfo;
-  };
-}
-
 export function useTags({
   clientPortalId,
-  type,
   searchValue,
   cursor,
   limit = TAGS_PER_PAGE,
@@ -88,7 +69,6 @@ export function useTags({
   const variables = useMemo(
     () => ({
       clientPortalId,
-      type,
       searchValue,
       cursor: cursor ?? (fetchAll ? undefined : tableCursor),
       limit,
@@ -101,7 +81,6 @@ export function useTags({
     }),
     [
       clientPortalId,
-      type,
       searchValue,
       cursor,
       tableCursor,
@@ -116,14 +95,13 @@ export function useTags({
     ],
   );
 
-  const { data, loading, error, refetch, fetchMore } =
-    useQuery<CmsTagsQueryResult>(CMS_TAGS, {
-      variables,
-      skip,
-      errorPolicy: 'all',
-      fetchPolicy: 'network-only',
-      notifyOnNetworkStatusChange: true,
-    });
+  const { data, loading, error, refetch, fetchMore } = useQuery(CMS_TAGS, {
+    variables,
+    skip,
+    errorPolicy: 'all',
+    fetchPolicy: 'network-only',
+    notifyOnNetworkStatusChange: true,
+  });
 
   useEffect(() => {
     fetchedCursorsRef.current.clear();
@@ -136,7 +114,10 @@ export function useTags({
     fetchingMoreRef.current = false;
   }, [skip]);
 
-  const pageInfo = data?.cmsTags?.pageInfo;
+  const pageInfo = useMemo(
+    () => toCursorPageInfo(data?.cmsTags?.pageInfo),
+    [data?.cmsTags?.pageInfo],
+  );
 
   const fetchRemainingTags = useCallback(async () => {
     const endCursor = pageInfo?.endCursor;
@@ -209,36 +190,23 @@ export function useTags({
           direction,
         },
         updateQuery: (prev, { fetchMoreResult }) => {
-          if (!fetchMoreResult?.cmsTags) return prev;
+          if (!fetchMoreResult.cmsTags || !prev.cmsTags) return prev;
 
-          const isForward = direction === EnumCursorDirection.FORWARD;
-          const fetchPageInfo =
-            fetchMoreResult.cmsTags?.pageInfo || EMPTY_PAGE_INFO;
-          const prevPageInfo = prev.cmsTags?.pageInfo || EMPTY_PAGE_INFO;
-          const fetchTags = fetchMoreResult.cmsTags?.tags || [];
-          const prevTags = prev.cmsTags?.tags || [];
+          const merged = mergeCursorPage(
+            direction,
+            { list: prev.cmsTags.tags, pageInfo: prev.cmsTags.pageInfo },
+            {
+              list: fetchMoreResult.cmsTags.tags,
+              pageInfo: fetchMoreResult.cmsTags.pageInfo,
+            },
+          );
 
           return {
             ...prev,
             cmsTags: {
               ...fetchMoreResult.cmsTags,
-              tags: isForward
-                ? [...prevTags, ...fetchTags]
-                : [...fetchTags, ...prevTags],
-              pageInfo: {
-                endCursor: isForward
-                  ? fetchPageInfo.endCursor
-                  : prevPageInfo.endCursor,
-                hasNextPage: isForward
-                  ? fetchPageInfo.hasNextPage
-                  : prevPageInfo.hasNextPage,
-                hasPreviousPage: isForward
-                  ? prevPageInfo.hasPreviousPage
-                  : fetchPageInfo.hasPreviousPage,
-                startCursor: isForward
-                  ? prevPageInfo.startCursor
-                  : fetchPageInfo.startCursor,
-              },
+              tags: merged.list,
+              pageInfo: merged.pageInfo,
             },
           };
         },
@@ -252,7 +220,10 @@ export function useTags({
     return refetch(variables);
   }, [refetch, variables]);
 
-  const tags = data?.cmsTags?.tags || [];
+  const tags = useMemo(
+    () => compactList(data?.cmsTags?.tags),
+    [data?.cmsTags?.tags],
+  );
   const totalCount = data?.cmsTags?.totalCount || 0;
 
   useEffect(() => {

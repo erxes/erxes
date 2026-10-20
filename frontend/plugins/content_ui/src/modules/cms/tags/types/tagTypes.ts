@@ -1,13 +1,8 @@
-export interface CmsTag {
-  _id: string;
-  name: string;
-  slug: string;
-  colorCode: string;
-  clientPortalId: string;
-  createdAt: string;
-  updatedAt?: string;
-  translations?: { language: string; title?: string }[];
-}
+import type { CmsTagsQuery } from '~/gql/graphql';
+
+export type CmsTag = NonNullable<
+  NonNullable<NonNullable<CmsTagsQuery['cmsTags']>['tags']>[number]
+>;
 
 export interface TagFormData {
   name: string;

@@ -1,14 +1,27 @@
+import type { CmsCustomFieldGroupListQuery } from '~/gql/graphql';
 import { FieldDefinition } from '../../posts/CustomFieldInput';
+import { ICustomField, ICustomFieldGroup } from '../types/customFieldTypes';
 
-const isFieldDefinition = (value: unknown): value is FieldDefinition =>
-  typeof value === 'object' &&
-  value !== null &&
-  '_id' in value &&
-  typeof value._id === 'string' &&
-  'type' in value &&
-  typeof value.type === 'string' &&
-  'label' in value &&
-  typeof value.label === 'string';
+type CustomFieldGroupResult = NonNullable<
+  NonNullable<
+    NonNullable<CmsCustomFieldGroupListQuery['cmsCustomFieldGroupList']>['list']
+  >[number]
+>;
+
+/**
+ * Reads a group's `fields` JSON scalar as the fields this UI saved. Every entry
+ * is kept: reordering writes the whole array back, so a dropped entry would be
+ * deleted.
+ */
+export const toCustomFields = (fields: unknown): ICustomField[] =>
+  Array.isArray(fields) ? (fields as ICustomField[]) : [];
 
 export const toFieldDefinitions = (fields: unknown): FieldDefinition[] =>
-  Array.isArray(fields) ? fields.filter(isFieldDefinition) : [];
+  toCustomFields(fields);
+
+export const toCustomFieldGroup = (
+  group: CustomFieldGroupResult,
+): ICustomFieldGroup => ({
+  ...group,
+  fields: toCustomFields(group.fields),
+});

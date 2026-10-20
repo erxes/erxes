@@ -1,4 +1,7 @@
-import type { GetWebListQuery } from '~/gql/graphql';
+import type {
+  GetWebListQuery,
+  WebCustomDomainsFieldsFragment,
+} from '~/gql/graphql';
 
 export interface IWebThumbnail {
   url?: string;
@@ -22,23 +25,6 @@ export interface IWebInput {
   thumbnail?: IWebThumbnail | null;
 }
 
-export interface IWebCustomDomainRecord {
-  type: string;
-  name: string;
-  value: string;
-  status: string;
-}
+export type IWebCustomDomains = WebCustomDomainsFieldsFragment;
 
-export interface IWebCustomDomain {
-  name: string;
-  verified: boolean;
-  misconfigured: boolean;
-  isActive: boolean;
-  records: IWebCustomDomainRecord[];
-}
-
-export interface IWebCustomDomains {
-  isDeployed: boolean;
-  defaultDomain: string | null;
-  domains: IWebCustomDomain[];
-}
+export type IWebCustomDomain = IWebCustomDomains['domains'][number];

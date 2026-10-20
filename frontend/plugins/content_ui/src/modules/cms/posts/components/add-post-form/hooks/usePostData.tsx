@@ -1,11 +1,13 @@
 import { gql } from '~/gql';
 import { useQuery } from '@apollo/client';
 import { useAtomValue } from 'jotai';
+import { useMemo } from 'react';
 import { cmsLanguageAtom } from '~/modules/cms/shared/states/cmsLanguageState';
+import { compactList } from '~/modules/cms/shared/utils';
 import { CMS_CUSTOM_FIELD_GROUPS } from '../../../../custom-fields/graphql/queries';
+import { toFieldDefinitions } from '../../../../custom-fields/utils/toFieldDefinitions';
 import { CONTENT_CMS_LIST } from '../../../../graphql/queries';
 import type { FieldGroup } from '../CustomFieldsSection';
-import type { IWebsite } from '~/modules/cms/types';
 
 export type PostUrlField = '_id' | 'count' | 'slug';
 
@@ -44,8 +46,8 @@ const COMBINED_CMS_DATA = gql(`
 
 interface IRawCategory {
   _id: string;
-  name: string;
-  parentId?: string;
+  name: string | null;
+  parentId?: string | null;
 }
 
 interface ICategoryOption {
@@ -53,48 +55,13 @@ interface ICategoryOption {
   value: string;
 }
 
-interface IRawTag {
-  _id: string;
-  name: string;
-  colorCode?: string;
-}
+const naturalSort = (a: string | null, b: string | null) =>
+  (a ?? '').localeCompare(b ?? '', undefined, {
+    numeric: true,
+    sensitivity: 'base',
+  });
 
-interface ICustomType {
-  _id: string;
-  code: string;
-  label: string;
-  description?: string;
-}
-
-interface CmsFieldGroup extends FieldGroup {
-  customPostTypeIds?: string[];
-  enabledPostIds?: string[];
-}
-
-interface CombinedCmsData {
-  cmsCategories?: {
-    list?: IRawCategory[];
-  };
-  cmsTags?: {
-    tags?: IRawTag[];
-  };
-  cmsCustomPostTypes?: ICustomType[];
-}
-
-interface CmsListData {
-  contentCMSList?: IWebsite[];
-}
-
-interface CustomFieldGroupsData {
-  cmsCustomFieldGroupList?: {
-    list?: CmsFieldGroup[];
-  };
-}
-
-const naturalSort = (a: string, b: string) =>
-  a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });
-
-const normalizePostUrlField = (postUrlField?: string): PostUrlField => {
+const normalizePostUrlField = (postUrlField?: string | null): PostUrlField => {
   if (postUrlField === 'count' || postUrlField === 'slug') {
     return postUrlField;
   }
@@ -109,7 +76,7 @@ function buildTreeOptions(rawList: IRawCategory[]): ICategoryOption[] {
   const addWithChildren = (cat: IRawCategory, ancestors: string[]) => {
     if (visited.has(cat._id)) return;
     visited.add(cat._id);
-    const path = [...ancestors, cat.name];
+    const path = [...ancestors, cat.name ?? ''];
     result.push({ label: path.join(' / '), value: cat._id });
     rawList
       .filter((c) => c.parentId === cat._id)
@@ -124,7 +91,7 @@ function buildTreeOptions(rawList: IRawCategory[]): ICategoryOption[] {
 
   rawList.forEach((c) => {
     if (!visited.has(c._id)) {
-      result.push({ label: c.name, value: c._id });
+      result.push({ label: c.name ?? '', value: c._id });
     }
   });
 
@@ -138,48 +105,71 @@ export const usePostData = (
 ) => {
   const language = useAtomValue(cmsLanguageAtom);
 
-  const { data: combinedData, loading: combinedLoading } =
-    useQuery<CombinedCmsData>(COMBINED_CMS_DATA, {
+  const { data: combinedData, loading: combinedLoading } = useQuery(
+    COMBINED_CMS_DATA,
+    {
       variables: { clientPortalId: websiteId || '', limit: 100, language },
       skip: !websiteId,
-      fetchPolicy: 'cache-first',
-    });
-
-  const { data: cmsData } = useQuery<CmsListData>(CONTENT_CMS_LIST, {
-    fetchPolicy: 'cache-first',
-    skip: !websiteId,
-  });
-
-  const { data: fieldGroupsData } = useQuery<CustomFieldGroupsData>(
-    CMS_CUSTOM_FIELD_GROUPS,
-    {
-      variables: { clientPortalId: websiteId },
-      skip: !websiteId || !selectedType,
       fetchPolicy: 'cache-first',
     },
   );
 
-  const categories = buildTreeOptions(combinedData?.cmsCategories?.list || []);
+  const { data: cmsData } = useQuery(CONTENT_CMS_LIST, {
+    fetchPolicy: 'cache-first',
+    skip: !websiteId,
+  });
 
-  const tags = (combinedData?.cmsTags?.tags || []).map((tag) => ({
-    label: tag.name,
+  const { data: fieldGroupsData } = useQuery(CMS_CUSTOM_FIELD_GROUPS, {
+    variables: { clientPortalId: websiteId },
+    skip: !websiteId || !selectedType,
+    fetchPolicy: 'cache-first',
+  });
+
+  const categories = buildTreeOptions(
+    compactList(combinedData?.cmsCategories?.list),
+  );
+
+  const tags = compactList(combinedData?.cmsTags?.tags).map((tag) => ({
+    label: tag.name ?? '',
     value: tag._id,
   }));
 
-  const customTypes = combinedData?.cmsCustomPostTypes || [];
-
-  const cmsConfig = cmsData?.contentCMSList?.find(
-    (cms) => cms.clientPortalId === websiteId,
+  const customTypes = useMemo(
+    () => compactList(combinedData?.cmsCustomPostTypes),
+    [combinedData?.cmsCustomPostTypes],
   );
 
-  const availableLanguages = cmsConfig?.languages || [];
+  const cmsConfig = useMemo(
+    () =>
+      compactList(cmsData?.contentCMSList).find(
+        (cms) => cms.clientPortalId === websiteId,
+      ),
+    [cmsData?.contentCMSList, websiteId],
+  );
+
+  const availableLanguages = useMemo(
+    () => compactList(cmsConfig?.languages),
+    [cmsConfig?.languages],
+  );
   const defaultLanguage = cmsConfig?.language || 'en';
   const postUrlField = normalizePostUrlField(cmsConfig?.postUrlField);
 
-  const fieldGroups = (
-    fieldGroupsData?.cmsCustomFieldGroupList?.list || []
-  ).filter((group) => {
-    const ids: string[] = group.customPostTypeIds || [];
+  const fieldGroupList = useMemo(
+    () =>
+      compactList(fieldGroupsData?.cmsCustomFieldGroupList?.list).map(
+        (group) => ({
+          _id: group._id,
+          label: group.label,
+          customPostTypeIds: compactList(group.customPostTypeIds),
+          enabledPostIds: compactList(group.enabledPostIds),
+          fields: toFieldDefinitions(group.fields),
+        }),
+      ),
+    [fieldGroupsData],
+  );
+
+  const fieldGroups: FieldGroup[] = fieldGroupList.filter((group) => {
+    const ids: string[] = group.customPostTypeIds;
     if (
       ids.length > 0 &&
       !ids.includes(selectedType || '') &&
@@ -189,7 +179,7 @@ export const usePostData = (
     }
     // if specific posts are set, only show for those posts. A new post (no
     // postId yet) can never be in the list, so hide the group while creating.
-    const enabledPostIds: string[] = group.enabledPostIds || [];
+    const enabledPostIds: string[] = group.enabledPostIds;
     if (enabledPostIds.length > 0) {
       return postId ? enabledPostIds.includes(postId) : false;
     }

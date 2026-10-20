@@ -2,13 +2,13 @@ import { Form, Input, Editor } from 'erxes-ui';
 import { UseFormReturn } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { formatInitialContent } from '~/modules/cms/posts/formHelpers';
-import { IPage, IPageFormData } from '../types/pageTypes';
+import { IPageDetail, IPageFormData } from '../types/pageTypes';
 
 interface PageEditorColumnProps {
   form: UseFormReturn<IPageFormData>;
   selectedLanguage: string;
   defaultLanguage: string;
-  page?: IPage;
+  page?: IPageDetail;
   handleEditorChange: (content: string) => void;
 }
 

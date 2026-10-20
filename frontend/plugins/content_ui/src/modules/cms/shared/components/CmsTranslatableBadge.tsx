@@ -2,7 +2,7 @@ import { Badge, TextOverflowTooltip, cn } from 'erxes-ui';
 import { ReactNode } from 'react';
 
 interface CmsTranslatableBadgeProps {
-  value?: string;
+  value?: string | null;
   // True when the selected (non-default) language has no translation, so the
   // cell is falling back to the default-language content.
   missing?: boolean;
@@ -47,7 +47,7 @@ export const CmsTranslatableBadge = ({
       className={cn(missing && missingClassName)}
     >
       {prefix}
-      <TextOverflowTooltip value={value} className="leading-normal" />
+      <TextOverflowTooltip value={value ?? ''} className="leading-normal" />
     </Badge>
   );
 };

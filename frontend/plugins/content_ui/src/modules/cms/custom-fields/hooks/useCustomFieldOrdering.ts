@@ -6,6 +6,8 @@ import { CMS_CUSTOM_FIELD_GROUP_EDIT } from '../graphql/mutations';
 import { ICustomFieldGroup } from '../types/customFieldTypes';
 import { FieldDefinition } from '../../posts/CustomFieldInput';
 import { compareByOrder } from '../utils/comparators';
+import { toCustomFieldGroup } from '../utils/toFieldDefinitions';
+import { compactList } from '../../shared/utils';
 
 /**
  * Drag-reorder helpers for custom field groups/fields usable from the content
@@ -24,9 +26,9 @@ export const useCustomFieldOrdering = (websiteId?: string) => {
   // (possibly filtered) visible groups back into global `order` values.
   const allGroups = useMemo(
     () =>
-      [
-        ...((data?.cmsCustomFieldGroupList?.list || []) as ICustomFieldGroup[]),
-      ].sort(compareByOrder),
+      compactList(data?.cmsCustomFieldGroupList?.list)
+        .map(toCustomFieldGroup)
+        .sort(compareByOrder),
     [data?.cmsCustomFieldGroupList?.list],
   );
 

@@ -16,15 +16,15 @@ import { useEditCustomType } from '../hooks/useEditCustomType';
 
 export const createCustomTypesColumns = (
   websiteId: string,
-  onEdit?: (customType: any) => void,
+  onEdit?: (customType: ICustomPostType) => void,
   onRefetch?: () => void,
-): ColumnDef<any>[] => {
+): ColumnDef<ICustomPostType>[] => {
   const { t } = useTranslation('content');
   const { editType } = useEditCustomType(onRefetch);
 
   return [
     customTypeMoreColumn(onEdit, onRefetch),
-    RecordTable.checkboxColumn as ColumnDef<any>,
+    RecordTable.checkboxColumn as ColumnDef<ICustomPostType>,
     {
       id: 'name',
       header: () => (
@@ -32,7 +32,7 @@ export const createCustomTypesColumns = (
       ),
       accessorKey: 'label',
       cell: ({ cell }) => {
-        const original = cell.row.original as ICustomPostType;
+        const original = cell.row.original;
         const [editingCell, setEditingCell] = useState<{
           rowId: string;
           value: string;

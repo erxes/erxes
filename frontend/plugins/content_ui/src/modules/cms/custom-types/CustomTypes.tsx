@@ -17,7 +17,7 @@ export function CustomTypes() {
   const { websiteId } = useParams();
   const location = useLocation();
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [editingType, setEditingType] = useState<any>(null);
+  const [editingType, setEditingType] = useState<ICustomPostType | null>(null);
   const [refetchTrigger, setRefetchTrigger] = useState(0);
 
   const { customTypes, loading } = useCustomTypes({

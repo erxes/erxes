@@ -8,7 +8,7 @@ import { usePosts } from '../hooks/usePosts';
 import { PostsEmptyState } from './PostsEmptyState';
 import { Posts } from '../types/postsType';
 import { CONTENT_CMS_LIST } from '../../graphql/queries';
-import type { IWebsite } from '../../types';
+import { compactList } from '../../shared/utils';
 
 interface PostsRecordTableProps {
   clientPortalId: string;
@@ -19,13 +19,10 @@ export const PostsRecordTable = ({
   clientPortalId,
   onEditPost,
 }: PostsRecordTableProps) => {
-  const { data: cmsData } = useQuery<{ contentCMSList?: IWebsite[] }>(
-    CONTENT_CMS_LIST,
-    {
-      fetchPolicy: 'cache-first',
-      skip: !clientPortalId,
-    },
-  );
+  const { data: cmsData } = useQuery(CONTENT_CMS_LIST, {
+    fetchPolicy: 'cache-first',
+    skip: !clientPortalId,
+  });
   const { posts, loading, refetch, pageInfo, handleFetchMore } = usePosts({
     variables: {
       clientPortalId,
@@ -34,7 +31,7 @@ export const PostsRecordTable = ({
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
   const cmsConfig = useMemo(
     () =>
-      cmsData?.contentCMSList?.find(
+      compactList(cmsData?.contentCMSList).find(
         (cms) => cms.clientPortalId === clientPortalId,
       ),
     [clientPortalId, cmsData?.contentCMSList],

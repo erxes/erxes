@@ -6,7 +6,6 @@ import {
   CMS_POSTIZ_DELIVERIES,
   CMS_POSTIZ_REFRESH,
   CMS_POSTIZ_RETRY,
-  type PostizDelivery,
 } from './graphql';
 
 export function PostizDeliveryList({
@@ -17,15 +16,11 @@ export function PostizDeliveryList({
   language: string;
 }) {
   const { t } = useTranslation('content');
-  const { data, loading, error, refetch } = useQuery<{
-    cmsPostizDeliveries: PostizDelivery[];
-  }>(CMS_POSTIZ_DELIVERIES, {
+  const { data, loading, error, refetch } = useQuery(CMS_POSTIZ_DELIVERIES, {
     variables: { postId, language },
     fetchPolicy: 'network-only',
   });
-  const [refreshDeliveries, refreshState] = useMutation<{
-    cmsPostizRefresh: PostizDelivery[];
-  }>(CMS_POSTIZ_REFRESH, {
+  const [refreshDeliveries, refreshState] = useMutation(CMS_POSTIZ_REFRESH, {
     variables: { postId, language },
     update: (cache, result) => {
       if (!result.data) return;

@@ -31,9 +31,9 @@ export const CustomFieldsNavigation = () => {
   }, [pathname]);
 
   const websiteName =
-    cmsData?.contentCMSList?.find((w: any) => w.clientPortalId === websiteId)
+    cmsData?.contentCMSList?.find((w) => w?.clientPortalId === websiteId)
       ?.name ||
-    websitesData?.getClientPortals?.list?.find((w: any) => w._id === websiteId)
+    websitesData?.getClientPortals?.list?.find((w) => w?._id === websiteId)
       ?.name ||
     '';
   const favoriteBreadcrumb = createFavoriteBreadcrumb(

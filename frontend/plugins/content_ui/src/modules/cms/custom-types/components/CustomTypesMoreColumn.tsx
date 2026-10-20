@@ -11,10 +11,11 @@ import {
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { useRemoveCustomType } from '../hooks/useRemoveCustomType';
+import { ICustomPostType } from '../types/customTypeTypes';
 
 interface CustomTypeMoreColumnCellProps {
-  cell: CellContext<any, unknown>;
-  onEdit?: (customType: any) => void;
+  cell: CellContext<ICustomPostType, unknown>;
+  onEdit?: (customType: ICustomPostType) => void;
   onRefetch?: () => void;
 }
 
@@ -101,12 +102,12 @@ export const CustomTypeMoreColumnCell = ({
 };
 
 export const customTypeMoreColumn = (
-  onEdit?: (customType: any) => void,
+  onEdit?: (customType: ICustomPostType) => void,
   onRefetch?: () => void,
 ) => ({
   id: 'more',
   header: () => <RecordTable.ColumnSelector />,
-  cell: (cell: CellContext<any, unknown>) => (
+  cell: (cell: CellContext<ICustomPostType, unknown>) => (
     <CustomTypeMoreColumnCell
       cell={cell}
       onEdit={onEdit}

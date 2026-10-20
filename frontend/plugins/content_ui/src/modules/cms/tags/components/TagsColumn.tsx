@@ -28,9 +28,9 @@ import { getTranslation } from '@/cms/shared/utils';
  */
 export const useTagsColumns = (
   clientPortalId: string,
-  onEdit?: (tag: any) => void,
+  onEdit?: (tag: CmsTag) => void,
   onRefetch?: () => void,
-): ColumnDef<any>[] => {
+): ColumnDef<CmsTag>[] => {
   const { t } = useTranslation('content');
   const { editTag } = useEditTag();
   const { isNonDefaultLanguage } = useIsTranslationMissing();
@@ -42,13 +42,13 @@ export const useTagsColumns = (
 
   return [
     tagMoreColumn(clientPortalId, onEdit, undefined, onRefetch),
-    RecordTable.checkboxColumn as ColumnDef<any>,
+    RecordTable.checkboxColumn as ColumnDef<CmsTag>,
     {
       id: 'name',
       header: () => <RecordTable.InlineHead icon={IconTag} label={t('name')} />,
       accessorKey: 'name',
       cell: ({ cell }) => {
-        const original = cell.row.original as CmsTag;
+        const original = cell.row.original;
         const translation = getTranslation(
           original.translations,
           selectedLanguage,

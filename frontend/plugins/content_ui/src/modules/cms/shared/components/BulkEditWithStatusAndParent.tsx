@@ -18,7 +18,7 @@ interface StatusItem {
 
 interface ParentItem {
   _id: string;
-  name: string;
+  name: string | null;
 }
 
 interface BulkEditWithStatusAndParentProps {

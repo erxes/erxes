@@ -2,10 +2,11 @@ import { RecordTable } from 'erxes-ui';
 import { createCustomTypesColumns } from './CustomTypesColumn';
 import { useCustomTypes } from '../hooks/useCustomTypes';
 import { CustomTypesCommandBar } from './customer-types-command-bar/CustomTypesCommandBar';
+import { ICustomPostType } from '../types/customTypeTypes';
 
 interface CustomTypesRecordTableProps {
   clientPortalId: string;
-  onEdit?: (customType: any) => void;
+  onEdit?: (customType: ICustomPostType) => void;
   onBulkDelete?: (ids: string[]) => Promise<void> | void;
 }
 

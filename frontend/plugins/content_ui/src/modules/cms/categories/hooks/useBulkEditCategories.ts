@@ -1,4 +1,5 @@
 import { useMutation } from '@apollo/client';
+import type { PostCategoryInput } from '~/gql/graphql';
 import { CMS_CATEGORIES_EDIT } from '../graphql/mutations/categoriesEditMutation';
 
 export const useBulkEditCategories = () => {
@@ -8,7 +9,7 @@ export const useBulkEditCategories = () => {
 
   const bulkEditCategories = async (
     ids: string[],
-    input: Record<string, unknown>,
+    input: PostCategoryInput,
   ) => {
     const results = await Promise.allSettled(
       ids.map((_id) => editCategoryMutation({ variables: { _id, input } })),

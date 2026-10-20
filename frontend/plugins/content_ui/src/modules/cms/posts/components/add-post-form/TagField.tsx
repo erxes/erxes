@@ -5,6 +5,7 @@ import type { FieldValues, UseFormReturn } from 'react-hook-form';
 import { Form, MultipleSelector, type MultiSelectOption } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { cmsLanguageAtom } from '~/modules/cms/shared/states/cmsLanguageState';
+import { compactList } from '~/modules/cms/shared/utils';
 import { POST_CMS_TAGS } from '../../graphql/queries/postCmsTagsQuery';
 import { useInlineTag } from './hooks/useInlineTag';
 
@@ -17,19 +18,6 @@ interface TagFieldProps {
 interface CmsTagSearchResult {
   _id: string;
   name?: string | null;
-}
-
-interface CmsTagsQueryData {
-  cmsTags?: {
-    tags?: CmsTagSearchResult[];
-  };
-}
-
-interface CmsTagsQueryVariables {
-  clientPortalId?: string;
-  limit?: number;
-  searchValue?: string;
-  language?: string;
 }
 
 interface TagSelectOption extends MultiSelectOption {
@@ -76,12 +64,9 @@ export const TagField = ({ form, tags, websiteId }: TagFieldProps) => {
   const { t } = useTranslation('content');
   const language = useAtomValue(cmsLanguageAtom);
   const { resolveTagIds } = useInlineTag(websiteId);
-  const [searchTags] = useLazyQuery<CmsTagsQueryData, CmsTagsQueryVariables>(
-    POST_CMS_TAGS,
-    {
-      fetchPolicy: 'network-only',
-    },
-  );
+  const [searchTags] = useLazyQuery(POST_CMS_TAGS, {
+    fetchPolicy: 'network-only',
+  });
   const [searchedOptions, setSearchedOptions] = useState<TagSelectOption[]>([]);
 
   const initialOptions = useMemo<TagSelectOption[]>(
@@ -110,7 +95,7 @@ export const TagField = ({ form, tags, websiteId }: TagFieldProps) => {
         },
       });
 
-      const remoteOptions = mapTagOptions(data?.cmsTags?.tags || []);
+      const remoteOptions = mapTagOptions(compactList(data?.cmsTags?.tags));
 
       setSearchedOptions((currentOptions) =>
         mergeTagOptions(currentOptions, remoteOptions),

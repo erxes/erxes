@@ -7,12 +7,13 @@ import {
   CMS_CUSTOM_POST_TYPE_ADD,
   CMS_CUSTOM_POST_TYPE_EDIT,
 } from '../../graphql/queries';
+import { ICustomPostType } from '../../custom-types/types/customTypeTypes';
 
 interface CustomTypeDrawerProps {
   isOpen: boolean;
   onClose: () => void;
   clientPortalId?: string;
-  customType?: any;
+  customType?: ICustomPostType | null;
   onCreate?: (data: CustomTypeFormData) => Promise<void> | void;
   onUpdate?: () => Promise<void> | void;
 }

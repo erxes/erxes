@@ -1,45 +1,34 @@
 import { QueryHookOptions, useQuery } from '@apollo/client';
 import {
   EnumCursorDirection,
-  IRecordTableCursorPageInfo,
   useMultiQueryState,
   validateFetchMore,
 } from 'erxes-ui';
+import type {
+  CategoryStatus,
+  CmsCategoriesQuery,
+  CmsCategoriesQueryVariables,
+} from '~/gql/graphql';
 import { CMS_CATEGORIES } from '../graphql';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { categoriesTotalCountAtom } from '../states/categoriesCounts';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { cmsLanguageAtom } from '../../shared/states/cmsLanguageState';
-import { ICategory } from '../types';
-
-interface CategoriesQueryResult {
-  cmsCategories?: {
-    list?: ICategory[];
-    totalCount?: number;
-    pageInfo?: IRecordTableCursorPageInfo;
-  };
-}
-
-interface CategoriesQueryVariables {
-  clientPortalId?: string;
-  language?: string;
-  searchValue?: string;
-  status?: string;
-  limit?: number;
-  cursor?: string;
-  sortField?: string;
-  sortDirection?: string;
-}
+import {
+  compactList,
+  mergeCursorPage,
+  toCursorPageInfo,
+} from '../../shared/utils';
 
 export const CATEGORIES_PER_PAGE = 30;
 
-const EMPTY_PAGE_INFO: IRecordTableCursorPageInfo = {
-  hasNextPage: false,
-  hasPreviousPage: false,
-};
+const CATEGORY_STATUSES: readonly CategoryStatus[] = ['active', 'inactive'];
+
+const toCategoryStatus = (value?: string | null) =>
+  CATEGORY_STATUSES.find((categoryStatus) => categoryStatus === value);
 
 export const useCategoriesVariables = (
-  variables?: CategoriesQueryVariables,
+  variables: CmsCategoriesQueryVariables,
 ) => {
   const language = useAtomValue(cmsLanguageAtom);
   const [{ searchValue, status }] = useMultiQueryState<{
@@ -54,34 +43,34 @@ export const useCategoriesVariables = (
     sortDirection: 'asc',
     language,
     searchValue: searchValue || undefined,
-    status: status || undefined,
+    status: toCategoryStatus(status),
     ...variables,
   };
 };
 
 export const useCategories = (
-  options?: QueryHookOptions<CategoriesQueryResult, CategoriesQueryVariables>,
+  options: QueryHookOptions<CmsCategoriesQuery, CmsCategoriesQueryVariables> & {
+    variables: CmsCategoriesQueryVariables;
+  },
 ) => {
   const setCategoriesTotalCount = useSetAtom(categoriesTotalCountAtom);
-  const variables = useCategoriesVariables(options?.variables);
-  const { data, loading, fetchMore, refetch } = useQuery<CategoriesQueryResult>(
-    CMS_CATEGORIES,
-    {
-      ...options,
-      variables: {
-        ...options?.variables,
-        ...variables,
-      },
-      fetchPolicy: 'network-only',
-    },
-  );
+  const variables = useCategoriesVariables(options.variables);
+  const { data, loading, fetchMore, refetch } = useQuery(CMS_CATEGORIES, {
+    ...options,
+    variables,
+    fetchPolicy: 'network-only',
+  });
 
-  const {
-    list: categories = [],
-    totalCount,
-    pageInfo,
-  } = data?.cmsCategories || {};
-  const safeTotalCount = totalCount ?? 0;
+  const categories = useMemo(
+    () => compactList(data?.cmsCategories?.list),
+    [data?.cmsCategories?.list],
+  );
+  const pageInfo = useMemo(
+    () => toCursorPageInfo(data?.cmsCategories?.pageInfo),
+    [data?.cmsCategories?.pageInfo],
+  );
+  const totalCount = data?.cmsCategories?.totalCount;
+
   useEffect(() => {
     setCategoriesTotalCount(totalCount ?? null);
     return () => {
@@ -113,37 +102,22 @@ export const useCategories = (
         direction,
       },
       updateQuery: (prev, { fetchMoreResult }) => {
-        if (!fetchMoreResult) return prev;
+        if (!fetchMoreResult.cmsCategories || !prev.cmsCategories) return prev;
 
-        const isForward = direction === EnumCursorDirection.FORWARD;
-        const fetchPageInfo =
-          fetchMoreResult.cmsCategories?.pageInfo || EMPTY_PAGE_INFO;
-        const prevPageInfo = prev.cmsCategories?.pageInfo || EMPTY_PAGE_INFO;
-        const fetchList = fetchMoreResult.cmsCategories?.list || [];
-        const prevList = prev.cmsCategories?.list || [];
+        const merged = mergeCursorPage(
+          direction,
+          prev.cmsCategories,
+          fetchMoreResult.cmsCategories,
+        );
 
-        return Object.assign({}, prev, {
+        return {
+          ...prev,
           cmsCategories: {
             ...fetchMoreResult.cmsCategories,
-            list: isForward
-              ? [...prevList, ...fetchList]
-              : [...fetchList, ...prevList],
-            pageInfo: {
-              endCursor: isForward
-                ? fetchPageInfo.endCursor
-                : prevPageInfo.endCursor,
-              hasNextPage: isForward
-                ? fetchPageInfo.hasNextPage
-                : prevPageInfo.hasNextPage,
-              hasPreviousPage: isForward
-                ? prevPageInfo.hasPreviousPage
-                : fetchPageInfo.hasPreviousPage,
-              startCursor: isForward
-                ? prevPageInfo.startCursor
-                : fetchPageInfo.startCursor,
-            },
+            list: merged.list,
+            pageInfo: merged.pageInfo,
           },
-        });
+        };
       },
     });
   };
@@ -151,7 +125,7 @@ export const useCategories = (
   return {
     loading,
     categories,
-    totalCount: safeTotalCount,
+    totalCount: totalCount ?? 0,
     handleFetchMore,
     pageInfo,
     refetch,

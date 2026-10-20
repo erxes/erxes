@@ -7,9 +7,8 @@ import {
   CMS_POSTIZ_OPTIONS,
   CMS_POSTIZ_SHARE,
   CMS_POSTIZ_VALIDATE,
-  type PostizOptions,
-  type PostizShareInput,
 } from './graphql';
+import type { CmsPostizShareInput } from '~/gql/graphql';
 import { PostizDeliveryList } from './PostizDeliveryList';
 
 interface Props {
@@ -41,14 +40,11 @@ export function PostizPublishSheet({
   const busyRef = useRef(false);
   const savedId = useRef('');
   // A network retry must retain the exact request and content, even if the response was lost.
-  const request = useRef<PostizShareInput>();
-  const options = useQuery<{ cmsPostizOptions: PostizOptions }>(
-    CMS_POSTIZ_OPTIONS,
-    {
-      variables: { clientPortalId: websiteId, language },
-      fetchPolicy: 'network-only',
-    },
-  );
+  const request = useRef<CmsPostizShareInput>();
+  const options = useQuery(CMS_POSTIZ_OPTIONS, {
+    variables: { clientPortalId: websiteId, language },
+    fetchPolicy: 'network-only',
+  });
   const [enable] = useMutation(CMS_POSTIZ_ENABLE);
   const [share] = useMutation(CMS_POSTIZ_SHARE);
   const [validate] = useMutation(CMS_POSTIZ_VALIDATE);

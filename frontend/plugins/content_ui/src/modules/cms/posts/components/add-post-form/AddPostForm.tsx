@@ -8,6 +8,7 @@ import { PostizDeliveryList } from '../../postiz/PostizDeliveryList';
 import { CMS_POSTIZ_TENANT_ENABLED } from '../../postiz/graphql';
 import { useSetAtom, useAtomValue } from 'jotai';
 import { usePostForm } from './hooks/usePostForm';
+import { toCustomFieldEntries } from '../../../custom-fields/utils/toCustomFieldEntries';
 import { usePostData } from './hooks/usePostData';
 import { usePostSubmission } from './hooks/usePostSubmission';
 import { usePostAutosave } from './hooks/usePostAutosave';
@@ -49,9 +50,7 @@ export const AddPostForm = ({
   const setCmsLanguage = useSetAtom(cmsLanguageAtom);
   const cmsLanguage = useAtomValue(cmsLanguageAtom);
   const currentEditingPost = editingPost || locationState?.post;
-  const { data: postizAccess } = useQuery<{
-    agentPostizTenantEnabled: boolean;
-  }>(CMS_POSTIZ_TENANT_ENABLED, {
+  const { data: postizAccess } = useQuery(CMS_POSTIZ_TENANT_ENABLED, {
     fetchPolicy: 'no-cache',
     skip: !currentEditingPost?._id,
   });
@@ -206,8 +205,8 @@ export const AddPostForm = ({
         return {
           title: fullPost?.title || '',
           content: fullPost?.content || '',
-          excerpt: fullPost?.excerpt || fullPost?.description || '',
-          customFieldsData: fullPost?.customFieldsData || [],
+          excerpt: fullPost?.excerpt || '',
+          customFieldsData: toCustomFieldEntries(fullPost?.customFieldsData),
         };
       });
       const translation = translations[lang];
@@ -350,8 +349,8 @@ export const AddPostForm = ({
       const data = defaultLangData || {
         title: fullPost?.title || '',
         content: fullPost?.content || '',
-        excerpt: fullPost?.excerpt || fullPost?.description || '',
-        customFieldsData: fullPost?.customFieldsData || [],
+        excerpt: fullPost?.excerpt || '',
+        customFieldsData: toCustomFieldEntries(fullPost?.customFieldsData),
       };
       form.setValue('title', data.title);
       form.setValue('content', data.content);

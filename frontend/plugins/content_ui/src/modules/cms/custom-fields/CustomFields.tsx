@@ -40,6 +40,7 @@ import { FieldDrawer } from './components/field-drawer/FieldDrawer';
 import { CustomFieldGroupItem } from './components/CustomFieldGroupItem';
 import { CMS_CUSTOM_POST_TYPES } from '../graphql/queries';
 import { useSyncedState } from './hooks/useSyncedState';
+import { compactList } from '../shared/utils';
 
 /** Provides drag positioning and handle props for a custom-field group. */
 function SortableGroup({
@@ -123,7 +124,7 @@ export function CustomFields() {
     skip: !websiteId,
   });
 
-  const customTypes = customTypesData?.cmsCustomPostTypes || [];
+  const customTypes = compactList(customTypesData?.cmsCustomPostTypes);
 
   const handleGroupSubmit = (data: any) => {
     const input = {
@@ -179,7 +180,7 @@ export function CustomFields() {
     let updatedFields;
 
     if (editingField) {
-      updatedFields = currentFields.map((f: any) =>
+      updatedFields = currentFields.map((f) =>
         f._id === editingField._id ? newField : f,
       );
     } else {
@@ -236,7 +237,7 @@ export function CustomFields() {
       const currentFields = Array.isArray(latestGroup.fields)
         ? latestGroup.fields
         : [];
-      const updatedFields = currentFields.filter((f: any) => f._id !== fieldId);
+      const updatedFields = currentFields.filter((f) => f._id !== fieldId);
 
       editGroup({
         variables: {

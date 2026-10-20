@@ -7,17 +7,14 @@ import {
   CMS_TRANSLATIONS,
 } from '../graphql/queries';
 import { POSTS_LIST } from '../posts/graphql/queries/postsListQueries';
-
-type PostInput = Record<string, unknown>;
+import type { PostInput } from '~/gql/graphql';
 
 interface UsePostMutationsOptions {
   websiteId?: string;
 }
 
 export function usePostMutations({ websiteId }: UsePostMutationsOptions = {}) {
-  const [createPostMutation, createState] = useMutation<{
-    cmsPostsAdd: { _id: string };
-  }>(POSTS_ADD, {
+  const [createPostMutation, createState] = useMutation(POSTS_ADD, {
     update(cache) {
       cache.evict({ fieldName: 'cmsPostList' });
       cache.gc();
@@ -25,9 +22,7 @@ export function usePostMutations({ websiteId }: UsePostMutationsOptions = {}) {
     awaitRefetchQueries: true,
   });
 
-  const [editPostMutation, editState] = useMutation<{
-    cmsPostsEdit: { _id: string };
-  }>(CMS_POSTS_EDIT, {
+  const [editPostMutation, editState] = useMutation(CMS_POSTS_EDIT, {
     refetchQueries: [CMS_POST, POSTS_LIST, CMS_TRANSLATIONS],
     awaitRefetchQueries: true,
     update(cache, { data }) {

@@ -53,7 +53,7 @@ export const PostsDetailPage = ({
         buildPostsListPath({
           websiteId,
           search: location.search,
-          postType: post?.type,
+          postType: post?.type ?? undefined,
           postId,
         }),
     );
@@ -87,7 +87,7 @@ export const PostsDetailPage = ({
           clientPortalId && (
             <AddPostForm
               websiteId={clientPortalId}
-              editingPost={post}
+              editingPost={post ?? undefined}
               onFormReady={handleFormReady}
               onClose={handleClose}
             />

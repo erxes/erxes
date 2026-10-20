@@ -10,9 +10,7 @@ import {
 import { IWebCustomDomains } from '../types';
 
 export const useWebCustomDomains = (webId: string) => {
-  const { data, loading, error, refetch } = useQuery<{
-    webCustomDomains: IWebCustomDomains | null;
-  }>(GET_WEB_CUSTOM_DOMAINS, {
+  const { data, loading, error, refetch } = useQuery(GET_WEB_CUSTOM_DOMAINS, {
     variables: { webId },
     fetchPolicy: 'cache-and-network',
   });

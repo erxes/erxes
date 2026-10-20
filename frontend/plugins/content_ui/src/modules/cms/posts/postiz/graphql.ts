@@ -1,33 +1,5 @@
 import { gql } from '~/gql';
 
-export interface PostizChannel {
-  id: string;
-  name: string;
-  provider: string;
-  usable: boolean;
-}
-export interface PostizOptions {
-  enabled: boolean;
-  canManage: boolean;
-  channels: PostizChannel[];
-}
-export interface PostizDelivery {
-  _id: string;
-  postId: string;
-  channelName: string;
-  state: string;
-  url?: string | null;
-  message?: string | null;
-}
-export interface PostizShareInput {
-  postId: string;
-  requestId: string;
-  language: string;
-  channelIds: string[];
-  caption: string;
-  media: string[];
-}
-
 export const CMS_POSTIZ_DELIVERY_FIELDS = gql(`
   fragment CmsSocialDeliveryFields on CmsPostizDelivery {
     _id

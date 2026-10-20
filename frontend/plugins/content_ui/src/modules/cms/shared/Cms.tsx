@@ -1,6 +1,5 @@
 import { useQuery } from '@apollo/client';
 import {
-  IconArrowUpRight,
   IconCalendar,
   IconEdit,
   IconFileText,
@@ -18,6 +17,7 @@ import { currentUserState } from 'ui-modules';
 import { WebsiteDrawer } from '../components/websites/WebsiteDrawer';
 import { CONTENT_CMS_LIST } from '../graphql/queries';
 import { IWebsite } from '../types';
+import { compactList } from './utils';
 import { CmsLayout } from './CmsLayout';
 import { EmptyState } from './EmptyState';
 
@@ -42,11 +42,9 @@ export function Cms() {
   const [viewMode, setViewMode] = useState<'list' | 'thumbnail'>('thumbnail');
   const [isWebsiteDrawerOpen, setIsWebsiteDrawerOpen] = useState(false);
   const [editingWebsite, setEditingWebsite] = useState<IWebsite>();
-  const { data, loading, refetch } = useQuery<{
-    contentCMSList: IWebsite[];
-  }>(CONTENT_CMS_LIST);
+  const { data, loading, refetch } = useQuery(CONTENT_CMS_LIST);
   const currentUser = useAtomValue(currentUserState);
-  const cmsList = data?.contentCMSList || [];
+  const cmsList = compactList(data?.contentCMSList);
   const displayWebsites: IWebsite[] = cmsList;
   const onlyCms = cmsList.length === 1 ? cmsList[0] : null;
 
@@ -228,14 +226,15 @@ export function Cms() {
                         <IconCalendar className="w-3 h-3" />
                         <span>
                           {t('created-on')}:{' '}
-                          {new Date(website.createdAt).toLocaleDateString(
-                            'en-US',
-                            {
-                              month: 'short',
-                              day: 'numeric',
-                              year: 'numeric',
-                            },
-                          )}
+                          {website.createdAt &&
+                            new Date(website.createdAt).toLocaleDateString(
+                              'en-US',
+                              {
+                                month: 'short',
+                                day: 'numeric',
+                                year: 'numeric',
+                              },
+                            )}
                         </span>
                       </div>
                       <div className="flex items-center gap-2">
@@ -249,17 +248,6 @@ export function Cms() {
                           <IconEdit className="w-3 h-3" />
                           <span>{t('manage')}</span>
                         </button>
-                        {website.url && (
-                          <a
-                            href={website.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            onClick={(e) => e.stopPropagation()}
-                            className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
-                          >
-                            <IconArrowUpRight className="w-3 h-3" />
-                          </a>
-                        )}
                       </div>
                     </div>
                   </div>
@@ -310,14 +298,15 @@ export function Cms() {
                           <IconCalendar className="w-3 h-3" />
                           <span>
                             {t('created-on')}{' '}
-                            {new Date(website.createdAt).toLocaleDateString(
-                              'en-US',
-                              {
-                                month: 'short',
-                                day: 'numeric',
-                                year: 'numeric',
-                              },
-                            )}
+                            {website.createdAt &&
+                              new Date(website.createdAt).toLocaleDateString(
+                                'en-US',
+                                {
+                                  month: 'short',
+                                  day: 'numeric',
+                                  year: 'numeric',
+                                },
+                              )}
                           </span>
                         </div>
                         {website.domain && (
@@ -340,17 +329,6 @@ export function Cms() {
                         <IconEdit className="w-3 h-3" />
                         <span>{t('manage')}</span>
                       </button>
-                      {website.url && (
-                        <a
-                          href={website.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          onClick={(e) => e.stopPropagation()}
-                          className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
-                        >
-                          <IconArrowUpRight className="w-3 h-3" />
-                        </a>
-                      )}
                     </div>
                   </div>
                 </div>

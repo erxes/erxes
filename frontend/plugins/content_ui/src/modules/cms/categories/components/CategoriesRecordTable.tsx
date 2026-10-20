@@ -7,17 +7,15 @@ import { useCategoriesColumns } from './CategoriesColumn';
 
 import { useCategories } from '../hooks/useCategoriesEnhanced';
 import { CategoriesCommandBar } from './categories-command-bar/CategoriesCommandbar';
-import { ICategory } from '@/cms/categories/types';
+import { ICategory, ICategoryRow } from '@/cms/categories/types';
 import { CategoriesFilter } from './CategoriesFilter';
 import { CATEGORIES_CURSOR_SESSION_KEY } from '../constants/categoriesCursorSessionKey';
 
 const naturalSort = (a: string, b: string) =>
   a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });
 
-function sortCategoriesAsTree(
-  flat: ICategory[],
-): (ICategory & { _depth: number })[] {
-  const result: (ICategory & { _depth: number })[] = [];
+function sortCategoriesAsTree(flat: ICategory[]): ICategoryRow[] {
+  const result: ICategoryRow[] = [];
   const visited = new Set<string>();
 
   const addWithChildren = (cat: ICategory, depth: number) => {
