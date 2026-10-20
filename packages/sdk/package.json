@@ -14,9 +14,13 @@
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
-    "typecheck": "tsc -p tsconfig.json"
+    "typecheck": "tsc -p tsconfig.json",
+    "check:contracts": "tsx scripts/check-contracts.ts"
   },
   "dependencies": {
     "zod": "^4"
+  },
+  "devDependencies": {
+    "graphql": "^16.10.0"
   }
 }

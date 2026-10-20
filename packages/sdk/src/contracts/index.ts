@@ -1,7 +1,7 @@
 import type { Contract } from './define';
 import { salesContract } from './sales';
 
-export { defineContract } from './define';
+export { defineContract, toDocument } from './define';
 export type { Contract, ContractClient, ContractEntry } from './define';
 export { salesContract } from './sales';
 
