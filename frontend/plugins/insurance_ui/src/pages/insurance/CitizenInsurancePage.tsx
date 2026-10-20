@@ -280,8 +280,8 @@ export const CitizenInsurancePage = () => {
                       step === s.id
                         ? 'bg-primary text-white'
                         : step > s.id
-                        ? 'bg-green-100 text-green-700'
-                        : 'bg-gray-100 text-gray-500'
+                          ? 'bg-green-100 text-green-700'
+                          : 'bg-gray-100 text-gray-500'
                     }`}
                     onClick={() => {
                       if (s.id < step) setStep(s.id);

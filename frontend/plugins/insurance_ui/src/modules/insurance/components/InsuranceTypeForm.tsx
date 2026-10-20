@@ -181,9 +181,7 @@ export const InsuranceTypeForm = ({
                 className="p-4 border rounded-lg space-y-3 bg-muted/30"
               >
                 <div className="flex items-center justify-between">
-                  <h4 className="font-medium text-sm">
-                    {t('attribute')} {index + 1}
-                  </h4>
+                  <h4 className="font-medium text-sm">{t('attribute')} {index + 1}</h4>
                   <Button
                     type="button"
                     variant="ghost"
@@ -342,8 +340,8 @@ export const InsuranceTypeForm = ({
               {creating || updating
                 ? t('saving')
                 : insuranceType
-                ? t('update')
-                : t('create')}
+                  ? t('update')
+                  : t('create')}
             </Button>
           </Dialog.Footer>
         </form>
