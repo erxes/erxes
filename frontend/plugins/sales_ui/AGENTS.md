@@ -6,7 +6,7 @@
 - **Project:** `sales_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/sales_ui`
-- **Last synchronized:** `2026-10-19`
+- **Last synchronized:** `2026-10-20`
 
 ## Scope
 
@@ -202,6 +202,13 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   `erxes-ui` `Slots` map), rendered by `SalesItemDetailHeader` before the move
   dropdown. Plugins and extensions fill it through `slots` in their `CONFIG`;
   with no fill it renders nothing.
+- Record actions for `sales:deal`: `SalesItemDetailHeader` (after the
+  `sales.deal.detail.actions` slot) and `DealsCommandBar` (bulk bar, selected
+  deal ids) render `RecordActions` from `ui-modules`. Plugins and extensions
+  fill them through `recordActions['sales:deal']` in their `CONFIG`.
+- The deal side tabs (`RelationWidgetSideTabs`, content type `sales:deal`)
+  show any plugin or extension relation widget whose `contentTypes` is
+  omitted or includes `sales:deal`.
 - Deal trigger forms' optional stage fields (`SalesTriggerStageField`) pass
   `autoSelectFirst={false}`: `SelectStage` otherwise picks the first stage and
   silently narrows the trigger.
