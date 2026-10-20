@@ -1,34 +1,23 @@
+import { KeyboardEvent, MouseEvent, useRef, useState } from 'react';
 import {
-  createReactInlineContentSpec,
-  DefaultReactSuggestionItem,
-  getDefaultReactSlashMenuItems,
   SuggestionMenuController,
   TableHandlesController,
+  createReactInlineContentSpec,
 } from '@blocknote/react';
-import { filterSuggestionItems } from '@blocknote/core';
-import { BlockNoteView } from '@blocknote/shadcn';
 
-import { Button, Tooltip } from 'erxes-ui/components';
-import { cn } from 'erxes-ui/lib';
-import { themeState } from 'erxes-ui/state';
-import { IconPhoto } from '@tabler/icons-react';
-import { useAtomValue } from 'jotai';
-import { KeyboardEvent, useState } from 'react';
-import { BlockEditorProps } from 'erxes-ui/modules/blocks/types';
-import { SlashMenu } from 'erxes-ui/modules/blocks/components/SlashMenu';
-import { Toolbar } from 'erxes-ui/modules/blocks/components/Toolbar';
 import { BarcodeAttribute } from 'erxes-ui/modules/blocks/components/BarcodeAttribute';
+import { BlockEditorProps } from 'erxes-ui/modules/blocks/types';
+import { BlockNoteView } from '@blocknote/shadcn';
+import { SlashMenu } from 'erxes-ui/modules/blocks/components/SlashMenu';
 import { TableHandleWithRemove } from 'erxes-ui/modules/blocks/components/TableHandleWithRemove';
-
-type EditorBlock = ReturnType<
-  BlockEditorProps['editor']['getTextCursorPosition']
->['block'];
-
-const isEmptyBlock = (block?: EditorBlock) =>
-  !!block &&
-  Array.isArray(block.content) &&
-  !block.content.length &&
-  !block.children?.length;
+import { Toolbar } from 'erxes-ui/modules/blocks/components/Toolbar';
+import { cn } from 'erxes-ui/lib';
+import { editorUIComponents } from 'erxes-ui/modules/blocks/constant/toolbar/editorUIComponents';
+import { getSlashMenuItems } from 'erxes-ui/modules/blocks/utils/getSlashMenuItems';
+import { isCodeFormattingShortcut } from 'erxes-ui/modules/blocks/utils/toolbar/isCodeFormattingShortcut';
+import { isEmptyBlock } from 'erxes-ui/modules/blocks/utils/isEmptyBlock';
+import { themeState } from 'erxes-ui/state';
+import { useAtomValue } from 'jotai';
 
 export const BlockEditor = ({
   editor,
@@ -49,67 +38,24 @@ export const BlockEditor = ({
 }: BlockEditorProps) => {
   const theme = useAtomValue(themeState);
   const [focus, setFocus] = useState(false);
-  const getSlashMenuItems = (query: string) => {
-    const items = getDefaultReactSlashMenuItems(editor);
-    const hasImageItem = items.some((item) => item.title === 'Image');
-    const hasCustomImageBlock = 'image' in editor.schema.blockSchema;
-    const filePanelPlugin = editor.filePanel?.plugins[0];
-
-    if (!hasImageItem && hasCustomImageBlock && filePanelPlugin) {
-      items.splice(9, 0, {
-        title: editor.dictionary.slash_menu.image.title,
-        subtext: editor.dictionary.slash_menu.image.subtext,
-        aliases: editor.dictionary.slash_menu.image.aliases,
-        badge: undefined,
-        group: editor.dictionary.slash_menu.image.group,
-        onItemClick: () => {
-          const currentBlock = editor.getTextCursorPosition().block;
-          const insertedBlock = editor.insertBlocks(
-            [{ type: 'image' }],
-            currentBlock,
-            'after',
-          )[0];
-
-          editor.transact((tr) =>
-            tr.setMeta(filePanelPlugin, {
-              block: insertedBlock,
-            }),
-          );
-        },
-      } satisfies DefaultReactSuggestionItem);
-    }
-
-    if ('gallery' in editor.schema.blockSchema) {
-      items.push({
-        title: 'Gallery',
-        subtext: 'Insert a multi-image gallery grid',
-        aliases: ['gallery', 'images', 'grid'],
-        badge: undefined,
-        group: editor.dictionary.slash_menu.image.group,
-        icon: <IconPhoto size={18} />,
-        onItemClick: () => {
-          const currentBlock = editor.getTextCursorPosition().block;
-          editor.insertBlocks([{ type: 'gallery' }], currentBlock, 'after');
-        },
-      } satisfies DefaultReactSuggestionItem);
-    }
-
-    const customItems =
-      typeof additionalSlashMenuItems === 'function'
-        ? additionalSlashMenuItems(editor)
-        : additionalSlashMenuItems;
-
-    if (customItems?.length) {
-      items.push(...customItems);
-    }
-
-    return Promise.resolve(filterSuggestionItems(items, query));
-  };
+  const deletingText = useRef(false);
 
   const handleKeyDownCapture = (e: KeyboardEvent<HTMLDivElement>) => {
-    if (readonly || disabled || (e.key !== 'Backspace' && e.key !== 'Delete')) {
+    if (readonly || disabled) {
       return;
     }
+
+    if (editor.getActiveStyles().code && isCodeFormattingShortcut(e)) {
+      e.preventDefault();
+      e.stopPropagation();
+      return;
+    }
+
+    if (e.key !== 'Backspace' && e.key !== 'Delete') {
+      return;
+    }
+
+    deletingText.current = true;
 
     const { block, prevBlock, nextBlock, parentBlock } =
       editor.getTextCursorPosition();
@@ -132,6 +78,19 @@ export const BlockEditor = ({
   return (
     <div
       onKeyDownCapture={handleKeyDownCapture}
+      onKeyUpCapture={() => {
+        deletingText.current = false;
+      }}
+      onMouseDownCapture={(event: MouseEvent<HTMLDivElement>) => {
+        if (
+          event.button === 0 &&
+          event.target instanceof Element &&
+          event.target.closest('.bn-formatting-toolbar button:not(:disabled)')
+        ) {
+          // Toolbar clicks must preserve the editor selection for formatting.
+          event.preventDefault();
+        }
+      }}
       className={cn(
         'erxes-blocknote',
         'transition-shadow',
@@ -154,23 +113,28 @@ export const BlockEditor = ({
           onBlur?.();
         }}
         editable={!readonly && !disabled}
-        onChange={onChange}
+        onChange={() => {
+          if (deletingText.current) {
+            deletingText.current = false;
+            if (isEmptyBlock(editor.getTextCursorPosition().block)) {
+              const view = editor._tiptapEditor.view;
+              if (view) {
+                view.dispatch(view.state.tr.setStoredMarks([]));
+              }
+            }
+          }
+          onChange?.();
+        }}
         formattingToolbar={false}
         tableHandles={false}
-        shadCNComponents={{
-          Button: { Button },
-          Tooltip: {
-            Tooltip,
-            TooltipContent: Tooltip.Content,
-            TooltipProvider: Tooltip.Provider,
-            TooltipTrigger: Tooltip.Trigger,
-          },
-        }}
+        shadCNComponents={editorUIComponents}
         style={style}
       >
         <SuggestionMenuController
           triggerCharacter="/"
-          getItems={getSlashMenuItems}
+          getItems={(query) =>
+            getSlashMenuItems(query, editor, additionalSlashMenuItems)
+          }
           suggestionMenuComponent={SlashMenu}
           floatingOptions={
             slashMenuOnTop ? { placement: 'top-start' } : undefined
