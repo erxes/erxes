@@ -2,12 +2,7 @@ export { collectExtension } from './server';
 export type { Indexes, InvokeErrorCode, InvokeResult } from './server';
 export { ExtensionError, toIssues } from './errors';
 export type { ErrorBody, ErrorIssue } from './errors';
-export {
-  contracts,
-  findContract,
-  salesContract,
-  toDocument,
-} from './contracts';
+export { contracts, findContract, toDocument } from './contracts';
 export type {
   Contract,
   ContractClient,

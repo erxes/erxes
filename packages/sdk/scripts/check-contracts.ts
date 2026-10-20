@@ -2,17 +2,20 @@
 // (`pnpm nx run gateway:schema:compose` writes it). For every entry:
 // - its generated document validates: the field exists, the declared argument
 //   types fit, required arguments are passed, the selection exists;
+// - its name is unique in its contract;
 // - its input fields are exactly its args, and a required argument is a
 //   required input field;
 // - its leaves have the schema's scalar types and its lists and objects are
 //   z.array and z.object.
-// Output fields the schema calls nullable but the contract doesn't are
-// warnings: erxes' SDL marks many always-set fields nullable, and a null that
-// does arrive fails the runtime's output parse loudly. Keep a field non-null
-// only when the plugin's Mongoose model requires it.
+// An output field the schema calls nullable must be nullable in the contract
+// too: old documents hold nulls the models now default, and one null fails
+// the output parse of the whole call. Only `_id`, list items (the SDL types
+// every list `[T]`, but a list never holds null) and the root field itself
+// may be stricter than the schema; those are warnings.
 //
 //   tsx scripts/check-contracts.ts                  every served contract
 //   tsx scripts/check-contracts.ts src/contracts/x.ts   the contracts one file exports
+//   add --warnings to list the nullability warnings
 import {
   buildSchema,
   type GraphQLOutputType,
@@ -74,7 +77,11 @@ const checkOutput = (
   const { inner, nullable } = unwrap(s);
 
   if (!isNonNullType(type) && !nullable) {
-    warnings.push(`${path}: nullable in the schema, required here`);
+    const loose =
+      path.endsWith('._id') || path.endsWith('[]') || !/[.[]/.test(path);
+    (loose ? warnings : errors).push(
+      `${path}: nullable in the schema, required here`,
+    );
   }
 
   const gql = isNonNullType(type) ? type.ofType : type;
@@ -175,15 +182,27 @@ const loadContracts = async (files: string[]) => {
 };
 
 const main = async () => {
-  const checked = await loadContracts(process.argv.slice(2));
+  const checked = await loadContracts(
+    process.argv.slice(2).filter((arg) => !arg.startsWith('--')),
+  );
   const results = checked.flatMap((contract) =>
     contract.entries.map((entry) => checkEntry(contract, entry)),
   );
-  const errors = results.flatMap((r) => r.errors);
+  const duplicates = checked.flatMap((contract) =>
+    contract.entries
+      .map((entry) => entry.name)
+      .filter((name, i, names) => names.indexOf(name) !== i)
+      .map((name) => `${contract.host}@${contract.version}: ${name} twice`),
+  );
+  const errors = [...duplicates, ...results.flatMap((r) => r.errors)];
   const warnings = results.flatMap((r) => r.warnings);
 
-  if (warnings.length) {
+  if (process.argv.includes('--warnings')) {
     console.warn(warnings.map((w) => `warning ${w}`).join('\n'));
+  } else if (warnings.length) {
+    console.warn(
+      `${warnings.length} nullability warnings (--warnings lists them)`,
+    );
   }
   const entryCount = checked.reduce((n, c) => n + c.entries.length, 0);
 
