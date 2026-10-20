@@ -500,7 +500,7 @@ export const VendorDetailPage = () => {
               {editingProduct ? (
                 <Input
                   id="product"
-                  value={editingProduct.product.name}
+                  value={editingProduct.product.name ?? ''}
                   disabled
                 />
               ) : (

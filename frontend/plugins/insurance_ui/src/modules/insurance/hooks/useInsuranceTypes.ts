@@ -1,12 +1,19 @@
 import { useQuery, useMutation, MutationHookOptions } from '@apollo/client';
+import type {
+  InsuranceCreateTypeMutation,
+  InsuranceCreateTypeMutationVariables,
+  InsuranceDeleteTypeMutation,
+  InsuranceDeleteTypeMutationVariables,
+  InsuranceUpdateTypeMutation,
+  InsuranceUpdateTypeMutationVariables,
+} from '~/gql/graphql';
 import { queries, mutations } from '../graphql';
-import { InsuranceType, AttributeInput } from '../types';
 
 export function useInsuranceTypes() {
   const { data, loading, error, refetch } = useQuery(queries.INSURANCE_TYPES);
 
   return {
-    insuranceTypes: (data?.insuranceTypes || []) as InsuranceType[],
+    insuranceTypes: data?.insuranceTypes || [],
     loading,
     error,
     refetch,
@@ -20,7 +27,7 @@ export function useInsuranceType(id: string) {
   });
 
   return {
-    insuranceType: data?.insuranceType as InsuranceType | undefined,
+    insuranceType: data?.insuranceType,
     loading,
     error,
   };
@@ -28,61 +35,51 @@ export function useInsuranceType(id: string) {
 
 export function useCreateInsuranceType(
   options?: MutationHookOptions<
-    { createInsuranceType: InsuranceType },
-    { name: string; attributes?: AttributeInput[]; isCitizen?: boolean }
+    InsuranceCreateTypeMutation,
+    InsuranceCreateTypeMutationVariables
   >,
 ) {
-  const [createInsuranceType, { loading, error }] = useMutation<
-    { createInsuranceType: InsuranceType },
-    { name: string; attributes?: AttributeInput[]; isCitizen?: boolean }
-  >(mutations.CREATE_INSURANCE_TYPE, {
-    refetchQueries: ['InsuranceTypes'],
-    ...options,
-  });
+  const [createInsuranceType, { loading, error }] = useMutation(
+    mutations.CREATE_INSURANCE_TYPE,
+    {
+      refetchQueries: ['InsuranceTypes'],
+      ...options,
+    },
+  );
 
   return { createInsuranceType, loading, error };
 }
 
 export function useUpdateInsuranceType(
   options?: MutationHookOptions<
-    { updateInsuranceType: InsuranceType },
-    {
-      id: string;
-      name?: string;
-      attributes?: AttributeInput[];
-      isCitizen?: boolean;
-    }
+    InsuranceUpdateTypeMutation,
+    InsuranceUpdateTypeMutationVariables
   >,
 ) {
-  const [updateInsuranceType, { loading, error }] = useMutation<
-    { updateInsuranceType: InsuranceType },
+  const [updateInsuranceType, { loading, error }] = useMutation(
+    mutations.UPDATE_INSURANCE_TYPE,
     {
-      id: string;
-      name?: string;
-      attributes?: AttributeInput[];
-      isCitizen?: boolean;
-    }
-  >(mutations.UPDATE_INSURANCE_TYPE, {
-    refetchQueries: ['InsuranceTypes', 'InsuranceType'],
-    ...options,
-  });
+      refetchQueries: ['InsuranceTypes', 'InsuranceType'],
+      ...options,
+    },
+  );
 
   return { updateInsuranceType, loading, error };
 }
 
 export function useDeleteInsuranceType(
   options?: MutationHookOptions<
-    { deleteInsuranceType: boolean },
-    { id: string }
+    InsuranceDeleteTypeMutation,
+    InsuranceDeleteTypeMutationVariables
   >,
 ) {
-  const [deleteInsuranceType, { loading, error }] = useMutation<
-    { deleteInsuranceType: boolean },
-    { id: string }
-  >(mutations.DELETE_INSURANCE_TYPE, {
-    refetchQueries: ['InsuranceTypes'],
-    ...options,
-  });
+  const [deleteInsuranceType, { loading, error }] = useMutation(
+    mutations.DELETE_INSURANCE_TYPE,
+    {
+      refetchQueries: ['InsuranceTypes'],
+      ...options,
+    },
+  );
 
   return { deleteInsuranceType, loading, error };
 }

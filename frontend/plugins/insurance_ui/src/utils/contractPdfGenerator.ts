@@ -10,14 +10,17 @@ interface Contract {
     phone?: string;
     companyName?: string;
   };
-  insuranceType?: { name: string };
-  insuranceProduct?: { name: string; pdfContent?: string };
+  insuranceType?: { name?: string | null } | null;
+  insuranceProduct?: {
+    name?: string | null;
+    pdfContent?: string | null;
+  } | null;
   startDate: Date;
   endDate: Date;
   paymentKind: string;
   chargedAmount: number;
   coveredRisks?: Array<{
-    risk?: { name: string };
+    risk?: { name?: string | null } | null;
     coveragePercentage: number;
   }>;
   insuredObject?: Record<string, any>;

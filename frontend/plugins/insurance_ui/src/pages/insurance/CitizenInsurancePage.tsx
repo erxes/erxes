@@ -41,6 +41,7 @@ import type {
   InsuranceProduct,
   InsuranceRegion,
 } from '~/modules/insurance/types';
+import { toPricingConfig } from '~/modules/insurance/utils/pricing';
 
 const EMPTY_TRAVELER: Traveler = {
   firstName: '',
@@ -203,7 +204,7 @@ export const CitizenInsurancePage = () => {
           travelEndDate: endDate.toISOString(),
           regionName: selectedProduct.regions?.[0]?.name || '',
           numberOfTravelersInGroup: travelers.length,
-          dailyRate: selectedProduct.pricingConfig?.dailyRate,
+          dailyRate: toPricingConfig(selectedProduct.pricingConfig)?.dailyRate,
           discountPercent: priceResult.discountPercent,
         };
 
@@ -279,8 +280,8 @@ export const CitizenInsurancePage = () => {
                       step === s.id
                         ? 'bg-primary text-white'
                         : step > s.id
-                          ? 'bg-green-100 text-green-700'
-                          : 'bg-gray-100 text-gray-500'
+                        ? 'bg-green-100 text-green-700'
+                        : 'bg-gray-100 text-gray-500'
                     }`}
                     onClick={() => {
                       if (s.id < step) setStep(s.id);
@@ -457,7 +458,9 @@ export const CitizenInsurancePage = () => {
                               </div>
                               <div className="text-right">
                                 <div className="text-lg font-bold text-primary">
-                                  {product.pricingConfig?.dailyRate?.toLocaleString()}
+                                  {toPricingConfig(
+                                    product.pricingConfig,
+                                  )?.dailyRate?.toLocaleString()}
                                   ₮
                                 </div>
                                 <div className="text-xs text-gray-500">

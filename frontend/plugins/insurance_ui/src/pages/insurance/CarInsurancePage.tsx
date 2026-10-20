@@ -24,6 +24,7 @@ import {
   PaymentSection,
   FormSubmitButtons,
 } from '~/modules/insurance/components';
+import { toPricingConfig } from '~/modules/insurance/utils/pricing';
 
 export const CarInsurancePage = () => {
   const { t } = useTranslation('insurance');
@@ -53,8 +54,8 @@ export const CarInsurancePage = () => {
   // Filter products for Vehicle/Car insurance type
   const carInsuranceType = insuranceTypes.find(
     (t) =>
-      t.name.toLowerCase().includes('vehicle') ||
-      t.name.toLowerCase().includes('car'),
+      t.name?.toLowerCase().includes('vehicle') ||
+      t.name?.toLowerCase().includes('car'),
   );
 
   // Get selected vendor
@@ -97,8 +98,9 @@ export const CarInsurancePage = () => {
 
   // Get selected product for premium calculation
   const selectedProduct = products.find((p) => p.id === formData.productId);
-  const percentageByDuration =
-    selectedProduct?.pricingConfig?.percentageByDuration;
+  const percentageByDuration = toPricingConfig(
+    selectedProduct?.pricingConfig,
+  )?.percentageByDuration;
 
   // Get vendor's pricing override for the selected product
   const getVendorPricing = () => {
@@ -148,8 +150,9 @@ export const CarInsurancePage = () => {
     }
 
     // Check if product has duration-based pricing
-    const percentageByDuration =
-      selectedProduct.pricingConfig?.percentageByDuration;
+    const percentageByDuration = toPricingConfig(
+      selectedProduct.pricingConfig,
+    )?.percentageByDuration;
     if (percentageByDuration && durationInMonths > 0) {
       const durationKey = `${durationInMonths}months`;
       if (percentageByDuration[durationKey] !== undefined) {
@@ -158,7 +161,7 @@ export const CarInsurancePage = () => {
     }
 
     // Fall back to product's base percentage
-    return selectedProduct.pricingConfig?.percentage || 3;
+    return toPricingConfig(selectedProduct.pricingConfig)?.percentage || 3;
   };
 
   const productPercentage = getEffectivePercentage();
@@ -538,7 +541,7 @@ export const CarInsurancePage = () => {
                         />
                       )}
                       {selectedProduct &&
-                        !selectedProduct.pricingConfig
+                        !toPricingConfig(selectedProduct.pricingConfig)
                           ?.percentageByDuration && (
                           <p className="text-xs text-muted-foreground mt-1">
                             {t('end-date')}

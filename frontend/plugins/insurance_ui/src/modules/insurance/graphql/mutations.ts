@@ -1,7 +1,8 @@
-import { gql } from '@apollo/client';
+import { gql as apolloGql } from '@apollo/client';
+import { gql } from '~/gql';
 
 // Risk Type Mutations
-export const CREATE_RISK_TYPE = gql`
+export const CREATE_RISK_TYPE = gql(`
   mutation InsuranceCreateRiskType($name: String!, $description: String) {
     createRiskType(name: $name, description: $description) {
       id
@@ -11,9 +12,9 @@ export const CREATE_RISK_TYPE = gql`
       updatedAt
     }
   }
-`;
+`);
 
-export const UPDATE_RISK_TYPE = gql`
+export const UPDATE_RISK_TYPE = gql(`
   mutation InsuranceUpdateRiskType(
     $id: ID!
     $name: String
@@ -27,16 +28,16 @@ export const UPDATE_RISK_TYPE = gql`
       updatedAt
     }
   }
-`;
+`);
 
-export const DELETE_RISK_TYPE = gql`
+export const DELETE_RISK_TYPE = gql(`
   mutation InsuranceDeleteRiskType($id: ID!) {
     deleteRiskType(id: $id)
   }
-`;
+`);
 
 // Insurance Type Mutations
-export const CREATE_INSURANCE_TYPE = gql`
+export const CREATE_INSURANCE_TYPE = gql(`
   mutation InsuranceCreateType(
     $name: String!
     $attributes: [AttributeInput!]
@@ -63,9 +64,9 @@ export const CREATE_INSURANCE_TYPE = gql`
       updatedAt
     }
   }
-`;
+`);
 
-export const UPDATE_INSURANCE_TYPE = gql`
+export const UPDATE_INSURANCE_TYPE = gql(`
   mutation InsuranceUpdateType(
     $id: ID!
     $name: String
@@ -94,16 +95,16 @@ export const UPDATE_INSURANCE_TYPE = gql`
       updatedAt
     }
   }
-`;
+`);
 
-export const DELETE_INSURANCE_TYPE = gql`
+export const DELETE_INSURANCE_TYPE = gql(`
   mutation InsuranceDeleteType($id: ID!) {
     deleteInsuranceType(id: $id)
   }
-`;
+`);
 
 // Insurance Product Mutations
-export const CREATE_INSURANCE_PRODUCT = gql`
+export const CREATE_INSURANCE_PRODUCT = gql(`
   mutation InsuranceCreateProduct(
     $name: String!
     $insuranceTypeId: ID!
@@ -179,9 +180,9 @@ export const CREATE_INSURANCE_PRODUCT = gql`
       updatedAt
     }
   }
-`;
+`);
 
-export const UPDATE_INSURANCE_PRODUCT = gql`
+export const UPDATE_INSURANCE_PRODUCT = gql(`
   mutation InsuranceUpdateProduct(
     $id: ID!
     $name: String
@@ -257,16 +258,16 @@ export const UPDATE_INSURANCE_PRODUCT = gql`
       updatedAt
     }
   }
-`;
+`);
 
-export const DELETE_INSURANCE_PRODUCT = gql`
+export const DELETE_INSURANCE_PRODUCT = gql(`
   mutation InsuranceDeleteProduct($id: ID!) {
     deleteInsuranceProduct(id: $id)
   }
-`;
+`);
 
 // Vendor Mutations
-export const CREATE_VENDOR = gql`
+export const CREATE_VENDOR = apolloGql`
   mutation InsuranceCreateVendor($name: String!) {
     createVendor(name: $name) {
       id
@@ -337,7 +338,7 @@ export const CREATE_VENDOR = gql`
   }
 `;
 
-export const UPDATE_VENDOR = gql`
+export const UPDATE_VENDOR = apolloGql`
   mutation InsuranceUpdateVendor($id: ID!, $name: String!) {
     updateVendor(id: $id, name: $name) {
       id
@@ -408,7 +409,7 @@ export const UPDATE_VENDOR = gql`
   }
 `;
 
-export const ADD_PRODUCT_TO_VENDOR = gql`
+export const ADD_PRODUCT_TO_VENDOR = apolloGql`
   mutation InsuranceAddProductToVendor(
     $vendorId: ID!
     $productId: ID!
@@ -489,7 +490,7 @@ export const ADD_PRODUCT_TO_VENDOR = gql`
   }
 `;
 
-export const REMOVE_PRODUCT_FROM_VENDOR = gql`
+export const REMOVE_PRODUCT_FROM_VENDOR = apolloGql`
   mutation InsuranceRemoveProductFromVendor($vendorId: ID!, $productId: ID!) {
     removeProductFromVendor(vendorId: $vendorId, productId: $productId) {
       id
@@ -561,7 +562,7 @@ export const REMOVE_PRODUCT_FROM_VENDOR = gql`
 `;
 
 // Customer Mutations
-export const CREATE_CUSTOMER = gql`
+export const CREATE_CUSTOMER = apolloGql`
   mutation InsuranceCreateCustomer($input: InsuranceCustomerInput!) {
     createCustomer(input: $input) {
       id
@@ -578,7 +579,7 @@ export const CREATE_CUSTOMER = gql`
   }
 `;
 
-export const UPDATE_CUSTOMER = gql`
+export const UPDATE_CUSTOMER = apolloGql`
   mutation InsuranceUpdateCustomer($id: ID!, $input: InsuranceCustomerInput) {
     updateCustomer(id: $id, input: $input) {
       id
@@ -595,14 +596,14 @@ export const UPDATE_CUSTOMER = gql`
   }
 `;
 
-export const DELETE_CUSTOMER = gql`
+export const DELETE_CUSTOMER = apolloGql`
   mutation InsuranceDeleteCustomer($id: ID!) {
     deleteCustomer(id: $id)
   }
 `;
 
 // Contract Mutations
-export const CREATE_INSURANCE_CONTRACT = gql`
+export const CREATE_INSURANCE_CONTRACT = apolloGql`
   mutation InsuranceCreateContract(
     $vendorId: ID!
     $customerId: ID!
@@ -671,7 +672,7 @@ export const CREATE_INSURANCE_CONTRACT = gql`
   }
 `;
 
-export const GENERATE_CONTRACT_PDF = gql`
+export const GENERATE_CONTRACT_PDF = apolloGql`
   mutation InsuranceGenerateContractPDF($contractId: ID!) {
     generateContractPDF(contractId: $contractId) {
       success
@@ -682,7 +683,7 @@ export const GENERATE_CONTRACT_PDF = gql`
 `;
 
 // Vendor User Mutations
-export const CREATE_VENDOR_USER = gql`
+export const CREATE_VENDOR_USER = apolloGql`
   mutation InsuranceCreateVendorUser(
     $name: String
     $email: String!
@@ -714,7 +715,7 @@ export const CREATE_VENDOR_USER = gql`
   }
 `;
 
-export const UPDATE_VENDOR_USER = gql`
+export const UPDATE_VENDOR_USER = apolloGql`
   mutation InsuranceUpdateVendorUser(
     $id: ID!
     $name: String
@@ -746,7 +747,7 @@ export const UPDATE_VENDOR_USER = gql`
   }
 `;
 
-export const DELETE_VENDOR_USER = gql`
+export const DELETE_VENDOR_USER = apolloGql`
   mutation InsuranceDeleteVendorUser($id: ID!) {
     deleteVendorUser(id: $id)
   }
@@ -754,7 +755,7 @@ export const DELETE_VENDOR_USER = gql`
 
 // Region Mutations
 
-export const CREATE_INSURANCE_REGION = gql`
+export const CREATE_INSURANCE_REGION = gql(`
   mutation InsuranceCreateRegion($name: String!, $countries: [String!]!) {
     createInsuranceRegion(name: $name, countries: $countries) {
       id
@@ -764,9 +765,9 @@ export const CREATE_INSURANCE_REGION = gql`
       updatedAt
     }
   }
-`;
+`);
 
-export const UPDATE_INSURANCE_REGION = gql`
+export const UPDATE_INSURANCE_REGION = gql(`
   mutation InsuranceUpdateRegion(
     $id: ID!
     $name: String
@@ -780,15 +781,15 @@ export const UPDATE_INSURANCE_REGION = gql`
       updatedAt
     }
   }
-`;
+`);
 
-export const DELETE_INSURANCE_REGION = gql`
+export const DELETE_INSURANCE_REGION = gql(`
   mutation InsuranceDeleteRegion($id: ID!) {
     deleteInsuranceRegion(id: $id)
   }
-`;
+`);
 
-export const ADD_COUNTRY_TO_REGION = gql`
+export const ADD_COUNTRY_TO_REGION = gql(`
   mutation InsuranceAddCountryToRegion($regionId: ID!, $country: String!) {
     addCountryToRegion(regionId: $regionId, country: $country) {
       id
@@ -798,9 +799,9 @@ export const ADD_COUNTRY_TO_REGION = gql`
       updatedAt
     }
   }
-`;
+`);
 
-export const REMOVE_COUNTRY_FROM_REGION = gql`
+export const REMOVE_COUNTRY_FROM_REGION = gql(`
   mutation InsuranceRemoveCountryFromRegion($regionId: ID!, $country: String!) {
     removeCountryFromRegion(regionId: $regionId, country: $country) {
       id
@@ -810,9 +811,9 @@ export const REMOVE_COUNTRY_FROM_REGION = gql`
       updatedAt
     }
   }
-`;
+`);
 
-export const SEED_INSURANCE_REGIONS = gql`
+export const SEED_INSURANCE_REGIONS = gql(`
   mutation InsuranceSeedRegions {
     seedInsuranceRegions {
       id
@@ -822,7 +823,7 @@ export const SEED_INSURANCE_REGIONS = gql`
       updatedAt
     }
   }
-`;
+`);
 
 export const mutations = {
   CREATE_RISK_TYPE,

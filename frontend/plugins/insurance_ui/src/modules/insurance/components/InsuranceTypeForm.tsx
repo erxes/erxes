@@ -3,7 +3,8 @@ import { useState, useEffect } from 'react';
 import { Dialog, Button, Label, Input } from 'erxes-ui';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
 import { useCreateInsuranceType, useUpdateInsuranceType } from '../hooks';
-import { InsuranceType, AttributeInput } from '../types';
+import type { AttributeInput } from '~/gql/graphql';
+import type { InsuranceType } from '../types';
 
 interface InsuranceTypeFormProps {
   open: boolean;
@@ -31,7 +32,7 @@ export const InsuranceTypeForm = ({
   useEffect(() => {
     if (insuranceType) {
       setFormData({
-        name: insuranceType.name,
+        name: insuranceType.name ?? '',
         isCitizen: insuranceType.isCitizen || false,
         attributes: insuranceType.attributes || [],
       });
@@ -180,7 +181,9 @@ export const InsuranceTypeForm = ({
                 className="p-4 border rounded-lg space-y-3 bg-muted/30"
               >
                 <div className="flex items-center justify-between">
-                  <h4 className="font-medium text-sm">{t('attribute')} {index + 1}</h4>
+                  <h4 className="font-medium text-sm">
+                    {t('attribute')} {index + 1}
+                  </h4>
                   <Button
                     type="button"
                     variant="ghost"
@@ -240,7 +243,7 @@ export const InsuranceTypeForm = ({
                     <input
                       type="checkbox"
                       id={`required-${index}`}
-                      checked={attr.required}
+                      checked={attr.required ?? false}
                       onChange={(e) =>
                         handleAttributeChange(
                           index,
@@ -339,8 +342,8 @@ export const InsuranceTypeForm = ({
               {creating || updating
                 ? t('saving')
                 : insuranceType
-                  ? t('update')
-                  : t('create')}
+                ? t('update')
+                : t('create')}
             </Button>
           </Dialog.Footer>
         </form>

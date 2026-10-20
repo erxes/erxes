@@ -1,7 +1,8 @@
-import { gql } from '@apollo/client';
+import { gql as apolloGql } from '@apollo/client';
+import { gql } from '~/gql';
 
 // Queries
-export const RISK_TYPES = gql`
+export const RISK_TYPES = gql(`
   query InsuranceRiskTypes {
     riskTypes {
       id
@@ -11,9 +12,9 @@ export const RISK_TYPES = gql`
       updatedAt
     }
   }
-`;
+`);
 
-export const RISK_TYPE = gql`
+export const RISK_TYPE = gql(`
   query InsuranceRiskType($id: ID!) {
     riskType(id: $id) {
       id
@@ -23,9 +24,9 @@ export const RISK_TYPE = gql`
       updatedAt
     }
   }
-`;
+`);
 
-export const INSURANCE_TYPES = gql`
+export const INSURANCE_TYPES = gql(`
   query InsuranceTypes {
     insuranceTypes {
       id
@@ -44,9 +45,9 @@ export const INSURANCE_TYPES = gql`
       updatedAt
     }
   }
-`;
+`);
 
-export const INSURANCE_TYPE = gql`
+export const INSURANCE_TYPE = gql(`
   query InsuranceType($id: ID!) {
     insuranceType(id: $id) {
       id
@@ -65,9 +66,9 @@ export const INSURANCE_TYPE = gql`
       updatedAt
     }
   }
-`;
+`);
 
-export const INSURANCE_PRODUCTS = gql`
+export const INSURANCE_PRODUCTS = gql(`
   query InsuranceProducts {
     insuranceProducts {
       id
@@ -123,9 +124,9 @@ export const INSURANCE_PRODUCTS = gql`
       updatedAt
     }
   }
-`;
+`);
 
-export const INSURANCE_PRODUCT = gql`
+export const INSURANCE_PRODUCT = gql(`
   query InsuranceProduct($id: ID!) {
     insuranceProduct(id: $id) {
       id
@@ -181,9 +182,9 @@ export const INSURANCE_PRODUCT = gql`
       updatedAt
     }
   }
-`;
+`);
 
-export const PRODUCTS_BY_TYPE = gql`
+export const PRODUCTS_BY_TYPE = gql(`
   query InsuranceProductsByType($typeId: ID!) {
     productsByType(typeId: $typeId) {
       id
@@ -239,9 +240,9 @@ export const PRODUCTS_BY_TYPE = gql`
       updatedAt
     }
   }
-`;
+`);
 
-export const VENDORS = gql`
+export const VENDORS = apolloGql`
   query InsuranceVendors {
     vendors {
       id
@@ -312,7 +313,7 @@ export const VENDORS = gql`
   }
 `;
 
-export const VENDOR = gql`
+export const VENDOR = apolloGql`
   query InsuranceVendor($id: ID!) {
     vendor(id: $id) {
       id
@@ -383,7 +384,7 @@ export const VENDOR = gql`
   }
 `;
 
-export const VENDOR_USERS = gql`
+export const VENDOR_USERS = apolloGql`
   query InsuranceVendorUsers($vendorId: ID) {
     vendorUsers(vendorId: $vendorId) {
       id
@@ -401,7 +402,7 @@ export const VENDOR_USERS = gql`
   }
 `;
 
-export const VENDOR_USER = gql`
+export const VENDOR_USER = apolloGql`
   query InsuranceVendorUser($id: ID!) {
     vendorUser(id: $id) {
       id
@@ -419,7 +420,7 @@ export const VENDOR_USER = gql`
   }
 `;
 
-export const INSURANCE_CUSTOMERS = gql`
+export const INSURANCE_CUSTOMERS = apolloGql`
   query InsuranceCustomers {
     insuranceCustomers {
       id
@@ -436,7 +437,7 @@ export const INSURANCE_CUSTOMERS = gql`
   }
 `;
 
-export const INSURANCE_CUSTOMER = gql`
+export const INSURANCE_CUSTOMER = apolloGql`
   query InsuranceCustomer($id: ID!) {
     insuranceCustomer(id: $id) {
       id
@@ -453,7 +454,7 @@ export const INSURANCE_CUSTOMER = gql`
   }
 `;
 
-export const CONTRACTS = gql`
+export const CONTRACTS = apolloGql`
   query InsuranceContracts(
     $vendorId: ID
     $customerId: ID
@@ -528,7 +529,7 @@ export const CONTRACTS = gql`
   }
 `;
 
-export const CONTRACT = gql`
+export const CONTRACT = apolloGql`
   query InsuranceContract($id: ID!) {
     contract(id: $id) {
       id
@@ -581,7 +582,7 @@ export const CONTRACT = gql`
   }
 `;
 
-export const VENDOR_CONTRACTS = gql`
+export const VENDOR_CONTRACTS = apolloGql`
   query InsuranceVendorContracts {
     vendorContracts {
       id
@@ -634,7 +635,7 @@ export const VENDOR_CONTRACTS = gql`
   }
 `;
 
-export const VENDOR_CONTRACT = gql`
+export const VENDOR_CONTRACT = apolloGql`
   query InsuranceVendorContract($id: ID!) {
     vendorContract(id: $id) {
       id
@@ -687,7 +688,7 @@ export const VENDOR_CONTRACT = gql`
   }
 `;
 
-export const INSURANCE_REGIONS = gql`
+export const INSURANCE_REGIONS = gql(`
   query InsuranceRegions {
     insuranceRegions {
       id
@@ -697,9 +698,9 @@ export const INSURANCE_REGIONS = gql`
       updatedAt
     }
   }
-`;
+`);
 
-export const INSURANCE_REGION = gql`
+export const INSURANCE_REGION = gql(`
   query InsuranceRegion($id: ID!) {
     insuranceRegion(id: $id) {
       id
@@ -709,9 +710,9 @@ export const INSURANCE_REGION = gql`
       updatedAt
     }
   }
-`;
+`);
 
-export const PRODUCTS_BY_COUNTRY = gql`
+export const PRODUCTS_BY_COUNTRY = gql(`
   query InsuranceProductsByCountry($country: String!) {
     productsByCountry(country: $country) {
       id
@@ -767,9 +768,9 @@ export const PRODUCTS_BY_COUNTRY = gql`
       updatedAt
     }
   }
-`;
+`);
 
-export const CALCULATE_TRAVEL_PRICE = gql`
+export const CALCULATE_TRAVEL_PRICE = gql(`
   query InsuranceCalculateTravelPrice(
     $productId: ID!
     $vendorId: ID!
@@ -792,7 +793,7 @@ export const CALCULATE_TRAVEL_PRICE = gql`
       dailyRate
     }
   }
-`;
+`);
 
 export const queries = {
   RISK_TYPES,
