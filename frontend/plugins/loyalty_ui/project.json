@@ -32,6 +32,11 @@
           "rspackConfig": "frontend/plugins/loyalty_ui/rspack.config.prod.ts"
         }
       },
+      "inputs": [
+        "production",
+        "^production",
+        { "dependentTasksOutputFiles": "**/*.ts" }
+      ],
       "dependsOn": ["^build", "codegen"]
     },
     "serve": {
@@ -68,13 +73,12 @@
       "cache": true,
       "dependsOn": [
         {
-          "projects": ["loyalty_api"],
-          "target": "schema:print"
+          "projects": ["gateway"],
+          "target": "schema:compose"
         }
       ],
       "inputs": [
         "{projectRoot}/codegen.ts",
-        "{projectRoot}/schema/**/*.graphql",
         "{projectRoot}/src/**/*.{ts,tsx}",
         "!{projectRoot}/src/gql/**",
         {

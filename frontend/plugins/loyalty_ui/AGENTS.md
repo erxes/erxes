@@ -6,7 +6,7 @@
 - **Project:** `loyalty_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/loyalty_ui`
-- **Last synchronized:** `2026-10-18`
+- **Last synchronized:** `2026-10-20`
 
 ## Scope
 
@@ -71,9 +71,8 @@
 - Pricing list loads filtered plans in 20-record pages as users scroll and
   shows the full filtered record count from the API.
 - GraphQL codegen (`client-preset`) validates every GraphQL document against
-  the printed `loyalty_api` schema and the core and sales snapshot
-  `schema/platform.graphql`, and generates result and variable types into
-  `src/gql/`.
+  the composed gateway schema (`backend/gateway/generated/schema.graphql`), and
+  generates result and variable types into `src/gql/`.
 
 ## Architecture
 
@@ -89,7 +88,7 @@
 | Loyalty account types | `src/modules/loyalties/settings/account-type/**`, `src/pages/loyalties-config/LoyaltyAccountTypePage.tsx` | Account list, sectioned form sheet, legacy field banner, and campaign account selector. |
 | Owner loyalty account | `src/modules/loyalties/accounts/**`, `src/modules/loyalties/scores/components/ScoreSummaryWidget.tsx`     | Account card, tier select and freeze dialog in the relation widget.                     |
 | Score campaigns       | `src/modules/loyalties/settings/score/**`                                                                 | Score campaign list, create sheet, and edit sheet.                                      |
-| GraphQL codegen       | `codegen.ts`, `schema/platform.graphql`                                                                   | Generates `src/gql/` (gitignored) from the printed `loyalty_api` schema and the snapshot. |
+| GraphQL codegen       | `codegen.ts`                                                                                              | Generates `src/gql/` (gitignored) from the composed gateway schema.                       |
 
 ## Contracts
 
@@ -116,10 +115,9 @@
 - Public components and hooks from `erxes-ui` and `ui-modules`.
 - Sales `salesBoards`, `salesPipelines` and `salesStages` (pricing options)
   and `deals` (the Give score deal picker) through the gateway.
-- The printed `loyalty_api` subgraph schema from its `schema:print` Nx target,
-  consumed only at codegen time.
-- Core and sales_api types and fields this plugin selects, declared for codegen
-  only in `schema/platform.graphql`.
+- The composed gateway schema from `gateway:schema:compose` (every backend's
+  printed subgraph: loyalty, core and sales included), consumed only at codegen
+  time.
 - Loyalty pricing, score campaign, and loyalty account type API contracts provided
   by `backend/plugins/loyalty_api`.
 - Loyalty translations in `backend/gateway/src/locales/{en,mn}/loyalty.json`.
@@ -182,13 +180,9 @@
   defined in this plugin (`LoyaltyAccountFields`, `LoyaltyAccountTypeFields`)
   and spread by name.
 - `src/gql/` is generated and gitignored; `build` and `serve` depend on the
-  `codegen` target, which depends on `loyalty_api:schema:print` only. The
-  plugin never depends on core's or sales' printed schema.
-- `schema/platform.graphql` snapshots only the core-api and sales_api types and
-  fields loyalty documents select, each block headed by its SDL source. When a
-  document selects another core or sales field, or its owner changes one it
-  selects, update the snapshot from that source; codegen fails on a field the
-  snapshot lacks.
+  `codegen` target, which depends on `gateway:schema:compose`. A field from
+  core, sales or another plugin needs no local copy; fix a validation error in
+  the document, or in the backend that owns the field.
 - Operation names are unique within the plugin even ignoring case, because
   codegen PascalCases them into type names; codegen only accepts byte-identical
   copies, as `GetCampaigns`, `UpdateLotteryCampaign` and `UpdateSpinCampaign`
@@ -197,9 +191,10 @@
 
 ## Validation
 
+- `pnpm nx run gateway:schema:compose --parallel=2` - composes every backend's
+  printed schema.
 - `pnpm nx run loyalty_ui:codegen --skip-nx-cache` - validates every document
-  against the printed `loyalty_api` schema and the snapshot; `build` and
-  `serve` run it first.
+  against the composed gateway schema; `build` and `serve` run it first.
 - `pnpm nx build loyalty_ui`
 - `pnpm nx lint loyalty_ui` from the repository root; distinguish existing
   baseline lint warnings from regressions in touched files.
@@ -218,6 +213,12 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-10-20` — Codegen against the composed gateway schema
+
+- **Summary:** Codegen reads the composed gateway schema from #9603 instead of the printed `loyalty_api` schema plus the core and sales snapshot; the generated types are unchanged. CI also runs when a backend schema source changes.
+- **Affected areas:** `codegen.ts`, `project.json` (`codegen` depends on `gateway:schema:compose`, `build` hashes the generated files), removed `schema/platform.graphql`; `.github/workflows/ci-ui-loyalty.yml`.
+- **Contracts changed:** None (build tooling only).
 
 ### `2026-10-14` — GraphQL codegen setup
 
@@ -270,9 +271,3 @@
 - **Summary:** The Expiry & reset section shows what the settings do in dates and what the next reset would do to the wallet's accounts, before saving.
 - **Affected areas:** `settings/account-type/{components/LoyaltyAccountTypePeriodPreview.tsx,components/LoyaltyAccountTypeExpirySection.tsx,components/LoyaltyAccountTypeFormSheet.tsx,hooks/useLoyaltyAccountTypePeriodPreview.ts,graphql/loyaltyAccountTypeQueries.ts}`; `period-preview-*` translations.
 - **Contracts changed:** Consumes GraphQL `loyaltyAccountTypePeriodPreview`.
-
-### `2026-09-30` — Period run panel on Wallets
-
-- **Summary:** The Wallets page tells when the next period run is, what it will do and how the last runs went.
-- **Affected areas:** `settings/account-type/{components/LoyaltyPeriodRunPanel.tsx,hooks/useLoyaltyPeriodRunStatus.ts,graphql/loyaltyAccountTypeQueries.ts,hooks/useLoyaltyAccountTypeMutations.ts}`, `pages/loyalties-config/LoyaltyAccountTypePage.tsx`; `period-run-*` translations.
-- **Contracts changed:** Consumes GraphQL `loyaltyPeriodRunStatus`.
