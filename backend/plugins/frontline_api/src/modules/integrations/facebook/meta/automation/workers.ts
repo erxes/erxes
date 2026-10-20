@@ -1,3 +1,4 @@
+import { toAiMemoryScopes } from '@/inbox/meta/automation/aiMemoryScopes';
 import {
   actionCreateComment,
   checkCommentTrigger,
@@ -14,6 +15,15 @@ import {
   TAutomationProducers,
   TAutomationProducersInput,
 } from 'erxes-api-shared/core-modules';
+
+import {
+  findOpenConversationTickets,
+  resolveInboxConversationId,
+} from '@/ticket/utils/conversationTickets';
+import {
+  formatMessageForAi,
+  listAiMedia,
+} from '@/integrations/facebook/meta/automation/utils/turnTaking';
 
 const toISOString = (value?: Date | string) => {
   if (!value) {
@@ -94,16 +104,21 @@ export const facebookAutomationWorkers = {
       target,
       triggerType,
     }: TAutomationProducersInput[TAutomationProducers.GENERATE_AI_CONTEXT],
-    { models },
+    { models, subdomain },
   ): Promise<TAiContext | null> => {
     if (!target) {
       return null;
     }
 
+    const targetMessage = {
+      _id: String(target._id || ''),
+      content: typeof target.content === 'string' ? target.content : '',
+      attachments: Array.isArray(target.attachments) ? target.attachments : [],
+    };
     const context: TAiContext = {
       version: 1,
       input: {
-        text: typeof target.content === 'string' ? target.content : '',
+        text: formatMessageForAi(targetMessage),
         id: target._id,
         createdAt: toISOString(target.createdAt),
       },
@@ -120,6 +135,11 @@ export const facebookAutomationWorkers = {
           (typeof target.customerId === 'string' && target.customerId.trim()) ||
           (typeof target._id === 'string' && target._id.trim()) ||
           undefined,
+        scopes: toAiMemoryScopes({
+          conversationType: 'frontline:facebook.conversation',
+          conversationId: target.conversationId,
+          customerId: target.customerId,
+        }),
       },
     };
 
@@ -128,25 +148,77 @@ export const facebookAutomationWorkers = {
     }
 
     const historyCutoff = toHistoryCutoff(target.createdAt);
-    const messages = await models.FacebookConversationMessages.find({
-      conversationId: target.conversationId,
-      internal: { $ne: true },
-      _id: { $ne: target._id },
-      ...(historyCutoff ? { createdAt: { $lt: historyCutoff } } : {}),
-    })
-      .sort({ createdAt: -1 })
-      .limit(12)
-      .lean();
+    const messages = (
+      await models.FacebookConversationMessages.find({
+        conversationId: target.conversationId,
+        internal: { $ne: true },
+        _id: { $ne: target._id },
+        ...(historyCutoff ? { createdAt: { $lt: historyCutoff } } : {}),
+      })
+        .sort({ createdAt: -1 })
+        .limit(12)
+        .lean()
+    ).reverse();
 
-    context.history = messages.reverse().map((message) => ({
+    // Everything the person sent since the last reply is one turn: a photo,
+    // then a line about it, is answered together.
+    let firstUnanswered = messages.length;
+
+    while (
+      firstUnanswered > 0 &&
+      toHistoryRole(messages[firstUnanswered - 1]) === 'customer'
+    ) {
+      firstUnanswered--;
+    }
+
+    const unanswered = messages.slice(firstUnanswered);
+    const customerMessages = [
+      ...messages.filter((message) => toHistoryRole(message) === 'customer'),
+      targetMessage,
+    ];
+
+    context.input = {
+      ...context.input,
+      text: [...unanswered, targetMessage]
+        .map(formatMessageForAi)
+        .filter(Boolean)
+        .join('\n'),
+    };
+    context.history = messages.slice(0, firstUnanswered).map((message) => ({
       type: 'message',
       role: toHistoryRole(message),
-      text: message.content || '',
+      text:
+        toHistoryRole(message) === 'customer'
+          ? formatMessageForAi(message)
+          : message.content || '',
       createdAt: toISOString(message.createdAt),
       meta: {
         id: message._id,
       },
     }));
+    context.facts = {
+      ...context.facts,
+      // Ids a ticket tool may attach; the model picks, the ticket resolves.
+      mediaIds: customerMessages.flatMap((message) =>
+        listAiMedia(message).map(({ id }) => id),
+      ),
+    };
+
+    const inboxConversationId = await resolveInboxConversationId(
+      models,
+      target.conversationId,
+    );
+    const openTickets = inboxConversationId
+      ? await findOpenConversationTickets({
+          models,
+          subdomain,
+          conversationId: inboxConversationId,
+        })
+      : [];
+
+    if (openTickets.length) {
+      context.facts.openTickets = openTickets;
+    }
 
     return context;
   },

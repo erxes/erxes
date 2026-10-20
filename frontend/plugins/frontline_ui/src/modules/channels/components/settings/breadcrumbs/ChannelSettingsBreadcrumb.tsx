@@ -18,7 +18,7 @@ import { useTranslation } from 'react-i18next';
 export const ChannelSettingsBreadcrumb = () => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.channels' });
   const isMatchingLocation = useIsMatchingLocation(
-    '/settings/frontline/channels',
+    '/frontline/settings/channels',
   );
   const { id: channelId } = useParams<{ id: string }>();
 
@@ -58,7 +58,7 @@ export const ChannelSettingsBreadcrumb = () => {
 
   return (
     <>
-      <Link to="/settings/frontline/channels">
+      <Link to="/frontline/settings/channels">
         <Button variant="ghost">
           <IconCircles />
           {t('channels', 'Channels')}
@@ -89,7 +89,7 @@ export const ChannelSettingsBreadcrumb = () => {
           <Separator.Inline />
           <ChannelDetailBreadcrumb channelId={channelId} />
           <Separator.Inline />
-          <Link to={`/settings/frontline/channels/${channelId}/response`}>
+          <Link to={`/frontline/settings/channels/${channelId}/response`}>
             <Button variant="ghost">
               {t('response-templates', 'Response templates')}
             </Button>
@@ -111,7 +111,7 @@ export const ChannelSettingsBreadcrumb = () => {
       {isAnyPipelineRoute && (
         <>
           <Separator.Inline />
-          <Link to={`/settings/frontline/channels/${channelId}/pipelines`}>
+          <Link to={`/frontline/settings/channels/${channelId}/pipelines`}>
             <Button variant="ghost">{t('pipelines', 'Pipelines')}</Button>
           </Link>
           {!isSpecificPipelineDetailRoute && (
@@ -135,7 +135,7 @@ export const ChannelSettingsBreadcrumb = () => {
           <Separator.Inline />
           <ChannelDetailBreadcrumb channelId={channelId} />
           <Separator.Inline />
-          <Link to={`/settings/frontline/channels/${channelId}/forms`}>
+          <Link to={`/frontline/settings/channels/${channelId}/forms`}>
             <Button variant="ghost">{t('forms', 'Forms')}</Button>
           </Link>
           {!isMatchingLocation(FrontlinePaths.FormDetail) && (
@@ -151,7 +151,7 @@ export const ChannelSettingsBreadcrumb = () => {
           <Separator.Inline />
           <ChannelDetailBreadcrumb channelId={channelId} />
           <Separator.Inline />
-          <Link to={`/settings/frontline/channels/${channelId}/surveys`}>
+          <Link to={`/frontline/settings/channels/${channelId}/surveys`}>
             <Button variant="ghost">{t('surveys', 'Surveys')}</Button>
           </Link>
           {!isMatchingLocation(FrontlinePaths.SurveyDetail) && (

@@ -45,7 +45,7 @@ export const FormPageList = () => {
         <Empty.Content>
           <FormsCreateButton />
           <Button variant={'outline'} asChild>
-            <Link to="/settings/frontline/channels">
+            <Link to="/frontline/settings/channels">
               <IconSettings />
               {t('go-to-channels', 'Go to channels')}
             </Link>

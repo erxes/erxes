@@ -17,7 +17,7 @@ export const ResponseSection = ({ channel }: { channel: IChannelDetail }) => {
     <div
       className="w-full border border-muted-foreground/15 rounded-md hover:bg-sidebar/50 cursor-pointer"
       onClick={() =>
-        navigate(`/settings/frontline/channels/${channel._id}/response`)
+        navigate(`/frontline/settings/channels/${channel._id}/response`)
       }
     >
       <section className="w-full p-4">

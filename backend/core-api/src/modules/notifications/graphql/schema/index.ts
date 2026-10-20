@@ -116,6 +116,7 @@ export const types = `
 
     suppressedAt: Date
     suppressionReason: String
+    screenReason: String
     suppressedBy: String
 
     releasedAt: Date
@@ -194,7 +195,8 @@ export const types = `
   input NotificationSettingsEventInput {
     event: String,
     enabled: Boolean,
-    channels: [String]
+    channels: [String],
+    mutedChannels: [String]
   }
 
   input NotificationSettingsChannelInput {

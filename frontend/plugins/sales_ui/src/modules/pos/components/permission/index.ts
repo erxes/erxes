@@ -1,1 +1,1 @@
-export { default as Permission } from './Permission';
+export { Permission } from './Permission';

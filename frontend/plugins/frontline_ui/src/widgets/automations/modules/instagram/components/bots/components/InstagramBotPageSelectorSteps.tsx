@@ -60,7 +60,7 @@ export const InstagramBotPageSelectorSteps = ({
 
   return (
     <>
-      <Sheet.Header className="p-5">
+      <Sheet.Header className="p-5 h-auto py-2">
         <div className="flex items-center gap-2">
           <Badge className="rounded-xl text-xs font-mono">
             STEP {activeStep}

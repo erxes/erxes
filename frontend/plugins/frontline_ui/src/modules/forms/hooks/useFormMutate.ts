@@ -170,7 +170,7 @@ export const useFormMutate = () => {
     resetFormSetup();
     navigate(
       _channelId
-        ? `/settings/frontline/channels/${_channelId}/forms`
+        ? `/frontline/settings/channels/${_channelId}/forms`
         : '/frontline/forms',
     );
   };

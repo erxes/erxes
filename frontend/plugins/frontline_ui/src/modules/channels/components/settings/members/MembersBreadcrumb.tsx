@@ -6,7 +6,7 @@ export const MembersBreadcrumb = () => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.channels' });
   const { id } = useParams<{ id: string }>();
   return (
-    <Link to={`/settings/frontline/channels/${id}/members`}>
+    <Link to={`/frontline/settings/channels/${id}/members`}>
       <Button variant="ghost">{t('members-title', 'Members')}</Button>
     </Link>
   );

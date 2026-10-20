@@ -15,7 +15,7 @@ const SurveysCreateButton: FC<React.ComponentProps<typeof Button>> = (
       <Link
         to={
           channelId
-            ? `/settings/frontline/channels/${channelId}/surveys/create`
+            ? `/frontline/settings/channels/${channelId}/surveys/create`
             : '/frontline/surveys/create'
         }
       >

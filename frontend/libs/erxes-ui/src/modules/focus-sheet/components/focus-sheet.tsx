@@ -210,7 +210,7 @@ const FocusSheetSideContentHeader = forwardRef<
       <div
         ref={ref}
         className={cn(
-          'h-11 px-5 flex items-center gap-2 flex-none bg-background',
+          'h-10 px-4 flex items-center gap-2 flex-none bg-background',
           className,
         )}
         {...props}
@@ -237,7 +237,7 @@ const FocusSheetSideTabsList = forwardRef<
     <Tabs.List
       ref={ref}
       className={cn(
-        'w-16 flex-none border-l bg-sidebar h-full py-3 flex flex-col items-center justify-start gap-3 border-b-0',
+        'w-12 flex-none border-l bg-sidebar h-full py-3 flex flex-col items-center justify-start gap-3 border-b-0',
         className,
       )}
       {...props}
@@ -306,7 +306,10 @@ const FocusSheetHeader = ({
 }) => {
   const { hasSidebar } = useFocusSheet();
   return (
-    <Sheet.Header className={cn('gap-2', className)} {...props}>
+    <Sheet.Header
+      className={cn('gap-2', description && 'h-auto py-2', className)}
+      {...props}
+    >
       {hasSidebar && <FocusSheetSidebarTrigger />}
       <div className="flex flex-col">
         <Sheet.Title>{title}</Sheet.Title>

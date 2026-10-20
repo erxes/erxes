@@ -13,6 +13,7 @@ interface NotificationChannel {
 interface NotificationEvent {
   enabled: boolean;
   channels: string[];
+  mutedChannels?: string[];
 }
 
 interface NotificationSetting {
@@ -23,7 +24,7 @@ interface NotificationSetting {
   updatedAt: string;
 }
 
-interface NotificationSettingsResponse {
+export interface NotificationSettingsResponse {
   notificationSettings: NotificationSetting;
 }
 

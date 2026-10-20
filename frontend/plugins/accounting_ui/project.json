@@ -16,12 +16,9 @@
     "codegen": {
       "executor": "nx:run-commands",
       "cache": true,
-      "dependsOn": [
-        { "projects": ["accounting_api"], "target": "schema:print" }
-      ],
+      "dependsOn": [{ "projects": ["gateway"], "target": "schema:compose" }],
       "inputs": [
         "{projectRoot}/codegen.ts",
-        "{projectRoot}/schema/**/*.graphql",
         "{projectRoot}/src/**/*.{ts,tsx}",
         "!{projectRoot}/src/gql/**",
         { "dependentTasksOutputFiles": "**/*.graphql" }
@@ -33,7 +30,12 @@
       }
     },
     "build": {
-      "dependsOn": ["codegen"],
+      "inputs": [
+        "production",
+        "^production",
+        { "dependentTasksOutputFiles": "**/*.ts" }
+      ],
+      "dependsOn": ["^build", "codegen"],
       "executor": "@nx/rspack:rspack",
       "outputs": ["{options.outputPath}"],
       "defaultConfiguration": "production",

@@ -31,6 +31,7 @@ export const EMAIL_ADDRESSES = gql`
         lastSoftBounceAt
         suppressedAt
         suppressionReason
+        screenReason
       }
       ${GQL_PAGE_INFO}
     }

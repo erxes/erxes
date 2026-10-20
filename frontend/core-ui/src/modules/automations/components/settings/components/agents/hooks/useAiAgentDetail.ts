@@ -7,10 +7,8 @@ import {
   AUTOMATIONS_AI_AGENT_KNOWLEDGE_SOURCE_STATUSES,
   AUTOMATIONS_AI_AGENTS,
 } from '@/automations/components/settings/components/agents/graphql/automationsAiAgents';
-import { AutomationSettingsPath } from '@/types/paths/AutomationPath';
 import { toast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { useLocation, useNavigate, useParams } from 'react-router';
 
 export interface AiAgentInput {
   name?: string;
@@ -50,10 +48,15 @@ export interface AiAgentInput {
   };
 }
 
-export function useAiAgentDetail({ skip = false }: { skip?: boolean } = {}) {
-  const { id } = useParams();
-  const navigate = useNavigate();
-  const { search } = useLocation();
+export function useAiAgentDetail({
+  id,
+  skip = false,
+  onCreated,
+}: {
+  id?: string;
+  skip?: boolean;
+  onCreated: (agentId: string) => void;
+}) {
   const { t } = useTranslation('automations');
 
   const { data, loading } = useQuery(AUTOMATIONS_AI_AGENT_DETAIL, {
@@ -113,18 +116,15 @@ export function useAiAgentDetail({ skip = false }: { skip?: boolean } = {}) {
 
       const savedAgent = res?.data?.[responseFieldName];
 
-      // After a create, switch to the new agent's edit route so the form
-      // binds to the saved record instead of staying on the blank create page.
+      // After a create, the host rebinds to the saved record so the form
+      // stops being a blank create form.
       if (!id && savedAgent?._id) {
-        navigate(
-          `${AutomationSettingsPath.Agents}/${savedAgent._id}${search}`,
-          { replace: true },
-        );
+        onCreated(savedAgent._id);
       }
 
       return savedAgent;
     },
-    [addMutation, editMutation, id, navigate, search, t],
+    [addMutation, editMutation, id, onCreated, t],
   );
 
   return {

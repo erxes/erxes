@@ -459,6 +459,7 @@ export const operationAutomationHandlers = {
       targetType,
       relation: setPropertyTarget?.relation,
       targetPath: setPropertyTarget?.targetPath,
+      targetActionId: action.targetActionId,
     });
 
     return await setProperty({

@@ -1,30 +1,31 @@
 import {
-  Button,
-  Collapsible,
-  Input,
-  Spinner,
-  cn,
-  toast,
-  useConfirm,
-} from 'erxes-ui';
-import { IChecklist, IChecklistItem } from '@/deals/types/checklists';
-import {
   useChecklistItemsAdd,
   useChecklistItemsReorder,
   useChecklistsEdit,
   useChecklistsRemove,
 } from '@/deals/cards/hooks/useChecklists';
+import { IChecklist, IChecklistItem } from '@/deals/types/checklists';
+import {
+  Button,
+  Collapsible,
+  Input,
+  Spinner,
+  cn,
+  isDefined,
+  toast,
+  useConfirm,
+} from 'erxes-ui';
 
-import { ChecklistItemAdd } from './ChecklistItemAdd';
-import { ChecklistItemContent } from './ChecklistItemContent';
 import { CircularProgressBar } from '@/deals/components/common/CircularProgressbar';
-import { IconTrash } from '@tabler/icons-react';
 import {
   SortableList,
   SortableReorderMeta,
 } from '@/deals/components/common/SortableList';
-import { useState, useEffect, useRef } from 'react';
+import { IconTrash } from '@tabler/icons-react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { ChecklistItemAdd } from './ChecklistItemAdd';
+import { ChecklistItemContent } from './ChecklistItemContent';
 
 export const ChecklistItem = ({
   item,
@@ -37,13 +38,15 @@ export const ChecklistItem = ({
 }>) => {
   const [open, setOpen] = useState(false);
 
-  const [items, setItems] = useState<IChecklistItem[]>(item.items ?? []);
+  const [items, setItems] = useState<IChecklistItem[]>(
+    item.items?.filter(isDefined) ?? [],
+  );
   const [adding, setAdding] = useState(false);
   const [newItem, setNewItem] = useState('');
   const [focusRequest, setFocusRequest] = useState(0);
   const [hideChecked, setHideChecked] = useState(false);
   const [isEditingTitle, setIsEditingTitle] = useState(false);
-  const [title, setTitle] = useState(item.title);
+  const [title, setTitle] = useState(item.title ?? '');
   const savingTitleRef = useRef(false);
   const savingNewItemRef = useRef(false);
 
@@ -69,11 +72,11 @@ export const ChecklistItem = ({
   useEffect(() => {
     if (!Array.isArray(item.items)) return;
 
-    setItems(item.items);
+    setItems(item.items.filter(isDefined));
   }, [item]);
 
   useEffect(() => {
-    setTitle(item.title);
+    setTitle(item.title ?? '');
   }, [item.title]);
 
   useEffect(() => {
@@ -113,7 +116,8 @@ export const ChecklistItem = ({
             throw new Error(t('unknown-error'));
           }
 
-          setItems((prev) => [...prev, data.salesChecklistItemsAdd]);
+          const addedItem = data.salesChecklistItemsAdd;
+          setItems((prev) => [...prev, addedItem]);
         } catch (addError) {
           setNewItem((current) =>
             [lines.slice(index).join('\n'), current].filter(Boolean).join('\n'),
@@ -148,7 +152,7 @@ export const ChecklistItem = ({
     const trimmed = title.trim();
 
     if (!trimmed || trimmed === item.title) {
-      setTitle(item.title);
+      setTitle(item.title ?? '');
       setIsEditingTitle(false);
       return;
     }
@@ -166,7 +170,7 @@ export const ChecklistItem = ({
       },
       onError: (editError) => {
         savingTitleRef.current = false;
-        setTitle(item.title);
+        setTitle(item.title ?? '');
         toast({
           title: t('error'),
           description: editError.message,
@@ -177,7 +181,7 @@ export const ChecklistItem = ({
   };
 
   const cancelEditingTitle = () => {
-    setTitle(item.title);
+    setTitle(item.title ?? '');
     setIsEditingTitle(false);
   };
 
@@ -281,7 +285,7 @@ export const ChecklistItem = ({
         <div className="flex items-center gap-2 flex-1 min-w-0">
           <Collapsible.TriggerButton
             className="size-6 w-auto shrink-0 justify-center p-0"
-            aria-label={item.title}
+            aria-label={item.title ?? ''}
           >
             <Collapsible.TriggerIcon className="size-5 shrink-0" />
           </Collapsible.TriggerButton>

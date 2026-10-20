@@ -13,6 +13,7 @@ import {
 
 export const OnboardingSteps: TOnboardingStepItem[] = [
   {
+    id: 'milestone',
     icon: <IconFlag size={24} />,
     title: 'Milestone',
     forOwner: false,
@@ -23,6 +24,7 @@ export const OnboardingSteps: TOnboardingStepItem[] = [
     },
   },
   {
+    id: 'task',
     icon: <IconBrandTrello size={24} />,
     title: 'Task',
     forOwner: false,
@@ -34,6 +36,7 @@ export const OnboardingSteps: TOnboardingStepItem[] = [
     },
   },
   {
+    id: 'project',
     icon: <IconClipboard size={24} />,
     title: 'Project',
     forOwner: false,
@@ -44,6 +47,7 @@ export const OnboardingSteps: TOnboardingStepItem[] = [
     },
   },
   {
+    id: 'cycle',
     icon: <IconCalendarRepeat size={24} />,
     title: 'Cycle',
     forOwner: false,

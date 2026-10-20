@@ -1,11 +1,11 @@
-import { useCallback, useEffect, useState, type ReactNode } from 'react';
-import { useMutation } from '@apollo/client';
-import { Button, Form, InfoCard, Label, toast } from 'erxes-ui';
-import { useForm, useFieldArray } from 'react-hook-form';
-import { useTranslation } from 'react-i18next';
 import { SyncList } from '@/pos/components/syncCard/SyncList';
-import mutations from '@/pos/graphql/mutations';
+import { mutations } from '@/pos/graphql/mutations';
 import { usePosDetail } from '@/pos/hooks/usePosDetail';
+import { useMutation } from '@apollo/client';
+import { Button, Form, InfoCard, isDefined, Label, toast } from 'erxes-ui';
+import { useCallback, useEffect, useState, type ReactNode } from 'react';
+import { useFieldArray, useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import type { CardConfig } from './AddConfigSheet';
 
 interface SyncCardProps {
@@ -52,13 +52,13 @@ const SyncCard: React.FC<SyncCardProps> = ({
 
     const cardsConfig = posDetail.cardsConfig;
     const configList: CardConfig[] = Object.entries(cardsConfig).map(
-      ([key, value]: [string, any]) => ({
+      ([key, value]) => ({
         _id: key,
         branchId: value.branchId || '',
         boardId: value.boardId || '',
         pipelineId: value.pipelineId || '',
         stageId: value.stageId || '',
-        assignedUserIds: value.assignedUserIds || [],
+        assignedUserIds: (value.assignedUserIds ?? []).filter(isDefined),
         deliveryMapField: value.deliveryMapField || '',
         title: value.title || key,
       }),
@@ -79,7 +79,7 @@ const SyncCard: React.FC<SyncCardProps> = ({
       }
 
       try {
-        const cardsConfig: Record<string, any> = {};
+        const cardsConfig: Record<string, Omit<CardConfig, '_id'>> = {};
         data.configs.forEach((config) => {
           const key =
             config.title ||
@@ -145,7 +145,7 @@ const SyncCard: React.FC<SyncCardProps> = ({
   };
 
   const handleConfigUpdated = (config: CardConfig) => {
-    const index = fields.findIndex((f) => (f as CardConfig)._id === config._id);
+    const index = fields.findIndex((f) => f._id === config._id);
     if (index >= 0) {
       update(index, config);
     }
@@ -213,4 +213,4 @@ const SyncCard: React.FC<SyncCardProps> = ({
   );
 };
 
-export default SyncCard;
+export { SyncCard };

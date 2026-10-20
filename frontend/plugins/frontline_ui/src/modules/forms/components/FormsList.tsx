@@ -141,7 +141,7 @@ export const FormsMoreColumnCell = ({
             <DropdownMenu.Item
               onSelect={() => {
                 navigate(
-                  `/settings/frontline/channels/${cell.row.original.channelId}/forms/${cell.row.original._id}`,
+                  `/frontline/settings/channels/${cell.row.original.channelId}/forms/${cell.row.original._id}`,
                 );
               }}
             >
@@ -208,7 +208,7 @@ const formsColumns: ColumnDef<IForm>[] = [
       return (
         <RecordTableInlineCell>
           <Link
-            to={`/settings/frontline/channels/${cell.row.original.channelId}/forms/${cell.row.original._id}`}
+            to={`/frontline/settings/channels/${cell.row.original.channelId}/forms/${cell.row.original._id}`}
           >
             <RecordTableInlineCell.Anchor>
               {cell.getValue() as string}

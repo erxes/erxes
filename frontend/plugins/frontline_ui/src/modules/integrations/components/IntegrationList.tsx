@@ -70,7 +70,7 @@ export const IntegrationCard = ({
   return (
     <Command.Primitive.Item asChild key={integrationType}>
       <Link
-        to={`/settings/frontline/channels/details/${channelId}/${integrationType}`}
+        to={`/frontline/settings/channels/details/${channelId}/${integrationType}`}
       >
         <Card className="h-full p-3 flex flex-col gap-2 rounded-lg">
           <IntegrationIntro

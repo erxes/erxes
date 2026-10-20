@@ -1,7 +1,7 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
 // Asked of loyalty, which owns vouchers and coupons.
-export const DEAL_SALE_VOUCHERS = gql`
+export const DEAL_SALE_VOUCHERS = gql(`
   query DealLoyaltySaleVouchers(
     $ownerId: String!
     $totalAmount: Float
@@ -14,9 +14,9 @@ export const DEAL_SALE_VOUCHERS = gql`
       targetId: $targetId
     )
   }
-`;
+`);
 
-export const DEAL_COUPON_CHECK = gql`
+export const DEAL_COUPON_CHECK = gql(`
   query DealLoyaltyCouponCheck(
     $code: String!
     $ownerId: String
@@ -30,4 +30,4 @@ export const DEAL_COUPON_CHECK = gql`
       targetId: $targetId
     )
   }
-`;
+`);

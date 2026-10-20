@@ -1,13 +1,13 @@
-import { IDeal } from '@/deals/types/deals';
+import { IDealSearch } from '@/deals/types/deals';
 import { formatDealSearchResultDate } from '@/deals/utils/dealSearch';
 import { Badge, Button, highlightMatch } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
 type TDealSearchResultProps = {
-  deal: IDeal;
+  deal: IDealSearch;
   nameSearch: string;
   numberSearch: string;
-  onSelect: (deal: IDeal) => void;
+  onSelect: (deal: IDealSearch) => void;
 };
 
 export const DealSearchResult = ({

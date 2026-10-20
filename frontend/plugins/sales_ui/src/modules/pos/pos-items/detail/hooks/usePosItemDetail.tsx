@@ -1,6 +1,7 @@
+import { toPosOrderDetail } from '@/pos/utils/posOrderJson';
 import { useQuery } from '@apollo/client';
+import { useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { IPosItem } from '@/pos/pos-items/types/posItem';
 import { POS_ITEM_DETAIL_QUERY } from '../graphql/queries/posItemDetailQuery';
 
 export const usePosItemDetail = () => {
@@ -20,10 +21,24 @@ export const usePosItemDetail = () => {
     console.error('Error fetching pos item:', error);
   }
 
+  const parsed = useMemo(() => {
+    try {
+      return {
+        value: data?.posOrderDetail
+          ? toPosOrderDetail(data.posOrderDetail)
+          : undefined,
+      };
+    } catch (cause) {
+      return {
+        error: cause instanceof Error ? cause : new Error(String(cause)),
+      };
+    }
+  }, [data?.posOrderDetail]);
+
   return {
-    posItem: data?.posOrderDetail as IPosItem,
+    posItem: parsed.value,
     loading,
-    error,
+    error: error ?? parsed.error,
     refetch,
   };
 };

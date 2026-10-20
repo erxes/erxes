@@ -1,15 +1,27 @@
-import { gql } from '@apollo/client';
-import { checklistFields } from '@/deals/graphql/mutations/ChecklistMutations';
+import { gql } from '~/gql';
 
-export const CHECKLIST_DETAIL_CHANGED = gql`
+export const CHECKLIST_DETAIL_CHANGED = gql(`
   subscription salesChecklistDetailChanged($_id: String!) {
     salesChecklistDetailChanged(_id: $_id) {
-      ${checklistFields}
+      _id
+      contentType
+      contentTypeId
+      title
+      createdUserId
+      createdDate
+      items {
+        _id
+        checklistId
+        isChecked
+        content
+        order
+      }
+      percent
     }
   }
-`;
+`);
 
-export const CHECKLISTS_CHANGED = gql`
+export const CHECKLISTS_CHANGED = gql(`
   subscription salesChecklistsChanged(
     $contentType: String!
     $contentTypeId: String!
@@ -18,7 +30,20 @@ export const CHECKLISTS_CHANGED = gql`
       contentType: $contentType
       contentTypeId: $contentTypeId
     ) {
-      ${checklistFields}
+      _id
+      contentType
+      contentTypeId
+      title
+      createdUserId
+      createdDate
+      items {
+        _id
+        checklistId
+        isChecked
+        content
+        order
+      }
+      percent
     }
   }
-`;
+`);

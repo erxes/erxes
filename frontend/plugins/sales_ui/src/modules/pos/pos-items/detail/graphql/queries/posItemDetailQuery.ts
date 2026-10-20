@@ -1,7 +1,7 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const POS_ITEM_DETAIL_QUERY = gql`
-  query PosOrderDetail($_id: String) {
+export const POS_ITEM_DETAIL_QUERY = gql(`
+  query salesPosItemDetail($_id: String) {
     posOrderDetail(_id: $_id) {
       customer {
         _id
@@ -56,4 +56,4 @@ export const POS_ITEM_DETAIL_QUERY = gql`
       }
     }
   }
-`;
+`);

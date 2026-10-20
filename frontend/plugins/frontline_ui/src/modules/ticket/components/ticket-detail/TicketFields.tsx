@@ -13,7 +13,7 @@ import { SelectStatusTicket } from '@/ticket/components/ticket-selects/SelectSta
 import { SelectTagsTicket } from '@/ticket/components/ticket-selects/SelectTagsTicket';
 import { useTicketPermissions } from '@/ticket/hooks/useTicketPermissions';
 import { useUpdateTicket } from '@/ticket/hooks/useUpdateTicket';
-import { ITicketDetail } from '@/ticket/types';
+import type { TicketFieldsProps } from '@/ticket/types/ticketDetail';
 import { toTicketAttachments } from '@/ticket/utils/ticketAttachments';
 import { compactList } from '@/shared/utils/cursorList';
 import { Block } from '@blocknote/core';
@@ -27,8 +27,8 @@ import {
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDebounce } from 'use-debounce';
-import { AttachmentProvider } from '../attachments/AttachmentContext';
-import AttachmentUploader from '../attachments/AttachmentUploader';
+import { AttachmentProvider } from '@/ticket/components/attachments/AttachmentContext';
+import AttachmentUploader from '@/ticket/components/attachments/AttachmentUploader';
 
 const LockedField = ({
   message,
@@ -46,7 +46,7 @@ const LockedField = ({
   </Tooltip>
 );
 
-export const TicketFields = ({ ticket }: { ticket: ITicketDetail }) => {
+export const TicketFields = ({ ticket, titleAction }: TicketFieldsProps) => {
   const { t } = useTranslation('frontline');
   const {
     _id: ticketId,
@@ -197,13 +197,18 @@ export const TicketFields = ({ ticket }: { ticket: ITicketDetail }) => {
       initialAttachments={ticketAttachments}
     >
       <div className="flex flex-col gap-3 h-full px-5 py-8">
-        <Input
-          className="shadow-none focus-visible:shadow-none h-8 text-xl p-0"
-          placeholder={t('ticket-name', 'Ticket Name')}
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          disabled={!canEditTicket}
-        />{' '}
+        <div className="flex items-start justify-between gap-4">
+          <div className="min-w-0 flex-1">
+            <Input
+              className="shadow-none focus-visible:shadow-none h-8 text-xl p-0"
+              placeholder={t('ticket-name', 'Ticket Name')}
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              disabled={!canEditTicket}
+            />
+          </div>
+          {titleAction}
+        </div>
         <div className="gap-2 flex flex-wrap w-full items-center">
           <LockedField
             message={t(

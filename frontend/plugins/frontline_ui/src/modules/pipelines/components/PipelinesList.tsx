@@ -42,7 +42,7 @@ const PipelineNameCell = ({ cell }: PipelineCellProps) => {
   return (
     <RecordTableInlineCell
       onClick={() =>
-        navigate(`/settings/frontline/channels/${channelId}/pipelines/${_id}`)
+        navigate(`/frontline/settings/channels/${channelId}/pipelines/${_id}`)
       }
     >
       <span className="flex items-center gap-2 font-medium">

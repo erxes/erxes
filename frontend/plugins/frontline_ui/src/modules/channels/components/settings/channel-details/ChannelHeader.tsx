@@ -13,7 +13,7 @@ export const ChannelHeader = () => {
   }
 
   return (
-    <div className="px-4 h-16 flex items-center">
+    <div className="px-4 h-10 flex items-center">
       <Breadcrumb>
         <Breadcrumb.List>
           <Breadcrumb.Item>
@@ -21,7 +21,7 @@ export const ChannelHeader = () => {
               <Button
                 variant="ghost"
                 className="text-foreground"
-                onClick={() => navigate(`/settings/frontline/channels/${id}`)}
+                onClick={() => navigate(`/frontline/settings/channels/${id}`)}
               >
                 <IconArrowLeft size={16} className="stroke-foreground" />
                 {t('channel-settings', 'Channel Settings')}

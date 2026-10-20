@@ -1,11 +1,11 @@
-import type { IProduct, IProductData } from 'ui-modules';
+import type { DealProduct, DealProductData } from '@/deals/utils/dealJson';
 
 type ProductSubUom = {
   uom?: string | null;
   ratio?: number | string | null;
 };
 
-type ProductWithSubUoms = IProduct & {
+type ProductWithSubUoms = DealProduct & {
   subUoms?: ProductSubUom[] | null;
 };
 
@@ -16,9 +16,7 @@ export type ProductUomInfo = {
   quantity: number;
 };
 
-export type ProductDataWithUom = IProductData & {
-  uomInfo?: Partial<ProductUomInfo>;
-};
+export type ProductDataWithUom = DealProductData;
 
 const cleanUomCode = (uom?: string | null) => uom?.trim() || '';
 const precise = (value: number): number => Number(value.toPrecision(15));
@@ -28,15 +26,15 @@ const isValidRatio = (value: unknown): value is number =>
   isFiniteNumber(value) && value > 0;
 
 const getEntryValues = (
-  row: Pick<IProductData, 'unitPrice' | 'quantity'>,
+  row: Pick<DealProductData, 'unitPrice' | 'quantity'>,
   ratio: number,
 ): Pick<ProductUomInfo, 'unitPrice' | 'quantity'> => ({
-  unitPrice: ratio === 1 ? row.unitPrice : row.unitPrice / ratio,
+  unitPrice: ratio === 1 ? row.unitPrice ?? 0 : (row.unitPrice ?? 0) / ratio,
   quantity:
     ratio === 1 ? row.quantity || 0 : precise((row.quantity || 0) * ratio),
 });
 
-export const getProductDefaultUom = (product?: IProduct) =>
+export const getProductDefaultUom = (product?: DealProduct) =>
   cleanUomCode(product?.uom);
 
 export const getProductBaseUom = (row: ProductDataWithUom) =>

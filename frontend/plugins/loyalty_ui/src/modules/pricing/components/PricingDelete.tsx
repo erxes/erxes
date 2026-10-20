@@ -51,7 +51,7 @@ export const PricingDelete = ({
           variant: 'success',
         });
 
-        navigate('/settings/loyalty/pricing');
+        navigate('/loyalty/settings/pricing');
       } catch (error: unknown) {
         toast({
           title: t('error'),

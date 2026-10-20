@@ -161,6 +161,7 @@
 
 ## Validation
 
+- `pnpm nx run loyalty_api:schema:print` - prints this subgraph's SDL to `generated/schema.graphql` (gitignored) offline, for `gateway:schema:compose`.
 - `pnpm nx build loyalty_api`
 - `pnpm nx test loyalty_api`
 - `pnpm nx test loyalty_api --testPathPattern saleQuantityInput`
