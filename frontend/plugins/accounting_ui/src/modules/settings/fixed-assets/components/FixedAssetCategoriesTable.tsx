@@ -21,6 +21,7 @@ import {
 import { useFixedAssetCategories } from '../hooks/useFixedAssetCategories';
 import { useFixedAssetCategoryRemove } from '../hooks/useFixedAssetMutations';
 import { IFixedAssetCategory } from '../types/FixedAsset';
+import { AddFixedAssetCategory } from '@/settings/fixed-assets/components/AddFixedAssetCategory';
 
 const FixedAssetCategoryMoreCell = ({
   cell,
@@ -182,6 +183,7 @@ export const FixedAssetCategoriesTable = () => {
       data={fixedAssetCategories || []}
       loading={loading}
       error={error}
+      emptyAction={<AddFixedAssetCategory />}
       stickyColumns={['more', 'checkbox', 'code']}
       className="m-3"
       Commandbar={FixedAssetCategoriesCommandbar}

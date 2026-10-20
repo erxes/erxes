@@ -4,22 +4,21 @@ import { adjustTableColumns } from './AdjustTableColumns';
 import { IconAdjustmentsOff } from '@tabler/icons-react';
 import { RecordTable } from 'erxes-ui';
 import { AccountingEmptyState } from '@/layout/components/AccountingEmptyState';
+import { AddAdjustInventory } from '@/adjustments/inventories/components/AdjustInventoryForm';
 
 export const AdjustTable = () => {
   const { t } = useTranslation('accounting');
   const { adjustInventories, loading, error, totalCount, handleFetchMore } =
     useAdjustInventories();
 
-  if (!loading && !adjustInventories?.length) {
-    return <AccountingEmptyState error={error} icon={IconAdjustmentsOff} />;
-  }
+  const isEmpty = !loading && !adjustInventories?.length;
 
   return (
     <RecordTable.Provider
       columns={adjustTableColumns(t)}
       data={adjustInventories || []}
       stickyColumns={[]}
-      className="m-3"
+      className="relative m-3"
     >
       <RecordTable.Scroll>
         <RecordTable>
@@ -35,6 +34,15 @@ export const AdjustTable = () => {
           </RecordTable.Body>
         </RecordTable>
       </RecordTable.Scroll>
+      {isEmpty && (
+        <AccountingEmptyState
+          overlay
+          error={error}
+          icon={IconAdjustmentsOff}
+          description={t('empty-list-description')}
+          action={<AddAdjustInventory />}
+        />
+      )}
     </RecordTable.Provider>
   );
 };

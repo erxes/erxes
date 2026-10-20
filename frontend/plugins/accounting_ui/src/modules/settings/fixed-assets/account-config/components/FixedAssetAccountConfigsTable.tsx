@@ -250,6 +250,7 @@ export const FixedAssetAccountConfigsTable = () => {
         data={configs || []}
         loading={loading}
         error={error}
+        emptyAction={<AddFixedAssetAccountConfig />}
         stickyColumns={['more', 'checkbox', 'accountId']}
         className="m-3"
         Commandbar={FixedAssetAccountConfigsCommandbar}

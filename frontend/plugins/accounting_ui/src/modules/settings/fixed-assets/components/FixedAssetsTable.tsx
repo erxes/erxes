@@ -224,6 +224,7 @@ export const FixedAssetsTable = () => {
       data={fixedAssets || []}
       loading={loading}
       error={error}
+      emptyDescription={t('empty-generated-description')}
       stickyColumns={['more', 'checkbox', 'code']}
       className="m-3"
       Commandbar={FixedAssetsCommandbar}

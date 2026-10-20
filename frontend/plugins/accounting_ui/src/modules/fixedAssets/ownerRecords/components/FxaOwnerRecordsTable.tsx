@@ -300,15 +300,7 @@ export const FxaOwnerRecordsTable = () => {
   }));
   const isInitialLoading = loading && !fxaOwnerRecords?.length;
 
-  if (!loading && !records.length) {
-    return (
-      <AccountingEmptyState
-        error={error}
-        icon={IconUserOff}
-        title={t('no-asset-custodian-records-found')}
-      />
-    );
-  }
+  const isEmpty = !loading && !records.length;
 
   return (
     <RecordTable.Provider
@@ -316,7 +308,7 @@ export const FxaOwnerRecordsTable = () => {
       data={isInitialLoading ? [] : records}
       stickyColumns={['more', 'checkbox', 'code']}
       tableId="accounting_fxa_owner_records_table"
-      className="m-3"
+      className="relative m-3"
     >
       <RecordTable.Scroll>
         <RecordTable>
@@ -333,6 +325,15 @@ export const FxaOwnerRecordsTable = () => {
           </RecordTable.Body>
         </RecordTable>
       </RecordTable.Scroll>
+      {isEmpty && (
+        <AccountingEmptyState
+          overlay
+          error={error}
+          icon={IconUserOff}
+          title={t('no-asset-custodian-records-found')}
+          description={t('empty-generated-description')}
+        />
+      )}
     </RecordTable.Provider>
   );
 };

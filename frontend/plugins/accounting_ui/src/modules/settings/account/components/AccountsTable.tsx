@@ -3,6 +3,7 @@ import { useAccountsMain } from '@/settings/account/hooks/useAccountsMain';
 import { IconDatabaseOff } from '@tabler/icons-react';
 import { RecordTable, Skeleton, Table } from 'erxes-ui';
 import { AccountingEmptyState } from '@/layout/components/AccountingEmptyState';
+import { AddAccount } from '@/settings/account/components/AddAccount';
 import { accountsColumns } from '@/settings/account/components/AccountsColumns';
 import { AccountsCommandbar } from './AccountsCommandBar';
 import { ACCOUNTS_CURSOR_SESSION_KEY } from '../../../accountsSessionKeys';
@@ -40,9 +41,7 @@ export const AccountsTable = () => {
   const isFetchingMore = loading && (accountsMain?.length ?? 0) > 0;
   const isInitialLoading = loading && !isFetchingMore;
 
-  if (!loading && !accountsMain?.length) {
-    return <AccountingEmptyState error={error} icon={IconDatabaseOff} />;
-  }
+  const isEmpty = !loading && !accountsMain?.length;
 
   return (
     <RecordTable.Provider
@@ -50,7 +49,7 @@ export const AccountsTable = () => {
       data={isInitialLoading ? [] : accountsMain || []}
       stickyColumns={['more', 'checkbox', 'code']}
       tableId="accounting_accounts_record_table"
-      className="m-3"
+      className="relative m-3"
     >
       <RecordTable.CursorProvider
         hasPreviousPage={hasPreviousPage}
@@ -73,6 +72,15 @@ export const AccountsTable = () => {
         </RecordTable>
         <AccountsCommandbar />
       </RecordTable.CursorProvider>
+      {isEmpty && (
+        <AccountingEmptyState
+          overlay
+          error={error}
+          icon={IconDatabaseOff}
+          description={t('empty-list-description')}
+          action={<AddAccount />}
+        />
+      )}
     </RecordTable.Provider>
   );
 };

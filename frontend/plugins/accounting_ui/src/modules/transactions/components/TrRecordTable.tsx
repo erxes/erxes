@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { IconFileOff } from '@tabler/icons-react';
 import { RecordTable, useQueryState } from 'erxes-ui';
 import { AccountingEmptyState } from '@/layout/components/AccountingEmptyState';
+import { AddTransactionEmptyAction } from '@/transactions/components/AddTransactionEmptyAction';
 import { ACC_TR_RECORDS_CURSOR_SESSION_KEY } from '~/modules/accountsSessionKeys';
 import { useTrRecords } from '../hooks/useTrRecords';
 import { trRecordColumns } from './TrRecordsTableColumns';
@@ -27,15 +28,7 @@ export const TrRecordTable = () => {
     [showsInventoryDetails, t],
   );
 
-  if (!loading && !trRecords?.length) {
-    return (
-      <AccountingEmptyState
-        error={error}
-        icon={IconFileOff}
-        title={t('no-transaction-found')}
-      />
-    );
-  }
+  const isEmpty = !loading && !trRecords?.length;
 
   return (
     <RecordTable.Provider
@@ -44,7 +37,7 @@ export const TrRecordTable = () => {
       data={trRecords || []}
       stickyColumns={['more', 'checkbox', 'account']}
       tableId="accounting_transaction_records_record_table"
-      className="m-3"
+      className="relative m-3"
     >
       <RecordTable.CursorProvider
         hasPreviousPage={hasPreviousPage}
@@ -67,6 +60,16 @@ export const TrRecordTable = () => {
         </RecordTable>
         <TransactionsCommandbar />
       </RecordTable.CursorProvider>
+      {isEmpty && (
+        <AccountingEmptyState
+          overlay
+          error={error}
+          icon={IconFileOff}
+          title={t('no-transaction-found')}
+          description={t('empty-list-description')}
+          action={<AddTransactionEmptyAction />}
+        />
+      )}
     </RecordTable.Provider>
   );
 };

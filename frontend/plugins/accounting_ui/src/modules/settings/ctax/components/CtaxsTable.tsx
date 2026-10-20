@@ -13,6 +13,7 @@ import { ICtaxRow } from '../types/CtaxRow';
 import { useCtaxRows } from '../hooks/useCtaxRows';
 import { useCtaxRowsRemove } from '../hooks/useCtaxRowsRemove';
 import { useTranslation } from 'react-i18next';
+import { AddCtaxs } from '@/settings/ctax/components/AddCtaxs';
 
 export const CtaxMoreColumnCell = ({
   cell,
@@ -65,6 +66,7 @@ export const CtaxRowsTable = () => {
       data={ctaxRows || []}
       loading={loading}
       error={error}
+      emptyAction={<AddCtaxs />}
       totalCount={totalCount}
       handleFetchMore={handleFetchMore}
       Commandbar={CtaxRowsCommandbar}

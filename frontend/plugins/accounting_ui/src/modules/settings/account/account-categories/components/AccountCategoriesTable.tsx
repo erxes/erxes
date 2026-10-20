@@ -26,6 +26,7 @@ import { AccountCategoriesCommandbar } from './AccountCategoriesCommandbar';
 import { useMemo } from 'react';
 import { IconEdit, IconFolderOff, IconTrash } from '@tabler/icons-react';
 import { AccountingEmptyState } from '@/layout/components/AccountingEmptyState';
+import { AddAccountCategory } from '@/settings/account/account-categories/components/AddAccountCategory';
 
 const AccountCategoriesInitialSkeleton = ({ rows = 20 }: { rows?: number }) => {
   const { t } = useTranslation('accounting');
@@ -68,9 +69,7 @@ export const AccountCategoriesTable = () => {
     );
   }, [accountCategories]);
 
-  if (!loading && !accountCategories?.length) {
-    return <AccountingEmptyState error={error} icon={IconFolderOff} />;
-  }
+  const isEmpty = !loading && !accountCategories?.length;
 
   return (
     <RecordTable.Provider
@@ -87,6 +86,7 @@ export const AccountCategoriesTable = () => {
       }
       stickyColumns={['more', 'checkbox', 'code']}
       tableId="accounting_account_categories_record_table"
+      className="relative"
     >
       <RecordTableTree id="product-categories" ordered>
         <RecordTable.Scroll>
@@ -112,6 +112,15 @@ export const AccountCategoriesTable = () => {
         </RecordTable.Scroll>
         <AccountCategoriesCommandbar />
       </RecordTableTree>
+      {isEmpty && (
+        <AccountingEmptyState
+          overlay
+          error={error}
+          icon={IconFolderOff}
+          description={t('empty-list-description')}
+          action={<AddAccountCategory />}
+        />
+      )}
     </RecordTable.Provider>
   );
 };

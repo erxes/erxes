@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { IconReceiptOff } from '@tabler/icons-react';
 import { RecordTable } from 'erxes-ui';
 import { AccountingEmptyState } from '@/layout/components/AccountingEmptyState';
+import { AddTransactionEmptyAction } from '@/transactions/components/AddTransactionEmptyAction';
 import { ACCTRANSACTIONS_CURSOR_SESSION_KEY } from '~/modules/accountsSessionKeys';
 import { useTransactions } from '../hooks/useTransactions';
 import { AccountingTableRow } from './AccountingTableRow';
@@ -14,15 +15,7 @@ export const TransactionTable = () => {
     useTransactions();
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
 
-  if (!loading && !transactions?.length) {
-    return (
-      <AccountingEmptyState
-        error={error}
-        icon={IconReceiptOff}
-        title={t('no-transactions')}
-      />
-    );
-  }
+  const isEmpty = !loading && !transactions?.length;
 
   return (
     <RecordTable.Provider
@@ -30,7 +23,7 @@ export const TransactionTable = () => {
       data={transactions || []}
       stickyColumns={['more', 'checkbox', 'account']}
       tableId="accounting_transactions_record_table"
-      className="m-3"
+      className="relative m-3"
     >
       <RecordTable.CursorProvider
         hasPreviousPage={hasPreviousPage}
@@ -53,6 +46,16 @@ export const TransactionTable = () => {
         </RecordTable>
       </RecordTable.CursorProvider>
       <TransactionCommandBar />
+      {isEmpty && (
+        <AccountingEmptyState
+          overlay
+          error={error}
+          icon={IconReceiptOff}
+          title={t('no-transactions')}
+          description={t('empty-list-description')}
+          action={<AddTransactionEmptyAction />}
+        />
+      )}
     </RecordTable.Provider>
   );
 };

@@ -1,6 +1,7 @@
 import { IconAdjustmentsOff } from '@tabler/icons-react';
 import { RecordTable } from 'erxes-ui';
 import { AccountingEmptyState } from '@/layout/components/AccountingEmptyState';
+import { AddAdjustClosing } from '@/adjustments/closing/components/AddAdjustClosing';
 import { useAdjustClosing } from '@/adjustments/closing/hooks/useAdjustClosing';
 import { adjustClosingTableColumns } from '@/adjustments/closing/components/AdjustClosingColumns';
 import { useMemo } from 'react';
@@ -19,16 +20,14 @@ export const AdjustClosingTable = () => {
 
   const columns = useMemo(() => adjustClosingTableColumns(t), [t]);
 
-  if (!loading && !adjustClosing?.length) {
-    return <AccountingEmptyState error={error} icon={IconAdjustmentsOff} />;
-  }
+  const isEmpty = !loading && !adjustClosing?.length;
 
   return (
     <RecordTable.Provider
       columns={columns}
       data={adjustClosing || []}
       stickyColumns={['more', 'checkbox', 'avatar']}
-      className="m-3"
+      className="relative m-3"
     >
       <RecordTable.CursorProvider
         hasPreviousPage={hasPreviousPage}
@@ -55,6 +54,15 @@ export const AdjustClosingTable = () => {
         </RecordTable>
       </RecordTable.CursorProvider>
       <AdjustClosingCommandBar />
+      {isEmpty && (
+        <AccountingEmptyState
+          overlay
+          error={error}
+          icon={IconAdjustmentsOff}
+          description={t('empty-list-description')}
+          action={<AddAdjustClosing />}
+        />
+      )}
     </RecordTable.Provider>
   );
 };

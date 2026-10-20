@@ -1,6 +1,7 @@
 import type { TFunction } from 'i18next';
 import { ColumnDef } from '@tanstack/react-table';
 import {
+  cn,
   Combobox,
   Command,
   Popover,
@@ -17,6 +18,8 @@ interface SettingsRowsTableProps<TData> {
   data: TData[];
   loading: boolean;
   error?: { message: string };
+  emptyAction?: React.ReactNode;
+  emptyDescription?: React.ReactNode;
   totalCount?: number;
   handleFetchMore?: () => void;
   Commandbar: React.ComponentType;
@@ -31,6 +34,8 @@ export const SettingsRowsTable = <TData,>({
   data,
   loading,
   error,
+  emptyAction,
+  emptyDescription,
   totalCount,
   handleFetchMore,
   Commandbar,
@@ -39,11 +44,10 @@ export const SettingsRowsTable = <TData,>({
   stickyColumns,
   className,
 }: SettingsRowsTableProps<TData>) => {
+  const { t } = useTranslation('accounting');
   const isInitialLoading = loading && !data?.length;
 
-  if (!loading && !data?.length) {
-    return <AccountingEmptyState error={error} />;
-  }
+  const isEmpty = !loading && !data?.length;
 
   return (
     <RecordTable.Provider
@@ -51,7 +55,7 @@ export const SettingsRowsTable = <TData,>({
       data={isInitialLoading ? [] : data || []}
       stickyColumns={stickyColumns ?? ['more', 'checkbox']}
       tableId={tableId}
-      className={className}
+      className={cn('relative', className)}
     >
       <RecordTable.Scroll>
         <RecordTable>
@@ -69,6 +73,17 @@ export const SettingsRowsTable = <TData,>({
         </RecordTable>
       </RecordTable.Scroll>
       <Commandbar />
+      {isEmpty && (
+        <AccountingEmptyState
+          overlay
+          error={error}
+          description={
+            emptyDescription ??
+            (emptyAction ? t('empty-list-description') : undefined)
+          }
+          action={emptyAction}
+        />
+      )}
     </RecordTable.Provider>
   );
 };

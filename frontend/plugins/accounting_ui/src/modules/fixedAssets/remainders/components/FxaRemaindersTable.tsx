@@ -279,15 +279,7 @@ export const FxaRemaindersTable = () => {
     loadingBranches ||
     loadingDepartments;
 
-  if (!isInitialLoading && !rows.length) {
-    return (
-      <AccountingEmptyState
-        error={error}
-        icon={IconBuildingOff}
-        title={t('no-balance-found')}
-      />
-    );
-  }
+  const isEmpty = !isInitialLoading && !rows.length;
 
   return (
     <RecordTable.Provider
@@ -295,7 +287,7 @@ export const FxaRemaindersTable = () => {
       data={isInitialLoading ? [] : rows}
       stickyColumns={['fixedAssetId']}
       tableId="accounting_fxa_remainders_table"
-      className="m-3"
+      className="relative m-3"
     >
       <RecordTable.Scroll>
         <RecordTable>
@@ -306,6 +298,15 @@ export const FxaRemaindersTable = () => {
           </RecordTable.Body>
         </RecordTable>
       </RecordTable.Scroll>
+      {isEmpty && (
+        <AccountingEmptyState
+          overlay
+          error={error}
+          icon={IconBuildingOff}
+          title={t('no-balance-found')}
+          description={t('empty-generated-description')}
+        />
+      )}
     </RecordTable.Provider>
   );
 };

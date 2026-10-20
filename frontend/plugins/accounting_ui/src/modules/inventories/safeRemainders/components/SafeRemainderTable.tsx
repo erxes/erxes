@@ -3,6 +3,7 @@ import { useMemo } from 'react';
 import { IconPackageOff } from '@tabler/icons-react';
 import { RecordTable, Skeleton, Table } from 'erxes-ui';
 import { AccountingEmptyState } from '@/layout/components/AccountingEmptyState';
+import { AddSafeRemainder } from '@/inventories/safeRemainders/components/SafeRemainderForm';
 import { safeRemainderColumns } from './SafeRemainderColumns';
 import { ISafeRemainder } from '../types/SafeRemainder';
 
@@ -49,9 +50,7 @@ export const SafeRemainderTable = ({
   const safeRemaindersCount = safeRemainders?.length ?? 0;
   const totalSafeRemaindersCount = totalCount ?? 0;
 
-  if (!loading && !safeRemaindersCount) {
-    return <AccountingEmptyState error={error} icon={IconPackageOff} />;
-  }
+  const isEmpty = !loading && !safeRemaindersCount;
 
   return (
     <RecordTable.Provider
@@ -59,7 +58,7 @@ export const SafeRemainderTable = ({
       data={isInitialLoading ? [] : safeRemainders || []}
       stickyColumns={['more']}
       tableId="accounting_safe_remainders_record_table"
-      className="m-3"
+      className="relative m-3"
     >
       <RecordTable.Scroll>
         <RecordTable>
@@ -77,6 +76,15 @@ export const SafeRemainderTable = ({
           </RecordTable.Body>
         </RecordTable>
       </RecordTable.Scroll>
+      {isEmpty && (
+        <AccountingEmptyState
+          overlay
+          error={error}
+          icon={IconPackageOff}
+          description={t('empty-list-description')}
+          action={<AddSafeRemainder />}
+        />
+      )}
     </RecordTable.Provider>
   );
 };

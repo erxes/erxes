@@ -47,22 +47,13 @@ export const AccountingCheckSyncedOrdersRecordTable = () => {
     [setAllOrdersToSync, setOrderToSync, syncableOrderIds, toSyncOrderIds, t],
   );
 
-  if (!loading && !orders?.length) {
-    return (
-      <AccountingEmptyState
-        error={error}
-        icon={IconShoppingCartX}
-        title={t('no-orders')}
-        description={t('select-rule-or-adjust-filters-orders')}
-      />
-    );
-  }
+  const isEmpty = !loading && !orders?.length;
 
   return (
     <RecordTable.Provider
       columns={columns}
       data={orders || []}
-      className="m-3"
+      className="relative m-3"
       stickyColumns={['checkbox', 'toSync', 'number']}
       tableId="accounting_check_synced_orders_record_table"
     >
@@ -94,6 +85,15 @@ export const AccountingCheckSyncedOrdersRecordTable = () => {
           </RecordTable.Body>
         </RecordTable>
       </RecordTable.CursorProvider>
+      {isEmpty && (
+        <AccountingEmptyState
+          overlay
+          error={error}
+          icon={IconShoppingCartX}
+          title={t('no-orders')}
+          description={t('select-rule-or-adjust-filters-orders')}
+        />
+      )}
     </RecordTable.Provider>
   );
 };

@@ -11,6 +11,7 @@ import {
 import { IconPackageOff, IconTrash } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { AccountingEmptyState } from '@/layout/components/AccountingEmptyState';
+import { AddReserveRem } from '@/inventories/reserveRemainders/components/ReserveRemForm';
 import { useReserveRems } from '../hooks/useReserveRems';
 import { useReserveRemsRemove } from '../hooks/useReserveRemsRemove';
 import { reserveRemColumns } from './ReserveRemColumns';
@@ -47,9 +48,7 @@ export const ReserveRemTable = () => {
   const isFetchingMore = loading && (reserveRems?.length ?? 0) > 0;
   const isInitialLoading = loading && !isFetchingMore;
 
-  if (!loading && !reserveRems?.length) {
-    return <AccountingEmptyState error={error} icon={IconPackageOff} />;
-  }
+  const isEmpty = !loading && !reserveRems?.length;
 
   return (
     <RecordTable.Provider
@@ -57,7 +56,7 @@ export const ReserveRemTable = () => {
       data={isInitialLoading ? [] : reserveRems || []}
       stickyColumns={['more', 'checkbox', 'product']}
       tableId="accounting_inventory_reserve_remainders_record_table"
-      className="m-3"
+      className="relative m-3"
     >
       <RecordTable.Scroll>
         <RecordTable>
@@ -75,6 +74,15 @@ export const ReserveRemTable = () => {
         </RecordTable>
       </RecordTable.Scroll>
       <ReserveRemCommandbar />
+      {isEmpty && (
+        <AccountingEmptyState
+          overlay
+          error={error}
+          icon={IconPackageOff}
+          description={t('empty-list-description')}
+          action={<AddReserveRem />}
+        />
+      )}
     </RecordTable.Provider>
   );
 };

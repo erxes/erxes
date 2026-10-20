@@ -15,6 +15,7 @@ import { useTranslation } from 'react-i18next';
 import { useVatRows } from '../hooks/useVatRows';
 import { useVatRowsRemove } from '../hooks/useVatRowsRemove';
 import { vatRowDetailAtom } from '../states/vatRowStates';
+import { AddVats } from '@/settings/vat/components/AddVats';
 
 export const VatRowMoreColumnCell = ({
   cell,
@@ -81,6 +82,7 @@ export const VatRowsTable = () => {
       data={vatRows || []}
       loading={loading}
       error={error}
+      emptyAction={<AddVats />}
       totalCount={totalCount}
       handleFetchMore={handleFetchMore}
       Commandbar={VatRowsCommandbar}

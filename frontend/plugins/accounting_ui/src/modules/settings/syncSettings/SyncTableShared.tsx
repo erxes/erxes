@@ -9,8 +9,10 @@ import {
 } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { IconRefreshOff } from '@tabler/icons-react';
 import { AccountingEmptyState } from '@/layout/components/AccountingEmptyState';
+import { AddAccountingConfig } from '@/settings/syncSettings/AddAccountingConfig';
 import { ACCOUNTING_SETTINGS_CODES } from '../constants/settingsRoutes';
 import { accountingConfigDetailAtom } from '../states/accountingConfigState';
 import { IConfig } from '../types/Config';
@@ -105,14 +107,13 @@ export const SyncConfigTable = ({
   tableId?: string;
   showColumnSelector?: boolean;
 }) => {
+  const { t } = useTranslation('accounting');
   const { configs, loading, error } = useAccountingConfigs({
     variables: { code },
   });
   const isInitialLoading = loading && !configs?.length;
 
-  if (!loading && !configs?.length) {
-    return <AccountingEmptyState error={error} icon={IconRefreshOff} />;
-  }
+  const isEmpty = !loading && !configs?.length;
 
   return (
     <RecordTable.Provider
@@ -120,6 +121,7 @@ export const SyncConfigTable = ({
       data={isInitialLoading ? [] : configs || []}
       stickyColumns={stickyColumns}
       tableId={tableId}
+      className="relative"
     >
       <RecordTable>
         <RecordTable.Header showColumnSelector={showColumnSelector} />
@@ -131,6 +133,15 @@ export const SyncConfigTable = ({
         </RecordTable.Body>
       </RecordTable>
       <EditAccountingConfig code={code} />
+      {isEmpty && (
+        <AccountingEmptyState
+          overlay
+          error={error}
+          icon={IconRefreshOff}
+          description={t('empty-list-description')}
+          action={<AddAccountingConfig code={code} />}
+        />
+      )}
     </RecordTable.Provider>
   );
 };

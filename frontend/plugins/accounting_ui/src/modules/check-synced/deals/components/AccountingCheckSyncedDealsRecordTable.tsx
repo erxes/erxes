@@ -57,22 +57,13 @@ export const AccountingCheckSyncedDealsRecordTable = ({
     [setAllDealsToSync, setDealToSync, syncableDealIds, toSyncDealIds, t],
   );
 
-  if (!loading && !deals?.length) {
-    return (
-      <AccountingEmptyState
-        error={error}
-        icon={IconShoppingCartX}
-        title={t('no-deals')}
-        description={t('select-rule-or-adjust-filters-deals')}
-      />
-    );
-  }
+  const isEmpty = !loading && !deals?.length;
 
   return (
     <RecordTable.Provider
       columns={columns}
       data={deals || []}
-      className="m-3"
+      className="relative m-3"
       stickyColumns={['checkbox', 'toSync', 'name']}
       tableId={tableId}
     >
@@ -105,6 +96,15 @@ export const AccountingCheckSyncedDealsRecordTable = ({
           </RecordTable.Body>
         </RecordTable>
       </RecordTable.CursorProvider>
+      {isEmpty && (
+        <AccountingEmptyState
+          overlay
+          error={error}
+          icon={IconShoppingCartX}
+          title={t('no-deals')}
+          description={t('select-rule-or-adjust-filters-deals')}
+        />
+      )}
     </RecordTable.Provider>
   );
 };

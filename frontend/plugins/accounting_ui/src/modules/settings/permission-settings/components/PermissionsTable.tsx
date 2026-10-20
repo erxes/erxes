@@ -40,9 +40,7 @@ export const PermissionsTable = () => {
   const isFetchingMore = loading && (permissionsMain?.length ?? 0) > 0;
   const isInitialLoading = loading && !isFetchingMore;
 
-  if (!loading && !permissionsMain?.length) {
-    return <AccountingEmptyState error={error} icon={IconLockOff} />;
-  }
+  const isEmpty = !loading && !permissionsMain?.length;
 
   return (
     <RecordTable.Provider
@@ -50,7 +48,7 @@ export const PermissionsTable = () => {
       data={isInitialLoading ? [] : permissionsMain || []}
       stickyColumns={['checkbox', 'accountName']}
       tableId="accounting_permissions_record_table"
-      className="m-3"
+      className="relative m-3"
     >
       <RecordTable.CursorProvider
         hasPreviousPage={hasPreviousPage}
@@ -73,6 +71,14 @@ export const PermissionsTable = () => {
         </RecordTable>
         <PermissionsCommandbar />
       </RecordTable.CursorProvider>
+      {isEmpty && (
+        <AccountingEmptyState
+          overlay
+          error={error}
+          icon={IconLockOff}
+          description={t('empty-filter-description')}
+        />
+      )}
     </RecordTable.Provider>
   );
 };

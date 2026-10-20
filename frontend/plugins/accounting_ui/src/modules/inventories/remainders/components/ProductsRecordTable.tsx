@@ -17,15 +17,13 @@ export const ProductsRecordTable = () => {
 
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
 
-  if (!loading && !productsMain?.length) {
-    return <AccountingEmptyState error={error} icon={IconPackageOff} />;
-  }
+  const isEmpty = !loading && !productsMain?.length;
 
   return (
     <RecordTable.Provider
       columns={productColumns(t)}
       data={productsMain || []}
-      className="h-full"
+      className="relative h-full"
       stickyColumns={['checkbox', 'code', 'name']}
       tableId="accounting_inventory_remainders_record_table"
     >
@@ -50,6 +48,14 @@ export const ProductsRecordTable = () => {
         </RecordTable>
       </RecordTable.CursorProvider>
       <ProductsCommandBar />
+      {isEmpty && (
+        <AccountingEmptyState
+          overlay
+          error={error}
+          icon={IconPackageOff}
+          description={t('empty-generated-description')}
+        />
+      )}
     </RecordTable.Provider>
   );
 };

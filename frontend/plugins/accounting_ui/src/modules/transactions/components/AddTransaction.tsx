@@ -19,10 +19,12 @@ export type AddTransactionHandler = (
 
 export const AddTransaction = ({
   inForm,
+  disableHotkey,
   children,
   onClick,
 }: {
   inForm?: boolean;
+  disableHotkey?: boolean;
   children: React.ReactNode;
   onClick?: AddTransactionHandler;
 }) => {
@@ -36,7 +38,9 @@ export const AddTransaction = ({
   useScopedHotkeys(
     'c',
     () => {
-      setOpen(true);
+      if (!disableHotkey) {
+        setOpen(true);
+      }
     },
     AccountingHotkeyScope.MainPage,
   );

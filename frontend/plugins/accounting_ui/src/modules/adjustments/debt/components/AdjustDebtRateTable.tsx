@@ -4,21 +4,20 @@ import { adjustDebtRateColumns } from './AdjustDebtRateTableColumns';
 import { IconAdjustmentsOff } from '@tabler/icons-react';
 import { RecordTable } from 'erxes-ui';
 import { AccountingEmptyState } from '@/layout/components/AccountingEmptyState';
+import { AddAdjustDebtRate } from '@/adjustments/debt/components/AdjustDebtRateForm';
 
 export const AdjustDebtRateTable = () => {
   const { t } = useTranslation('accounting');
   const { adjustDebtRates, loading, error } = useAdjustDebtRates();
 
-  if (!loading && !adjustDebtRates?.length) {
-    return <AccountingEmptyState error={error} icon={IconAdjustmentsOff} />;
-  }
+  const isEmpty = !loading && !adjustDebtRates?.length;
 
   return (
     <RecordTable.Provider
       columns={adjustDebtRateColumns(t)}
       data={adjustDebtRates || []}
       stickyColumns={[]}
-      className="m-3"
+      className="relative m-3"
     >
       <RecordTable.Scroll>
         <RecordTable>
@@ -29,6 +28,15 @@ export const AdjustDebtRateTable = () => {
           </RecordTable.Body>
         </RecordTable>
       </RecordTable.Scroll>
+      {isEmpty && (
+        <AccountingEmptyState
+          overlay
+          error={error}
+          icon={IconAdjustmentsOff}
+          description={t('empty-list-description')}
+          action={<AddAdjustDebtRate />}
+        />
+      )}
     </RecordTable.Provider>
   );
 };
