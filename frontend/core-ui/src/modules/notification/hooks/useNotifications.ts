@@ -93,7 +93,7 @@ export const useNotifications = (
       await fetchMore({
         variables: { cursor: pageInfo?.endCursor },
         updateQuery: (prev, { fetchMoreResult }) => {
-          if (!fetchMoreResult) return prev;
+          if (!fetchMoreResult || !scope.active) return prev;
           const page = fetchMoreResult.notifications;
           if (
             page.pageInfo.hasNextPage &&

@@ -34,9 +34,15 @@ export const notificationTrpcRouter = t.router({
         };
 
         if (kind === 'user' && !allowMultiple) {
-          // Reuse only unread notifications; a new event must preserve read history.
+          // Reuse only active unread notifications; preserve archived and read history.
           notification = await models.Notifications.findOneAndUpdate(
-            { contentTypeId, contentType, userId, isRead: false }, // lookup key
+            {
+              contentTypeId,
+              contentType,
+              userId,
+              isRead: false,
+              isArchived: { $ne: true },
+            }, // lookup key
             notificationDoc, // new values
             { new: true, upsert: true }, // update if exists, insert if not
           );
