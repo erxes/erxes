@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-10-17`
+- **Last synchronized:** `2026-10-19`
 
 ## Scope
 
@@ -1286,6 +1286,10 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   The portal account behind a ticket is resolved from its `cp:<id>` author with
   `cpUsers.get` by `{ id }` and then by `{ erxesCustomerId }`, because a ticket
   records whichever of the two the portal session carried.
+- `core` over tRPC — `segment.fetchSegment`
+  (`{ segmentId, cursor?, limit? }` → `{ ids, nextCursor? }`), which backs the
+  conversation list `segment` filter. `segmentFilter` pages until `nextCursor`
+  is empty; core caps each page, so one call is never the whole segment.
 - `automations` over tRPC — `automations.trigger`. The path is
   `automations.trigger`, not `triggers.trigger`; `sendTRPCMessage` swallows a
   wrong path or a query/mutation mismatch and returns `defaultValue`, so a
@@ -1522,6 +1526,12 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-10-19` — Conversation segment filter on the paged contract
+
+- **Summary:** The inbox `segment` filter sends `{ segmentId, cursor, limit }` and collects every `ids` page; it used the pre-cutover `options` input and read `_id` from an array, so it matched nothing.
+- **Affected areas:** `conversationQueryBuilder.ts` (+ `__tests__/conversationQueryBuilder.segment.test.ts`).
+- **Contracts changed:** none provided; consumes core `segment.fetchSegment` paging.
 
 ### `2026-10-18` — Ticket remembered through action placement
 

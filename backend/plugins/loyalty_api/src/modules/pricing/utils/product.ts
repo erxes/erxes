@@ -1,7 +1,11 @@
 import * as _ from 'lodash';
 import { IPricingPlanDocument } from '@/pricing/@types/pricingPlan';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
-import { getChildCategories, getChildTags } from '~/utils/utils';
+import {
+  fetchSegmentIds,
+  getChildCategories,
+  getChildTags,
+} from '~/utils/utils';
 
 /**
  * Get parent orders of products
@@ -47,14 +51,7 @@ export const getAllowedProducts = async (
     case 'segment': {
       let productIdsInSegments: string[] = [];
       for (const segment of plan.segments || []) {
-        const ids = await sendTRPCMessage({
-          subdomain,
-          pluginName: 'core',
-          module: 'segment',
-          action: 'fetchSegment',
-          input: { segmentId: segment },
-          defaultValue: [],
-        });
+        const ids = await fetchSegmentIds(subdomain, segment);
         productIdsInSegments = productIdsInSegments.concat(ids);
       }
       return _.intersection(productIds, productIdsInSegments);
@@ -173,14 +170,7 @@ export const getProductIdsForPlan = async (
     case 'segment': {
       let ids: string[] = [];
       for (const segment of plan.segments || []) {
-        const segmentIds = await sendTRPCMessage({
-          subdomain,
-          pluginName: 'core',
-          module: 'segment',
-          action: 'fetchSegment',
-          input: { segmentId: segment },
-          defaultValue: [],
-        });
+        const segmentIds = await fetchSegmentIds(subdomain, segment);
         ids = ids.concat(segmentIds);
       }
       return ids;

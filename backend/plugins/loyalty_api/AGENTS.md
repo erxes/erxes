@@ -6,7 +6,7 @@
 - **Project:** `loyalty_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/loyalty_api`
-- **Last synchronized:** `2026-10-15`
+- **Last synchronized:** `2026-10-19`
 
 ## Scope
 
@@ -106,6 +106,7 @@
 
 - `erxes-api-shared` core types, utilities, and core module extension points.
 - Core service tRPC contracts for products, tags, categories, customers, companies, users, segments, and client portal users, including product discount replacement.
+- Core `segment.fetchSegment` (`{ segmentId, cursor?, limit? }` → `{ ids, nextCursor? }`) and `segment.isInSegment`. The router is `segment`, not `segments`; a wrong path silently returns `defaultValue`. Segment member lists are read only through `fetchSegmentIds` (`utils/utils.ts`), which pages until `nextCursor` is empty.
 - Core featured field contracts `fields.ensureFeatured`, `fields.setFeaturedValues`, `fields.setFeaturedArchived`, `fields.adoptFeatured`, and `fields.releaseFeatured`, owned as `{ plugin: 'loyalty', module: 'accountType', refId: accountTypeId }` with keys `balance` and `tier`.
 - Automation action `inputs` resolved by the automations engine from the trigger plugin's `actionInputs`.
 - Core activity log contract through the plugin event dispatcher (`score_logs`).
@@ -137,7 +138,7 @@
 - Pricing plan list ordering must include `_id` as a deterministic tie-breaker
   so records do not repeat or move between adjacent pages.
 - Do not introduce new `schemaWrapper` usage in backend schemas.
-- A wallet may limit who earns into it (`earnEligibility {who: all|clientPortal|segment, segmentId}`; client portal only on customer wallets): `earn` and the earn previews skip with `not-eligible` (`services/earnEligibility.ts`: core `cpUsers.get` / `segments.isInSegment`). Spending and refunds are never gated.
+- A wallet may limit who earns into it (`earnEligibility {who: all|clientPortal|segment, segmentId}`; client portal only on customer wallets): `earn` and the earn previews skip with `not-eligible` (`services/earnEligibility.ts`: core `cpUsers.get` / `segment.isInSegment`). Spending and refunds are never gated.
 - Freezing/unfreezing an account needs `loyaltyAccountFreeze`, setting a tier by hand `loyaltyAccountSetTier` (both in the `scoreLog` permission module, granted to `loyalty:admin`); `scoreLogChange` is only for adjusting score.
 - `scoreLogs(targetId)` lists what one record (deal, order) moved across owners.
 - Earning, spending and previews need an active campaign (`status: 'active'`); a draft or archived one fails with an error naming the campaign and its status, not "Campaign not found".
@@ -172,6 +173,12 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-10-19` — Segment-based pricing reads every member
+
+- **Summary:** Segment pricing plans and public discounts read the paged `{ ids, nextCursor }` member list instead of treating it as an array (they matched nothing); wallet earn eligibility calls `segment.isInSegment` instead of the non-existent `segments` router.
+- **Affected areas:** `utils/utils.ts` (+ `utils/__tests__/fetchSegmentIds.test.ts`), `modules/pricing/utils/{product,publicDiscounts}.ts`.
+- **Contracts changed:** none provided; consumes core `segment.fetchSegment` paging.
 
 ### `2026-10-14` — Voucher lifecycle: hold, use once, return
 
@@ -226,9 +233,3 @@
 - **Summary:** Paying screens can ask how much an order may pay with points instead of treating the point balance as money.
 - **Affected areas:** `modules/score/services/spendRules.ts` (+ tests), `db/models/ScoreCampaign.ts`, `graphql/{schemas,resolvers/queries}/scoreCampaign.ts`.
 - **Contracts changed:** Query `loyaltyScoreSpendLimit`, type `LoyaltyScoreSpendLimit`.
-
-### `2026-09-30` — Per-owner voucher limit
-
-- **Summary:** Voucher campaigns can cap how many one owner receives per campaign, year or month, so a changed birth date cannot farm a second birthday coupon.
-- **Affected areas:** `modules/voucher/{@types/voucherCampaign.ts,db/definitions/voucherCampaign.ts,db/models/{Voucher,VoucherCampaign}.ts,graphql/schemas/voucherCamapign.ts,services/ownerLimit.ts}`, `meta/automations/voucher/producers.ts`.
-- **Contracts changed:** `VoucherCampaign.perOwnerLimit`, `VoucherOwnerLimitInput` on `voucherCampaignsAdd`/`voucherCampaignsEdit`; Issue voucher result may be `skipped` or carry `refusedOwnerIds`.
