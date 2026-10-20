@@ -6,7 +6,7 @@
 - **Project:** `mongolian_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/mongolian_api`
-- **Last synchronized:** `2026-10-14`
+- **Last synchronized:** `2026-10-20`
 
 ## Scope
 
@@ -33,6 +33,8 @@
   and sales pipeline/stage/POS remainder configuration.
 - Product places applies default product filters through the plugin `beforeResolvers` hook by reading the current user's `dealsProductsDefaultFilter` config from `subId`, supports multi-segment default filters, and runs split/place/pricing/print behavior only after a sales deal moves to a configured destination stage.
 - Product places publishes session-scoped printable receipt payloads through the `productPlacesResponded` GraphQL subscription.
+- `ebarimtProductRules` matches `searchValue` against rule titles as literal
+  text (case-insensitive), not as a regex.
 
 ## Architecture
 
@@ -101,6 +103,8 @@
   pagination adds `_id` as a stable tie-breaker.
 - Product list decoration must not mutate core product names; Erkhet stock
   should be exposed through explicit remainder query responses.
+- Request text that reaches `$regex` goes through `escapeRegExp` from
+  `erxes-api-shared/utils`.
 
 ## Validation
 

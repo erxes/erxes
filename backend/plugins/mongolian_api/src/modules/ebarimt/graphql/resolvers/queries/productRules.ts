@@ -1,4 +1,4 @@
-import { cursorPaginate } from 'erxes-api-shared/utils';
+import { cursorPaginate, escapeRegExp } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 
 const generateFilter = async (params) => {
@@ -7,7 +7,7 @@ const generateFilter = async (params) => {
   // Search
   if (params.searchValue) {
     filter.title = {
-      $regex: `.*${params.searchValue.trim()}.*`,
+      $regex: `.*${escapeRegExp(params.searchValue.trim())}.*`,
       $options: 'i',
     };
   }
