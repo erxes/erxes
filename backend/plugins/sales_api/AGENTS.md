@@ -217,6 +217,7 @@
 
 ### Provides
 
+- Internal `contactFields.find` tRPC query (`TContactFieldsFind`) — core answers `getRelationsByEntity` / `getRelationsByContentIds` between contacts and 'sales:deal' from the deals' `customerIds` / `companyIds` through it: by contacts (`null` until every deal has its fields, then newest 200) or by ids (only deals that have them; core reads relations for the rest). Not agent-callable.
 - Internal `contactFields.sync` tRPC mutation (`TContactFieldsSync` from `erxes-api-shared/core-modules`) — core calls it when a deal ↔ customer/company relation is made, removed or a contact is merged/removed; applied with `applyContactFieldsSync`. Not agent-callable.
 - Internal `pos.cancelOrder({_id, posToken, userId?})` tRPC mutation returns
   `{cancelled: true}` after cancelling the POS order; it is not agent-callable.

@@ -4,7 +4,13 @@ import {
   CONTACT_KIND_BY_CONTENT_TYPE,
   TContactKind,
 } from './constants';
-import { IContactFields, IContactLink, TContactFieldsSync } from './types';
+import {
+  IContactFields,
+  IContactFieldsRecord,
+  IContactLink,
+  TContactFieldsFind,
+  TContactFieldsSync,
+} from './types';
 
 type TEntity = { contentType?: string; contentId?: string };
 
@@ -171,6 +177,93 @@ export const applyContactFieldsSync = async (
       linkUpdate(link.kind, link.contactId, sync.action === 'link'),
     );
   }
+};
+
+// The most records one lookup by contacts returns, newest first.
+const MAX_FIND_RECORDS = 200;
+
+const FIND_PROJECTION: Record<string, 1> = {
+  customerIds: 1,
+  companyIds: 1,
+  createdAt: 1,
+  updatedAt: 1,
+};
+
+type TFoundDoc = IContactFields & {
+  _id: unknown;
+  createdAt?: Date;
+  updatedAt?: Date;
+};
+
+// The query calls `findContactFieldsRecords` makes on a plugin's model.
+interface IContactFieldsFindQuery {
+  sort(order: Record<string, 1 | -1>): IContactFieldsFindQuery;
+  limit(count: number): IContactFieldsFindQuery;
+  lean(): PromiseLike<TFoundDoc[]>;
+}
+
+interface IContactFieldsFindModel extends IContactFieldsExists {
+  find(
+    filter: FilterQuery<IContactFields>,
+    projection: Record<string, 1>,
+  ): IContactFieldsFindQuery;
+}
+
+const toFoundRecord = (doc: TFoundDoc): IContactFieldsRecord => ({
+  _id: String(doc._id),
+  customerIds: doc.customerIds || [],
+  companyIds: doc.companyIds || [],
+  createdAt: doc.createdAt,
+  updatedAt: doc.updatedAt,
+});
+
+/**
+ * Answers core's `contactFields.find` from a plugin's records. By contacts it
+ * returns `null` until every record has its fields, so core reads relations
+ * instead; by ids it returns only the records that have them.
+ */
+export const findContactFieldsRecords = async (
+  model: IContactFieldsFindModel,
+  cacheKey: string,
+  input: TContactFieldsFind,
+): Promise<IContactFieldsRecord[] | null> => {
+  if ('ids' in input) {
+    if (!input.ids.length) {
+      return [];
+    }
+
+    const docs = await model
+      .find({ _id: { $in: input.ids } }, FIND_PROJECTION)
+      .lean();
+
+    return docs.filter((doc) => hasContactFields(doc)).map(toFoundRecord);
+  }
+
+  if (!(await contactFieldsReady(model, cacheKey))) {
+    return null;
+  }
+
+  const or: FilterQuery<IContactFields>[] = [];
+
+  if (input.customerIds.length) {
+    or.push({ customerIds: { $in: input.customerIds } });
+  }
+
+  if (input.companyIds.length) {
+    or.push({ companyIds: { $in: input.companyIds } });
+  }
+
+  if (!or.length) {
+    return [];
+  }
+
+  const docs = await model
+    .find({ $or: or }, FIND_PROJECTION)
+    .sort({ createdAt: -1 })
+    .limit(Math.min(input.limit || MAX_FIND_RECORDS, MAX_FIND_RECORDS))
+    .lean();
+
+  return docs.map(toFoundRecord);
 };
 
 /**

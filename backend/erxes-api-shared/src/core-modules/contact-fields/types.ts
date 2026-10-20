@@ -25,3 +25,27 @@ export interface IContactFields {
   customerIds?: string[];
   companyIds?: string[];
 }
+
+/**
+ * What core asks a plugin (tRPC `contactFields.find`) to read relation-style
+ * links from the fields:
+ * - by contacts: records of `contentType` linked to any of these contacts;
+ * - by ids: these records' own contacts.
+ */
+export type TContactFieldsFind =
+  | {
+      contentType: string;
+      customerIds: string[];
+      companyIds: string[];
+      limit?: number;
+    }
+  | { contentType: string; ids: string[] };
+
+// A record with its contacts, as `contactFields.find` returns it.
+export interface IContactFieldsRecord {
+  _id: string;
+  customerIds: string[];
+  companyIds: string[];
+  createdAt?: Date;
+  updatedAt?: Date;
+}

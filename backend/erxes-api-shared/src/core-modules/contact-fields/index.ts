@@ -4,6 +4,7 @@ export {
   applyContactFieldsSync,
   contactFieldsReady,
   contactFieldsSchemaPlugin,
+  findContactFieldsRecords,
   getContactLinks,
   hasContactFields,
 } from './utils';

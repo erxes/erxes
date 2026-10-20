@@ -114,6 +114,23 @@ const toUpdates = (
     };
   });
 
+const CONTACT_FIELD_NAMES = ['customerIds', 'companyIds'] as const;
+
+/**
+ * Indexes an older schema made on the contact fields (sparse, which `null`
+ * lookups cannot use). They share the plain index's name, so they are
+ * dropped before the migration and the plain ones made after it.
+ */
+const oldFieldIndexNames = async (records: Collection<IContactRecord>) =>
+  (await records.indexes())
+    .filter(
+      (index) =>
+        Object.keys(index.key).length === 1 &&
+        CONTACT_FIELD_NAMES.some((field) => index.key[field] === 1) &&
+        (index.sparse || index.partialFilterExpression),
+    )
+    .flatMap((index) => (index.name ? [index.name] : []));
+
 // Copies every record ↔ contact relation of these records onto them.
 const copyFromRelations = async (
   db: Db,
@@ -203,6 +220,14 @@ const migrateTarget = async (db: Db, { collection, contentTypes }: ITarget) => {
     return;
   }
 
+  const oldIndexes = await oldFieldIndexNames(records);
+
+  if (!DRY_RUN) {
+    for (const name of oldIndexes) {
+      await records.dropIndex(name);
+    }
+  }
+
   const first = await copyFromRelations(db, records, contentTypes);
 
   if (DRY_RUN) {
@@ -211,7 +236,10 @@ const migrateTarget = async (db: Db, { collection, contentTypes }: ITarget) => {
     });
 
     console.log(
-      `[DRY RUN] ${collection}: ${first.relationCount} contact relation(s) to copy, ${missing} record(s) to give empty fields`,
+      `[DRY RUN] ${collection}: ${first.relationCount} contact relation(s) to copy, ${missing} record(s) to give empty fields` +
+        (oldIndexes.length
+          ? `, old index(es) to replace: ${oldIndexes.join(', ')}`
+          : ''),
     );
     return;
   }
@@ -227,13 +255,17 @@ const migrateTarget = async (db: Db, { collection, contentTypes }: ITarget) => {
 
   const second = await copyFromRelations(db, records, contentTypes);
 
-  await records.createIndex({ customerIds: 1 });
-  await records.createIndex({ companyIds: 1 });
+  for (const field of CONTACT_FIELD_NAMES) {
+    await records.createIndex({ [field]: 1 });
+  }
 
   console.log(
     `[DONE] ${collection}: ${first.relationCount} relation(s), ${first.modifiedCount} record(s) updated, ` +
       `${filledCustomers.modifiedCount}/${filledCompanies.modifiedCount} given empty customer/company fields, ` +
-      `${second.modifiedCount} caught on the second pass`,
+      `${second.modifiedCount} caught on the second pass` +
+      (oldIndexes.length
+        ? `, replaced old index(es): ${oldIndexes.join(', ')}`
+        : ''),
   );
 };
 

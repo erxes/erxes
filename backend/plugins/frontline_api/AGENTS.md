@@ -621,6 +621,7 @@ The root router mounts its authenticated webhook at `/telegram`.
 
 ### Provides
 
+- Internal `contactFields.find` tRPC query (`TContactFieldsFind`) — core answers `getRelationsByEntity` / `getRelationsByContentIds` between contacts and 'frontline:ticket' from the tickets' `customerIds` / `companyIds` through it: by contacts (`null` until every ticket has its fields, then newest 200) or by ids (only tickets that have them; core reads relations for the rest). Not agent-callable.
 - Internal `contactFields.sync` tRPC mutation (`TContactFieldsSync`) — core calls it on ticket ↔ customer/company relation changes and contact merge/removal. Not agent-callable.
 - Telegram: `POST /telegram/receive/:_id` authenticates the stored webhook
   secret. `telegramBots`, `telegramConversationChats`, `telegramBotWebhookInfo` and

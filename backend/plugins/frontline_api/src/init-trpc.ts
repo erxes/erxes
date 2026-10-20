@@ -1,5 +1,7 @@
 import {
   applyContactFieldsSync,
+  findContactFieldsRecords,
+  TContactFieldsFind,
   TContactFieldsSync,
 } from 'erxes-api-shared/core-modules';
 import { initTRPC } from '@trpc/server';
@@ -58,6 +60,22 @@ export const appRouter = t.mergeRouters(
   }),
   t.router({
     contactFields: t.router({
+      // Core reads record ↔ contact links from the fields through this.
+      find: t.procedure
+        .input(z.custom<TContactFieldsFind>())
+        .query(async ({ ctx, input }) => {
+          const { models, subdomain } = ctx;
+
+          if (input.contentType !== 'frontline:ticket') {
+            return null;
+          }
+
+          return findContactFieldsRecords(
+            models.Ticket,
+            `${subdomain}:frontline_tickets`,
+            input,
+          );
+        }),
       // Core keeps these records' customerIds / companyIds in step with
       // relations; see erxes-api-shared contact-fields.
       sync: t.procedure

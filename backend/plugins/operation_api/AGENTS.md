@@ -80,6 +80,7 @@
 
 ### Provides
 
+- Internal `contactFields.find` tRPC query (`TContactFieldsFind`) — core answers `getRelationsByEntity` / `getRelationsByContentIds` between contacts and 'operation:task' from the tasks' `customerIds` / `companyIds` through it: by contacts (`null` until every task has its fields, then newest 200) or by ids (only tasks that have them; core reads relations for the rest). Not agent-callable.
 - Internal `contactFields.sync` tRPC mutation (`TContactFieldsSync`) — core calls it on task ↔ customer/company relation changes and contact merge/removal. Not agent-callable.
 - Plugin meta `properties` (`src/meta/properties.ts`) — the `task` and `project` property
   types, each with the `systemFields` (`code`, `name`, `type`) core lists as
