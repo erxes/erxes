@@ -1,29 +1,33 @@
 import { NotificationsFilters } from '@/notification/components/filter/NotificationsFilters';
 import { NotificationSort } from '@/notification/components/NotificationSort';
 import { IconInbox } from '@tabler/icons-react';
-import { Button, Separator } from 'erxes-ui';
+import { Button } from 'erxes-ui';
+import { PageHeader } from 'ui-modules';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { NotificationDisplayOptions } from './NotificationDisplayOptions';
+import { NotificationFilterBar } from './filter/NotificationFilterBar';
 
 export const MyInboxHeader = () => {
   const { t } = useTranslation('common', { keyPrefix: 'notification' });
   return (
     <>
-      <div className="flex flex-col h-10 shrink-0 bg-sidebar w-full">
-        <div className="flex flex-auto items-center gap-2 px-3 pl-[calc(0.75rem_+_var(--navigation-panel-toggle-space,0rem)_+_var(--visited-page-tabs-open-button-space,0rem))]">
+      <PageHeader>
+        <PageHeader.Start>
           <Button variant="ghost" asChild>
             <Link to="/my-inbox">
               <IconInbox />
               {t('my-inbox')}
             </Link>
           </Button>
-          <div className="flex gap-2 items-center ml-auto">
-            <NotificationsFilters />
-            <NotificationSort />
-          </div>
-        </div>
-      </div>
-      <Separator className="w-auto flex-none" />
+        </PageHeader.Start>
+        <PageHeader.End>
+          <NotificationsFilters />
+          <NotificationSort />
+          <NotificationDisplayOptions />
+        </PageHeader.End>
+      </PageHeader>
+      <NotificationFilterBar />
     </>
   );
 };

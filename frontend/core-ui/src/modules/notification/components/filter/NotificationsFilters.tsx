@@ -21,8 +21,8 @@ export const NotificationsFilters = () => {
 const NotificationFilterDialogs = () => {
   return (
     <Filter.Dialog>
-      <Filter.View filterKey="createdAt" inDialog>
-        <Filter.DialogDateView filterKey="createdAt" />
+      <Filter.View filterKey="notificationCreatedAt" inDialog>
+        <Filter.DialogDateView filterKey="notificationCreatedAt" />
       </Filter.View>
     </Filter.Dialog>
   );
