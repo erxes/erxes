@@ -64,7 +64,7 @@ export const NotificationList = () => {
               </div>
             )}
             {groups.map(([label, items]) => (
-              <Fragment key={label}>
+              <Fragment key={items[0]._id}>
                 {label && (
                   <h3 className="px-2 pt-2 text-xs font-semibold text-muted-foreground capitalize">
                     {label}

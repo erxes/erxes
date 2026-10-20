@@ -63,9 +63,12 @@ export const useNotificationFilters = (): NotificationFilterVariables => {
   };
 
   const orderByValue = orderByFilter();
+  let statusValue: NotificationFilterVariables['status'] = 'UNREAD';
+  if (status === 'read') statusValue = 'READ';
+  else if (status === 'all') statusValue = 'ALL';
 
   return {
-    status: status === 'read' ? 'READ' : status === 'all' ? 'ALL' : 'UNREAD',
+    status: statusValue,
     priority: priority?.toUpperCase(),
     type: type?.toUpperCase(),
     fromDate: parseDateRangeFromString(createdAt)?.from,

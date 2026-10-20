@@ -6,18 +6,26 @@ export const groupNotifications = (
   grouping: InboxDisplayOptions['grouping'],
   language: string,
   systemLabel: string,
+  unreadFirst = false,
 ): [string, TNotification[]][] => {
-  const groups = new Map<string, TNotification[]>();
+  const groups = new Map<string, [string, TNotification[]]>();
   for (const item of notifications) {
-    let key = '';
+    let label = '';
     if (grouping === 'plugin') {
-      key = item.contentType?.split(/[:.]/)[0] || systemLabel;
+      label = item.contentType?.split(/[:.]/)[0] || systemLabel;
     } else if (grouping === 'date') {
-      key = new Date(item.createdAt).toLocaleDateString(language);
+      label = new Date(item.createdAt).toLocaleDateString(language);
     }
+    const key = unreadFirst ? `${item.isRead}:${label}` : label;
     const group = groups.get(key);
-    if (group) group.push(item);
-    else groups.set(key, [item]);
+    if (group) group[1].push(item);
+    else groups.set(key, [label, [item]]);
   }
-  return [...groups.entries()];
+  const result = [...groups.values()];
+  if (unreadFirst) {
+    result.sort(([, left], [, right]) =>
+      Number(left[0].isRead) - Number(right[0].isRead),
+    );
+  }
+  return result;
 };

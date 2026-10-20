@@ -122,11 +122,11 @@ export const useNotifications = (
           };
         },
       });
-    } catch (failure) {
+    } catch (error_) {
       if (scope.active)
         setFetchMoreError(
-          failure instanceof Error
-            ? failure.message
+          error_ instanceof Error
+            ? error_.message
             : 'Unable to load more notifications',
         );
     } finally {

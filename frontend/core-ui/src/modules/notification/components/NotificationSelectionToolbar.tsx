@@ -15,6 +15,7 @@ export const NotificationSelectionToolbar = ({
   const actionLabel = allRead
     ? t('delete', 'Delete')
     : t('mark-as-read', 'Mark as read');
+  const ActionIcon = allRead ? IconTrash : IconCheck;
 
   return (
     <div className="absolute bottom-4 left-1/2 z-10 flex h-10 -translate-x-1/2 items-center gap-1 rounded-lg border bg-background px-2 shadow-lg whitespace-nowrap">
@@ -34,10 +35,8 @@ export const NotificationSelectionToolbar = ({
       >
         {pending ? (
           <Spinner containerClassName="size-4" />
-        ) : allRead ? (
-          <IconTrash />
         ) : (
-          <IconCheck />
+          <ActionIcon />
         )}
       </Button>
       <Button

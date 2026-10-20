@@ -23,7 +23,7 @@ export const useNotificationList = (): UseNotificationListResult => {
   } = useNotifications();
   const { status } = useNotificationFilters();
   const hiddenIds = useAtomValue(hiddenNotificationIdsState);
-  const { grouping } = useAtomValue(inboxDisplayOptionsState);
+  const { grouping, unreadFirst } = useAtomValue(inboxDisplayOptionsState);
   const { t, i18n } = useTranslation('common', { keyPrefix: 'notification' });
   const { ref: inViewRef } = useInView({
     onChange: (inView) => {
@@ -40,6 +40,7 @@ export const useNotificationList = (): UseNotificationListResult => {
     grouping,
     i18n.language,
     t('system', 'System'),
+    unreadFirst,
   );
   return {
     groups,

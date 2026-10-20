@@ -3,6 +3,7 @@ import { NotificationTypeCommandBar } from '@/notification/components/filter/Not
 import { Command, Filter, useMultiQueryState } from 'erxes-ui';
 import { IconCheck, IconLock } from '@tabler/icons-react';
 import { SelectMember } from 'ui-modules';
+import { useMemo } from 'react';
 
 export const NotificationFilterViews = () => {
   const [queries, setQueries] = useMultiQueryState<{
@@ -17,6 +18,10 @@ export const NotificationFilterViews = () => {
     notificationFromUserId: fromUserId,
     notificationModule,
   } = queries;
+  const senderIds = useMemo(
+    () => fromUserId?.split(',').filter(Boolean) || [],
+    [fromUserId],
+  );
 
   return (
     <>
@@ -58,7 +63,7 @@ export const NotificationFilterViews = () => {
       <Filter.View filterKey="notificationFromUserId">
         <Command shouldFilter={false}>
           <SelectMember.Provider
-            value={fromUserId?.split(',').filter(Boolean) || []}
+            value={senderIds}
             mode="multiple"
             onValueChange={(memberId) =>
               setQueries({
