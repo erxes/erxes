@@ -6,7 +6,7 @@
 - **Project:** `loyalty_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/loyalty_api`
-- **Last synchronized:** `2026-10-15`
+- **Last synchronized:** `2026-10-20`
 
 ## Scope
 
@@ -70,6 +70,7 @@
 - Voucher lifecycle (`modules/voucher/services/voucherLifecycle.ts` decides, `Vouchers` model moves): `new` → `onhold` (picked on one order or deal, `usedIn` names it; tRPC `voucher.hold`) → `used` (paid; `confirmLoyalties` → `useVoucher`, a repeat for the same target changes nothing) ; `onhold` → `new` only by taking it off that order (`voucher.release`, or `voucher.releaseTarget` when the order is cancelled); a fully returned order gives its vouchers back with their original expiry (`voucher.returnTarget`, bonus uses of that order removed). Expired is computed (`voucherExpiresAt`) and refused at payment even if valid when picked. Admins (`voucherEdit`) may only cancel an unused voucher (`voucherCancel`, reason required), mark it used outside a sale (`voucherMarkUsed`, note required) or extend it (`voucherExtend`, never past `finishDateOfUse`); `vouchersEdit` cannot change a status. Every move is appended to the voucher's `history`. Discount and reward vouchers are picked and used once; only bonus vouchers apply by themselves. Cancelled vouchers do not count toward the per-owner limit.
 - `vouchers` / `vouchersMain` filter `status` as screens read it (`services/voucherStatusFilter.ts`): `expired` matches open (`new` / `onhold`) vouchers past their campaign's `finishDateOfUse`, their own `config.endDate`, or — without one — their campaign's `endDate`; `new` and `onhold` leave those out. `expiresWithin` (days) keeps open, not yet expired vouchers that end by then under the same rule (`voucherExpiresWithinSelector`).
 - `loyaltyAccounts` lists loyalty accounts newest first (cursor paginated on `joinedAt`) with filters for owner type, status, account type and its tier (`none` = holds the type without a tier); `searchValue` is either a 10-digit account number or text matched against owners in core (customers, companies, users; at most 200 owners per type), built in `services/accountList.ts`. `LoyaltyAccount.owner` resolves the owner document.
+- `pnpm nx run loyalty_api:schema:print` prints the subgraph schema to `generated/schema.graphql` through the shared `scripts/print-subgraph-schema.ts` (target from `nx.json`), without Redis, Mongo or a running service.
 
 ## Architecture
 
@@ -88,6 +89,7 @@
 | Product event sync    | `src/meta/afterProcess.ts`                                                                                               | Recalculate one core product's public and base discounts after product create or update.                                    |
 | GraphQL               | `src/apollo`, `src/modules/*/graphql`                                                                                    | Provide plugin-owned schemas, queries, mutations, and custom resolvers.                                                     |
 | Commands              | `src/commands`                                                                                                           | Run bounded maintenance and recovery scripts for loyalty-owned data.                                                        |
+| Schema print          | `project.json`                                                                                                           | `"schema:print": {}` joins the shared printer; `gateway:schema:compose` composes it.                                        |
 
 ## Contracts
 
@@ -101,6 +103,7 @@
 - Automation action `loyalty:score.score.create` declares `inputs` `totalAmount`, `paidAmount`, `items`.
 - Automation trigger `loyalty:score.tier` (Tier changed) with output `_id`, `ownerType`, `customerId` (reference to `core:customer`), `accountTypeName`, `fromTier`, `toTier`, `direction`.
 - Metadata, permission, automation, and after-process handlers under `src/meta`.
+- Nx target `schema:print` (output `generated/schema.graphql`), composed by `gateway:schema:compose` into the schema every plugin's UI codegen reads, `loyalty_ui` included.
 
 ### Consumes
 
@@ -158,10 +161,12 @@
   bonus voucher usage; POS and deal callers may sell weighted products with
   decimal counts. Confirmation must also accept null or omitted voucher IDs
   and counts for sale lines without a selected bonus voucher.
+- The SDL is composed with every other backend: a type, enum or field that disagrees with another subgraph fails `gateway:schema:compose` and turns every plugin's codegen red.
 
 ## Validation
 
 - `pnpm nx run loyalty_api:schema:print` - prints this subgraph's SDL to `generated/schema.graphql` (gitignored) offline, for `gateway:schema:compose`.
+- `pnpm nx run gateway:schema:compose --parallel=2` - composes it with every other backend.
 - `pnpm nx build loyalty_api`
 - `pnpm nx test loyalty_api`
 - `pnpm nx test loyalty_api --testPathPattern saleQuantityInput`
@@ -173,6 +178,18 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-10-20` — Shared schema print for the composed schema
+
+- **Summary:** The plugin's own print script is replaced by the shared printer from #9603; `schema:print` comes from `nx.json` and feeds `gateway:schema:compose`.
+- **Affected areas:** removed `print-schema.ts`, the `schema:print` package script and `.gitignore`; `project.json` keeps `"schema:print": {}`.
+- **Contracts changed:** None (build tooling only).
+
+### `2026-10-14` — Printed schema for UI codegen
+
+- **Summary:** A `schema:print` target prints the loyalty subgraph schema offline so `loyalty_ui` codegen can validate its documents against it.
+- **Affected areas:** `print-schema.ts`, `package.json` (`schema:print` script), `project.json`, `.gitignore` (`generated/`).
+- **Contracts changed:** None (build tooling only).
 
 ### `2026-10-14` — Voucher lifecycle: hold, use once, return
 
@@ -221,15 +238,3 @@
 - **Summary:** A voucher campaign keeps the ids of the core broadcast and automation that hand it out on birthdays, so the pair is shown, switched and removed as one.
 - **Affected areas:** `modules/voucher/{@types/voucherCampaign.ts,db/definitions/voucherCampaign.ts,db/models/VoucherCampaign.ts,graphql/schemas/voucherCamapign.ts,graphql/resolvers/{mutations,queries}/voucherCampaign.ts}`.
 - **Contracts changed:** `VoucherCampaign.autoIssue`, `voucherCampaignSetAutoIssue`, `voucherCampaignRemoveAutoIssue`.
-
-### `2026-10-01` — Spend limit for paying screens
-
-- **Summary:** Paying screens can ask how much an order may pay with points instead of treating the point balance as money.
-- **Affected areas:** `modules/score/services/spendRules.ts` (+ tests), `db/models/ScoreCampaign.ts`, `graphql/{schemas,resolvers/queries}/scoreCampaign.ts`.
-- **Contracts changed:** Query `loyaltyScoreSpendLimit`, type `LoyaltyScoreSpendLimit`.
-
-### `2026-09-30` — Per-owner voucher limit
-
-- **Summary:** Voucher campaigns can cap how many one owner receives per campaign, year or month, so a changed birth date cannot farm a second birthday coupon.
-- **Affected areas:** `modules/voucher/{@types/voucherCampaign.ts,db/definitions/voucherCampaign.ts,db/models/{Voucher,VoucherCampaign}.ts,graphql/schemas/voucherCamapign.ts,services/ownerLimit.ts}`, `meta/automations/voucher/producers.ts`.
-- **Contracts changed:** `VoucherCampaign.perOwnerLimit`, `VoucherOwnerLimitInput` on `voucherCampaignsAdd`/`voucherCampaignsEdit`; Issue voucher result may be `skipped` or carry `refusedOwnerIds`.

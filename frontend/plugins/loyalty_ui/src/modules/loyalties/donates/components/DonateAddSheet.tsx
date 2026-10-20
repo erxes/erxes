@@ -8,6 +8,9 @@ import { SelectCustomer, SelectMember } from 'ui-modules';
 import { SelectCompany } from 'ui-modules/modules/contacts/components/SelectCompany';
 import { SelectDonateCampaign } from './selects/SelectDonateCampaign';
 
+const toOwnerId = (val: string[] | string | null) =>
+  Array.isArray(val) ? val[0] ?? '' : val ?? '';
+
 const DonateOwnerSelect = ({
   ownerType,
   value,
@@ -19,20 +22,28 @@ const DonateOwnerSelect = ({
 }) => {
   if (ownerType === 'company') {
     return (
-      <SelectCompany value={value} onValueChange={onChange} mode="single" />
+      <SelectCompany
+        value={value}
+        onValueChange={(val) => onChange(toOwnerId(val))}
+        mode="single"
+      />
     );
   }
   if (ownerType === 'user') {
     return (
       <SelectMember.FormItem
         value={value}
-        onValueChange={(val) => onChange(val as string)}
+        onValueChange={(val) => onChange(toOwnerId(val))}
         mode="single"
       />
     );
   }
   return (
-    <SelectCustomer value={value} onValueChange={onChange} mode="single" />
+    <SelectCustomer
+      value={value}
+      onValueChange={(val) => onChange(toOwnerId(val))}
+      mode="single"
+    />
   );
 };
 

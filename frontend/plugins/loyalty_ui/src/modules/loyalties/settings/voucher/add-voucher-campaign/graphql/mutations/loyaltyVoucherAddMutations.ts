@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client';
 
 export const CREATE_VOUCHER_CAMPAIGN = gql`
-  mutation CreateVoucherCampaign(
+  mutation LoyaltyVoucherCampaignAdd(
     $title: String
     $description: String
     $startDate: Date
