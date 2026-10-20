@@ -11,8 +11,9 @@ Captured on 2026-10-20 at 1280 × 800. The PNGs are original browser screenshots
   and its sidebar. The page's settings link, sidebar settings index redirect and
   back link were also exercised successfully.
 - [Generator regressions](generator-regressions.png): the browser displays the raw
-  Node test output with all five cases passing, including both service-port
-  reservations for both API and UI overrides.
+  Node test output from the initial five-case run, including service-port
+  reservations for API and UI overrides. The current suite has seven passing
+  cases after the review fixes; this original screenshot records the earlier run.
 
 ## Browser boundary and reproduction
 
@@ -47,7 +48,7 @@ occurs before asynchronous config discovery completes; the pages then render.
 
 ## Validation results
 
-- `pnpm exec node --test scripts/__tests__/create-plugin.test.js`: **5 passed**.
+- `pnpm exec node --test scripts/__tests__/create-plugin.test.js`: **7 passed**.
 - `NX_DAEMON=false pnpm nx test core-ui --runInBand`: **17 suites, 98 tests passed**.
 - `pnpm nx test erxes-api-shared --runInBand`: **38 suites, 331 tests passed**.
 - `pnpm nx build core-ui` and `pnpm nx build erxes-api-shared`: **passed**.
@@ -55,8 +56,10 @@ occurs before asynchronous config discovery completes; the pages then render.
 - Focused ESLint/Prettier checks on changed source and `git diff --check`: **passed**.
 
 The core/shared suite totals include existing tests. Their results and builds were
-preserved after the final change, which only reserved logs/automations ports in the
-generator and added its regression test; that generator suite was rerun.
+preserved after the generator-only review fixes; the generator suite was rerun.
+The new port regressions failed before the fixes and pass afterwards. The app
+expose test now asserts the exact Main mapping and renders its named export;
+deliberately mapping it to Settings was confirmed to fail this regression.
 
 Full `pnpm nx lint core-ui`, `pnpm nx lint erxes-api-shared` and TypeScript checks
 remain blocked by existing diagnostics in untouched files, including shared UI and

@@ -196,7 +196,8 @@ test('generated app exposes, navigation and nested settings work with named expo
     const { config } = load(
       path.join(pluginRoot, 'module-federation.config.ts'),
     );
-    assert.ok(config.exposes[`./${CONFIG.name}`]);
+    const appExpose = config.exposes[`./${CONFIG.name}`];
+    assert.equal(appExpose, `./src/modules/${pascal}Main.tsx`);
     for (const [expose, filename] of Object.entries(config.exposes)) {
       const exports = load(path.join(pluginRoot, filename));
       assert.equal(
@@ -206,9 +207,9 @@ test('generated app exposes, navigation and nested settings work with named expo
       );
       assert.ok(Object.keys(exports).length > 0);
     }
-    const Main = load(path.join(src, 'modules', `${pascal}Main.tsx`))[
-      `${pascal}Main`
-    ];
+    const appExports = load(path.join(pluginRoot, appExpose));
+    const Main = appExports[`${pascal}Main`];
+    assert.equal(typeof Main, 'function');
     const page = await render(
       element(
         StaticRouter,
@@ -356,6 +357,128 @@ test('ports are allocated without configured collisions and flags are respected'
       'utf8',
     ),
     original,
+  );
+});
+
+test('numeric string ports in target options and configurations are reserved', (t) => {
+  const directory = fixture(t);
+  for (const [layer, suffix, targets] of [
+    [
+      'frontend',
+      'ui',
+      {
+        serve: {
+          options: { port: '3002' },
+          configurations: { alternate: { port: '3003' } },
+        },
+        invalid: {
+          options: { port: ['3004'] },
+          configurations: {
+            empty: { port: '' },
+            boolean: { port: true },
+            fractional: { port: '3004.5' },
+            partial: { port: '3004abc' },
+            outOfRange: { port: '65536' },
+          },
+        },
+      },
+    ],
+    ['backend', 'api', { serve: { options: { port: '3305' } } }],
+  ]) {
+    const plugin = path.join(directory, layer, 'plugins', `existing_${suffix}`);
+    fs.mkdirSync(plugin, { recursive: true });
+    fs.writeFileSync(
+      path.join(plugin, 'project.json'),
+      JSON.stringify({ targets }),
+    );
+  }
+  generate(directory);
+  const project = JSON.parse(
+    fs.readFileSync(
+      path.join(directory, 'frontend/plugins/inventory_ui/project.json'),
+      'utf8',
+    ),
+  );
+  assert.equal(project.targets.serve.options.port, 3004);
+  assert.match(
+    fs.readFileSync(
+      path.join(directory, 'backend/plugins/inventory_api/src/main.ts'),
+      'utf8',
+    ),
+    /port: 3306,/,
+  );
+  for (const port of [3002, 3003, 3305]) {
+    for (const layer of ['api', 'ui']) {
+      const result = spawnSync(
+        process.execPath,
+        [
+          path.join(directory, 'scripts/create-plugin.js'),
+          '--plugin-name=collision',
+          '--module-name=items',
+          `--${layer}-port=${port}`,
+        ],
+        { encoding: 'utf8' },
+      );
+      assert.equal(result.status, 1);
+      assert.match(
+        result.stderr,
+        new RegExp(`port ${port} is already configured`),
+      );
+      assert.equal(
+        fs.existsSync(path.join(directory, 'frontend/plugins/collision_ui')),
+        false,
+      );
+      assert.equal(
+        fs.existsSync(path.join(directory, 'backend/plugins/collision_api')),
+        false,
+      );
+    }
+  }
+});
+
+test('explicit port overrides take priority over automatic allocation', (t) => {
+  for (const [flags, uiPort, apiPort] of [
+    [['--api-port=3002'], 3003, 3002],
+    [['--ui-port=3305'], 3305, 3306],
+  ]) {
+    const directory = fixture(t);
+    generate(directory, 'inventory', 'items', flags);
+    const project = JSON.parse(
+      fs.readFileSync(
+        path.join(directory, 'frontend/plugins/inventory_ui/project.json'),
+        'utf8',
+      ),
+    );
+    assert.equal(project.targets.serve.options.port, uiPort);
+    assert.match(
+      fs.readFileSync(
+        path.join(directory, 'backend/plugins/inventory_api/src/main.ts'),
+        'utf8',
+      ),
+      new RegExp(`port: ${apiPort},`),
+    );
+  }
+  const directory = fixture(t);
+  const result = spawnSync(
+    process.execPath,
+    [
+      path.join(directory, 'scripts/create-plugin.js'),
+      '--plugin-name=collision',
+      '--module-name=items',
+      '--ui-port=3210',
+      '--api-port=3210',
+    ],
+    { encoding: 'utf8' },
+  );
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /API port 3210 is already configured/);
+  assert.equal(
+    fs.existsSync(path.join(directory, 'frontend/plugins/collision_ui')),
+    false,
+  );
+  assert.equal(
+    fs.existsSync(path.join(directory, 'backend/plugins/collision_api')),
+    false,
   );
 });
 

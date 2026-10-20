@@ -1,5 +1,40 @@
-const fs = require('fs');
-const path = require('path');
+const fs = require('node:fs');
+const path = require('node:path');
+
+function configuredPort(value) {
+  const port =
+    typeof value === 'string' && /^\d+$/.test(value.trim())
+      ? Number(value)
+      : value;
+  return Number.isInteger(port) && port >= 1024 && port <= 65535
+    ? port
+    : undefined;
+}
+
+function reserveProjectPorts(projectFile, used) {
+  if (!fs.existsSync(projectFile)) return;
+
+  const project = JSON.parse(fs.readFileSync(projectFile, 'utf8'));
+  for (const target of Object.values(project.targets || {})) {
+    for (const options of [
+      target.options,
+      ...Object.values(target.configurations || {}),
+    ]) {
+      const port = configuredPort(options?.port);
+      if (port !== undefined) used.add(port);
+    }
+  }
+}
+
+function reserveBackendPorts(mainFile, used) {
+  if (!fs.existsSync(mainFile)) return;
+
+  const source = fs.readFileSync(mainFile, 'utf8');
+  for (const match of source.matchAll(/\bport:\s*(\d+)/g)) {
+    const port = configuredPort(match[1]);
+    if (port !== undefined) used.add(port);
+  }
+}
 
 // Read configured ports, not listening sockets: disabled plugins still own theirs.
 function getPluginPorts(root) {
@@ -11,25 +46,9 @@ function getPluginPorts(root) {
     if (!fs.existsSync(directory)) continue;
 
     for (const plugin of fs.readdirSync(directory)) {
-      const projectFile = path.join(directory, plugin, 'project.json');
-      if (fs.existsSync(projectFile)) {
-        const project = JSON.parse(fs.readFileSync(projectFile, 'utf8'));
-        for (const target of Object.values(project.targets || {})) {
-          for (const options of [
-            target.options,
-            ...Object.values(target.configurations || {}),
-          ]) {
-            if (Number.isInteger(options?.port)) used.add(options.port);
-          }
-        }
-      }
-
-      const mainFile = path.join(directory, plugin, 'src/main.ts');
-      if (layer === 'backend' && fs.existsSync(mainFile)) {
-        const source = fs.readFileSync(mainFile, 'utf8');
-        for (const match of source.matchAll(/\bport:\s*(\d+)/g)) {
-          used.add(Number(match[1]));
-        }
+      reserveProjectPorts(path.join(directory, plugin, 'project.json'), used);
+      if (layer === 'backend') {
+        reserveBackendPorts(path.join(directory, plugin, 'src/main.ts'), used);
       }
     }
   }

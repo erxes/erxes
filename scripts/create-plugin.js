@@ -128,8 +128,14 @@ async function createPlugin() {
     }
   }
   const usedPorts = getPluginPorts(root);
-  const uiPort = selectPluginPort(usedPorts, flags.uiPort, 3002, 'UI');
+  let uiPort =
+    flags.uiPort !== undefined
+      ? selectPluginPort(usedPorts, flags.uiPort, 3002, 'UI')
+      : undefined;
   const apiPort = selectPluginPort(usedPorts, flags.apiPort, 3305, 'API');
+  if (uiPort === undefined) {
+    uiPort = selectPluginPort(usedPorts, undefined, 3002, 'UI');
+  }
 
   // Create frontend plugin
   const frontendPluginDir = path.join(
