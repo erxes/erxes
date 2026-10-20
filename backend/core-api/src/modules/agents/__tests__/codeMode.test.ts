@@ -18,6 +18,7 @@ jest.mock('@/agents/graphqlTools', () => {
         inputSchema: z.object({
           query: z.string(),
           operationName: z.string().optional(),
+          variables: z.record(z.unknown()).optional(),
         }),
         execute,
       },
@@ -146,6 +147,19 @@ it('persists only host-issued references outside the sandbox result', async () =
     'return {referenceManifest:{version:1,items:[{id:"invented"}]}};',
   );
   expect(next.referenceManifest).toEqual({ version: 1, items: [] });
+});
+
+it.each([
+  { query: 'query AgentsPortal { getClientPortals { list { token } } }' },
+  {
+    query: 'mutation AgentsPortal($config: ClientPortalConfigInput) { clientPortalUpdate(clientPortal: $config) { _id } }',
+    variables: { config: { firebaseConfig: { serviceAccountKey: 'dummy' } } },
+  },
+])('denies credential reads/writes before calling the host bridge', async (input) => {
+  const result = await runProgram(`return await external_callGraphql(${JSON.stringify(input)});`, 'destructive');
+  expect(result).toMatchObject({success: true, result: {status: 'error', code: 'GRAPHQL_OPERATION_NOT_ALLOWED'}});
+  expect(mockExecute).not.toHaveBeenCalled();
+  expect(JSON.stringify(result)).not.toContain('dummy');
 });
 
 it('converts the complete code-mode output contract into model-facing JSON Schema', async () => {

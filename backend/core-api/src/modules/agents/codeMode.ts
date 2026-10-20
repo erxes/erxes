@@ -61,11 +61,12 @@ export const buildCodeModeAddition = (): Promise<IAgentsCodeModeAddition> => {
         execute: async (input, context) => {
           try {
             readIdentity(context);
-            const { query, operationName } = input as {
+            const { query, operationName, variables } = input as {
               query: string;
               operationName?: string;
+              variables?: Record<string, unknown>;
             };
-            const parsed = parseAgentGraphqlOperation(query, operationName);
+            const parsed = parseAgentGraphqlOperation(query, operationName, variables);
             if (requiresGraphqlApproval(parsed, readApprovalMode(context))) {
               return {
                 status: 'error',
