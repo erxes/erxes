@@ -38,6 +38,14 @@
   (disabled without a selected board) opens
   `/sales/settings/deals?activeBoardId=<boardId>&create=pipeline`, where
   `PipelineFormBar` opens the create sheet once boards load and drops `create`.
+- The deals sidebar shows each board's and pipeline's deal count, like the
+  Frontline forms channel list (`useBoardDealCounts`, query
+  `SalesBoardDealCounts` selecting `SalesPipeline.itemsTotalCount`, which uses
+  the deal filter: permission-scoped, archived deals excluded). A board's count
+  sums its non-archived pipelines. Counts refetch when the boards list changes
+  and on `salesDealCountsChanged` (`salesDealListChanged` for the selected
+  pipeline, `action` only), so own adds, moves, and archives update without a
+  reload; other pipelines' changes by other users show on the next refetch.
 - Development Rspack serving ignores generated dependency/cache/output folders
   to keep local file watchers bounded.
 - Pipeline create/edit supports general settings, stages, product

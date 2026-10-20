@@ -21,6 +21,7 @@ import {
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import { BoardsNavigationActions } from '@/deals/boards/components/BoardsNavigationActions';
+import { useBoardDealCounts } from '@/deals/boards/hooks/useBoardDealCounts';
 import { IBoard } from '@/deals/types/boards';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -42,7 +43,25 @@ function LoadingSkeleton() {
   );
 }
 
-function BoardItem({ board }: { board: IBoard }) {
+function DealCount({ count }: { count?: number }) {
+  if (count === undefined) return null;
+
+  return (
+    <span className="shrink-0 text-xs tabular-nums text-muted-foreground">
+      {count}
+    </span>
+  );
+}
+
+function BoardItem({
+  board,
+  boardCount,
+  pipelineCounts,
+}: {
+  board: IBoard;
+  boardCount?: number;
+  pipelineCounts: Record<string, number>;
+}) {
   const { t } = useTranslation('sales');
   const [{ boardId, pipelineId }, setBoardSelection] =
     useMultiQueryState<TBoardSelection>(['boardId', 'pipelineId', 'stageId']);
@@ -106,6 +125,7 @@ function BoardItem({ board }: { board: IBoard }) {
                 className="font-sans font-semibold normal-case text-left flex-1 min-w-0"
                 value={board.name}
               />
+              <DealCount count={boardCount} />
               <span className="ml-auto flex shrink-0 text-muted-foreground transition-transform duration-250 ease-[cubic-bezier(0.22,1,0.36,1)] group-data-[state=open]/collapsible:rotate-90 motion-reduce:transition-none">
                 <IconChevronRight className="size-3.5!" />
               </span>
@@ -126,6 +146,7 @@ function BoardItem({ board }: { board: IBoard }) {
                       className="flex-1 min-w-0"
                       value={pipeline.name}
                     />
+                    <DealCount count={pipelineCounts[pipeline._id]} />
                   </Sidebar.MenuButton>
                 </Sidebar.MenuItem>
               ))}
@@ -216,6 +237,7 @@ const DealsNavigation = () => {
     'pipelineId',
   );
   const { t } = useTranslation('sales');
+  const { byBoard, byPipeline } = useBoardDealCounts({ boards, pipelineId });
 
   useEffect(() => {
     if (!boards || boards.length === 0) return;
@@ -267,7 +289,14 @@ const DealsNavigation = () => {
       {loading ? (
         <LoadingSkeleton />
       ) : (
-        boards?.map((board) => <BoardItem key={board._id} board={board} />)
+        boards?.map((board) => (
+          <BoardItem
+            key={board._id}
+            board={board}
+            boardCount={byBoard[board._id]}
+            pipelineCounts={byPipeline}
+          />
+        ))
       )}
     </NavigationMenuGroup>
   );
