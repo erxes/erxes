@@ -1,3 +1,4 @@
+import { NotificationFilterBar } from './filter/NotificationFilterBar';
 import { NotificationsFilters } from '@/notification/components/filter/NotificationsFilters';
 import { NotificationSort } from '@/notification/components/NotificationSort';
 import { IconInbox } from '@tabler/icons-react';
@@ -23,6 +24,7 @@ export const MyInboxHeader = () => {
           </div>
         </div>
       </div>
+      <NotificationFilterBar />
       <Separator className="w-auto flex-none" />
     </>
   );

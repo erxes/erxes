@@ -6,7 +6,18 @@ import {
   TNotificationType,
 } from 'ui-modules';
 
-export const useNotificationFilters = () => {
+interface NotificationFilterVariables {
+  status: 'READ' | 'UNREAD' | 'ALL';
+  priority: string | undefined;
+  type: string | undefined;
+  fromDate: Date | undefined;
+  endDate: Date | undefined;
+  orderBy?: Record<string, 1 | -1>;
+  fromUserId: string | undefined;
+  module: string | undefined;
+}
+
+export const useNotificationFilters = (): NotificationFilterVariables => {
   const {
     notificationStatus: status,
     notificationPriority: priority,
@@ -33,25 +44,26 @@ export const useNotificationFilters = () => {
     'notificationModule',
   ]);
 
-  const orderByFilter = () => {
+  const orderByFilter = (): Record<string, 1 | -1> => {
     if (orderBy === 'old') {
       return { createdAt: 1 };
     } else if (orderBy === 'priority') {
       return { priority: -1 };
     }
+    if (orderBy === 'readAt') return { readAt: -1 };
     return {};
   };
 
   const orderByValue = orderByFilter();
 
   return {
-    status: status?.toUpperCase() || 'UNREAD',
+    status: status === 'read' ? 'READ' : status === 'all' ? 'ALL' : 'UNREAD',
     priority: priority?.toUpperCase(),
     type: type?.toUpperCase(),
     fromDate: parseDateRangeFromString(createdAt)?.from,
     endDate: parseDateRangeFromString(createdAt)?.to,
     ...(Object.keys(orderByValue).length > 0 && { orderBy: orderByValue }),
-    fromUserId,
-    module,
+    fromUserId: fromUserId ?? undefined,
+    module: module ?? undefined,
   };
 };

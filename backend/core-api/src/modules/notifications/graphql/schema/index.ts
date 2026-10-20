@@ -52,6 +52,7 @@ export const types = `
     metadata: JSON,
     createdAt: Date,
     isRead: Boolean
+    readAt: Date
     action:String
     emailDelivery:EmailDelivery
     kind:String

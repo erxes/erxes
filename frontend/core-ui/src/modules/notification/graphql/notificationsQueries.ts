@@ -47,6 +47,7 @@ export const NOTIFICATIONS = gql`
         }
         priority
         isRead
+        readAt
         contentType
         contentTypeId
         action
@@ -85,6 +86,7 @@ export const NOTIFICATION_DETAIL = gql`
       metadata
       createdAt
       isRead
+      readAt
       contentType
       contentTypeId
       action

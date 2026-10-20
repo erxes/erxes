@@ -1,89 +1,85 @@
-import { NotificationPriorityCommandBar } from '@/notification/components/filter/NotificationPriorityCommandBar';
-import { NotificationTypeCommandBar } from '@/notification/components/filter/NotificationTypeCommandBar';
-import { MyInboxHotkeyScope } from '@/notification/types/notifications';
-import {
-  IconCalendarPlus,
-  IconEyeUp,
-  IconNotification,
-} from '@tabler/icons-react';
-import {
-  Filter,
-  PageSubHeader,
-  Popover,
-  ScrollArea,
-  useMultiQueryState,
-} from 'erxes-ui';
+import { IconX } from '@tabler/icons-react';
+import { Button, parseDateRangeFromString, useMultiQueryState } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
 export const NotificationFilterBar = () => {
-  const { t } = useTranslation('common', { keyPrefix: 'notification' });
+  const { t, i18n } = useTranslation('common', { keyPrefix: 'notification' });
   const [queries, setQueries] = useMultiQueryState<{
-    priority?: string;
-    type?: string;
-    createdAt: string;
-  }>(['priority', 'type', 'createdAt']);
-
-  const hasFilters = Object.values(queries || {}).some(
-    (value) => value !== null,
-  );
-
-  if (!hasFilters) {
-    return null;
-  }
-
+    notificationPriority: string;
+    notificationType: string;
+    notificationCreatedAt: string;
+    notificationFromUserId: string;
+    notificationModule: string;
+  }>([
+    'notificationPriority',
+    'notificationType',
+    'notificationCreatedAt',
+    'notificationFromUserId',
+    'notificationModule',
+  ]);
+  const range = parseDateRangeFromString(queries.notificationCreatedAt);
+  const dateLabel = range?.from
+    ? [range.from, range.to]
+        .filter((date): date is Date => !!date)
+        .map((date) => date.toLocaleDateString(i18n.language))
+        .join(' – ')
+    : queries.notificationCreatedAt;
+  const filters = [
+    {
+      key: 'notificationPriority',
+      label: t('priority'),
+      value: queries.notificationPriority,
+    },
+    {
+      key: 'notificationType',
+      label: t('notification-type'),
+      value: queries.notificationType,
+    },
+    {
+      key: 'notificationCreatedAt',
+      label: t('created-at'),
+      value: dateLabel,
+    },
+    {
+      key: 'notificationFromUserId',
+      label: t('filter-by-sender'),
+      value: queries.notificationFromUserId
+        ? t('members-selected', {
+            defaultValue: '{{count}} selected',
+            count: queries.notificationFromUserId.split(',').length,
+          })
+        : null,
+    },
+    {
+      key: 'notificationModule',
+      label: t('approval'),
+      value: queries.notificationModule,
+    },
+  ] as const;
+  if (!filters.some((filter) => filter.value)) return null;
   return (
-    <PageSubHeader className="p-0">
-      <ScrollArea className="w-full">
-        <div className="flex gap-1 p-2">
-          <Filter id={MyInboxHotkeyScope.MainPage}>
-            <Filter.Bar className="flex-nowrap">
-              <Filter.BarItem queryKey="type">
-                <Filter.BarName className="whitespace-nowrap">
-                  <IconNotification />
-                  {t('notification-type')}
-                </Filter.BarName>
-                <Popover>
-                  <Popover.Trigger>
-                    <Filter.BarButton filterKey="type">
-                      {queries.type}
-                    </Filter.BarButton>
-                  </Popover.Trigger>
-                  <Popover.Content className="p-0">
-                    <NotificationTypeCommandBar />
-                  </Popover.Content>
-                </Popover>
-              </Filter.BarItem>
-              <Filter.BarItem queryKey="priority">
-                <Filter.BarName className="whitespace-nowrap">
-                  <IconEyeUp />
-                  {t('priority')}
-                </Filter.BarName>
-                <Popover>
-                  <Popover.Trigger>
-                    <Filter.BarButton filterKey="priority">
-                      {queries.priority}
-                    </Filter.BarButton>
-                  </Popover.Trigger>
-                  <Popover.Content className="p-0">
-                    <NotificationPriorityCommandBar
-                      priority={queries.priority || ''}
-                      setQueries={setQueries}
-                    />
-                  </Popover.Content>
-                </Popover>
-              </Filter.BarItem>
-              <Filter.BarItem queryKey="createdAt">
-                <Filter.BarName className="whitespace-nowrap">
-                  <IconCalendarPlus />
-                  {t('created-at')}
-                </Filter.BarName>
-                <Filter.Date filterKey="createdAt" />
-              </Filter.BarItem>
-            </Filter.Bar>
-          </Filter>
-        </div>
-        <ScrollArea.Bar orientation="horizontal" />
-      </ScrollArea>
-    </PageSubHeader>
+    <div
+      className="flex flex-wrap gap-1 px-3 pb-2"
+      aria-label={t('active-filters', 'Active filters')}
+    >
+      {filters
+        .filter((filter) => filter.value)
+        .map(({ key, label, value }) => (
+          <Button
+            key={key}
+            variant="secondary"
+            size="sm"
+            className="max-w-full h-6 text-xs"
+            aria-label={`${t('remove-filter', 'Remove filter')}: ${label}`}
+            title={`${label}: ${value}`}
+            onClick={() => setQueries({ [key]: null })}
+          >
+            <span className="truncate">
+              {label}: {value}
+            </span>
+            <IconX className="size-3" />
+          </Button>
+        ))}
+    </div>
   );
 };

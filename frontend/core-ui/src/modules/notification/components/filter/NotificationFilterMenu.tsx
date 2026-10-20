@@ -52,26 +52,26 @@ export const NotificationFilterMenu = () => {
         </div>
         <Command.Separator />
         <Command.List className="p-1">
-          <Filter.Item value="type">
+          <Filter.Item value="notificationType">
             <IconNotification />
             {t('notification-type')}
           </Filter.Item>
-          <Filter.Item value="priority">
+          <Filter.Item value="notificationPriority">
             <IconEyeUp />
             {t('priority')}
           </Filter.Item>
 
-          <Filter.Item value="module">
+          <Filter.Item value="notificationModule">
             <IconLock />
             {t('approval')}
           </Filter.Item>
 
-          <Filter.Item value="createdAt">
+          <Filter.Item value="notificationCreatedAt">
             <IconCalendar />
             {t('filter-by-date')}
           </Filter.Item>
           <Command.Separator className="my-1" />
-          <Filter.Item value="fromUserId">
+          <Filter.Item value="notificationFromUserId">
             <IconUserUp />
             {t('filter-by-sender')}
           </Filter.Item>

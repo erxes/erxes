@@ -320,6 +320,10 @@
     "reset-password": "Reset password"
   },
   "notification": {
+    "members-selected": "{{count}} selected",
+    "active-filters": "Active filters",
+    "remove-filter": "Remove filter",
+    "sort": "Sort notifications",
     "my-inbox": "My Inbox",
     "no-notification-selected": "No notification selected",
     "select-notification": "Please select a notification to view its details.",

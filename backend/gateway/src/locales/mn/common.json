@@ -321,6 +321,10 @@
     "reset-password": "Нууц үг сэргээх"
   },
   "notification": {
+    "members-selected": "{{count}} сонгосон",
+    "active-filters": "Идэвхтэй шүүлтүүрүүд",
+    "remove-filter": "Шүүлтүүр арилгах",
+    "sort": "Мэдэгдэл эрэмбэлэх",
     "my-inbox": "Миний инбокс",
     "no-notification-selected": "Мэдэгдэл сонгогдоогүй байна",
     "select-notification": "Дэлгэрэнгүйг харахын тулд мэдэгдэл сонгоно уу.",
