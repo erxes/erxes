@@ -22,16 +22,7 @@ export const SelectAnotherRulesOfProductsOnCityTax = ({
 }) => {
   const { t } = useTranslation('mongolian');
   const { anotherRulesOfProductsOnCityTax, loading } =
-    useGetAnotherRulesOfProductsOnCityTax(
-      {
-        skip: false,
-        variables: {
-          perPage: 20,
-          page: 1,
-        },
-      },
-      kind,
-    );
+    useGetAnotherRulesOfProductsOnCityTax({ skip: false }, kind);
 
   const options: MultiSelectOption[] = anotherRulesOfProductsOnCityTax?.map(
     (rule: IAnotherRulesOfProductsOnCityTax) => ({

@@ -13,7 +13,7 @@ import {
   SelectContent,
   SelectTriggerVariant,
 } from './SelectShared';
-import { useGetSalesStages } from '../../hooks/useSalesStages';
+import { useGetSalesStages } from '@/shared/hooks/useSalesStages';
 
 interface IStage {
   _id: string;

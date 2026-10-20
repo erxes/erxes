@@ -1,15 +1,15 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const MONGOLIAN_PRODUCT_REMAINDER_CONFIG = gql`
+export const MONGOLIAN_PRODUCT_REMAINDER_CONFIG = gql(`
   query mongolianProductRemainderConfig($pipelineId: String!) {
     mnConfig(code: "remainderConfig", subId: $pipelineId) {
       _id
       value
     }
   }
-`;
+`);
 
-export const MONGOLIAN_ERKHET_PRODUCT_REMAINDERS = gql`
+export const MONGOLIAN_ERKHET_PRODUCT_REMAINDERS = gql(`
   query mongolianErkhetProductRemainders(
     $productIds: [String]
     $pipelineId: String
@@ -20,4 +20,4 @@ export const MONGOLIAN_ERKHET_PRODUCT_REMAINDERS = gql`
       remainders
     }
   }
-`;
+`);

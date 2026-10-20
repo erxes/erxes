@@ -7,7 +7,7 @@ import React, {
 } from 'react';
 import { cn, Combobox, Command, PopoverScoped } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { useGetSalesStages } from '../../hooks/useGetSalesStages';
+import { useGetSalesStages } from '@/shared/hooks/useSalesStages';
 import {
   SelectTrigger,
   SelectContent,

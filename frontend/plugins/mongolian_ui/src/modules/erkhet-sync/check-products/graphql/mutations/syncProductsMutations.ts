@@ -1,7 +1,7 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const syncProductsMutation = gql`
-  mutation toSyncProducts($action: String, $products: [JSON]) {
+export const syncProductsMutation = gql(`
+  mutation erkhetSyncProducts($action: String, $products: [JSON]) {
     toSyncProducts(action: $action, products: $products)
   }
-`;
+`);

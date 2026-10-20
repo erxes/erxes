@@ -1,3 +1,5 @@
+import type { ErkhetCheckPosOrdersQuery } from '~/gql/graphql';
+
 export type CheckPosOrderStatus =
   | 'skipped'
   | 'checked'
@@ -6,20 +8,19 @@ export type CheckPosOrderStatus =
   | 'error'
   | 'resynced';
 
-export interface ICheckPosOrders {
+type PosOrderRow = NonNullable<
+  NonNullable<ErkhetCheckPosOrdersQuery['posOrders']>[number]
+>;
+
+export type ICheckPosOrders = Omit<PosOrderRow, '_id'> & {
   _id: string;
-  number: string;
-  totalAmount: string;
-  createdAt: string;
-  paidDate: string;
   unSynced?: string;
-  isSynced?: boolean;
+  isSynced?: boolean | null;
   syncStatus?: CheckPosOrderStatus;
-  syncedDate?: string;
-  syncedBillNumber?: string;
-  syncedCustomer?: string;
-  __typename: string;
-}
+  syncedDate?: string | null;
+  syncedBillNumber?: string | null;
+  syncedCustomer?: string | null;
+};
 
 export interface ICheckPosOrdersSync {
   _id: string;

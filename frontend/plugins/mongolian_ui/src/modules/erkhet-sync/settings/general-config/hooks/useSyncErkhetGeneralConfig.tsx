@@ -3,12 +3,12 @@ import { useForm } from 'react-hook-form';
 import { useEffect, useState } from 'react';
 import { useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { GET_ERKHET_SYNC_GENERAL_CONFIG } from '../graphql/queries/syncErkhetGeneralConfigQueries';
-import {
-  CREATE_ERKHET_SYNC_GENERAL_CONFIG,
-  UPDATE_ERKHET_SYNC_GENERAL_CONFIG,
-} from '../graphql/mutations/syncErkhetGeneralConfigMutations';
 import { SyncErkhetGeneralConfigFormData } from '../types/SyncErkhetGeneralConfigTypes';
+import {
+  CREATE_MN_CONFIG,
+  GET_MN_CONFIGS,
+  UPDATE_MN_CONFIG,
+} from '@/shared/graphql/mnConfigs';
 
 export const DEFAULT_VALUES: SyncErkhetGeneralConfigFormData = {
   apiKey: '',
@@ -54,16 +54,10 @@ export const useSyncErkhetGeneralConfig = () => {
     },
   };
 
-  const [createConfig] = useMutation(
-    CREATE_ERKHET_SYNC_GENERAL_CONFIG,
-    mutationOptions,
-  );
-  const [updateConfig] = useMutation(
-    UPDATE_ERKHET_SYNC_GENERAL_CONFIG,
-    mutationOptions,
-  );
+  const [createConfig] = useMutation(CREATE_MN_CONFIG, mutationOptions);
+  const [updateConfig] = useMutation(UPDATE_MN_CONFIG, mutationOptions);
 
-  const { data, loading } = useQuery(GET_ERKHET_SYNC_GENERAL_CONFIG, {
+  const { data, loading } = useQuery(GET_MN_CONFIGS, {
     variables: { code: 'ERKHET' },
   });
 

@@ -1,9 +1,7 @@
 import { QueryHookOptions, useMutation, useQuery } from '@apollo/client';
 import {
   EnumCursorDirection,
-  IRecordTableCursorPageInfo,
   isUndefinedOrNull,
-  mergeCursorData,
   parseDateRangeFromString,
   useMultiQueryState,
   useRecordTableCursor,
@@ -28,19 +26,16 @@ import {
   ICheckSyncedDeals,
 } from '../types/checkSyncedDeals';
 import { useCheckSyncedDealsLeadSessionKey } from './useCheckSyncedDealsLeadSessionKey';
+import { chunkIds } from '../../shared/utils/syncUtils';
 import {
-  CheckSyncedResponse,
-  chunkIds,
-} from '../../shared/utils/syncUtils';
+  compactList,
+  mergeCursorList,
+  toCursorPageInfo,
+} from '@/shared/utils/cursorList';
+import type { ErkhetCheckSyncedDealsQuery, ErkhetCheckSyncedDealsQueryVariables } from '~/gql/graphql';
 
 export const CHECK_SYNCED_DEALS_PER_PAGE = 50;
 const SYNC_DEALS_BATCH_SIZE = 1;
-
-type SyncDealsResult = {
-  skipped?: string[];
-  error?: string[];
-  success?: string[];
-};
 
 type CheckDealsOptions = {
   silent?: boolean;
@@ -63,13 +58,7 @@ const getDealStatus = (
 };
 
 export const useCheckSyncedDealsVariables = (
-  variables?: QueryHookOptions<{
-    deals: {
-      list: ICheckSyncedDeals[];
-      totalCount: number;
-      pageInfo: IRecordTableCursorPageInfo;
-    };
-  }>['variables'],
+  variables?: ErkhetCheckSyncedDealsQueryVariables,
 ) => {
   const [
     {
@@ -111,22 +100,16 @@ export const useCheckSyncedDealsVariables = (
     sessionKey,
   });
 
-  return {
+  const queryVariables: ErkhetCheckSyncedDealsQueryVariables = {
     limit: CHECK_SYNCED_DEALS_PER_PAGE,
     noSkipArchive: true,
-    orderBy: {
-      createdAt: -1,
-    },
     cursor,
     number: String(number ?? '') || undefined,
     search: String(dealSearch ?? '') || undefined,
-    startDate: parseDateRangeFromString(dateRange)?.from,
-    endDate: parseDateRangeFromString(dateRange)?.to,
+    startDate: parseDateRangeFromString(dateRange)?.from?.toISOString(),
+    endDate: parseDateRangeFromString(dateRange)?.to?.toISOString(),
     createdStartDate: parseDateRangeFromString(createdDateRange)?.from,
     createdEndDate: parseDateRangeFromString(createdDateRange)?.to,
-    dateType: dateType || undefined,
-    type: 'checkSyncedDeals',
-
     userIds: user ? [user] : undefined,
     stageId: stageId || undefined,
     stageChangedStartDate: parseDateRangeFromString(stageChangedDateRange)
@@ -134,8 +117,12 @@ export const useCheckSyncedDealsVariables = (
     stageChangedEndDate: parseDateRangeFromString(stageChangedDateRange)?.to,
     ...variables,
   };
+
+  return { variables: queryVariables, dateType: dateType || undefined };
 };
-export const useCheckSyncedDeals = (options?: QueryHookOptions) => {
+export const useCheckSyncedDeals = (
+  options?: QueryHookOptions<ErkhetCheckSyncedDealsQuery, ErkhetCheckSyncedDealsQueryVariables>,
+) => {
   const { t } = useTranslation('mongolian');
   const setCheckSyncedDealsTotalCount = useSetAtom(
     checkSyncedDealsTotalCountAtom,
@@ -145,32 +132,25 @@ export const useCheckSyncedDeals = (options?: QueryHookOptions) => {
   );
   const [checkedDeals, setCheckedDeals] = useAtom(checkedDealsAtom);
   const [toSyncDealIds, setToSyncDealIds] = useAtom(toSyncDealIdsAtom);
-  const [toCheckSynced, { loading: checking }] = useMutation<{
-    toCheckSynced: CheckSyncedResponse[];
-  }>(checkSyncedMutation);
-  const [toSyncDeals, { loading: syncing }] = useMutation<{
-    toSyncDeals: SyncDealsResult;
-  }>(syncDealsMutation);
+  const [toCheckSynced, { loading: checking }] =
+    useMutation(checkSyncedMutation);
+  const [toSyncDeals, { loading: syncing }] = useMutation(syncDealsMutation);
   const { toast } = useToast();
-  const variables = useCheckSyncedDealsVariables(options?.variables);
-  const { data, loading, fetchMore } = useQuery<{
-    deals: {
-      list: ICheckSyncedDeals[];
-      totalCount: number;
-      pageInfo: IRecordTableCursorPageInfo;
-    };
-  }>(checkSyncedDealsQuery, {
+  const { variables, dateType } = useCheckSyncedDealsVariables(
+    options?.variables,
+  );
+  const { data, loading, fetchMore } = useQuery(checkSyncedDealsQuery, {
     ...options,
-    variables: {
-      skip: options?.skip || isUndefinedOrNull(variables.cursor),
-      ...variables,
-    },
+    skip: options?.skip || isUndefinedOrNull(variables.cursor),
+    variables,
   });
 
-  const { list: rawDeals, totalCount, pageInfo } = data?.deals || {};
+  const rawDeals = data?.deals?.list;
+  const totalCount = data?.deals?.totalCount;
+  const pageInfo = toCursorPageInfo(data?.deals?.pageInfo);
   const Deals = useMemo(
     () =>
-      (rawDeals || []).map((deal) => ({
+      compactList(rawDeals).map((deal) => ({
         ...deal,
         ...checkedDeals[deal._id],
         syncStatus: getDealStatus(checkedDeals[deal._id]),
@@ -252,7 +232,9 @@ export const useCheckSyncedDeals = (options?: QueryHookOptions) => {
       return;
     }
 
-    const checked = response.data?.toCheckSynced || [];
+    const checked = compactList(response.data?.toCheckSynced).filter(
+      (item): item is typeof item & { _id: string } => Boolean(item._id),
+    );
     const nextChecked: Record<string, Partial<ICheckSyncedDeals>> = {};
 
     for (const item of checked) {
@@ -344,7 +326,7 @@ export const useCheckSyncedDeals = (options?: QueryHookOptions) => {
         variables: {
           dealIds: batchIds,
           configStageId: variables.stageId,
-          dateType: variables.dateType,
+          dateType,
         },
         onError: (error) => {
           toast({
@@ -377,9 +359,9 @@ export const useCheckSyncedDeals = (options?: QueryHookOptions) => {
         continue;
       }
 
-      const skippedIds = result?.skipped || [];
-      const errorIds = result?.error || [];
-      const successIds = result?.success || [];
+      const skippedIds = compactList(result?.skipped);
+      const errorIds = compactList(result?.error);
+      const successIds = compactList(result?.success);
       const syncedStatusById: Record<string, CheckSyncedDealStatus> = {};
 
       for (const id of successIds) {
@@ -460,7 +442,7 @@ export const useCheckSyncedDeals = (options?: QueryHookOptions) => {
   };
 
   useEffect(() => {
-    if (totalCount !== undefined) setCheckSyncedDealsTotalCount(totalCount);
+    if (typeof totalCount === 'number') setCheckSyncedDealsTotalCount(totalCount);
   }, [totalCount, setCheckSyncedDealsTotalCount]);
 
   useEffect(() => {
@@ -510,17 +492,10 @@ export const useCheckSyncedDeals = (options?: QueryHookOptions) => {
         direction,
       },
       updateQuery: (prev, { fetchMoreResult }) => {
-        if (!fetchMoreResult) return prev;
+        if (!fetchMoreResult.deals || !prev.deals) return prev;
         return {
           ...prev,
-          deals: {
-            ...mergeCursorData({
-              direction,
-              fetchMoreResult: fetchMoreResult.deals,
-              prevResult: prev.deals,
-            }),
-            totalCount: fetchMoreResult.deals.totalCount,
-          },
+          deals: mergeCursorList(direction, prev.deals, fetchMoreResult.deals),
         };
       },
     });

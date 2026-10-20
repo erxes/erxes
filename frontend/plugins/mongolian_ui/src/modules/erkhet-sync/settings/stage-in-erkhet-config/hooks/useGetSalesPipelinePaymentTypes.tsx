@@ -1,4 +1,5 @@
 import { useQuery } from '@apollo/client';
+import { jsonArray, jsonRecords } from '@/shared/utils/json';
 import { GET_SALES_PIPELINE_DETAIL } from '../graphql/queries/salesPipelineDetail';
 
 export type TPaymentType = {
@@ -15,7 +16,9 @@ export const useGetSalesPipelinePaymentTypes = (pipelineId: string) => {
   });
 
   const pipeline = data?.salesPipelineDetail;
-  const pipelinePaymentTypes: TPaymentType[] = pipeline?.paymentTypes || [];
+  const pipelinePaymentTypes = jsonRecords<TPaymentType>(
+    jsonArray(pipeline?.paymentTypes),
+  );
   const otherPaymentTypes = pipelinePaymentTypes.filter(
     (paymentType) => !['cash', 'bank'].includes(paymentType.type),
   );

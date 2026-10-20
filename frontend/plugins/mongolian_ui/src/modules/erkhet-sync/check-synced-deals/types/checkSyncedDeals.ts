@@ -1,3 +1,5 @@
+import type { ErkhetCheckSyncedDealsQuery } from '~/gql/graphql';
+
 export type CheckSyncedDealStatus =
   | 'skipped'
   | 'checked'
@@ -6,21 +8,18 @@ export type CheckSyncedDealStatus =
   | 'error'
   | 'resynced';
 
-export interface ICheckSyncedDeals {
-  _id: string;
-  name: string;
-  amount: unknown;
-  number: string;
-  createdAt: string;
-  stageChangedDate: string;
+type DealRow = NonNullable<
+  NonNullable<NonNullable<ErkhetCheckSyncedDealsQuery['deals']>['list']>[number]
+>;
+
+export type ICheckSyncedDeals = DealRow & {
   unSynced?: string;
-  isSynced?: boolean;
+  isSynced?: boolean | null;
   syncStatus?: CheckSyncedDealStatus;
-  syncedDate?: string;
-  syncedBillNumber?: string;
-  syncedCustomer?: string;
-  __typename: string;
-}
+  syncedDate?: string | null;
+  syncedBillNumber?: string | null;
+  syncedCustomer?: string | null;
+};
 
 export interface ICheckSyncedDealsSync {
   _id: string;

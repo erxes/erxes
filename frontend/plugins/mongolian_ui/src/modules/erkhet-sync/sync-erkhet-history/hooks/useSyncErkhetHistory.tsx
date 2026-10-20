@@ -1,15 +1,22 @@
 import { QueryHookOptions, useQuery } from '@apollo/client';
 import {
   EnumCursorDirection,
-  IRecordTableCursorPageInfo,
-  mergeCursorData,
   parseDateRangeFromString,
   useMultiQueryState,
   useRecordTableCursor,
   validateFetchMore,
   isUndefinedOrNull,
 } from 'erxes-ui';
-import { ISyncHistory } from '../types/syncHistory';
+import { toSyncHistory } from '../types/syncHistory';
+import {
+  compactList,
+  mergeCursorList,
+  toCursorPageInfo,
+} from '@/shared/utils/cursorList';
+import type {
+  ErkhetSyncHistoriesQuery,
+  ErkhetSyncHistoriesQueryVariables,
+} from '~/gql/graphql';
 import { syncErkhetHistoryQuery } from '../graphql/queries/syncErkhetHistoryQuery';
 import { useSyncErkhetHistoryLeadSessionKey } from '../hooks/useSyncErkhetHistoryLeadSessionKey';
 import { syncErkhetHistoryTotalCountAtom } from '../states/syncErkhetHistoryCounts';
@@ -17,13 +24,7 @@ import { useSetAtom } from 'jotai';
 import { useEffect } from 'react';
 export const SYNC_HISTORIES_PER_PAGE = 30;
 export const useSyncErkhetHistoryVariables = (
-  variables?: QueryHookOptions<{
-    syncHistories: {
-      list: ISyncHistory[];
-      totalCount: number;
-      pageInfo: IRecordTableCursorPageInfo;
-    };
-  }>['variables'],
+  variables?: ErkhetSyncHistoriesQueryVariables,
 ) => {
   const { isHistory } = useSyncErkhetHistoryLeadSessionKey();
   const [
@@ -80,35 +81,26 @@ export const useSyncErkhetHistoryVariables = (
   };
 };
 export const useSyncErkhetHistory = (
-  options?: QueryHookOptions<{
-    syncHistories: {
-      list: ISyncHistory[];
-      totalCount: number;
-      pageInfo: IRecordTableCursorPageInfo;
-    };
-  }>,
+  options?: QueryHookOptions<
+    ErkhetSyncHistoriesQuery,
+    ErkhetSyncHistoriesQueryVariables
+  >,
 ) => {
   const setSyncErkhetHistoryTotalCount = useSetAtom(
     syncErkhetHistoryTotalCountAtom,
   );
   const variables = useSyncErkhetHistoryVariables(options?.variables);
-  const { data, loading, fetchMore } = useQuery<{
-    syncHistories: {
-      list: ISyncHistory[];
-      totalCount: number;
-      pageInfo: IRecordTableCursorPageInfo;
-    };
-  }>(syncErkhetHistoryQuery, {
+  const { data, loading, fetchMore } = useQuery(syncErkhetHistoryQuery, {
     ...options,
     skip: options?.skip || isUndefinedOrNull(variables.cursor),
     variables,
     fetchPolicy: 'network-only',
   });
-  const {
-    list: SyncHistories,
-    totalCount,
-    pageInfo,
-  } = data?.syncHistories || {};
+  const SyncHistories = compactList(data?.syncHistories?.list).map(
+    toSyncHistory,
+  );
+  const totalCount = data?.syncHistories?.totalCount;
+  const pageInfo = toCursorPageInfo(data?.syncHistories?.pageInfo);
   useEffect(() => {
     setSyncErkhetHistoryTotalCount(totalCount ?? null);
   }, [totalCount, setSyncErkhetHistoryTotalCount]);
@@ -135,17 +127,16 @@ export const useSyncErkhetHistory = (
         direction,
       },
       updateQuery: (prev, { fetchMoreResult }) => {
-        if (!fetchMoreResult) return prev;
+        if (!fetchMoreResult.syncHistories || !prev.syncHistories) {
+          return prev;
+        }
         return {
           ...prev,
-          syncHistories: {
-            ...mergeCursorData({
-              direction,
-              fetchMoreResult: fetchMoreResult.syncHistories,
-              prevResult: prev.syncHistories,
-            }),
-            totalCount: fetchMoreResult.syncHistories.totalCount,
-          },
+          syncHistories: mergeCursorList(
+            direction,
+            prev.syncHistories,
+            fetchMoreResult.syncHistories,
+          ),
         };
       },
     });

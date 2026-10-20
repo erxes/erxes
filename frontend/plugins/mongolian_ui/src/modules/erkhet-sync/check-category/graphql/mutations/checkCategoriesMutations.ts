@@ -1,7 +1,20 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const checkCategoriesMutation = gql`
-  mutation toCheckCategories($categoryCodes: [String]) {
-    toCheckCategories(categoryCodes: $categoryCodes)
+export const checkCategoriesMutation = gql(`
+  mutation erkhetCheckCategories($categoryCodes: [String]) {
+    toCheckCategories(categoryCodes: $categoryCodes) {
+      create {
+        items
+        count
+      }
+      update {
+        items
+        count
+      }
+      delete {
+        items
+        count
+      }
+    }
   }
-`;
+`);

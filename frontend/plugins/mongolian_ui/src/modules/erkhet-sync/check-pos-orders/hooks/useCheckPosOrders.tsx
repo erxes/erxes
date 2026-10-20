@@ -19,29 +19,17 @@ import {
   checkSyncedMutation,
   syncOrdersMutation,
 } from '../../shared/graphql/mutations/checkSyncedMutations';
-import {
-  CheckSyncedResponse,
-  chunkIds,
-} from '../../shared/utils/syncUtils';
+import { chunkIds } from '../../shared/utils/syncUtils';
+import { compactList } from '@/shared/utils/cursorList';
+import type { ErkhetCheckPosOrdersQuery, ErkhetCheckPosOrdersQueryVariables } from '~/gql/graphql';
 
 export const CHECK_POS_ORDERS_PER_PAGE = 30;
 const SYNC_POS_ORDERS_BATCH_SIZE = 1;
-
-type SyncOrdersResult = {
-  skipped?: string[];
-  error?: string[];
-  success?: string[];
-};
 
 type CheckOrdersOptions = {
   silent?: boolean;
   keepToSyncIds?: boolean;
   statusById?: Record<string, CheckPosOrderStatus>;
-};
-
-type CheckPosOrdersQueryResult = {
-  posOrders: ICheckPosOrders[];
-  posOrdersTotalCount: number;
 };
 
 const checkedOrdersAtom = atom<Record<string, Partial<ICheckPosOrders>>>({});
@@ -59,7 +47,7 @@ const getOrderStatus = (
 };
 
 export const useCheckPosOrdersVariables = (
-  variables?: QueryHookOptions<ICheckPosOrders[]>['variables'],
+  variables?: ErkhetCheckPosOrdersQueryVariables,
 ) => {
   const [
     { posToken, pos, user, paidDateRange, createdDateRange, searchValue },
@@ -114,7 +102,9 @@ export const useCheckPosOrdersVariables = (
   return finalVariables;
 };
 
-export const useCheckPosOrders = (options?: QueryHookOptions) => {
+export const useCheckPosOrders = (
+  options?: QueryHookOptions<ErkhetCheckPosOrdersQuery, ErkhetCheckPosOrdersQueryVariables>,
+) => {
   const { t } = useTranslation('mongolian');
   const setCheckPosOrdersTotalCount = useSetAtom(checkPosOrdersTotalCountAtom);
   const setCheckPosOrdersStatusCounts = useSetAtom(
@@ -122,34 +112,44 @@ export const useCheckPosOrders = (options?: QueryHookOptions) => {
   );
   const [checkedOrders, setCheckedOrders] = useAtom(checkedOrdersAtom);
   const [toSyncOrderIds, setToSyncOrderIds] = useAtom(toSyncOrderIdsAtom);
-  const [toCheckSynced, { loading: checking }] = useMutation<{
-    toCheckSynced: CheckSyncedResponse[];
-  }>(checkSyncedMutation);
-  const [toSyncOrders, { loading: syncing }] = useMutation<{
-    toSyncOrders: SyncOrdersResult;
-  }>(syncOrdersMutation);
+  const [toCheckSynced, { loading: checking }] =
+    useMutation(checkSyncedMutation);
+  const [toSyncOrders, { loading: syncing }] = useMutation(syncOrdersMutation);
   const { toast } = useToast();
   const variables = useCheckPosOrdersVariables(options?.variables);
 
-  const { data, loading, fetchMore } = useQuery<CheckPosOrdersQueryResult>(
-    checkPosOrdersQuery,
-    {
-      ...options,
-      variables,
-      fetchPolicy: 'cache-and-network',
-    },
-  );
+  const { data, loading, fetchMore } = useQuery(checkPosOrdersQuery, {
+    ...options,
+    variables,
+    fetchPolicy: 'cache-and-network',
+  });
 
   const checkPosOrders = useMemo(
     () =>
-      (data?.posOrders || []).map((order) => ({
-        ...order,
-        ...checkedOrders[order._id],
-        syncStatus: getOrderStatus(checkedOrders[order._id]),
-      })),
+      compactList(data?.posOrders).flatMap((order) => {
+        const orderId = order._id;
+
+        if (!orderId) {
+          return [];
+        }
+
+        const checked = checkedOrders[orderId];
+
+        return [
+          {
+            ...order,
+            ...checked,
+            _id: orderId,
+            syncStatus: getOrderStatus(checked),
+          },
+        ];
+      }),
     [checkedOrders, data?.posOrders],
   );
-  const totalCount = data?.posOrdersTotalCount;
+  const totalCount =
+    typeof data?.posOrdersTotalCount === 'number'
+      ? data.posOrdersTotalCount
+      : undefined;
 
   const syncSelectedOrderIds = useMemo(
     () =>
@@ -225,7 +225,9 @@ export const useCheckPosOrders = (options?: QueryHookOptions) => {
       return;
     }
 
-    const checked = response.data?.toCheckSynced || [];
+    const checked = compactList(response.data?.toCheckSynced).filter(
+      (item): item is typeof item & { _id: string } => Boolean(item._id),
+    );
     const nextChecked: Record<string, Partial<ICheckPosOrders>> = {};
 
     for (const item of checked) {
@@ -346,9 +348,9 @@ export const useCheckPosOrders = (options?: QueryHookOptions) => {
         continue;
       }
 
-      const skippedIds = result.skipped || [];
-      const errorIds = result.error || [];
-      const successIds = result.success || [];
+      const skippedIds = compactList(result.skipped);
+      const errorIds = compactList(result.error);
+      const successIds = compactList(result.success);
       const syncedStatusById: Record<string, CheckPosOrderStatus> = {};
 
       for (const id of successIds) {
@@ -473,7 +475,10 @@ export const useCheckPosOrders = (options?: QueryHookOptions) => {
         if (!fetchMoreResult) return prev;
 
         return {
-          posOrders: [...prev.posOrders, ...fetchMoreResult.posOrders],
+          posOrders: [
+            ...(prev.posOrders ?? []),
+            ...(fetchMoreResult.posOrders ?? []),
+          ],
           posOrdersTotalCount: fetchMoreResult.posOrdersTotalCount,
         };
       },

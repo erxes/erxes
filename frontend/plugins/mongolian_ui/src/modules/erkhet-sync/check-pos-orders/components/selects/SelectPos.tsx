@@ -114,7 +114,7 @@ const SelectPosContent = () => {
     handleFetchMore,
     totalCount = 0,
   } = usePos({
-    variables: { searchValue: debouncedSearch },
+    variables: { search: debouncedSearch },
   });
 
   return (

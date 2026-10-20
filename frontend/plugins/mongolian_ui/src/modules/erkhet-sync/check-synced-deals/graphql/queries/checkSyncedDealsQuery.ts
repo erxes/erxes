@@ -1,9 +1,11 @@
-import { gql } from '@apollo/client';
-import { GQL_CURSOR_PARAM_DEFS, GQL_CURSOR_PARAMS } from 'erxes-ui';
+import { gql } from '~/gql';
 
-export const checkSyncedDealsQuery = gql`
-  query Deals(
-    ${GQL_CURSOR_PARAM_DEFS}
+export const checkSyncedDealsQuery = gql(`
+  query erkhetCheckSyncedDeals(
+    $cursor: String
+    $cursorMode: CURSOR_MODE
+    $direction: CURSOR_DIRECTION
+    $limit: Int
     $userIds: [String]
     $stageId: String
     $stageChangedStartDate: Date
@@ -18,7 +20,10 @@ export const checkSyncedDealsQuery = gql`
     $number: String
   ) {
     deals(
-      ${GQL_CURSOR_PARAMS}
+      cursor: $cursor
+      cursorMode: $cursorMode
+      direction: $direction
+      limit: $limit
       userIds: $userIds
       stageId: $stageId
       stageChangedStartDate: $stageChangedStartDate
@@ -51,4 +56,4 @@ export const checkSyncedDealsQuery = gql`
       totalCount
     }
   }
-`;
+`);

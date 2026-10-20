@@ -1,7 +1,7 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const syncErkhetHistoryQuery = gql`
-  query SyncHistories(
+export const syncErkhetHistoryQuery = gql(`
+  query erkhetSyncHistories(
     $userId: String
     $startDate: Date
     $endDate: Date
@@ -63,4 +63,4 @@ export const syncErkhetHistoryQuery = gql`
       totalCount
     }
   }
-`;
+`);

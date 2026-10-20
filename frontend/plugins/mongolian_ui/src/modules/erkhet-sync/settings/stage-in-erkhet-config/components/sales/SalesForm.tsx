@@ -11,7 +11,7 @@ import { CHOOSE_RESPONSE_FIELD_DATA } from '../../constants/chooseResponseFieldD
 import { SelectAnotherRulesOfProductsOnCityTax } from '../selects/SelectAnotherRulesOfProductsOnCityTax';
 import { PaymentFields } from '../PaymentFields';
 import { useCreateStageInErkhetConfig } from '../../hooks/useCreateStageInErkhetConfig';
-import { GET_CONFIGS_GET_VALUE } from '../../graphql/queries/useStageInErkhetConfigQuery';
+import { GET_MN_CONFIGS } from '@/shared/graphql/mnConfigs';
 
 const defaultValues = {
   title: '',
@@ -430,7 +430,7 @@ export const SalesForm = () => {
   const [showNewConfig, setShowNewConfig] = useState(false);
   const { createStageInErkhetConfig, loading: createLoading } =
     useCreateStageInErkhetConfig();
-  const { data, refetch, loading } = useQuery(GET_CONFIGS_GET_VALUE, {
+  const { data, refetch, loading } = useQuery(GET_MN_CONFIGS, {
     variables: { code: 'ebarimtConfig' },
     fetchPolicy: 'network-only',
   });

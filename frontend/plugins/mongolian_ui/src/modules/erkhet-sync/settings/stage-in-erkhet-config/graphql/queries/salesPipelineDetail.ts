@@ -1,7 +1,7 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const GET_SALES_PIPELINE_DETAIL = gql`
-  query salesPipelineDetail($_id: String!) {
+export const GET_SALES_PIPELINE_DETAIL = gql(`
+  query erkhetSalesPipelineDetail($_id: String!) {
     salesPipelineDetail(_id: $_id) {
       _id
       name
@@ -9,4 +9,4 @@ export const GET_SALES_PIPELINE_DETAIL = gql`
       paymentTypes
     }
   }
-`;
+`);
