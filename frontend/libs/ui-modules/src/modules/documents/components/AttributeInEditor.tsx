@@ -13,7 +13,7 @@ import {
   DocumentEditorAttribute as Attribute,
   useDocumentEditorAttributes,
 } from '../hooks/useDocumentEditorAttributes';
-import { createContext, useContext } from 'react';
+import { createContext, useContext, useMemo } from 'react';
 
 interface AttributeInEditorProps {
   editor: IBlockEditor;
@@ -30,8 +30,12 @@ const AttributeInEditor = ({
   attributes,
   loading,
 }: AttributeInEditorProps) => {
+  const contextValue = useMemo(
+    () => ({ attributes, loading }),
+    [attributes, loading],
+  );
   return (
-    <AttributeMenuContext.Provider value={{ attributes, loading }}>
+    <AttributeMenuContext.Provider value={contextValue}>
       <SuggestionMenuController
         triggerCharacter="{"
         suggestionMenuComponent={AttributeMenu}
@@ -52,7 +56,7 @@ interface AttributeMenuProps extends SlashMenuProps {
   items: DefaultReactSuggestionItem[];
 }
 
-function AttributeMenu({ items, selectedIndex }: AttributeMenuProps) {
+function AttributeMenu({ items, selectedIndex }: Readonly<AttributeMenuProps>) {
   const { attributes, loading } = useContext(AttributeMenuContext);
   if (loading) {
     return <div className="p-2">Loading...</div>;

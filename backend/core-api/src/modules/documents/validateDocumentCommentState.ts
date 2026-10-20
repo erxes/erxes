@@ -67,8 +67,10 @@ const requireUniqueId = (
   seen.add(id);
 };
 
-const otherReactionUsers = (ids: string[] = [], userId: string): string[] =>
-  [...new Set(ids.filter((id) => id !== userId))].sort();
+const otherReactionUsers = (userId: string, ids: string[] = []): string[] =>
+  [...new Set(ids.filter((id) => id !== userId))].sort((left, right) =>
+    left.localeCompare(right),
+  );
 
 const normalizeReactions = (
   comment: StoredComment,
@@ -86,8 +88,8 @@ const normalizeReactions = (
     const oldReaction = before.get(emoji);
     const reaction = after.get(emoji);
     if (
-      JSON.stringify(otherReactionUsers(oldReaction?.userIds, userId)) !==
-      JSON.stringify(otherReactionUsers(reaction?.userIds, userId))
+      JSON.stringify(otherReactionUsers(userId, oldReaction?.userIds)) !==
+      JSON.stringify(otherReactionUsers(userId, reaction?.userIds))
     ) {
       throw new Error('You can only change your own reactions');
     }
