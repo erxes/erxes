@@ -17,6 +17,11 @@ import {
   IMSDynamicConfigMap,
 } from '../types/types';
 
+const toMSDynamicConfig = (value: unknown): IMSDynamicConfig => ({
+  ...createEmptyMSDynamicConfig(),
+  ...jsonRecord<Partial<IMSDynamicConfig>>(value),
+});
+
 /** MS Dynamic configs hook for crud and save */
 export const useMSDynamicConfigs = () => {
   const [saveLoading, setSaveLoading] = useState(false);
@@ -35,10 +40,7 @@ export const useMSDynamicConfigs = () => {
   const configsMap: IConfigsMap = {
     DYNAMIC: configDocs.reduce((acc, doc) => {
       if (doc.subId) {
-        acc[doc.subId] = {
-          ...createEmptyMSDynamicConfig(),
-          ...jsonRecord<Partial<IMSDynamicConfig>>(doc.value),
-        };
+        acc[doc.subId] = toMSDynamicConfig(doc.value);
       }
       return acc;
     }, {} as IMSDynamicConfigMap),
@@ -74,7 +76,10 @@ export const useMSDynamicConfigs = () => {
               variables: { code: 'DYNAMIC', subId, value },
             }),
           );
-        } else if (JSON.stringify(current.value) !== JSON.stringify(value)) {
+        } else if (
+          JSON.stringify(toMSDynamicConfig(current.value)) !==
+          JSON.stringify(value)
+        ) {
           updates.push(
             updateConfig({
               variables: { id: current._id, subId, value },
