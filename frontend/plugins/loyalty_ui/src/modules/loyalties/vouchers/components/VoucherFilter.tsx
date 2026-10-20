@@ -111,6 +111,7 @@ export const VoucherFilter = () => {
   return (
     <Filter id="voucher-filter" sessionKey={sessionKey}>
       <Filter.Bar>
+        <VoucherFilterPopover />
         <SelectVoucherCampaign.FilterBar />
         <SelectOwnerType.FilterBar />
         <SelectOwner.FilterBar queryKey="ownerId" ownerTypeKey="ownerType" />
@@ -125,7 +126,6 @@ export const VoucherFilter = () => {
           </Filter.BarName>
           <Filter.Date filterKey="date" />
         </Filter.BarItem>
-        <VoucherFilterPopover />
         <VoucherTotalCount />
       </Filter.Bar>
     </Filter>

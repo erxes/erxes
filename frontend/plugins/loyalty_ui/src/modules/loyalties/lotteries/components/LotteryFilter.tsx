@@ -85,12 +85,12 @@ export const LotteryFilter = () => {
   return (
     <Filter id="lottery-filter" sessionKey={sessionKey}>
       <Filter.Bar>
+        <LotteryFilterPopover />
         <SelectLotteryCampaign.FilterBar />
         <SelectVoucherCampaign.FilterBar />
         <SelectOwnerType.FilterBar />
         <SelectOwner.FilterBar queryKey="ownerId" ownerTypeKey="ownerType" />
         <SelectStatus.FilterBar />
-        <LotteryFilterPopover />
         <LotteryTotalCount />
       </Filter.Bar>
     </Filter>

@@ -116,6 +116,7 @@ export const BroadcastFilter = () => {
   return (
     <Filter id="broadcast-filter">
       <Filter.Bar>
+        <BroadcastFilterPopover />
         <Filter.BarItem queryKey="trigger">
           <Filter.BarName>
             {(() => {
@@ -170,8 +171,6 @@ export const BroadcastFilter = () => {
             />
           </>
         )}
-
-        <BroadcastFilterPopover />
 
         <BroadcastTotalCount />
 

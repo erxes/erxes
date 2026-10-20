@@ -194,6 +194,7 @@ export const PostsFilter = ({ clientPortalId }: { clientPortalId: string }) => {
   return (
     <Filter id="posts-filter" sessionKey={sessionKey}>
       <Filter.Bar>
+        <PostsFilterPopover clientPortalId={clientPortalId || undefined} />
         <Filter.BarItem queryKey="searchValue">
           <Filter.BarName>
             <IconSearch />
@@ -229,7 +230,6 @@ export const PostsFilter = ({ clientPortalId }: { clientPortalId: string }) => {
           </Filter.BarName>
           <Filter.Date filterKey="publishedDate" />
         </Filter.BarItem>
-        <PostsFilterPopover clientPortalId={clientPortalId || undefined} />
         <PostsTotalCount />
       </Filter.Bar>
     </Filter>

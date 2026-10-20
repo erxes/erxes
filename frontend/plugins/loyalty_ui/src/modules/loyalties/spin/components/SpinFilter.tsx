@@ -85,12 +85,12 @@ export const SpinFilter = () => {
   return (
     <Filter id="spin-filter" sessionKey={sessionKey}>
       <Filter.Bar>
+        <SpinFilterPopover />
         <SelectSpinCampaign.FilterBar />
         <SelectVoucherCampaign.FilterBar />
         <SelectOwnerType.FilterBar />
         <SelectOwner.FilterBar queryKey="ownerId" ownerTypeKey="ownerType" />
         <SelectStatus.FilterBar />
-        <SpinFilterPopover />
         <SpinTotalCount />
       </Filter.Bar>
     </Filter>
