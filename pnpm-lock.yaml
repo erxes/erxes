@@ -216,6 +216,9 @@ importers:
       docx:
         specifier: ^9.7.1
         version: 9.7.1
+      docx-preview:
+        specifier: ^0.4.1
+        version: 0.4.1
       dompurify:
         specifier: ^3.2.4
         version: 3.2.5
@@ -324,6 +327,9 @@ importers:
       jssip:
         specifier: ^3.10.1
         version: 3.10.1
+      jszip:
+        specifier: ^3.10.1
+        version: 3.10.1
       libphonenumber-js:
         specifier: ^1.11.20
         version: 1.12.6
@@ -357,6 +363,9 @@ importers:
       nodemailer:
         specifier: ^6.9.10
         version: 6.9.10
+      pdfjs-dist:
+        specifier: ^6.4.299
+        version: 6.4.299
       qz-tray:
         specifier: ^2.2.6
         version: 2.2.6
@@ -477,6 +486,9 @@ importers:
       ws:
         specifier: ^8.22.0
         version: 8.22.0
+      xlsx:
+        specifier: https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz
+        version: https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz
       xss:
         specifier: ^1.0.15
         version: 1.0.15
