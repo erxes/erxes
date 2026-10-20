@@ -1,4 +1,4 @@
-import { createHash } from 'node:crypto';
+import { createHash, randomBytes } from 'node:crypto';
 import { findContract } from 'erxes-sdk';
 import { getPlugins } from 'erxes-api-shared/utils';
 import { z } from 'zod';
@@ -8,6 +8,7 @@ import { collectionName, dropCollections, ensureIndexes } from './hostDb';
 import { LIMITS } from './limits';
 import { pluginName, rebuildPermissions } from './permissions';
 import { revokeGrants } from './sandbox';
+import { cronProblem, syncTriggers } from './triggers';
 
 // A hostname, or `*.` and a domain of at least two labels. The last label
 // starts with a letter, so an IPv4 address never matches; ports, paths,
@@ -16,6 +17,21 @@ const HOST_PATTERN =
   /^(\*\.)?([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]([a-z0-9-]{0,61}[a-z0-9])?$/;
 
 export const SECRET_NAME = /^[A-Z][A-Z0-9_]{0,63}$/;
+
+// Also a webhook URL's last segment.
+const TRIGGER_NAME = /^[a-zA-Z][a-zA-Z0-9_-]{0,63}$/;
+
+// `<plugin>:<module>.<collection>.<action>`, as the db event log names them.
+const EVENT_TYPE = /^[a-z][a-z0-9_]*:[a-zA-Z0-9_.]+\.(create|update|delete)$/;
+
+// A record of at most `max` entries keyed by a trigger name.
+const triggers = <T extends z.ZodType>(value: T, max: number) =>
+  z
+    .record(z.string().regex(TRIGGER_NAME), value)
+    .refine((record) => Object.keys(record).length <= max, {
+      message: `at most ${max}`,
+    })
+    .default({});
 
 export const InstallBody = z.object({
   id: z.string().regex(/^[a-z][a-z0-9-]*$/),
@@ -80,6 +96,50 @@ export const InstallBody = z.object({
       message: `at most ${LIMITS.maxSecrets} secrets`,
     })
     .default({}),
+  schedules: triggers(
+    z
+      .object({
+        cron: z.string().superRefine((cron, ctx) => {
+          const problem = cronProblem(cron);
+
+          if (problem) {
+            ctx.addIssue({ code: 'custom', message: problem });
+          }
+        }),
+        function: z.string(),
+      })
+      .strict(),
+    LIMITS.maxSchedules,
+  ),
+  webhooks: triggers(
+    z
+      .object({
+        function: z.string(),
+        signature: z
+          .object({
+            secret: z.string().regex(SECRET_NAME),
+            header: z
+              .string()
+              .toLowerCase()
+              .regex(/^[a-z0-9-]{1,64}$/),
+            algorithm: z.enum(['sha1', 'sha256', 'sha512']),
+            prefix: z.string().max(32).default(''),
+          })
+          .strict(),
+      })
+      .strict(),
+    LIMITS.maxWebhooks,
+  ),
+  events: triggers(
+    z
+      .object({
+        on: z.string().regex(EVENT_TYPE),
+        updatedFields: z.array(z.string().min(1)).max(50).optional(),
+        function: z.string(),
+      })
+      .strict(),
+    LIMITS.maxEvents,
+  ),
   ui: z
     .object({
       remote: z.string(),
@@ -172,6 +232,11 @@ export const activateVersion = async (
         indexes: build.indexes ?? {},
         network: build.network ?? [],
         secrets: build.secrets ?? {},
+        schedules: build.schedules ?? {},
+        webhooks: build.webhooks ?? {},
+        events: build.events ?? {},
+        installKey:
+          previous?.installKey ?? randomBytes(24).toString('base64url'),
         status: 'installed',
         installedBy: build.installedBy,
         installedAt: new Date(),
@@ -183,6 +248,7 @@ export const activateVersion = async (
   );
 
   await rebuildPermissions(models, tenant);
+  await syncTriggers(models, tenant, extId);
 
   return previous?.version ?? null;
 };
@@ -218,6 +284,38 @@ export const installBuild = async (
       400,
       'INVALID_INPUT',
       `indexes name collections ${id} doesn't declare: ${strays.join(', ')}`,
+    );
+  }
+
+  const unknownFunctions = [
+    ...Object.values(body.schedules),
+    ...Object.values(body.webhooks),
+    ...Object.values(body.events),
+  ]
+    .map((trigger) => trigger.function)
+    .filter((fn) => !body.functions.includes(fn));
+
+  if (unknownFunctions.length > 0) {
+    throw new ApiError(
+      400,
+      'INVALID_INPUT',
+      `triggers name functions ${id} doesn't have: ${unknownFunctions.join(
+        ', ',
+      )}`,
+    );
+  }
+
+  const undeclaredSecrets = Object.values(body.webhooks)
+    .map((webhook) => webhook.signature.secret)
+    .filter((name) => !(name in body.secrets));
+
+  if (undeclaredSecrets.length > 0) {
+    throw new ApiError(
+      400,
+      'INVALID_INPUT',
+      `webhooks sign with secrets ${id} doesn't declare: ${undeclaredSecrets.join(
+        ', ',
+      )}`,
     );
   }
   const existing = await models.ExtensionVersions.findById(_id).lean();
@@ -275,6 +373,9 @@ export const installBuild = async (
     indexes: body.indexes,
     network: body.network,
     secrets: body.secrets,
+    schedules: body.schedules,
+    webhooks: body.webhooks,
+    events: body.events,
     uiRemote: ui?.remote,
     installedBy: userId,
   });
@@ -299,6 +400,7 @@ export const setStatus = async (
   }
 
   await rebuildPermissions(models, tenant);
+  await syncTriggers(models, tenant, extId);
 };
 
 // Uninstall keeps data, builds and secrets. Purge also drops every
@@ -337,6 +439,7 @@ export const uninstall = async (
   }
 
   await rebuildPermissions(models, tenant);
+  await syncTriggers(models, tenant, extId);
 
   return { id: extId, purged: purge };
 };

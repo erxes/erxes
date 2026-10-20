@@ -12,6 +12,7 @@ export class ApiError extends Error {
       | 403
       | 404
       | 409
+      | 412
       | 413
       | 415
       | 422

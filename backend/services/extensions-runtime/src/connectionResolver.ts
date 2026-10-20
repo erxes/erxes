@@ -1,4 +1,4 @@
-import type { Indexes, Secrets } from 'erxes-sdk';
+import type { Events, Indexes, Schedules, Secrets, Webhooks } from 'erxes-sdk';
 import { Connection, Model, Schema } from 'mongoose';
 import {
   createGenerateModels,
@@ -28,8 +28,15 @@ export interface IExtensionDocument {
   // Secret name -> the description the owner sees. Values live in
   // extension_secrets.
   secrets: Secrets;
+  // Triggers: name -> what fires it and the function it runs.
+  schedules: Schedules;
+  webhooks: Webhooks;
+  events: Events;
   // Module Federation remote name, when the extension ships a UI.
   uiRemote?: string;
+  // Random, made on first install, so a webhook URL names neither the
+  // tenant nor the extension and can't be guessed. Uninstall drops it.
+  installKey: string;
   status: 'installed' | 'disabled';
   installedBy: string;
   installedAt: Date;
@@ -50,7 +57,11 @@ const extensionSchema = new Schema<IExtensionDocument>({
   indexes: { type: Schema.Types.Mixed, default: {} },
   network: { type: [String], default: [] },
   secrets: { type: Schema.Types.Mixed, default: {} },
+  schedules: { type: Schema.Types.Mixed, default: {} },
+  webhooks: { type: Schema.Types.Mixed, default: {} },
+  events: { type: Schema.Types.Mixed, default: {} },
   uiRemote: { type: String },
+  installKey: { type: String, required: true, unique: true },
   status: {
     type: String,
     enum: ['installed', 'disabled'],
@@ -60,14 +71,20 @@ const extensionSchema = new Schema<IExtensionDocument>({
   installedAt: { type: Date, default: Date.now },
 });
 
-// One function call: who ran what, how it ended and how long it took.
+// One function run: who ran what, what started it, how it ended and how long
+// it took.
 export interface IExtensionRunDocument {
   _id: string;
   subdomain: string;
   extId: string;
   version: string;
   fn: string;
+  trigger: 'call' | 'cron' | 'webhook' | 'event';
+  // The user the run acted as: the caller, or for a trigger the event's user
+  // or the installer.
   userId: string;
+  // A trigger's run: the owner whose install approval it ran under.
+  installerId?: string;
   status: 'ok' | 'error' | 'timeout';
   error?: { code: string; message: string };
   ms: number;
@@ -83,7 +100,13 @@ const extensionRunSchema = new Schema<IExtensionRunDocument>({
   extId: { type: String, required: true },
   version: { type: String, required: true },
   fn: { type: String, required: true },
+  trigger: {
+    type: String,
+    enum: ['call', 'cron', 'webhook', 'event'],
+    default: 'call',
+  },
   userId: { type: String, required: true },
+  installerId: { type: String },
   status: {
     type: String,
     enum: ['ok', 'error', 'timeout'],
@@ -110,6 +133,9 @@ export type ExtensionBuild = Pick<
   | 'indexes'
   | 'network'
   | 'secrets'
+  | 'schedules'
+  | 'webhooks'
+  | 'events'
   | 'uiRemote'
 >;
 
@@ -138,6 +164,9 @@ const extensionVersionSchema = new Schema<IExtensionVersionDocument>({
   indexes: { type: Schema.Types.Mixed, default: {} },
   network: { type: [String], default: [] },
   secrets: { type: Schema.Types.Mixed, default: {} },
+  schedules: { type: Schema.Types.Mixed, default: {} },
+  webhooks: { type: Schema.Types.Mixed, default: {} },
+  events: { type: Schema.Types.Mixed, default: {} },
   uiRemote: { type: String },
   installedBy: { type: String, required: true },
   installedAt: { type: Date, default: Date.now },

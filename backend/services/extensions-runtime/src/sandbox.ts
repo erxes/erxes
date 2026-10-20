@@ -26,6 +26,12 @@ import {
 //   nothing bounds egress across calls beyond the call concurrency limits.
 // - An install that declares network hosts loads a fresh isolate for every
 //   call (see supervisor.js), so its calls pay the bundle's startup each time.
+// - Record events are published best effort: a change made while Redis is
+//   unreachable, or by a process that dies before queueing it, runs no
+//   handler. Bulk writes (updateMany, bulkWrite, deleteMany) publish none.
+// - A trigger run's session is deleted when the run ends. If the runtime
+//   dies mid-run, the session stays valid in the gateway until its expiry,
+//   twice the run timeout.
 
 // Where workerd's Host entrypoint calls back into the runtime (loopback only).
 export const HOST_PORT = Number(process.env.EXT_HOST_PORT || 3321);
@@ -42,8 +48,9 @@ export const HOST_TOKEN = createToken();
 // id. /db looks the id up here, so a call can reach only its own tenant, its
 // own install and that install's collections. The grant is revoked when the
 // call returns or times out, so a straggling db call from a killed run is
-// refused. It also carries the caller's session and the install's pinned
-// contracts, so a contract call runs as the caller and only on what the
+// refused. It also carries the caller's session (for a trigger, the session
+// runs.ts minted for the user it acts as) and the install's pinned
+// contracts, so a contract call runs as that user and only on what the
 // install pinned, and the install's network allowlist, so /egress reaches
 // only those hosts and only while the call runs.
 

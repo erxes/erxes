@@ -40,15 +40,10 @@ import {
 } from './installs';
 import { LIMITS } from './limits';
 import { actionName } from './permissions';
-import { findGrant, HOST_TOKEN, invoke, type Session } from './sandbox';
-import {
-  deleteSecret,
-  listSecrets,
-  loadSecrets,
-  redact,
-  SecretValue,
-  setSecret,
-} from './secrets';
+import { runFunction } from './runs';
+import { findGrant, HOST_TOKEN, type Session } from './sandbox';
+import { acceptWebhook } from './triggers';
+import { deleteSecret, listSecrets, SecretValue, setSecret } from './secrets';
 
 // Registered in service discovery, so the gateway proxies /pl:extensions/* here
 // after its user middleware has checked the session.
@@ -127,7 +122,9 @@ const signedIn: MiddlewareHandler<Env> = async (c, next) => {
     throw unauthenticated();
   }
 
-  if (decoded.typ) {
+  // `ext` marks a session the runtime minted for a trigger run. It only
+  // ever goes to the gateway, never back here.
+  if (decoded.typ || decoded.ext) {
     throw sessionOnly();
   }
 
@@ -262,47 +259,12 @@ export const app = new Hono<Env>()
 
     // An empty body is an empty input, not an error.
     const input: unknown = await c.req.json().catch(() => ({}));
-    const secrets = await loadSecrets(
-      models,
-      tenant,
-      extId,
-      Object.keys(ext.secrets ?? {}),
-    );
-    const result = await invoke({
-      tenant,
-      extId,
-      version: ext.version,
-      code: ext.code,
-      codeHash: ext.codeHash,
-      collections: ext.collections,
-      uses: ext.uses ?? {},
-      network: ext.network ?? [],
-      secrets,
-      name: fn,
-      input,
-      user: { _id: user._id },
-      session,
-    });
-
-    if (!result.ok) {
-      result.error.message = redact(result.error.message, secrets);
-    }
-
-    await models.ExtensionRuns.create({
-      subdomain: tenant,
-      extId,
-      version: ext.version,
+    const result = await runFunction(models, ext, {
       fn,
+      input,
       userId: user._id,
-      status: result.ok
-        ? 'ok'
-        : result.error.code === 'TIMEOUT'
-        ? 'timeout'
-        : 'error',
-      ...(!result.ok && {
-        error: { code: result.error.code, message: result.error.message },
-      }),
-      ms: result.ms,
+      session,
+      trigger: 'call',
     });
 
     if (!result.ok) {
@@ -317,6 +279,25 @@ export const app = new Hono<Env>()
 
     return c.json({ ok: true as const, data: result.data });
   })
+
+  // ---- Signed webhooks from outside erxes. The gateway proxies them here
+  // without a session; the signature is the only credential.
+
+  .post(
+    '/webhooks/:installKey/:name',
+    maxBody(LIMITS.webhookBytes),
+    async (c) => {
+      const tenant = tenantOf(c);
+      await acceptWebhook(
+        await generateModels(tenant),
+        tenant,
+        c.req.param(),
+        c.req.raw.headers,
+        Buffer.from(await c.req.arrayBuffer()),
+      );
+      return c.json({ ok: true as const, data: { accepted: true } }, 202);
+    },
+  )
 
   // ---- Boot: core-api lists these remotes next to the plugin remotes.
 
