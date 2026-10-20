@@ -1,4 +1,3 @@
-import { IconCalendarPlus, IconSearch } from '@tabler/icons-react';
 import {
   Combobox,
   Command,
@@ -6,12 +5,14 @@ import {
   useFilterQueryState,
   useMultiQueryState,
 } from 'erxes-ui';
-import { SelectClientPortal } from 'ui-modules';
-import { ContactsHotKeyScope } from '@/contacts/types/ContactsHotKeyScope';
+import { IconCalendarPlus, IconSearch } from '@tabler/icons-react';
+
 import { CP_USERS_CURSOR_SESSION_KEY } from '@/contacts/client-portal-users/constants/cpUsersCursorSessionKey';
 import { ClientPortalUsersTotalCount } from '@/contacts/client-portal-users/components/ClientPortalUsersTotalCount';
+import { ContactsHotKeyScope } from '@/contacts/types/ContactsHotKeyScope';
 import { SelectCPUserType } from '@/contacts/client-portal-users/components/selects/SelectCPUserType';
 import { SelectCPUserVerified } from '@/contacts/client-portal-users/components/selects/SelectCPUserVerified';
+import { SelectClientPortal } from 'ui-modules';
 import { useTranslation } from 'react-i18next';
 
 const ClientPortalUsersFilterPopover = () => {
@@ -91,6 +92,7 @@ export const ClientPortalUsersFilter = () => {
       sessionKey={CP_USERS_CURSOR_SESSION_KEY}
     >
       <Filter.Bar>
+        <ClientPortalUsersFilterPopover />
         <Filter.BarItem queryKey="searchValue">
           <Filter.BarName>
             <IconSearch />

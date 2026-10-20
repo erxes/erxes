@@ -38,6 +38,8 @@
     "**/*.css"
   ],
   "scripts": {
+    "build": "node scripts/build-package.mjs",
+    "test:package": "node --test scripts/__tests__/package.test.mjs",
     "build:dts": "tsc -p tsconfig.dts.json"
   },
   "devDependencies": {

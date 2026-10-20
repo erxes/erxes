@@ -35,9 +35,9 @@ test('exports schema before codegen and shares preparation across compiler hooks
   expect(execFile).toHaveBeenCalledTimes(2);
   expect(jest.mocked(execFile).mock.calls[0]).toEqual([
     'pnpm',
-    ['schema:print'],
+    ['nx', 'run', 'gateway:schema:compose', '--parallel=2'],
     expect.objectContaining({
-      cwd: expect.stringContaining('backend/plugins/accounting_api'),
+      cwd: resolve(__dirname, '../../../../..'),
     }),
     expect.any(Function),
   ]);

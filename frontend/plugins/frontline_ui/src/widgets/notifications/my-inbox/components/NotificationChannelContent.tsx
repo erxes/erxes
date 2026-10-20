@@ -1,70 +1,12 @@
-import {
-  IconChalkboard,
-  IconExternalLink,
-  IconInfoCircle,
-} from '@tabler/icons-react';
-import {
-  Avatar,
-  Button,
-  Empty,
-  RelativeDateDisplay,
-  Spinner,
-  readImage,
-} from 'erxes-ui';
+import type { NotificationChannelContentProps } from '~/widgets/notifications/my-inbox/types/notificationContent';
+import { IconChalkboard, IconExternalLink } from '@tabler/icons-react';
+import { Button, Spinner } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
-import { TNotification } from 'ui-modules';
 import { useChannel } from '~/widgets/notifications/my-inbox/hooks/useChannel';
-
-const getUserDisplayName = (fromUser: TNotification['fromUser']) =>
-  fromUser?.details?.fullName || fromUser?.email || 'Unknown user';
-
-const ChannelEventMetadata = ({
-  action,
-  createdAt,
-  fromUser,
-}: Pick<TNotification, 'action' | 'createdAt' | 'fromUser'>) => {
-  const actorName = getUserDisplayName(fromUser);
-
-  return (
-    <div className="mt-3 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-      {fromUser ? (
-        <span className="flex items-center gap-1.5">
-          <Avatar className="size-5">
-            <Avatar.Image
-              src={readImage(fromUser.details?.avatar || '')}
-              alt={actorName}
-            />
-            <Avatar.Fallback className="text-[10px]">
-              {actorName.slice(0, 1).toUpperCase()}
-            </Avatar.Fallback>
-          </Avatar>
-          {actorName}
-        </span>
-      ) : null}
-      {action ? <span>{action}</span> : null}
-      {createdAt ? <RelativeDateDisplay.Value value={createdAt} /> : null}
-    </div>
-  );
-};
-
-const ChannelUnavailable = ({
-  description,
-  title,
-}: {
-  description: string;
-  title: string;
-}) => (
-  <Empty className="min-h-dvh rounded-none border-0">
-    <Empty.Header>
-      <Empty.Media variant="icon">
-        <IconInfoCircle />
-      </Empty.Media>
-      <Empty.Title>{title}</Empty.Title>
-      <Empty.Description>{description}</Empty.Description>
-    </Empty.Header>
-  </Empty>
-);
+import { ChannelEventMetadata } from '~/widgets/notifications/my-inbox/components/ChannelEventMetadata';
+import { ChannelUnavailable } from '~/widgets/notifications/my-inbox/components/ChannelUnavailable';
+import { getUserDisplayName } from '~/widgets/notifications/my-inbox/utils/getUserDisplayName';
 
 export const NotificationChannelContent = ({
   action,
@@ -74,13 +16,13 @@ export const NotificationChannelContent = ({
   contentTypeId,
   message,
   title,
-}: TNotification) => {
+}: NotificationChannelContentProps) => {
   const { t } = useTranslation('frontline');
   const { channelDetail, loading, error } = useChannel(contentTypeId || '');
 
   if (loading) {
     return (
-      <div className="flex min-h-dvh items-center justify-center">
+      <div className="flex min-h-full items-center justify-center">
         <Spinner />
       </div>
     );
@@ -106,7 +48,7 @@ export const NotificationChannelContent = ({
   }
 
   return (
-    <div className="mx-auto flex min-h-dvh w-full max-w-3xl flex-col px-6 py-8">
+    <div className="mx-auto flex min-h-full w-full max-w-3xl flex-col px-6 py-8">
       <header className="flex items-start gap-4 border-b pb-6">
         <div className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-accent text-muted-foreground">
           <IconChalkboard className="size-6" />

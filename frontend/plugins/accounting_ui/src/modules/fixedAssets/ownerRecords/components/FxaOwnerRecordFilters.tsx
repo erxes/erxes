@@ -211,6 +211,7 @@ export const FxaOwnerRecordFilters = () => {
   return (
     <Filter id="fxa-owner-records-filter">
       <Filter.Bar>
+        <FxaOwnerRecordFilterPopover />
         <Filter.BarItem queryKey="searchValue">
           <Filter.BarName>
             <IconSearch />
@@ -232,7 +233,6 @@ export const FxaOwnerRecordFilters = () => {
           </Filter.BarName>
           <Filter.Date filterKey="createdDate" />
         </Filter.BarItem>
-        <FxaOwnerRecordFilterPopover />
       </Filter.Bar>
       <Filter.Dialog>
         <Filter.View filterKey="searchValue" inDialog>

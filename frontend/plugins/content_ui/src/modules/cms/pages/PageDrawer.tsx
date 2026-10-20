@@ -95,6 +95,27 @@ const normalizeContent = (raw: string): string => {
   return raw.trimStart().startsWith('[') ? blocksToHtml(raw) : raw;
 };
 
+// Table and bulk edits store `published`/`draft`/`scheduled`, while the editor
+// toggle and form schema only accept `active`/`inactive`. Map stored values so
+// validation does not reject the whole form before submit.
+const toFormStatus = (status?: string): IPageFormData['status'] =>
+  status === 'inactive' || status === 'draft' || status === 'scheduled'
+    ? 'inactive'
+    : 'active';
+
+// GraphQL returns null for missing attachment fields, which the form schema
+// rejects; keep only the fields the schema accepts.
+const toFormThumbnail = (
+  thumbnail: IPage['thumbnail'],
+): IPageFormData['thumbnail'] =>
+  thumbnail?.url
+    ? {
+        url: thumbnail.url,
+        name: thumbnail.name || '',
+        ...(thumbnail.type ? { type: thumbnail.type } : {}),
+      }
+    : null;
+
 interface CmsConfig {
   clientPortalId: string;
   languages?: string[];
@@ -387,9 +408,9 @@ export function PageDrawer({
         path: page.slug || '',
         description: page.description || '',
         parentId: page.parentId || '',
-        status: page.status || 'active',
+        status: toFormStatus(page.status),
         clientPortalId,
-        thumbnail: page.thumbnail || null,
+        thumbnail: toFormThumbnail(page.thumbnail),
         gallery: (page.pageImages || []).map((i) => i.url).filter(Boolean),
         videoUrl: page.videoUrl || '',
         documents: (page.documents || []).map((d) => d.url).filter(Boolean),

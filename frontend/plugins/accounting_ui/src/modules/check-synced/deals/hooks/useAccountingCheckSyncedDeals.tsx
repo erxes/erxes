@@ -7,17 +7,17 @@ import {
   ACCOUNTING_CHECK_SYNCED_DEALS_QUERY,
   ACCOUNTING_CHECK_SYNCED_MUTATION,
   ACCOUNTING_SYNC_DEALS_MUTATION,
-} from '../graphql/checkSyncedDeals';
+} from '@/check-synced/deals/graphql/checkSyncedDeals';
 import type {
   AccountingCheckSyncedDeal,
   AccountingCheckSyncedStatus,
   AccountingDealsQueryResult,
-} from '../types';
-import type { AccountingCheckSyncedDealsStatusCounts } from '../states';
+} from '@/check-synced/deals/types';
+import type { AccountingCheckSyncedDealsStatusCounts } from '@/check-synced/deals/states';
 import {
   accountingCheckSyncedDealsStatusCountsAtom,
   accountingCheckSyncedDealsTotalCountAtom,
-} from '../states';
+} from '@/check-synced/deals/states';
 import {
   EnumCursorDirection,
   isUndefinedOrNull,
@@ -156,6 +156,7 @@ export const useAccountingCheckSyncedDeals = ({
   const {
     data: queryData,
     loading,
+    error,
     fetchMore,
   } = useQuery(ACCOUNTING_CHECK_SYNCED_DEALS_QUERY, {
     ...options,
@@ -445,6 +446,7 @@ export const useAccountingCheckSyncedDeals = ({
     deals,
     handleFetchMore,
     loading,
+    error,
     pageInfo,
     syncDeals,
     syncSelectedDealIds,

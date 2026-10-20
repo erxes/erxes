@@ -4,6 +4,7 @@ export * from './brands';
 export * from './client-portal';
 export * from './contacts';
 export * from './documents';
+export * from './files';
 export * from './favorites';
 export * from './header';
 export * from './internal-notes';
