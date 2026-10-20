@@ -2,16 +2,17 @@ import {
   ACCOUNTING_CHECK_SYNCED_DEAL_MOVEMENTS_SESSION_KEY,
   ACCOUNTING_CHECK_SYNCED_DEALS_SESSION_KEY,
   useAccountingCheckSyncedDeals,
-} from '../hooks/useAccountingCheckSyncedDeals';
+} from '@/check-synced/deals/hooks/useAccountingCheckSyncedDeals';
 
-import { AccountingCheckSyncedDealsCommandBar } from './AccountingCheckSyncedDealsCommandBar';
+import { AccountingCheckSyncedDealsCommandBar } from '@/check-synced/deals/components/AccountingCheckSyncedDealsCommandBar';
 import { IconShoppingCartX } from '@tabler/icons-react';
 import { RecordTable } from 'erxes-ui';
-import { getAccountingCheckSyncedDealsColumns } from './AccountingCheckSyncedDealsColumns';
+import { AccountingEmptyState } from '@/layout/components/AccountingEmptyState';
+import { getAccountingCheckSyncedDealsColumns } from '@/check-synced/deals/components/AccountingCheckSyncedDealsColumns';
 import { isSyncable } from '~/modules/check-synced/constants/shared';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { AccountingCheckSyncedDealRuleScope } from './AccountingCheckSyncedDealRuleSelect';
+import type { AccountingCheckSyncedDealRuleScope } from '@/check-synced/deals/components/AccountingCheckSyncedDealRuleSelect';
 
 export const AccountingCheckSyncedDealsRecordTable = ({
   ruleScope = 'deal',
@@ -30,6 +31,7 @@ export const AccountingCheckSyncedDealsRecordTable = ({
     deals,
     handleFetchMore,
     loading,
+    error,
     pageInfo,
     setAllDealsToSync,
     setDealToSync,
@@ -55,11 +57,13 @@ export const AccountingCheckSyncedDealsRecordTable = ({
     [setAllDealsToSync, setDealToSync, syncableDealIds, toSyncDealIds, t],
   );
 
+  const isEmpty = !loading && !deals?.length;
+
   return (
     <RecordTable.Provider
       columns={columns}
       data={deals || []}
-      className="m-3"
+      className="relative m-3"
       stickyColumns={['checkbox', 'toSync', 'name']}
       tableId={tableId}
     >
@@ -91,22 +95,16 @@ export const AccountingCheckSyncedDealsRecordTable = ({
             />
           </RecordTable.Body>
         </RecordTable>
-        {!loading && deals?.length === 0 && (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="flex flex-col items-center justify-center text-center">
-              <div className="mb-6">
-                <IconShoppingCartX size={48} className="text-gray-400" />
-              </div>
-              <h3 className="text-lg font-semibold text-gray-900">
-                {t('no-deals')}
-              </h3>
-              <p className="mt-1 text-sm text-gray-500">
-                {t('select-rule-or-adjust-filters-deals')}
-              </p>
-            </div>
-          </div>
-        )}
       </RecordTable.CursorProvider>
+      {isEmpty && (
+        <AccountingEmptyState
+          overlay
+          error={error}
+          icon={IconShoppingCartX}
+          title={t('no-deals')}
+          description={t('select-rule-or-adjust-filters-deals')}
+        />
+      )}
     </RecordTable.Provider>
   );
 };

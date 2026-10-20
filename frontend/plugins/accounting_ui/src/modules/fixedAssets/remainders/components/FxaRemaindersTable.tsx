@@ -9,7 +9,9 @@ import {
   Table,
   TextOverflowTooltip,
 } from 'erxes-ui';
+import { IconBuildingOff } from '@tabler/icons-react';
 import { useBranchesMain, useDepartmentsMain } from 'ui-modules';
+import { AccountingEmptyState } from '@/layout/components/AccountingEmptyState';
 import { useFixedAssetCategories } from '@/settings/fixed-assets/hooks/useFixedAssetCategories';
 import { useFixedAssets } from '@/settings/fixed-assets/hooks/useFixedAssets';
 import {
@@ -17,7 +19,7 @@ import {
   IFixedAssetCategory,
   IFixedAssetLocationRemainder,
 } from '@/settings/fixed-assets/types/FixedAsset';
-import { useFixedAssetRemainders } from '../hooks/useFixedAssetRemainders';
+import { useFixedAssetRemainders } from '@/fixedAssets/remainders/hooks/useFixedAssetRemainders';
 
 type TLabelItem = {
   code?: string;
@@ -169,7 +171,7 @@ const FxaRemaindersSkeleton = ({ rows = 20 }: { rows?: number }) => {
 
 export const FxaRemaindersTable = () => {
   const { t } = useTranslation('accounting');
-  const { fixedAssetRemainders, loading } = useFixedAssetRemainders();
+  const { fixedAssetRemainders, loading, error } = useFixedAssetRemainders();
   const fixedAssetIds = [
     ...new Set(
       fixedAssetRemainders
@@ -277,13 +279,15 @@ export const FxaRemaindersTable = () => {
     loadingBranches ||
     loadingDepartments;
 
+  const isEmpty = !isInitialLoading && !rows.length;
+
   return (
     <RecordTable.Provider
       columns={columns}
       data={isInitialLoading ? [] : rows}
       stickyColumns={['fixedAssetId']}
       tableId="accounting_fxa_remainders_table"
-      className="m-3"
+      className="relative m-3"
     >
       <RecordTable.Scroll>
         <RecordTable>
@@ -291,19 +295,18 @@ export const FxaRemaindersTable = () => {
           <RecordTable.Body>
             <RecordTable.RowList />
             {isInitialLoading && <FxaRemaindersSkeleton rows={20} />}
-            {!isInitialLoading && rows.length === 0 && (
-              <Table.Row>
-                <Table.Cell
-                  colSpan={columns.length}
-                  className="text-center text-muted-foreground"
-                >
-                  {t('no-balance-found')}
-                </Table.Cell>
-              </Table.Row>
-            )}
           </RecordTable.Body>
         </RecordTable>
       </RecordTable.Scroll>
+      {isEmpty && (
+        <AccountingEmptyState
+          overlay
+          error={error}
+          icon={IconBuildingOff}
+          title={t('no-balance-found')}
+          description={t('empty-generated-description')}
+        />
+      )}
     </RecordTable.Provider>
   );
 };
