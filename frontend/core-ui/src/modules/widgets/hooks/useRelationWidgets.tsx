@@ -30,6 +30,7 @@ export const useRelationWidgetsModules = (): IRelationModules[] => {
       icon: module.icon as Icon,
       name: module.name,
       label: module.label,
+      contentTypes: module.contentTypes,
     }));
   });
 

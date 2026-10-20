@@ -11,6 +11,7 @@ import {
   ActivityLogs,
   AddInternalNote,
   FieldsInDetail,
+  RecordActions,
   RelationWidgetSideTabs,
   Slot,
 } from 'ui-modules';
@@ -44,7 +45,15 @@ export const CustomerDetail = () => {
               ? t('lead.detail.lead-detail')
               : t('customer.detail.customer-detail')
           }
-        />
+        >
+          {!!customerDetail?._id && (
+            <RecordActions
+              contentType="core:customer"
+              contentIds={[customerDetail._id]}
+              className="flex flex-1 items-center justify-end gap-2"
+            />
+          )}
+        </FocusSheet.Header>
         <FocusSheet.Content>
           <FocusSheet.SideBar>
             <ContactSidebar />

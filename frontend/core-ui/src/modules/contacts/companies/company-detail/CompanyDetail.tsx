@@ -16,6 +16,7 @@ import {
   ActivityLogs,
   AddInternalNote,
   FieldsInDetail,
+  RecordActions,
   RelationWidgetSideTabs,
 } from 'ui-modules';
 import { useCompanyCustomFieldEdit } from '../hooks/useCompanyCustomFieldEdit';
@@ -36,7 +37,15 @@ export const CompanyDetail = () => {
         errorState={<CompanyDetailErrorState />}
         error={!!error}
       >
-        <FocusSheet.Header title={t('company-details')} />
+        <FocusSheet.Header title={t('company-details')}>
+          {!!companyDetail?._id && (
+            <RecordActions
+              contentType="core:company"
+              contentIds={[companyDetail._id]}
+              className="flex flex-1 items-center justify-end gap-2"
+            />
+          )}
+        </FocusSheet.Header>
         <FocusSheet.Content>
           <FocusSheet.SideBar>
             <ContactSidebar />

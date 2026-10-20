@@ -1,1 +1,1 @@
-export type { SlotProps, Slots } from 'erxes-ui';
+export type { RecordContentType, SlotProps, Slots } from 'erxes-ui';

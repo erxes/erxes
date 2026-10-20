@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-10-19`
+- **Last synchronized:** `2026-10-20`
 
 ## Scope
 
@@ -692,6 +692,10 @@ owns the setup form and connection actions.
 
 ### Provides
 
+- Record actions for `frontline:ticket`: `TicketDetailSheet` header (before
+  `TicketDetailActions`) and `TicketCommandBar` (bulk bar, selected ticket
+  ids) render `RecordActions` from `ui-modules`. Plugins and extensions fill
+  them through `recordActions['frontline:ticket']` in their `CONFIG`.
 - Routes `frontline/forms` (list), `frontline/forms/create` (builder wizard),
   `frontline/forms/:formId` (builder wizard on an existing form),
   `frontline/forms/submissions/:formId` and `frontline/forms/preview`, all

@@ -14,7 +14,7 @@ import {
 } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Can, Export } from 'ui-modules';
+import { Can, Export, RecordActions } from 'ui-modules';
 import { TicketActionsMenu, TicketActionsPanel } from './TicketActions';
 
 /** Ids every selected ticket has in common, so bulk edits start from a shared value. */
@@ -146,6 +146,11 @@ export const TicketCommandBar = () => {
             </Popover>
           </>
         )}
+        <RecordActions
+          contentType="frontline:ticket"
+          contentIds={ticketIds}
+          leading={<Separator.Inline />}
+        />
       </CommandBar.Bar>
     </CommandBar>
   );

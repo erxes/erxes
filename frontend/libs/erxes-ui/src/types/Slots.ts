@@ -6,3 +6,15 @@ export type Slots = {
 };
 
 export type SlotProps<N extends keyof Slots> = Slots[N];
+
+/**
+ * Records a plugin or extension can add to without a slot of its own: side
+ * tabs (`widgets.relationWidgets[].contentTypes`) and actions
+ * (`recordActions`). Each one's detail page and bulk bar render them.
+ */
+export type RecordContentType =
+  | 'core:customer'
+  | 'core:company'
+  | 'sales:deal'
+  | 'frontline:ticket'
+  | 'operation:task';

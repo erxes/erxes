@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { ApolloError } from '@apollo/client';
 import { CommandBar, RecordTable, Separator, toast } from 'erxes-ui';
-import { Can, Export, TagsSelect } from 'ui-modules';
+import { Can, Export, RecordActions, TagsSelect } from 'ui-modules';
 import { CompaniesDelete } from './CompaniesDelete';
 
 export const CompaniesCommandBar = () => {
@@ -86,6 +86,11 @@ export const CompaniesCommandBar = () => {
             <CompaniesDelete companyIds={companyIds} />
           </>
         </Can>
+        <RecordActions
+          contentType="core:company"
+          contentIds={companyIds}
+          leading={<Separator.Inline />}
+        />
       </CommandBar.Bar>
     </CommandBar>
   );
