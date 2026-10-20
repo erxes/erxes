@@ -50,7 +50,7 @@ export const CustomerDetail = () => {
             <RecordActions
               contentType="core:customer"
               contentIds={[customerDetail._id]}
-              className="ml-auto flex items-center gap-2"
+              className="flex flex-1 items-center justify-end gap-2"
             />
           )}
         </FocusSheet.Header>
