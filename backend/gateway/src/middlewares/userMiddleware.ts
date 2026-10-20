@@ -3,6 +3,7 @@ import * as dotenv from 'dotenv';
 import {
   getSubdomain,
   redis,
+  sanitizeHeaders,
   setClientPortalHeader,
   setCPUserHeader,
   setUserHeader,
@@ -69,6 +70,11 @@ export default async function userMiddleware(
   next: NextFunction,
 ) {
   const startedAt = Date.now();
+
+  // Identity headers are forwarded to every subgraph and trusted there. Drop
+  // any copy the client sent before a verified token can set them below.
+  sanitizeHeaders(req.headers);
+
   const url = req.headers['erxes-core-website-url'];
   const erxesCoreToken = req.headers['erxes-core-token'];
 
