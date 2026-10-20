@@ -135,7 +135,7 @@ export const SelectProductsBulk = ({
     <Sheet open={resolvedOpen} onOpenChange={setOpen}>
       {children && <Sheet.Trigger asChild>{children}</Sheet.Trigger>}
       <Sheet.View className="sm:max-w-6xl">
-        <Sheet.Header>
+        <Sheet.Header className="h-auto py-2">
           <div>
             <Sheet.Title>{title}</Sheet.Title>
             {description && (

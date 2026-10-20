@@ -59,6 +59,7 @@
       "options": {
         "jestConfig": "backend/plugins/loyalty_api/jest.config.ts"
       }
-    }
+    },
+    "schema:print": {}
   }
 }

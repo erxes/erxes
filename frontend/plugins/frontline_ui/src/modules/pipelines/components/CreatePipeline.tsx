@@ -54,7 +54,7 @@ const CreatePipelineSheetForm = ({
           toast({ title: t('success', 'Success!') });
           if (response.createPipeline) {
             navigate(
-              `/settings/frontline/channels/${channelId}/pipelines/${response.createPipeline._id}`,
+              `/frontline/settings/channels/${channelId}/pipelines/${response.createPipeline._id}`,
             );
           }
         },

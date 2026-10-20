@@ -1,47 +1,11 @@
-import { useAutomation } from '@/automations/context/AutomationProvider';
-import { useAutomationNodes } from '@/automations/hooks/useAutomationNodes';
+import { useAutomationStatsNodeLabel } from '@/automations/components/builder/stats/hooks/useAutomationStatsNodeLabel';
+import { formatStatsDuration } from '@/automations/components/builder/stats/utils/automationStatsFormat';
 import { TAutomationStatsNode } from '@/automations/types';
 import { Badge, Table, TextOverflowTooltip } from 'erxes-ui';
-import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-
-const formatDuration = (ms?: number) => {
-  if (ms === undefined || ms === null) {
-    return '—';
-  }
-
-  return ms >= 1000 ? `${(ms / 1000).toFixed(1)}s` : `${Math.round(ms)}ms`;
-};
 
 const formatErrorCode = (code: string) =>
   code.toLowerCase().split('_').join(' ');
-
-/** Resolves a stats actionId back to the node label shown on the canvas. */
-const useNodeLabel = () => {
-  const { actions, workflows } = useAutomationNodes();
-  const { actionsConst } = useAutomation();
-
-  return useCallback(
-    ({ actionId, actionType }: TAutomationStatsNode) => {
-      const node =
-        actions.find(({ id }) => id === actionId) ??
-        workflows
-          .flatMap(({ actions: memberActions = [] }) => memberActions)
-          .find(({ id }) => id === actionId);
-
-      const typeLabel = actionsConst.find(
-        ({ type }) => type === (node?.type || actionType),
-      )?.label;
-
-      return {
-        label: node?.label || typeLabel || actionType || actionId,
-        typeLabel: typeLabel || node?.type || actionType,
-        isRemoved: !node,
-      };
-    },
-    [actions, workflows, actionsConst],
-  );
-};
 
 export const AutomationStatsNodes = ({
   nodes,
@@ -49,7 +13,7 @@ export const AutomationStatsNodes = ({
   nodes: TAutomationStatsNode[];
 }) => {
   const { t } = useTranslation('automations');
-  const getNodeLabel = useNodeLabel();
+  const getNodeLabel = useAutomationStatsNodeLabel();
 
   if (!nodes.length) {
     return (
@@ -111,10 +75,10 @@ export const AutomationStatsNodes = ({
                   )}
                 </Table.Cell>
                 <Table.Cell className="px-3 text-right tabular-nums">
-                  {formatDuration(node.avgDurationMs)}
+                  {formatStatsDuration(node.avgDurationMs)}
                 </Table.Cell>
                 <Table.Cell className="px-3 text-right tabular-nums">
-                  {formatDuration(node.maxDurationMs)}
+                  {formatStatsDuration(node.maxDurationMs)}
                 </Table.Cell>
                 <Table.Cell className="px-3">
                   <div className="flex items-center gap-1 overflow-hidden">

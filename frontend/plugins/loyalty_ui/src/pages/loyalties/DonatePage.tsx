@@ -13,7 +13,7 @@ const DonateHeaderActions = () => {
   return (
     <div className="flex items-center gap-2">
       <Button variant="outline" size="sm" asChild>
-        <Link to="/settings/loyalty/config/donate">
+        <Link to="/loyalty/settings/config/donate">
           <IconSettings className="size-4" />
           {t('go-to-settings')}
         </Link>

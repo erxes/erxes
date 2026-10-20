@@ -27,7 +27,7 @@ export const NoStagesWarning = () => {
         {t('create-stage-to-your-board')}
       </p>
       <Button variant="outline" asChild>
-        <Link to={`/settings/sales/deals?${settingsSearchParams.toString()}`}>
+        <Link to={`/sales/settings/deals?${settingsSearchParams.toString()}`}>
           <IconSettings />
           {t('go-to-settings')}
         </Link>

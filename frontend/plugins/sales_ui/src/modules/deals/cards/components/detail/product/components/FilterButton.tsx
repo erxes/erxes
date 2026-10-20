@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { IconCategory, IconTag, IconX } from '@tabler/icons-react';
 import {
   Button,
   Combobox,
@@ -7,6 +7,7 @@ import {
   Popover,
   useFilterContext,
 } from 'erxes-ui';
+import { useMemo } from 'react';
 import {
   SelectBranches,
   SelectCategory,
@@ -14,12 +15,11 @@ import {
   SelectDepartments,
   SelectTags,
 } from 'ui-modules';
-import { IconCategory, IconTag, IconX } from '@tabler/icons-react';
 
 import { ProductFilterState } from '@/deals/actionBar/types/actionBarTypes';
+import { useTranslation } from 'react-i18next';
 import { useProductCategories } from 'ui-modules/modules/products/categories/hooks/useCategories';
 import { useTags } from 'ui-modules/modules/tags/hooks/useTags';
-import { useTranslation } from 'react-i18next';
 
 interface Props {
   filters: ProductFilterState;

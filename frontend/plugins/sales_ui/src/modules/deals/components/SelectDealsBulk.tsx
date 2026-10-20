@@ -78,10 +78,6 @@ const SelectDealsBulkContent = ({
     }
   }, [dealIds]);
 
-  const handleAddDeal = (data: { dealsAdd: { _id: string } }) => {
-    setSelectedDealIds((prev) => [...prev, data.dealsAdd._id]);
-  };
-
   const handleSelect = () => {
     onSelect(
       selectedDeals.map((d) => d._id),
@@ -107,12 +103,6 @@ const SelectDealsBulkContent = ({
         />
       </Sheet.Content>
       <Sheet.Footer className="sm:justify-between">
-        {/* <AddProduct
-          options={{
-            onCompleted: handleAddProduct,
-            refetchQueries: [GET_PRODUCTS],
-          }}
-        /> */}
         <div className="flex items-center gap-2">
           <Sheet.Close asChild>
             <Button variant="secondary" className="bg-border">

@@ -1,1 +1,1 @@
-export { default as DeliveryConfig } from './DeliveryConfig';
+export { DeliveryConfig } from './DeliveryConfig';

@@ -39,7 +39,7 @@ export const FacebookBotPageAccountsStep = ({
 
           <Button variant="ghost" className="text-primary" asChild>
             <Link
-              to="/settings/frontline/channels"
+              to="/frontline/settings/channels"
               target="_blank"
               rel="noreferrer"
             >

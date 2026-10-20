@@ -7,6 +7,7 @@
   "targets": {
     "build": {
       "executor": "@nx/rspack:rspack",
+      "dependsOn": ["^build", "codegen"],
       "outputs": ["{options.outputPath}"],
       "defaultConfiguration": "production",
       "options": {
@@ -27,10 +28,18 @@
           "sourceMap": false,
           "rspackConfig": "frontend/plugins/sales_ui/rspack.config.prod.ts"
         }
-      }
+      },
+      "inputs": [
+        "production",
+        "^production",
+        {
+          "dependentTasksOutputFiles": "**/*.ts"
+        }
+      ]
     },
     "serve": {
       "executor": "@nx/rspack:module-federation-dev-server",
+      "dependsOn": ["codegen"],
       "options": {
         "buildTarget": "sales_ui:build:development",
         "port": 3005
@@ -55,6 +64,36 @@
         "production": {
           "serveTarget": "sales_ui:serve:production"
         }
+      }
+    },
+    "codegen": {
+      "executor": "nx:run-commands",
+      "cache": true,
+      "dependsOn": [
+        {
+          "projects": ["gateway"],
+          "target": "schema:compose"
+        }
+      ],
+      "inputs": [
+        "{projectRoot}/codegen.ts",
+        "{projectRoot}/src/**/*.{ts,tsx}",
+        "!{projectRoot}/src/gql/**",
+        {
+          "dependentTasksOutputFiles": "**/*.graphql"
+        }
+      ],
+      "outputs": ["{projectRoot}/src/gql"],
+      "options": {
+        "cwd": "frontend/plugins/sales_ui",
+        "command": "graphql-codegen --config codegen.ts"
+      }
+    },
+    "codegen:watch": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "frontend/plugins/sales_ui",
+        "command": "graphql-codegen --config codegen.ts --watch"
       }
     }
   }

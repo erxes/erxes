@@ -26,8 +26,3 @@ export interface IPosSummary {
     qpayAmount?: number;
   };
 }
-
-export interface IPosOrdersGroupSummary {
-  list: IPosSummary[];
-  totalCount: number;
-}

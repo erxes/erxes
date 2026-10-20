@@ -1,14 +1,13 @@
-import { Button, Combobox, Form, Input, Separator } from 'erxes-ui';
 import { IconChevronLeft, IconLoader2 } from '@tabler/icons-react';
+import { Button, Combobox, Form, Input, Separator } from 'erxes-ui';
 import { useEffect, useRef } from 'react';
 
 import { useBoardAdd } from '@/deals/boards/hooks/useBoards';
-import { useForm } from 'react-hook-form';
 import { useSelectBoardsContext } from '@/deals/context/DealContext';
-import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-
+import { z } from 'zod';
 
 const formSchema = z.object({
   title: z.string().min(1),
@@ -37,14 +36,10 @@ export const CreateBoardForm = () => {
   const onSubmit = (values: z.infer<typeof formSchema>) => {
     addBoard({
       variables: {
-        ...values,
+        name: values.title,
       },
-      onCompleted({ addBoard }) {
+      onCompleted() {
         setNewBoardName?.('');
-        // onSelect({
-        //   _id: addBoard._id,
-        //   ...values,
-        // });
       },
     });
   };

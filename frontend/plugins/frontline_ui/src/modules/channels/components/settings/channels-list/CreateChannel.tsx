@@ -60,7 +60,7 @@ export const CreateChannel = ({ isIconOnly = false }: Props) => {
         onCompleted: (data) => {
           toast({ title: t('success', 'Success!') });
           if (data.channelAdd) {
-            navigate(`/settings/frontline/channels/${data.channelAdd._id}`);
+            navigate(`/frontline/settings/channels/${data.channelAdd._id}`);
           }
           form.reset();
           setOpen(false);

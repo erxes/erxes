@@ -1,6 +1,5 @@
 import { useQuery } from '@apollo/client';
 import { useSearchParams } from 'react-router-dom';
-import { ICovers } from '@/pos/pos-covers/types/posCover';
 import { POS_COVER_DETAIL_QUERY } from '../graphql/queries/posCoverDetailQuery';
 
 export const usePosCoverDetail = () => {
@@ -8,9 +7,7 @@ export const usePosCoverDetail = () => {
   const coverId = searchParams.get('cover_id');
 
   const { data, loading, error } = useQuery(POS_COVER_DETAIL_QUERY, {
-    variables: {
-      id: coverId,
-    },
+    variables: coverId ? { id: coverId } : undefined,
     skip: !coverId,
   });
 
@@ -19,7 +16,7 @@ export const usePosCoverDetail = () => {
   }
 
   return {
-    cover: data?.posCoverDetail as ICovers,
+    cover: data?.posCoverDetail,
     loading,
     error,
   };

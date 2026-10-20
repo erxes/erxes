@@ -8,35 +8,35 @@ import { AddStageInEBarimtConfig } from '@/ebarimt/settings/stage-in-ebarimt-con
 export const EBarimtTopbar = () => {
   const { pathname } = useLocation();
 
-  if (pathname === '/settings/mongolian/ebarimt/product-rules-on-tax') {
+  if (pathname === '/mongolian/settings/ebarimt/product-rules-on-tax') {
     return (
       <div className="flex items-center gap-3">
         <AddProductRulesOnTax />
       </div>
     );
   }
-  if (pathname === '/settings/mongolian/ebarimt/product-groups') {
+  if (pathname === '/mongolian/settings/ebarimt/product-groups') {
     return (
       <div className="flex items-center gap-3">
         <AddProductGroup />
       </div>
     );
   }
-  if (pathname === '/settings/mongolian/ebarimt/stage-in') {
+  if (pathname === '/mongolian/settings/ebarimt/stage-in') {
     return (
       <div className="flex items-center gap-3">
         <AddStageInEBarimtConfig />
       </div>
     );
   }
-  if (pathname === '/settings/mongolian/ebarimt/pos-in') {
+  if (pathname === '/mongolian/settings/ebarimt/pos-in') {
     return (
       <div className="flex items-center gap-3">
         <AddPosInEBarimtConfig />
       </div>
     );
   }
-  if (pathname === '/settings/mongolian/ebarimt/stage-return') {
+  if (pathname === '/mongolian/settings/ebarimt/stage-return') {
     return (
       <div className="flex items-center gap-3">
         <AddReturnEBarimtConfig />

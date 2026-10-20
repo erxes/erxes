@@ -48,7 +48,7 @@ export const EMSetup = ({
               <div className="bg-background">
                 <Preview.Toolbar
                   path={
-                    '/settings/frontline/channels' +
+                    '/frontline/settings/channels' +
                     FrontlinePaths.ErxesMessengerPreview +
                     '?inPreview=true'
                   }
@@ -57,7 +57,7 @@ export const EMSetup = ({
               <Separator />
               <Preview.View
                 iframeSrc={
-                  '/settings/frontline/channels' +
+                  '/frontline/settings/channels' +
                   FrontlinePaths.ErxesMessengerPreview +
                   '?inPreview=true'
                 }

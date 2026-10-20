@@ -35,7 +35,7 @@ export const ResponseCard = ({ response }: { response: IResponseTemplate }) => {
   const fileCount = files?.length ?? 0;
 
   const openDetails = () => {
-    navigate(`/settings/frontline/channels/${channelId}/response/${_id}`);
+    navigate(`/frontline/settings/channels/${channelId}/response/${_id}`);
   };
 
   return (
@@ -110,7 +110,7 @@ const ResponseCardActions = ({
 
   const handleEdit = () => {
     navigate(
-      `/settings/frontline/channels/${channelId}/response/${responseId}`,
+      `/frontline/settings/channels/${channelId}/response/${responseId}`,
     );
   };
 

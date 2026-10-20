@@ -1,5 +1,6 @@
+import type { DealProductData } from '@/deals/utils/dealJson';
 import { atom } from 'jotai';
-import { IProductData } from 'ui-modules';
+
 import { ProductDataWithDiscountInfos } from './utils/discountInfos';
 
 interface LocalChangeOptions {
@@ -15,9 +16,9 @@ type OnLocalChangeType = (
 export const onLocalChangeAtom = atom<OnLocalChangeType | null>(null);
 
 export interface ProductRowActions {
-  onEdit: (productData: IProductData) => void;
-  onDuplicate: (productData: IProductData) => void;
-  onDelete: (productData: IProductData) => void;
+  onEdit: (productData: DealProductData) => void;
+  onDuplicate: (productData: DealProductData) => void;
+  onDelete: (productData: DealProductData) => void;
 }
 
 export const productRowActionsAtom = atom<ProductRowActions | null>(null);

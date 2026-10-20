@@ -70,4 +70,3 @@ export const ARCHIVED_FIELDS_QUERY = gql`
     }
   }
 `;
-

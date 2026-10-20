@@ -7,6 +7,7 @@ import { ColumnDef } from '@tanstack/table-core';
 import dayjs from 'dayjs';
 import {
   Form,
+  isDefined,
   RecordTable,
   RecordTableInlineCell,
   Sheet,
@@ -206,15 +207,17 @@ export const PosCoversSheet = () => {
                   <div className="rounded-md overflow-hidden relative">
                     <RecordTable.Provider
                       columns={coverItemColumns}
-                      data={(posCovers.details || []).flatMap((d) =>
-                        (d?.paidSummary || []).map((s) => ({
-                          paidType: d.paidType,
-                          kind: s.kind,
-                          kindOfVal: s.kindOfVal,
-                          value: s.value,
-                          amount: s.amount,
-                        })),
-                      )}
+                      data={(posCovers.details || [])
+                        .filter(isDefined)
+                        .flatMap((d) =>
+                          (d.paidSummary || []).filter(isDefined).map((s) => ({
+                            paidType: d.paidType,
+                            kind: s.kind,
+                            kindOfVal: s.kindOfVal,
+                            value: s.value,
+                            amount: s.amount,
+                          })),
+                        )}
                       className="w-full"
                     >
                       <RecordTable>

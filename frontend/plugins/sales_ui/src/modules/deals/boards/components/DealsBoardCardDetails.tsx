@@ -8,7 +8,7 @@ import {
 import { Avatar, Tooltip, cn } from 'erxes-ui';
 
 export interface DealCardProductItem {
-  _id: string;
+  _id?: string | null;
   name: string;
   quantity: number;
   unitPrice: number;
