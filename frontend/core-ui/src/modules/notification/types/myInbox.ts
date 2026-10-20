@@ -44,6 +44,11 @@ export interface UseNotificationListResult {
   inViewRef: (node?: Element | null) => void;
   isEmpty: boolean;
   hasMore: boolean;
+  error: ApolloError | undefined;
+  fetchMoreError: string | null;
+  fetchingMore: boolean;
+  retry: () => Promise<void>;
+  loadMore: () => Promise<void>;
 }
 
 export interface NotificationSelection {

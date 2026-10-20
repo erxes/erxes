@@ -1,7 +1,5 @@
 import { atom } from 'jotai';
 
-export const refetchNewNotificationsState = atom(false);
-
 export const hiddenNotificationIdsState = atom<string[]>([]);
 
 export const selectedNotificationIdsState = atom<string[]>([]);

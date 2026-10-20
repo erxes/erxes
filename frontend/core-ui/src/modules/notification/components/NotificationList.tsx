@@ -8,75 +8,110 @@ import { useNotificationListActions } from '@/notification/hooks/useNotification
 
 export const NotificationList = () => {
   const { t } = useTranslation('common', { keyPrefix: 'notification' });
-  const { notifications, loading, inViewRef, isEmpty, hasMore } =
-    useNotificationList();
   const {
-    selectedIds,
-    focusedId,
-    clear,
-    markingAsRead,
-    markSelectedAsRead,
-    onOpen,
-  } = useNotificationListActions({ notifications, loading });
-
-  if (isEmpty) {
+    notifications,
+    loading,
+    inViewRef,
+    isEmpty,
+    hasMore,
+    error,
+    retry,
+    fetchingMore,
+    fetchMoreError,
+    loadMore,
+  } = useNotificationList();
+  const actions = useNotificationListActions({ notifications, loading });
+  if (loading) return <Spinner />;
+  if (error && !notifications.length)
     return (
-      <div className="h-full w-full flex flex-col gap-4 justify-center items-center text-accent-foreground">
+      <div
+        role="alert"
+        className="flex h-full flex-col items-center justify-center gap-3 p-6 text-center"
+      >
+        <p className="text-sm text-destructive">
+          {t('list-load-failed', 'Unable to load notifications')}
+        </p>
+        <Button variant="secondary" onClick={() => void retry()}>
+          {t('retry', 'Retry')}
+        </Button>
+      </div>
+    );
+  if (isEmpty)
+    return (
+      <div className="h-full flex flex-col gap-4 justify-center items-center text-muted-foreground p-6 text-center">
         <div className="border border-dashed p-6 bg-sidebar rounded-xl">
           <IconInbox />
         </div>
         <span className="text-sm">{t('no-notifications')}</span>
+        <p className="text-xs">
+          {t('empty-filter-hint', 'Try changing your filters.')}
+        </p>
       </div>
     );
-  }
-
   return (
     <div className="relative flex flex-col h-full min-h-0">
       <ScrollArea.Root className="w-full h-full overflow-hidden relative bg-sidebar">
-        {loading ? (
-          <Spinner />
-        ) : (
-          <ScrollArea.Viewport className="[&>div]:block!">
-            <div className="py-3 px-4 flex flex-col gap-2 w-full overflow-hidden">
-              {notifications.map((notification) => (
-                <NotificationItem
-                  key={notification._id}
-                  _id={notification._id}
-                  createdAt={notification.createdAt}
-                  message={notification.message}
-                  isRead={notification.isRead}
-                  contentType={notification.contentType}
-                  priority={notification.priority}
-                  selected={selectedIds.includes(notification._id)}
-                  selectionFocused={focusedId === notification._id}
-                  onOpen={(event) => onOpen(notification._id, event)}
-                />
-              ))}
-              {!loading && hasMore && (
+        <ScrollArea.Viewport className="[&>div]:block!">
+          <div className="py-3 px-3 flex flex-col gap-2 w-full overflow-hidden">
+            {error && (
+              <div role="alert" className="text-xs text-destructive">
+                {t('refresh-failed', 'Unable to refresh notifications')}{' '}
+                <Button variant="ghost" size="sm" onClick={() => void retry()}>
+                  {t('retry', 'Retry')}
+                </Button>
+              </div>
+            )}
+            {notifications.map((item) => (
+              <NotificationItem
+                key={item._id}
+                {...item}
+                selected={actions.selectedIds.includes(item._id)}
+                selectionFocused={actions.focusedId === item._id}
+                onOpen={(event) => actions.onOpen(item._id, event)}
+              />
+            ))}
+            {fetchMoreError ? (
+              <div
+                role="alert"
+                className="p-2 text-center text-xs text-destructive"
+              >
+                {t('load-more-failed', 'Unable to load more notifications')}
+                <Button
+                  variant="ghost"
+                  className="w-full"
+                  onClick={() => void loadMore()}
+                >
+                  {t('retry', 'Retry')}
+                </Button>
+              </div>
+            ) : (
+              hasMore && (
                 <Button
                   variant="ghost"
                   ref={inViewRef}
                   className="h-8 w-full text-muted-foreground"
-                  asChild
+                  disabled={fetchingMore}
+                  onClick={() => void loadMore()}
                 >
-                  <div>
+                  {fetchingMore && (
                     <Spinner containerClassName="inline-flex flex-none" />
-                    {t('loading-more')}
-                  </div>
+                  )}
+                  {fetchingMore
+                    ? t('loading-more')
+                    : t('load-more', 'Load more')}
                 </Button>
-              )}
-            </div>
-          </ScrollArea.Viewport>
-        )}
-
+              )
+            )}
+          </div>
+        </ScrollArea.Viewport>
         <ScrollArea.Bar orientation="vertical" />
       </ScrollArea.Root>
-      {selectedIds.length > 0 && (
+      {actions.selectedIds.length > 0 && (
         <NotificationSelectionToolbar
-          selectedCount={selectedIds.length}
-          markingAsRead={markingAsRead}
-          onMarkAsRead={markSelectedAsRead}
-          onClear={clear}
+          selectedCount={actions.selectedIds.length}
+          markingAsRead={actions.markingAsRead}
+          onMarkAsRead={actions.markSelectedAsRead}
+          onClear={actions.clear}
         />
       )}
     </div>
