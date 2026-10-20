@@ -37,4 +37,32 @@ export const types = `
     remainder: Float
     remainders: [JSON]
   }
+
+  type ErkhetCheckGroup {
+    count: Int!
+    items: [JSON]!
+  }
+
+  type ErkhetCheckCount {
+    count: Int!
+  }
+
+  type ErkhetProductsCheckResult {
+    create: ErkhetCheckGroup!
+    update: ErkhetCheckGroup!
+    delete: ErkhetCheckGroup!
+    matched: ErkhetCheckCount!
+  }
+
+  type ErkhetSyncResult {
+    skipped: [String]!
+    error: [String]!
+    success: [String]!
+  }
+
+  type ErkhetCategoriesCheckResult {
+    create: ErkhetCheckGroup!
+    update: ErkhetCheckGroup!
+    delete: ErkhetCheckGroup!
+  }
 `;
