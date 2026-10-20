@@ -122,11 +122,16 @@ export class DocumentThreadStore extends ThreadStore {
     this.emit();
   }
 
-  private comment(threadId: string, commentId: string): CommentData {
-    const comment = this.getThread(threadId).comments.find(
+  private comment(
+    threadId: string,
+    commentId: string,
+    includeDeleted = false,
+  ): CommentData {
+    const comment = this.getThread(threadId, includeDeleted).comments.find(
       (item) => item.id === commentId,
     );
-    if (!comment) throw new Error('Comment not found');
+    if (!comment || (comment.deletedAt && !includeDeleted))
+      throw new Error('Comment not found');
     return comment;
   }
 
@@ -216,9 +221,9 @@ export class DocumentThreadStore extends ThreadStore {
   }: Parameters<ThreadStore['deleteComment']>[0]): Promise<void> {
     return Promise.resolve().then(() => {
       this.assert(
-        this.auth.canDeleteComment(this.comment(threadId, commentId)),
+        this.auth.canDeleteComment(this.comment(threadId, commentId, true)),
       );
-      const thread = this.getThread(threadId);
+      const thread = this.getThread(threadId, true);
       const now = new Date();
       const comments = thread.comments.map(
         (item): CommentData =>
@@ -238,7 +243,7 @@ export class DocumentThreadStore extends ThreadStore {
 
   deleteThread({ threadId }: { threadId: string }): Promise<void> {
     return Promise.resolve().then(() => {
-      const thread = this.getThread(threadId);
+      const thread = this.getThread(threadId, true);
       this.assert(this.auth.canDeleteThread(thread));
       const now = new Date();
       this.commit({
@@ -356,9 +361,10 @@ export class DocumentThreadStore extends ThreadStore {
     });
   }
 
-  getThread(threadId: string): ThreadData {
+  getThread(threadId: string, includeDeleted = false): ThreadData {
     const thread = this.storedThreads.get(threadId);
-    if (!thread) throw new Error('Comment thread not found');
+    if (!thread || (thread.deletedAt && !includeDeleted))
+      throw new Error('Comment thread not found');
     return thread;
   }
 
