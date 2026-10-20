@@ -264,7 +264,6 @@ export class DocumentThreadStore extends ThreadStore {
         ...thread,
         resolved: true,
         resolvedBy: this.userId,
-        resolvedUpdatedAt: new Date(),
       });
     });
   }
@@ -277,7 +276,6 @@ export class DocumentThreadStore extends ThreadStore {
         ...thread,
         resolved: false,
         resolvedBy: this.userId,
-        resolvedUpdatedAt: new Date(),
       });
     });
   }

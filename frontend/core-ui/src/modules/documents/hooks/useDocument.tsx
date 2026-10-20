@@ -66,11 +66,14 @@ export const useDocument = ({
       const values = getValues();
       const { data: saved } = await saveDocument({
         variables: { ...values, _id: cleanDocumentId || undefined },
-        refetchQueries: [GET_DOCUMENTS, DOCUMENTS_QUERY],
+        refetchQueries: [GET_DOCUMENTS, DOCUMENTS_QUERY, GET_DOCUMENT_DETAIL],
         awaitRefetchQueries: true,
       });
       if (saved?.documentsSave) {
-        reset(values);
+        reset({
+          ...values,
+          commentState: saved.documentsSave.commentState || undefined,
+        });
         setQueries({
           documentId: saved.documentsSave._id,
           contentType: saved.documentsSave.contentType,

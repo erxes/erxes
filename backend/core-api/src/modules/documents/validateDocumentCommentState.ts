@@ -138,21 +138,11 @@ const normalizeThreadResolution = (
   userId: string,
   now: string,
 ): void => {
-  thread.deletedAt = previous?.deletedAt || thread.deletedAt;
-  if (
-    !previous?.deletedAt &&
-    thread.deletedAt &&
-    previous?.comments.some(
-      (comment) => !comment.deletedAt && comment.userId !== userId,
-    )
-  ) {
-    throw new Error('You can only delete your own comments');
-  }
   thread.createdAt = previous?.createdAt || now;
   const staleResolution =
     previous?.resolvedUpdatedAt &&
     (!thread.resolvedUpdatedAt ||
-      Date.parse(thread.resolvedUpdatedAt) <
+      Date.parse(thread.resolvedUpdatedAt) !==
         Date.parse(previous.resolvedUpdatedAt));
   if (staleResolution) thread.resolved = previous.resolved;
   if (!staleResolution && (previous?.resolved ?? false) !== thread.resolved) {
@@ -241,6 +231,11 @@ export const normalizeDocumentCommentState = (
     seenThreads,
     seenComments,
   );
+  for (const thread of state.threads) {
+    thread.deletedAt = thread.comments.every((comment) => comment.deletedAt)
+      ? previousThreads.get(thread.id)?.deletedAt || thread.deletedAt || now
+      : undefined;
+  }
   if (
     state.anchors.some(
       (anchor) => anchor.from >= anchor.to || !seenThreads.has(anchor.threadId),
