@@ -1,9 +1,11 @@
-import { gql, useMutation } from '@apollo/client';
+import { useMutation } from '@apollo/client';
 import { useSetAtom } from 'jotai';
 import { useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
 import { mutations } from '@/msdynamic/graphql';
+import { jsonRecords } from '@/shared/utils/json';
+import type { MsdynamicCheckPricesMutation } from '~/gql/graphql';
 import {
   checkingAtom,
   syncingAtom,
@@ -25,15 +27,12 @@ const GROUP_KEYS: { key: GroupKey; status: PriceStatus }[] = [
   { key: 'delete', status: 'DELETE' },
   { key: 'error', status: 'ERROR' },
 ];
-const CHECK_MSD_PRICES = gql(mutations.toCheckPrices);
-const SYNC_MSD_PRICES = gql(mutations.toSyncPrices);
+const CHECK_MSD_PRICES = mutations.toCheckPrices;
+const SYNC_MSD_PRICES = mutations.toSyncPrices;
 
-type CheckPricesData = {
-  toCheckMsdPrices?: ICheckPriceResponse;
-};
-type CheckPricesVariables = { brandId: string };
-type SyncPricesData = { toSyncMsdPrices?: { status: string } };
-type SyncPricesVariables = { prices: IPriceItem[]; brandId: string;};
+type CheckPricesResult = NonNullable<
+  MsdynamicCheckPricesMutation['toCheckMsdPrices']
+>;
 
 type Props = {
   brandId: string;
@@ -47,6 +46,16 @@ const normalizePriceItem = (
   ...item,
   status,
   isSynced: item.syncStatus === true,
+});
+
+const toCheckPriceResponse = (
+  result: CheckPricesResult,
+): ICheckPriceResponse => ({
+  update: { items: jsonRecords<IPriceItem>(result.update.items) },
+  match: { items: jsonRecords<IPriceItem>(result.match.items) },
+  create: { items: jsonRecords<IPriceItem>(result.create.items) },
+  delete: { items: jsonRecords<IPriceItem>(result.delete.items) },
+  error: { items: jsonRecords<IPriceItem>(result.error.items) },
 });
 
 const normalizePricesResponse = (response: ICheckPriceResponse): IPriceItem[] =>
@@ -64,25 +73,22 @@ export const useCheckPriceActions = ({ brandId, syncableItems }: Props) => {
   const { t } = useTranslation('mongolian');
   const { toast } = useToast();
 
-  const [checkMsdPrices] = useMutation<CheckPricesData, CheckPricesVariables>(
-    CHECK_MSD_PRICES,
-  );
-  const [syncMsdPrices] = useMutation<SyncPricesData, SyncPricesVariables>(
-    SYNC_MSD_PRICES,
-  );
+  const [checkMsdPrices] = useMutation(CHECK_MSD_PRICES);
+  const [syncMsdPrices] = useMutation(SYNC_MSD_PRICES);
 
   const checkPrice = async () => {
     try {
       setChecking(true);
       const response = await checkMsdPrices({ variables: { brandId } });
-      const data = response.data?.toCheckMsdPrices;
+      const result = response.data?.toCheckMsdPrices;
 
-      if (!data) {
+      if (!result) {
         setPriceItems([]);
         setCheckResponseData(null);
         return;
       }
 
+      const data = toCheckPriceResponse(result);
       setCheckResponseData(data);
 
       const allItems = normalizePricesResponse(data);
@@ -109,10 +115,13 @@ export const useCheckPriceActions = ({ brandId, syncableItems }: Props) => {
     try {
       setSyncing(true);
 
-      await syncMsdPrices({ variables: { prices: itemsToSync, brandId, } });
+      await syncMsdPrices({ variables: { prices: itemsToSync, brandId } });
 
       const refreshed = await checkMsdPrices({ variables: { brandId } });
-      const refreshedData = refreshed.data?.toCheckMsdPrices;
+      const refreshedResult = refreshed.data?.toCheckMsdPrices;
+      const refreshedData = refreshedResult
+        ? toCheckPriceResponse(refreshedResult)
+        : null;
       const nextItems = refreshedData
         ? normalizePricesResponse(refreshedData)
         : [];

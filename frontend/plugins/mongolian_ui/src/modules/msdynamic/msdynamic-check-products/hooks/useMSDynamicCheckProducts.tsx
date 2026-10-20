@@ -1,4 +1,4 @@
-import { gql, useQuery } from '@apollo/client';
+import { useQuery } from '@apollo/client';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useEffect, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -11,10 +11,11 @@ import {
   syncingAtom,
 } from '../states/msDynamicCheckProductsStates';
 import { useMSDynamicConfigs } from '../../hooks/useMSDynamicConfigs';
-import { MSDynamicBrand } from '../types/msDynamicCheckProduct';
+import { compactList } from '@/shared/utils/cursorList';
 import { useMSDynamicCheckProductsActions } from './useMSDynamicCheckProductsActions';
+import { gql } from '~/gql';
 
-const BRANDS_QUERY = gql`
+const BRANDS_QUERY = gql(`
   query msdynamicCheckProductBrands {
     brands {
       list {
@@ -23,11 +24,7 @@ const BRANDS_QUERY = gql`
       }
     }
   }
-`;
-
-type BrandsQueryData = {
-  brands?: { list: MSDynamicBrand[] };
-};
+`);
 
 /** Check products hook managing brand, filter and product state */
 export const useMSDynamicCheckProducts = () => {
@@ -52,11 +49,10 @@ export const useMSDynamicCheckProducts = () => {
     setProductsData(null);
   }, [brandId, setProducts, setProductsData]);
 
-  const { data: brandsData, loading: brandsLoading } =
-    useQuery<BrandsQueryData>(BRANDS_QUERY);
+  const { data: brandsData, loading: brandsLoading } = useQuery(BRANDS_QUERY);
   const { configsMap, loading: configsLoading } = useMSDynamicConfigs();
 
-  const brands = brandsData?.brands?.list || [];
+  const brands = compactList(brandsData?.brands?.list);
   const selectedBrand = brands.find(
     (brand) => brand._id === queryParams.brandId,
   );

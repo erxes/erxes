@@ -1,39 +1,44 @@
-import { gql, useMutation, useQuery } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
 import { useState } from 'react';
 
-import { mutations, queries } from '../graphql';
-import { IConfigsMap, IMnConfig, IMSDynamicConfigMap } from '../types/types';
-
-type ConfigsQueryResponse = {
-  mnConfigs: IMnConfig[];
-};
-
-type ConfigsQueryVariables = {
-  code: string;
-};
+import { compactList } from '@/shared/utils/cursorList';
+import { jsonRecord } from '@/shared/utils/json';
+import {
+  CREATE_MN_CONFIG,
+  GET_MN_CONFIGS,
+  REMOVE_MN_CONFIG,
+  UPDATE_MN_CONFIG,
+} from '@/shared/graphql/mnConfigs';
+import { createEmptyMSDynamicConfig } from '../types';
+import {
+  IConfigsMap,
+  IMnConfig,
+  IMSDynamicConfig,
+  IMSDynamicConfigMap,
+} from '../types/types';
 
 /** MS Dynamic configs hook for crud and save */
 export const useMSDynamicConfigs = () => {
   const [saveLoading, setSaveLoading] = useState(false);
 
-  const { data, loading, refetch } = useQuery<
-    ConfigsQueryResponse,
-    ConfigsQueryVariables
-  >(gql(queries.configs), {
+  const { data, loading, refetch } = useQuery(GET_MN_CONFIGS, {
     variables: { code: 'DYNAMIC' },
     fetchPolicy: 'network-only',
   });
 
-  const [createConfig] = useMutation(gql(mutations.createConfig));
-  const [updateConfig] = useMutation(gql(mutations.updateConfig));
-  const [removeConfig] = useMutation(gql(mutations.removeConfig));
+  const [createConfig] = useMutation(CREATE_MN_CONFIG);
+  const [updateConfig] = useMutation(UPDATE_MN_CONFIG);
+  const [removeConfig] = useMutation(REMOVE_MN_CONFIG);
 
-  const configDocs: IMnConfig[] = data?.mnConfigs || [];
+  const configDocs = compactList(data?.mnConfigs);
 
   const configsMap: IConfigsMap = {
     DYNAMIC: configDocs.reduce((acc, doc) => {
       if (doc.subId) {
-        acc[doc.subId] = doc.value;
+        acc[doc.subId] = {
+          ...createEmptyMSDynamicConfig(),
+          ...jsonRecord<Partial<IMSDynamicConfig>>(doc.value),
+        };
       }
       return acc;
     }, {} as IMSDynamicConfigMap),
@@ -44,15 +49,12 @@ export const useMSDynamicConfigs = () => {
     try {
       const nextEntries = nextConfigsMap.DYNAMIC || {};
 
-      const currentById = configDocs.reduce(
-        (acc, doc) => {
-          if (doc.subId) {
-            acc[doc.subId] = doc;
-          }
-          return acc;
-        },
-        {} as Record<string, IMnConfig>,
-      );
+      const currentById = configDocs.reduce((acc, doc) => {
+        if (doc.subId) {
+          acc[doc.subId] = doc;
+        }
+        return acc;
+      }, {} as Record<string, IMnConfig>);
 
       const removes: Array<Promise<unknown>> = [];
       const creates: Array<Promise<unknown>> = [];

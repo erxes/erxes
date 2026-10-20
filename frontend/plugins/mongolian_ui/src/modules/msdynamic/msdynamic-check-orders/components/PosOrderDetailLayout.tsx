@@ -1,7 +1,8 @@
 import type { ReactNode } from 'react';
 
 /** Amount comma-tai bolgono. */
-export const formatAmount = (value?: number) => (value || 0).toLocaleString();
+export const formatAmount = (value?: number | null) =>
+  (value || 0).toLocaleString();
 
 /** Empty value deer dash haruulna. */
 const formatValue = (value?: ReactNode) => value || '-';

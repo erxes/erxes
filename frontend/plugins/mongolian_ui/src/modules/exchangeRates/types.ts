@@ -1,28 +1,7 @@
-export interface IExchangeRate {
-  _id?: string;
-  date: Date;
-  mainCurrency: string;
-  rateCurrency: string;
-  rate: number;
-  createdAt: Date;
-  modifiedAt: Date;
-}
+import type { ExchangeRatesMainQuery } from '~/gql/graphql';
 
-export type MainQueryResponse = {
-  exchangeRatesMain: {
-    list: IExchangeRate[];
-    totalCount: number;
-    pageInfo: {
-      hasNextPage: boolean;
-      hasPreviousPage: boolean;
-      startCursor: string | null;
-      endCursor: string | null;
-    };
-  };
-};
-
-export type CurrencyConfigResponse = {
-  dealCurrencies: { value?: string | string[] } | null;
-
-  mainCurrencyConfig: { value?: string | string[] } | null;
-};
+export type IExchangeRate = NonNullable<
+  NonNullable<
+    NonNullable<ExchangeRatesMainQuery['exchangeRatesMain']>['list']
+  >[number]
+>;

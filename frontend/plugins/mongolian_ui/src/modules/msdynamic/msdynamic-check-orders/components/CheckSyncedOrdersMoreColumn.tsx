@@ -73,6 +73,10 @@ export const CheckSyncedOrdersMoreColumnCell = ({
   const [, setOrderDetailId] = useQueryState<string>(ORDER_DETAIL_ID_KEY);
   const order = cell.row.original;
 
+  if (!order._id) {
+    return null;
+  }
+
   return (
     <>
       <CheckSyncedOrdersMoreContent

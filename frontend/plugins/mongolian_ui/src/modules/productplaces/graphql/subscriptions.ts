@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const PRODUCT_PLACES_RESPONDED = gql`
+export const PRODUCT_PLACES_RESPONDED = gql(`
   subscription productPlacesResponded($userId: String, $sessionCode: String) {
     productPlacesResponded(userId: $userId, sessionCode: $sessionCode) {
       userId
@@ -9,6 +9,6 @@ export const PRODUCT_PLACES_RESPONDED = gql`
       content
     }
   }
-`;
+`);
 
 export default { PRODUCT_PLACES_RESPONDED };

@@ -1,7 +1,8 @@
-import { gql, useMutation } from '@apollo/client';
+import { useMutation } from '@apollo/client';
 import { useAtom, useSetAtom } from 'jotai';
 import { useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import { jsonRecords } from '@/shared/utils/json';
 import { mutations } from '../../graphql';
 import {
   customerItemsAtom,
@@ -9,15 +10,15 @@ import {
   customerCheckingAtom,
   customerSyncingAtom,
 } from '../states/checkCustomerStates';
-import { ICustomerItem, CustomerStatus } from '../types/checkCustomer';
+import {
+  ICheckCustomerResponse,
+  ICustomerItem,
+  CustomerStatus,
+} from '../types/checkCustomer';
 
-interface ICheckResponse {
-  toCheckMsdCustomers: {
-    update: { items: ICustomerItem[] };
-    create: { items: ICustomerItem[] };
-    delete: { items: ICustomerItem[] };
-  };
-}
+const toCustomerGroup = (group: { items: readonly unknown[] }) => ({
+  items: jsonRecords<ICustomerItem>(group.items),
+});
 
 export const useCheckCustomerActions = (brandId: string) => {
   const [checking, setChecking] = useAtom(customerCheckingAtom);
@@ -27,15 +28,11 @@ export const useCheckCustomerActions = (brandId: string) => {
   const { t } = useTranslation('mongolian');
   const { toast } = useToast();
 
-  const [toCheckMsdCustomers] = useMutation<ICheckResponse>(
-    gql(mutations.toCheckCustomers),
-  );
+  const [toCheckMsdCustomers] = useMutation(mutations.toCheckCustomers);
 
-  const [toSyncMsdCustomers] = useMutation(gql(mutations.toSyncCustomers));
+  const [toSyncMsdCustomers] = useMutation(mutations.toSyncCustomers);
 
-  const flattenItems = (
-    response: ICheckResponse['toCheckMsdCustomers'],
-  ): ICustomerItem[] => {
+  const flattenItems = (response: ICheckCustomerResponse): ICustomerItem[] => {
     const all: ICustomerItem[] = [];
     const groups: { key: CustomerStatus; items: ICustomerItem[] }[] = [
       { key: 'UPDATE', items: response.update.items },
@@ -64,8 +61,14 @@ export const useCheckCustomerActions = (brandId: string) => {
       const data = response.data?.toCheckMsdCustomers;
       if (!data) return;
 
-      setResponse(data);
-      setItems(flattenItems(data));
+      const checked: ICheckCustomerResponse = {
+        update: toCustomerGroup(data.update),
+        create: toCustomerGroup(data.create),
+        delete: toCustomerGroup(data.delete),
+      };
+
+      setResponse(checked);
+      setItems(flattenItems(checked));
 
       toast({
         title: t('customers-checked-successfully'),

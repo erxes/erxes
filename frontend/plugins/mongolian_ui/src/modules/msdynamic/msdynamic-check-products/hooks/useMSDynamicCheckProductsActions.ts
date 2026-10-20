@@ -1,9 +1,11 @@
-import { gql, useMutation } from '@apollo/client';
+import { useMutation } from '@apollo/client';
 import { useSetAtom } from 'jotai';
 import { useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
 import { mutations } from '@/msdynamic/graphql';
+import { jsonRecords } from '@/shared/utils/json';
+import type { MsdynamicCheckProductsMutation } from '~/gql/graphql';
 
 import {
   checkingAtom,
@@ -19,27 +21,9 @@ import {
   MSDynamicCheckProductStatus,
 } from '../types/msDynamicCheckProduct';
 
-const CHECK_MSD_PRODUCTS = gql(mutations.toCheckProducts);
-const SYNC_MSD_PRODUCTS = gql(mutations.toSyncProducts);
+const CHECK_MSD_PRODUCTS = mutations.toCheckProducts;
+const SYNC_MSD_PRODUCTS = mutations.toSyncProducts;
 const productStatuses = ['create', 'update', 'delete'] as const;
-
-type CheckMsdProductsData = {
-  toCheckMsdProducts?: MSDynamicCheckProductsResponse;
-};
-
-type CheckMsdProductsVariables = {
-  brandId: string;
-};
-
-type SyncMsdProductsData = {
-  toSyncMsdProducts?: unknown;
-};
-
-type SyncMsdProductsVariables = {
-  brandId: string;
-  action: string;
-  products: MSDynamicCheckProduct[];
-};
 
 type UseMSDynamicCheckProductsActionsProps = {
   brandId: string;
@@ -82,6 +66,21 @@ const normalizeProduct = (
 };
 
 /** Flatten grouped response into product list */
+const toCheckProductsResponse = (
+  result: NonNullable<MsdynamicCheckProductsMutation['toCheckMsdProducts']>,
+): MSDynamicCheckProductsResponse => ({
+  create: {
+    items: jsonRecords<MSDynamicCheckProductSource>(result.create.items),
+  },
+  update: {
+    items: jsonRecords<MSDynamicCheckProductSource>(result.update.items),
+  },
+  delete: {
+    items: jsonRecords<MSDynamicCheckProductSource>(result.delete.items),
+  },
+  matched: result.matched,
+});
+
 const normalizeProductsResponse = (response: MSDynamicCheckProductsResponse) =>
   productStatuses.flatMap((status) =>
     (response[status]?.items || []).map((product) =>
@@ -103,14 +102,8 @@ export const useMSDynamicCheckProductsActions = ({
   const { t } = useTranslation('mongolian');
   const { toast } = useToast();
 
-  const [checkMsdProducts] = useMutation<
-    CheckMsdProductsData,
-    CheckMsdProductsVariables
-  >(CHECK_MSD_PRODUCTS);
-  const [syncMsdProducts] = useMutation<
-    SyncMsdProductsData,
-    SyncMsdProductsVariables
-  >(SYNC_MSD_PRODUCTS);
+  const [checkMsdProducts] = useMutation(CHECK_MSD_PRODUCTS);
+  const [syncMsdProducts] = useMutation(SYNC_MSD_PRODUCTS);
 
   /** Check products from MS Dynamic and update atoms */
   const checkProducts = async () => {
@@ -127,14 +120,15 @@ export const useMSDynamicCheckProductsActions = ({
       setChecking(true);
 
       const response = await checkMsdProducts({ variables: { brandId } });
-      const responseData = response.data?.toCheckMsdProducts;
+      const result = response.data?.toCheckMsdProducts;
 
-      if (!responseData) {
+      if (!result) {
         setProducts([]);
         setProductsData(null);
         return;
       }
 
+      const responseData = toCheckProductsResponse(result);
       const normalizedProducts = normalizeProductsResponse(responseData);
       setProducts(normalizedProducts);
       setProductsData(responseData);
@@ -190,7 +184,10 @@ export const useMSDynamicCheckProductsActions = ({
       const refreshed = await checkMsdProducts({
         variables: { brandId },
       });
-      const refreshedData = refreshed.data?.toCheckMsdProducts;
+      const refreshedResult = refreshed.data?.toCheckMsdProducts;
+      const refreshedData = refreshedResult
+        ? toCheckProductsResponse(refreshedResult)
+        : null;
       const nextProducts = refreshedData
         ? normalizeProductsResponse(refreshedData)
         : [];

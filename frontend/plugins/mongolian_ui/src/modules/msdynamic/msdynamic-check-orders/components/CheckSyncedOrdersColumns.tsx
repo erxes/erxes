@@ -124,7 +124,9 @@ export const getCheckSyncedOrdersColumns = ({
       <RecordTable.InlineHead icon={IconLabel} label={t('synced-date')} />
     ),
     cell: ({ row }) => {
-      const syncedInfo = syncedOrderInfos[row.original._id];
+      const syncedInfo = row.original._id
+        ? syncedOrderInfos[row.original._id]
+        : undefined;
       return (
         <RecordTableInlineCell>
           <TextOverflowTooltip
@@ -147,7 +149,9 @@ export const getCheckSyncedOrdersColumns = ({
       />
     ),
     cell: ({ row }) => {
-      const syncedInfo = syncedOrderInfos[row.original._id];
+      const syncedInfo = row.original._id
+        ? syncedOrderInfos[row.original._id]
+        : undefined;
       return (
         <RecordTableInlineCell>
           <TextOverflowTooltip value={syncedInfo?.syncedBillNumber || ''} />
@@ -161,7 +165,9 @@ export const getCheckSyncedOrdersColumns = ({
       <RecordTable.InlineHead icon={IconLabel} label={t('synced-customer')} />
     ),
     cell: ({ row }) => {
-      const syncedInfo = syncedOrderInfos[row.original._id];
+      const syncedInfo = row.original._id
+        ? syncedOrderInfos[row.original._id]
+        : undefined;
       return (
         <RecordTableInlineCell>
           <TextOverflowTooltip value={syncedInfo?.syncedCustomer || ''} />

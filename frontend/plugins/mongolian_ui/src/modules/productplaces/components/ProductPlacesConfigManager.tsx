@@ -31,12 +31,8 @@ import {
 } from 'ui-modules';
 import { useTranslation } from 'react-i18next';
 
-import {
-  MN_CONFIGS_CREATE,
-  MN_CONFIGS_REMOVE,
-  MN_CONFIGS_UPDATE,
-} from '../graphql/clientMutations';
-import { MN_CONFIGS } from '../graphql/clientQueries';
+import type { MongolianMnConfigsQuery } from '~/gql/graphql';
+import { compactList } from '@/shared/utils/cursorList';
 import { ConfigValueItem, Condition, PlaceConditionUI } from '../types';
 import {
   keyValueArrayToObject,
@@ -44,6 +40,12 @@ import {
 } from '../utils/transformers';
 import PerConditions from './PerConditions';
 import PerPrintConditions from './PerPrintConditions';
+import {
+  CREATE_MN_CONFIG,
+  GET_MN_CONFIGS,
+  REMOVE_MN_CONFIG,
+  UPDATE_MN_CONFIG,
+} from '@/shared/graphql/mnConfigs';
 
 type ProductPlacesConfigCode =
   | 'dealsProductsDataPlaces'
@@ -51,12 +53,9 @@ type ProductPlacesConfigCode =
   | 'dealsProductsDataPrint'
   | 'dealsProductsDefaultFilter';
 
-type RawConfig = {
-  _id: string;
-  code: ProductPlacesConfigCode;
-  subId?: string;
-  value?: unknown;
-};
+type RawConfig = NonNullable<
+  NonNullable<MongolianMnConfigsQuery['mnConfigs']>[number]
+>;
 
 type DefaultFilterItem = {
   id: string;
@@ -67,7 +66,7 @@ type DefaultFilterItem = {
 
 type ProductPlacesConfigForm = {
   _id?: string;
-  subId?: string;
+  subId?: string | null;
   userId: string;
   title: string;
   boardId: string;
@@ -151,8 +150,8 @@ const normalizeFilters = (value: unknown): DefaultFilterItem[] => {
       segmentIds: toStringArray(record.segmentIds).length
         ? toStringArray(record.segmentIds)
         : legacySegmentId
-          ? [legacySegmentId]
-          : [],
+        ? [legacySegmentId]
+        : [],
       userId:
         typeof record.userId === 'string'
           ? record.userId
@@ -161,7 +160,10 @@ const normalizeFilters = (value: unknown): DefaultFilterItem[] => {
   });
 };
 
-const normalizeConfig = (config: RawConfig): ProductPlacesConfigRow => {
+const normalizeConfig = (
+  config: RawConfig,
+  code: ProductPlacesConfigCode,
+): ProductPlacesConfigRow => {
   const value = normalizeValue(config.value);
   const legacyFilters = normalizeFilters(config.value);
   const firstLegacyFilter = legacyFilters[0];
@@ -179,7 +181,7 @@ const normalizeConfig = (config: RawConfig): ProductPlacesConfigRow => {
   return {
     ...defaultForm(),
     _id: config._id,
-    code: config.code,
+    code,
     subId: config.subId,
     userId:
       typeof value.userId === 'string'
@@ -606,21 +608,21 @@ export const ProductPlacesConfigManager = ({
   const [form, setForm] = useState<ProductPlacesConfigForm>(defaultForm());
   const [saving, setSaving] = useState(false);
 
-  const { data, loading, refetch } = useQuery<{ mnConfigs: RawConfig[] }>(
-    MN_CONFIGS,
-    {
-      variables: { code },
-      fetchPolicy: 'network-only',
-    },
-  );
+  const { data, loading, refetch } = useQuery(GET_MN_CONFIGS, {
+    variables: { code },
+    fetchPolicy: 'network-only',
+  });
 
-  const [createConfig] = useMutation(MN_CONFIGS_CREATE);
-  const [updateConfig] = useMutation(MN_CONFIGS_UPDATE);
-  const [removeConfig] = useMutation(MN_CONFIGS_REMOVE);
+  const [createConfig] = useMutation(CREATE_MN_CONFIG);
+  const [updateConfig] = useMutation(UPDATE_MN_CONFIG);
+  const [removeConfig] = useMutation(REMOVE_MN_CONFIG);
 
   const rows = useMemo(
-    () => (data?.mnConfigs || []).map(normalizeConfig),
-    [data?.mnConfigs],
+    () =>
+      compactList(data?.mnConfigs).map((config) =>
+        normalizeConfig(config, code),
+      ),
+    [data?.mnConfigs, code],
   );
 
   const handleNew = () => {
@@ -638,7 +640,7 @@ export const ProductPlacesConfigManager = ({
       message: t('delete-this-config-confirm'),
       options: { okLabel: t('delete'), cancelLabel: t('cancel') },
     }).then(async () => {
-      await removeConfig({ variables: { _id: row._id } });
+      await removeConfig({ variables: { id: row._id } });
       await refetch();
     });
   };
@@ -654,7 +656,7 @@ export const ProductPlacesConfigManager = ({
 
       if (form._id) {
         await updateConfig({
-          variables: { _id: form._id, subId, value },
+          variables: { id: form._id, subId, value },
         });
       } else {
         await createConfig({

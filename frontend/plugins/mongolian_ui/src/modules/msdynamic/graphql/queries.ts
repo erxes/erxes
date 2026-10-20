@@ -1,113 +1,43 @@
-const commonHistoryParams = `
-  $page: Int,
-  $perPage: Int,
-  $sortField: String,
-  $sortDirection: Int,
-  $userId: String,
-  $startDate: Date,
-  $endDate: Date,
-  $contentType: String,
-  $contentId: String,
-  $searchConsume: String,
-  $searchSend: String,
-  $searchResponse: String,
-  $searchError: String,
-  $limit: Int,
-  $cursor: String,
-  $direction: CURSOR_DIRECTION,
-  $orderBy: JSON,
-`;
+import { gql } from '~/gql';
 
-const commonHistoryParamDefs = `
-  page: $page,
-  perPage: $perPage,
-  sortField: $sortField,
-  sortDirection: $sortDirection,
-  userId: $userId,
-  startDate: $startDate,
-  endDate: $endDate,
-  contentType: $contentType,
-  contentId: $contentId,
-  searchConsume: $searchConsume,
-  searchSend: $searchSend,
-  searchResponse: $searchResponse,
-  searchError: $searchError,
-  limit: $limit,
-  cursor: $cursor,
-  direction: $direction,
-  orderBy: $orderBy,
-`;
-
-const commonOrderParams = `
-  $page: Int,
-  $perPage: Int,
-  $sortField: String,
-  $sortDirection: Int,
-  $posToken: String,
-  $search: String,
-  $posId: String,
-  $userId: String,
-  $paidStartDate: Date,
-  $paidEndDate: Date,
-  $createdStartDate: Date,
-  $createdEndDate: Date,
-  $brandId: String,
-`;
-
-const commonOrderParamDefs = `
-  page: $page,
-  perPage: $perPage,
-  sortField: $sortField,
-  sortDirection: $sortDirection,
-  posToken: $posToken,
-  search: $search,
-  posId: $posId,
-  userId: $userId,
-  createdStartDate: $createdStartDate,
-  createdEndDate: $createdEndDate,
-  paidStartDate: $paidStartDate,
-  paidEndDate: $paidEndDate,
-  brandId: $brandId
-`;
-
-const cursorOrderParams = `
-  $limit: Int,
-  $cursor: String,
-  $direction: CURSOR_DIRECTION,
-  $orderBy: JSON,
-  $search: String,
-  $posToken: String,
-  $posId: String,
-  $userId: String,
-  $paidStartDate: Date,
-  $paidEndDate: Date,
-  $createdStartDate: Date,
-  $createdEndDate: Date,
-  $brandId: String,
-`;
-
-const cursorOrderParamDefs = `
-  limit: $limit,
-  cursor: $cursor,
-  direction: $direction,
-  orderBy: $orderBy,
-  search: $search,
-  posToken: $posToken,
-  posId: $posId,
-  userId: $userId,
-  createdStartDate: $createdStartDate,
-  createdEndDate: $createdEndDate,
-  paidStartDate: $paidStartDate,
-  paidEndDate: $paidEndDate,
-  brandId: $brandId
-`;
-
-const syncMsdHistories = `
-  query syncMsdHistories(
-    ${commonHistoryParams}
+const syncMsdHistories = gql(`
+  query msdynamicSyncHistories(
+    $page: Int
+    $perPage: Int
+    $sortField: String
+    $sortDirection: Int
+    $userId: String
+    $startDate: Date
+    $endDate: Date
+    $contentType: String
+    $contentId: String
+    $searchConsume: String
+    $searchSend: String
+    $searchResponse: String
+    $searchError: String
+    $limit: Int
+    $cursor: String
+    $direction: CURSOR_DIRECTION
+    $orderBy: JSON
   ) {
-    syncMsdHistories (
-      ${commonHistoryParamDefs}
+    syncMsdHistories(
+      page: $page
+      perPage: $perPage
+      sortField: $sortField
+      sortDirection: $sortDirection
+      userId: $userId
+      startDate: $startDate
+      endDate: $endDate
+      contentType: $contentType
+      contentId: $contentId
+      searchConsume: $searchConsume
+      searchSend: $searchSend
+      searchResponse: $searchResponse
+      searchError: $searchError
+      limit: $limit
+      cursor: $cursor
+      direction: $direction
+      orderBy: $orderBy
     ) {
       list {
         _id
@@ -137,72 +67,38 @@ const syncMsdHistories = `
       totalCount
     }
   }
-`;
+`);
 
-const syncMsdHistoriesCount = `
-  query syncMsdHistoriesCount(
-    ${commonHistoryParams}
+const posOrdersList = gql(`
+  query msdynamicPosOrdersList(
+    $limit: Int
+    $cursor: String
+    $direction: CURSOR_DIRECTION
+    $orderBy: JSON
+    $search: String
+    $posToken: String
+    $posId: String
+    $userId: String
+    $paidStartDate: Date
+    $paidEndDate: Date
+    $createdStartDate: Date
+    $createdEndDate: Date
+    $brandId: String
   ) {
-    syncMsdHistoriesCount (
-      ${commonHistoryParamDefs}
-    )
-  }
-`;
-
-const dynamicConfigs = `
-  query msdynamicConfigs {
-    msdynamicConfigs {
-      _id
-      endPoint
-      username
-      password
-    }
-  }
-`;
-
-const configs = `
-  query mnConfigs($code: String!) {
-    mnConfigs(code: $code) {
-      _id
-      code
-      subId
-      value
-    }
-  }
-`;
-
-const checkSyncOrders = `
-  query PosOrders(
-    ${commonOrderParams}
-  ) {
-    posOrders (
-      ${commonOrderParamDefs}
-    ) {
-      _id
-      number
-      createdAt
-      paidDate
-      totalAmount
-    }
-  }
-`;
-
-const checkSyncOrdersTotalCount = `
-  query ordersTotalCount (
-    ${commonOrderParams}
-  ) {
-    posOrdersTotalCount (
-      ${commonOrderParamDefs}
-    )
-  }
-`;
-
-const posOrdersList = `
-  query MsdynamicPosOrdersList(
-    ${cursorOrderParams}
-  ) {
-    posOrdersList (
-      ${cursorOrderParamDefs}
+    posOrdersList(
+      limit: $limit
+      cursor: $cursor
+      direction: $direction
+      orderBy: $orderBy
+      search: $search
+      posToken: $posToken
+      posId: $posId
+      userId: $userId
+      createdStartDate: $createdStartDate
+      createdEndDate: $createdEndDate
+      paidStartDate: $paidStartDate
+      paidEndDate: $paidEndDate
+      brandId: $brandId
     ) {
       list {
         _id
@@ -220,10 +116,10 @@ const posOrdersList = `
       }
     }
   }
-`;
+`);
 
-const posOrderDetail = `
-  query posOrderDetail($_id: String) {
+const posOrderDetail = gql(`
+  query msdynamicPosOrderDetail($_id: String) {
     posOrderDetail(_id: $_id) {
       _id
       createdAt
@@ -247,9 +143,7 @@ const posOrderDetail = `
       userId
       items
       posToken
-
       syncedErkhet
-
       posName
       origin
       user {
@@ -272,30 +166,10 @@ const posOrderDetail = `
       dealLink
     }
   }
-`;
-
-const msdCustomerRelations = `
-  query msdCustomerRelations($customerId: String) {
-    msdCustomerRelations(customerId: $customerId) {
-      _id
-      customerId
-      brandId
-      brand
-      modifiedAt
-      no
-      response
-    }
-  }
-`;
+`);
 
 export default {
   syncMsdHistories,
-  syncMsdHistoriesCount,
-  dynamicConfigs,
-  configs,
-  checkSyncOrders,
-  checkSyncOrdersTotalCount,
   posOrdersList,
   posOrderDetail,
-  msdCustomerRelations,
 };

@@ -1,23 +1,33 @@
 import { useMemo, useState, useEffect } from 'react';
-import { gql, useMutation } from '@apollo/client';
+import { useMutation } from '@apollo/client';
 import { RecordTable, useToast } from 'erxes-ui';
 import { IconInbox } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { getCheckSyncedOrdersColumns } from './CheckSyncedOrdersColumns';
-import {
-  ISyncedOrderInfo,
-  ICheckSyncedOrderStatus,
-} from '../types/msDynamicCheckOrder';
+import { compactList } from '@/shared/utils/cursorList';
+import type { MsdynamicCheckSyncedMutation } from '~/gql/graphql';
+import { ISyncedOrderInfo } from '../types/msDynamicCheckOrder';
 import { MSDynamicCheckOrderCommandBar } from './MSDynamicCheckOrderCommandBar';
 import { useMSDynamicCheckOrder } from '../hooks/useMSDynamicCheckOrder';
 import { mutations } from '../../graphql';
 
-type TCheckSyncedOrdersResponse = {
-  toCheckMsdSynced: ICheckSyncedOrderStatus[];
-};
+/** Synced status-uudaas synced order info map uusgene. */
+const toSyncedInfos = (
+  statuses: MsdynamicCheckSyncedMutation['toCheckMsdSynced'] | undefined,
+) => {
+  const syncedInfos: Record<string, ISyncedOrderInfo> = {};
 
-type TSendMsdOrdersResponse = {
-  toSendMsdOrders: ICheckSyncedOrderStatus[];
+  compactList(statuses).forEach((item) => {
+    if (!item.isSynced || !item._id) return;
+
+    syncedInfos[item._id] = {
+      syncedBillNumber: item.syncedBillNumber || '',
+      syncedDate: item.syncedDate || '',
+      syncedCustomer: item.syncedCustomer || '',
+    };
+  });
+
+  return syncedInfos;
 };
 
 /** Empty ued synced order list deer message gargana. */
@@ -43,14 +53,10 @@ const CheckSyncedOrders = () => {
   const [syncedOrderInfos, setSyncedOrderInfos] = useState<
     Record<string, ISyncedOrderInfo>
   >({});
-  const [toCheckMsdSynced, { loading: checkingSyncedOrders }] = useMutation<
-    TCheckSyncedOrdersResponse,
-    { ids: string[] }
-  >(gql(mutations.toCheckMsdSynced));
-  const [toSendMsdOrdersMutation] = useMutation<
-    TSendMsdOrdersResponse,
-    { orderIds: string[] }
-  >(gql(mutations.toSendMsdOrders));
+  const [toCheckMsdSynced, { loading: checkingSyncedOrders }] = useMutation(
+    mutations.toCheckMsdSynced,
+  );
+  const [toSendMsdOrdersMutation] = useMutation(mutations.toSendMsdOrders);
 
   /** Selected orders msdynamic ruu synced uu gedgiig shalgana. */
   const onCheck = async (orderIds: string[]): Promise<void> => {
@@ -59,19 +65,7 @@ const CheckSyncedOrders = () => {
         variables: { ids: orderIds },
       });
 
-      const statuses = response.data?.toCheckMsdSynced || [];
-
-      const syncedInfos: Record<string, ISyncedOrderInfo> = {};
-
-      statuses
-        .filter((s) => s.isSynced)
-        .forEach((item) => {
-          syncedInfos[item._id] = {
-            syncedBillNumber: item.syncedBillNumber || '',
-            syncedDate: item.syncedDate || '',
-            syncedCustomer: item.syncedCustomer || '',
-          };
-        });
+      const syncedInfos = toSyncedInfos(response.data?.toCheckMsdSynced);
 
       setSyncedOrderInfos((prev) => {
         const checkedIds = new Set(orderIds);
@@ -98,7 +92,7 @@ const CheckSyncedOrders = () => {
     if (!orders?.length) return;
 
     let active = true;
-    const orderIds = orders.map((order) => order._id);
+    const orderIds = orders.flatMap((order) => (order._id ? [order._id] : []));
 
     const checkSyncedOrders = async () => {
       try {
@@ -108,18 +102,7 @@ const CheckSyncedOrders = () => {
 
         if (!active) return;
 
-        const statuses = response.data?.toCheckMsdSynced || [];
-        const syncedInfos: Record<string, ISyncedOrderInfo> = {};
-
-        statuses
-          .filter((s) => s.isSynced)
-          .forEach((item) => {
-            syncedInfos[item._id] = {
-              syncedBillNumber: item.syncedBillNumber || '',
-              syncedDate: item.syncedDate || '',
-              syncedCustomer: item.syncedCustomer || '',
-            };
-          });
+        const syncedInfos = toSyncedInfos(response.data?.toCheckMsdSynced);
 
         setSyncedOrderInfos(syncedInfos);
       } catch (error) {
@@ -165,7 +148,9 @@ const CheckSyncedOrders = () => {
         }
         if (!item) return;
 
-        if (!item.isSynced) {
+        const syncedOrderId = item._id;
+
+        if (!item.isSynced || !syncedOrderId) {
           toast({
             title: t('failed-to-resend-order'),
             description: t('please-try-again-later'),
@@ -177,7 +162,7 @@ const CheckSyncedOrders = () => {
         setSyncedOrderInfos((prev) => {
           const next = {
             ...prev,
-            [item._id]: {
+            [syncedOrderId]: {
               syncedBillNumber: item.syncedBillNumber || '',
               syncedDate: item.syncedDate || '',
               syncedCustomer: item.syncedCustomer || '',

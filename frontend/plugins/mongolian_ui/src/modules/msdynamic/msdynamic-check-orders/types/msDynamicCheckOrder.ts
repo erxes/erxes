@@ -1,33 +1,19 @@
-export interface IMSDynamicCheckOrder {
-  _id: string;
-  number: string;
-  createdAt: string;
-  paidDate: string;
-  totalAmount: number;
-  brandId?: string;
-}
+import type {
+  MsdynamicPosOrdersListQuery,
+  MsdynamicPosOrderDetailQuery,
+} from '~/gql/graphql';
+import { jsonArray, jsonRecord, jsonRecords } from '@/shared/utils/json';
 
-export interface ICheckSyncedOrderStatus {
-  _id: string;
-  isSynced: boolean;
-  syncedDate: string | null;
-  syncedBillNumber: string | null;
-  syncedCustomer: string | null;
-}
+export type IMSDynamicCheckOrder = NonNullable<
+  NonNullable<
+    NonNullable<MsdynamicPosOrdersListQuery['posOrdersList']>['list']
+  >[number]
+>;
 
 export interface ISyncedOrderInfo {
   syncedBillNumber: string;
   syncedDate: string;
   syncedCustomer: string;
-}
-
-export interface IOrderCustomer {
-  _id: string;
-  code?: string;
-  firstName?: string;
-  lastName?: string;
-  primaryEmail?: string;
-  primaryPhone?: string;
 }
 
 export interface IOrderItem {
@@ -49,48 +35,41 @@ export interface IPutResponse {
   date: string;
 }
 
-export interface IUserInfo {
-  _id: string;
-  email?: string;
-}
-
 export interface IDealInfo {
   _id: string;
   name?: string;
 }
 
-export interface IPosOrderDetail {
-  _id: string;
-  createdAt?: string;
-  status?: string;
-  paidDate?: string;
-  number?: string;
-  customerId?: string;
-  customerType?: string;
-  cashAmount?: number;
-  mobileAmount?: number;
+type PosOrderDetailData = NonNullable<
+  MsdynamicPosOrderDetailQuery['posOrderDetail']
+>;
+
+export type IOrderCustomer = NonNullable<PosOrderDetailData['customer']>;
+
+type PosOrderDetailJsonKey =
+  | 'paidAmounts'
+  | 'items'
+  | 'putResponses'
+  | 'deliveryInfo'
+  | 'deal';
+
+export type IPosOrderDetail = Partial<
+  Omit<PosOrderDetailData, PosOrderDetailJsonKey>
+> & {
   paidAmounts?: IPaidAmount[];
-  totalAmount?: number;
-  finalAmount?: number;
-  shouldPrintEbarimt?: boolean;
-  printedEbarimt?: boolean;
-  billType?: string;
-  billId?: string;
-  registerNumber?: string;
-  oldBillId?: string;
-  type?: string;
-  userId?: string;
   items?: IOrderItem[];
-  posToken?: string;
-  syncedErkhet?: boolean;
-  posName?: string;
-  origin?: string;
-  user?: IUserInfo;
-  convertDealId?: string;
-  customer?: IOrderCustomer;
-  syncErkhetInfo?: string;
   putResponses?: IPutResponse[];
   deliveryInfo?: { description?: string };
   deal?: IDealInfo;
-  dealLink?: string;
-}
+};
+
+export const toPosOrderDetail = (
+  order: PosOrderDetailData,
+): IPosOrderDetail => ({
+  ...order,
+  paidAmounts: jsonRecords<IPaidAmount>(jsonArray(order.paidAmounts)),
+  items: jsonRecords<IOrderItem>(jsonArray(order.items)),
+  putResponses: jsonRecords<IPutResponse>(jsonArray(order.putResponses)),
+  deliveryInfo: jsonRecord<{ description?: string }>(order.deliveryInfo),
+  deal: jsonRecord<IDealInfo>(order.deal),
+});
