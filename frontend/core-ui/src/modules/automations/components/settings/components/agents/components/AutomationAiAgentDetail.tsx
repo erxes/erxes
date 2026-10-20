@@ -1,64 +1,87 @@
-import { AiAgentConnectionForm } from '@/automations/components/settings/components/agents/components/form/connection/AiAgentConnectionForm';
-import { AiAgentContextForm } from '@/automations/components/settings/components/agents/components/form/AiAgentContextForm';
-import { AiAgentGeneralForm } from '@/automations/components/settings/components/agents/components/form/AiAgentGeneralForm';
-import { AiAgentRuntimeForm } from '@/automations/components/settings/components/agents/components/form/AiAgentRuntimeForm';
-import { AiAgentUsageCard } from '@/automations/components/settings/components/agents/components/AiAgentUsageCard';
-import { AutomationAiAgentHealthSection } from '@/automations/components/settings/components/agents/components/form/AutomationAiAgentHealthSection';
-import { AiAgentInput } from '@/automations/components/settings/components/agents/hooks/useAiAgentDetail';
+import { AiAgentProfileBar } from '@/automations/components/settings/components/agents/components/detail/AiAgentProfileBar';
+import { AiAgentStepContent } from '@/automations/components/settings/components/agents/components/detail/AiAgentStepContent';
+import { AiAgentStepNav } from '@/automations/components/settings/components/agents/components/detail/AiAgentStepNav';
 import {
   AI_AGENT_PROVIDER_TYPES,
   TAiAgentProvider,
 } from '@/automations/components/settings/components/agents/constants/providers';
+import { AiAgentDetailProvider } from '@/automations/components/settings/components/agents/context/AiAgentDetailContext';
+import { AiAgentInput } from '@/automations/components/settings/components/agents/hooks/useAiAgentDetail';
+import { useAiAgentDetailState } from '@/automations/components/settings/components/agents/hooks/useAiAgentDetailState';
 import {
   buildAiAgentFormSchema,
   normalizeAiAgentFormValues,
-  TAiAgentFormDetail,
   TAiAgentForm,
+  TAiAgentFormDetail,
 } from '@/automations/components/settings/components/agents/states/AiAgentFormSchema';
-import { AUTOMATION_APPROVAL_CONTENT_TYPES } from '@/automations/constants';
-import { AutomationSettingsPath } from '@/types/paths/AutomationPath';
 import { zodResolver } from '@hookform/resolvers/zod';
-import {
-  IconActivityHeartbeat,
-  IconBook2,
-  IconDeviceFloppy,
-  IconPlug,
-  IconSettings,
-} from '@tabler/icons-react';
-import { Button, Card, Tabs, toast } from 'erxes-ui';
+import { toast } from 'erxes-ui';
+import { MutableRefObject, useEffect } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router';
-import { ApprovalLockButton, SettingsDetailHeader } from 'ui-modules';
+
+type TRequestCloseRef = MutableRefObject<(() => void) | null>;
+
+const AiAgentDetailView = ({
+  detail,
+  save,
+  close,
+  requestCloseRef,
+  persistStepInUrl,
+}: {
+  detail?: TAiAgentFormDetail;
+  save: () => void;
+  close: () => void;
+  requestCloseRef: TRequestCloseRef;
+  persistStepInUrl: boolean;
+}) => {
+  const state = useAiAgentDetailState({
+    detail,
+    save,
+    close,
+    persistStepInUrl,
+  });
+
+  useEffect(() => {
+    requestCloseRef.current = state.requestClose;
+  });
+
+  useEffect(
+    () => () => {
+      requestCloseRef.current = null;
+    },
+    [requestCloseRef],
+  );
+
+  return (
+    <AiAgentDetailProvider value={state}>
+      <AiAgentProfileBar />
+      <AiAgentStepNav />
+      <AiAgentStepContent />
+    </AiAgentDetailProvider>
+  );
+};
 
 export const AutomationAiAgentDetail = ({
   detail,
   handleSave,
+  onClose,
+  requestCloseRef,
+  persistStepInUrl,
 }: {
   detail?: TAiAgentFormDetail;
   handleSave: (input: AiAgentInput) => Promise<unknown>;
+  onClose: () => void;
+  requestCloseRef: TRequestCloseRef;
+  persistStepInUrl: boolean;
 }) => {
-  const isEditing = !!detail;
-  const [searchParams, setSearchParams] = useSearchParams();
-  const queryKind = searchParams.get('kind');
-  const AI_AGENT_TABS = ['general', 'connection', 'context', 'health'];
-  const tabParam = searchParams.get('tab');
-  const activeTab = AI_AGENT_TABS.includes(tabParam ?? '')
-    ? (tabParam as string)
-    : 'general';
+  const { t } = useTranslation('automations');
 
-  const handleTabChange = (value: string) => {
-    setSearchParams(
-      (prev) => {
-        const next = new URLSearchParams(prev);
-        next.set('tab', value);
-        return next;
-      },
-      { replace: true },
-    );
-  };
+  const [searchParams] = useSearchParams();
+  const queryKind = searchParams.get('kind');
   const defaultProvider =
-    !isEditing &&
-    AI_AGENT_PROVIDER_TYPES.includes(queryKind as TAiAgentProvider)
+    !detail && AI_AGENT_PROVIDER_TYPES.includes(queryKind as TAiAgentProvider)
       ? (queryKind as TAiAgentProvider)
       : undefined;
 
@@ -69,110 +92,23 @@ export const AutomationAiAgentDetail = ({
     values: normalizeAiAgentFormValues(detail, defaultProvider),
   });
 
-  const handleSubmit = form.handleSubmit(handleSave, (error) => {
-    console.error(error);
+  const save = form.handleSubmit(handleSave, () => {
     toast({
-      title: 'Invalid form',
-      description: 'Please review the highlighted fields.',
+      title: t('settings-agent-invalid-form'),
+      description: t('settings-agent-review-fields'),
       variant: 'destructive',
     });
   });
 
   return (
-    <div className="flex h-full min-h-0 w-full flex-col">
-      <FormProvider {...form}>
-        <SettingsDetailHeader
-          title={isEditing ? 'Edit AI Agent' : 'Create AI Agent'}
-          description={
-            isEditing
-              ? 'Update your AI agent'
-              : 'Create a new AI agent for automation'
-          }
-          backTo={AutomationSettingsPath.Agents}
-          actions={
-            <div className="flex items-center gap-2">
-              {detail?._id && (
-                <ApprovalLockButton
-                  contentType={
-                    AUTOMATION_APPROVAL_CONTENT_TYPES.AUTOMATION_AI_AGENT
-                  }
-                  contentId={detail._id}
-                  action="edit"
-                />
-              )}
-              <Button onClick={handleSubmit}>
-                <IconDeviceFloppy className="size-4 " />
-                Save
-              </Button>
-            </div>
-          }
-        />
-
-        <div className="flex min-h-0 flex-1 flex-col overflow-hidden px-6 pb-4">
-          <Tabs
-            value={activeTab}
-            onValueChange={handleTabChange}
-            className="flex min-h-0 flex-1 flex-col"
-          >
-            <Tabs.List className="mt-4 shrink-0">
-              <Tabs.Trigger className="w-1/4 gap-2" value="general">
-                <IconSettings className="size-4" />
-                General
-              </Tabs.Trigger>
-              <Tabs.Trigger className="w-1/4 gap-2" value="connection">
-                <IconPlug className="size-4" />
-                Connection
-              </Tabs.Trigger>
-              <Tabs.Trigger className="w-1/4 gap-2" value="context">
-                <IconBook2 className="size-4" />
-                Context
-              </Tabs.Trigger>
-              <Tabs.Trigger className="w-1/4 gap-2" value="health">
-                <IconActivityHeartbeat className="size-4" />
-                Health
-              </Tabs.Trigger>
-            </Tabs.List>
-
-            <div className="min-h-0 flex-1 overflow-y-auto pt-4">
-              <Tabs.Content value="general" className="mt-0 grid gap-4 px-2">
-                <Card className="p-4">
-                  <AiAgentGeneralForm />
-                </Card>
-                {isEditing && <AiAgentUsageCard usage={detail?.usage} />}
-              </Tabs.Content>
-
-              <Tabs.Content
-                value="connection"
-                className="mt-0 grid gap-4 lg:grid-cols-2 px-2"
-              >
-                <Card className="p-4">
-                  <AiAgentConnectionForm
-                    existingApiKeyMask={detail?.connection?.config?.apiKey}
-                    existingGatewayTokenMask={
-                      detail?.connection?.provider === 'cloudflare-ai-gateway'
-                        ? String(
-                            detail?.connection?.config?.gatewayToken || '',
-                          ) || undefined
-                        : undefined
-                    }
-                  />
-                </Card>
-                <Card className="p-4">
-                  <AiAgentRuntimeForm />
-                </Card>
-              </Tabs.Content>
-
-              <Tabs.Content value="context" className="mt-0 px-2">
-                <AiAgentContextForm />
-              </Tabs.Content>
-
-              <Tabs.Content value="health" className="mt-0 px-2">
-                <AutomationAiAgentHealthSection agentId={detail?._id} />
-              </Tabs.Content>
-            </div>
-          </Tabs>
-        </div>
-      </FormProvider>
-    </div>
+    <FormProvider {...form}>
+      <AiAgentDetailView
+        detail={detail}
+        save={() => void save()}
+        close={onClose}
+        requestCloseRef={requestCloseRef}
+        persistStepInUrl={persistStepInUrl}
+      />
+    </FormProvider>
   );
 };

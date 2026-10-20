@@ -1,17 +1,11 @@
-import { EMAIL_SUPPRESSION_REASON_OPTIONS } from '@/settings/email-addresses/constants';
+import { useTranslation } from 'react-i18next';
 import { useReleaseEmailAddress } from '@/settings/email-addresses/hooks/useEmailAddresses';
-import {
-  IEmailAddress,
-  TEmailSuppressionReason,
-} from '@/settings/email-addresses/types';
+import { IEmailAddress } from '@/settings/email-addresses/types';
+import { suppressionLabel } from '@/settings/email-addresses/utils';
 import { IconLockOpen } from '@tabler/icons-react';
 import dayjs from 'dayjs';
 import { Button, Dialog, Input, Label } from 'erxes-ui';
 import { useState } from 'react';
-
-const reasonLabel = (reason?: TEmailSuppressionReason) =>
-  EMAIL_SUPPRESSION_REASON_OPTIONS.find((option) => option.value === reason)
-    ?.label ?? 'an unrecorded reason';
 
 export const ReleaseEmailAddressDialog = ({
   address,
@@ -22,6 +16,7 @@ export const ReleaseEmailAddressDialog = ({
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'email-addresses' });
   const [typed, setTyped] = useState('');
   const [note, setNote] = useState('');
   const { release, loading } = useReleaseEmailAddress();
@@ -48,13 +43,13 @@ export const ReleaseEmailAddressDialog = ({
     <Dialog open={open} onOpenChange={close}>
       <Dialog.Content className="max-w-md">
         <Dialog.Header>
-          <Dialog.Title>Reopen this address</Dialog.Title>
+          <Dialog.Title>{t('reopen-this-address')}</Dialog.Title>
           <Dialog.Description>
             {address.email} was closed
             {address.suppressedAt
               ? ` on ${dayjs(address.suppressedAt).format('MMM D, YYYY')}`
               : ''}{' '}
-            for {reasonLabel(address.suppressionReason)}. Mail will go to it
+            for {suppressionLabel(address) ?? 'an unrecorded reason'}. Mail will go to it
             again — if the mailbox is still gone it will bounce and close itself
             once more.
           </Dialog.Description>
@@ -62,7 +57,9 @@ export const ReleaseEmailAddressDialog = ({
 
         <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-2">
-            <Label htmlFor="release-confirm">Type the address to confirm</Label>
+            <Label htmlFor="release-confirm">
+              {t('type-address-to-confirm')}
+            </Label>
             <Input
               id="release-confirm"
               value={typed}
@@ -73,11 +70,11 @@ export const ReleaseEmailAddressDialog = ({
           </div>
 
           <div className="flex flex-col gap-2">
-            <Label htmlFor="release-note">Why are you reopening it?</Label>
+            <Label htmlFor="release-note">{t('why-reopening')}</Label>
             <Input
               id="release-note"
               value={note}
-              placeholder="Mailbox was restored by their IT team"
+              placeholder={t('reopen-note-placeholder')}
               onChange={(event) => setNote(event.target.value)}
             />
           </div>
@@ -85,11 +82,11 @@ export const ReleaseEmailAddressDialog = ({
 
         <Dialog.Footer>
           <Button variant="secondary" onClick={() => close(false)}>
-            Cancel
+            {t('cancel')}
           </Button>
           <Button disabled={!canSubmit} onClick={onSubmit}>
             <IconLockOpen className="size-4" />
-            Reopen address
+            {t('reopen-address')}
           </Button>
         </Dialog.Footer>
       </Dialog.Content>

@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const GET_PIPELINE = gql`
+export const GET_PIPELINE = gql(`
   query GetTicketPipeline($id: String!) {
     getTicketPipeline(_id: $id) {
       _id
@@ -41,4 +41,4 @@ export const GET_PIPELINE = gql`
       isPropertySelectionConfigured
     }
   }
-`;
+`);

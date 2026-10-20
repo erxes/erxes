@@ -27,7 +27,7 @@ export interface IAdjustFxaDetail {
   originalCost: number;
   salvageValue?: number;
   openingBookValue?: number;
-  openingAccumulatedDepreciation?: number;
+  preDeprecation?: number;
   depreciationAmount?: number;
   bookDepreciationAmount?: number;
   closingAccumulatedDepreciation?: number;

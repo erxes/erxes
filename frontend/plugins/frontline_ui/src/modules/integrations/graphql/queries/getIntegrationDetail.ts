@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const GET_INTEGRATION_DETAIL = gql`
+export const GET_INTEGRATION_DETAIL = gql(`
   query IntegrationDetail($id: String!) {
     integrationDetail(_id: $id) {
       _id
@@ -14,6 +14,7 @@ export const GET_INTEGRATION_DETAIL = gql`
       messengerData
       uiOptions
       isConnected
+      channelId
       channel {
         _id
         name
@@ -21,7 +22,11 @@ export const GET_INTEGRATION_DETAIL = gql`
       brandId
       departmentIds
       details
-      facebookPage
+      facebookPage {
+        pageId
+        id
+        name
+      }
       instagramPage
       callData {
         secondPageHeader
@@ -38,4 +43,4 @@ export const GET_INTEGRATION_DETAIL = gql`
       isActive
     }
   }
-`;
+`);

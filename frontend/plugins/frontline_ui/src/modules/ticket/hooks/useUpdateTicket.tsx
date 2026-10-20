@@ -3,6 +3,10 @@ import { UPDATE_TICKET_MUTATION } from '@/ticket/graphql/mutations/updateTicket'
 import { isTicketRemoved } from '@/ticket/states/removedTicketsState';
 import { useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import type {
+  UpdateTicketMutation,
+  UpdateTicketMutationVariables,
+} from '~/gql/graphql';
 
 export const useUpdateTicket = () => {
   const { t } = useTranslation('frontline');
@@ -10,8 +14,13 @@ export const useUpdateTicket = () => {
   const [_updateTicket, { loading, error }] = useMutation(
     UPDATE_TICKET_MUTATION,
   );
-  const updateTicket = (options: MutationHookOptions) => {
-    const ticketId = options.variables?._id as string | undefined;
+  const updateTicket = (
+    options: MutationHookOptions<
+      UpdateTicketMutation,
+      UpdateTicketMutationVariables
+    >,
+  ) => {
+    const ticketId = options.variables?._id;
     if (isTicketRemoved(ticketId)) {
       return Promise.resolve({ data: undefined });
     }

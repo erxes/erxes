@@ -1,12 +1,12 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const QUEUE_REALTIME_UPDATE = gql`
+export const QUEUE_REALTIME_UPDATE = gql(`
   subscription queueRealtimeUpdate($extension: String) {
     queueRealtimeUpdate(extension: $extension)
   }
-`;
+`);
 
-export const CALL_SESSION_UPDATED = gql`
+export const CALL_SESSION_UPDATED = gql(`
   subscription callSessionUpdated(
     $inboxIntegrationId: String
     $uniqueid: String
@@ -46,4 +46,25 @@ export const CALL_SESSION_UPDATED = gql`
       }
     }
   }
-`;
+`);
+
+export const CALL_CONVERSATION_NOTE_INSERTED = gql(`
+  subscription CallConversationNoteInserted($conversationId: String!) {
+    conversationMessageInserted(_id: $conversationId) {
+      _id
+      content
+      conversationId
+      customerId
+      userId
+      createdAt
+      isCustomerRead
+      internal
+      attachments {
+        url
+        name
+        type
+        size
+      }
+    }
+  }
+`);

@@ -6,6 +6,7 @@ import { widgetQueries } from '@/inbox/graphql/resolvers/queries/widget';
 import callQueries from '@/integrations/call/graphql/resolvers/queries';
 import callProQueries from '@/integrations/callpro/graphql/resolvers/queries';
 import { facebookQueries } from '@/integrations/facebook/graphql/resolvers/queries';
+import { cpFacebookQueries } from '@/integrations/facebook/graphql/resolvers/clientPortal';
 import { discordQueries } from '@/integrations/discord/graphql/resolvers/queries';
 import { telegramQueries } from '@/integrations/telegram/graphql/resolvers/queries';
 import { instagramQueries } from '@/integrations/instagram/graphql/resolvers/queries';
@@ -31,6 +32,7 @@ export const queries = {
   ...integrationQueries,
   ...cpInboxQueries,
   ...facebookQueries,
+  ...cpFacebookQueries,
   ...discordQueries,
   ...telegramQueries,
   ...instagramQueries,

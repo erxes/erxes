@@ -13,14 +13,32 @@ import {
   CHECKLISTS_CHANGED,
 } from '@/deals/graphql/subscriptions/checklistSubscriptions';
 import { dealDetailSheetState } from '@/deals/states/dealDetailSheetState';
-import { IChecklist, IChecklistItem } from '@/deals/types/checklists';
+
 import {
   MutationHookOptions,
   QueryHookOptions,
   useMutation,
   useQuery,
 } from '@apollo/client';
-import { useQueryState } from 'erxes-ui';
+import type {
+  SalesChecklistItemsAddMutation,
+  SalesChecklistItemsAddMutationVariables,
+  SalesChecklistItemsEditMutation,
+  SalesChecklistItemsEditMutationVariables,
+  SalesChecklistItemsOrderMutation,
+  SalesChecklistItemsOrderMutationVariables,
+  SalesChecklistItemsRemoveMutation,
+  SalesChecklistItemsRemoveMutationVariables,
+  SalesChecklistsAddMutation,
+  SalesChecklistsAddMutationVariables,
+  SalesChecklistsEditMutation,
+  SalesChecklistsEditMutationVariables,
+  SalesChecklistsQuery,
+  SalesChecklistsQueryVariables,
+  SalesChecklistsRemoveMutation,
+  SalesChecklistsRemoveMutationVariables,
+} from '~/gql/graphql';
+import { isDefined, useQueryState } from 'erxes-ui';
 import { useAtom } from 'jotai';
 import { useEffect, useMemo } from 'react';
 
@@ -31,37 +49,11 @@ function useDealContentTypeId(passedContentTypeId?: string | null) {
   return passedContentTypeId || salesItemId || activeDealId;
 }
 
-type ChecklistAddResult = { salesChecklistsAdd: IChecklist };
-type ChecklistEditResult = { salesChecklistsEdit: IChecklist };
-type ChecklistRemoveResult = { salesChecklistsRemove: Pick<IChecklist, '_id'> };
-type ChecklistItemAddResult = { salesChecklistItemsAdd: IChecklistItem };
-type ChecklistItemEditResult = { salesChecklistItemsEdit: IChecklistItem };
-type ChecklistItemRemoveResult = {
-  salesChecklistItemsRemove: Pick<IChecklistItem, '_id'>;
-};
-type ChecklistItemOrderResult = {
-  salesChecklistItemsOrder: Pick<IChecklistItem, '_id'>;
-};
-type ChecklistVariables = Partial<{
-  _id: string;
-  contentTypeId: string | null;
-  title: string;
-}>;
-
-type ChecklistItemVariables = Partial<{
-  _id: string;
-  checklistId: string;
-  content: string;
-  isChecked: boolean;
-}>;
-
-type ChecklistItemOrderVariables = Partial<{
-  _id: string;
-  destinationIndex: number;
-}>;
-
 export function useChecklistsAdd(
-  options?: MutationHookOptions<ChecklistAddResult, ChecklistVariables>,
+  options?: MutationHookOptions<
+    SalesChecklistsAddMutation,
+    SalesChecklistsAddMutationVariables
+  >,
 ) {
   const contentTypeId = useDealContentTypeId(options?.variables?.contentTypeId);
 
@@ -91,7 +83,10 @@ export function useChecklistsAdd(
 }
 
 export function useChecklistsEdit(
-  options?: MutationHookOptions<ChecklistEditResult, ChecklistVariables>,
+  options?: MutationHookOptions<
+    SalesChecklistsEditMutation,
+    SalesChecklistsEditMutationVariables
+  >,
 ) {
   const [salesChecklistsEdit, { loading, error }] = useMutation(
     EDIT_CHECKLISTS,
@@ -108,9 +103,12 @@ export function useChecklistsEdit(
 }
 
 export function useChecklistsRemove(
-  options?: MutationHookOptions<ChecklistRemoveResult, ChecklistVariables>,
+  options?: MutationHookOptions<
+    SalesChecklistsRemoveMutation,
+    SalesChecklistsRemoveMutationVariables
+  >,
 ) {
-  const contentTypeId = useDealContentTypeId(options?.variables?.contentTypeId);
+  const contentTypeId = useDealContentTypeId();
 
   const [salesChecklistsRemove, { loading, error }] = useMutation(
     REMOVE_CHECKLISTS,
@@ -137,14 +135,17 @@ export function useChecklistsRemove(
 }
 
 export function useChecklistItemsAdd(
-  options?: MutationHookOptions<ChecklistItemAddResult, ChecklistItemVariables>,
+  options?: MutationHookOptions<
+    SalesChecklistItemsAddMutation,
+    SalesChecklistItemsAddMutationVariables
+  >,
 ) {
-  const [salesChecklistItemsAdd, { loading, error }] = useMutation<
-    ChecklistItemAddResult,
-    ChecklistItemVariables
-  >(CHECKLIST_ITEMS_ADD, {
-    ...options,
-  });
+  const [salesChecklistItemsAdd, { loading, error }] = useMutation(
+    CHECKLIST_ITEMS_ADD,
+    {
+      ...options,
+    },
+  );
 
   return {
     salesChecklistItemsAdd,
@@ -155,8 +156,8 @@ export function useChecklistItemsAdd(
 
 export function useChecklistItemsEdit(
   options?: MutationHookOptions<
-    ChecklistItemEditResult,
-    ChecklistItemVariables
+    SalesChecklistItemsEditMutation,
+    SalesChecklistItemsEditMutationVariables
   >,
 ) {
   const [salesChecklistItemsEdit, { loading, error }] = useMutation(
@@ -175,8 +176,8 @@ export function useChecklistItemsEdit(
 
 export function useChecklistItemsRemove(
   options?: MutationHookOptions<
-    ChecklistItemRemoveResult,
-    ChecklistItemVariables
+    SalesChecklistItemsRemoveMutation,
+    SalesChecklistItemsRemoveMutationVariables
   >,
 ) {
   const [salesChecklistItemsRemove, { loading, error }] = useMutation(
@@ -195,8 +196,8 @@ export function useChecklistItemsRemove(
 
 export function useChecklistItemsReorder(
   options?: MutationHookOptions<
-    ChecklistItemOrderResult,
-    ChecklistItemOrderVariables
+    SalesChecklistItemsOrderMutation,
+    SalesChecklistItemsOrderMutationVariables
   >,
 ) {
   const [salesChecklistItemsReorder, { loading, error }] = useMutation(
@@ -213,40 +214,39 @@ export function useChecklistItemsReorder(
   };
 }
 
-interface ISalesChecklistDetailChangedPayload {
-  salesChecklistDetailChanged: IChecklist;
-}
-
-interface ISalesChecklistsChangedPayload {
-  salesChecklistsChanged: IChecklist;
-}
-
 export const useChecklists = (
-  options?: QueryHookOptions<{ salesChecklists: IChecklist[] }>,
+  options?: QueryHookOptions<
+    SalesChecklistsQuery,
+    SalesChecklistsQueryVariables
+  >,
 ) => {
   const contentTypeId = useDealContentTypeId(options?.variables?.contentTypeId);
 
-  const { data, loading, error, subscribeToMore, refetch } = useQuery<{
-    salesChecklists: IChecklist[];
-  }>(GET_CHECKLISTS, {
-    ...options,
-    variables: {
-      ...options?.variables,
-      contentTypeId,
+  const { data, loading, error, subscribeToMore, refetch } = useQuery(
+    GET_CHECKLISTS,
+    {
+      ...options,
+      variables: {
+        ...options?.variables,
+        contentTypeId,
+      },
+      skip: !contentTypeId || options?.skip,
     },
-    skip: !contentTypeId || options?.skip,
-  });
+  );
 
   const checklistIds = useMemo(
     () =>
-      data?.salesChecklists?.map((checklist) => checklist._id).join(',') ?? '',
+      data?.salesChecklists
+        ?.filter(isDefined)
+        .map((checklist) => checklist._id)
+        .join(',') ?? '',
     [data?.salesChecklists],
   );
 
   useEffect(() => {
     if (!contentTypeId) return;
 
-    const unsubscribe = subscribeToMore<ISalesChecklistsChangedPayload>({
+    const unsubscribe = subscribeToMore({
       document: CHECKLISTS_CHANGED,
       variables: {
         contentType: 'deal',
@@ -270,7 +270,7 @@ export const useChecklists = (
     if (!contentTypeId || !checklistIds) return;
 
     const unsubscribes = checklistIds.split(',').map((_id) =>
-      subscribeToMore<ISalesChecklistDetailChangedPayload>({
+      subscribeToMore({
         document: CHECKLIST_DETAIL_CHANGED,
         variables: { _id },
         updateQuery: (prev, { subscriptionData }) => {
@@ -290,5 +290,10 @@ export const useChecklists = (
     };
   }, [checklistIds, contentTypeId, refetch, subscribeToMore]);
 
-  return { checklists: data?.salesChecklists, loading, error, refetch };
+  return {
+    checklists: data?.salesChecklists?.filter(isDefined),
+    loading,
+    error,
+    refetch,
+  };
 };

@@ -1,79 +1,53 @@
-import { Sidebar, cn, useQueryState } from 'erxes-ui';
-import { useAtom, useAtomValue } from 'jotai';
+import { Sidebar, useQueryState } from 'erxes-ui';
 
+import { CoreAppOutlet } from '@/app/components/CoreAppOutlet';
+import { CoreTab } from '@/navigation/components/core-tab/CoreTab';
 import { FloatingWidgets } from '@/widgets/components/FloatingWidgets';
 import { GlobalSearch } from '@/search/components/GlobalSearch';
-import { MainNavigationBar } from '@/navigation/components/MainNavigationBar';
-import { MobileNavigationTrigger } from '@/navigation/components/MobileNavigationTrigger';
-import { NavigationPanel } from '@/navigation/components/NavigationPanel';
-import { Outlet } from 'react-router';
-import { VisitedPageTabs } from '@/navigation/components/VisitedPageTabs';
-import { VisitedPageTabsOpenButton } from '@/navigation/components/VisitedPageTabsOpenButton';
+import {
+  getAppKey,
+  PAGE_ENTER_KEYFRAMES,
+  useEnterAnimation,
+} from '@/navigation/hooks/useEnterAnimation';
+import { useRef } from 'react';
+import { Outlet, useLocation } from 'react-router';
 import { WelcomeNotificationEffect } from '@/app/effect-components/WelcomeNotificationEffect';
-import { navigationSidebarOpenState } from '@/navigation/states/navigationPanelState';
-import { visitedPageTabsVisibleState } from '@/navigation/states/visitedPageTabsState';
 
-const NavigationWorkspace = () => {
-  const { isMobile } = Sidebar.useSidebar();
-  const tabsVisible = useAtomValue(visitedPageTabsVisibleState);
+const AppWorkspace = () => {
+  const { pathname } = useLocation();
+  const pageRef = useRef<HTMLDivElement>(null);
+
+  useEnterAnimation(pageRef, getAppKey(pathname), PAGE_ENTER_KEYFRAMES);
 
   return (
-    <Sidebar.Inset
-      className={cn(
-        'h-svh grow-0 shrink basis-full overflow-hidden shadow-sidebar-inset',
-        tabsVisible && 'pt-10',
-      )}
+    <main
+      ref={pageRef}
+      className="relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-background"
     >
-      <div className="relative flex min-h-0 flex-1">
-        {!isMobile && <NavigationPanel />}
-        <div
-          className={cn(
-            'relative flex min-w-0 flex-1 flex-col overflow-hidden peer-data-[state=collapsed]:[--navigation-panel-toggle-space:2.5rem] peer-data-[state=collapsed]:[--navigation-top-controls-space:2rem]',
-            isMobile &&
-              '[--navigation-panel-toggle-space:2.5rem] [--navigation-top-controls-space:2.25rem]',
-            !tabsVisible &&
-              '[--visited-page-tabs-open-button-space:2.75rem] [--navigation-top-controls-space:2.25rem]',
-          )}
-        >
-          <MobileNavigationTrigger />
-          <VisitedPageTabsOpenButton />
-          <FloatingWidgets />
-          <Outlet />
-        </div>
-      </div>
-    </Sidebar.Inset>
+      <FloatingWidgets />
+      <CoreAppOutlet />
+    </main>
   );
 };
 
 export const DefaultLayout = () => {
-  const [sidebarOpen, setSidebarOpen] = useAtom(navigationSidebarOpenState);
   const [inPreview] = useQueryState<boolean>('inPreview');
-  const tabsVisible = useAtomValue(visitedPageTabsVisibleState);
 
   if (inPreview) {
     return <Outlet />;
   }
 
+  // Core draws no sidebar; the provider only backs Sidebar.* parts used on
+  // pages without an AppLayout (apps nest their own provider).
   return (
     <Sidebar.Provider
-      className="w-screen"
-      open={sidebarOpen}
-      onOpenChange={setSidebarOpen}
+      className="h-svh w-screen flex-col overflow-hidden"
       sidebarKeyboardShortcut={false}
-      sidebarWidth="13rem"
-      sidebarWidthIcon="3rem"
     >
-      <VisitedPageTabs />
       <GlobalSearch />
       <WelcomeNotificationEffect />
-      <Sidebar
-        collapsible="icon"
-        variant="sidebar"
-        className={cn('p-0', tabsVisible && 'pt-10')}
-      >
-        <MainNavigationBar />
-      </Sidebar>
-      <NavigationWorkspace />
+      <CoreTab />
+      <AppWorkspace />
     </Sidebar.Provider>
   );
 };

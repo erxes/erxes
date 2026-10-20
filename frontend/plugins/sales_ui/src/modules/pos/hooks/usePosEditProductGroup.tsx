@@ -1,7 +1,15 @@
-import { OperationVariables, useMutation } from '@apollo/client';
+import { type MutationFunctionOptions, useMutation } from '@apollo/client';
 import { useCallback } from 'react';
-import { mutations } from '../graphql';
-import { cleanData } from '../utils/cleanData';
+import type {
+  ProductGroupsBulkInsertMutation,
+  ProductGroupsBulkInsertMutationVariables,
+} from '~/gql/graphql';
+import { mutations, queries } from '../graphql';
+
+type SaveOptions = MutationFunctionOptions<
+  ProductGroupsBulkInsertMutation,
+  ProductGroupsBulkInsertMutationVariables
+>;
 
 export const usePosEditProductGroup = () => {
   const [saveProductGroups, { loading }] = useMutation(
@@ -9,38 +17,40 @@ export const usePosEditProductGroup = () => {
   );
 
   const productGroupSave = useCallback(
-    (operationVariables: OperationVariables, fields: string[]) => {
-      const rawVariables = operationVariables?.variables || {};
-      const cleanedVariables = cleanData(rawVariables);
-
-      const groups = Array.isArray(cleanedVariables.groups)
-        ? cleanedVariables.groups.map((g: any) => {
-            const rest = { ...(g || {}) };
-            delete rest.posId;
-            delete rest.__typename;
-            return rest;
-          })
-        : cleanedVariables.groups;
-
-      const variables = { ...cleanedVariables, groups };
-      const fieldsToUpdate: Record<string, () => any> = {};
-
-      fields.forEach((field) => {
-        fieldsToUpdate[field] = () => variables[field];
-      });
-
+    (options: SaveOptions) => {
+      const variables = options.variables;
+      const groups = variables?.groups;
+      let inputGroups = groups;
+      if (groups != null) {
+        inputGroups = (Array.isArray(groups) ? groups : [groups]).map(
+          (group) => {
+            if (group == null) return group;
+            return {
+              _id: group._id,
+              categoryIds: group.categoryIds,
+              excludedCategoryIds: group.excludedCategoryIds,
+              excludedProductIds: group.excludedProductIds,
+            };
+          },
+        );
+      }
       return saveProductGroups({
-        ...operationVariables,
-        variables,
-        update: (cache, { data }) => {
-          const productGroupsBulkInsert = data?.productGroupsBulkInsert;
-          if (!productGroupsBulkInsert) return;
-
-          cache.modify({
-            id: cache.identify(productGroupsBulkInsert),
-            fields: fieldsToUpdate,
-          });
-        },
+        ...options,
+        variables: variables
+          ? {
+              ...variables,
+              groups: inputGroups,
+            }
+          : undefined,
+        refetchQueries: variables
+          ? [
+              {
+                query: queries.productGroups,
+                variables: { posId: variables.posId },
+              },
+            ]
+          : [],
+        awaitRefetchQueries: true,
       });
     },
     [saveProductGroups],

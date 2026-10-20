@@ -1,7 +1,7 @@
 import { IAttachment, AttachmentContextType } from '@/ticket/types/attachments';
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
-import { removeTypename } from '@/utils';
+import { toAttachmentInput } from '@/ticket/utils/ticketAttachments';
 import { useConfirm } from 'erxes-ui';
 import { useUpdateTicket } from '@/ticket/hooks/useUpdateTicket';
 
@@ -51,7 +51,7 @@ export const AttachmentProvider = ({
 
     const newAttachments = attachments
       .filter((att) => att.url !== attachment.url)
-      .map((att) => removeTypename(att));
+      .map(toAttachmentInput);
 
     try {
       await updateTicket({

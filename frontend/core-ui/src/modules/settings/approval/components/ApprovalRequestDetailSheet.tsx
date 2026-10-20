@@ -1,3 +1,4 @@
+import { TFunction } from 'i18next';
 import { ApprovalContentTarget } from '@/approval/components/ApprovalContentTarget';
 import { Badge, RelativeDateDisplay, Separator, Sheet } from 'erxes-ui';
 import { type ReactNode } from 'react';
@@ -11,7 +12,7 @@ import { getApprovalRequestUserName } from './approvalRequestUtils';
 type ApprovalRequestDetailSheetProps = {
   request: ApprovalRequest;
   onCompleted: () => void;
-  t: (key: string) => string;
+  t: TFunction;
   children: ReactNode;
 };
 
@@ -62,7 +63,7 @@ export const ApprovalRequestDetailSheet = ({
     <Sheet>
       <Sheet.Trigger asChild>{children}</Sheet.Trigger>
       <Sheet.View className="sm:max-w-xl">
-        <Sheet.Header>
+        <Sheet.Header className="h-auto py-2">
           <div className="min-w-0">
             <Sheet.Title>{t('request-details')}</Sheet.Title>
             <Sheet.Description className="truncate">

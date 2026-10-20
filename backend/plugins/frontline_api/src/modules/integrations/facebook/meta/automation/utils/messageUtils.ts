@@ -8,6 +8,7 @@ import {
   TBotData,
 } from '@/integrations/facebook/meta/automation/types/automationTypes';
 import { sendAutomationTrigger } from 'erxes-api-shared/core-modules';
+import { getReplyDebounceMs } from '@/integrations/facebook/meta/automation/utils/turnTaking';
 
 type TFacebookAutomationPayload = {
   executionId?: string;
@@ -136,6 +137,10 @@ export const triggerFacebookMessageAutomation = (
     target.entryType = 'direct';
   }
 
+  // Taps and replies to a waiting step answer immediately; a typed message
+  // waits for the person to finish, see checkMessageTrigger.
+  const isTypedMessage = target.entryType === 'direct' && !payload;
+
   sendAutomationTrigger(
     subdomain,
     {
@@ -143,7 +148,12 @@ export const triggerFacebookMessageAutomation = (
       targets: [target],
       repeatOptions,
     },
-    { transport: 'trpc' },
+    isTypedMessage
+      ? {
+          transport: 'bullmq',
+          jobOptions: { delay: getReplyDebounceMs(conversationMessage) },
+        }
+      : { transport: 'trpc' },
   );
 };
 
@@ -259,12 +269,12 @@ export const generateBotData = (
     type === 'image'
       ? [image]
       : type === 'video'
-        ? [video || '']
-        : type === 'audio'
-          ? [audio || '']
-          : type === 'attachments'
-            ? (attachments || []).map(({ url }) => url)
-            : [];
+      ? [video || '']
+      : type === 'audio'
+      ? [audio || '']
+      : type === 'attachments'
+      ? (attachments || []).map(({ url }) => url)
+      : [];
 
   for (const mediaUrl of mediaUrls.filter(Boolean)) {
     botData.push({

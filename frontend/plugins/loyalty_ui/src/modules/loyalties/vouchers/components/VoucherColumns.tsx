@@ -1,37 +1,46 @@
-import { IconUser, IconTag, IconClock } from '@tabler/icons-react';
+import {
+  IconCalendarDue,
+  IconClock,
+  IconGift,
+  IconMapPin,
+  IconTag,
+  IconUser,
+} from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
-import { useQuery } from '@apollo/client';
+import { format } from 'date-fns';
 import {
   RecordTable,
   RecordTableInlineCell,
-  Badge,
   RelativeDateDisplay,
 } from 'erxes-ui';
 import { TFunction } from 'i18next';
 import { useState } from 'react';
-
+import { useTranslation } from 'react-i18next';
 import { IVoucher } from '@/loyalties/vouchers/types/voucher';
-import { VOUCHER_CP_USER_QUERY } from '@/loyalties/vouchers/graphql/queries/queries';
-import { CustomersInline } from 'ui-modules/modules/contacts/components/CustomersInline';
-import { CompaniesInline } from 'ui-modules/modules/contacts/components/CompaniesInline';
-import { MembersInline } from 'ui-modules';
-import { VoucherEditSheet } from './VoucherEditSheet';
+import {
+  voucherDaysLeft,
+  voucherDisplayStatus,
+  voucherGivesText,
+  voucherWhereText,
+} from '@/loyalties/vouchers/utils/voucherView';
+import { VoucherDetailSheet } from './detail/VoucherDetailSheet';
+import { VoucherOwner } from './VoucherOwner';
+import { VoucherStatusBadge } from './VoucherStatusBadge';
 
-const CreatedAtCell = ({ voucher }: { voucher: IVoucher }) => {
+// Opening the voucher is the way to act on it; there is no free edit.
+const RecipientCell = ({ voucher }: { voucher: IVoucher }) => {
   const [open, setOpen] = useState(false);
 
   return (
     <>
-      <RelativeDateDisplay value={voucher.createdAt as string} asChild>
-        <RecordTableInlineCell
-          className="text-xs font-medium text-muted-foreground cursor-pointer hover:underline"
-          onClick={() => setOpen(true)}
-        >
-          <RelativeDateDisplay.Value value={voucher.createdAt as string} />
-        </RecordTableInlineCell>
-      </RelativeDateDisplay>
+      <RecordTableInlineCell
+        className="cursor-pointer hover:underline"
+        onClick={() => setOpen(true)}
+      >
+        <VoucherOwner ownerId={voucher.ownerId} ownerType={voucher.ownerType} />
+      </RecordTableInlineCell>
       {open && (
-        <VoucherEditSheet
+        <VoucherDetailSheet
           voucher={voucher}
           open={open}
           onOpenChange={setOpen}
@@ -41,120 +50,123 @@ const CreatedAtCell = ({ voucher }: { voucher: IVoucher }) => {
   );
 };
 
-export const generateOtherPaymentColumns = (_summary?: unknown) => [];
-
-// Client portal users have no inline component in `ui-modules`, so resolve them
-// here: prefer the linked erxes customer (matching the backend `getLoyaltyOwner`
-// behaviour) and otherwise fall back to the client portal user's own name.
-const CpUserOwner = ({ ownerId }: { ownerId: string }) => {
-  const { data, loading } = useQuery(VOUCHER_CP_USER_QUERY, {
-    variables: { _id: ownerId },
-    skip: !ownerId,
-  });
-
-  const cpUser = data?.getClientPortalUser;
-
-  if (cpUser?.erxesCustomerId) {
-    return (
-      <CustomersInline customerIds={[cpUser.erxesCustomerId]} placeholder="—" />
-    );
-  }
-
-  if (loading) return <>—</>;
-
-  const name =
-    [cpUser?.firstName, cpUser?.lastName].filter(Boolean).join(' ') ||
-    cpUser?.email ||
-    cpUser?.phone;
-
-  return <>{name || '—'}</>;
-};
-
-const renderOwnerContent = (ownerId: string, ownerType?: string) => {
-  if (ownerType === 'company')
-    return <CompaniesInline companyIds={[ownerId]} placeholder="—" />;
-  if (ownerType === 'user')
-    return <MembersInline memberIds={[ownerId]} placeholder="—" />;
-  if (ownerType === 'cpUser') return <CpUserOwner ownerId={ownerId} />;
-  return <CustomersInline customerIds={[ownerId]} placeholder="—" />;
-};
-
-const OwnerCell = ({
-  ownerId,
-  ownerType,
-}: {
-  ownerId?: string;
-  ownerType?: string;
-}) => {
-  if (!ownerId) return <RecordTableInlineCell>—</RecordTableInlineCell>;
+const GivesCell = ({ voucher }: { voucher: IVoucher }) => {
+  const { t } = useTranslation('loyalty');
 
   return (
-    <RecordTableInlineCell>
-      {renderOwnerContent(ownerId, ownerType)}
+    <RecordTableInlineCell className="gap-1.5">
+      <span className="truncate">{voucher.terms?.title || '—'}</span>
+      <span className="shrink-0 text-xs text-muted-foreground">
+        {voucherGivesText(voucher, t)}
+      </span>
     </RecordTableInlineCell>
   );
 };
 
-export const firstVoucherColumns = (
-  t: TFunction<'loyalty'>,
-): ColumnDef<IVoucher>[] => [
-  {
-    id: 'createdAt',
-    accessorKey: 'createdAt',
-    header: () => (
-      <RecordTable.InlineHead icon={IconClock} label={t('created-at')} />
-    ),
-    cell: ({ row }) => <CreatedAtCell voucher={row.original} />,
-  },
-  {
-    id: 'ownerType',
-    accessorKey: 'ownerType',
-    header: () => (
-      <RecordTable.InlineHead icon={IconUser} label={t('owner-type')} />
-    ),
-    cell: ({ cell }) => {
-      return (
-        <RecordTableInlineCell>
-          <span className="capitalize">{t(cell.getValue() as string)}</span>
-        </RecordTableInlineCell>
-      );
-    },
-    size: 130,
-  },
-];
+const ValidUntilCell = ({ voucher }: { voucher: IVoucher }) => {
+  const { t } = useTranslation('loyalty');
+  const status = voucherDisplayStatus(voucher);
+  const daysLeft = voucherDaysLeft(voucher.expiresAt);
 
-export const secondVoucherColumns = (
+  if (!voucher.expiresAt) {
+    return (
+      <RecordTableInlineCell className="text-muted-foreground">
+        {t('voucher-no-end')}
+      </RecordTableInlineCell>
+    );
+  }
+
+  return (
+    <RecordTableInlineCell className="gap-1.5">
+      <span>{format(new Date(voucher.expiresAt), 'yyyy.MM.dd')}</span>
+      {(status === 'new' || status === 'onhold') && daysLeft !== null && (
+        <span
+          className={
+            daysLeft <= 3
+              ? 'text-xs text-warning'
+              : 'text-xs text-muted-foreground'
+          }
+        >
+          {t('voucher-days-left', { count: daysLeft })}
+        </span>
+      )}
+    </RecordTableInlineCell>
+  );
+};
+
+export const voucherColumns = (
   t: TFunction<'loyalty'>,
 ): ColumnDef<IVoucher>[] => [
   {
-    id: 'ownerId',
+    id: 'recipient',
     accessorKey: 'ownerId',
-    header: () => <RecordTable.InlineHead icon={IconUser} label={t('owner')} />,
-    cell: ({ row }) => (
-      <OwnerCell
-        ownerId={row.original.ownerId}
-        ownerType={row.original.ownerType}
+    header: () => (
+      <RecordTable.InlineHead icon={IconUser} label={t('voucher-recipient')} />
+    ),
+    cell: ({ row }) => <RecipientCell voucher={row.original} />,
+    size: 200,
+  },
+  {
+    id: 'gives',
+    accessorKey: 'terms',
+    header: () => (
+      <RecordTable.InlineHead icon={IconGift} label={t('voucher-gives')} />
+    ),
+    cell: ({ row }) => <GivesCell voucher={row.original} />,
+    size: 200,
+  },
+  {
+    id: 'expiresAt',
+    accessorKey: 'expiresAt',
+    header: () => (
+      <RecordTable.InlineHead
+        icon={IconCalendarDue}
+        label={t('voucher-valid-until')}
       />
     ),
+    cell: ({ row }) => <ValidUntilCell voucher={row.original} />,
+    size: 140,
   },
   {
     id: 'status',
     accessorKey: 'status',
     header: () => <RecordTable.InlineHead icon={IconTag} label={t('status')} />,
-    cell: ({ cell }) => {
-      return (
-        <RecordTableInlineCell>
-          <Badge variant="default">{t(cell.getValue() as string)}</Badge>
-        </RecordTableInlineCell>
-      );
-    },
-    size: 100,
+    cell: ({ row }) => (
+      <RecordTableInlineCell>
+        <VoucherStatusBadge status={voucherDisplayStatus(row.original)} />
+      </RecordTableInlineCell>
+    ),
+    size: 110,
   },
-];
-
-export const voucherColumns = (
-  t: TFunction<'loyalty'>,
-): ColumnDef<IVoucher>[] => [
-  ...firstVoucherColumns(t),
-  ...secondVoucherColumns(t),
+  {
+    id: 'createdAt',
+    accessorKey: 'createdAt',
+    header: () => (
+      <RecordTable.InlineHead icon={IconClock} label={t('voucher-received')} />
+    ),
+    cell: ({ row }) => (
+      <RelativeDateDisplay value={row.original.createdAt as string} asChild>
+        <RecordTableInlineCell className="text-xs text-muted-foreground">
+          <RelativeDateDisplay.Value value={row.original.createdAt as string} />
+        </RecordTableInlineCell>
+      </RelativeDateDisplay>
+    ),
+    size: 130,
+  },
+  {
+    id: 'usedIn',
+    accessorKey: 'usedIn',
+    header: () => (
+      <RecordTable.InlineHead
+        icon={IconMapPin}
+        label={t('voucher-where-col')}
+      />
+    ),
+    cell: ({ row }) => (
+      <RecordTableInlineCell className="text-xs text-muted-foreground">
+        {voucherWhereText(row.original, t) || '—'}
+      </RecordTableInlineCell>
+    ),
+    size: 140,
+  },
 ];

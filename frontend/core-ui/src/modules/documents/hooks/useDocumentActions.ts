@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useMutation } from '@apollo/client';
 import { toast, useConfirm, useMultiQueryState } from 'erxes-ui';
 import { useState } from 'react';
@@ -24,6 +25,7 @@ type DocumentActions = {
 };
 
 export const useDocumentActions = (document: IDocument): DocumentActions => {
+  const { t } = useTranslation('documents', { keyPrefix: 'document' });
   const [open, setOpen] = useState(false);
   const [printOpen, setPrintOpen] = useState(false);
   const [duplicateOpen, setDuplicateOpen] = useState(false);
@@ -74,11 +76,10 @@ export const useDocumentActions = (document: IDocument): DocumentActions => {
   const handleDelete = (): void => {
     setOpen(false);
     void confirm({
-      message: `Delete "${document.name || 'Untitled'}"?`,
+      message: t('delete-title', { name: document.name || t('untitled') }),
       options: {
-        description:
-          'This document will be permanently deleted. This action cannot be undone.',
-        okLabel: 'Delete document',
+        description: t('delete-description'),
+        okLabel: t('delete-document'),
       },
     })
       .then(() => removeDocument({ variables: { id: document._id } }))

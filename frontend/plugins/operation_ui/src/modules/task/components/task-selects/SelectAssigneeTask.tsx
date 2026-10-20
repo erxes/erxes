@@ -254,6 +254,7 @@ const SelectAssigneeValue = ({
         memberIds={memberIds}
         members={members}
         allowUnassigned
+        showInactive
         updateMembers={setMembers}
       >
         <MembersInline.Avatar />
@@ -261,7 +262,10 @@ const SelectAssigneeValue = ({
     );
   }
   return (
-    <SelectMember.Value placeholder={placeholder || t('select-assignee')} />
+    <SelectMember.Value
+      placeholder={placeholder || t('select-assignee')}
+      showInactive
+    />
   );
 };
 
@@ -279,6 +283,7 @@ const SelectTeamMemberContent = ({
   const [debouncedSearch] = useDebounce(search, 500);
   const currentUser = useAtomValue(currentUserState) as IUser;
   const { memberIds, members } = useSelectMemberContext();
+  const activeMembers = members.filter((member) => member.isActive !== false);
   const filteredIds = excludeIds?.filter((id) => id !== currentUser._id);
   const { users, loading, handleFetchMore, totalCount, error } = useUsers({
     variables: {
@@ -309,9 +314,9 @@ const SelectTeamMemberContent = ({
       />
       <Command.List className="max-h-[300px] overflow-y-auto">
         <Combobox.Empty loading={loading} error={error} />
-        {members.length > 0 && (
+        {activeMembers.length > 0 && (
           <>
-            {members.map((member) => (
+            {activeMembers.map((member) => (
               <SelectMember.CommandItem key={member._id} user={member} />
             ))}
             {!loading && membersList.length > 0 && (
@@ -401,12 +406,14 @@ const SelectAssigneeTaskRoot = ({
   variant,
   id,
   teamIds,
+  label,
 }: {
   value?: string | null;
   scope?: string;
   variant: `${SelectTriggerVariant}`;
   teamIds?: string[] | string;
   id?: string;
+  label?: string;
 }) => {
   const { updateTask } = useUpdateTask();
   const [open, setOpen] = useState(false);
@@ -442,7 +449,7 @@ const SelectAssigneeTaskRoot = ({
   const trigger =
     variant === 'detail' && internalValue ? (
       <AssigneeHoverCard assigneeId={internalValue}>
-        <SelectTriggerOperation variant={variant}>
+        <SelectTriggerOperation variant={variant} label={label}>
           <SelectAssigneeValue variant={variant} />
           <Button
             variant="ghost"
@@ -456,7 +463,10 @@ const SelectAssigneeTaskRoot = ({
         </SelectTriggerOperation>
       </AssigneeHoverCard>
     ) : (
-      <SelectTriggerOperation variant={variant === 'card' ? 'icon' : variant}>
+      <SelectTriggerOperation
+        variant={variant === 'card' ? 'icon' : variant}
+        label={label}
+      >
         <SelectAssigneeValue variant={variant} />
       </SelectTriggerOperation>
     );
@@ -483,11 +493,13 @@ export const SelectAssigneeTaskFormItem = ({
   onValueChange,
   scope,
   teamIds,
+  label,
 }: {
   value: string;
   onValueChange: (value: string) => void;
   scope?: string;
   teamIds?: string[] | string;
+  label?: string;
 }) => {
   const [open, setOpen] = useState(false);
   return (
@@ -501,7 +513,7 @@ export const SelectAssigneeTaskFormItem = ({
       allowUnassigned
     >
       <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
-        <SelectTriggerOperation variant="form">
+        <SelectTriggerOperation variant="form" label={label}>
           <SelectAssigneeValue />
         </SelectTriggerOperation>
         <Combobox.Content>

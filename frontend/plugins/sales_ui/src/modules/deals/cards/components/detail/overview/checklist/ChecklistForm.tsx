@@ -5,12 +5,14 @@ import {
 } from './constants/checklistFormSchema';
 
 import { useChecklistsAdd } from '@/deals/cards/hooks/useChecklists';
-import { useForm } from 'react-hook-form';
-import { useRef } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useRef } from 'react';
+import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 
-export const ChecklistForm = () => {
+export const ChecklistForm = ({
+  onCreated,
+}: Readonly<{ onCreated: (checklistId: string) => void }>) => {
   const form = useForm<ChecklistFormType>({
     resolver: zodResolver(checklistFormSchema),
   });
@@ -25,9 +27,11 @@ export const ChecklistForm = () => {
       variables: {
         ...data,
       },
-      onCompleted: () => {
+      onCompleted: ({ salesChecklistsAdd }) => {
+        if (!salesChecklistsAdd) return;
         toast({ title: t('success') });
         form.reset();
+        onCreated(salesChecklistsAdd._id);
 
         closeRef.current?.click();
       },

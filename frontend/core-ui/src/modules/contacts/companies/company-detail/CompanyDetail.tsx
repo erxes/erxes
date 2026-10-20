@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import {
   Empty,
   FocusSheet,
@@ -22,6 +23,7 @@ import { useCompanyCustomFieldEdit } from '../hooks/useCompanyCustomFieldEdit';
 import { companyCustomActivities } from './CompanyActivityRows';
 
 export const CompanyDetail = () => {
+  const { t } = useTranslation('contact', { keyPrefix: 'company' });
   const [open, setOpen] = useQueryState<string>('companyId');
   const { companyDetail, loading, error } = useCompanyDetailWithQuery();
   const [selectedTab, setSelectedTab] = useQueryState<string>('tab');
@@ -35,7 +37,7 @@ export const CompanyDetail = () => {
         errorState={<CompanyDetailErrorState />}
         error={!!error}
       >
-        <FocusSheet.Header title="Company Details" />
+        <FocusSheet.Header title={t('company-details')} />
         <FocusSheet.Content>
           <FocusSheet.SideBar>
             <ContactSidebar />
@@ -113,6 +115,7 @@ export const CompanyDetail = () => {
 };
 
 const CompanyDetailEmptyState = () => {
+  const { t } = useTranslation('contact', { keyPrefix: 'company' });
   return (
     <div className="flex items-center justify-center h-full">
       <Empty>
@@ -121,16 +124,15 @@ const CompanyDetailEmptyState = () => {
             <IconCloudExclamation />
           </Empty.Media>
         </Empty.Header>
-        <Empty.Title>Company not found</Empty.Title>
-        <Empty.Description>
-          There seems to be no company with this ID.
-        </Empty.Description>
+        <Empty.Title>{t('not-found')}</Empty.Title>
+        <Empty.Description>{t('not-found-description')}</Empty.Description>
       </Empty>
     </div>
   );
 };
 
 const CompanyDetailErrorState = () => {
+  const { t } = useTranslation('contact', { keyPrefix: 'company' });
   const { error } = useCompanyDetailWithQuery();
   return (
     <div className="flex items-center justify-center h-full">
@@ -139,7 +141,7 @@ const CompanyDetailErrorState = () => {
           <Empty.Media variant="icon">
             <IconAlertCircle />
           </Empty.Media>
-          <Empty.Title>Error</Empty.Title>
+          <Empty.Title>{t('error-title')}</Empty.Title>
           <Empty.Description>{error?.message}</Empty.Description>
         </Empty.Header>
       </Empty>

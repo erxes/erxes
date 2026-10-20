@@ -1,20 +1,23 @@
 import { UPDATE_CHANNEL_MEMBER } from '@/channels/graphql';
-import { IChannelMember } from '@/channels/types';
 import { MutationFunctionOptions, useMutation } from '@apollo/client';
 import { useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-
-interface IChannelMemberUpdateMutationResponse {
-  updateChannelMember: IChannelMember;
-}
+import type {
+  ChannelUpdateMemberMutation,
+  ChannelUpdateMemberMutationVariables,
+} from '~/gql/graphql';
 
 export const useChannelMemberUpdate = () => {
   const { t } = useTranslation('frontline');
   const { toast } = useToast();
-  const [updateChannelMember, { loading, error }] =
-    useMutation<IChannelMemberUpdateMutationResponse>(UPDATE_CHANNEL_MEMBER);
+  const [updateChannelMember, { loading, error }] = useMutation(
+    UPDATE_CHANNEL_MEMBER,
+  );
   const handleUpdateChannelMember = (
-    options: MutationFunctionOptions<IChannelMemberUpdateMutationResponse, any>,
+    options: MutationFunctionOptions<
+      ChannelUpdateMemberMutation,
+      ChannelUpdateMemberMutationVariables
+    >,
   ) => {
     updateChannelMember({
       ...options,

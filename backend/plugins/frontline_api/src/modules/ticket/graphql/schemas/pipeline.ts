@@ -42,6 +42,25 @@ export const types = `
     totalCount: Int
   }
 
+  type CpTicketPipeline {
+    _id: String!
+    name: String!
+    description: String
+    channelId: String
+  }
+
+  type CpTicketPipelineListResponse {
+    list: [CpTicketPipeline]
+    pageInfo: PageInfo
+    totalCount: Int
+  }
+
+  input CpTicketPipelineFilter {
+    channelId: String
+    name: String
+    ${GQL_CURSOR_PARAM_DEFS}
+  }
+
   input TicketsPipelineFilter {
     channelId: String
     pipelineId:String
@@ -55,10 +74,10 @@ export const types = `
 export const queries = `
   getTicketPipeline(_id: String!): Pipeline
   getTicketPipelines(filter: TicketsPipelineFilter): PipelineListResponse
+  cpGetTicketPipelines(filter: CpTicketPipelineFilter): CpTicketPipelineListResponse
 `;
 
 const pipelineParams = `
-    channelId:String
     pipelineId:String
     statusId:String
     description: String
@@ -74,8 +93,6 @@ const pipelineParams = `
     numberSize: String
     nameConfig: String
     departmentIds: [String],
-    nameConfig: String,
-    branchIds: [String],
     visibility: String,
     memberIds :[String]
     propertyIds: [String]
@@ -83,12 +100,14 @@ const pipelineParams = `
 export const mutations = `
   createPipeline(
     name: String!
+    channelId: String!
     ${pipelineParams}
   ): Pipeline
 
   updatePipeline(
     _id: String!
     name: String
+    channelId: String
     ${pipelineParams}
   ): Pipeline
 

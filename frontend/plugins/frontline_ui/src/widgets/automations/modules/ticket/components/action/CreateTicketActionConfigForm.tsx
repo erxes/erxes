@@ -1,18 +1,11 @@
-import { SelectChannel } from '@/ticket/components/ticket-selects/SelectChannel';
-import { SelectPipeline } from '@/ticket/components/ticket-selects/SelectPipeline';
-import { SelectStatusTicket } from '@/ticket/components/ticket-selects/SelectStatusTicket';
-import {
-  SelectTicketContent,
-  SelectTriggerTicket,
-} from '@/ticket/components/ticket-selects/SelectTicket';
 import { PROJECT_PRIORITIES_OPTIONS } from '@/ticket/constants/priorityOption';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Form, PopoverScoped } from 'erxes-ui';
-import { useState } from 'react';
+import { Form } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { Control, useForm, useWatch } from 'react-hook-form';
+import { Control, useForm, UseFormReturn } from 'react-hook-form';
 import {
   AutomationActionFormProps,
+  AutomationConditionalField,
   PlaceholderInput,
   TPlaceholderInputSuggestion,
   TPlaceholderInputSuggestionsOption,
@@ -24,10 +17,9 @@ import {
   TTicketActionConfigForm,
   ticketActionConfigFormSchema,
 } from '../../states/ticketActionConfigFormDefinitions';
+import { TicketPlacementFields } from './TicketPlacementFields';
 
 const TICKET_PROPERTY_TYPE = 'frontline:ticket.tickets';
-const FULL_WIDTH_SELECT_ITEM_CLASS =
-  'min-w-0 [&_[role=combobox]]:w-full [&_[role=combobox]]:max-w-none';
 
 type TPlaceholderFieldName =
   | 'name'
@@ -38,54 +30,10 @@ type TPlaceholderFieldName =
   | 'targetDate'
   | 'labelIds'
   | 'tagIds'
-  | 'companyIds';
+  | 'companyIds'
+  | 'attachmentIds';
 
-const TicketStatusConfigSelect = ({
-  value,
-  onValueChange,
-  pipelineId,
-}: {
-  value: string;
-  onValueChange: (value: string) => void;
-  pipelineId?: string;
-}) => {
-  const [open, setOpen] = useState(false);
-
-  return (
-    <SelectStatusTicket.Provider
-      value={value}
-      pipelineId={pipelineId}
-      onValueChange={(statusId) => {
-        onValueChange(statusId);
-        setOpen(false);
-      }}
-    >
-      <PopoverScoped open={open} onOpenChange={setOpen}>
-        <SelectTriggerTicket variant="form">
-          <SelectStatusTicket.Value />
-        </SelectTriggerTicket>
-        <SelectTicketContent variant="form">
-          <SelectStatusTicket.Content />
-        </SelectTicketContent>
-      </PopoverScoped>
-    </SelectStatusTicket.Provider>
-  );
-};
-
-const PlaceholderFormField = ({
-  control,
-  name,
-  label,
-  propertyType,
-  variant,
-  selectMode = 'one',
-  enabled,
-  selectionType,
-  suggestionsOptions,
-}: {
-  control: Control<TTicketActionConfigForm>;
-  name: TPlaceholderFieldName;
-  label: string;
+type TPlaceholderFieldOptions = {
   propertyType: string;
   variant?: 'expression' | 'fixed';
   selectMode?: 'one' | 'many';
@@ -94,6 +42,48 @@ const PlaceholderFormField = ({
   suggestionsOptions?: Partial<
     Record<string, TPlaceholderInputSuggestionsOption>
   >;
+};
+
+const TicketPlaceholderInput = ({
+  value,
+  onChange,
+  propertyType,
+  variant,
+  selectMode = 'one',
+  enabled,
+  selectionType,
+  suggestionsOptions,
+}: TPlaceholderFieldOptions & {
+  value?: string;
+  onChange: (value: string) => void;
+}) => (
+  <PlaceholderInput
+    propertyType={propertyType}
+    value={value || ''}
+    onChange={onChange}
+    variant={variant}
+    placeholderConfig={{
+      selectMode,
+      delimiter: selectMode === 'many' ? ',' : undefined,
+      allowOnlyTriggers: true,
+    }}
+    enabled={enabled}
+    selectionType={selectionType}
+    suggestionsOptions={suggestionsOptions}
+  >
+    {variant === 'expression' ? <PlaceholderInput.Header /> : null}
+  </PlaceholderInput>
+);
+
+const PlaceholderFormField = ({
+  control,
+  name,
+  label,
+  ...options
+}: TPlaceholderFieldOptions & {
+  control: Control<TTicketActionConfigForm>;
+  name: TPlaceholderFieldName;
+  label: string;
 }) => (
   <Form.Field
     control={control}
@@ -101,24 +91,38 @@ const PlaceholderFormField = ({
     render={({ field }) => (
       <Form.Item>
         <Form.Label>{label}</Form.Label>
-        <PlaceholderInput
-          propertyType={propertyType}
-          value={field.value || ''}
+        <TicketPlaceholderInput
+          {...options}
+          value={field.value}
           onChange={field.onChange}
-          variant={variant}
-          placeholderConfig={{
-            selectMode,
-            delimiter: selectMode === 'many' ? ',' : undefined,
-            allowOnlyTriggers: true,
-          }}
-          enabled={enabled}
-          selectionType={selectionType}
-          suggestionsOptions={suggestionsOptions}
-        >
-          {variant === 'expression' ? <PlaceholderInput.Header /> : null}
-        </PlaceholderInput>
+        />
         <Form.Message />
       </Form.Item>
+    )}
+  />
+);
+
+// Same input, but the value may be chosen by conditions at run time
+const ConditionalPlaceholderFormField = ({
+  form,
+  name,
+  label,
+  ...options
+}: TPlaceholderFieldOptions & {
+  form: UseFormReturn<TTicketActionConfigForm>;
+  name: TPlaceholderFieldName;
+  label: string;
+}) => (
+  <AutomationConditionalField
+    form={form}
+    names={[name]}
+    label={label}
+    render={({ field }) => (
+      <TicketPlaceholderInput
+        {...options}
+        value={field.value}
+        onChange={field.onChange}
+      />
     )}
   />
 );
@@ -137,11 +141,7 @@ export const CreateTicketActionConfigForm = ({
       ...(currentAction?.config || {}),
     },
   });
-  const { control, handleSubmit, setValue } = form;
-  const [channelId, pipelineId] = useWatch({
-    control,
-    name: ['channelId', 'pipelineId'],
-  });
+  const { control, handleSubmit } = form;
 
   const { handleValidationErrors } = useFormValidationErrorHandler({
     formName: 'Ticket Action Configuration',
@@ -156,60 +156,14 @@ export const CreateTicketActionConfigForm = ({
 
   return (
     <Form {...form}>
-      <div className="grid grid-cols-3 gap-2">
-        <Form.Field
-          control={control}
-          name="channelId"
-          render={({ field }) => (
-            <Form.Item className={FULL_WIDTH_SELECT_ITEM_CLASS}>
-              <Form.Label>{t('channel-label', 'Channel')}</Form.Label>
-              <SelectChannel.FormItem
-                value={field.value || ''}
-                onValueChange={(value) => {
-                  field.onChange(value);
-                  setValue('pipelineId', '');
-                  setValue('statusId', '');
-                }}
-              />
-              <Form.Message />
-            </Form.Item>
-          )}
-        />
-        <Form.Field
-          control={control}
-          name="pipelineId"
-          render={({ field }) => (
-            <Form.Item className={FULL_WIDTH_SELECT_ITEM_CLASS}>
-              <Form.Label>{t('pipeline-label', 'Pipeline')}</Form.Label>
-              <SelectPipeline
-                variant="form"
-                value={field.value || ''}
-                channelId={channelId}
-                onValueChange={(value) => {
-                  field.onChange(value);
-                  setValue('statusId', '');
-                }}
-              />
-              <Form.Message />
-            </Form.Item>
-          )}
-        />
-        <Form.Field
-          control={control}
-          name="statusId"
-          render={({ field }) => (
-            <Form.Item className={FULL_WIDTH_SELECT_ITEM_CLASS}>
-              <Form.Label>{t('status', 'Status')}</Form.Label>
-              <TicketStatusConfigSelect
-                value={field.value || ''}
-                pipelineId={pipelineId}
-                onValueChange={field.onChange}
-              />
-              <Form.Message />
-            </Form.Item>
-          )}
-        />
-      </div>
+      <AutomationConditionalField
+        form={form}
+        names={['channelId', 'pipelineId', 'statusId']}
+        label={t('ticket-placement', 'Channel / Pipeline / Status')}
+        render={({ form: placementForm }) => (
+          <TicketPlacementFields form={placementForm} />
+        )}
+      />
 
       <Form.Field
         control={control}
@@ -245,8 +199,8 @@ export const CreateTicketActionConfigForm = ({
       />
 
       <div className="grid grid-cols-2 gap-2">
-        <PlaceholderFormField
-          control={control}
+        <ConditionalPlaceholderFormField
+          form={form}
           name="priority"
           label={t('priority-label', 'Priority')}
           propertyType={propertyType}
@@ -261,8 +215,8 @@ export const CreateTicketActionConfigForm = ({
             },
           }}
         />
-        <PlaceholderFormField
-          control={control}
+        <ConditionalPlaceholderFormField
+          form={form}
           name="assigneeId"
           label={t('assignee', 'Assignee')}
           propertyType={propertyType}
@@ -312,6 +266,14 @@ export const CreateTicketActionConfigForm = ({
           enabled={[TPlaceholderInputSuggestion.CallCompany]}
         />
       </div>
+
+      <PlaceholderFormField
+        control={control}
+        name="attachmentIds"
+        label={t('ticket-attachment-media', 'Attachments (conversation media)')}
+        propertyType={propertyType}
+        selectMode="many"
+      />
     </Form>
   );
 };

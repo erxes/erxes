@@ -1,14 +1,10 @@
 import { useQuery } from '@apollo/client';
-import { isUndefinedOrNull, useMultiQueryState } from 'erxes-ui';
+import { isDefined, isUndefinedOrNull, useMultiQueryState } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { articlesTotalCountAtom } from '@/knowledgebase/articles/states/articlesTotalCountState';
 import { ARTICLES_PER_PAGE } from '@/knowledgebase/constants';
 import { ARTICLE_DETAIL, ARTICLES } from '@/knowledgebase/graphql/queries';
-import {
-  IArticleDetailResponse,
-  IArticleListResponse,
-} from '@/knowledgebase/types';
 
 export interface IArticleFilters {
   searchValue?: string;
@@ -32,24 +28,26 @@ export const useArticleFilters = (): IArticleFilters => {
   };
 };
 
+export const articlesQueryVariables = (
+  topicId?: string,
+  { searchValue, categoryId, status }: IArticleFilters = {},
+) => ({
+  topicIds: categoryId || !topicId ? undefined : [topicId],
+  categoryIds: categoryId ? [categoryId] : undefined,
+  searchValue,
+  status,
+  page: 1,
+  perPage: ARTICLES_PER_PAGE,
+});
+
 export const useArticles = (topicId?: string) => {
   const setTotalCount = useSetAtom(articlesTotalCountAtom);
-  const { searchValue, categoryId, status } = useArticleFilters();
+  const filters = useArticleFilters();
 
-  const { data, loading, error, refetch } = useQuery<IArticleListResponse>(
-    ARTICLES,
-    {
-      skip: !topicId,
-      variables: {
-        topicIds: categoryId || !topicId ? undefined : [topicId],
-        categoryIds: categoryId ? [categoryId] : undefined,
-        searchValue,
-        status,
-        page: 1,
-        perPage: ARTICLES_PER_PAGE,
-      },
-    },
-  );
+  const { data, loading, error, refetch } = useQuery(ARTICLES, {
+    skip: !topicId,
+    variables: articlesQueryVariables(topicId, filters),
+  });
 
   const totalCount = data?.knowledgeBaseArticlesTotalCount;
 
@@ -58,8 +56,13 @@ export const useArticles = (topicId?: string) => {
     setTotalCount(totalCount);
   }, [totalCount, setTotalCount]);
 
+  const articles = useMemo(
+    () => data?.knowledgeBaseArticles?.filter(isDefined),
+    [data?.knowledgeBaseArticles],
+  );
+
   return {
-    articles: data?.knowledgeBaseArticles,
+    articles,
     totalCount,
     loading,
     error,
@@ -68,17 +71,14 @@ export const useArticles = (topicId?: string) => {
 };
 
 export const useArticleDetail = (articleId?: string | null) => {
-  const { data, loading, error } = useQuery<IArticleDetailResponse>(
-    ARTICLE_DETAIL,
-    {
-      variables: { _id: articleId },
-      skip: !articleId,
-      fetchPolicy: 'cache-and-network',
-    },
-  );
+  const { data, loading, error } = useQuery(ARTICLE_DETAIL, {
+    variables: articleId ? { _id: articleId } : undefined,
+    skip: !articleId,
+    fetchPolicy: 'cache-and-network',
+  });
 
   return {
-    article: data?.knowledgeBaseArticleDetail,
+    article: data?.knowledgeBaseArticleDetail ?? undefined,
     loading,
     error,
   };

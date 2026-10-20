@@ -26,6 +26,11 @@ import {
   IconUsersGroup,
 } from '@tabler/icons-react';
 import { TFunction } from 'i18next';
+import { SETTINGS_ROUTES as STRUCTURE_ROUTES } from '@/settings/structure/constants/structure-routes';
+import { TeamMembersPath } from '@/settings/team-member/constants/teamMemberRoutes';
+import { AutomationSettingsPath } from '@/types/paths/AutomationPath';
+import { ImportExportSettingsPath } from '@/import-export/settings/constants/importExportSettingsPaths';
+import { AppPath } from '@/types/paths/AppPath';
 
 export const KEY_LABELS = {
   UPLOAD_FILE_TYPES: 'Upload File Types',
@@ -188,32 +193,32 @@ export const SETTINGS_PATH_DATA = (
   ],
   developer: [
     {
-      name: 'Client portal',
+      name: t('client-portal'),
       icon: IconBuilding,
       path: SettingsWorkspacePath.ClientPortals,
     },
     {
-      name: 'App tokens',
+      name: t('app-tokens'),
       icon: IconKey,
       path: SettingsWorkspacePath.AppTokens,
     },
     {
-      name: 'OAuth clients',
+      name: t('oauth-clients'),
       icon: IconShieldLock,
       path: SettingsWorkspacePath.OAuthClients,
     },
     {
-      name: 'System Logs',
+      name: t('system-logs'),
       icon: IconFile,
       path: SettingsWorkspacePath.Logs,
     },
     {
-      name: 'Email delivery',
+      name: t('email-delivery'),
       icon: IconMail,
       path: SettingsWorkspacePath.EmailDeliveries,
     },
     {
-      name: 'Import & Export',
+      name: t('import-export'),
       icon: IconFileImport,
       path: SettingsWorkspacePath.ImportExport,
     },
@@ -225,7 +230,10 @@ export const SETTINGS_PATH_DATA = (
   ],
 });
 
-export const GET_SETTINGS_PATH_DATA = (version?: boolean, t?: TFunction) => {
+export const GET_SETTINGS_PATH_DATA = (
+  version?: boolean,
+  t: TFunction = ((key: string) => key) as TFunction,
+) => {
   const settingsData = SETTINGS_PATH_DATA(t);
   const account = [...settingsData.account];
   const nav = [...settingsData.nav];
@@ -234,12 +242,12 @@ export const GET_SETTINGS_PATH_DATA = (version?: boolean, t?: TFunction) => {
   if (version) {
     nav.push(
       {
-        name: 'File upload',
+        name: t('file-upload'),
         icon: IconFile,
         path: SettingsWorkspacePath.FileUpload,
       },
       {
-        name: 'Mail config',
+        name: t('mail-config'),
         icon: IconMail,
         path: SettingsWorkspacePath.MailConfig,
       },
@@ -252,6 +260,92 @@ export const GET_SETTINGS_PATH_DATA = (version?: boolean, t?: TFunction) => {
     developer,
   };
 };
+
+export type TSettingSubPath = {
+  name: string;
+  path: string;
+};
+
+type TSettingSubNavigation = {
+  name: string;
+  items: TSettingSubPath[];
+};
+
+const settingsPath = (path: string) => `/${AppPath.Settings}/${path}`;
+
+export const GET_SETTINGS_SUB_NAVIGATION = (
+  t: TFunction,
+  sidebarT: TFunction,
+): Record<string, TSettingSubNavigation> => ({
+  [SettingsWorkspacePath.TeamMember]: {
+    name: sidebarT('team-member'),
+    items: [
+      {
+        name: t('Members'),
+        path: `${TeamMembersPath.Index}${TeamMembersPath.TeamMembers}`,
+      },
+      {
+        name: t('Permission groups'),
+        path: `${TeamMembersPath.Index}${TeamMembersPath.TeamPermissions}`,
+      },
+    ],
+  },
+  [SettingsWorkspacePath.Structure]: {
+    name: sidebarT('structure'),
+    items: Object.entries(STRUCTURE_ROUTES).map(([path, name]) => ({
+      name,
+      path,
+    })),
+  },
+  [SettingsWorkspacePath.Automations]: {
+    name: sidebarT('automations'),
+    items: [
+      { name: 'Agents', path: AutomationSettingsPath.Agents },
+      { name: 'Bots', path: AutomationSettingsPath.Bots },
+    ],
+  },
+  [SettingsWorkspacePath.EmailDeliveries]: {
+    name: 'Email delivery',
+    items: [
+      {
+        name: 'Messages',
+        path: settingsPath(SettingsWorkspacePath.EmailDeliveries),
+      },
+      {
+        name: 'Addresses',
+        path: `${settingsPath(
+          SettingsWorkspacePath.EmailDeliveries,
+        )}?view=addresses`,
+      },
+      {
+        name: 'Limits',
+        path: `${settingsPath(
+          SettingsWorkspacePath.EmailDeliveries,
+        )}?view=limits`,
+      },
+    ],
+  },
+  [SettingsWorkspacePath.ImportExport]: {
+    name: 'Import & Export',
+    items: [
+      {
+        name: t('import', { ns: 'importExport' }),
+        path: ImportExportSettingsPath.Import,
+      },
+      {
+        name: t('export', { ns: 'importExport' }),
+        path: ImportExportSettingsPath.Export,
+      },
+    ],
+  },
+  contacts: {
+    name: sidebarT('contacts', 'Contacts'),
+    items: [
+      { name: 'Customers', path: settingsPath('contacts') },
+      { name: 'Companies', path: settingsPath('contacts/companies') },
+    ],
+  },
+});
 
 export const SETTINGS_PERMISSION_MAP: Record<string, string> = {
   [SettingsWorkspacePath.TeamMember]: 'teamMembers',

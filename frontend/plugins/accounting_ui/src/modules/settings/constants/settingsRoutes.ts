@@ -1,17 +1,18 @@
 export const SETTINGS_ROUTES = {
-  '/settings/accounting/config': 'Ерөнхий тохиргоо',
+  '/accounting/settings/config': 'general-settings',
   account: '',
-  '/settings/accounting/config/accounts': 'Данс',
-  '/settings/accounting/config/account-categories': 'Дансны ангилал',
-  '/settings/accounting/config/permissions': 'Дансны эрх',
+  '/accounting/settings/config/accounts': 'account',
+  '/accounting/settings/config/account-categories': 'account-category-label',
+  '/accounting/settings/config/permissions': 'account-permissions',
   tax: '',
-  '/settings/accounting/config/vat-rows': 'НӨАТ-ын мөр',
-  '/settings/accounting/config/ctax-rows': 'НХАТ-ын мөр',
+  '/accounting/settings/config/vat-rows': 'vat-row-label',
+  '/accounting/settings/config/ctax-rows': 'city-tax-row',
   sync: '',
-  '/settings/accounting/config/sync-deal': 'Deal дүрэм',
-  '/settings/accounting/config/sync-deal-movement': 'Deal хөдөлгөөний дүрэм',
-  '/settings/accounting/config/sync-deal-return': 'Deal буцаалтын дүрэм',
-  '/settings/accounting/config/sync-order': 'Pos order дүрэм',
+  '/accounting/settings/config/sync-deal': 'deal-rule',
+  '/accounting/settings/config/sync-deal-movement':
+    'deal-inventory-movement-rule',
+  '/accounting/settings/config/sync-deal-return': 'deal-return-rule',
+  '/accounting/settings/config/sync-order': 'pos-order-rule-label',
 };
 
 export enum ACCOUNTING_SETTINGS_CODES {

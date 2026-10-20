@@ -142,7 +142,9 @@
   }
   body {
     @apply bg-background text-foreground;
-    font-feature-settings: 'rlig' 1, 'calt' 1;
+    font-feature-settings:
+      'rlig' 1,
+      'calt' 1;
   }
   h1 {
     @apply text-2xl font-bold;
@@ -458,4 +460,74 @@
 }
 .erxes-comment-card button.erxes-comment-reaction:hover {
   background-color: var(--erxes-block-accent);
+}
+
+/* Sidebar body (plugin ./sidebar remotes, core modules): top-level groups use
+   0.5rem padding on all sides; nested groups (like sales board rows) keep theirs */
+[data-navigation-context]
+  [data-sidebar='group']:not([data-sidebar='group'] [data-sidebar='group']) {
+  padding: 0.5rem;
+}
+/* Sidebar body: the first group starts flush with the switcher, however deeply it is wrapped */
+[data-navigation-context] > [data-sidebar='group']:first-child,
+[data-navigation-context] > :first-child [data-sidebar='group']:first-child,
+[data-navigation-context]
+  > [data-sidebar='separator']:first-child
+  + *
+  [data-sidebar='group']:first-child,
+[data-navigation-context]
+  > [data-sidebar='separator']:first-child
+  + [data-sidebar='group'] {
+  padding-top: 0;
+}
+/* All sidebar menus: muted icons, sharper labels */
+:is(
+  [data-sidebar='menu-button'],
+  [data-sidebar='menu-sub-button'],
+  [data-nav-row]
+) {
+  transition: color 0.15s ease-out;
+}
+:is(
+    [data-sidebar='menu-button'],
+    [data-sidebar='menu-sub-button'],
+    [data-nav-row]
+  )
+  svg {
+  color: inherit;
+  transition: color 0.15s ease-out;
+}
+:is(
+  [data-sidebar='menu-button'],
+  [data-sidebar='menu-sub-button'],
+  [data-nav-row]
+):not([data-active='true'], [data-state='active'], .text-primary) {
+  color: color-mix(in oklab, var(--foreground) 85%, transparent);
+}
+:is(
+    [data-sidebar='menu-button'],
+    [data-sidebar='menu-sub-button'],
+    [data-nav-row]
+  ):not([data-active='true'], [data-state='active'], .text-primary)
+  svg {
+  color: var(--muted-foreground);
+}
+:is(
+    [data-sidebar='menu-button'],
+    [data-sidebar='menu-sub-button'],
+    [data-nav-row]
+  ):not([data-active='true'], [data-state='active'], .text-primary):hover,
+:is(
+    [data-sidebar='menu-button'],
+    [data-sidebar='menu-sub-button'],
+    [data-nav-row]
+  ):not([data-active='true'], [data-state='active'], .text-primary):hover
+  svg {
+  color: var(--foreground);
+}
+/* Sidebar body: leave room for the hover actions on plugin menu items */
+[data-navigation-context]
+  [data-sidebar='menu-item']:has([data-nav-actions])
+  [data-sidebar='menu-button'] {
+  padding-right: 3.75rem;
 }

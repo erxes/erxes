@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useDocumentActions } from '../hooks/useDocumentActions';
 import { useDocumentAccessRefresh } from '../hooks/useDocumentAccessRefresh';
 import {
@@ -40,6 +41,7 @@ type DocumentsActionsMenuProps = {
 function DocumentLockMenuItem({
   documentItem,
 }: Readonly<{ documentItem: IDocument }>) {
+  const { t } = useTranslation('documents', { keyPrefix: 'document' });
   const refreshAccess = useDocumentAccessRefresh();
   const {
     open,
@@ -65,7 +67,7 @@ function DocumentLockMenuItem({
         disabled={!canRelease || loading}
         onSelect={onRelease}
       >
-        <IconLockOpen /> Unlock
+        <IconLockOpen /> {t('unlock')}
       </Command.Item>
     );
   }
@@ -83,7 +85,7 @@ function DocumentLockMenuItem({
           disabled={loading}
           onSelect={() => setOpen(true)}
         >
-          <IconLock /> Lock
+          <IconLock /> {t('lock')}
         </Command.Item>
       }
     />
@@ -101,18 +103,19 @@ function DocumentsActionsList({
   DocumentsActionsMenuProps,
   'documentItem' | 'loading' | 'onDelete' | 'onEdit' | 'onPrint' | 'onDuplicate'
 >) {
+  const { t } = useTranslation('documents', { keyPrefix: 'document' });
   return (
     <Command.List>
       <Can action="manageDocuments">
         <Command.Item value="edit" onSelect={onEdit}>
-          <IconEdit /> Edit
+          <IconEdit /> {t('edit')}
         </Command.Item>
         <Command.Item value="duplicate" onSelect={onDuplicate}>
           <IconCopy /> Duplicate
         </Command.Item>
       </Can>
       <Command.Item value="print" onSelect={onPrint}>
-        <IconPrinter /> Print
+        <IconPrinter /> {t('print')}
       </Command.Item>
       <Can action="manageDocuments">
         <DocumentLockMenuItem documentItem={documentItem} />
@@ -124,7 +127,7 @@ function DocumentsActionsList({
           disabled={loading}
           className="text-destructive"
         >
-          <IconTrash /> Delete
+          <IconTrash /> {t('delete')}
         </Command.Item>
       </Can>
     </Command.List>

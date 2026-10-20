@@ -106,7 +106,7 @@ export const automationInstagramBotsColumns: ColumnDef<IInstagramBot>[] = [
     accessorKey: 'account',
     header: () => <RecordTable.InlineHead label="Account" />,
     cell: ({ cell }) => {
-      const { name = '-' } = cell.getValue() || ({} as any);
+      const name = cell.row.original.account?.name ?? '-';
       return <RecordTableInlineCell>{name}</RecordTableInlineCell>;
     },
     size: 235,
@@ -117,11 +117,11 @@ export const automationInstagramBotsColumns: ColumnDef<IInstagramBot>[] = [
     header: () => <RecordTable.InlineHead label="Page" />,
     cell: ({ cell }) => {
       const { profileUrl = '' } = cell.row.original || {};
-      const { name = '-' } = cell.getValue() || ({} as any);
+      const name = cell.row.original.page?.name ?? '-';
       return (
         <RecordTableInlineCell className="w-full flex items-center justify-center">
           <Avatar>
-            <Avatar.Image src={profileUrl} />
+            <Avatar.Image src={profileUrl ?? undefined} />
             <Avatar.Fallback>{name}</Avatar.Fallback>
           </Avatar>
           {name}

@@ -14,6 +14,7 @@ import {
   RelativeDateDisplay,
   useMultiQueryState,
 } from 'erxes-ui';
+import { TFunction } from 'i18next';
 import { ComponentProps } from 'react';
 import {
   ApprovalLockedBadge,
@@ -26,6 +27,7 @@ import { DOCUMENTS_TYPES_SET } from '../../constants';
 import { IDocument } from '../../types';
 import { GET_DOCUMENTS } from '../../graphql/queries';
 import { documentsMoreColumn } from './DocumentsMoreColumn';
+import { useTranslation } from 'react-i18next';
 
 export function getDocumentsTagOptions(
   documentIds: string[],
@@ -53,6 +55,7 @@ function DocumentNameCell({ document }: { document: IDocument }) {
     documentId: string;
     contentType: string;
   }>(['documentId', 'contentType']);
+  const { t } = useTranslation('documents', { keyPrefix: 'document' });
 
   function handleClick() {
     setQueries({ documentId: document._id, contentType: document.contentType });
@@ -61,7 +64,7 @@ function DocumentNameCell({ document }: { document: IDocument }) {
   return (
     <RecordTableInlineCell onClick={handleClick}>
       <div className="flex items-center justify-between w-full gap-2">
-        <span className="truncate">{document.name || 'Untitled'}</span>
+        <span className="truncate">{document.name || t('untitled')}</span>
         <ApprovalLockedBadge state={document.approvalLockState} />
       </div>
     </RecordTableInlineCell>
@@ -69,6 +72,7 @@ function DocumentNameCell({ document }: { document: IDocument }) {
 }
 
 function DocumentTypeCell({ row }: CellContext<IDocument, unknown>) {
+  const { t } = useTranslation('documents', { keyPrefix: 'document' });
   const { contentType } = row.original;
   const documentType = DOCUMENTS_TYPES_SET[contentType];
   const DocumentTypeIcon = documentType?.icon ?? IconFileText;
@@ -77,28 +81,31 @@ function DocumentTypeCell({ row }: CellContext<IDocument, unknown>) {
     <RecordTableInlineCell>
       <Badge variant="secondary" className="gap-1">
         <DocumentTypeIcon className="size-4" />
-        {documentType?.label ?? contentType}
+        {documentType ? t(documentType.labelKey) : contentType}
       </Badge>
     </RecordTableInlineCell>
   );
 }
 
 function DocumentCreatorCell({ row }: CellContext<IDocument, unknown>) {
+  const { t } = useTranslation('documents', { keyPrefix: 'document' });
+
   return (
     <RecordTableInlineCell>
       <MembersInline
         members={row.original.createdUser ? [row.original.createdUser] : []}
-        placeholder="Unknown member"
+        placeholder={t('unknown-member')}
       />
     </RecordTableInlineCell>
   );
 }
 
 function DocumentCreatedAtCell({ row }: CellContext<IDocument, unknown>) {
+  const { t } = useTranslation('documents', { keyPrefix: 'document' });
   const { createdAt } = row.original;
 
   if (!createdAt) {
-    return <RecordTableInlineCell>N/A</RecordTableInlineCell>;
+    return <RecordTableInlineCell>{t('not-available')}</RecordTableInlineCell>;
   }
 
   return (
@@ -110,7 +117,7 @@ function DocumentCreatedAtCell({ row }: CellContext<IDocument, unknown>) {
   );
 }
 
-export function DocumentsColumn(): ColumnDef<IDocument>[] {
+export function DocumentsColumn(t: TFunction): ColumnDef<IDocument>[] {
   const checkboxColumn = RecordTable.checkboxColumn as ColumnDef<IDocument>;
 
   return [
@@ -119,24 +126,30 @@ export function DocumentsColumn(): ColumnDef<IDocument>[] {
     {
       id: 'name',
       accessorKey: 'name',
-      header: () => <RecordTable.InlineHead label="Name" icon={IconFileText} />,
+      header: () => (
+        <RecordTable.InlineHead label={t('name')} icon={IconFileText} />
+      ),
       cell: ({ row }) => <DocumentNameCell document={row.original} />,
       size: 320,
     },
     {
       id: 'contentType',
       accessorKey: 'contentType',
-      header: () => <RecordTable.InlineHead label="Type" icon={IconCategory} />,
+      header: () => (
+        <RecordTable.InlineHead label={t('type')} icon={IconCategory} />
+      ),
       cell: DocumentTypeCell,
       size: 220,
     },
     {
       id: 'tagIds',
       accessorKey: 'tagIds',
-      header: () => <RecordTable.InlineHead label="Tags" icon={IconTags} />,
+      header: () => (
+        <RecordTable.InlineHead label={t('tags')} icon={IconTags} />
+      ),
       cell: ({ row }) =>
         row.original.approvalLockState?.hasAccess === false ? (
-          <RecordTableInlineCell>Locked</RecordTableInlineCell>
+          <RecordTableInlineCell>{t('locked')}</RecordTableInlineCell>
         ) : (
           <Can action="tagsTag">
             <TagsSelect.InlineCell
@@ -154,7 +167,7 @@ export function DocumentsColumn(): ColumnDef<IDocument>[] {
       id: 'createdUser',
       accessorKey: 'createdUser',
       header: () => (
-        <RecordTable.InlineHead label="Created by" icon={IconUser} />
+        <RecordTable.InlineHead label={t('created-by')} icon={IconUser} />
       ),
       cell: DocumentCreatorCell,
       size: 240,
@@ -163,7 +176,10 @@ export function DocumentsColumn(): ColumnDef<IDocument>[] {
       id: 'createdAt',
       accessorKey: 'createdAt',
       header: () => (
-        <RecordTable.InlineHead label="Created at" icon={IconCalendarPlus} />
+        <RecordTable.InlineHead
+          label={t('created-at')}
+          icon={IconCalendarPlus}
+        />
       ),
       cell: DocumentCreatedAtCell,
       size: 200,

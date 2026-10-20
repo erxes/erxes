@@ -6,7 +6,10 @@ export const usePropertyTypes = () => {
   const { data, loading, error } = useQuery(PROPERTY_TYPES_QUERY);
 
   return {
-    propertyTypes: (data?.propertyTypes || {}) as Record<string, IPropertyType[]>,
+    propertyTypes: (data?.propertyTypes || {}) as Record<
+      string,
+      IPropertyType[]
+    >,
     loading,
     error,
   };

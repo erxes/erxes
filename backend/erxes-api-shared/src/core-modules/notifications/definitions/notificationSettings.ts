@@ -12,6 +12,7 @@ export interface NotificationChannel {
 export interface NotificationEvent {
   enabled: boolean;
   channels: string[];
+  mutedChannels?: string[];
 }
 
 export interface NotificationSettings {
@@ -34,6 +35,7 @@ const notifcationEventSchema = new Schema(
   {
     enabled: { type: Boolean, default: false },
     channels: { type: [String], default: [] },
+    mutedChannels: { type: [String], default: [] },
   },
   {
     _id: false,

@@ -1,5 +1,6 @@
 import { useParams } from 'react-router-dom';
 import { useGetPipeline } from '@/pipelines/hooks/useGetPipeline';
+import { compactList } from '@/shared/utils/cursorList';
 import { CreatePipelineForm } from '@/pipelines/components/CreatePipelineForm';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -34,7 +35,7 @@ export const PipelineDetail = () => {
       numberConfig: pipeline?.numberConfig || '',
       numberSize: pipeline?.numberSize || '',
       nameConfig: pipeline?.nameConfig || '',
-      propertyIds: pipeline?.propertyIds || [],
+      propertyIds: compactList(pipeline?.propertyIds),
     });
   }, [form, pipeline, pipelineId]);
 

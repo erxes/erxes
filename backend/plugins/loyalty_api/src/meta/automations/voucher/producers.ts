@@ -42,6 +42,14 @@ export const voucherAutomationProducers = {
             ownerType,
             ownerId,
             config: getVoucherConfigByRule(config.customRule),
+            ...(execution.createdVia
+              ? {
+                  createdVia: {
+                    ...execution.createdVia,
+                    runId: String(execution._id),
+                  },
+                }
+              : {}),
           });
 
           return { ownerId, voucher };

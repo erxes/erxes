@@ -1,21 +1,31 @@
-import { useQuery } from '@apollo/client';
-import { PageContainer, Separator, Spinner, useQueryState } from 'erxes-ui';
-import { useEffect } from 'react';
-import { SegmentsRecordTable } from '@/segments/components/SegmentRecordTable';
-import { SegmentListSidebar } from '@/segments/components/SegmentsSidebar';
+import {
+  Breadcrumb,
+  Button,
+  PageContainer,
+  Separator,
+  Spinner,
+  useIsMobile,
+  useQueryState,
+} from 'erxes-ui';
 import {
   PageHeader,
   SEGMENTS_GET_TYPES,
   createFavoriteBreadcrumb,
 } from 'ui-modules';
-import { useTranslation } from 'react-i18next';
+
 import { IconChartPie } from '@tabler/icons-react';
 import { SegmentDetail } from '@/segments/components/SegmentDetail';
+import { SegmentListSidebar } from '@/segments/components/SegmentsSidebar';
+import { SegmentsRecordTable } from '@/segments/components/SegmentRecordTable';
+import { useEffect } from 'react';
+import { useQuery } from '@apollo/client';
 import { useSegments } from '@/segments/hooks/useSegments';
+import { useTranslation } from 'react-i18next';
 
 export default function SegmentsIndexPage() {
   const { handleRefresh } = useSegments();
   const [contentType, setType] = useQueryState<string>('contentType');
+  const isMobile = useIsMobile();
   const { data, loading } = useQuery(SEGMENTS_GET_TYPES);
 
   useEffect(() => {
@@ -33,8 +43,9 @@ export default function SegmentsIndexPage() {
 
   const { segmentsGetTypes = [] } = data || {};
   const selectedSegmentType =
-    segmentsGetTypes.find((type) => type.contentType === contentType) ||
-    segmentsGetTypes[0];
+    segmentsGetTypes.find(
+      (type: { contentType: string }) => type.contentType === contentType,
+    ) || segmentsGetTypes[0];
   const favoriteBreadcrumb = createFavoriteBreadcrumb(
     'Segments',
     selectedSegmentType?.description,
@@ -42,10 +53,24 @@ export default function SegmentsIndexPage() {
 
   return (
     <PageContainer className="flex flex-col h-full">
-      <PageHeader className="p-3 mx-0">
+      <PageHeader>
         <PageHeader.Start>
-          <IconChartPie className="size-4" />
-          <span className="font-medium">{t('segment')}</span>
+          <Breadcrumb>
+            <Breadcrumb.List className="gap-1">
+              <Breadcrumb.Item>
+                <Button
+                  variant="ghost"
+                  asChild
+                  className="cursor-default hover:bg-transparent"
+                >
+                  <span>
+                    <IconChartPie />
+                    {t('segment')}
+                  </span>
+                </Button>
+              </Breadcrumb.Item>
+            </Breadcrumb.List>
+          </Breadcrumb>
           <Separator.Inline />
           <PageHeader.FavoriteToggleButton
             breadcrumb={favoriteBreadcrumb}
@@ -57,7 +82,7 @@ export default function SegmentsIndexPage() {
         </PageHeader.End>
       </PageHeader>
       <div className="flex flex-row h-full">
-        <SegmentListSidebar types={segmentsGetTypes} />
+        {isMobile && <SegmentListSidebar types={segmentsGetTypes} />}
         <SegmentsRecordTable />
       </div>
     </PageContainer>

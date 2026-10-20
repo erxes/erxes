@@ -17,9 +17,7 @@ const config: ModuleFederationConfig = {
   exposes: {
     './config': './src/config.tsx',
     './pms': './src/modules/pms/Main.tsx',
-    './pmsSettings': './src/modules/pms/Settings.tsx',
     './tms': './src/modules/tms/Main.tsx',
-    './tmsSettings': './src/modules/tms/Settings.tsx',
     './tourism': './src/modules/main/Main.tsx',
   },
 

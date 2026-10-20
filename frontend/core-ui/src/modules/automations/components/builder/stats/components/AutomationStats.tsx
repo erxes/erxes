@@ -1,12 +1,15 @@
+import { AutomationStatsActivity } from '@/automations/components/builder/stats/components/AutomationStatsActivity';
 import { AutomationStatsChart } from '@/automations/components/builder/stats/components/AutomationStatsChart';
 import { AutomationStatsErrorMessages } from '@/automations/components/builder/stats/components/AutomationStatsErrorMessages';
 import { AutomationStatsFilter } from '@/automations/components/builder/stats/components/AutomationStatsFilter';
 import { AutomationStatsNodes } from '@/automations/components/builder/stats/components/AutomationStatsNodes';
 import { AutomationStatsOverview } from '@/automations/components/builder/stats/components/AutomationStatsOverview';
 import { AutomationStatsWindowNav } from '@/automations/components/builder/stats/components/AutomationStatsWindowNav';
+import { useAutomationStatsActivity } from '@/automations/components/builder/stats/hooks/useAutomationStatsActivity';
 import { useAutomationStats } from '@/automations/components/builder/stats/hooks/useAutomationStats';
 import { IconAlertTriangle, IconRefresh } from '@tabler/icons-react';
 import { Button, PageSubHeader, Skeleton } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 const AutomationStatsSkeleton = () => (
   <div className="flex flex-col gap-4">
@@ -21,7 +24,14 @@ const AutomationStatsSkeleton = () => (
 );
 
 export const AutomationStats = () => {
+  const { t } = useTranslation('automations');
   const { stats, loading, error, refetch, window } = useAutomationStats();
+  const activity = useAutomationStatsActivity();
+
+  const handleRefresh = () => {
+    refetch();
+    activity.refresh();
+  };
 
   return (
     <div className="flex flex-col flex-1 min-h-0">
@@ -29,7 +39,7 @@ export const AutomationStats = () => {
         <AutomationStatsFilter />
         <div className="ml-auto flex items-center gap-1">
           <AutomationStatsWindowNav {...window} />
-          <Button variant="ghost" disabled={loading} onClick={() => refetch()}>
+          <Button variant="ghost" disabled={loading} onClick={handleRefresh}>
             <IconRefresh />
           </Button>
         </div>
@@ -45,7 +55,7 @@ export const AutomationStats = () => {
               {error.message}
             </span>
             <Button variant="secondary" onClick={() => refetch()}>
-              Retry
+              {t('stats-retry')}
             </Button>
           </div>
         )}
@@ -53,6 +63,7 @@ export const AutomationStats = () => {
         {!loading && !error && stats && (
           <div className="flex flex-col gap-4">
             <AutomationStatsOverview stats={stats} />
+            <AutomationStatsActivity {...activity} />
             <AutomationStatsChart
               timeSeries={stats.timeSeries}
               beginDate={window.beginDate}

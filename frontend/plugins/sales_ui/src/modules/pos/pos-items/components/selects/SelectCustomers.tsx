@@ -1,3 +1,16 @@
+import { useQuery } from '@apollo/client';
+import {
+  cn,
+  Combobox,
+  Command,
+  Filter,
+  Form,
+  isDefined,
+  Popover,
+  PopoverScoped,
+  useFilterContext,
+  useQueryState,
+} from 'erxes-ui';
 import React, {
   createContext,
   useCallback,
@@ -5,38 +18,20 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import {
-  cn,
-  Combobox,
-  Command,
-  Filter,
-  Popover,
-  PopoverScoped,
-  Form,
-  useFilterContext,
-  useQueryState,
-} from 'erxes-ui';
+import type { SalesPosItemsCustomersQuery } from '~/gql/graphql';
 
 import { IconUsers } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { POS_CUSTOMERS_QUERY } from '../../graphql/queries/posCustomerQuery';
-import { useQuery } from '@apollo/client';
 import {
   SelectContent,
   SelectTrigger,
   SelectTriggerVariantType,
 } from './SelectShared';
 
-interface ICustomer {
-  _id: string;
-  code?: string;
-  primaryPhone?: string;
-  primaryEmail?: string;
-  firstName?: string;
-  lastName?: string;
-  primaryAddress?: string;
-  addresses?: any[];
-}
+type ICustomer = NonNullable<
+  NonNullable<SalesPosItemsCustomersQuery['poscCustomers']>[number]
+>;
 
 interface SelectCustomersContextType {
   value: string;
@@ -81,7 +76,7 @@ export const SelectCustomersProvider = ({
   });
 
   const customers = useMemo(
-    () => data?.poscCustomers || [],
+    () => (data?.poscCustomers ?? []).filter(isDefined),
     [data?.poscCustomers],
   );
 
@@ -189,7 +184,9 @@ const SelectCustomersContent = () => {
         <Command.Input placeholder={t('search-customers')} />
         <Command.List>
           <div className="flex items-center justify-center py-4 h-32">
-            <span className="text-muted-foreground">{t('loading-customers')}</span>
+            <span className="text-muted-foreground">
+              {t('loading-customers')}
+            </span>
           </div>
         </Command.List>
       </Command>

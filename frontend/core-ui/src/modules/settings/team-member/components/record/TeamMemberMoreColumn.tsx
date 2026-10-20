@@ -26,6 +26,7 @@ import { Can } from 'ui-modules';
 import { TeamMemberActivityLogSheet } from '../TeamMemberActivityLogSheet';
 import { useResendInvite } from '../../hooks/useResendInvite';
 import { useUsersStatusEdit } from '../../hooks/useUserEdit';
+import { useTranslation } from 'react-i18next';
 
 export const TeamMemberMoreColumnCell = ({
   cell,
@@ -36,6 +37,7 @@ export const TeamMemberMoreColumnCell = ({
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const [, setResetPasswordOpen] = useQueryState('reset_password_id');
+  const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
 
   const setRenderingTeamMemberResetPasswordAtom = useSetAtom(
     renderingTeamMemberResetPasswordAtom,
@@ -62,12 +64,12 @@ export const TeamMemberMoreColumnCell = ({
     <Command.List>
       <Can action="teamMembersUpdate">
         <Command.Item value="edit" onSelect={handleEdit}>
-          <IconEdit /> Edit
+          <IconEdit /> {t('edit')}
         </Command.Item>
       </Can>
       <Can action="permissionsManage">
         <Command.Item value="permissions" onSelect={handleEditPermissions}>
-          <IconSettings size={18} /> Edit Permission Groups
+          <IconSettings size={18} /> {t('edit-permission-groups')}
         </Command.Item>
       </Can>
       <Can action="teamMembersResetPassword">
@@ -78,7 +80,7 @@ export const TeamMemberMoreColumnCell = ({
             setRenderingTeamMemberResetPasswordAtom(true);
           }}
         >
-          <IconLock /> Reset Password
+          <IconLock /> {t('reset-password')}
         </Command.Item>
       </Can>
       <Can action="teamMembersRemove">
@@ -91,9 +93,9 @@ export const TeamMemberMoreColumnCell = ({
               },
               onCompleted: () =>
                 toast({
-                  title: `User ${
-                    isActive ? 'deactivated' : 'activated'
-                  } successfully`,
+                  title: isActive
+                    ? t('user-deactivated-successfully')
+                    : t('user-activated-successfully'),
                   variant: 'success',
                 }),
               onError: (error) =>
@@ -106,7 +108,7 @@ export const TeamMemberMoreColumnCell = ({
           ) : (
             <IconToggleRight size={18} />
           )}
-          {isActive ? 'Deactivate' : 'Activate'}
+          {isActive ? t('deactivate') : t('activate')}
         </Command.Item>
       </Can>
       <Can action="teamMembersInvite">
@@ -121,14 +123,14 @@ export const TeamMemberMoreColumnCell = ({
                 toast({ title: error.message, variant: 'destructive' }),
               onCompleted: () =>
                 toast({
-                  title: 'Invitation has been resent',
+                  title: t('invitation-resent'),
                   variant: 'success',
                 }),
             })
           }
         >
           {loading ? <Spinner size="sm" /> : <IconRefresh size={18} />}
-          Resend Invite
+          {t('resend-invite')}
         </Command.Item>
       </Can>
       <Can action="broadcastUpdate">
@@ -139,7 +141,7 @@ export const TeamMemberMoreColumnCell = ({
             setActivityLogOpen(true);
           }}
         >
-          <IconHistory /> Activity log
+          <IconHistory /> {t('activity-log')}
         </Command.Item>
       </Can>
     </Command.List>

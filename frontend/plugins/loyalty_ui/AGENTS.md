@@ -6,7 +6,7 @@
 - **Project:** `loyalty_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/loyalty_ui`
-- **Last synchronized:** `2026-10-09`
+- **Last synchronized:** `2026-10-18`
 
 ## Scope
 
@@ -32,12 +32,12 @@
 - Options detail supports branch, department, board, and pipeline selection.
 - Board and pipeline selectors can clear an existing selection; clearing a board
   also clears the dependent pipeline in the options and stage forms.
-- Loyalty settings include an Account types page (`/settings/loyalty/config/account-type`)
+- Loyalty settings include an Account types page (`/loyalty/settings/config/account-type`)
   to create, rename, archive, and restore loyalty account types and to convert
   score fields used by older campaigns into account types.
 - The Scores page filters by campaign, owner type, owner, action, type, description and date; it has no source-record filter (a deal's board, pipeline, stage or number): loyalty keeps only `targetId`, and those filters, which read sales data loyalty does not own, were removed with their backend.
 - The Loyalty sidebar (`MainNavigation` `NAV_ITEMS`) lists Scores, Accounts, Vouchers, Coupons, Donates, Spins, Lotteries, Assignments, Agents in that order; the navigation group opens on Scores (`defaultPath: 'loyalty/scores'`).
-- The platform settings menu lists every loyalty settings page directly under Loyalty (Wallets, Score, Voucher, Lottery, Spin, Donate, Assignment, Coupon, then Pricing) from `LOYALTY_SETTINGS_PAGES` (`settings/constants/settingRoutes.ts`), rendered by `LoyaltySettingsNavigation`; the pages carry no inner sidebar. The wallet form's Expiry & reset section ends with a live preview (`LoyaltyAccountTypePeriodPreview` / `useLoyaltyAccountTypePeriodPreview`, query `LoyaltyAccountTypePeriodPreview` with the unsaved form values): when points earned today expire or become spendable, the next reset, what tiers become, the window before a reset in which purchases earn nothing, and for a saved wallet what the next reset would clear, keep and change. The Wallets page shows a period run panel (`LoyaltyPeriodRunPanel` / `useLoyaltyPeriodRunStatus`, query `LoyaltyPeriodRunStatus`): the next run time and time zone, what it will release, expire and reset, the last run, and a history popover; wallet mutations refetch it. `/settings/loyalty/config` has no page of its own and redirects to the wallets page (`config/account-type`). The former general config (currency ratio, share fee) is gone; neither value was read anywhere.
+- The loyalty settings sidebar lists every loyalty settings page (Wallets, Score, Voucher, Lottery, Spin, Donate, Assignment, Coupon, then Pricing) from `LOYALTY_SETTINGS_PAGES` (`settings/constants/settingRoutes.ts`), rendered by `LoyaltySettingsNavigation`; the pages carry no inner sidebar. The wallet form's Expiry & reset section ends with a live preview (`LoyaltyAccountTypePeriodPreview` / `useLoyaltyAccountTypePeriodPreview`, query `LoyaltyAccountTypePeriodPreview` with the unsaved form values): when points earned today expire or become spendable, the next reset, what tiers become, the window before a reset in which purchases earn nothing, and for a saved wallet what the next reset would clear, keep and change. The Wallets page shows a period run panel (`LoyaltyPeriodRunPanel` / `useLoyaltyPeriodRunStatus`, query `LoyaltyPeriodRunStatus`): the next run time and time zone, what it will release, expire and reset, the last run, and a history popover; wallet mutations refetch it. `/loyalty/settings/config` has no page of its own and redirects to the wallets page (`config/account-type`). The former general config (currency ratio, share fee) is gone; neither value was read anywhere.
 - The customer/company/team member relation widget shows the owner's loyalty account (number, status, balance per account type) and lets users freeze it with a reason or unfreeze it; account types choose what freezing blocks.
 - Score campaign create and edit sheets share `ScoreCampaignFormLayout`: a sidebar with General (name, description, order, account type, Add / Subtract / Set), Products (restrictions and "Exclude discounted items", `additionalConfig.discountCheck`) and Automations. There is no source choice: earning is decided by automations, spending and refunds by the selling side, so the form neither shows nor sends the campaign's `serviceName` (saved campaigns keep theirs); a failed save opens the first section with an error and marks sections that have errors.
 - The score campaign "Add" tab edits the earning table (rows × tier columns from the account type, conditions popover, caps, server-computed example) and the "Subtract" tab the spending rules.
@@ -49,8 +49,11 @@
   `edit-pricing/components/options/CustomerBrokerConditions.tsx` and round-trip
   through pricing form values.
 - Automation history renders loyalty action results through `LoyaltyActionResult` (`historyActionResult`), which picks by action type: Adjust score → `ScoreActionResult` / `useScoreActionResult` (skipped runs list each owner's reasons in words, successful runs show the score change); Set tier → `SetTierActionResult` / `useSetTierActionResult` (tier names from the action's account type, `from → to`, or skipped when nothing changed); Issue voucher → `IssueVoucherActionResult` / `useIssueVoucherActionResult` (count issued, campaign title, each recipient by owner type); other loyalty actions fall back to raw JSON. Tier changed runs are named in the history by the owner (`historyName` → `TierChangedHistoryName`, through `LoyaltyOwnerInline`: customer, company or team member inline from `ui-modules`).
+- The Adjust score step (`AdjustScoreCampaignActionConfigForm`) has a Points toggle: From a campaign (campaign + earning rows, as before) or Fixed (wallet via `SelectLoyaltyAccountType` + points). The schema (`adjustScoreActionConfigFormDefinitions.ts`) requires the campaign or the wallet and points by mode; steps without `mode` open as campaign. The node reads "Give N points to a wallet" for fixed steps, and the relation settings widget leaves fixed steps out of a source's campaign connections.
 - An earning's points are explained by `EarnCalcPopover` (steps from `scores/utils/earnCalcSteps.ts`, using the breakdown's `calc`): on the score list's Breakdown cell and on each tier's result in the campaign form's earn preview — amount × % or ×N, ÷ money per point, rounding, and what the points pay.
 - The voucher campaign Restriction tab (add and edit share `AddVoucherRestrictionForm`) has a "Per customer" limit (`VoucherOwnerLimitField`: count + period year/month/whole campaign); `toOwnerLimit` sends `perOwnerLimit`, or `null` when the count is empty so an edit clears it.
+- The voucher campaign Campaign tab (add and edit) reads as three parts: what one voucher gives (type with a one-line hint; for `discount`/`reward` one Discount field with a %/Amount toggle and a sentence preview), Validity (each voucher works for a set time `validityCount`+`validityUnit` — default 1 month — or until the campaign ends; optional start, "No end" switch on by default for new campaigns) and Buy with points (`buyScore`). `toVoucherTerm` / `fromVoucherTerm` (`settings/voucher/utils/voucherTerm.ts`) turn the form into `startDate`/`endDate`/`validity` (nulls clear) and back. The list's End date column shows "No end". The Issue voucher automation step offers the campaign's validity or a custom `customRule {count, unit}`; older `customRule.duration` steps open as custom (one unit; `minute` reads as a day).
+- The Vouchers page (`modules/loyalties/vouchers`) lists issued vouchers as Recipient, What it gives (`terms`), Valid until (days left), Status (`voucherDisplayStatus`: an open voucher past `expiresAt` shows Expired), Received and Held or used in; the status filter offers Unused / On hold / Used / Cancelled / Expired and "Expires within" 1 / 3 / 7 / 30 days (`SelectExpiresWithin`, query `expiresWithin`), both server-side. There is no free edit: the recipient opens `VoucherDetailSheet` (applies to, validity, where held or used, history) whose only actions are Mark as used (note) and Cancel (reason) for unused vouchers and Extend (date) for unused or held ones (`useVoucherActions`, mutations `LoyaltyVoucherCancel` / `LoyaltyVoucherMarkUsed` / `LoyaltyVoucherExtend`, refetching `VouchersMain`). The customer's Score Summary widget shows `OwnerVouchersCard`: the vouchers still to use, each opening the same sheet, and a count of the rest.
 - The "Tier changed" trigger is configured by `TierChangedTriggerConfigForm` / `useTierChangedTriggerForm` (wallet required, direction up/down/any defaulting to up, target tier or any) and summarized on its node by `TierChangedTriggerNodeContent`, both registered in `LoyaltyRemoteEntry` (`triggerForm`, `triggerConfigContent`).
 - Loyalty action nodes report what their config still misses (`useLoyaltyActionNodeIssues`: the action's own zod form schema, reported through `useReportNodeIssues` from `ui-modules`); the builder draws the warning and blocks activation.
 - `/loyalty/accounts` ("Accounts" in the loyalty navigation) lists loyalty accounts: owner, owner type, account number, status, one column per active account type with its balance and an inline tier select, joined date. Filters: search (account number or owner name), status, owner type, account type and tier. Row menu: freeze (reason dialog) / unfreeze (confirm), tier history, score history (scores page filtered by owner), owner profile. Freeze, unfreeze and tier changes refetch `LoyaltyAccounts`; a tier change also refetches `LoyaltyTierLogs`.
@@ -72,6 +75,7 @@
 
 | Area                  | Path                                                                                                      | Responsibility                                                                          |
 | --------------------- | --------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| App sidebar | `frontend/plugins/loyalty_ui/src/Sidebar.tsx` | `LoyaltySidebar` (app sidebar) and `LoyaltySidebarFooter` (Settings link), rendered by the `./loyalty` entry through `AppLayout` |
 | Pricing entry points  | `src/modules/pricing/Main.tsx`, `src/pages/pricing`                                                       | Pricing route and list/detail composition.                                              |
 | Pricing create form   | `src/modules/pricing/create-pricing/**`                                                                   | New pricing plan form and submission mapping.                                           |
 | Pricing edit forms    | `src/modules/pricing/edit-pricing/**`                                                                     | Sectioned pricing detail editing UI.                                                    |
@@ -126,6 +130,26 @@
 
 ## Local Invariants
 
+- The plugin owns its whole app sidebar. `src/modules/loyalties/SubNavigations.tsx` (the `./loyalty`
+  expose) wraps its routes in `erxes-ui` `AppLayout` (`id="loyalty"`) with
+  `LoyaltySidebar`. Core-ui draws only the top `CoreTab` bar; `navigationGroup` in
+  `src/config.tsx` supplies just the tab name, icon and `defaultPath` and takes
+  no `content`/`subGroup`.
+- `LoyaltySidebarFooter` pins a Settings link to the bottom of the app
+  sidebar. The plugin owns its settings at `/loyalty/settings/*`, served by its
+  own entry: the entry's top-level `<Routes>` sends `settings/*` to
+  `LoyaltySettingsLayout` (`src/Sidebar.tsx`, an `AppLayout` titled
+  "<Plugin> settings" with a Back link to the app) and `*` to the app
+  `AppLayout`. Settings pages render inside `PluginSettingsRoutes`
+  (`ui-modules`), which also serves `tags` and `properties/*` scoped to
+  this plugin's types; the settings sidebar appends
+  `PluginSharedSettingsNavigation`, which lists Tags/Properties only when the
+  plugin registers those types. Core organization settings never list
+  plugin settings, `config.tsx` has no `settingsNavigation`, and there is
+  no `./loyaltySettings` expose; old `/settings/loyalty/…` URLs are redirected
+  by core. The settings navigation renders no `Sidebar.GroupLabel`.
+- Page header breadcrumbs follow the shared pattern: crumbs are default ghost `Button`s (no `font-semibold`), the first crumb carries a 16px icon in the default text color, crumbs are separated by `Separator.Inline` or `Breadcrumb.Separator`, and settings pages carry no favorite toggle. `LoyaltyMainLayout` renders its title as that ghost-button crumb, not a plain span.
+- Page-level side menus render `Sidebar.Panel` from `erxes-ui`, which keeps its own open state (`sidebarPanelOpenState`), separate from the plugin's `AppLayout` sidebar. The panel sits beside the page header, never under it: the page is a row of the panel and a column holding the header and content. The panel passes its heading as `label`, which renders a 40px title row with optional `actions` and the collapse toggle on the right, level with the page header; when collapsed, the toggle moves into the header's panel slot. Do not add a second heading or an in-panel `Sidebar.PanelTrigger` row. Keep `<Sidebar collapsible="none">` for sidebars inside sheets and dialogs. `PricingEdit` takes the pricing page header as `header` so `PricingEditSidebar` sits beside it.
 - Account types are labelled "Wallet(s)" (en) / "Хэтэвч" (mn) everywhere users see them, as balances inside the owner's loyalty account ("Account" / "Данс"); identifiers, routes, GraphQL documents and translation keys keep `accountType` / `loyalty-account-type`.
 - Pricing UI changes stay inside `frontend/plugins/loyalty_ui`.
 - Pricing form save mappings must preserve empty optional selectors as no
@@ -142,6 +166,7 @@
   after creation.
 - Changing a score campaign's owner type clears its account type; archived account types
   are listed in the campaign selector only when the campaign already uses one.
+- `Sheet.Header` is a fixed 40px row. A header with a visible second line (subtitle, record number, description) adds `h-auto py-2` so it sizes to its content; detail-page title rows are `h-10`, level with `PageHeader`.
 
 ## Validation
 
@@ -156,6 +181,24 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-10-14` — Issued vouchers: list, detail and actions
+
+- **Summary:** The Vouchers page shows what each voucher gives, until when and where it was held or used; a voucher opens a detail sheet with its history and only cancel / mark used / extend; the customer's loyalty widget lists their vouchers.
+- **Affected areas:** `modules/loyalties/vouchers/{components/{VoucherColumns,VoucherRecordTable,VoucherOwner,VoucherStatusBadge,OwnerVouchersCard,detail/VoucherDetailSheet}.tsx,components/selects/SelectStatus.tsx,hooks/{useVoucherActions,useVoucherDetail,useOwnerVouchers}.ts,utils/voucherView.ts,types/voucher.ts,graphql/**}` (removed `VoucherEditSheet`, `useEditVoucher`), `modules/loyalties/scores/components/ScoreSummaryWidget.tsx`; `voucher-*` translations.
+- **Contracts changed:** None
+
+### `2026-10-14` — Fixed points in Adjust score
+
+- **Summary:** An Adjust score step can give a fixed number of points into a chosen wallet instead of earning through a campaign.
+- **Affected areas:** `widgets/automations/modules/loyalty/{states/adjustScoreActionConfigFormDefinitions.ts,hooks/useAdjustScoreActionForm.ts,components/action/{adjust-score/AdjustScoreCampaignActionConfigForm.tsx,LoyaltyActionNodeContent.tsx}}`, `widgets/relationSettings/hooks/useLoyaltySourceAutomations.ts`; `score-give-mode*`, `score-fixed-points*` translations.
+- **Contracts changed:** None
+
+### `2026-10-14` — Voucher campaign form and validity
+
+- **Summary:** The voucher campaign form says what a voucher gives and how long it works; campaigns may run without an end, and automation steps may override a voucher's term. Creating a campaign now also sends the per-customer limit (the create document lacked it).
+- **Affected areas:** `settings/voucher/{constants/voucherFormSchema.ts,utils/voucherTerm.ts,types/voucherTypes.ts,hooks/useAddVoucher.tsx,graphql/mutations/{VoucherMutations.tsx,voucherEditStatusMutations.ts},graphql/queries/getCampaignQuery.ts,components/{VoucherAddSheet,VoucherColumns}.tsx}`, `add-voucher-campaign/components/{AddVoucherCampaignForm,VoucherTabs}.tsx`, `voucher-campaign-field/*`, `voucher-detail/components/{EditVoucherTabs,LoyaltyVoucherEditSheet}.tsx`, `components/LoyaltyCampaignColumnHelpers.tsx`, `widgets/automations/modules/loyalty/{states/campaignActionConfigFormDefinitions.ts,hooks/useCampaignActionForm.ts,components/action/voucher/IssueVoucherActionConfigForm.tsx}`; `voucher-*` translations.
+- **Contracts changed:** None
 
 ### `2026-10-08` — Score campaign picker for other plugins
 
@@ -196,17 +239,3 @@
 - **Summary:** Wallets, Score, Voucher, Lottery, Spin, Donate, Assignment and Coupon moved from the inner config sidebar into the platform settings menu; the "Configs" item and the unused duplicate `components/LoyaltySettings.tsx` are gone.
 - **Affected areas:** `src/LoyaltySettingsNavigation.tsx`, `modules/loyalties/settings/{constants/settingRoutes.ts,components/LoyaltyLayout.tsx,components/LoyaltyBreadcrumb.tsx}`; `LoyaltySidebar.tsx` removed.
 - **Contracts changed:** None (routes unchanged).
-
-### `2026-09-29` — Stage rules and automation subtract removed
-
-### `2026-09-29` — Pricing list pagination
-
-- **Summary:** Pricing settings load distinct 20-record pricing plan pages on scroll and display the API-backed filtered total count.
-- **Affected areas:** `src/modules/pricing/graphql/queries.ts`, `src/modules/pricing/hooks/usePricing.ts`, `src/modules/pricing/components/PricingRecordTable.tsx`.
-- **Contracts changed:** `PricingPlans` now also requests `pricingPlansCount` and sends `page`/`perPage` variables.
-
-### `2026-09-22` — `Scoped base pricing controls`
-
-- **Summary:** Score campaigns no longer edit deal-stage rules (`cardBasedRule`); the Adjust score action only gives points (older subtract configs save back as add) and its node still marks a legacy subtract.
-- **Affected areas:** `settings/score/add-score-campaign/components/{ServiceConfigFields,ScoreCampaignSourceSection,AddLoyaltyScore}.tsx`, `score-detail/components/{LoyaltyScoreEditSheet,EditScoreForm}.tsx`, `constants/formSchema.ts`, `widgets/automations/modules/loyalty/{components/action,states,constants}`, `hooks/useScoreActionResult.ts`.
-- **Contracts changed:** None

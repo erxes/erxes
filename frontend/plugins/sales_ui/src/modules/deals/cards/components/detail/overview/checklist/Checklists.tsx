@@ -7,9 +7,11 @@ import { useTranslation } from 'react-i18next';
 export const Checklists = ({
   stageId,
   dealId,
+  newChecklistId,
 }: Readonly<{
   stageId?: string;
   dealId?: string;
+  newChecklistId?: string;
 }>) => {
   const { t } = useTranslation('sales');
   const { checklists, loading, error } = useChecklists({
@@ -57,6 +59,7 @@ export const Checklists = ({
               key={checklist._id}
               item={checklist}
               stageId={stageId}
+              focusNewItem={checklist._id === newChecklistId}
             />
           ))}
         </div>

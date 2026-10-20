@@ -1,15 +1,27 @@
 import { useMemo } from 'react';
-import { gql, useQuery } from '@apollo/client';
+import { useQuery } from '@apollo/client';
 import { Skeleton } from 'erxes-ui';
 import { MessageContent } from '@/inbox/conversation-messages/components/MessageContent';
 import { MessageEmbeds } from '@/inbox/conversation-messages/components/MessageEmbeds';
 import type { IMessageEmbed } from '@/inbox/types/Conversation';
+import { gql } from '~/gql';
 
-const TELEGRAM_MESSAGE_LINK_PREVIEWS = gql`
+const TELEGRAM_MESSAGE_LINK_PREVIEWS = gql(`
   query frontlineTelegramMessageLinkPreviews($messageId: String!) {
-    telegramMessageLinkPreviews(messageId: $messageId)
+    telegramMessageLinkPreviews(messageId: $messageId) {
+      type
+      url
+      title
+      description
+      provider {
+        name
+      }
+      image {
+        url
+      }
+    }
   }
-`;
+`);
 
 // Match the server preview's punctuation handling without quadratic rescans.
 const trimLinkPunctuation = (value: string): string => {
@@ -91,13 +103,22 @@ export const TelegramLinkPreviews = ({
     () => linkifyTelegramContent(content),
     [content],
   );
-  const { data, loading } = useQuery<{
-    telegramMessageLinkPreviews: IMessageEmbed[];
-  }>(TELEGRAM_MESSAGE_LINK_PREVIEWS, {
+  const { data, loading } = useQuery(TELEGRAM_MESSAGE_LINK_PREVIEWS, {
     variables: { messageId },
     fetchPolicy: 'cache-and-network',
     skip: !hasLinks,
   });
+  const embeds = useMemo(
+    () =>
+      data?.telegramMessageLinkPreviews.map(
+        ({ description, image, ...preview }): IMessageEmbed => ({
+          ...preview,
+          description: description ?? undefined,
+          image: image ?? undefined,
+        }),
+      ),
+    [data],
+  );
   if (!hasLinks) return null;
   if (loading && !data)
     return (
@@ -107,7 +128,7 @@ export const TelegramLinkPreviews = ({
       />
     );
   // The message's link remains usable when its website cannot supply a preview.
-  return <MessageEmbeds embeds={data?.telegramMessageLinkPreviews} />;
+  return <MessageEmbeds embeds={embeds} />;
 };
 
 /** Linkifies literal provider URLs before using the native message renderer. */

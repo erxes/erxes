@@ -11,6 +11,7 @@ import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { CAMPAIGN_STATUS } from '~/constants';
 import { validCampaign } from '~/utils';
+import { VOUCHER_VALIDITY_UNITS } from '@/voucher/services/voucherTerm';
 import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 
 export interface IVoucherCampaignModel extends Model<IVoucherCampaignDocument> {
@@ -35,6 +36,20 @@ export interface IVoucherCampaignModel extends Model<IVoucherCampaignDocument> {
 
 const validVoucherCampaign = async (doc) => {
   validCampaign(doc);
+
+  if (doc.startDate && doc.endDate && doc.startDate > doc.endDate) {
+    throw new Error('The end date must be after from start date');
+  }
+
+  if (
+    doc.validity &&
+    !(
+      doc.validity.count >= 1 &&
+      VOUCHER_VALIDITY_UNITS.includes(doc.validity.unit)
+    )
+  ) {
+    throw new Error('Voucher validity must be at least one day, week or month');
+  }
 
   if (doc.bonusProductId && !doc.bonusCount) {
     throw new Error('Must fill product count or product limit to false');

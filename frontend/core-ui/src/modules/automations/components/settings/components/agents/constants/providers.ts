@@ -8,6 +8,13 @@ export const AI_AGENT_PROVIDER_TYPES = [
 
 export type TAiAgentProvider = (typeof AI_AGENT_PROVIDER_TYPES)[number];
 
+export const AI_AGENT_PROVIDERS_REQUIRING_API_KEY: TAiAgentProvider[] = [
+  'grok',
+  'kimi',
+  'kimi-code',
+  'openai',
+];
+
 export const AI_AGENT_PROVIDER_LABELS: Record<TAiAgentProvider, string> = {
   'cloudflare-ai-gateway': 'Cloudflare AI Gateway',
   grok: 'Grok',

@@ -2,6 +2,7 @@ import { TicketDetails } from '@/ticket/components/ticket-detail/TicketDetails';
 import { useGetTicket } from '@/ticket/hooks/useGetTicket';
 import { useTicketDetailSheet } from '@/ticket/hooks/useTicketDetailSheet';
 import {
+  cn,
   FocusSheet,
   ScrollArea,
   Tabs,
@@ -15,6 +16,8 @@ import { TicketSidebar } from './TicketSidebar';
 import { IconAlertCircle } from '@tabler/icons-react';
 import { useTicketCustomFieldEdit } from '@/ticket/hooks/useTicketCustomFieldEdit';
 import { TicketPipelineProperties } from './TicketPipelineProperties';
+import { TicketDetailActions } from './TicketDetailActions';
+import { isRecord } from '@/shared/utils/isRecord';
 
 export const TicketDetailSheet = ({
   hideRelationWidgetSideTabs = false,
@@ -24,7 +27,7 @@ export const TicketDetailSheet = ({
   const { t } = useTranslation('frontline');
   const [activeTicket, setActiveTicket] = useTicketDetailSheet();
   const { ticket, loading, error } = useGetTicket({
-    variables: { _id: activeTicket },
+    variables: activeTicket ? { _id: activeTicket } : undefined,
     skip: !activeTicket,
   });
   const [selectedTab, setSelectedTab] = useQueryState<string>('tab');
@@ -53,7 +56,27 @@ export const TicketDetailSheet = ({
           </div>
         }
       >
-        <FocusSheet.Header title={t('ticket-detail', 'Ticket Detail')} />
+        <Sheet.Header
+          className={cn('gap-2', !hideRelationWidgetSideTabs && 'pr-0')}
+        >
+          <FocusSheet.SidebarTrigger />
+          <div className="flex flex-col">
+            <Sheet.Title>{t('ticket-detail', 'Ticket Detail')}</Sheet.Title>
+            <Sheet.Description className="sr-only">
+              {t('ticket-detail', 'Ticket Detail')}
+            </Sheet.Description>
+          </div>
+          <div className="flex flex-1 justify-end">
+            {ticket && <TicketDetailActions ticket={ticket} />}
+          </div>
+          {hideRelationWidgetSideTabs ? (
+            <Sheet.Close className="ml-0" />
+          ) : (
+            <div className="w-16 self-stretch shrink-0 border-l bg-sidebar flex items-center justify-center">
+              <Sheet.Close className="ml-0" />
+            </div>
+          )}
+        </Sheet.Header>
         <FocusSheet.Content>
           <Sheet.Title className="sr-only">
             {t('ticket-detail', 'Ticket Detail')} {ticket?.name}
@@ -74,7 +97,11 @@ export const TicketDetailSheet = ({
                 <Tabs.Content value="properties" className="p-6">
                   <TicketPipelineProperties
                     pipelineId={ticket?.pipelineId || ''}
-                    propertiesData={ticket?.propertiesData || {}}
+                    propertiesData={
+                      isRecord(ticket?.propertiesData)
+                        ? ticket.propertiesData
+                        : {}
+                    }
                     mutateHook={useTicketCustomFieldEdit}
                     id={ticket?._id || ''}
                   />

@@ -1,31 +1,41 @@
 import { Separator, Sidebar } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { Link, useLocation } from 'react-router';
 import { SETTINGS_ROUTES } from '../constants/settingsRoutes';
 
 const FIXED_ASSET_SETTINGS_ROUTES = {
-  '/settings/accounting/fixed-assets/accounts-config': 'Дансны багц',
-  '/settings/accounting/fixed-assets/categories': 'Бүлэг',
-  '/settings/accounting/fixed-assets/assets': 'Үндсэн хөрөнгө',
+  '/accounting/settings/fixed-assets/accounts-config': 'account-configuration',
+  '/accounting/settings/fixed-assets/categories': 'category-label',
+  '/accounting/settings/fixed-assets/assets': 'fixed-assets',
 };
 
 export const AccountingSidebar = () => {
   const { pathname } = useLocation();
-  const routes = pathname.startsWith('/settings/accounting/fixed-assets')
+  const { t } = useTranslation('accounting');
+  const isFixedAssetSettings = pathname.startsWith(
+    '/accounting/settings/fixed-assets',
+  );
+  const routes = isFixedAssetSettings
     ? FIXED_ASSET_SETTINGS_ROUTES
     : SETTINGS_ROUTES;
 
   return (
-    <Sidebar collapsible="none" className="border-r flex-none">
+    <Sidebar.Panel
+      className="border-r flex-none"
+      label={t(isFixedAssetSettings ? 'fixed-asset' : 'accounting')}
+    >
       <Sidebar.Group>
         <Sidebar.GroupContent>
           <Sidebar.Menu>
             {Object.entries(routes).map(([path, label]) => (
-              <AccountingSidebarItem key={path} to={path} children={label} />
+              <AccountingSidebarItem key={path} to={path}>
+                {label && t(label)}
+              </AccountingSidebarItem>
             ))}
           </Sidebar.Menu>
         </Sidebar.GroupContent>
       </Sidebar.Group>
-    </Sidebar>
+    </Sidebar.Panel>
   );
 };
 

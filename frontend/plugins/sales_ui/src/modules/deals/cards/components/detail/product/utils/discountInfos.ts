@@ -1,25 +1,16 @@
-import { IProductData } from 'ui-modules';
+import type { DealProductData } from '@/deals/utils/dealJson';
 
-export type DiscountInfo = {
-  type: string;
-  title?: string;
-  amount?: number;
-  percent?: number;
-};
-
-export type ProductDataWithDiscountInfos = IProductData & {
-  discountInfos?: DiscountInfo[];
-};
+export type ProductDataWithDiscountInfos = DealProductData;
 
 const HAND_TYPE = 'hand';
 
-const finiteNumber = (value?: number) =>
+const finiteNumber = (value?: number | null) =>
   Number.isFinite(Number(value)) ? Number(value) : 0;
 
 const fixNum = (value: number, precision = 2) =>
   Number(value.toFixed(precision));
 
-export const productBaseAmount = (product: IProductData) =>
+export const productBaseAmount = (product: DealProductData) =>
   finiteNumber(product.unitPrice) * finiteNumber(product.quantity);
 
 export const nonHandDiscountAmount = (product: ProductDataWithDiscountInfos) =>
@@ -83,10 +74,10 @@ export const recalculateProductDiscount = (
 };
 
 export const applyRowDiscount = (
-  product: IProductData,
+  product: DealProductData,
   targetDiscountAmount: number,
 ) => {
-  const productWithInfo = product as ProductDataWithDiscountInfos;
+  const productWithInfo = product;
   const handAmount =
     fixNum(targetDiscountAmount) - nonHandDiscountAmount(productWithInfo);
 
@@ -96,10 +87,10 @@ export const applyRowDiscount = (
 };
 
 export const applyFooterDiscountPercent = (
-  product: IProductData,
+  product: DealProductData,
   percent: number,
 ) => {
-  const productWithInfo = product as ProductDataWithDiscountInfos;
+  const productWithInfo = product;
   const baseAmount = productBaseAmount(productWithInfo);
   const extraAmount = fixNum((baseAmount * percent) / 100);
 
@@ -109,11 +100,11 @@ export const applyFooterDiscountPercent = (
 };
 
 export const applyFooterDiscountAmount = (
-  product: IProductData,
+  product: DealProductData,
   totalBaseAmount: number,
   amount: number,
 ) => {
-  const productWithInfo = product as ProductDataWithDiscountInfos;
+  const productWithInfo = product;
   const baseAmount = productBaseAmount(productWithInfo);
   const extraAmount =
     totalBaseAmount > 0 ? fixNum((baseAmount / totalBaseAmount) * amount) : 0;

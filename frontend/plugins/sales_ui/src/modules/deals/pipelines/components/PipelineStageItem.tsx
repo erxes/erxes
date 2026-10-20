@@ -3,23 +3,31 @@ import {
   PROBABILITY_DEAL,
   VISIBILITIES,
 } from '@/deals/constants/stages';
-import { Checkbox, Form, Input, Label, Select, Tooltip } from 'erxes-ui';
 import {
   IconChevronDown,
   IconChevronUp,
   IconDragDrop2,
   IconTrashX,
 } from '@tabler/icons-react';
+import {
+  Checkbox,
+  Form,
+  Input,
+  isDefined,
+  Label,
+  Select,
+  Tooltip,
+} from 'erxes-ui';
 
-import { Controller, type Control, useFormState } from 'react-hook-form';
-import { IStage } from '@/deals/types/stages';
-import { SelectMember, SelectDepartments } from 'ui-modules';
 import { SortableItemProps } from '@/deals/components/common/Item';
 import { PipelineStageLoyaltyBadge } from '@/deals/loyaltyRules/components/PipelineStageLoyaltyBadge';
-import { useTranslation } from 'react-i18next';
 import type { TPipelineForm } from '@/deals/types/pipelines';
+import { IStage } from '@/deals/types/stages';
+import { Controller, useFormState, type Control } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
+import { SelectDepartments, SelectMember } from 'ui-modules';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 type TPipelineStageForm = Omit<TPipelineForm, 'stages'> & {
   stages?: Array<
@@ -35,6 +43,8 @@ interface Props extends Omit<SortableItemProps, 'index'> {
     probability: string;
   };
   control: Control<TPipelineStageForm>;
+  autoFocusName?: boolean;
+  onNameFocus?: () => void;
   onRemoveStage: () => void;
 }
 
@@ -68,10 +78,13 @@ export const PipelineStageItem = (props: Props) => {
     index,
     stage,
     control,
+    autoFocusName,
+    onNameFocus,
     onRemoveStage,
   } = props;
 
   const [showExtraFields, setShowExtraFields] = useState(false);
+  const nameInputRef = useRef<HTMLInputElement | null>(null);
   const { t } = useTranslation('sales');
   const { errors } = useFormState({
     control,
@@ -84,6 +97,12 @@ export const PipelineStageItem = (props: Props) => {
       setShowExtraFields(true);
     }
   }, [codeError]);
+
+  useEffect(() => {
+    if (autoFocusName && !dragOverlay) {
+      nameInputRef.current?.focus();
+    }
+  }, [autoFocusName, dragOverlay]);
 
   return (
     <div
@@ -151,7 +170,12 @@ export const PipelineStageItem = (props: Props) => {
                     <Form.Control>
                       <Input
                         {...field}
+                        ref={(element) => {
+                          field.ref(element);
+                          nameInputRef.current = element;
+                        }}
                         type="text"
+                        onFocus={onNameFocus}
                         placeholder={t('enter-stage-name')}
                       />
                     </Form.Control>
@@ -309,7 +333,9 @@ export const PipelineStageItem = (props: Props) => {
                     <Controller
                       name={`stages.${index}.canMoveMemberIds`}
                       control={control}
-                      defaultValue={stage?.canMoveMemberIds || []}
+                      defaultValue={
+                        stage?.canMoveMemberIds?.filter(isDefined) || []
+                      }
                       render={({ field }) => (
                         <SelectMember.FormItem
                           mode="multiple"
@@ -328,7 +354,9 @@ export const PipelineStageItem = (props: Props) => {
                     <Controller
                       name={`stages.${index}.canEditMemberIds`}
                       control={control}
-                      defaultValue={stage?.canEditMemberIds || []}
+                      defaultValue={
+                        stage?.canEditMemberIds?.filter(isDefined) || []
+                      }
                       render={({ field }) => (
                         <SelectMember.FormItem
                           mode="multiple"
@@ -347,7 +375,7 @@ export const PipelineStageItem = (props: Props) => {
                     <Controller
                       name={`stages.${index}.memberIds`}
                       control={control}
-                      defaultValue={stage?.memberIds || []}
+                      defaultValue={stage?.memberIds?.filter(isDefined) || []}
                       render={({ field }) => (
                         <SelectMember.FormItem
                           mode="multiple"
@@ -365,7 +393,9 @@ export const PipelineStageItem = (props: Props) => {
                     <Controller
                       name={`stages.${index}.departmentIds`}
                       control={control}
-                      defaultValue={stage?.departmentIds || []}
+                      defaultValue={
+                        stage?.departmentIds?.filter(isDefined) || []
+                      }
                       render={({ field }) => (
                         <SelectDepartments.FormItem
                           mode="multiple"

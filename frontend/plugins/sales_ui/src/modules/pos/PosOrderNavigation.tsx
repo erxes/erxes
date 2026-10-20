@@ -1,6 +1,12 @@
-import { useAtomValue } from 'jotai';
-import { currentUserState } from 'ui-modules';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useGetPos } from '@/pos/hooks/useGetPos';
+import {
+  IconChecklist,
+  IconChevronRight,
+  IconClipboard,
+  IconDotsVertical,
+  IconLink,
+  IconSettings,
+} from '@tabler/icons-react';
 import {
   Button,
   Collapsible,
@@ -13,22 +19,10 @@ import {
   TextOverflowTooltip,
   useToast,
 } from 'erxes-ui';
-import {
-  IconCaretRightFilled,
-  IconChecklist,
-  IconClipboard,
-  IconDotsVertical,
-  IconLink,
-  IconSettings,
-} from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
-import { useGetPos } from '@/pos/hooks/useGetPos';
+import { useLocation, useNavigate } from 'react-router-dom';
 
-type Pos = {
-  _id: string;
-  name: string;
-  icon?: string;
-};
+type Pos = NonNullable<ReturnType<typeof useGetPos>['pos']>[number];
 
 function LoadingSkeleton() {
   return (
@@ -57,18 +51,18 @@ function PosItem({ pos }: posItemProps) {
             <div className="w-full flex items-center justify-between">
               <Button
                 variant="ghost"
-                className="px-2 flex min-w-0 justify-start"
+                className="px-2 flex min-w-0 justify-start rounded-lg"
               >
                 <IconComponent
-                  name={pos.icon}
+                  name={undefined}
                   className="text-accent-foreground"
                 />
                 <TextOverflowTooltip
                   className="font-sans font-semibold normal-case flex-1 min-w-0"
-                  value={pos.name}
+                  value={pos.name ?? undefined}
                 />
-                <span className="ml-auto">
-                  <IconCaretRightFilled className="size-3 transition-transform group-data-[state=open]/collapsible:rotate-90 text-accent-foreground" />
+                <span className="ml-auto flex shrink-0 transition-transform duration-250 ease-[cubic-bezier(0.22,1,0.36,1)] group-data-[state=open]/collapsible:rotate-90 motion-reduce:transition-none text-muted-foreground">
+                  <IconChevronRight className="size-3.5!" />
                 </span>
               </Button>
               <div className="size-5 min-w-5 mr-2"></div>
@@ -132,10 +126,7 @@ function PosItem({ pos }: posItemProps) {
 export function PosOrderNavigation() {
   const { t } = useTranslation('sales');
   const location = useLocation();
-  const currentUser = useAtomValue(currentUserState);
-  const { pos, loading } = useGetPos({
-    variables: { userId: currentUser?._id },
-  });
+  const { pos, loading } = useGetPos();
 
   const isPos = location.pathname.startsWith('/sales/pos');
 
@@ -200,7 +191,7 @@ const PosActionsMenu = ({ pos }: { pos: Pos }) => {
         <DropdownMenu.Item
           className="cursor-pointer"
           onSelect={(e) => {
-            navigate(`/settings/sales/pos/${pos._id}`);
+            navigate(`/sales/settings/pos/${pos._id}`);
           }}
         >
           <IconSettings className="size-4" />

@@ -1,6 +1,7 @@
 import { atom } from 'jotai';
 import { atomWithStorage } from 'jotai/utils';
 import { nanoid } from 'nanoid';
+import { compactList } from '@/shared/utils/cursorList';
 import {
   createSurveyContentDefaultValues,
   SURVEY_CONFIRMATION_DEFAULT_VALUES,
@@ -57,6 +58,17 @@ const toAttachments = (
     name: attachment.name,
     type: attachment.type,
     size: attachment.size,
+  }));
+
+/** Stored attachments may lack `name`, `type` or `size`; the form needs all three. */
+const toContentAttachments = (
+  attachments: ISurveyStep['attachments'],
+): ISurveyAttachment[] =>
+  compactList(attachments).map(({ url, name, type, size }) => ({
+    url,
+    name: name ?? '',
+    type: type ?? '',
+    size: size ?? 0,
   }));
 
 export const surveySetupStepAtom = atomWithStorage<number>(
@@ -154,7 +166,7 @@ const toContentStep = (step: ISurveyStep): TSurveyContentStep => ({
   name: step.name ?? '',
   description: step.description ?? '',
   question: step.question,
-  attachments: toAttachments(step.attachments),
+  attachments: toContentAttachments(step.attachments),
   allowMultiselect: Boolean(step.allowMultiselect),
   options: toContentOptions(step.options),
 });
@@ -162,7 +174,7 @@ const toContentStep = (step: ISurveyStep): TSurveyContentStep => ({
 const toSurveyContentSteps = (survey: ISurvey): TSurveyContentStep[] => {
   if (survey.steps?.length) {
     return [...survey.steps]
-      .sort((a, b) => a.order - b.order)
+      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
       .map(toContentStep);
   }
 
@@ -184,6 +196,7 @@ export const surveySetSetupAtom = atom(null, (_, set, payload: ISurvey) => {
   set(surveySetupGeneralAtom, {
     title: payload.title ?? '',
     brandId: payload.brandId ?? null,
+    channelId: payload.channelId ?? '',
   });
   set(surveySetupContentAtom, { steps: toSurveyContentSteps(payload) });
   set(surveySetupConfirmationAtom, {

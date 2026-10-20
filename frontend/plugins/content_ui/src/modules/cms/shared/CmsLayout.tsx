@@ -153,6 +153,31 @@ export function CmsLayout({
 
   return (
     <div className="flex h-full">
+      {showSidebar && (
+        <Sidebar.Panel
+          className="border-r flex-none"
+          label={t('content-management')}
+        >
+          <Sidebar.Group>
+            <Sidebar.GroupContent>
+              {navigationItems.map((item) => (
+                <Sidebar.Menu key={item.id}>
+                  <Sidebar.MenuButton
+                    asChild
+                    isActive={currentActiveNav === item.id}
+                    onClick={() => onNavChange?.(item.id)}
+                  >
+                    <Link to={item.href}>
+                      {item.icon}
+                      <span>{item.label}</span>
+                    </Link>
+                  </Sidebar.MenuButton>
+                </Sidebar.Menu>
+              ))}
+            </Sidebar.GroupContent>
+          </Sidebar.Group>
+        </Sidebar.Panel>
+      )}
       <div className="flex flex-col flex-1 min-w-0 overflow-auto">
         <PageHeader>
           <PageHeader.Start>
@@ -234,32 +259,6 @@ export function CmsLayout({
         </PageHeader>
 
         <div className="flex flex-1 min-w-0 overflow-auto">
-          {showSidebar && (
-            <Sidebar collapsible="none" className="border-r flex-none">
-              <Sidebar.Group>
-                <Sidebar.GroupLabel>
-                  {t('content-management')}
-                </Sidebar.GroupLabel>
-                <Sidebar.GroupContent>
-                  {navigationItems.map((item) => (
-                    <Sidebar.Menu key={item.id}>
-                      <Sidebar.MenuButton
-                        asChild
-                        isActive={currentActiveNav === item.id}
-                        onClick={() => onNavChange?.(item.id)}
-                      >
-                        <Link to={item.href}>
-                          {item.icon}
-                          <span>{item.label}</span>
-                        </Link>
-                      </Sidebar.MenuButton>
-                    </Sidebar.Menu>
-                  ))}
-                </Sidebar.GroupContent>
-              </Sidebar.Group>
-            </Sidebar>
-          )}
-
           <div className="w-full py-2 px-4">{children}</div>
         </div>
       </div>

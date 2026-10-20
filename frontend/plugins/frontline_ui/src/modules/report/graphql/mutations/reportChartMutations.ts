@@ -1,7 +1,6 @@
-import { gql } from '@apollo/client';
-import { REPORT_CHART_FIELDS } from '@/report/graphql/queries/getReportCharts';
+import { gql } from '~/gql';
 
-export const ADD_REPORT_CHART = gql`
+export const ADD_REPORT_CHART = gql(`
   mutation ReportChartAdd(
     $name: String!
     $chartType: String!
@@ -19,13 +18,12 @@ export const ADD_REPORT_CHART = gql`
       ...ReportChartFields
     }
   }
-  ${REPORT_CHART_FIELDS}
-`;
+`);
 
-export const REMOVE_REPORT_CHART = gql`
+export const REMOVE_REPORT_CHART = gql(`
   mutation ReportChartRemove($_id: String!) {
     reportChartRemove(_id: $_id) {
       _id
     }
   }
-`;
+`);

@@ -3,28 +3,48 @@ import {
   SelectTriggerTicket,
   SelectTriggerVariant,
 } from '@/ticket/components/ticket-selects/SelectTicket';
+import {
+  SelectCreateCommandItem,
+  SelectCreateContainer,
+  useSelectCreate,
+} from '@/ticket/components/ticket-selects/SelectCreate';
+import { ChannelForm } from '@/channels/components/settings/channels-list/ChannelForm';
+import { useChannelAdd } from '@/channels/hooks/useChannelAdd';
 import { useGetChannels } from '@/channels/hooks/useGetChannels';
-import { IChannel } from '@/channels/types';
+import { CHANNEL_SCHEMA } from '@/channels/schema/channel';
+import { IChannel, TChannelForm } from '@/channels/types';
+import { zodResolver } from '@hookform/resolvers/zod';
 import {
   Badge,
   Combobox,
   Command,
   Filter,
+  Form,
   IconComponent,
   PopoverScoped,
   TextOverflowTooltip,
   useFilterContext,
   useFilterQueryState,
   useQueryState,
+  useToast,
 } from 'erxes-ui';
 import React, { useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
+import type { ApolloError } from '@apollo/client';
+import { z } from 'zod';
+
+const INLINE_CHANNEL_SCHEMA = CHANNEL_SCHEMA.extend({
+  name: z.string().trim().min(1),
+});
 
 interface SelectChannelContextType {
   value: string;
   onValueChange: (value: string) => void;
   loading: boolean;
+  error?: ApolloError;
   channels?: IChannel[];
+  refetch: () => Promise<unknown>;
 }
 
 const SelectChannelContext =
@@ -51,7 +71,7 @@ const SelectChannelProvider = ({
   onValueChange?: (value: string) => void;
   setOpen?: (open: boolean) => void;
 }) => {
-  const { channels, loading } = useGetChannels();
+  const { channels, loading, error, refetch } = useGetChannels();
 
   const handleValueChange = (channelId: string) => {
     if (!channelId) return;
@@ -65,7 +85,9 @@ const SelectChannelProvider = ({
         value,
         onValueChange: handleValueChange,
         loading,
+        error,
         channels,
+        refetch,
       }}
     >
       {children}
@@ -92,7 +114,10 @@ const SelectChannelValue = ({ placeholder }: { placeholder?: string }) => {
       <div className="flex gap-2 items-center">
         {selectedChannels.map((channel) => (
           <Badge key={channel._id} variant="secondary">
-            <IconComponent name={channel.icon} className="size-4 shrink-0" />
+            <IconComponent
+              name={channel.icon ?? undefined}
+              className="size-4 shrink-0"
+            />
             <TextOverflowTooltip value={channel.name} className="max-w-32" />
           </Badge>
         ))}
@@ -103,7 +128,7 @@ const SelectChannelValue = ({ placeholder }: { placeholder?: string }) => {
   return (
     <div className="flex gap-2 items-center">
       <IconComponent
-        name={selectedChannels[0]?.icon}
+        name={selectedChannels[0]?.icon ?? undefined}
         className="size-4 shrink-0"
       />
       <TextOverflowTooltip
@@ -120,12 +145,13 @@ const SelectChannelCommandItem = ({ channel }: { channel: IChannel }) => {
   return (
     <Command.Item
       value={channel._id}
+      keywords={[channel.name]}
       onSelect={() => {
         onValueChange(channel._id);
       }}
     >
       <div className="flex items-center gap-2 flex-1 overflow-hidden">
-        <IconComponent name={channel.icon} className="size-4" />
+        <IconComponent name={channel.icon ?? undefined} className="size-4" />
         <TextOverflowTooltip value={channel.name} />
       </div>
       <Combobox.Check checked={value.includes(channel._id)} />
@@ -133,17 +159,93 @@ const SelectChannelCommandItem = ({ channel }: { channel: IChannel }) => {
   );
 };
 
-const SelectChannelContent = () => {
+const SelectChannelCreateForm = ({
+  name,
+  onBack,
+}: {
+  name: string;
+  onBack: () => void;
+}) => {
   const { t } = useTranslation('frontline');
-  const { loading, channels } = useSelectChannelContext();
+  const { toast } = useToast();
+  const { onValueChange, refetch } = useSelectChannelContext();
+  const { addChannel, loading } = useChannelAdd();
+  const form = useForm<TChannelForm>({
+    resolver: zodResolver(INLINE_CHANNEL_SCHEMA),
+    defaultValues: {
+      name,
+      description: '',
+      memberIds: [],
+      scope: 'team',
+    },
+  });
+
+  const onSubmit = (data: TChannelForm) => {
+    addChannel({
+      variables: data,
+      onCompleted: async ({ channelAdd }) => {
+        toast({ title: t('success', 'Success!'), variant: 'success' });
+        await refetch();
+        onBack();
+        if (channelAdd) onValueChange(channelAdd._id);
+      },
+      onError: (error) =>
+        toast({
+          title: t('error', 'Error'),
+          description: error.message,
+          variant: 'destructive',
+        }),
+    });
+  };
+
+  return (
+    <Form {...form}>
+      <SelectCreateContainer
+        title={t('create-channel', 'Create channel')}
+        onBack={onBack}
+        onSubmit={form.handleSubmit(onSubmit)}
+        loading={loading}
+      >
+        <ChannelForm form={form} />
+      </SelectCreateContainer>
+    </Form>
+  );
+};
+
+const SelectChannelContent = ({ allowCreate }: { allowCreate?: boolean }) => {
+  const { t } = useTranslation('frontline');
+  const { loading, error, channels } = useSelectChannelContext();
+  const { search, setSearch, newName, setNewName, showCreate } =
+    useSelectCreate({
+      enabled: !!allowCreate && !loading && !error,
+      names: (channels || []).map((channel) => channel.name),
+    });
+
+  if (newName) {
+    return (
+      <SelectChannelCreateForm name={newName} onBack={() => setNewName('')} />
+    );
+  }
+
   return (
     <Command>
-      <Command.Input placeholder={t('search-channels', 'Search channels...')} />
+      <Command.Input
+        value={search}
+        onValueChange={setSearch}
+        placeholder={t('search-channels', 'Search channels...')}
+      />
       <Command.List>
-        <Combobox.Empty loading={loading} />
+        {!showCreate && <Combobox.Empty loading={loading} error={error} />}
         {channels?.map((channel) => (
           <SelectChannelCommandItem key={channel._id} channel={channel} />
         ))}
+        {showCreate && (
+          <SelectCreateCommandItem
+            search={search}
+            label={t('create-new-channel', 'Create new channel')}
+            onSelect={setNewName}
+          />
+        )}
       </Command.List>
     </Command>
   );
@@ -152,12 +254,14 @@ const SelectChannelContent = () => {
 const SelectChannelRoot = ({
   variant = 'detail',
   disabled,
+  label,
   scope,
   value,
   onValueChange,
 }: {
   variant?: `${SelectTriggerVariant}`;
   disabled?: boolean;
+  label?: string;
   scope?: string;
   value: string;
   onValueChange?: (value: string) => void;
@@ -171,7 +275,11 @@ const SelectChannelRoot = ({
       setOpen={setOpen}
     >
       <PopoverScoped scope={scope} open={open} onOpenChange={setOpen}>
-        <SelectTriggerTicket variant={variant} disabled={disabled}>
+        <SelectTriggerTicket
+          variant={variant}
+          disabled={disabled}
+          label={label}
+        >
           <SelectChannelValue />
         </SelectTriggerTicket>
         <SelectTicketContent variant={variant}>
@@ -225,9 +333,11 @@ const SelectChannelFilterView = () => {
 const SelectChannelFormItem = ({
   value,
   onValueChange,
+  label,
 }: {
   value: string;
   onValueChange: (value: string) => void;
+  label?: string;
 }) => {
   const [open, setOpen] = useState(false);
   return (
@@ -237,11 +347,11 @@ const SelectChannelFormItem = ({
       setOpen={setOpen}
     >
       <PopoverScoped open={open} onOpenChange={setOpen}>
-        <SelectTriggerTicket variant="form">
+        <SelectTriggerTicket variant="form" label={label}>
           <SelectChannelValue />
         </SelectTriggerTicket>
         <SelectTicketContent variant="form">
-          <SelectChannelContent />
+          <SelectChannelContent allowCreate />
         </SelectTicketContent>
       </PopoverScoped>
     </SelectChannelProvider>

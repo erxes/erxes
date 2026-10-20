@@ -1,56 +1,74 @@
 import {
-  MutationHookOptions,
-  QueryHookOptions,
-  useMutation,
-  useQuery,
-} from '@apollo/client';
-import {
   STAGES_EDIT,
   STAGES_REMOVE,
   STAGES_SORT_ITEMS,
   UPDATE_STAGES_ORDER,
 } from '@/deals/graphql/mutations/StagesMutations';
-import { toast, useQueryState } from 'erxes-ui';
+import {
+  MutationHookOptions,
+  QueryHookOptions,
+  useMutation,
+  useQuery,
+} from '@apollo/client';
+import { isDefined, toast, useQueryState } from 'erxes-ui';
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import type {
+  SalesDealStagesQuery,
+  SalesDealStagesQueryVariables,
+  SalesStageDetailQuery,
+  SalesStageDetailQueryVariables,
+  SalesStagesEditMutation,
+  SalesStagesEditMutationVariables,
+  SalesStagesRemoveMutation,
+  SalesStagesRemoveMutationVariables,
+  SalesStagesSortItemsMutation,
+  SalesStagesSortItemsMutationVariables,
+  SalesStagesUpdateOrderMutation,
+  SalesStagesUpdateOrderMutationVariables,
+} from '~/gql/graphql';
 
 import { GET_DEALS } from '@/deals/graphql/queries/DealsQueries';
 import {
   GET_STAGE_DETAIL,
   GET_STAGES,
 } from '@/deals/graphql/queries/StagesQueries';
-import { IStage } from '@/deals/types/stages';
 
 export const useStages = (
-  options?: QueryHookOptions<{ salesStages: IStage[] }>,
+  options?: QueryHookOptions<
+    SalesDealStagesQuery,
+    SalesDealStagesQueryVariables
+  >,
 ) => {
-  const { data, loading, error } = useQuery<{ salesStages: IStage[] }>(
-    GET_STAGES,
-    {
-      ...options,
-      variables: {
-        ...options?.variables,
-      },
-    },
+  const { data, loading, error } = useQuery(GET_STAGES, {
+    ...options,
+    variables: options?.variables,
+  });
+
+  const stages = useMemo(
+    () => data?.salesStages?.filter(isDefined) ?? [],
+    [data?.salesStages],
   );
 
-  return { stages: data?.salesStages || [], loading, error };
+  return { stages, loading, error };
 };
 
-export const useStagesOrder = (options?: MutationHookOptions<any, any>) => {
+export const useStagesOrder = (
+  options?: MutationHookOptions<
+    SalesStagesUpdateOrderMutation,
+    SalesStagesUpdateOrderMutationVariables
+  >,
+) => {
   const { t } = useTranslation('sales');
   const [updateStagesOrder, { loading, error }] = useMutation(
     UPDATE_STAGES_ORDER,
     {
       ...options,
-      variables: {
-        ...options?.variables,
-      },
+      variables: options?.variables,
       refetchQueries: [
         {
           query: GET_STAGES,
-          variables: {
-            ...options?.variables,
-          },
+          variables: options?.variables,
         },
       ],
       awaitRefetchQueries: true,
@@ -74,15 +92,18 @@ export const useStagesOrder = (options?: MutationHookOptions<any, any>) => {
   return { updateStagesOrder, loading, error };
 };
 
-export function useStagesRemove(options?: MutationHookOptions<any, any>) {
+export function useStagesRemove(
+  options?: MutationHookOptions<
+    SalesStagesRemoveMutation,
+    SalesStagesRemoveMutationVariables
+  >,
+) {
   const { t } = useTranslation('sales');
   const [pipelineId] = useQueryState<string>('pipelineId');
 
   const [removeStage, { loading, error }] = useMutation(STAGES_REMOVE, {
     ...options,
-    variables: {
-      ...options?.variables,
-    },
+    variables: options?.variables,
     refetchQueries: [
       {
         query: GET_STAGES,
@@ -109,15 +130,18 @@ export function useStagesRemove(options?: MutationHookOptions<any, any>) {
   return { removeStage, loading, error };
 }
 
-export function useStagesEdit(options?: MutationHookOptions<any, any>) {
+export function useStagesEdit(
+  options?: MutationHookOptions<
+    SalesStagesEditMutation,
+    SalesStagesEditMutationVariables
+  >,
+) {
   const { t } = useTranslation('sales');
   const [pipelineId] = useQueryState<string>('pipelineId');
 
   const [editStage, { loading, error }] = useMutation(STAGES_EDIT, {
     ...options,
-    variables: {
-      ...options?.variables,
-    },
+    variables: options?.variables,
     refetchQueries: [
       {
         query: GET_STAGES,
@@ -144,14 +168,17 @@ export function useStagesEdit(options?: MutationHookOptions<any, any>) {
   return { editStage, loading, error };
 }
 
-export function useStagesSortItems(options?: MutationHookOptions<any, any>) {
+export function useStagesSortItems(
+  options?: MutationHookOptions<
+    SalesStagesSortItemsMutation,
+    SalesStagesSortItemsMutationVariables
+  >,
+) {
   const { t } = useTranslation('sales');
   const [pipelineId] = useQueryState<string>('pipelineId');
   const [sortItemsBase, { loading, error }] = useMutation(STAGES_SORT_ITEMS, {
     ...options,
-    variables: {
-      ...options?.variables,
-    },
+    variables: options?.variables,
     awaitRefetchQueries: true,
     onCompleted: (...args) => {
       toast({ title: t('items-sorted'), variant: 'default' });
@@ -179,22 +206,19 @@ export function useStagesSortItems(options?: MutationHookOptions<any, any>) {
 }
 
 export const useStageDetail = (
-  options?: QueryHookOptions<{ salesStageDetail: IStage }>,
+  options?: QueryHookOptions<
+    SalesStageDetailQuery,
+    SalesStageDetailQueryVariables
+  >,
 ) => {
   const [stageIdFromQuery] = useQueryState<string>('stageId');
   const stageId = options?.variables?._id || stageIdFromQuery;
 
-  const { data, loading, error } = useQuery<{ salesStageDetail: IStage }>(
-    GET_STAGE_DETAIL,
-    {
-      ...options,
-      variables: {
-        ...options?.variables,
-        _id: stageId,
-      },
-      skip: !stageId,
-    },
-  );
+  const { data, loading, error } = useQuery(GET_STAGE_DETAIL, {
+    ...options,
+    variables: stageId ? { _id: stageId } : undefined,
+    skip: !stageId,
+  });
 
   return { stageDetail: data?.salesStageDetail, loading, error };
 };

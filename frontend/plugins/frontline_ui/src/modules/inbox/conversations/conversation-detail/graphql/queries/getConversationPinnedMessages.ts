@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const GET_CONVERSATION_PINNED_MESSAGES = gql`
+export const GET_CONVERSATION_PINNED_MESSAGES = gql(`
   query FrontlineConversationPinnedMessages($conversationId: String!) {
     conversationPinnedMessages(conversationId: $conversationId) {
       _id
@@ -14,7 +14,15 @@ export const GET_CONVERSATION_PINNED_MESSAGES = gql`
         size
       }
       extraData
-      providerData
+      providerData {
+        messageId
+        attachmentType
+        fallbackReason
+        previewText
+        previewUrl
+        shareType
+        storyUrl
+      }
     }
   }
-`;
+`);

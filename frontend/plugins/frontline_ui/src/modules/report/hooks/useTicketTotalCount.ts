@@ -1,17 +1,17 @@
 import { QueryHookOptions, useQuery } from '@apollo/client';
 import { GET_TICKET_TOTAL_COUNT } from '@/report/graphql/queries/getTicketChart';
-
-interface TicketTotalCountResponse {
-  reportTicketTotalCount: number;
-}
+import type {
+  ReportTicketTotalCountQuery,
+  ReportTicketTotalCountQueryVariables,
+} from '~/gql/graphql';
 
 export const useTicketTotalCount = (
-  options?: QueryHookOptions<TicketTotalCountResponse>,
+  options?: QueryHookOptions<
+    ReportTicketTotalCountQuery,
+    ReportTicketTotalCountQueryVariables
+  >,
 ) => {
-  const { data, loading, error } = useQuery<TicketTotalCountResponse>(
-    GET_TICKET_TOTAL_COUNT,
-    options,
-  );
+  const { data, loading, error } = useQuery(GET_TICKET_TOTAL_COUNT, options);
 
   return {
     totalCount: data?.reportTicketTotalCount ?? 0,

@@ -4,6 +4,7 @@ import type { OnboardingStepDef } from './onboardingSteps';
 import { currentOrganizationState } from 'ui-modules';
 import { motion } from 'framer-motion';
 import { useAtomValue } from 'jotai';
+import { useTranslation } from 'react-i18next';
 
 const listVariants = {
   hidden: {},
@@ -22,6 +23,7 @@ export const WelcomeSection = ({
   steps: OnboardingStepDef[];
   onContinue: () => void;
 }) => {
+  const { t } = useTranslation('common', { keyPrefix: 'onboarding' });
   useScopedHotkeys(`enter`, () => onContinue(), 'welcome');
   useScopedHotkeys(`space`, () => onContinue(), 'welcome');
 
@@ -41,10 +43,10 @@ export const WelcomeSection = ({
         className="flex flex-col gap-2"
       >
         <h1 className="text-3xl font-bold tracking-tight text-foreground">
-          Let&apos;s get you started
+          {t('lets-get-started')}
         </h1>
         <p className="text-lg text-muted-foreground">
-          A few quick details and {brandName} is ready for you.
+          {t('brand-ready', { brandName })}
         </p>
       </motion.div>
 
@@ -83,10 +85,10 @@ export const WelcomeSection = ({
         className="flex flex-col gap-4"
       >
         <p className="text-sm text-muted-foreground">
-          It only takes a few minutes.
+          {t('takes-few-minutes')}
         </p>
         <Button size="lg" className="w-full" onClick={onContinue} autoFocus>
-          Get started
+          {t('get-started')}
         </Button>
         <p className="text-xs text-muted-foreground">
           Press

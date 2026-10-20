@@ -1,9 +1,13 @@
 import { MutationHookOptions, useMutation } from '@apollo/client';
 import { toast, useQueryState } from 'erxes-ui';
+import type {
+  DealsEditMutation,
+  DealsEditMutationVariables,
+} from '~/gql/graphql';
 
+import { DEAL_TOAST_OPTIONS } from '@/deals/constants/toast';
 import { EDIT_DEALS } from '@/deals/graphql/mutations/DealsMutations';
 import { GET_DEAL_DETAIL } from '@/deals/graphql/queries/DealsQueries';
-import { DEAL_TOAST_OPTIONS } from '@/deals/constants/toast';
 import { dealDetailSheetState } from '@/deals/states/dealDetailSheetState';
 import { useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
@@ -16,20 +20,17 @@ interface UseDealsEditConfig {
 }
 
 export function useDealsEdit(
-  options?: MutationHookOptions,
+  options?: MutationHookOptions<DealsEditMutation, DealsEditMutationVariables>,
   config?: UseDealsEditConfig,
 ) {
   const { toastOptions } = config || {};
   const { t } = useTranslation('sales');
   const [_id] = useAtom(dealDetailSheetState);
-  const [salesItemId] = useQueryState('salesItemId');
+  const [salesItemId] = useQueryState<string>('salesItemId');
 
   const [editDeals, { loading, error }] = useMutation(EDIT_DEALS, {
     ...options,
-    variables: {
-      ...options?.variables,
-      _id,
-    },
+    variables: _id ? { ...options?.variables, _id } : options?.variables,
     refetchQueries:
       salesItemId || _id
         ? [

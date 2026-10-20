@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
 import {
   Button,
@@ -19,26 +20,9 @@ import {
 } from '../../../types/JournalForms';
 import { getTempId } from '../../utils';
 
-type TFxaIncomeOwnerRecord = {
-  _id?: string;
-  tempId?: string;
-  transactionDetailId?: string;
-  fixedAssetId?: string;
-  code?: string;
-  sequence?: number;
-  count?: number;
-  ownerId?: string;
-};
-
-type TFxaIncomeDetailFollowInfo = {
-  _id?: string;
-  tempId?: string;
-  transactionDetailId?: string;
-  fixedAssetId?: string;
-  salvageValue?: number;
-  preDeprecation?: number;
-  openingAccumulatedDepreciation?: number;
-};
+type TFxaIncomeOwnerRecord = NonNullable<
+  NonNullable<TFxaIncomeJournal['extraData']>['fxaOwnerRecords']
+>[number];
 
 const getDetailOwnerCount = (owners: TFxaIncomeOwnerRecord[]) =>
   owners.reduce(
@@ -46,42 +30,10 @@ const getDetailOwnerCount = (owners: TFxaIncomeOwnerRecord[]) =>
     0,
   );
 
-const getDetailFollowInfo = (
-  detailId: string,
-  previous: TFxaIncomeDetailFollowInfo[],
-) =>
-  previous.find(
-    (followInfo) =>
-      followInfo.transactionDetailId === detailId ||
-      followInfo.tempId === detailId,
-  );
-
-const buildDetailFollowInfos = (
-  trDoc: TFxaIncomeJournal,
-): TFxaIncomeDetailFollowInfo[] => {
-  const previous = trDoc.followInfos?.fxaIncomeDetails || [];
-
-  return (trDoc.details || []).map((detail) => {
-    const previousInfo = getDetailFollowInfo(detail._id, previous);
-
-    return {
-      _id: previousInfo?._id,
-      tempId: detail._id,
-      transactionDetailId: detail._id,
-      fixedAssetId: detail.fixedAssetId,
-      salvageValue: previousInfo?.salvageValue || 0,
-      preDeprecation:
-        previousInfo?.preDeprecation ||
-        previousInfo?.openingAccumulatedDepreciation ||
-        0,
-    };
-  });
-};
-
 const normalizeOwnerRecords = (trDoc: TFxaIncomeJournal) => {
   const detailIds = new Set((trDoc.details || []).map((detail) => detail._id));
 
-  return ((trDoc.extraData?.fxaOwnerRecords || []) as TFxaIncomeOwnerRecord[])
+  return (trDoc.extraData?.fxaOwnerRecords || [])
     .filter((owner) => owner.transactionDetailId)
     .filter((owner) => detailIds.has(owner.transactionDetailId || ''))
     .map((owner) => {
@@ -91,6 +43,7 @@ const normalizeOwnerRecords = (trDoc: TFxaIncomeJournal) => {
 
       return {
         ...owner,
+        transactionDetailId: owner.transactionDetailId || '',
         fixedAssetId: detail?.fixedAssetId || owner.fixedAssetId,
       };
     });
@@ -111,22 +64,11 @@ export const FxaIncomeOwnerRecordsSync = ({
   useEffect(() => {
     const previousOwners = trDoc.extraData?.fxaOwnerRecords || [];
     const nextOwners = normalizeOwnerRecords(trDoc);
-    const previousFollowInfos = trDoc.followInfos?.fxaIncomeDetails || [];
-    const nextFollowInfos = buildDetailFollowInfos(trDoc);
 
     if (JSON.stringify(previousOwners) !== JSON.stringify(nextOwners)) {
       form.setValue(
         `trDocs.${journalIndex}.extraData.fxaOwnerRecords`,
         nextOwners,
-      );
-    }
-
-    if (
-      JSON.stringify(previousFollowInfos) !== JSON.stringify(nextFollowInfos)
-    ) {
-      form.setValue(
-        `trDocs.${journalIndex}.followInfos.fxaIncomeDetails`,
-        nextFollowInfos,
       );
     }
   }, [form, journalIndex, JSON.stringify(trDoc)]);
@@ -143,21 +85,16 @@ export const FxaIncomeDetailOwnerRecordsSheet = ({
   journalIndex: number;
   detailIndex: number;
 }) => {
+  const { t } = useTranslation('accounting');
   const trDoc = useWatch({
     control: form.control,
     name: `trDocs.${journalIndex}`,
   }) as TFxaIncomeJournal;
   const detail = trDoc.details?.[detailIndex];
-  const managedOwners = (trDoc.extraData?.fxaOwnerRecords ||
-    []) as TFxaIncomeOwnerRecord[];
+  const managedOwners = trDoc.extraData?.fxaOwnerRecords || [];
   const detailOwners = managedOwners
     .map((owner, ownerIndex) => ({ owner, ownerIndex }))
     .filter(({ owner }) => owner.transactionDetailId === detail?._id);
-  const followInfoIndex = (trDoc.followInfos?.fxaIncomeDetails || []).findIndex(
-    (followInfo) =>
-      followInfo.transactionDetailId === detail?._id ||
-      followInfo.tempId === detail?._id,
-  );
   const ownerCount = getDetailOwnerCount(
     detailOwners.map(({ owner }) => owner),
   );
@@ -168,13 +105,17 @@ export const FxaIncomeDetailOwnerRecordsSheet = ({
     .join(' - ');
   const addButtonTip =
     remainingCount > 0
-      ? `Эд хариуцагчид оноогоогүй ${remainingCount} ширхэг байна.`
-      : 'Оноосон тоо detail-ийн тоотой таарсан.';
+      ? t('unallocated-asset-quantity', { count: remainingCount })
+      : t('the-allocated-quantity-matches-the-transaction-detail-quantity');
 
   const syncOwners = (nextOwners: TFxaIncomeOwnerRecord[]) => {
     form.setValue(
       `trDocs.${journalIndex}.extraData.fxaOwnerRecords`,
-      nextOwners,
+      nextOwners.flatMap((owner) =>
+        owner.transactionDetailId
+          ? [{ ...owner, transactionDetailId: owner.transactionDetailId }]
+          : [],
+      ),
     );
   };
 
@@ -213,17 +154,18 @@ export const FxaIncomeDetailOwnerRecordsSheet = ({
           type="button"
           className="w-8 p-0"
           disabled={!detail}
-          aria-label="Эд хариуцагчийн бүртгэл"
-          title="Эд хариуцагчийн бүртгэл"
+          aria-label={t('asset-custodian-records')}
+          title={t('asset-custodian-records')}
         />
       </Sheet.Trigger>
       <Sheet.View className="p-0 flex flex-col gap-0 overflow-hidden flex-none md:max-w-5xl">
-        <Sheet.Header className="flex-row gap-3 items-center p-3 space-y-0 border-b">
+        <Sheet.Header className="flex-row gap-3 items-center p-3 space-y-0 border-b h-auto py-2">
           <div className="min-w-0">
-            <Sheet.Title>{title || 'Эд хариуцагчийн бүртгэл'}</Sheet.Title>
+            <Sheet.Title>{title || t('asset-custodian-records')}</Sheet.Title>
             <Sheet.Description>
-              Тоо: {detailCount} | Оноосон: {ownerCount} | Үлдсэн:{' '}
-              {remainingCount}
+              {t('quantity-label-2', { nsSeparator: false })} {detailCount}{' '}
+              {t('allocated', { nsSeparator: false })} {ownerCount}{' '}
+              {t('remaining', { nsSeparator: false })} {remainingCount}
             </Sheet.Description>
           </div>
           <Tooltip>
@@ -240,7 +182,8 @@ export const FxaIncomeDetailOwnerRecordsSheet = ({
                   onClick={addOwner}
                 >
                   <IconPlus />
-                  Instance нэмэх ({remainingCount})
+                  {t('add-allocation')}
+                  {remainingCount})
                 </Button>
               </span>
             </Tooltip.Trigger>
@@ -249,14 +192,14 @@ export const FxaIncomeDetailOwnerRecordsSheet = ({
           <Sheet.Close />
         </Sheet.Header>
         <Sheet.Content className="p-4 overflow-auto">
-          {followInfoIndex >= 0 && (
+          {detail && (
             <div className="grid grid-cols-2 gap-4 mb-4">
               <Form.Field
                 control={form.control}
-                name={`trDocs.${journalIndex}.followInfos.fxaIncomeDetails.${followInfoIndex}.salvageValue`}
+                name={`trDocs.${journalIndex}.details.${detailIndex}.followInfos.salvageValue`}
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>Үлдэх өртөг</Form.Label>
+                    <Form.Label>{t('residual-value')}</Form.Label>
                     <Form.Control>
                       <InputNumber
                         value={field.value ?? 0}
@@ -268,10 +211,12 @@ export const FxaIncomeDetailOwnerRecordsSheet = ({
               />
               <Form.Field
                 control={form.control}
-                name={`trDocs.${journalIndex}.followInfos.fxaIncomeDetails.${followInfoIndex}.preDeprecation`}
+                name={`trDocs.${journalIndex}.details.${detailIndex}.followInfos.preDeprecation`}
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>Өмнөх хур. элэгдэл</Form.Label>
+                    <Form.Label>
+                      {t('prior-accumulated-depreciation')}
+                    </Form.Label>
                     <Form.Control>
                       <InputNumber
                         value={field.value ?? 0}
@@ -286,9 +231,9 @@ export const FxaIncomeDetailOwnerRecordsSheet = ({
           <Table>
             <Table.Header>
               <Table.Row>
-                <Table.Head>Код</Table.Head>
-                <Table.Head>Тоо</Table.Head>
-                <Table.Head>Эд хариуцагч</Table.Head>
+                <Table.Head>{t('code')}</Table.Head>
+                <Table.Head>{t('quantity')}</Table.Head>
+                <Table.Head>{t('asset-custodian')}</Table.Head>
                 <Table.Head className="w-8" />
               </Table.Row>
             </Table.Header>
@@ -350,7 +295,7 @@ export const FxaIncomeDetailOwnerRecordsSheet = ({
                     colSpan={4}
                     className="text-center text-muted-foreground"
                   >
-                    Эд хариуцагчийн бүртгэл алга.
+                    {t('no-asset-custodian-records-found')}
                   </Table.Cell>
                 </Table.Row>
               )}

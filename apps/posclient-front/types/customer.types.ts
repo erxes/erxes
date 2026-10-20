@@ -31,6 +31,9 @@ export interface CustomerLoyaltyVoucher {
   kind?: "amount" | "percent" | null
   value?: number | null
   expiresAt?: string | null
+  // "onhold" when picked on an order; heldFor names it.
+  status?: string | null
+  heldFor?: { targetType?: string; targetId?: string } | null
   autoApplied: boolean
   applicable: boolean
   reason?: string | null

@@ -6,10 +6,10 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 export const MyInboxHeader = () => {
-  const { t } = useTranslation('common');
+  const { t } = useTranslation('common', { keyPrefix: 'notification' });
   return (
     <>
-      <div className="flex flex-col h-13 shrink-0 bg-sidebar w-full">
+      <div className="flex flex-col h-10 shrink-0 bg-sidebar w-full">
         <div className="flex flex-auto items-center gap-2 px-3 pl-[calc(0.75rem_+_var(--navigation-panel-toggle-space,0rem)_+_var(--visited-page-tabs-open-button-space,0rem))]">
           <Button variant="ghost" asChild>
             <Link to="/my-inbox">

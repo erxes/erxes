@@ -39,7 +39,7 @@ import {
 } from '@/integrations/call/services/cdrUtils';
 import { canGroup } from 'erxes-api-shared/core-modules';
 import { CONVERSATION_STATUSES } from '@/inbox/db/definitions/constants';
-import { markResolvers, sendTRPCMessage } from 'erxes-api-shared/utils';
+import { escapeRegExp, markResolvers, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 
 interface IReportIntegration {
@@ -589,7 +589,7 @@ export const reportCallQueries = {
       const { dateFrom, dateTo } = getPbxDayRange();
 
       const todayCdrs = await models.CallCdrs.find({
-        actionType: { $regex: queue },
+        actionType: { $regex: escapeRegExp(queue) },
         start: {
           $gte: dateFrom,
           $lt: dateTo,
@@ -643,7 +643,7 @@ export const reportCallQueries = {
     { models }: IContext,
   ) {
     const filter: any = {
-      actionType: { $regex: queue },
+      actionType: { $regex: escapeRegExp(queue) },
       start: {
         $gte: new Date(startDate),
         $lt: new Date(endDate),
@@ -674,7 +674,7 @@ export const reportCallQueries = {
     { models }: IContext,
   ) {
     const filter: any = {
-      actionType: { $regex: queue },
+      actionType: { $regex: escapeRegExp(queue) },
       start: {
         $gte: new Date(startDate),
         $lt: new Date(endDate),
@@ -705,7 +705,7 @@ export const reportCallQueries = {
     { models }: IContext,
   ) {
     const filter: any = {
-      actionType: { $regex: queue },
+      actionType: { $regex: escapeRegExp(queue) },
       start: {
         $gte: new Date(startDate),
         $lt: new Date(endDate),
@@ -737,7 +737,7 @@ export const reportCallQueries = {
     { models }: IContext,
   ) {
     const filter: any = {
-      actionType: { $regex: queue },
+      actionType: { $regex: escapeRegExp(queue) },
       start: {
         $gte: new Date(startDate),
         $lt: new Date(endDate),
@@ -769,7 +769,7 @@ export const reportCallQueries = {
     { models }: IContext,
   ) {
     const filter: any = {
-      actionType: { $regex: queue },
+      actionType: { $regex: escapeRegExp(queue) },
       start: {
         $gte: new Date(startDate),
         $lt: new Date(endDate),
@@ -801,7 +801,7 @@ export const reportCallQueries = {
     { models }: IContext,
   ) {
     const filter: any = {
-      actionType: { $regex: queue },
+      actionType: { $regex: escapeRegExp(queue) },
       start: {
         $gte: new Date(startDate),
         $lt: new Date(endDate),

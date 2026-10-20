@@ -1,12 +1,10 @@
 import { IconChartBar } from '@tabler/icons-react';
-import { ColumnDef } from '@tanstack/table-core';
 import { Empty, RecordTable, useMultiQueryState } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { SurveyCommandBar } from '@/survey/components/survey-page/command-bar/survey-command-bar';
 import { surveyColumns } from '@/survey/components/survey-page/survey-columns';
 import { SurveysCreateButton } from '@/survey/components/survey-page/surveys-create';
 import { useSurveyList } from '@/survey/hooks/useSurveyList';
-import { ISurvey } from '@/survey/types/surveyTypes';
 
 export const SurveyPageList = ({ channelId }: { channelId?: string }) => {
   const { t } = useTranslation('frontline');
@@ -49,7 +47,7 @@ export const SurveyPageList = ({ channelId }: { channelId?: string }) => {
 
   return (
     <RecordTable.Provider
-      columns={surveyColumns as unknown as ColumnDef<ISurvey>[]}
+      columns={surveyColumns}
       data={surveys || []}
       className="m-3"
       tableId="frontline_surveys_record_table"

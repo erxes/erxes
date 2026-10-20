@@ -4,12 +4,6 @@ import { useConversationContext } from '@/inbox/conversations/conversation-detai
 import { useSubscription } from '@apollo/client';
 import { CONVERSATION_MESSAGE_INSERTED } from '@/inbox/conversations/graphql/subscriptions/inboxSubscriptions';
 
-interface IInsertedConversationMessage {
-  conversationMessageInserted: {
-    customerId?: string;
-  };
-}
-
 export const ConversationMarkAsReadEffect = () => {
   const { _id } = useConversationContext();
   const { markAsRead } = useConversationMarkAsRead();
@@ -20,11 +14,11 @@ export const ConversationMarkAsReadEffect = () => {
     markAsRead();
   }, [_id]);
 
-  useSubscription<IInsertedConversationMessage>(CONVERSATION_MESSAGE_INSERTED, {
+  useSubscription(CONVERSATION_MESSAGE_INSERTED, {
     variables: { _id },
     skip: !_id,
     onData: ({ data }) => {
-      if (data.data?.conversationMessageInserted.customerId) {
+      if (data.data?.conversationMessageInserted?.customerId) {
         markAsRead({ force: true });
       }
     },

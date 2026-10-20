@@ -4,9 +4,18 @@ import { INTEGRATIONS } from '../constants/integrations';
 import { Link, useParams } from 'react-router-dom';
 import { IntegrationLogo } from './IntegrationLogo';
 import { IntegrationType } from '@/types/Integration';
-import { gql, useQuery } from '@apollo/client';
+import { useQuery } from '@apollo/client';
+import { gql } from '~/gql';
 import { useTranslation } from 'react-i18next';
 import { useCallProConfig } from '@/integrations/callpro/hooks/useCallProConfig';
+
+const INTEGRATIONS_TOTAL_COUNT = gql(`
+  query IntegrationsTotalCount($kind: String, $channelId: String!) {
+    integrationsTotalCount(kind: $kind, channelId: $channelId) {
+      total
+    }
+  }
+`);
 
 export const IntegrationList = ({
   channelId,
@@ -61,7 +70,7 @@ export const IntegrationCard = ({
   return (
     <Command.Primitive.Item asChild key={integrationType}>
       <Link
-        to={`/settings/frontline/channels/details/${channelId}/${integrationType}`}
+        to={`/frontline/settings/channels/details/${channelId}/${integrationType}`}
       >
         <Card className="h-full p-3 flex flex-col gap-2 rounded-lg">
           <IntegrationIntro
@@ -121,21 +130,12 @@ const IntegrationCount = ({
   kind: string;
   channelId: string;
 }) => {
-  const { data, loading } = useQuery(
-    gql`
-      query IntegrationsTotalCount($kind: String, $channelId: String!) {
-        integrationsTotalCount(kind: $kind, channelId: $channelId) {
-          total
-        }
-      }
-    `,
-    {
-      variables: {
-        channelId: channelId || '',
-        kind,
-      },
+  const { data, loading } = useQuery(INTEGRATIONS_TOTAL_COUNT, {
+    variables: {
+      channelId: channelId || '',
+      kind,
     },
-  );
+  });
 
   return (
     <div className="text-xs text-muted-foreground font-mono ml-auto flex">

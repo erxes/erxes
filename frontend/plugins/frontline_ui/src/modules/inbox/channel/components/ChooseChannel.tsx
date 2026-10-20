@@ -5,9 +5,12 @@ import {
   TextOverflowTooltip,
   useQueryState,
 } from 'erxes-ui';
-import { IChannel } from '@/inbox/types/Channel';
 import { IconCheck } from '@tabler/icons-react';
-import { useGetMyChannels } from '@/channels/hooks/useGetMyChannels';
+import {
+  IFormsChannel,
+  useFormsChannelList,
+} from '@/forms/hooks/useFormsChannelList';
+import { useFormsFilterCounts } from '@/forms/hooks/useFormsFilterCounts';
 import { ChannelScope } from '@/channels/types';
 import { channelScopeOf } from '@/channels/utils/channelScope';
 import { useTranslation } from 'react-i18next';
@@ -20,7 +23,8 @@ export const ChooseChannel = ({
   emptyMessage?: string;
 }) => {
   const { t } = useTranslation('frontline');
-  const { channels, loading } = useGetMyChannels();
+  const { channels, loading } = useFormsChannelList();
+  const { byChannel } = useFormsFilterCounts();
 
   if (loading)
     return (
@@ -42,12 +46,21 @@ export const ChooseChannel = ({
       </div>
     );
 
-  return visibleChannels?.map((channel: IChannel) => (
-    <ChannelItem key={channel._id} {...channel} />
+  return visibleChannels?.map((channel) => (
+    <ChannelItem
+      key={channel._id}
+      {...channel}
+      count={byChannel[channel._id] ?? 0}
+    />
   ));
 };
 
-const ChannelItem = ({ _id, name, icon }: IChannel) => {
+const ChannelItem = ({
+  _id,
+  name,
+  icon,
+  count,
+}: IFormsChannel & { count: number }) => {
   const [channelId, setChannelId] = useQueryState<string>('channelId');
 
   const isActive = channelId === _id;
@@ -66,11 +79,14 @@ const ChannelItem = ({ _id, name, icon }: IChannel) => {
         <IconCheck className="" />
       ) : (
         <IconComponent
-          name={icon}
+          name={icon ?? undefined}
           className="size-3 text-accent-foreground shrink-0"
         />
       )}
-      <TextOverflowTooltip value={name} />
+      <TextOverflowTooltip className="flex-1 min-w-0" value={name} />
+      <span className="shrink-0 text-xs tabular-nums text-muted-foreground">
+        {count}
+      </span>
     </Button>
   );
 };

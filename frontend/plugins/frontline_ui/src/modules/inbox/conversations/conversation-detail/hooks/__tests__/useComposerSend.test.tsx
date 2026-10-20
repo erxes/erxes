@@ -79,7 +79,9 @@ beforeEach(() => {
   jest.clearAllMocks();
   sessionStorage.clear();
   mockAddMessage.mockImplementation((options: MutationOptions) => {
-    const data = { conversationMessageAdd: { _id: 'saved' } };
+    const data = {
+      conversationMessageAdd: { _id: 'saved', extraData: null },
+    };
     options.onCompleted?.(data);
     return Promise.resolve({ data });
   });
@@ -96,7 +98,6 @@ test.each([
     _id: 'canonical',
     content: 'Original',
     createdAt: '',
-    updatedAt: '',
     extraData,
   });
   act(() =>
@@ -188,7 +189,9 @@ test('a send finishing after conversation navigation does not clear the new draf
     (options: MutationOptions) =>
       new Promise((resolve) => {
         finish = () => {
-          const data = { conversationMessageAdd: { _id: 'saved' } };
+          const data = {
+            conversationMessageAdd: { _id: 'saved', extraData: null },
+          };
           options.onCompleted?.(data);
           resolve({ data });
         };

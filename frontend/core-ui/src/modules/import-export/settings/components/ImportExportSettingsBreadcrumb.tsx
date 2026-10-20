@@ -1,5 +1,4 @@
 import { ImportExportTypeSelect } from '@/import-export/settings/components/ImportExportTypeSelect';
-import { ImportExportViewToggle } from '@/import-export/settings/components/ImportExportViewToggle';
 import { ImportExportSettingsPath } from '@/import-export/settings/constants/importExportSettingsPaths';
 import { IconFileImport } from '@tabler/icons-react';
 import { Breadcrumb, Button } from 'erxes-ui';
@@ -13,17 +12,13 @@ export const ImportExportSettingsBreadcrumb = () => {
     <Breadcrumb>
       <Breadcrumb.List className="gap-1">
         <Breadcrumb.Item>
-          <Button variant="ghost" className="font-semibold" asChild>
+          <Button variant="ghost" asChild>
             <Link to={ImportExportSettingsPath.Import}>
-              <IconFileImport className="size-4 text-accent-foreground" />
+              <IconFileImport />
               {t('import-and-export')}
             </Link>
           </Button>
         </Breadcrumb.Item>
-
-        <Breadcrumb.Separator />
-
-        <ImportExportViewToggle />
 
         <Breadcrumb.Separator />
 

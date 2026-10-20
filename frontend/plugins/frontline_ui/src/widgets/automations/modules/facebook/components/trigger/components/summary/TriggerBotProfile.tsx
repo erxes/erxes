@@ -1,11 +1,11 @@
-import { IFacebookBot } from '@/integrations/facebook/types/FacebookBot';
+import { IFacebookBotProfile } from '@/integrations/facebook/types/FacebookBot';
 import { Avatar, Label, Spinner } from 'erxes-ui';
 
 export const TriggerBotProfile = ({
   bot,
   loading,
 }: {
-  bot?: IFacebookBot;
+  bot?: IFacebookBotProfile;
   loading: boolean;
 }) => {
   if (loading) {

@@ -1,12 +1,13 @@
+import type { UnknownSystemNotificationContentProps } from '@/notification/types/notificationContent';
 import { IconInfoCircle } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 
 export const UnknownSystemNotificationContent = ({
   contentType,
-}: {
-  contentType?: string;
-}) => {
+}: UnknownSystemNotificationContentProps) => {
+  const { t } = useTranslation('common', { keyPrefix: 'notification' });
   return (
-    <div className="h-dvh w-full flex flex-col items-center justify-center">
+    <div className="min-h-full w-full flex flex-col items-center justify-center">
       <div className="size-28 bg-sidebar rounded-2xl border border-dashed flex items-center justify-center">
         <IconInfoCircle
           size={32}
@@ -15,12 +16,12 @@ export const UnknownSystemNotificationContent = ({
         />
       </div>
       <div className="text-lg font-semibold mt-5 text-muted-foreground">
-        Unknown notification template
+        {t('unknown-template')}
       </div>
       <div className=" text-accent-foreground mt-2 max-w-sm text-center">
-        The notification type &quot;{contentType || 'unknown'}&quot; is not
-        recognized. This may be due to a missing template or an outdated
-        notification format.
+        {t('unknown-type-description', {
+          contentType: contentType || t('unknown'),
+        })}
       </div>
     </div>
   );

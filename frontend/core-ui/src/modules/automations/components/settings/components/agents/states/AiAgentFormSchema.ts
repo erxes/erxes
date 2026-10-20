@@ -4,7 +4,10 @@ import {
   normalizeAiAgentConnection,
   TAiAgentConnection,
 } from '@/automations/components/settings/components/agents/states/AiAgentConnectionSchema';
-import { TAiAgentProvider } from '@/automations/components/settings/components/agents/constants/providers';
+import {
+  AI_AGENT_PROVIDERS_REQUIRING_API_KEY,
+  TAiAgentProvider,
+} from '@/automations/components/settings/components/agents/constants/providers';
 
 const aiAgentFileVersionSchema = z.object({
   key: z.string(),
@@ -106,7 +109,7 @@ export const buildAiAgentFormSchema = ({
   baseAiAgentFormSchema.superRefine((value, ctx) => {
     if (
       requireApiKey &&
-      ['grok', 'kimi', 'kimi-code', 'openai'].includes(
+      AI_AGENT_PROVIDERS_REQUIRING_API_KEY.includes(
         value.connection.provider,
       ) &&
       !value.connection.config.apiKey?.trim()
@@ -391,7 +394,7 @@ export const normalizeAiAgentFormValues = (
     } as Partial<TAiAgentConnection>),
   },
   runtime: {
-    temperature: detail?.runtime?.temperature ?? 0.2,
+    temperature: detail?.runtime?.temperature ?? 0,
     maxTokens: detail?.runtime?.maxTokens ?? 2000,
     timeoutMs: detail?.runtime?.timeoutMs ?? 15000,
   },

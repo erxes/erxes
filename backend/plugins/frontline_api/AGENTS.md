@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-10-07`
+- **Last synchronized:** `2026-10-19`
 
 ## Scope
 
@@ -29,8 +29,8 @@
 - Forms: form definitions, fields, and form submissions (with submission export).
 - Surveys: channel-scoped survey definitions, the snapshot an agent posts into a
   messenger conversation, and the per-voter vote ledger behind the tallies.
-- Knowledge base: topics, categories, articles, and the AI knowledge source
-  provider that indexes articles.
+- Knowledge base: topics, categories, articles, scheduled article publishing,
+  and the AI knowledge source provider that indexes articles.
 - Help centers: the client portal config record behind a published help center
   site — its general settings (name, description, website, the knowledge base,
   ticket and form feature groups, and the CMS behind its announcements), its
@@ -86,6 +86,9 @@
   team posts a reply the portal can see, and one when the ticket moves to a
   new status. Each is filed as a client portal notification against
   `frontline:ticket`, so the help center can link straight back to the ticket.
+- A ticket holds a single `branchId` / `departmentId`, settable on both
+  `createTicket` and `updateTicket`; changing them can move the ticket out of
+  view for users on an `isCheckBranch` / `isCheckDepartment` pipeline.
 - `src/migrations/migrateForms.ts` copies a v2 form field into
   `frontline_form_fields` when its `contentType` is `form` or its
   `contentTypeId` is a migrated form, and always writes `contentType: 'form'`,
@@ -281,6 +284,17 @@
   action — `integrationsEdit`, `updateTicket`, `formsEdit`, `surveyEdit`,
   `responseTemplatesEdit` — not a new one.
 
+- Forms are taggable as `frontline:form`. Core `tagsTag` reaches the
+  `form.tag` tRPC procedure (`modules/form/trpc/form.ts`), whose `tagObject`
+  action writes `Forms.tagIds` and whose `count` action counts forms carrying a
+  tag. The `forms`/`formsMain`/`cpForms`/`formsTotalCount` queries filter by
+  `tagId`, expanded with the tag's `relatedIds` from core `tags.findOne`.
+  `formsTotalCount.byTag` and `byChannel` count forms per tag and per channel,
+  one aggregation each, over the caller's visible forms with the list's filters
+  minus their own group: `byTag` drops `tagId`, `byChannel` drops `channelId`
+  and `tagId`. Picking a channel or tag therefore never zeroes the other
+  entries in the forms page sidebar.
+
 - Ticket pipelines persist an ordered unique `propertyIds` selection. Create
   and update validate every id against Core `frontline:ticket` fields before
   writing it. `isPropertySelectionConfigured` distinguishes untouched legacy
@@ -306,11 +320,57 @@
   to 10 uploaded images (passed as storage keys) staged as unpublished photos and
   published as one carousel, under a per-page hourly rate limit and an audit log
   of every attempt.
+- Lists the latest posts of the connected pages to a client portal
+  (`facebookGetPosts`), the 2.x query sites use to show a brand's Facebook feed.
 - Resolves the Meta app per integration kind, so page posting can run on its own
   `FACEBOOK_POST_APP_ID`/`FACEBOOK_POST_APP_SECRET` credentials while Messenger
   keeps the shared app.
 - Runs Facebook/Instagram/Discord/mail/inbox/ticket automation triggers and actions,
   including bot message sequences with postback buttons and wait conditions.
+- Takes turns on Facebook Messenger for AI replies: a typed direct message
+  reaches automations through a delayed BullMQ trigger (2 s for text, 5 s for
+  media-only; `FACEBOOK_REPLY_DEBOUNCE_TEXT_MS` / `_MEDIA_MS`), and
+  `checkMessageTrigger` drops it when the same person has written since, so a
+  burst is answered once by its last message. A message with only an image,
+  video, audio or file (never a sticker or share) still starts a run.
+  `generateAiContext` merges every customer message since the last reply into
+  the input, shows media as `[media <messageId>-<index> <type>]` markers, and
+  adds `facts.mediaIds` and `facts.openTickets` (tickets related to the inbox
+  conversation that are not resolved or closed). `actionCreateMessage` skips an
+  AI-written reply as `superseded-by-newer-message` when a newer customer
+  message exists.
+- AI long-term memory scopes: Facebook and Messenger `generateAiContext` set
+  `memory.scopes` to the conversation (`frontline:facebook.conversation` /
+  `frontline:inbox.conversation`) and `core:customer`
+  (`modules/inbox/meta/automation/aiMemoryScopes.ts`). The automations service
+  files what an agent's tool branches did under these scopes. **Create
+  ticket** declares `defaultsWhenAfter` the AI agent `remember: { as:
+'ticket', fields: ['name', 'number'] }`, so behind an agent's tool the
+  ticket is remembered and a later turn names it as `ticketId`.
+- Ticket automations: **Create ticket** attaches `attachmentIds` (media ids
+  resolved only against the triggering conversation's messages) and relates
+  the ticket to the inbox conversation and customer, as a manual convert does.
+  (Media added to an existing ticket goes through Find object and Manage
+  properties' `attachments` field; there is no separate add-to-ticket action.)
+  Conversation media is stored on the ticket with a MIME `type` (from the URL
+  extension, else `<kind>/*`), never the message's bare kind (`image`): the
+  ticket detail's `erxes-ui` Attachments only shows MIME-typed files.
+- Tickets are a **Find object** target (`frontline:tickets.tickets`, by `_id`
+  or `number`; the result's `acceptsFollowUp` is `false` for a resolved/closed
+  status type, so a later request about the same matter starts a new ticket
+  instead of landing on a finished one), so a flow can
+  reach an existing ticket — e.g. the id an AI
+  agent picked from `facts.openTickets` — and Manage properties can update it
+  through "Select target". In the automation field list (`usageType:
+'automations'`) system-written fields (`number`, `updatedBy`,
+  `statusChangedBy`, `statusChangedDate`, `createdBy`, `userId`,
+  `sourceSurvey.*`) are hidden and an `attachments` field accepts conversation
+  media ids. `ticketPropertyWrites.ts` resolves those ids to stored files
+  (always add-unique) and turns a `concat` onto an editor-block description
+  into new paragraphs instead of broken JSON.
+- The knowledge base AI source, in whole-source scope, narrows by
+  `config.topicIds`, `config.categoryIds` (each with its subtree) and
+  `config.articleIds`; no rule means every published article.
 - Logs Facebook Graph delivery failures with provider error metadata and request
   context while excluding outbound message content; comment-triggered bot flows
   do not send Messenger typing indicators.
@@ -415,10 +475,11 @@
   SES or SendGrid path: mail enters and leaves through Cloudflare only.
 - Ticket boards/pipelines, response templates, forms, knowledgebase articles,
   and report aggregations.
-- Converts an inbox conversation into a ticket (created here), a deal (created
-  by `sales` over tRPC) or a task (created by `operation` over tRPC), relates the
-  new item to the conversation and its customer, and refuses a second item of
-  the same kind for one conversation.
+- Converts an inbox conversation into a ticket (created here) or a deal
+  (created by `sales` over tRPC), relates the new item to the conversation and
+  its customer, and refuses a second item of the same kind for one
+  conversation. There is no task target; `conversationConvertToCard` rejects
+  `type: "task"` as an unsupported convert type.
 - Read-only inbox, integration, and form-submission tRPC procedures are
   exposed to AI agents through `/agent-tools/manifest` and `/agent-tools/call`
   via `.meta(agentMeta(...))` annotations; every other procedure remains
@@ -465,6 +526,9 @@
   `email`, then `phone` — one `companies.findOne` query per selector, stopping
   at the first hit — so a repeat connect updates the existing company instead
   of creating a duplicate.
+- `pnpm nx run frontline_api:schema:print` writes the full subgraph schema, including the
+  subscription fields from `src/apollo/subscription.ts`, to
+  `generated/schema.graphql` without Redis, Mongo or a running service.
 
 ## Architecture
 
@@ -478,6 +542,7 @@ The root router mounts its authenticated webhook at `/telegram`.
 | Bootstrap                | `src/main.ts`                                                                                                                                                    | `startPlugin({ name: 'frontline', port: 3304 })`, wires tRPC, routes, meta, and every surface                                                                                                                          |
 | Models                   | `src/connectionResolvers.ts`                                                                                                                                     | Per-subdomain model container for all modules                                                                                                                                                                          |
 | GraphQL                  | `src/apollo/`                                                                                                                                                    | Aggregated `typeDefs` and `resolvers` across modules                                                                                                                                                                   |
+| Schema print             | `scripts/print-subgraph-schema.ts`                                                                                                                                                | Prints the subgraph schema for `frontline_ui` codegen (`generated/`, gitignored)                                                                                                                                       |
 | tRPC                     | `src/init-trpc.ts`                                                                                                                                               | `appRouter` for service-to-service calls                                                                                                                                                                               |
 | Agent tool metadata      | `src/trpc/agentMeta.ts`                                                                                                                                          | Local `agentMeta` helper for agent-callable tRPC annotations                                                                                                                                                           |
 | HTTP                     | `src/routes.ts`                                                                                                                                                  | Mounts the `/facebook`, `/instagram`, `/mail`, and (when enabled) `/callpro` webhook routers                                                                                                                           |
@@ -497,6 +562,7 @@ The root router mounts its authenticated webhook at `/telegram`.
 | Call SLA report          | `src/modules/reports/callSlaService.ts`                                                                                                                          | Inbound answered ÷ offered, callbacks count as answered, missed reasons, series, queues, breaches                                                                                                                      |
 | FB automation            | `src/modules/integrations/facebook/meta/automation/`                                                                                                             | Comment/message triggers and actions, bot message generation                                                                                                                                                           |
 | FB page posting          | `src/modules/integrations/facebook/postService.ts`, `postGuard.ts`                                                                                               | Post publishing pipeline (validation, photo staging, cleanup, permalink) and its rate limit + audit log                                                                                                                |
+| FB client portal         | `src/modules/integrations/facebook/graphql/resolvers/clientPortal.ts`                                                                                            | `facebookGetPosts`: recent posts of connected pages, read from a client portal session                                                                                                                                 |
 | FB app resolution        | `src/modules/integrations/facebook/commonUtils.ts`                                                                                                               | `resolveFacebookApp`, `facebookAppSelector`, `facebookAccountSelector`                                                                                                                                                 |
 | FB messenger services    | `src/modules/integrations/facebook/services/`                                                                                                                    | `messengerSend` (messaging params, bot text send with tag retry), `messageEvents` (reaction replace, message publish, reply-to), `automatedReplyControl`, `conversationSync`, `messageNormalization`, `messagePreview` |
 | IG messenger services    | `src/modules/integrations/instagram/services/`, `normalizeMessage.ts`                                                                                            | `messageEvents` (sender reaction replace, inbox publish), `copyInstagramImage` (allow-listed image proxy), webhook payload normalization to the shared message contract                                                |
@@ -563,6 +629,10 @@ The root router mounts its authenticated webhook at `/telegram`.
   the existing content/attachment/poll contracts plus `extraData.telegram`.
   `telegramDisconnectBot` pauses locally before provider cleanup; its Boolean
   reports whether remote webhook removal was confirmed.
+  `telegramMessageLinkPreviews` returns `[TelegramLinkPreview!]!` (`type`,
+  `url`, `title`, optional `description`, `provider { name }`, optional
+  `image { url }`), never `JSON`; it is `[]` when the message is missing,
+  internal, outside the user's visible channels, or has no links.
 
 - GraphQL: help center configs — `helpCenterConfig(_id)`,
   `helpCenterConfigs(page, perPage, searchValue, brandId)`,
@@ -570,15 +640,14 @@ The root router mounts its authenticated webhook at `/telegram`.
   `helpCenterConfigUpdate(config: HelpCenterConfigInput!)` (create-or-update,
   keyed on `config._id`) and `helpCenterConfigRemove(_id)`. Reads check
   `showHelpCenter`, writes check `helpCenterManage`.
-- GraphQL: `helpCenterGetConfigByDomain(clientPortalName: String): HelpCenterConfig` —
+- GraphQL: `helpCenterGetConfigByDomain: HelpCenterConfig` —
   the published site's own bootstrap read, the help center counterpart of the
   1.x `clientPortalGetConfigByDomain` lookup. It is the **one public operation
   in this module** (`wrapperConfig.skipPermission`): the site calling it has no
   staff user, no `cpUser` and no client portal header yet, because the domain
-  is how it discovers which help center it is. Like the 1.x signature it
-  mirrors, `clientPortalName` is accepted but not read: the query resolver's
-  `getByHost` takes the domain from the request's `Origin` header alone, so a
-  server-side caller must set that header itself. After the same
+  is how it discovers which help center it is. It takes no arguments: the
+  query resolver's `getByHost` takes the domain from the request's `Origin`
+  header alone, so a server-side caller must set that header itself. After the same
   normalization the write path applies, it returns the config whose `url`
   starts with that origin (escaped, case-insensitive, ending at a `/` or the
   end of the string), and throws `Not found` when no origin was supplied or no
@@ -587,6 +656,25 @@ The root router mounts its authenticated webhook at `/telegram`.
   config), and never widen it into a list.
 - GraphQL: `HelpCenterConfig.brand` resolves the federated `Brand`; its
   `kbTopic` resolves the `KnowledgeBaseTopic` named by `kbTopicId`.
+- GraphQL Facebook and Instagram settings: `facebookGetConfigs` /
+  `instagramGetConfigs` return `[FacebookConfig]` / `[InstagramConfig]`
+  (`_id`, `code`, `value: JSON`, like `CallConfig`), and `facebookCreatePost`
+  returns `FacebookCreatePostResult` (`postId`, `permalinkUrl`). The
+  `*UpdateConfigs`, `integrationsRepair` and `instagramRepair` results stay
+  `JSON`.
+- GraphQL Call Pro: `callProCustomersByPhone` returns `[Customer]`, the core
+  federated entity this plugin extends by `_id`; the resolver still returns the
+  core customer documents and the gateway resolves the selected fields from
+  core.
+- GraphQL ticket activity and notes: `TicketActivity._id` and `TicketNote._id`
+  are non-null — every activity list, subscription payload, and note query or
+  mutation (`ticketGetNote`, `ticketCreateNote`, `mailTicketNoteRetry`)
+  resolves a stored document.
+- GraphQL knowledge base: `KnowledgeBaseCategory._id` and
+  `KnowledgeBaseParentCategory._id` are non-null — every category field
+  (`categories`, `parentCategories`, `childrens`, list, detail, add, edit)
+  resolves a stored category document. `KnowledgeBaseTopic` exposes `brand`,
+  not `brandId`.
 - Nothing in this module is named `clientPortal*`, and it must stay that way.
   `core-api` owns the real client portal — portal users, auth, OAuth — and
   already publishes its own `ClientPortalConfigInput` with different fields; two
@@ -626,6 +714,11 @@ customerId, visitorId)` returns the voter's own selections for the
 - GraphQL (federated subgraph): `getChannel`, `getChannels`, `getMyChannels`,
   `getChannelMembers`; `channelAdd`, `channelUpdate`, `channelRemove`,
   `channelAddMembers`, `channelRemoveMember(s)`, `channelUpdateMember`.
+  `Channel`'s field-resolved counts (`memberCount`, `pipelineCount`,
+  `responseTemplateCount`, `formCount`, `integrationCount`,
+  `conversationCount`, `unreadConversationCount`), `hasTickets` and
+  `integrationKinds` are non-null: every one of those resolvers returns a
+  number, a boolean or an array.
 - GraphQL: `getMyChannels(name, sortField, sortDirection)` — the caller's
   memberships, sorted in the database. `sortField` accepts `name` or `createdAt`
   and falls back to `createdAt` for anything else; `sortDirection` is `1` or
@@ -642,6 +735,18 @@ customerId, visitorId)` returns the voter's own selections for the
   `conversationCounts` always returns a `responded` / `standby` / `handoff`
   count alongside `unassigned` / `participating` / `starred` / `resolved` /
   `awaitingResponse`.
+- GraphQL `Conversation.automatedReplyControl` is
+  `ConversationAutomatedReplyControl` (`status`, `pausedUntil`, `reason`,
+  `updatedAt`, `updatedBy`, all nullable: `status` has only a Mongoose
+  default), matching `automatedReplyControlSchema`. `propertiesData`,
+  `customFieldsData` and `conversationCounts` stay `JSON`.
+- GraphQL `ConversationMessage.providerData`, `replyTo` and `reactions` are
+  `ConversationMessageProviderData`, `ConversationMessageReplyTo` and
+  `[ConversationMessageReaction]`, matching the message subschemas. Every
+  field stays nullable, including the Mongoose-required `replyTo.messageId`
+  and `reactions.senderId`, since no stored data proved them. `extraData`,
+  `botData` and `formWidgetData` stay `JSON`, as do the Facebook and
+  Instagram message copies of these fields (stored as `Mixed`).
 - GraphQL: `getChannels` returns **team channels only** on every branch
   (`channelIds`, `integrationId`, see-everything, and membership), including the
   caller's own personal channel. Personal inboxes are reached only through
@@ -678,6 +783,14 @@ accountId, brandId, data)` — `channelId` is **nullable** for every kind;
   `[integrationsGetUsedTypesByChannel]` (its own type, not the shared
   `integrationsGetUsedTypes`), carrying `conversationCount` and
   `unreadConversationCount` per kind for the matched channels.
+  Each entry's `_id`, `name` and counts are non-null; the list wrappers stay
+  nullable.
+- GraphQL `Integration` outputs: `healthStatus` is `IntegrationHealthStatus`
+  (`status: String!`, `error`), `healthy` when the provider reports nothing;
+  `facebookPage` is `[IntegrationFacebookPage!]` (`pageId: String!`, plus the
+  Graph API `id` and `name`), `null` for non-Facebook kinds or when no page
+  token resolves. `details` (kind-specific; mail returns `{ status, data }`),
+  `instagramPage`, `leadData`, `messengerData` and `uiOptions` stay `JSON`.
 - tRPC `appRouter` consumed by other services, including
   `inbox.updateUserChannels({ channelIds, userId })` — replaces a user's team
   channel memberships; never touches their personal channel.
@@ -691,6 +804,34 @@ accountId, brandId, data)` — `channelId` is **nullable** for every kind;
     `inbox.integrations.count`, `inbox.getIntegrationKinds` —
     `showIntegrations`
   - `form.submissionsByConversation` — `showFormSubmissions`
+- GraphQL Facebook bot and page contracts read as object types, not `JSON`:
+  `FacebookMessengerBot._id` is non-null; its `account` is `FacebookBotAccount`
+  (`_id`, `name`) and its `page` is `FacebookBotPage` (`id`, `name` from the
+  Graph API, `null` when the page token is rejected).
+  `facebookGetAccounts` returns `[FacebookAccount]` (`_id`, `kind`, `name`,
+  never a token), `facebookGetPages` returns `[FacebookPage]` (`id`, `name`,
+  `isUsed`; `[]` when the Graph API call fails), `facebookGetIntegrations`
+  returns `[FacebookIntegrationRecord]` (`_id`, `kind`, `accountId`,
+  `erxesApiId`, `facebookPageIds`), and `facebookGetBotPosts` /
+  `facebookGetBotPost` return `FacebookPosts`. Bot remove and repair results
+  stay `JSON`.
+- GraphQL Instagram bot contracts mirror Facebook's: `InstagramMessengerBot._id`
+  is non-null; its `account` is `InstagramBotAccount` (`_id`, `name`) and its
+  `page` is `InstagramBotPage` (`id`, `name` from the Graph API, `null` when
+  the call fails). `instagramGetAccounts` returns `[InstagramAccount]` (`_id`,
+  `kind`, `name`; the resolver still loads the whole account, so the object
+  type is what keeps the token off the wire), `instagramGetPages` returns
+  `[InstagramPage]` (`id`, `name`, `isUsed`), and `instagramGetBotPosts` /
+  `instagramGetBotPost` return `InstagramPosts`. Bot add, update, remove and
+  repair results, `instagramGetIntegrations` and
+  `instagramGetIntegrationDetail` stay `JSON`.
+- GraphQL `DiscordParticipant` (from `discordConversationParticipants` and
+  `discordChannelMembers.members`) has non-null `userId` and `name`: the
+  participants resolver drops customers without a Discord user id and falls
+  back to `Discord user` for the name, and channel members come from the
+  Discord user id and `nick`, `global_name` or `username`. Keep both
+  guarantees in any new resolver that returns this type. `customerId` and
+  `avatar` stay nullable.
 - HTTP routes in `src/routes.ts` and provider webhooks under
   `src/modules/integrations/*`: Express webhook routes `/facebook/*` and
   `/instagram/*`, including the OAuth entry points `/facebook/fblogin`,
@@ -730,16 +871,24 @@ accountId, brandId, data)` — `channelId` is **nullable** for every kind;
 - GraphQL: `mailConversationDetail(conversationId!, limit): MailConversationMessages`
   — a `{ messages, hasMore }` window over the **newest** `limit` messages of a
   thread (default 20, server cap 500), returned oldest first. Each message
-  carries `mailData` with the addresses, body, the quoted-reply split
+  carries non-null `mailData: MailThreadMessageData!` with the addresses,
+  body, the quoted-reply split
   (`newContent` / `replies`), attachments, the delivery fields
   (`deliveryStatus`, `deliveryError`, `deliveryRetryable`, `bouncedRecipients`),
-  and the inbound sender check (`envelopeFrom`, `senderMismatch`).
+  and the inbound sender check (`envelopeFrom`, `senderMismatch`). Address and
+  attachment entries use `MailThreadAddress` and `MailThreadAttachment`;
+  attachment `size` is `Float`. Resolver-normalized lists, booleans and body
+  are non-null; optional stored fields, including timestamps, remain nullable.
 - GraphQL: `mailSendMail(...)` and `mailMessageRetry(_id!)` — both require
   `conversationMessageAdd` and return only the delivery outcome of the stored
-  message (`_id`, `deliveryStatus`, `deliveryError`, `bouncedRecipients`), so the
+  message as `MailDeliveryOutcome` (`_id`, `deliveryStatus`, `deliveryError`,
+  non-null `bouncedRecipients`), so the
   caller reads what actually happened instead of assuming success. `mailSendMail`
   persists the message **before** the transport call, so a send failure never
   loses an agent's reply.
+- GraphQL: `mailSendReaction` also returns `MailDeliveryOutcome`;
+  `mailDraftApprove` returns that object with `draftId`. These structured
+  results require field selections rather than the former JSON selection.
 - GraphQL: `mailCheckConnection: MailConnectionCheck` — requires
   `integrationsEdit`. Signs a request with this deployment's tenant key and posts
   it to the mail worker's `POST /verify`, which delivers a probe back to whatever
@@ -764,7 +913,19 @@ accountId, brandId, data)` — `channelId` is **nullable** for every kind;
 - GraphQL `callQueueList(integrationId)` — the queues configured on the call
   integration, each merged with its `CallQueueStatistics` row when the PBX has
   reported one. A queue with no live statistics is still listed, as
-  `{ queue, integrationId }`.
+  `{ queue, integrationId }`. It returns `[CallQueueStatistic]`, and every
+  counter stays nullable because that fallback row carries none.
+- GraphQL `callsGetConfigs` returns `[CallConfig]` (`_id`, `code`, `value`).
+  `value` stays `JSON` because the model stores it as a free-form `Object`.
+- GraphQL `callsIntegrationDetail` and `callUserIntegrations` return
+  `operators` as `[CallOperator]` (`userId`, `gsUsername`, `gsPassword`,
+  `gsForwardAgent`), all nullable because the model stores operators as a
+  free-form `Object`. The `CallIntegrationConfigs` input keeps
+  `operators: JSON`.
+- GraphQL `callExtensionList(integrationId)` returns `[CallExtension]`
+  (`extension`, `fullname`, `status`) read from the PBX `listAccount` reply,
+  filtered to the integration's operators. It returns `[]` when the PBX has no
+  accounts and throws when the PBX request fails, never a string.
 - GraphQL call reports — `callGetQueueStats`, `callGetAgentStats`,
   `getCallbackStats`, `callKpiScorecard`, `callVolumeSeries`,
   `callCarrierBreakdown`, `callHeatmap`, `callTopNumbers`. All eight read
@@ -773,6 +934,9 @@ accountId, brandId, data)` — `channelId` is **nullable** for every kind;
   `CallVolumePoint.noAnswer` and `HeatCell.noAnswer` count every call in the
   bucket that no human answered, in both directions — unlike
   `CallVolumePoint.abandoned`, which stays inbound-only.
+- `CallVolumePoint.day`, `CallDayHourCell.day` and `CallSlaPoint.day` are
+  non-null: each bucket is keyed by the PBX day of a call that has a `start`,
+  and calls without one are skipped, so every row carries its day.
 - GraphQL `callHeatmapDaily(startDate, endDate, integrationId?, queueId?,
 direction?)` — the same CDR read as `callHeatmap`, bucketed by **calendar PBX
   day × hour** instead of day-of-week, for the spreadsheet export of the report.
@@ -852,6 +1016,18 @@ agentExtension?, callbackWindowMinutes?, breachLimit?)` — inbound-only service
   departments resolve through core tRPC `find`; statuses and channels through
   this plugin's models. Property values are returned raw; the UI maps option
   labels.
+- GraphQL (client portal, `forClientPortal`): `facebookGetPosts(channelIds:
+[String], brandIds: [String], limit: Int): [FacebookPosts!]!` keeps the 2.x
+  name and arguments, so a site written against 2.x calls it unchanged. It
+  selects the active (`isActive` not `false`) `facebook-post` inbox
+  `Integrations`, narrowed by `brandId` and `channelId` when either list is
+  non-empty (both lists narrow together; comma-joined ids, the form 2.0.7–2.11
+  accepted, are split and empty values ignored), then reads
+  their pages and page tokens from `FacebookIntegrations` by `erxesApiId`.
+  Each page is fetched once through `fetchPagesPostsList`, and the posts are
+  merged newest first and cut to `limit` (default 20, at most 100, below 1 is
+  rejected). A page whose Graph API call fails is logged and skipped. Without
+  a client portal token the call is rejected.
 - GraphQL Facebook reports — `reportFacebookPages`, `reportFacebookSummary`,
   `reportFacebookActivity`, `reportFacebookPosts`, `reportFacebookBots`. All but
   the first take a `FacebookReportFilter` (`date`, `fromDate`, `toDate`,
@@ -879,6 +1055,17 @@ errors }` — `missingInErxes` is the number of Meta posts this deployment has
   applied only by `reportFacebookPosts`, never by the summary, activity, or bot
   queries. The term is escaped before it becomes a `RegExp`, so a user typing
   `a.b(c` searches for that literal string instead of crashing the resolver.
+- `Ticket._id` is non-null; every other `Ticket` field stays nullable because
+  the Mongoose schema requires none of them and `updateTicket` can clear them.
+- `getAccessibleTicketStatuses(pipelineId!)` and
+  `getTicketStatusesChoicesPipeline(pipelineId!)` return
+  `[TicketStatusChoice!]!`; `value`, `label` and `type` are non-null. The
+  accessible variant fills only `value`, `label`, `color`, `type`,
+  `canMoveMemberIds` and `canEditMemberIds`; the pipeline variant adds
+  `memberIds`, `departmentIds` and `visibilityType`.
+- `TicketStatus.type` and `order` are non-null. `Status.updateStatus` drops a
+  null `type` or `order` from its `$set`, so `updateTicketStatus` can never
+  clear them; keep that guard if the method changes.
 - `ITicketFilter.branchIds: [String]` / `departmentIds: [String]` — the ticket
   list's branch and department filters. `generateFilter` turns a non-empty list
   into `branchId` / `departmentId` `$in`, and the `ticketListChanged`
@@ -917,7 +1104,8 @@ errors }` — `missingInErxes` is the number of Meta posts this deployment has
   from the `frontline:ticket` field groups, each `{ fieldId, groupId, label,
 placeholder, order, isRequired, type, options }`, where `type` and `options`
   are copied from the core field definition on save so the messenger widget can
-  render the right control without querying core. The widget bootstrap
+  render the right control without querying core. `createdAt` / `updatedAt`
+  are `Date`, like `Pipeline`'s. The widget bootstrap
   (`widgetsMessengerConnect`) returns the whole document as `ticketConfig: JSON`,
   so both lists reach the messenger widget without a schema change there.
 - GraphQL: `widgetTicketCreated(name, description, attachments, statusId,
@@ -1033,7 +1221,7 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - GraphQL: help center configs — `helpCenterConfig(_id)`,
   `helpCenterConfigs(page, perPage, searchValue, brandId)`,
   `helpCenterConfigsTotalCount(searchValue, brandId)`,
-  `helpCenterGetConfigByDomain(clientPortalName)` (the published site's own
+  `helpCenterGetConfigByDomain` (the published site's own
   bootstrap read, the one operation in this module that skips the permission
   check), `helpCenterConfigUpdate(config: HelpCenterConfigInput!)`
   (create-or-update, keyed on `config._id`) and `helpCenterConfigRemove(_id)`.
@@ -1070,6 +1258,8 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - Automation types — trigger `frontline:mail.messages` (target
   `TMailTriggerTarget`), actions `frontline:mail.messages.create` (Send Email)
   and `frontline:mail.drafts.create` (Draft Email Reply).
+- Nx target `schema:print` uses the shared `scripts/print-subgraph-schema.ts` printer (cached, output `generated/schema.graphql`),
+  consumed by `gateway:schema:compose`; `frontline_ui:codegen` uses that composed schema.
 
 ### Consumes
 
@@ -1095,6 +1285,10 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   The portal account behind a ticket is resolved from its `cp:<id>` author with
   `cpUsers.get` by `{ id }` and then by `{ erxesCustomerId }`, because a ticket
   records whichever of the two the portal session carried.
+- `core` over tRPC — `notifications.sendMobileNotification` (mutation,
+  `{ title, body, receivers, data }`), which pushes a new chat message to the
+  assigned and participating agents' `deviceTokens`. The path is
+  `notifications.*`, not `core.*`; a wrong path fails silently.
 - `automations` over tRPC — `automations.trigger`. The path is
   `automations.trigger`, not `triggers.trigger`; `sendTRPCMessage` swallows a
   wrong path or a query/mutation mismatch and returns `defaultValue`, so a
@@ -1112,6 +1306,44 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 ## Local Invariants
 
+- Set property handlers pass `targetActionId: action.targetActionId` to
+  `getSetPropertySelector`, so a Manage properties action targeting an earlier
+  action (Find object, Create) updates that action's record, not the trigger's.
+
+- A media id (`<messageId>-<index>`, `facebook/meta/automation/utils/turnTaking.ts`)
+  is the only way automation media reaches a ticket; `resolveConversationMedia`
+  looks it up in the triggering conversation only, so no id can attach a file
+  from another conversation. URLs never pass through the model.
+- Automation ticket code resolves the inbox conversation through
+  `resolveInboxConversationId`: Facebook targets carry the integration's own
+  conversation id, never the inbox one.
+
+- A `scheduled` article is published by a delayed BullMQ job on the
+  `knowledgeBaseScheduledPublish` queue (`frontline`), never by a cross-tenant
+  cron. `knowledgeBaseArticlesAdd` / `Edit` call `scheduleArticlePublish` with
+  the saved article; each job carries its own `subdomain` and `articleId`, and
+  `startScheduledPublishWorker` (started in `main.ts`) publishes only while the
+  article is still `scheduled` with `scheduledDate <= now`. A reschedule
+  therefore never cancels the old job: a stale job finds a later date or another
+  status and does nothing. A queue failure is logged and never fails the save.
+  Publishing sets `publishedAt` and queues the AI knowledge source refresh
+  through `utils/refreshKnowledgeArticle.ts`, the one helper both the mutations
+  and the worker use.
+- Article `searchValue` matches `title`, `code`, `summary` and `content`
+  (`buildQuery` in `knowledgeBaseQueries.ts`, shared with topics and
+  categories, which also match `description`).
+  `knowledgeBaseArticlesTotalCount` accepts the same `searchValue`, so a
+  searched list and its count agree.
+- `knowledgeBaseArticles` and `knowledgeBaseArticlesTotalCount` both build
+  their selector with `buildArticleQuery`, which turns `topicIds` into the
+  topics' category ids. An article's own `topicId` is never the filter: older
+  and duplicated articles may lack it, and the list and its count must agree.
+- `Category.updateDoc` moves a category to another topic (`doc.topicId`
+  differing from the stored one) together with its whole subtree
+  (`getSubtreeIds`) and every article in it (their `topicId` too). A moved
+  category without a parent in the doc becomes a root (`parentCategoryId:
+''`), and a parent from another topic is rejected. `''` and a missing
+  `parentCategoryId` both mean a root category.
 - Keep Telegram as an additive dispatcher case. Preserve other providers'
   delivery receipts, notifications, human-handoff state and message storage.
   Only Telegram chats without `customerId` may reply without a Core customer;
@@ -1166,6 +1398,11 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   `cpGetTicketTotalCount` pass `skipPipelineVisibility` to `generateFilter`, so
   a customer sees their own `cp:<id>` tickets in private pipelines. Without
   `createdBy` the staff rules still apply.
+- `cpGetTicketPipelines` is readable with only a portal token (no `cpUser`
+  required), so it never returns private pipelines and returns the
+  `CpTicketPipeline` type (`_id`, `name`, `description`, `channelId`), never
+  the staff `Pipeline` type with its member, department, numbering and
+  `createdUser` fields. Keep any new client portal read on its own narrow type.
 - A converted ticket's "Go to" URL (`conversationConvertedItems`, built in
   `src/modules/inbox/services/conversationConvertTargets.ts`) carries the
   ticket's `channelId` and `pipelineId` with `ticketId`; without them the
@@ -1185,15 +1422,81 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - `reactToConversationMessage` routes by integration kind through its
   `REACTION_HANDLERS` map (react + publish pair); a new reaction-capable kind is
   added there, never as another `if` branch.
+- `scripts/print-subgraph-schema.ts` must exit the process itself: `erxes-api-shared/utils`
+  opens a Redis client on import that would otherwise keep it alive.
+- Stored timestamps are `Date` in the SDL, never `String`: a `String` field
+  serializes a stored `Date` as epoch milliseconds.
+- Mail thread serialization in `integrations/mail/utils/thread.ts` always
+  supplies `attachments: message.attachments ?? []`; never rely on Mongoose
+  defaults alone for the non-null attachment list. Preserve explicit
+  defaults for references, bounced recipients, booleans and body. Delivery
+  status remains `String` in the SDL so historical values can still be read.
+- An argument a resolver cannot run without is non-null in the SDL:
+  `responseTemplatesEdit(_id)`, `conversationMessageAdd(conversationId)`,
+  `conversationMarkAsRead(_id)`, `ticketCreateNote(contentId)`,
+  `addTicketStatus(type)`, and `[String!]!` for
+  `channelAddMembers`/`channelRemoveMembers(memberIds)` and
+  `formsRemove(_ids)`. The write methods still reject the empty values GraphQL
+  lets through: `ResponseTemplates.updateResponseTemplate` (`_id`),
+  `Note.createNote` (`contentId`, which also covers the client portal, widget
+  and mail note paths) and `Status.addStatus` (`type`). `channelAddMembers`
+  drops empty and repeated ids before inserting and rejects a list that ends
+  up empty.
+- `createPipeline(channelId: String!)` requires the channel, which the
+  Mongoose schema already marks required, and `Pipeline.addPipeline` rejects
+  an empty one. `updatePipeline` keeps `channelId` optional, so both
+  mutations declare it themselves instead of through the shared
+  `pipelineParams`.
+- Every query, mutation and subscription declared in the SDL has a resolver,
+  and every resolver is declared. Report resolvers are registered under
+  `Query` only. `ticketPipelineChanged(_id: String!)` returns
+  `PipelineSubscription`, the `{ type, pipeline }` payload the pipeline
+  mutations publish.
+- Every argument declared in the SDL is read by its resolver. The only
+  exception is the shared cursor parameters from `erxes-api-shared`
+  (`cursorMode`, `sortMode`, `aggregationPipeline`), which the plugin does not
+  own. `integrationsSaveMessengerConfigs` and
+  `integrationsSaveMessengerAppearanceData` take no `channelId`: the messenger
+  create and edit mutations set the channel.
+- Any request-driven value (filter, params, args, searchValue, queue) that
+  reaches a `$regex` or `new RegExp()` goes through `escapeRegExp` from
+  `erxes-api-shared/utils` first, called inline in the pattern. The
+  plugin-local ESLint `no-restricted-syntax` rules in `eslint.config.js`
+  (copied from operation_api) fail the lint otherwise. Three patterns are
+  regexes on purpose and carry an `eslint-disable-next-line` with the reason:
+  the admin-defined `customRegex` in `form/validationRegistry.ts`
+  (length-capped, run with a timeout), the field `regexValidation` in
+  `form/db/models/Forms.ts`, and `MAIL_TAG` in `mail/utils/textFormat.ts`,
+  built from a constant tag list.
+- Optional filter objects default to `{}` before use: `getTickets`,
+  `cpGetTickets`, `cpGetTicketTotalCount` and `responseTemplates`.
+  `userConversations` rejects a missing `_id`, because `$in: [undefined]`
+  matches every conversation that has no `participatedUserIds` field.
+  `frontlineFieldsBulkAction` accepts `updatedFields` without `newFields`.
+- These arguments stay nullable on purpose: `conversationsAssign`
+  `assignedUserId` (null unassigns), `callAddCustomer` `inboxIntegrationId` /
+  `queueName` (either one finds the integration), the `updateTicketStatus`
+  fields (a patch), `ticketCreateNote` `content` (a note may carry only
+  attachments), and the `instagramGetPosts` filters (a missing one means no
+  filter).
 
 ## Validation
 
-- `pnpm nx lint frontline_api`
+- `pnpm nx run frontline_api:schema:print` - prints this subgraph's SDL to `generated/schema.graphql` (gitignored) offline, for `gateway:schema:compose`.
+- `pnpm nx lint frontline_api` - runs ESLint with the plugin-local
+  `eslint.config.js` (regex-escaping rules).
 - `pnpm nx build frontline_api`
 - `pnpm nx test frontline_api` — Jest over `src/**/*.test.ts` and the
   Telegram `src/**/*.spec.ts` suites (`jest.config.ts`, `tsconfig.spec.json`).
   Both suffixes are excluded from `tsconfig.build.json`; prefer `.test.ts` for
   new tests. Set `TELEGRAM_MONGO_TESTS=1` to include the isolated local Mongo suite.
+- Knowledge base: schedule an article a few minutes ahead, confirm it stays
+  `scheduled` and absent from the help center, then becomes `publish` with
+  `publishedAt` at that time; reschedule another one later and confirm the old
+  time does not publish it. Search articles by a word that appears only in a
+  body and confirm the list and its total count both find it. Move a parent
+  category to another topic and confirm its subcategories and their articles
+  follow it, and that each topic's article list and total count agree.
 - Mail agent: build an automation Email Received → AI Agent → Draft Email
   Reply, mail the inbox twice, and confirm each mail gets its own draft card;
   edit one, send it, delete the other. Swap the last step for Send Email and
@@ -1201,6 +1504,10 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - Move a form, survey, response template, ticket pipeline and integration
   between two channels and confirm each leaves the source channel's list,
   appears in the destination's, and survives a reload.
+- Call `facebookGetPosts(brandIds: [<brand>], limit: 5)` with a client
+  portal's `x-app-token` and confirm it returns that brand's newest page posts
+  across its connected Facebook post integrations; the same call without the
+  token is rejected.
 - Change a client portal's domain in core, then save the help center that
   points at it and confirm `url` and `erxesAppToken` followed the change while
   `clientPortalId` stayed put.
@@ -1223,6 +1530,24 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-10-18` — Ticket remembered through action placement
+
+- **Summary:** Create ticket declares what it remembers behind an AI agent (`defaultsWhenAfter`) instead of output `memorize` flags; ticket find object reports `acceptsFollowUp`; conversation media is stored on tickets with a MIME type.
+- **Affected areas:** ticket automation constants, `findTicketObject.ts`, `conversationTickets.ts`.
+- **Contracts changed:** `defaultsWhenAfter` on Create ticket; `acceptsFollowUp` on the find object result; `memorize` removed.
+
+### `2026-10-17` — AI long-term memory scopes
+
+- **Summary:** Messenger and Facebook AI context names the conversation and customer as memory scopes; ticket output marks the fields the agent remembers.
+- **Affected areas:** Facebook and inbox automation context, ticket automation constants.
+- **Contracts changed:** `TAiContext.memory.scopes`; `memorize` flag on ticket output variables.
+
+### `2026-10-16` — AI agent turns, media and tickets on Messenger
+
+- **Summary:** Debounced Messenger AI turns, media-only messages, media markers and open-ticket facts for the agent, ticket attachments and conversation relations, and topic/category scope for the knowledge base source.
+- **Affected areas:** Facebook automation trigger and context, ticket automation actions, knowledge base AI provider.
+- **Contracts changed:** `createTicket` config gains `attachmentIds`; AI context facts gain `mediaIds` and `openTickets`; knowledge source config accepts `topicIds`, `categoryIds`, `articleIds`.
 
 ### `2026-10-06` — Telegram group upgrades and attachment URLs
 

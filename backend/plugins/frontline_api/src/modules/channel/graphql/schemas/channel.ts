@@ -12,15 +12,15 @@ export const types = `
         scope: String
         createdAt: Date
         updatedAt: Date
-        memberCount: Int
-        pipelineCount: Int
-        hasTickets: Boolean
-        responseTemplateCount: Int
-        formCount: Int
-        integrationCount: Int
-        integrationKinds: [String]
-        conversationCount: Int
-        unreadConversationCount: Int
+        memberCount: Int!
+        pipelineCount: Int!
+        hasTickets: Boolean!
+        responseTemplateCount: Int!
+        formCount: Int!
+        integrationCount: Int!
+        integrationKinds: [String!]!
+        conversationCount: Int!
+        unreadConversationCount: Int!
     }
 
     enum ChannelResourceType {
@@ -60,9 +60,9 @@ export const mutations = `
     channelAdd(name: String!, icon: String,description: String, memberIds: [String], scope: String): Channel
     channelUpdate(_id: String!, name: String, description: String, icon: String, memberIds: [String]): Channel
     channelRemove(_id: String!): Channel
-    channelAddMembers(_id: String!, memberIds: [String]): [ChannelMember]
+    channelAddMembers(_id: String!, memberIds: [String!]!): [ChannelMember]
     channelRemoveMember(channelId: String!, memberId: String!): ChannelMember
-    channelRemoveMembers(channelId: String!, memberIds: [String]): [ChannelMember]
+    channelRemoveMembers(channelId: String!, memberIds: [String!]!): [ChannelMember]
     channelUpdateMember(_id: String!, role: String): ChannelMember
     channelMoveResources(resourceType: ChannelResourceType!, resourceIds: [String!]!, sourceChannelId: String!, targetChannelId: String!): ChannelMoveResourcesResult
 `;

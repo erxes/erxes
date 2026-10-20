@@ -1,9 +1,11 @@
+import { useTranslation } from 'react-i18next';
 import { TManagePropertiesForm } from '@/automations/components/builder/nodes/actions/manageProperties/states/managePropertiesForm';
 import { PROPERTY_OPERATOR } from '@/automations/constants';
 import { useCallback, useEffect, useRef } from 'react';
-import { useFieldArray, useFormContext, useWatch } from 'react-hook-form';
+import { useFormContext, useWatch } from 'react-hook-form';
 import {
   groupFieldsByType,
+  parseConditionalToken,
   TAutomationField,
   TPlaceholderInputSuggestion,
   TPlaceholderInputSuggestionsOption,
@@ -62,6 +64,26 @@ const getManagePropertyOperatorType = (field?: TAutomationField) => {
   return fieldType;
 };
 
+// Collapsed-rule summary: field · operator · value
+export const describeManagePropertyRule = (
+  rule: TManagePropertiesForm['rules'][number] | undefined,
+  operators: { value: string; label: string }[],
+  showValue: boolean,
+) => {
+  const operatorLabel = operators.find(
+    ({ value }) => value === rule?.operator,
+  )?.label;
+  const value = parseConditionalToken(rule?.value)
+    ? 'conditional'
+    : showValue && typeof rule?.value === 'string'
+    ? rule.value
+    : '';
+
+  return [rule?.fieldLabel || rule?.field, operatorLabel, value]
+    .filter(Boolean)
+    .join(' · ');
+};
+
 export const useManagePropertyRule = ({
   propertyType,
   sourceType,
@@ -71,7 +93,8 @@ export const useManagePropertyRule = ({
   sourceType: string;
   index: number;
 }) => {
-  const { control, setValue } = useFormContext<TManagePropertiesForm>();
+  const form = useFormContext<TManagePropertiesForm>();
+  const { control, setValue } = form;
   const rule = useWatch({ control, name: `rules.${index}` });
   const { fields = [] } = useGetFieldsProperties(propertyType, {
     source: 'automations',
@@ -91,13 +114,8 @@ export const useManagePropertyRule = ({
     operators,
   );
 
-  const { remove } = useFieldArray({
-    control,
-    name: 'rules',
-  });
   const groups = groupFieldsByType(fields || []);
 
-  const handleRemove = () => remove(index);
   const handleUpdate = useCallback(
     (value: Partial<TManagePropertiesForm['rules'][number]>) => {
       setValue(
@@ -172,6 +190,7 @@ export const useManagePropertyRule = ({
   ]);
 
   return {
+    form,
     control,
     setValue,
     rule,
@@ -180,7 +199,6 @@ export const useManagePropertyRule = ({
     selectedField,
     placeholderInputProps,
     groups,
-    handleRemove,
     handleFieldChange,
     handleUpdate,
   };
@@ -191,6 +209,7 @@ const useManagePropertyRuleInputProps = (
   rule?: TManagePropertiesForm['rules'][number],
   operators: { value: string; label: string }[] = [],
 ) => {
+  const { t } = useTranslation('automations');
   const enabled = selectedField ? [TPlaceholderInputSuggestion.Attribute] : [];
   const suggestionsOptions: Partial<
     Record<TPlaceholderInputSuggestion, TPlaceholderInputSuggestionsOption>
@@ -232,11 +251,11 @@ const useManagePropertyRuleInputProps = (
     suggestionsOptions.option = {
       options: [
         {
-          label: 'True',
+          label: t('manage-properties-boolean-true'),
           value: 'true',
         },
         {
-          label: 'False',
+          label: t('manage-properties-boolean-false'),
           value: 'false',
         },
       ],

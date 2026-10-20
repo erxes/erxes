@@ -1,5 +1,6 @@
 import { AutomationBuilderSecondarySidebar } from '@/automations/components/builder/sidebar/components/AutomationBuilderSecondarySidebar';
 import { AutomationBuilderPrimarySidebar } from '@/automations/components/builder/sidebar/components/AutomationBuilderPrimarySidebar';
+import { AutomationBuilderSidebarDock } from '@/automations/components/builder/sidebar/components/AutomationBuilderSidebarDock';
 import { useAutomationBuilderSecondaryPanels } from '@/automations/components/builder/sidebar/hooks/useAutomationBuilderSecondaryPanels';
 import { useAutomationBuilderSidebarHooks } from '@/automations/components/builder/sidebar/hooks/useAutomationBuilderSidebarHooks';
 import { useAutomation } from '@/automations/context/AutomationProvider';
@@ -17,8 +18,10 @@ import {
 import { AnimatePresence } from 'framer-motion';
 import { useEffect } from 'react';
 import { AutomationVariableInsertionProvider } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 export const AutomationBuilderSidebar = () => {
+  const { t } = useTranslation('automations');
   const isMobile = useIsMobile();
   const { awaitingToConnectNodeId } = useAutomation();
   const { setHotkeyScopeAndMemorizePreviousScope } = usePreviousHotkeyScope();
@@ -86,17 +89,17 @@ export const AutomationBuilderSidebar = () => {
             className="max-w-none bg-sidebar p-0 sm:max-w-2xl"
           >
             <Sheet.Title className="sr-only">
-              Automation configuration
+              {t('sidebar-automation-configuration')}
             </Sheet.Title>
             <Sheet.Description className="sr-only">
-              Configure the selected automation node
+              {t('sidebar-configure-selected-node')}
             </Sheet.Description>
 
             <div className="relative min-h-0 flex-1 overflow-hidden">
               <div className="absolute inset-0">
                 <AutomationBuilderPrimarySidebar
                   activeNode={activeNode}
-                  canShowSecondarySidebar={canShowSecondarySidebar}
+                  showPanelToggles={canShowSecondarySidebar}
                   className="w-full border-l-0"
                   handleBack={handleBack}
                   handleClose={handleClose}
@@ -130,9 +133,11 @@ export const AutomationBuilderSidebar = () => {
             <AutomationBuilderSecondarySidebar panel={activePanel} />
           ) : null}
 
+          {canShowSecondarySidebar && <AutomationBuilderSidebarDock />}
+
           <AutomationBuilderPrimarySidebar
             activeNode={activeNode}
-            canShowSecondarySidebar={canShowSecondarySidebar}
+            showPanelToggles={false}
             className={sidebarWidthClasses}
             handleBack={handleBack}
             handleClose={handleClose}

@@ -1,17 +1,29 @@
+import type {
+  ReportConversationOpenQuery,
+  ReportConversationSourcesQuery,
+  ReportTicketCustomPropertiesQuery,
+  ReportChartsQuery,
+  ReportConversationListQuery,
+  ReportConversationResponsesQuery,
+  ReportFacebookPagesQuery,
+  ReportFacebookSummaryQuery,
+  ReportFacebookActivityQuery,
+  ReportFacebookPostsQuery,
+  ReportFacebookBotsQuery,
+  ReportFacebookSyncPostStatsMutation,
+  TicketReportFilter,
+} from '~/gql/graphql';
 import { Icon } from '@tabler/icons-react';
-import { IUser } from 'ui-modules';
 
-export interface ReportMetric {
-  count: number;
-  percentage: number;
-}
+export type ReportMetric = NonNullable<
+  ReportConversationOpenQuery['reportConversationOpen']
+>;
 
-export interface ReportSource {
-  _id: string;
-  name: string;
-  count: number;
-  percentage: number;
-}
+export type ReportSource = NonNullable<
+  NonNullable<
+    ReportConversationSourcesQuery['reportConversationSources']
+  >[number]
+>;
 
 export interface CardConfig {
   id: string;
@@ -33,20 +45,20 @@ export interface ReportCardProps {
   className?: string;
 }
 
-export interface TagData {
-  _id: string;
-  name: string;
-  group?: string;
-  count: number;
-  percentage: number;
-}
+type TicketCustomPropertyRow = NonNullable<
+  NonNullable<
+    ReportTicketCustomPropertiesQuery['reportTicketCustomProperties']
+  >[number]
+>;
 
-export interface SourceData {
-  _id: string;
-  name: string;
-  count: number;
-  percentage: number;
-}
+export type TagData = Omit<TicketCustomPropertyRow, 'group'> &
+  Partial<Pick<TicketCustomPropertyRow, 'group'>>;
+
+export type SourceData = NonNullable<
+  NonNullable<
+    ReportConversationSourcesQuery['reportConversationSources']
+  >[number]
+>;
 
 export interface TicketPropertyFilter {
   propertyId: string;
@@ -54,65 +66,27 @@ export interface TicketPropertyFilter {
   values: string[];
 }
 
-export interface ReportChartFilters {
-  date?: string;
-  fromDate?: string;
-  toDate?: string;
-  source?: string;
-  state?: string;
-  statusIds?: string[];
-  frequency?: string;
-  groupPropertyId?: string;
-  channelIds?: string[];
-  memberIds?: string[];
-  pipelineIds?: string[];
-  tagIds?: string[];
-  customerIds?: string[];
-  companyIds?: string[];
-  propertyIds?: string[];
-  pageIds?: string[];
-  searchValue?: string;
-  priority?: number[];
-  propertyValueFilters?: TicketPropertyFilter[];
-}
+export type ReportChartFilters = TicketReportFilter;
 
-export interface ReportChart {
-  _id: string;
-  name: string;
-  chartType: string;
-  visualType?: ResponsesChartType;
-  colSpan?: number;
-  filters?: ReportChartFilters;
-}
+export type ReportChart = NonNullable<
+  NonNullable<ReportChartsQuery['reportCharts']>[number]
+>;
 
-export interface ConversationListItem {
-  _id: string;
-  content: string;
-  customerId: string;
-  userId: string;
-  assignedUserId: string;
-  status: string;
-  messages: {
-    _id: string;
-    content: string;
-    userId: string;
-    customerId: string;
-  }[];
-  createdAt: string;
-  readUsers: {
-    _id: string;
-    details: {
-      avatar: string;
-      fullName: string;
-      position: string;
-    };
-  }[];
-}
+export type SavedReportChartFilters = Partial<
+  NonNullable<ReportChart['filters']>
+>;
 
-export interface ConversationUserMessageStat {
-  user: IUser;
-  messageCount: number;
-}
+export type ConversationListItem = NonNullable<
+  NonNullable<
+    NonNullable<ReportConversationListQuery['reportConversationList']>['list']
+  >[number]
+>;
+
+export type ConversationUserMessageStat = NonNullable<
+  NonNullable<
+    ReportConversationResponsesQuery['reportConversationResponses']
+  >[number]
+>;
 
 export enum ResponsesChartType {
   Table = 'table',
@@ -121,6 +95,11 @@ export enum ResponsesChartType {
   Pie = 'pie',
   Radar = 'radar',
 }
+
+export const isResponsesChartType = (
+  value: unknown,
+): value is ResponsesChartType =>
+  Object.values(ResponsesChartType).some((type) => type === value);
 
 export interface ResponsesChartTypeOption {
   IconComponent: Icon;
@@ -132,66 +111,32 @@ export enum ReportHotKeyScope {
   ReportPage = 'report-page',
 }
 
-export interface FacebookPage {
-  _id: string;
-  name: string;
-}
+export type FacebookPage = NonNullable<
+  NonNullable<ReportFacebookPagesQuery['reportFacebookPages']>[number]
+>;
 
-export interface FacebookSummary {
-  posts: number;
-  comments: number;
-  conversations: number;
-  messages: number;
-  incomingMessages: number;
-  botMessages: number;
-  staffMessages: number;
-  botConversations: number;
-  botCoverage: number;
-}
+export type FacebookSummary = NonNullable<
+  ReportFacebookSummaryQuery['reportFacebookSummary']
+>;
 
-export interface FacebookActivityPoint {
-  date: string;
-  conversations: number;
-  messages: number;
-  comments: number;
-}
+export type FacebookActivityPoint = NonNullable<
+  NonNullable<ReportFacebookActivityQuery['reportFacebookActivity']>[number]
+>;
 
-export interface FacebookPostRow {
-  _id: string;
-  content?: string;
-  permalink?: string;
-  comments: number;
-  replies: number;
-  commenters: number;
-  postedAt?: string;
-  lastActivityAt?: string;
-  metaCommentCount?: number;
-  metaReactionCount?: number;
-  metaShareCount?: number;
-  metaSyncedAt?: string;
-}
+export type FacebookPostRow = NonNullable<
+  NonNullable<
+    NonNullable<ReportFacebookPostsQuery['reportFacebookPosts']>['list']
+  >[number]
+>;
 
-export interface FacebookSyncResult {
-  pages: number;
-  fetched: number;
-  updated: number;
-  missingInErxes: number;
-  syncedAt: string;
-  errors: { pageId: string; message: string }[];
-}
+export type FacebookSyncResult = NonNullable<
+  ReportFacebookSyncPostStatsMutation['reportFacebookSyncPostStats']
+>;
 
-export interface FacebookPostResult {
-  list: FacebookPostRow[];
-  totalCount: number;
-  page: number;
-  totalPages: number;
-}
+export type FacebookPostResult = NonNullable<
+  ReportFacebookPostsQuery['reportFacebookPosts']
+>;
 
-export interface FacebookBotRow {
-  _id: string;
-  name: string;
-  pageId: string;
-  count: number;
-  messages: number;
-  percentage: number;
-}
+export type FacebookBotRow = NonNullable<
+  NonNullable<ReportFacebookBotsQuery['reportFacebookBots']>[number]
+>;

@@ -1,25 +1,24 @@
 import { QueryHookOptions, useQuery } from '@apollo/client';
 import { GET_OPEN_CONVERSATIONS_BY_DATE } from '../graphql/queries/getChart';
-
-interface ReportConversationOpenDate {
-  count: number;
-  date: string;
-}
-
-interface ReportConversationOpenDateResponse {
-  reportConversationOpenDate: ReportConversationOpenDate[];
-}
+import type {
+  ReportConversationOpenDateQuery,
+  ReportConversationOpenDateQueryVariables,
+} from '~/gql/graphql';
 
 export const useConversationReportsByStatus = (
-  options?: QueryHookOptions<ReportConversationOpenDateResponse>,
+  options?: QueryHookOptions<
+    ReportConversationOpenDateQuery,
+    ReportConversationOpenDateQueryVariables
+  >,
 ) => {
-  const { data, loading, error, refetch } =
-    useQuery<ReportConversationOpenDateResponse>(
-      GET_OPEN_CONVERSATIONS_BY_DATE,
-      options,
-    );
+  const { data, loading, error, refetch } = useQuery(
+    GET_OPEN_CONVERSATIONS_BY_DATE,
+    options,
+  );
 
-  const handleRefetch = (variables: any) => {
+  const handleRefetch = (
+    variables: ReportConversationOpenDateQueryVariables,
+  ) => {
     if (!refetch) return;
     refetch(variables);
   };

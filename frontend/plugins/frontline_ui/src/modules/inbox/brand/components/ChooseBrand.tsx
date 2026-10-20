@@ -34,7 +34,7 @@ export const ChooseBrand = () => {
     variables: { searchValue: debouncedSearch || undefined },
   });
   const { integrations, loading: integrationsLoading } = useIntegrations({
-    variables: { channelId, limit: 100 },
+    variables: channelId ? { channelId, limit: 100 } : undefined,
     skip: !channelId,
   });
   const channelBrandIds = new Set(

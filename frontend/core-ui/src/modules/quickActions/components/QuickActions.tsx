@@ -19,8 +19,10 @@ import {
   Key,
   AppHotkeyScope,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 export function QuickActions() {
+  const { t } = useTranslation('common', { keyPrefix: 'quick-actions' });
   const [open, setOpen] = React.useState(false);
 
   useScopedHotkeys(
@@ -48,10 +50,10 @@ export function QuickActions() {
         onOpenChange={setOpen}
         dialogContentClassName="max-w-xl"
       >
-        <Command.Input placeholder="Type a command or search..." />
+        <Command.Input placeholder={t('search-placeholder')} />
         <Command.List className="styled-scroll">
-          <Command.Empty>No results found.</Command.Empty>
-          <Command.Group heading="Suggestions">
+          <Command.Empty>{t('no-results')}</Command.Empty>
+          <Command.Group heading={t('suggestions')}>
             <Command.Item>
               <IconCalendarWeek />
               <span>Calendar</span>
@@ -66,7 +68,7 @@ export function QuickActions() {
             </Command.Item>
           </Command.Group>
           <Command.Separator />
-          <Command.Group heading="Settings">
+          <Command.Group heading={t('settings')}>
             <Command.Item>
               <IconUser />
               <span>Profile</span>

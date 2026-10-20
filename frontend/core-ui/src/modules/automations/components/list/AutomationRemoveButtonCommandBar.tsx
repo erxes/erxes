@@ -4,6 +4,7 @@ import { Button, Spinner, useConfirm, useToast } from 'erxes-ui';
 import { IAutomation } from '@/automations/types';
 import { Row } from '@tanstack/table-core';
 import { useRemoveAutomations } from '@/automations/hooks/useRemoveAutomations';
+import { useTranslation } from 'react-i18next';
 
 export const AutomationRemoveButtonCommandBar = ({
   automationIds,
@@ -13,16 +14,19 @@ export const AutomationRemoveButtonCommandBar = ({
   rows: Row<IAutomation>[];
 }) => {
   const { confirm } = useConfirm();
+  const { t } = useTranslation('automations');
   const { removeAutomations, loading } = useRemoveAutomations();
   const { toast } = useToast();
   const onRemove = () => {
     confirm({
-      message: `Are you sure you want to delete the ${automationIds.length} selected automations?`,
+      message: t('list-delete-selected-confirm', {
+        count: automationIds.length,
+      }),
     }).then(() => {
       removeAutomations(automationIds, {
         onError: (e: ApolloError) => {
           toast({
-            title: 'Error',
+            title: t('error'),
             description: e.message,
             variant: 'destructive',
           });
@@ -32,9 +36,9 @@ export const AutomationRemoveButtonCommandBar = ({
             row.toggleSelected(false);
           });
           toast({
-            title: 'Success',
+            title: t('success'),
             variant: 'success',
-            description: 'Automations deleted successfully',
+            description: t('automations-deleted'),
           });
         },
       });
@@ -48,7 +52,7 @@ export const AutomationRemoveButtonCommandBar = ({
       onClick={onRemove}
     >
       {loading ? <Spinner /> : <IconTrash />}
-      Delete
+      {t('delete')}
     </Button>
   );
 };

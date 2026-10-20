@@ -399,6 +399,7 @@ const fetchReferenceMaps = async (
   subdomain: string,
   models: IModels,
   docs: ITransaction[],
+  dryRun: boolean,
 ) => {
   const {
     accountCodes,
@@ -435,7 +436,7 @@ const fetchReferenceMaps = async (
     return rows;
   }, []);
 
-  if (sourceCtaxRows.length) {
+  if (sourceCtaxRows.length && !dryRun) {
     const existingRows = await models.CtaxRows.find({
       number: { $in: sourceCtaxRows.map((row) => row.number) },
     }).lean();
@@ -504,6 +505,11 @@ const fetchReferenceMaps = async (
     }
     return byNumber;
   }, {});
+  if (dryRun) {
+    for (const row of sourceCtaxRows) {
+      ctaxRowsByNumber[row.number] ??= `dry-run:ctax:${row.number}`;
+    }
+  }
 
   const departments = departmentCodes.length
     ? await sendTRPCMessage({
@@ -632,7 +638,7 @@ const buildContactQuery = (contact: TErkhetContact) => {
   if (contact?.type === 'company' && contact?.name) {
     $or.push({ primaryName: contact.name }, { names: { $in: [contact.name] } });
   }
-  if (contact?.type !== 'company' && contact?.phone) {
+  if (contact?.phone) {
     $or.push(
       { primaryPhone: contact.phone },
       { phones: { $in: [contact.phone] } },
@@ -701,24 +707,36 @@ export const findOrCreateErkhetContact = async ({
     ).filter(([, value]) => value !== undefined),
   );
 
-  const found = Object.keys(query).length
-    ? await sendTRPCMessage({
-        subdomain,
-        method: 'query',
-        pluginName: 'core',
-        module,
-        action: findAction,
-        input: {
-          query,
-          fields: { _id: 1, code: 1, primaryPhone: 1, primaryEmail: 1 },
-          limit: 1,
-        },
-        defaultValue: [],
-      })
-    : [];
+  const findContacts = (contactQuery: Record<string, unknown>) =>
+    sendTRPCMessage({
+      subdomain,
+      method: 'query',
+      pluginName: 'core',
+      module,
+      action: findAction,
+      input: {
+        query: contactQuery,
+        fields: { _id: 1, code: 1, primaryPhone: 1, primaryEmail: 1 },
+        limit: 1,
+      },
+      defaultValue: [],
+    });
+  const identityConditions: Record<string, unknown>[] = [];
+  if (contact.code) identityConditions.push({ code: contact.code });
+  if (contact.phone) identityConditions.push({ primaryPhone: contact.phone });
+  const identityMatches =
+    type === 'company' && identityConditions.length
+      ? await findContacts({ $or: identityConditions })
+      : [];
+  let found = identityMatches;
+  if (!found.length && Object.keys(query).length) {
+    found = await findContacts(query);
+  }
+  const shouldUpdate =
+    updateExisting && (type !== 'company' || identityMatches.length > 0);
 
   if (found?.[0]?._id) {
-    if (updateExisting && !dryRun) {
+    if (shouldUpdate && !dryRun) {
       await sendTRPCMessage({
         subdomain,
         method: 'mutation',
@@ -734,7 +752,7 @@ export const findOrCreateErkhetContact = async ({
     return {
       type,
       _id: found[0]._id,
-      action: updateExisting ? 'update' : 'skip',
+      action: shouldUpdate ? 'update' : 'skip',
     };
   }
 
@@ -1129,7 +1147,6 @@ const resolveTransactionFollowInfos = (
       moveInDepartmentCode,
       accumulatedDepreciationAccountId,
       accumulatedDepreciationAccountCode,
-      fxaDisposalSummaries: doc.followInfos?.fxaDisposalSummaries,
     };
   }
 
@@ -1137,7 +1154,6 @@ const resolveTransactionFollowInfos = (
     return {
       accumulatedDepreciationAccountId,
       accumulatedDepreciationAccountCode,
-      fxaDisposalSummaries: doc.followInfos?.fxaDisposalSummaries,
     };
   }
 
@@ -1158,7 +1174,6 @@ const resolveTransactionFollowInfos = (
       accumulatedDepreciationAccountCode,
       saleOutAccountCode: saleOutAccountCode || fixedAssetAccountCode,
       saleCostAccountCode: saleCostAccountCode || lossAccountCode,
-      fxaDisposalSummaries: doc.followInfos?.fxaDisposalSummaries,
     };
   }
 
@@ -1239,9 +1254,7 @@ const getNumericFollowInfo = (
 };
 
 const getOpeningDepreciationTotal = (detail: ITrDetail) => {
-  const preDeprecation =
-    getNumericFollowInfo(detail, 'preDeprecation') ??
-    getNumericFollowInfo(detail, 'openingAccumulatedDepreciation');
+  const preDeprecation = getNumericFollowInfo(detail, 'preDeprecation');
 
   if (!preDeprecation || preDeprecation <= 0) {
     return 0;
@@ -1275,7 +1288,10 @@ export const normalizeOpeningFixedAssetBalances = (
 
     for (const detail of doc.details || []) {
       const amount = getOpeningDepreciationTotal(detail);
-      const accountCode = normalizeSourceCode(detail.followInfos?.accountCode);
+      const sourceAccountCode = detail.followInfos?.accountCode;
+      const accountCode = normalizeSourceCode(
+        typeof sourceAccountCode === 'string' ? sourceAccountCode : undefined,
+      );
 
       if (!amount || !accountCode) {
         continue;
@@ -1302,9 +1318,11 @@ export const normalizeOpeningFixedAssetBalances = (
         return detail;
       }
 
-      const accountCode = normalizeSourceCode(
+      const sourceAccountCode =
         detail.followInfos?.sourceAccountCode ||
-          detail.followInfos?.accountCode,
+        detail.followInfos?.accountCode;
+      const accountCode = normalizeSourceCode(
+        typeof sourceAccountCode === 'string' ? sourceAccountCode : undefined,
       );
       const key = getOpeningBalanceKey(
         doc.contentId,
@@ -1333,8 +1351,9 @@ const normalizeBatchDocs = async (
   models: IModels,
   batch: ErkhetTransactionBatch,
   userId: string,
+  dryRun: boolean,
 ) => {
-  const maps = await fetchReferenceMaps(subdomain, models, batch.trDocs);
+  const maps = await fetchReferenceMaps(subdomain, models, batch.trDocs, dryRun);
   const contactByCode: Record<string, TContactResolution> = {};
 
   // Нэг batch дотор ижил customer олон transaction дээр давтагддаг тул
@@ -1347,6 +1366,7 @@ const normalizeBatchDocs = async (
         userId,
         contact,
         updateExisting: contact.type === 'company',
+        dryRun,
       });
     }
   }
@@ -1426,6 +1446,8 @@ const normalizeBatchDocs = async (
   return normalizeOpeningFixedAssetBalances(resolvedDocs);
 };
 
+export const normalizeErkhetBatchDocsForTest = normalizeBatchDocs;
+
 const saveBatch = async ({
   models,
   batch,
@@ -1443,7 +1465,13 @@ const saveBatch = async ({
 }) => {
   validateBatch(batch);
 
-  const trDocs = await normalizeBatchDocs(subdomain, models, batch, userId);
+  const trDocs = await normalizeBatchDocs(
+    subdomain,
+    models,
+    batch,
+    userId,
+    dryRun,
+  );
   const lookupContentType = trDocs[0]?.contentType || ERKHET_CONTENT_TYPE;
   const lookupContentId = trDocs[0]?.contentId || batch.externalPtrId;
   // Давтан ажиллуулахад ижил source баримт дахин үүсэхгүй байх гол түлхүүр.

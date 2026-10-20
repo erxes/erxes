@@ -40,7 +40,7 @@ export const FormMutateLayout = ({
     resetFormSetup();
     if (!id) {
       navigate('/frontline/forms');
-    } else navigate(`/settings/frontline/channels/${id}/forms`);
+    } else navigate(`/frontline/settings/channels/${id}/forms`);
     return;
   };
 

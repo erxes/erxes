@@ -8,14 +8,12 @@ import {
 } from 'ui-modules';
 
 interface PosEditSidebarProps {
-  posType?: string;
   activeTab: string;
   // Other plugins' tabs need a saved POS to work on.
   posId?: string;
 }
 
 export const PosEditSidebar = ({
-  posType,
   activeTab,
   posId,
 }: PosEditSidebarProps) => {
@@ -24,7 +22,7 @@ export const PosEditSidebar = ({
   const relationModules = useRelationSettingsModules();
 
   return (
-    <Sidebar collapsible="none" className="flex-none border-r">
+    <Sidebar.Panel className="flex-none border-r" label={t('pos')}>
       <Sidebar.Group>
         <Sidebar.GroupContent>
           <Sidebar.Menu>
@@ -56,7 +54,7 @@ export const PosEditSidebar = ({
           </Sidebar.Menu>
         </Sidebar.GroupContent>
       </Sidebar.Group>
-    </Sidebar>
+    </Sidebar.Panel>
   );
 };
 

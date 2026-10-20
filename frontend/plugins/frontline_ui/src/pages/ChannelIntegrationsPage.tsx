@@ -9,14 +9,14 @@ export const ChannelIntegrationsPage = () => {
   const navigate = useNavigate();
   return (
     <div className="h-screen">
-      <div className="px-4 h-16 flex items-center">
+      <div className="px-4 h-10 flex items-center">
         <Breadcrumb>
           <Breadcrumb.List>
             <Breadcrumb.Item>
               <Breadcrumb.Link asChild className="flex items-center gap-1">
                 <Button
                   variant="ghost"
-                  className="text-foreground font-semibold"
+                  className="text-foreground"
                   onClick={() => navigate(-1)}
                 >
                   <IconArrowLeft size={16} className="stroke-foreground" />

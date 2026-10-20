@@ -38,6 +38,7 @@ const MAIL_TAG_NAMES = [
   'ul',
 ];
 
+// eslint-disable-next-line no-restricted-syntax -- built from the constant MAIL_TAG_NAMES list, not request input
 const MAIL_TAG = new RegExp(
   String.raw`<\/?(${MAIL_TAG_NAMES.join('|')})(?=[\s/>])[^>]*>`,
   'i',

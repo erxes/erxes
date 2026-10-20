@@ -26,7 +26,11 @@ export interface IPipelineModel extends Model<IPipelineDocument> {
     userId?: string,
   ): Promise<IPipelineDocument>;
   updateOrder(orders: IOrderInput[]): Promise<IPipelineDocument[]>;
-  watchPipeline(_id: string, isAdd: boolean, userId: string): void;
+  watchPipeline(
+    _id: string,
+    isAdd: boolean,
+    userId: string,
+  ): Promise<IPipelineDocument | null>;
   removePipeline(
     _id: string,
     checked?: boolean,
@@ -188,7 +192,11 @@ export const loadPipelineClass = (
     }
 
     /** Watch pipeline */
-    public static watchPipeline(_id: string, isAdd: boolean, userId: string) {
+    public static watchPipeline(
+      _id: string,
+      isAdd: boolean,
+      userId: string,
+    ): Promise<IPipelineDocument | null> {
       return watchItem(models.Pipelines, _id, isAdd, userId);
     }
   }

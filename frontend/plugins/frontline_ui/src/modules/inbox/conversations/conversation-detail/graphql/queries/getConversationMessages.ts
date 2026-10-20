@@ -1,8 +1,6 @@
-import { gql } from '@apollo/client';
-import { ATTACHMENT_GQL } from 'erxes-ui';
-import { STRUCTURED_MESSAGE_FIELDS } from '@/inbox/conversations/graphql/subscriptions/messageFields';
+import { gql } from '~/gql';
 
-export const GET_CONVERSATION_MESSAGES = gql`
+export const GET_CONVERSATION_MESSAGES = gql(`
   query ConversationMessages(
     $conversationId: String!
     $skip: Int
@@ -16,12 +14,40 @@ export const GET_CONVERSATION_MESSAGES = gql`
       getFirst: $getFirst
     ) {
       _id
-      ${STRUCTURED_MESSAGE_FIELDS}
+      mid
+      messageKind
+      providerData {
+        messageId
+        attachmentType
+        fallbackReason
+        previewText
+        previewUrl
+        shareType
+        storyUrl
+      }
+      replyTo {
+        messageId
+        content
+        authorName
+      }
+      reactions {
+        senderId
+        emoji
+        reaction
+      }
+      deliveryStatus
+      expiresAt
       conversationId
       content
       formWidgetData
       extraData
-      ${ATTACHMENT_GQL}
+      attachments {
+        url
+        name
+        type
+        size
+        duration
+      }
       internal
       fromBot
       createdAt
@@ -33,4 +59,4 @@ export const GET_CONVERSATION_MESSAGES = gql`
     }
     conversationMessagesTotalCount(conversationId: $conversationId)
   }
-`;
+`);

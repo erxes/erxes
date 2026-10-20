@@ -249,6 +249,7 @@ export const loadFormClass = (models: IModels) => {
 
           // regex
           if (validation === 'regex') {
+            // eslint-disable-next-line no-restricted-syntax -- admin-defined field validation pattern, matched as a regex on purpose
             const regex = new RegExp(field.regexValidation || '');
 
             if (!regex.test(value)) {

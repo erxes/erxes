@@ -6,7 +6,7 @@
 - **Project:** `sales_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/sales_api`
-- **Last synchronized:** `2026-10-11`
+- **Last synchronized:** `2026-10-19`
 
 ## Scope
 
@@ -32,6 +32,23 @@
 
 ## Current Capabilities
 
+- `pnpm nx run sales_api:schema:print` exports the existing subgraph schema,
+  including subscriptions, to `generated/schema.graphql` for type-generation
+  tooling without starting the Sales service or executing resolvers.
+- Deal product rows persist optional `uomInfo: { uom, ratio, unitPrice, quantity }`
+  for entry values. Writes derive base price (`info.unitPrice * ratio`), base
+  quantity (`info.quantity / ratio`), taxes and amount before totals/discounts.
+  Partial info uses base fields; missing base UOMs are fetched in one tenant-scoped
+  Core products query. `uomInfo` is the only supported entry-unit metadata field.
+  Base-unit selections copy entry price/quantity directly and omit `uomInfo`
+  from persistence; only a different selected unit needs stored metadata.
+  `utils/productUom.ts` separates missing-base-unit lookup from input
+  normalization, and validates the incoming ratio once before conversion.
+- Deal product GraphQL discount checks accept fractional `quantity` values, so
+  pricing and loyalty calculations stay aligned with POS weighted products.
+- Deal creation, saving, and product-row creation/editing fill missing or blank
+  currencies from the tenant's first Core `dealCurrency` configuration value
+  (fallback `MNT`) before calculating totals, preserving explicit currencies.
 - POS catalog sync checks loyalty base pricing in batches of 100 products,
   with at most eight concurrent requests, and merges discounts by product id
   before applying them to prices. Product-group pushes propagate POS client
@@ -65,6 +82,7 @@
 
 | Area                       | Path                                                      | Responsibility                                                                                       |
 | -------------------------- | --------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| Schema export              | `scripts/print-subgraph-schema.ts`                                         | Print the Sales subgraph and subscriptions for GraphQL type-generation tooling.                      |
 | Runtime                    | `src/main.ts`, `src/connectionResolvers.ts`, `src/trpc`   | Start the plugin, load tenant-scoped models, and expose tRPC procedures.                             |
 | Sales models               | `src/modules/sales/db`                                    | Store deals, boards, pipelines, stages, labels, and sales metadata.                                  |
 | Sales GraphQL              | `src/modules/sales/graphql`, `src/apollo`                 | Provide sales schemas, resolvers, mutations, queries, and subscriptions.                             |
@@ -125,13 +143,33 @@
   that puts a deal into a stage must do the same.
   Removing deals refunds them (`Deals.removeDeals`). All loyalty calls throw;
   with loyalty disabled they do nothing. POS order sync calls `score.spend`
-  (`spendOrderPoints`, also after `posOrderChangePayments`), `score.earn` for
+  (`spendOrderPoints`, its own sync step and `throwOnError`, also after
+  `posOrderChangePayments`), `score.earn` for
   the POS's one `earnScoreCampaignId` once paid (`planOrderPoints` /
   `earnOrderPoints`), `score.applyPurchaseTier` for the POS's one `earnTier`
   (`{accountTypeId, bands, onlyUpgrade}`, checked by `validateEarnTier`) with
   the order's `totalAmount` (with the order, named `POS #number`, and its
   cashier as target and actor), and `score.refund` for returned orders (the tier
-  stays), still without throwing.
+  stays), still without throwing. Each loyalty step of a paid or returned
+  sync runs on its own, so a refused voucher never skips the earning. A
+  returned order also gives its vouchers back (`voucher.returnTarget`); the
+  paid order's voucher is used through `confirmLoyalties` (target `pos` + order
+  id, the same pair posclient held it under; a repeat sync changes nothing).
+- A deal save prices `checkPricing` first, then `checkLoyalties`, so loyalty discounts sit on the priced amount; `checkLoyalties` keeps the bonus lines pricing just laid down.
+- A deal's voucher and coupon (`extraData.voucherId` / `couponCode`) are used
+  only where the deal earns: `syncDealPoints` calls loyalty `confirmLoyalties`
+  (target `sales` + deal id) after the customer check, and a refund stage calls
+  `voucher.returnTarget` after `score.refund`, then `voucher.releaseTarget`.
+  Deal saves no longer redeem them on every edit. Saving products with
+  `extraData` holds the picked voucher for the deal's first customer
+  (`syncDealVoucher` in `editDeal`, before pricing; it releases the previous
+  pick and refuses a deal without a customer), and `checkLoyalties` sends
+  `discountInfo {voucherId, couponCode, targetId}` so the deal is priced with
+  them. Removing a deal returns the vouchers it used and releases the ones it held. Pricing and loyalty
+  restate their own `discountInfos` (`pricing`, `voucher`) on every save
+  (`dropDiscountInfo`, which resets `discount` at once so an emptied list is
+  never rebuilt as a manual discount), so a plan, voucher or coupon that no
+  longer applies takes its discount with it.
 - The deal automation output `productsData.*` resolves a field as all products
   joined (`productsData.name`), one product by index (`productsData.0.name`,
   names looked up in core per item), or the product count
@@ -228,6 +266,94 @@
 
 ## Local Invariants
 
+- Set property handlers pass `targetActionId: action.targetActionId` to
+  `getSetPropertySelector`, so a Manage properties action targeting an earlier
+  action (Find object, Create) updates that action's record, not the trigger's.
+
+- POS configuration, order items/payments, and aggregate report values remain
+  JSON scalar outputs. Order details return an items array; item reports unwind
+  it into a single object. Frontend narrowing must preserve those contracts,
+  including nullable payment fields and existing numeric screen values.
+  Stored order payment entries may omit `type` or contain `type: null`;
+  frontend parsing must not make that optional field required.
+  The deal relation panel (`posOrders(dealId)`) also reads `paidAmounts` as a
+  JSON array of `{ type, title, amount }` entries.
+- Deal product rows, payments, pipeline payment types, and pipeline event data
+  remain JSON scalar contracts. Sales UI validates the fields it consumes;
+  changing these outputs to object selections requires a coordinated API and
+  caller migration. Do not change their scalar shape solely for frontend types.
+
+- `generated/schema.graphql` is generated and gitignored; edit the owning SDL
+  files and re-run `schema:print` instead of editing the exported schema.
+  The exported schema must preserve the runtime field types, nullability, and
+  subscription definitions; document conversion does not redefine the API.
+  The exporter exits explicitly because shared utility imports open Redis
+  clients that would otherwise keep the command running.
+- `sales_api:schema:print` opts into the shared `nx.json` printer default.
+  Its cache inputs include Sales source, the shared printer, and shared Apollo SDL helpers.
+  `gateway:schema:compose` consumes this export; `sales_ui:codegen` hashes the composed SDL.
+  Every Sales UI document is generated-typed and lint-enforced, so renaming or
+  removing an SDL field fails the `sales_ui` codegen/build; update the UI
+  documents in the same change.
+- Public fields owned by other services come from the composed gateway schema, not Sales runtime SDL. Do not add backend fields just to satisfy frontend codegen.
+- `Pos` has no `type` field in its public GraphQL contract. Frontend settings
+  must use the existing configuration fields rather than inventing this field
+  in handwritten types or codegen inputs.
+- Deal and pipeline watch methods use atomic `$addToSet`/`$pull` updates and
+  return the updated record, or null if it no longer exists. Repeated requests
+  must not duplicate watchers or remove another user; concurrent requests must
+  preserve each user's change. Initialize legacy null/missing arrays only with
+  a conditional update. Preserve deal-watch activity logging.
+- Label assignment returns `success` after publishing the updated deal. Stage
+  sorting returns `ok` even for an empty stage. An archive with no stages
+  returns an empty list, zero count, and empty pagination metadata.
+- Deal-number lookup escapes the configured prefix after date substitution
+  with the shared `escapeRegExp` helper. Anchor the prefix at the start (`^`)
+  in both pipeline and deal fallback lookups so longer, unrelated prefixes
+  cannot supply the counter. Keep the numeric `[0-9]+$` suffix as regex syntax;
+  date placeholders, padding, and reset behavior stay intact.
+- Request text used in regex patterns goes through `escapeRegExp` from
+  `erxes-api-shared/utils`. The plugin-local ESLint config follows Operation's
+  rule and requires escaping at each construction site, covering both
+  `new RegExp(...)` and `RegExp(...)`. The guard checks only the first (pattern)
+  argument; flags do not need regex escaping. Prefer escaped string
+  `$regex` values with `$options`, including queries sent over tRPC.
+  Phone lookup first limits input to digits, escapes them, then adds fixed
+  `\D*` separators; its two documented lint exceptions preserve formatted-phone
+  matching. Stage/archive fuzzy searches use the public `regexSearchText`
+  helper, which escapes metacharacters itself; do not double-escape its input.
+- Every Sales Query/Mutation field must have an explicitly registered
+  resolver, and every registered root resolver must appear in SDL. The
+  `resolverParity` tests compare the assembled registries and declarations.
+  Resolver execution tests share `src/__tests__/helpers/graphql.ts` to select
+  real SDL fields without duplicating the test schema setup.
+  POS product-group writes use `productGroupsBulkInsert`; client-portal
+  pipeline reads use `cpSalesPipelines`. Do not declare unimplemented aliases.
+- `posEdit._id`, `dealsWatch._id`, `productGroupsBulkInsert.posId`, and
+  `posSlotBulkUpdate.posId` are required in the SDL; resolvers also reject empty
+  strings after checking permissions and before querying or mutating data.
+- Preserve nullable argument signatures where existing caller documents use
+  nullable variables. POS order detail still requires an id at runtime; POS
+  bulk saves require arrays and valid row identifiers; deal product mutations
+  require their target ids and object/array payloads; checklist creation needs
+  a parent id and reordering needs an integer destination. Reject malformed
+  inputs before writes. Empty arrays remain valid for clearing POS groups or
+  slots and for an empty deal-product selection; position `0` is valid.
+  Tightening those SDL arguments requires coordinating their caller documents,
+  including `mongolian_ui`'s nullable POS order-detail id.
+- Deal product JSON create/edit inputs require a non-empty string `productId`
+  and finite price/quantity (root values or authoritative `uomInfo` values).
+  Validate every incoming row before model access, including client-portal
+  mutations. Preserve zero values, missing currency defaults, and legacy rows
+  without entry-unit metadata; leave ratio/conversion validation to the UOM
+  normalizer. Supplied root/entry UOM, currency, and pricing fields must have
+  valid types, including the unit name inside `uomInfo`.
+- `productsData.uomInfo` is the entry input; derive root `uom`, `quantity`,
+  `unitPrice`, and amounts in base units before calculating deal totals.
+  Preserve saved ratios, and sync info values after server-side pricing changes
+  so later saves cannot restore stale input prices. Integrations use root fields.
+- Default missing product-row currencies before calculating deal totals; read
+  Core `configs.getConfig` with the current tenant's `subdomain`.
 - Catalog pricing batches preserve `prioritizeRule: 'only'`, `totalAmount: 0`,
   quantity 1, and the request's tenant, branch, and department. Failed pricing
   calls abort sync instead of returning a partially discounted catalog.
@@ -446,6 +572,9 @@
 
 ## Validation
 
+- `pnpm exec tsc --noEmit -p backend/plugins/sales_api/tsconfig.json`
+- `pnpm nx run sales_api:schema:print --skip-nx-cache` prints this subgraph offline for `gateway:schema:compose`.
+- `pnpm nx lint sales_api`
 - POS catalog sync smoke: sync more than 100 products with base pricing and
   verify discounts apply to products on both sides of each batch boundary.
 - `pnpm nx build sales_api`
@@ -485,6 +614,12 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-10-14` — Vouchers used once, returned with the order
+
+- **Summary:** POS returns give vouchers back and a refused voucher no longer skips the points; a deal holds its picked voucher, prices with it and its coupon, uses them only in an earning stage and returns or releases them in a refund stage or on removal.
+- **Affected areas:** `modules/pos/utils.ts`, `modules/sales/utils/dealPoints.ts` (+ test), `modules/sales/db/models/Deals.ts`, `modules/sales/graphql/resolvers/mutations/{utils,loyaltyUtils}.ts` (deal `confirmLoyalties` helper removed).
+- **Contracts changed:** Consumes loyalty tRPC `voucher.returnTarget`, `voucher.hold`, `voucher.release`, `voucher.releaseTarget`.
 
 ### `2026-10-09` — Purchases set a tier without automations
 
@@ -556,9 +691,3 @@
   documented known values to avoid redundant literal-union Sonar warnings.
 - **Affected areas:** `src/modules/sales/utils/discountInfos.ts`.
 - **Contracts changed:** None.
-
-### `2026-09-12` — Deal product discount breakdowns
-
-- **Summary:** Deal products now persist `discountInfos` and merge automatic pricing/voucher discounts with preserved manual `hand` discounts before recalculating totals.
-- **Affected areas:** `src/modules/sales/db/definitions/deals.ts`, `src/modules/sales/@types/deal.ts`, `src/modules/sales/utils/discountInfos.ts`, `src/modules/sales/db/models/Deals.ts`, `src/modules/sales/graphql/resolvers/mutations/{deals,loyaltyUtils,utils}.ts`.
-- **Contracts changed:** Deal `productsData` JSON may now include product-level `discountInfos`.

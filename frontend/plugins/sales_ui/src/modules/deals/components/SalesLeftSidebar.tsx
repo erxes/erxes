@@ -1,15 +1,14 @@
-import { Accordion, Sidebar, useQueryState } from 'erxes-ui';
+import { Accordion, isDefined, Sidebar, useQueryState } from 'erxes-ui';
 import { Link, useNavigate } from 'react-router-dom';
 
+import { useBoards } from '@/deals/boards/hooks/useBoards';
+import { useLastBoard } from '@/deals/boards/hooks/useLastBoard';
 import { LeftSidebarLoading } from '@/deals/components/loading/LeftSidebarLoading';
 import { PipelineList } from '@/deals/pipelines/components/PipelineList';
-import { useBoards } from '@/deals/boards/hooks/useBoards';
 import { useEffect } from 'react';
-import { useLastBoard } from '@/deals/boards/hooks/useLastBoard';
 import { useTranslation } from 'react-i18next';
 
 export const SalesLeftSidebar = () => {
-
   const { t } = useTranslation('sales');
 
   const navigate = useNavigate();
@@ -26,7 +25,7 @@ export const SalesLeftSidebar = () => {
   useEffect(() => {
     if (!selectedBoardId && lastBoard?.pipelines?.length) {
       setSelectedBoardId(lastBoard._id);
-      setSelectedPipelineId(lastBoard.pipelines[0]._id);
+      setSelectedPipelineId(lastBoard.pipelines.find(isDefined)?._id ?? null);
     }
 
     if (!selectedBoardId && lastBoard) {
@@ -34,7 +33,7 @@ export const SalesLeftSidebar = () => {
 
       const url =
         lastBoard.pipelines && lastBoard.pipelines.length > 0
-          ? `${baseUrl}&pipelineId=${lastBoard.pipelines[0]._id}`
+          ? `${baseUrl}&pipelineId=${lastBoard.pipelines.find(isDefined)?._id}`
           : baseUrl;
 
       navigate(url);
@@ -52,7 +51,7 @@ export const SalesLeftSidebar = () => {
   }
 
   return (
-    <Sidebar collapsible="none" className="border-r flex-none">
+    <Sidebar.Panel className="border-r flex-none">
       <Sidebar.Group>
         <Sidebar.GroupContent>
           <Accordion
@@ -61,9 +60,14 @@ export const SalesLeftSidebar = () => {
             defaultValue={['boards', 'pipelines']}
           >
             <Accordion.Item value="boards">
-              <Accordion.Trigger className="text-gray-400 text-sm">
-                {t('boards')} ({boards?.length || 0})
-              </Accordion.Trigger>
+              <div className="flex items-center gap-1">
+                <div className="min-w-0 flex-1">
+                  <Accordion.Trigger className="text-gray-400 text-sm">
+                    {t('boards')} ({boards?.length || 0})
+                  </Accordion.Trigger>
+                </div>
+                <Sidebar.PanelTrigger />
+              </div>
               <Accordion.Content className="content">
                 <Sidebar.Menu className="px-2">
                   {boards?.map((board) => (
@@ -71,7 +75,9 @@ export const SalesLeftSidebar = () => {
                       key={board._id}
                       to={
                         board.pipelines && board.pipelines.length > 0
-                          ? `?boardId=${board._id}&pipelineId=${board.pipelines[0]._id}`
+                          ? `?boardId=${board._id}&pipelineId=${
+                              board.pipelines.find(isDefined)?._id
+                            }`
                           : `?boardId=${board._id}`
                       }
                     >
@@ -96,6 +102,6 @@ export const SalesLeftSidebar = () => {
           </Accordion>
         </Sidebar.GroupContent>
       </Sidebar.Group>
-    </Sidebar>
+    </Sidebar.Panel>
   );
 };

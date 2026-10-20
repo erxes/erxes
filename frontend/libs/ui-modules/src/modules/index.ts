@@ -8,6 +8,7 @@ export * from './header';
 export * from './internal-notes';
 export * from './notifications';
 export * from './permissions';
+export * from './plugin-settings';
 export * from './products';
 export * from './properties';
 export * from './segments';

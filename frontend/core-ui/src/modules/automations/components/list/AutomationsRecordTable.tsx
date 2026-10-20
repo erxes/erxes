@@ -1,10 +1,10 @@
 import { getAutomationColumns } from '@/automations/components/list/AutomationColumns';
 import { AutomationRecordTableFilters } from '@/automations/components/list/filters/AutomationRecordTableFilters';
 import { useAutomationsRecordTable } from '@/automations/hooks/useAutomationsRecordTable';
+import { useAutomationsListFilterMemory } from '@/automations/hooks/useAutomationsListFilterMemory';
 import { AutomationsRecordTableContent } from '@/automations/components/list/AutomationsRecordTableContent';
 import { AutomationsRecordTableEmptyState } from '@/automations/components/list/AutomationsRecordTableEmptyState';
 import { AutomationErrorEmptyState } from '@/automations/components/common/AutomationErrorEmptyState';
-import { AutomationsViewToggle } from '@/automations/components/list/AutomationsViewToggle';
 import { AutomationsCardList } from '@/automations/components/list/AutomationsCardList';
 import { useAutomationsListLayout } from '@/automations/components/list/AutomationsDisplayControl';
 import { IconAffiliate, IconSettings } from '@tabler/icons-react';
@@ -30,6 +30,7 @@ import {
 } from 'ui-modules';
 
 export const AutomationsRecordTable = () => {
+  useAutomationsListFilterMemory();
   const {
     list,
     loading,
@@ -78,7 +79,6 @@ export const AutomationsRecordTable = () => {
             </Breadcrumb.List>
           </Breadcrumb>
           <Separator.Inline />
-          <AutomationsViewToggle />
           <PageHeader.FavoriteToggleButton
             breadcrumb={favoriteBreadcrumb}
             icon="IconAffiliate"

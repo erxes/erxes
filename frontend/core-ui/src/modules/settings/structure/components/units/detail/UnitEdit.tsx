@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Button, Form, Sheet, Spinner, useToast } from 'erxes-ui';
 import React, { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
@@ -11,6 +12,7 @@ import { UnitForm } from '../UnitForm';
 import { Can } from 'ui-modules';
 
 export const UnitEdit = () => {
+  const { t } = useTranslation('settings', { keyPrefix: 'structure' });
   const [searchParams, setSearchParams] = useSearchParams();
 
   const id = searchParams.get('unit_id');
@@ -45,16 +47,16 @@ export const UnitEdit = () => {
       },
       onCompleted: () => {
         toast({
-          title: 'Success!',
+          title: t('success'),
           variant: 'success',
-          description: 'Unit updated successfully',
+          description: t('unit-updated'),
         });
         methods.reset();
         setOpen(null);
       },
       onError: (error) =>
         toast({
-          title: 'Error',
+          title: t('error'),
           description: error.message,
           variant: 'destructive',
         }),
@@ -97,11 +99,11 @@ export const UnitEdit = () => {
             </Sheet.Content>
             <Sheet.Footer>
               <Button variant={'ghost'} onClick={() => setOpen(null)}>
-                Cancel
+                {t('cancel')}
               </Button>
               <Can action="unitsManage">
                 <Button type="submit" disabled={isLoading}>
-                  {isLoading ? <Spinner /> : 'Save'}
+                  {isLoading ? <Spinner /> : t('save')}
                 </Button>
               </Can>
             </Sheet.Footer>

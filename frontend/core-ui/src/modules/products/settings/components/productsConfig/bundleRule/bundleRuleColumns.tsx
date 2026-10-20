@@ -1,3 +1,4 @@
+import { TFunction } from 'i18next';
 import { IconHash } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
 import {
@@ -9,14 +10,14 @@ import { IBundleRule } from './types';
 import { bundleRuleNameColumn } from './BundleRuleNameColumn';
 import { bundleRuleMoreColumn } from './BundleRuleMoreColumn';
 
-export const bundleRuleColumns: ColumnDef<IBundleRule>[] = [
+export const bundleRuleColumns = (t: TFunction): ColumnDef<IBundleRule>[] => [
   bundleRuleMoreColumn,
   bundleRuleNameColumn,
   RecordTable.checkboxColumn as ColumnDef<IBundleRule>,
   {
     id: 'code',
     accessorKey: 'code',
-    header: () => <RecordTable.InlineHead icon={IconHash} label="Code" />,
+    header: () => <RecordTable.InlineHead icon={IconHash} label={t('code')} />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={(cell.getValue() as string) || ''} />
@@ -27,7 +28,7 @@ export const bundleRuleColumns: ColumnDef<IBundleRule>[] = [
   {
     id: 'description',
     accessorKey: 'description',
-    header: () => <RecordTable.InlineHead label="Description" />,
+    header: () => <RecordTable.InlineHead label={t('description')} />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={(cell.getValue() as string) || ''} />

@@ -18,8 +18,10 @@ import {
   DocumentPrintDialog,
   hasDocumentReplacerSelect,
 } from './DocumentPrintDialog';
+import { useTranslation } from 'react-i18next';
 
 export const DocumentsHeader = () => {
+  const { t } = useTranslation('documents', { keyPrefix: 'document' });
   const [documentId] = useQueryState<string>('documentId');
   const cleanDocumentId = documentId?.trim();
   const [contentType] = useQueryState<string>('contentType');
@@ -30,7 +32,7 @@ export const DocumentsHeader = () => {
     (documentType) => documentType.contentType === contentType,
   );
   const favoriteBreadcrumb = createFavoriteBreadcrumb(
-    'Documents',
+    t('documents'),
     selectedDocumentType?.label,
   );
 
@@ -43,7 +45,7 @@ export const DocumentsHeader = () => {
               <Button variant="ghost" asChild>
                 <Link to="/documents">
                   <IconCube />
-                  Documents
+                  {t('documents')}
                 </Link>
               </Button>
             </Breadcrumb.Item>
@@ -66,7 +68,7 @@ export const DocumentsHeader = () => {
                   variant="secondary"
                   onClick={() => setPrintOpen(true)}
                 >
-                  <IconPrinter /> Print
+                  <IconPrinter /> {t('print')}
                 </Button>
                 <DocumentPrintDialog
                   documentItem={document}

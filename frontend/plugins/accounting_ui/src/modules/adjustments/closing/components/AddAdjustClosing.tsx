@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { IconPlus } from '@tabler/icons-react';
 import { Button, DatePicker, Form, Sheet, Spinner, Textarea } from 'erxes-ui';
 import { useState } from 'react';
@@ -10,6 +11,7 @@ import { SelectAccountFormItem } from '~/modules/settings/account/components/Sel
 import { AccountingSheet } from '~/modules/layout/components/Sheet';
 
 export const AddAdjustClosing = () => {
+  const { t } = useTranslation('accounting');
   const [open, setOpen] = useState(false);
 
   return (
@@ -17,11 +19,11 @@ export const AddAdjustClosing = () => {
       <Sheet.Trigger asChild>
         <Button>
           <IconPlus />
-          Add Closing Adjustment
+          {t('Add Closing Adjustment')}
         </Button>
       </Sheet.Trigger>
 
-      <AccountingSheet title="Create Closing Adjustment">
+      <AccountingSheet title={t('Create Closing Adjustment')}>
         <AddAdjustClosingForm setOpen={setOpen} />
       </AccountingSheet>
     </Sheet>
@@ -33,6 +35,7 @@ export const AddAdjustClosingForm = ({
 }: {
   setOpen: (open: boolean) => void;
 }) => {
+  const { t } = useTranslation('accounting');
   const form = useForm<TAdjustClosingForm>({
     resolver: zodResolver(adjustClosingSchema),
     defaultValues: { date: new Date() },
@@ -63,7 +66,7 @@ export const AddAdjustClosingForm = ({
             render={({ field }) => (
               <Form.Item>
                 <Form.Label>
-                  Date <span className="text-destructive">*</span>
+                  {t('date')} <span className="text-destructive">*</span>
                 </Form.Label>
                 <Form.Control>
                   <DatePicker
@@ -83,12 +86,13 @@ export const AddAdjustClosingForm = ({
             render={({ field }) => (
               <Form.Item>
                 <Form.Label>
-                  Integrate account <span className="text-destructive">*</span>
+                  {t('Integrate account')}{' '}
+                  <span className="text-destructive">*</span>
                 </Form.Label>
                 <SelectAccountFormItem
                   value={field.value ?? undefined}
                   onValueChange={field.onChange}
-                  placeholder="Integrate account ID"
+                  placeholder={t('Integrate account ID')}
                 />
                 <Form.Message />
               </Form.Item>
@@ -101,13 +105,14 @@ export const AddAdjustClosingForm = ({
             render={({ field }) => (
               <Form.Item>
                 <Form.Label>
-                  Period GL account <span className="text-destructive">*</span>
+                  {t('Period GL account')}{' '}
+                  <span className="text-destructive">*</span>
                 </Form.Label>
                 <Form.Control>
                   <SelectAccountFormItem
                     value={field.value ?? undefined}
                     onValueChange={field.onChange}
-                    placeholder="Period GL account ID"
+                    placeholder={t('Period GL account ID')}
                   />
                 </Form.Control>
                 <Form.Message />
@@ -121,13 +126,14 @@ export const AddAdjustClosingForm = ({
             render={({ field }) => (
               <Form.Item>
                 <Form.Label>
-                  Earning account <span className="text-destructive">*</span>
+                  {t('Earning account')}{' '}
+                  <span className="text-destructive">*</span>
                 </Form.Label>
                 <Form.Control>
                   <SelectAccountFormItem
                     value={field.value ?? undefined}
                     onValueChange={field.onChange}
-                    placeholder="Earning account ID"
+                    placeholder={t('Earning account ID')}
                   />
                 </Form.Control>
                 <Form.Message />
@@ -141,14 +147,14 @@ export const AddAdjustClosingForm = ({
             render={({ field }) => (
               <Form.Item>
                 <Form.Label>
-                  Tax payable account{' '}
+                  {t('Tax payable account')}{' '}
                   <span className="text-destructive">*</span>
                 </Form.Label>
                 <Form.Control>
                   <SelectAccountFormItem
                     value={field.value ?? undefined}
                     onValueChange={field.onChange}
-                    placeholder="Tax Payable account ID"
+                    placeholder={t('Tax Payable account ID')}
                   />
                 </Form.Control>
                 <Form.Message />
@@ -161,10 +167,10 @@ export const AddAdjustClosingForm = ({
             name="description"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Description</Form.Label>
+                <Form.Label>{t('description')}</Form.Label>
                 <Form.Control>
                   <Textarea
-                    placeholder="Enter description"
+                    placeholder={t('enter-description')}
                     value={field.value || ''}
                     onChange={field.onChange}
                   />
@@ -182,12 +188,12 @@ export const AddAdjustClosingForm = ({
             size="lg"
             onClick={() => setOpen(false)}
           >
-            Cancel
+            {t('cancel')}
           </Button>
 
           <Button type="submit" size="lg" disabled={loading}>
             {loading && <Spinner />}
-            Save
+            {t('save')}
           </Button>
         </Sheet.Footer>
       </form>

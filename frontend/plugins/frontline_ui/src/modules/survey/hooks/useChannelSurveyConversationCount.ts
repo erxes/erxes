@@ -8,14 +8,11 @@ export const useChannelSurveyConversationCount = ({
   channelId: string;
   skip?: boolean;
 }) => {
-  const { data, loading } = useQuery<{ conversationsTotalCount: number }>(
-    GET_CHANNEL_SURVEY_CONVERSATION_COUNT,
-    {
-      variables: { channelId, status: 'new' },
-      skip,
-      fetchPolicy: 'cache-and-network',
-    },
-  );
+  const { data, loading } = useQuery(GET_CHANNEL_SURVEY_CONVERSATION_COUNT, {
+    variables: { channelId, status: 'new' },
+    skip,
+    fetchPolicy: 'cache-and-network',
+  });
 
   return { count: data?.conversationsTotalCount || 0, loading };
 };

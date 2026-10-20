@@ -1,49 +1,57 @@
 import {
-  Button,
-  Collapsible,
-  Input,
-  Spinner,
-  cn,
-  toast,
-  useConfirm,
-} from 'erxes-ui';
-import { IChecklist, IChecklistItem } from '@/deals/types/checklists';
-import {
   useChecklistItemsAdd,
   useChecklistItemsReorder,
   useChecklistsEdit,
   useChecklistsRemove,
 } from '@/deals/cards/hooks/useChecklists';
+import { IChecklist, IChecklistItem } from '@/deals/types/checklists';
+import {
+  Button,
+  Collapsible,
+  Input,
+  Spinner,
+  cn,
+  isDefined,
+  toast,
+  useConfirm,
+} from 'erxes-ui';
 
-import { ChecklistItemAdd } from './ChecklistItemAdd';
-import { ChecklistItemContent } from './ChecklistItemContent';
 import { CircularProgressBar } from '@/deals/components/common/CircularProgressbar';
-import { IconTrash } from '@tabler/icons-react';
 import {
   SortableList,
   SortableReorderMeta,
 } from '@/deals/components/common/SortableList';
-import { useState, useEffect, useRef } from 'react';
+import { IconTrash } from '@tabler/icons-react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { ChecklistItemAdd } from './ChecklistItemAdd';
+import { ChecklistItemContent } from './ChecklistItemContent';
 
 export const ChecklistItem = ({
   item,
   stageId,
+  focusNewItem = false,
 }: Readonly<{
   item: IChecklist;
   stageId?: string;
+  focusNewItem?: boolean;
 }>) => {
   const [open, setOpen] = useState(false);
 
-  const [items, setItems] = useState<IChecklistItem[]>(item.items ?? []);
+  const [items, setItems] = useState<IChecklistItem[]>(
+    item.items?.filter(isDefined) ?? [],
+  );
   const [adding, setAdding] = useState(false);
   const [newItem, setNewItem] = useState('');
+  const [focusRequest, setFocusRequest] = useState(0);
   const [hideChecked, setHideChecked] = useState(false);
   const [isEditingTitle, setIsEditingTitle] = useState(false);
-  const [title, setTitle] = useState(item.title);
+  const [title, setTitle] = useState(item.title ?? '');
   const savingTitleRef = useRef(false);
+  const savingNewItemRef = useRef(false);
 
-  const { salesChecklistItemsAdd } = useChecklistItemsAdd();
+  const { salesChecklistItemsAdd, loading: addingItem } =
+    useChecklistItemsAdd();
   const { salesChecklistItemsReorder } = useChecklistItemsReorder();
   const { salesChecklistsEdit } = useChecklistsEdit();
   const { salesChecklistsRemove, salesChecklistsRemoveLoading, error } =
@@ -55,13 +63,20 @@ export const ChecklistItem = ({
   const { t } = useTranslation('sales');
 
   useEffect(() => {
+    if (!focusNewItem) return;
+
+    setOpen(true);
+    setAdding(true);
+  }, [focusNewItem]);
+
+  useEffect(() => {
     if (!Array.isArray(item.items)) return;
 
-    setItems(item.items);
+    setItems(item.items.filter(isDefined));
   }, [item]);
 
   useEffect(() => {
-    setTitle(item.title);
+    setTitle(item.title ?? '');
   }, [item.title]);
 
   useEffect(() => {
@@ -75,6 +90,8 @@ export const ChecklistItem = ({
   }, [error]);
 
   const handleAdd = async () => {
+    if (savingNewItemRef.current) return;
+
     const lines = newItem
       .split('\n')
       .map((line) => line.trim())
@@ -82,32 +99,41 @@ export const ChecklistItem = ({
 
     if (lines.length === 0) return;
 
+    savingNewItemRef.current = true;
     setNewItem('');
-    setAdding(false);
 
-    for (const [index, content] of lines.entries()) {
-      try {
-        const { data } = await salesChecklistItemsAdd({
-          variables: {
-            checklistId: item._id,
-            content,
-          },
-        });
+    try {
+      for (const [index, content] of lines.entries()) {
+        try {
+          const { data } = await salesChecklistItemsAdd({
+            variables: {
+              checklistId: item._id,
+              content,
+            },
+          });
 
-        if (data?.salesChecklistItemsAdd) {
-          setItems((prev) => [...prev, data.salesChecklistItemsAdd]);
+          if (!data?.salesChecklistItemsAdd) {
+            throw new Error(t('unknown-error'));
+          }
+
+          const addedItem = data.salesChecklistItemsAdd;
+          setItems((prev) => [...prev, addedItem]);
+        } catch (addError) {
+          setNewItem((current) =>
+            [lines.slice(index).join('\n'), current].filter(Boolean).join('\n'),
+          );
+          toast({
+            title: t('error'),
+            description:
+              addError instanceof Error ? addError.message : t('unknown-error'),
+            variant: 'destructive',
+          });
+          return;
         }
-      } catch (addError) {
-        setNewItem(lines.slice(index).join('\n'));
-        setAdding(true);
-        toast({
-          title: t('error'),
-          description:
-            addError instanceof Error ? addError.message : t('unknown-error'),
-          variant: 'destructive',
-        });
-        return;
       }
+      setFocusRequest((current) => current + 1);
+    } finally {
+      savingNewItemRef.current = false;
     }
   };
 
@@ -126,7 +152,7 @@ export const ChecklistItem = ({
     const trimmed = title.trim();
 
     if (!trimmed || trimmed === item.title) {
-      setTitle(item.title);
+      setTitle(item.title ?? '');
       setIsEditingTitle(false);
       return;
     }
@@ -144,7 +170,7 @@ export const ChecklistItem = ({
       },
       onError: (editError) => {
         savingTitleRef.current = false;
-        setTitle(item.title);
+        setTitle(item.title ?? '');
         toast({
           title: t('error'),
           description: editError.message,
@@ -155,7 +181,7 @@ export const ChecklistItem = ({
   };
 
   const cancelEditingTitle = () => {
-    setTitle(item.title);
+    setTitle(item.title ?? '');
     setIsEditingTitle(false);
   };
 
@@ -259,7 +285,7 @@ export const ChecklistItem = ({
         <div className="flex items-center gap-2 flex-1 min-w-0">
           <Collapsible.TriggerButton
             className="size-6 w-auto shrink-0 justify-center p-0"
-            aria-label={item.title}
+            aria-label={item.title ?? ''}
           >
             <Collapsible.TriggerIcon className="size-5 shrink-0" />
           </Collapsible.TriggerButton>
@@ -347,6 +373,8 @@ export const ChecklistItem = ({
           setNewItem={setNewItem}
           handleAdd={handleAdd}
           handleKeyDown={handleKeyDown}
+          loading={addingItem}
+          focusRequest={focusRequest}
         />
       </Collapsible.Content>
     </Collapsible>

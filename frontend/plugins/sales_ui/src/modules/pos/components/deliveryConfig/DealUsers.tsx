@@ -3,7 +3,6 @@ import { Label, Combobox, PopoverScoped } from 'erxes-ui';
 import { SelectMember, SelectProduct } from 'ui-modules';
 import type { DeliveryConfigFormData } from './DeliveryConfig';
 import { useTranslation } from 'react-i18next';
-import { T } from 'react-router/dist/development/fog-of-war-oa9CGk10';
 
 interface DealUsersProps {
   control: Control<DeliveryConfigFormData>;

@@ -8,6 +8,7 @@ import {
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useCategories } from '@/knowledgebase/categories/hooks/useCategories';
+import { KbOverflowText } from '@/knowledgebase/shared/components/KbOverflowText';
 
 export const SelectKbCategory = ({
   topicId,
@@ -50,7 +51,7 @@ export const SelectKbCategory = ({
     <PopoverScoped scope={scope} open={open} onOpenChange={setOpen}>
       {variant === 'table' ? (
         <RecordTableInlineCell.Trigger>
-          <TextOverflowTooltip value={label} />
+          <KbOverflowText value={label} />
         </RecordTableInlineCell.Trigger>
       ) : (
         <Combobox.Trigger className="w-full h-8 font-medium">
@@ -73,7 +74,7 @@ export const SelectKbCategory = ({
             {options.map((category) => (
               <Command.Item
                 key={category._id}
-                value={category.title}
+                value={category.title ?? ''}
                 onSelect={() => handleSelect(category._id)}
               >
                 <TextOverflowTooltip

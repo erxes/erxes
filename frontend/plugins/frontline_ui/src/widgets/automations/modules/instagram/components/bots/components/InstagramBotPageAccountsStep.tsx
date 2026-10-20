@@ -1,15 +1,10 @@
-import { useInstagramAccounts } from '@/integrations/instagram/hooks/useInstagramAccounts';
+import {
+  TInstagramAccount,
+  useInstagramAccounts,
+} from '@/integrations/instagram/hooks/useInstagramAccounts';
 import { selectedInstagramAccountAtom } from '@/integrations/instagram/states/instagramStates';
 import { IconPlus } from '@tabler/icons-react';
-import {
-  Button,
-  cn,
-  Command,
-  Input,
-  RadioGroup,
-  REACT_APP_API_URL,
-  Spinner,
-} from 'erxes-ui';
+import { Button, cn, Command, Input, RadioGroup, Spinner } from 'erxes-ui';
 import { useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { IntegrationType } from '@/types/Integration';
@@ -77,13 +72,7 @@ const InstagramBotPageAccountsStepContent = ({
   instagramGetAccounts,
 }: {
   loading: boolean;
-  instagramGetAccounts: {
-    _id: string;
-    name: string;
-    accessToken: string;
-    pageId: string | null;
-    pageName: string | null;
-  }[];
+  instagramGetAccounts: TInstagramAccount[];
 }) => {
   const [selectedAccountId, setSelectedAccountId] = useAtom(
     selectedInstagramAccountAtom,
@@ -96,7 +85,7 @@ const InstagramBotPageAccountsStepContent = ({
   return instagramGetAccounts.map((account) => (
     <Command.Item
       key={account._id}
-      value={account.name}
+      value={account.name ?? ''}
       onSelect={() =>
         setSelectedAccountId(
           selectedAccountId === account._id ? undefined : account._id,

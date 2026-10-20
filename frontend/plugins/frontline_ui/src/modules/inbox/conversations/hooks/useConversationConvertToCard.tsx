@@ -7,13 +7,13 @@ import { IConversationConvertVariables } from '@/inbox/conversations/types/conve
 export const useConversationConvertToCard = () => {
   const { t } = useTranslation('frontline');
   const { toast } = useToast();
-  const [convertMutation, { loading }] = useMutation<
-    { conversationConvertToCard: string },
-    IConversationConvertVariables
-  >(CONVERSATION_CONVERT_TO_CARD, {
-    refetchQueries: ['ConversationConvertedItems', 'getRelationsByEntity'],
-    awaitRefetchQueries: true,
-  });
+  const [convertMutation, { loading }] = useMutation(
+    CONVERSATION_CONVERT_TO_CARD,
+    {
+      refetchQueries: ['ConversationConvertedItems', 'getRelationsByEntity'],
+      awaitRefetchQueries: true,
+    },
+  );
 
   const convertToCard = async (
     variables: IConversationConvertVariables,
@@ -31,7 +31,7 @@ export const useConversationConvertToCard = () => {
         variant: 'default',
       });
 
-      return data?.conversationConvertToCard;
+      return data?.conversationConvertToCard ?? undefined;
     } catch (error) {
       toast({
         title: t('error', 'Error'),

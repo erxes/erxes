@@ -1,19 +1,19 @@
 import { Button, CopyText, Input, Sheet, useFocusSheet } from 'erxes-ui';
 
 import { DealsActions } from '@/deals/actionBar/components/DealsActions';
-import { IDeal } from '@/deals/types/deals';
+import { MoveDealDropdown } from '@/deals/actionBar/components/MoveDealDropdown';
+import { useDealsContext } from '@/deals/context/DealContext';
+import { IDealDetail } from '@/deals/types/deals';
 import {
   IconLayoutSidebarLeftCollapse,
   IconLayoutSidebarLeftExpand,
   IconSettings,
 } from '@tabler/icons-react';
-import { MoveDealDropdown } from '@/deals/actionBar/components/MoveDealDropdown';
-import { useDealsContext } from '@/deals/context/DealContext';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 
-export const SalesItemDetailHeader = ({ deal }: { deal: IDeal }) => {
+export const SalesItemDetailHeader = ({ deal }: { deal: IDealDetail }) => {
   const { editDeals } = useDealsContext();
   const { t } = useTranslation('sales');
   const { isSidebarOpen, setIsSidebarOpen } = useFocusSheet();
@@ -22,7 +22,7 @@ export const SalesItemDetailHeader = ({ deal }: { deal: IDeal }) => {
   const pipelineId = deal.pipeline?._id || deal.pipelineId;
   const productConfigUrl =
     boardId && pipelineId
-      ? `/settings/sales/deals?${new URLSearchParams({
+      ? `/sales/settings/deals?${new URLSearchParams({
           activeBoardId: boardId,
           pipelineId,
           tab: 'productConfig',
@@ -56,7 +56,7 @@ export const SalesItemDetailHeader = ({ deal }: { deal: IDeal }) => {
   };
 
   return (
-    <Sheet.Header className="gap-2 flex-row items-center space-y-0 pr-0">
+    <Sheet.Header className="gap-2 flex-row items-center space-y-0 pr-0 h-auto py-2">
       <Button
         variant="ghost"
         size="icon"
@@ -106,7 +106,7 @@ export const SalesItemDetailHeader = ({ deal }: { deal: IDeal }) => {
           </Button>
         )}
         <MoveDealDropdown deal={deal} />
-        <DealsActions deals={[deal]} variant="watch" />
+        <DealsActions deals={[deal]} variant="menu" />
       </div>
       <div className="w-16 self-stretch shrink-0 border-l bg-sidebar flex items-center justify-center">
         <Sheet.Close className="ml-0" />

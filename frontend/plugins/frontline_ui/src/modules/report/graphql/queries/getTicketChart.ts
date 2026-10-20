@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const GET_TICKET_SOURCE = gql`
+export const GET_TICKET_SOURCE = gql(`
   query ReportTicketSource($filters: TicketReportFilter) {
     reportTicketSource(filters: $filters) {
       _id
@@ -9,9 +9,9 @@ export const GET_TICKET_SOURCE = gql`
       percentage
     }
   }
-`;
+`);
 
-export const GET_TICKET_TAGS = gql`
+export const GET_TICKET_TAGS = gql(`
   query ReportTicketTags($filters: TicketReportFilter) {
     reportTicketTags(filters: $filters) {
       _id
@@ -21,9 +21,9 @@ export const GET_TICKET_TAGS = gql`
       colorCode
     }
   }
-`;
+`);
 
-export const GET_TICKET_CUSTOM_PROPERTIES = gql`
+export const GET_TICKET_CUSTOM_PROPERTIES = gql(`
   query ReportTicketCustomProperties($filters: TicketReportFilter) {
     reportTicketCustomProperties(filters: $filters) {
       _id
@@ -33,27 +33,27 @@ export const GET_TICKET_CUSTOM_PROPERTIES = gql`
       percentage
     }
   }
-`;
+`);
 
-export const GET_TICKET_DATE = gql`
+export const GET_TICKET_DATE = gql(`
   query ReportTicketDate($filters: TicketReportFilter) {
     reportTicketDate(filters: $filters) {
       date
       count
     }
   }
-`;
+`);
 
-export const GET_TICKET_OPEN = gql`
+export const GET_TICKET_OPEN = gql(`
   query ReportTicketOpen($filters: TicketReportFilter) {
     reportTicketOpen(filters: $filters) {
       count
       percentage
     }
   }
-`;
+`);
 
-export const GET_TICKET_LIST = gql`
+export const GET_TICKET_LIST = gql(`
   query ReportTicketList($filters: TicketReportFilter) {
     reportTicketList(filters: $filters) {
       list {
@@ -71,6 +71,11 @@ export const GET_TICKET_LIST = gql`
         priority
         assigneeId
         createdAt
+        description
+        updatedAt
+        statusChangedDate
+        statusChangedBy
+        updatedBy
         targetDate
         startDate
         tagIds
@@ -86,15 +91,15 @@ export const GET_TICKET_LIST = gql`
       totalPages
     }
   }
-`;
+`);
 
-export const GET_TICKET_TOTAL_COUNT = gql`
+export const GET_TICKET_TOTAL_COUNT = gql(`
   query ReportTicketTotalCount($filters: TicketReportFilter) {
     reportTicketTotalCount(filters: $filters)
   }
-`;
+`);
 
-export const GET_TICKET_STATUS_SUMMARY = gql`
+export const GET_TICKET_STATUS_SUMMARY = gql(`
   query ReportTicketStatusSummary($filters: TicketReportFilter) {
     reportTicketStatusSummary(filters: $filters) {
       _id
@@ -106,9 +111,9 @@ export const GET_TICKET_STATUS_SUMMARY = gql`
       percentage
     }
   }
-`;
+`);
 
-export const GET_TICKET_PRIORITY = gql`
+export const GET_TICKET_PRIORITY = gql(`
   query ReportTicketPriority($filters: TicketReportFilter) {
     reportTicketPriority(filters: $filters) {
       priority
@@ -118,9 +123,9 @@ export const GET_TICKET_PRIORITY = gql`
       percentage
     }
   }
-`;
+`);
 
-export const GET_TICKET_EXPORT = gql`
+export const GET_TICKET_EXPORT = gql(`
   query ReportTicketExport($filters: TicketReportFilter) {
     reportTicketExport(filters: $filters) {
       _id
@@ -135,6 +140,10 @@ export const GET_TICKET_EXPORT = gql`
       startDate
       targetDate
       updatedAt
+      description
+      statusChangedDate
+      statusChangedByName
+      updatedByName
       number
       statusName
       createdByName
@@ -144,4 +153,4 @@ export const GET_TICKET_EXPORT = gql`
       propertiesData
     }
   }
-`;
+`);

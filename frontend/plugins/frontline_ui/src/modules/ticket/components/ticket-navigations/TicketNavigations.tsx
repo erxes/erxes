@@ -37,12 +37,6 @@ interface ChannelItemProps {
   pipelineId?: string;
 }
 
-interface ITicketListChangedResponse {
-  ticketListChanged: {
-    type: string;
-  };
-}
-
 function ChannelItem({ channel, pipelineId }: Readonly<ChannelItemProps>) {
   const [channelId] = useQueryState<string | null>('channelId');
   const isActive = channelId === channel._id;
@@ -50,7 +44,7 @@ function ChannelItem({ channel, pipelineId }: Readonly<ChannelItemProps>) {
     <Sidebar.MenuItem>
       <Sidebar.MenuButton asChild isActive={isActive}>
         <Link
-          to={`frontline/tickets?channelId=${channel._id}${
+          to={`/frontline/tickets?channelId=${channel._id}${
             pipelineId ? `&pipelineId=${pipelineId}` : ''
           }`}
         >
@@ -73,9 +67,9 @@ function ChannelItem({ channel, pipelineId }: Readonly<ChannelItemProps>) {
 export function TicketNavigations() {
   const { t } = useTranslation('frontline');
   const { channels, loading, refetch } = useGetChannels();
-  useSubscription<ITicketListChangedResponse>(TICKET_LIST_CHANGED, {
+  useSubscription(TICKET_LIST_CHANGED, {
     onData: ({ data }) => {
-      const eventType = data.data?.ticketListChanged.type;
+      const eventType = data.data?.ticketListChanged?.type;
 
       if (eventType === 'create' || eventType === 'delete') {
         void refetch();

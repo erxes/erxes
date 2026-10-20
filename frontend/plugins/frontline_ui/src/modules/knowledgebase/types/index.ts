@@ -1,6 +1,17 @@
+import type {
+  FrontlineKbArticleDetailQuery,
+  FrontlineKbArticlesQuery,
+  FrontlineKbAuthorFieldsFragment,
+  FrontlineKbCategoriesQuery,
+  FrontlineKbCategoryFieldsFragment,
+  FrontlineKbTopicContentQuery,
+  FrontlineKbTopicDetailQuery,
+  FrontlineKbTopicsQuery,
+} from '~/gql/graphql';
+
 export interface IKbAttachment {
   url: string;
-  name?: string;
+  name: string;
   type?: string;
   size?: number;
   duration?: number;
@@ -11,84 +22,39 @@ export interface IKbPdfAttachment {
   pages?: IKbAttachment[];
 }
 
-export type TKnowledgeBaseSection =
-  | 'articles'
-  | 'categories'
-  | 'kbsettings';
+export type TKnowledgeBaseSection = 'articles' | 'categories' | 'kbsettings';
 
 export enum KnowledgeBaseHotKeyScope {
-  TopicsPage = 'knowledge-base-topics-page',
   CategoriesPage = 'knowledge-base-categories-page',
   ArticlesPage = 'knowledge-base-articles-page',
+  FormSheet = 'knowledge-base-form-sheet',
 }
 
-export interface IKnowledgeBaseAuthor {
-  _id: string;
-  username?: string;
-  email?: string;
-  details?: {
-    fullName?: string;
-    avatar?: string;
-  };
-}
+export type IKnowledgeBaseAuthor = FrontlineKbAuthorFieldsFragment;
 
-export interface IKnowledgeBaseBrand {
-  _id: string;
-  name: string;
-}
+export type ITopic = NonNullable<
+  NonNullable<FrontlineKbTopicsQuery['knowledgeBaseTopics']>[number]
+>;
 
-export interface ICategory {
-  _id: string;
-  title: string;
-  code?: string;
-  description?: string;
-  icon?: string;
-  numOfArticles?: number;
-  parentCategoryId?: string;
-  createdDate?: string;
-  modifiedDate?: string;
-  authors?: IKnowledgeBaseAuthor[];
-}
+export type ITopicDetail = NonNullable<
+  FrontlineKbTopicDetailQuery['knowledgeBaseTopicDetail']
+>;
 
-export interface ITopic {
-  _id: string;
-  title: string;
-  code?: string;
-  description?: string;
-  brandId?: string;
-  brand?: IKnowledgeBaseBrand | null;
-  color?: string;
-  backgroundImage?: string;
-  languageCode?: string;
-  notificationSegmentId?: string;
-  categories?: ICategory[];
-  createdBy?: string;
-  createdDate?: string;
-  modifiedBy?: string;
-  modifiedDate?: string;
-}
+export type IKnowledgeBaseBrand = NonNullable<ITopic['brand']>;
 
-export interface IArticle {
-  _id: string;
-  code?: string;
-  title: string;
-  summary?: string;
-  content?: string;
-  status: string;
-  isPrivate?: boolean;
-  reactionChoices?: string[];
-  image?: IKbAttachment | null;
-  attachments?: IKbAttachment[];
-  pdfAttachment?: IKbPdfAttachment | null;
-  topicId?: string;
-  categoryId?: string;
-  viewCount?: number;
-  createdDate?: string;
-  modifiedDate?: string;
-  scheduledDate?: string;
-  createdUser?: IKnowledgeBaseAuthor | null;
-  publishedUser?: IKnowledgeBaseAuthor | null;
-}
+export type ICategoryFields = FrontlineKbCategoryFieldsFragment;
+
+export type ICategory = NonNullable<
+  NonNullable<FrontlineKbCategoriesQuery['knowledgeBaseCategories']>[number]
+>;
+
+export type IArticle = NonNullable<
+  NonNullable<FrontlineKbArticlesQuery['knowledgeBaseArticles']>[number]
+>;
+
+export type IArticleDetail = NonNullable<
+  FrontlineKbArticleDetailQuery['knowledgeBaseArticleDetail']
+>;
 
 export interface ITopicDoc {
   title: string;
@@ -117,72 +83,22 @@ export interface IArticleDoc {
   status: string;
   isPrivate: boolean;
   reactionChoices: string[];
+  topicId?: string;
   categoryId: string;
   image?: IKbAttachment;
   attachments?: IKbAttachment[];
   pdfAttachment?: IKbPdfAttachment;
+  scheduledDate?: string;
 }
 
-export interface ITopicListResponse {
-  knowledgeBaseTopics: ITopic[];
-  knowledgeBaseTopicsTotalCount: number;
-}
+export type IKnowledgeBaseTopic = NonNullable<
+  FrontlineKbTopicContentQuery['knowledgeBaseTopicDetail']
+>;
 
-export interface ITopicDetailResponse {
-  knowledgeBaseTopicDetail: ITopic;
-}
+export type IKnowledgeBaseTopicCategory = NonNullable<
+  NonNullable<IKnowledgeBaseTopic['categories']>[number]
+>;
 
-export interface ICategoryListResponse {
-  knowledgeBaseCategories: ICategory[];
-  knowledgeBaseCategoriesTotalCount: number;
-}
-
-export interface IArticleListResponse {
-  knowledgeBaseArticles: IArticle[];
-  knowledgeBaseArticlesTotalCount: number;
-}
-
-export interface IArticleDetailResponse {
-  knowledgeBaseArticleDetail: IArticle;
-}
-
-export interface IKnowledgeBaseTopicArticle {
-  _id: string;
-  title: string;
-  summary?: string;
-  content?: string;
-  status?: string;
-  code?: string;
-  categoryId?: string;
-  topicId?: string;
-  viewCount?: number;
-  isPrivate?: boolean;
-  reactionChoices?: string[];
-  reactionCounts?: Record<string, number>;
-  publishedAt?: string;
-  modifiedDate?: string;
-  image?: IKbAttachment | null;
-  attachments?: IKbAttachment[];
-}
-
-export interface IKnowledgeBaseTopicCategory {
-  _id: string;
-  title: string;
-  description?: string;
-  numOfArticles?: number;
-  countArticles?: number;
-  parentCategoryId?: string;
-  icon?: string;
-  childrens?: { _id: string }[];
-  articles?: IKnowledgeBaseTopicArticle[];
-}
-
-export interface IKnowledgeBaseTopic {
-  _id: string;
-  title: string;
-  description?: string;
-  color?: string;
-  code?: string;
-  categories?: IKnowledgeBaseTopicCategory[];
-  parentCategories?: IKnowledgeBaseTopicCategory[];
-}
+export type IKnowledgeBaseTopicArticle = NonNullable<
+  NonNullable<IKnowledgeBaseTopicCategory['articles']>[number]
+>;

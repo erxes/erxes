@@ -9,6 +9,7 @@ import { TAiAgentContextFile } from '@/automations/components/settings/component
 import { Button, cn, toast, useUpload } from 'erxes-ui';
 import type React from 'react';
 import { useCallback, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 type UploadedContextFile = {
   key: string;
@@ -51,6 +52,7 @@ export function UploadDropzone({
   onFileReindex,
   reindexingFileId,
 }: UploadDropzoneProps) {
+  const { t } = useTranslation('automations');
   const [isDragOver, setIsDragOver] = useState(false);
   const { isLoading, upload } = useUpload();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -84,8 +86,10 @@ export function UploadDropzone({
           )
         ) {
           toast({
-            title: 'Unsupported file format',
-            description: `"${file.name}" must be MD, MARKDOWN, or TXT.`,
+            title: t('settings-dropzone-unsupported-format'),
+            description: t('settings-dropzone-unsupported-format-description', {
+              name: file.name,
+            }),
             variant: 'destructive',
           });
           return null;
@@ -93,10 +97,11 @@ export function UploadDropzone({
 
         if (file.size > maxSingleFileBytes) {
           toast({
-            title: 'Context file is too large',
-            description: `"${file.name}" exceeds ${formatBytes(
-              maxSingleFileBytes,
-            )}.`,
+            title: t('settings-dropzone-file-too-large'),
+            description: t('settings-dropzone-file-too-large-description', {
+              name: file.name,
+              size: formatBytes(maxSingleFileBytes),
+            }),
             variant: 'destructive',
           });
           return null;
@@ -104,8 +109,10 @@ export function UploadDropzone({
 
         if (files.length + uploaded.length >= maxFiles) {
           toast({
-            title: 'Too many context files',
-            description: `You can attach up to ${maxFiles} files.`,
+            title: t('settings-dropzone-too-many-files'),
+            description: t('settings-dropzone-too-many-files-description', {
+              count: maxFiles,
+            }),
             variant: 'destructive',
           });
           return null;
@@ -118,10 +125,10 @@ export function UploadDropzone({
 
         if (nextTotalBytes > maxTotalContextBytes) {
           toast({
-            title: 'Combined context is too large',
-            description: `Keep total context under ${formatBytes(
-              maxTotalContextBytes,
-            )}.`,
+            title: t('settings-dropzone-combined-too-large'),
+            description: t('settings-dropzone-combined-too-large-description', {
+              size: formatBytes(maxTotalContextBytes),
+            }),
             variant: 'destructive',
           });
           return null;
@@ -138,6 +145,7 @@ export function UploadDropzone({
       maxSingleFileBytes,
       maxTotalContextBytes,
       totalBytes,
+      t,
     ],
   );
 
@@ -258,9 +266,11 @@ export function UploadDropzone({
             )}
           </div>
           <div className="space-y-1">
-            <h3 className="text-lg font-semibold">Upload Context Files</h3>
+            <h3 className="text-lg font-semibold">
+              {t('settings-dropzone-upload-title')}
+            </h3>
             <p className="text-sm text-muted-foreground">
-              Drag markdown or text files here, or click to browse
+              {t('settings-dropzone-upload-hint')}
             </p>
           </div>
           <Button
@@ -277,10 +287,12 @@ export function UploadDropzone({
             ) : (
               <IconPlus className="size-4" />
             )}
-            {isLoading ? 'Uploading...' : 'Choose Files'}
+            {isLoading
+              ? t('settings-dropzone-uploading')
+              : t('settings-dropzone-choose-files')}
           </Button>
           <p className="text-xs uppercase tracking-wide text-muted-foreground">
-            Supported formats: MD, MARKDOWN, TXT
+            {t('settings-dropzone-supported-formats')}
           </p>
         </div>
       ) : (
@@ -311,8 +323,8 @@ export function UploadDropzone({
               )}
               <span>
                 {isLoading
-                  ? 'Uploading files...'
-                  : 'Drop more files or click to add'}
+                  ? t('settings-dropzone-uploading-files')
+                  : t('settings-dropzone-drop-more')}
               </span>
             </div>
           )}
@@ -320,11 +332,16 @@ export function UploadDropzone({
           <div className="space-y-2 border-t border-border/70 pt-3">
             <div className="flex items-center justify-between gap-4 text-xs text-muted-foreground">
               <span>
-                {files.length} / {maxFiles} files
+                {t('settings-dropzone-files-count', {
+                  count: files.length,
+                  max: maxFiles,
+                })}
               </span>
               <span>
-                {formatBytes(totalBytes)} / {formatBytes(maxTotalContextBytes)}{' '}
-                used
+                {t('settings-dropzone-used', {
+                  used: formatBytes(totalBytes),
+                  total: formatBytes(maxTotalContextBytes),
+                })}
               </span>
             </div>
             <div className="h-2 overflow-hidden rounded-full bg-muted">

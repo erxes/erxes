@@ -10,9 +10,7 @@ export const useCallIntegrationDetail = () => {
   const [callEditSheet] = useAtom(callEditSheetAtom);
 
   const { data, loading } = useQuery(CALL_INTEGRATION_DETAIL, {
-    variables: {
-      integrationId: callEditSheet,
-    },
+    variables: callEditSheet ? { integrationId: callEditSheet } : undefined,
     skip: !callEditSheet,
     onError: (e) => {
       toast({

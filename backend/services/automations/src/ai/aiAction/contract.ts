@@ -46,6 +46,12 @@ const aiAgentToolSchema = z.object({
   name: z.string().min(1),
   description: z.string().optional().default(''),
   kind: z.enum(['helper', 'handoff']),
+  // Output keys of actions behind this tool kept in long-term memory, on top
+  // of the fields each action is set to remember.
+  memorizeFields: z
+    .array(z.object({ actionId: z.string().min(1), key: z.string().min(1) }))
+    .optional()
+    .default([]),
 });
 
 const generateTextSchema = z.object({
@@ -155,6 +161,11 @@ export type TAiActionExecutionResult =
       // Tool definitions offered to the provider on this run (debugging)
       toolsOffered?: string[];
       degraded?: boolean;
+      // Figures the first draft stated that no source or message contained
+      ungroundedNumbers?: string[];
+      // What this run is about, kept so actions behind a tool can file their
+      // results in long-term memory after the agent has finished
+      memoryScopes?: { type: string; id: string }[];
       // Set when the agent handed the conversation off to a tool route
       handoff?: {
         toolId: string;

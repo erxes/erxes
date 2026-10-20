@@ -33,7 +33,7 @@ export const InvJustifyForm = ({
           form={form}
           index={index}
           sides={TR_SIDES.JUSTIFY_OPTIONS}
-          labelTxt="Өртгийн өөрчлөлт"
+          labelTxt="cost-change"
         />
         <CustomerFields form={form} index={index} />
         <BranchField form={form} index={index} />

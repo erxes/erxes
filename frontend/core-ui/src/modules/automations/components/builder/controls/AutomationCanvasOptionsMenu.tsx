@@ -6,8 +6,10 @@ import { AutomationCanvasViewOptions } from '@/automations/components/builder/co
 import { useAutomation } from '@/automations/context/AutomationProvider';
 import { IconMenu2 } from '@tabler/icons-react';
 import { Button, DropdownMenu } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 export const AutomationCanvasOptionsMenu = () => {
+  const { t } = useTranslation('automations');
   const { isReadOnly } = useAutomation();
 
   return (
@@ -18,7 +20,7 @@ export const AutomationCanvasOptionsMenu = () => {
           type="button"
           variant="ghost"
           size="icon"
-          title="Canvas options"
+          title={t('controls-canvas-options')}
           className={CANVAS_CONTROL_BUTTON_CLASS}
         >
           <IconMenu2 className="size-4" />

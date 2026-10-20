@@ -74,11 +74,10 @@ export const SendEmailLinkFields = ({
                 <AutomationVariableBrowser
                   sourceNodes={variableSourceNodes}
                   onInsertVariable={handleInsertVariable}
-                  sourceSectionTitle="Variable Sources"
+                  sourceSectionTitle={t('send-email-variable-sources')}
                   emptyState={{
-                    title: 'No variables available yet',
-                    description:
-                      'Add a trigger or an earlier action to use its values in the link URL.',
+                    title: t('send-email-no-variables-title'),
+                    description: t('send-email-no-variables-link-description'),
                   }}
                 />
               </div>

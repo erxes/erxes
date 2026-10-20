@@ -3,6 +3,7 @@ import { IContext } from '~/connectionResolvers';
 import { IFacebookReportFilters } from '@/reports/@types/reportFilters';
 import { calculatePercentage } from '@/reports/utils';
 
+import { escapeRegExp } from 'erxes-api-shared/utils';
 type FacebookQueryArgs = { filters?: IFacebookReportFilters };
 
 type ActivityBucket = {
@@ -49,9 +50,6 @@ const buildMatch = (
   return match;
 };
 
-const escapeRegex = (value: string) =>
-  value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-
 const buildPostSearchMatch = (filters: IFacebookReportFilters) => {
   const searchValue = filters.searchValue?.trim();
 
@@ -59,7 +57,7 @@ const buildPostSearchMatch = (filters: IFacebookReportFilters) => {
     return {};
   }
 
-  const pattern = new RegExp(escapeRegex(searchValue), 'i');
+  const pattern = new RegExp(escapeRegExp(searchValue), 'i');
 
   return { $or: [{ content: pattern }, { postId: pattern }] };
 };

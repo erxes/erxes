@@ -1,9 +1,15 @@
-export interface ICallProConfig {
-  enabled: boolean;
-  webhookUrl?: string | null;
-}
+import type {
+  CallProConfigQuery,
+  CallProCustomersByPhoneQuery,
+  CallProIntegrationDetailQuery,
+} from '~/gql/graphql';
 
-export interface ICallProIntegrationDetail {
-  phoneNumber: string;
-  recordUrl?: string | null;
-}
+export type ICallProConfig = NonNullable<CallProConfigQuery['callProConfig']>;
+
+export type ICallProIntegrationDetail = NonNullable<
+  CallProIntegrationDetailQuery['callProIntegrationDetail']
+>;
+
+export type ICallProCustomerByPhone = NonNullable<
+  NonNullable<CallProCustomersByPhoneQuery['callProCustomersByPhone']>[number]
+>;

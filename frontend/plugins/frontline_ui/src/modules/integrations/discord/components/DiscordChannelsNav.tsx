@@ -3,8 +3,8 @@ import { useQuery } from '@apollo/client';
 import { useTranslation } from 'react-i18next';
 import {
   IconBrandDiscord,
-  IconCaretRightFilled,
   IconCheck,
+  IconChevronRight,
 } from '@tabler/icons-react';
 import {
   Badge,
@@ -32,6 +32,7 @@ import {
   channelLabelFromIntegration,
 } from '@/inbox/conversations/utils/channelGroups';
 import { CONVERSATION_COUNTS } from '@/inbox/conversations/graphql/queries/getConversationCounts';
+import { readCountMap } from '@/inbox/conversations/utils/conversationCounts';
 import {
   CLEARED_INBOX_NAVIGATION_FILTERS,
   INBOX_NAVIGATION_FILTER_KEYS,
@@ -41,14 +42,15 @@ import {
 type ChannelCounts = Record<string, number>;
 
 const useDiscordChannelCounts = () => {
-  const { data, loading } = useQuery<{
-    conversationCounts: { byIntegrations?: ChannelCounts };
-  }>(CONVERSATION_COUNTS, {
+  const { data, loading } = useQuery(CONVERSATION_COUNTS, {
     variables: { only: 'byIntegrations' },
     fetchPolicy: 'cache-and-network',
   });
 
-  return { counts: data?.conversationCounts?.byIntegrations ?? {}, loading };
+  return {
+    counts: readCountMap(data?.conversationCounts, 'byIntegrations'),
+    loading,
+  };
 };
 
 type ServerGroup = {
@@ -67,7 +69,7 @@ export const DiscordServersNav = () => {
     fetchPolicy: 'cache-and-network',
   });
 
-  const fetchedCursorRef = useRef<string | null>(null);
+  const fetchedCursorRef = useRef<string | null | undefined>(null);
   useEffect(() => {
     if (!pageInfo?.hasNextPage) return;
     const cursor = pageInfo.endCursor;
@@ -89,7 +91,7 @@ export const DiscordServersNav = () => {
     const activeIntegrations = (integrations || []).filter(
       (integration) =>
         integration.isActive &&
-        Boolean(integration.channelId) &&
+        !!integration.channelId &&
         myChannelIds.has(integration.channelId),
     );
 
@@ -231,8 +233,8 @@ const DiscordServerItem = ({
                   {totalCount}
                 </Badge>
               )}
-              <span className="ml-auto shrink-0">
-                <IconCaretRightFilled className="size-3 transition-transform group-data-[state=open]/collapsible:rotate-90 text-accent-foreground" />
+              <span className="ml-auto flex shrink-0 transition-transform duration-250 ease-[cubic-bezier(0.22,1,0.36,1)] group-data-[state=open]/collapsible:rotate-90 motion-reduce:transition-none text-muted-foreground">
+                <IconChevronRight className="size-3.5!" />
               </span>
             </Button>
           </div>
@@ -309,7 +311,9 @@ const DiscordCategoryItem = ({
             className="shrink-0 size-6 p-0 ml-4"
             aria-label={open ? 'Collapse channels' : 'Expand channels'}
           >
-            <IconCaretRightFilled className="size-3 transition-transform group-data-[state=open]/category:rotate-90 text-accent-foreground" />
+            <span className="flex shrink-0 transition-transform duration-250 ease-[cubic-bezier(0.22,1,0.36,1)] group-data-[state=open]/category:rotate-90 motion-reduce:transition-none text-muted-foreground">
+              <IconChevronRight className="size-3.5!" />
+            </span>
           </Button>
         </Collapsible.Trigger>
         <Button

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Button } from 'erxes-ui';
 import { ApprovalLockButton } from 'ui-modules';
 import { DOCUMENT_APPROVAL_CONTENT_TYPE } from '../constants';
@@ -5,6 +6,7 @@ import { useDocumentSheet } from '../hooks/useDocumentSheet';
 import { DocumentTypeDialog } from './DocumentTypeDialog';
 
 export const DocumentSheet = () => {
+  const { t } = useTranslation('documents', { keyPrefix: 'document' });
   const {
     documentId,
     cleanDocumentId,
@@ -23,7 +25,7 @@ export const DocumentSheet = () => {
     return (
       <>
         <Button type="button" onClick={handleAdd}>
-          Add Document
+          {t('add-document')}
         </Button>
         {typeOpen && (
           <DocumentTypeDialog
@@ -47,7 +49,7 @@ export const DocumentSheet = () => {
         />
       )}
       <Button onClick={handleSave} type="button" disabled={!canSave}>
-        {saving ? 'Saving…' : 'Save Document'}
+        {saving ? 'Saving…' : t('save-document')}
       </Button>
     </div>
   );

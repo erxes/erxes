@@ -1,8 +1,8 @@
+import { SALES_DEAL_PROCESS_DOCUMENT } from '@/deals/graphql/queries/DocumentQueries';
 import { useLazyQuery } from '@apollo/client';
+import { toast } from 'erxes-ui';
 import type { UseFormReturn } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { toast } from 'erxes-ui';
-import { PROCESS_DOCUMENT } from 'ui-modules';
 
 import {
   DEFAULT_PAPER_SIZE,
@@ -13,11 +13,7 @@ import {
   printHtml,
   showPrintLoading,
 } from '@/deals/boards/components/common/print/printUtils';
-import type {
-  PrintFormValues,
-  ProcessDocumentData,
-  ProcessDocumentVariables,
-} from '@/deals/boards/components/common/print/types';
+import type { PrintFormValues } from '@/deals/boards/components/common/print/types';
 
 type UsePrintDealDocumentOptions = {
   form: UseFormReturn<PrintFormValues>;
@@ -29,12 +25,12 @@ export const usePrintDealDocument = ({
   selectedDealIds,
 }: UsePrintDealDocumentOptions) => {
   const { t } = useTranslation('sales');
-  const [processDocument, { loading: processing }] = useLazyQuery<
-    ProcessDocumentData,
-    ProcessDocumentVariables
-  >(PROCESS_DOCUMENT, {
-    fetchPolicy: 'no-cache',
-  });
+  const [processDocument, { loading: processing }] = useLazyQuery(
+    SALES_DEAL_PROCESS_DOCUMENT,
+    {
+      fetchPolicy: 'no-cache',
+    },
+  );
 
   const print = async () => {
     const { copies, width, brandId, branchId, departmentId, documentId } =

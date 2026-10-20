@@ -1,3 +1,4 @@
+import { usePropertiesScope } from '@/properties/context/PropertiesScopeContext';
 import { IPropertyType } from '@/properties/types/Properties';
 import { Sidebar } from 'erxes-ui';
 import { Link, useParams } from 'react-router-dom';
@@ -6,13 +7,22 @@ import { usePropertyTypes } from '../hooks/usePropertyTypes';
 
 export const PropertiesSidebar = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });
+  const { t: tSidebar } = useTranslation('common', { keyPrefix: 'sidebar' });
   const { propertyTypes } = usePropertyTypes();
+  const { pluginName: scopePluginName } = usePropertiesScope();
+  // Inside a plugin's settings only that plugin's types are listed.
+  const groups = Object.entries(propertyTypes).filter(
+    ([pluginName]) => !scopePluginName || pluginName === scopePluginName,
+  );
 
   return (
-    <Sidebar collapsible="none" className="border-r flex-none">
-      {Object.entries(propertyTypes).map(([pluginName, propertyTypes]) => (
+    <Sidebar.Panel
+      className="border-r flex-none"
+      label={tSidebar('properties')}
+    >
+      {groups.map(([pluginName, propertyTypes]) => (
         <Sidebar.Group key={pluginName}>
-          <Sidebar.GroupLabel className="mb-1">
+          <Sidebar.GroupLabel>
             {t(`plugin.${pluginName}`, `${pluginName} properties`)}
           </Sidebar.GroupLabel>
           <Sidebar.GroupContent>
@@ -26,7 +36,7 @@ export const PropertiesSidebar = () => {
           </Sidebar.GroupContent>
         </Sidebar.Group>
       ))}
-    </Sidebar>
+    </Sidebar.Panel>
   );
 };
 
@@ -35,12 +45,13 @@ const PropertyTypeMenuItem = ({
 }: {
   propertyType: IPropertyType;
 }) => {
+  const { basePath: propertiesBasePath } = usePropertiesScope();
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });
   const { type } = useParams<{ type: string }>();
   const isActive = propertyType.contentType === type;
   return (
     <Sidebar.MenuButton isActive={isActive} asChild>
-      <Link to={`/settings/properties/${propertyType.contentType}`}>
+      <Link to={`${propertiesBasePath}/${propertyType.contentType}`}>
         {t(
           `content-type.${propertyType.contentType.replace(':', '-')}`,
           propertyType.description,

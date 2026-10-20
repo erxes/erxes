@@ -6,12 +6,14 @@ import { DOCUMENTS_TYPES_SET } from '../constants';
 import { IDocument } from '../types';
 import { DocumentPreview } from './DocumentPreview';
 import { DocumentsActions } from './DocumentsActions';
+import { useTranslation } from 'react-i18next';
 
 export const DocumentsGrid = ({ documents }: { documents: IDocument[] }) => {
   const [, setQueries] = useMultiQueryState<{
     documentId: string;
     contentType: string;
   }>(['documentId', 'contentType']);
+  const { t } = useTranslation('documents', { keyPrefix: 'document' });
 
   const handleOpenDocument = (document: IDocument) => {
     setQueries({ documentId: document._id, contentType: document.contentType });
@@ -22,7 +24,9 @@ export const DocumentsGrid = ({ documents }: { documents: IDocument[] }) => {
       {documents.map((document) => {
         const documentType = DOCUMENTS_TYPES_SET[document.contentType];
         const DocumentTypeIcon = documentType?.icon ?? IconFileText;
-        const documentTypeLabel = documentType?.label ?? document.contentType;
+        const documentTypeLabel = documentType
+          ? t(documentType.labelKey)
+          : document.contentType;
 
         return (
           <Card
@@ -52,7 +56,7 @@ export const DocumentsGrid = ({ documents }: { documents: IDocument[] }) => {
                   <DocumentTypeIcon className="size-4" />
                 </div>
                 <h3 className="truncate text-sm font-semibold leading-tight">
-                  {document.name || 'Untitled'}
+                  {document.name || t('untitled')}
                 </h3>
               </div>
               <ApprovalLockedBadge state={document.approvalLockState} />
@@ -70,7 +74,7 @@ export const DocumentsGrid = ({ documents }: { documents: IDocument[] }) => {
                       )}
                     />
                   ) : (
-                    'N/A'
+                    t('not-available')
                   )}
                 </span>
               </div>

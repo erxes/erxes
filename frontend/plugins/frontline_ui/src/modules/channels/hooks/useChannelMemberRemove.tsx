@@ -1,20 +1,23 @@
 import { REMOVE_CHANNEL_MEMBER } from '@/channels/graphql';
-import { IChannelMember } from '@/channels/types';
 import { MutationFunctionOptions, useMutation } from '@apollo/client';
 import { useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-
-interface IChannelMemberRemoveMutationResponse {
-  removeChannelMember: IChannelMember;
-}
+import type {
+  ChannelRemoveMemberMutation,
+  ChannelRemoveMemberMutationVariables,
+} from '~/gql/graphql';
 
 export const useChannelMemberRemove = () => {
   const { t } = useTranslation('frontline');
   const { toast } = useToast();
-  const [removeChannelMember, { loading, error }] =
-    useMutation<IChannelMemberRemoveMutationResponse>(REMOVE_CHANNEL_MEMBER);
+  const [removeChannelMember, { loading, error }] = useMutation(
+    REMOVE_CHANNEL_MEMBER,
+  );
   const handleRemoveChannelMember = (
-    options: MutationFunctionOptions<IChannelMemberRemoveMutationResponse, any>,
+    options: MutationFunctionOptions<
+      ChannelRemoveMemberMutation,
+      ChannelRemoveMemberMutationVariables
+    >,
   ) => {
     removeChannelMember({
       ...options,

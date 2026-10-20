@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import {
   NetworkStatus,
   QueryResult,
@@ -28,6 +29,7 @@ type UseDocumentResult = Pick<
 export const useDocument = ({
   initializeForm = false,
 }: { initializeForm?: boolean } = {}): UseDocumentResult => {
+  const { t } = useTranslation('documents', { keyPrefix: 'document' });
   const [{ documentId }, setQueries] = useMultiQueryState<{
     documentId: string;
     contentType: string;
@@ -73,11 +75,11 @@ export const useDocument = ({
           documentId: saved.documentsSave._id,
           contentType: saved.documentsSave.contentType,
         });
-        toast({ title: 'Successfully saved document', variant: 'success' });
+        toast({ title: t('saved-success'), variant: 'success' });
       }
     } catch (error) {
       toast({
-        title: 'Could not save document',
+        title: t('error'),
         description: error instanceof Error ? error.message : String(error),
         variant: 'destructive',
       });

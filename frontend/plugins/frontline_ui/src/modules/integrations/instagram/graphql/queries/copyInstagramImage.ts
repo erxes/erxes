@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const FRONTLINE_INSTAGRAM_COPY_IMAGE = gql`
+export const FRONTLINE_INSTAGRAM_COPY_IMAGE = gql(`
   query FrontlineInstagramCopyImage(
     $conversationId: String!
     $messageId: String!
@@ -12,4 +12,4 @@ export const FRONTLINE_INSTAGRAM_COPY_IMAGE = gql`
       url: $url
     )
   }
-`;
+`);

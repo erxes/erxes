@@ -1,7 +1,7 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const EM_INTEGRATION_DETAIL_QUERY = gql`
-  query integrationDetail($_id: String!) {
+export const EM_INTEGRATION_DETAIL_QUERY = gql(`
+  query ErxesMessengerIntegrationDetail($_id: String!) {
     integrationDetail(_id: $_id) {
       _id
       name
@@ -39,4 +39,4 @@ export const EM_INTEGRATION_DETAIL_QUERY = gql`
       uiOptions
     }
   }
-`;
+`);

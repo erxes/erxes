@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { REMOVE_DOCUMENT } from '@/documents/graphql/documentMutations';
 import { MutationFunction, useMutation } from '@apollo/client';
 import { toast } from 'erxes-ui';
@@ -14,17 +15,18 @@ export const useDocumentRemove = (): {
   >;
   loading: boolean;
 } => {
+  const { t } = useTranslation('documents', { keyPrefix: 'document' });
   const [removeDocument, { loading }] = useMutation<
     RemoveDocumentResponse,
     RemoveDocumentVariables
   >(REMOVE_DOCUMENT, {
     refetchQueries: [GET_DOCUMENTS, DOCUMENTS_QUERY],
     onCompleted: () => {
-      toast({ title: 'Document removed successfully', variant: 'success' });
+      toast({ title: t('removed-success'), variant: 'success' });
     },
     onError: (error) => {
       toast({
-        title: 'Error',
+        title: t('error'),
         description: error?.message,
         variant: 'destructive',
       });

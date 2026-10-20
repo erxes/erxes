@@ -1,14 +1,9 @@
-import { createContext, useContext, useState } from 'react';
+import { LabelForm } from '@/deals/cards/components/detail/overview/label/LabelForm';
 import {
-  IconCheck,
-  IconLabel,
-  IconLoader,
-  IconPencil,
-  IconPlus,
-  IconTagMinus,
-} from '@tabler/icons-react';
-import { DealChipTrigger } from '@/deals/components/deal-selects/DealChipTrigger';
-import LabelForm from '@/deals/cards/components/detail/overview/label/LabelForm';
+  areIdListsEqual,
+  rejectOnMutationError,
+  useOptimisticField,
+} from '@/deals/components/deal-selects/hooks/useOptimisticField';
 import { GET_DEAL_DETAIL } from '@/deals/graphql/queries/DealsQueries';
 import {
   usePipelineLabelLabel,
@@ -19,6 +14,14 @@ import {
   ISelectLabelContext,
   ISelectLabelProviderProps,
 } from '@/deals/types/pipelines';
+import {
+  IconCheck,
+  IconLabel,
+  IconLoader,
+  IconPencil,
+  IconPlus,
+  IconTagMinus,
+} from '@tabler/icons-react';
 import {
   Button,
   Combobox,
@@ -34,12 +37,8 @@ import {
   useFilterContext,
   useQueryState,
 } from 'erxes-ui';
+import { createContext, useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  areIdListsEqual,
-  rejectOnMutationError,
-  useOptimisticField,
-} from '@/deals/components/deal-selects/hooks/useOptimisticField';
 
 export const SelectLabelsContext = createContext<ISelectLabelContext | null>(
   null,
@@ -114,7 +113,7 @@ export const SelectLabelsCommand = () => {
   const { t } = useTranslation('sales');
   const { labelIds, onSelect } = useSelectLabelsContext();
 
-  const [pipelineId] = useQueryState('pipelineId');
+  const [pipelineId] = useQueryState<string>('pipelineId');
 
   const {
     pipelineLabels = [],
@@ -218,7 +217,7 @@ export const SelectLabelsCommand = () => {
                 <div className="flex items-center gap-2">
                   <span
                     className="inline-block w-3 h-3 rounded-full"
-                    style={{ backgroundColor: label.colorCode }}
+                    style={{ backgroundColor: label.colorCode ?? undefined }}
                   />
                   <span className="text-sm">{label.name}</span>
                 </div>
@@ -261,7 +260,7 @@ export const SelectLabelsValue = ({
   showLabels?: boolean;
 }) => {
   const { t } = useTranslation('sales');
-  const [pipelineId] = useQueryState('pipelineId');
+  const [pipelineId] = useQueryState<string>('pipelineId');
   const { pipelineLabels = [] } = usePipelineLabels({
     variables: { pipelineId },
     skip: !pipelineId,
@@ -396,6 +395,7 @@ export const SelectLabelsFilterBar = ({
   initialValue?: string[];
   showLabels?: boolean;
 }) => {
+  const { t } = useTranslation('sales');
   const isCardVariant = variant === 'card' || variant === 'detail';
 
   const [urlQuery, setUrlQuery] = useQueryState<string[] | string>(filterKey);
@@ -464,9 +464,9 @@ export const SelectLabelsFilterBar = ({
     >
       <PopoverScoped scope={scope} open={open} onOpenChange={setOpen}>
         {variant === 'detail' ? (
-          <DealChipTrigger>
+          <Combobox.ChipTrigger label={t('labels')}>
             <SelectLabelsValue showLabels={showLabels} />
-          </DealChipTrigger>
+          </Combobox.ChipTrigger>
         ) : (
           <SelectTriggerOperation variant={variant || 'filter'}>
             <SelectLabelsValue showLabels={showLabels} />

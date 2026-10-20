@@ -8,8 +8,10 @@ import { useDeviceAuthorize } from '../hooks/useDeviceAuthorize';
 import { DeviceAuthorizeApproved } from './DeviceAuthorizeApproved';
 import { DeviceAuthorizeDenied } from './DeviceAuthorizeDenied';
 import { DeviceAuthorizeScopes } from './DeviceAuthorizeScopes';
+import { useTranslation } from 'react-i18next';
 
 export const DeviceAuthorize = () => {
+  const { t } = useTranslation('common', { keyPrefix: 'auth' });
   const currentUser = useAtomValue(currentUserState);
   const {
     userCode,
@@ -56,12 +58,12 @@ export const DeviceAuthorize = () => {
 
             <div className="space-y-2">
               <Card.Title className="text-2xl font-semibold leading-tight">
-                {(details?.client.name || 'Application') +
-                  ' wants access to your account'}
+                {t('wants-access', {
+                  name: details?.client.name || t('application'),
+                })}
               </Card.Title>
               <Card.Description className="text-sm leading-6">
-                Signed in as {currentUser?.email}. Review the permissions below
-                and choose what you want to allow.
+                {t('signed-in-as', { email: currentUser?.email })}
               </Card.Description>
               {details?.client.description ? (
                 <p className="text-sm text-muted-foreground">
@@ -96,7 +98,7 @@ export const DeviceAuthorize = () => {
               disabled={loading || loadingDetails || !details}
               onClick={deny}
             >
-              Cancel
+              {t('cancel')}
             </Button>
             <Button
               disabled={
@@ -108,8 +110,10 @@ export const DeviceAuthorize = () => {
               onClick={approve}
             >
               {loading
-                ? 'Authorizing...'
-                : `Authorize ${details?.client.name || 'application'}`}
+                ? t('authorizing')
+                : t('authorize-application', {
+                    name: details?.client.name || t('application-lowercase'),
+                  })}
             </Button>
           </div>
         </Card.Content>

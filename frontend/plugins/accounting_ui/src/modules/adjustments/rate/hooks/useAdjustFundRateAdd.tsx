@@ -1,10 +1,16 @@
-import { OperationVariables, useMutation } from '@apollo/client';
+import type { ApolloError } from '@apollo/client';
+import type { GraphqlMutationOptions } from '@/utils/graphqlMutation';
+import { useMutation } from '@apollo/client';
+import { useTranslation } from 'react-i18next';
 import { ADJUST_FUND_RATE_ADD } from '../graphql/adjustFundRateAdd';
 import { toast } from 'erxes-ui';
 import { useNavigate } from 'react-router-dom';
 import { ADJUST_FUND_RATE_QUERY } from '../graphql/adjustFundRateQueries';
 
-export const useAdjustFundRateAdd = (options?: OperationVariables) => {
+export const useAdjustFundRateAdd = (
+  options?: GraphqlMutationOptions<typeof ADJUST_FUND_RATE_ADD>,
+) => {
+  const { t } = useTranslation('accounting');
   const navigate = useNavigate();
 
   const [_addAdjustFundRate, { loading }] = useMutation(
@@ -12,23 +18,25 @@ export const useAdjustFundRateAdd = (options?: OperationVariables) => {
     options,
   );
 
-  const addAdjustFundRate = (options?: OperationVariables) => {
+  const addAdjustFundRate = (
+    options?: GraphqlMutationOptions<typeof ADJUST_FUND_RATE_ADD>,
+  ) => {
     return _addAdjustFundRate({
       ...options,
-      onError: (error: Error) => {
+      onError: (error: ApolloError) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: error.message,
           variant: 'destructive',
         });
         options?.onError?.(error);
       },
-      onCompleted: () => {
+      onCompleted: (data) => {
         toast({
-          title: 'Success',
-          description: 'Fund Rate Adjustment created successfully',
+          title: t('success'),
+          description: t('Fund Rate Adjustment created successfully'),
         });
-        options?.onCompleted?.();
+        options?.onCompleted?.(data);
       },
       refetchQueries: [
         {

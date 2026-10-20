@@ -2,58 +2,105 @@ import {
   AiAgentObjectFieldBuilder,
   TAiAgentFieldsGroupName,
 } from '@/automations/components/builder/nodes/actions/aiAgent/components/AiAgentObjectFieldBuilder';
+import {
+  AiAgentRow,
+  AiAgentRowList,
+} from '@/automations/components/builder/nodes/actions/aiAgent/components/AiAgentRowList';
+import { useAiAgentRowList } from '@/automations/components/builder/nodes/actions/aiAgent/hooks/useAiAgentRowList';
 import { TAiAgentConfigForm } from '@/automations/components/builder/nodes/actions/aiAgent/states/aiAgentForm';
-import { Button, Label } from 'erxes-ui';
-import { FieldArrayPath, useFieldArray, useFormContext } from 'react-hook-form';
+import { Badge } from 'erxes-ui';
+import {
+  FieldArrayPath,
+  useFieldArray,
+  useFormContext,
+  useWatch,
+} from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { generateAutomationElementId } from 'ui-modules';
+
+type TAiAgentObjectField = Extract<
+  TAiAgentConfigForm,
+  { goalType: 'classification' }
+>['objectFields'][number];
+
+const getObjectFieldLabel = (field?: TAiAgentObjectField) =>
+  field?.fieldName || '';
 
 export const AiAgentObjectBuilder = ({
   name = 'objectFields',
-  addLabel = 'Add Classification Field',
 }: {
   name?: TAiAgentFieldsGroupName;
-  addLabel?: string;
 }) => {
+  const { t } = useTranslation('automations');
   const { control } = useFormContext<TAiAgentConfigForm>();
   const { fields, append, remove } = useFieldArray({
     control,
     name: name as FieldArrayPath<TAiAgentConfigForm>,
   });
+  const values = (useWatch({ control, name }) || []) as TAiAgentObjectField[];
+  const list = useAiAgentRowList({
+    name,
+    fields,
+    values,
+    getLabel: getObjectFieldLabel,
+  });
+
+  const handleAdd = () => {
+    const id = generateAutomationElementId();
+    append({
+      id,
+      fieldName: '',
+      prompt: '',
+      dataType: 'string',
+      validation: '',
+      options: [],
+    });
+    list.openRow(id);
+  };
 
   return (
-    <div className="flex flex-col gap-2 p-4">
-      <div className="grid grid-cols-12 items-center gap-2">
-        <Label className="col-span-5">Field Key</Label>
-        <Label className="col-span-2">Data Type</Label>
-        <Label className="col-span-4">Validation</Label>
-        <div className="col-span-1" />
-      </div>
+    <AiAgentRowList
+      openId={list.openId}
+      onOpenChange={list.setOpenId}
+      search={list.search}
+      onSearchChange={list.setSearch}
+      showSearch={list.showSearch}
+      hasNoMatch={list.hasNoMatch}
+      isEmpty={!fields.length}
+      errorMessage={list.listErrorMessage}
+      addLabel={t('ai-agent-add-field')}
+      onAdd={handleAdd}
+    >
+      {fields.map((field, index) => {
+        const { id } = list.items[index];
+        const value = values[index];
 
-      {fields.map((field, index) => (
-        <AiAgentObjectFieldBuilder
-          key={field.id}
-          name={name}
-          isLastElement={index + 1 !== fields.length}
-          index={index}
-          handleRemove={() => remove(index)}
-        />
-      ))}
-
-      <Button
-        type="button"
-        onClick={() =>
-          append({
-            id: generateAutomationElementId(),
-            fieldName: '',
-            prompt: '',
-            dataType: 'string',
-            validation: '',
-            options: [],
-          })
+        if (!list.isVisible(id)) {
+          return null;
         }
-      >
-        {addLabel}
-      </Button>
-    </div>
+
+        return (
+          <AiAgentRow
+            key={field.id}
+            value={id}
+            title={value?.fieldName || ''}
+            badges={
+              <Badge variant="secondary" className="shrink-0">
+                {value?.dataType === 'option'
+                  ? t('ai-agent-option-count', {
+                      count: value.options?.length || 0,
+                    })
+                  : value?.dataType}
+              </Badge>
+            }
+            preview={value?.prompt}
+            hasError={list.hasError(id)}
+            onRemove={() => remove(index)}
+          >
+            <AiAgentObjectFieldBuilder name={name} index={index} />
+          </AiAgentRow>
+        );
+      })}
+    </AiAgentRowList>
   );
 };

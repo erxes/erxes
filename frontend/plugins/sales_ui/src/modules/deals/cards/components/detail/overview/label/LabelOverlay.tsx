@@ -1,19 +1,19 @@
-import { Button, Input, Spinner, cn, useQueryState } from 'erxes-ui';
-import { IconCheck, IconPencil, IconPlus } from '@tabler/icons-react';
-import { useMemo, useState } from 'react';
 import {
   usePipelineLabelLabel,
   usePipelineLabels,
 } from '@/deals/pipelines/hooks/usePipelineDetails';
+import { IconCheck, IconPencil, IconPlus } from '@tabler/icons-react';
+import { Button, Input, Spinner, cn, useQueryState } from 'erxes-ui';
+import { useMemo, useState } from 'react';
 
-import { IPipelineLabel } from '@/deals/types/pipelines';
-import LabelForm from './LabelForm';
 import { dealDetailSheetState } from '@/deals/states/dealDetailSheetState';
+import { IPipelineLabel } from '@/deals/types/pipelines';
 import { useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
+import { LabelForm } from './LabelForm';
 
 const LabelOverlay = ({ labels }: { labels: IPipelineLabel[] }) => {
-  const [pipelineId] = useQueryState('pipelineId');
+  const [pipelineId] = useQueryState<string>('pipelineId');
   const [targetId] = useAtom(dealDetailSheetState);
 
   const [search, setSearch] = useState('');
@@ -36,6 +36,7 @@ const LabelOverlay = ({ labels }: { labels: IPipelineLabel[] }) => {
   }, [pipelineLabels, search]);
 
   const toggleLabel = (labelId: string) => {
+    if (!targetId) return;
     const newLabelIds = selectedLabelIds.includes(labelId)
       ? selectedLabelIds.filter((id) => id !== labelId)
       : [...selectedLabelIds, labelId];
@@ -62,7 +63,6 @@ const LabelOverlay = ({ labels }: { labels: IPipelineLabel[] }) => {
           >
             {t('back')}
           </button>
-
         </div>
         <LabelForm
           onSuccess={() => {
@@ -111,7 +111,7 @@ const LabelOverlay = ({ labels }: { labels: IPipelineLabel[] }) => {
                   <div className="flex items-center gap-2">
                     <span
                       className="inline-block w-4 h-4 rounded-full"
-                      style={{ backgroundColor: label.colorCode }}
+                      style={{ backgroundColor: label.colorCode ?? undefined }}
                     />
                     <span className="text-sm">{label.name}</span>
                   </div>

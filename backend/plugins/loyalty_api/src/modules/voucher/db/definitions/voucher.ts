@@ -19,6 +19,28 @@ export const voucherSchema = schemaWrapper(
 
       // Optional voucher configuration for standalone config (not tied to campaigns)
       config: { type: Object, optional: true, label: 'Config' },
+
+      // What the campaign promised when this voucher was issued.
+      terms: { type: Object, optional: true, label: 'Terms' },
+      createdVia: { type: Object, optional: true, label: 'Created via' },
+      // The order or deal it is held for (onhold) or was used on (used).
+      usedIn: {
+        type: new Schema(
+          {
+            targetType: { type: String },
+            targetId: { type: String, index: true },
+            note: { type: String },
+          },
+          { _id: false },
+        ),
+        optional: true,
+        label: 'Used in',
+      },
+      heldAt: { type: Date, optional: true, label: 'Held at' },
+      cancelledAt: { type: Date, optional: true, label: 'Cancelled at' },
+      cancelledBy: { type: String, optional: true, label: 'Cancelled by' },
+      cancelReason: { type: String, optional: true, label: 'Cancel reason' },
+      history: { type: [Object], default: undefined, label: 'History' },
     },
     {
       timestamps: true,

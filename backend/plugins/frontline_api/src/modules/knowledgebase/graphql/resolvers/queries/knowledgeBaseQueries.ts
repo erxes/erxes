@@ -1,9 +1,5 @@
-import { defaultPaginate } from 'erxes-api-shared/utils';
+import { defaultPaginate, escapeRegExp } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
-
-function escapeRegExp(value: string): string {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
 
 const findDetail = async (model, _id) => {
   return await model.findOne({ $or: [{ _id }, { code: _id }] });
@@ -24,12 +20,11 @@ const buildQuery = (args: any) => {
 
   const searchValue = args.searchValue?.trim();
   if (searchValue) {
-    const safeSearch = escapeRegExp(searchValue);
-    qry.$or = [
-      { title: { $regex: `.*${safeSearch}.*`, $options: 'i' } },
-      { description: { $regex: `.*${safeSearch}.*`, $options: 'i' } },
-      { code: { $regex: `.*${safeSearch}.*`, $options: 'i' } },
-    ];
+    qry.$or = ['title', 'description', 'code', 'summary', 'content'].map(
+      (field) => ({
+        [field]: { $regex: `.*${escapeRegExp(searchValue)}.*`, $options: 'i' },
+      }),
+    );
   }
 
   if (args.brandId) {
@@ -51,6 +46,25 @@ const buildQuery = (args: any) => {
   return qry;
 };
 
+const buildArticleQuery = async (
+  args: { topicIds?: string[] },
+  models: IContext['models'],
+) => {
+  const selector: Record<string, unknown> = buildQuery(args);
+
+  if (args.topicIds && args.topicIds.length > 0) {
+    const categoryIds = await models.Category.find({
+      topicId: { $in: args.topicIds },
+    }).distinct('_id');
+
+    selector.categoryId = { $in: categoryIds };
+
+    delete selector.topicId;
+  }
+
+  return selector;
+};
+
 export const knowledgeBaseQueries = {
   async knowledgeBaseArticles(
     _root,
@@ -68,20 +82,10 @@ export const knowledgeBaseQueries = {
     },
     { models }: IContext,
   ) {
-    const selector: any = buildQuery(args);
+    const selector = await buildArticleQuery(args, models);
     let sort: any = { createdDate: -1 };
 
     const pageArgs = { page: args.page, perPage: args.perPage };
-
-    if (args.topicIds && args.topicIds.length > 0) {
-      const categoryIds = await models.Category.find({
-        topicId: { $in: args.topicIds },
-      }).distinct('_id');
-
-      selector.categoryId = { $in: categoryIds };
-
-      delete selector.topicId;
-    }
 
     if (args.sortField) {
       sort = { [args.sortField]: args.sortDirection };
@@ -113,9 +117,9 @@ export const knowledgeBaseQueries = {
   },
 
   async knowledgeBaseArticlesTotalCount(_root, args, { models }: IContext) {
-    const qry: any = buildQuery(args);
+    const selector = await buildArticleQuery(args, models);
 
-    return models.Article.find(qry).countDocuments();
+    return models.Article.find(selector).countDocuments();
   },
 
   async knowledgeBaseCategories(

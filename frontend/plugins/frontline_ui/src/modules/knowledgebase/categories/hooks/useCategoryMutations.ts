@@ -14,6 +14,7 @@ import {
 } from '@/knowledgebase/graphql/queries';
 import { ICategory, ICategoryDoc } from '@/knowledgebase/types';
 import { useKbToast } from '@/knowledgebase/shared/hooks/useKbToast';
+import { withoutEmptyCode } from '@/knowledgebase/utils/withoutEmptyCode';
 
 const CATEGORY_QUERIES = [CATEGORIES, TOPIC_DETAIL, TOPICS];
 
@@ -31,9 +32,11 @@ export const useSaveCategory = () => {
     awaitRefetchQueries: true,
   });
 
-  const saveCategory = (doc: ICategoryDoc, categoryId?: string) =>
+  const saveCategory = (categoryDoc: ICategoryDoc, categoryId?: string) =>
     run(
       async () => {
+        const doc = withoutEmptyCode(categoryDoc);
+
         if (categoryId) {
           await editCategory({ variables: { _id: categoryId, doc } });
         } else {
@@ -60,15 +63,15 @@ export const useEditCategoryField = (topicId: string) => {
     editCategory({
       variables: {
         _id: category._id,
-        doc: {
-          title: category.title,
+        doc: withoutEmptyCode({
+          title: category.title ?? '',
           code: category.code,
           description: category.description,
           icon: category.icon || 'book',
           topicId,
           parentCategoryId: category.parentCategoryId,
           ...patch,
-        },
+        }),
       },
       onError: (error) =>
         toast({

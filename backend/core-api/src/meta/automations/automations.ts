@@ -116,6 +116,7 @@ export const initAutomation = (app: Express) =>
         targetType,
         relation: setPropertyTarget?.relation,
         targetPath: setPropertyTarget?.targetPath,
+        targetActionId: action.targetActionId,
       });
 
       const runSetProperty = (

@@ -17,7 +17,9 @@ const BOT_STATUS_VARIANTS = {
   unknown: 'secondary',
 } as const;
 
-export const useFacebookBotHealthCell = (health?: IFacebookBotHealth) => {
+export const useFacebookBotHealthCell = (
+  health?: IFacebookBotHealth | null,
+) => {
   const { t } = useTranslation('frontline');
   const status = health?.status || 'unknown';
   const statusLabel = t(
