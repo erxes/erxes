@@ -6,7 +6,7 @@
 - **Project:** `operation_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/operation_ui`
-- **Last synchronized:** `2026-10-18`
+- **Last synchronized:** `2026-10-19`
 
 ## Scope
 
@@ -156,6 +156,7 @@
 - `DateSelectTask` draws its labelled chip only for the `input` variant with a `label` (task detail passes `variant="input"`, as ticket detail does); `detail` and every other variant keep the plain trigger. The form chip is `DateSelectTask.FormItem` with a `label`.
 - `DateSelectTask` keeps its own `dateValue` state seeded from the `value` prop and resyncs on `value`/`id` change; `useUpdateTask` already toasts on error, so the date select's `onError` only rolls back. `DateSelectContent` catches Enter in the capture phase because `DatePicker` stops its propagation.
 - `Sheet.Header` is a fixed 40px row. A header with a visible second line (subtitle, record number, description) adds `h-auto py-2` so it sizes to its content; detail-page title rows are `h-10`, level with `PageHeader`.
+- Task and project list filters render the filter popover trigger as the first child of `Filter.Bar`, so the filter icon stays fixed while selected filter chips appear after it; total counts stay last.
 
 ## Validation
 

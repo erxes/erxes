@@ -6,7 +6,7 @@
 - **Project:** `accounting_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/accounting_ui`
-- **Last synchronized:** `2026-10-18`
+- **Last synchronized:** `2026-10-19`
 
 ## Scope
 
@@ -242,6 +242,7 @@
 - Journal report filter visibility and submitted query parameters must be declared in `src/modules/journal-reports/types/reportFilters.ts`; adding a field to a form without mapping it to applicable reports and its backend query parameter is not allowed.
 - Every journal report must offer detailed mode; summary-row drill-down must preserve the report and current filters while adding every selected group filter, and detailed transaction rows must open their transaction edit route on double-click.
 - `Sheet.Header` is a fixed 40px row. A header with a visible second line (subtitle, record number, description) adds `h-auto py-2` so it sizes to its content; detail-page title rows are `h-10`, level with `PageHeader`.
+- Accounting list filters (transactions, accounts, permission settings, safe/reserve remainders, fixed asset remainders and owner records) render the filter popover trigger as the first child of `Filter.Bar`, so the filter icon stays fixed while selected filter chips appear after it; total counts and `afterBar` content stay last.
 
 ## Validation
 

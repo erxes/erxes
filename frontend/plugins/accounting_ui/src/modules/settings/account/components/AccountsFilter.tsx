@@ -145,6 +145,7 @@ export const AccountsFilter = () => {
   return (
     <Filter id="accounts-filter">
       <Filter.Bar>
+        <AccountsFilterPopover />
         <FilterBarStringItem queryKey="searchValue" value={searchValue} />
         <FilterBarStringItem queryKey="code" value={code} />
         <FilterBarStringItem queryKey="name" value={name} />
@@ -155,7 +156,6 @@ export const AccountsFilter = () => {
         <FilterBarIsTemp />
         <FilterBarIsOutBalance />
         <FilterBarStatus />
-        <AccountsFilterPopover />
         <AccountsTotalCount />
       </Filter.Bar>
     </Filter>

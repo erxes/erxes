@@ -87,6 +87,7 @@ export const AssignmentFilter = () => {
   return (
     <Filter id="assignment-filter" sessionKey={ASSIGNMENT_CURSOR_SESSION_KEY}>
       <Filter.Bar>
+        <AssignmentFilterPopover />
         <SelectAssignmentCampaignFilterBar />
         <SelectAssignmentStatusFilterBar />
         <SelectOwnerType.FilterBar queryKey="assignmentOwnerType" />
@@ -94,7 +95,6 @@ export const AssignmentFilter = () => {
           queryKey="assignmentOwnerId"
           ownerTypeKey="assignmentOwnerType"
         />
-        <AssignmentFilterPopover />
         <AssignmentTotalCount />
       </Filter.Bar>
     </Filter>
