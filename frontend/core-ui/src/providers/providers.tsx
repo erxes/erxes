@@ -20,15 +20,28 @@ import {
   RecordPickerWidgetProvider,
   RelationSettingsWidgetProvider,
   RelationWidgetProvider,
+  SlotProvider,
+  type RenderSlotRemote,
 } from 'ui-modules';
 import { IconsProvider, Spinner } from 'erxes-ui';
 import { optionalProvider } from '@/widgets/utils/optionalProvider';
+import { RenderPluginsComponent } from '~/plugins/components/RenderPluginsComponent';
+import { HostedExtensionsProvider } from '@/plugins/components/HostedExtensionsProvider';
 
 const SafeRelationSettingsWidgetProvider = optionalProvider(
   RelationSettingsWidgetProvider,
 );
 const SafeRecordPickerWidgetProvider = optionalProvider(
   RecordPickerWidgetProvider,
+);
+const SafeSlotProvider = optionalProvider(SlotProvider);
+
+const SlotRemote: RenderSlotRemote = ({ pluginName, expose, props }) => (
+  <RenderPluginsComponent
+    pluginName={`${pluginName}_ui`}
+    remoteModuleName={expose}
+    props={props}
+  />
 );
 
 export const Providers = () => {
@@ -52,9 +65,13 @@ export const Providers = () => {
               RecordPickerWidget={RecordPickerWidgetsComponent}
               recordPickerWidgetsModules={useRecordPickerWidgetsModules()}
             >
-              <Suspense fallback={<Spinner withMascot />}>
-                <Outlet />
-              </Suspense>
+              <SafeSlotProvider RenderRemote={SlotRemote}>
+                <HostedExtensionsProvider>
+                  <Suspense fallback={<Spinner withMascot />}>
+                    <Outlet />
+                  </Suspense>
+                </HostedExtensionsProvider>
+              </SafeSlotProvider>
             </SafeRecordPickerWidgetProvider>
           </SafeRelationSettingsWidgetProvider>
         </RelationWidgetProvider>

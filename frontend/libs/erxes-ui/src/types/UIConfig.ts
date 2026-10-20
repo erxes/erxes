@@ -3,6 +3,7 @@ import type {
   OperationVariables,
   QueryOptions,
 } from '@apollo/client';
+import type { Slots } from './Slots';
 
 export type TSearchPayload = Readonly<Record<string, unknown>>;
 
@@ -194,6 +195,17 @@ export type IUIConfig = {
     hasSegmentConfigWidget?: boolean;
   }[];
   searchProviders?: ISearchProvider[];
+  /** Maps a slot name to the expose of this plugin that fills it. */
+  slots?: { [K in keyof Slots]?: string };
+  /**
+   * The plugin an extension lives in, e.g. `'sales'`. Its `modules` show in
+   * that plugin's main sidebar (`AppLayout` id `'sales'`). Its pages render
+   * inside whichever of the host's layouts owns the path (`'sales'` or
+   * `'sales:<name>'`, e.g. `sales/settings/x` renders in `'sales:settings'`),
+   * so `path` and module paths must start with `<host>/`. When paths overlap,
+   * the longest `path` wins. It gets no launcher entry of its own.
+   */
+  host?: string;
 };
 
 export type ICoreModule = {
