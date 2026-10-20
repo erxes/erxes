@@ -1,0 +1,7 @@
+# erxes-private/backend/plugins/agent_api is not in this repository, so its
+# fields are missing from the composed gateway schema. Hand-written from the
+# fields content documents select; codegen input only.
+
+extend type Query {
+  agentPostizTenantEnabled: Boolean
+}

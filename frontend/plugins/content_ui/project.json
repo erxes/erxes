@@ -28,7 +28,12 @@
           "sourceMap": false,
           "rspackConfig": "frontend/plugins/content_ui/rspack.config.prod.ts"
         }
-      }
+      },
+      "inputs": [
+        "production",
+        "^production",
+        { "dependentTasksOutputFiles": "**/*.ts" }
+      ]
     },
     "serve": {
       "executor": "@nx/rspack:module-federation-dev-server",
@@ -64,8 +69,8 @@
       "cache": true,
       "dependsOn": [
         {
-          "projects": ["content_api"],
-          "target": "schema:print"
+          "projects": ["gateway"],
+          "target": "schema:compose"
         }
       ],
       "inputs": [

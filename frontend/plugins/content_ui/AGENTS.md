@@ -6,7 +6,7 @@
 - **Project:** `content_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/content_ui`
-- **Last synchronized:** `2026-10-18`
+- **Last synchronized:** `2026-10-20`
 
 ## Scope
 
@@ -43,8 +43,8 @@
 | Web Builder   | `frontend/plugins/content_ui/src/modules/web-builder` | Owns Web Builder UI.                                                                    |
 | Pages         | `frontend/plugins/content_ui/src/pages`               | Provides route-level pages.                                                             |
 | Widgets       | `frontend/plugins/content_ui/src/widgets`             | Provides plugin widget exports.                                                         |
-| Codegen       | `frontend/plugins/content_ui/codegen.ts`              | Validates documents and generates the gitignored `src/gql` types.                       |
-| Platform SDL  | `frontend/plugins/content_ui/schema/platform.graphql` | Snapshot of the core-api and agent_api fields content documents select.                 |
+| Codegen       | `frontend/plugins/content_ui/codegen.ts`              | Validates documents against the composed schema and generates the gitignored `src/gql`. |
+| Agent SDL     | `frontend/plugins/content_ui/schema/agent.graphql`    | Declares erxes-private agent_api fields content selects; not in the composed schema.    |
 
 ## Contracts
 
@@ -57,10 +57,11 @@
 ### Consumes
 
 - Public `erxes-ui` and `ui-modules` APIs.
-- Content plugin GraphQL APIs through Apollo Client, typed from the
-  `content_api` printed SDL (`backend/plugins/content_api/generated/schema.graphql`).
-- Core-api `getClientPortals` and CMS author `User` fields, and agent_api
-  `agentPostizTenantEnabled`, typed from `schema/platform.graphql`.
+- Content plugin GraphQL APIs through Apollo Client.
+- The composed gateway schema from `gateway:schema:compose` (every backend's
+  printed subgraph: content and core included), consumed only at codegen time.
+- erxes-private agent_api `agentPostizTenantEnabled`, declared for codegen only
+  in `schema/agent.graphql` because that backend is not in this repository.
 
 ## Data and State
 
@@ -155,9 +156,12 @@
 - Search `src/modules/cms/graphql` before adding an operation; this plugin still
   has shared legacy CMS queries and mutations.
 - Codegen validates every document under `src` except tests against the
-  `content_api` SDL plus `schema/platform.graphql`. A document that selects a
-  core-api or agent_api field missing from the snapshot fails codegen: add the
-  field to the snapshot under its source-path comment.
+  composed gateway schema (`backend/gateway/generated/schema.graphql`) plus
+  `schema/agent.graphql`. `build` and `serve` depend on the `codegen` target,
+  which depends on `gateway:schema:compose`. A content, core or other in-repo
+  field needs no local copy; fix a validation error in the document, or in the
+  backend that owns the field. Only erxes-private agent_api fields belong in
+  `schema/agent.graphql`.
 - Codegen drops `${...}` interpolation text, so interpolated field strings are
   invisible to it. Share fields through a local `gql` fragment spread by name,
   such as `CmsSocialDeliveryFields`.
@@ -223,6 +227,8 @@
 - `npx tsc -p frontend/plugins/content_ui/tsconfig.app.json --noEmit | rg content_ui`
   prints nothing. The shared libraries' own errors are filtered out.
 - `pnpm nx lint content_ui`
+- `pnpm nx run gateway:schema:compose --parallel=2` - composes every backend's
+  printed schema.
 - `pnpm nx run content_ui:codegen --skip-nx-cache`
 - `pnpm nx build content_ui`
 - `pnpm nx test content_ui`
