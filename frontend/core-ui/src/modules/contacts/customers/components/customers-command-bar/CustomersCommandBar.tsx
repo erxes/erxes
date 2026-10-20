@@ -30,6 +30,7 @@ import {
   Can,
   ExportFieldSelection,
   ICustomer,
+  RecordActions,
   TagsSelect,
   useExport,
 } from 'ui-modules';
@@ -137,6 +138,11 @@ export const CustomersCommandBar = () => {
             />
           </>
         </Can>
+        <RecordActions
+          contentType="core:customer"
+          contentIds={customerIds}
+          leading={<Separator.Inline />}
+        />
         <Can
           actions={[
             'broadcastCreate',
