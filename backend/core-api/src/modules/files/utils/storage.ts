@@ -38,8 +38,6 @@ const SIGNED_READ_TTL_SECONDS = 5 * 60;
 // pdf.js keeps reading ranges for as long as the document is open.
 export const SIGNED_VIEWER_TTL_SECONDS = 30 * 60;
 
-// Files lives in its own bucket, but reuses the account credentials the
-// existing upload settings already hold.
 export const getFilesStorage = async (
   models: IModels,
 ): Promise<TFilesStorage> => {
@@ -162,8 +160,7 @@ export const signSingleUpload = (
     { expiresIn: SIGNED_PART_TTL_SECONDS },
   );
 
-// The browser never reads ETags (that needs ExposeHeaders on every bucket);
-// the parts are read back from storage instead.
+// Parts are read back with ListParts, so buckets need no ETag ExposeHeaders.
 export const listUploadedParts = async (
   { client, bucket }: TFilesStorage,
   key: string,
@@ -233,7 +230,7 @@ export const abortMultipartUpload = async (
       }),
     );
   } catch (e) {
-    // Already gone (completed, aborted, or expired by the bucket) is the goal.
+    // Already completed, aborted or expired: nothing to abort.
     if ((e as { name?: string }).name !== 'NoSuchUpload') {
       throw e;
     }
@@ -304,7 +301,7 @@ export const signRead = (
   );
 };
 
-// Streams to disk: a derivative may be built from a file of several hundred MB.
+// Streams to disk: derivatives come from files of several hundred MB.
 export const downloadObject = async (
   { client, bucket }: TFilesStorage,
   key: string,

@@ -6,7 +6,6 @@ export const FILE_STATUSES = {
 
 export type TFileStatus = (typeof FILE_STATUSES)[keyof typeof FILE_STATUSES];
 
-// Whether a version's thumbnail and viewer copy exist yet; none = not a type we derive.
 export const FILE_PREVIEW_STATUSES = {
   PENDING: 'pending',
   READY: 'ready',
@@ -17,7 +16,7 @@ export const FILE_PREVIEW_STATUSES = {
 export type TFilePreviewStatus =
   (typeof FILE_PREVIEW_STATUSES)[keyof typeof FILE_PREVIEW_STATUSES];
 
-// R2 requires every part but the last to be the same size, so it is fixed.
+// R2 rejects multipart uploads with unequal part sizes.
 export const FILES_PART_SIZE = 16 * 1024 * 1024;
 export const FILES_MAX_PARTS = 10000;
 export const FILES_SINGLE_UPLOAD_MAX = FILES_PART_SIZE;
@@ -32,9 +31,9 @@ export const FILES_DEFAULT_MAX_FILE_SIZE_MB = 5120;
 export const FILES_QUEUE = 'files';
 
 export const FILES_THUMBNAIL_SIZE = 320;
-// Thumbnail links are signed per window, so a refetch reuses the browser's cached image.
+// Signed per window so refetches hit the browser cache.
 export const FILES_THUMBNAIL_URL_WINDOW_MS = 60 * 60 * 1000;
-// Jimp decodes the whole bitmap in memory; the worker copies a PDF to disk.
+// Jimp decodes the whole bitmap in memory.
 export const FILES_THUMBNAIL_IMAGE_MAX = 30 * 1024 * 1024;
 export const FILES_DERIVE_PDF_MAX = 1024 * 1024 * 1024;
 export const FILES_DERIVE_TIMEOUT_MS = 5 * 60 * 1000;
@@ -42,7 +41,6 @@ export const FILES_DERIVE_TIMEOUT_MS = 5 * 60 * 1000;
 export const FILES_DERIVE_STALE_MS = 60 * 60 * 1000;
 export const FILES_USAGE_ID = 'usage';
 
-// Ranked: a higher role can do everything a lower one can.
 export const FILE_ACCESS_ROLES = {
   VIEWER: 'viewer',
   CONTRIBUTOR: 'contributor',
@@ -70,10 +68,7 @@ export type TFilePrincipalType =
 
 export const FILES_ORG_ROOT_KEY = 'org';
 export const FILES_MAX_GRANTS = 100;
-// Pins are shortcuts; past a handful they stop being quick to scan.
 export const FILES_MAX_PINS = 10;
-// A bigger subtree is recomputed by the worker; the changed folder itself is updated at once.
 export const FILES_ACCESS_SYNC_MAX_FOLDERS = 200;
-// Unit and org-structure changes reach Files within this time.
 export const FILES_PRINCIPALS_TTL_SECONDS = 60;
 export const FILES_SPACES_TTL_SECONDS = 24 * 60 * 60;

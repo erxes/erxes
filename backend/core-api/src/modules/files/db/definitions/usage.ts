@@ -1,9 +1,5 @@
 import { Document, Schema } from 'mongoose';
 
-/**
- * A single document per tenant. `reservedBytes` is held from upload start so
- * parallel uploads cannot overshoot the quota between start and complete.
- */
 export interface IFileUsage {
   usedBytes: number;
   reservedBytes: number;

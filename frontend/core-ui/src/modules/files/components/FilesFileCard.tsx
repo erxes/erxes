@@ -9,7 +9,6 @@ import { FilesSharedWith } from './FilesSharedWith';
 type TFilesFileCardProps = {
   file: IFile;
   loading: boolean;
-  // Open in the preview, as opposed to picked in the selection.
   active: boolean;
   selected: boolean;
   selecting: boolean;
@@ -19,7 +18,6 @@ type TFilesFileCardProps = {
   menu: ReactNode;
 };
 
-/** Same frame as a folder card, with the file's thumbnail (or type icon) as the cover. */
 export const FilesFileCard = ({
   file,
   loading,

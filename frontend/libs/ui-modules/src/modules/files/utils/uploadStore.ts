@@ -7,10 +7,7 @@ const listeners = new Set<TListener>();
 
 const emit = () => listeners.forEach((listener) => listener());
 
-/**
- * A module-level store rather than component state: uploads keep running
- * while the user navigates, and every panel or picker sees the same list.
- */
+// Module-level, so uploads survive navigation and every panel shares one list.
 export const uploadStore = {
   subscribe(listener: TListener) {
     listeners.add(listener);

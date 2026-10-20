@@ -26,7 +26,6 @@ export type TFilesMoveTarget = {
 
 type TFilesPageContext = {
   space: TFilesSpace;
-  // The open folder (the space root when the URL names none) with its contents and path.
   browser: ReturnType<typeof useFilesBrowser>;
   openFolder: (folderId?: string) => void;
   searchValue: string;
@@ -37,7 +36,6 @@ type TFilesPageContext = {
   setMoveTarget: (target: TFilesMoveTarget | null) => void;
   previewFile: IFile | null;
   setPreviewFile: Dispatch<SetStateAction<IFile | null>>;
-  // Folders whose card look is being edited; several at once from a selection.
   appearanceFolders: IFilesFolder[];
   setAppearanceFolders: (folders: IFilesFolder[]) => void;
   selection: ReturnType<typeof useFilesSelection>;
@@ -66,7 +64,6 @@ export const FilesPageProvider = ({
     [],
   );
   const [bulkShareOpen, setBulkShareOpen] = useState(false);
-  // Folders first, then files: the order the page draws them, for Shift ranges.
   const visible = useMemo<TFilesItem[]>(
     () => [
       ...browser.folders.map((item) => ({ itemType: 'folder' as const, item })),

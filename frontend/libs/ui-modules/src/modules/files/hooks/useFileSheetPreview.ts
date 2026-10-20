@@ -8,13 +8,12 @@ const SHEET_PREVIEW_ROWS = 500;
 
 type TSheetPreview = Exclude<TSheetPreviewResult, { error: string }>;
 
-/** First sheet, first rows only: enough to recognise the file without opening it. */
 export const useFileSheetPreview = (url: string, isCsv: boolean) => {
   const [sheet, setSheet] = useState<TSheetPreview | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Classic worker: Rspack emits worker chunks that load with importScripts.
+    // Classic worker: Rspack emits importScripts chunks.
     const worker = new Worker(
       new URL('../workers/sheetPreview.worker.ts', import.meta.url),
     );
@@ -47,7 +46,6 @@ export const useFileSheetPreview = (url: string, isCsv: boolean) => {
     return () => worker.terminate();
   }, [url, isCsv]);
 
-  // Rows end at their last filled cell; pad them so every column lines up.
   const rows = sheet?.rows || [];
   const columnCount = Math.max(0, ...rows.map((row) => row.length));
   const [header = [], ...body] = rows.map((row) =>

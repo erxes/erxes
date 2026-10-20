@@ -14,7 +14,6 @@ export type TFilePreviewKind =
   | 'none';
 
 const TEXT_PREVIEW_MAX = 1024 * 1024;
-// Parsing in the browser holds several times the file size in memory.
 export const DOCUMENT_PREVIEW_MAX = 20 * 1024 * 1024;
 
 const SHEET_TYPES = [
@@ -24,10 +23,9 @@ const SHEET_TYPES = [
 const DOCX_TYPE =
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
 
-// Kinds rendered from bytes the browser fetches itself, not by an inline URL.
 const FETCHED_KINDS: TFilePreviewKind[] = ['text', 'sheet', 'docx'];
 
-// Matches what the backend is willing to serve inline (see canServeInline).
+// Mirrors the backend's canServeInline.
 export const getFilePreviewKind = (file: IFile): TFilePreviewKind => {
   const { mimeType } = file;
 
@@ -51,7 +49,6 @@ export const getFilePreviewKind = (file: IFile): TFilePreviewKind => {
 
 export const useFilePreview = (file: IFile | null) => {
   const kind = file ? getFilePreviewKind(file) : 'none';
-  // Fetched kinds are read as data, so they never need an inline disposition.
   const inline = !FETCHED_KINDS.includes(kind);
   const [text, setText] = useState<string | null>(null);
   const [textError, setTextError] = useState<string | null>(null);
@@ -59,7 +56,6 @@ export const useFilePreview = (file: IFile | null) => {
   const { data, loading, error } = useQuery<{ filesDownloadUrl: string }>(
     FILES_DOWNLOAD_URL,
     {
-      // The viewer copy of a PDF opens in a few range reads; its link lives longer.
       variables: { _id: file?._id, inline, viewer: kind === 'pdf' },
       skip: !file || kind === 'none',
       fetchPolicy: 'network-only',
@@ -98,7 +94,6 @@ export const useFilePreview = (file: IFile | null) => {
   return {
     kind,
     url,
-    // A fetched kind's link is a download, not a page to open.
     canOpenInTab: inline,
     text,
     loading:

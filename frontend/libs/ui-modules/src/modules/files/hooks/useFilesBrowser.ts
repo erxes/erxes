@@ -16,11 +16,6 @@ type TFilesListData = {
   filesList: { list: IFile[]; totalCount: number; pageInfo: IPageInfo };
 };
 
-/**
- * One folder's view: its subfolders, its files (paged), and the path to it.
- * Without a folder it opens the space's root; the shared space instead lists
- * the folders granted to the user. A search looks through everything readable.
- */
 export const useFilesBrowser = ({
   space = 'personal',
   folderId,
@@ -100,7 +95,6 @@ export const useFilesBrowser = ({
     totalCount: filesQuery.data?.filesList.totalCount || 0,
     folders,
     path,
-    // The open folder; undefined while listing what is shared with the user.
     folderId: isSharedList ? undefined : currentId,
     currentFolder: path.find((folder) => folder._id === currentId),
     isSharedList,

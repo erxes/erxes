@@ -5,10 +5,9 @@ import type {
 import { useEffect, useState } from 'react';
 import { loadPdfjs } from '../utils/pdfjs';
 
-// Measured: 64 KB chunks open a large object-stream PDF in a few range reads.
+// Measured: 64 KB chunks open object-stream PDFs in the fewest range reads.
 const PDF_RANGE_CHUNK = 64 * 1024;
 
-/** Opens a PDF by range requests; pages are fetched only when rendered. */
 export const useFilePdfPreview = (url: string) => {
   const [doc, setDoc] = useState<PDFDocumentProxy | null>(null);
   const [error, setError] = useState<string | null>(null);

@@ -9,7 +9,6 @@ import {
   IFilesShare,
 } from 'ui-modules';
 
-// Lists show a link badge on each file, so they refresh with the link itself.
 const LINK_QUERIES = [
   'FilesShare',
   'FilesList',

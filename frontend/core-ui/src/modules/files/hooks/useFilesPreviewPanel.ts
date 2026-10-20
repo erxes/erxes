@@ -17,7 +17,6 @@ export type TFilesPreviewTab = 'preview' | 'versions';
 
 const TABS: TFilesPreviewTab[] = ['preview', 'versions'];
 
-// The header tile's color tells the kind of file at a glance.
 const TONES: [RegExp, string][] = [
   [/pdf/, 'bg-red-500/10 text-red-600 dark:text-red-400'],
   [/sheet|excel|csv/, 'bg-green-500/10 text-green-600 dark:text-green-400'],
@@ -58,14 +57,13 @@ export const useFilesPreviewPanel = () => {
   const { isSplit, toggleMode } = useFilesPreviewMode();
   const { download } = useFileDownload();
   const { upload } = useFilesUpload();
-  // Functional update: the upload may finish after the sheet was closed or switched.
+  // Functional update: the upload may finish after the sheet changed.
   const keepFresh = (file: IFile) =>
     setPreviewFile((current) =>
       current?._id === file._id ? { ...current, ...file } : current,
     );
   const versions = useFilesVersions(previewFile?._id, keepFresh);
   const canManage = filesCanManage(previewFile?.myRole);
-  // Only managers see or change a file's public link.
   const share = useFilesShare(canManage ? previewFile?._id : undefined);
 
   const close = () => {
@@ -102,11 +100,9 @@ export const useFilesPreviewPanel = () => {
     versions,
     share,
     canManage,
-    // Managers read the live link state; others see what the list said.
     publicLink: canManage ? !!share.share : !!previewFile?.publicLink,
     download: (versionId?: string) =>
       previewFile && download(previewFile._id, versionId),
-    // A new version keeps the file id, so every place that links it now gets the new bytes.
     replace: (files: File[]) =>
       previewFile &&
       files[0] &&

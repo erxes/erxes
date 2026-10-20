@@ -14,7 +14,7 @@ const SIGNATURES: TSignature[] = [
   { mimeType: 'application/zip', offset: 0, bytes: [0x50, 0x4b, 0x03, 0x04] },
 ];
 
-// docx/xlsx/pptx are zip containers; the extension says which one.
+// docx/xlsx/pptx are zip containers; the extension tells them apart.
 const ZIP_CONTAINERS: Record<string, string> = {
   docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
   xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
@@ -40,10 +40,6 @@ export const getExtension = (name: string) => {
   return dot > 0 ? name.slice(dot + 1).toLowerCase() : '';
 };
 
-/**
- * Decides the type from the bytes, not from what the browser claimed.
- * Anything unrecognised is served as an opaque download.
- */
 export const sniffMimeType = (head: Buffer, fileName: string) => {
   const ext = getExtension(fileName);
   const signature = SIGNATURES.find((sig) => matches(head, sig));

@@ -20,7 +20,7 @@ export type TBuiltPreview = {
   viewerPath?: string;
 };
 
-// WebP is left out: Jimp's default build cannot decode it.
+// Jimp's default build can't decode WebP.
 const THUMBNAIL_IMAGE = /^image\/(png|jpeg|gif)$/;
 
 export const getPreviewKind = (mimeType: string, size: number): TPreviewKind | null => {
@@ -58,7 +58,6 @@ const imageThumbnail = async (sourcePath: string, outPath: string) => {
   return outPath;
 };
 
-// Streams the xref listing and stops at the first object kept in an object stream.
 const hasObjectStreams = (sourcePath: string) =>
   new Promise<boolean>((resolve, reject) => {
     const child = spawn('qpdf', ['--show-xref', sourcePath], {
@@ -87,7 +86,7 @@ const hasObjectStreams = (sourcePath: string) =>
         return resolve(true);
       }
 
-      // qpdf exits 3 when it succeeded with warnings, common for real-world PDFs.
+      // qpdf exits 3 on success with warnings.
       if (code === 0 || code === 3) {
         return resolve(false);
       }
@@ -96,10 +95,7 @@ const hasObjectStreams = (sourcePath: string) =>
     });
   });
 
-/**
- * Object streams let pdf.js open a large PDF in a few range reads.
- * Never --linearize: measured to undo the gain.
- */
+// Object streams only; --linearize measured slower in pdf.js.
 const pdfViewerCopy = async (sourcePath: string, dir: string) => {
   if (await hasObjectStreams(sourcePath)) {
     return undefined;
@@ -120,7 +116,6 @@ const pdfViewerCopy = async (sourcePath: string, dir: string) => {
   return outPath;
 };
 
-// A PDF gets no thumbnail: its type icon is enough, and opening it is cheap.
 export const buildPreview = async (
   kind: TPreviewKind,
   sourcePath: string,

@@ -1,7 +1,6 @@
 import { Checkbox, cn } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
-/** Card corner checkbox: shown on hover, and always once anything is selected. */
 export const FilesSelectCheckbox = ({
   checked,
   visible,

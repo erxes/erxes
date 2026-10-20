@@ -2,7 +2,7 @@ import { IFilesAccessGrant } from 'ui-modules';
 import { z } from 'zod';
 import { FILES_PRINCIPAL_TYPES, FILES_ROLES } from '../constants/filesAccess';
 
-// Mirrors the server: everyone needs no id, anyone else does; at most 100 grants.
+// Mirrors the server's grant validation.
 export const filesAccessSchema = z.object({
   restricted: z.boolean(),
   access: z
@@ -23,7 +23,7 @@ export const filesAccessSchema = z.object({
 
 export type TFilesAccessForm = z.infer<typeof filesAccessSchema>;
 
-// Apollo adds __typename; only the fields the mutation takes are kept.
+// Apollo adds __typename; the mutation input rejects it.
 export const toFormGrant = ({ type, id, role }: IFilesAccessGrant) => ({
   type,
   id: id || undefined,
@@ -40,6 +40,5 @@ export const toGrantInput = ({
   ...(type === 'everyone' ? {} : { id }),
 });
 
-// Picking another kind of principal clears the previous pick.
 export const principalTypeOf = (value: string) =>
   FILES_PRINCIPAL_TYPES.find((type) => type === value);

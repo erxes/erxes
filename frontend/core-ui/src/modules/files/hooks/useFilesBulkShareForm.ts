@@ -20,7 +20,6 @@ const EMPTY_GRANT = {
   role: 'viewer' as const,
 };
 
-/** Adds the same people to every selected item; what each already had stays. */
 export const useFilesBulkShareForm = () => {
   const { t } = useTranslation('files');
   const { bulkShareOpen, setBulkShareOpen, selection } = useFilesPage();
@@ -60,7 +59,6 @@ export const useFilesBulkShareForm = () => {
     open: bulkShareOpen,
     close,
     count: selection.count,
-    // A file only takes view or manage; the server reads contributor as view there.
     hasFiles: !!selection.fileIds.length,
     form,
     grants,

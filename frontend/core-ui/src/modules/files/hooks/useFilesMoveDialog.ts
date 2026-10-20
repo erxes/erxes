@@ -59,7 +59,6 @@ export const useFilesMoveDialog = () => {
   const path = useFilesFolderPath(isSharedList ? undefined : currentId, !open);
   const current = path.find((folder) => folder._id === currentId);
 
-  // A folder can't be dropped into itself, so it is hidden from the choices.
   const folders = (
     (isSharedList
       ? sharedQuery.data?.filesSharedWithMe.folders
@@ -98,7 +97,6 @@ export const useFilesMoveDialog = () => {
     path,
     loading: spaces.loading || foldersQuery.loading || sharedQuery.loading,
     moving,
-    // Landing somewhere needs contributor there; the shared list itself is not a folder.
     canMoveHere:
       !isSharedList && !!currentId && filesCanContribute(current?.myRole),
     confirm,

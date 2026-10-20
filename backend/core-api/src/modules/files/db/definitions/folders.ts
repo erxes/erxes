@@ -9,10 +9,8 @@ import {
 
 export interface IFileAccessGrant {
   type: TFilePrincipalType;
-  // Empty for everyone.
   id?: string;
   role: TFileAccessRole;
-  // `type:id` (or `everyone`), the same key the readers arrays hold.
   key: string;
 }
 
@@ -26,7 +24,6 @@ export const fileAccessGrantSchema = new Schema(
   { _id: false },
 );
 
-// Effective access after inheritance, as principal keys; read filters match against these.
 export interface IFilesAccessFields {
   readers: string[];
   contributors: string[];
@@ -36,7 +33,6 @@ export interface IFilesAccessFields {
 export interface IFileFolderAppearance {
   color?: string;
   icon?: string;
-  // An image in Files shown as the folder card's cover.
   coverFileId?: string;
 }
 
@@ -44,13 +40,11 @@ export interface IFileFolder extends IFilesAccessFields {
   name: string;
   appearance?: IFileFolderAppearance;
   parentId?: string;
-  // Root first; lets a whole subtree be found with one indexed query.
+  // Root first; one indexed query finds a whole subtree.
   ancestorIds: string[];
-  // This folder's own grants; what it inherits lives only in the readers arrays.
+  // Own grants only; inherited access lives in the readers arrays.
   access: IFileAccessGrant[];
-  // Stops inheriting from the parent folder.
   restricted?: boolean;
-  // Set only on a space root: 'org' or 'user:<userId>'.
   rootKey?: string;
   createdBy: string;
   deletedAt?: Date;

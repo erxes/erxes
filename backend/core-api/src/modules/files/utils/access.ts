@@ -17,8 +17,7 @@ export type TFilesActor = {
   subdomain: string;
   userId: string;
   principals: string[];
-  // Files admins can see and download everything (each use is logged) but change
-  // only what their own roles allow, so admin rights never pass on to others.
+  // Read-only oversight; admin rights never grant writes.
   isAdmin: boolean;
 };
 
@@ -26,7 +25,6 @@ export type TFilesItemRef = { itemType: 'file' | 'folder'; _id: string };
 
 export type TFilesAccessGrantInput = { type: string; id?: string; role: string };
 
-// Upload and new folders only make sense on folders, so a file grant is view or manage.
 export const FILE_GRANT_ROLES: TFileAccessRole[] = [
   FILE_ACCESS_ROLES.VIEWER,
   FILE_ACCESS_ROLES.MANAGER,
@@ -60,7 +58,6 @@ export const grantFromKey = (key: string, role: TFileAccessRole): IFileAccessGra
 
 const rankOf = (role?: TFileAccessRole | null) => (role ? FILE_ACCESS_ROLE_RANK[role] : 0);
 
-// One grant per principal, keeping the highest role.
 export const normalizeGrants = (
   input: TFilesAccessGrantInput[],
   allowedRoles: TFileAccessRole[] = Object.values(FILE_ACCESS_ROLES),
@@ -97,7 +94,6 @@ export const normalizeGrants = (
   return [...byKey.values()];
 };
 
-// The owner always manages what they made; no one can remove or lower that grant.
 export const withOwnerGrant = (grants: TFilesAccessGrantInput[], ownerId?: string) =>
   ownerId
     ? [
@@ -110,7 +106,6 @@ type TFolderAccess = Pick<IFilesAccessFields, 'readers' | 'managers'>;
 
 const union = (...lists: string[][]) => [...new Set(lists.flat())].sort();
 
-// A file's access: its folder's plus its own grants.
 export const fileAccessFields = (folder: TFolderAccess, grants: IFileAccessGrant[]) => ({
   readers: union(folder.readers, grants.map((g) => g.key)),
   managers: union(
@@ -119,7 +114,6 @@ export const fileAccessFields = (folder: TFolderAccess, grants: IFileAccessGrant
   ),
 });
 
-// The same merge as a pipeline update, so a whole folder's files are rewritten in one call.
 export const fileAccessPipeline = (folder: TFolderAccess) => {
   const ownKeys = (cond: Record<string, unknown> | true) => ({
     $map: {
@@ -156,7 +150,6 @@ export const toRoleMap = (fields?: Partial<IFilesAccessFields> | null): TRoleMap
   return map;
 };
 
-// A folder's own grants on top of what it inherits; the highest role wins.
 export const mergeAccess = (inherited: TRoleMap | null, grants: IFileAccessGrant[]) => {
   const map: TRoleMap = new Map(inherited || []);
 
@@ -224,7 +217,6 @@ export const logAdminAccess = (actor: TFilesActor, operation: string, items: TFi
     .catch(() => undefined);
 };
 
-// Logs the items in a result that only admin rights made visible.
 export const logAdminReads = <T extends Partial<IFilesAccessFields> & { _id: string }>(
   actor: TFilesActor,
   operation: string,
@@ -244,10 +236,7 @@ export const logAdminReads = <T extends Partial<IFilesAccessFields> & { _id: str
   );
 };
 
-/**
- * Throws unless the actor holds `required` on the item. Someone with no role at all
- * gets NOT_FOUND, so a hidden item reads the same as a missing one.
- */
+// No role at all reads as NOT_FOUND, so a hidden item looks missing.
 export const assertRole = (
   actor: TFilesActor,
   item: Partial<IFilesAccessFields> & { _id: string },
@@ -284,7 +273,7 @@ export const roleFromRank = (rank: number) => ROLE_BY_RANK[rank];
 
 type TParentsOf = (ids: string[]) => Promise<{ parentId?: string }[]>;
 
-// Walks up parentId one level per query, so the cost is the tree's depth, not the id count.
+// One query per tree level, not per id.
 const withAncestors = async (parentsOf: TParentsOf, ids: string[] = []) => {
   const seen = new Set(ids);
   let level = ids;
@@ -304,11 +293,7 @@ const withAncestors = async (parentsOf: TParentsOf, ids: string[] = []) => {
 const principalsKey = (subdomain: string, userId: string) =>
   `files:principals:${subdomain}:${userId}`;
 
-/**
- * A grant on a department or branch covers the ones below it, so a user's keys
- * include every ancestor of their own. Cached per user; org-structure and unit
- * changes take effect when the cache expires.
- */
+// Cached per user; org-structure and unit changes apply when it expires.
 const getPrincipals = async (models: IModels, subdomain: string, user: IUserDocument) => {
   const key = principalsKey(subdomain, user._id);
   const cached = await redis.get(key);
@@ -356,14 +341,13 @@ const buildActor = async ({ models, subdomain, user }: IContext): Promise<TFiles
   const [principals, isAdmin] = await Promise.all([
     getPrincipals(models, subdomain, user),
     canGroup(subdomain, 'filesAdmin', user),
-    // Spaces exist (and old data is adopted) before anything is read.
+    // Adopts legacy data before anything is read.
     models.FileFolders.ensureOrgRoot(),
   ]);
 
   return { subdomain, userId: user._id, principals, isAdmin };
 };
 
-// Built once per request: principals come from Redis, not the database.
 export const getFilesActor = (context: IContext) => {
   let actor = actorByRequest.get(context);
 

@@ -1,6 +1,3 @@
-// The public page a share link shows for files a browser can't display itself.
-// Self-contained HTML (no scripts, no outside assets) so it works without login.
-
 export type TShareLang = 'en' | 'mn';
 
 type TShareKind = { pattern: RegExp; label: Record<TShareLang, string>; tone: string };

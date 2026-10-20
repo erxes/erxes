@@ -15,7 +15,6 @@ const assertPinType = (itemType: string): TFilePinItemType => {
   return itemType as TFilePinItemType;
 };
 
-// filesRead lets someone use Files at all; what they may change is decided by folder roles.
 export const filesMutations = {
   async filesUploadStart(
     _parent: undefined,
@@ -40,7 +39,6 @@ export const filesMutations = {
     return session;
   },
 
-  // The session belongs to whoever started it, which was checked then.
   async filesUploadSignParts(
     _parent: undefined,
     { uploadId, from, to }: { uploadId: string; from: number; to: number },
@@ -74,7 +72,7 @@ export const filesMutations = {
     );
 
     if (file.previewStatus === FILE_PREVIEW_STATUSES.PENDING && file.currentVersionId) {
-      // The upload itself succeeded; a preview the queue never got is failed by the sweep.
+      // The upload succeeded; the sweep fails previews the queue never got.
       await queueFilesPreview(context.subdomain, file.currentVersionId).catch(() => undefined);
     }
 

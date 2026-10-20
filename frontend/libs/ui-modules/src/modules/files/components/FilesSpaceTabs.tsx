@@ -9,7 +9,6 @@ const SPACES: { space: TFilesSpace; label: string; Icon: typeof IconUser }[] = [
   { space: 'shared', label: 'shared-with-me', Icon: IconUsersGroup },
 ];
 
-/** Switches between My files, the Org drive and what is shared with the user, inside dialogs. */
 export const FilesSpaceTabs = ({
   value,
   onChange,

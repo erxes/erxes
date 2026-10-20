@@ -16,7 +16,6 @@ import {
   toRoleMap,
 } from '@/files/utils/access';
 
-// One storage client per request, not one config read per folder card.
 const storageByRequest = new WeakMap<IContext, Promise<TFilesStorage>>();
 
 const storageFor = (context: IContext) => {
@@ -30,7 +29,6 @@ const storageFor = (context: IContext) => {
   return storage;
 };
 
-// Files asked about in one tick are answered with one query, so a list costs one lookup.
 const linkBatches = new WeakMap<IContext, { ids: Set<string>; linked: Promise<Set<string>> }>();
 
 const hasPublicLink = async (fileId: string, context: IContext) => {
@@ -53,13 +51,11 @@ const hasPublicLink = async (fileId: string, context: IContext) => {
   return (await batch.linked).has(fileId);
 };
 
-// The editable lists are shown only to the people who may change them.
 const canSeeAccess = async (
   item: IFileFolderDocument | IFileDocument,
   context: IContext,
 ) => myRole(await getFilesActor(context), item) === FILE_ACCESS_ROLES.MANAGER;
 
-// Everyone who can open an item may see who else can, as Drive does.
 const sharedWith = (item: Partial<IFilesAccessFields>) =>
   [...toRoleMap(item).entries()].map(([key, rank]) => grantFromKey(key, roleFromRank(rank)));
 
@@ -88,7 +84,6 @@ export const filesCustomResolvers = {
       return sharedWith(file);
     },
 
-    // Everyone who can open the file should know it is also open to the internet.
     publicLink(file: IFileDocument, _args: undefined, context: IContext) {
       return hasPublicLink(file._id, context);
     },
@@ -145,7 +140,6 @@ export const filesCustomResolvers = {
       return (await canSeeAccess(folder, context)) ? !!folder.restricted : null;
     },
 
-    // What the parent passes down, shown read-only next to the folder's own grants.
     async inheritedAccess(folder: IFileFolderDocument, _args: undefined, context: IContext) {
       return (await canSeeAccess(folder, context)) ? parentAccess(folder.parentId, context) : null;
     },
@@ -166,7 +160,6 @@ export const filesCustomResolvers = {
         return null;
       }
 
-      // A cover from a folder the viewer cannot open is not shown to them.
       const actor = await getFilesActor(context);
 
       if (!actor.isAdmin && !roleOf(file, actor.principals)) {

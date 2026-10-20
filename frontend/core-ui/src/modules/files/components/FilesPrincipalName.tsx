@@ -7,7 +7,6 @@ import {
   SelectUnit,
 } from 'ui-modules';
 
-/** Read-only name of whoever a grant is for. */
 export const FilesPrincipalName = ({ grant }: { grant: IFilesAccessGrant }) => {
   const { t } = useTranslation('files');
   const id = grant.id || '';

@@ -35,7 +35,6 @@ export const useFilesBrowserView = () => {
   const openFile = (file: IFile) => page.setPreviewFile(file);
   const { selection } = page;
 
-  // Shift extends, Cmd/Ctrl toggles; once anything is selected a plain click toggles too.
   const clickItem = (target: TFilesItem, e: React.MouseEvent) => {
     if (e.shiftKey || e.metaKey || e.ctrlKey || selection.count) {
       selection.select(target, { range: e.shiftKey });
@@ -93,7 +92,6 @@ export const useFilesBrowserView = () => {
     clickItem,
     selectItem: (target: TFilesItem, range: boolean) =>
       selection.select(target, { range }),
-    // Pinned items are shortcuts on My files' top level, not repeated inside every folder.
     showPinned:
       pins.hasPins &&
       browser.currentFolder?.space === 'personal' &&
@@ -117,7 +115,6 @@ export const useFilesBrowserView = () => {
       !browser.files.length,
     openFolder: page.openFolder,
     openFile,
-    // Marks the open file so the list shows which one the preview belongs to.
     isOpen: (file: IFile) => page.previewFile?._id === file._id,
     download,
     loadingId,

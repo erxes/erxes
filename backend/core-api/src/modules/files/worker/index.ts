@@ -13,7 +13,6 @@ type TFilesJob = { subdomain: string; versionId?: string; folderId?: string };
 const armed = new Set<string>();
 let started = false;
 
-// The returned counts are kept on the job, so each run can be inspected.
 const filesProcessor = async (
   job: Job<TFilesJob>,
 ): Promise<TFilesSweepResult | TFilesPreviewResult | { folders: number }> => {
@@ -23,7 +22,6 @@ const filesProcessor = async (
     return models.Files.derivePreview(job.data.versionId);
   }
 
-  // Queued by FileFolders.refreshAccess for trees too big to rewrite in a request.
   if (job.name === 'access' && job.data.folderId) {
     return { folders: await models.FileFolders.recomputeAccess(job.data.folderId) };
   }
@@ -43,10 +41,7 @@ export const startFilesWorker = () => {
   });
 };
 
-/**
- * There is no tenant list to walk on start-up, so each tenant arms its own
- * hourly sweep the first time it uploads or trashes something.
- */
+// No tenant list at start-up: each tenant arms its hourly sweep on first use.
 export const scheduleFilesSweep = async (subdomain: string) => {
   if (armed.has(subdomain)) {
     return;
@@ -69,7 +64,7 @@ export const scheduleFilesSweep = async (subdomain: string) => {
   }
 };
 
-// One job per version: a retried complete call never builds it twice.
+// One job per version, so a retried complete never builds it twice.
 export const queueFilesPreview = async (subdomain: string, versionId: string) => {
   await sendWorkerQueue('core', FILES_QUEUE).add(
     'preview',

@@ -17,13 +17,10 @@ export interface IFile {
   status: TFileStatus;
   currentVersionId?: string;
   storageKey?: string;
-  // Copied from the current version, like storageKey.
   previewStatus?: TFilePreviewStatus;
   thumbnailKey?: string;
   viewerKey?: string;
-  // Grants on this file alone (always its owner); they only add to the folder's access.
   access: IFileAccessGrant[];
-  // The folder's access merged with the file's own grants.
   readers: string[];
   managers: string[];
   createdBy: string;

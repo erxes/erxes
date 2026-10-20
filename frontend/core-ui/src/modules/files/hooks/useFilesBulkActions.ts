@@ -5,7 +5,6 @@ import { useFilesPage } from '../context/FilesPageContext';
 import { useFilesActions } from './useFilesActions';
 import { useFilesPins } from './useFilesPins';
 
-/** Everything the selection bar can do; each action needs it to be allowed on every item. */
 export const useFilesBulkActions = () => {
   const { t } = useTranslation('files');
   const { confirm } = useConfirm();
@@ -29,7 +28,6 @@ export const useFilesBulkActions = () => {
     count: selection.count,
     clear: selection.clear,
     canManageAll,
-    // Card looks exist only on folders.
     canAppearance: canManageAll && folders.length === selection.count,
     canPin: !!unpinned && pins.canPin(unpinned),
     pinBlockedByLimit: !!unpinned && !pins.canPin(unpinned),

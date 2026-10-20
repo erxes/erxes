@@ -16,7 +16,6 @@ const targetOf = (data: unknown) =>
 const folderOf = (data: unknown) =>
   (data as { folder?: IFilesFolder } | undefined)?.folder;
 
-/** Moves dragged items (the whole selection when a selected one is dragged) onto a folder. */
 export const useFilesDnd = () => {
   const { selection } = useFilesPage();
   const { move } = useFilesActions();
@@ -42,7 +41,6 @@ export const useFilesDnd = () => {
 
     setMoving([]);
 
-    // Dropping things back where they already are is not a move.
     const alreadyThere = items.every(({ itemType, item }) =>
       itemType === 'file'
         ? item.folderId === folder?._id

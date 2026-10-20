@@ -11,14 +11,11 @@ import { IFilesFolder, TFilesSpace } from '../types';
 type TFilesBreadcrumbProps = {
   space: TFilesSpace;
   path: IFilesFolder[];
-  // Called with no id for the shared list.
   onOpen: (folderId?: string) => void;
   size?: 'sm' | 'default';
-  // Lets the page make each crumb a drop target without this component knowing how.
   wrapItem?: (folder: IFilesFolder, crumb: ReactNode) => ReactNode;
 };
 
-/** Root-first path; a space root shows its space's name, a shared tree starts at "Shared with me". */
 export const FilesBreadcrumb = ({
   space,
   path,

@@ -16,7 +16,6 @@ const GROUP_ICONS = {
   unit: IconUsers,
 };
 
-/** Who can open an item: member avatars, then one chip per kind of group. */
 export const FilesSharedWith = ({
   sharedWith,
 }: Parameters<typeof useFilesSharedWith>[0]) => {

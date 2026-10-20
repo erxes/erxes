@@ -7,7 +7,7 @@ import { useImageFallback } from '../hooks/useImageFallback';
 import { IFile } from '../types';
 import { FileTypeIcon } from './FileTypeIcon';
 
-// Each viewer pulls in a large library, so it loads only when first needed.
+// Lazy: each viewer pulls in a large library.
 const FilePdfPreview = lazy(() =>
   import('./FilePdfPreview').then((m) => ({ default: m.FilePdfPreview })),
 );
@@ -29,7 +29,6 @@ type TFilePreviewProps = {
   onDownload: () => void;
 };
 
-/** Shows a file in place; types the browser can't render fall back to download. */
 export const FilePreview = ({ file, onDownload }: TFilePreviewProps) => {
   const { t } = useTranslation('files');
   const { kind, url, text, canOpenInTab, loading, error } =
@@ -48,7 +47,6 @@ export const FilePreview = ({ file, onDownload }: TFilePreviewProps) => {
     return <div className="p-4 text-sm text-destructive">{error}</div>;
   }
 
-  // An image storage won't serve gets the same download card as an unsupported type.
   if (kind === 'none' || !url || (kind === 'image' && !image.showImage)) {
     return (
       <div className="flex h-full flex-col items-center justify-center gap-3 p-6 text-center">

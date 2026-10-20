@@ -1,6 +1,6 @@
 import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
 
-// Sizes are Float: a GraphQL Int is 32-bit and a file can pass 2 GB.
+// Float: GraphQL Int is 32-bit and files exceed 2 GB.
 export const types = `
   type File {
     _id: String!

@@ -83,7 +83,6 @@ export type TFilesListParams = ICursorPaginateParams & {
 const TRASH_LIMIT = 200;
 const SHARED_WITH_ME_LIMIT = 500;
 
-// The uploader owns the file: manager on it even where they only contribute.
 const uploadAccess = (folder: IFileFolderDocument, userId: string) => {
   const access = normalizeGrants(withOwnerGrant([], userId));
 
@@ -159,7 +158,6 @@ export interface IFileModel extends Model<IFileDocument> {
     options: { versionId?: string; inline?: boolean; viewer?: boolean },
     actor: TFilesActor,
   ): Promise<string>;
-  // Only for a share link, where the token is the permission.
   getSharedFileUrl(fileId: string, options?: { attachment?: boolean }): Promise<string>;
   derivePreview(versionId: string): Promise<TFilesPreviewResult>;
   renameFile(_id: string, name: string, actor: TFilesActor): Promise<IFileDocument>;
@@ -174,7 +172,6 @@ export const loadFileClass = (models: IModels) => {
   const storageKeyFor = (fileId: string, versionId: string) =>
     `files/${fileId}/${versionId}`;
 
-  // Missing keys are unset, so a file never keeps another version's derivatives.
   const previewUpdate = ({ previewStatus, thumbnailKey, viewerKey }: TFilePreviewFields) => {
     const $set: Record<string, string> = {
       previewStatus: previewStatus || FILE_PREVIEW_STATUSES.NONE,
@@ -189,11 +186,10 @@ export const loadFileClass = (models: IModels) => {
       }
     }
 
-    // An empty $unset is rejected by MongoDB.
+    // MongoDB rejects an empty $unset.
     return Object.keys($unset).length ? { $set, $unset } : { $set };
   };
 
-  // The file copies a version's fields only while that version is current.
   const setVersionPreview = async (
     version: { _id: string; fileId: string },
     fields: TFilePreviewFields,
@@ -280,7 +276,6 @@ export const loadFileClass = (models: IModels) => {
     }
   };
 
-  // Deletes the file's bytes, versions and record, and gives the space back.
   const purgeFiles = async (
     storage: TFilesStorage | null,
     files: { _id: string }[],
@@ -343,7 +338,6 @@ export const loadFileClass = (models: IModels) => {
     return { files: purgedFiles, folders: folderIds.length };
   };
 
-  // A restored item whose parent is gone or still in trash comes back at the root.
   const isFolderUsable = async (folderId?: string) => {
     if (!folderId) {
       return true;
@@ -383,7 +377,6 @@ export const loadFileClass = (models: IModels) => {
       throw new ExpectedError('File is not ready yet', 'FILES_NOT_READY');
     }
 
-    // Downloads and share links always get the original bytes.
     return signRead(
       await getFilesStorage(models),
       (viewer && version.viewerKey) || version.storageKey,
@@ -396,7 +389,6 @@ export const loadFileClass = (models: IModels) => {
     );
   };
 
-  // Loads the items and requires manager on each, so one hidden item fails the batch.
   const loadManaged = async (
     { fileIds = [], folderIds = [] }: TFilesItemIds,
     actor: TFilesActor,
@@ -427,7 +419,6 @@ export const loadFileClass = (models: IModels) => {
     return { files, folders };
   };
 
-  // Moves files into a folder, merging its access with each file's own grants.
   const placeFiles = (fileIds: string[], folder: IFileFolderDocument, extra = {}) =>
     models.Files.updateMany({ _id: { $in: fileIds } }, [
       { $set: { folderId: folder._id } },
@@ -435,7 +426,6 @@ export const loadFileClass = (models: IModels) => {
       ...fileAccessPipeline(folder),
     ]);
 
-  // Where a restored item goes when its own folder is gone: its space root, else My files.
   const fallbackFolder = async (folderId: string | undefined, actor: TFilesActor) => {
     const folder = folderId
       ? await models.FileFolders.findOne({ _id: folderId }, { ancestorIds: 1, rootKey: 1 }).lean<
@@ -459,7 +449,6 @@ export const loadFileClass = (models: IModels) => {
       return file;
     }
 
-    // A search looks across everything readable; browsing stays inside one folder.
     public static async listFiles(
       { folderId, searchValue, ...params }: TFilesListParams,
       actor: TFilesActor,
@@ -503,7 +492,6 @@ export const loadFileClass = (models: IModels) => {
       return files;
     }
 
-    // Trash shows what the actor could restore or delete: items they manage.
     public static async listTrash(actor: TFilesActor) {
       const [files, folders] = await Promise.all([
         models.Files.find({ deletedAt: { $ne: null }, ...manageFilter(actor) })
@@ -519,10 +507,6 @@ export const loadFileClass = (models: IModels) => {
       return { files, folders };
     }
 
-    /**
-     * Files granted to the actor directly whose folder they cannot see. Files in
-     * a trashed folder are left out, like the folder itself.
-     */
     public static async listSharedFiles(actor: TFilesActor) {
       const candidates = await models.Files.find({
         'access.key': { $in: actor.principals },
@@ -563,17 +547,12 @@ export const loadFileClass = (models: IModels) => {
         .sort((a, b) => a.name.localeCompare(b.name));
     }
 
-    /**
-     * Adds the same grants to many items and keeps what each already had; a
-     * grant only ever raises a role. Checks every item before changing any.
-     */
     public static async addAccess(
       items: TFilesItemIds,
       grants: TFilesAccessGrantInput[],
       actor: TFilesActor,
     ) {
       const { files, folders } = await loadManaged(items, actor, 'setAccess', false);
-      // Upload and new folders mean nothing on a file, so a contributor grant views it.
       const fileGrants = grants.map((grant) =>
         grant.role === FILE_ACCESS_ROLES.CONTRIBUTOR
           ? { ...grant, role: FILE_ACCESS_ROLES.VIEWER }
@@ -666,14 +645,12 @@ export const loadFileClass = (models: IModels) => {
         throw new ExpectedError('File is too large to upload', 'FILES_TOO_LARGE');
       }
 
-      // Replacing keeps the file's id, so every link to it now serves the new bytes.
       const replacing = replaceFileId ? await models.Files.getFile(replaceFileId) : null;
 
       if (replacing && (replacing.deletedAt || replacing.status !== FILE_STATUSES.READY)) {
         throw new ExpectedError('Only a ready file can be replaced', 'FILES_NOT_READY');
       }
 
-      // Replacing changes what every link to the file serves, so it is a manage action.
       if (replacing) {
         assertRole(actor, replacing, FILE_ACCESS_ROLES.MANAGER, 'replaceFile', 'file');
       }
@@ -827,8 +804,7 @@ export const loadFileClass = (models: IModels) => {
       const session = await getSession(uploadId, userId);
       const file = await models.Files.getFile(session.fileId);
 
-      // Access can be taken away while a large upload is still running, so it is
-      // checked again: a new version needs the same manager role that started it.
+      // Access may be revoked during a long upload, so it is checked again.
       if (file.status === FILE_STATUSES.READY) {
         assertRole(actor, file, FILE_ACCESS_ROLES.MANAGER, 'replaceFile', 'file');
       } else {
@@ -991,7 +967,7 @@ export const loadFileClass = (models: IModels) => {
 
           if (built.thumbnailPath) {
             uploaded.thumbnailKey = `${version.storageKey}.thumb.png`;
-            // Keyed by version, so the image never changes under the same key.
+            // Keyed by version, so the cached image never changes.
             await uploadObject(
               storage,
               uploaded.thumbnailKey,
@@ -1038,8 +1014,7 @@ export const loadFileClass = (models: IModels) => {
       assertRole(actor, file, FILE_ACCESS_ROLES.MANAGER, 'renameFile', 'file');
 
       const typed = validateItemName(name);
-      // The extension is part of what the bytes are (docx/xlsx are told apart by it),
-      // so a rename never changes it: a different one is kept as part of the name.
+      // Rename keeps the extension: docx/xlsx are told apart by it.
       const fileName =
         file.ext && getExtension(typed) !== file.ext
           ? validateItemName(`${typed}.${file.ext}`)
@@ -1050,7 +1025,6 @@ export const loadFileClass = (models: IModels) => {
       return models.Files.getFile(_id);
     }
 
-    // Moving needs manager on what moves and contributor where it lands.
     public static async moveItems(
       items: TFilesItemIds,
       folderId: string | undefined,
@@ -1101,7 +1075,6 @@ export const loadFileClass = (models: IModels) => {
       return true;
     }
 
-    // A restored item whose folder is gone or still in trash goes back to its space root.
     public static async restoreItems(items: TFilesItemIds, actor: TFilesActor) {
       const { files, folders } = await loadManaged(items, actor, 'restore', true);
       const restored = { $unset: { deletedAt: 1, deletedBy: 1 } };
@@ -1130,7 +1103,6 @@ export const loadFileClass = (models: IModels) => {
       return true;
     }
 
-    // Only what is already in trash can be deleted for good.
     public static async purgeItems(items: TFilesItemIds, actor: TFilesActor) {
       const { files, folders } = await loadManaged(items, actor, 'purge', true);
 
@@ -1160,7 +1132,7 @@ export const loadFileClass = (models: IModels) => {
         { _id: 1 },
       ).lean<{ _id: string }[]>();
 
-      // One broken session must not keep the rest from being cleaned up.
+      // One broken session must not block the rest of the sweep.
       for (const session of expired) {
         try {
           await models.Files.abortUpload(session._id);
@@ -1183,7 +1155,7 @@ export const loadFileClass = (models: IModels) => {
         result.purgedFolders += folders.folders;
       }
 
-      // Read after the folders go, so files inside them aren't counted twice.
+      // Read after the folders go, so their files aren't counted twice.
       const oldFiles = await models.Files.find(
         { deletedAt: { $lt: cutoff } },
         { _id: 1 },

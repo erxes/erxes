@@ -5,7 +5,6 @@ import { useTranslation } from 'react-i18next';
 import { FilesDndStateProvider } from '../context/FilesDndContext';
 import { useFilesDnd } from '../hooks/useFilesDnd';
 
-/** Lets cards, rows and breadcrumb folders take part in drag-to-move. */
 export const FilesDndProvider = ({ children }: { children: ReactNode }) => {
   const { t } = useTranslation('files');
   const dnd = useFilesDnd();

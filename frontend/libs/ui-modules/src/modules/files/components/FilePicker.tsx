@@ -25,10 +25,6 @@ type TFilePickerProps = {
   title?: ReactNode;
 };
 
-/**
- * Lets any module choose files from Files (or upload new ones into it).
- * Controlled: the caller owns `open` and receives the chosen records.
- */
 export const FilePicker = (props: TFilePickerProps) => {
   const { t } = useTranslation('files');
   const inputRef = useRef<HTMLInputElement>(null);

@@ -22,7 +22,6 @@ import { FilesPublicLinkBadge } from './FilesPublicLinkBadge';
 import { FilesSharedWith } from './FilesSharedWith';
 import { FilesVersionsList } from './FilesVersionsList';
 
-/** The preview itself; the page shows it in a sheet or beside the list. */
 export const FilesPreviewPanel = () => {
   const { t } = useTranslation('files');
   const replaceRef = useRef<HTMLInputElement>(null);

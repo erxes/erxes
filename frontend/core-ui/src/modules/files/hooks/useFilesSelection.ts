@@ -10,11 +10,6 @@ export type TFilesSelectMode = { range?: boolean };
 export const filesItemKey = ({ itemType, item }: TFilesItem) =>
   `${itemType}:${item._id}`;
 
-/**
- * Multi-select over what the page shows. `visible` is the on-screen order used
- * for Shift ranges; the selection resets whenever `resetKey` changes (another
- * folder, space or search).
- */
 export const useFilesSelection = (visible: TFilesItem[], resetKey: string) => {
   const [selected, setSelected] = useState<Map<string, TFilesItem>>(new Map());
   const [anchor, setAnchor] = useState<string | null>(null);

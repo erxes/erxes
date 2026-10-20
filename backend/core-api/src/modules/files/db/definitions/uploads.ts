@@ -1,15 +1,10 @@
 import { schemaWrapper } from 'erxes-api-shared/utils';
 import { Document, Schema } from 'mongoose';
 
-/**
- * One in-flight upload. Lives in Mongo, not process memory, so any replica can
- * sign, resume or complete it. Not TTL-indexed on purpose: the sweep must see
- * an expired session to abort it in storage and give its quota back.
- */
+// Not TTL-indexed: the sweep must abort the storage upload and free its quota.
 export interface IFileUpload {
   fileId: string;
   versionId: string;
-  // Absent for a single PUT upload (file fits in one part).
   s3UploadId?: string;
   storageKey: string;
   size: number;

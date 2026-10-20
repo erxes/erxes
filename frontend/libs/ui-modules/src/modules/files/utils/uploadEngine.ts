@@ -29,7 +29,7 @@ class UploadStoppedError extends Error {}
 const jobs = new Map<string, TJob>();
 let running = 0;
 
-// Survives a page reload: picking the same file again resumes its session.
+// Survives a reload: picking the same file again resumes its session.
 const fingerprint = (file: File, target?: string) =>
   `${target || ''}|${file.name}|${file.size}|${file.lastModified}`;
 
@@ -53,7 +53,7 @@ const writeResumable = (key: string, uploadId?: string) => {
 
     localStorage.setItem(RESUME_KEY, JSON.stringify(saved));
   } catch {
-    // Storage blocked: uploads still work, they just can't resume after reload.
+    // Storage blocked: uploads work but can't resume after a reload.
   }
 };
 
@@ -251,7 +251,7 @@ const runUpload = async (localId: string, job: TJob) => {
       writeResumable(key);
     }
 
-    // A single PUT can't be resumed; drop it so its quota reservation is freed now.
+    // A single PUT can't resume; abort it so its quota reservation frees now.
     if (resumed) {
       await job.client
         .mutate({
@@ -407,7 +407,6 @@ export const uploadEngine = {
     }
   },
 
-  // Resume and retry are the same: the session remembers which parts arrived.
   resume(localId: string) {
     if (jobs.has(localId)) {
       uploadStore.update(localId, { status: 'queued', error: undefined });

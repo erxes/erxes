@@ -4,7 +4,6 @@ import { mongooseStringRandomId } from 'erxes-api-shared/utils';
 export const FILE_PIN_ITEM_TYPES = ['file', 'folder'] as const;
 export type TFilePinItemType = (typeof FILE_PIN_ITEM_TYPES)[number];
 
-/** Each person's own shortcuts; pinning never changes what others see. */
 export interface IFilePin {
   userId: string;
   itemType: TFilePinItemType;

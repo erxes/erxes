@@ -13,7 +13,6 @@ export const useFilesHeader = () => {
     openFolder: page.openFolder,
     searchValue: page.searchValue,
     setSearchValue: page.setSearchValue,
-    // Upload and new folder act on the open folder, so they need contributor there.
     canContribute:
       !isSearching &&
       !!browser.folderId &&

@@ -29,7 +29,6 @@ export const loadFilePinClass = (models: IModels) => {
       });
     }
 
-    // All or nothing: a batch that would pass the limit pins none of its items.
     public static async pinMany(
       actor: TFilesActor,
       { fileIds = [], folderIds = [] }: TFilesItemIds,
@@ -81,7 +80,6 @@ export const loadFilePinClass = (models: IModels) => {
       return true;
     }
 
-    // Trashed or no longer shared items drop out but keep their pin, so access coming back restores it.
     public static async getPinned(actor: TFilesActor) {
       const pins = await models.FilePins.find({ userId: actor.userId })
         .sort({ createdAt: 1 })

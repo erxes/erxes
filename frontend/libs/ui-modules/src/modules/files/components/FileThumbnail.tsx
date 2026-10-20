@@ -3,7 +3,6 @@ import { useImageFallback } from '../hooks/useImageFallback';
 import { IFile } from '../types';
 import { FileTypeIcon } from './FileTypeIcon';
 
-/** The built thumbnail once it exists, the type icon until then. */
 export const FileThumbnail = ({
   file,
   className,

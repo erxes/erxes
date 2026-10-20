@@ -6,7 +6,7 @@ const RANK: Record<TFilesRole, number> = {
   manager: 3,
 };
 
-// The server enforces these; the UI only hides what would be refused.
+// UI hint only; the server enforces roles.
 export const filesCanContribute = (role?: TFilesRole | null) =>
   !!role && RANK[role] >= RANK.contributor;
 

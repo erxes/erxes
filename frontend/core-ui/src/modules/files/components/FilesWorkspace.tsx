@@ -3,7 +3,6 @@ import { useFilesPreviewMode } from '../hooks/useFilesPreviewMode';
 import { FilesBrowser } from './FilesBrowser';
 import { FilesPreviewPanel } from './FilesPreviewPanel';
 
-/** The list, with the preview beside it when split mode is on and a file is open. */
 export const FilesWorkspace = () => {
   const { splitOpen } = useFilesPreviewMode();
 

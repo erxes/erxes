@@ -5,7 +5,6 @@ type TFilesSpacesData = {
   filesSpaces: { myRootId: string; orgRootId: string };
 };
 
-/** Root folder ids of the user's My files and the Org drive. */
 export const useFilesSpaces = (skip?: boolean) => {
   const { data, loading, error } = useQuery<TFilesSpacesData>(FILES_SPACES, {
     skip,

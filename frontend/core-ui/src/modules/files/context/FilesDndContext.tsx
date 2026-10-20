@@ -1,7 +1,6 @@
 import { createContext, ReactNode, useContext } from 'react';
 
 type TFilesDndState = {
-  // Folders being dragged: they and everything under them can't be drop targets.
   movingFolderIds: string[];
 };
 

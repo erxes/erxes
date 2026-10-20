@@ -5,7 +5,6 @@ import { filesItemKey, TFilesItem } from './useFilesSelection';
 
 export const FILES_DROP_PREFIX = 'drop:';
 
-// A folder accepts a drop when the user can add to it and it isn't one of the moving folders or inside them.
 export const useFilesDropTarget = (folder?: IFilesFolder) => {
   const { movingFolderIds } = useFilesDndState();
   const blocked =
@@ -22,7 +21,6 @@ export const useFilesDropTarget = (folder?: IFilesFolder) => {
   return { setNodeRef, isDropTarget: !!active && isOver && !blocked };
 };
 
-/** Drag handle props for a card or row; only managers can move an item. */
 export const useFilesItemDrag = (target: TFilesItem) => {
   const { setNodeRef, attributes, listeners, isDragging } = useDraggable({
     id: filesItemKey(target),

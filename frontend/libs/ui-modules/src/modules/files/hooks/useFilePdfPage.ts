@@ -7,7 +7,6 @@ import { useInView } from 'react-intersection-observer';
 
 const PAGE_RENDER_WIDTH = 900;
 
-/** Renders one page once it nears the viewport, so a long PDF stays cheap. */
 export const useFilePdfPage = (doc: PDFDocumentProxy, pageNumber: number) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [rendered, setRendered] = useState(false);

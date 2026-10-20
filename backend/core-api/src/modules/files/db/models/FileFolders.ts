@@ -104,7 +104,7 @@ const assertNotRoot = (folder: IFileFolderDocument) => {
 };
 
 export const loadFileFolderClass = (models: IModels, subdomain: string) => {
-  // Versioned so a deploy that changes what adoption does runs it once more.
+  // Bump the version to rerun adoption after a deploy.
   const spacesKey = `files:spaces:v2:${subdomain}`;
 
   const inChunks = async <T>(ops: T[], write: (chunk: T[]) => Promise<unknown>) => {
@@ -113,11 +113,6 @@ export const loadFileFolderClass = (models: IModels, subdomain: string) => {
     }
   };
 
-  /**
-   * Data from before access control had no spaces: top-level folders and loose
-   * files go into the Org drive, and each folder's creator becomes its manager,
-   * so everyone keeps seeing and editing what they did. Safe to run twice.
-   */
   const adoptLegacy = async (orgRootId: string) => {
     const legacy = { rootKey: { $exists: false }, access: { $exists: false } };
 
@@ -133,7 +128,7 @@ export const loadFileFolderClass = (models: IModels, subdomain: string) => {
       { folderId: { $in: [null, ''] } },
       { $set: { folderId: orgRootId } },
     );
-    // Last, because it is what marks a folder as adopted.
+    // Last: this update is what marks a folder as adopted.
     const { modifiedCount } = await models.FileFolders.updateMany(legacy, [
       {
         $set: {
@@ -150,7 +145,6 @@ export const loadFileFolderClass = (models: IModels, subdomain: string) => {
       },
     ]);
 
-    // Files from before per-file sharing get their uploader as owner.
     const { modifiedCount: ownedFiles } = await models.Files.updateMany(
       { access: { $exists: false } },
       [
@@ -178,7 +172,6 @@ export const loadFileFolderClass = (models: IModels, subdomain: string) => {
       await models.FileFolders.refreshAccess(orgRootId);
     }
 
-    // Owner grants can sit in any space, so every root's files are merged again.
     if (ownedFiles) {
       const roots = await models.FileFolders.find(
         { rootKey: { $exists: true } },
@@ -243,7 +236,6 @@ export const loadFileFolderClass = (models: IModels, subdomain: string) => {
       return folder;
     }
 
-    // Cached in Redis, so a request normally pays one GET for it.
     public static async ensureOrgRoot() {
       const cached = await redis.get(spacesKey);
 
@@ -297,7 +289,6 @@ export const loadFileFolderClass = (models: IModels, subdomain: string) => {
       return folder;
     }
 
-    // Without a parent this is the actor's own My files.
     public static async listFolders(parentId: string | undefined, actor: TFilesActor) {
       const parent = parentId
         ? await models.FileFolders.getReadableFolder(parentId, actor)
@@ -316,10 +307,6 @@ export const loadFileFolderClass = (models: IModels, subdomain: string) => {
       return folders;
     }
 
-    /**
-     * Folders granted to the actor whose parent they cannot see: the entry
-     * points into trees they were invited into.
-     */
     public static async listSharedWithMe(actor: TFilesActor) {
       const candidates = await models.FileFolders.find({
         'access.key': { $in: actor.principals },
@@ -340,7 +327,6 @@ export const loadFileFolderClass = (models: IModels, subdomain: string) => {
       );
       const entries = candidates.filter((f) => !f.parentId || !visibleParents.has(f.parentId));
 
-      // Folders sitting inside a trashed folder are not reachable either.
       const ancestorIds = [...new Set(entries.flatMap((f) => f.ancestorIds))];
       const trashed = new Set(
         (
@@ -356,7 +342,6 @@ export const loadFileFolderClass = (models: IModels, subdomain: string) => {
         .sort((a, b) => a.name.localeCompare(b.name));
     }
 
-    // The breadcrumb starts below the last ancestor the actor cannot see.
     public static async getPath(_id: string, actor: TFilesActor) {
       const folder = await models.FileFolders.getReadableFolder(_id, actor);
       const ancestors = await models.FileFolders.find({
@@ -460,7 +445,6 @@ export const loadFileFolderClass = (models: IModels, subdomain: string) => {
       return models.FileFolders.getFolder(_id);
     }
 
-    // Checks every folder before changing any, so a batch is all or nothing.
     public static async setAppearanceMany(
       _ids: string[],
       appearance: IFileFolderAppearance,
@@ -501,9 +485,7 @@ export const loadFileFolderClass = (models: IModels, subdomain: string) => {
         { _id },
         {
           $set: {
-            // The org root has no owner; any other folder keeps its creator as manager.
             access: normalizeGrants(withOwnerGrant(access, folder.rootKey ? undefined : folder.createdBy)),
-            // A root has nothing above it to inherit from.
             restricted: folder.rootKey ? true : !!restricted,
           },
         },
@@ -534,7 +516,6 @@ export const loadFileFolderClass = (models: IModels, subdomain: string) => {
         { $set: { parentId: parent._id, ancestorIds } },
       );
 
-      // Descendants keep everything below this folder and swap the prefix above it.
       await models.FileFolders.updateMany({ ancestorIds: folder._id }, [
         {
           $set: {
@@ -554,16 +535,11 @@ export const loadFileFolderClass = (models: IModels, subdomain: string) => {
         },
       ]);
 
-      // The new parent's access now flows into the subtree.
       await models.FileFolders.refreshAccess(_id);
 
       return models.FileFolders.getFolder(_id);
     }
 
-    /**
-     * Small trees are recomputed now; a big one updates the changed folder at
-     * once and leaves its descendants to the worker.
-     */
     public static async refreshAccess(_id: string) {
       const count = await models.FileFolders.countDocuments({ ancestorIds: _id });
 
@@ -581,7 +557,6 @@ export const loadFileFolderClass = (models: IModels, subdomain: string) => {
       );
     }
 
-    // Rewrites the readers arrays of a folder, its subtree and their files.
     public static async recomputeAccess(_id: string, { topOnly }: { topOnly?: boolean } = {}) {
       const top = await models.FileFolders.findOne({ _id }).lean<IFileFolderDocument | null>();
 
@@ -636,7 +611,6 @@ export const loadFileFolderClass = (models: IModels, subdomain: string) => {
           folderOps.push({ updateOne: { filter: { _id: folder._id }, update: { $set: fields } } });
         }
 
-        // Files are rewritten for every folder: cheap, and it heals any file left stale.
         fileOps.push({
           updateMany: { filter: { folderId: folder._id }, update: fileAccessPipeline(fields) },
         });

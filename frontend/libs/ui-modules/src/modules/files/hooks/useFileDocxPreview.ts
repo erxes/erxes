@@ -34,7 +34,7 @@ export const useFileDocxPreview = (url: string) => {
       }),
     ])
       .then(async ([{ renderAsync }, blob]) => {
-        // Rendered off-DOM, so a superseded render never mixes into the visible one.
+        // Rendered off-DOM so a superseded render never shows.
         const target = document.createElement('div');
 
         // Alt chunks are raw HTML embedded in the document.

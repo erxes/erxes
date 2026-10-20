@@ -21,7 +21,6 @@ export const loadFileShareClass = (models: IModels) => {
       return models.FileShares.findOne({ fileId, revokedAt: null }).lean<IFileShareDocument | null>();
     }
 
-    // Which of these files can be opened by anyone holding a link.
     public static async withActiveLink(fileIds: string[]) {
       const shares = await models.FileShares.find(
         { fileId: { $in: fileIds }, revokedAt: null },
@@ -31,11 +30,10 @@ export const loadFileShareClass = (models: IModels) => {
       return new Set(shares.map((share) => share.fileId));
     }
 
-    // Only managers see a file's public link.
     public static async getManagedShare(fileId: string, actor: TFilesActor) {
       const file = await models.Files.getFile(fileId);
 
-      // The link is a credential, so admin read rights do not reveal it.
+      // The link is a credential; admin read rights don't reveal it.
       if (roleOf(file, actor.principals) !== FILE_ACCESS_ROLES.MANAGER) {
         return null;
       }
@@ -43,7 +41,6 @@ export const loadFileShareClass = (models: IModels) => {
       return models.FileShares.getActiveShare(fileId);
     }
 
-    // One live link per file: asking again returns the same link.
     public static async createShare(fileId: string, actor: TFilesActor) {
       const file = await models.Files.getFile(fileId);
 
@@ -81,7 +78,6 @@ export const loadFileShareClass = (models: IModels) => {
       const share = await models.FileShares.findOne({ token, revokedAt: null });
       const file = share ? await models.Files.findOne({ _id: share.fileId }) : null;
 
-      // A trashed or missing file reads the same as a revoked link.
       if (!share || !file || file.deletedAt || file.status !== FILE_STATUSES.READY) {
         throw new ExpectedError('This link is no longer available', 'NOT_FOUND');
       }

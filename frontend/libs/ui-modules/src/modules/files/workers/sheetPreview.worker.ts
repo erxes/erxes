@@ -15,7 +15,7 @@ export type TSheetPreviewResult =
     }
   | { error: string };
 
-// Parsed off the main thread: SheetJS holds several times the file size in memory.
+// Off the main thread: SheetJS holds several times the file size in memory.
 self.onmessage = async (event: MessageEvent<TSheetPreviewRequest>) => {
   const { url, isCsv, maxRows } = event.data;
 
@@ -26,7 +26,7 @@ self.onmessage = async (event: MessageEvent<TSheetPreviewRequest>) => {
       throw new Error(`Storage returned ${res.status}`);
     }
 
-    // CSV goes in as text so UTF-8 (e.g. Cyrillic) is not read as Latin-1.
+    // CSV as text, so UTF-8 (e.g. Cyrillic) isn't read as Latin-1.
     const workbook = isCsv
       ? read(await res.text(), {
           type: 'string',

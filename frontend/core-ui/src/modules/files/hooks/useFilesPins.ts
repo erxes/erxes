@@ -47,7 +47,6 @@ export const useFilesPins = () => {
 
   return {
     count,
-    // Whether this many more pins still fit under the limit.
     canPin: (more = 1) => count + more <= FILES_MAX_PINS,
     pinMany: (items: { fileIds: string[]; folderIds: string[] }) =>
       pinManyMutation({ variables: items }),

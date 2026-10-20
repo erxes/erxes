@@ -13,11 +13,9 @@ type TFilesPrincipalSelectProps = {
   onChange: (id?: string) => void;
 };
 
-// The select components report a list in multiple mode; a grant names one principal.
 const single = (value?: string | string[] | null) =>
   (Array.isArray(value) ? value[0] : value) || undefined;
 
-/** Picks the user, department, branch or unit a grant is for; everyone needs no pick. */
 export const FilesPrincipalSelect = ({
   type,
   value,

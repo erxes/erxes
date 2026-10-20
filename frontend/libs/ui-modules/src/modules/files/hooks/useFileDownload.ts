@@ -4,10 +4,7 @@ import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FILES_DOWNLOAD_URL } from '../graphql/queries';
 
-/**
- * Asks for a fresh signed URL on every click: they live five minutes, so a
- * cached one would break a tab left open.
- */
+// Fresh signed URL per click: they expire in five minutes.
 export const useFileDownload = () => {
   const client = useApolloClient();
   const { t } = useTranslation('files');
@@ -17,7 +14,7 @@ export const useFileDownload = () => {
     async (fileId: string, inline: boolean, versionId?: string) => {
       setLoadingId(fileId);
 
-      // Opened before the await: popup blockers only allow it inside the click.
+      // Opened before the await: popup blockers allow it only inside the click.
       const tab = window.open('', '_blank');
 
       if (tab) {

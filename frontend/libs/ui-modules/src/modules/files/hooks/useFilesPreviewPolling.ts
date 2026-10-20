@@ -4,11 +4,7 @@ import { IFile } from '../types';
 
 const POLL_MS = 4000;
 
-/**
- * Thumbnails are built after upload; this refreshes only the rows still
- * waiting, so a paged list never refetches. Results land in the normalized
- * cache, so every list showing the file updates on its own.
- */
+// Polls only pending rows; the normalized cache updates every list.
 export const useFilesPreviewPolling = (files: IFile[]) => {
   const pendingIds = files
     .filter((file) => file.previewStatus === 'pending')

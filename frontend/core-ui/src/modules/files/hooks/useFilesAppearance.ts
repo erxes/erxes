@@ -28,7 +28,6 @@ export const isCoverImage = (file: IFile) =>
 export const useFilesAppearance = () => {
   const { t } = useTranslation('files');
   const { appearanceFolders, setAppearanceFolders, selection } = useFilesPage();
-  // One folder starts from its own look; several start blank and all get the same.
   const single = appearanceFolders.length === 1 ? appearanceFolders[0] : null;
   const close = () => setAppearanceFolders([]);
   const [draft, setDraft] = useState<IFilesFolderAppearance>({});

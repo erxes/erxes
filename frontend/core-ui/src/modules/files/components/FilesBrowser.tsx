@@ -148,7 +148,6 @@ export const FilesBrowser = () => {
           : ''
       }`}
       {...view.dropHandlers}
-      // A click on empty space (not on a card or row) drops the selection.
       onClick={(e) => e.target === e.currentTarget && view.selection.clear()}
     >
       {view.showPinned && (

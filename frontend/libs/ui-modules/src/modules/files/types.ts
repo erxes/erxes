@@ -1,4 +1,3 @@
-// Ranked: each role can do everything the ones before it can.
 export type TFilesRole = 'viewer' | 'contributor' | 'manager';
 
 export type TFilesPrincipalType =
@@ -8,7 +7,6 @@ export type TFilesPrincipalType =
   | 'unit'
   | 'everyone';
 
-// personal = My files, org = Org drive; shared lists folders granted to the user.
 export type TFilesSpace = 'personal' | 'org' | 'shared';
 
 export interface IFilesAccessGrant {
@@ -29,11 +27,8 @@ export interface IFile {
   previewStatus?: TFilePreviewStatus | null;
   thumbnailUrl?: string | null;
   myRole?: TFilesRole | null;
-  // Everyone who can open it, for the avatars.
   sharedWith?: IFilesAccessGrant[] | null;
-  // Whether anyone with a link can open it.
   publicLink?: boolean | null;
-  // Returned to managers only.
   access?: IFilesAccessGrant[] | null;
   inheritedAccess?: IFilesAccessGrant[] | null;
   createdBy?: string;
@@ -42,7 +37,6 @@ export interface IFile {
   deletedAt?: string | null;
 }
 
-// none = a type the server builds no thumbnail or viewer copy for.
 export type TFilePreviewStatus = 'pending' | 'ready' | 'failed' | 'none';
 
 export interface IFilesFolderAppearance {
@@ -59,12 +53,9 @@ export interface IFilesFolder {
   appearance?: IFilesFolderAppearance | null;
   coverUrl?: string | null;
   myRole?: TFilesRole | null;
-  // Set only on a space root.
   space?: Exclude<TFilesSpace, 'shared'> | null;
-  // Everyone who can open it, for the avatars.
   sharedWith?: IFilesAccessGrant[] | null;
   createdBy?: string;
-  // Returned to managers only.
   access?: IFilesAccessGrant[] | null;
   inheritedAccess?: IFilesAccessGrant[] | null;
   restricted?: boolean | null;
@@ -72,7 +63,6 @@ export interface IFilesFolder {
   deletedAt?: string | null;
 }
 
-// Entry points into trees and files the user was invited into.
 export interface IFilesSharedWithMe {
   folders: IFilesFolder[];
   files: IFile[];
@@ -129,7 +119,6 @@ export interface IFileUploadItem {
   name: string;
   size: number;
   folderId?: string;
-  // Set when this upload adds a new version to an existing file.
   replaceFileId?: string;
   status: TFileUploadStatus;
   uploadedBytes: number;

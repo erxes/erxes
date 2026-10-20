@@ -25,12 +25,6 @@ const PAGE_HEADERS = {
 const langOf = (req: Request): TShareLang =>
   req.acceptsLanguages('mn', 'en') === 'mn' ? 'mn' : 'en';
 
-/**
- * Public, no login: the token is the permission. Files a browser can show open
- * straight away; anything else gets a small page with a Download button instead
- * of a download that starts without explanation. Bytes never pass through here:
- * both paths end in a short-lived signed URL.
- */
 router.get('/files/s/:token', shareLimiter, async (req: Request, res: Response) => {
   try {
     const models = await generateModels(getSubdomain(req));

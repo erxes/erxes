@@ -1,9 +1,6 @@
 import { useState } from 'react';
 
-/**
- * Signed links expire and storage can be unreachable; a failed image falls back
- * instead of showing a broken icon. Keyed by src, so a fresh link is tried again.
- */
+// Signed links expire; keyed by src so a fresh link is tried again.
 export const useImageFallback = (src?: string | null) => {
   const [failedSrc, setFailedSrc] = useState<string | null>(null);
 

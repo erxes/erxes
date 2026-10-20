@@ -21,7 +21,6 @@ import {
   toGrantInput,
 } from '../utils/filesAccessForm';
 
-// Upload and new folders only exist on folders, so a file is viewed or managed.
 const FILE_ROLES: TFilesRole[] = ['viewer', 'manager'];
 
 const isOwnerGrant = (grant: IFilesAccessGrant, ownerId?: string) =>
@@ -48,7 +47,6 @@ export const useFilesAccessForm = () => {
   });
   const folder = isFile ? undefined : folderQuery.data?.filesFolderDetail;
   const item = isFile ? fileQuery.data?.filesDetail : folder;
-  // A space root has no owner; anything else keeps its creator as manager.
   const ownerId = folder?.space ? undefined : item?.createdBy;
 
   const form = useForm<TFilesAccessForm>({
@@ -76,7 +74,7 @@ export const useFilesAccessForm = () => {
     }
 
     const list = access.map(toGrantInput);
-    // The server adds the owner back, so it is never sent from here.
+    // The server re-adds the owner.
     const result = isFile
       ? await updateFileAccess(accessTarget._id, list)
       : await updateAccess(accessTarget._id, { restricted, access: list });
@@ -102,7 +100,6 @@ export const useFilesAccessForm = () => {
     roles: isFile ? FILE_ROLES : [...FILES_ROLES],
     addGrant: () =>
       grants.append({ type: 'user', id: undefined, role: 'viewer' }),
-    // Picking another kind of principal clears the previous pick.
     changeType: (index: number, value: string) => {
       const type = principalTypeOf(value);
 
@@ -114,10 +111,8 @@ export const useFilesAccessForm = () => {
         });
       }
     },
-    // Only a folder below a space root can stop inheriting; a file only adds access.
     canRestrict: !!folder && !folder.space,
     inherited: restricted ? [] : item?.inheritedAccess || [],
-    // Managers only: anyone else gets null for access and sees why.
     forbidden: !!item && !item.access,
     onSubmit,
   };

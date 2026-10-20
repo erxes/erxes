@@ -2,7 +2,6 @@ import { IconLink } from '@tabler/icons-react';
 import { cn, Tooltip } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
-/** Marks a file anyone with its link can open; `labelled` adds the text next to the icon. */
 export const FilesPublicLinkBadge = ({
   labelled,
   className,

@@ -16,7 +16,6 @@ type TFilesGrantRowProps = {
   onRemove: () => void;
 };
 
-/** One editable grant: who (kind + pick) and which role. */
 export const FilesGrantRow = ({
   control,
   index,

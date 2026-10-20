@@ -26,7 +26,7 @@ export interface IFileUsageModel extends Model<IFileUsageDocument> {
 }
 
 export const loadFileUsageClass = (models: IModels) => {
-  // Empty or 0 means no quota (self-hosted default).
+  // Empty or 0 means no quota.
   const getQuotaBytes = async (): Promise<number | null> => {
     const quotaGb = Number(await getConfig('FILES_QUOTA_GB', '', models));
 
@@ -70,7 +70,7 @@ export const loadFileUsageClass = (models: IModels) => {
 
       await ensureUsage();
 
-      // Checked and reserved in one write, so two uploads can't both fit the last gap.
+      // One atomic write, so parallel uploads can't both take the last gap.
       const reserved = await models.FileUsage.findOneAndUpdate(
         {
           _id: FILES_USAGE_ID,
@@ -105,7 +105,6 @@ export const loadFileUsageClass = (models: IModels) => {
       await inc({ usedBytes: -size });
     }
 
-    // The sweep recounts from the records, so any drift heals within an hour.
     public static async reconcile(usedBytes: number, reservedBytes: number) {
       await models.FileUsage.updateOne(
         { _id: FILES_USAGE_ID },

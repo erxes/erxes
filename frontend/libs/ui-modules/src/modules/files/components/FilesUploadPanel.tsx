@@ -92,7 +92,6 @@ const UploadRow = ({ item }: { item: IFileUploadItem }) => {
   );
 };
 
-/** Floating list of this browser's uploads; hidden while there are none. */
 export const FilesUploadPanel = () => {
   const { t } = useTranslation('files');
   const { uploads, clearFinished } = useFilesUpload();

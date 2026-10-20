@@ -7,7 +7,6 @@ import { z } from 'zod';
 import { useFilesPage } from '../context/FilesPageContext';
 import { TFilesAccessInput, useFilesActions } from './useFilesActions';
 
-// Chosen once when a folder is made; the Share dialog changes it later.
 export const FILES_ACCESS_TIERS = [
   'inherit',
   'private',
@@ -21,11 +20,10 @@ const TIER_ACCESS: Record<TFilesAccessTier, TFilesAccessInput> = {
   inherit: {},
   private: { restricted: true },
   organization: { access: [{ type: 'everyone', role: 'viewer' }] },
-  // Starts private; the Share dialog opens next to pick the people.
   selected: { restricted: true },
 };
 
-// Mirrors the backend rule so the user sees the error before submitting.
+// Mirrors the backend name rule.
 const nameSchema = z.object({
   name: z
     .string()
@@ -38,7 +36,7 @@ const nameSchema = z.object({
 
 type TNameForm = z.infer<typeof nameSchema>;
 
-// The server keeps a file's extension on rename, so only the part before it is edited.
+// The server keeps the extension on rename.
 const splitFileName = ({ name, ext }: IFile) => {
   const suffix = ext ? `.${ext}` : '';
 
@@ -118,7 +116,6 @@ export const useFilesNameForm = () => {
       return;
     }
 
-    // Keep an open preview showing the new name.
     if (
       nameDialog.mode === 'rename-file' &&
       previewFile?._id === nameDialog.file._id

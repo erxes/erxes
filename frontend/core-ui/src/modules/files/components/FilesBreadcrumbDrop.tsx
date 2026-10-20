@@ -3,7 +3,6 @@ import { ReactNode } from 'react';
 import { IFilesFolder } from 'ui-modules';
 import { useFilesDropTarget } from '../hooks/useFilesItemDnd';
 
-/** Makes a breadcrumb folder accept dragged items, e.g. to move something up a level. */
 export const FilesBreadcrumbDrop = ({
   folder,
   children,

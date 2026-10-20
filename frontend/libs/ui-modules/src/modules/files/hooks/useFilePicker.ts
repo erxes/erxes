@@ -51,7 +51,6 @@ export const useFilePicker = ({
     openFolder();
   };
 
-  // A file uploaded from inside the picker is selected straight away.
   const uploadHere = (list: File[]) =>
     upload(list, browser.folderId, (file) => {
       if (!accept || accept(file)) {

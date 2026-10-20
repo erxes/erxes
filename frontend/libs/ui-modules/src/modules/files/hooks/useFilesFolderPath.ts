@@ -2,7 +2,6 @@ import { useQuery } from '@apollo/client';
 import { FILES_FOLDER_PATH } from '../graphql/queries';
 import { IFilesFolder } from '../types';
 
-/** Root-first chain of folders down to `folderId`, for breadcrumbs. */
 export const useFilesFolderPath = (
   folderId?: string | null,
   skip?: boolean,

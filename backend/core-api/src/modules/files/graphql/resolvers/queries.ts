@@ -3,7 +3,6 @@ import { TFilesListParams } from '@/files/db/models/Files';
 import { getFilesActor } from '@/files/utils/access';
 import { getFilesMaxFileSize } from '@/files/utils/limits';
 
-// Every query needs filesRead; what it returns is then narrowed to the folders the user can see.
 export const filesQueries = {
   async filesSpaces(_parent: undefined, _args: undefined, context: IContext) {
     await context.checkPermission('filesRead');
@@ -23,7 +22,6 @@ export const filesQueries = {
     return context.models.Files.getReadableFile(_id, await getFilesActor(context));
   },
 
-  // Refreshes a handful of rows (e.g. pending previews) without refetching a paged list.
   async filesByIds(_parent: undefined, { _ids }: { _ids: string[] }, context: IContext) {
     await context.checkPermission('filesRead');
 
@@ -70,7 +68,6 @@ export const filesQueries = {
     return context.models.Files.listTrash(await getFilesActor(context));
   },
 
-  // Tenant-wide totals only; no item is named.
   async filesUsage(_parent: undefined, _args: undefined, { models, checkPermission }: IContext) {
     await checkPermission('filesRead');
 

@@ -14,9 +14,7 @@ import { useTranslation } from 'react-i18next';
 
 type TFilesRowMenuProps = {
   pinned: boolean;
-  // At the pin limit only unpinning stays possible.
   pinDisabled?: boolean;
-  // Manager-only actions are hidden from everyone else.
   canManage: boolean;
   onAccess?: () => void;
   onTogglePin: () => void;
