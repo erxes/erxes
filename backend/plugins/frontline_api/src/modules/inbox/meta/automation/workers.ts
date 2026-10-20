@@ -1,3 +1,4 @@
+import { toAiMemoryScopes } from './aiMemoryScopes';
 import {
   AUTOMATION_ERROR_CODES,
   buildFailedAction,
@@ -396,6 +397,11 @@ export const inboxAutomationWorkers = {
           (typeof target.customerId === 'string' && target.customerId.trim()) ||
           (typeof target._id === 'string' && target._id.trim()) ||
           undefined,
+        scopes: toAiMemoryScopes({
+          conversationType: 'frontline:inbox.conversation',
+          conversationId: target.conversationId,
+          customerId: target.customerId,
+        }),
       },
     };
 
@@ -663,6 +669,7 @@ export const inboxAutomationWorkers = {
       targetType,
       relation: setPropertyTarget?.relation,
       targetPath: setPropertyTarget?.targetPath,
+      targetActionId: action.targetActionId,
     });
 
     return await setProperty({

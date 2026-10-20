@@ -1,4 +1,3 @@
-import { Combobox, Command, Filter, useMultiQueryState, useQueryState } from 'erxes-ui';
 import {
   IconCalendarBolt,
   IconCalendarClock,
@@ -7,6 +6,13 @@ import {
   IconSearch,
   IconStack2,
 } from '@tabler/icons-react';
+import {
+  Combobox,
+  Command,
+  Filter,
+  useMultiQueryState,
+  useQueryState,
+} from 'erxes-ui';
 import {
   SelectBranches,
   SelectCompany,
@@ -17,12 +23,12 @@ import {
   SelectStage,
 } from 'ui-modules';
 
-import { DealsTotalCount } from '@/deals/components/DealsTotalCount';
-import { IDeal } from '@/deals/types/deals';
 import { SalesFilterState } from '@/deals/actionBar/types/actionBarTypes';
 import { SelectLabels } from '@/deals/components/common/filters/SelectLabel';
 import { SelectPriority } from '@/deals/components/common/filters/SelectPriority';
+import { DealsTotalCount } from '@/deals/components/DealsTotalCount';
 import { dealsViewAtom } from '@/deals/states/dealsViewState';
+import { IDeal } from '@/deals/types/deals';
 import { useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
@@ -121,13 +127,17 @@ export const filterDeals = (deals: IDeal[], filters: SalesFilterState) => {
   // Filter by labels first for performance
   if (filters.labelIds?.length) {
     result = result.filter((deal) =>
-      deal.labelIds?.some((label) => filters.labelIds?.includes(label)),
+      deal.labels?.some(
+        (label) => label && filters.labelIds?.includes(label._id),
+      ),
     );
   }
 
   if (filters.search) {
     const q = filters.search.toLowerCase();
-    result = result.filter((deal) => deal.name.toLowerCase().includes(q));
+    result = result.filter((deal) =>
+      (deal.name ?? '').toLowerCase().includes(q),
+    );
   }
 
   if (filters.advanced) {

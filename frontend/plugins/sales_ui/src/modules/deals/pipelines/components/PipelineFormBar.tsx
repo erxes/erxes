@@ -1,3 +1,7 @@
+import { useBoards } from '@/deals/boards/hooks/useBoards';
+import { usePipelineDetail } from '@/deals/boards/hooks/usePipelines';
+import { PipelineHotKeyScope } from '@/deals/types/pipelines';
+import { IconGitBranch, IconPlus } from '@tabler/icons-react';
 import {
   Button,
   Form,
@@ -6,20 +10,16 @@ import {
   useScopedHotkeys,
   useSetHotkeyScope,
 } from 'erxes-ui';
-import { IconGitBranch, IconPlus } from '@tabler/icons-react';
-import { PipelineHotKeyScope } from '@/deals/types/pipelines';
 import { useCallback, useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { usePipelineDetail } from '@/deals/boards/hooks/usePipelines';
-import { useBoards } from '@/deals/boards/hooks/useBoards';
 
-import { PipelineForm } from './PipelineForm';
-import { useTranslation } from 'react-i18next';
 import { usePipelineForm } from '@/deals/boards/hooks/usePipelineForm';
-import { useStages } from '@/deals/stage/hooks/useStages';
+import { LoyaltyRulesDialog } from '@/deals/loyaltyRules/components/LoyaltyRulesDialog';
 import { usePipelineFormSubmit } from '@/deals/pipelines/hooks/usePipelineFormSubmit';
 import { usePipelineFormSync } from '@/deals/pipelines/hooks/usePipelineFormSync';
-import { LoyaltyRulesDialog } from '@/deals/loyaltyRules/components/LoyaltyRulesDialog';
+import { useStages } from '@/deals/stage/hooks/useStages';
+import { useTranslation } from 'react-i18next';
+import { PipelineForm } from './PipelineForm';
 
 export function PipelineFormBar() {
   const { t } = useTranslation('sales');
@@ -53,7 +53,7 @@ export function PipelineFormBar() {
 
   const { pipelineDetail } = usePipelineDetail();
 
-  usePipelineFormSync({
+  const paymentTypesError = usePipelineFormSync({
     boardId,
     initialStages,
     methods,
@@ -125,7 +125,10 @@ export function PipelineFormBar() {
         >
           <Form {...methods}>
             <form
-              onSubmit={handleFormSubmit}
+              onSubmit={(event) => {
+                if (paymentTypesError) event.preventDefault();
+                else void handleFormSubmit(event);
+              }}
               className=" flex flex-col gap-0 w-full h-full"
             >
               <Sheet.Header>
@@ -136,6 +139,14 @@ export function PipelineFormBar() {
                 <Sheet.Close />
               </Sheet.Header>
               <Sheet.Content className="grow size-full h-auto flex flex-col overflow-hidden">
+                {paymentTypesError && (
+                  <p role="alert" className="p-4 text-destructive">
+                    {t(
+                      'invalid-payment-settings',
+                      'Unable to read payment settings. Saving is disabled.',
+                    )}
+                  </p>
+                )}
                 <PipelineForm
                   form={methods}
                   stagesLoading={stagesLoading}
@@ -148,7 +159,9 @@ export function PipelineFormBar() {
                 </Button>
                 <Button
                   type="submit"
-                  disabled={submitLoading || isCreateDisabled}
+                  disabled={
+                    submitLoading || isCreateDisabled || !!paymentTypesError
+                  }
                 >
                   {pipelineId ? t('update') : t('create')}
                 </Button>

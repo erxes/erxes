@@ -140,6 +140,7 @@ const productsEdit = gql`
     $attachment: AttachmentInput
     $attachmentMore: [AttachmentInput]
     $videos: [AttachmentInput]
+    $files: [AttachmentInput]
     $duration: Float
     $durationType: ProductDurationType
   ) {
@@ -166,6 +167,7 @@ const productsEdit = gql`
       attachment: $attachment
       attachmentMore: $attachmentMore
       videos: $videos
+      files: $files
       duration: $duration
       durationType: $durationType
     ) {
@@ -206,6 +208,12 @@ const productsEdit = gql`
         size
         type
         duration
+      }
+      files {
+        url
+        name
+        size
+        type
       }
       uom
       subUoms

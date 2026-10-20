@@ -1,20 +1,14 @@
-import { MutationHookOptions, OperationVariables } from "@apollo/client";
+import type { SalesBoardsQuery } from '~/gql/graphql';
+import type { IDeal } from './deals';
+import type { IStage } from './stages';
 
-import { BOARD_CREATE_SCHEMA } from "@/deals/schemas/boardFormSchema";
-import { IPipeline } from "@/deals/types/pipelines";
-import { z } from "zod";
+import { BOARD_CREATE_SCHEMA } from '@/deals/schemas/boardFormSchema';
 
-export interface IBoard {
-    _id: string;
-    name: string;
-    pipelines?: IPipeline[];
-  }
-  
-export interface IBoardCount {
-    _id: string;
-    name: string;
-    count: number;
-}  
+import { z } from 'zod';
+
+export type IBoard = NonNullable<
+  NonNullable<SalesBoardsQuery['salesBoards']>[number]
+>;
 
 export interface BaseBoardItem {
   _id: string;
@@ -54,13 +48,16 @@ export interface DealsBoardColumnProps {
   pipelineId: string;
   queryVariables?: Record<string, unknown>;
   fetchMoreTrigger?: number;
-  onFetchComplete?: (columnId: string, result: {
-    fetchedCount: number;
-    hasMore: boolean;
-    cursor?: string | null;
-    totalCount?: number;
-  }) => void;
-  locallyMovedIdsRef?: any;
+  onFetchComplete?: (
+    columnId: string,
+    result: {
+      fetchedCount: number;
+      hasMore: boolean;
+      cursor?: string | null;
+      totalCount?: number;
+    },
+  ) => void;
+  locallyMovedIdsRef?: React.MutableRefObject<Record<string, string>>;
 }
 
 export interface VirtualizedCardListProps<TItem extends BaseBoardItem> {
@@ -88,9 +85,9 @@ export interface GenericBoardProps<
 > {
   initialState: GenericBoardState<TItem, TColumn>;
   onStateChange?: (
-    newState: GenericBoardState<TItem, TColumn>, 
+    newState: GenericBoardState<TItem, TColumn>,
     oldState: GenericBoardState<TItem, TColumn>,
-    draggedItemId?: string
+    draggedItemId?: string,
   ) => void;
   onDragStart?: (itemId: string) => void;
   renderCard: (item: TItem, isDragOverlay?: boolean) => React.ReactNode;
@@ -100,34 +97,14 @@ export interface GenericBoardProps<
   columnPagination?: Record<string, ColumnPaginationState>;
   onLoadMore?: (columnId: string) => void;
 }
-export interface BoardDealColumn extends BaseBoardColumn {
-  type: string;
-  probability?: string;
-  itemsTotalCount?: number;
-  amount?: number | string | null;
-  unUsedAmount?: number;
-}
+export type BoardDealColumn = Pick<
+  IStage,
+  '_id' | 'name' | 'type' | 'probability' | 'itemsTotalCount'
+> & { amount: Record<string, number>; unUsedAmount: Record<string, number> };
 
-export interface ISelectBoardsProviderProps {
-  targetIds?: string[];
-  value?: string[] | string;
-  onValueChange?: (boards?: string[] | string) => void;
-  mode?: 'single' | 'multiple';
-  children?: React.ReactNode;
-  options?: (newSelectedBoardIds: string[]) => MutationHookOptions<
-    {
-      BoardsMain: {
-        totalCount: number;
-        list: IBoard[];
-      };
-    },
-    OperationVariables
-  >;
-}
-
-export type ActiveDragItem = 
+export type ActiveDragItem =
   | { type: 'column'; column: BoardDealColumn }
-  | { type: 'card'; item: any }
+  | { type: 'card'; item: IDeal & BaseBoardItem }
   | null;
 
 export interface ISelectBoardsContext {
@@ -139,13 +116,6 @@ export interface ISelectBoardsContext {
   error: string | null;
   newBoardName?: string;
   setNewBoardName?: (name: string) => void;
-}
-
-export interface BoardsInlineProps {
-  boardIds?: string[];
-  boards?: IBoard[];
-  placeholder?: string;
-  updateBoards?: (boards: IBoard[]) => void;
 }
 
 export type TBoardForm = z.infer<typeof BOARD_CREATE_SCHEMA>;

@@ -1,14 +1,17 @@
-import { IEmailFieldProps } from 'erxes-ui/modules/inputs';
-import { Badge } from 'erxes-ui/components';
 import { IconCircleDashed, IconCircleDashedCheck } from '@tabler/icons-react';
-import { formatEmails } from '../utils/formatEmails';
+import { Badge, Button } from 'erxes-ui/components';
+import type { EmailDisplayProps } from 'erxes-ui/modules/display/types/emailDisplay';
+import { formatEmails } from 'erxes-ui/modules/display/utils/formatEmails';
 import { ValidationStatus } from 'erxes-ui/types';
 
 export const EmailDisplay = ({
   primaryEmail,
   emails,
   emailValidationStatus,
-}: IEmailFieldProps) => {
+  onEmailClick,
+  onEmailDoubleClick,
+  onEmailKeyActivate,
+}: EmailDisplayProps) => {
   const emailsWithProperties = formatEmails(
     primaryEmail,
     emails,
@@ -20,15 +23,51 @@ export const EmailDisplay = ({
       {emailsWithProperties.map(
         (email) =>
           email.email && (
-            <Badge key={email.email} variant="secondary">
-              {email.isPrimary &&
-                (email.status === ValidationStatus.Valid ? (
-                  <IconCircleDashedCheck className="text-success size-4" />
-                ) : (
-                  <IconCircleDashed className="text-muted-foreground size-4" />
-                ))}
-              {email.email}
-            </Badge>
+            <span key={email.email} className="inline-flex">
+              {onEmailClick ? (
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="secondary"
+                  className="h-6 w-fit rounded-sm border gap-1 cursor-pointer hover:bg-primary/10 hover:text-primary focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    const activate =
+                      event.detail === 0
+                        ? onEmailKeyActivate || onEmailClick
+                        : onEmailClick;
+                    activate(email.email || '');
+                  }}
+                  onDoubleClick={(event) => {
+                    event.stopPropagation();
+                    onEmailDoubleClick?.(email.email || '');
+                  }}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                      event.stopPropagation();
+                    }
+                  }}
+                >
+                  {email.isPrimary &&
+                    (email.status === ValidationStatus.Valid ? (
+                      <IconCircleDashedCheck className="text-success size-4" />
+                    ) : (
+                      <IconCircleDashed className="text-muted-foreground size-4" />
+                    ))}
+                  {email.email}
+                </Button>
+              ) : (
+                <Badge variant="secondary">
+                  {email.isPrimary &&
+                    (email.status === ValidationStatus.Valid ? (
+                      <IconCircleDashedCheck className="text-success size-4" />
+                    ) : (
+                      <IconCircleDashed className="text-muted-foreground size-4" />
+                    ))}
+                  {email.email}
+                </Badge>
+              )}
+            </span>
           ),
       )}
     </div>

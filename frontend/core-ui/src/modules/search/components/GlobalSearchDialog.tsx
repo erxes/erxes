@@ -9,7 +9,7 @@ import {
 } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useEffect, useRef } from 'react';
-import { isMacPlatform } from '@/navigation/utils/visitedPageTabShortcuts';
+import { isMacPlatform } from '@/search/utils/isMacPlatform';
 import {
   GlobalSearchPluginsGroup,
   NavigationSearchGroup,

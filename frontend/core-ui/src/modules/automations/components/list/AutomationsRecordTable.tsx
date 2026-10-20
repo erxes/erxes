@@ -1,6 +1,7 @@
 import { getAutomationColumns } from '@/automations/components/list/AutomationColumns';
 import { AutomationRecordTableFilters } from '@/automations/components/list/filters/AutomationRecordTableFilters';
 import { useAutomationsRecordTable } from '@/automations/hooks/useAutomationsRecordTable';
+import { useAutomationsListFilterMemory } from '@/automations/hooks/useAutomationsListFilterMemory';
 import { AutomationsRecordTableContent } from '@/automations/components/list/AutomationsRecordTableContent';
 import { AutomationsRecordTableEmptyState } from '@/automations/components/list/AutomationsRecordTableEmptyState';
 import { AutomationErrorEmptyState } from '@/automations/components/common/AutomationErrorEmptyState';
@@ -29,6 +30,7 @@ import {
 } from 'ui-modules';
 
 export const AutomationsRecordTable = () => {
+  useAutomationsListFilterMemory();
   const {
     list,
     loading,

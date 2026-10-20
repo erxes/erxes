@@ -10,11 +10,6 @@ export const PaymentSettingsPage = lazy(() =>
   })),
 );
 
-export const InvoicesPage = lazy(() =>
-  import('~/pages/payment/InvoicesPage').then((module) => ({
-    default: module.InvoicesPage,
-  })),
-);
 export const CorporateGatewayPage = lazy(() =>
   import('~/pages/payment/CorporateGatewayPage').then((module) => ({
     default: module.default,
@@ -34,7 +29,10 @@ const PaymentSettings = () => {
         >
           <Route index element={<Navigate to="methods" replace />} />
           <Route path="methods" element={<PaymentSettingsPage />} />
-          <Route path="invoices" element={<InvoicesPage />} />
+          <Route
+            path="invoices"
+            element={<Navigate to="/payment/invoices" replace />}
+          />
           <Route path="corporate-gateway" element={<CorporateGatewayPage />} />
         </Route>
       </Routes>

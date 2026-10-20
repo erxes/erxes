@@ -1,14 +1,14 @@
 import { usePipelineDetail } from '@/deals/boards/hooks/usePipelines';
-import { InfoCard, Spinner } from 'erxes-ui';
+import { InfoCard, isDefined, Spinner } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import {
+  FieldsInDetail,
   FieldsInGroup,
   IFieldGroup,
   MultipleFieldsInGroup,
+  mutateFunction,
   PropertyGroupCard,
   PropertyGroupShell,
-  FieldsInDetail,
-  mutateFunction,
   useFieldGroups,
   useFields,
 } from 'ui-modules';
@@ -72,7 +72,9 @@ export const DealPipelineProperties = (props: Props) => {
     contentType: CONTENT_TYPE,
     limit: 100,
   });
-  const selectedIds = new Set(pipelineDetail?.propertyIds || []);
+  const selectedIds = new Set(
+    pipelineDetail?.propertyIds?.filter(isDefined) || [],
+  );
 
   if (
     !pipelineLoading &&

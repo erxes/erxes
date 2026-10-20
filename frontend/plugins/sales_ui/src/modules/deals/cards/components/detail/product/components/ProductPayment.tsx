@@ -1,14 +1,8 @@
-import {
-  type ChangeEvent,
-  type KeyboardEvent,
-  type MouseEvent,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
-import { gql, useMutation } from '@apollo/client';
+import { useDealsEdit } from '@/deals/cards/hooks/useDeals';
+import { IDealDetail, IPaymentsData } from '@/deals/types/deals';
+import { readDealPayment } from '@/deals/utils/dealJson';
+import type { PaymentConfigItem } from '@/payments';
+import { useMutation } from '@apollo/client';
 import {
   IconCircleCheck,
   IconDeviceFloppy,
@@ -24,16 +18,24 @@ import {
   Sheet,
   useToast,
 } from 'erxes-ui';
-import { IDeal, IPaymentsData } from '@/deals/types/deals';
-import { useDealsEdit } from '@/deals/cards/hooks/useDeals';
-import { DealPointPaymentLimit } from './DealPointPaymentLimit';
-import { useTranslation } from 'react-i18next';
-import type { PaymentConfigItem } from '@/payments';
 import {
-  selectPaymentTypesForRender,
+  type ChangeEvent,
+  type KeyboardEvent,
+  type MouseEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
+import { useTranslation } from 'react-i18next';
+import { gql } from '~/gql';
+import {
   type PayInfo,
+  selectPaymentTypesForRender,
   updatePayInfoForScore,
 } from '../utils/updatePayInfoForScore';
+import { DealPointPaymentLimit } from './DealPointPaymentLimit';
 
 type PaymentConfig = {
   require?: string;
@@ -45,11 +47,11 @@ type PaymentConfig = {
 
 const EMPTY_PAYMENT_TYPES: PaymentConfigItem[] = [];
 
-const GENERATE_INVOICE_URL = gql`
+const GENERATE_INVOICE_URL = gql(`
   mutation SalesDealGenerateInvoiceUrl($input: InvoiceInput!) {
     generateInvoiceUrl(input: $input)
   }
-`;
+`);
 
 const parsePaymentConfig = (config: unknown): PaymentConfig => {
   if (!config) {
@@ -101,7 +103,7 @@ export const ProductsPayment = ({
   paymentsData: initialPaymentsData,
   onChangePaymentsData,
 }: {
-  deal: IDeal;
+  deal: IDealDetail;
   paymentsData?: IPaymentsData;
   onChangePaymentsData?: (data: IPaymentsData) => void;
 }) => {
@@ -151,7 +153,7 @@ export const ProductsPayment = ({
   const paidAmounts = useMemo(() => {
     const paid: { [currency: string]: number } = {};
     Object.entries(paymentsData).forEach(([type, payment]) => {
-      if (type === 'mobile') {
+      if (type === 'mobile' || typeof payment === 'number') {
         return;
       }
 
@@ -184,7 +186,7 @@ export const ProductsPayment = ({
   const getInitialPaymentAmount = useCallback(
     (type: string) => {
       const sourcePaymentsData = initialPaymentsData || deal.paymentsData || {};
-      return Number(sourcePaymentsData[type]?.amount || 0);
+      return Number(readDealPayment(sourcePaymentsData, type)?.amount || 0);
     },
     [deal.paymentsData, initialPaymentsData],
   );
@@ -195,12 +197,12 @@ export const ProductsPayment = ({
         const updated = {
           ...prev,
           [type]: {
-            ...prev[type],
+            ...readDealPayment(prev, type),
             [field]: value,
             currency:
               field === 'currency'
                 ? (value as string)
-                : prev[type]?.currency || defaultCurrency,
+                : readDealPayment(prev, type)?.currency || defaultCurrency,
           },
         };
         onChangePaymentsData?.(updated);
@@ -212,10 +214,12 @@ export const ProductsPayment = ({
 
   const fillRemaining = useCallback(
     (paymentType: string, maxVal?: number) => {
-      const currency = paymentsData[paymentType]?.currency || defaultCurrency;
+      const currency =
+        readDealPayment(paymentsData, paymentType)?.currency || defaultCurrency;
       const totalForCurrency = total[currency] || 0;
       const currentPaid = paidAmounts[currency] || 0;
-      const currentAmount = paymentsData[paymentType]?.amount || 0;
+      const currentAmount =
+        readDealPayment(paymentsData, paymentType)?.amount || 0;
       const remaining = totalForCurrency - (currentPaid - currentAmount);
       const finalAmount =
         maxVal === undefined ? remaining : Math.min(remaining, maxVal);
@@ -229,7 +233,7 @@ export const ProductsPayment = ({
 
   const fillRemainingIfEmpty = useCallback(
     (paymentType: string, maxVal?: number) => {
-      if (paymentsData[paymentType]?.amount) {
+      if (readDealPayment(paymentsData, paymentType)?.amount) {
         return;
       }
 
@@ -525,7 +529,9 @@ export const ProductsPayment = ({
             <Input
               type="text"
               inputMode="numeric"
-              value={formatNumber(paymentsData['cash']?.amount ?? '')}
+              value={formatNumber(
+                readDealPayment(paymentsData, 'cash')?.amount ?? '',
+              )}
               onChange={(e: ChangeEvent<HTMLInputElement>) =>
                 updatePayment('cash', 'amount', parseNumber(e.target.value))
               }
@@ -537,7 +543,8 @@ export const ProductsPayment = ({
           <div className="flex items-center">
             <CurrencyField.SelectCurrency
               value={
-                (paymentsData['cash']?.currency as CurrencyCode) ||
+                (readDealPayment(paymentsData, 'cash')
+                  ?.currency as CurrencyCode) ||
                 (defaultCurrency as CurrencyCode)
               }
               onChange={(val: string) => updatePayment('cash', 'currency', val)}
@@ -693,7 +700,10 @@ export const ProductsPayment = ({
                       onClick={() => openQrModal(paymentType)}
                       value={
                         hasInitialAmount
-                          ? formatNumber(paymentsData[typeName]?.amount ?? '')
+                          ? formatNumber(
+                              readDealPayment(paymentsData, typeName)?.amount ??
+                                '',
+                            )
                           : ''
                       }
                     />
@@ -701,7 +711,9 @@ export const ProductsPayment = ({
                     <Input
                       type="text"
                       inputMode="numeric"
-                      value={formatNumber(paymentsData[typeName]?.amount ?? '')}
+                      value={formatNumber(
+                        readDealPayment(paymentsData, typeName)?.amount ?? '',
+                      )}
                       onChange={(e: ChangeEvent<HTMLInputElement>) => {
                         const val = parseNumber(e.target.value);
                         const max = payInfo.maxVal;
@@ -722,7 +734,7 @@ export const ProductsPayment = ({
                   {paysWithPoints && (
                     <DealPointPaymentLimit
                       paymentType={paymentType}
-                      customerId={pointsCustomer?._id}
+                      customerId={pointsCustomer?._id ?? undefined}
                       dealId={deal._id}
                       totalAmount={total[defaultCurrency] || 0}
                       onLimit={handlePointLimit}
@@ -732,7 +744,8 @@ export const ProductsPayment = ({
                 <div className="flex items-center">
                   <CurrencyField.SelectCurrency
                     value={
-                      (paymentsData[typeName]?.currency as CurrencyCode) ||
+                      (readDealPayment(paymentsData, typeName)
+                        ?.currency as CurrencyCode) ||
                       (defaultCurrency as CurrencyCode)
                     }
                     onChange={(val: string) =>

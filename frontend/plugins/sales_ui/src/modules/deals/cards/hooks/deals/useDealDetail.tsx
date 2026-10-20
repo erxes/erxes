@@ -1,55 +1,54 @@
-import { QueryHookOptions, useQuery } from '@apollo/client';
+import { toDealDetail } from '@/deals/utils/dealJson';
+import { resolveDealDetail } from '@/deals/utils/resolveDealDetail';
+import {
+  QueryHookOptions,
+  SubscribeToMoreOptions,
+  useQuery,
+} from '@apollo/client';
+import type {
+  DealDetailQuery,
+  DealDetailQueryVariables,
+  SalesDealChangedSubscription,
+  SalesDealChangedSubscriptionVariables,
+  SalesProductsDataChangedSubscription,
+  SalesProductsDataChangedSubscriptionVariables,
+} from '~/gql/graphql';
 
-import { DEAL_CHANGED } from '@/deals/graphql/subscriptions/dealChanged';
 import { GET_DEAL_DETAIL } from '@/deals/graphql/queries/DealsQueries';
-import { IDeal } from '@/deals/types/deals';
+import { DEAL_CHANGED } from '@/deals/graphql/subscriptions/dealChanged';
 import { PRODUCTS_DATA_CHANGED } from '@/deals/graphql/subscriptions/productsSubscriptions';
 import { dealDetailSheetState } from '@/deals/states/dealDetailSheetState';
-import { useAtom } from 'jotai';
-import { useEffect, useRef } from 'react';
 import { useQueryState } from 'erxes-ui';
-
-interface ISalesProductsDataChangedPayload {
-  salesProductsDataChanged: {
-    _id: string;
-    processId: string;
-    action: string;
-    data: unknown;
-  };
-}
-
-interface ISalesDealChangedPayload {
-  salesDealChanged: {
-    action: string;
-    deal?: IDeal;
-  };
-}
+import { useAtom } from 'jotai';
+import { useEffect, useMemo, useRef } from 'react';
 
 export const useDealDetail = (
-  options?: QueryHookOptions<{ dealDetail: IDeal }>,
+  options?: QueryHookOptions<DealDetailQuery, DealDetailQueryVariables>,
 ) => {
   const [activeDealId, setActiveDealId] = useAtom(dealDetailSheetState);
-  const [salesItemId, setSalesItemId] = useQueryState('salesItemId');
+  const [salesItemId, setSalesItemId] = useQueryState<string>('salesItemId');
 
   const passedId = options?.variables?._id;
   const finalId = passedId || salesItemId || activeDealId;
 
-  const { data, loading, error, subscribeToMore, refetch } = useQuery<{
-    dealDetail: IDeal;
-  }>(GET_DEAL_DETAIL, {
-    ...options,
-    variables: {
-      ...options?.variables,
-      _id: finalId,
+  const { data, loading, error, subscribeToMore, refetch } = useQuery(
+    GET_DEAL_DETAIL,
+    {
+      ...options,
+      variables: finalId ? { _id: finalId } : undefined,
+      skip: !finalId || options?.skip,
+      fetchPolicy: options?.fetchPolicy || 'cache-and-network',
     },
-    skip: !finalId,
-    fetchPolicy: options?.fetchPolicy || 'cache-and-network',
-  });
+  );
 
   useEffect(() => {
-    if (!finalId) return;
+    if (!finalId || options?.skip) return;
 
-    const unsubscribe = subscribeToMore<ISalesProductsDataChangedPayload>({
+    const subscriptionOptions: SubscribeToMoreOptions<
+      DealDetailQuery,
+      SalesProductsDataChangedSubscriptionVariables,
+      SalesProductsDataChangedSubscription
+    > = {
       document: PRODUCTS_DATA_CHANGED,
       variables: { _id: finalId },
       updateQuery: (prev, { subscriptionData }) => {
@@ -60,15 +59,19 @@ export const useDealDetail = (
 
         return prev;
       },
-    });
+    };
 
-    return unsubscribe;
-  }, [finalId, refetch, subscribeToMore]);
+    return subscribeToMore(subscriptionOptions);
+  }, [finalId, options?.skip, refetch, subscribeToMore]);
 
   useEffect(() => {
-    if (!finalId) return;
+    if (!finalId || options?.skip) return;
 
-    const unsubscribe = subscribeToMore<ISalesDealChangedPayload>({
+    const subscriptionOptions: SubscribeToMoreOptions<
+      DealDetailQuery,
+      SalesDealChangedSubscriptionVariables,
+      SalesDealChangedSubscription
+    > = {
       document: DEAL_CHANGED,
       variables: { _id: finalId },
       updateQuery: (prev, { subscriptionData }) => {
@@ -93,6 +96,7 @@ export const useDealDetail = (
         }
 
         const prevDeal = prev.dealDetail;
+        if (!prevDeal) return prev;
         const isStageChanged =
           changedDeal.stageId && changedDeal.stageId !== prevDeal?.stageId;
 
@@ -105,10 +109,12 @@ export const useDealDetail = (
               ...prevDeal.pipeline,
               ...changedDeal.pipeline,
               paymentIds:
-                changedDeal.pipeline.paymentIds ?? prevDeal.pipeline.paymentIds,
+                changedDeal.pipeline.paymentIds ??
+                prevDeal.pipeline?.paymentIds ??
+                null,
               paymentTypes:
                 changedDeal.pipeline.paymentTypes ??
-                prevDeal.pipeline.paymentTypes,
+                prevDeal.pipeline?.paymentTypes,
             }
           : prevDeal.pipeline;
 
@@ -116,7 +122,8 @@ export const useDealDetail = (
           changedDeal.stage?.pipelineId ||
           changedDeal.pipelineId ||
           prevDeal.pipelineId ||
-          prevDeal.stage?.pipelineId;
+          prevDeal.stage?.pipelineId ||
+          null;
 
         return {
           ...prev,
@@ -131,12 +138,13 @@ export const useDealDetail = (
           },
         };
       },
-    });
+    };
 
-    return unsubscribe;
+    return subscribeToMore(subscriptionOptions);
   }, [
     activeDealId,
     finalId,
+    options?.skip,
     refetch,
     salesItemId,
     setActiveDealId,
@@ -145,7 +153,8 @@ export const useDealDetail = (
   ]);
 
   const currentDeal = data?.dealDetail;
-  const lastCompleteDealRef = useRef<IDeal>();
+  const lastCompleteDealRef =
+    useRef<NonNullable<DealDetailQuery['dealDetail']>>();
 
   useEffect(() => {
     if (!finalId) {
@@ -168,10 +177,27 @@ export const useDealDetail = (
       ? lastCompleteDealRef.current
       : undefined;
 
-  const deal =
-    currentDeal?.pipeline && currentDeal._id === finalId
-      ? currentDeal
-      : lastCompleteDeal;
+  const deal = useMemo(
+    () => resolveDealDetail(currentDeal, lastCompleteDeal, finalId),
+    [currentDeal, finalId, lastCompleteDeal],
+  );
 
-  return { deal, loading: loading && !deal, error, refetch };
+  const parsed = useMemo(() => {
+    if (!deal) return { deal: undefined, error: undefined };
+    try {
+      return { deal: toDealDetail(deal), error: undefined };
+    } catch (cause) {
+      return {
+        deal: undefined,
+        error: cause instanceof Error ? cause : new Error('Invalid deal data'),
+      };
+    }
+  }, [deal]);
+
+  return {
+    deal: parsed.deal,
+    loading: loading && !deal,
+    error: error || parsed.error,
+    refetch,
+  };
 };

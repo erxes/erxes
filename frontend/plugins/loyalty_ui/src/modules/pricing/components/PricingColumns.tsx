@@ -50,7 +50,7 @@ export const pricingColumns = (
       return (
         <RecordTableInlineCell>
           <Link
-            to={`/settings/loyalty/pricing/${pricingId}`}
+            to={`/loyalty/settings/pricing/${pricingId}`}
             className="cursor-pointer hover:underline"
           >
             <Badge variant="secondary">{cell.getValue() as string}</Badge>

@@ -48,6 +48,27 @@
     "docker-build": {
       "dependsOn": ["build"],
       "command": "docker build -f backend/gateway/Dockerfile . -t erxes/erxes-next-gateway"
+    },
+
+    "schema:compose": {
+      "executor": "nx:run-commands",
+      "cache": true,
+      "dependsOn": [
+        {
+          "projects": ["*"],
+          "target": "schema:print"
+        }
+      ],
+      "inputs": [
+        "{projectRoot}/compose-schema.ts",
+        "{projectRoot}/src/subscription/genTypeDefs.ts",
+        { "dependentTasksOutputFiles": "**/*.graphql" }
+      ],
+      "outputs": ["{projectRoot}/generated"],
+      "options": {
+        "cwd": "backend/gateway",
+        "command": "tsx compose-schema.ts"
+      }
     }
   }
 }

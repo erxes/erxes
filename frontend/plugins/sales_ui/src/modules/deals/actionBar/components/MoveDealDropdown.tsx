@@ -1,15 +1,15 @@
 import { Button, DropdownMenu, toast } from 'erxes-ui';
 import { memo, useState, type MouseEvent } from 'react';
 
+import { DEAL_TOAST_OPTIONS } from '@/deals/constants/toast';
+import { useDealsContext } from '@/deals/context/DealContext';
+import { IconLayoutBoard } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import { DealSelect } from 'ui-modules';
 import { IDeal } from '../../types/deals';
-import { IconLayoutBoard } from '@tabler/icons-react';
-import { useDealsContext } from '@/deals/context/DealContext';
-import { useTranslation } from 'react-i18next';
-import { DEAL_TOAST_OPTIONS } from '@/deals/constants/toast';
 
 interface MoveDealDropdownProps {
-  deal: IDeal;
+  deal: Pick<IDeal, '_id' | 'boardId' | 'pipeline' | 'stageId'>;
 }
 
 export const MoveDealDropdown = memo(function MoveDealDropdown({
@@ -58,9 +58,9 @@ export const MoveDealDropdown = memo(function MoveDealDropdown({
       </DropdownMenu.Trigger>
       <DropdownMenu.Content className="w-62 py-2">
         <DealSelect
-          boardId={deal.boardId}
+          boardId={deal.boardId ?? undefined}
           pipelineId={deal.pipeline?._id}
-          stageId={deal.stageId}
+          stageId={deal.stageId ?? undefined}
           onMove={handleMove}
           moveLoading={isMoving}
         />

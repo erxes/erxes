@@ -5,10 +5,13 @@ import * as admin from 'firebase-admin';
 import { z } from 'zod';
 import { CoreTRPCContext } from '~/init-trpc';
 import { PRIORITY_ORDER } from '~/modules/notifications/constants';
+import { getConfig } from '@/organization/settings/utils/configs';
 import { initFirebase } from '~/modules/notifications/utils';
 import { sendEmail } from '~/utils/email';
 
 const t = initTRPC.context<CoreTRPCContext>().create();
+
+let firebaseCredentials = '';
 
 export const notificationTrpcRouter = t.router({
   notifications: t.router({
@@ -31,10 +34,15 @@ export const notificationTrpcRouter = t.router({
         };
 
         if (kind === 'user' && !allowMultiple) {
-          // avoiding duplicate notifications for the same user and content.
-          // Update existing notification
+          // Reuse only active unread notifications; preserve archived and read history.
           notification = await models.Notifications.findOneAndUpdate(
-            { contentTypeId, contentType, userId }, // lookup key
+            {
+              contentTypeId,
+              contentType,
+              userId,
+              isRead: false,
+              isArchived: { $ne: true },
+            }, // lookup key
             notificationDoc, // new values
             { new: true, upsert: true }, // update if exists, insert if not
           );
@@ -95,8 +103,20 @@ export const notificationTrpcRouter = t.router({
         const { models } = ctx;
         const { receivers, deviceTokens, title, body, data } = input;
 
+        const credentials = await getConfig(
+          'GOOGLE_APPLICATION_CREDENTIALS_JSON',
+          '',
+          models,
+        );
+
+        // a key saved from settings replaces the running apps without a restart
+        if (admin.apps.length && credentials !== firebaseCredentials) {
+          await Promise.all(admin.apps.map((app) => app?.delete()));
+        }
+
         if (!admin.apps.length) {
-          await initFirebase(models);
+          await initFirebase(models, credentials);
+          firebaseCredentials = credentials;
         }
 
         const additionalConfigs = await models.Configs.findOne({

@@ -32,7 +32,7 @@ const voucherCampaignsSearchProvider = defineSearchProvider<TCampaignNode>({
     id: campaign._id,
     title: campaign.title || UNNAMED,
     createdAt: campaign.createdAt ?? undefined,
-    path: `/settings/loyalty/config/voucher?editVoucherId=${campaign._id}`,
+    path: `/loyalty/settings/config/voucher?editVoucherId=${campaign._id}`,
   }),
 });
 
@@ -55,7 +55,7 @@ const couponCampaignsSearchProvider = defineSearchProvider<TCampaignNode>({
     id: campaign._id,
     title: campaign.title || UNNAMED,
     createdAt: campaign.createdAt ?? undefined,
-    path: `/settings/loyalty/config/coupon?editCouponId=${campaign._id}`,
+    path: `/loyalty/settings/config/coupon?editCouponId=${campaign._id}`,
   }),
 });
 
@@ -78,7 +78,7 @@ const assignmentCampaignsSearchProvider = defineSearchProvider<TCampaignNode>({
     id: campaign._id,
     title: campaign.title || UNNAMED,
     createdAt: campaign.createdAt ?? undefined,
-    path: `/settings/loyalty/config/assignment?editAssignmentId=${campaign._id}`,
+    path: `/loyalty/settings/config/assignment?editAssignmentId=${campaign._id}`,
   }),
 });
 
@@ -101,7 +101,7 @@ const scoreCampaignsSearchProvider = defineSearchProvider<TCampaignNode>({
     id: campaign._id,
     title: campaign.title || UNNAMED,
     createdAt: campaign.createdAt ?? undefined,
-    path: `/settings/loyalty/config/score?editScoreId=${campaign._id}`,
+    path: `/loyalty/settings/config/score?editScoreId=${campaign._id}`,
   }),
 });
 
@@ -132,7 +132,7 @@ const createCampaignSearchProvider = (
       id: campaign._id,
       title: campaign.title || UNNAMED,
       createdAt: campaign.createdAt ?? undefined,
-      path: `/settings/loyalty/config/${route}?${queryParameter}=${campaign._id}`,
+      path: `/loyalty/settings/config/${route}?${queryParameter}=${campaign._id}`,
     }),
   });
 

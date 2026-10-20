@@ -1,42 +1,59 @@
-import { OrgLogoIcon } from '@/auth/components/Logo';
-import { IconBackspace, IconCommand } from '@tabler/icons-react';
-import { Badge, Button, cn, RelativeDateDisplay, Tooltip } from 'erxes-ui';
-import { useAtomValue } from 'jotai';
-import { useEffect, useState } from 'react';
+import { NotificationIcon } from '@/notification/components/NotificationIcon';
+import type { NotificationItemProps } from '@/notification/types/myInbox';
+import { Badge, Button, cn, RelativeDateDisplay } from 'erxes-ui';
+import { useEffect, useRef } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { pluginsConfigState, TNotification } from 'ui-modules';
+import { useAtomValue } from 'jotai';
+import { useTranslation } from 'react-i18next';
+import { inboxDisplayOptionsState } from '@/notification/states/notificationState';
 
 export const NotificationItem = ({
   _id,
   createdAt = '',
   message,
+  title,
+  fromUser,
   isRead,
   contentType = '',
   priority,
-}: TNotification) => {
+  selected,
+  selectionFocused,
+  onOpen,
+}: NotificationItemProps) => {
   const { id } = useParams();
+  const display = useAtomValue(inboxDisplayOptionsState);
+  const { t } = useTranslation('common', { keyPrefix: 'notification' });
+  const sender =
+    fromUser?.details?.fullName || fromUser?.email || t('system', 'System');
   const isActive = id === _id;
-  const [showTooltip, setShowTooltip] = useState(false);
+  const linkRef = useRef<HTMLAnchorElement>(null);
 
   useEffect(() => {
-    if (isActive) {
-      setShowTooltip(true);
-      setTimeout(() => {
-        setShowTooltip(false);
-      }, 3000);
+    if (isActive || selectionFocused) {
+      linkRef.current?.scrollIntoView({ block: 'nearest' });
     }
-  }, [isActive]);
+  }, [isActive, selectionFocused]);
 
   return (
     <Button
       asChild
       variant="ghost"
       className={cn(
-        'justify-start h-auto rounded-lg p-2 items-start overflow-hidden relative',
-        isActive && 'bg-primary/10 hover:bg-primary/10',
+        'justify-start h-auto rounded-lg p-2 items-start overflow-hidden relative select-none',
+        (isActive || selected) && 'bg-primary/10 hover:bg-primary/10',
+        selectionFocused && 'ring-1 ring-inset ring-primary/30',
       )}
     >
-      <Link to={`/my-inbox/${_id}${window.location.search}`}>
+      <Link
+        ref={linkRef}
+        title={message || title}
+        aria-current={isActive ? 'page' : undefined}
+        onClick={onOpen}
+        onMouseDown={(event) => {
+          if (event.shiftKey) event.preventDefault();
+        }}
+        to={`/my-inbox/${_id}${window.location.search}`}
+      >
         <div
           className={cn(
             'size-8 bg-foreground/5 rounded-full flex-none flex items-center justify-center relative',
@@ -48,12 +65,17 @@ export const NotificationItem = ({
             <div className="size-1.5 absolute bg-destructive rounded-full top-1.5 right-1.5" />
           )}
         </div>
-        <div className="flex-auto space-y-2 overflow-hidden">
+        <div className="flex-auto space-y-1 overflow-hidden">
+          {display.showSender && (
+            <div className="truncate text-xs text-muted-foreground">
+              {sender}
+            </div>
+          )}
           <div className="flex items-center justify-between">
             <h4
               className={cn(
                 'line-clamp-1 truncate',
-                isRead ? 'text-muted-foreground' : 'text-semibold',
+                isRead ? 'text-muted-foreground' : 'font-semibold',
                 isActive && 'text-foreground',
               )}
             >
@@ -62,43 +84,21 @@ export const NotificationItem = ({
           </div>
           <div className={cn('text-xs flex items-center justify-between')}>
             <div className="flex items-center gap-2">
-              <Badge className="capitalize" variant="secondary">
-                {priority}
-              </Badge>
+              {display.showPriority && (
+                <Badge className="capitalize" variant="secondary">
+                  {priority}
+                </Badge>
+              )}
             </div>
 
             <div
-              className={cn(isRead ? 'text-muted-foreground' : 'text-semibold')}
+              className={cn(isRead ? 'text-muted-foreground' : 'font-semibold')}
             >
               <RelativeDateDisplay.Value value={createdAt} />
             </div>
           </div>
         </div>
-        <Tooltip open={showTooltip} onOpenChange={setShowTooltip}>
-          <Tooltip.Trigger asChild>
-            <div className="absolute top-1/2 right-0"></div>
-          </Tooltip.Trigger>
-          <Tooltip.Content side="right" align="center">
-            <div className="inline-flex flex-none items-center">
-              <IconCommand className="size-4" />
-              +
-              <IconBackspace className="size-4 mr-1" />
-              mark as read
-            </div>
-          </Tooltip.Content>
-        </Tooltip>
       </Link>
     </Button>
   );
-};
-
-const NotificationIcon = ({ contentType }: { contentType: string }) => {
-  const pluginName = contentType?.split(':')[0] || '';
-  const pluginMetaData = useAtomValue(pluginsConfigState)?.[pluginName + '_ui'];
-  if (pluginName === 'core') {
-    return <OrgLogoIcon className="size-5 text-primary" />;
-  }
-  const Icon = pluginMetaData?.icon;
-
-  return Icon ? <Icon className="size-4 text-muted-foreground" /> : null;
 };

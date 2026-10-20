@@ -1,16 +1,16 @@
 import { memo, useEffect, useRef } from 'react';
 
+import { useMoveDealStage } from '@/deals/cards/hooks/useDeals';
 import { DealStageChip } from '@/deals/components/deal-selects/DealDetailChips';
 import { DealStageProgress } from '@/deals/components/deal-selects/DealStageProgress';
-import { IDeal } from '@/deals/types/deals';
-import { useMoveDealStage } from '@/deals/cards/hooks/useDeals';
 import { useOptimisticField } from '@/deals/components/deal-selects/hooks/useOptimisticField';
 import { useStages } from '@/deals/stage/hooks/useStages';
+import { IDeal } from '@/deals/types/deals';
 
 export const SelectDealStage = memo(function SelectDealStage({
   deal,
 }: {
-  deal: IDeal;
+  deal: Pick<IDeal, '_id' | 'stageId' | 'stage' | 'pipelineId' | 'pipeline'>;
 }) {
   const currentPipelineId =
     deal.stage?.pipelineId || deal.pipelineId || deal.pipeline?._id || '';

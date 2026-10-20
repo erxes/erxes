@@ -10,12 +10,12 @@ export const ResponseDetailPage = () => {
 
   return (
     <div className="overflow-y-auto">
-      <div className="px-4 h-16 flex items-center fixed mb-4">
+      <div className="px-4 h-10 flex items-center fixed mb-4">
         <Breadcrumb>
           <Breadcrumb.List>
             <Breadcrumb.Item>
               <Breadcrumb.Link asChild className="flex items-center gap-1">
-                <Link to={`/settings/frontline/channels/${channelId}/response`}>
+                <Link to={`/frontline/settings/channels/${channelId}/response`}>
                   <Button variant="ghost">
                     <IconArrowLeft size={16} className="stroke-foreground" />
                     {t('response-template', 'Response Template')}

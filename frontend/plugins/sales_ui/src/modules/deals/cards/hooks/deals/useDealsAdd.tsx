@@ -1,22 +1,25 @@
 import { MutationHookOptions, useMutation } from '@apollo/client';
+import type {
+  DealsAddMutation,
+  DealsAddMutationVariables,
+} from '~/gql/graphql';
 
 import { ADD_DEALS } from '@/deals/graphql/mutations/DealsMutations';
 import { dealCreateDefaultValuesState } from '@/deals/states/dealCreateSheetState';
-import { dealDetailSheetState } from '@/deals/states/dealDetailSheetState';
 import { toast } from 'erxes-ui';
 import { useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
-export function useDealsAdd(options?: MutationHookOptions) {
+export function useDealsAdd(
+  options?: MutationHookOptions<DealsAddMutation, DealsAddMutationVariables>,
+) {
   const { t } = useTranslation('sales');
-  const [_id] = useAtom(dealDetailSheetState);
   const [defaultValues] = useAtom(dealCreateDefaultValuesState);
 
   const [addDeals, { loading, error }] = useMutation(ADD_DEALS, {
     ...options,
     variables: {
       ...options?.variables,
-      _id,
       aboveItemId: '',
       stageId: defaultValues?.stageId,
     },

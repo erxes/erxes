@@ -138,11 +138,24 @@ export const hasProductScopeSelection = (
   );
 };
 
+// A rule picks documents by where they are filed (whole topics, category
+// subtrees), so only the source can enumerate them — including ones added
+// after the agent was saved.
+const hasRuleScopeSelection = (
+  source: Pick<TAiAgentKnowledgeSource, 'config'>,
+) =>
+  toStringArray(source.config?.topicIds).length > 0 ||
+  toStringArray(source.config?.categoryIds).length > 0;
+
 // Legacy: before `scope` existed, a product source with a selection was the
 // only one that streamed its whole configured scope.
 export const resolveKnowledgeSourceScope = (
   source: TAiAgentKnowledgeSource,
 ): 'all' | 'selected' => {
+  if (!isProductKnowledgeSource(source) && hasRuleScopeSelection(source)) {
+    return 'all';
+  }
+
   if (source.scope) {
     return source.scope;
   }

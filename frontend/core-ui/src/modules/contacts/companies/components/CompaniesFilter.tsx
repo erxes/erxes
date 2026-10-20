@@ -104,6 +104,7 @@ export const CompaniesFilter = () => {
   return (
     <Filter id="companies-filter" sessionKey={COMPANIES_CURSOR_SESSION_KEY}>
       <Filter.Bar>
+        <CompaniesFilterPopover />
         <Filter.BarItem queryKey="searchValue">
           <Filter.BarName>
             <IconSearch />
@@ -136,7 +137,6 @@ export const CompaniesFilter = () => {
           </Filter.BarName>
           <Filter.Date filterKey="lastSeen" />
         </Filter.BarItem>
-        <CompaniesFilterPopover />
         <CompaniesTotalCount />
       </Filter.Bar>
     </Filter>

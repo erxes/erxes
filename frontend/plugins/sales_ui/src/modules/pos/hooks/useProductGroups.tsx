@@ -1,29 +1,26 @@
 import { useQuery } from '@apollo/client';
-import queries from '../graphql/queries';
-import { ProductGroup } from '../pos-detail/types/IPos';
-
-interface ProductGroupsData {
-  productGroups: ProductGroup[];
-}
-
-interface ProductGroupsVars {
-  posId: string;
-}
+import { isDefined } from 'erxes-ui';
+import { useMemo } from 'react';
+import { queries } from '../graphql';
+import { hasId } from '../utils/posJson';
 
 export const useProductGroups = (posId?: string) => {
-  const { data, loading, error, refetch } = useQuery<
-    ProductGroupsData,
-    ProductGroupsVars
-  >(queries.productGroups, {
-    variables: { posId: posId || '' },
+  const { data, loading, error, refetch } = useQuery(queries.productGroups, {
+    variables: posId ? { posId } : undefined,
     skip: !posId,
     fetchPolicy: 'network-only',
   });
-
-  return {
-    productGroups: data?.productGroups || [],
-    loading,
-    error,
-    refetch,
-  };
+  const productGroups = useMemo(
+    () =>
+      (data?.productGroups ?? []).filter(hasId).map((group) => ({
+        ...group,
+        categoryIds: (group.categoryIds ?? []).filter(isDefined),
+        excludedCategoryIds: (group.excludedCategoryIds ?? []).filter(
+          isDefined,
+        ),
+        excludedProductIds: (group.excludedProductIds ?? []).filter(isDefined),
+      })),
+    [data?.productGroups],
+  );
+  return { productGroups, loading, error, refetch };
 };

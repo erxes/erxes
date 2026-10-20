@@ -1,4 +1,6 @@
 import { formatDate as format } from '@/utils/graphqlDate';
+import { AccountingEmptyState } from '@/layout/components/AccountingEmptyState';
+import { IconReport } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import {
   Button,
@@ -6,11 +8,12 @@ import {
   DatePicker,
   Dialog,
   Form,
+  IconComponent,
   Input,
   Select,
   Separator,
 } from 'erxes-ui';
-import { useAtomValue } from 'jotai';
+import { useAtom } from 'jotai';
 import { useEffect, useMemo } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
 import {
@@ -26,14 +29,14 @@ import { SelectAccountCategory } from '~/modules/settings/account/account-catego
 import { SelectAccount } from '~/modules/settings/account/components/SelectAccount';
 import { SelectFixedAssetCategory } from '~/modules/settings/fixed-assets/components/SelectFixedAssetCategory';
 import { SelectFixedAsset } from '~/modules/settings/fixed-assets/components/SelectFixedAsset';
-import { activeReportState } from '../states/renderingReportsStates';
-import { ERKHET_TRANSACTION_TYPE_CHOICES } from '../types/erkhetTransactionTypes';
+import { activeReportState } from '@/journal-reports/states/renderingReportsStates';
+import { ERKHET_TRANSACTION_TYPE_CHOICES } from '@/journal-reports/types/erkhetTransactionTypes';
 import {
   getReportFilterDefinitions,
   REPORT_FILTER_GROUP_ORDER,
   ReportFilterDefinition,
-} from '../types/reportFilters';
-import { IReportConfig, ReportRules } from '../types/reportsMap';
+} from '@/journal-reports/types/reportFilters';
+import { IReportConfig, ReportRules } from '@/journal-reports/types/reportsMap';
 
 interface ReportFormValues {
   accountCategoryId?: string;
@@ -410,9 +413,11 @@ const ReportFormField = ({
   );
 };
 
+const COMMON_REPORT_KEYS = ['ac', 'tb', 'mb'];
+
 export const ReportForm = () => {
   const { t } = useTranslation('accounting');
-  const activeReport = useAtomValue(activeReportState);
+  const [activeReport, setActiveReport] = useAtom(activeReportState);
   const reportConfig = useMemo(
     () => ReportRules[activeReport] || ({} as IReportConfig),
     [activeReport],
@@ -457,46 +462,75 @@ export const ReportForm = () => {
   };
 
   if (!activeReport) {
-    return t('select-a-report');
+    return (
+      <AccountingEmptyState
+        icon={IconReport}
+        title={t('select-a-report')}
+        description={t('select-a-report-description')}
+        className="flex-auto"
+        action={
+          <div className="flex flex-wrap justify-center gap-2">
+            {COMMON_REPORT_KEYS.map((reportKey) => (
+              <Button
+                key={reportKey}
+                variant="secondary"
+                onClick={() => setActiveReport(reportKey)}
+              >
+                {ReportRules[reportKey].icon ? (
+                  <IconComponent name={ReportRules[reportKey].icon} />
+                ) : (
+                  <IconReport />
+                )}
+                {t(ReportRules[reportKey].title || '')}
+              </Button>
+            ))}
+          </div>
+        }
+      />
+    );
   }
 
   return (
-    <div className="mx-auto overflow-auto p-3 pt-8">
-      <h2 className="text-base font-semibold">{t(reportConfig.title || '')}</h2>
-      <Separator className="mt-3" />
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="py-4">
-          {REPORT_FILTER_GROUP_ORDER.map((group) => {
-            const groupDefinitions = definitions.filter(
-              (definition) => definition.group === group,
-            );
+    <div className="flex-auto overflow-auto px-6 py-6">
+      <div className="mx-auto max-w-6xl">
+        <h2 className="text-base font-semibold">
+          {t(reportConfig.title || '')}
+        </h2>
+        <Separator className="mt-3" />
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="py-4">
+            {REPORT_FILTER_GROUP_ORDER.map((group) => {
+              const groupDefinitions = definitions.filter(
+                (definition) => definition.group === group,
+              );
 
-            if (!groupDefinitions.length) {
-              return null;
-            }
+              if (!groupDefinitions.length) {
+                return null;
+              }
 
-            return (
-              <div key={group} className="border-b py-4 last:border-0">
-                <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-4">
-                  {groupDefinitions.map((definition) => (
-                    <ReportFormField
-                      key={definition.field}
-                      definition={definition}
-                      form={form}
-                      reportConfig={reportConfig}
-                    />
-                  ))}
+              return (
+                <div key={group} className="border-b py-4 last:border-0">
+                  <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-4">
+                    {groupDefinitions.map((definition) => (
+                      <ReportFormField
+                        key={definition.field}
+                        definition={definition}
+                        form={form}
+                        reportConfig={reportConfig}
+                      />
+                    ))}
+                  </div>
                 </div>
-              </div>
-            );
-          })}
-          <Dialog.Footer className="mt-4">
-            <Button type="submit" size="lg" disabled={!allowedFields.size}>
-              {t('view-report')}
-            </Button>
-          </Dialog.Footer>
-        </form>
-      </Form>
+              );
+            })}
+            <Dialog.Footer className="mt-4">
+              <Button type="submit" size="lg" disabled={!allowedFields.size}>
+                {t('view-report')}
+              </Button>
+            </Dialog.Footer>
+          </form>
+        </Form>
+      </div>
     </div>
   );
 };

@@ -1,3 +1,4 @@
+import { INTERNAL_NOTE_BACKGROUND } from '@/inbox/constants/internalNoteStyles';
 import { useGetTicketNote } from '@/activity/hooks/useGetTicketNote';
 import { useRetryTicketNoteMail } from '@/activity/hooks/useRetryTicketNoteMail';
 import {
@@ -33,6 +34,8 @@ import {
 import { useMemo } from 'react';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useUnverifiedAttachments } from '@/ticket/hooks/useUnverifiedAttachments';
+import { UnverifiedAttachmentCover } from '@/ticket/components/attachments/UnverifiedAttachmentCover';
 
 interface NoteInputReadOnlyProps {
   newValueId: string;
@@ -240,7 +243,7 @@ export const NoteInputReadOnly = ({ newValueId }: NoteInputReadOnlyProps) => {
     <div
       className={cn(
         'relative flex flex-col overflow-hidden border rounded-lg min-h-14 px-4 py-3 gap-2 ml-4',
-        kind === 'internal' && 'border-warning/50 bg-warning/20',
+        kind === 'internal' && ['border-border', INTERNAL_NOTE_BACKGROUND],
         hasDeliveryIssue(note?.mailDelivery) && 'border-destructive/40',
       )}
     >
@@ -293,6 +296,18 @@ const NoteReadOnlyAttachment = ({
   attachment: ITicketNoteAttachment;
   single: boolean;
 }) => {
+  const { isCovered, reveal } = useUnverifiedAttachments();
+
+  if (attachment.type?.startsWith('image') && isCovered(attachment.url)) {
+    return (
+      <div
+        className={cn('relative rounded', single ? 'h-40 w-64' : 'h-32 w-full')}
+      >
+        <UnverifiedAttachmentCover onReveal={() => reveal(attachment.url)} />
+      </div>
+    );
+  }
+
   if (attachment.type?.startsWith('image')) {
     return (
       <a

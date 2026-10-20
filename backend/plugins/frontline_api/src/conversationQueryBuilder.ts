@@ -84,30 +84,27 @@ export default class Builder {
   }
 
   public async segmentFilter(segmentId: string): Promise<{ _id: IIn }> {
-    const selector = await sendTRPCMessage({
-      subdomain: this.subdomain,
+    const ids: string[] = [];
+    let cursor: string | undefined;
 
-      pluginName: 'core',
-      method: 'query',
-      module: 'segment',
-      action: 'fetchSegment',
-      input: {
-        segmentId,
-        options: {
-          returnFields: ['_id'],
-          page: 1,
-          perPage: this.params.limit ? this.params.limit + 1 : 11,
-          sortField: 'updatedAt',
-          sortDirection: -1,
-        },
-      },
-      defaultValue: [],
-    });
+    do {
+      const page: { ids?: string[]; nextCursor?: string } =
+        await sendTRPCMessage({
+          subdomain: this.subdomain,
+          pluginName: 'core',
+          method: 'query',
+          module: 'segment',
+          action: 'fetchSegment',
+          input: { segmentId, cursor, limit: 1000 },
+          defaultValue: { ids: [] },
+        });
 
-    const Ids = _.pluck(selector, '_id');
+      ids.push(...(page.ids || []));
+      cursor = page.nextCursor;
+    } while (cursor);
 
     return {
-      _id: { $in: Ids },
+      _id: { $in: ids },
     };
   }
 

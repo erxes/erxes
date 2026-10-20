@@ -1,42 +1,38 @@
 import { Labels } from '@/deals/cards/components/detail/overview/label/Labels';
 import { ItemFooter } from '@/deals/cards/components/item/Footer';
-import { DealLoyaltyPointsBadge } from '@/deals/loyaltyRules/components/DealLoyaltyTotals';
 import { useDealsEdit } from '@/deals/cards/hooks/useDeals';
 import { SelectLabels } from '@/deals/components/common/filters/SelectLabel';
 import { DateSelectDeal } from '@/deals/components/deal-selects/DateSelectDeal';
 import { SelectDealPriority } from '@/deals/components/deal-selects/SelectDealPriority';
+import { DealLoyaltyPointsBadge } from '@/deals/loyaltyRules/components/DealLoyaltyTotals';
 import { dealDetailSheetState } from '@/deals/states/dealDetailSheetState';
 import { IDeal } from '@/deals/types/deals';
+import { dealProductsSchema, isRecord } from '@/deals/utils/dealJson';
 import { IconAlertCircleFilled } from '@tabler/icons-react';
-import { CopyText, Separator, useQueryState } from 'erxes-ui';
+import { CopyText, isDefined, Separator, useQueryState } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
 import { memo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import {
+  CardDetailBadges,
+  formatFieldValue,
+  hasFieldValue,
+  useFields,
+  useManageRelations,
+  type CardDetailBadgeItem,
+} from 'ui-modules';
 import {
   SelectCompanyFilterBar,
   SelectCustomerFilterBar,
 } from 'ui-modules/modules/contacts';
 import { SelectTagsFilterBar } from 'ui-modules/modules/tags';
 import {
-  CardDetailBadges,
-  formatFieldValue,
-  hasFieldValue,
-  useManageRelations,
-  useFields,
-  type CardDetailBadgeItem,
-} from 'ui-modules';
-import {
   DealCardProducts,
   DealCardRelationDetails,
 } from './DealsBoardCardDetails';
-import { useTranslation } from 'react-i18next';
 
 interface DealsBoardCardProps {
   deal: IDeal;
-}
-
-interface DealProductReference {
-  _id: string;
-  name?: string;
 }
 
 const normalizeSelectedIds = (value?: string | string[]) => {
@@ -81,33 +77,34 @@ const CardDetails = ({ deal }: { deal: IDeal }) => {
     tags,
     customProperties,
   } = deal;
+  const propertiesData = isRecord(deal.propertiesData)
+    ? deal.propertiesData
+    : {};
+  const parsedProducts = dealProductsSchema.safeParse(deal.productsData ?? []);
+  const productsData = parsedProducts.success ? parsedProducts.data : [];
   const { fields: dealFields } = useFields({ contentType: 'sales:deal' });
 
   const cardPropertyItems = (dealFields || [])
     .filter(
       (field) =>
-        field.isVisibleInCard &&
-        hasFieldValue(deal.propertiesData?.[field._id]),
+        field.isVisibleInCard && hasFieldValue(propertiesData[field._id]),
     )
     .map((field) => ({
       _id: field._id,
       name: `${field.name}: ${formatFieldValue(
         field,
-        deal.propertiesData?.[field._id],
+        propertiesData[field._id],
       )}`,
     }));
 
   const productMap = new Map(
-    deal.products?.map((product: DealProductReference) => [
-      product._id,
-      product,
-    ]),
+    deal.products?.filter(isDefined).map((product) => [product._id, product]),
   );
 
   const filterProducts = (tickUsed: boolean) => {
     return (
-      deal.productsData
-        ?.filter((p) => p.tickUsed === tickUsed)
+      productsData
+        .filter((p) => p.tickUsed === tickUsed)
         .map((p) => {
           const product = productMap.get(p.productId || '');
           if (!product) return null;
@@ -121,7 +118,7 @@ const CardDetails = ({ deal }: { deal: IDeal }) => {
               typeof p.amount === 'number'
                 ? p.amount
                 : (p.unitPrice || 0) * (p.quantity || 0),
-            currency: p.currency,
+            currency: p.currency ?? undefined,
           };
         })
         .filter((p): p is NonNullable<typeof p> => Boolean(p)) || []
@@ -131,34 +128,44 @@ const CardDetails = ({ deal }: { deal: IDeal }) => {
   const dealProducts = filterProducts(true);
   const excludedProducts = filterProducts(false);
   const hasProducts = dealProducts.length > 0 || excludedProducts.length > 0;
-  const customerItems = (customers || []).map((customer) => ({
-    _id: customer._id,
-    name:
-      [customer.firstName, customer.middleName, customer.lastName]
-        .filter(Boolean)
-        .join(' ') ||
-      customer.primaryEmail ||
-      customer.primaryPhone ||
-      t('unknown'),
-    avatar: customer.avatar,
-  }));
-  const companyItems = (companies || []).map((company) => ({
-    _id: company._id,
-    name:
-      company.primaryName ||
-      company.primaryEmail ||
-      company.primaryPhone ||
-      t('unknown'),
-    avatar: company.avatar,
-  }));
-  const departmentItems = (departments || []).map((department) => ({
-    _id: department._id,
-    name: department.title || t('unknown'),
-  }));
-  const branchItems = (branches || []).map((branch) => ({
-    _id: branch._id,
-    name: branch.title || t('unknown'),
-  }));
+  const customerItems = (customers || [])
+    .filter(isDefined)
+    .filter((item) => item._id !== null)
+    .map((customer) => ({
+      _id: customer._id || '',
+      name:
+        [customer.firstName, customer.middleName, customer.lastName]
+          .filter(Boolean)
+          .join(' ') ||
+        customer.primaryEmail ||
+        customer.primaryPhone ||
+        t('unknown'),
+    }));
+  const companyItems = (companies || [])
+    .filter(isDefined)
+    .filter((item) => item._id !== null)
+    .map((company) => ({
+      _id: company._id || '',
+      name:
+        company.primaryName ||
+        company.primaryEmail ||
+        company.primaryPhone ||
+        t('unknown'),
+    }));
+  const departmentItems = (departments || [])
+    .filter(isDefined)
+    .filter((item) => item._id !== null)
+    .map((department) => ({
+      _id: department._id || '',
+      name: department.title || t('unknown'),
+    }));
+  const branchItems = (branches || [])
+    .filter(isDefined)
+    .filter((item) => item._id !== null)
+    .map((branch) => ({
+      _id: branch._id || '',
+      name: branch.title || t('unknown'),
+    }));
   const customPropertyItems = Array.isArray(customProperties)
     ? customProperties
         .map((property, index) => normalizeCustomProperty(property, index))
@@ -166,6 +173,7 @@ const CardDetails = ({ deal }: { deal: IDeal }) => {
     : [];
 
   if (
+    parsedProducts.success &&
     !hasProducts &&
     !branches?.length &&
     !companies?.length &&
@@ -180,6 +188,11 @@ const CardDetails = ({ deal }: { deal: IDeal }) => {
 
   return (
     <div className="flex flex-col gap-1 p-3 pt-0">
+      {!parsedProducts.success && (
+        <span role="alert" className="text-destructive">
+          {t('invalid-product-data', 'Unable to read product data')}
+        </span>
+      )}
       <DealCardProducts
         items={dealProducts}
         label={t('products')}
@@ -200,7 +213,16 @@ const CardDetails = ({ deal }: { deal: IDeal }) => {
       ) && (
         <div className="mt-1 flex flex-col gap-1">
           <CardDetailBadges
-            items={tags || []}
+            items={
+              tags
+                ?.filter(isDefined)
+                .map((tag) => ({
+                  ...tag,
+                  _id: tag._id ?? undefined,
+                  name: tag.name ?? '',
+                  colorCode: tag.colorCode ?? undefined,
+                })) || []
+            }
             color="#FF6600"
             maxVisibleItems={5}
           />
@@ -229,10 +251,16 @@ export const DealsBoardCard = memo(function DealsBoardCard({
   const { editDeals } = useDealsEdit();
   const { manageRelations } = useManageRelations();
   const [currentCustomers, setCurrentCustomers] = useState(
-    deal.customers || [],
+    deal.customers
+      ?.filter(isDefined)
+      .map(({ _id }) => _id)
+      .filter(isDefined) || [],
   );
   const [currentCompanies, setCurrentCompanies] = useState(
-    deal.companies || [],
+    deal.companies
+      ?.filter(isDefined)
+      .map(({ _id }) => _id)
+      .filter(isDefined) || [],
   );
   const { t } = useTranslation('sales');
 
@@ -285,7 +313,7 @@ export const DealsBoardCard = memo(function DealsBoardCard({
       <div className="p-3 flex flex-col gap-3">
         {labels && labels.length !== 0 && (
           <div className="flex flex-wrap items-center gap-2">
-            <Labels labels={labels} type="toggle" />
+            <Labels labels={labels.filter(isDefined)} type="toggle" />
           </div>
         )}
         <div className="flex flex-col gap-1">
@@ -294,7 +322,7 @@ export const DealsBoardCard = memo(function DealsBoardCard({
               {name}
             </CopyText>
           </h5>
-          {stage?.age !== undefined && stage.age < 0 && (
+          {stage?.age != null && stage.age < 0 && (
             <span className="px-2 rounded flex gap-1 bg-yellow-50 text-yellow-400 border-yellow-100 border">
               <IconAlertCircleFilled className="size-6 pt-2" />
               <h5 className="text-sm py-2">
@@ -314,7 +342,9 @@ export const DealsBoardCard = memo(function DealsBoardCard({
             mode="multiple"
             variant="card"
             targetId={_id}
-            initialValue={labels?.map((label) => label._id || '') || []}
+            initialValue={
+              labels?.filter(isDefined).map((label) => label._id || '') || []
+            }
             showLabels
           />
           <SelectTagsFilterBar
@@ -323,7 +353,7 @@ export const DealsBoardCard = memo(function DealsBoardCard({
             label={t('by-tag')}
             variant="card"
             tagType="sales:deal"
-            initialValue={tagIds || []}
+            initialValue={tagIds?.filter(isDefined) || []}
             onValueChange={(value) => {
               if (!value) return;
               editDeals({
@@ -337,23 +367,16 @@ export const DealsBoardCard = memo(function DealsBoardCard({
           <SelectCustomerFilterBar
             filterKey=""
             mode="multiple"
+            label={t('by-customer', 'By Customer')}
             variant="card"
-            initialValue={
-              currentCustomers?.map((customer) => customer._id || '') || []
-            }
-            value={
-              currentCustomers?.map((customer) => customer._id || '') || []
-            }
+            initialValue={currentCustomers}
+            value={currentCustomers}
             onValueChange={(value?: string | string[]) => {
               const selectedIds = normalizeSelectedIds(value);
 
               if (!selectedIds.length) return;
 
-              const updatedCustomers = selectedIds.map(
-                (id: string) =>
-                  currentCustomers?.find((c) => c._id === id) || { _id: id },
-              );
-              setCurrentCustomers(updatedCustomers);
+              setCurrentCustomers(selectedIds);
 
               manageRelations({
                 contentType: 'sales:deal',
@@ -370,20 +393,14 @@ export const DealsBoardCard = memo(function DealsBoardCard({
             label={t('by-company')}
             variant="card"
             targetId={_id}
-            initialValue={
-              currentCompanies?.map((company) => company._id || '') || []
-            }
-            value={currentCompanies?.map((company) => company._id || '') || []}
+            initialValue={currentCompanies}
+            value={currentCompanies}
             onValueChange={(value?: string | string[]) => {
               const selectedIds = normalizeSelectedIds(value);
 
               if (!selectedIds.length) return;
 
-              const updatedCompanies = selectedIds.map(
-                (id: string) =>
-                  currentCompanies?.find((c) => c._id === id) || { _id: id },
-              );
-              setCurrentCompanies(updatedCompanies);
+              setCurrentCompanies(selectedIds);
 
               manageRelations({
                 contentType: 'sales:deal',
