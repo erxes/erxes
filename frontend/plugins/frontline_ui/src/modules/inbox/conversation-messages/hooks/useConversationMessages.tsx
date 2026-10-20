@@ -1,5 +1,5 @@
 import { useQuery } from '@apollo/client';
-import type { QueryHookOptions } from '@apollo/client';
+import type { QueryHookOptions, Reference } from '@apollo/client';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { GET_CONVERSATION_MESSAGES } from '@/inbox/conversations/conversation-detail/graphql/queries/getConversationMessages';
 import {
@@ -149,6 +149,24 @@ export const useConversationMessages = (
             id: cacheId,
             fields: {
               content: () => newMessage.content,
+              lastMessage: (
+                previous: Reference | null,
+                { readField, toReference },
+              ) => {
+                const previousDate = previous
+                  ? readField<string>('createdAt', previous)
+                  : undefined;
+                if (
+                  previousDate &&
+                  Date.parse(previousDate) >
+                    Date.parse(newMessage.createdAt ?? '')
+                )
+                  return previous;
+                return toReference({
+                  __typename: 'ConversationMessage',
+                  _id: newMessage._id,
+                });
+              },
               updatedAt: () => newMessage.createdAt,
             },
           });

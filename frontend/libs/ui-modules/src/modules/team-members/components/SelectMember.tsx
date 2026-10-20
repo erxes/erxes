@@ -1,3 +1,4 @@
+import { memberOptions } from '../utils/memberOptions';
 import { useSubscription } from '@apollo/client';
 import { IconPlus, IconUser } from '@tabler/icons-react';
 import {
@@ -15,6 +16,8 @@ import {
   useQueryState,
 } from 'erxes-ui';
 import React, { useState } from 'react';
+import { useAtomValue } from 'jotai';
+import { currentUserState } from 'ui-modules/states';
 import { useUsers } from 'ui-modules/modules';
 import { useDebounce } from 'use-debounce';
 import {
@@ -33,6 +36,7 @@ const SelectMemberProvider = ({
   members,
   setOpen,
   allowUnassigned,
+  disabled = false,
 }: {
   children: React.ReactNode;
   mode?: 'single' | 'multiple';
@@ -41,11 +45,13 @@ const SelectMemberProvider = ({
   members?: IUser[];
   setOpen?: (open: boolean) => void;
   allowUnassigned?: boolean;
+  disabled?: boolean;
 }) => {
   const [_members, setMembers] = useState<IUser[]>(members || []);
   const isSingleMode = mode === 'single';
 
   const onSelect = (member: IUser | null) => {
+    if (disabled) return;
     if (!member) {
       setMembers([]);
       onValueChange?.(mode === 'single' ? null : []);
@@ -85,6 +91,7 @@ const SelectMemberProvider = ({
         setMembers,
         loading,
         allowUnassigned: allowUnassigned || false,
+        disabled,
       }}
     >
       {children}
@@ -117,12 +124,19 @@ const SelectMemberValue = ({
   );
 };
 
-const SelectMemberCommandItem = ({ user }: { user: IUser }) => {
-  const { onSelect, memberIds } = useSelectMemberContext();
+const SelectMemberCommandItem = ({
+  user,
+  inactive = user.isActive === false,
+}: {
+  user: IUser;
+  inactive?: boolean;
+}) => {
+  const { onSelect, memberIds, disabled } = useSelectMemberContext();
 
   return (
     <Command.Item
       value={user._id}
+      disabled={disabled || (inactive && !memberIds.includes(user._id))}
       onSelect={() => {
         onSelect(user);
       }}
@@ -131,9 +145,11 @@ const SelectMemberCommandItem = ({ user }: { user: IUser }) => {
         members={[
           {
             ...user,
+            isActive: inactive ? false : user.isActive,
           },
         ]}
         placeholder="Unnamed user"
+        showInactive
       />
       <Combobox.Check checked={memberIds.includes(user._id)} />
     </Command.Item>
@@ -141,11 +157,16 @@ const SelectMemberCommandItem = ({ user }: { user: IUser }) => {
 };
 
 const SelectMemberNoAssigneeItem = () => {
-  const { onSelect, memberIds } = useSelectMemberContext();
+  const { onSelect, memberIds, disabled } = useSelectMemberContext();
   const isNoAssigneeSelected =
-    memberIds?.length === 1 && memberIds[0] === 'no-assignee';
+    memberIds.length === 0 ||
+    (memberIds.length === 1 && memberIds[0] === 'no-assignee');
   return (
-    <Command.Item value="no-assignee" onSelect={() => onSelect(null)}>
+    <Command.Item
+      disabled={disabled}
+      value="no-assignee"
+      onSelect={() => onSelect(null)}
+    >
       <MembersInline
         memberIds={[]}
         placeholder="Unnamed user"
@@ -157,6 +178,7 @@ const SelectMemberNoAssigneeItem = () => {
 };
 
 const SelectMemberContent = () => {
+  const currentUser = useAtomValue(currentUserState);
   const [search, setSearch] = useState('');
   const [inactiveMemberIds, setInactiveMemberIds] = useState<string[]>([]);
   const [debouncedSearch] = useDebounce(search, 500);
@@ -180,24 +202,21 @@ const SelectMemberContent = () => {
     },
   });
 
-  const activeMembers = members.filter(
-    ({ _id, isActive }) =>
-      isActive !== false && !inactiveMemberIds.includes(_id),
+  const selectedMembers = members.filter((member) =>
+    memberIds.includes(member._id),
   );
-  const filteredMembers = search
-    ? activeMembers.filter((member) => {
-        const q = search.toLowerCase();
-        const fullName = `${member.details?.firstName || ''} ${
-          member.details?.lastName || ''
-        }`.toLowerCase();
-        return (
-          fullName.includes(q) ||
-          (member.details?.fullName || '').toLowerCase().includes(q) ||
-          (member.email || '').toLowerCase().includes(q) ||
-          (member.username || '').toLowerCase().includes(q)
-        );
-      })
-    : activeMembers;
+  const filteredMembers = memberOptions(
+    currentUser,
+    selectedMembers,
+    users,
+    inactiveMemberIds,
+    search,
+  );
+  const lastSelectedIndex = filteredMembers.reduce(
+    (lastIndex, member, index) =>
+      memberIds.includes(member._id) ? index : lastIndex,
+    -1,
+  );
 
   return (
     <Command shouldFilter={false}>
@@ -210,26 +229,22 @@ const SelectMemberContent = () => {
       />
       <Command.List className="max-h-[300px] overflow-y-auto">
         <Combobox.Empty loading={loading} error={error} />
-        {filteredMembers.length > 0 && (
-          <>
-            {filteredMembers.map((member) => (
-              <SelectMemberCommandItem key={member._id} user={member} />
-            ))}
-            <Command.Separator className="my-1" />
-          </>
-        )}
+        {filteredMembers.map((member, index) => (
+          <React.Fragment key={member._id}>
+            <SelectMemberCommandItem
+              user={member}
+              inactive={
+                member.isActive === false ||
+                inactiveMemberIds.includes(member._id)
+              }
+            />
+            {index === lastSelectedIndex &&
+              index < filteredMembers.length - 1 && (
+                <Command.Separator className="my-1" />
+              )}
+          </React.Fragment>
+        ))}
         {!loading && allowUnassigned && <SelectMemberNoAssigneeItem />}
-
-        {!loading &&
-          users
-            .filter(
-              (user) =>
-                !inactiveMemberIds.includes(user._id) &&
-                !memberIds.some((memberId) => memberId === user._id),
-            )
-            .map((user) => (
-              <SelectMemberCommandItem key={user._id} user={user} />
-            ))}
 
         <Combobox.FetchMore
           fetchMore={handleFetchMore}
@@ -492,7 +507,7 @@ export const SelectMemberRoot = ({
     <SelectMemberProvider
       onValueChange={(value) => {
         onValueChange?.(value);
-        setOpen(false);
+        if (props.mode !== 'multiple') setOpen(false);
       }}
       {...props}
     >

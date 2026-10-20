@@ -8,6 +8,7 @@ import {
 import { callProGetAudio } from '@/integrations/callpro/messageBroker';
 
 import { IContext } from '~/connectionResolvers';
+import { getConversationAssigneeIds } from '@/inbox/utils/conversationAssignees';
 
 function resolvePropertiesData(conversation: IConversationDocument) {
   if (conversation.propertiesData != null) {
@@ -44,6 +45,12 @@ function resolvePropertiesData(conversation: IConversationDocument) {
 }
 
 export default {
+  assignedUserIds: getConversationAssigneeIds,
+  assignedUsers: (conversation: IConversationDocument) =>
+    getConversationAssigneeIds(conversation).map((_id) => ({
+      __typename: 'User',
+      _id,
+    })),
   propertiesData: resolvePropertiesData,
 
   customFieldsData: resolvePropertiesData,
@@ -110,6 +117,20 @@ export default {
     return conv.participatedUserIds?.length ?? 0;
   },
 
+  lastMessage(
+    conversation: IConversationDocument,
+    _args,
+    { models }: IContext,
+  ) {
+    if (conversation.lastMessage !== undefined) return conversation.lastMessage;
+    return models.ConversationMessages.findOne({
+      conversationId: conversation._id,
+      internal: { $ne: true },
+    })
+      .sort({ createdAt: -1, _id: -1 })
+      .lean();
+  },
+
   async messages(conv: IConversationDocument, _, { models }: IContext) {
     const messages = await models.ConversationMessages.find({
       conversationId: conv._id,
@@ -140,7 +161,10 @@ export default {
       return null;
     }
 
-    if (!user?.isOwner && user?._id !== conv.assignedUserId) {
+    if (
+      !user?.isOwner &&
+      !getConversationAssigneeIds(conv).includes(user?._id)
+    ) {
       debugCallPro(
         `Audio hidden conv=${conv._id}: user=${user?._id} is not owner and not assignee (assignedUserId=${conv.assignedUserId})`,
       );

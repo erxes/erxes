@@ -1,21 +1,20 @@
-import { ConversationsLoading } from '@/inbox/conversations/components/ConversationsLoading';
-import { ConversationContext } from '@/inbox/conversations/context/ConversationContext';
-import { toCustomerInline } from '@/inbox/conversations/utils/conversationContext';
-import { compactList } from '@/shared/utils/cursorList';
-import { ConversationListContext } from '@/inbox/conversations/context/ConversationListContext';
-import { useConversationListChannels } from '@/inbox/conversations/hooks/useConversationListChannels';
-import { useConversations } from '@/inbox/conversations/hooks/useConversations';
-import { IConversation } from '@/inbox/types/Conversation';
-import { telegramChatLabel } from '@/integrations/telegram/useTelegramChats';
-import { IconInbox } from '@tabler/icons-react';
-
 import { Empty, Filter, ScrollArea, Separator, Spinner } from 'erxes-ui';
 
 import { ConversationActions } from '@/inbox/conversations/components/ConversationActions';
-import { ConversationThreadList } from '@/inbox/conversations/components/ConversationChannelSection';
+import { ConversationContext } from '@/inbox/conversations/context/ConversationContext';
 import { ConversationItem } from '@/inbox/conversations/components/ConversationItem';
+import { ConversationListContext } from '@/inbox/conversations/context/ConversationListContext';
+import { ConversationThreadList } from '@/inbox/conversations/components/ConversationChannelSection';
 import { ConversationsHeader } from '@/inbox/conversations/components/ConversationsHeader';
+import { ConversationsLoading } from '@/inbox/conversations/components/ConversationsLoading';
+import { IConversation } from '@/inbox/types/Conversation';
+import { IconInbox } from '@tabler/icons-react';
+import { compactList } from '@/shared/utils/cursorList';
 import { isDiscordConversation } from '@/inbox/conversations/utils/channelGroups';
+import { telegramChatLabel } from '@/integrations/telegram/useTelegramChats';
+import { toCustomerInline } from '@/inbox/conversations/utils/conversationContext';
+import { useConversationListChannels } from '@/inbox/conversations/hooks/useConversationListChannels';
+import { useConversations } from '@/inbox/conversations/hooks/useConversations';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -40,15 +39,7 @@ export const Conversations = () => {
     useConversationListChannels(conversations);
 
   const renderConversationItem = (conversation: IConversation) => (
-    <ConversationContext.Provider
-      key={conversation._id}
-      value={{
-        ...conversation,
-        customer: toCustomerInline(conversation.customer),
-        integration: conversation.integration ?? undefined,
-        tagIds: compactList(conversation.tagIds),
-      }}
-    >
+    <ConversationRowProvider key={conversation._id} conversation={conversation}>
       <ConversationItem
         channelInfo={{
           channelName:
@@ -65,7 +56,7 @@ export const Conversations = () => {
         }
         onConversationSelect={handleConversationSelect}
       />
-    </ConversationContext.Provider>
+    </ConversationRowProvider>
   );
 
   const renderContent = () => {
@@ -139,5 +130,28 @@ export const Conversations = () => {
         </div>
       </div>
     </ConversationListContext.Provider>
+  );
+};
+
+const ConversationRowProvider = ({
+  conversation,
+  children,
+}: {
+  conversation: IConversation;
+  children: ReactNode;
+}) => {
+  const value = useMemo(
+    () => ({
+      ...conversation,
+      customer: toCustomerInline(conversation.customer),
+      integration: conversation.integration ?? undefined,
+      tagIds: compactList(conversation.tagIds),
+    }),
+    [conversation],
+  );
+  return (
+    <ConversationContext.Provider value={value}>
+      {children}
+    </ConversationContext.Provider>
   );
 };
