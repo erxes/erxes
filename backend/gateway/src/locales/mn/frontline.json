@@ -2539,6 +2539,8 @@
     }
   },
   "messenger-message-action-form-name": "Мессенжер мессежийн үйлдлийн форм",
-  "ticket-action-configuration": "Тикет үйлдлийн тохиргоо",
+  "ticket-action-configuration-error_one": "Тикет үйлдлийн тохиргооны алдаа",
+  "ticket-action-configuration-error_other": "Тикет үйлдлийн тохиргооны алдаа ({{count}})",
+  "ticket-action-configuration-error-description": "Баталгаажуулалтын алдаа илэрлээ. Бүх табыг шалгаж, тодруулсан талбаруудыг засна уу.",
   "ticket-placement": "Суваг / Дамжлага / Төлөв"
 }

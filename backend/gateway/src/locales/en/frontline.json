@@ -2539,6 +2539,8 @@
     }
   },
   "messenger-message-action-form-name": "Messenger Message Action Form",
-  "ticket-action-configuration": "Ticket Action Configuration",
+  "ticket-action-configuration-error_one": "Ticket Action Configuration Error",
+  "ticket-action-configuration-error_other": "Ticket Action Configuration Errors ({{count}})",
+  "ticket-action-configuration-error-description": "Validation errors found. Please review all tabs and fix the highlighted fields.",
   "ticket-placement": "Channel / Pipeline / Status"
 }
