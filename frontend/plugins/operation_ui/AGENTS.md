@@ -6,7 +6,7 @@
 - **Project:** `operation_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/operation_ui`
-- **Last synchronized:** `2026-10-18`
+- **Last synchronized:** `2026-10-20`
 
 ## Scope
 
@@ -73,6 +73,13 @@
 - Module Federation exposes: `./config`, `./operation`, `./relationWidget`, `./notificationWidget`, and `./automationsWidget`.
 - Frontend navigation paths under `operation/*` and `operation/settings/*` registered from `src/config.tsx`.
 - Relation widget names `tasks` and `projects`, plus property input `taskStatus`.
+- Record actions for `operation:task`: `TaskDetailSheet` header and
+  `TasksCommandBar` (bulk bar, selected task ids) render `RecordActions` from
+  `ui-modules`. Plugins and extensions fill them through
+  `recordActions['operation:task']` in their `CONFIG`.
+- `TaskSideWidgets` asks `useRelationWidget` for content type
+  `operation:task`, so relation widgets limited by `contentTypes` show on
+  tasks only when they name it.
 
 ### Consumes
 

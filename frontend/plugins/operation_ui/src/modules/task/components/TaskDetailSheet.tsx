@@ -18,6 +18,7 @@ import {
   TextOverflowTooltip,
 } from 'erxes-ui';
 import { Link, useParams } from 'react-router-dom';
+import { RecordActions } from 'ui-modules';
 import { useTranslation } from 'react-i18next';
 import { TaskDetailActions } from './task-actions/TaskDetailActions';
 
@@ -78,6 +79,13 @@ export const TaskDetailSheet = () => {
       >
         <Sheet.Header>
           <TaskDetailSheetHeader />
+          {task && (
+            <RecordActions
+              contentType="operation:task"
+              contentIds={[task._id]}
+              className="ml-auto flex items-center gap-2"
+            />
+          )}
           <Sheet.Close />
         </Sheet.Header>
         <FocusSheet.Content>

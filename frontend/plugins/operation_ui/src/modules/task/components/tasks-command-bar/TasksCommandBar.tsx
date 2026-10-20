@@ -12,7 +12,7 @@ import { useTranslation } from 'react-i18next';
 import { Row } from '@tanstack/table-core';
 import { ITask } from '@/task/types';
 import { IconRepeat, IconTrash } from '@tabler/icons-react';
-import { Can, currentUserState, Export } from 'ui-modules';
+import { Can, currentUserState, Export, RecordActions } from 'ui-modules';
 import { useAtomValue } from 'jotai';
 import { useState } from 'react';
 import { useUpdateTask } from '@/task/hooks/useUpdateTask';
@@ -230,6 +230,11 @@ export const TasksCommandBar = () => {
             )}
           </Popover.Content>
         </Popover>
+        <RecordActions
+          contentType="operation:task"
+          contentIds={taskIds}
+          leading={<Separator.Inline />}
+        />
       </CommandBar.Bar>
     </CommandBar>
   );

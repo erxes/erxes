@@ -17,6 +17,7 @@ export const TaskSideWidgets = ({
   const { t } = useTranslation('operation');
   const { relationWidgetsModules, RelationWidget } = useRelationWidget({
     hiddenPlugins: ['operation'],
+    contentType: 'operation:task',
   });
 
   return (
