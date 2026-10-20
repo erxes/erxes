@@ -2,6 +2,7 @@ import { gql } from '@apollo/client';
 import { DatePicker, Form, Input, Select, TPropertyInputMeta } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
 import { FieldPath } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { pluginsConfigState } from 'ui-modules/states';
 import { useSegment } from '../../context/SegmentProvider';
 import {
@@ -77,8 +78,13 @@ export const SegmentConditionValue = ({
   const name = `${path}.value` as FieldPath<TSegmentForm>;
   const metaName = `${path}.meta`;
   const meta = useSegmentNodeValue<Record<string, string>>(metaName);
+  const { t } = useTranslation('segment', { keyPrefix: 'detail' });
 
-  if (!declared || !operator || operator.input === 'none') {
+  if (!declared || !operator) {
+    return <Input disabled placeholder={t('value')} className="w-full" />;
+  }
+
+  if (operator.input === 'none') {
     return null;
   }
 
