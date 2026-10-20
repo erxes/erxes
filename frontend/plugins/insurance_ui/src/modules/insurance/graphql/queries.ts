@@ -242,7 +242,7 @@ export const PRODUCTS_BY_TYPE = gql(`
   }
 `);
 
-export const VENDORS = apolloGql`
+export const VENDORS = gql(`
   query InsuranceVendors {
     vendors {
       id
@@ -311,9 +311,9 @@ export const VENDORS = apolloGql`
       updatedAt
     }
   }
-`;
+`);
 
-export const VENDOR = apolloGql`
+export const VENDOR = gql(`
   query InsuranceVendor($id: ID!) {
     vendor(id: $id) {
       id
@@ -382,9 +382,9 @@ export const VENDOR = apolloGql`
       updatedAt
     }
   }
-`;
+`);
 
-export const VENDOR_USERS = apolloGql`
+export const VENDOR_USERS = gql(`
   query InsuranceVendorUsers($vendorId: ID) {
     vendorUsers(vendorId: $vendorId) {
       id
@@ -400,9 +400,9 @@ export const VENDOR_USERS = apolloGql`
       updatedAt
     }
   }
-`;
+`);
 
-export const VENDOR_USER = apolloGql`
+export const VENDOR_USER = gql(`
   query InsuranceVendorUser($id: ID!) {
     vendorUser(id: $id) {
       id
@@ -418,9 +418,9 @@ export const VENDOR_USER = apolloGql`
       updatedAt
     }
   }
-`;
+`);
 
-export const INSURANCE_CUSTOMERS = apolloGql`
+export const INSURANCE_CUSTOMERS = gql(`
   query InsuranceCustomers {
     insuranceCustomers {
       id
@@ -435,9 +435,9 @@ export const INSURANCE_CUSTOMERS = apolloGql`
       updatedAt
     }
   }
-`;
+`);
 
-export const INSURANCE_CUSTOMER = apolloGql`
+export const INSURANCE_CUSTOMER = gql(`
   query InsuranceCustomer($id: ID!) {
     insuranceCustomer(id: $id) {
       id
@@ -452,7 +452,7 @@ export const INSURANCE_CUSTOMER = apolloGql`
       updatedAt
     }
   }
-`;
+`);
 
 export const CONTRACTS = apolloGql`
   query InsuranceContracts(

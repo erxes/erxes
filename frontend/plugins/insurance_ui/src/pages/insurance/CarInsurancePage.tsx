@@ -25,6 +25,7 @@ import {
   FormSubmitButtons,
 } from '~/modules/insurance/components';
 import { toPricingConfig } from '~/modules/insurance/utils/pricing';
+import { hasProduct } from '~/modules/insurance/utils/vendorProducts';
 
 export const CarInsurancePage = () => {
   const { t } = useTranslation('insurance');
@@ -64,13 +65,15 @@ export const CarInsurancePage = () => {
   // Filter products based on selected vendor's offered products
   const products = selectedVendor
     ? selectedVendor.offeredProducts
+        .filter(hasProduct)
         .filter((vp) => {
           // Filter out products with pricingOverride.percentage === 0
           // If no pricingOverride exists, include the product
-          if (!vp.pricingOverride) return true;
+          const pricingOverride = toPricingConfig(vp.pricingOverride);
+          if (!pricingOverride) return true;
 
           // If pricingOverride exists, check the percentage value
-          const percentage = vp.pricingOverride.percentage;
+          const percentage = pricingOverride.percentage;
 
           // If percentage is undefined or null, include the product
           if (percentage === undefined || percentage === null) return true;
@@ -106,9 +109,9 @@ export const CarInsurancePage = () => {
   const getVendorPricing = () => {
     if (!selectedVendor || !selectedProduct) return null;
     const vendorProduct = selectedVendor.offeredProducts.find(
-      (vp) => vp.product.id === selectedProduct.id,
+      (vp) => vp.product?.id === selectedProduct.id,
     );
-    return vendorProduct?.pricingOverride;
+    return toPricingConfig(vendorProduct?.pricingOverride);
   };
 
   const vendorPricing = getVendorPricing();

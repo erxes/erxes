@@ -3,13 +3,13 @@ interface Contract {
   paymentStatus: string;
   vendor?: { name: string };
   customer?: {
-    firstName: string;
-    lastName: string;
-    registrationNumber?: string;
-    email?: string;
-    phone?: string;
-    companyName?: string;
-  };
+    firstName?: string | null;
+    lastName?: string | null;
+    registrationNumber?: string | null;
+    email?: string | null;
+    phone?: string | null;
+    companyName?: string | null;
+  } | null;
   insuranceType?: { name?: string | null } | null;
   insuranceProduct?: {
     name?: string | null;

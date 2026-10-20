@@ -267,7 +267,7 @@ export const DELETE_INSURANCE_PRODUCT = gql(`
 `);
 
 // Vendor Mutations
-export const CREATE_VENDOR = apolloGql`
+export const CREATE_VENDOR = gql(`
   mutation InsuranceCreateVendor($name: String!) {
     createVendor(name: $name) {
       id
@@ -336,9 +336,9 @@ export const CREATE_VENDOR = apolloGql`
       updatedAt
     }
   }
-`;
+`);
 
-export const UPDATE_VENDOR = apolloGql`
+export const UPDATE_VENDOR = gql(`
   mutation InsuranceUpdateVendor($id: ID!, $name: String!) {
     updateVendor(id: $id, name: $name) {
       id
@@ -407,9 +407,9 @@ export const UPDATE_VENDOR = apolloGql`
       updatedAt
     }
   }
-`;
+`);
 
-export const ADD_PRODUCT_TO_VENDOR = apolloGql`
+export const ADD_PRODUCT_TO_VENDOR = gql(`
   mutation InsuranceAddProductToVendor(
     $vendorId: ID!
     $productId: ID!
@@ -488,9 +488,9 @@ export const ADD_PRODUCT_TO_VENDOR = apolloGql`
       updatedAt
     }
   }
-`;
+`);
 
-export const REMOVE_PRODUCT_FROM_VENDOR = apolloGql`
+export const REMOVE_PRODUCT_FROM_VENDOR = gql(`
   mutation InsuranceRemoveProductFromVendor($vendorId: ID!, $productId: ID!) {
     removeProductFromVendor(vendorId: $vendorId, productId: $productId) {
       id
@@ -559,10 +559,10 @@ export const REMOVE_PRODUCT_FROM_VENDOR = apolloGql`
       updatedAt
     }
   }
-`;
+`);
 
 // Customer Mutations
-export const CREATE_CUSTOMER = apolloGql`
+export const CREATE_CUSTOMER = gql(`
   mutation InsuranceCreateCustomer($input: InsuranceCustomerInput!) {
     createCustomer(input: $input) {
       id
@@ -577,9 +577,9 @@ export const CREATE_CUSTOMER = apolloGql`
       updatedAt
     }
   }
-`;
+`);
 
-export const UPDATE_CUSTOMER = apolloGql`
+export const UPDATE_CUSTOMER = gql(`
   mutation InsuranceUpdateCustomer($id: ID!, $input: InsuranceCustomerInput) {
     updateCustomer(id: $id, input: $input) {
       id
@@ -594,13 +594,13 @@ export const UPDATE_CUSTOMER = apolloGql`
       updatedAt
     }
   }
-`;
+`);
 
-export const DELETE_CUSTOMER = apolloGql`
+export const DELETE_CUSTOMER = gql(`
   mutation InsuranceDeleteCustomer($id: ID!) {
     deleteCustomer(id: $id)
   }
-`;
+`);
 
 // Contract Mutations
 export const CREATE_INSURANCE_CONTRACT = apolloGql`
@@ -683,7 +683,7 @@ export const GENERATE_CONTRACT_PDF = apolloGql`
 `;
 
 // Vendor User Mutations
-export const CREATE_VENDOR_USER = apolloGql`
+export const CREATE_VENDOR_USER = gql(`
   mutation InsuranceCreateVendorUser(
     $name: String
     $email: String!
@@ -713,9 +713,9 @@ export const CREATE_VENDOR_USER = apolloGql`
       updatedAt
     }
   }
-`;
+`);
 
-export const UPDATE_VENDOR_USER = apolloGql`
+export const UPDATE_VENDOR_USER = gql(`
   mutation InsuranceUpdateVendorUser(
     $id: ID!
     $name: String
@@ -745,13 +745,13 @@ export const UPDATE_VENDOR_USER = apolloGql`
       updatedAt
     }
   }
-`;
+`);
 
-export const DELETE_VENDOR_USER = apolloGql`
+export const DELETE_VENDOR_USER = gql(`
   mutation InsuranceDeleteVendorUser($id: ID!) {
     deleteVendorUser(id: $id)
   }
-`;
+`);
 
 // Region Mutations
 

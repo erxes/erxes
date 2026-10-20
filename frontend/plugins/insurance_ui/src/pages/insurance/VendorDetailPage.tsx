@@ -34,7 +34,12 @@ import {
   useAddProductToVendor,
   useRemoveProductFromVendor,
 } from '~/modules/insurance/hooks';
-import { InsuranceVendorProduct, VendorUser } from '~/modules/insurance/types';
+import type { VendorUser } from '~/modules/insurance/types';
+import { toPricingConfig } from '~/modules/insurance/utils/pricing';
+import {
+  hasProduct,
+  type OfferedProduct,
+} from '~/modules/insurance/utils/vendorProducts';
 import { VendorUserForm } from '~/modules/insurance/components';
 
 export const VendorDetailPage = () => {
@@ -57,8 +62,9 @@ export const VendorDetailPage = () => {
   const [vendorDurationFields, setVendorDurationFields] = useState<
     { rowId: string; duration: string; percentage: number | string }[]
   >([]);
-  const [editingProduct, setEditingProduct] =
-    useState<InsuranceVendorProduct | null>(null);
+  const [editingProduct, setEditingProduct] = useState<OfferedProduct | null>(
+    null,
+  );
   const [discountTiers, setDiscountTiers] = useState<
     { rowId: string; minTravelers: number; discountPercent: number }[]
   >([]);
@@ -104,17 +110,18 @@ export const VendorDetailPage = () => {
     }
   };
 
-  const handleEditProduct = (vp: InsuranceVendorProduct) => {
+  const handleEditProduct = (vp: OfferedProduct) => {
     setEditingProduct(vp);
     setSelectedProductId(vp.product.id);
 
     // Load existing pricing override
-    if (vp.pricingOverride) {
-      setVendorPercentage(vp.pricingOverride.percentage);
+    const pricingOverride = toPricingConfig(vp.pricingOverride);
+    if (pricingOverride) {
+      setVendorPercentage(pricingOverride.percentage);
 
-      if (vp.pricingOverride.percentageByDuration) {
+      if (pricingOverride.percentageByDuration) {
         const durationFields = Object.entries(
-          vp.pricingOverride.percentageByDuration,
+          pricingOverride.percentageByDuration,
         ).map(([duration, percentage]) => ({
           rowId: nanoid(),
           duration,
@@ -209,9 +216,10 @@ export const VendorDetailPage = () => {
     setEditingProduct(null);
   };
 
+  const offeredProducts = vendor?.offeredProducts.filter(hasProduct) ?? [];
+
   const availableProducts = insuranceProducts.filter(
-    (product) =>
-      !vendor?.offeredProducts.some((vp) => vp.product.id === product.id),
+    (product) => !offeredProducts.some((vp) => vp.product.id === product.id),
   );
 
   if (vendorLoading) {
@@ -297,7 +305,7 @@ export const VendorDetailPage = () => {
               <div>
                 <h2 className="text-2xl font-bold">{vendor.name}</h2>
                 <p className="text-sm text-muted-foreground">
-                  {vendor.offeredProducts.length} {t('products-offered')}
+                  {offeredProducts.length} {t('products-offered')}
                 </p>
               </div>
             </div>
@@ -310,9 +318,9 @@ export const VendorDetailPage = () => {
                   {t('add-product')}
                 </Button>
               </div>
-              {vendor.offeredProducts.length > 0 ? (
+              {offeredProducts.length > 0 ? (
                 <div className="space-y-2">
-                  {vendor.offeredProducts.map((vp: InsuranceVendorProduct) => (
+                  {offeredProducts.map((vp) => (
                     <div
                       key={vp.product.id}
                       className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
@@ -321,9 +329,10 @@ export const VendorDetailPage = () => {
                         <IconPackage size={20} className="text-blue-600" />
                         <div>
                           <p className="font-medium">{vp.product.name}</p>
-                          {vp.pricingOverride?.percentage && (
+                          {toPricingConfig(vp.pricingOverride)?.percentage && (
                             <p className="text-xs text-muted-foreground">
-                              Rate: {vp.pricingOverride.percentage}%
+                              Rate:{' '}
+                              {toPricingConfig(vp.pricingOverride)?.percentage}%
                             </p>
                           )}
                           {vp.discountTiers && vp.discountTiers.length > 0 && (
