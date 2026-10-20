@@ -1,4 +1,23 @@
+# Changelog
 
+## [3.3.3](https://github.com/erxes/erxes/compare/3.3.2...3.3.3) (2026-10-20)
+
+
+### Bug Fixes
+
+* **content:** save CMS page edits and open the selected CMS card ([#9880](https://github.com/erxes/erxes/issues/9880)) ([44a0f63](https://github.com/erxes/erxes/commit/44a0f6399506664c591affd26643ca3975277cc6))
+* **erxes-ui:** publish compiled JavaScript and styles ([#9830](https://github.com/erxes/erxes/issues/9830)) ([8b3c282](https://github.com/erxes/erxes/commit/8b3c282997d273a9aebc17eaf2f28e37e44425e7))
+* filter ([29a95a4](https://github.com/erxes/erxes/commit/29a95a41d46f81fd43835e9aa48c3aed9cc44296))
+* **frontline:** use absolute path for ticket navigation links ([ec2e9bf](https://github.com/erxes/erxes/commit/ec2e9bfc0ee196c9f0114d9e3d06ae760bebdb43))
+* **notifications:** standardize My Inbox detail views and layout ([#9815](https://github.com/erxes/erxes/issues/9815)) ([9aa855f](https://github.com/erxes/erxes/commit/9aa855f9e721e81c7b3cd77c1d9682ef6ad6d51f))
+
+
+### Features
+
+* **codegen:** one composed gateway schema for every plugin's codegen ([#9603](https://github.com/erxes/erxes/issues/9603)) ([a5dd1bd](https://github.com/erxes/erxes/commit/a5dd1bd9de4cf34321e8c9a31a1aa7fe7f6793cc))
+* **core:** Removed test files ([#9879](https://github.com/erxes/erxes/issues/9879)) ([b8d6cc4](https://github.com/erxes/erxes/commit/b8d6cc41ecce62f3361ff5d4e4debea9aadea615))
+* **frontline:** add cpGetTicketPipelines client portal query ([4715f36](https://github.com/erxes/erxes/commit/4715f36b9ba4865bf3e75591113923ff90ca8698))
+* **notifications:** add mobile push channel with per-event delivery ([fd1a658](https://github.com/erxes/erxes/commit/fd1a658e20a1a7e5a943286da4f734e8c2e43f11))
 
 ## [3.3.2](https://github.com/erxes/erxes/compare/3.3.1...3.3.2) (2026-10-18)
 
@@ -64,7 +83,7 @@
 * posclient worker ([c50435a](https://github.com/erxes/erxes/commit/c50435aa74a3d0c4fb5f4e83b850a3fc7f944b1a))
 * some int to float ([2e0bc86](https://github.com/erxes/erxes/commit/2e0bc8623672042e1b381e7577f22d813aa5287e))
 
-# Changelog
+
 
 ## [3.2.24](https://github.com/erxes/erxes/compare/3.2.23...3.2.24) (2026-10-14)
 
