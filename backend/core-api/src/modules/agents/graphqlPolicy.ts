@@ -1,5 +1,6 @@
 import {
   parse,
+  visit,
   type DocumentNode,
   type FragmentDefinitionNode,
   type OperationDefinitionNode,
@@ -10,10 +11,11 @@ const HIGH_RISK_ACTION =
   /(remove|delete|merge|destroy|archive|purge|send|reply|broadcast|publish)/i;
 
 /**
- * Parse-time policy for the `callGraphql` tool.
+ * Credential and operation policy for the `callGraphql` tool.
  *
  * The tool forwards one GraphQL document verbatim to the workspace gateway;
- * everything enforced here happens before any network call. Subscriptions
+ * operation/input checks happen before any network call, and JSON response
+ * checks happen before emitting a tool result. Subscriptions
  * and authentication/credential fields are refused outright — the agent may
  * run exactly what the acting user may run, never the operations that
  * mint or rotate credentials.
@@ -50,6 +52,94 @@ export const AGENT_GRAPHQL_DENIED_FIELD = {
 
 const policyError = (code: string, message: string): Error =>
   Object.assign(new Error(message), { code });
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  value !== null && typeof value === 'object' && !Array.isArray(value);
+
+const isCredentialField = (name: string): boolean => {
+  const words = name
+    .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+    .replace(/([A-Z])([A-Z][a-z])/g, '$1 $2')
+    .replace(/_/g, ' ')
+    .toLowerCase();
+
+  return (
+    /\b(auth|authentication|authorization|passwords?|tokens?|credentials?|secrets?|oauth|sso|otp)\b/.test(
+      words,
+    ) ||
+    /\b(api|private|public|consumer|access|signing|encryption|service account) key\b/.test(
+      words,
+    )
+  );
+};
+
+const assertCredentialFieldAllowed = (name: string): void => {
+  if (isCredentialField(name)) {
+    throw policyError(
+      'GRAPHQL_OPERATION_NOT_ALLOWED',
+      `The field "${name}" is restricted by the agent credential policy.`,
+    );
+  }
+};
+
+/** JSON input objects can carry credentials even when their root is a business operation. */
+const assertCredentialInputAllowed = (value: unknown): void => {
+  if (Array.isArray(value)) {
+    value.forEach(assertCredentialInputAllowed);
+  } else if (isRecord(value)) {
+    for (const [name, child] of Object.entries(value)) {
+      assertCredentialFieldAllowed(name);
+      assertCredentialInputAllowed(child);
+    }
+  }
+};
+
+/** JSON-valued configuration fields have no selectable child fields in the AST. */
+export const assertAgentGraphqlResultAllowed = (
+  document: DocumentNode,
+  data: unknown,
+): void => {
+  const fragments = new Map<string, FragmentDefinitionNode>();
+  for (const definition of document.definitions) {
+    if (definition.kind === 'FragmentDefinition') {
+      fragments.set(definition.name.value, definition);
+    }
+  }
+  const inspect = (
+    selectionSet: SelectionSetNode,
+    value: unknown,
+    seen: Set<string>,
+  ): void => {
+    if (Array.isArray(value)) {
+      value.forEach((entry) => inspect(selectionSet, entry, seen));
+      return;
+    }
+    if (!isRecord(value)) return;
+    for (const selection of selectionSet.selections) {
+      if (selection.kind === 'Field') {
+        const child: unknown =
+          value[selection.alias?.value ?? selection.name.value];
+        if (selection.selectionSet)
+          inspect(selection.selectionSet, child, seen);
+        else assertCredentialInputAllowed(child);
+      } else if (selection.kind === 'InlineFragment') {
+        inspect(selection.selectionSet, value, seen);
+      } else if (!seen.has(selection.name.value)) {
+        const fragment = fragments.get(selection.name.value);
+        if (fragment)
+          inspect(
+            fragment.selectionSet,
+            value,
+            new Set([...seen, selection.name.value]),
+          );
+      }
+    }
+  };
+  for (const definition of document.definitions) {
+    if (definition.kind === 'OperationDefinition')
+      inspect(definition.selectionSet, data, new Set());
+  }
+};
 
 const collectRootFields = (
   selectionSet: SelectionSetNode,
@@ -95,6 +185,7 @@ const collectRootFields = (
 export const parseAgentGraphqlOperation = (
   document: string,
   operationName?: string,
+  variables?: Record<string, unknown>,
 ): IAgentGraphqlOperation => {
   let documentNode: DocumentNode;
 
@@ -164,6 +255,17 @@ export const parseAgentGraphqlOperation = (
       );
     }
   }
+
+  // Inspect canonical AST names, never response aliases. GraphQL's visitor
+  // covers nested selections, fragments, literal inputs and variable defaults.
+  // Variable identifiers are arbitrary; only their input-object keys matter.
+  visit(documentNode, {
+    Field: (node) => assertCredentialFieldAllowed(node.name.value),
+    Argument: (node) => assertCredentialFieldAllowed(node.name.value),
+    ObjectField: (node) => assertCredentialFieldAllowed(node.name.value),
+    VariableDefinition: (node) =>
+      assertCredentialInputAllowed(variables?.[node.variable.name.value]),
+  });
 
   return {
     operation: selected.operation === 'mutation' ? 'mutation' : 'query',

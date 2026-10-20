@@ -33,6 +33,7 @@ import {
   type IAgentsThinkingLevel,
 } from '@/agents/agent';
 import { getAgentsRuntime } from '@/agents/memory';
+import { isAgentsRunAlive } from '@/agents/runLiveness';
 import { publishAgentsThreadsChanged } from '@/agents/threadsEvents';
 import {
   AgentsMessageEditError,
@@ -98,6 +99,15 @@ class HttpError extends Error {
     this.statusCode = statusCode;
   }
 }
+
+const errorStatus = (error: unknown): number => {
+  if (error instanceof HttpError) return error.statusCode;
+  if (error instanceof ExpectedError) {
+    if (error.code === 'UNAUTHORIZED') return 401;
+    if (error.code === 'FORBIDDEN') return 403;
+  }
+  return 500;
+};
 
 const jsonError = (
   res: express.Response,
@@ -430,6 +440,7 @@ const prepareResume = async (input: {
   identity: IRequestIdentity;
   threadId: string;
 }): Promise<{ agent: DurableAgent; threadId: string }> => {
+  await checkPermissionGroup(input.identity.subdomain, input.identity.user)('agentsChat');
   const runtime = await getAgentsRuntime(input.identity.subdomain);
 
   // Same ownership contract as chat and message reads: only the acting
@@ -693,6 +704,7 @@ router.post('/agents/chat', async (req, res) => {
   }
 
   try {
+    await checkPermissionGroup(identity.subdomain, identity.user)('agentsChat');
     assertNoClientMediaParts(newestMessage);
     if (body.fileIds !== undefined) {
       throw new AgentsFileBindError(
@@ -706,14 +718,6 @@ router.post('/agents/chat', async (req, res) => {
     const files = collectAgentsAttachments(
       Array.isArray(newestMessage.parts) ? newestMessage.parts : [],
     );
-
-    if (
-      files.length > 0 ||
-      selections.length > 0 ||
-      body.editMessageId !== undefined
-    ) {
-      await checkPermissionGroup(identity.subdomain, identity.user)('agentsChat');
-    }
 
     const models = await generateModels(identity.subdomain);
     const connections = await resolveUserConnections(models, identity.userId);
@@ -844,7 +848,7 @@ router.post('/agents/chat', async (req, res) => {
       return;
     }
 
-    const status = error instanceof HttpError ? error.statusCode : 500;
+    const status = errorStatus(error);
 
     jsonError(res, status, error);
   }
@@ -925,7 +929,7 @@ router.post('/agents/approve', async (req, res) => {
 
     await pipeModelOutput(res, threadId, output);
   } catch (error) {
-    const status = error instanceof HttpError ? error.statusCode : 500;
+    const status = errorStatus(error);
 
     jsonError(res, status, error);
   }
@@ -1014,7 +1018,7 @@ router.post('/agents/answer', async (req, res) => {
 
     await pipeModelOutput(res, threadId, output);
   } catch (error) {
-    const status = error instanceof HttpError ? error.statusCode : 500;
+    const status = errorStatus(error);
 
     jsonError(res, status, error);
   }
@@ -1063,6 +1067,7 @@ router.post('/agents/chat/reconnect', async (req, res) => {
   }
 
   try {
+    await checkPermissionGroup(identity.subdomain, identity.user)('agentsChat');
     const runtime = await getAgentsRuntime(identity.subdomain);
 
     // Verify thread belongs to acting user.
@@ -1093,38 +1098,17 @@ router.post('/agents/chat/reconnect', async (req, res) => {
     // Pipe the observed output through the same AI SDK v7 SSE pipeline.
     // Pass onSuspended so a run that suspends after reconnect ends the
     // HTTP response (headersSent is true during SSE; check writableEnded).
-    // idleTimeoutMs bounds orphaned post-restart running snapshots that
-    // never emit a terminal event. isAlive re-arms that timer while the
-    // run is still alive — either executing (still reported by
-    // listActiveRuns) or parked at an HITL gate (reported by
-    // listSuspendedRuns) — so a long silent stretch (slow tools, large
-    // generations) does not close the response while the durable run
-    // continues server-side. Without it the client would look stopped
-    // while the backend is still working.
+    // Native ownership/lease liveness keeps slow live runs open, while a
+    // producerless running snapshot is settled without replaying its tools.
     const observed = await runtime.agent.observe(runId, {
       idleTimeoutMs: AGENTS_RECONNECT_IDLE_TIMEOUT_MS,
-      // Re-arms the idle timer while the run is still alive: either
-      // executing (reported by listActiveRuns) or parked at an HITL gate
-      // (reported by listSuspendedRuns). Thrown discovery errors propagate
-      // — Mastra treats an isAlive throw as "still alive", so a momentary
-      // store failure never ends a live stream.
-      isAlive: async () => {
-        const [{ runs: active }, { runs: suspended }] = await Promise.all([
-          runtime.agent.listActiveRuns({
-            threadId,
-            resourceId: identity.userId,
-          }),
-          runtime.agent.listSuspendedRuns({
-            threadId,
-            resourceId: identity.userId,
-          }),
-        ]);
-
-        return (
-          active.some((run) => run.runId === runId) ||
-          suspended.some((run) => run.runId === runId)
-        );
-      },
+      // Backend errors propagate: Mastra preserves the observer during a
+      // transient storage/Redis failure instead of declaring a live run dead.
+      isAlive: () => isAgentsRunAlive(runtime, {
+        runId,
+        threadId,
+        resourceId: identity.userId,
+      }),
       onSuspended: () => {
         if (!res.writableEnded) {
           res.end();
@@ -1134,7 +1118,7 @@ router.post('/agents/chat/reconnect', async (req, res) => {
 
     await pipeModelOutput(res, threadId, observed.output);
   } catch (error) {
-    const status = error instanceof HttpError ? error.statusCode : 500;
+    const status = errorStatus(error);
 
     jsonError(res, status, error);
   }

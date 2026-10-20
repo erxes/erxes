@@ -30,6 +30,7 @@ import {
 import { gatewayUrl } from '~/utils/email/links';
 import {
   AGENT_GRAPHQL_DENIED_FIELD,
+  assertAgentGraphqlResultAllowed,
   parseAgentGraphqlOperation,
   requiresGraphqlApproval,
 } from './graphqlPolicy';
@@ -501,6 +502,7 @@ export const buildGraphqlTools = async (): Promise<{
               parseAgentGraphqlOperation(
                 query,
                 typeof operationName === 'string' ? operationName : undefined,
+                input?.variables,
               ),
               readApprovalMode(ctx),
             );
@@ -516,10 +518,12 @@ export const buildGraphqlTools = async (): Promise<{
               ? stampedThreadId
               : undefined;
 
+          let parsed: ReturnType<typeof parseAgentGraphqlOperation>;
           try {
-            parseAgentGraphqlOperation(
+            parsed = parseAgentGraphqlOperation(
               query,
               typeof operationName === 'string' ? operationName : undefined,
+              variables,
             );
           } catch (error) {
             return toToolFailure(error);
@@ -583,9 +587,15 @@ export const buildGraphqlTools = async (): Promise<{
               );
             }
 
+            try {
+              assertAgentGraphqlResultAllowed(parsed.document, data);
+            } catch (error) {
+              return toToolFailure(error);
+            }
+
             const schema = schemaCache?.schema;
             const references = schema
-              ? extractGraphqlReferences(schema, parseAgentGraphqlOperation(query, operationName).document, data, operationName)
+              ? extractGraphqlReferences(schema, parsed.document, data, operationName)
               : [];
             return {
               status: 'ok',

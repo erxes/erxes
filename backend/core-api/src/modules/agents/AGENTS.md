@@ -21,7 +21,13 @@ plugin; ported from the former private `erxes-agent` service). It provides:
 - GraphQL discovery (`searchGraphql`) and execution (`callGraphql`) through
   the gateway as the acting user, using a fresh HMAC-signed identity header.
   `graphqlPolicy.ts` denies authentication, credential and system-security
-  operations; standard `__type`/`__schema` introspection is allowed and follows
+  operations. Its AST checks include nested canonical field/argument names,
+  fragments, literal/default input objects and supplied variable object keys;
+  aliases cannot rename a restricted field. Direct and code-mode calls share
+  this policy before approval and execution. JSON-valued results are checked
+  through the executed selection/alias/fragment paths before any tool result or
+  reference manifest is emitted; credential-bearing JSON returns only a policy
+  error. Standard `__type`/`__schema` introspection is allowed and follows
   gateway configuration. Other queries/mutations use existing resolver permissions;
 - optional code mode exposes only `searchGraphql` and `callGraphql` in a
   QuickJS sandbox; approval-gated mutations must run interactively in chat.
@@ -72,8 +78,9 @@ plugin; ported from the former private `erxes-agent` service). It provides:
   `POST /agents/approve` `{ threadId, toolCallId?, approved, reason? }`,
   `POST /agents/answer` `{ threadId, answer }`,
   `POST /agents/chat/reconnect` `{ threadId, runId }` (SSE replay or 204).
-  All require the gateway `user` header; chat also checks `agentsChat` when
-  attachments are sent. Identity is stamped from the header into Mastra
+  All require the gateway `user` header and `agentsChat`, including plain text,
+  approval, answer and reconnect requests. Permission denial precedes credential,
+  runtime and attachment access. Identity is stamped from the header into Mastra
   RequestContext — never from the body or the model.
 - Chat accepts optional `editMessageId`, matching the newest user message id
   and an owned existing thread. `messageEditing.ts` checks active
@@ -122,6 +129,12 @@ plugin; ported from the former private `erxes-agent` service). It provides:
   them with automatic crash recovery off. Terminal snapshots prevent completed
   runs appearing active. Browser stream cancellation detaches observation and
   never aborts backend execution. Automatic crash replay remains off.
+- `runLiveness.ts` uses native workflow ownership or the native Redis thread
+  lease to distinguish live producers from orphaned running snapshots. Suspended
+  human-interaction gates remain live. Idle observation settles abandoned runs
+  as failed through native storage (with ownership fencing when supported and an
+  expected-running status guard), without replaying tools. Backend probe errors
+  preserve the observer; terminal discovery no longer blocks message editing.
 - `pubsub.ts` — process-wide `RedisStreamsPubSub` (key prefix `core-agents`,
   `REDIS_HOST`/`REDIS_PORT`/`REDIS_PASSWORD`) for cross-replica `observe`
   replay.

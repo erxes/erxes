@@ -199,3 +199,49 @@ it('still denies an actual account/security operation alongside introspection', 
   `),
   ).toThrow(/agentsConnections.*restricted by the agent security policy/);
 });
+
+
+
+describe('nested credential policy', () => {
+  it.each([
+    'query AgentsPortal { getClientPortals { list { token } } }',
+    'query AgentsPortal { getClientPortals { list { harmless: token } } }',
+    'query AgentsPortal { getClientPortal { firebaseConfig { serviceAccountKey } } }',
+    'query AgentsPortal { getClientPortal { ...AgentsCredentials } } fragment AgentsCredentials on ClientPortal { auth { tokiConfig { apiKey password } } }',
+    'mutation AgentsPortal { clientPortalUpdate(clientPortal: {firebaseConfig: {serviceAccountKey: "dummy"}}) { _id } }',
+    'mutation AgentsPortal($config: ClientPortalConfigInput = {firebaseConfig: {serviceAccountKey: "dummy"}}) { clientPortalUpdate(clientPortal: $config) { _id } }',
+    'mutation AgentsPortal($key: String) { clientPortalUpdate(apiKey: $key) { _id } }',
+  ])('refuses credential fields in selections, fragments and literal/default arguments: %s', (query) => {
+    expect(() => parseAgentGraphqlOperation(query)).toThrow(/credential policy/);
+  });
+
+  it.each([
+    {firebaseConfig: {serviceAccountKey: 'dummy'}},
+    {auth: {tokiConfig: {apiKey: 'dummy'}}},
+    {providers: [{clientSecret: 'dummy'}]},
+    {config: {access_token: 'dummy'}},
+    {config: {API_KEY: 'dummy'}},
+  ])('refuses credentials inside supplied input objects: %j', (config) => {
+    expect(() => parseAgentGraphqlOperation(
+      'mutation AgentsPortal($input: ClientPortalConfigInput) { clientPortalUpdate(clientPortal: $input) { _id } }',
+      undefined,
+      {input: config},
+    )).toThrow(/credential policy/);
+  });
+
+  it('does not inspect arbitrary text or variable/alias names as credentials', () => {
+    expect(() => parseAgentGraphqlOperation(
+      'mutation AgentsCustomer($password: CustomerInput) { token: customersAdd(customer: $password) { _id } }',
+      undefined,
+      {password: {firstName: 'Jane', description: 'Reset password instructions', data: [{name: 'Alice'}]}},
+    )).not.toThrow();
+  });
+
+  it('allows schema metadata about credential fields', () => {
+    expect(() => parseAgentGraphqlOperation(
+      'query AgentsInspect($name: String!) { __type(name: $name) { fields { name type { name } } inputFields { name } } }',
+      undefined,
+      {name: 'FirebaseConfig'},
+    )).not.toThrow();
+  });
+});

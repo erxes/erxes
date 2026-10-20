@@ -16,6 +16,9 @@ import { resolveAgentsReference } from '@/agents/referenceResolution';
  */
 
 import { router } from '@/agents/routes';
+import { isAgentsRunAlive } from '@/agents/runLiveness';
+import { checkPermissionGroup } from 'erxes-api-shared/core-modules';
+import { ExpectedError } from 'erxes-api-shared/utils';
 import { Readable } from 'stream';
 import { readFileFromStorage, readFileStreamFromStorage } from 'erxes-api-shared/utils';
 
@@ -72,6 +75,7 @@ jest.mock('@/agents/agent', () => ({
     maxOutputTokens: 2000,
   })),
 }));
+jest.mock('@/agents/runLiveness', () => ({ isAgentsRunAlive: jest.fn() }));
 jest.mock('@/agents/memory', () => ({
   getAgentsMemory: jest.fn(),
   getAgentsRuntime: jest.fn(),
@@ -409,6 +413,8 @@ let memory: IMemoryFake;
 
 beforeEach(() => {
   jest.clearAllMocks();
+  jest.mocked(checkPermissionGroup).mockImplementation(() => async () => undefined);
+  jest.mocked(isAgentsRunAlive).mockResolvedValue(true);
   // Restore default implementations that mockResolvedValue overrides.
   listSuspendedRunsMock.mockImplementation(async () => ({
     runs: [],
@@ -2121,8 +2127,7 @@ describe('POST /agents/chat/reconnect', () => {
 
     const observeOptions = observeMock.mock.calls[0][1];
 
-    listActiveRunsMock.mockResolvedValue({ runs: [], total: 0 });
-    listSuspendedRunsMock.mockResolvedValue({ runs: [], total: 0 });
+    jest.mocked(isAgentsRunAlive).mockResolvedValue(false);
 
     await expect(observeOptions?.isAlive?.()).resolves.toBe(false);
   });
@@ -2147,7 +2152,7 @@ describe('POST /agents/chat/reconnect', () => {
 
     // Mastra catches isAlive throws as "still alive", so a momentary store
     // failure must never resolve the probe to false here.
-    listActiveRunsMock.mockRejectedValue(new Error('store unavailable'));
+    jest.mocked(isAgentsRunAlive).mockRejectedValue(new Error('store unavailable'));
 
     await expect(observeOptions?.isAlive?.()).rejects.toThrow(
       'store unavailable',
@@ -2372,6 +2377,8 @@ describe('POST /agents/chat — page context', () => {
       { path: 42 },
     ]) {
       jest.clearAllMocks();
+  jest.mocked(checkPermissionGroup).mockImplementation(() => async () => undefined);
+  jest.mocked(isAgentsRunAlive).mockResolvedValue(true);
       const res = buildRes();
       await chatHandler(
         buildReq({
@@ -2395,6 +2402,8 @@ describe('POST /agents/chat — page context', () => {
       'deal',
     ]) {
       jest.clearAllMocks();
+  jest.mocked(checkPermissionGroup).mockImplementation(() => async () => undefined);
+  jest.mocked(isAgentsRunAlive).mockResolvedValue(true);
       const res = buildRes();
       await chatHandler(
         buildReq({
@@ -2636,5 +2645,43 @@ describe('POST /agents/references/resolve', () => {
     expect(res.body).toEqual({
       error: 'This record is unavailable or you no longer have access.',
     });
+  });
+});
+
+
+
+describe('agentsChat permission enforcement', () => {
+  const runId = '550e8400-e29b-41d4-a716-446655440000';
+  const cases = [
+    {name: 'plain-text chat', handler: chatHandler, body: {messages: [{id: 'permission-message', role: 'user', parts: [{type: 'text', text: 'Hello'}]}]}},
+    {name: 'approval', handler: approveHandler, body: {threadId: 'thread', approved: true}},
+    {name: 'answer', handler: answerHandler, body: {threadId: 'thread', answer: 'Yes'}},
+    {name: 'reconnect', handler: reconnectHandler, body: {threadId: 'thread', runId}},
+  ];
+
+  it.each(cases)('rejects $name before accessing credentials or runtime when permission is revoked', async ({handler, body}) => {
+    jest.mocked(checkPermissionGroup).mockImplementation(() => async () => {
+      throw new ExpectedError('Permission denied', 'FORBIDDEN');
+    });
+    const res = buildRes();
+    await handler(buildReq({user: ACTING_USER, body}), res);
+    expect(res.statusCode).toBe(403);
+    expect(mockedGetAgentsRuntime).not.toHaveBeenCalled();
+    expect(mockedGenerateModels).not.toHaveBeenCalled();
+    expect(streamMock).not.toHaveBeenCalled();
+    expect(approveToolCallMock).not.toHaveBeenCalled();
+    expect(resumeStreamMock).not.toHaveBeenCalled();
+    expect(observeMock).not.toHaveBeenCalled();
+  });
+
+  it('passes the authenticated thread and user to the native liveness check', async () => {
+    memory.getThreadById.mockResolvedValue({resourceId: ACTING_USER._id});
+    listActiveRunsMock.mockResolvedValue({runs: [{runId, status: 'running'}], total: 1});
+    await reconnectHandler(buildReq({user: ACTING_USER, body: {threadId: 'thread', runId}}), buildRes());
+    await observeMock.mock.calls[0][1]?.isAlive?.();
+    expect(isAgentsRunAlive).toHaveBeenCalledWith(
+      expect.objectContaining({memory}),
+      {runId, threadId: 'thread', resourceId: ACTING_USER._id},
+    );
   });
 });

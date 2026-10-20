@@ -469,6 +469,28 @@ describe('callGraphql', () => {
     expect(fetchSpy).not.toHaveBeenCalled();
   });
 
+  it('keeps credentials inside JSON config values out of tool output and memory', async () => {
+    fetchSpy.mockResolvedValue(graphqlResponse({data: {configs: [{code: 'PROVIDER', value: {nested: [{apiKey: 'dummy-secret'}]}}]}}));
+    const result = await runCall({query: 'query AgentsConfigs { configs { code value } }'}, context);
+    expect(result).toMatchObject({status: 'error', code: 'GRAPHQL_OPERATION_NOT_ALLOWED'});
+    expect(result).not.toHaveProperty('data');
+    expect(JSON.stringify(result)).not.toContain('dummy-secret');
+    expect(result).not.toHaveProperty('referenceManifest');
+  });
+
+  it('follows response aliases and fragments when checking JSON values', async () => {
+    fetchSpy.mockResolvedValue(graphqlResponse({data: {items: [{settings: {password: 'dummy-secret'}}]}}));
+    const result = await runCall({query: 'query AgentsConfigs { items: configs { ...AgentsValue } } fragment AgentsValue on Config { settings: value }'}, context);
+    expect(result).toMatchObject({status: 'error', code: 'GRAPHQL_OPERATION_NOT_ALLOWED'});
+    expect(JSON.stringify(result)).not.toContain('dummy-secret');
+  });
+
+  it('does not mistake aliases of safe selected fields for credential fields', async () => {
+    fetchSpy.mockResolvedValue(graphqlResponse({data: {token: [{password: 'customer-1', secret: {name: 'Jane'}}]}}));
+    const result = await runCall({query: 'query AgentsCustomers { token: customers { password: _id secret: details { name } } }'}, context);
+    expect(result.status).toBe('ok');
+  });
+
   it('returns a parse error result without calling fetch', async () => {
     const result = await runCall(
       { query: '{ customers {' } as TCallInput,
@@ -546,6 +568,22 @@ describe('GraphQL approval admission', () => {
         'destructive',
       ),
     ).toBe(true);
+  });
+
+  it.each([
+    { query: 'query AgentsPortal { getClientPortals { list { safe: token } } }' },
+    {
+      query: 'mutation AgentsPortal($config: ClientPortalConfigInput) { clientPortalUpdate(clientPortal: $config) { _id } }',
+      variables: { config: { firebaseConfig: { serviceAccountKey: 'dummy' } } },
+    },
+  ])('rejects nested credentials before approval or gateway execution', async (input) => {
+    const predicate = callGraphql.requireApproval;
+    if (typeof predicate !== 'function') throw new Error('Missing approval predicate');
+    expect(await predicate(input, { requestContext: { approvalMode: 'writes' } })).toBe(false);
+    const result = await runCall(input, { subdomain: 'tenant', userId: 'user' });
+    expect(result).toMatchObject({ status: 'error', code: 'GRAPHQL_OPERATION_NOT_ALLOWED' });
+    expect(fetchSpy).not.toHaveBeenCalled();
+    expect(JSON.stringify(result)).not.toContain('dummy');
   });
 });
 

@@ -6,10 +6,7 @@ import { POSES } from '../bloub/engine/states';
 import { BotBadge } from './BotBadge';
 
 import { ChatInput } from './ChatInput';
-import {
-  describeToolCall,
-  type IAgentToolStep,
-} from '../utils/agentWorkSteps';
+import { describeToolCall, type IAgentToolStep } from '../utils/agentWorkSteps';
 
 export interface IApprovalPromptProps {
   tool: IAgentToolStep;
@@ -20,9 +17,6 @@ export interface IApprovalPromptProps {
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 
-const truncate = (text: string, max = 240): string =>
-  text.length > max ? `${text.slice(0, max)}…` : text;
-
 /** Renders the call's input as a compact key/value list. */
 const ApprovalInputList = ({ input }: { input: unknown }) => {
   if (!isRecord(input)) {
@@ -30,36 +24,24 @@ const ApprovalInputList = ({ input }: { input: unknown }) => {
   }
 
   const entries = Object.entries(input).filter(([, value]) => {
-    if (value === undefined || value === null) {
-      return false;
-    }
-
-    return (
-      typeof value === 'string' ||
-      typeof value === 'number' ||
-      typeof value === 'boolean'
-    );
+    return value !== undefined;
   });
 
   if (entries.length === 0) {
-    const text = JSON.stringify(input, null, 2);
-
-    return text && text !== '{}' ? (
-      <pre className="mt-2 max-h-40 overflow-auto rounded-md bg-muted p-2 text-xs">
-        {truncate(text, 1200)}
-      </pre>
-    ) : null;
+    return null;
   }
 
   return (
-    <dl className="mt-2 space-y-1 rounded-md bg-muted/60 px-2.5 py-2 text-xs">
-      {entries.slice(0, 12).map(([key, value]) => (
-        <div key={key} className="flex gap-2">
-          <dt className="shrink-0 font-medium text-muted-foreground">
-            {key}
-          </dt>
-          <dd className="min-w-0 truncate">
-            {truncate(String(value))}
+    <dl className="mt-2 max-h-64 space-y-2 overflow-auto rounded-md bg-muted/60 px-2.5 py-2 text-xs">
+      {entries.map(([key, value]) => (
+        <div key={key} className="min-w-0 space-y-1">
+          <dt className="shrink-0 font-medium text-muted-foreground">{key}</dt>
+          <dd className="min-w-0">
+            <pre className="whitespace-pre-wrap break-words font-mono">
+              {typeof value === 'string'
+                ? value
+                : JSON.stringify(value, null, 2)}
+            </pre>
           </dd>
         </div>
       ))}
@@ -169,11 +151,7 @@ export const ApprovalPrompt = ({
  * is recorded (approval-responded, or output-denied when the backend
  * reports the decline outcome).
  */
-export const ApprovalStatusRow = ({
-  tool,
-}: {
-  tool: IAgentToolStep;
-}) => {
+export const ApprovalStatusRow = ({ tool }: { tool: IAgentToolStep }) => {
   const { label } = describeToolCall(tool.toolName, tool.input);
   const approved = tool.approval?.approved === true;
 
