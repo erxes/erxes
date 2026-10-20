@@ -53,6 +53,11 @@ const request = async <T>(
 
 const enc = encodeURIComponent;
 
+// Where a vendor sends one of the install's webhooks. Public: the signature
+// is the only credential.
+export const webhookUrl = (installKey: string, name: string) =>
+  `${REACT_APP_API_URL}/pl:extensions/webhooks/${enc(installKey)}/${enc(name)}`;
+
 export const extensionsApi = {
   list: () => request<Extension[]>('/installed'),
   contracts: () => request<ExtensionContract[]>('/contracts'),

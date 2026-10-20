@@ -12,9 +12,10 @@ import {
   Skeleton,
   toast,
 } from 'erxes-ui';
-import { extensionsApi } from '../extensionsApi';
+import { IconCopy } from '@tabler/icons-react';
+import { extensionsApi, webhookUrl } from '../extensionsApi';
 import { useExtensionsQuery } from '../hooks/useExtensionsQuery';
-import { ExtensionSecret } from '../types';
+import { Extension, ExtensionSecret } from '../types';
 
 // Same bounds the runtime enforces.
 const SecretForm = z.object({
@@ -183,20 +184,82 @@ const ExtensionSecrets = ({ extId }: Readonly<{ extId: string }>) => {
   );
 };
 
+const copy = (url: string) =>
+  navigator.clipboard.writeText(url).then(
+    () => toast({ variant: 'success', title: 'Webhook URL copied' }),
+    (e: unknown) => failed('Could not copy the URL', e),
+  );
+
+// Each webhook's URL, to paste into the vendor's settings with the secret
+// it signs with.
+const ExtensionWebhooks = ({ ext }: Readonly<{ ext: Extension }>) => {
+  const webhooks = Object.entries(ext.webhooks ?? {});
+  const { installKey } = ext;
+
+  if (webhooks.length === 0 || !installKey) {
+    return null;
+  }
+
+  return (
+    <section className="space-y-3 border-t pt-4 mt-4">
+      <h4 className="text-sm font-semibold">Webhooks</h4>
+      <p className="text-sm text-muted-foreground">
+        Give the vendor the URL and the secret it signs with. Reinstalling after
+        an uninstall changes the URL.
+      </p>
+      {webhooks.map(([name, { signature }]) => {
+        const url = webhookUrl(installKey, name);
+        return (
+          <div key={name} className="space-y-1">
+            <div className="text-sm">
+              <span className="font-mono">{name}</span>
+              <span className="text-muted-foreground">
+                {' '}
+                signed with {signature.secret} in {signature.header}
+              </span>
+            </div>
+            <div className="flex gap-2">
+              <Input readOnly value={url} className="font-mono text-xs" />
+              <Button
+                type="button"
+                size="icon"
+                variant="secondary"
+                aria-label={`Copy the ${name} webhook URL`}
+                onClick={() => copy(url)}
+              >
+                <IconCopy />
+              </Button>
+            </div>
+          </div>
+        );
+      })}
+    </section>
+  );
+};
+
 export function ExtensionSecretsSheet({
-  extId,
+  ext,
   open,
   onClose,
-}: Readonly<{ extId: string; open: boolean; onClose: () => void }>) {
+}: Readonly<{ ext: Extension; open: boolean; onClose: () => void }>) {
+  const hasWebhooks = Object.keys(ext.webhooks ?? {}).length > 0;
+
   return (
     <Sheet open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
       <Sheet.View className="sm:max-w-lg flex flex-col gap-0">
         <Sheet.Header>
-          <Sheet.Title>{extId} secrets</Sheet.Title>
+          <Sheet.Title>
+            {ext.extId} {hasWebhooks ? 'secrets and webhooks' : 'secrets'}
+          </Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
         <Sheet.Content className="flex-1 min-h-0 overflow-auto p-4">
-          {open && <ExtensionSecrets extId={extId} />}
+          {open && (
+            <>
+              <ExtensionSecrets extId={ext.extId} />
+              <ExtensionWebhooks ext={ext} />
+            </>
+          )}
         </Sheet.Content>
       </Sheet.View>
     </Sheet>

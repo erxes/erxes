@@ -28,6 +28,7 @@ export function ExtensionActions({
   const otherVersions = ext.versions.filter((v) => v.version !== ext.version);
   const documents = Object.values(ext.documents).reduce((a, b) => a + b, 0);
   const hasSecrets = Object.keys(ext.secrets ?? {}).length > 0;
+  const hasWebhooks = Object.keys(ext.webhooks ?? {}).length > 0;
 
   const close = () => {
     setOpen(null);
@@ -77,7 +78,7 @@ export function ExtensionActions({
           </DropdownMenu.Item>
           {hasSecrets && (
             <DropdownMenu.Item onSelect={() => setOpen('secrets')}>
-              Secrets
+              {hasWebhooks ? 'Secrets and webhooks' : 'Secrets'}
             </DropdownMenu.Item>
           )}
           <DropdownMenu.Item onSelect={toggle}>
@@ -106,7 +107,7 @@ export function ExtensionActions({
 
       {hasSecrets && (
         <ExtensionSecretsSheet
-          extId={ext.extId}
+          ext={ext}
           open={open === 'secrets'}
           onClose={close}
         />

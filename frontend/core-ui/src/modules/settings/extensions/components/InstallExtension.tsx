@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 import { Button, Dialog, toast } from 'erxes-ui';
 import { IconUpload } from '@tabler/icons-react';
+import { describeCron } from '../cron';
 import { extensionsApi } from '../extensionsApi';
 import { Extension, ExtensionBundle, ExtensionContract } from '../types';
 
@@ -72,6 +73,10 @@ export function InstallExtension({
   const network = pending?.bundle.network ?? [];
   const secrets = Object.entries(pending?.bundle.secrets ?? {});
   const current = installed.find((ext) => ext.extId === pending?.bundle.id);
+  const schedules = Object.entries(pending?.bundle.schedules ?? {});
+  const webhooks = Object.entries(pending?.bundle.webhooks ?? {});
+  const events = Object.entries(pending?.bundle.events ?? {});
+  const hasTriggers = schedules.length + webhooks.length + events.length > 0;
 
   return (
     <>
@@ -192,6 +197,50 @@ export function InstallExtension({
               </ul>
             ) : (
               <p className="text-muted-foreground">None</p>
+            )}
+          </section>
+
+          <section className="space-y-1 text-sm">
+            <h4 className="font-semibold">Runs without anyone calling it</h4>
+            {hasTriggers ? (
+              <>
+                <p className="text-muted-foreground">
+                  These run as you, with your permissions, limited to what it
+                  reads from erxes above. An event runs as the user who made the
+                  change. They stop if you are deactivated or it is disabled.
+                </p>
+                <ul className="list-disc pl-5">
+                  {schedules.map(([name, { cron, function: fn }]) => (
+                    <li key={`schedule:${name}`}>
+                      {describeCron(cron) ?? 'On a schedule'}{' '}
+                      <span className="font-mono text-muted-foreground">
+                        {cron} (UTC) runs {fn}
+                      </span>
+                    </li>
+                  ))}
+                  {webhooks.map(([name, { function: fn, signature }]) => (
+                    <li key={`webhook:${name}`}>
+                      Webhook {name}, signed with {signature.secret}{' '}
+                      <span className="font-mono text-muted-foreground">
+                        runs {fn}
+                      </span>
+                    </li>
+                  ))}
+                  {events.map(([name, { on, updatedFields, function: fn }]) => (
+                    <li key={`event:${name}`}>
+                      When <span className="font-mono">{on}</span>
+                      {updatedFields?.length
+                        ? ` changes ${updatedFields.join(', ')}`
+                        : ''}{' '}
+                      <span className="font-mono text-muted-foreground">
+                        runs {fn}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </>
+            ) : (
+              <p className="text-muted-foreground">Nothing</p>
             )}
           </section>
 

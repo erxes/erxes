@@ -10,6 +10,13 @@ const STATUS_VARIANT = {
   timeout: 'warning',
 } as const satisfies Record<ExtensionRun['status'], string>;
 
+const TRIGGER_LABEL = {
+  call: 'Call',
+  cron: 'Schedule',
+  webhook: 'Webhook',
+  event: 'Event',
+} as const satisfies Record<NonNullable<ExtensionRun['trigger']>, string>;
+
 const RunsNotice = ({ children }: Readonly<{ children: string }>) => (
   <Empty className="min-h-60">
     <Empty.Header>
@@ -45,6 +52,7 @@ const ExtensionRuns = ({ extId }: Readonly<{ extId: string }>) => {
         <Table.Row>
           <Table.Head>Time</Table.Head>
           <Table.Head>Function</Table.Head>
+          <Table.Head>Trigger</Table.Head>
           <Table.Head>Status</Table.Head>
           <Table.Head className="text-right">Duration</Table.Head>
         </Table.Row>
@@ -63,6 +71,11 @@ const ExtensionRuns = ({ extId }: Readonly<{ extId: string }>) => {
                   {run.error.code}: {run.error.message}
                 </div>
               )}
+            </Table.Cell>
+            <Table.Cell>
+              <Badge variant="secondary">
+                {TRIGGER_LABEL[run.trigger ?? 'call']}
+              </Badge>
             </Table.Cell>
             <Table.Cell>
               <Badge variant={STATUS_VARIANT[run.status]}>{run.status}</Badge>
