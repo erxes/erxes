@@ -20,6 +20,8 @@
 
 ## Current Capabilities
 
+- Prints its federated SDL through the shared `schema:print` Nx target for gateway composition and frontend codegen.
+
 - The cashier's earn preview (`previewLoyaltyEarn`) counts the POS's own earning campaigns (`config.earnScoreCampaignId`, synced from the sales POS) first, then any active automation's Adjust score, one rule per campaign.
 
 - `cpOrdersAdd` and `cpOrdersEdit` require client portal context and accept
@@ -86,6 +88,8 @@
 ## Contracts
 
 ### Provides
+
+- `schema:print` writes ignored `generated/schema.graphql`; `gateway:schema:compose` includes POS client types and queries used by Sales through the default gateway client.
 
 - `dailyReport(posUserIds, dateType, startDate, endDate): DailyReport` GraphQL query.
 - `orderChangeLogs(orderId, orderNumber, source, userId, startDate, endDate, page, perPage): [OrderChangeLog]`
@@ -218,6 +222,9 @@
 - Order payment mutations must append paid amounts and increment cash atomically; do not rebuild payment fields from a stale order snapshot.
 
 ## Validation
+
+- `pnpm nx run posclient_api:schema:print --skip-nx-cache`
+- `pnpm nx run gateway:schema:compose --skip-nx-cache --parallel=2`
 
 - CP creation/edit smoke: with client portal context, visitors without a
   portal user reach order validation; non-visitors require `cpUser`.

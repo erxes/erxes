@@ -1,10 +1,17 @@
-import { IconMail, IconNotification } from '@tabler/icons-react';
+import {
+  IconMail,
+  IconNotification,
+  IconSettings,
+} from '@tabler/icons-react';
 import { Breadcrumb, Button, useIsMatchingLocation } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 
 const NotificationBreadcrumb = () => {
   const { t } = useTranslation('settings');
+  const { t: notificationT } = useTranslation('common', {
+    keyPrefix: 'notification',
+  });
 
   const isMatchingLocation = useIsMatchingLocation();
 
@@ -27,6 +34,18 @@ const NotificationBreadcrumb = () => {
               <Link to={'/settings/notification/email'}>
                 <IconMail />
                 {t('Email')}
+              </Link>
+            </Button>
+          </>
+        )}
+
+        {isMatchingLocation('/settings/notification/config') && (
+          <>
+            <Breadcrumb.Separator />
+            <Button variant="ghost" asChild>
+              <Link to={'/settings/notification/config'}>
+                <IconSettings />
+                {notificationT('configuration')}
               </Link>
             </Button>
           </>

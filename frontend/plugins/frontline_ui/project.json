@@ -28,7 +28,14 @@
           "rspackConfig": "frontend/plugins/frontline_ui/rspack.config.prod.ts"
         }
       },
-      "dependsOn": ["^build", "codegen"]
+      "dependsOn": ["^build", "codegen"],
+      "inputs": [
+        "production",
+        "^production",
+        {
+          "dependentTasksOutputFiles": "**/*.ts"
+        }
+      ]
     },
     "serve": {
       "executor": "@nx/rspack:module-federation-dev-server",
@@ -72,13 +79,12 @@
       "cache": true,
       "dependsOn": [
         {
-          "projects": ["frontline_api"],
-          "target": "schema:print"
+          "projects": ["gateway"],
+          "target": "schema:compose"
         }
       ],
       "inputs": [
         "{projectRoot}/codegen.ts",
-        "{projectRoot}/schema/**/*.graphql",
         "{projectRoot}/src/**/*.{ts,tsx}",
         "!{projectRoot}/src/gql/**",
         {
