@@ -1,37 +1,25 @@
-import { AutomationBuilderSecondaryPanelMenuItems } from '@/automations/components/builder/sidebar/components/AutomationBuilderSecondaryPanelMenuItems';
-import { IconArrowLeft, IconDotsVertical, IconX } from '@tabler/icons-react';
-import { Button, DropdownMenu, Tooltip } from 'erxes-ui';
+import { AutomationBuilderPanelToggles } from '@/automations/components/builder/sidebar/components/AutomationBuilderSidebarDock';
+import { IconArrowLeft, IconX } from '@tabler/icons-react';
+import { Button, Tooltip } from 'erxes-ui';
 import { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 
 export const AutomationBuilderSidebarHeaderActions = ({
-  canShowSecondarySidebar,
+  showPanelToggles,
   handleBack,
   handleClose,
 }: {
-  canShowSecondarySidebar: boolean;
+  showPanelToggles: boolean;
   handleBack?: () => void;
   handleClose?: () => void;
 }) => {
   const { t } = useTranslation('automations');
   return (
     <div className="flex shrink-0 flex-row gap-2 self-start">
-      {canShowSecondarySidebar ? (
-        <DropdownMenu>
-          <DropdownMenu.Trigger asChild>
-            <Button
-              size="icon"
-              variant="secondary"
-              aria-label={t('sidebar-more-options')}
-            >
-              <IconDotsVertical className="size-4" />
-            </Button>
-          </DropdownMenu.Trigger>
-          <DropdownMenu.Content align="end">
-            <AutomationBuilderSecondaryPanelMenuItems />
-          </DropdownMenu.Content>
-        </DropdownMenu>
-      ) : null}
+      {/* Mobile has no dock, so the panel toggles live in the header */}
+      {showPanelToggles && (
+        <AutomationBuilderPanelToggles orientation="horizontal" />
+      )}
 
       {handleBack && (
         <HeaderActionButton label={t('sidebar-back')} onClick={handleBack}>

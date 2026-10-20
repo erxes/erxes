@@ -549,11 +549,38 @@ export const isInSegment = async (
     subdomain,
     pluginName: 'core',
     method: 'query',
-    module: 'segments',
+    module: 'segment',
     action: 'isInSegment',
     input: { segmentId, idToCheck: targetId },
     defaultValue: false,
   });
+};
+
+// Pages through core's materialised member list; one call returns at most a page.
+export const fetchSegmentIds = async (
+  subdomain: string,
+  segmentId: string,
+): Promise<string[]> => {
+  const ids: string[] = [];
+  let cursor: string | undefined;
+
+  do {
+    const page: { ids?: string[]; nextCursor?: string } =
+      await sendTRPCMessage({
+        subdomain,
+        pluginName: 'core',
+        method: 'query',
+        module: 'segment',
+        action: 'fetchSegment',
+        input: { segmentId, cursor, limit: 1000 },
+        defaultValue: { ids: [] },
+      });
+
+    ids.push(...(page.ids || []));
+    cursor = page.nextCursor;
+  } while (cursor);
+
+  return ids;
 };
 
 export interface AssignmentCheckResponse {

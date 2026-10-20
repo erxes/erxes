@@ -12,7 +12,7 @@ const FormsCreateButton: FC<React.ComponentProps<typeof Button>> = (props) => {
       <Link
         to={
           channelId
-            ? `/settings/frontline/channels/${channelId}/forms/create`
+            ? `/frontline/settings/channels/${channelId}/forms/create`
             : '/frontline/forms/create'
         }
       >

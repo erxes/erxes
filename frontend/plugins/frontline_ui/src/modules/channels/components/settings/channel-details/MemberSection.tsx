@@ -11,7 +11,7 @@ export const MemberSection = ({ channel }: { channel: IChannelDetail }) => {
     <div
       className="w-full shrink-0 border border-muted-foreground/15 rounded-md hover:bg-sidebar/50 cursor-pointer"
       onClick={() =>
-        navigate(`/settings/frontline/channels/${channel._id}/members`)
+        navigate(`/frontline/settings/channels/${channel._id}/members`)
       }
     >
       <section className="w-full p-4">

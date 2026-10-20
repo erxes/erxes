@@ -63,7 +63,7 @@ export const ApprovalRequestDetailSheet = ({
     <Sheet>
       <Sheet.Trigger asChild>{children}</Sheet.Trigger>
       <Sheet.View className="sm:max-w-xl">
-        <Sheet.Header>
+        <Sheet.Header className="h-auto py-2">
           <div className="min-w-0">
             <Sheet.Title>{t('request-details')}</Sheet.Title>
             <Sheet.Description className="truncate">

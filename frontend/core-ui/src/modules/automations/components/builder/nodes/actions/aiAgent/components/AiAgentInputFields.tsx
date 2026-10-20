@@ -13,11 +13,13 @@ export const AiAgentInputFields = () => {
       <Form.Field
         control={control}
         name="input"
-        render={({ field: { disabled: _disabled, ...field } }) => (
+        render={({ field }) => (
           <Form.Item>
             <Form.Label>{t('ai-agent-input')}</Form.Label>
+            {/* RHF's boolean `disabled` would clash with the suggestion list */}
             <PlaceholderInput
-              {...field}
+              ref={field.ref}
+              onChange={field.onChange}
               value={field.value || ''}
               disabled={[
                 TPlaceholderInputSuggestion.Date,

@@ -30,11 +30,37 @@ type TTicketField = {
   selectOptions?: TSelectOption[];
   configs?: TSelectionConfig;
   selectionConfig?: TSelectionConfig;
+  multiple?: boolean;
 };
 
 type TGenerateTicketFieldsData = {
   collectionType?: string;
+  usageType?: string;
   config?: Record<string, unknown>;
+};
+
+// Written by the ticket itself — its number, who touched it, the survey that
+// raised it. An automation that set them would rewrite the ticket's history.
+const SYSTEM_TICKET_FIELD_NAMES = new Set([
+  'number',
+  'updatedBy',
+  'statusChangedBy',
+  'statusChangedDate',
+  'createdBy',
+  'userId',
+]);
+
+const isSystemTicketField = ({ name }: TTicketField) =>
+  SYSTEM_TICKET_FIELD_NAMES.has(name) || name.startsWith('sourceSurvey.');
+
+// Manage properties pushes conversation media ids here; the ticket automation
+// resolves them to stored attachments before writing.
+const ATTACHMENTS_FIELD: TTicketField = {
+  _id: 'attachments',
+  name: 'attachments',
+  label: 'Attachments (conversation media)',
+  type: 'String',
+  multiple: true,
 };
 
 type TTag = {
@@ -286,15 +312,16 @@ export const generateTicketFields = async ({
   data: TGenerateTicketFieldsData;
 }) => {
   const models = await generateModels(subdomain);
-  const { collectionType, config = {} } = data;
+  const { collectionType, usageType, config = {} } = data;
 
   if (collectionType && collectionType !== 'tickets') {
     return [];
   }
 
   const channelId = toStringValue(config.channelId);
-
-  return [
+  // The automation field list is what Manage properties may write.
+  const isAutomationWrite = usageType === 'automations';
+  const fields = [
     ...(await getSchemaFields(models)),
     await getChannelOptions(models),
     await getPipelineOptions(models, channelId),
@@ -307,4 +334,11 @@ export const generateTicketFields = async ({
     generateCompaniesOptions(),
     await generateTagOptions(subdomain),
   ];
+
+  return isAutomationWrite
+    ? [
+        ...fields.filter((field) => !isSystemTicketField(field)),
+        ATTACHMENTS_FIELD,
+      ]
+    : fields;
 };

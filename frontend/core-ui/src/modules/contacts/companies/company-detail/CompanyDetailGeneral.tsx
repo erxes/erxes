@@ -3,13 +3,12 @@ import { Avatar, readImage } from 'erxes-ui';
 import {
   CompanyName,
   getCompanyDisplayName,
-  useCompaniesEdit,
+  SendEmailButton,
 } from 'ui-modules';
 
 export const CompanyDetailGeneral = () => {
   const { companyDetail } = useCompanyDetailWithQuery();
   const { _id, primaryName, avatar } = companyDetail || {};
-  const { companiesEdit } = useCompaniesEdit();
   const displayName = getCompanyDisplayName(companyDetail);
 
   return (
@@ -27,6 +26,12 @@ export const CompanyDetailGeneral = () => {
           />
         </div>
       </div>
+      <SendEmailButton
+        target={{
+          companyId: _id,
+          email: companyDetail?.primaryEmail || companyDetail?.emails?.[0],
+        }}
+      />
     </div>
   );
 };

@@ -48,6 +48,99 @@ export interface IAutomationStats {
   errorMessages: IAutomationStatsErrorMessage[];
 }
 
+export interface IAutomationActivityParams {
+  automationId: string;
+  beginDate: Date;
+  endDate: Date;
+  buckets: number;
+  actionId?: string;
+}
+
+export interface IAutomationTraceBucket {
+  start: Date;
+  total: number;
+  complete: number;
+  error: number;
+  waiting: number;
+}
+
+export interface IAutomationLatencyBucket {
+  start: Date;
+  count: number;
+  p50Ms?: number;
+  p95Ms?: number;
+}
+
+export interface IAutomationActivity {
+  bucketMs: number;
+  traces: IAutomationTraceBucket[];
+  latency: IAutomationLatencyBucket[];
+  p50Ms?: number;
+  p95Ms?: number;
+}
+
+type TLatencyBin = { bin: number; count: number };
+
+type TActivityFacet = {
+  traces: (Omit<IAutomationTraceBucket, 'start'> & { _id: number })[];
+  latency: { _id: { bucket: number; bin: number }; count: number }[];
+};
+
+const ACTIVITY_MAX_BUCKETS = 60;
+const ACTIVITY_MAX_RANGE_MS = 31 * 24 * 60 * 60 * 1000;
+
+// Durations are counted into log-scale bins (each 15% wider than the last), so
+// percentiles come from a bounded histogram instead of every raw duration;
+// Mongo 4.4 has no $percentile. A reported value is within ~7% of the real one.
+const LATENCY_BIN_RATIO = 1.15;
+
+const percentileFromBins = (bins: TLatencyBin[], percentile: number) => {
+  const total = bins.reduce((sum, { count }) => sum + count, 0);
+
+  if (!total) {
+    return undefined;
+  }
+
+  const rank = Math.ceil(percentile * total);
+  let seen = 0;
+
+  for (const { bin, count } of [...bins].sort((a, b) => a.bin - b.bin)) {
+    seen += count;
+
+    if (seen >= rank) {
+      return Math.round(LATENCY_BIN_RATIO ** (bin + 0.5));
+    }
+  }
+
+  return undefined;
+};
+
+const validateActivityParams = ({
+  beginDate,
+  endDate,
+  buckets,
+}: IAutomationActivityParams) => {
+  const rangeMs = endDate.getTime() - beginDate.getTime();
+
+  if (
+    !Number.isInteger(buckets) ||
+    buckets < 1 ||
+    buckets > ACTIVITY_MAX_BUCKETS
+  ) {
+    throw new Error(`buckets must be between 1 and ${ACTIVITY_MAX_BUCKETS}`);
+  }
+
+  if (
+    Number.isNaN(rangeMs) ||
+    rangeMs <= 0 ||
+    rangeMs > ACTIVITY_MAX_RANGE_MS
+  ) {
+    throw new Error('The activity range must be between 1ms and 31 days');
+  }
+
+  return rangeMs / buckets;
+};
+
 type TStatsFacet = {
   byStatus: { _id: string; count: number }[];
   timeSeries: (Omit<IAutomationStatsBucket, 'date'> & { _id: string })[];
@@ -102,6 +195,9 @@ export interface IExecutionModel extends Model<IAutomationExecutionDocument> {
   getExecution(selector: any): IAutomationExecutionDocument;
   removeExecutions(automationIds: string[]): Promise<void>;
   getStats(filter: any): Promise<IAutomationStats>;
+  getAutomationExecutionActivity(
+    params: IAutomationActivityParams,
+  ): Promise<IAutomationActivity>;
   getExecutionCounts(automationIds: string[]): Promise<IAutomationStatsCount[]>;
 }
 
@@ -293,6 +389,119 @@ export const loadClass = (models: IModels) => {
           message: toErrorMessage(_id.message),
           errorCode: _id.errorCode,
         })),
+      };
+    }
+
+    /**
+     * Runs and action latency over equal time buckets for the stats charts.
+     * Buckets are counted from beginDate, so the caller decides where they
+     * start (local hour or midnight) and no timezone is needed here. Matches on
+     * the { automationId, createdAt } index; latency skips actions whose
+     * duration includes waiting (deferred, child workflow, delay/wait).
+     */
+    public static async getAutomationExecutionActivity(
+      params: IAutomationActivityParams,
+    ): Promise<IAutomationActivity> {
+      const { automationId, beginDate, endDate, buckets, actionId } = params;
+      const bucketMs = validateActivityParams(params);
+      const bucketOf = (date: unknown) => ({
+        $floor: { $divide: [{ $subtract: [date, beginDate] }, bucketMs] },
+      });
+      const actionBucket = bucketOf({
+        $ifNull: ['$actions.startedAt', '$createdAt'],
+      });
+
+      const [result] =
+        await models.AutomationExecutions.aggregate<TActivityFacet>([
+          {
+            $match: {
+              automationId,
+              createdAt: { $gte: beginDate, $lt: endDate },
+            },
+          },
+          {
+            $facet: {
+              traces: [
+                { $match: { parentExecutionId: { $exists: false } } },
+                {
+                  $group: {
+                    _id: bucketOf('$createdAt'),
+                    total: { $sum: 1 },
+                    complete: countWhen('$status', 'complete'),
+                    error: countWhen('$status', 'error'),
+                    waiting: countWhen('$status', 'waiting'),
+                  },
+                },
+              ],
+              latency: [
+                { $unwind: '$actions' },
+                {
+                  $match: {
+                    'actions.status': { $in: ['success', 'error'] },
+                    'actions.durationMs': { $gte: 0 },
+                    'actions.queuedAt': { $exists: false },
+                    'actions.childExecutionId': { $exists: false },
+                    ...(actionId ? { 'actions.actionId': actionId } : {}),
+                  },
+                },
+                {
+                  $group: {
+                    _id: {
+                      bucket: actionBucket,
+                      bin: {
+                        $floor: {
+                          $divide: [
+                            { $ln: { $max: ['$actions.durationMs', 1] } },
+                            Math.log(LATENCY_BIN_RATIO),
+                          ],
+                        },
+                      },
+                    },
+                    count: { $sum: 1 },
+                  },
+                },
+              ],
+            },
+          },
+        ]);
+
+      const { traces = [], latency = [] } = result || {};
+      const startOf = (bucket: number) =>
+        new Date(beginDate.getTime() + bucket * bucketMs);
+      const binsByBucket = new Map<number, TLatencyBin[]>();
+      const allBins: TLatencyBin[] = [];
+
+      for (const { _id, count } of latency) {
+        // An action resumed after endDate lands past the last bucket
+        if (_id.bucket < 0 || _id.bucket >= buckets) {
+          continue;
+        }
+
+        const bin = { bin: _id.bin, count };
+
+        binsByBucket.set(_id.bucket, [
+          ...(binsByBucket.get(_id.bucket) || []),
+          bin,
+        ]);
+        allBins.push(bin);
+      }
+
+      return {
+        bucketMs,
+        traces: traces
+          .filter(({ _id }) => _id >= 0 && _id < buckets)
+          .sort((a, b) => a._id - b._id)
+          .map(({ _id, ...bucket }) => ({ start: startOf(_id), ...bucket })),
+        latency: [...binsByBucket.entries()]
+          .sort(([a], [b]) => a - b)
+          .map(([bucket, bins]) => ({
+            start: startOf(bucket),
+            count: bins.reduce((sum, { count }) => sum + count, 0),
+            p50Ms: percentileFromBins(bins, 0.5),
+            p95Ms: percentileFromBins(bins, 0.95),
+          })),
+        p50Ms: percentileFromBins(allBins, 0.5),
+        p95Ms: percentileFromBins(allBins, 0.95),
       };
     }
   }

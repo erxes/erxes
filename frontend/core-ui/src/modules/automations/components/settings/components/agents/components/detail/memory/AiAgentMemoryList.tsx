@@ -1,9 +1,7 @@
 import { TAiAgentMemoryItem } from '@/automations/components/settings/components/agents/hooks/useAiAgentMemoryItems';
-import { TAiAgentForm } from '@/automations/components/settings/components/agents/states/AiAgentFormSchema';
 import { IconAlertTriangle, IconSearch } from '@tabler/icons-react';
-import { cn, Form, Input, Skeleton, Switch } from 'erxes-ui';
+import { cn, Input, Skeleton } from 'erxes-ui';
 import { useState } from 'react';
-import { useFormContext } from 'react-hook-form';
 
 const GROUPS: TAiAgentMemoryItem['group'][] = ['Always on', 'Files', 'Sources'];
 
@@ -18,7 +16,6 @@ export const AiAgentMemoryList = ({
   activeKey: string;
   onSelect: (key: string) => void;
 }) => {
-  const { control } = useFormContext<TAiAgentForm>();
   const [search, setSearch] = useState('');
   const query = search.trim().toLowerCase();
   const visibleItems = items.filter(
@@ -91,29 +88,6 @@ export const AiAgentMemoryList = ({
           </p>
         )}
       </div>
-
-      <Form.Field
-        control={control}
-        name="context.retrieval.mode"
-        render={({ field }) => (
-          <label className="flex items-start justify-between gap-3 rounded-md border p-3">
-            <span>
-              <span className="block text-sm font-medium">
-                Search on demand
-              </span>
-              <span className="block text-xs text-muted-foreground">
-                Search knowledge only when a reply needs it.
-              </span>
-            </span>
-            <Switch
-              checked={field.value === 'tool'}
-              onCheckedChange={(checked) =>
-                field.onChange(checked ? 'tool' : 'prompt')
-              }
-            />
-          </label>
-        )}
-      />
     </nav>
   );
 };

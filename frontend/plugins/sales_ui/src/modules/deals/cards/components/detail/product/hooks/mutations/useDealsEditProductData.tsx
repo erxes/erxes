@@ -1,5 +1,7 @@
 'use client';
 
+import type { DealProductData } from '@/deals/utils/dealJson';
+import { parseDealProductMutation } from '@/deals/utils/dealJson';
 import {
   ApolloError,
   MutationFunctionOptions,
@@ -10,11 +12,15 @@ import {
 import { useToast } from 'erxes-ui';
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
+import type {
+  DealsEditProductDataMutation,
+  DealsEditProductDataMutationVariables,
+} from '~/gql/graphql';
 
 import { DEALS_EDIT_PRODUCT_DATA } from '@/deals/cards/components/detail/product/graphql/mutations/ProductsActions';
 import { useCurrentDealId } from '@/deals/cards/hooks/useCurrentDealId';
 import { DEAL_TOAST_OPTIONS } from '@/deals/constants/toast';
-import { IProductData } from 'ui-modules';
+
 import {
   serializeDealProductMutation,
   withDealIdVariables,
@@ -22,11 +28,16 @@ import {
 
 interface EditProductDataVariables {
   processId: string;
-  dataId: string;
-  doc: IProductData;
+  dataId: DealsEditProductDataMutationVariables['dataId'];
+  doc: DealProductData;
 }
 
-export const useDealsEditProductData = (options?: MutationHookOptions) => {
+export const useDealsEditProductData = (
+  options?: MutationHookOptions<
+    DealsEditProductDataMutation,
+    DealsEditProductDataMutationVariables
+  >,
+) => {
   const { toast } = useToast();
   const { t } = useTranslation('sales');
   const dealId = useCurrentDealId();
@@ -42,7 +53,13 @@ export const useDealsEditProductData = (options?: MutationHookOptions) => {
   // promise resolve on failure, which breaks callers' rollback .catch chains.
   const editDealsProductData = useCallback(
     async (
-      executeOptions: Omit<MutationFunctionOptions, 'variables'> & {
+      executeOptions: Omit<
+        MutationFunctionOptions<
+          DealsEditProductDataMutation,
+          DealsEditProductDataMutationVariables
+        >,
+        'variables'
+      > & {
         variables: EditProductDataVariables;
       },
     ) => {
@@ -53,7 +70,7 @@ export const useDealsEditProductData = (options?: MutationHookOptions) => {
           mutation: () =>
             mutateEditProductData(withDealIdVariables(executeOptions, dealId)),
           selectProductsData: (mutationResult) =>
-            mutationResult.data?.dealsEditProductData?.productsData,
+            parseDealProductMutation(mutationResult.data?.dealsEditProductData),
         });
 
         toast({
@@ -62,11 +79,16 @@ export const useDealsEditProductData = (options?: MutationHookOptions) => {
           ...DEAL_TOAST_OPTIONS,
         });
 
-        onCompleted?.(result.data);
+        if (result.data) onCompleted?.(result.data);
 
         return result;
       } catch (e) {
-        const apolloError = e as ApolloError;
+        const apolloError =
+          e instanceof ApolloError
+            ? e
+            : new ApolloError({
+                errorMessage: e instanceof Error ? e.message : String(e),
+              });
 
         toast({
           title: t('error'),

@@ -14,6 +14,7 @@ import { structureMutations } from '@/organization/structure/graphql/resolvers/m
 import { userMutations } from '@/organization/team-member/graphql/mutations';
 import { permissionMutations } from '~/modules/permissions/graphql/resolvers/mutations/permission';
 import { approvalMutations } from '@/approval/graphql/resolvers/mutations';
+import { filesMutations } from '@/files/graphql/resolvers/mutations';
 import { productMutations } from '@/products/graphql/resolvers/mutations';
 import { relationsMutations } from '@/relations/graphql/mutations';
 import { segmentMutations } from '@/segments/graphql/resolvers/mutations';
@@ -49,6 +50,7 @@ export const mutations = {
   ...brandMutations,
   ...permissionMutations,
   ...approvalMutations,
+  ...filesMutations,
   ...documentMutations,
   ...automationMutations,
   ...emailTemplateMutations,

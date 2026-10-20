@@ -12,6 +12,7 @@ export const PagesFilter = () => {
   return (
     <Filter id="pages-filter" sessionKey={PAGES_CURSOR_SESSION_KEY}>
       <Filter.Bar>
+        <SimpleSearchFilterPopover />
         <Filter.BarItem queryKey="searchValue">
           <Filter.BarName>
             <IconSearch />
@@ -21,7 +22,6 @@ export const PagesFilter = () => {
             {searchValue}
           </Filter.BarButton>
         </Filter.BarItem>
-        <SimpleSearchFilterPopover />
         <PagesTotalCount />
       </Filter.Bar>
     </Filter>

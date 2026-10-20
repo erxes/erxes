@@ -1,9 +1,10 @@
-import { IProduct, IProductData } from 'ui-modules';
+import type { DealProduct, DealProductData } from '@/deals/utils/dealJson';
+
 import type { ProductDataWithUom, ProductUomInfo } from './productUom';
 
 const NUMERIC_TOLERANCE = 0.0001;
 
-const NUMERIC_PATCH_FIELDS = new Set<keyof IProductData>([
+const NUMERIC_PATCH_FIELDS = new Set<keyof DealProductData>([
   'quantity',
   'unitPrice',
   'globalUnitPrice',
@@ -19,7 +20,7 @@ const NUMERIC_PATCH_FIELDS = new Set<keyof IProductData>([
 
 const isFieldApplied = (a: unknown, b: unknown, key: string) => {
   if (
-    NUMERIC_PATCH_FIELDS.has(key as keyof IProductData) &&
+    NUMERIC_PATCH_FIELDS.has(key as keyof DealProductData) &&
     typeof a === 'number' &&
     typeof b === 'number'
   ) {
@@ -30,8 +31,8 @@ const isFieldApplied = (a: unknown, b: unknown, key: string) => {
 };
 
 const isProductPatchApplied = (
-  data: IProductData,
-  patchProduct: IProduct | undefined,
+  data: DealProductData,
+  patchProduct: DealProduct | undefined,
 ) => {
   if (!patchProduct?._id) {
     return true;
@@ -55,7 +56,7 @@ export const isPatchAppliedByServer = (
 ) =>
   Object.entries(patch).every(([key, value]) => {
     if (key === 'product') {
-      return isProductPatchApplied(data, value as IProduct | undefined);
+      return isProductPatchApplied(data, value as DealProduct | undefined);
     }
 
     if (key === 'uomInfo') {
@@ -81,5 +82,5 @@ export const isPatchAppliedByServer = (
       );
     }
 
-    return isFieldApplied(data[key as keyof IProductData], value, key);
+    return isFieldApplied(data[key as keyof DealProductData], value, key);
   });

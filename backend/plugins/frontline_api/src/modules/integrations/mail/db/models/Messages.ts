@@ -14,6 +14,7 @@ import { createMailDelivery } from '@/integrations/mail/utils/mailDelivery';
 import { toConversationStatusOnSent } from '@/integrations/mail/utils/mailConversationStatus';
 import { composeMailMessage } from '@/integrations/mail/utils/mailCompose';
 import { assertCustomerRecipient } from '@/integrations/mail/utils/mailRecipient';
+import { validateMailRecipients } from '@/integrations/mail/utils/recipients';
 
 export interface IMailMessageModel extends Model<IMailMessageDocument> {
   findRelatedThread(
@@ -107,6 +108,8 @@ export const loadMailMessageClass = (models: IModels) => {
       );
 
       const scopeId = mailScopeId(integration);
+
+      validateMailRecipients(compose);
 
       let targetConversationId = conversationId;
       let effectiveCustomerId = compose.customerId;

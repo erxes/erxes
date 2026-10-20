@@ -1,3 +1,8 @@
+import {
+  AUTOMATION_ACTION_CONTRIBUTIONS,
+  TAutomationActionPlacement,
+} from './types';
+
 export const AUTOMATION_PROPERTY_OPERATORS = {
   SET: 'set',
   CLEAR: 'clear',
@@ -139,6 +144,27 @@ export const AUTOMATION_CORE_ACTION_DEFERRED: Record<
   // A provider call can outlast any sane synchronous budget, so the flow parks
   // on it rather than holding the trigger open.
   [AUTOMATION_CORE_ACTIONS.AI_AGENT]: { mode: 'standby', timeoutMinutes: 3 },
+};
+
+/**
+ * Core actions have no plugin constants either, so how they combine with the
+ * actions around them is declared here.
+ */
+export const AUTOMATION_CORE_ACTION_PLACEMENTS: Record<
+  string,
+  TAutomationActionPlacement
+> = {
+  [AUTOMATION_CORE_ACTIONS.AI_AGENT]: {
+    accepts: [AUTOMATION_ACTION_CONTRIBUTIONS.REMEMBERED_RECORD_CHOICE],
+  },
+  [AUTOMATION_CORE_ACTIONS.SET_PROPERTY]: {
+    addsToPrevious: [
+      {
+        actionType: AUTOMATION_CORE_ACTIONS.AI_AGENT,
+        kind: AUTOMATION_ACTION_CONTRIBUTIONS.REMEMBERED_RECORD_CHOICE,
+      },
+    ],
+  },
 };
 
 export const AUTOMATION_DEFERRED_TIMEOUT = {

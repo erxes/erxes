@@ -1,7 +1,7 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const POS_CUSTOMERS_QUERY = gql`
-  query PoscCustomers(
+export const POS_CUSTOMERS_QUERY = gql(`
+  query salesPosByItemsCustomers(
     $searchValue: String!
     $type: String
     $perPage: Int
@@ -23,4 +23,4 @@ export const POS_CUSTOMERS_QUERY = gql`
       addresses
     }
   }
-`;
+`);

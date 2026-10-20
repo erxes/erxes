@@ -1,7 +1,9 @@
-import { useEffect } from 'react';
+import { paymentTypesSchema } from '@/deals/utils/dealJson';
+import { isDefined } from 'erxes-ui';
+import { useEffect, useMemo } from 'react';
 import type { UseFormReturn } from 'react-hook-form';
 
-import type { IPipeline, TPipelineForm } from '@/deals/types/pipelines';
+import type { IPipelineDetail, TPipelineForm } from '@/deals/types/pipelines';
 import type { IStage } from '@/deals/types/stages';
 
 const formatPaymentConfig = (config: unknown): string => {
@@ -23,17 +25,17 @@ const mapPipelineStages = (
     visibility: stage.visibility || 'public',
     status: stage.status || 'active',
     age: stage.age || 0,
-    canMoveMemberIds: stage.canMoveMemberIds ?? [],
-    canEditMemberIds: stage.canEditMemberIds ?? [],
+    canMoveMemberIds: stage.canMoveMemberIds?.filter(isDefined) ?? [],
+    canEditMemberIds: stage.canEditMemberIds?.filter(isDefined) ?? [],
     probability: stage.probability || '',
-    memberIds: stage.memberIds ?? [],
-    departmentIds: stage.departmentIds ?? [],
+    memberIds: stage.memberIds?.filter(isDefined) ?? [],
+    departmentIds: stage.departmentIds?.filter(isDefined) ?? [],
     defaultTick: stage.defaultTick ?? true,
     // Left unset, the stage's probability decides.
   }));
 
 const getPipelineFormValues = (
-  pipelineDetail: IPipeline | undefined,
+  pipelineDetail: IPipelineDetail | null | undefined,
   boardId: string | null,
   stages: TPipelineForm['stages'],
 ): TPipelineForm => {
@@ -68,26 +70,35 @@ const getPipelineFormValues = (
     visibility: pipelineDetail.visibility || 'public',
     boardId: pipelineDetail.boardId || boardId || '',
     tagId: pipelineDetail.tagId || '',
-    departmentIds: pipelineDetail.departmentIds || [],
-    branchIds: pipelineDetail.branchIds || [],
-    memberIds: pipelineDetail.memberIds || [],
+    departmentIds: pipelineDetail.departmentIds?.filter(isDefined) || [],
+    branchIds: pipelineDetail.branchIds?.filter(isDefined) || [],
+    memberIds: pipelineDetail.memberIds?.filter(isDefined) || [],
     stages: stages || [],
     numberConfig: pipelineDetail.numberConfig || '',
-    numberSize: pipelineDetail.numberSize || '',
+    numberSize:
+      pipelineDetail.numberSize == null
+        ? ''
+        : String(pipelineDetail.numberSize),
     nameConfig: pipelineDetail.nameConfig || '',
     isCheckDate: pipelineDetail.isCheckDate || false,
     isCheckUser: pipelineDetail.isCheckUser || false,
     isCheckDepartment: pipelineDetail.isCheckDepartment || false,
-    initialCategoryIds: pipelineDetail.initialCategoryIds || [],
-    excludeCategoryIds: pipelineDetail.excludeCategoryIds || [],
-    excludeProductIds: pipelineDetail.excludeProductIds || [],
-    excludeCheckUserIds: pipelineDetail.excludeCheckUserIds || [],
-    paymentIds: pipelineDetail.paymentIds || [],
-    paymentTypes: (pipelineDetail.paymentTypes || []).map((paymentType) => ({
-      ...paymentType,
-      config: formatPaymentConfig(paymentType.config),
-    })),
-    propertyIds: pipelineDetail.propertyIds || [],
+    initialCategoryIds:
+      pipelineDetail.initialCategoryIds?.filter(isDefined) || [],
+    excludeCategoryIds:
+      pipelineDetail.excludeCategoryIds?.filter(isDefined) || [],
+    excludeProductIds:
+      pipelineDetail.excludeProductIds?.filter(isDefined) || [],
+    excludeCheckUserIds:
+      pipelineDetail.excludeCheckUserIds?.filter(isDefined) || [],
+    paymentIds: pipelineDetail.paymentIds?.filter(isDefined) || [],
+    paymentTypes: paymentTypesSchema
+      .parse(pipelineDetail.paymentTypes ?? [])
+      .map((paymentType) => ({
+        ...paymentType,
+        config: formatPaymentConfig(paymentType.config),
+      })),
+    propertyIds: pipelineDetail.propertyIds?.filter(isDefined) || [],
   };
 };
 
@@ -95,7 +106,7 @@ type UsePipelineFormSyncProps = {
   boardId: string | null;
   initialStages: IStage[];
   methods: UseFormReturn<TPipelineForm>;
-  pipelineDetail?: IPipeline;
+  pipelineDetail?: IPipelineDetail | null;
   pipelineId: string | null;
 };
 
@@ -107,6 +118,13 @@ export const usePipelineFormSync = ({
   pipelineId,
 }: UsePipelineFormSyncProps) => {
   const { getValues, reset, setValue } = methods;
+  const paymentTypes = useMemo(
+    () =>
+      paymentTypesSchema.safeParse(
+        pipelineId ? pipelineDetail?.paymentTypes ?? [] : [],
+      ),
+    [pipelineId, pipelineDetail?.paymentTypes],
+  );
 
   useEffect(() => {
     if (initialStages.length) {
@@ -118,6 +136,7 @@ export const usePipelineFormSync = ({
   }, [initialStages, setValue]);
 
   useEffect(() => {
+    if (!paymentTypes.success) return;
     reset(
       getPipelineFormValues(
         pipelineId ? pipelineDetail : undefined,
@@ -125,5 +144,6 @@ export const usePipelineFormSync = ({
         getValues('stages') || [],
       ),
     );
-  }, [boardId, getValues, pipelineDetail, pipelineId, reset]);
+  }, [boardId, getValues, pipelineDetail, pipelineId, reset, paymentTypes]);
+  return paymentTypes.success ? undefined : paymentTypes.error;
 };

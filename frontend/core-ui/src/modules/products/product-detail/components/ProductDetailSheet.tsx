@@ -34,6 +34,7 @@ import {
   ProductFormValues,
 } from '@/products/constants/ProductFormSchema';
 import { useProductsEdit } from '@/products/hooks/useProductsEdit';
+import { useProductFileLinks } from 'ui-modules/modules/products/hooks/useProductFiles';
 
 export const ProductDetailSheet = () => {
   const { t } = useTranslation('product', {
@@ -56,6 +57,7 @@ export const ProductDetailSheet = () => {
   const { productDetail, productId, loading, error, refetch } = useProductDetailWithQuery();
   
   const { productsEdit, loading: editLoading } = useProductsEdit();
+  const { linkFiles } = useProductFileLinks();
 
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(ProductFormSchema),
@@ -112,7 +114,7 @@ export const ProductDetailSheet = () => {
     };
   };
 
-  const handleSave = (data: ProductFormValues) => {
+  const handleSave = async (data: ProductFormValues) => {
     if (!productDetail?._id) {
       toast({
         title: t('errorTitle'),
@@ -121,7 +123,16 @@ export const ProductDetailSheet = () => {
       });
       return;
     }
-    const variables = { ...normalizePayload(data), _id: productDetail._id };
+    const files = await linkFiles(data.files);
+
+    if (!files) {
+      return;
+    }
+
+    const variables = {
+      ...normalizePayload({ ...data, files }),
+      _id: productDetail._id,
+    };
     productsEdit({
       variables,
       onCompleted: () => {

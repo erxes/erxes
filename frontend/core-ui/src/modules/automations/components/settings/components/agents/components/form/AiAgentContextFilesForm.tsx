@@ -9,7 +9,6 @@ import { useMutation } from '@apollo/client';
 import { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { useParams } from 'react-router';
 
 export const AI_AGENT_UI_LIMITS = {
   maxFiles: 10,
@@ -27,9 +26,9 @@ export const formatBytes = (bytes: number) => {
 
 export const AiAgentContextFilesForm = () => {
   const { t } = useTranslation('automations');
-  const { id } = useParams();
   const { control } = useFormContext<TAiAgentForm>();
-  const { openMemory } = useAiAgentDetailContext();
+  const { detail, openMemory } = useAiAgentDetailContext();
+  const id = detail?._id;
   const [reindexingFileId, setReindexingFileId] = useState<string | null>(null);
   const [reindex] = useMutation(AUTOMATIONS_AI_AGENT_REINDEX);
 

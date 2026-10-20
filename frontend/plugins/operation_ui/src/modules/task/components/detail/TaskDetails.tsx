@@ -1,3 +1,4 @@
+import type { TaskDetailsProps } from '@/task/types/taskFields';
 import { TaskFields } from '@/task/components/detail/TaskFields';
 import { TriageFields } from '@/triage/components/TriageFields';
 import { useGetTask } from '@/task/hooks/useGetTask';
@@ -9,10 +10,8 @@ import { useTranslation } from 'react-i18next';
 export const TaskDetails = ({
   taskId,
   checkTriage,
-}: {
-  taskId: string;
-  checkTriage?: boolean;
-}) => {
+  titleAction,
+}: TaskDetailsProps) => {
   const { t } = useTranslation('operation');
   const { task, loading: loadingTask, error: taskError } = useGetTask(taskId);
 
@@ -64,8 +63,16 @@ export const TaskDetails = ({
 
   return (
     <>
-      {task && <TaskFields key={task._id} task={task} />}
-      {triage && <TriageFields key={triage._id} triage={triage} />}
+      {task && (
+        <TaskFields key={task._id} task={task} titleAction={titleAction} />
+      )}
+      {triage && (
+        <TriageFields
+          key={triage._id}
+          triage={triage}
+          titleAction={titleAction}
+        />
+      )}
     </>
   );
 };

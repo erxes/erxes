@@ -1,11 +1,12 @@
 'use client';
 
-import { useMemo } from 'react';
-import { useQueryState } from 'erxes-ui';
-import { useSearchParams } from 'react-router-dom';
 import { useStages } from '@/deals/stage/hooks/useStages';
 import type { BoardDealColumn } from '@/deals/types/boards';
+import { readCurrencyAmounts } from '@/deals/utils/dealJson';
 import { getDealsQueryVariables } from '@/deals/utils/queryVariables';
+import { useQueryState } from 'erxes-ui';
+import { useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 
 export const useDealsBoardData = (): {
   columns: BoardDealColumn[];
@@ -48,8 +49,8 @@ export const useDealsBoardData = (): {
         type: stage.type,
         probability: stage.probability,
         itemsTotalCount: stage.itemsTotalCount,
-        amount: stage.amount || 0,
-        unUsedAmount: stage.unUsedAmount || 0,
+        amount: readCurrencyAmounts(stage.amount),
+        unUsedAmount: readCurrencyAmounts(stage.unUsedAmount),
       })),
     [currentPipelineStages],
   );

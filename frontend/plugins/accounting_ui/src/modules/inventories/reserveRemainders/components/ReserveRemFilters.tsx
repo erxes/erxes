@@ -85,6 +85,7 @@ export const ReserveRemFilter = ({
   return (
     <Filter id="reserve-rems-filter">
       <Filter.Bar>
+        <ReserveRemFilterPopover />
         <Filter.BarItem queryKey="searchValue">
           <Filter.BarName>
             <IconSearch />
@@ -114,7 +115,6 @@ export const ReserveRemFilter = ({
           filterKey="departmentId"
           mode="single"
         />
-        <ReserveRemFilterPopover />
         {afterBar && <>{afterBar}</>}
       </Filter.Bar>
     </Filter>

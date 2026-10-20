@@ -78,6 +78,7 @@
 
 ## Local Invariants
 
+- Subscription fields (`ebarimtResponded`, `productPlacesResponded`) are declared only in `src/apollo/subscription.ts`, which the gateway serves. Declaring one again in the subgraph SDL fails `schema:print`.
 - Exchange-rate lookup accepts Date-coercible values because service-to-service tRPC calls serialize JavaScript `Date` values over HTTP.
 - Active-rate lookup must return the latest rate on or before the requested day.
 - One exchange-rate document represents exactly one main/rate currency pair for one day.
@@ -103,6 +104,7 @@
 
 ## Validation
 
+- `pnpm nx run mongolian_api:schema:print` - prints this subgraph's SDL to `generated/schema.graphql` (gitignored) offline, for `gateway:schema:compose`.
 - `pnpm nx build mongolian_api`
 - `pnpm build`
 - `pnpm exec tsc -p backend/plugins/mongolian_api/tsconfig.json --noEmit`

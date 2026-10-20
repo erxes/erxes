@@ -1,18 +1,11 @@
 import { useTranslation } from 'react-i18next';
-import { EMAIL_SUPPRESSION_REASON_OPTIONS } from '@/settings/email-addresses/constants';
 import { useReleaseEmailAddress } from '@/settings/email-addresses/hooks/useEmailAddresses';
-import {
-  IEmailAddress,
-  TEmailSuppressionReason,
-} from '@/settings/email-addresses/types';
+import { IEmailAddress } from '@/settings/email-addresses/types';
+import { suppressionLabel } from '@/settings/email-addresses/utils';
 import { IconLockOpen } from '@tabler/icons-react';
 import dayjs from 'dayjs';
 import { Button, Dialog, Input, Label } from 'erxes-ui';
 import { useState } from 'react';
-
-const reasonLabel = (reason?: TEmailSuppressionReason) =>
-  EMAIL_SUPPRESSION_REASON_OPTIONS.find((option) => option.value === reason)
-    ?.label ?? 'an unrecorded reason';
 
 export const ReleaseEmailAddressDialog = ({
   address,
@@ -56,7 +49,7 @@ export const ReleaseEmailAddressDialog = ({
             {address.suppressedAt
               ? ` on ${dayjs(address.suppressedAt).format('MMM D, YYYY')}`
               : ''}{' '}
-            for {reasonLabel(address.suppressionReason)}. Mail will go to it
+            for {suppressionLabel(address) ?? 'an unrecorded reason'}. Mail will go to it
             again — if the mailbox is still gone it will bounce and close itself
             once more.
           </Dialog.Description>

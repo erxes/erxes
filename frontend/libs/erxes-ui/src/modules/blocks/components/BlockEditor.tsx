@@ -1,23 +1,23 @@
-import { BarcodeAttribute } from 'erxes-ui/modules/blocks/components/BarcodeAttribute';
-import { getSlashMenuItems } from 'erxes-ui/modules/blocks/utils/getSlashMenuItems';
+import { KeyboardEvent, MouseEvent, useRef, useState } from 'react';
 import {
-  createReactInlineContentSpec,
   SuggestionMenuController,
   TableHandlesController,
+  createReactInlineContentSpec,
 } from '@blocknote/react';
-import { BlockNoteView } from '@blocknote/shadcn';
 
+import { BarcodeAttribute } from 'erxes-ui/modules/blocks/components/BarcodeAttribute';
+import { BlockEditorProps } from 'erxes-ui/modules/blocks/types';
+import { BlockNoteView } from '@blocknote/shadcn';
+import { SlashMenu } from 'erxes-ui/modules/blocks/components/SlashMenu';
+import { TableHandleWithRemove } from 'erxes-ui/modules/blocks/components/TableHandleWithRemove';
+import { Toolbar } from 'erxes-ui/modules/blocks/components/Toolbar';
 import { cn } from 'erxes-ui/lib';
+import { editorUIComponents } from 'erxes-ui/modules/blocks/constant/toolbar/editorUIComponents';
+import { getSlashMenuItems } from 'erxes-ui/modules/blocks/utils/getSlashMenuItems';
+import { isCodeFormattingShortcut } from 'erxes-ui/modules/blocks/utils/toolbar/isCodeFormattingShortcut';
+import { isEmptyBlock } from 'erxes-ui/modules/blocks/utils/isEmptyBlock';
 import { themeState } from 'erxes-ui/state';
 import { useAtomValue } from 'jotai';
-import { KeyboardEvent, MouseEvent, useRef, useState } from 'react';
-import { BlockEditorProps } from 'erxes-ui/modules/blocks/types';
-import { SlashMenu } from 'erxes-ui/modules/blocks/components/SlashMenu';
-import { Toolbar } from 'erxes-ui/modules/blocks/components/Toolbar';
-import { isEmptyBlock } from 'erxes-ui/modules/blocks/utils/isEmptyBlock';
-import { TableHandleWithRemove } from 'erxes-ui/modules/blocks/components/TableHandleWithRemove';
-import { editorUIComponents } from 'erxes-ui/modules/blocks/constant/toolbar/editorUIComponents';
-import { isCodeFormattingShortcut } from 'erxes-ui/modules/blocks/utils/toolbar/isCodeFormattingShortcut';
 
 export const BlockEditor = ({
   editor,
@@ -31,6 +31,7 @@ export const BlockEditor = ({
   disabled,
   variant = 'default',
   sideMenu = true,
+  formattingToolbar = true,
   linkToolbar = true,
   slashMenuOnTop = false,
   additionalSlashMenuItems,
@@ -139,7 +140,7 @@ export const BlockEditor = ({
             slashMenuOnTop ? { placement: 'top-start' } : undefined
           }
         />
-        <Toolbar />
+        {formattingToolbar && <Toolbar />}
         <TableHandlesController tableHandle={TableHandleWithRemove} />
         {children}
       </BlockNoteView>

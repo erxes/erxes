@@ -13,6 +13,10 @@ import {
   splitType,
 } from 'erxes-api-shared/core-modules';
 import { sendWorkerQueue } from 'erxes-api-shared/utils';
+import {
+  hasNewerCustomerMessage,
+  hasReplyableMedia,
+} from '@/integrations/facebook/meta/automation/utils/turnTaking';
 import { generateModels, IModels } from '~/connectionResolvers';
 import { IFacebookConversationMessageDocument } from '../../../@types/conversationMessages';
 import {
@@ -173,7 +177,17 @@ export const checkMessageTrigger = async (
           );
         }
 
-        if (String(target?.content || '').trim()) {
+        // Only the last message of a burst starts a run; it sees the earlier
+        // ones as unanswered input.
+        if (await hasNewerCustomerMessage(models, target)) {
+          return false;
+        }
+
+        // A photo or a voice note with no words is still something to answer.
+        if (
+          String(target?.content || '').trim() ||
+          hasReplyableMedia(target?.attachments)
+        ) {
           return true;
         }
       }
@@ -261,6 +275,18 @@ export const actionCreateMessage = async ({
       // the flow continue rather than spend a refusal against the page.
       return buildSkippedAction('window-closed', { lastInboundAt });
     }
+  }
+
+  // An AI reply written for a message the person has since added to is
+  // stale: the run started by the newer message answers both.
+  if (
+    collectionType === 'messages' &&
+    execution.actions?.some(({ actionType }) => actionType === 'aiAgent') &&
+    (await hasNewerCustomerMessage(models, target))
+  ) {
+    return buildSkippedAction('superseded-by-newer-message', {
+      messageId: target?._id,
+    });
   }
 
   try {

@@ -53,6 +53,7 @@ const queries = `
   automationHistories(${GQL_CURSOR_PARAM_DEFS},${historiesParams}): AutomationHistories
   automationHistoriesTotalCount(${historiesParams}):Int
   automationStats(automationId: String!, beginDate: Date, endDate: Date): AutomationStats
+  automationActivity(automationId: String!, beginDate: Date!, endDate: Date!, buckets: Int!, actionId: String): AutomationActivity
   automationExecutionCounts(automationIds: [String!]!): [AutomationStatsCount]
   automationsTotalCount(status: String): automationsTotalCountResponse
   automationConstants: JSON

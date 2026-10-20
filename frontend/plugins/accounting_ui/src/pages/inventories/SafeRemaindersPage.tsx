@@ -10,7 +10,7 @@ import { AccountingLayout } from '~/modules/layout/components/Layout';
 
 export const SafeRemaindersPage = () => {
   const { t } = useTranslation('accounting');
-  const { safeRemainders, loading, totalCount, handleFetchMore } =
+  const { safeRemainders, loading, error, totalCount, handleFetchMore } =
     useSafeRemainders();
 
   return (
@@ -34,6 +34,7 @@ export const SafeRemaindersPage = () => {
       </PageSubHeader>
       <SafeRemainderTable
         handleFetchMore={handleFetchMore}
+        error={error}
         loading={loading}
         safeRemainders={safeRemainders}
         totalCount={totalCount}

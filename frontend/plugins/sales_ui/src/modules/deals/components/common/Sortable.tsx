@@ -282,7 +282,7 @@ export function Sortable({
         </div>
       )}
       {useDragOverlay
-        ? createPortal(
+        ? (createPortal(
             <DragOverlay
               adjustScale={adjustScale}
               dropAnimation={dropAnimation}
@@ -311,7 +311,9 @@ export function Sortable({
               ) : null}
             </DragOverlay>,
             document.body,
-          )
+            // React DOM's installed types resolve React 19; this remote runs
+            // React 18 and passes a React 18 element to the portal above.
+          ) as React.ReactPortal)
         : null}
     </DndContext>
   );

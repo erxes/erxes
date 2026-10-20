@@ -1,50 +1,20 @@
-import { MutationHookOptions, OperationVariables } from '@apollo/client';
+import type {
+  SalesPipelineDetailQuery,
+  SalesPipelineLabelsQuery,
+  SalesPipelinesQuery,
+} from '~/gql/graphql';
 
-import { IUser } from 'ui-modules';
-import type { PaymentConfigItem } from '@/payments';
-import { createPipelineFormSchema } from '../schemas/pipelineFormSchema';
 import type { z } from 'zod';
+import { createPipelineFormSchema } from '../schemas/pipelineFormSchema';
 
-export interface IPipeline {
-  _id: string;
-  name: string;
-  boardId: string;
-  tagId?: string;
-  visibility: string;
-  status: string;
-  createdAt: Date;
-  createdUser: IUser;
-  members?: IUser[];
-  departmentIds?: string[];
-  branchIds?: string[];
-  memberIds?: string[];
-  condition?: string;
-  label?: string;
-  bgColor?: string;
-  isWatched: boolean;
-  startDate?: Date;
-  endDate?: Date;
-  metric?: string;
-  hackScoringType?: string;
-  templateId?: string;
-  state?: string;
-  itemsTotalCount?: number;
-  isCheckDate?: boolean;
-  isCheckUser?: boolean;
-  isCheckDepartment?: boolean;
-  excludeCheckUserIds?: string[];
-  numberConfig?: string;
-  numberSize?: string;
-  nameConfig?: string;
-  initialCategoryIds: string[];
-  excludeCategoryIds: string[];
-  excludeProductIds: string[];
-
-  paymentIds?: string[];
-  paymentTypes?: PaymentConfigItem[];
-  propertyIds?: string[];
-  isPropertySelectionConfigured?: boolean | null;
-}
+export type IPipeline = NonNullable<
+  NonNullable<
+    NonNullable<SalesPipelinesQuery['salesPipelines']>['list']
+  >[number]
+>;
+export type IPipelineDetail = NonNullable<
+  SalesPipelineDetailQuery['salesPipelineDetail']
+>;
 
 export interface ISelectLabelContext {
   selectedLabels: IPipelineLabel[];
@@ -64,31 +34,11 @@ export type ISelectLabelProviderProps = {
   mode?: 'single' | 'multiple';
   labelIds?: string[];
   children?: React.ReactNode;
-  options?: (newSelectedLabelIds: string[]) => MutationHookOptions<
-    {
-      LabelsMain: {
-        totalCount: number;
-        list: IPipelineLabel[];
-      };
-    },
-    OperationVariables
-  >;
 };
 
-export interface IPipelineLabel {
-  _id?: string;
-  name: string;
-  colorCode: string;
-  pipelineId?: string;
-  createdBy?: string;
-  createdAt?: Date;
-}
-
-export interface IPipelineLabelVariables {
-  name: string;
-  colorCode: string;
-  pipelineId: string;
-}
+export type IPipelineLabel = NonNullable<
+  NonNullable<SalesPipelineLabelsQuery['salesPipelineLabels']>[number]
+>;
 
 export enum PipelineHotKeyScope {
   PipelineSettingsPage = 'pipeline-settings-page',
@@ -107,11 +57,4 @@ export interface ISelectPipelinesContext {
   loading: boolean;
   error: string | null;
   boardId?: string;
-}
-
-export interface PipelinesInlineProps {
-  pipelineIds?: string[];
-  pipelines?: IPipeline[];
-  placeholder?: string;
-  updatePipelines?: (pipelines: IPipeline[]) => void;
 }

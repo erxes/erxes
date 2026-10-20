@@ -1,5 +1,5 @@
+import type { DealProductData } from '@/deals/utils/dealJson';
 import { useCallback, useEffect, useState } from 'react';
-import { IProductData } from 'ui-modules';
 
 export type TotalByCurrency = Record<string, number>;
 export type AdjustmentByCurrency = Record<
@@ -9,9 +9,9 @@ export type AdjustmentByCurrency = Record<
 
 export const calculateProductValues = (
   type: string,
-  productData: IProductData,
+  productData: DealProductData,
 ) => {
-  const result: Partial<IProductData> = {};
+  const result: Partial<DealProductData> = {};
   const amount = (productData.unitPrice || 0) * (productData.quantity || 0);
 
   let discount = productData.discount || 0;
@@ -53,14 +53,14 @@ export const calculateProductValues = (
   return result;
 };
 
-export const useProductCalculations = (productsData: IProductData[]) => {
+export const useProductCalculations = (productsData: DealProductData[]) => {
   const [total, setTotal] = useState<TotalByCurrency>({});
   const [unUsedTotal, setUnUsedTotal] = useState<TotalByCurrency>({});
   const [bothTotal, setBothTotal] = useState<TotalByCurrency>({});
   const [tax, setTax] = useState<AdjustmentByCurrency>({});
   const [discount, setDiscount] = useState<AdjustmentByCurrency>({});
 
-  const updateTotal = useCallback((productsData: IProductData[]) => {
+  const updateTotal = useCallback((productsData: DealProductData[]) => {
     const total: TotalByCurrency = {};
     const unUsedTotal: TotalByCurrency = {};
     const bothTotal: TotalByCurrency = {};
@@ -94,7 +94,7 @@ export const useProductCalculations = (productsData: IProductData[]) => {
     });
 
     for (const currency of Object.keys(discount)) {
-      let clearTotal = total[currency] - tax[currency].value;
+      const clearTotal = total[currency] - tax[currency].value;
       tax[currency].percent =
         clearTotal > 0 ? (tax[currency].value * 100) / clearTotal : 0;
 
@@ -111,7 +111,7 @@ export const useProductCalculations = (productsData: IProductData[]) => {
 
   const calculatePerProductAmount = (
     type: string,
-    productData: IProductData,
+    productData: DealProductData,
     callUpdateTotal = true,
   ) => {
     const updates = calculateProductValues(type, productData);

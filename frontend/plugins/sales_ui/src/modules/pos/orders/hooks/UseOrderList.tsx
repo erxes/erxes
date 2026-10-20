@@ -1,24 +1,29 @@
-import { POS_ORDERS_QUERY } from '~/modules/pos/orders/graphql/queries/queries';
-import { useQuery } from '@apollo/client';
-import { useMemo, useCallback, useEffect } from 'react';
 import { IOrder } from '@/pos/types/order';
+import { hasId } from '@/pos/utils/posJson';
 import {
-  useMultiQueryState,
+  readPosCount,
+  toPosOrderRow,
+  readPosData,
+} from '@/pos/utils/posOrderJson';
+import { useQuery } from '@apollo/client';
+import {
   parseDateRangeFromString,
+  useMultiQueryState,
   useQueryState,
 } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
+import { useCallback, useEffect, useMemo } from 'react';
+import type { PosOrdersQueryVariables } from '~/gql/graphql';
+import { POS_ORDERS_QUERY } from '~/modules/pos/orders/graphql/queries/queries';
 import { posOrderTotalCountAtom } from '../states/usePosOrderCounts';
 
 const POS_PER_PAGE = 30;
 
-interface UseOrdersListOptions {
-  posId?: string;
-  [key: string]: unknown;
-}
+type UseOrdersListOptions = PosOrdersQueryVariables;
 
 interface UseOrdersListReturn {
   loading: boolean;
+  error?: Error;
   ordersList: IOrder[];
   totalCount: number;
   handleFetchMore: () => void;
@@ -98,17 +103,20 @@ export const useOrdersList = (
 ): UseOrdersListReturn => {
   const variables = useOrdersVariables(options);
   const setOrdersTotalCount = useSetAtom(posOrderTotalCountAtom);
-  const { data, loading, fetchMore } = useQuery(POS_ORDERS_QUERY, {
+  const { data, loading, error, fetchMore } = useQuery(POS_ORDERS_QUERY, {
     variables,
   });
 
-  const ordersList = useMemo<IOrder[]>(
-    () => data?.posOrders || [],
+  const parsed = useMemo(
+    () =>
+      readPosData(() =>
+        (data?.posOrders ?? []).filter(hasId).map(toPosOrderRow),
+      ),
     [data?.posOrders],
   );
-
+  const ordersList = parsed.value ?? [];
   const totalCount = useMemo(
-    () => data?.posOrdersTotalCount || 0,
+    () => readPosCount(data?.posOrdersTotalCount),
     [data?.posOrdersTotalCount],
   );
 
@@ -138,6 +146,7 @@ export const useOrdersList = (
 
   return {
     loading,
+    error: error ?? parsed.error,
     ordersList,
     totalCount,
     handleFetchMore,

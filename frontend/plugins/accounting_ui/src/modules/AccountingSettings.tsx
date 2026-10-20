@@ -2,9 +2,9 @@ import { Filter, Spinner } from 'erxes-ui';
 import { lazy, Suspense } from 'react';
 import { Navigate, Route, Routes } from 'react-router';
 import { SettingsHeader } from 'ui-modules';
-import { AccountSettingsBreadcrumb } from './settings/components/AccountSettingsBreadcrumb';
-import { AccountingTopbar } from './settings/components/AccountingTopbar';
-import { AccountingSidebar } from './settings/components/Sidebar';
+import { AccountSettingsBreadcrumb } from '@/settings/components/AccountSettingsBreadcrumb';
+import { AccountingTopbar } from '@/settings/components/AccountingTopbar';
+import { AccountingSidebar } from '@/settings/components/Sidebar';
 
 const AccountingMainConfig = lazy(() =>
   import('~/pages/SettingsPage').then((module) => ({
@@ -95,7 +95,7 @@ const AccountingSubSettings = () => {
               <AccountingTopbar />
             </div>
           </SettingsHeader>
-          <div className="flex flex-auto overflow-hidden">
+          <div className="flex flex-auto flex-col overflow-hidden">
             <Suspense
               fallback={
                 <div className="flex flex-auto justify-center items-center h-full w-full">
@@ -114,7 +114,7 @@ const AccountingSubSettings = () => {
                   path="/config/fixed-assets"
                   element={
                     <Navigate
-                      to="/settings/accounting/fixed-assets/assets"
+                      to="/accounting/settings/fixed-assets/assets"
                       replace
                     />
                   }
@@ -123,7 +123,7 @@ const AccountingSubSettings = () => {
                   path="/config/fixed-assets/categories"
                   element={
                     <Navigate
-                      to="/settings/accounting/fixed-assets/categories"
+                      to="/accounting/settings/fixed-assets/categories"
                       replace
                     />
                   }
@@ -132,7 +132,7 @@ const AccountingSubSettings = () => {
                   path="/config/fixed-assets/accounts-config"
                   element={
                     <Navigate
-                      to="/settings/accounting/fixed-assets/accounts-config"
+                      to="/accounting/settings/fixed-assets/accounts-config"
                       replace
                     />
                   }
@@ -141,7 +141,7 @@ const AccountingSubSettings = () => {
                   path="/config/fixed-assets/assets"
                   element={
                     <Navigate
-                      to="/settings/accounting/fixed-assets/assets"
+                      to="/accounting/settings/fixed-assets/assets"
                       replace
                     />
                   }
@@ -150,7 +150,7 @@ const AccountingSubSettings = () => {
                   path="/fixed-assets"
                   element={
                     <Navigate
-                      to="/settings/accounting/fixed-assets/assets"
+                      to="/accounting/settings/fixed-assets/assets"
                       replace
                     />
                   }

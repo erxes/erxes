@@ -1,5 +1,5 @@
-import { Button, Form, Spinner } from 'erxes-ui';
-import { UseFormReturn } from 'react-hook-form';
+import { Button, Form, Spinner, toast } from 'erxes-ui';
+import { FieldErrors, UseFormReturn } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { IPageFormData } from '../types/pageTypes';
 
@@ -16,6 +16,23 @@ export const PageHeaderActions = ({
 }: PageHeaderActionsProps) => {
   const { t } = useTranslation('content');
   const saving = getSaving();
+
+  // Without this, a failed validation on a field that has no visible message
+  // (status, thumbnail, custom fields) makes Save look like it does nothing.
+  const onInvalid = (errors: FieldErrors<IPageFormData>) => {
+    const firstError = Object.values(errors).find((error) => error?.message);
+    toast({
+      title: t('validation-error'),
+      description:
+        firstError?.message ||
+        t('page-fix-invalid-fields', {
+          defaultValue:
+            'Some fields are invalid. Review the page and try again.',
+        }),
+      variant: 'destructive',
+      duration: 5000,
+    });
+  };
 
   return (
     <div className="flex items-center gap-2">
@@ -51,7 +68,10 @@ export const PageHeaderActions = ({
           )}
         />
       </Form>
-      <Button onClick={() => form.handleSubmit(onSubmit)()} disabled={saving}>
+      <Button
+        onClick={() => form.handleSubmit(onSubmit, onInvalid)()}
+        disabled={saving}
+      >
         {saving ? (
           <>
             <Spinner size="sm" className="mr-2" />

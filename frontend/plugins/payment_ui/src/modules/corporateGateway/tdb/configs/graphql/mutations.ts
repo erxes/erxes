@@ -6,31 +6,30 @@ export const addConfig = gql`
     $name: String!
     $description: String
     $apiUrl: String!
-    $username: String!
-    $password: String!
+    $clientId: String!
+    $clientSecret: String!
     $testMode: Boolean
   ) {
     tdbConfigsAdd(
       name: $name
       description: $description
       apiUrl: $apiUrl
-      username: $username
-      password: $password
+      clientId: $clientId
+      clientSecret: $clientSecret
       testMode: $testMode
     ) {
       ${configFields}
     }
   }
 `;
-
 export const editConfig = gql`
   mutation tdbConfigsEdit(
     $_id: String!
     $name: String!
     $description: String
     $apiUrl: String!
-    $username: String!
-    $password: String!
+    $clientId: String!
+    $clientSecret: String!
     $testMode: Boolean
   ) {
     tdbConfigsEdit(
@@ -38,8 +37,8 @@ export const editConfig = gql`
       name: $name
       description: $description
       apiUrl: $apiUrl
-      username: $username
-      password: $password
+      clientId: $clientId
+      clientSecret: $clientSecret
       testMode: $testMode
     ) {
       ${configFields}

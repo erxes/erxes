@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const POS_ORDERS_BY_DEAL = gql`
+export const POS_ORDERS_BY_DEAL = gql(`
   query PosOrdersByDeal($dealId: String) {
     posOrders(dealId: $dealId) {
       _id
@@ -13,9 +13,9 @@ export const POS_ORDERS_BY_DEAL = gql`
       posName
     }
   }
-`;
+`);
 
-export const INVOICE_DETAIL_BY_CONTENT = gql`
+export const INVOICE_DETAIL_BY_CONTENT = gql(`
   query InvoiceDetailByContent($contentType: String!, $contentTypeId: String!) {
     invoiceDetailByContent(
       contentType: $contentType
@@ -30,4 +30,4 @@ export const INVOICE_DETAIL_BY_CONTENT = gql`
       }
     }
   }
-`;
+`);

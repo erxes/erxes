@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const POS_ORDER_RECORDS_QUERY = gql`
+export const POS_ORDER_RECORDS_QUERY = gql(`
   query PosOrderRecords(
     $page: Int
     $perPage: Int
@@ -119,8 +119,8 @@ export const POS_ORDER_RECORDS_QUERY = gql`
       brandId: $brandId
     )
   }
-`;
+`);
 
-export default {
+export const queries = {
   POS_ORDER_RECORDS_QUERY,
 };

@@ -9,11 +9,15 @@ import {
 } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
 import { useMemo } from 'react';
-import { ACCOUNTING_SETTINGS_CODES } from '../constants/settingsRoutes';
-import { accountingConfigDetailAtom } from '../states/accountingConfigState';
-import { IConfig } from '../types/Config';
-import { useAccountingConfigs } from '../hooks/useAccountingConfigs';
-import { EditAccountingConfig } from './EditAccountingConfig';
+import { useTranslation } from 'react-i18next';
+import { IconRefreshOff } from '@tabler/icons-react';
+import { AccountingEmptyState } from '@/layout/components/AccountingEmptyState';
+import { AddAccountingConfig } from '@/settings/syncSettings/AddAccountingConfig';
+import { ACCOUNTING_SETTINGS_CODES } from '@/settings/constants/settingsRoutes';
+import { accountingConfigDetailAtom } from '@/settings/states/accountingConfigState';
+import { IConfig } from '@/settings/types/Config';
+import { useAccountingConfigs } from '@/settings/hooks/useAccountingConfigs';
+import { EditAccountingConfig } from '@/settings/syncSettings/EditAccountingConfig';
 
 export const SyncInitialSkeleton = ({
   rows = 20,
@@ -103,8 +107,13 @@ export const SyncConfigTable = ({
   tableId?: string;
   showColumnSelector?: boolean;
 }) => {
-  const { configs, loading } = useAccountingConfigs({ variables: { code } });
+  const { t } = useTranslation('accounting');
+  const { configs, loading, error } = useAccountingConfigs({
+    variables: { code },
+  });
   const isInitialLoading = loading && !configs?.length;
+
+  const isEmpty = !loading && !configs?.length;
 
   return (
     <RecordTable.Provider
@@ -112,6 +121,7 @@ export const SyncConfigTable = ({
       data={isInitialLoading ? [] : configs || []}
       stickyColumns={stickyColumns}
       tableId={tableId}
+      className="relative"
     >
       <RecordTable>
         <RecordTable.Header showColumnSelector={showColumnSelector} />
@@ -123,6 +133,15 @@ export const SyncConfigTable = ({
         </RecordTable.Body>
       </RecordTable>
       <EditAccountingConfig code={code} />
+      {isEmpty && (
+        <AccountingEmptyState
+          overlay
+          error={error}
+          icon={IconRefreshOff}
+          description={t('empty-list-description')}
+          action={<AddAccountingConfig code={code} />}
+        />
+      )}
     </RecordTable.Provider>
   );
 };

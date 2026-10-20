@@ -3,6 +3,7 @@ import { AutomationBuilderNameInput } from '@/automations/components/builder/hea
 import { AutomationBuilderStatusSwitch } from '@/automations/components/builder/header/AutomationBuilderStatusSwitch';
 import { AutomationDuplicatedFromLink } from '@/automations/components/builder/header/AutomationDuplicatedFromLink';
 import { AutomationHeaderTabs } from '@/automations/components/builder/header/AutomationHeaderTabs';
+import { AutomationSwitcher } from '@/automations/components/builder/header/AutomationSwitcher';
 import { AutomationReturnLink } from '@/automations/components/builder/header/AutomationReturnLink';
 import { AutomationOwnerBadge } from '@/automations/components/builder/header/AutomationOwnerBadge';
 import { useAutomationHeader } from '@/automations/components/builder/hooks/useAutomationHeader';
@@ -60,6 +61,7 @@ export const AutomationBuilderHeader = () => {
               </Breadcrumb.Item>
             </Breadcrumb.List>
           </Breadcrumb>
+          <AutomationSwitcher />
           <AutomationDuplicatedFromLink />
           <AutomationReturnLink />
         </PageHeader.Start>

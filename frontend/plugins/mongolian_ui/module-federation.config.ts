@@ -17,7 +17,6 @@ const config: ModuleFederationConfig = {
   exposes: {
     './config': './src/config.tsx',
     './mongolian': './src/modules/MongolianMain.tsx',
-    './mongolianSettings': './src/modules/MongolianSettings.tsx',
     './widgets': './src/widgets/Widgets.tsx',
     './floatingWidget': './src/widgets/FloatingWidget.tsx',
   },

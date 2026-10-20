@@ -1,20 +1,14 @@
-import React, { useCallback, useMemo, useState } from 'react';
 import {
   Combobox,
   Command,
   PopoverScoped,
   TextOverflowTooltip,
 } from 'erxes-ui';
+import React, { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSalesStages } from './useSalesStages';
 
-interface Stage {
-  _id: string;
-  name: string;
-  order?: number;
-  pipelineId?: string;
-  itemsTotalCount?: number;
-}
+type Stage = ReturnType<typeof useSalesStages>['stages'][number];
 
 // SelectStage Context
 interface SelectStageContextType {
@@ -90,7 +84,9 @@ const SelectStageValue = ({ placeholder }: { placeholder?: string }) => {
   const { value, stages, loading } = useSelectStageContext();
 
   if (loading) {
-    return <span className="text-accent-foreground/80">{t('loading-stages')}</span>;
+    return (
+      <span className="text-accent-foreground/80">{t('loading-stages')}</span>
+    );
   }
 
   if (!stages || stages.length === 0 || !value) {

@@ -38,7 +38,7 @@ export const ChannelDetailBreadcrumb = ({
     return <Skeleton className="w-12 h-lh" />;
   }
   return (
-    <Link to={`/settings/frontline/channels/${channelId || id}`}>
+    <Link to={`/frontline/settings/channels/${channelId || id}`}>
       <Button variant="ghost">
         <IconComponent
           name={channel?.icon ?? undefined}

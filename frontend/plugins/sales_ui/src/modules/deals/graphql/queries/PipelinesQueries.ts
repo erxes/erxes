@@ -1,15 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const pipelineLabelFields = `
-  _id
-  name
-  colorCode
-  pipelineId
-  createdBy
-  createdAt
-`;
-
-export const GET_PIPELINE_DETAIL = gql`
+export const GET_PIPELINE_DETAIL = gql(`
   query SalesPipelineDetail($_id: String!) {
     salesPipelineDetail(_id: $_id) {
       _id
@@ -39,17 +30,22 @@ export const GET_PIPELINE_DETAIL = gql`
       isPropertySelectionConfigured
     }
   }
-`;
+`);
 
-export const GET_PIPELINE_LABELS = gql`
+export const GET_PIPELINE_LABELS = gql(`
   query SalesPipelineLabels($pipelineId: String, $pipelineIds: [String]) {
     salesPipelineLabels(pipelineId: $pipelineId, pipelineIds: $pipelineIds) {
-      ${pipelineLabelFields}
+      _id
+      name
+      colorCode
+      pipelineId
+      createdBy
+      createdAt
     }
   }
-`;
+`);
 
-export const GET_PIPELINE_ASSIGNED_USERS = gql`
+export const GET_PIPELINE_ASSIGNED_USERS = gql(`
   query SalesPipelineAssignedUsers($_id: String!) {
     salesPipelineAssignedUsers(_id: $_id) {
       _id
@@ -59,39 +55,40 @@ export const GET_PIPELINE_ASSIGNED_USERS = gql`
       }
     }
   }
-`;
+`);
 
-export const GET_PIPELINE_LABEL_DETAIL = gql`
+export const GET_PIPELINE_LABEL_DETAIL = gql(`
   query SalesPipelineLabelDetail($_id: String!) {
     salesPipelineLabelDetail(_id: $_id) {
-      ${pipelineLabelFields}
+      _id
+      name
+      colorCode
+      pipelineId
+      createdBy
+      createdAt
     }
   }
-`;
+`);
 
-const commonParams = `
-  $boardId: String, 
-  $isAll: Boolean, 
-  $limit: Int, 
-  $cursor: String, 
-  $cursorMode: CURSOR_MODE, 
-  $direction: CURSOR_DIRECTION, 
-  $orderBy: JSON
-`;
-
-const commonParamDefs = `
-  boardId: $boardId,
-  isAll: $isAll,
-  limit: $limit,
-  cursor: $cursor,
-  cursorMode: $cursorMode,
-  direction: $direction,
-  orderBy: $orderBy
-`;
-
-export const GET_PIPELINES = gql`
-  query SalesPipelines(${commonParams}) {
-    salesPipelines(${commonParamDefs}) {
+export const GET_PIPELINES = gql(`
+  query SalesPipelines(
+    $boardId: String
+    $isAll: Boolean
+    $limit: Int
+    $cursor: String
+    $cursorMode: CURSOR_MODE
+    $direction: CURSOR_DIRECTION
+    $orderBy: JSON
+  ) {
+    salesPipelines(
+      boardId: $boardId
+      isAll: $isAll
+      limit: $limit
+      cursor: $cursor
+      cursorMode: $cursorMode
+      direction: $direction
+      orderBy: $orderBy
+    ) {
       list {
         _id
         name
@@ -118,4 +115,4 @@ export const GET_PIPELINES = gql`
       totalCount
     }
   }
-`;
+`);

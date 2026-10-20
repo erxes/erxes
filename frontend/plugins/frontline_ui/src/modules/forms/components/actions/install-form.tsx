@@ -242,7 +242,7 @@ export function FormInstallScript({
               <Button>
                 <Link
                   target="_blank"
-                  to={`/settings/frontline/forms/form-preview?inPreview=true&formId=${formId}`}
+                  to={`/frontline/settings/forms/form-preview?inPreview=true&formId=${formId}`}
                 >
                   {t('preview-form', 'Preview Form')}
                 </Link>

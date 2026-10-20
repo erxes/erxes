@@ -3,6 +3,7 @@ import { toast } from 'erxes-ui';
 import {
   IAutomationsActionFolkConfig,
   TAutomationAction,
+  TAutomationOptionalConnect,
   TAutomationTrigger,
 } from 'ui-modules';
 
@@ -88,6 +89,42 @@ export const getConnectedPreviousActions = (
   }
 
   return actions.filter((action) => previousActionIds.has(action.id));
+};
+
+// Every action reachable from the start action, the start included.
+export const getConnectedNextActions = (
+  startActionId: string,
+  actions: TAutomationAction[],
+  actionFolks: Record<string, IAutomationsActionFolkConfig[]>,
+) => {
+  const actionsById = new Map(actions.map((action) => [action.id, action]));
+  const visited = new Set<string>();
+  const queue: string[] = [startActionId];
+
+  for (let index = 0; index < queue.length; index++) {
+    const currentId = queue[index];
+    const action = actionsById.get(currentId);
+
+    if (visited.has(currentId) || !action) {
+      continue;
+    }
+
+    visited.add(currentId);
+
+    const { nextActionId, type, config } = action;
+
+    queue.push(
+      ...[
+        nextActionId,
+        ...(actionFolks?.[type] || []).map((folk) => config?.[folk.key]),
+        ...(config?.optionalConnects || []).map(
+          (connect: TAutomationOptionalConnect) => connect.actionId,
+        ),
+      ].filter((id): id is string => typeof id === 'string' && !!id),
+    );
+  }
+
+  return actions.filter((action) => visited.has(action.id));
 };
 
 /**

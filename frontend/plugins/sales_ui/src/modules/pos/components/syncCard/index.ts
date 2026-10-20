@@ -1,1 +1,1 @@
-export { default as SyncCard } from './SyncCard';
+export { SyncCard } from './SyncCard';
