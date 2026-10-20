@@ -79,6 +79,7 @@
 - Pricing configuration, vendor pricing overrides, and insured objects are existing JSON API contracts, generated as `unknown`. Their payloads, extra keys and legacy string rates are preserved; `isRecord` (as in Operation) and `toPricingConfig`, built on it, narrow them where the UI reads them.
 - Vendor mutation documents select nested product regions. Keep these selections aligned with the API's populated responses; do not hide a response error by dropping region fields or coercing pricing JSON in the client.
 - The `InsuranceCustomer` operation selects the public `insuranceCustomer(id: ID!)` field. Preserve that field and its nullable result; customer list rows come from `insuranceCustomers` independently of the single-customer lookup.
+- `eslint.config.js` matches Operation's: `gql` from `@apollo/client` or `graphql-tag`, and type arguments on Apollo hooks or `subscribeToMore`, are lint errors.
 - `src/gql/` is generated, gitignored, and excluded from lint/document scanning. Do not edit generated files manually; JSON maps to `unknown` and Date outputs to `string`.
 - Keep `codegen` in both build and serve dependencies, and keep the build's `dependentTasksOutputFiles` input so a schema-only change invalidates the cached bundle. `codegen:watch` is a separate long-running target with no dependencies; the shared development launcher discovers both targets when Insurance is enabled.
 - Table callbacks that call hooks are named React components, rendered through `RecordTable`/TanStack `flexRender`. Keep translations reactive.
