@@ -1,3 +1,6 @@
+import { compactList } from '@/loyalties/utils/cursorList';
+import type { LoyaltyAccountTypeFieldsFragment } from '~/gql/graphql';
+
 export type TLoyaltyOwnerType = 'customer' | 'company' | 'user';
 
 export type TLoyaltyAccountTypeStatus = 'active' | 'archived';
@@ -8,59 +11,20 @@ export type TLoyaltyResetPeriod = 'never' | 'monthly' | 'yearly';
 
 export type TLoyaltyTierResetTo = 'keep' | 'none' | 'lowest';
 
-export interface ILoyaltyTier {
-  key: string;
-  name: string;
-  order: number;
-  deprecated?: boolean;
-}
-
-export interface ILoyaltyAccountTypeReset {
-  period: TLoyaltyResetPeriod;
-  tierTo?: TLoyaltyTierResetTo;
-}
-
 export type TLoyaltyExpiryMode = 'none' | 'calendar' | 'rolling';
-
-export interface ILoyaltyAccountTypeExpiry {
-  mode: TLoyaltyExpiryMode;
-  months?: number | null;
-}
 
 // Who may earn into the wallet.
 export type TLoyaltyEarnWho = 'all' | 'clientPortal' | 'segment';
 
-export interface ILoyaltyEarnEligibility {
-  who: TLoyaltyEarnWho;
-  segmentId?: string | null;
-}
+export type ILoyaltyAccountType = LoyaltyAccountTypeFieldsFragment;
 
-export interface ILoyaltyAccountType {
-  _id: string;
-  name: string;
-  ownerType: TLoyaltyOwnerType;
-  frozenBlocks?: TLoyaltyFrozenBlocks;
-  tiers?: ILoyaltyTier[] | null;
-  reset?: ILoyaltyAccountTypeReset | null;
-  expiry?: ILoyaltyAccountTypeExpiry | null;
-  pendingDays?: number | null;
-  currencyRatio?: number | null;
-  pointValue?: number | null;
-  earnEligibility?: ILoyaltyEarnEligibility | null;
-  fieldId?: string;
-  status: TLoyaltyAccountTypeStatus;
-  campaignCount?: number;
-  createdAt?: string;
-}
-
-export interface ILoyaltyAccountTypeAdoption {
-  adopted: { accountTypeId: string; name: string; campaigns: number }[];
-  skipped: { fieldId: string; reason: string }[];
-}
+export type ILoyaltyTier = NonNullable<
+  NonNullable<ILoyaltyAccountType['tiers']>[number]
+>;
 
 // Deprecated tiers stay on the account type for accounts still holding them.
-export const activeTiers = (tiers?: ILoyaltyTier[] | null) =>
-  (tiers || [])
+export const activeTiers = (tiers?: readonly (ILoyaltyTier | null)[] | null) =>
+  compactList(tiers)
     .filter(({ deprecated }) => !deprecated)
     .sort((a, b) => a.order - b.order);
 

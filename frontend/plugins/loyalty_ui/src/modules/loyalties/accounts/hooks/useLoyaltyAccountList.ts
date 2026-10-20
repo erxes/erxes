@@ -1,32 +1,22 @@
 import { useQuery } from '@apollo/client';
 import {
   EnumCursorDirection,
-  mergeCursorData,
   useRecordTableCursor,
   validateFetchMore,
 } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
 import { useCallback, useEffect, useMemo } from 'react';
+import {
+  compactList,
+  mergeCursorList,
+  toCursorPageInfo,
+} from '@/loyalties/utils/cursorList';
 import { LOYALTY_ACCOUNT_CURSOR_SESSION_KEY } from '../constants/accountList';
 import { LOYALTY_ACCOUNTS } from '../graphql';
 import { loyaltyAccountTotalCountAtom } from '../states/accountCounts';
-import { ILoyaltyAccount } from '../types';
 import { useLoyaltyAccountFilters } from './useLoyaltyAccountFilters';
 
 const ACCOUNTS_PER_PAGE = 50;
-
-type TLoyaltyAccountsResponse = {
-  loyaltyAccounts: {
-    list: ILoyaltyAccount[];
-    totalCount: number;
-    pageInfo: {
-      hasNextPage: boolean;
-      hasPreviousPage: boolean;
-      startCursor?: string | null;
-      endCursor?: string | null;
-    };
-  };
-};
 
 export const useLoyaltyAccountList = () => {
   const setTotalCount = useSetAtom(loyaltyAccountTotalCountAtom);
@@ -39,19 +29,16 @@ export const useLoyaltyAccountList = () => {
     sessionKey: LOYALTY_ACCOUNT_CURSOR_SESSION_KEY,
   });
 
-  const { data, loading, fetchMore } = useQuery<TLoyaltyAccountsResponse>(
-    LOYALTY_ACCOUNTS,
-    {
-      variables: { ...variables, cursor },
-      notifyOnNetworkStatusChange: true,
-    },
-  );
+  const { data, loading, fetchMore } = useQuery(LOYALTY_ACCOUNTS, {
+    variables: { ...variables, cursor },
+    notifyOnNetworkStatusChange: true,
+  });
 
   const list = useMemo(
-    () => data?.loyaltyAccounts?.list || [],
+    () => compactList(data?.loyaltyAccounts?.list),
     [data?.loyaltyAccounts?.list],
   );
-  const pageInfo = data?.loyaltyAccounts?.pageInfo;
+  const pageInfo = toCursorPageInfo(data?.loyaltyAccounts?.pageInfo);
   const totalCount = data?.loyaltyAccounts?.totalCount;
 
   const handleFetchMore = useCallback(
@@ -70,17 +57,18 @@ export const useLoyaltyAccountList = () => {
           direction,
         },
         updateQuery: (prev, { fetchMoreResult }) => {
-          if (!fetchMoreResult?.loyaltyAccounts) {
+          if (!fetchMoreResult.loyaltyAccounts || !prev.loyaltyAccounts) {
             return prev;
           }
 
           return {
+            ...prev,
             loyaltyAccounts: {
-              ...mergeCursorData({
+              ...mergeCursorList(
                 direction,
-                fetchMoreResult: fetchMoreResult.loyaltyAccounts,
-                prevResult: prev.loyaltyAccounts,
-              }),
+                prev.loyaltyAccounts,
+                fetchMoreResult.loyaltyAccounts,
+              ),
               totalCount:
                 fetchMoreResult.loyaltyAccounts.totalCount ??
                 prev.loyaltyAccounts.totalCount,

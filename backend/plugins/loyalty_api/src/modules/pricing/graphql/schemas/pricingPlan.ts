@@ -54,7 +54,7 @@ export const types = `
   }
 
   type PricingPlan {
-    _id: String,
+    _id: String!,
     name: String,
     status: String,
     type: String,

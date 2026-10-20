@@ -6,6 +6,7 @@ import { useTargetScoreLogs } from '../hooks/useTargetScoreLogs';
 import { LoyaltyTierLogItem } from '../../accounts/components/LoyaltyTierLogItem';
 import { useLoyaltyTierLogs } from '../../accounts/hooks/useLoyaltyTierLogs';
 import { getOwnerName } from './ScoreColumns';
+import { parseScoreOwner } from '../utils/parseScoreOwner';
 
 const formatChange = (change: number) =>
   `${change > 0 ? '+' : ''}${change.toLocaleString()}`;
@@ -83,7 +84,10 @@ export const ScoreTargetHistoryWidget = ({
                 </div>
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
                   <span className="truncate">
-                    {getOwnerName(log.owner, log.ownerType) || log.ownerId}
+                    {getOwnerName(
+                      parseScoreOwner(log.owner),
+                      log.ownerType ?? undefined,
+                    ) || log.ownerId}
                   </span>
                   <span>·</span>
                   <span>
@@ -92,7 +96,7 @@ export const ScoreTargetHistoryWidget = ({
                     })}
                   </span>
                   <span className="ml-auto shrink-0">
-                    <SafeRelativeDate value={log.createdAt} />
+                    <SafeRelativeDate value={log.createdAt ?? undefined} />
                   </span>
                 </div>
                 {log.description && (
@@ -114,7 +118,7 @@ export const ScoreTargetHistoryWidget = ({
                   log={log}
                   ownerName={
                     getOwnerName(
-                      log.owner || undefined,
+                      parseScoreOwner(log.owner),
                       log.ownerType || undefined,
                     ) ||
                     log.ownerId ||

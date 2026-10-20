@@ -1,5 +1,7 @@
 import * as queries from '~/modules/loyalties/lotteries/graphql/queries/queries';
 import { useQuery } from '@apollo/client';
+import { compactList } from '@/loyalties/utils/cursorList';
+import type { LotteriesMainQueryVariables } from '~/gql/graphql';
 import { useMemo, useCallback, useEffect } from 'react';
 import { ILottery } from '@/loyalties/lotteries/types/lottery';
 import { useMultiQueryState, useQueryState } from 'erxes-ui';
@@ -8,9 +10,7 @@ import { lotteryTotalCountAtom } from '../states/useLotteryCounts';
 
 const LOTTERY_PER_PAGE = 30;
 
-interface UseLotteriesListOptions {
-  [key: string]: string | number | boolean | string[] | undefined;
-}
+type UseLotteriesListOptions = Partial<LotteriesMainQueryVariables>;
 
 interface UseLotteriesListReturn {
   loading: boolean;
@@ -61,8 +61,8 @@ export const useLotteryList = (
     notifyOnNetworkStatusChange: true,
   });
 
-  const lotteriesList = useMemo<ILottery[]>(
-    () => data?.lotteriesMain?.list || [],
+  const lotteriesList = useMemo(
+    () => compactList(data?.lotteriesMain?.list),
     [data?.lotteriesMain?.list],
   );
 

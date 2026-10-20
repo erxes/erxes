@@ -1,5 +1,7 @@
 import { useQuery } from '@apollo/client';
 import { useMemo } from 'react';
+import { compactList } from '@/loyalties/utils/cursorList';
+import { isRecord } from '@/loyalties/utils/isRecord';
 import { useLoyaltyAccountTypes } from '../../../account-type/hooks/useLoyaltyAccountTypes';
 import { activeTiers } from '../../../account-type/types';
 import { SCORE_CAMPAIGN_AUTOMATIONS } from '../../graphql/queries/scoreCampaignAutomationsQuery';
@@ -8,18 +10,7 @@ import {
   SET_TIER_ACTION_TYPE,
 } from '../constants/campaignAutomations';
 
-type TActionConfig = {
-  campaignId?: string;
-  accountTypeId?: string;
-  tier?: string;
-};
-
-type TAutomationRecord = {
-  _id: string;
-  name?: string;
-  status?: string;
-  actions?: { type: string; config?: TActionConfig }[];
-};
+const actionConfig = (config: unknown) => (isRecord(config) ? config : {});
 
 export type TCampaignAutomation = {
   _id: string;
@@ -43,19 +34,16 @@ export const useScoreCampaignAutomations = ({
   const { accounts } = useLoyaltyAccountTypes({ status: 'active' });
   const accountType = accounts.find(({ _id }) => _id === accountTypeId);
 
-  const { data, loading } = useQuery<{ automations: TAutomationRecord[] }>(
-    SCORE_CAMPAIGN_AUTOMATIONS,
-    {
-      variables: {
-        actionTypes: [ADJUST_SCORE_ACTION_TYPE, SET_TIER_ACTION_TYPE],
-      },
-      // Automations are edited elsewhere; coming back must show the change.
-      fetchPolicy: 'cache-and-network',
+  const { data, loading } = useQuery(SCORE_CAMPAIGN_AUTOMATIONS, {
+    variables: {
+      actionTypes: [ADJUST_SCORE_ACTION_TYPE, SET_TIER_ACTION_TYPE],
     },
-  );
+    // Automations are edited elsewhere; coming back must show the change.
+    fetchPolicy: 'cache-and-network',
+  });
 
   const { pointAutomations, tierAutomations, hasTiers } = useMemo(() => {
-    const records = data?.automations || [];
+    const records = compactList(data?.automations);
     const tiers = [...activeTiers(accountType?.tiers)].reverse();
     const tierName = (key?: string) =>
       tiers.find((tier) => tier.key === key)?.name || key || '—';
@@ -68,43 +56,54 @@ export const useScoreCampaignAutomations = ({
       hasTiers: tiers.length > 0,
       pointAutomations: records
         .filter(({ actions }) =>
-          (actions || []).some(
+          compactList(actions).some(
             ({ type, config }) =>
               type === ADJUST_SCORE_ACTION_TYPE &&
-              config?.campaignId === campaignId,
+              actionConfig(config).campaignId === campaignId,
           ),
         )
-        .map(({ _id, name, status }) => ({ _id, name: name || _id, status })),
-      tierAutomations: records.flatMap(({ _id, name, status, actions }) => {
-        const keys = (actions || [])
-          .filter(
-            ({ type, config }) =>
-              type === SET_TIER_ACTION_TYPE &&
-              !!accountTypeId &&
-              config?.accountTypeId === accountTypeId,
-          )
-          .map(({ config }) => config?.tier);
+        .map(
+          ({ _id, name, status }): TCampaignAutomation => ({
+            _id,
+            name: name || _id,
+            status: status ?? undefined,
+          }),
+        ),
+      tierAutomations: records.flatMap(
+        ({ _id, name, status, actions }): TCampaignAutomation[] => {
+          const keys = compactList(actions)
+            .filter(
+              ({ type, config }) =>
+                type === SET_TIER_ACTION_TYPE &&
+                !!accountTypeId &&
+                actionConfig(config).accountTypeId === accountTypeId,
+            )
+            .map(({ config }) => {
+              const tier = actionConfig(config).tier;
+              return typeof tier === 'string' ? tier : undefined;
+            });
 
-        return keys.length
-          ? [
-              {
-                _id,
-                name: name || _id,
-                status,
-                tiers: [...new Set(keys)]
-                  .sort((a, b) => tierRank(a) - tierRank(b))
-                  .map(tierName),
-              },
-            ]
-          : [];
-      }),
+          return keys.length
+            ? [
+                {
+                  _id,
+                  name: name || _id,
+                  status: status ?? undefined,
+                  tiers: [...new Set(keys)]
+                    .sort((a, b) => tierRank(a) - tierRank(b))
+                    .map(tierName),
+                },
+              ]
+            : [];
+        },
+      ),
     };
   }, [accountType?.tiers, accountTypeId, campaignId, data]);
 
   return {
     loading: loading && !data,
-    pointAutomations: pointAutomations as TCampaignAutomation[],
-    tierAutomations: tierAutomations as TCampaignAutomation[],
+    pointAutomations,
+    tierAutomations,
     hasTiers,
     accountTypeName: accountType?.name,
   };

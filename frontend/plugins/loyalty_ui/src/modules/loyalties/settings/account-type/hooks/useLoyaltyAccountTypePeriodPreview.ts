@@ -2,29 +2,9 @@ import { useQuery } from '@apollo/client';
 import { format } from 'date-fns';
 import { Control, useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
+import { compactList } from '@/loyalties/utils/cursorList';
 import { LOYALTY_ACCOUNT_TYPE_PERIOD_PREVIEW } from '../graphql/loyaltyAccountTypeQueries';
 import { TLoyaltyAccountTypeFormValues } from './useLoyaltyAccountTypeForm';
-
-type TPeriodPreview = {
-  timeZone: string;
-  nextReset?: string | null;
-  noEarnFrom?: string | null;
-  earnedNowExpiresAt?: string | null;
-  pendingUntil?: string | null;
-  tierTo?: 'keep' | 'none' | 'lowest' | null;
-  impact?: {
-    accounts: number;
-    total: number;
-    sampled: boolean;
-    pointsCleared: number;
-    pointsKept: number;
-    tierChanges: {
-      from?: string | null;
-      to?: string | null;
-      accounts: number;
-    }[];
-  } | null;
-};
 
 const formatAt = (value?: string | null) =>
   value ? format(new Date(value), 'yyyy-MM-dd HH:mm') : '';
@@ -47,21 +27,23 @@ export const useLoyaltyAccountTypePeriodPreview = ({
   });
   const months = Number(expiry?.months) || undefined;
 
-  const { data, loading, error } = useQuery<{
-    loyaltyAccountTypePeriodPreview: TPeriodPreview;
-  }>(LOYALTY_ACCOUNT_TYPE_PERIOD_PREVIEW, {
-    variables: {
-      _id: accountTypeId,
-      expiry: { mode: expiry?.mode || 'none', months },
-      reset: { period: reset?.period || 'never', tierTo: reset?.tierTo },
-      pendingDays: Number(pendingDays) || 0,
+  const { data, loading, error } = useQuery(
+    LOYALTY_ACCOUNT_TYPE_PERIOD_PREVIEW,
+    {
+      variables: {
+        _id: accountTypeId,
+        expiry: { mode: expiry?.mode || 'none', months },
+        reset: { period: reset?.period || 'never', tierTo: reset?.tierTo },
+        pendingDays: Number(pendingDays) || 0,
+      },
+      // Rolling expiry is previewed only once it has a number of months.
+      skip: expiry?.mode === 'rolling' && !months,
+      fetchPolicy: 'cache-and-network',
     },
-    // Rolling expiry is previewed only once it has a number of months.
-    skip: expiry?.mode === 'rolling' && !months,
-    fetchPolicy: 'cache-and-network',
-  });
+  );
 
   const preview = data?.loyaltyAccountTypePeriodPreview;
+  const impact = preview?.impact;
   const tierName = (key?: string | null) =>
     key
       ? tiers?.find((tier) => tier.key === key)?.name || key
@@ -91,7 +73,7 @@ export const useLoyaltyAccountTypePeriodPreview = ({
   return {
     loading: loading && !preview,
     error: !preview ? error : undefined,
-    timeZone: preview?.timeZone,
+    timeZone: preview?.timeZone ?? undefined,
     expiryLine,
     pendingLine: preview?.pendingUntil
       ? t('period-preview-pending-until', {
@@ -101,7 +83,7 @@ export const useLoyaltyAccountTypePeriodPreview = ({
     nextResetLine: preview?.nextReset
       ? t('period-preview-next-reset', {
           at: formatAt(preview.nextReset),
-          timeZone: preview.timeZone,
+          timeZone: preview.timeZone ?? '',
         })
       : '',
     tierLine,
@@ -111,15 +93,19 @@ export const useLoyaltyAccountTypePeriodPreview = ({
           at: formatAt(preview.nextReset),
         })
       : '',
-    impact: preview?.impact
+    impact: impact
       ? {
-          ...preview.impact,
-          tierChanges: preview.impact.tierChanges.map(
+          accounts: impact.accounts ?? 0,
+          total: impact.total ?? 0,
+          sampled: !!impact.sampled,
+          pointsCleared: impact.pointsCleared ?? 0,
+          pointsKept: impact.pointsKept ?? 0,
+          tierChanges: compactList(impact.tierChanges).map(
             ({ from, to, accounts }) =>
               t('period-preview-tier-change', {
                 from: tierName(from),
                 to: tierName(to),
-                count: accounts,
+                count: accounts ?? 0,
               }),
           ),
         }

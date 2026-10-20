@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const QUERY_COUPON_CAMPAIGNS = gql`
+export const QUERY_COUPON_CAMPAIGNS = gql(`
   query GetCouponCampaigns(
     $searchValue: String
     $status: String
@@ -53,4 +53,4 @@ export const QUERY_COUPON_CAMPAIGNS = gql`
       totalCount
     }
   }
-`;
+`);

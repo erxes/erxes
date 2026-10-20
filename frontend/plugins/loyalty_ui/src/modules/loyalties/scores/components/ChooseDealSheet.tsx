@@ -12,19 +12,12 @@ import { useTranslation } from 'react-i18next';
 import { IconCheck, IconPlus, IconX } from '@tabler/icons-react';
 import { SelectBoard, SelectPipeline, SelectStage } from 'ui-modules';
 import { useDebounce } from 'use-debounce';
-import { useGetSalesDeals } from '../hooks/useGetSalesDeals';
-
-interface IDeal {
-  _id: string;
-  name: string;
-  number: string;
-  stageId: string;
-}
+import { TSalesDeal, useGetSalesDeals } from '../hooks/useGetSalesDeals';
 
 interface ChooseDealSheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSelect: (deal: IDeal) => void;
+  onSelect: (deal: TSalesDeal) => void;
   selectedDealId?: string;
 }
 
@@ -34,8 +27,8 @@ const DealsList = ({
   onConfirm,
 }: {
   selectedDealId: string;
-  onSelect: (deal: IDeal) => void;
-  onConfirm: (deal: IDeal) => void;
+  onSelect: (deal: TSalesDeal) => void;
+  onConfirm: (deal: TSalesDeal) => void;
 }) => {
   const { t } = useTranslation('loyalty');
   const [search, setSearch] = useState('');
@@ -164,7 +157,7 @@ const SelectedDeal = ({
   deal,
   onRemove,
 }: {
-  deal: IDeal | null;
+  deal: TSalesDeal | null;
   onRemove: () => void;
 }) => {
   const { t } = useTranslation('loyalty');
@@ -201,14 +194,14 @@ export const ChooseDealSheet = ({
   selectedDealId,
 }: ChooseDealSheetProps) => {
   const { t } = useTranslation('loyalty');
-  const [selectedDeal, setSelectedDeal] = useState<IDeal | null>(null);
+  const [selectedDeal, setSelectedDeal] = useState<TSalesDeal | null>(null);
 
   const handleOpenChange = (val: boolean) => {
     if (!val) setSelectedDeal(null);
     onOpenChange(val);
   };
 
-  const handleConfirm = (deal: IDeal) => {
+  const handleConfirm = (deal: TSalesDeal) => {
     onSelect(deal);
     onOpenChange(false);
   };

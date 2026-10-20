@@ -18,11 +18,14 @@ import {
 } from '../../constants/formSchema';
 import { useScoreDetailWithQuery } from '../hooks/useScoreDetailWithQuery';
 import { EditScoreForm } from './EditScoreForm';
+import { isRecord } from '@/loyalties/utils/isRecord';
 
-const parseIds = (value: string | string[] | undefined): string[] => {
-  if (!value) return [];
-  if (Array.isArray(value)) return value;
-  return value.split(',').filter(Boolean);
+const parseIds = (value: unknown): string[] => {
+  if (Array.isArray(value)) {
+    return value.filter((id): id is string => typeof id === 'string');
+  }
+
+  return typeof value === 'string' ? value.split(',').filter(Boolean) : [];
 };
 
 export const LoyaltyScoreEditSheet = () => {
@@ -58,13 +61,14 @@ export const LoyaltyScoreEditSheet = () => {
 
   useEffect(() => {
     if (scoreDetail && scoreDetail._id === editScoreId) {
-      const restrictions = scoreDetail.restrictions || {};
-      const additionalConfig = scoreDetail.additionalConfig || {};
+      const restrictions = isRecord(scoreDetail.restrictions)
+        ? scoreDetail.restrictions
+        : {};
 
       form.reset({
         title: scoreDetail.title || '',
         description: scoreDetail.description || '',
-        order: scoreDetail.order,
+        order: scoreDetail.order ?? undefined,
         conditions: {
           productCategoryIds: parseIds(restrictions.productCategoryIds),
           productIds: parseIds(restrictions.productIds),
@@ -76,7 +80,9 @@ export const LoyaltyScoreEditSheet = () => {
           excludeTagIds: parseIds(restrictions.excludeTagIds),
         },
         additionalConfig: {
-          discountCheck: additionalConfig.discountCheck ?? false,
+          discountCheck:
+            isRecord(scoreDetail.additionalConfig) &&
+            scoreDetail.additionalConfig.discountCheck === true,
         },
         add: fromAddInput(scoreDetail.add),
         subtract: fromSubtractInput(scoreDetail.subtract),

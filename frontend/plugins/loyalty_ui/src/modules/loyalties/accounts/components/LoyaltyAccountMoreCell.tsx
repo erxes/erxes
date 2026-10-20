@@ -9,14 +9,14 @@ import { Combobox, Command, Popover, RecordTable } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useLoyaltyAccountPermissions } from '../hooks/useLoyaltyAccountPermissions';
 import { useLoyaltyAccountRowActions } from '../hooks/useLoyaltyAccountRowActions';
-import { ILoyaltyAccount } from '../types';
+import { ILoyaltyAccountRow } from '../types';
 import { FreezeAccountDialog } from './FreezeAccountDialog';
 import { LoyaltyTierHistoryDialog } from './LoyaltyTierHistoryDialog';
 
 export const LoyaltyAccountMoreCell = ({
   account,
 }: {
-  account: ILoyaltyAccount;
+  account: ILoyaltyAccountRow;
 }) => {
   const { t } = useTranslation('loyalty');
   const {

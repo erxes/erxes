@@ -1,3 +1,4 @@
+import { compactList } from '@/loyalties/utils/cursorList';
 import { type ReactNode } from 'react';
 import { Form, Label, Separator } from 'erxes-ui';
 import {
@@ -73,27 +74,27 @@ export const CUSTOMER_BROKER_DEFAULTS: CustomerBrokerFormValues = {
 export const customerBrokerFromDetail = (
   detail: IPricingPlanDetail,
 ): CustomerBrokerFormValues => ({
-  customerIds: detail.customerIds || [],
-  customerTags: detail.customerTags || [],
-  customerExcludeTags: detail.customerExcludeTags || [],
+  customerIds: compactList(detail.customerIds),
+  customerTags: compactList(detail.customerTags),
+  customerExcludeTags: compactList(detail.customerExcludeTags),
   customerSegmentId: detail.customerSegmentIds?.[0] || null,
-  companyIds: detail.companyIds || [],
-  companyTags: detail.companyTags || [],
-  companyExcludeTags: detail.companyExcludeTags || [],
+  companyIds: compactList(detail.companyIds),
+  companyTags: compactList(detail.companyTags),
+  companyExcludeTags: compactList(detail.companyExcludeTags),
   companySegmentId: detail.companySegmentIds?.[0] || null,
-  userIds: detail.userIds || [],
-  userPositions: detail.userPositions || [],
+  userIds: compactList(detail.userIds),
+  userPositions: compactList(detail.userPositions),
   userSegmentId: detail.userSegmentIds?.[0] || null,
-  brokerCustomerIds: detail.brokerCustomerIds || [],
-  brokerCustomerTags: detail.brokerCustomerTags || [],
-  brokerCustomerExcludeTags: detail.brokerCustomerExcludeTags || [],
+  brokerCustomerIds: compactList(detail.brokerCustomerIds),
+  brokerCustomerTags: compactList(detail.brokerCustomerTags),
+  brokerCustomerExcludeTags: compactList(detail.brokerCustomerExcludeTags),
   brokerCustomerSegmentId: detail.brokerCustomerSegmentIds?.[0] || null,
-  brokerCompanyIds: detail.brokerCompanyIds || [],
-  brokerCompanyTags: detail.brokerCompanyTags || [],
-  brokerCompanyExcludeTags: detail.brokerCompanyExcludeTags || [],
+  brokerCompanyIds: compactList(detail.brokerCompanyIds),
+  brokerCompanyTags: compactList(detail.brokerCompanyTags),
+  brokerCompanyExcludeTags: compactList(detail.brokerCompanyExcludeTags),
   brokerCompanySegmentId: detail.brokerCompanySegmentIds?.[0] || null,
-  brokerUserIds: detail.brokerUserIds || [],
-  brokerUserPositions: detail.brokerUserPositions || [],
+  brokerUserIds: compactList(detail.brokerUserIds),
+  brokerUserPositions: compactList(detail.brokerUserPositions),
   brokerUserSegmentId: detail.brokerUserSegmentIds?.[0] || null,
 });
 

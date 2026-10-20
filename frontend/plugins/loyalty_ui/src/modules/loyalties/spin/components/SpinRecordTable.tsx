@@ -8,11 +8,9 @@ import { IconShoppingCartX } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { SpinCommandBar } from './SpinCommandBar';
 
-export const SpinRecordTable = ({ posId }: { posId?: string }) => {
+export const SpinRecordTable = () => {
   const { t } = useTranslation('loyalty');
-  const { spinsList, handleFetchMore, loading, pageInfo } = useSpinList({
-    posId,
-  });
+  const { spinsList, handleFetchMore, loading, pageInfo } = useSpinList();
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
 
   const allColumns = [...firstSpinColumns(t), ...secondSpinColumns(t)];

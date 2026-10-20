@@ -27,7 +27,7 @@ export const SpinTabs = ({ onOpenChange, form }: Props) => {
       return date;
     };
 
-    const variables: any = {
+    const variables = {
       title: data.title || '',
       status: data.status || 'active',
       startDate: formatDate(data.startDate),

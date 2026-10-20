@@ -20,6 +20,8 @@ import {
 import { IconTag } from '@tabler/icons-react';
 import { useQuery } from '@apollo/client';
 import { useTranslation } from 'react-i18next';
+import { compactList } from '@/loyalties/utils/cursorList';
+import type { SegmentsQuery } from '~/gql/graphql';
 import { GET_SEGMENT } from '../../../graphql/queries/getSegmentQuery';
 import {
   SelectContent,
@@ -27,19 +29,7 @@ import {
   SelectTriggerVariantType,
 } from './SelectShared';
 
-interface ISegment {
-  _id: string;
-  name: string;
-  description?: string;
-  contentType: string;
-  color?: string;
-  conditions?: any;
-  conditionsConjunction?: string;
-  shouldWriteActivityLog?: boolean;
-  subSegmentConditions?: any[];
-  config?: any;
-  count?: number;
-}
+type ISegment = NonNullable<NonNullable<SegmentsQuery['segments']>[number]>;
 
 interface SelectSegmentContextType {
   value: string;
@@ -78,11 +68,10 @@ export const SelectSegmentProvider = ({
   const { data, loading } = useQuery(GET_SEGMENT, {
     variables: {
       contentTypes: contentTypes || ['loyalty'],
-      limit: 100,
     },
   });
 
-  const segments = useMemo(() => data?.segments || [], [data?.segments]);
+  const segments = useMemo(() => compactList(data?.segments), [data?.segments]);
 
   const handleValueChange = useCallback(
     (segment: string) => {
@@ -190,7 +179,9 @@ const SelectSegmentContent = () => {
         <Command.Input placeholder={t('search-segments')} />
         <Command.List>
           <div className="flex items-center justify-center py-4 h-32">
-            <span className="text-muted-foreground">{t('loading-segments')}</span>
+            <span className="text-muted-foreground">
+              {t('loading-segments')}
+            </span>
           </div>
         </Command.List>
       </Command>

@@ -2,11 +2,8 @@ import { useQuery } from '@apollo/client';
 import { useEffect, useMemo } from 'react';
 import { UseFormReturn, useWatch } from 'react-hook-form';
 import { QUERY_SCORE_CAMPAIGN_DETAIL } from '~/modules/loyalties/settings/score/graphql/queries/getScoreCampaignDetailQuery';
-import { IEarnTableInput } from '~/modules/loyalties/settings/score/types/earnTable';
+import { parseEarnTable } from '~/modules/loyalties/settings/score/utils/earnTableForm';
 import { TAdjustScoreActionConfigForm } from '../states/adjustScoreActionConfigFormDefinitions';
-
-type TEarnRow = Required<Pick<IEarnTableInput['rows'][number], 'key'>> &
-  Pick<IEarnTableInput['rows'][number], 'name' | 'kind'>;
 
 // The rows of the chosen campaign's earning table. An automation without a
 // choice yet starts with every row the campaign has now, so rows added to the
@@ -18,14 +15,15 @@ export const useCampaignEarnRows = (
     control: form.control,
     name: ['campaignId', 'earnRowKeys'],
   });
-  const { data, loading } = useQuery<{
-    scoreCampaign?: { add?: { table?: { rows?: TEarnRow[] } } };
-  }>(QUERY_SCORE_CAMPAIGN_DETAIL, {
-    variables: { _id: campaignId },
+  const { data, loading } = useQuery(QUERY_SCORE_CAMPAIGN_DETAIL, {
+    variables: { _id: campaignId || '' },
     skip: !campaignId,
   });
   const rows = useMemo(
-    () => data?.scoreCampaign?.add?.table?.rows || [],
+    () =>
+      (parseEarnTable(data?.scoreCampaign?.add)?.rows ?? []).flatMap(
+        ({ key, name, kind }) => (key ? [{ key, name, kind }] : []),
+      ),
     [data],
   );
 

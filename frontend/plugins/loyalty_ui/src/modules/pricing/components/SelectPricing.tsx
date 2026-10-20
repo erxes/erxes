@@ -53,11 +53,11 @@ export const SelectPricing = ({
               <Command.Item
                 key={pricingPlan._id}
                 value={pricingPlan._id}
-                keywords={[pricingPlan.name]}
+                keywords={[pricingPlan.name || '']}
                 onSelect={() => handleSelect(pricingPlan._id)}
               >
                 <TextOverflowTooltip
-                  value={pricingPlan.name}
+                  value={pricingPlan.name || ''}
                   className="min-w-0 flex-1"
                 />
                 <Combobox.Check checked={pricingPlan._id === value} />

@@ -5,6 +5,7 @@ import { Form, Input, Select } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { VoucherFormValues } from '../../constants/voucherFormSchema';
 import { QUERY_SPIN_CAMPAIGNS } from '../../../spin/add-spin-campaign/graphql/queries/getCampaignsQuery';
+import { compactList } from '@/loyalties/utils/cursorList';
 
 interface AddVoucherSpinFormProps {
   form: UseFormReturn<VoucherFormValues>;
@@ -15,7 +16,7 @@ export const AddVoucherSpinForm: React.FC<AddVoucherSpinFormProps> = ({
 }) => {
   const { t } = useTranslation('loyalty');
   const { data: campaignsData } = useQuery(QUERY_SPIN_CAMPAIGNS);
-  const spinCampaigns = campaignsData?.spinCampaigns?.list || [];
+  const spinCampaigns = compactList(campaignsData?.spinCampaigns?.list);
 
   return (
     <div className="space-y-4 p-5">
@@ -31,11 +32,11 @@ export const AddVoucherSpinForm: React.FC<AddVoucherSpinFormProps> = ({
                   className={field.value ? '' : 'text-muted-foreground'}
                 >
                   {spinCampaigns.find(
-                    (campaign: any) => campaign._id === field.value,
+                    (campaign) => campaign._id === field.value,
                   )?.title || t('select-spin-campaign')}
                 </Select.Trigger>
                 <Select.Content>
-                  {spinCampaigns.map((campaign: any) => (
+                  {spinCampaigns.map((campaign) => (
                     <Select.Item key={campaign._id} value={campaign._id}>
                       {campaign.title}
                     </Select.Item>

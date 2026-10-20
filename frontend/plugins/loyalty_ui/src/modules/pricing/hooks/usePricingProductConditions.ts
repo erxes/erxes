@@ -1,16 +1,19 @@
 import { useQuery } from '@apollo/client';
+import { useMemo } from 'react';
+import { compactList } from '@/loyalties/utils/cursorList';
 import { PRICING_PRODUCT_CONDITIONS } from '@/pricing/graphql/queries';
+import type { PricingProductConditionsQuery } from '~/gql/graphql';
 
-export interface IPricingProductCondition {
-  _id: string;
-  code: string;
-  name: string;
-}
+export type IPricingProductCondition = NonNullable<
+  NonNullable<PricingProductConditionsQuery['productConditions']>[number]
+>;
 
 export const usePricingProductConditions = () => {
-  const { data, loading } = useQuery<{
-    productConditions: IPricingProductCondition[];
-  }>(PRICING_PRODUCT_CONDITIONS);
+  const { data, loading } = useQuery(PRICING_PRODUCT_CONDITIONS);
+  const conditions = useMemo(
+    () => compactList(data?.productConditions),
+    [data?.productConditions],
+  );
 
-  return { conditions: data?.productConditions || [], loading };
+  return { conditions, loading };
 };

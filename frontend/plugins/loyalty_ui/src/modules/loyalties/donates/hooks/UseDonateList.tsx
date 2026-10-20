@@ -1,5 +1,7 @@
 import * as queries from '~/modules/loyalties/donates/graphql/queries/queries';
 import { useQuery } from '@apollo/client';
+import { compactList } from '@/loyalties/utils/cursorList';
+import type { DonatesMainQueryVariables } from '~/gql/graphql';
 import { useMemo, useCallback, useEffect } from 'react';
 import { IDonate } from '../types/donate';
 import { useMultiQueryState, useQueryState } from 'erxes-ui';
@@ -8,9 +10,7 @@ import { donateTotalCountAtom } from '../states/useDonateCounts';
 
 const DONATE_PER_PAGE = 30;
 
-interface UseDonatesListOptions {
-  [key: string]: string | number | boolean | string[] | undefined;
-}
+type UseDonatesListOptions = Partial<DonatesMainQueryVariables>;
 
 interface UseDonatesListReturn {
   loading: boolean;
@@ -59,8 +59,8 @@ export const useDonateList = (
     notifyOnNetworkStatusChange: true,
   });
 
-  const donateList = useMemo<IDonate[]>(
-    () => data?.donatesMain?.list || [],
+  const donateList = useMemo(
+    () => compactList(data?.donatesMain?.list),
     [data?.donatesMain?.list],
   );
 

@@ -616,9 +616,10 @@ export const loadScoreCampaignClass = (
         }),
       );
 
-      const result = await models.ScoreCampaigns.updateOne(
+      const result = await models.ScoreCampaigns.findOneAndUpdate(
         { _id },
         { $set: { ...doc } },
+        { new: true },
       );
 
       sendDbEventLog?.({

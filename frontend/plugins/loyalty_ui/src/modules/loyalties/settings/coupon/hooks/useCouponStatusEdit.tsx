@@ -1,8 +1,17 @@
 import { MutationHookOptions, useMutation } from '@apollo/client';
 import { useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import type {
+  UpdateCouponCampaignMutation,
+  UpdateCouponCampaignMutationVariables,
+} from '~/gql/graphql';
 import { UPDATE_COUPON_CAMPAIGN } from '../graphql/mutations/couponEditStatusMutations';
 import { QUERY_COUPON_CAMPAIGNS } from '../graphql/queries/getCampaignsQuery';
+
+type StatusVariables = Pick<
+  UpdateCouponCampaignMutationVariables,
+  '_id' | 'status'
+>;
 
 export function useCouponStatusEdit() {
   const { t } = useTranslation('loyalty');
@@ -16,7 +25,15 @@ export function useCouponStatusEdit() {
     ],
   });
 
-  const editStatus = async (options: MutationHookOptions<any, any>) => {
+  const editStatus = async (
+    options: Omit<
+      MutationHookOptions<
+        UpdateCouponCampaignMutation,
+        UpdateCouponCampaignMutationVariables
+      >,
+      'variables'
+    > & { variables: StatusVariables },
+  ) => {
     const { variables } = options;
 
     return editCoupon({

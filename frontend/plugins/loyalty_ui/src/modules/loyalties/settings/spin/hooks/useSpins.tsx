@@ -1,30 +1,35 @@
 import { QueryHookOptions, useQuery } from '@apollo/client';
-
 import {
   EnumCursorDirection,
-  IRecordTableCursorPageInfo,
   isUndefinedOrNull,
-  mergeCursorData,
   useRecordTableCursor,
   validateFetchMore,
 } from 'erxes-ui';
+import { useMemo } from 'react';
+import {
+  compactList,
+  mergeCursorList,
+  toCursorPageInfo,
+} from '@/loyalties/utils/cursorList';
+import type {
+  GetSpinCampaignsQuery,
+  GetSpinCampaignsQueryVariables,
+} from '~/gql/graphql';
 import { QUERY_SPIN_CAMPAIGNS } from '../add-spin-campaign/graphql/queries/getCampaignsQuery';
 import { SPINS_CURSOR_SESSION_KEY } from '../constants/spinsCursorSessionKey';
-import { ISpin } from '../types/spinTypes';
 
 export const SPINS_PER_PAGE = 30;
 
-export const useSpins = (options?: QueryHookOptions) => {
+export const useSpins = (
+  options?: QueryHookOptions<
+    GetSpinCampaignsQuery,
+    GetSpinCampaignsQueryVariables
+  >,
+) => {
   const { cursor } = useRecordTableCursor({
     sessionKey: SPINS_CURSOR_SESSION_KEY,
   });
-  const { data, loading, fetchMore } = useQuery<{
-    spinCampaigns: {
-      list: ISpin[];
-      totalCount: number;
-      pageInfo: IRecordTableCursorPageInfo;
-    };
-  }>(QUERY_SPIN_CAMPAIGNS, {
+  const { data, loading, fetchMore } = useQuery(QUERY_SPIN_CAMPAIGNS, {
     ...options,
     skip: options?.skip || isUndefinedOrNull(cursor),
     variables: {
@@ -34,7 +39,12 @@ export const useSpins = (options?: QueryHookOptions) => {
     },
   });
 
-  const { list: spins, totalCount, pageInfo } = data?.spinCampaigns || {};
+  const spins = useMemo(
+    () => compactList(data?.spinCampaigns?.list),
+    [data?.spinCampaigns?.list],
+  );
+  const totalCount = data?.spinCampaigns?.totalCount ?? 0;
+  const pageInfo = toCursorPageInfo(data?.spinCampaigns?.pageInfo);
 
   const handleFetchMore = ({
     direction,
@@ -60,14 +70,18 @@ export const useSpins = (options?: QueryHookOptions) => {
         direction,
       },
       updateQuery: (prev, { fetchMoreResult }) => {
-        if (!fetchMoreResult) return prev;
-        return Object.assign({}, prev, {
-          spinCampaigns: mergeCursorData({
+        if (!fetchMoreResult.spinCampaigns || !prev.spinCampaigns) {
+          return prev;
+        }
+
+        return {
+          ...prev,
+          spinCampaigns: mergeCursorList(
             direction,
-            fetchMoreResult: fetchMoreResult.spinCampaigns,
-            prevResult: prev.spinCampaigns,
-          }),
-        });
+            prev.spinCampaigns,
+            fetchMoreResult.spinCampaigns,
+          ),
+        };
       },
     });
   };

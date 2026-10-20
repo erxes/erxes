@@ -1,7 +1,9 @@
+import { compactList } from '@/loyalties/utils/cursorList';
 import {
   PRICING_APPLIES_TO_OPTIONS,
   priorityFromFormValue,
   priorityToFormValue,
+  toPricingPriority,
 } from '@/pricing/constants';
 import { IPricingPlanDetail } from '@/pricing/types';
 import {
@@ -37,10 +39,12 @@ const GENERAL_PRICING_STATUSES: GeneralPricingStatus[] = [
   'completed',
 ];
 
-const getGeneralPricingStatus = (status: string): GeneralPricingStatus =>
+const getGeneralPricingStatus = (
+  status?: string | null,
+): GeneralPricingStatus =>
   GENERAL_PRICING_STATUSES.find((item) => item === status) || 'active';
 
-const getPricingAppliesTo = (applyType: string) =>
+const getPricingAppliesTo = (applyType?: string | null) =>
   PRICING_APPLIES_TO_OPTIONS.find(({ value }) => value === applyType)?.value ||
   'category';
 
@@ -52,7 +56,7 @@ export const getGeneralFormValues = (
 ): GeneralFormValues => ({
   name: pricingDetail.name || '',
   status: getGeneralPricingStatus(pricingDetail.status),
-  priority: priorityToFormValue(pricingDetail.priority),
+  priority: priorityToFormValue(toPricingPriority(pricingDetail.priority)),
   startDate:
     pricingDetail.isStartDateEnabled && pricingDetail.startDate
       ? pricingDetail.startDate.slice(0, 10)
@@ -62,15 +66,15 @@ export const getGeneralFormValues = (
       ? pricingDetail.endDate.slice(0, 10)
       : null,
   appliesTo: getPricingAppliesTo(pricingDetail.applyType),
-  productCategoryIds: pricingDetail.categories || [],
-  excludeCategoryIds: pricingDetail.categoriesExcluded || [],
-  excludeProductIds: pricingDetail.productsExcluded || [],
-  appliesProductIds: pricingDetail.products || [],
+  productCategoryIds: compactList(pricingDetail.categories),
+  excludeCategoryIds: compactList(pricingDetail.categoriesExcluded),
+  excludeProductIds: compactList(pricingDetail.productsExcluded),
+  appliesProductIds: compactList(pricingDetail.products),
   segmentId: pricingDetail.segments?.[0] || null,
-  vendorCompanyIds: pricingDetail.vendors || [],
-  productTagIds: pricingDetail.tags || [],
-  excludeTagIds: pricingDetail.tagsExcluded || [],
-  bundleProductIds: pricingDetail.productsBundle?.[0] || [],
+  vendorCompanyIds: compactList(pricingDetail.vendors),
+  productTagIds: compactList(pricingDetail.tags),
+  excludeTagIds: compactList(pricingDetail.tagsExcluded),
+  bundleProductIds: compactList(pricingDetail.productsBundle?.[0]),
 });
 
 export const getGeneralPricingDocument = (

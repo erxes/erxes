@@ -1,8 +1,6 @@
-import { gql } from '@apollo/client';
-import { LOYALTY_ACCOUNT_TYPE_FIELDS } from './loyaltyAccountTypeQueries';
+import { gql } from '~/gql';
 
-export const LOYALTY_ACCOUNT_TYPE_ADD = gql`
-  ${LOYALTY_ACCOUNT_TYPE_FIELDS}
+export const LOYALTY_ACCOUNT_TYPE_ADD = gql(`
   mutation LoyaltyAccountTypeAdd(
     $name: String!
     $ownerType: String!
@@ -30,10 +28,9 @@ export const LOYALTY_ACCOUNT_TYPE_ADD = gql`
       ...LoyaltyAccountTypeFields
     }
   }
-`;
+`);
 
-export const LOYALTY_ACCOUNT_TYPE_EDIT = gql`
-  ${LOYALTY_ACCOUNT_TYPE_FIELDS}
+export const LOYALTY_ACCOUNT_TYPE_EDIT = gql(`
   mutation LoyaltyAccountTypeEdit(
     $_id: String!
     $name: String!
@@ -61,27 +58,25 @@ export const LOYALTY_ACCOUNT_TYPE_EDIT = gql`
       ...LoyaltyAccountTypeFields
     }
   }
-`;
+`);
 
-export const LOYALTY_ACCOUNT_TYPE_ARCHIVE = gql`
-  ${LOYALTY_ACCOUNT_TYPE_FIELDS}
+export const LOYALTY_ACCOUNT_TYPE_ARCHIVE = gql(`
   mutation LoyaltyAccountTypeArchive($_id: String!) {
     loyaltyAccountTypeArchive(_id: $_id) {
       ...LoyaltyAccountTypeFields
     }
   }
-`;
+`);
 
-export const LOYALTY_ACCOUNT_TYPE_UNARCHIVE = gql`
-  ${LOYALTY_ACCOUNT_TYPE_FIELDS}
+export const LOYALTY_ACCOUNT_TYPE_UNARCHIVE = gql(`
   mutation LoyaltyAccountTypeUnarchive($_id: String!) {
     loyaltyAccountTypeUnarchive(_id: $_id) {
       ...LoyaltyAccountTypeFields
     }
   }
-`;
+`);
 
-export const LOYALTY_ACCOUNTS_ADOPT_CAMPAIGN_FIELDS = gql`
+export const LOYALTY_ACCOUNTS_ADOPT_CAMPAIGN_FIELDS = gql(`
   mutation LoyaltyAccountTypesAdoptCampaignFields {
     loyaltyAccountTypesAdoptCampaignFields {
       adopted {
@@ -95,4 +90,4 @@ export const LOYALTY_ACCOUNTS_ADOPT_CAMPAIGN_FIELDS = gql`
       }
     }
   }
-`;
+`);

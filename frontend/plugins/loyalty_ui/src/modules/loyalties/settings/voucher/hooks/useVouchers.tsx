@@ -1,29 +1,35 @@
 import { QueryHookOptions, useQuery } from '@apollo/client';
 import {
   EnumCursorDirection,
-  IRecordTableCursorPageInfo,
   isUndefinedOrNull,
-  mergeCursorData,
   useRecordTableCursor,
   validateFetchMore,
 } from 'erxes-ui';
+import { useMemo } from 'react';
+import {
+  compactList,
+  mergeCursorList,
+  toCursorPageInfo,
+} from '@/loyalties/utils/cursorList';
+import type {
+  VoucherCampaignsQuery,
+  VoucherCampaignsQueryVariables,
+} from '~/gql/graphql';
 import { VOUCHERS_CURSOR_SESSION_KEY } from '../constants/vouchersCursorSessionKey';
 import { QUERY_VOUCHER_CAMPAIGNS } from '../graphql/queries/getCampaignsQuery';
-import { IVoucher } from '../types/voucherTypes';
 
 export const VOUCHERS_PER_PAGE = 30;
 
-export const useVouchers = (options?: QueryHookOptions) => {
+export const useVouchers = (
+  options?: QueryHookOptions<
+    VoucherCampaignsQuery,
+    VoucherCampaignsQueryVariables
+  >,
+) => {
   const { cursor } = useRecordTableCursor({
     sessionKey: VOUCHERS_CURSOR_SESSION_KEY,
   });
-  const { data, loading, fetchMore } = useQuery<{
-    voucherCampaigns: {
-      list: IVoucher[];
-      totalCount: number;
-      pageInfo: IRecordTableCursorPageInfo;
-    };
-  }>(QUERY_VOUCHER_CAMPAIGNS, {
+  const { data, loading, fetchMore } = useQuery(QUERY_VOUCHER_CAMPAIGNS, {
     ...options,
     skip: options?.skip || isUndefinedOrNull(cursor),
     variables: {
@@ -33,7 +39,12 @@ export const useVouchers = (options?: QueryHookOptions) => {
     },
   });
 
-  const { list: vouchers, totalCount, pageInfo } = data?.voucherCampaigns || {};
+  const vouchers = useMemo(
+    () => compactList(data?.voucherCampaigns?.list),
+    [data?.voucherCampaigns?.list],
+  );
+  const totalCount = data?.voucherCampaigns?.totalCount ?? 0;
+  const pageInfo = toCursorPageInfo(data?.voucherCampaigns?.pageInfo);
 
   const handleFetchMore = ({
     direction,
@@ -59,14 +70,18 @@ export const useVouchers = (options?: QueryHookOptions) => {
         direction,
       },
       updateQuery: (prev, { fetchMoreResult }) => {
-        if (!fetchMoreResult) return prev;
-        return Object.assign({}, prev, {
-          voucherCampaigns: mergeCursorData({
+        if (!fetchMoreResult.voucherCampaigns || !prev.voucherCampaigns) {
+          return prev;
+        }
+
+        return {
+          ...prev,
+          voucherCampaigns: mergeCursorList(
             direction,
-            fetchMoreResult: fetchMoreResult.voucherCampaigns,
-            prevResult: prev.voucherCampaigns,
-          }),
-        });
+            prev.voucherCampaigns,
+            fetchMoreResult.voucherCampaigns,
+          ),
+        };
       },
     });
   };

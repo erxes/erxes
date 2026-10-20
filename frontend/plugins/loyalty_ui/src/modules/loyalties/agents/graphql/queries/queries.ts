@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const AGENTS_QUERY = gql`
+export const AGENTS_QUERY = gql(`
   query AgentsMain(
     $page: Int
     $perPage: Int
@@ -38,35 +38,9 @@ export const AGENTS_QUERY = gql`
       totalCount
     }
   }
-`;
+`);
 
-export const AGENT_CUSTOMERS_QUERY = gql`
-  query AgentCustomers($limit: Int, $searchValue: String) {
-    customers(limit: $limit, searchValue: $searchValue) {
-      list {
-        _id
-        firstName
-        lastName
-        primaryEmail
-        primaryPhone
-      }
-    }
-  }
-`;
-
-export const AGENT_COMPANIES_QUERY = gql`
-  query AgentCompanies($limit: Int, $searchValue: String) {
-    companies(limit: $limit, searchValue: $searchValue) {
-      list {
-        _id
-        primaryName
-        names
-      }
-    }
-  }
-`;
-
-export const AGENT_PRODUCT_RULES_QUERY = gql`
+export const AGENT_PRODUCT_RULES_QUERY = gql(`
   query ProductRules {
     productRules {
       _id
@@ -148,4 +122,4 @@ export const AGENT_PRODUCT_RULES_QUERY = gql`
       }
     }
   }
-`;
+`);

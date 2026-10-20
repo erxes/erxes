@@ -1,6 +1,10 @@
 import { MutationHookOptions, useMutation } from '@apollo/client';
 import { useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import type {
+  UpdateLotteryCampaignMutation,
+  UpdateLotteryCampaignMutationVariables,
+} from '~/gql/graphql';
 import { QUERY_LOTTERY_CAMPAIGNS } from '../add-lottery-campaign/graphql/queries/getCampaignsQuery';
 import { UPDATE_LOTTERY_CAMPAIGN } from '../graphql/mutations/lotteryEditStatusMutations';
 
@@ -19,21 +23,14 @@ export function useEditLottery() {
     },
   );
 
-  const lotteryEdit = async (options: MutationHookOptions<any, any>) => {
-    const { variables } = options;
-
+  const lotteryEdit = async (
+    options: MutationHookOptions<
+      UpdateLotteryCampaignMutation,
+      UpdateLotteryCampaignMutationVariables
+    >,
+  ) => {
     return editLottery({
-      variables: {
-        _id: variables._id,
-        title: variables.title,
-        description: variables.description,
-        buyScore: variables.buyScore,
-        startDate: variables.startDate,
-        endDate: variables.endDate,
-        status: variables.status,
-        numberFormat: variables.numberFormat,
-        awards: variables.awards,
-      },
+      variables: options.variables,
       onCompleted: (data) => {
         toast({
           title: t('success'),

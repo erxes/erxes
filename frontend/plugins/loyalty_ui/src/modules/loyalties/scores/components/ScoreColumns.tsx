@@ -28,6 +28,9 @@ import { IScoreLog, IScoreOwner } from '../types/score';
 import { EarnCalcPopover } from './EarnCalcPopover';
 import { makeScoreMoreColumn } from './ScoreMoreColumn';
 import { scoreDetailRecordAtom } from '../states/scoreDetail';
+import { isRecord } from '@/loyalties/utils/isRecord';
+import { parseEarnBreakdown } from '../utils/parseEarnBreakdown';
+import { parseScoreOwner } from '../utils/parseScoreOwner';
 
 export const getOwnerName = (
   owner?: IScoreOwner,
@@ -73,7 +76,10 @@ const ACTION_VARIANTS: Record<
 const ScoreOwnerNameCell = ({ row }: { row: Row<IScoreLog> }) => {
   const setDetailRecord = useSetAtom(scoreDetailRecordAtom);
   const record = row.original;
-  const name = getOwnerName(record.owner, record.ownerType);
+  const name = getOwnerName(
+    parseScoreOwner(record.owner),
+    record.ownerType ?? undefined,
+  );
 
   return (
     <RecordTableInlineCell
@@ -140,7 +146,10 @@ export const scoreLogColumns = (
   },
   {
     id: 'dealNumber',
-    accessorFn: (row) => row.target?.number,
+    accessorFn: (row) =>
+      isRecord(row.target) && typeof row.target.number === 'string'
+        ? row.target.number
+        : undefined,
     header: () => (
       <RecordTable.InlineHead icon={IconHash} label={t('number')} />
     ),
@@ -258,7 +267,7 @@ export const scoreLogColumns = (
   {
     id: 'breakdown',
     accessorFn: (row) =>
-      (row.breakdown || [])
+      parseEarnBreakdown(row.breakdown)
         .map(({ name, points }) => `${name} ${formatScore(points)}`)
         .join(' · '),
     header: () => (
@@ -269,10 +278,11 @@ export const scoreLogColumns = (
     ),
     size: 220,
     cell: ({ cell, row }) => {
-      const { breakdown, change } = row.original;
+      const breakdown = parseEarnBreakdown(row.original.breakdown);
+      const { change } = row.original;
       const text = (cell.getValue() as string) || '';
 
-      if (!breakdown?.length) {
+      if (!breakdown.length) {
         return (
           <RecordTableInlineCell>
             <TextOverflowTooltip value={text} />

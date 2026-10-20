@@ -24,7 +24,7 @@ export const useSetTierActionResult = (action: IAutomationHistoryAction) => {
 
   const tierName = (key?: string | null) =>
     key
-      ? accountType?.tiers?.find((tier) => tier.key === key)?.name || key
+      ? accountType?.tiers?.find((tier) => tier?.key === key)?.name || key
       : t('loyalty-tier-none');
 
   const rows: unknown[] = Array.isArray(action.result?.result)

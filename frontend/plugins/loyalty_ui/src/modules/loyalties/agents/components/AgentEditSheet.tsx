@@ -3,7 +3,8 @@ import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { useEditAgent } from '../hooks/useEditAgent';
-import { IAgent } from '../types/agent';
+import { compactList } from '@/loyalties/utils/cursorList';
+import { IAgent, toAgentStatus } from '../types/agent';
 import { SelectAgentStatus } from './selects/SelectAgentStatus';
 import { SelectProductRules } from './selects/SelectProductRules';
 import { SelectCustomer } from 'ui-modules';
@@ -13,8 +14,8 @@ import { MonthPicker } from './selects/MonthPicker';
 const getAgentFormValues = (agent: IAgent) => ({
   number: agent.number || '',
   status: agent.status || 'draft',
-  customerIds: agent.customerIds || [],
-  companyIds: agent.companyIds || [],
+  customerIds: compactList(agent.customerIds),
+  companyIds: compactList(agent.companyIds),
   hasReturn: agent.hasReturn || false,
   prepaidPercent: agent.prepaidPercent ? String(agent.prepaidPercent) : '',
   discountPercent: agent.discountPercent ? String(agent.discountPercent) : '',
@@ -26,13 +27,13 @@ const getAgentFormValues = (agent: IAgent) => ({
   endMonth: agent.endMonth ? new Date(agent.endMonth) : undefined,
   startDay: agent.startDay ? new Date(agent.startDay) : undefined,
   endDay: agent.endDay ? new Date(agent.endDay) : undefined,
-  productRuleIds: agent.productRuleIds || [],
+  productRuleIds: compactList(agent.productRuleIds),
 });
 
 const buildAgentEditPayload = (agent: IAgent, values: AgentEditFormValues) => ({
   _id: agent._id,
   number: values.number,
-  status: values.status,
+  status: toAgentStatus(values.status),
   customerIds: values.customerIds.length > 0 ? values.customerIds : undefined,
   companyIds: values.companyIds.length > 0 ? values.companyIds : undefined,
   hasReturn: values.hasReturn,
@@ -104,9 +105,7 @@ export const AgentEditSheet = ({
 
   const onSubmit = async (values: AgentEditFormValues) => {
     try {
-      const result = await agentEdit(
-        buildAgentEditPayload(agent, values) as any,
-      );
+      const result = await agentEdit(buildAgentEditPayload(agent, values));
       if (result?.data) {
         onOpenChange(false);
       }

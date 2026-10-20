@@ -1,19 +1,19 @@
 import { useQuery } from '@apollo/client';
+import { useMemo } from 'react';
+import { compactList } from '@/loyalties/utils/cursorList';
 import { GET_BOARDS } from '@/pricing/graphql/queries';
+import type { SalesBoardsQuery } from '~/gql/graphql';
 
-export interface IBoard {
-  _id: string;
-  name: string;
-  pipelines?: {
-    _id: string;
-    name: string;
-  }[];
-}
+export type IBoard = NonNullable<
+  NonNullable<SalesBoardsQuery['salesBoards']>[number]
+>;
 
 export const useBoards = () => {
-  const { data, loading, error } = useQuery<{ salesBoards: IBoard[] }>(
-    GET_BOARDS,
+  const { data, loading, error } = useQuery(GET_BOARDS);
+  const boards = useMemo(
+    () => compactList(data?.salesBoards),
+    [data?.salesBoards],
   );
 
-  return { boards: data?.salesBoards, loading, error };
+  return { boards, loading, error };
 };

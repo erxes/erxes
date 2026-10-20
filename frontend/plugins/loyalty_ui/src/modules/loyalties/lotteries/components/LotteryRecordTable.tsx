@@ -8,11 +8,10 @@ import { useLotteryList } from '@/loyalties/lotteries/hooks/UseLotteryList';
 import { IconShoppingCartX } from '@tabler/icons-react';
 import { LotteryCommandBar } from './lottery-command-bar/LotteryCommandBar';
 
-export const LotteryRecordTable = ({ posId }: { posId?: string }) => {
+export const LotteryRecordTable = () => {
   const { t } = useTranslation('loyalty');
-  const { lotteriesList, handleFetchMore, loading, pageInfo } = useLotteryList({
-    posId,
-  });
+  const { lotteriesList, handleFetchMore, loading, pageInfo } =
+    useLotteryList();
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
 
   const allColumns = [...firstLotteryColumns(t), ...secondLotteryColumns(t)];

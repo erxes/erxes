@@ -1,27 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const VOUCHERS_ADD_MUTATION = gql`
-  mutation LoyaltyVouchersAdd(
-    $campaignId: String!
-    $ownerId: String!
-    $ownerType: String!
-    $status: String
-  ) {
-    vouchersAdd(
-      campaignId: $campaignId
-      ownerId: $ownerId
-      ownerType: $ownerType
-      status: $status
-    ) {
-      _id
-      campaignId
-      ownerType
-      status
-    }
-  }
-`;
-
-export const VOUCHERS_ADD_MANY_MUTATION = gql`
+export const VOUCHERS_ADD_MANY_MUTATION = gql(`
   mutation VouchersAddMany(
     $campaignId: String!
     $ownerType: String!
@@ -37,43 +16,43 @@ export const VOUCHERS_ADD_MANY_MUTATION = gql`
       status: $status
     )
   }
-`;
+`);
 
 // An issued voucher is only ever cancelled, marked used or extended.
-export const VOUCHER_CANCEL_MUTATION = gql`
+export const VOUCHER_CANCEL_MUTATION = gql(`
   mutation LoyaltyVoucherCancel($_id: String!, $reason: String!) {
     voucherCancel(_id: $_id, reason: $reason) {
       _id
       status
     }
   }
-`;
+`);
 
-export const VOUCHER_MARK_USED_MUTATION = gql`
+export const VOUCHER_MARK_USED_MUTATION = gql(`
   mutation LoyaltyVoucherMarkUsed($_id: String!, $note: String!) {
     voucherMarkUsed(_id: $_id, note: $note) {
       _id
       status
     }
   }
-`;
+`);
 
-export const VOUCHER_EXTEND_MUTATION = gql`
+export const VOUCHER_EXTEND_MUTATION = gql(`
   mutation LoyaltyVoucherExtend($_id: String!, $endDate: Date!) {
     voucherExtend(_id: $_id, endDate: $endDate) {
       _id
       expiresAt
     }
   }
-`;
+`);
 
-export const DELETE_VOUCHER_MUTATION = gql`
+export const DELETE_VOUCHER_MUTATION = gql(`
   mutation VouchersRemove($_ids: [String!]!) {
     vouchersRemove(_ids: $_ids)
   }
-`;
+`);
 
-export const DELETE_VOUCHERS_BY_FILTER_MUTATION = gql`
+export const DELETE_VOUCHERS_BY_FILTER_MUTATION = gql(`
   mutation VouchersRemoveByFilter(
     $campaignId: String
     $ownerId: String
@@ -93,4 +72,4 @@ export const DELETE_VOUCHERS_BY_FILTER_MUTATION = gql`
       searchValue: $searchValue
     )
   }
-`;
+`);

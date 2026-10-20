@@ -20,6 +20,7 @@ import {
   AssignmentFormValues,
 } from '../../constants/assignmentFormSchema';
 import { useAssignmentDetailWithQuery } from '../hooks/useAssignmentDetailWithQuery';
+import { compactList } from '@/loyalties/utils/cursorList';
 import { EditAssignmentTabs } from './EditAssignmentTabs';
 
 type Props = {
@@ -57,7 +58,7 @@ export const LoyaltyAssignmentEditSheet = ({ assignmentId }: Props) => {
           ? new Date(assignmentDetail.endDate)
           : undefined,
         voucherCampaignId: assignmentDetail?.voucherCampaignId || '',
-        segmentIds: assignmentDetail?.segmentIds || [],
+        segmentIds: compactList(assignmentDetail.segmentIds),
       });
     }
   }, [assignmentDetail, editAssignmentId, form]);

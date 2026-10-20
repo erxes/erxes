@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const QUERY_DONATE_CAMPAIGN = gql`
+export const QUERY_DONATE_CAMPAIGN = gql(`
   query GetDonateCampaign($id: String!) {
     donateCampaignDetail(_id: $id) {
       _id
@@ -26,4 +26,4 @@ export const QUERY_DONATE_CAMPAIGN = gql`
       donatesCount
     }
   }
-`;
+`);

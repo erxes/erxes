@@ -1,12 +1,6 @@
-export interface ISpinCampaign {
-  _id: string;
-  title?: string;
-  description?: string;
-  status?: string;
-  kind?: string;
-  startDate?: string;
-  endDate?: string;
-}
+import type { ISpin } from '@/loyalties/settings/spin/types/spinTypes';
+
+export type ISpinCampaign = Pick<ISpin, '_id' | 'title' | 'description'>;
 
 export interface SpinCampaignInlineProps {
   spinCampaignId?: string | string[];

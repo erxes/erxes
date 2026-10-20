@@ -1,7 +1,7 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const REMOVE_DONATE_CAMPAIGN = gql`
+export const REMOVE_DONATE_CAMPAIGN = gql(`
   mutation RemoveDonateCampaign($_ids: [String!]!) {
     donateCampaignsRemove(_ids: $_ids)
   }
-`;
+`);

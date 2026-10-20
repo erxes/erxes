@@ -126,8 +126,8 @@ export const secondLotteryColumns = (
     header: () => <RecordTable.InlineHead icon={IconUser} label={t('owner')} />,
     cell: ({ row }) => (
       <OwnerCell
-        ownerId={row.original.ownerId}
-        ownerType={row.original.ownerType}
+        ownerId={row.original.ownerId ?? undefined}
+        ownerType={row.original.ownerType ?? undefined}
       />
     ),
   },

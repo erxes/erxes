@@ -9,8 +9,8 @@ import { useTranslation } from 'react-i18next';
 import {
   VoucherCampaignInlineProps,
   IVoucherCampaign,
-} from '../types/voucherCampaignType';
-import { useVoucherCampaignInline } from '../hooks/useVoucherCampaignInline';
+} from '@/loyalties/settings/voucher/types/voucherCampaignType';
+import { useVoucherCampaignInline } from '@/loyalties/settings/voucher/hooks/useVoucherCampaignInline';
 import {
   VoucherCampaignInlineContext,
   useVoucherCampaignInlineContext,

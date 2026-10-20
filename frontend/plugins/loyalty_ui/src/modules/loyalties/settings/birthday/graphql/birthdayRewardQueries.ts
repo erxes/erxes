@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const LOYALTY_BIRTHDAY_VOUCHER_CAMPAIGN = gql`
+export const LOYALTY_BIRTHDAY_VOUCHER_CAMPAIGN = gql(`
   query LoyaltyBirthdayVoucherCampaign($_id: String!) {
     voucherCampaignDetail(_id: $_id) {
       _id
@@ -19,9 +19,9 @@ export const LOYALTY_BIRTHDAY_VOUCHER_CAMPAIGN = gql`
       }
     }
   }
-`;
+`);
 
-export const LOYALTY_BIRTHDAY_SEGMENTS = gql`
+export const LOYALTY_BIRTHDAY_SEGMENTS = gql(`
   query LoyaltyBirthdaySegments($contentTypes: [String]!) {
     segments(contentTypes: $contentTypes) {
       _id
@@ -30,9 +30,9 @@ export const LOYALTY_BIRTHDAY_SEGMENTS = gql`
       timeSensitive
     }
   }
-`;
+`);
 
-export const LOYALTY_BIRTHDAY_BROADCAST = gql`
+export const LOYALTY_BIRTHDAY_BROADCAST = gql(`
   query LoyaltyBirthdayBroadcast($_id: String) {
     engageMessageDetail(_id: $_id) {
       _id
@@ -44,9 +44,9 @@ export const LOYALTY_BIRTHDAY_BROADCAST = gql`
       }
     }
   }
-`;
+`);
 
-export const LOYALTY_BIRTHDAY_AUTOMATION = gql`
+export const LOYALTY_BIRTHDAY_AUTOMATION = gql(`
   query LoyaltyBirthdayAutomation($_id: String!) {
     automationDetail(_id: $_id) {
       _id
@@ -54,4 +54,4 @@ export const LOYALTY_BIRTHDAY_AUTOMATION = gql`
       status
     }
   }
-`;
+`);

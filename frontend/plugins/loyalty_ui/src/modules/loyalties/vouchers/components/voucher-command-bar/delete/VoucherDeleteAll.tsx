@@ -28,10 +28,10 @@ export const VoucherDeleteAll = ({ totalCount }: { totalCount: number }) => {
           variant: 'success',
           description: t('vouchers-deleted', { count: deleted }),
         });
-      } catch (e: any) {
+      } catch (e) {
         toast({
           title: t('error'),
-          description: e.message,
+          description: e instanceof Error ? e.message : undefined,
           variant: 'destructive',
         });
       }

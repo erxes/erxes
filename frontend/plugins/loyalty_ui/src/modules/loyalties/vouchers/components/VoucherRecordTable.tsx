@@ -4,11 +4,10 @@ import { useVouchersList } from '@/loyalties/vouchers/hooks/UseVoucherList';
 import { IconShoppingCartX } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 
-export const VoucherRecordTable = ({ posId }: { posId?: string }) => {
+export const VoucherRecordTable = () => {
   const { t } = useTranslation('loyalty');
-  const { vouchersList, handleFetchMore, loading, pageInfo } = useVouchersList({
-    posId,
-  });
+  const { vouchersList, handleFetchMore, loading, pageInfo } =
+    useVouchersList();
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
 
   const allColumns = voucherColumns(t);

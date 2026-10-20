@@ -3,12 +3,21 @@ import { IVoucher, TVoucherStatus } from '../types/voucher';
 
 const OPEN_STATUSES = ['new', 'onhold'];
 
+const VOUCHER_STATUSES: TVoucherStatus[] = [
+  'new',
+  'onhold',
+  'used',
+  'cancelled',
+  'expired',
+];
+
 /** The status a person reads: an open voucher past its end is expired. */
 export const voucherDisplayStatus = (
   voucher: Pick<IVoucher, 'status' | 'expiresAt'>,
   now = new Date(),
 ): TVoucherStatus => {
-  const status = (voucher.status || 'new') as TVoucherStatus;
+  const status =
+    VOUCHER_STATUSES.find((item) => item === voucher.status) ?? 'new';
 
   if (
     OPEN_STATUSES.includes(status) &&

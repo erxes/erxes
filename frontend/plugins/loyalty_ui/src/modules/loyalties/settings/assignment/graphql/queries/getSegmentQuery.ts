@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const GET_SEGMENT = gql`
+export const GET_SEGMENT = gql(`
   query Segments(
     $contentTypes: [String]!
     $excludeIds: [String]
@@ -20,4 +20,4 @@ export const GET_SEGMENT = gql`
       color
     }
   }
-`;
+`);

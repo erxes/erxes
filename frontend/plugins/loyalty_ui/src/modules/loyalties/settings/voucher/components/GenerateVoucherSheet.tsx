@@ -17,7 +17,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { VoucherHotKeyScope } from '../types/VoucherHotKeyScope';
 import { useGenerateVoucher } from '../hooks/useGenerateVoucher';
-import { useVoucherCampaign } from '../../assignment/hooks/useSelectVoucherCampaign';
+import { useVoucherCampaign } from '../hooks/useSelectVoucherCampaign';
 
 const generateVoucherSchema = z.object({
   campaignId: z.string().min(1, 'Voucher campaign is required'),

@@ -37,7 +37,7 @@ export const EditSpinTabs = ({ onOpenChange, form, spinId }: Props) => {
       return date;
     };
 
-    const variables: any = {
+    const variables = {
       _id: spinId,
       title: data.title || '',
       status: data.status || 'active',

@@ -1,8 +1,17 @@
 import { MutationHookOptions, useMutation } from '@apollo/client';
 import { useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { QUERY_LOTTERY_CAMPAIGNS } from '../add-lottery-campaign/graphql/queries/getCampaignsQuery';
+import type {
+  UpdateLotteryCampaignMutation,
+  UpdateLotteryCampaignMutationVariables,
+} from '~/gql/graphql';
 import { UPDATE_LOTTERY_CAMPAIGN } from '../graphql/mutations/lotteryEditStatusMutations';
+import { QUERY_LOTTERY_CAMPAIGNS } from '../add-lottery-campaign/graphql/queries/getCampaignsQuery';
+
+type StatusVariables = Pick<
+  UpdateLotteryCampaignMutationVariables,
+  '_id' | 'status'
+>;
 
 export function useLotteryStatusEdit() {
   const { t } = useTranslation('loyalty');
@@ -19,7 +28,15 @@ export function useLotteryStatusEdit() {
     },
   );
 
-  const editStatus = async (options: MutationHookOptions<any, any>) => {
+  const editStatus = async (
+    options: Omit<
+      MutationHookOptions<
+        UpdateLotteryCampaignMutation,
+        UpdateLotteryCampaignMutationVariables
+      >,
+      'variables'
+    > & { variables: StatusVariables },
+  ) => {
     const { variables } = options;
 
     return editLottery({

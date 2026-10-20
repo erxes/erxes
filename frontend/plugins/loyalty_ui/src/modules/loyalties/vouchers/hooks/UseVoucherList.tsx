@@ -6,12 +6,13 @@ import { useMultiQueryState, useQueryState } from 'erxes-ui';
 import { parseDateRangeFromString } from 'erxes-ui/modules/filter/date-filter/utils/parseDateRangeFromString';
 import { useSetAtom } from 'jotai';
 import { voucherTotalCountAtom } from '../states/useVoucherCounts';
+import { compactList } from '@/loyalties/utils/cursorList';
+import { toVoucher } from '../utils/parseVoucher';
+import type { VouchersMainQueryVariables } from '~/gql/graphql';
 
 const VOUCHER_PER_PAGE = 30;
 
-interface UseVouchersListOptions {
-  [key: string]: string | number | boolean | string[] | undefined;
-}
+type UseVouchersListOptions = Partial<VouchersMainQueryVariables>;
 
 interface UseVouchersListReturn {
   loading: boolean;
@@ -93,8 +94,8 @@ export const useVouchersList = (
     variables,
   });
 
-  const vouchersList = useMemo<IVoucher[]>(
-    () => data?.vouchersMain?.list || [],
+  const vouchersList = useMemo(
+    () => compactList(data?.vouchersMain?.list).map(toVoucher),
     [data?.vouchersMain?.list],
   );
 

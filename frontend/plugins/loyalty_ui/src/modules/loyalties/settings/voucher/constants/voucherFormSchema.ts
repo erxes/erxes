@@ -8,7 +8,7 @@ const voucherFormFields = z.object({
   title: z.string().min(1, 'Title is required'),
   buyScore: z.string().min(1, 'Buy score must be positive'),
   type: z.string().default('product discount'),
-  kind: z.string().default('amount'),
+  kind: z.enum(['amount', 'percent']).default('amount'),
   value: z.number().min(0, 'Value must be positive'),
   description: z.string().optional(),
   status: z.string().optional(),
