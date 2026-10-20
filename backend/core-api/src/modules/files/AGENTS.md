@@ -52,11 +52,16 @@ previews).
 - Batch operations check every item before changing any.
 - Bytes never pass through this service: uploads and downloads are presigned.
 - Production MongoDB is 4.4: no 5.0+ operators in queries or pipelines.
+- Product `files` hold public share URLs (`/files/s/:token`), not file ids:
+  POS and websites read them without login. Revoking the link or purging the
+  file breaks them there; replacing a version does not.
 
 ## Validation
 
 - `NODE_OPTIONS=--max-old-space-size=8192 pnpm nx build core-api`
 - `npx eslint backend/core-api/src/modules/files`
-- core-api has no jest target yet; access logic is not unit-tested here.
+- `pnpm nx test core-api` — `utils/__tests__/` covers access rules (grants,
+  role merge, `assertRole` NOT_FOUND/FORBIDDEN, admin read-only) and the share
+  page (name escaping, mn/en); Redis, queue and `canGroup` are mocked.
 - Smoke: an "Only me" folder is invisible to a second user; a department
   share shows under that user's Shared with me; a viewer cannot open Share.

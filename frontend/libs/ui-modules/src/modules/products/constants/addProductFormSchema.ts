@@ -1,6 +1,13 @@
 import * as z from 'zod';
 import { PRODUCT_DURATION_TYPE_VALUES } from './productTypes';
 
+const productFileSchema = z.object({
+  url: z.string(),
+  name: z.string(),
+  type: z.string(),
+  size: z.number(),
+});
+
 export const PRODUCT_FORM_SCHEMA = z
   .object({
     name: z
@@ -38,6 +45,7 @@ export const PRODUCT_FORM_SCHEMA = z
     attachment: z.any().optional(),
     attachmentMore: z.any().optional(),
     videos: z.any().optional(),
+    files: z.array(productFileSchema).optional(),
     // pdfAttachment: z
     //   .object({
     //     name: z.string().optional(),
@@ -87,6 +95,7 @@ export const EMPTY_PRODUCT_FORM_VALUES: ProductFormSchemaType = {
   attachment: undefined,
   attachmentMore: undefined,
   videos: undefined,
+  files: [],
   description: '',
   subUoms: [],
   barcodes: [],

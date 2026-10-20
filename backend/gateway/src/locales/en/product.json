@@ -112,7 +112,8 @@
     "rule-start-paid-date": "Start From Paid Date",
     "rule-start-expired-date": "Start from Expired Date",
     "rule-start-specific-date": "Start from Specific Date",
-    "general": "General"
+    "general": "General",
+    "files": "Files"
   },
   "detail": {
     "duration": "Duration",
@@ -197,7 +198,8 @@
     "weight": "Weight",
     "product-detail": "Product detail",
     "none": "None",
-    "conditions": "Conditions"
+    "conditions": "Conditions",
+    "files": "Files"
   },
   "general-config-form": {
     "general-settings": "General settings",
@@ -596,5 +598,13 @@
   "condition-removed-from": "Condition removed from {{count}} products",
   "category-conditions": "Conditions",
   "category-conditions-description": "Every product in this category and its subcategories is changed now. Products added later are not changed.",
-  "create-condition": "Create condition"
+  "create-condition": "Create condition",
+  "files": {
+    "add": "Add from Files",
+    "remove": "Remove file",
+    "pick-title": "Choose files for this product",
+    "public-hint": "Added files get a public link so POS and websites can show them. Only files you manage can be added.",
+    "add-failed": "Could not add the file",
+    "limit": "Up to {{count}} files can be added"
+  }
 }

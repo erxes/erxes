@@ -28,6 +28,9 @@ me (`/files/shared`), Trash (`/files/trash`). Backend rules live in
 - Bulk share only adds grants; it never replaces an item's list.
 - Pins are capped at 10 (`constants/filesLimits.ts`, mirrors the server).
 - Internal drags use dnd-kit pointer events; OS file drops stay HTML5 for upload.
+- Product forms attach through `ProductFilesUpload` (ui-modules products):
+  the picker offers only files the user manages, since each one gets a public
+  share link stored on the product.
 - Public link URLs are built client-side from `REACT_APP_API_URL`
   (`filesShareUrl`), like read-file links.
 - After any mutation refetch the affected `Files*` queries; lists show

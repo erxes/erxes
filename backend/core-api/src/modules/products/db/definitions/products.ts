@@ -59,6 +59,8 @@ export const productSchema = schemaWrapper(
       attachment: { type: attachmentSchema },
       attachmentMore: { type: [attachmentSchema] },
       videos: { type: [attachmentSchema], label: 'Videos' },
+      // Public share links of files picked from Files.
+      files: { type: [attachmentSchema], optional: true, label: 'Files' },
       status: {
         type: String,
         enum: PRODUCT_STATUSES.ALL,
