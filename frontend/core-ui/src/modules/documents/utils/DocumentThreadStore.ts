@@ -92,8 +92,8 @@ const createDocumentThreadStoreAuth = (userId: string): ThreadStore['auth'] => {
 
 export class DocumentThreadStore extends ThreadStore {
   readonly addThreadToDocument = undefined;
+  private storedThreads = new Map<string, ThreadData>();
   private threads = new Map<string, ThreadData>();
-  private activeThreads = new Map<string, ThreadData>();
   private readonly listeners = new Set<
     (threads: Map<string, ThreadData>) => void
   >();
@@ -103,19 +103,19 @@ export class DocumentThreadStore extends ThreadStore {
   }
 
   load(threads: ThreadData[]): void {
-    this.threads = new Map(threads.map((thread) => [thread.id, thread]));
+    this.storedThreads = new Map(threads.map((thread) => [thread.id, thread]));
     this.emit();
   }
 
   private emit(): void {
-    this.activeThreads = new Map(
-      [...this.threads].filter(([, thread]) => !thread.deletedAt),
+    this.threads = new Map(
+      [...this.storedThreads].filter(([, thread]) => !thread.deletedAt),
     );
-    this.listeners.forEach((listener) => listener(this.activeThreads));
+    this.listeners.forEach((listener) => listener(this.threads));
   }
 
   private commit(thread: ThreadData): void {
-    this.threads = new Map(this.threads).set(thread.id, {
+    this.storedThreads = new Map(this.storedThreads).set(thread.id, {
       ...thread,
       updatedAt: new Date(),
     });
@@ -359,17 +359,17 @@ export class DocumentThreadStore extends ThreadStore {
   }
 
   getThread(threadId: string): ThreadData {
-    const thread = this.threads.get(threadId);
+    const thread = this.storedThreads.get(threadId);
     if (!thread) throw new Error('Comment thread not found');
     return thread;
   }
 
   getThreads(): Map<string, ThreadData> {
-    return this.activeThreads;
+    return this.threads;
   }
 
   getStoredThreads(): ThreadData[] {
-    return [...this.threads.values()];
+    return [...this.storedThreads.values()];
   }
 
   subscribe(callback: (threads: Map<string, ThreadData>) => void): () => void {
