@@ -11,7 +11,7 @@ import { Link } from 'react-router';
 import { ISegment } from 'ui-modules';
 
 type TSegmentFlowRow = {
-  key: string;
+  id: string;
   to: string;
   icon: ReactNode;
   name: string;
@@ -27,7 +27,7 @@ const SegmentFlowRow = ({
   kind,
   status,
   live,
-}: TSegmentFlowRow) => (
+}: Omit<TSegmentFlowRow, 'id'>) => (
   <Link
     to={to}
     className="group flex items-center gap-3 px-4 py-3 text-sm transition-colors hover:bg-accent"
@@ -46,6 +46,63 @@ const SegmentFlowRow = ({
   </Link>
 );
 
+const SegmentFlowList = ({
+  loading,
+  rows,
+  emptyLabel,
+}: {
+  loading: boolean;
+  rows: TSegmentFlowRow[];
+  emptyLabel: string;
+}) => {
+  if (loading) {
+    return (
+      <div className="divide-y rounded-lg border">
+        {[0, 1].map((index) => (
+          <div key={index} className="flex items-center gap-3 px-4 py-3">
+            <Skeleton className="size-8 rounded-md" />
+            <div className="flex flex-1 flex-col gap-1.5">
+              <Skeleton className="h-3.5 w-48" />
+              <Skeleton className="h-3 w-20" />
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  if (!rows.length) {
+    return (
+      <div className="flex flex-col items-center gap-2 rounded-lg border border-dashed px-6 py-10 text-center">
+        <IconBolt className="size-6 text-muted-foreground" />
+        <p className="text-sm text-muted-foreground">{emptyLabel}</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="divide-y overflow-hidden rounded-lg border">
+      {rows.map(({ id, ...row }) => (
+        <SegmentFlowRow key={id} {...row} />
+      ))}
+    </div>
+  );
+};
+
+const broadcastStatus = ({
+  isLive,
+  isDraft,
+}: {
+  isLive?: boolean;
+  isDraft?: boolean;
+}) => {
+  if (isLive) {
+    return 'active';
+  }
+
+  return isDraft ? 'draft' : 'paused';
+};
+
 export const SegmentAutomations = ({ segment }: { segment?: ISegment }) => {
   const { t } = useTranslation('segment', { keyPrefix: 'detail' });
   const { automations, loading } = useSegmentAutomations(segment);
@@ -56,7 +113,7 @@ export const SegmentAutomations = ({ segment }: { segment?: ISegment }) => {
 
   const rows: TSegmentFlowRow[] = [
     ...automations.map(({ _id, name, status }) => ({
-      key: _id,
+      id: _id,
       to: editPath(_id),
       icon: <IconBolt className="size-4" />,
       name: name || _id,
@@ -65,7 +122,7 @@ export const SegmentAutomations = ({ segment }: { segment?: ISegment }) => {
       live: status === 'active',
     })),
     ...broadcasts.map(({ _id, title, isLive, isDraft, scheduleDate }) => ({
-      key: _id,
+      id: _id,
       to: `/broadcasts?messageId=${_id}`,
       icon: <IconSend className="size-4" />,
       name: title || _id,
@@ -73,7 +130,7 @@ export const SegmentAutomations = ({ segment }: { segment?: ISegment }) => {
         scheduleDate?.type === 'afterSegment'
           ? t('broadcast-kind-nightly')
           : t('broadcast-kind'),
-      status: isLive ? 'active' : isDraft ? 'draft' : 'paused',
+      status: broadcastStatus({ isLive, isDraft }),
       live: !!isLive,
     })),
   ];
@@ -95,32 +152,11 @@ export const SegmentAutomations = ({ segment }: { segment?: ISegment }) => {
         )}
       </div>
 
-      {isLoading ? (
-        <div className="divide-y rounded-lg border">
-          {[0, 1].map((index) => (
-            <div key={index} className="flex items-center gap-3 px-4 py-3">
-              <Skeleton className="size-8 rounded-md" />
-              <div className="flex flex-1 flex-col gap-1.5">
-                <Skeleton className="h-3.5 w-48" />
-                <Skeleton className="h-3 w-20" />
-              </div>
-            </div>
-          ))}
-        </div>
-      ) : rows.length ? (
-        <div className="divide-y overflow-hidden rounded-lg border">
-          {rows.map(({ key, ...row }) => (
-            <SegmentFlowRow key={key} {...row} />
-          ))}
-        </div>
-      ) : (
-        <div className="flex flex-col items-center gap-2 rounded-lg border border-dashed px-6 py-10 text-center">
-          <IconBolt className="size-6 text-muted-foreground" />
-          <p className="text-sm text-muted-foreground">
-            {t('automations-empty')}
-          </p>
-        </div>
-      )}
+      <SegmentFlowList
+        loading={isLoading}
+        rows={rows}
+        emptyLabel={t('automations-empty')}
+      />
     </div>
   );
 };
