@@ -1,4 +1,3 @@
-import { IconSearch } from '@tabler/icons-react';
 import {
   Combobox,
   Command,
@@ -6,9 +5,14 @@ import {
   useFilterQueryState,
   useMultiQueryState,
 } from 'erxes-ui';
-import { ContactsHotKeyScope } from '@/contacts/types/ContactsHotKeyScope';
+import { IconCalendarPlus, IconSearch } from '@tabler/icons-react';
+
 import { CP_USERS_CURSOR_SESSION_KEY } from '@/contacts/client-portal-users/constants/cpUsersCursorSessionKey';
 import { ClientPortalUsersTotalCount } from '@/contacts/client-portal-users/components/ClientPortalUsersTotalCount';
+import { ContactsHotKeyScope } from '@/contacts/types/ContactsHotKeyScope';
+import { SelectCPUserType } from '@/contacts/client-portal-users/components/selects/SelectCPUserType';
+import { SelectCPUserVerified } from '@/contacts/client-portal-users/components/selects/SelectCPUserVerified';
+import { SelectClientPortal } from 'ui-modules';
 import { useTranslation } from 'react-i18next';
 
 const ClientPortalUsersFilterPopover = () => {
@@ -17,7 +21,8 @@ const ClientPortalUsersFilterPopover = () => {
     type: string;
     isVerified: string;
     clientPortalId: string;
-  }>(['searchValue', 'type', 'isVerified', 'clientPortalId']);
+    created: string;
+  }>(['searchValue', 'type', 'isVerified', 'clientPortalId', 'created']);
 
   const hasFilters = Object.values(queries || {}).some(
     (value) => value !== null && value !== '',
@@ -43,14 +48,31 @@ const ClientPortalUsersFilterPopover = () => {
                   <IconSearch />
                   {t('search')}
                 </Filter.Item>
+                <SelectClientPortal.FilterItem />
+                <SelectCPUserType.FilterItem />
+                <SelectCPUserVerified.FilterItem />
+                <Command.Separator className="my-1" />
+                <Filter.Item value="created">
+                  <IconCalendarPlus />
+                  {t('created-at')}
+                </Filter.Item>
               </Command.List>
             </Command>
+          </Filter.View>
+          <SelectClientPortal.FilterView />
+          <SelectCPUserType.FilterView />
+          <SelectCPUserVerified.FilterView />
+          <Filter.View filterKey="created">
+            <Filter.DateView filterKey="created" />
           </Filter.View>
         </Combobox.Content>
       </Filter.Popover>
       <Filter.Dialog>
         <Filter.View filterKey="searchValue" inDialog>
           <Filter.DialogStringView filterKey="searchValue" />
+        </Filter.View>
+        <Filter.View filterKey="created" inDialog>
+          <Filter.DialogDateView filterKey="created" />
         </Filter.View>
       </Filter.Dialog>
     </>
@@ -80,6 +102,17 @@ export const ClientPortalUsersFilter = () => {
             {searchValue}
           </Filter.BarButton>
         </Filter.BarItem>
+        <SelectClientPortal.FilterBar />
+        <SelectCPUserType.FilterBar />
+        <SelectCPUserVerified.FilterBar />
+        <Filter.BarItem queryKey="created">
+          <Filter.BarName>
+            <IconCalendarPlus />
+            {t('created-at')}
+          </Filter.BarName>
+          <Filter.Date filterKey="created" />
+        </Filter.BarItem>
+        <ClientPortalUsersFilterPopover />
         <ClientPortalUsersTotalCount />
       </Filter.Bar>
     </Filter>
