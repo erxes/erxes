@@ -25,5 +25,9 @@ export const documentResolver = ({
         user,
       }),
     findContent: async (documentId) =>
-      (await models.Documents.getDocument({ _id: documentId, user })).content,
+      (
+        await models.Documents.getDocument({ _id: documentId, user }).catch(
+          () => undefined,
+        )
+      )?.content,
   });

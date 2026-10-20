@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { toast, useMultiQueryState } from 'erxes-ui';
 import { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
@@ -21,6 +22,7 @@ type DocumentSheetState = Pick<
 };
 
 export const useDocumentSheet = (): DocumentSheetState => {
+  const { t } = useTranslation('documents', { keyPrefix: 'document' });
   const [{ documentId, contentType }, setQueries] = useMultiQueryState<{
     documentId: string;
     contentType: string;
@@ -40,9 +42,9 @@ export const useDocumentSheet = (): DocumentSheetState => {
   };
   const handleSave = handleSubmit(documentSave, (errors) => {
     toast({
-      title: 'Check the document',
+      title: t('check-document'),
       description:
-        Object.values(errors)[0]?.message || 'Name and content are required.',
+        Object.values(errors)[0]?.message || t('required-name-content'),
       variant: 'destructive',
     });
   });

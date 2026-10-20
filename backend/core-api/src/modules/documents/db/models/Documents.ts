@@ -14,7 +14,6 @@ import {
 import { prepareContent } from '~/modules/documents/utils';
 import { documentSchema } from '../definitions/documents';
 import { normalizeDocumentCommentState } from '../../validateDocumentCommentState';
-import { documentIdCandidates } from '../../documentIds';
 import { documentContentTypes } from '../../contentTypes';
 export interface IDocumentModel extends Model<IDocumentDocument> {
   getAccessFilter(
@@ -42,9 +41,7 @@ export const loadDocumentClass = (models: IModels, subdomain: string) => {
       if (!locks.length) return {};
 
       const documents = await models.Documents.find({
-        _id: {
-          $in: locks.flatMap((lock) => documentIdCandidates(lock.contentId)),
-        },
+        _id: { $in: locks.map((lock) => lock.contentId) },
       })
         .select('_id createdUserId')
         .lean();
@@ -62,7 +59,7 @@ export const loadDocumentClass = (models: IModels, subdomain: string) => {
         _id: {
           $nin: states
             .filter((state) => !state.hasAccess)
-            .flatMap((state) => documentIdCandidates(state.contentId)),
+            .map((state) => state.contentId),
         },
       };
     }
@@ -72,11 +69,7 @@ export const loadDocumentClass = (models: IModels, subdomain: string) => {
       user = ANONYMOUS_DOCUMENT_USER,
       action = 'view',
     }: DocumentReadInput): Promise<IDocumentDocument> {
-      let document = await models.Documents.findOne({ _id });
-      const candidates = documentIdCandidates(_id);
-      if (!document && candidates.length > 1) {
-        document = await models.Documents.findOne({ _id: { $in: candidates } });
-      }
+      const document = await models.Documents.findOne({ _id });
 
       if (!document) {
         throw new Error('Document not found');

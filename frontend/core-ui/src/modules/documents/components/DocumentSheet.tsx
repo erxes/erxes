@@ -49,7 +49,7 @@ export const DocumentSheet = () => {
         />
       )}
       <Button onClick={handleSave} type="button" disabled={!canSave}>
-        {saving ? 'Saving…' : t('save-document')}
+        {saving ? t('saving') : t('save-document')}
       </Button>
     </div>
   );

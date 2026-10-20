@@ -64,10 +64,10 @@ export const useDocumentActions = (document: IDocument): DocumentActions => {
       }
       setDuplicateOpen(false);
       setQueries({ documentId: data.documentsDuplicate._id, contentType });
-      toast({ title: 'Document duplicated', variant: 'success' });
+      toast({ title: t('duplicated-success'), variant: 'success' });
     } catch (error) {
       toast({
-        title: 'Could not duplicate document',
+        title: t('duplicate-error'),
         description: error instanceof Error ? error.message : String(error),
         variant: 'destructive',
       });

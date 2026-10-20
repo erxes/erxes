@@ -93,6 +93,7 @@ const createDocumentThreadStoreAuth = (userId: string): ThreadStore['auth'] => {
 export class DocumentThreadStore extends ThreadStore {
   readonly addThreadToDocument = undefined;
   private threads = new Map<string, ThreadData>();
+  private activeThreads = new Map<string, ThreadData>();
   private readonly listeners = new Set<
     (threads: Map<string, ThreadData>) => void
   >();
@@ -107,7 +108,10 @@ export class DocumentThreadStore extends ThreadStore {
   }
 
   private emit(): void {
-    this.listeners.forEach((listener) => listener(this.threads));
+    this.activeThreads = new Map(
+      [...this.threads].filter(([, thread]) => !thread.deletedAt),
+    );
+    this.listeners.forEach((listener) => listener(this.activeThreads));
   }
 
   private commit(thread: ThreadData): void {
@@ -215,18 +219,40 @@ export class DocumentThreadStore extends ThreadStore {
         this.auth.canDeleteComment(this.comment(threadId, commentId)),
       );
       const thread = this.getThread(threadId);
-      const comments = thread.comments.filter((item) => item.id !== commentId);
-      if (!comments.length) return this.deleteThread({ threadId });
-      this.commit({ ...thread, comments });
+      const now = new Date();
+      const comments = thread.comments.map(
+        (item): CommentData =>
+          item.id === commentId
+            ? { ...item, deletedAt: now, updatedAt: now, body: undefined }
+            : item,
+      );
+      this.commit({
+        ...thread,
+        comments,
+        deletedAt: comments.every((item) => item.deletedAt)
+          ? now
+          : thread.deletedAt,
+      });
     });
   }
 
   deleteThread({ threadId }: { threadId: string }): Promise<void> {
     return Promise.resolve().then(() => {
-      this.assert(this.auth.canDeleteThread(this.getThread(threadId)));
-      this.threads = new Map(this.threads);
-      this.threads.delete(threadId);
-      this.emit();
+      const thread = this.getThread(threadId);
+      this.assert(this.auth.canDeleteThread(thread));
+      const now = new Date();
+      this.commit({
+        ...thread,
+        deletedAt: now,
+        comments: thread.comments.map(
+          (comment): CommentData => ({
+            ...comment,
+            deletedAt: comment.deletedAt || now,
+            updatedAt: now,
+            body: undefined,
+          }),
+        ),
+      });
     });
   }
 
@@ -339,7 +365,11 @@ export class DocumentThreadStore extends ThreadStore {
   }
 
   getThreads(): Map<string, ThreadData> {
-    return this.threads;
+    return this.activeThreads;
+  }
+
+  getStoredThreads(): ThreadData[] {
+    return [...this.threads.values()];
   }
 
   subscribe(callback: (threads: Map<string, ThreadData>) => void): () => void {
@@ -376,7 +406,7 @@ export const serializeDocumentComments = (
     });
   });
   return JSON.stringify({
-    threads: Array.from(store.getThreads().values()),
+    threads: store.getStoredThreads(),
     anchors,
   });
 };
@@ -398,10 +428,12 @@ export const restoreDocumentCommentAnchors = (
           anchor.to,
           mark.create({
             threadId: anchor.threadId,
-            orphan: Boolean(
-              editor.comments?.threadStore.getThreads().get(anchor.threadId)
-                ?.resolved,
-            ),
+            orphan:
+              !editor.comments?.threadStore.getThreads().has(anchor.threadId) ||
+              Boolean(
+                editor.comments.threadStore.getThreads().get(anchor.threadId)
+                  ?.resolved,
+              ),
           }),
         );
       }

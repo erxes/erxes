@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Button, Dialog, Label, Select, Spinner } from 'erxes-ui';
 import { ReactNode, useState } from 'react';
 import { useDocumentsTypes } from '../hooks/useDocumentsTypes';
@@ -19,6 +20,7 @@ export const DocumentTypeDialog = ({
   duplicate = false,
   loading = false,
 }: DocumentTypeDialogProps) => {
+  const { t } = useTranslation('documents', { keyPrefix: 'document' });
   const {
     documentsTypes,
     error,
@@ -35,9 +37,7 @@ export const DocumentTypeDialog = ({
   else if (error)
     typeContent = (
       <div className="space-y-2">
-        <p className="text-sm text-destructive">
-          Could not load document types.
-        </p>
+        <p className="text-sm text-destructive">{t('types-load-error')}</p>
         <Button
           type="button"
           variant="secondary"
@@ -45,27 +45,27 @@ export const DocumentTypeDialog = ({
             void refetch().catch(() => undefined);
           }}
         >
-          Try again
+          {t('try-again')}
         </Button>
       </div>
     );
   else if (documentsTypes.length === 0)
     typeContent = (
       <p className="text-sm text-muted-foreground">
-        No document types are available.
+        {t('no-types')}
       </p>
     );
   else
     typeContent = (
       <div className="grid gap-2">
-        <Label htmlFor="document-type">Document type</Label>
+        <Label htmlFor="document-type">{t('document-type')}</Label>
         <Select
           value={selectedType}
           onValueChange={setSelectedType}
           disabled={loading}
         >
           <Select.Trigger id="document-type">
-            <Select.Value placeholder="Select a type" />
+            <Select.Value placeholder={t('select-type')} />
           </Select.Trigger>
           <Select.Content>
             {documentsTypes.map((type) => (
@@ -77,8 +77,8 @@ export const DocumentTypeDialog = ({
         </Select>
       </div>
     );
-  let actionLabel = duplicate ? 'Duplicate' : 'Create document';
-  if (loading) actionLabel = 'Duplicating…';
+  let actionLabel = duplicate ? t('duplicate') : t('create-document');
+  if (loading) actionLabel = t('duplicating');
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -88,14 +88,14 @@ export const DocumentTypeDialog = ({
       >
         <Dialog.Header>
           <Dialog.Title>
-            {duplicate ? 'Duplicate document' : 'Add document'}
+            {duplicate ? t('duplicate-document') : t('add-document')}
           </Dialog.Title>
           <Dialog.Description>
-            Choose which record type this document will use.
+            {t('type-description')}
             {duplicate &&
               selectedType &&
               selectedType !== initialContentType &&
-              ' Changing the type starts with an empty template to avoid incompatible attributes.'}
+              ` ${t('change-type-description')}`}
           </Dialog.Description>
         </Dialog.Header>
         {typeContent}
@@ -106,7 +106,7 @@ export const DocumentTypeDialog = ({
             disabled={loading}
             onClick={() => onOpenChange(false)}
           >
-            Cancel
+            {t('cancel')}
           </Button>
           <Button
             type="button"

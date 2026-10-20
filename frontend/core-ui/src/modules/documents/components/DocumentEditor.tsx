@@ -52,6 +52,7 @@ const EditorController = ({
   readonly: boolean;
   commentsOpen: boolean;
 }) => {
+  const { t } = useTranslation('documents', { keyPrefix: 'document' });
   const dropRef = useRef<HTMLDivElement>(null);
   const [isDropTarget, setIsDropTarget] = useState(false);
 
@@ -139,7 +140,7 @@ const EditorController = ({
         {commentsOpen && editor.comments && (
           <div className="document-comments-sidebar">
             <p className="px-3 py-2 text-xs text-muted-foreground">
-              Save the document to keep comment changes.
+              {t('save-comments-hint')}
             </p>
             <DocumentCommentsSidebar />
           </div>
@@ -394,7 +395,7 @@ export const DocumentEditor = () => {
               className="mr-2 mt-10 shrink-0"
               onClick={() => setCommentsOpen((open) => !open)}
             >
-              Comments
+              {t('comments')}
             </Button>
           )}
           {!readonly && hasAttributes && !sidebarOpen && (

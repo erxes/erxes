@@ -1,9 +1,11 @@
+import { useTranslation } from 'react-i18next';
 import { BlockEditor, useBlockEditor } from 'erxes-ui';
 import { useEffect, useState } from 'react';
 import { IDocument } from '../types';
 import { loadDocumentBlocks } from '../utils/normalizeDocumentBlocks';
 
 export const DocumentPreview = ({ document }: { document: IDocument }) => {
+  const { t } = useTranslation('documents', { keyPrefix: 'document' });
   const editor = useBlockEditor();
   const [hasError, setHasError] = useState(false);
 
@@ -24,7 +26,9 @@ export const DocumentPreview = ({ document }: { document: IDocument }) => {
 
   if (hasError) {
     return (
-      <p className="p-4 text-sm text-muted-foreground">Preview unavailable</p>
+      <p className="p-4 text-sm text-muted-foreground">
+        {t('preview-unavailable')}
+      </p>
     );
   }
 

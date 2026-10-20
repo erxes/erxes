@@ -111,7 +111,7 @@ function DocumentsActionsList({
           <IconEdit /> {t('edit')}
         </Command.Item>
         <Command.Item value="duplicate" onSelect={onDuplicate}>
-          <IconCopy /> Duplicate
+          <IconCopy /> {t('duplicate')}
         </Command.Item>
       </Can>
       <Command.Item value="print" onSelect={onPrint}>

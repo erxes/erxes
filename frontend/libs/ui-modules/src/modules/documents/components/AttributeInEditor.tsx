@@ -89,16 +89,14 @@ function AttributeMenu({ items, selectedIndex }: AttributeMenuProps) {
             const currentIndex = itemIndex++;
 
             return (
-              <AttributeMenuItem
+              <SuggestionMenuItem
                 key={item.title}
                 onClick={item.onItemClick}
-                text={item.title}
                 isSelected={selectedIndex === currentIndex}
-                index={currentIndex}
-                attribute={(attributes || []).find(
-                  (attr) => (attr.label || attr.name) === item.title,
-                )}
-              />
+                className="justify-start cursor-pointer hover:bg-muted"
+              >
+                <div>{item.title}</div>
+              </SuggestionMenuItem>
             );
           })}
         </div>
@@ -119,30 +117,6 @@ const AttributeMenuWrapper = (props: AttributeMenuWrapperProps) => {
 
   return <AttributeInEditor {...updatedProps} />;
 };
-
-interface AttributeMenuItemProps {
-  onClick: () => void;
-  isSelected: boolean;
-  index: number;
-  text: string;
-  attribute?: Attribute;
-}
-
-function AttributeMenuItem({
-  onClick,
-  isSelected,
-  attribute,
-}: AttributeMenuItemProps) {
-  return (
-    <SuggestionMenuItem
-      isSelected={isSelected}
-      onClick={onClick}
-      className="justify-start cursor-pointer hover:bg-muted"
-    >
-      {!!attribute && <div>{attribute.label || attribute.name}</div>}
-    </SuggestionMenuItem>
-  );
-}
 
 function getAttributeMenuItems(
   editor: IBlockEditor,

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useApolloClient } from '@apollo/client';
 import type { User } from '@blocknote/core/comments';
 import { useAtomValue } from 'jotai';
@@ -11,6 +12,7 @@ export const useDocumentComments = (): {
   store: DocumentThreadStore;
   resolveUsers: (ids: string[]) => Promise<User[]>;
 } => {
+  const { t } = useTranslation('documents', { keyPrefix: 'document' });
   const client = useApolloClient();
   const user = useAtomValue(currentUserState);
   const store = useMemo(
@@ -35,7 +37,7 @@ export const useDocumentComments = (): {
         })
         .catch(() => {
           toast({
-            title: 'Could not load comment authors',
+            title: t('comment-authors-error'),
             variant: 'destructive',
           });
           return { data: { users: { list: [] } } };
@@ -58,7 +60,7 @@ export const useDocumentComments = (): {
         };
       });
     },
-    [client, user],
+    [client, user, t],
   );
   return { store, resolveUsers };
 };

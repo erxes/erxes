@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { NetworkStatus, QueryResult, useQuery } from '@apollo/client';
 import {
   EnumCursorDirection,
@@ -34,6 +35,7 @@ export const useDocuments = (): Pick<
     direction: EnumCursorDirection;
   }) => Promise<void>;
 } => {
+  const { t } = useTranslation('documents', { keyPrefix: 'document' });
   const fetchingMore = useRef(false);
   const [{ createdAt, createdBy, contentType, searchValue, tagIds }] =
     useMultiQueryState<DocumentFilterState>([
@@ -139,7 +141,7 @@ export const useDocuments = (): Pick<
       });
     } catch (error) {
       toast({
-        title: 'Could not load more documents',
+        title: t('load-more-error'),
         description: error instanceof Error ? error.message : String(error),
         variant: 'destructive',
       });

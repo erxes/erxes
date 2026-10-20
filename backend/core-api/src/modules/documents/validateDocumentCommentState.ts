@@ -104,7 +104,14 @@ const normalizeComment = (
   previous: StoredComment | undefined,
   userId: string,
   now: string,
-): void => {
+): StoredComment => {
+  if (
+    previous &&
+    (previous.deletedAt ||
+      Date.parse(comment.updatedAt) < Date.parse(previous.updatedAt))
+  ) {
+    return previous;
+  }
   if (
     previous &&
     previous.userId !== userId &&
@@ -120,6 +127,7 @@ const normalizeComment = (
   if (!comment.deletedAt && !comment.body?.length) {
     throw new Error('Comment body is required');
   }
+  return comment;
 };
 
 const normalizeThreadResolution = (
@@ -128,7 +136,9 @@ const normalizeThreadResolution = (
   userId: string,
   now: string,
 ): void => {
+  thread.deletedAt = previous?.deletedAt || thread.deletedAt;
   if (
+    !previous?.deletedAt &&
     thread.deletedAt &&
     previous?.comments.some(
       (comment) => !comment.deletedAt && comment.userId !== userId,
@@ -137,12 +147,50 @@ const normalizeThreadResolution = (
     throw new Error('You can only delete your own comments');
   }
   thread.createdAt = previous?.createdAt || now;
-  if ((previous?.resolved ?? false) !== thread.resolved) {
+  const staleResolution =
+    previous?.resolvedUpdatedAt &&
+    (!thread.resolvedUpdatedAt ||
+      Date.parse(thread.resolvedUpdatedAt) <
+        Date.parse(previous.resolvedUpdatedAt));
+  if (staleResolution) thread.resolved = previous.resolved;
+  if (!staleResolution && (previous?.resolved ?? false) !== thread.resolved) {
     thread.resolvedBy = userId;
     thread.resolvedUpdatedAt = now;
   } else {
     thread.resolvedBy = previous?.resolvedBy;
     thread.resolvedUpdatedAt = previous?.resolvedUpdatedAt;
+  }
+};
+
+const restoreMissingComments = (
+  thread: StoredThread,
+  previous: StoredThread,
+  seen: Set<string>,
+): void => {
+  const current = new Set(thread.comments.map((comment) => comment.id));
+  for (const comment of previous.comments) {
+    if (current.has(comment.id)) continue;
+    requireUniqueId(seen, comment.id, 'Duplicate comment ID');
+    thread.comments.push(comment);
+  }
+};
+
+const restoreMissingThreads = (
+  threads: StoredThread[],
+  previous: StoredThread[],
+  seenThreads: Set<string>,
+  seenComments: Set<string>,
+): void => {
+  const current = new Map(threads.map((thread) => [thread.id, thread]));
+  for (const old of previous) {
+    const thread = current.get(old.id);
+    if (thread) restoreMissingComments(thread, old, seenComments);
+    else {
+      for (const comment of old.comments)
+        requireUniqueId(seenComments, comment.id, 'Duplicate comment ID');
+      seenThreads.add(old.id);
+      threads.push(old);
+    }
   }
 };
 
@@ -175,20 +223,22 @@ export const normalizeDocumentCommentState = (
       userId,
       now,
     );
-    for (const comment of thread.comments) {
+    thread.comments = thread.comments.map((comment) => {
       requireUniqueId(seenComments, comment.id, 'Duplicate comment ID');
-      normalizeComment(comment, previousComments.get(comment.id), userId, now);
-    }
+      return normalizeComment(
+        comment,
+        previousComments.get(comment.id),
+        userId,
+        now,
+      );
+    });
   }
-  for (const previousComment of previousComments.values()) {
-    if (
-      !seenComments.has(previousComment.id) &&
-      !previousComment.deletedAt &&
-      previousComment.userId !== userId
-    ) {
-      throw new Error('You can only delete your own comments');
-    }
-  }
+  restoreMissingThreads(
+    state.threads,
+    previous.threads,
+    seenThreads,
+    seenComments,
+  );
   if (
     state.anchors.some(
       (anchor) => anchor.from >= anchor.to || !seenThreads.has(anchor.threadId),
@@ -196,5 +246,7 @@ export const normalizeDocumentCommentState = (
   ) {
     throw new Error('Invalid document comment anchor');
   }
-  return JSON.stringify(state);
+  const normalized = JSON.stringify(state);
+  validateDocumentCommentState(normalized);
+  return normalized;
 };

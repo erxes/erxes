@@ -3,7 +3,6 @@ import { z } from 'zod';
 import { CoreTRPCContext } from '~/init-trpc';
 import { agentMeta } from '~/utils/agentMeta';
 import { DocumentAccessUser } from '../types';
-import { documentIdCandidates } from '../documentIds';
 
 const t = initTRPC.context<CoreTRPCContext>().create();
 
@@ -60,17 +59,7 @@ export const documentTrpcRouter = t.router({
 
         const user = await getDocumentUser(ctx);
         const accessFilter = await models.Documents.getAccessFilter(user);
-        const document = await models.Documents.findOne({
-          $and: [query, accessFilter],
-        });
-        const candidates =
-          typeof query._id === 'string' ? documentIdCandidates(query._id) : [];
-        if (!document && candidates.length > 1) {
-          return models.Documents.findOne({
-            $and: [{ ...query, _id: { $in: candidates } }, accessFilter],
-          });
-        }
-        return document;
+        return models.Documents.findOne({ $and: [query, accessFilter] });
       }),
 
     print: t.procedure
