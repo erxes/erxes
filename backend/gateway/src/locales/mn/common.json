@@ -1,4 +1,9 @@
 {
+  "Email erxes": "erxes рүү имэйл илгээх",
+  "erxes on Instagram": "Instagram дахь erxes",
+  "erxes on LinkedIn": "LinkedIn дахь erxes",
+  "erxes on GitHub": "GitHub дахь erxes",
+  "erxes on Discord": "Discord дахь erxes",
   "my-inbox": "Миний инбокс",
   "navigation": {
     "visited-pages": "Зочилсон хуудсууд",
@@ -59,6 +64,11 @@
     "segments": "Сегментүүд",
     "automations": "Автоматжуулалтууд",
     "documents": "Баримтууд",
+    "files": "Файлууд",
+    "my-files": "Миний файлууд",
+    "org-drive": "Байгууллагын drive",
+    "shared-with-me": "Надтай хуваалцсан",
+    "trash": "Хогийн сав",
     "broadcasts": "Броадкастууд",
     "templates": "Загварууд",
     "success": "Амжилттай",

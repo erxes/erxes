@@ -92,6 +92,7 @@
   "pos": "POS",
   "deals": "Deals",
   "deal": "Deal",
+  "deal-number": "Deal #{{number}}",
   "deal-name": "Deal Name",
   "boards": "Boards",
   "boards-and-pipelines": "Boards & Pipelines",

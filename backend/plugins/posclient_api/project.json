@@ -42,6 +42,7 @@
     "docker-build": {
       "dependsOn": ["build"],
       "command": "docker build -f backend/plugins/posclient_api/Dockerfile . -t erxes/erxes-next-posclient_api"
-    }
+    },
+    "schema:print": {}
   }
 }
