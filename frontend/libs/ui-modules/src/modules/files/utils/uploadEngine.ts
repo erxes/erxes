@@ -22,6 +22,8 @@ type TJob = {
   uploadId?: string;
   requests: Set<XMLHttpRequest>;
   stopped: boolean;
+  // A paused run may still be awaiting a mutation; a resume waits for it to settle.
+  active: boolean;
 };
 
 class UploadStoppedError extends Error {}
@@ -322,7 +324,10 @@ const pump = () => {
   while (running < MAX_PARALLEL_FILES) {
     const next = uploadStore
       .getSnapshot()
-      .find((item) => item.status === 'queued' && jobs.has(item.localId));
+      .find(
+        (item) =>
+          item.status === 'queued' && jobs.get(item.localId)?.active === false,
+      );
 
     if (!next) {
       return;
@@ -336,6 +341,7 @@ const pump = () => {
 
     running++;
     job.stopped = false;
+    job.active = true;
 
     runUpload(next.localId, job)
       .catch((e: Error) => {
@@ -348,6 +354,7 @@ const pump = () => {
       })
       .finally(() => {
         running--;
+        job.active = false;
         pump();
       });
   }
@@ -383,6 +390,7 @@ export const uploadEngine = {
         onDone,
         requests: new Set(),
         stopped: false,
+        active: false,
       });
       uploadStore.add({
         localId,

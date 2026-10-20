@@ -1,4 +1,8 @@
-import { renderShareGonePage, renderSharePage } from '../sharePage';
+import {
+  renderShareErrorPage,
+  renderShareGonePage,
+  renderSharePage,
+} from '../sharePage';
 
 const file = {
   name: 'Report.xlsx',
@@ -70,5 +74,14 @@ describe('renderShareGonePage', () => {
 
     expect(html).toContain(`<title>${text}</title>`);
     expect(html).toContain(`<h1>${text}</h1>`);
+  });
+});
+
+describe('renderShareErrorPage', () => {
+  it.each([
+    ['en', 'The link still works'],
+    ['mn', 'Link хүчинтэй хэвээр байна'],
+  ] as const)('tells a %s visitor the link still works', (lang, text) => {
+    expect(renderShareErrorPage(lang)).toContain(text);
   });
 });

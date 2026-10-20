@@ -22,18 +22,31 @@ const OTHER: Omit<TShareKind, 'pattern'> = {
   tone: '113 113 122',
 };
 
-const TEXT: Record<TShareLang, { download: string; footer: string; gone: string; goneHint: string }> = {
+type TShareText = {
+  download: string;
+  footer: string;
+  gone: string;
+  goneHint: string;
+  error: string;
+  errorHint: string;
+};
+
+const TEXT: Record<TShareLang, TShareText> = {
   en: {
     download: 'Download',
     footer: 'Shared with you through erxes',
     gone: 'This link is no longer available',
     goneHint: 'It was turned off or the file was removed. Ask the person who shared it for a new link.',
+    error: 'This file can’t be opened right now',
+    errorHint: 'The link still works. Try again in a few minutes.',
   },
   mn: {
     download: 'Татаж авах',
     footer: 'erxes-ээр тантай хуваалцсан',
     gone: 'Энэ link идэвхгүй болсон',
     goneHint: 'Link-ийг унтраасан эсвэл файлыг устгасан байна. Хуваалцсан хүнээс шинэ link аваарай.',
+    error: 'Файлыг одоогоор нээх боломжгүй байна',
+    errorHint: 'Link хүчинтэй хэвээр байна. Хэдэн минутын дараа дахин оролдоно уу.',
   },
 };
 
@@ -110,4 +123,12 @@ export const renderShareGonePage = (lang: TShareLang) =>
     TEXT[lang].gone,
     `<div class="tile" style="--tone:${OTHER.tone}">?</div>
 <h1>${TEXT[lang].gone}</h1><p class="meta" style="margin:0">${TEXT[lang].goneHint}</p>`,
+  );
+
+export const renderShareErrorPage = (lang: TShareLang) =>
+  layout(
+    lang,
+    TEXT[lang].error,
+    `<div class="tile" style="--tone:${OTHER.tone}">!</div>
+<h1>${TEXT[lang].error}</h1><p class="meta" style="margin:0">${TEXT[lang].errorHint}</p>`,
   );

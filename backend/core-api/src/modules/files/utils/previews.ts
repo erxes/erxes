@@ -8,8 +8,10 @@ import {
   FILES_DERIVE_PDF_MAX,
   FILES_DERIVE_TIMEOUT_MS,
   FILES_THUMBNAIL_IMAGE_MAX,
+  FILES_THUMBNAIL_MAX_PIXELS,
   FILES_THUMBNAIL_SIZE,
 } from '@/files/constants';
+import { readImageSize } from '@/files/utils/imageSize';
 
 const execFileAsync = promisify(execFile);
 
@@ -46,6 +48,12 @@ export const withPreviewWorkspace = async <T>(fn: (dir: string) => Promise<T>) =
 };
 
 const imageThumbnail = async (sourcePath: string, outPath: string) => {
+  const size = await readImageSize(sourcePath);
+
+  if (!size || size.width * size.height > FILES_THUMBNAIL_MAX_PIXELS) {
+    return undefined;
+  }
+
   const image = await Jimp.read(sourcePath);
   const { width, height } = image.bitmap;
 

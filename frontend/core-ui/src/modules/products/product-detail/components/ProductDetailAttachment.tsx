@@ -15,6 +15,7 @@ import {
   ProductVideosUpload,
 } from 'ui-modules/modules/products/components/ProductVideoUploads';
 import { ProductFilesUpload } from 'ui-modules/modules/products/components/ProductFilesUpload';
+import { ProductFileItem } from 'ui-modules/modules/products/hooks/useProductFiles';
 import { ProductFormValues } from '@/products/constants/ProductFormSchema';
 import { ProductAttachment } from '../types/detailTypes';
 
@@ -22,7 +23,7 @@ export const ProductDetailAttachment = ({
   attachment,
   attachmentMore = [],
   videos = [],
-  files = [],
+  files,
 }: {
   attachment?: ProductAttachment | null;
   attachmentMore?: ProductAttachment[] | ProductAttachment | null;
@@ -40,7 +41,7 @@ export const ProductDetailAttachment = ({
   const [videoItems, setVideoItems] = useState<ProductAttachmentItem[]>(() =>
     toProductAttachmentList(videos),
   );
-  const [fileItems, setFileItems] = useState<ProductAttachmentItem[]>(() =>
+  const [fileItems, setFileItems] = useState<ProductFileItem[]>(() =>
     toProductAttachmentList(files),
   );
 

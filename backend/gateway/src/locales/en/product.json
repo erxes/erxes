@@ -603,8 +603,10 @@
     "add": "Add from Files",
     "remove": "Remove file",
     "pick-title": "Choose files for this product",
-    "public-hint": "Added files get a public link so POS and websites can show them. Only files you manage can be added.",
+    "public-hint": "Saving the product creates a public link for each file so POS and websites can show it. Only files you manage can be added.",
     "add-failed": "Could not add the file",
-    "limit": "Up to {{count}} files can be added"
+    "limit": "Up to {{count}} files can be added",
+    "pending": "Link on save",
+    "pending-hint": "The public link is created when you save the product."
   }
 }

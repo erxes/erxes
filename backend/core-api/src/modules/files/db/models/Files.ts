@@ -510,6 +510,7 @@ export const loadFileClass = (models: IModels) => {
     public static async listSharedFiles(actor: TFilesActor) {
       const candidates = await models.Files.find({
         'access.key': { $in: actor.principals },
+        createdBy: { $ne: actor.userId },
         status: FILE_STATUSES.READY,
         deletedAt: null,
       })

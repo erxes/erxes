@@ -310,6 +310,8 @@ export const loadFileFolderClass = (models: IModels, subdomain: string) => {
     public static async listSharedWithMe(actor: TFilesActor) {
       const candidates = await models.FileFolders.find({
         'access.key': { $in: actor.principals },
+        // Own items carry an owner grant and would fill the limit before shared ones.
+        createdBy: { $ne: actor.userId },
         rootKey: { $exists: false },
         deletedAt: null,
       })

@@ -37,9 +37,11 @@ previews).
 - The creator of a folder or file is its owner: their manager grant is re-added
   on every access save.
 - `filesRead` permission = may use Files. `filesAdmin` = read-only oversight
-  (see and download everything, logged as `filesAdminAccess`); no write, share
-  or access change comes from admin rights. Default groups grant only
-  `filesRead`; `filesAdmin` is given explicitly.
+  (see and download everything, logged as `filesAdminAccess`), with one
+  exception: admins are manager of the ownerless Org drive root, so they can
+  create its top-level folders and grant others access to it. Nothing below the
+  root gets write rights from admin. Default groups grant only `filesRead`;
+  `filesAdmin` is given explicitly.
 
 ## Invariants
 
@@ -55,13 +57,21 @@ previews).
 - Product `files` hold public share URLs (`/files/s/:token`), not file ids:
   POS and websites read them without login. Revoking the link or purging the
   file breaks them there; replacing a version does not.
+- "Shared with me" queries exclude the actor's own items in Mongo, before the
+  500-row limit; every owned item carries a `user:<id>` grant.
+- Image thumbnails read width/height from the header first
+  (`utils/imageSize.ts`) and skip anything over `FILES_THUMBNAIL_MAX_PIXELS`:
+  Jimp allocates the full bitmap inside the API process.
+- The public share route answers 404 only for `ExpectedError` (gone link);
+  other failures are logged and get a 503 "try again" page.
 
 ## Validation
 
 - `NODE_OPTIONS=--max-old-space-size=8192 pnpm nx build core-api`
 - `npx eslint backend/core-api/src/modules/files`
 - `pnpm nx test core-api` — `utils/__tests__/` covers access rules (grants,
-  role merge, `assertRole` NOT_FOUND/FORBIDDEN, admin read-only) and the share
-  page (name escaping, mn/en); Redis, queue and `canGroup` are mocked.
+  role merge, `assertRole` NOT_FOUND/FORBIDDEN, admin read-only except the Org
+  root), image header sizes, and the share pages (escaping, mn/en); Redis,
+  queue and `canGroup` are mocked.
 - Smoke: an "Only me" folder is invisible to a second user; a department
   share shows under that user's Shared with me; a viewer cannot open Share.

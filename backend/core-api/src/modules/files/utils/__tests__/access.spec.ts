@@ -5,6 +5,7 @@ import {
   FILE_GRANT_ROLES,
   fileAccessFields,
   mergeAccess,
+  myRole,
   normalizeGrants,
   roleOf,
   TFilesActor,
@@ -275,5 +276,24 @@ describe('assertRole', () => {
       'FILES_FORBIDDEN',
     );
     expect(sendWorkerQueue).not.toHaveBeenCalled();
+  });
+
+  it('lets an admin manage the ownerless Org drive root only', () => {
+    const orgRoot = { _id: 'root', rootKey: 'org', readers: ['everyone'] };
+    const myRoot = { _id: 'mine', rootKey: 'user:u2', readers: ['user:u2'] };
+
+    expect(() =>
+      assertRole(actor(['everyone'], true), orgRoot, 'manager', 'setAccess', 'folder'),
+    ).not.toThrow();
+    expect(myRole(actor(['everyone'], true), orgRoot)).toBe('manager');
+    expect(myRole(actor(['everyone']), orgRoot)).toBe('viewer');
+    expectAccessError(
+      () => assertRole(actor(['everyone']), orgRoot, 'contributor', 'createFolder', 'folder'),
+      'FILES_FORBIDDEN',
+    );
+    expectAccessError(
+      () => assertRole(actor(['everyone'], true), myRoot, 'contributor', 'upload', 'folder'),
+      'NOT_FOUND',
+    );
   });
 });

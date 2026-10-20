@@ -35,6 +35,8 @@ export const FILES_THUMBNAIL_SIZE = 320;
 export const FILES_THUMBNAIL_URL_WINDOW_MS = 60 * 60 * 1000;
 // Jimp decodes the whole bitmap in memory.
 export const FILES_THUMBNAIL_IMAGE_MAX = 30 * 1024 * 1024;
+// Jimp allocates width × height × 4 bytes however small the file is.
+export const FILES_THUMBNAIL_MAX_PIXELS = 50 * 1000 * 1000;
 export const FILES_DERIVE_PDF_MAX = 1024 * 1024 * 1024;
 export const FILES_DERIVE_TIMEOUT_MS = 5 * 60 * 1000;
 // A pending preview this old lost its job (worker restart, queue flush).

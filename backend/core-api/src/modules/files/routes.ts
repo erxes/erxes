@@ -3,7 +3,12 @@ import { Request, Response, Router } from 'express';
 import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
 import { generateModels } from '~/connectionResolvers';
 import { canServeInline } from '@/files/utils/mime';
-import { renderShareGonePage, renderSharePage, TShareLang } from '@/files/utils/sharePage';
+import {
+  renderShareErrorPage,
+  renderShareGonePage,
+  renderSharePage,
+  TShareLang,
+} from '@/files/utils/sharePage';
 
 export const router: Router = Router();
 
@@ -53,9 +58,15 @@ router.get('/files/s/:token', shareLimiter, async (req: Request, res: Response) 
         lang: langOf(req),
       }),
     );
-  } catch {
+  } catch (e) {
     res.set(PAGE_HEADERS);
 
-    return res.status(404).send(renderShareGonePage(langOf(req)));
+    if ((e as { isExpected?: boolean }).isExpected) {
+      return res.status(404).send(renderShareGonePage(langOf(req)));
+    }
+
+    console.error('Files share link failed:', e);
+
+    return res.status(503).send(renderShareErrorPage(langOf(req)));
   }
 });

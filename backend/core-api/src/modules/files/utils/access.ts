@@ -7,6 +7,7 @@ import {
   FILE_ACCESS_ROLES,
   FILE_PRINCIPAL_TYPES,
   FILES_MAX_GRANTS,
+  FILES_ORG_ROOT_KEY,
   FILES_PRINCIPALS_TTL_SECONDS,
   TFileAccessRole,
   TFilePrincipalType,
@@ -17,11 +18,13 @@ export type TFilesActor = {
   subdomain: string;
   userId: string;
   principals: string[];
-  // Read-only oversight; admin rights never grant writes.
+  // Read-only oversight, except managing the ownerless Org drive root.
   isAdmin: boolean;
 };
 
 export type TFilesItemRef = { itemType: 'file' | 'folder'; _id: string };
+
+type TFilesAccessItem = Partial<IFilesAccessFields> & { rootKey?: string };
 
 export type TFilesAccessGrantInput = { type: string; id?: string; role: string };
 
@@ -236,15 +239,21 @@ export const logAdminReads = <T extends Partial<IFilesAccessFields> & { _id: str
   );
 };
 
+// The Org drive root has no owner, so only admins can grant access to it.
+const roleOrOrgAdmin = (actor: TFilesActor, item: TFilesAccessItem) =>
+  actor.isAdmin && item.rootKey === FILES_ORG_ROOT_KEY
+    ? FILE_ACCESS_ROLES.MANAGER
+    : roleOf(item, actor.principals);
+
 // No role at all reads as NOT_FOUND, so a hidden item looks missing.
 export const assertRole = (
   actor: TFilesActor,
-  item: Partial<IFilesAccessFields> & { _id: string },
+  item: TFilesAccessItem & { _id: string },
   required: TFileAccessRole,
   operation: string,
   itemType: TFilesItemRef['itemType'],
 ) => {
-  const role = roleOf(item, actor.principals);
+  const role = roleOrOrgAdmin(actor, item);
 
   if (rankOf(role) >= rankOf(required)) {
     return;
@@ -266,8 +275,8 @@ export const assertRole = (
   );
 };
 
-export const myRole = (actor: TFilesActor, item: Partial<IFilesAccessFields>) =>
-  roleOf(item, actor.principals) || (actor.isAdmin ? FILE_ACCESS_ROLES.VIEWER : null);
+export const myRole = (actor: TFilesActor, item: TFilesAccessItem) =>
+  roleOrOrgAdmin(actor, item) || (actor.isAdmin ? FILE_ACCESS_ROLES.VIEWER : null);
 
 export const roleFromRank = (rank: number) => ROLE_BY_RANK[rank];
 

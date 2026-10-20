@@ -6,6 +6,7 @@ const productFileSchema = z.object({
   name: z.string(),
   type: z.string(),
   size: z.number(),
+  fileId: z.string().optional(),
 });
 
 export const PRODUCT_FORM_SCHEMA = z

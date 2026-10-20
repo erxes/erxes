@@ -47,7 +47,9 @@ export const FilesFolderCard = ({
         drag.isDragging && 'opacity-50',
       )}
       onClick={onClick}
-      onKeyDown={(e) => e.key === 'Enter' && onOpen()}
+      onKeyDown={(e) =>
+        e.key === 'Enter' && e.target === e.currentTarget && onOpen()
+      }
     >
       <div
         className="relative flex h-24 items-center justify-center bg-muted"
