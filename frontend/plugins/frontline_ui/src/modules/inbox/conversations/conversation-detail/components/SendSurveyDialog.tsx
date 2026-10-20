@@ -130,8 +130,8 @@ export const SendSurveyDialog = ({
             <Link
               to={
                 channelId
-                  ? `/settings/${FrontlinePaths.Frontline}${FrontlinePaths.Channels}/${channelId}/surveys`
-                  : `/settings/${FrontlinePaths.Frontline}${FrontlinePaths.Channels}`
+                  ? `/${FrontlinePaths.Frontline}/settings${FrontlinePaths.Channels}/${channelId}/surveys`
+                  : `/${FrontlinePaths.Frontline}/settings${FrontlinePaths.Channels}`
               }
             >
               {t('manage-surveys', 'Manage surveys')}

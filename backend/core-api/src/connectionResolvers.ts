@@ -327,6 +327,30 @@ import {
 } from '@/approval/db/models/ApprovalRequests';
 import { IApprovalLockDocument } from '@/approval/db/definitions/approvalLocks';
 import { IApprovalRequestDocument } from '@/approval/db/definitions/approvalRequests';
+import { IFileDocument } from '@/files/db/definitions/files';
+import { IFileFolderDocument } from '@/files/db/definitions/folders';
+import {
+  fileUploadSchema,
+  IFileUploadDocument,
+} from '@/files/db/definitions/uploads';
+import { IFileUsageDocument } from '@/files/db/definitions/usage';
+import {
+  fileVersionSchema,
+  IFileVersionDocument,
+} from '@/files/db/definitions/versions';
+import { IFileModel, loadFileClass } from '@/files/db/models/Files';
+import {
+  IFileFolderModel,
+  loadFileFolderClass,
+} from '@/files/db/models/FileFolders';
+import {
+  IFileUsageModel,
+  loadFileUsageClass,
+} from '@/files/db/models/FileUsage';
+import { IFilePinDocument } from '@/files/db/definitions/pins';
+import { IFileShareDocument } from '@/files/db/definitions/shares';
+import { IFilePinModel, loadFilePinClass } from '@/files/db/models/FilePins';
+import { IFileShareModel, loadFileShareClass } from '@/files/db/models/FileShares';
 import {
   ITemplateCategoryModal,
   loadTemplateCategoryClass,
@@ -416,6 +440,13 @@ export interface IModels {
   PermissionGroups: IPermissionGroupModel;
   ApprovalLocks: IApprovalLockModel;
   ApprovalRequests: IApprovalRequestModel;
+  Files: IFileModel;
+  FileFolders: IFileFolderModel;
+  FileVersions: Model<IFileVersionDocument>;
+  FileUploads: Model<IFileUploadDocument>;
+  FileUsage: IFileUsageModel;
+  FilePins: IFilePinModel;
+  FileShares: IFileShareModel;
 
   NotificationSettings: Model<NotificationSettings>;
 
@@ -864,6 +895,35 @@ export const loadClasses = (
     IApprovalRequestDocument,
     IApprovalRequestModel
   >('approval_requests', loadApprovalRequestClass(models));
+
+  models.Files = db.model<IFileDocument, IFileModel>(
+    'files',
+    loadFileClass(models),
+  );
+  models.FileFolders = db.model<IFileFolderDocument, IFileFolderModel>(
+    'files_folders',
+    loadFileFolderClass(models, subdomain),
+  );
+  models.FileVersions = db.model<IFileVersionDocument>(
+    'file_versions',
+    fileVersionSchema,
+  );
+  models.FileUploads = db.model<IFileUploadDocument>(
+    'file_uploads',
+    fileUploadSchema,
+  );
+  models.FileUsage = db.model<IFileUsageDocument, IFileUsageModel>(
+    'files_usage',
+    loadFileUsageClass(models),
+  );
+  models.FilePins = db.model<IFilePinDocument, IFilePinModel>(
+    'file_pins',
+    loadFilePinClass(models),
+  );
+  models.FileShares = db.model<IFileShareDocument, IFileShareModel>(
+    'file_shares',
+    loadFileShareClass(models),
+  );
 
   models.Template = db.model<ITemplateDocument, ITemplateModal>(
     'templates',

@@ -6,7 +6,7 @@
 - **Project:** `content_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/content_ui`
-- **Last synchronized:** `2026-10-14`
+- **Last synchronized:** `2026-10-20`
 
 ## Scope
 
@@ -34,14 +34,15 @@
 
 ## Architecture
 
-| Area          | Path                                                  | Responsibility                                                                          |
-| ------------- | ----------------------------------------------------- | --------------------------------------------------------------------------------------- |
-| Configuration | `frontend/plugins/content_ui/src/config.tsx`          | Registers content navigation and modules.                                               |
-| Dev server    | `frontend/plugins/content_ui/rspack.config.ts`        | Configures image assets, Module Federation development serving, and watch ignore rules. |
-| CMS           | `frontend/plugins/content_ui/src/modules/cms`         | Owns CMS routes and feature UI.                                                         |
-| Web Builder   | `frontend/plugins/content_ui/src/modules/web-builder` | Owns Web Builder UI.                                                                    |
-| Pages         | `frontend/plugins/content_ui/src/pages`               | Provides route-level pages.                                                             |
-| Widgets       | `frontend/plugins/content_ui/src/widgets`             | Provides plugin widget exports.                                                         |
+| Area          | Path                                                  | Responsibility                                                                                          |
+| ------------- | ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| App sidebar   | `frontend/plugins/content_ui/src/Sidebar.tsx`         | `ContentSidebar`: the plugin's whole app sidebar, rendered by the `./content` entry through `AppLayout` |
+| Configuration | `frontend/plugins/content_ui/src/config.tsx`          | Registers content navigation and modules.                                                               |
+| Dev server    | `frontend/plugins/content_ui/rspack.config.ts`        | Configures image assets, Module Federation development serving, and watch ignore rules.                 |
+| CMS           | `frontend/plugins/content_ui/src/modules/cms`         | Owns CMS routes and feature UI.                                                                         |
+| Web Builder   | `frontend/plugins/content_ui/src/modules/web-builder` | Owns Web Builder UI.                                                                                    |
+| Pages         | `frontend/plugins/content_ui/src/pages`               | Provides route-level pages.                                                                             |
+| Widgets       | `frontend/plugins/content_ui/src/widgets`             | Provides plugin widget exports.                                                                         |
 
 ## Contracts
 
@@ -63,7 +64,12 @@
 
 ## Local Invariants
 
-- Page-level side menus render `Sidebar.Panel` from `erxes-ui`, which keeps its own open state (`sidebarPanelOpenState`), separate from the host's context column. The panel sits beside the page header, never under it: the page is a row of the panel and a column holding the header and content. The panel passes its heading as `label`, which renders a 48px title row with optional `actions` and the collapse toggle on the right, level with the page header; when collapsed, the toggle moves into the header's panel slot. Do not add a second heading or an in-panel `Sidebar.PanelTrigger` row. Keep `<Sidebar collapsible="none">` for sidebars inside sheets and dialogs. Every `CmsSidebar` page and `CmsLayout` render the panel beside their page header.
+- The plugin owns its whole app sidebar. `src/modules/cms/Main.tsx` (the `./content`
+  expose) wraps its routes in `erxes-ui` `AppLayout` (`id="content"`) with
+  `ContentSidebar`. Core-ui draws only the top `CoreTab` bar; `navigationGroup` in
+  `src/config.tsx` supplies just the tab name, icon and `defaultPath` and takes
+  no `content`/`subGroup`.
+- Page-level side menus render `Sidebar.Panel` from `erxes-ui`, which keeps its own open state (`sidebarPanelOpenState`), separate from the plugin's `AppLayout` sidebar. The panel sits beside the page header, never under it: the page is a row of the panel and a column holding the header and content. The panel passes its heading as `label`, which renders a 40px title row with optional `actions` and the collapse toggle on the right, level with the page header; when collapsed, the toggle moves into the header's panel slot. Do not add a second heading or an in-panel `Sidebar.PanelTrigger` row. Keep `<Sidebar collapsible="none">` for sidebars inside sheets and dialogs. Every `CmsSidebar` page and `CmsLayout` render the panel beside their page header.
 - This plugin is the Module Federation remote `content_ui`.
 - Dev server port is `3003` from `project.json`.
 - Public exposes are `./config` and `./content` in
@@ -88,6 +94,14 @@
   plus the non-lossy editor document before the existing submission boundary.
 - CMS post serialization must invalidate stale asynchronous HTML output after
   edits, external document replacement, and editor unmount.
+- CMS routes are keyed by `clientPortalId` (the `websiteId` param), so each
+  CMS must use its own real client portal. The CMS drawer has no default
+  portal, rejects unknown portals and disables portals bound to another CMS;
+  an edit that keeps a CMS's stored portal is allowed so content never moves.
+- The page form schema accepts only `active`/`inactive` status, while table and
+  bulk edits store `published`/`draft`/`scheduled`; the page editor maps stored
+  values and null attachment fields on load. Page save reports validation
+  failures with a toast instead of silently doing nothing.
 - Post form category option labels show the full parent path, while option
   values remain category IDs and multiple selections remain available.
 - Asynchronous legacy HTML restoration must capture a revision before parsing
@@ -180,6 +194,8 @@
 3. Confirm the route and `websiteId` behavior
 4. Check whether GraphQL operations already exist
 5. Keep changes minimal and scoped to the feature
+
+- CMS list filters (posts, categories, tags, pages) render the filter popover trigger as the first child of `Filter.Bar`, so the filter icon stays fixed while selected filter chips appear after it; total counts stay last.
 
 ## Validation
 

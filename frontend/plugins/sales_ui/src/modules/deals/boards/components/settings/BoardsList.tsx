@@ -1,5 +1,3 @@
-import { useBoardRemove, useBoards } from '@/deals/boards/hooks/useBoards';
-import { IconDots, IconPencil, IconTrash } from '@tabler/icons-react';
 import {
   Badge,
   DropdownMenu,
@@ -9,13 +7,15 @@ import {
   useConfirm,
   useQueryState,
 } from 'erxes-ui';
-import { useEffect, useMemo } from 'react';
+import { IconDots, IconPencil, IconTrash } from '@tabler/icons-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { BoardArchiveMenuItem } from './BoardArchiveMenuItem';
-import { useBoardArchiveSubscription } from '@/deals/boards/hooks/useBoardArchiveSubscription';
+import { useBoardRemove, useBoards } from '@/deals/boards/hooks/useBoards';
+import { useEffect, useMemo } from 'react';
 
+import { BoardArchiveMenuItem } from './BoardArchiveMenuItem';
 import { BoardForm } from '@/deals/boards/components/settings/BoardForm';
 import { IBoard } from '@/deals/types/boards';
+import { useBoardArchiveSubscription } from '@/deals/boards/hooks/useBoardArchiveSubscription';
 import { useTranslation } from 'react-i18next';
 
 export const BoardsList = () => {
@@ -94,7 +94,7 @@ const BoardMenuItem = ({ board }: { board: IBoard }) => {
   const { t } = useTranslation('sales');
 
   const isActive = board._id === activeBoardId;
-  const isArchived = board.status === 'archived';
+  const isArchived = board?.status === 'archived';
 
   const { removeBoard, loading: removeLoading } = useBoardRemove();
 
@@ -137,11 +137,7 @@ const BoardMenuItem = ({ board }: { board: IBoard }) => {
             <IconDots />
           </Sidebar.MenuAction>
         </DropdownMenu.Trigger>
-        <DropdownMenu.Content
-          align="end"
-          sideOffset={8}
-          className="min-w-72"
-        >
+        <DropdownMenu.Content align="end" sideOffset={8} className="min-w-72">
           <DropdownMenu.Item onSelect={() => setBoardId(board._id)}>
             <IconPencil />
             {t('edit')}

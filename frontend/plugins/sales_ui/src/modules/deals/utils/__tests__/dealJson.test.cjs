@@ -219,3 +219,37 @@ test('incomplete subscription metadata cannot roll back an archive or cleared fi
   assert.equal(resolveDealDetail(current, undefined, 'deal'), undefined);
   assert.equal(resolveDealDetail(previous, current, 'deal'), previous);
 });
+
+test('legacy numeric payment totals allow detail parsing and survive payment edits', () => {
+  for (const totalAmount of [0, 150.5]) {
+    const payments = {
+      totalAmount,
+      cash: { amount: 100, currency: 'MNT', provider: 'legacy' },
+    };
+    const deal = json.toDealDetail({ _id: 'deal', paymentsData: payments });
+    assert.deepEqual(deal.paymentsData, payments);
+    assert.equal(
+      json.readDealPayment(deal.paymentsData, 'totalAmount'),
+      undefined,
+    );
+    assert.equal(json.readDealPayment(deal.paymentsData, 'missing'), undefined);
+    const edited = {
+      ...deal.paymentsData,
+      cash: { ...json.readDealPayment(deal.paymentsData, 'cash'), amount: 120 },
+    };
+    assert.deepEqual(json.paymentsDataSchema.parse(edited), {
+      totalAmount,
+      cash: { amount: 120, currency: 'MNT', provider: 'legacy' },
+    });
+  }
+  for (const payments of [
+    { cash: 100 },
+    { totalAmount: '100' },
+    { totalAmount: Infinity },
+    { totalAmount: 100, cash: { amount: '100' } },
+  ]) {
+    assert.throws(() =>
+      json.toDealDetail({ _id: 'deal', paymentsData: payments }),
+    );
+  }
+});

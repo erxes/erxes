@@ -37,7 +37,7 @@ export const AI_AGENT_DEFAULTS = {
   openAiBaseUrl: 'https://api.openai.com/v1',
   cloudflareAiGatewayBaseUrl: 'https://gateway.ai.cloudflare.com/v1',
   cloudflareAiGatewayMode: 'compat',
-  temperature: 0.2,
+  temperature: 0,
   maxTokens: 2000,
   timeoutMs: 15000,
 } as const;

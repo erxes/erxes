@@ -92,7 +92,7 @@ const exchangeRatesSearchProvider = defineSearchProvider<TExchangeRateNode>({
         : UNNAMED,
     description: typeof rate.rate === 'number' ? String(rate.rate) : undefined,
     createdAt: rate.createdAt ?? undefined,
-    path: `/settings/mongolian/exchange-rates?exchange_rate_id=${rate._id}`,
+    path: `/mongolian/settings/exchange-rates?exchange_rate_id=${rate._id}`,
   }),
 });
 

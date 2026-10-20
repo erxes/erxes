@@ -154,7 +154,7 @@ export const SidebarPanel = React.forwardRef<
       )}
       <SidebarPanelInnerTriggerHiddenContext.Provider value={triggerInSlot}>
         {open && label && (
-          <div className="flex h-12 shrink-0 items-center gap-1 px-2">
+          <div className="flex h-10 shrink-0 items-center gap-1 px-2">
             <span className="min-w-0 flex-1 truncate px-2 text-sm font-medium">
               {label}
             </span>

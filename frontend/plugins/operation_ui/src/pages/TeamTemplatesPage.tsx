@@ -12,7 +12,7 @@ export const TeamTemplatesPage = () => {
   return (
     <PageContainer>
       <div className="h-full w-full bg-background overflow-auto">
-        <div className="px-4 h-16 flex items-center">
+        <div className="px-4 h-10 flex items-center">
           <Breadcrumb>
             <Breadcrumb.List>
               <Breadcrumb.Item>
@@ -21,7 +21,7 @@ export const TeamTemplatesPage = () => {
                     variant="ghost"
                     className="text-foreground"
                     onClick={() =>
-                      navigate(`/settings/operation/team/details/${id}`)
+                      navigate(`/operation/settings/team/details/${id}`)
                     }
                   >
                     <IconArrowLeft size={16} className="stroke-foreground" />

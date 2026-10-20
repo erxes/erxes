@@ -159,7 +159,7 @@ export const FxaIncomeDetailOwnerRecordsSheet = ({
         />
       </Sheet.Trigger>
       <Sheet.View className="p-0 flex flex-col gap-0 overflow-hidden flex-none md:max-w-5xl">
-        <Sheet.Header className="flex-row gap-3 items-center p-3 space-y-0 border-b">
+        <Sheet.Header className="flex-row gap-3 items-center p-3 space-y-0 border-b h-auto py-2">
           <div className="min-w-0">
             <Sheet.Title>{title || t('asset-custodian-records')}</Sheet.Title>
             <Sheet.Description>

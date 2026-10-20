@@ -5,9 +5,10 @@ import {
   managePropertiesFormSchema,
   TManagePropertiesForm,
 } from '@/automations/components/builder/nodes/actions/manageProperties/states/managePropertiesForm';
+import { AutomationSortableRules } from '@/automations/components/builder/sidebar/components/content/action/conditional/AutomationRuleCard';
 import { AutomationConfigFormWrapper } from '@/automations/components/builder/nodes/components/AutomationConfigFormWrapper';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { IconInfoCircle } from '@tabler/icons-react';
+import { IconInfoCircle, IconPlus } from '@tabler/icons-react';
 import { Alert, Button, Form, Label, Select } from 'erxes-ui';
 import { FormProvider, useFieldArray, useForm } from 'react-hook-form';
 import {
@@ -45,7 +46,7 @@ export const ManagePropertiesConfigForm = ({
     loading,
   } = useManagePropertySidebarContent(currentAction, form);
   const { t } = useTranslation('automations');
-  const { append, replace } = useFieldArray({
+  const { fields, append, remove, move, replace } = useFieldArray({
     control: form.control,
     name: 'rules',
   });
@@ -109,33 +110,34 @@ export const ManagePropertiesConfigForm = ({
               </Form.Item>
             )}
           />
-          <Form.Field
-            control={form.control}
-            name="rules"
-            render={({ field }) => {
-              return (
-                <Form.Item className="mt-2">
-                  <Form.Label>{t('rules')}</Form.Label>
-
-                  {(field.value || []).map((_, index) => (
-                    <ManagePropertyRule
-                      key={`${propertyType}-${index}`}
-                      index={index}
-                      propertyType={propertyType}
-                      sourceType={sourceType}
-                    />
-                  ))}
-                  <Button
-                    className="w-full"
-                    variant="secondary"
-                    onClick={() => append({ field: '', operator: '' })}
-                  >
-                    <Label>{t('add-rule')}</Label>
-                  </Button>
-                </Form.Item>
-              );
-            }}
-          />
+          <div className="mt-4 flex flex-col gap-3">
+            <Label>{t('rules')}</Label>
+            <AutomationSortableRules
+              ids={fields.map((field) => field.id)}
+              onReorder={move}
+            >
+              {fields.map((field, index) => (
+                <ManagePropertyRule
+                  key={field.id}
+                  id={field.id}
+                  index={index}
+                  onRemove={() => remove(index)}
+                  propertyType={propertyType}
+                  sourceType={sourceType}
+                />
+              ))}
+            </AutomationSortableRules>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="w-fit"
+              onClick={() => append({ field: '', operator: '' })}
+            >
+              <IconPlus />
+              {t('add-rule')}
+            </Button>
+          </div>
         </div>
       </AutomationConfigFormWrapper>
     </FormProvider>

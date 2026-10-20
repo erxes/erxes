@@ -59,7 +59,7 @@ export const CreateResponse = () => {
         const createdId = res.responseTemplatesAdd?._id;
         if (createdId) {
           navigate(
-            `/settings/frontline/channels/${channelId}/response/${createdId}`,
+            `/frontline/settings/channels/${channelId}/response/${createdId}`,
           );
         }
       },

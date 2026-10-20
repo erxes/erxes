@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-10-15`
+- **Last synchronized:** `2026-10-19`
 
 ## Scope
 
@@ -327,6 +327,50 @@
   keeps the shared app.
 - Runs Facebook/Instagram/Discord/mail/inbox/ticket automation triggers and actions,
   including bot message sequences with postback buttons and wait conditions.
+- Takes turns on Facebook Messenger for AI replies: a typed direct message
+  reaches automations through a delayed BullMQ trigger (2 s for text, 5 s for
+  media-only; `FACEBOOK_REPLY_DEBOUNCE_TEXT_MS` / `_MEDIA_MS`), and
+  `checkMessageTrigger` drops it when the same person has written since, so a
+  burst is answered once by its last message. A message with only an image,
+  video, audio or file (never a sticker or share) still starts a run.
+  `generateAiContext` merges every customer message since the last reply into
+  the input, shows media as `[media <messageId>-<index> <type>]` markers, and
+  adds `facts.mediaIds` and `facts.openTickets` (tickets related to the inbox
+  conversation that are not resolved or closed). `actionCreateMessage` skips an
+  AI-written reply as `superseded-by-newer-message` when a newer customer
+  message exists.
+- AI long-term memory scopes: Facebook and Messenger `generateAiContext` set
+  `memory.scopes` to the conversation (`frontline:facebook.conversation` /
+  `frontline:inbox.conversation`) and `core:customer`
+  (`modules/inbox/meta/automation/aiMemoryScopes.ts`). The automations service
+  files what an agent's tool branches did under these scopes. **Create
+  ticket** declares `defaultsWhenAfter` the AI agent `remember: { as:
+'ticket', fields: ['name', 'number'] }`, so behind an agent's tool the
+  ticket is remembered and a later turn names it as `ticketId`.
+- Ticket automations: **Create ticket** attaches `attachmentIds` (media ids
+  resolved only against the triggering conversation's messages) and relates
+  the ticket to the inbox conversation and customer, as a manual convert does.
+  (Media added to an existing ticket goes through Find object and Manage
+  properties' `attachments` field; there is no separate add-to-ticket action.)
+  Conversation media is stored on the ticket with a MIME `type` (from the URL
+  extension, else `<kind>/*`), never the message's bare kind (`image`): the
+  ticket detail's `erxes-ui` Attachments only shows MIME-typed files.
+- Tickets are a **Find object** target (`frontline:tickets.tickets`, by `_id`
+  or `number`; the result's `acceptsFollowUp` is `false` for a resolved/closed
+  status type, so a later request about the same matter starts a new ticket
+  instead of landing on a finished one), so a flow can
+  reach an existing ticket — e.g. the id an AI
+  agent picked from `facts.openTickets` — and Manage properties can update it
+  through "Select target". In the automation field list (`usageType:
+'automations'`) system-written fields (`number`, `updatedBy`,
+  `statusChangedBy`, `statusChangedDate`, `createdBy`, `userId`,
+  `sourceSurvey.*`) are hidden and an `attachments` field accepts conversation
+  media ids. `ticketPropertyWrites.ts` resolves those ids to stored files
+  (always add-unique) and turns a `concat` onto an editor-block description
+  into new paragraphs instead of broken JSON.
+- The knowledge base AI source, in whole-source scope, narrows by
+  `config.topicIds`, `config.categoryIds` (each with its subtree) and
+  `config.articleIds`; no rule means every published article.
 - Logs Facebook Graph delivery failures with provider error metadata and request
   context while excluding outbound message content; comment-triggered bot flows
   do not send Messenger typing indicators.
@@ -482,7 +526,7 @@
   `email`, then `phone` — one `companies.findOne` query per selector, stopping
   at the first hit — so a repeat connect updates the existing company instead
   of creating a duplicate.
-- `pnpm schema:print` writes the full subgraph schema, including the
+- `pnpm nx run frontline_api:schema:print` writes the full subgraph schema, including the
   subscription fields from `src/apollo/subscription.ts`, to
   `generated/schema.graphql` without Redis, Mongo or a running service.
 
@@ -498,7 +542,7 @@ The root router mounts its authenticated webhook at `/telegram`.
 | Bootstrap                | `src/main.ts`                                                                                                                                                    | `startPlugin({ name: 'frontline', port: 3304 })`, wires tRPC, routes, meta, and every surface                                                                                                                          |
 | Models                   | `src/connectionResolvers.ts`                                                                                                                                     | Per-subdomain model container for all modules                                                                                                                                                                          |
 | GraphQL                  | `src/apollo/`                                                                                                                                                    | Aggregated `typeDefs` and `resolvers` across modules                                                                                                                                                                   |
-| Schema print             | `print-schema.ts`                                                                                                                                                | Prints the subgraph schema for `frontline_ui` codegen (`generated/`, gitignored)                                                                                                                                       |
+| Schema print             | `scripts/print-subgraph-schema.ts`                                                                                                                               | Prints the subgraph schema for `frontline_ui` codegen (`generated/`, gitignored)                                                                                                                                       |
 | tRPC                     | `src/init-trpc.ts`                                                                                                                                               | `appRouter` for service-to-service calls                                                                                                                                                                               |
 | Agent tool metadata      | `src/trpc/agentMeta.ts`                                                                                                                                          | Local `agentMeta` helper for agent-callable tRPC annotations                                                                                                                                                           |
 | HTTP                     | `src/routes.ts`                                                                                                                                                  | Mounts the `/facebook`, `/instagram`, `/mail`, and (when enabled) `/callpro` webhook routers                                                                                                                           |
@@ -1214,9 +1258,8 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - Automation types — trigger `frontline:mail.messages` (target
   `TMailTriggerTarget`), actions `frontline:mail.messages.create` (Send Email)
   and `frontline:mail.drafts.create` (Draft Email Reply).
-- Nx target `schema:print` (cached, output `generated/schema.graphql`),
-  consumed by `frontline_ui:codegen` together with the UI's own core snapshot
-  `schema/platform.graphql`.
+- Nx target `schema:print` uses the shared `scripts/print-subgraph-schema.ts` printer (cached, output `generated/schema.graphql`),
+  consumed by `gateway:schema:compose`; `frontline_ui:codegen` uses that composed schema.
 
 ### Consumes
 
@@ -1242,6 +1285,14 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   The portal account behind a ticket is resolved from its `cp:<id>` author with
   `cpUsers.get` by `{ id }` and then by `{ erxesCustomerId }`, because a ticket
   records whichever of the two the portal session carried.
+- `core` over tRPC — `segment.fetchSegment`
+  (`{ segmentId, cursor?, limit? }` → `{ ids, nextCursor? }`), which backs the
+  conversation list `segment` filter. `segmentFilter` pages until `nextCursor`
+  is empty; core caps each page, so one call is never the whole segment.
+- `core` over tRPC — `notifications.sendMobileNotification` (mutation,
+  `{ title, body, receivers, data }`), which pushes a new chat message to the
+  assigned and participating agents' `deviceTokens`. The path is
+  `notifications.*`, not `core.*`; a wrong path fails silently.
 - `automations` over tRPC — `automations.trigger`. The path is
   `automations.trigger`, not `triggers.trigger`; `sendTRPCMessage` swallows a
   wrong path or a query/mutation mismatch and returns `defaultValue`, so a
@@ -1259,11 +1310,18 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 ## Local Invariants
 
-- `facebookGetPosts` keeps its 2.x name, argument list and `forClientPortal`
-  wrapper: external client portal sites call it as written for 2.x, and it must
-  never become `skipPermission`. Brand and channel live on the inbox
-  `Integrations` record, never on `FacebookIntegrations`, so the brand/channel
-  filter runs there and the Facebook record is reached by `erxesApiId`.
+- Set property handlers pass `targetActionId: action.targetActionId` to
+  `getSetPropertySelector`, so a Manage properties action targeting an earlier
+  action (Find object, Create) updates that action's record, not the trigger's.
+
+- A media id (`<messageId>-<index>`, `facebook/meta/automation/utils/turnTaking.ts`)
+  is the only way automation media reaches a ticket; `resolveConversationMedia`
+  looks it up in the triggering conversation only, so no id can attach a file
+  from another conversation. URLs never pass through the model.
+- Automation ticket code resolves the inbox conversation through
+  `resolveInboxConversationId`: Facebook targets carry the integration's own
+  conversation id, never the inbox one.
+
 - A `scheduled` article is published by a delayed BullMQ job on the
   `knowledgeBaseScheduledPublish` queue (`frontline`), never by a cross-tenant
   cron. `knowledgeBaseArticlesAdd` / `Edit` call `scheduleArticlePublish` with
@@ -1344,6 +1402,11 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   `cpGetTicketTotalCount` pass `skipPipelineVisibility` to `generateFilter`, so
   a customer sees their own `cp:<id>` tickets in private pipelines. Without
   `createdBy` the staff rules still apply.
+- `cpGetTicketPipelines` is readable with only a portal token (no `cpUser`
+  required), so it never returns private pipelines and returns the
+  `CpTicketPipeline` type (`_id`, `name`, `description`, `channelId`), never
+  the staff `Pipeline` type with its member, department, numbering and
+  `createdUser` fields. Keep any new client portal read on its own narrow type.
 - A converted ticket's "Go to" URL (`conversationConvertedItems`, built in
   `src/modules/inbox/services/conversationConvertTargets.ts`) carries the
   ticket's `channelId` and `pipelineId` with `ticketId`; without them the
@@ -1363,7 +1426,7 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - `reactToConversationMessage` routes by integration kind through its
   `REACTION_HANDLERS` map (react + publish pair); a new reaction-capable kind is
   added there, never as another `if` branch.
-- `print-schema.ts` must exit the process itself: `erxes-api-shared/utils`
+- `scripts/print-subgraph-schema.ts` must exit the process itself: `erxes-api-shared/utils`
   opens a Redis client on import that would otherwise keep it alive.
 - Stored timestamps are `Date` in the SDL, never `String`: a `String` field
   serializes a stored `Date` as epoch milliseconds.
@@ -1423,10 +1486,10 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 ## Validation
 
+- `pnpm nx run frontline_api:schema:print` - prints this subgraph's SDL to `generated/schema.graphql` (gitignored) offline, for `gateway:schema:compose`.
 - `pnpm nx lint frontline_api` - runs ESLint with the plugin-local
   `eslint.config.js` (regex-escaping rules).
 - `pnpm nx build frontline_api`
-- `pnpm nx run frontline_api:schema:print` - writes `generated/schema.graphql`.
 - `pnpm nx test frontline_api` — Jest over `src/**/*.test.ts` and the
   Telegram `src/**/*.spec.ts` suites (`jest.config.ts`, `tsconfig.spec.json`).
   Both suffixes are excluded from `tsconfig.build.json`; prefer `.test.ts` for
@@ -1467,3 +1530,61 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   rejection throws instead of silently keeping the unvalidated input, and
   clearing every property to `{}` stays `{}` on the next read rather than
   reverting to any legacy value.
+
+## Recent Changes
+
+<!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-10-19` — Conversation segment filter on the paged contract
+
+- **Summary:** The inbox `segment` filter sends `{ segmentId, cursor, limit }` and collects every `ids` page; it used the pre-cutover `options` input and read `_id` from an array, so it matched nothing.
+- **Affected areas:** `conversationQueryBuilder.ts` (+ `__tests__/conversationQueryBuilder.segment.test.ts`).
+- **Contracts changed:** none provided; consumes core `segment.fetchSegment` paging.
+
+### `2026-10-18` — Ticket remembered through action placement
+
+- **Summary:** Create ticket declares what it remembers behind an AI agent (`defaultsWhenAfter`) instead of output `memorize` flags; ticket find object reports `acceptsFollowUp`; conversation media is stored on tickets with a MIME type.
+- **Affected areas:** ticket automation constants, `findTicketObject.ts`, `conversationTickets.ts`.
+- **Contracts changed:** `defaultsWhenAfter` on Create ticket; `acceptsFollowUp` on the find object result; `memorize` removed.
+
+### `2026-10-17` — AI long-term memory scopes
+
+- **Summary:** Messenger and Facebook AI context names the conversation and customer as memory scopes; ticket output marks the fields the agent remembers.
+- **Affected areas:** Facebook and inbox automation context, ticket automation constants.
+- **Contracts changed:** `TAiContext.memory.scopes`; `memorize` flag on ticket output variables.
+
+### `2026-10-16` — AI agent turns, media and tickets on Messenger
+
+- **Summary:** Debounced Messenger AI turns, media-only messages, media markers and open-ticket facts for the agent, ticket attachments and conversation relations, and topic/category scope for the knowledge base source.
+- **Affected areas:** Facebook automation trigger and context, ticket automation actions, knowledge base AI provider.
+- **Contracts changed:** `createTicket` config gains `attachmentIds`; AI context facts gain `mediaIds` and `openTickets`; knowledge source config accepts `topicIds`, `categoryIds`, `articleIds`.
+
+### `2026-10-06` — Telegram group upgrades and attachment URLs
+
+- **Summary:** Retains the reply target for first-seen group upgrades and downloads absolute attachment URLs from their stated host.
+- **Affected areas:** Telegram conversation mapping, reply attachment reader and regression tests.
+- **Contracts changed:** None; existing migration metadata and attachment input shapes are preserved.
+
+### `2026-10-06` — Telegram previews and review hygiene
+
+- **Summary:** Preserves captionless media and poll previews and documents Telegram lifecycle contracts while cleaning up test fixtures.
+- **Affected areas:** Telegram ingestion/content adapters, module documentation and regression tests.
+- **Contracts changed:** None; previews use the existing conversation content field.
+
+### `2026-10-06` — Complete long Telegram replies and connection edits
+
+- **Summary:** Sends long text and caption overflow in ordered parts and lets Telegram common-field edits complete successfully.
+- **Affected areas:** Telegram reply delivery, edit synchronization, inbox integration dispatcher and regression tests.
+- **Contracts changed:** Optional `extraData.telegram.textChunked` metadata; existing inbox and GraphQL shapes are preserved.
+
+### `2026-10-06` — Telegram review fixes
+
+- **Summary:** Restores Telegram kind discovery, permits local disconnect/removal during provider failures and bounds link parsing work.
+- **Affected areas:** Inbox kind map, Telegram lifecycle, link previews and regression tests.
+- **Contracts changed:** `telegramDisconnectBot` returns remote-cleanup confirmation after local deactivation; provider cleanup failures no longer block removal.
+
+### `2026-10-06` — Telegram integration on the current inbox architecture
+
+- **Summary:** Adds Telegram setup, webhook ingestion and replies through the existing provider dispatcher and inbox persistence flow.
+- **Affected areas:** `src/modules/integrations/telegram`, inbox provider dispatch, model registration and routes.
+- **Contracts changed:** Telegram bot lifecycle/status GraphQL and `/telegram/receive/:_id`; provider metadata uses `extraData.telegram`.

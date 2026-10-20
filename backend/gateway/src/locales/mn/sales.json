@@ -92,6 +92,7 @@
   "pos": "ПОС",
   "deals": "Хэлцлүүд",
   "deal": "Хэлцэл",
+  "deal-number": "Хэлцэл #{{number}}",
   "deal-name": "Хэлцлийн нэр",
   "boards": "Боардууд",
   "boards-and-pipelines": "Боардууд & Дамжлагууд",

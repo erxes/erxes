@@ -185,6 +185,27 @@ export const permissions: IPermissionConfig = {
       ],
     },
     {
+      name: 'files',
+      description: 'File manager',
+      scopeField: null,
+      ownerFields: [],
+
+      scopes: [{ name: 'all', description: 'All records' }],
+
+      actions: [
+        {
+          title: 'Use files',
+          name: 'filesRead',
+          description: 'Use Files; what each person sees and changes is set by folder access',
+        },
+        {
+          title: 'Files admin',
+          name: 'filesAdmin',
+          description: 'See and download every file and folder (read only); each use is logged',
+        },
+      ],
+    },
+    {
       name: 'properties',
       description: 'Custom fields and field groups',
       scopeField: null,
@@ -887,6 +908,12 @@ export const permissions: IPermissionConfig = {
           actions: ['logsRead'],
           scope: 'all',
         },
+        {
+          plugin: 'core',
+          module: 'files',
+          actions: ['filesRead'],
+          scope: 'all',
+        },
       ],
     },
     {
@@ -923,6 +950,13 @@ export const permissions: IPermissionConfig = {
           module: 'broadcasts',
           actions: ['broadcastRead', 'broadcastCreate', 'broadcastUpdate'],
           scope: 'own',
+        },
+        // What each person sees inside Files is decided by folder access.
+        {
+          plugin: 'core',
+          module: 'files',
+          actions: ['filesRead'],
+          scope: 'all',
         },
       ],
     },
@@ -1063,6 +1097,12 @@ export const permissions: IPermissionConfig = {
           module: 'internalNotes',
           actions: ['internalNotesManage'],
           scope: 'own',
+        },
+        {
+          plugin: 'core',
+          module: 'files',
+          actions: ['filesRead'],
+          scope: 'all',
         },
       ],
     },

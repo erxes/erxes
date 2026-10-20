@@ -83,33 +83,6 @@ export const LoyaltyAccountFilter = () => {
       sessionKey={LOYALTY_ACCOUNT_CURSOR_SESSION_KEY}
     >
       <Filter.Bar>
-        <Filter.SearchValueBarItem />
-        <BarItem
-          queryKey={ACCOUNT_FILTER_KEYS.status}
-          icon={IconProgressCheck}
-          label={t('status')}
-          value={labelOf(statusOptions, queries.accountStatus)}
-        />
-        <BarItem
-          queryKey={ACCOUNT_FILTER_KEYS.ownerType}
-          icon={IconLabelFilled}
-          label={t('owner-type')}
-          value={labelOf(ownerTypeOptions, queries.accountOwnerType)}
-        />
-        <BarItem
-          queryKey={ACCOUNT_FILTER_KEYS.accountTypeId}
-          icon={IconWallet}
-          label={t('loyalty-account-type')}
-          value={labelOf(accountTypeOptions, queries.accountTypeId)}
-        />
-        {queries.accountTypeId && (
-          <BarItem
-            queryKey={ACCOUNT_FILTER_KEYS.tier}
-            icon={IconStairs}
-            label={t('loyalty-tier')}
-            value={labelOf(tierOptions, queries.accountTier)}
-          />
-        )}
         <Filter.Popover>
           <Filter.Trigger isFiltered={hasFilters} />
           <Combobox.Content>
@@ -169,6 +142,33 @@ export const LoyaltyAccountFilter = () => {
             />
           </Combobox.Content>
         </Filter.Popover>
+        <Filter.SearchValueBarItem />
+        <BarItem
+          queryKey={ACCOUNT_FILTER_KEYS.status}
+          icon={IconProgressCheck}
+          label={t('status')}
+          value={labelOf(statusOptions, queries.accountStatus)}
+        />
+        <BarItem
+          queryKey={ACCOUNT_FILTER_KEYS.ownerType}
+          icon={IconLabelFilled}
+          label={t('owner-type')}
+          value={labelOf(ownerTypeOptions, queries.accountOwnerType)}
+        />
+        <BarItem
+          queryKey={ACCOUNT_FILTER_KEYS.accountTypeId}
+          icon={IconWallet}
+          label={t('loyalty-account-type')}
+          value={labelOf(accountTypeOptions, queries.accountTypeId)}
+        />
+        {queries.accountTypeId && (
+          <BarItem
+            queryKey={ACCOUNT_FILTER_KEYS.tier}
+            icon={IconStairs}
+            label={t('loyalty-tier')}
+            value={labelOf(tierOptions, queries.accountTier)}
+          />
+        )}
         <Filter.Dialog>
           <Filter.View filterKey="searchValue" inDialog>
             <Filter.DialogStringView filterKey="searchValue" />
