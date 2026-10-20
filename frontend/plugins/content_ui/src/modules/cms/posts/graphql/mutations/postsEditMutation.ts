@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client';
 
 export const POSTS_EDIT = gql`
-  mutation CmsPostsEdit($id: String!, $input: PostInput!) {
+  mutation CmsPostsListEdit($id: String!, $input: PostInput!) {
     cmsPostsEdit(_id: $id, input: $input) {
       _id
       type

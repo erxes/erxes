@@ -6,7 +6,7 @@
 - **Project:** `content_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/content_ui`
-- **Last synchronized:** `2026-10-18`
+- **Last synchronized:** `2026-10-20`
 
 ## Scope
 
@@ -43,6 +43,8 @@
 | Web Builder   | `frontend/plugins/content_ui/src/modules/web-builder` | Owns Web Builder UI.                                                                    |
 | Pages         | `frontend/plugins/content_ui/src/pages`               | Provides route-level pages.                                                             |
 | Widgets       | `frontend/plugins/content_ui/src/widgets`             | Provides plugin widget exports.                                                         |
+| Codegen       | `frontend/plugins/content_ui/codegen.ts`              | Validates documents against the composed schema and generates the gitignored `src/gql`. |
+| Agent SDL     | `frontend/plugins/content_ui/schema/agent.graphql`    | Declares erxes-private agent_api fields content selects; not in the composed schema.    |
 
 ## Contracts
 
@@ -56,6 +58,10 @@
 
 - Public `erxes-ui` and `ui-modules` APIs.
 - Content plugin GraphQL APIs through Apollo Client.
+- The composed gateway schema from `gateway:schema:compose` (every backend's
+  printed subgraph: content and core included), consumed only at codegen time.
+- erxes-private agent_api `agentPostizTenantEnabled`, declared for codegen only
+  in `schema/agent.graphql` because that backend is not in this repository.
 
 ## Data and State
 
@@ -101,6 +107,19 @@
 - `src/widgets` is for plugin widget exports, not general shared CMS UI.
 - Keep hooks, GraphQL documents, states, constants, and types near the feature
   they support.
+- `tsconfig.app.json` type-checks every file under `src`, including files no
+  Rspack entry or expose reaches. Delete orphaned files instead of leaving them
+  pointing at removed modules.
+- Pages reuse the posts `MediaSection`: `IPageFormData` keeps the five
+  `MediaFormData` fields with the same types. React Hook Form's
+  `UseFormReturn` is invariant, so `PageSidebarPanel` casts its form at that
+  prop, as `AddPostForm` does for its columns.
+- Two more casts stay at external type boundaries, each with a one-line reason:
+  - `createPortal` results are cast to React 18's `ReactPortal`. pnpm links
+    `@types/react-dom` to React 19 types, but the runtime is React 18.
+  - `CmsPostEditor` casts its `BLOCK_SCHEMA` blocks to `useBlockEditor`'s
+    `initialContent` type. That type uses the default BlockNote schema, while
+    the editor itself is built with `BLOCK_SCHEMA`.
 
 ### UI Conventions
 
@@ -129,9 +148,25 @@
   exists.
 - Name GraphQL queries and mutations with the plugin or module prefix plus the
   operation purpose, such as `cmsPageList`; operation names must be unique.
+  Codegen rejects a name used by two documents with different bodies.
+- When renaming an operation, update every `refetchQueries` string that names
+  it. Post form selectors use `CmsPostCategories` and `CmsPostTags`; the
+  `'CmsCategories'` and `'CmsTags'` refetch strings target the category and
+  tag pages.
 - Search `src/modules/cms/graphql` before adding an operation; this plugin still
   has shared legacy CMS queries and mutations.
-- Reuse fragments such as `PageInfoFragment` before duplicating fields.
+- Codegen validates every document under `src` except tests against the
+  composed gateway schema (`backend/gateway/generated/schema.graphql`) plus
+  `schema/agent.graphql`. `build` and `serve` depend on the `codegen` target,
+  which depends on `gateway:schema:compose`. A content, core or other in-repo
+  field needs no local copy; fix a validation error in the document, or in the
+  backend that owns the field. Only erxes-private agent_api fields belong in
+  `schema/agent.graphql`.
+- Codegen drops `${...}` interpolation text, so interpolated field strings are
+  invisible to it. Share fields through a local `gql` fragment spread by name,
+  such as `CmsSocialDeliveryFields`.
+- Test files are excluded from codegen because they define mock documents that
+  reuse real operation names.
 - For cursor lists, follow the `useRecordTableCursor`, `validateFetchMore`, and
   `RecordTable.CursorProvider` pattern.
 - Do not change backend GraphQL contracts from this frontend plugin unless
@@ -189,7 +224,12 @@
 
 ## Validation
 
-- `pnpm nx lint content_ui` (when a lint target is defined)
+- `npx tsc -p frontend/plugins/content_ui/tsconfig.app.json --noEmit | rg content_ui`
+  prints nothing. The shared libraries' own errors are filtered out.
+- `pnpm nx lint content_ui`
+- `pnpm nx run gateway:schema:compose --parallel=2` - composes every backend's
+  printed schema.
+- `pnpm nx run content_ui:codegen --skip-nx-cache`
 - `pnpm nx build content_ui`
 - `pnpm nx test content_ui`
 - Create or edit a CMS post with blank paragraphs and a Tab-indented paragraph,
@@ -206,4 +246,6 @@
 - Forgetting `websiteId` in CMS routes, variables, links, or drawer props.
 - Adding shared CMS UI to `src/widgets` instead of `src/modules/cms/shared`.
 - Changing backend schema or API assumptions from the UI layer.
+- Calling Rspack directly, which skips codegen and leaves `src/gql/` stale.
+  `pnpm nx build`, `pnpm nx serve`, and `pnpm dev:uis` regenerate it.
 - Writing React or TypeScript tutorial content in this file instead of local rules.

@@ -50,6 +50,11 @@ interface UseTagsResult {
 
 export const TAGS_PER_PAGE = 30;
 
+const EMPTY_PAGE_INFO: IRecordTableCursorPageInfo = {
+  hasNextPage: false,
+  hasPreviousPage: false,
+};
+
 interface CmsTagsQueryResult {
   cmsTags?: {
     tags?: CmsTag[];
@@ -207,8 +212,9 @@ export function useTags({
           if (!fetchMoreResult?.cmsTags) return prev;
 
           const isForward = direction === EnumCursorDirection.FORWARD;
-          const fetchPageInfo = fetchMoreResult.cmsTags?.pageInfo || {};
-          const prevPageInfo = prev.cmsTags?.pageInfo || {};
+          const fetchPageInfo =
+            fetchMoreResult.cmsTags?.pageInfo || EMPTY_PAGE_INFO;
+          const prevPageInfo = prev.cmsTags?.pageInfo || EMPTY_PAGE_INFO;
           const fetchTags = fetchMoreResult.cmsTags?.tags || [];
           const prevTags = prev.cmsTags?.tags || [];
 
