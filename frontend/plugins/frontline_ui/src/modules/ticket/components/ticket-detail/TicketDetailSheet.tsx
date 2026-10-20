@@ -11,7 +11,7 @@ import {
   Sheet,
 } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { RelationWidgetSideTabs } from 'ui-modules';
+import { RecordActions, RelationWidgetSideTabs } from 'ui-modules';
 import { TicketSidebar } from './TicketSidebar';
 import { IconAlertCircle } from '@tabler/icons-react';
 import { useTicketCustomFieldEdit } from '@/ticket/hooks/useTicketCustomFieldEdit';
@@ -66,8 +66,16 @@ export const TicketDetailSheet = ({
               {t('ticket-detail', 'Ticket Detail')}
             </Sheet.Description>
           </div>
-          <div className="flex flex-1 justify-end">
-            {ticket && <TicketDetailActions ticket={ticket} />}
+          <div className="flex flex-1 justify-end gap-2">
+            {ticket && (
+              <>
+                <RecordActions
+                  contentType="frontline:ticket"
+                  contentIds={[ticket._id]}
+                />
+                <TicketDetailActions ticket={ticket} />
+              </>
+            )}
           </div>
           {hideRelationWidgetSideTabs ? (
             <Sheet.Close className="ml-0" />
