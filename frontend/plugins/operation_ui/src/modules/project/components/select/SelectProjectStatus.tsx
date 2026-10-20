@@ -5,10 +5,12 @@ export const SelectProjectStatus = ({
   projectId,
   value,
   inInlineCell = false,
+  label,
 }: {
   projectId: string;
   value?: number | null;
   inInlineCell?: boolean;
+  label?: string;
 }) => {
   const { updateProject } = useUpdateProject();
 
@@ -16,6 +18,7 @@ export const SelectProjectStatus = ({
     <SelectStatus
       variant={inInlineCell ? 'table' : 'detail'}
       value={value}
+      label={label}
       onValueChange={(value) =>
         updateProject({ variables: { _id: projectId, status: value } })
       }

@@ -260,8 +260,10 @@ export const SelectLeadFormItem = React.forwardRef<
   Omit<React.ComponentProps<typeof SelectLeadProvider>, 'children'> & {
     className?: string;
     teamIds?: string[] | string;
+    label?: string;
   }
->(({ onValueChange, className, teamIds, ...props }, ref) => {
+>(({ onValueChange, className, teamIds, label, ...props }, ref) => {
+  const { t } = useTranslation('operation');
   const [open, setOpen] = useState(false);
   return (
     <SelectLeadProvider
@@ -273,12 +275,18 @@ export const SelectLeadFormItem = React.forwardRef<
     >
       <Popover open={open} onOpenChange={setOpen}>
         <Form.Control>
-          <Combobox.TriggerBase
-            ref={ref}
-            className={cn('w-full h-7', className)}
-          >
-            <SelectLeadFormValue />
-          </Combobox.TriggerBase>
+          {label ? (
+            <Combobox.ChipTrigger label={label}>
+              <SelectLeadValue placeholder={t('not-specified')} />
+            </Combobox.ChipTrigger>
+          ) : (
+            <Combobox.TriggerBase
+              ref={ref}
+              className={cn('w-full h-7', className)}
+            >
+              <SelectLeadFormValue />
+            </Combobox.TriggerBase>
+          )}
         </Form.Control>
         <Combobox.Content>
           <SelectLeadContent teamIds={teamIds} />
@@ -338,8 +346,10 @@ export const SelectLeadDetail = React.forwardRef<
     className?: string;
     teamIds?: string[] | string;
     id?: string;
+    label?: string;
   }
->(({ onValueChange, className, teamIds, id, value, ...props }, ref) => {
+>(({ onValueChange, className, teamIds, id, value, label, ...props }, ref) => {
+  const { t } = useTranslation('operation');
   const [open, setOpen] = useState(false);
   const [internalValue, setInternalValue] = useState(value);
 
@@ -368,15 +378,21 @@ export const SelectLeadDetail = React.forwardRef<
       {...props}
     >
       <Popover open={open} onOpenChange={setOpen}>
-        <Combobox.TriggerBase
-          ref={ref}
-          className={cn('w-min shadow-xs', className)}
-          asChild
-        >
-          <Button variant="secondary" className="h-7">
-            <SelectLeadFormValue />
-          </Button>
-        </Combobox.TriggerBase>
+        {label ? (
+          <Combobox.ChipTrigger label={label}>
+            <SelectLeadValue placeholder={t('not-specified')} />
+          </Combobox.ChipTrigger>
+        ) : (
+          <Combobox.TriggerBase
+            ref={ref}
+            className={cn('w-min shadow-xs', className)}
+            asChild
+          >
+            <Button variant="secondary" className="h-7">
+              <SelectLeadFormValue />
+            </Button>
+          </Combobox.TriggerBase>
+        )}
         <Combobox.Content>
           <SelectLeadContent teamIds={teamIds} />
         </Combobox.Content>
