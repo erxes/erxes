@@ -16,9 +16,9 @@ import {
   validateFetchMore,
 } from 'erxes-ui';
 import { ACCOUNTS_CURSOR_SESSION_KEY } from '~/modules/accountsSessionKeys';
-import { ACCOUNTS_PER_PAGE } from '../constants/accountDefaultValues';
-import { GET_ACCOUNTS_MAIN } from '../graphql/queries/getAccounts';
-import { IAccount } from '../types/Account';
+import { ACCOUNTS_PER_PAGE } from '@/settings/account/constants/accountDefaultValues';
+import { GET_ACCOUNTS_MAIN } from '@/settings/account/graphql/queries/getAccounts';
+import { IAccount } from '@/settings/account/types/Account';
 
 export const useAccountsVariables = (
   variables?: QueryHookOptions<ICursorListResponse<IAccount>>['variables'],

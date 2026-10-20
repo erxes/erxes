@@ -4,11 +4,11 @@ import { AccountingEmptyState } from '@/layout/components/AccountingEmptyState';
 import { useSetAtom } from 'jotai';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { PRODUCTS_CURSOR_SESSION_KEY } from '../constants/productsCursorSessionKey';
-import { useProducts } from '../hooks/useProducts';
-import { selectedProductIdsAtom } from '../states/productCounts';
-import { productColumns } from './ProductColumns';
-import { ReCalcRemainderForm } from './ReCalcRemainderForm';
+import { PRODUCTS_CURSOR_SESSION_KEY } from '@/inventories/remainders/constants/productsCursorSessionKey';
+import { useProducts } from '@/inventories/remainders/hooks/useProducts';
+import { selectedProductIdsAtom } from '@/inventories/remainders/states/productCounts';
+import { productColumns } from '@/inventories/remainders/components/ProductColumns';
+import { ReCalcRemainderForm } from '@/inventories/remainders/components/ReCalcRemainderForm';
 
 export const ProductsRecordTable = () => {
   const { productsMain, handleFetchMore, loading, error, pageInfo } =

@@ -9,8 +9,8 @@ import {
 } from 'erxes-ui';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { TrJournalEnum } from '../types/constants';
-import { getSingleJournalByAccount } from '../transaction-form/components/utils';
+import { TrJournalEnum } from '@/transactions/types/constants';
+import { getSingleJournalByAccount } from '@/transactions/transaction-form/components/utils';
 
 export type AddTransactionHandler = (
   journal?: TrJournalEnum,

@@ -1,6 +1,6 @@
 import type { TFunction } from 'i18next';
 import { Cell, ColumnDef } from '@tanstack/table-core';
-import { IAccountCategory } from '../types/AccountCategory';
+import { IAccountCategory } from '@/settings/account/account-categories/types/AccountCategory';
 import {
   ITextFieldContainerProps,
   RecordTable,
@@ -16,13 +16,13 @@ import {
   toast,
 } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { useAccountCategories } from '../hooks/useAccountCategories';
-import { useAccountCategoryEdit } from '../hooks/useAccountCategoryEdit';
-import { useAccountCategoriesRemove } from '../hooks/useAccountCategoriesRemove';
-import { SelectAccountCategory } from './SelectAccountCategory';
+import { useAccountCategories } from '@/settings/account/account-categories/hooks/useAccountCategories';
+import { useAccountCategoryEdit } from '@/settings/account/account-categories/hooks/useAccountCategoryEdit';
+import { useAccountCategoriesRemove } from '@/settings/account/account-categories/hooks/useAccountCategoriesRemove';
+import { SelectAccountCategory } from '@/settings/account/account-categories/components/SelectAccountCategory';
 import { useSetAtom } from 'jotai';
-import { accountCategoryDetailAtom } from '../states/accountCategoryStates';
-import { AccountCategoriesCommandbar } from './AccountCategoriesCommandbar';
+import { accountCategoryDetailAtom } from '@/settings/account/account-categories/states/accountCategoryStates';
+import { AccountCategoriesCommandbar } from '@/settings/account/account-categories/components/AccountCategoriesCommandbar';
 import { useMemo } from 'react';
 import { IconEdit, IconFolderOff, IconTrash } from '@tabler/icons-react';
 import { AccountingEmptyState } from '@/layout/components/AccountingEmptyState';

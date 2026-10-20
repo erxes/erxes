@@ -16,9 +16,9 @@ import {
   validateFetchMore,
 } from 'erxes-ui';
 import { PERMISSIONS_CURSOR_SESSION_KEY } from '~/modules/accountsSessionKeys';
-import { PERMISSIONS_PER_PAGE } from '../constants/permissionDefaultValues';
-import { GET_ACCOUNT_PERMISSIONS } from '../graphql/queries/getPermissions';
-import { IPermission } from '../types/Permission';
+import { PERMISSIONS_PER_PAGE } from '@/settings/permission-settings/constants/permissionDefaultValues';
+import { GET_ACCOUNT_PERMISSIONS } from '@/settings/permission-settings/graphql/queries/getPermissions';
+import { IPermission } from '@/settings/permission-settings/types/Permission';
 
 export const usePermissionsVariables = (
   variables?: QueryHookOptions<ICursorListResponse<IPermission>>['variables'],

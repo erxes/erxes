@@ -4,8 +4,8 @@ import { IconPackageOff } from '@tabler/icons-react';
 import { RecordTable, Skeleton, Table } from 'erxes-ui';
 import { AccountingEmptyState } from '@/layout/components/AccountingEmptyState';
 import { AddSafeRemainder } from '@/inventories/safeRemainders/components/SafeRemainderForm';
-import { safeRemainderColumns } from './SafeRemainderColumns';
-import { ISafeRemainder } from '../types/SafeRemainder';
+import { safeRemainderColumns } from '@/inventories/safeRemainders/components/SafeRemainderColumns';
+import { ISafeRemainder } from '@/inventories/safeRemainders/types/SafeRemainder';
 
 const SafeRemainderInitialSkeleton = ({ rows = 20 }: { rows?: number }) => {
   const { t } = useTranslation('accounting');

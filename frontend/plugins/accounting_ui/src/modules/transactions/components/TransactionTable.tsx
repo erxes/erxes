@@ -4,10 +4,10 @@ import { RecordTable } from 'erxes-ui';
 import { AccountingEmptyState } from '@/layout/components/AccountingEmptyState';
 import { AddTransactionEmptyAction } from '@/transactions/components/AddTransactionEmptyAction';
 import { ACCTRANSACTIONS_CURSOR_SESSION_KEY } from '~/modules/accountsSessionKeys';
-import { useTransactions } from '../hooks/useTransactions';
-import { AccountingTableRow } from './AccountingTableRow';
-import { transactionColumns } from './TransactionsTableColumns';
-import { TransactionCommandBar } from './TransactionCommandBar';
+import { useTransactions } from '@/transactions/hooks/useTransactions';
+import { AccountingTableRow } from '@/transactions/components/AccountingTableRow';
+import { transactionColumns } from '@/transactions/components/TransactionsTableColumns';
+import { TransactionCommandBar } from '@/transactions/components/TransactionCommandBar';
 
 export const TransactionTable = () => {
   const { t } = useTranslation('accounting');

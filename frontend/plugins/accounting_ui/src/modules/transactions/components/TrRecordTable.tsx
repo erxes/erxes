@@ -4,10 +4,10 @@ import { RecordTable, useQueryState } from 'erxes-ui';
 import { AccountingEmptyState } from '@/layout/components/AccountingEmptyState';
 import { AddTransactionEmptyAction } from '@/transactions/components/AddTransactionEmptyAction';
 import { ACC_TR_RECORDS_CURSOR_SESSION_KEY } from '~/modules/accountsSessionKeys';
-import { useTrRecords } from '../hooks/useTrRecords';
-import { trRecordColumns } from './TrRecordsTableColumns';
+import { useTrRecords } from '@/transactions/hooks/useTrRecords';
+import { trRecordColumns } from '@/transactions/components/TrRecordsTableColumns';
 import { useMemo } from 'react';
-import { TransactionsCommandbar } from './TransactionsCommandBar';
+import { TransactionsCommandbar } from '@/transactions/components/TransactionsCommandBar';
 
 const hasInventoryLikeDetails = (journal?: string) =>
   journal?.includes('inv') || journal?.includes('fxa');

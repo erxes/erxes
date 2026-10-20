@@ -7,17 +7,17 @@ import {
   ACCOUNTING_CHECK_SYNCED_ORDERS_MUTATION,
   ACCOUNTING_CHECK_SYNCED_ORDERS_QUERY,
   ACCOUNTING_SYNC_ORDERS_MUTATION,
-} from '../graphql/checkSyncedOrders';
+} from '@/check-synced/orders/graphql/checkSyncedOrders';
 import {
   AccountingCheckSyncedOrder,
   AccountingCheckSyncedStatus,
   AccountingOrdersQueryResult,
-} from '../types';
+} from '@/check-synced/orders/types';
 import {
   AccountingCheckSyncedOrdersStatusCounts,
   accountingCheckSyncedOrdersStatusCountsAtom,
   accountingCheckSyncedOrdersTotalCountAtom,
-} from '../states';
+} from '@/check-synced/orders/states';
 import { QueryHookOptions, useMutation, useQuery } from '@apollo/client';
 import { atom, useAtom, useSetAtom } from 'jotai';
 import {

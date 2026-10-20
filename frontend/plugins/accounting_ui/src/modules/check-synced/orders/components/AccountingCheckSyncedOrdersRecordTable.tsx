@@ -1,13 +1,13 @@
 import {
   ACCOUNTING_CHECK_SYNCED_ORDERS_SESSION_KEY,
   useAccountingCheckSyncedOrders,
-} from '../hooks/useAccountingCheckSyncedOrders';
+} from '@/check-synced/orders/hooks/useAccountingCheckSyncedOrders';
 
-import { AccountingCheckSyncedOrdersCommandBar } from './AccountingCheckSyncedOrdersCommandBar';
+import { AccountingCheckSyncedOrdersCommandBar } from '@/check-synced/orders/components/AccountingCheckSyncedOrdersCommandBar';
 import { IconShoppingCartX } from '@tabler/icons-react';
 import { RecordTable } from 'erxes-ui';
 import { AccountingEmptyState } from '@/layout/components/AccountingEmptyState';
-import { getAccountingCheckSyncedOrdersColumns } from './AccountingCheckSyncedOrdersColumns';
+import { getAccountingCheckSyncedOrdersColumns } from '@/check-synced/orders/components/AccountingCheckSyncedOrdersColumns';
 import { isSyncable } from '~/modules/check-synced/constants/shared';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';

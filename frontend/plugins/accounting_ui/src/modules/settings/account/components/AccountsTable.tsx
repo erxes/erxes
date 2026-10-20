@@ -5,8 +5,8 @@ import { RecordTable, Skeleton, Table } from 'erxes-ui';
 import { AccountingEmptyState } from '@/layout/components/AccountingEmptyState';
 import { AddAccount } from '@/settings/account/components/AddAccount';
 import { accountsColumns } from '@/settings/account/components/AccountsColumns';
-import { AccountsCommandbar } from './AccountsCommandBar';
-import { ACCOUNTS_CURSOR_SESSION_KEY } from '../../../accountsSessionKeys';
+import { AccountsCommandbar } from '@/settings/account/components/AccountsCommandBar';
+import { ACCOUNTS_CURSOR_SESSION_KEY } from '@/accountsSessionKeys';
 import { useMemo } from 'react';
 
 const AccountsInitialSkeleton = ({ rows = 20 }: { rows?: number }) => {

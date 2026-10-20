@@ -3,9 +3,9 @@ import { IconLockOff } from '@tabler/icons-react';
 import { RecordTable, Skeleton, Table } from 'erxes-ui';
 import { AccountingEmptyState } from '@/layout/components/AccountingEmptyState';
 import { PERMISSIONS_CURSOR_SESSION_KEY } from '~/modules/accountsSessionKeys';
-import { usePermissionsMain } from '../hooks/usePermissionsMain';
-import { permissionsColumns } from './PermissionsColumns';
-import { PermissionsCommandbar } from './PermissionsCommandBar';
+import { usePermissionsMain } from '@/settings/permission-settings/hooks/usePermissionsMain';
+import { permissionsColumns } from '@/settings/permission-settings/components/PermissionsColumns';
+import { PermissionsCommandbar } from '@/settings/permission-settings/components/PermissionsCommandBar';
 import { useMemo } from 'react';
 
 const PermissionsInitialSkeleton = ({ rows = 20 }: { rows?: number }) => {

@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
-import { useAdjustInventories } from '../hooks/useAdjustInventories';
-import { adjustTableColumns } from './AdjustTableColumns';
+import { useAdjustInventories } from '@/adjustments/inventories/hooks/useAdjustInventories';
+import { adjustTableColumns } from '@/adjustments/inventories/components/AdjustTableColumns';
 import { IconAdjustmentsOff } from '@tabler/icons-react';
 import { RecordTable } from 'erxes-ui';
 import { AccountingEmptyState } from '@/layout/components/AccountingEmptyState';

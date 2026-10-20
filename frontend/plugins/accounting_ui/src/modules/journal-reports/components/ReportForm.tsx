@@ -29,14 +29,14 @@ import { SelectAccountCategory } from '~/modules/settings/account/account-catego
 import { SelectAccount } from '~/modules/settings/account/components/SelectAccount';
 import { SelectFixedAssetCategory } from '~/modules/settings/fixed-assets/components/SelectFixedAssetCategory';
 import { SelectFixedAsset } from '~/modules/settings/fixed-assets/components/SelectFixedAsset';
-import { activeReportState } from '../states/renderingReportsStates';
-import { ERKHET_TRANSACTION_TYPE_CHOICES } from '../types/erkhetTransactionTypes';
+import { activeReportState } from '@/journal-reports/states/renderingReportsStates';
+import { ERKHET_TRANSACTION_TYPE_CHOICES } from '@/journal-reports/types/erkhetTransactionTypes';
 import {
   getReportFilterDefinitions,
   REPORT_FILTER_GROUP_ORDER,
   ReportFilterDefinition,
-} from '../types/reportFilters';
-import { IReportConfig, ReportRules } from '../types/reportsMap';
+} from '@/journal-reports/types/reportFilters';
+import { IReportConfig, ReportRules } from '@/journal-reports/types/reportsMap';
 
 interface ReportFormValues {
   accountCategoryId?: string;

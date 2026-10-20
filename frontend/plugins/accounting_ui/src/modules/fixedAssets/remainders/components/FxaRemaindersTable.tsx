@@ -19,7 +19,7 @@ import {
   IFixedAssetCategory,
   IFixedAssetLocationRemainder,
 } from '@/settings/fixed-assets/types/FixedAsset';
-import { useFixedAssetRemainders } from '../hooks/useFixedAssetRemainders';
+import { useFixedAssetRemainders } from '@/fixedAssets/remainders/hooks/useFixedAssetRemainders';
 
 type TLabelItem = {
   code?: string;

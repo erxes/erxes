@@ -8,10 +8,10 @@ import {
 } from '~/modules/settings/components/SettingsRowsTable';
 import { useConfirm, useQueryState } from 'erxes-ui';
 
-import { CtaxRowsCommandbar } from './CtaxRowsCommandbar';
-import { ICtaxRow } from '../types/CtaxRow';
-import { useCtaxRows } from '../hooks/useCtaxRows';
-import { useCtaxRowsRemove } from '../hooks/useCtaxRowsRemove';
+import { CtaxRowsCommandbar } from '@/settings/ctax/components/CtaxRowsCommandbar';
+import { ICtaxRow } from '@/settings/ctax/types/CtaxRow';
+import { useCtaxRows } from '@/settings/ctax/hooks/useCtaxRows';
+import { useCtaxRowsRemove } from '@/settings/ctax/hooks/useCtaxRowsRemove';
 import { useTranslation } from 'react-i18next';
 import { AddCtaxs } from '@/settings/ctax/components/AddCtaxs';
 

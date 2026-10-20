@@ -18,9 +18,9 @@ import {
   SettingsRowsTable,
   moreColumn,
 } from '~/modules/settings/components/SettingsRowsTable';
-import { useFixedAssetCategories } from '../hooks/useFixedAssetCategories';
-import { useFixedAssetCategoryRemove } from '../hooks/useFixedAssetMutations';
-import { IFixedAssetCategory } from '../types/FixedAsset';
+import { useFixedAssetCategories } from '@/settings/fixed-assets/hooks/useFixedAssetCategories';
+import { useFixedAssetCategoryRemove } from '@/settings/fixed-assets/hooks/useFixedAssetMutations';
+import { IFixedAssetCategory } from '@/settings/fixed-assets/types/FixedAsset';
 import { AddFixedAssetCategory } from '@/settings/fixed-assets/components/AddFixedAssetCategory';
 
 const FixedAssetCategoryMoreCell = ({

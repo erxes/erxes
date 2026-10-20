@@ -14,9 +14,9 @@ import {
 import { useSetAtom } from 'jotai';
 import { useEffect } from 'react';
 
-import { productTotalCountAtom } from '../states/productCounts';
-import { PRODUCTS_CURSOR_SESSION_KEY } from '../constants/productsCursorSessionKey';
-import { productsQueries } from '../graphql/ProductsQueries';
+import { productTotalCountAtom } from '@/inventories/remainders/states/productCounts';
+import { PRODUCTS_CURSOR_SESSION_KEY } from '@/inventories/remainders/constants/productsCursorSessionKey';
+import { productsQueries } from '@/inventories/remainders/graphql/ProductsQueries';
 
 export const PRODUCTS_PER_PAGE = 30;
 

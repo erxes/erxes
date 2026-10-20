@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
-import { useAdjustDebtRates } from '../hooks/useAdjustDebtRates';
-import { adjustDebtRateColumns } from './AdjustDebtRateTableColumns';
+import { useAdjustDebtRates } from '@/adjustments/debt/hooks/useAdjustDebtRates';
+import { adjustDebtRateColumns } from '@/adjustments/debt/components/AdjustDebtRateTableColumns';
 import { IconAdjustmentsOff } from '@tabler/icons-react';
 import { RecordTable } from 'erxes-ui';
 import { AccountingEmptyState } from '@/layout/components/AccountingEmptyState';

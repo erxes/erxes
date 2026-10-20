@@ -2,17 +2,17 @@ import {
   ACCOUNTING_CHECK_SYNCED_DEAL_MOVEMENTS_SESSION_KEY,
   ACCOUNTING_CHECK_SYNCED_DEALS_SESSION_KEY,
   useAccountingCheckSyncedDeals,
-} from '../hooks/useAccountingCheckSyncedDeals';
+} from '@/check-synced/deals/hooks/useAccountingCheckSyncedDeals';
 
-import { AccountingCheckSyncedDealsCommandBar } from './AccountingCheckSyncedDealsCommandBar';
+import { AccountingCheckSyncedDealsCommandBar } from '@/check-synced/deals/components/AccountingCheckSyncedDealsCommandBar';
 import { IconShoppingCartX } from '@tabler/icons-react';
 import { RecordTable } from 'erxes-ui';
 import { AccountingEmptyState } from '@/layout/components/AccountingEmptyState';
-import { getAccountingCheckSyncedDealsColumns } from './AccountingCheckSyncedDealsColumns';
+import { getAccountingCheckSyncedDealsColumns } from '@/check-synced/deals/components/AccountingCheckSyncedDealsColumns';
 import { isSyncable } from '~/modules/check-synced/constants/shared';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { AccountingCheckSyncedDealRuleScope } from './AccountingCheckSyncedDealRuleSelect';
+import type { AccountingCheckSyncedDealRuleScope } from '@/check-synced/deals/components/AccountingCheckSyncedDealRuleSelect';
 
 export const AccountingCheckSyncedDealsRecordTable = ({
   ruleScope = 'deal',

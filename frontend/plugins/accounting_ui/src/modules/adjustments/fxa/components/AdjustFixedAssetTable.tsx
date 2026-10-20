@@ -3,8 +3,8 @@ import { IconAdjustmentsOff } from '@tabler/icons-react';
 import { RecordTable } from 'erxes-ui';
 import { AccountingEmptyState } from '@/layout/components/AccountingEmptyState';
 import { AddAdjustFixedAsset } from '@/adjustments/fxa/components/AdjustFixedAssetForm';
-import { useAdjustFixedAssets } from '../hooks/useAdjustFixedAssets';
-import { adjustFixedAssetTableColumns } from './AdjustFixedAssetTableColumns';
+import { useAdjustFixedAssets } from '@/adjustments/fxa/hooks/useAdjustFixedAssets';
+import { adjustFixedAssetTableColumns } from '@/adjustments/fxa/components/AdjustFixedAssetTableColumns';
 
 export const AdjustFixedAssetTable = () => {
   const { t } = useTranslation('accounting');

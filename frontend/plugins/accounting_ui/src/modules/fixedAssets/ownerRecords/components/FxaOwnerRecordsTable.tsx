@@ -26,7 +26,7 @@ import {
   IFixedAssetCategory,
   IFxaOwnerRecord,
 } from '@/settings/fixed-assets/types/FixedAsset';
-import { FxaOwnerRecordActionSheet } from './FxaOwnerRecordActionSheet';
+import { FxaOwnerRecordActionSheet } from '@/fixedAssets/ownerRecords/components/FxaOwnerRecordActionSheet';
 
 const OWNER_RECORD_STATUS_LABELS: Record<string, string> = {
   active: 'active',

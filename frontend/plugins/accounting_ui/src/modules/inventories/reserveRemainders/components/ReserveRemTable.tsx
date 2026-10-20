@@ -12,9 +12,9 @@ import { IconPackageOff, IconTrash } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { AccountingEmptyState } from '@/layout/components/AccountingEmptyState';
 import { AddReserveRem } from '@/inventories/reserveRemainders/components/ReserveRemForm';
-import { useReserveRems } from '../hooks/useReserveRems';
-import { useReserveRemsRemove } from '../hooks/useReserveRemsRemove';
-import { reserveRemColumns } from './ReserveRemColumns';
+import { useReserveRems } from '@/inventories/reserveRemainders/hooks/useReserveRems';
+import { useReserveRemsRemove } from '@/inventories/reserveRemainders/hooks/useReserveRemsRemove';
+import { reserveRemColumns } from '@/inventories/reserveRemainders/components/ReserveRemColumns';
 
 const ReserveRemInitialSkeleton = ({ rows = 20 }: { rows?: number }) => {
   const { t } = useTranslation('accounting');

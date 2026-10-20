@@ -13,11 +13,11 @@ import { useTranslation } from 'react-i18next';
 import { IconRefreshOff } from '@tabler/icons-react';
 import { AccountingEmptyState } from '@/layout/components/AccountingEmptyState';
 import { AddAccountingConfig } from '@/settings/syncSettings/AddAccountingConfig';
-import { ACCOUNTING_SETTINGS_CODES } from '../constants/settingsRoutes';
-import { accountingConfigDetailAtom } from '../states/accountingConfigState';
-import { IConfig } from '../types/Config';
-import { useAccountingConfigs } from '../hooks/useAccountingConfigs';
-import { EditAccountingConfig } from './EditAccountingConfig';
+import { ACCOUNTING_SETTINGS_CODES } from '@/settings/constants/settingsRoutes';
+import { accountingConfigDetailAtom } from '@/settings/states/accountingConfigState';
+import { IConfig } from '@/settings/types/Config';
+import { useAccountingConfigs } from '@/settings/hooks/useAccountingConfigs';
+import { EditAccountingConfig } from '@/settings/syncSettings/EditAccountingConfig';
 
 export const SyncInitialSkeleton = ({
   rows = 20,
