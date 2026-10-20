@@ -50,6 +50,7 @@ export interface ProductDetail {
   attachment?: ProductAttachment;
   attachmentMore?: ProductAttachment[] | ProductAttachment;
   videos?: ProductAttachment[] | ProductAttachment;
+  files?: ProductAttachment[];
   barcodes?: string | string[];
   shortName?: string;
   unitPrice?: number;

@@ -27,6 +27,7 @@ export const ProductDetailFields = ({
         attachment={productDetail.attachment}
         attachmentMore={productDetail.attachmentMore}
         videos={productDetail.videos}
+        files={productDetail.files}
       />
       <ProductDetailInfo />
     </div>

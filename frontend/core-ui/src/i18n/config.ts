@@ -19,6 +19,7 @@ export const defaultI18nOptions: InitOptions = {
     'contact',
     'product',
     'documents',
+    'files',
     'organization',
     'segment',
     'automations',
