@@ -75,6 +75,8 @@ export const pipelineLabelMutations: Record<string, Resolver> = {
       oldDeal,
       pipelineId: stage.pipelineId,
     });
+
+    return 'success';
   },
 };
 

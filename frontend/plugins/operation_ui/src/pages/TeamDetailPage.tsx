@@ -10,7 +10,7 @@ export const TeamDetailPage = () => {
 
   return (
     <PageContainer>
-      <div className="px-4 h-16 flex items-center">
+      <div className="px-4 h-10 flex items-center">
         <Breadcrumb>
           <Breadcrumb.List>
             <Breadcrumb.Item>
@@ -18,7 +18,7 @@ export const TeamDetailPage = () => {
                 <Button
                   variant="ghost"
                   className="text-foreground"
-                  onClick={() => navigate('/settings/operation/team')}
+                  onClick={() => navigate('/operation/settings/team')}
                 >
                   <IconArrowLeft size={16} className="stroke-foreground" />
                   {t('teams')}

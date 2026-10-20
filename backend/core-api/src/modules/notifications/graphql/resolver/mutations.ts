@@ -110,14 +110,30 @@ export const notificationMutations = {
     _root: undefined,
     {
       input,
-    }: { input: { event: string; enabled: boolean; channels: string[] } },
+    }: {
+      input: {
+        event: string;
+        enabled: boolean;
+        channels: string[];
+        mutedChannels?: string[];
+      };
+    },
     { models, user }: IContext,
   ) {
-    const { event, enabled, channels } = input;
+    const { event, enabled, channels, mutedChannels } = input;
 
+    // field-level set so an on/off toggle keeps the event's muted channels
     await models.NotificationSettings.updateOne(
       { userId: user._id },
-      { $set: { [`events.${event}`]: { enabled, channels } } },
+      {
+        $set: {
+          [`events.${event}.enabled`]: enabled,
+          [`events.${event}.channels`]: channels,
+          ...(mutedChannels && {
+            [`events.${event}.mutedChannels`]: mutedChannels,
+          }),
+        },
+      },
       { upsert: true },
     );
 

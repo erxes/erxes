@@ -19,7 +19,7 @@ export function IncomingWebhookPayloadSchemaSheet({ value, onChange }: Props) {
         </Button>
       </Sheet.Trigger>
       <Sheet.View className="p-0 md:w-[calc(90vw-theme(spacing.4))] flex flex-col gap-0 transition-all duration-100 ease-out overflow-hidden flex-none sm:max-w-screen-2xl">
-        <Sheet.Header>
+        <Sheet.Header className="h-auto py-2">
           <div>
             <Sheet.Title>
               {t('webhook-trigger-schema-builder-title')}

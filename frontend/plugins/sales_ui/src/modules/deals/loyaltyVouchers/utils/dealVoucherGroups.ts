@@ -1,15 +1,25 @@
-export interface IDealSaleVoucher {
-  _id: string;
-  title: string;
-  voucherType: string;
-  kind?: string | null;
-  value?: number | null;
-  expiresAt?: string | null;
-  status?: string | null;
-  autoApplied: boolean;
-  applicable: boolean;
-  reason?: string | null;
-}
+import { z } from 'zod';
+
+export const dealSaleVoucherSchema = z
+  .object({
+    _id: z.string(),
+    title: z.string(),
+    voucherType: z.string(),
+    kind: z.string().nullish(),
+    value: z.number().nullish(),
+    expiresAt: z.string().nullish(),
+    status: z.string().nullish(),
+    autoApplied: z.boolean(),
+    applicable: z.boolean(),
+    reason: z.string().nullish(),
+  })
+  .passthrough();
+
+export type IDealSaleVoucher = z.infer<typeof dealSaleVoucherSchema>;
+export const dealSaleVouchersSchema = z.object({
+  vouchers: z.array(dealSaleVoucherSchema),
+  settled: z.boolean(),
+});
 
 export interface IDealVoucherGroup {
   key: string;

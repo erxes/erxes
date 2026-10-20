@@ -1,16 +1,16 @@
-import { Button, Dialog, Spinner, cn, readImage } from 'erxes-ui';
 import {
   IconChevronLeft,
   IconChevronRight,
   IconX,
   IconZoomIn,
 } from '@tabler/icons-react';
+import { Button, Dialog, Spinner, cn, readImage } from 'erxes-ui';
 import { useEffect, useRef, useState } from 'react';
 
-import { IAttachment } from '@/deals/types/attachments';
-import { useAttachmentContext } from './AttachmentContext';
 import { useDealsContext } from '@/deals/context/DealContext';
+import { IAttachment } from '@/deals/types/attachments';
 import { useTranslation } from 'react-i18next';
+import { useAttachmentContext } from './AttachmentContext';
 
 export const MediaAttachments = ({
   attachments,
@@ -70,7 +70,7 @@ export const MediaAttachments = ({
               <img
                 className="size-full object-cover"
                 src={readImage(attachment.url)}
-                alt={attachment.name}
+                alt={attachment.name ?? ''}
               />
               <div
                 className={cn(
@@ -172,7 +172,7 @@ export const MediaAttachments = ({
           {currentAttachment && (
             <img
               src={readImage(currentAttachment.url)}
-              alt={currentAttachment.name}
+              alt={currentAttachment.name ?? ''}
               className="max-h-[90vh] max-w-[90vw] rounded object-contain shadow-lg"
             />
           )}

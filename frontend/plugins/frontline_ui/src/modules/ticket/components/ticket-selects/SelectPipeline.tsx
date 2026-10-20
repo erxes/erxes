@@ -262,7 +262,7 @@ const SelectPipelineContent = ({ allowCreate }: { allowCreate?: boolean }) => {
                   ) : (
                     <Button asChild variant="secondary">
                       <Link
-                        to={`/settings/frontline/channels/${channelId}/pipelines`}
+                        to={`/frontline/settings/channels/${channelId}/pipelines`}
                       >
                         {t('add-pipeline')}
                       </Link>

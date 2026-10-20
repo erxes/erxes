@@ -1,7 +1,6 @@
 'use client';
 
-import { RelationWidgetSideTabs } from 'ui-modules';
-import { DealActivityTab } from './DealActivityTab';
+import { IconAlertCircle, IconCloudExclamation } from '@tabler/icons-react';
 import {
   Empty,
   FocusSheet,
@@ -10,20 +9,20 @@ import {
   useFocusSheet,
   useQueryState,
 } from 'erxes-ui';
-import { IconAlertCircle, IconCloudExclamation } from '@tabler/icons-react';
+import { RelationWidgetSideTabs } from 'ui-modules';
+import { DealActivityTab } from './DealActivityTab';
 
-import { DealsProvider } from '@/deals/context/DealContext';
-import { IDeal } from '@/deals/types/deals';
 import { Overview } from '@/deals/cards/components/detail/overview/Overview';
 import { Products } from '@/deals/cards/components/detail/product/components/Products';
 import { SalesItemDetailHeader } from '@/deals/cards/components/detail/SalesItemDetailHeader';
-import { SalesItemSidebar } from './SalesItemSidebar';
+import { useDealDetail } from '@/deals/cards/hooks/useDeals';
+import { DealsProvider } from '@/deals/context/DealContext';
 import { dealDetailSheetState } from '@/deals/states/dealDetailSheetState';
 import { useAtom } from 'jotai';
-import { useDealCustomFieldEdit } from '../../hooks/useDealCustomFieldEdit';
-import { useDealDetail } from '@/deals/cards/hooks/useDeals';
 import { useTranslation } from 'react-i18next';
+import { useDealCustomFieldEdit } from '../../hooks/useDealCustomFieldEdit';
 import { DealPipelineProperties } from './DealPipelineProperties';
+import { SalesItemSidebar } from './SalesItemSidebar';
 
 const SalesItemDetailView = () => {
   const { isSidebarOpen } = useFocusSheet();
@@ -39,55 +38,59 @@ const SalesItemDetailView = () => {
       errorState={<SalesItemDetailErrorState />}
       className={!isSidebarOpen ? 'lg:w-[calc(100vw-1rem)] sm:max-w-none' : ''}
     >
-      <SalesItemDetailHeader deal={deal || ({} as IDeal)} />
-      <FocusSheet.Content>
-        <FocusSheet.SideBar>
-          <SalesItemSidebar />
-        </FocusSheet.SideBar>
-        <div className="flex-1 flex flex-col overflow-hidden">
-          <div className="flex-1 min-h-0">
-            <Tabs
-              value={selectedTab ?? 'overview'}
-              onValueChange={setSelectedTab}
-              className="h-full"
-            >
-              <Tabs.Content value="overview" className="h-full">
-                <ScrollArea className="h-full">
-                  <Overview key={deal?._id} deal={deal || ({} as IDeal)} />
-                </ScrollArea>
-              </Tabs.Content>
-              <Tabs.Content value="properties" className="h-full">
-                <ScrollArea className="h-full">
-                  <div className="w-full xl:max-w-6xl mx-auto p-6">
-                    <DealPipelineProperties
-                      key={`${deal?._id || ''}-${JSON.stringify(
-                        deal?.propertiesData || {},
-                      )}`}
-                      pipelineId={deal?.pipelineId || ''}
-                      propertiesData={deal?.propertiesData || {}}
-                      mutateHook={useDealCustomFieldEdit}
-                      id={deal?._id || ''}
-                    />
-                  </div>
-                </ScrollArea>
-              </Tabs.Content>
-              <Tabs.Content value="activity" className="h-full">
-                <DealActivityTab dealId={deal?._id || ''} />
-              </Tabs.Content>
-              <Tabs.Content value="products" className="h-full p-6">
-                <Products deal={deal || ({} as IDeal)} refetch={refetch} />
-              </Tabs.Content>
-            </Tabs>
-          </div>
-        </div>
-        <RelationWidgetSideTabs
-          contentId={deal?._id || ''}
-          contentType="sales:deal"
-          hookOptions={{
-            hiddenModules: ['deals'],
-          }}
-        />
-      </FocusSheet.Content>
+      {deal && (
+        <>
+          <SalesItemDetailHeader deal={deal} />
+          <FocusSheet.Content>
+            <FocusSheet.SideBar>
+              <SalesItemSidebar />
+            </FocusSheet.SideBar>
+            <div className="flex-1 flex flex-col overflow-hidden">
+              <div className="flex-1 min-h-0">
+                <Tabs
+                  value={selectedTab ?? 'overview'}
+                  onValueChange={setSelectedTab}
+                  className="h-full"
+                >
+                  <Tabs.Content value="overview" className="h-full">
+                    <ScrollArea className="h-full">
+                      <Overview key={deal._id} deal={deal} />
+                    </ScrollArea>
+                  </Tabs.Content>
+                  <Tabs.Content value="properties" className="h-full">
+                    <ScrollArea className="h-full">
+                      <div className="w-full xl:max-w-6xl mx-auto p-6">
+                        <DealPipelineProperties
+                          key={`${deal?._id || ''}-${JSON.stringify(
+                            deal?.propertiesData || {},
+                          )}`}
+                          pipelineId={deal?.pipelineId || ''}
+                          propertiesData={deal?.propertiesData || {}}
+                          mutateHook={useDealCustomFieldEdit}
+                          id={deal?._id || ''}
+                        />
+                      </div>
+                    </ScrollArea>
+                  </Tabs.Content>
+                  <Tabs.Content value="activity" className="h-full">
+                    <DealActivityTab dealId={deal?._id || ''} />
+                  </Tabs.Content>
+                  <Tabs.Content value="products" className="h-full p-6">
+                    <Products deal={deal} refetch={refetch} />
+                  </Tabs.Content>
+                </Tabs>
+              </div>
+            </div>
+            <RelationWidgetSideTabs
+              contentId={deal?._id || ''}
+              contentType="sales:deal"
+              hookOptions={{
+                hiddenModules: ['deals'],
+              }}
+            />
+          </FocusSheet.Content>
+        </>
+      )}
     </FocusSheet.View>
   );
 };

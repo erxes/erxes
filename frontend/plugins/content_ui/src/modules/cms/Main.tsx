@@ -1,4 +1,6 @@
 import { lazy, Suspense } from 'react';
+import { AppLayout } from 'erxes-ui';
+import { ContentSidebar } from '~/Sidebar';
 import { Navigate, Route, Routes } from 'react-router';
 import { useParams } from 'react-router-dom';
 
@@ -102,27 +104,35 @@ const PagesDetailWrapper = () => {
 
 const CmsMain = () => {
   return (
-    <Suspense fallback={<div />}>
-      <Routes>
-        <Route index path="/" element={<Navigate to="cms" replace />} />
-        <Route path="cms" element={<CmsIndex />} />
-        <Route path="cms/:websiteId">
-          <Route path="posts" element={<PostsWrapper />} />
-          <Route path="posts/add" element={<PostsAddWrapper />} />
-          <Route path="posts/detail/:postId" element={<PostsDetailWrapper />} />
-          <Route path="categories" element={<Categories />} />
-          <Route path="tags" element={<Tags />} />
-          <Route path="pages" element={<Pages />} />
-          <Route path="pages/detail" element={<PagesDetailWrapper />} />
-          <Route path="pages/detail/:pageId" element={<PagesDetailWrapper />} />
-          <Route path="menus" element={<Menus />} />
-          <Route path="custom-types" element={<CustomTypes />} />
-          <Route path="custom-fields" element={<CustomFields />} />
-          <Route path="cmssettings" element={<Settings />} />
-        </Route>
-        <Route path="web-builder/*" element={<WebBuilderPage />} />
-      </Routes>
-    </Suspense>
+    <AppLayout id="content" title="Content" sidebar={<ContentSidebar />}>
+      <Suspense fallback={<div />}>
+        <Routes>
+          <Route index path="/" element={<Navigate to="cms" replace />} />
+          <Route path="cms" element={<CmsIndex />} />
+          <Route path="cms/:websiteId">
+            <Route path="posts" element={<PostsWrapper />} />
+            <Route path="posts/add" element={<PostsAddWrapper />} />
+            <Route
+              path="posts/detail/:postId"
+              element={<PostsDetailWrapper />}
+            />
+            <Route path="categories" element={<Categories />} />
+            <Route path="tags" element={<Tags />} />
+            <Route path="pages" element={<Pages />} />
+            <Route path="pages/detail" element={<PagesDetailWrapper />} />
+            <Route
+              path="pages/detail/:pageId"
+              element={<PagesDetailWrapper />}
+            />
+            <Route path="menus" element={<Menus />} />
+            <Route path="custom-types" element={<CustomTypes />} />
+            <Route path="custom-fields" element={<CustomFields />} />
+            <Route path="cmssettings" element={<Settings />} />
+          </Route>
+          <Route path="web-builder/*" element={<WebBuilderPage />} />
+        </Routes>
+      </Suspense>
+    </AppLayout>
   );
 };
 

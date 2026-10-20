@@ -13,9 +13,12 @@ import { useState } from 'react';
 
 export const TagTypeSelect = ({
   scope,
+  pluginName,
   ...props
 }: {
   scope?: string;
+  /** Only this plugin's tag types; every type when unset. */
+  pluginName?: string;
 } & React.ComponentProps<typeof Button>) => {
   const [type, setType] = useQueryState<string>('tagType');
   const [open, setOpen] = useState(false);
@@ -47,51 +50,53 @@ export const TagTypeSelect = ({
           <Command.Input placeholder="Search tag types..." autoFocus />
           <Command.List>
             <Command.Empty>No tag types found.</Command.Empty>
-            {Object.entries(types).map(([key, value]) => (
-              <Command.Group
-                key={key}
-                heading={key === 'core' ? 'Core tags' : `${key} tags`}
-                className="capitalize [&>*:first-child]:px-1 [&>*:first-child]:pb-1 [&>*:first-child]:pt-0"
-              >
-                {key === 'core' && (
-                  <Command.Item
-                    onSelect={() => handleSelect(null)}
-                    className="cursor-pointer"
-                  >
-                    <span
-                      className={cn(
-                        type === null && 'text-primary font-medium',
-                      )}
+            {Object.entries(types)
+              .filter(([key]) => !pluginName || key === pluginName)
+              .map(([key, value]) => (
+                <Command.Group
+                  key={key}
+                  heading={key === 'core' ? 'Core tags' : `${key} tags`}
+                  className="capitalize [&>*:first-child]:px-1 [&>*:first-child]:pb-1 [&>*:first-child]:pt-0"
+                >
+                  {key === 'core' && (
+                    <Command.Item
+                      onSelect={() => handleSelect(null)}
+                      className="cursor-pointer"
                     >
-                      {'Workspace tags'}
-                    </span>
-                    {type === null && (
-                      <IconCheck className="ml-auto h-4 w-4 text-primary" />
-                    )}
-                  </Command.Item>
-                )}
-                {value.map((_type) => (
-                  <Command.Item
-                    key={_type.contentType}
-                    value={_type.description}
-                    onSelect={() => handleSelect(_type.contentType)}
-                    className="cursor-pointer"
-                  >
-                    <span
-                      className={cn(
-                        _type.contentType === type &&
-                          'text-primary font-medium',
+                      <span
+                        className={cn(
+                          type === null && 'text-primary font-medium',
+                        )}
+                      >
+                        {'Workspace tags'}
+                      </span>
+                      {type === null && (
+                        <IconCheck className="ml-auto h-4 w-4 text-primary" />
                       )}
+                    </Command.Item>
+                  )}
+                  {value.map((_type) => (
+                    <Command.Item
+                      key={_type.contentType}
+                      value={_type.description}
+                      onSelect={() => handleSelect(_type.contentType)}
+                      className="cursor-pointer"
                     >
-                      {_type.description} tags
-                    </span>
-                    {_type.contentType === type && (
-                      <IconCheck className="ml-auto h-4 w-4 text-primary" />
-                    )}
-                  </Command.Item>
-                ))}
-              </Command.Group>
-            ))}
+                      <span
+                        className={cn(
+                          _type.contentType === type &&
+                            'text-primary font-medium',
+                        )}
+                      >
+                        {_type.description} tags
+                      </span>
+                      {_type.contentType === type && (
+                        <IconCheck className="ml-auto h-4 w-4 text-primary" />
+                      )}
+                    </Command.Item>
+                  ))}
+                </Command.Group>
+              ))}
           </Command.List>
         </Command>
       </Popover.Content>

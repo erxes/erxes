@@ -51,19 +51,6 @@
       "dependsOn": ["build"],
       "command": "docker build -f backend/plugins/frontline_api/Dockerfile . -t erxes/erxes-next-frontline_api"
     },
-    "schema:print": {
-      "executor": "nx:run-commands",
-      "cache": true,
-      "inputs": [
-        "{projectRoot}/print-schema.ts",
-        "{projectRoot}/src/**/*.ts",
-        "{workspaceRoot}/backend/erxes-api-shared/src/utils/apollo/**/*"
-      ],
-      "outputs": ["{projectRoot}/generated"],
-      "options": {
-        "cwd": "backend/plugins/frontline_api",
-        "command": "pnpm schema:print"
-      }
-    }
+    "schema:print": {}
   }
 }

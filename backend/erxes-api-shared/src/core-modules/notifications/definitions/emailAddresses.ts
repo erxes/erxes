@@ -7,6 +7,15 @@ export type TEmailSuppressionReason =
   | 'screened'
   | 'manual';
 
+export type TEmailScreenReason = 'syntax' | 'no_mx' | 'disposable' | 'random';
+
+export const EMAIL_SCREEN_REASONS: TEmailScreenReason[] = [
+  'syntax',
+  'no_mx',
+  'disposable',
+  'random',
+];
+
 export type TEmailLane = 'proven' | 'unknown' | 'suppressed';
 
 export const EMAIL_LANES: TEmailLane[] = ['proven', 'unknown', 'suppressed'];
@@ -26,6 +35,7 @@ export interface IEmailAddressDocument extends Document {
 
   suppressedAt?: Date;
   suppressionReason?: TEmailSuppressionReason;
+  screenReason?: TEmailScreenReason;
   suppressedBy?: string;
 
   releasedAt?: Date;
@@ -72,6 +82,11 @@ export const emailAddressSchema = new Schema({
   suppressionReason: {
     type: String,
     enum: ['hard_bounce', 'complaint', 'unsubscribe', 'screened', 'manual'],
+  },
+
+  screenReason: {
+    type: String,
+    enum: EMAIL_SCREEN_REASONS,
   },
 
   suppressedBy: {

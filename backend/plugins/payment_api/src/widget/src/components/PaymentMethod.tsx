@@ -3,7 +3,7 @@ import { Button } from './ui/button';
 type Props = {
   kind: string;
   name: string;
-  iconUrl   : string;
+  iconUrl: string;
   onClick?: () => void;
 };
 
@@ -23,7 +23,10 @@ const PaymentMethod = (props: Props) => {
         className="flex-none p-1"
       />
       <div className="flex-1">
-        <h5 className="font-medium capitalize">{kind}</h5>
+        <h5 className="font-medium">
+          {kind === 'tdb_cgw' ? 'TDB Corporate Gateway' : kind}
+        </h5>
+
         <div className="text-neutral-500 text-xs font-normal line-clamp-1 capitalize">
           {name}
         </div>

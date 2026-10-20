@@ -22,7 +22,7 @@ import {
 } from '@/survey/types/surveyTypes';
 import { FrontlinePaths } from '@/types/FrontlinePaths';
 
-const SETTINGS_PATH = `/settings/${FrontlinePaths.Frontline}${FrontlinePaths.Channels}`;
+const SETTINGS_PATH = `/${FrontlinePaths.Frontline}/settings${FrontlinePaths.Channels}`;
 
 const SurveyResultCard = ({ survey }: { survey: ISurveyWithResults }) => {
   const { t } = useTranslation('frontline');

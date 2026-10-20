@@ -1,22 +1,7 @@
+import type { TImportExportNotificationViewProps } from '@/notification/types/notificationContent';
 import { IconDownload, IconLoader, IconUpload } from '@tabler/icons-react';
 import { Badge, Button, cn, RelativeDateDisplay } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-
-type TImportExportNotificationViewProps = {
-  createdAt?: string;
-  message?: string;
-  fileName?: string;
-  status?: string;
-  errorMessage?: string;
-  successRows: number;
-  errorRows: number;
-  totalRows?: number;
-  successLabelKey: string;
-  errorFallbackKey: string;
-  canDownload?: boolean;
-  downloadUrl?: string;
-  downloadLabelKey: string;
-};
 
 export const ImportExportNotificationView = ({
   createdAt,
@@ -38,13 +23,15 @@ export const ImportExportNotificationView = ({
   const statusView = buildStatus(status);
 
   return (
-    <div className="flex flex-col gap-3 h-screen justify-center w-full max-w-md mx-auto items-center text-muted-foreground">
+    <div className="flex flex-col gap-3 min-h-full justify-center w-full max-w-md mx-auto items-center p-6 text-muted-foreground">
       <div className="size-28 bg-sidebar rounded-2xl border-2 border-dashed flex items-center justify-center">
         {statusView.icon}
       </div>
 
       <div className="flex flex-col items-center gap-1 text-center">
-        <span className="text-sm text-foreground truncate">{fileName}</span>
+        <span className="max-w-full break-words text-center text-sm text-foreground">
+          {fileName}
+        </span>
         <Badge className={cn('text-xs font-medium', statusView.badgeClass)}>
           {t(statusView.labelKey)}
         </Badge>
@@ -55,7 +42,7 @@ export const ImportExportNotificationView = ({
         )}
       </div>
 
-      <div className="flex items-center justify-center gap-3 text-sm">
+      <div className="flex flex-wrap items-center justify-center gap-3 text-sm">
         <div className="flex items-center gap-1">
           <span className="text-foreground font-semibold">
             {totalRows?.toLocaleString?.() || '—'}

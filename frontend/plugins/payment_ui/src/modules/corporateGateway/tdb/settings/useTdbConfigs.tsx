@@ -21,7 +21,7 @@ export const useTdbConfigs = () => {
   const setCount = useSetAtom(tdbConfigsCountAtom);
 
   const { data, loading, refetch } = useQuery<ListResponse>(configsList, {
-    variables: { perPage: 50 },
+    variables: { limit: 50 },
     fetchPolicy: 'network-only',
   });
 
@@ -35,13 +35,13 @@ export const useTdbConfigs = () => {
   }, [loading, totalCount, setCount]);
 
   const [addMutation, { loading: adding }] = useMutation(addConfig, {
-    refetchQueries: [{ query: configsList, variables: { perPage: 50 } }],
+    refetchQueries: [{ query: configsList, variables: { limit: 50 } }],
   });
   const [editMutation, { loading: editing }] = useMutation(editConfig, {
-    refetchQueries: [{ query: configsList, variables: { perPage: 50 } }],
+    refetchQueries: [{ query: configsList, variables: { limit: 50 } }],
   });
   const [removeMutation] = useMutation(removeConfig, {
-    refetchQueries: [{ query: configsList, variables: { perPage: 50 } }],
+    refetchQueries: [{ query: configsList, variables: { limit: 50 } }],
   });
 
   return {

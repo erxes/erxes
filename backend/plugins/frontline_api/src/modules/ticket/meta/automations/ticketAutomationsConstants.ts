@@ -1,4 +1,6 @@
 import {
+  AUTOMATION_CORE_ACTIONS,
+  TAutomationFindObjectTargetDefinition,
   TAutomationRuntimeOutputDefinition,
   TAutomationSetPropertyTarget,
 } from 'erxes-api-shared/core-modules';
@@ -128,7 +130,22 @@ const TICKET_OUTPUT: TAutomationRuntimeOutputDefinition<ITicket> = {
   },
 };
 
+// Lets a flow reach an existing ticket — by the id an AI agent picked from
+// the conversation's open tickets, or by its number — and act on it.
+const TICKET_FIND_OBJECT_TARGETS: TAutomationFindObjectTargetDefinition[] = [
+  {
+    value: FRONTLINE_TICKET_TARGET_SOURCE_TYPE,
+    label: 'Ticket',
+    lookupFields: [
+      { value: '_id', label: 'ID' },
+      { value: 'number', label: 'Number' },
+    ],
+    output: TICKET_OUTPUT,
+  },
+];
+
 export const ticketsAutomationContants = {
+  findObjectTargets: TICKET_FIND_OBJECT_TARGETS,
   triggers: [
     {
       moduleName: 'tickets',
@@ -156,6 +173,14 @@ export const ticketsAutomationContants = {
       allowTargetFromActions: true,
       output: TICKET_OUTPUT,
       setPropertyTargets: FRONTLINE_TICKET_SET_PROPERTY_TARGETS,
+      // Behind an AI agent's tool the ticket is remembered, so a later
+      // message about it can add to it instead of opening another.
+      defaultsWhenAfter: [
+        {
+          actionType: AUTOMATION_CORE_ACTIONS.AI_AGENT,
+          config: { remember: { as: 'ticket', fields: ['name', 'number'] } },
+        },
+      ],
     },
   ],
 };

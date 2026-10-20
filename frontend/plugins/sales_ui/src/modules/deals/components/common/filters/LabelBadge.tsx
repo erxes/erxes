@@ -1,8 +1,8 @@
 import { Badge, Skeleton, TextOverflowTooltip } from 'erxes-ui';
 
+import { usePipelineLabelDetail } from '@/deals/pipelines/hooks/usePipelineDetails';
 import { IPipelineLabel } from '@/deals/types/pipelines';
 import React from 'react';
-import { usePipelineLabelDetail } from '@/deals/pipelines/hooks/usePipelineDetails';
 
 export const LabelBadge = React.forwardRef<
   React.ElementRef<typeof Badge>,
@@ -19,16 +19,10 @@ export const LabelBadge = React.forwardRef<
     ref,
   ) => {
     const { pipelineLabelDetail, loading } = usePipelineLabelDetail({
-      variables: {
-        id: labelId,
-      },
+      variables: labelId ? { _id: labelId } : undefined,
       skip: !!label || !labelId,
-      onCompleted: ({
-        salesPipelineLabelDetail,
-      }: {
-        salesPipelineLabelDetail: IPipelineLabel;
-      }) => {
-        onCompleted?.(salesPipelineLabelDetail);
+      onCompleted: ({ salesPipelineLabelDetail }) => {
+        if (salesPipelineLabelDetail) onCompleted?.(salesPipelineLabelDetail);
       },
     });
 

@@ -5,42 +5,41 @@ import {
   IconReceiptTax,
   IconRefresh,
 } from '@tabler/icons-react';
-import { SettingsNavigationMenuLinkItem, Sidebar } from 'erxes-ui';
+import { NavigationMenuLinkItem, Sidebar } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
 export const SettingsNavigation = () => {
   const { t } = useTranslation('mongolian');
   return (
     <Sidebar.Group>
-      <Sidebar.GroupLabel className="h-4">{t('mongolian')}</Sidebar.GroupLabel>
       <Sidebar.GroupContent className="pt-1">
         <Sidebar.Menu>
-          <SettingsNavigationMenuLinkItem
-            pathPrefix="mongolian"
+          <NavigationMenuLinkItem
+            pathPrefix="mongolian/settings"
             path="/ebarimt"
             name={t('ebarimt')}
             icon={IconReceiptTax}
           />
-          <SettingsNavigationMenuLinkItem
-            pathPrefix="mongolian"
+          <NavigationMenuLinkItem
+            pathPrefix="mongolian/settings"
             path="/sync-erkhet"
             name={t('erkhet')}
             icon={IconRefresh}
           />
-          <SettingsNavigationMenuLinkItem
-            pathPrefix="mongolian"
+          <NavigationMenuLinkItem
+            pathPrefix="mongolian/settings"
             path="/product-places"
             name={t('product-place')}
             icon={IconMapPin}
           />
-          <SettingsNavigationMenuLinkItem
-            pathPrefix="mongolian"
+          <NavigationMenuLinkItem
+            pathPrefix="mongolian/settings"
             path="/exchange-rates"
             name={t('exchange-rates-label')}
             icon={IconCurrencyDollar}
           />
-          <SettingsNavigationMenuLinkItem
-            pathPrefix="mongolian"
+          <NavigationMenuLinkItem
+            pathPrefix="mongolian/settings"
             path="/msdynamic"
             name={t('ms-dynamic')}
             icon={IconPlugConnected}

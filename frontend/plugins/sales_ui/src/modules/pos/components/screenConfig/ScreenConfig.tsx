@@ -1,13 +1,13 @@
-import { useCallback, useEffect, type ReactNode } from 'react';
+import { KitchenScreen } from '@/pos/components/screenConfig/KitchenScreen';
+import { PrintConfig } from '@/pos/components/screenConfig/PrintConfig';
+import { WaitingScreen } from '@/pos/components/screenConfig/WaitingScreen';
+import { mutations } from '@/pos/graphql/mutations';
+import { usePosDetail } from '@/pos/hooks/usePosDetail';
 import { useMutation } from '@apollo/client';
 import { Button, Form, InfoCard, Label, toast } from 'erxes-ui';
+import { useCallback, useEffect, type ReactNode } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { KitchenScreen } from '@/pos/components/screenConfig/KitchenScreen';
-import { WaitingScreen } from '@/pos/components/screenConfig/WaitingScreen';
-import { PrintConfig } from '@/pos/components/screenConfig/PrintConfig';
-import mutations from '@/pos/graphql/mutations';
-import { usePosDetail } from '@/pos/hooks/usePosDetail';
 
 interface ScreenConfigProps {
   posId?: string;
@@ -19,11 +19,11 @@ export interface ScreenConfigFormData {
   kitchenIsActive: boolean;
   kitchenShowType: string;
   kitchenType: string;
-  kitchenValue: string;
+  kitchenValue: string | number;
   kitchenIsPrint: boolean;
   waitingIsActive: boolean;
   waitingType: string;
-  waitingValue: string;
+  waitingValue: string | number;
   waitingContentUrl: string;
   waitingIsPrint: boolean;
 }
@@ -209,4 +209,4 @@ const ScreenConfig: React.FC<ScreenConfigProps> = ({
   );
 };
 
-export default ScreenConfig;
+export { ScreenConfig };

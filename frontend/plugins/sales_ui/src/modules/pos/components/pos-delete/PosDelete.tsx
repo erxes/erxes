@@ -35,7 +35,7 @@ const PosDelete = ({ posId, onDelete }: PosDeleteProps) => {
           description: t('pos-delete-success'),
           variant: 'success',
         });
-        navigate('/settings/sales/pos');
+        navigate('/sales/settings/pos');
       } catch (e: any) {
         toast({
           title: t('error'),

@@ -35,6 +35,10 @@ const posMutations = {
   ) => {
     await checkPermission('posEdit');                    // ← permission check
 
+    if (!_id) {
+      throw new Error('_id is required');
+    }
+
     await models.Pos.getPos({ _id });
 
     const { ALLOW_OFFLINE_POS } = process.env;
@@ -67,6 +71,16 @@ const posMutations = {
     { models, subdomain, checkPermission }: IContext,  // ← add checkPermission
   ) => {
     await checkPermission('productGroupsBulkInsert');    // ← permission check
+
+    if (!posId) {
+      throw new Error('posId is required');
+    }
+    if (!Array.isArray(groups)) {
+      throw new Error('groups must be an array');
+    }
+    if (groups.some((group) => !group?._id)) {
+      throw new Error('Every group must have an _id');
+    }
 
     const pos = await models.Pos.getPos({ _id: posId });
 
@@ -106,6 +120,16 @@ const posMutations = {
     { models, subdomain, checkPermission }: IContext,  // ← add checkPermission
   ) => {
     await checkPermission('posSlotBulkUpdate');          // ← permission check
+
+    if (!posId) {
+      throw new Error('posId is required');
+    }
+    if (!Array.isArray(slots)) {
+      throw new Error('slots must be an array');
+    }
+    if (slots.some((slot) => !slot?.posId)) {
+      throw new Error('Every slot must have a posId');
+    }
 
     const pos = await models.Pos.getPos({ _id: posId });
 
