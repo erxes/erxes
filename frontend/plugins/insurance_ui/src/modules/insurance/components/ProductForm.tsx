@@ -123,12 +123,19 @@ export const ProductForm = ({
             : [],
         ),
         pricingConfig: pc || { percentage: 3 },
+        // Copy only input fields: Apollo adds __typename to response objects,
+        // and the mutation inputs reject it.
         additionalCoverages: (product.additionalCoverages || []).map(
-          (coverage) => ({ ...coverage, appliesTo: coverage.appliesTo || [] }),
+          ({ name, limits, appliesTo }) => ({
+            name,
+            limits,
+            appliesTo: appliesTo || [],
+          }),
         ),
-        compensationCalculations: product.compensationCalculations || [],
+        compensationCalculations: (product.compensationCalculations || []).map(
+          ({ name, methodologies }) => ({ name, methodologies }),
+        ),
         deductibleConfig: {
-          ...product.deductibleConfig,
           levels: product.deductibleConfig?.levels || [],
         },
         regionIds: product.regions?.map((r) => r.id) || [],
