@@ -5,7 +5,7 @@ import {
   defaultStyleSpecs,
   createStyleSpec,
 } from '@blocknote/core';
-import { Attribute, Mention } from '../components/BlockEditor';
+import { Attribute, Mention } from '../components/BlockEditorInlineContent';
 import { customFileBlock } from '../components/CustomFileBlock';
 import { customImageBlock } from '../components/CustomImageBlock';
 import { documentPlaceholderBlock } from '../components/DocumentPlaceholderBlock';

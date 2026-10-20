@@ -44,7 +44,7 @@ export const DUPLICATE_DOCUMENT = gql`
 `;
 
 export const REMOVE_DOCUMENT = gql`
-  mutation DocumentsRemove($id: String!) {
+  mutation documentsRemove($id: String!) {
     documentsRemove(_id: $id)
   }
 `;

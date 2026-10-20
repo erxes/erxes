@@ -1,4 +1,3 @@
-import { useQuery } from '@apollo/client';
 import {
   IconMaximize,
   IconRestore,
@@ -16,7 +15,7 @@ import {
 } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { PAPER_TYPES, PX_PER_MM } from 'ui-modules/modules/documents/constants';
-import { PROCESS_DOCUMENT } from 'ui-modules/modules/documents/graphql/queries';
+import { useDocumentProcess } from '../hooks/useDocumentProcess';
 import { PrintFormValues } from 'ui-modules/modules/documents/types/print';
 import * as utils from 'ui-modules/modules/documents/utils';
 import { useDebounce } from 'use-debounce';
@@ -82,18 +81,10 @@ export const PrintPreview = ({
 
   const [debouncedSpacing] = useDebounce(spacing, 500);
 
-  const {
-    data: { documentsProcess: content } = {},
-    loading,
-    error,
-  } = useQuery(PROCESS_DOCUMENT, {
-    variables: {
-      _id,
-      replacerIds,
-      config: { copies: Number(copies), width, height, type },
-    },
-    fetchPolicy: 'network-only',
-    skip: !_id,
+  const { content, loading, error } = useDocumentProcess({
+    _id,
+    replacerIds,
+    config: { copies: Number(copies), width, height, type },
   });
 
   useEffect(() => {

@@ -1,28 +1,32 @@
 import { BlockEditor, useBlockEditor } from 'erxes-ui';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { IDocument } from '../types';
+import { loadDocumentBlocks } from '../utils/normalizeDocumentBlocks';
 
-export const DocumentPreview = ({ document }: any) => {
+export const DocumentPreview = ({ document }: { document: IDocument }) => {
   const editor = useBlockEditor();
+  const [hasError, setHasError] = useState(false);
 
   useEffect(() => {
-    const loadInitialContent = async () => {
-      let blocks;
-
-      try {
-        blocks = JSON.parse(document.content);
-      } catch (_error) {
-        try {
-          blocks = await editor.tryParseHTMLToBlocks(document.content);
-        } catch (_htmlError) {
-          blocks = await editor.tryParseMarkdownToBlocks(document.content);
-        }
-      }
-
-      editor.replaceBlocks(editor.document, blocks);
+    let active = true;
+    setHasError(false);
+    void loadDocumentBlocks(editor, document.content)
+      .then((blocks) => {
+        if (active) editor.replaceBlocks(editor.document, blocks);
+      })
+      .catch(() => {
+        if (active) setHasError(true);
+      });
+    return () => {
+      active = false;
     };
+  }, [document._id, document.content, editor]);
 
-    loadInitialContent();
-  }, [document._id, editor]);
+  if (hasError) {
+    return (
+      <p className="p-4 text-sm text-muted-foreground">Preview unavailable</p>
+    );
+  }
 
   return (
     <div className="relative w-full h-full overflow-hidden">

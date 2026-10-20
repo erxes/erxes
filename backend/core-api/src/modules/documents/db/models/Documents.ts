@@ -14,6 +14,8 @@ import {
 import { prepareContent } from '~/modules/documents/utils';
 import { documentSchema } from '../definitions/documents';
 import { normalizeDocumentCommentState } from '../../validateDocumentCommentState';
+import { documentIdCandidates } from '../../documentIds';
+import { documentContentTypes } from '../../contentTypes';
 export interface IDocumentModel extends Model<IDocumentDocument> {
   getAccessFilter(
     user?: DocumentAccessUser,
@@ -40,14 +42,16 @@ export const loadDocumentClass = (models: IModels, subdomain: string) => {
       if (!locks.length) return {};
 
       const documents = await models.Documents.find({
-        _id: { $in: locks.map((lock) => lock.contentId) },
+        _id: {
+          $in: locks.flatMap((lock) => documentIdCandidates(lock.contentId)),
+        },
       })
         .select('_id createdUserId')
         .lean();
       const states = await models.ApprovalLocks.getStates({
         user,
         contentType: DOCUMENT_APPROVAL_CONTENT_TYPE,
-        contentIds: documents.map((document) => document._id),
+        contentIds: documents.map((document) => String(document._id)),
         ownerIdsByContentId: Object.fromEntries(
           documents.map((document) => [document._id, document.createdUserId]),
         ),
@@ -58,7 +62,7 @@ export const loadDocumentClass = (models: IModels, subdomain: string) => {
         _id: {
           $nin: states
             .filter((state) => !state.hasAccess)
-            .map((state) => state.contentId),
+            .flatMap((state) => documentIdCandidates(state.contentId)),
         },
       };
     }
@@ -68,7 +72,11 @@ export const loadDocumentClass = (models: IModels, subdomain: string) => {
       user = ANONYMOUS_DOCUMENT_USER,
       action = 'view',
     }: DocumentReadInput): Promise<IDocumentDocument> {
-      const document = await models.Documents.findOne({ _id });
+      let document = await models.Documents.findOne({ _id });
+      const candidates = documentIdCandidates(_id);
+      if (!document && candidates.length > 1) {
+        document = await models.Documents.findOne({ _id: { $in: candidates } });
+      }
 
       if (!document) {
         throw new Error('Document not found');
@@ -77,7 +85,7 @@ export const loadDocumentClass = (models: IModels, subdomain: string) => {
       await models.ApprovalLocks.assertAccess({
         user,
         contentType: DOCUMENT_APPROVAL_CONTENT_TYPE,
-        contentId: document._id,
+        contentId: String(document._id),
         ownerId: document.createdUserId,
         action,
       });
@@ -125,7 +133,8 @@ export const loadDocumentClass = (models: IModels, subdomain: string) => {
       const { _id, config } = doc;
 
       const document = await models.Documents.getDocument({ _id, user });
-      const { content, contentType } = document;
+      const { content } = document;
+      const contentType = documentContentTypes(document.contentType)[0];
 
       if (!doc.replacerIds?.length) {
         return prepareContent({ contents: [content], config: config || {} });
@@ -143,7 +152,7 @@ export const loadDocumentClass = (models: IModels, subdomain: string) => {
             replacerIds: doc.replacerIds || [],
             config: config || {},
             content,
-            contentType: document.contentType,
+            contentType,
           },
         });
 
@@ -163,7 +172,7 @@ export const loadDocumentClass = (models: IModels, subdomain: string) => {
         input: {
           ...(doc || {}),
           content,
-          contentType: document.contentType,
+          contentType,
         },
         defaultValue: [],
       });

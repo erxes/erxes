@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useAtomValue } from 'jotai';
 import {
   Button,
@@ -39,6 +40,7 @@ function DocumentsContent({
   const { documents, hasError, loading, refetch, pageInfo, handleFetchMore } =
     useDocuments();
   const Component = DOCUMENTS_VIEW_TYPES[viewType] ?? DocumentsList;
+  const { t } = useTranslation('documents');
 
   if (hasError) {
     return (
@@ -80,7 +82,7 @@ function DocumentsContent({
               void handleFetchMore({ direction: EnumCursorDirection.FORWARD });
             }}
           >
-            {loading ? 'Loading…' : 'Load more documents'}
+            {loading ? t('loading') : t('load-more-documents')}
           </Button>
         </div>
       )}

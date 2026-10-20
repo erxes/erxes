@@ -1,10 +1,14 @@
-import { useQuery } from '@apollo/client';
+import { ApolloError, useQuery } from '@apollo/client';
 import { useQueryState } from 'erxes-ui';
 import { useMemo } from 'react';
 import { GET_DOCUMENT_EDITOR_ATTRIBUTES } from '../graphql/queries';
 import { DocumentAttribute } from '../types';
 
-export const useDocumentAttributes = () => {
+export const useDocumentAttributes = (): {
+  attributes: DocumentAttribute[];
+  error: ApolloError | undefined;
+  loading: boolean;
+} => {
   const [contentType] = useQueryState('contentType');
 
   const { data, error, loading } = useQuery<{

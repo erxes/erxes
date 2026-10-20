@@ -1,4 +1,3 @@
-import { useQuery } from '@apollo/client';
 import { filterSuggestionItems } from '@blocknote/core';
 import {
   DefaultReactSuggestionItem,
@@ -9,19 +8,12 @@ import {
   SlashMenuProps,
   SuggestionMenu,
   SuggestionMenuItem,
-  useQueryState,
 } from 'erxes-ui';
-import { useEffect, useState } from 'react';
-import { ATTRIBUTE_QUERY } from 'ui-modules/modules/documents/graphql/queries';
-
-interface Attribute {
-  label?: string;
-  name: string;
-  value?: string;
-  groupDetail?: {
-    name: string;
-  };
-}
+import {
+  DocumentEditorAttribute as Attribute,
+  useDocumentEditorAttributes,
+} from '../hooks/useDocumentEditorAttributes';
+import { createContext, useContext } from 'react';
 
 interface AttributeInEditorProps {
   editor: IBlockEditor;
@@ -29,39 +21,39 @@ interface AttributeInEditorProps {
   loading?: boolean;
 }
 
+const AttributeMenuContext = createContext<
+  Pick<AttributeInEditorProps, 'attributes' | 'loading'>
+>({});
+
 const AttributeInEditor = ({
   editor,
   attributes,
   loading,
 }: AttributeInEditorProps) => {
   return (
-    <SuggestionMenuController
-      triggerCharacter="{"
-      suggestionMenuComponent={(props) => (
-        <AttributeMenu {...props} loading={loading} attributes={attributes} />
-      )}
-      getItems={async (query) =>
-        filterSuggestionItems(
-          getAttributeMenuItems(editor, attributes || []),
-          query,
-        )
-      }
-    />
+    <AttributeMenuContext.Provider value={{ attributes, loading }}>
+      <SuggestionMenuController
+        triggerCharacter="{"
+        suggestionMenuComponent={AttributeMenu}
+        getItems={(query) =>
+          Promise.resolve(
+            filterSuggestionItems(
+              getAttributeMenuItems(editor, attributes || []),
+              query,
+            ),
+          )
+        }
+      />
+    </AttributeMenuContext.Provider>
   );
 };
 
 interface AttributeMenuProps extends SlashMenuProps {
   items: DefaultReactSuggestionItem[];
-  attributes?: Attribute[];
-  loading?: boolean;
 }
 
-function AttributeMenu({
-  items,
-  selectedIndex,
-  attributes,
-  loading,
-}: AttributeMenuProps) {
+function AttributeMenu({ items, selectedIndex }: AttributeMenuProps) {
+  const { attributes, loading } = useContext(AttributeMenuContext);
   if (loading) {
     return <div className="p-2">Loading...</div>;
   }
@@ -122,32 +114,8 @@ interface AttributeMenuWrapperProps extends AttributeInEditorProps {
 }
 
 const AttributeMenuWrapper = (props: AttributeMenuWrapperProps) => {
-  const [contentType] = useQueryState('contentType');
-
-  const [shouldQuery, setShouldQuery] = useState(false);
-
-  useEffect(() => {
-    if (!props.contentType && !contentType) {
-      return setShouldQuery(false);
-    }
-
-    if (!props.loading && !props.attributes?.length) {
-      setShouldQuery(true);
-    }
-  }, [props.loading, props.attributes, contentType, props.contentType]);
-
-  const { data, loading } = useQuery(ATTRIBUTE_QUERY, {
-    variables: {
-      contentType: props.contentType || contentType,
-    },
-    skip: !shouldQuery,
-  });
-
-  const updatedProps = {
-    ...props,
-    attributes: props.attributes || data?.fieldsCombinedByContentType || [],
-    loading: props.loading || loading,
-  };
+  const attributes = useDocumentEditorAttributes(props);
+  const updatedProps = { ...props, ...attributes };
 
   return <AttributeInEditor {...updatedProps} />;
 };

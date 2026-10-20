@@ -1,4 +1,4 @@
-import { NetworkStatus, useQuery } from '@apollo/client';
+import { NetworkStatus, QueryResult, useQuery } from '@apollo/client';
 import {
   EnumCursorDirection,
   IRecordTableCursorPageInfo,
@@ -22,7 +22,18 @@ type DocumentsQueryResponse = {
   };
 };
 
-export const useDocuments = () => {
+export const useDocuments = (): Pick<
+  QueryResult<DocumentsQueryResponse>,
+  'loading' | 'refetch'
+> & {
+  documents: IDocument[];
+  hasError: boolean;
+  pageInfo: IRecordTableCursorPageInfo | undefined;
+  totalCount: number | undefined;
+  handleFetchMore: (options: {
+    direction: EnumCursorDirection;
+  }) => Promise<void>;
+} => {
   const fetchingMore = useRef(false);
   const [{ createdAt, createdBy, contentType, searchValue, tagIds }] =
     useMultiQueryState<DocumentFilterState>([

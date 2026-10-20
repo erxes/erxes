@@ -1,6 +1,6 @@
+import { BlockEditorEditableContext } from '../hooks/useBlockEditorEditable';
 import { BlockEditorComments } from './BlockEditorComments';
 import {
-  createReactInlineContentSpec,
   DefaultReactSuggestionItem,
   getDefaultReactSlashMenuItems,
   SuggestionMenuController,
@@ -18,7 +18,6 @@ import { KeyboardEvent, useState } from 'react';
 import { BlockEditorProps } from '../types';
 import { SlashMenu } from './SlashMenu';
 import { Toolbar } from './Toolbar';
-import { BarcodeAttribute } from './BarcodeAttribute';
 import { TableHandleWithRemove } from './TableHandleWithRemove';
 
 const blockNoteComponents = {
@@ -156,127 +155,49 @@ export const BlockEditor = ({
         className,
       )}
     >
-      <BlockNoteView
-        theme={theme === 'system' ? undefined : theme}
-        editor={editor}
-        slashMenu={false}
-        sideMenu={sideMenu}
-        linkToolbar={linkToolbar}
-        onFocus={() => {
-          setFocus(true);
-          onFocus?.();
-        }}
-        onBlur={() => {
-          setFocus(false);
-          onBlur?.();
-        }}
-        editable={!readonly && !disabled}
-        onChange={onChange}
-        formattingToolbar={false}
-        tableHandles={false}
-        comments={false}
-        shadCNComponents={blockNoteComponents}
-        style={style}
-      >
-        <SuggestionMenuController
-          triggerCharacter="/"
-          getItems={getSlashMenuItems}
-          suggestionMenuComponent={SlashMenu}
-          floatingOptions={
-            slashMenuOnTop ? { placement: 'top-start' } : undefined
-          }
-        />
-        <Toolbar />
-        <TableHandlesController tableHandle={TableHandleWithRemove} />
-        <BlockEditorComments
-          enabled={!!editor.comments}
-          floatingThread={floatingThread}
+      <BlockEditorEditableContext.Provider value={!readonly && !disabled}>
+        <BlockNoteView
+          theme={theme === 'system' ? undefined : theme}
+          editor={editor}
+          slashMenu={false}
+          sideMenu={sideMenu}
+          linkToolbar={linkToolbar}
+          onFocus={() => {
+            setFocus(true);
+            onFocus?.();
+          }}
+          onBlur={() => {
+            setFocus(false);
+            onBlur?.();
+          }}
+          editable={!readonly && !disabled}
+          onChange={onChange}
+          formattingToolbar={false}
+          tableHandles={false}
+          comments={false}
+          shadCNComponents={blockNoteComponents}
+          style={style}
         >
-          {children}
-        </BlockEditorComments>
-      </BlockNoteView>
+          <SuggestionMenuController
+            triggerCharacter="/"
+            getItems={getSlashMenuItems}
+            suggestionMenuComponent={SlashMenu}
+            floatingOptions={
+              slashMenuOnTop ? { placement: 'top-start' } : undefined
+            }
+          />
+          <Toolbar />
+          <TableHandlesController tableHandle={TableHandleWithRemove} />
+          <BlockEditorComments
+            enabled={!!editor.comments}
+            floatingThread={floatingThread}
+          >
+            {children}
+          </BlockEditorComments>
+        </BlockNoteView>
+      </BlockEditorEditableContext.Provider>
     </div>
   );
 };
 
-export const Mention = createReactInlineContentSpec(
-  {
-    type: 'mention',
-    propSchema: {
-      fullName: {
-        default: 'Unknown',
-      },
-      _id: {
-        default: '',
-      },
-    },
-    content: 'none',
-  },
-  {
-    render: (props) => (
-      <span className="bg-primary/10 p-1 rounded font-bold text-sm text-primary inline-flex items-center">
-        @{props.inlineContent.props.fullName}
-      </span>
-    ),
-  },
-);
-
-export const Attribute = createReactInlineContentSpec(
-  {
-    type: 'attribute',
-    propSchema: {
-      name: {
-        default: 'Unknown',
-      },
-      value: {
-        default: '',
-      },
-      width: {
-        default: 150,
-      },
-      height: {
-        default: 50,
-      },
-    },
-    content: 'none',
-  },
-  {
-    render: (props) =>
-      props.inlineContent.props.value === 'barcode' ? (
-        <BarcodeAttribute
-          editable={props.editor.isEditable}
-          height={props.inlineContent.props.height}
-          width={props.inlineContent.props.width}
-          onRemove={(element) => {
-            props.editor.transact((tr) => {
-              let found = false;
-              tr.doc.descendants((node, position) => {
-                if (found) return false;
-                const dom = props.editor.prosemirrorView?.nodeDOM(position);
-                if (
-                  node.type.name === 'attribute' &&
-                  dom instanceof HTMLElement &&
-                  dom.contains(element)
-                ) {
-                  tr.delete(position, position + node.nodeSize);
-                  found = true;
-                  return false;
-                }
-                return true;
-              });
-            });
-          }}
-          onResize={({ width, height }) =>
-            props.updateInlineContent({
-              type: 'attribute',
-              props: { ...props.inlineContent.props, width, height },
-            })
-          }
-        />
-      ) : (
-        <span className="bg-yellow-50 p-1 rounded font-bold text-sm text-yellow-900 inline-flex items-center">
-          {props.inlineContent.props.name}
-        </span>
-      ),
-  },
-);
+export { Attribute, Mention } from './BlockEditorInlineContent';

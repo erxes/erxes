@@ -5,82 +5,20 @@ import {
   FloatingThreadController,
   Thread,
   useComponentsContext,
-  useBlockNoteEditor,
   useDictionary,
   useFocusWithin,
 } from '@blocknote/react';
+import { components as blockNoteComponents } from '@blocknote/shadcn';
 import {
   ComponentProps as ReactComponentProps,
   forwardRef,
   ReactNode,
-  useEffect,
-  useLayoutEffect,
   useMemo,
-  useRef,
   useState,
 } from 'react';
 import { Avatar, Button, Card, Skeleton, Textarea } from 'erxes-ui/components';
 import { cn } from 'erxes-ui/lib';
-import { useToast } from 'erxes-ui/hooks';
-
-const readText = (value: unknown): string => {
-  if (Array.isArray(value)) return value.map(readText).join('');
-  if (!value || typeof value !== 'object') return '';
-  if ('text' in value && typeof value.text === 'string') return value.text;
-  if ('content' in value) return readText(value.content);
-  return '';
-};
-
-const CommentInput = ({
-  editor,
-  autoFocus,
-  onFocus,
-  onBlur,
-  className,
-}: ComponentProps['Comments']['Editor']) => {
-  const editorMountRef = useRef<HTMLDivElement>(null);
-  useLayoutEffect(() => {
-    editor.mount(editorMountRef.current);
-    return () => editor.mount(undefined);
-  }, [editor]);
-  const [value, setValue] = useState(() =>
-    editor.document.map(readText).join('\n'),
-  );
-  useEffect(
-    () =>
-      editor.onChange(() => {
-        setValue(editor.document.map(readText).join('\n'));
-      }),
-    [editor],
-  );
-  return (
-    <>
-      <div ref={editorMountRef} hidden aria-hidden="true" />
-      <Textarea
-        className={cn(
-          'erxes-block-controls min-h-24 resize-y border border-input text-sm',
-          className,
-        )}
-        value={value}
-        autoFocus={autoFocus}
-        aria-label={editor.dictionary.placeholders.emptyDocument}
-        placeholder={editor.dictionary.placeholders.emptyDocument}
-        onFocus={onFocus}
-        onBlur={onBlur}
-        onChange={(event) => {
-          const text = event.target.value;
-          setValue(text);
-          editor.replaceBlocks(
-            editor.document,
-            text
-              .split('\n')
-              .map((line) => ({ type: 'paragraph', content: line })),
-          );
-        }}
-      />
-    </>
-  );
-};
+import { useBlockEditorCommentComposer } from '../hooks/useBlockEditorCommentComposer';
 
 const CommentCard = forwardRef<
   HTMLDivElement,
@@ -127,6 +65,9 @@ const CommentAction = forwardRef<HTMLButtonElement, CommentActionProps>(
     const dictionary = useDictionary();
     const isSave = children === dictionary.comments.save_button_text;
     const isIcon = variant === 'compact' && typeof children !== 'string';
+    let actionClass = 'erxes-comment-secondary';
+    if (isSave) actionClass = 'erxes-comment-save';
+    else if (isIcon) actionClass = 'erxes-comment-icon';
     return (
       <Button
         {...props}
@@ -134,14 +75,7 @@ const CommentAction = forwardRef<HTMLButtonElement, CommentActionProps>(
         type="button"
         variant={isSave ? 'default' : 'ghost'}
         size={isIcon ? 'icon' : 'default'}
-        className={cn(
-          isSave
-            ? 'erxes-comment-save'
-            : isIcon
-            ? 'erxes-comment-icon'
-            : 'erxes-comment-secondary',
-          className,
-        )}
+        className={cn(actionClass, className)}
         onMouseDown={(event) => {
           if (isSave) event.preventDefault();
           onMouseDown?.(event);
@@ -209,7 +143,7 @@ const CommentDisplay = ({
   const actionsVisible =
     showActions !== false && (showActions !== 'hover' || hovered || focused);
   return (
-    <div
+    <article
       ref={ref}
       className={cn('space-y-2', className)}
       onMouseEnter={() => setHovered(true)}
@@ -255,7 +189,7 @@ const CommentDisplay = ({
         )}
       </div>
       {children}
-    </div>
+    </article>
   );
 };
 
@@ -276,39 +210,9 @@ const CommentSection = ({
 );
 
 const CommentComposer = () => {
-  const editor = useBlockNoteEditor();
   const dictionary = useDictionary();
-  const { toast } = useToast();
-  const [value, setValue] = useState('');
-  const [saving, setSaving] = useState(false);
-
-  const saveComment = async () => {
-    const comments = editor.comments;
-    if (!comments || !value.trim() || saving) return;
-    setSaving(true);
-    try {
-      await comments.createThread({
-        initialComment: {
-          body: value.split('\n').map((text) => ({
-            id: crypto.randomUUID(),
-            type: 'paragraph',
-            props: {},
-            content: text ? [{ type: 'text', text, styles: {} }] : [],
-            children: [],
-          })),
-        },
-      });
-      comments.stopPendingComment();
-    } catch (error) {
-      toast({
-        title: 'Could not save comment',
-        description: error instanceof Error ? error.message : String(error),
-        variant: 'destructive',
-      });
-    } finally {
-      setSaving(false);
-    }
-  };
+  const { value, setValue, saving, saveComment } =
+    useBlockEditorCommentComposer();
 
   return (
     <CommentCard className="bn-thread">
@@ -340,6 +244,21 @@ const CommentComposer = () => {
 const CommentThread = (props: ReactComponentProps<typeof Thread>) =>
   props.thread ? <Thread {...props} /> : null;
 
+const CommentEditor = (props: ComponentProps['Comments']['Editor']) => (
+  <blockNoteComponents.Comments.Editor
+    {...props}
+    className={cn('erxes-block-controls', props.className)}
+  />
+);
+
+const CommentToolbar = ({
+  children,
+}: ComponentProps['Generic']['Toolbar']['Root']) => (
+  <div className="erxes-block-controls bn-action-toolbar flex items-center justify-end gap-2">
+    {children}
+  </div>
+);
+
 export const BlockEditorComments = ({
   children,
   enabled,
@@ -350,8 +269,6 @@ export const BlockEditorComments = ({
   floatingThread: boolean;
 }) => {
   const base = useComponentsContext();
-  const editor = useBlockNoteEditor();
-  const editorKey = useMemo(() => crypto.randomUUID(), [editor]);
   const components = useMemo(
     () =>
       base && {
@@ -361,12 +278,7 @@ export const BlockEditorComments = ({
           Card: CommentCard,
           CardSection: CommentSection,
           Comment: CommentDisplay,
-          Editor: (props: ComponentProps['Comments']['Editor']) =>
-            props.editable ? (
-              <CommentInput {...props} />
-            ) : (
-              <base.Comments.Editor {...props} />
-            ),
+          Editor: CommentEditor,
         },
         Generic: {
           ...base.Generic,
@@ -376,13 +288,7 @@ export const BlockEditorComments = ({
           },
           Toolbar: {
             ...base.Generic.Toolbar,
-            Root: ({
-              children: actions,
-            }: ComponentProps['Generic']['Toolbar']['Root']) => (
-              <div className="erxes-block-controls bn-action-toolbar flex items-center justify-end gap-2">
-                {actions}
-              </div>
-            ),
+            Root: CommentToolbar,
             Button: CommentAction,
           },
         },
@@ -391,7 +297,7 @@ export const BlockEditorComments = ({
   );
   if (!components) return children;
   return (
-    <ComponentsContext.Provider key={editorKey} value={components}>
+    <ComponentsContext.Provider value={components}>
       {enabled && (
         <>
           <FloatingComposerController floatingComposer={CommentComposer} />

@@ -7,7 +7,10 @@ import { DocumentThreadStore } from '../utils/DocumentThreadStore';
 import { readImage, toast } from 'erxes-ui';
 import { COMMENT_AUTHORS } from '../graphql/queries';
 
-export const useDocumentComments = () => {
+export const useDocumentComments = (): {
+  store: DocumentThreadStore;
+  resolveUsers: (ids: string[]) => Promise<User[]>;
+} => {
   const client = useApolloClient();
   const user = useAtomValue(currentUserState);
   const store = useMemo(

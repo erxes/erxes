@@ -56,9 +56,7 @@ export const DocumentsGrid = ({ documents }: { documents: IDocument[] }) => {
                 </h3>
               </div>
               <ApprovalLockedBadge state={document.approvalLockState} />
-              <div onClick={(event) => event.stopPropagation()}>
-                <DocumentsActions documentItem={document} variant="grid" />
-              </div>
+              <DocumentsActions documentItem={document} variant="grid" />
             </div>
 
             <Card.Footer className="flex items-center justify-between border-t px-4 py-3">

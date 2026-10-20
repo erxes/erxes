@@ -2,6 +2,7 @@ import { IContext } from '~/connectionResolvers';
 import { IDocument } from '../types';
 import { validateDocumentCommentState } from '../validateDocumentCommentState';
 import { z } from 'zod';
+import { documentContentTypes } from '../contentTypes';
 
 export const documentMutations = {
   documentsSave: async (
@@ -38,16 +39,19 @@ export const documentMutations = {
       })
       .parse(input);
     const document = await models.Documents.getDocument({ _id, user });
+    const sameContentType =
+      documentContentTypes(document.contentType)[0] ===
+      documentContentTypes(contentType)[0];
 
     return models.Documents.saveDocument({
       user,
       doc: {
         name: `${document.name} (copy)`,
-        content: document.content,
-        replacer: document.replacer,
+        content: sameContentType ? document.content : '',
+        replacer: sameContentType ? document.replacer : '',
         tagIds: document.tagIds,
         contentType,
-        subType: contentType === document.contentType ? document.subType : '',
+        subType: sameContentType ? document.subType : '',
         createdUserId: user._id,
       },
     });

@@ -1,60 +1,22 @@
 import {
-  PointerEvent as ReactPointerEvent,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
-import { Button, Form, Input, Popover, Select } from 'erxes-ui/components';
-import { Resolver, useForm } from 'react-hook-form';
-import { z } from 'zod';
+  BarcodeSize,
+  BARCODE_SIZE_PRESETS,
+  BARCODE_DIMENSION_LIMITS,
+  useBarcodeAttribute,
+} from '../hooks/useBarcodeAttribute';
+import { useRef } from 'react';
+import { Button } from '../../../components/button';
+import { Form } from '../../../components/form';
+import { Input } from '../../../components/input';
+import { Popover } from '../../../components/popover';
+import { Select } from '../../../components/select';
+import { useBlockEditorEditable } from '../hooks/useBlockEditorEditable';
 import {
   IconArrowsDiagonal,
   IconCheck,
   IconSettings,
   IconTrash,
 } from '@tabler/icons-react';
-
-const MIN_WIDTH = 80;
-const MIN_HEIGHT = 30;
-const MAX_WIDTH = 600;
-const MAX_HEIGHT = 300;
-
-const barcodeSizeSchema = z.object({
-  width: z.coerce.number().finite().int().min(MIN_WIDTH).max(MAX_WIDTH),
-  height: z.coerce.number().finite().int().min(MIN_HEIGHT).max(MAX_HEIGHT),
-});
-
-const resolveBarcodeSize: Resolver<BarcodeSize> = (values) => {
-  const result = barcodeSizeSchema.safeParse(values);
-  if (result.success)
-    return {
-      values: {
-        width: Number(result.data.width),
-        height: Number(result.data.height),
-      },
-      errors: {},
-    };
-  const errors: {
-    width?: { type: string; message: string };
-    height?: { type: string; message: string };
-  } = {};
-  for (const issue of result.error.issues) {
-    const field = issue.path[0];
-    if (field === 'width' || field === 'height')
-      errors[field] = { type: issue.code, message: issue.message };
-  }
-  return { values: {}, errors };
-};
-
-type BarcodeSize = Readonly<{ width: number; height: number }>;
-
-const BARCODE_SIZE_PRESETS: BarcodeSize[] = [
-  { width: 113, height: 78 },
-  { width: 141, height: 98 },
-  { width: 169, height: 118 },
-  { width: 211, height: 147 },
-  { width: 282, height: 196 },
-];
 
 type BarcodeAttributeProps = Readonly<{
   editable: boolean;
@@ -71,80 +33,22 @@ export const BarcodeAttribute = ({
   onRemove,
   width,
 }: BarcodeAttributeProps) => {
+  const canEdit = useBlockEditorEditable(editable);
   const barcodeRef = useRef<HTMLSpanElement>(null);
-  const [settingsOpen, setSettingsOpen] = useState(false);
-  const form = useForm<BarcodeSize>({
-    resolver: resolveBarcodeSize,
-    defaultValues: { width, height },
-  });
-  const dimensions = form.watch();
-  const preset = BARCODE_SIZE_PRESETS.find(
-    (size) =>
-      size.width === Number(dimensions.width) &&
-      size.height === Number(dimensions.height),
-  );
-  const applySize = form.handleSubmit((dimensions) => {
-    setSize(dimensions);
-    onResize(dimensions);
-    setSettingsOpen(false);
-  });
-  const [size, setSize] = useState<BarcodeSize>({ width, height });
-  const dragStart = useRef<
-    (BarcodeSize & { clientX: number; clientY: number }) | null
-  >(null);
-
-  useEffect(() => {
-    if (!dragStart.current) {
-      setSize({ width, height });
-    }
-  }, [height, width]);
-
-  const getResizedDimensions = (event: ReactPointerEvent) => {
-    const start = dragStart.current;
-
-    if (!start) {
-      return size;
-    }
-
-    return {
-      width: Math.min(
-        MAX_WIDTH,
-        Math.max(MIN_WIDTH, start.width + event.clientX - start.clientX),
-      ),
-      height: Math.min(
-        MAX_HEIGHT,
-        Math.max(MIN_HEIGHT, start.height + start.clientY - event.clientY),
-      ),
-    };
-  };
-
-  const handleResizeStart = (event: ReactPointerEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-    event.stopPropagation();
-    event.currentTarget.setPointerCapture(event.pointerId);
-    dragStart.current = {
-      ...size,
-      clientX: event.clientX,
-      clientY: event.clientY,
-    };
-  };
-
-  const handleResize = (event: ReactPointerEvent<HTMLButtonElement>) => {
-    if (dragStart.current) {
-      setSize(getResizedDimensions(event));
-    }
-  };
-
-  const handleResizeEnd = (event: ReactPointerEvent<HTMLButtonElement>) => {
-    if (!dragStart.current) {
-      return;
-    }
-
-    const resizedDimensions = getResizedDimensions(event);
-    dragStart.current = null;
-    setSize(resizedDimensions);
-    onResize(resizedDimensions);
-  };
+  const {
+    form,
+    size,
+    preset,
+    settingsOpen,
+    applySize,
+    handleSettingsOpenChange,
+    handlePresetChange,
+    handleInputKeyDown,
+    handleResizeStart,
+    handleResize,
+    handleResizeEnd,
+    handleResizeCancel,
+  } = useBarcodeAttribute({ width, height, onResize });
 
   return (
     <span
@@ -180,7 +84,7 @@ export const BarcodeAttribute = ({
         />
         <path stroke="#000" strokeWidth="8" d="M120 69L120 0" />
       </svg>
-      {editable && (
+      {canEdit && (
         <span className="erxes-block-controls order-first mb-1 flex gap-1 rounded bg-background p-1 text-foreground shadow-sm print:hidden">
           <Button
             type="button"
@@ -192,20 +96,11 @@ export const BarcodeAttribute = ({
             onPointerDown={handleResizeStart}
             onPointerMove={handleResize}
             onPointerUp={handleResizeEnd}
-            onPointerCancel={() => {
-              dragStart.current = null;
-              setSize({ width, height });
-            }}
+            onPointerCancel={handleResizeCancel}
           >
             <IconArrowsDiagonal />
           </Button>
-          <Popover
-            open={settingsOpen}
-            onOpenChange={(open) => {
-              if (open) form.reset({ width: size.width, height: size.height });
-              setSettingsOpen(open);
-            }}
-          >
+          <Popover open={settingsOpen} onOpenChange={handleSettingsOpenChange}>
             <Popover.Trigger asChild>
               <Button
                 type="button"
@@ -222,28 +117,11 @@ export const BarcodeAttribute = ({
               onClick={(event) => event.stopPropagation()}
             >
               <Form {...form}>
-                <div
-                  className="space-y-3"
-                  onKeyDown={(event) => {
-                    if (
-                      event.key === 'Enter' &&
-                      event.target instanceof HTMLInputElement
-                    ) {
-                      event.preventDefault();
-                      event.stopPropagation();
-                      void applySize();
-                    }
-                  }}
-                >
+                <div className="space-y-3">
                   <p className="text-sm font-medium">Barcode size</p>
                   <Select
                     value={preset ? String(preset.width) : ''}
-                    onValueChange={(value) => {
-                      const selected = BARCODE_SIZE_PRESETS.find(
-                        (size) => String(size.width) === value,
-                      );
-                      if (selected) form.reset(selected);
-                    }}
+                    onValueChange={handlePresetChange}
                   >
                     <Select.Trigger aria-label="Barcode size preset">
                       <Select.Value placeholder="Custom size" />
@@ -274,14 +152,11 @@ export const BarcodeAttribute = ({
                           <Form.Control>
                             <Input
                               {...field}
+                              onKeyDown={handleInputKeyDown}
                               type="number"
                               step={1}
-                              min={
-                                dimension === 'width' ? MIN_WIDTH : MIN_HEIGHT
-                              }
-                              max={
-                                dimension === 'width' ? MAX_WIDTH : MAX_HEIGHT
-                              }
+                              min={BARCODE_DIMENSION_LIMITS[dimension].min}
+                              max={BARCODE_DIMENSION_LIMITS[dimension].max}
                             />
                           </Form.Control>
                           <Form.Message />

@@ -1,32 +1,14 @@
 import { IconPrinter } from '@tabler/icons-react';
 import { Button, Resizable, Sheet } from 'erxes-ui';
-import { ReactNode, useEffect, useRef, useState } from 'react';
-import { FormProvider, useForm } from 'react-hook-form';
+import { ReactNode } from 'react';
+import { FormProvider } from 'react-hook-form';
+import { Can } from 'ui-modules/modules/permissions';
 import { PrintPreview } from 'ui-modules/modules/documents/components/PrintPreview';
 import { PrintSettings } from 'ui-modules/modules/documents/components/PrintSettings';
-import { PAPER_SIZES } from 'ui-modules/modules/documents/constants';
-import { usePrintJob } from 'ui-modules/modules/documents/hooks/usePrintJob';
 import {
-  PrintFormValues,
-  PrintItem,
-} from 'ui-modules/modules/documents/types/print';
-
-const DEFAULT_VALUES: PrintFormValues = {
-  _id: '',
-  brandId: '',
-  branchId: '',
-  copies: 1,
-  departmentId: '',
-  height: PAPER_SIZES.A4.height,
-  margin: 15,
-  offsetX: 0,
-  offsetY: 0,
-  orientation: 'portrait',
-  replacerIds: [],
-  scale: 100,
-  size: 'A4',
-  width: PAPER_SIZES.A4.width,
-};
+  DocumentPrintOptions,
+  useDocumentPrint,
+} from '../hooks/useDocumentPrint';
 
 export const PrintSheet = ({
   children,
@@ -70,120 +52,82 @@ export const PrintDocument = ({
   open,
   onOpenChange,
   trigger,
-}: {
-  items: PrintItem[];
+}: DocumentPrintOptions & {
   contentType: string;
-  document?: {
-    _id: string;
-    name?: string;
-  };
-  open?: boolean;
-  onOpenChange?: (open: boolean) => void;
   trigger?: ReactNode | null;
 }) => {
-  const iframeRef = useRef<HTMLIFrameElement>(null);
-
-  const [internalOpen, setInternalOpen] = useState(false);
-  const sheetOpen = open ?? internalOpen;
-  const [previewReady, setPreviewReady] = useState(false);
-
-  function setSheetOpen(nextOpen: boolean) {
-    setInternalOpen(nextOpen);
-    if (!nextOpen) setPreviewReady(false);
-    onOpenChange?.(nextOpen);
-  }
-
-  const form = useForm<PrintFormValues>({
-    mode: 'onChange',
-    defaultValues: {
-      ...DEFAULT_VALUES,
-      _id: document?._id || '',
-      replacerIds: items.map((item) => item._id),
-    },
-  });
-
-  const { isRunning, print } = usePrintJob({
+  const {
     iframeRef,
-    getValues: form.getValues,
-  });
-
-  useEffect(() => {
-    form.setValue(
-      'replacerIds',
-      items.map((item) => item._id),
-    );
-  }, [form, items]);
-
-  useEffect(() => {
-    if (document?._id) {
-      form.setValue('_id', document._id);
-    }
-  }, [document?._id, form]);
-
-  const handleDiscard = () => {
-    form.reset({
-      ...DEFAULT_VALUES,
-      _id: document?._id || '',
-      replacerIds: items.map((item) => item._id),
-    });
-    setSheetOpen(false);
-  };
+    form,
+    sheetOpen,
+    setSheetOpen,
+    previewReady,
+    setPreviewReady,
+    isRunning,
+    print,
+    handleDiscard,
+  } = useDocumentPrint({ items, document, open, onOpenChange });
 
   return (
-    <FormProvider {...form}>
-      <PrintSheet
-        open={sheetOpen}
-        onOpenChange={setSheetOpen}
-        trigger={trigger}
-      >
-        <Resizable.PanelGroup direction="horizontal" className="flex-1 min-h-0">
-          <Resizable.Panel
-            className="h-full flex flex-col bg-gray-100 overflow-hidden"
-            minSize={40}
-            defaultSize={80}
+    <Can action="documentsRead">
+      <FormProvider {...form}>
+        <PrintSheet
+          open={sheetOpen}
+          onOpenChange={setSheetOpen}
+          trigger={trigger}
+        >
+          <Resizable.PanelGroup
+            direction="horizontal"
+            className="flex-1 min-h-0"
           >
-            <PrintPreview
-              iframeRef={iframeRef}
-              onReadyChange={setPreviewReady}
-            />
-          </Resizable.Panel>
-          <Resizable.Handle />
-          <Resizable.Panel
-            className="h-full flex flex-col"
-            minSize={20}
-            defaultSize={25}
-            maxSize={25}
-          >
-            <div className="flex flex-col h-full relative">
-              <div className="overflow-y-auto styled-scroll mb-16">
-                <PrintSettings
-                  contentType={contentType}
-                  initialDocumentName={document?.name}
-                  selectCustomers={
-                    contentType === 'core:broadcast' && items.length === 0
-                  }
-                />
+            <Resizable.Panel
+              className="h-full flex flex-col bg-gray-100 overflow-hidden"
+              minSize={40}
+              defaultSize={80}
+            >
+              <PrintPreview
+                iframeRef={iframeRef}
+                onReadyChange={setPreviewReady}
+              />
+            </Resizable.Panel>
+            <Resizable.Handle />
+            <Resizable.Panel
+              className="h-full flex flex-col"
+              minSize={20}
+              defaultSize={25}
+              maxSize={25}
+            >
+              <div className="flex flex-col h-full relative">
+                <div className="overflow-y-auto styled-scroll mb-16">
+                  <PrintSettings
+                    contentType={contentType}
+                    initialDocumentName={document?.name}
+                    selectCustomers={
+                      contentType === 'core:broadcast' && items.length === 0
+                    }
+                  />
+                </div>
+                <Sheet.Footer className="absolute bottom-0 right-0 p-5">
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    onClick={handleDiscard}
+                  >
+                    Discard
+                  </Button>
+                  <Button
+                    type="button"
+                    onClick={print}
+                    disabled={isRunning || !previewReady}
+                  >
+                    {isRunning ? 'Printing' : 'Print'}
+                  </Button>
+                </Sheet.Footer>
               </div>
-              <Sheet.Footer className="absolute bottom-0 right-0 p-5">
-                <Button
-                  type="button"
-                  variant="secondary"
-                  onClick={handleDiscard}
-                >
-                  Discard
-                </Button>
-                <Button
-                  type="button"
-                  onClick={print}
-                  disabled={isRunning || !previewReady}
-                >
-                  {isRunning ? 'Printing' : 'Print'}
-                </Button>
-              </Sheet.Footer>
-            </div>
-          </Resizable.Panel>
-        </Resizable.PanelGroup>
-      </PrintSheet>
-    </FormProvider>
+            </Resizable.Panel>
+          </Resizable.PanelGroup>
+        </PrintSheet>
+      </FormProvider>
+    </Can>
   );
 };

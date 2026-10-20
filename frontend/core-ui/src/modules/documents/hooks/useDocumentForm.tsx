@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
+import { UseFormReturn, useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 export const documentValidationSchema = z.object({
@@ -11,7 +11,7 @@ export const documentValidationSchema = z.object({
 
 export type FormType = z.infer<typeof documentValidationSchema>;
 
-const useDocumentForm = () => {
+const useDocumentForm = (): { form: UseFormReturn<FormType> } => {
   const form = useForm<FormType>({
     mode: 'onSubmit',
     resolver: zodResolver(documentValidationSchema),

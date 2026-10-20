@@ -1,4 +1,9 @@
-import { NetworkStatus, useMutation, useQuery } from '@apollo/client';
+import {
+  NetworkStatus,
+  QueryResult,
+  useMutation,
+  useQuery,
+} from '@apollo/client';
 import { toast, useMultiQueryState } from 'erxes-ui';
 import { useEffect } from 'react';
 import { useFormContext } from 'react-hook-form';
@@ -8,26 +13,39 @@ import { IDocument } from '../types';
 import { FormType } from './useDocumentForm';
 import { DOCUMENTS_QUERY } from 'ui-modules';
 
-export const useDocument = () => {
+type DocumentResponse = { documentsDetail: IDocument | null };
+type UseDocumentResult = Pick<
+  QueryResult<DocumentResponse>,
+  'loading' | 'refetch'
+> & {
+  document: IDocument | null;
+  documentId: string | undefined;
+  documentSave: () => Promise<void>;
+  hasError: boolean;
+  saving: boolean;
+};
+
+export const useDocument = ({
+  initializeForm = false,
+}: { initializeForm?: boolean } = {}): UseDocumentResult => {
   const [{ documentId }, setQueries] = useMultiQueryState<{
     documentId: string;
     contentType: string;
   }>(['documentId', 'contentType']);
   const cleanDocumentId = documentId?.trim();
   const { getValues, reset } = useFormContext<FormType>();
-  const { data, error, loading, networkStatus, refetch } = useQuery<{
-    documentsDetail: IDocument | null;
-  }>(GET_DOCUMENT_DETAIL, {
-    notifyOnNetworkStatusChange: true,
-    fetchPolicy: 'network-only',
-    variables: { _id: cleanDocumentId },
-    skip: !cleanDocumentId,
-  });
-  const document = data?.documentsDetail || null;
+  const { data, error, loading, networkStatus, refetch } =
+    useQuery<DocumentResponse>(GET_DOCUMENT_DETAIL, {
+      notifyOnNetworkStatusChange: true,
+      fetchPolicy: 'network-only',
+      variables: { _id: cleanDocumentId },
+      skip: !cleanDocumentId,
+    });
+  const document = cleanDocumentId ? data?.documentsDetail || null : null;
   const hasError = Boolean(error || networkStatus === NetworkStatus.error);
 
   useEffect(() => {
-    if (document) {
+    if (initializeForm && document) {
       reset({
         name: document.name || '',
         content: document.content || '',
@@ -35,7 +53,7 @@ export const useDocument = () => {
         commentState: document.commentState || undefined,
       });
     }
-  }, [document, reset]);
+  }, [document, initializeForm, reset]);
 
   const [saveDocument, { loading: saving }] = useMutation<{
     documentsSave: IDocument;

@@ -1,6 +1,6 @@
 import { IconPrinter } from '@tabler/icons-react';
 import { Button, Dialog } from 'erxes-ui';
-import { useState } from 'react';
+import { useDocumentPrintDialog } from '../hooks/useDocumentPrintDialog';
 import {
   PrintDocument,
   SelectCompany,
@@ -150,31 +150,17 @@ export function DocumentPrintDialog({
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
-  const [replacerId, setReplacerId] = useState('');
-  const [printReplacerId, setPrintReplacerId] = useState('');
-  const [printOpen, setPrintOpen] = useState(false);
-
+  const {
+    replacerId,
+    setReplacerId,
+    printReplacerId,
+    printOpen,
+    setPrintOpen,
+    handleOpenChange,
+    handleContinue,
+  } = useDocumentPrintDialog(onOpenChange);
   const replacerLabel =
     DOCUMENT_REPLACER_LABELS[documentItem.contentType] || 'Record';
-
-  function handleOpenChange(nextOpen: boolean) {
-    onOpenChange(nextOpen);
-
-    if (!nextOpen) {
-      setReplacerId('');
-    }
-  }
-
-  function handleContinue() {
-    if (!replacerId) {
-      return;
-    }
-
-    setPrintReplacerId(replacerId);
-    setReplacerId('');
-    onOpenChange(false);
-    setPrintOpen(true);
-  }
 
   return (
     <>

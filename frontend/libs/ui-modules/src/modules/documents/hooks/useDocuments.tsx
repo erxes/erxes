@@ -1,4 +1,4 @@
-import { QueryHookOptions, useQuery } from '@apollo/client';
+import { QueryHookOptions, QueryResult, useQuery } from '@apollo/client';
 import {
   EnumCursorDirection,
   IRecordTableCursorPageInfo,
@@ -23,7 +23,14 @@ type DocumentsResponse = {
   };
 };
 
-export const useDocuments = (options?: QueryHookOptions<DocumentsResponse>) => {
+export const useDocuments = (
+  options?: QueryHookOptions<DocumentsResponse>,
+): Pick<QueryResult<DocumentsResponse>, 'loading' | 'error'> & {
+  documents: DocumentTemplate[];
+  totalCount: number | undefined;
+  pageInfo: IRecordTableCursorPageInfo | undefined;
+  handleFetchMore: () => Promise<void>;
+} => {
   const fetchingMore = useRef(false);
   const { data, loading, fetchMore, error } = useQuery<DocumentsResponse>(
     DOCUMENTS_QUERY,

@@ -13,9 +13,11 @@ import {
 } from '@tabler/icons-react';
 import {
   Button,
+  toast,
   BlockEditor,
   cn,
   IBlockEditor,
+  Textarea,
   useBlockEditor,
 } from 'erxes-ui';
 
@@ -31,8 +33,8 @@ import {
   serializeDocumentComments,
   readDocumentComments,
 } from '../utils/DocumentThreadStore';
-import { toast } from 'erxes-ui';
 import { DocumentCommentsSidebar } from './DocumentCommentsSidebar';
+import { loadDocumentBlocks } from '../utils/normalizeDocumentBlocks';
 
 const EditorController = ({
   editor,
@@ -61,6 +63,7 @@ const EditorController = ({
   }, [editor, onChange]);
 
   useEffect(() => {
+    if (readonly) return;
     const node = dropRef.current;
 
     if (!node) return;
@@ -109,7 +112,7 @@ const EditorController = ({
       node.removeEventListener('dragleave', handleDragLeave, true);
       node.removeEventListener('drop', handleDrop, true);
     };
-  }, [editor]);
+  }, [editor, readonly]);
 
   return (
     <div
@@ -182,20 +185,9 @@ const DocumentContentEditor = ({
           editor.comments?.selectThread(undefined);
         }
         loadedDocument.current = { id: documentItem?._id, editor };
-        const content = documentItem?.content;
-        if (content) {
-          let blocks: Parameters<IBlockEditor['replaceBlocks']>[1];
-          try {
-            const parsed: unknown = JSON.parse(content);
-            if (!Array.isArray(parsed))
-              throw new Error('Invalid document content');
-            blocks = parsed;
-          } catch {
-            blocks = await editor.tryParseHTMLToBlocks(content);
-          }
-          if (cancelled) return;
-          editor.replaceBlocks(editor.document, blocks);
-        }
+        const blocks = await loadDocumentBlocks(editor, documentItem?.content);
+        if (cancelled) return;
+        editor.replaceBlocks(editor.document, blocks);
         const state = readDocumentComments(documentItem?.commentState);
         store.load(state.threads);
         restoreDocumentCommentAnchors(editor, state.anchors);
@@ -305,7 +297,7 @@ const DocumentTitleEditor = ({
   };
 
   return (
-    <textarea
+    <Textarea
       readOnly={readonly}
       ref={textareaRef}
       value={value}
@@ -319,7 +311,9 @@ const DocumentTitleEditor = ({
 };
 
 export const DocumentEditor = () => {
-  const { document, documentId, hasError, loading, refetch } = useDocument();
+  const { document, documentId, hasError, loading, refetch } = useDocument({
+    initializeForm: true,
+  });
   const { store, resolveUsers } = useDocumentComments();
   const { hasActionPermission } = usePermissionCheck();
   const readonly = !hasActionPermission('manageDocuments');
@@ -403,6 +397,7 @@ export const DocumentEditor = () => {
           )}
           {!readonly && hasAttributes && !sidebarOpen && (
             <Button
+              type="button"
               variant="outline"
               size="sm"
               className="mr-5 mt-10 shrink-0 gap-1.5"
@@ -423,7 +418,7 @@ export const DocumentEditor = () => {
           commentsOpen={commentsOpen}
         />
       </div>
-      {hasAttributes && sidebarOpen && (
+      {!readonly && hasAttributes && sidebarOpen && (
         <DocumentAttributesSidebar
           editor={editor}
           attributes={attributes}

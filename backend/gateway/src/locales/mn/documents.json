@@ -15,5 +15,7 @@
     "search": "Хайх",
     "created-at": "Үүсгэсэн огноо",
     "assigned-to": "Хариуцсан"
-  }
+  },
+  "loading": "Ачаалж байна…",
+  "load-more-documents": "Илүү олон баримт ачаалах"
 }

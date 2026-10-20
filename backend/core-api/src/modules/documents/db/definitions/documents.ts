@@ -25,9 +25,6 @@ documentSchema.add({
     ...mongooseStringRandomId,
     cast: (value: unknown) => {
       if (value instanceof Types.ObjectId) return value;
-      if (typeof value === 'string' && /^[0-9a-f]{24}$/i.test(value)) {
-        return new Types.ObjectId(value);
-      }
       return Schema.Types.String.cast()(value);
     },
   },

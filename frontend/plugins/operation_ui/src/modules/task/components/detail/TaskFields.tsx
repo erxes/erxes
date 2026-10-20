@@ -80,6 +80,7 @@ export const TaskFields = ({ task }: { task: ITaskDetail }) => {
         name: debouncedName,
       },
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedName]);
   useEffect(() => {
     if (!debouncedDescriptionContent) return;
@@ -95,6 +96,7 @@ export const TaskFields = ({ task }: { task: ITaskDetail }) => {
         description: JSON.stringify(debouncedDescriptionContent),
       },
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedDescriptionContent]);
 
   useEffect(() => {

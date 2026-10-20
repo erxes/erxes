@@ -15,5 +15,7 @@
     "search": "Search",
     "created-at": "Created At",
     "assigned-to": "Assigned To"
-  }
+  },
+  "loading": "Loading…",
+  "load-more-documents": "Load more documents"
 }

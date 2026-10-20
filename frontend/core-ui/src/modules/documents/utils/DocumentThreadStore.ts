@@ -79,13 +79,26 @@ export const readDocumentComments = (
   };
 };
 
+const createDocumentThreadStoreAuth = (userId: string): ThreadStore['auth'] => {
+  const auth = new DefaultThreadStoreAuth(userId, 'editor');
+  auth.canDeleteComment = (comment: CommentData): boolean =>
+    comment.userId === userId;
+  auth.canDeleteThread = (thread: ThreadData): boolean =>
+    thread.comments.every(
+      (comment) => Boolean(comment.deletedAt) || comment.userId === userId,
+    );
+  return auth;
+};
+
 export class DocumentThreadStore extends ThreadStore {
   readonly addThreadToDocument = undefined;
   private threads = new Map<string, ThreadData>();
-  private listeners = new Set<(threads: Map<string, ThreadData>) => void>();
+  private readonly listeners = new Set<
+    (threads: Map<string, ThreadData>) => void
+  >();
 
   constructor(private readonly userId: string) {
-    super(new DefaultThreadStoreAuth(userId, 'editor'));
+    super(createDocumentThreadStoreAuth(userId));
   }
 
   load(threads: ThreadData[]): void {
@@ -133,142 +146,174 @@ export class DocumentThreadStore extends ThreadStore {
     };
   }
 
-  async createThread(
+  createThread(
     options: Parameters<ThreadStore['createThread']>[0],
   ): Promise<ThreadData> {
-    this.assert(this.auth.canCreateThread());
-    const now = new Date();
-    const thread: ThreadData = {
-      type: 'thread',
-      id: nanoid(),
-      createdAt: now,
-      updatedAt: now,
-      resolved: false,
-      comments: [this.newComment(options.initialComment)],
-      metadata: options.metadata,
-    };
-    this.commit(thread);
-    return thread;
+    return Promise.resolve().then(() => {
+      this.assert(this.auth.canCreateThread());
+      const now = new Date();
+      const thread: ThreadData = {
+        type: 'thread',
+        id: nanoid(),
+        createdAt: now,
+        updatedAt: now,
+        resolved: false,
+        comments: [this.newComment(options.initialComment)],
+        metadata: options.metadata,
+      };
+      this.commit(thread);
+      return thread;
+    });
   }
 
-  async addComment({
+  addComment({
     threadId,
     comment,
   }: Parameters<ThreadStore['addComment']>[0]): Promise<CommentData> {
-    const thread = this.getThread(threadId);
-    this.assert(this.auth.canAddComment(thread));
-    const created = this.newComment(comment);
-    this.commit({ ...thread, comments: [...thread.comments, created] });
-    return created;
+    return Promise.resolve().then(() => {
+      const thread = this.getThread(threadId);
+      this.assert(this.auth.canAddComment(thread));
+      const created = this.newComment(comment);
+      this.commit({ ...thread, comments: [...thread.comments, created] });
+      return created;
+    });
   }
 
-  async updateComment({
+  updateComment({
     threadId,
     commentId,
     comment,
   }: Parameters<ThreadStore['updateComment']>[0]): Promise<void> {
-    this.assert(this.auth.canUpdateComment(this.comment(threadId, commentId)));
-    const thread = this.getThread(threadId);
-    this.commit({
-      ...thread,
-      comments: thread.comments.map((item) =>
-        item.id === commentId
-          ? {
-              ...item,
-              body: comment.body,
-              metadata: comment.metadata,
-              updatedAt: new Date(),
-              deletedAt: undefined,
-            }
-          : item,
-      ),
+    return Promise.resolve().then(() => {
+      this.assert(
+        this.auth.canUpdateComment(this.comment(threadId, commentId)),
+      );
+      const thread = this.getThread(threadId);
+      this.commit({
+        ...thread,
+        comments: thread.comments.map((item) =>
+          item.id === commentId
+            ? {
+                ...item,
+                body: comment.body,
+                metadata: comment.metadata,
+                updatedAt: new Date(),
+                deletedAt: undefined,
+              }
+            : item,
+        ),
+      });
     });
   }
 
-  async deleteComment({
+  deleteComment({
     threadId,
     commentId,
   }: Parameters<ThreadStore['deleteComment']>[0]): Promise<void> {
-    this.assert(this.auth.canDeleteComment(this.comment(threadId, commentId)));
-    const thread = this.getThread(threadId);
-    const comments = thread.comments.filter((item) => item.id !== commentId);
-    if (!comments.length) return this.deleteThread({ threadId });
-    this.commit({ ...thread, comments });
-  }
-
-  async deleteThread({ threadId }: { threadId: string }): Promise<void> {
-    this.assert(this.auth.canDeleteThread(this.getThread(threadId)));
-    this.threads = new Map(this.threads);
-    this.threads.delete(threadId);
-    this.emit();
-  }
-
-  async resolveThread({ threadId }: { threadId: string }): Promise<void> {
-    const thread = this.getThread(threadId);
-    this.assert(this.auth.canResolveThread(thread));
-    this.commit({
-      ...thread,
-      resolved: true,
-      resolvedBy: this.userId,
-      resolvedUpdatedAt: new Date(),
+    return Promise.resolve().then(() => {
+      this.assert(
+        this.auth.canDeleteComment(this.comment(threadId, commentId)),
+      );
+      const thread = this.getThread(threadId);
+      const comments = thread.comments.filter((item) => item.id !== commentId);
+      if (!comments.length) return this.deleteThread({ threadId });
+      this.commit({ ...thread, comments });
     });
   }
 
-  async unresolveThread({ threadId }: { threadId: string }): Promise<void> {
-    const thread = this.getThread(threadId);
-    this.assert(this.auth.canUnresolveThread(thread));
-    this.commit({
-      ...thread,
-      resolved: false,
-      resolvedBy: this.userId,
-      resolvedUpdatedAt: new Date(),
+  deleteThread({ threadId }: { threadId: string }): Promise<void> {
+    return Promise.resolve().then(() => {
+      this.assert(this.auth.canDeleteThread(this.getThread(threadId)));
+      this.threads = new Map(this.threads);
+      this.threads.delete(threadId);
+      this.emit();
     });
   }
 
-  async addReaction({
+  resolveThread({ threadId }: { threadId: string }): Promise<void> {
+    return Promise.resolve().then(() => {
+      const thread = this.getThread(threadId);
+      this.assert(this.auth.canResolveThread(thread));
+      this.commit({
+        ...thread,
+        resolved: true,
+        resolvedBy: this.userId,
+        resolvedUpdatedAt: new Date(),
+      });
+    });
+  }
+
+  unresolveThread({ threadId }: { threadId: string }): Promise<void> {
+    return Promise.resolve().then(() => {
+      const thread = this.getThread(threadId);
+      this.assert(this.auth.canUnresolveThread(thread));
+      this.commit({
+        ...thread,
+        resolved: false,
+        resolvedBy: this.userId,
+        resolvedUpdatedAt: new Date(),
+      });
+    });
+  }
+
+  addReaction({
     threadId,
     commentId,
     emoji,
   }: Parameters<ThreadStore['addReaction']>[0]): Promise<void> {
-    const comment = this.comment(threadId, commentId);
-    this.assert(this.auth.canAddReaction(comment, emoji));
-    const existing = comment.reactions.find(
-      (reaction) => reaction.emoji === emoji,
-    );
-    const reactions = existing
-      ? comment.reactions.map((reaction) =>
-          reaction.emoji === emoji
-            ? { ...reaction, userIds: [...reaction.userIds, this.userId] }
-            : reaction,
+    return Promise.resolve().then(() => {
+      const comment = this.comment(threadId, commentId);
+      if (
+        comment.reactions.some(
+          (reaction) =>
+            reaction.emoji === emoji && reaction.userIds.includes(this.userId),
         )
-      : [
-          ...comment.reactions,
-          { emoji, createdAt: new Date(), userIds: [this.userId] },
-        ];
-    this.setReactions(threadId, commentId, reactions);
+      )
+        return;
+      this.assert(this.auth.canAddReaction(comment, emoji));
+      const existing = comment.reactions.some(
+        (reaction) => reaction.emoji === emoji,
+      );
+      const reactions = existing
+        ? comment.reactions.map((reaction) =>
+            reaction.emoji === emoji
+              ? {
+                  ...reaction,
+                  userIds: [...new Set([...reaction.userIds, this.userId])],
+                }
+              : reaction,
+          )
+        : [
+            ...comment.reactions,
+            { emoji, createdAt: new Date(), userIds: [this.userId] },
+          ];
+      this.setReactions(threadId, commentId, reactions);
+    });
   }
 
-  async deleteReaction({
+  deleteReaction({
     threadId,
     commentId,
     emoji,
   }: Parameters<ThreadStore['deleteReaction']>[0]): Promise<void> {
-    const comment = this.comment(threadId, commentId);
-    this.assert(this.auth.canDeleteReaction(comment, emoji));
-    this.setReactions(
-      threadId,
-      commentId,
-      comment.reactions
-        .map((reaction) =>
-          reaction.emoji === emoji
-            ? {
-                ...reaction,
-                userIds: reaction.userIds.filter((id) => id !== this.userId),
-              }
-            : reaction,
-        )
-        .filter((reaction) => reaction.userIds.length > 0),
-    );
+    return Promise.resolve().then(() => {
+      const comment = this.comment(threadId, commentId);
+      this.assert(this.auth.canDeleteReaction(comment, emoji));
+      this.setReactions(
+        threadId,
+        commentId,
+        comment.reactions
+          .map((reaction) =>
+            reaction.emoji === emoji
+              ? {
+                  ...reaction,
+                  userIds: reaction.userIds.filter((id) => id !== this.userId),
+                }
+              : reaction,
+          )
+          .filter((reaction) => reaction.userIds.length > 0),
+      );
+    });
   }
 
   private setReactions(
@@ -310,6 +355,7 @@ export const serializeDocumentComments = (
   store: DocumentThreadStore,
 ): string => {
   const anchors: DocumentCommentAnchor[] = [];
+  const lastAnchors = new Map<string, DocumentCommentAnchor>();
   editor.prosemirrorState.doc.descendants((node, from) => {
     node.marks.forEach((mark) => {
       const threadId: unknown = mark.attrs.threadId;
@@ -318,7 +364,14 @@ export const serializeDocumentComments = (
         typeof threadId === 'string' &&
         store.getThreads().has(threadId)
       ) {
-        anchors.push({ threadId, from, to: from + node.nodeSize });
+        const previous = lastAnchors.get(threadId);
+        if (previous?.to === from) {
+          previous.to = from + node.nodeSize;
+        } else {
+          const anchor = { threadId, from, to: from + node.nodeSize };
+          anchors.push(anchor);
+          lastAnchors.set(threadId, anchor);
+        }
       }
     });
   });

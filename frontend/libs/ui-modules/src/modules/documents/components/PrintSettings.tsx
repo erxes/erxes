@@ -138,11 +138,10 @@ export const PrintSettings = ({
                     <SelectCustomer.FormItem
                       mode="multiple"
                       value={field.value}
-                      onValueChange={(value) =>
-                        field.onChange(
-                          Array.isArray(value) ? value : value ? [value] : [],
-                        )
-                      }
+                      onValueChange={(value) => {
+                        if (Array.isArray(value)) field.onChange(value);
+                        else field.onChange(value ? [value] : []);
+                      }}
                     />
                     <Form.Description>
                       Select customers to fill the broadcast document
