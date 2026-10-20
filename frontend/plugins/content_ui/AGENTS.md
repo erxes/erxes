@@ -12,8 +12,8 @@
 
 ### Owns
 
-- CMS and Web Builder routes, navigation, pages, widgets, GraphQL documents,
-  client state, translations, and user feedback.
+- CMS and Web Builder routes, navigation, pages, GraphQL documents, client
+  state, translations, and user feedback.
 
 ### Does not own
 
@@ -42,7 +42,6 @@
 | CMS           | `frontend/plugins/content_ui/src/modules/cms`         | Owns CMS routes and feature UI.                                                         |
 | Web Builder   | `frontend/plugins/content_ui/src/modules/web-builder` | Owns Web Builder UI.                                                                    |
 | Pages         | `frontend/plugins/content_ui/src/pages`               | Provides route-level pages.                                                             |
-| Widgets       | `frontend/plugins/content_ui/src/widgets`             | Provides plugin widget exports.                                                         |
 | Codegen       | `frontend/plugins/content_ui/codegen.ts`              | Validates documents against the composed schema and generates the gitignored `src/gql`. |
 | Agent SDL     | `frontend/plugins/content_ui/schema/agent.graphql`    | Declares erxes-private agent_api fields content selects; not in the composed schema.    |
 
@@ -104,12 +103,12 @@
   values remain category IDs and multiple selections remain available.
 - Asynchronous legacy HTML restoration must capture a revision before parsing
   and must not replace editor blocks after a newer user edit.
-- `src/widgets` is for plugin widget exports, not general shared CMS UI.
 - Keep hooks, GraphQL documents, states, constants, and types near the feature
   they support.
-- `tsconfig.app.json` type-checks every file under `src`, including files no
-  Rspack entry or expose reaches. Delete orphaned files instead of leaving them
-  pointing at removed modules.
+- Every file under `src` is reachable through imports from `config.tsx`,
+  `modules/cms/Main.tsx`, or `main.ts`, except tests and generated `src/gql`.
+  `tsconfig.app.json` also type-checks files that nothing imports. Delete a
+  file once nothing imports it.
 - Pages reuse the posts `MediaSection`: `IPageFormData` keeps the five
   `MediaFormData` fields with the same types. React Hook Form's
   `UseFormReturn` is invariant, so `PageSidebarPanel` casts its form at that
@@ -210,7 +209,6 @@
   and feature-local files.
 - Do not add new UI, table, form, routing, state, icon, or date libraries.
 - Do not move Module Federation exposes without updating all host references.
-- Do not put feature-specific CMS components in `src/widgets`.
 - Do not replace existing cursor pagination with offset pagination unless the
   backend contract requires it.
 
@@ -244,7 +242,6 @@
 - Building a list with plain `Table` when `RecordTable` cursor behavior is
   expected.
 - Forgetting `websiteId` in CMS routes, variables, links, or drawer props.
-- Adding shared CMS UI to `src/widgets` instead of `src/modules/cms/shared`.
 - Changing backend schema or API assumptions from the UI layer.
 - Calling Rspack directly, which skips codegen and leaves `src/gql/` stale.
   `pnpm nx build`, `pnpm nx serve`, and `pnpm dev:uis` regenerate it.
