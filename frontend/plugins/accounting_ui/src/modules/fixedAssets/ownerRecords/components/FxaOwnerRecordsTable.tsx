@@ -1,6 +1,10 @@
 import type { TFunction } from 'i18next';
 import { useTranslation } from 'react-i18next';
-import { IconArrowRight, IconCircleOff } from '@tabler/icons-react';
+import {
+  IconArrowRight,
+  IconCircleOff,
+  IconUserOff,
+} from '@tabler/icons-react';
 import { Cell, ColumnDef } from '@tanstack/react-table';
 import {
   Combobox,
@@ -13,6 +17,7 @@ import {
 } from 'erxes-ui';
 import { useMemo } from 'react';
 import { SelectMember } from 'ui-modules';
+import { AccountingEmptyState } from '@/layout/components/AccountingEmptyState';
 import { useFixedAssetCategories } from '@/settings/fixed-assets/hooks/useFixedAssetCategories';
 import { useFixedAssets } from '@/settings/fixed-assets/hooks/useFixedAssets';
 import { useFxaOwnerRecords } from '@/settings/fixed-assets/hooks/useFxaOwnerRecords';
@@ -256,7 +261,7 @@ const FxaOwnerRecordsSkeleton = ({ rows = 20 }: { rows?: number }) => {
 
 export const FxaOwnerRecordsTable = () => {
   const { t } = useTranslation('accounting');
-  const { fxaOwnerRecords, handleFetchMore, loading, totalCount } =
+  const { fxaOwnerRecords, handleFetchMore, loading, error, totalCount } =
     useFxaOwnerRecords();
   const { fixedAssets } = useFixedAssets();
   const { fixedAssetCategories } = useFixedAssetCategories();
@@ -294,6 +299,16 @@ export const FxaOwnerRecordsTable = () => {
       '',
   }));
   const isInitialLoading = loading && !fxaOwnerRecords?.length;
+
+  if (!loading && !records.length) {
+    return (
+      <AccountingEmptyState
+        error={error}
+        icon={IconUserOff}
+        title={t('no-asset-custodian-records-found')}
+      />
+    );
+  }
 
   return (
     <RecordTable.Provider

@@ -1,6 +1,8 @@
 import { useTranslation } from 'react-i18next';
 import { useMemo } from 'react';
+import { IconPackageOff } from '@tabler/icons-react';
 import { RecordTable, Skeleton, Table } from 'erxes-ui';
+import { AccountingEmptyState } from '@/layout/components/AccountingEmptyState';
 import { safeRemainderColumns } from './SafeRemainderColumns';
 import { ISafeRemainder } from '../types/SafeRemainder';
 
@@ -31,11 +33,13 @@ const SafeRemainderInitialSkeleton = ({ rows = 20 }: { rows?: number }) => {
 export const SafeRemainderTable = ({
   handleFetchMore,
   loading,
+  error,
   safeRemainders,
   totalCount,
 }: {
   handleFetchMore: () => void;
   loading: boolean;
+  error?: { message: string };
   safeRemainders?: ISafeRemainder[];
   totalCount?: number;
 }) => {
@@ -44,6 +48,10 @@ export const SafeRemainderTable = ({
   const isInitialLoading = loading && !isFetchingMore;
   const safeRemaindersCount = safeRemainders?.length ?? 0;
   const totalSafeRemaindersCount = totalCount ?? 0;
+
+  if (!loading && !safeRemaindersCount) {
+    return <AccountingEmptyState error={error} icon={IconPackageOff} />;
+  }
 
   return (
     <RecordTable.Provider

@@ -73,13 +73,14 @@ export const vatRowsColumns = (
 
 export const VatRowsTable = () => {
   const { t } = useTranslation('accounting');
-  const { vatRows, loading, handleFetchMore, totalCount } = useVatRows();
+  const { vatRows, loading, error, handleFetchMore, totalCount } = useVatRows();
 
   return (
     <SettingsRowsTable
       columns={vatRowsColumns(t)}
       data={vatRows || []}
       loading={loading}
+      error={error}
       totalCount={totalCount}
       handleFetchMore={handleFetchMore}
       Commandbar={VatRowsCommandbar}

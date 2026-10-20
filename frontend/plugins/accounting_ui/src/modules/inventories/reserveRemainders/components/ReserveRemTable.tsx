@@ -8,8 +8,9 @@ import {
   Table,
   useConfirm,
 } from 'erxes-ui';
-import { IconTrash } from '@tabler/icons-react';
+import { IconPackageOff, IconTrash } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
+import { AccountingEmptyState } from '@/layout/components/AccountingEmptyState';
 import { useReserveRems } from '../hooks/useReserveRems';
 import { useReserveRemsRemove } from '../hooks/useReserveRemsRemove';
 import { reserveRemColumns } from './ReserveRemColumns';
@@ -40,11 +41,15 @@ const ReserveRemInitialSkeleton = ({ rows = 20 }: { rows?: number }) => {
 
 export const ReserveRemTable = () => {
   const { t } = useTranslation('accounting');
-  const { reserveRems, loading, totalCount, handleFetchMore } =
+  const { reserveRems, loading, error, totalCount, handleFetchMore } =
     useReserveRems();
 
   const isFetchingMore = loading && (reserveRems?.length ?? 0) > 0;
   const isInitialLoading = loading && !isFetchingMore;
+
+  if (!loading && !reserveRems?.length) {
+    return <AccountingEmptyState error={error} icon={IconPackageOff} />;
+  }
 
   return (
     <RecordTable.Provider

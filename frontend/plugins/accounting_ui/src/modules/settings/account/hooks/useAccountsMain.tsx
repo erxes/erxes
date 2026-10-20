@@ -86,6 +86,7 @@ export const useAccountsMain = (
   const {
     data: queryData,
     loading,
+    error,
     fetchMore,
   } = useQuery(GET_ACCOUNTS_MAIN, {
     ...options,
@@ -137,6 +138,7 @@ export const useAccountsMain = (
   return {
     loading,
     accountsMain,
+    error,
     totalCount,
     handleFetchMore,
     pageInfo: toCursorPageInfo(pageInfo),

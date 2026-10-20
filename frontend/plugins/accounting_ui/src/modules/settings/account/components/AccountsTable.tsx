@@ -1,6 +1,8 @@
 import { useTranslation } from 'react-i18next';
 import { useAccountsMain } from '@/settings/account/hooks/useAccountsMain';
+import { IconDatabaseOff } from '@tabler/icons-react';
 import { RecordTable, Skeleton, Table } from 'erxes-ui';
+import { AccountingEmptyState } from '@/layout/components/AccountingEmptyState';
 import { accountsColumns } from '@/settings/account/components/AccountsColumns';
 import { AccountsCommandbar } from './AccountsCommandBar';
 import { ACCOUNTS_CURSOR_SESSION_KEY } from '../../../accountsSessionKeys';
@@ -32,11 +34,15 @@ const AccountsInitialSkeleton = ({ rows = 20 }: { rows?: number }) => {
 
 export const AccountsTable = () => {
   const { t } = useTranslation('accounting');
-  const { accountsMain, loading, handleFetchMore, pageInfo } =
+  const { accountsMain, loading, error, handleFetchMore, pageInfo } =
     useAccountsMain();
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
   const isFetchingMore = loading && (accountsMain?.length ?? 0) > 0;
   const isInitialLoading = loading && !isFetchingMore;
+
+  if (!loading && !accountsMain?.length) {
+    return <AccountingEmptyState error={error} icon={IconDatabaseOff} />;
+  }
 
   return (
     <RecordTable.Provider

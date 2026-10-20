@@ -1,4 +1,6 @@
+import { IconPackageOff } from '@tabler/icons-react';
 import { CommandBar, RecordTable, Separator } from 'erxes-ui';
+import { AccountingEmptyState } from '@/layout/components/AccountingEmptyState';
 import { useSetAtom } from 'jotai';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -9,10 +11,15 @@ import { productColumns } from './ProductColumns';
 import { ReCalcRemainderForm } from './ReCalcRemainderForm';
 
 export const ProductsRecordTable = () => {
-  const { productsMain, handleFetchMore, loading, pageInfo } = useProducts();
+  const { productsMain, handleFetchMore, loading, error, pageInfo } =
+    useProducts();
   const { t } = useTranslation('accounting');
 
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
+
+  if (!loading && !productsMain?.length) {
+    return <AccountingEmptyState error={error} icon={IconPackageOff} />;
+  }
 
   return (
     <RecordTable.Provider

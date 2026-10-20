@@ -238,7 +238,7 @@ const FixedAssetAccountConfigsDelete = () => {
 
 export const FixedAssetAccountConfigsTable = () => {
   const { t } = useTranslation('accounting');
-  const { configs, loading } = useFixedAssetAccountConfigs();
+  const { configs, loading, error } = useFixedAssetAccountConfigs();
   const [selectedConfig, setSelectedConfig] =
     useState<IFixedAssetAccountConfig>();
   const columns = getColumns((config) => setSelectedConfig(config), t);
@@ -249,6 +249,7 @@ export const FixedAssetAccountConfigsTable = () => {
         columns={columns}
         data={configs || []}
         loading={loading}
+        error={error}
         stickyColumns={['more', 'checkbox', 'accountId']}
         className="m-3"
         Commandbar={FixedAssetAccountConfigsCommandbar}

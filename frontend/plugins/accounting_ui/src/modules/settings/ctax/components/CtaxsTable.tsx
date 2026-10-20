@@ -56,13 +56,15 @@ export const ctaxRowsColumns = (
 
 export const CtaxRowsTable = () => {
   const { t } = useTranslation('accounting');
-  const { ctaxRows, loading, handleFetchMore, totalCount } = useCtaxRows();
+  const { ctaxRows, loading, error, handleFetchMore, totalCount } =
+    useCtaxRows();
 
   return (
     <SettingsRowsTable
       columns={ctaxRowsColumns(t)}
       data={ctaxRows || []}
       loading={loading}
+      error={error}
       totalCount={totalCount}
       handleFetchMore={handleFetchMore}
       Commandbar={CtaxRowsCommandbar}

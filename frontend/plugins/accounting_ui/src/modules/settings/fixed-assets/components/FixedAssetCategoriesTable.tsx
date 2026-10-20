@@ -174,13 +174,14 @@ const FixedAssetCategoriesDelete = () => {
 
 export const FixedAssetCategoriesTable = () => {
   const { t } = useTranslation('accounting');
-  const { fixedAssetCategories, loading } = useFixedAssetCategories();
+  const { fixedAssetCategories, loading, error } = useFixedAssetCategories();
 
   return (
     <SettingsRowsTable
       columns={fixedAssetCategoryColumns(t)}
       data={fixedAssetCategories || []}
       loading={loading}
+      error={error}
       stickyColumns={['more', 'checkbox', 'code']}
       className="m-3"
       Commandbar={FixedAssetCategoriesCommandbar}

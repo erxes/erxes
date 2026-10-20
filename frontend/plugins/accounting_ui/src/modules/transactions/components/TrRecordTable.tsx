@@ -1,5 +1,7 @@
 import { useTranslation } from 'react-i18next';
+import { IconFileOff } from '@tabler/icons-react';
 import { RecordTable, useQueryState } from 'erxes-ui';
+import { AccountingEmptyState } from '@/layout/components/AccountingEmptyState';
 import { ACC_TR_RECORDS_CURSOR_SESSION_KEY } from '~/modules/accountsSessionKeys';
 import { useTrRecords } from '../hooks/useTrRecords';
 import { trRecordColumns } from './TrRecordsTableColumns';
@@ -11,7 +13,8 @@ const hasInventoryLikeDetails = (journal?: string) =>
 
 export const TrRecordTable = () => {
   const { t } = useTranslation('accounting');
-  const { trRecords, loading, handleFetchMore, pageInfo } = useTrRecords();
+  const { trRecords, loading, error, handleFetchMore, pageInfo } =
+    useTrRecords();
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
 
   const [journal] = useQueryState<string>('journal');
@@ -23,6 +26,16 @@ export const TrRecordTable = () => {
         : trRecordColumns(t).filter((column) => !column.id?.includes('inv')),
     [showsInventoryDetails, t],
   );
+
+  if (!loading && !trRecords?.length) {
+    return (
+      <AccountingEmptyState
+        error={error}
+        icon={IconFileOff}
+        title={t('no-transaction-found')}
+      />
+    );
+  }
 
   return (
     <RecordTable.Provider

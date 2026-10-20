@@ -10,11 +10,13 @@ import {
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 
 import { useTranslation } from 'react-i18next';
+import { AccountingEmptyState } from '@/layout/components/AccountingEmptyState';
 
 interface SettingsRowsTableProps<TData> {
   columns: ColumnDef<TData>[];
   data: TData[];
   loading: boolean;
+  error?: { message: string };
   totalCount?: number;
   handleFetchMore?: () => void;
   Commandbar: React.ComponentType;
@@ -28,6 +30,7 @@ export const SettingsRowsTable = <TData,>({
   columns,
   data,
   loading,
+  error,
   totalCount,
   handleFetchMore,
   Commandbar,
@@ -37,6 +40,10 @@ export const SettingsRowsTable = <TData,>({
   className,
 }: SettingsRowsTableProps<TData>) => {
   const isInitialLoading = loading && !data?.length;
+
+  if (!loading && !data?.length) {
+    return <AccountingEmptyState error={error} />;
+  }
 
   return (
     <RecordTable.Provider

@@ -156,6 +156,7 @@ export const useAccountingCheckSyncedDeals = ({
   const {
     data: queryData,
     loading,
+    error,
     fetchMore,
   } = useQuery(ACCOUNTING_CHECK_SYNCED_DEALS_QUERY, {
     ...options,
@@ -445,6 +446,7 @@ export const useAccountingCheckSyncedDeals = ({
     deals,
     handleFetchMore,
     loading,
+    error,
     pageInfo,
     syncDeals,
     syncSelectedDealIds,

@@ -6,29 +6,11 @@ import {
 import { AccountingCheckSyncedOrdersCommandBar } from './AccountingCheckSyncedOrdersCommandBar';
 import { IconShoppingCartX } from '@tabler/icons-react';
 import { RecordTable } from 'erxes-ui';
+import { AccountingEmptyState } from '@/layout/components/AccountingEmptyState';
 import { getAccountingCheckSyncedOrdersColumns } from './AccountingCheckSyncedOrdersColumns';
 import { isSyncable } from '~/modules/check-synced/constants/shared';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-
-const NoOrdersEmptyState = () => {
-  const { t } = useTranslation('accounting');
-  return (
-    <div className="absolute inset-0 flex items-center justify-center">
-      <div className="flex flex-col items-center justify-center text-center">
-        <div className="mb-6">
-          <IconShoppingCartX size={48} className="text-gray-400" />
-        </div>
-        <h3 className="text-lg font-semibold text-gray-900">
-          {t('no-orders')}
-        </h3>
-        <p className="mt-1 text-sm text-gray-500">
-          {t('select-rule-or-adjust-filters-orders')}
-        </p>
-      </div>
-    </div>
-  );
-};
 
 export const AccountingCheckSyncedOrdersRecordTable = () => {
   const { t } = useTranslation('accounting');
@@ -38,6 +20,7 @@ export const AccountingCheckSyncedOrdersRecordTable = () => {
     checking,
     handleFetchMore,
     loading,
+    error,
     orders,
     pageInfo,
     setAllOrdersToSync,
@@ -63,6 +46,17 @@ export const AccountingCheckSyncedOrdersRecordTable = () => {
       }),
     [setAllOrdersToSync, setOrderToSync, syncableOrderIds, toSyncOrderIds, t],
   );
+
+  if (!loading && !orders?.length) {
+    return (
+      <AccountingEmptyState
+        error={error}
+        icon={IconShoppingCartX}
+        title={t('no-orders')}
+        description={t('select-rule-or-adjust-filters-orders')}
+      />
+    );
+  }
 
   return (
     <RecordTable.Provider
@@ -99,7 +93,6 @@ export const AccountingCheckSyncedOrdersRecordTable = () => {
             />
           </RecordTable.Body>
         </RecordTable>
-        {!loading && orders?.length === 0 && <NoOrdersEmptyState />}
       </RecordTable.CursorProvider>
     </RecordTable.Provider>
   );

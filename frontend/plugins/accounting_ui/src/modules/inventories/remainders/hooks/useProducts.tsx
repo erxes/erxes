@@ -198,6 +198,7 @@ export const useProducts = (options?: QueryHookOptions) => {
   const {
     data: queryData,
     loading,
+    error,
     fetchMore,
   } = useQuery(productsQueries.productsMain, {
     ...options,
@@ -246,6 +247,7 @@ export const useProducts = (options?: QueryHookOptions) => {
   return {
     loading,
     productsMain,
+    error,
     totalCount,
     handleFetchMore,
     pageInfo,

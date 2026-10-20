@@ -200,7 +200,7 @@ const FixedAssetsDelete = () => {
 
 export const FixedAssetsTable = () => {
   const { t } = useTranslation('accounting');
-  const { fixedAssets, loading } = useFixedAssets();
+  const { fixedAssets, loading, error } = useFixedAssets();
   const { fixedAssetCategories } = useFixedAssetCategories();
   const categoriesById = useMemo(
     () =>
@@ -223,6 +223,7 @@ export const FixedAssetsTable = () => {
       columns={columns}
       data={fixedAssets || []}
       loading={loading}
+      error={error}
       stickyColumns={['more', 'checkbox', 'code']}
       className="m-3"
       Commandbar={FixedAssetsCommandbar}

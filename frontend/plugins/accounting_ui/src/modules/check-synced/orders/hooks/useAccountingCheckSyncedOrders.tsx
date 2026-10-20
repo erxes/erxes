@@ -103,6 +103,7 @@ export const useAccountingCheckSyncedOrders = (
   const {
     data: queryData,
     loading,
+    error,
     fetchMore,
   } = useQuery(ACCOUNTING_CHECK_SYNCED_ORDERS_QUERY, {
     ...options,
@@ -382,6 +383,7 @@ export const useAccountingCheckSyncedOrders = (
     handleFetchMore,
     loading,
     orders,
+    error,
     pageInfo: {
       hasNextPage: orders.length < totalCount,
       hasPreviousPage: false,

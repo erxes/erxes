@@ -102,6 +102,7 @@ export const usePermissionsMain = (
   const {
     data: queryData,
     loading,
+    error,
     fetchMore,
   } = useQuery(GET_ACCOUNT_PERMISSIONS, {
     notifyOnNetworkStatusChange: true,
@@ -163,6 +164,7 @@ export const usePermissionsMain = (
   return {
     loading,
     permissionsMain,
+    error,
     totalCount,
     handleFetchMore,
     pageInfo: toCursorPageInfo(pageInfo),

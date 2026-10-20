@@ -6,7 +6,7 @@
 - **Project:** `accounting_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/accounting_ui`
-- **Last synchronized:** `2026-10-18`
+- **Last synchronized:** `2026-10-20`
 
 ## Scope
 
@@ -70,7 +70,7 @@
 - Accounting settings pages manage accounts, account categories, permissions, VAT, CTAX, and sync configuration; VAT/CTAX row access is guarded by the unified tax-row permission actions.
 - Journal report rendering groups backend rows recursively, uses a declarative report-to-filter map to show and submit only applicable account, contact, inventory, fixed-asset, organization, user, and report controls, filters by Erkhet-compatible transaction type plus erxes-native category/search/tag/ownership fields, renders account statement, trial balance, general ledger, main journal, main journal summary, fund, debt, inventory cost, inventory sale, inventory sale-cost, inventory sale-period, inventory price, inventory profit, inventory shipper, inventory document, inventory seller subsystem, and fixed asset report variants, signs inventory movement totals by transaction side so debit cost adjustments increase and credit adjustments decrease value, shows foreign-currency balance rows separately beneath non-MNT account leaves without adding them to base-currency totals, derives table headers and footers from report column metadata, keeps date filter controls visually consistent, shows table-body loading skeletons while report or drill-down data loads, calculates parent/footer totals after render, hides all-zero summary rows unless users choose detailed or empty-row display, exposes detailed transactions for every report, opens transaction edit screens from detailed rows, drills summary rows into the same report with hierarchy-derived filters, and downloads the rendered result as a formatted Excel workbook.
 - Development Rspack serving ignores generated dependency/cache/output folders to keep local file watchers bounded.
-
+- Every list-page record table (receipts, journal entries, all adjustment lists, check-sync deals/orders, inventory remainders, reserve and safe remainders, accounts, account categories, permissions, settings row tables such as VAT/CTAX/fixed asset settings, sync configs, fixed asset owner records and remainders) renders `AccountingEmptyState` instead of the table once loading finishes with no rows.
 ## Architecture
 
 | Area                | Path                                                                            | Responsibility                                                                                                  |
@@ -96,6 +96,7 @@
 | Report Excel export | `src/modules/journal-reports/utils/exportJournalReportExcel.ts`                 | Converts the currently rendered report, totals, and expanded detail tables into a formatted `.xlsx` workbook.   |
 | Report renderers    | `src/modules/journal-reports/components/includes/handlers`                      | Maps report families to Erkhet-style `calcReport` table calculators and detail-row renderers.                   |
 | Settings            | `src/modules/settings`                                                          | Owns accounting settings forms, account tables, filters, and config hooks.                                      |
+| Empty state         | `src/modules/layout/components/AccountingEmptyState.tsx`                        | Wraps the erxes-ui `Empty` composite (icon, title defaulting to `no-results-found`, optional description) for list tables; with an `error` prop it shows an alert icon, the `error` title, and the error message instead. |
 | Pages               | `src/pages`                                                                     | Exposes route-level page components for accounting surfaces.                                                    |
 | Relation widgets    | `src/widgets/relation/RelationWidgets.tsx`                                      | Provides accounting relation widget exports.                                                                    |
 
@@ -241,6 +242,7 @@
 - Inventory report remainder and cost movement totals must derive their sign from transaction side; debit adds and credit subtracts, including cost-only `invJustify` rows.
 - Journal report filter visibility and submitted query parameters must be declared in `src/modules/journal-reports/types/reportFilters.ts`; adding a field to a form without mapping it to applicable reports and its backend query parameter is not allowed.
 - Every journal report must offer detailed mode; summary-row drill-down must preserve the report and current filters while adding every selected group filter, and detailed transaction rows must open their transaction edit route on double-click.
+- List-table empty states use `AccountingEmptyState` (erxes-ui `Empty`), never hand-rolled icon/heading markup or an in-table "no data" row; render it only when `!loading` and the row array is empty so skeletons still show during the first fetch, and always pass the query `error` so a failed request (for example a stopped `accounting_api`) reads as an error, not as "no results". Route outlets that host `PageContainer` pages (`AccountingSettings`, `AccountingCheckSync`) must be `flex-col`; `PageContainer` has no `flex-auto`, so in a row outlet it shrinks to its content and an empty state collapses the page to a narrow column. Form-editing and detail tables (`TBalance`, adjustment/census detail tables) keep their own empty handling.
 - `Sheet.Header` is a fixed 40px row. A header with a visible second line (subtitle, record number, description) adds `h-auto py-2` so it sizes to its content; detail-page title rows are `h-10`, level with `PageHeader`.
 
 ## Validation

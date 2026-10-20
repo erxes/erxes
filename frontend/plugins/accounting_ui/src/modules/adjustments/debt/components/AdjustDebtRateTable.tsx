@@ -1,11 +1,17 @@
 import { useTranslation } from 'react-i18next';
 import { useAdjustDebtRates } from '../hooks/useAdjustDebtRates';
 import { adjustDebtRateColumns } from './AdjustDebtRateTableColumns';
+import { IconAdjustmentsOff } from '@tabler/icons-react';
 import { RecordTable } from 'erxes-ui';
+import { AccountingEmptyState } from '@/layout/components/AccountingEmptyState';
 
 export const AdjustDebtRateTable = () => {
   const { t } = useTranslation('accounting');
-  const { adjustDebtRates, loading } = useAdjustDebtRates();
+  const { adjustDebtRates, loading, error } = useAdjustDebtRates();
+
+  if (!loading && !adjustDebtRates?.length) {
+    return <AccountingEmptyState error={error} icon={IconAdjustmentsOff} />;
+  }
 
   return (
     <RecordTable.Provider

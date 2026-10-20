@@ -1,12 +1,18 @@
 import { useTranslation } from 'react-i18next';
 import { useAdjustInventories } from '../hooks/useAdjustInventories';
 import { adjustTableColumns } from './AdjustTableColumns';
+import { IconAdjustmentsOff } from '@tabler/icons-react';
 import { RecordTable } from 'erxes-ui';
+import { AccountingEmptyState } from '@/layout/components/AccountingEmptyState';
 
 export const AdjustTable = () => {
   const { t } = useTranslation('accounting');
-  const { adjustInventories, loading, totalCount, handleFetchMore } =
+  const { adjustInventories, loading, error, totalCount, handleFetchMore } =
     useAdjustInventories();
+
+  if (!loading && !adjustInventories?.length) {
+    return <AccountingEmptyState error={error} icon={IconAdjustmentsOff} />;
+  }
 
   return (
     <RecordTable.Provider

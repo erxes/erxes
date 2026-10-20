@@ -9,6 +9,8 @@ import {
 } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
 import { useMemo } from 'react';
+import { IconRefreshOff } from '@tabler/icons-react';
+import { AccountingEmptyState } from '@/layout/components/AccountingEmptyState';
 import { ACCOUNTING_SETTINGS_CODES } from '../constants/settingsRoutes';
 import { accountingConfigDetailAtom } from '../states/accountingConfigState';
 import { IConfig } from '../types/Config';
@@ -103,8 +105,14 @@ export const SyncConfigTable = ({
   tableId?: string;
   showColumnSelector?: boolean;
 }) => {
-  const { configs, loading } = useAccountingConfigs({ variables: { code } });
+  const { configs, loading, error } = useAccountingConfigs({
+    variables: { code },
+  });
   const isInitialLoading = loading && !configs?.length;
+
+  if (!loading && !configs?.length) {
+    return <AccountingEmptyState error={error} icon={IconRefreshOff} />;
+  }
 
   return (
     <RecordTable.Provider

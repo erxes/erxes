@@ -95,7 +95,7 @@ const AccountingSubSettings = () => {
               <AccountingTopbar />
             </div>
           </SettingsHeader>
-          <div className="flex flex-auto overflow-hidden">
+          <div className="flex flex-auto flex-col overflow-hidden">
             <Suspense
               fallback={
                 <div className="flex flex-auto justify-center items-center h-full w-full">

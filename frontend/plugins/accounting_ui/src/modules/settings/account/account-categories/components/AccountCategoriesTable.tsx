@@ -24,7 +24,8 @@ import { useSetAtom } from 'jotai';
 import { accountCategoryDetailAtom } from '../states/accountCategoryStates';
 import { AccountCategoriesCommandbar } from './AccountCategoriesCommandbar';
 import { useMemo } from 'react';
-import { IconEdit, IconTrash } from '@tabler/icons-react';
+import { IconEdit, IconFolderOff, IconTrash } from '@tabler/icons-react';
+import { AccountingEmptyState } from '@/layout/components/AccountingEmptyState';
 
 const AccountCategoriesInitialSkeleton = ({ rows = 20 }: { rows?: number }) => {
   const { t } = useTranslation('accounting');
@@ -52,7 +53,7 @@ const AccountCategoriesInitialSkeleton = ({ rows = 20 }: { rows?: number }) => {
 
 export const AccountCategoriesTable = () => {
   const { t } = useTranslation('accounting');
-  const { accountCategories, loading } = useAccountCategories();
+  const { accountCategories, loading, error } = useAccountCategories();
   const isInitialLoading = loading && !accountCategories?.length;
 
   const categoryObject = useMemo(() => {
@@ -66,6 +67,10 @@ export const AccountCategoriesTable = () => {
       ) || {}
     );
   }, [accountCategories]);
+
+  if (!loading && !accountCategories?.length) {
+    return <AccountingEmptyState error={error} icon={IconFolderOff} />;
+  }
 
   return (
     <RecordTable.Provider

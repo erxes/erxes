@@ -9,7 +9,9 @@ import {
   Table,
   TextOverflowTooltip,
 } from 'erxes-ui';
+import { IconBuildingOff } from '@tabler/icons-react';
 import { useBranchesMain, useDepartmentsMain } from 'ui-modules';
+import { AccountingEmptyState } from '@/layout/components/AccountingEmptyState';
 import { useFixedAssetCategories } from '@/settings/fixed-assets/hooks/useFixedAssetCategories';
 import { useFixedAssets } from '@/settings/fixed-assets/hooks/useFixedAssets';
 import {
@@ -169,7 +171,7 @@ const FxaRemaindersSkeleton = ({ rows = 20 }: { rows?: number }) => {
 
 export const FxaRemaindersTable = () => {
   const { t } = useTranslation('accounting');
-  const { fixedAssetRemainders, loading } = useFixedAssetRemainders();
+  const { fixedAssetRemainders, loading, error } = useFixedAssetRemainders();
   const fixedAssetIds = [
     ...new Set(
       fixedAssetRemainders
@@ -277,6 +279,16 @@ export const FxaRemaindersTable = () => {
     loadingBranches ||
     loadingDepartments;
 
+  if (!isInitialLoading && !rows.length) {
+    return (
+      <AccountingEmptyState
+        error={error}
+        icon={IconBuildingOff}
+        title={t('no-balance-found')}
+      />
+    );
+  }
+
   return (
     <RecordTable.Provider
       columns={columns}
@@ -291,16 +303,6 @@ export const FxaRemaindersTable = () => {
           <RecordTable.Body>
             <RecordTable.RowList />
             {isInitialLoading && <FxaRemaindersSkeleton rows={20} />}
-            {!isInitialLoading && rows.length === 0 && (
-              <Table.Row>
-                <Table.Cell
-                  colSpan={columns.length}
-                  className="text-center text-muted-foreground"
-                >
-                  {t('no-balance-found')}
-                </Table.Cell>
-              </Table.Row>
-            )}
           </RecordTable.Body>
         </RecordTable>
       </RecordTable.Scroll>

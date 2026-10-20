@@ -1,5 +1,7 @@
 import { useTranslation } from 'react-i18next';
+import { IconReceiptOff } from '@tabler/icons-react';
 import { RecordTable } from 'erxes-ui';
+import { AccountingEmptyState } from '@/layout/components/AccountingEmptyState';
 import { ACCTRANSACTIONS_CURSOR_SESSION_KEY } from '~/modules/accountsSessionKeys';
 import { useTransactions } from '../hooks/useTransactions';
 import { AccountingTableRow } from './AccountingTableRow';
@@ -8,9 +10,19 @@ import { TransactionCommandBar } from './TransactionCommandBar';
 
 export const TransactionTable = () => {
   const { t } = useTranslation('accounting');
-  const { transactions, loading, handleFetchMore, pageInfo } =
+  const { transactions, loading, error, handleFetchMore, pageInfo } =
     useTransactions();
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
+
+  if (!loading && !transactions?.length) {
+    return (
+      <AccountingEmptyState
+        error={error}
+        icon={IconReceiptOff}
+        title={t('no-transactions')}
+      />
+    );
+  }
 
   return (
     <RecordTable.Provider
