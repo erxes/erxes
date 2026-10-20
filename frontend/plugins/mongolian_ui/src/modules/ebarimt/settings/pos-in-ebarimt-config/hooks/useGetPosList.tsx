@@ -1,32 +1,14 @@
-import { useQuery, QueryHookOptions } from '@apollo/client';
-import { GET_POS_LIST } from '~/modules/ebarimt/settings/pos-in-ebarimt-config/graphql/posList';
-import { IPos } from '@/ebarimt/settings/pos-in-ebarimt-config/types/pos';
+import { useQuery } from '@apollo/client';
+import { GET_POS_LIST } from '@/shared/graphql/posList';
+import { compactList } from '@/shared/utils/cursorList';
 
-
-interface IUseGetPoslistResponse {
-  posList: IPos[];
-}
-
-interface UseGetPoslistOptions extends QueryHookOptions {
-  skip?: boolean;
-}
-
-export const useGetPoslist = (
-  options?: UseGetPoslistOptions,
-) => {
-  const { data, loading, error } = useQuery<IUseGetPoslistResponse>(
-    GET_POS_LIST,
-    {
-      ...options,
-      variables: {
-        ...options?.variables,
-      },
-      skip: options?.skip,
-    },
-  );
+export const useGetPoslist = () => {
+  const { data, loading, error } = useQuery(GET_POS_LIST);
 
   return {
-    poss: data?.posList || [],
+    poss: compactList(data?.posList).flatMap((pos) =>
+      pos._id ? [{ ...pos, _id: pos._id, name: pos.name ?? '' }] : [],
+    ),
     loading,
     error,
   };

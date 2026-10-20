@@ -7,7 +7,7 @@ import React, {
 } from 'react';
 import { cn, Combobox, Command, PopoverScoped } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { useGetSalesPipelines } from '@/ebarimt/settings/stage-in-ebarimt-config/hooks/useGetSalesPipelines';
+import { useGetSalesPipelines } from '@/shared/hooks/useSalesPipelines';
 import {
   SelectTrigger,
   SelectContent,

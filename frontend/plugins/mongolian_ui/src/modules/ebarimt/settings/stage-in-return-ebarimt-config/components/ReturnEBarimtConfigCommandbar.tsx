@@ -9,8 +9,8 @@ import {
 import { IconTrash } from '@tabler/icons-react';
 import { useMutation } from '@apollo/client';
 import { useTranslation } from 'react-i18next';
-import { REMOVE_MN_CONFIG, GET_MN_CONFIGS } from '@/ebarimt/settings/stage-in-return-ebarimt-config/graphql/queries/mnConfigs';
 import { useState } from 'react';
+import { GET_MN_CONFIGS, REMOVE_MN_CONFIG } from '@/shared/graphql/mnConfigs';
 
 export const ReturnEBarimtConfigCommandbar = () => {
   const { t } = useTranslation('mongolian');

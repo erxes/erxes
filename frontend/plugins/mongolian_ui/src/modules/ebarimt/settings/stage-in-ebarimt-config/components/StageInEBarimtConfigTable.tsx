@@ -18,12 +18,12 @@ import {
   IconTrash,
 } from '@tabler/icons-react';
 import { useQuery } from '@apollo/client';
-import { GET_MN_CONFIGS } from '@/ebarimt/settings/stage-in-ebarimt-config/graphql/queries/mnConfigs';
 import { IStageInEbarimtConfigRow } from '@/ebarimt/settings/stage-in-ebarimt-config/states/stageInEbarimtConfigStates';
 import { useRemoveStageInEbarimtConfig } from '@/ebarimt/settings/stage-in-ebarimt-config/hooks/useRemoveStageInEbarimtConfig';
 import { normalizeRuleIds } from '@/ebarimt/settings/stage-in-ebarimt-config/types';
 import { AddStageInEBarimtConfig } from './AddStageInEBarimtConfig';
 import { StageInEBarimtConfigCommandbar } from './StageInEBarimtConfigCommandbar';
+import { GET_MN_CONFIGS } from '@/shared/graphql/mnConfigs';
 
 const useStageInEbarimtConfigRows = () => {
   const { data, loading } = useQuery(GET_MN_CONFIGS, {

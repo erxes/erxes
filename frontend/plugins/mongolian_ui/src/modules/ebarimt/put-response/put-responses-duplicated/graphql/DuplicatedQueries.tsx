@@ -1,7 +1,7 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-const putResponsesDuplicated = gql`
-  query putResponsesDuplicated(
+const putResponsesDuplicated = gql(`
+  query ebarimtPutResponsesDuplicated(
     $billType: String
     $startDate: Date
     $endDate: Date
@@ -14,9 +14,27 @@ const putResponsesDuplicated = gql`
       endDate: $endDate
       page: $page
       perPage: $perPage
-    )
+    ) {
+      list {
+        _id
+        date
+        values {
+          counter
+          cityTax
+          vat
+          amount
+        }
+      }
+      totalCount
+      pageInfo {
+        hasNextPage
+        hasPreviousPage
+        startCursor
+        endCursor
+      }
+    }
   }
-`;
+`);
 
 export const duplicatedQueries = {
   putResponsesDuplicated,

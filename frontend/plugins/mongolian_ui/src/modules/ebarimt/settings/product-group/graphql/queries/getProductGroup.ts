@@ -1,26 +1,7 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const productGroupFields = `
-  _id
-  mainProductId
-  subProductId
-  mainProduct {
-    _id
-    name
-    code
-  }
-  subProduct {
-    _id
-    name
-    code
-  }
-  sortNum
-  ratio
-  isActive
-`;
-
-export const GET_PRODUCT_GROUP = gql`
-  query EbarimtProductGroups(
+export const GET_PRODUCT_GROUP = gql(`
+  query ebarimtProductGroups(
     $searchValue: String
     $productId: String
     $status: String
@@ -74,11 +55,4 @@ export const GET_PRODUCT_GROUP = gql`
       totalCount
     }
   }
-`;
-export const GET_PRODUCT_GROUP_VALUE = gql`
-  query ProductGroupDetail($id: String) {
-    productGroupDetail(_id: $id) {
-      ${productGroupFields}
-    }
-  }
-`;
+`);

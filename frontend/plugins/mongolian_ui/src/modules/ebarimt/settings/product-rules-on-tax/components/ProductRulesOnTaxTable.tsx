@@ -209,7 +209,10 @@ export const useProductRulesOnTaxColumns =
             <RecordTableInlineCell>
               <TextOverflowTooltip
                 value={
-                  TAX_TYPES[row.original.taxType]?.options.find(
+                  (row.original.taxType
+                    ? TAX_TYPES[row.original.taxType]
+                    : undefined
+                  )?.options.find(
                     (opt) => opt.value === (cell.getValue() as string),
                   )?.label
                 }

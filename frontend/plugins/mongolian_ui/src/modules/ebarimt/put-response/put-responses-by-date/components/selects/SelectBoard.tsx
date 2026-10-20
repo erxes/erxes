@@ -24,7 +24,7 @@ import {
 } from './SelectShared';
 import { IconLayoutCards } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
-import { useGetSalesBoards } from '../../hooks/useGetSalesBoards';
+import { useGetSalesBoards } from '@/shared/hooks/useSalesBoards';
 
 interface IBoard {
   _id: string;

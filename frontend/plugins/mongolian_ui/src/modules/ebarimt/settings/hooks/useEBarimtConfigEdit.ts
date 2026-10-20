@@ -1,21 +1,21 @@
-import { DocumentNode, useQuery } from '@apollo/client';
+import { TypedDocumentNode, useQuery } from '@apollo/client';
 import { useEffect, useRef, useState } from 'react';
 import { FieldValues, UseFormReset } from 'react-hook-form';
 
 interface IMnConfig {
   _id: string;
-  value?: unknown;
+  value: unknown;
 }
 
 interface IMnConfigsQueryData {
-  mnConfigs?: IMnConfig[];
+  mnConfigs: (IMnConfig | null)[] | null;
 }
 
 interface UseEBarimtConfigEditOptions<T extends FieldValues> {
   code: string;
   configId: string | null;
   getFormValues: (detail: Partial<T>) => T;
-  query: DocumentNode;
+  query: TypedDocumentNode<IMnConfigsQueryData, { code: string }>;
   reset: UseFormReset<T>;
 }
 
@@ -54,7 +54,7 @@ export const useEBarimtConfigEdit = <T extends FieldValues>({
 }: UseEBarimtConfigEditOptions<T>) => {
   const loadedIdRef = useRef<string | null>(null);
   const [loadedConfigId, setLoadedConfigId] = useState<string | null>(null);
-  const { data } = useQuery<IMnConfigsQueryData>(query, {
+  const { data } = useQuery(query, {
     variables: { code },
     skip: !configId,
   });
@@ -73,7 +73,7 @@ export const useEBarimtConfigEdit = <T extends FieldValues>({
     setLoadedConfigId(null);
     reset(getFormValues({}));
 
-    const config = data?.mnConfigs?.find(({ _id }) => _id === configId);
+    const config = data?.mnConfigs?.find((doc) => doc?._id === configId);
     if (!config) {
       return;
     }

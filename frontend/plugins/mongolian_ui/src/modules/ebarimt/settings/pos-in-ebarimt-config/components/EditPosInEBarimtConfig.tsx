@@ -7,12 +7,12 @@ import {
   POS_IN_EBARIMT_DEFAULT_VALUES,
   TPosInEbarimtConfig,
 } from '@/ebarimt/settings/pos-in-ebarimt-config/types';
-import { GET_MN_CONFIGS } from '@/ebarimt/settings/pos-in-ebarimt-config/graphql/mnConfigs';
 import { useSavePosInEbarimtConfig } from '@/ebarimt/settings/pos-in-ebarimt-config/hooks/useSavePosInEbarimtConfig';
 import { EBarimtConfigFormSheet } from '@/ebarimt/settings/components/EBarimtConfigFormSheet';
 import { useEBarimtConfigEdit } from '@/ebarimt/settings/hooks/useEBarimtConfigEdit';
 import { PosInEBarimtConfigFormFields } from './PosInEBarimtConfigFormFields';
 import { useTranslation } from 'react-i18next';
+import { GET_MN_CONFIGS } from '@/shared/graphql/mnConfigs';
 
 const FORM_ID = 'edit-pos-in-ebarimt-form';
 

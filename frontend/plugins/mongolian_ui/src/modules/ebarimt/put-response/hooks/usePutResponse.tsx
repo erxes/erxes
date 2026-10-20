@@ -3,28 +3,28 @@ import { useSetAtom } from 'jotai';
 import { QueryHookOptions, useQuery } from '@apollo/client';
 import {
   EnumCursorDirection,
-  IRecordTableCursorPageInfo,
-  mergeCursorData,
   parseDateRangeFromString,
   useMultiQueryState,
   useRecordTableCursor,
   validateFetchMore,
 } from 'erxes-ui';
 import { putResponseQueries } from '~/modules/ebarimt/put-response/graphql/queries/PutResponseQueries';
-import { IPutResponse } from '~/modules/ebarimt/put-response/types/PutResponseType';
+import {
+  compactList,
+  mergeCursorList,
+  toCursorPageInfo,
+} from '@/shared/utils/cursorList';
+import type {
+  EbarimtPutResponsesQuery,
+  EbarimtPutResponsesQueryVariables,
+} from '~/gql/graphql';
 import { usePutResponseLeadSessionKey } from '~/modules/ebarimt/put-response/hooks/usePutResponseLeadSessionKey';
 import { putResponseTotalCountAtom } from '~/modules/ebarimt/put-response/states/usePutResponseCounts';
 
 export const PUT_RESPONSE_PER_PAGE = 30;
 
 export const usePutResponseVariables = (
-  variables?: QueryHookOptions<{
-    putResponses: {
-      list: IPutResponse[];
-      totalCount: number;
-      pageInfo: IRecordTableCursorPageInfo;
-    };
-  }>['variables'],
+  variables?: EbarimtPutResponsesQueryVariables,
 ) => {
   const [
     {
@@ -105,32 +105,32 @@ export const usePutResponseVariables = (
   };
 };
 
-export const usePutResponse = (options?: QueryHookOptions) => {
+export const usePutResponse = (
+  options?: QueryHookOptions<
+    EbarimtPutResponsesQuery,
+    EbarimtPutResponsesQueryVariables
+  >,
+) => {
   const variables = usePutResponseVariables(options?.variables);
   const fetchingMoreRef = useRef(false);
-  const { data, loading, fetchMore } = useQuery<{
-    putResponses: {
-      list: IPutResponse[];
-      totalCount: number;
-      pageInfo: IRecordTableCursorPageInfo;
-    };
-  }>(putResponseQueries.putResponses, {
-    ...options,
+  const { data, loading, fetchMore } = useQuery(
+    putResponseQueries.putResponses,
+    {
+      ...options,
 
-    variables: {
-      ...options?.variables,
-      ...variables,
+      variables: {
+        ...options?.variables,
+        ...variables,
+      },
+      notifyOnNetworkStatusChange: true,
     },
-    notifyOnNetworkStatusChange: true,
-  });
+  );
 
   const setPutResponseTotalCount = useSetAtom(putResponseTotalCountAtom);
 
-  const {
-    list: putResponses = [],
-    totalCount = 0,
-    pageInfo,
-  } = data?.putResponses || {};
+  const putResponses = compactList(data?.putResponses?.list);
+  const totalCount = data?.putResponses?.totalCount ?? 0;
+  const pageInfo = toCursorPageInfo(data?.putResponses?.pageInfo);
 
   useEffect(() => {
     if (loading && !data) {
@@ -169,17 +169,16 @@ export const usePutResponse = (options?: QueryHookOptions) => {
           direction,
         },
         updateQuery: (prev, { fetchMoreResult }) => {
-          if (!fetchMoreResult) return prev;
+          if (!fetchMoreResult.putResponses || !prev.putResponses) {
+            return prev;
+          }
           return {
             ...prev,
-            putResponses: {
-              ...mergeCursorData({
-                direction,
-                prevResult: prev.putResponses,
-                fetchMoreResult: fetchMoreResult.putResponses,
-              }),
-              totalCount: fetchMoreResult.putResponses.totalCount,
-            },
+            putResponses: mergeCursorList(
+              direction,
+              prev.putResponses,
+              fetchMoreResult.putResponses,
+            ),
           };
         },
       });

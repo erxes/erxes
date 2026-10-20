@@ -1,3 +1,4 @@
+import { compactList } from '@/shared/utils/cursorList';
 import {
   Sheet,
   isDeeplyEqual,
@@ -55,13 +56,19 @@ export const EditProductRulesOnTax = () => {
         taxCode: productRulesOnTaxDetail.taxCode || '',
         kind: productRulesOnTaxDetail.kind || '',
         taxPercent: productRulesOnTaxDetail.taxPercent || 0,
-        productCategoryIds: productRulesOnTaxDetail.productCategoryIds || [],
-        excludeCategoryIds: productRulesOnTaxDetail.excludeCategoryIds || [],
-        productIds: productRulesOnTaxDetail.productIds || [],
-        excludeProductIds: productRulesOnTaxDetail.excludeProductIds || [],
-        tagIds: productRulesOnTaxDetail.tagIds || [],
-        excludeTagIds: productRulesOnTaxDetail.excludeTagIds || [],
-        status: productRulesOnTaxDetail.status || '',
+        productCategoryIds: compactList(
+          productRulesOnTaxDetail.productCategoryIds,
+        ),
+        excludeCategoryIds: compactList(
+          productRulesOnTaxDetail.excludeCategoryIds,
+        ),
+        productIds: compactList(productRulesOnTaxDetail.productIds),
+        excludeProductIds: compactList(
+          productRulesOnTaxDetail.excludeProductIds,
+        ),
+        tagIds: compactList(productRulesOnTaxDetail.tagIds),
+        excludeTagIds: compactList(productRulesOnTaxDetail.excludeTagIds),
+        status: '',
       });
     }
   }, [productRulesOnTaxDetail, reset]);
@@ -103,12 +110,16 @@ export const EditProductRulesOnTax = () => {
       taxCode: productRulesOnTaxDetail.taxCode || '',
       kind: productRulesOnTaxDetail.kind || '',
       taxPercent: productRulesOnTaxDetail.taxPercent || 0,
-      productCategoryIds: productRulesOnTaxDetail.productCategoryIds || [],
-      excludeCategoryIds: productRulesOnTaxDetail.excludeCategoryIds || [],
-      productIds: productRulesOnTaxDetail.productIds || [],
-      excludeProductIds: productRulesOnTaxDetail.excludeProductIds || [],
-      tagIds: productRulesOnTaxDetail.tagIds || [],
-      excludeTagIds: productRulesOnTaxDetail.excludeTagIds || [],
+      productCategoryIds: compactList(
+        productRulesOnTaxDetail.productCategoryIds,
+      ),
+      excludeCategoryIds: compactList(
+        productRulesOnTaxDetail.excludeCategoryIds,
+      ),
+      productIds: compactList(productRulesOnTaxDetail.productIds),
+      excludeProductIds: compactList(productRulesOnTaxDetail.excludeProductIds),
+      tagIds: compactList(productRulesOnTaxDetail.tagIds),
+      excludeTagIds: compactList(productRulesOnTaxDetail.excludeTagIds),
     };
 
     const comparisonData = { ...newData };
@@ -140,7 +151,8 @@ export const EditProductRulesOnTax = () => {
       onError: (error) => {
         toast({
           title: t('error'),
-          description: error.message || t('failed-to-update-product-rules-on-tax'),
+          description:
+            error.message || t('failed-to-update-product-rules-on-tax'),
           variant: 'destructive',
         });
       },

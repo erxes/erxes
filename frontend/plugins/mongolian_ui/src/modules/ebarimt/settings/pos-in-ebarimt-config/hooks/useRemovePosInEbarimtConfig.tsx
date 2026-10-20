@@ -1,7 +1,7 @@
 import { useMutation } from '@apollo/client';
-import { REMOVE_MN_CONFIG, GET_MN_CONFIGS } from '@/ebarimt/settings/pos-in-ebarimt-config/graphql/mnConfigs';
 import { useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import { GET_MN_CONFIGS, REMOVE_MN_CONFIG } from '@/shared/graphql/mnConfigs';
 
 export const useRemovePosInEbarimtConfig = () => {
   const { t } = useTranslation('mongolian');

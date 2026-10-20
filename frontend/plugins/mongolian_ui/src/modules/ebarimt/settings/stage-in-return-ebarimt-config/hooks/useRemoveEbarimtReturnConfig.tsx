@@ -1,7 +1,7 @@
 import { useMutation } from '@apollo/client';
-import { REMOVE_MN_CONFIG, GET_MN_CONFIGS } from '@/ebarimt/settings/stage-in-return-ebarimt-config/graphql/queries/mnConfigs';
 import { useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import { GET_MN_CONFIGS, REMOVE_MN_CONFIG } from '@/shared/graphql/mnConfigs';
 
 export const useRemoveEbarimtReturnConfig = () => {
   const [removeConfig] = useMutation(REMOVE_MN_CONFIG, {

@@ -5,7 +5,7 @@ export const useAddProductGroup = () => {
   const [_addProductGroup, { loading }] = useMutation(
     EBARIMT_PRODUCT_GROUP_ADD,
     {
-      refetchQueries: ['EbarimtProductGroups'],
+      refetchQueries: ['ebarimtProductGroups'],
       awaitRefetchQueries: true,
     },
   );

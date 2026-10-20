@@ -22,7 +22,7 @@ import { CONTENT_TYPE_DATA } from '../../constants/contentTypeData';
 import {
   SelectContent,
   SelectTrigger,
-  SelectTriggerVariant,
+  SelectTriggerVariantType,
 } from './SelectShared';
 
 interface IContentType {
@@ -149,7 +149,9 @@ const SelectContentTypeContent = () => {
     <Command>
       <Command.Input placeholder={t('search-content-type')} />
       <Command.Empty>
-        <span className="text-muted-foreground">{t('no-content-types-found')}</span>
+        <span className="text-muted-foreground">
+          {t('no-content-types-found')}
+        </span>
       </Command.Empty>
       <Command.List>
         {contentTypes?.map((contentType) => (
@@ -300,7 +302,7 @@ const SelectContentTypeRoot = ({
   disabled,
 }: {
   value: string;
-  variant?: `${SelectTriggerVariant}`;
+  variant?: SelectTriggerVariantType;
   scope?: string;
   onValueChange?: (value: string) => void;
   disabled?: boolean;

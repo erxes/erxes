@@ -156,12 +156,13 @@ export const ProductGroupRowMoreColumnCell = ({
   };
 
   const handleDelete = () => {
+    const productGroupId = cell.row.original._id;
+    if (!productGroupId) return;
+
     confirm({
       message: t('delete-product-group-confirm'),
       options: { okLabel: t('delete'), cancelLabel: t('cancel') },
-    }).then(() =>
-      removeProductGroup({ variables: { ids: [cell.row.original._id] } }),
-    );
+    }).then(() => removeProductGroup({ variables: { ids: [productGroupId] } }));
   };
 
   return (

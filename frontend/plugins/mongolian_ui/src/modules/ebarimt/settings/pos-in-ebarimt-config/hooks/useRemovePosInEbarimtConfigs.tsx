@@ -1,6 +1,6 @@
 import { useMutation } from '@apollo/client';
-import { REMOVE_MN_CONFIG, GET_MN_CONFIGS } from '@/ebarimt/settings/pos-in-ebarimt-config/graphql/mnConfigs';
 import { useState } from 'react';
+import { GET_MN_CONFIGS, REMOVE_MN_CONFIG } from '@/shared/graphql/mnConfigs';
 
 export const useRemovePosInEbarimtConfigs = () => {
   const [removeConfig] = useMutation(REMOVE_MN_CONFIG, {

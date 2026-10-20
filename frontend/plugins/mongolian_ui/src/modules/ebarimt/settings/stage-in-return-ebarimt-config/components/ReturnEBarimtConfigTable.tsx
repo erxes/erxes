@@ -19,7 +19,6 @@ import {
 } from '@tabler/icons-react';
 import { useSetAtom } from 'jotai';
 import { useQuery } from '@apollo/client';
-import { GET_MN_CONFIGS } from '@/ebarimt/settings/stage-in-return-ebarimt-config/graphql/queries/mnConfigs';
 import {
   returnEbarimtDetailAtom,
   IReturnEbarimtConfigRow,
@@ -27,6 +26,7 @@ import {
 import { useRemoveEbarimtReturnConfig } from '@/ebarimt/settings/stage-in-return-ebarimt-config/hooks/useRemoveEbarimtReturnConfig';
 import { AddReturnEBarimtConfig } from './AddReturnEBarimtConfig';
 import { ReturnEBarimtConfigCommandbar } from './ReturnEBarimtConfigCommandbar';
+import { GET_MN_CONFIGS } from '@/shared/graphql/mnConfigs';
 
 const useReturnEbarimtConfigRows = () => {
   const { data, loading } = useQuery(GET_MN_CONFIGS, {
