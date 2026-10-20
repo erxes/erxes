@@ -80,6 +80,8 @@ The `agent` module is the core-ui surface for the core-api `agents` backend
   intersected with the live catalog, so removed models/providers cannot return
   as quick picks. Auto remains usable while model discovery loads or fails;
   provider/model ids and the empty-value server-default contract are unchanged.
+- The thinking picker starts at High, and the initial outgoing request explicitly
+  sends `thinkingLevel: 'high'`. Manual selections override that default for later turns.
 - `PageElementPicker` is the composer's Select on page mode. Trusted capture-phase
   listeners inspect the app and accessible same-origin frames, including sandboxed
   HTML reports. Selection clicks cannot activate the underlying controls. Escape

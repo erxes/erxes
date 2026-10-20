@@ -38,6 +38,8 @@ export type IAgentsThinkingLevel =
   | 'medium'
   | 'high';
 
+const DEFAULT_THINKING_LEVEL: IAgentsThinkingLevel = 'high';
+
 /** Storage namespace; `page` is retained only for compatibility with old sessions. */
 export type IAgentsSessionScope = 'page' | 'panel';
 
@@ -318,13 +320,15 @@ export const useAgentsChat = (options?: {
   const [modelProvider, setModelProvider] = useState('');
   const [modelId, setModelId] = useState('');
   const [thinkingLevel, setThinkingLevel] =
-    useState<IAgentsThinkingLevel>('off');
+    useState<IAgentsThinkingLevel>(DEFAULT_THINKING_LEVEL);
   const [answerBusy, setAnswerBusy] = useState(false);
   const [canReconnect, setCanReconnect] = useState(false);
 
   const threadIdRef = useRef<string | undefined>(undefined);
   const threadSelectionRef = useRef(0);
-  const selectionRef = useRef<IAgentsRequestSelection>({});
+  const selectionRef = useRef<IAgentsRequestSelection>({
+    thinkingLevel: DEFAULT_THINKING_LEVEL,
+  });
   const pageContextRef = useRef<IAgentsPageContext | undefined>(undefined);
   const navigation = useNavigationCatalog();
   const navigationRef = useRef(navigation);

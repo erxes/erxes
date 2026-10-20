@@ -3,6 +3,7 @@ import { pageSelectionsPart } from '../pageSelections';
 import { act, renderHook } from '@testing-library/react';
 import { randomUUID } from 'crypto';
 import { useAgentsChat } from '../hooks/useAgentsChat';
+import type { IAgentsRequestSelection } from '../transport';
 
 jest.mock('ai', () => ({
   isToolUIPart: () => false,
@@ -19,9 +20,11 @@ jest.mock('@apollo/client', () => ({
 let mockPendingMessage: (message: import('ai').UIMessage) => void;
 let mockSetActiveRunId: (runId: string | undefined) => void;
 let mockOnChatResponse: (accepted: boolean, messageId: string) => void;
+let mockGetRequestSelection: () => IAgentsRequestSelection;
 jest.mock('../transport', () => ({
   AgentsChatTransport: class {
     constructor(options: {
+      getRequestSelection: () => IAgentsRequestSelection;
       onChatResponse: (accepted: boolean, messageId: string) => void;
       onActiveRunId: (runId: string | undefined) => void;
       onPendingMessage: (message: import('ai').UIMessage) => void;
@@ -29,6 +32,7 @@ jest.mock('../transport', () => ({
       mockOnChatResponse = options.onChatResponse;
       mockSetActiveRunId = options.onActiveRunId;
       mockPendingMessage = options.onPendingMessage;
+      mockGetRequestSelection = options.getRequestSelection;
     }
   },
 }));
@@ -87,6 +91,25 @@ beforeEach(() => {
     regenerate: noop,
   });
 });
+
+it('defaults the thinking picker and outgoing request selection to high', () => {
+  const { result } = renderHook(() => useAgentsChat());
+
+  expect(result.current.thinkingLevel).toBe('high');
+  expect(mockGetRequestSelection().thinkingLevel).toBe('high');
+});
+
+it.each(['off', 'minimal', 'low', 'medium', 'high'] as const)(
+  'uses an explicit thinking level of %s instead of the default',
+  (level) => {
+    const { result } = renderHook(() => useAgentsChat());
+
+    act(() => result.current.selectThinkingLevel(level));
+
+    expect(result.current.thinkingLevel).toBe(level);
+    expect(mockGetRequestSelection().thinkingLevel).toBe(level);
+  },
+);
 
 it('keeps the latest selected thread when an older request resolves last', async () => {
   const a = deferred();
