@@ -3812,7 +3812,8 @@
       "survey-question-attachments-description": "Судалгаанд хариулах үед энэ асуулттай хамт харагдана",
       "survey-question-placeholder": "Асуултаа бичнэ үү…",
       "survey-reject": "Татгалзах",
-      "survey-reject-description": "{{count}} судалгааны хүсэлтийг яагаад татгалзаж буйг хүсэлт гаргагчид тайлбарлана уу. Хүсэлт тэдэнд үлдэх бөгөөд засварлах боломжтой.",
+      "survey-reject-description_one": "{{count}} судалгааны хүсэлтийг яагаад татгалзаж буйг хүсэлт гаргагчид тайлбарлана уу. Хүсэлт тэдэнд үлдэх бөгөөд засварлах боломжтой.",
+      "survey-reject-description_other": "{{count}} судалгааны хүсэлтийг яагаад татгалзаж буйг хүсэлт гаргагчид тайлбарлана уу. Хүсэлт тэдэнд үлдэх бөгөөд засварлах боломжтой.",
       "survey-rejected": "Судалгааг татгалзлаа",
       "survey-rejection-reason": "Шалтгаан",
       "survey-rejection-reason-placeholder": "Энэ судалгааг илгээхээс өмнө юуг өөрчлөх шаардлагатай вэ?",
@@ -4004,10 +4005,13 @@
   "sidebar": {
     "client-portal": "Клиент портал"
   },
-  "survey-total-votes-short": "{{count}} санал",
-  "survey-voters": "{{count}} санал өгөгч",
+  "survey-total-votes-short_one": "{{count}} санал",
+  "survey-total-votes-short_other": "{{count}} санал",
+  "survey-voters_one": "{{count}} санал өгөгч",
+  "survey-voters_other": "{{count}} санал өгөгч",
   "survey-sent-count": "{{count}} удаа илгээсэн",
-  "n-steps": "{{count}} алхам",
+  "n-steps_one": "{{count}} алхам",
+  "n-steps_other": "{{count}} алхам",
   "view-conversation": "Харилцан яриаг харах",
   "created-from-conversation-form": "харилцан ярианы маягтаас үүсгэсэн",
   "surveys": "Судалгаа"
