@@ -14,6 +14,8 @@ export const SyncHistoryClickableColumnCell = <T extends ISyncHistoryFields>({
   const [searchParams, setSearchParams] = useSearchParams();
 
   const handleOpen = () => {
+    if (!row.original._id) return;
+
     const newSearchParams = new URLSearchParams(searchParams);
     newSearchParams.set('syncHistory_id', row.original._id);
     setSearchParams(newSearchParams);
