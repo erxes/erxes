@@ -1,3 +1,4 @@
+import { Fragment } from 'react';
 import { IconInbox } from '@tabler/icons-react';
 import { Button, ScrollArea, Spinner } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
@@ -10,6 +11,7 @@ export const NotificationList = () => {
   const { t } = useTranslation('common', { keyPrefix: 'notification' });
   const {
     notifications,
+    groups,
     loading,
     inViewRef,
     isEmpty,
@@ -61,14 +63,23 @@ export const NotificationList = () => {
                 </Button>
               </div>
             )}
-            {notifications.map((item) => (
-              <NotificationItem
-                key={item._id}
-                {...item}
-                selected={actions.selectedIds.includes(item._id)}
-                selectionFocused={actions.focusedId === item._id}
-                onOpen={(event) => actions.onOpen(item._id, event)}
-              />
+            {groups.map(([label, items]) => (
+              <Fragment key={label}>
+                {label && (
+                  <h3 className="px-2 pt-2 text-xs font-semibold text-muted-foreground capitalize">
+                    {label}
+                  </h3>
+                )}
+                {items.map((item) => (
+                  <NotificationItem
+                    key={item._id}
+                    {...item}
+                    selected={actions.selectedIds.includes(item._id)}
+                    selectionFocused={actions.focusedId === item._id}
+                    onOpen={(event) => actions.onOpen(item._id, event)}
+                  />
+                ))}
+              </Fragment>
             ))}
             {fetchMoreError ? (
               <div

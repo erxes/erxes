@@ -1,5 +1,10 @@
 import { useAtomValue } from 'jotai';
-import { hiddenNotificationIdsState } from '@/notification/states/notificationState';
+import { useTranslation } from 'react-i18next';
+import {
+  hiddenNotificationIdsState,
+  inboxDisplayOptionsState,
+} from '@/notification/states/notificationState';
+import { groupNotifications } from '@/notification/utils/groupNotifications';
 import { useInView } from 'react-intersection-observer';
 import { useNotifications } from '@/notification/hooks/useNotifications';
 import { useNotificationFilters } from '@/notification/hooks/useNotificationFilters';
@@ -18,6 +23,8 @@ export const useNotificationList = (): UseNotificationListResult => {
   } = useNotifications();
   const { status } = useNotificationFilters();
   const hiddenIds = useAtomValue(hiddenNotificationIdsState);
+  const { grouping } = useAtomValue(inboxDisplayOptionsState);
+  const { t, i18n } = useTranslation('common', { keyPrefix: 'notification' });
   const { ref: inViewRef } = useInView({
     onChange: (inView) => {
       if (inView) void handleFetchMore();
@@ -28,8 +35,15 @@ export const useNotificationList = (): UseNotificationListResult => {
       !hiddenIds.includes(item._id) &&
       (status === 'ALL' || (status === 'READ' ? item.isRead : !item.isRead)),
   );
+  const groups = groupNotifications(
+    visible,
+    grouping,
+    i18n.language,
+    t('system', 'System'),
+  );
   return {
-    notifications: visible,
+    groups,
+    notifications: groups.flatMap(([, items]) => items),
     loading,
     inViewRef,
     isEmpty:

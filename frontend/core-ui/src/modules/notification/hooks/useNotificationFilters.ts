@@ -1,3 +1,5 @@
+import { useAtomValue } from 'jotai';
+import { inboxDisplayOptionsState } from '@/notification/states/notificationState';
 import { parseDateRangeFromString, useNonNullMultiQueryState } from 'erxes-ui';
 import {
   TNotificationOrderBy,
@@ -15,9 +17,12 @@ interface NotificationFilterVariables {
   orderBy?: Record<string, 1 | -1>;
   fromUserId: string | undefined;
   module: string | undefined;
+  attention: string | undefined;
+  unreadFirst: boolean;
 }
 
 export const useNotificationFilters = (): NotificationFilterVariables => {
+  const display = useAtomValue(inboxDisplayOptionsState);
   const {
     notificationStatus: status,
     notificationPriority: priority,
@@ -26,6 +31,7 @@ export const useNotificationFilters = (): NotificationFilterVariables => {
     notificationOrderBy: orderBy,
     notificationFromUserId: fromUserId,
     notificationModule: module,
+    notificationAttention: attention,
   } = useNonNullMultiQueryState<{
     notificationStatus: TNotificationStatus;
     notificationPriority: TNotificationPriority;
@@ -34,6 +40,7 @@ export const useNotificationFilters = (): NotificationFilterVariables => {
     notificationOrderBy: TNotificationOrderBy;
     notificationFromUserId: string;
     notificationModule: string;
+    notificationAttention: string;
   }>([
     'notificationStatus',
     'notificationType',
@@ -42,6 +49,7 @@ export const useNotificationFilters = (): NotificationFilterVariables => {
     'notificationOrderBy',
     'notificationFromUserId',
     'notificationModule',
+    'notificationAttention',
   ]);
 
   const orderByFilter = (): Record<string, 1 | -1> => {
@@ -65,5 +73,7 @@ export const useNotificationFilters = (): NotificationFilterVariables => {
     ...(Object.keys(orderByValue).length > 0 && { orderBy: orderByValue }),
     fromUserId: fromUserId ?? undefined,
     module: module ?? undefined,
+    attention: display.priorityInbox ? attention || 'priority' : undefined,
+    unreadFirst: display.unreadFirst,
   };
 };

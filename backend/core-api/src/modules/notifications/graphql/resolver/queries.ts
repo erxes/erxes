@@ -144,7 +144,10 @@ export const notificationQueries = {
         model: models.Notifications,
         params: {
           ...params,
-          orderBy: generateOrderByNotifications(params.orderBy),
+          orderBy: generateOrderByNotifications(
+            params.orderBy,
+            params.unreadFirst,
+          ),
         },
         query: {
           $and: [filter, generateActiveNotificationsFilter()],

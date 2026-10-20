@@ -215,7 +215,9 @@ const NOTIFICATIONS_QUERIES_PARAMS = `
   fromDate:String,
   endDate:String,
   fromUserId:String,
-  module:String
+  module:String,
+  attention:String,
+  unreadFirst:Boolean
 `;
 
 const EMAIL_DELIVERIES_QUERY_PARAMS = `

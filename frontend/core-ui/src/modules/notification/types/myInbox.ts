@@ -27,7 +27,14 @@ export interface UseNotificationResult extends UseNotificationNavigationResult {
 
 export type NotificationItemProps = Pick<
   TNotification,
-  '_id' | 'createdAt' | 'message' | 'isRead' | 'contentType' | 'priority'
+  | '_id'
+  | 'createdAt'
+  | 'title'
+  | 'message'
+  | 'isRead'
+  | 'contentType'
+  | 'priority'
+  | 'fromUser'
 > & {
   selected: boolean;
   selectionFocused: boolean;
@@ -40,6 +47,7 @@ export interface NotificationIconProps {
 
 export interface UseNotificationListResult {
   notifications: TNotification[];
+  groups: [string, TNotification[]][];
   loading: boolean;
   inViewRef: (node?: Element | null) => void;
   isEmpty: boolean;

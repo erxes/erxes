@@ -10,7 +10,16 @@ export interface NotificationFilters {
   module?: string;
   fromUserId?: string;
   ids?: string[];
+  attention?: string;
+  unreadFirst?: boolean;
 }
+
+export const notificationAttentionConditions: FilterQuery<INotificationDocument>[] =
+  [
+    { priority: { $in: ['high', 'urgent'] } },
+    { contentType: { $in: ['core:approval', 'core.approval'] } },
+    { action: /assign|mention|approval/i },
+  ];
 
 export const generateNotificationsFilter = (
   params: NotificationFilters = {},
@@ -40,6 +49,11 @@ export const generateNotificationsFilter = (
   if (params.module === 'approval') {
     filter.contentType = { $in: ['core:approval', 'core.approval'] };
   }
+  if (params.attention === 'priority') {
+    filter.$and = [{ $or: notificationAttentionConditions }];
+  } else if (params.attention === 'other') {
+    filter.$nor = notificationAttentionConditions;
+  }
   return filter;
 };
 
@@ -51,8 +65,9 @@ export const generateActiveNotificationsFilter =
 
 export const generateOrderByNotifications = (
   orderBy?: Record<string, SortOrder>,
+  unreadFirst = true,
 ): Record<string, 1 | -1> => ({
-  isRead: 1,
+  ...(unreadFirst ? { isRead: 1 } : {}),
   ...(orderBy?.priority
     ? { priorityLevel: orderBy.priority === 1 ? 1 : -1 }
     : {}),
