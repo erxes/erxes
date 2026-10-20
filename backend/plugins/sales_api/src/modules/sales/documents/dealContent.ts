@@ -1,3 +1,4 @@
+import { hasContactFields } from 'erxes-api-shared/core-modules';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { IDeal, IProductData } from '~/modules/sales/@types';
@@ -243,33 +244,29 @@ export const buildDealReplacer = async (
       }).lean()
     : Promise.resolve([]);
 
-  const customerIdsPromise = sendTRPCMessage({
-    subdomain,
-    pluginName: 'core',
-    method: 'query',
-    module: 'relation',
-    action: 'getRelationIds',
-    input: {
-      contentType: 'sales:deal',
-      contentId: deal._id,
-      relatedContentType: 'core:customer',
-    },
-    defaultValue: [],
-  });
+  // The deal's contacts: from the deal once it keeps them, else relations.
+  const relatedIdsPromise = (relatedContentType: string): Promise<string[]> =>
+    sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      method: 'query',
+      module: 'relation',
+      action: 'getRelationIds',
+      input: {
+        contentType: 'sales:deal',
+        contentId: deal._id,
+        relatedContentType,
+      },
+      defaultValue: [],
+    });
 
-  const companyIdsPromise = sendTRPCMessage({
-    subdomain,
-    pluginName: 'core',
-    method: 'query',
-    module: 'relation',
-    action: 'getRelationIds',
-    input: {
-      contentType: 'sales:deal',
-      contentId: deal._id,
-      relatedContentType: 'core:company',
-    },
-    defaultValue: [],
-  });
+  const customerIdsPromise = hasContactFields(deal)
+    ? Promise.resolve(deal.customerIds)
+    : relatedIdsPromise('core:customer');
+
+  const companyIdsPromise = hasContactFields(deal)
+    ? Promise.resolve(deal.companyIds)
+    : relatedIdsPromise('core:company');
 
   const [
     stageContext,

@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-10-19`
+- **Last synchronized:** `2026-10-20`
 
 ## Scope
 
@@ -617,6 +617,8 @@ The root router mounts its authenticated webhook at `/telegram`.
 
 ### Provides
 
+- Internal `contactFields.find` tRPC query (`TContactFieldsFind`) — core answers `getRelationsByEntity` / `getRelationsByContentIds` between contacts and 'frontline:ticket' from the tickets' `customerIds` / `companyIds` through it: by contacts (`null` until every ticket has its fields, then newest 200) or by ids (only tickets that have them; core reads relations for the rest). Not agent-callable.
+- Internal `contactFields.sync` tRPC mutation (`TContactFieldsSync`) — core calls it on ticket ↔ customer/company relation changes and contact merge/removal. Not agent-callable.
 - Telegram: `POST /telegram/receive/:_id` authenticates the stored webhook
   secret. `telegramBots`, `telegramConversationChats`, `telegramBotWebhookInfo` and
   `telegramMessageLinkPreviews` expose permission-checked setup/status and
@@ -1285,7 +1287,7 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 ## Data and State
 
-- `frontline_tickets` keeps its contacts as `customerIds` / `companyIds` (indexed), being moved off core `relations` (`frontline:ticket ↔ core:customer/company`). `core-api` `commands/migrateRelationsToContactFields.ts` backfills them, merging into the existing `companyIds`. `conversations` keep their single `customerId` and are not migrated.
+- `frontline_tickets` keeps its contacts as `customerIds` / `companyIds` (indexed, `default: undefined`; `contactFieldsSchemaPlugin` gives new tickets `[]`). Core `relations` (`frontline:ticket ↔ core:customer/company`) stay the source of truth; core mirrors each change into the fields incrementally through `contactFields.sync` (so a directly written `companyIds` is never overwritten). `core-api` `commands/migrateRelationsToContactFields.ts` backfills, merging into existing `companyIds`. `conversations` keep their single `customerId` and are not migrated.
 - Models are generated per request subdomain. Telegram owns `telegram_bots`,
   `customers_telegram`, `conversations_telegram`, `conversation_messages_telegram`
   and `telegram_reactions`; canonical inbox history stays in Frontline's
@@ -1296,6 +1298,7 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 ## Local Invariants
 
+- Ticket contacts are read per doc (`hasContactFields` ⇒ fields, else relations): mail recipients (`integrations/mail/utils/tickets.ts`), report contact narrowing, widget ticket lists and `widgetTicketCheckProgressForget` use the fields once `contactFieldsReady(models.Ticket, ...)` holds, else relations. Conversation ↔ ticket/deal and customer ↔ company links remain core relations.
 - Set property handlers pass `targetActionId: action.targetActionId` to
   `getSetPropertySelector`, so a Manage properties action targeting an earlier
   action (Find object, Create) updates that action's record, not the trigger's.

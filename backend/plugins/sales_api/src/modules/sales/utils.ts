@@ -919,11 +919,14 @@ export const getAmountsMap = async (
   return amountsMap;
 };
 
-export const getCompanyIds = async (
+type TDealContactKind = 'customer' | 'company';
+
+const relatedContactIds = (
   subdomain: string,
   dealId: string,
-): Promise<string[]> => {
-  return await sendTRPCMessage({
+  kind: TDealContactKind,
+): Promise<string[]> =>
+  sendTRPCMessage({
     subdomain,
     pluginName: 'core',
     module: 'relation',
@@ -931,29 +934,44 @@ export const getCompanyIds = async (
     input: {
       contentType: 'sales:deal',
       contentId: dealId,
-      relatedContentType: 'core:company',
+      relatedContentType:
+        kind === 'customer' ? 'core:customer' : 'core:company',
     },
     defaultValue: [],
   });
+
+// A deal's contacts: from the deal once it keeps both (as erxes-api-shared
+// `hasContactFields`), else from relations.
+const getDealContactIds = async (
+  subdomain: string,
+  models: IModels,
+  dealId: string,
+  kind: TDealContactKind,
+): Promise<string[]> => {
+  const deal = await models.Deals.findOne(
+    { _id: dealId },
+    { customerIds: 1, companyIds: 1 },
+  ).lean();
+
+  if (Array.isArray(deal?.customerIds) && Array.isArray(deal?.companyIds)) {
+    return kind === 'customer' ? deal.customerIds : deal.companyIds;
+  }
+
+  return relatedContactIds(subdomain, dealId, kind);
 };
 
-export const getCustomerIds = async (
+export const getCompanyIds = (
   subdomain: string,
+  models: IModels,
   dealId: string,
-): Promise<string[]> => {
-  return await sendTRPCMessage({
-    subdomain,
-    pluginName: 'core',
-    module: 'relation',
-    action: 'getRelationIds',
-    input: {
-      contentType: 'sales:deal',
-      contentId: dealId,
-      relatedContentType: 'core:customer',
-    },
-    defaultValue: [],
-  });
-};
+): Promise<string[]> => getDealContactIds(subdomain, models, dealId, 'company');
+
+export const getCustomerIds = (
+  subdomain: string,
+  models: IModels,
+  dealId: string,
+): Promise<string[]> =>
+  getDealContactIds(subdomain, models, dealId, 'customer');
 
 export const createRelations = async (
   subdomain: string,

@@ -5,6 +5,7 @@ import { productDataSchema } from '../deals';
 jest.mock('erxes-api-shared/core-modules', () => ({
   attachmentSchema: new Schema({}),
   customFieldSchema: new Schema({}),
+  contactFieldsSchemaPlugin: jest.fn(),
 }));
 jest.mock('erxes-api-shared/utils', () => ({
   mongooseStringRandomId: { type: String },

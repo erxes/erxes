@@ -207,6 +207,7 @@ export const editDeal = async ({
     if (doc.extraData !== undefined) {
       await syncDealVoucher({
         subdomain,
+        models,
         dealId: _id,
         previousVoucherId: oldDeal.extraData?.voucherId,
         voucherId: doc.extraData?.voucherId,
@@ -225,7 +226,7 @@ export const editDeal = async ({
       ...doc,
     });
 
-    doc.productsData = await checkLoyalties(subdomain, _id, {
+    doc.productsData = await checkLoyalties(subdomain, models, _id, {
       ...oldDeal.toObject?.(),
       ...oldDeal,
       ...doc,

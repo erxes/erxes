@@ -205,11 +205,31 @@ const lastInboundSender = async (
   return inbound?.from?.[0]?.address;
 };
 
+// The ticket's customers: from the ticket once it keeps them (both contact
+// fields set, as erxes-api-shared `hasContactFields`), else from relations.
+const ticketCustomerIds = async (
+  models: IModels,
+  subdomain: string,
+  ticketId: string,
+): Promise<string[]> => {
+  const ticket = await models.Ticket.findOne(
+    { _id: ticketId },
+    { customerIds: 1, companyIds: 1 },
+  ).lean();
+
+  if (Array.isArray(ticket?.customerIds) && Array.isArray(ticket?.companyIds)) {
+    return ticket.customerIds;
+  }
+
+  return relatedIds(subdomain, ticketId, CUSTOMER_TYPE);
+};
+
 const relatedCustomerEmail = async (
+  models: IModels,
   subdomain: string,
   ticketId: string,
 ): Promise<string | undefined> => {
-  const customerIds = await relatedIds(subdomain, ticketId, CUSTOMER_TYPE);
+  const customerIds = await ticketCustomerIds(models, subdomain, ticketId);
 
   for (const customerId of customerIds) {
     const customer: { primaryEmail?: string } | null = await sendTRPCMessage({
@@ -236,7 +256,7 @@ export const resolveTicketRecipient = async (
   ticketId: string,
 ): Promise<string | undefined> =>
   (await lastInboundSender(models, ticketId)) ??
-  (await relatedCustomerEmail(subdomain, ticketId));
+  (await relatedCustomerEmail(models, subdomain, ticketId));
 
 export const sendTicketMail = async (
   models: IModels,

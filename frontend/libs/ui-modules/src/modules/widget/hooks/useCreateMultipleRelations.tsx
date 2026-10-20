@@ -1,15 +1,12 @@
 import { useMutation } from '@apollo/client';
 import { CREATE_MULTIPLE_RELATIONS } from '../graphql/createRelations';
-import { IRelationInput, toast } from 'erxes-ui';
-import {
-  GET_RELATIONS_BY_CONTENT_IDS,
-  GET_RELATIONS_BY_ENTITY,
-} from '../graphql/getRelations';
+import { IRelation, IRelationInput, toast } from 'erxes-ui';
+import { addRelationsToCache } from '../relationsCache';
 
 export const useCreateMultipleRelations = () => {
-  const [createMultipleRelationsMutation, { loading, error }] = useMutation(
-    CREATE_MULTIPLE_RELATIONS,
-  );
+  const [createMultipleRelationsMutation, { loading, error }] = useMutation<{
+    createMultipleRelations: IRelation[] | null;
+  }>(CREATE_MULTIPLE_RELATIONS);
 
   const createMultipleRelations = (
     relations: IRelationInput[],
@@ -21,8 +18,8 @@ export const useCreateMultipleRelations = () => {
 
     return createMultipleRelationsMutation({
       variables: { relations },
-      refetchQueries: [GET_RELATIONS_BY_ENTITY, GET_RELATIONS_BY_CONTENT_IDS],
-      awaitRefetchQueries: true,
+      update: (cache, { data }) =>
+        addRelationsToCache(cache, data?.createMultipleRelations || []),
       onCompleted: () => {
         if (options?.silent) return;
 

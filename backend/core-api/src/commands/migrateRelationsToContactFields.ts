@@ -15,8 +15,13 @@ dotenv.config();
  *
  * Covers the plugin records that show the relation sidebar. Records that
  * already keep their contact as `customerId` (conversations, block opptys,
- * offers and contracts) are left alone. Only adds ids ($addToSet), never
- * removes any, and keeps the `relations` rows, so it is safe to run again.
+ * offers and contracts) are left alone. Only adds ids ($addToSet) or empty
+ * fields where none exist, never removes any, and keeps the `relations`
+ * rows, so it is safe to run again.
+ *
+ * Until a collection has run, its plugin reads contacts from relations as
+ * before (see erxes-api-shared `contact-fields`); once every record has both
+ * fields, it reads the fields.
  *
  *   MONGO_URL=... npx ts-node src/commands/migrateRelationsToContactFields.ts
  *   DRY_RUN=true  → count only, write nothing
@@ -63,8 +68,9 @@ type TContacts = { customerIds: Set<string>; companyIds: Set<string> };
 interface IContactRecord {
   _id: string | ObjectId;
   customerId?: string;
-  customerIds?: string[];
-  companyIds?: string[];
+  // Missing (or null) until the record is migrated.
+  customerIds?: string[] | null;
+  companyIds?: string[] | null;
 }
 
 const hasOwnCustomerField = async (records: Collection<IContactRecord>) =>
@@ -108,14 +114,29 @@ const toUpdates = (
     };
   });
 
-const migrateTarget = async (db: Db, { collection, contentTypes }: ITarget) => {
-  const records = db.collection<IContactRecord>(collection);
+const CONTACT_FIELD_NAMES = ['customerIds', 'companyIds'] as const;
 
-  if (await hasOwnCustomerField(records)) {
-    console.log(`[SKIP] ${collection}: records already have customerId`);
-    return;
-  }
+/**
+ * Indexes an older schema made on the contact fields (sparse, which `null`
+ * lookups cannot use). They share the plain index's name, so they are
+ * dropped before the migration and the plain ones made after it.
+ */
+const oldFieldIndexNames = async (records: Collection<IContactRecord>) =>
+  (await records.indexes())
+    .filter(
+      (index) =>
+        Object.keys(index.key).length === 1 &&
+        CONTACT_FIELD_NAMES.some((field) => index.key[field] === 1) &&
+        (index.sparse || index.partialFilterExpression),
+    )
+    .flatMap((index) => (index.name ? [index.name] : []));
 
+// Copies every record ↔ contact relation of these records onto them.
+const copyFromRelations = async (
+  db: Db,
+  records: Collection<IContactRecord>,
+  contentTypes: string[],
+) => {
   // Relations with one end on these records and the other on a contact.
   const cursor = db
     .collection('relations')
@@ -131,7 +152,6 @@ const migrateTarget = async (db: Db, { collection, contentTypes }: ITarget) => {
     .batchSize(BATCH_SIZE);
 
   let relationCount = 0;
-  let matchedCount = 0;
   let modifiedCount = 0;
   let contactsByRecord = new Map<string, TContacts>();
 
@@ -144,7 +164,6 @@ const migrateTarget = async (db: Db, { collection, contentTypes }: ITarget) => {
       const result = await records.bulkWrite(toUpdates(contactsByRecord), {
         ordered: false,
       });
-      matchedCount += result.matchedCount;
       modifiedCount += result.modifiedCount;
     }
 
@@ -182,15 +201,71 @@ const migrateTarget = async (db: Db, { collection, contentTypes }: ITarget) => {
 
   await flush();
 
+  return { relationCount, modifiedCount };
+};
+
+/**
+ * 1. copy the relations onto the records;
+ * 2. give every record still missing a field an empty one: from then on it
+ *    keeps its contacts itself, and core's sync keeps it current;
+ * 3. copy again, catching relations made while 1–2 ran (a record that got
+ *    its empty field in 2 had no sync for them yet). Copying only adds, so
+ *    the second pass changes nothing else.
+ */
+const migrateTarget = async (db: Db, { collection, contentTypes }: ITarget) => {
+  const records = db.collection<IContactRecord>(collection);
+
+  if (await hasOwnCustomerField(records)) {
+    console.log(`[SKIP] ${collection}: records already have customerId`);
+    return;
+  }
+
+  const oldIndexes = await oldFieldIndexNames(records);
+
   if (!DRY_RUN) {
-    await records.createIndex({ customerIds: 1 });
-    await records.createIndex({ companyIds: 1 });
+    for (const name of oldIndexes) {
+      await records.dropIndex(name);
+    }
+  }
+
+  const first = await copyFromRelations(db, records, contentTypes);
+
+  if (DRY_RUN) {
+    const missing = await records.countDocuments({
+      $or: [{ customerIds: null }, { companyIds: null }],
+    });
+
+    console.log(
+      `[DRY RUN] ${collection}: ${first.relationCount} contact relation(s) to copy, ${missing} record(s) to give empty fields` +
+        (oldIndexes.length
+          ? `, old index(es) to replace: ${oldIndexes.join(', ')}`
+          : ''),
+    );
+    return;
+  }
+
+  const filledCustomers = await records.updateMany(
+    { customerIds: null },
+    { $set: { customerIds: [] } },
+  );
+  const filledCompanies = await records.updateMany(
+    { companyIds: null },
+    { $set: { companyIds: [] } },
+  );
+
+  const second = await copyFromRelations(db, records, contentTypes);
+
+  for (const field of CONTACT_FIELD_NAMES) {
+    await records.createIndex({ [field]: 1 });
   }
 
   console.log(
-    DRY_RUN
-      ? `[DRY RUN] ${collection}: ${relationCount} contact relation(s) to copy`
-      : `[DONE] ${collection}: ${relationCount} relation(s), ${matchedCount} record(s) found, ${modifiedCount} updated`,
+    `[DONE] ${collection}: ${first.relationCount} relation(s), ${first.modifiedCount} record(s) updated, ` +
+      `${filledCustomers.modifiedCount}/${filledCompanies.modifiedCount} given empty customer/company fields, ` +
+      `${second.modifiedCount} caught on the second pass` +
+      (oldIndexes.length
+        ? `, replaced old index(es): ${oldIndexes.join(', ')}`
+        : ''),
   );
 };
 
@@ -205,14 +280,26 @@ const command = async () => {
     }`,
   );
 
+  // One collection failing does not stop the others; re-running finishes it.
+  const failed: string[] = [];
+
   for (const target of TARGETS) {
-    await migrateTarget(db, target);
+    try {
+      await migrateTarget(db, target);
+    } catch (error) {
+      failed.push(target.collection);
+      console.error(
+        `[FAILED] ${target.collection}: ${
+          error instanceof Error ? error.message : error
+        }`,
+      );
+    }
   }
 
   console.log(`Process finished at: ${new Date().toISOString()}`);
 
   await client.close();
-  process.exit();
+  process.exit(failed.length ? 1 : 0);
 };
 
 command().catch(async (error) => {

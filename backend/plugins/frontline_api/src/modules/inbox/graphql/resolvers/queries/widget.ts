@@ -1,3 +1,4 @@
+import { contactFieldsReady } from 'erxes-api-shared/core-modules';
 import {
   isEnabled,
   markResolvers,
@@ -139,7 +140,7 @@ export const widgetQueries: Record<string, Resolver> = {
           botGreetMessage: messengerData.botGreetMessage,
           getStarted:
             getStartedCondition && typeof getStartedCondition !== 'boolean'
-              ? (getStartedCondition.isSelected ?? false)
+              ? getStartedCondition.isSelected ?? false
               : false,
           messages: [],
           isOnline: await isMessengerOnline(models, integration),
@@ -350,6 +351,14 @@ export const widgetQueries: Record<string, Resolver> = {
     { models, subdomain }: IContext,
   ) {
     const { customerId } = args;
+
+    // Tickets keep their customers on themselves once migrated.
+    if (
+      await contactFieldsReady(models.Ticket, `${subdomain}:frontline_tickets`)
+    ) {
+      return await models.Ticket.find({ customerIds: customerId });
+    }
+
     const relations = await sendTRPCMessage({
       subdomain,
       pluginName: 'core',

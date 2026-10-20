@@ -1,96 +1,109 @@
 import DataLoader from 'dataloader';
+import { hasContactFields } from 'erxes-api-shared/core-modules';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IRef } from '.';
 import { IPipeline } from '~/modules/sales/@types';
 import { IModels } from '~/connectionResolvers';
 
+type TContactKind = 'customer' | 'company';
+
+const CONTACT_CONTENT_TYPES: Record<TContactKind, string> = {
+  customer: 'core:customer',
+  company: 'core:company',
+};
+
+const CONTACT_TYPENAMES: Record<TContactKind, string> = {
+  customer: 'Customer',
+  company: 'Company',
+};
+
+/**
+ * Each deal's contacts of one kind: from the deal once it keeps them, else
+ * (not migrated yet) from relations, in one call for all such deals.
+ */
+const contactsByDealId =
+  (subdomain: string, models: IModels, kind: TContactKind) =>
+  async (dealIds: readonly string[]): Promise<IRef[][]> => {
+    const idsByDeal = new Map<string, string[]>();
+    const deals = await models.Deals.find(
+      { _id: { $in: dealIds } },
+      { customerIds: 1, companyIds: 1 },
+    ).lean();
+
+    for (const deal of deals) {
+      if (hasContactFields(deal)) {
+        idsByDeal.set(
+          deal._id,
+          kind === 'customer' ? deal.customerIds : deal.companyIds,
+        );
+      }
+    }
+
+    const fromRelations = dealIds.filter((id) => !idsByDeal.has(id));
+
+    if (fromRelations.length) {
+      const relations = await sendTRPCMessage({
+        subdomain,
+        pluginName: 'core',
+        module: 'relation',
+        action: 'filterRelations',
+        input: {
+          contentType: 'sales:deal',
+          contentIds: fromRelations,
+          relatedContentType: CONTACT_CONTENT_TYPES[kind],
+        },
+        defaultValue: [],
+      });
+
+      for (const { entities = [] } of relations) {
+        const dealId = entities.find(
+          (e) => e.contentType === 'sales:deal',
+        )?.contentId;
+        const contactId = entities.find(
+          (e) => e.contentType === CONTACT_CONTENT_TYPES[kind],
+        )?.contentId;
+
+        if (dealId && contactId) {
+          idsByDeal.set(dealId, [...(idsByDeal.get(dealId) || []), contactId]);
+        }
+      }
+    }
+
+    return dealIds.map((id) =>
+      (idsByDeal.get(id) || []).map((contactId) => ({
+        __typename: CONTACT_TYPENAMES[kind],
+        _id: contactId,
+      })),
+    );
+  };
+
 export const dealLoader = (subdomain: string, models: IModels) => ({
-  companiesByDealId: new DataLoader<string, IRef[]>(async (dealIds) => {
-    const companyIdsByItemId: Record<string, string[]> = {};
+  companiesByDealId: new DataLoader<string, IRef[]>(
+    contactsByDealId(subdomain, models, 'company'),
+  ),
 
-    const companyRelations = await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      module: 'relation',
-      action: 'filterRelations',
-      input: {
-        contentType: 'sales:deal',
-        contentIds: dealIds,
-        relatedContentType: 'core:company'
-      },
-      defaultValue: [],
-    });
-
-    for (const relation of companyRelations) {
-      const { entities } = relation;
-      const dealId = entities.find(e => e.contentType === 'sales:deal')?.contentId ?? '';
-      const companyId = entities.find(e => e.contentType === 'core:company')?.contentId ?? '';
-
-      if (!companyIdsByItemId[dealId]) {
-        companyIdsByItemId[dealId] = [];
-      }
-      companyIdsByItemId[dealId].push(companyId);
-    }
-
-    return dealIds.map((id) =>
-      (companyIdsByItemId[id] || []).map((companyId) => ({
-        __typename: 'Company',
-        _id: companyId,
-      })),
-    );
-  }),
-
-  customersByDealId: new DataLoader<string, IRef[]>(async (dealIds) => {
-    const customerIdsByItemId: Record<string, string[]> = {};
-
-    const customerRelations = await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      module: 'relation',
-      action: 'filterRelations',
-      input: {
-        contentType: 'sales:deal',
-        contentIds: dealIds,
-        relatedContentType: 'core:customer'
-      },
-      defaultValue: [],
-    });
-
-    for (const relation of customerRelations) {
-      const { entities } = relation;
-      const dealId = entities.find(e => e.contentType === 'sales:deal')?.contentId ?? '';
-      const customerId = entities.find(e => e.contentType === 'core:customer')?.contentId ?? '';
-
-      if (!customerIdsByItemId[dealId]) {
-        customerIdsByItemId[dealId] = [];
-      }
-      customerIdsByItemId[dealId].push(customerId);
-    }
-
-    return dealIds.map((id) =>
-      (customerIdsByItemId[id] || []).map((customerId) => ({
-        __typename: 'Customer',
-        _id: customerId,
-      })),
-    );
-  }),
+  customersByDealId: new DataLoader<string, IRef[]>(
+    contactsByDealId(subdomain, models, 'customer'),
+  ),
 
   pipelineByDealId: new DataLoader<string, IPipeline>(async (stageIds) => {
     const pipelineById = {};
     const pipelineByStageId = {};
 
     const stages = await models.Stages.find({ _id: { $in: stageIds } }).lean();
-    const pipelineIds = stages.map(st => st.pipelineId);
-    const pipelines = await models.Pipelines.find({ _id: { $in: pipelineIds } }).lean();
+    const pipelineIds = stages.map((st) => st.pipelineId);
+    const pipelines = await models.Pipelines.find({
+      _id: { $in: pipelineIds },
+    }).lean();
 
     for (const pipeline of pipelines) {
       pipelineById[pipeline._id] = pipeline;
     }
 
     for (const stage of stages) {
-      pipelineByStageId[stage._id] = pipelineById[stage.pipelineId]
+      pipelineByStageId[stage._id] = pipelineById[stage.pipelineId];
     }
 
-    return stageIds.map((stageId) => (pipelineByStageId[stageId]))
-  })
+    return stageIds.map((stageId) => pipelineByStageId[stageId]);
+  }),
 });
