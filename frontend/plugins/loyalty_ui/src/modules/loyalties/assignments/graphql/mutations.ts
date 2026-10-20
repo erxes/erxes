@@ -2,9 +2,9 @@ import { gql } from '@apollo/client';
 
 export const ASSIGNMENTS_ADD_MUTATION = gql`
   mutation AssignmentsAdd(
-    $campaignId: String
-    $ownerType: String
-    $ownerId: String
+    $campaignId: String!
+    $ownerType: String!
+    $ownerId: String!
   ) {
     assignmentsAdd(
       campaignId: $campaignId
@@ -22,7 +22,7 @@ export const ASSIGNMENTS_ADD_MUTATION = gql`
 `;
 
 export const ASSIGNMENTS_REMOVE_MUTATION = gql`
-  mutation AssignmentsRemove($_ids: [String]) {
+  mutation AssignmentsRemove($_ids: [String!]!) {
     assignmentsRemove(_ids: $_ids)
   }
 `;

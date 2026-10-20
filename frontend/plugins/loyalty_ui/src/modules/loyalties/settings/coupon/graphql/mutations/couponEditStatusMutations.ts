@@ -2,7 +2,7 @@ import { gql } from '@apollo/client';
 
 export const UPDATE_COUPON_CAMPAIGN = gql`
   mutation UpdateCouponCampaign(
-    $_id: String
+    $_id: String!
     $title: String
     $description: String
     $startDate: Date

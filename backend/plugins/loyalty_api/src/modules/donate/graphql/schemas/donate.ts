@@ -59,18 +59,31 @@ export const queries = `
 
 const mutationParams = `
   donateScore: Float
-  campaignId: String
-  ownerId: String
-  ownerType: String
   usedAt: Date
   status: String
   voucherCampaignId: String
 `;
 
 export const mutations = `
-  donatesAdd(${mutationParams}): Donate
-  donatesEdit(_id: String!, ${mutationParams}): Donate
-  donatesRemove(_ids: [String]): JSON
-  cpDonatesAdd(${mutationParams}): Donate
+  donatesAdd(
+    campaignId: String!
+    ownerId: String!
+    ownerType: String!
+    ${mutationParams}
+  ): Donate
+  donatesEdit(
+    _id: String!
+    campaignId: String
+    ownerId: String
+    ownerType: String
+    ${mutationParams}
+  ): Donate
+  donatesRemove(_ids: [String!]!): JSON
+  cpDonatesAdd(
+    campaignId: String
+    ownerId: String
+    ownerType: String
+    ${mutationParams}
+  ): Donate
   cpDonatesRemove(_ids: [String]): JSON
 `;

@@ -183,6 +183,9 @@
   `codegen` target, which depends on `gateway:schema:compose`. A field from
   core, sales or another plugin needs no local copy; fix a validation error in
   the document, or in the backend that owns the field.
+- Documents declare the variables of arguments `loyalty_api` requires as
+  non-null (`String!`, removes as `[String!]!`), so codegen accepts them;
+  queries that need an id keep `skip` until it exists.
 - Operation names are unique within the plugin even ignoring case, because
   codegen PascalCases them into type names; codegen only accepts byte-identical
   copies, as `GetCampaigns`, `UpdateLotteryCampaign` and `UpdateSpinCampaign`
@@ -219,6 +222,12 @@
 - **Summary:** Codegen reads the composed gateway schema from #9603 instead of the printed `loyalty_api` schema plus the core and sales snapshot; the generated types are unchanged. CI also runs when a backend schema source changes.
 - **Affected areas:** `codegen.ts`, `project.json` (`codegen` depends on `gateway:schema:compose`, `build` hashes the generated files), removed `schema/platform.graphql`; `.github/workflows/ci-ui-loyalty.yml`.
 - **Contracts changed:** None (build tooling only).
+
+### `2026-10-14` — Required loyalty arguments
+
+- **Summary:** Documents follow the backend making the arguments its resolvers cannot run without non-null: detail, edit and remove ids, `_ids` on removes, and campaign and owner on donate, lottery, spin, voucher and assignment adds.
+- **Affected areas:** `graphql` documents of `assignments`, `coupons`, `donates`, `lotteries`, `spin`, `vouchers`, `settings/{assignment,birthday,coupon,donate,lottery,score,spin,voucher}`, and `pricing/graphql/{queries,mutations}.ts`.
+- **Contracts changed:** 40 variable declarations tightened; no operation renamed.
 
 ### `2026-10-14` — GraphQL codegen setup
 
@@ -265,9 +274,3 @@
 - **Summary:** The wallet preview names the days before a reset in which purchases earn nothing, and the Adjust score history explains such a skip with both dates.
 - **Affected areas:** `settings/account-type/{hooks/useLoyaltyAccountTypePeriodPreview.ts,components/LoyaltyAccountTypePeriodPreview.tsx,graphql/loyaltyAccountTypeQueries.ts}`, `widgets/automations/modules/loyalty/hooks/useScoreActionResult.ts`; `period-preview-no-earn`, `score-skip-held-past-reset` translations.
 - **Contracts changed:** None
-
-### `2026-09-30` — Wallet time settings preview
-
-- **Summary:** The Expiry & reset section shows what the settings do in dates and what the next reset would do to the wallet's accounts, before saving.
-- **Affected areas:** `settings/account-type/{components/LoyaltyAccountTypePeriodPreview.tsx,components/LoyaltyAccountTypeExpirySection.tsx,components/LoyaltyAccountTypeFormSheet.tsx,hooks/useLoyaltyAccountTypePeriodPreview.ts,graphql/loyaltyAccountTypeQueries.ts}`; `period-preview-*` translations.
-- **Contracts changed:** Consumes GraphQL `loyaltyAccountTypePeriodPreview`.

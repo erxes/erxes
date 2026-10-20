@@ -2,7 +2,7 @@ import { gql } from '@apollo/client';
 
 export const UPDATE_SCORE_CAMPAIGN = gql`
   mutation updateScoreCampaign(
-    $_id: String
+    $_id: String!
     $title: String
     $description: String
     $order: Int

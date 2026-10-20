@@ -6,6 +6,7 @@ import {
 import { LOTTERY_STATUS } from '@/lottery/constants';
 import { lotteryCampaignSchema } from '@/lottery/db/definitions/lotteryCampaign';
 import { getRandomNumber } from '@/lottery/utils';
+import { escapeRegExp } from 'erxes-api-shared/utils';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { CAMPAIGN_STATUS } from '~/constants';
@@ -261,7 +262,7 @@ export const loadLotteryCampaignClass = (
       const filter = {
         campaignId,
         status: LOTTERY_STATUS.NEW,
-        formatNumber: new RegExp(`^${afterChars}.*`, 'g'),
+        formatNumber: new RegExp(`^${escapeRegExp(afterChars)}.*`, 'g'),
       };
 
       const fitLotteriesCount =

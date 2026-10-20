@@ -18,6 +18,18 @@ import { afterProcess } from '../afterProcess';
 const mockedGenerateModels = generateModels as jest.Mock;
 const mockedRecalculate = recalculateProductPricingPlanDiscounts as jest.Mock;
 
+// One shape satisfies both the created and the updated document handlers.
+const productEvent = (docId: string) => ({
+  data: {
+    collectionName: 'products',
+    contentType: 'core:products.products',
+    docId,
+    userId: 'user-1',
+    processId: 'process-1',
+    updateDescription: { added: {}, updated: {}, removed: [] },
+  },
+});
+
 beforeEach(() => {
   jest.clearAllMocks();
 });
@@ -27,7 +39,7 @@ it.each(['afterDocumentCreated', 'afterDocumentUpdated'] as const)(
   async (handlerName) => {
     const handler = afterProcess[handlerName];
 
-    await handler?.({ subdomain: 'test' }, { data: { docId: 'product-1' } });
+    await handler?.({ subdomain: 'test' }, productEvent('product-1'));
 
     expect(mockedRecalculate).toHaveBeenCalledWith({
       models: await mockedGenerateModels.mock.results[0].value,
@@ -40,7 +52,7 @@ it.each(['afterDocumentCreated', 'afterDocumentUpdated'] as const)(
 it('ignores product events without a document id', async () => {
   await afterProcess.afterDocumentUpdated?.(
     { subdomain: 'test' },
-    { data: {} },
+    productEvent(''),
   );
 
   expect(mockedRecalculate).not.toHaveBeenCalled();

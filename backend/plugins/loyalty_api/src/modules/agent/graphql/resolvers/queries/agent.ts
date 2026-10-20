@@ -1,5 +1,5 @@
 import { IAgentDocument, IAgentParams } from '@/agent/@types';
-import { cursorPaginate } from 'erxes-api-shared/utils';
+import { cursorPaginate, escapeRegExp } from 'erxes-api-shared/utils';
 import { FilterQuery } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
 
@@ -15,8 +15,7 @@ const generateFilter = (params: IAgentParams) => {
   const filter: FilterQuery<IAgentDocument> = {};
 
   if (number) {
-    const escapedNumber = number.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    filter.number = new RegExp(escapedNumber, 'gi');
+    filter.number = new RegExp(escapeRegExp(number), 'gi');
   }
 
   if (status) {

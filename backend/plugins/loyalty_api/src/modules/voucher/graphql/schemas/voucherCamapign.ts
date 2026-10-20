@@ -93,7 +93,7 @@ const queryParams = `
 
 export const queries = `
   voucherCampaigns(${queryParams}): VoucherCampaignListResponse
-  voucherCampaignDetail(_id: String): VoucherCampaign
+  voucherCampaignDetail(_id: String!): VoucherCampaign
   cpVoucherCampaigns: [VoucherCampaign]
 `;
 
@@ -131,7 +131,7 @@ const mutationParams = `
 export const mutations = `
   voucherCampaignsAdd(${mutationParams}): VoucherCampaign
   voucherCampaignsEdit(_id: String!, ${mutationParams}): VoucherCampaign
-  voucherCampaignsRemove(_ids: [String]): JSON
+  voucherCampaignsRemove(_ids: [String!]!): JSON
   voucherCampaignSetAutoIssue(
     _id: String!
     kind: String!

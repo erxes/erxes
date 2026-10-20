@@ -2,9 +2,9 @@ import { gql } from '@apollo/client';
 
 export const LOTTERIES_ADD_MUTATION = gql`
   mutation LotteriesAdd(
-    $campaignId: String
-    $ownerId: String
-    $ownerType: String
+    $campaignId: String!
+    $ownerId: String!
+    $ownerType: String!
     $status: String
     $voucherCampaignId: String
   ) {
@@ -51,7 +51,7 @@ export const LOTTERIES_EDIT_MUTATION = gql`
 `;
 
 export const DELETE_LOTTERY_MUTATION = gql`
-  mutation LotteriesRemove($_ids: [String]!) {
+  mutation LotteriesRemove($_ids: [String!]!) {
     lotteriesRemove(_ids: $_ids)
   }
 `;

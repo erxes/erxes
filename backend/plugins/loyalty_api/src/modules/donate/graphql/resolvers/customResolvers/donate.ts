@@ -13,11 +13,4 @@ export default {
       ownerId,
     });
   },
-  async campaign(
-    { campaignId }: IDonateDocument,
-    _args: undefined,
-    { models }: IContext,
-  ) {
-    return models.DonateCampaigns.findOne({ _id: campaignId }).lean();
-  },
 };

@@ -2,9 +2,9 @@ import { gql } from '@apollo/client';
 
 export const VOUCHERS_ADD_MUTATION = gql`
   mutation LoyaltyVouchersAdd(
-    $campaignId: String
-    $ownerId: String
-    $ownerType: String
+    $campaignId: String!
+    $ownerId: String!
+    $ownerType: String!
     $status: String
   ) {
     vouchersAdd(
@@ -23,8 +23,8 @@ export const VOUCHERS_ADD_MUTATION = gql`
 
 export const VOUCHERS_ADD_MANY_MUTATION = gql`
   mutation VouchersAddMany(
-    $campaignId: String
-    $ownerType: String
+    $campaignId: String!
+    $ownerType: String!
     $ownerIds: [String]
     $tagIds: [String]
     $status: String
@@ -68,7 +68,7 @@ export const VOUCHER_EXTEND_MUTATION = gql`
 `;
 
 export const DELETE_VOUCHER_MUTATION = gql`
-  mutation VouchersRemove($_ids: [String]!) {
+  mutation VouchersRemove($_ids: [String!]!) {
     vouchersRemove(_ids: $_ids)
   }
 `;

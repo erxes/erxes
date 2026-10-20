@@ -1,6 +1,5 @@
 import Agent from '@/agent/graphql/resolvers/customResolvers/agent';
 import Assignment from '@/assignment/graphql/resolvers/customResolvers/assignment';
-import AssignmentCampaign from '@/assignment/graphql/resolvers/customResolvers/assignmentCampaign';
 import Coupon from '@/coupon/graphql/resolvers/customResolvers/coupon';
 import Donate from '@/donate/graphql/resolvers/customResolvers/donate';
 import DonateCampaign from '@/donate/graphql/resolvers/customResolvers/donateCampaign';
@@ -24,7 +23,6 @@ export const customResolvers = {
   PricingPlan,
   Agent,
   Assignment,
-  AssignmentCampaign,
   Coupon,
   Donate,
   DonateCampaign,

@@ -13,12 +13,4 @@ export default {
       ownerId,
     });
   },
-
-  async campaign(
-    { campaignId }: ILotteryDocument,
-    _args: undefined,
-    { models }: IContext,
-  ) {
-    return models.LotteryCampaigns.findOne({ _id: campaignId }).lean();
-  },
 };

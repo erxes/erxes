@@ -40,21 +40,6 @@ export const assignmentCampaignQueries = {
     });
   },
 
-  async cpAssignmentCampaigns(
-    _root: undefined,
-    _args: undefined,
-    { models, checkPermission }: IContext,
-  ) {
-    await checkPermission('loyaltyCampaignView');
-    const now = new Date();
-
-    return models.AssignmentCampaigns.find({
-      status: CAMPAIGN_STATUS.ACTIVE,
-      startDate: { $lte: now },
-      endDate: { $gte: now },
-    }).sort({ modifiedAt: -1 });
-  },
-
   async assignmentCampaignDetail(
     _root: undefined,
     { _id }: { _id: string },
