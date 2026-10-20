@@ -1,83 +1,27 @@
-import { useMutation } from '@apollo/client';
-import { normalizeRuleIds } from '@/ebarimt/settings/stage-in-ebarimt-config/types';
-import { useToast } from 'erxes-ui';
-import { useTranslation } from 'react-i18next';
+import { useSaveEbarimtRuleConfig } from '@/ebarimt/settings/hooks/useSaveEbarimtRuleConfig';
 import {
-  CREATE_MN_CONFIG,
-  GET_MN_CONFIGS,
-  UPDATE_MN_CONFIG,
-} from '@/shared/graphql/mnConfigs';
-
-const refetchOptions = [
-  { query: GET_MN_CONFIGS, variables: { code: 'stageInEbarimt' } },
-];
+  normalizeRuleIds,
+  TStageInEbarimtConfig,
+} from '@/ebarimt/settings/stage-in-ebarimt-config/types';
 
 export const useSaveStageInEbarimtConfig = () => {
-  const [createConfig] = useMutation(CREATE_MN_CONFIG, {
-    refetchQueries: refetchOptions,
-    awaitRefetchQueries: true,
-  });
-  const [updateConfig] = useMutation(UPDATE_MN_CONFIG, {
-    refetchQueries: refetchOptions,
-    awaitRefetchQueries: true,
-  });
-  const toast = useToast();
-  const { t } = useTranslation('mongolian');
+  const { saveConfig } = useSaveEbarimtRuleConfig('stageInEbarimt');
 
-  const saveStageInEbarimtConfig = async (
-    config: any,
+  const saveStageInEbarimtConfig = (
+    config: TStageInEbarimtConfig,
     operation: 'create' | 'update',
     configId?: string,
-  ) => {
-    try {
-      let result;
-      const value = {
+  ) =>
+    saveConfig(
+      config.stageId,
+      {
         ...config,
         reverseVatRules: normalizeRuleIds(config.reverseVatRules),
         reverseCtaxRules: normalizeRuleIds(config.reverseCtaxRules),
-      };
-
-      if (operation === 'create' || !configId) {
-        result = await createConfig({
-          variables: {
-            code: 'stageInEbarimt',
-            subId: config.stageId,
-            value,
-          },
-        });
-      } else {
-        result = await updateConfig({
-          variables: {
-            id: configId,
-            subId: config.stageId,
-            value,
-          },
-        });
-      }
-
-      toast.toast({
-        title: t('success'),
-        description: t('config-saved-successfully'),
-        variant: 'default',
-      });
-
-      const saved = result?.data;
-      const savedId = !saved
-        ? undefined
-        : 'mnConfigsCreate' in saved
-        ? saved.mnConfigsCreate?._id
-        : saved.mnConfigsUpdate?._id;
-
-      return savedId || configId;
-    } catch (error) {
-      toast.toast({
-        title: t('error'),
-        description: t('failed-to-save-config'),
-        variant: 'destructive',
-      });
-      throw error;
-    }
-  };
+      },
+      operation,
+      configId,
+    );
 
   return { saveStageInEbarimtConfig };
 };

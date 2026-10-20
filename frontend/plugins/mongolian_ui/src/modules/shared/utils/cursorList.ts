@@ -34,6 +34,10 @@ export const compactList = <T>(
   list: readonly (T | null)[] | null | undefined,
 ) => (list ?? []).filter((item): item is T => item !== null);
 
+export const hasId = <T extends { _id?: string | null }>(
+  item: T,
+): item is T & { _id: string } => Boolean(item._id);
+
 export const mergeCursorList = <T, L extends GqlCursorList<T>>(
   direction: EnumCursorDirection,
   prev: L,

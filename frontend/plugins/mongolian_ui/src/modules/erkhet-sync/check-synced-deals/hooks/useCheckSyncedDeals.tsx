@@ -29,6 +29,7 @@ import { useCheckSyncedDealsLeadSessionKey } from './useCheckSyncedDealsLeadSess
 import { chunkIds } from '../../shared/utils/syncUtils';
 import {
   compactList,
+  hasId,
   mergeCursorList,
   toCursorPageInfo,
 } from '@/shared/utils/cursorList';
@@ -232,9 +233,7 @@ export const useCheckSyncedDeals = (
       return;
     }
 
-    const checked = compactList(response.data?.toCheckSynced).filter(
-      (item): item is typeof item & { _id: string } => Boolean(item._id),
-    );
+    const checked = compactList(response.data?.toCheckSynced).filter(hasId);
     const nextChecked: Record<string, Partial<ICheckSyncedDeals>> = {};
 
     for (const item of checked) {

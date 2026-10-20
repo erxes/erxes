@@ -20,7 +20,7 @@ import {
   syncOrdersMutation,
 } from '../../shared/graphql/mutations/checkSyncedMutations';
 import { chunkIds } from '../../shared/utils/syncUtils';
-import { compactList } from '@/shared/utils/cursorList';
+import { compactList, hasId } from '@/shared/utils/cursorList';
 import type { ErkhetCheckPosOrdersQuery, ErkhetCheckPosOrdersQueryVariables } from '~/gql/graphql';
 
 export const CHECK_POS_ORDERS_PER_PAGE = 30;
@@ -225,9 +225,7 @@ export const useCheckPosOrders = (
       return;
     }
 
-    const checked = compactList(response.data?.toCheckSynced).filter(
-      (item): item is typeof item & { _id: string } => Boolean(item._id),
-    );
+    const checked = compactList(response.data?.toCheckSynced).filter(hasId);
     const nextChecked: Record<string, Partial<ICheckPosOrders>> = {};
 
     for (const item of checked) {

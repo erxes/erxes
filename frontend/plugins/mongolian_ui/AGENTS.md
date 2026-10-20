@@ -96,7 +96,7 @@
 | Pages              | `frontend/plugins/mongolian_ui/src/pages`                                  | Route-level page composition.                                      |
 | Widgets            | `frontend/plugins/mongolian_ui/src/widgets`                                | Plugin widget exports only.                                        |
 | GraphQL codegen    | `frontend/plugins/mongolian_ui/codegen.ts`                                 | Generates `src/gql` from the composed gateway schema. |
-| Shared utils       | `frontend/plugins/mongolian_ui/src/modules/shared/utils`                   | `cursorList` adapts nullable generated lists/`PageInfo` to `erxes-ui` cursor helpers; `json` narrows `JSON` scalar values at one boundary. |
+| Shared utils       | `frontend/plugins/mongolian_ui/src/modules/shared/utils`                   | `cursorList` adapts nullable generated lists/`PageInfo` to `erxes-ui` cursor helpers and exports the `hasId` guard; `json` narrows `JSON` scalar values at one boundary. |
 | Shared GraphQL     | `frontend/plugins/mongolian_ui/src/modules/shared/graphql`                 | The one document per cross-module read/write: `mnConfigs` CRUD, sales boards/pipelines/stages, `posList`, `ebarimtProductRules`. |
 | Shared hooks       | `frontend/plugins/mongolian_ui/src/modules/shared/hooks`                   | `useGetSalesBoards`, `useGetSalesPipelines`, `useGetSalesStages`, `useEbarimtProductRules` used by every board/pipeline/stage/rule select. |
 
@@ -201,6 +201,14 @@
 - Put response cursor skeletons receive query loading state, including fetch-more;
   page merges use `mergeCursorList` from `@/shared/utils/cursorList`, which wraps
   the public `mergeCursorData` helper and preserves both boundaries.
+- Per-POS and per-stage eBarimt configs save through
+  `@/ebarimt/settings/hooks/useSaveEbarimtRuleConfig`; the module hooks only
+  build the `subId` and normalized rule ids.
+- The product-rules-on-tax edit sheet reads its detail only from the clicked
+  row's atom (the API has no single-rule query); an id in the URL with no
+  matching atom detail is cleared so the sheet closes.
+- MS Dynamic settings compare each config after merging defaults, the same way
+  they are displayed, so saving only updates configs that changed.
 - The product remainder provider must no-op when no sales `pipelineId` or no
   `remainderConfig` exists for that pipeline.
 - Write documents as ``gql(`...`)`` from `~/gql` with no `${}` interpolation;
