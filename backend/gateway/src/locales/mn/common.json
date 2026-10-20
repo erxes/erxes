@@ -322,6 +322,10 @@
   },
   "notification": {
     "delete": "Устгах",
+    "cancel": "Цуцлах",
+    "confirm-delete-selected_one": "{{count}} мэдэгдлийг бүрмөсөн устгах уу?",
+    "confirm-delete-selected_other": "{{count}} мэдэгдлийг бүрмөсөн устгах уу?",
+    "delete-permanently-description": "Устгасан мэдэгдлийг сэргээх боломжгүй.",
     "delete-failed": "Мэдэгдлүүдийг устгаж чадсангүй",
     "notifications-deleted_one": "{{count}} мэдэгдлийг устгалаа",
     "notifications-deleted_other": "{{count}} мэдэгдлийг устгалаа",

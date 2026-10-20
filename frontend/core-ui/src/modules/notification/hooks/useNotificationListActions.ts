@@ -11,7 +11,7 @@ import type {
 } from '@/notification/types/myInbox';
 import { MyInboxHotkeyScope } from '@/notification/types/notifications';
 import { shouldIgnoreNotificationHotkey } from '@/notification/utils/notificationHotkeys';
-import { useScopedHotkeys, useToast } from 'erxes-ui';
+import { useConfirm, useScopedHotkeys, useToast } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
 import { useLayoutEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -39,6 +39,7 @@ export const useNotificationListActions = ({
   const setSelectedIds = useSetAtom(selectedNotificationIdsState);
   const batchScopeRef = useRef({ active: false });
   const [pending, setPending] = useState(false);
+  const { confirm } = useConfirm();
   const { toast } = useToast();
   const { t } = useTranslation('common', { keyPrefix: 'notification' });
   const selectedNotifications = notifications.filter((notification) =>
@@ -124,6 +125,16 @@ export const useNotificationListActions = ({
     if (pending || !allRead) return;
     const scope = batchScopeRef.current;
     const ids = selectedNotifications.map((notification) => notification._id);
+    await confirm({
+      message: t('confirm-delete-selected', { count: ids.length }),
+      options: {
+        description: t('delete-permanently-description'),
+        okLabel: t('delete'),
+        cancelLabel: t('cancel'),
+        variants: { ok: 'destructive' },
+      },
+    });
+    if (!scope.active) return;
     setPending(true);
     try {
       if (!(await deleteNotifications(ids))) return;

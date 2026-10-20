@@ -321,6 +321,10 @@
   },
   "notification": {
     "delete": "Delete",
+    "cancel": "Cancel",
+    "confirm-delete-selected_one": "Permanently delete {{count}} notification?",
+    "confirm-delete-selected_other": "Permanently delete {{count}} notifications?",
+    "delete-permanently-description": "Deleted notifications cannot be restored.",
     "delete-failed": "Unable to delete notifications",
     "notifications-deleted_one": "{{count}} notification deleted",
     "notifications-deleted_other": "{{count}} notifications deleted",
