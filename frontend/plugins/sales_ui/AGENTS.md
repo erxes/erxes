@@ -6,7 +6,7 @@
 - **Project:** `sales_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/sales_ui`
-- **Last synchronized:** `2026-10-19`
+- **Last synchronized:** `2026-10-20`
 
 ## Scope
 
@@ -32,6 +32,12 @@
   `isCheckRemainder` for preventing negative stock, with category exclusions.
 
 - Runs as the sales Module Federation remote.
+- The deals sidebar BOARDS group shows a hover `+` menu
+  (`deals/boards/components/BoardsNavigationActions.tsx`): Add Board opens a
+  create-only dialog that selects the new board on success; Add Pipeline
+  (disabled without a selected board) opens
+  `/sales/settings/deals?activeBoardId=<boardId>&create=pipeline`, where
+  `PipelineFormBar` opens the create sheet once boards load and drops `create`.
 - Development Rspack serving ignores generated dependency/cache/output folders
   to keep local file watchers bounded.
 - Pipeline create/edit supports general settings, stages, product
@@ -414,6 +420,14 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   the purple `Sidebar.MenuButton` active tint, so the two never stack purple.
 - Page-level side menus render `Sidebar.Panel` from `erxes-ui`, which keeps its own open state (`sidebarPanelOpenState`), separate from the plugin's `AppLayout` sidebar. The panel sits beside the page header, never under it: the page is a row of the panel and a column holding the header and content. The panel passes its heading as `label`, which renders a 40px title row with optional `actions` and the collapse toggle on the right, level with the page header; when collapsed, the toggle moves into the header's panel slot. Do not add a second heading or an in-panel `Sidebar.PanelTrigger` row. Keep `<Sidebar collapsible="none">` for sidebars inside sheets and dialogs. `SalesSettingsIndexPage` renders `BoardsList` beside its `SettingsHeader`, and `PosEdit` takes the POS page header as `header` so `PosEditSidebar` sits beside it. `LeftSidebarLoading` renders the same panel with the trigger beside its first placeholder row. The deal settings `BoardsList` passes its heading as `label` and `BoardForm` as `actions`; keep that single `BoardForm` instance, because every instance opens its dialog from the `boardId` query state and a second copy stacks two dialogs on edit.
 - Property choices must come only from Core `sales:deal` fields.
+- Do not mount `BoardForm` or `PipelineFormBar` on the deals page: they open
+  their edit UI from the `boardId` / `pipelineId` query state that the deals
+  page always sets, and pipeline form hooks (`usePipelineDetails`) read
+  `pipelineId` from the URL. Deals-page create actions use the create-only
+  board dialog and hand pipeline creation to settings via `create=pipeline`.
+- `NavigationMenuGroup` `actions` render inside the group's collapsible
+  trigger; wrap them in an element that stops click propagation so menus and
+  portaled dialogs opened from them do not fold the group.
 - Deal detail chips render through erxes-ui `Combobox.ChipTrigger`; every chip except stage
   passes a translated `label` by default so the field is named.
 - Deal property detail must filter by the deal's `pipelineId` selection.
@@ -525,6 +539,10 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
 - POS customer smoke scenario: open the "Customer registration" tab, enable it,
   hide e-mail (phone stays locked on), add a property, rearrange in Edit
   layout, save, and verify the layout persists after reload.
+- Board/pipeline create smoke scenario: on `/sales/deals` hover BOARDS, use
+  `+` → Add Board (empty name is rejected), confirm the new board is selected
+  with the group still open, then `+` → Add Pipeline and confirm settings opens
+  the Add Pipeline sheet with that board preselected and empty fields.
 - Tier rules smoke scenario: open "Score earn configuration", switch to Tier,
   add an every-board row, pick a wallet, set bands, save, reopen and verify
   the row; set a POS's tier in its Payment tab, save and verify after reload.

@@ -95,6 +95,21 @@ export function PipelineFormBar() {
     }
   }, [location.search, onOpen, pipelineId]);
 
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    if (
+      pipelineId ||
+      isCreateDisabled ||
+      params.get('create') !== 'pipeline'
+    ) {
+      return;
+    }
+
+    onOpen();
+    params.delete('create');
+    navigate(`${location.pathname}?${params.toString()}`, { replace: true });
+  }, [isCreateDisabled, location, navigate, onOpen, pipelineId]);
+
   useScopedHotkeys(
     `c`,
     () => onOpen(),

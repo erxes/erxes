@@ -20,6 +20,7 @@ import {
 } from 'erxes-ui';
 import { useLocation, useNavigate } from 'react-router-dom';
 
+import { BoardsNavigationActions } from '@/deals/boards/components/BoardsNavigationActions';
 import { IBoard } from '@/deals/types/boards';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -254,7 +255,15 @@ const DealsNavigation = () => {
   }, [boards, boardId, pipelineId, setPipelineId]);
 
   return (
-    <NavigationMenuGroup name={t('boards')} actions={<ActionsMenu />}>
+    <NavigationMenuGroup
+      name={t('boards')}
+      actions={
+        <>
+          <BoardsNavigationActions boardId={boardId} />
+          <ActionsMenu />
+        </>
+      }
+    >
       {loading ? (
         <LoadingSkeleton />
       ) : (
