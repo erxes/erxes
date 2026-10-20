@@ -8,7 +8,6 @@ export const NotificationDisplayOptions = () => {
   const [display, setDisplay] = useAtom(inboxDisplayOptionsState);
   const { t } = useTranslation('common', { keyPrefix: 'notification' });
   const toggles = [
-    { key: 'priorityInbox', label: t('priority-inbox', 'Priority inbox') },
     { key: 'unreadFirst', label: t('unread-first', 'Show unread first') },
     { key: 'showPriority', label: t('show-priority', 'Show priority') },
     { key: 'showSender', label: t('show-sender', 'Show sender') },

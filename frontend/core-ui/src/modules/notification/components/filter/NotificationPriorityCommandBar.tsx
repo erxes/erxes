@@ -6,7 +6,7 @@ export const NotificationPriorityCommandBar = ({
   priority,
   setQueries,
 }: {
-  priority?: string;
+  priority?: string | null;
   setQueries: (
     values: Partial<{
       notificationPriority?: string | null;

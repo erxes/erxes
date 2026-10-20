@@ -1,9 +1,26 @@
-import { IconX } from '@tabler/icons-react';
-import { Button, parseDateRangeFromString, useMultiQueryState } from 'erxes-ui';
+import {
+  IconCalendar,
+  IconFlag,
+  IconLock,
+  IconNotification,
+  IconUser,
+} from '@tabler/icons-react';
+import {
+  Combobox,
+  Command,
+  Filter,
+  PageSubHeader,
+  Popover,
+  useMultiQueryState,
+} from 'erxes-ui';
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import { SelectMember } from 'ui-modules';
+import { NotificationPriorityCommandBar } from './NotificationPriorityCommandBar';
+import { NotificationTypeCommandBar } from './NotificationTypeCommandBar';
 
 export const NotificationFilterBar = () => {
-  const { t, i18n } = useTranslation('common', { keyPrefix: 'notification' });
+  const { t } = useTranslation('common', { keyPrefix: 'notification' });
   const [queries, setQueries] = useMultiQueryState<{
     notificationPriority: string;
     notificationType: string;
@@ -17,69 +34,100 @@ export const NotificationFilterBar = () => {
     'notificationFromUserId',
     'notificationModule',
   ]);
-  const range = parseDateRangeFromString(queries.notificationCreatedAt);
-  const dateLabel = range?.from
-    ? [range.from, range.to]
-        .filter((date): date is Date => !!date)
-        .map((date) => date.toLocaleDateString(i18n.language))
-        .join(' – ')
-    : queries.notificationCreatedAt;
-  const filters = [
-    {
-      key: 'notificationPriority',
-      label: t('priority'),
-      value: queries.notificationPriority,
-    },
-    {
-      key: 'notificationType',
-      label: t('notification-type'),
-      value: queries.notificationType,
-    },
-    {
-      key: 'notificationCreatedAt',
-      label: t('created-at'),
-      value: dateLabel,
-    },
-    {
-      key: 'notificationFromUserId',
-      label: t('filter-by-sender'),
-      value: queries.notificationFromUserId
-        ? t('members-selected', {
-            defaultValue: '{{count}} selected',
-            count: queries.notificationFromUserId.split(',').length,
-          })
-        : null,
-    },
-    {
-      key: 'notificationModule',
-      label: t('approval'),
-      value: queries.notificationModule,
-    },
-  ] as const;
-  if (!filters.some((filter) => filter.value)) return null;
+  const senderIds = useMemo(
+    () => queries.notificationFromUserId?.split(',').filter(Boolean) || [],
+    [queries.notificationFromUserId],
+  );
+
+  if (!Object.values(queries).some(Boolean)) return null;
+
   return (
-    <div
-      className="flex flex-wrap gap-1 px-3 pb-2"
-      aria-label={t('active-filters', 'Active filters')}
-    >
-      {filters
-        .filter((filter) => filter.value)
-        .map(({ key, label, value }) => (
-          <Button
-            key={key}
-            variant="secondary"
-            size="sm"
-            className="max-w-full h-6 text-xs"
-            aria-label={`${t('remove-filter', 'Remove filter')}: ${label}`}
-            title={`${label}: ${value}`}
-            onClick={() => setQueries({ [key]: null })}
-          >
-            <span className="truncate">
-              {label}: {value}
-            </span>
-            <IconX className="size-3" />
-          </Button>
-        ))}
-    </div>
+    <PageSubHeader>
+      <Filter id="notification-active-filters">
+        <Filter.Bar aria-label={t('active-filters', 'Active filters')}>
+          <Filter.BarItem queryKey="notificationPriority">
+            <Filter.BarName>
+              <IconFlag />
+              {t('priority')}
+            </Filter.BarName>
+            <Popover>
+              <Popover.Trigger asChild>
+                <Filter.BarButton className="capitalize">
+                  {queries.notificationPriority}
+                </Filter.BarButton>
+              </Popover.Trigger>
+              <Combobox.Content>
+                <NotificationPriorityCommandBar
+                  priority={queries.notificationPriority}
+                  setQueries={setQueries}
+                />
+              </Combobox.Content>
+            </Popover>
+          </Filter.BarItem>
+          <Filter.BarItem queryKey="notificationType">
+            <Filter.BarName>
+              <IconNotification />
+              {t('notification-type')}
+            </Filter.BarName>
+            <Popover>
+              <Popover.Trigger asChild>
+                <Filter.BarButton className="capitalize">
+                  {queries.notificationType}
+                </Filter.BarButton>
+              </Popover.Trigger>
+              <Combobox.Content>
+                <NotificationTypeCommandBar />
+              </Combobox.Content>
+            </Popover>
+          </Filter.BarItem>
+          <Filter.BarItem queryKey="notificationCreatedAt">
+            <Filter.BarName>
+              <IconCalendar />
+              {t('created-at')}
+            </Filter.BarName>
+            <Filter.Date filterKey="notificationCreatedAt" />
+          </Filter.BarItem>
+          <Filter.BarItem queryKey="notificationFromUserId">
+            <Filter.BarName>
+              <IconUser />
+              {t('filter-by-sender')}
+            </Filter.BarName>
+            <SelectMember.Provider
+              value={senderIds}
+              mode="multiple"
+              onValueChange={(value) =>
+                setQueries({
+                  notificationFromUserId: Array.isArray(value)
+                    ? value.join(',') || null
+                    : value,
+                })
+              }
+            >
+              <Popover>
+                <Popover.Trigger asChild>
+                  <Filter.BarButton>
+                    {t('members-selected', {
+                      defaultValue: '{{count}} selected',
+                      count: senderIds.length,
+                    })}
+                  </Filter.BarButton>
+                </Popover.Trigger>
+                <Combobox.Content>
+                  <Command shouldFilter={false}>
+                    <SelectMember.Content />
+                  </Command>
+                </Combobox.Content>
+              </Popover>
+            </SelectMember.Provider>
+          </Filter.BarItem>
+          <Filter.BarItem queryKey="notificationModule">
+            <Filter.BarName>
+              <IconLock />
+              {t('approval')}
+            </Filter.BarName>
+          </Filter.BarItem>
+        </Filter.Bar>
+      </Filter>
+    </PageSubHeader>
   );
 };

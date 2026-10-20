@@ -8,7 +8,6 @@ export const selectedNotificationIdsState = atom<string[]>([]);
 export const nextNotificationIdState = atom<string | null>(null);
 
 export interface InboxDisplayOptions {
-  priorityInbox: boolean;
   unreadFirst: boolean;
   showPriority: boolean;
   showSender: boolean;
@@ -18,7 +17,6 @@ export interface InboxDisplayOptions {
 export const inboxDisplayOptionsState = atomWithStorage<InboxDisplayOptions>(
   'my-inbox:display',
   {
-    priorityInbox: false,
     unreadFirst: true,
     showPriority: true,
     showSender: true,
