@@ -184,9 +184,9 @@ The `agent` module is the core-ui surface for the core-api `agents` backend
 preceding history. Prose, user content, tool inputs, artifact content and nested
 sandbox results never authorize links. Unknown handles show “Reference unavailable”;
 unverified legacy tokens remain plain text. Scoped registries survive native
-Mastra history mapping. HTML/Markdown renderers bind opaque handles only in text
-nodes; code and attributes never become controls. Copy/export use canonical
-labels outside code. Model-authored workspace anchors remain plain text.
+Mastra history mapping. HTML replies and plain-text renderers bind opaque handles
+only in text nodes; code and attributes never become controls. Copy/export use
+canonical labels outside code. Model-authored workspace anchors remain plain text.
 
 `AgentReferenceChip` uses the registry's type/id/name. Record clicks call the
 fixed `/agents/references/resolve` endpoint and navigate only after the current
