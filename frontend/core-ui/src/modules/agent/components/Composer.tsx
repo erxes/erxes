@@ -556,9 +556,9 @@ export const Composer = ({
         )}
         {isStreaming ? (
           <Button
-            variant="outline"
+            variant="ghost"
             size="icon"
-            className={`agent-send size-8 shrink-0 rounded-full ${
+            className={`agent-send size-8 shrink-0 rounded-full border-0 bg-transparent text-foreground shadow-none hover:bg-transparent focus-visible:outline-current ${
               pickers ? 'ml-auto @sm:ml-0' : 'ml-auto'
             }`}
             onClick={onStop}
@@ -568,8 +568,9 @@ export const Composer = ({
           </Button>
         ) : (
           <Button
+            variant="ghost"
             size="icon"
-            className={`agent-send size-8 shrink-0 rounded-full ${
+            className={`agent-send size-8 shrink-0 rounded-full border-0 bg-transparent text-foreground shadow-none hover:bg-transparent focus-visible:outline-current ${
               pickers ? 'ml-auto @sm:ml-0' : 'ml-auto'
             }`}
             onClick={send}

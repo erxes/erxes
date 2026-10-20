@@ -1,3 +1,4 @@
+import { spawnSync } from 'node:child_process';
 /**
  * Thread list/detail resolver and thread removal mutation tests.
  *
@@ -16,7 +17,7 @@
 
 import { agentsThreadMutations } from '@/agents/graphql/resolvers/mutations/threads';
 import { agentsThreadsQueries } from '@/agents/graphql/resolvers/queries/threads';
-import { getAgentsMemory } from '@/agents/memory';
+import { getAgentsMemory, getAgentsRuntime } from '@/agents/memory';
 import { publishAgentsThreadsChanged } from '@/agents/threadsEvents';
 import type { IContext } from '~/connectionResolvers';
 
@@ -93,8 +94,24 @@ const buildContext = ({
   return { ctx, checkPermission };
 };
 
+const cancel = jest.fn(async () => undefined);
+const abortRunStream = jest.fn();
+const listActiveRuns = jest.fn(async () => ({ runs: [], total: 0 }));
+const listSuspendedRuns = jest.fn(async () => ({ runs: [], total: 0 }));
+const createRun = jest.fn(async () => ({ cancel }));
+
 beforeEach(() => {
   jest.clearAllMocks();
+  listActiveRuns.mockResolvedValue({ runs: [], total: 0 });
+  listSuspendedRuns.mockResolvedValue({ runs: [], total: 0 });
+  jest.mocked(getAgentsRuntime).mockResolvedValue({
+    agent: {
+      listActiveRuns,
+      listSuspendedRuns,
+      abortRunStream,
+      getWorkflow: () => ({ createRun }),
+    },
+  } as unknown as Awaited<ReturnType<typeof getAgentsRuntime>>);
   mockedGetAgentsMemory.mockResolvedValue(
     buildMemory() as unknown as Awaited<ReturnType<typeof getAgentsMemory>>,
   );
@@ -333,6 +350,37 @@ describe('agentsThreadRemove mutation', () => {
     expect(result).toBe(true);
   });
 
+  it('stops running and suspended turns before deleting their memory', async () => {
+    const { ctx } = buildContext();
+    const memory = buildMemory();
+    memory.getThreadById.mockResolvedValue({ id: 't1', resourceId: 'user-1' });
+    mockedGetAgentsMemory.mockResolvedValue(
+      memory as unknown as Awaited<ReturnType<typeof getAgentsMemory>>,
+    );
+    listActiveRuns.mockResolvedValue({
+      runs: [{ runId: 'running' }],
+      total: 1,
+    });
+    listSuspendedRuns.mockResolvedValue({
+      runs: [{ runId: 'suspended' }],
+      total: 1,
+    });
+    await agentsThreadMutations.agentsThreadRemove(
+      undefined,
+      { threadId: 't1' },
+      ctx,
+    );
+    expect(listActiveRuns).toHaveBeenCalledWith({
+      threadId: 't1',
+      resourceId: 'user-1',
+    });
+    expect(abortRunStream.mock.calls).toEqual([['running'], ['suspended']]);
+    expect(cancel).toHaveBeenCalledTimes(2);
+    expect(cancel.mock.invocationCallOrder[1]).toBeLessThan(
+      memory.deleteThread.mock.invocationCallOrder[0],
+    );
+  });
+
   it('reports a missing thread as not found without deleting anything', async () => {
     const { ctx } = buildContext();
     const memory = buildMemory();
@@ -565,11 +613,7 @@ describe('agentsThreads pinned filter', () => {
       memory as unknown as Awaited<ReturnType<typeof getAgentsMemory>>,
     );
 
-    await agentsThreadsQueries.agentsThreads(
-      undefined,
-      { pinned: true },
-      ctx,
-    );
+    await agentsThreadsQueries.agentsThreads(undefined, { pinned: true }, ctx);
 
     expect(memory.listThreads).toHaveBeenCalledWith({
       page: 0,
@@ -588,3 +632,18 @@ describe('agentsThreads pinned filter', () => {
     });
   });
 });
+
+it('does not recreate a deleted session when a native running response completes late', () => {
+  const result = spawnSync(
+    process.execPath,
+    [require.resolve('./fixtures/deleteRunningThread.cjs')],
+    {
+      cwd: process.cwd(),
+      encoding: 'utf8',
+      timeout: 15_000,
+    },
+  );
+  expect(result.error).toBeUndefined();
+  expect(result.stderr).toBe('');
+  expect(result.status).toBe(0);
+}, 20_000);

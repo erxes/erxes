@@ -1,4 +1,4 @@
-import { cn } from 'erxes-ui';
+import { motion, useReducedMotion } from 'framer-motion';
 import { useAtom } from 'jotai';
 import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -22,6 +22,7 @@ const getMaxWidth = () =>
 
 /** A normal layout column; hidden chat stays mounted to keep its stream and draft. */
 export const AssistantPanel = () => {
+  const reduceMotion = useReducedMotion();
   const { t } = useTranslation('common', { keyPrefix: 'side-panel' });
   const { open, path, close } = useSidePanel();
   const [width, setWidth] = useAtom(sidePanelWidthState);
@@ -40,21 +41,30 @@ export const AssistantPanel = () => {
   if (!everOpened.current || !allowed) return null;
 
   return (
-    <RecordSidePanel
-      width={width}
-      maxWidth={maxWidth}
-      onWidthChange={setWidth}
-      className={cn(!visible && 'hidden')}
+    <motion.div
+      initial={{ width: 0, opacity: 0 }}
+      animate={{ width: visible ? 'auto' : 0, opacity: visible ? 1 : 0 }}
+      transition={{ duration: reduceMotion ? 0 : 0.18, ease: 'easeOut' }}
+      aria-hidden={!visible}
+      {...(!visible ? { inert: '' } : {})}
+      className="flex min-h-0 shrink-0 overflow-hidden"
     >
-      <Suspense
-        fallback={
-          <div role="status" className="p-4 text-sm text-muted-foreground">
-            {t('loading', 'Loading assistant…')}
-          </div>
-        }
+      <RecordSidePanel
+        width={width}
+        maxWidth={maxWidth}
+        onWidthChange={setWidth}
+        className="animate-none"
       >
-        <SidePanelChat onClose={close} active={visible} />
-      </Suspense>
-    </RecordSidePanel>
+        <Suspense
+          fallback={
+            <div role="status" className="p-4 text-sm text-muted-foreground">
+              {t('loading', 'Loading assistant…')}
+            </div>
+          }
+        >
+          <SidePanelChat onClose={close} active={visible} />
+        </Suspense>
+      </RecordSidePanel>
+    </motion.div>
   );
 };

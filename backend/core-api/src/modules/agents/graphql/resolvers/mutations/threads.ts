@@ -3,7 +3,7 @@ import type { MastraMemory } from '@mastra/core/memory' with {
   'resolution-mode': 'import',
 };
 
-import { getAgentsMemory } from '@/agents/memory';
+import { getAgentsMemory, getAgentsRuntime } from '@/agents/memory';
 import { publishAgentsThreadsChanged } from '@/agents/threadsEvents';
 import type { IContext } from '~/connectionResolvers';
 
@@ -144,6 +144,19 @@ export const agentsThreadMutations = {
       throw new ExpectedError('Thread belongs to another user.', 'FORBIDDEN');
     }
 
+    // Closing a session is also an explicit stop. Cancel its native runs before
+    // removing memory so a late completion cannot recreate the conversation.
+    const { agent } = await getAgentsRuntime(ctx.subdomain);
+    const scope = { threadId, resourceId: ctx.user._id };
+    const [active, suspended] = await Promise.all([
+      agent.listActiveRuns(scope), agent.listSuspendedRuns(scope),
+    ]);
+    const runIds = new Set([...active.runs, ...suspended.runs].map((run) => run.runId));
+    for (const runId of runIds) {
+      agent.abortRunStream(runId);
+      const run = await agent.getWorkflow().createRun({ runId });
+      await run.cancel();
+    }
     await memory.deleteThread(threadId);
 
     publishAgentsThreadsChanged(ctx.user._id);

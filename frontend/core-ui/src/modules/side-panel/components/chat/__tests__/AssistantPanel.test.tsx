@@ -116,7 +116,12 @@ it('loads only on first open, occupies a normal layout column, and keeps the sam
       <AssistantPanel />
     </Provider>,
   );
-  expect(screen.getByTestId('panel').className).toContain('hidden');
+  expect(
+    screen.getByTestId('panel').parentElement?.getAttribute('aria-hidden'),
+  ).toBe('true');
+  expect(screen.getByTestId('panel').parentElement?.hasAttribute('inert')).toBe(
+    true,
+  );
   expect(screen.getByTestId('chat').getAttribute('data-active')).toBe('false');
   mockPath = '/detail/customer/c1';
   rerender(
@@ -124,7 +129,12 @@ it('loads only on first open, occupies a normal layout column, and keeps the sam
       <AssistantPanel />
     </Provider>,
   );
-  expect(screen.getByTestId('panel').className).toContain('hidden');
+  expect(
+    screen.getByTestId('panel').parentElement?.getAttribute('aria-hidden'),
+  ).toBe('true');
+  expect(screen.getByTestId('panel').parentElement?.hasAttribute('inert')).toBe(
+    true,
+  );
   mockPath = '/chat';
   rerender(
     <Provider store={store}>
@@ -134,7 +144,12 @@ it('loads only on first open, occupies a normal layout column, and keeps the sam
   expect((screen.getByRole('textbox') as HTMLInputElement).value).toBe(
     'Keep this draft',
   );
-  expect(screen.getByTestId('panel').className).not.toContain('hidden');
+  expect(
+    screen.getByTestId('panel').parentElement?.getAttribute('aria-hidden'),
+  ).toBe('false');
+  expect(screen.getByTestId('panel').parentElement?.hasAttribute('inert')).toBe(
+    false,
+  );
   expect(mockMounts).toBe(1);
   expect(screen.getByTestId('panel').style.width).toBe('1000px');
   fireEvent.click(screen.getByRole('button', { name: 'Close assistant' }));

@@ -25,17 +25,21 @@ The `agent` module is the core-ui surface for the core-api `agents` backend
   unmount all clean up the drag.
   The shared panel displays either a record or Assistant. After first open,
   the chat stays mounted but hidden while closed or showing a record, keeping
-  drafts, streams and activity alive. The header provides new chat, history,
+  drafts, streams and activity alive. The header uses browser-style session tabs,
   thread actions, Settings (keeps the panel open) and Close. `ChatInput`
   retains one visible line and remeasures when the
   hidden panel is shown or resized;
-- thread history (`ThreadList`): client-side filter, Pinned group first
-  (`IconPin`), then Today / Yesterday / Previous 7 days / Older, "load
-  more" pagination, hover `IconDots` menu (inline rename — Enter saves,
-  Esc/blur cancels; pin/unpin; delete via AlertDialog), live refresh via
-  `agentsThreadsChanged`; shared mutations live in
-  `hooks/useAgentsThreadActions.ts` (rename/setPinned/remove + toasts,
-  refetches `AgentsThreads` + `AgentsPinnedThreads`);
+- `ThreadTabs`: stable session order, truncated titles, horizontal scrolling with
+  edge buttons, active-tab reveal on selection/resize, native Tabs keyboard
+  navigation and Delete to close. Plus opens a blank conversation; an empty tab
+  remains usable after closing the last session. Existing saved sessions load in
+  pages through the same `useAgentsThreads` subscription. Closing a tab deletes
+  its session with one click, selects the neighboring tab only if it was active,
+  and clears that session's reconnect pointers. Pending closes cannot duplicate
+  mutations; failed deletes retain the tab. Rename, pin and export remain in the
+  current-session actions menu; the old history popup and delete dialog are gone.
+  Shared mutations live in `hooks/useAgentsThreadActions.ts` with immediate
+  refetch and error feedback.
 - a Twenty-style transcript: work-steps grouping, approval card, ask_user
   card, artifact cards, rendered HTML replies + clickable record references;
 - approval cards display every supplied argument and the complete GraphQL
@@ -166,7 +170,13 @@ The `agent` module is the core-ui surface for the core-api `agents` backend
   updates and app theme changes without regenerating/reloading the frame. They
   grow to content height and update the existing frame while streaming.
   `htmlSandbox.ts` sanitizes content and enforces a restrictive CSP; the frame
-  permits same-origin for trusted parent sizing/portals but never model scripts.
+   permits same-origin for trusted parent sizing/portals but never model scripts.
+   `data-agent-chart` is the sole admitted chart attribute. `whatIfChartModel.ts`
+   validates bounded JSON and evaluates postfix arithmetic without eval/Function.
+   `WhatIfChart` portals trusted erxes-ui numeric inputs, reset and accessible
+   baseline/scenario SVG bars into valid containers. Inputs change local scenario
+   state only; invalid specifications fail visibly. Generated scripts stay blocked;
+   downloaded HTML retains the model's baseline fallback, not interactive controls.
   `htmlReferences.ts` replaces valid text tokens with real `AgentReferenceChip`
   portals, retaining permission-aware navigation; attributes, code, anchors,
   styles and SVG never produce reference controls. User messages, approvals,
@@ -250,3 +260,14 @@ turn. A single-step card names the action.
 - `pnpm nx test core-ui` — tests in `__tests__` + `artifacts/__tests__`.
 - `pnpm nx build core-ui` — rspack.
 - eslint on touched files — 0 errors expected.
+
+## Chat motion
+
+- Assistant opening/closing eases its outer width and opacity for 180ms while
+  retaining the mounted chat, stream and draft. Hidden content is inert.
+  Resizing changes the inner panel directly without animating drag width.
+- Session tabs enter/exit and shift position over 160ms. Removal still waits
+  for successful deletion; failed deletion keeps the session.
+- New conversation surfaces and user/assistant arrivals use short fades with a
+  6px rise. Stream deltas do not restart row animation. All motion respects
+  the system reduced-motion preference; send-button feedback has no bounce.

@@ -4,6 +4,8 @@ import { createAgentReferenceRegistry } from '../../references/referenceRegistry
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { HtmlPreview } from '../HtmlPreview';
 
+jest.mock('erxes-ui', () => ({ Input: 'input', Button: 'button' }));
+
 const mockOpen = jest.fn();
 const mockNavigate = jest.fn();
 jest.mock('../../components/AgentReferenceChip', () => ({

@@ -18,6 +18,16 @@ plugin; ported from the former private `erxes-agent` service). It provides:
   result. Semantic HTML, responsive CSS and inline SVG render inline;
   scripts/external resources are unavailable. Record reference tokens belong
   verbatim in HTML text nodes, never attributes, links, styles or code;
+- `skills/reportCreation.ts` is the built-in report skill, composed into every
+  run's instructions by `buildAgentsInstructions`. Report creation/revisions use
+  formula-driven interactive what-if charts through the renderer-owned
+  `data-agent-chart` JSON contract (bounded postfix arithmetic; never model scripts).
+  Editable factors compare baseline/scenario results locally; they do not mutate
+  workspace data. Downloads retain a baseline HTML fallback rather than live controls.
+  Reports use meaningful visual elements on transparent backgrounds (no filled report, card,
+  section, chart canvas or table surfaces), concise text, verified references beside data points,
+  simple language with parenthetical explanations of technical terms, and no
+  unsolicited next-step offers. Ordinary replies keep their existing presentation.
 - GraphQL discovery (`searchGraphql`) and execution (`callGraphql`) through
   the gateway as the acting user, using a fresh HMAC-signed identity header.
   `graphqlPolicy.ts` denies authentication, credential and system-security
@@ -186,6 +196,9 @@ plugin; ported from the former private `erxes-agent` service). It provides:
   callers without an id retain server discovery. Invalid/denied GraphQL inputs
   return tool errors without approval or network execution; human approval never
   grants an exception to GraphQL policy.
+- Session removal verifies ownership, aborts and cancels scoped running/suspended
+  native workflows before deleting thread memory, preventing late completion from
+  recreating a closed session. This is explicit deletion, not browser detachment.
 - Every run entry point passes `maxSteps: 32`; resumes restore the original
   run's RequestContext snapshot (selection fields in the body are accepted
   but ignored).

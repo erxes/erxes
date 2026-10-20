@@ -53,7 +53,7 @@ jest.mock(
       }) => {
         void _variant;
         void _size;
-        return <button {...props} />;
+        return <button data-variant={_variant} {...props} />;
       },
       Tooltip: Object.assign(Wrapper, {
         Provider: Wrapper,
@@ -98,6 +98,25 @@ beforeEach(() => {
   upload.mockReset();
   URL.createObjectURL = jest.fn(() => 'blob:selection');
   URL.revokeObjectURL = jest.fn();
+});
+
+it('uses matching neutral, background-free send and stop controls', () => {
+  const onStop = jest.fn();
+  const props = { disabled: false, onSend: jest.fn(), onStop };
+  const { rerender } = render(<Composer {...props} status="ready" />);
+  const send = sendButton();
+  expect(send.getAttribute('data-variant')).toBe('ghost');
+  expect(send.className).toContain('rounded-full');
+  expect(send.className).toContain('bg-transparent');
+  expect(send.className).toContain('hover:bg-transparent');
+  expect(send.className).toContain('border-0');
+  expect(send.className).toContain('text-foreground');
+  rerender(<Composer {...props} status="streaming" />);
+  const stop = screen.getByRole('button', { name: 'Stop generating' });
+  expect(stop.getAttribute('data-variant')).toBe('ghost');
+  expect(stop.className).toBe(send.className);
+  fireEvent.click(stop);
+  expect(onStop).toHaveBeenCalledTimes(1);
 });
 
 it('keeps attachment guidance in the tooltip and still opens the file picker', () => {

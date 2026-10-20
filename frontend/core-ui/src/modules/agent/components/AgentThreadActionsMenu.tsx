@@ -4,16 +4,8 @@ import {
   IconPencil,
   IconPin,
   IconPinnedOff,
-  IconTrash,
 } from '@tabler/icons-react';
-import {
-  AlertDialog,
-  Button,
-  Dialog,
-  DropdownMenu,
-  Input,
-  buttonVariants,
-} from 'erxes-ui';
+import { Button, Dialog, DropdownMenu, Input } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { UIMessage } from 'ai';
@@ -32,15 +24,13 @@ export interface IAgentThreadActionsMenuProps {
   pinned: boolean;
   /** Current transcript — export stays disabled while it's empty. */
   messages: UIMessage[];
-  /** Called after the thread was deleted (so the surface can reset). */
-  onDeleted?: () => void;
   triggerClassName?: string;
 }
 
 /**
  * Thread actions in the Assistant side-panel header:
- * rename (validated dialog), pin toggle, markdown export, and
- * delete (AlertDialog). All mutations go through `useAgentsThreadActions`,
+ * rename (validated dialog), pin toggle and markdown export.
+ * Session deletion belongs to the tab close control. All mutations go through `useAgentsThreadActions`,
  * which refetches both thread lists and toasts success/failure.
  */
 export const AgentThreadActionsMenu = ({
@@ -48,14 +38,12 @@ export const AgentThreadActionsMenu = ({
   title,
   pinned,
   messages,
-  onDeleted,
   triggerClassName,
 }: IAgentThreadActionsMenuProps) => {
   const { t } = useTranslation('common', { keyPrefix: 'agent' });
-  const { rename, setPinned, remove, busy } = useAgentsThreadActions();
+  const { rename, setPinned, busy } = useAgentsThreadActions();
   const [menuOpen, setMenuOpen] = useState(false);
   const [renameOpen, setRenameOpen] = useState(false);
-  const [deleteOpen, setDeleteOpen] = useState(false);
   const [draftTitle, setDraftTitle] = useState(title);
 
   const displayTitle = title || t('untitled', 'Untitled conversation');
@@ -113,9 +101,7 @@ export const AgentThreadActionsMenu = ({
             <IconPencil className="size-4" />
             {t('rename', 'Rename')}
           </DropdownMenu.Item>
-          <DropdownMenu.Item
-            onSelect={() => void setPinned(threadId, !pinned)}
-          >
+          <DropdownMenu.Item onSelect={() => void setPinned(threadId, !pinned)}>
             {pinned ? (
               <IconPinnedOff className="size-4" />
             ) : (
@@ -129,14 +115,6 @@ export const AgentThreadActionsMenu = ({
           >
             <IconDownload className="size-4" />
             {t('export-markdown', 'Export as Markdown')}
-          </DropdownMenu.Item>
-          <DropdownMenu.Separator />
-          <DropdownMenu.Item
-            className="text-destructive focus:text-destructive"
-            onSelect={() => setDeleteOpen(true)}
-          >
-            <IconTrash className="size-4" />
-            {t('delete', 'Delete')}
           </DropdownMenu.Item>
         </DropdownMenu.Content>
       </DropdownMenu>
@@ -165,50 +143,13 @@ export const AgentThreadActionsMenu = ({
               <Dialog.Close asChild>
                 <Button variant="ghost">{t('cancel', 'Cancel')}</Button>
               </Dialog.Close>
-              <Button
-                type="submit"
-                disabled={busy || !draftTitle.trim()}
-              >
+              <Button type="submit" disabled={busy || !draftTitle.trim()}>
                 {t('save', 'Save')}
               </Button>
             </Dialog.Footer>
           </form>
         </Dialog.Content>
       </Dialog>
-
-      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-        <AlertDialog.Content>
-          <AlertDialog.Header>
-            <AlertDialog.Title>
-              {t('delete-title', 'Delete conversation')}
-            </AlertDialog.Title>
-            <AlertDialog.Description>
-              {t(
-                'delete-description',
-                'This permanently deletes the conversation and its messages.',
-              )}
-            </AlertDialog.Description>
-          </AlertDialog.Header>
-          <AlertDialog.Footer>
-            <AlertDialog.Cancel>{t('cancel', 'Cancel')}</AlertDialog.Cancel>
-            <AlertDialog.Action
-              className={buttonVariants({ variant: 'destructive' })}
-              disabled={busy}
-              onClick={(event) => {
-                event.preventDefault();
-                void remove(threadId).then((removed) => {
-                  if (removed) {
-                    setDeleteOpen(false);
-                    onDeleted?.();
-                  }
-                });
-              }}
-            >
-              {t('delete', 'Delete')}
-            </AlertDialog.Action>
-          </AlertDialog.Footer>
-        </AlertDialog.Content>
-      </AlertDialog>
     </>
   );
 };

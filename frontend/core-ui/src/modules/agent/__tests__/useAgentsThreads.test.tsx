@@ -24,6 +24,7 @@ const threadsData: IAgentsThreadsData = {
       {
         id: 'thread-1',
         title: 'My conversation',
+        pinned: false,
         createdAt: '2026-09-17T00:00:00.000Z',
         updatedAt: '2026-09-17T00:00:00.000Z',
       },
@@ -174,4 +175,54 @@ it('preserves unrelated server errors instead of asking for access', async () =>
   await waitFor(() =>
     expect(result.current.error).toBe('History service unavailable'),
   );
+});
+
+it('retains more than 100 loaded sessions when live refresh rebuilds the tab catalog', async () => {
+  setPermissions(true, true);
+  const all = Array.from({ length: 145 }, (_, index) => ({
+    id: `t-${index}`,
+    title: `Session ${index}`,
+    pinned: false,
+    createdAt: '2026-10-20T00:00:00.000Z',
+    updatedAt: '2026-10-20T00:00:00.000Z',
+  }));
+  const sizes: number[] = [];
+  const link = new ApolloLink(
+    (operation) =>
+      new Observable((observer) => {
+        if (operation.operationName === 'AgentsThreadsChanged')
+          return () => undefined;
+        const pinned = operation.operationName === 'AgentsPinnedThreads';
+        const { page = 1, perPage = 20 } = operation.variables;
+        if (!pinned) sizes.push(perPage);
+        const start = (page - 1) * perPage;
+        observer.next({
+          data: {
+            agentsThreads: {
+              threads: pinned ? [] : all.slice(start, start + perPage),
+              total: pinned ? 0 : all.length,
+              page,
+              perPage,
+              hasMore: !pinned && start + perPage < all.length,
+            },
+          },
+        });
+        observer.complete();
+      }),
+  );
+  const wrapper = ({ children }: PropsWithChildren) => (
+    <MockedProvider link={link}>{children}</MockedProvider>
+  );
+  const { result } = renderHook(() => useAgentsThreads(), { wrapper });
+  await waitFor(() => expect(result.current.threads).toHaveLength(20));
+  for (let page = 2; page <= 7; page += 1) {
+    act(() => result.current.loadMore());
+    await waitFor(() => expect(result.current.threads).toHaveLength(page * 20));
+  }
+  await act(async () => {
+    await result.current.refetch();
+  });
+  expect(result.current.threads).toHaveLength(140);
+  expect(result.current.threads[139].id).toBe('t-139');
+  expect(Math.max(...sizes)).toBe(20);
 });

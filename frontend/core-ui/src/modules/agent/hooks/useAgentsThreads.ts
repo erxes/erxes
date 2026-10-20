@@ -1,4 +1,4 @@
-import { useQuery } from '@apollo/client';
+import { useApolloClient, useQuery } from '@apollo/client';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { usePermissionCheck } from 'ui-modules';
 
@@ -33,19 +33,22 @@ export interface IUseAgentsThreadsResult {
  * `agentsThreadsChanged` subscription is used purely as a refetch signal:
  * whenever a chat turn is persisted or a thread title is generated
  * server-side, a debounced refetch keeps the list fresh without any manual
- * refresh. The refetch asks for every already-loaded thread in one request
- * so pagination state is preserved.
+ * refresh. Refetch rebuilds all loaded pages within the API page-size limit
+ * and writes them to the cache together so pagination state is preserved.
  */
 export const useAgentsThreads = (): IUseAgentsThreadsResult => {
   const { isLoaded, hasActionPermission } = usePermissionCheck();
   const canViewThreads = isLoaded && hasActionPermission('showAgents');
+  const client = useApolloClient();
+  const refreshing = useRef(false);
+  const [refreshError, setRefreshError] = useState<string>();
   const refetchTimer = useRef<ReturnType<typeof setTimeout>>();
-  // Pages loaded so far: a refetch re-requests that many threads as one
-  // page, so `result.page` is always 1 and cannot drive pagination.
+  // Pages loaded so far: a refetch rebuilds these pages atomically,
+  // so `result.page` is always 1 and cannot drive pagination.
   const loadedPagesRef = useRef(1);
   const [loadingMore, setLoadingMore] = useState(false);
 
-  const { data, loading, error, refetch, fetchMore, subscribeToMore } =
+  const { data, loading, error, fetchMore, subscribeToMore } =
     useQuery<IAgentsThreadsData>(AGENTS_THREADS, {
       variables: { page: 1, perPage: PAGE_SIZE },
       skip: !canViewThreads,
@@ -68,14 +71,55 @@ export const useAgentsThreads = (): IUseAgentsThreadsResult => {
       return;
     }
 
-    await Promise.all([
-      refetch({
-        page: 1,
-        perPage: Math.max(loadedPagesRef.current * PAGE_SIZE, PAGE_SIZE),
-      }),
-      refetchPinned(),
-    ]);
-  }, [canViewThreads, refetch, refetchPinned]);
+    if (refreshing.current) return;
+    refreshing.current = true;
+    setRefreshError(undefined);
+    try {
+      // Keep every loaded page. A single growing perPage request is clamped
+      // to 100 by the API and silently drops tabs beyond the fifth page.
+      const [pages] = await Promise.all([
+        Promise.all(
+          Array.from({ length: loadedPagesRef.current }, (_, index) =>
+            client.query<IAgentsThreadsData>({
+              query: AGENTS_THREADS,
+              variables: { page: index + 1, perPage: PAGE_SIZE },
+              fetchPolicy: 'no-cache',
+            }),
+          ),
+        ),
+        refetchPinned(),
+      ]);
+      const first = pages[0]?.data?.agentsThreads;
+      const last = pages[pages.length - 1]?.data?.agentsThreads;
+      if (first) {
+        const rows = new Map(
+          pages
+            .flatMap((page) => page.data?.agentsThreads?.threads ?? [])
+            .map((thread) => [thread.id, thread]),
+        );
+        client.writeQuery<IAgentsThreadsData>({
+          query: AGENTS_THREADS,
+          variables: { page: 1, perPage: PAGE_SIZE },
+          data: {
+            agentsThreads: {
+              ...first,
+              threads: [...rows.values()],
+              hasMore: last?.hasMore ?? false,
+            },
+          },
+        });
+      }
+    } catch (refreshFailure) {
+      setRefreshError(
+        refreshFailure instanceof Error
+          ? refreshFailure.message
+          : 'Could not refresh sessions.',
+      );
+      throw refreshFailure;
+    } finally {
+      refreshing.current = false;
+    }
+  }, [canViewThreads, client, refetchPinned]);
 
   useEffect(() => {
     if (!canViewThreads || permissionDenied) {
@@ -114,7 +158,7 @@ export const useAgentsThreads = (): IUseAgentsThreadsResult => {
   const hasMore = Boolean(result?.hasMore);
 
   const loadMore = useCallback(() => {
-    if (!hasMore || loadingMore) {
+    if (!hasMore || loadingMore || refreshing.current) {
       return;
     }
 
@@ -175,12 +219,11 @@ export const useAgentsThreads = (): IUseAgentsThreadsResult => {
     ? undefined
     : !canViewThreads || permissionDenied
     ? AGENTS_ACCESS_REQUIRED
-    : error?.message;
+    : refreshError ?? error?.message;
   const isLoading = !isLoaded || (canViewThreads && loading);
 
   // The chat surfaces re-render on every streamed delta; a memoized result
-  // keeps the `threadsState` identity stable so the memoized `ThreadList`
-  // can skip those renders.
+  // keeps the session catalog identity stable between actual list updates.
   return useMemo<IUseAgentsThreadsResult>(
     () => ({
       threads: threads ?? [],

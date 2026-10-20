@@ -34,6 +34,7 @@ export const buildSandboxedSrcDoc = (html: string): string => {
     WHOLE_DOCUMENT: true,
     USE_PROFILES: { html: true, svg: true, svgFilters: true },
     ALLOW_DATA_ATTR: false,
+    ADD_ATTR: ['data-agent-chart'],
     FORBID_TAGS: [
       'script',
       'meta',

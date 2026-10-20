@@ -1,10 +1,5 @@
-import {
-  IconSettings,
-  IconHistory,
-  IconPlus,
-  IconX,
-} from '@tabler/icons-react';
-import { Button, Popover } from 'erxes-ui';
+import { IconSettings, IconX } from '@tabler/icons-react';
+import { Button, toast } from 'erxes-ui';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
@@ -19,7 +14,8 @@ import { useAgentsThreads } from '../hooks/useAgentsThreads';
 import { AgentPageContextChip } from './AgentPageContextChip';
 import { AgentThreadActionsMenu } from './AgentThreadActionsMenu';
 import { ChatPanel } from './ChatPanel';
-import { ThreadList } from './ThreadList';
+import { ThreadTabs } from './ThreadTabs';
+import { useAgentsThreadActions } from '../hooks/useAgentsThreadActions';
 
 /** Chat content for the shared, space-taking Assistant side panel. */
 export const AgentSidePanel = ({
@@ -35,13 +31,11 @@ export const AgentSidePanel = ({
   const location = useLocation();
   const chat = useAgentsChat({ sessionScope: 'panel' });
   const threadsState = useAgentsThreads();
+  const currentThreadId = useRef(chat.threadId);
+  currentThreadId.current = chat.threadId;
   useAgentActivity(chat, active);
-  const [historyOpen, setHistoryOpen] = useState(false);
+  const { remove } = useAgentsThreadActions();
   const [contextDismissed, setContextDismissed] = useState(false);
-
-  useEffect(() => {
-    if (!active) setHistoryOpen(false);
-  }, [active]);
 
   const pageRecord = getPageRecordFromLocation(
     location.pathname,
@@ -82,13 +76,17 @@ export const AgentSidePanel = ({
 
   const handleNewConversation = useCallback(() => {
     void chat.startNewConversation();
-    setHistoryOpen(false);
   }, [chat]);
 
   const handleSelectThread = useCallback(
     (selectedThreadId: string) => {
-      setHistoryOpen(false);
-      void chat.openThread(selectedThreadId);
+      void chat.openThread(selectedThreadId).catch((error: unknown) => {
+        toast({
+          title: 'Could not open session',
+          description: error instanceof Error ? error.message : undefined,
+          variant: 'destructive',
+        });
+      });
     },
     [chat],
   );
@@ -98,83 +96,60 @@ export const AgentSidePanel = ({
         (thread) => thread.id === chat.threadId,
       )
     : undefined;
-  const threadTitle = activeThread?.title;
-
   const header = (
-    <div className="flex h-12 shrink-0 items-center gap-1 border-b bg-sidebar px-2">
-      <div className="min-w-0 flex-1 px-2">
-        <p className="truncate text-sm font-medium">
-          {threadTitle || t('panel-title', 'Assistant')}
-        </p>
-      </div>
-      {chat.threadId && (
-        <AgentThreadActionsMenu
-          threadId={chat.threadId}
-          title={activeThread?.title ?? ''}
-          pinned={activeThread?.pinned === true}
-          messages={chat.messages}
-          onDeleted={() => void chat.startNewConversation()}
-        />
-      )}
-      <Button
-        variant="ghost"
-        size="icon"
-        className="size-7"
-        onClick={handleNewConversation}
-        aria-label={t('new-chat', 'New chat')}
-      >
-        <IconPlus className="size-4" />
-      </Button>
-      <Popover open={historyOpen} onOpenChange={setHistoryOpen}>
-        <Popover.Trigger asChild>
+    <ThreadTabs
+      threadsState={threadsState}
+      activeThreadId={chat.threadId}
+      onSelect={handleSelectThread}
+      onNew={handleNewConversation}
+      onDelete={remove}
+      onDeleted={(deletedId, nextId) => {
+        try {
+          sessionStorage.removeItem(`agents-active-run:${deletedId}`);
+          sessionStorage.removeItem(`agents-in-flight-prompt:${deletedId}`);
+        } catch {
+          /* Storage may be disabled; selection must still work. */
+        }
+        if (currentThreadId.current === deletedId) {
+          if (nextId) handleSelectThread(nextId);
+          else handleNewConversation();
+        }
+      }}
+      controls={
+        <>
+          {chat.threadId && (
+            <AgentThreadActionsMenu
+              threadId={chat.threadId}
+              title={activeThread?.title ?? ''}
+              pinned={activeThread?.pinned === true}
+              messages={chat.messages}
+            />
+          )}
+          <Button variant="ghost" size="icon" className="size-7" asChild>
+            <Link
+              to={{
+                pathname: '/settings/agent',
+                search: new URLSearchParams({
+                  [SIDE_PANEL_QUERY_KEY]: SIDE_PANEL_CHAT_PATH,
+                }).toString(),
+              }}
+              aria-label={t('settings', 'Settings')}
+            >
+              <IconSettings className="size-4" />
+            </Link>
+          </Button>
           <Button
             variant="ghost"
             size="icon"
             className="size-7"
-            aria-label={t('history', 'History')}
+            onClick={onClose}
+            aria-label={t('close', 'Close')}
           >
-            <IconHistory className="size-4" />
+            <IconX className="size-4" />
           </Button>
-        </Popover.Trigger>
-        <Popover.Content className="w-80 p-0" align="end">
-          <div className="h-[420px]">
-            <ThreadList
-              threadsState={threadsState}
-              activeThreadId={chat.threadId}
-              onSelectThread={handleSelectThread}
-              onNewConversation={handleNewConversation}
-              onThreadDeleted={(deletedThreadId) => {
-                if (chat.threadId === deletedThreadId) {
-                  void chat.startNewConversation();
-                }
-              }}
-            />
-          </div>
-        </Popover.Content>
-      </Popover>
-      <Button variant="ghost" size="icon" className="size-7" asChild>
-        <Link
-          to={{
-            pathname: '/settings/agent',
-            search: new URLSearchParams({
-              [SIDE_PANEL_QUERY_KEY]: SIDE_PANEL_CHAT_PATH,
-            }).toString(),
-          }}
-          aria-label={t('settings', 'Settings')}
-        >
-          <IconSettings className="size-4" />
-        </Link>
-      </Button>
-      <Button
-        variant="ghost"
-        size="icon"
-        className="size-7"
-        onClick={onClose}
-        aria-label={t('close', 'Close')}
-      >
-        <IconX className="size-4" />
-      </Button>
-    </div>
+        </>
+      }
+    />
   );
 
   const contextRow = visibleRecord ? (

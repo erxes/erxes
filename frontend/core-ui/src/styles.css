@@ -389,13 +389,16 @@
 /* Assistant: a little movement around the conversation, never inside reports. */
 @media (prefers-reduced-motion: no-preference) {
   .agent-message-enter {
-    animation: agent-message-arrive 260ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation: agent-message-arrive 180ms ease-out both;
+  }
+  .agent-session-enter {
+    animation: agent-message-arrive 160ms ease-out both;
   }
   .agent-send {
-    transition: transform 180ms cubic-bezier(0.34, 1.56, 0.64, 1);
+    transition: transform 140ms ease-out;
   }
-  .agent-send:not(:disabled):hover { transform: translateY(-2px); }
-  .agent-send:not(:disabled):active { transform: scale(0.92); }
+  .agent-send:not(:disabled):hover { transform: translateY(-1px); }
+  .agent-send:not(:disabled):active { transform: scale(0.97); }
 }
 @keyframes agent-message-arrive {
   from { opacity: 0; transform: translateY(6px); }
