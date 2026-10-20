@@ -18,6 +18,9 @@
 //   "toolCases": { "sales.deals.get": [{ "input": { "_id": "d2" },
 //                  "error": { "code": "FORBIDDEN", "message": "..." } }] }
 // A call no case matches falls back to `tools`.
+// `secrets` gives ctx.secrets its values: { "GITHUB_TOKEN": "..." }. Fetches
+// go through the runtime's real egress checks against the extension's
+// `network` hosts.
 // Prints { ok, runs: [{ ok, data | error, ms }], writes, db } and exits 1
 // unless every run is ok. `writes` are the inserts, updates and deletes the
 // extension made on its own collections; `db` is what they left.
@@ -28,9 +31,11 @@ import { createServer } from 'node:http';
 import type { Indexes } from 'erxes-sdk';
 import { z } from 'zod';
 import { HostCallRequest, runContractCall } from '../src/contracts';
+import { egress } from '../src/egress';
 import { ApiError } from '../src/errors';
 import { conflict, HostDbRequest, parseDbOp } from '../src/hostDb';
 import { LIMITS } from '../src/limits';
+import type { Grant } from '../src/sandbox';
 import { bundleExtension, describeExtension } from './bundle';
 import {
   createToken,
@@ -63,6 +68,7 @@ const fixtureSchema = z.object({
       ),
     )
     .default({}),
+  secrets: z.record(z.string(), z.string()).default({}),
 });
 
 type Doc = Record<string, unknown>;
@@ -195,6 +201,19 @@ const main = async () => {
   const writes: { collection: string; op: string; doc: unknown }[] = [];
   const store = structuredClone(fixture.db);
 
+  // Every call shares one grant, as if it were one long call.
+  const grant: Grant = {
+    tenant: 'try',
+    extId: ext.id,
+    collections: ext.collections,
+    uses: ext.uses,
+    session: { token: '', hostname: '' },
+    network: ext.network,
+    egressCount: 0,
+    deadline: Date.now() + 60_000,
+    abort: new AbortController(),
+  };
+
   const handle = async (url: string | undefined, body: string) => {
     if (url !== '/contract') {
       return runDbOp(
@@ -236,17 +255,50 @@ const main = async () => {
   };
 
   const stub = createServer((req, res) => {
-    let body = '';
-    req.on('data', (chunk) => (body += chunk));
+    const chunks: Buffer[] = [];
+    req.on('data', (chunk: Buffer) => chunks.push(chunk));
     req.on('end', () => {
       if (req.headers['x-ext-runtime-token'] !== token) {
         res.writeHead(401).end();
         return;
       }
 
+      const body = Buffer.concat(chunks);
+
+      if (req.url === '/egress') {
+        const request = new Request('http://try/egress', {
+          method: req.method,
+          headers: Object.entries(req.headers).flatMap(([name, value]) =>
+            [value ?? []].flat().map((v): [string, string] => [name, v]),
+          ),
+          body: body.length > 0 ? body : null,
+        });
+
+        egress(grant, request).then(
+          async (upstream) => {
+            const headers: string[] = [];
+            upstream.headers.forEach((value, name) =>
+              headers.push(name, value),
+            );
+            res.writeHead(upstream.status, headers);
+            res.end(Buffer.from(await upstream.arrayBuffer()));
+          },
+          (e: unknown) => {
+            const error =
+              e instanceof ApiError
+                ? e
+                : new ApiError(502, 'EGRESS_FAILED', String(e));
+            res
+              .writeHead(error.status, { 'content-type': 'application/json' })
+              .end(JSON.stringify({ ok: false, error: error.body() }));
+          },
+        );
+        return;
+      }
+
       res.setHeader('content-type', 'application/json');
 
-      handle(req.url, body).then(
+      handle(req.url, body.toString()).then(
         (data) => res.end(JSON.stringify({ ok: true, data })),
         (e: unknown) => {
           const error =
@@ -287,6 +339,8 @@ const main = async () => {
           name,
           input,
           user: { _id: 'try-user' },
+          network: ext.network.length > 0,
+          secrets: fixture.secrets,
         }),
       }).catch((e: unknown) => {
         throw new Error(

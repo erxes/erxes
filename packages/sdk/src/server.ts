@@ -53,6 +53,31 @@ export type Erxes = {
   >;
 };
 
+// Hosts the extension may fetch, over https on port 443 only. A leading `*.`
+// matches subdomains, not the domain itself:
+//
+//   export const network = defineNetwork(['api.github.com', '*.slack.com']);
+//
+// Without it, every fetch fails. Install refuses IPs, ports, paths, schemes
+// and a bare `*`.
+export const defineNetwork = (hosts: string[]) => hosts;
+
+// Values the owner sets in Settings > Extensions, by name, each with the
+// description the owner reads there. Names are upper snake case:
+//
+//   export const secrets = defineSecrets({
+//     GITHUB_TOKEN: 'Personal access token with repo scope',
+//   });
+//
+// Register it (`secrets: typeof secrets`) to type `ctx.secrets`.
+export type Secrets = Record<string, string>;
+
+export const defineSecrets = <const S extends Secrets>(secrets: S) => secrets;
+
+type RegisteredSecrets = Register extends { secrets: infer S extends Secrets }
+  ? S
+  : Record<never, never>;
+
 // Every function names the action a caller needs. 'public' means any
 // signed-in user.
 export type Permission = PermissionName | 'public';
@@ -127,6 +152,8 @@ export type Ctx = {
     [K in keyof RegisteredSchema]: Collection<z.output<RegisteredSchema[K]>>;
   };
   erxes: Erxes;
+  // Undefined until the owner sets the value.
+  secrets: { readonly [K in keyof RegisteredSecrets]: string | undefined };
 };
 
 export type FunctionKind = 'query' | 'mutation';
@@ -177,7 +204,7 @@ const isFunction = (value: unknown): value is ExtensionFunction =>
   (value.kind === 'query' || value.kind === 'mutation');
 
 // Reads an extension's server barrel: `schema`, `permissions`, `uses`,
-// `indexes`, plus one namespace per file
+// `indexes`, `network`, `secrets`, plus one namespace per file
 // (`export * as agents from './agents'`). A function's name is its path,
 // `agents.list`.
 export const collectExtension = (mod: Record<string, unknown>) => {
@@ -189,6 +216,8 @@ export const collectExtension = (mod: Record<string, unknown>) => {
       name === 'permissions' ||
       name === 'uses' ||
       name === 'indexes' ||
+      name === 'network' ||
+      name === 'secrets' ||
       name === 'default'
     ) {
       continue;
@@ -209,6 +238,8 @@ export const collectExtension = (mod: Record<string, unknown>) => {
   const permissions = (mod.permissions ?? {}) as Permissions;
   const uses = (mod.uses ?? {}) as Record<string, number>;
   const indexes = (mod.indexes ?? {}) as Indexes;
+  const network = (mod.network ?? []) as string[];
+  const secrets = (mod.secrets ?? {}) as Secrets;
 
-  return { schema, permissions, uses, indexes, functions };
+  return { schema, permissions, uses, indexes, network, secrets, functions };
 };

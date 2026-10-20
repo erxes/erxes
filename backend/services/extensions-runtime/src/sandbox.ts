@@ -21,6 +21,11 @@ import {
 // - No watchdog after a call returns: work a call leaves running (waitUntil,
 //   timers) keeps using CPU in its tenant's process until the process is
 //   stopped.
+// - Egress responses are buffered in the runtime, up to
+//   LIMITS.egressResponseBytes each, before the extension sees them, and
+//   nothing bounds egress across calls beyond the call concurrency limits.
+// - An install that declares network hosts loads a fresh isolate for every
+//   call (see supervisor.js), so its calls pay the bundle's startup each time.
 
 // Where workerd's Host entrypoint calls back into the runtime (loopback only).
 export const HOST_PORT = Number(process.env.EXT_HOST_PORT || 3321);
@@ -39,7 +44,8 @@ export const HOST_TOKEN = createToken();
 // call returns or times out, so a straggling db call from a killed run is
 // refused. It also carries the caller's session and the install's pinned
 // contracts, so a contract call runs as the caller and only on what the
-// install pinned.
+// install pinned, and the install's network allowlist, so /egress reaches
+// only those hosts and only while the call runs.
 
 export type Session = { token: string; hostname: string };
 
@@ -49,6 +55,9 @@ export type Grant = {
   collections: string[];
   uses: Record<string, number>;
   session: Session;
+  network: string[];
+  // Requests made through /egress so far.
+  egressCount: number;
   // When the run times out (epoch ms).
   deadline: number;
   // Aborted on revocation, so an upstream call still holding the caller's
@@ -278,6 +287,9 @@ export type Run = {
   codeHash: string;
   collections: string[];
   uses: Record<string, number>;
+  network: string[];
+  // Decrypted values of the declared secrets the owner set.
+  secrets: Record<string, string>;
   name: string;
   input: unknown;
   user: { _id: string };
@@ -314,6 +326,8 @@ const callSlot = async (slot: Slot, grant: string, run: Run) => {
         name: run.name,
         input: run.input,
         user: run.user,
+        network: run.network.length > 0,
+        secrets: run.secrets,
       }),
       signal: AbortSignal.timeout(LIMITS.runTimeoutMs),
     });
@@ -389,6 +403,8 @@ export const invoke = async (run: Run): Promise<InvokeResult> => {
     collections: run.collections,
     uses: run.uses,
     session: run.session,
+    network: run.network,
+    egressCount: 0,
     deadline: Date.now() + LIMITS.runTimeoutMs,
     abort: new AbortController(),
   };

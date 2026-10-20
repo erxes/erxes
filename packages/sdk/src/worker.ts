@@ -108,11 +108,16 @@ const fromThrown = (e: unknown): InvokeResult => {
 };
 
 // Default export of every extension bundle: `serve(await import('./server'))`.
-// The supervisor calls `invoke` with a Host stub made for this invocation.
+// The supervisor calls `invoke` with a Host stub made for this invocation and
+// the install's secrets the owner has set.
 export const serve = (mod: Record<string, unknown>) => {
-  const { schema, functions } = collectExtension(mod);
+  const { schema, secrets: declared, functions } = collectExtension(mod);
 
-  const context = (user: { _id: string }, host: Host): Ctx => ({
+  const context = (
+    user: { _id: string },
+    host: Host,
+    secrets: Record<string, string>,
+  ): Ctx => ({
     user,
     db: Object.fromEntries(
       Object.entries(schema).map(([name, s]) => [
@@ -122,6 +127,13 @@ export const serve = (mod: Record<string, unknown>) => {
     ),
     // Typed by the pinned contracts; the proxy itself is untyped.
     erxes: contractPath(host, []) as Ctx['erxes'],
+    // Only the declared names, so a value the runtime sent by mistake stays
+    // out of reach.
+    secrets: Object.freeze(
+      Object.fromEntries(
+        Object.keys(declared).map((name) => [name, secrets[name]]),
+      ),
+    ),
   });
 
   return class extends WorkerEntrypoint {
@@ -130,6 +142,7 @@ export const serve = (mod: Record<string, unknown>) => {
       input: unknown,
       user: { _id: string },
       host: Host,
+      secrets: Record<string, string> = {},
     ): Promise<InvokeResult> {
       const f = functions.get(name);
 
@@ -150,7 +163,10 @@ export const serve = (mod: Record<string, unknown>) => {
           );
         }
 
-        const data = await f.handler(context(user, host), parsed.data);
+        const data = await f.handler(
+          context(user, host, secrets),
+          parsed.data,
+        );
 
         if (!f.output) {
           return { ok: true, data };

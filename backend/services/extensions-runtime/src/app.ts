@@ -19,6 +19,7 @@ import jwt from 'jsonwebtoken';
 import { z } from 'zod';
 import { generateModels } from './connectionResolver';
 import { gatewayUpstream, HostCallRequest, runContractCall } from './contracts';
+import { egress, GRANT_HEADER } from './egress';
 import { ApiError, invalidInput } from './errors';
 import {
   conflict,
@@ -40,6 +41,14 @@ import {
 import { LIMITS } from './limits';
 import { actionName } from './permissions';
 import { findGrant, HOST_TOKEN, invoke, type Session } from './sandbox';
+import {
+  deleteSecret,
+  listSecrets,
+  loadSecrets,
+  redact,
+  SecretValue,
+  setSecret,
+} from './secrets';
 
 // Registered in service discovery, so the gateway proxies /pl:extensions/* here
 // after its user middleware has checked the session.
@@ -253,6 +262,12 @@ export const app = new Hono<Env>()
 
     // An empty body is an empty input, not an error.
     const input: unknown = await c.req.json().catch(() => ({}));
+    const secrets = await loadSecrets(
+      models,
+      tenant,
+      extId,
+      Object.keys(ext.secrets ?? {}),
+    );
     const result = await invoke({
       tenant,
       extId,
@@ -261,11 +276,17 @@ export const app = new Hono<Env>()
       codeHash: ext.codeHash,
       collections: ext.collections,
       uses: ext.uses ?? {},
+      network: ext.network ?? [],
+      secrets,
       name: fn,
       input,
       user: { _id: user._id },
       session,
     });
+
+    if (!result.ok) {
+      result.error.message = redact(result.error.message, secrets);
+    }
 
     await models.ExtensionRuns.create({
       subdomain: tenant,
@@ -420,6 +441,42 @@ export const app = new Hono<Env>()
     },
   )
 
+  // Secrets the install declares: names and whether each is set, never
+  // values. Disable keeps them; uninstall with purge deletes them.
+  .get('/secrets/:extId', signedIn, owner, async (c) => {
+    const { tenant } = c.get('caller');
+    const models = await generateModels(tenant);
+    return c.json({
+      ok: true as const,
+      data: await listSecrets(models, tenant, c.req.param('extId')),
+    });
+  })
+
+  .put(
+    '/secrets/:extId/:name',
+    signedIn,
+    owner,
+    validate('json', SecretValue),
+    async (c) => {
+      const { tenant } = c.get('caller');
+      const { extId, name } = c.req.param();
+      const models = await generateModels(tenant);
+      await setSecret(models, tenant, extId, name, c.req.valid('json').value);
+      return c.json({
+        ok: true as const,
+        data: { id: extId, name, set: true },
+      });
+    },
+  )
+
+  .delete('/secrets/:extId/:name', signedIn, owner, async (c) => {
+    const { tenant } = c.get('caller');
+    const { extId, name } = c.req.param();
+    const models = await generateModels(tenant);
+    await deleteSecret(models, tenant, extId, name);
+    return c.json({ ok: true as const, data: { id: extId, name, set: false } });
+  })
+
   // Disabled extensions keep their data and builds, but run nothing, and their
   // UI and permissions disappear until enabled again.
   .post('/disable/:extId', signedIn, owner, async (c) => {
@@ -540,4 +597,14 @@ export const hostApp = new Hono()
       return c.json({ ok: true as const, data });
     },
   )
+  // One fetch the extension made, from the supervisor's Egress entrypoint.
+  .all('/egress', maxBody(LIMITS.egressRequestBytes), async (c) => {
+    const grant = findGrant(c.req.header(GRANT_HEADER) ?? '');
+
+    if (!grant) {
+      throw new ApiError(403, 'GRANT_EXPIRED', 'This call has already ended');
+    }
+
+    return egress(grant, c.req.raw);
+  })
   .onError(onError);

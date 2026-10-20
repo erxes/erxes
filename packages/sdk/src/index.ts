@@ -1,5 +1,10 @@
 export { collectExtension } from './server';
-export type { Indexes, InvokeErrorCode, InvokeResult } from './server';
+export type {
+  Indexes,
+  InvokeErrorCode,
+  InvokeResult,
+  Secrets,
+} from './server';
 export { ExtensionError, toIssues } from './errors';
 export type { ErrorBody, ErrorIssue } from './errors';
 export { contracts, findContract, toDocument } from './contracts';

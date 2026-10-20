@@ -9,6 +9,14 @@ import { LIMITS } from './limits';
 import { pluginName, rebuildPermissions } from './permissions';
 import { revokeGrants } from './sandbox';
 
+// A hostname, or `*.` and a domain of at least two labels. The last label
+// starts with a letter, so an IPv4 address never matches; ports, paths,
+// schemes, IPv6 and a bare `*` have characters the pattern doesn't allow.
+const HOST_PATTERN =
+  /^(\*\.)?([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]([a-z0-9-]{0,61}[a-z0-9])?$/;
+
+export const SECRET_NAME = /^[A-Z][A-Z0-9_]{0,63}$/;
+
 export const InstallBody = z.object({
   id: z.string().regex(/^[a-z][a-z0-9-]*$/),
   version: z.string().min(1),
@@ -52,6 +60,25 @@ export const InstallBody = z.object({
           .strict(),
       ),
     )
+    .default({}),
+  network: z
+    .array(
+      z
+        .string()
+        .max(253)
+        .regex(
+          HOST_PATTERN,
+          'a lowercase hostname or *.domain, without scheme, port, path or IP',
+        ),
+    )
+    .max(LIMITS.maxNetworkHosts)
+    .default([]),
+  // name -> description shown to the owner.
+  secrets: z
+    .record(z.string().regex(SECRET_NAME), z.string().max(500))
+    .refine((secrets) => Object.keys(secrets).length <= LIMITS.maxSecrets, {
+      message: `at most ${LIMITS.maxSecrets} secrets`,
+    })
     .default({}),
   ui: z
     .object({
@@ -143,6 +170,8 @@ export const activateVersion = async (
         functionPermissions: build.functionPermissions,
         uses: build.uses ?? {},
         indexes: build.indexes ?? {},
+        network: build.network ?? [],
+        secrets: build.secrets ?? {},
         status: 'installed',
         installedBy: build.installedBy,
         installedAt: new Date(),
@@ -244,6 +273,8 @@ export const installBuild = async (
     functionPermissions: body.functionPermissions,
     uses: body.uses,
     indexes: body.indexes,
+    network: body.network,
+    secrets: body.secrets,
     uiRemote: ui?.remote,
     installedBy: userId,
   });
@@ -270,9 +301,10 @@ export const setStatus = async (
   await rebuildPermissions(models, tenant);
 };
 
-// Uninstall keeps data and builds. Purge also drops every collection any
-// installed version declared, so a collection an older version used, and a
-// later one dropped or renamed, is not left behind.
+// Uninstall keeps data, builds and secrets. Purge also drops every
+// collection any installed version declared, so a collection an older
+// version used, and a later one dropped or renamed, is not left behind, and
+// deletes the secrets the owner set.
 export const uninstall = async (
   models: IModels,
   tenant: string,
@@ -301,6 +333,7 @@ export const uninstall = async (
     ]);
 
     await dropCollections(models.Extensions.db, extId, [...collections]);
+    await models.ExtensionSecrets.deleteMany({ subdomain: tenant, extId });
   }
 
   await rebuildPermissions(models, tenant);

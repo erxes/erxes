@@ -1,4 +1,4 @@
-import type { Indexes } from 'erxes-sdk';
+import type { Indexes, Secrets } from 'erxes-sdk';
 import { Connection, Model, Schema } from 'mongoose';
 import {
   createGenerateModels,
@@ -23,6 +23,11 @@ export interface IExtensionDocument {
   uses: Record<string, number>;
   // Collection -> the indexes the build declared, created on activation.
   indexes: Indexes;
+  // Hosts the extension may fetch over https, e.g. ['api.github.com'].
+  network: string[];
+  // Secret name -> the description the owner sees. Values live in
+  // extension_secrets.
+  secrets: Secrets;
   // Module Federation remote name, when the extension ships a UI.
   uiRemote?: string;
   status: 'installed' | 'disabled';
@@ -43,6 +48,8 @@ const extensionSchema = new Schema<IExtensionDocument>({
   functionPermissions: { type: Schema.Types.Mixed, default: {} },
   uses: { type: Schema.Types.Mixed, default: {} },
   indexes: { type: Schema.Types.Mixed, default: {} },
+  network: { type: [String], default: [] },
+  secrets: { type: Schema.Types.Mixed, default: {} },
   uiRemote: { type: String },
   status: {
     type: String,
@@ -101,6 +108,8 @@ export type ExtensionBuild = Pick<
   | 'functionPermissions'
   | 'uses'
   | 'indexes'
+  | 'network'
+  | 'secrets'
   | 'uiRemote'
 >;
 
@@ -127,6 +136,8 @@ const extensionVersionSchema = new Schema<IExtensionVersionDocument>({
   functionPermissions: { type: Schema.Types.Mixed, default: {} },
   uses: { type: Schema.Types.Mixed, default: {} },
   indexes: { type: Schema.Types.Mixed, default: {} },
+  network: { type: [String], default: [] },
+  secrets: { type: Schema.Types.Mixed, default: {} },
   uiRemote: { type: String },
   installedBy: { type: String, required: true },
   installedAt: { type: Date, default: Date.now },
@@ -157,11 +168,39 @@ const extensionAssetSchema = new Schema<IExtensionAssetDocument>({
 
 extensionAssetSchema.index({ subdomain: 1, extId: 1 });
 
+// One secret value an owner set, encrypted with EXT_SECRETS_KEY (see
+// secrets.ts). Kept across disable and plain uninstall, dropped by purge.
+export interface IExtensionSecretDocument {
+  // `${tenant}:${extId}:${name}`
+  _id: string;
+  subdomain: string;
+  extId: string;
+  name: string;
+  iv: string;
+  tag: string;
+  ciphertext: string;
+  updatedAt: Date;
+}
+
+const extensionSecretSchema = new Schema<IExtensionSecretDocument>({
+  _id: { type: String, required: true },
+  subdomain: { type: String, required: true },
+  extId: { type: String, required: true },
+  name: { type: String, required: true },
+  iv: { type: String, required: true },
+  tag: { type: String, required: true },
+  ciphertext: { type: String, required: true },
+  updatedAt: { type: Date, default: Date.now },
+});
+
+extensionSecretSchema.index({ subdomain: 1, extId: 1 });
+
 export interface IModels {
   Extensions: Model<IExtensionDocument>;
   ExtensionRuns: Model<IExtensionRunDocument>;
   ExtensionAssets: Model<IExtensionAssetDocument>;
   ExtensionVersions: Model<IExtensionVersionDocument>;
+  ExtensionSecrets: Model<IExtensionSecretDocument>;
 }
 
 const loadClasses = (db: Connection): IModels => ({
@@ -177,6 +216,10 @@ const loadClasses = (db: Connection): IModels => ({
   ExtensionVersions: db.model<IExtensionVersionDocument>(
     'extension_versions',
     extensionVersionSchema,
+  ),
+  ExtensionSecrets: db.model<IExtensionSecretDocument>(
+    'extension_secrets',
+    extensionSecretSchema,
   ),
 });
 
