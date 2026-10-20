@@ -6,7 +6,7 @@
 - **Project:** `content_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/content_ui`
-- **Last synchronized:** `2026-10-18`
+- **Last synchronized:** `2026-10-20`
 
 ## Scope
 
@@ -94,6 +94,14 @@
   plus the non-lossy editor document before the existing submission boundary.
 - CMS post serialization must invalidate stale asynchronous HTML output after
   edits, external document replacement, and editor unmount.
+- CMS routes are keyed by `clientPortalId` (the `websiteId` param), so each
+  CMS must use its own real client portal. The CMS drawer has no default
+  portal, rejects unknown portals and disables portals bound to another CMS;
+  an edit that keeps a CMS's stored portal is allowed so content never moves.
+- The page form schema accepts only `active`/`inactive` status, while table and
+  bulk edits store `published`/`draft`/`scheduled`; the page editor maps stored
+  values and null attachment fields on load. Page save reports validation
+  failures with a toast instead of silently doing nothing.
 - Post form category option labels show the full parent path, while option
   values remain category IDs and multiple selections remain available.
 - Asynchronous legacy HTML restoration must capture a revision before parsing
