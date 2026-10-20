@@ -3,7 +3,7 @@ import type {
   OperationVariables,
   QueryOptions,
 } from '@apollo/client';
-import type { Slots } from './Slots';
+import type { RecordContentType, Slots } from './Slots';
 
 export type TSearchPayload = Readonly<Record<string, unknown>>;
 
@@ -159,6 +159,8 @@ export type IUIConfig = {
       name: string;
       icon?: React.ElementType;
       label?: string;
+      /** Records whose side tabs show it. Omitted: every record. */
+      contentTypes?: RecordContentType[];
     }[];
     // Sections a plugin adds to another plugin's settings page, e.g. what a
     // POS or a pipeline sends to loyalty.
@@ -197,6 +199,12 @@ export type IUIConfig = {
   searchProviders?: ISearchProvider[];
   /** Maps a slot name to the expose of this plugin that fills it. */
   slots?: { [K in keyof Slots]?: string };
+  /**
+   * Maps a record type to the expose of this plugin that renders its actions.
+   * It shows in that record's detail header and in its list's bulk bar, and
+   * reads the records through `useRecordSelection()` (ui-modules).
+   */
+  recordActions?: { [K in RecordContentType]?: string };
   /**
    * The plugin an extension lives in, e.g. `'sales'`. Its `modules` show in
    * that plugin's main sidebar (`AppLayout` id `'sales'`). Its pages render
