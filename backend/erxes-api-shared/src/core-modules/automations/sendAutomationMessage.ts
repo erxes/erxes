@@ -2,10 +2,7 @@ import { TCreatedVia } from '../../core-types/common';
 import { sendWorkerQueue } from '../../utils/mq-worker';
 import type { DefaultJobOptions } from 'bullmq';
 import { createTRPCUntypedClient, httpBatchLink } from '@trpc/client';
-import {
-  encodeTRPCContextHeader,
-  trpcContextHeaderName,
-} from '../../utils/trpc';
+import { createTRPCRequestHeaders } from '../../utils/trpc';
 import { redis } from '../../utils/redis';
 
 type TSendAutomationTriggerProps = {
@@ -54,19 +51,18 @@ export const sendAutomationTrigger = (
           );
         }
 
-        const contextHeader = encodeTRPCContextHeader(
+        const requestHeaders = createTRPCRequestHeaders(
           subdomain,
           'mutation',
           {},
+          'automations.trigger',
         );
 
         const client = createTRPCUntypedClient({
           links: [
             httpBatchLink({
               url: trpcUrl,
-              headers: () => ({
-                [trpcContextHeaderName]: contextHeader,
-              }),
+              headers: () => requestHeaders,
             }),
           ],
         });
@@ -141,19 +137,18 @@ export const sendAutomationRun = (
           );
         }
 
-        const contextHeader = encodeTRPCContextHeader(
+        const requestHeaders = createTRPCRequestHeaders(
           subdomain,
           'mutation',
           {},
+          'automations.runForTarget',
         );
 
         const client = createTRPCUntypedClient({
           links: [
             httpBatchLink({
               url: trpcUrl,
-              headers: () => ({
-                [trpcContextHeaderName]: contextHeader,
-              }),
+              headers: () => requestHeaders,
             }),
           ],
         });
@@ -204,13 +199,13 @@ export const sendAutomationDeferredCompletion = async (
     links: [
       httpBatchLink({
         url: `${address}/trpc`,
-        headers: () => ({
-          [trpcContextHeaderName]: encodeTRPCContextHeader(
+        headers: () =>
+          createTRPCRequestHeaders(
             subdomain,
             'mutation',
             {},
+            'automations.completeDeferredAction',
           ),
-        }),
       }),
     ],
   });
