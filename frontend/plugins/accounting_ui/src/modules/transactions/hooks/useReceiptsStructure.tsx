@@ -50,13 +50,14 @@ export const useReceiptsBranches = () => {
       },
       updateQuery: (prev, { fetchMoreResult }) => {
         if (!fetchMoreResult) return prev;
-        return Object.assign({}, prev, {
+        return {
+          ...prev,
           branchesMain: mergeGraphqlCursorData({
             direction: EnumCursorDirection.FORWARD,
             fetchMoreResult: fetchMoreResult.branchesMain,
             prevResult: prev.branchesMain,
           }),
-        });
+        };
       },
     }),
   );
@@ -84,13 +85,14 @@ export const useReceiptsDepartments = () => {
       },
       updateQuery: (prev, { fetchMoreResult }) => {
         if (!fetchMoreResult) return prev;
-        return Object.assign({}, prev, {
+        return {
+          ...prev,
           departmentsMain: mergeGraphqlCursorData({
             direction: EnumCursorDirection.FORWARD,
             fetchMoreResult: fetchMoreResult.departmentsMain,
             prevResult: prev.departmentsMain,
           }),
-        });
+        };
       },
     }),
   );

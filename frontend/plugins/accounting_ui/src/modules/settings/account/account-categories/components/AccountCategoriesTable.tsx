@@ -83,7 +83,8 @@ export const AccountCategoriesTable = () => {
     );
   }, [accountCategories]);
 
-  const isEmpty = !loading && !accountCategories?.length;
+  const isEmpty = !loading && !visibleCategories.length;
+  const isFilteredEmpty = isFiltered && Boolean(accountCategories?.length);
 
   return (
     <RecordTable.Provider
@@ -126,16 +127,6 @@ export const AccountCategoriesTable = () => {
               {isInitialLoading && (
                 <AccountCategoriesInitialSkeleton rows={20} />
               )}
-              {!isInitialLoading && isFiltered && !visibleCategories.length && (
-                <Table.Row>
-                  <Table.Cell
-                    colSpan={accountCategoriesColumns(t).length}
-                    className="h-24 text-center text-muted-foreground"
-                  >
-                    {t('no-results-found')}
-                  </Table.Cell>
-                </Table.Row>
-              )}
             </RecordTable.Body>
           </RecordTable>
         </RecordTable.Scroll>
@@ -146,8 +137,12 @@ export const AccountCategoriesTable = () => {
           overlay
           error={error}
           icon={IconFolderOff}
-          description={t('empty-list-description')}
-          action={<AddAccountCategory />}
+          description={
+            isFilteredEmpty
+              ? t('empty-filter-description')
+              : t('empty-list-description')
+          }
+          action={isFilteredEmpty ? undefined : <AddAccountCategory />}
         />
       )}
     </RecordTable.Provider>
