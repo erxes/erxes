@@ -1,7 +1,6 @@
 import { QueryHookOptions, useMutation, useQuery } from '@apollo/client';
 import {
   EnumCursorDirection,
-  isUndefinedOrNull,
   parseDateRangeFromString,
   useMultiQueryState,
   useRecordTableCursor,
@@ -142,7 +141,6 @@ export const useCheckSyncedDeals = (
   );
   const { data, loading, fetchMore } = useQuery(checkSyncedDealsQuery, {
     ...options,
-    skip: options?.skip || isUndefinedOrNull(variables.cursor),
     variables,
   });
 
@@ -441,7 +439,7 @@ export const useCheckSyncedDeals = (
   };
 
   useEffect(() => {
-    if (typeof totalCount === 'number') setCheckSyncedDealsTotalCount(totalCount);
+    if (totalCount !== undefined) setCheckSyncedDealsTotalCount(totalCount);
   }, [totalCount, setCheckSyncedDealsTotalCount]);
 
   useEffect(() => {

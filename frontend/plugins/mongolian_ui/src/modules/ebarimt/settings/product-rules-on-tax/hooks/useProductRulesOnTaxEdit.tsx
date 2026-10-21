@@ -19,7 +19,7 @@ export const useProductRulesOnTaxEdit = () => {
       update: (cache, { data }) => {
         if (data?.ebarimtProductRuleUpdate) {
           cache.evict({
-            fieldName: 'ebarimtProductRules',
+            fieldName: 'ebarimtProductRulesOnTax',
           });
           cache.gc();
 

@@ -12,7 +12,8 @@ import { compactList } from '@/shared/utils/cursorList';
 import type { EbarimtPutResponsesDuplicatedQueryVariables } from '~/gql/graphql';
 import { duplicatedTotalCountAtom } from '../states/DuplicatedCounts';
 
-export const DUPLICATED_PER_PAGE = 30;
+// The resolver's default page size, which the list has always loaded.
+export const DUPLICATED_PER_PAGE = 20;
 
 export const useDuplicatedVariables =
   (): EbarimtPutResponsesDuplicatedQueryVariables => {

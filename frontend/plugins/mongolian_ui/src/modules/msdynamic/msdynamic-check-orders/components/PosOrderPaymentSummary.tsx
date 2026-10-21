@@ -25,14 +25,14 @@ export const PosOrderPaymentSummary = ({
 
       <DetailSection title={t('payment-breakdown')}>
         <div className="grid grid-cols-1 gap-x-6 rounded-md border border-border/70 px-4 md:grid-cols-2">
-          {typeof orders.cashAmount === 'number' && (
+          {orders.cashAmount !== undefined && (
             <DetailRow
               label={t('cash-amount')}
               value={formatAmount(orders.cashAmount)}
               strong
             />
           )}
-          {typeof orders.mobileAmount === 'number' && (
+          {orders.mobileAmount !== undefined && (
             <DetailRow
               label={t('mobile-amount')}
               value={formatAmount(orders.mobileAmount)}

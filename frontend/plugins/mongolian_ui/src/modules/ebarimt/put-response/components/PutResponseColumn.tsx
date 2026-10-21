@@ -1,4 +1,4 @@
-import { jsonArray, jsonRecords } from '@/shared/utils/json';
+import { jsonArray, jsonRecord } from '@/shared/utils/json';
 import {
   IconCategory,
   IconCurrencyDollar,
@@ -41,10 +41,9 @@ export const putResponseColumns: ColumnDef<IPutResponse>[] = [
     accessorKey: 'billId',
     header: () => <HeaderCell icon={IconLabel} label="sub-bill-ids" />,
     cell: ({ row }) => {
-      const receipts = jsonRecords<{ id?: string }>(
-        jsonArray(row.original.receipts),
-      );
-      const receiptId = receipts[0]?.id || '-';
+      const receiptId =
+        jsonRecord<{ id?: string }>(jsonArray(row.original.receipts)[0])?.id ||
+        '-';
       return (
         <RecordTableInlineCell>
           <TextOverflowTooltip value={receiptId} />

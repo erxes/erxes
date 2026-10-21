@@ -92,7 +92,7 @@ const CheckSyncedOrders = () => {
     if (!orders?.length) return;
 
     let active = true;
-    const orderIds = orders.flatMap((order) => (order._id ? [order._id] : []));
+    const orderIds = orders.map((order) => order._id);
 
     const checkSyncedOrders = async () => {
       try {

@@ -6,7 +6,7 @@
 - **Project:** `mongolian_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/mongolian_ui`
-- **Last synchronized:** `2026-10-20`
+- **Last synchronized:** `2026-10-21`
 
 ## Scope
 
@@ -73,8 +73,9 @@
   by GraphQL codegen against the composed gateway schema; Apollo hooks infer
   result and variable
   types from the document.
-- Duplicated put responses load more by the resolver's `page`/`perPage`
-  arguments, forward only; product rules on tax load more by cursor.
+- Duplicated put responses load 20 rows per page (the resolver's default) by
+  its `page`/`perPage` arguments, forward only; product rules on tax load more
+  by cursor, and a created rule is prepended to the cached first page.
 
 ## Architecture
 
@@ -206,9 +207,9 @@
   build the `subId` and normalized rule ids.
 - The product-rules-on-tax edit sheet reads its detail only from the clicked
   row's atom (the API has no single-rule query); an id in the URL with no
-  matching atom detail is cleared so the sheet closes.
-- MS Dynamic settings compare each config after merging defaults, the same way
-  they are displayed, so saving only updates configs that changed.
+  matching atom detail gives the sheet no detail.
+- MS Dynamic settings show and compare each stored config value as saved, so
+  saving only updates configs whose value changed.
 - The product remainder provider must no-op when no sales `pipelineId` or no
   `remainderConfig` exists for that pipeline.
 - Write documents as ``gql(`...`)`` from `~/gql` with no `${}` interpolation;

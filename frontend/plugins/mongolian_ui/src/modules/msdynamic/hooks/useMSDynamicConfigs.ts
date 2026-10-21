@@ -9,18 +9,12 @@ import {
   REMOVE_MN_CONFIG,
   UPDATE_MN_CONFIG,
 } from '@/shared/graphql/mnConfigs';
-import { createEmptyMSDynamicConfig } from '../types';
 import {
   IConfigsMap,
   IMnConfig,
   IMSDynamicConfig,
   IMSDynamicConfigMap,
 } from '../types/types';
-
-const toMSDynamicConfig = (value: unknown): IMSDynamicConfig => ({
-  ...createEmptyMSDynamicConfig(),
-  ...jsonRecord<Partial<IMSDynamicConfig>>(value),
-});
 
 /** MS Dynamic configs hook for crud and save */
 export const useMSDynamicConfigs = () => {
@@ -39,8 +33,9 @@ export const useMSDynamicConfigs = () => {
 
   const configsMap: IConfigsMap = {
     DYNAMIC: configDocs.reduce((acc, doc) => {
-      if (doc.subId) {
-        acc[doc.subId] = toMSDynamicConfig(doc.value);
+      const value = jsonRecord<IMSDynamicConfig>(doc.value);
+      if (doc.subId && value) {
+        acc[doc.subId] = value;
       }
       return acc;
     }, {} as IMSDynamicConfigMap),
@@ -76,10 +71,7 @@ export const useMSDynamicConfigs = () => {
               variables: { code: 'DYNAMIC', subId, value },
             }),
           );
-        } else if (
-          JSON.stringify(toMSDynamicConfig(current.value)) !==
-          JSON.stringify(value)
-        ) {
+        } else if (JSON.stringify(current.value) !== JSON.stringify(value)) {
           updates.push(
             updateConfig({
               variables: { id: current._id, subId, value },

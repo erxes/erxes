@@ -9,7 +9,6 @@ import {
   useFilterContext,
   useQueryState,
 } from 'erxes-ui';
-import { useDebounce } from 'use-debounce';
 import React, { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { IconLabel } from '@tabler/icons-react';
@@ -104,18 +103,10 @@ const SelectPosCommandItem = ({ pos }: { pos: IPos }) => {
 
 const SelectPosContent = () => {
   const [search, setSearch] = React.useState('');
-  const [debouncedSearch] = useDebounce(search, 500);
   const { pos: selectedPos } = useSelectPosContext();
   const { t } = useTranslation('mongolian');
 
-  const {
-    posList = [],
-    loading,
-    handleFetchMore,
-    totalCount = 0,
-  } = usePos({
-    variables: { search: debouncedSearch },
-  });
+  const { posList = [], loading, handleFetchMore, totalCount = 0 } = usePos();
 
   return (
     <Command shouldFilter={false} id="pos-command-menu">
