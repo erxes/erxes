@@ -6,7 +6,7 @@
 - **Project:** `sales_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/sales_ui`
-- **Last synchronized:** `2026-10-20`
+- **Last synchronized:** `2026-10-21`
 
 ## Scope
 
@@ -441,6 +441,9 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   Frontline `KbDisclosure`; do not swap it back to `Collapsible.Content`,
   which mounts and unmounts instantly. Closed lists stay `invisible` so their
   links are not tabbable.
+- The POS ORDER sidebar (`pos/PosOrderNavigation.tsx`) reuses
+  `BoardDisclosure` for each POS row (controlled `open`, initially the active
+  POS) and the same `Sidebar.MenuSkeleton` row loader as BOARDS.
 - Expandable group rows (boards, POS) use `rounded-lg`; an active board row is
   gray (`bg-foreground/5 text-foreground`) while its active pipeline item keeps
   the purple `Sidebar.MenuButton` active tint, so the two never stack purple.
