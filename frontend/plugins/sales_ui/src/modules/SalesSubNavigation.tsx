@@ -1,14 +1,7 @@
-import {
-  IconChevronRight,
-  IconDotsVertical,
-  IconLink,
-  IconPlus,
-  IconSettings,
-} from '@tabler/icons-react';
+import { IconChevronRight, IconPlus } from '@tabler/icons-react';
 import {
   Button,
   Collapsible,
-  DropdownMenu,
   NavigationMenuGroup,
   Sidebar,
   Skeleton,
@@ -17,9 +10,8 @@ import {
   isDefined,
   useMultiQueryState,
   useQueryState,
-  useToast,
 } from 'erxes-ui';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 
 import { BoardDisclosure } from '@/deals/boards/components/BoardDisclosure';
 import { BoardsNavigationActions } from '@/deals/boards/components/BoardsNavigationActions';
@@ -192,69 +184,6 @@ function BoardItem({
   );
 }
 
-const ActionsMenu = () => {
-  const navigate = useNavigate();
-
-  const { toast } = useToast();
-
-  const { t } = useTranslation('sales');
-
-  const handleCopyLink = async () => {
-    const link = `${window.location.origin}/settings/deals`;
-
-    try {
-      await navigator.clipboard.writeText(link);
-      toast({
-        variant: 'default',
-        title: t('link-copied-to-clipboard'),
-      });
-    } catch (e) {
-      toast({
-        variant: 'destructive',
-        title: t('failed-to-copy-link'),
-        description: e as string,
-      });
-    }
-  };
-
-  return (
-    <DropdownMenu>
-      <DropdownMenu.Trigger asChild>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="invisible group-hover/trigger:visible absolute top-1/2 -translate-y-1/2 right-1 text-muted-foreground"
-          onClick={(e) => {
-            e.stopPropagation();
-          }}
-        >
-          <IconDotsVertical className="size-4" />
-        </Button>
-      </DropdownMenu.Trigger>
-      <DropdownMenu.Content side="right" align="start" className="w-60 min-w-0">
-        <DropdownMenu.Item
-          className="cursor-pointer"
-          onSelect={() => {
-            navigate(`/settings/deals`);
-          }}
-        >
-          <IconSettings className="size-4" />
-          {t('manage-board-pipelines')}
-        </DropdownMenu.Item>
-        <DropdownMenu.Item
-          onSelect={() => {
-            handleCopyLink();
-          }}
-          className="cursor-pointer"
-        >
-          <IconLink className="size-4" />
-          {t('copy-link')}
-        </DropdownMenu.Item>
-      </DropdownMenu.Content>
-    </DropdownMenu>
-  );
-};
-
 const DealsNavigation = () => {
   const { boards, loading } = useBoards();
   const [boardId, setBoardId] = useQueryState<string | null>('boardId');
@@ -305,12 +234,7 @@ const DealsNavigation = () => {
     <>
       <NavigationMenuGroup
         name={t('boards')}
-        actions={
-          <>
-            <BoardsNavigationActions />
-            <ActionsMenu />
-          </>
-        }
+        actions={<BoardsNavigationActions />}
       >
         {loading ? (
           <LoadingSkeleton />
