@@ -1,6 +1,5 @@
 import { useMutation } from '@apollo/client';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { CellContext } from '@tanstack/react-table';
 import { IconEdit, IconTool } from '@tabler/icons-react';
 import {
   Button,
@@ -13,7 +12,6 @@ import {
 } from 'erxes-ui';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useParams } from 'react-router-dom';
 import { SelectBrands } from 'ui-modules';
 import { z } from 'zod';
 import { IIntegration } from '@/integrations/types/Integration';
@@ -133,9 +131,9 @@ const DiscordIntegrationEditForm = ({
 
 /** Row actions (edit dialog) for a Discord integration. */
 export const DiscordIntegrationActions = ({
-  cell,
+  integration,
 }: {
-  cell: CellContext<IIntegration, unknown>;
+  integration: IIntegration;
 }) => {
   const [open, setOpen] = useState(false);
 
@@ -149,7 +147,7 @@ export const DiscordIntegrationActions = ({
       </Dialog.Trigger>
       <Dialog.Content className="p-0 gap-0 border-0 shadow-lg">
         <DiscordIntegrationEditForm
-          id={cell.row.original._id}
+          id={integration._id}
           setOpen={setOpen}
         />
       </Dialog.Content>
@@ -159,14 +157,13 @@ export const DiscordIntegrationActions = ({
 
 /** Repair action that re-syncs a broken Discord integration. */
 export const DiscordIntegrationRepair = ({
-  cell,
+  integration,
 }: {
-  cell: CellContext<IIntegration, unknown>;
+  integration: IIntegration;
 }) => {
-  const { integrationType } = useParams();
-  const kind = integrationType || IntegrationType.DISCORD_MESSENGER;
+  const kind = integration.kind || IntegrationType.DISCORD_MESSENGER;
   const [repairIntegration, { loading }] = useMutation(REPAIR_INTEGRATION, {
-    refetchQueries: ['Integrations'],
+    refetchQueries: ['Integrations', 'ChannelIntegrationsPeek'],
   });
 
   /** Trigger the repair mutation for this integration. */
@@ -174,7 +171,7 @@ export const DiscordIntegrationRepair = ({
     if (loading) return;
 
     repairIntegration({
-      variables: { _id: cell.row.original._id, kind },
+      variables: { _id: integration._id, kind },
       onCompleted: () => toast({ title: 'Repaired successfully' }),
       onError: (error) =>
         toast({ title: error.message, variant: 'destructive' }),

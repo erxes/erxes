@@ -4,6 +4,7 @@ import {
   IconArrowBarToRight,
   IconCalendarPlus,
   IconCalendarUp,
+  IconEdit,
   IconGitBranch,
   IconPlus,
   IconTrash,
@@ -93,6 +94,7 @@ const PipelineDeleteItem = ({ pipelineId }: { pipelineId: string }) => {
 
 const PipelineMoreCell = ({ cell }: PipelineCellProps) => {
   const { t } = useTranslation('frontline');
+  const navigate = useNavigate();
   const { _id, channelId } = cell.row.original;
   const [menuOpen, setMenuOpen] = useState(false);
   const [moveOpen, setMoveOpen] = useState(false);
@@ -106,6 +108,17 @@ const PipelineMoreCell = ({ cell }: PipelineCellProps) => {
         <Combobox.Content>
           <Command shouldFilter={false}>
             <Command.List>
+              <Command.Item
+                value="edit"
+                onSelect={() =>
+                  navigate(
+                    `/frontline/settings/channels/${channelId}/pipelines/${_id}`,
+                  )
+                }
+              >
+                <IconEdit />
+                {t('edit', 'Edit')}
+              </Command.Item>
               <Command.Item
                 value="move"
                 onSelect={() => {

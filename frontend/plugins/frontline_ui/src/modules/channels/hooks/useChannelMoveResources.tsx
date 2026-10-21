@@ -20,6 +20,7 @@ export const CHANNEL_RESOURCE_LIST_QUERIES: Record<
     'Integrations',
     'IntegrationsGetUsedTypes',
     'IntegrationsGetUsedTypesByChannel',
+    'ChannelIntegrationsPeek',
   ],
   [ChannelResourceType.PIPELINE]: ['GetTicketPipelines'],
   [ChannelResourceType.FORM]: ['Forms', 'FormsTotalCount'],
