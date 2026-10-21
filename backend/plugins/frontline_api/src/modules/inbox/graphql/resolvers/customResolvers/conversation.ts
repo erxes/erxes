@@ -131,9 +131,14 @@ export default {
       .lean();
   },
 
-  async messages(conv: IConversationDocument, _, { models }: IContext) {
+  async messages(
+    conv: Pick<IConversationDocument, '_id' | 'customerView'>,
+    _,
+    { models }: IContext,
+  ) {
     const messages = await models.ConversationMessages.find({
       conversationId: conv._id,
+      ...(conv.customerView ? { internal: { $ne: true } } : {}),
     });
 
     return messages.filter((message) => message);
