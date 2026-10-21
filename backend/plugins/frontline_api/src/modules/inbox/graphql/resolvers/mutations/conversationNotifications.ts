@@ -182,12 +182,14 @@ export const sendNotifications = async (
     type,
     mobile,
     messageContent,
+    internal,
   }: {
     user: IUserDocument;
     conversations: IConversationDocument[];
     type: string;
     mobile?: boolean;
     messageContent?: string;
+    internal?: boolean;
   },
 ) => {
   for (const conversation of conversations) {
@@ -232,11 +234,13 @@ export const sendNotifications = async (
     }
 
     if (mobile) {
-      await sendClientPortalMobileNotification(
-        subdomain,
-        conversation,
-        doc.content,
-      );
+      if (!internal) {
+        await sendClientPortalMobileNotification(
+          subdomain,
+          conversation,
+          doc.content,
+        );
+      }
       await sendAgentMobileNotification(
         subdomain,
         conversation,

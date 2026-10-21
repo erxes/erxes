@@ -109,7 +109,7 @@ export const useWidgetNotifications = () => {
           if (!prev || !subscriptionData.data) return prev;
 
           const newMessage = subscriptionData.data.conversationMessageInserted;
-          if (!newMessage) return prev;
+          if (!newMessage || newMessage.internal) return prev;
 
           const convIndex = prev.widgetsConversations.findIndex(
             (c) => c._id === conv._id,
