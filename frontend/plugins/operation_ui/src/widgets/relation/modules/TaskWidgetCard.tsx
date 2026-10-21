@@ -99,7 +99,7 @@ export const TaskWidgetCard = ({ task }: { task: ITask }) => {
           />
         </div>
       </Card>
-      <Suspense>{activeTask && <TaskDetailSheet />}</Suspense>
+      <Suspense>{activeTask === _id && <TaskDetailSheet />}</Suspense>
     </>
   );
 };
