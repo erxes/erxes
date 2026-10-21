@@ -4,15 +4,17 @@ import { IReportChartFilters } from '@/reports/@types/chart';
 import { IReportFilters } from '@/reports/@types/reportFilters';
 import { IModels } from '~/connectionResolvers';
 import { escapeRegExp, sendTRPCMessage } from 'erxes-api-shared/utils';
+import type { FilterQuery, PipelineStage } from 'mongoose';
+import type { IConversationDocument } from '@/inbox/@types/conversations';
 
-export const sourceMap: Record<string, string> = {
-  'facebook-messenger': 'facebook-messenger',
-  'facebook-post': 'facebook-post',
-  'instagram-messenger': 'instagram-messenger',
-  'instagram-post': 'instagram-post',
-  calls: 'calls',
-  messenger: 'messenger',
-  form: 'form',
+export const sourceMap: Record<string, string[]> = {
+  'facebook-messenger': ['facebook-messenger'],
+  'facebook-post': ['facebook-post'],
+  'instagram-messenger': ['instagram-messenger'],
+  'instagram-post': ['instagram-post'],
+  calls: ['calls', 'callpro'],
+  messenger: ['messenger'],
+  form: ['lead', 'form'],
 };
 
 export const calculatePercentage = (value: number, total: number) => {
@@ -53,8 +55,9 @@ export async function generateConversationReportFilter(
     dateField?: 'createdAt' | 'closedAt';
     statusOverride?: string;
   } = {},
-): Promise<Record<string, any>> {
-  const match: Record<string, any> = {};
+): Promise<FilterQuery<IConversationDocument>> {
+  const match: FilterQuery<IConversationDocument> = {};
+  let integrationIds: string[] | undefined;
 
   const status = options.statusOverride ?? normalizeStatus(filters.status);
   if (status) match.status = status;
@@ -71,7 +74,7 @@ export async function generateConversationReportFilter(
       return { integrationId: { $in: [] } };
     }
 
-    match.integrationId = { $in: integrations.map((i) => i._id) };
+    integrationIds = integrations.map((integration) => String(integration._id));
   }
 
   if (filters.memberIds?.length) {
@@ -80,33 +83,27 @@ export async function generateConversationReportFilter(
 
   if (filters.source && sourceMap[filters.source]) {
     const sourceIntegrations = await models.Integrations.find({
-      kind: sourceMap[filters.source],
+      kind: { $in: sourceMap[filters.source] },
     }).lean();
 
-    if (match.integrationId) {
-      const channelIdSet = new Set(
-        (match.integrationId.$in as any[]).map(String),
-      );
-      const intersection = sourceIntegrations
-        .filter((i) => channelIdSet.has(i._id.toString()))
-        .map((i) => i._id);
-      match.integrationId = { $in: intersection };
-    } else {
-      match.integrationId = { $in: sourceIntegrations.map((i) => i._id) };
-    }
+    const sourceIds = sourceIntegrations.map((integration) =>
+      String(integration._id),
+    );
+    const channelIds = integrationIds ? new Set(integrationIds) : undefined;
+    integrationIds = channelIds
+      ? sourceIds.filter((id) => channelIds.has(id))
+      : sourceIds;
   }
 
-  if (
-    filters.callStatus &&
-    filters.source &&
-    sourceMap[filters.source] === 'calls'
-  ) {
+  if (integrationIds) match.integrationId = { $in: integrationIds };
+
+  if (filters.callStatus && filters.source === 'calls') {
     const callHistories = await models.CallHistory.find(
       { callStatus: filters.callStatus },
       { conversationId: 1 },
     ).lean();
 
-    const conversationIds = (callHistories as any[])
+    const conversationIds = callHistories
       .map((h) => h.conversationId)
       .filter(Boolean);
 
@@ -123,10 +120,15 @@ export async function generateConversationReportFilter(
 export const buildConversationPipeline = async (
   filters: IReportFilters,
   models: IModels,
-  options: { withPagination?: boolean } = {},
+  options: {
+    withPagination?: boolean;
+    dateField?: 'createdAt' | 'closedAt';
+  } = {},
 ) => {
-  const pipeline: any[] = [];
-  const match = await generateConversationReportFilter(filters, models);
+  const pipeline: PipelineStage[] = [];
+  const match = await generateConversationReportFilter(filters, models, {
+    dateField: options.dateField,
+  });
 
   if (Object.keys(match).length) {
     pipeline.push({ $match: match });
@@ -179,10 +181,12 @@ export async function buildConversationStatusCountReport(
 export async function buildConversationDateReport(
   filters: IReportFilters,
   models: IModels,
-  dateField: string,
-  extraMatch?: Record<string, any>,
+  dateField: 'createdAt' | 'closedAt',
+  extraMatch?: FilterQuery<IConversationDocument>,
 ): Promise<Array<{ date: string; count: number }>> {
-  const pipeline = await buildConversationPipeline(filters, models);
+  const pipeline = await buildConversationPipeline(filters, models, {
+    dateField,
+  });
 
   if (extraMatch) {
     pipeline.unshift({ $match: extraMatch });
@@ -194,7 +198,10 @@ export async function buildConversationDateReport(
     pipeline.push({ $limit: filters.limit });
   }
 
-  const result = await models.Conversations.aggregate(pipeline);
+  const result = await models.Conversations.aggregate<{
+    _id: string;
+    count: number;
+  }>(pipeline);
   return result.map((r) => ({ date: r._id, count: r.count }));
 }
 
@@ -267,7 +274,7 @@ export async function buildConversationResponsesPipeline(
         },
         { $unwind: '$integration' },
       );
-      messageMatch['integration.kind'] = sourceMap[filters.source];
+      messageMatch['integration.kind'] = { $in: sourceMap[filters.source] };
     }
   }
 
@@ -285,10 +292,13 @@ export function normalizeDateField(field: string) {
   };
 }
 
-export function buildDateGroupPipeline(field: string, frequency?: string) {
+export function buildDateGroupPipeline(
+  field: string,
+  frequency?: string,
+): PipelineStage[] {
   const freq = frequency?.toLowerCase();
 
-  let groupId: any;
+  let groupId: unknown;
   if (freq === 'year') {
     groupId = { $dateToString: { format: '%Y', date: '$__date' } };
   } else if (freq === 'month') {

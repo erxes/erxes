@@ -3,7 +3,7 @@ import {
   CONVERSATION_AUTOMATION_STATUS,
   CONVERSATION_STATUSES,
 } from '@/inbox/db/definitions/constants';
-import { escapeRegExp, fixDate, sendTRPCMessage } from 'erxes-api-shared/utils';
+import { escapeRegExp, sendTRPCMessage } from 'erxes-api-shared/utils';
 import * as _ from 'underscore';
 import { IModels } from '~/connectionResolvers';
 import {
@@ -372,25 +372,16 @@ export default class Builder {
   }
 
   public dateFilter(startDate: string, endDate: string) {
+    const from = new Date(startDate);
+    const to = new Date(endDate);
+    if (Number.isNaN(from.getTime()) || Number.isNaN(to.getTime())) {
+      throw new Error('Invalid conversation date range');
+    }
+    if (from > to) {
+      throw new Error('Conversation start date must precede the end date');
+    }
     return {
-      $and: [
-        {
-          $or: [
-            {
-              createdAt: {
-                $gte: fixDate(startDate),
-                $lte: fixDate(endDate),
-              },
-            },
-            {
-              updatedAt: {
-                $gte: fixDate(startDate),
-                $lte: fixDate(endDate),
-              },
-            },
-          ],
-        },
-      ],
+      createdAt: { $gte: from, $lte: to },
     };
   }
 
