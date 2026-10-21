@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.3.4](https://github.com/erxes/erxes/compare/3.3.3...3.3.4) (2026-10-20)
+
+
+### Features
+
+* **files:** add Files module with folder access control, previews and public links ([#9887](https://github.com/erxes/erxes/issues/9887)) ([bc32a44](https://github.com/erxes/erxes/commit/bc32a44c0bf2e7671ed412ef140624481888162f))
+
 ## [3.3.3](https://github.com/erxes/erxes/compare/3.3.2...3.3.3) (2026-10-20)
 
 

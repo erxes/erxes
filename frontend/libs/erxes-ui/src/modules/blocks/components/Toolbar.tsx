@@ -1,48 +1,21 @@
+import { useMemo } from 'react';
 import {
-  BasicTextStyleButton,
-  AddCommentButton,
-  BlockTypeSelect,
-  ColorStyleButton,
-  CreateLinkButton,
-  FileCaptionButton,
-  FileReplaceButton,
-  FormattingToolbar,
   FormattingToolbarController,
-  NestBlockButton,
-  TableCellMergeButton,
-  TextAlignButton,
-  UnnestBlockButton,
+  useBlockNoteEditor,
 } from '@blocknote/react';
-import { FontFamilyButton } from './FontFamilyButton';
-import { ImageStyleButton } from './ImageStyleButton';
+import { ToolbarContents } from 'erxes-ui/modules/blocks/components/toolbar/ToolbarContents';
+import { getToolbarPositioning } from 'erxes-ui/modules/blocks/utils/toolbar/getToolbarPositioning';
 
-const DocumentFormattingToolbar = () => (
-  <FormattingToolbar>
-    <BlockTypeSelect key={'blockTypeSelect'} />
-    <FontFamilyButton key={'fontFamilyButton'} />
-    <ImageStyleButton />
-    <FileCaptionButton key={'fileCaptionButton'} />
-    <FileReplaceButton key={'replaceFileButton'} />
-    <BasicTextStyleButton basicTextStyle={'bold'} key={'boldStyleButton'} />
-    <BasicTextStyleButton basicTextStyle={'italic'} key={'italicStyleButton'} />
-    <BasicTextStyleButton
-      basicTextStyle={'underline'}
-      key={'underlineStyleButton'}
+export const Toolbar = () => {
+  const editor = useBlockNoteEditor();
+  const floatingOptions = useMemo(
+    () => getToolbarPositioning(() => editor.domElement),
+    [editor],
+  );
+  return (
+    <FormattingToolbarController
+      formattingToolbar={ToolbarContents}
+      floatingOptions={floatingOptions}
     />
-    <BasicTextStyleButton basicTextStyle={'strike'} key={'strikeStyleButton'} />
-    <BasicTextStyleButton key={'codeStyleButton'} basicTextStyle={'code'} />
-    <TextAlignButton textAlignment={'left'} key={'textAlignLeftButton'} />
-    <TextAlignButton textAlignment={'center'} key={'textAlignCenterButton'} />
-    <TextAlignButton textAlignment={'right'} key={'textAlignRightButton'} />
-    <ColorStyleButton key={'colorStyleButton'} />
-    <NestBlockButton key={'nestBlockButton'} />
-    <UnnestBlockButton key={'unnestBlockButton'} />
-    <CreateLinkButton key={'createLinkButton'} />
-    <AddCommentButton />
-    <TableCellMergeButton key={'mergeTableCellButton'} />
-  </FormattingToolbar>
-);
-
-export const Toolbar = () => (
-  <FormattingToolbarController formattingToolbar={DocumentFormattingToolbar} />
-);
+  );
+};

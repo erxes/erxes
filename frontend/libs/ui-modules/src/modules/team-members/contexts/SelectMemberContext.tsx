@@ -9,6 +9,7 @@ export type ISelectMemberContext = {
   setMembers: Dispatch<SetStateAction<IUser[]>>;
   loading: boolean;
   allowUnassigned: boolean;
+  disabled: boolean;
 };
 
 export const SelectMemberContext = createContext<ISelectMemberContext | null>(

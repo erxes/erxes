@@ -129,6 +129,9 @@
 - Loyalty tRPC `loyalty.ownerSummary` and `coupon.checkCoupon`.
 - Core tRPC `fields.find`, `customers.findActiveCustomers`, and
   `customers.createCustomer`.
+- Core tRPC `segment.fetchSegment` (`{ segmentId, cursor?, limit? }` →
+  `{ ids, nextCursor? }`); `segmentProductIds` pages on `nextCursor` until it
+  is empty.
 - Synced eBarimt config fields including `hasCopy`, `hasSumQty`, and
   `isCleanTaxPrice`.
 - Shared `erxes-api-shared` context, GraphQL, and date utility contracts.

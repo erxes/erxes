@@ -1,31 +1,7 @@
 import { gql } from '~/gql';
 
 export const GET_CONVERSATIONS = gql(`
-  query Conversations(
-    $channelId: String
-    $integrationId: String
-    $status: String
-    $unassigned: String
-    $tag: String
-    $integrationType: String
-    $starred: String
-    $startDate: String
-    $endDate: String
-    $segment: String
-    $awaitingResponse: String
-    $withSurvey: String
-    $automationStatus: String
-    $participating: String
-    $mentioned: String
-    $unread: String
-    $customerId: String
-    $brandId: String
-    $searchValue: String
-    $cursor: String
-    $cursorMode: CURSOR_MODE
-    $direction: CURSOR_DIRECTION
-    $limit: Int
-  ) {
+  query Conversations($channelId: String, $integrationId: String, $status: String, $unassigned: String, $tag: String, $integrationType: String, $starred: String, $startDate: String, $endDate: String, $segment: String, $awaitingResponse: String, $withSurvey: String, $automationStatus: String, $participating: String, $mentioned: String, $unread: String, $customerId: String, $brandId: String, $searchValue: String, $cursor: String, $cursorMode: CURSOR_MODE, $direction: CURSOR_DIRECTION, $limit: Int) {
     conversations(
       channelId: $channelId
       integrationId: $integrationId
@@ -54,8 +30,31 @@ export const GET_CONVERSATIONS = gql(`
       list {
         _id
         content
+        lastMessage {
+          _id
+          content
+          createdAt
+          contentType
+          messageKind
+          providerData {
+            messageId
+            attachmentType
+            fallbackReason
+            previewText
+            previewUrl
+            shareType
+            storyUrl
+          }
+          extraData
+          attachments {
+            name
+            type
+            url
+          }
+        }
         createdAt
         updatedAt
+        status
         integrationId
         customer {
           _id
@@ -71,11 +70,31 @@ export const GET_CONVERSATIONS = gql(`
         tagIds
         __typename
         assignedUserId
+        assignedUserIds
+        assignedUsers {
+          _id
+          email
+          username
+          isActive
+          isOnboarded
+          details {
+            firstName
+            lastName
+            fullName
+            avatar
+          }
+        }
         assignedUser {
           _id
+          email
+          username
+          isActive
+          isOnboarded
           details {
-            avatar
+            firstName
+            lastName
             fullName
+            avatar
           }
         }
         integration {

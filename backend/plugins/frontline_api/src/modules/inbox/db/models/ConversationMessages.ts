@@ -1,3 +1,4 @@
+import { getConversationAssigneeIds } from '@/inbox/utils/conversationAssignees';
 import { stripHtml } from 'string-strip-html';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
@@ -130,6 +131,7 @@ export const loadClass = (models: IModels) => {
         firstRespondedUserId?: string;
         firstRespondedDate?: Date;
         assignedUserId?: string;
+        assignedUserIds?: string[];
       } = {};
 
       // Don't blank the conversation's list preview for a content-less message
@@ -147,9 +149,10 @@ export const loadClass = (models: IModels) => {
         userId &&
         !doc.internal &&
         !doc.fromBot &&
-        !conversation.assignedUserId
+        !getConversationAssigneeIds(conversation).length
       ) {
         modifier.assignedUserId = userId;
+        modifier.assignedUserIds = [userId];
       }
 
       await models.Conversations.updateConversation(

@@ -39,27 +39,30 @@ import {
   ProductFormValues,
 } from '@/products/constants/ProductFormSchema';
 import { useProductsEdit } from '@/products/hooks/useProductsEdit';
+import { useProductFileLinks } from 'ui-modules/modules/products/hooks/useProductFiles';
 
 export const ProductDetailSheet = () => {
   const { t } = useTranslation('product', {
     keyPrefix: 'detail',
   });
   const { toast } = useToast();
-
+  
   const [queries, setQueries] = useMultiQueryState<{
     [PRODUCT_QUERY_KEY]: string;
     tab: string;
   }>([PRODUCT_QUERY_KEY, 'tab']);
 
-  const { [PRODUCT_QUERY_KEY]: open, tab: selectedTab = 'overview' } =
-    queries || {};
-
+  const { 
+    [PRODUCT_QUERY_KEY]: open, 
+    tab: selectedTab = 'overview' 
+  } = queries || {}
+  
   const setSelectedTab = (tab: string | null) => setQueries({ tab });
-
-  const { productDetail, productId, loading, error, refetch } =
-    useProductDetailWithQuery();
-
+  
+  const { productDetail, productId, loading, error, refetch } = useProductDetailWithQuery();
+  
   const { productsEdit, loading: editLoading } = useProductsEdit();
+  const { linkFiles } = useProductFileLinks();
 
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(ProductFormSchema),
@@ -116,7 +119,7 @@ export const ProductDetailSheet = () => {
     };
   };
 
-  const handleSave = (data: ProductFormValues) => {
+  const handleSave = async (data: ProductFormValues) => {
     if (!productDetail?._id) {
       toast({
         title: t('errorTitle'),
@@ -125,7 +128,16 @@ export const ProductDetailSheet = () => {
       });
       return;
     }
-    const variables = { ...normalizePayload(data), _id: productDetail._id };
+    const files = await linkFiles(data.files);
+
+    if (!files) {
+      return;
+    }
+
+    const variables = {
+      ...normalizePayload({ ...data, files }),
+      _id: productDetail._id,
+    };
     productsEdit({
       variables,
       onCompleted: () => {
@@ -162,7 +174,9 @@ export const ProductDetailSheet = () => {
   return (
     <FocusSheet
       open={!!open}
-      onOpenChange={() => setQueries({ [PRODUCT_QUERY_KEY]: null, tab: null })}
+      onOpenChange={() =>
+        setQueries({ [PRODUCT_QUERY_KEY]: null, tab: null })
+      }
     >
       <ProductDetailSheetView
         loading={loading}
@@ -192,9 +206,7 @@ export const ProductDetailSheet = () => {
               >
                 {selectedTab === 'similarity' ? (
                   <ProductDetailSimilarity
-                    key={`similarity-${
-                      productDetail?._id || productId || 'empty'
-                    }`}
+                    key={`similarity-${productDetail?._id || productId || 'empty'}`}
                     product={productDetail}
                     callBack={refetch}
                   />
@@ -213,9 +225,7 @@ export const ProductDetailSheet = () => {
                         className="data-[state=active]:min-h-0"
                       >
                         <ProductDetailFields
-                          key={`${
-                            productDetail?._id || productId || 'empty'
-                          }-${formVersion}`}
+                          key={`${productDetail?._id || productId || 'empty'}-${formVersion}`}
                           productDetail={productDetail}
                         />
                       </Tabs.Content>
@@ -244,9 +254,7 @@ export const ProductDetailSheet = () => {
                             />
                           )}
                           <ActivityLogs
-                            key={`activity-${
-                              productDetail?._id || productId || 'empty'
-                            }`}
+                            key={`activity-${productDetail?._id || productId || 'empty'}`}
                             targetId={productDetail?._id || ''}
                             customActivities={productCustomActivities}
                           />
@@ -295,7 +303,10 @@ const ProductDetailSheetView = ({
 
   return (
     <FocusSheet.View
-      className={cn('transition-[width] duration-300 ease-in-out', widthClass)}
+      className={cn(
+        'transition-[width] duration-300 ease-in-out',
+        widthClass,
+      )}
       {...props}
     >
       {children}

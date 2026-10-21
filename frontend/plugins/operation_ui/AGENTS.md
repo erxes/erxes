@@ -6,7 +6,7 @@
 - **Project:** `operation_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/operation_ui`
-- **Last synchronized:** `2026-10-18`
+- **Last synchronized:** `2026-10-19`
 
 ## Scope
 
@@ -43,7 +43,8 @@
 - GraphQL codegen (`client-preset`) validates every operation document against the composed gateway schema and generates result and variable types into `src/gql/`.
 - Task detail and add-task form chips render as labelled field groups, as Sales' deal and Frontline's ticket chips do: a muted label segment, then the value and a chevron, e.g. `Priority | High ⌄`. Status, priority, assignee, start date, due date, team, cycle, project, estimate, milestone and tags are labelled in the detail; the add-task form labels the same fields except team, which stays the sheet header breadcrumb.
 - Task start/due dates follow Sales' `DateSelectDeal`: every variant's popover holds erxes-ui `DatePicker` in `inline` mode (typed input above the calendar) and closes on any date change and on Enter in the typed input. A labelled chip swaps its chevron for an X that clears the date while one is set; clearing sends `null`. The picked date shows at once, and a failed save rolls back to the last server-confirmed value only when it is the latest save.
-- Task tags render as one `Tags | Tag +N` chip (`SelectTagsTask`) in both the detail and the add-task form, matching ticket and deal detail; the detail tags through `TagsSelect` `targetIds`, the form through `onValueChange`.
+- Task tags render as one `Tags | Tag +N` chip (`OperationTagsChip`, `operation:task`) in both the detail and the add-task form, matching ticket and deal detail; the detail tags through `targetIds`, the form through `onValueChange`.
+- The add-project form draws the same labelled chips for status, priority, lead, members, start date, target date and tags; team stays the sheet header breadcrumb. The project detail draws them too, plus a labelled team chip. Labelled project date chips open erxes-ui `DatePicker` in `inline` mode (typed input above the calendar, Enter closes), as task dates do; a set date's chip shows an X that clears it, and in the detail clearing sends `null`. Unlabelled project date selects (table, filters) keep the plain `Calendar`.
 
 ## Architecture
 
@@ -152,10 +153,13 @@
 - `tsconfig.json` maps both `ui-modules` and `ui-modules/*`. Without the wildcard, every `ui-modules` self-import fails to resolve and its component props silently become `any` in this plugin.
 - The task board keeps two Jotai atoms only: `fetchedTasksState` (the items dnd-kit needs at `Board.Provider`, each carrying its `task`) and `taskCountByBoardAtom` (per-column totals shared with the toolbar). Each column replaces its own slice of `fetchedTasksState` wholesale so deleted tasks leave, and counts are written whenever `totalCount` is a number so 0 lands. Reset both atoms in an unmount cleanup, never on mount.
 - Documents declare non-null variables (`String!`, `CycleInput!`) for arguments the resolvers can't run without. Optional list-filter variables stay nullable.
-- `SelectTriggerOperation` draws erxes-ui `Combobox.ChipTrigger` only for the `detail` and `form` variants when a `label` is passed; every other variant and unlabelled caller (project, triage and filter surfaces) keeps its plain trigger. Task selects' roots and `FormItem`s take `label` and pass it straight through.
+- `operation/components/OperationChips.tsx` holds the plugin's labelled chips built from ui-modules providers (`SelectMember.Provider`, `TagsSelect.Provider`), as Sales' `DealDetailChips` does. Every labelled chip draws erxes-ui `Combobox.ChipTrigger`; never copy its markup into the plugin or add per-feature member/tag chips.
+- `SelectTriggerOperation` draws erxes-ui `Combobox.ChipTrigger` only for the `detail` and `form` variants when a `label` is passed; every other variant and unlabelled caller (project table, triage and filter surfaces) keeps its plain trigger. Task selects' roots and `FormItem`s take `label` and pass it straight through.
+- Project chips: `SelectStatus` (root and `FormItem`), `SelectLead.FormItem`/`.Detail` and `DateSelect.FormItem`/`.Detail` draw `Combobox.ChipTrigger` only when given a `label` and keep their plain trigger otherwise; `SelectProjectStatus`, `SelectProjectPriority` and `SelectProjectTeam` pass `label` through. Members and tags use `OperationMembersChip` and `OperationTagsChip` (`operation:project`, saved through `onValueChange`).
 - `DateSelectTask` draws its labelled chip only for the `input` variant with a `label` (task detail passes `variant="input"`, as ticket detail does); `detail` and every other variant keep the plain trigger. The form chip is `DateSelectTask.FormItem` with a `label`.
 - `DateSelectTask` keeps its own `dateValue` state seeded from the `value` prop and resyncs on `value`/`id` change; `useUpdateTask` already toasts on error, so the date select's `onError` only rolls back. `DateSelectContent` catches Enter in the capture phase because `DatePicker` stops its propagation.
 - `Sheet.Header` is a fixed 40px row. A header with a visible second line (subtitle, record number, description) adds `h-auto py-2` so it sizes to its content; detail-page title rows are `h-10`, level with `PageHeader`.
+- Task and project list filters render the filter popover trigger as the first child of `Filter.Bar`, so the filter icon stays fixed while selected filter chips appear after it; total counts stay last.
 
 ## Validation
 
@@ -169,5 +173,5 @@
 - Inbox smoke: open a task, triage, project and team notification in My Inbox; the task detail is padded, shows side widgets, and its icon column stays put while scrolling.
 - Triage smoke: when a second member accepts a triage, the task timeline shows the original creator and a separate acceptance row with the second member's photo, name, and acceptance time.
 - Smoke scenario: open a GitHub issue triage with headings, bold text, and a fenced code block; accept it as a task and confirm the same formatting and editable content.
-- Chip smoke: open a task detail and the add-task sheet; every field chip shows its label, a set date shows an X that clears it, typing a date and pressing Enter saves and closes the popover, and `Tags | Tag +N` adds and removes tags.
+- Chip smoke: open a task detail and the add-task sheet; every field chip shows its label, a set date shows an X that clears it, typing a date and pressing Enter saves and closes the popover, and `Tags | Tag +N` adds and removes tags. In the add-project sheet and the project detail every chip shows its label; the created project keeps the picked lead, members, dates and tags, and detail edits (including clearing a date) persist after reload.
 - Activity smoke: when Alice assigns a task to Bob, the row shows Alice's avatar and name with Bob in the assignment detail; status, priority, date, and note changes retain their action icons.

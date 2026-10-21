@@ -71,11 +71,11 @@ export const DonateFilter = () => {
   return (
     <Filter id="donate-filter" sessionKey={sessionKey}>
       <Filter.Bar>
+        <DonateFilterPopover />
         <SelectDonateCampaign.FilterBar />
         <SelectOwnerType.FilterBar />
         <SelectOwner.FilterBar queryKey="ownerId" ownerTypeKey="ownerType" />
         <SelectStatus.FilterBar />
-        <DonateFilterPopover />
         <DonateTotalCount />
       </Filter.Bar>
     </Filter>

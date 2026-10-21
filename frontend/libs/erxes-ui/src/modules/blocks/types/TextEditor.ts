@@ -2,7 +2,7 @@ import type {
   DefaultReactSuggestionItem,
   SuggestionMenuProps,
 } from '@blocknote/react';
-import { BLOCK_SCHEMA } from '../constant/blockEditorSchema';
+import { BLOCK_SCHEMA } from 'erxes-ui/modules/blocks/constant/blockEditorSchema';
 
 export type SlashMenuProps = SuggestionMenuProps<DefaultReactSuggestionItem>;
 
@@ -22,6 +22,7 @@ export interface BlockEditorProps {
   disabled?: boolean;
   variant?: 'default' | 'outline';
   sideMenu?: boolean;
+  formattingToolbar?: boolean;
   linkToolbar?: boolean;
   slashMenuOnTop?: boolean;
   floatingThread?: boolean;

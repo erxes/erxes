@@ -40,7 +40,6 @@ export const DocumentsFilter = () => {
     <PageSubHeader>
       <Filter id="documents-filter">
         <Filter.Bar className="overflow-auto styled-scroll">
-          <DocumentFilterBar queries={queries} />
           <div className="flex flex-wrap items-center gap-2 flex-1">
             <Filter.Popover scope={'documents-page'}>
               <Filter.Trigger isFiltered={hasFilters} />
@@ -57,6 +56,7 @@ export const DocumentsFilter = () => {
                 <Filter.DialogDateView filterKey="createdAt" />
               </Filter.View>
             </Filter.Dialog>
+            <DocumentFilterBar queries={queries} />
           </div>
         </Filter.Bar>
       </Filter>
