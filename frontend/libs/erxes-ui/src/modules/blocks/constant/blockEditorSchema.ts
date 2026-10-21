@@ -31,6 +31,20 @@ export const fontFamily = createStyleSpec(
   },
 );
 
+export const fontSize = createStyleSpec(
+  {
+    type: 'fontSize',
+    propSchema: 'string',
+  },
+  {
+    render: (value) => {
+      const span = document.createElement('span');
+      span.style.fontSize = value;
+      return { dom: span };
+    },
+  },
+);
+
 export const BLOCK_SCHEMA = BlockNoteSchema.create({
   blockSpecs: {
     ...defaultBlockSpecs,
@@ -71,6 +85,7 @@ export const BLOCK_SCHEMA = BlockNoteSchema.create({
       },
     },
     fontFamily,
+    fontSize,
   },
 });
 
