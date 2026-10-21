@@ -1094,6 +1094,13 @@ errors }` — `missingInErxes` is the number of Meta posts this deployment has
   notes are stored as BlockNote JSON, so a leak shows customers raw JSON.
   `sendNotifications({ internal: true })` skips the client portal mobile push
   and still notifies agents, with the note rendered by `noteContentToHtml`.
+- Customer-facing queries that return `Conversation` (`widgetsConversations`,
+  `cpConversations`, `cpConversation`, `cpConversationDetail`) wrap each result
+  with `toCustomerConversationView` (`src/modules/inbox/utils/`), which sets
+  `customerView: true`; `Conversation.messages` then excludes internal notes.
+  Team-facing results never set it, so admin queries such as
+  `reportConversationList` still list notes. Any new customer-facing query
+  returning `Conversation` must wrap its results the same way.
 - `TicketReportFilter.statusIds: [String]` — real pipeline `Status._id` values
   (multi-select). `buildTicketMatch` turns a non-empty list into
   `statusId: { $in: filters.statusIds }`. This is distinct from the older,
