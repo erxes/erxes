@@ -46,11 +46,11 @@
     "pin": "Тогтоох",
     "unpin": "Тогтоолтыг цуцлах",
     "more-actions": "Нэмэлт үйлдлүүд",
-    "resize-sidebar": "Хажуугийн самбарын өргөнийг өөрчлөх",
     "organization-settings": "Байгууллагын тохиргоо",
     "app-settings": "Тохиргоо",
     "back-to-app": "{{name}} руу буцах",
-    "plugin-settings-title": "{{name}} тохиргоо"
+    "plugin-settings-title": "{{name}} тохиргоо",
+    "resize-sidebar": "Хажуугийн самбарын өргөнийг өөрчлөх"
   },
   "core-modules": {
     "_": "Үндсэн модулиуд",
@@ -551,5 +551,23 @@
     "core-modules": "Үндсэн модулиуд",
     "core-modules-empty": "Танд нээлттэй үндсэн модуль алга. Админаас эрх хүснэ үү.",
     "subtitle": "Өнөөдөр таныг хүлээж буй зүйлс энд байна."
-  }
+  },
+  "issueDetected": "Асуудал илэрлээ",
+  "loading": "Ачаалж байна...",
+  "notAvailable": "Боломжгүй",
+  "status": "Төлөв",
+  "page": "Хуудас",
+  "bot": "Бот",
+  "updatedAt": "Шинэчилсэн огноо",
+  "openBotSettings": "Ботын тохиргоог нээх",
+  "healthy": "Эрүүл",
+  "facebookBotHealthyDescription": "Энэ бот холбогдсон, бүртгэгдсэн бөгөөд Facebook Messenger автоматжуулалтыг ажиллуулахад бэлэн байна.",
+  "needsRepair": "Засвар шаардлагатай",
+  "facebookBotDegradedDescription": "Messenger автоматжуулалт дахин найдвартай ажиллахын тулд энэ ботод анхаарал хандуулах шаардлагатай.",
+  "broken": "Гэмтсэн",
+  "facebookBotBrokenDescription": "Холболт одоогоор боломжгүй байгаа тул Messenger автоматжуулалт ажиллахаа зогсоож магадгүй.",
+  "syncing": "Синхрончилж байна",
+  "facebookBotSyncingDescription": "Ботыг одоо Facebook-тэй баталгаажуулж, синхрончилж байна.",
+  "unknown": "Тодорхойгүй",
+  "facebookBotUnknownDescription": "Энэ мэдэгдлээс ботын эрүүл мэндийн сүүлийн мэдээллийг тодорхойлж чадсангүй."
 }

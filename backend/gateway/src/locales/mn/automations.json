@@ -1025,5 +1025,30 @@
   "stats": "Статистик",
   "facebook-open-thread-info-title": "Open Thread нь referral үйл явдал дээр ажиллана",
   "facebook-open-thread-info-description": "Зарим суваг зөвхөн дарахад referral webhook илгээдэггүй. Энэ триггер зөвхөн Meta-аас open thread referral үйл явдал ирэх үед ажиллана.",
-  "facebook-open-thread-info-hint": "Автоматжуулалтыг найдвартай эхлүүлэх шаардлагатай бол Direct Message ашиглаж, харилцагч мессеж илгээсний дараа ажиллуулна уу."
+  "facebook-open-thread-info-hint": "Автоматжуулалтыг найдвартай эхлүүлэх шаардлагатай бол Direct Message ашиглаж, харилцагч мессеж илгээсний дараа ажиллуулна уу.",
+  "messenger-message-trigger": {
+    "validation-error-title": "Баталгаажуулалтын алдаа",
+    "validation-error-description": "Дор хаяж нэг үйл явдлын төрөл сонгоно уу",
+    "description": "Ямар мессенжер виджетийн үйл явдал энэ автоматжуулалтыг ажиллуулахыг сонгоно уу.",
+    "messenger": "Erxes Messenger",
+    "all-messengers": "Бүх erxes мессенжер",
+    "messenger-description": "Хоосон орхивол erxes мессенжер бүрт ажиллана.",
+    "triggers": "Триггерүүд",
+    "event-required": "Дор хаяж нэг үйл явдлын төрөл сонгоно уу",
+    "no-events-selected": "Үйл явдал сонгоогүй",
+    "node-messenger": "Мессенжер",
+    "node-events": "Үйл явдлууд",
+    "event-direct-message": "Шууд мессеж",
+    "event-get-started": "Эхлэх",
+    "event-quick-reply": "Хурдан хариу",
+    "event-customer-registration": "Харилцагчийн бүртгэл",
+    "event-ticket-form-submission": "Тикет формын илгээлт",
+    "event-request-create-ticket": "Тикет үүсгэх хүсэлт",
+    "event-direct-message-description": "Харилцагч дурын текст мессеж илгээхэд ажиллана (анхдагч)",
+    "event-get-started-description": "Харилцагч Эхлэх товчийг дарахад ажиллана",
+    "event-quick-reply-description": "Харилцагч хурдан хариуны товчийг дарахад ажиллана",
+    "event-customer-registration-description": "Харилцагч холбоо барих мэдээллээ илгээхэд ажиллана",
+    "event-ticket-form-submission-description": "Харилцагч нэр болон тайлбартай тикет үүсгэх форм илгээхэд ажиллана",
+    "event-request-create-ticket-description": "Харилцагч байнгын цэс дэх Тикет үүсгэх товчийг дарахад ажиллана"
+  }
 }

@@ -46,11 +46,11 @@
     "pin": "Pin",
     "unpin": "Unpin",
     "more-actions": "More actions",
-    "resize-sidebar": "Resize sidebar",
     "organization-settings": "Organization settings",
     "app-settings": "Settings",
     "back-to-app": "Back to {{name}}",
-    "plugin-settings-title": "{{name}} settings"
+    "plugin-settings-title": "{{name}} settings",
+    "resize-sidebar": "Resize sidebar"
   },
   "core-modules": {
     "_": "Core modules",
@@ -550,5 +550,23 @@
     "core-modules": "Core modules",
     "core-modules-empty": "You don't have access to any core modules yet. Ask an admin to give you access.",
     "subtitle": "Here's what's waiting for you today."
-  }
+  },
+  "issueDetected": "Issue detected",
+  "loading": "Loading...",
+  "notAvailable": "Not available",
+  "status": "Status",
+  "page": "Page",
+  "bot": "Bot",
+  "updatedAt": "Updated at",
+  "openBotSettings": "Open bot settings",
+  "healthy": "Healthy",
+  "facebookBotHealthyDescription": "This bot is connected, subscribed, and ready to handle Facebook Messenger automations.",
+  "needsRepair": "Needs repair",
+  "facebookBotDegradedDescription": "This bot needs attention before Messenger automations can run reliably again.",
+  "broken": "Broken",
+  "facebookBotBrokenDescription": "The connection is currently unavailable, so Messenger automations may stop working.",
+  "syncing": "Syncing",
+  "facebookBotSyncingDescription": "The bot is being verified and synced with Facebook right now.",
+  "unknown": "Unknown",
+  "facebookBotUnknownDescription": "We could not determine the latest bot health details from this notification."
 }
