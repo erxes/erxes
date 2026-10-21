@@ -27,6 +27,7 @@ import { IncomingMessage } from 'http';
 import * as path from 'path';
 import { appRouter } from '~/init-trpc';
 import { initApolloServer } from './apollo/apolloServer';
+import { credentialGraphqlBoundary } from './apollo/credentialPrivacy';
 import { generateModels } from './connectionResolvers';
 import meta from './meta';
 import { approval } from './meta/approval';
@@ -37,6 +38,7 @@ import initImportExport from './meta/import-export';
 import { references } from './meta/references';
 import { initSegmentCoreProducers } from './meta/segments';
 import { router } from './routes';
+import { credentialsRouter } from './modules/credentials/routes';
 
 const PLUGIN_NAME = 'core';
 
@@ -61,6 +63,11 @@ const port = process.env.PORT ? Number(process.env.PORT) : 3300;
 
 const app = express();
 applyTrustProxy(app);
+
+// Own parser, small body limit, no rawBody capture, and no-store even on errors.
+app.use('/credentials', credentialsRouter);
+
+app.use('/graphql', credentialGraphqlBoundary);
 
 // don't move it above telnyx controllers
 app.use(express.urlencoded({ limit: '15mb', extended: true }));
