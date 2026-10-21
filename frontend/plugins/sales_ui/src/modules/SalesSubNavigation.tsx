@@ -114,13 +114,17 @@ function BoardItem({
     >
       <Sidebar.Group className="p-0">
         <Collapsible.Trigger asChild>
-          <div className="w-full flex items-center justify-between">
+          <div
+            className={cn(
+              'group/board-row w-full flex items-center justify-between rounded-lg hover:bg-accent',
+              isActive && 'bg-foreground/5 hover:bg-foreground/5',
+            )}
+          >
             <Button
               variant="ghost"
               className={cn(
-                'px-2 flex min-w-0 flex-1 justify-start rounded-lg',
-                isActive &&
-                  'bg-foreground/5 text-foreground hover:bg-foreground/5',
+                'px-2 flex min-w-0 flex-1 justify-start rounded-lg hover:bg-transparent',
+                isActive && 'text-foreground',
               )}
               onClick={handleBoardClick}
             >
@@ -128,14 +132,11 @@ function BoardItem({
                 className="font-sans font-semibold normal-case text-left flex-1 min-w-0"
                 value={board.name}
               />
-              <span className="ml-auto flex shrink-0 text-muted-foreground transition-transform duration-250 ease-[cubic-bezier(0.22,1,0.36,1)] group-data-[state=open]/collapsible:rotate-90 motion-reduce:transition-none">
-                <IconChevronRight className="size-3.5!" />
-              </span>
             </Button>
             <Button
               variant="ghost"
               size="icon"
-              className="shrink-0 text-muted-foreground"
+              className="shrink-0 text-muted-foreground hover:bg-foreground/10 opacity-0 group-hover/board-row:opacity-100 group-focus-within/board-row:opacity-100 focus-visible:opacity-100"
               aria-label={t('add-pipeline')}
               onClick={(event) => {
                 event.stopPropagation();
@@ -145,6 +146,9 @@ function BoardItem({
             >
               <IconPlus className="size-4" />
             </Button>
+            <span className="flex shrink-0 px-2 text-muted-foreground transition-transform duration-250 ease-[cubic-bezier(0.22,1,0.36,1)] group-data-[state=open]/collapsible:rotate-90 motion-reduce:transition-none">
+              <IconChevronRight className="size-3.5!" />
+            </span>
           </div>
         </Collapsible.Trigger>
         <Collapsible.Content className="pt-1">

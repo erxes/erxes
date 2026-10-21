@@ -36,8 +36,11 @@
   (`deals/boards/components/BoardsNavigationActions.tsx`): Add Board opens a
   create-only dialog that selects the new board on success; Add Pipeline
   (disabled without a selected board) opens the create sheet for the selected
-  board. Every board row also carries an always-visible `+` (`BoardItem`) that
-  opens the same sheet for that board and expands the row. Both set
+  board. Every board row also carries a `+` (`BoardItem`) left of the expand
+  chevron, inside the row's highlight, shown on row hover or focus (`opacity`,
+  so it stays tabbable); it opens the same sheet for that board and expands
+  the row. The row box (`group/board-row`) owns the hover/active background;
+  the name button selects the board and the chevron toggles it. Both set
   `pipelineCreateBoardIdState`; `PipelineCreateSheet`, mounted once beside the
   BOARDS group, reads it and renders `PipelineForm` in create mode on the deals
   page (no navigation). New pipelines show up through the `SalesBoards`
