@@ -1,6 +1,6 @@
 import { IconCalendarPlus, IconFileText } from '@tabler/icons-react';
 import dayjs from 'dayjs';
-import { Card, RelativeDateDisplay, useMultiQueryState } from 'erxes-ui';
+import { Card, RelativeDateDisplay, useSetQueryStateByKey } from 'erxes-ui';
 import { ApprovalLockedBadge, MembersInline } from 'ui-modules';
 import { DOCUMENTS_TYPES_SET } from '../constants';
 import { IDocument } from '../types';
@@ -9,14 +9,12 @@ import { DocumentsActions } from './DocumentsActions';
 import { useTranslation } from 'react-i18next';
 
 export const DocumentsGrid = ({ documents }: { documents: IDocument[] }) => {
-  const [, setQueries] = useMultiQueryState<{
-    documentId: string;
-    contentType: string;
-  }>(['documentId', 'contentType']);
   const { t } = useTranslation('documents', { keyPrefix: 'document' });
+  const setQuery = useSetQueryStateByKey();
 
   const handleOpenDocument = (document: IDocument) => {
-    setQueries({ documentId: document._id, contentType: document.contentType });
+    setQuery('documentId', document._id);
+    setQuery('contentType', document.contentType);
   };
 
   return (

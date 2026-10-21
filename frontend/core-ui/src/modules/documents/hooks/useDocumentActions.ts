@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { useMutation } from '@apollo/client';
-import { toast, useConfirm, useMultiQueryState } from 'erxes-ui';
+import { toast, useConfirm, useSetQueryStateByKey } from 'erxes-ui';
 import { useState } from 'react';
 import { DOCUMENTS_QUERY } from 'ui-modules';
 import { DUPLICATE_DOCUMENT } from '../graphql/documentMutations';
@@ -29,10 +29,7 @@ export const useDocumentActions = (document: IDocument): DocumentActions => {
   const [open, setOpen] = useState(false);
   const [printOpen, setPrintOpen] = useState(false);
   const [duplicateOpen, setDuplicateOpen] = useState(false);
-  const [, setQueries] = useMultiQueryState<{
-    documentId: string;
-    contentType: string;
-  }>(['documentId', 'contentType']);
+  const setQuery = useSetQueryStateByKey();
   const [duplicateDocument, { loading: duplicating }] = useMutation<
     { documentsDuplicate: IDocument | null },
     { _id: string; contentType: string }
@@ -42,7 +39,8 @@ export const useDocumentActions = (document: IDocument): DocumentActions => {
 
   const handleEdit = (): void => {
     setOpen(false);
-    setQueries({ documentId: document._id, contentType: document.contentType });
+    setQuery('documentId', document._id);
+    setQuery('contentType', document.contentType);
   };
   const handlePrint = (): void => {
     setOpen(false);
@@ -63,7 +61,8 @@ export const useDocumentActions = (document: IDocument): DocumentActions => {
         throw new Error('The server did not return a duplicated document');
       }
       setDuplicateOpen(false);
-      setQueries({ documentId: data.documentsDuplicate._id, contentType });
+      setQuery('documentId', data.documentsDuplicate._id);
+      setQuery('contentType', contentType);
       toast({ title: t('duplicated-success'), variant: 'success' });
     } catch (error) {
       toast({

@@ -12,7 +12,7 @@ import {
   RecordTable,
   RecordTableInlineCell,
   RelativeDateDisplay,
-  useMultiQueryState,
+  useSetQueryStateByKey,
 } from 'erxes-ui';
 import { TFunction } from 'i18next';
 import { ComponentProps } from 'react';
@@ -51,14 +51,12 @@ export function getDocumentsTagOptions(
 }
 
 function DocumentNameCell({ document }: { document: IDocument }) {
-  const [, setQueries] = useMultiQueryState<{
-    documentId: string;
-    contentType: string;
-  }>(['documentId', 'contentType']);
   const { t } = useTranslation('documents', { keyPrefix: 'document' });
+  const setQuery = useSetQueryStateByKey();
 
   function handleClick() {
-    setQueries({ documentId: document._id, contentType: document.contentType });
+    setQuery('documentId', document._id);
+    setQuery('contentType', document.contentType);
   }
 
   return (

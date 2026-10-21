@@ -1,6 +1,5 @@
 import { IContext } from '~/connectionResolvers';
 import { IDocument } from '../types';
-import { validateDocumentCommentState } from '../validateDocumentCommentState';
 import { z } from 'zod';
 import { documentContentTypes } from '../contentTypes';
 
@@ -13,10 +12,6 @@ export const documentMutations = {
     await checkPermission('manageDocuments');
 
     const { _id, ...doc } = params;
-
-    if (doc.commentState !== undefined) {
-      validateDocumentCommentState(doc.commentState);
-    }
 
     return await models.Documents.saveDocument({
       _id,

@@ -43,13 +43,15 @@ const stateSchema = z.object({
   ),
 });
 
-export const validateDocumentCommentState = (value: string): void => {
+export const validateDocumentCommentState = (
+  value: string,
+): z.infer<typeof stateSchema> => {
   if (typeof value !== 'string') throw new Error('Invalid document comments');
   if (Buffer.byteLength(value, 'utf8') > 1_000_000) {
     throw new Error('Document comments exceed the size limit');
   }
   try {
-    stateSchema.parse(JSON.parse(value));
+    return stateSchema.parse(JSON.parse(value));
   } catch {
     throw new Error('Invalid document comments');
   }
@@ -191,8 +193,7 @@ export const normalizeDocumentCommentState = (
   previousValue: string | undefined,
   userId: string,
 ): string => {
-  validateDocumentCommentState(value);
-  const state = stateSchema.parse(JSON.parse(value));
+  const state = validateDocumentCommentState(value);
   const previous: z.infer<typeof stateSchema> = previousValue
     ? stateSchema.parse(JSON.parse(previousValue))
     : { threads: [], anchors: [] };
