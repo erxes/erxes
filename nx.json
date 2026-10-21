@@ -28,6 +28,7 @@
   },
 
   "plugins": [
+    "./tools/nx/typecheck.js",
     {
       "plugin": "@nx/eslint/plugin",
       "options": {
