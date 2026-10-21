@@ -3,6 +3,7 @@ import * as dotenv from 'dotenv';
 import {
   getSubdomain,
   redis,
+  sanitizeHeaders,
   setClientPortalHeader,
   setCPUserHeader,
   setUserHeader,
@@ -68,6 +69,9 @@ export default async function userMiddleware(
   res: Response,
   next: NextFunction,
 ) {
+  // Only gateway-authenticated identities may be forwarded to backend services.
+  sanitizeHeaders(req.headers);
+
   const startedAt = Date.now();
   const url = req.headers['erxes-core-website-url'];
   const erxesCoreToken = req.headers['erxes-core-token'];
