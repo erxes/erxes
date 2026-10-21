@@ -13,8 +13,17 @@ const BOT_TRIGGER_TYPES = [
   FACEBOOK_COMMENT_TRIGGER_TYPE,
 ];
 
-/** Automations already listening to this bot, linked from its own form. */
-export const FacebookBotAutomations = ({ botId }: { botId?: string }) => {
+/**
+ * Automations already listening to this bot. `openInNewTab` keeps the caller
+ * in place, for hosts such as a setup wizard whose progress a navigation loses.
+ */
+export const FacebookBotAutomations = ({
+  botId,
+  openInNewTab,
+}: {
+  botId?: string;
+  openInNewTab?: boolean;
+}) => {
   const { t } = useTranslation('frontline');
   const { automations, loading } = useFacebookBotAutomations(
     botId,
@@ -51,6 +60,7 @@ export const FacebookBotAutomations = ({ botId }: { botId?: string }) => {
             <Link
               key={_id}
               to={`/automations/edit/${_id}`}
+              {...(openInNewTab && { target: '_blank', rel: 'noreferrer' })}
               className="flex items-center gap-2 rounded-md border px-3 py-2 text-sm transition-colors hover:bg-accent"
             >
               <IconBolt className="size-4 shrink-0 text-muted-foreground" />

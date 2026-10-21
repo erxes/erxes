@@ -5,6 +5,7 @@ import {
   AUTOMATIONS_AI_AGENT_DETAIL,
   AUTOMATIONS_AI_AGENT_EDIT,
   AUTOMATIONS_AI_AGENT_KNOWLEDGE_SOURCE_STATUSES,
+  AUTOMATIONS_AI_AGENT_MODELS,
   AUTOMATIONS_AI_AGENTS,
 } from '@/automations/components/settings/components/agents/graphql/automationsAiAgents';
 import { toast } from 'erxes-ui';
@@ -84,6 +85,8 @@ export function useAiAgentDetail({
         variables: id ? { ...input, id } : input,
         refetchQueries: [
           AUTOMATIONS_AI_AGENTS,
+          // A new key or base url can change which models the provider lists.
+          AUTOMATIONS_AI_AGENT_MODELS,
           ...(id
             ? [
                 {

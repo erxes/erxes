@@ -1,6 +1,24 @@
 import { escapeRegExp, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { withFilter } from 'graphql-subscriptions';
 
+/*
+ * Internal notes share the `conversationMessageInserted:<id>` topic with
+ * customer-visible messages. Deliver one only when `allowInternal` is true
+ * (an authenticated team member). Kept untyped: in development the gateway
+ * imports this file's raw source as `.js`, where type syntax does not parse.
+ */
+const shouldDeliverConversationMessage = (
+  message,
+  conversationId,
+  allowInternal,
+) => {
+  if (!message?.conversationId || message.conversationId !== conversationId) {
+    return false;
+  }
+
+  return !message.internal || allowInternal;
+};
+
 export default {
   name: 'frontline',
   typeDefs: `
@@ -238,18 +256,12 @@ export default {
         subscribe: withFilter(
           (_, { _id }) =>
             graphqlPubsub.asyncIterator(`conversationMessageInserted:${_id}`),
-          async (payload, variables) => {
-            const conversationId =
-              payload.conversationMessageInserted.conversationId;
-            const id = variables._id || {};
-
-            if (!id) return false;
-
-            if (conversationId && id === conversationId) {
-              return true;
-            }
-            return false;
-          },
+          async (payload, variables, context) =>
+            shouldDeliverConversationMessage(
+              payload.conversationMessageInserted,
+              variables._id,
+              Boolean(context?.user?._id),
+            ),
         ),
       },
 
@@ -433,11 +445,12 @@ export default {
         subscribe: withFilter(
           (_, { _id }) =>
             graphqlPubsub.asyncIterator(`conversationMessageInserted:${_id}`),
-          async (payload, variables) => {
-            const conversationId =
-              payload.conversationMessageInserted.conversationId;
-            return !!conversationId && variables._id === conversationId;
-          },
+          async (payload, variables) =>
+            shouldDeliverConversationMessage(
+              payload.conversationMessageInserted,
+              variables._id,
+              false,
+            ),
         ),
       },
 

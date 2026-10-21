@@ -30,7 +30,11 @@ export const useIntegrationEdit = () => {
           ),
         });
       },
-      refetchQueries: ['Integrations', 'IntegrationDetail'],
+      refetchQueries: [
+        'Integrations',
+        'IntegrationDetail',
+        'ChannelIntegrationsPeek',
+      ],
     });
   };
 

@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-10-19`
+- **Last synchronized:** `2026-10-21`
 
 ## Scope
 
@@ -519,6 +519,30 @@
 - Composes Facebook page posts from the integrations sidebar: channel and page
   selection, message, optional link, drag-and-drop image upload (max 10), and a
   permalink to the published post.
+- The Facebook and Instagram connect dialogs show a `Reconnect` badge, with
+  the Graph error in its tooltip, on an account whose pages cannot be read,
+  instead of a page count. The Instagram dialog shows this only on the selected
+  account row.
+- The page step of the Facebook connect dialog names, at the end of each page
+  row in use, its channel and integration; the trigger opens a popover with
+  the channel, integration, bot (with health) and the automations listening to
+  that bot (`FacebookPageUsage`), and a `Manage integration` link to the
+  holder's channel integrations page. These links open in a new tab so the
+  wizard keeps its progress. Used pages stay enabled `Command.Item`s (so search
+  filters them and the trigger is clickable) and refuse selection in
+  `onSelect`. The Instagram page step names
+  the channel and integration of a page in use.
+- The channel list's integrations cell opens a popover
+  (`ChannelIntegrationsPeek`, query `ChannelIntegrationsPeek`) listing every
+  integration of that channel with kind, Facebook page names and health —
+  broken first, archived last — plus a Repair button on broken rows and the
+  full row action menu, without leaving the list.
+- Facebook pages show as `FacebookPageLink` (avatar from the public Graph
+  picture URL, name, opens `facebook.com/<pageId>` in a new tab): the `Page`
+  first column of the Facebook messenger/post integration tables, the channel peek,
+  and the bot preview's Messenger header (`MessengerFrame` `pageUrl`). Page
+  names come from the integration's `facebookPage` (page token, not the shared
+  app quota); a page whose token is dead shows no name.
 - The inbox composer is note-only (Reply tab disabled, Internal Note selected)
   for `lead`, `calls`, `callpro` and `mail` conversations — the first three
   cannot carry an outbound reply, and mail replies go through the mail compose
@@ -989,6 +1013,17 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
 
 ## Local Invariants
 
+- Integration row actions live in `IntegrationActionsMenu({ integration })`
+  and read the kind from `integration.kind`, never from the route; action and
+  repair components take `integration`, not a table `cell`. Erxes messenger,
+  call, callpro and telegram edit through atom-driven sheets; a page listing
+  integrations of every kind mounts `IntegrationEditSheets` once (the channel
+  list does). Their edits take the channel from the loaded record, never from
+  the route.
+- Integration create/update/delete/repair/move mutations refetch
+  `ChannelIntegrationsPeek` alongside `Integrations`.
+- `ChannelIntegrationsPeek` never selects `instagramPage`: that resolver calls
+  Graph with a user token and spends the shared app quota.
 - Customer media is recognised by its URL (`isUnverifiedAttachment` in
   `ticket/hooks/useUnverifiedAttachments.ts`): uploads here are storage keys
   read through `read-file`; anything else came from a conversation and is

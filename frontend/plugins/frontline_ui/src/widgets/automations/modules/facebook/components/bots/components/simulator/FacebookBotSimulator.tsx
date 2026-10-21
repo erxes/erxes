@@ -48,6 +48,7 @@ import {
   resolveDirectMessageOutcome,
   resolveIceBreakerOutcome,
 } from '~/widgets/automations/modules/facebook/components/bots/utils/resolveBotMenuOutcome';
+import { getFacebookPageUrl } from '@/integrations/facebook/utils/pageLinks';
 
 type TSimulatorView = 'welcome' | 'conversation';
 
@@ -212,6 +213,11 @@ export const FacebookBotSimulator = () => {
           device={device}
           pageName={page?.name || t('your-page', { defaultValue: 'Your page' })}
           profileUrl={facebookMessengerBot?.profileUrl ?? undefined}
+          pageUrl={
+            facebookMessengerBot?.pageId
+              ? getFacebookPageUrl(facebookMessengerBot.pageId)
+              : undefined
+          }
           isMenuOpen={isMenuOpen}
           onToggleMenu={() => setMenuOpen((open) => !open)}
           composerValue={composerValue}

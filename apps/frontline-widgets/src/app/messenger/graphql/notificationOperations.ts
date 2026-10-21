@@ -58,6 +58,7 @@ const NOTIFICATION_CONVERSATION_CHANGED = gql`
       userId
       isCustomerRead
       fromBot
+      internal
       user {
         _id
         details {

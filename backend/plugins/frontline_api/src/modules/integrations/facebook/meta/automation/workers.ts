@@ -66,22 +66,39 @@ export const facebookAutomationWorkers = {
     }: TAutomationProducersInput[TAutomationProducers.RECEIVE_ACTIONS],
     { models, subdomain },
   ) => {
-    switch (collectionType) {
-      case 'messages':
-        return await actionCreateMessage({
-          models,
-          subdomain,
-          action,
-          execution,
-        });
-      case 'comments':
-        return await actionCreateComment(models, subdomain, action, execution);
+    try {
+      switch (collectionType) {
+        case 'messages':
+          return await actionCreateMessage({
+            models,
+            subdomain,
+            action,
+            execution,
+          });
+        case 'comments':
+          return await actionCreateComment(
+            models,
+            subdomain,
+            action,
+            execution,
+          );
 
-      default:
+        default:
+          return buildFailedAction(
+            `Facebook automations do not handle "${collectionType}"`,
+            AUTOMATION_ERROR_CODES.CONFIG_INVALID,
+          );
+      }
+    } catch (error) {
+      // A dead token fails every run until reconnected; say so instead of UNKNOWN
+      if (error instanceof Error && error.message.includes('access token')) {
         return buildFailedAction(
-          `Facebook automations do not handle "${collectionType}"`,
-          AUTOMATION_ERROR_CODES.CONFIG_INVALID,
+          error.message,
+          AUTOMATION_ERROR_CODES.PROVIDER_ERROR,
         );
+      }
+
+      throw error;
     }
   },
   checkCustomTrigger: async (data: ICheckTriggerData, { subdomain }) => {

@@ -197,10 +197,18 @@ export const types = `
     name: String
   }
 
+  type IntegrationPageUsage {
+    integrationId: String
+    integrationName: String
+    channelId: String
+    channelName: String
+  }
+
   type FacebookPage {
     id: String
     name: String
     isUsed: Boolean
+    usage: IntegrationPageUsage
   }
 
   type FacebookIntegrationRecord {

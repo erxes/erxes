@@ -115,14 +115,14 @@ export const CONFIG: IUIConfig = {
       path: 'frontline/helpcenter',
     },
     {
-      name: 'channels',
-      icon: IconMail,
-      path: 'frontline/settings/channels',
-    },
-    {
       name: 'personal-channel',
       icon: IconMail,
       path: 'frontline/settings/personal-channel',
+    },
+    {
+      name: 'channels',
+      icon: IconMail,
+      path: 'frontline/settings/channels',
     },
     {
       name: 'integrations-config',

@@ -54,7 +54,7 @@ export const useConversations = (
           if (!prev || !subscriptionData.data) return prev;
 
           const newMessage = subscriptionData.data.conversationMessageInserted;
-          if (!newMessage) return prev;
+          if (!newMessage || newMessage.internal) return prev;
 
           const conversationId = newMessage.conversationId;
           const conversationIndex = prev.widgetsConversations.findIndex(

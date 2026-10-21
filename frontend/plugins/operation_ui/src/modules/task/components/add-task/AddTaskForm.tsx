@@ -38,7 +38,15 @@ import { currentUserState } from 'ui-modules';
 import { OperationTagsChip } from '@/operation/components/OperationChips';
 import { SelectMilestone } from '../task-selects/SelectMilestone';
 
-export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
+export const AddTaskForm = ({
+  onClose,
+  onComplete,
+  initialValues,
+}: {
+  onClose: () => void;
+  onComplete?: (taskId: string) => void;
+  initialValues?: Partial<TAddTask>;
+}) => {
   const { t } = useTranslation('operation');
   const { teamId, projectId, cycleId } = useParams<{
     teamId?: string;
@@ -54,10 +62,10 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
   const [defaultValuesState, setDefaultValues] = useAtom(
     taskCreateDefaultValuesState,
   );
-  const { project } = useGetProject(projectId);
+  const { project } = useGetProject(initialValues?.projectId ?? projectId);
 
   const [_teamId, _setTeamId] = useState<string | undefined>(
-    teamId ? teamId : project?.teamIds?.[0] ? project?.teamIds?.[0] : undefined,
+    initialValues?.teamId || teamId || project?.teamIds?.[0] || undefined,
   );
   const { toast } = useToast();
   const defaultValues = {
@@ -72,11 +80,15 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
     cycleId: cycleId,
     milestoneId: undefined,
     tagIds: [] as string[],
+    ...initialValues,
   };
 
   const form = useForm<TAddTask>({
     resolver: zodResolver(addTaskSchema),
-    defaultValues: { ...defaultValues, ...defaultValuesState },
+    defaultValues: {
+      ...defaultValues,
+      ...(!initialValues && defaultValuesState),
+    },
   });
 
   useEffect(() => {
@@ -91,12 +103,12 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
   }, [teams, form, teamId, currentUser]);
 
   useEffect(() => {
-    if (defaultValuesState) {
+    if (!initialValues && defaultValuesState) {
       form.reset({ ...defaultValues, ...defaultValuesState });
       setDefaultValues(undefined);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [defaultValuesState, form, setDefaultValues]);
+  }, [defaultValuesState, form, setDefaultValues, initialValues]);
 
   const handleDescriptionChange = async () => {
     const content = await editor?.document;
@@ -114,8 +126,12 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
         priority: data.priority || 0,
         status: data.status,
       },
-      onCompleted: () => {
-        onClose();
+      onCompleted: ({ createTask }) => {
+        if (onComplete && createTask?._id) {
+          onComplete(createTask._id);
+        } else {
+          onClose();
+        }
       },
     });
   };

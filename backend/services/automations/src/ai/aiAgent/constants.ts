@@ -11,10 +11,44 @@ export const AI_AGENT_DEFAULT_PROVIDER = 'cloudflare-ai-gateway';
 export const AI_AGENT_PROVIDER_DEFAULT_MODELS = {
   'cloudflare-ai-gateway': 'openai/gpt-5-mini',
   grok: 'grok-4.3',
-  kimi: 'kimi-k2.5',
+  kimi: 'kimi-k2.6',
   'kimi-code': 'kimi-for-coding',
   openai: 'gpt-5-mini',
 } as const;
+
+// Curated picks shown first; anything newer still appears from the provider
+// list and the model catalog.
+export const AI_AGENT_RECOMMENDED_MODELS: Record<
+  (typeof AI_AGENT_SUPPORTED_PROVIDERS)[number],
+  string[]
+> = {
+  'cloudflare-ai-gateway': [
+    'openai/gpt-5-mini',
+    'openai/gpt-5',
+    'openai/gpt-4.1-mini',
+    'openai/gpt-4o-mini',
+    'anthropic/claude-sonnet-5.5',
+    'google-ai-studio/gemini-2.5-flash',
+    'workers-ai/@cf/moonshotai/kimi-k2.6',
+  ],
+  grok: [
+    'grok-4.3',
+    'grok-4.7',
+    'grok-4.6',
+    'grok-4.5',
+    'grok-4.20-0309-non-reasoning',
+  ],
+  kimi: ['kimi-k2.6', 'kimi-k3'],
+  'kimi-code': ['kimi-for-coding'],
+  openai: [
+    'gpt-5',
+    'gpt-5-mini',
+    'gpt-5-nano',
+    'gpt-4.1',
+    'gpt-4.1-mini',
+    'gpt-4o-mini',
+  ],
+};
 
 export const AI_AGENT_SUPPORTED_CONTEXT_FILE_EXTENSIONS = [
   '.md',

@@ -1,15 +1,3 @@
-import { usePipelineRemove } from '@/pipelines/hooks/usePipelineRemove';
-import { IPipeline } from '@/pipelines/types';
-import {
-  IconArrowBarToRight,
-  IconCalendarPlus,
-  IconCalendarUp,
-  IconGitBranch,
-  IconPlus,
-  IconTrash,
-  IconUser,
-} from '@tabler/icons-react';
-import { Cell, ColumnDef } from '@tanstack/react-table';
 import {
   Button,
   Combobox,
@@ -22,14 +10,28 @@ import {
   Spinner,
   useConfirm,
 } from 'erxes-ui';
-import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
-import { useGetPipelines } from '@/pipelines/hooks/useGetPipelines';
-import { createPipelineSheetState } from '@/pipelines/states/pipelineStates';
-import { MoveToChannelDialog } from '@/channels/components/move-resources/MoveToChannelDialog';
+import { Cell, ColumnDef } from '@tanstack/react-table';
+import {
+  IconArrowBarToRight,
+  IconCalendarPlus,
+  IconCalendarUp,
+  IconEdit,
+  IconGitBranch,
+  IconPlus,
+  IconTrash,
+  IconUser,
+} from '@tabler/icons-react';
+
 import { ChannelResourceType } from '@/channels/types';
+import { IPipeline } from '@/pipelines/types';
+import { MoveToChannelDialog } from '@/channels/components/move-resources/MoveToChannelDialog';
+import { createPipelineSheetState } from '@/pipelines/states/pipelineStates';
+import { useGetPipelines } from '@/pipelines/hooks/useGetPipelines';
+import { useNavigate } from 'react-router-dom';
+import { usePipelineRemove } from '@/pipelines/hooks/usePipelineRemove';
 import { useSetAtom } from 'jotai';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 type PipelineCellProps = {
   cell: Cell<IPipeline, unknown>;
@@ -93,6 +95,7 @@ const PipelineDeleteItem = ({ pipelineId }: { pipelineId: string }) => {
 
 const PipelineMoreCell = ({ cell }: PipelineCellProps) => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.pipelines' });
+  const navigate = useNavigate();
   const { _id, channelId } = cell.row.original;
   const [menuOpen, setMenuOpen] = useState(false);
   const [moveOpen, setMoveOpen] = useState(false);
@@ -106,6 +109,17 @@ const PipelineMoreCell = ({ cell }: PipelineCellProps) => {
         <Combobox.Content>
           <Command shouldFilter={false}>
             <Command.List>
+              <Command.Item
+                value="edit"
+                onSelect={() =>
+                  navigate(
+                    `/frontline/settings/channels/${channelId}/pipelines/${_id}`,
+                  )
+                }
+              >
+                <IconEdit />
+                {t('edit', 'Edit')}
+              </Command.Item>
               <Command.Item
                 value="move"
                 onSelect={() => {

@@ -229,7 +229,8 @@ const DocumentTitleEditor = ({
 
 export const DocumentEditor = () => {
   const { t } = useTranslation('documents', { keyPrefix: 'document' });
-  const { document, documentId, hasError, loading, refetch } = useDocument();
+  const { document, documentId, error, hasError, loading, refetch } =
+    useDocument();
   const editor = useBlockEditor({});
   const { attributes, loading: attributesLoading } = useDocumentAttributes();
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -254,6 +255,7 @@ export const DocumentEditor = () => {
       <DocumentsErrorState
         title={t('load-error-title')}
         description={t('load-error-description')}
+        error={error}
         onRetry={refetch}
       />
     );
