@@ -7,7 +7,7 @@ import { SurveysCreateButton } from '@/survey/components/survey-page/surveys-cre
 import { useSurveyList } from '@/survey/hooks/useSurveyList';
 
 export const SurveyPageList = ({ channelId }: { channelId?: string }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.survey' });
   const [{ status, searchValue }] = useMultiQueryState<{
     status?: string;
     searchValue?: string;

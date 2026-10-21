@@ -38,7 +38,7 @@ import { MoveToChannelDialog } from '@/channels/components/move-resources/MoveTo
 import { ChannelResourceType } from '@/channels/types';
 
 export const FormsList = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
   const { id: channelId } = useParams<{ id: string }>();
   const [{ searchValue, status, tagId }] = useMultiQueryState<{
     searchValue?: string;
@@ -118,7 +118,7 @@ export const FormsMoreColumnCell = ({
 }: {
   cell: Cell<IForm, unknown>;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
   const { _id, status, code, channelId, name } = cell.row.original;
   const navigate = useNavigate();
 
@@ -196,7 +196,7 @@ const formsColumns: ColumnDef<IForm>[] = [
     accessorKey: 'name',
     id: 'name',
     header: function FormNameHeader() {
-      const { t } = useTranslation('frontline');
+      const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
       return (
         <RecordTable.InlineHead
           label={t('col-name', 'Name')}
@@ -223,7 +223,7 @@ const formsColumns: ColumnDef<IForm>[] = [
     accessorKey: 'status',
     id: 'status',
     header: function FormStatusHeader() {
-      const { t } = useTranslation('frontline');
+      const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
       return (
         <RecordTable.InlineHead
           label={t('status', 'Status')}
@@ -247,7 +247,7 @@ const formsColumns: ColumnDef<IForm>[] = [
     accessorKey: 'channelId',
     id: 'channelId',
     header: function FormChannelHeader() {
-      const { t } = useTranslation('frontline');
+      const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
       return (
         <RecordTable.InlineHead
           label={t('channel-label', 'Channel')}
@@ -256,7 +256,7 @@ const formsColumns: ColumnDef<IForm>[] = [
       );
     },
     cell: function FormChannelCell({ cell }) {
-      const { t } = useTranslation('frontline');
+      const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
       return (
         <RecordTableInlineCell>
           <ChannelsInline
@@ -271,7 +271,7 @@ const formsColumns: ColumnDef<IForm>[] = [
     accessorKey: 'tagIds',
     id: 'tagIds',
     header: function FormTagsHeader() {
-      const { t } = useTranslation('frontline');
+      const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
       return (
         <RecordTable.InlineHead label={t('tags', 'Tags')} icon={IconTag} />
       );
@@ -292,7 +292,7 @@ const formsColumns: ColumnDef<IForm>[] = [
     accessorKey: 'createdUserId',
     id: 'createdUserId',
     header: function FormCreatedByHeader() {
-      const { t } = useTranslation('frontline');
+      const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
       return (
         <RecordTable.InlineHead
           label={t('created-by', 'Created by')}
@@ -312,7 +312,7 @@ const formsColumns: ColumnDef<IForm>[] = [
     accessorKey: 'createdDate',
     id: 'createdDate',
     header: function FormCreatedAtHeader() {
-      const { t } = useTranslation('frontline');
+      const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
       return (
         <RecordTable.InlineHead
           label={t('created-at', 'Created at')}

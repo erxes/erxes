@@ -20,7 +20,7 @@ export const MemberForm = ({
 }: {
   form: UseFormReturn<TChannelMemberForm>;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.channels' });
   const { id: channelId } = useParams();
   return (
     <div className="flex flex-col gap-3">

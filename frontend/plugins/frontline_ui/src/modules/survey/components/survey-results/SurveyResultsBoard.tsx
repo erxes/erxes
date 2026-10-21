@@ -99,7 +99,7 @@ const SurveyResultCard = ({ survey }: { survey: ISurveyWithResults }) => {
 };
 
 export const SurveyResultsBoard = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.survey' });
   const [{ status, searchValue, channelId }] = useMultiQueryState<{
     status?: string;
     searchValue?: string;

@@ -30,7 +30,7 @@ const HintRow = ({
 );
 
 const ReplyHint = ({ ticketId }: { ticketId: string }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.activity' });
   const { replyTarget, loading, error } = useTicketReplyTarget(ticketId);
 
   if (loading && !replyTarget) {
@@ -76,7 +76,7 @@ export const NoteAudienceHint = ({
   ticketId: string;
   isInternalNote: boolean;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.activity' });
 
   if (isInternalNote) {
     return (
