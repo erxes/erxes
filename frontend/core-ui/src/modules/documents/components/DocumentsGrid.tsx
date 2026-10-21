@@ -32,7 +32,14 @@ export const DocumentsGrid = ({ documents }: { documents: IDocument[] }) => {
           <Card
             key={document._id}
             className="group flex cursor-pointer flex-col overflow-hidden transition-shadow hover:shadow-md"
-            onClick={() => handleOpenDocument(document)}
+            onClick={(event) => {
+              if (
+                event.target instanceof Node &&
+                event.currentTarget.contains(event.target)
+              ) {
+                handleOpenDocument(document);
+              }
+            }}
           >
             <Card.Content className="relative flex h-40 items-center justify-center overflow-hidden border-b bg-muted/30 p-0">
               {document.approvalLockState?.hasAccess !== false && (
