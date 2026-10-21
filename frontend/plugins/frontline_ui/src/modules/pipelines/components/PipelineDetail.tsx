@@ -13,7 +13,7 @@ import { TUpdatePipelineForm } from '@/pipelines/types';
 import { PipelineConfig } from '@/pipelines/components/PipelineConfig';
 
 export const PipelineDetail = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.pipelines' });
   const { pipelineId } = useParams<{
     pipelineId: string;
   }>();

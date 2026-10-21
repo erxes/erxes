@@ -1,4 +1,3 @@
-import { CellContext } from '@tanstack/react-table';
 import { InstagramIntegrationFormSheet } from './InstagramIntegrationForm';
 import { IIntegration } from '@/integrations/types/Integration';
 import {
@@ -72,11 +71,11 @@ export const InstagramIntegrationDetail = ({
 };
 
 export const InstagramIntegrationActions = ({
-  cell,
+  integration,
 }: {
-  cell: CellContext<IIntegration, unknown>;
+  integration: IIntegration;
 }) => {
-  return <InstagramIntegrationEditSheet id={cell.row.original._id} />;
+  return <InstagramIntegrationEditSheet id={integration._id} />;
 };
 
 export const InstagramIntegrationEditSheet = ({ id }: { id: string }) => {

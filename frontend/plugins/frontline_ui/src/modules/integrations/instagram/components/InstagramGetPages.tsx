@@ -87,6 +87,15 @@ export const InstagramGetPages = () => {
                     onClick={() => setSelectedPage(page.id ?? undefined)}
                   />
                   <div className="font-semibold">{page.name}</div>
+                  {page.usage && (
+                    <div className="ml-auto text-xs text-muted-foreground truncate">
+                      {`${page.usage.channelName || t('no-channel')} › ${
+                        page.usage.integrationName ||
+                        page.usage.integrationId ||
+                        ''
+                      }`}
+                    </div>
+                  )}
                 </Command.Item>
               ))}
             </Command.List>

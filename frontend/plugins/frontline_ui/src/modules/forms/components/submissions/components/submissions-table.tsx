@@ -29,7 +29,7 @@ type FlatRow = { _id: string } & Record<string, unknown>;
 type FieldMeta = { text: string; type: string };
 
 const MoreColumnCell = ({ cell }: { cell: Cell<FlatRow, unknown> }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
   const { _id } = cell.row.original;
   const [__blank, setSubmissionId] = useQueryState<string>('submissionId');
 
@@ -50,7 +50,7 @@ const MoreColumnCell = ({ cell }: { cell: Cell<FlatRow, unknown> }) => {
 };
 
 export const CheckboxCell = ({ value }: { value: string[] }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
   if (!value || value.length === 0) {
     return <RecordTableInlineCell>-</RecordTableInlineCell>;
   }
@@ -87,7 +87,7 @@ function buildColumnsAndRows(submissions: IFormSubmission[]): {
     accessorKey: '__submittedAt',
     header: () => {
       // eslint-disable-next-line react-hooks/rules-of-hooks
-      const { t } = useTranslation('frontline');
+      const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
       return (
         <RecordTable.InlineHead label={t('submitted-at', 'Submitted At')} />
       );
@@ -117,7 +117,7 @@ function buildColumnsAndRows(submissions: IFormSubmission[]): {
     header: () => <RecordTable.InlineHead label={text} />,
     cell: ({ getValue }) => {
       // eslint-disable-next-line react-hooks/rules-of-hooks
-      const { t } = useTranslation('frontline');
+      const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
       const value = getValue();
 
       if (type === 'core:customer:avatar') {

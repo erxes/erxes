@@ -30,6 +30,9 @@ export const useIntegrationReauth = (
   const mountedRef = useRef(true);
 
   useEffect(() => {
+    // StrictMode runs this cleanup and the effect again; without re-arming the
+    // ref stays false and the spinner never clears after the popup closes.
+    mountedRef.current = true;
     return () => {
       mountedRef.current = false;
     };

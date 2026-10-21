@@ -24,7 +24,7 @@ type Props = {
 };
 
 export const InstagramBotSelector = ({ botId, onSelect }: Props) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.instagram' });
   const [selectedBotId, setBotId] = useState(botId || '');
   const [isOpen, setOpen] = useState(!botId || false);
   const { bots, loading } = useInstagramBots();
@@ -79,7 +79,7 @@ const InstagramBotList = ({
   selectedBotId: string;
   handleSelect: (_id: string) => void;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.instagram' });
   if (!bots?.length) {
     return (
       <div className="flex flex-col gap-2 items-center text-accent-foreground">

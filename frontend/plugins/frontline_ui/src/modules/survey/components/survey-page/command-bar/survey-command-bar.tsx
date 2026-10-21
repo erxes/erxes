@@ -26,7 +26,7 @@ import { MoveToChannelCommandBarButton } from '@/channels/components/move-resour
 import { ChannelResourceType } from '@/channels/types';
 
 export const SurveyCommandBar = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.survey' });
   const { table } = RecordTable.useRecordTable();
   const [rejectOpen, setRejectOpen] = useState(false);
   const { removeSurveys, loading: removing } = useSurveyRemove();

@@ -22,6 +22,8 @@ export const ArchiveIntegration = ({
       'Integrations',
       'IntegrationsGetUsedTypes',
       'IntegrationsGetUsedTypesByChannel',
+      'ChannelIntegrationsPeek',
+      'frontlineChannelList',
     ],
     onCompleted() {
       toast({

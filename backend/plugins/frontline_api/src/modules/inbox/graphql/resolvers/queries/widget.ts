@@ -7,6 +7,7 @@ import { Resolver } from 'erxes-api-shared/core-types';
 import * as momentTz from 'moment-timezone';
 import { IModels, IContext } from '~/connectionResolvers';
 import { IIntegrationDocument } from '~/modules/inbox/@types/integrations';
+import { toCustomerConversationView } from '@/inbox/utils/customerConversationView';
 
 const isMessengerOnline = async (
   models: IModels,
@@ -84,7 +85,11 @@ export const widgetQueries: Record<string, Resolver> = {
       ? { integrationId, customerId }
       : { integrationId, visitorId };
 
-    return models.Conversations.find(query).sort({ updatedAt: -1 });
+    const conversations = await models.Conversations.find(query).sort({
+      updatedAt: -1,
+    });
+
+    return conversations.map(toCustomerConversationView);
   },
   async widgetsConversationDetail(
     _root,

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import {
+  Badge,
   Button,
   cn,
   Command,
@@ -7,6 +8,7 @@ import {
   REACT_APP_API_URL,
   RadioGroup,
   Spinner,
+  Tooltip,
 } from 'erxes-ui';
 import {
   TFacebookAccount,
@@ -36,9 +38,12 @@ const FacebookAccountRow = ({
   selectedAccount: string | undefined;
   onSelect: (id: string) => void;
 }) => {
-  const { facebookGetPages, loading: pagesLoading } = useFacebookPages(
-    account._id,
-  );
+  const { t } = useTranslation('frontline');
+  const {
+    facebookGetPages,
+    loading: pagesLoading,
+    error: pagesError,
+  } = useFacebookPages(account._id);
   return (
     <Command.Item
       key={account._id}
@@ -57,11 +62,26 @@ const FacebookAccountRow = ({
       />
       <div className="font-semibold">{account.name}</div>
       <div className="text-sm text-muted-foreground font-mono uppercase ml-auto">
-        {pagesLoading ? (
-          <Spinner className="w-3 h-3" />
-        ) : (
-          `${facebookGetPages.length} pages`
+        {pagesLoading && <Spinner className="w-3 h-3" />}
+        {!pagesLoading && pagesError && (
+          <Tooltip.Provider>
+            <Tooltip delayDuration={0}>
+              <Tooltip.Trigger asChild>
+                <Badge variant="destructive" className="normal-case">
+                  {t('reconnect', 'Reconnect')}
+                </Badge>
+              </Tooltip.Trigger>
+              <Tooltip.Content className="max-w-80 whitespace-pre-wrap break-words normal-case font-sans">
+                {pagesError.message}
+              </Tooltip.Content>
+            </Tooltip>
+          </Tooltip.Provider>
         )}
+        {!pagesLoading &&
+          !pagesError &&
+          t('pages-count', '{{count}} pages', {
+            count: facebookGetPages.length,
+          })}
       </div>
     </Command.Item>
   );

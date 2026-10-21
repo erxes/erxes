@@ -109,10 +109,37 @@ const GET_PERSONAL_CHANNEL = gql(`
   }
 `);
 
+// Page names come from each page's own token; the Instagram page lookup spends
+// the shared app quota on a user token, so it is left out of this peek.
+const GET_CHANNEL_INTEGRATIONS_PEEK = gql(`
+  query ChannelIntegrationsPeek($channelId: String!) {
+    integrations(channelId: $channelId, limit: 50) {
+      list {
+        _id
+        name
+        kind
+        isActive
+        brandId
+        channelId
+        healthStatus {
+          status
+          error
+        }
+        facebookPage {
+          pageId
+          name
+        }
+      }
+      totalCount
+    }
+  }
+`);
+
 export {
   GET_CHANNELS,
   GET_CHANNEL,
   GET_CHANNEL_MEMBERS,
   GET_MY_CHANNELS,
   GET_PERSONAL_CHANNEL,
+  GET_CHANNEL_INTEGRATIONS_PEEK,
 };

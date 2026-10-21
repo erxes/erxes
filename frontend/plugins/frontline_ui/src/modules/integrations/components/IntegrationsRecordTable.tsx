@@ -27,6 +27,7 @@ import { InboxHotkeyScope } from '@/inbox/types/InboxHotkeyScope';
 import clsx from 'clsx';
 import { IntegrationType } from '@/types/Integration';
 import { integrationMoreColumn } from './IntegrationMoreColumn';
+import { FacebookPageLink } from '@/integrations/facebook/components/FacebookPageLink';
 import { REMOVE_INTEGRATION } from '@/integrations/graphql/mutations/RemoveIntegration';
 import { IconMessagesOff, IconTrash } from '@tabler/icons-react';
 import { INTEGRATIONS } from '../constants/integrations';
@@ -105,7 +106,7 @@ export const IntegrationsRecordTable = () => {
       data={(integrations || []).filter((integration) => integration)}
       tableId={`frontline_${params?.integrationType}_integrations_record_table`}
       stickyColumns={
-        isDiscord ? ['more', 'checkbox', 'name'] : ['more', 'name']
+        isDiscord ? ['more', 'checkbox', 'name'] : ['more', 'page', 'name']
       }
     >
       {isDiscord ? (
@@ -279,6 +280,30 @@ export const useIntegrationTypeColumns = (
     integrationMoreColumn(withSelection),
     ...(withSelection
       ? [RecordTable.checkboxColumn as ColumnDef<IIntegration>]
+      : []),
+    ...(integrationType === IntegrationType.FACEBOOK_MESSENGER ||
+    integrationType === IntegrationType.FACEBOOK_POST
+      ? [
+          {
+            id: 'page',
+            header: () => <RecordTable.InlineHead label={t('page')} />,
+            cell: (cell: CellContext<IIntegration, unknown>) => (
+              <RecordTableInlineCell className="gap-2">
+                {(cell.row.original.facebookPage ?? []).map(
+                  (page) =>
+                    page && (
+                      <FacebookPageLink
+                        key={page.pageId}
+                        pageId={page.pageId}
+                        name={page.name}
+                      />
+                    ),
+                )}
+              </RecordTableInlineCell>
+            ),
+            size: 240,
+          } as ColumnDef<IIntegration>,
+        ]
       : []),
     {
       id: 'name',

@@ -4,7 +4,7 @@ import { IconForms } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 
 export const FormsBreadCrumb = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
   return (
     <Button variant="ghost" className="font-semibold" asChild>
       <Link to={`/frontline/forms`}>

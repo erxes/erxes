@@ -86,14 +86,16 @@ export const sendReply = async (
     // window, already replied) say nothing about the token's health
     const messageLevelErrorCodes = [1, 10, 100, 10900];
     if (e.message.includes('access token')) {
-      await models.FacebookIntegrations.updateOne(
+      await models.FacebookIntegrations.markUnhealthy(
         { _id: integration._id },
-        { $set: { healthStatus: 'page-token', error: `${e.message}` } },
+        'page-token',
+        e.message,
       );
     } else if (!messageLevelErrorCodes.includes(e.code)) {
-      await models.FacebookIntegrations.updateOne(
+      await models.FacebookIntegrations.markUnhealthy(
         { _id: integration._id },
-        { $set: { healthStatus: 'account-token', error: `${e.message}` } },
+        'account-token',
+        e.message,
       );
     }
 

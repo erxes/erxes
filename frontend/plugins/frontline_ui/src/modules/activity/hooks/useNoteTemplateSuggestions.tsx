@@ -17,7 +17,7 @@ export const useNoteTemplateSuggestions = ({
   editor,
   enabled,
 }: NoteTemplateSuggestionsOptions) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.activity' });
   const [searchValue, setSearchValue] = useState('');
   const [debouncedSearchValue] = useDebounce(searchValue, 300);
   const [isDropdownDismissed, setIsDropdownDismissed] = useState(false);

@@ -1,4 +1,3 @@
-import { CellContext } from '@tanstack/react-table';
 import { IconEdit } from '@tabler/icons-react';
 import { useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
@@ -17,9 +16,9 @@ export const CallProIntegrationDetail = () => {
 };
 
 export const CallProIntegrationActions = ({
-  cell,
+  integration,
 }: {
-  cell: CellContext<IIntegration, unknown>;
+  integration: IIntegration;
 }) => {
   const { t } = useTranslation('frontline', {
     keyPrefix: 'modules.integrations',
@@ -28,7 +27,7 @@ export const CallProIntegrationActions = ({
 
   return (
     <div
-      onClick={() => setEditId(cell.row.original._id)}
+      onClick={() => setEditId(integration._id)}
       className="flex items-center gap-2 w-full"
     >
       <IconEdit size={16} />

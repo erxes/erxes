@@ -1,4 +1,3 @@
-import { CellContext } from '@tanstack/react-table';
 import { FacebookIntegrationFormSheet } from './FacebookIntegrationForm';
 import { IIntegration } from '@/integrations/types/Integration';
 import {
@@ -75,11 +74,11 @@ export const FacebookIntegrationDetail = ({ isPost }: { isPost?: boolean }) => {
 };
 
 export const FacebookIntegrationActions = ({
-  cell,
+  integration,
 }: {
-  cell: CellContext<IIntegration, unknown>;
+  integration: IIntegration;
 }) => {
-  return <FacebookIntegrationEditSheet id={cell.row.original._id} />;
+  return <FacebookIntegrationEditSheet id={integration._id} />;
 };
 
 export const FacebookIntegrationEditSheet = ({ id }: { id: string }) => {
