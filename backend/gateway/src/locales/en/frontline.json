@@ -1420,6 +1420,7 @@
   "no-polls-found": "No polls found",
   "polls-empty-description": "Create a poll and send it into a messenger conversation.",
   "send-poll": "Send poll",
+  "send-email": "Send email",
   "send-poll-description": "Pick an active poll to post into this conversation.",
   "search-polls": "Search polls",
   "no-active-polls": "No active polls yet.",
