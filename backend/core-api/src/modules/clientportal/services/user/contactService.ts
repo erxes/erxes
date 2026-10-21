@@ -119,10 +119,11 @@ async function linkCustomerToUser(
   models: IModels,
   userId: string,
   customerId: string,
-): Promise<void> {
-  await models.CPUser.updateOne(
+): Promise<ICPUserDocument | null> {
+  return models.CPUser.findOneAndUpdate(
     { _id: userId },
     { $set: { erxesCustomerId: customerId } },
+    { new: true },
   );
 }
 
@@ -189,7 +190,14 @@ async function handleCustomerUser(
     throw new ValidationError('Failed to create or update user');
   }
 
-  await linkCustomerToUser(models, user._id, customer._id);
+  const linkedUser =
+    (await linkCustomerToUser(models, user._id, customer._id)) || user;
+
+  // Users that skip verification (social login, etc.) are created already
+  // verified, so the linked contact becomes a customer right away.
+  if (linkedUser.isVerified) {
+    await updateCustomerStateToCustomer(customer._id, models);
+  }
 
   // Customer may have been matched by only one identifier (e.g. phone); make
   // sure its primary email/phone match the CP user values (CP user wins).
@@ -201,7 +209,7 @@ async function handleCustomerUser(
     erxesCustomerId: customer._id,
   });
 
-  return user;
+  return linkedUser;
 }
 
 async function handleCompanyUser(
