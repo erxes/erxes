@@ -1,5 +1,5 @@
 import type { ApolloError } from '@apollo/client';
-import type { MouseEvent } from 'react';
+import type { MouseEvent, RefObject } from 'react';
 import type { TNotification } from 'ui-modules';
 
 export type MarkNotificationAsRead = (id: string) => Promise<boolean>;
@@ -34,6 +34,7 @@ export type NotificationItemProps = Pick<
   | 'isRead'
   | 'contentType'
   | 'priority'
+  | 'type'
   | 'fromUser'
 > & {
   selected: boolean;
@@ -44,6 +45,17 @@ export type NotificationItemProps = Pick<
 export interface NotificationIconProps {
   contentType: string;
 }
+
+export interface NotificationPriorityProps {
+  priority?: string | null;
+}
+
+export interface UseNotificationItemScrollOptions {
+  isActive: boolean;
+  selectionFocused: boolean;
+}
+
+export type UseNotificationItemScrollResult = RefObject<HTMLAnchorElement>;
 
 export interface UseNotificationListResult {
   notifications: TNotification[];

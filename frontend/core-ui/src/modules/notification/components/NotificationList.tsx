@@ -1,8 +1,15 @@
 import { Fragment } from 'react';
 import { useAtomValue } from 'jotai';
 import { IconInbox } from '@tabler/icons-react';
-import { Button, ScrollArea, Spinner } from 'erxes-ui';
+import {
+  Button,
+  ScrollArea,
+  Spinner,
+  useNonNullMultiQueryState,
+} from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import { NOTIFICATION_FILTER_QUERY_KEYS } from '@/notification/constants/notifications';
+import type { NotificationFilterQueryState } from '@/notification/types/notificationFilters';
 import { NotificationItem } from '@/notification/components/NotificationItem';
 import { NotificationSelectionToolbar } from '@/notification/components/NotificationSelectionToolbar';
 import { useNotificationList } from '@/notification/hooks/useNotificationList';
@@ -11,7 +18,10 @@ import { inboxDisplayOptionsState } from '@/notification/states/notificationStat
 
 export const NotificationList = () => {
   const { t } = useTranslation('common', { keyPrefix: 'notification' });
-  const { unreadFirst } = useAtomValue(inboxDisplayOptionsState);
+  const filters = useNonNullMultiQueryState<NotificationFilterQueryState>(
+    NOTIFICATION_FILTER_QUERY_KEYS,
+  );
+  const { grouping, unreadFirst } = useAtomValue(inboxDisplayOptionsState);
   const {
     notifications,
     groups,
@@ -44,8 +54,8 @@ export const NotificationList = () => {
   if (isEmpty)
     return (
       <div className="h-full flex flex-col gap-4 justify-center items-center text-muted-foreground p-6 text-center">
-        <div className="border border-dashed p-6 bg-sidebar rounded-xl">
-          <IconInbox />
+        <div className="border border-primary/15 p-6 bg-primary/5 rounded-xl">
+          <IconInbox className="text-primary" />
         </div>
         <span className="text-sm">{t('no-notifications')}</span>
         <p className="text-xs">
@@ -55,7 +65,10 @@ export const NotificationList = () => {
     );
   return (
     <div className="relative flex flex-col h-full min-h-0">
-      <ScrollArea.Root className="w-full h-full overflow-hidden relative bg-sidebar">
+      <ScrollArea.Root
+        key={JSON.stringify([filters, grouping, unreadFirst])}
+        className="w-full h-full overflow-hidden relative bg-sidebar"
+      >
         <ScrollArea.Viewport className="[&>div]:block!">
           <div className="py-3 px-3 flex flex-col gap-2 w-full overflow-hidden">
             {error && (

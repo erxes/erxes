@@ -1,7 +1,12 @@
 import { NotificationIcon } from '@/notification/components/NotificationIcon';
+import { NotificationPriority } from '@/notification/components/NotificationPriority';
+import {
+  NOTIFICATION_PRIORITY_VARIANTS,
+  NOTIFICATION_APP_COLORS,
+} from '@/notification/constants/notifications';
 import type { NotificationItemProps } from '@/notification/types/myInbox';
+import { useNotificationItemScroll } from '@/notification/hooks/useNotificationItemScroll';
 import { Badge, Button, cn, RelativeDateDisplay } from 'erxes-ui';
-import { useEffect, useRef } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
@@ -16,6 +21,7 @@ export const NotificationItem = ({
   isRead,
   contentType = '',
   priority,
+  type = 'info',
   selected,
   selectionFocused,
   onOpen,
@@ -25,22 +31,19 @@ export const NotificationItem = ({
   const { t } = useTranslation('common', { keyPrefix: 'notification' });
   const sender =
     fromUser?.details?.fullName || fromUser?.email || t('system', 'System');
+  const appName = contentType.split(/[:.]/)[0] || 'core';
   const isActive = id === _id;
-  const linkRef = useRef<HTMLAnchorElement>(null);
-
-  useEffect(() => {
-    if (isActive || selectionFocused) {
-      linkRef.current?.scrollIntoView({ block: 'nearest' });
-    }
-  }, [isActive, selectionFocused]);
+  const linkRef = useNotificationItemScroll({ isActive, selectionFocused });
 
   return (
     <Button
       asChild
       variant="ghost"
       className={cn(
-        'justify-start h-auto rounded-lg p-2 items-start overflow-hidden relative select-none',
-        (isActive || selected) && 'bg-primary/10 hover:bg-primary/10',
+        'justify-start h-auto rounded-lg border-l-2 border-transparent p-2 items-start overflow-hidden relative select-none',
+        !isRead && 'border-primary bg-background hover:bg-primary/5',
+        (isActive || selected) &&
+          'border-primary bg-primary/10 hover:bg-primary/15',
         selectionFocused && 'ring-1 ring-inset ring-primary/30',
       )}
     >
@@ -56,13 +59,19 @@ export const NotificationItem = ({
       >
         <div
           className={cn(
-            'size-8 bg-foreground/5 rounded-full flex-none flex items-center justify-center relative',
-            isActive && 'text-primary',
+            'size-8 rounded-full flex-none flex items-center justify-center relative',
+            NOTIFICATION_APP_COLORS[appName] ||
+              'bg-muted text-muted-foreground',
           )}
+          title={appName}
         >
           <NotificationIcon contentType={contentType} />
+          <span className="sr-only">{t(type, type)}</span>
           {!isRead && (
-            <div className="size-1.5 absolute bg-destructive rounded-full top-1.5 right-1.5" />
+            <>
+              <span className="size-1.5 absolute bg-primary ring-2 ring-background rounded-full top-0 right-0" />
+              <span className="sr-only">{t('unread', 'Unread')}</span>
+            </>
           )}
         </div>
         <div className="flex-auto space-y-1 overflow-hidden">
@@ -85,8 +94,11 @@ export const NotificationItem = ({
           <div className={cn('text-xs flex items-center justify-between')}>
             <div className="flex items-center gap-2">
               {display.showPriority && (
-                <Badge className="capitalize" variant="secondary">
-                  {priority}
+                <Badge
+                  className="capitalize"
+                  variant={NOTIFICATION_PRIORITY_VARIANTS[priority]}
+                >
+                  <NotificationPriority priority={priority} />
                 </Badge>
               )}
             </div>

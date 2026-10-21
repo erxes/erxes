@@ -1,17 +1,8 @@
 import type { INotificationDocument } from 'erxes-api-shared/core-modules';
 import type { FilterQuery, SortOrder } from 'mongoose';
+import type { NotificationFilters } from '~/modules/notifications/types/notificationFilters';
 
-export interface NotificationFilters {
-  status?: string;
-  priority?: string;
-  type?: string;
-  fromDate?: string;
-  endDate?: string;
-  module?: string;
-  fromUserId?: string;
-  ids?: string[];
-  unreadFirst?: boolean;
-}
+export type { NotificationFilters } from '~/modules/notifications/types/notificationFilters';
 
 export const generateNotificationsFilter = (
   params: NotificationFilters = {},
@@ -38,8 +29,18 @@ export const generateNotificationsFilter = (
   if (params.fromUserId) {
     filter.fromUserId = { $in: params.fromUserId.split(',').filter(Boolean) };
   }
+  const contentType: { $regex?: string; $in?: string[] } = {};
+  if (params.plugin) {
+    if (!/^[a-z][a-z0-9_-]*$/i.test(params.plugin)) {
+      throw new Error('Invalid notification plugin');
+    }
+    contentType.$regex = `^${params.plugin}[:.]`;
+  }
   if (params.module === 'approval') {
-    filter.contentType = { $in: ['core:approval', 'core.approval'] };
+    contentType.$in = ['core:approval', 'core.approval'];
+  }
+  if (Object.keys(contentType).length > 0) {
+    filter.contentType = contentType;
   }
   return filter;
 };
