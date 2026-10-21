@@ -23,6 +23,10 @@ import {
   rebuildFixedAssetCurrentCounts,
 } from './fixedAssets';
 import { activeCost } from './inventories';
+import {
+  prepareRealJobProduction,
+  syncRealJobProduction,
+} from './realJobProduction';
 import { saveInvJustify } from './invJustify';
 import {
   normalizeInvSplitTransaction,
@@ -304,9 +308,13 @@ async function handleInvOut(
     ).lean();
     excludedIds.push(...linked.map((transaction) => transaction._id));
   }
-  const costedDoc = await applyActiveInventoryCosts(models, doc, [
-    ...new Set(excludedIds),
-  ]);
+  const production =
+    !doc.originId && doc.contentType !== 'jobExecution'
+      ? await prepareRealJobProduction(subdomain, models, userId, doc, oldTr)
+      : undefined;
+  const costedDoc = production
+    ? { ...doc, details: production.details }
+    : await applyActiveInventoryCosts(models, doc, [...new Set(excludedIds)]);
   const mainTr = await createOrUpdateTr(
     models,
     userId,
@@ -316,7 +324,10 @@ async function handleInvOut(
 
   await syncProductsInventory(subdomain, mainTr, oldTr, -1);
 
-  return { mainTr, otherTrs: [] };
+  const otherTrs = production
+    ? await syncRealJobProduction(subdomain, models, userId, mainTr, production)
+    : [];
+  return { mainTr, otherTrs };
 }
 
 async function handleInvMove(

@@ -24,6 +24,8 @@
 
 ## Current Capabilities
 
+- `invOut` and `invSale` shortage costing can run an active `real` job without creating a job execution document. The newest `modifiedAt` match supplies only the missing quantity, using the outgoing inventory account and effective branch/department for both material consumption and production income. Production and expense-credit follows share the source parent, a separate balanced pointer, and a direct `originId`, so they appear in TBalance without becoming editable source tabs.
+
 - Owns multi-job executions through `JobExecutions`: root date, description, input/output inventory accounts and locations, with independent `jobs[]` rows holding job id/name, quantity, actual inputs/outputs and cost arrays. No redundant planned arrays are persisted.
 
 - Prints the federated accounting SDL without starting a server via `schema:print`; `gateway:schema:compose` includes this subgraph in the schema used by accounting UI codegen.
@@ -149,6 +151,11 @@
 - Fixed asset owner records generated from transactions must assign a per-fixed-asset fallback sequence when the source row omits one so legacy databases with a unique `fixedAssetId + sequence` index do not reject multiple unsequenced owner rows.
 
 ## Local Invariants
+
+- Automatic real-job production belongs to `src/modules/accounting/utils/realJobProduction.ts`. Choose a matching active real job by `modifiedAt: -1, _id: -1`; skip production if active remainder covers demand or no recipe matches. Convert master recipe UOMs to base units before scaling, reuse the job execution transaction builder for per-job output ratios and labor/overhead costs, then consolidate repeated inventory products per account/location. Cost the source consumption from inventory after production; never overwrite sale revenue.
+- Real-job follows use `realJobOut`, `realJobIncome`, and `realJobCost` origin types and are saved directly, without recursively auto-producing material shortages or creating `JobExecutions`. Explicit job executions do not trigger auto-production. Follow status/date/parent/number track the source; cost accounts require active single-journal accounts in the inventory currency and normal account write permission.
+- Real-job edit costing excludes the old source, its sale-out movement, and all its production follows. Resaves preserve follow transaction/detail ids by location and product/account, reverse and delete obsolete follows, and source removal reverses owned inventory follows exactly once. Generated follows must never independently repeat the source cleanup.
+- `InvSaleOutCostTrs.doTrs(transaction)` owns sale inventory active-cost/shortage preparation and production-follow synchronization internally. It returns the sale-out, sale-cost, and any job-generated follows together. `commonSave` owns the sale source and tax handling only; do not pass a production plan into the sale journal handler.
 
 - Inventory adjustment repricing of `jobExecution` invOut rows reallocates that parent group's invIncome from saved per-job actuals, labor/overhead and ratios using the shared production builder. It reads current merged input amounts, preserves output ids/counts and expense credits, updates income totals, and adds only income cost deltas (zero quantity) to the adjustment cache after the outgoing cache write. It never calls activeCost again or the generic related-main debit correction for execution rows.
 

@@ -12,6 +12,7 @@ import {
 } from './fixedAssets';
 import { removeInvJustify } from './invJustify';
 import { isInvSplitFollow, removeInvSplitFollowTrs } from './invSplit';
+import { isRealJobFollow, removeRealJobProduction } from './realJobProduction';
 
 export type TCommonRemoveOptions = {
   detailIds?: string[];
@@ -119,7 +120,7 @@ async function handleInvIncome(
   _followTrs?: ITransactionDocument[],
   _options?: TCommonRemoveOptions,
 ) {
-  if (isInvSplitFollow(transaction)) {
+  if (isInvSplitFollow(transaction) || isRealJobFollow(transaction)) {
     return;
   }
   await removeSyncProductsInventory(subdomain, transaction, 1);
@@ -127,16 +128,17 @@ async function handleInvIncome(
 }
 
 async function handleInvOut(
-  _models: IModels,
+  models: IModels,
   subdomain: string,
   transaction: ITransactionDocument,
   _followTrs?: ITransactionDocument[],
   _options?: TCommonRemoveOptions,
 ) {
-  if (isInvSplitFollow(transaction)) {
+  if (isInvSplitFollow(transaction) || isRealJobFollow(transaction)) {
     return;
   }
   await removeSyncProductsInventory(subdomain, transaction, -1);
+  await removeRealJobProduction(subdomain, models, transaction._id);
 }
 
 async function handleInvMove(
@@ -159,13 +161,20 @@ async function handleInvMove(
 }
 
 async function handleInvSale(
-  _models: IModels,
+  models: IModels,
   subdomain: string,
   transaction: ITransactionDocument,
   followTrs?: ITransactionDocument[],
   _options?: TCommonRemoveOptions,
 ) {
-  const saleOutTr = followTrs?.find(
+  await removeRealJobProduction(subdomain, models, transaction._id);
+  const linked =
+    followTrs ??
+    (await models.Transactions.find({
+      originId: transaction._id,
+      originType: TR_FOLLOW_TYPES.INV_SALE_OUT,
+    }).lean());
+  const saleOutTr = linked.find(
     (ftr) =>
       ftr.originId === transaction._id &&
       ftr.originType === TR_FOLLOW_TYPES.INV_SALE_OUT,
