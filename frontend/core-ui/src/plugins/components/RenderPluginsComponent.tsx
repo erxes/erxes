@@ -15,11 +15,14 @@ import { ErrorBoundary } from 'react-error-boundary';
 import { RenderPluginsComponentCrashState } from './RenderPluginsComponentCrashState';
 import { RenderPluginsComponentErrorState } from './RenderPluginsComponentErrorState';
 import { Spinner } from 'erxes-ui';
+import { useAtomValue } from 'jotai';
+import { pluginsConfigState } from 'ui-modules';
+import { resolvePluginRemoteName } from '../utils/resolvePluginRemoteName';
 
 const QuietCrashState = () => null;
 
 export function RenderPluginsComponent({
-  pluginName,
+  pluginName: requestedPluginName,
   remoteModuleName,
   props,
   withMascot,
@@ -35,6 +38,8 @@ export function RenderPluginsComponent({
    */
   quiet?: boolean;
 }) {
+  const configs = useAtomValue(pluginsConfigState);
+  const pluginName = resolvePluginRemoteName(requestedPluginName, configs);
   // A plugin loaded before renders on the first frame: switching apps must
   // not flash the loader, since the plugin draws its own sidebar.
   const [Plugin, setPlugin] = useState<RemoteComponent | null>(

@@ -1,16 +1,20 @@
-import { useTranslation } from 'react-i18next';
-import { AccountingHotkeyScope } from '@/types/AccountingHotkeyScope';
-import { SelectAccount } from '@/settings/account/components/SelectAccount';
-import { IAccount, JournalEnum } from '@/settings/account/types/Account';
 import {
   DropdownMenu,
   usePreviousHotkeyScope,
   useScopedHotkeys,
 } from 'erxes-ui';
-import { useState } from 'react';
+import { IAccount, JournalEnum } from '@/settings/account/types/Account';
+import {
+  TR_JOURNAL_GROUPS,
+  TrJournalEnum,
+} from '@/transactions/types/constants';
+
+import { AccountingHotkeyScope } from '@/types/AccountingHotkeyScope';
 import { Link } from 'react-router-dom';
-import { TrJournalEnum } from '@/transactions/types/constants';
+import { SelectAccount } from '@/settings/account/components/SelectAccount';
 import { getSingleJournalByAccount } from '@/transactions/transaction-form/components/utils';
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export type AddTransactionHandler = (
   journal?: TrJournalEnum,
@@ -60,7 +64,11 @@ export const AddTransaction = ({
       }}
     >
       <DropdownMenu.Trigger asChild>{children}</DropdownMenu.Trigger>
-      <DropdownMenu.Content className="min-w-(--radix-dropdown-menu-trigger-width)">
+      <DropdownMenu.Content
+        align="end"
+        collisionPadding={8}
+        className="min-w-(--radix-dropdown-menu-trigger-width) max-h-(--radix-dropdown-menu-content-available-height) overflow-y-auto"
+      >
         {inForm && (
           <>
             <DropdownMenu.Label>{t('account')}</DropdownMenu.Label>
@@ -87,122 +95,29 @@ export const AddTransaction = ({
             <DropdownMenu.Separator />
           </>
         )}
-        <DropdownMenu.Label>{t('general')}</DropdownMenu.Label>
-        <AddTransactionItem
-          journal={TrJournalEnum.MAIN}
-          onClick={onClick}
-          inForm={inForm}
-        >
-          {t('general-journal')}
-        </AddTransactionItem>
-        <AddTransactionItem disabled>{t('vat')}</AddTransactionItem>
-        <DropdownMenu.Label>{t('cash-and-bank')}</DropdownMenu.Label>
-        <AddTransactionItem
-          journal={TrJournalEnum.CASH}
-          onClick={onClick}
-          inForm={inForm}
-        >
-          {t('cash-label')}
-        </AddTransactionItem>
-        <AddTransactionItem
-          journal={TrJournalEnum.BANK}
-          onClick={onClick}
-          inForm={inForm}
-        >
-          {t('bank')}
-        </AddTransactionItem>
-        <DropdownMenu.Label>{t('calculation')}</DropdownMenu.Label>
-        <AddTransactionItem
-          journal={TrJournalEnum.RECEIVABLE}
-          onClick={onClick}
-          inForm={inForm}
-        >
-          {t('accounts-receivable')}
-        </AddTransactionItem>
-        <AddTransactionItem
-          journal={TrJournalEnum.PAYABLE}
-          onClick={onClick}
-          inForm={inForm}
-        >
-          {t('accounts-payable')}
-        </AddTransactionItem>
-
-        <DropdownMenu.Label>{t('inventory-label')}</DropdownMenu.Label>
-        <AddTransactionItem
-          journal={TrJournalEnum.INV_INCOME}
-          onClick={onClick}
-          inForm={inForm}
-        >
-          {t('receipt')}
-        </AddTransactionItem>
-        <AddTransactionItem
-          journal={TrJournalEnum.INV_OUT}
-          onClick={onClick}
-          inForm={inForm}
-        >
-          {t('supplies-issue')}
-        </AddTransactionItem>
-        <AddTransactionItem
-          journal={TrJournalEnum.INV_JUSTIFY}
-          onClick={onClick}
-          inForm={inForm}
-        >
-          {t('cost-adjustment')}
-        </AddTransactionItem>
-        {!inForm && (
-          <AddTransactionItem
-            journal={TrJournalEnum.INV_MOVE}
-            onClick={onClick}
-            inForm={inForm}
-          >
-            {t('internal-transfer')}
-          </AddTransactionItem>
-        )}
-        <AddTransactionItem
-          journal={TrJournalEnum.INV_SALE}
-          onClick={onClick}
-          inForm={inForm}
-        >
-          {t('sale')}
-        </AddTransactionItem>
-        <AddTransactionItem
-          journal={TrJournalEnum.INV_SALE_RETURN}
-          onClick={onClick}
-          inForm={inForm}
-        >
-          {t('sales-return')}
-        </AddTransactionItem>
-
-        <DropdownMenu.Label>{t('fixed-asset')}</DropdownMenu.Label>
-        <AddTransactionItem
-          journal={TrJournalEnum.FXA_INCOME}
-          onClick={onClick}
-          inForm={inForm}
-        >
-          {t('receipt')}
-        </AddTransactionItem>
-        <AddTransactionItem
-          journal={TrJournalEnum.FXA_OUT}
-          onClick={onClick}
-          inForm={inForm}
-        >
-          {t('disposal')}
-        </AddTransactionItem>
-        <AddTransactionItem
-          journal={TrJournalEnum.FXA_MOVE}
-          onClick={onClick}
-          inForm={inForm}
-        >
-          {t('movement')}
-        </AddTransactionItem>
-        <AddTransactionItem
-          journal={TrJournalEnum.FXA_SALE}
-          onClick={onClick}
-          inForm={inForm}
-        >
-          {t('sale')}
-        </AddTransactionItem>
-        <AddTransactionItem disabled>{t('adjustment')}</AddTransactionItem>
+        {TR_JOURNAL_GROUPS.map((group) => (
+          <DropdownMenu.Group key={group.label} className="pb-1">
+            <DropdownMenu.Label className="flex items-center gap-1.5 text-muted-foreground">
+              <group.icon className="size-3.5" />
+              {t(group.label)}
+            </DropdownMenu.Label>
+            {group.items
+              .filter((item) => !item.hideInAdd && !(inForm && item.hideInForm))
+              .map((item) => (
+                <AddTransactionItem
+                  key={item.journal}
+                  journal={item.journal}
+                  onClick={onClick}
+                  inForm={inForm}
+                >
+                  {t(item.label)}
+                </AddTransactionItem>
+              ))}
+          </DropdownMenu.Group>
+        ))}
+        <DropdownMenu.Item disabled className="pl-7">
+          {t('adjustment')}
+        </DropdownMenu.Item>
       </DropdownMenu.Content>
     </DropdownMenu>
   );
@@ -210,23 +125,20 @@ export const AddTransaction = ({
 
 const AddTransactionItem = ({
   children,
-  disabled,
   journal,
   inForm,
   onClick,
 }: {
   children: React.ReactNode;
-  disabled?: boolean;
-  journal?: TrJournalEnum;
+  journal: TrJournalEnum;
   onClick?: AddTransactionHandler;
   inForm?: boolean;
 }) => {
-  if (disabled) {
-    return <DropdownMenu.Item disabled>{children}</DropdownMenu.Item>;
-  }
-  if (!inForm && journal) {
+  const className = 'cursor-pointer pl-7';
+
+  if (!inForm) {
     return (
-      <DropdownMenu.Item asChild>
+      <DropdownMenu.Item asChild className={className}>
         <Link to={`/accounting/transaction/create?defaultJournal=${journal}`}>
           {children}
         </Link>
@@ -234,7 +146,7 @@ const AddTransactionItem = ({
     );
   }
   return (
-    <DropdownMenu.Item onClick={() => onClick?.(journal)}>
+    <DropdownMenu.Item className={className} onClick={() => onClick?.(journal)}>
       {children}
     </DropdownMenu.Item>
   );
