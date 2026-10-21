@@ -32,9 +32,10 @@
   `isCheckRemainder` for preventing negative stock, with category exclusions.
 
 - Runs as the sales Module Federation remote.
-- The deals sidebar BOARDS group shows a hover `+` menu
-  (`deals/boards/components/BoardsNavigationActions.tsx`): Add Board opens a
-  create-only dialog that selects the new board on success. Pipelines are
+- The deals sidebar BOARDS group shows a hover `+`
+  (`deals/boards/components/BoardsNavigationActions.tsx`) that opens the
+  create-only Add Board dialog directly (no menu) and selects the new board on
+  success. Pipelines are
   added per board: every board row carries a `+` (`BoardItem`) left of the expand
   chevron, inside the row's highlight, shown on row hover or focus (`opacity`,
   so it stays tabbable); it opens the pipeline create sheet for that board and expands
@@ -562,7 +563,7 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   hide e-mail (phone stays locked on), add a property, rearrange in Edit
   layout, save, and verify the layout persists after reload.
 - Board/pipeline create smoke scenario: on `/sales/deals` hover BOARDS, use
-  `+` → Add Board (empty name is rejected), confirm the new board is selected
+  `+` (the Add Board dialog opens directly; empty name is rejected), confirm the new board is selected
   with the group still open, then click a board row's `+` and confirm the Add Pipeline sheet opens on the deals page with
   that board preselected and empty fields, and that the created pipeline
   appears under its board without a reload.

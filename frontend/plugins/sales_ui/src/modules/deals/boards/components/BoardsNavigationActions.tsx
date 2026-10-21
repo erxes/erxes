@@ -1,11 +1,10 @@
 import { useBoardAdd } from '@/deals/boards/hooks/useBoards';
 import { TBoardForm } from '@/deals/types/boards';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { IconLayoutKanban, IconPlus } from '@tabler/icons-react';
+import { IconPlus } from '@tabler/icons-react';
 import {
   Button,
   Dialog,
-  DropdownMenu,
   Form,
   Input,
   Spinner,
@@ -133,27 +132,15 @@ export const BoardsNavigationActions = () => {
 
   return (
     <div className="flex items-center" onClick={(e) => e.stopPropagation()}>
-      <DropdownMenu>
-        <DropdownMenu.Trigger asChild>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="text-muted-foreground"
-            aria-label={t('add-board')}
-          >
-            <IconPlus className="size-4" />
-          </Button>
-        </DropdownMenu.Trigger>
-        <DropdownMenu.Content side="right" align="start" className="w-48">
-          <DropdownMenu.Item
-            className="cursor-pointer"
-            onSelect={() => setBoardDialogOpen(true)}
-          >
-            <IconLayoutKanban className="size-4" />
-            {t('add-board')}
-          </DropdownMenu.Item>
-        </DropdownMenu.Content>
-      </DropdownMenu>
+      <Button
+        variant="ghost"
+        size="icon"
+        className="text-muted-foreground"
+        aria-label={t('add-board')}
+        onClick={() => setBoardDialogOpen(true)}
+      >
+        <IconPlus className="size-4" />
+      </Button>
       <BoardCreateDialog
         open={boardDialogOpen}
         onOpenChange={setBoardDialogOpen}
