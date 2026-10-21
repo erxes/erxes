@@ -262,6 +262,8 @@
   "please-select-triage": "Please select a triage to view its details.",
   "add-triage": "Add triage",
   "new-triage": "New triage",
+  "name-required": "Name is required",
+  "team-required": "Team is required",
   "no-triages-to-display": "No triages to display at the moment.",
   "loading-more": "loading more...",
   "triage-created-successfully": "Triage created successfully",
