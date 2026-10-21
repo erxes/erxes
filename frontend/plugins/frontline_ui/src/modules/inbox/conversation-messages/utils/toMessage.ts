@@ -17,6 +17,7 @@ export type MessageSource = {
   userId?: string | null;
   customerId?: string | null;
   content?: string | null;
+  contentType?: string | null;
   createdAt?: string | null;
   attachments?: unknown;
   formWidgetData?: unknown;
@@ -64,6 +65,7 @@ export const toMessage = (message: MessageSource): IMessage => ({
   userId: message.userId ?? undefined,
   customerId: message.customerId ?? undefined,
   content: message.content ?? '',
+  contentType: message.contentType ?? undefined,
   createdAt: message.createdAt ?? '',
   attachments: parseList(message.attachments, parseAttachment),
   formWidgetData: message.formWidgetData ?? undefined,

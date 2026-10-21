@@ -1,16 +1,18 @@
 import { IconExternalLink } from '@tabler/icons-react';
 import { Button } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import { AutomationExecutionHistoryNameProps } from 'ui-modules';
 
 export const InstagramAutomationHistoryName = ({
   target,
 }: AutomationExecutionHistoryNameProps) => {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.instagram' });
   return (
     <>
       <Button asChild variant="link">
         <Link target="_blank" to={`/contacts/details/${target?.customerId}`}>
-          {'See Customer'}
+          {t('see-customer')}
           <IconExternalLink />
         </Link>
       </Button>
@@ -20,7 +22,7 @@ export const InstagramAutomationHistoryName = ({
           target="_blank"
           to={`/frontline/inbox?conversationId=${target?.conversationId}`}
         >
-          {'See Conversation'}
+          {t('see-conversation')}
           <IconExternalLink />
         </Link>
       </Button>

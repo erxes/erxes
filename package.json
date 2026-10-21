@@ -1,6 +1,6 @@
 {
   "name": "erxes-next",
-  "version": "3.3.2",
+  "version": "3.3.4",
   "license": "MIT",
   "scripts": {
     "dev:core-api": "npx nx run-many -t serve -p core-api gateway",
@@ -172,9 +172,14 @@
     "xss": "^1.0.15",
     "yaml": "^2.7.0",
     "zod": "^3.23.8",
-    "zustand": "^5.0.2"
+    "zustand": "^5.0.2",
+    "jszip": "^3.10.1",
+    "pdfjs-dist": "^6.4.299",
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz",
+    "docx-preview": "^0.4.1"
   },
   "devDependencies": {
+    "@apollo/composition": "2.9.3",
     "@apollo/rover": "^0.26.3",
     "@babel/core": "^7.14.5",
     "@babel/preset-react": "^7.14.5",

@@ -1,9 +1,5 @@
 import { z } from 'zod';
-import {
-  createCustomerSchema,
-  TicketCheckProgressSchema,
-  TicketForgotProgressSchema,
-} from '../schema';
+import { createCustomerSchema, TicketCheckProgressSchema } from '../schema';
 import { IUser } from '../types';
 
 export enum TicketFormFields {
@@ -43,9 +39,6 @@ export enum TicketFormPlaceholders {
 }
 
 export type TCreateCustomerForm = z.infer<typeof createCustomerSchema>;
-export type TTicketForgotProgressForm = z.infer<
-  typeof TicketForgotProgressSchema
->;
 export type TTicketCheckProgressForm = z.infer<
   typeof TicketCheckProgressSchema
 >;

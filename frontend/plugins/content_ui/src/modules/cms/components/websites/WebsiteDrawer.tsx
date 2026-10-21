@@ -1,4 +1,4 @@
-import { useMutation } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
 import {
   Button,
   Form,
@@ -17,7 +17,7 @@ import {
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { GET_WEBSITES } from '../../graphql/queries';
+import { CONTENT_CMS_LIST, GET_WEBSITES } from '../../graphql/queries';
 import {
   CONTENT_CREATE_CMS,
   CONTENT_UPDATE_CMS,
@@ -56,6 +56,20 @@ export function WebsiteDrawer({
     refetch: refetchClientPortals,
   } = useClientPortals({}, !isOpen);
 
+  const { data: cmsData } = useQuery<{ contentCMSList: IWebsite[] }>(
+    CONTENT_CMS_LIST,
+    { fetchPolicy: 'cache-first', skip: !isOpen },
+  );
+
+  // CMS routes are keyed by clientPortalId, so two CMSes on one portal would
+  // both open whichever CMS the list returns first.
+  const portalOwnerNames = new Map<string, string>();
+  for (const cms of cmsData?.contentCMSList || []) {
+    if (cms.clientPortalId && cms._id !== website?._id) {
+      portalOwnerNames.set(cms.clientPortalId, cms.name);
+    }
+  }
+
   const form = useForm<WebsiteFormType>({
     resolver: zodResolver(websiteFormSchema),
     defaultValues: {
@@ -63,7 +77,7 @@ export function WebsiteDrawer({
       description: '',
       domain: '',
       url: '',
-      kind: 'client',
+      kind: '',
       languages: [],
       language: '',
     },
@@ -89,7 +103,7 @@ export function WebsiteDrawer({
           description: '',
           domain: '',
           url: '',
-          kind: 'client',
+          kind: '',
           languages: [],
           language: '',
         });
@@ -174,6 +188,30 @@ export function WebsiteDrawer({
 
   const onSubmit = (data: WebsiteFormType) => {
     const { name, description, language, languages } = data;
+
+    // A legacy CMS may keep its stored portal so editing it never moves content.
+    const portalChanged = !isEditing || data.kind !== website?.clientPortalId;
+
+    if (portalChanged) {
+      if (!clientPortals.some((portal) => portal._id === data.kind)) {
+        form.setError('kind', {
+          message: t('select-client-portal'),
+        });
+        return;
+      }
+
+      const ownerName = portalOwnerNames.get(data.kind);
+
+      if (ownerName) {
+        form.setError('kind', {
+          message: t('cms-client-portal-in-use', {
+            defaultValue: 'This client portal is already used by {{name}}',
+            name: ownerName,
+          }),
+        });
+        return;
+      }
+    }
 
     if (isEditing && website?._id) {
       updateCMS({
@@ -328,11 +366,26 @@ export function WebsiteDrawer({
                           />
                         </Select.Trigger>
                         <Select.Content>
-                          {clientPortals.map((portal) => (
-                            <Select.Item key={portal._id} value={portal._id}>
-                              {portal.name}
-                            </Select.Item>
-                          ))}
+                          {clientPortals.map((portal) => {
+                            const ownerName = portalOwnerNames.get(portal._id);
+
+                            return (
+                              <Select.Item
+                                key={portal._id}
+                                value={portal._id}
+                                disabled={Boolean(ownerName)}
+                              >
+                                {ownerName
+                                  ? t('cms-client-portal-used-by', {
+                                      defaultValue:
+                                        '{{portal}} (used by {{name}})',
+                                      portal: portal.name,
+                                      name: ownerName,
+                                    })
+                                  : portal.name}
+                              </Select.Item>
+                            );
+                          })}
                         </Select.Content>
                       </Select>
                     </Form.Control>

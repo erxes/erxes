@@ -1,17 +1,11 @@
-import { JSONContent } from 'erxes-ui';
+import type { JSONContent } from 'erxes-ui';
+import type { EmailTemplate, EmailTemplateContentFormat } from 'ui-modules';
+export { emailTemplateFormat } from 'ui-modules';
 import { IUser } from 'ui-modules';
 
-export type TEmailContentFormat = 'blocks' | 'maily';
+export type TEmailContentFormat = EmailTemplateContentFormat;
 
-export interface IEmailTemplate {
-  _id: string;
-  name: string;
-  description?: string;
-  /** Written in the block editor. */
-  content?: string;
-  /** Written in the email editor. */
-  contentJson?: JSONContent;
-  contentFormat?: TEmailContentFormat;
+export interface IEmailTemplate extends EmailTemplate {
   createdBy?: string;
   createdAt?: string;
   updatedAt?: string;
@@ -36,12 +30,3 @@ export type TEmailTemplateInput = {
   contentJson?: JSONContent;
   contentFormat?: TEmailContentFormat;
 };
-
-/**
- * Templates written before the email editor carry no marker, and block
- * content is what that used to mean — the same rule the backend applies.
- */
-export const emailTemplateFormat = (
-  template?: Pick<IEmailTemplate, 'contentFormat' | 'contentJson'>,
-): TEmailContentFormat =>
-  template?.contentFormat || (template?.contentJson ? 'maily' : 'blocks');

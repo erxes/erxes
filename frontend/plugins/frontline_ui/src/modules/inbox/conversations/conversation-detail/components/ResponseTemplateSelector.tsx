@@ -23,7 +23,6 @@ import { useAtom, useAtomValue } from 'jotai';
 
 import { ChannelsInline } from '@/inbox/channel/components/ChannelsInline';
 import { SelectChannel } from '@/inbox/channel/components/SelectChannel';
-import type { TViewMode as ViewMode } from '@/inbox/conversations/conversation-detail/types';
 import { getPreviewText } from '@/inbox/types/inbox';
 import { responseListViewAtom } from '@/inbox/conversations/conversation-detail/states/responseTemplate';
 import { useDebounce } from 'use-debounce';
@@ -80,7 +79,7 @@ export const ResponseTemplateSelector: React.FC<
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [search, setSearch] = useState<string>('');
   const [debouncedSearch] = useDebounce(search, 500);
-  const [viewMode, setViewMode] = useAtom<ViewMode>(responseListViewAtom);
+  const [viewMode, setViewMode] = useAtom(responseListViewAtom);
   const [selectedChannel, setSelectedChannel] = useState<string>('');
   const containerRef = useRef<HTMLDivElement>(null);
   const sentinelRef = useRef<HTMLDivElement>(null);

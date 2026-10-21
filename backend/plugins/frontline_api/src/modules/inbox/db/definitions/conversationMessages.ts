@@ -96,3 +96,5 @@ export const messageSchema = new Schema({
   botId: { type: String },
   responseTemplateId: { type: String },
 });
+
+messageSchema.index({ conversationId: 1, createdAt: -1, _id: -1 });

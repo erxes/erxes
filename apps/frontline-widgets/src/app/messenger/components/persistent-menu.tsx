@@ -6,7 +6,6 @@ import { connectionAtom } from '../states';
 import { Link } from 'react-router-dom';
 import { IPersistentMenu } from '../types';
 import { useInsertMessage } from '../hooks/useInsertMessage';
-import { getLocalStorageItem } from '@libs/utils';
 
 export const PersistentMenu = () => {
   const { activeTab } = useMessenger();
@@ -58,16 +57,11 @@ export const ButtonItem = ({
   contentType: string;
 }) => {
   const { insertMessage } = useInsertMessage();
-  const connection = useAtomValue(connectionAtom);
-  const { customerId } = connection.widgetsMessengerConnect;
-  const __customerId = getLocalStorageItem('customerId');
-
   const handleClick = () => {
     insertMessage({
       variables: {
         contentType,
         message: text,
-        customerId: customerId || __customerId || undefined,
       },
     });
   };

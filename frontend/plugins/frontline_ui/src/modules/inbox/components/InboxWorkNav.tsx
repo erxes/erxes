@@ -1,3 +1,4 @@
+import { ConversationCountValue } from '@/inbox/conversations/components/ConversationCountValue';
 import {
   IconAt,
   IconClockExclamation,
@@ -113,7 +114,7 @@ export const InboxWorkNav = () => {
                     variant={isActive ? 'default' : 'secondary'}
                     className="ml-auto h-5 min-w-5 justify-center border-0 px-1 text-xs tabular-nums"
                   >
-                    {count}
+                    <ConversationCountValue count={count} />
                   </Badge>
                 )}
               </Sidebar.MenuButton>

@@ -14,7 +14,7 @@ type Props = {
 };
 
 export function FormToggleStatus({ formId, status, setOpen }: Props) {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
   const { toggleStatus, loading } = useFormToggleStatus();
 
   const onSelect = () => {

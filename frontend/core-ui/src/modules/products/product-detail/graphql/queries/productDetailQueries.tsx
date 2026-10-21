@@ -42,6 +42,12 @@ export const PRODUCT_DETAIL_QUERY = gql`
         type
         duration
       }
+      files {
+        url
+        name
+        size
+        type
+      }
       pdfAttachment {
         pdf {
           name

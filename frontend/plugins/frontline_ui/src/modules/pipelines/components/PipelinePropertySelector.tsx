@@ -12,7 +12,7 @@ type Props = {
 };
 
 export const PipelinePropertySelector = ({ value, onChange }: Props) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.pipelines' });
   const { fieldGroups, loading: groupsLoading } = useFieldGroups({
     contentType: CONTENT_TYPE,
     limit: PROPERTY_LIMIT,

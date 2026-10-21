@@ -11,7 +11,7 @@ type Props = {
 };
 
 export const OpenLiveForm: FC<Props> = ({ formId, channelId }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
   return (
     <Link
       target="_blank"

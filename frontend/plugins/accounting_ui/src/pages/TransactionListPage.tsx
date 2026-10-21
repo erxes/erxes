@@ -1,5 +1,6 @@
 import { AccountingHeader } from '@/layout/components/Header';
 import { AccountingLayout } from '@/layout/components/Layout';
+import { ReceiptsNavigation } from '@/ReceiptsNavigation';
 import { AddTransaction } from '@/transactions/components/AddTransaction';
 import { TransactionTable } from '@/transactions/components/TransactionTable';
 import { TransactionsFilter } from '@/transactions/components/TrFilters';
@@ -14,14 +15,20 @@ import {
   ScrollArea,
 } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import { useLocation } from 'react-router-dom';
 import { Can, Export, Import } from 'ui-modules';
-import { TrsTotalCount } from '~/modules/transactions/components/TrsTotalCount';
-import { ORIGIN_TR_JOURNALS } from '~/modules/transactions/types/constants';
-import { TR_JOURNAL_LABELS } from '../modules/transactions/types/constants';
+import { TrsTotalCount } from '@/transactions/components/TrsTotalCount';
+import {
+  ORIGIN_TR_JOURNALS,
+  TR_JOURNAL_LABELS,
+} from '@/transactions/types/constants';
+import { AccountingPath } from '@/types/AccountingPath';
 
 export const TransactionListPage = () => {
   const { t } = useTranslation('accounting');
   const filterVariables = useTransactionsFilterVariables();
+  const { pathname } = useLocation();
+  const isReceiptsPage = pathname.replace(/\/$/, '') === AccountingPath.Main;
 
   const renderAdditionHelper = () => {
     return (
@@ -156,60 +163,68 @@ export const TransactionListPage = () => {
 
   return (
     <AccountingLayout>
-      <AccountingHeader>
-        <div className="px-3">
-          <AddTransaction>
-            <Button>
-              <IconPlus />
-              {t('add-transaction-label')}
-              <Kbd>C</Kbd>
-            </Button>
-          </AddTransaction>
-        </div>
-      </AccountingHeader>
-      <PageSubHeader>
-        <TransactionsFilter afterBar={<TrsTotalCount />} />
-        <Can action="transactionsExportManage">
-          <Export
-            pluginName="accounting"
-            moduleName="account"
-            collectionName="transactions"
-            getFilters={() => filterVariables}
-          />
-        </Can>
-        <Can action="transactionsImportManage">
-          <Import
-            pluginName="accounting"
-            moduleName="account"
-            collectionName="transactions"
-            title={t('import-transactions')}
-          >
-            <Dialog>
-              <Dialog.Trigger asChild>
-                <Button
-                  variant="secondary"
-                  className="mt-1 w-full justify-start gap-2 border border-primary/30 bg-primary/10 text-primary hover:bg-primary/15 hover:text-primary"
-                >
-                  <IconHelpCircle className="size-4" />
-                  {t('view-import-guide')}
+      <div className="flex flex-auto overflow-hidden">
+        {isReceiptsPage && <ReceiptsNavigation />}
+        <div className="flex min-w-0 flex-auto flex-col overflow-hidden">
+          <AccountingHeader>
+            <div className="px-3">
+              <AddTransaction>
+                <Button>
+                  <IconPlus />
+                  {t('add-transaction-label')}
+                  <Kbd>C</Kbd>
                 </Button>
-              </Dialog.Trigger>
-              <Dialog.ContentCombined
+              </AddTransaction>
+            </div>
+          </AccountingHeader>
+          <PageSubHeader>
+            <TransactionsFilter
+              afterBar={<TrsTotalCount />}
+              sidebarFilters={isReceiptsPage}
+            />
+            <Can action="transactionsExportManage">
+              <Export
+                pluginName="accounting"
+                moduleName="account"
+                collectionName="transactions"
+                getFilters={() => filterVariables}
+              />
+            </Can>
+            <Can action="transactionsImportManage">
+              <Import
+                pluginName="accounting"
+                moduleName="account"
+                collectionName="transactions"
                 title={t('import-transactions')}
-                description={t('import-guide-and-field-descriptions')}
-                className="w-[min(1100px,90vw)] max-w-[min(1100px,90vw)] sm:max-w-[min(1100px,90vw)] h-[85vh] overflow-hidden grid-rows-[auto_1fr]"
               >
-                <ScrollArea className="h-full mx-6 px-6 pb-2">
-                  <div className="pt-2 text-sm leading-relaxed">
-                    {renderAdditionHelper()}
-                  </div>
-                </ScrollArea>
-              </Dialog.ContentCombined>
-            </Dialog>
-          </Import>
-        </Can>
-      </PageSubHeader>
-      <TransactionTable />
+                <Dialog>
+                  <Dialog.Trigger asChild>
+                    <Button
+                      variant="secondary"
+                      className="mt-1 w-full justify-start gap-2 border border-primary/30 bg-primary/10 text-primary hover:bg-primary/15 hover:text-primary"
+                    >
+                      <IconHelpCircle className="size-4" />
+                      {t('view-import-guide')}
+                    </Button>
+                  </Dialog.Trigger>
+                  <Dialog.ContentCombined
+                    title={t('import-transactions')}
+                    description={t('import-guide-and-field-descriptions')}
+                    className="w-[min(1100px,90vw)] max-w-[min(1100px,90vw)] sm:max-w-[min(1100px,90vw)] h-[85vh] overflow-hidden grid-rows-[auto_1fr]"
+                  >
+                    <ScrollArea className="h-full mx-6 px-6 pb-2">
+                      <div className="pt-2 text-sm leading-relaxed">
+                        {renderAdditionHelper()}
+                      </div>
+                    </ScrollArea>
+                  </Dialog.ContentCombined>
+                </Dialog>
+              </Import>
+            </Can>
+          </PageSubHeader>
+          <TransactionTable />
+        </div>
+      </div>
     </AccountingLayout>
   );
 };

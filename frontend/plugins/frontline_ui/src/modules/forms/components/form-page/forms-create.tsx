@@ -5,7 +5,7 @@ import { Link, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 const FormsCreateButton: FC<React.ComponentProps<typeof Button>> = (props) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
   const { id: channelId } = useParams<{ id: string }>();
   return (
     <Button asChild {...props}>

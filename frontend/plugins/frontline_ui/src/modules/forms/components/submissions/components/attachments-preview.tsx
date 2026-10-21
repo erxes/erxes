@@ -190,7 +190,7 @@ const InlineCell = ({
 };
 
 const Details = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
   const { files, readImage } = useAttachments();
 
   if (files.length === 0) {
@@ -242,7 +242,7 @@ const Details = () => {
                 rel="noopener noreferrer"
                 className="text-xs font-medium text-primary hover:underline mt-auto block text-right"
               >
-                {variant === 'image' ? 'View full size →' : 'Download →'}
+                {variant === 'image' ? t('view-full-size') : t('download-file')}
               </a>
             </div>
           </div>

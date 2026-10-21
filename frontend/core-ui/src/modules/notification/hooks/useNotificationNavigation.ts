@@ -8,11 +8,11 @@ import type {
   UseNotificationNavigationResult,
 } from '@/notification/types/myInbox';
 import { useScopedHotkeys } from 'erxes-ui';
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { useLayoutEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import type { TNotification } from 'ui-modules';
-import { useNotifications } from './useNotifications';
+import { useNotificationList } from './useNotificationList';
 import { shouldIgnoreNotificationHotkey } from '@/notification/utils/notificationHotkeys';
 
 export const useNotificationNavigation = ({
@@ -22,11 +22,9 @@ export const useNotificationNavigation = ({
 }: UseNotificationNavigationOptions): UseNotificationNavigationResult => {
   const { search, key: locationKey } = useLocation();
   const navigate = useNavigate();
-  const { notifications } = useNotifications();
+  const { notifications } = useNotificationList();
+  const setHiddenNotificationIds = useSetAtom(hiddenNotificationIdsState);
   const selectedNotificationIds = useAtomValue(selectedNotificationIdsState);
-  const [hiddenNotificationIds, setHiddenNotificationIds] = useAtom(
-    hiddenNotificationIdsState,
-  );
   const [dismissing, setDismissing] = useState(false);
   const dismissScopeRef = useRef({ active: false });
 
@@ -39,9 +37,7 @@ export const useNotificationNavigation = ({
     };
   }, [locationKey]);
 
-  const visibleNotifications = notifications.filter(
-    (notification) => !hiddenNotificationIds.includes(notification._id),
-  );
+  const visibleNotifications = notifications;
   const currentIndex = visibleNotifications.findIndex(
     (item) => item._id === id,
   );

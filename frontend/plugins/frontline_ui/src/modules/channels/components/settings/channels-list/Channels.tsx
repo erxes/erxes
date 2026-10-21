@@ -5,11 +5,12 @@ import { Empty, RecordTable, useQueryState } from 'erxes-ui';
 import { IconBrandTrello, IconSearchOff } from '@tabler/icons-react';
 import { useMemo } from 'react';
 import { ChannelsCommandBar } from './ChannelsCommandBar';
+import { IntegrationEditSheets } from '@/integrations/components/IntegrationEditSheets';
 import { useChannelsColumns } from './ChannelsColumns';
 import { useTranslation } from 'react-i18next';
 
 export function Channels() {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.channels' });
   const [searchValue] = useQueryState<string | null>('searchValue');
   const { channels, loading } = useGetChannels({
     variables: { name: searchValue || undefined },
@@ -72,6 +73,7 @@ export function Channels() {
         </RecordTable>
       </RecordTable.Scroll>
       <ChannelsCommandBar />
+      <IntegrationEditSheets />
     </RecordTable.Provider>
   );
 }

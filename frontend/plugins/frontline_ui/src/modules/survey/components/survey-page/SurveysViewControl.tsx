@@ -10,7 +10,7 @@ import { useTranslation } from 'react-i18next';
 import { surveyViewAtom } from '@/survey/states/surveyViewState';
 
 export const SurveysViewControl = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.survey' });
   const [view, setView] = useAtom(surveyViewAtom);
   const [isOpen, setIsOpen] = useState(false);
 

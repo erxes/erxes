@@ -18,14 +18,20 @@ const getTitle = (contentType: string) => {
   }
 };
 
-const getMessage = (contentType: string, notificationType: string) => {
+const getMessage = (
+  contentType: string,
+  notificationType: string,
+  action: string,
+) => {
   switch (notificationType) {
     case 'ticketAssignee':
       return 'You have been assigned to ticket';
     case 'ticketStatus':
       return 'Ticket status updated';
     case 'inboxAssignee':
-      return 'You have been assigned to conversation';
+      return action === 'unassign'
+        ? 'You have been unassigned from conversation'
+        : 'You have been assigned to conversation';
     case 'internalNote':
       return `You have been mentioned in ${contentType}'s conversation`;
     case 'updateTicket':
@@ -62,7 +68,7 @@ export const createNotifications = async ({
 }) => {
   sendNotification(subdomain, {
     title: getTitle(contentType),
-    message: getMessage(contentType, notificationType),
+    message: getMessage(contentType, notificationType, action),
     type: 'info',
     userIds,
     priority: 'low',

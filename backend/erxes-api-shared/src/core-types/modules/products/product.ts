@@ -70,6 +70,7 @@ export interface IProduct {
   attachment?: IAttachment;
   attachmentMore?: IAttachment[];
   videos?: IAttachment[];
+  files?: IAttachment[];
   status?: string;
   vendorId?: string;
   vendorCode?: string;

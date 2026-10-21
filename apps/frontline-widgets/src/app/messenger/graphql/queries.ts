@@ -81,8 +81,8 @@ const messengerSupportersQuery = gql`
 `;
 
 const GET_WIDGETS_CONVERSATIONS = gql`
-  query widgetsConversations($integrationId: String!, $customerId: String, $visitorId: String) {
-    widgetsConversations(integrationId: $integrationId, customerId: $customerId, visitorId: $visitorId) {
+  query widgetsConversations($integrationId: String!) {
+    widgetsConversations(integrationId: $integrationId) {
       _id
       content
       createdAt

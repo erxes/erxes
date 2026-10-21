@@ -29,7 +29,6 @@ export interface IMessengerData {
   botCheck?: boolean;
   botGreetMessage?: string;
   persistentMenus?: IPersistentMenu[];
-  notifyCustomer?: boolean;
   availabilityMethod?: string;
   isOnline?: boolean;
   onlineHours?: IOnlineHours[];
@@ -156,6 +155,8 @@ export interface ICustomerData {
   lastName?: string;
   phones?: string[];
   emails?: string[];
+  primaryEmail?: string;
+  primaryPhone?: string;
 }
 
 export interface IMessengerData {

@@ -32,7 +32,7 @@ const toPipelineConfigFormValues = (
 });
 
 export const ConfigsForm = ({ form, defaultValues }: Props) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.pipelines' });
   const [open, setOpen] = useState(false);
   const { control } = form;
 

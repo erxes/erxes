@@ -78,6 +78,7 @@ export const FxaRemainderFilters = () => {
   return (
     <Filter id="fxa-remainders-filter">
       <Filter.Bar>
+        <FxaRemainderFilterPopover />
         <Filter.BarItem queryKey="searchValue">
           <Filter.BarName>
             <IconSearch />
@@ -106,7 +107,6 @@ export const FxaRemainderFilters = () => {
           </Filter.BarName>
           <Filter.Date filterKey="date" />
         </Filter.BarItem>
-        <FxaRemainderFilterPopover />
       </Filter.Bar>
       <Filter.Dialog>
         <Filter.View filterKey="searchValue" inDialog>

@@ -1,5 +1,4 @@
 import type { ButtonHTMLAttributes, PropsWithChildren } from 'react';
-import type { CellContext } from '@tanstack/react-table';
 import { MockedProvider } from '@apollo/client/testing';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { Provider, createStore } from 'jotai';
@@ -66,9 +65,11 @@ const bot = {
   canReadAllGroupMessages: false,
   lastVerifiedAt: '2026-10-06',
 };
-const cell = {
-  row: { original: { _id: 'integration' } },
-} as unknown as CellContext<IIntegration, unknown>;
+const integration: IIntegration = {
+  _id: 'integration',
+  name: 'Telegram',
+  kind: 'telegram',
+};
 beforeEach(() => jest.clearAllMocks());
 
 test.each([true, false])(
@@ -105,7 +106,7 @@ test.each([true, false])(
         ]}
       >
         <Provider store={createStore()}>
-          <TelegramIntegrationActions cell={cell} />
+          <TelegramIntegrationActions integration={integration} />
           <TelegramIntegrationDetail />
         </Provider>
       </MockedProvider>,

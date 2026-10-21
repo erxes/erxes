@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-10-18`
+- **Last synchronized:** `2026-10-22`
 
 ## Scope
 
@@ -88,6 +88,11 @@
 
 ## Current Capabilities
 
+- The conversation header shows a warning badge "+N same email" when other
+  customers hold exactly the conversation customer's email (primary or listed).
+  Its popover lists them (links to `/contacts/customers?contactId=`) and
+  "Review and merge" opens `/contacts/customers?searchValue=<email>`, where
+  core's existing merge runs. Nothing is merged automatically.
 - AI knowledge source selector (`widgets/automations/modules/knowledgebase`):
   a topic/category tree above the article list. Checking a topic or category
   sends `config.topicIds` / `config.categoryIds` (hand-picked articles move to
@@ -368,7 +373,9 @@
   `EM_SETTINGS_SCHEMA`. `EMStateValues.ts` emits it on
   `messengerData.isSupportInAppView` through `integrationsSaveMessengerConfigs`
   and `EMSetupSetAtom.ts` reads it back for the edit flow; the API input field
-  must exist for the save to succeed.
+  must exist for the save to succeed. There is no "notify customer" switch:
+  messenger replies are never emailed, so `notifyCustomer` was removed from
+  the UI and the `IntegrationMessengerData` input.
 - The messenger save mutations (`SAVE_EM_CONFIGS_MUTATION`,
   `SAVE_EM_APPEARANCE_MUTATION`) send only `_id`, `brandId` and their payload.
   The channel goes through `integrationsCreateMessengerIntegration` /
@@ -519,6 +526,41 @@
 - Composes Facebook page posts from the integrations sidebar: channel and page
   selection, message, optional link, drag-and-drop image upload (max 10), and a
   permalink to the published post.
+- The Facebook and Instagram connect dialogs show a `Reconnect` badge, with
+  the Graph error in its tooltip, on an account whose pages cannot be read,
+  instead of a page count. The Instagram dialog shows this only on the selected
+  account row.
+- The page step of the Facebook connect dialog names, at the end of each page
+  row in use, its channel and integration; the trigger opens a popover with
+  the channel, integration, bot (with health) and the automations listening to
+  that bot (`FacebookPageUsage`), and a `Manage integration` link to the
+  holder's channel integrations page. These links open in a new tab so the
+  wizard keeps its progress. Used pages stay enabled `Command.Item`s (so search
+  filters them and the trigger is clickable) and refuse selection in
+  `onSelect`. The Instagram page step names
+  the channel and integration of a page in use.
+- The channel list's integrations cell opens a popover
+  (`ChannelIntegrationsPeek`, query `ChannelIntegrationsPeek`) listing every
+  integration of that channel with kind, Facebook page names and health —
+  broken first, archived last — plus a Repair button on broken rows and the
+  full row action menu, without leaving the list.
+- The erxes Messenger setup keeps its six steps; their labelled progress
+  segments jump to any step (`IntegrationSteps` `onStepClick`), and an edit can
+  be saved from every step (`useEMEditSave`). The Config step puts name and
+  brand on top and Bot / Ticket / Knowledge base in tabs: Bot lists the
+  automations whose `frontline:inbox.messages` trigger names this integration
+  and opens a seeded builder in a new tab; Ticket and Knowledge base create a
+  ticket config or topic in place when none exists, then select it.
+- The messenger setup preview walks the widget's ticket flow over the picked
+  configs (`EMPreviewTicketFlow`): start, choose a config when there are
+  several, then its form with the config's labels, placeholders and required
+  marks. Submit stays disabled; the preview sends nothing.
+- Facebook pages show as `FacebookPageLink` (avatar from the public Graph
+  picture URL, name, opens `facebook.com/<pageId>` in a new tab): the `Page`
+  first column of the Facebook messenger/post integration tables, the channel peek,
+  and the bot preview's Messenger header (`MessengerFrame` `pageUrl`). Page
+  names come from the integration's `facebookPage` (page token, not the shared
+  app quota); a page whose token is dead shows no name.
 - The inbox composer is note-only (Reply tab disabled, Internal Note selected)
   for `lead`, `calls`, `callpro` and `mail` conversations — the first three
   cannot carry an outbound reply, and mail replies go through the mail compose
@@ -593,8 +635,7 @@
   visible in its table, in their on-screen order and with the same headers,
   including property columns. It is disabled until the table has rendered.
 - GraphQL codegen (`client-preset`) validates every GraphQL document against
-  the printed `frontline_api` schema and the core snapshot
-  `schema/platform.graphql` only, and generates result and variable types
+  the composed gateway schema and generates result and variable types
   into `src/gql/`.
 - Mail documents, including provider setup and pipeline mail settings, use
   `gql()` from `~/gql`. Thread, draft, sender, connection, zone, quota and
@@ -625,7 +666,7 @@ owns the setup form and connection actions.
 | App sidebar               | `frontend/plugins/frontline_ui/src/Sidebar.tsx`                                                                                                   | `FrontlineSidebar` (app sidebar) and `FrontlineSidebarFooter` (Settings link), rendered by the `./frontline` entry through `AppLayout`          |
 | Host registration         | `src/config.tsx`                                                                                                                                  | `CONFIG` — navigation, settings, widgets, property inputs, routes, and Module Federation exposes                                                |
 | Federation                | `module-federation.config.ts`                                                                                                                     | Remote name `frontline_ui` and its exposes                                                                                                      |
-| GraphQL codegen           | `codegen.ts`, `schema/platform.graphql`                                                                                                           | Generates `src/gql/` (gitignored) from the printed `frontline_api` schema and the core snapshot                                                 |
+| GraphQL codegen           | `codegen.ts`                                                                                                                                      | Generates `src/gql/` (gitignored) from the composed gateway schema                                                                              |
 | Routes                    | `src/modules/FrontlineMain.tsx`, `src/pages/`                                                                                                     | Routed pages for inbox, ticket, forms, call, channels                                                                                           |
 | Navigation groups         | `src/modules/FrontlineSubGroups.tsx`                                                                                                              | Route-aware sidebar sub-groups for every frontline page                                                                                         |
 | Report navigation         | `src/modules/report/constants/reportSections.ts`                                                                                                  | Report board paths, labels, icons and path matching shared by `ReportIndexPage`, which renders the boards as header tabs                        |
@@ -906,12 +947,7 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
   `note-email-sent-to`, `ticket-reply-not-delivered`,
   `email-delivery-stuck-hint`, `email-delivery-resent` and
   `attachment-not-saved-days`.
-- The printed `frontline_api` subgraph schema from its `schema:print` Nx
-  target, consumed only at codegen time.
-- Core types and fields this plugin selects, declared for codegen only in
-  `schema/platform.graphql`.
-- No optional plugin schema: no frontline document reads the operation or
-  content schema.
+- The composed gateway schema from `gateway:schema:compose`, consumed only at codegen time. Runtime requests continue through the published GraphQL contracts.
 
 ## Data and State
 
@@ -995,6 +1031,25 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
 
 ## Local Invariants
 
+- `inboxCustomersSharingEmail` uses core `customers(searchValue)`, which is a
+  fuzzy search; `useCustomersSharingEmail` must keep only exact,
+  case-insensitive matches on `primaryEmail`/`emails` and drop the current
+  customer. `conversationDetail.customer` carries `emails` for this, because
+  widget-typed emails held by another customer are never made primary.
+- `usePipelineConfigForm` and `SelectTicketConfig` take the channel (and
+  pipeline) from their caller first and the route only as a fallback; hosts
+  outside the pipeline pages must pass them.
+- Integration row actions live in `IntegrationActionsMenu({ integration })`
+  and read the kind from `integration.kind`, never from the route; action and
+  repair components take `integration`, not a table `cell`. Erxes messenger,
+  call, callpro and telegram edit through atom-driven sheets; a page listing
+  integrations of every kind mounts `IntegrationEditSheets` once (the channel
+  list does). Their edits take the channel from the loaded record, never from
+  the route.
+- Integration create/update/delete/repair/move mutations refetch
+  `ChannelIntegrationsPeek` alongside `Integrations`.
+- `ChannelIntegrationsPeek` never selects `instagramPage`: that resolver calls
+  Graph with a user token and spends the shared app quota.
 - Customer media is recognised by its URL (`isUnverifiedAttachment` in
   `ticket/hooks/useUnverifiedAttachments.ts`): uploads here are storage keys
   read through `read-file`; anything else came from a conversation and is
@@ -1947,6 +2002,10 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 - New user-visible strings go through `useTranslation('frontline')` with keys
   added to both `en` and `mn` gateway-owned locale files; that is a
   repository-level change and must be requested explicitly.
+- Translated modules scope their keys with a `keyPrefix` matching the module
+  (`modules.integrations`, `modules.helpcenter`, `widgets.automations-mail`, …)
+  and call `t('key')` without inline English defaults; every key used under a
+  prefix must exist in both `en` and `mn` under the same path.
 - Ticket tag selectors must go through `SelectTagsTicket`
   (`src/modules/ticket/components/ticket-selects/SelectTagsTicket.tsx`), never
   `TagsSelect.SelectedList` directly — the shared component chains every
@@ -2469,21 +2528,12 @@ null }`, fall back to the route pipeline and skip without one; never pass
   hovered item, so a pie chart's highlight clears only when the pointer leaves
   the legend.
 - `src/gql/` is generated and gitignored; `build` and `serve` depend on the
-  `codegen` target, which depends on `frontline_api:schema:print` only. The
-  plugin never depends on core's or an optional plugin's printed schema.
+  `codegen` target, which depends on `gateway:schema:compose`. Build inputs hash generated TypeScript through `dependentTasksOutputFiles` so backend schema changes invalidate the bundle.
   `pnpm dev:uis` starts remotes without `dependsOn`, so
   `scripts/start-ui-dev.js` runs `codegen` once and then `codegen:watch`
   beside the dev server. `codegen:watch` has no `dependsOn` and stays out of
   `serve`, because a watcher never exits.
-- `schema/platform.graphql` snapshots only the core types and fields frontline
-  documents select, each block headed by its `backend/core-api/src` SDL
-  source. When a document selects another core field, or core changes one it
-  selects, update the snapshot from that source; codegen fails on a field the
-  snapshot lacks.
-- Codegen reads only the `frontline_api` printed schema and the core
-  snapshot. A document that selects an optional plugin's field fails
-  codegen; read such data through `frontline_api` instead of adding a schema
-  mirror.
+- Codegen reads only `backend/gateway/generated/schema.graphql`. Change public contracts in their owning backend; generated SDL is ignored and regenerated through Nx.
 - Operation names are unique within the plugin even ignoring case, because
   codegen PascalCases them into type names. `refetchQueries` strings name
   operations, so a rename updates them in the same change.
@@ -2498,6 +2548,7 @@ null }`, fall back to the route pipeline and skip without one; never pass
   `type` enum, not a discriminated union, so its derived types index the fields
   directly; `Extract<..., { type: ... }>` on it collapses to `never`.
 - `Sheet.Header` is a fixed 40px row. A header with a visible second line (subtitle, record number, description) adds `h-auto py-2` so it sizes to its content; detail-page title rows are `h-10`, level with `PageHeader`.
+- Every in-app `Link`/`navigate` target starts with `/frontline/…`. A relative `to="frontline/tickets…"` resolves against the current route, so each click appends another `frontline/tickets` segment (`/frontline/tickets/frontline/tickets/…`). The tickets sidebar channel rows (`TicketNavigations`) link to `/frontline/tickets?channelId=…&pipelineId=…`.
 
 ## Validation
 
@@ -2512,7 +2563,7 @@ null }`, fall back to the route pipeline and skip without one; never pass
   bulk-delete from the command bar, edit and delete a category from the
   sidebar, then delete the topic from its `kbsettings` danger zone.
 - `pnpm nx run frontline_ui:codegen --skip-nx-cache` - validates every
-  document against the printed `frontline_api` schema and the core snapshot;
+  document against the composed gateway schema;
   `build` and `serve` run it first.
 - `pnpm nx build frontline_ui`
 - `pnpm nx test frontline_ui` — includes the knowledge base sidebar's

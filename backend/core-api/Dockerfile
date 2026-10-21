@@ -40,6 +40,8 @@ fs.writeFileSync( \
 # Stage 2: minimal runtime
 FROM node:22-alpine3.22
 WORKDIR /app
+# qpdf rewrites PDFs with object streams so the viewer opens them in a few range reads
+RUN apk add --no-cache qpdf
 
 COPY --from=installer /app/node_modules ./node_modules
 

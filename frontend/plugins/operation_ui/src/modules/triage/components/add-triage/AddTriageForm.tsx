@@ -30,13 +30,16 @@ import { currentUserState } from 'ui-modules';
 
 export const AddTriageForm = ({
   onComplete,
+  initialTeamId,
 }: {
   onComplete: (triageId: string) => void;
+  initialTeamId?: string;
 }) => {
   const { t } = useTranslation('operation');
-  const { teamId } = useParams<{
+  const { teamId: routeTeamId } = useParams<{
     teamId?: string;
   }>();
+  const teamId = initialTeamId ?? routeTeamId;
 
   const { teams } = useGetCurrentUsersTeams();
   const currentUser = useAtomValue(currentUserState);
