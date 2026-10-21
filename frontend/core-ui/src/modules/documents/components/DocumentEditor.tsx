@@ -325,14 +325,18 @@ export const DocumentEditor = () => {
     comments: readonly ? undefined : { threadStore: store },
     resolveUsers,
   });
-  const { attributes, loading: attributesLoading } = useDocumentAttributes();
+  const {
+    attributes,
+    loading: attributesLoading,
+    error: attributesError,
+    refetch: refetchAttributes,
+  } = useDocumentAttributes(document?.contentType);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [commentsOpen, setCommentsOpen] = useState(false);
 
   const { control } = useFormContext<FormType>();
 
   const isCreating = !documentId;
-  const hasAttributes = attributes.length > 0;
 
   const handleEnterPress = () => {
     if (!editor) return;
@@ -398,7 +402,7 @@ export const DocumentEditor = () => {
               {t('comments')}
             </Button>
           )}
-          {!readonly && hasAttributes && !sidebarOpen && (
+          {!readonly && !sidebarOpen && (
             <Button
               type="button"
               variant="outline"
@@ -421,11 +425,15 @@ export const DocumentEditor = () => {
           commentsOpen={commentsOpen}
         />
       </div>
-      {!readonly && hasAttributes && sidebarOpen && (
+      {!readonly && sidebarOpen && (
         <DocumentAttributesSidebar
           editor={editor}
           attributes={attributes}
           loading={attributesLoading}
+          error={attributesError}
+          onRetry={() => {
+            void refetchAttributes().catch(() => undefined);
+          }}
           onClose={() => setSidebarOpen(false)}
         />
       )}

@@ -8,16 +8,21 @@ import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { DocumentAttribute } from '../types';
+import { DocumentsErrorState } from './DocumentsErrorState';
 
 export const DocumentAttributesSidebar = ({
   editor,
   attributes,
   loading,
+  error,
+  onRetry,
   onClose,
 }: {
   editor: IBlockEditor;
   attributes: DocumentAttribute[];
   loading?: boolean;
+  error?: Error;
+  onRetry: () => void;
   onClose: () => void;
 }) => {
   const { t } = useTranslation('documents', { keyPrefix: 'document' });
@@ -70,62 +75,70 @@ export const DocumentAttributesSidebar = ({
           <IconX />
         </Button>
       </div>
-      <Command shouldFilter={!loading} className="min-h-0 flex-1">
-        <div className="px-3">
-          <Command.Input
-            variant="primary"
-            placeholder={t('search-attributes')}
-            value={search}
-            onValueChange={setSearch}
-          />
-        </div>
-        <ScrollArea className="flex-1">
-          <Command.List className="max-h-none px-2 py-2">
-            {loading && (
-              <div className="space-y-2 px-2 py-3">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <div
-                    key={i}
-                    className="h-8 animate-pulse rounded-md bg-muted"
-                  />
-                ))}
-              </div>
-            )}
-            {!loading && (
-              <Command.Empty>{t('no-attributes-found')}</Command.Empty>
-            )}
-            {!loading &&
-              Object.entries(grouped).map(([groupName, items]) => (
-                <Command.Group key={groupName} heading={groupName}>
-                  {items.map((attr, index) => (
-                    <Command.Item
-                      key={`${groupName}-${attr.value || attr.name}-${index}`}
-                      value={`${groupName} ${attr.label || attr.name} ${
-                        attr.value || attr.name
-                      } #${index}`}
-                      onSelect={() => insertAttribute(editor, attr)}
-                      draggable
-                      onDragStart={(e) => handleDragStart(e, attr)}
-                      className="group flex h-auto cursor-grab items-center gap-2 rounded-md py-1.5 active:cursor-grabbing data-[selected=true]:bg-accent"
-                    >
-                      <IconGripVertical className="size-4 shrink-0 text-muted-foreground/30 group-data-[selected=true]:text-muted-foreground" />
-                      <div className="flex min-w-0 flex-col gap-0.5">
-                        <span className="truncate text-sm text-foreground">
-                          {attr.label || attr.name}
-                        </span>
-                        <span className="truncate text-sm text-foreground">
-                          {'{{ '}
-                          {attr.value}
-                          {' }}'}
-                        </span>
-                      </div>
-                    </Command.Item>
+      {error && !loading ? (
+        <DocumentsErrorState
+          title={t('error')}
+          description={error.message}
+          onRetry={onRetry}
+        />
+      ) : (
+        <Command shouldFilter={!loading} className="min-h-0 flex-1">
+          <div className="px-3">
+            <Command.Input
+              variant="primary"
+              placeholder={t('search-attributes')}
+              value={search}
+              onValueChange={setSearch}
+            />
+          </div>
+          <ScrollArea className="flex-1">
+            <Command.List className="max-h-none px-2 py-2">
+              {loading && (
+                <div className="space-y-2 px-2 py-3">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <div
+                      key={i}
+                      className="h-8 animate-pulse rounded-md bg-muted"
+                    />
                   ))}
-                </Command.Group>
-              ))}
-          </Command.List>
-        </ScrollArea>
-      </Command>
+                </div>
+              )}
+              {!loading && (
+                <Command.Empty>{t('no-attributes-found')}</Command.Empty>
+              )}
+              {!loading &&
+                Object.entries(grouped).map(([groupName, items]) => (
+                  <Command.Group key={groupName} heading={groupName}>
+                    {items.map((attr, index) => (
+                      <Command.Item
+                        key={`${groupName}-${attr.value || attr.name}-${index}`}
+                        value={`${groupName} ${attr.label || attr.name} ${
+                          attr.value || attr.name
+                        } #${index}`}
+                        onSelect={() => insertAttribute(editor, attr)}
+                        draggable
+                        onDragStart={(e) => handleDragStart(e, attr)}
+                        className="group flex h-auto cursor-grab items-center gap-2 rounded-md py-1.5 active:cursor-grabbing data-[selected=true]:bg-accent"
+                      >
+                        <IconGripVertical className="size-4 shrink-0 text-muted-foreground/30 group-data-[selected=true]:text-muted-foreground" />
+                        <div className="flex min-w-0 flex-col gap-0.5">
+                          <span className="truncate text-sm text-foreground">
+                            {attr.label || attr.name}
+                          </span>
+                          <span className="truncate text-sm text-foreground">
+                            {'{{ '}
+                            {attr.value}
+                            {' }}'}
+                          </span>
+                        </div>
+                      </Command.Item>
+                    ))}
+                  </Command.Group>
+                ))}
+            </Command.List>
+          </ScrollArea>
+        </Command>
+      )}
     </aside>
   );
 };
