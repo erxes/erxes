@@ -101,6 +101,8 @@ export const EDIT_DEALS = gql(`
     $tagIds: [String]
     $branchIds: [String]
     $departmentIds: [String]
+    $customerIds: [String]
+    $companyIds: [String]
   ) {
     dealsEdit(
       _id: $_id
@@ -131,6 +133,8 @@ export const EDIT_DEALS = gql(`
       tagIds: $tagIds
       branchIds: $branchIds
       departmentIds: $departmentIds
+      customerIds: $customerIds
+      companyIds: $companyIds
     ) {
       _id
       name

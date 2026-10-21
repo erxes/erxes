@@ -18,7 +18,6 @@ import {
   formatFieldValue,
   hasFieldValue,
   useFields,
-  useManageRelations,
   type CardDetailBadgeItem,
 } from 'ui-modules';
 import {
@@ -249,7 +248,6 @@ export const DealsBoardCard = memo(function DealsBoardCard({
   const setActiveDealAtom = useSetAtom(dealDetailSheetState);
   const [searchParams] = useQueryState<string>('archivedOnly');
   const { editDeals } = useDealsEdit();
-  const { manageRelations } = useManageRelations();
   const [currentCustomers, setCurrentCustomers] = useState(
     deal.customers
       ?.filter(isDefined)
@@ -378,12 +376,8 @@ export const DealsBoardCard = memo(function DealsBoardCard({
 
               setCurrentCustomers(selectedIds);
 
-              manageRelations({
-                contentType: 'sales:deal',
-                contentId: _id,
-                relatedContentType: 'core:customer',
-                relatedContentIds: selectedIds,
-              });
+              // The deal keeps its contacts itself.
+              editDeals({ variables: { _id, customerIds: selectedIds } });
             }}
             hideAvatar
           />
@@ -402,12 +396,8 @@ export const DealsBoardCard = memo(function DealsBoardCard({
 
               setCurrentCompanies(selectedIds);
 
-              manageRelations({
-                contentType: 'sales:deal',
-                contentId: _id,
-                relatedContentType: 'core:company',
-                relatedContentIds: selectedIds,
-              });
+              // The deal keeps its contacts itself.
+              editDeals({ variables: { _id, companyIds: selectedIds } });
             }}
             hideAvatar
           />

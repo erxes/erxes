@@ -1,8 +1,5 @@
 import { Resolver } from 'erxes-api-shared/core-types';
 import { IModels } from '~/connectionResolvers';
-import { relationsFromContactFields } from '../utils/contactFieldsRead';
-
-type TRelationsContext = { models: IModels; subdomain: string };
 
 const MAX_RELATION_CONTENT_IDS = 100;
 
@@ -14,23 +11,13 @@ export const relationsQueries: Record<string, Resolver<any, any, any>> = {
       contentId,
       relatedContentType,
     }: { contentType: string; contentId: string; relatedContentType: string },
-    { models, subdomain }: TRelationsContext,
+    { models }: { models: IModels },
   ) => {
-    // Contact links of records that keep them as fields are read there.
-    const fromFields = await relationsFromContactFields(subdomain, models, {
+    return models.Relations.getRelationsByEntity({
       contentType,
-      contentIds: [contentId],
+      contentId,
       relatedContentType,
     });
-
-    return (
-      fromFields ||
-      models.Relations.getRelationsByEntity({
-        contentType,
-        contentId,
-        relatedContentType,
-      })
-    );
   },
   getRelationsByEntities: async (
     _parent: undefined,
@@ -40,8 +27,7 @@ export const relationsQueries: Record<string, Resolver<any, any, any>> = {
     return models.Relations.getRelationsByEntities({ contentType, contentId });
   },
 
-  // Records of `relatedContentType` linked to any of `contentIds`, e.g. the
-  // deals of every customer a task is linked to.
+  // Records of `relatedContentType` linked to any of `contentIds`.
   getRelationsByContentIds: async (
     _parent: undefined,
     {
@@ -53,7 +39,7 @@ export const relationsQueries: Record<string, Resolver<any, any, any>> = {
       contentIds: string[];
       relatedContentType: string;
     },
-    { models, subdomain }: TRelationsContext,
+    { models }: { models: IModels },
   ) => {
     const ids = [...new Set(contentIds)].slice(0, MAX_RELATION_CONTENT_IDS);
 
@@ -61,14 +47,11 @@ export const relationsQueries: Record<string, Resolver<any, any, any>> = {
       return [];
     }
 
-    const query = { contentType, contentIds: ids, relatedContentType };
-    const fromFields = await relationsFromContactFields(
-      subdomain,
-      models,
-      query,
-    );
-
-    return fromFields || models.Relations.filterRelations(query);
+    return models.Relations.filterRelations({
+      contentType,
+      contentIds: ids,
+      relatedContentType,
+    });
   },
 
   cpGetRelationsByEntity: async (
@@ -78,22 +61,13 @@ export const relationsQueries: Record<string, Resolver<any, any, any>> = {
       contentId,
       relatedContentType,
     }: { contentType: string; contentId: string; relatedContentType: string },
-    { models, subdomain }: TRelationsContext,
+    { models }: { models: IModels },
   ) => {
-    const fromFields = await relationsFromContactFields(subdomain, models, {
+    return models.Relations.getRelationsByEntity({
       contentType,
-      contentIds: [contentId],
+      contentId,
       relatedContentType,
     });
-
-    return (
-      fromFields ||
-      models.Relations.getRelationsByEntity({
-        contentType,
-        contentId,
-        relatedContentType,
-      })
-    );
   },
 };
 

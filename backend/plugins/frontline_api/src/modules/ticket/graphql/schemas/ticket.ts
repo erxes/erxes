@@ -45,6 +45,7 @@ export const types = `
     propertiesData: JSON
     state: String
     attachments: [Attachment]
+    customerIds: [String]
     companyIds: [String]
     customerFieldData: JSON
     sourceSurvey: TicketSourceSurvey
@@ -82,6 +83,8 @@ export const types = `
     createdBy: String
     labelIds: [String]
     tagIds: [String]
+    customerIds: [String]
+    companyIds: [String]
     startDate: Date
     targetDate: Date
     channelId: String
@@ -137,6 +140,7 @@ const createTicketParams = `
   state: String
   propertiesData: JSON
   attachments: [AttachmentInput]
+  customerIds: [String]
   companyIds: [String]
   customerFieldData: JSON
 `;
@@ -161,6 +165,7 @@ const updateTicketParams = `
   state: String
   propertiesData: JSON
   attachments: [AttachmentInput]
+  customerIds: [String]
   companyIds: [String]
   customerFieldData: JSON
 `;

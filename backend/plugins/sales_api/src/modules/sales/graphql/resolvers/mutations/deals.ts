@@ -2,7 +2,7 @@ import { IContext } from '~/connectionResolvers';
 import { IDeal, IDealDocument, IProductData } from '~/modules/sales/@types';
 import { SALES_STATUSES } from '~/modules/sales/constants';
 import {
-  createRelations,
+  setDealContacts,
   getCompanyIds,
   getCustomerIds,
   getNewOrder,
@@ -228,7 +228,7 @@ export const dealMutations: Record<string, Resolver> = {
     const companyIds = await getCompanyIds(subdomain, models, _id);
     const customerIds = await getCustomerIds(subdomain, models, _id);
 
-    await createRelations(subdomain, {
+    await setDealContacts(models, {
       dealId: clone._id,
       companyIds,
       customerIds,

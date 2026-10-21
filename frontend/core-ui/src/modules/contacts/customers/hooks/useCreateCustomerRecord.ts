@@ -83,8 +83,8 @@ type TCustomersList = {
 };
 
 /**
- * Creates an empty customer or lead and puts it at the top of the table
- * from the cache; nothing is refetched.
+ * Creates a customer or lead from its side panel draft and puts it at the
+ * top of the table from the cache; nothing is refetched.
  */
 export const useCreateCustomerRecord = () => {
   // The row as stored in the cache; only `_id` is read here.
@@ -92,9 +92,12 @@ export const useCreateCustomerRecord = () => {
     customersAdd: StoreObject & { _id: string };
   }>(CUSTOMERS_RECORD_TABLE_ADD);
 
-  const createCustomerRecord = (state: TState) =>
+  const createCustomerRecord = (
+    state: TState,
+    values: Record<string, string> = {},
+  ) =>
     mutate({
-      variables: { state },
+      variables: { ...values, state },
       update: (cache, { data }) => {
         const created = data?.customersAdd;
 

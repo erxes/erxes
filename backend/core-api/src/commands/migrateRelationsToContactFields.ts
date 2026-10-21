@@ -57,6 +57,12 @@ const TARGETS: ITarget[] = [
   { collection: 'deals', contentTypes: ['sales:deal'] },
   { collection: 'frontline_tickets', contentTypes: ['frontline:ticket'] },
   { collection: 'operation_tasks', contentTypes: ['operation:task'] },
+  { collection: 'operation_projects', contentTypes: ['operation:project'] },
+  // Triages were related as tasks before they had a type of their own.
+  {
+    collection: 'operation_triage',
+    contentTypes: ['operation:triage', 'operation:task'],
+  },
   { collection: 'cars', contentTypes: ['car:car', 'cars:car'] },
 ];
 

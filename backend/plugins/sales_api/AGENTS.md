@@ -6,7 +6,7 @@
 - **Project:** `sales_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/sales_api`
-- **Last synchronized:** `2026-10-20`
+- **Last synchronized:** `2026-10-21`
 
 ## Scope
 
@@ -213,8 +213,7 @@
 
 ### Provides
 
-- Internal `contactFields.find` tRPC query (`TContactFieldsFind`) — core answers `getRelationsByEntity` / `getRelationsByContentIds` between contacts and 'sales:deal' from the deals' `customerIds` / `companyIds` through it: by contacts (`null` until every deal has its fields, then newest 200) or by ids (only deals that have them; core reads relations for the rest). Not agent-callable.
-- Internal `contactFields.sync` tRPC mutation (`TContactFieldsSync` from `erxes-api-shared/core-modules`) — core calls it when a deal ↔ customer/company relation is made, removed or a contact is merged/removed; applied with `applyContactFieldsSync`. Not agent-callable.
+- Internal `contactFields.sync` tRPC mutation (`TContactFieldsSync`) — core broadcasts contact merges and removals to every plugin declaring `meta.contactFields` (sales declares `sales:deal` in `main.ts`); applied with `applyContactFieldsSync`. Not agent-callable.
 - Internal `pos.cancelOrder({_id, posToken, userId?})` tRPC mutation returns
   `{cancelled: true}` after cancelling the POS order; it is not agent-callable.
 - Plugin meta `properties` (`src/meta/properties.ts`) — the `deal` property
@@ -248,7 +247,7 @@
 
 ## Data and State
 
-- `deals` keeps its contacts as `customerIds` / `companyIds` (indexed, `default: undefined`; `contactFieldsSchemaPlugin` gives new deals `[]`). Core `relations` (`sales:deal ↔ core:customer/company`) stay the source of truth and core mirrors every change into the fields through `contactFields.sync`; `core-api` `commands/migrateRelationsToContactFields.ts` backfills existing deals and, re-run, repairs a lost sync.
+- `deals` owns its contacts as `customerIds` / `companyIds` (indexed, `default: undefined`; `contactFieldsSchemaPlugin` gives new deals `[]`); sales saves them itself and makes no core relation for them. `dealsAdd` / `dealsEdit` and the `deal.create` / `deal.createItem` tRPC take them on the doc; copies, client portal deals, automations and POS-converted deals add them with `setDealContacts` (`modules/sales/utils.ts`). `core-api` `commands/migrateRelationsToContactFields.ts` backfills deals linked before.
 - Tenant-scoped Mongo collections are loaded through plugin connection
   resolvers.
 - Deal stage browsing uses `stageId`; its total count filters archived and

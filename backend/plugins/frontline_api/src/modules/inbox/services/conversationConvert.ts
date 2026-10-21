@@ -16,7 +16,6 @@ import {
 
 const CONVERSATION_CONTENT_TYPE = 'frontline:conversation';
 
-const CUSTOMER_CONTENT_TYPE = 'core:customer';
 
 const CONVERT_TYPES = Object.keys(
   CONVERT_TARGET_HANDLERS,
@@ -74,19 +73,14 @@ const relateConvertedItem = async (
   type: ConversationConvertType,
   itemId: string,
 ) => {
-  const { contentType, relateCustomer } = CONVERT_TARGET_HANDLERS[type];
+  const { contentType } = CONVERT_TARGET_HANDLERS[type];
   const item = { contentType, contentId: itemId };
 
+  // The item keeps the conversation's customer itself (customerIds); only
+  // the conversation is linked here.
   const relatedEntities = [
     { contentType: CONVERSATION_CONTENT_TYPE, contentId: conversation._id },
   ];
-
-  if (relateCustomer && conversation.customerId) {
-    relatedEntities.push({
-      contentType: CUSTOMER_CONTENT_TYPE,
-      contentId: conversation.customerId,
-    });
-  }
 
   await sendTRPCMessage({
     subdomain,

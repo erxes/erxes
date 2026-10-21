@@ -1,13 +1,8 @@
 import {
-  COMPANY_CONTENT_TYPE,
-  CUSTOMER_CONTENT_TYPE,
   EventDispatcherReturn,
   gatherSegmentRecordTypes,
-  getContactLinks,
-  IContactLink,
   sendSegmentChanged,
 } from 'erxes-api-shared/core-modules';
-import { sendContactFieldsSync } from '@/relations/utils/contactFieldsSync';
 import { IRelation, IRelationDocument } from 'erxes-api-shared/core-types';
 import {
   generateRelationActivityLogs,
@@ -176,47 +171,6 @@ export const loadRelationClass = (
     );
   };
 
-  // Records keeping their contacts as fields follow every link made here.
-  const linkContacts = async (
-    relations: { entities?: IRelation['entities'] }[],
-  ) =>
-    sendContactFieldsSync(getContext().subdomain, {
-      action: 'link',
-      links: getContactLinks(relations),
-    });
-
-  // A pair may still be linked by an older duplicate relation; only links
-  // that are truly gone are taken off the records.
-  const unlinkContacts = async (
-    relations: { entities?: IRelation['entities'] }[],
-  ) => {
-    const gone: IContactLink[] = [];
-
-    for (const link of getContactLinks(relations)) {
-      const stillLinked = await models.Relations.exists(
-        pairQuery([
-          { contentType: link.contentType, contentId: link.contentId },
-          {
-            contentType:
-              link.kind === 'customer'
-                ? CUSTOMER_CONTENT_TYPE
-                : COMPANY_CONTENT_TYPE,
-            contentId: link.contactId,
-          },
-        ]),
-      );
-
-      if (!stillLinked) {
-        gone.push(link);
-      }
-    }
-
-    await sendContactFieldsSync(getContext().subdomain, {
-      action: 'unlink',
-      links: gone,
-    });
-  };
-
   class Relation {
     public static async createRelation({ relation }: { relation: IRelation }) {
       const existing =
@@ -239,7 +193,6 @@ export const loadRelationClass = (
       });
 
       await recheckEntities(entitiesOf([relation]));
-      await linkContacts([relation]);
 
       return created;
     }
@@ -267,7 +220,6 @@ export const loadRelationClass = (
       });
 
       await recheckEntities(entitiesOf(toCreate));
-      await linkContacts(toCreate);
 
       return created;
     }
@@ -283,10 +235,8 @@ export const loadRelationClass = (
       const updated = await models.Relations.updateOne({ _id }, doc);
 
       if (previous) {
-        await unlinkContacts([previous]);
       }
 
-      await linkContacts([doc]);
 
       return updated;
     }
@@ -296,7 +246,6 @@ export const loadRelationClass = (
       const deleted = await models.Relations.deleteOne({ _id });
 
       await recheckEntities(entitiesOf(relation ? [relation] : []));
-      await unlinkContacts(relation ? [relation] : []);
 
       return deleted;
     }
@@ -327,7 +276,6 @@ export const loadRelationClass = (
       });
 
       await recheckEntities(entitiesOf(removing));
-      await unlinkContacts(removing);
 
       return 'success';
     }
@@ -551,15 +499,6 @@ export const loadRelationClass = (
         })),
       ]);
 
-      const asRelation = (relId: string) => ({
-        entities: [
-          { contentType, contentId },
-          { contentType: relatedContentType, contentId: relId },
-        ],
-      });
-
-      await linkContacts(toCreateRelIds.map(asRelation));
-      await unlinkContacts(toDeleteRelIds.map(asRelation));
 
       return models.Relations.getRelationsByEntity({
         contentType,

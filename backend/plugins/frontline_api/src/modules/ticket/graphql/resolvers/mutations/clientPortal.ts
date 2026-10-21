@@ -1,9 +1,5 @@
 import { Resolver } from 'erxes-api-shared/core-types';
-import {
-  graphqlPubsub,
-  markResolvers,
-  sendTRPCMessage,
-} from 'erxes-api-shared/utils';
+import { graphqlPubsub, markResolvers } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import { ITicketUpdate } from '~/modules/ticket/@types/ticket';
 import { notifyTicketOwner } from '@/ticket/utils/cpNotifications';
@@ -16,8 +12,14 @@ export const cpTicketMutations: Record<string, Resolver> = {
   ) => {
     const userId = cpUser?.erxesCustomerId || cpUser?._id || clientPortal?._id;
 
+    // The ticket keeps its customer itself.
     const ticket = await models.Ticket.addTicket(
-      params,
+      userId
+        ? {
+            ...params,
+            customerIds: [...new Set([...(params.customerIds || []), userId])],
+          }
+        : params,
       `cp:${userId}`,
       subdomain,
     );
@@ -44,30 +46,6 @@ export const cpTicketMutations: Record<string, Resolver> = {
         }. The support team replies here.`,
         type: 'success',
         priority: 'low',
-      });
-    }
-
-    if (ticket && userId) {
-      await sendTRPCMessage({
-        subdomain,
-        pluginName: 'core',
-        method: 'mutation',
-        module: 'relation',
-        action: 'createRelation',
-        input: {
-          relation: {
-            entities: [
-              {
-                contentType: 'core:customer',
-                contentId: userId,
-              },
-              {
-                contentType: 'frontline:ticket',
-                contentId: ticket._id,
-              },
-            ],
-          },
-        },
       });
     }
 

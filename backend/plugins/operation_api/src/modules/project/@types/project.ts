@@ -16,6 +16,8 @@ export interface IProject {
   description?: string;
   teamIds: string[];
   tagIds?: string[];
+  customerIds?: string[];
+  companyIds?: string[];
   priority: number;
   startDate?: Date;
   status: number;
@@ -30,6 +32,8 @@ export interface IProject {
 
 export interface IProjectFilter extends ICursorPaginateParams, IListParams {
   _ids?: string[];
+  customerIds?: string[];
+  companyIds?: string[];
   name?: string;
   description?: string;
   teamIds?: string[];

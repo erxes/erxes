@@ -3,7 +3,7 @@ import { markResolvers, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import { IDeal } from '~/modules/sales/@types';
 import { subscriptionWrapper } from '../utils';
-import { createRelations, getNewOrder } from '~/modules/sales/utils';
+import { setDealContacts, getNewOrder } from '~/modules/sales/utils';
 
 export const cpDealMutations: Record<string, Resolver> = {
   async cpDealsAdd(
@@ -48,7 +48,7 @@ export const cpDealMutations: Record<string, Resolver> = {
 
     const stage = await models.Stages.getStage(deal.stageId);
 
-    await createRelations(subdomain, {
+    await setDealContacts(models, {
       dealId: deal._id,
       companyIds: doc.companyIds,
       customerIds: doc.customerIds,

@@ -34,7 +34,7 @@ export const TicketRelationWidget = ({
     },
   });
 
-  const { relateRecord } = useRelateRecord({
+  const { relateToHost, contacts } = useRelateRecord({
     contentType,
     contentId,
     relatedContentType: 'frontline:ticket',
@@ -89,7 +89,8 @@ export const TicketRelationWidget = ({
         )}
       >
         <AddTicketSheet
-          onComplete={relateRecord}
+          onComplete={relateToHost}
+          contacts={contacts}
           variant="secondary"
           isRelation={true}
         />
@@ -102,7 +103,8 @@ export const TicketRelationWidget = ({
       label={t('tickets', 'Tickets')}
       actions={
         <AddTicketSheet
-          onComplete={relateRecord}
+          onComplete={relateToHost}
+          contacts={contacts}
           variant="secondary"
           isRelation={true}
         />

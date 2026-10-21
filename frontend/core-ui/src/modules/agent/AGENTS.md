@@ -40,7 +40,7 @@ The `agent` module is the core-ui surface for the core-api `agents` backend
   current-session actions menu; the old history popup and delete dialog are gone.
   Shared mutations live in `hooks/useAgentsThreadActions.ts` with immediate
   refetch and error feedback.
-- a Twenty-style transcript: work-steps grouping, approval card, ask_user
+- a compact transcript: work-steps grouping, approval card, ask_user
   card, artifact cards, rendered HTML replies + clickable record references;
 - approval cards display every supplied argument and the complete GraphQL
   variables, including nested objects, arrays, false and null. The bounded scroll

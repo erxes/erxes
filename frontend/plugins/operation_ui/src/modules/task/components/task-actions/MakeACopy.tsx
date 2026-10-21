@@ -1,15 +1,9 @@
 import { compactList } from '@/operation/utils/cursorList';
 import { useGetTask } from '@/task/hooks/useGetTask';
-import {
-  taskCreateDefaultValuesState,
-  taskCreateSheetState,
-} from '@/task/states/taskCreateSheetState';
-import { useTaskDetailSheet } from '@/task/hooks/useTaskDetailSheet';
-import { ITask, TAddTask } from '@/task/types';
+import { useCreateTaskRecord } from '@/task/hooks/useCreateTaskRecord';
+import { ITask } from '@/task/types';
 import { IconCopy } from '@tabler/icons-react';
 import { Command, useToast } from 'erxes-ui';
-import { useSetAtom } from 'jotai';
-import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 type MakeACopyTriggerProps = {
@@ -17,15 +11,12 @@ type MakeACopyTriggerProps = {
 } & ({ taskId: string; task?: never } | { task: ITask; taskId?: never });
 
 const useMakeACopy = () => {
-  const setTaskCreateSheet = useSetAtom(taskCreateSheetState);
-  const setTaskCreateDefaultValues = useSetAtom(taskCreateDefaultValuesState);
-  const [, setTaskDetailSheet] = useTaskDetailSheet();
-  const navigate = useNavigate();
-  const location = useLocation();
+  const { createTaskRecord } = useCreateTaskRecord();
 
+  // The copy is created right away and opens in the side panel.
   const makeACopy = (task: ITask) => {
-    const copiedTaskData: Partial<TAddTask> = {
-      name: task.name ? `${task.name} (Copy)` : '',
+    createTaskRecord({
+      name: `${task.name} (Copy)`,
       teamId: task.teamId || undefined,
       assigneeId: task.assigneeId || undefined,
       projectId: task.projectId || undefined,
@@ -37,21 +28,7 @@ const useMakeACopy = () => {
       milestoneId: task.milestoneId || undefined,
       startDate: task.startDate ? new Date(task.startDate) : undefined,
       targetDate: task.targetDate ? new Date(task.targetDate) : undefined,
-    };
-
-    setTaskDetailSheet(null);
-    setTaskCreateDefaultValues(copiedTaskData);
-
-    const isFullscreenView = location.pathname.includes('/tasks/');
-    if (isFullscreenView) {
-      const basePath = location.pathname.split('/tasks/')[0];
-      navigate(`${basePath}/tasks`);
-      setTimeout(() => {
-        setTaskCreateSheet(true);
-      }, 100);
-    } else {
-      setTaskCreateSheet(true);
-    }
+    });
   };
 
   return { makeACopy };

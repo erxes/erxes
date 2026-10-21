@@ -16,6 +16,8 @@ export const GET_TRIAGE = gql(`
       githubIssueNumber
       githubIssueUrl
       githubRepoName
+      customerIds
+      companyIds
     }
   }
 `);

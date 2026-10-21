@@ -1374,27 +1374,7 @@ export const widgetMutations: Record<string, Resolver> = {
         number: Date.now().toString(),
         createdBy: user?._id,
       });
-      await sendTRPCMessage({
-        subdomain,
-        pluginName: 'core',
-        method: 'mutation',
-        module: 'relation',
-        action: 'createRelation',
-        input: {
-          relation: {
-            entities: [
-              {
-                contentType: 'core:customer',
-                contentId: customerIds?.[0] || '',
-              },
-              {
-                contentType: 'frontline:ticket',
-                contentId: ticket._id,
-              },
-            ],
-          },
-        },
-      });
+      // The ticket keeps its customers itself (customerIds above).
       return ticket;
     } catch (e) {
       throw new Error(e.message);

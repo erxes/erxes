@@ -318,7 +318,18 @@ export const createTicketAction = async ({
     });
   }
 
-  const ticket = await models.Ticket.addTicket(doc, userId, subdomain);
+  const customerId = getString(target, 'customerId');
+  // A ticket from a conversation keeps the conversation's customer itself.
+  const ticket = await models.Ticket.addTicket(
+    inboxConversationId && customerId
+      ? {
+          ...doc,
+          customerIds: [...new Set([...(doc.customerIds || []), customerId])],
+        }
+      : doc,
+    userId,
+    subdomain,
+  );
 
   // Lets the conversation show its ticket and a later message find it open.
   if (inboxConversationId) {
@@ -326,7 +337,6 @@ export const createTicketAction = async ({
       subdomain,
       ticketId: ticket._id,
       conversationId: inboxConversationId,
-      customerId: getString(target, 'customerId'),
       userId,
     });
   }

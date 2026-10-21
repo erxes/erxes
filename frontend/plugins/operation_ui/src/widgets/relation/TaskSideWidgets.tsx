@@ -9,17 +9,21 @@ const PROPERTIES_TAB = 'operation-properties';
 export const TaskSideWidgets = ({
   contentId,
   propertiesData,
+  customerIds,
+  companyIds,
 }: {
   contentId: string;
   propertiesData?: Record<string, unknown>;
+  // The task's own contacts.
+  customerIds?: (string | null)[] | null;
+  companyIds?: (string | null)[] | null;
 }) => {
   const { t } = useTranslation('operation');
 
   return (
     <RelationWidgetSideTabs
-      contentId={contentId}
-      contentType="operation:task"
-      hookOptions={{ hiddenPlugins: ['operation'] }}
+      customerIds={customerIds}
+      companyIds={companyIds}
       extraTabs={[
         {
           value: PROPERTIES_TAB,

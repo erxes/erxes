@@ -1,6 +1,6 @@
 import { Upload } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { PanelField } from './PanelField';
+import { PanelField } from 'ui-modules';
 
 // Local previews (data:, blob:) are not saved; only the uploaded file is.
 const isStoredUrl = (url: string) =>
@@ -17,7 +17,7 @@ export const PanelAvatarField = ({
   const { t } = useTranslation('contact', { keyPrefix: 'customer.add' });
 
   return (
-    <PanelField label={t('avatar', 'Avatar')}>
+    <PanelField label={t('avatar', 'Avatar')} cell={false}>
       <Upload.Root
         value={value}
         onChange={(fileInfo) => {

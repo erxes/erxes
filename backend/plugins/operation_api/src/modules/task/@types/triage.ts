@@ -16,6 +16,8 @@ export interface ITriage {
   githubIssueNumber?: number;
   githubIssueUrl?: string;
   githubRepoName?: string;
+  customerIds?: string[];
+  companyIds?: string[];
 }
 
 export interface ITriageUpdate extends ITriage {
@@ -42,9 +44,13 @@ export interface ITriageAddInput {
   teamId: string;
   priority: number;
   status: number;
+  customerIds?: string[];
+  companyIds?: string[];
 }
 
 export interface ITriageUpdateInput {
+  customerIds?: string[];
+  companyIds?: string[];
   name?: string;
   description?: string;
   teamId?: string;

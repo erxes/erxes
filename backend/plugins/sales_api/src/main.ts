@@ -115,6 +115,9 @@ startPlugin({
     // await initMQWorkers(redis);
   },
   meta: {
+    // Deals keep their own customerIds / companyIds; core tells sales when a
+    // contact is merged or removed.
+    contactFields: { contentTypes: ['sales:deal'] },
     automations,
     segments,
     documents,

@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-10-19`
+- **Last synchronized:** `2026-10-21`
 
 ## Scope
 
@@ -310,6 +310,9 @@
   ticket view has none of its own — its `Open ticket` button opens that sheet.
   The header's close button sits in a `w-16` strip aligned with the relation
   side tabs, and drops the strip when `hideRelationWidgetSideTabs` is set.
+  Those side tabs (ui-modules `RelationWidgetSideTabs`) hold only Customers and
+  Companies icons, each opening the side panel's view of the ticket's contacts
+  inside the sheet; no relation widgets are listed beside a ticket.
   While one action is in flight the menu and its items stay disabled.
 - Ticket detail chips render as labelled field groups, as Sales' deal detail
   chips do: a muted label segment, then the value and a chevron, e.g.
@@ -692,6 +695,7 @@ owns the setup form and connection actions.
 
 ### Provides
 
+- `widgets.contactWidgets: [{ name: 'ticket' }, { name: 'conversation' }]` with `./contactWidget` (`src/widgets/contact/ContactWidgets.tsx`): Tickets (the contact's tickets from `getTickets` filtered by `customerIds` / `companyIds`, rows opening `TicketDetailSheet`, `+` opening `AddTicketSheet` with `hideTrigger` and `contacts`, saved on the ticket by `createTicket`; `AddTicketForm` evicts cached `getTickets` lists) and Conversations (a customer's own, from `useConversations({ customerId })`; none for companies) sections of a contact's side panel overview. Tickets keep their contacts themselves (`customerIds` / `companyIds` in `FrontlineTicketFields`); the ticket sheet's rail is given them.
 - Routes `frontline/forms` (list), `frontline/forms/create` (builder wizard),
   `frontline/forms/:formId` (builder wizard on an existing form),
   `frontline/forms/submissions/:formId` and `frontline/forms/preview`, all
@@ -781,11 +785,12 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
 - `erxes-ui`: all UI primitives — `NavigationMenuGroup`, `Sheet`, `Form`,
   `Dialog`, `Button`, `Badge`, `Label`, `Card`, `toast`, `useQueryState`,
   `useToast`, hotkey hooks.
-- `ui-modules`: `useRelationWidget` in `ConversationSideWidget` is called with
-  `contentType: 'frontline:conversation'`. A relation widget registered with a
-  `contentTypes` list is filtered out of any rail that passes no `contentType`,
-  so dropping this argument silently removes the core Tracked data tab from the
-  conversation rail.
+- `ui-modules`: `useSidePanel().openRecord` in `ConversationSideWidget`. The
+  conversation's right rail (`SideMenu`) holds a customer button, which closes
+  any open rail tab and opens the conversation's customer in the app side panel
+  (`core:customer`, where its linked records, Tracked data included, are
+  shown), and the conversation Properties tab. No relation widgets are rendered
+  beside a conversation.
 - `ui-modules`: `SelectBrand`, `MembersInline`, `CustomersInline`, contacts and
   structure selects,
   `AutomationRemoteEntryWrapper`, `AutomationRemoteEntryTypes`,
@@ -2540,7 +2545,8 @@ null }`, fall back to the route pipeline and skip without one; never pass
   from two channels on `/frontline/forms` must leave that button disabled.
 - Smoke (convert): in a conversation open Convert → `Convert to a ticket`,
   `…a deal` and `…a task`; each save shows a success toast, the entry turns
-  into `Go to a …`, and the Tickets/Deals/Tasks side widgets list the new item.
+  into `Go to a …`, and the customer button's side panel lists the new item
+  under Tickets/Deals/Tasks.
 - Smoke (help center): open `/frontline/helpcenter`, change a name inline, then
   open the drawer and pick a client portal on **General** and save a colour on
   **Appearance**; reload and confirm both persisted. The website picker must

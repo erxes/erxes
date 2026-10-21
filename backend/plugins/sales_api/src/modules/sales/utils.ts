@@ -973,56 +973,35 @@ export const getCustomerIds = (
 ): Promise<string[]> =>
   getDealContactIds(subdomain, models, dealId, 'customer');
 
-export const createRelations = async (
-  subdomain: string,
+/**
+ * Adds customers / companies to a deal. Sales keeps its deals' contacts
+ * itself (`customerIds` / `companyIds`); core only reports merged or removed
+ * contacts (`contactFields.sync`).
+ */
+export const setDealContacts = async (
+  models: IModels,
   {
     dealId,
-    companyIds,
-    customerIds,
+    companyIds = [],
+    customerIds = [],
   }: { dealId: string; companyIds?: string[]; customerIds?: string[] },
 ) => {
-  const companyEntities =
-    companyIds?.map((companyId) => ({
-      entities: [
-        {
-          contentType: 'sales:deal',
-          contentId: dealId,
-        },
-        {
-          contentType: 'core:company',
-          contentId: companyId,
-        },
-      ],
-    })) ?? [];
+  const customers = [...new Set(customerIds.filter(Boolean))];
+  const companies = [...new Set(companyIds.filter(Boolean))];
 
-  const customerEntities =
-    customerIds?.map((customerId) => ({
-      entities: [
-        {
-          contentType: 'sales:deal',
-          contentId: dealId,
-        },
-        {
-          contentType: 'core:customer',
-          contentId: customerId,
-        },
-      ],
-    })) ?? [];
-
-  if (!(companyEntities.length + customerEntities.length)) {
+  if (!customers.length && !companies.length) {
     return;
   }
 
-  await sendTRPCMessage({
-    subdomain,
-    method: 'mutation',
-    pluginName: 'core',
-    module: 'relation',
-    action: 'createMultipleRelations',
-    input: {
-      relations: [...companyEntities, ...customerEntities],
+  await models.Deals.updateOne(
+    { _id: dealId },
+    {
+      $addToSet: {
+        customerIds: { $each: customers },
+        companyIds: { $each: companies },
+      },
     },
-  });
+  );
 };
 
 export const getTotalAmounts = async (productsData: IProductData[]) => {

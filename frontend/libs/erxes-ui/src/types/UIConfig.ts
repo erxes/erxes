@@ -175,6 +175,22 @@ export type IUIConfig = {
       name: string;
       contentType: string;
     }[];
+    // Record types the plugin draws in the app's side panel (its
+    // `./recordPanel` remote, given `IRecordPanelProps`), e.g.
+    // `operation:task`; core keeps the panel's relations and activity.
+    recordPanels?: {
+      contentType: string;
+      // `false` when the type has no custom properties: no Properties tab.
+      properties?: boolean;
+    }[];
+    // Sections a plugin adds to a customer's or company's overview (its
+    // `./contactWidget` remote, given ui-modules' `IContactWidgetProps`):
+    // one per module, e.g. `tasks`, listing that contact's records.
+    contactWidgets?: {
+      name: string;
+      label?: string;
+      icon?: React.ElementType;
+    }[];
     customerDetailWidgets?: {
       name: string;
     }[];

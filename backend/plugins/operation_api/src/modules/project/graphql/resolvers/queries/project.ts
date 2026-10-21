@@ -75,6 +75,15 @@ export const projectQueries: Record<string, Resolver> = {
       filterQuery.tagIds = { $in: filter.tagIds };
     }
 
+    // The projects of these customers / companies.
+    if (filter.customerIds?.length) {
+      filterQuery.customerIds = { $in: filter.customerIds };
+    }
+
+    if (filter.companyIds?.length) {
+      filterQuery.companyIds = { $in: filter.companyIds };
+    }
+
     if (filter.teamIds && filter.teamIds.length > 0) {
       filterQuery.teamIds = {
         $in: filter.teamIds,

@@ -20,6 +20,8 @@ export const GET_PROJECT = gql(`
       updatedAt
       convertedFromId
       propertiesData
+      customerIds
+      companyIds
     }
   }
 `);

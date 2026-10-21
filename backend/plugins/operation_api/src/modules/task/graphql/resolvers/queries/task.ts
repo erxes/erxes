@@ -216,6 +216,15 @@ export const taskQueries = {
       filterQuery.tagIds = { $in: filter.tagIds };
     }
 
+    // The tasks of these customers / companies.
+    if (filter.customerIds?.length) {
+      filterQuery.customerIds = { $in: filter.customerIds };
+    }
+
+    if (filter.companyIds?.length) {
+      filterQuery.companyIds = { $in: filter.companyIds };
+    }
+
     if (filter.labelIds && filter.labelIds.length > 0) {
       filterQuery.labelIds = { $in: filter.labelIds };
     }

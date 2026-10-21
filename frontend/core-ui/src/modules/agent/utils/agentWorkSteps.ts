@@ -155,7 +155,7 @@ const isStandalonePart = (part: TUIPart): boolean => {
 };
 
 /**
- * Groups an assistant message's parts for the Twenty-style transcript:
+ * Groups an assistant message's parts for the compact transcript:
  * every contiguous run of reasoning + tool parts becomes one collapsible
  * "work" item; text, data, file and standalone tool parts keep their own
  * slots so rendering order is preserved.

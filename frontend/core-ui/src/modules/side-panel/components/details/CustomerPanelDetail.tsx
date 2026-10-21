@@ -24,14 +24,12 @@ import {
   TagsSelect,
   useCustomerDetail,
   useCustomerEdit,
-} from 'ui-modules';
-import { PanelAvatarField } from './PanelAvatarField';
-import { PanelDescriptionField } from './PanelDescriptionField';
-import {
   PANEL_TEXT_FIELD_CLASS_NAME,
+  PanelDescriptionField,
   PanelField,
   PanelFieldTrigger,
-} from './PanelField';
+} from 'ui-modules';
+import { PanelAvatarField } from './PanelAvatarField';
 
 const SCOPE = 'side-panel-customer';
 
@@ -45,12 +43,10 @@ const CustomerTextField = ({
   customer,
   code,
   placeholder,
-  defaultOpen,
 }: {
   customer: ICustomerDetail;
   code: TTextCode;
   placeholder: string;
-  defaultOpen?: boolean;
 }) => {
   const { customerEdit } = useCustomerEdit();
   const value = customer[code] || '';
@@ -60,7 +56,6 @@ const CustomerTextField = ({
       scope={`${SCOPE}.${code}`}
       value={value}
       placeholder={placeholder}
-      defaultOpen={defaultOpen}
       className={PANEL_TEXT_FIELD_CLASS_NAME}
       onSave={(next) =>
         customerEdit({ variables: { _id: customer._id, [code]: next } })
@@ -140,7 +135,7 @@ const CustomerStateField = ({ customer }: { customer: ICustomerDetail }) => {
       value={customer.state || ''}
       onValueChange={(state) => changeCustomerState([customer._id], state)}
     >
-      <Select.Trigger className="h-8 rounded-sm px-2 shadow-none hover:bg-accent">
+      <Select.Trigger className="h-7 rounded-sm px-2 shadow-none hover:bg-accent">
         <Select.Value placeholder={t('state', 'State')} />
       </Select.Trigger>
       <Select.Content align="start">
@@ -159,7 +154,7 @@ const CustomerSubscribedField = ({
   const { customerEdit } = useCustomerEdit();
 
   return (
-    <div className="flex h-8 items-center px-2">
+    <div className="flex h-7 items-center px-2">
       <Switch
         size="sm"
         checked={customer.isSubscribed === 'Yes'}
@@ -197,14 +192,7 @@ const CustomerDescriptionField = ({
 };
 
 // The customer's fields as record table cells: click a value to edit it.
-export const CustomerPanelDetail = ({
-  customerId,
-  focusFirstField = false,
-}: {
-  customerId: string;
-  // A record just created opens with First name ready to type in.
-  focusFirstField?: boolean;
-}) => {
+export const CustomerPanelDetail = ({ customerId }: { customerId: string }) => {
   const { t } = useTranslation('contact', { keyPrefix: 'customer' });
   const { t: addT } = useTranslation('contact', { keyPrefix: 'customer.add' });
   const { customerDetail, loading } = useCustomerDetail({
@@ -239,7 +227,6 @@ export const CustomerPanelDetail = ({
             customer={customer}
             code="firstName"
             placeholder={addT('first-name', 'First name')}
-            defaultOpen={focusFirstField}
           />
         </PanelField>
         <PanelField label={addT('middle-name', 'Middle name')}>

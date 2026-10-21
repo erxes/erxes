@@ -7,9 +7,15 @@ import {
 import { useCreateMultipleRelations } from './useCreateMultipleRelations';
 
 /**
- * Links a record of `relatedContentType` (just created or picked inside a
- * relation widget) to the host record and to every contact the host is about,
- * so it shows on the other records of those contacts too.
+ * Links a record of `relatedContentType` to the host record and to every
+ * contact the host is about, so it shows on the other records of those
+ * contacts too.
+ *
+ * - `relateRecord`: for a record picked in a relation widget.
+ * - `contacts` + `relateToHost`: for one created there. Pass `contacts` to
+ *   the create mutation (it links them on the server), then call
+ *   `relateToHost` with the new id: it links the host only when the host is
+ *   not itself a contact (a contact host is among `contacts`).
  */
 export const useRelateRecord = ({
   contentType,
@@ -29,15 +35,28 @@ export const useRelateRecord = ({
   companyIds?: string[];
 }) => {
   const { createMultipleRelations, loading } = useCreateMultipleRelations();
+  const isContactHost =
+    contentType === CUSTOMER_CONTENT_TYPE ||
+    contentType === COMPANY_CONTENT_TYPE;
+  const contacts = getWidgetContacts({
+    customerId: contentType === CUSTOMER_CONTENT_TYPE ? contentId : customerId,
+    companyId: contentType === COMPANY_CONTENT_TYPE ? contentId : companyId,
+    customerIds,
+    companyIds,
+  });
+
+  const relateToHost = (relatedId: string) =>
+    isContactHost
+      ? Promise.resolve(undefined)
+      : createMultipleRelations(
+          buildRelationInputs({
+            related: { contentType: relatedContentType, contentId: relatedId },
+            sources: [{ contentType, contentId }],
+          }),
+          { silent: true },
+        );
 
   const relateRecord = (relatedId: string) => {
-    const contacts = getWidgetContacts({
-      customerId,
-      companyId,
-      customerIds,
-      companyIds,
-    });
-
     return createMultipleRelations(
       buildRelationInputs({
         related: { contentType: relatedContentType, contentId: relatedId },
@@ -56,5 +75,5 @@ export const useRelateRecord = ({
     );
   };
 
-  return { relateRecord, loading };
+  return { relateRecord, relateToHost, contacts, loading };
 };

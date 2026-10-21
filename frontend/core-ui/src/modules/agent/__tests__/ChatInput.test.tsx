@@ -3,6 +3,7 @@ import { act, render, screen } from '@testing-library/react';
 import { ChatInput } from '../components/ChatInput';
 
 let mockResize: ResizeObserverCallback;
+let frames: FrameRequestCallback[] = [];
 const mockDisconnect = jest.fn();
 const mockObserver: ResizeObserver = {
   observe: jest.fn(),
@@ -12,6 +13,13 @@ const mockObserver: ResizeObserver = {
 
 beforeEach(() => {
   mockDisconnect.mockClear();
+  frames = [];
+  jest
+    .spyOn(window, 'requestAnimationFrame')
+    .mockImplementation((callback) => frames.push(callback));
+  jest.spyOn(window, 'cancelAnimationFrame').mockImplementation(() => {
+    frames = [];
+  });
   global.ResizeObserver = class {
     constructor(callback: ResizeObserverCallback) {
       mockResize = callback;
@@ -40,11 +48,16 @@ it('keeps a usable line when mounted hidden and remeasures when shown or resized
       mockObserver,
     );
   };
+  // Remeasuring waits for the next frame, outside the observer callback.
+  const flushFrame = () => frames.splice(0).forEach((frame) => frame(0));
   act(() => trigger(360));
+  expect(input.style.height).toBe('20px');
+  act(flushFrame);
   expect(input.style.height).toBe('168px');
   expect(input.style.overflowY).toBe('auto');
   height = 40;
   act(() => trigger(500));
+  act(flushFrame);
   expect(input.style.height).toBe('40px');
   expect(input.style.overflowY).toBe('hidden');
   unmount();

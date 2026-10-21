@@ -31,10 +31,14 @@ export function AddCardForm({
   onCloseSheet,
   onComplete,
   showWorkflowFields,
+  contacts,
 }: {
   onCloseSheet: () => void;
   onComplete?: (dealId: string) => void;
   showWorkflowFields?: boolean;
+  // Customers / companies to start with, e.g. the one it is created from;
+  // dealsAdd links them on the server.
+  contacts?: { customerIds?: string[]; companyIds?: string[] };
 }) {
   const form = useForm<SalesFormType>({
     resolver: zodResolver(salesFormSchema),
@@ -42,8 +46,8 @@ export function AddCardForm({
       name: '',
       assignedUserIds: [],
       description: '',
-      companyIds: [],
-      customerIds: [],
+      companyIds: contacts?.companyIds || [],
+      customerIds: contacts?.customerIds || [],
       labelIds: [],
       tagIds: [],
       propertiesData: {},
@@ -78,6 +82,9 @@ export function AddCardForm({
         ...rest,
         propertiesData: cleanPropertiesData,
       },
+      // The deal keeps its contacts itself; contacts' deal lists are read
+      // again.
+      update: (cache) => cache.evict({ id: 'ROOT_QUERY', fieldName: 'deals' }),
       onCompleted: (data) => {
         form.reset();
         onCloseSheet();

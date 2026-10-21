@@ -55,14 +55,21 @@ export const ChatInput = ({
     resize();
     if (typeof ResizeObserver === 'undefined') return;
     let width = node.getBoundingClientRect().width;
+    let frame = 0;
+    // Resizing inside the callback changes the observed node again in the
+    // same frame (a ResizeObserver loop); wait for the next one.
     const observer = new ResizeObserver(([entry]) => {
       if (entry && entry.contentRect.width !== width) {
         width = entry.contentRect.width;
-        resize();
+        cancelAnimationFrame(frame);
+        frame = requestAnimationFrame(resize);
       }
     });
     observer.observe(node);
-    return () => observer.disconnect();
+    return () => {
+      cancelAnimationFrame(frame);
+      observer.disconnect();
+    };
   }, [value, maxHeight, minHeight]);
 
   return (

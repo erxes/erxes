@@ -25,7 +25,11 @@ export const useRelationWidgetTabs = ({
   access = 'write',
   hiddenPlugins,
   hiddenModules,
+  skip = false,
 }: {
+  // No relation tabs (and no lookups), e.g. for records whose links are
+  // their customers and companies, shown in their detail.
+  skip?: boolean;
   contentType: string;
   contentId: string;
   customerId?: string;
@@ -44,11 +48,12 @@ export const useRelationWidgetTabs = ({
     contentId,
     customerId,
     companyId,
+    skip,
   });
 
   return useMemo(
     () =>
-      relationWidgetsModules.map((module) => ({
+      (skip ? [] : relationWidgetsModules).map((module) => ({
         value: `${module.pluginName}.${module.name}`,
         pluginName: module.pluginName,
         label: getRelationWidgetLabel(module),
@@ -72,6 +77,7 @@ export const useRelationWidgetTabs = ({
         ),
       })),
     [
+      skip,
       relationWidgetsModules,
       RelationWidget,
       contentId,

@@ -1,3 +1,4 @@
+import { contactFieldsSchemaPlugin } from 'erxes-api-shared/core-modules';
 import { Schema } from 'mongoose';
 
 export const projectSchema = new Schema(
@@ -13,6 +14,11 @@ export const projectSchema = new Schema(
       required: true,
     },
     tagIds: { type: [String], label: 'Tag IDs' },
+    // The project's contacts, kept on the project as well as core relations.
+    // Missing (not `[]`) until the project is migrated; see
+    // contactFieldsSchemaPlugin.
+    customerIds: { type: [String], label: 'Customer IDs', default: undefined },
+    companyIds: { type: [String], label: 'Company IDs', default: undefined },
     startDate: { type: Date, label: 'Start Date', default: null },
     targetDate: { type: Date, label: 'Target Date', default: null },
     leadId: { type: String, label: 'Lead ID', default: null },
@@ -29,3 +35,8 @@ export const projectSchema = new Schema(
     timestamps: true,
   },
 );
+
+projectSchema.index({ customerIds: 1 });
+projectSchema.index({ companyIds: 1 });
+
+projectSchema.plugin(contactFieldsSchemaPlugin);

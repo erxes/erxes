@@ -2,9 +2,8 @@ import {
   replaceOutputPlaceholders,
   splitType,
 } from 'erxes-api-shared/core-modules';
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
-import { itemsAdd } from '~/modules/sales/utils';
+import { itemsAdd, setDealContacts } from '~/modules/sales/utils';
 import { syncWrittenDealPoints } from '~/modules/sales/utils/dealPoints';
 
 export const actionCreate = async ({
@@ -118,49 +117,23 @@ export const actionCreate = async ({
 
   const [serviceName, mainType] = splitType(execution.triggerType);
 
+  // The contact the automation ran for becomes the deal's own contact.
   if (mainType === 'inbox:conversation') {
-    await sendTRPCMessage({
-      subdomain,
-      method: 'mutation',
-      pluginName: 'core',
-      module: 'relation',
-      action: 'createRelation',
-      input: {
-        entities: [
-          {
-            contentType: 'core:customer',
-            contentId: execution.target.customerId,
-          },
-          {
-            contentType: 'sales:deal',
-            contentId: item._id,
-          },
-        ],
-      },
+    await setDealContacts(models, {
+      dealId: item._id,
+      customerIds: [execution.target.customerId],
     });
   } else if (serviceName !== 'sales') {
-    await sendTRPCMessage({
-      subdomain,
-      method: 'mutation',
-      pluginName: 'core',
-      module: 'relation',
-      action: 'createRelation',
-      input: {
-        entities: [
-          {
-            contentType: `core:${mainType.replace('lead', 'customer')}`,
-            contentId: execution.targetId,
-          },
-          {
-            contentType: 'sales:deal',
-            contentId: item._id,
-          },
-        ],
-      },
+    const contactType = mainType.replace('lead', 'customer');
+
+    await setDealContacts(models, {
+      dealId: item._id,
+      customerIds: contactType === 'customer' ? [execution.targetId] : [],
+      companyIds: contactType === 'company' ? [execution.targetId] : [],
     });
   }
 
-  // After the relation: the customer it links is who earns.
+  // After the contact: the customer it links is who earns.
   await syncWrittenDealPoints({
     subdomain,
     models,

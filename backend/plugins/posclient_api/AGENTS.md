@@ -6,7 +6,7 @@
 - **Project:** `posclient_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/posclient_api`
-- **Last synchronized:** `2026-10-19`
+- **Last synchronized:** `2026-10-21`
 
 ## Scope
 
@@ -171,6 +171,8 @@
 - Worker startup removes the legacy `posclient-hourly-sync-remainder` scheduler from `posclient-sync-remainder` and cleans failed jobs from both remainder queues. Scheduler and tenant jobs are removed on completion or terminal failure. A job with missing, non-string, or blank tenant data completes with `{ skipped: true, reason: 'missing-subdomain' }` before model access; its warning includes job ID, name, and repeat key. Valid tenant sync errors still propagate. Queue metadata remains while the queues are in use.
 
 ## Local Invariants
+
+- An order converted to a deal sends its customer / company on the deal (`customerIds` / `companyIds` in the `sales` `deal.create` input); no core relation is made for it.
 
 - `cpOrdersAdd` and `cpOrdersEdit` always require client portal context;
   only `customerType: visitor` bypasses the portal user requirement.

@@ -9,14 +9,12 @@ import {
   SelectMember,
   TagsSelect,
   useCompaniesEdit,
-} from 'ui-modules';
-import { PanelAvatarField } from './PanelAvatarField';
-import { PanelDescriptionField } from './PanelDescriptionField';
-import {
   PANEL_TEXT_FIELD_CLASS_NAME,
+  PanelDescriptionField,
   PanelField,
   PanelFieldTrigger,
-} from './PanelField';
+} from 'ui-modules';
+import { PanelAvatarField } from './PanelAvatarField';
 
 const SCOPE = 'side-panel-company';
 
@@ -76,6 +74,13 @@ const CompanyFields = () => {
           companiesEdit({ variables: { _id: company._id, avatar } })
         }
       />
+      <PanelField label={t('field.primaryName', 'Name')}>
+        <CompanyTextField
+          company={company}
+          code="primaryName"
+          placeholder={t('field.primaryName', 'Name')}
+        />
+      </PanelField>
       <PanelField label={t('tags', 'Tags')}>
         <TagsSelect.InlineCell
           type="core:company"
@@ -93,13 +98,6 @@ const CompanyFields = () => {
               });
             },
           })}
-        />
-      </PanelField>
-      <PanelField label={t('field.primaryName', 'Name')}>
-        <CompanyTextField
-          company={company}
-          code="primaryName"
-          placeholder={t('field.primaryName', 'Name')}
         />
       </PanelField>
       <PanelField label={t('emails', 'Emails')}>
@@ -173,7 +171,7 @@ const CompanyFields = () => {
         />
       </PanelField>
       <PanelField label={t('subscribed', 'Subscribed')}>
-        <div className="flex h-8 items-center px-2">
+        <div className="flex h-7 items-center px-2">
           <Switch
             size="sm"
             checked={company.isSubscribed === 'Yes'}

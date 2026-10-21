@@ -10,7 +10,7 @@ import { IModels } from '~/connectionResolvers';
 import { IDeal, IDealDocument, IProductData } from '~/modules/sales/@types';
 import {
   checkMovePermission,
-  createRelations,
+  setDealContacts,
   getNewOrder,
   getTotalAmounts,
   sendNotifications,
@@ -111,7 +111,7 @@ export const addDeal = async ({
 
   const stage = await models.Stages.getStage(deal.stageId);
 
-  await createRelations(subdomain, {
+  await setDealContacts(models, {
     dealId: deal._id,
     companyIds: doc.companyIds,
     customerIds: doc.customerIds,

@@ -34,7 +34,6 @@ export interface IConvertedTarget {
 
 export interface IConvertTargetHandler {
   contentType: string;
-  relateCustomer: boolean;
   requiredStageMessage: string;
   findExisting: (
     context: Pick<IConvertContext, 'models' | 'subdomain'>,
@@ -71,7 +70,6 @@ const validatePropertiesData = async (
 
 const ticketHandler: IConvertTargetHandler = {
   contentType: 'frontline:ticket',
-  relateCustomer: true,
   requiredStageMessage: 'Status is required',
 
   findExisting: async ({ models }, conversationId, relatedIds) => {
@@ -107,7 +105,7 @@ const ticketHandler: IConvertTargetHandler = {
 
   create: async (
     { models, subdomain, user, checkPermission },
-    { doc, name, stageId, assignedUserIds },
+    { conversation, doc, name, stageId, assignedUserIds },
   ) => {
     await checkPermission('createTicket');
 
@@ -153,6 +151,8 @@ const ticketHandler: IConvertTargetHandler = {
         targetDate: doc.closeDate,
         attachments: doc.attachments,
         propertiesData,
+        // The ticket keeps its customer itself.
+        customerIds: conversation.customerId ? [conversation.customerId] : [],
       },
       user._id,
       subdomain,
@@ -172,7 +172,6 @@ const ticketHandler: IConvertTargetHandler = {
 
 const dealHandler: IConvertTargetHandler = {
   contentType: 'sales:deal',
-  relateCustomer: false,
   requiredStageMessage: 'Stage is required',
 
   findExisting: ({ subdomain }, conversationId, relatedIds) =>

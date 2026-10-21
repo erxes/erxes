@@ -82,11 +82,12 @@ const SalesItemDetailView = () => {
               </div>
             </div>
             <RelationWidgetSideTabs
-              contentId={deal?._id || ''}
-              contentType="sales:deal"
-              hookOptions={{
-                hiddenModules: ['deals'],
-              }}
+              customerIds={deal?.customers?.map(
+                (customer) => customer?._id ?? null,
+              )}
+              companyIds={deal?.companies?.map(
+                (company) => company?._id ?? null,
+              )}
             />
           </FocusSheet.Content>
         </>

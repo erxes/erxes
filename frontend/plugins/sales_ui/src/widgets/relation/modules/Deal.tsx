@@ -34,7 +34,7 @@ export const Deal = ({
     },
   });
 
-  const { relateRecord } = useRelateRecord({
+  const { relateRecord, relateToHost, contacts } = useRelateRecord({
     contentType,
     contentId,
     relatedContentType: 'sales:deal',
@@ -74,7 +74,11 @@ export const Deal = ({
           <IconPlus />
           {t('add-a-deal')}
         </Button>
-        <AddDealSheet onComplete={relateRecord} showWorkflowFields={true} />
+        <AddDealSheet
+          onComplete={relateToHost}
+          contacts={contacts}
+          showWorkflowFields
+        />
         <ChooseDealSheet onComplete={relateRecord} showText={true} />
       </RelationWidgetEmptyState>
     );
@@ -88,7 +92,11 @@ export const Deal = ({
           <Button variant="secondary" onClick={handleDealOpen}>
             <IconPlus />
           </Button>
-          <AddDealSheet onComplete={relateRecord} showWorkflowFields={true} />
+          <AddDealSheet
+            onComplete={relateToHost}
+            contacts={contacts}
+            showWorkflowFields
+          />
           <ChooseDealSheet onComplete={relateRecord} />
         </>
       }

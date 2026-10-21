@@ -17,6 +17,7 @@ import { useCallback, useRef, useState } from 'react';
 
 import { SelectLabels } from '@/deals/components/common/filters/SelectLabel';
 import { DateSelectDeal } from '@/deals/components/deal-selects/DateSelectDeal';
+import { DealContactsField } from '@/deals/components/deal-selects/DealContactsField';
 import { SelectDealPriority } from '@/deals/components/deal-selects/SelectDealPriority';
 import { SelectDealStage } from '@/deals/components/deal-selects/SelectDealStage';
 import { useDealsContext } from '@/deals/context/DealContext';
@@ -40,6 +41,10 @@ interface BrokerSelection {
   id: string;
   type: BrokerType;
 }
+
+// A deal's contacts, as their ids.
+const compactIds = (ids?: (string | null | undefined)[] | null) =>
+  (ids || []).filter((id): id is string => !!id);
 
 const normalizeMultiValue = (value: string | string[]) =>
   Array.isArray(value) ? value : [value];
@@ -256,6 +261,18 @@ export const SalesFormFields = ({ deal }: { deal: IDealDetail }) => {
             onValueChange={(value) =>
               optimisticTags.setValue(normalizeMultiValue(value))
             }
+          />
+          <DealContactsField
+            dealId={_id}
+            kind="customer"
+            value={compactIds(deal.customers?.map((customer) => customer?._id))}
+            label={t('customers', 'Customers')}
+          />
+          <DealContactsField
+            dealId={_id}
+            kind="company"
+            value={compactIds(deal.companies?.map((company) => company?._id))}
+            label={t('companies', 'Companies')}
           />
         </div>
         <div className="flex flex-wrap items-center gap-2">

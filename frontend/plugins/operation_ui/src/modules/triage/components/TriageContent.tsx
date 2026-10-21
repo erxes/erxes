@@ -3,7 +3,7 @@ import { useGetTriage } from '@/triage/hooks/useGetTriage';
 import { ITriageDetail } from '@/triage/types/triage';
 import { NoTriageSelected } from './NoTriageSelected';
 import { TriageFields } from './TriageFields';
-import { TaskDetailSheet } from '@/task/components/TaskDetailSheet';
+import { TaskDetailLink } from '@/task/components/TaskDetailLink';
 import { Suspense } from 'react';
 import { useParams } from 'react-router';
 import { TaskSideWidgets } from '~/widgets/relation/TaskSideWidgets';
@@ -31,7 +31,11 @@ export const TriageContent = ({
         <TriageContentWrapper triage={triage} />
       </ScrollArea>
       <FocusSheet>
-        <TaskSideWidgets contentId={triage._id} />
+        <TaskSideWidgets
+          contentId={triage._id}
+          customerIds={triage.customerIds}
+          companyIds={triage.companyIds}
+        />
       </FocusSheet>
     </div>
   );
@@ -40,7 +44,7 @@ export const TriageContent = ({
 const TriageContentWrapper = ({ triage }: { triage: ITriageDetail }) => {
   return (
     <Suspense>
-      <TaskDetailSheet />
+      <TaskDetailLink />
 
       <div className="h-full w-full flex overflow-auto">
         <div className="w-full xl:max-w-3xl mx-auto py-12 px-6">

@@ -126,6 +126,8 @@ export const types = `
 
     companies: [Company]
     customers: [Customer]
+    customerIds: [String]
+    companyIds: [String]
 
     tags: [Tag]
 
@@ -235,7 +237,7 @@ const mutationParams = `
 
 export const mutations = `
   dealsAdd(name: String, companyIds: [String], customerIds: [String], labelIds: [String], ${mutationParams}): Deal
-  dealsEdit(_id: String!, name: String, ${mutationParams}): Deal
+  dealsEdit(_id: String!, name: String, companyIds: [String], customerIds: [String], ${mutationParams}): Deal
   dealsChange(itemId: String!, aboveItemId: String, destinationStageId: String!, sourceStageId: String, processId: String): Deal
   dealsRemove(_id: String!): Deal
   dealsWatch(_id: String!, isAdd: Boolean): Deal

@@ -24,10 +24,13 @@ export const RelationWidgetEmptyState = ({
 export const RelationWidgetList = ({
   label,
   actions,
+  dense = false,
   children,
 }: {
   label: React.ReactNode;
   actions?: React.ReactNode;
+  // One-line rows (e.g. `ContactWidgetRow`) instead of cards.
+  dense?: boolean;
   children: React.ReactNode;
 }) => (
   <>
@@ -40,26 +43,44 @@ export const RelationWidgetList = ({
     </div>
     <Separator />
     <ScrollArea className="flex-auto">
-      <div className="flex flex-col gap-4 p-4">{children}</div>
+      <div
+        className={
+          dense ? 'flex flex-col gap-0.5 p-1.5' : 'flex flex-col gap-4 p-4'
+        }
+      >
+        {children}
+      </div>
     </ScrollArea>
   </>
 );
 
 // Records that reach the host only through its customers and companies.
 export const RelationWidgetContactsSection = ({
+  dense = false,
   children,
 }: {
+  dense?: boolean;
   children: React.ReactNode;
 }) => {
   const { t } = useTranslation('common', { keyPrefix: 'widgets' });
 
   return (
-    <div className="flex flex-col gap-2">
-      <div className="flex items-center gap-2 text-xs font-medium text-accent-foreground">
+    <div
+      className={dense ? 'flex flex-col gap-0.5 pt-2' : 'flex flex-col gap-2'}
+    >
+      <div
+        className={
+          dense
+            ? 'flex items-center gap-2 px-2 py-1 text-xs font-medium text-accent-foreground'
+            : 'flex items-center gap-2 text-xs font-medium text-accent-foreground'
+        }
+      >
         <IconAddressBook className="size-4" />
         {t('through-contacts', 'Through contacts')}
       </div>
-      <div className="flex flex-col gap-4">{children}</div>
+      <div className={dense ? 'flex flex-col gap-0.5' : 'flex flex-col gap-4'}>
+        {children}
+      </div>
     </div>
   );
 };

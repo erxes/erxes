@@ -1,7 +1,6 @@
 import type { NotificationTaskDetailProps } from '~/widgets/notifications/my-inbox/types/notificationContent';
 import { isRecord } from '@/operation/utils/isRecord';
 import { TaskDetails } from '@/task/components/detail/TaskDetails';
-import { TaskDetailSheet } from '@/task/components/TaskDetailSheet';
 import { useGetTask } from '@/task/hooks/useGetTask';
 import { useGetTriage } from '@/triage/hooks/useGetTriage';
 import { FocusSheet } from 'erxes-ui';
@@ -29,7 +28,6 @@ export const NotificationTaskDetail = ({
 
   return (
     <div ref={ref} className="flex w-full lg:min-h-full">
-      <TaskDetailSheet />
       <div className="min-w-0 flex-1">
         <div className="mx-auto w-full p-6 xl:max-w-3xl">
           <TaskDetails
@@ -55,6 +53,8 @@ export const NotificationTaskDetail = ({
           <FocusSheet>
             <TaskSideWidgets
               contentId={sideContentId}
+              customerIds={task?.customerIds}
+              companyIds={task?.companyIds}
               propertiesData={
                 task?.propertiesData && isRecord(task.propertiesData)
                   ? task.propertiesData

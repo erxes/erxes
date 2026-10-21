@@ -111,11 +111,8 @@ export const TicketDetailSheet = ({
           </div>
           {!hideRelationWidgetSideTabs && (
             <RelationWidgetSideTabs
-              contentId={activeTicket || ''}
-              contentType="frontline:ticket"
-              hookOptions={{
-                hiddenModules: ['ticket'],
-              }}
+              customerIds={ticket?.customerIds}
+              companyIds={ticket?.companyIds}
             />
           )}
         </FocusSheet.Content>

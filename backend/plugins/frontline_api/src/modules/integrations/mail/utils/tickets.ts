@@ -35,19 +35,6 @@ interface ICreateTicketFromMailInput {
   body: string;
 }
 
-const relate = (
-  subdomain: string,
-  entities: { contentType: string; contentId: string }[],
-) =>
-  sendTRPCMessage({
-    subdomain,
-    pluginName: 'core',
-    method: 'mutation',
-    module: 'relation',
-    action: 'createRelation',
-    input: { relation: { entities } },
-  });
-
 const relatedIds = async (
   subdomain: string,
   ticketId: string,
@@ -126,6 +113,8 @@ export const createTicketFromMail = async ({
       stageId: '',
       statusId: status._id,
       description: toDescription(body),
+      // The ticket keeps its customer itself.
+      customerIds: [customerId],
     },
     `cp:${customerId}`,
     subdomain,
@@ -135,11 +124,6 @@ export const createTicketFromMail = async ({
     { _id: ticket._id },
     { $set: { subscribedUserIds: owner ? [owner] : [] } },
   );
-
-  await relate(subdomain, [
-    { contentType: CUSTOMER_TYPE, contentId: customerId },
-    { contentType: TICKET_TYPE, contentId: ticket._id },
-  ]);
 
   await graphqlPubsub.publish(`ticketChanged:${ticket._id}`, {
     ticketChanged: { type: 'create', ticket },

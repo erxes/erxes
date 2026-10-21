@@ -14,7 +14,7 @@ import {
   useRelations,
 } from 'ui-modules';
 import { AddProjectRelation } from './AddProjectRelation';
-import { ProjectWidgetCard } from './ProjectWidgetCard';
+import { ProjectRow } from '~/widgets/rows/ProjectRow';
 import { useTranslation } from 'react-i18next';
 
 export const Project = ({
@@ -54,7 +54,7 @@ export const Project = ({
     skip: allProjectIds.length === 0,
   });
 
-  const { relateRecord } = useRelateRecord({
+  const { relateToHost, contacts } = useRelateRecord({
     contentType,
     contentId,
     relatedContentType: 'operation:project',
@@ -87,23 +87,30 @@ export const Project = ({
         icon={IconClipboard}
         message={t('no-projects-to-display')}
       >
-        <AddProjectRelation onSelect={relateRecord} label="Add project" />
+        <AddProjectRelation
+          onSelect={relateToHost}
+          contacts={contacts}
+          label="Add project"
+        />
       </RelationWidgetEmptyState>
     );
   }
 
   return (
     <RelationWidgetList
+      dense
       label={t('projects')}
-      actions={<AddProjectRelation onSelect={relateRecord} />}
+      actions={
+        <AddProjectRelation onSelect={relateToHost} contacts={contacts} />
+      }
     >
       {directProjects.map((project) => (
-        <ProjectWidgetCard key={project._id} project={project} />
+        <ProjectRow key={project._id} project={project} />
       ))}
       {contactProjects.length > 0 && (
-        <RelationWidgetContactsSection>
+        <RelationWidgetContactsSection dense>
           {contactProjects.map((project) => (
-            <ProjectWidgetCard key={project._id} project={project} />
+            <ProjectRow key={project._id} project={project} />
           ))}
         </RelationWidgetContactsSection>
       )}

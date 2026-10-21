@@ -6,7 +6,6 @@ import { isClosingStatus } from '@/ticket/utils/cpNotifications';
 
 const CONVERSATION_CONTENT_TYPE = 'frontline:conversation';
 const TICKET_CONTENT_TYPE = 'frontline:ticket';
-const CUSTOMER_CONTENT_TYPE = 'core:customer';
 const MAX_OPEN_TICKETS = 5;
 
 // Automation targets carry either the inbox conversation id or, for Facebook,
@@ -31,37 +30,33 @@ export const resolveInboxConversationId = async (
   return facebookConversation?.erxesApiId || undefined;
 };
 
-// The same relations a manual "convert to ticket" writes, so the ticket shows
-// on the conversation and a later message can find it.
+// The relation a manual "convert to ticket" writes, so the ticket shows on
+// the conversation and a later message can find it. The ticket keeps the
+// conversation's customer itself (customerIds).
 export const relateTicketToConversation = async ({
   subdomain,
   ticketId,
   conversationId,
-  customerId,
   userId,
 }: {
   subdomain: string;
   ticketId: string;
   conversationId: string;
-  customerId?: string;
   userId: string;
 }) => {
-  const ticket = { contentType: TICKET_CONTENT_TYPE, contentId: ticketId };
-  const related = [
-    { contentType: CONVERSATION_CONTENT_TYPE, contentId: conversationId },
-    ...(customerId
-      ? [{ contentType: CUSTOMER_CONTENT_TYPE, contentId: customerId }]
-      : []),
-  ];
-
   await sendTRPCMessage({
     subdomain,
     pluginName: 'core',
     method: 'mutation',
     module: 'relation',
-    action: 'createMultipleRelations',
+    action: 'createRelation',
     input: {
-      relations: related.map((entity) => ({ entities: [entity, ticket] })),
+      relation: {
+        entities: [
+          { contentType: CONVERSATION_CONTENT_TYPE, contentId: conversationId },
+          { contentType: TICKET_CONTENT_TYPE, contentId: ticketId },
+        ],
+      },
     },
     context: { userId },
     defaultValue: null,

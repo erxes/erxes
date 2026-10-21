@@ -1369,6 +1369,17 @@ const orderMutations: Record<string, Resolver> = {
         },
       };
     }
+    // The deal keeps the order's customer itself.
+    const contactKind = order.customerType || 'customer';
+
+    if (order.customerId && contactKind === 'customer') {
+      dealData.customerIds = [order.customerId];
+    }
+
+    if (order.customerId && contactKind === 'company') {
+      dealData.companyIds = [order.customerId];
+    }
+
     const deal = await sendTRPCMessage({
       subdomain,
       pluginName: 'sales',
@@ -1377,37 +1388,6 @@ const orderMutations: Record<string, Resolver> = {
       input: dealData,
       defaultValue: null,
     });
-    if (order.customerId) {
-      if (
-        order.customerId &&
-        deal._id &&
-        ['customer', 'company'].includes(order.customerType || 'customer')
-      ) {
-        // conformity to relation
-        await sendTRPCMessage({
-          subdomain,
-          method: 'mutation',
-          pluginName: 'core',
-          module: 'relation',
-          action: 'createRelation',
-          input: {
-            relation: {
-              entities: [
-                {
-                  contentType: 'sales:deal',
-                  contentId: deal._id,
-                },
-                {
-                  contentType: `core:${order.customerType || 'customer'}`,
-                  contentId: order.customerId,
-                },
-              ],
-            },
-          },
-          defaultValue: null,
-        });
-      }
-    }
 
     await models.Orders.updateOne(
       { _id: order._id },

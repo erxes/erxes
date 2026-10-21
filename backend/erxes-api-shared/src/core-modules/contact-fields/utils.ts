@@ -1,55 +1,6 @@
-import { FilterQuery, Model, Schema, UpdateQuery } from 'mongoose';
-import {
-  CONTACT_FIELD_RECORD_PLUGINS,
-  CONTACT_KIND_BY_CONTENT_TYPE,
-  TContactKind,
-} from './constants';
-import {
-  IContactFields,
-  IContactFieldsRecord,
-  IContactLink,
-  TContactFieldsFind,
-  TContactFieldsSync,
-} from './types';
-
-type TEntity = { contentType?: string; contentId?: string };
-
-/**
- * The record ↔ contact links among `relations`, for records that keep their
- * contacts as fields. Relations between two records, or two contacts, are
- * not contact links.
- */
-export const getContactLinks = (
-  relations: { entities?: TEntity[] }[],
-): IContactLink[] =>
-  relations.flatMap(({ entities = [] }) => {
-    const contact = entities.find(
-      (entity) =>
-        entity.contentType && CONTACT_KIND_BY_CONTENT_TYPE[entity.contentType],
-    );
-    const record = entities.find(
-      (entity) =>
-        entity.contentType && CONTACT_FIELD_RECORD_PLUGINS[entity.contentType],
-    );
-
-    if (
-      !contact?.contentType ||
-      !contact.contentId ||
-      !record?.contentType ||
-      !record.contentId
-    ) {
-      return [];
-    }
-
-    return [
-      {
-        contentType: record.contentType,
-        contentId: record.contentId,
-        kind: CONTACT_KIND_BY_CONTENT_TYPE[contact.contentType],
-        contactId: contact.contentId,
-      },
-    ];
-  });
+import { FilterQuery, Model, Schema } from 'mongoose';
+import { TContactKind } from './constants';
+import { IContactFields, TContactFieldsSync } from './types';
 
 /**
  * Whether a record's contact fields can be trusted. Both are set once the
@@ -103,21 +54,10 @@ type TContactFieldsModel = Pick<
   'updateOne' | 'updateMany'
 >;
 
-const linkUpdate = (
-  kind: TContactKind,
-  contactId: string,
-  link: boolean,
-): UpdateQuery<IContactFields> => {
-  if (kind === 'customer') {
-    return link
-      ? { $addToSet: { customerIds: contactId } }
-      : { $pull: { customerIds: contactId } };
-  }
-
-  return link
-    ? { $addToSet: { companyIds: contactId } }
-    : { $pull: { companyIds: contactId } };
-};
+const addContact = (kind: TContactKind, contactId: string) =>
+  kind === 'customer'
+    ? { $addToSet: { customerIds: contactId } }
+    : { $addToSet: { companyIds: contactId } };
 
 const fieldFilter = (
   kind: TContactKind,
@@ -126,144 +66,36 @@ const fieldFilter = (
   kind === 'customer' ? { customerIds: condition } : { companyIds: condition };
 
 /**
- * Applies a sync from core to a plugin's records, keyed by content type.
- * Only adds or removes the ids named, so ids written to the fields directly
- * stay. Links touch only records that already have the field: a record not
- * migrated yet is filled whole by the migration, never piecemeal.
+ * Applies a contact change core broadcasts (tRPC `contactFields.sync`) to a
+ * plugin's records: a merged contact's records move to the merged one, a
+ * removed contact is taken off them. The plugin owns its records' contact
+ * fields otherwise.
  */
 export const applyContactFieldsSync = async (
-  modelsByContentType: Record<string, TContactFieldsModel>,
+  models: TContactFieldsModel[],
   sync: TContactFieldsSync,
 ) => {
-  if (sync.action === 'merge' || sync.action === 'remove') {
-    const models = [...new Set(Object.values(modelsByContentType))];
-    const oldIds = sync.action === 'merge' ? sync.oldIds : sync.ids;
+  const oldIds = sync.action === 'merge' ? sync.oldIds : sync.ids;
 
-    if (!oldIds.length) {
-      return;
-    }
-
-    for (const model of models) {
-      if (sync.action === 'merge') {
-        await model.updateMany(
-          fieldFilter(sync.kind, { $in: oldIds }),
-          linkUpdate(sync.kind, sync.newId, true),
-        );
-      }
-
-      await model.updateMany(
-        fieldFilter(sync.kind, { $in: oldIds }),
-        sync.kind === 'customer'
-          ? { $pull: { customerIds: { $in: oldIds } } }
-          : { $pull: { companyIds: { $in: oldIds } } },
-      );
-    }
-
+  if (!oldIds.length) {
     return;
   }
 
-  for (const link of sync.links) {
-    const model = modelsByContentType[link.contentType];
-
-    if (!model) {
-      continue;
+  for (const model of new Set(models)) {
+    if (sync.action === 'merge') {
+      await model.updateMany(
+        fieldFilter(sync.kind, { $in: oldIds }),
+        addContact(sync.kind, sync.newId),
+      );
     }
 
-    await model.updateOne(
-      {
-        _id: link.contentId,
-        ...fieldFilter(link.kind, { $exists: true }),
-      },
-      linkUpdate(link.kind, link.contactId, sync.action === 'link'),
+    await model.updateMany(
+      fieldFilter(sync.kind, { $in: oldIds }),
+      sync.kind === 'customer'
+        ? { $pull: { customerIds: { $in: oldIds } } }
+        : { $pull: { companyIds: { $in: oldIds } } },
     );
   }
-};
-
-// The most records one lookup by contacts returns, newest first.
-const MAX_FIND_RECORDS = 200;
-
-const FIND_PROJECTION: Record<string, 1> = {
-  customerIds: 1,
-  companyIds: 1,
-  createdAt: 1,
-  updatedAt: 1,
-};
-
-type TFoundDoc = IContactFields & {
-  _id: unknown;
-  createdAt?: Date;
-  updatedAt?: Date;
-};
-
-// The query calls `findContactFieldsRecords` makes on a plugin's model.
-interface IContactFieldsFindQuery {
-  sort(order: Record<string, 1 | -1>): IContactFieldsFindQuery;
-  limit(count: number): IContactFieldsFindQuery;
-  lean(): PromiseLike<TFoundDoc[]>;
-}
-
-interface IContactFieldsFindModel extends IContactFieldsExists {
-  find(
-    filter: FilterQuery<IContactFields>,
-    projection: Record<string, 1>,
-  ): IContactFieldsFindQuery;
-}
-
-const toFoundRecord = (doc: TFoundDoc): IContactFieldsRecord => ({
-  _id: String(doc._id),
-  customerIds: doc.customerIds || [],
-  companyIds: doc.companyIds || [],
-  createdAt: doc.createdAt,
-  updatedAt: doc.updatedAt,
-});
-
-/**
- * Answers core's `contactFields.find` from a plugin's records. By contacts it
- * returns `null` until every record has its fields, so core reads relations
- * instead; by ids it returns only the records that have them.
- */
-export const findContactFieldsRecords = async (
-  model: IContactFieldsFindModel,
-  cacheKey: string,
-  input: TContactFieldsFind,
-): Promise<IContactFieldsRecord[] | null> => {
-  if ('ids' in input) {
-    if (!input.ids.length) {
-      return [];
-    }
-
-    const docs = await model
-      .find({ _id: { $in: input.ids } }, FIND_PROJECTION)
-      .lean();
-
-    return docs.filter((doc) => hasContactFields(doc)).map(toFoundRecord);
-  }
-
-  if (!(await contactFieldsReady(model, cacheKey))) {
-    return null;
-  }
-
-  const or: FilterQuery<IContactFields>[] = [];
-
-  if (input.customerIds.length) {
-    or.push({ customerIds: { $in: input.customerIds } });
-  }
-
-  if (input.companyIds.length) {
-    or.push({ companyIds: { $in: input.companyIds } });
-  }
-
-  if (!or.length) {
-    return [];
-  }
-
-  const docs = await model
-    .find({ $or: or }, FIND_PROJECTION)
-    .sort({ createdAt: -1 })
-    .limit(Math.min(input.limit || MAX_FIND_RECORDS, MAX_FIND_RECORDS))
-    .lean();
-
-  return docs.map(toFoundRecord);
 };
 
 /**

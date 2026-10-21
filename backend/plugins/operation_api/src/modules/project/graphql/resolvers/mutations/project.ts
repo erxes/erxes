@@ -20,6 +20,8 @@ export const projectMutations = {
       tagIds,
       convertedFromId,
       propertiesData,
+      customerIds,
+      companyIds,
     },
     { models, user, subdomain, checkPermission }: IContext,
   ) => {
@@ -46,9 +48,12 @@ export const projectMutations = {
         createdBy: user._id,
         convertedFromId,
         propertiesData: validatedPropertiesData,
+        customerIds,
+        companyIds,
       },
       user,
     );
+
     graphqlPubsub.publish(`operationProjectChanged:${createdProject._id}`, {
       operationProjectChanged: {
         type: 'create',
