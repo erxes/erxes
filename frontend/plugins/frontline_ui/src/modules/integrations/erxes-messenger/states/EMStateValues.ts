@@ -37,7 +37,6 @@ export const erxesMessengerSetupValuesAtom = atom((get) => {
     },
     saveConfigVariables: {
       messengerData: {
-        notifyCustomer: settings?.notifyCustomer ?? false,
         botEndpointUrl: '',
         botShowInitialMessage: config?.botSetup?.botShowInitialMessage ?? false,
         botCheck: config?.botSetup?.botCheck ?? false,

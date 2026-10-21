@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-10-21`
+- **Last synchronized:** `2026-10-22`
 
 ## Scope
 
@@ -88,6 +88,11 @@
 
 ## Current Capabilities
 
+- The conversation header shows a warning badge "+N same email" when other
+  customers hold exactly the conversation customer's email (primary or listed).
+  Its popover lists them (links to `/contacts/customers?contactId=`) and
+  "Review and merge" opens `/contacts/customers?searchValue=<email>`, where
+  core's existing merge runs. Nothing is merged automatically.
 - AI knowledge source selector (`widgets/automations/modules/knowledgebase`):
   a topic/category tree above the article list. Checking a topic or category
   sends `config.topicIds` / `config.categoryIds` (hand-picked articles move to
@@ -368,7 +373,9 @@
   `EM_SETTINGS_SCHEMA`. `EMStateValues.ts` emits it on
   `messengerData.isSupportInAppView` through `integrationsSaveMessengerConfigs`
   and `EMSetupSetAtom.ts` reads it back for the edit flow; the API input field
-  must exist for the save to succeed.
+  must exist for the save to succeed. There is no "notify customer" switch:
+  messenger replies are never emailed, so `notifyCustomer` was removed from
+  the UI and the `IntegrationMessengerData` input.
 - The messenger save mutations (`SAVE_EM_CONFIGS_MUTATION`,
   `SAVE_EM_APPEARANCE_MUTATION`) send only `_id`, `brandId` and their payload.
   The channel goes through `integrationsCreateMessengerIntegration` /
@@ -537,6 +544,17 @@
   integration of that channel with kind, Facebook page names and health —
   broken first, archived last — plus a Repair button on broken rows and the
   full row action menu, without leaving the list.
+- The erxes Messenger setup keeps its six steps; their labelled progress
+  segments jump to any step (`IntegrationSteps` `onStepClick`), and an edit can
+  be saved from every step (`useEMEditSave`). The Config step puts name and
+  brand on top and Bot / Ticket / Knowledge base in tabs: Bot lists the
+  automations whose `frontline:inbox.messages` trigger names this integration
+  and opens a seeded builder in a new tab; Ticket and Knowledge base create a
+  ticket config or topic in place when none exists, then select it.
+- The messenger setup preview walks the widget's ticket flow over the picked
+  configs (`EMPreviewTicketFlow`): start, choose a config when there are
+  several, then its form with the config's labels, placeholders and required
+  marks. Submit stays disabled; the preview sends nothing.
 - Facebook pages show as `FacebookPageLink` (avatar from the public Graph
   picture URL, name, opens `facebook.com/<pageId>` in a new tab): the `Page`
   first column of the Facebook messenger/post integration tables, the channel peek,
@@ -1013,6 +1031,14 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
 
 ## Local Invariants
 
+- `inboxCustomersSharingEmail` uses core `customers(searchValue)`, which is a
+  fuzzy search; `useCustomersSharingEmail` must keep only exact,
+  case-insensitive matches on `primaryEmail`/`emails` and drop the current
+  customer. `conversationDetail.customer` carries `emails` for this, because
+  widget-typed emails held by another customer are never made primary.
+- `usePipelineConfigForm` and `SelectTicketConfig` take the channel (and
+  pipeline) from their caller first and the route only as a fallback; hosts
+  outside the pipeline pages must pass them.
 - Integration row actions live in `IntegrationActionsMenu({ integration })`
   and read the kind from `integration.kind`, never from the route; action and
   repair components take `integration`, not a table `cell`. Erxes messenger,

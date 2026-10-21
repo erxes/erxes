@@ -7,7 +7,6 @@ import {
   integrationIdAtom,
   operatorStatusAtom,
 } from '../states';
-import { getLocalStorageItem } from '@libs/utils';
 import { useBotTyping } from './useBotTyping';
 
 export const useInsertMessage = () => {
@@ -17,12 +16,10 @@ export const useInsertMessage = () => {
   const operatorStatus = useAtomValue(operatorStatusAtom);
   const { startBotTyping, stopBotTyping } = useBotTyping();
   const { widgetsMessengerConnect } = connection;
-  const { visitorId, messengerData } = widgetsMessengerConnect;
+  const { messengerData } = widgetsMessengerConnect;
   const [insertMessage, { loading }] = useMutation(
     WIDGETS_INSERT_MESSAGE_MUTATION,
   );
-  const customerId =
-    widgetsMessengerConnect?.customerId || getLocalStorageItem('customerId');
 
   /**
    * Mirrors the bot gate in `widgetsInsertMessage`. The server publishes
@@ -44,9 +41,7 @@ export const useInsertMessage = () => {
       ...options,
       variables: {
         integrationId,
-        visitorId: visitorId || undefined,
         conversationId: conversationId || undefined,
-        customerId: customerId || undefined,
         ...options?.variables,
       },
       onError: (error) => {

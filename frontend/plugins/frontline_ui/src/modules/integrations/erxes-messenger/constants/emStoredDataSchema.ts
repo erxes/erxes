@@ -59,7 +59,6 @@ const EM_MESSAGES_SCHEMA = z.object({
 
 export const EM_MESSENGER_DATA_SCHEMA = z
   .object({
-    notifyCustomer: optionalBoolean,
     botShowInitialMessage: optionalBoolean,
     botCheck: optionalBoolean,
     botGreetMessage: optionalString,

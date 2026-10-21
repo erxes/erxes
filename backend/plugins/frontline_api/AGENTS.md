@@ -1341,6 +1341,39 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 ## Local Invariants
 
+- Widget identity comes only from the signed session token in the
+  `erxes-widget-token` header (`src/modules/inbox/widgetSession.ts`), issued
+  by `widgetsMessengerConnect` as `sessionToken`. Widget operations take no
+  `customerId`/`visitorId` arguments; anything addressed by id (conversation,
+  ticket, comment) passes `assertOwnsConversation` / `assertOwnsTicket` and
+  answers "not found" otherwise. A claimed email, phone or code never finds an
+  existing customer; visitor ids are server-made, never browser fingerprints.
+- Conversation subscriptions (`conversationMessageInserted`,
+  `conversationChanged`, `conversationBotTypingStatus`,
+  `conversationClientTypingStatusChanged`) admit staff (`context.user`) or a
+  widget whose gateway-verified `context.widgetSession` owns the conversation
+  (checked through the `conversation.find` tRPC); `conversationAdminMessageInserted`
+  requires the session's own `customerId`. The widget sends its token as ws
+  `connectionParams.widgetToken`. `src/apollo/subscription.ts` stays untyped JS.
+- `widgetsTicketCustomersEdit` stores typed emails/phones in the lists and
+  also as `primaryEmail`/`primaryPhone` (staff forms read only primaries), but
+  only while no other customer holds that primary: core's `checkDuplication`
+  would otherwise fail the whole save. A failed core update throws instead of
+  returning `null`.
+- Core's `customers.findOne` tRPC only filters by `_id`, `customerPrimaryEmail`,
+  `customerPrimaryPhone` and `customerCode` and silently ignores other keys, so
+  any other lookup (e.g. by `visitorId`) must use `customers.find` with a
+  non-empty value — `findVisitorCustomer` does this.
+- Widget ticket creation accepts only the start statuses of the messenger's own
+  ticket configs and only name, description, attachments, tags and properties.
+- Widget resolvers never log request arguments or customer documents: they
+  carry visitors' emails, phones and custom data.
+- The widget API has no endpoint that sends email to caller-chosen recipients
+  or with caller-chosen content (`widgetsSendEmail` was removed as an open
+  relay). Any widget email goes to the session's own customer with server-side
+  content. Messenger replies are not emailed to the customer (only `lead`
+  replies are), so the widget offers no "get notified by email" step
+  (`widgetsSaveCustomerGetNotified` was removed).
 - Facebook and Instagram `healthStatus` is written as broken only through
   `markUnhealthy`; a direct `updateOne` skips the channel notification.
 - The integration `healthStatus` resolver answers `unknown`, never `healthy`,

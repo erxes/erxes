@@ -5,7 +5,6 @@ import { Button, cn, Form, Input, PhoneInput, Spinner, toast } from 'erxes-ui';
 import { useEditCustomer } from '../hooks/useEditCustomer';
 import { useCreateCustomerForm } from '../ticket/hooks/useCreateCustomerForm';
 import { TCreateCustomerForm } from '../ticket/types';
-import { useCustomerData } from '../hooks/useCustomerData';
 import { useConnect } from '../hooks/useConnect';
 import { useAtom, useAtomValue } from 'jotai';
 import { customerDataAtom, messengerDataAtom } from '../states';
@@ -14,15 +13,28 @@ import { IconUser } from '@tabler/icons-react';
 
 type Props = {
   className?: string;
+  // Set when editing an existing contact: prefills it and offers Cancel.
+  onDone?: () => void;
 };
 
-export const CustomerFormInline = ({ className }: Props) => {
-  const { form } = useCreateCustomerForm();
+export const CustomerFormInline = ({ className, onDone }: Props) => {
+  const [customerData, setCustomerData] = useAtom(customerDataAtom);
+  const savedEmail = customerData?.primaryEmail || customerData?.emails?.[0];
+  const savedPhone = customerData?.primaryPhone || customerData?.phones?.[0];
+  const { form } = useCreateCustomerForm(
+    onDone
+      ? {
+          type: !savedEmail && savedPhone ? 'phone' : 'email',
+          firstName: customerData?.firstName ?? '',
+          lastName: customerData?.lastName ?? '',
+          email: savedEmail ?? '',
+          phone: savedPhone ?? '',
+        }
+      : {},
+  );
   const { control, handleSubmit, reset, watch } = form;
   const { editCustomer, loading } = useEditCustomer();
-  const { customerId } = useCustomerData();
   const messengerData = useAtomValue(messengerDataAtom);
-  const [, setCustomerData] = useAtom(customerDataAtom);
 
   const { connectMutation } = useConnect({
     integrationId: messengerData?.integrationId ?? '',
@@ -30,11 +42,8 @@ export const CustomerFormInline = ({ className }: Props) => {
 
   const onSubmit: SubmitHandler<TCreateCustomerForm> = useCallback(
     async (data) => {
-      if (!customerId) return;
-
       editCustomer({
         variables: {
-          customerId,
           firstName: data.firstName,
           lastName: data.lastName,
           emails: data.email ? [data.email] : undefined,
@@ -50,13 +59,13 @@ export const CustomerFormInline = ({ className }: Props) => {
             await connectMutation({
               variables: {
                 integrationId: messengerData.integrationId,
-                cachedCustomerId: customer._id,
                 isUser: true,
               },
             });
           }
 
           reset();
+          onDone?.();
           toast({
             title: 'Profile saved',
             description: 'You can now send messages.',
@@ -74,11 +83,11 @@ export const CustomerFormInline = ({ className }: Props) => {
     },
     [
       editCustomer,
-      customerId,
       messengerData,
       connectMutation,
       setCustomerData,
       reset,
+      onDone,
     ],
   );
 
@@ -99,9 +108,22 @@ export const CustomerFormInline = ({ className }: Props) => {
         <span className="flex items-center justify-center size-6 rounded-full bg-primary/10">
           <IconUser className="size-3.5 text-primary" />
         </span>
-        <p className="text-xs font-semibold text-foreground">
-          Please provide your contact info to continue
+        <p className="flex-1 text-xs font-semibold text-foreground">
+          {onDone
+            ? 'Your contact info'
+            : 'Please provide your contact info to continue'}
         </p>
+        {onDone && (
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="h-6 px-2 text-xs text-muted-foreground hover:text-foreground"
+            onClick={onDone}
+          >
+            Cancel
+          </Button>
+        )}
       </div>
 
       <Form {...form}>
