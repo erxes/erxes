@@ -105,6 +105,7 @@ export const useDocument = () => {
     documentSave,
     hasError,
     loading,
+    error,
     refetch,
     saving,
   };

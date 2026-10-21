@@ -13,7 +13,7 @@ import { useTranslation } from 'react-i18next';
 import { useDebounce } from 'use-debounce';
 
 export const FormChannelFilterView = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
   const [channelId, setChannelId] = useQueryState<string>('channelId');
   const { resetFilterState } = useFilterContext();
   const [search, setSearch] = useState('');

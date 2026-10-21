@@ -13,7 +13,7 @@ export const NoteAttachments = ({
   attachmentPreview,
   onRemove,
 }: NoteAttachmentsProps) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.activity' });
 
   return (
     <>

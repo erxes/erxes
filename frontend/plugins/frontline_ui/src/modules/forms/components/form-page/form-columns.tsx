@@ -46,7 +46,7 @@ export function FormToggleStatus({
   status: string;
   setOpen: (open: boolean) => void;
 }) {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
   const { toggleStatus } = useFormToggleStatus();
 
   const onSelect = () => {
@@ -83,7 +83,7 @@ export const FormsMoreColumnCell = ({
 }: {
   cell: Cell<IForm, unknown>;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
   const { _id, status, code, channelId } = cell.row.original;
   const navigate = useNavigate();
 
@@ -151,7 +151,7 @@ export const formColumns: ColumnDef<IForm>[] = [
     accessorKey: 'name',
     id: 'name',
     header: function FormPageNameHeader() {
-      const { t } = useTranslation('frontline');
+      const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
       return (
         <RecordTable.InlineHead
           label={t('col-name', 'Name')}
@@ -180,7 +180,7 @@ export const formColumns: ColumnDef<IForm>[] = [
     accessorKey: 'status',
     id: 'status',
     header: function FormPageStatusHeader() {
-      const { t } = useTranslation('frontline');
+      const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
       return (
         <RecordTable.InlineHead
           label={t('status', 'Status')}
@@ -199,7 +199,7 @@ export const formColumns: ColumnDef<IForm>[] = [
   {
     accessorKey: 'channelId',
     header: function FormPageChannelHeader() {
-      const { t } = useTranslation('frontline');
+      const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
       return (
         <RecordTable.InlineHead
           label={t('channel-label', 'Channel')}
@@ -209,7 +209,7 @@ export const formColumns: ColumnDef<IForm>[] = [
     },
     id: 'channelId',
     cell: function FormPageChannelCell({ cell }) {
-      const { t } = useTranslation('frontline');
+      const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
       const { channel, _id, name, type } = cell.row.original;
       const { editForm } = useFormEdit();
 
@@ -254,7 +254,7 @@ export const formColumns: ColumnDef<IForm>[] = [
     accessorKey: 'tagIds',
     id: 'tagIds',
     header: function FormPageTagsHeader() {
-      const { t } = useTranslation('frontline');
+      const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
       return (
         <RecordTable.InlineHead label={t('tags', 'Tags')} icon={IconTag} />
       );
@@ -278,7 +278,7 @@ export const formColumns: ColumnDef<IForm>[] = [
     accessorKey: 'createdUserId',
     id: 'createdUserId',
     header: function FormPageCreatedByHeader() {
-      const { t } = useTranslation('frontline');
+      const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
       return (
         <RecordTable.InlineHead
           label={t('created-by', 'Created by')}
@@ -298,7 +298,7 @@ export const formColumns: ColumnDef<IForm>[] = [
     accessorKey: 'createdDate',
     id: 'createdDate',
     header: function FormPageCreatedAtHeader() {
-      const { t } = useTranslation('frontline');
+      const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
       return (
         <RecordTable.InlineHead
           label={t('created-at', 'Created at')}

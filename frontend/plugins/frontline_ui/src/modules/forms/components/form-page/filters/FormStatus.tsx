@@ -97,7 +97,7 @@ const View = ({ statuses = DEFAULT_STATUSES }: { statuses?: string[] }) => {
 };
 
 const Item = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
   return (
     <Filter.Item value="status">
       <IconSquareToggle />

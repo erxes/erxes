@@ -10,7 +10,7 @@ import { useTranslation } from 'react-i18next';
 type RowType = { order: string; hasChildren: boolean } & IChannelMember;
 
 const RoleCell = ({ cell }: { cell: Cell<RowType, unknown> }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.channels' });
   const { updateChannelMember } = useChannelMemberUpdate();
 
   const row = cell.row.original;
@@ -59,7 +59,7 @@ const columns: () => ColumnDef<
     accessorKey: 'memberId',
     header: () => {
       // eslint-disable-next-line react-hooks/rules-of-hooks
-      const { t } = useTranslation('frontline');
+      const { t } = useTranslation('frontline', { keyPrefix: 'modules.channels' });
       return <RecordTable.InlineHead label={t('member-label', 'Member')} />;
     },
     cell: ({ row }) => {
@@ -84,7 +84,7 @@ const columns: () => ColumnDef<
     accessorKey: 'role',
     header: () => {
       // eslint-disable-next-line react-hooks/rules-of-hooks
-      const { t } = useTranslation('frontline');
+      const { t } = useTranslation('frontline', { keyPrefix: 'modules.channels' });
       return <RecordTable.InlineHead label={t('role-label', 'Role')} />;
     },
     cell: ({ cell }) => {

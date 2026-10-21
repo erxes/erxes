@@ -100,7 +100,8 @@ export default {
       });
       return response?.data ?? { status: 'healthy' };
     } catch (e) {
-      return { status: 'healthy' };
+      // an unreachable service is not evidence of a healthy integration
+      return { status: 'unknown', error: e.message };
     }
   },
 

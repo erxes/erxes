@@ -11,7 +11,7 @@ import {
 } from '@/survey/states/surveySetupStates';
 
 export const useSurveyMutate = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.survey' });
   const { surveyId } = useParams<{ surveyId: string }>();
   const { channelId, returnPath } = useSurveySetupChannel();
   const navigate = useNavigate();

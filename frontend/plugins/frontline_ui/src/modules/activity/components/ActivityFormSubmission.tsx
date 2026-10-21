@@ -16,7 +16,7 @@ export const ActivityFormSubmission = ({
 }: {
   metadata: IActivity['metadata'];
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.activity' });
   const formTitle = metadata?.formTitle;
   const conversationId = metadata?.conversationId;
   const submissions = (metadata?.submissions ?? []).filter(isDefined);

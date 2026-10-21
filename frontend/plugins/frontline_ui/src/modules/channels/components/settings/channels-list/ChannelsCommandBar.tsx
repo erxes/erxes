@@ -14,7 +14,7 @@ import {
 import { useTranslation } from 'react-i18next';
 
 export const ChannelsDelete = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.channels' });
   const { table } = RecordTable.useRecordTable();
   const { confirm } = useConfirm();
   const { toast } = useToast();
@@ -83,7 +83,7 @@ export const ChannelsDelete = () => {
 };
 
 export const ChannelsCommandBar = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.channels' });
   const { table } = RecordTable.useRecordTable();
 
   const selectedCount = table.getFilteredSelectedRowModel().rows.length;

@@ -8,4 +8,6 @@ import { IAiProviderBridge } from '../types';
 export const anthropicMessagesBridge: IAiProviderBridge = {
   checkHealth: checkAnthropicMessagesHealth,
   invoke: invokeAnthropicMessages,
+  // Kimi Coding exposes no model list endpoint.
+  listModels: async () => null,
 };

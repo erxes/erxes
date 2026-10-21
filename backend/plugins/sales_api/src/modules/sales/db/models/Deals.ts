@@ -23,6 +23,10 @@ import {
   generateDealWatchActivityLog,
 } from '~/modules/sales/meta/activity-log';
 import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
+import {
+  assertDealBoardIsActive,
+  assertDealUpdatesAllowed,
+} from '../../utils/archiveGuard';
 
 export interface IDealModel extends Model<IDealDocument> {
   getDeal(_id: string): Promise<IDealDocument>;
@@ -51,6 +55,7 @@ export const loadDealClass = (
 
     /** Create deal */
     public static async createDeal(doc: IDeal) {
+      await assertDealBoardIsActive(models, doc.stageId);
       // Prevent duplicate conversion from conversation
       if (doc.sourceConversationIds?.length) {
         const existing = await models.Deals.findOne({
@@ -90,6 +95,9 @@ export const loadDealClass = (
 
     public static async updateDeal(_id: string, doc: IDeal) {
       const prevDeal = await models.Deals.getDeal(_id);
+      await assertDealUpdatesAllowed(models, [prevDeal], doc, {
+        allowRestore: true,
+      });
       const prevDealObj = prevDeal.toObject();
 
       // Fill searchText for indexing

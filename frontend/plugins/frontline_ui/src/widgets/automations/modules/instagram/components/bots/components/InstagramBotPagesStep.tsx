@@ -11,7 +11,7 @@ import {
 } from '@/integrations/instagram/hooks/useInstagramPages';
 
 export const InstagramBotPagesStep = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.instagram' });
   const [selectedPage, setSelectedPage] = useAtom(selectedInstagramPageAtom);
   const selectedAccountId = useAtomValue(selectedInstagramAccountAtom);
 

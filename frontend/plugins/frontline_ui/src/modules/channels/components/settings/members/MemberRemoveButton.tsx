@@ -10,7 +10,7 @@ export const MemberRemoveButtonCommandBar = ({
   memberIds: string[];
   channelId: string;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.channels' });
   const { table } = RecordTable.useRecordTable();
   const { confirm } = useConfirm();
   const { toast } = useToast();

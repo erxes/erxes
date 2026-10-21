@@ -6,14 +6,14 @@ import { automationInstagramBotsColumns } from '~/widgets/automations/modules/in
 import { useAutomationBotsRecordTable } from '~/widgets/automations/modules/instagram/components/bots/hooks/useAutomationBotsRecordTable';
 
 export const AutomationBotsRecordTable = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.instagram' });
   const { instagramMessengerBots, loading } = useAutomationBotsRecordTable();
 
   return (
     <>
       <AutomationBotSheetForm />
       <RecordTable.Provider
-        columns={automationInstagramBotsColumns}
+        columns={automationInstagramBotsColumns(t)}
         data={instagramMessengerBots || []}
         className="h-full"
       >
