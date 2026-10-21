@@ -13,7 +13,7 @@ export const NotificationSenderAvatar = ({
     <Tooltip.Provider>
       <Tooltip delayDuration={200}>
         <Tooltip.Trigger asChild>
-          <Avatar className="size-5" aria-label={sender} tabIndex={0}>
+          <Avatar className="size-5" aria-label={sender}>
             <Avatar.Image
               src={readImage(fromUser?.details?.avatar || '')}
               alt={sender}
