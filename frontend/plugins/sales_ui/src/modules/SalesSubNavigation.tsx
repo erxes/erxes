@@ -136,7 +136,7 @@ function BoardItem({
             <Button
               variant="ghost"
               size="icon"
-              className="shrink-0 text-muted-foreground hover:bg-foreground/10 opacity-0 group-hover/board-row:opacity-100 group-focus-within/board-row:opacity-100 focus-visible:opacity-100"
+              className="shrink-0 text-muted-foreground hover:bg-transparent hover:text-foreground opacity-0 group-hover/board-row:opacity-100 group-focus-within/board-row:opacity-100 focus-visible:opacity-100"
               aria-label={t('add-pipeline')}
               onClick={(event) => {
                 event.stopPropagation();
