@@ -1,11 +1,17 @@
 import * as dotenv from 'dotenv';
-import { ClientSession, Db, MongoClient, ObjectId } from 'mongodb';
+import { ClientSession, Collection, Db, MongoClient, ObjectId } from 'mongodb';
 import { isDeepStrictEqual } from 'node:util';
 
 type StoredDocument = { _id: string | ObjectId } & Record<string, unknown>;
 type DocumentIdMapping = { _id: string; objectId: ObjectId };
 type Organization = { _id: string | ObjectId; subdomain: string };
+type ContentReferenceUpdate = {
+  collection: Collection<StoredDocument>;
+  documentId: StoredDocument['_id'];
+  changes: Record<string, unknown>;
+};
 
+const BATCH_SIZE = 100;
 const CONTENT_TYPE = 'core:documents';
 const CONTENT_FIELDS: Record<string, string[]> = {
   documents: ['content', 'replacer'],
@@ -75,60 +81,18 @@ const replaceReferences = (
   return value;
 };
 
-const migrateReferences = async (
+async function* getContentReferenceUpdates(
   db: Db,
   ids: Map<string, string>,
   session: ClientSession,
-): Promise<void> => {
-  for (const [oldId, newId] of ids) {
-    for (const collection of ['approval_locks', 'approval_requests']) {
-      await db
-        .collection(collection)
-        .updateMany(
-          { contentType: CONTENT_TYPE, contentId: oldId },
-          { $set: { contentId: newId } },
-          { session },
-        );
-    }
-
-    await db
-      .collection('internal_notes')
-      .updateMany(
-        { contentType: CONTENT_TYPE, contentTypeId: oldId },
-        { $set: { contentTypeId: newId } },
-        { session },
-      );
-    await db.collection('notifications').updateMany(
-      {
-        'metadata.targetContentType': CONTENT_TYPE,
-        'metadata.targetContentId': oldId,
-      },
-      { $set: { 'metadata.targetContentId': newId } },
-      { session },
-    );
-    await db.collection('relations').updateMany(
-      {
-        entities: {
-          $elemMatch: { contentType: CONTENT_TYPE, contentId: oldId },
-        },
-      },
-      { $set: { 'entities.$[entity].contentId': newId } },
-      {
-        session,
-        arrayFilters: [
-          { 'entity.contentType': CONTENT_TYPE, 'entity.contentId': oldId },
-        ],
-      },
-    );
-  }
-
+): AsyncGenerator<ContentReferenceUpdate> {
   for (const [name, fields] of Object.entries(CONTENT_FIELDS)) {
     const collection = db.collection<StoredDocument>(name);
     const cursor = collection.find(
       {},
       {
         projection: Object.fromEntries(fields.map((field) => [field, 1])),
-        batchSize: 100,
+        batchSize: BATCH_SIZE,
         session,
       },
     );
@@ -140,14 +104,123 @@ const migrateReferences = async (
         if (updated !== document[field]) changes[field] = updated;
       }
       if (Object.keys(changes).length) {
-        await collection.updateOne(
-          { _id: document._id },
-          { $set: changes },
-          { session },
-        );
+        yield { collection, documentId: document._id, changes };
       }
     }
   }
+}
+
+const migrateReferences = async (
+  db: Db,
+  oldId: string,
+  newId: string,
+  session: ClientSession,
+): Promise<void> => {
+  const approvalFilter = { contentType: CONTENT_TYPE, contentId: oldId };
+  const approvalUpdate = { $set: { contentId: newId } };
+
+  await db
+    .collection('approval_locks')
+    .updateMany(approvalFilter, approvalUpdate, { session });
+  await db
+    .collection('approval_requests')
+    .updateMany(approvalFilter, approvalUpdate, { session });
+  await db
+    .collection('internal_notes')
+    .updateMany(
+      { contentType: CONTENT_TYPE, contentTypeId: oldId },
+      { $set: { contentTypeId: newId } },
+      { session },
+    );
+  await db.collection('notifications').updateMany(
+    {
+      'metadata.targetContentType': CONTENT_TYPE,
+      'metadata.targetContentId': oldId,
+    },
+    { $set: { 'metadata.targetContentId': newId } },
+    { session },
+  );
+  await db.collection('relations').updateMany(
+    {
+      entities: {
+        $elemMatch: { contentType: CONTENT_TYPE, contentId: oldId },
+      },
+    },
+    { $set: { 'entities.$[entity].contentId': newId } },
+    {
+      session,
+      arrayFilters: [
+        { 'entity.contentType': CONTENT_TYPE, 'entity.contentId': oldId },
+      ],
+    },
+  );
+
+  const ids = new Map([[oldId, newId]]);
+  for await (const {
+    collection,
+    documentId,
+    changes,
+  } of getContentReferenceUpdates(db, ids, session)) {
+    await collection.updateOne(
+      { _id: documentId },
+      { $set: changes },
+      { session },
+    );
+  }
+};
+
+const migrateDocument = async (
+  db: Db,
+  documentId: StoredDocument['_id'],
+  session: ClientSession,
+): Promise<boolean> => {
+  const documents = db.collection<StoredDocument>('documents');
+  const mappings = db.collection<DocumentIdMapping>('document_id_migrations');
+  const document = await documents.findOne({ _id: documentId }, { session });
+  if (!document || typeof document._id !== 'string') return false;
+
+  const mapping = await mappings.findOneAndUpdate(
+    { _id: document._id },
+    { $setOnInsert: { objectId: new ObjectId() } },
+    { session, upsert: true, returnDocument: 'after' },
+  );
+  if (!mapping) throw new Error(`Could not map document ${document._id}`);
+
+  const copy = { ...document, _id: mapping.objectId };
+  const existing = await documents.findOne(
+    { _id: mapping.objectId },
+    { session },
+  );
+  if (existing) {
+    const knownIds = new Map<string, string>();
+    for await (const known of mappings.find({}, { session })) {
+      knownIds.set(known._id, known.objectId.toHexString());
+    }
+    if (
+      !isDeepStrictEqual(
+        replaceReferences(existing, knownIds),
+        replaceReferences(copy, knownIds),
+      )
+    ) {
+      throw new Error(
+        `Document ${document._id} and its existing ObjectId copy differ. Neither was overwritten; reconcile both records before retrying.`,
+      );
+    }
+  } else {
+    await documents.insertOne(copy, { session });
+  }
+
+  await migrateReferences(
+    db,
+    document._id,
+    mapping.objectId.toHexString(),
+    session,
+  );
+  const result = await documents.deleteOne({ _id: document._id }, { session });
+  if (result.deletedCount !== 1) {
+    throw new Error(`Could not remove original document ${document._id}`);
+  }
+  return true;
 };
 
 export const migrateDocumentIds = async (
@@ -172,9 +245,8 @@ export const migrateDocumentIds = async (
     );
   }
 
-  const mappings = db.collection<DocumentIdMapping>('document_id_migrations');
   const cursor = documents.find(filter, {
-    batchSize: 100,
+    batchSize: BATCH_SIZE,
     projection: { _id: 1 },
   });
   const session = client.startSession();
@@ -183,61 +255,7 @@ export const migrateDocumentIds = async (
   try {
     for await (const row of cursor) {
       const migrated = await session.withTransaction(
-        async () => {
-          const document = await documents.findOne(
-            { _id: row._id },
-            { session },
-          );
-          if (!document || typeof document._id !== 'string') return false;
-
-          const mapping = await mappings.findOneAndUpdate(
-            { _id: document._id },
-            { $setOnInsert: { objectId: new ObjectId() } },
-            { session, upsert: true, returnDocument: 'after' },
-          );
-          if (!mapping)
-            throw new Error(`Could not map document ${document._id}`);
-
-          const copy = { ...document, _id: mapping.objectId };
-          const existing = await documents.findOne(
-            { _id: mapping.objectId },
-            { session },
-          );
-          if (existing) {
-            const knownIds = new Map<string, string>();
-            for await (const known of mappings.find({}, { session })) {
-              knownIds.set(known._id, known.objectId.toHexString());
-            }
-            if (
-              !isDeepStrictEqual(
-                replaceReferences(existing, knownIds),
-                replaceReferences(copy, knownIds),
-              )
-            ) {
-              throw new Error(
-                `Document ${document._id} and its existing ObjectId copy differ. Neither was overwritten; reconcile both records before retrying.`,
-              );
-            }
-          } else {
-            await documents.insertOne(copy, { session });
-          }
-
-          await migrateReferences(
-            db,
-            new Map([[document._id, mapping.objectId.toHexString()]]),
-            session,
-          );
-          const result = await documents.deleteOne(
-            { _id: document._id },
-            { session },
-          );
-          if (result.deletedCount !== 1) {
-            throw new Error(
-              `Could not remove original document ${document._id}`,
-            );
-          }
-          return true;
-        },
+        () => migrateDocument(db, row._id, session),
         {
           readConcern: { level: 'snapshot' },
           writeConcern: { w: 'majority' },
