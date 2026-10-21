@@ -35,21 +35,13 @@
 - The deals sidebar BOARDS group shows a hover `+` menu
   (`deals/boards/components/BoardsNavigationActions.tsx`): Add Board opens a
   create-only dialog that selects the new board on success; Add Pipeline
-  (disabled without a selected board) opens
-  `/sales/settings/deals?activeBoardId=<boardId>&create=pipeline`, where
-  `PipelineFormBar` opens the create sheet once boards load and drops `create`.
-- The deals page header's settings link is an icon-only gear button with a
-  "Go to Settings" tooltip and `aria-label`; it opens the selected pipeline's
-  edit sheet in settings (`activeBoardId` + `pipelineId`).
-- The deals page header ends with an Add Deal button (`AddDealButton`), so
-  deals can be added from the list view, which has no stage columns. It opens
-  the header's `AddDealSheet` through `dealCreateSheetState` with the selected
-  pipeline's first stage as `dealCreateDefaultValuesState.stageId` (the same
-  path as a board column `+`), and is disabled while that pipeline has no
-  stages. Because it also sets `pipelineId`, `AddCardForm` shows a stage
-  select (`SelectStage.FormItem`) that writes the chosen stage back to
-  `dealCreateDefaultValuesState.stageId`; column `+` and relation-widget
-  opens set no `pipelineId`, so they keep their fixed stage and no field.
+  (disabled without a selected board) opens the create sheet for the selected
+  board. Every board row also carries an always-visible `+` (`BoardItem`) that
+  opens the same sheet for that board and expands the row. Both set
+  `pipelineCreateBoardIdState`; `PipelineCreateSheet`, mounted once beside the
+  BOARDS group, reads it and renders `PipelineForm` in create mode on the deals
+  page (no navigation). New pipelines show up through the `SalesBoards`
+  refetch in `usePipelineAdd`.
 - The deals sidebar shows each pipeline's deal count, like the Frontline forms
   channel list (`useBoardDealCounts`, query `SalesBoardDealCounts` selecting
   `SalesPipeline.itemsTotalCount`, which uses the deal filter:
@@ -444,7 +436,9 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   their edit UI from the `boardId` / `pipelineId` query state that the deals
   page always sets, and pipeline form hooks (`usePipelineDetails`) read
   `pipelineId` from the URL. Deals-page create actions use the create-only
-  board dialog and hand pipeline creation to settings via `create=pipeline`.
+  board dialog and `PipelineCreateSheet`, which passes `pipelineId: null` to
+  the form hooks and never calls `usePipelineDetail`; its form is mounted only
+  while the sheet is open so every open starts empty.
 - `NavigationMenuGroup` `actions` render inside the group's collapsible
   trigger; wrap them in an element that stops click propagation so menus and
   portaled dialogs opened from them do not fold the group.
@@ -561,8 +555,10 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   layout, save, and verify the layout persists after reload.
 - Board/pipeline create smoke scenario: on `/sales/deals` hover BOARDS, use
   `+` → Add Board (empty name is rejected), confirm the new board is selected
-  with the group still open, then `+` → Add Pipeline and confirm settings opens
-  the Add Pipeline sheet with that board preselected and empty fields.
+  with the group still open, then click a board row's `+` (or `+` → Add
+  Pipeline) and confirm the Add Pipeline sheet opens on the deals page with
+  that board preselected and empty fields, and that the created pipeline
+  appears under its board without a reload.
 - Tier rules smoke scenario: open "Score earn configuration", switch to Tier,
   add an every-board row, pick a wallet, set bands, save, reopen and verify
   the row; set a POS's tier in its Payment tab, save and verify after reload.

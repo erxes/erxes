@@ -1,4 +1,5 @@
 import { useBoardAdd } from '@/deals/boards/hooks/useBoards';
+import { pipelineCreateBoardIdState } from '@/deals/states/pipelineCreateSheetState';
 import { TBoardForm } from '@/deals/types/boards';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IconGitBranch, IconLayoutKanban, IconPlus } from '@tabler/icons-react';
@@ -12,10 +13,10 @@ import {
   useMultiQueryState,
   useToast,
 } from 'erxes-ui';
+import { useSetAtom } from 'jotai';
 import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
 import { z } from 'zod';
 
 type TBoardSelection = {
@@ -134,16 +135,12 @@ export const BoardsNavigationActions = ({
   boardId?: string | null;
 }) => {
   const { t } = useTranslation('sales');
-  const navigate = useNavigate();
+  const setPipelineCreateBoardId = useSetAtom(pipelineCreateBoardIdState);
   const [boardDialogOpen, setBoardDialogOpen] = useState(false);
 
   const handleAddPipeline = () => {
     if (!boardId) return;
-    const params = new URLSearchParams({
-      activeBoardId: boardId,
-      create: 'pipeline',
-    });
-    navigate(`/sales/settings/deals?${params.toString()}`);
+    setPipelineCreateBoardId(boardId);
   };
 
   return (

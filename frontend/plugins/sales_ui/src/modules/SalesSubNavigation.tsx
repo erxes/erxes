@@ -2,6 +2,7 @@ import {
   IconChevronRight,
   IconDotsVertical,
   IconLink,
+  IconPlus,
   IconSettings,
 } from '@tabler/icons-react';
 import {
@@ -22,7 +23,10 @@ import { useLocation, useNavigate } from 'react-router-dom';
 
 import { BoardsNavigationActions } from '@/deals/boards/components/BoardsNavigationActions';
 import { useBoardDealCounts } from '@/deals/boards/hooks/useBoardDealCounts';
+import { PipelineCreateSheet } from '@/deals/pipelines/components/PipelineCreateSheet';
+import { pipelineCreateBoardIdState } from '@/deals/states/pipelineCreateSheetState';
 import { IBoard } from '@/deals/types/boards';
+import { useSetAtom } from 'jotai';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useBoards } from '~/modules/deals/boards/hooks/useBoards';
@@ -70,6 +74,7 @@ function BoardItem({
   );
 
   const [open, setOpen] = useState(isActive);
+  const setPipelineCreateBoardId = useSetAtom(pipelineCreateBoardIdState);
 
   // Board selection can arrive after mount (restored from localStorage), so
   // keep opening the active board instead of relying on defaultOpen alone.
@@ -126,6 +131,19 @@ function BoardItem({
               <span className="ml-auto flex shrink-0 text-muted-foreground transition-transform duration-250 ease-[cubic-bezier(0.22,1,0.36,1)] group-data-[state=open]/collapsible:rotate-90 motion-reduce:transition-none">
                 <IconChevronRight className="size-3.5!" />
               </span>
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="shrink-0 text-muted-foreground"
+              aria-label={t('add-pipeline')}
+              onClick={(event) => {
+                event.stopPropagation();
+                setOpen(true);
+                setPipelineCreateBoardId(board._id);
+              }}
+            >
+              <IconPlus className="size-4" />
             </Button>
           </div>
         </Collapsible.Trigger>
@@ -274,27 +292,30 @@ const DealsNavigation = () => {
   }, [boards, boardId, pipelineId, setPipelineId]);
 
   return (
-    <NavigationMenuGroup
-      name={t('boards')}
-      actions={
-        <>
-          <BoardsNavigationActions boardId={boardId} />
-          <ActionsMenu />
-        </>
-      }
-    >
-      {loading ? (
-        <LoadingSkeleton />
-      ) : (
-        boards?.map((board) => (
-          <BoardItem
-            key={board._id}
-            board={board}
-            pipelineCounts={byPipeline}
-          />
-        ))
-      )}
-    </NavigationMenuGroup>
+    <>
+      <NavigationMenuGroup
+        name={t('boards')}
+        actions={
+          <>
+            <BoardsNavigationActions boardId={boardId} />
+            <ActionsMenu />
+          </>
+        }
+      >
+        {loading ? (
+          <LoadingSkeleton />
+        ) : (
+          boards?.map((board) => (
+            <BoardItem
+              key={board._id}
+              board={board}
+              pipelineCounts={byPipeline}
+            />
+          ))
+        )}
+      </NavigationMenuGroup>
+      <PipelineCreateSheet />
+    </>
   );
 };
 
