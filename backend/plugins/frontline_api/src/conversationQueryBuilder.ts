@@ -6,6 +6,10 @@ import {
 import { escapeRegExp, fixDate, sendTRPCMessage } from 'erxes-api-shared/utils';
 import * as _ from 'underscore';
 import { IModels } from '~/connectionResolvers';
+import {
+  buildAssigneeFilter,
+  buildUnassignedFilter,
+} from '@/inbox/utils/conversationAssignees';
 
 interface IIn {
   $in: string[];
@@ -56,9 +60,7 @@ interface IIntersectIntegrationIds {
   integrationId: IIn;
 }
 
-interface IUnassignedFilter {
-  assignedUserId: IExists;
-}
+type IUnassignedFilter = ReturnType<typeof buildUnassignedFilter>;
 
 export default class Builder {
   public models: IModels;
@@ -247,9 +249,7 @@ export default class Builder {
   }
 
   public unassignedFilter(): IUnassignedFilter {
-    this.unassignedQuery = {
-      assignedUserId: { $exists: false },
-    };
+    this.unassignedQuery = buildUnassignedFilter();
 
     return this.unassignedQuery;
   }
@@ -258,7 +258,7 @@ export default class Builder {
     return {
       $or: [
         { participatedUserIds: { $in: [this.user._id] } },
-        { assignedUserId: this.user._id },
+        buildAssigneeFilter([this.user._id]),
       ],
     };
   }

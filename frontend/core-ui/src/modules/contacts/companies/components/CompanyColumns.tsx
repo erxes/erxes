@@ -1,10 +1,16 @@
+import { CompanyEmailsCell } from '@/contacts/companies/components/cells/CompanyEmailsCell';
+import { CompanyNameCell } from '@/contacts/companies/components/cells/CompanyNameCell';
+import { CompanyOwnerCell } from '@/contacts/companies/components/cells/CompanyOwnerCell';
+import { companyMoreColumn } from '@/contacts/companies/components/CompanyMoreColumn';
+import { CompanyCellContext } from '@/contacts/contexts/ContactTableCellContext';
+import { TCompany } from '@/contacts/types/companyType';
+import { ContactsHotKeyScope } from '@/contacts/types/ContactsHotKeyScope';
 import {
   IconBriefcase,
   IconBuilding,
   IconBuildingFactory,
   IconChartBar,
   IconClock,
-  IconCreditCard,
   IconLabelFilled,
   IconMail,
   IconMapPin,
@@ -22,24 +28,9 @@ import {
   RecordTable,
   RecordTableInlineCell,
   TextOverflowTooltip,
-  useQueryState,
 } from 'erxes-ui';
-import { TCompany } from '@/contacts/types/companyType';
-import { ContactsHotKeyScope } from '@/contacts/types/ContactsHotKeyScope';
-import {
-  CompanyEmails,
-  CompanyName,
-  CompanyPhones,
-  SelectMember,
-  TagsSelect,
-  getCompanyDisplayName,
-  useCompaniesEdit,
-} from 'ui-modules';
-import { useSetAtom } from 'jotai';
-import { renderingCompanyDetailAtom } from '@/contacts/states/companyDetailStates';
-import clsx from 'clsx';
 import { TFunction } from 'i18next';
-import { companyMoreColumn } from './CompanyMoreColumn';
+import { CompanyPhones, getCompanyDisplayName, TagsSelect } from 'ui-modules';
 
 export const companyColumns: (t: TFunction) => ColumnDef<TCompany>[] = (t) => {
   return [
@@ -69,31 +60,11 @@ export const companyColumns: (t: TFunction) => ColumnDef<TCompany>[] = (t) => {
       header: () => (
         <RecordTable.InlineHead icon={IconLabelFilled} label={t('name')} />
       ),
-      cell: ({ cell }) => {
-        const { primaryName, _id } = cell.row.original;
-        const setRenderingCompanyDetail = useSetAtom(
-          renderingCompanyDetailAtom,
-        );
-        const [, setCompanyDetail] = useQueryState('companyId');
-        return (
-          <CompanyName
-            primaryName={primaryName}
-            _id={_id}
-            scope={clsx(ContactsHotKeyScope.CompaniesPage, _id, 'Name')}
-          >
-            <RecordTableInlineCell.Trigger>
-              <RecordTableInlineCell.Anchor
-                onClick={() => {
-                  setRenderingCompanyDetail(true);
-                  setCompanyDetail(cell.row.original._id);
-                }}
-              >
-                {primaryName || getCompanyDisplayName(cell.row.original)}
-              </RecordTableInlineCell.Anchor>
-            </RecordTableInlineCell.Trigger>
-          </CompanyName>
-        );
-      },
+      cell: (context) => (
+        <CompanyCellContext.Provider value={context}>
+          <CompanyNameCell />
+        </CompanyCellContext.Provider>
+      ),
       size: 250,
     },
     {
@@ -102,21 +73,11 @@ export const companyColumns: (t: TFunction) => ColumnDef<TCompany>[] = (t) => {
       header: () => (
         <RecordTable.InlineHead icon={IconMail} label={t('emails')} />
       ),
-      cell: ({ cell }) => {
-        const { primaryEmail, _id, emails, emailValidationStatus } =
-          cell.row.original;
-
-        return (
-          <CompanyEmails
-            primaryEmail={primaryEmail || ''}
-            _id={_id}
-            scope={ContactsHotKeyScope.CompaniesPage + '.' + _id + '.Emails'}
-            emailValidationStatus={emailValidationStatus}
-            emails={emails || []}
-            Trigger={RecordTableInlineCell.Trigger}
-          />
-        );
-      },
+      cell: (context) => (
+        <CompanyCellContext.Provider value={context}>
+          <CompanyEmailsCell />
+        </CompanyCellContext.Provider>
+      ),
     },
     {
       id: 'phones',
@@ -146,27 +107,11 @@ export const companyColumns: (t: TFunction) => ColumnDef<TCompany>[] = (t) => {
       header: () => (
         <RecordTable.InlineHead icon={IconUser} label={t('owner')} />
       ),
-      cell: ({ cell }) => {
-        const { companiesEdit } = useCompaniesEdit();
-        return (
-          <SelectMember.InlineCell
-            scope={clsx(
-              ContactsHotKeyScope.CompaniesPage,
-              cell.row.original._id,
-              'Owner',
-            )}
-            value={cell.getValue() as string}
-            onValueChange={(value) =>
-              companiesEdit({
-                variables: {
-                  _id: cell.row.original._id,
-                  ownerId: value as string,
-                },
-              })
-            }
-          />
-        );
-      },
+      cell: (context) => (
+        <CompanyCellContext.Provider value={context}>
+          <CompanyOwnerCell />
+        </CompanyCellContext.Provider>
+      ),
       size: 200,
     },
     {

@@ -1,3 +1,7 @@
+import {
+  INTERNAL_NOTE_BACKGROUND,
+  INTERNAL_NOTE_ICON,
+} from '@/inbox/constants/internalNoteStyles';
 import { Button, cn } from 'erxes-ui';
 import { IconChevronDown, IconChevronUp, IconLock } from '@tabler/icons-react';
 import type { DragEventHandler, ReactNode } from 'react';
@@ -44,7 +48,12 @@ const ComposerShellHeader = ({
       className="flex flex-none flex-wrap items-center gap-x-3 gap-y-2 border-b border-border/50 px-3 py-2"
     >
       {noteOnly ? (
-        <div className="flex h-8 min-w-0 flex-1 items-center gap-1.5 text-xs font-medium text-warning">
+        <div
+          className={cn(
+            'flex h-8 min-w-0 flex-1 items-center gap-1.5 text-xs font-medium',
+            INTERNAL_NOTE_ICON,
+          )}
+        >
           <IconLock className="size-3.5" />
           {t('internal-note', 'Internal Note')}
         </div>
@@ -66,7 +75,10 @@ const ComposerShellHeader = ({
           type="button"
           variant="ghost"
           size="icon"
-          className="ml-auto size-7 shrink-0 rounded-full"
+          className={cn(
+            'ml-auto size-7 shrink-0 rounded-full',
+            INTERNAL_NOTE_ICON,
+          )}
           aria-label={t(
             'collapse-internal-note-composer',
             'Collapse internal note composer',
@@ -101,7 +113,10 @@ export const ComposerShell = ({
         <Button
           type="button"
           variant="outline"
-          className="mx-auto flex h-11 w-full max-w-3xl justify-start rounded-xl border-warning/40 bg-warning/10 px-3 text-warning hover:bg-warning/20"
+          className={cn(
+            'mx-auto flex h-11 w-full max-w-3xl justify-start rounded-xl border-border px-3',
+            INTERNAL_NOTE_BACKGROUND,
+          )}
           onClick={() => setCollapsed(false)}
           aria-label={t(
             'expand-internal-note-composer',
@@ -139,7 +154,7 @@ export const ComposerShell = ({
         onDragOverCapture={(event) => event.preventDefault()}
         className={cn(
           'mx-auto flex h-full min-h-0 min-w-0 w-full max-w-3xl flex-col gap-1 rounded-2xl border border-border/70 bg-background/95 pb-2 shadow-[0_8px_30px_rgba(15,23,42,0.08)] transition-colors duration-150',
-          isInternalNote && 'border-warning/50 bg-warning/20',
+          isInternalNote && ['border-border', INTERNAL_NOTE_BACKGROUND],
         )}
       >
         <ComposerShellHeader

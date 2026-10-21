@@ -1,6 +1,7 @@
 export * from './automations';
 export * from './approval';
 export * from './brands';
+export * from './client-portal';
 export * from './contacts';
 export * from './documents';
 export * from './files';
@@ -26,3 +27,4 @@ export * from './payments';
 export * from './sales';
 export * from './templates';
 export * from './shared';
+export * from './email-templates';

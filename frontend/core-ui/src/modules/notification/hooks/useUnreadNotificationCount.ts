@@ -3,15 +3,13 @@ import {
   NOTIFICATION_READ,
   NOTIFICATION_SUBSCRIPTION,
 } from '@/notification/graphql/notificationSubscriptions';
-import { refetchNewNotificationsState } from '@/notification/states/notificationState';
 import { useQuery } from '@apollo/client';
-import { useAtomValue, useSetAtom } from 'jotai';
+import { useAtomValue } from 'jotai';
 import { useEffect } from 'react';
 import { currentUserState, IUser, TNotification } from 'ui-modules';
 
 export const useUnreadNotificationCount = () => {
   const currentUser = useAtomValue(currentUserState) as IUser;
-  const setRefetchNewNotifications = useSetAtom(refetchNewNotificationsState);
   const { data, loading, subscribeToMore, refetch } = useQuery<{
     unreadNotificationsCount: number;
   }>(UNREAD_NOTIFICATIONS_COUNT);
@@ -28,7 +26,6 @@ export const useUnreadNotificationCount = () => {
       },
       updateQuery: () => {
         refetch();
-        setRefetchNewNotifications(true);
       },
     });
 

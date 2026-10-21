@@ -148,6 +148,7 @@ export class CommonBuilder<IArgs extends IListArgs> {
               field: 'assignedUserId',
             },
           },
+          { exists: { field: 'assignedUserIds' } },
         ],
       },
     });

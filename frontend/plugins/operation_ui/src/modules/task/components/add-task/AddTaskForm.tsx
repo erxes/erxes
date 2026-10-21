@@ -8,7 +8,6 @@ import { SelectCycle } from '@/task/components/task-selects/SelectCycle';
 import { SelectEstimatedPoint } from '@/task/components/task-selects/SelectEstimatedPointTask';
 import { SelectProject } from '@/task/components/task-selects/SelectProjectTask';
 import { SelectStatusTask } from '@/task/components/task-selects/SelectStatusTask';
-import { SelectTagsTask } from '@/task/components/task-selects/SelectTagsTask';
 import { useCreateTask } from '@/task/hooks/useCreateTask';
 import { taskCreateDefaultValuesState } from '@/task/states/taskCreateSheetState';
 import { TaskHotKeyScope } from '@/task/TaskHotkeyScope';
@@ -36,6 +35,7 @@ import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useParams } from 'react-router-dom';
 import { currentUserState } from 'ui-modules';
+import { OperationTagsChip } from '@/operation/components/OperationChips';
 import { SelectMilestone } from '../task-selects/SelectMilestone';
 
 export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
@@ -348,7 +348,8 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
               render={({ field }) => (
                 <Form.Item>
                   <Form.Label className="sr-only">{t('tags')}</Form.Label>
-                  <SelectTagsTask.FormItem
+                  <OperationTagsChip
+                    type="operation:task"
                     value={field.value || []}
                     onValueChange={(value) => field.onChange(value)}
                     label={t('tags')}

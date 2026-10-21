@@ -47,7 +47,8 @@ const ConvertForm = ({
   onClose: () => void;
 }) => {
   const { t } = useTranslation('frontline');
-  const { _id, assignedUserId, integration } = useConversationContext();
+  const { _id, assignedUserId, assignedUserIds, integration } =
+    useConversationContext();
   const { convertToCard, loading } = useConversationConvertToCard();
   const [propertiesData, setPropertiesData] = useState<TConvertPropertiesData>(
     {},
@@ -73,7 +74,8 @@ const ConvertForm = ({
       pipelineId: '',
       stageId: '',
       name: '',
-      assignedUserIds: assignedUserId ? [assignedUserId] : [],
+      assignedUserIds:
+        assignedUserIds ?? (assignedUserId ? [assignedUserId] : []),
       branchIds: [],
       departmentIds: [],
       attachments: [],

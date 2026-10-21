@@ -119,6 +119,7 @@ export const ScoreFilter = () => {
   return (
     <Filter id="score-filter" sessionKey={sessionKey}>
       <Filter.Bar>
+        <ScoreFilterPopover />
         <SelectScoreCampaign.FilterBar />
         <SelectOwnerType.FilterBar />
         <SelectOwner.FilterBar
@@ -143,7 +144,6 @@ export const ScoreFilter = () => {
           </Filter.BarName>
           <Filter.Date filterKey="scoreDate" />
         </Filter.BarItem>
-        <ScoreFilterPopover />
         <ScoreTotalCount />
       </Filter.Bar>
     </Filter>
