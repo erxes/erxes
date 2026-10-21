@@ -43,7 +43,10 @@
   the header's `AddDealSheet` through `dealCreateSheetState` with the selected
   pipeline's first stage as `dealCreateDefaultValuesState.stageId` (the same
   path as a board column `+`), and is disabled while that pipeline has no
-  stages.
+  stages. Because it also sets `pipelineId`, `AddCardForm` shows a stage
+  select (`SelectStage.FormItem`) that writes the chosen stage back to
+  `dealCreateDefaultValuesState.stageId`; column `+` and relation-widget
+  opens set no `pipelineId`, so they keep their fixed stage and no field.
 - The deals sidebar shows each pipeline's deal count, like the Frontline forms
   channel list (`useBoardDealCounts`, query `SalesBoardDealCounts` selecting
   `SalesPipeline.itemsTotalCount`, which uses the deal filter:

@@ -23,7 +23,7 @@ export const AddDealButton = () => {
 
   const handleClick = () => {
     if (!firstStageId) return;
-    setDefaultValues({ stageId: firstStageId });
+    setDefaultValues({ stageId: firstStageId, pipelineId });
     setOpenCreateDeal(true);
   };
 
