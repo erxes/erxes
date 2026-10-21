@@ -59,9 +59,7 @@ export const useNotificationFilters = (): NotificationFilterVariables => {
   };
 
   const orderByValue = orderByFilter();
-  let statusValue: NotificationFilterVariables['status'] = 'UNREAD';
-  if (status === 'read') statusValue = 'READ';
-  else if (status === 'all') statusValue = 'ALL';
+  const statusValue = status === 'read' ? 'READ' : 'UNREAD';
 
   return {
     status: statusValue,

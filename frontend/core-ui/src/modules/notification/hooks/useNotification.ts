@@ -4,6 +4,7 @@ import { useNotificationNavigation } from '@/notification/hooks/useNotificationN
 import type { UseNotificationResult } from '@/notification/types/myInbox';
 import { useQuery } from '@apollo/client';
 import { useParams } from 'react-router-dom';
+import { useEffect, useRef } from 'react';
 import type { TNotification } from 'ui-modules';
 
 export const useNotification = (): UseNotificationResult => {
@@ -13,6 +14,18 @@ export const useNotification = (): UseNotificationResult => {
   }>(NOTIFICATION_DETAIL, { variables: { _id: id }, skip: !id });
   const notification = id ? data?.notificationDetail : undefined;
   const handleMarkAsRead = useMarkAsReadNotification();
+  const readAttempts = useRef(new Set<string>());
+  useEffect(() => {
+    if (
+      !notification ||
+      notification._id !== id ||
+      notification.isRead ||
+      readAttempts.current.has(notification._id)
+    )
+      return;
+    readAttempts.current.add(notification._id);
+    void handleMarkAsRead(notification._id);
+  }, [id, notification, handleMarkAsRead]);
   const navigation = useNotificationNavigation({
     id,
     notification,
