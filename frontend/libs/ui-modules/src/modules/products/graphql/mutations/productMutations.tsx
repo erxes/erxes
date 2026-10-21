@@ -19,6 +19,7 @@ export const PRODUCTS_ADD = gql`
     $attachment: AttachmentInput
     $attachmentMore: [AttachmentInput]
     $videos: [AttachmentInput]
+    $files: [AttachmentInput]
     $pdfAttachment: PdfAttachmentInput
     $vendorId: String
     $scopeBrandIds: [String]
@@ -44,6 +45,7 @@ export const PRODUCTS_ADD = gql`
       attachment: $attachment
       attachmentMore: $attachmentMore
       videos: $videos
+      files: $files
       pdfAttachment: $pdfAttachment
       vendorId: $vendorId
       scopeBrandIds: $scopeBrandIds

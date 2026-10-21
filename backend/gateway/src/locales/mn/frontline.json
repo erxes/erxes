@@ -3748,7 +3748,9 @@
       "ticket-reply-not-delivered": "Хариу хадгалагдсан ч имэйл хүргэгдээгүй",
       "created-ticket-from-conversation": "энэ тикетийг харилцан ярианаас үүсгэсэн",
       "view-conversation": "Харилцан яриаг харах",
-      "add-note": "Тэмдэглэл нэмэх"
+      "add-note": "Тэмдэглэл нэмэх",
+      "attach-file": "Файл хавсаргах",
+      "response-templates": "Хариу загварууд"
     },
     "survey": {
       "add-option": "Сонголт нэмэх",

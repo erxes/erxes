@@ -151,6 +151,7 @@ export const CustomersFilter = () => {
   return (
     <Filter id="customers-filter" sessionKey={sessionKey}>
       <Filter.Bar>
+        <CustomersFilterPopover contentType={contentType} />
         <Filter.BarItem queryKey="searchValue">
           <Filter.BarName>
             <IconSearch />
@@ -193,7 +194,6 @@ export const CustomersFilter = () => {
         <SelectMember.FilterBar />
         <SelectBrand.FilterBar />
         <PropertiesFilter.Bar contentType="core:customer" />
-        <CustomersFilterPopover contentType={contentType} />
         <CustomerTotalCount />
       </Filter.Bar>
     </Filter>

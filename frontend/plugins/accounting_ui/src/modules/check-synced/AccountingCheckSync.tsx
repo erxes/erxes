@@ -38,7 +38,7 @@ export const AccountingCheckSync = () => {
           returnLink="/accounting/check-sync"
           returnText={t('check-sync')}
         />
-        <div className="flex flex-auto overflow-hidden">
+        <div className="flex flex-auto flex-col overflow-hidden">
           <Suspense
             fallback={
               <div className="flex flex-auto justify-center items-center h-full w-full">

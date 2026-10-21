@@ -27,7 +27,14 @@ export interface UseNotificationResult extends UseNotificationNavigationResult {
 
 export type NotificationItemProps = Pick<
   TNotification,
-  '_id' | 'createdAt' | 'message' | 'isRead' | 'contentType' | 'priority'
+  | '_id'
+  | 'createdAt'
+  | 'title'
+  | 'message'
+  | 'isRead'
+  | 'contentType'
+  | 'priority'
+  | 'fromUser'
 > & {
   selected: boolean;
   selectionFocused: boolean;
@@ -40,10 +47,16 @@ export interface NotificationIconProps {
 
 export interface UseNotificationListResult {
   notifications: TNotification[];
+  groups: [string, TNotification[]][];
   loading: boolean;
   inViewRef: (node?: Element | null) => void;
   isEmpty: boolean;
   hasMore: boolean;
+  error: ApolloError | undefined;
+  fetchMoreError: string | null;
+  fetchingMore: boolean;
+  retry: () => Promise<void>;
+  loadMore: () => Promise<void>;
 }
 
 export interface NotificationSelection {
@@ -57,14 +70,18 @@ export interface NotificationSelection {
 
 export interface UseNotificationListActionsResult
   extends Pick<NotificationSelection, 'selectedIds' | 'focusedId' | 'clear'> {
-  markingAsRead: boolean;
+  pending: boolean;
+  allRead: boolean;
   markSelectedAsRead: () => Promise<void>;
+  deleteSelected: () => Promise<void>;
   onOpen: (id: string, event: MouseEvent<HTMLAnchorElement>) => void;
 }
 
 export interface NotificationSelectionToolbarProps {
   selectedCount: number;
-  markingAsRead: boolean;
+  pending: boolean;
+  allRead: boolean;
   onMarkAsRead: () => Promise<void>;
+  onDelete: () => Promise<void>;
   onClear: () => void;
 }

@@ -119,6 +119,11 @@ import {
   queries as ApprovalQueries,
   types as ApprovalTypes,
 } from '@/approval/graphql/schema';
+import {
+  mutations as FilesMutations,
+  queries as FilesQueries,
+  types as FilesTypes,
+} from '@/files/graphql/schema';
 
 import {
   mutations as DocumentMutations,
@@ -258,6 +263,7 @@ export const types = `
     ${FavoritesTypes}
     ${PermissionTypes}
     ${ApprovalTypes}
+    ${FilesTypes}
     ${DocumentTypes}
     ${AutomationsTypes}
     ${EmailTemplateTypes}
@@ -301,6 +307,7 @@ export const queries = `
     ${FavoritesQueries}
     ${PermissionQueries}
     ${ApprovalQueries}
+    ${FilesQueries}
     ${DocumentQueries}
     ${AutomationsQueries}
     ${EmailTemplateQueries}
@@ -343,6 +350,7 @@ export const mutations = `
     ${FavoritesMutations}
     ${PermissionMutations}
     ${ApprovalMutations}
+    ${FilesMutations}
     ${DocumentMutations}
     ${AutomationsMutations}
     ${EmailTemplateMutations}

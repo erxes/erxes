@@ -3748,7 +3748,9 @@
       "ticket-reply-not-delivered": "The reply was saved, but the email was not delivered",
       "created-ticket-from-conversation": "created this ticket from a conversation",
       "view-conversation": "View conversation",
-      "add-note": "Add note"
+      "add-note": "Add note",
+      "attach-file": "Attach file",
+      "response-templates": "Response templates"
     },
     "survey": {
       "add-option": "Add option",
