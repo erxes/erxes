@@ -65,6 +65,7 @@ const queries = `
   automationsAiAgentTotalCounts:JSON
   automationsAiAgentDetail(_id:String):JSON
   automationsAiAgentHealth(agentId: String!): AiAgentHealth!
+  automationsAiAgentModels(agentId: String, provider: String!, selectedModel: String): [AiAgentModelOption!]!
   automationsAiAgentKnowledgeSourceStatuses(agentId: String!): JSON
   getAutomationWebhookEndpoint(_id:String!,waitEventActionId:String):String
   getAutomationExecutionDetail(executionId: String!): AutomationHistory
