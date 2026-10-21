@@ -1,5 +1,6 @@
 import { NotificationIcon } from '@/notification/components/NotificationIcon';
 import { NotificationPriority } from '@/notification/components/NotificationPriority';
+import { NotificationSenderAvatar } from '@/notification/components/NotificationSenderAvatar';
 import {
   NOTIFICATION_PRIORITY_VARIANTS,
   NOTIFICATION_APP_COLORS,
@@ -29,8 +30,6 @@ export const NotificationItem = ({
   const { id } = useParams();
   const display = useAtomValue(inboxDisplayOptionsState);
   const { t } = useTranslation('common', { keyPrefix: 'notification' });
-  const sender =
-    fromUser?.details?.fullName || fromUser?.email || t('system', 'System');
   const appName = contentType.split(/[:.]/)[0] || 'core';
   const isActive = id === _id;
   const linkRef = useNotificationItemScroll({ isActive, selectionFocused });
@@ -75,11 +74,6 @@ export const NotificationItem = ({
           )}
         </div>
         <div className="flex-auto space-y-1 overflow-hidden">
-          {display.showSender && (
-            <div className="truncate text-xs text-muted-foreground">
-              {sender}
-            </div>
-          )}
           <div className="flex items-center justify-between">
             <h4
               className={cn(
@@ -100,6 +94,9 @@ export const NotificationItem = ({
                 >
                   <NotificationPriority priority={priority} />
                 </Badge>
+              )}
+              {display.showSender && (
+                <NotificationSenderAvatar fromUser={fromUser} />
               )}
             </div>
 

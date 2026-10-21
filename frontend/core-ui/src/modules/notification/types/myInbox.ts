@@ -46,6 +46,8 @@ export interface NotificationIconProps {
   contentType: string;
 }
 
+export type NotificationSenderAvatarProps = Pick<TNotification, 'fromUser'>;
+
 export interface NotificationPriorityProps {
   priority?: string | null;
 }
