@@ -7,6 +7,7 @@ export const GET_TRIAGE = gql(`
       name
       description
       teamId
+      projectId
       createdBy
       number
       createdAt

@@ -8,6 +8,7 @@ export interface ITriage {
   name: string;
   description: string;
   teamId: string;
+  projectId?: string;
   createdBy: string;
   type: string;
   number: number;
@@ -40,6 +41,7 @@ export interface ITriageAddInput {
   name: string;
   description: string;
   teamId: string;
+  projectId?: string;
   priority: number;
   status: number;
 }

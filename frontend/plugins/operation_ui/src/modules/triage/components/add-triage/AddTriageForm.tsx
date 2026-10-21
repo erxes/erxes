@@ -2,6 +2,7 @@ import { isRecord } from '@/operation/utils/isRecord';
 import { SelectPriority } from '@/operation/components/SelectPriority';
 import { SelectStatus } from '@/operation/components/SelectStatus';
 import { STATUS_TYPES } from '@/operation/components/StatusInline';
+import { SelectProject } from '@/task/components/task-selects/SelectProjectTask';
 import { SelectTeam } from '@/team/components/SelectTeam';
 import { useGetCurrentUsersTeams } from '@/team/hooks/useGetCurrentUsersTeams';
 import { SelectTemplate } from '@/template/components/SelectTemplate';
@@ -22,11 +23,9 @@ import {
   useBlockEditor,
 } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { useAtomValue } from 'jotai';
 import { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { useParams } from 'react-router-dom';
-import { currentUserState } from 'ui-modules';
 
 export const AddTriageForm = ({
   onComplete,
@@ -42,15 +41,13 @@ export const AddTriageForm = ({
   const teamId = initialTeamId ?? routeTeamId;
 
   const { teams } = useGetCurrentUsersTeams();
-  const currentUser = useAtomValue(currentUserState);
   const { createTriage, loading: createTriageLoading } = useCreateTriage();
   const [descriptionContent, setDescriptionContent] = useState<Block[]>();
   const editor = useBlockEditor();
 
-  const [_teamId, _setTeamId] = useState<string | undefined>(teamId);
-
   const defaultValues = {
-    teamId: _teamId || undefined,
+    teamId: teamId || '',
+    projectId: undefined,
     name: '',
     priority: 0,
     status: STATUS_TYPES.TRIAGE,
@@ -60,6 +57,7 @@ export const AddTriageForm = ({
     resolver: zodResolver(addTriageSchema),
     defaultValues,
   });
+  const selectedTeamId = useWatch({ control: form.control, name: 'teamId' });
 
   useEffect(() => {
     form.setFocus('name');
@@ -68,9 +66,8 @@ export const AddTriageForm = ({
   useEffect(() => {
     if (teams && teams.length > 0 && !form.getValues('teamId') && !teamId) {
       form.setValue('teamId', teams[0]._id);
-      _setTeamId(teams[0]._id);
     }
-  }, [teams, form, teamId, currentUser]);
+  }, [teams, form, teamId]);
 
   const handleDescriptionChange = async () => {
     const content = await editor?.document;
@@ -126,7 +123,13 @@ export const AddTriageForm = ({
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit(onSubmit)}
+        onSubmit={form.handleSubmit(onSubmit, (errors) => {
+          toast({
+            variant: 'destructive',
+            title: t('error'),
+            description: t(Object.values(errors)[0]?.message || 'error'),
+          });
+        })}
         className="h-full flex flex-col"
       >
         <Sheet.Header className="flex items-center gap-2 ">
@@ -139,6 +142,9 @@ export const AddTriageForm = ({
                 <SelectTeam.FormItem
                   value={field.value || ''}
                   onValueChange={(value) => {
+                    if (value !== field.value) {
+                      form.resetField('projectId');
+                    }
                     field.onChange(value);
                   }}
                   isTriageEnabled={true}
@@ -151,7 +157,10 @@ export const AddTriageForm = ({
           <IconChevronRight className="size-4" />
           <Sheet.Title className="">{t('new-triage')}</Sheet.Title>
           <div className="ml-auto">
-            <SelectTemplate teamId={_teamId} onSelect={onTemplateSelect} />
+            <SelectTemplate
+              teamId={selectedTeamId}
+              onSelect={onTemplateSelect}
+            />
           </div>
         </Sheet.Header>
         <Sheet.Content className="px-7 py-4 gap-2 flex flex-col min-h-0">
@@ -171,7 +180,24 @@ export const AddTriageForm = ({
               </Form.Item>
             )}
           />
-          <div className="flex gap-2 w-full">
+          <div className="flex flex-wrap gap-2 w-full">
+            <Form.Field
+              name="projectId"
+              control={form.control}
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label className="sr-only">{t('project')}</Form.Label>
+                  <SelectProject.FormItem
+                    value={field.value}
+                    onValueChange={(value) =>
+                      field.onChange(value || undefined)
+                    }
+                    teamId={selectedTeamId}
+                    label={t('project')}
+                  />
+                </Form.Item>
+              )}
+            />
             <Form.Field
               name="priority"
               control={form.control}

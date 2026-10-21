@@ -1,6 +1,7 @@
 import type { TriageFieldsProps } from '@/triage/types/triageFields';
 import { Input, Separator, BlockEditor, Button, Spinner } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 import { ActivityList } from '@/activity/components/ActivityList';
 import { SelectPriority } from '@/operation/components/SelectPriority';
 import { ConvertToTask } from '@/triage/components/triage-selects/ConvertToTask';
@@ -10,6 +11,7 @@ import { IconBrandGithub, IconExternalLink } from '@tabler/icons-react';
 import { isGithubTriage } from '@/operation/utils/isGithubTriage';
 import { useTriageFieldsEditor } from '@/triage/hooks/useTriageFieldsEditor';
 import { TriageConversionDialog } from '@/triage/components/TriageConversionDialog';
+import { ProjectInline } from '@/project/components/ProjectInline';
 
 export const TriageFields = ({ triage, titleAction }: TriageFieldsProps) => {
   const { t } = useTranslation('operation');
@@ -76,6 +78,13 @@ export const TriageFields = ({ triage, titleAction }: TriageFieldsProps) => {
         {titleAction}
       </div>
       <div className="gap-2 flex flex-wrap w-full">
+        {triage.projectId && (
+          <Button asChild variant="secondary">
+            <Link to={`/operation/projects/${triage.projectId}/overview`}>
+              {t('project')}: <ProjectInline projectId={triage.projectId} />
+            </Link>
+          </Button>
+        )}
         <SelectPriority
           variant="detail"
           value={priority}

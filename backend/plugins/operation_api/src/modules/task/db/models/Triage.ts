@@ -38,6 +38,17 @@ export const loadTriageClass = (models: IModels) => {
       triage: ITriage;
       subdomain: string;
     }) {
+      if (triage.projectId) {
+        const project = await models.Project.findOne({
+          _id: triage.projectId,
+          teamIds: triage.teamId,
+        });
+
+        if (!project) {
+          throw new Error('Choose a project belonging to the selected team');
+        }
+      }
+
       const teamMembers = await models.TeamMember.find({
         teamId: triage.teamId,
       });

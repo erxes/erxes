@@ -14,18 +14,13 @@ export type ITriageDetail = NonNullable<
   OperationGetTriageQuery['operationGetTriage']
 >;
 
-export interface IAddTriage {
-  name: string;
-  description: string;
-  teamId: string;
-  priority: number;
-  status: number;
-}
-
 export const addTriageSchema = z.object({
-  name: z.string().min(1),
+  name: z.string().min(1, 'name-required'),
   description: z.string().optional(),
-  teamId: z.string().min(1),
+  teamId: z.string().min(1, 'team-required'),
+  projectId: z.string().optional(),
   priority: z.number().optional(),
   status: z.number().optional(),
 });
+
+export type IAddTriage = z.infer<typeof addTriageSchema>;
