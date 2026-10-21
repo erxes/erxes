@@ -15,6 +15,13 @@ export const ExecutionCommandbar = () => {
     .getFilteredSelectedRowModel()
     .rows.map((row) => row.original);
   const { canRun, run, loading } = useExecutionActions();
+  const clearCompletedSelection = (ids: string[]) => {
+    table.setRowSelection((previous) =>
+      Object.fromEntries(
+        Object.entries(previous).filter(([id]) => !ids.includes(id)),
+      ),
+    );
+  };
   const actions = [
     { action: 'post', label: 'production-post', Icon: IconPlayerPlay },
     { action: 'undo', label: 'production-undo', Icon: IconArrowBackUp },
@@ -36,17 +43,7 @@ export const ExecutionCommandbar = () => {
             key={action}
             variant="secondary"
             disabled={loading || !canRun(action, selected)}
-            onClick={() =>
-              void run(action, selected, (ids) => {
-                table.setRowSelection((previous) =>
-                  Object.fromEntries(
-                    Object.entries(previous).filter(
-                      ([id]) => !ids.includes(id),
-                    ),
-                  ),
-                );
-              })
-            }
+            onClick={() => void run(action, selected, clearCompletedSelection)}
           >
             {loading ? <Spinner /> : <Icon />}
             {t(label)}

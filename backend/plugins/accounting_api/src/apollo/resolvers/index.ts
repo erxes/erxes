@@ -49,6 +49,7 @@ import {
   SafeRemainderItems as QueriesSafeRemainderItem,
   SafeRemainders as QueriesSafeRemainder,
   Jobs as QueriesJob,
+  JobExecutions as jobExecutionQueries,
 } from '@/inventories/graphql/resolvers/queries';
 import {
   Remainders as MutationsRemainder,
@@ -56,11 +57,10 @@ import {
   SafeRemainderItems as MutationsSafeRemainderItem,
   SafeRemainders as MutationsSafeRemainder,
   Jobs as MutationsJob,
+  JobExecutions as jobExecutionMutations,
 } from '@/inventories/graphql/resolvers/mutations';
 import adjustClosingEntryMutations from '~/modules/accounting/graphql/resolvers/mutations/adjustClosing';
 import MutationsFixedAssets from '~/modules/fixedAssets/graphql/resolvers/mutations/fixedAssets';
-import { JobExecutions as jobExecutionMutations } from '@/inventories/graphql/resolvers/mutations';
-import { JobExecutions as jobExecutionQueries } from '@/inventories/graphql/resolvers/queries';
 import QueriesFixedAssets from '~/modules/fixedAssets/graphql/resolvers/queries/fixedAssets';
 
 const resolvers: any = {

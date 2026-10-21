@@ -342,7 +342,7 @@ test('posted execution actuals remain editable and save through the existing exe
   const execution = postedExecution;
   render(<JobExecutionEditor execution={execution} onSaved={jest.fn()} />);
   expect(
-    screen.queryByRole('button', { name: 'save & production-post' }),
+    screen.getByRole('button', { name: 'save & production-post' }),
   ).toBeTruthy();
   fireEvent.click(screen.getByLabelText('production-job 1'));
   expect(screen.getByText('Save actuals').closest('fieldset')?.disabled).toBe(

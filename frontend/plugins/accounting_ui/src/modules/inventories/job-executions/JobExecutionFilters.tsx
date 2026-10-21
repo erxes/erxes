@@ -204,7 +204,9 @@ export const JobExecutionFilters = () => {
             key={side}
             filterKey={`${side}BranchId`}
             mode="single"
-            label={`${t(`production-${side}-location`)}: ${t('branch')}`}
+            label={[t('production-' + side + '-location'), t('branch')].join(
+              ': ',
+            )}
           />
         ))}
         {sides.map((side) => (
@@ -212,7 +214,10 @@ export const JobExecutionFilters = () => {
             key={side}
             filterKey={`${side}DepartmentId`}
             mode="single"
-            label={`${t(`production-${side}-location`)}: ${t('department')}`}
+            label={[
+              t('production-' + side + '-location'),
+              t('department'),
+            ].join(': ')}
           />
         ))}
         <Filter.BarItem queryKey="status">

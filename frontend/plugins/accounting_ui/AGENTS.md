@@ -180,6 +180,9 @@
 
 ## Local Invariants
 
+- Execution list columns live in `src/modules/inventories/job-executions/JobExecutionColumns.tsx` with module-level header/cell components and stable column definitions. `ExecutionTableProvider` supplies the page's edit callback without defining React components inside the page render. Keep translated short side headings, saved column preferences, and source column order unchanged.
+- Execution bulk actions remove successfully completed ids through a separate selection callback; preserve remaining selection on partial failure and avoid deeply nested event/update callbacks.
+
 - Execution detail sheets pass `readOnlyCostRatio` to the shared job form. Output allocation ratios render as plain inline values immediately after product in an 80px column with a wrapping heading, before unit/quantity, so input and output unit/quantity tracks align. Job master settings retain editable ratios.
 
 - The execution quantity column has a 170px minimum width so the full production-quantity header fits even when older table preferences contain a narrower saved width; its header must not overflow past the final body cell.

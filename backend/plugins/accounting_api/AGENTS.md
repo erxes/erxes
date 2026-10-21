@@ -152,6 +152,8 @@
 
 ## Local Invariants
 
+- Inventory outgoing adjustment groups and their records are processed sequentially through promise chains. Preserve record order, apply the outgoing cache write before reallocating execution income, and check pointers only after the affected transaction totals have been recalculated.
+
 - Automatic real-job production belongs to `src/modules/accounting/utils/realJobProduction.ts`. Choose a matching active real job by `modifiedAt: -1, _id: -1`; skip production if active remainder covers demand or no recipe matches. Convert master recipe UOMs to base units before scaling, reuse the job execution transaction builder for per-job output ratios and labor/overhead costs, then consolidate repeated inventory products per account/location. Cost the source consumption from inventory after production; never overwrite sale revenue.
 - Real-job follows use `realJobOut`, `realJobIncome`, and `realJobCost` origin types and are saved directly, without recursively auto-producing material shortages or creating `JobExecutions`. Explicit job executions do not trigger auto-production. Follow status/date/parent/number track the source; cost accounts require active single-journal accounts in the inventory currency and normal account write permission.
 - Real-job edit costing excludes the old source, its sale-out movement, and all its production follows. Resaves preserve follow transaction/detail ids by location and product/account, reverse and delete obsolete follows, and source removal reverses owned inventory follows exactly once. Generated follows must never independently repeat the source cleanup.
