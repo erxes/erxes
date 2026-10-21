@@ -254,15 +254,15 @@ export class StorePayAPI extends BaseAPI {
       const amount = Number(invoice.amount);
 
       if (!Number.isFinite(mobileNumber)) {
-        throw new Error('Invalid StorePay mobile number');
+        throw new TypeError('Invalid StorePay mobile number');
       }
 
       if (!Number.isFinite(storeId)) {
-        throw new Error('Invalid StorePay storeId');
+        throw new TypeError('Invalid StorePay storeId');
       }
 
       if (!Number.isFinite(amount) || amount <= 0) {
-        throw new Error('Invalid StorePay amount');
+        throw new TypeError('Invalid StorePay amount');
       }
 
       const data = {
