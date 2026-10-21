@@ -14,13 +14,13 @@ const generateFilter = async (subdomain, params) => {
   const filter: any = {};
 
   if (params.search) {
-    const escapedSearch = escapeRegExp(params.search);
+    const searchRegex = new RegExp(escapeRegExp(params.search), 'i');
 
     filter.$or = [
-      { id: new RegExp(escapedSearch, 'i') },
-      { inactiveId: new RegExp(escapedSearch, 'i') },
-      { number: new RegExp(escapedSearch, 'i') },
-      { 'receipts.id': new RegExp(escapedSearch, 'i') },
+      { id: searchRegex },
+      { inactiveId: searchRegex },
+      { number: searchRegex },
+      { 'receipts.id': searchRegex },
     ];
   }
 
@@ -53,7 +53,12 @@ const generateFilter = async (subdomain, params) => {
         method: 'query',
         module: 'pos',
         action: 'orders.find',
-        input: { number: { $regex: params.orderNumber, $options: 'mui' } },
+        input: {
+          number: {
+            $regex: escapeRegExp(params.orderNumber),
+            $options: 'mui',
+          },
+        },
         defaultValue: [],
       });
       filter.contentId = { $in: (posOrders || []).map((p) => p._id) };
