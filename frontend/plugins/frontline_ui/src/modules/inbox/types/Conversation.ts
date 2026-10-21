@@ -87,6 +87,7 @@ export type MessageDeliveryStatus = NonNullable<
 
 /** A message as `toMessage` hands it to the renderers: nulls are undefined and JSON is parsed. */
 export type IMessage = {
+  contentType?: string;
   _id: string;
   mid?: string;
   conversationId?: string;

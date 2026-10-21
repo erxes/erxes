@@ -179,3 +179,69 @@ Same pattern for phone: `clientPortalUserRequestChangePhone(newPhone)` then `cli
 | `PHONE_CHANGE`       | Change phone (authenticated)             | OTP sent to new phone; `pendingPhone` set until confirm  |
 
 Validation always checks: presence of actionCode, correct type, not expired, and code/token match.
+
+---
+
+## Reset Password Email Configuration
+
+Configured in the client portal settings under **Reset password email**, stored as `securityAuthConfig.resetPasswordConfig` (`mode`, `emailSubject`, `emailContent`).
+
+The email content is a [Handlebars](https://handlebarsjs.com/) template. Placeholders must use double curly braces. If the content is empty, the email is sent without the link or code, so always fill it in.
+
+### Link mode
+
+The user receives a link to the portal's reset page. The backend builds it as:
+
+```
+{clientPortal.url}/reset-password?token=<token>
+```
+
+| Placeholder    | Value                                      |
+| -------------- | ------------------------------------------ |
+| `{{resetUrl}}` | Full reset link (use this in the email)    |
+| `{{token}}`    | Raw token, if you build your own URL       |
+
+Example content:
+
+```
+Hello,
+
+We received a request to reset your password. Open the link below to choose a new one:
+
+{{resetUrl}}
+
+This link expires in 1 hour. If you did not request a reset, ignore this email.
+```
+
+Requirements:
+
+- Set the client portal **URL** without a trailing slash, for example `https://portal.example.com`.
+- The portal frontend must serve `/reset-password`, read `token` from the query string, and call `clientPortalUserResetPassword({ token, newPassword })`.
+- The token expires after 1 hour (hard-coded).
+- Type `{{resetUrl}}` as plain text in the editor, then send yourself a test email to confirm the link works.
+
+### Code mode
+
+The user receives a numeric code by email and enters it in the portal.
+
+| Placeholder | Value              |
+| ----------- | ------------------ |
+| `{{code}}`  | The numeric code   |
+
+Example content:
+
+```
+Your password reset code is {{code}}.
+
+If you did not request a reset, ignore this email.
+```
+
+Requirements:
+
+- The **Email** tab of the **OTP** settings (code length and expiration in minutes) must be filled in. Otherwise the request fails with "Email OTP configuration is not set" or "Email OTP configuration is incomplete".
+- The portal frontend calls `clientPortalUserResetPassword({ identifier, code, newPassword })`.
+- Only `{{code}}` works in the email. The single-brace `{code}` form is converted only for SMS templates.
+
+### Phone numbers
+
+When the user resets with a phone number, they always receive an SMS code, regardless of mode. The SMS uses the message template and settings from the **SMS** tab of the **OTP** settings, not the reset email content.

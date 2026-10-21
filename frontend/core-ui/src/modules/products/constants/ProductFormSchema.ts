@@ -8,6 +8,14 @@ const PRODUCT_DURATION_TYPE_VALUES = PRODUCT_DURATION_TYPES.map(
   ...(typeof PRODUCT_DURATION_TYPES)[number]['value'][],
 ];
 
+const productFileSchema = z.object({
+  url: z.string(),
+  name: z.string(),
+  type: z.string(),
+  size: z.number(),
+  fileId: z.string().optional(),
+});
+
 export const ProductFormSchema = z
   .object({
     name: z.string().min(1, { message: 'Product name is required' }),
@@ -38,6 +46,7 @@ export const ProductFormSchema = z
     attachment: z.any().optional(),
     attachmentMore: z.any().optional(),
     videos: z.any().optional(),
+    files: z.array(productFileSchema).optional(),
     currency: z.string().optional(),
     subUoms: z.array(z.any()).optional(),
     variants: z.record(z.any()).optional().catch({}),
@@ -82,6 +91,7 @@ export const EMPTY_PRODUCT_FORM_VALUES: ProductFormValues = {
   attachment: undefined,
   attachmentMore: undefined,
   videos: undefined,
+  files: [],
   currency: '',
   duration: undefined,
   durationType: undefined,

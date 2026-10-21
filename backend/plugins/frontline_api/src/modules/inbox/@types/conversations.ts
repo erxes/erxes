@@ -1,3 +1,4 @@
+import type { IMessageDocument } from './conversationMessages';
 import { Document } from 'mongoose';
 import {
   ICursorPaginateParams,
@@ -32,6 +33,7 @@ export interface IConversation {
   visitorId?: string;
   userId?: string;
   assignedUserId?: string;
+  assignedUserIds?: string[];
   participatedUserIds?: string[];
   userRelevance?: string;
   readUserIds?: string[];
@@ -64,12 +66,15 @@ export interface IConversation {
 // Conversation schema
 export interface IConversationDocument extends IConversation, Document {
   _id: string;
+  lastMessage?: IMessageDocument | null;
   createdAt: Date | undefined;
   updatedAt: Date | undefined;
 }
 
 export interface IConversationListParams
-  extends IListParams, ICursorPaginateParams, IConversation {
+  extends IListParams,
+    ICursorPaginateParams,
+    IConversation {
   limit?: number;
   channelId?: string;
   status?: string;

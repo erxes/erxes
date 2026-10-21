@@ -1,13 +1,14 @@
+import { INTERNAL_NOTE_BACKGROUND } from '@/inbox/constants/internalNoteStyles';
 import { Button, RelativeDateDisplay, cn, useQueryState } from 'erxes-ui';
-import { useFbMessengerMessageContext } from '../contexts/FbMessengerMessageContext';
+import { useFbMessengerMessageContext } from '@/integrations/facebook/contexts/FbMessengerMessageContext';
 import { useAtomValue } from 'jotai';
 import { activeConversationState } from '@/inbox/conversations/states/activeConversationState';
 import { CustomersInline, MembersInline } from 'ui-modules';
 import { MessageContent } from '@/inbox/conversation-messages/components/MessageContent';
 import { HAS_ATTACHMENT } from '@/inbox/constants/messengerConstants';
-import { FbMessengerBotMessageItem } from './FbMessengerBotMessageBlocks/FbMessengerBotMessageItem';
-import { FbMessengerMessageAttachments } from './FbMessengerMessageAttachments';
-import { FacebookMessageRelationNotice } from './FacebookMessageRelationNotice';
+import { FbMessengerBotMessageItem } from '@/integrations/facebook/components/FbMessengerBotMessageBlocks/FbMessengerBotMessageItem';
+import { FbMessengerMessageAttachments } from '@/integrations/facebook/components/FbMessengerMessageAttachments';
+import { FacebookMessageRelationNotice } from '@/integrations/facebook/components/FacebookMessageRelationNotice';
 import { useEffect, useRef } from 'react';
 
 export const FbMessengerMessage = () => {
@@ -54,7 +55,7 @@ export const FbMessengerMessage = () => {
             className={cn(
               'mt-2 h-auto py-2 text-left **:whitespace-pre-wrap block font-normal space-y-2 overflow-x-hidden text-pretty wrap-break-word [&_a]:text-primary [&_a]:underline [&_img]:aspect-square [&_img]:object-cover [&_img]:rounded',
               userId && 'bg-primary/10 hover:bg-primary/10',
-              internal && 'bg-warning/20 hover:bg-warning/5',
+              internal && INTERNAL_NOTE_BACKGROUND,
               separatePrevious && 'mt-8',
             )}
             style={

@@ -52,6 +52,7 @@ export const types = `
     metadata: JSON,
     createdAt: Date,
     isRead: Boolean
+    readAt: Date
     action:String
     emailDelivery:EmailDelivery
     kind:String
@@ -214,7 +215,8 @@ const NOTIFICATIONS_QUERIES_PARAMS = `
   fromDate:String,
   endDate:String,
   fromUserId:String,
-  module:String
+  module:String,
+  unreadFirst:Boolean
 `;
 
 const EMAIL_DELIVERIES_QUERY_PARAMS = `
@@ -248,6 +250,7 @@ export const queries = `
 export const mutations = `
   emailAddressRelease(email:String!, note:String!):String
   emailRampRelease(note:String!):EmailRampStatus
+  coreNotificationsDelete(ids:[String!]!):[String!]!
   archiveNotification(_id:String!):String
   archiveNotifications(ids:[String], archiveAll:Boolean, filters:NotificationFilters):String
   markNotificationAsRead(_id:String!):JSON

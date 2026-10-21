@@ -7,16 +7,16 @@ import { PermissionRouteGuard } from '@/auth/components/PermissionRouteGuard';
 
 export const getPluginsRoutes = () => {
   const [pluginsMetaData] = useAtom(pluginsConfigState);
-  const plugins = Object.values(pluginsMetaData || {});
+  const plugins = Object.entries(pluginsMetaData || {});
 
-  return plugins.map((module) => (
+  return plugins.map(([remoteName, module]) => (
     <Route
-      key={module.name}
+      key={remoteName}
       path={`/${module.path}/*`}
       element={
         <PermissionRouteGuard plugin={module.name}>
           <RenderPluginsComponent
-            pluginName={`${module.name}_ui`}
+            pluginName={remoteName}
             remoteModuleName={module.name}
             withMascot
           />

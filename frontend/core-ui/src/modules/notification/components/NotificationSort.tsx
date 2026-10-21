@@ -1,6 +1,5 @@
 import { IconSortDescending } from '@tabler/icons-react';
 import { Button, cn, Select, useMultiQueryState } from 'erxes-ui';
-import { Select as SelectPrimitive } from 'radix-ui';
 import { TNotificationStatus } from 'ui-modules';
 import { useTranslation } from 'react-i18next';
 
@@ -15,18 +14,22 @@ export const NotificationSort = () => {
   }>(['notificationOrderBy', 'notificationStatus']);
   return (
     <Select
-      defaultValue={orderBy || 'new'}
+      value={orderBy || 'new'}
       onValueChange={(value) =>
         setQueries({ notificationOrderBy: value === orderBy ? null : value })
       }
     >
-      <SelectPrimitive.Trigger asChild>
-        <Button variant="ghost" size="icon">
+      <Select.Primitive.Trigger asChild>
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label={t('sort', 'Sort notifications')}
+        >
           <IconSortDescending
             className={cn(orderBy && orderBy !== 'new' && 'text-primary')}
           />
         </Button>
-      </SelectPrimitive.Trigger>
+      </Select.Primitive.Trigger>
       <Select.Content>
         <Select.Item value="new">{t('newest')}</Select.Item>
         <Select.Item value="old">{t('oldest')}</Select.Item>

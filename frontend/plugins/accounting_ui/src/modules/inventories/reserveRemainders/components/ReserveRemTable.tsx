@@ -8,11 +8,13 @@ import {
   Table,
   useConfirm,
 } from 'erxes-ui';
-import { IconTrash } from '@tabler/icons-react';
+import { IconPackageOff, IconTrash } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
-import { useReserveRems } from '../hooks/useReserveRems';
-import { useReserveRemsRemove } from '../hooks/useReserveRemsRemove';
-import { reserveRemColumns } from './ReserveRemColumns';
+import { AccountingEmptyState } from '@/layout/components/AccountingEmptyState';
+import { AddReserveRem } from '@/inventories/reserveRemainders/components/ReserveRemForm';
+import { useReserveRems } from '@/inventories/reserveRemainders/hooks/useReserveRems';
+import { useReserveRemsRemove } from '@/inventories/reserveRemainders/hooks/useReserveRemsRemove';
+import { reserveRemColumns } from '@/inventories/reserveRemainders/components/ReserveRemColumns';
 
 const ReserveRemInitialSkeleton = ({ rows = 20 }: { rows?: number }) => {
   const { t } = useTranslation('accounting');
@@ -40,11 +42,13 @@ const ReserveRemInitialSkeleton = ({ rows = 20 }: { rows?: number }) => {
 
 export const ReserveRemTable = () => {
   const { t } = useTranslation('accounting');
-  const { reserveRems, loading, totalCount, handleFetchMore } =
+  const { reserveRems, loading, error, totalCount, handleFetchMore } =
     useReserveRems();
 
   const isFetchingMore = loading && (reserveRems?.length ?? 0) > 0;
   const isInitialLoading = loading && !isFetchingMore;
+
+  const isEmpty = !loading && !reserveRems?.length;
 
   return (
     <RecordTable.Provider
@@ -52,7 +56,7 @@ export const ReserveRemTable = () => {
       data={isInitialLoading ? [] : reserveRems || []}
       stickyColumns={['more', 'checkbox', 'product']}
       tableId="accounting_inventory_reserve_remainders_record_table"
-      className="m-3"
+      className="relative m-3"
     >
       <RecordTable.Scroll>
         <RecordTable>
@@ -70,6 +74,15 @@ export const ReserveRemTable = () => {
         </RecordTable>
       </RecordTable.Scroll>
       <ReserveRemCommandbar />
+      {isEmpty && (
+        <AccountingEmptyState
+          overlay
+          error={error}
+          icon={IconPackageOff}
+          description={t('empty-list-description')}
+          action={<AddReserveRem />}
+        />
+      )}
     </RecordTable.Provider>
   );
 };

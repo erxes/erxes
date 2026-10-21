@@ -12,6 +12,7 @@ export const TagsFilter = () => {
   return (
     <Filter id="tags-filter" sessionKey={TAGS_CURSOR_SESSION_KEY}>
       <Filter.Bar>
+        <SimpleSearchFilterPopover />
         <Filter.BarItem queryKey="searchValue">
           <Filter.BarName>
             <IconSearch />
@@ -21,7 +22,6 @@ export const TagsFilter = () => {
             {searchValue}
           </Filter.BarButton>
         </Filter.BarItem>
-        <SimpleSearchFilterPopover />
         <TagsTotalCount />
       </Filter.Bar>
     </Filter>

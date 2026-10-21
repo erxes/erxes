@@ -1,6 +1,8 @@
+import { INTERNAL_NOTE_BACKGROUND } from '@/inbox/constants/internalNoteStyles';
 import {
   BlockEditorReadOnly,
   Button,
+  cn,
   RelativeDateDisplay,
   Spinner,
   toast,
@@ -9,7 +11,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { IconLock } from '@tabler/icons-react';
 import { Attachments } from '@/inbox/conversation-messages/components/MessageAttachments';
-import type { IMessage } from '@/inbox/types/Conversation';
+import type { MailInternalNotesProps } from '@/integrations/mail/types/MailInternalNotesProps';
 
 export const MailInternalNotes = ({
   notes,
@@ -18,14 +20,7 @@ export const MailInternalNotes = ({
   loading,
   error,
   onRetry,
-}: {
-  notes: IMessage[];
-  totalCount: number;
-  onLoadMore: () => Promise<unknown>;
-  loading: boolean;
-  error?: string;
-  onRetry: () => Promise<unknown>;
-}) => {
+}: MailInternalNotesProps) => {
   const { t } = useTranslation('frontline', {
     keyPrefix: 'modules.integrations',
   });
@@ -44,7 +39,12 @@ export const MailInternalNotes = ({
   };
 
   return (
-    <section className="overflow-hidden rounded-xl border border-warning/25 bg-warning/[0.04]">
+    <section
+      className={cn(
+        'overflow-hidden rounded-xl border border-warning/25',
+        INTERNAL_NOTE_BACKGROUND,
+      )}
+    >
       <div className="flex items-center gap-2 border-b border-warning/20 px-4 py-2.5 text-xs font-medium text-warning">
         <IconLock className="size-3.5" />
         {t('mail-internal-notes')}
