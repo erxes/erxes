@@ -147,7 +147,7 @@ describe('guided connection setup', () => {
         ? Reflect.get(manager, 'mutationStore')
         : null,
     ).toEqual({});
-    fireEvent.click(screen.getByRole('button', { name: 'View connection' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Choose an app' }));
     expect(onView).toHaveBeenCalledWith(savedConnection._id);
     expect(onClose).toHaveBeenCalledTimes(1);
     unmount();

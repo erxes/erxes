@@ -22,9 +22,12 @@ logos and creation-only public defaults add no external browser requests.
 **Configured is not verified.** This module stores configuration for authorized
 runtime consumers. It does not test a provider, send an email, create a bucket,
 perform OAuth, replace existing integration settings, or automatically bind a
-plugin to the new configuration. Grant app access under a connection's advanced
-settings and provision the consumer once as described below; subsequent account
-detail changes are read at runtime without redeploying that consumer.
+plugin to the new configuration. Choose an app under **Use this connection** and
+create its private setup instructions. Access names are generated automatically;
+custom backend identifiers are a developer-only option. Share the one-time setup
+through a secure channel so a developer can provision the consumer once as
+described below. The connection ID stays in collapsed technical details.
+Subsequent account detail changes are read at runtime without redeploying that consumer.
 
 ## Provisioning
 

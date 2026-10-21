@@ -15,7 +15,7 @@ import {
   providerName,
 } from '../providers';
 import type { CredentialMetadata, CredentialTemplate } from '../types';
-import { ConnectionConsumerAccess } from './ConnectionConsumerAccess';
+import { ConnectionAppAccess } from './ConnectionAppAccess';
 import { ProviderLogo } from './ProviderLogo';
 
 export function ConnectionDetail({
@@ -115,18 +115,23 @@ export function ConnectionDetail({
                 <p className="flex items-center gap-2 text-sm font-medium">
                   <IconCircleDashed className="size-4 text-muted-foreground" />
                   {connectionIsConfigured(connection)
-                    ? 'Configured · not verified'
-                    : 'Setup incomplete'}
+                    ? 'Account details saved'
+                    : 'Add missing account details'}
                 </p>
                 <p
                   id="connection-detail-description"
                   className="text-xs leading-relaxed text-muted-foreground"
                 >
-                  Your account details are saved securely. Provider access has
-                  not been tested, and existing integration settings are
-                  unchanged.
+                  Your account details are stored securely. Apps won’t use them
+                  until setup is complete.
                 </p>
               </div>
+              <ConnectionAppAccess
+                credentialId={connection._id}
+                connectionName={connection.name}
+                reference={connection.reference}
+                canManage={canManageGrants}
+              />
               {connection.description && (
                 <p className="break-words text-sm text-muted-foreground">
                   {connection.description}
@@ -158,7 +163,8 @@ export function ConnectionDetail({
                 </dl>
                 <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
                   <IconLock className="size-3.5" />
-                  Saved values are never displayed.
+                  Saved values are never displayed. Provider access has not been
+                  tested.
                 </p>
               </section>
               {setup && (
@@ -191,18 +197,15 @@ export function ConnectionDetail({
                 <Collapsible.Trigger asChild>
                   <Button variant="ghost" className="px-0 text-sm">
                     <Collapsible.TriggerIcon />
-                    App access & developer settings
+                    Technical details (for developers)
                   </Button>
                 </Collapsible.Trigger>
                 <Collapsible.Content className="space-y-5 pt-4">
                   <div className="space-y-2">
-                    <h3 className="text-sm font-medium">
-                      Connection reference
-                    </h3>
+                    <h3 className="text-sm font-medium">Connection ID</h3>
                     <p className="text-xs leading-relaxed text-muted-foreground">
-                      Authorized backend apps use this stable reference to read
-                      the current configuration at runtime. A reference alone
-                      does not grant access.
+                      Your developer may need this ID when setting up an app.
+                      You don’t need to fill in or change anything here.
                     </p>
                     <div className="flex items-center gap-2 rounded-md bg-muted/40 p-3">
                       <code className="min-w-0 flex-1 break-all text-xs">
@@ -218,10 +221,6 @@ export function ConnectionDetail({
                       </Button>
                     </div>
                   </div>
-                  <ConnectionConsumerAccess
-                    credentialId={connection._id}
-                    canManage={canManageGrants}
-                  />
                 </Collapsible.Content>
               </Collapsible>
             </>

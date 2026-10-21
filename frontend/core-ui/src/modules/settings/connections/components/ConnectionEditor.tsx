@@ -164,8 +164,8 @@ export function ConnectionEditor({
                     : 'Your connection is configured'}
                 </h2>
                 <Sheet.Description className="max-w-sm text-sm leading-relaxed text-muted-foreground">
-                  {saved.name} is saved securely. Grant an app access when
-                  you’re ready to use it.
+                  {saved.name} is saved securely. Next, choose which app should
+                  use it. We’ll explain the setup step by step.
                 </Sheet.Description>
               </div>
               <p className="max-w-sm text-xs leading-relaxed text-muted-foreground">
@@ -184,7 +184,7 @@ export function ConnectionEditor({
                   onView(id);
                 }}
               >
-                View connection
+                Choose an app
                 <IconArrowRight />
               </Button>
             </Sheet.Footer>

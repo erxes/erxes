@@ -131,7 +131,7 @@ describe('Connections workspace', () => {
     });
     expect(screen.queryByRole('button', { name: 'New connection' })).toBeNull();
     fireEvent.click(row);
-    await screen.findByText('Configured · not verified');
+    await screen.findByText('Account details saved');
     expect(screen.queryByRole('button', { name: 'Edit details' })).toBeNull();
     expect(
       screen.queryByRole('button', { name: 'Remove connection' }),
