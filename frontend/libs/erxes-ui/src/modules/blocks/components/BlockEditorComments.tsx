@@ -12,6 +12,7 @@ import { components as blockNoteComponents } from '@blocknote/shadcn';
 import {
   ComponentProps as ReactComponentProps,
   forwardRef,
+  memo,
   ReactNode,
   useMemo,
   useState,
@@ -115,7 +116,10 @@ const CommentReaction = forwardRef<
       ref={ref}
       type="button"
       variant="outline"
-      className={cn('erxes-comment-reaction rounded-full gap-1', className)}
+      className={cn(
+        'bn-action-toolbar erxes-comment-reaction rounded-full gap-1',
+        className,
+      )}
       aria-pressed={isSelected}
       title={[mainTooltip, secondaryTooltip].filter(Boolean).join(' — ')}
       onClick={onClick}
@@ -127,6 +131,20 @@ const CommentReaction = forwardRef<
   ),
 );
 CommentReaction.displayName = 'CommentReaction';
+
+const CommentPopoverContent = ({
+  className,
+  ...props
+}: ComponentProps['Generic']['Popover']['Content']) => (
+  <blockNoteComponents.Generic.Popover.Content
+    {...props}
+    className={cn(
+      'bn-action-toolbar z-[5001]',
+      props.variant === 'panel-popover' && 'w-auto border-0 p-0 shadow-none',
+      className,
+    )}
+  />
+);
 
 const CommentDisplay = ({
   authorInfo,
@@ -241,8 +259,9 @@ const CommentComposer = () => {
   );
 };
 
-const CommentThread = (props: ReactComponentProps<typeof Thread>) =>
-  props.thread ? <Thread {...props} /> : null;
+const CommentThread = memo((props: ReactComponentProps<typeof Thread>) =>
+  props.thread ? <Thread {...props} /> : null,
+);
 
 const CommentEditor = (props: ComponentProps['Comments']['Editor']) => (
   <blockNoteComponents.Comments.Editor
@@ -282,6 +301,10 @@ export const BlockEditorComments = ({
         },
         Generic: {
           ...base.Generic,
+          Popover: {
+            ...base.Generic.Popover,
+            Content: CommentPopoverContent,
+          },
           Badge: {
             ...base.Generic.Badge,
             Root: CommentReaction,

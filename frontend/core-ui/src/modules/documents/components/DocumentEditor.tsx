@@ -307,8 +307,9 @@ const DocumentTitleEditor = ({
       rows={1}
       onChange={handleChange}
       onKeyDown={handleKeyDown}
+      aria-label={t('name')}
       placeholder={t('untitled')}
-      className="w-full min-w-0 flex-1 resize-none overflow-hidden border-none bg-transparent px-8 pb-3 pt-10 text-[2.25rem] font-bold leading-tight tracking-tight outline-hidden placeholder:text-muted-foreground/40 focus:outline-hidden focus:ring-0"
+      className="min-h-10 min-w-0 flex-1 resize-none overflow-hidden border-0 bg-transparent px-2 py-1 text-2xl font-semibold leading-tight tracking-tight text-foreground shadow-none placeholder:text-muted-foreground/50 hover:bg-accent/30 focus-visible:bg-accent/40 focus-visible:shadow-none read-only:hover:bg-transparent read-only:focus-visible:bg-transparent md:text-2xl"
     />
   );
 };
@@ -377,7 +378,7 @@ export const DocumentEditor = () => {
   return (
     <div className="flex h-full w-full overflow-hidden bg-background">
       <div className="flex min-h-0 min-w-0 flex-1 flex-col">
-        <div className="flex flex-none items-start gap-2 overflow-hidden">
+        <div className="flex flex-none flex-col gap-3 px-6 pb-4 pt-6 sm:flex-row sm:items-start sm:gap-4 sm:px-8">
           <Controller
             name="name"
             control={control}
@@ -392,27 +393,28 @@ export const DocumentEditor = () => {
             )}
           />
           {!readonly && (
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              className="mr-2 mt-10 shrink-0"
-              onClick={() => setCommentsOpen((open) => !open)}
-            >
-              {t('comments')}
-            </Button>
-          )}
-          {!readonly && !sidebarOpen && (
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              className="mr-5 mt-10 shrink-0 gap-1.5"
-              onClick={() => setSidebarOpen(true)}
-            >
-              {t('attributes')}
-              <IconLayoutSidebarRightExpand className="size-4" />
-            </Button>
+            <div className="flex shrink-0 items-center gap-2 sm:pt-1">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setCommentsOpen((open) => !open)}
+              >
+                {t('comments')}
+              </Button>
+              {!sidebarOpen && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="gap-1.5"
+                  onClick={() => setSidebarOpen(true)}
+                >
+                  {t('attributes')}
+                  <IconLayoutSidebarRightExpand className="size-4" />
+                </Button>
+              )}
+            </div>
           )}
         </div>
         <DocumentContentEditor
