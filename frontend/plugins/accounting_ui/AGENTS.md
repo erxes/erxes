@@ -6,7 +6,7 @@
 - **Project:** `accounting_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/accounting_ui`
-- **Last synchronized:** `2026-10-19`
+- **Last synchronized:** `2026-10-21`
 
 ## Scope
 
@@ -23,6 +23,8 @@
 - Other plugin UIs, routes, state, or implementation details.
 
 ## Current Capabilities
+
+- Inventory navigation includes `Ажлын гүйцэтгэл` at `/accounting/inventories/job-executions`, with searchable/status-filtered paginated records, multi-job create/edit/view sheets, independently scaled actual product/cost arrays, common date and inventory accounts/locations, confirmed post/undo/delete actions, and linked transaction navigation. No planned-quantity disclosure or duplicate plan state is rendered.
 
 - Uses statically analyzable typed GraphQL documents with generated operation result and variable types; build, serve, and contract tests regenerate them automatically.
 - Rspack awaits accounting schema export and codegen before its first build or watch compilation, including remotes launched directly by the Module Federation host without Nx task dependencies.
@@ -50,7 +52,7 @@
 - Accounting sync settings include a deal movement rule page that captures the target sales stage, source/destination inventory accounts, default source/destination branch and department, and whether deal/product branch and department apply to the movement source or destination; deal movement check/resync uses its own `/accounting/check-sync/deal-movement` route and rule picker.
 - The inventory cost adjustment journal has an independent form, supports single or bulk product selection, hides quantity input, shows current remainder and unit cost, accepts a per-unit cost delta, calculates the after-adjustment unit cost, and submits cost-only rows.
 - Safe remainder counting opens one import sheet with separate TXT and CSV tabs; TXT and CSV rows with blank total cost default counted total cost from active unit cost and counted quantity, while CSV accepts explicit `totalCost` and legacy `unitCost` aliases.
-- Settings expose `Бараа материал` alongside Accounting and `Үндсэн хөрөнгө` as an independent entry at `/accounting/settings/inventories`, with its own `Дамжлага` sidebar item at `/accounting/settings/inventories/tech-cards`. Users can create, edit, list, and delete production-stage technology cards with `Орц бараа` and `Гарц бараа`, units, quantities, output cost-allocation ratios, and duration. The former `/accounting/settings/config/tech-cards` route redirects to this page.
+- Settings expose `Бараа материал` alongside Accounting and `Үндсэн хөрөнгө` as an independent entry at `/accounting/settings/inventories`, with its own `Ажил` sidebar item at `/accounting/settings/inventories/jobs`. Users can create, edit, list, and delete production-stage jobs with `Орц бараа` and `Гарц бараа`, units, quantities, output cost-allocation ratios, and duration.
 - Safe remainder detail tables expose persistent user-controlled column order and subtly highlight editable counted quantity and total-cost inputs.
 - Safe remainder quantity and counted total cost are the editable census values; derived debit/credit and adjustment amounts are read-only previews, and detail actions disable together while any census mutation is running.
 - Inventory income can allocate additional expenses by amount, count, or editable total line weight; line weight initializes from core product weight multiplied by count.
@@ -86,7 +88,7 @@
 | Inventory splitting | `src/modules/transactions/transaction-form/components/forms/InventorySplit.tsx` | Owns split form context, row settings, batched unit lookup, ratio calculation, and unsaved follow previews.     |
 | Cost adjustment     | `src/modules/transactions/transaction-form/components/forms/InvJustifyForm`     | Owns inventory cost-adjustment fields, product rows, calculations, bulk add, and removal UI.                    |
 | Safe remainders     | `src/modules/inventories/safeRemainders/components/SafeRemainderDetail.tsx`     | Coordinates inventory count detail data, status actions, header, and extracted tab/import surfaces.             |
-| Technology cards    | `src/modules/settings/tech-cards`                                               | Owns inventory technology card settings list, form, GraphQL documents, and mutation hooks.                      |
+| Jobs    | `src/modules/settings/jobs`                                               | Owns inventory job settings list, form, GraphQL documents, and mutation hooks.                      |
 | Census tables       | `src/modules/inventories/safeRemainders/components/SafeRemainderDetailTabs.tsx` | Owns declarative count/income/out/sale/adjustment table configuration, filtering, pagination, and hotkeys.      |
 | Census calculations | `src/modules/inventories/safeRemainders/utils/safeRemainderTransactions.ts`     | Calculates frontend transaction previews from count and total-value differences.                                |
 | Transaction export  | `src/pages/TransactionListPage.tsx`, `src/pages/TrRecordListPage.tsx`           | Provides filtered and selected-row export actions for main and journal record lists.                            |
@@ -112,15 +114,17 @@
 
 ### Consumes
 
+- Production processes use `jobExecutions`, `jobExecutionSave`, `jobExecutionPost`, `jobExecutionUndo`, and `jobExecutionRemove` through generated GraphQL documents; mutations refetch the list before success completion.
+
 - `backend/plugins/accounting_api/generated/schema.graphql` is the accounting contract; `schema/platform.graphql` snapshots only consumed public Core, Sales, and Mongolian fields, with authoritative SDL source comments. Update this local snapshot when those published contracts change; never import another plugin's source at runtime.
 - `codegen.ts` generates ignored `src/gql/` documents and types. Import `gql` from `~/gql` and operation types from `~/gql/graphql`; do not import `gql` from Apollo or handwrite GraphQL response interfaces.
 - Accounting API GraphQL contracts for transactions, reports, settings, inventory/fixed asset adjustments, fund rate adjustments, and debt rate adjustments, including journal report `trKind`, grouped drill-down, `ptrId`, and detail-row filters.
 - Inventory cost adjustment transactions consume the `invJustify` journal contract and the existing `getAccCurrentCost` helper for current unit cost and remainder display; debit means cost increase and credit means cost decrease.
 - Safe remainder item `trInfo` consumes optional active/target total cost, explicit-cost state, last income price, sale flag, and sale price metadata; CSV import sends editable counted-cost/sale metadata while active cost remains backend-derived.
-- Technology card settings consume `techCards`, `techCardDetail`, `techCardAdd`, `techCardEdit`, and `techCardRemove`; create/edit/remove mutations refetch `AccountingTechCards` and show toast feedback.
-- `Дамжлага задгай` at `/accounting/settings/inventories/tech-card-outputs` consumes `techCardOutputs`, displays one source-card/output row with unit, quantity, cost ratio, and duration, and opens the source card editor. Both card views share URL filters for `searchValue`, `laborCostName`, `overheadCostName`, `inputProductId`, `outputProductId`, and `durationType`; mutations refetch both `AccountingTechCards` and `AccountingTechCardOutputs`.
-- Technology card list pages use `PageContainer`/`PageSubHeader`, `SettingsRowsTable`, and shared `Empty` states. Duration selection belongs to the shared `Filter`/`Command` flow alongside other filters; retain shared component styling rather than fixed-width standalone selectors or custom table padding.
-- Technology card labels, navigation, filters, accessibility text, confirmation/toast messages, and validation use English-based keys in the `accounting` namespace, with EN/MN resources in gateway `src/locales/{en,mn}/accounting.json`. `getTechCardFormSchema(t)` constructs localized validation; persisted duration/status codes and product/unit data are independent of display language.
+- Job settings consume `jobs`, `jobDetail`, `jobAdd`, `jobEdit`, and `jobRemove`; create/edit/remove mutations refetch `AccountingJobs` and show toast feedback.
+- `Ажил задгай` at `/accounting/settings/inventories/job-outputs` consumes `jobOutputs`, displays one source-card/output row with unit, quantity, cost ratio, and duration, and opens the source card editor. Both card views share URL filters for `searchValue`, `laborCostName`, `overheadCostName`, `inputProductId`, `outputProductId`, and `durationType`; mutations refetch both `AccountingJobs` and `AccountingJobOutputs`.
+- Job list pages use `PageContainer`/`PageSubHeader`, `SettingsRowsTable`, and shared `Empty` states. Duration selection belongs to the shared `Filter`/`Command` flow alongside other filters; retain shared component styling rather than fixed-width standalone selectors or custom table padding.
+- Job labels, navigation, filters, accessibility text, confirmation/toast messages, and validation use English-based keys in the `accounting` namespace, with EN/MN resources in gateway `src/locales/{en,mn}/accounting.json`. `getJobFormSchema(t)` constructs localized validation; persisted duration/status codes and product/unit data are independent of display language.
 - Platform import/export contract for `accounting:account.transactions` filtered and selected-id exports.
 - Fixed asset location remainder contract `fixedAssetLocationRemainder(fixedAssetId, branchId, departmentId, date, excludeTransactionId)` for disposal/move/sale row count limits.
 - Fixed asset location remainder list contract `fixedAssetLocationRemainders(searchValue, fixedAssetId, categoryId, branchId, departmentId, date, limit)` for the fixed asset remainder page.
@@ -148,14 +152,14 @@
 - Deal movement sync settings persist under the accounting config code `syncDealMovement`; each row uses the configured stage id as its config `subId`, and the check/resync page keeps a separate filter/table session from regular deal sync.
 - Inventory cost adjustment detail state stores `count: 0`, `unitPrice` as the absolute per-unit cost delta, and `amount` as delta multiplied by current remainder; quantity is display-only, while editing after-unit cost derives the delta and increase/decrease side from its difference against current unit cost.
 - Safe remainder blank counted cost defaults proportionally from active total cost; when quantity increases while active total is zero, the increased quantity uses `lastIncomePrice`. Explicit manual or CSV total cost, including zero, must bypass this fallback.
-- Technology card form state is owned by React Hook Form and Zod; each card keeps separate `inputs` and `outputs` arrays, with output rows carrying raw cost-allocation ratios that default to one. Ratios have no percentage cap and must have a positive finite total; a row's allocation share is its ratio divided by that total.
-- Technology card GraphQL documents share the `AccountingTechCardFields` fragment; selections must remain statically readable by the accounting GraphQL codegen pipeline.
-- The plugin's platform SDL snapshot includes core product `subUoms` and the `uoms` query consumed by technology card unit selection.
-- Technology card duration selectors expose `real`, `minut`, `hour`, and `day`. `real` hides and clears duration; fixed units require a non-negative duration. Create defaults to `minut`, and edit normalizes the legacy `минут` value to that option.
-- Technology card forms render separate `Хөдөлмөр` (`laborCosts`) and `Нэмэгдэл` (`overheadCosts`) editable tables. Each group supports any number of named amount/account rows, including none. Added rows require name, non-negative amount, and a write-permitted posting account; GraphQL uses only these arrays with no scalar cost/account fields or conversions.
-- Each technology card cost table has a shared `Switch` that controls visibility only. Empty groups start collapsed; form reset/detail loading initializes each switch from that group's saved rows. Hiding preserves rows, removing the final row leaves the current switch state unchanged, and group validation errors reveal the table.
-- Technology card edit forms initialize all row arrays to empty before asynchronous detail loading. Product-unit synchronization must tolerate unset/reset arrays and preserve already selected units when detail data arrives.
-- Technology card forms batch selected input/output product `uom` and `subUoms` lookups through `AccountingTechCardProductUnits`. Selecting a different product clears the previous unit and defaults to its main unit when loaded; existing saved unit choices remain intact. Unit selectors offer the product's main and additional units, display master-unit names, and store unit codes.
+- Job form state is owned by React Hook Form and Zod; each card keeps separate `inputs` and `outputs` arrays, with output rows carrying raw cost-allocation ratios that default to one. Ratios have no percentage cap and must have a positive finite total; a row's allocation share is its ratio divided by that total.
+- Job GraphQL documents share the `AccountingJobFields` fragment; selections must remain statically readable by the accounting GraphQL codegen pipeline.
+- The plugin's platform SDL snapshot includes core product `subUoms` and the `uoms` query consumed by job unit selection.
+- Job duration selectors expose `real`, `minut`, `hour`, and `day`. `real` hides and clears duration; fixed units require a non-negative duration. Create defaults to `minut`.
+- Job forms render separate `Хөдөлмөр` (`laborCosts`) and `Нэмэгдэл` (`overheadCosts`) editable tables. Each group supports any number of named amount/account rows, including none. Added rows require name, non-negative amount, and a write-permitted posting account; GraphQL uses only these arrays with no scalar cost/account fields or conversions.
+- Each job cost table has a shared `Switch` that controls visibility only. Empty groups start collapsed; form reset/detail loading initializes each switch from that group's saved rows. Hiding preserves rows, removing the final row leaves the current switch state unchanged, and group validation errors reveal the table.
+- Job edit forms initialize all row arrays to empty before asynchronous detail loading. Product-unit synchronization must tolerate unset/reset arrays and preserve already selected units when detail data arrives.
+- Job forms batch selected input/output product `uom` and `subUoms` lookups through `AccountingJobProductUnits`. Selecting a different product clears the previous unit and defaults to its main unit when loaded; existing saved unit choices remain intact. Unit selectors offer the product's main and additional units, display master-unit names, and store unit codes.
 - Safe remainder transaction labels and cost tabs must normalize adjustment differences from `-0.005` through `0.005` to zero, matching backend journal generation.
 - Inventory row defaults initialize count to one; bulk-added rows also initialize all count-derived amount and weight values, batch journal-specific last-price, product, or current-cost lookup before append, and preserve sale/sale-return follow-journal unit cost by generated detail id.
 - Jotai atoms under `src/modules/transactions/transaction-form/states` hold transaction form UI state, tax percentages, follow transactions, and rendering selections.
@@ -165,10 +169,45 @@
 
 ## Local Invariants
 
-- The output-unwound technology card list alone exposes the translated `duplicatedOutput` yes/no filter. Its leading `more` column shares `TechCardActions` with the card list: edit and confirmed delete target the source card id, not the derived output-row id; mutations refetch both lists.
+- Execution detail sheets pass `readOnlyCostRatio` to the shared job form. Output allocation ratios render as plain inline values immediately after product in an 80px column with a wrapping heading, before unit/quantity, so input and output unit/quantity tracks align. Job master settings retain editable ratios.
 
-- Technology card list filters use localized menu labels and dialog titles/actions. Both card and output lists accept status plus `hasLabor`/`hasOverhead`; URL strings `true` and `false` become explicit GraphQL booleans, and false remains an active filter.
-- Both technology card tables display `real` duration without a numeric value; fixed-duration labels preserve the translated unit and use `-` when the numeric value is missing.
+- The execution quantity column has a 170px minimum width so the full production-quantity header fits even when older table preferences contain a narrower saved width; its header must not overflow past the final body cell.
+
+- Execution metadata uses a responsive three-track grid: date occupies one track and the single-line `Input` description occupies two. Execution table source order comes from `JOB_EXECUTION_COLUMN_ORDER`; existing user preferences still win. Side-column headings use short Inputs/Outputs labels, with local MN fallbacks Орц/Гарц.
+
+- Execution table column management renders in the leading action column header, not `showColumnSelector`'s data-header overlay, so header/body text align. Shared checkbox/check-all and `ExecutionCommandbar` expose post/undo/delete with all-selected eligibility. Posted/error deletion requires both manage/remove permissions and confirms undo before removal. Bulk writes are sequential, stop on first failure, refresh the list, report completed counts, and clear only successfully processed selections.
+
+- The execution list enables the shared table column selector under its existing preference key. Input/output account, branch and department columns use read-only inline name resolvers; jobs retain comma-separated names and quantities retain matching job order separated by ` | `.
+
+- New and editable execution forms offer draft-save and save-with-transactions actions through explicit button clicks only; field changes, blur, Enter and incidental form submits must not persist anything. A posted draft-save confirms, saves current actuals, then undoes its journals; undo persists the resulting draft status. Save-with-transactions updates an already posted execution without posting twice, or posts a saved draft using its returned id. Both paths refresh the list. Once a save has persisted, a later failure closes to the refreshed list rather than allowing a stale-state retry. List post actions are hidden when posted or already linked to a parent.
+
+- Execution job-id filtering uses the searchable shared job command content, not an id text input. The filter offers active and inactive master jobs, stores only `jobId` in the URL, and resolves the selected code/name for its chip; creation still offers active jobs only. Saved job-name text filtering remains separate.
+
+- Execution list filters are URL-owned through `useJobExecutionFilters`: search/status, exact job id, saved job name, input/output product, labor/overhead name, and each side's account/branch/department. The same variables drive initial queries and fetch-more; use localized shared filter dialogs/selectors rather than standalone filter inputs. Account filter choices use readable inventory accounts.
+
+- The main job execution sheet uses `sm:max-w-5xl`; its nested row-actuals sheet uses the narrower `sm:max-w-3xl` so both levels remain visually distinct while product tables retain horizontal scrolling.
+
+- Job execution input/output account selectors are single-value selectors restricted to active, write-permitted `JournalEnum.INVENTORY` accounts using the same `journals` filter as inventory transaction forms.
+
+- Job execution sheets give the root form `bg-background` and use the safe remainder form's padded footer. Their operational list uses the shared `Filter` bar for search/status, `RecordTable.MoreButton` row actions, and the inventory list's `m-3` table spacing; do not replace these with standalone full-size filter inputs or sheet-surface backgrounds.
+
+- Job execution forms use the same shared `DatePicker`, `SelectAccount.FormItem`, branch/department form selectors, `Combobox.Trigger` and sheet footer patterns as other accounting forms. Jobs render as a shared `Table` with job/quantity cells and a leading `RecordTable.MoreButton` opening that row's actual input/output/cost sheet. Row form state lives outside the sheet so closing it preserves edits; saving validates unopened rows and opens invalid detail sheets. Date form state is a validated `Date` and preserves an existing timestamp when unchanged.
+
+- Job recipe units offer the product main and additional units. Execution editors pass `baseUnitsOnly` to the shared tables: copied subunit quantities convert by `subUoms.ratio` after metadata loads, main units are read-only, and subsequent base edits/scaling never apply the ratio again. The API normalizes rows on save; posting consumes those saved quantities without conversion.
+
+- `/accounting/settings/inventories/jobs` and `job-outputs` are the job master routes, with edit selection in `job_id`. Execution routes and table preference ids use job/job-execution names only; do not retain redirects or preference keys from earlier development names. Job documents use generated `~/gql` operations and null-safe view normalization; unknown product sub-UOM JSON is validated before use.
+- Execution editors reuse embedded job product/cost tables without rendering a second HTML form, ignored per-job description input, or a per-job save footer. Saving validates every mounted job and refreshes `AccountingJobExecutions`.
+- Both draft and posted execution rows open the editor for users with manage permission. Saving a posted execution updates its linked transaction group; posting/undoing/error records stay read-only. Save failures refetch the list so a partial-update error state is immediately visible.
+- Product and cost inline popovers have per-instance React ids in their scope keys so simultaneous job forms never open/edit one another's cells.
+
+- Production uses the `inventories/job-executions` module, `JobExecutionsPage`, `AccountingJobExecutions` query and `jobExecution` permissions at `/accounting/inventories/job-executions`.
+
+- Execution forms compose embedded `JobForm` tables per job with no nested HTML forms. Root metadata and job selections/quantities use React Hook Form/Zod; every child form validates before saving. Quantity edits scale only that row, and removing a row leaves others intact.
+
+- The output-unwound job list alone exposes the translated `duplicatedOutput` yes/no filter. Its leading `more` column shares `JobActions` with the card list: edit and confirmed delete target the source card id, not the derived output-row id; mutations refetch both lists.
+
+- Job list filters use localized menu labels and dialog titles/actions. Both card and output lists accept status plus `hasLabor`/`hasOverhead`; URL strings `true` and `false` become explicit GraphQL booleans, and false remains an active filter.
+- Both job tables display `real` duration without a numeric value; fixed-duration labels preserve the translated unit and use `-` when the numeric value is missing.
 
 - The plugin owns its whole app sidebar. `src/modules/AccountingMain.tsx` (the `./accounting`
   expose) wraps its routes in `erxes-ui` `AppLayout` (`id="accounting"`) with
@@ -206,7 +245,7 @@
 - GraphQL operation names in new accounting UI code must be prefixed with `Accounting`.
 - Safe remainder TXT imports must remain headerless `code,count` and preserve the backend-derived current total cost; CSV imports require `productCode,count,totalCost,isSale,unitPrice`, accept legacy `unitCost` or `trInfo.unitCost` as total-cost aliases, and must never accept `activeCost` as authoritative file input.
 - Safe remainder table source order is the fallback for browsers without saved preferences; existing user-controlled column order must continue to override that fallback through the stable versioned table preference key.
-- Technology card settings must render `Орц бараа` and `Гарц бараа` as separate editable `erxes-ui` `Table` sections with product, unit, quantity, and row-removal columns, plus output-only `Өртгийн харьцаа` without a percent sign. Match transaction product rows with unpadded cells, ghost `SelectProduct` selectors, and `PopoverScoped`/`RecordTableInlineCell` editors. Keep at least one input and one output row, default new quantities to one, preserve field-level validation messages, and allow horizontal scrolling on narrow screens.
+- Job settings must render `Орц бараа` and `Гарц бараа` as separate editable `erxes-ui` `Table` sections with product, unit, quantity, and row-removal columns, plus output-only `Өртгийн харьцаа` without a percent sign. Match transaction product rows with unpadded cells, ghost `SelectProduct` selectors, and `PopoverScoped`/`RecordTableInlineCell` editors. Keep at least one input and one output row, default new quantities to one, preserve field-level validation messages, and allow horizontal scrolling on narrow screens.
 - Safe remainder income debit value must remain derived from counted total cost; it must not expose a second editor for the same target value.
 - Create/update/remove/calculate/run mutations must show success/error feedback and refresh or subscribe so users do not need a manual reload.
 - Transaction form save buttons must visually distinguish draft-group statuses without changing the create/update submit path.
@@ -265,8 +304,10 @@
 
 ## Validation
 
+- Smoke scenario: add jobs A at quantity 5 and B at quantity 10, save/reopen and post once. Edit posted actuals and confirm linked journals update under the same parent/pointer and the list refreshes. Read-only users and posting/undoing/error records cannot edit; undo allows draft deletion.
+
 - `pnpm nx run accounting_ui:codegen --skip-nx-cache`
-- `pnpm nx lint accounting_ui`
+- No Nx lint target is defined; run `pnpm exec eslint` on changed TypeScript paths.
 - `pnpm nx test accounting_ui`
 - `pnpm nx build accounting_ui`
 - `pnpm exec tsc -p frontend/plugins/accounting_ui/tsconfig.app.json --noEmit --pretty false`
@@ -288,4 +329,4 @@
 - Smoke scenario: generate every journal report with and without "Дэлгэрэнгүй", "Хоосон мөр харуулах", and "Гүйлгээний төрөл"; verify parent/footer totals remain correct, double-click a summary row to reopen the same report with all row hierarchy filters and detailed mode, then double-click a detailed transaction to open its edit screen.
 - Smoke scenario: generate each journal report with filters, optionally expand account-statement details, click "Excel татах", and verify the downloaded `.xlsx` contains the visible headers, grouped rows, calculated totals, and expanded detail rows.
 - Smoke scenario: import a headerless `code,count` TXT and verify it retains system total cost, then import a `productCode,count,totalCost,isSale,unitPrice` CSV and verify positive total-value differences are absorbed by income, negative income is floored at zero with the remainder shown under adjustment subtract, and out/sale rows derive unit cost from current total cost before remaining add/subtract adjustments.
-- Smoke scenario: select the independent `Бараа материал` settings entry, verify it opens `/accounting/settings/inventories/tech-cards` with its own `Дамжлага` sidebar item, create a card with multiple input and output products at ratios `1, 1, 2`, edit quantities/duration/cost ratios including totals above 100, verify the list refreshes without manual reload, then remove the card and confirm it disappears.
+- Smoke scenario: select the independent `Бараа материал` settings entry, verify it opens `/accounting/settings/inventories/jobs` with its own `Дамжлага` sidebar item, create a card with multiple input and output products at ratios `1, 1, 2`, edit quantities/duration/cost ratios including totals above 100, verify the list refreshes without manual reload, then remove the card and confirm it disappears.

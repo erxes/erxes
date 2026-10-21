@@ -82,6 +82,7 @@ export const commonRemoveValidation = async (
 function getJournalHandler(journal: string) {
   const handlers: Record<string, TJournalRemoveHandler> = {
     main: handleNone,
+    tax: handleNone,
     cash: handleNone,
     bank: handleNone,
     receivable: handleNone,

@@ -104,14 +104,19 @@ export const CONFIG: IUIConfig = {
       path: 'accounting/settings/fixed-assets',
     },
     {
-      name: 'inventory-tech-cards',
+      name: 'inventory-jobs',
       icon: IconFlagStar,
       path: 'accounting/settings/inventories',
     },
     {
-      name: 'inventory-tech-card-outputs',
+      name: 'job-executions',
       icon: IconFlagStar,
-      path: 'accounting/settings/inventories/tech-card-outputs',
+      path: 'accounting/inventories/job-executions',
+    },
+    {
+      name: 'inventory-job-outputs',
+      icon: IconFlagStar,
+      path: 'accounting/settings/inventories/job-outputs',
     },
   ],
   widgets: {

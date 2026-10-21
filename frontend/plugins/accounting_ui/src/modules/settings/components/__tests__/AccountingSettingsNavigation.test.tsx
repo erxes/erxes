@@ -39,8 +39,8 @@ jest.mock('@/settings/vat/components/AddVats', () => ({ AddVats: () => null }));
 jest.mock('@/settings/ctax/components/AddCtaxs', () => ({
   AddCtaxs: () => null,
 }));
-jest.mock('@/settings/tech-cards/components/AddTechCard', () => ({
-  AddTechCard: () => <button>Add technology card</button>,
+jest.mock('@/settings/jobs/components/AddJob', () => ({
+  AddJob: () => <button>Add technology card</button>,
 }));
 jest.mock('../../syncSettings/AddAccountingConfig', () => ({
   AddAccountingConfig: ({ code }: { code: string }) => <button>{code}</button>,
@@ -62,15 +62,13 @@ test('settings links use the plugin-owned prefix and retain inventory', () => {
 test.each(Object.keys(INVENTORY_SETTINGS_ROUTES))(
   'retains the add-card action on %s',
   (pathname) => {
-    jest
-      .mocked(useLocation)
-      .mockReturnValue({
-        pathname,
-        search: '',
-        hash: '',
-        state: null,
-        key: 'test',
-      });
+    jest.mocked(useLocation).mockReturnValue({
+      pathname,
+      search: '',
+      hash: '',
+      state: null,
+      key: 'test',
+    });
     render(<AccountingTopbar />);
     expect(
       screen.getByRole('button', { name: 'Add technology card' }),
@@ -79,15 +77,13 @@ test.each(Object.keys(INVENTORY_SETTINGS_ROUTES))(
 );
 
 test('retains the sync-deal action at the new settings location', () => {
-  jest
-    .mocked(useLocation)
-    .mockReturnValue({
-      pathname: '/accounting/settings/config/sync-deal',
-      search: '',
-      hash: '',
-      state: null,
-      key: 'test',
-    });
+  jest.mocked(useLocation).mockReturnValue({
+    pathname: '/accounting/settings/config/sync-deal',
+    search: '',
+    hash: '',
+    state: null,
+    key: 'test',
+  });
   render(<AccountingTopbar />);
   expect(screen.getByRole('button', { name: 'syncDeal' })).toBeTruthy();
 });

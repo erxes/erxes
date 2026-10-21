@@ -16,9 +16,9 @@ export const SETTINGS_ROUTES = {
 };
 
 export const INVENTORY_SETTINGS_ROUTES = {
-  '/accounting/settings/inventories/tech-cards': 'tech-card-production-stage',
-  '/accounting/settings/inventories/tech-card-outputs':
-    'tech-card-production-stage-outputs',
+  '/accounting/settings/inventories/jobs': 'job-production-stage',
+  '/accounting/settings/inventories/job-outputs':
+    'job-production-stage-outputs',
 };
 
 export enum ACCOUNTING_SETTINGS_CODES {

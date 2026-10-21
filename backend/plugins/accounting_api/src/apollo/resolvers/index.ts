@@ -41,24 +41,26 @@ import ReserveRem from '@/inventories/graphql/resolvers/customResolvers/reserveR
 import SafeRemainderItem from '@/inventories/graphql/resolvers/customResolvers/safeRemainderItem';
 import SafeRemainder from '@/inventories/graphql/resolvers/customResolvers/safeRemainder';
 import {
-  TechCard,
-  TechCardItem,
-} from '@/inventories/graphql/resolvers/customResolvers/techCard';
+  Job,
+  JobItem,
+} from '@/inventories/graphql/resolvers/customResolvers/job';
 import {
   ReserveRems as QueriesReserveRem,
   SafeRemainderItems as QueriesSafeRemainderItem,
   SafeRemainders as QueriesSafeRemainder,
-  TechCards as QueriesTechCard,
+  Jobs as QueriesJob,
 } from '@/inventories/graphql/resolvers/queries';
 import {
   Remainders as MutationsRemainder,
   ReserveRems as MutationsReserveRem,
   SafeRemainderItems as MutationsSafeRemainderItem,
   SafeRemainders as MutationsSafeRemainder,
-  TechCards as MutationsTechCard,
+  Jobs as MutationsJob,
 } from '@/inventories/graphql/resolvers/mutations';
 import adjustClosingEntryMutations from '~/modules/accounting/graphql/resolvers/mutations/adjustClosing';
 import MutationsFixedAssets from '~/modules/fixedAssets/graphql/resolvers/mutations/fixedAssets';
+import { JobExecutions as jobExecutionMutations } from '@/inventories/graphql/resolvers/mutations';
+import { JobExecutions as jobExecutionQueries } from '@/inventories/graphql/resolvers/queries';
 import QueriesFixedAssets from '~/modules/fixedAssets/graphql/resolvers/queries/fixedAssets';
 
 const resolvers: any = {
@@ -75,8 +77,8 @@ const resolvers: any = {
   ReserveRem,
   SafeRemainderItem,
   SafeRemainder,
-  TechCardItem,
-  TechCard,
+  JobItem,
+  Job,
 
   Mutation: {
     ...MutationsAccountCategory,
@@ -95,7 +97,8 @@ const resolvers: any = {
     ...MutationsReserveRem,
     ...MutationsSafeRemainderItem,
     ...MutationsSafeRemainder,
-    ...MutationsTechCard,
+    ...MutationsJob,
+    ...jobExecutionMutations,
     ...adjustClosingEntryMutations,
     ...MutationsFixedAssets,
   },
@@ -117,7 +120,8 @@ const resolvers: any = {
     ...QueriesReserveRem,
     ...QueriesSafeRemainderItem,
     ...QueriesSafeRemainder,
-    ...QueriesTechCard,
+    ...QueriesJob,
+    ...jobExecutionQueries,
     ...QueriesFixedAssets,
   },
 };

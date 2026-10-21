@@ -84,9 +84,9 @@ const Permissions = lazy(() =>
   })),
 );
 
-const TechCards = lazy(() =>
-  import('~/pages/TechCardsPage').then((module) => ({
-    default: module.TechCardsPage,
+const Jobs = lazy(() =>
+  import('~/pages/JobsPage').then((module) => ({
+    default: module.JobsPage,
   })),
 );
 
@@ -190,24 +190,15 @@ const AccountingSubSettings = () => {
                   path="/inventories"
                   element={
                     <Navigate
-                      to="/accounting/settings/inventories/tech-cards"
+                      to="/accounting/settings/inventories/jobs"
                       replace
                     />
                   }
                 />
-                <Route path="/inventories/tech-cards" element={<TechCards />} />
+                <Route path="/inventories/jobs" element={<Jobs />} />
                 <Route
-                  path="/inventories/tech-card-outputs"
-                  element={<TechCards unwindOutputs />}
-                />
-                <Route
-                  path="/config/tech-cards"
-                  element={
-                    <Navigate
-                      to="/accounting/settings/inventories/tech-cards"
-                      replace
-                    />
-                  }
+                  path="/inventories/job-outputs"
+                  element={<Jobs unwindOutputs />}
                 />
               </Routes>
             </Suspense>
@@ -218,12 +209,10 @@ const AccountingSubSettings = () => {
   );
 };
 
-const AccountingSettings = () => {
+export const AccountingSettings = () => {
   return (
     <Routes>
       <Route path="/*" element={<AccountingSubSettings />} />
     </Routes>
   );
 };
-
-export default AccountingSettings;

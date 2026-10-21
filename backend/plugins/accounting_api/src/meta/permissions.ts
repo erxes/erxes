@@ -76,10 +76,16 @@ const SAFE_REMAINDER_ACTIONS = {
   viewItemCounts: 'viewSafeRemainderItemCounts',
 } as const;
 
-const TECH_CARD_ACTIONS = {
-  read: 'readTechCards',
-  manage: 'manageTechCards',
-  remove: 'removeTechCards',
+const JOB_ACTIONS = {
+  read: 'readJobs',
+  manage: 'manageJobs',
+  remove: 'removeJobs',
+} as const;
+
+const JOB_EXECUTION_ACTIONS = {
+  read: 'readJobExecutions',
+  manage: 'manageJobExecutions',
+  remove: 'removeJobExecutions',
 } as const;
 
 const CONFIG_ACTIONS = {
@@ -111,7 +117,8 @@ const allAdjFundRateActions = Object.values(ADJ_FUND_RATE_ACTIONS);
 const allAdjDebtRateActions = Object.values(ADJ_DEBT_RATE_ACTIONS);
 const allAdjClosingActions = Object.values(ADJ_CLOSING_ACTIONS);
 const allSafeRemainderActions = Object.values(SAFE_REMAINDER_ACTIONS);
-const allTechCardActions = Object.values(TECH_CARD_ACTIONS);
+const allJobActions = Object.values(JOB_ACTIONS);
+const allJobExecutionActions = Object.values(JOB_EXECUTION_ACTIONS);
 const allConfigActions = Object.values(CONFIG_ACTIONS);
 const allCheckSyncActions = Object.values(CHECK_SYNC_ACTIONS);
 const allPermissionActions = Object.values(ACCOUNT_PERMISSION_ACTIONS);
@@ -520,28 +527,51 @@ export const permissions: IPermissionConfig = {
     },
     // --- config---
     {
-      name: 'techCard',
-      description: 'Inventory technology card management',
-      scopes: [
-        { name: 'own', description: 'Technology cards created by the user' },
-        { name: 'all', description: 'All technology cards' },
-      ],
+      name: 'jobExecution',
+      description: 'Inventory job executions',
+      scopes: [{ name: 'all', description: 'All job executions' }],
       actions: [
         {
-          title: 'View technology cards',
-          name: TECH_CARD_ACTIONS.read,
-          description: 'View inventory technology cards',
+          title: 'View job executions',
+          name: JOB_EXECUTION_ACTIONS.read,
+          description: 'View job executions',
           always: true,
         },
         {
-          title: 'Manage technology cards',
-          name: TECH_CARD_ACTIONS.manage,
-          description: 'Create and update inventory technology cards',
+          title: 'Manage job executions',
+          name: JOB_EXECUTION_ACTIONS.manage,
+          description: 'Create, edit, post and undo job executions',
         },
         {
-          title: 'Remove technology cards',
-          name: TECH_CARD_ACTIONS.remove,
-          description: 'Delete inventory technology cards',
+          title: 'Remove job executions',
+          name: JOB_EXECUTION_ACTIONS.remove,
+          description: 'Delete draft job executions',
+        },
+      ],
+    },
+    {
+      name: 'job',
+      description: 'Inventory job management',
+      scopes: [
+        { name: 'own', description: 'Jobs created by the user' },
+        { name: 'all', description: 'All jobs' },
+      ],
+      actions: [
+        {
+          title: 'View jobs',
+          name: JOB_ACTIONS.read,
+          description: 'View inventory jobs',
+          always: true,
+        },
+        {
+          title: 'Manage jobs',
+          name: JOB_ACTIONS.manage,
+          description: 'Create and update inventory jobs',
+        },
+        {
+          title: 'Remove jobs',
+          name: JOB_ACTIONS.remove,
+          description: 'Delete inventory jobs',
         },
       ],
     },
@@ -657,8 +687,14 @@ export const permissions: IPermissionConfig = {
         },
         {
           plugin: 'accounting',
-          module: 'techCard',
-          actions: [...allTechCardActions],
+          module: 'job',
+          actions: [...allJobActions],
+          scope: 'all',
+        },
+        {
+          plugin: 'accounting',
+          module: 'jobExecution',
+          actions: [...allJobExecutionActions],
           scope: 'all',
         },
         {
@@ -748,8 +784,14 @@ export const permissions: IPermissionConfig = {
         },
         {
           plugin: 'accounting',
-          module: 'techCard',
-          actions: [TECH_CARD_ACTIONS.read],
+          module: 'job',
+          actions: [JOB_ACTIONS.read],
+          scope: 'all',
+        },
+        {
+          plugin: 'accounting',
+          module: 'jobExecution',
+          actions: [JOB_EXECUTION_ACTIONS.read],
           scope: 'all',
         },
         {

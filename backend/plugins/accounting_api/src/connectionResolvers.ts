@@ -103,14 +103,14 @@ import {
   ISafeRemainderModel,
   loadSafeRemainderClass,
 } from './modules/inventories/db/models/SafeRemainders';
-import {
-  ITechCardModel,
-  loadTechCardClass,
-} from './modules/inventories/db/models/TechCards';
+import { IJobModel, loadJobClass } from './modules/inventories/db/models/Jobs';
 import { IReserveRemDocument } from './modules/inventories/@types/reserveRems';
 import { ISafeRemainderItemDocument } from './modules/inventories/@types/safeRemainderItems';
 import { ISafeRemainderDocument } from './modules/inventories/@types/safeRemainders';
-import { ITechCardDocument } from './modules/inventories/@types/techCards';
+import { IJobDocument } from './modules/inventories/@types/jobs';
+import { jobExecutionSchema } from './modules/inventories/db/definitions/jobExecutions';
+import { IJobExecutionDocument } from './modules/inventories/@types/jobExecutions';
+import { JobExecutionModel } from './modules/inventories/utils/jobExecutions';
 export interface IModels {
   Accounts: IAccountModel;
   Transactions: ITransactionModel;
@@ -134,7 +134,8 @@ export interface IModels {
   ReserveRems: IReserveRemModel;
   SafeRemainderItems: ISafeRemainderItemModel;
   SafeRemainders: ISafeRemainderModel;
-  TechCards: ITechCardModel;
+  Jobs: IJobModel;
+  JobExecutions: JobExecutionModel;
   AdjustClosings: IAdjustClosingEntryModel;
 }
 
@@ -273,9 +274,14 @@ export const loadClasses = (
     'safe_remainders',
     loadSafeRemainderClass(models),
   );
-  models.TechCards = db.model<ITechCardDocument, ITechCardModel>(
-    'tech_cards',
-    loadTechCardClass(models),
+  models.Jobs = db.model<IJobDocument, IJobModel>(
+    'inventories_jobs',
+    loadJobClass(models),
+  );
+  models.JobExecutions = db.model<IJobExecutionDocument, JobExecutionModel>(
+    'job_executions',
+    jobExecutionSchema,
+    'job_executions',
   );
 
   return models;

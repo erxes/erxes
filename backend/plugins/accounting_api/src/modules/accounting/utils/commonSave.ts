@@ -103,6 +103,7 @@ function getJournalHandler(journal: string) {
     }>
   > = {
     main: handleMain,
+    tax: handleMain,
     exchangeDiff: handleMain,
     cash: handleSingleTr,
     bank: handleSingleTr,
@@ -295,11 +296,17 @@ async function handleInvOut(
   doc: ITransaction,
   oldTr?: ITransactionDocument,
 ) {
-  const costedDoc = await applyActiveInventoryCosts(
-    models,
-    doc,
-    oldTr?._id ? [oldTr._id] : [],
-  );
+  const excludedIds = oldTr?._id ? [oldTr._id] : [];
+  if (oldTr?.parentId && doc.contentType === 'jobExecution') {
+    const linked = await models.Transactions.find(
+      { parentId: oldTr.parentId },
+      { _id: 1 },
+    ).lean();
+    excludedIds.push(...linked.map((transaction) => transaction._id));
+  }
+  const costedDoc = await applyActiveInventoryCosts(models, doc, [
+    ...new Set(excludedIds),
+  ]);
   const mainTr = await createOrUpdateTr(
     models,
     userId,

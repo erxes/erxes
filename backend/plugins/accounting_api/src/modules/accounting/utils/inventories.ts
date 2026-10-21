@@ -21,6 +21,7 @@ import {
   TR_STATUSES,
 } from '../@types/constants';
 import { ITransactionDocument, ITrDetail } from '../@types/transaction';
+import { reallocateJobExecutionIncome } from '../../inventories/utils/jobExecutionAdjustment';
 
 const RELATED_OUT_DEBIT_JOURNALS = [
   JOURNALS.MAIN,
@@ -787,7 +788,7 @@ export const getInventoryOutAdjustment = (
   };
 };
 
-const fixOutTrs = async (
+export const fixOutTrs = async (
   subdomain: string,
   models: IModels,
   {
@@ -803,6 +804,7 @@ const fixOutTrs = async (
 ) => {
   for (const outTrs of outAggrs) {
     const trIds: string[] = [];
+    const executions = new Map<string, string>();
     const { _id, records } = outTrs;
     const { accountId, branchId, departmentId, productId } = _id;
 
@@ -856,6 +858,12 @@ const fixOutTrs = async (
       remainder -= fixNum(count ?? 0);
       cost -= newCost;
 
+      if (rec.contentType === 'jobExecution') {
+        if (!rec.parentId || !rec.contentId)
+          throw new Error('Job execution transaction linkage is missing');
+        executions.set(rec.parentId, rec.contentId);
+      }
+
       if (preserveCost || newCost === amount) {
         continue;
       }
@@ -875,6 +883,10 @@ const fixOutTrs = async (
       );
 
       trIds.push(rec._id);
+
+      if (rec.contentType === 'jobExecution') {
+        continue;
+      }
 
       const relatedTrIds = await fixRelatedMainJournal(models, {
         ptrId: rec.ptrId,
@@ -896,6 +908,14 @@ const fixOutTrs = async (
       cost,
       unitCost,
     });
+    await [...executions].reduce<Promise<void>>(
+      (previous, [parentId, contentId]) => previous.then(async () => {
+        trIds.push(
+          ...await reallocateJobExecutionIncome(models, { adjustId, parentId, contentId }),
+        );
+      }),
+      Promise.resolve(),
+    );
     await afterCalc(models, trIds);
 
     if (trIds.length) {
