@@ -226,6 +226,17 @@ const types = `
     checks: JSON
   }
 
+  type AiAgentModelOption {
+    id: String!
+    group: String!
+    status: String!
+    suggestion: String
+    isDefault: Boolean
+    releasedAt: String
+    reasoning: Boolean
+    contextWindow: Int
+  }
+
   type AutomationWorkflowTemplate {
     _id: String!
     name: String!

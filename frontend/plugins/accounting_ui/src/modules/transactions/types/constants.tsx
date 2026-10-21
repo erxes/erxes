@@ -1,4 +1,14 @@
+import {
+  IconBook,
+  IconBuildingBank,
+  IconBuildingFactory2,
+  IconCalculator,
+  IconPackage,
+} from '@tabler/icons-react';
+import type { Icon } from '@tabler/icons-react';
+
 export const ACC_TRS__PER_PAGE = 30;
+export const RECEIPTS_STRUCTURE_PAGE_SIZE = 100;
 
 export enum TrJournalEnum {
   MAIN = 'main',
@@ -78,23 +88,135 @@ export const TR_PERFECT_JOURNALS = [
   TrJournalEnum.FXA_MOVE,
 ];
 
-export const ORIGIN_TR_JOURNALS = [
-  TrJournalEnum.MAIN,
-  TrJournalEnum.TAX,
-  TrJournalEnum.CASH,
-  TrJournalEnum.BANK,
-  TrJournalEnum.RECEIVABLE,
-  TrJournalEnum.PAYABLE,
-  TrJournalEnum.INV_INCOME,
-  TrJournalEnum.INV_OUT,
-  TrJournalEnum.INV_JUSTIFY,
-  TrJournalEnum.INV_MOVE,
-  TrJournalEnum.INV_SALE,
-  TrJournalEnum.INV_SALE_RETURN,
-  TrJournalEnum.FXA_INCOME,
-  TrJournalEnum.FXA_OUT,
-  TrJournalEnum.FXA_MOVE,
-  TrJournalEnum.FXA_SALE,
+export type TrJournalGroupItem = {
+  journal: TrJournalEnum;
+  label: string;
+  hideInForm?: boolean;
+  hideInAdd?: boolean;
+};
+
+export type TrJournalGroup = {
+  label: string;
+  icon: Icon;
+  items: TrJournalGroupItem[];
+};
+
+export const TR_JOURNAL_GROUPS: TrJournalGroup[] = [
+  {
+    label: 'general',
+    icon: IconBook,
+    items: [
+      { journal: TrJournalEnum.MAIN, label: 'general-journal' },
+      { journal: TrJournalEnum.TAX, label: 'tax', hideInAdd: true },
+    ],
+  },
+  {
+    label: 'cash-and-bank',
+    icon: IconBuildingBank,
+    items: [
+      { journal: TrJournalEnum.CASH, label: 'cash-label' },
+      { journal: TrJournalEnum.BANK, label: 'bank' },
+    ],
+  },
+  {
+    label: 'calculation',
+    icon: IconCalculator,
+    items: [
+      { journal: TrJournalEnum.RECEIVABLE, label: 'accounts-receivable' },
+      { journal: TrJournalEnum.PAYABLE, label: 'accounts-payable' },
+    ],
+  },
+  {
+    label: 'inventory-label',
+    icon: IconPackage,
+    items: [
+      { journal: TrJournalEnum.INV_INCOME, label: 'receipt' },
+      { journal: TrJournalEnum.INV_OUT, label: 'supplies-issue' },
+      { journal: TrJournalEnum.INV_JUSTIFY, label: 'cost-adjustment' },
+      {
+        journal: TrJournalEnum.INV_MOVE,
+        label: 'internal-transfer',
+        hideInForm: true,
+      },
+      { journal: TrJournalEnum.INV_SALE, label: 'sale' },
+      { journal: TrJournalEnum.INV_SALE_RETURN, label: 'sales-return' },
+    ],
+  },
+  {
+    label: 'fixed-asset',
+    icon: IconBuildingFactory2,
+    items: [
+      { journal: TrJournalEnum.FXA_INCOME, label: 'receipt' },
+      { journal: TrJournalEnum.FXA_OUT, label: 'disposal' },
+      { journal: TrJournalEnum.FXA_MOVE, label: 'movement' },
+      { journal: TrJournalEnum.FXA_SALE, label: 'sale' },
+    ],
+  },
+];
+
+export const ORIGIN_TR_JOURNALS = TR_JOURNAL_GROUPS.flatMap((group) =>
+  group.items.map((item) => item.journal),
+);
+
+export type TrRecordJournalGroup = {
+  label: string;
+  icon: Icon;
+  journals: TrJournalEnum[];
+};
+
+export const TR_RECORD_JOURNAL_GROUPS: TrRecordJournalGroup[] = [
+  {
+    label: 'general',
+    icon: IconBook,
+    journals: [
+      TrJournalEnum.MAIN,
+      TrJournalEnum.TAX,
+      TrJournalEnum.EXCHANGE_DIFF,
+    ],
+  },
+  {
+    label: 'cash-and-bank',
+    icon: IconBuildingBank,
+    journals: [TrJournalEnum.CASH, TrJournalEnum.BANK],
+  },
+  {
+    label: 'calculation',
+    icon: IconCalculator,
+    journals: [TrJournalEnum.RECEIVABLE, TrJournalEnum.PAYABLE],
+  },
+  {
+    label: 'inventory-label',
+    icon: IconPackage,
+    journals: [
+      TrJournalEnum.INV_INCOME,
+      TrJournalEnum.INV_OUT,
+      TrJournalEnum.INV_JUSTIFY,
+      TrJournalEnum.INV_MOVE,
+      TrJournalEnum.INV_MOVE_IN,
+      TrJournalEnum.INV_SALE,
+      TrJournalEnum.INV_SALE_OUT,
+      TrJournalEnum.INV_SALE_COST,
+      TrJournalEnum.INV_SALE_RETURN,
+      TrJournalEnum.INV_SALE_RETURN_OUT,
+      TrJournalEnum.INV_SALE_RETURN_COST,
+    ],
+  },
+  {
+    label: 'fixed-asset',
+    icon: IconBuildingFactory2,
+    journals: [
+      TrJournalEnum.FXA_INCOME,
+      TrJournalEnum.FXA_DEP_IN,
+      TrJournalEnum.FXA_OUT,
+      TrJournalEnum.FXA_DEP_OUT,
+      TrJournalEnum.FXA_DEP,
+      TrJournalEnum.FXA_MOVE,
+      TrJournalEnum.FXA_MOVE_IN,
+      TrJournalEnum.FXA_SALE,
+      TrJournalEnum.FXA_SALE_OUT,
+      TrJournalEnum.FXA_SALE_COST,
+    ],
+  },
 ];
 
 export const TR_SIDES = {

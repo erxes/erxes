@@ -8,6 +8,7 @@ query accountingAccountCategories($searchValue: String) {
     _id
     accountCount
     code
+    description
     isRoot
     name
     order
@@ -22,6 +23,7 @@ query accountingAccountCategoryDetail($id: String!) {
     _id
     accountCount
     code
+    description
     isRoot
     name
     order

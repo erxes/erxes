@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-10-19`
+- **Last synchronized:** `2026-10-21`
 
 ## Scope
 
@@ -374,6 +374,20 @@
 - Logs Facebook Graph delivery failures with provider error metadata and request
   context while excluding outbound message content; comment-triggered bot flows
   do not send Messenger typing indicators.
+- Marks a Facebook or Instagram integration broken through
+  `FacebookIntegrations.markUnhealthy` / `InstagramIntegrations.markUnhealthy`
+  (`selector`, `'page-token' | 'account-token'`, `error`). On the
+  healthy → broken transition only, `notifyIntegrationBroken`
+  (`src/modules/integrations/healthNotification.ts`) sends an `urgent`
+  `integrationHealthBroken` notification to the members of the integration's
+  channel; it stays one unread notification per integration until read.
+- `facebookGetPages` and `instagramGetPages` throw the Graph error (prefixed
+  `Facebook:` / `Instagram:`) instead of returning an empty list, and each
+  page carries `usage` (`IntegrationPageUsage`: integration id/name, channel
+  id/name of the inbox integration already holding it), built by
+  `getPageUsage` in `src/modules/integrations/pageUsage.ts`.
+- Facebook automation actions that fail on an access token report
+  `PROVIDER_ERROR` instead of `UNKNOWN`.
 - Boots the Call app and the Discord gateway client from `onServerInit`.
 - Runs the **mail** channel: an inbox owns a generated catch-all address, a
   Cloudflare Worker posts every delivery to `POST /mail/receive` under an HMAC
@@ -1083,7 +1097,24 @@ errors }` — `missingInErxes` is the number of Meta posts this deployment has
   this service: it may import only packages the gateway resolves
   (`erxes-api-shared/utils`, `graphql-subscriptions`), never `~/` or `@/` plugin
   paths. Anything that needs models goes through a frontline tRPC procedure via
-  `sendTRPCMessage`.
+  `sendTRPCMessage`. Keep it free of TypeScript-only syntax (type aliases,
+  annotations, `as` casts): in development the gateway saves the raw `.ts`
+  source as `downloads/frontline.js` and Node imports it as plain ESM, so type
+  syntax is a `SyntaxError` that drops every plugin's subscriptions.
+- Internal notes share the `conversationMessageInserted:<conversationId>`
+  topic with customer-visible messages. `conversationMessageInserted` delivers
+  an `internal` message only when the subscription context has `user._id`
+  (team member); `cpConversationMessageInserted` never delivers one. Internal
+  notes are stored as BlockNote JSON, so a leak shows customers raw JSON.
+  `sendNotifications({ internal: true })` skips the client portal mobile push
+  and still notifies agents, with the note rendered by `noteContentToHtml`.
+- Customer-facing queries that return `Conversation` (`widgetsConversations`,
+  `cpConversations`, `cpConversation`, `cpConversationDetail`) wrap each result
+  with `toCustomerConversationView` (`src/modules/inbox/utils/`), which sets
+  `customerView: true`; `Conversation.messages` then excludes internal notes.
+  Team-facing results never set it, so admin queries such as
+  `reportConversationList` still list notes. Any new customer-facing query
+  returning `Conversation` must wrap its results the same way.
 - `TicketReportFilter.statusIds: [String]` — real pipeline `Status._id` values
   (multi-select). `buildTicketMatch` turns a non-empty list into
   `statusId: { $in: filters.statusIds }`. This is distinct from the older,
@@ -1310,6 +1341,10 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 ## Local Invariants
 
+- Facebook and Instagram `healthStatus` is written as broken only through
+  `markUnhealthy`; a direct `updateOne` skips the channel notification.
+- The integration `healthStatus` resolver answers `unknown`, never `healthy`,
+  when the owning service cannot be reached.
 - Set property handlers pass `targetActionId: action.targetActionId` to
   `getSetPropertySelector`, so a Manage properties action targeting an earlier
   action (Find object, Create) updates that action's record, not the trigger's.

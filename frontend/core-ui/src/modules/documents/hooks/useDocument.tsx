@@ -17,7 +17,7 @@ import { DOCUMENTS_QUERY } from 'ui-modules';
 type DocumentResponse = { documentsDetail: IDocument | null };
 type UseDocumentResult = Pick<
   QueryResult<DocumentResponse>,
-  'loading' | 'refetch'
+  'error' | 'loading' | 'refetch'
 > & {
   document: IDocument | null;
   documentId: string | undefined;
@@ -95,6 +95,7 @@ export const useDocument = ({
     documentSave,
     hasError,
     loading,
+    error,
     refetch,
     saving,
   };

@@ -14,16 +14,15 @@ export const FrontlineSettingsNavigation = () => {
         <Sidebar.Menu>
           <NavigationMenuLinkItem
             pathPrefix="frontline/settings"
-            path={FrontlinePaths.Channels}
-            name="Channels"
-            icon={IconInbox}
-          />
-
-          <NavigationMenuLinkItem
-            pathPrefix="frontline/settings"
             path={FrontlinePaths.PersonalChannel}
             name="Personal channel"
             icon={IconUserCircle}
+          />
+          <NavigationMenuLinkItem
+            pathPrefix="frontline/settings"
+            path={FrontlinePaths.Channels}
+            name="Channels"
+            icon={IconInbox}
           />
           <Can action="integrationsEdit">
             <NavigationMenuLinkItem

@@ -37,14 +37,22 @@ function DocumentsContent({
   onClearFilters,
   viewType,
 }: DocumentsContentProps) {
-  const { documents, hasError, loading, refetch, pageInfo, handleFetchMore } =
-    useDocuments();
+  const {
+    documents,
+    error,
+    hasError,
+    loading,
+    refetch,
+    pageInfo,
+    handleFetchMore,
+  } = useDocuments();
   const Component = DOCUMENTS_VIEW_TYPES[viewType] ?? DocumentsList;
   const { t } = useTranslation('documents');
 
   if (hasError) {
     return (
       <DocumentsErrorState
+        error={error}
         onRetry={() => {
           void refetch().catch(() => undefined);
         }}

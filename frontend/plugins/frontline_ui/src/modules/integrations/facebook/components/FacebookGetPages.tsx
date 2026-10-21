@@ -10,6 +10,7 @@ import {
   selectedFacebookPageAtom,
 } from '@/integrations/facebook/states/facebookStates';
 import { useFacebookPages } from '@/integrations/facebook/hooks/useFacebookPages';
+import { FacebookPageUsage } from '@/integrations/facebook/components/FacebookPageUsage';
 
 export const FacebookGetPages = () => {
   const { t } = useTranslation('frontline');
@@ -57,32 +58,50 @@ export const FacebookGetPages = () => {
             }
           >
             <Command.List>
-              {facebookGetPages.map((page) => (
-                <Command.Item
-                  disabled={page.isUsed ?? undefined}
-                  key={page.id}
-                  value={page.name ?? ''}
-                  onSelect={() =>
-                    setSelectedPage(
-                      selectedPage === page.id
-                        ? undefined
-                        : page.id ?? undefined,
-                    )
-                  }
-                  className={cn(
-                    'gap-3 border-t last-of-type:border-b rounded-none h-10 px-3',
-                    selectedPage === page.id && 'text-primary',
-                  )}
-                >
-                  <RadioGroup.Item
-                    value={page.id ?? ''}
-                    checked={selectedPage === page.id}
-                    className="bg-background"
-                    onClick={() => setSelectedPage(page.id ?? undefined)}
-                  />
-                  <div className="font-semibold">{page.name}</div>
-                </Command.Item>
-              ))}
+              {facebookGetPages.map((page) => {
+                // A used page stays enabled so its usage trigger is clickable
+                // and search still filters it; it just cannot be picked.
+                const isUsed = Boolean(page.isUsed);
+
+                return (
+                  <Command.Item
+                    key={page.id}
+                    value={page.name ?? ''}
+                    onSelect={() => {
+                      if (isUsed) return;
+                      setSelectedPage(
+                        selectedPage === page.id
+                          ? undefined
+                          : page.id ?? undefined,
+                      );
+                    }}
+                    className={cn(
+                      'gap-3 border-t last-of-type:border-b rounded-none h-10 pl-3 pr-0',
+                      selectedPage === page.id && 'text-primary',
+                      isUsed && 'cursor-default',
+                    )}
+                  >
+                    <RadioGroup.Item
+                      value={page.id ?? ''}
+                      checked={selectedPage === page.id}
+                      disabled={isUsed}
+                      className="bg-background"
+                      onClick={() =>
+                        !isUsed && setSelectedPage(page.id ?? undefined)
+                      }
+                    />
+                    <div
+                      className={cn(
+                        'min-w-0 flex-1 truncate font-semibold',
+                        isUsed && 'text-muted-foreground',
+                      )}
+                    >
+                      {page.name}
+                    </div>
+                    <FacebookPageUsage page={page} />
+                  </Command.Item>
+                );
+              })}
             </Command.List>
           </RadioGroup>
         </Command>

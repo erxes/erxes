@@ -3,7 +3,7 @@ import { toMemberUser } from '@/channels/utils/channelMembers';
 import { CellContext, ColumnDef } from '@tanstack/table-core';
 import { MembersInline } from 'ui-modules';
 import { channelsMoreColumn } from './ChannelsMoreColumn';
-import { IntegrationChips } from './IntegrationChips';
+import { ChannelIntegrationsCell } from './ChannelIntegrationsPeek';
 import { RecordTable, RecordTableInlineCell, Tooltip } from 'erxes-ui';
 import {
   IconAlignLeft,
@@ -180,16 +180,15 @@ export const useChannelsColumns = (
         />
       ),
       cell: ({ cell }) => {
-        const { integrationKinds } = cell.row.original;
-        const count = (cell.getValue() as number) ?? 0;
+        const { _id, name, integrationKinds } = cell.row.original;
 
         return (
-          <RecordTableInlineCell className="gap-2">
-            {count}
-            {integrationKinds?.length ? (
-              <IntegrationChips kinds={integrationKinds} />
-            ) : null}
-          </RecordTableInlineCell>
+          <ChannelIntegrationsCell
+            channelId={_id}
+            channelName={name}
+            count={(cell.getValue() as number) ?? 0}
+            kinds={integrationKinds ?? []}
+          />
         );
       },
       size: 260,

@@ -1,3 +1,4 @@
+import { JournalNavigation } from '@/JournalNavigation';
 import { AccountingHeader } from '@/layout/components/Header';
 import { AccountingLayout } from '@/layout/components/Layout';
 import { AddTransaction } from '@/transactions/components/AddTransaction';
@@ -16,29 +17,34 @@ export const TrRecordListPage = () => {
 
   return (
     <AccountingLayout>
-      <AccountingHeader>
-        <div className="px-3">
-          <AddTransaction>
-            <Button>
-              <IconPlus />
-              {t('add-transaction')}
-              <Kbd>C</Kbd>
-            </Button>
-          </AddTransaction>
+      <div className="flex flex-auto overflow-hidden">
+        <JournalNavigation />
+        <div className="flex min-w-0 flex-auto flex-col overflow-hidden">
+          <AccountingHeader>
+            <div className="px-3">
+              <AddTransaction>
+                <Button>
+                  <IconPlus />
+                  {t('add-transaction')}
+                  <Kbd>C</Kbd>
+                </Button>
+              </AddTransaction>
+            </div>
+          </AccountingHeader>
+          <PageSubHeader>
+            <TransactionsFilter afterBar={<TrRecsTotalCount />} />
+            <Can action="transactionsExportManage">
+              <Export
+                pluginName="accounting"
+                moduleName="account"
+                collectionName="transactions"
+                getFilters={() => filterVariables}
+              />
+            </Can>
+          </PageSubHeader>
+          <TrRecordTable />
         </div>
-      </AccountingHeader>
-      <PageSubHeader>
-        <TransactionsFilter afterBar={<TrRecsTotalCount />} />
-        <Can action="transactionsExportManage">
-          <Export
-            pluginName="accounting"
-            moduleName="account"
-            collectionName="transactions"
-            getFilters={() => filterVariables}
-          />
-        </Can>
-      </PageSubHeader>
-      <TrRecordTable />
+      </div>
     </AccountingLayout>
   );
 };

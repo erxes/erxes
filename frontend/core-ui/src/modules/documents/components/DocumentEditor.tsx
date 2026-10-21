@@ -316,9 +316,10 @@ const DocumentTitleEditor = ({
 
 export const DocumentEditor = () => {
   const { t } = useTranslation('documents', { keyPrefix: 'document' });
-  const { document, documentId, hasError, loading, refetch } = useDocument({
-    initializeForm: true,
-  });
+  const { document, documentId, error, hasError, loading, refetch } =
+    useDocument({
+      initializeForm: true,
+    });
   const { store, resolveUsers } = useDocumentComments();
   const { hasActionPermission } = usePermissionCheck();
   const readonly = !hasActionPermission('manageDocuments');
@@ -354,6 +355,7 @@ export const DocumentEditor = () => {
       <DocumentsErrorState
         title={t('load-error-title')}
         description={t('load-error-description')}
+        error={error}
         onRetry={() => {
           void refetch().catch(() => undefined);
         }}

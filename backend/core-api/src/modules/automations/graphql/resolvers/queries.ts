@@ -518,6 +518,37 @@ export const automationQueries = {
     });
   },
 
+  async automationsAiAgentModels(
+    _root,
+    {
+      agentId,
+      provider,
+      selectedModel,
+    }: { agentId?: string; provider: string; selectedModel?: string },
+    { models, subdomain, user, checkPermission }: IContext,
+  ) {
+    // Without an agent this lists with the platform key, so gate it like create.
+    if (agentId) {
+      await models.ApprovalLocks.assertAccess({
+        user,
+        contentType: AUTOMATION_APPROVAL_CONTENT_TYPES.AUTOMATION_AI_AGENT,
+        contentId: agentId,
+        action: 'view',
+      });
+    } else {
+      await checkPermission('automationsAiAgentAdd');
+    }
+
+    return await sendWorkerMessage({
+      pluginName: 'automations',
+      queueName: 'aiAgent',
+      jobName: 'listAiAgentModels',
+      subdomain,
+      data: { agentId, provider, selectedModel },
+      timeout: 10000,
+    });
+  },
+
   async automationsAiAgentKnowledgeSourceStatuses(
     _root,
     { agentId }: { agentId: string },

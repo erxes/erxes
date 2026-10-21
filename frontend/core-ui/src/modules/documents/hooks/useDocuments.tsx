@@ -25,7 +25,7 @@ type DocumentsQueryResponse = {
 
 export const useDocuments = (): Pick<
   QueryResult<DocumentsQueryResponse>,
-  'loading' | 'refetch'
+  'error' | 'loading' | 'refetch'
 > & {
   documents: IDocument[];
   hasError: boolean;
@@ -157,6 +157,7 @@ export const useDocuments = (): Pick<
     pageInfo,
     totalCount,
     handleFetchMore,
+    error,
     refetch,
   };
 };
