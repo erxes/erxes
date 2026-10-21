@@ -314,7 +314,7 @@ export const pipelinesColumns: (
   },
 ];
 
-const PipelineRecordTable = () => {
+export const PipelineRecordTable = () => {
   const { t } = useTranslation('sales');
   const [queries] = useMultiQueryState<{
     contentType: string;
@@ -322,7 +322,9 @@ const PipelineRecordTable = () => {
     activeBoardId: string;
   }>(['contentType', 'searchValue', 'activeBoardId']);
 
-  const { boards, loading: boardsLoading, error: boardsError } = useBoards();
+  const { boards, loading: boardsLoading, error: boardsError } = useBoards({
+    variables: { includeArchived: true },
+  });
   const hasSelectedBoard = boards?.some(
     (board) => board._id === queries.activeBoardId,
   );
@@ -386,5 +388,3 @@ const PipelineRecordTable = () => {
     </>
   );
 };
-
-export default PipelineRecordTable;

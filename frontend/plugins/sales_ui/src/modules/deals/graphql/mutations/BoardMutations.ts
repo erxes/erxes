@@ -21,3 +21,29 @@ export const REMOVE_BOARD = gql(`
     salesBoardsRemove(_id: $_id)
   }
 `);
+
+export const SALES_BOARDS_ARCHIVE = gql(`
+  mutation SalesBoardsArchive(
+    $_id: String!
+    $acknowledgeAutomations: Boolean
+    $acknowledgeConnections: Boolean
+  ) {
+    salesBoardsArchive(
+      _id: $_id
+      acknowledgeAutomations: $acknowledgeAutomations
+      acknowledgeConnections: $acknowledgeConnections
+    ) {
+      _id
+      status
+    }
+  }
+`);
+
+export const SALES_BOARDS_UNARCHIVE = gql(`
+  mutation SalesBoardsUnarchive($_id: String!) {
+    salesBoardsUnarchive(_id: $_id) {
+      _id
+      status
+    }
+  }
+`);

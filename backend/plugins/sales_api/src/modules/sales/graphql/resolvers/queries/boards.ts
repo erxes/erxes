@@ -9,13 +9,19 @@ import { IContext } from '~/connectionResolvers';
 import { IUserDocument } from 'erxes-api-shared/core-types';
 import { getCloseDateByType } from '~/modules/sales/utils';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { assertBoardArchivePermissions } from '../../../utils/boardArchive';
 
 export const boardQueries = {
   /**
    *  Boards list
    */
-  async salesBoards(_root: undefined, _args: undefined, { models }: IContext) {
-    return models.Boards.find({}).lean();
+  async salesBoards(_root: undefined, { includeArchived }: { includeArchived?: boolean }, { models }: IContext) {
+    return models.Boards.find(includeArchived ? {} : { status: { $ne: SALES_STATUSES.ARCHIVED } }).lean();
+  },
+
+  async salesBoardArchivePreview(_root: undefined, { _id }: { _id: string }, { models, user, checkPermission }: IContext) {
+    await assertBoardArchivePermissions(checkPermission);
+    return models.Boards.archivePreview(_id, user);
   },
 
   async cpSalesBoards(
@@ -23,7 +29,7 @@ export const boardQueries = {
     _args: undefined,
     { models }: IContext,
   ) {
-    return models.Boards.find({}).lean();
+    return models.Boards.find({ status: { $ne: SALES_STATUSES.ARCHIVED } }).lean();
   },
 
   /**
@@ -34,7 +40,7 @@ export const boardQueries = {
     _args: undefined,
     { models }: IContext,
   ) {
-    const boards = await models.Boards.find()
+    const boards = await models.Boards.find({ status: { $ne: SALES_STATUSES.ARCHIVED } })
       .sort({
         name: 1,
       })
@@ -90,7 +96,7 @@ export const boardQueries = {
     _args: undefined,
     { models }: IContext,
   ) {
-    return models.Boards.findOne()
+    return models.Boards.findOne({ status: { $ne: SALES_STATUSES.ARCHIVED } })
       .sort({
         createdAt: -1,
       })
