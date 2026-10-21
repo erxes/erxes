@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-10-19`
+- **Last synchronized:** `2026-10-21`
 
 ## Scope
 
@@ -1083,7 +1083,24 @@ errors }` — `missingInErxes` is the number of Meta posts this deployment has
   this service: it may import only packages the gateway resolves
   (`erxes-api-shared/utils`, `graphql-subscriptions`), never `~/` or `@/` plugin
   paths. Anything that needs models goes through a frontline tRPC procedure via
-  `sendTRPCMessage`.
+  `sendTRPCMessage`. Keep it free of TypeScript-only syntax (type aliases,
+  annotations, `as` casts): in development the gateway saves the raw `.ts`
+  source as `downloads/frontline.js` and Node imports it as plain ESM, so type
+  syntax is a `SyntaxError` that drops every plugin's subscriptions.
+- Internal notes share the `conversationMessageInserted:<conversationId>`
+  topic with customer-visible messages. `conversationMessageInserted` delivers
+  an `internal` message only when the subscription context has `user._id`
+  (team member); `cpConversationMessageInserted` never delivers one. Internal
+  notes are stored as BlockNote JSON, so a leak shows customers raw JSON.
+  `sendNotifications({ internal: true })` skips the client portal mobile push
+  and still notifies agents, with the note rendered by `noteContentToHtml`.
+- Customer-facing queries that return `Conversation` (`widgetsConversations`,
+  `cpConversations`, `cpConversation`, `cpConversationDetail`) wrap each result
+  with `toCustomerConversationView` (`src/modules/inbox/utils/`), which sets
+  `customerView: true`; `Conversation.messages` then excludes internal notes.
+  Team-facing results never set it, so admin queries such as
+  `reportConversationList` still list notes. Any new customer-facing query
+  returning `Conversation` must wrap its results the same way.
 - `TicketReportFilter.statusIds: [String]` — real pipeline `Status._id` values
   (multi-select). `buildTicketMatch` turns a non-empty list into
   `statusId: { $in: filters.statusIds }`. This is distinct from the older,
