@@ -4,6 +4,7 @@ import {
   IconRestore,
   IconTags,
   IconTrash,
+  IconBox,
 } from '@tabler/icons-react';
 
 import { ApolloCache, ApolloError } from '@apollo/client';
@@ -23,6 +24,7 @@ import { Can, Export, IProduct, PrintDocument, TagsSelect } from 'ui-modules';
 import { ProductsDelete } from './delete/productDelete';
 import { ProductsRestore } from './restore/productRestore';
 import { ProductMerge, ProductMergeTrigger } from './ProductMerge';
+import { ProductsChangeTypeDialog } from './ProductsChangeTypeDialog';
 import {
   ProductsChangeCategoryContent,
   ProductsChangeCategoryTrigger,
@@ -61,6 +63,7 @@ export const ProductCommandBar = () => {
   const [open, setOpen] = useState(false);
   const [currentContent, setCurrentContent] = useState('main');
   const [mergeOpen, setMergeOpen] = useState(false);
+  const [changeTypeOpen, setChangeTypeOpen] = useState(false);
 
   const selectedRows = table.getFilteredSelectedRowModel().rows;
   const products = useMemo(
@@ -157,6 +160,21 @@ export const ProductCommandBar = () => {
                       />
                     </Can>
                     <Can action="productsUpdate">
+                      <Command.ActionItem
+                        icon={IconBox}
+                        label={t('bulk.change-type', 'Change type')}
+                        disabled={
+                          !products.some(
+                            (product) => product.status !== 'deleted',
+                          )
+                        }
+                        onSelect={() => {
+                          closeActionsPopover();
+                          setChangeTypeOpen(true);
+                        }}
+                      />
+                    </Can>
+                    <Can action="productsUpdate">
                       <ProductsSetConditionsTrigger
                         setCurrentContent={setCurrentContent}
                       />
@@ -240,6 +258,13 @@ export const ProductCommandBar = () => {
           </Popover.Content>
         </Popover>
       </CommandBar.Bar>
+      {changeTypeOpen && (
+        <ProductsChangeTypeDialog
+          products={products}
+          open={changeTypeOpen}
+          onOpenChange={setChangeTypeOpen}
+        />
+      )}
       <ProductMerge
         productIds={productIds}
         products={products}
