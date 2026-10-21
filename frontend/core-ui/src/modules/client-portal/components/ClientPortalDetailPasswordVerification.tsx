@@ -7,6 +7,9 @@ import { useUpdateClientPortal } from '../hooks/useUpdateClientPortal';
 import { IClientPortal } from '../types/clientPortal';
 import { useTranslation } from 'react-i18next';
 
+const RESET_URL_PLACEHOLDER = '{{resetUrl}}';
+const CODE_PLACEHOLDER = '{{code}}';
+
 export const ClientPortalDetailResetPassword = ({
   clientPortal,
 }: {
@@ -27,6 +30,7 @@ export const ClientPortalDetailResetPassword = ({
     },
   });
   const { updateClientPortal, loading } = useUpdateClientPortal();
+  const isCodeMode = form.watch('verifyByOTP');
 
   function handleSubmit(
     data: z.infer<typeof CLIENTPORTAL_PASSWORD_VERIFICATION_SCHEMA>,
@@ -74,6 +78,14 @@ export const ClientPortalDetailResetPassword = ({
                   </ToggleGroup.Item>
                 </ToggleGroup>
               </Form.Control>
+              <Form.Description>
+                {isCodeMode
+                  ? t('reset-mode-code-description')
+                  : t('reset-mode-link-description')}
+              </Form.Description>
+              <Form.Description>
+                {t('reset-mode-phone-description')}
+              </Form.Description>
             </Form.Item>
           )}
         />
@@ -103,7 +115,13 @@ export const ClientPortalDetailResetPassword = ({
                 isHTML
               />
               <Form.Description>
-                {t('reset-email-content-description')}
+                {isCodeMode
+                  ? t('reset-email-content-code-description', {
+                      placeholder: CODE_PLACEHOLDER,
+                    })
+                  : t('reset-email-content-link-description', {
+                      placeholder: RESET_URL_PLACEHOLDER,
+                    })}
               </Form.Description>
               <Form.Message />
             </Form.Item>
