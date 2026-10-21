@@ -1,8 +1,7 @@
 import { useBoardAdd } from '@/deals/boards/hooks/useBoards';
-import { pipelineCreateBoardIdState } from '@/deals/states/pipelineCreateSheetState';
 import { TBoardForm } from '@/deals/types/boards';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { IconGitBranch, IconLayoutKanban, IconPlus } from '@tabler/icons-react';
+import { IconLayoutKanban, IconPlus } from '@tabler/icons-react';
 import {
   Button,
   Dialog,
@@ -13,7 +12,6 @@ import {
   useMultiQueryState,
   useToast,
 } from 'erxes-ui';
-import { useSetAtom } from 'jotai';
 import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
@@ -129,19 +127,9 @@ const BoardCreateDialog = ({
   );
 };
 
-export const BoardsNavigationActions = ({
-  boardId,
-}: {
-  boardId?: string | null;
-}) => {
+export const BoardsNavigationActions = () => {
   const { t } = useTranslation('sales');
-  const setPipelineCreateBoardId = useSetAtom(pipelineCreateBoardIdState);
   const [boardDialogOpen, setBoardDialogOpen] = useState(false);
-
-  const handleAddPipeline = () => {
-    if (!boardId) return;
-    setPipelineCreateBoardId(boardId);
-  };
 
   return (
     <div className="flex items-center" onClick={(e) => e.stopPropagation()}>
@@ -163,14 +151,6 @@ export const BoardsNavigationActions = ({
           >
             <IconLayoutKanban className="size-4" />
             {t('add-board')}
-          </DropdownMenu.Item>
-          <DropdownMenu.Item
-            className="cursor-pointer"
-            disabled={!boardId}
-            onSelect={handleAddPipeline}
-          >
-            <IconGitBranch className="size-4" />
-            {t('add-pipeline')}
           </DropdownMenu.Item>
         </DropdownMenu.Content>
       </DropdownMenu>

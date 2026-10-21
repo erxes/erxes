@@ -304,7 +304,7 @@ const DealsNavigation = () => {
         name={t('boards')}
         actions={
           <>
-            <BoardsNavigationActions boardId={boardId} />
+            <BoardsNavigationActions />
             <ActionsMenu />
           </>
         }

@@ -34,13 +34,12 @@
 - Runs as the sales Module Federation remote.
 - The deals sidebar BOARDS group shows a hover `+` menu
   (`deals/boards/components/BoardsNavigationActions.tsx`): Add Board opens a
-  create-only dialog that selects the new board on success; Add Pipeline
-  (disabled without a selected board) opens the create sheet for the selected
-  board. Every board row also carries a `+` (`BoardItem`) left of the expand
+  create-only dialog that selects the new board on success. Pipelines are
+  added per board: every board row carries a `+` (`BoardItem`) left of the expand
   chevron, inside the row's highlight, shown on row hover or focus (`opacity`,
-  so it stays tabbable); it opens the same sheet for that board and expands
+  so it stays tabbable); it opens the pipeline create sheet for that board and expands
   the row. The row box (`group/board-row`) owns the hover/active background;
-  the name button selects the board and the chevron toggles it. Both set
+  the name button selects the board and the chevron toggles it. The row `+` sets
   `pipelineCreateBoardIdState`; `PipelineCreateSheet`, mounted once beside the
   BOARDS group, reads it and renders `PipelineForm` in create mode on the deals
   page (no navigation). New pipelines show up through the `SalesBoards`
@@ -564,8 +563,7 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   layout, save, and verify the layout persists after reload.
 - Board/pipeline create smoke scenario: on `/sales/deals` hover BOARDS, use
   `+` → Add Board (empty name is rejected), confirm the new board is selected
-  with the group still open, then click a board row's `+` (or `+` → Add
-  Pipeline) and confirm the Add Pipeline sheet opens on the deals page with
+  with the group still open, then click a board row's `+` and confirm the Add Pipeline sheet opens on the deals page with
   that board preselected and empty fields, and that the created pipeline
   appears under its board without a reload.
 - Tier rules smoke scenario: open "Score earn configuration", switch to Tier,
