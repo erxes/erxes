@@ -77,21 +77,21 @@ export function ProviderCatalog({
               disabled={!onChoose}
               onClick={() => onChoose?.(provider)}
               className={cn(
-                'group h-auto min-w-0 flex-col items-start gap-4 whitespace-normal rounded-xl border border-border p-5 text-left shadow-none hover:border-primary/40 hover:bg-accent/40 motion-safe:transition-colors motion-safe:duration-200',
+                'group h-auto min-w-0 flex-col items-start justify-start gap-4 whitespace-normal rounded-xl border border-border p-5 text-left shadow-none hover:border-primary/40 hover:bg-accent/40 motion-safe:transition-colors motion-safe:duration-200',
                 compact && 'flex-row items-center gap-3 p-4',
               )}
             >
               <ProviderLogo provider={provider.id} />
-              <span className="min-w-0 flex-1 space-y-1.5">
-                <span className="flex items-center gap-2 text-sm font-semibold">
-                  {provider.name}
-                  <IconArrowUpRight className="ml-auto size-4 shrink-0 text-muted-foreground group-hover:text-foreground" />
+              <span className="flex w-full min-w-0 flex-1 flex-col">
+                <span className="flex w-full items-start gap-3 text-sm font-semibold">
+                  <span className="min-w-0 flex-1">{provider.name}</span>
+                  <IconArrowUpRight className="mt-0.5 size-4 shrink-0 text-muted-foreground group-hover:text-foreground" />
                 </span>
-                <span className="block text-xs font-normal leading-relaxed text-muted-foreground">
+                <span className="mt-1.5 block text-xs font-normal leading-relaxed text-muted-foreground">
                   {provider.description}
                 </span>
                 {!compact && (
-                  <span className="block pt-2 text-xs font-normal text-muted-foreground">
+                  <span className="mt-auto block pt-3 text-xs font-normal text-muted-foreground">
                     {categoryName(provider.category)}
                   </span>
                 )}
