@@ -5,7 +5,11 @@ import {
   IDocumentDocument,
 } from '~/modules/documents/types';
 
-export default {
+export const documentCustomResolvers = {
+  _id(document: IDocumentDocument): string {
+    return document._id.toHexString();
+  },
+
   async __resolveReference(
     { _id }: { _id: string },
     { models, user, checkPermission }: IContext,
@@ -24,7 +28,7 @@ export default {
       models.ApprovalLocks.getState({
         user,
         contentType: DOCUMENT_APPROVAL_CONTENT_TYPE,
-        contentId: document._id,
+        contentId: String(document._id),
         ownerId: document.createdUserId,
         action: 'view',
       })

@@ -1,5 +1,5 @@
-import Document from './document';
+import { documentCustomResolvers } from './document';
 
-export default {
-  Document,
+export const documentResolvers = {
+  Document: documentCustomResolvers,
 };
