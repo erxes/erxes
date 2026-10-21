@@ -1,9 +1,30 @@
-# Platform credentials backend
+# Connections backend
 
 This additive core module owns tenant-scoped `credentials` and
 `credential_grants` collections. It does not migrate, read, or replace existing
 integration/configuration credentials. The management and consumer contracts
 are defined in [CONTRACT.md](./CONTRACT.md).
+
+## End-user setup
+
+Open **Settings → Connections** (`/settings/connections`). Choose a recognizable
+provider, follow its setup guide, enter the labelled account details, review the
+field-presence summary, and save. Optional endpoint/model/TLS settings are
+progressively disclosed. Provider choice is immutable after saving; create a
+second connection for a different provider or account. Existing generic records
+remain editable, and old settings links redirect to Connections.
+
+The catalog includes OpenAI, Grok, Kimi, Kimi Coding, Cloudflare AI Gateway,
+Cloudflare R2, Amazon SES, SendGrid, SMTP, and S3-compatible storage. Their field
+definitions are validated and encrypted by the same tenant-bound vault. Local
+logos and creation-only public defaults add no external browser requests.
+
+**Configured is not verified.** This module stores configuration for authorized
+runtime consumers. It does not test a provider, send an email, create a bucket,
+perform OAuth, replace existing integration settings, or automatically bind a
+plugin to the new configuration. Grant app access under a connection's advanced
+settings and provision the consumer once as described below; subsequent account
+detail changes are read at runtime without redeploying that consumer.
 
 ## Provisioning
 
@@ -116,7 +137,7 @@ cost when deploying. Existing resolvers and integration behavior are unchanged.
 
 ## Plugin helper (recommended)
 
-After granting a plugin access in workspace Credentials settings, configure its
+After granting a plugin access in workspace Connections settings, configure its
 server environment once. These names are consumed by the public
 `erxes-api-shared/utils` helper, not injected into other plugins or the browser:
 

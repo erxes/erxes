@@ -6,14 +6,26 @@ export const permissions: IPermissionConfig = {
   modules: [
     {
       name: 'credentials',
-      description: 'Platform credentials vault',
+      description: 'Workspace connections',
       scopeField: null,
       ownerFields: [],
-      scopes: [{ name: 'all', description: 'All credentials' }],
+      scopes: [{ name: 'all', description: 'All connections' }],
       actions: [
-        { title: 'View credentials', name: 'credentialsRead', description: 'View credential metadata and templates' },
-        { title: 'Manage credentials', name: 'credentialsManage', description: 'Create, update, and delete credentials' },
-        { title: 'Manage credential grants', name: 'credentialGrantsManage', description: 'Issue and revoke backend consumer grants' },
+        {
+          title: 'View connections',
+          name: 'credentialsRead',
+          description: 'View connections and available providers',
+        },
+        {
+          title: 'Manage connections',
+          name: 'credentialsManage',
+          description: 'Create, update, and remove connections',
+        },
+        {
+          title: 'Manage connection app access',
+          name: 'credentialGrantsManage',
+          description: 'Issue and revoke backend consumer grants',
+        },
       ],
     },
     {
@@ -748,7 +760,11 @@ export const permissions: IPermissionConfig = {
         {
           plugin: 'core',
           module: 'credentials',
-          actions: ['credentialsRead', 'credentialsManage', 'credentialGrantsManage'],
+          actions: [
+            'credentialsRead',
+            'credentialsManage',
+            'credentialGrantsManage',
+          ],
           scope: 'all',
         },
         {

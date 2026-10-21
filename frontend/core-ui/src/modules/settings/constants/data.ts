@@ -18,6 +18,7 @@ import {
   IconMessage,
   IconNotification,
   IconPassword,
+  IconPlugConnected,
   IconShoppingCart,
   IconShieldCheck,
   IconShieldLock,
@@ -141,9 +142,9 @@ export const SETTINGS_PATH_DATA = (
   ],
   nav: [
     {
-      name: t('credentials', 'Credentials'),
-      icon: IconKey,
-      path: SettingsWorkspacePath.Credentials,
+      name: t('connections', 'Connections'),
+      icon: IconPlugConnected,
+      path: SettingsWorkspacePath.Connections,
     },
     {
       name: t('general'),
@@ -354,6 +355,7 @@ export const GET_SETTINGS_SUB_NAVIGATION = (
 
 export const SETTINGS_PERMISSION_MAP: Record<string, string> = {
   [SettingsWorkspacePath.Credentials]: 'credentials',
+  [SettingsWorkspacePath.Connections]: 'credentials',
   [SettingsWorkspacePath.TeamMember]: 'teamMembers',
   [SettingsWorkspacePath.Structure]: 'organization',
   [SettingsWorkspacePath.Tags]: 'tags',
@@ -371,4 +373,5 @@ export const SETTINGS_PERMISSION_MAP: Record<string, string> = {
 // Sensitive settings stay hidden until their exact read action is loaded.
 export const SETTINGS_ACTION_PERMISSION_MAP: Record<string, string> = {
   [SettingsWorkspacePath.Credentials]: 'credentialsRead',
+  [SettingsWorkspacePath.Connections]: 'credentialsRead',
 };

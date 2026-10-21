@@ -17,7 +17,7 @@ const mutationHistory = (client: object): unknown => {
     : undefined;
 };
 
-describe('credential mutation transport privacy', () => {
+describe('connection mutation transport privacy', () => {
   it('shares authentication without registering secrets in the host cache or mutation history', async () => {
     let cachePolicy: unknown;
     const host = new ApolloClient({

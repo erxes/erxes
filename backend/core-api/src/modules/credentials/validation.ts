@@ -90,6 +90,10 @@ export const prepareCredential = (
     if (descriptor.required && (!hasKey(values, descriptor.key) || !values[descriptor.key].trim())) return invalid();
     if (hasKey(values, descriptor.key)) validateValue(values[descriptor.key], descriptor);
   }
+  if (template.id === 'smtp') {
+    const port = Number(values.port);
+    if (!Number.isInteger(port) || port < 1 || port > 65535) return invalid();
+  }
   if (Buffer.byteLength(JSON.stringify(values), 'utf8') > 131072) return invalid();
   return {
     name, description, templateId: template.id, category, values,

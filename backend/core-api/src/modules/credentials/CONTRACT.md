@@ -1,6 +1,12 @@
-# Platform credentials contract
+# Connections storage contract
 
 This is an additive core module. Existing configuration and integrations are unchanged.
+
+The product surface is **Connections**, at `/settings/connections` (legacy
+`/settings/credentials` redirects). Setup uses provider-specific account forms,
+local provider logos, instructions, review, and a saved confirmation. These API
+names remain stable so existing consumers and privacy guards continue to work.
+Configured means required details have been saved, not verified network access.
 
 ## Management API (GraphQL)
 
@@ -27,7 +33,11 @@ Each field exposes `key`, `label`, `type`, `secret`, `required`, `help`, `hasVal
 ONLY: no stored values, even for non-secret-labelled fields.
 Templates expose `id`, `name`, `category`, `description`, `fields` using those field
 descriptors (without hasValue). Field types: `text`, `password`, `number`, `url`,
-`boolean`. Initial ids: `generic`, `ai-api-key`, `smtp`, `s3`.
+`boolean`. Provider ids: `openai`, `grok`, `kimi`, `kimi-code`,
+`cloudflare-ai-gateway`, `cloudflare-r2`, `amazon-ses`, `sendgrid`, `smtp`, `s3`.
+Legacy ids `generic` and `ai-api-key` remain supported but are not offered in the
+new-provider catalog. A provider template declares the exact runtime value keys;
+clients cannot add unrelated keys or override its field requirements.
 
 `CredentialInput`: `name: String!`, `description: String`, `templateId: String!`,
 `category: String!`, `fields: [CredentialFieldInput!]!`.

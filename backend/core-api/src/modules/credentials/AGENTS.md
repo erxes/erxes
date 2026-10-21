@@ -1,11 +1,20 @@
-# Platform credentials module
+# Connections encrypted storage module
 
 ## Scope
 
-Core owns the additive credential vault, templates, grant capabilities, and
-metadata management API. Existing integration credentials remain independent.
+Core owns the encrypted storage behind Connections, provider-specific templates,
+grant capabilities, and metadata management API. Existing integration credentials remain independent.
 The API and UI contract lives in `CONTRACT.md`; deployment and recovery
 instructions live in `README.md`.
+
+The user-facing module is Connections at `/settings/connections`. OpenAI, Grok,
+Kimi, Kimi Coding, Cloudflare AI Gateway, Cloudflare R2, Amazon SES, SendGrid,
+SMTP, and S3-compatible providers use authoritative typed fields in `templates.ts`.
+Legacy `generic` and `ai-api-key` template ids remain valid for existing records
+and consumers. The GraphQL names, collections, permissions, crypto AAD, reference
+format, and environment names retain `credentials` for compatibility. Do not
+rename those security contracts as a cosmetic UI change. Stored configuration
+is not evidence of successful provider access; there are no network probes here.
 
 Plugins consume values with `getCredentialValue` / `getCredentialValues` from
 `erxes-api-shared/utils` (`backend/erxes-api-shared/src/utils/credentials.ts`).

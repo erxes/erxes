@@ -1,5 +1,7 @@
 import { gql } from '@apollo/client';
 
+// Preserve vault operation names so the existing privacy guards still apply.
+
 const metadata = gql`
   fragment credentialsWorkspaceMetadata on CredentialMetadata {
     _id
@@ -48,6 +50,15 @@ export const CREDENTIALS_LIST = gql`
 export const CREDENTIALS_CREATE = gql`
   mutation credentialsWorkspaceCreate($input: CredentialInput!) {
     credentialsCreate(input: $input) {
+      ...credentialsWorkspaceMetadata
+    }
+  }
+  ${metadata}
+`;
+
+export const CREDENTIALS_DETAIL = gql`
+  query credentialsWorkspaceDetail($_id: String!) {
+    credentialsDetail(_id: $_id) {
       ...credentialsWorkspaceMetadata
     }
   }

@@ -22,7 +22,7 @@ import {
 import { CredentialGrant } from '../types';
 import { useCredentialMutationClient } from '../useCredentialMutationClient';
 
-export function CredentialConsumerAccess({
+export function ConnectionConsumerAccess({
   credentialId,
   canManage,
 }: {
@@ -145,10 +145,10 @@ export function CredentialConsumerAccess({
   return (
     <section className="space-y-4 border-t pt-5">
       <div>
-        <h3 className="text-sm font-semibold">Consumer access</h3>
+        <h3 className="text-sm font-semibold">App access</h3>
         <p className="text-xs text-muted-foreground mt-1">
-          Each grant allows a backend plugin to consume this credential only.
-          Revoke access at any time.
+          Each grant lets one backend app use this connection at runtime. Revoke
+          access at any time.
         </p>
       </div>
       {loading ? (
@@ -188,7 +188,7 @@ export function CredentialConsumerAccess({
         </div>
       ) : (
         <p className="rounded-md border border-dashed p-4 text-sm text-muted-foreground">
-          No consumer access has been granted.
+          No apps have access yet. An administrator can grant access below.
         </p>
       )}
       {canManage && (
@@ -203,11 +203,13 @@ export function CredentialConsumerAccess({
               name="pluginName"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Plugin name</Form.Label>
+                  <Form.Label variant="peer" className="text-sm font-medium">
+                    Plugin name
+                  </Form.Label>
                   <Form.Control>
                     <Input {...field} />
                   </Form.Control>
-                  <Form.Description>
+                  <Form.Description className="leading-relaxed text-muted-foreground">
                     Backend plugin name: 1–64 characters, starting with a
                     lowercase letter. Use lowercase letters, numbers and
                     hyphens.
@@ -221,7 +223,9 @@ export function CredentialConsumerAccess({
               name="name"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Grant name</Form.Label>
+                  <Form.Label variant="peer" className="text-sm font-medium">
+                    Grant name
+                  </Form.Label>
                   <Form.Control>
                     <Input {...field} />
                   </Form.Control>
@@ -243,7 +247,7 @@ export function CredentialConsumerAccess({
           <AlertDialog.Header>
             <AlertDialog.Title>Revoke consumer access?</AlertDialog.Title>
             <AlertDialog.Description>
-              {revoking?.name} will immediately lose access to this credential.
+              {revoking?.name} will immediately lose access to this connection.
               This cannot be undone.
             </AlertDialog.Description>
           </AlertDialog.Header>

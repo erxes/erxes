@@ -1,3 +1,4 @@
+// The encrypted vault API remains backward compatible; Connections owns the UX.
 export type CredentialField = {
   key: string;
   label: string;

@@ -50,11 +50,11 @@ export const credentialFormSchema = z
   .object({
     name: metadataText(120).pipe(z.string().min(1, 'Enter a name')),
     description: metadataText(1000),
-    templateId: z.string().min(1, 'Choose a template'),
+    templateId: z.string().min(1, 'Choose a provider'),
     category: metadataText(64).pipe(z.string().min(1, 'Enter a category')),
     fields: z.array(fieldSchema).min(1, 'Add at least one field').max(32),
   })
-  .superRefine(({ fields }, ctx) => {
+  .superRefine(({ fields, templateId }, ctx) => {
     const keys = new Set<string>();
     fields.forEach((field, index) => {
       const issue = (message: string, property = 'value') =>
@@ -83,6 +83,11 @@ export const credentialFormSchema = z
         issue('Enter a valid number');
       if (field.type === 'boolean' && !['true', 'false'].includes(field.value))
         issue('Choose true or false');
+      if (templateId === 'smtp' && field.key === 'port') {
+        const port = Number(field.value);
+        if (!Number.isInteger(port) || port < 1 || port > 65535)
+          issue('Use a whole number between 1 and 65535');
+      }
       if (field.type === 'url') {
         try {
           const url = new URL(field.value);

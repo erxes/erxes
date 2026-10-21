@@ -6,7 +6,11 @@ import {
 describe('credential browser telemetry boundary', () => {
   afterEach(() => window.history.replaceState({}, '', '/'));
 
-  it('protects the actual workspace credentials route', () => {
+  it('protects both current connection and legacy credentials routes', () => {
+    window.history.replaceState({}, '', '/settings/connections');
+    expect(isCredentialSettingsPage()).toBe(true);
+    window.history.replaceState({}, '', '/settings/connections/child');
+    expect(isCredentialSettingsPage()).toBe(true);
     window.history.replaceState({}, '', '/settings/credentials');
     expect(isCredentialSettingsPage()).toBe(true);
     window.history.replaceState({}, '', '/settings/credentials/child');
@@ -18,6 +22,9 @@ describe('credential browser telemetry boundary', () => {
   it('drops vault traces even if they finish after leaving settings', () => {
     expect(
       containsCredentialTelemetry({ transaction: '/settings/credentials' }),
+    ).toBe(true);
+    expect(
+      containsCredentialTelemetry({ transaction: '/settings/connections' }),
     ).toBe(true);
     expect(
       containsCredentialTelemetry({

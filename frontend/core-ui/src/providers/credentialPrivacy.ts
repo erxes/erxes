@@ -1,13 +1,15 @@
 /** Keep vault forms and one-time consumer tokens out of browser telemetry. */
 export const isCredentialSettingsPage = (): boolean =>
   typeof window !== 'undefined' &&
-  /\/settings\/credentials(?:\/|$)/.test(window.location.pathname);
+  /\/settings\/(?:credentials|connections)(?:\/|$)/.test(
+    window.location.pathname,
+  );
 
 export const containsCredentialTelemetry = (value: unknown): boolean => {
   const seen = new WeakSet<object>();
   const inspect = (item: unknown): boolean => {
     if (typeof item === 'string') {
-      return /\bcredentials[A-Z][A-Za-z]*\b|\/credentials\/consume\b|\/settings\/credentials(?:\/|\b)/.test(
+      return /\bcredentials[A-Z][A-Za-z]*\b|\/credentials\/consume\b|\/settings\/(?:credentials|connections)(?:\/|\b)/.test(
         item,
       );
     }

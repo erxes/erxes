@@ -34,7 +34,7 @@ const credential: CredentialMetadata = {
   fields: [{ ...template.fields[0], hasValue: true }],
 };
 
-describe('credential forms', () => {
+describe('connection configuration forms', () => {
   it('maps inline value entry to replace, optional empty, or unchanged without placeholders', () => {
     const required = { existing: false, required: true };
     const optional = { existing: false, required: false };
