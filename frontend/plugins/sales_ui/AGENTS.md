@@ -38,6 +38,9 @@
   (disabled without a selected board) opens
   `/sales/settings/deals?activeBoardId=<boardId>&create=pipeline`, where
   `PipelineFormBar` opens the create sheet once boards load and drops `create`.
+- The deals page header's settings link is an icon-only gear button with a
+  "Go to Settings" tooltip and `aria-label`; it opens the selected pipeline's
+  edit sheet in settings (`activeBoardId` + `pipelineId`).
 - The deals page header ends with an Add Deal button (`AddDealButton`), so
   deals can be added from the list view, which has no stage columns. It opens
   the header's `AddDealSheet` through `dealCreateSheetState` with the selected
