@@ -1,3 +1,5 @@
+import { useAtomValue } from 'jotai';
+import { inboxDisplayOptionsState } from '@/notification/states/notificationState';
 import { parseDateRangeFromString, useNonNullMultiQueryState } from 'erxes-ui';
 import {
   TNotificationOrderBy,
@@ -6,7 +8,20 @@ import {
   TNotificationType,
 } from 'ui-modules';
 
-export const useNotificationFilters = () => {
+interface NotificationFilterVariables {
+  status: 'READ' | 'UNREAD' | 'ALL';
+  priority: string | undefined;
+  type: string | undefined;
+  fromDate: Date | undefined;
+  endDate: Date | undefined;
+  orderBy?: Record<string, 1 | -1>;
+  fromUserId: string | undefined;
+  module: string | undefined;
+  unreadFirst: boolean;
+}
+
+export const useNotificationFilters = (): NotificationFilterVariables => {
+  const display = useAtomValue(inboxDisplayOptionsState);
   const {
     notificationStatus: status,
     notificationPriority: priority,
@@ -33,25 +48,30 @@ export const useNotificationFilters = () => {
     'notificationModule',
   ]);
 
-  const orderByFilter = () => {
+  const orderByFilter = (): Record<string, 1 | -1> => {
     if (orderBy === 'old') {
       return { createdAt: 1 };
     } else if (orderBy === 'priority') {
       return { priority: -1 };
     }
+    if (orderBy === 'readAt') return { readAt: -1 };
     return {};
   };
 
   const orderByValue = orderByFilter();
+  let statusValue: NotificationFilterVariables['status'] = 'UNREAD';
+  if (status === 'read') statusValue = 'READ';
+  else if (status === 'all') statusValue = 'ALL';
 
   return {
-    status: status?.toUpperCase() || 'UNREAD',
+    status: statusValue,
     priority: priority?.toUpperCase(),
     type: type?.toUpperCase(),
     fromDate: parseDateRangeFromString(createdAt)?.from,
     endDate: parseDateRangeFromString(createdAt)?.to,
     ...(Object.keys(orderByValue).length > 0 && { orderBy: orderByValue }),
-    fromUserId,
-    module,
+    fromUserId: fromUserId ?? undefined,
+    module: module ?? undefined,
+    unreadFirst: display.unreadFirst,
   };
 };

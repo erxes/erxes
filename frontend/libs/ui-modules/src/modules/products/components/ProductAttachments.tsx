@@ -17,6 +17,7 @@ import {
   PRODUCT_VIDEO_LIMIT,
   ProductVideosUpload,
 } from './ProductVideoUploads';
+import { ProductFilesUpload } from './ProductFilesUpload';
 
 type AttachmentItem = ProductAttachmentItem;
 
@@ -119,6 +120,26 @@ function AddProductVideos({
   );
 }
 
+function AddProductFiles({
+  form,
+}: Readonly<{
+  form: UseFormReturn<IProductFormValues>;
+}>) {
+  const { t } = useTranslation('product', { keyPrefix: 'add' });
+  const files = form.watch('files');
+
+  return (
+    <InfoCard title={t('files', 'Files')}>
+      <InfoCard.Content>
+        <ProductFilesUpload
+          value={files || []}
+          onChange={(next) => form.setValue('files', next)}
+        />
+      </InfoCard.Content>
+    </InfoCard>
+  );
+}
+
 export function AddProductFormAttachmentsAndExtra({
   form,
 }: Readonly<{
@@ -137,6 +158,9 @@ export function AddProductFormAttachmentsAndExtra({
       </div>
       <div className="pt-4">
         <AddProductVideos form={form} />
+      </div>
+      <div className="pt-4">
+        <AddProductFiles form={form} />
       </div>
       <div className="pt-4">
         <InfoCard title={t('more-info')}>

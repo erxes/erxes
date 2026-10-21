@@ -5,6 +5,8 @@ import { useTranslation } from 'react-i18next';
 import { IAttachment } from '@/ticket/types/attachments';
 import { useAttachmentContext } from './AttachmentContext';
 import { useCreateTicket } from '@/ticket/hooks/useCreateTicket';
+import { useUnverifiedAttachments } from '@/ticket/hooks/useUnverifiedAttachments';
+import { UnverifiedAttachmentCover } from './UnverifiedAttachmentCover';
 
 const getCloudflareStreamIframe = (url: string): string | null => {
   const match = url.match(
@@ -18,6 +20,7 @@ const VideoAttachments = ({ attachments }: { attachments: IAttachment[] }) => {
   const { t } = useTranslation('frontline');
   const { handleRemoveImage, removingUrl } = useAttachmentContext();
   const { loading } = useCreateTicket();
+  const { isCovered, reveal } = useUnverifiedAttachments();
 
   return (
     <div className="py-4 px-8">
@@ -33,7 +36,11 @@ const VideoAttachments = ({ attachments }: { attachments: IAttachment[] }) => {
               className="group relative w-64 aspect-video rounded-lg border border-border shadow-md shrink-0 overflow-hidden bg-black"
               key={attachment.url}
             >
-              {iframeSrc ? (
+              {isCovered(attachment.url) ? (
+                <UnverifiedAttachmentCover
+                  onReveal={() => reveal(attachment.url)}
+                />
+              ) : iframeSrc ? (
                 <iframe
                   className="w-full h-full"
                   src={iframeSrc}

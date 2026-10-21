@@ -133,7 +133,7 @@ export const useDealActions = ({
             },
           },
           update: (cache) => {
-            const detail = cache.readQuery<{ dealDetail: IDeal }>({
+            const detail = cache.readQuery({
               query: GET_DEAL_DETAIL,
               variables: { _id: id },
             });

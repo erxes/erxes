@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const PIPELINE_CHANGED = gql`
+export const PIPELINE_CHANGED = gql(`
   subscription salesPipelinesChanged($_id: String!) {
     salesPipelinesChanged(_id: $_id) {
       _id
@@ -9,4 +9,4 @@ export const PIPELINE_CHANGED = gql`
       data
     }
   }
-`;
+`);

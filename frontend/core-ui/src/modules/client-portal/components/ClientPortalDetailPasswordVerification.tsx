@@ -1,11 +1,26 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, Editor, Form, Input, Spinner, ToggleGroup } from 'erxes-ui';
+import { IconSparkles } from '@tabler/icons-react';
+import {
+  Button,
+  Editor,
+  Form,
+  Input,
+  Spinner,
+  ToggleGroup,
+  useConfirm,
+} from 'erxes-ui';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { CLIENTPORTAL_PASSWORD_VERIFICATION_SCHEMA } from '../constants/clientPortalEditSchema';
 import { useUpdateClientPortal } from '../hooks/useUpdateClientPortal';
 import { IClientPortal } from '../types/clientPortal';
 import { useTranslation } from 'react-i18next';
+
+const RESET_URL_PLACEHOLDER = '{{resetUrl}}';
+const CODE_PLACEHOLDER = '{{code}}';
+
+const hasTextContent = (html?: string) =>
+  Boolean(html?.replace(/<[^>]*>/g, '').trim());
 
 export const ClientPortalDetailResetPassword = ({
   clientPortal,
@@ -27,6 +42,46 @@ export const ClientPortalDetailResetPassword = ({
     },
   });
   const { updateClientPortal, loading } = useUpdateClientPortal();
+  const isCodeMode = form.watch('verifyByOTP');
+  const { confirm } = useConfirm();
+
+  const buildDefaultContent = () => {
+    const ignoreText = t('default-reset-email-ignore');
+
+    if (isCodeMode) {
+      return [
+        `<p>${t('default-reset-email-greeting')}</p>`,
+        `<p>${t('default-reset-email-code-body', {
+          placeholder: CODE_PLACEHOLDER,
+        })}</p>`,
+        `<p>${ignoreText}</p>`,
+      ].join('');
+    }
+
+    return [
+      `<p>${t('default-reset-email-greeting')}</p>`,
+      `<p>${t('default-reset-email-link-body')}</p>`,
+      `<p><a href="${RESET_URL_PLACEHOLDER}">${RESET_URL_PLACEHOLDER}</a></p>`,
+      `<p>${t('default-reset-email-link-expiry')} ${ignoreText}</p>`,
+    ].join('');
+  };
+
+  const handleGenerateContent = () => {
+    const applyDefaultContent = () =>
+      form.setValue('emailContent', buildDefaultContent(), {
+        shouldDirty: true,
+      });
+
+    if (!hasTextContent(form.getValues('emailContent'))) {
+      applyDefaultContent();
+      return;
+    }
+
+    confirm({
+      message: t('replace-email-content-confirm'),
+      options: { okLabel: t('replace') },
+    }).then(applyDefaultContent);
+  };
 
   function handleSubmit(
     data: z.infer<typeof CLIENTPORTAL_PASSWORD_VERIFICATION_SCHEMA>,
@@ -74,6 +129,14 @@ export const ClientPortalDetailResetPassword = ({
                   </ToggleGroup.Item>
                 </ToggleGroup>
               </Form.Control>
+              <Form.Description>
+                {isCodeMode
+                  ? t('reset-mode-code-description')
+                  : t('reset-mode-link-description')}
+              </Form.Description>
+              <Form.Description>
+                {t('reset-mode-phone-description')}
+              </Form.Description>
             </Form.Item>
           )}
         />
@@ -96,14 +159,31 @@ export const ClientPortalDetailResetPassword = ({
           name="emailContent"
           render={({ field }) => (
             <Form.Item className="col-span-2">
-              <Form.Label>{t('email-content')}</Form.Label>
+              <div className="flex items-center justify-between gap-2">
+                <Form.Label>{t('email-content')}</Form.Label>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleGenerateContent}
+                >
+                  <IconSparkles />
+                  {t('generate-default-content')}
+                </Button>
+              </div>
               <Editor
                 initialContent={field.value}
                 onChange={field.onChange}
                 isHTML
               />
               <Form.Description>
-                {t('reset-email-content-description')}
+                {isCodeMode
+                  ? t('reset-email-content-code-description', {
+                      placeholder: CODE_PLACEHOLDER,
+                    })
+                  : t('reset-email-content-link-description', {
+                      placeholder: RESET_URL_PLACEHOLDER,
+                    })}
               </Form.Description>
               <Form.Message />
             </Form.Item>

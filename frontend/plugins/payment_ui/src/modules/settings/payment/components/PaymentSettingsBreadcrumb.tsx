@@ -6,11 +6,11 @@ import { PaymentAddSheet } from '@/settings/payment/components/PaymentAddSheet';
 
 export const PaymentSettingsBreadcrumb = () => {
   const { t } = useTranslation('payment');
-  const isMatchingLocation = useIsMatchingLocation('/settings/payment');
+  const isMatchingLocation = useIsMatchingLocation('/payment/settings');
 
   return (
     <>
-      <Link to="/settings/payment">
+      <Link to="/payment/settings">
         <Button variant="ghost">
           <IconCurrencyDollar />
           {t('payment')}
@@ -24,13 +24,6 @@ export const PaymentSettingsBreadcrumb = () => {
           <span className="ml-auto">
             <PaymentAddSheet />
           </span>
-        </>
-      )}
-
-      {isMatchingLocation('/invoices') && (
-        <>
-          <Separator.Inline />
-          <Button variant="ghost">{t('invoices')}</Button>
         </>
       )}
 

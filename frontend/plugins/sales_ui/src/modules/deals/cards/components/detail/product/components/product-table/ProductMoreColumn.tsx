@@ -1,17 +1,17 @@
+import type { DealProductData } from '@/deals/utils/dealJson';
 import { Cell, ColumnDef } from '@tanstack/react-table';
 import { Combobox, Command, Popover, RecordTable, useConfirm } from 'erxes-ui';
 
-import { IProductData } from 'ui-modules';
 import { IconCopy, IconEdit, IconTrash } from '@tabler/icons-react';
-import { productRowActionsAtom } from '../../productTableAtom';
 import { useAtomValue } from 'jotai';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { productRowActionsAtom } from '../../productTableAtom';
 
 export const ProductMoreColumnCell = ({
   cell,
 }: {
-  cell: Cell<IProductData, unknown>;
+  cell: Cell<DealProductData, unknown>;
 }) => {
   const productData = cell.row.original;
   const confirmOptions = { confirmationValue: 'delete' };
@@ -68,7 +68,7 @@ export const ProductMoreColumnCell = ({
   );
 };
 
-export const productMoreColumn = (): ColumnDef<IProductData> => ({
+export const productMoreColumn = (): ColumnDef<DealProductData> => ({
   id: 'more',
   size: 33,
   cell: (cellProps) => <ProductMoreColumnCell {...cellProps} />,

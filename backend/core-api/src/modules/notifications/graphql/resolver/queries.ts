@@ -14,32 +14,14 @@ import {
 import { FilterQuery } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
 import { CORE_NOTIFICATION_MODULES } from '~/modules/notifications/constants';
-import { generateNotificationsFilter } from '~/modules/notifications/graphql/resolver/utils';
+import {
+  generateNotificationsFilter,
+  generateActiveNotificationsFilter,
+  generateOrderByNotifications,
+  NotificationFilters,
+} from '~/modules/notifications/graphql/resolver/utils';
 import { TEmailLane } from 'erxes-api-shared/core-modules';
 import { getStatus } from '~/utils/email/ramp';
-
-const generateOrderByNotifications = (orderBy?: any) => {
-  const sort: any = { isRead: 1, createdAt: -1 };
-
-  if (orderBy?.createdAt === 1) {
-    sort.createdAt = 1;
-  }
-
-  if (orderBy?.priority) {
-    sort.priorityLevel = orderBy.priority;
-  }
-
-  if (orderBy?.readAt) {
-    sort.readAt = orderBy?.readAt;
-  }
-
-  return sort;
-};
-
-const generateActiveNotificationsFilter =
-  (): FilterQuery<INotificationDocument> => ({
-    $or: [{ expiresAt: null }, { expiresAt: { $gt: new Date() } }],
-  });
 
 export const notificationQueries = {
   async emailDeliveries(
@@ -141,7 +123,7 @@ export const notificationQueries = {
 
   async notifications(
     _root: undefined,
-    params: any,
+    params: NotificationFilters & ICursorPaginateParams,
     { models, user }: IContext,
   ) {
     const filter = generateNotificationsFilter(params);
@@ -162,11 +144,13 @@ export const notificationQueries = {
         model: models.Notifications,
         params: {
           ...params,
-          orderBy: generateOrderByNotifications(params?.orderBy),
+          orderBy: generateOrderByNotifications(
+            params.orderBy,
+            params.unreadFirst,
+          ),
         },
         query: {
-          ...filter,
-          ...generateActiveNotificationsFilter(),
+          $and: [filter, generateActiveNotificationsFilter()],
           userId: user._id,
         },
       });

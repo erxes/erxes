@@ -1,8 +1,8 @@
-import { IconPencil, IconTrash } from '@tabler/icons-react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Sidebar, Skeleton, useConfirm, useQueryState } from 'erxes-ui';
 import { useBoardRemove, useBoards } from '@/deals/boards/hooks/useBoards';
+import { IconPencil, IconTrash } from '@tabler/icons-react';
+import { Sidebar, Skeleton, useConfirm, useQueryState } from 'erxes-ui';
 import { useEffect, useMemo } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 import { BoardForm } from '@/deals/boards/components/settings/BoardForm';
 import { IBoard } from '@/deals/types/boards';
@@ -60,7 +60,7 @@ export const BoardsList = () => {
 
 const BoardMenuItem = ({ board }: { board: IBoard }) => {
   const [activeBoardId] = useQueryState('activeBoardId');
-  const [, setBoardId] = useQueryState('boardId');
+  const [, setBoardId] = useQueryState<string>('boardId');
   const { t } = useTranslation('sales');
 
   const isActive = board._id === activeBoardId;
@@ -81,7 +81,7 @@ const BoardMenuItem = ({ board }: { board: IBoard }) => {
     <div className="group relative flex items-center justify-between w-full hover:bg-gray-100 transition-colors duration-200">
       <Link
         className="w-full"
-        to={`/settings/sales/deals?activeBoardId=${board._id}`}
+        to={`/sales/settings/deals?activeBoardId=${board._id}`}
       >
         <Sidebar.MenuButton className="h-auto" isActive={isActive}>
           {board.name}

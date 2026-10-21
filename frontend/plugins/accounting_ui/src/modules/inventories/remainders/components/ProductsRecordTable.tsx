@@ -1,24 +1,29 @@
+import { IconPackageOff } from '@tabler/icons-react';
 import { CommandBar, RecordTable, Separator } from 'erxes-ui';
+import { AccountingEmptyState } from '@/layout/components/AccountingEmptyState';
 import { useSetAtom } from 'jotai';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { PRODUCTS_CURSOR_SESSION_KEY } from '../constants/productsCursorSessionKey';
-import { useProducts } from '../hooks/useProducts';
-import { selectedProductIdsAtom } from '../states/productCounts';
-import { productColumns } from './ProductColumns';
-import { ReCalcRemainderForm } from './ReCalcRemainderForm';
+import { PRODUCTS_CURSOR_SESSION_KEY } from '@/inventories/remainders/constants/productsCursorSessionKey';
+import { useProducts } from '@/inventories/remainders/hooks/useProducts';
+import { selectedProductIdsAtom } from '@/inventories/remainders/states/productCounts';
+import { productColumns } from '@/inventories/remainders/components/ProductColumns';
+import { ReCalcRemainderForm } from '@/inventories/remainders/components/ReCalcRemainderForm';
 
 export const ProductsRecordTable = () => {
-  const { productsMain, handleFetchMore, loading, pageInfo } = useProducts();
+  const { productsMain, handleFetchMore, loading, error, pageInfo } =
+    useProducts();
   const { t } = useTranslation('accounting');
 
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
+
+  const isEmpty = !loading && !productsMain?.length;
 
   return (
     <RecordTable.Provider
       columns={productColumns(t)}
       data={productsMain || []}
-      className="h-full"
+      className="relative h-full"
       stickyColumns={['checkbox', 'code', 'name']}
       tableId="accounting_inventory_remainders_record_table"
     >
@@ -43,6 +48,14 @@ export const ProductsRecordTable = () => {
         </RecordTable>
       </RecordTable.CursorProvider>
       <ProductsCommandBar />
+      {isEmpty && (
+        <AccountingEmptyState
+          overlay
+          error={error}
+          icon={IconPackageOff}
+          description={t('empty-generated-description')}
+        />
+      )}
     </RecordTable.Provider>
   );
 };

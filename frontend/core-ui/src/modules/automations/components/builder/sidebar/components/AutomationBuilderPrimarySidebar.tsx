@@ -12,13 +12,13 @@ import { Card, IconComponent, Separator, cn } from 'erxes-ui';
 
 export const AutomationBuilderPrimarySidebar = ({
   activeNode,
-  canShowSecondarySidebar,
+  showPanelToggles,
   className,
   handleBack,
   handleClose,
 }: {
   activeNode?: NodeData;
-  canShowSecondarySidebar: boolean;
+  showPanelToggles: boolean;
   className?: string;
   handleBack: () => void;
   handleClose: () => void;
@@ -32,7 +32,7 @@ export const AutomationBuilderPrimarySidebar = ({
     >
       <AutomationBuilderSidebarHeader
         activeNode={activeNode}
-        canShowSecondarySidebar={canShowSecondarySidebar}
+        showPanelToggles={showPanelToggles}
         handleBack={handleBack}
         handleClose={handleClose}
       />
@@ -48,12 +48,12 @@ export const AutomationBuilderPrimarySidebar = ({
 
 const AutomationBuilderSidebarHeader = ({
   activeNode,
-  canShowSecondarySidebar,
+  showPanelToggles,
   handleClose,
   handleBack,
 }: {
   activeNode?: NodeData;
-  canShowSecondarySidebar: boolean;
+  showPanelToggles: boolean;
   handleClose: () => void;
   handleBack: () => void;
 }) => {
@@ -63,7 +63,7 @@ const AutomationBuilderSidebarHeader = ({
 
   return (
     <>
-      <Card.Header className="flex min-w-0 flex-row items-start justify-between gap-3 px-4 py-4 font-mono">
+      <Card.Header className="flex min-w-0 flex-row items-start justify-between gap-3 space-y-0 px-4 py-4 font-mono">
         <div className="flex min-w-0 flex-1 flex-row items-start gap-3">
           <div
             className={cn(
@@ -79,7 +79,7 @@ const AutomationBuilderSidebarHeader = ({
           </div>
         </div>
         <AutomationBuilderSidebarHeaderActions
-          canShowSecondarySidebar={canShowSecondarySidebar}
+          showPanelToggles={showPanelToggles}
           handleBack={handleBack}
           handleClose={handleClose}
         />

@@ -1,8 +1,8 @@
+import { IDealDetail } from '@/deals/types/deals';
 import { IconChevronRight, IconTicket, IconX } from '@tabler/icons-react';
 import { Button, Spinner } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { IDeal } from '@/deals/types/deals';
 import { useDealVouchers } from '../hooks/useDealVouchers';
 import { dealVoucherValueText } from '../utils/dealVoucherGroups';
 import { DealVoucherDialog } from './DealVoucherDialog';
@@ -29,13 +29,14 @@ const Chip = ({
 );
 
 /** One line above the products: the voucher and coupon this deal uses. */
-export const DealVoucherRow = ({ deal }: { deal: IDeal }) => {
+export const DealVoucherRow = ({ deal }: { deal: IDealDetail }) => {
   const { t } = useTranslation('sales');
   const [open, setOpen] = useState(false);
   const vouchers = useDealVouchers(deal);
   const {
     visible,
     loading,
+    error,
     saving,
     readOnly,
     chosen,
@@ -53,6 +54,11 @@ export const DealVoucherRow = ({ deal }: { deal: IDeal }) => {
     <>
       <div className="mb-3 flex flex-wrap items-center gap-1.5 rounded-md border px-2 py-1.5 text-xs">
         {loading && <Spinner size="sm" />}
+        {error && (
+          <span role="alert" className="text-destructive">
+            {t('unable-to-load-vouchers', 'Unable to load vouchers')}
+          </span>
+        )}
         {voucherId && (
           <Chip
             disabled={saving}
@@ -85,25 +91,32 @@ export const DealVoucherRow = ({ deal }: { deal: IDeal }) => {
             {t('deal-voucher-more', { count: morePicks })}
           </span>
         )}
-        {!voucherId && !couponCode && !singlePick && !morePicks && !loading && (
-          <span className="text-muted-foreground">
-            {t('deal-voucher-empty')}
-          </span>
-        )}
-        {readOnly ? (
+        {!error &&
+          !voucherId &&
+          !couponCode &&
+          !singlePick &&
+          !morePicks &&
+          !loading && (
+            <span className="text-muted-foreground">
+              {t('deal-voucher-empty')}
+            </span>
+          )}
+        {readOnly && !error ? (
           <span className="ml-auto text-muted-foreground">
             {t('deal-voucher-settled')}
           </span>
         ) : (
-          <Button
-            size="sm"
-            variant="ghost"
-            className="ml-auto h-6 px-1.5 text-xs"
-            onClick={() => setOpen(true)}
-          >
-            {t('deal-voucher-open')}
-            <IconChevronRight className="size-3" />
-          </Button>
+          !readOnly && (
+            <Button
+              size="sm"
+              variant="ghost"
+              className="ml-auto h-6 px-1.5 text-xs"
+              onClick={() => setOpen(true)}
+            >
+              {t('deal-voucher-open')}
+              <IconChevronRight className="size-3" />
+            </Button>
+          )
         )}
       </div>
       {!readOnly && (

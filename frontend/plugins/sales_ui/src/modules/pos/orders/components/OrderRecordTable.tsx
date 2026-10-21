@@ -12,9 +12,10 @@ import { usePosOrdersSummary } from '../detail/hooks/usePosOrdersSummary';
 
 export const OrderRecordTable = ({ posId }: { posId?: string }) => {
   const { t } = useTranslation('sales');
-  const { ordersList, handleFetchMore, loading, pageInfo } = useOrdersList({
-    posId,
-  });
+  const { ordersList, handleFetchMore, loading, error, pageInfo } =
+    useOrdersList({
+      posId,
+    });
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
   const { posOrdersSummary } = usePosOrdersSummary({ posId });
 
@@ -29,6 +30,13 @@ export const OrderRecordTable = ({ posId }: { posId?: string }) => {
   const columnsKey = allColumns.map((c) => c.id || '').join('|');
 
   if (loading) return <Spinner />;
+
+  if (error)
+    return (
+      <p role="alert" className="m-3 text-destructive">
+        {error.message}
+      </p>
+    );
 
   return (
     <RecordTable.Provider

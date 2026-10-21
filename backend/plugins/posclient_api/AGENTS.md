@@ -6,7 +6,7 @@
 - **Project:** `posclient_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/posclient_api`
-- **Last synchronized:** `2026-10-15`
+- **Last synchronized:** `2026-10-19`
 
 ## Scope
 
@@ -19,6 +19,8 @@
 - Sales POS settings UI, sales API persistence, shared core services, gateway routing, or other plugin data models.
 
 ## Current Capabilities
+
+- Prints its federated SDL through the shared `schema:print` Nx target for gateway composition and frontend codegen.
 
 - The cashier's earn preview (`previewLoyaltyEarn`) counts the POS's own earning campaigns (`config.earnScoreCampaignId`, synced from the sales POS) first, then any active automation's Adjust score, one rule per campaign.
 
@@ -87,6 +89,8 @@
 
 ### Provides
 
+- `schema:print` writes ignored `generated/schema.graphql`; `gateway:schema:compose` includes POS client types and queries used by Sales through the default gateway client.
+
 - `dailyReport(posUserIds, dateType, startDate, endDate): DailyReport` GraphQL query.
 - `orderChangeLogs(orderId, orderNumber, source, userId, startDate, endDate, page, perPage): [OrderChangeLog]`
   GraphQL query for POS admins; omitting `orderId` includes unsaved carts.
@@ -125,6 +129,9 @@
 - Loyalty tRPC `loyalty.ownerSummary` and `coupon.checkCoupon`.
 - Core tRPC `fields.find`, `customers.findActiveCustomers`, and
   `customers.createCustomer`.
+- Core tRPC `segment.fetchSegment` (`{ segmentId, cursor?, limit? }` →
+  `{ ids, nextCursor? }`); `segmentProductIds` pages on `nextCursor` until it
+  is empty.
 - Synced eBarimt config fields including `hasCopy`, `hasSumQty`, and
   `isCleanTaxPrice`.
 - Shared `erxes-api-shared` context, GraphQL, and date utility contracts.
@@ -215,6 +222,9 @@
 - Order payment mutations must append paid amounts and increment cash atomically; do not rebuild payment fields from a stale order snapshot.
 
 ## Validation
+
+- `pnpm nx run posclient_api:schema:print --skip-nx-cache`
+- `pnpm nx run gateway:schema:compose --skip-nx-cache --parallel=2`
 
 - CP creation/edit smoke: with client portal context, visitors without a
   portal user reach order validation; non-visitors require `cpUser`.

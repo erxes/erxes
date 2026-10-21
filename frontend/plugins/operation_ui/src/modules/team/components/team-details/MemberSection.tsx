@@ -10,7 +10,7 @@ export const MemberSection = ({ team }: { team: ITeam }) => {
   return (
     <div
       className="mt-4 w-full border border-muted-foreground/15 rounded-md hover:bg-sidebar/50 cursor-pointer"
-      onClick={() => navigate(`/settings/operation/team/members/${team._id}`)}
+      onClick={() => navigate(`/operation/settings/team/members/${team._id}`)}
     >
       <section className="w-full p-4">
         <div className="flex items-center justify-between">

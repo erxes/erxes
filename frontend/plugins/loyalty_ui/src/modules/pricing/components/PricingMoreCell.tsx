@@ -26,7 +26,7 @@ export const PricingMoreCell = ({ row }: CellContext<IPricing, unknown>) => {
   const { t } = useTranslation('loyalty');
 
   const handleEdit = () => {
-    navigate(`/settings/loyalty/pricing/${pricing._id}`);
+    navigate(`/loyalty/settings/pricing/${pricing._id}`);
   };
 
   const handleDelete = () => {

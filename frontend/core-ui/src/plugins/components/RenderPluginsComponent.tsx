@@ -3,50 +3,75 @@ import * as Sentry from '@sentry/react';
 import {
   RemoteComponent,
   RemoteComponentProps,
-  RemoteModule,
-  resolveRemoteComponent,
 } from '../utils/resolveRemoteComponent';
+import {
+  getLoadedRemoteComponent,
+  getRemoteComponentKey,
+  loadRemoteComponent,
+} from '../utils/loadRemoteComponent';
 import { Suspense, useEffect, useState } from 'react';
 
 import { ErrorBoundary } from 'react-error-boundary';
 import { RenderPluginsComponentCrashState } from './RenderPluginsComponentCrashState';
 import { RenderPluginsComponentErrorState } from './RenderPluginsComponentErrorState';
 import { Spinner } from 'erxes-ui';
-import { loadRemote } from '@module-federation/enhanced/runtime';
+import { useAtomValue } from 'jotai';
+import { pluginsConfigState } from 'ui-modules';
+import { resolvePluginRemoteName } from '../utils/resolvePluginRemoteName';
+
+const QuietCrashState = () => null;
 
 export function RenderPluginsComponent({
-  pluginName,
+  pluginName: requestedPluginName,
   remoteModuleName,
   props,
   withMascot,
+  quiet,
 }: {
   pluginName: string;
   remoteModuleName: string;
   props?: RemoteComponentProps;
   withMascot?: boolean;
+  /**
+   * Render nothing while loading or after a failure, for overlays (floating
+   * widgets) that must never take page space.
+   */
+  quiet?: boolean;
 }) {
-  const [Plugin, setPlugin] = useState<RemoteComponent | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const configs = useAtomValue(pluginsConfigState);
+  const pluginName = resolvePluginRemoteName(requestedPluginName, configs);
+  // A plugin loaded before renders on the first frame: switching apps must
+  // not flash the loader, since the plugin draws its own sidebar.
+  const [Plugin, setPlugin] = useState<RemoteComponent | null>(
+    () =>
+      getLoadedRemoteComponent(
+        getRemoteComponentKey(pluginName, remoteModuleName),
+      ) || null,
+  );
+  const [isLoading, setIsLoading] = useState(!Plugin);
   const [hasError, setHasError] = useState<{ message: string } | null>(null);
 
   useEffect(() => {
+    const cached = getLoadedRemoteComponent(
+      getRemoteComponentKey(pluginName, remoteModuleName),
+    );
+
+    if (cached) {
+      setPlugin(() => cached);
+      setIsLoading(false);
+      setHasError(null);
+      return;
+    }
+
     const loadPlugin = async () => {
       try {
         setIsLoading(true);
         setHasError(null);
 
-        const remoteModule = await loadRemote<RemoteModule>(
-          `${pluginName}/${remoteModuleName}`,
-          { from: 'runtime' },
-        );
-        const remoteComponent = resolveRemoteComponent(
-          remoteModule,
+        const remoteComponent = await loadRemoteComponent(
+          pluginName,
           remoteModuleName,
         );
-
-        if (!remoteComponent) {
-          throw new Error('Plugin module is empty or invalid');
-        }
 
         setPlugin(() => remoteComponent);
       } catch (error) {
@@ -64,6 +89,10 @@ export function RenderPluginsComponent({
   }, [pluginName, remoteModuleName]);
 
   if (hasError) {
+    if (quiet) {
+      return null;
+    }
+
     return (
       <RenderPluginsComponentErrorState
         pluginName={pluginName}
@@ -75,7 +104,7 @@ export function RenderPluginsComponent({
     );
   }
 
-  const loader = (
+  const loader = quiet ? null : (
     <div className="flex justify-center items-center h-full">
       <Spinner withMascot={withMascot} />
     </div>
@@ -89,7 +118,9 @@ export function RenderPluginsComponent({
     <Suspense fallback={loader}>
       {/* One plugin breaking while drawing must not take its host down. */}
       <ErrorBoundary
-        FallbackComponent={RenderPluginsComponentCrashState}
+        FallbackComponent={
+          quiet ? QuietCrashState : RenderPluginsComponentCrashState
+        }
         resetKeys={[pluginName, remoteModuleName]}
         onError={(error, info) => {
           // The fallback hides the error; keep it visible for debugging.

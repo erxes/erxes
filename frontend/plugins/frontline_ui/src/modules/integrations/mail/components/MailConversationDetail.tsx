@@ -1,13 +1,13 @@
-import { ScrollArea } from 'erxes-ui';
-import { useCallback, useEffect, useLayoutEffect, useRef } from 'react';
 import { useConversationContext } from '@/inbox/conversations/conversation-detail/hooks/useConversationContext';
+import { COMPOSE_EMAIL_EVENT } from '@/integrations/mail/composer/constants/directMailComposer';
 import { useMailSendMail } from '@/integrations/mail/hooks/useMailConversationDetail';
 import { useMailThreadData } from '@/integrations/mail/hooks/useMailThreadData';
 import type { MailThreadProps } from '@/integrations/mail/types/mailThread';
-import { COMPOSE_EMAIL_EVENT } from '@/integrations/mail/constants/directMailComposer';
-import { MailThread } from './MailThread';
-import { MailDrafts } from './MailDrafts';
-import { MailInternalNotes } from './MailInternalNotes';
+import { ScrollArea } from 'erxes-ui';
+import { useCallback, useEffect, useLayoutEffect, useRef } from 'react';
+import { MailDrafts } from '@/integrations/mail/components/MailDrafts';
+import { MailInternalNotes } from '@/integrations/mail/components/MailInternalNotes';
+import { MailThread } from '@/integrations/mail/components/MailThread';
 
 export const MailConversationDetail = () => {
   const viewportRef = useRef<HTMLDivElement>(null);

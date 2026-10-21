@@ -1,11 +1,18 @@
 const fs = require('fs');
 const path = require('path');
+const { getPluginPorts, selectPluginPort } = require('./plugin-ports');
 
 function capitalizeFirstLetter(string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
-function createBackendPlugin(pluginName, moduleName) {
+function createBackendPlugin(pluginName, moduleName, options = {}) {
+  const port = selectPluginPort(
+    getPluginPorts(path.join(__dirname, '..')),
+    options.port,
+    3305,
+    'API',
+  );
   // Convert plugin name to kebab case
   const kebabCaseName = pluginName
     .replace(/([a-z])([A-Z])/g, '$1-$2')
@@ -214,7 +221,7 @@ import { generateModels } from './connectionResolvers';
 
 startPlugin({
   name: '${kebabCaseName}',
-  port: 33010,
+  port: ${port},
   graphql: async () => ({
     typeDefs: await typeDefs(),
     resolvers,
@@ -248,7 +255,7 @@ import { I${capitalizedModuleName}Document } from '@/${moduleName}/@types/${modu
 
 import mongoose from 'mongoose';
 
-import { load${capitalizedModuleName}Class, I${capitalizedModuleName}Model } from '@/${moduleName}/db/models/${moduleName}';
+import { load${capitalizedModuleName}Class, I${capitalizedModuleName}Model } from '@/${moduleName}/db/models/${capitalizedModuleName}';
 
 export interface IModels {
   ${capitalizedModuleName}: I${capitalizedModuleName}Model;
@@ -361,23 +368,40 @@ export const customResolvers = {
   );
 
   // Create apollo/schema/schema.ts
-  const schemaContent = 'import {\n' +
-  '  mutations as ' + capitalizedModuleName + 'Mutations,\n' +
-  '  queries as ' + capitalizedModuleName + 'Queries,\n' +
-  '  types as ' + capitalizedModuleName + 'Types,\n' +
-  '} from \'@/' + moduleName + '/graphql/schemas/' + moduleName + '\';\n' +
-  '\n' +
-  'export const types = `\n' +
-  '  ${' + capitalizedModuleName + 'Types}\n' +
-  '`;\n' +
-  '\n' +
-  'export const queries = `\n' +
-  '  ${' + capitalizedModuleName + 'Queries}\n' +
-  '`;\n' +
-  '\n' +
-  'export const mutations = `\n' +
-  '  ${' + capitalizedModuleName + 'Mutations}\n' +
-  '`;\n';
+  const schemaContent =
+    'import {\n' +
+    '  mutations as ' +
+    capitalizedModuleName +
+    'Mutations,\n' +
+    '  queries as ' +
+    capitalizedModuleName +
+    'Queries,\n' +
+    '  types as ' +
+    capitalizedModuleName +
+    'Types,\n' +
+    "} from '@/" +
+    moduleName +
+    '/graphql/schemas/' +
+    moduleName +
+    "';\n" +
+    '\n' +
+    'export const types = `\n' +
+    '  ${' +
+    capitalizedModuleName +
+    'Types}\n' +
+    '`;\n' +
+    '\n' +
+    'export const queries = `\n' +
+    '  ${' +
+    capitalizedModuleName +
+    'Queries}\n' +
+    '`;\n' +
+    '\n' +
+    'export const mutations = `\n' +
+    '  ${' +
+    capitalizedModuleName +
+    'Mutations}\n' +
+    '`;\n';
 
   fs.writeFileSync(
     path.join(backendPluginDir, 'src', 'apollo', 'schema', 'schema.ts'),
@@ -392,7 +416,7 @@ import { ITRPCContext } from 'erxes-api-shared/utils';
 const t = initTRPC.context<ITRPCContext>().create();
 
 export const appRouter = t.router({
-  ${kebabCaseName}: {
+  '${kebabCaseName}': {
     hello: t.procedure.query(() => {
       return 'Hello ${kebabCaseName}';
     }),
@@ -592,11 +616,11 @@ export const mutations = \`
   import { IContext } from '~/connectionResolvers';
 
    export const ${moduleName}Queries = {
-    get${capitalizedModuleName}: async (_parent: undefined, { _id }, { models }: IContext) => {
+    get${capitalizedModuleName}: async (_parent: unknown, { _id }: { _id: string }, { models }: IContext) => {
       return models.${capitalizedModuleName}.get${capitalizedModuleName}(_id);
     },
     
-    get${capitalizedModuleName}s: async (_parent: undefined, { models }: IContext) => {
+    get${capitalizedModuleName}s: async (_parent: unknown, _args: Record<string, never>, { models }: IContext) => {
       return models.${capitalizedModuleName}.get${capitalizedModuleName}s();
     },
   };
@@ -694,7 +718,7 @@ dist
 
   console.log(`\nNext steps:`);
   console.log(`1. cd backend/plugins/${kebabCaseName}_api`);
-  console.log(`2. npm install`);
+  console.log(`2. pnpm install`);
   console.log(`3. Start developing your plugin!`);
 }
 

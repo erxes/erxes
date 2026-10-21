@@ -1,4 +1,86 @@
+# Changelog
 
+## [3.3.4](https://github.com/erxes/erxes/compare/3.3.3...3.3.4) (2026-10-20)
+
+
+### Features
+
+* **files:** add Files module with folder access control, previews and public links ([#9887](https://github.com/erxes/erxes/issues/9887)) ([bc32a44](https://github.com/erxes/erxes/commit/bc32a44c0bf2e7671ed412ef140624481888162f))
+
+## [3.3.3](https://github.com/erxes/erxes/compare/3.3.2...3.3.3) (2026-10-20)
+
+
+### Bug Fixes
+
+* **content:** save CMS page edits and open the selected CMS card ([#9880](https://github.com/erxes/erxes/issues/9880)) ([44a0f63](https://github.com/erxes/erxes/commit/44a0f6399506664c591affd26643ca3975277cc6))
+* **erxes-ui:** publish compiled JavaScript and styles ([#9830](https://github.com/erxes/erxes/issues/9830)) ([8b3c282](https://github.com/erxes/erxes/commit/8b3c282997d273a9aebc17eaf2f28e37e44425e7))
+* filter ([29a95a4](https://github.com/erxes/erxes/commit/29a95a41d46f81fd43835e9aa48c3aed9cc44296))
+* **frontline:** use absolute path for ticket navigation links ([ec2e9bf](https://github.com/erxes/erxes/commit/ec2e9bfc0ee196c9f0114d9e3d06ae760bebdb43))
+* **notifications:** standardize My Inbox detail views and layout ([#9815](https://github.com/erxes/erxes/issues/9815)) ([9aa855f](https://github.com/erxes/erxes/commit/9aa855f9e721e81c7b3cd77c1d9682ef6ad6d51f))
+
+
+### Features
+
+* **codegen:** one composed gateway schema for every plugin's codegen ([#9603](https://github.com/erxes/erxes/issues/9603)) ([a5dd1bd](https://github.com/erxes/erxes/commit/a5dd1bd9de4cf34321e8c9a31a1aa7fe7f6793cc))
+* **core:** Removed test files ([#9879](https://github.com/erxes/erxes/issues/9879)) ([b8d6cc4](https://github.com/erxes/erxes/commit/b8d6cc41ecce62f3361ff5d4e4debea9aadea615))
+* **frontline:** add cpGetTicketPipelines client portal query ([4715f36](https://github.com/erxes/erxes/commit/4715f36b9ba4865bf3e75591113923ff90ca8698))
+* **notifications:** add mobile push channel with per-event delivery ([fd1a658](https://github.com/erxes/erxes/commit/fd1a658e20a1a7e5a943286da4f734e8c2e43f11))
+
+## [3.3.2](https://github.com/erxes/erxes/compare/3.3.1...3.3.2) (2026-10-18)
+
+
+### Reverts
+
+* revert sidebar icon width ([44e00cd](https://github.com/erxes/erxes/commit/44e00cd22685d94ef9afb885045d57546c427e0e))
+
+## [3.3.1](https://github.com/erxes/erxes/compare/3.3.0...3.3.1) (2026-10-18)
+
+
+### Bug Fixes
+
+* sales deal detail ([179520b](https://github.com/erxes/erxes/commit/179520b71efbf6e135727da8c137161968ac959d))
+
+
+### Features
+
+* change breadcrumbs height and top navigation bar style ([82e8b94](https://github.com/erxes/erxes/commit/82e8b948e01eaa10cbd2d1dcf148fcfde260a9f5))
+
+# [3.3.0](https://github.com/erxes/erxes/compare/3.2.25...3.3.0) (2026-10-18)
+
+
+### Bug Fixes
+
+* **core:** improve My Inbox keyboard navigation ([#9777](https://github.com/erxes/erxes/issues/9777)) ([5ae12c9](https://github.com/erxes/erxes/commit/5ae12c9ae7dc4d75fa75c0cf31f11bb0121601b9))
+* fix npm packages ([fa1ffb6](https://github.com/erxes/erxes/commit/fa1ffb61c8ee3f4c27132a124596d6d5ccda670c))
+* **frontline:** improve form builder field, step and settings UX ([#9607](https://github.com/erxes/erxes/issues/9607)) ([3e65c18](https://github.com/erxes/erxes/commit/3e65c18ef5ad1193960f33c201ee362ca14b54bc))
+* **frontline:** restore facebookGetPosts for client portals ([#9767](https://github.com/erxes/erxes/issues/9767)) ([d40164d](https://github.com/erxes/erxes/commit/d40164d80612181fe3d523864136998a2306fdf6))
+* keep the selected theme when the support messenger loads ([#9749](https://github.com/erxes/erxes/issues/9749)) ([dd5e88c](https://github.com/erxes/erxes/commit/dd5e88c053e05afdc4615c313750cc641d0f07c6))
+* **posclient:** little bug ([06ab523](https://github.com/erxes/erxes/commit/06ab5237e612358761564fac8d45f30a04d937b0))
+* **saas:** treat Company Brain as a normal plugin for v2 workspaces ([#9793](https://github.com/erxes/erxes/issues/9793)) ([c579104](https://github.com/erxes/erxes/commit/c5791046d2cf946ed1d217f1c8d43c231baedba6))
+* **sales:** align resolver results with GraphQL contracts ([#9769](https://github.com/erxes/erxes/issues/9769)) ([045cbca](https://github.com/erxes/erxes/commit/045cbcab48a0dbb53709d626a060b975d786730c)), closes [#9768](https://github.com/erxes/erxes/issues/9768) [#9768](https://github.com/erxes/erxes/issues/9768) [#9689](https://github.com/erxes/erxes/issues/9689) [#9767](https://github.com/erxes/erxes/issues/9767) [#9759](https://github.com/erxes/erxes/issues/9759) [#9566](https://github.com/erxes/erxes/issues/9566) [#9759](https://github.com/erxes/erxes/issues/9759) [#9759](https://github.com/erxes/erxes/issues/9759) [#9765](https://github.com/erxes/erxes/issues/9765) [#9759](https://github.com/erxes/erxes/issues/9759) [#9759](https://github.com/erxes/erxes/issues/9759) [#9759](https://github.com/erxes/erxes/issues/9759) [#9689](https://github.com/erxes/erxes/issues/9689) [#9767](https://github.com/erxes/erxes/issues/9767) [#9759](https://github.com/erxes/erxes/issues/9759) [#9566](https://github.com/erxes/erxes/issues/9566) [#9759](https://github.com/erxes/erxes/issues/9759) [#9759](https://github.com/erxes/erxes/issues/9759)
+* **sales:** resolve frontend type errors ([#9765](https://github.com/erxes/erxes/issues/9765)) ([cb14256](https://github.com/erxes/erxes/commit/cb142561eeacae7ecf90143dfbeecd75689f88c5)), closes [#9759](https://github.com/erxes/erxes/issues/9759) [#9759](https://github.com/erxes/erxes/issues/9759) [#9759](https://github.com/erxes/erxes/issues/9759) [#9689](https://github.com/erxes/erxes/issues/9689) [#9767](https://github.com/erxes/erxes/issues/9767) [#9759](https://github.com/erxes/erxes/issues/9759) [#9566](https://github.com/erxes/erxes/issues/9566) [#9759](https://github.com/erxes/erxes/issues/9759) [#9759](https://github.com/erxes/erxes/issues/9759)
+* **sales:** validate required GraphQL inputs ([#9768](https://github.com/erxes/erxes/issues/9768)) ([f396c53](https://github.com/erxes/erxes/commit/f396c53213a121609b1f6691e9608604188f1c57)), closes [#9765](https://github.com/erxes/erxes/issues/9765) [#9765](https://github.com/erxes/erxes/issues/9765) [#9689](https://github.com/erxes/erxes/issues/9689) [#9767](https://github.com/erxes/erxes/issues/9767) [#9759](https://github.com/erxes/erxes/issues/9759) [#9566](https://github.com/erxes/erxes/issues/9566) [#9759](https://github.com/erxes/erxes/issues/9759) [#9759](https://github.com/erxes/erxes/issues/9759) [#9765](https://github.com/erxes/erxes/issues/9765) [#9759](https://github.com/erxes/erxes/issues/9759) [#9759](https://github.com/erxes/erxes/issues/9759) [#9759](https://github.com/erxes/erxes/issues/9759) [#9689](https://github.com/erxes/erxes/issues/9689) [#9767](https://github.com/erxes/erxes/issues/9767) [#9759](https://github.com/erxes/erxes/issues/9759) [#9566](https://github.com/erxes/erxes/issues/9566) [#9759](https://github.com/erxes/erxes/issues/9759) [#9759](https://github.com/erxes/erxes/issues/9759)
+* temp comment beforeresolver on mongolian ([0bd2d79](https://github.com/erxes/erxes/commit/0bd2d79b223e9a2bb5045361fdbf3e4f9c904f72))
+* unified page header and remove the duplicated Boards heading in deal settings ([#9748](https://github.com/erxes/erxes/issues/9748)) ([64bffdd](https://github.com/erxes/erxes/commit/64bffddfbe4b2345b6a41c0866a5a374acbfc8d2))
+
+
+### Features
+
+* change layout ([8927a82](https://github.com/erxes/erxes/commit/8927a82fc7ead98c2263995367fd28d8fc6ea04a))
+* **frontline:** create, filter and manage surveys from the surveys page ([#9580](https://github.com/erxes/erxes/issues/9580)) ([3679e7e](https://github.com/erxes/erxes/commit/3679e7e920c9a932b978f5fec30ab822d9d4bb85))
+* **frontline:** ticket detail actions menu and inline create in ticket selectds ([#9733](https://github.com/erxes/erxes/issues/9733)) ([4d1ad48](https://github.com/erxes/erxes/commit/4d1ad482fa89dd21f62bde532373b20987d59039))
+* **frontline:** validate frontline_ui GraphQL documents with codegen ([8ff6350](https://github.com/erxes/erxes/commit/8ff6350227d2daad971eb3facb9ae9fb36b7e914))
+* **operation:** labelled task chips and inline date picker ([#9755](https://github.com/erxes/erxes/issues/9755)) ([cee3cda](https://github.com/erxes/erxes/commit/cee3cda1665cfd2a3d1cab1020817ee6b2aba30a))
+* **payment:** tdb corporate gateway ([#9564](https://github.com/erxes/erxes/issues/9564)) ([6359017](https://github.com/erxes/erxes/commit/6359017c8cdd965753eb5e0f50fd6957b172af66))
+* **sales:** add GraphQL codegen setup ([#9759](https://github.com/erxes/erxes/issues/9759)) ([1d4c0ff](https://github.com/erxes/erxes/commit/1d4c0ff6ab92d802e425d13df56a64a7c0bda73d)), closes [#9566](https://github.com/erxes/erxes/issues/9566)
+* **sales:** finish GraphQL codegen migration ([#9770](https://github.com/erxes/erxes/issues/9770)–[#9774](https://github.com/erxes/erxes/issues/9774)) ([#9783](https://github.com/erxes/erxes/issues/9783)) ([30e05c9](https://github.com/erxes/erxes/commit/30e05c95b486a98301837d75683fe055b5639198))
+* update npm logic ([806b5d7](https://github.com/erxes/erxes/commit/806b5d7b9b0a555cc49a3ad681e8d500463d67fe))
+* update settings pages of plugins ([22ffb2d](https://github.com/erxes/erxes/commit/22ffb2d3ecc23c5438847c38e95e860a66bf8788))
+
+
+### Performance Improvements
+
+* **frontline:** add tag filter and form counts to the forms page sidebar ([#9756](https://github.com/erxes/erxes/issues/9756)) ([b72705c](https://github.com/erxes/erxes/commit/b72705cbdea22dc306960d95736a50c6649cf6f8))
 
 ## [3.2.25](https://github.com/erxes/erxes/compare/3.2.24...3.2.25) (2026-10-15)
 
@@ -8,7 +90,7 @@
 * posclient worker ([c50435a](https://github.com/erxes/erxes/commit/c50435aa74a3d0c4fb5f4e83b850a3fc7f944b1a))
 * some int to float ([2e0bc86](https://github.com/erxes/erxes/commit/2e0bc8623672042e1b381e7577f22d813aa5287e))
 
-# Changelog
+
 
 ## [3.2.24](https://github.com/erxes/erxes/compare/3.2.23...3.2.24) (2026-10-14)
 

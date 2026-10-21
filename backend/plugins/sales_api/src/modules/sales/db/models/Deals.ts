@@ -28,7 +28,11 @@ export interface IDealModel extends Model<IDealDocument> {
   getDeal(_id: string): Promise<IDealDocument>;
   createDeal(doc: IDeal): Promise<IDealDocument>;
   updateDeal(_id: string, doc: IDeal): Promise<IDealDocument>;
-  watchDeal(_id: string, isAdd: boolean, userId: string): Promise<void>;
+  watchDeal(
+    _id: string,
+    isAdd: boolean,
+    userId: string,
+  ): Promise<IDealDocument | null>;
   removeDeals(_ids: string[]): Promise<{ n: number; ok: number }>;
 }
 
@@ -129,14 +133,20 @@ export const loadDealClass = (
       return updatedDeal;
     }
 
-    public static async watchDeal(_id: string, isAdd: boolean, userId: string) {
+    public static async watchDeal(
+      _id: string,
+      isAdd: boolean,
+      userId: string,
+    ): Promise<IDealDocument | null> {
       const deal = await models.Deals.getDeal(_id);
 
-      await watchItem(models.Deals, _id, isAdd, userId);
+      const updatedDeal = await watchItem(models.Deals, _id, isAdd, userId);
 
       createActivityLog(
         generateDealWatchActivityLog(deal.toObject(), isAdd, userId),
       );
+
+      return updatedDeal;
     }
 
     public static async removeDeals(_ids: string[]) {

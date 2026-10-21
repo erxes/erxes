@@ -1,9 +1,12 @@
-import { AttachmentContextType, IAttachment } from '@/deals/types/attachments';
+import {
+  type AttachmentContextType,
+  type IAttachment,
+  toAttachmentInput,
+} from '@/deals/types/attachments';
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
-import { removeTypename } from '@/deals/utils/common';
-import { useConfirm } from 'erxes-ui';
 import { useDealsContext } from '@/deals/context/DealContext';
+import { useConfirm } from 'erxes-ui';
 
 const AttachmentContext = createContext<AttachmentContextType | null>(null);
 
@@ -49,7 +52,7 @@ export const AttachmentProvider = ({
 
     const newAttachments = attachments
       .filter((att) => att.url !== attachment.url)
-      .map((att) => removeTypename(att));
+      .map((att) => toAttachmentInput(att));
 
     try {
       if (!dealId) {

@@ -1,3 +1,4 @@
+import { ConversationCountValue } from './ConversationCountValue';
 import { Filter, Skeleton, cn } from 'erxes-ui';
 
 import { ConversationFilterBar } from '@/inbox/conversations/components/ConversationsFilter';
@@ -19,7 +20,9 @@ export const ConversationCount = ({ className }: { className?: string }) => {
       {loading ? (
         <Skeleton className="w-4 h-4 flex-none" />
       ) : (
-        <span className="flex-none">{totalCount}</span>
+        <span className="flex-none">
+          <ConversationCountValue count={totalCount} />
+        </span>
       )}
       <span className="truncate">{t('conversations', 'conversations')}</span>
     </span>

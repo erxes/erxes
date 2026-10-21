@@ -32,7 +32,7 @@ export const PosEmptyState = ({
         </Button>
       ) : (
         <Button variant="outline" asChild>
-          <Link to="/settings/sales/pos">
+          <Link to="/sales/settings/pos">
             <IconSettings />
             {t('go-to-settings')}
           </Link>

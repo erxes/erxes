@@ -110,7 +110,7 @@ export const mutations = `
     contentType: String
     extraInfo: JSON
   ): ConversationMessage
-  conversationsAssign(conversationIds: [String]!, assignedUserId: String): [Conversation]
+  conversationsAssign(conversationIds: [String]!, assignedUserId: String, assignedUserIds: [String!]): [Conversation]
   conversationsUnassign(_ids: [String]!): [Conversation]
   conversationsChangeStatus(_ids: [String]!, status: String!): [Conversation]
   conversationMarkAsRead(_id: String!): Conversation

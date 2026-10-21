@@ -1,23 +1,4 @@
-import React, { useState } from 'react';
-import { format } from 'date-fns';
-import {
-  RecordTableInlineCell,
-  Combobox,
-  PopoverScoped,
-  Popover,
-  Button,
-  Form,
-  DatePicker,
-  cn,
-} from 'erxes-ui';
-import {
-  IconCalendarPlus,
-  IconCalendarTime,
-  IconAlertCircleFilled,
-} from '@tabler/icons-react';
-import { type ApolloError } from '@apollo/client';
 import { useDealsEdit } from '@/deals/cards/hooks/useDeals';
-import { useTranslation } from 'react-i18next';
 import {
   formatDealDateForMutation,
   parseDealDate,
@@ -26,6 +7,25 @@ import {
   rejectOnMutationError,
   useOptimisticField,
 } from '@/deals/components/deal-selects/hooks/useOptimisticField';
+import { type ApolloError } from '@apollo/client';
+import {
+  IconAlertCircleFilled,
+  IconCalendarPlus,
+  IconCalendarTime,
+} from '@tabler/icons-react';
+import { format } from 'date-fns';
+import {
+  Button,
+  Combobox,
+  DatePicker,
+  Form,
+  Popover,
+  PopoverScoped,
+  RecordTableInlineCell,
+  cn,
+} from 'erxes-ui';
+import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export enum DateSelectVariant {
   TABLE = 'table',
@@ -168,7 +168,7 @@ export const DateSelectDealRoot = ({
   placeholder,
   label,
 }: {
-  value?: Date | string;
+  value?: Date | string | null;
   id?: string;
   type: 'startDate' | 'closeDate';
   scope?: string;
@@ -182,7 +182,7 @@ export const DateSelectDealRoot = ({
   const closeDate = type === 'closeDate';
   const now = new Date();
   const optimisticDate = useOptimisticField({
-    value: parseDealDate(value),
+    value: parseDealDate(value ?? undefined),
     resetKey: id,
     isEqual: areDatesEqual,
     onCommit: (nextValue) => {
@@ -310,13 +310,13 @@ export const DateSelectDealFormItem = ({
   onValueChange,
   placeholder,
 }: {
-  value?: Date | string;
+  value?: Date | string | null;
   onValueChange?: (value?: Date) => void;
   placeholder?: string;
 }) => {
   return (
     <DateSelectProvider
-      value={parseDealDate(value)}
+      value={parseDealDate(value ?? undefined)}
       onValueChange={(date) => onValueChange?.(date)}
       variant={DateSelectVariant.FORM}
     >

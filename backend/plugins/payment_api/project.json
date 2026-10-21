@@ -50,6 +50,7 @@
     "docker-build": {
       "dependsOn": ["build"],
       "command": "docker build -f backend/plugins/payment_api/Dockerfile . -t erxes/erxes-next-payment_api"
-    }
+    },
+    "schema:print": {}
   }
 }

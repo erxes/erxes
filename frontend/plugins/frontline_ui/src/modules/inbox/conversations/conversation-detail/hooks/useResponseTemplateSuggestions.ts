@@ -1,32 +1,25 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { stripHtml, toast, type useBlockEditor } from 'erxes-ui';
+import { stripHtml, toast } from 'erxes-ui';
 import { useDebounce } from 'use-debounce';
 import { useTranslation } from 'react-i18next';
-import type { PartialBlock } from '@blocknote/core';
+
 import { useGetChannels } from '@/channels/hooks/useGetChannels';
 import { getPreviewText } from '@/inbox/types/inbox';
 import { useGetResponses } from '@/responseTemplate/hooks/useGetResponses';
+import type {
+  ResponseTemplateSuggestion,
+  ResponseTemplateSuggestionsOptions,
+} from '@/inbox/conversations/conversation-detail/types/responseTemplateSuggestions';
+import type { ComposerBlockEditor } from '@/inbox/conversations/conversation-detail/types/composer';
+import { MAX_TEMPLATE_SUGGESTIONS } from '@/inbox/constants/responseTemplateSuggestions';
 import { toResponseTemplateText } from '@/responseTemplate/utils/toResponseTemplateText';
-
-const MAX_SUGGESTIONS = 5;
-
-type MessageEditor = ReturnType<typeof useBlockEditor>;
-
-export type ResponseTemplateSuggestion = ReturnType<
-  typeof toResponseTemplateText
-> & {
-  preview: string;
-};
 
 export const useResponseTemplateSuggestions = ({
   editor,
   enabled,
-}: {
-  editor: MessageEditor;
-  enabled: boolean;
-}) => {
+}: ResponseTemplateSuggestionsOptions) => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
-  const { channels: availableChannels } = useGetChannels();
+  const { channels: availableChannels } = useGetChannels({ skip: !enabled });
   const [searchValue, setSearchValue] = useState('');
   const [debouncedSearchValue] = useDebounce(searchValue, 300);
   const [isDismissed, setIsDismissed] = useState(false);
@@ -44,10 +37,12 @@ export const useResponseTemplateSuggestions = ({
   const suggestions = useMemo<ResponseTemplateSuggestion[]>(
     () =>
       debouncedSearchValue && enabled
-        ? (responses || []).slice(0, MAX_SUGGESTIONS).map((response) => ({
-            ...toResponseTemplateText(response),
-            preview: getPreviewText(response.content || ''),
-          }))
+        ? (responses || [])
+            .slice(0, MAX_TEMPLATE_SUGGESTIONS)
+            .map((response) => ({
+              ...toResponseTemplateText(response),
+              preview: getPreviewText(response.content || ''),
+            }))
         : [],
     [debouncedSearchValue, enabled, responses],
   );
@@ -68,12 +63,12 @@ export const useResponseTemplateSuggestions = ({
   const selectTemplate = useCallback(
     async (templateContent: string, templateId?: string) => {
       try {
-        let blocks: PartialBlock[];
+        let blocks: Parameters<ComposerBlockEditor['replaceBlocks']>[1];
 
         try {
           const parsed: unknown = JSON.parse(templateContent);
           blocks = Array.isArray(parsed)
-            ? (parsed as PartialBlock[])
+            ? (parsed as typeof blocks)
             : [{ type: 'paragraph', content: templateContent, props: {} }];
         } catch {
           blocks = [

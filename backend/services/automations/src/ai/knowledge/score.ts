@@ -15,10 +15,14 @@ const PRIORITY_BOOST = {
 const includesAny = (values: string[], terms: string[]) =>
   values.some((value) => terms.includes(normalizeKnowledgeText(value)));
 
+// A term found in most passages says little about which one is asked for, so
+// each term counts by how rare it is among the candidates.
 export const scoreAiKnowledgeChunk = (
   chunk: TAiKnowledgeChunk,
   query: Required<TAiKnowledgeQuery>,
+  termWeights: Map<string, number> = new Map(),
 ): TAiKnowledgeScoredChunk => {
+  const weightOf = (term: string) => termWeights.get(term) ?? 1;
   let matchScore = 0;
   const reasons: string[] = [];
   const normalizedTitle = normalizeKnowledgeText(chunk.title || '');
@@ -40,7 +44,7 @@ export const scoreAiKnowledgeChunk = (
 
   for (const keyword of query.keywords.map(normalizeKnowledgeText)) {
     if (normalizedKeywords.includes(keyword)) {
-      matchScore += 16;
+      matchScore += 16 * weightOf(keyword);
       reasons.push(`keyword:${keyword}`);
     }
   }
@@ -49,23 +53,25 @@ export const scoreAiKnowledgeChunk = (
     .split(' ')
     .map(normalizeKnowledgeText)
     .filter(Boolean)) {
+    const weight = weightOf(term);
+
     if (normalizedTitle.includes(term)) {
-      matchScore += 14;
+      matchScore += 14 * weight;
       reasons.push(`title:${term}`);
     }
 
     if (includesAny(normalizedHeadingPath, [term])) {
-      matchScore += 10;
+      matchScore += 10 * weight;
       reasons.push(`heading:${term}`);
     }
 
     if (normalizedKeywords.includes(term)) {
-      matchScore += 8;
+      matchScore += 8 * weight;
       reasons.push(`term-keyword:${term}`);
     }
 
     if (normalizedContent.includes(term)) {
-      matchScore += 3;
+      matchScore += 3 * weight;
     }
   }
 

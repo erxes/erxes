@@ -13,7 +13,7 @@ export const TeamGithubPage = () => {
 
   return (
     <PageContainer>
-      <div className="flex h-16 items-center px-4">
+      <div className="flex h-10 items-center px-4">
         <Breadcrumb>
           <Breadcrumb.List>
             <Breadcrumb.Item>
@@ -22,7 +22,7 @@ export const TeamGithubPage = () => {
                   variant="ghost"
                   className="text-foreground"
                   onClick={() =>
-                    navigate(`/settings/operation/team/details/${teamId}`)
+                    navigate(`/operation/settings/team/details/${teamId}`)
                   }
                 >
                   <IconArrowLeft size={16} className="stroke-foreground" />

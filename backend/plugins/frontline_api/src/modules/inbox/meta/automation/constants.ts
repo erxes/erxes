@@ -27,6 +27,12 @@ const CONVERSATION_EVENT_TRIGGER_OUTPUT: TAutomationRuntimeOutputDefinition<
     },
     { key: 'integrationId', label: 'Integration ID' },
     {
+      key: 'assignedUserIds',
+      label: 'Assignees',
+      exposure: 'reference',
+      referenceType: 'core:user',
+    },
+    {
       key: 'assignedUserId',
       label: 'Assignee',
       exposure: 'reference',

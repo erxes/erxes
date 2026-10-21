@@ -1,3 +1,4 @@
+import { usePropertiesScope } from '@/properties/context/PropertiesScopeContext';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import {
@@ -39,6 +40,7 @@ const PropertiesGroupActions = ({
   group: IFieldGroup;
   contentType: string;
 }) => {
+  const { basePath: propertiesBasePath } = usePropertiesScope();
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });
   const setActivePropertyGroup = useSetAtom(activePropertyState);
   const setLayoutGroup = useSetAtom(activeLayoutGroupState);
@@ -64,7 +66,9 @@ const PropertiesGroupActions = ({
         {!group.owner && (
           <Can action="fieldsManage">
             <DropdownMenu.Item asChild>
-              <Link to={`/settings/properties/${contentType}/${group._id}/add`}>
+              <Link
+                to={`${propertiesBasePath}/${contentType}/${group._id}/add`}
+              >
                 <IconPlus />
                 {t('add-field', 'Add field')}
               </Link>
@@ -109,6 +113,7 @@ export const PropertiesGroupSection = ({
   group: IFieldGroup;
   contentType: string;
 }) => {
+  const { basePath: propertiesBasePath } = usePropertiesScope();
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });
   const navigate = useNavigate();
   const [needsToRefresh, setNeedsToRefresh] = useAtom(needsToRefreshState);
@@ -163,7 +168,7 @@ export const PropertiesGroupSection = ({
 
   const handleRowClick = (field: IField) => {
     navigate(
-      `/settings/properties/${contentType}/${field.groupId}/${field._id}`,
+      `${propertiesBasePath}/${contentType}/${field.groupId}/${field._id}`,
     );
   };
 
@@ -253,7 +258,7 @@ export const PropertiesGroupSection = ({
             <Can action="fieldsManage">
               <Button variant="secondary" asChild>
                 <Link
-                  to={`/settings/properties/${contentType}/${group._id}/add`}
+                  to={`${propertiesBasePath}/${contentType}/${group._id}/add`}
                 >
                   <IconPlus />
                   {t('add-field', 'Add field')}

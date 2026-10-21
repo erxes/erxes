@@ -1,3 +1,4 @@
+import { ConversationStatus } from '@/inbox/types/Conversation';
 import { GET_CONVERSATIONS } from '@/inbox/conversations/graphql/queries/getConversations';
 import { useQuery } from '@apollo/client';
 import type { QueryHookOptions } from '@apollo/client';
@@ -234,6 +235,7 @@ export const useConversations = (
         const newMessage =
           subscriptionData.data?.conversationClientMessageInserted;
 
+        if (newMessage?.internal) return prev;
         if (!newMessage) {
           scheduleRefetch();
           return prev;
@@ -261,11 +263,19 @@ export const useConversations = (
         }
 
         const [conversation] = list.splice(index, 1);
+        const previousMessageTime = Date.parse(
+          conversation.lastMessage?.createdAt || conversation.createdAt || '',
+        );
+        const isLatestMessage =
+          Date.parse(newMessage.createdAt) >=
+          (Number.isNaN(previousMessageTime) ? 0 : previousMessageTime);
         list.unshift({
           ...conversation,
           readUserIds:
             conversation.readUserIds?.filter((id) => id !== userId) ?? null,
-          content: newMessage.content,
+          status: ConversationStatus.OPEN,
+          content: isLatestMessage ? newMessage.content : conversation.content,
+          lastMessage: isLatestMessage ? newMessage : conversation.lastMessage,
           // Events can arrive out of order; recency must never move backwards.
           updatedAt:
             Date.parse(newMessage.createdAt) >=

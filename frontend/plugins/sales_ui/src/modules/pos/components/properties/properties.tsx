@@ -14,15 +14,21 @@ import {
   OrderPasswordField,
   PosDomainField,
 } from '@/pos/components/properties/PropertiesFields';
-import mutations from '@/pos/graphql/mutations';
+import { mutations } from '@/pos/graphql/mutations';
 import { usePosDetail } from '@/pos/hooks/usePosDetail';
 import { usePosEnv } from '@/pos/hooks/usePosEnv';
 import { useMutation } from '@apollo/client';
-import { Button, Form, InfoCard, toast } from 'erxes-ui';
-import { useCallback, useEffect, useState, type FC, type ReactNode } from 'react';
+import { Button, Form, InfoCard, isDefined, toast } from 'erxes-ui';
+import {
+  useCallback,
+  useEffect,
+  useState,
+  type FC,
+  type ReactNode,
+} from 'react';
 import { useForm } from 'react-hook-form';
-import { MoreOptionsButton } from '../MoreOptionsButton';
 import { useTranslation } from 'react-i18next';
+import { MoreOptionsButton } from '../MoreOptionsButton';
 
 interface PropertiesProps {
   posId?: string;
@@ -33,24 +39,31 @@ interface PropertiesProps {
 const LoadingSkeleton = () => {
   const { t } = useTranslation('sales');
   return (
-  <div className="p-6">
-    <InfoCard title={t('general-configuration')}>
-      <InfoCard.Content>
-        <div className="grid grid-cols-2 gap-4">
-          {[1, 2, 3, 4, 5, 6].map((i) => (
-            <div key={i} className="space-y-2">
-              <div className="w-24 h-4 rounded animate-pulse bg-muted" />
-              <div className="h-8 rounded animate-pulse bg-muted" />
-            </div>
-          ))}
-        </div>
-      </InfoCard.Content>
-    </InfoCard>
-  </div>
+    <div className="p-6">
+      <InfoCard title={t('general-configuration')}>
+        <InfoCard.Content>
+          <div className="grid grid-cols-2 gap-4">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <div key={i} className="space-y-2">
+                <div className="w-24 h-4 rounded animate-pulse bg-muted" />
+                <div className="h-8 rounded animate-pulse bg-muted" />
+              </div>
+            ))}
+          </div>
+        </InfoCard.Content>
+      </InfoCard>
+    </div>
   );
 };
 
 const PROPERTIES_FORM_ID = 'pos-properties-form';
+const OFFLINE_POS_VALUES: ReadonlySet<unknown> = new Set([
+  true,
+  'true',
+  'True',
+  1,
+  '1',
+]);
 
 const DEFAULT_FORM_VALUES: FormData = {
   name: '',
@@ -77,7 +90,7 @@ const Properties: FC<PropertiesProps> = ({
   const { t } = useTranslation('sales');
   const { posDetail, loading: detailLoading, error } = usePosDetail(posId);
   const [posEdit, { loading: saving }] = useMutation(mutations.posEdit);
-  const { posEnv } = usePosEnv()
+  const { posEnv } = usePosEnv();
 
   const [showMore, setShowMore] = useState(false);
   const toggleMore = useCallback(() => setShowMore((prev) => !prev), []);
@@ -96,9 +109,9 @@ const Properties: FC<PropertiesProps> = ({
         orderPassword: posDetail.orderPassword || '',
         branchId: posDetail.branchId || '',
         departmentId: posDetail.departmentId || '',
-        allowBranchIds: posDetail.allowBranchIds || [],
+        allowBranchIds: (posDetail.allowBranchIds ?? []).filter(isDefined),
         brandId: posDetail.scopeBrandIds?.[0] || '',
-        allowTypes: posDetail.allowTypes || [],
+        allowTypes: (posDetail.allowTypes ?? []).filter(isDefined),
         isOnline: posDetail.isOnline || false,
         onServer: posDetail.onServer || true,
         pdomain: posDetail.pdomain || '',
@@ -226,9 +239,10 @@ const Properties: FC<PropertiesProps> = ({
                   <MaxSkipNumberField control={control} />
                   <OrderPasswordField control={control} />
                   <BrandField control={control} />
-                  {!isOnline && [true, 'true', 'True', 1, '1'].includes(posEnv?.ALLOW_OFFLINE_POS ?? '') && (
-                    <OnServerField control={control} />
-                  )}
+                  {!isOnline &&
+                    OFFLINE_POS_VALUES.has(posEnv?.ALLOW_OFFLINE_POS) && (
+                      <OnServerField control={control} />
+                    )}
                   <DescriptionField control={control} />
                 </div>
               )}
@@ -240,4 +254,4 @@ const Properties: FC<PropertiesProps> = ({
   );
 };
 
-export default Properties;
+export { Properties };

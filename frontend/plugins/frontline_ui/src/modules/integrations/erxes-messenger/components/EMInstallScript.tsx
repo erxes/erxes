@@ -114,7 +114,7 @@ export function EMInstallScript({ integrationId }: Props) {
             <Button>
               <Link
                 target="_blank"
-                to={`/settings/frontline/channels/erxes-messenger-preview?inPreview=true&integrationId=${integrationId}`}
+                to={`/frontline/settings/channels/erxes-messenger-preview?inPreview=true&integrationId=${integrationId}`}
               >
                 {t('preview')}
               </Link>

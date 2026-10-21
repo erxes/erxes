@@ -15,11 +15,11 @@ export const PricingEditPage = () => {
   const [saveAction, setSaveAction] = useState<ReactNode | null>(null);
 
   const handlePricingChange = (pricingId: string) => {
-    navigate(`/settings/loyalty/pricing/${pricingId}`);
+    navigate(`/loyalty/settings/pricing/${pricingId}`);
   };
 
   const handleDeleteSuccess = () => {
-    navigate('/settings/loyalty/pricing');
+    navigate('/loyalty/settings/pricing');
   };
 
   return (
@@ -35,7 +35,7 @@ export const PricingEditPage = () => {
                 <Breadcrumb.List className="gap-2">
                   <Breadcrumb.Item>
                     <Button variant="ghost" asChild>
-                      <Link to="/settings/loyalty/pricing">
+                      <Link to="/loyalty/settings/pricing">
                         <IconCoins />
                         {t('pricing')}
                       </Link>

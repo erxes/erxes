@@ -7,7 +7,7 @@ import { FrontlinePaths } from '@/types/FrontlinePaths';
 
 export const ChannelSettingsPageEffect = () => {
   const isMatchingLocation = useIsMatchingLocation(
-    '/settings/frontline/channels',
+    '/frontline/settings/channels',
   );
   const setHotkeyScope = useSetHotkeyScope();
 

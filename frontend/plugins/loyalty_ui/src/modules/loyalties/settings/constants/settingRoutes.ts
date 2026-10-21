@@ -24,7 +24,7 @@ export const LOYALTY_SETTINGS_PAGES = [
 
 export const SETTINGS_ROUTES: Record<string, string> = Object.fromEntries(
   LOYALTY_SETTINGS_PAGES.map(({ path, label }) => [
-    `/settings/loyalty/config/${path}`,
+    `/loyalty/settings/config/${path}`,
     label,
   ]),
 );

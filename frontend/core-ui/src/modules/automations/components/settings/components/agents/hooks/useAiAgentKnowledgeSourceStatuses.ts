@@ -1,7 +1,6 @@
 import { AUTOMATIONS_AI_AGENT_KNOWLEDGE_SOURCE_STATUSES } from '@/automations/components/settings/components/agents/graphql/automationsAiAgents';
 import { useQuery } from '@apollo/client';
 import { useEffect } from 'react';
-import { useParams } from 'react-router';
 import { TAiKnowledgeSourceIndexStatus } from 'ui-modules';
 
 type TAiKnowledgeSourceStatusesResponse = {
@@ -15,8 +14,7 @@ const isIndexingStatus = (status: TAiKnowledgeSourceIndexStatus) =>
  * Indexing statuses of the current agent's knowledge sources. Polls every 3s
  * while any source is queued or indexing, and stops once everything settles.
  */
-export const useAiAgentKnowledgeSourceStatuses = () => {
-  const { id: agentId } = useParams();
+export const useAiAgentKnowledgeSourceStatuses = (agentId?: string) => {
   const { data, startPolling, stopPolling } =
     useQuery<TAiKnowledgeSourceStatusesResponse>(
       AUTOMATIONS_AI_AGENT_KNOWLEDGE_SOURCE_STATUSES,

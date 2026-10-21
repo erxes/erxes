@@ -53,3 +53,17 @@ export interface INoteAttachment {
   url?: string;
   data?: string;
 }
+
+export interface NoteInputToolbarProps {
+  isInternalNote: boolean;
+  onTemplateSelect: (templateContent: string) => void;
+  onFilesSelected: (files: FileList) => void;
+  onSend: () => void;
+  isSending: boolean;
+}
+
+export type NoteInputProps = { contentId: string };
+export type NoteTemplateSuggestionsOptions = {
+  editor: ReturnType<typeof import('erxes-ui').useBlockEditor>;
+  enabled: boolean;
+};

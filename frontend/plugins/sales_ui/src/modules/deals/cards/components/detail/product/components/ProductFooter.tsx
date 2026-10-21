@@ -1,10 +1,11 @@
 'use client';
 
-import { Button, Input, Label, NumberInput } from 'erxes-ui';
-import { IProduct, IProductData, SelectProductsBulk } from 'ui-modules';
+import type { DealProduct, DealProductData } from '@/deals/utils/dealJson';
 import { IconDeviceFloppy, IconPlus } from '@tabler/icons-react';
+import { Button, Input, Label, NumberInput } from 'erxes-ui';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { SelectProductsBulk } from 'ui-modules';
 import {
   applyFooterDiscountAmount,
   applyFooterDiscountPercent,
@@ -28,11 +29,11 @@ type ProductFooterProps = {
   tax: TotalWithPercent;
   showAdvancedView: boolean;
   showTaxView: boolean;
-  productsData: IProductData[];
+  productsData: DealProductData[];
   pipelineId?: string;
-  onChangeProductsData: (data: IProductData[]) => void;
-  updateTotal: (data: IProductData[]) => void;
-  onAddProducts: (products: IProduct[]) => void;
+  onChangeProductsData: (data: DealProductData[]) => void;
+  updateTotal: (data: DealProductData[]) => void;
+  onAddProducts: (products: DealProduct[]) => void;
   onSave: () => void;
 };
 
@@ -55,7 +56,7 @@ const formatTotal = (total: TotalByCurrency) => {
   );
 };
 
-const isUsedProductForCurrency = (product: IProductData, currency: string) =>
+const isUsedProductForCurrency = (product: DealProductData, currency: string) =>
   product.tickUsed === true && product.currency === currency;
 
 const roundPercent = (value?: number): number => Math.round(value || 0);
@@ -68,11 +69,11 @@ const formatDiscountAmount = (value?: number): string =>
     maximumFractionDigits: 2,
   });
 
-type ProductWithDiscountInfos = IProductData & {
+type ProductWithDiscountInfos = DealProductData & {
   discountInfos?: { type: string; amount?: number }[];
 };
 
-const getHandDiscountAmount = (product: IProductData): number =>
+const getHandDiscountAmount = (product: DealProductData): number =>
   ((product as ProductWithDiscountInfos).discountInfos || [])
     .filter((discountInfo) => discountInfo.type === 'hand')
     .reduce((sum, discountInfo) => sum + (Number(discountInfo.amount) || 0), 0);
@@ -163,7 +164,7 @@ export const ProductFooter = ({
       if (!isUsedProductForCurrency(p, currency)) return p;
 
       const newProduct = { ...p };
-      const amount = newProduct.unitPrice * newProduct.quantity;
+      const amount = (newProduct.unitPrice ?? 0) * (newProduct.quantity ?? 0);
 
       if (type === 'discount') {
         return applyFooterDiscountPercent(newProduct, percent);

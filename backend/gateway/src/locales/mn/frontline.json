@@ -2929,7 +2929,10 @@
       "view-on": "{{platform}} дээр үзэх",
       "vote-in": "{{provider}}-д санал өгнө үү",
       "work-queue": "Ажлын дараалал",
-      "yesterday": "Өчигдөр"
+      "yesterday": "Өчигдөр",
+      "assignees-updated": "Хариуцагчид шинэчлэгдлээ",
+      "assignment-failed": "Хариуцагчдыг шинэчилж чадсангүй",
+      "saving": "Хадгалж байна…"
     }
   },
   "all-agents": "Бүх ажилтан",

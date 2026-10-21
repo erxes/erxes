@@ -123,6 +123,7 @@ export const SafeRemainderFilter = ({
   return (
     <Filter id="accounts-filter">
       <Filter.Bar>
+        <SafeRemainderFilterPopover />
         <Filter.BarItem queryKey="searchValue">
           <Filter.BarName>
             <IconSearch />
@@ -175,7 +176,6 @@ export const SafeRemainderFilter = ({
           <Filter.Date filterKey="updatedDate" />
         </Filter.BarItem>
 
-        <SafeRemainderFilterPopover />
         {afterBar && <>{afterBar}</>}
       </Filter.Bar>
     </Filter>

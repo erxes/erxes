@@ -289,8 +289,14 @@ const toKnowledgeDocument = (
     version: getProductUpdatedAt(product),
     updatedAt: getProductUpdatedAt(product),
   },
-  title:
+  // "Category › Name", like knowledge base articles: an AI agent's knowledge
+  // index groups products under their category instead of one flat list.
+  title: [
+    categoryName,
     product.name || product.shortName || product.code || 'Untitled product',
+  ]
+    .filter(Boolean)
+    .join(' › '),
   content: formatProductContent(product, categoryName),
   contentFormat: 'text',
   metadata: {

@@ -108,15 +108,11 @@ export const stageMutations = {
         startOrder: 100001,
       });
     } else {
-      const response = await bulkUpdateOrders({
+      await bulkUpdateOrders({
         collection: models.Deals,
         stageId,
         sort,
       });
-
-      if (!response) {
-        return;
-      }
     }
 
     return 'ok';

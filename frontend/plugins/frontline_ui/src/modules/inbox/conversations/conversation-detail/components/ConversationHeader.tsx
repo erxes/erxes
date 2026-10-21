@@ -44,7 +44,11 @@ import { CustomersInline, SelectMember, TagsSelect } from 'ui-modules';
 import { ConversationActions } from '@/inbox/conversations/conversation-detail/components/ConversationActions';
 import { ConversationConvert } from '@/inbox/conversations/conversation-detail/components/convert/ConversationConvert';
 import { useTranslation } from 'react-i18next';
-import { type SyntheticEvent, useState } from 'react';
+import { type SyntheticEvent, useRef, useState } from 'react';
+import {
+  conversationAssigneeIds,
+  conversationAssignees,
+} from '../../utils/conversationDisplay';
 
 const stopEventPropagation = (event: SyntheticEvent) => {
   event.stopPropagation();
@@ -211,37 +215,50 @@ const AssignConversation = ({
   withinDropdown?: boolean;
 }) => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
-  const { assignedUserId, _id } = useConversationContext();
-  const { assignConversations } = useAssignConversations();
+  const conversation = useConversationContext();
+  const { _id } = conversation;
+  const { assignConversations, loading } = useAssignConversations();
+  const [pendingIds, setPendingIds] = useState<string[] | null>(null);
+  const busy = useRef(false);
   const [open, setOpen] = useState(false);
 
-  const handleAssignConversations = (value: null | string | string[]) => {
-    const result = Array.isArray(value) ? value[value.length - 1] : value;
-
-    assignConversations({
-      variables: {
-        conversationIds: [_id],
-        assignedUserId: result,
-      },
-      onError: (error: Error) => {
-        toast({
-          title: t('error', 'Error'),
-          description: error.message,
-          variant: 'destructive',
-        });
-      },
-      refetchQueries: ['ConversationDetail', 'Conversations'],
-    });
+  const handleAssignConversations = async (value: null | string | string[]) => {
+    if (busy.current) return;
+    const ids = Array.isArray(value)
+      ? value
+      : [value].filter((id): id is string => typeof id === 'string');
+    busy.current = true;
+    setPendingIds(ids);
+    try {
+      await assignConversations({
+        variables: { conversationIds: [_id], assignedUserIds: ids },
+      });
+      toast({ title: t('assignees-updated', 'Assignees updated') });
+    } catch (error) {
+      toast({
+        title: t('error', 'Error'),
+        description:
+          error instanceof Error
+            ? error.message
+            : t('assignment-failed', 'Could not update assignees'),
+        variant: 'destructive',
+      });
+    } finally {
+      busy.current = false;
+      setPendingIds(null);
+    }
   };
 
   return (
     <div className="flex">
       <SelectMember.Provider
-        mode="single"
-        value={assignedUserId ?? undefined}
+        mode="multiple"
+        value={pendingIds ?? conversationAssigneeIds(conversation)}
+        members={conversationAssignees(conversation)}
+        disabled={loading || pendingIds !== null}
+        allowUnassigned
         onValueChange={(value) => {
-          handleAssignConversations(value);
-          setOpen(false);
+          void handleAssignConversations(value);
         }}
       >
         <PopoverScoped open={open} onOpenChange={setOpen}>
@@ -252,10 +269,19 @@ const AssignConversation = ({
             onClick={withinDropdown ? stopEventPropagation : undefined}
             onKeyDown={withinDropdown ? stopEventPropagation : undefined}
           >
-            <SelectMember.Value size="lg" />
+            <SelectMember.Value
+              showInactive
+              size="lg"
+              placeholder={t('unassigned', 'Unassigned')}
+            />
           </Combobox.Trigger>
-          <Combobox.Content>
+          <Combobox.Content className="w-80">
             <SelectMember.Content />
+            {(loading || pendingIds !== null) && (
+              <output className="block px-3 pb-2 text-xs text-muted-foreground">
+                {t('saving', 'Saving...')}
+              </output>
+            )}
           </Combobox.Content>
         </PopoverScoped>
       </SelectMember.Provider>
@@ -384,7 +410,7 @@ const ConversationActionsDropdown = ({
               {t('assignee', 'Assignee')}
             </DropdownMenu.Label>
             <div className="px-1 pb-2">
-              <AssignConversation withinDropdown />
+              <AssignConversation key={_id} withinDropdown />
             </div>
             <DropdownMenu.Separator />
           </>
@@ -411,7 +437,7 @@ const ConversationActionsDropdown = ({
 };
 
 export const ConversationHeader = () => {
-  const { loading } = useConversationContext();
+  const { loading, _id } = useConversationContext();
   const [, setConversationId] = useQueryState<string>('conversationId');
   const view = useInboxLayout();
   const {
@@ -444,7 +470,7 @@ export const ConversationHeader = () => {
         <Skeleton className="w-32 h-4 ml-2" />
       )}
       <Separator.Inline />
-      {!hideAssignee && <AssignConversation />}
+      {!hideAssignee && <AssignConversation key={_id} />}
       <AutomatedReplyStatusBadge />
       <div className="ml-auto flex min-w-0 items-center gap-3">
         {!isCompact && <ConversationTags />}

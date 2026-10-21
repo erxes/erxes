@@ -2929,7 +2929,10 @@
       "view-on": "View on {{platform}}",
       "vote-in": "Vote in {{provider}}",
       "work-queue": "Work queue",
-      "yesterday": "Yesterday"
+      "yesterday": "Yesterday",
+      "assignees-updated": "Assignees updated",
+      "assignment-failed": "Could not update assignees",
+      "saving": "Saving…"
     }
   },
   "all-agents": "All agents",
