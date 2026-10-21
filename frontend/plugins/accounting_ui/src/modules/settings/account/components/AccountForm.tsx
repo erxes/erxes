@@ -86,6 +86,7 @@ const AccountFormFields = ({
                 selected={field.value}
                 onSelect={field.onChange}
                 recordId={field.name}
+                allowCreate
               />
             </Form.Control>
             <Form.Message />
