@@ -17,6 +17,7 @@ import {
   NavigationMenuLinkItem,
   Sidebar,
   TextOverflowTooltip,
+  cn,
   useToast,
 } from 'erxes-ui';
 import { useState } from 'react';
@@ -53,30 +54,32 @@ function PosItem({ pos }: posItemProps) {
       onOpenChange={setOpen}
     >
       <Sidebar.Group className="p-0">
-        <div className="w-full relative group/trigger hover:cursor-pointer">
-          <Collapsible.Trigger asChild>
-            <div className="w-full flex items-center justify-between">
-              <Button
-                variant="ghost"
-                className="px-2 flex min-w-0 justify-start rounded-lg"
-              >
-                <IconComponent
-                  name={undefined}
-                  className="text-accent-foreground"
-                />
-                <TextOverflowTooltip
-                  className="font-sans font-semibold normal-case flex-1 min-w-0"
-                  value={pos.name ?? undefined}
-                />
-                <span className="ml-auto flex shrink-0 transition-transform duration-250 ease-[cubic-bezier(0.22,1,0.36,1)] group-data-[state=open]/collapsible:rotate-90 motion-reduce:transition-none text-muted-foreground">
-                  <IconChevronRight className="size-3.5!" />
-                </span>
-              </Button>
-              <div className="size-5 min-w-5 mr-2"></div>
-            </div>
-          </Collapsible.Trigger>
-          <PosActionsMenu pos={pos} />
-        </div>
+        <Collapsible.Trigger asChild>
+          <div
+            className={cn(
+              'group/pos-row w-full flex items-center justify-between rounded-lg hover:bg-accent',
+              isPosActive && 'bg-foreground/5 hover:bg-foreground/5',
+            )}
+          >
+            <Button
+              variant="ghost"
+              className="px-2 flex min-w-0 flex-1 justify-start rounded-lg hover:bg-transparent"
+            >
+              <IconComponent
+                name={undefined}
+                className="text-accent-foreground"
+              />
+              <TextOverflowTooltip
+                className="font-sans font-semibold normal-case text-left flex-1 min-w-0"
+                value={pos.name ?? undefined}
+              />
+            </Button>
+            <PosActionsMenu pos={pos} />
+            <span className="flex shrink-0 px-2 text-muted-foreground transition-transform duration-250 ease-[cubic-bezier(0.22,1,0.36,1)] group-data-[state=open]/collapsible:rotate-90 motion-reduce:transition-none">
+              <IconChevronRight className="size-3.5!" />
+            </span>
+          </div>
+        </Collapsible.Trigger>
         <BoardDisclosure open={open}>
           <div className="pt-1">
             <Sidebar.GroupContent>
@@ -183,39 +186,43 @@ const PosActionsMenu = ({ pos }: { pos: Pos }) => {
   };
 
   return (
-    <DropdownMenu>
-      <DropdownMenu.Trigger asChild>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="invisible group-hover/trigger:visible absolute top-1/2 -translate-y-1/2 right-1 text-muted-foreground"
-          onClick={(e) => {
-            e.stopPropagation();
-          }}
+    <div onClick={(e) => e.stopPropagation()}>
+      <DropdownMenu>
+        <DropdownMenu.Trigger asChild>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="shrink-0 text-muted-foreground hover:bg-transparent hover:text-foreground opacity-0 group-hover/pos-row:opacity-100 group-focus-within/pos-row:opacity-100 focus-visible:opacity-100 data-[state=open]:opacity-100"
+            aria-label={t('go-to-pos-settings')}
+          >
+            <IconDotsVertical className="size-4" />
+          </Button>
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content
+          side="right"
+          align="start"
+          className="w-60 min-w-0"
         >
-          <IconDotsVertical className="size-4" />
-        </Button>
-      </DropdownMenu.Trigger>
-      <DropdownMenu.Content side="right" align="start" className="w-60 min-w-0">
-        <DropdownMenu.Item
-          className="cursor-pointer"
-          onSelect={(e) => {
-            navigate(`/sales/settings/pos/${pos._id}`);
-          }}
-        >
-          <IconSettings className="size-4" />
-          {t('go-to-pos-settings')}
-        </DropdownMenu.Item>
-        <DropdownMenu.Item
-          onSelect={(e) => {
-            handleCopyLink();
-          }}
-          className="cursor-pointer"
-        >
-          <IconLink className="size-4" />
-          {t('copy-link')}
-        </DropdownMenu.Item>
-      </DropdownMenu.Content>
-    </DropdownMenu>
+          <DropdownMenu.Item
+            className="cursor-pointer"
+            onSelect={(e) => {
+              navigate(`/sales/settings/pos/${pos._id}`);
+            }}
+          >
+            <IconSettings className="size-4" />
+            {t('go-to-pos-settings')}
+          </DropdownMenu.Item>
+          <DropdownMenu.Item
+            onSelect={(e) => {
+              handleCopyLink();
+            }}
+            className="cursor-pointer"
+          >
+            <IconLink className="size-4" />
+            {t('copy-link')}
+          </DropdownMenu.Item>
+        </DropdownMenu.Content>
+      </DropdownMenu>
+    </div>
   );
 };

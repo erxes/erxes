@@ -443,7 +443,11 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   links are not tabbable.
 - The POS ORDER sidebar (`pos/PosOrderNavigation.tsx`) reuses
   `BoardDisclosure` for each POS row (controlled `open`, initially the active
-  POS) and the same `Sidebar.MenuSkeleton` row loader as BOARDS.
+  POS) and the same `Sidebar.MenuSkeleton` row loader as BOARDS. POS rows use
+  the board row layout: full-width `group/pos-row` highlight, name button
+  `flex-1`, hover `⋯` menu (POS settings, copy link) left of the chevron. The
+  menu sits in a `stopPropagation` wrapper so its portal clicks never toggle
+  the row.
 - Expandable group rows (boards, POS) use `rounded-lg`; an active board row is
   gray (`bg-foreground/5 text-foreground`) while its active pipeline item keeps
   the purple `Sidebar.MenuButton` active tint, so the two never stack purple.
