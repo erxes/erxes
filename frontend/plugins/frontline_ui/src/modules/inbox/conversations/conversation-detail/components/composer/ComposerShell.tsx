@@ -55,7 +55,7 @@ const ComposerShellHeader = ({
           )}
         >
           <IconLock className="size-3.5" />
-          {t('internal-note', 'Internal Note')}
+          {t('internal-note')}
         </div>
       ) : (
         <div className="w-full min-w-0 shrink-0 sm:w-80">
@@ -79,10 +79,7 @@ const ComposerShellHeader = ({
             'ml-auto size-7 shrink-0 rounded-full',
             INTERNAL_NOTE_ICON,
           )}
-          aria-label={t(
-            'collapse-internal-note-composer',
-            'Collapse internal note composer',
-          )}
+          aria-label={t('collapse-internal-note-composer')}
           onClick={onCollapse}
         >
           <IconChevronDown className="size-4" />
@@ -118,17 +115,12 @@ export const ComposerShell = ({
             INTERNAL_NOTE_BACKGROUND,
           )}
           onClick={() => setCollapsed(false)}
-          aria-label={t(
-            'expand-internal-note-composer',
-            'Expand internal note composer',
-          )}
+          aria-label={t('expand-internal-note-composer')}
         >
           <IconLock className="size-4" />
-          <span className="text-xs font-medium">
-            {t('internal-note', 'Internal Note')}
-          </span>
+          <span className="text-xs font-medium">{t('internal-note')}</span>
           <span className="hidden truncate text-xs font-normal text-muted-foreground sm:inline">
-            {t('note-visibility', 'Only visible to your team')}
+            {t('note-visibility')}
           </span>
           <IconChevronUp className="ml-auto size-4" />
         </Button>
