@@ -2330,7 +2330,9 @@
       "mail-address-cc": "cc",
       "create-a-ticket": "Create a ticket",
       "fb-sent-in-messenger": "Sent in Messenger",
-      "fb-reply-to-comment": "Reply to comment"
+      "fb-reply-to-comment": "Reply to comment",
+      "page": "Page",
+      "no-channel": "No channel"
     },
     "response-template": {
       "add-response-template": "Add response template",
