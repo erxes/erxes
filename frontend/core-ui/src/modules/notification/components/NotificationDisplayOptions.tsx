@@ -51,7 +51,7 @@ export const NotificationDisplayOptions = () => {
             {t('date', 'Date')}
           </DropdownMenu.RadioItem>
           <DropdownMenu.RadioItem value="plugin">
-            {t('app', 'App')}
+            {t('plugin', 'Plugin')}
           </DropdownMenu.RadioItem>
         </DropdownMenu.RadioGroup>
       </DropdownMenu.Content>

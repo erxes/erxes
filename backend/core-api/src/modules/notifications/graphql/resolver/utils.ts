@@ -34,7 +34,7 @@ export const generateNotificationsFilter = (
     if (!/^[a-z][a-z0-9_-]*$/i.test(params.plugin)) {
       throw new Error('Invalid notification plugin');
     }
-    contentType.$regex = `^${params.plugin}[:.]`;
+    contentType.$regex = `^${params.plugin.toLowerCase()}[:.]`;
   }
   if (params.module === 'approval') {
     contentType.$in = ['core:approval', 'core.approval'];
