@@ -1,5 +1,5 @@
 import { QueryHookOptions, useQuery } from '@apollo/client';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useSetAtom } from 'jotai';
 import {
   EnumCursorDirection,
@@ -98,8 +98,10 @@ export const useMSDynamicSyncHistory = (
     fetchPolicy: 'network-only',
   });
 
-  const syncHistories = compactList(data?.syncMsdHistories?.list).map(
-    toMSDynamicSyncHistory,
+  const list = data?.syncMsdHistories?.list;
+  const syncHistories = useMemo(
+    () => (list ? compactList(list).map(toMSDynamicSyncHistory) : undefined),
+    [list],
   );
   const totalCount = data?.syncMsdHistories?.totalCount;
   const pageInfo = toCursorPageInfo(data?.syncMsdHistories?.pageInfo);

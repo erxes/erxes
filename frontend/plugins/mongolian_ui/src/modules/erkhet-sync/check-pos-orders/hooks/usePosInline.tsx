@@ -1,4 +1,5 @@
 import { QueryHookOptions, useQuery } from '@apollo/client';
+import { useMemo } from 'react';
 import { gql } from '~/gql';
 import type {
   ErkhetPosInlineDetailQuery,
@@ -37,8 +38,14 @@ export const usePosInline = (
     ...options,
   });
 
+  // Keep the reference stable: PosInline's effect depends on posDetail.
+  const posDetail = useMemo(
+    () => (data?.posDetail ? toPos(data.posDetail)[0] : undefined),
+    [data?.posDetail],
+  );
+
   return {
-    posDetail: data?.posDetail ? toPos(data.posDetail)[0] : undefined,
+    posDetail,
     loading,
     error,
   };

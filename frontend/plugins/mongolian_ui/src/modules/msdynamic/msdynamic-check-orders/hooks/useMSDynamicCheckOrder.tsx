@@ -1,5 +1,5 @@
 import { QueryHookOptions, useQuery } from '@apollo/client';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useSetAtom } from 'jotai';
 import {
   EnumCursorDirection,
@@ -76,7 +76,9 @@ export const useMSDynamicCheckOrder = (
     fetchPolicy: 'network-only',
   });
 
-  const orders = compactList(data?.posOrdersList?.list);
+  const list = data?.posOrdersList?.list;
+  // Stable reference: CheckSyncedOrders re-checks sync status when it changes.
+  const orders = useMemo(() => (list ? compactList(list) : undefined), [list]);
   const totalCount = data?.posOrdersList?.totalCount;
   const pageInfo = toCursorPageInfo(data?.posOrdersList?.pageInfo);
 
