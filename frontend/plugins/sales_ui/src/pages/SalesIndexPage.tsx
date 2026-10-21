@@ -8,6 +8,7 @@ import {
 import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
+import { AddDealButton } from '@/deals/components/AddDealButton';
 import { AddDealSheet } from '@/deals/components/AddDealSheet';
 import { CommonDealSearch } from '@/deals/components/commonSearch';
 import { DealsView } from '@/deals/actionBar/components/DealViewControl';
@@ -59,6 +60,7 @@ export const SalesIndexPage = () => {
                 {t('go-to-settings', 'Go to Settings')}
               </Link>
             </Button>
+            <AddDealButton />
           </PageHeader.End>
           <AddDealSheet />
         </PageHeader>

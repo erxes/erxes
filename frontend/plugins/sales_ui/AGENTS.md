@@ -38,6 +38,12 @@
   (disabled without a selected board) opens
   `/sales/settings/deals?activeBoardId=<boardId>&create=pipeline`, where
   `PipelineFormBar` opens the create sheet once boards load and drops `create`.
+- The deals page header ends with an Add Deal button (`AddDealButton`), so
+  deals can be added from the list view, which has no stage columns. It opens
+  the header's `AddDealSheet` through `dealCreateSheetState` with the selected
+  pipeline's first stage as `dealCreateDefaultValuesState.stageId` (the same
+  path as a board column `+`), and is disabled while that pipeline has no
+  stages.
 - The deals sidebar shows each pipeline's deal count, like the Frontline forms
   channel list (`useBoardDealCounts`, query `SalesBoardDealCounts` selecting
   `SalesPipeline.itemsTotalCount`, which uses the deal filter:
