@@ -88,7 +88,6 @@ export const GET_BOARD_DEAL_COUNTS = gql(`
       _id
       pipelines {
         _id
-        status
         itemsTotalCount
       }
     }

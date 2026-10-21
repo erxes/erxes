@@ -37,21 +37,13 @@ export const useBoardDealCounts = ({
 
   return useMemo(() => {
     const byPipeline: Record<string, number> = {};
-    const byBoard: Record<string, number> = {};
 
     for (const board of data?.salesBoards?.filter(isDefined) || []) {
-      byBoard[board._id] = 0;
-
       for (const pipeline of board.pipelines?.filter(isDefined) || []) {
-        const count = pipeline.itemsTotalCount ?? 0;
-        byPipeline[pipeline._id] = count;
-
-        if (pipeline.status !== 'archived') {
-          byBoard[board._id] += count;
-        }
+        byPipeline[pipeline._id] = pipeline.itemsTotalCount ?? 0;
       }
     }
 
-    return { byPipeline, byBoard, loaded: !!data };
+    return { byPipeline, loaded: !!data };
   }, [data]);
 };

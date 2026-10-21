@@ -55,11 +55,9 @@ function DealCount({ count }: { count?: number }) {
 
 function BoardItem({
   board,
-  boardCount,
   pipelineCounts,
 }: {
   board: IBoard;
-  boardCount?: number;
   pipelineCounts: Record<string, number>;
 }) {
   const { t } = useTranslation('sales');
@@ -125,7 +123,6 @@ function BoardItem({
                 className="font-sans font-semibold normal-case text-left flex-1 min-w-0"
                 value={board.name}
               />
-              <DealCount count={boardCount} />
               <span className="ml-auto flex shrink-0 text-muted-foreground transition-transform duration-250 ease-[cubic-bezier(0.22,1,0.36,1)] group-data-[state=open]/collapsible:rotate-90 motion-reduce:transition-none">
                 <IconChevronRight className="size-3.5!" />
               </span>
@@ -237,7 +234,7 @@ const DealsNavigation = () => {
     'pipelineId',
   );
   const { t } = useTranslation('sales');
-  const { byBoard, byPipeline } = useBoardDealCounts({ boards, pipelineId });
+  const { byPipeline } = useBoardDealCounts({ boards, pipelineId });
 
   useEffect(() => {
     if (!boards || boards.length === 0) return;
@@ -293,7 +290,6 @@ const DealsNavigation = () => {
           <BoardItem
             key={board._id}
             board={board}
-            boardCount={byBoard[board._id]}
             pipelineCounts={byPipeline}
           />
         ))
