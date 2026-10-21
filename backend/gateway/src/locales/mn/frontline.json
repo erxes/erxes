@@ -2330,7 +2330,9 @@
       "mail-address-cc": "Хуулбар",
       "create-a-ticket": "Тикет үүсгэх",
       "fb-sent-in-messenger": "Messenger-ээр илгээсэн",
-      "fb-reply-to-comment": "Сэтгэгдэлд хариулсан"
+      "fb-reply-to-comment": "Сэтгэгдэлд хариулсан",
+      "page": "Хуудас",
+      "no-channel": "Суваг байхгүй"
     },
     "response-template": {
       "add-response-template": "Хариу загвар нэмэх",
