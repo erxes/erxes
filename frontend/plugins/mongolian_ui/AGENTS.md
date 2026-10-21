@@ -6,7 +6,7 @@
 - **Project:** `mongolian_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/mongolian_ui`
-- **Last synchronized:** `2026-10-18`
+- **Last synchronized:** `2026-10-21`
 
 ## Scope
 
@@ -27,6 +27,11 @@
 - Development Rspack serving ignores generated dependency/cache/output folders to keep local file watchers bounded.
 - Provides main routes under `/mongolian`, including put responses, by-date
   summaries, duplicated put responses, sync Erkhet, and MS Dynamic workflows.
+- The app sidebar's Put Response and Erkhet Sync rows
+  (`src/modules/MainNavigation.tsx`) unfold their pages (`PUT_RESPONSE_ROUTES`,
+  `SYNC_ERKHET_ROUTES`) through the `ui-modules` `PluginNavigationItem`;
+  picking a page resets that page's table cursor, and those pages render no
+  in-page side panel. MS Dynamic keeps its `MSDynamicSidebar` panel.
 - Provides settings routes for eBarimt, MS Dynamic, product places, sync Erkhet,
   and exchange rates.
 - Mongolian settings shells preserve a bounded content height so settings
@@ -36,6 +41,11 @@
   summary quantity display, and clean tax price display.
 - Product places settings include stage, split, print, and default product
   filter configuration screens under `mongolian/settings/product-places/*`.
+  The settings sidebar's Product places row (`src/modules/SettingsNavigation.tsx`)
+  unfolds these four pages (`PRODUCT_PLACES_SETTINGS_ROUTES` in
+  `src/modules/productplaces/constants/settingRoutes.ts`) through the
+  `ui-modules` `PluginNavigationItem`, so product places pages render
+  no in-page side panel.
 - Product places configuration screens render code-scoped `mnConfigs` rows in
   `RecordTable` lists and manage create/edit/delete through a right-side
   `Sheet`; place, split, and print config rows display board, pipeline, and
@@ -123,6 +133,9 @@
 - Apollo GraphQL contracts exposed by the Mongolian backend and platform
   services used by the existing feature GraphQL documents.
 - Shared `ui-modules` product chooser remainder provider contract.
+- `PluginNavigationItem` from `ui-modules` for app and settings sidebar rows
+  with sub-pages; core-ui supplies the expanding row through
+  `pluginSettingsSlotsState`, and a host without it falls back to a plain link.
 - React Router host mounting contracts from core UI Module Federation.
 - Translation namespace `mongolian`.
 
@@ -163,7 +176,13 @@
   no `./mongolianSettings` expose; old `/settings/mongolian/…` URLs are redirected
   by core. The settings navigation renders no `Sidebar.GroupLabel`.
 - Page header breadcrumbs follow the shared pattern: crumbs are default ghost `Button`s (no `font-semibold`), the first crumb carries a 16px icon in the default text color, crumbs are separated by `Separator.Inline` or `Breadcrumb.Separator`, and settings pages carry no favorite toggle.
-- Page-level side menus render `Sidebar.Panel` from `erxes-ui`, which keeps its own open state (`sidebarPanelOpenState`), separate from the plugin's `AppLayout` sidebar. The panel sits beside the page header, never under it: the page is a row of the panel and a column holding the header and content. The panel passes its heading as `label`, which renders a 40px title row with optional `actions` and the collapse toggle on the right, level with the page header; when collapsed, the toggle moves into the header's panel slot. Do not add a second heading or an in-panel `Sidebar.PanelTrigger` row. Keep `<Sidebar collapsible="none">` for sidebars inside sheets and dialogs. `SettingsLayout`, `ErkhetSettings`, `PutResponseLayout`, `SyncErkhetLayout` and `MsdynamicLayout` render their panel beside the header column.
+- Page-level side menus render `Sidebar.Panel` from `erxes-ui`, which keeps its own open state (`sidebarPanelOpenState`), separate from the plugin's `AppLayout` sidebar. The panel sits beside the page header, never under it: the page is a row of the panel and a column holding the header and content. The panel passes its heading as `label`, which renders a 40px title row with optional `actions` and the collapse toggle on the right, level with the page header; when collapsed, the toggle moves into the header's panel slot. Do not add a second heading or an in-panel `Sidebar.PanelTrigger` row. Keep `<Sidebar collapsible="none">` for sidebars inside sheets and dialogs. `SettingsLayout` (whose `sidebar` is optional), `ErkhetSettings` and `MsdynamicLayout` render their panel beside the header column.
+- A section with five or fewer static pages unfolds them under its sidebar row
+  through `PluginNavigationItem` instead of an in-page `Sidebar.Panel` (put
+  response and Erkhet sync in the app sidebar, product places in settings);
+  sub-pages backed by a cursor table pass an `onClick` that resets that
+  table's cursor. Sections with more pages (MS Dynamic, eBarimt settings, sync
+  Erkhet settings) keep their panel.
 - Use `erxes-ui` and `ui-modules`; do not import Radix primitives directly.
 - Keep integration-specific files inside the owning integration folder unless a
   shared plugin folder already exists for that concern.
@@ -194,6 +213,14 @@
   sales stage, move a deal with products into that stage, and verify the
   floating widget prints branch, department, product, customer, header, and
   footer data without a manual refresh.
+- App navigation smoke scenario: open `/mongolian/put-response`; the Put
+  Response row unfolds Put Response, By Date, and Duplicated with the current
+  page highlighted and no in-page side panel, and Erkhet Sync unfolds its five
+  check pages the same way.
+- Product places navigation smoke scenario: open
+  `/mongolian/settings/product-places`; the Product places row in the settings
+  sidebar unfolds the four pages with the current page highlighted and no
+  in-page side panel.
 - Put response smoke scenario: open `/mongolian/put-response/put-response` with
   rows where `date` is `null`; the table renders without `Invalid time value`
   and displays `createdAt` relatively when available.

@@ -74,12 +74,12 @@ export function SettingsSidebar() {
 
         <SettingsNavigationGroup name={t('developer')}>
           {filteredDeveloper.map((item) => (
-            <NavigationMenuLinkItem
-              pathPrefix={AppPath.Settings}
+            <SettingsNavigationItem
+              key={item.name}
               path={item.path}
               name={item.name}
               icon={item.icon}
-              key={item.name}
+              subPaths={subNavigation[item.path]?.items}
             />
           ))}
         </SettingsNavigationGroup>
@@ -100,19 +100,21 @@ export function SettingsSidebar() {
   );
 }
 
-function SettingsNavigationItem({
+export function SettingsNavigationItem({
   path,
   name,
   icon,
   subPaths,
+  pathPrefix = AppPath.Settings,
 }: Readonly<{
   path: string;
   name: string;
   icon?: React.ElementType;
   subPaths?: TSettingSubPath[];
+  pathPrefix?: string;
 }>) {
   const location = useLocation();
-  const itemPath = `/${AppPath.Settings}/${path}`;
+  const itemPath = `/${pathPrefix}/${path.replace(/^\//, '')}`;
   const inItem =
     location.pathname === itemPath ||
     location.pathname.startsWith(`${itemPath}/`);
@@ -125,7 +127,7 @@ function SettingsNavigationItem({
   if (!subPaths?.length) {
     return (
       <NavigationMenuLinkItem
-        pathPrefix={AppPath.Settings}
+        pathPrefix={pathPrefix}
         path={path}
         name={name}
         icon={icon}
@@ -145,7 +147,7 @@ function SettingsNavigationItem({
 
   return (
     <NavigationMenuLinkItem
-      pathPrefix={AppPath.Settings}
+      pathPrefix={pathPrefix}
       path={path}
       name={name}
       icon={icon}
@@ -160,7 +162,13 @@ function SettingsNavigationItem({
                   asChild
                   isActive={subPath.path === activeSubPath}
                 >
-                  <Link to={subPath.path}>{subPath.name}</Link>
+                  <Link
+                    to={subPath.path}
+                    title={subPath.name}
+                    onClick={subPath.onClick}
+                  >
+                    <span>{subPath.name}</span>
+                  </Link>
                 </Sidebar.SubButton>
               </Sidebar.SubItem>
             ))}
@@ -169,6 +177,7 @@ function SettingsNavigationItem({
       }
     >
       <span
+        data-nav-chevron
         className={cn(
           'ml-auto flex shrink-0 text-muted-foreground transition-transform duration-200',
           open && 'rotate-90',

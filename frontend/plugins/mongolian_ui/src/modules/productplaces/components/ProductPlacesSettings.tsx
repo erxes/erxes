@@ -1,6 +1,5 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { SettingsLayout } from '~/modules/SettingsLayout';
-import ProductPlacesSidebar from '~/modules/productplaces/components/Sidebar';
 
 import StagePage from '../../../pages/productplaces/StagePage';
 import SplitPage from '../../../pages/productplaces/SplitPage';
@@ -9,7 +8,7 @@ import ProductFilterPage from '../../../pages/productplaces/ProductFilterPage';
 
 const ProductPlacesSettings = () => {
   return (
-    <SettingsLayout sidebar={<ProductPlacesSidebar />}>
+    <SettingsLayout>
       <Routes>
         <Route index element={<Navigate to="stage" replace />} />
         <Route path="stage" element={<StagePage />} />
