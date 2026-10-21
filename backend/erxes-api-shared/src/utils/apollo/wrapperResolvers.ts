@@ -11,6 +11,7 @@ import {
 import { logHandler } from '../logs';
 import { runBeforeResolvers } from './runBeforeResolvers';
 import { classifyError } from '../errorClassifier';
+import { isCredentialField } from '../credential-privacy';
 
 const withSentryCapture = (
   resolver: Resolver,
@@ -25,7 +26,7 @@ const withSentryCapture = (
 
       // Only capture system/provider errors in Sentry
       // Expected business errors (not found, validation, etc.) are skipped
-      if (classification.category !== 'EXPECTED') {
+      if (!isCredentialField(resolverKey) && classification.category !== 'EXPECTED') {
         Sentry.withScope((scope) => {
           scope.setTag('graphql.operation', operation);
           scope.setTag('graphql.field', resolverKey);
@@ -71,6 +72,11 @@ const withBeforeResolvers = (
 
 const withLogging = (resolver: Resolver): Resolver => {
   return async (root, args, context, info) => {
+    // The vault emits its own allowlisted metadata audit. General logs also
+    // serialize mutation results (including one-time consumer tokens).
+    if (isCredentialField(info.fieldName)) {
+      return resolver(root, args, context, info);
+    }
     const { user, req, processId, subdomain } = context;
     const requestData = req.headers;
 
@@ -92,7 +98,9 @@ const withLogging = (resolver: Resolver): Resolver => {
   };
 };
 
-export const wrapApolloResolvers = (resolvers: Record<string, Resolver>) => {
+export const wrapApolloResolvers = (
+  resolvers: Record<string, Resolver | Record<string, Resolver>>,
+) => {
   const wrappedResolvers: any = {};
 
   for (const [key, resolver] of Object.entries(resolvers)) {

@@ -5,6 +5,18 @@ export const permissions: IPermissionConfig = {
 
   modules: [
     {
+      name: 'credentials',
+      description: 'Platform credentials vault',
+      scopeField: null,
+      ownerFields: [],
+      scopes: [{ name: 'all', description: 'All credentials' }],
+      actions: [
+        { title: 'View credentials', name: 'credentialsRead', description: 'View credential metadata and templates' },
+        { title: 'Manage credentials', name: 'credentialsManage', description: 'Create, update, and delete credentials' },
+        { title: 'Manage credential grants', name: 'credentialGrantsManage', description: 'Issue and revoke backend consumer grants' },
+      ],
+    },
+    {
       name: 'emailTemplates',
       description: 'Email templates',
       scopeField: null,
@@ -733,6 +745,12 @@ export const permissions: IPermissionConfig = {
       name: 'Core modules admin',
       description: 'Full access to Core modules',
       permissions: [
+        {
+          plugin: 'core',
+          module: 'credentials',
+          actions: ['credentialsRead', 'credentialsManage', 'credentialGrantsManage'],
+          scope: 'all',
+        },
         {
           plugin: 'core',
           module: 'contacts',

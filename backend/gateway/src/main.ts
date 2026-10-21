@@ -40,6 +40,7 @@ import {
   stopSubscriptionServer,
 } from './subscription';
 import { isValidLocaleParams, resolveLocale } from '~/util/locales';
+import { credentialPrivacy, credentialUrlPrivacy } from './middlewares/credentialPrivacy';
 
 dotenv.config();
 
@@ -101,6 +102,8 @@ const gatewayRateLimiter: RateLimitRequestHandler = rateLimit({
 
 app.use(gatewayRateLimiter);
 
+app.use('/graphql', credentialUrlPrivacy);
+
 app.use(async (req, res, next) => {
   const appToken = req.headers['x-app-api-token'] as string;
   // const clientPortalToken = req.headers['x-app-token'] as string;
@@ -149,6 +152,8 @@ app.use(async (req, res, next) => {
 });
 
 app.use(userMiddleware);
+
+app.use('/graphql', credentialPrivacy);
 
 app.use('/bullmq-board', serverAdapter.getRouter());
 
