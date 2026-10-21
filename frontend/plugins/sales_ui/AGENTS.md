@@ -430,6 +430,11 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   `IconChevronRight` (`size-3.5`, muted) inside a span that rotates 90° when
   open, never a filled caret, so the rotation stays on the compositor and
   matches the main sidebar.
+- The BOARDS group loads with `Sidebar.MenuSkeleton` rows sized like the real
+  rows (`h-7` with `gap-1`: a board, two `pl-6` pipelines, a board), so the
+  list does not jump when boards arrive; a pipeline whose deal count is still
+  loading shows the round count skeleton (`Skeleton size-4 rounded-full`, the
+  Frontline inbox filter pattern) instead of nothing.
 - Board rows expand through `BoardDisclosure` (grid-rows 0fr→1fr over 250ms
   with the chevron's `cubic-bezier(0.22,1,0.36,1)` and a 150ms opacity fade,
   `motion-reduce` off), the same pattern as core-ui `NavigationDisclosure` and

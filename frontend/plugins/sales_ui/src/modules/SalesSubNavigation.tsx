@@ -40,16 +40,19 @@ type TBoardSelection = {
 
 function LoadingSkeleton() {
   return (
-    <div className="space-y-4">
-      {[1, 2, 3].map((i) => (
-        <Skeleton key={i} className="w-full h-4" />
-      ))}
+    <div className="flex flex-col gap-1">
+      <Sidebar.MenuSkeleton className="h-7" />
+      <Sidebar.MenuSkeleton className="h-7 pl-6" />
+      <Sidebar.MenuSkeleton className="h-7 pl-6" />
+      <Sidebar.MenuSkeleton className="h-7" />
     </div>
   );
 }
 
 function DealCount({ count }: { count?: number }) {
-  if (count === undefined) return null;
+  if (count === undefined) {
+    return <Skeleton className="size-4 shrink-0 rounded-full" />;
+  }
 
   return (
     <span className="shrink-0 text-xs tabular-nums text-muted-foreground">
