@@ -6,7 +6,7 @@ export const shouldIgnoreNotificationHotkey = (
   return (
     event.target instanceof Element &&
     !!event.target.closest(
-      '[role="listbox"], [role="menu"], [role="dialog"], [role="combobox"]',
+      '[role="listbox"], [role="menu"], [role="dialog"], [role="alertdialog"], [role="combobox"]',
     )
   );
 };

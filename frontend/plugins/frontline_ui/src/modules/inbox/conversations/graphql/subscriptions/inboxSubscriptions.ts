@@ -36,6 +36,7 @@ export const CONVERSATION_MESSAGE_FIELDS = gql(`
     expiresAt
     conversationId
     content
+    contentType
     formWidgetData
     extraData
     attachments {
@@ -81,6 +82,12 @@ export const CONVERSATION_CLIENT_MESSAGE_INSERTED = gql(`
       conversationId
       content
       createdAt
+      internal
+      contentType
+      messageKind
+      providerData { messageId attachmentType fallbackReason previewText previewUrl shareType storyUrl }
+      extraData
+      attachments { name type url }
     }
   }
 `);

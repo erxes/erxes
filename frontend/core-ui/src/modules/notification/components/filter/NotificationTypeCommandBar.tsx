@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 
 export const NotificationTypeCommandBar = () => {
   const { t } = useTranslation('common', { keyPrefix: 'notification' });
-  const [type, setType] = useQueryState<string>('type');
+  const [type, setType] = useQueryState<string>('notificationType');
   return (
     <Command>
       <Command.Input placeholder={t('search')} focusOnMount />

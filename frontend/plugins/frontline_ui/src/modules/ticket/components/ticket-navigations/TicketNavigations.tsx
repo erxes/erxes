@@ -44,7 +44,7 @@ function ChannelItem({ channel, pipelineId }: Readonly<ChannelItemProps>) {
     <Sidebar.MenuItem>
       <Sidebar.MenuButton asChild isActive={isActive}>
         <Link
-          to={`frontline/tickets?channelId=${channel._id}${
+          to={`/frontline/tickets?channelId=${channel._id}${
             pipelineId ? `&pipelineId=${pipelineId}` : ''
           }`}
         >

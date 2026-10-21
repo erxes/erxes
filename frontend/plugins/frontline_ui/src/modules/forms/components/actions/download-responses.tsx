@@ -28,7 +28,7 @@ const DownloadResponsesSheet = ({
   entityDisplayName: string;
   onStartExport: () => void;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -58,7 +58,7 @@ export const DownloadResponsesAction = ({
   formName,
   children,
 }: DownloadResponsesActionProps) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
   const [progressOpen, setProgressOpen] = useState(false);
   const [fieldSelectionOpen, setFieldSelectionOpen] = useState(false);
   const filters = { formId };

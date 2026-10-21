@@ -29,7 +29,7 @@ export const SurveyMutateLayout = <TValues extends FieldValues>({
   onSubmit?: (values: TValues) => void;
   isLoading?: boolean;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.survey' });
   const [step, setStep] = useAtom(surveySetupStepAtom);
   const { surveyId } = useParams<{ surveyId: string }>();
   const { returnPath } = useSurveySetupChannel();
@@ -91,7 +91,7 @@ export const SurveyMutateLayout = <TValues extends FieldValues>({
 };
 
 export const SurveyMutateLayoutPreviousStepButton = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.survey' });
   const [step, setStep] = useAtom(surveySetupStepAtom);
 
   return (

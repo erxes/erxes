@@ -1,6 +1,6 @@
 import { CallWidget } from '@/integrations/call/components/CallWidget';
 import { SipContainer } from '@/integrations/call/components/SipContainer';
-import { DirectMailComposer } from '@/integrations/mail/components/DirectMailComposer';
+import { DirectMailComposer } from '@/integrations/mail/composer/components/DirectMailComposer';
 
 const FloatingWidget = () => {
   return (

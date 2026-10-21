@@ -1,30 +1,39 @@
-import type { TFunction } from 'i18next';
 import { Cell, ColumnDef } from '@tanstack/table-core';
-import { IAccountCategory } from '../types/AccountCategory';
 import {
+  Combobox,
+  Command,
   ITextFieldContainerProps,
+  Popover,
   RecordTable,
   RecordTableTree,
   Skeleton,
   Table,
   TextField,
-  useQueryState,
-  Popover,
-  Combobox,
-  Command,
-  useConfirm,
+  cn,
   toast,
+  useConfirm,
+  useQueryState,
 } from 'erxes-ui';
-import { useTranslation } from 'react-i18next';
-import { useAccountCategories } from '../hooks/useAccountCategories';
-import { useAccountCategoryEdit } from '../hooks/useAccountCategoryEdit';
-import { useAccountCategoriesRemove } from '../hooks/useAccountCategoriesRemove';
-import { SelectAccountCategory } from './SelectAccountCategory';
-import { useSetAtom } from 'jotai';
-import { accountCategoryDetailAtom } from '../states/accountCategoryStates';
-import { AccountCategoriesCommandbar } from './AccountCategoriesCommandbar';
+import { IconEdit, IconFolderOff, IconTrash } from '@tabler/icons-react';
+
+import { AccountCategoriesCommandbar } from '@/settings/account/account-categories/components/AccountCategoriesCommandbar';
+import { AccountingEmptyState } from '@/layout/components/AccountingEmptyState';
+import { AddAccountCategory } from '@/settings/account/account-categories/components/AddAccountCategory';
+import { IAccountCategory } from '@/settings/account/account-categories/types/AccountCategory';
+import { SelectAccountCategory } from '@/settings/account/account-categories/components/SelectAccountCategory';
+import type { TFunction } from 'i18next';
+import { accountCategoryDetailAtom } from '@/settings/account/account-categories/states/accountCategoryStates';
+import { useAccountCategoriesRemove } from '@/settings/account/account-categories/hooks/useAccountCategoriesRemove';
+import { useAccountCategoryEdit } from '@/settings/account/account-categories/hooks/useAccountCategoryEdit';
+import { useFilteredAccountCategories } from '@/settings/account/account-categories/hooks/useFilteredAccountCategories';
 import { useMemo } from 'react';
-import { IconEdit, IconTrash } from '@tabler/icons-react';
+import { useSetAtom } from 'jotai';
+import { useTranslation } from 'react-i18next';
+
+type AccountCategoryRow = IAccountCategory & {
+  hasChildren: boolean;
+  isContext?: boolean;
+};
 
 const AccountCategoriesInitialSkeleton = ({ rows = 20 }: { rows?: number }) => {
   const { t } = useTranslation('accounting');
@@ -52,7 +61,14 @@ const AccountCategoriesInitialSkeleton = ({ rows = 20 }: { rows?: number }) => {
 
 export const AccountCategoriesTable = () => {
   const { t } = useTranslation('accounting');
-  const { accountCategories, loading } = useAccountCategories();
+  const {
+    allCategories: accountCategories,
+    categories: visibleCategories,
+    matchedIds,
+    isFiltered,
+    loading,
+    error,
+  } = useFilteredAccountCategories();
   const isInitialLoading = loading && !accountCategories?.length;
 
   const categoryObject = useMemo(() => {
@@ -67,23 +83,32 @@ export const AccountCategoriesTable = () => {
     );
   }, [accountCategories]);
 
+  const isEmpty = !loading && !visibleCategories.length;
+  const isFilteredEmpty = isFiltered && Boolean(accountCategories?.length);
+
   return (
     <RecordTable.Provider
       columns={accountCategoriesColumns(t)}
       data={
         isInitialLoading
           ? []
-          : accountCategories?.map((category) => ({
+          : visibleCategories.map((category) => ({
               ...category,
-              hasChildren: accountCategories.some(
+              hasChildren: visibleCategories.some(
                 (c) => c.parentId === category._id,
               ),
-            })) || []
+              isContext: isFiltered && !matchedIds.has(category._id),
+            }))
       }
       stickyColumns={['more', 'checkbox', 'code']}
       tableId="accounting_account_categories_record_table"
+      className="relative"
     >
-      <RecordTableTree id="product-categories" ordered>
+      <RecordTableTree
+        id="product-categories"
+        ordered
+        length={visibleCategories.length}
+      >
         <RecordTable.Scroll>
           <RecordTable>
             <RecordTable.Header />
@@ -107,6 +132,19 @@ export const AccountCategoriesTable = () => {
         </RecordTable.Scroll>
         <AccountCategoriesCommandbar />
       </RecordTableTree>
+      {isEmpty && (
+        <AccountingEmptyState
+          overlay
+          error={error}
+          icon={IconFolderOff}
+          description={
+            isFilteredEmpty
+              ? t('empty-filter-description')
+              : t('empty-list-description')
+          }
+          action={isFilteredEmpty ? undefined : <AddAccountCategory />}
+        />
+      )}
     </RecordTable.Provider>
   );
 };
@@ -118,9 +156,10 @@ const AccountTextField = ({
   accountCategory,
   children,
 }: ITextFieldContainerProps & {
-  accountCategory: IAccountCategory & { hasChildren: boolean };
+  accountCategory: AccountCategoryRow;
   children?: React.ReactNode;
 }) => {
+  const { isContext, ...category } = accountCategory;
   const { editAccountCategory } = useAccountCategoryEdit();
 
   return (
@@ -130,13 +169,16 @@ const AccountTextField = ({
       onSave={(value) => {
         editAccountCategory({
           variables: {
-            ...accountCategory,
-            name: accountCategory.name ?? '',
+            ...category,
+            name: category.name ?? '',
             [field]: value,
           },
         });
       }}
-      className={'shadow-none rounded-none px-2'}
+      className={cn(
+        'shadow-none rounded-none px-2',
+        isContext && 'text-muted-foreground',
+      )}
     >
       {children}
     </TextField>
@@ -146,7 +188,7 @@ const AccountTextField = ({
 const AccountCategoryMoreColumnCell = ({
   cell,
 }: {
-  cell: Cell<IAccountCategory & { hasChildren: boolean }, unknown>;
+  cell: Cell<AccountCategoryRow, unknown>;
 }) => {
   const { t } = useTranslation('accounting');
   const [, setOpen] = useQueryState<string>('accountCategoryId');
@@ -209,7 +251,7 @@ const AccountCategoryMoreColumnCell = ({
 const AccountCategoryParentCell = ({
   cell,
 }: {
-  cell: Cell<IAccountCategory & { hasChildren: boolean }, unknown>;
+  cell: Cell<AccountCategoryRow, unknown>;
 }) => {
   const { editAccountCategory } = useAccountCategoryEdit();
   return (
@@ -242,11 +284,9 @@ const accountCategoryMoreColumn = {
 
 export const accountCategoriesColumns = (
   t: TFunction<'accounting'>,
-): ColumnDef<IAccountCategory & { hasChildren: boolean }>[] => [
+): ColumnDef<AccountCategoryRow>[] => [
   accountCategoryMoreColumn,
-  RecordTable.checkboxColumn as ColumnDef<
-    IAccountCategory & { hasChildren: boolean }
-  >,
+  RecordTable.checkboxColumn as ColumnDef<AccountCategoryRow>,
   {
     id: 'code',
     accessorKey: 'code',

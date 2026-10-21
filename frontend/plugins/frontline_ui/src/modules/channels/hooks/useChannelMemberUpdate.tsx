@@ -8,7 +8,7 @@ import type {
 } from '~/gql/graphql';
 
 export const useChannelMemberUpdate = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.channels' });
   const { toast } = useToast();
   const [updateChannelMember, { loading, error }] = useMutation(
     UPDATE_CHANNEL_MEMBER,

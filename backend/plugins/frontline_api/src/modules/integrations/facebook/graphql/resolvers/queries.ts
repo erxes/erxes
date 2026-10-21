@@ -290,20 +290,20 @@ export const facebookQueries = {
       _id: accountId,
     });
     const accessToken = account.token;
-    let pages: any[] = [];
 
     try {
-      pages = await getPageList(models, accessToken, kind);
+      return await getPageList(models, accessToken, kind);
     } catch (e) {
       if (!e.message.includes('Application request limit reached')) {
-        await models.Integrations.updateOne(
+        await models.FacebookIntegrations.markUnhealthy(
           { accountId },
-          { $set: { healthStatus: 'account-token', error: `${e.message}` } },
+          'account-token',
+          e.message,
         );
       }
-    }
 
-    return pages;
+      throw new Error(`Facebook: ${e.message}`);
+    }
   },
 
   async facebookConversationDetail(

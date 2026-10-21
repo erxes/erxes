@@ -1,5 +1,6 @@
 import { markResolvers } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
+import { toCustomerConversationView } from '@/inbox/utils/customerConversationView';
 import { widgetQueries } from './widget';
 
 export const cpInboxQueries = {
@@ -31,10 +32,12 @@ export const cpInboxQueries = {
     if (customerId) query.customerId = customerId;
     if (args.integrationId) query.integrationId = args.integrationId;
 
-    return models.Conversations.find(query)
+    const conversations = await models.Conversations.find(query)
       .sort({ updatedAt: -1 })
       .skip(args.skip || 0)
       .limit(args.limit || 10);
+
+    return conversations.map(toCustomerConversationView);
   },
 
   async cpConversationDetail(
@@ -42,7 +45,9 @@ export const cpInboxQueries = {
     { _id }: { _id: string },
     { models }: IContext,
   ) {
-    return models.Conversations.findOne({ _id });
+    const conversation = await models.Conversations.findOne({ _id });
+
+    return conversation && toCustomerConversationView(conversation);
   },
 
   async cpConversations(

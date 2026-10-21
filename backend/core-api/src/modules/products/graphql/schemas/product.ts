@@ -31,6 +31,7 @@ export const types = `
     attachment: Attachment
     attachmentMore: [Attachment]
     videos: [Attachment]
+    files: [Attachment]
     vendorId: String
     scopeBrandIds: [String]
     uom: String
@@ -162,6 +163,7 @@ export const mutationParams = `
   attachment: AttachmentInput,
   attachmentMore: [AttachmentInput],
   videos: [AttachmentInput],
+  files: [AttachmentInput],
   vendorId: String,
   scopeBrandIds: [String],
   uom: String,

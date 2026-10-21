@@ -321,6 +321,7 @@ export const TasksFilter = () => {
   return (
     <Filter id="Tasks-filter" sessionKey={TASKS_CURSOR_SESSION_KEY}>
       <Filter.Bar>
+        <TasksFilterPopover />
         {searchValue && (
           <Filter.BarItem queryKey="searchValue">
             <Filter.BarName>
@@ -478,7 +479,6 @@ export const TasksFilter = () => {
           </Filter.BarName>
           <SelectCompletedDateFilter.FilterBar />
         </Filter.BarItem>
-        <TasksFilterPopover />
         <TasksTotalCount />
       </Filter.Bar>
     </Filter>

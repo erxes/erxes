@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { ChannelsTotalCount } from './ChannelsTotalCount';
 
 export const ChannelsSubHeader = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.channels' });
 
   return (
     <Filter id="channels-filter">

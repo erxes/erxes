@@ -1,4 +1,4 @@
-import { IconArrowsRightLeft, IconSettings } from '@tabler/icons-react';
+import { IconArrowsRightLeft } from '@tabler/icons-react';
 import { Breadcrumb, Button, Separator } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
@@ -47,17 +47,7 @@ export const AccountingHeader = ({
           icon="IconArrowsRightLeft"
         />
       </PageHeader.Start>
-      <PageHeader.End>
-        {!skipSettings && (
-          <Button variant="outline" asChild>
-            <Link to="/accounting/settings">
-              <IconSettings />
-              {t('go-to-settings')}
-            </Link>
-          </Button>
-        )}
-        {children}
-      </PageHeader.End>
+      <PageHeader.End>{children}</PageHeader.End>
     </PageHeader>
   );
 };

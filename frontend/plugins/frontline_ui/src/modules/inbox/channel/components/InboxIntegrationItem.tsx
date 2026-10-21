@@ -1,3 +1,4 @@
+import { ConversationCountValue } from '@/inbox/conversations/components/ConversationCountValue';
 import { IconCheck, IconInbox } from '@tabler/icons-react';
 import {
   Button,
@@ -52,7 +53,10 @@ export const InboxIntegrationItem = ({
   const trigger = (
     <Button
       aria-pressed={isActive}
-      className="w-full justify-start gap-2 overflow-hidden pl-7 text-left"
+      className={cn(
+        'w-full justify-start gap-2 overflow-hidden pl-7 text-left rounded-lg',
+        isActive && 'bg-primary/10 text-primary hover:bg-primary/15',
+      )}
       onClick={selectIntegration}
       variant={isActive ? 'secondary' : 'ghost'}
     >
@@ -78,7 +82,9 @@ export const InboxIntegrationItem = ({
         </>
       )}
       {count > 0 && (
-        <span className="shrink-0 text-xs tabular-nums">{count}</span>
+        <span className="shrink-0 text-xs tabular-nums">
+          <ConversationCountValue count={count} />
+        </span>
       )}
     </Button>
   );

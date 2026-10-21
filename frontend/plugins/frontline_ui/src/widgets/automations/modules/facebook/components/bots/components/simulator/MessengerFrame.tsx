@@ -1,5 +1,6 @@
 import {
   IconChevronLeft,
+  IconExternalLink,
   IconMenu2,
   IconSend,
   IconX,
@@ -18,6 +19,7 @@ export const MessengerFrame = ({
   device,
   pageName,
   profileUrl,
+  pageUrl,
   isMenuOpen,
   onToggleMenu,
   composerValue,
@@ -28,6 +30,8 @@ export const MessengerFrame = ({
   device: TMessengerDevice;
   pageName: string;
   profileUrl?: string;
+  // The real page on Facebook, so it can be found without searching there.
+  pageUrl?: string;
   isMenuOpen: boolean;
   onToggleMenu: () => void;
   // Typing here is how the preview tries a direct message.
@@ -58,11 +62,25 @@ export const MessengerFrame = ({
         {isMobile && (
           <IconChevronLeft className="size-4 shrink-0 text-muted-foreground" />
         )}
-        <Avatar className="size-7">
-          <Avatar.Image src={profileUrl} />
-          <Avatar.Fallback>{(pageName || '?').charAt(0)}</Avatar.Fallback>
-        </Avatar>
-        <span className="truncate text-sm font-semibold">{pageName}</span>
+        <a
+          href={pageUrl}
+          target="_blank"
+          rel="noreferrer"
+          title={pageUrl}
+          className={cn(
+            'group/page flex min-w-0 items-center gap-2',
+            pageUrl ? 'hover:underline' : 'pointer-events-none',
+          )}
+        >
+          <Avatar className="size-7">
+            <Avatar.Image src={profileUrl} />
+            <Avatar.Fallback>{(pageName || '?').charAt(0)}</Avatar.Fallback>
+          </Avatar>
+          <span className="truncate text-sm font-semibold">{pageName}</span>
+          {pageUrl && (
+            <IconExternalLink className="size-3.5 shrink-0 text-muted-foreground opacity-0 group-hover/page:opacity-100" />
+          )}
+        </a>
         {!isMobile && (
           <div className="ml-auto flex items-center gap-1.5 text-muted-foreground">
             <span className="block h-0.5 w-3 bg-current" />

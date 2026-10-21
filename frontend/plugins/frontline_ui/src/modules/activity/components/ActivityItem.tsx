@@ -22,7 +22,7 @@ import { MembersInline } from 'ui-modules';
 import { useTranslation } from 'react-i18next';
 
 export const ActivityItem = ({ activity }: { activity: IActivity }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.activity' });
   const { metadata, action } = activity;
 
   switch (activity.module) {

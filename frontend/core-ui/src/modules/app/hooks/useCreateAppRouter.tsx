@@ -13,6 +13,7 @@ import { ComponentsRoutes } from '../components/ComponentsRoutes';
 import { ContactsRoutes } from '@/app/components/ContactsRoutes';
 import { DefaultLayout } from '@/app/components/MainLayout';
 import { DocumentsRoutes } from '@/app/components/DocumentsRoutes';
+import { FilesRoutes } from '@/app/components/FilesRoutes';
 import ForgotPasswordPage from '~/pages/auth/ForgotPasswordPage';
 import { HomePage } from '~/pages/home/HomePage';
 import { ImportExportRoutes } from '../components/ImportExportRoutes';
@@ -130,6 +131,15 @@ export const useCreateAppRouter = () => {
                 element={
                   <PermissionRouteGuard module="documents">
                     <DocumentsRoutes />
+                  </PermissionRouteGuard>
+                }
+              />
+
+              <Route
+                path={AppPath.FilesCatchAll}
+                element={
+                  <PermissionRouteGuard module="files">
+                    <FilesRoutes />
                   </PermissionRouteGuard>
                 }
               />

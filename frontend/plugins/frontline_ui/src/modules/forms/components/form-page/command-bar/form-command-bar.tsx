@@ -8,7 +8,7 @@ import { ChannelResourceType } from '@/channels/types';
 import { IForm } from '@/forms/types/formTypes';
 
 export const FormCommandBar = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
   const { table } = RecordTable.useRecordTable();
 
   const selectedRows = table.getFilteredSelectedRowModel().rows;

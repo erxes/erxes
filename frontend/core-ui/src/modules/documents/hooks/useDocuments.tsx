@@ -105,6 +105,7 @@ export const useDocuments = () => {
     loading,
     pageInfo,
     handleFetchMore,
+    error,
     refetch,
   };
 };

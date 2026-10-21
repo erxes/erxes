@@ -1,6 +1,7 @@
 import type { TaskFieldsProps } from '@/task/types/taskFields';
 import { compactList } from '@/operation/utils/cursorList';
 import { useTranslation } from 'react-i18next';
+import { OperationTagsChip } from '@/operation/components/OperationChips';
 import { ActivityList } from '@/activity/components/ActivityList';
 import { ConvertToProject } from '@/task/components/task-selects/ConvertToProject';
 import { DateSelectTask } from '@/task/components/task-selects/DateSelectTask';
@@ -11,7 +12,6 @@ import { SelectMilestone } from '@/task/components/task-selects/SelectMilestone'
 import { SelectProject } from '@/task/components/task-selects/SelectProjectTask';
 import { SelectStatusTask } from '@/task/components/task-selects/SelectStatusTask';
 import { SelectTaskPriority } from '@/task/components/task-selects/SelectTaskPriority';
-import { SelectTagsTask } from '@/task/components/task-selects/SelectTagsTask';
 import { SelectTeamTask } from '@/task/components/task-selects/SelectTeamTask';
 import { BlockEditor, Separator, Textarea, Button, Spinner } from 'erxes-ui';
 import { IconBrandGithub, IconExternalLink } from '@tabler/icons-react';
@@ -150,8 +150,9 @@ export const TaskFields = ({ task, titleAction }: TaskFieldsProps) => {
           variant="detail"
           label={t('milestone')}
         />
-        <SelectTagsTask
-          taskId={taskId}
+        <OperationTagsChip
+          type="operation:task"
+          targetIds={[taskId]}
           value={compactList(tagIds)}
           label={t('tags')}
         />
