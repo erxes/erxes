@@ -1,0 +1,20 @@
+@import 'tailwindcss' source(none);
+@import './theme.css';
+@source '.';
+@source not './**/*.stories.*';
+@source not './**/__stories__';
+@source not './**/__tests__';
+@plugin 'tailwindcss-animate';
+
+@theme inline {
+  --shadow-button-primary: 0 1px 2px #0002, inset 0 1px 0 #ffffff20;
+  --shadow-button-outline: 0 0 0 1px var(--border), 0 1px 2px #00000008;
+}
+
+@layer base {
+  *,
+  ::after,
+  ::before {
+    border-color: var(--border);
+  }
+}

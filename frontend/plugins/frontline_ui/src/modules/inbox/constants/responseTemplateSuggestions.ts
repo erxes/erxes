@@ -1,0 +1,1 @@
+export const MAX_TEMPLATE_SUGGESTIONS = 5;

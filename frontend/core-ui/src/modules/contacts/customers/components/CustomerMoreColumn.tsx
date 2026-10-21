@@ -1,8 +1,8 @@
 import { useBroadcastContacts } from '@/broadcast/hooks/useBroadcastContacts';
 import { IconEdit, IconSend } from '@tabler/icons-react';
-import { useTranslation } from 'react-i18next';
 import { Cell } from '@tanstack/react-table';
 import { Combobox, Command, Popover, RecordTable } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 import { Can, ICustomer } from 'ui-modules';
 
@@ -63,7 +63,7 @@ export const CustomerMoreColumnCell = ({
 
 export const customerMoreColumn = {
   id: 'more',
-  header: RecordTable.ColumnSelector,
+  header: () => <RecordTable.ColumnSelector />,
   cell: CustomerMoreColumnCell,
   size: 33,
 };

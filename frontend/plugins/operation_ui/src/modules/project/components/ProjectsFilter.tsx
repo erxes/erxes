@@ -104,6 +104,7 @@ export const ProjectsFilter = () => {
   return (
     <Filter id="Projects-filter" sessionKey={PROJECTS_CURSOR_SESSION_KEY}>
       <Filter.Bar>
+        <ProjectsFilterPopover />
         {name && (
           <Filter.BarItem queryKey="name">
             <Filter.BarName>
@@ -140,7 +141,6 @@ export const ProjectsFilter = () => {
           <SelectStatus.FilterBar />
         </Filter.BarItem>
         <TagsFilter.Bar tagType="operation:project" />
-        <ProjectsFilterPopover />
         <ProjectsTotalCount />
       </Filter.Bar>
     </Filter>

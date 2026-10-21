@@ -540,7 +540,7 @@ The root router mounts its authenticated webhook at `/telegram`.
 | Bootstrap                | `src/main.ts`                                                                                                                                                    | `startPlugin({ name: 'frontline', port: 3304 })`, wires tRPC, routes, meta, and every surface                                                                                                                          |
 | Models                   | `src/connectionResolvers.ts`                                                                                                                                     | Per-subdomain model container for all modules                                                                                                                                                                          |
 | GraphQL                  | `src/apollo/`                                                                                                                                                    | Aggregated `typeDefs` and `resolvers` across modules                                                                                                                                                                   |
-| Schema print             | `scripts/print-subgraph-schema.ts`                                                                                                                                                | Prints the subgraph schema for `frontline_ui` codegen (`generated/`, gitignored)                                                                                                                                       |
+| Schema print             | `scripts/print-subgraph-schema.ts`                                                                                                                               | Prints the subgraph schema for `frontline_ui` codegen (`generated/`, gitignored)                                                                                                                                       |
 | tRPC                     | `src/init-trpc.ts`                                                                                                                                               | `appRouter` for service-to-service calls                                                                                                                                                                               |
 | HTTP                     | `src/routes.ts`                                                                                                                                                  | Mounts the `/facebook`, `/instagram`, `/mail`, and (when enabled) `/callpro` webhook routers                                                                                                                           |
 | Platform extensions      | `src/meta/`                                                                                                                                                      | automations, permissions, notifications, segments, references, import/export                                                                                                                                           |
@@ -1276,6 +1276,10 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   The portal account behind a ticket is resolved from its `cp:<id>` author with
   `cpUsers.get` by `{ id }` and then by `{ erxesCustomerId }`, because a ticket
   records whichever of the two the portal session carried.
+- `core` over tRPC — `segment.fetchSegment`
+  (`{ segmentId, cursor?, limit? }` → `{ ids, nextCursor? }`), which backs the
+  conversation list `segment` filter. `segmentFilter` pages until `nextCursor`
+  is empty; core caps each page, so one call is never the whole segment.
 - `core` over tRPC — `notifications.sendMobileNotification` (mutation,
   `{ title, body, receivers, data }`), which pushes a new chat message to the
   assigned and participating agents' `deviceTokens`. The path is
@@ -1523,6 +1527,12 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-10-19` — Conversation segment filter on the paged contract
+
+- **Summary:** The inbox `segment` filter sends `{ segmentId, cursor, limit }` and collects every `ids` page; it used the pre-cutover `options` input and read `_id` from an array, so it matched nothing.
+- **Affected areas:** `conversationQueryBuilder.ts` (+ `__tests__/conversationQueryBuilder.segment.test.ts`).
+- **Contracts changed:** none provided; consumes core `segment.fetchSegment` paging.
 
 ### `2026-10-18` — Ticket remembered through action placement
 

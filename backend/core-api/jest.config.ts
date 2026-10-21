@@ -1,12 +1,9 @@
-/* eslint-disable */
-// Default export required by Jest - do not remove
 export default {
   displayName: 'core-api',
   preset: '../../jest.preset.js',
   testEnvironment: 'node',
   transform: {
-    // Transpile-only: types are enforced by the project tsconfig via
-    // `npx tsc --project tsconfig.json --noEmit`, not by ts-jest here.
+    // Transpile-only (isolatedModules in tsconfig.spec.json); `pnpm build` checks types.
     '^.+\\.[tj]s$': [
       'ts-jest',
       {
@@ -15,7 +12,7 @@ export default {
       },
     ],
   },
-  moduleFileExtensions: ['ts', 'js', 'json'],
+  moduleFileExtensions: ['ts', 'js', 'json', 'html'],
   // @mastra/quickjs's CJS bundle calls `ts_blank_space.default` through
   // esbuild's `__toESM(mod, 1)` helper; for the real ESM-only ts-blank-space
   // that yields the namespace, not the function (packaging bug in
@@ -31,10 +28,7 @@ export default {
     '^@/(.*)$': '<rootDir>/src/modules/$1',
     '^erxes-api-shared/(.*)$': '<rootDir>/../erxes-api-shared/src/$1',
   },
-  testMatch: [
-    '<rootDir>/src/**/__tests__/**/*.test.ts',
-    '<rootDir>/src/**/*.spec.ts',
-  ],
+  testMatch: ['<rootDir>/src/**/*.spec.ts', '<rootDir>/src/**/*.test.ts'],
   forceExit: true,
   coverageDirectory: '../../coverage/backend/core-api',
   modulePathIgnorePatterns: ['<rootDir>/dist/'],

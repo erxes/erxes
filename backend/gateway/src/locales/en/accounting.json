@@ -1280,5 +1280,9 @@
   "edit-own-records": "Edit own records",
   "view-own-records": "View own records",
   "modified": "Modified",
-  "modified-date": "Modified date"
+  "modified-date": "Modified date",
+  "empty-list-description": "Try different filters or add a new one.",
+  "empty-filter-description": "Try different filters.",
+  "empty-generated-description": "These records are created from transactions. Record a transaction or try different filters.",
+  "select-a-report-description": "Choose a report from the list on the left, or start with a common one below."
 }

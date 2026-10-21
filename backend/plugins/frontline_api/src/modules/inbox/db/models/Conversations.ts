@@ -15,6 +15,7 @@ import {
 import { Model } from 'mongoose';
 import { conversationsChanged } from '@/inbox/meta/segments';
 import { IModels } from '~/connectionResolvers';
+import { getConversationAssigneeIds } from '@/inbox/utils/conversationAssignees';
 
 export interface IConversationModel extends Model<IConversationDocument> {
   getConversation(_id: string): Promise<IConversationDocument>;
@@ -30,6 +31,7 @@ export interface IConversationModel extends Model<IConversationDocument> {
   assignUserConversation(
     conversationIds: string[],
     assignedUserId?: string,
+    assignedUserIds?: string[],
   ): Promise<IConversationDocument[]>;
 
   unassignUserConversation(
@@ -122,6 +124,12 @@ export const loadClass = (models: IModels, subdomain: string) => {
       const result = await models.Conversations.create({
         status: CONVERSATION_STATUSES.NEW,
         ...doc,
+        ...(doc.assignedUserId || doc.assignedUserIds
+          ? {
+              assignedUserIds: getConversationAssigneeIds(doc),
+              assignedUserId: getConversationAssigneeIds(doc)[0],
+            }
+          : {}),
         content: await cleanHtml(doc.content),
         createdAt: doc.createdAt || now,
         updatedAt: doc.createdAt || now,
@@ -137,7 +145,22 @@ export const loadClass = (models: IModels, subdomain: string) => {
     /**
      * Update a conversation
      */
-    public static async updateConversation(_id, doc) {
+    public static async updateConversation(
+      _id: string,
+      doc: Partial<IConversation>,
+    ) {
+      if (doc.assignedUserIds !== undefined) {
+        doc.assignedUserIds = getConversationAssigneeIds(doc);
+        doc.assignedUserId = doc.assignedUserIds[0];
+      } else if (Object.keys(doc).includes('assignedUserId')) {
+        const current = await models.Conversations.getConversation(_id);
+        // Provider updates may repeat the primary assignee without changing ownership.
+        if (doc.assignedUserId !== current.assignedUserId) {
+          doc.assignedUserIds = doc.assignedUserId ? [doc.assignedUserId] : [];
+        } else {
+          delete doc.assignedUserId;
+        }
+      }
       if (doc.content) {
         doc.content = await cleanHtml(doc.content);
       }
@@ -162,9 +185,15 @@ export const loadClass = (models: IModels, subdomain: string) => {
         doc.propertiesData = validatedPropertiesData;
       }
 
+      const fields = { ...doc };
+      const clearAssignment = doc.assignedUserIds?.length === 0;
+      if (clearAssignment) delete fields.assignedUserId;
       const updated = await models.Conversations.updateOne(
         { _id },
-        { $set: doc },
+        {
+          $set: fields,
+          ...(clearAssignment ? { $unset: { assignedUserId: 1 } } : {}),
+        },
       );
 
       conversationsChanged(subdomain, [_id], doc);
@@ -222,15 +251,26 @@ export const loadClass = (models: IModels, subdomain: string) => {
     public static async assignUserConversation(
       conversationIds: string[],
       assignedUserId?: string,
+      assignedUserIds?: string[],
     ) {
       await this.checkExistanceConversations(conversationIds);
 
+      const ids = getConversationAssigneeIds({
+        assignedUserId,
+        assignedUserIds,
+      });
+
       await models.Conversations.updateMany(
         { _id: { $in: conversationIds } },
-        { $set: { assignedUserId } },
+        ids.length
+          ? { $set: { assignedUserId: ids[0], assignedUserIds: ids } }
+          : { $set: { assignedUserIds: [] }, $unset: { assignedUserId: 1 } },
       );
 
-      conversationsChanged(subdomain, conversationIds, { assignedUserId });
+      conversationsChanged(subdomain, conversationIds, {
+        assignedUserId: ids[0] ?? null,
+        assignedUserIds: ids,
+      });
 
       return models.Conversations.find({ _id: { $in: conversationIds } });
     }
@@ -243,11 +283,12 @@ export const loadClass = (models: IModels, subdomain: string) => {
 
       await models.Conversations.updateMany(
         { _id: { $in: conversationIds } },
-        { $unset: { assignedUserId: 1 } },
+        { $set: { assignedUserIds: [] }, $unset: { assignedUserId: 1 } },
       );
 
       conversationsChanged(subdomain, conversationIds, {
         assignedUserId: null,
+        assignedUserIds: [],
       });
 
       return models.Conversations.find({ _id: { $in: conversationIds } });

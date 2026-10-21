@@ -4,6 +4,29 @@ import { generateNotificationsFilter } from '~/modules/notifications/graphql/res
 import { release } from '~/utils/email/ramp';
 
 export const notificationMutations = {
+  async coreNotificationsDelete(
+    _root: undefined,
+    { ids }: { ids: string[] },
+    { models, user }: IContext,
+  ): Promise<string[]> {
+    if (!user?._id) throw new Error('Login required');
+    if (!ids.length || ids.length > 500 || ids.some((id) => !id.trim())) {
+      throw new Error('Select between 1 and 500 notifications');
+    }
+    const notificationIds = [...new Set(ids)];
+    const selector = {
+      _id: { $in: notificationIds },
+      userId: user._id,
+      isRead: true,
+    };
+    const ownedIds = await models.Notifications.find(selector).distinct('_id');
+    if (ownedIds.length !== notificationIds.length) {
+      throw new Error('Only your existing read notifications can be deleted');
+    }
+    await models.Notifications.deleteMany(selector);
+    return notificationIds;
+  },
+
   async archiveNotification(
     _root: undefined,
     { _id }: { _id: string },

@@ -35,6 +35,8 @@ export enum AppPath {
 
   Documents = 'documents',
   DocumentsCatchAll = `/${Documents}/*`,
+  Files = 'files',
+  FilesCatchAll = `/${Files}/*`,
 
   Broadcasts = 'broadcasts',
   BroadcastsCatchAll = `/${Broadcasts}/*`,

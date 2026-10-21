@@ -1,24 +1,22 @@
 import { parseTemplateToBlocks } from '@/activity/utils/noteBlocks';
-import type { INoteTemplateSuggestion } from '@/activity/types';
+import type {
+  INoteTemplateSuggestion,
+  NoteTemplateSuggestionsOptions,
+} from '@/activity/types';
 import { toResponseTemplateText } from '@/responseTemplate/utils/toResponseTemplateText';
 import { getPreviewText } from '@/inbox/types/inbox';
 import { useGetResponses } from '@/responseTemplate/hooks/useGetResponses';
-import { toast, useBlockEditor } from 'erxes-ui';
+import { toast } from 'erxes-ui';
 import { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDebounce } from 'use-debounce';
 
-const MAX_SUGGESTIONS = 5;
-
-type TNoteEditor = ReturnType<typeof useBlockEditor>;
+import { MAX_TEMPLATE_SUGGESTIONS } from '@/inbox/constants/responseTemplateSuggestions';
 
 export const useNoteTemplateSuggestions = ({
   editor,
   enabled,
-}: {
-  editor: TNoteEditor;
-  enabled: boolean;
-}) => {
+}: NoteTemplateSuggestionsOptions) => {
   const { t } = useTranslation('frontline');
   const [searchValue, setSearchValue] = useState('');
   const [debouncedSearchValue] = useDebounce(searchValue, 300);
@@ -35,10 +33,12 @@ export const useNoteTemplateSuggestions = ({
   const suggestions = useMemo<INoteTemplateSuggestion[]>(
     () =>
       debouncedSearchValue && enabled
-        ? (responses || []).slice(0, MAX_SUGGESTIONS).map((response) => ({
-            ...toResponseTemplateText(response),
-            preview: getPreviewText(response.content || ''),
-          }))
+        ? (responses || [])
+            .slice(0, MAX_TEMPLATE_SUGGESTIONS)
+            .map((response) => ({
+              ...toResponseTemplateText(response),
+              preview: getPreviewText(response.content || ''),
+            }))
         : [],
     [responses, debouncedSearchValue, enabled],
   );
@@ -73,14 +73,14 @@ export const useNoteTemplateSuggestions = ({
   );
 
   const handleEditorChange = useCallback(async () => {
-    if (!editor) return;
+    if (!editor || !enabled) return;
 
     const html = await editor.blocksToHTMLLossy(editor.document);
     const plain = html?.replace(/<[^<>]*>/g, '')?.trim() || '';
 
     setSearchValue(plain);
     if (!plain) setIsDropdownDismissed(false);
-  }, [editor]);
+  }, [editor, enabled]);
 
   const handleKeyDown = useCallback(
     (e: Pick<KeyboardEvent, 'key' | 'preventDefault'>) => {

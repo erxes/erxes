@@ -6,23 +6,21 @@ import * as _ from 'underscore';
 import strip from 'strip';
 import { IModels } from '~/connectionResolvers';
 import { debugError } from '~/modules/inbox/utils';
+import { getConversationAssigneeIds } from '@/inbox/utils/conversationAssignees';
 
 export const conversationNotifReceivers = (
   conversation: IConversationDocument,
   currentUserId: string,
   exclude = true,
 ): string[] => {
-  let userIds: string[] = [];
-  if (conversation.assignedUserId) {
-    userIds.push(conversation.assignedUserId);
-  }
+  let userIds = getConversationAssigneeIds(conversation);
   if (Array.isArray(conversation.participatedUserIds)) {
     userIds = _.union(userIds, conversation.participatedUserIds);
   }
   if (
     exclude &&
     currentUserId &&
-    conversation.assignedUserId !== currentUserId
+    !getConversationAssigneeIds(conversation).includes(currentUserId)
   ) {
     userIds = _.without(userIds, currentUserId);
   }

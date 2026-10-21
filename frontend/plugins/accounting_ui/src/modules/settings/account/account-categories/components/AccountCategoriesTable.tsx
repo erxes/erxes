@@ -1,6 +1,6 @@
 import type { TFunction } from 'i18next';
 import { Cell, ColumnDef } from '@tanstack/table-core';
-import { IAccountCategory } from '../types/AccountCategory';
+import { IAccountCategory } from '@/settings/account/account-categories/types/AccountCategory';
 import {
   ITextFieldContainerProps,
   RecordTable,
@@ -16,15 +16,17 @@ import {
   toast,
 } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { useAccountCategories } from '../hooks/useAccountCategories';
-import { useAccountCategoryEdit } from '../hooks/useAccountCategoryEdit';
-import { useAccountCategoriesRemove } from '../hooks/useAccountCategoriesRemove';
-import { SelectAccountCategory } from './SelectAccountCategory';
+import { useAccountCategories } from '@/settings/account/account-categories/hooks/useAccountCategories';
+import { useAccountCategoryEdit } from '@/settings/account/account-categories/hooks/useAccountCategoryEdit';
+import { useAccountCategoriesRemove } from '@/settings/account/account-categories/hooks/useAccountCategoriesRemove';
+import { SelectAccountCategory } from '@/settings/account/account-categories/components/SelectAccountCategory';
 import { useSetAtom } from 'jotai';
-import { accountCategoryDetailAtom } from '../states/accountCategoryStates';
-import { AccountCategoriesCommandbar } from './AccountCategoriesCommandbar';
+import { accountCategoryDetailAtom } from '@/settings/account/account-categories/states/accountCategoryStates';
+import { AccountCategoriesCommandbar } from '@/settings/account/account-categories/components/AccountCategoriesCommandbar';
 import { useMemo } from 'react';
-import { IconEdit, IconTrash } from '@tabler/icons-react';
+import { IconEdit, IconFolderOff, IconTrash } from '@tabler/icons-react';
+import { AccountingEmptyState } from '@/layout/components/AccountingEmptyState';
+import { AddAccountCategory } from '@/settings/account/account-categories/components/AddAccountCategory';
 
 const AccountCategoriesInitialSkeleton = ({ rows = 20 }: { rows?: number }) => {
   const { t } = useTranslation('accounting');
@@ -52,7 +54,7 @@ const AccountCategoriesInitialSkeleton = ({ rows = 20 }: { rows?: number }) => {
 
 export const AccountCategoriesTable = () => {
   const { t } = useTranslation('accounting');
-  const { accountCategories, loading } = useAccountCategories();
+  const { accountCategories, loading, error } = useAccountCategories();
   const isInitialLoading = loading && !accountCategories?.length;
 
   const categoryObject = useMemo(() => {
@@ -66,6 +68,8 @@ export const AccountCategoriesTable = () => {
       ) || {}
     );
   }, [accountCategories]);
+
+  const isEmpty = !loading && !accountCategories?.length;
 
   return (
     <RecordTable.Provider
@@ -82,6 +86,7 @@ export const AccountCategoriesTable = () => {
       }
       stickyColumns={['more', 'checkbox', 'code']}
       tableId="accounting_account_categories_record_table"
+      className="relative"
     >
       <RecordTableTree id="product-categories" ordered>
         <RecordTable.Scroll>
@@ -107,6 +112,15 @@ export const AccountCategoriesTable = () => {
         </RecordTable.Scroll>
         <AccountCategoriesCommandbar />
       </RecordTableTree>
+      {isEmpty && (
+        <AccountingEmptyState
+          overlay
+          error={error}
+          icon={IconFolderOff}
+          description={t('empty-list-description')}
+          action={<AddAccountCategory />}
+        />
+      )}
     </RecordTable.Provider>
   );
 };

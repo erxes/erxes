@@ -204,6 +204,7 @@ export const SafeRemainderDetailFilter = ({
   return (
     <Filter id="safe-rem-detail-filter">
       <Filter.Bar>
+        <SafeRemainderDetailFilterPopover />
         <Filter.BarItem queryKey="searchValue">
           <Filter.BarName>
             <IconSearch />
@@ -230,7 +231,6 @@ export const SafeRemainderDetailFilter = ({
           icon={<IconToggleRightFilled />}
           options={STATUS_OPTIONS}
         />
-        <SafeRemainderDetailFilterPopover />
         {afterBar}
       </Filter.Bar>
     </Filter>

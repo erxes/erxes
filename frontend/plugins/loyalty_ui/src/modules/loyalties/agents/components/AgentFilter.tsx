@@ -76,6 +76,7 @@ export const AgentFilter = () => {
   return (
     <Filter id="agent-filter" sessionKey={sessionKey}>
       <Filter.Bar>
+        <AgentFilterPopover />
         <SelectAgentStatus.FilterBar />
         <Filter.BarItem queryKey="agentCustomerId">
           <Filter.BarName>
@@ -99,7 +100,6 @@ export const AgentFilter = () => {
             mode="single"
           />
         </Filter.BarItem>
-        <AgentFilterPopover />
         <AgentTotalCount />
       </Filter.Bar>
     </Filter>

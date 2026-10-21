@@ -202,6 +202,7 @@ export const TransactionsFilter = ({
   return (
     <Filter id="accounts-filter">
       <Filter.Bar>
+        <TransactionsFilterPopover />
         <Filter.BarItem queryKey="searchValue">
           <Filter.BarName>
             <IconSearch />
@@ -287,7 +288,6 @@ export const TransactionsFilter = ({
           <Filter.Date filterKey="updatedDate" />
         </Filter.BarItem>
 
-        <TransactionsFilterPopover />
         {afterBar && <>{afterBar}</>}
       </Filter.Bar>
     </Filter>

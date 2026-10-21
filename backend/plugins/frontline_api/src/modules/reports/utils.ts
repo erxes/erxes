@@ -1,3 +1,4 @@
+import { buildAssigneeFilter } from '@/inbox/utils/conversationAssignees';
 import {
   contactFieldsReady,
   propertyDataPath,
@@ -77,7 +78,7 @@ export async function generateConversationReportFilter(
   }
 
   if (filters.memberIds?.length) {
-    match.assignedUserId = { $in: filters.memberIds };
+    Object.assign(match, buildAssigneeFilter(filters.memberIds));
   }
 
   if (filters.source && sourceMap[filters.source]) {
@@ -251,9 +252,10 @@ export async function buildConversationResponsesPipeline(
     }
 
     if (filters.memberIds?.length) {
-      messageMatch['conversation.assignedUserId'] = {
-        $in: filters.memberIds,
-      };
+      Object.assign(
+        messageMatch,
+        buildAssigneeFilter(filters.memberIds, 'conversation.'),
+      );
     }
 
     if (filters.source && sourceMap[filters.source]) {

@@ -27,7 +27,7 @@ const CallStatisticsIndexPage = lazy(() =>
 
 const Inbox = lazy(() =>
   import('~/pages/InboxIndexPage').then((module) => ({
-    default: module.default,
+    default: module.InboxIndexPage,
   })),
 );
 

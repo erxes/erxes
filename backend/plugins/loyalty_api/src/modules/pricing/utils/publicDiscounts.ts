@@ -4,7 +4,11 @@ import { IPricingPlanDocument } from '@/pricing/@types/pricingPlan';
 import { IPriceRule } from '@/pricing/@types/priceRule';
 import { IQuantityRule } from '@/pricing/@types/quantityRule';
 import { IExpiryRule } from '@/pricing/@types/expiryRule';
-import { getChildCategories, getChildTags } from '~/utils/utils';
+import {
+  fetchSegmentIds,
+  getChildCategories,
+  getChildTags,
+} from '~/utils/utils';
 import { PRIORITY_TYPES } from '../db/definitions/constants';
 import { calculateDiscountValue, calculatePriceAdjust } from './rule';
 
@@ -191,14 +195,7 @@ const getPlanProducts = async (
       let productIds: string[] = [];
 
       for (const segmentId of plan.segments || []) {
-        const ids = (await sendTRPCMessage({
-          subdomain,
-          pluginName: 'core',
-          module: 'segment',
-          action: 'fetchSegment',
-          input: { segmentId },
-          defaultValue: [],
-        })) as string[];
+        const ids = await fetchSegmentIds(subdomain, segmentId);
 
         productIds = productIds.concat(ids);
       }
