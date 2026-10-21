@@ -21,6 +21,7 @@ import {
 } from 'erxes-ui';
 import { useLocation, useNavigate } from 'react-router-dom';
 
+import { BoardDisclosure } from '@/deals/boards/components/BoardDisclosure';
 import { BoardsNavigationActions } from '@/deals/boards/components/BoardsNavigationActions';
 import { useBoardDealCounts } from '@/deals/boards/hooks/useBoardDealCounts';
 import { PipelineCreateSheet } from '@/deals/pipelines/components/PipelineCreateSheet';
@@ -151,36 +152,38 @@ function BoardItem({
             </span>
           </div>
         </Collapsible.Trigger>
-        <Collapsible.Content className="pt-1">
-          <Sidebar.GroupContent>
-            <Sidebar.Menu>
-              {pipelines.map((pipeline) => (
-                <Sidebar.MenuItem key={pipeline._id}>
-                  <Sidebar.MenuButton
-                    className="pl-6 font-medium"
-                    isActive={isActive && pipelineId === pipeline._id}
-                    onClick={() => handlePipelineClick(pipeline._id)}
-                  >
-                    <TextOverflowTooltip
-                      className="flex-1 min-w-0"
-                      value={pipeline.name}
-                    />
-                    <DealCount count={pipelineCounts[pipeline._id]} />
-                  </Sidebar.MenuButton>
-                </Sidebar.MenuItem>
-              ))}
-              {!pipelines.length && (
-                <Sidebar.MenuItem>
-                  <Sidebar.MenuButton className="pl-6" disabled>
-                    <span className="capitalize text-foreground">
-                      {t('no-pipelines')}
-                    </span>
-                  </Sidebar.MenuButton>
-                </Sidebar.MenuItem>
-              )}
-            </Sidebar.Menu>
-          </Sidebar.GroupContent>
-        </Collapsible.Content>
+        <BoardDisclosure open={open}>
+          <div className="pt-1">
+            <Sidebar.GroupContent>
+              <Sidebar.Menu>
+                {pipelines.map((pipeline) => (
+                  <Sidebar.MenuItem key={pipeline._id}>
+                    <Sidebar.MenuButton
+                      className="pl-6 font-medium"
+                      isActive={isActive && pipelineId === pipeline._id}
+                      onClick={() => handlePipelineClick(pipeline._id)}
+                    >
+                      <TextOverflowTooltip
+                        className="flex-1 min-w-0"
+                        value={pipeline.name}
+                      />
+                      <DealCount count={pipelineCounts[pipeline._id]} />
+                    </Sidebar.MenuButton>
+                  </Sidebar.MenuItem>
+                ))}
+                {!pipelines.length && (
+                  <Sidebar.MenuItem>
+                    <Sidebar.MenuButton className="pl-6" disabled>
+                      <span className="capitalize text-foreground">
+                        {t('no-pipelines')}
+                      </span>
+                    </Sidebar.MenuButton>
+                  </Sidebar.MenuItem>
+                )}
+              </Sidebar.Menu>
+            </Sidebar.GroupContent>
+          </div>
+        </BoardDisclosure>
       </Sidebar.Group>
     </Collapsible>
   );

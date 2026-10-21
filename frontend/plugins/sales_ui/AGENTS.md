@@ -430,6 +430,12 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   `IconChevronRight` (`size-3.5`, muted) inside a span that rotates 90° when
   open, never a filled caret, so the rotation stays on the compositor and
   matches the main sidebar.
+- Board rows expand through `BoardDisclosure` (grid-rows 0fr→1fr over 250ms
+  with the chevron's `cubic-bezier(0.22,1,0.36,1)` and a 150ms opacity fade,
+  `motion-reduce` off), the same pattern as core-ui `NavigationDisclosure` and
+  Frontline `KbDisclosure`; do not swap it back to `Collapsible.Content`,
+  which mounts and unmounts instantly. Closed lists stay `invisible` so their
+  links are not tabbable.
 - Expandable group rows (boards, POS) use `rounded-lg`; an active board row is
   gray (`bg-foreground/5 text-foreground`) while its active pipeline item keeps
   the purple `Sidebar.MenuButton` active tint, so the two never stack purple.
