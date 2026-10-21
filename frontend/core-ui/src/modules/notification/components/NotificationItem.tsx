@@ -1,5 +1,5 @@
-import { NotificationIcon } from '@/notification/components/NotificationIcon';
 import type { NotificationItemProps } from '@/notification/types/myInbox';
+import { NotificationAvatar } from '@/notification/components/NotificationAvatar';
 import { Badge, Button, cn, RelativeDateDisplay } from 'erxes-ui';
 import { useEffect, useRef } from 'react';
 import { Link, useParams } from 'react-router-dom';
@@ -14,7 +14,6 @@ export const NotificationItem = ({
   title,
   fromUser,
   isRead,
-  contentType = '',
   priority,
   selected,
   selectionFocused,
@@ -54,17 +53,7 @@ export const NotificationItem = ({
         }}
         to={`/my-inbox/${_id}${window.location.search}`}
       >
-        <div
-          className={cn(
-            'size-8 bg-foreground/5 rounded-full flex-none flex items-center justify-center relative',
-            isActive && 'text-primary',
-          )}
-        >
-          <NotificationIcon contentType={contentType} />
-          {!isRead && (
-            <div className="size-1.5 absolute bg-destructive rounded-full top-1.5 right-1.5" />
-          )}
-        </div>
+        <NotificationAvatar fromUser={fromUser} isRead={isRead} />
         <div className="flex-auto space-y-1 overflow-hidden">
           {display.showSender && (
             <div className="truncate text-xs text-muted-foreground">
@@ -76,7 +65,7 @@ export const NotificationItem = ({
               className={cn(
                 'line-clamp-1 truncate',
                 isRead ? 'text-muted-foreground' : 'font-semibold',
-                isActive && 'text-foreground',
+                isActive && !isRead && 'text-foreground',
               )}
             >
               {message}
@@ -85,7 +74,13 @@ export const NotificationItem = ({
           <div className={cn('text-xs flex items-center justify-between')}>
             <div className="flex items-center gap-2">
               {display.showPriority && (
-                <Badge className="capitalize" variant="secondary">
+                <Badge
+                  className={cn(
+                    'capitalize',
+                    isRead && 'text-muted-foreground',
+                  )}
+                  variant="secondary"
+                >
                   {priority}
                 </Badge>
               )}

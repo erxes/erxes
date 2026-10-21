@@ -1,14 +1,11 @@
-import {
-  hiddenNotificationIdsState,
-  selectedNotificationIdsState,
-} from '@/notification/states/notificationState';
+import { selectedNotificationIdsState } from '@/notification/states/notificationState';
 import { MyInboxHotkeyScope } from '@/notification/types/notifications';
 import type {
   UseNotificationNavigationOptions,
   UseNotificationNavigationResult,
 } from '@/notification/types/myInbox';
 import { useScopedHotkeys } from 'erxes-ui';
-import { useAtomValue, useSetAtom } from 'jotai';
+import { useAtomValue } from 'jotai';
 import { useLayoutEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import type { TNotification } from 'ui-modules';
@@ -23,7 +20,6 @@ export const useNotificationNavigation = ({
   const { search, key: locationKey } = useLocation();
   const navigate = useNavigate();
   const { notifications } = useNotificationList();
-  const setHiddenNotificationIds = useSetAtom(hiddenNotificationIdsState);
   const selectedNotificationIds = useAtomValue(selectedNotificationIdsState);
   const [dismissing, setDismissing] = useState(false);
   const dismissScopeRef = useRef({ active: false });
@@ -41,8 +37,38 @@ export const useNotificationNavigation = ({
   const currentIndex = visibleNotifications.findIndex(
     (item) => item._id === id,
   );
-  const previousNotification = visibleNotifications[currentIndex - 1];
-  const nextNotification = visibleNotifications[currentIndex + 1];
+  const adjacentRef = useRef<{
+    id: string | undefined;
+    search: string;
+    previousId?: string;
+    nextId?: string;
+  }>({ id, search });
+  const adjacent = adjacentRef.current;
+  const sameList = adjacent.id === id && adjacent.search === search;
+  const previousNotification =
+    currentIndex >= 0
+      ? visibleNotifications[currentIndex - 1]
+      : visibleNotifications.find(
+          (item) => sameList && item._id === adjacent.previousId,
+        );
+  const nextNotification =
+    currentIndex >= 0
+      ? visibleNotifications[currentIndex + 1]
+      : sameList && (adjacent.nextId || adjacent.previousId)
+      ? visibleNotifications.find((item) => item._id === adjacent.nextId)
+      : visibleNotifications[0];
+
+  // Opening an unread item removes it from this list after it is marked seen.
+  useLayoutEffect(() => {
+    if (currentIndex >= 0 || !sameList) {
+      adjacentRef.current = {
+        id,
+        search,
+        previousId: visibleNotifications[currentIndex - 1]?._id,
+        nextId: visibleNotifications[currentIndex + 1]?._id,
+      };
+    }
+  }, [id, search, currentIndex, sameList, visibleNotifications]);
 
   const navigateToNotification = (item: TNotification): void => {
     if (!dismissing) navigate(`/my-inbox/${item._id}${search}`);
@@ -58,7 +84,6 @@ export const useNotificationNavigation = ({
         if (!success) return;
       }
       if (!scope.active) return;
-      setHiddenNotificationIds((previous) => [...previous, notification._id]);
       const adjacent = nextNotification || previousNotification;
       navigate(
         adjacent ? `/my-inbox/${adjacent._id}${search}` : `/my-inbox${search}`,
@@ -85,9 +110,8 @@ export const useNotificationNavigation = ({
     'up,k',
     () => {
       const target =
-        currentIndex === -1
-          ? visibleNotifications.at(-1)
-          : previousNotification;
+        previousNotification ||
+        (currentIndex === -1 ? visibleNotifications.at(-1) : undefined);
       if (target) navigateToNotification(target);
     },
     MyInboxHotkeyScope.MainPage,
