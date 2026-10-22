@@ -9,6 +9,7 @@ export const types = `
     codeModeEnabled: Boolean
     codeModeEnvironment: String
     approvalMode: String
+    instructions: String
     updatedAt: Date
   }
 `;
@@ -18,5 +19,5 @@ export const queries = `
 `;
 
 export const mutations = `
-  agentsSettingsUpdate(codeModeEnabled: Boolean, codeModeEnvironment: String, approvalMode: String): AgentsSettings
+  agentsSettingsUpdate(codeModeEnabled: Boolean, codeModeEnvironment: String, approvalMode: String, instructions: String): AgentsSettings
 `;

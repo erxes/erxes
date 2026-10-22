@@ -4,6 +4,7 @@ import { AgentSettingsAppearancePage } from './AgentSettingsAppearancePage';
 import { AgentSettingsApprovalsPage } from './AgentSettingsApprovalsPage';
 import { AgentSettingsCodeModePage } from './AgentSettingsCodeModePage';
 import { AgentSettingsConnectionPage } from './AgentSettingsConnectionPage';
+import { AgentSettingsInstructionsPage } from './AgentSettingsInstructionsPage';
 
 /**
  * Settings router for the agents module, mounted by the host settings
@@ -16,6 +17,7 @@ export const AgentSettingsRoutes = () => {
       <Route path="connection" element={<AgentSettingsConnectionPage />} />
       <Route path="code-mode" element={<AgentSettingsCodeModePage />} />
       <Route path="approvals" element={<AgentSettingsApprovalsPage />} />
+      <Route path="instructions" element={<AgentSettingsInstructionsPage />} />
       <Route path="appearance" element={<AgentSettingsAppearancePage />} />
     </Routes>
   );

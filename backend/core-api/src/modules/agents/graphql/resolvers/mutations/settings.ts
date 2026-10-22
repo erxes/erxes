@@ -3,6 +3,7 @@ import type { IContext } from '~/connectionResolvers';
 import {
   AGENTS_APPROVAL_MODES,
   AGENTS_CODE_MODE_ENVIRONMENTS,
+  AGENTS_INSTRUCTIONS_MAX_LENGTH,
 } from '@/agents/db/definitions/settings';
 import { toPublicSettings } from '@/agents/graphql/resolvers/queries/settings';
 
@@ -10,6 +11,7 @@ export interface IAgentsSettingsUpdateArgs {
   codeModeEnabled?: boolean;
   codeModeEnvironment?: string;
   approvalMode?: string;
+  instructions?: string;
 }
 
 export const agentsSettingsMutations = {
@@ -53,10 +55,24 @@ export const agentsSettingsMutations = {
       );
     }
 
+    // An empty string clears the instructions; undefined leaves them alone.
+    const instructions = args.instructions?.trim();
+
+    if (
+      instructions !== undefined &&
+      instructions.length > AGENTS_INSTRUCTIONS_MAX_LENGTH
+    ) {
+      throw new ExpectedError(
+        `Workspace instructions are limited to ${AGENTS_INSTRUCTIONS_MAX_LENGTH} characters.`,
+        'VALIDATION_ERROR',
+      );
+    }
+
     if (
       args.codeModeEnabled === undefined &&
       !environment &&
-      !approvalMode
+      !approvalMode &&
+      instructions === undefined
     ) {
       throw new ExpectedError(
         'Provide at least one setting to update.',
@@ -70,6 +86,7 @@ export const agentsSettingsMutations = {
         : {}),
       ...(environment ? { codeModeEnvironment: environment } : {}),
       ...(approvalMode ? { approvalMode } : {}),
+      ...(instructions !== undefined ? { instructions } : {}),
     });
 
     return toPublicSettings(doc);
