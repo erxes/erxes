@@ -1,3 +1,7 @@
+import { useCustomerDetailData } from '@/contacts/customers/hooks/useCustomerDetailData';
+import { DataModelRecordPanel } from '@/data-models/components/DataModelRecordPanel';
+import { DataModelBuiltinReferencePanel } from '@/data-models/components/DataModelBuiltinReferencePanel';
+import { DATA_MODEL_CONTENT_TYPE_PREFIX } from '@/data-models/types';
 import {
   IconHierarchy2,
   IconHistory,
@@ -39,7 +43,6 @@ import {
   sidePanelWidthState,
   TRelationEntity,
   useCompanyDetail,
-  useCustomerDetail,
   useRelationWidgetTabs,
   useSidePanel,
 } from 'ui-modules';
@@ -121,7 +124,7 @@ const useRecordHeading = (
   const isCustomer = contentType === 'core:customer';
   const isCompany = contentType === 'core:company';
 
-  const { customerDetail } = useCustomerDetail({
+  const { customerDetail } = useCustomerDetailData({
     variables: { _id: contentId },
     skip: !isCustomer,
   });
@@ -478,7 +481,18 @@ const SidePanelDraft = ({
 export const SidePanelRecord = (
   props: React.ComponentProps<typeof SidePanelSavedRecord>,
 ) =>
-  props.record.contentId === NEW_RECORD_ID ? (
+  props.record.contentType.startsWith(DATA_MODEL_CONTENT_TYPE_PREFIX) ? (
+    <DataModelRecordPanel
+      key={`${props.record.contentType}:${props.record.contentId}`}
+      {...props}
+    />
+  ) : ['core:product', 'core:user'].includes(props.record.contentType) &&
+    props.record.contentId !== NEW_RECORD_ID ? (
+    <DataModelBuiltinReferencePanel
+      key={`${props.record.contentType}:${props.record.contentId}`}
+      {...props}
+    />
+  ) : props.record.contentId === NEW_RECORD_ID ? (
     <SidePanelDraft {...props} />
   ) : (
     <SidePanelSavedRecord {...props} />

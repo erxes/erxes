@@ -35,6 +35,9 @@ import { templateMutations } from '@/template/graphql/mutations';
 import { agentsConnectionMutations } from '@/agents/graphql/resolvers/mutations/connection';
 import { agentsThreadMutations } from '@/agents/graphql/resolvers/mutations/threads';
 import { agentsSettingsMutations } from '@/agents/graphql/resolvers/mutations/settings';
+import { dataModelMutations } from '@/data-models/graphql/resolvers';
+import { dataModelRecordMutations } from '@/data-models/graphql/records';
+import { dataModelFieldMutations } from '@/data-models/graphql/fields';
 
 export const mutations = {
   ...contactMutations,
@@ -61,6 +64,9 @@ export const mutations = {
   ...internalNoteMutations,
   ...broadcastMutations,
   ...propertiesMutations,
+  ...dataModelMutations,
+  ...dataModelRecordMutations,
+  ...dataModelFieldMutations,
   ...clientPortalMutations,
   ...importMutations,
   ...exportMutations,

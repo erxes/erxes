@@ -1,3 +1,4 @@
+import { useCustomerDetailData } from '@/contacts/customers/hooks/useCustomerDetailData';
 import { useContactDetailId } from '@/contacts/contexts/ContactDetailIdContext';
 import { useTranslation } from 'react-i18next';
 import { QueryHookOptions } from '@apollo/client';
@@ -5,7 +6,7 @@ import { QueryHookOptions } from '@apollo/client';
 import { renderingCustomerDetailAtom } from '@/contacts/states/customerDetailStates';
 import { useSetAtom } from 'jotai';
 import { toast, useQueryState } from 'erxes-ui';
-import { ICustomerDetail, useCustomerDetail } from 'ui-modules';
+import { ICustomerDetail } from 'ui-modules';
 import { useEffect } from 'react';
 
 export const useCustomerDetailWithQuery = (
@@ -16,7 +17,7 @@ export const useCustomerDetailWithQuery = (
   const _id = useContactDetailId() ?? queryId;
   const setRendering = useSetAtom(renderingCustomerDetailAtom);
 
-  const { customerDetail, loading, error } = useCustomerDetail({
+  const { customerDetail, loading, error } = useCustomerDetailData({
     ...options,
     variables: {
       _id,

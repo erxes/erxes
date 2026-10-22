@@ -92,6 +92,8 @@ import {
   loadRelationClass,
 } from '@/relations/db/models/Relations';
 import { ITagModel, loadTagClass } from '@/tags/db/models/Tags';
+import { dataModelDefinitionSchema } from '@/data-models/db/definitions/dataModelDefinitions';
+import type { IDataModelDefinitionDocument } from '@/data-models/types';
 import {
   AiAgentDocument,
   aiAgentSchema,
@@ -404,6 +406,7 @@ export interface IModels {
   FieldsGroups: IFieldGroupModel;
   SystemFieldSettings: ISystemFieldSettingModel;
   SystemFieldLayouts: Model<ISystemFieldLayoutDocument>;
+  DataModelDefinitions: Model<IDataModelDefinitionDocument>;
   Forms: IFormModel;
   FormSubmissions: IFormSubmissionModel;
   Segments: ISegmentModel;
@@ -672,6 +675,11 @@ export const loadClasses = (
   models.SystemFieldLayouts = db.model<ISystemFieldLayoutDocument>(
     'properties_system_field_layouts',
     systemFieldLayoutSchema,
+  );
+
+  models.DataModelDefinitions = db.model<IDataModelDefinitionDocument>(
+    'data_model_definitions',
+    dataModelDefinitionSchema,
   );
 
   models.Forms = db.model<IForm, IFormModel>('forms', loadFormClass(models));

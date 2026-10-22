@@ -12,6 +12,7 @@ import {
 import { generateModels } from '../connectionResolvers';
 import resolvers from './resolvers';
 import { typeDefs } from './typeDefs';
+import { initDataModelGraphQL } from '@/data-models/graphql/http';
 
 // load environment variables
 dotenv.config();
@@ -19,13 +20,12 @@ dotenv.config();
 let apolloServer;
 
 export const initApolloServer = async (app, httpServer) => {
+  const schema = buildSubgraphSchema([
+    { typeDefs: await typeDefs(), resolvers: wrapApolloResolvers(resolvers) },
+  ]);
+  initDataModelGraphQL(app, schema);
   apolloServer = new ApolloServer({
-    schema: buildSubgraphSchema([
-      {
-        typeDefs: await typeDefs(),
-        resolvers: wrapApolloResolvers(resolvers),
-      },
-    ]),
+    schema,
     plugins: [
       ApolloServerPluginDrainHttpServer({ httpServer }),
       expectedErrorPlugin,
