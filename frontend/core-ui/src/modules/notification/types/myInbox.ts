@@ -4,8 +4,6 @@ import type { TNotification } from 'ui-modules';
 
 export type MarkNotificationAsRead = (id: string) => Promise<boolean>;
 
-export type NotificationTabValue = 'unread' | 'read';
-
 export interface UseNotificationNavigationOptions {
   id: string | undefined;
   notification: TNotification | undefined;
@@ -48,8 +46,6 @@ export interface NotificationIconProps {
 }
 
 export interface UseNotificationListResult {
-  unreadCount: number | undefined;
-  seenCount: number | undefined;
   notifications: TNotification[];
   groups: [string, TNotification[]][];
   loading: boolean;
