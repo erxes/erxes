@@ -1,5 +1,6 @@
 import {
   IPermissionAction,
+  IPermissionConfig,
   IPermissionModule,
   IUserDocument,
   Resolver,
@@ -11,6 +12,7 @@ import {
   getActivePlugins,
   ExpectedError,
 } from '../../utils';
+import { extensionTenant } from '../extensions/tenant';
 
 export const checkLogin = (user?: IUserDocument) => {
   if (!user?._id) {
@@ -28,6 +30,47 @@ export const wrapPermission = (resolver: Resolver, resolverKey: string) => {
   };
 };
 
+// Extensions are installed per tenant, so their permission configs live under
+// a tenant key instead of in service discovery. The extensions runtime writes
+// it on every install change. Without a runtime the key is absent: no configs.
+export const extensionPermissionsKey = (subdomain: string) =>
+  `extensions:permissions:${subdomain}`;
+
+// An extension may only define and grant its own actions: every module and
+// action name starts with `<plugin>.`, which no core or plugin action does.
+// Anything else is dropped, so a config can never grant e.g. permissionsManage.
+const ownOnly = (config: IPermissionConfig): IPermissionConfig => {
+  const own = (name: string) => name.startsWith(`${config.plugin}.`);
+
+  return {
+    ...config,
+    modules: config.modules
+      .filter((module) => own(module.name))
+      .map((module) => ({
+        ...module,
+        actions: module.actions.filter((action) => own(action.name)),
+      })),
+    defaultGroups: (config.defaultGroups || []).map((group) => ({
+      ...group,
+      permissions: group.permissions
+        .filter((p) => p.plugin === config.plugin && own(p.module))
+        .map((p) => ({
+          ...p,
+          actions: p.actions.filter((a) => a === '*' || own(a)),
+        })),
+    })),
+  };
+};
+
+export const getExtensionPermissionConfigs = async (
+  subdomain: string,
+): Promise<IPermissionConfig[]> => {
+  const raw = await redis.get(
+    extensionPermissionsKey(extensionTenant(subdomain)),
+  );
+  return raw ? (JSON.parse(raw) as IPermissionConfig[]).map(ownOnly) : [];
+};
+
 type GrantedPermission = {
   plugin?: string;
   module?: string;
@@ -36,6 +79,7 @@ type GrantedPermission = {
 
 const resolveActionNames = async (
   permission: GrantedPermission,
+  extensions: IPermissionConfig[],
 ): Promise<string[]> => {
   const actions = permission.actions || [];
 
@@ -44,9 +88,12 @@ const resolveActionNames = async (
   if (!permission.plugin || !permission.module) return [];
 
   const plugin = await getPlugin(permission.plugin);
-  
-  const modules: IPermissionModule[] = plugin?.config?.meta?.permissions?.modules || [];
-  
+
+  const modules: IPermissionModule[] =
+    plugin?.config?.meta?.permissions?.modules ||
+    extensions.find((config) => config.plugin === permission.plugin)?.modules ||
+    [];
+
   const permissionModule = modules.find((m) => m.name === permission.module);
 
   return (permissionModule?.actions || []).map((action) => action.name);
@@ -55,9 +102,10 @@ const resolveActionNames = async (
 const applyPermissions = async (
   actionsMap: Record<string, boolean>,
   permissions: GrantedPermission[],
+  extensions: IPermissionConfig[],
 ) => {
   for (const permission of permissions) {
-    for (const act of await resolveActionNames(permission)) {
+    for (const act of await resolveActionNames(permission, extensions)) {
       actionsMap[act] = true;
     }
   }
@@ -66,6 +114,7 @@ const applyPermissions = async (
 const applyDefaultGroupActions = async (
   actionsMap: Record<string, boolean>,
   defaultGroupIds: string[],
+  extensions: IPermissionConfig[],
 ) => {
   const plugins = await getActivePlugins();
 
@@ -77,7 +126,15 @@ const applyDefaultGroupActions = async (
 
     for (const group of defaultGroups) {
       if (defaultGroupIds.includes(group.id)) {
-        await applyPermissions(actionsMap, group.permissions);
+        await applyPermissions(actionsMap, group.permissions, extensions);
+      }
+    }
+  }
+
+  for (const config of extensions) {
+    for (const group of config.defaultGroups || []) {
+      if (defaultGroupIds.includes(group.id)) {
+        await applyPermissions(actionsMap, group.permissions, extensions);
       }
     }
   }
@@ -87,6 +144,7 @@ const applyCustomGroupActions = async (
   actionsMap: Record<string, boolean>,
   subdomain: string,
   customGroupIds: string[],
+  extensions: IPermissionConfig[],
 ) => {
   const groups = await sendTRPCMessage({
     subdomain,
@@ -101,13 +159,13 @@ const applyCustomGroupActions = async (
   });
 
   for (const group of groups) {
-    await applyPermissions(actionsMap, group.permissions || []);
+    await applyPermissions(actionsMap, group.permissions || [], extensions);
   }
 };
 
 export const getGroupActionsMap = async (
   subdomain: string,
-  user: IUserDocument,
+  user: PermissionUser,
 ): Promise<Record<string, boolean>> => {
   const cacheKey = `user_actions_${user._id}`;
 
@@ -139,16 +197,22 @@ export const getGroupActionsMap = async (
 
   const defaultGroupIds = groupIds.filter((id) => id.includes(':'));
   const customGroupIds = groupIds.filter((id) => !id.includes(':'));
+  const extensions = await getExtensionPermissionConfigs(subdomain);
 
   if (defaultGroupIds.length) {
-    await applyDefaultGroupActions(actionsMap, defaultGroupIds);
+    await applyDefaultGroupActions(actionsMap, defaultGroupIds, extensions);
   }
 
   if (customGroupIds.length) {
-    await applyCustomGroupActions(actionsMap, subdomain, customGroupIds);
+    await applyCustomGroupActions(
+      actionsMap,
+      subdomain,
+      customGroupIds,
+      extensions,
+    );
   }
 
-  await applyPermissions(actionsMap, user.customPermissions || []);
+  await applyPermissions(actionsMap, user.customPermissions || [], extensions);
 
   await redis.set(cacheKey, JSON.stringify(actionsMap));
 
@@ -188,10 +252,17 @@ export const clearGroupActionsCache = async ({
   }
 };
 
+// The fields a permission check reads, so a caller holding a plain user
+// document (not a model instance) can check too.
+export type PermissionUser = Pick<
+  IUserDocument,
+  '_id' | 'isOwner' | 'permissionGroupIds' | 'customPermissions'
+>;
+
 export const canGroup = async (
   subdomain: string,
   action: string,
-  user?: IUserDocument,
+  user?: PermissionUser,
 ): Promise<boolean> => {
   if (!user || !user._id) return false;
 

@@ -2,6 +2,7 @@ import {
   getEnv,
   getGlobalProfileV2Plugins,
   getPlugin,
+  getPluginAddress,
   getSaasOrganizationDetail,
   getSubdomain,
   isGlobalProfileV2,
@@ -66,7 +67,33 @@ router.get('/initial-setup', async (req: Request, res: Response) => {
   return res.json(organizationInfo);
 });
 
-router.get('/get-frontend-plugins', async (_req: Request, res: Response) => {
+// UIs of the extensions this tenant installed, from the extensions runtime.
+// Loaded like any plugin remote, so they get the same routes and navigation.
+const getExtensionRemotes = async (
+  req: Request,
+): Promise<{ name: string; entry: string }[]> => {
+  const address = await getPluginAddress('extensions');
+
+  if (!address) {
+    return [];
+  }
+
+  // The hostname getSubdomain trusts here (nginx-hostname, then hostname,
+  // then the Host), so the runtime picks the same tenant core did.
+  const hostname =
+    req.headers['nginx-hostname'] || req.headers.hostname || req.hostname;
+
+  // An unreachable runtime drops the extensions' UIs, never the whole app.
+  return fetch(`${address}/remotes`, {
+    headers: { hostname: String(hostname) },
+    signal: AbortSignal.timeout(2000),
+  })
+    .then((res) => (res.ok ? res.json() : []))
+    .then((remotes: unknown) => (Array.isArray(remotes) ? remotes : []))
+    .catch(() => []);
+};
+
+router.get('/get-frontend-plugins', async (req: Request, res: Response) => {
   const ENABLED_PLUGINS = getEnv({ name: 'ENABLED_PLUGINS' });
   const VERSION = getEnv({ name: 'VERSION', defaultValue: 'os' });
 
@@ -93,7 +120,7 @@ router.get('/get-frontend-plugins', async (_req: Request, res: Response) => {
 
   if (VERSION === 'saas') {
     const remotes: { name: string; entry: string }[] = [];
-    const subdomain = getSubdomain(_req);
+    const subdomain = getSubdomain(req);
 
     const organizationInfo = await getSaasOrganizationDetail({
       subdomain,
@@ -150,7 +177,7 @@ router.get('/get-frontend-plugins', async (_req: Request, res: Response) => {
       });
     }
 
-    return res.json(remotes);
+    return res.json([...remotes, ...(await getExtensionRemotes(req))]);
   } else {
     const remotes: { name: string; entry: string }[] = [];
 
@@ -163,7 +190,7 @@ router.get('/get-frontend-plugins', async (_req: Request, res: Response) => {
       }
     }
 
-    return res.json(remotes);
+    return res.json([...remotes, ...(await getExtensionRemotes(req))]);
   }
 });
 
