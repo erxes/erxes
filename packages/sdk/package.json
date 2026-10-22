@@ -9,9 +9,11 @@
     ".": "./src/index.ts",
     "./server": "./src/server.ts",
     "./worker": "./src/worker.ts",
-    "./react": "./src/react.ts"
+    "./react": "./src/react.ts",
+    "./contracts": "./src/contracts/index.ts"
   },
   "scripts": {
+    "build": "tsc -p tsconfig.build.json",
     "typecheck": "tsc -p tsconfig.json"
   },
   "dependencies": {

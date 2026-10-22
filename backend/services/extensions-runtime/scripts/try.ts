@@ -5,7 +5,11 @@
 //   npx tsx scripts/try.ts <extDir> <fixture.json>
 //
 // fixture.json: { "function": "<name>", "input": {...},
-//                 "db": { "<collection>": [<document>, ...] } }
+//                 "db": { "<collection>": [<document>, ...] },
+//                 "tools": { "<host>.<entry>": <result>, ... } }
+// `tools` mocks contract calls: "sales.deals.get" answers
+// ctx.erxes.sales.deals.get. The call still needs the pin in `uses`, and
+// input and the mocked result still parse against the pinned contract.
 // Prints { ok, data | error, ms, writes } and exits 1 unless ok. `writes` are
 // the inserts, updates and deletes the extension made on its own collections.
 import { randomUUID } from 'node:crypto';
@@ -13,6 +17,7 @@ import { readFile } from 'node:fs/promises';
 import { Query } from 'mingo';
 import { createServer } from 'node:http';
 import { z } from 'zod';
+import { HostCallRequest, runContractCall } from '../src/contracts';
 import { ApiError } from '../src/errors';
 import { HostDbRequest, parseDbOp } from '../src/hostDb';
 import { LIMITS } from '../src/limits';
@@ -32,6 +37,7 @@ const fixtureSchema = z.object({
   db: z
     .record(z.string(), z.array(z.record(z.string(), z.unknown())))
     .default({}),
+  tools: z.record(z.string(), z.unknown()).default({}),
 });
 
 type Doc = Record<string, unknown>;
@@ -116,6 +122,30 @@ const main = async () => {
   const writes: { collection: string; op: string; doc: unknown }[] = [];
   const store = structuredClone(fixture.db);
 
+  const handle = async (url: string | undefined, body: string) => {
+    if (url !== '/contract') {
+      return runDbOp(store, writes, HostDbRequest.parse(JSON.parse(body)));
+    }
+
+    return runContractCall(
+      ext.uses,
+      HostCallRequest.parse(JSON.parse(body)),
+      async ({ host, entry }) => {
+        const key = `${host}.${entry.name}`;
+
+        if (!(key in fixture.tools)) {
+          throw new ApiError(
+            404,
+            'NOT_MOCKED',
+            `Add "${key}" to the fixture's tools`,
+          );
+        }
+
+        return fixture.tools[key];
+      },
+    );
+  };
+
   const stub = createServer((req, res) => {
     let body = '';
     req.on('data', (chunk) => (body += chunk));
@@ -127,18 +157,16 @@ const main = async () => {
 
       res.setHeader('content-type', 'application/json');
 
-      try {
-        const request = HostDbRequest.parse(JSON.parse(body));
-        res.end(
-          JSON.stringify({ ok: true, data: runDbOp(store, writes, request) }),
-        );
-      } catch (e) {
-        const error =
-          e instanceof ApiError
-            ? e.body()
-            : { code: 'DB_ERROR', message: String(e) };
-        res.writeHead(400).end(JSON.stringify({ ok: false, error }));
-      }
+      handle(req.url, body).then(
+        (data) => res.end(JSON.stringify({ ok: true, data })),
+        (e: unknown) => {
+          const error =
+            e instanceof ApiError
+              ? e.body()
+              : { code: 'DB_ERROR', message: String(e) };
+          res.writeHead(400).end(JSON.stringify({ ok: false, error }));
+        },
+      );
     });
   });
 

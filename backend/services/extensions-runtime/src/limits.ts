@@ -9,6 +9,9 @@ export const LIMITS = {
   // Wall clock for one function call. OSS workerd ignores CPU limits, so this
   // is the only limit on runaway code.
   runTimeoutMs: int('EXT_RUN_TIMEOUT_MS', 5000),
+  // One contract call through the gateway. Also cut to what's left of the
+  // run, so an upstream call never outlives the run that made it.
+  upstreamTimeoutMs: int('EXT_UPSTREAM_TIMEOUT_MS', 4000),
   // workerd keeps every loaded worker in memory. scripts/bundle.ts refuses
   // bigger builds, and install refuses them again.
   workerBytes: 300 * KB,

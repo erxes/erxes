@@ -3,33 +3,38 @@ import { WorkerEntrypoint } from 'cloudflare:workers';
 const WORKER_COMPATIBILITY_DATE = '2025-09-01';
 
 // Handed to the extension for one call. Its only prop is the invocation's
-// grant, which the runtime maps to one tenant, one install and its
-// collections, and revokes when the call ends. The extension can't name
-// another tenant or extension.
+// grant, which the runtime maps to one tenant, one install, its collections,
+// its pinned contracts and the caller's session, and revokes when the call
+// ends. The extension can't name another tenant, extension or session.
+//
+// Both methods answer with the runtime's envelope, `{ ok, data }` or
+// `{ ok: false, error: { code, message, issues } }`, unchanged.
 export class Host extends WorkerEntrypoint {
-  // Answers with the runtime's envelope, `{ ok, data }` or
-  // `{ ok: false, error: { code, message, issues } }`, unchanged.
   async db(collection, op, args) {
-    const res = await this.env.RUNTIME.fetch('http://runtime/db', {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-        'x-ext-runtime-token': this.env.TOKEN,
-      },
-      body: JSON.stringify({
-        grant: this.ctx.props.grant,
-        collection,
-        op,
-        args,
-      }),
-    });
+    return hostPost(this, '/db', { collection, op, args });
+  }
 
-    return res.json().catch(() => ({
-      ok: false,
-      error: { code: 'HOST_ERROR', message: `host answered ${res.status}` },
-    }));
+  async call(host, name, input) {
+    return hostPost(this, '/contract', { host, name, input });
   }
 }
+
+// Not a Host method: every method there is callable by the extension.
+const hostPost = async ({ env, ctx }, path, body) => {
+  const res = await env.RUNTIME.fetch(`http://runtime${path}`, {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+      'x-ext-runtime-token': env.TOKEN,
+    },
+    body: JSON.stringify({ ...body, grant: ctx.props.grant }),
+  });
+
+  return res.json().catch(() => ({
+    ok: false,
+    error: { code: 'HOST_ERROR', message: `host answered ${res.status}` },
+  }));
+};
 
 export const blockedOutbound = {
   async fetch() {

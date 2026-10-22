@@ -17,6 +17,7 @@ import { getCookie } from 'hono/cookie';
 import jwt from 'jsonwebtoken';
 import { z } from 'zod';
 import { generateModels } from './connectionResolver';
+import { gatewayUpstream, HostCallRequest, runContractCall } from './contracts';
 import { ApiError, invalidInput } from './errors';
 import { HostDbRequest, parseDbOp, runDbOp } from './hostDb';
 import {
@@ -31,7 +32,7 @@ import {
 } from './installs';
 import { LIMITS } from './limits';
 import { actionName } from './permissions';
-import { findGrant, HOST_TOKEN, invoke } from './sandbox';
+import { findGrant, HOST_TOKEN, invoke, type Session } from './sandbox';
 
 // Registered in service discovery, so the gateway proxies /pl:extensions/* here
 // after its user middleware has checked the session.
@@ -40,18 +41,19 @@ export const SERVICE_NAME = 'extensions';
 const PUBLIC_URL =
   process.env.EXT_PUBLIC_URL || `http://localhost:4000/pl:${SERVICE_NAME}`;
 
-type Caller = { user: PermissionUser; tenant: string };
+type Caller = { user: PermissionUser; tenant: string; session: Session };
 type Env = { Variables: { caller: Caller } };
 
-// The tenant the request is for. getSubdomain reads nginx-hostname, then the
-// gateway-set hostname header, then the Host.
+// The hostname the request came in on, read as getSubdomain reads it:
+// nginx-hostname, then the gateway-set hostname header, then the Host.
+const hostnameOf = (c: Context) =>
+  c.req.header('nginx-hostname') ||
+  c.req.header('hostname') ||
+  new URL(c.req.url).hostname;
+
+// The tenant the request is for.
 const tenantOf = (c: Context) =>
-  extensionTenant(
-    getSubdomain({
-      headers: c.req.header(),
-      hostname: new URL(c.req.url).hostname,
-    }),
-  );
+  extensionTenant(getSubdomain({ headers: {}, hostname: hostnameOf(c) }));
 
 const unauthenticated = () =>
   new ApiError(401, 'UNAUTHENTICATED', 'Login required');
@@ -142,7 +144,11 @@ const signedIn: MiddlewareHandler<Env> = async (c, next) => {
     throw unauthenticated();
   }
 
-  c.set('caller', { user, tenant });
+  c.set('caller', {
+    user,
+    tenant,
+    session: { token, hostname: hostnameOf(c) },
+  });
   await next();
 };
 
@@ -212,7 +218,7 @@ export const app = new Hono<Env>()
   // ---- Called by the browser through the gateway, as the signed-in user.
 
   .post('/call/:extId/:fn', maxBody(LIMITS.inputBytes), signedIn, async (c) => {
-    const { tenant, user } = c.get('caller');
+    const { tenant, user, session } = c.get('caller');
     const { extId, fn } = c.req.param();
     const models = await generateModels(tenant);
     const ext = await models.Extensions.findById(`${tenant}:${extId}`).lean();
@@ -246,9 +252,11 @@ export const app = new Hono<Env>()
       code: ext.code,
       codeHash: ext.codeHash,
       collections: ext.collections,
+      uses: ext.uses ?? {},
       name: fn,
       input,
       user: { _id: user._id },
+      session,
     });
 
     await models.ExtensionRuns.create({
@@ -476,6 +484,28 @@ export const hostApp = new Hono()
           `The result is over ${LIMITS.dbResultBytes} bytes. Lower the limit or narrow the filter.`,
         );
       }
+
+      return c.json({ ok: true as const, data });
+    },
+  )
+  // One contract entry, run as the caller on the install's pinned version.
+  .post(
+    '/contract',
+    maxBody(LIMITS.inputBytes),
+    validate('json', HostCallRequest),
+    async (c) => {
+      const request = c.req.valid('json');
+      const grant = findGrant(request.grant);
+
+      if (!grant) {
+        throw new ApiError(403, 'GRANT_EXPIRED', 'This call has already ended');
+      }
+
+      const data = await runContractCall(
+        grant.uses,
+        request,
+        gatewayUpstream(grant),
+      );
 
       return c.json({ ok: true as const, data });
     },

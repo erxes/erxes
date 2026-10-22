@@ -56,8 +56,8 @@ export const bundleExtension = async (extDir: string) => {
 };
 
 // What the runtime needs to know about an extension without running it in
-// workerd: names only. id and version come from package.json; functions and
-// collections from importing server/ in Node.
+// workerd: names only. id and version come from package.json; functions,
+// collections and pinned contracts from importing server/ in Node.
 export const describeExtension = async (extDir: string) => {
   const pkg = JSON.parse(
     await readFile(path.join(extDir, 'package.json'), 'utf8'),
@@ -66,7 +66,7 @@ export const describeExtension = async (extDir: string) => {
     string,
     unknown
   >;
-  const { schema, permissions, functions } = collectExtension(mod);
+  const { schema, permissions, uses, functions } = collectExtension(mod);
 
   return {
     id: pkg.name,
@@ -77,6 +77,7 @@ export const describeExtension = async (extDir: string) => {
     functionPermissions: Object.fromEntries(
       [...functions].map(([path, fn]) => [path, fn.permission]),
     ),
+    uses,
   };
 };
 

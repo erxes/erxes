@@ -18,6 +18,8 @@ export interface IExtensionDocument {
   permissions: Record<string, Record<string, string>>;
   // function path -> 'module.action' or 'public'.
   functionPermissions: Record<string, string>;
+  // Host contract -> the version the build pinned, e.g. { sales: 1 }.
+  uses: Record<string, number>;
   // Module Federation remote name, when the extension ships a UI.
   uiRemote?: string;
   status: 'installed' | 'disabled';
@@ -36,6 +38,7 @@ const extensionSchema = new Schema<IExtensionDocument>({
   collections: { type: [String], default: [] },
   permissions: { type: Schema.Types.Mixed, default: {} },
   functionPermissions: { type: Schema.Types.Mixed, default: {} },
+  uses: { type: Schema.Types.Mixed, default: {} },
   uiRemote: { type: String },
   status: {
     type: String,
@@ -92,6 +95,7 @@ export type ExtensionBuild = Pick<
   | 'collections'
   | 'permissions'
   | 'functionPermissions'
+  | 'uses'
   | 'uiRemote'
 >;
 
@@ -116,6 +120,7 @@ const extensionVersionSchema = new Schema<IExtensionVersionDocument>({
   collections: { type: [String], default: [] },
   permissions: { type: Schema.Types.Mixed, default: {} },
   functionPermissions: { type: Schema.Types.Mixed, default: {} },
+  uses: { type: Schema.Types.Mixed, default: {} },
   uiRemote: { type: String },
   installedBy: { type: String, required: true },
   installedAt: { type: Date, default: Date.now },

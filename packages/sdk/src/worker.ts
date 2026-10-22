@@ -13,12 +13,24 @@ import {
 // Supervisor's Host entrypoint, scoped to one invocation of this extension.
 // It answers with the runtime's envelope instead of throwing, because an
 // error thrown across RPC loses everything but its message.
+type HostResult = { ok: true; data: unknown } | { ok: false; error: ErrorBody };
+
 type Host = {
-  db(
-    collection: string,
-    op: string,
-    args: unknown[],
-  ): Promise<{ ok: true; data: unknown } | { ok: false; error: ErrorBody }>;
+  db(collection: string, op: string, args: unknown[]): Promise<HostResult>;
+  // One entry of a host contract, at the version the install pinned.
+  call(host: string, name: string, input: unknown): Promise<HostResult>;
+};
+
+// A failed host call throws, keeping its code and issues.
+const unwrap = async <T>(pending: Promise<HostResult>) => {
+  const result = await pending;
+
+  if (!result.ok) {
+    const { code, message, issues } = result.error;
+    throw new ExtensionError(code, message, issues);
+  }
+
+  return result.data as T;
 };
 
 const fail = (
@@ -35,16 +47,8 @@ const collection = (
   name: string,
   schema: z.ZodObject,
 ): Collection<Record<string, unknown>> => {
-  const op = async <T>(method: string, ...args: unknown[]) => {
-    const result = await host.db(name, method, args);
-
-    if (!result.ok) {
-      const { code, message, issues } = result.error;
-      throw new ExtensionError(code, message, issues);
-    }
-
-    return result.data as T;
-  };
+  const op = <T>(method: string, ...args: unknown[]) =>
+    unwrap<T>(host.db(name, method, args));
 
   return {
     find: (filter: Filter = {}, options = {}) => op('find', filter, options),
@@ -70,6 +74,19 @@ const collection = (
     deleteOne: (filter) => op('deleteOne', filter),
   };
 };
+
+// `ctx.erxes.sales.deals.get(input)` calls host 'sales', entry 'deals.get'.
+// The proxy forwards any path: the runtime alone decides what the install may
+// call. `then` is never a path, so awaiting a namespace doesn't call it.
+const contractPath = (host: Host, path: string[]): unknown =>
+  new Proxy(() => undefined, {
+    get: (_, key) =>
+      typeof key === 'string' && key !== 'then'
+        ? contractPath(host, [...path, key])
+        : undefined,
+    apply: (_, __, args: unknown[]) =>
+      unwrap(host.call(path[0] ?? '', path.slice(1).join('.'), args[0])),
+  });
 
 // What a handler threw, as the envelope. A coded error keeps its code; a
 // failed schema parse is INVALID_INPUT with its issues; anything else is the
@@ -99,6 +116,8 @@ export const serve = (mod: Record<string, unknown>) => {
         collection(host, name, s),
       ]),
     ),
+    // Typed by the pinned contracts; the proxy itself is untyped.
+    erxes: contractPath(host, []) as Ctx['erxes'],
   });
 
   return class extends WorkerEntrypoint {

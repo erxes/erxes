@@ -13,6 +13,7 @@
     "@hono/node-server": "^2.1.5",
     "@hono/zod-validator": "^0.9.1",
     "erxes-api-shared": "workspace:^",
+    "erxes-sdk": "workspace:^",
     "hono": "^4.13.13",
     "jsonwebtoken": "^9.0.2",
     "workerd": "^1.20261018.1",
@@ -20,7 +21,6 @@
   },
   "devDependencies": {
     "@types/jsonwebtoken": "^9.0.9",
-    "erxes-sdk": "workspace:^",
     "esbuild": "^0.19.2",
     "mingo": "^7.2.5"
   }
