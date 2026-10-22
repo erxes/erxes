@@ -12,6 +12,10 @@ import {
   supergraphPath,
 } from '~/apollo-router/paths';
 import supergraphCompose from '~/apollo-router/supergraph-compose';
+import {
+  createTelemetryConfig,
+  isTracingEnabled,
+} from '~/apollo-router/telemetry';
 
 dotenv.config();
 
@@ -229,7 +233,27 @@ const createRouterConfig = async () => {
     },
   };
 
+  const telemetry = createTelemetryConfig();
+
+  if (telemetry) {
+    const { otlp, common } = telemetry.exporters.tracing;
+
+    config.telemetry = telemetry;
+    console.log(
+      `Apollo Router tracing enabled: otlp ${otlp.protocol}, service ${common.service_name}, sampler ${common.sampler}`,
+    );
+  }
+
   fs.writeFileSync(routerConfigPath, yaml.stringify(config));
+};
+
+const getRouterLogLevel = () => {
+  // Router spans are INFO level; a stricter --log level drops them before export.
+  if (isTracingEnabled()) {
+    return 'info';
+  }
+
+  return NODE_ENV === 'development' ? 'warn' : 'error';
 };
 
 const spawnRouter = () => {
@@ -240,7 +264,7 @@ const spawnRouter = () => {
     [
       ...(NODE_ENV === 'development' ? devOptions : []),
       '--log',
-      NODE_ENV === 'development' ? 'warn' : 'error',
+      getRouterLogLevel(),
       `--supergraph`,
       supergraphPath,
       `--config`,
