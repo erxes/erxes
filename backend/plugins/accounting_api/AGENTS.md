@@ -28,6 +28,7 @@
 
 - Owns multi-job executions through `JobExecutions`: root date, description, input/output inventory accounts and locations, with independent `jobs[]` rows holding job id/name, quantity, actual inputs/outputs and cost arrays. No redundant planned arrays are persisted.
 - `loadJobExecutionClass` registers typed tenant-scoped model methods for execution reads, saves, posting, undo and draft deletion. Successful create, edit/post/undo and delete operations emit scoped database event logs with document snapshots.
+- Both job masters and job executions emit create/update/delete database event logs from their model methods, scoped through the accounting event dispatcher to `inventories_jobs` and `job_executions` respectively. Update logs include previous and saved snapshots; delete logs use the atomically removed snapshot. Execution post/undo/repost are update events; unsuccessful operations must not emit success logs.
 
 - Prints the federated accounting SDL without starting a server via `schema:print`; `gateway:schema:compose` includes this subgraph in the schema used by accounting UI codegen.
 - Creates, updates, removes, links, prints, and reports accounting transactions across main, cash, bank, receivable, payable, tax, inventory, fixed asset, and exchange-difference journals.

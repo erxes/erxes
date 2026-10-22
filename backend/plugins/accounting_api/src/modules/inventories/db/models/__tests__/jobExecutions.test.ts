@@ -601,6 +601,29 @@ const postedSetup = () => {
 };
 
 test.each(['save', 'post'] as const)(
+  '%s of a posted execution logs one completed update without duplicate lifecycle events',
+  async (action) => {
+    const { models, posted, jobExecutions, sendDbEventLog } = postedSetup();
+    const saved = { ...posted, description: 'Updated execution' };
+    jobExecutions.findOne
+      .mockReturnValueOnce({ lean: jest.fn().mockResolvedValue(posted) })
+      .mockReturnValueOnce({ lean: jest.fn().mockResolvedValue(saved) });
+    if (action === 'save') {
+      await models.JobExecutions.saveJobExecution(input, 'user', 'execution');
+    } else {
+      await models.JobExecutions.postJobExecution('execution', 'user');
+    }
+    expect(sendDbEventLog).toHaveBeenCalledTimes(1);
+    expect(sendDbEventLog).toHaveBeenCalledWith({
+      action: 'update',
+      docId: 'execution',
+      prevDocument: posted,
+      currentDocument: saved,
+    });
+  },
+);
+
+test.each(['save', 'post'] as const)(
   '%s delegates posted transaction rebuilding to the saveTr model method',
   async (action) => {
     const { models, execution } = postedSetup();

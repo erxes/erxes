@@ -1,4 +1,5 @@
 import { Model } from 'mongoose';
+import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 import { IModels } from '~/connectionResolvers';
 import { IJob, IJobDocument, IJobItem, IJobCost } from '../../@types/jobs';
 import { jobSchema } from '../definitions/jobs';
@@ -91,7 +92,13 @@ export interface IJobModel extends Model<IJobDocument> {
   removeJob(_id: string): Promise<{ deletedCount?: number }>;
 }
 
-export const loadJobClass = (models: IModels) => {
+const plainJob = (job: IJobDocument) =>
+  typeof job.toObject === 'function' ? job.toObject() : job;
+
+export const loadJobClass = (
+  models: IModels,
+  { sendDbEventLog }: EventDispatcherReturn,
+) => {
   const validateEstimatedCosts = async (params: IJob) => {
     const costs: {
       laborCosts: IJobCost[];
@@ -141,7 +148,7 @@ export const loadJobClass = (models: IModels) => {
       const { inputs, outputs, duration, durationType } = validateJob(params);
       const estimatedCosts = await validateEstimatedCosts(params);
 
-      return await models.Jobs.create({
+      const job = await models.Jobs.create({
         code: params.code,
         name: params.name,
         description: params.description,
@@ -156,6 +163,12 @@ export const loadJobClass = (models: IModels) => {
         modifiedAt: new Date(),
         modifiedBy: userId,
       });
+      sendDbEventLog({
+        action: 'create',
+        docId: job._id,
+        currentDocument: plainJob(job),
+      });
+      return job;
     }
 
     public static async updateJob(
@@ -190,12 +203,25 @@ export const loadJobClass = (models: IModels) => {
         },
       );
 
-      return await models.Jobs.getJob(_id);
+      const job = await models.Jobs.getJob(_id);
+      sendDbEventLog({
+        action: 'update',
+        docId: _id,
+        currentDocument: plainJob(job),
+        prevDocument: plainJob(existing),
+      });
+      return job;
     }
 
     public static async removeJob(_id: string) {
-      await models.Jobs.getJob(_id);
-      return await models.Jobs.deleteOne({ _id });
+      const job = await models.Jobs.findOneAndDelete({ _id });
+      if (!job) throw new Error('Job not found');
+      sendDbEventLog({
+        action: 'delete',
+        docId: _id,
+        prevDocument: plainJob(job),
+      });
+      return { deletedCount: 1 };
     }
   }
 

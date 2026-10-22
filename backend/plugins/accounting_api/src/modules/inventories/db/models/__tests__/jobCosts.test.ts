@@ -1,4 +1,5 @@
 import type { IModels } from '~/connectionResolvers';
+import type { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 import type { IJob } from '../../../@types/jobs';
 import { IJobModel, loadJobClass } from '../Jobs';
 
@@ -14,16 +15,100 @@ const setup = () => {
   const updateOne = jest.fn().mockResolvedValue({ modifiedCount: 1 });
   const getJob = jest.fn().mockResolvedValue({ _id: 'card' });
   const getAccount = jest.fn().mockResolvedValue({ status: 'active' });
+  const findOneAndDelete = jest.fn().mockResolvedValue({ _id: 'card' });
+  const sendDbEventLog = jest.fn();
   const models = {
-    Jobs: { create, updateOne, getJob },
+    Jobs: { create, updateOne, getJob, findOneAndDelete },
     Accounts: { getAccount },
   } as unknown as IModels;
-  const statics = loadJobClass(models).statics as Pick<
+  const statics = loadJobClass(models, {
+    sendDbEventLog,
+  } as unknown as EventDispatcherReturn).statics as Pick<
     IJobModel,
-    'createJob' | 'updateJob'
+    'createJob' | 'updateJob' | 'removeJob'
   >;
-  return { statics, create, updateOne, getAccount, getJob };
+  return {
+    statics,
+    create,
+    updateOne,
+    getAccount,
+    getJob,
+    findOneAndDelete,
+    sendDbEventLog,
+  };
 };
+
+test('job creation logs the saved document once', async () => {
+  const { statics, create, sendDbEventLog } = setup();
+  const saved = { ...baseCard, _id: 'card' };
+  create.mockResolvedValueOnce(saved);
+  await statics.createJob(baseCard, 'user');
+  expect(sendDbEventLog).toHaveBeenCalledTimes(1);
+  expect(sendDbEventLog).toHaveBeenCalledWith({
+    action: 'create',
+    docId: 'card',
+    currentDocument: saved,
+  });
+});
+
+test('job edits log the actual previous and saved snapshots', async () => {
+  const { statics, getJob, sendDbEventLog } = setup();
+  const previous = {
+    ...baseCard,
+    _id: 'card',
+    duration: 5,
+    durationType: 'hour',
+  };
+  const saved = { ...baseCard, _id: 'card' };
+  getJob.mockResolvedValueOnce(previous).mockResolvedValueOnce(saved);
+  await statics.updateJob({ ...baseCard, _id: 'card' }, 'user');
+  expect(sendDbEventLog).toHaveBeenCalledTimes(1);
+  expect(sendDbEventLog).toHaveBeenCalledWith({
+    action: 'update',
+    docId: 'card',
+    prevDocument: previous,
+    currentDocument: saved,
+  });
+});
+
+test('job deletion atomically obtains and logs the removed snapshot', async () => {
+  const { statics, findOneAndDelete, sendDbEventLog } = setup();
+  const previous = { ...baseCard, _id: 'card' };
+  findOneAndDelete.mockResolvedValueOnce(previous);
+  await expect(statics.removeJob('card')).resolves.toEqual({ deletedCount: 1 });
+  expect(findOneAndDelete).toHaveBeenCalledWith({ _id: 'card' });
+  expect(sendDbEventLog).toHaveBeenCalledTimes(1);
+  expect(sendDbEventLog).toHaveBeenCalledWith({
+    action: 'delete',
+    docId: 'card',
+    prevDocument: previous,
+  });
+});
+
+test('missing jobs do not emit deletion logs', async () => {
+  const { statics, findOneAndDelete, sendDbEventLog } = setup();
+  findOneAndDelete.mockResolvedValueOnce(null);
+  await expect(statics.removeJob('missing')).rejects.toThrow('Job not found');
+  expect(sendDbEventLog).not.toHaveBeenCalled();
+});
+
+test('failed job persistence does not emit a create log', async () => {
+  const { statics, create, sendDbEventLog } = setup();
+  create.mockRejectedValueOnce(new Error('Write failed'));
+  await expect(statics.createJob(baseCard, 'user')).rejects.toThrow(
+    'Write failed',
+  );
+  expect(sendDbEventLog).not.toHaveBeenCalled();
+});
+
+test('failed job edits do not emit an update log', async () => {
+  const { statics, updateOne, sendDbEventLog } = setup();
+  updateOne.mockRejectedValueOnce(new Error('Write failed'));
+  await expect(
+    statics.updateJob({ ...baseCard, _id: 'card' }, 'user'),
+  ).rejects.toThrow('Write failed');
+  expect(sendDbEventLog).not.toHaveBeenCalled();
+});
 
 test('omitted cost groups default to empty arrays without account lookups', async () => {
   const { statics, create, getAccount } = setup();

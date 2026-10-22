@@ -278,7 +278,10 @@ export const loadClasses = (
   );
   models.Jobs = db.model<IJobDocument, IJobModel>(
     'inventories_jobs',
-    loadJobClass(models),
+    loadJobClass(
+      models,
+      accountingEventHandlers('accounting', 'inventories_jobs'),
+    ),
   );
   models.JobExecutions = db.model<IJobExecutionDocument, IJobExecutionModel>(
     'job_executions',
