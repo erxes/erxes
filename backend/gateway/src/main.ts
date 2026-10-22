@@ -28,11 +28,13 @@ import {
   applyTrustProxy,
   decodeAgentToolsAuthHeader,
   DEFAULT_JOB_OPTIONS,
+  errorLogger,
   getPlugin,
   getPlugins,
   getSubdomain,
   isDev,
   redis,
+  requestLogger,
   setActivePlugins,
 } from 'erxes-api-shared/utils';
 import { generateModels } from '~/connectionResolver';
@@ -92,6 +94,8 @@ const app = express();
 applyTrustProxy(app);
 
 app.use(cookieParser());
+// first thing: the request id every plugin will see (router propagates all headers) + failed/slow/aborted lines
+app.use(requestLogger());
 
 const gatewayRateLimiter: RateLimitRequestHandler = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
@@ -252,6 +256,8 @@ async function start() {
     applyProxyToCore(app, global.currentTargets);
 
     Sentry.setupExpressErrorHandler(app);
+    // after Sentry: unhandled errors become one JSON line instead of a plain stack trace
+    app.use(errorLogger());
 
     // Start the HTTP server
     httpServer = http.createServer(app);
