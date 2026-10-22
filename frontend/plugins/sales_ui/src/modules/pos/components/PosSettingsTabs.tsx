@@ -49,12 +49,16 @@ const PosTabsGroup = ({ posId }: Readonly<{ posId: string }>) => {
  * The open POS's tabs (and other plugins' tabs) in the sales settings
  * sidebar, so the POS edit page needs no side panel.
  */
+// `/sales/settings/pos/<id>`, with a nonempty id.
+const POS_EDIT_PATH = /^\/sales\/settings\/pos\/([^/]+)\/?$/;
+
 export const PosSettingsTabs = () => {
   const { pathname } = useLocation();
+  const posId = POS_EDIT_PATH.exec(pathname)?.[1];
 
-  if (!pathname.startsWith(`${POS_SETTINGS_PATH}/`)) {
+  if (!posId) {
     return null;
   }
 
-  return <PosTabsGroup posId={pathname.slice(POS_SETTINGS_PATH.length + 1)} />;
+  return <PosTabsGroup posId={posId} />;
 };
