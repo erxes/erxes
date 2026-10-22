@@ -1,18 +1,17 @@
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
-import { activeCost } from '../../../accounting/utils/inventories';
-import { IJobExecution } from '../../@types/jobExecutions';
-import {
-  postJobExecution,
-  saveJobExecution,
-  undoJobExecution,
-} from '../jobExecutions';
-import { assertCanWriteTransactionAccounts } from '../../../accounting/utils/trPermissions';
-import { jobExecutionMutations } from '../../graphql/resolvers/mutations/jobExecutions';
-import { jobExecutionQueries } from '../../graphql/resolvers/queries/jobExecutions';
+import { activeCost } from '@/accounting/utils/inventories';
+import { IJobExecution } from '@/inventories/@types/jobExecutions';
+import { loadJobExecutionClass } from '../JobExecutions';
+import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
+import { assertCanWriteTransactionAccounts } from '@/accounting/utils/trPermissions';
+import { jobExecutionMutations } from '@/inventories/graphql/resolvers/mutations/jobExecutions';
+import { jobExecutionQueries } from '@/inventories/graphql/resolvers/queries/jobExecutions';
 import { IContext } from '~/connectionResolvers';
 
 jest.mock('erxes-api-shared/utils', () => ({
+  schemaWrapper: (schema: unknown) => schema,
+  mongooseStringRandomId: { type: String },
   fixNum: (value: number, precision = 4) => Number(value.toFixed(precision)),
   escapeRegExp: (value: string) => value,
   sendTRPCMessage: jest.fn(),
@@ -20,10 +19,10 @@ jest.mock('erxes-api-shared/utils', () => ({
 jest.mock('~/init-trpc', () => ({
   getCoreConfig: jest.fn().mockResolvedValue('MNT'),
 }));
-jest.mock('../../../accounting/utils/inventories', () => ({
+jest.mock('@/accounting/utils/inventories', () => ({
   activeCost: jest.fn(),
 }));
-jest.mock('../../../accounting/utils/trPermissions', () => ({
+jest.mock('@/accounting/utils/trPermissions', () => ({
   assertCanWriteTransactionAccounts: jest.fn().mockResolvedValue(undefined),
 }));
 
@@ -57,6 +56,7 @@ const setup = () => {
     .mockReturnValue({ lean: jest.fn().mockResolvedValue(execution) });
   const jobExecutions = {
     findOneAndUpdate,
+    findOneAndDelete: jest.fn().mockResolvedValue(execution),
     create,
     updateOne,
     findOne: jest
@@ -101,18 +101,23 @@ const setup = () => {
       ),
     },
   } as unknown as IModels;
+  const sendDbEventLog = jest.fn();
+  const schema = loadJobExecutionClass(models, 'tenant', {
+    sendDbEventLog,
+  } as unknown as EventDispatcherReturn);
+  Object.assign(models.JobExecutions, schema.statics);
   jest.mocked(activeCost).mockResolvedValue({
     input: { unitCost: 10, totalCost: 100, remainder: 10 },
   });
   jest
     .mocked(sendTRPCMessage)
     .mockResolvedValue([{ _id: 'input' }, { _id: 'output' }]);
-  return { models, jobExecutions, transactions, execution };
+  return { models, jobExecutions, transactions, execution, sendDbEventLog };
 };
 
 test('creates a draft with independent actual job rows and no planned duplicate arrays', async () => {
   const { models, jobExecutions } = setup();
-  await saveJobExecution(models, 'tenant', input, 'user');
+  await models.JobExecutions.saveJobExecution(input, 'user');
   expect(jobExecutions.create).toHaveBeenCalledWith(
     expect.objectContaining({
       status: 'draft',
@@ -129,7 +134,7 @@ test('creates a draft with independent actual job rows and no planned duplicate 
 test('editing preserves copied actuals and source name without rereading a changed template', async () => {
   const { models, jobExecutions, execution } = setup();
   jobExecutions.findOneAndUpdate.mockResolvedValue(execution);
-  await saveJobExecution(models, 'tenant', input, 'user', 'execution');
+  await models.JobExecutions.saveJobExecution(input, 'user', 'execution');
   expect(jobExecutions.findOneAndUpdate).toHaveBeenCalledWith(
     { _id: 'execution', status: 'draft' },
     expect.objectContaining({
@@ -147,7 +152,7 @@ test('concurrent or repeated posting cannot create another transaction group', a
     lean: jest.fn().mockResolvedValue(null),
   });
   await expect(
-    postJobExecution(models, 'tenant', 'execution', 'user'),
+    models.JobExecutions.postJobExecution('execution', 'user'),
   ).rejects.toThrow('busy or cannot be posted');
   expect(transactions.createPTransaction).not.toHaveBeenCalled();
 });
@@ -155,7 +160,7 @@ test('concurrent or repeated posting cannot create another transaction group', a
 test('posting uses one grouped transaction call and persists its shared pointer', async () => {
   const { models, transactions, jobExecutions } = setup();
   jest.mocked(sendTRPCMessage).mockClear();
-  await postJobExecution(models, 'tenant', 'execution', 'user');
+  await models.JobExecutions.postJobExecution('execution', 'user');
   expect(sendTRPCMessage).not.toHaveBeenCalled();
   expect(models.Jobs.getJob).not.toHaveBeenCalled();
   expect(transactions.createPTransaction).toHaveBeenCalledTimes(1);
@@ -180,7 +185,7 @@ test('job execution transaction links prevent duplicate execution posting', asyn
   const { models, transactions } = setup();
   transactions.exists.mockResolvedValue({ _id: 'linked' });
   await expect(
-    postJobExecution(models, 'tenant', 'execution', 'user'),
+    models.JobExecutions.postJobExecution('execution', 'user'),
   ).rejects.toThrow('Linked transactions already exist');
   expect(transactions.exists).toHaveBeenCalledWith({
     contentType: 'jobExecution',
@@ -196,7 +201,7 @@ test('failed posting with partial transactions requires undo before retry', asyn
     .mockResolvedValueOnce({ _id: 'partial' });
   transactions.createPTransaction.mockRejectedValue(new Error('Write failed'));
   await expect(
-    postJobExecution(models, 'tenant', 'execution', 'user'),
+    models.JobExecutions.postJobExecution('execution', 'user'),
   ).rejects.toThrow('Write failed');
   expect(jobExecutions.updateOne).toHaveBeenCalledWith(
     { _id: 'execution' },
@@ -206,7 +211,7 @@ test('failed posting with partial transactions requires undo before retry', asyn
 
 test('undo checks account write permissions and removes the linked group', async () => {
   const { models, transactions, jobExecutions } = setup();
-  await undoJobExecution(models, 'execution', 'user');
+  await models.JobExecutions.undoJobExecution('execution', 'user');
   expect(transactions.findOne).toHaveBeenCalledWith({
     $or: [
       {
@@ -246,6 +251,179 @@ test('denied reads and writes never touch tenant models', async () => {
   ).rejects.toThrow('Denied');
 });
 
+test('creating a draft emits one scoped database create log', async () => {
+  const { models, execution, sendDbEventLog } = setup();
+  await models.JobExecutions.saveJobExecution(input, 'user');
+  expect(sendDbEventLog).toHaveBeenCalledTimes(1);
+  expect(sendDbEventLog).toHaveBeenCalledWith({
+    action: 'create',
+    docId: 'execution',
+    currentDocument: execution,
+  });
+});
+
+test('editing a draft logs the previous and saved documents', async () => {
+  const { models, execution, jobExecutions, sendDbEventLog } = setup();
+  const saved = { ...execution, description: 'Changed' };
+  jobExecutions.findOneAndUpdate.mockResolvedValueOnce(saved);
+  await models.JobExecutions.saveJobExecution(
+    { ...input, description: 'Changed' },
+    'user',
+    'execution',
+  );
+  expect(sendDbEventLog).toHaveBeenCalledTimes(1);
+  expect(sendDbEventLog).toHaveBeenCalledWith({
+    action: 'update',
+    docId: 'execution',
+    prevDocument: execution,
+    currentDocument: saved,
+  });
+});
+
+test('posting logs the draft-to-posted transition after transactions are saved', async () => {
+  const { models, execution, jobExecutions, sendDbEventLog } = setup();
+  const saved = {
+    ...execution,
+    status: 'posted',
+    parentId: 'parent',
+    ptrId: 'ptr',
+  };
+  jobExecutions.findOne
+    .mockReturnValueOnce({ lean: jest.fn().mockResolvedValue(execution) })
+    .mockReturnValueOnce({ lean: jest.fn().mockResolvedValue(saved) });
+  await models.JobExecutions.postJobExecution('execution', 'user');
+  expect(sendDbEventLog).toHaveBeenCalledTimes(1);
+  expect(sendDbEventLog).toHaveBeenCalledWith({
+    action: 'update',
+    docId: 'execution',
+    prevDocument: execution,
+    currentDocument: saved,
+  });
+});
+
+test('undo logs the original posted document rather than its transient lock state', async () => {
+  const { models, execution, jobExecutions, sendDbEventLog } = setup();
+  const posted = {
+    ...execution,
+    status: 'posted',
+    parentId: 'parent',
+    ptrId: 'ptr',
+  };
+  jobExecutions.findOneAndUpdate.mockReturnValueOnce({
+    lean: jest.fn().mockResolvedValue(posted),
+  });
+  await models.JobExecutions.undoJobExecution('execution', 'user');
+  expect(jobExecutions.findOneAndUpdate).toHaveBeenCalledWith(
+    { _id: 'execution', status: { $in: ['posted', 'error'] } },
+    { $set: { status: 'undoing' } },
+    { new: false },
+  );
+  expect(sendDbEventLog).toHaveBeenCalledWith({
+    action: 'update',
+    docId: 'execution',
+    prevDocument: posted,
+    currentDocument: execution,
+  });
+});
+
+test('draft deletion is atomic and logs the deleted snapshot', async () => {
+  const { models, execution, jobExecutions, sendDbEventLog } = setup();
+  await expect(
+    models.JobExecutions.removeJobExecution('execution'),
+  ).resolves.toBe(true);
+  expect(jobExecutions.findOneAndDelete).toHaveBeenCalledWith({
+    _id: 'execution',
+    status: 'draft',
+  });
+  expect(sendDbEventLog).toHaveBeenCalledWith({
+    action: 'delete',
+    docId: 'execution',
+    prevDocument: execution,
+  });
+});
+
+test('a rejected deletion does not emit a successful delete log', async () => {
+  const { models, jobExecutions, sendDbEventLog } = setup();
+  jobExecutions.findOneAndDelete.mockResolvedValueOnce(null);
+  await expect(
+    models.JobExecutions.removeJobExecution('execution'),
+  ).rejects.toThrow('Only draft executions can be deleted');
+  expect(sendDbEventLog).not.toHaveBeenCalled();
+});
+
+test('failed posting does not emit a successful lifecycle log', async () => {
+  const { models, transactions, sendDbEventLog } = setup();
+  transactions.createPTransaction.mockRejectedValueOnce(
+    new Error('Write failed'),
+  );
+  await expect(
+    models.JobExecutions.postJobExecution('execution', 'user'),
+  ).rejects.toThrow('Write failed');
+  expect(sendDbEventLog).not.toHaveBeenCalled();
+});
+
+test('execution mutations and detail query delegate to the tenant model', async () => {
+  const { models, execution } = setup();
+  const save = jest
+    .spyOn(models.JobExecutions, 'saveJobExecution')
+    .mockResolvedValue(execution as never);
+  const post = jest
+    .spyOn(models.JobExecutions, 'postJobExecution')
+    .mockResolvedValue(execution as never);
+  const undo = jest
+    .spyOn(models.JobExecutions, 'undoJobExecution')
+    .mockResolvedValue(execution as never);
+  const remove = jest
+    .spyOn(models.JobExecutions, 'removeJobExecution')
+    .mockResolvedValue(true);
+  const get = jest
+    .spyOn(models.JobExecutions, 'getJobExecution')
+    .mockResolvedValue(execution as never);
+  const checkPermission = jest.fn().mockResolvedValue(undefined);
+  const context = {
+    models,
+    user: { _id: 'user' },
+    checkPermission,
+  } as unknown as IContext;
+  await jobExecutionMutations.jobExecutionSave(
+    undefined,
+    { _id: 'execution', input },
+    context,
+  );
+  await jobExecutionMutations.jobExecutionPost(
+    undefined,
+    { _id: 'execution' },
+    context,
+  );
+  await jobExecutionMutations.jobExecutionUndo(
+    undefined,
+    { _id: 'execution' },
+    context,
+  );
+  await jobExecutionMutations.jobExecutionRemove(
+    undefined,
+    { _id: 'execution' },
+    context,
+  );
+  await jobExecutionQueries.jobExecutionDetail(
+    undefined,
+    { _id: 'execution' },
+    context,
+  );
+  expect(save).toHaveBeenCalledWith(input, 'user', 'execution');
+  expect(post).toHaveBeenCalledWith('execution', 'user');
+  expect(undo).toHaveBeenCalledWith('execution', 'user');
+  expect(remove).toHaveBeenCalledWith('execution');
+  expect(get).toHaveBeenCalledWith('execution');
+  expect(checkPermission.mock.calls.map(([permission]) => permission)).toEqual([
+    'manageJobExecutions',
+    'manageJobExecutions',
+    'manageJobExecutions',
+    'removeJobExecutions',
+    'readJobExecutions',
+  ]);
+});
+
 test('saves multiple jobs with edited actuals only and deduplicates account validation', async () => {
   const { models, jobExecutions } = setup();
   const jobs = [
@@ -259,7 +437,7 @@ test('saves multiple jobs with edited actuals only and deduplicates account vali
       outputs: [{ productId: 'output', uom: '', quantity: 9, costRatio: 2 }],
     },
   ];
-  await saveJobExecution(models, 'tenant', { ...input, jobs }, 'user');
+  await models.JobExecutions.saveJobExecution({ ...input, jobs }, 'user');
   const doc = jobExecutions.create.mock.calls[0][0];
   expect(doc.jobs).toEqual(
     jobs.map((row) => ({ ...row, jobName: 'Changed template' })),
@@ -285,7 +463,7 @@ test.each(['empty', 'duplicate', 'invalid-ratio'] as const)(
         },
       ];
     await expect(
-      saveJobExecution(models, 'tenant', { ...input, jobs }, 'user'),
+      models.JobExecutions.saveJobExecution({ ...input, jobs }, 'user'),
     ).rejects.toThrow();
     expect(jobExecutions.create).not.toHaveBeenCalled();
   },
@@ -310,7 +488,7 @@ test('save converts job subunits into base units and posting does not convert th
       ],
     },
   ];
-  await saveJobExecution(models, 'tenant', { ...input, jobs }, 'user');
+  await models.JobExecutions.saveJobExecution({ ...input, jobs }, 'user');
   const savedJobs = jobExecutions.create.mock.calls[0][0].jobs;
   expect(savedJobs[0]).toMatchObject({
     inputs: [{ productId: 'input', uom: 'ea', quantity: 15 }],
@@ -319,7 +497,7 @@ test('save converts job subunits into base units and posting does not convert th
   jobExecutions.findOneAndUpdate.mockReturnValue({
     lean: jest.fn().mockResolvedValue({ ...execution, jobs: savedJobs }),
   });
-  await postJobExecution(models, 'tenant', 'execution', 'user');
+  await models.JobExecutions.postJobExecution('execution', 'user');
   const docs = transactions.createPTransaction.mock.calls[0][0];
   expect(docs[0].details[0]).toMatchObject({
     productId: 'input',
@@ -346,7 +524,7 @@ test('missing unit ratios reject execution saves before persisting anything', as
     },
   ];
   await expect(
-    saveJobExecution(models, 'tenant', { ...input, jobs }, 'user'),
+    models.JobExecutions.saveJobExecution({ ...input, jobs }, 'user'),
   ).rejects.toThrow('Invalid product unit');
   expect(jobExecutions.create).not.toHaveBeenCalled();
 });
@@ -422,11 +600,33 @@ const postedSetup = () => {
   return { ...state, posted, previous };
 };
 
+test.each(['save', 'post'] as const)(
+  '%s delegates posted transaction rebuilding to the saveTr model method',
+  async (action) => {
+    const { models, execution } = postedSetup();
+    const saveTr = jest
+      .spyOn(models.JobExecutions, 'saveTr')
+      .mockResolvedValue(execution as never);
+    if (action === 'save') {
+      await models.JobExecutions.saveJobExecution(input, 'user', 'execution');
+    } else {
+      await models.JobExecutions.postJobExecution('execution', 'user');
+    }
+    expect(saveTr).toHaveBeenCalledTimes(1);
+    expect(saveTr).toHaveBeenCalledWith(
+      expect.objectContaining({ _id: 'execution', status: 'posted' }),
+      expect.objectContaining({ jobs: expect.any(Array) }),
+      expect.any(Map),
+      'user',
+    );
+  },
+);
+
 test('posting a posted execution updates its existing group without unit conversion or duplicate transactions', async () => {
   const { models, transactions, previous, posted, jobExecutions } =
     postedSetup();
   jest.mocked(sendTRPCMessage).mockClear();
-  await postJobExecution(models, 'tenant', 'execution', 'user');
+  await models.JobExecutions.postJobExecution('execution', 'user');
   expect(transactions.createPTransaction).not.toHaveBeenCalled();
   expect(transactions.updatePTransaction).toHaveBeenCalledTimes(1);
   const [parentId, docs, userId] =
@@ -464,7 +664,7 @@ test('concurrent re-post cannot bypass the posted execution update lock', async 
     lean: jest.fn().mockResolvedValue(null),
   });
   await expect(
-    postJobExecution(models, 'tenant', 'execution', 'user'),
+    models.JobExecutions.postJobExecution('execution', 'user'),
   ).rejects.toThrow('already being changed');
   expect(transactions.createPTransaction).not.toHaveBeenCalled();
   expect(transactions.updatePTransaction).not.toHaveBeenCalled();
@@ -480,9 +680,7 @@ test('editing posted actuals updates the existing transaction group and excludes
       laborCosts: [{ name: 'Updated work', accountId: 'labor', amount: 30 }],
     },
   ];
-  await saveJobExecution(
-    models,
-    'tenant',
+  await models.JobExecutions.saveJobExecution(
     { ...input, jobs },
     'user',
     'execution',
@@ -528,9 +726,7 @@ test('editing posted actuals updates the existing transaction group and excludes
 
 test('posted edits propagate changed inventory accounts and locations and remove obsolete cost rows', async () => {
   const { models, transactions } = postedSetup();
-  await saveJobExecution(
-    models,
-    'tenant',
+  await models.JobExecutions.saveJobExecution(
     {
       ...input,
       inputAccountId: 'new-raw',
@@ -561,7 +757,7 @@ test('failed transaction updates enter error state and cannot silently retry or 
     new Error('Partial update failed'),
   );
   await expect(
-    saveJobExecution(models, 'tenant', input, 'user', 'execution'),
+    models.JobExecutions.saveJobExecution(input, 'user', 'execution'),
   ).rejects.toThrow('Partial update failed');
   expect(jobExecutions.updateOne).toHaveBeenCalledWith(
     { _id: 'execution' },
@@ -576,7 +772,7 @@ test('account denial before transaction updates leaves the posted snapshot uncha
     .mocked(assertCanWriteTransactionAccounts)
     .mockRejectedValueOnce(new Error('Denied'));
   await expect(
-    saveJobExecution(models, 'tenant', input, 'user', 'execution'),
+    models.JobExecutions.saveJobExecution(input, 'user', 'execution'),
   ).rejects.toThrow('Denied');
   expect(transactions.updatePTransaction).not.toHaveBeenCalled();
   expect(jobExecutions.updateOne).toHaveBeenCalledWith(
@@ -591,7 +787,7 @@ test('concurrent posted edits cannot update the same transaction group twice', a
     lean: jest.fn().mockResolvedValue(null),
   });
   await expect(
-    saveJobExecution(models, 'tenant', input, 'user', 'execution'),
+    models.JobExecutions.saveJobExecution(input, 'user', 'execution'),
   ).rejects.toThrow('already being changed');
   expect(transactions.updatePTransaction).not.toHaveBeenCalled();
 });
@@ -607,7 +803,7 @@ test('does not overwrite unrelated source rows added to the linked transaction g
       ]),
   });
   await expect(
-    saveJobExecution(models, 'tenant', input, 'user', 'execution'),
+    models.JobExecutions.saveJobExecution(input, 'user', 'execution'),
   ).rejects.toThrow('changed outside this execution');
   expect(transactions.updatePTransaction).not.toHaveBeenCalled();
   expect(transactions.createPTransaction).not.toHaveBeenCalled();

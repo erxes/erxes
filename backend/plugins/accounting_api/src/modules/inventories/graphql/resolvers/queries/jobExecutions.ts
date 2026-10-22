@@ -1,7 +1,6 @@
 import { IContext } from '~/connectionResolvers';
 import { IJobExecutionListParams } from '../../../@types/jobExecutions';
 import { getJobExecutionFilter } from '../../../utils/jobExecutionFilters';
-import { getJobExecution } from '../../../utils/jobExecutions';
 
 export const jobExecutionQueries = {
   jobExecutions: async (
@@ -32,6 +31,6 @@ export const jobExecutionQueries = {
     { models, checkPermission }: IContext,
   ) => {
     await checkPermission('readJobExecutions');
-    return getJobExecution(models, _id);
+    return models.JobExecutions.getJobExecution(_id);
   },
 };

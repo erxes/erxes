@@ -2,10 +2,6 @@ import { IContext } from '~/connectionResolvers';
 import { jobExecutionQueries } from '../jobExecutions';
 import { getJobExecutionFilter } from '../../../../utils/jobExecutionFilters';
 
-jest.mock('../../../../utils/jobExecutions', () => ({
-  getJobExecution: jest.fn(),
-}));
-
 const setup = () => {
   const lean = jest.fn().mockResolvedValue([{ _id: 'execution' }]);
   const limit = jest.fn().mockReturnValue({ lean });

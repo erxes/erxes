@@ -108,9 +108,11 @@ import { IReserveRemDocument } from './modules/inventories/@types/reserveRems';
 import { ISafeRemainderItemDocument } from './modules/inventories/@types/safeRemainderItems';
 import { ISafeRemainderDocument } from './modules/inventories/@types/safeRemainders';
 import { IJobDocument } from './modules/inventories/@types/jobs';
-import { jobExecutionSchema } from './modules/inventories/db/definitions/jobExecutions';
 import { IJobExecutionDocument } from './modules/inventories/@types/jobExecutions';
-import { JobExecutionModel } from './modules/inventories/utils/jobExecutions';
+import {
+  IJobExecutionModel,
+  loadJobExecutionClass,
+} from './modules/inventories/db/models/JobExecutions';
 export interface IModels {
   Accounts: IAccountModel;
   Transactions: ITransactionModel;
@@ -135,7 +137,7 @@ export interface IModels {
   SafeRemainderItems: ISafeRemainderItemModel;
   SafeRemainders: ISafeRemainderModel;
   Jobs: IJobModel;
-  JobExecutions: JobExecutionModel;
+  JobExecutions: IJobExecutionModel;
   AdjustClosings: IAdjustClosingEntryModel;
 }
 
@@ -278,9 +280,13 @@ export const loadClasses = (
     'inventories_jobs',
     loadJobClass(models),
   );
-  models.JobExecutions = db.model<IJobExecutionDocument, JobExecutionModel>(
+  models.JobExecutions = db.model<IJobExecutionDocument, IJobExecutionModel>(
     'job_executions',
-    jobExecutionSchema,
+    loadJobExecutionClass(
+      models,
+      subdomain,
+      accountingEventHandlers('accounting', 'job_executions'),
+    ),
     'job_executions',
   );
 
