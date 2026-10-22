@@ -4,7 +4,7 @@ import type { TFunction } from 'i18next';
 export const JOB_DURATION_TYPES = ['real', 'minut', 'hour', 'day'] as const;
 const durationTypeSchema = z.enum(JOB_DURATION_TYPES);
 
-export const normalizeJobDurationType = (value?: string) => {
+export const normalizeJobDurationType = (value?: string | null) => {
   return durationTypeSchema.safeParse(value).data ?? 'minut';
 };
 

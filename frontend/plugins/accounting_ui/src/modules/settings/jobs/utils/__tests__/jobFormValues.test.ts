@@ -12,6 +12,7 @@ const job: IJob = {
   inputs: [{ productId: 'material', uom: 'pack', quantity: 2 }],
   outputs: [{ productId: 'output', quantity: 3, costRatio: 2 }],
   laborCosts: [{ name: 'Labor', accountId: 'labor', amount: 10 }],
+  overheadCosts: [],
 };
 
 test('edit values normalize optional fields and clear real-time duration', () => {
@@ -27,6 +28,37 @@ test('edit values normalize optional fields and clear real-time duration', () =>
     laborCosts: job.laborCosts,
     overheadCosts: [],
   });
+});
+
+test('nullable response fields are normalized only at the form boundary', () => {
+  const response: IJob = {
+    ...job,
+    name: null,
+    code: null,
+    description: null,
+    duration: null,
+    durationType: null,
+    status: null,
+    inputs: [
+      null,
+      { productId: null, uom: null, quantity: null, costRatio: null },
+    ],
+    outputs: null,
+  };
+  expect(jobFormValues(response)).toMatchObject({
+    name: '',
+    code: '',
+    description: '',
+    duration: undefined,
+    durationType: 'minut',
+    status: 'active',
+    inputs: [
+      { productId: '', uom: undefined, quantity: 0, costRatio: undefined },
+    ],
+    outputs: [],
+  });
+  expect(response.inputs?.[1]?.quantity).toBeNull();
+  expect(response.name).toBeNull();
 });
 
 test('fixed duration and explicit fields are retained and unknown units use the existing default', () => {

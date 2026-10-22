@@ -2,6 +2,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { useQuery } from '@apollo/client';
 import type { ReactNode } from 'react';
 import { ExecutionJobSelectContent } from '../SelectExecutionJob';
+import type { IJob } from '@/settings/jobs/types/Job';
 
 jest.mock('@apollo/client', () => ({ useQuery: jest.fn() }));
 jest.mock('react-i18next', () => ({
@@ -90,3 +91,30 @@ test.each([true, false])(
     );
   },
 );
+
+test('selection preserves generated response nulls without normalizing the record', () => {
+  const onChange = jest.fn();
+  const card: IJob = {
+    _id: 'nullable-job',
+    name: 'Nullable job',
+    code: null,
+    description: null,
+    duration: null,
+    durationType: null,
+    status: null,
+    inputs: null,
+    outputs: [null],
+    laborCosts: [],
+    overheadCosts: [],
+  };
+  jest
+    .mocked(useQuery)
+    .mockReturnValue({
+      data: { jobs: { jobs: [card] } },
+      loading: false,
+    } as never);
+  render(<ExecutionJobSelectContent onChange={onChange} />);
+  fireEvent.click(screen.getByRole('button'));
+  expect(onChange).toHaveBeenCalledWith(card);
+  expect(onChange.mock.calls[0][0]).toBe(card);
+});

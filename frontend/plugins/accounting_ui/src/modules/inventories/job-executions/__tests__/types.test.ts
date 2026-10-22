@@ -23,6 +23,6 @@ test('copies and scales planned quantities and costs without mutating the techno
   expect(values.overheadCosts[0].amount).toBe(20);
   values.inputs[0].quantity = 7;
   values.laborCosts[0].amount = 39;
-  expect(card.inputs[0].quantity).toBe(2);
+  expect(card.inputs?.[0]?.quantity).toBe(2);
   expect(card.laborCosts?.[0].amount).toBe(10);
 });

@@ -8,13 +8,15 @@ import {
 import { RecordTable, RecordTableInlineCell } from 'erxes-ui';
 import { ProductsInline } from 'ui-modules';
 import { useJobs } from '../hooks/useJobs';
-import { IJob, IJobItem } from '../types/Job';
+import { IJob } from '@/settings/jobs/types/Job';
 import { JobListStatus } from './JobListStatus';
 import { JobActions } from './JobActions';
 import { JobDuration } from '@/settings/jobs/components/JobDuration';
 
-const ProductListCell = ({ items }: { items: IJobItem[] }) => {
-  const productIds = items.map((item) => item.productId).filter(Boolean);
+const ProductListCell = ({ items }: { items: IJob['inputs'] }) => {
+  const productIds = (items ?? []).flatMap((item) =>
+    item?.productId ? [item.productId] : [],
+  );
 
   if (!productIds.length) {
     return <RecordTableInlineCell>-</RecordTableInlineCell>;

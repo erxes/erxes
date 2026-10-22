@@ -9,8 +9,8 @@ export const JOB_ADD = gql(`
     $durationType: String
     $laborCosts: [JobCostInput!]
     $overheadCosts: [JobCostInput!]
-    $inputs: [JobItemInput]!
-    $outputs: [JobItemInput]!
+    $inputs: [JobItemInput!]!
+    $outputs: [JobItemInput!]!
     $status: String
   ) {
     jobAdd(
@@ -40,8 +40,8 @@ export const JOB_EDIT = gql(`
     $durationType: String
     $laborCosts: [JobCostInput!]
     $overheadCosts: [JobCostInput!]
-    $inputs: [JobItemInput]!
-    $outputs: [JobItemInput]!
+    $inputs: [JobItemInput!]!
+    $outputs: [JobItemInput!]!
     $status: String
   ) {
     jobEdit(

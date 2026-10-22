@@ -1,6 +1,5 @@
 import { useQuery } from '@apollo/client';
 import { GET_JOB_OUTPUTS } from '../graphql/jobQueries';
-import { normalizeJob } from '../utils/normalizeJob';
 import { useJobFilters } from './useJobFilters';
 
 export const useJobOutputs = () => {
@@ -12,17 +11,7 @@ export const useJobOutputs = () => {
       notifyOnNetworkStatusChange: true,
     },
   );
-  const rows = (data?.jobOutputs?.rows ?? []).map((row) => ({
-    _id: row._id,
-    outputIndex: row.outputIndex,
-    job: normalizeJob(row.job),
-    output: {
-      productId: row.output.productId ?? '',
-      uom: row.output.uom ?? '',
-      quantity: row.output.quantity ?? 0,
-      costRatio: row.output.costRatio ?? undefined,
-    },
-  }));
+  const rows = data?.jobOutputs?.rows ?? [];
   const totalCount = data?.jobOutputs?.totalCount ?? 0;
   const handleFetchMore = () => {
     if (loading || !rows.length || rows.length >= totalCount) return;

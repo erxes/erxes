@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { IJobItem } from '../types/Job';
+import { TJobForm } from '@/settings/jobs/types/Job';
 
 export const jobSubUomsSchema = z
   .array(
@@ -34,10 +34,10 @@ export const uomToName = (uoms: JobUom[], value?: string | null): string =>
   findUnit(uoms, value)?.name || value || '';
 
 export const jobItemInBaseUnits = (
-  item: IJobItem,
+  item: TJobForm['inputs'][number],
   product: JobProductUnits,
   uoms: JobUom[],
-): IJobItem => {
+): TJobForm['inputs'][number] => {
   const uom = uomToCode(uoms, product.uom);
   const selected = uomToCode(uoms, item.uom);
   if (!selected || selected === uom) return { ...item, uom };

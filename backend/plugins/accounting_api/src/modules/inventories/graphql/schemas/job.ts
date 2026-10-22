@@ -93,8 +93,8 @@ export const mutations = `
     durationType: String,
     laborCosts: [JobCostInput!],
     overheadCosts: [JobCostInput!],
-    inputs: [JobItemInput]!,
-    outputs: [JobItemInput]!,
+    inputs: [JobItemInput!]!,
+    outputs: [JobItemInput!]!,
     status: String,
   ): Job
   jobEdit(
@@ -106,8 +106,8 @@ export const mutations = `
     durationType: String,
     laborCosts: [JobCostInput!],
     overheadCosts: [JobCostInput!],
-    inputs: [JobItemInput]!,
-    outputs: [JobItemInput]!,
+    inputs: [JobItemInput!]!,
+    outputs: [JobItemInput!]!,
     status: String,
   ): Job
   jobRemove(_id: String!): JSON

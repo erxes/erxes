@@ -42,7 +42,11 @@ const getColumns = (t: TFunction<'accounting'>): ColumnDef<IJobOutputRow>[] => [
     size: 260,
     cell: ({ row }) => (
       <RecordTableInlineCell>
-        <ProductsInline productIds={[row.original.output.productId]} />
+        <ProductsInline
+          productIds={
+            row.original.output.productId ? [row.original.output.productId] : []
+          }
+        />
       </RecordTableInlineCell>
     ),
   },

@@ -27,6 +27,7 @@
 - Inventory navigation includes `Ажлын гүйцэтгэл` at `/accounting/inventories/job-executions`, with searchable/status-filtered paginated records, multi-job create/edit/view sheets, independently scaled actual product/cost arrays, common date and inventory accounts/locations, confirmed post/undo/delete actions, and linked transaction navigation. No planned-quantity disclosure or duplicate plan state is rendered.
 
 - Uses statically analyzable typed GraphQL documents with generated operation result and variable types; build, serve, and contract tests regenerate them automatically.
+- Job master, item, cost and unwound-output response types derive from generated fragments/queries. Lists, details and selectors preserve nullable response fields; only `jobFormValues` converts them to editable form defaults, reused when selecting execution jobs. Do not restore response-wide `normalizeJob` adapters or handwritten Job response interfaces.
 - Rspack awaits gateway schema composition and codegen before its first build or watch compilation, including remotes launched directly by the Module Federation host without Nx task dependencies.
 - Displays, creates, updates, prints, and removes accounting transactions.
 - Transaction form save actions keep submit behavior unchanged but render `DRAFTED` status-group saves with the shared secondary button variant, warning-colored draft icon/text, and warning-colored debit/credit totals.

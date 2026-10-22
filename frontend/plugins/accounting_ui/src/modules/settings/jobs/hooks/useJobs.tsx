@@ -1,6 +1,5 @@
 import { useQuery } from '@apollo/client';
 import { GET_JOBS } from '../graphql/jobQueries';
-import { normalizeJob } from '../utils/normalizeJob';
 import { useJobFilters } from './useJobFilters';
 
 const JOB_PER_PAGE = 20;
@@ -18,9 +17,7 @@ export const useJobs = () => {
     },
   });
 
-  const rows = (data?.jobs?.jobs ?? []).flatMap((job) =>
-    job ? [normalizeJob(job)] : [],
-  );
+  const rows = (data?.jobs?.jobs ?? []).flatMap((job) => (job ? [job] : []));
 
   const handleFetchMore = () => {
     if (

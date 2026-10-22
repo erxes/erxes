@@ -5,7 +5,6 @@ import { Button, Combobox, Command, Form, Popover, Spinner } from 'erxes-ui';
 import { useDebounce } from 'use-debounce';
 import { GET_JOBS } from '@/settings/jobs/graphql/jobQueries';
 import { IJob } from '@/settings/jobs/types/Job';
-import { normalizeJob } from '@/settings/jobs/utils/normalizeJob';
 
 export const SelectExecutionJob = ({
   label,
@@ -76,7 +75,7 @@ export const ExecutionJobSelectContent = ({
           <Command.Empty>{t('production-no-cards')}</Command.Empty>
         )}
         {(data?.jobs?.jobs ?? [])
-          .flatMap((card) => (card ? [normalizeJob(card)] : []))
+          .flatMap((card) => (card ? [card] : []))
           .map((card) => (
             <Command.Item
               key={card._id}

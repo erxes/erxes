@@ -1,30 +1,34 @@
 import { IJob, TJobForm } from '@/settings/jobs/types/Job';
-import { scaleJobFormValues } from '@/settings/jobs/utils/jobFormValues';
+import {
+  jobFormValues,
+  scaleJobFormValues,
+} from '@/settings/jobs/utils/jobFormValues';
 
-export const jobValues = (card: IJob, quantity: number): TJobForm =>
-  scaleJobFormValues(
+export const jobValues = (card: IJob, quantity: number): TJobForm => {
+  const values = jobFormValues(card);
+  return scaleJobFormValues(
     {
-      name: card.name,
-      description: card.description ?? '',
+      name: values.name,
+      description: values.description,
       durationType: 'real',
       duration: undefined,
-      inputs: card.inputs.map((row) => ({
+      inputs: values.inputs.map((row) => ({
         productId: row.productId,
         uom: row.uom ?? '',
         quantity: row.quantity,
       })),
-      outputs: card.outputs.map((row) => ({
+      outputs: values.outputs.map((row) => ({
         productId: row.productId,
         uom: row.uom ?? '',
         quantity: row.quantity,
         costRatio: row.costRatio ?? 1,
       })),
-      laborCosts: (card.laborCosts ?? []).map((row) => ({
+      laborCosts: values.laborCosts.map((row) => ({
         name: row.name,
         amount: row.amount,
         accountId: row.accountId,
       })),
-      overheadCosts: (card.overheadCosts ?? []).map((row) => ({
+      overheadCosts: values.overheadCosts.map((row) => ({
         name: row.name,
         amount: row.amount,
         accountId: row.accountId,
@@ -32,3 +36,4 @@ export const jobValues = (card: IJob, quantity: number): TJobForm =>
     },
     quantity,
   );
+};
