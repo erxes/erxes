@@ -99,6 +99,7 @@ export const GET_PIPELINES = gql(`
         endDate
         status
         createdAt
+        userId
         createdUser {
           details {
             fullName

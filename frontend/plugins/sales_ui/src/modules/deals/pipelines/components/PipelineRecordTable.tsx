@@ -15,7 +15,6 @@ import {
   Combobox,
   Command,
   Input,
-  PageSubHeader,
   Popover,
   RecordTable,
   RecordTableInlineCell,
@@ -42,6 +41,8 @@ import {
 } from '@/deals/boards/hooks/usePipelines';
 import { PipelineCommandBar } from '@/deals/pipelines/components/PipelineCommandBar';
 import { PipelineEmptyState } from '@/deals/pipelines/components/PipelineEmptyState';
+import { PipelinesSubHeader } from '@/deals/pipelines/components/PipelinesSubHeader';
+import { PIPELINE_STATUS_QUERY_KEY } from '@/deals/pipelines/components/PipelineStatusFilter';
 import { IPipeline } from '@/deals/types/pipelines';
 
 export const PipelineMoreColumnCell = ({
@@ -320,9 +321,21 @@ export const PipelineRecordTable = () => {
     contentType: string;
     searchValue: string;
     activeBoardId: string;
-  }>(['contentType', 'searchValue', 'activeBoardId']);
+    pipelineStatus: string;
+    createdBy: string;
+  }>([
+    'contentType',
+    'searchValue',
+    'activeBoardId',
+    PIPELINE_STATUS_QUERY_KEY,
+    'createdBy',
+  ]);
 
-  const { boards, loading: boardsLoading, error: boardsError } = useBoards({
+  const {
+    boards,
+    loading: boardsLoading,
+    error: boardsError,
+  } = useBoards({
     variables: { includeArchived: true },
   });
   const hasSelectedBoard = boards?.some(
@@ -337,6 +350,19 @@ export const PipelineRecordTable = () => {
         isAll: true,
       },
     });
+
+  // The pipelines query has no name, status or creator filter, so filter
+  // the loaded rows.
+  const search = queries.searchValue?.trim().toLowerCase();
+  const statusFilter = queries.pipelineStatus;
+  const createdBy = queries.createdBy;
+  const isFiltered = Boolean(search || statusFilter || createdBy);
+  const visiblePipelines = (pipelines || []).filter(
+    (pipeline) =>
+      (!search || pipeline.name?.toLowerCase().includes(search)) &&
+      (!statusFilter || pipeline.status === statusFilter) &&
+      (!createdBy || pipeline.userId === createdBy),
+  );
 
   if (!boardsLoading && !boardsError && boards && !hasSelectedBoard) {
     return <BoardEmptyState isSettings hasBoards={boards.length > 0} />;
@@ -355,12 +381,13 @@ export const PipelineRecordTable = () => {
 
   return (
     <>
-      <PageSubHeader>
-        {t('pipelines-with-count', { count: totalCount })}
-      </PageSubHeader>
+      <PipelinesSubHeader
+        count={isFiltered ? visiblePipelines.length : totalCount || 0}
+        loading={boardsLoading || loading}
+      />
       <RecordTable.Provider
         columns={pipelinesColumns(t)}
-        data={pipelines || []}
+        data={visiblePipelines}
         className="m-3"
         stickyColumns={['more', 'checkbox', 'name']}
       >
