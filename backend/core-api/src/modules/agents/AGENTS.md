@@ -19,8 +19,9 @@ plugin; ported from the former private `erxes-agent` service). It provides:
   result. Semantic HTML, responsive CSS and inline SVG render inline;
   scripts/external resources are unavailable. Record reference tokens belong
   verbatim in HTML text nodes, never attributes, links, styles or code;
-- `skills/reportCreation.ts` is the built-in report skill, composed into every
-  run's instructions by `buildAgentsInstructions`. Report creation/revisions use
+- `skills/report/SKILL.md` is the report skill, loaded on demand with the domain
+  skills through the agent's `skills` list; the base instructions tell the model
+  to load it before writing or revising a report. Report creation/revisions use
   formula-driven interactive what-if charts through the renderer-owned
   `data-agent-chart` JSON contract (bounded postfix arithmetic; never model scripts).
   Editable factors compare baseline/scenario results locally; they do not mutate

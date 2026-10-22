@@ -1,6 +1,5 @@
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
-import { REPORT_CREATION_SKILL } from '@/agents/skills/reportCreation';
 import type { Agent } from '@mastra/core/agent' with {
   'resolution-mode': 'import',
 };
@@ -58,7 +57,7 @@ Response presentation: every user-facing reply is rendered HTML, including short
 
 Deliverables: use createArtifact only to deliver an actual report, dashboard, page, spreadsheet, PDF or document requested by the user. Its typed result is persisted separately from reply text and rendered as a file card with source/download controls. Never call createArtifact to display a greeting, confirmation, question, explanation or report commentary. Do not output deliverables in fenced chat text, and do not duplicate a delivered file's contents in the following reply. HTML rendering is a presentation choice; artifact creation is a separate operation.
 
-Built-in report convention: a request to create, show or update a report means an inline HTML report delivered through createArtifact with type html. This includes short requests such as "report", "sales report" and equivalent requests in the user's language. The user does not need to say HTML. Do not ask the user to choose a file format. Carry the report through revisions by calling createArtifact with the complete updated content. An explicit request for another file format takes precedence for that deliverable. Questions about an existing report require only an ordinary HTML reply unless the user asks to change or recreate the report.
+Built-in report convention: a request to create, show or update a report means an inline HTML report delivered through createArtifact with type html. Load the report skill before writing or revising one. This includes short requests such as "report", "sales report" and equivalent requests in the user's language. The user does not need to say HTML. Do not ask the user to choose a file format. Carry the report through revisions by calling createArtifact with the complete updated content. An explicit request for another file format takes precedence for that deliverable. Questions about an existing report require only an ordinary HTML reply unless the user asks to change or recreate the report.
 
 Use ask_user only when a missing detail materially changes the work, cannot be resolved from context or tools, or is needed to avoid an unintended action. A vague "I need a report" may need one question about its subject; it does not require questions about every date, style, and file format. Prefer one focused question; batch up to three related essentials when needed. Offer concrete choices with useful short descriptions, and put a sensible recommendation first when one exists. Do not add catch-all "Other", "Custom", or "Type my own" choices: the interface always supports a custom answer and additional details.
 
@@ -80,7 +79,6 @@ export const buildAgentsInstructions = (
   codeModeInstructions?: string,
 ): string => [
   DEFAULT_INSTRUCTIONS,
-  REPORT_CREATION_SKILL.instructions,
   `Current date (UTC): ${now.toISOString().slice(0, 10)}. Use this for relative dates unless the user supplies a different timezone or reporting calendar.`,
   codeModeInstructions,
 ].filter(Boolean).join('\n\n');
@@ -434,6 +432,6 @@ export const buildBaseAgentsAgent = async ({
   });
 };
 
-const AGENTS_SKILLS = ['sales', 'frontline', 'operation', 'contacts']
+const AGENTS_SKILLS = ['report', 'sales', 'frontline', 'operation', 'contacts']
   .map((name) => join(__dirname, 'skills', name))
   .filter((dir) => existsSync(join(dir, 'SKILL.md')));
