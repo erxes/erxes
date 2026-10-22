@@ -1,3 +1,4 @@
+import 'erxes-api-shared/instrument';
 import { resolve } from 'node:path';
 import initCallApp from '@/integrations/call/initApp';
 import { initDiscord } from '@/integrations/discord/services/gateway/ownership';

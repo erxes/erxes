@@ -1,3 +1,4 @@
+import 'erxes-api-shared/instrument';
 import {
   createCoreModuleProducerHandler,
   TBatchSkipRowInput,

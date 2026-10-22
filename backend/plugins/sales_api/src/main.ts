@@ -1,3 +1,4 @@
+import 'erxes-api-shared/instrument';
 import { appRouter } from './trpc/init-trpc';
 import automations from './meta/automations';
 import { generateModels } from './connectionResolvers';
