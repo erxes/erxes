@@ -1,24 +1,25 @@
-import type { TextUIPart, UIMessage } from 'ai';
+import {
+  isReasoningUIPart,
+  isTextUIPart,
+  isToolUIPart,
+  type TextUIPart,
+} from 'ai';
 
+import type { AgentsUIMessage } from '../types';
 import {
   agentToolActivity,
-  isReasoningPart,
   isSchemaLookupStep,
   isStandalonePart,
-  isToolPart,
   toAgentWorkStep,
   type IAgentToolStepEntry,
   type TAgentLabelTranslate,
   type TAgentWorkStep,
 } from './agentWorkSteps';
 
-// `ai` is ESM-only — `import type` only so jest (CJS) can load this util.
-type TUIPart = UIMessage['parts'][number];
-
-const isTextPart = (part: TUIPart): part is TextUIPart => part.type === 'text';
+type TUIPart = AgentsUIMessage['parts'][number];
 
 const hasText = (part: TUIPart): part is TextUIPart =>
-  isTextPart(part) && part.text.trim().length > 0;
+  isTextUIPart(part) && part.text.trim().length > 0;
 
 /**
  * Work that folds into the turn's activity timeline. A settled reasoning
@@ -26,14 +27,13 @@ const hasText = (part: TUIPart): part is TextUIPart =>
  * of new thinking and already counts.
  */
 const isTimelineWork = (part: TUIPart): boolean => {
-  if (isReasoningPart(part)) {
+  if (isReasoningUIPart(part)) {
     return (
-      part.text.trim().length > 0 ||
-      (part as { state?: string }).state === 'streaming'
+      part.text.trim().length > 0 || part.state === 'streaming'
     );
   }
 
-  return isToolPart(part) && !isStandalonePart(part);
+  return isToolUIPart(part) && !isStandalonePart(part);
 };
 
 /**
@@ -51,7 +51,7 @@ export type TAgentTextRole = 'intro' | 'narration' | 'answer';
  * Other text, step boundaries and data parts are transparent.
  */
 const nextAnchor = (
-  parts: UIMessage['parts'],
+  parts: AgentsUIMessage['parts'],
   index: number,
 ): 'work' | 'card' | 'end' => {
   for (let next = index + 1; next < parts.length; next += 1) {
@@ -81,7 +81,7 @@ const nextAnchor = (
  * interrupted or tool-terminated turn never collapses to nothing.
  */
 export const classifyAgentTurnText = (
-  parts: UIMessage['parts'],
+  parts: AgentsUIMessage['parts'],
   { streaming }: { streaming: boolean },
 ): Map<number, TAgentTextRole> => {
   const roles = new Map<number, TAgentTextRole>();
@@ -89,7 +89,7 @@ export const classifyAgentTurnText = (
   let seenText = false;
 
   parts.forEach((part, index) => {
-    if (isToolPart(part)) {
+    if (isToolUIPart(part)) {
       seenTool = true;
       return;
     }
@@ -216,7 +216,7 @@ export const reasoningHeading = (text: string): string | null => {
  * hidden turns) into its activity timeline and its visible body.
  */
 export const buildAgentTurnLayout = (
-  parts: UIMessage['parts'],
+  parts: AgentsUIMessage['parts'],
   { streaming }: { streaming: boolean },
 ): IAgentTurnLayout => {
   const roles = classifyAgentTurnText(parts, { streaming });
@@ -236,7 +236,7 @@ export const buildAgentTurnLayout = (
     activeIndex = index;
     const role = roles.get(index);
 
-    if (isTextPart(part)) {
+    if (isTextUIPart(part)) {
       if (role === 'narration') {
         current = {
           key: `narration-${index}`,
@@ -298,7 +298,7 @@ export const buildAgentTurnLayout = (
       return;
     }
 
-    if (isReasoningPart(part)) {
+    if (isReasoningUIPart(part)) {
       return;
     }
 
@@ -316,7 +316,7 @@ export const buildAgentTurnLayout = (
 };
 
 /** The answer text of a settled turn, for copy and Markdown export. */
-export const agentTurnAnswerText = (parts: UIMessage['parts']): string =>
+export const agentTurnAnswerText = (parts: AgentsUIMessage['parts']): string =>
   buildAgentTurnLayout(parts, { streaming: false }).answerText;
 
 /**
@@ -325,24 +325,24 @@ export const agentTurnAnswerText = (parts: UIMessage['parts']): string =>
  * the last sentence of the newest narration.
  */
 export const agentTurnActivity = (
-  parts: UIMessage['parts'],
+  parts: AgentsUIMessage['parts'],
   t?: TAgentLabelTranslate,
 ): string => {
   for (let index = parts.length - 1; index >= 0; index -= 1) {
     const part = parts[index];
 
-    if (isTextPart(part)) {
+    if (isTextUIPart(part)) {
       if (part.text.trim()) {
         return 'Writing…';
       }
       continue;
     }
 
-    if (isReasoningPart(part)) {
+    if (isReasoningUIPart(part)) {
       return reasoningHeading(part.text) ?? 'Thinking…';
     }
 
-    if (!isToolPart(part)) {
+    if (!isToolUIPart(part)) {
       continue;
     }
 

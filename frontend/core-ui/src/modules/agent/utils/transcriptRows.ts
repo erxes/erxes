@@ -1,12 +1,12 @@
-import type { UIMessage } from 'ai';
+import type { AgentsUIMessage } from '../types';
 
 export interface ITranscriptRow {
   /** Id of the row's first message — stable across merges. */
   key: string;
   /** Original object for a single-message row; a merged copy otherwise. */
-  message: UIMessage;
+  message: AgentsUIMessage;
   /** Original message right before the row's first message. */
-  previousMessage: UIMessage | undefined;
+  previousMessage: AgentsUIMessage | undefined;
   /** Index in `messages` of the row's last merged message. */
   lastIndex: number;
 }
@@ -21,10 +21,10 @@ export interface ITranscriptRow {
  * keep the original identity for the memoized MessageRow.
  */
 export const buildTranscriptRows = (
-  messages: UIMessage[],
+  messages: AgentsUIMessage[],
   isHiddenTurn: (
-    message: UIMessage,
-    previousMessage: UIMessage | undefined,
+    message: AgentsUIMessage,
+    previousMessage: AgentsUIMessage | undefined,
   ) => boolean,
 ): ITranscriptRow[] => {
   const rows: ITranscriptRow[] = [];

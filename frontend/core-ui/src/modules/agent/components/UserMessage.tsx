@@ -4,7 +4,6 @@ import {
   IconCopy,
   IconPencil,
 } from '@tabler/icons-react';
-import type { UIMessage } from 'ai';
 import { Button } from 'erxes-ui';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 
@@ -18,10 +17,11 @@ import {
   agentMentionPlainText,
   parseAgentMentionText,
 } from '../utils/mentionText';
+import type { AgentsUIMessage } from '../types';
 import { AgentMentionInput } from './AgentMentionInput';
 
 export interface IUserMessageProps {
-  message: UIMessage;
+  message: AgentsUIMessage;
   editing: boolean;
   disabled: boolean;
   onEditingChange: (messageId: string | null) => void;

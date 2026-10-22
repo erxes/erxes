@@ -6,7 +6,7 @@ import {
   withAgentMentionsParts,
 } from '../agentMentions';
 import { decodeInFlightPrompt } from '../inFlightPrompt';
-import { mapStoredMessagesToUIMessages } from '../mapStoredMessages';
+import { withUserDisplayText } from '../utils/messages';
 import { buildThreadMarkdown } from '../utils/exportThreadMarkdown';
 
 const ann = { type: 'customer', id: 'c1', label: 'Ann Lee' } as const;
@@ -50,25 +50,22 @@ it('replaces a turn’s mentions with those of its edited text', () => {
 });
 
 it('restores the canonical display text and keeps the page context line', () => {
-  const [message] = mapStoredMessagesToUIMessages([
+  // The shape agentsThreadDetail returns: toAISdkMessages on the server.
+  const [message] = withUserDisplayText([
     {
       id: 'm1',
       role: 'user',
-      createdAt: '2026-10-01T00:00:00.000Z',
-      content: {
-        format: 2,
-        parts: [
-          {
-            type: 'text',
-            text: '[Page context] The user is viewing /contacts.',
-          },
-          { type: 'text', text: 'Email @Ann Lee today\n\n[Mentions] …' },
-          {
-            type: AGENTS_MENTIONS_DATA_TYPE,
-            data: { mentions: [ann], displayText: wire },
-          },
-        ],
-      },
+      parts: [
+        {
+          type: 'text',
+          text: '[Page context] The user is viewing /contacts.',
+        },
+        { type: 'text', text: 'Email @Ann Lee today\n\n[Mentions] …' },
+        {
+          type: AGENTS_MENTIONS_DATA_TYPE,
+          data: { mentions: [ann], displayText: wire },
+        },
+      ],
     },
   ]);
   expect(message.parts).toEqual([

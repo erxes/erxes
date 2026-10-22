@@ -7,6 +7,7 @@ import type { IAgentsRequestSelection } from '../transport';
 import { AgentsStreamStalledError } from '../streamHealth';
 
 jest.mock('ai', () => ({
+  ...jest.requireActual('ai'),
   isToolUIPart: () => false,
   lastAssistantMessageIsCompleteWithApprovalResponses: () => false,
 }));
@@ -48,9 +49,6 @@ jest.mock('../transport', () => ({
 }));
 jest.mock('../hooks/useNavigationCatalog', () => ({
   useNavigationCatalog: () => [],
-}));
-jest.mock('../mapStoredMessages', () => ({
-  mapStoredMessagesToUIMessages: (messages: unknown) => messages,
 }));
 
 import { Chat, useChat } from '@ai-sdk/react';

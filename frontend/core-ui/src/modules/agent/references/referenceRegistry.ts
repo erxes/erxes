@@ -1,10 +1,11 @@
-import type { UIMessage } from 'ai';
+import { getToolName, isToolUIPart } from 'ai';
 import { z } from 'zod';
 import {
   AGENT_REFERENCE_TYPES,
   type IAgentReference,
 } from './parseAgentReferences';
 import { decodeAgentPagePath } from './referencePagePath';
+import type { AgentsUIMessage } from '../types';
 
 export interface IAgentReferenceEvidence extends IAgentReference {
   handle?: string;
@@ -43,19 +44,13 @@ const recordOf = (value: unknown): Record<string, unknown> | undefined =>
 /** Authority comes ONLY from the named native tool output. Never scan prose,
  * user messages, tool inputs, artifacts, or fields nested inside returned data. */
 export const readAgentReferenceEvidence = (
-  message: UIMessage,
+  message: AgentsUIMessage,
 ): IAgentReferenceEvidence[] => {
   if (message.role !== 'assistant') return [];
   const evidence: IAgentReferenceEvidence[] = [];
   for (const part of message.parts) {
-    if (
-      !(part.type === 'dynamic-tool' || part.type.startsWith('tool-')) ||
-      !('state' in part) ||
-      part.state !== 'output-available' ||
-      !('output' in part)
-    )
-      continue;
-    const name = 'toolName' in part ? part.toolName : part.type.slice(5);
+    if (!isToolUIPart(part) || part.state !== 'output-available') continue;
+    const name = getToolName(part);
     if (
       name !== 'callGraphql' &&
       name !== 'findPages' &&
@@ -109,7 +104,7 @@ export const createAgentReferenceRegistry = (
 };
 /** Each message sees only evidence from that message and its preceding history. */
 export const buildAgentReferenceScopes = (
-  messages: UIMessage[],
+  messages: AgentsUIMessage[],
 ): IAgentReferenceRegistry[] => {
   let all: IAgentReferenceEvidence[] = [];
   let registry = EMPTY_REFERENCE_REGISTRY;

@@ -215,7 +215,7 @@ describe('agentsThreads query', () => {
 });
 
 describe('agentsThreadDetail query', () => {
-  it('returns the thread’s stored messages without internal fields', async () => {
+  it('returns the thread’s messages as AI SDK UIMessages without internal fields', async () => {
     const { ctx } = buildContext();
     const memory = buildMemory();
     memory.getThreadById.mockResolvedValue({
@@ -230,7 +230,7 @@ describe('agentsThreadDetail query', () => {
         {
           id: 'm1',
           role: 'user',
-          createdAt: 'mc1',
+          createdAt: new Date('2026-10-01T00:00:00.000Z'),
           content: { format: 2, parts: [{ type: 'text', text: 'hi' }] },
           internalField: 'leak',
         },
@@ -267,8 +267,8 @@ describe('agentsThreadDetail query', () => {
         {
           id: 'm1',
           role: 'user',
-          createdAt: 'mc1',
-          content: { format: 2, parts: [{ type: 'text', text: 'hi' }] },
+          parts: [{ type: 'text', text: 'hi' }],
+          metadata: { createdAt: new Date('2026-10-01T00:00:00.000Z') },
         },
       ],
     });
