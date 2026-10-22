@@ -1,50 +1,9 @@
-import { initTRPC, TRPCError } from '@trpc/server';
-import { ICustomer } from 'erxes-api-shared/core-types';
+import { initTRPC } from '@trpc/server';
 import { z } from 'zod';
-import { syncCustomerContactToCPUsers } from '@/clientportal/services/user/contactService';
-import { IModels } from '~/connectionResolvers';
 import { CoreTRPCContext } from '~/init-trpc';
 import { createOrUpdate } from '../utils';
 
 const t = initTRPC.context<CoreTRPCContext>().create();
-
-const agentRecordId = z.string().regex(/^[A-Za-z0-9_-]{1,64}$/);
-const agentShortText = z.string().trim().min(1).max(200);
-const agentDescriptionText = z.string().trim().max(5000);
-
-const customerWriteFields = {
-  firstName: agentShortText.optional(),
-  lastName: agentShortText.optional(),
-  middleName: agentShortText.optional(),
-  primaryEmail: z.string().trim().email().max(254).optional(),
-  primaryPhone: z.string().trim().min(3).max(32).optional(),
-  code: agentShortText.optional(),
-  position: agentShortText.optional(),
-  department: agentShortText.optional(),
-  description: agentDescriptionText.optional(),
-  state: z.enum(['lead', 'customer']).optional(),
-  ownerId: agentRecordId.optional(),
-};
-
-// Every agent write runs as the user whose chat session issued it; the
-// HMAC-signed context carries that user's id.
-const requireAgentUser = async (ctx: {
-  models: IModels;
-  userId?: string;
-}) => {
-  const user = ctx.userId
-    ? await ctx.models.Users.findOne({ _id: ctx.userId }).lean()
-    : null;
-
-  if (!user) {
-    throw new TRPCError({
-      code: 'UNAUTHORIZED',
-      message: 'Acting user not found',
-    });
-  }
-
-  return user;
-};
 
 export const customerRouter = t.router({
   customers: t.router({
@@ -133,92 +92,6 @@ export const customerRouter = t.router({
         const { models } = ctx;
 
         return models.Customers.countDocuments(query);
-      }),
-
-    add: t.procedure
-      .input(z.object(customerWriteFields))
-      .mutation(async ({ ctx, input }) => {
-        const { models } = ctx;
-        const user = await requireAgentUser(ctx);
-
-        const { firstName, lastName, primaryEmail, primaryPhone } = input;
-
-        if (!firstName && !lastName && !primaryEmail && !primaryPhone) {
-          throw new TRPCError({
-            code: 'BAD_REQUEST',
-            message:
-              'Provide at least one of firstName, lastName, primaryEmail or primaryPhone',
-          });
-        }
-
-        const doc: ICustomer = {};
-        Object.assign(
-          doc,
-          Object.fromEntries(
-            Object.entries(input).filter(([, value]) => value !== undefined),
-          ),
-        );
-
-        if (primaryEmail) {
-          doc.emails = [primaryEmail];
-        }
-        if (primaryPhone) {
-          doc.phones = [primaryPhone];
-        }
-
-        return models.Customers.createCustomer(doc, user);
-      }),
-
-    edit: t.procedure
-      .input(z.object({ _id: agentRecordId, ...customerWriteFields }))
-      .mutation(async ({ ctx, input }) => {
-        const { models } = ctx;
-        await requireAgentUser(ctx);
-
-        const { _id, primaryEmail, primaryPhone, ...fields } = input;
-
-        const providedEntries = Object.entries(fields).filter(
-          ([, value]) => value !== undefined,
-        );
-
-        if (!providedEntries.length && !primaryEmail && !primaryPhone) {
-          throw new TRPCError({
-            code: 'BAD_REQUEST',
-            message: 'Provide at least one field to update',
-          });
-        }
-
-        let existing;
-        try {
-          existing = await models.Customers.getCustomer(_id);
-        } catch {
-          throw new TRPCError({
-            code: 'NOT_FOUND',
-            message: 'Customer not found',
-          });
-        }
-
-        const doc: ICustomer = {};
-        Object.assign(doc, Object.fromEntries(providedEntries));
-
-        if (primaryEmail) {
-          doc.primaryEmail = primaryEmail;
-          doc.emails = [
-            ...new Set([...(existing.emails || []), primaryEmail]),
-          ];
-        }
-        if (primaryPhone) {
-          doc.primaryPhone = primaryPhone;
-          doc.phones = [
-            ...new Set([...(existing.phones || []), primaryPhone]),
-          ];
-        }
-
-        const updated = await models.Customers.updateCustomer(_id, doc);
-
-        await syncCustomerContactToCPUsers(models, _id, doc);
-
-        return updated;
       }),
 
     createCustomer: t.procedure
