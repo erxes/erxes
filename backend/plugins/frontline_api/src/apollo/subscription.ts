@@ -27,6 +27,7 @@ export default {
 			conversationMessageUpdated(_id: String!): ConversationMessage
 			conversationClientMessageInserted(userId: String!): ConversationMessage
 			conversationUnreadCountChanged: ConversationUnreadCountChangedResponse
+      frontlineConversationReportChanged: Boolean!
 			conversationClientTypingStatusChanged(_id: String!): ConversationClientTypingStatusChangedResponse
 			conversationAdminMessageInserted(customerId: String): ConversationAdminMessageInsertedResponse
 			conversationExternalIntegrationMessageInserted: JSON
@@ -234,6 +235,19 @@ export default {
       conversationChanged: {
         subscribe: (_, { _id }) =>
           graphqlPubsub.asyncIterator(`conversationChanged:${_id}`),
+      },
+
+      frontlineConversationReportChanged: {
+        subscribe: (_root, _args, { subdomain, user }) => {
+          if (!user?._id) {
+            throw new Error('Authentication required');
+          }
+
+          const tenant = process.env.VERSION === 'saas' ? subdomain : 'os';
+          return graphqlPubsub.asyncIterator(
+            `frontlineConversationReportChanged:${tenant}`,
+          );
+        },
       },
 
       conversationUnreadCountChanged: {
