@@ -3,31 +3,20 @@ import { useTranslation } from 'react-i18next';
 import { Link, useLocation } from 'react-router';
 import { SETTINGS_ROUTES } from '../constants/settingsRoutes';
 
-const FIXED_ASSET_SETTINGS_ROUTES = {
-  '/accounting/settings/fixed-assets/accounts-config': 'account-configuration',
-  '/accounting/settings/fixed-assets/categories': 'category-label',
-  '/accounting/settings/fixed-assets/assets': 'fixed-assets',
-};
-
 export const AccountingSidebar = () => {
   const { pathname } = useLocation();
   const { t } = useTranslation('accounting');
-  const isFixedAssetSettings = pathname.startsWith(
-    '/accounting/settings/fixed-assets',
-  );
-  const routes = isFixedAssetSettings
-    ? FIXED_ASSET_SETTINGS_ROUTES
-    : SETTINGS_ROUTES;
+
+  if (pathname.startsWith('/accounting/settings/fixed-assets')) {
+    return null;
+  }
 
   return (
-    <Sidebar.Panel
-      className="border-r flex-none"
-      label={t(isFixedAssetSettings ? 'fixed-asset' : 'accounting')}
-    >
+    <Sidebar.Panel className="border-r flex-none" label={t('accounting')}>
       <Sidebar.Group>
         <Sidebar.GroupContent>
           <Sidebar.Menu>
-            {Object.entries(routes).map(([path, label]) => (
+            {Object.entries(SETTINGS_ROUTES).map(([path, label]) => (
               <AccountingSidebarItem key={path} to={path}>
                 {label && t(label)}
               </AccountingSidebarItem>

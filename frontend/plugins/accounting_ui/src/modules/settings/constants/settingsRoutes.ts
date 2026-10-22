@@ -15,6 +15,12 @@ export const SETTINGS_ROUTES = {
   '/accounting/settings/config/sync-order': 'pos-order-rule-label',
 };
 
+export const FIXED_ASSET_SETTINGS_ROUTES = {
+  '/accounting/settings/fixed-assets/accounts-config': 'account-configuration',
+  '/accounting/settings/fixed-assets/categories': 'category-label',
+  '/accounting/settings/fixed-assets/assets': 'fixed-assets',
+};
+
 export enum ACCOUNTING_SETTINGS_CODES {
   SYNC_DEAL = 'syncDeal',
   SYNC_DEAL_MOVEMENT = 'syncDealMovement',

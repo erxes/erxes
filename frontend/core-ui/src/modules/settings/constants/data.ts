@@ -264,7 +264,10 @@ export const GET_SETTINGS_PATH_DATA = (
 export type TSettingSubPath = {
   name: string;
   path: string;
+  onClick?: () => void;
 };
+
+export const SETTINGS_INLINE_TYPES_LIMIT = 5;
 
 type TSettingSubNavigation = {
   name: string;

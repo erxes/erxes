@@ -8,7 +8,7 @@ export const SettingsLayout = ({
   actions,
   children,
 }: {
-  sidebar: React.ReactNode;
+  sidebar?: React.ReactNode;
   breadcrumbs?: React.ReactNode;
   actions?: React.ReactNode;
   children: React.ReactNode;
