@@ -41,3 +41,18 @@ export const configDetail = gql`
     }
   }
 `;
+export const tdbAccounts = gql`
+  query TdbAccounts($configId: String!) {
+    tdbAccounts(configId: $configId) {
+      success
+      msg
+      data {
+        ACNTNO
+        IBAN
+        iban
+        ACNTNAME
+        CURCODE
+      }
+    }
+  }
+`;
