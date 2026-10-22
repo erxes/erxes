@@ -5,7 +5,7 @@ import type { IAgentsIssuedReference } from '@/agents/references';
 import type { Tool } from '@mastra/core/tools' with {
   'resolution-mode': 'import',
 };
-import { buildGraphqlTools } from '@/agents/graphqlTools';
+import { buildGraphqlTools, CODE_MODE_CALL } from '@/agents/graphqlTools';
 import {
   parseAgentGraphqlOperation,
   requiresGraphqlApproval,
@@ -77,7 +77,10 @@ export const buildCodeModeAddition = (): Promise<IAgentsCodeModeAddition> => {
             }
             if (!callGraphql.execute)
               throw new Error('callGraphql is not executable.');
-            const result: unknown = await callGraphql.execute(input, context);
+            const result: unknown = await callGraphql.execute(input, {
+              ...context,
+              [CODE_MODE_CALL]: true,
+            } as typeof context);
             // Collect only actual host bridge outputs, outside the program's
             // control. A program can return arbitrary JSON in its result.
             const parsedResult = z

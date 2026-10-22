@@ -82,6 +82,10 @@ plugin; ported from the former private `erxes-agent` service). It provides:
   `searchGraphql` and `agentsTools` only; `callGraphql` still executes them
   and `graphqlPolicy.ts` is unchanged. A plugin hides only fields its own SDL
   defines; hints naming hidden operations are dropped;
+- `callGraphql` results are capped at 64KB (`AGENT_TOOLS_MAX_RESPONSE_BYTES`).
+  A direct call over the cap keeps the first rows of its longest lists and
+  returns `truncated` plus a hint; a call from the code-mode sandbox may read up
+  to 4MB, because only the program's own return value reaches the model.
 - optional code mode exposes only `searchGraphql` and `callGraphql` in a
   QuickJS sandbox; approval-gated mutations must run interactively in chat.
   Its native output schema is Zod v4: extensions must import `zod/v4` too.
