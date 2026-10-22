@@ -1,5 +1,6 @@
 import { PluginSharedSettingsNavigation } from 'ui-modules';
 import { SalesSettingsNavigation } from '@/SalesSettingsNavigation';
+import { BoardsSettingsNavigation } from '@/deals/boards/components/settings/BoardsSettingsNavigation';
 import type { ReactNode } from 'react';
 import { IconSettings, IconArrowLeft } from '@tabler/icons-react';
 import { AppLayoutFooterLink, Sidebar, AppLayout } from 'erxes-ui';
@@ -51,6 +52,7 @@ export const SalesSettingsLayout = ({ children }: { children: ReactNode }) => {
             pluginName="sales"
             pathPrefix="sales/settings"
           />
+          <BoardsSettingsNavigation />
         </>
       }
       footer={
