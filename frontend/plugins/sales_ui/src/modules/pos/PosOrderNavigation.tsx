@@ -1,4 +1,3 @@
-import { BoardDisclosure } from '@/deals/boards/components/BoardDisclosure';
 import { useGetPos } from '@/pos/hooks/useGetPos';
 import {
   IconChecklist,
@@ -46,7 +45,6 @@ function PosItem({ pos }: posItemProps) {
 
   const isPosActive = pathname.includes(`/sales/pos/${pos._id}`);
   const [open, setOpen] = useState(isPosActive);
-  const contentId = `sales-pos-${pos._id}`;
 
   return (
     <Collapsible
@@ -64,7 +62,6 @@ function PosItem({ pos }: posItemProps) {
           <Collapsible.Trigger asChild>
             <Button
               variant="ghost"
-              aria-controls={contentId}
               className="px-2 flex min-w-0 flex-1 justify-start rounded-lg hover:bg-transparent"
             >
               <IconComponent
@@ -92,56 +89,60 @@ function PosItem({ pos }: posItemProps) {
             </Button>
           </Collapsible.Trigger>
         </div>
-        <BoardDisclosure id={contentId} open={open}>
-          <div className="pt-1">
-            <Sidebar.GroupContent>
-              <Sidebar.Menu>
-                <NavigationMenuLinkItem
-                  name={t('pos-orders')}
-                  className="pl-6 font-medium"
-                  icon={IconClipboard}
-                  path={`sales/pos/${pos._id}/orders`}
-                />
-                <NavigationMenuLinkItem
-                  name={t('pos-covers')}
-                  path={`sales/pos/${pos._id}/covers`}
-                  className="pl-6 font-medium"
-                  icon={IconChecklist}
-                />
-                <NavigationMenuLinkItem
-                  name={t('pos-by-items')}
-                  path={`sales/pos/${pos._id}/by-items`}
-                  className="pl-6 font-medium"
-                  icon={IconChecklist}
-                />
-                <NavigationMenuLinkItem
-                  name={t('pos-items')}
-                  className="pl-6 font-medium"
-                  icon={IconClipboard}
-                  path={`sales/pos/${pos._id}/items`}
-                />
-                <NavigationMenuLinkItem
-                  name={t('pos-summary')}
-                  path={`sales/pos/${pos._id}/summary`}
-                  className="pl-6 font-medium"
-                  icon={IconChecklist}
-                />
-                <NavigationMenuLinkItem
-                  name={t('pos-orders-by-customer')}
-                  path={`sales/pos/${pos._id}/orders-by-customer`}
-                  className="pl-6 font-medium"
-                  icon={IconChecklist}
-                />
-                {/* <NavigationMenuLinkItem
+        <Collapsible.Content forceMount className="group/pos-content">
+          <div className="grid transition-[grid-template-rows,opacity,visibility] duration-200 ease-out group-data-[state=closed]/pos-content:invisible group-data-[state=closed]/pos-content:grid-rows-[0fr] group-data-[state=closed]/pos-content:opacity-0 group-data-[state=open]/pos-content:grid-rows-[1fr] motion-reduce:transition-none">
+            <div className="min-h-0 overflow-hidden">
+              <div className="pt-1">
+                <Sidebar.GroupContent>
+                  <Sidebar.Menu>
+                    <NavigationMenuLinkItem
+                      name={t('pos-orders')}
+                      className="pl-6 font-medium"
+                      icon={IconClipboard}
+                      path={`sales/pos/${pos._id}/orders`}
+                    />
+                    <NavigationMenuLinkItem
+                      name={t('pos-covers')}
+                      path={`sales/pos/${pos._id}/covers`}
+                      className="pl-6 font-medium"
+                      icon={IconChecklist}
+                    />
+                    <NavigationMenuLinkItem
+                      name={t('pos-by-items')}
+                      path={`sales/pos/${pos._id}/by-items`}
+                      className="pl-6 font-medium"
+                      icon={IconChecklist}
+                    />
+                    <NavigationMenuLinkItem
+                      name={t('pos-items')}
+                      className="pl-6 font-medium"
+                      icon={IconClipboard}
+                      path={`sales/pos/${pos._id}/items`}
+                    />
+                    <NavigationMenuLinkItem
+                      name={t('pos-summary')}
+                      path={`sales/pos/${pos._id}/summary`}
+                      className="pl-6 font-medium"
+                      icon={IconChecklist}
+                    />
+                    <NavigationMenuLinkItem
+                      name={t('pos-orders-by-customer')}
+                      path={`sales/pos/${pos._id}/orders-by-customer`}
+                      className="pl-6 font-medium"
+                      icon={IconChecklist}
+                    />
+                    {/* <NavigationMenuLinkItem
                 name="POS orders by subscription"
                 path={`sales/pos/${pos._id}/orders-by-subscription`}
                 className="pl-6 font-medium"
                 icon={IconChecklist}
               /> */}
-              </Sidebar.Menu>
-            </Sidebar.GroupContent>
+                  </Sidebar.Menu>
+                </Sidebar.GroupContent>
+              </div>
+            </div>
           </div>
-        </BoardDisclosure>
+        </Collapsible.Content>
       </Sidebar.Group>
     </Collapsible>
   );

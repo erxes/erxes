@@ -17,6 +17,7 @@ export const useBoardDealCounts = ({
   const currentUser = useAtomValue(currentUserState);
   const { data, loading, refetch } = useQuery(GET_BOARD_DEAL_COUNTS, {
     fetchPolicy: 'cache-and-network',
+    pollInterval: 30000,
   });
 
   const seenBoards = useRef<IBoard[] | undefined>(undefined);
