@@ -556,6 +556,14 @@ export const MultipleFieldsInGroup = ({
   );
 };
 
+const getPropertiesSettingsPath = (contentType: string) => {
+  const [pluginName] = contentType.split(':');
+
+  return pluginName === 'core'
+    ? `/settings/properties/${contentType}`
+    : `/${pluginName}/settings/properties/${contentType}`;
+};
+
 const EmptyProperties = ({
   fieldContentType,
 }: {
@@ -579,7 +587,7 @@ const EmptyProperties = ({
         <Button
           size="sm"
           onClick={() => {
-            navigate(`/settings/properties/${fieldContentType}`);
+            navigate(getPropertiesSettingsPath(fieldContentType));
           }}
         >
           Create property
