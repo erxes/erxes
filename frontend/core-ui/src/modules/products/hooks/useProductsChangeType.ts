@@ -30,7 +30,9 @@ export const useProductsChangeType = (
     try {
       const errors: string[] = [];
       let updated = 0;
-      for (const product of targets) {
+      // Serialize updates to keep per-product mutation side effects bounded.
+      await targets.reduce(async (previous, product) => {
+        await previous;
         try {
           await productsEdit({
             variables: {
@@ -46,7 +48,7 @@ export const useProductsChangeType = (
         } catch (error) {
           errors.push(error instanceof Error ? error.message : String(error));
         }
-      }
+      }, Promise.resolve());
 
       toast({
         title: updated

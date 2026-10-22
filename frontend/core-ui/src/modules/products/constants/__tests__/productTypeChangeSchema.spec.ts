@@ -15,6 +15,19 @@ describe('bulk product type validation', () => {
     );
   });
 
+  it.each([Infinity, -Infinity, NaN])(
+    'rejects a non-finite duration: %s',
+    (duration) => {
+      expect(
+        productTypeChangeSchema.safeParse({
+          type: 'unique',
+          duration,
+          durationType: 'day',
+        }).success,
+      ).toBe(false);
+    },
+  );
+
   it('requires a positive duration and supported unit for unique products', () => {
     expect(productTypeChangeSchema.safeParse({ type: 'unique' }).success).toBe(
       false,

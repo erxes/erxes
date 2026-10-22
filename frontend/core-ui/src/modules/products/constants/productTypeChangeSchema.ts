@@ -13,7 +13,11 @@ export const PRODUCT_TYPE_CHANGE_DURATION_UNITS = [
 export const productTypeChangeSchema = z
   .object({
     type: z.enum(['product', 'service', 'unique', 'subscription']),
-    duration: z.number().positive('Duration must be greater than 0').optional(),
+    duration: z
+      .number()
+      .finite('Duration must be finite')
+      .positive('Duration must be greater than 0')
+      .optional(),
     durationType: z.enum(PRODUCT_TYPE_CHANGE_DURATION_UNITS).optional(),
   })
   .superRefine((values, context) => {
