@@ -23,6 +23,8 @@ export const types = `
     customerId: String
     userId: String
     assignedUserId: String
+    assignedUserIds: [String!]
+    assignedUsers: [User]
     participatedUserIds: [String]
     readUserIds: [String]
     createdAt: Date
@@ -35,6 +37,7 @@ export const types = `
     operatorStatus: String
     automatedReplyControl: ConversationAutomatedReplyControl
 
+    lastMessage: ConversationMessage
     messages: [ConversationMessage]
     callProAudio: String
     callProPotentialCustomerIds: [String]

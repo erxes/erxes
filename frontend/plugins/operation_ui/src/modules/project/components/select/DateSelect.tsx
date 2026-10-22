@@ -5,6 +5,7 @@ import { format } from 'date-fns';
 import { useUpdateProject } from '@/project/hooks/useUpdateProject';
 import {
   Calendar,
+  DatePicker,
   Popover,
   RecordTableInlineCell,
   cn,
@@ -141,6 +142,28 @@ const DateSelectContent = () => {
   );
 };
 
+const DateSelectInputContent = ({ onClose }: { onClose: () => void }) => {
+  const { t } = useTranslation('operation');
+  const { value, onSelect } = useDateSelectContext();
+
+  return (
+    <div
+      onKeyDownCapture={(e) => {
+        if (e.key === 'Enter') onClose();
+      }}
+    >
+      <DatePicker
+        inline
+        value={value}
+        onChange={(date) => onSelect(date instanceof Date ? date : undefined)}
+        placeholder={t('select-date')}
+        clearLabel={t('clear')}
+        className="h-8"
+      />
+    </div>
+  );
+};
+
 export const DateSelectFilterItem = () => {
   const { t } = useTranslation('operation');
   return (
@@ -269,7 +292,7 @@ export const DateSelectInlineCell = ({
 
   return (
     <DateSelectProvider
-      value={typeof value === 'string' ? new Date(value) : (value ?? undefined)}
+      value={typeof value === 'string' ? new Date(value) : value ?? undefined}
       onValueChange={handleValueChange}
     >
       <PopoverScoped
@@ -301,8 +324,10 @@ export const DateSelectFormItem = React.forwardRef<
     value?: Date;
     onChange?: (value?: Date) => void;
     type?: 'start' | 'target';
+    label?: string;
   }
->(({ onChange, className, placeholder, value, type }, ref) => {
+>(({ onChange, className, placeholder, value, type, label }, ref) => {
+  const { t } = useTranslation('operation');
   const [open, setOpen] = useState(false);
 
   return (
@@ -315,18 +340,35 @@ export const DateSelectFormItem = React.forwardRef<
     >
       <Popover open={open} onOpenChange={setOpen}>
         <Form.Control>
-          <Combobox.TriggerBase
-            ref={ref}
-            className={cn('w-full shadow-xs', className)}
-            asChild
-          >
-            <Button variant="secondary" className="h-7">
-              <DateSelectFormItemValue placeholder={placeholder} type={type} />
-            </Button>
-          </Combobox.TriggerBase>
+          {label ? (
+            <Combobox.ChipTrigger
+              label={label}
+              onClear={value ? () => onChange?.(undefined) : undefined}
+              clearLabel={t('clear')}
+            >
+              <DateSelectValue placeholder={t('not-specified')} />
+            </Combobox.ChipTrigger>
+          ) : (
+            <Combobox.TriggerBase
+              ref={ref}
+              className={cn('w-full shadow-xs', className)}
+              asChild
+            >
+              <Button variant="secondary" className="h-7">
+                <DateSelectFormItemValue
+                  placeholder={placeholder}
+                  type={type}
+                />
+              </Button>
+            </Combobox.TriggerBase>
+          )}
         </Form.Control>
         <Popover.Content className="w-fit">
-          <DateSelectContent />
+          {label ? (
+            <DateSelectInputContent onClose={() => setOpen(false)} />
+          ) : (
+            <DateSelectContent />
+          )}
         </Popover.Content>
       </Popover>
     </DateSelectProvider>
@@ -380,8 +422,10 @@ export const DateSelectDetail = React.forwardRef<
     onValueChange?: (value?: Date) => void;
     type?: 'start' | 'target';
     id?: string;
+    label?: string;
   }
->(({ onValueChange, className, placeholder, value, type, id }, ref) => {
+>(({ onValueChange, className, placeholder, value, type, id, label }, ref) => {
+  const { t } = useTranslation('operation');
   const [open, setOpen] = useState(false);
   const { updateProject } = useUpdateProject();
 
@@ -390,8 +434,8 @@ export const DateSelectDetail = React.forwardRef<
       updateProject({
         variables: {
           _id: id,
-          startDate: type === 'start' ? value?.toISOString() : undefined,
-          targetDate: type === 'target' ? value?.toISOString() : undefined,
+          [type === 'start' ? 'startDate' : 'targetDate']:
+            value?.toISOString() ?? null,
         },
       });
     }
@@ -401,21 +445,35 @@ export const DateSelectDetail = React.forwardRef<
 
   return (
     <DateSelectProvider
-      value={typeof value === 'string' ? new Date(value) : (value ?? undefined)}
+      value={typeof value === 'string' ? new Date(value) : value ?? undefined}
       onValueChange={handleValueChange}
     >
       <Popover open={open} onOpenChange={setOpen}>
-        <Combobox.TriggerBase
-          ref={ref}
-          className={cn('w-min shadow-xs', className)}
-          asChild
-        >
-          <Button variant="secondary" className="h-7">
-            <DateSelectFormItemValue placeholder={placeholder} type={type} />
-          </Button>
-        </Combobox.TriggerBase>
+        {label ? (
+          <Combobox.ChipTrigger
+            label={label}
+            onClear={value ? () => handleValueChange(undefined) : undefined}
+            clearLabel={t('clear')}
+          >
+            <DateSelectValue placeholder={t('not-specified')} />
+          </Combobox.ChipTrigger>
+        ) : (
+          <Combobox.TriggerBase
+            ref={ref}
+            className={cn('w-min shadow-xs', className)}
+            asChild
+          >
+            <Button variant="secondary" className="h-7">
+              <DateSelectFormItemValue placeholder={placeholder} type={type} />
+            </Button>
+          </Combobox.TriggerBase>
+        )}
         <Popover.Content className="w-fit">
-          <DateSelectContent />
+          {label ? (
+            <DateSelectInputContent onClose={() => setOpen(false)} />
+          ) : (
+            <DateSelectContent />
+          )}
         </Popover.Content>
       </Popover>
     </DateSelectProvider>

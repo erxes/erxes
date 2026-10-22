@@ -2,21 +2,24 @@ import { QueryHookOptions, useQuery } from '@apollo/client';
 import {
   EnumCursorDirection,
   mergeCursorData,
+  parseDateRangeFromString,
   useMultiQueryState,
   useRecordTableCursor,
   validateFetchMore,
 } from 'erxes-ui';
 import { GET_CLIENT_PORTAL_USERS } from '@/contacts/client-portal-users/graphql/getClientPortalUsers';
-import {
-  ICPUser,
-  ICPUserListResponse,
-} from '@/contacts/client-portal-users/types/cpUser';
+import { ICPUserListResponse } from '@/contacts/client-portal-users/types/cpUser';
 import { CP_USERS_CURSOR_SESSION_KEY } from '@/contacts/client-portal-users/constants/cpUsersCursorSessionKey';
 import { cpUserTotalCountAtom } from '@/contacts/client-portal-users/states/cpUserCounts';
 import { useSetAtom } from 'jotai';
 import { useEffect } from 'react';
 
 const CP_USERS_PER_PAGE = 30;
+
+const VERIFIED_FILTER_VALUES: Record<string, boolean | undefined> = {
+  verified: true,
+  unverified: false,
+};
 
 export const useClientPortalUsers = (
   options?: QueryHookOptions<{ getClientPortalUsers: ICPUserListResponse }>,
@@ -27,16 +30,18 @@ export const useClientPortalUsers = (
     type: string;
     isVerified: string;
     clientPortalId: string;
-  }>(['searchValue', 'type', 'isVerified', 'clientPortalId']);
+    created: string;
+  }>(['searchValue', 'type', 'isVerified', 'clientPortalId', 'created']);
 
   const { cursor } = useRecordTableCursor({
     sessionKey: CP_USERS_CURSOR_SESSION_KEY,
   });
 
-  let isVerified: boolean | undefined = undefined;
-  if (queries?.isVerified) {
-    isVerified = queries?.isVerified === 'true' ? true : false;
-  }
+  const isVerified = queries?.isVerified
+    ? VERIFIED_FILTER_VALUES[queries.isVerified]
+    : undefined;
+
+  const createdRange = parseDateRangeFromString(queries?.created);
 
   const filter = {
     limit: CP_USERS_PER_PAGE,
@@ -50,6 +55,11 @@ export const useClientPortalUsers = (
         : undefined,
     isVerified,
     clientPortalId: queries?.clientPortalId || undefined,
+    dateFilters: createdRange
+      ? JSON.stringify({
+          createdAt: { gte: createdRange.from, lte: createdRange.to },
+        })
+      : undefined,
   };
 
   const { data, loading, error, fetchMore } = useQuery<{

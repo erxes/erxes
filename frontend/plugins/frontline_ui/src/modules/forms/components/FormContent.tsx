@@ -14,7 +14,7 @@ import { FormDndProvider } from './FormDndProvider';
 import { useTranslation } from 'react-i18next';
 
 export const FormContent = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
   const form = useForm<z.infer<typeof FORM_CONTENT_SCHEMA>>({
     resolver: zodResolver(FORM_CONTENT_SCHEMA),
     defaultValues: {

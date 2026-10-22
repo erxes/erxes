@@ -70,3 +70,12 @@ test('a malformed extra data leaf falls back without dropping its siblings', () 
   expect(message.extraData?.discordPinned).toBeUndefined();
   expect(message.extraData?.discordMessageId).toBe('d2');
 });
+
+test('keeps the provider content type and normalizes a nullable value', () => {
+  expect(toMessage({ _id: 'photo', contentType: 'image' }).contentType).toBe(
+    'image',
+  );
+  expect(
+    toMessage({ _id: 'text', contentType: null }).contentType,
+  ).toBeUndefined();
+});

@@ -1,4 +1,3 @@
-import { CellContext } from '@tanstack/react-table';
 import { IIntegration } from '@/integrations/types/Integration';
 import {
   Alert,
@@ -126,7 +125,11 @@ const MailIntegrationEditForm = ({
           senderName: data.senderName,
         },
       },
-      refetchQueries: ['Integrations', 'IntegrationDetail'],
+      refetchQueries: [
+        'Integrations',
+        'IntegrationDetail',
+        'ChannelIntegrationsPeek',
+      ],
       onCompleted: () => {
         setOpen(false);
         toast({ title: t('mail-integration-updated') });
@@ -245,9 +248,9 @@ const MailIntegrationEditSheet = ({ id }: { id: string }) => {
 };
 
 export const MailIntegrationActions = ({
-  cell,
+  integration,
 }: {
-  cell: CellContext<IIntegration, unknown>;
-}) => <MailIntegrationEditSheet id={cell.row.original._id} />;
+  integration: IIntegration;
+}) => <MailIntegrationEditSheet id={integration._id} />;
 
 export const MailIntegrationDetail = () => <MailIntegrationFormLayout />;

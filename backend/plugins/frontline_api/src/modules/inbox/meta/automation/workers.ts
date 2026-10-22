@@ -14,6 +14,11 @@ import type {
   TCoreModuleProducerContext,
 } from 'erxes-api-shared/core-modules';
 import { graphqlPubsub } from 'erxes-api-shared/utils';
+import type { IConversation } from '@/inbox/@types/conversations';
+import {
+  getAssigneeChanges,
+  getConversationAssigneeIds,
+} from '@/inbox/utils/conversationAssignees';
 import type { IModels } from '~/connectionResolvers';
 import { pConversationClientMessageInserted } from '~/modules/inbox/graphql/resolvers/mutations/widget';
 
@@ -124,7 +129,33 @@ const getStatusEventAction = (change?: TEventChange) => {
 const hasMatchingAssigneeCondition = (
   conditions: TConversationEventCondition[],
   eventUpdateDescription?: Record<string, unknown>,
+  currentPrimary?: unknown,
 ) => {
+  const membersChange = getEventChange(
+    eventUpdateDescription,
+    'assignedUserIds',
+  );
+  if (membersChange) {
+    const primaryChange = getEventChange(
+      eventUpdateDescription,
+      'assignedUserId',
+    );
+    const { added, removed } = getAssigneeChanges(
+      Array.isArray(membersChange.prev)
+        ? toStringArray(membersChange.prev)
+        : undefined,
+      toStringArray(membersChange.current),
+      toStringValue(primaryChange ? primaryChange.prev : currentPrimary),
+    );
+    return conditions.some(
+      (condition) =>
+        condition.type === 'assignee' &&
+        ((condition.actions.includes('assigned') &&
+          added.some((id) => condition.targetIds.includes(id))) ||
+          (condition.actions.includes('unassigned') &&
+            removed.some((id) => condition.targetIds.includes(id)))),
+    );
+  }
   const change = getEventChange(eventUpdateDescription, 'assignedUserId');
   const action = getAssigneeEventAction(change);
 
@@ -492,7 +523,11 @@ export const inboxAutomationWorkers = {
     const conditions = getConversationEventConditions(config);
 
     return (
-      hasMatchingAssigneeCondition(conditions, eventUpdateDescription) ||
+      hasMatchingAssigneeCondition(
+        conditions,
+        eventUpdateDescription,
+        target?.assignedUserId,
+      ) ||
       hasMatchingStatusCondition(conditions, eventUpdateDescription) ||
       hasMatchingTagCondition(conditions, eventUpdateDescription)
     );
@@ -646,8 +681,26 @@ export const inboxAutomationWorkers = {
       setPropertyTarget,
       selector,
       fetchItems: async (itemSelector) => await model.find(itemSelector).lean(),
-      update: async ({ selector: itemSelector, modifier }) =>
-        await model.updateMany(itemSelector, modifier),
+      update: async ({ selector: itemSelector, modifier }) => {
+        const fields: Partial<IConversation> = modifier.$set ?? {};
+        if (
+          Object.keys(fields).includes('assignedUserId') ||
+          fields.assignedUserIds !== undefined ||
+          modifier.$unset?.assignedUserId
+        ) {
+          const ids = modifier.$unset?.assignedUserId
+            ? []
+            : getConversationAssigneeIds(fields);
+          fields.assignedUserIds = ids;
+          if (ids.length) fields.assignedUserId = ids[0];
+          else {
+            delete fields.assignedUserId;
+            modifier.$unset = { ...modifier.$unset, assignedUserId: 1 };
+          }
+          modifier.$set = fields;
+        }
+        return await model.updateMany(itemSelector, modifier);
+      },
       targetType,
     });
   },

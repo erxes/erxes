@@ -1,14 +1,18 @@
 import {
+  AI_AGENT_SUPPORTED_PROVIDERS,
+  aiAgentInputSchema,
   getAiAgentHealth,
   getAiAgentKnowledgeSourceStatuses,
   indexAiAgentKnowledgeFiles,
   indexKnowledgeDocument,
+  listAiAgentModels,
   parseAiAgentInput,
   refreshAiKnowledgeSource,
   removeKnowledgeDocument,
   syncAiAgentKnowledgeSources,
   syncAiKnowledgeSourceScope,
 } from '../ai';
+import type { TAiAgentProvider } from '../ai';
 import type {
   TAiKnowledgeSourceReference,
   TKnowledgeIndexJob,
@@ -27,6 +31,32 @@ export const checkAiAgentHealthWorker = async (job: Job) => {
   }
 
   return await getAiAgentHealth(subdomain, agent);
+};
+
+const isAiAgentProvider = (value: unknown): value is TAiAgentProvider =>
+  AI_AGENT_SUPPORTED_PROVIDERS.some((provider) => provider === value);
+
+export const listAiAgentModelsWorker = async (job: Job) => {
+  const { data, subdomain } = job.data;
+  const { agentId, provider, selectedModel } = data;
+
+  if (!isAiAgentProvider(provider)) {
+    throw new Error(`Unsupported AI provider "${provider}"`);
+  }
+
+  const models = await generateModels(subdomain);
+  const agent = agentId
+    ? await models.AiAgents.findById({ _id: agentId }).lean()
+    : null;
+  // An agent that no longer validates still gets the catalog list.
+  const parsed = agent ? aiAgentInputSchema.safeParse(agent) : null;
+
+  return await listAiAgentModels({
+    subdomain,
+    storedAgent: parsed?.success ? parsed.data : null,
+    provider,
+    selectedModel,
+  });
 };
 
 export const indexAiAgentKnowledgeWorker = async (job: Job) => {
@@ -128,6 +158,8 @@ export const aiWorker = async (job: Job) => {
   switch (name) {
     case 'checkAiAgentHealth':
       return checkAiAgentHealthWorker(job);
+    case 'listAiAgentModels':
+      return listAiAgentModelsWorker(job);
     case 'indexAiAgentKnowledge':
       return indexAiAgentKnowledgeWorker(job);
     case 'indexKnowledgeDocument':

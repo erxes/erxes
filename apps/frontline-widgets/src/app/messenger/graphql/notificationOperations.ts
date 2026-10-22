@@ -3,13 +3,9 @@ import { gql } from '@apollo/client';
 const GET_WIDGET_NOTIFICATIONS = gql`
   query WidgetsNotifications(
     $integrationId: String!
-    $customerId: String
-    $visitorId: String
   ) {
     widgetsConversations(
       integrationId: $integrationId
-      customerId: $customerId
-      visitorId: $visitorId
     ) {
       _id
       createdAt
@@ -58,6 +54,7 @@ const NOTIFICATION_CONVERSATION_CHANGED = gql`
       userId
       isCustomerRead
       fromBot
+      internal
       user {
         _id
         details {

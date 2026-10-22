@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const { prompt } = require('enquirer');
 const { createBackendPlugin } = require('./create-backend-plugin');
+const { getPluginPorts, selectPluginPort } = require('./plugin-ports');
 
 function parseArgs() {
   const args = process.argv.slice(2);
@@ -16,6 +17,8 @@ Usage: pnpm create-plugin [options]
 Options:
   --plugin-name, -p    Plugin name (e.g., inventory, analytics)
   --module-name, -m    Module name (e.g., items, reports)
+  --ui-port           UI development port (default: first unconfigured from 3002)
+  --api-port          API development port (default: first unconfigured from 3305)
   --help, -h          Show this help message
 
 Examples:
@@ -28,6 +31,14 @@ Examples:
       flags.pluginName = arg.split('=')[1];
     } else if (arg.startsWith('--module-name=')) {
       flags.moduleName = arg.split('=')[1];
+    } else if (arg.startsWith('--ui-port=')) {
+      flags.uiPort = arg.split('=')[1];
+    } else if (arg.startsWith('--api-port=')) {
+      flags.apiPort = arg.split('=')[1];
+    } else if (arg === '--ui-port' && args[i + 1]) {
+      flags.uiPort = args[++i];
+    } else if (arg === '--api-port' && args[i + 1]) {
+      flags.apiPort = args[++i];
     } else if ((arg === '--plugin-name' || arg === '-p') && args[i + 1]) {
       flags.pluginName = args[++i];
     } else if ((arg === '--module-name' || arg === '-m') && args[i + 1]) {
@@ -102,6 +113,29 @@ async function createPlugin() {
     .replace(/([a-z])([A-Z])/g, '$1-$2')
     .replace(/[\s_]+/g, '-')
     .toLowerCase();
+
+  const root = path.join(__dirname, '..');
+  for (const [layer, suffix] of [
+    ['frontend', 'ui'],
+    ['backend', 'api'],
+  ]) {
+    if (
+      fs.existsSync(
+        path.join(root, layer, 'plugins', `${kebabCaseName}_${suffix}`),
+      )
+    ) {
+      throw new Error(`Plugin ${kebabCaseName}_${suffix} already exists`);
+    }
+  }
+  const usedPorts = getPluginPorts(root);
+  let uiPort =
+    flags.uiPort !== undefined
+      ? selectPluginPort(usedPorts, flags.uiPort, 3002, 'UI')
+      : undefined;
+  const apiPort = selectPluginPort(usedPorts, flags.apiPort, 3305, 'API');
+  if (uiPort === undefined) {
+    uiPort = selectPluginPort(usedPorts, undefined, 3002, 'UI');
+  }
 
   // Create frontend plugin
   const frontendPluginDir = path.join(
@@ -207,45 +241,23 @@ import exampleImage from '~/assets/example-image.svg';
   // Create config.tsx
   const configContent = `
 import { IconSandbox } from '@tabler/icons-react';
-import { lazy, Suspense } from 'react';
 import { IUIConfig } from 'erxes-ui';
-
-const ${PascalCaseName}SettingsNavigation = lazy(() =>
-  import('@/${PascalCaseName}SettingsNavigation').then((module) => ({
-    default: module.${PascalCaseName}SettingsNavigation,
-  })),
-);
-
-const ${PascalCaseName}Navigation = lazy(() =>
-  import('@/${PascalCaseName}Navigation').then((module) => ({
-    default: module.${PascalCaseName}Navigation,
-  })),
-);
-
 
 export const CONFIG: IUIConfig = {
   name: '${kebabCaseName}',
   path: '${kebabCaseName}',
-  settingsNavigation: () => (
-    <Suspense fallback={<div />}>
-      <${PascalCaseName}SettingsNavigation />
-    </Suspense>
-  ),
+  icon: IconSandbox,
   navigationGroup: {
     name: '${kebabCaseName}',
+    defaultPath: '${kebabCaseName}/${kebabCaseModuleName}',
     icon: IconSandbox,
-    content: () => (
-      <Suspense fallback={<div />}>
-        <${PascalCaseName}Navigation />
-      </Suspense>
-    ),
   },
 
   modules: [
     {
       name: '${moduleName}',
       icon: IconSandbox,
-      path: '${kebabCaseModuleName}',
+      path: '${kebabCaseName}/${kebabCaseModuleName}',
     },
   ],
 };
@@ -258,7 +270,18 @@ export const CONFIG: IUIConfig = {
 
   // Create Main.tsx for the module
   const mainContent = `import { lazy, Suspense } from 'react';
-import { Route, Routes } from 'react-router';
+import { Navigate, Route, Routes } from 'react-router';
+import { AppLayout, AppLayoutFooterLink, Spinner } from 'erxes-ui';
+import { IconArrowLeft, IconSettings } from '@tabler/icons-react';
+import { PluginSettingsRoutes, PluginSharedSettingsNavigation } from 'ui-modules';
+import { ${PascalCaseName}Navigation } from './${PascalCaseName}Navigation';
+import { ${PascalCaseName}SettingsNavigation } from './${PascalCaseName}SettingsNavigation';
+
+const Settings = lazy(() =>
+  import('./${PascalCaseName}Settings').then((module) => ({
+    default: module.${PascalCaseName}Settings,
+  })),
+);
 
 const IndexPage = lazy(() =>
   import('~/pages/${kebabCaseModuleName}/IndexPage').then((module) => ({
@@ -268,11 +291,43 @@ const IndexPage = lazy(() =>
 
 export const ${PascalCaseName}Main = () => {
   return (
-    <Suspense fallback={<div />}>
-      <Routes>
-        <Route path="/" element={<IndexPage />} />
-      </Routes>
-    </Suspense>
+    <Routes>
+      <Route path="settings/*" element={
+        <AppLayout
+          id="${kebabCaseName}:settings"
+          title="${PascalCaseName} Settings"
+          sidebar={<>
+            <${PascalCaseName}SettingsNavigation />
+            <PluginSharedSettingsNavigation pluginName="${kebabCaseName}" pathPrefix="${kebabCaseName}/settings" />
+          </>}
+          footer={<AppLayoutFooterLink path="${kebabCaseName}/${kebabCaseModuleName}" name="Back to ${PascalCaseName}" icon={IconArrowLeft} />}
+        >
+          <Suspense fallback={<Spinner />}>
+            <PluginSettingsRoutes pluginName="${kebabCaseName}" basePath="/${kebabCaseName}/settings">
+              <Routes>
+                <Route index element={<Navigate to="${kebabCaseModuleName}" replace />} />
+                <Route path="${kebabCaseModuleName}" element={<Settings />} />
+              </Routes>
+            </PluginSettingsRoutes>
+          </Suspense>
+        </AppLayout>
+      } />
+      <Route path="*" element={
+        <AppLayout
+          id="${kebabCaseName}"
+          title="${PascalCaseName}"
+          sidebar={<${PascalCaseName}Navigation />}
+          footer={<AppLayoutFooterLink path="${kebabCaseName}/settings" name="App settings" icon={IconSettings} />}
+        >
+          <Suspense fallback={<Spinner />}>
+            <Routes>
+              <Route index element={<Navigate to="${kebabCaseModuleName}" replace />} />
+              <Route path="${kebabCaseModuleName}" element={<IndexPage />} />
+            </Routes>
+          </Suspense>
+        </AppLayout>
+      } />
+    </Routes>
   );
 };
 `;
@@ -284,18 +339,23 @@ export const ${PascalCaseName}Main = () => {
 
   // Create Navigation.tsx for the module
   const navigationContent = `
-  import { NavigationMenuLinkItem } from 'erxes-ui';
+  import { NavigationMenuLinkItem, Sidebar } from 'erxes-ui';
   import { IconSandbox } from '@tabler/icons-react';
 
 export const ${PascalCaseName}Navigation = () => {
   return (
-    <>
-     <NavigationMenuLinkItem
-        name="${moduleName}"
-        icon={IconSandbox}
-        path="${kebabCaseModuleName}"
-      />
-    </>
+    <Sidebar.Group>
+      <Sidebar.GroupContent>
+        <Sidebar.Menu>
+          <NavigationMenuLinkItem
+            name="${moduleName}"
+            icon={IconSandbox}
+            pathPrefix="${kebabCaseName}"
+            path="${kebabCaseModuleName}"
+          />
+        </Sidebar.Menu>
+      </Sidebar.GroupContent>
+    </Sidebar.Group>
   );
 };
 `;
@@ -312,7 +372,7 @@ export const ${PascalCaseName}Navigation = () => {
 
   // Create Navigation.tsx for the module
   const settingsNavigationContent = `
-import { SettingsNavigationMenuLinkItem, Sidebar } from 'erxes-ui';
+import { NavigationMenuLinkItem, Sidebar } from 'erxes-ui';
 
 export const ${PascalCaseName}SettingsNavigation = () => {
   return (
@@ -320,8 +380,8 @@ export const ${PascalCaseName}SettingsNavigation = () => {
       <Sidebar.GroupLabel className="h-4">${moduleName}</Sidebar.GroupLabel>
       <Sidebar.GroupContent className="pt-1">
         <Sidebar.Menu>
-          <SettingsNavigationMenuLinkItem
-            pathPrefix={"${kebabCaseName}" + '/' + "${kebabCaseModuleName}"}
+          <NavigationMenuLinkItem
+            pathPrefix="${kebabCaseName}/settings"
             path="${kebabCaseModuleName}"
             name="${moduleName}"
           />
@@ -367,7 +427,6 @@ export const ${PascalCaseName}SettingsNavigation = () => {
   );
 
   const moduleIndexPageContent = `import {
-  IconCaretDownFilled,
   IconSandbox,
   IconSettings,
 } from '@tabler/icons-react';
@@ -384,7 +443,7 @@ export const IndexPage = () => {
             <Breadcrumb.List className="gap-1">
               <Breadcrumb.Item>
                 <Button variant="ghost" asChild>
-                  <Link to="/settings/${kebabCaseModuleName}">
+                  <Link to="/${kebabCaseName}/${kebabCaseModuleName}">
                     <IconSandbox />
                     ${moduleName}
                   </Link>
@@ -397,13 +456,10 @@ export const IndexPage = () => {
         </PageHeader.Start>
         <PageHeader.End>
           <Button variant="outline" asChild>
-            <Link to="/settings/${kebabCaseModuleName}">
+            <Link to="/${kebabCaseName}/settings/${kebabCaseModuleName}">
               <IconSettings />
               Go to settings
             </Link>
-          </Button>
-          <Button>
-            More <IconCaretDownFilled />
           </Button>
         </PageHeader.End>
       </PageHeader>
@@ -515,7 +571,7 @@ export default config;
         executor: '@nx/rspack:module-federation-dev-server',
         options: {
           buildTarget: kebabCaseName + '_ui:build:development',
-          port: 3005,
+          port: uiPort,
         },
         configurations: {
           development: {},
@@ -737,7 +793,7 @@ root.render(
 );
 `;
 
-  createBackendPlugin(pluginName, moduleName);
+  createBackendPlugin(pluginName, moduleName, { port: apiPort });
 
   fs.writeFileSync(
     path.join(frontendPluginDir, 'src', 'bootstrap.tsx'),
@@ -766,4 +822,7 @@ root.render(
   console.log(`Start developing your plugin!`);
 }
 
-createPlugin();
+createPlugin().catch((error) => {
+  console.error(error.message);
+  process.exitCode = 1;
+});

@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { MemberRemoveButtonCommandBar } from './MemberRemoveButton';
 
 export const MemberCommandBar = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.channels' });
   const { table } = RecordTable.useRecordTable();
   const { id: channelId } = useParams<{ id: string }>();
 

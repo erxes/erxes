@@ -46,7 +46,7 @@ export const ActivityAuthorName = ({
   createdBy?: string | null;
   className?: string;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.activity' });
   const customerId = activityCustomerId(createdBy);
 
   if (customerId) {

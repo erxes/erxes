@@ -4,8 +4,6 @@ import { gql } from '@apollo/client';
 const WIDGETS_INSERT_MESSAGE_MUTATION = gql`
 mutation WidgetsInsertMessage(
   $integrationId: String!
-  $customerId: String
-  $visitorId: String
   $conversationId: String
   $contentType: String
   $message: String
@@ -14,8 +12,6 @@ mutation WidgetsInsertMessage(
 ) {
   widgetsInsertMessage(
     integrationId: $integrationId
-    customerId: $customerId
-    visitorId: $visitorId
     conversationId: $conversationId
     contentType: $contentType
     message: $message
@@ -34,8 +30,8 @@ const READ_CONVERSATION_MESSAGES_MUTATION = gql`
 `;
 
 const SAVE_BROWSER_INFO = gql`
-mutation widgetsSaveBrowserInfo($customerId: String $visitorId: String $browserInfo: JSON!) {
-  widgetsSaveBrowserInfo(customerId: $customerId visitorId: $visitorId browserInfo: $browserInfo) {
+mutation widgetsSaveBrowserInfo($browserInfo: JSON!) {
+  widgetsSaveBrowserInfo(browserInfo: $browserInfo) {
     ${MESSAGE_FIELDS}
   }
 }
@@ -44,8 +40,6 @@ mutation widgetsSaveBrowserInfo($customerId: String $visitorId: String $browserI
 const connect = (isCloudFlareEnabled?: boolean) => gql`
   mutation connect(
     $integrationId: String!,
-    $visitorId: String
-    $cachedCustomerId: String,
     $email: String,
     $isUser: Boolean,
     $phone: String,
@@ -55,8 +49,6 @@ const connect = (isCloudFlareEnabled?: boolean) => gql`
     ) {
     widgetsMessengerConnect(
       integrationId: $integrationId,
-      visitorId: $visitorId,
-      cachedCustomerId: $cachedCustomerId,
       email: $email,
       isUser: $isUser,
       phone: $phone,
@@ -88,6 +80,7 @@ const connect = (isCloudFlareEnabled?: boolean) => gql`
       uiOptions,
       customerId,
       visitorId,
+      sessionToken,
       ticketConfigs
       customer {
         _id
@@ -102,14 +95,12 @@ const connect = (isCloudFlareEnabled?: boolean) => gql`
 
 const EDIT_CUSTOMER = gql`
   mutation CustomersEdit(
-    $customerId: String!
     $firstName: String
     $lastName: String
     $emails: [String]
     $phones: [String]
   ) {
     widgetsTicketCustomersEdit(
-      customerId: $customerId
       firstName: $firstName
       lastName: $lastName
       emails: $emails

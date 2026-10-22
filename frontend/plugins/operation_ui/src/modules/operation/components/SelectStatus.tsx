@@ -196,12 +196,14 @@ const SelectStatusRoot = ({
   scope,
   onValueChange,
   useExtendedLabels,
+  label,
 }: {
   value?: number | null;
   variant: `${SelectTriggerVariant}`;
   scope?: string;
   onValueChange?: (value: number) => void;
   useExtendedLabels?: boolean;
+  label?: string;
 }) => {
   const [open, setOpen] = useState(false);
 
@@ -217,7 +219,7 @@ const SelectStatusRoot = ({
       variant={variant}
     >
       <PopoverScoped scope={scope} open={open} onOpenChange={setOpen}>
-        <SelectTriggerOperation variant={variant}>
+        <SelectTriggerOperation variant={variant} label={label}>
           <SelectStatusValue />
         </SelectTriggerOperation>
         <SelectOperationContent variant={variant}>
@@ -232,16 +234,18 @@ const SelectStatusFormItem = ({
   value,
   onValueChange,
   useExtendedLabels = false,
+  label,
 }: {
   value?: number;
   onValueChange: (value: number) => void;
   useExtendedLabels?: boolean;
+  label?: string;
 }) => {
   const [open, setOpen] = useState(false);
   return (
     <SelectStatusProvider value={value} onValueChange={onValueChange}>
       <PopoverScoped open={open} onOpenChange={setOpen}>
-        <SelectTriggerOperation variant="form">
+        <SelectTriggerOperation variant="form" label={label}>
           <SelectStatusValue />
         </SelectTriggerOperation>
         <Combobox.Content>

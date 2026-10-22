@@ -7,6 +7,16 @@ import { Resolver } from 'erxes-api-shared/core-types';
 import * as momentTz from 'moment-timezone';
 import { IModels, IContext } from '~/connectionResolvers';
 import { IIntegrationDocument } from '~/modules/inbox/@types/integrations';
+import { toCustomerConversationView } from '@/inbox/utils/customerConversationView';
+import {
+  assertOwnsConversation,
+  assertOwnsTicket,
+  getOwnedTicketIds,
+  isOwnedBySession,
+  requireWidgetSession,
+  resolveSessionCustomerId,
+  widgetOwnerSelector,
+} from '@/inbox/widgetSession';
 
 const isMessengerOnline = async (
   models: IModels,
@@ -75,29 +85,38 @@ const getWidgetMessages = (models: IModels, conversationId: string) => {
 export const widgetQueries: Record<string, Resolver> = {
   async widgetsConversations(
     _root,
-    args: { integrationId: string; customerId?: string; visitorId?: string },
-    { models }: IContext,
+    { integrationId }: { integrationId: string },
+    { models, req }: IContext,
   ) {
-    const { integrationId, customerId, visitorId } = args;
+    const session = requireWidgetSession(req, integrationId);
 
-    const query = customerId
-      ? { integrationId, customerId }
-      : { integrationId, visitorId };
+    const conversations = await models.Conversations.find({
+      integrationId,
+      ...widgetOwnerSelector(session),
+    }).sort({
+      updatedAt: -1,
+    });
 
-    return models.Conversations.find(query).sort({ updatedAt: -1 });
+    return conversations.map(toCustomerConversationView);
   },
   async widgetsConversationDetail(
     _root,
     args: { _id: string; integrationId: string },
-    { models, subdomain }: IContext,
+    { models, subdomain, req }: IContext,
   ) {
-    try {
-      const { _id, integrationId } = args;
+    const { _id, integrationId } = args;
+    const session = requireWidgetSession(req, integrationId);
 
-      const [conversation, integration] = await Promise.all([
-        models.Conversations.findOne({ _id, integrationId }),
+    try {
+      const [foundConversation, integration] = await Promise.all([
+        _id ? models.Conversations.findOne({ _id, integrationId }) : null,
         models.Integrations.findOne({ _id: integrationId }),
       ]);
+
+      // Someone else's conversation reads as no conversation at all.
+      const conversation = isOwnedBySession(session, foundConversation)
+        ? foundConversation
+        : null;
 
       if (!integration) return null;
 
@@ -139,7 +158,7 @@ export const widgetQueries: Record<string, Resolver> = {
           botGreetMessage: messengerData.botGreetMessage,
           getStarted:
             getStartedCondition && typeof getStartedCondition !== 'boolean'
-              ? (getStartedCondition.isSelected ?? false)
+              ? getStartedCondition.isSelected ?? false
               : false,
           messages: [],
           isOnline: await isMessengerOnline(models, integration),
@@ -182,20 +201,30 @@ export const widgetQueries: Record<string, Resolver> = {
 
   async widgetsMessages(
     _root,
-    args: { conversationId: string },
-    { models }: IContext,
+    { conversationId }: { conversationId: string },
+    { models, req }: IContext,
   ) {
-    const { conversationId } = args;
+    const session = requireWidgetSession(req);
+
+    assertOwnsConversation(
+      session,
+      await models.Conversations.findOne({ _id: conversationId }),
+    );
 
     return getWidgetMessages(models, conversationId);
   },
 
   async widgetsUnreadCount(
     _root,
-    args: { conversationId: string },
-    { models }: IContext,
+    { conversationId }: { conversationId: string },
+    { models, req }: IContext,
   ) {
-    const { conversationId } = args;
+    const session = requireWidgetSession(req);
+
+    assertOwnsConversation(
+      session,
+      await models.Conversations.findOne({ _id: conversationId }),
+    );
 
     return models.ConversationMessages.widgetsGetUnreadMessagesCount(
       conversationId,
@@ -204,18 +233,14 @@ export const widgetQueries: Record<string, Resolver> = {
 
   async widgetsTotalUnreadCount(
     _root,
-    args: { integrationId: string; customerId?: string },
-    { models }: IContext,
+    { integrationId }: { integrationId: string },
+    { models, req }: IContext,
   ) {
-    const { integrationId, customerId } = args;
+    const session = requireWidgetSession(req, integrationId);
 
-    if (!customerId) {
-      return 0;
-    }
-    // find conversations
     const convs = await models.Conversations.find({
       integrationId,
-      customerId,
+      ...widgetOwnerSelector(session),
     });
 
     // find read messages count
@@ -259,10 +284,14 @@ export const widgetQueries: Record<string, Resolver> = {
 
   async widgetsTicketCustomerDetail(
     _root,
-    args: { customerId?: string; type?: string },
-    { subdomain }: IContext,
+    _args: { type?: string },
+    { subdomain, req }: IContext,
   ) {
-    const { customerId } = args;
+    const customerId = await resolveSessionCustomerId(
+      subdomain,
+      requireWidgetSession(req),
+    );
+
     if (!customerId) {
       return null;
     }
@@ -299,17 +328,20 @@ export const widgetQueries: Record<string, Resolver> = {
   },
   async widgetTicketCheckProgress(
     _root,
-    args: {
-      number?: string;
-    },
-    { models }: IContext,
+    { number }: { number?: string },
+    { models, subdomain, req }: IContext,
   ) {
-    const { number } = args;
+    const session = requireWidgetSession(req);
+
     if (!number) {
       throw new Error('Ticket number is required');
     }
 
-    const ticket = await models.Ticket.findOne({ number });
+    // Ticket numbers are guessable, so only the customer's own count.
+    const ticket = await models.Ticket.findOne({
+      number,
+      _id: { $in: await getOwnedTicketIds(subdomain, session) },
+    });
 
     if (!ticket) {
       throw new Error('Ticket not found');
@@ -318,15 +350,10 @@ export const widgetQueries: Record<string, Resolver> = {
   },
   async widgetTicketComments(
     _root,
-    args: {
-      contentId: string;
-    },
-    { models }: IContext,
+    { contentId }: { contentId: string },
+    { models, subdomain, req }: IContext,
   ) {
-    const { contentId } = args;
-    if (!contentId) {
-      throw new Error('ContentId is required');
-    }
+    await assertOwnsTicket(subdomain, requireWidgetSession(req), contentId);
 
     const notes = await models.Note.getNotes({ contentId });
 
@@ -338,39 +365,24 @@ export const widgetQueries: Record<string, Resolver> = {
 
   async widgetTicketActivityLogs(
     _root,
-    args: { contentId: string },
-    { models }: IContext,
+    { contentId }: { contentId: string },
+    { models, subdomain, req }: IContext,
   ) {
-    const { contentId } = args;
+    await assertOwnsTicket(subdomain, requireWidgetSession(req), contentId);
+
     return (await models.Activity.find({ contentId })) || [];
   },
   async widgetTicketsByCustomer(
     _root,
-    args: { customerId },
-    { models, subdomain }: IContext,
+    _args: Record<string, never>,
+    { models, subdomain, req }: IContext,
   ) {
-    const { customerId } = args;
-    const relations = await sendTRPCMessage({
+    const ticketIds = await getOwnedTicketIds(
       subdomain,
-      pluginName: 'core',
-      method: 'query',
-      module: 'relation',
-      action: 'getRelationsByEntities',
-      input: {
-        contentType: 'core:customer',
-        contentId: customerId,
-      },
-    });
-
-    const ticketContentIds = relations.flatMap((r) =>
-      r.entities
-        .filter((e) => e.contentType === 'frontline:ticket')
-        .map((e) => e.contentId),
+      requireWidgetSession(req),
     );
 
-    return await models.Ticket.find({
-      _id: { $in: ticketContentIds },
-    });
+    return models.Ticket.find({ _id: { $in: ticketIds } });
   },
 };
 

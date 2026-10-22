@@ -5,3 +5,9 @@ export const MARK_AS_READ_NOTIFICATION = gql`
     markNotificationAsRead(_id: $id)
   }
 `;
+
+export const CORE_NOTIFICATIONS_DELETE = gql`
+  mutation coreNotificationsDelete($ids: [String!]!) {
+    coreNotificationsDelete(ids: $ids)
+  }
+`;

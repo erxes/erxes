@@ -32,6 +32,7 @@ import meta from './meta';
 import { approval } from './meta/approval';
 import { initAutomation } from './meta/automations/automations';
 import { initBroadcast } from './meta/broadcast';
+import { startFilesWorker } from '@/files/worker';
 import initImportExport from './meta/import-export';
 import { references } from './meta/references';
 import { initSegmentCoreProducers } from './meta/segments';
@@ -129,6 +130,7 @@ app.get('/subscriptionPlugin.js', fileLimiter, async (_req, res) => {
 app.use(
   '/trpc',
   trpcExpress.createExpressMiddleware({
+    allowMethodOverride: true,
     router: appRouter,
     createContext: createTRPCContext(async (subdomain, context) => {
       const models = await generateModels(subdomain, context);
@@ -208,6 +210,7 @@ httpServer.listen(port, async () => {
   await initSegmentCoreProducers(app);
   await initImportExport(app);
   await initBroadcast(app);
+  startFilesWorker();
 });
 
 // GRACEFULL SHUTDOWN

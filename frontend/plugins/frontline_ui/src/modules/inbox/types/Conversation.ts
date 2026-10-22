@@ -46,9 +46,12 @@ type IConversationContextFields = Partial<
   Partial<Omit<IConversationDetail, 'customer' | 'integration' | 'tagIds'>>;
 
 /** A list row, a conversation detail, or both merged, as the conversation context holds them. */
+// The detail adds every email so staff can spot customers sharing one.
+export type IConversationCustomer = ICustomerInline & { emails?: string[] };
+
 export type IConversationContextValue = IConversationContextFields & {
   _id: string;
-  customer?: ICustomerInline;
+  customer?: IConversationCustomer;
   integration?: IConversationContextIntegration;
   loading?: boolean;
 };
@@ -87,6 +90,7 @@ export type MessageDeliveryStatus = NonNullable<
 
 /** A message as `toMessage` hands it to the renderers: nulls are undefined and JSON is parsed. */
 export type IMessage = {
+  contentType?: string;
   _id: string;
   mid?: string;
   conversationId?: string;

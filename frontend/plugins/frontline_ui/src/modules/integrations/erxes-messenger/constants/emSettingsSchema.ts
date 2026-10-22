@@ -19,7 +19,6 @@ export const EM_SETTINGS_SCHEMA = z.object({
   showChat: z.boolean().default(true),
   showLauncher: z.boolean().default(true),
   forceLogoutWhenResolve: z.boolean().default(false),
-  notifyCustomer: z.boolean().default(false),
   showVideoCallRequest: z.boolean().default(false),
   isSupportInAppView: z.boolean().default(false),
   websiteApps: z.array(WEBSITE_APP_SCHEMA).default([]),

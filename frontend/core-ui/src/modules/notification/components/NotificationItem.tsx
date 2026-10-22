@@ -3,11 +3,16 @@ import type { NotificationItemProps } from '@/notification/types/myInbox';
 import { Badge, Button, cn, RelativeDateDisplay } from 'erxes-ui';
 import { useEffect, useRef } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import { useAtomValue } from 'jotai';
+import { useTranslation } from 'react-i18next';
+import { inboxDisplayOptionsState } from '@/notification/states/notificationState';
 
 export const NotificationItem = ({
   _id,
   createdAt = '',
   message,
+  title,
+  fromUser,
   isRead,
   contentType = '',
   priority,
@@ -16,6 +21,10 @@ export const NotificationItem = ({
   onOpen,
 }: NotificationItemProps) => {
   const { id } = useParams();
+  const display = useAtomValue(inboxDisplayOptionsState);
+  const { t } = useTranslation('common', { keyPrefix: 'notification' });
+  const sender =
+    fromUser?.details?.fullName || fromUser?.email || t('system', 'System');
   const isActive = id === _id;
   const linkRef = useRef<HTMLAnchorElement>(null);
 
@@ -37,6 +46,7 @@ export const NotificationItem = ({
     >
       <Link
         ref={linkRef}
+        title={message || title}
         aria-current={isActive ? 'page' : undefined}
         onClick={onOpen}
         onMouseDown={(event) => {
@@ -55,12 +65,17 @@ export const NotificationItem = ({
             <div className="size-1.5 absolute bg-destructive rounded-full top-1.5 right-1.5" />
           )}
         </div>
-        <div className="flex-auto space-y-2 overflow-hidden">
+        <div className="flex-auto space-y-1 overflow-hidden">
+          {display.showSender && (
+            <div className="truncate text-xs text-muted-foreground">
+              {sender}
+            </div>
+          )}
           <div className="flex items-center justify-between">
             <h4
               className={cn(
                 'line-clamp-1 truncate',
-                isRead ? 'text-muted-foreground' : 'text-semibold',
+                isRead ? 'text-muted-foreground' : 'font-semibold',
                 isActive && 'text-foreground',
               )}
             >
@@ -69,13 +84,15 @@ export const NotificationItem = ({
           </div>
           <div className={cn('text-xs flex items-center justify-between')}>
             <div className="flex items-center gap-2">
-              <Badge className="capitalize" variant="secondary">
-                {priority}
-              </Badge>
+              {display.showPriority && (
+                <Badge className="capitalize" variant="secondary">
+                  {priority}
+                </Badge>
+              )}
             </div>
 
             <div
-              className={cn(isRead ? 'text-muted-foreground' : 'text-semibold')}
+              className={cn(isRead ? 'text-muted-foreground' : 'font-semibold')}
             >
               <RelativeDateDisplay.Value value={createdAt} />
             </div>

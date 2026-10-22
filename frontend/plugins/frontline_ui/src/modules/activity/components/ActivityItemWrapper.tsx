@@ -12,7 +12,7 @@ interface ActivityItemWrapperProps {
 }
 
 export const ActivityItemWrapper = ({ activity }: ActivityItemWrapperProps) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.activity' });
 
   return (
     <ActivityTimelineItem

@@ -28,6 +28,7 @@ const WATCHED = new Set([
   'customerId',
   'integrationId',
   'assignedUserId',
+  'assignedUserIds',
   'tagIds',
   'status',
   'closedAt',

@@ -159,7 +159,14 @@ export const MessageWrapper = ({
           />
         )}
         {isOutgoing && <MessageActionBar actions={actions} isOutgoing />}
-        <div className="relative w-fit min-w-0 max-w-full">{children}</div>
+        <div
+          className={cn(
+            'relative min-w-0 max-w-full',
+            formWidgetData ? 'flex-1' : 'w-fit',
+          )}
+        >
+          {children}
+        </div>
         {!isOutgoing && (
           <MessageActionBar actions={actions} isOutgoing={false} />
         )}

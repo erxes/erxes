@@ -1,4 +1,5 @@
 import { useMarkAsReadNotification } from '@/notification/hooks/useMarkAsReadNotification';
+import { useDeleteNotifications } from '@/notification/hooks/useDeleteNotifications';
 import { useNotificationSelection } from '@/notification/hooks/useNotificationSelection';
 import {
   hiddenNotificationIdsState,
@@ -10,7 +11,7 @@ import type {
 } from '@/notification/types/myInbox';
 import { MyInboxHotkeyScope } from '@/notification/types/notifications';
 import { shouldIgnoreNotificationHotkey } from '@/notification/utils/notificationHotkeys';
-import { useScopedHotkeys, useToast } from 'erxes-ui';
+import { useConfirm, useScopedHotkeys, useToast } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
 import { useLayoutEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -33,12 +34,20 @@ export const useNotificationListActions = ({
       id,
     );
   const markAsRead = useMarkAsReadNotification();
+  const deleteNotifications = useDeleteNotifications();
   const setHiddenIds = useSetAtom(hiddenNotificationIdsState);
   const setSelectedIds = useSetAtom(selectedNotificationIdsState);
   const batchScopeRef = useRef({ active: false });
-  const [markingAsRead, setMarkingAsRead] = useState(false);
+  const [pending, setPending] = useState(false);
+  const { confirm } = useConfirm();
   const { toast } = useToast();
   const { t } = useTranslation('common', { keyPrefix: 'notification' });
+  const selectedNotifications = notifications.filter((notification) =>
+    selectedIds.includes(notification._id),
+  );
+  const allRead =
+    selectedNotifications.length > 0 &&
+    selectedNotifications.every((notification) => notification.isRead);
 
   useLayoutEffect(() => {
     const scope = { active: true };
@@ -51,12 +60,12 @@ export const useNotificationListActions = ({
   useScopedHotkeys(
     'shift+down,shift+up',
     (event) => {
-      if (!loading && !markingAsRead) {
+      if (!loading && !pending) {
         extend(event.key === 'ArrowDown' ? 1 : -1);
       }
     },
     MyInboxHotkeyScope.MainPage,
-    [extend, loading, markingAsRead],
+    [extend, loading, pending],
     {
       enableOnContentEditable: false,
       ignoreEventWhen: shouldIgnoreNotificationHotkey,
@@ -66,10 +75,10 @@ export const useNotificationListActions = ({
   useScopedHotkeys(
     'esc',
     () => {
-      if (!markingAsRead) clear();
+      if (!pending) clear();
     },
     MyInboxHotkeyScope.MainPage,
-    [clear, markingAsRead],
+    [clear, pending],
     {
       enableOnContentEditable: false,
       ignoreEventWhen: shouldIgnoreNotificationHotkey,
@@ -77,18 +86,14 @@ export const useNotificationListActions = ({
   );
 
   const markSelectedAsRead = async (): Promise<void> => {
-    if (markingAsRead) return;
+    if (pending || allRead) return;
     const scope = batchScopeRef.current;
-    setMarkingAsRead(true);
+    setPending(true);
     try {
-      const selectedNotifications = notifications.filter((notification) =>
-        selectedIds.includes(notification._id),
-      );
       const results = await Promise.all(
         selectedNotifications.map(async (notification) => ({
           id: notification._id,
-          success:
-            notification.isRead || (await markAsRead(notification._id)),
+          success: notification.isRead || (await markAsRead(notification._id)),
         })),
       );
       const completedIds = results
@@ -112,17 +117,52 @@ export const useNotificationListActions = ({
         });
       }
     } finally {
-      setMarkingAsRead(false);
+      setPending(false);
+    }
+  };
+
+  const deleteSelected = async (): Promise<void> => {
+    if (pending || !allRead) return;
+    const scope = batchScopeRef.current;
+    const ids = selectedNotifications.map((notification) => notification._id);
+    await confirm({
+      message: t('confirm-delete-selected', { count: ids.length }),
+      options: {
+        description: t('delete-permanently-description'),
+        okLabel: t('delete'),
+        cancelLabel: t('cancel'),
+        variants: { ok: 'destructive' },
+      },
+    });
+    if (!scope.active) return;
+    setPending(true);
+    try {
+      if (!(await deleteNotifications(ids))) return;
+      setHiddenIds((previous) => [...new Set([...previous, ...ids])]);
+      setSelectedIds((previous) =>
+        previous.filter((selectedId) => !ids.includes(selectedId)),
+      );
+      if (scope.active && id && ids.includes(id))
+        navigate(`/my-inbox${search}`);
+    } finally {
+      setPending(false);
     }
   };
 
   useScopedHotkeys(
     'ctrl+backspace,meta+backspace,ctrl+delete,meta+delete',
     () => {
-      void markSelectedAsRead();
+      void (allRead ? deleteSelected() : markSelectedAsRead());
     },
     MyInboxHotkeyScope.MainPage,
-    [selectedIds, notifications, markingAsRead, markSelectedAsRead],
+    [
+      selectedIds,
+      notifications,
+      pending,
+      allRead,
+      deleteSelected,
+      markSelectedAsRead,
+    ],
     {
       enableOnContentEditable: false,
       ignoreEventWhen: (event) =>
@@ -134,12 +174,14 @@ export const useNotificationListActions = ({
     selectedIds,
     focusedId,
     clear,
-    markingAsRead,
+    pending,
+    allRead,
     markSelectedAsRead,
+    deleteSelected,
     onOpen: (notificationId, event) => {
       if (event.shiftKey || event.metaKey || event.ctrlKey) {
         event.preventDefault();
-        if (!markingAsRead) select(notificationId, event.shiftKey);
+        if (!pending) select(notificationId, event.shiftKey);
       } else {
         clear();
         setAnchor(notificationId);

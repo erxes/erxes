@@ -19,10 +19,11 @@ import { useBoardDealCounts } from '@/deals/boards/hooks/useBoardDealCounts';
 import { PipelineCreateSheet } from '@/deals/pipelines/components/PipelineCreateSheet';
 import { pipelineCreateBoardIdState } from '@/deals/states/pipelineCreateSheetState';
 import { IBoard } from '@/deals/types/boards';
+import { useBoardArchiveSubscription } from '@/deals/boards/hooks/useBoardArchiveSubscription';
 import { useSetAtom } from 'jotai';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useBoards } from '~/modules/deals/boards/hooks/useBoards';
+import { useBoards } from '@/deals/boards/hooks/useBoards';
 
 type TBoardSelection = {
   boardId: string;
@@ -185,7 +186,8 @@ function BoardItem({
 }
 
 const DealsNavigation = () => {
-  const { boards, loading } = useBoards();
+  useBoardArchiveSubscription();
+  const { boards, loading, error } = useBoards();
   const [boardId, setBoardId] = useQueryState<string | null>('boardId');
   const [pipelineId, setPipelineId] = useQueryState<string | null>(
     'pipelineId',
@@ -194,23 +196,21 @@ const DealsNavigation = () => {
   const { byPipeline } = useBoardDealCounts({ boards, pipelineId });
 
   useEffect(() => {
-    if (!boards || boards.length === 0) return;
+    if (!boards || boards.some((board) => board._id === boardId)) return;
 
     const storedBoardId = localStorage.getItem('erxesCurrentBoardId');
-
-    if (!boardId && storedBoardId) {
-      setBoardId(storedBoardId);
-      return;
-    }
-
-    if (!boardId && boards[0]?._id) {
-      setBoardId(boards[0]._id);
-    }
+    const storedBoard = boards.find((board) => board._id === storedBoardId);
+    const nextBoardId = storedBoard?._id || boards[0]?._id || null;
+    if (nextBoardId !== boardId) setBoardId(nextBoardId);
   }, [boards, setBoardId, boardId]);
 
   // Keep the selected pipeline within the selected board.
   useEffect(() => {
-    if (!boards || boards.length === 0 || !boardId) return;
+    if (!boards) return;
+    if (boards.length === 0 || !boardId) {
+      if (pipelineId) setPipelineId(null);
+      return;
+    }
 
     const currentBoard = boards.find((board) => board._id === boardId);
 
@@ -238,8 +238,14 @@ const DealsNavigation = () => {
       >
         {loading ? (
           <LoadingSkeleton />
+        ) : error ? (
+          <p className="p-2 text-sm text-destructive">{error.message}</p>
+        ) : !boards?.length ? (
+          <p className="p-2 text-sm text-muted-foreground">
+            {t('no-boards', 'No boards')}
+          </p>
         ) : (
-          boards?.map((board) => (
+          boards.map((board) => (
             <BoardItem
               key={board._id}
               board={board}

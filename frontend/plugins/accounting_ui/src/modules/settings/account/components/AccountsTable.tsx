@@ -1,9 +1,12 @@
 import { useTranslation } from 'react-i18next';
 import { useAccountsMain } from '@/settings/account/hooks/useAccountsMain';
+import { IconDatabaseOff } from '@tabler/icons-react';
 import { RecordTable, Skeleton, Table } from 'erxes-ui';
+import { AccountingEmptyState } from '@/layout/components/AccountingEmptyState';
+import { AddAccount } from '@/settings/account/components/AddAccount';
 import { accountsColumns } from '@/settings/account/components/AccountsColumns';
-import { AccountsCommandbar } from './AccountsCommandBar';
-import { ACCOUNTS_CURSOR_SESSION_KEY } from '../../../accountsSessionKeys';
+import { AccountsCommandbar } from '@/settings/account/components/AccountsCommandBar';
+import { ACCOUNTS_CURSOR_SESSION_KEY } from '@/accountsSessionKeys';
 import { useMemo } from 'react';
 
 const AccountsInitialSkeleton = ({ rows = 20 }: { rows?: number }) => {
@@ -32,11 +35,13 @@ const AccountsInitialSkeleton = ({ rows = 20 }: { rows?: number }) => {
 
 export const AccountsTable = () => {
   const { t } = useTranslation('accounting');
-  const { accountsMain, loading, handleFetchMore, pageInfo } =
+  const { accountsMain, loading, error, handleFetchMore, pageInfo } =
     useAccountsMain();
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
   const isFetchingMore = loading && (accountsMain?.length ?? 0) > 0;
   const isInitialLoading = loading && !isFetchingMore;
+
+  const isEmpty = !loading && !accountsMain?.length;
 
   return (
     <RecordTable.Provider
@@ -44,7 +49,7 @@ export const AccountsTable = () => {
       data={isInitialLoading ? [] : accountsMain || []}
       stickyColumns={['more', 'checkbox', 'code']}
       tableId="accounting_accounts_record_table"
-      className="m-3"
+      className="relative m-3"
     >
       <RecordTable.CursorProvider
         hasPreviousPage={hasPreviousPage}
@@ -67,6 +72,15 @@ export const AccountsTable = () => {
         </RecordTable>
         <AccountsCommandbar />
       </RecordTable.CursorProvider>
+      {isEmpty && (
+        <AccountingEmptyState
+          overlay
+          error={error}
+          icon={IconDatabaseOff}
+          description={t('empty-list-description')}
+          action={<AddAccount />}
+        />
+      )}
     </RecordTable.Provider>
   );
 };

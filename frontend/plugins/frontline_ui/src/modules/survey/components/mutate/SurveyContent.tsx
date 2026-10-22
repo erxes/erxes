@@ -33,7 +33,7 @@ import { surveySetupContentAtom } from '@/survey/states/surveySetupStates';
 import { MAX_SURVEY_STEPS } from '@/survey/types/surveyTypes';
 
 export const SurveyContent = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.survey' });
   const form = useForm<TSurveyContent>({
     resolver: zodResolver(SURVEY_CONTENT_SCHEMA),
     defaultValues: createSurveyContentDefaultValues(),

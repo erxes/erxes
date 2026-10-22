@@ -1,10 +1,23 @@
 import { gql } from '~/gql';
 
+export const SALES_BOARD_ARCHIVE_PREVIEW = gql(`
+  query SalesBoardArchivePreview($_id: String!) {
+    salesBoardArchivePreview(_id: $_id) {
+      pipelineCount
+      dealCount
+      automationCount
+      posCount
+      paymentCount
+    }
+  }
+`);
+
 export const GET_BOARDS = gql(`
-  query SalesBoards {
-    salesBoards {
+  query SalesBoards($includeArchived: Boolean) {
+    salesBoards(includeArchived: $includeArchived) {
       _id
       name
+      status
 
       pipelines {
         _id
@@ -20,6 +33,7 @@ export const GET_BOARD_GET_LAST = gql(`
     salesBoardGetLast {
       _id
       name
+      status
       createdAt
       pipelines {
         _id
@@ -35,6 +49,7 @@ export const GET_BOARD_DETAIL = gql(`
     salesBoardDetail(_id: $_id) {
       _id
       name
+      status
       pipelines {
         _id
         name

@@ -35,6 +35,7 @@ export const buildParticipatingQuery = (userId: string) => {
             assignedUserId: userId,
           },
         },
+        { match: { assignedUserIds: userId } },
       ],
     },
   };

@@ -22,7 +22,7 @@ const CopyLink = ({
   formId: string;
   label: string;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
   const [copied, setCopied] = useState(false);
   const link = `${REACT_APP_WIDGETS_URL}/live/${channelId}/${formId}`;
 
@@ -61,7 +61,7 @@ const CopyLink = ({
 };
 
 export const FormSubmissions = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
   const { formId } = useParams<{ formId: string }>();
   const { submissions, loading, error, pageInfo, handleFetchMore, refetch } =
     useGetFormSubmissions({
@@ -122,7 +122,7 @@ export const FormSubmissions = () => {
           <CopyLink
             channelId={formDetail?.channelId || ''}
             formId={formId || ''}
-            label={formDetail?.name || 'Form'}
+            label={formDetail?.name || t('form')}
           />
         </Empty.Content>
       </Empty>

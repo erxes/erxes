@@ -11,7 +11,7 @@ interface CreatorInfoProps {
 }
 
 export const CreatorInfo = ({ contentDetail }: CreatorInfoProps) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.activity' });
 
   return (
     <ActivityTimelineItem

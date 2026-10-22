@@ -54,12 +54,12 @@ export const MAX_SURVEY_OPTIONS = 10;
 
 export const MAX_SURVEY_STEPS = 10;
 
-export const SURVEY_DURATIONS: { label: string; value: number | null }[] = [
-  { label: 'No end date', value: null },
-  { label: '1 hour', value: 1 },
-  { label: '4 hours', value: 4 },
-  { label: '8 hours', value: 8 },
-  { label: '1 day', value: 24 },
-  { label: '3 days', value: 72 },
-  { label: '7 days', value: 168 },
+export const SURVEY_DURATIONS: { labelKey: string; value: number | null }[] = [
+  { labelKey: 'duration-none', value: null },
+  { labelKey: 'duration-1-hour', value: 1 },
+  { labelKey: 'duration-4-hours', value: 4 },
+  { labelKey: 'duration-8-hours', value: 8 },
+  { labelKey: 'duration-1-day', value: 24 },
+  { labelKey: 'duration-3-days', value: 72 },
+  { labelKey: 'duration-7-days', value: 168 },
 ];

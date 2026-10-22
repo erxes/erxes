@@ -8,7 +8,7 @@ import {
 import { useChannelSurveyConversationCount } from '@/survey/hooks/useChannelSurveyConversationCount';
 
 export const ChannelSurveyNavItem = ({ channelId }: { channelId: string }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.survey' });
   const [{ channelId: selectedChannelId, withSurvey }, setFilters] =
     useMultiQueryState<InboxTarget>(INBOX_TARGET_KEYS);
 

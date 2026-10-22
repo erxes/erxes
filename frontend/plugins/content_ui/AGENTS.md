@@ -34,15 +34,15 @@
 
 ## Architecture
 
-| Area          | Path                                                  | Responsibility                                                                          |
-| ------------- | ----------------------------------------------------- | --------------------------------------------------------------------------------------- |
-| App sidebar | `frontend/plugins/content_ui/src/Sidebar.tsx` | `ContentSidebar`: the plugin's whole app sidebar, rendered by the `./content` entry through `AppLayout` |
-| Configuration | `frontend/plugins/content_ui/src/config.tsx`          | Registers content navigation and modules.                                               |
-| Dev server    | `frontend/plugins/content_ui/rspack.config.ts`        | Configures image assets, Module Federation development serving, and watch ignore rules. |
-| CMS           | `frontend/plugins/content_ui/src/modules/cms`         | Owns CMS routes and feature UI.                                                         |
-| Web Builder   | `frontend/plugins/content_ui/src/modules/web-builder` | Owns Web Builder UI.                                                                    |
-| Pages         | `frontend/plugins/content_ui/src/pages`               | Provides route-level pages.                                                             |
-| Widgets       | `frontend/plugins/content_ui/src/widgets`             | Provides plugin widget exports.                                                         |
+| Area          | Path                                                  | Responsibility                                                                                          |
+| ------------- | ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| App sidebar   | `frontend/plugins/content_ui/src/Sidebar.tsx`         | `ContentSidebar`: the plugin's whole app sidebar, rendered by the `./content` entry through `AppLayout` |
+| Configuration | `frontend/plugins/content_ui/src/config.tsx`          | Registers content navigation and modules.                                                               |
+| Dev server    | `frontend/plugins/content_ui/rspack.config.ts`        | Configures image assets, Module Federation development serving, and watch ignore rules.                 |
+| CMS           | `frontend/plugins/content_ui/src/modules/cms`         | Owns CMS routes and feature UI.                                                                         |
+| Web Builder   | `frontend/plugins/content_ui/src/modules/web-builder` | Owns Web Builder UI.                                                                                    |
+| Pages         | `frontend/plugins/content_ui/src/pages`               | Provides route-level pages.                                                                             |
+| Widgets       | `frontend/plugins/content_ui/src/widgets`             | Provides plugin widget exports.                                                                         |
 
 ## Contracts
 
@@ -194,6 +194,8 @@
 3. Confirm the route and `websiteId` behavior
 4. Check whether GraphQL operations already exist
 5. Keep changes minimal and scoped to the feature
+
+- CMS list filters (posts, categories, tags, pages) render the filter popover trigger as the first child of `Filter.Bar`, so the filter icon stays fixed while selected filter chips appear after it; total counts stay last.
 
 ## Validation
 
