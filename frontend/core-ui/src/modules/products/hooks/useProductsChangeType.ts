@@ -19,15 +19,23 @@ export const useProductsChangeType = (
   const client = useApolloClient();
   const pending = useRef(false);
   const [saving, setSaving] = useState(false);
+  const [refreshPending, setRefreshPending] = useState(false);
 
   const apply = async (values: ProductTypeChangeValues): Promise<boolean> => {
     if (pending.current) return false;
     const targets = products.filter((product) => product.status !== 'deleted');
-    if (!targets.length) return false;
+    if (!targets.length && !refreshPending) return false;
     pending.current = true;
     setSaving(true);
 
     try {
+      if (refreshPending) {
+        await client.refetchQueries({ include: ['ProductsMain'] });
+        setRefreshPending(false);
+        table.setRowSelection({});
+        return true;
+      }
+
       const errors: string[] = [];
       const failedSelection: Record<string, boolean> = {};
       let updated = 0;
@@ -68,7 +76,9 @@ export const useProductsChangeType = (
 
       if (updated && errors.length) table.setRowSelection(failedSelection);
       if (updated) {
+        setRefreshPending(errors.length === 0);
         await client.refetchQueries({ include: ['ProductsMain'] });
+        setRefreshPending(false);
       }
       if (!errors.length) table.setRowSelection({});
       return errors.length === 0;
@@ -88,5 +98,5 @@ export const useProductsChangeType = (
     }
   };
 
-  return { apply, saving };
+  return { apply, saving, refreshPending };
 };

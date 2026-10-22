@@ -19,7 +19,7 @@ export const ProductsChangeTypeDialog = ({
   onOpenChange,
 }: ProductsChangeTypeDialogProps) => {
   const { t } = useTranslation('product');
-  const { apply, saving } = useProductsChangeType(products);
+  const { apply, saving, refreshPending } = useProductsChangeType(products);
   const form = useForm<ProductTypeChangeValues>({
     resolver: zodResolver(productTypeChangeSchema),
     shouldUnregister: true,
@@ -54,7 +54,10 @@ export const ProductsChangeTypeDialog = ({
               if (await apply(values)) onOpenChange(false);
             })}
           >
-            <fieldset disabled={saving} className="space-y-4">
+            <fieldset
+              disabled={saving || refreshPending}
+              className="space-y-4 disabled:pointer-events-none"
+            >
               <Form.Field
                 control={form.control}
                 name="type"
@@ -148,11 +151,16 @@ export const ProductsChangeTypeDialog = ({
               >
                 {t('cancel', 'Cancel')}
               </Button>
-              <Button type="submit" disabled={saving || !editableCount}>
+              <Button
+                type="submit"
+                disabled={saving || (!editableCount && !refreshPending)}
+              >
                 {saving && (
                   <Spinner containerClassName="inline-flex flex-none" />
                 )}
-                {t('bulk.change-type', 'Change type')}
+                {refreshPending
+                  ? t('bulk.retry-refresh', 'Retry refresh')
+                  : t('bulk.change-type', 'Change type')}
               </Button>
             </Dialog.Footer>
           </form>

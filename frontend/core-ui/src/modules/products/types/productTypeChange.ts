@@ -14,4 +14,5 @@ export interface ProductsChangeTypeDialogProps {
 export interface UseProductsChangeTypeResult {
   apply: (values: ProductTypeChangeValues) => Promise<boolean>;
   saving: boolean;
+  refreshPending: boolean;
 }

@@ -127,10 +127,13 @@ describe('bulk product type changes', () => {
     expect(result.current.saving).toBe(false);
   });
 
-  it('reports a failed refresh and releases the submission lock', async () => {
-    mockRefetch.mockRejectedValueOnce(new Error('Network unavailable'));
-    const { result } = renderHook(() =>
-      useProductsChangeType(targets.slice(0, 1)),
+  it('retries only the list refresh after all updates have been saved', async () => {
+    mockRefetch
+      .mockRejectedValueOnce(new Error('Network unavailable'))
+      .mockRejectedValueOnce(new Error('Network unavailable'));
+    const { result, rerender } = renderHook(
+      ({ products }) => useProductsChangeType(products),
+      { initialProps: { products: targets.slice(0, 1) } },
     );
     await act(async () => {
       await expect(result.current.apply({ type: 'service' })).resolves.toBe(
@@ -146,6 +149,17 @@ describe('bulk product type changes', () => {
       }),
     );
     expect(result.current.saving).toBe(false);
+    expect(result.current.refreshPending).toBe(true);
+
+    rerender({ products: [{ ...targets[0], status: 'deleted' }] });
+    await act(async () => {
+      await expect(result.current.apply({ type: 'service' })).resolves.toBe(
+        false,
+      );
+    });
+    expect(result.current.refreshPending).toBe(true);
+    expect(result.current.saving).toBe(false);
+    expect(mockClearSelection).not.toHaveBeenCalled();
 
     await act(async () => {
       await expect(result.current.apply({ type: 'service' })).resolves.toBe(
@@ -153,6 +167,39 @@ describe('bulk product type changes', () => {
       );
     });
     expect(mockClearSelection).toHaveBeenCalledWith({});
+    expect(mockEdit).toHaveBeenCalledTimes(1);
+    expect(mockRefetch).toHaveBeenCalledTimes(3);
+    expect(result.current.refreshPending).toBe(false);
+  });
+
+  it('retains mutation retries for failed products when the refresh also fails', async () => {
+    mockEdit.mockRejectedValueOnce(new Error('Permission denied'));
+    mockRefetch.mockRejectedValueOnce(new Error('Network unavailable'));
+    const { result, rerender } = renderHook(
+      ({ products }) => useProductsChangeType(products),
+      { initialProps: { products: targets } },
+    );
+    await act(async () => {
+      await expect(result.current.apply({ type: 'product' })).resolves.toBe(
+        false,
+      );
+    });
+    expect(mockClearSelection).toHaveBeenCalledWith({ first: true });
+    expect(result.current.refreshPending).toBe(false);
+
+    rerender({ products: [targets[0]] });
+    await act(async () => {
+      await expect(result.current.apply({ type: 'product' })).resolves.toBe(
+        true,
+      );
+    });
+    expect(mockEdit.mock.calls).toEqual([
+      [{ variables: { _id: 'first', type: 'product' } }],
+      [{ variables: { _id: 'second', type: 'product' } }],
+      [{ variables: { _id: 'first', type: 'product' } }],
+    ]);
+    expect(mockRefetch).toHaveBeenCalledTimes(2);
+    expect(mockClearSelection).toHaveBeenLastCalledWith({});
   });
 
   it('does not submit when only deleted products are selected', async () => {
