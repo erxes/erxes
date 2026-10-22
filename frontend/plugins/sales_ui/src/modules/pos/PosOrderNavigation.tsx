@@ -46,6 +46,7 @@ function PosItem({ pos }: posItemProps) {
 
   const isPosActive = pathname.includes(`/sales/pos/${pos._id}`);
   const [open, setOpen] = useState(isPosActive);
+  const contentId = `sales-pos-${pos._id}`;
 
   return (
     <Collapsible
@@ -54,15 +55,16 @@ function PosItem({ pos }: posItemProps) {
       onOpenChange={setOpen}
     >
       <Sidebar.Group className="p-0">
-        <Collapsible.Trigger asChild>
-          <div
-            className={cn(
-              'group/pos-row w-full flex items-center justify-between rounded-lg hover:bg-accent',
-              isPosActive && 'bg-foreground/5 hover:bg-foreground/5',
-            )}
-          >
+        <div
+          className={cn(
+            'group/pos-row w-full flex items-center justify-between rounded-lg hover:bg-accent',
+            isPosActive && 'bg-foreground/5 hover:bg-foreground/5',
+          )}
+        >
+          <Collapsible.Trigger asChild>
             <Button
               variant="ghost"
+              aria-controls={contentId}
               className="px-2 flex min-w-0 flex-1 justify-start rounded-lg hover:bg-transparent"
             >
               <IconComponent
@@ -74,13 +76,23 @@ function PosItem({ pos }: posItemProps) {
                 value={pos.name ?? undefined}
               />
             </Button>
-            <PosActionsMenu pos={pos} />
-            <span className="flex shrink-0 px-2 text-muted-foreground transition-transform duration-250 ease-[cubic-bezier(0.22,1,0.36,1)] group-data-[state=open]/collapsible:rotate-90 motion-reduce:transition-none">
-              <IconChevronRight className="size-3.5!" />
-            </span>
-          </div>
-        </Collapsible.Trigger>
-        <BoardDisclosure open={open}>
+          </Collapsible.Trigger>
+          <PosActionsMenu pos={pos} />
+          <Collapsible.Trigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              tabIndex={-1}
+              aria-hidden
+              className="shrink-0 text-muted-foreground hover:bg-transparent hover:text-foreground"
+            >
+              <span className="flex transition-transform duration-250 ease-[cubic-bezier(0.22,1,0.36,1)] group-data-[state=open]/collapsible:rotate-90 motion-reduce:transition-none">
+                <IconChevronRight className="size-3.5!" />
+              </span>
+            </Button>
+          </Collapsible.Trigger>
+        </div>
+        <BoardDisclosure id={contentId} open={open}>
           <div className="pt-1">
             <Sidebar.GroupContent>
               <Sidebar.Menu>
@@ -186,43 +198,37 @@ const PosActionsMenu = ({ pos }: { pos: Pos }) => {
   };
 
   return (
-    <div onClick={(e) => e.stopPropagation()}>
-      <DropdownMenu>
-        <DropdownMenu.Trigger asChild>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="shrink-0 text-muted-foreground hover:bg-transparent hover:text-foreground opacity-0 group-hover/pos-row:opacity-100 group-focus-within/pos-row:opacity-100 focus-visible:opacity-100 data-[state=open]:opacity-100"
-            aria-label={t('go-to-pos-settings')}
-          >
-            <IconDotsVertical className="size-4" />
-          </Button>
-        </DropdownMenu.Trigger>
-        <DropdownMenu.Content
-          side="right"
-          align="start"
-          className="w-60 min-w-0"
+    <DropdownMenu>
+      <DropdownMenu.Trigger asChild>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="shrink-0 text-muted-foreground hover:bg-transparent hover:text-foreground opacity-0 group-hover/pos-row:opacity-100 group-focus-within/pos-row:opacity-100 focus-visible:opacity-100 data-[state=open]:opacity-100"
+          aria-label={t('go-to-pos-settings')}
         >
-          <DropdownMenu.Item
-            className="cursor-pointer"
-            onSelect={(e) => {
-              navigate(`/sales/settings/pos/${pos._id}`);
-            }}
-          >
-            <IconSettings className="size-4" />
-            {t('go-to-pos-settings')}
-          </DropdownMenu.Item>
-          <DropdownMenu.Item
-            onSelect={(e) => {
-              handleCopyLink();
-            }}
-            className="cursor-pointer"
-          >
-            <IconLink className="size-4" />
-            {t('copy-link')}
-          </DropdownMenu.Item>
-        </DropdownMenu.Content>
-      </DropdownMenu>
-    </div>
+          <IconDotsVertical className="size-4" />
+        </Button>
+      </DropdownMenu.Trigger>
+      <DropdownMenu.Content side="right" align="start" className="w-60 min-w-0">
+        <DropdownMenu.Item
+          className="cursor-pointer"
+          onSelect={(e) => {
+            navigate(`/sales/settings/pos/${pos._id}`);
+          }}
+        >
+          <IconSettings className="size-4" />
+          {t('go-to-pos-settings')}
+        </DropdownMenu.Item>
+        <DropdownMenu.Item
+          onSelect={(e) => {
+            handleCopyLink();
+          }}
+          className="cursor-pointer"
+        >
+          <IconLink className="size-4" />
+          {t('copy-link')}
+        </DropdownMenu.Item>
+      </DropdownMenu.Content>
+    </DropdownMenu>
   );
 };

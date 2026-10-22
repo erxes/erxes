@@ -15,7 +15,7 @@ export const useBoardDealCounts = ({
   pipelineId?: string | null;
 }) => {
   const currentUser = useAtomValue(currentUserState);
-  const { data, refetch } = useQuery(GET_BOARD_DEAL_COUNTS, {
+  const { data, loading, refetch } = useQuery(GET_BOARD_DEAL_COUNTS, {
     fetchPolicy: 'cache-and-network',
   });
 
@@ -44,6 +44,6 @@ export const useBoardDealCounts = ({
       }
     }
 
-    return { byPipeline, loaded: !!data };
-  }, [data]);
+    return { byPipeline, loading };
+  }, [data, loading]);
 };

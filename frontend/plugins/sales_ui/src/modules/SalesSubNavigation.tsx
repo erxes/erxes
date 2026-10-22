@@ -14,7 +14,10 @@ import {
 import { useLocation } from 'react-router-dom';
 
 import { BoardDisclosure } from '@/deals/boards/components/BoardDisclosure';
-import { BoardsNavigationActions } from '@/deals/boards/components/BoardsNavigationActions';
+import {
+  BoardCreateDialog,
+  BoardsNavigationActions,
+} from '@/deals/boards/components/BoardsNavigationActions';
 import { useBoardDealCounts } from '@/deals/boards/hooks/useBoardDealCounts';
 import { PipelineCreateSheet } from '@/deals/pipelines/components/PipelineCreateSheet';
 import { pipelineCreateBoardIdState } from '@/deals/states/pipelineCreateSheetState';
@@ -42,14 +45,15 @@ function LoadingSkeleton() {
   );
 }
 
-function DealCount({ count }: { count?: number }) {
-  if (count === undefined) {
-    return <Skeleton className="size-4 shrink-0 rounded-full" />;
-  }
-
-  return (
+function DealCount({
+  count,
+  loading,
+}: Readonly<{ count?: number; loading: boolean }>) {
+  return loading ? (
+    <Skeleton className="size-4 shrink-0 rounded-full" />
+  ) : (
     <span className="shrink-0 text-xs tabular-nums text-muted-foreground">
-      {count}
+      {count ?? 0}
     </span>
   );
 }
@@ -57,10 +61,12 @@ function DealCount({ count }: { count?: number }) {
 function BoardItem({
   board,
   pipelineCounts,
-}: {
+  countsLoading,
+}: Readonly<{
   board: IBoard;
   pipelineCounts: Record<string, number>;
-}) {
+  countsLoading: boolean;
+}>) {
   const { t } = useTranslation('sales');
   const [{ boardId, pipelineId }, setBoardSelection] =
     useMultiQueryState<TBoardSelection>(['boardId', 'pipelineId', 'stageId']);
@@ -71,6 +77,7 @@ function BoardItem({
   );
 
   const [open, setOpen] = useState(isActive);
+  const contentId = `sales-board-${board._id}`;
   const setPipelineCreateBoardId = useSetAtom(pipelineCreateBoardIdState);
 
   // Board selection can arrive after mount (restored from localStorage), so
@@ -110,45 +117,51 @@ function BoardItem({
       onOpenChange={setOpen}
     >
       <Sidebar.Group className="p-0">
-        <Collapsible.Trigger asChild>
-          <div
+        <div
+          className={cn(
+            'group/board-row w-full flex items-center justify-between rounded-lg hover:bg-accent',
+            isActive && 'bg-foreground/5 hover:bg-foreground/5',
+          )}
+        >
+          <Button
+            variant="ghost"
             className={cn(
-              'group/board-row w-full flex items-center justify-between rounded-lg hover:bg-accent',
-              isActive && 'bg-foreground/5 hover:bg-foreground/5',
+              'px-2 flex min-w-0 flex-1 justify-start rounded-lg hover:bg-transparent',
+              isActive && 'text-foreground',
             )}
+            onClick={handleBoardClick}
           >
+            <TextOverflowTooltip
+              className="font-sans font-semibold normal-case text-left flex-1 min-w-0"
+              value={board.name}
+            />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="shrink-0 text-muted-foreground hover:bg-transparent hover:text-foreground opacity-0 group-hover/board-row:opacity-100 group-focus-within/board-row:opacity-100 focus-visible:opacity-100"
+            aria-label={t('add-pipeline')}
+            onClick={() => {
+              setOpen(true);
+              setPipelineCreateBoardId(board._id);
+            }}
+          >
+            <IconPlus className="size-4" />
+          </Button>
+          <Collapsible.Trigger asChild>
             <Button
               variant="ghost"
-              className={cn(
-                'px-2 flex min-w-0 flex-1 justify-start rounded-lg hover:bg-transparent',
-                isActive && 'text-foreground',
-              )}
-              onClick={handleBoardClick}
+              className="shrink-0 size-6 p-0 hover:bg-transparent"
+              aria-label={board.name}
+              aria-controls={contentId}
             >
-              <TextOverflowTooltip
-                className="font-sans font-semibold normal-case text-left flex-1 min-w-0"
-                value={board.name}
-              />
+              <span className="flex text-muted-foreground transition-transform duration-250 ease-[cubic-bezier(0.22,1,0.36,1)] group-data-[state=open]/collapsible:rotate-90 motion-reduce:transition-none">
+                <IconChevronRight className="size-3.5!" />
+              </span>
             </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="shrink-0 text-muted-foreground hover:bg-transparent hover:text-foreground opacity-0 group-hover/board-row:opacity-100 group-focus-within/board-row:opacity-100 focus-visible:opacity-100"
-              aria-label={t('add-pipeline')}
-              onClick={(event) => {
-                event.stopPropagation();
-                setOpen(true);
-                setPipelineCreateBoardId(board._id);
-              }}
-            >
-              <IconPlus className="size-4" />
-            </Button>
-            <span className="flex shrink-0 px-2 text-muted-foreground transition-transform duration-250 ease-[cubic-bezier(0.22,1,0.36,1)] group-data-[state=open]/collapsible:rotate-90 motion-reduce:transition-none">
-              <IconChevronRight className="size-3.5!" />
-            </span>
-          </div>
-        </Collapsible.Trigger>
-        <BoardDisclosure open={open}>
+          </Collapsible.Trigger>
+        </div>
+        <BoardDisclosure id={contentId} open={open}>
           <div className="pt-1">
             <Sidebar.GroupContent>
               <Sidebar.Menu>
@@ -163,7 +176,10 @@ function BoardItem({
                         className="flex-1 min-w-0"
                         value={pipeline.name}
                       />
-                      <DealCount count={pipelineCounts[pipeline._id]} />
+                      <DealCount
+                        count={pipelineCounts[pipeline._id]}
+                        loading={countsLoading}
+                      />
                     </Sidebar.MenuButton>
                   </Sidebar.MenuItem>
                 ))}
@@ -193,7 +209,10 @@ const DealsNavigation = () => {
     'pipelineId',
   );
   const { t } = useTranslation('sales');
-  const { byPipeline } = useBoardDealCounts({ boards, pipelineId });
+  const { byPipeline, loading: countsLoading } = useBoardDealCounts({
+    boards,
+    pipelineId,
+  });
 
   useEffect(() => {
     if (!boards || boards.some((board) => board._id === boardId)) return;
@@ -250,10 +269,12 @@ const DealsNavigation = () => {
               key={board._id}
               board={board}
               pipelineCounts={byPipeline}
+              countsLoading={countsLoading}
             />
           ))
         )}
       </NavigationMenuGroup>
+      <BoardCreateDialog />
       <PipelineCreateSheet />
     </>
   );

@@ -1,4 +1,5 @@
 import { useBoardAdd } from '@/deals/boards/hooks/useBoards';
+import { boardCreateDialogState } from '@/deals/states/boardCreateDialogState';
 import { TBoardForm } from '@/deals/types/boards';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IconPlus } from '@tabler/icons-react';
@@ -11,7 +12,8 @@ import {
   useMultiQueryState,
   useToast,
 } from 'erxes-ui';
-import { useMemo, useState } from 'react';
+import { useAtom, useSetAtom } from 'jotai';
+import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
@@ -22,14 +24,9 @@ type TBoardSelection = {
   stageId: string;
 };
 
-const BoardCreateDialog = ({
-  open,
-  onOpenChange,
-}: {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-}) => {
+export const BoardCreateDialog = () => {
   const { t } = useTranslation('sales');
+  const [open, setOpen] = useAtom(boardCreateDialogState);
   const { toast } = useToast();
   const [, setBoardSelection] = useMultiQueryState<TBoardSelection>([
     'boardId',
@@ -51,7 +48,7 @@ const BoardCreateDialog = ({
 
   const handleOpenChange = (nextOpen: boolean) => {
     if (!nextOpen) form.reset();
-    onOpenChange(nextOpen);
+    setOpen(nextOpen);
   };
 
   const onSubmit = (data: TBoardForm) =>
@@ -128,23 +125,20 @@ const BoardCreateDialog = ({
 
 export const BoardsNavigationActions = () => {
   const { t } = useTranslation('sales');
-  const [boardDialogOpen, setBoardDialogOpen] = useState(false);
+  const setBoardDialogOpen = useSetAtom(boardCreateDialogState);
 
   return (
-    <div className="flex items-center" onClick={(e) => e.stopPropagation()}>
-      <Button
-        variant="ghost"
-        size="icon"
-        className="text-muted-foreground"
-        aria-label={t('add-board')}
-        onClick={() => setBoardDialogOpen(true)}
-      >
-        <IconPlus className="size-4" />
-      </Button>
-      <BoardCreateDialog
-        open={boardDialogOpen}
-        onOpenChange={setBoardDialogOpen}
-      />
-    </div>
+    <Button
+      variant="ghost"
+      size="icon"
+      className="text-muted-foreground"
+      aria-label={t('add-board')}
+      onClick={(event) => {
+        event.stopPropagation();
+        setBoardDialogOpen(true);
+      }}
+    >
+      <IconPlus className="size-4" />
+    </Button>
   );
 };

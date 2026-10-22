@@ -2,9 +2,11 @@ import { cn } from 'erxes-ui';
 import { ReactNode, useState } from 'react';
 
 export const BoardDisclosure = ({
+  id,
   open,
   children,
 }: {
+  id: string;
   open: boolean;
   children: ReactNode;
 }) => {
@@ -16,6 +18,7 @@ export const BoardDisclosure = ({
 
   return (
     <div
+      id={id}
       aria-hidden={!open}
       data-state={open ? 'open' : 'closed'}
       className={cn(
