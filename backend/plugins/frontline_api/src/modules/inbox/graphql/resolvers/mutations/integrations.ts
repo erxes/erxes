@@ -41,6 +41,11 @@ import {
   telegramRemoveIntegration,
 } from '@/integrations/telegram/messageBroker';
 import {
+  whatsappCreateIntegration,
+  whatsappRemoveIntegration,
+  whatsappRepairIntegration,
+} from '@/integrations/whatsapp/messageBroker';
+import {
   callProCreateIntegration,
   callProRemoveIntegration,
   callProUpdateIntegration,
@@ -99,6 +104,9 @@ export const sendCreateIntegration = async (
       case 'telegram':
         return await telegramCreateIntegrations({ subdomain, data });
 
+      case 'whatsapp':
+        return await whatsappCreateIntegration({ subdomain, data });
+
       case 'callpro': {
         const result = await callProCreateIntegration({ subdomain, data });
 
@@ -145,6 +153,10 @@ export const sendUpdateIntegration = async (
         // Common fields belong to erxes; bot credentials use telegramUpdateBot.
         break;
 
+      case 'whatsapp':
+        // Common fields belong to erxes; the number is managed by Embedded Signup.
+        break;
+
       case 'mobinetSms':
         break;
 
@@ -167,6 +179,8 @@ export const sendRemoveIntegration = async (
     switch (serviceName) {
       case 'telegram':
         return await telegramRemoveIntegration({ subdomain, data });
+      case 'whatsapp':
+        return await whatsappRemoveIntegration({ subdomain, data });
       case 'facebook':
         return await facebookRemoveIntegrations({ subdomain, data });
       case 'calls':
@@ -236,6 +250,9 @@ export const sendRepairIntegration = async (
 
       case 'discord':
         return await discordRepairIntegrations({ subdomain, data });
+
+      case 'whatsapp':
+        return await whatsappRepairIntegration({ subdomain, data });
 
       case 'mobinetSms':
         break;

@@ -21,8 +21,9 @@
   and external kinds.
 - Channel integration runtimes hosted in this service and their webhook
   ingestion, message delivery, and bot automation: Facebook (Messenger + Page
-  comments), Instagram, Mail (Cloudflare Email Routing), Discord,
-  Call (SIP/CDR), and Call Pro (webhook PBX).
+  comments), Instagram, Mail (Cloudflare Email Routing), Discord, Telegram,
+  WhatsApp (Cloud API via Meta Embedded Signup), Call (SIP/CDR), and Call Pro
+  (webhook PBX).
 - Response templates.
 - Ticketing: boards, pipelines, statuses, tickets, activities, notes, ticket
   configs, plus ticket import/export handlers.
@@ -60,6 +61,34 @@
 - Other plugins' collections or service implementations.
 
 ## Current Capabilities
+
+- WhatsApp Cloud API through Meta Embedded Signup only — no Facebook Page and
+  no personal Facebook account list. `whatsappEmbeddedSignupFinish` exchanges
+  the 30-second signup code for a business token, checks it with
+  `debug_token` (this app, both WhatsApp scopes, the shared WABA), confirms
+  the number belongs to the WABA, and saves a pending connection. Creating the
+  `whatsapp-messenger` integration registers the number when needed with the
+  customer's own 6-digit PIN (erxes never generates one; registration without
+  it is refused), subscribes the WABA with a per-tenant
+  `override_callback_uri`, and attaches the connection. Inbound text, media,
+  locations, contacts and button replies become canonical inbox messages, one
+  conversation per contact; each webhook change is processed even when
+  another fails, and any failure returns 500 so Meta redelivers. Media that
+  fails temporarily (network, 429, 5xx, storage) fails the change so the
+  redelivery downloads it again; an oversized file, another Meta 4xx, or a
+  failure an hour after the message keeps the message with a visible note; sent/delivered/read statuses move
+  `deliveryStatus` forward, and a failed delivery adds one internal note.
+  Replies accept at most 64 KB of composer HTML, convert it to WhatsApp text,
+  split at 4096 characters and send attachments as media links, in order; a
+  reply that fails part way clears the in-flight markers of its sent parts.
+  The PIN is used for that one call and never stored, so repair re-subscribes
+  and asks to reconnect with the PIN when Meta needs the number registered
+  again.
+  A status that arrives before its reply is stored waits briefly, then fails
+  the webhook so Meta redelivers it. An unattached signup connection is
+  discarded when the setup sheet closes and otherwise expires after a day.
+  On SaaS a WhatsApp Business Account belongs to one workspace: signup,
+  create and repair refuse a WABA another workspace owns.
 
 - Telegram bot setup and webhook status; private chats, groups, channels and
   forum topics; text, files, media, polls, edits, observed reactions and visible
@@ -575,6 +604,13 @@
 
 ## Architecture
 
+WhatsApp lives in `src/modules/integrations/whatsapp/`: `signup.ts` finishes
+Embedded Signup, `messageBroker.ts` owns create/remove/repair/status/reply,
+`controller/` handles the webhook, ingestion, statuses and replies, `graphApi.ts`
+is the only Graph API client, and `config.ts` resolves the Meta app settings.
+The root router mounts its webhook at `/whatsapp/receive`, like the other
+integrations.
+
 Telegram lives in `src/modules/integrations/telegram/`: `controller/` ingests,
 reconciles and sends messages; `db/` owns provider mappings; `client.ts` owns
 Bot API calls; `graphql/` owns bot setup, status, chat labels and link previews.
@@ -663,6 +699,21 @@ The root router mounts its authenticated webhook at `/telegram`.
 ## Contracts
 
 ### Provides
+
+- WhatsApp: `GET /whatsapp/receive` answers Meta's challenge with the tenant
+  verify token; `POST /whatsapp/receive` requires a valid
+  `X-Hub-Signature-256` over the raw body and returns 500 on ingestion
+  failures so Meta retries. GraphQL: `whatsappConfig` and
+  `whatsappUpdateConfig` (`integrationsEdit`; the secret is write-only and
+  SaaS rejects writes), `whatsappEmbeddedSignupConfig` and
+  `whatsappEmbeddedSignupFinish` (`integrationsAdd`), and
+  `whatsappConnection(integrationId)` (`showIntegrations`), and
+  `whatsappDiscardConnection(_id)` (`integrationsAdd`; deletes only the
+  caller's own unattached connection). The verify token is compared in
+  constant time, and `whatsappConfig` returns an empty `verifyToken` on SaaS,
+  where one token is shared by every workspace. Integration
+  create data is `{ connectionId, pin? }`; inbox messages carry
+  `extraData.whatsapp` (`messageId`/`type` inbound, `messageIds` outbound).
 
 - Telegram: `POST /telegram/receive/:_id` authenticates the stored webhook
   secret. `telegramBots`, `telegramConversationChats`, `telegramBotWebhookInfo` and
@@ -1326,6 +1377,10 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 ### Consumes
 
+- Meta Graph API `v25.0` (WhatsApp Cloud API): `oauth/access_token`,
+  `debug_token`, `{waba}/phone_numbers`, `{waba}/subscribed_apps`,
+  `{phone}/register`, `{phone}/messages` and media download.
+
 - `core` over tRPC — `users.findOne` (query, `{ query }`), which loads the
   active user for `mail.canViewConversation`.
 - `core` over tRPC — `cpUsers.get` (query, `{ id }`), which backs
@@ -1367,6 +1422,23 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   `customers_telegram`, `conversations_telegram`, `conversation_messages_telegram`
   and `telegram_reactions`; canonical inbox history stays in Frontline's
   existing conversation collections and Core owns customer records.
+- WhatsApp owns `whatsapp_integrations` (one document per phone number;
+  `accessToken` is `select: false`; `erxesApiId` is
+  absent until an inbox integration attaches it), `customers_whatsapp`
+  (unique per integration by `waId` or business-scoped `userId`) and
+  `whatsapp_configs` (`WHATSAPP_APP_ID`, `WHATSAPP_APP_SECRET`,
+  `WHATSAPP_EMBEDDED_SIGNUP_CONFIG_ID`, `WHATSAPP_VERIFY_TOKEN`; SaaS reads
+  only the environment). Inbox ids are derived: conversation
+  `whatsapp-<customer _id>`, inbound message `whatsapp-<wamid>`, and a new
+  Core customer `whatsapp-<customer _id>`. `pendingSince` is set on a signup
+  connection until it is attached; a TTL index deletes it after 24 hours.
+  Redis key `whatsapp:in-flight:<subdomain>:<wamid>` (15 minutes) marks a
+  reply sent to WhatsApp whose inbox message may not be stored yet; it is
+  deleted when the reply fails, since the inbox then stores nothing.
+- SaaS only: `whatsapp_waba_owners` in the cross-workspace database
+  `erxes_frontline_whatsapp` (`wabaOwnership.ts`) maps a WABA id to the
+  owning subdomain. It is the plugin's only data outside the tenant
+  database; self-hosted never reads or writes it.
 - Telegram bot tokens and webhook secrets are server-only. Provider IDs are
   strings; deduplication, poll/reaction updates and reply lookup are scoped by
   tenant, integration and chat, with topic identity included where applicable.
@@ -1461,6 +1533,30 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   category without a parent in the doc becomes a root (`parentCategoryId:
 ''`), and a parent from another topic is rejected. `''` and a missing
   `parentCategoryId` both mean a root category.
+- WhatsApp onboarding stays Embedded Signup only; never reintroduce Facebook
+  Page selection or personal-account token flows. The signup code must be
+  exchanged inside `whatsappEmbeddedSignupFinish`, and a number attached to a
+  live inbox integration must never be re-attached. Inbound ingestion stays
+  idempotent per wamid and never overwrites an existing Core customer's name;
+  delivery status only moves forward. Removal unsubscribes a WABA only when no
+  other attached number shares it. Core customers are looked up and created
+  under the stable `whatsapp-<customer _id>` so concurrent webhooks converge;
+  a status for an in-flight reply is never acknowledged before it is applied.
+  Registration never invents or stores a PIN. Webhook changes, messages, statuses and
+  reply parts are processed in order through `utils/sequence.ts`
+  (`forEachSequentially`), not in parallel. Composer HTML conversion keeps
+  `<` out of every tag pattern so it stays linear-time.
+  On SaaS one shared Meta app keeps a single callback per WABA, so a WABA is
+  claimed (`claimWaba`) before its webhook is pointed at a workspace, released
+  when the workspace's last number from it is removed or a failed create
+  leaves none, and never unsubscribed by a workspace that does not own it.
+  The webhook resolves `localhost` in development, like Facebook, so realtime
+  topics match the browser. The WhatsApp module imports no helper from
+  another integration. Inbound media keeps its MIME type only when it is on
+  the safe list in `utils/media.ts` (otherwise `application/octet-stream`),
+  and a stored name ending in a browser-rendered extension (`svg`, `xml`,
+  `html`, …) gets `.txt` appended, because core `read-file` picks the inline
+  content type from the stored name's extension.
 - Keep Telegram as an additive dispatcher case. Preserve other providers'
   delivery receipts, notifications, human-handoff state and message storage.
   Only Telegram chats without `customerId` may reply without a Core customer;
@@ -1607,6 +1703,11 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   Telegram `src/**/*.spec.ts` suites (`jest.config.ts`, `tsconfig.spec.json`).
   Both suffixes are excluded from `tsconfig.build.json`; prefer `.test.ts` for
   new tests. Set `TELEGRAM_MONGO_TESTS=1` to include the isolated local Mongo suite.
+- WhatsApp: with Meta app settings saved, add a WhatsApp integration through
+  Embedded Signup, create the inbox, message the number from a phone and
+  confirm the conversation appears live; reply from the inbox and watch the
+  delivery ticks move to read. Remove the integration and confirm new messages
+  are ignored.
 - Knowledge base: schedule an article a few minutes ahead, confirm it stays
   `scheduled` and absent from the help center, then becomes `publish` with
   `publishedAt` at that time; reschedule another one later and confirm the old
@@ -1651,6 +1752,12 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-10-22` — WhatsApp Cloud API through Embedded Signup
+
+- **Summary:** Adds WhatsApp onboarding through Meta Embedded Signup only, signed webhook ingestion into the native inbox, delivery statuses, replies, repair and removal. On SaaS a WABA belongs to one workspace; the registration PIN is never stored; one failing webhook change no longer blocks the others, and temporary media failures are redelivered instead of saved as a note.
+- **Affected areas:** `src/modules/integrations/whatsapp`, inbox provider dispatch (create/remove/repair/reply/status), kind map, customer merge, model registration and routes.
+- **Contracts changed:** New `/whatsapp/receive`; GraphQL `whatsappConfig`, `whatsappUpdateConfig`, `whatsappEmbeddedSignupConfig`, `whatsappEmbeddedSignupFinish`, `whatsappConnection`, `whatsappDiscardConnection`; integration kind `whatsapp-messenger`; SaaS cross-workspace collection `erxes_frontline_whatsapp.whatsapp_waba_owners`; `whatsapp_integrations.pendingSince` with a TTL index.
 
 ### `2026-10-19` — Conversation segment filter on the paged contract
 
