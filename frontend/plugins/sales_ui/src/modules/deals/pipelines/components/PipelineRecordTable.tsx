@@ -26,7 +26,7 @@ import {
 } from 'erxes-ui';
 import { TFunction } from 'i18next';
 import type { ChangeEvent } from 'react';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 
@@ -364,6 +364,18 @@ export const PipelineRecordTable = () => {
       (!createdBy || pipeline.userId === createdBy),
   );
 
+  // Filters run on the loaded rows, so load every page while filtering;
+  // otherwise matches on later pages would be missed.
+  const requestedCursor = useRef<string | null | undefined>(undefined);
+  const loadingRemainingPages = isFiltered && Boolean(pageInfo?.hasNextPage);
+
+  useEffect(() => {
+    if (!loadingRemainingPages || loading) return;
+    if (requestedCursor.current === pageInfo?.endCursor) return;
+    requestedCursor.current = pageInfo?.endCursor;
+    handleFetchMore();
+  }, [loadingRemainingPages, loading, pageInfo?.endCursor, handleFetchMore]);
+
   if (!boardsLoading && !boardsError && boards && !hasSelectedBoard) {
     return <BoardEmptyState isSettings hasBoards={boards.length > 0} />;
   }
@@ -383,7 +395,7 @@ export const PipelineRecordTable = () => {
     <>
       <PipelinesSubHeader
         count={isFiltered ? visiblePipelines.length : totalCount || 0}
-        loading={boardsLoading || loading}
+        loading={boardsLoading || loading || loadingRemainingPages}
       />
       <RecordTable.Provider
         columns={pipelinesColumns(t)}
