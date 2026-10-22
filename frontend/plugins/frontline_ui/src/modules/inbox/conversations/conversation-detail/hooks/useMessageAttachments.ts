@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 
 import { composerStorage } from '@/inbox/conversations/conversation-detail/utils/messageInput';
 import type { PendingAttachment } from '@/inbox/conversations/conversation-detail/types/composerAttachments';
+import { getWhatsappAttachmentMaximumBytes } from '@/integrations/whatsapp/attachmentLimits';
 
 const MAX_ATTACHMENTS = 10;
 const DEFAULT_MAXIMUM_BYTES = 20 * 1024 * 1024;
@@ -13,6 +14,7 @@ const TELEGRAM_MAXIMUM_BYTES = 50 * 1024 * 1024;
 export const useMessageAttachments = (
   isDiscord: boolean,
   isTelegram = false,
+  isWhatsapp = false,
 ) => {
   const { t } = useTranslation('frontline');
   const [attachments, setAttachments] = useState<IAttachment[]>([]);
@@ -50,23 +52,24 @@ export const useMessageAttachments = (
       if (!files.length) return;
 
       const selectedFiles = Array.from(files);
-      const providerMaximumBytes = isTelegram
-        ? TELEGRAM_MAXIMUM_BYTES
-        : isDiscord
-          ? DISCORD_MAXIMUM_BYTES
-          : DEFAULT_MAXIMUM_BYTES;
       const configuredMaximumBytes =
         Number.parseInt(
           composerStorage.getItem('erxes_env_REACT_APP_FILE_UPLOAD_MAX_SIZE') ||
             '',
           10,
         ) || DEFAULT_MAXIMUM_BYTES;
-      const maximumBytes = Math.min(
-        configuredMaximumBytes,
-        providerMaximumBytes,
-      );
+      // WhatsApp limits depend on the media type, so each file has its own cap.
+      const getProviderMaximumBytes = (file: File) => {
+        if (isWhatsapp) return getWhatsappAttachmentMaximumBytes(file.type);
+        if (isTelegram) return TELEGRAM_MAXIMUM_BYTES;
+        if (isDiscord) return DISCORD_MAXIMUM_BYTES;
+
+        return DEFAULT_MAXIMUM_BYTES;
+      };
+      const getMaximumBytes = (file: File) =>
+        Math.min(configuredMaximumBytes, getProviderMaximumBytes(file));
       const oversizedFile = selectedFiles.find(
-        (file) => file.size > maximumBytes,
+        (file) => file.size > getMaximumBytes(file),
       );
 
       if (oversizedFile) {
@@ -76,7 +79,7 @@ export const useMessageAttachments = (
             '{{name}} exceeds the {{size}} MB attachment limit',
             {
               name: oversizedFile.name,
-              size: maximumBytes / 1024 / 1024,
+              size: getMaximumBytes(oversizedFile) / 1024 / 1024,
             },
           ),
           variant: 'destructive',
@@ -196,7 +199,7 @@ export const useMessageAttachments = (
         },
       });
     },
-    [isDiscord, isTelegram, t, upload, updateAttachments],
+    [isDiscord, isTelegram, isWhatsapp, t, upload, updateAttachments],
   );
 
   const handleFileInput = useCallback(

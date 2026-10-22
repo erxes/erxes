@@ -1,6 +1,7 @@
 import {
   IconBrandDiscord,
   IconBrandTelegram,
+  IconBrandWhatsapp,
   IconForms,
   IconMessageFilled,
   IconPhone,
@@ -27,4 +28,5 @@ export const INTEGRATION_ICONS: Record<
   callpro: IconPhone,
   'telegram-messenger': IconBrandTelegram,
   'discord-messenger': IconBrandDiscord,
+  'whatsapp-messenger': IconBrandWhatsapp,
 };

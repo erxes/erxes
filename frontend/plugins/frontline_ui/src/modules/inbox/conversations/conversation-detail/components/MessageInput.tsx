@@ -42,6 +42,7 @@ export const MessageInput = ({
   const [replyTo, setReplyTo] = useAtom(messageReplyState);
   const isDiscord = integration?.kind === IntegrationType.DISCORD_MESSENGER;
   const isTelegram = integration?.kind === IntegrationType.TELEGRAM_MESSENGER;
+  const isWhatsapp = integration?.kind === IntegrationType.WHATSAPP_MESSENGER;
   const isInstagram = integration?.kind === IntegrationType.INSTAGRAM_MESSENGER;
   const isMessenger = integration?.kind === IntegrationType.ERXES_MESSENGER;
   const editor = useBlockEditor();
@@ -61,7 +62,7 @@ export const MessageInput = ({
     resetAttachments,
     retainAttachments,
     isUploading,
-  } = useMessageAttachments(isDiscord, isTelegram);
+  } = useMessageAttachments(isDiscord, isTelegram, isWhatsapp);
   const {
     availableChannels,
     handleKeyDown,

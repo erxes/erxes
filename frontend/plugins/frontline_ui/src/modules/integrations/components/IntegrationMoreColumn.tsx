@@ -9,6 +9,7 @@ import { IntegrationType } from '@/types/Integration';
 import { FacebookIntegrationRepair } from '../facebook/components/FacebookIntegrationRepair';
 import { InstagramIntegrationRepair } from '../instagram/components/InstagramIntegrationRepair';
 import { DiscordIntegrationRepair } from '../discord/components/DiscordIntegrationActions';
+import { WhatsappIntegrationRepair } from '../whatsapp/WhatsappIntegrationRepair';
 import { EMInstallScript } from '../erxes-messenger/components/EMInstallScript';
 import { MoveToChannelDialog } from '@/channels/components/move-resources/MoveToChannelDialog';
 import { ChannelResourceType } from '@/channels/types';
@@ -66,6 +67,12 @@ const TelegramIntegrationActions = lazy(() =>
   })),
 );
 
+const WhatsappIntegrationActions = lazy(() =>
+  import('../whatsapp/WhatsappIntegrationActions').then((module) => ({
+    default: module.WhatsappIntegrationActions,
+  })),
+);
+
 const FACEBOOK_KINDS: string[] = [
   IntegrationType.FACEBOOK_MESSENGER,
   IntegrationType.FACEBOOK_POST,
@@ -86,12 +93,14 @@ const EDITABLE_KINDS: string[] = [
   IntegrationType.MAIL,
   IntegrationType.DISCORD_MESSENGER,
   IntegrationType.TELEGRAM_MESSENGER,
+  IntegrationType.WHATSAPP_MESSENGER,
 ];
 
 export const isRepairableIntegration = (kind: string) =>
   FACEBOOK_KINDS.includes(kind) ||
   INSTAGRAM_KINDS.includes(kind) ||
-  kind === IntegrationType.DISCORD_MESSENGER;
+  kind === IntegrationType.DISCORD_MESSENGER ||
+  kind === IntegrationType.WHATSAPP_MESSENGER;
 
 /** The kind's own repair action, for every place an integration is listed. */
 export const IntegrationRepairAction = ({
@@ -109,6 +118,10 @@ export const IntegrationRepairAction = ({
 
   if (integration.kind === IntegrationType.DISCORD_MESSENGER) {
     return <DiscordIntegrationRepair integration={integration} />;
+  }
+
+  if (integration.kind === IntegrationType.WHATSAPP_MESSENGER) {
+    return <WhatsappIntegrationRepair integration={integration} />;
   }
 
   return null;
@@ -146,6 +159,9 @@ const IntegrationEditAction = ({
       )}
       {kind === IntegrationType.TELEGRAM_MESSENGER && (
         <TelegramIntegrationActions integration={integration} />
+      )}
+      {kind === IntegrationType.WHATSAPP_MESSENGER && (
+        <WhatsappIntegrationActions integration={integration} />
       )}
     </Suspense>
   );

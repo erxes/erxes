@@ -1,4 +1,5 @@
 import { useTelegramTranslation } from '@/integrations/telegram/translations';
+import { useWhatsappTranslation } from '@/integrations/whatsapp/translations';
 import { IntegrationLogo } from '@/integrations/components/IntegrationLogo';
 import { IntegrationsRecordTable } from '@/integrations/components/IntegrationsRecordTable';
 import { INTEGRATIONS } from '@/integrations/constants/integrations';
@@ -71,9 +72,16 @@ const TelegramIntegrationDetail = lazy(() =>
   ),
 );
 
+const WhatsappIntegrationDetail = lazy(() =>
+  import('@/integrations/whatsapp/WhatsappIntegrationDetail').then(
+    (module) => ({ default: module.WhatsappIntegrationDetail }),
+  ),
+);
+
 export const IntegrationDetailPage = () => {
   const { t } = useTranslation('frontline');
   useTelegramTranslation();
+  useWhatsappTranslation();
   const { integrationType, id } = useParams<{
     integrationType: string;
     id: string;
@@ -116,6 +124,9 @@ export const IntegrationDetailPage = () => {
       <Suspense fallback={<span>{t('loading', 'Loading…')}</span>}>
         {integrationType === IntegrationType.TELEGRAM_MESSENGER && (
           <TelegramIntegrationDetail />
+        )}
+        {integrationType === IntegrationType.WHATSAPP_MESSENGER && (
+          <WhatsappIntegrationDetail />
         )}
         {integrationType === IntegrationType.ERXES_MESSENGER && (
           <ErxesMessengerDetail />
