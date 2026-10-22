@@ -17,6 +17,7 @@ import { IconUpload, IconX, IconPaperclip } from '@tabler/icons-react';
 import { SelectProduct } from 'ui-modules';
 import { SpreadsheetInput } from './SpreadsheetInput';
 import { GalleryUploader } from './GalleryUploader';
+import { getValidCustomFieldOptions } from '../custom-fields/utils/getValidCustomFieldOptions';
 
 const MAX_CUSTOM_FIELD_FILE_SIZE = 650 * 1024 * 1024;
 
@@ -145,7 +146,7 @@ export const CustomFieldInput = ({
     field.placeholder || `Enter ${field.label.toLowerCase()}`;
   const selectPlaceholder =
     field.placeholder || `Select ${field.label.toLowerCase()}`;
-  const options = field.options || [];
+  const options = getValidCustomFieldOptions(field.options);
   const selectedValues = Array.isArray(value) ? value : [];
   const multiOptions = options.map((option: string) => ({
     label: option,
