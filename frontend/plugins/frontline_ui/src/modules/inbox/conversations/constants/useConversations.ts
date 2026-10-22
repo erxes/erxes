@@ -18,6 +18,7 @@ export const INBOX_CONVERSATION_QUERY_KEYS: (keyof InboxConversationQueryState)[
     'status',
     'conversationId',
     'created',
+    'resolved',
     'brandId',
     'searchValue',
   ];

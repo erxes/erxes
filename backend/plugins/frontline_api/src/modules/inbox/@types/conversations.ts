@@ -94,6 +94,8 @@ export interface IConversationListParams
   ids?: string[];
   startDate?: string;
   endDate?: string;
+  closedAtFrom?: string;
+  closedAtTo?: string;
   only?: string;
   page?: number;
   perPage?: number;

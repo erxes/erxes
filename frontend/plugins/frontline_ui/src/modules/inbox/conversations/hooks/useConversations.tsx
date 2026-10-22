@@ -63,12 +63,14 @@ export const useConversations = (
     unread,
     status,
     created,
+    resolved,
     brandId,
     searchValue,
   } = useNonNullMultiQueryState<InboxConversationQueryState>(
     INBOX_CONVERSATION_QUERY_KEYS,
   );
   const parsedDate = parseDateRangeFromString(created || '');
+  const resolvedDate = parseDateRangeFromString(resolved || '');
 
   const filterVariables = useMemo(
     () => ({
@@ -86,6 +88,8 @@ export const useConversations = (
       status: status || '',
       startDate: getDateFilterVariable(parsedDate?.from),
       endDate: getDateFilterVariable(parsedDate?.to),
+      closedAtFrom: getDateFilterVariable(resolvedDate?.from),
+      closedAtTo: getDateFilterVariable(resolvedDate?.to),
       brandId,
       searchValue,
       cursorMode: EnumCursorMode.INCLUSIVE,
@@ -105,6 +109,8 @@ export const useConversations = (
       status,
       parsedDate?.from,
       parsedDate?.to,
+      resolvedDate?.from,
+      resolvedDate?.to,
       brandId,
       searchValue,
     ],

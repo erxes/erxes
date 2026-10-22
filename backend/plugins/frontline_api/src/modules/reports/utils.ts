@@ -107,10 +107,6 @@ export async function generateConversationReportFilter(
       .map((h) => h.conversationId)
       .filter(Boolean);
 
-    if (!conversationIds.length) {
-      return { _id: { $in: [] } };
-    }
-
     match._id = { $in: conversationIds };
   }
 

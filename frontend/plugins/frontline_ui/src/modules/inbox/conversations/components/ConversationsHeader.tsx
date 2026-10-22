@@ -59,6 +59,9 @@ export const ConversationsHeader = ({
           <Filter.View filterKey="created" inDialog>
             <Filter.DialogDateView filterKey="created" />
           </Filter.View>
+          <Filter.View filterKey="resolved" inDialog>
+            <Filter.DialogDateView filterKey="resolved" label="Resolved at" />
+          </Filter.View>
         </Filter.Dialog>
       </div>
     </Filter>

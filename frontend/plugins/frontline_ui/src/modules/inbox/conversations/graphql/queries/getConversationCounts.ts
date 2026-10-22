@@ -38,6 +38,8 @@ export const CONVERSATION_FILTER_COUNTS = gql(`
     $brandId: String
     $startDate: String
     $endDate: String
+    $closedAtFrom: String
+    $closedAtTo: String
     $searchValue: String
   ) {
     unresolved: conversationsTotalCount(
@@ -47,6 +49,8 @@ export const CONVERSATION_FILTER_COUNTS = gql(`
       brandId: $brandId
       startDate: $startDate
       endDate: $endDate
+      closedAtFrom: $closedAtFrom
+      closedAtTo: $closedAtTo
       searchValue: $searchValue
     )
     conversationCounts(
@@ -56,6 +60,8 @@ export const CONVERSATION_FILTER_COUNTS = gql(`
       brandId: $brandId
       startDate: $startDate
       endDate: $endDate
+      closedAtFrom: $closedAtFrom
+      closedAtTo: $closedAtTo
       searchValue: $searchValue
     )
   }

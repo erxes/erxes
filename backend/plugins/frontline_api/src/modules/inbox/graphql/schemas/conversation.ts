@@ -17,6 +17,8 @@ const mutationFilterParams = `
   starred: String
   startDate: String
   endDate: String
+  closedAtFrom: String
+  closedAtTo: String
   segment: String
   customerId: String
   brandId: String

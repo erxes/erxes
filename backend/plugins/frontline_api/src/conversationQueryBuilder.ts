@@ -4,6 +4,7 @@ import {
   CONVERSATION_STATUSES,
 } from '@/inbox/db/definitions/constants';
 import { escapeRegExp, sendTRPCMessage } from 'erxes-api-shared/utils';
+import { isValid, parseISO } from 'date-fns';
 import * as _ from 'underscore';
 import { IModels } from '~/connectionResolvers';
 import {
@@ -39,6 +40,8 @@ export interface IListArgs {
   ids?: string[];
   startDate?: string;
   endDate?: string;
+  closedAtFrom?: string;
+  closedAtTo?: string;
   only?: string;
   page?: number;
   perPage?: number;
@@ -371,17 +374,25 @@ export default class Builder {
     };
   }
 
-  public dateFilter(startDate: string, endDate: string) {
+  public dateFilter(
+    startDate: string,
+    endDate: string,
+    field: 'createdAt' | 'closedAt' = 'createdAt',
+  ) {
     const from = new Date(startDate);
     const to = new Date(endDate);
-    if (Number.isNaN(from.getTime()) || Number.isNaN(to.getTime())) {
-      throw new Error('Invalid conversation date range');
+    if (
+      [startDate, endDate].some((date) => !isValid(parseISO(date))) ||
+      !isValid(from) ||
+      !isValid(to)
+    ) {
+      throw new TypeError('Invalid conversation date range');
     }
     if (from > to) {
-      throw new Error('Conversation start date must precede the end date');
+      throw new RangeError('Conversation start date must precede the end date');
     }
     return {
-      createdAt: { $gte: from, $lte: to },
+      [field]: { $gte: from, $lte: to },
     };
   }
 
@@ -485,6 +496,7 @@ export default class Builder {
       mentioned: {},
       unread: {},
       createdAt: {},
+      closedAt: {},
       segments: {},
       automationStatus: {},
       withSurvey: {},
@@ -547,6 +559,17 @@ export default class Builder {
       );
     }
 
+    if (this.params.closedAtFrom || this.params.closedAtTo) {
+      if (!this.params.closedAtFrom || !this.params.closedAtTo) {
+        throw new Error('Both conversation resolution dates are required');
+      }
+      this.queries.closedAt = this.dateFilter(
+        this.params.closedAtFrom,
+        this.params.closedAtTo,
+        'closedAt',
+      );
+    }
+
     if (this.params.segment) {
       this.queries.segments = await this.segmentFilter(this.params.segment);
     }
@@ -567,6 +590,7 @@ export default class Builder {
       ...this.queries.starred,
       ...this.queries.tag,
       ...this.queries.createdAt,
+      ...this.queries.closedAt,
       ...this.queries.awaitingResponse,
       ...this.queries.automationStatus,
       ...this.queries.withSurvey,
