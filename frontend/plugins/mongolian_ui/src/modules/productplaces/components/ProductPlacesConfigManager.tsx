@@ -1,19 +1,13 @@
 import { useMemo, useState } from 'react';
 import { useMutation, useQuery } from '@apollo/client';
 import { Cell, ColumnDef } from '@tanstack/react-table';
-import {
-  IconEdit,
-  IconPlus,
-  IconSettings2,
-  IconTrash,
-} from '@tabler/icons-react';
+import { IconEdit, IconPlus, IconTrash } from '@tabler/icons-react';
 import { nanoid } from 'nanoid';
 import {
   Button,
   Checkbox,
   Combobox,
   Command,
-  Empty,
   Input,
   Label,
   Popover,
@@ -52,6 +46,7 @@ import {
 import PerConditions from './PerConditions';
 import { ProductPlacesBreadcrumb } from './ProductPlacesBreadcrumb';
 import PerPrintConditions from './PerPrintConditions';
+import { SettingsEmptyState } from '@/shared/components/SettingsEmptyState';
 
 type ProductPlacesConfigCode =
   | 'dealsProductsDataPlaces'
@@ -830,14 +825,7 @@ export const ProductPlacesConfigManager = ({
               </RecordTable.Body>
             </RecordTable>
             {!loading && rows.length === 0 && (
-              <Empty className="absolute inset-0 border-0 bg-transparent">
-                <Empty.Header>
-                  <Empty.Media variant="icon">
-                    <IconSettings2 />
-                  </Empty.Media>
-                  <Empty.Title>{t('no-configs-yet')}</Empty.Title>
-                </Empty.Header>
-              </Empty>
+              <SettingsEmptyState title={t('no-configs-yet')} />
             )}
           </RecordTable.Scroll>
         </RecordTable.Provider>

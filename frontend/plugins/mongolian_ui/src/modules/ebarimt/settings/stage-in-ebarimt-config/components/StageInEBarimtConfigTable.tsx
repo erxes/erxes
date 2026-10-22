@@ -1,6 +1,5 @@
 import { Cell, ColumnDef } from '@tanstack/react-table';
 import {
-  Empty,
   RecordTable,
   RecordTableInlineCell,
   TextOverflowTooltip,
@@ -12,7 +11,6 @@ import {
 } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import {
-  IconClipboardList,
   IconCode,
   IconEdit,
   IconToggleLeft,
@@ -24,6 +22,7 @@ import { IStageInEbarimtConfigRow } from '@/ebarimt/settings/stage-in-ebarimt-co
 import { useRemoveStageInEbarimtConfig } from '@/ebarimt/settings/stage-in-ebarimt-config/hooks/useRemoveStageInEbarimtConfig';
 import { normalizeRuleIds } from '@/ebarimt/settings/stage-in-ebarimt-config/types';
 import { StageInEBarimtConfigCommandbar } from './StageInEBarimtConfigCommandbar';
+import { SettingsEmptyState } from '@/shared/components/SettingsEmptyState';
 
 const useStageInEbarimtConfigRows = () => {
   const { data, loading } = useQuery(GET_MN_CONFIGS, {
@@ -210,17 +209,10 @@ export const StageInEBarimtConfigTable = () => {
           </RecordTable.Body>
         </RecordTable>
         {!loading && rows?.length === 0 && (
-          <Empty className="absolute inset-0 border-0 bg-transparent">
-            <Empty.Header>
-              <Empty.Media variant="icon">
-                <IconClipboardList />
-              </Empty.Media>
-              <Empty.Title>{t('no-stage-in-ebarimt-config-yet')}</Empty.Title>
-              <Empty.Description>
-                {t('create-first-stage-in-ebarimt-config')}
-              </Empty.Description>
-            </Empty.Header>
-          </Empty>
+          <SettingsEmptyState
+            title={t('no-stage-in-ebarimt-config-yet')}
+            description={t('create-first-stage-in-ebarimt-config')}
+          />
         )}
       </RecordTable.Scroll>
       <StageInEBarimtConfigCommandbar />

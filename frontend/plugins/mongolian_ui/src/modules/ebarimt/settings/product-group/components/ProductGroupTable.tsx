@@ -1,6 +1,5 @@
 import { Cell, ColumnDef } from '@tanstack/react-table';
 import {
-  Empty,
   RecordTable,
   RecordTableInlineCell,
   TextOverflowTooltip,
@@ -20,7 +19,6 @@ import {
   IconSortAscending,
   IconPercentage,
   IconToggleLeft,
-  IconClipboardList,
   IconTrash,
 } from '@tabler/icons-react';
 import { useProductGroupRows } from '@/ebarimt/settings/product-group/hooks/useProductGroupRows';
@@ -30,21 +28,15 @@ import { IProductGroup } from '@/ebarimt/settings/product-group/constants/produc
 import { PRODUCT_GROUP_CURSOR_SESSION_KEY } from '@/ebarimt/settings/product-group/constants/productGroupRowDefaultVariables';
 import { useMemo } from 'react';
 import { useProductGroupRowsRemove } from '@/ebarimt/settings/product-group/hooks/useProductGroupRowsRemove';
+import { SettingsEmptyState } from '@/shared/components/SettingsEmptyState';
 
 const ProductGroupEmptyState = () => {
   const { t } = useTranslation('mongolian');
   return (
-    <Empty className="absolute inset-0 border-0 bg-transparent">
-      <Empty.Header>
-        <Empty.Media variant="icon">
-          <IconClipboardList />
-        </Empty.Media>
-        <Empty.Title>{t('no-product-group-config-yet')}</Empty.Title>
-        <Empty.Description>
-          {t('create-first-product-group-config')}
-        </Empty.Description>
-      </Empty.Header>
-    </Empty>
+    <SettingsEmptyState
+      title={t('no-product-group-config-yet')}
+      description={t('create-first-product-group-config')}
+    />
   );
 };
 

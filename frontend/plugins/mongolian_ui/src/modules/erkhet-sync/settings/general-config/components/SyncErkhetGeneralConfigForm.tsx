@@ -3,98 +3,47 @@ import { useTranslation } from 'react-i18next';
 import { useSyncErkhetGeneralConfig } from '@/erkhet-sync/settings/general-config/hooks/useSyncErkhetGeneralConfig';
 import { SyncErkhetGeneralConfigFormData } from '@/erkhet-sync/settings/general-config/types/SyncErkhetGeneralConfigTypes';
 
-type TGeneralConfigField = {
-  name: keyof SyncErkhetGeneralConfigFormData;
-  label: string;
-  placeholder: string;
+type TGeneralConfigFieldName = keyof SyncErkhetGeneralConfigFormData;
+
+const GENERAL_CONFIG_LABELS: Record<TGeneralConfigFieldName, string> = {
+  apiKey: 'api-key',
+  apiSecret: 'api-secret',
+  apiToken: 'api-token',
+  costAccount: 'cost-account',
+  salesAccount: 'sales-account',
+  productCategoryCode: 'product-category-code',
+  consumeDescription: 'consume-products-description',
+  checkCompanyUrl: 'check-company-url',
+  customerDefaultName: 'customer-default-name',
+  customerCategoryCode: 'customer-category-code',
+  companyCategoryCode: 'company-category-code',
+  debtAccounts: 'debt-accounts',
+  userEmail: 'user-email',
+  defaultCustomer: 'default-customer',
 };
 
-const GENERAL_CONFIG_SECTIONS: {
-  title: string;
-  fields: TGeneralConfigField[];
-}[] = [
-  {
-    title: 'general-settings',
-    fields: [
-      { name: 'apiKey', label: 'api-key', placeholder: 'enter-api-key' },
-      {
-        name: 'apiSecret',
-        label: 'api-secret',
-        placeholder: 'enter-api-secret',
-      },
-      { name: 'apiToken', label: 'api-token', placeholder: 'enter-api-token' },
+const GENERAL_CONFIG_SECTIONS: [string, TGeneralConfigFieldName[]][] = [
+  ['general-settings', ['apiKey', 'apiSecret', 'apiToken']],
+  [
+    'product-to-erkhet',
+    [
+      'costAccount',
+      'salesAccount',
+      'productCategoryCode',
+      'consumeDescription',
     ],
-  },
-  {
-    title: 'product-to-erkhet',
-    fields: [
-      {
-        name: 'costAccount',
-        label: 'cost-account',
-        placeholder: 'enter-cost-account',
-      },
-      {
-        name: 'salesAccount',
-        label: 'sales-account',
-        placeholder: 'enter-sales-account',
-      },
-      {
-        name: 'productCategoryCode',
-        label: 'product-category-code',
-        placeholder: 'enter-product-category-code',
-      },
-      {
-        name: 'consumeDescription',
-        label: 'consume-products-description',
-        placeholder: 'enter-consume-products-description',
-      },
+  ],
+  [
+    'customer-to-erkhet',
+    [
+      'checkCompanyUrl',
+      'customerDefaultName',
+      'customerCategoryCode',
+      'companyCategoryCode',
+      'debtAccounts',
     ],
-  },
-  {
-    title: 'customer-to-erkhet',
-    fields: [
-      {
-        name: 'checkCompanyUrl',
-        label: 'check-company-url',
-        placeholder: 'enter-check-company-url',
-      },
-      {
-        name: 'customerDefaultName',
-        label: 'customer-default-name',
-        placeholder: 'enter-customer-default-name',
-      },
-      {
-        name: 'customerCategoryCode',
-        label: 'customer-category-code',
-        placeholder: 'enter-customer-category-code',
-      },
-      {
-        name: 'companyCategoryCode',
-        label: 'company-category-code',
-        placeholder: 'enter-company-category-code',
-      },
-      {
-        name: 'debtAccounts',
-        label: 'debt-accounts',
-        placeholder: 'enter-debt-accounts',
-      },
-    ],
-  },
-  {
-    title: 'loan-transaction-to-erkhet',
-    fields: [
-      {
-        name: 'userEmail',
-        label: 'user-email',
-        placeholder: 'enter-user-email',
-      },
-      {
-        name: 'defaultCustomer',
-        label: 'default-customer',
-        placeholder: 'enter-default-customer',
-      },
-    ],
-  },
+  ],
+  ['loan-transaction-to-erkhet', ['userEmail', 'defaultCustomer']],
 ];
 
 export const SyncErkhetGeneralConfigForm = () => {
@@ -118,26 +67,27 @@ export const SyncErkhetGeneralConfigForm = () => {
       >
         <div className="min-h-0 flex-1 overflow-y-auto">
           <div className="mx-auto flex max-w-4xl flex-col gap-6 p-6">
-            {GENERAL_CONFIG_SECTIONS.map((section) => (
-              <section
-                key={section.title}
-                className="rounded-lg border bg-background"
-              >
+            {GENERAL_CONFIG_SECTIONS.map(([title, fieldNames]) => (
+              <section key={title} className="rounded-lg border bg-background">
                 <h2 className="border-b px-4 py-3 text-sm font-semibold">
-                  {t(section.title)}
+                  {t(title)}
                 </h2>
                 <div className="grid gap-4 p-4 md:grid-cols-2">
-                  {section.fields.map((item) => (
+                  {fieldNames.map((name) => (
                     <Form.Field
-                      key={item.name}
-                      name={item.name}
+                      key={name}
+                      name={name}
                       control={form.control}
                       render={({ field }) => (
                         <Form.Item>
-                          <Form.Label>{t(item.label)}</Form.Label>
+                          <Form.Label>
+                            {t(GENERAL_CONFIG_LABELS[name])}
+                          </Form.Label>
                           <Form.Control>
                             <Input
-                              placeholder={t(item.placeholder)}
+                              placeholder={t(
+                                `enter-${GENERAL_CONFIG_LABELS[name]}`,
+                              )}
                               className="h-8"
                               {...field}
                             />

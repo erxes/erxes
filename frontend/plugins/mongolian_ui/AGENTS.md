@@ -159,14 +159,16 @@
   row selection, sticky structural columns, and vertical scrolling for the list
   pane.
 - The Sync Erkhet general config form (`SyncErkhetGeneralConfigForm`) renders
-  its fields from `GENERAL_CONFIG_SECTIONS` as bordered section cards with a
-  two-column field grid; the full-width body scrolls and the Save button stays
-  in a fixed footer bar.
+  its fields from `GENERAL_CONFIG_SECTIONS` (field names per section) and
+  `GENERAL_CONFIG_LABELS` (label key; placeholder is `enter-<label>`) as
+  bordered section cards with a two-column field grid; the full-width body
+  scrolls and the Save button stays in a fixed footer bar.
 
 ## Local Invariants
 
 - Settings config tables (eBarimt and product places) show an empty list with
-  the `erxes-ui` `Empty` state and no add button inside the table; the add
+  the shared `SettingsEmptyState` (`src/modules/shared/components`, built on
+  the `erxes-ui` `Empty` state) and no add button inside the table; the add
   action lives only in the page header.
 - The plugin owns its whole app sidebar. `src/modules/MongolianMain.tsx` (the `./mongolian`
   expose) wraps its routes in `erxes-ui` `AppLayout` (`id="mongolian"`) with

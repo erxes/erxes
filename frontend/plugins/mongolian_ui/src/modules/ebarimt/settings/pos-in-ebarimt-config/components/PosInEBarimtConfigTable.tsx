@@ -1,6 +1,5 @@
 import { Cell, ColumnDef } from '@tanstack/react-table';
 import {
-  Empty,
   RecordTable,
   RecordTableInlineCell,
   TextOverflowTooltip,
@@ -11,19 +10,14 @@ import {
   Command,
 } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import {
-  IconClipboardList,
-  IconCode,
-  IconEdit,
-  IconTag,
-  IconTrash,
-} from '@tabler/icons-react';
+import { IconCode, IconEdit, IconTag, IconTrash } from '@tabler/icons-react';
 import { useQuery } from '@apollo/client';
 import { GET_MN_CONFIGS } from '@/ebarimt/settings/pos-in-ebarimt-config/graphql/mnConfigs';
 import { IPosInEbarimtConfigRow } from '@/ebarimt/settings/pos-in-ebarimt-config/states/posInEbarimtConfigStates';
 import { useRemovePosInEbarimtConfig } from '@/ebarimt/settings/pos-in-ebarimt-config/hooks/useRemovePosInEbarimtConfig';
 import { normalizeRuleIds } from '@/ebarimt/settings/pos-in-ebarimt-config/types';
 import { PosInEBarimtConfigCommandbar } from './PosInEBarimtConfigCommandbar';
+import { SettingsEmptyState } from '@/shared/components/SettingsEmptyState';
 
 const usePosInEbarimtConfigRows = () => {
   const { data, loading } = useQuery(GET_MN_CONFIGS, {
@@ -191,17 +185,10 @@ export const PosInEBarimtConfigTable = () => {
           </RecordTable.Body>
         </RecordTable>
         {!loading && rows?.length === 0 && (
-          <Empty className="absolute inset-0 border-0 bg-transparent">
-            <Empty.Header>
-              <Empty.Media variant="icon">
-                <IconClipboardList />
-              </Empty.Media>
-              <Empty.Title>{t('no-pos-in-ebarimt-config-yet')}</Empty.Title>
-              <Empty.Description>
-                {t('create-first-pos-in-ebarimt-config')}
-              </Empty.Description>
-            </Empty.Header>
-          </Empty>
+          <SettingsEmptyState
+            title={t('no-pos-in-ebarimt-config-yet')}
+            description={t('create-first-pos-in-ebarimt-config')}
+          />
         )}
       </RecordTable.Scroll>
       <PosInEBarimtConfigCommandbar />

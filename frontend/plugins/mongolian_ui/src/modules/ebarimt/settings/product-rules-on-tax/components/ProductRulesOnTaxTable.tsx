@@ -1,6 +1,5 @@
 import { Cell, ColumnDef } from '@tanstack/react-table';
 import {
-  Empty,
   RecordTable,
   RecordTableInlineCell,
   TextOverflowTooltip,
@@ -17,7 +16,6 @@ import {
   IconTag,
   IconReceipt,
   IconPercentage,
-  IconClipboardList,
   IconTrash,
 } from '@tabler/icons-react';
 import { useSetAtom } from 'jotai';
@@ -27,21 +25,15 @@ import { productRulesOnTaxDetailAtom } from '@/ebarimt/settings/product-rules-on
 import { useProductRulesOnTaxRows } from '@/ebarimt/settings/product-rules-on-tax/hooks/useProductRulesOnTaxRows';
 import { useProductRulesOnTaxRemove } from '@/ebarimt/settings/product-rules-on-tax/hooks/useProductRulesOnTaxRowsRemove';
 import { TAX_TYPES } from '../constants/productRulesOnTaxDefaultValues';
+import { SettingsEmptyState } from '@/shared/components/SettingsEmptyState';
 
 const ProductRulesOnTaxEmptyState = () => {
   const { t } = useTranslation('mongolian');
   return (
-    <Empty className="absolute inset-0 border-0 bg-transparent">
-      <Empty.Header>
-        <Empty.Media variant="icon">
-          <IconClipboardList />
-        </Empty.Media>
-        <Empty.Title>{t('no-product-rules-on-tax-config-yet')}</Empty.Title>
-        <Empty.Description>
-          {t('create-first-product-rules-on-tax-config')}
-        </Empty.Description>
-      </Empty.Header>
-    </Empty>
+    <SettingsEmptyState
+      title={t('no-product-rules-on-tax-config-yet')}
+      description={t('create-first-product-rules-on-tax-config')}
+    />
   );
 };
 
