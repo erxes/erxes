@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-10-21`
+- **Last synchronized:** `2026-10-22`
 
 ## Scope
 
@@ -154,6 +154,14 @@
   campaign, whose steps run against a customer. The ticket one declares
   `frontline:tickets.channel|pipeline|status` requirements that are answered
   before it can be installed.
+- A Facebook message action with an **Input** message waits for the person's
+  next typed message (`meta/automation/messages/inputWait.ts`). It stores
+  `conversations_facebooks.inputWait` (`executionId`, `actionId`,
+  `replyConnectId`, `expiresAt` from the step's "Wait for"). The next typed
+  direct message claims it once and resumes the run through `repeatOptions`
+  with the trigger `botId` as the "If Reply" connect; the
+  `facebookInputTimeout` queue resumes `ifNotReply` at expiry if nobody
+  claimed it. Nothing is stored when neither branch is connected.
 - Surveys are a reusable definition (`title`, ordered `steps`, optional
   `durationHours`, optional `brandId`, `active`/`archived` status) owned by a
   channel through `channelId`. Each step is one question with its own `name`,
@@ -295,10 +303,18 @@
   and `tagId`. Picking a channel or tag therefore never zeroes the other
   entries in the forms page sidebar.
 
-- Ticket pipelines persist an ordered unique `propertyIds` selection. Create
-  and update validate every id against Core `frontline:ticket` fields before
-  writing it. `isPropertySelectionConfigured` distinguishes untouched legacy
-  pipelines from an intentional empty selection.
+- Ticket pipelines may persist a `createLayout`: rows (max 4) of placeable
+  system codes (`TICKET_CREATE_LAYOUT_SYSTEM_CODES` in
+  `modules/ticket/utils/pipelineCreateLayout.ts`) and `property:<fieldId>`.
+  Saving validates it: unknown or fixed codes are refused, deleted properties
+  dropped; `null` means the default form. There is no separate detail
+  selection: `propertyIds` and `isPropertySelectionConfigured` were removed
+  (old values stay in Mongo, unread).
+- Ticket meta system fields: name, channel, pipeline, status are
+  `alwaysFilled` + `outsideLayout`; description is `outsideLayout`; the
+  placeable chips are `visibleToCreateByDefault`; number, labels, companies and
+  attachments are `notOnCreate`. Core caches plugin meta until it restarts, so
+  a meta change needs a core restart to show in rules.
 - Runs as a federated subgraph plus tRPC service on port `3304`, with GraphQL
   subscriptions enabled.
 - Multi-channel inbox with membership-scoped conversation visibility.
@@ -325,7 +341,20 @@
 - Resolves the Meta app per integration kind, so page posting can run on its own
   `FACEBOOK_POST_APP_ID`/`FACEBOOK_POST_APP_SECRET` credentials while Messenger
   keeps the shared app.
-- Runs Facebook/Instagram/Discord/mail/inbox/ticket automation triggers and actions,
+- The **Form submitted** trigger (`frontline:form.submissions`) fires from
+  `widgetsSaveLead` and `cpWidgetsSaveLead` after the submission rows are
+  saved. The target is `TFormSubmittedTriggerTarget`: `_id` is the submission
+  `groupId`, plus `formId`, `channelId`, `customerId`, `conversationId` and
+  `fieldValues` keyed by form field id. Config is `{ channelId?, formId,
+  conjunction: 'and' | 'or', conditions: [{ fieldId, operator, value? }] }`;
+  `checkCustomTrigger` (`modules/form/meta/automation/workers.ts`) needs the
+  exact `formId` and decides each condition with the shared
+  `isAutomationConditionMatched`. `channelId` only narrows the UI form list.
+  Its output sets `dynamicVariables`, so `resolveOutputVariables` lists the
+  chosen form's fields as a **Form answers** group (`fieldValues.<fieldId>`,
+  typed, with options); actions read them as
+  `{{ trigger.fieldValues.<fieldId> }}`, resolved straight from the target.
+- Runs Facebook/Instagram/Discord/mail/inbox/ticket/form automation triggers and actions,
   including bot message sequences with postback buttons and wait conditions.
 - Takes turns on Facebook Messenger for AI replies: a typed direct message
   reaches automations through a delayed BullMQ trigger (2 s for text, 5 s for
@@ -1289,6 +1318,9 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - Automation types — trigger `frontline:mail.messages` (target
   `TMailTriggerTarget`), actions `frontline:mail.messages.create` (Send Email)
   and `frontline:mail.drafts.create` (Draft Email Reply).
+- Automation type — trigger `frontline:form.submissions` (target
+  `TFormSubmittedTriggerTarget`, config `TFormSubmittedTriggerConfig` in
+  `modules/form/meta/automation/types.ts`).
 - Nx target `schema:print` uses the shared `scripts/print-subgraph-schema.ts` printer (cached, output `generated/schema.graphql`),
   consumed by `gateway:schema:compose`; `frontline_ui:codegen` uses that composed schema.
 
@@ -1341,6 +1373,19 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 ## Local Invariants
 
+- A Form submitted condition on an array value (checkbox group, multi-select)
+  matches when any option matches; `dne`/`numberdne`/`dnc` must hold for every
+  option, and `is`/`ins` test the whole value. Number and boolean values are
+  compared as text, because the rule value is text.
+
+- A typed reply is never routed by the automation engine's `payload.btnId`
+  wait (it has no payload); only `claimFacebookInputReply` resumes an Input
+  step, and the claim and the timeout both unset `inputWait` atomically so
+  exactly one of "If Reply" / "If Not Reply" runs.
+- `updatePipeline` and `removePipeline` allow only the owner or an `admin`
+  member of the pipeline's channel (and of the target channel when
+  `updatePipeline` moves it), the same rule as `channelUpdate`.
+  `createPipeline` still checks only that a user is signed in.
 - Widget identity comes only from the signed session token in the
   `erxes-widget-token` header (`src/modules/inbox/widgetSession.ts`), issued
   by `widgetsMessengerConnect` as `sessionToken`. Widget operations take no
@@ -1573,6 +1618,10 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   Reply, mail the inbox twice, and confirm each mail gets its own draft card;
   edit one, send it, delete the other. Swap the last step for Send Email and
   confirm the fourth reply within an hour is refused.
+- Facebook Input step: Messenger trigger → Send Message with an Input (Wait
+  for 1 minute), connect "If Reply" and "If Not Reply" to two text messages.
+  Reply within the minute and get only the first; stay silent and get only
+  the second; a reply does not start the automation again.
 - Move a form, survey, response template, ticket pipeline and integration
   between two channels and confirm each leaves the source channel's list,
   appears in the destination's, and survives a reload.
