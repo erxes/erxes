@@ -96,7 +96,6 @@ export interface IMessengerData {
     }>;
   };
   supporterIds?: string[];
-  notifyCustomer?: boolean;
   availabilityMethod?: string;
   isOnline?: boolean;
   onlineHours?: IMessengerOnlineHours[];

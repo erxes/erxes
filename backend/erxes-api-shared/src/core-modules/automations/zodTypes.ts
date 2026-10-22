@@ -133,6 +133,13 @@ export const ResolveOutputPathsInputData = z.object({
   defaultValue: z.any().optional(),
 });
 
+export const ResolveOutputVariablesInputData = z.object({
+  moduleName: z.string(),
+  collectionType: z.string().optional(),
+  nodeType: z.string(),
+  config: z.record(z.any()),
+});
+
 export const SetPropertiesInputData = z.object({
   moduleName: z.string(),
   triggerType: z.string(),
@@ -183,6 +190,10 @@ export const ResolveOutputPathsInput = AutomationBaseInput.extend({
   data: ResolveOutputPathsInputData,
 });
 
+export const ResolveOutputVariablesInput = AutomationBaseInput.extend({
+  data: ResolveOutputVariablesInputData,
+});
+
 export const SetPropertiesInput = AutomationBaseInput.extend({
   data: SetPropertiesInputData,
 });
@@ -209,6 +220,9 @@ export type TAutomationProducersInput = {
   [TAutomationProducers.FIND_OBJECT]: z.infer<typeof FindObjectInputData>;
   [TAutomationProducers.RESOLVE_OUTPUT_PATHS]: z.infer<
     typeof ResolveOutputPathsInputData
+  >;
+  [TAutomationProducers.RESOLVE_OUTPUT_VARIABLES]: z.infer<
+    typeof ResolveOutputVariablesInputData
   >;
   [TAutomationProducers.SET_PROPERTIES]: z.infer<typeof SetPropertiesInputData>;
 

@@ -16,21 +16,21 @@ export const useAutomationNodeOutput = (
   activeSourceNode: TAutomationVariableSourceNode | null,
 ) => {
   const { actions, triggers } = useAutomationNodes();
-  // const [pluginName, moduleName, recordName] = splitAutomationNodeType(
-  //   activeSourceNode?.type || '',
-  // );
+  const sourceNodeConfig =
+    activeSourceNode?.nodeType === AutomationNodeType.Action
+      ? actions.find((action) => action.id === activeSourceNode.id)?.config
+      : triggers.find((trigger) => trigger.id === activeSourceNode?.id)?.config;
 
-  // const isCoreNode = isCoreAutomationNodeType(activeSourceNode?.type);
-  // const nodeType = isCoreNode
-  //   ? activeSourceNode?.type || ''
-  //   : `${pluginName}:${moduleName}.${recordName}`;
-
+  // The config lets a plugin add variables it decides (a form's fields)
   const { data, loading } = useQuery<TAutomationNodeOutputResponse>(
     AUTOMATION_NODE_OUTPUT,
     {
       skip: !activeSourceNode?.type,
       variables: {
         nodeType: activeSourceNode?.type || '',
+        config: isCoreAutomationNodeType(activeSourceNode?.type)
+          ? null
+          : sourceNodeConfig || null,
       },
       fetchPolicy: 'cache-first',
     },
@@ -38,10 +38,6 @@ export const useAutomationNodeOutput = (
 
   const variables = data?.automationNodeOutput?.variables || [];
   const propertySource = data?.automationNodeOutput?.propertySource;
-  const sourceNodeConfig =
-    activeSourceNode?.nodeType === AutomationNodeType.Action
-      ? actions.find((action) => action.id === activeSourceNode.id)?.config
-      : triggers.find((trigger) => trigger.id === activeSourceNode?.id)?.config;
 
   const { coreVariables, corePropertySource } = useAutomationCoreNodeOutput({
     activeSourceNode,

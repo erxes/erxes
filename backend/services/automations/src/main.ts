@@ -65,6 +65,7 @@ app.use(webhookRoutes);
 app.use(
   '/trpc',
   trpcExpress.createExpressMiddleware({
+    allowMethodOverride: true,
     router: appRouter,
     createContext: createTRPCContext(async (_subdomain, context) => context),
   }),

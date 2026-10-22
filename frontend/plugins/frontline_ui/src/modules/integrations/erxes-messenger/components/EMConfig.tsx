@@ -1,17 +1,12 @@
 import { useTranslation } from 'react-i18next';
-import {
-  ControllerRenderProps,
-  useFieldArray,
-  useForm,
-  UseFormReturn,
-} from 'react-hook-form';
+import { useFieldArray, useForm, UseFormReturn } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { EM_CONFIG_SCHEMA } from '@/integrations/erxes-messenger/constants/emConfigSchema';
 import { useQuery } from '@apollo/client';
 import {
+  Badge,
   Button,
-  Collapsible,
   Combobox,
   Command,
   Form,
@@ -21,6 +16,7 @@ import {
   Select,
   Spinner,
   Switch,
+  Tabs,
   Textarea,
   Tooltip,
 } from 'erxes-ui';
@@ -30,7 +26,14 @@ import {
   EMLayoutPreviousStepButton,
 } from '@/integrations/erxes-messenger/components/EMLayout';
 import { SelectMember, SelectBrand } from 'ui-modules';
-import { IconPlus, IconQuestionMark, IconTrash } from '@tabler/icons-react';
+import {
+  IconBook,
+  IconPlus,
+  IconQuestionMark,
+  IconRobot,
+  IconTicket,
+  IconTrash,
+} from '@tabler/icons-react';
 import {
   erxesMessengerSetupConfigAtom,
   erxesMessengerSetupEditSheetOpenAtom,
@@ -41,12 +44,15 @@ import { useEditMessenger } from '@/integrations/erxes-messenger/hooks/useEditMe
 import { useAtomValue, useSetAtom } from 'jotai';
 import { resetErxesMessengerSetupAtom } from '@/integrations/erxes-messenger/states/EMSetupResetState';
 import { useParams } from 'react-router';
-import { SelectTicketConfig } from '@/pipelines/components/configs/components/SelectTicketConfig';
+import { EMTicketConfigPicker } from '@/integrations/erxes-messenger/components/EMTicketConfigPicker';
+import { EMKbTopicPicker } from '@/integrations/erxes-messenger/components/EMKbTopicPicker';
+import { EMMessengerAutomations } from '@/integrations/erxes-messenger/components/EMMessengerAutomations';
 import { useState } from 'react';
-import { useTopicOptions } from '@/knowledgebase/topics/hooks/useTopics';
 import { EM_CONTENT_TYPES } from '../constants/emContentTypes';
 
 type EMConfigFormValues = z.infer<typeof EM_CONFIG_SCHEMA>;
+
+type TConfigTab = 'bot' | 'ticket' | 'kb';
 
 export const EMConfig = () => {
   const { t } = useTranslation('frontline', {
@@ -69,6 +75,10 @@ export const EMConfig = () => {
 
   const loading = createLoading || editLoading;
   const isEditMode = !!idToEdit;
+  const [configTab, setConfigTab] = useState<TConfigTab>('bot');
+  const botEnabled = form.watch('botSetup.botCheck');
+  const ticketConfigCount = form.watch('ticketConfigIds')?.length ?? 0;
+  const knowledgeBaseTopicId = form.watch('knowledgeBaseTopicId');
 
   return (
     <Form {...form}>
@@ -105,52 +115,64 @@ export const EMConfig = () => {
           }
         >
           <div className="p-4 pt-0 space-y-6 overflow-auto styled-scroll flex-1">
-            <Collapsible defaultOpen>
-              <Collapsible.TriggerButton className="font-mono uppercase font-semibold text-foreground">
-                <Collapsible.TriggerIcon />
-                {t('integration-setup')}
-              </Collapsible.TriggerButton>
-              <Collapsible.Content className="p-2 px-4 space-y-6">
-                <Form.Field
-                  name="name"
-                  render={({ field }) => (
-                    <Form.Item>
-                      <Form.Label>{t('name')}</Form.Label>
-                      <Form.Control>
-                        <Input {...field} />
-                      </Form.Control>
-                      <Form.Message />
-                    </Form.Item>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <Form.Field
+                name="name"
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label>{t('name')}</Form.Label>
+                    <Form.Control>
+                      <Input {...field} />
+                    </Form.Control>
+                    <Form.Message />
+                  </Form.Item>
+                )}
+              />
+              <Form.Field
+                name="brandId"
+                rules={{ required: 'Brand is required' }}
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label>{t('brand')}</Form.Label>
+                    <Form.Control>
+                      <SelectBrand
+                        value={field.value}
+                        onValueChange={field.onChange}
+                        placeholder={t('select-a-brand')}
+                      />
+                    </Form.Control>
+                    <Form.Description>
+                      {t('choose-the-brand-for-this-integration')}
+                    </Form.Description>
+                    <Form.Message />
+                  </Form.Item>
+                )}
+              />
+            </div>
+            <Tabs
+              value={configTab}
+              onValueChange={(value) => setConfigTab(value as TConfigTab)}
+            >
+              <Tabs.List className="w-full justify-start">
+                <Tabs.Trigger value="bot" className="gap-1.5">
+                  <IconRobot className="size-4" />
+                  {t('bot', 'Bot')}
+                  {botEnabled && <Badge variant="secondary">AI</Badge>}
+                </Tabs.Trigger>
+                <Tabs.Trigger value="ticket" className="gap-1.5">
+                  <IconTicket className="size-4" />
+                  {t('ticket', 'Ticket')}
+                  {ticketConfigCount > 0 && (
+                    <Badge variant="secondary">{ticketConfigCount}</Badge>
                   )}
-                />
-                <Form.Field
-                  name="brandId"
-                  rules={{ required: 'Brand is required' }}
-                  render={({ field }) => (
-                    <Form.Item>
-                      <Form.Label>{t('brand')}</Form.Label>
-                      <Form.Control>
-                        <SelectBrand
-                          value={field.value}
-                          onValueChange={field.onChange}
-                          placeholder={t('select-a-brand')}
-                        />
-                      </Form.Control>
-                      <Form.Description>
-                        {t('choose-the-brand-for-this-integration')}
-                      </Form.Description>
-                      <Form.Message />
-                    </Form.Item>
-                  )}
-                />
-              </Collapsible.Content>
-            </Collapsible>
-            <Collapsible>
-              <Collapsible.TriggerButton className="font-mono uppercase font-semibold text-foreground">
-                <Collapsible.TriggerIcon />
-                {t('bot-setup')}
-              </Collapsible.TriggerButton>
-              <Collapsible.Content className="p-2 px-4 space-y-4">
+                </Tabs.Trigger>
+                <Tabs.Trigger value="kb" className="gap-1.5">
+                  <IconBook className="size-4" />
+                  {t('knowledge-base', 'Knowledge base')}
+                  {knowledgeBaseTopicId && <Badge variant="secondary">1</Badge>}
+                </Tabs.Trigger>
+              </Tabs.List>
+              <Tabs.Content value="bot" className="space-y-4 pt-4">
                 <Form.Field
                   name="botSetup.greetingMessage"
                   render={({ field }) => (
@@ -229,55 +251,37 @@ export const EMConfig = () => {
                     )}
                   />
                 )}
-              </Collapsible.Content>
-            </Collapsible>
-            <Collapsible>
-              <Collapsible.TriggerButton className="font-mono uppercase font-semibold text-foreground">
-                <Collapsible.TriggerIcon />
-                {t('ticket-config')}
-              </Collapsible.TriggerButton>
-              <Collapsible.Content className="space-y-4 p-2">
+                <EMMessengerAutomations integrationId={idToEdit || undefined} />
+              </Tabs.Content>
+              <Tabs.Content value="ticket" className="pt-4">
                 <Form.Field
                   name="ticketConfigIds"
                   render={({ field }) => (
-                    <Form.Item className="rounded-sm shadow-xs p-2">
-                      <Form.Label>{t('select-ticket-config')}</Form.Label>
-                      <SelectTicketConfig.FormItem
-                        value={field.value}
-                        onValueChange={field.onChange}
+                    <Form.Item>
+                      <EMTicketConfigPicker
+                        channelId={form.watch('channelId')}
+                        value={field.value ?? []}
+                        onChange={field.onChange}
                       />
-                      <Form.Description>
-                        {t('ticket-config-display-tip')}
-                      </Form.Description>
                     </Form.Item>
                   )}
                 />
-              </Collapsible.Content>
-            </Collapsible>
-            <Collapsible>
-              <Collapsible.TriggerButton className="font-mono uppercase font-semibold text-foreground">
-                <Collapsible.TriggerIcon />
-                {t('knowledge-base-topic')}
-              </Collapsible.TriggerButton>
-              <Collapsible.Content className="space-y-4 p-2">
-                <Form.Field<
-                  z.infer<typeof EM_CONFIG_SCHEMA>,
-                  'knowledgeBaseTopicId'
-                >
+              </Tabs.Content>
+              <Tabs.Content value="kb" className="pt-4">
+                <Form.Field
                   name="knowledgeBaseTopicId"
                   render={({ field }) => (
-                    <Form.Item className="rounded-sm shadow-xs p-2">
-                      <Form.Label>
-                        {t('select-knowledge-base-topic')}
-                      </Form.Label>
-                      <Form.Control>
-                        <SelectKnowledgeBaseTopic field={field} />
-                      </Form.Control>
+                    <Form.Item>
+                      <EMKbTopicPicker
+                        value={field.value}
+                        onChange={field.onChange}
+                        brandId={form.watch('brandId')}
+                      />
                     </Form.Item>
                   )}
                 />
-              </Collapsible.Content>
-            </Collapsible>
+              </Tabs.Content>
+            </Tabs>
           </div>
         </EMLayout>
       </form>
@@ -560,54 +564,6 @@ const SelectMessengerAutomation = ({
                 {automation._id === value && <Combobox.Check />}
               </Command.Item>
             ))}
-          </Command.List>
-        </Command>
-      </Combobox.Content>
-    </Popover>
-  );
-};
-
-const SelectKnowledgeBaseTopic = ({
-  field,
-}: {
-  field: ControllerRenderProps<
-    z.infer<typeof EM_CONFIG_SCHEMA>,
-    'knowledgeBaseTopicId'
-  >;
-}) => {
-  const { t } = useTranslation('frontline', {
-    keyPrefix: 'modules.integrations',
-  });
-  const [_open, _setOpen] = useState<boolean>(false);
-  const { topics } = useTopicOptions();
-  const selectedTopic = (field.value?.length &&
-    topics?.find((topic) => topic._id === field.value)) || {
-    title: t('select-a-topic'),
-  };
-
-  return (
-    <Popover open={_open} onOpenChange={_setOpen}>
-      <Combobox.Trigger>
-        <span>{selectedTopic.title}</span>
-      </Combobox.Trigger>
-      <Combobox.Content>
-        <Command>
-          <Command.List>
-            <Command.Input placeholder={t('search-topic')} />
-            {topics &&
-              topics.map((topic) => (
-                <Command.Item
-                  key={topic._id}
-                  value={topic._id}
-                  onSelect={(v) => {
-                    field.onChange(v);
-                    _setOpen(false);
-                  }}
-                >
-                  {topic.title}
-                  {topic._id === field.value && <Combobox.Check />}
-                </Command.Item>
-              ))}
           </Command.List>
         </Command>
       </Combobox.Content>

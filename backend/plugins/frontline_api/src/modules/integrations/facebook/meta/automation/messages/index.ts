@@ -27,6 +27,7 @@ import {
   resolveMessagingWindow,
   sendMessage,
 } from './utils';
+import { startFacebookInputWait } from './inputWait';
 
 const shouldSkipAutomatedReply = async (
   models: IModels,
@@ -389,6 +390,18 @@ export const actionCreateMessage = async ({
     }
 
     const { optionalConnects = [] } = config || {};
+    const input = messages.find(({ inputData }) => inputData)?.inputData;
+
+    if (input) {
+      await startFacebookInputWait(models, subdomain, {
+        conversationId: conversation._id,
+        executionId,
+        actionId,
+        botId,
+        input,
+        optionalConnects,
+      });
+    }
 
     if (!optionalConnects?.length) {
       return result;

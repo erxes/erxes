@@ -1,11 +1,8 @@
 import { useMutation } from '@apollo/client';
 import { applyUiOptionsToTailwind } from '@libs/tw-utils';
-import {
-  getLocalStorageItem,
-  getVisitorId,
-  setLocalStorageItem,
-} from '@libs/utils';
-import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { removeLocalStorageItem, setLocalStorageItem } from '@libs/utils';
+import { setWidgetToken } from '@libs/widgetSession';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { useEffect, useRef } from 'react';
 import { connect } from '../graphql';
 import {
@@ -40,7 +37,7 @@ export const useConnect = ({ integrationId }: connectionProps) => {
   const setTicketConfigs = useSetAtom(ticketConfigsAtom);
   const setHasKnowledgeBaseTopic = useSetAtom(hasKnowledgeBaseTopicAtom);
   const setCustomerId = useSetAtom(customerIdAtom);
-  const [customerData, setCustomerData] = useAtom(customerDataAtom);
+  const setCustomerData = useSetAtom(customerDataAtom);
   const connectionKeyRef = useRef<string>('');
   const isConnectingRef = useRef(false);
 
@@ -52,6 +49,9 @@ export const useConnect = ({ integrationId }: connectionProps) => {
       isConnectingRef.current = false;
       const connectionData = response?.widgetsMessengerConnect;
       if (connectionData) {
+        // Every later request proves who this browser is with this token.
+        setWidgetToken(connectionData.sessionToken);
+
         const uiOptions = connectionData.uiOptions || {
           primary: {
             DEFAULT: '#5629B6',
@@ -74,6 +74,11 @@ export const useConnect = ({ integrationId }: connectionProps) => {
           setLocalStorageItem('customerId', connectionData.customerId);
           setCustomerId(connectionData.customerId);
           setCustomerData(connectionData.customer as ICustomerData);
+        } else {
+          // A fresh session is a fresh visitor: forget any earlier identity.
+          removeLocalStorageItem('customerId');
+          setCustomerId(null);
+          setCustomerData(null);
         }
         setIntegrationId(connectionData.integrationId);
         setUiOptions(uiOptions as IWidgetUiOptions);
@@ -114,52 +119,22 @@ export const useConnect = ({ integrationId }: connectionProps) => {
       connectionKeyRef.current = connectionKey;
       isConnectingRef.current = true;
 
-      // Get fresh values from messengerData and localStorage
-      const cachedCustomer = customerData;
-      const cachedCustomerId =
-        cachedCustomer?._id || getLocalStorageItem('customerId');
-      const phone = messengerData?.phone;
-      const code = messengerData?.code;
-      const customData = messengerData?.data;
-      const companyData = messengerData?.companyData;
-
-      const visitorId = await getVisitorId();
-
-      const emailChanged = email && email !== cachedCustomer?.emails?.[0];
-
-      const phoneChanged = phone && phone !== cachedCustomer?.phones?.[0];
-
-      const variables = email
-        ? {
-            integrationId,
-            visitorId: visitorId || null,
-            cachedCustomerId:
-              emailChanged || phoneChanged
-                ? undefined
-                : cachedCustomerId || undefined,
-            isUser: true,
-            email,
-            phone,
-            code,
-            data: customData,
-            companyData,
-          }
-        : {
-            integrationId,
-            visitorId,
-            cachedCustomerId: cachedCustomerId || undefined,
-            isUser: false,
-            phone,
-            code,
-            data: customData,
-            companyData,
-          };
-
-      await connectMutation({ variables });
+      // Who this browser is travels in the session token; the site's email,
+      // phone and code are only claims stored on that session's own customer.
+      await connectMutation({
+        variables: {
+          integrationId,
+          isUser: !!email,
+          email,
+          phone: messengerData?.phone,
+          code: messengerData?.code,
+          data: messengerData?.data,
+          companyData: messengerData?.companyData,
+        },
+      });
     };
 
     executeConnection();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [integrationId, messengerData?.email, messengerData?.phone]);
 
   return {

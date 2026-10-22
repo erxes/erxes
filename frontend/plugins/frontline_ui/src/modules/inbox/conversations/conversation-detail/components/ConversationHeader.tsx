@@ -42,6 +42,7 @@ import {
 import { useAtomValue } from 'jotai';
 import { CustomersInline, SelectMember, TagsSelect } from 'ui-modules';
 import { ConversationActions } from '@/inbox/conversations/conversation-detail/components/ConversationActions';
+import { ConversationSharedEmail } from '@/inbox/conversations/conversation-detail/components/ConversationSharedEmail';
 import { ConversationConvert } from '@/inbox/conversations/conversation-detail/components/convert/ConversationConvert';
 import { useTranslation } from 'react-i18next';
 import { type SyntheticEvent, useRef, useState } from 'react';
@@ -463,7 +464,10 @@ export const ConversationHeader = () => {
         <ConversationListToggle />
       )}
       {!loading ? (
-        <ConversationHeaderProfile />
+        <>
+          <ConversationHeaderProfile />
+          <ConversationSharedEmail />
+        </>
       ) : (
         <Skeleton className="w-32 h-4 ml-2" />
       )}

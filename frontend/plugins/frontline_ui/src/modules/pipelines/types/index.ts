@@ -19,7 +19,6 @@ export interface PermissionState {
   selectedUsers: string[];
   visibility: 'public' | 'private';
   memberIds: string[];
-  isPropertySelectionConfigured?: boolean | null;
 }
 
 export type IPipeline = NonNullable<

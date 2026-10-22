@@ -2,6 +2,10 @@ import type { GraphQLResolveInfo } from 'graphql';
 import conversationResolvers from '@/inbox/graphql/resolvers/customResolvers/conversation';
 import { cpInboxQueries } from '@/inbox/graphql/resolvers/queries/clientPortal';
 import { widgetQueries } from '@/inbox/graphql/resolvers/queries/widget';
+import {
+  WIDGET_SESSION_HEADER,
+  signWidgetSession,
+} from '@/inbox/widgetSession';
 import type { IContext } from '~/connectionResolvers';
 
 jest.mock('erxes-api-shared/utils', () => ({
@@ -80,10 +84,22 @@ const messageIds = async (
 
 describe('customer-facing conversation messages', () => {
   it('hides internal notes from widgetsConversations', async () => {
+    const widgetContext = {
+      ...context,
+      req: {
+        headers: {
+          [WIDGET_SESSION_HEADER]: signWidgetSession({
+            integrationId: 'integration-1',
+            customerId: 'customer-1',
+          }),
+        },
+      },
+    } as unknown as IContext;
+
     const [conversation] = await widgetQueries.widgetsConversations(
       undefined,
-      { integrationId: 'integration-1', customerId: 'customer-1' },
-      context,
+      { integrationId: 'integration-1' },
+      widgetContext,
       {} as GraphQLResolveInfo,
     );
 

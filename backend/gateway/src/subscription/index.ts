@@ -21,6 +21,7 @@ import { apolloRouterPort } from '../apollo-router';
 import { gql } from '@apollo/client/core';
 import { getSubdomain } from '../util/subdomain';
 import * as jwt from 'jsonwebtoken';
+import { createHmac } from 'crypto';
 
 let disposable: Disposable | undefined;
 
@@ -56,6 +57,46 @@ function extractSubscriptionUser(request: any) {
     }
     return user;
   } catch (e) {
+    return undefined;
+  }
+}
+
+// Mirrors frontline's widget session: same derived secret and audience, so a
+// staff token can never pass as a widget one.
+const WIDGET_AUDIENCE = 'erxes-widget';
+
+type WidgetSession = {
+  integrationId: string;
+  customerId?: string;
+  visitorId?: string;
+};
+
+function extractWidgetSession(
+  connectionParams?: Readonly<Record<string, unknown>>,
+): WidgetSession | undefined {
+  const token = connectionParams?.widgetToken;
+
+  if (typeof token !== 'string' || !token) {
+    return undefined;
+  }
+
+  try {
+    const secret = createHmac(
+      'sha256',
+      process.env.JWT_TOKEN_SECRET || 'SECRET',
+    )
+      .update(WIDGET_AUDIENCE)
+      .digest('hex');
+    const { integrationId, customerId, visitorId } = jwt.verify(token, secret, {
+      audience: WIDGET_AUDIENCE,
+    }) as Partial<WidgetSession>;
+
+    if (typeof integrationId !== 'string' || !(customerId || visitorId)) {
+      return undefined;
+    }
+
+    return { integrationId, customerId, visitorId };
+  } catch {
     return undefined;
   }
 }
@@ -121,7 +162,13 @@ export async function startSubscriptionServer(httpServer: http.Server) {
         );
         const subdomain = getSubdomain(ctx.extra.request);
         const user = extractSubscriptionUser(ctx.extra.request);
-        return { dataSources: { gatewayDataSource }, subdomain, user };
+        const widgetSession = extractWidgetSession(ctx.connectionParams);
+        return {
+          dataSources: { gatewayDataSource },
+          subdomain,
+          user,
+          widgetSession,
+        };
       },
       onSubscribe: async (
         _ctx,
