@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useQuery } from '@apollo/client';
-import { GET_MN_CONFIGS } from '@/ebarimt/settings/stage-in-return-ebarimt-config/graphql/queries/mnConfigs';
 import { ReturnEbarimtConfig } from '@/ebarimt/settings/stage-in-return-ebarimt-config/types';
+import { GET_MN_CONFIGS } from '@/shared/graphql/mnConfigs';
 
 type ReturnEbarimtConfigWithId = ReturnEbarimtConfig & {
   _id?: string;

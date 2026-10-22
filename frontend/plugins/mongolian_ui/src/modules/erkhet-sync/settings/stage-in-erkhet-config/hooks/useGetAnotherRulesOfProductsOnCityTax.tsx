@@ -1,22 +1,31 @@
 import { useQuery, QueryHookOptions } from '@apollo/client';
-import { GET_ANOTHER_RULES_OF_PRODUCTS_ON_CITY_TAX } from '../graphql/queries/anotherRulesOfProductsOnCityTax';
+import { compactList } from '@/shared/utils/cursorList';
+import type {
+  MongolianEbarimtProductRulesQuery,
+  MongolianEbarimtProductRulesQueryVariables,
+} from '~/gql/graphql';
+import { IAnotherRulesOfProductsOnCityTax } from '../types/anotherRulesOfProductsOnCityTax';
+import { GET_EBARIMT_PRODUCT_RULES } from '@/shared/graphql/ebarimtProductRules';
 
 export const useGetAnotherRulesOfProductsOnCityTax = (
-  options?: QueryHookOptions,
+  options?: QueryHookOptions<
+    MongolianEbarimtProductRulesQuery,
+    MongolianEbarimtProductRulesQueryVariables
+  >,
   kind: 'vat' | 'ctax' = 'vat',
 ) => {
-  const { data, loading, error } = useQuery(
-    GET_ANOTHER_RULES_OF_PRODUCTS_ON_CITY_TAX,
-    {
-      ...options,
-      variables: {
-        ...options?.variables,
-        kind,
-      },
+  const { data, loading, error } = useQuery(GET_EBARIMT_PRODUCT_RULES, {
+    ...options,
+    variables: {
+      ...options?.variables,
+      kind,
     },
-  );
+  });
 
-  const anotherRulesOfProductsOnCityTax = data?.ebarimtProductRules?.list || [];
+  const anotherRulesOfProductsOnCityTax: IAnotherRulesOfProductsOnCityTax[] =
+    compactList(data?.ebarimtProductRules?.list).flatMap((rule) =>
+      rule._id ? [{ _id: rule._id, title: rule.title ?? '' }] : [],
+    );
 
   return {
     anotherRulesOfProductsOnCityTax,

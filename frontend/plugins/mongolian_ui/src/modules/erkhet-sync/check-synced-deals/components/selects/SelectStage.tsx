@@ -22,7 +22,7 @@ import {
   SelectTrigger,
   SelectTriggerVariant,
 } from './SelectShared';
-import { useGetSalesStages } from '../../hooks/SelectStage';
+import { useGetSalesStages } from '@/shared/hooks/useSalesStages';
 import { IconLabel } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 

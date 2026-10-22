@@ -27,7 +27,15 @@
           "sourceMap": false,
           "rspackConfig": "frontend/plugins/mongolian_ui/rspack.config.prod.ts"
         }
-      }
+      },
+      "dependsOn": ["^build", "codegen"],
+      "inputs": [
+        "production",
+        "^production",
+        {
+          "dependentTasksOutputFiles": "**/*.ts"
+        }
+      ]
     },
     "serve": {
       "executor": "@nx/rspack:module-federation-dev-server",
@@ -40,7 +48,8 @@
         "production": {
           "buildTarget": "mongolian_ui:build:production"
         }
-      }
+      },
+      "dependsOn": ["codegen"]
     },
     "serve-static": {
       "executor": "@nx/rspack:module-federation-static-server",
@@ -55,6 +64,36 @@
         "production": {
           "serveTarget": "mongolian_ui:serve:production"
         }
+      }
+    },
+    "codegen": {
+      "executor": "nx:run-commands",
+      "cache": true,
+      "dependsOn": [
+        {
+          "projects": ["gateway"],
+          "target": "schema:compose"
+        }
+      ],
+      "inputs": [
+        "{projectRoot}/codegen.ts",
+        "{projectRoot}/src/**/*.{ts,tsx}",
+        "!{projectRoot}/src/gql/**",
+        {
+          "dependentTasksOutputFiles": "**/*.graphql"
+        }
+      ],
+      "outputs": ["{projectRoot}/src/gql"],
+      "options": {
+        "cwd": "frontend/plugins/mongolian_ui",
+        "command": "graphql-codegen --config codegen.ts"
+      }
+    },
+    "codegen:watch": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "frontend/plugins/mongolian_ui",
+        "command": "graphql-codegen --config codegen.ts --watch"
       }
     }
   }

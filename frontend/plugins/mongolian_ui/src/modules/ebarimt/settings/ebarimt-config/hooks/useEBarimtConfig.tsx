@@ -8,9 +8,12 @@ import {
 } from '@/ebarimt/settings/ebarimt-config/types/ebarimtConfigTypes';
 import { useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import {
+  CREATE_MN_CONFIG,
+  GET_MN_CONFIGS,
+  UPDATE_MN_CONFIG,
+} from '@/shared/graphql/mnConfigs';
 
-import { UPDATE_MN_CONFIG, CREATE_MN_CONFIG } from '@/ebarimt/settings/ebarimt-config/graphql/mutations/ebarimtConfigMutations';
-import { GET_MN_CONFIGS } from '../graphql/queries/mnConfigs';
 
 export const DEFAULT_VALUES: EBarimtFormData = {
   CompanyName: '',
@@ -71,7 +74,7 @@ export const useEBarimtConfig = () => {
       },
     };
 
-    if (data?.mnConfigs[0]?._id) {
+    if (data?.mnConfigs?.[0]?._id) {
       try {
         await updateConfig({
           variables: {

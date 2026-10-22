@@ -1,3 +1,5 @@
+import type { MongolianEbarimtProductRulesQuery } from '~/gql/graphql';
+
 export enum TaxType {
   Free = 'Free',
   '0 percent' = '0 percent',
@@ -16,36 +18,13 @@ export enum TaxCode {
   TAXCODE8 = '8714-Авто үйлчилгээ үзүүлэгч',
 }
 
-export interface IProductRulesOnTax {
-  _id?: string;
-  title: string;
-  productCategories: TaxType | string;
-  taxType: string;
-  excludeCategories: string;
-  taxCode: TaxCode | string;
-  products: string;
-  excludeProducts: string;
-  kind: string;
-  percent: number;
-  tags: string;
-  excludeTags: string;
-  status?: string;
-}
-
-export const productRulesOnTaxDefaultValues: IProductRulesOnTax = {
-  title: '',
-  productCategories: '',
-  taxType: '',
-  excludeCategories: '',
-  taxCode: '',
-  products: '',
-  excludeProducts: '',
-  kind: '',
-  percent: 0,
-  tags: '',
-  excludeTags: '',
-  status: '',
-};
+export type IProductRulesOnTax = NonNullable<
+  NonNullable<
+    NonNullable<
+      MongolianEbarimtProductRulesQuery['ebarimtProductRules']
+    >['list']
+  >[number]
+>;
 
 export const TAX_TYPES: Record<
   string,

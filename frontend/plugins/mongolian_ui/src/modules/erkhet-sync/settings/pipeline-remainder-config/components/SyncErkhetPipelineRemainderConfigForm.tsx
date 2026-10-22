@@ -10,7 +10,7 @@ import { SelectSalesBoard } from './selects/SelectBoard';
 import { addPipelineRemainderConfigSchema } from '../constants/addPipelineRemainderConfigSchema';
 import { useCreatePipelineRemainderConfig } from '../hooks/useCreatePipelineRemainderConfig';
 import { AddPipelineRemainderConfig } from '../types';
-import { GET_CONFIGS_GET_VALUE } from '../graphql/queries/usePipelineRemainderConfigQuery';
+import { GET_MN_CONFIGS } from '@/shared/graphql/mnConfigs';
 
 const defaultValues = {
   title: '',
@@ -308,7 +308,7 @@ export const SyncErkhetPipelineRemainderConfigForm = () => {
   const [showNewConfig, setShowNewConfig] = useState(false);
   const { createPipelineRemainderConfig, loading: createLoading } =
     useCreatePipelineRemainderConfig();
-  const { data, refetch, loading } = useQuery(GET_CONFIGS_GET_VALUE, {
+  const { data, refetch, loading } = useQuery(GET_MN_CONFIGS, {
     variables: { code: 'remainderConfig' },
     fetchPolicy: 'network-only',
   });

@@ -24,7 +24,7 @@ export type MSDynamicCheckProduct = Record<string, unknown> & {
 export type MSDynamicCheckProductsResponse = Partial<
   Record<MSDynamicCheckProductStatus, { items?: MSDynamicCheckProductSource[] }>
 > & {
-  matched?: { count?: number };
+  matched?: number;
 };
 
 export type MSDynamicCheckProductSource = Record<string, unknown> & {
@@ -38,11 +38,6 @@ export type MSDynamicCheckProductSource = Record<string, unknown> & {
   unitPrice?: number | string;
   barcodes?: string;
   Barcodes?: string;
-};
-
-export type MSDynamicBrand = {
-  _id: string;
-  name?: string;
 };
 
 export const MSDYNAMIC_PRODUCT_ACTIONS: Record<

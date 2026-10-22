@@ -18,13 +18,13 @@ import {
 } from 'erxes-ui';
 
 import {
-  SelectTriggerVariant,
+  SelectTriggerVariantType,
   SelectTrigger,
   SelectContent,
 } from './SelectShared';
 import { IconLayoutCards } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
-import { useGetSalesBoards } from '../../hooks/useGetSalesBoards';
+import { useGetSalesBoards } from '@/shared/hooks/useSalesBoards';
 
 interface IBoard {
   _id: string;
@@ -304,7 +304,7 @@ const SelectSalesBoardRoot = ({
   disabled,
 }: {
   value: string;
-  variant?: `${SelectTriggerVariant}`;
+  variant?: SelectTriggerVariantType;
   scope?: string;
   onValueChange?: (value: string) => void;
   disabled?: boolean;

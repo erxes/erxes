@@ -6,7 +6,7 @@
 - **Project:** `mongolian_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/mongolian_api`
-- **Last synchronized:** `2026-10-14`
+- **Last synchronized:** `2026-10-20`
 
 ## Scope
 
@@ -33,6 +33,11 @@
   and sales pipeline/stage/POS remainder configuration.
 - Product places applies default product filters through the plugin `beforeResolvers` hook by reading the current user's `dealsProductsDefaultFilter` config from `subId`, supports multi-segment default filters, and runs split/place/pricing/print behavior only after a sales deal moves to a configured destination stage.
 - Product places publishes session-scoped printable receipt payloads through the `productPlacesResponded` GraphQL subscription.
+- Joins the composed codegen schema through the `schema:print` Nx target
+  (defined in `nx.json`, run by `scripts/print-subgraph-schema.ts`), which
+  prints the subgraph SDL plus `src/apollo/subscription.ts` fields to
+  `generated/schema.graphql` (gitignored) for `gateway:schema:compose`.
+- Cursor-paginates `ebarimtProductRules` (`limit`, `cursor`, `direction`).
 
 ## Architecture
 
@@ -53,6 +58,19 @@
 
 - GraphQL exchange-rate queries and mutations: `exchangeRatesMain`, `exchangeGetRate`, `exchangeRateAdd`, `exchangeRateEdit`, and `exchangeRatesRemove`.
 - GraphQL product-place subscription: `productPlacesResponded`.
+- Typed check results instead of `JSON`: `toCheckMsdProducts`
+  (`MsdProductsCheckResult`), `toCheckMsdProductCategories`
+  (`MsdCategoriesCheckResult`), `toCheckMsdCustomers`
+  (`MsdCustomersCheckResult`), `toCheckMsdPrices` (`MsdPricesCheckResult`),
+  `toCheckProducts` (`ErkhetProductsCheckResult`), and `toCheckCategories`
+  (`ErkhetCategoriesCheckResult`). The envelopes are typed; the `items` they
+  carry stay `[JSON]!` because they pass through MS Dynamics and Erkhet
+  records.
+- `toSyncDeals` and `toSyncOrders` return `ErkhetSyncResult`
+  (`skipped`, `error`, `success` id lists).
+- `putResponsesByDate` returns `[PutResponsesByDateItem]` and
+  `putResponsesDuplicated` returns `PutResponsesDuplicatedResponse`, both with
+  `PutResponseDateValues` totals.
 - GraphQL Erkhet remainder query: `erkhetRemainders(productIds, pipelineId, stageId, posId, accountCodes, locationCodes)`.
 - tRPC exchange-rate procedures under `exchangeRates`: `findOne`, `create`, `update`, and `getActiveRate`.
 - `exchangeRates.getActiveRate` accepts a Date-coercible `date` value, plus `rateCurrency` and optional `mainCurrency`.
@@ -101,11 +119,14 @@
   pagination adds `_id` as a stable tie-breaker.
 - Product list decoration must not mutate core product names; Erkhet stock
   should be exposed through explicit remainder query responses.
+- A resolver whose result the UI reads by field returns an SDL object type, not
+  `JSON`, and always returns the full envelope (empty arrays, zero counts).
 
 ## Validation
 
 - `pnpm nx run mongolian_api:schema:print` - prints this subgraph's SDL to `generated/schema.graphql` (gitignored) offline, for `gateway:schema:compose`.
 - `pnpm nx build mongolian_api`
+- `pnpm nx lint mongolian_api`
 - `pnpm build`
 - `pnpm exec tsc -p backend/plugins/mongolian_api/tsconfig.json --noEmit`
 - Put response smoke scenario: open `/mongolian/put-response/put-response`

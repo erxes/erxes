@@ -1,8 +1,8 @@
 import { useMutation } from '@apollo/client';
 import { useToast, useRecordTableCursor } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { CREATE_STAGE_IN_MOVEMENT_ERKHET_CONFIG } from '../graphql/mutations/createStageInErkhetMovementConfigMutations';
 import { STAGE_IN_MOVEMENT_ERKHET_CONFIG_CURSOR_SESSION_KEY } from '../constants';
+import { CREATE_MN_CONFIG } from '@/shared/graphql/mnConfigs';
 
 export const useCreateStageInErkhetMovementConfig = () => {
   const { t } = useTranslation('mongolian');
@@ -12,7 +12,7 @@ export const useCreateStageInErkhetMovementConfig = () => {
   });
 
   const [createStageInErkhetMovementConfigMutation, { loading, error }] =
-    useMutation(CREATE_STAGE_IN_MOVEMENT_ERKHET_CONFIG, {
+    useMutation(CREATE_MN_CONFIG, {
       onCompleted: () => {
         toast({
           title: t('success'),

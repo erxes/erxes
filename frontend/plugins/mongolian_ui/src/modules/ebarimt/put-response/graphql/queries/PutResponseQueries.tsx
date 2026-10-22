@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
-const putResponses = gql`
-  query PutResponses(
+import { gql } from '~/gql';
+const putResponses = gql(`
+  query ebarimtPutResponses(
     $search: String
     $contentType: String
     $contentId: String
@@ -96,7 +96,7 @@ const putResponses = gql`
       totalCount
     }
   }
-`;
+`);
 
 export const putResponseQueries = {
   putResponses,

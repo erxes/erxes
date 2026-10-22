@@ -15,13 +15,16 @@ import {
   Form,
   useFilterContext,
   useQueryState,
-  SelectTriggerVariant,
 } from 'erxes-ui';
 
-import { SelectContent, SelectTrigger } from './SelectShared';
+import {
+  SelectContent,
+  SelectTrigger,
+  SelectTriggerVariantType,
+} from './SelectShared';
 import { IconLabel } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
-import { useGetSalesStages } from '../../hooks/useGetSalesStage';
+import { useGetSalesStages } from '@/shared/hooks/useSalesStages';
 interface IStage {
   _id: string;
   name: string;
@@ -220,7 +223,7 @@ const SelectStageRoot = ({
   value: string;
   id: string;
   pipelineId: string;
-  variant: `${SelectTriggerVariant}`;
+  variant: `${SelectTriggerVariantType}`;
   scope?: string;
   onValueChange?: (value: string) => void;
   disabled?: boolean;

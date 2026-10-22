@@ -13,7 +13,7 @@ import {
   SelectContent,
   SelectTriggerVariant,
 } from '@/erkhet-sync/settings/stage-in-return-erkhet-config/components/selects/SelectShared';
-import { useGetSalesPipelines } from '../../hooks/useGetSalesPipeline';
+import { useGetSalesPipelines } from '@/shared/hooks/useSalesPipelines';
 
 interface IPipeline {
   _id: string;

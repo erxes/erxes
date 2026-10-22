@@ -5,18 +5,13 @@ import React, {
   useMemo,
   useCallback,
 } from 'react';
-import {
-  cn,
-  Combobox,
-  Command,
-  PopoverScoped,
-  SelectTriggerVariant,
-} from 'erxes-ui';
+import { cn, Combobox, Command, PopoverScoped } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { useGetSalesPipelines } from '@/ebarimt/settings/stage-in-ebarimt-config/hooks/useGetSalesPipelines';
+import { useGetSalesPipelines } from '@/shared/hooks/useSalesPipelines';
 import {
   SelectContent,
   SelectTrigger,
+  SelectTriggerVariantType,
 } from '@/ebarimt/settings/stage-in-ebarimt-config/components/selects/SelectShared';
 
 interface IPipeline {
@@ -106,7 +101,9 @@ const SelectPipelineValue = ({
 
   if (!boardId) {
     return (
-      <span className="text-accent-foreground/80">{t('choose-board-first')}</span>
+      <span className="text-accent-foreground/80">
+        {t('choose-board-first')}
+      </span>
     );
   }
 
@@ -152,7 +149,9 @@ const SelectPipelineContent = () => {
     if (!boardId) {
       return (
         <div className="flex items-center justify-center h-24">
-          <span className="text-muted-foreground">{t('choose-board-first')}</span>
+          <span className="text-muted-foreground">
+            {t('choose-board-first')}
+          </span>
         </div>
       );
     }
@@ -201,7 +200,7 @@ const SelectPipelineRoot = ({
 }: {
   value: string;
   boardId?: string;
-  variant?: `${SelectTriggerVariant}`;
+  variant?: `${SelectTriggerVariantType}`;
   scope?: string;
   onValueChange?: (value: string) => void;
   disabled?: boolean;

@@ -9,20 +9,12 @@ import { ProductPlacesReceipt } from '~/modules/productplaces/types';
 
 const SESSION_CODE_STORAGE_KEY = 'sessioncode';
 
-type ProductPlacesResponded = {
-  productPlacesResponded?: {
-    responseId: string;
-    sessionCode: string;
-    content?: ProductPlacesReceipt[];
-  };
-};
-
 export const ProductPlacesRespondedPage = () => {
   const { t } = useTranslation('mongolian');
   const currentUser = useAtomValue(currentUserState);
   const sessionCode = sessionStorage.getItem(SESSION_CODE_STORAGE_KEY) || '';
 
-  useSubscription<ProductPlacesResponded>(PRODUCT_PLACES_RESPONDED, {
+  useSubscription(PRODUCT_PLACES_RESPONDED, {
     variables: {
       userId: currentUser?._id,
       sessionCode,
@@ -32,9 +24,12 @@ export const ProductPlacesRespondedPage = () => {
       const productPlacesResponded = data.data?.productPlacesResponded;
       if (!productPlacesResponded) return;
 
-      const parsedContent = productPlacesResponded.content;
+      const content = productPlacesResponded.content;
+      const parsedContent: ProductPlacesReceipt[] = Array.isArray(content)
+        ? content
+        : [];
       if (
-        !parsedContent?.length ||
+        !parsedContent.length ||
         productPlacesResponded.sessionCode !==
           sessionStorage.getItem(SESSION_CODE_STORAGE_KEY)
       ) {

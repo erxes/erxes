@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQuery } from '@apollo/client';
-import { GET_CONFIGS_GET_VALUE } from '@/erkhet-sync/settings/stage-in-return-erkhet-config/graphql/queries/useStageInReturnErkhetConfigQuery';
 import { useCreateStageInReturnErkhetConfig } from '../hooks/useCreateStageInReturnErkhetConfig';
 import { SelectSalesBoard } from './selects/SelectSalesBoard';
 import { SelectPipeline } from './selects/SelectPipeline';
@@ -12,6 +11,7 @@ import { SelectStage } from './selects/SelectStage';
 import { TReturnErkhetConfig } from '../types';
 import { addStageInReturnErkhetConfigSchema } from '../constants/addStageInReturnErkhetConfigSchema';
 import { RETURN_TYPES } from '../constants/returnTypesData';
+import { GET_MN_CONFIGS } from '@/shared/graphql/mnConfigs';
 
 const defaultValues = {
   title: '',
@@ -337,7 +337,7 @@ export const StageInReturnErkhetConfigForm = () => {
   const [showNewConfig, setShowNewConfig] = useState(false);
   const { createStageInReturnErkhetConfig, loading: createLoading } =
     useCreateStageInReturnErkhetConfig();
-  const { data, refetch, loading } = useQuery(GET_CONFIGS_GET_VALUE, {
+  const { data, refetch, loading } = useQuery(GET_MN_CONFIGS, {
     variables: { code: 'returnEbarimtConfig' },
     fetchPolicy: 'network-only',
   });

@@ -13,7 +13,7 @@ import {
   SelectContent,
   SelectTriggerVariant,
 } from '../../components/selects/SelectShared';
-import { useGetSalesPipelines } from '../../hooks/useSalesPipeline';
+import { useGetSalesPipelines } from '@/shared/hooks/useSalesPipelines';
 
 interface IPipeline {
   _id: string;

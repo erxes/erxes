@@ -1,7 +1,7 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-const putResponsesByDate = gql`
-  query PutResponsesByDate(
+const putResponsesByDate = gql(`
+  query ebarimtPutResponsesByDate(
     $limit: Int
     $cursor: String
     $search: String
@@ -38,9 +38,17 @@ const putResponsesByDate = gql`
       createdStartDate: $createdStartDate
       createdEndDate: $createdEndDate
       paidDate: $paidDate
-    )
+    ) {
+      date
+      values {
+        counter
+        cityTax
+        vat
+        amount
+      }
+    }
   }
-`;
+`);
 
 export const byDateQueries = {
   putResponsesByDate,

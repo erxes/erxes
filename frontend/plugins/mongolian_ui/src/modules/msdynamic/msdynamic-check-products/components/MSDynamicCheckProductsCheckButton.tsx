@@ -10,9 +10,9 @@ export const MSDynamicCheckProductsCheckButton = () => {
 
   return (
     <div className="flex items-center gap-3">
-      {typeof productsData?.matched?.count === 'number' && (
+      {typeof productsData?.matched === 'number' && (
         <div className="text-sm text-muted-foreground">
-          {t('matched-count', { count: productsData.matched.count })}
+          {t('matched-count', { count: productsData.matched })}
         </div>
       )}
       <Button onClick={checkProducts} disabled={checking}>

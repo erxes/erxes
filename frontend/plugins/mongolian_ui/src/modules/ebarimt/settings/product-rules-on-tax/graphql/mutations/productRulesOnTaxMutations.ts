@@ -1,7 +1,7 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const EBARIMT_PRODUCT_RULES_ON_TAX_ADD = gql`
-  mutation EbarimtProductRuleCreate(
+export const EBARIMT_PRODUCT_RULES_ON_TAX_ADD = gql(`
+  mutation ebarimtProductRuleCreate(
     $title: String
     $productIds: [String]
     $productCategoryIds: [String]
@@ -44,10 +44,10 @@ export const EBARIMT_PRODUCT_RULES_ON_TAX_ADD = gql`
       __typename
     }
   }
-`;
+`);
 
-export const EBARIMT_PRODUCT_RULE_ON_TAX_EDIT = gql`
-  mutation EbarimtProductRuleUpdate(
+export const EBARIMT_PRODUCT_RULE_ON_TAX_EDIT = gql(`
+  mutation ebarimtProductRuleUpdate(
     $id: String
     $title: String
     $productIds: [String]
@@ -91,10 +91,10 @@ export const EBARIMT_PRODUCT_RULE_ON_TAX_EDIT = gql`
       taxPercent
     }
   }
-`;
+`);
 
-export const EBARIMT_PRODUCT_RULE_ON_TAX_REMOVE = gql`
-  mutation EbarimtProductRulesRemove($ids: [String]) {
+export const EBARIMT_PRODUCT_RULE_ON_TAX_REMOVE = gql(`
+  mutation ebarimtProductRulesRemove($ids: [String]) {
     ebarimtProductRulesRemove(ids: $ids)
   }
-`;
+`);

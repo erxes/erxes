@@ -1,4 +1,4 @@
-import { gql, useMutation } from '@apollo/client';
+import { useMutation } from '@apollo/client';
 import { useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
@@ -9,10 +9,6 @@ import {
   InventoryCategoryItem,
   InventoryCategoryItems,
 } from '../types/inventoryCategory';
-
-interface SyncCategoryMutationResponse {
-  toSyncMsdProductCategories: { status: string };
-}
 
 /* UI filter-iig backend sync action ruu hurvuulna */
 const getAction = (filter: CategoryFilterType): InventoryCategoryAction => {
@@ -30,8 +26,7 @@ const getAction = (filter: CategoryFilterType): InventoryCategoryAction => {
 
 /* Category sync mutation bolon local synced state update-iig udirdana */
 export const useSyncCategory = () => {
-  const [mutate, { loading, error }] =
-    useMutation<SyncCategoryMutationResponse>(gql(mutations.toSyncCategories));
+  const [mutate, { loading, error }] = useMutation(mutations.toSyncCategories);
   const { t } = useTranslation('mongolian');
   const { toast } = useToast();
 
@@ -93,7 +88,10 @@ export const useSyncCategory = () => {
 
         toast({
           title: t('success'),
-          description: t('categories-synced', { count: categoriesToSync.length, filter: selectedFilter }),
+          description: t('categories-synced', {
+            count: categoriesToSync.length,
+            filter: selectedFilter,
+          }),
         });
 
         return updatedItems;

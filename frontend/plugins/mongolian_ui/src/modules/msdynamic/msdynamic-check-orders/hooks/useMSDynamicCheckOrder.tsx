@@ -1,11 +1,9 @@
-import { gql, QueryHookOptions, useQuery } from '@apollo/client';
-import { useEffect } from 'react';
+import { QueryHookOptions, useQuery } from '@apollo/client';
+import { useEffect, useMemo } from 'react';
 import { useSetAtom } from 'jotai';
 import {
   EnumCursorDirection,
-  IRecordTableCursorPageInfo,
   isUndefinedOrNull,
-  mergeCursorData,
   parseDateRangeFromString,
   useMultiQueryState,
   useRecordTableCursor,
@@ -14,21 +12,26 @@ import {
 import { queries } from '../../graphql';
 import { useMSDynamicSessionKey } from '../../hooks/useMSDynamicSessionKey';
 import { msdynamicCheckOrderTotalCountAtom } from '../states/MSDynamicCheckOrderCounts';
-import { IMSDynamicCheckOrder } from '../types/msDynamicCheckOrder';
+import {
+  compactList,
+  mergeCursorList,
+  toCursorPageInfo,
+} from '@/shared/utils/cursorList';
+import type {
+  MsdynamicPosOrdersListQuery,
+  MsdynamicPosOrdersListQueryVariables,
+} from '~/gql/graphql';
 
 export const MS_DYNAMIC_CHECK_ORDERS_PER_PAGE = 20;
 
-type TMSDynamicCheckOrderQueryResponse = {
-  posOrdersList: {
-    list: IMSDynamicCheckOrder[];
-    totalCount: number;
-    pageInfo: IRecordTableCursorPageInfo;
-  };
-};
+type TMSDynamicCheckOrderQueryOptions = QueryHookOptions<
+  MsdynamicPosOrdersListQuery,
+  MsdynamicPosOrdersListQueryVariables
+>;
 
 /** Check order list query variable beldene. */
 export const useMSDynamicCheckOrderVariables = (
-  variables?: QueryHookOptions<TMSDynamicCheckOrderQueryResponse>['variables'],
+  variables?: TMSDynamicCheckOrderQueryOptions['variables'],
 ) => {
   const [{ brandId, user, paidDateRange, createdAtRange, number }] =
     useMultiQueryState<{
@@ -61,20 +64,23 @@ export const useMSDynamicCheckOrderVariables = (
 
 /** Msdynamic check orders cursor-toi avna. */
 export const useMSDynamicCheckOrder = (
-  options?: QueryHookOptions<TMSDynamicCheckOrderQueryResponse>,
+  options?: TMSDynamicCheckOrderQueryOptions,
 ) => {
   const setTotalCount = useSetAtom(msdynamicCheckOrderTotalCountAtom);
   const variables = useMSDynamicCheckOrderVariables(options?.variables);
 
-  const { data, loading, fetchMore } =
-    useQuery<TMSDynamicCheckOrderQueryResponse>(gql(queries.posOrdersList), {
-      ...options,
-      skip: options?.skip || isUndefinedOrNull(variables.cursor),
-      variables,
-      fetchPolicy: 'network-only',
-    });
+  const { data, loading, fetchMore } = useQuery(queries.posOrdersList, {
+    ...options,
+    skip: options?.skip || isUndefinedOrNull(variables.cursor),
+    variables,
+    fetchPolicy: 'network-only',
+  });
 
-  const { list: orders, totalCount, pageInfo } = data?.posOrdersList || {};
+  const list = data?.posOrdersList?.list;
+  // Stable reference: CheckSyncedOrders re-checks sync status when it changes.
+  const orders = useMemo(() => (list ? compactList(list) : undefined), [list]);
+  const totalCount = data?.posOrdersList?.totalCount;
+  const pageInfo = toCursorPageInfo(data?.posOrdersList?.pageInfo);
 
   useEffect(() => {
     setTotalCount(totalCount ?? null);
@@ -105,20 +111,17 @@ export const useMSDynamicCheckOrder = (
         direction,
       },
       updateQuery: (prev, { fetchMoreResult }) => {
-        if (!fetchMoreResult) {
+        if (!fetchMoreResult.posOrdersList || !prev.posOrdersList) {
           return prev;
         }
 
         return {
           ...prev,
-          posOrdersList: {
-            ...mergeCursorData({
-              direction,
-              fetchMoreResult: fetchMoreResult.posOrdersList,
-              prevResult: prev.posOrdersList,
-            }),
-            totalCount: fetchMoreResult.posOrdersList.totalCount,
-          },
+          posOrdersList: mergeCursorList(
+            direction,
+            prev.posOrdersList,
+            fetchMoreResult.posOrdersList,
+          ),
         };
       },
     });

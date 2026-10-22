@@ -1,81 +1,123 @@
-const createConfig = `
-  mutation mnConfigsCreate($code: String!, $subId: String, $value: JSON) {
-    mnConfigsCreate(code: $code, subId: $subId, value: $value) {
-      _id
-      code
-      subId
-      value
+import { gql } from '~/gql';
+
+const toCheckProducts = gql(`
+  mutation msdynamicCheckProducts($brandId: String) {
+    toCheckMsdProducts(brandId: $brandId) {
+      create {
+        items
+        count
+      }
+      update {
+        items
+        count
+      }
+      delete {
+        items
+        count
+      }
+      matched
     }
   }
-`;
+`);
 
-const updateConfig = `
-  mutation mnConfigsUpdate($id: String!, $subId: String, $value: JSON) {
-    mnConfigsUpdate(_id: $id, subId: $subId, value: $value) {
-      _id
-      code
-      subId
-      value
+const toCheckPrices = gql(`
+  mutation msdynamicCheckPrices($brandId: String) {
+    toCheckMsdPrices(brandId: $brandId) {
+      create {
+        items
+        count
+      }
+      update {
+        items
+        count
+      }
+      delete {
+        items
+        count
+      }
+      match {
+        items
+        count
+      }
+      error {
+        items
+        count
+      }
     }
   }
-`;
+`);
 
-const removeConfig = `
-  mutation mnConfigsRemove($id: String!) {
-    mnConfigsRemove(_id: $id)
-  }
-`;
-
-const toCheckProducts = `
-  mutation toCheckMsdProducts($brandId: String) {
-    toCheckMsdProducts(brandId: $brandId)
-  }
-`;
-
-const toCheckPrices = `
-  mutation toCheckMsdPrices($brandId: String) {
-    toCheckMsdPrices(brandId: $brandId)
-  }
-`;
-
-const toSyncProducts = `
-  mutation toSyncMsdProducts($brandId: String, $action: String, $products: [JSON]) {
+const toSyncProducts = gql(`
+  mutation msdynamicSyncProducts($brandId: String, $action: String, $products: [JSON]) {
     toSyncMsdProducts(brandId: $brandId, action: $action, products: $products)
   }
-`;
+`);
 
-const toCheckCategories = `
-  mutation toCheckMsdProductCategories($brandId: String, $categoryId: String) {
-    toCheckMsdProductCategories(brandId: $brandId, categoryId: $categoryId)
+const toCheckCategories = gql(`
+  mutation msdynamicCheckProductCategories($brandId: String, $categoryId: String) {
+    toCheckMsdProductCategories(brandId: $brandId, categoryId: $categoryId) {
+      create {
+        items
+        count
+      }
+      update {
+        items
+        count
+      }
+      delete {
+        items
+        count
+      }
+      matched {
+        count
+      }
+    }
   }
-`;
+`);
 
-const toSyncCategories = `
-  mutation toSyncMsdProductCategories($brandId: String, $action: String!, $categoryId: String, $categories: [JSON!]!) {
+const toSyncCategories = gql(`
+  mutation msdynamicSyncProductCategories($brandId: String, $action: String!, $categoryId: String, $categories: [JSON!]!) {
     toSyncMsdProductCategories(brandId: $brandId, action: $action, categoryId: $categoryId, categories: $categories)
   }
-`;
+`);
 
-const toCheckCustomers = `
-  mutation toCheckMsdCustomers($brandId: String) {
-    toCheckMsdCustomers(brandId: $brandId)
+const toCheckCustomers = gql(`
+  mutation msdynamicCheckCustomers($brandId: String) {
+    toCheckMsdCustomers(brandId: $brandId) {
+      create {
+        items
+        count
+      }
+      update {
+        items
+        count
+      }
+      delete {
+        items
+        count
+      }
+      error {
+        items
+        count
+      }
+    }
   }
-`;
+`);
 
-const toSyncCustomers = `
-  mutation toSyncMsdCustomers($brandId: String, $action: String, $customers: [JSON]) {
+const toSyncCustomers = gql(`
+  mutation msdynamicSyncCustomers($brandId: String, $action: String, $customers: [JSON]) {
     toSyncMsdCustomers(brandId: $brandId, action: $action, customers: $customers)
   }
-`;
+`);
 
-const toSyncPrices = `
-  mutation toSyncMsdPrices($prices: [JSON], $brandId: String) {
+const toSyncPrices = gql(`
+  mutation msdynamicSyncPrices($prices: [JSON], $brandId: String) {
     toSyncMsdPrices(prices: $prices, brandId: $brandId)
   }
-`;
+`);
 
-const toCheckMsdSynced = `
-  mutation toCheckMsdSynced($ids: [String]) {
+const toCheckMsdSynced = gql(`
+  mutation msdynamicCheckSynced($ids: [String]) {
     toCheckMsdSynced(ids: $ids) {
       _id
       isSynced
@@ -84,10 +126,10 @@ const toCheckMsdSynced = `
       syncedCustomer
     }
   }
-`;
+`);
 
-const toSendMsdOrders = `
-  mutation toSendMsdOrders($orderIds: [String]) {
+const toSendMsdOrders = gql(`
+  mutation msdynamicSendOrders($orderIds: [String]) {
     toSendMsdOrders(orderIds: $orderIds) {
       _id
       isSynced
@@ -96,12 +138,9 @@ const toSendMsdOrders = `
       syncedCustomer
     }
   }
-`;
+`);
 
 export default {
-  createConfig,
-  updateConfig,
-  removeConfig,
   toCheckProducts,
   toCheckPrices,
   toSyncProducts,

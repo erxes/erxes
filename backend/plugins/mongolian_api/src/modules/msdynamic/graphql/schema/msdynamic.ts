@@ -63,6 +63,44 @@ export const types = `
     syncedBillNumber: String
     syncedCustomer: String
   }
+
+  type MsdCheckGroup {
+    items: [JSON]!
+    count: Int
+  }
+
+  type MsdCheckCount {
+    count: Int!
+  }
+
+  type MsdProductsCheckResult {
+    create: MsdCheckGroup!
+    update: MsdCheckGroup!
+    delete: MsdCheckGroup!
+    matched: Int!
+  }
+
+  type MsdCategoriesCheckResult {
+    create: MsdCheckGroup!
+    update: MsdCheckGroup!
+    delete: MsdCheckGroup!
+    matched: MsdCheckCount!
+  }
+
+  type MsdCustomersCheckResult {
+    create: MsdCheckGroup!
+    update: MsdCheckGroup!
+    delete: MsdCheckGroup!
+    error: MsdCheckGroup!
+  }
+
+  type MsdPricesCheckResult {
+    create: MsdCheckGroup!
+    update: MsdCheckGroup!
+    delete: MsdCheckGroup!
+    match: MsdCheckGroup!
+    error: MsdCheckGroup!
+  }
 `;
 
 export const queries = `
@@ -78,14 +116,14 @@ export const queries = `
 `;
 
 export const mutations = `
-  toCheckMsdProducts(brandId: String): JSON
+  toCheckMsdProducts(brandId: String): MsdProductsCheckResult
   toSyncMsdProducts(brandId: String, action: String, products: [JSON]): JSON
   toSyncMsdCustomers(brandId: String, action: String, customers: [JSON]): JSON
   toSendMsdOrders(orderIds: [String]): [MsdCheckResponse]
   toCheckMsdSynced(ids: [String]): [MsdCheckResponse]
-  toCheckMsdCustomers(brandId: String): JSON
-  toCheckMsdPrices(brandId: String): JSON
+  toCheckMsdCustomers(brandId: String): MsdCustomersCheckResult
+  toCheckMsdPrices(brandId: String): MsdPricesCheckResult
   toSyncMsdPrices(prices: [JSON], brandId: String): JSON
-  toCheckMsdProductCategories(brandId: String, categoryId: String): JSON
+  toCheckMsdProductCategories(brandId: String, categoryId: String): MsdCategoriesCheckResult
   toSyncMsdProductCategories(brandId: String, action: String!, categoryId: String, categories: [JSON!]!): JSON
 `;

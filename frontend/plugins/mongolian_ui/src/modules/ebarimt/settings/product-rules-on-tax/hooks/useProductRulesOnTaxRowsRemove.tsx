@@ -5,7 +5,7 @@ export const useProductRulesOnTaxRemove = () => {
   const [removeProductRulesOnTax, { loading }] = useMutation(
     EBARIMT_PRODUCT_RULE_ON_TAX_REMOVE,
     {
-      refetchQueries: ['EbarimtProductRules'],
+      refetchQueries: ['mongolianEbarimtProductRules'],
     },
   );
 

@@ -25,7 +25,7 @@ import {
 
 import { IconCards } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
-import { useGetSalesPipelines } from '../../hooks/useGetSalesPipeline';
+import { useGetSalesPipelines } from '@/shared/hooks/useSalesPipelines';
 
 
 interface IPipeline {

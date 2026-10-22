@@ -16,7 +16,10 @@ export const PutResponseMoreColumnCell = ({
         <RecordTable.MoreButton className="w-full h-full" />
       </Popover.Trigger>
       <Popover.Content className="p-0 w-auto" align="start">
-        <PrintDocument items={[row]} contentType="core:putresponse" />
+        <PrintDocument
+          items={[{ ...row, _id: row._id ?? '' }]}
+          contentType="core:putresponse"
+        />
       </Popover.Content>
     </Popover>
   );

@@ -5,7 +5,7 @@ export const useProductGroupRowsRemove = () => {
   const [removeProductGroup, { loading }] = useMutation(
     EBARIMT_PRODUCT_GROUP_REMOVE,
     {
-      refetchQueries: ['EbarimtProductGroups'],
+      refetchQueries: ['ebarimtProductGroups'],
       awaitRefetchQueries: true,
     },
   );

@@ -12,7 +12,7 @@ import {
   SelectContent,
   SelectTriggerVariant,
 } from './SelectShared';
-import { useGetSalesStages } from '@/ebarimt/settings/stage-in-ebarimt-config/hooks/useGetSalesStages';
+import { useGetSalesStages } from '@/shared/hooks/useSalesStages';
 
 interface IStage {
   _id: string;

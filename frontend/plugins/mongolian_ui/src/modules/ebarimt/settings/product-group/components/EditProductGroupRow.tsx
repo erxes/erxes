@@ -73,9 +73,12 @@ export const EditProductGroupRow = () => {
       return closeDetail();
     }
 
+    const productGroupId = productGroupDetail._id;
+    if (!productGroupId) return;
+
     editGroupProductRow({
       variables: {
-        _id: productGroupDetail._id,
+        _id: productGroupId,
         mainProductId: data.mainProductId,
         subProductId: data.subProductId,
         sortNum: data.sortNum,

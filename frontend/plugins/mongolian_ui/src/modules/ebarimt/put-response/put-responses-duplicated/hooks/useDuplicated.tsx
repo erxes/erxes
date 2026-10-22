@@ -1,112 +1,58 @@
-import { QueryHookOptions, useQuery } from '@apollo/client';
+import { useQuery } from '@apollo/client';
 import {
   EnumCursorDirection,
-  IRecordTableCursorPageInfo,
   parseDateRangeFromString,
-  useRecordTableCursor,
-  validateFetchMore,
   useMultiQueryState,
 } from 'erxes-ui';
-import { useEffect, useMemo } from 'react';
+import { useEffect } from 'react';
 import { useSetAtom } from 'jotai';
 
 import { duplicatedQueries } from '~/modules/ebarimt/put-response/put-responses-duplicated/graphql/DuplicatedQueries';
-import { IDuplicated } from '~/modules/ebarimt/put-response/put-responses-duplicated/types/DuplicatedType';
-import { useDuplicatedLeadSessionKey } from './useDuplicatedLeadSessionKey';
+import { compactList } from '@/shared/utils/cursorList';
+import type { EbarimtPutResponsesDuplicatedQueryVariables } from '~/gql/graphql';
 import { duplicatedTotalCountAtom } from '../states/DuplicatedCounts';
 
-export const DUPLICATED_PER_PAGE = 30;
+// The resolver's default page size, which the list has always loaded.
+export const DUPLICATED_PER_PAGE = 20;
 
-export const useDuplicatedVariables = (
-  variables?: QueryHookOptions<{
-    putResponsesDuplicated: {
-      list: IDuplicated[];
-      totalCount: number;
-      pageInfo: IRecordTableCursorPageInfo;
+export const useDuplicatedVariables =
+  (): EbarimtPutResponsesDuplicatedQueryVariables => {
+    const [{ billType, dateRange }] = useMultiQueryState<{
+      billType: string;
+      dateRange: string;
+    }>(['billType', 'dateRange']);
+
+    const parsedDateRange = parseDateRangeFromString(dateRange);
+
+    return {
+      page: 1,
+      perPage: DUPLICATED_PER_PAGE,
+      startDate: parsedDateRange?.from,
+      endDate: parsedDateRange?.to,
+      billType: billType || undefined,
     };
-  }>['variables'],
-) => {
-  const [{ billType, dateRange }] = useMultiQueryState<{
-    billType: string;
-    dateRange: string;
-  }>(['billType', 'dateRange']);
-  const { sessionKey } = useDuplicatedLeadSessionKey();
-
-  const { cursor } = useRecordTableCursor({
-    sessionKey,
-  });
-
-  const parsedDateRange = parseDateRangeFromString(dateRange);
-
-  return {
-    limit: DUPLICATED_PER_PAGE,
-    orderBy: {
-      createdAt: -1,
-    },
-    cursor,
-    startDate: parsedDateRange?.from,
-    endDate: parsedDateRange?.to,
-    createdStartDate: parsedDateRange?.from,
-    createdEndDate: parsedDateRange?.to,
-    type: 'duplicated',
-    billType: billType || undefined,
-    ...variables,
   };
-};
 
-interface IDuplicatedResponse {
-  putResponsesDuplicated: {
-    list: IDuplicated[];
-    totalCount: number;
-    pageInfo: IRecordTableCursorPageInfo;
-  };
-}
-
-export const useDuplicated = (options?: QueryHookOptions) => {
+export const useDuplicated = () => {
   const setPutResponseDuplicatedTotalCount = useSetAtom(
     duplicatedTotalCountAtom,
   );
-  const variables = useDuplicatedVariables(options?.variables);
+  const variables = useDuplicatedVariables();
 
-  const { data, loading, fetchMore, error } = useQuery<IDuplicatedResponse>(
+  const { data, loading, fetchMore, error } = useQuery(
     duplicatedQueries.putResponsesDuplicated,
-    {
-      ...options,
-      variables,
-    },
+    { variables },
   );
 
-  const { putResponsesDuplicated, pageInfo, totalCount } = useMemo(() => {
-    const responseData = data?.putResponsesDuplicated;
-
-    if (!responseData) {
-      return {
-        putResponsesDuplicated: [],
-        pageInfo: {
-          hasNextPage: false,
-          hasPreviousPage: false,
-          startCursor: null,
-          endCursor: null,
-        } as IRecordTableCursorPageInfo,
-        totalCount: 0,
-      };
-    }
-
-    return {
-      putResponsesDuplicated: Array.isArray(responseData.list)
-        ? responseData.list
-        : [],
-      pageInfo:
-        responseData.pageInfo ||
-        ({
-          hasNextPage: false,
-          hasPreviousPage: false,
-          startCursor: null,
-          endCursor: null,
-        } as IRecordTableCursorPageInfo),
-      totalCount: responseData.totalCount || 0,
-    };
-  }, [data]);
+  const responseData = data?.putResponsesDuplicated;
+  const putResponsesDuplicated = compactList(responseData?.list);
+  const totalCount = responseData?.totalCount ?? 0;
+  // The resolver pages by page/perPage; loaded pages append, so only the
+  // forward direction can fetch more.
+  const pageInfo = {
+    hasNextPage: responseData?.pageInfo.hasNextPage ?? false,
+    hasPreviousPage: false,
+  };
 
   useEffect(() => {
     setPutResponseDuplicatedTotalCount(totalCount);
@@ -117,49 +63,32 @@ export const useDuplicated = (options?: QueryHookOptions) => {
   }: {
     direction: EnumCursorDirection;
   }) => {
-    if (!pageInfo) return;
-
-    if (!validateFetchMore({ direction, pageInfo })) {
+    if (direction !== EnumCursorDirection.FORWARD || !pageInfo.hasNextPage) {
       return;
     }
 
     fetchMore({
       variables: {
         ...variables,
-        cursor:
-          direction === EnumCursorDirection.FORWARD
-            ? pageInfo?.endCursor
-            : pageInfo?.startCursor,
-        direction,
+        page:
+          Math.ceil(putResponsesDuplicated.length / DUPLICATED_PER_PAGE) + 1,
       },
       updateQuery: (prev, { fetchMoreResult }) => {
-        if (!fetchMoreResult) return prev;
-
-        const newItems = Array.isArray(
-          fetchMoreResult.putResponsesDuplicated?.list,
-        )
-          ? fetchMoreResult.putResponsesDuplicated.list
-          : [];
-
-        const prevItems = Array.isArray(prev.putResponsesDuplicated?.list)
-          ? prev.putResponsesDuplicated.list
-          : [];
+        if (
+          !prev.putResponsesDuplicated ||
+          !fetchMoreResult.putResponsesDuplicated
+        ) {
+          return prev;
+        }
 
         return {
           ...prev,
           putResponsesDuplicated: {
-            ...prev.putResponsesDuplicated,
-            list:
-              direction === EnumCursorDirection.FORWARD
-                ? [...prevItems, ...newItems]
-                : [...newItems, ...prevItems],
-            totalCount:
-              fetchMoreResult.putResponsesDuplicated?.totalCount ||
-              prev.putResponsesDuplicated?.totalCount ||
-              0,
-            pageInfo:
-              fetchMoreResult.putResponsesDuplicated?.pageInfo ||
-              prev.putResponsesDuplicated?.pageInfo,
+            ...fetchMoreResult.putResponsesDuplicated,
+            list: [
+              ...prev.putResponsesDuplicated.list,
+              ...fetchMoreResult.putResponsesDuplicated.list,
+            ],
           },
         };
       },

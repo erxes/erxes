@@ -7,7 +7,7 @@ import React, {
 } from 'react';
 import { cn, Combobox, Command, PopoverScoped } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { useEbarimtProductRules } from '../../hooks/useEbarimtProductRules';
+import { useEbarimtProductRules } from '@/shared/hooks/useEbarimtProductRules';
 import {
   SelectContent,
   SelectTrigger,

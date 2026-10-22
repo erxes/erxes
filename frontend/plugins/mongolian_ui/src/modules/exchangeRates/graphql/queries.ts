@@ -1,53 +1,54 @@
-import { gql } from '@apollo/client';
-import {
-  GQL_CURSOR_PARAM_DEFS,
-  GQL_PAGE_INFO,
-  GQL_CURSOR_PARAMS,
-} from 'erxes-ui';
-
-/* ---------------- exchange rate fields ---------------- */
-
-const exchangeRateFields = `
-  _id
-  date
-  mainCurrency
-  rateCurrency
-  rate
-  createdAt
-  modifiedAt
-`;
+import { gql } from '~/gql';
 
 /* ---------------- queries ---------------- */
 
-export const exchangeRatesMain = gql`
-  query ExchangeRatesMain(
+export const exchangeRatesMain = gql(`
+  query exchangeRatesMain(
     $searchValue: String
     $orderBy: JSON
     $sortMode: String
     $aggregationPipeline: [JSON]
-    ${GQL_CURSOR_PARAM_DEFS}
+    $cursor: String
+    $cursorMode: CURSOR_MODE
+    $direction: CURSOR_DIRECTION
+    $limit: Int
   ) {
     exchangeRatesMain(
       searchValue: $searchValue
       orderBy: $orderBy
       sortMode: $sortMode
       aggregationPipeline: $aggregationPipeline
-      ${GQL_CURSOR_PARAMS}
+      cursor: $cursor
+      cursorMode: $cursorMode
+      direction: $direction
+      limit: $limit
     ) {
       list {
-        ${exchangeRateFields}
+        _id
+        date
+        mainCurrency
+        rateCurrency
+        rate
+        createdAt
+        modifiedAt
       }
-      ${GQL_PAGE_INFO}
+      totalCount
+      pageInfo {
+        hasNextPage
+        hasPreviousPage
+        startCursor
+        endCursor
+      }
     }
   }
-`;
+`);
 
-export const currencyConfig = gql`
-  query ExchangeRateCurrencies {
+export const currencyConfig = gql(`
+  query exchangeRateCurrencies {
     dealCurrencies: configsGetValue(code: "dealCurrency")
     mainCurrencyConfig: configsGetValue(code: "mainCurrency")
   }
-`;
+`);
 
 /* ---------------- default export ---------------- */
 

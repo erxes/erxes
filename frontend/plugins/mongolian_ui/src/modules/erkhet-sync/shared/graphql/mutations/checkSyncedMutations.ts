@@ -1,7 +1,7 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const checkSyncedMutation = gql`
-  mutation ToCheckSynced($ids: [String], $contentType: String) {
+export const checkSyncedMutation = gql(`
+  mutation erkhetCheckSynced($ids: [String], $contentType: String) {
     toCheckSynced(ids: $ids, contentType: $contentType) {
       _id
       isSynced
@@ -10,10 +10,10 @@ export const checkSyncedMutation = gql`
       syncedCustomer
     }
   }
-`;
+`);
 
-export const syncDealsMutation = gql`
-  mutation ToSyncDeals(
+export const syncDealsMutation = gql(`
+  mutation erkhetSyncDeals(
     $dealIds: [String]
     $configStageId: String
     $dateType: String
@@ -22,12 +22,20 @@ export const syncDealsMutation = gql`
       dealIds: $dealIds
       configStageId: $configStageId
       dateType: $dateType
-    )
+    ) {
+      skipped
+      error
+      success
+    }
   }
-`;
+`);
 
-export const syncOrdersMutation = gql`
-  mutation ToSyncOrders($orderIds: [String]) {
-    toSyncOrders(orderIds: $orderIds)
+export const syncOrdersMutation = gql(`
+  mutation erkhetSyncOrders($orderIds: [String]) {
+    toSyncOrders(orderIds: $orderIds) {
+      skipped
+      error
+      success
+    }
   }
-`;
+`);

@@ -1,3 +1,4 @@
+import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
 export const types = `
   type EbarimtProductRule {
     _id: String
@@ -30,6 +31,7 @@ const queryParams = `
   taxCode: String
   taxType: String
   taxPercent: Float
+  ${GQL_CURSOR_PARAM_DEFS}
 `;
 
 export const queries = `

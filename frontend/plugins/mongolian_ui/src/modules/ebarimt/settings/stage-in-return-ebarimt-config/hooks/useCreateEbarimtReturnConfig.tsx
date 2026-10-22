@@ -2,7 +2,7 @@ import { useMutation } from '@apollo/client';
 import { useToast, useRecordTableCursor } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { EBARIMT_RETURN_CONFIG_CURSOR_SESSION_KEY } from '@/ebarimt/settings/stage-in-return-ebarimt-config/constants';
-import { CREATE_MN_CONFIG } from '../graphql/queries/mnConfigs';
+import { CREATE_MN_CONFIG } from '@/shared/graphql/mnConfigs';
 
 export const useCreateEbarimtReturnConfig = () => {
   const { toast } = useToast();

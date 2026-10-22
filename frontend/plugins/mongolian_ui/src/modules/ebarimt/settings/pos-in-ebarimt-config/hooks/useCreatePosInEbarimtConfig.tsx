@@ -1,8 +1,8 @@
 import { useMutation } from '@apollo/client';
 import { useToast, useRecordTableCursor } from 'erxes-ui';
 import { POS_IN_EBARIMT_CONFIG_CURSOR_SESSION_KEY } from '@/ebarimt/settings/pos-in-ebarimt-config/constants';
-import { CREATE_MN_CONFIG } from '@/ebarimt/settings/pos-in-ebarimt-config/graphql/mnConfigs';
 import { useTranslation } from 'react-i18next';
+import { CREATE_MN_CONFIG } from '@/shared/graphql/mnConfigs';
 
 export const useCreatePosInEbarimtConfig = () => {
   const { t } = useTranslation('mongolian');

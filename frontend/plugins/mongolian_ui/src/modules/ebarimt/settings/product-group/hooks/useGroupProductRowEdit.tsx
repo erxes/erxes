@@ -8,7 +8,7 @@ export const useGroupProductRowEdit = () => {
   const [editGroupProductRow, { loading }] = useMutation(
     EBARIMT_PRODUCT_GROUP_EDIT,
     {
-      refetchQueries: ['EbarimtProductGroups'],
+      refetchQueries: ['ebarimtProductGroups'],
       awaitRefetchQueries: true,
       onError: (error) => {
         toast({

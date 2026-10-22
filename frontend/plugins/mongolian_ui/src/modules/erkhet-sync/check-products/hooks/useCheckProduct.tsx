@@ -4,14 +4,16 @@ import { useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useAtom, atom } from 'jotai';
 import { ProductItem, ProductStatus } from '../types/productItem';
-import { ICheckProduct } from '../types/checkProduct';
 import { useSyncProduct } from './useSyncProduct';
+import { jsonRecords } from '@/shared/utils/json';
+
+type CheckedProductItem = Omit<ProductItem, 'status' | 'isSynced'>;
 
 interface CheckProductsResponse {
-  create?: { items: ICheckProduct[] };
-  update?: { items: ICheckProduct[] };
-  delete?: { items: ICheckProduct[] };
-  matched?: { count: number };
+  create: { items: CheckedProductItem[] };
+  update: { items: CheckedProductItem[] };
+  delete: { items: CheckedProductItem[] };
+  matched: { count: number };
 }
 
 interface PageInfo {
@@ -51,25 +53,38 @@ export const useCheckProduct = () => {
         },
       });
 
-      const responseData = response.data?.toCheckProducts;
+      const result = response.data?.toCheckProducts;
 
-      if (responseData) {
+      if (result) {
+        const responseData: CheckProductsResponse = {
+          create: {
+            items: jsonRecords<CheckedProductItem>(result.create.items),
+          },
+          update: {
+            items: jsonRecords<CheckedProductItem>(result.update.items),
+          },
+          delete: {
+            items: jsonRecords<CheckedProductItem>(result.delete.items),
+          },
+          matched: result.matched,
+        };
+
         const existingSyncedProducts =
           toCheckProducts?.filter((item) => item.isSynced === true) || [];
 
         const allProducts: ProductItem[] = [
           ...existingSyncedProducts,
-          ...(responseData.create?.items || []).map((item: ICheckProduct) => ({
+          ...responseData.create.items.map((item) => ({
             ...item,
             status: 'create' as const,
             isSynced: false,
           })),
-          ...(responseData.update?.items || []).map((item: ICheckProduct) => ({
+          ...responseData.update.items.map((item) => ({
             ...item,
             status: 'update' as const,
             isSynced: false,
           })),
-          ...(responseData.delete?.items || []).map((item: ICheckProduct) => ({
+          ...responseData.delete.items.map((item) => ({
             ...item,
             status: 'delete' as const,
             isSynced: false,

@@ -1,28 +1,30 @@
-import {
-  useQuery,
-  QueryHookOptions,
-  OperationVariables,
-  gql,
-} from '@apollo/client';
-import { POS_QUERY } from '../graphql/queries/posQuery';
-import { IPos } from '../types/pos';
+import { useQuery, QueryHookOptions } from '@apollo/client';
+import { compactList } from '@/shared/utils/cursorList';
+import type {
+  MongolianPosListQuery,
+  MongolianPosListQueryVariables,
+} from '~/gql/graphql';
+import { toPos } from '../types/pos';
+import { GET_POS_LIST } from '@/shared/graphql/posList';
 
 const POS_PER_PAGE = 20;
 
-export const usePos = (options?: QueryHookOptions<{ posList: IPos[] }>) => {
-  const { data, loading, error, fetchMore } = useQuery<{ posList: IPos[] }>(
-    POS_QUERY,
-    {
-      ...options,
-      variables: {
-        perPage: POS_PER_PAGE,
-        page: 1,
-        ...options?.variables,
-      },
+export const usePos = (
+  options?: QueryHookOptions<
+    MongolianPosListQuery,
+    MongolianPosListQueryVariables
+  >,
+) => {
+  const { data, loading, error, fetchMore } = useQuery(GET_POS_LIST, {
+    ...options,
+    variables: {
+      perPage: POS_PER_PAGE,
+      page: 1,
+      ...options?.variables,
     },
-  );
+  });
 
-  const posList = data?.posList || [];
+  const posList = compactList(data?.posList).flatMap(toPos);
 
   const handleFetchMore = () => {
     const currentPage = Math.floor(posList.length / POS_PER_PAGE) + 1;
@@ -35,7 +37,10 @@ export const usePos = (options?: QueryHookOptions<{ posList: IPos[] }>) => {
       updateQuery: (prev, { fetchMoreResult }) => {
         if (!fetchMoreResult) return prev;
         return {
-          posList: [...prev.posList, ...fetchMoreResult.posList],
+          posList: [
+            ...(prev.posList ?? []),
+            ...(fetchMoreResult.posList ?? []),
+          ],
         };
       },
     });
@@ -47,43 +52,5 @@ export const usePos = (options?: QueryHookOptions<{ posList: IPos[] }>) => {
     error,
     handleFetchMore,
     totalCount: posList.length,
-  };
-};
-export const usePosByIds = (options: OperationVariables) => {
-  const { data, loading, error } = useQuery<{
-    posDetail: IPos;
-  }>(
-    gql`
-      query posDetail($_id: String!) {
-        posDetail(_id: $_id) {
-          _id
-          name
-          description
-          token
-          user {
-            _id
-            details {
-              fullName
-              avatar
-            }
-          }
-          branchTitle
-          departmentTitle
-          isOnline
-          onServer
-        }
-      }
-    `,
-    {
-      ...options,
-    },
-  );
-
-  const { posDetail } = data || {};
-
-  return {
-    posDetail,
-    loading,
-    error,
   };
 };

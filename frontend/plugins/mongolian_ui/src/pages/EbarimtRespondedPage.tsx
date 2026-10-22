@@ -22,11 +22,13 @@ export const EbarimtRespondedPage = () => {
     },
     onData: ({ data }) => {
       const response = data?.data?.ebarimtResponded;
-      const { content: contents } = response ?? {};
+      const content = response?.content;
+      const contents = Array.isArray(content) ? content : [];
 
       if (
-        !contents?.length ||
-        response?.sessionCode !== sessionStorage.getItem(SESSION_CODE_STORAGE_KEY)
+        !contents.length ||
+        response?.sessionCode !==
+          sessionStorage.getItem(SESSION_CODE_STORAGE_KEY)
       ) {
         return;
       }

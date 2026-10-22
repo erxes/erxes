@@ -4,13 +4,15 @@ import { useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useAtom, atom } from 'jotai';
 import { CategoryItem, CategoryStatus } from '../types/categoryItem';
-import { ICheckCategory } from '../types/checkCategory';
 import { useSyncCategory } from './useSyncCategory';
+import { jsonRecords } from '@/shared/utils/json';
+
+type CheckedCategoryItem = Omit<CategoryItem, 'status' | 'isSynced'>;
 
 interface CheckCategoriesResponse {
-  create?: { items: ICheckCategory[] };
-  update?: { items: ICheckCategory[] };
-  delete?: { items: ICheckCategory[] };
+  create: { items: CheckedCategoryItem[] };
+  update: { items: CheckedCategoryItem[] };
+  delete: { items: CheckedCategoryItem[] };
 }
 
 interface PageInfo {
@@ -52,25 +54,37 @@ export const useCheckCategory = () => {
         },
       });
 
-      const responseData = response.data?.toCheckCategories;
+      const result = response.data?.toCheckCategories;
 
-      if (responseData) {
+      if (result) {
+        const responseData: CheckCategoriesResponse = {
+          create: {
+            items: jsonRecords<CheckedCategoryItem>(result.create.items),
+          },
+          update: {
+            items: jsonRecords<CheckedCategoryItem>(result.update.items),
+          },
+          delete: {
+            items: jsonRecords<CheckedCategoryItem>(result.delete.items),
+          },
+        };
+
         const existingSyncedCategories =
           toCheckCategories?.filter((item) => item.isSynced === true) || [];
 
         const allCategories: CategoryItem[] = [
           ...existingSyncedCategories,
-          ...(responseData.create?.items || []).map((item: ICheckCategory) => ({
+          ...responseData.create.items.map((item) => ({
             ...item,
             status: 'create' as const,
             isSynced: false,
           })),
-          ...(responseData.update?.items || []).map((item: ICheckCategory) => ({
+          ...responseData.update.items.map((item) => ({
             ...item,
             status: 'update' as const,
             isSynced: false,
           })),
-          ...(responseData.delete?.items || []).map((item: ICheckCategory) => ({
+          ...responseData.delete.items.map((item) => ({
             ...item,
             status: 'delete' as const,
             isSynced: false,

@@ -11,19 +11,19 @@ import {
 import { useEffect, useMemo } from 'react';
 
 import { byDateQueries } from '~/modules/ebarimt/put-response/put-responses-by-date/graphql/queries/ByDateQueries';
-import { IPutResponse } from '~/modules/ebarimt/put-response/types/PutResponseType';
+import { compactList } from '@/shared/utils/cursorList';
+import type {
+  EbarimtPutResponsesByDateQuery,
+  EbarimtPutResponsesByDateQueryVariables,
+} from '~/gql/graphql';
 import { BY_DATE_CURSOR_SESSION_KEY } from '~/modules/ebarimt/put-response/put-responses-by-date/constants/ByDateCursorSessionKey';
 import { useSetAtom } from 'jotai';
 import { byDateTotalCountAtom } from '~/modules/ebarimt/put-response/put-responses-by-date/states/ByDateCounts';
 
 export const BY_DATE_PER_PAGE = 30;
 
-interface IByDateResponse {
-  putResponsesByDate: IPutResponse[];
-}
-
 export const useByDateVariables = (
-  variables?: QueryHookOptions<IByDateResponse>['variables'],
+  variables?: EbarimtPutResponsesByDateQueryVariables,
 ) => {
   const [
     {
@@ -78,11 +78,11 @@ export const useByDateVariables = (
     sessionKey: BY_DATE_CURSOR_SESSION_KEY,
   });
 
-  let search: string | undefined
+  let search: string | undefined;
   if (Array.isArray(billId)) {
-    search = billId[0] ? String(billId[0]) : undefined
+    search = billId[0] ? String(billId[0]) : undefined;
   } else if (billId) {
-    search = String(billId)
+    search = String(billId);
   }
 
   const result = {
@@ -109,10 +109,15 @@ export const useByDateVariables = (
   return result;
 };
 
-export const useByDate = (options?: QueryHookOptions) => {
+export const useByDate = (
+  options?: QueryHookOptions<
+    EbarimtPutResponsesByDateQuery,
+    EbarimtPutResponsesByDateQueryVariables
+  >,
+) => {
   const setPutResponseByDateTotalCount = useSetAtom(byDateTotalCountAtom);
   const variables = useByDateVariables(options?.variables);
-  const { data, loading, fetchMore } = useQuery<IByDateResponse>(
+  const { data, loading, fetchMore } = useQuery(
     byDateQueries.putResponsesByDate,
     {
       ...options,
@@ -127,7 +132,7 @@ export const useByDate = (options?: QueryHookOptions) => {
     const responseData = data?.putResponsesByDate;
 
     return {
-      byDate: responseData || [],
+      byDate: compactList(responseData),
       pageInfo: {
         hasNextPage: false,
         hasPreviousPage: false,

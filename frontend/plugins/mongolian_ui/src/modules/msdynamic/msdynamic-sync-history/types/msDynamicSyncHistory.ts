@@ -1,3 +1,6 @@
+import type { MsdynamicSyncHistoriesQuery } from '~/gql/graphql';
+import { jsonRecord } from '@/shared/utils/json';
+
 export type MSDynamicSyncHistoryUser = {
   _id: string;
   email?: string;
@@ -6,20 +9,19 @@ export type MSDynamicSyncHistoryUser = {
   };
 };
 
-export interface IMSDynamicSyncHistory {
-  _id: string;
-  type: string;
-  contentType: string;
-  contentId: string;
-  createdAt: Date;
-  createdBy: string;
-  consumeData: unknown;
-  consumeStr: string;
-  sendData: unknown;
-  sendStr: string;
-  responseData: unknown;
-  responseStr: string;
-  error: string;
+type SyncMsdHistoryRow = NonNullable<
+  NonNullable<
+    NonNullable<MsdynamicSyncHistoriesQuery['syncMsdHistories']>['list']
+  >[number]
+>;
+
+export type IMSDynamicSyncHistory = Omit<SyncMsdHistoryRow, 'createdUser'> & {
   createdUser?: MSDynamicSyncHistoryUser;
-  content: string;
-}
+};
+
+export const toMSDynamicSyncHistory = (
+  history: SyncMsdHistoryRow,
+): IMSDynamicSyncHistory => ({
+  ...history,
+  createdUser: jsonRecord<MSDynamicSyncHistoryUser>(history.createdUser),
+});

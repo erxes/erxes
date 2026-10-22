@@ -16,6 +16,30 @@ export const types = `
     sessionCode: String
   }
 
+  type PutResponseDateValues {
+    counter: Int!
+    cityTax: Float!
+    vat: Float!
+    amount: Float!
+  }
+
+  type PutResponsesByDateItem {
+    date: String!
+    values: PutResponseDateValues!
+  }
+
+  type PutResponsesDuplicatedItem {
+    _id: String
+    date: String
+    values: PutResponseDateValues!
+  }
+
+  type PutResponsesDuplicatedResponse {
+    list: [PutResponsesDuplicatedItem]!
+    totalCount: Int!
+    pageInfo: PageInfo!
+  }
+
   type PutResponse {
     _id: String
     id: String
@@ -91,8 +115,8 @@ const queryParams = `
 
 export const queries = `
   putResponses(${queryParams}): PutResponseListResponse
-  putResponsesByDate(${queryParams}): JSON
-  putResponsesDuplicated(startDate: Date, endDate: Date, billType: String, page: Int, perPage: Int): JSON
+  putResponsesByDate(${queryParams}): [PutResponsesByDateItem]
+  putResponsesDuplicated(startDate: Date, endDate: Date, billType: String, page: Int, perPage: Int): PutResponsesDuplicatedResponse
   putResponsesDuplicatedCount(startDate: Date, endDate: Date, billType: String, page: Int, perPage: Int): JSON
   putResponsesDuplicatedDetail(contentId: String, taxType: String): PutResponse
   putResponsesCount(${queryParams}): Int

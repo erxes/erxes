@@ -1,9 +1,12 @@
-import { gql, useQuery } from '@apollo/client';
+import { useQuery } from '@apollo/client';
 import { useQueryState } from 'erxes-ui';
 
 import { queries } from '../graphql';
 import { PosOrderDetail } from '../msdynamic-check-orders/components/PosOrderDetail';
-import { IPosOrderDetail } from '../msdynamic-check-orders/types/msDynamicCheckOrder';
+import {
+  IPosOrderDetail,
+  toPosOrderDetail,
+} from '../msdynamic-check-orders/types/msDynamicCheckOrder';
 
 const ORDER_DETAIL_ID_KEY = 'orderDetailId';
 
@@ -15,7 +18,7 @@ const OrdersDetailContainer = ({ order }: Props) => {
   const [orderDetailId] = useQueryState<string>(ORDER_DETAIL_ID_KEY);
   const isActive = Boolean(orderDetailId) && orderDetailId === order?._id;
 
-  const { data, error } = useQuery(gql(queries.posOrderDetail), {
+  const { data, error } = useQuery(queries.posOrderDetail, {
     variables: { _id: order?._id },
     fetchPolicy: 'network-only',
     skip: !order?._id || !isActive,
@@ -25,7 +28,9 @@ const OrdersDetailContainer = ({ order }: Props) => {
     return null;
   }
 
-  const orderDetail = data?.posOrderDetail || order;
+  const orderDetail = data?.posOrderDetail
+    ? toPosOrderDetail(data.posOrderDetail)
+    : order;
 
   return <PosOrderDetail orders={orderDetail} />;
 };

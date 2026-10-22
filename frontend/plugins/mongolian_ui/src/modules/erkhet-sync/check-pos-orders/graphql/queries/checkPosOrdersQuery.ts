@@ -1,7 +1,7 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const checkPosOrdersQuery = gql`
-  query posOrders(
+export const checkPosOrdersQuery = gql(`
+  query erkhetCheckPosOrders(
     $page: Int
     $perPage: Int
     $sortField: String
@@ -59,4 +59,4 @@ export const checkPosOrdersQuery = gql`
       excludeStatuses: $excludeStatuses
     )
   }
-`;
+`);

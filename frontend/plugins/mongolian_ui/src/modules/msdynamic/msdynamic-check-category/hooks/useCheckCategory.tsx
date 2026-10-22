@@ -1,9 +1,10 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import { gql, useMutation } from '@apollo/client';
+import { useMutation } from '@apollo/client';
 import { useAtom, atom } from 'jotai';
 import { useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
+import { jsonRecords } from '@/shared/utils/json';
 import { mutations } from '../../graphql';
 import {
   CategoryFilterType,
@@ -11,10 +12,6 @@ import {
   InventoryCategoryItems,
 } from '../types/inventoryCategory';
 import { useSyncCategory } from './useSyncCategory';
-
-interface CheckCategoryMutationResponse {
-  toCheckMsdProductCategories: InventoryCategoryItems;
-}
 
 const itemsAtom = atom<InventoryCategoryItems>({});
 const loadingAtom = atom(false);
@@ -35,10 +32,9 @@ export const useCheckCategory = () => {
 
   const queryParams = Object.fromEntries(new URLSearchParams(location.search));
 
-  const [toCheckMsdProductCategories] =
-    useMutation<CheckCategoryMutationResponse>(
-      gql(mutations.toCheckCategories),
-    );
+  const [toCheckMsdProductCategories] = useMutation(
+    mutations.toCheckCategories,
+  );
 
   /* Brand selector-iin utgiig URL query deer hadgalna */
   const setBrand = (brandId: string) => {
@@ -71,19 +67,25 @@ export const useCheckCategory = () => {
       if (responseData) {
         const nextItems = {
           create: {
-            items: (responseData.create?.items || []).map((item) => ({
+            items: jsonRecords<InventoryCategoryItem>(
+              responseData.create.items,
+            ).map((item) => ({
               ...item,
               syncStatus: false,
             })),
           },
           update: {
-            items: (responseData.update?.items || []).map((item) => ({
+            items: jsonRecords<InventoryCategoryItem>(
+              responseData.update.items,
+            ).map((item) => ({
               ...item,
               syncStatus: false,
             })),
           },
           delete: {
-            items: (responseData.delete?.items || []).map((item) => ({
+            items: jsonRecords<InventoryCategoryItem>(
+              responseData.delete.items,
+            ).map((item) => ({
               ...item,
               syncStatus: false,
             })),

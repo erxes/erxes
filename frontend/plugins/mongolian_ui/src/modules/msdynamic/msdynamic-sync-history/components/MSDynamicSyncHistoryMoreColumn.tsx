@@ -26,6 +26,7 @@ export const MSDynamicSyncHistoryMoreColumnCell = ({
     <RecordTable.MoreButton
       className="w-full h-full"
       onClick={() => {
+        if (!_id) return;
         setOpen(_id);
         setMSDynamicSyncHistoryDetailAtom(false);
       }}

@@ -9,11 +9,11 @@ import {
   STAGE_IN_EBARIMT_DEFAULT_VALUES,
   TStageInEbarimtConfig,
 } from '@/ebarimt/settings/stage-in-ebarimt-config/types';
-import { GET_MN_CONFIGS } from '@/ebarimt/settings/stage-in-ebarimt-config/graphql/queries/mnConfigs';
 import { useSaveStageInEbarimtConfig } from '@/ebarimt/settings/stage-in-ebarimt-config/hooks/useSaveStageInEbarimtConfig';
 import { EBarimtConfigFormSheet } from '@/ebarimt/settings/components/EBarimtConfigFormSheet';
 import { useEBarimtConfigEdit } from '@/ebarimt/settings/hooks/useEBarimtConfigEdit';
 import { StageInEBarimtConfigFormFields } from './StageInEBarimtConfigFormFields';
+import { GET_MN_CONFIGS } from '@/shared/graphql/mnConfigs';
 
 const FORM_ID = 'edit-stage-in-ebarimt-form';
 

@@ -16,7 +16,7 @@ import {
   useFilterContext,
   useQueryState,
 } from 'erxes-ui';
-import { useGetSalesBoards } from '../../hooks/useGetSalesBoards';
+import { useGetSalesBoards } from '@/shared/hooks/useSalesBoards';
 import {
   SelectTriggerVariant,
   SelectTrigger,

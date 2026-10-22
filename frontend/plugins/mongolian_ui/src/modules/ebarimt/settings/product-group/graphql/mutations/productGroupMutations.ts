@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const EBARIMT_PRODUCT_GROUP_ADD = gql`
+export const EBARIMT_PRODUCT_GROUP_ADD = gql(`
   mutation ebarimtProductGroupCreate(
     $mainProductId: String
     $subProductId: String
@@ -44,9 +44,9 @@ export const EBARIMT_PRODUCT_GROUP_ADD = gql`
       __typename
     }
   }
-`;
+`);
 
-export const EBARIMT_PRODUCT_GROUP_EDIT = gql`
+export const EBARIMT_PRODUCT_GROUP_EDIT = gql(`
   mutation ebarimtProductGroupUpdate(
     $_id: String!
     $mainProductId: String
@@ -92,10 +92,10 @@ export const EBARIMT_PRODUCT_GROUP_EDIT = gql`
       __typename
     }
   }
-`;
+`);
 
-export const EBARIMT_PRODUCT_GROUP_REMOVE = gql`
-  mutation EbarimtProductGroupsRemove($ids: [String!]) {
+export const EBARIMT_PRODUCT_GROUP_REMOVE = gql(`
+  mutation ebarimtProductGroupRowsRemove($ids: [String!]) {
     ebarimtProductGroupsRemove(ids: $ids)
   }
-`;
+`);

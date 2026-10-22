@@ -1,13 +1,13 @@
 import { useMutation, useQuery } from '@apollo/client';
 import { useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { GET_CONFIGS_GET_VALUE } from '../graphql/queries/useStageInReturnErkhetConfigQuery';
-import {
-  CREATE_STAGE_IN_RETURN_ERKHET_CONFIG,
-  REMOVE_STAGE_IN_RETURN_ERKHET_CONFIG,
-  UPDATE_STAGE_IN_RETURN_ERKHET_CONFIG,
-} from '../graphql/mutations/createStageInReturnErkhetConfigMutations';
 import { TReturnErkhetConfig } from '../types';
+import {
+  CREATE_MN_CONFIG,
+  GET_MN_CONFIGS,
+  REMOVE_MN_CONFIG,
+  UPDATE_MN_CONFIG,
+} from '@/shared/graphql/mnConfigs';
 
 const CONFIG_CODE = 'returnEbarimtConfig';
 
@@ -20,7 +20,7 @@ export const useReturnErkhetConfigs = () => {
   const { t } = useTranslation('mongolian');
   const { toast } = useToast();
 
-  const { data, loading, refetch } = useQuery(GET_CONFIGS_GET_VALUE, {
+  const { data, loading, refetch } = useQuery(GET_MN_CONFIGS, {
     variables: { code: CONFIG_CODE },
     fetchPolicy: 'cache-and-network',
   });
@@ -40,15 +40,15 @@ export const useReturnErkhetConfigs = () => {
   };
 
   const [createConfig, { loading: createLoading }] = useMutation(
-    CREATE_STAGE_IN_RETURN_ERKHET_CONFIG,
+    CREATE_MN_CONFIG,
     mutationOptions,
   );
   const [updateConfig, { loading: updateLoading }] = useMutation(
-    UPDATE_STAGE_IN_RETURN_ERKHET_CONFIG,
+    UPDATE_MN_CONFIG,
     mutationOptions,
   );
   const [removeConfig, { loading: removeLoading }] = useMutation(
-    REMOVE_STAGE_IN_RETURN_ERKHET_CONFIG,
+    REMOVE_MN_CONFIG,
     mutationOptions,
   );
 

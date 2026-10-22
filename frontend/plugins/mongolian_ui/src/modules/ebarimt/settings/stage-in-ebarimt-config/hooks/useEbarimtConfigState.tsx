@@ -1,10 +1,10 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useQuery } from '@apollo/client';
-import { GET_MN_CONFIGS } from '@/ebarimt/settings/stage-in-ebarimt-config/graphql/queries/mnConfigs';
 import {
   normalizeRuleIds,
   TStageInEbarimtConfig,
 } from '@/ebarimt/settings/stage-in-ebarimt-config/types';
+import { GET_MN_CONFIGS } from '@/shared/graphql/mnConfigs';
 
 export const useEbarimtConfigState = () => {
   const { data, refetch, loading } = useQuery(GET_MN_CONFIGS, {

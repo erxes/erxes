@@ -1,8 +1,8 @@
 import { useMutation } from '@apollo/client';
 import { useToast, useRecordTableCursor } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { CREATE_PIPELINE_REMAINDER_CONFIG } from '../graphql/mutations/createPipelineRemainderConfigMutations';
 import { PIPELINE_REMAINDER_CONFIG_CURSOR_SESSION_KEY } from '../constants';
+import { CREATE_MN_CONFIG } from '@/shared/graphql/mnConfigs';
 
 export const useCreatePipelineRemainderConfig = () => {
   const { toast } = useToast();
@@ -12,7 +12,7 @@ export const useCreatePipelineRemainderConfig = () => {
   });
 
   const [createPipelineRemainderConfigMutation, { loading, error }] =
-    useMutation(CREATE_PIPELINE_REMAINDER_CONFIG, {
+    useMutation(CREATE_MN_CONFIG, {
       onCompleted: () => {
         toast({
           title: t('success'),

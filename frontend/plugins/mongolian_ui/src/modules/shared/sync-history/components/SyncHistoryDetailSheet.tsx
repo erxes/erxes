@@ -4,17 +4,17 @@ import { useSearchParams } from 'react-router-dom';
 import { stringifySyncValue } from './stringifySyncValue';
 
 export interface ISyncHistoryFields {
-  _id: string;
-  contentType: string;
-  content: string;
-  contentId: string;
+  _id: string | null;
+  contentType: string | null;
+  content: string | null;
+  contentId: string | null;
   consumeData: unknown;
-  consumeStr: string;
+  consumeStr: string | null;
   sendData: unknown;
-  sendStr: string;
+  sendStr: string | null;
   responseData: unknown;
-  responseStr: string;
-  error: string;
+  responseStr: string | null;
+  error: string | null;
 }
 
 const DetailBlock = ({ title, value }: { title: string; value: unknown }) => (
@@ -58,7 +58,9 @@ export const SyncHistoryDetailSheet = <T extends ISyncHistoryFields>({
             <>
               <div className="grid grid-cols-2 gap-3 text-sm">
                 <div>
-                  <div className="text-muted-foreground">{t('content-type')}</div>
+                  <div className="text-muted-foreground">
+                    {t('content-type')}
+                  </div>
                   <div className="font-medium">
                     {history.contentType || '-'}
                   </div>

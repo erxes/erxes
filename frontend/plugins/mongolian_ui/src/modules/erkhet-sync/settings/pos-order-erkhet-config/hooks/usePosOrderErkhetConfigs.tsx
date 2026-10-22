@@ -1,68 +1,17 @@
-import { gql, useMutation, useQuery } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
 import { useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import { compactList } from '@/shared/utils/cursorList';
+import { jsonRecords } from '@/shared/utils/json';
+import {
+  CREATE_MN_CONFIG,
+  GET_MN_CONFIGS,
+  REMOVE_MN_CONFIG,
+  UPDATE_MN_CONFIG,
+} from '@/shared/graphql/mnConfigs';
+import { GET_POS_LIST } from '@/shared/graphql/posList';
 
 export const POS_ORDER_ERKHET_CONFIG_CODE = 'posOrderErkhetConfig';
-
-const MN_CONFIGS = gql`
-  query PosOrderErkhetConfigs($code: String!) {
-    mnConfigs(code: $code) {
-      _id
-      code
-      subId
-      value
-    }
-  }
-`;
-
-const POS_LIST = gql`
-  query PosOrderErkhetPosList {
-    posList {
-      _id
-      name
-      token
-      beginNumber
-      paymentIds
-      paymentTypes
-    }
-  }
-`;
-
-const CREATE_CONFIG = gql`
-  mutation PosOrderErkhetConfigCreate(
-    $code: String!
-    $subId: String
-    $value: JSON
-  ) {
-    mnConfigsCreate(code: $code, subId: $subId, value: $value) {
-      _id
-      code
-      subId
-      value
-    }
-  }
-`;
-
-const UPDATE_CONFIG = gql`
-  mutation PosOrderErkhetConfigUpdate(
-    $id: String!
-    $subId: String
-    $value: JSON
-  ) {
-    mnConfigsUpdate(_id: $id, subId: $subId, value: $value) {
-      _id
-      code
-      subId
-      value
-    }
-  }
-`;
-
-const REMOVE_CONFIG = gql`
-  mutation PosOrderErkhetConfigRemove($id: String!) {
-    mnConfigsRemove(_id: $id)
-  }
-`;
 
 export type TPosOrderErkhetConfig = {
   _id?: string;
@@ -90,10 +39,12 @@ export type TPos = {
   _id: string;
   name: string;
   token: string;
-  beginNumber?: string;
+  beginNumber?: string | null;
   paymentIds?: string[];
-  paymentTypes?: { type: string; title?: string; formField?: string }[];
+  paymentTypes?: PosPaymentType[];
 };
+
+type PosPaymentType = { type: string; title?: string; formField?: string };
 
 const parseConfigValue = (value: any) =>
   typeof value === 'string' ? JSON.parse(value) : value || {};
@@ -152,17 +103,17 @@ export const usePosOrderErkhetConfigs = () => {
   const { toast } = useToast();
   const { t } = useTranslation('mongolian');
 
-  const { data, loading, refetch } = useQuery(MN_CONFIGS, {
+  const { data, loading, refetch } = useQuery(GET_MN_CONFIGS, {
     variables: { code: POS_ORDER_ERKHET_CONFIG_CODE },
     fetchPolicy: 'cache-and-network',
   });
 
-  const { data: posData, loading: posLoading } = useQuery(POS_LIST, {
+  const { data: posData, loading: posLoading } = useQuery(GET_POS_LIST, {
     fetchPolicy: 'cache-and-network',
   });
 
   const [createConfig, { loading: createLoading }] = useMutation(
-    CREATE_CONFIG,
+    CREATE_MN_CONFIG,
     {
       onError: (e) =>
         toast({
@@ -173,7 +124,7 @@ export const usePosOrderErkhetConfigs = () => {
     },
   );
   const [updateConfig, { loading: updateLoading }] = useMutation(
-    UPDATE_CONFIG,
+    UPDATE_MN_CONFIG,
     {
       onError: (e) =>
         toast({
@@ -184,7 +135,7 @@ export const usePosOrderErkhetConfigs = () => {
     },
   );
   const [removeConfig, { loading: removeLoading }] = useMutation(
-    REMOVE_CONFIG,
+    REMOVE_MN_CONFIG,
     {
       onError: (e) =>
         toast({
@@ -196,22 +147,32 @@ export const usePosOrderErkhetConfigs = () => {
   );
 
   const configs = (data?.mnConfigs || []).map(readConfig);
-  const poss: TPos[] = (posData?.posList || []).map((pos: TPos) => {
-    const posPaymentTypes = pos.paymentTypes || [];
+  const poss: TPos[] = compactList(posData?.posList).flatMap((pos) => {
+    if (!pos._id) {
+      return [];
+    }
+
+    const posPaymentTypes = jsonRecords<PosPaymentType>(pos.paymentTypes);
     const otherPaymentTypes = posPaymentTypes.filter(
       (paymentType) =>
         !['cashAmount', 'mobileAmount'].includes(paymentType.type),
     );
 
+    const paymentIds = compactList(pos.paymentIds);
+
     return {
-      ...pos,
+      _id: pos._id,
+      name: pos.name ?? '',
+      token: pos.token ?? '',
+      beginNumber: pos.beginNumber,
+      paymentIds,
       paymentTypes: [
         {
           type: 'cashAmount',
           title: 'Бэлнээр',
           formField: 'cashAmount',
         },
-        ...((pos.paymentIds || []).length
+        ...(paymentIds.length
           ? [
               {
                 type: 'mobileAmount',

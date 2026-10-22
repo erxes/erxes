@@ -5,18 +5,13 @@ import React, {
   useMemo,
   useCallback,
 } from 'react';
-import {
-  cn,
-  Combobox,
-  Command,
-  PopoverScoped,
-  SelectTriggerVariant,
-} from 'erxes-ui';
+import { cn, Combobox, Command, PopoverScoped } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { useGetSalesBoards } from '@/ebarimt/settings/stage-in-ebarimt-config/hooks/useGetSalesBoards';
+import { useGetSalesBoards } from '@/shared/hooks/useSalesBoards';
 import {
   SelectContent,
   SelectTrigger,
+  SelectTriggerVariantType,
 } from '@/ebarimt/settings/stage-in-ebarimt-config/components/selects/SelectShared';
 
 interface IBoard {
@@ -173,7 +168,7 @@ const SelectSalesBoardRoot = ({
   disabled,
 }: {
   value: string;
-  variant?: `${SelectTriggerVariant}`;
+  variant?: `${SelectTriggerVariantType}`;
   scope?: string;
   onValueChange?: (value: string) => void;
   disabled?: boolean;

@@ -1,48 +1,48 @@
-import gql from 'graphql-tag';
+import { gql } from '~/gql';
 
-const commonParamsDef = `
-  $date: Date
-  $mainCurrency: String
-  $rateCurrency: String
-  $rate: Float
-`;
-
-const commonParams = `
-  date: $date
-  mainCurrency: $mainCurrency
-  rateCurrency: $rateCurrency
-  rate: $rate
-`;
-
-export const exchangeRateAdd = gql`
-  mutation ExchangeRateAdd(${commonParamsDef}) {
+export const exchangeRateAdd = gql(`
+  mutation exchangeRateAdd(
+    $date: Date
+    $mainCurrency: String
+    $rateCurrency: String
+    $rate: Float
+  ) {
     exchangeRateAdd(
-      ${commonParams}
+      date: $date
+      mainCurrency: $mainCurrency
+      rateCurrency: $rateCurrency
+      rate: $rate
     ) {
       _id
     }
   }
-`;
+`);
 
-export const exchangeRateEdit = gql`
-  mutation ExchangeRateEdit(
+export const exchangeRateEdit = gql(`
+  mutation exchangeRateEdit(
     $_id: String!
-    ${commonParamsDef}
+    $date: Date
+    $mainCurrency: String
+    $rateCurrency: String
+    $rate: Float
   ) {
     exchangeRateEdit(
       _id: $_id
-      ${commonParams}
+      date: $date
+      mainCurrency: $mainCurrency
+      rateCurrency: $rateCurrency
+      rate: $rate
     ) {
       _id
     }
   }
-`;
+`);
 
-export const exchangeRatesRemove = gql`
-  mutation ExchangeRatesRemove($rateIds: [String!]!) {
+export const exchangeRatesRemove = gql(`
+  mutation exchangeRatesRemove($rateIds: [String!]!) {
     exchangeRatesRemove(rateIds: $rateIds)
   }
-`;
+`);
 
 export default {
   exchangeRateAdd,

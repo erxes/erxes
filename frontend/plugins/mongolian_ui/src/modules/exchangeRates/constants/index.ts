@@ -7,7 +7,7 @@ export const EXCHANGE_RATE_ID_QUERY_KEY = 'exchange_rate_id';
 export const EXCHANGE_RATES_CURSOR_SESSION_KEY = 'exchangeRates_cursor';
 
 /** Name of the list query, used for Apollo refetchQueries. */
-export const EXCHANGE_RATES_QUERY_NAME = 'ExchangeRatesMain';
+export const EXCHANGE_RATES_QUERY_NAME = 'exchangeRatesMain';
 
 export const exchangeRateFormSchema = z.object({
   date: z.coerce.date({ message: 'Date is required' }),

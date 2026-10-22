@@ -1,17 +1,25 @@
 import { useMutation } from '@apollo/client';
-import {
-  CREATE_MN_CONFIG,
-  UPDATE_MN_CONFIG,
-  GET_MN_CONFIGS,
-} from '@/ebarimt/settings/stage-in-return-ebarimt-config/graphql/queries/mnConfigs';
 import { useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import {
+  CREATE_MN_CONFIG,
+  GET_MN_CONFIGS,
+  UPDATE_MN_CONFIG,
+} from '@/shared/graphql/mnConfigs';
 
-const refetchOptions = [{ query: GET_MN_CONFIGS, variables: { code: 'returnStageInEbarimt' } }];
+const refetchOptions = [
+  { query: GET_MN_CONFIGS, variables: { code: 'returnStageInEbarimt' } },
+];
 
 export const useEbarimtReturnConfigSave = () => {
-  const [createConfig, { loading: createLoading }] = useMutation(CREATE_MN_CONFIG, { refetchQueries: refetchOptions });
-  const [updateConfig, { loading: updateLoading }] = useMutation(UPDATE_MN_CONFIG, { refetchQueries: refetchOptions });
+  const [createConfig, { loading: createLoading }] = useMutation(
+    CREATE_MN_CONFIG,
+    { refetchQueries: refetchOptions },
+  );
+  const [updateConfig, { loading: updateLoading }] = useMutation(
+    UPDATE_MN_CONFIG,
+    { refetchQueries: refetchOptions },
+  );
   const loading = createLoading || updateLoading;
   const { toast } = useToast();
   const { t } = useTranslation('mongolian');
@@ -48,11 +56,15 @@ export const useEbarimtReturnConfigSave = () => {
         variant: 'default',
       });
 
-      return (
-        result?.data?.mnConfigsCreate?._id ||
-        result?.data?.mnConfigsUpdate?._id ||
-        configId
-      );
+      const saved = result?.data;
+      if (!saved) return configId;
+
+      const savedId =
+        'mnConfigsCreate' in saved
+          ? saved.mnConfigsCreate?._id
+          : saved.mnConfigsUpdate?._id;
+
+      return savedId || configId;
     } catch (error) {
       toast({
         title: t('error'),
