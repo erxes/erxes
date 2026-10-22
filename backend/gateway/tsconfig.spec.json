@@ -1,0 +1,8 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "types": ["jest", "node"],
+    "isolatedModules": true
+  },
+  "include": ["jest.config.ts", "src/**/*.d.ts", "src/**/*.spec.ts"]
+}
