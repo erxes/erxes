@@ -15,7 +15,7 @@ export const agentsConnectionSchema = new Schema(
           provider: {
             type: String,
             required: true,
-            enum: ['cloudflare-ai-gateway', 'openai', 'kimi', 'kimi-code', 'grok'],
+            enum: ['openai', 'kimi', 'kimi-code', 'grok'],
           },
           model: { type: String, required: true },
           config: { type: Object, default: {} },

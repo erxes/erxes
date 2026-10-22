@@ -4,8 +4,9 @@ The `agents` module is the AI assistant backend living **inside core-api** (not 
 plugin; ported from the former private `erxes-agent` service). It provides:
 
 - per-user **BYOK** multi-provider connections (`openai`, `grok`, `kimi`,
-  `kimi-code`; `cloudflare-ai-gateway` resolves but is not offered on the BYOK
-  surface) stored on `agents_user_connections` — one doc per user per tenant,
+  `kimi-code`; the first three run through Mastra's model router as
+  `openai/*`, `xai/*` and `moonshotai/*`, kimi-code through
+  `@ai-sdk/anthropic`) stored on `agents_user_connections` — one doc per user per tenant,
   one entry per provider, `hasKey`-only reads; `config.apiKey` is sealed at
   rest (`secretBox.ts`, AES-256-GCM, `enc:v1:` envelope keyed from
   `JWT_TOKEN_SECRET`) — readers use `openSecret`, writers seal on upsert,
