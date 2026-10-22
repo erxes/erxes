@@ -7,7 +7,6 @@ import {
   productTypeChangeSchema,
   PRODUCT_TYPE_CHANGE_DURATION_UNITS,
 } from '@/products/constants/productTypeChangeSchema';
-import { useProductsChangeType } from '@/products/hooks/useProductsChangeType';
 import type {
   ProductsChangeTypeDialogProps,
   ProductTypeChangeValues,
@@ -15,11 +14,12 @@ import type {
 
 export const ProductsChangeTypeDialog = ({
   products,
+  changeType,
   open,
   onOpenChange,
 }: ProductsChangeTypeDialogProps) => {
   const { t } = useTranslation('product');
-  const { apply, saving, refreshPending } = useProductsChangeType(products);
+  const { apply, saving, refreshPending } = changeType;
   const form = useForm<ProductTypeChangeValues>({
     resolver: zodResolver(productTypeChangeSchema),
     shouldUnregister: true,
@@ -152,8 +152,15 @@ export const ProductsChangeTypeDialog = ({
                 {t('cancel', 'Cancel')}
               </Button>
               <Button
-                type="submit"
+                type={refreshPending ? 'button' : 'submit'}
                 disabled={saving || (!editableCount && !refreshPending)}
+                onClick={
+                  refreshPending
+                    ? async () => {
+                        if (await apply()) onOpenChange(false);
+                      }
+                    : undefined
+                }
               >
                 {saving && (
                   <Spinner containerClassName="inline-flex flex-none" />

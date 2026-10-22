@@ -7,12 +7,13 @@ export type ProductTypeChangeTarget = Pick<IProduct, '_id' | 'status'>;
 
 export interface ProductsChangeTypeDialogProps {
   products: ProductTypeChangeTarget[];
+  changeType: UseProductsChangeTypeResult;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
 export interface UseProductsChangeTypeResult {
-  apply: (values: ProductTypeChangeValues) => Promise<boolean>;
+  apply: (values?: ProductTypeChangeValues) => Promise<boolean>;
   saving: boolean;
   refreshPending: boolean;
 }

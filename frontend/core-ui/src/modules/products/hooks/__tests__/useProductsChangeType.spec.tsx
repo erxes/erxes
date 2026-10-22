@@ -153,18 +153,14 @@ describe('bulk product type changes', () => {
 
     rerender({ products: [{ ...targets[0], status: 'deleted' }] });
     await act(async () => {
-      await expect(result.current.apply({ type: 'service' })).resolves.toBe(
-        false,
-      );
+      await expect(result.current.apply()).resolves.toBe(false);
     });
     expect(result.current.refreshPending).toBe(true);
     expect(result.current.saving).toBe(false);
     expect(mockClearSelection).not.toHaveBeenCalled();
 
     await act(async () => {
-      await expect(result.current.apply({ type: 'service' })).resolves.toBe(
-        true,
-      );
+      await expect(result.current.apply()).resolves.toBe(true);
     });
     expect(mockClearSelection).toHaveBeenCalledWith({});
     expect(mockEdit).toHaveBeenCalledTimes(1);
@@ -188,6 +184,15 @@ describe('bulk product type changes', () => {
     expect(result.current.refreshPending).toBe(false);
 
     rerender({ products: [targets[0]] });
+    mockEdit.mockRejectedValueOnce(new Error('Permission denied'));
+    await act(async () => {
+      await expect(result.current.apply({ type: 'product' })).resolves.toBe(
+        false,
+      );
+    });
+    expect(mockRefetch).toHaveBeenCalledTimes(2);
+    expect(result.current.refreshPending).toBe(false);
+
     await act(async () => {
       await expect(result.current.apply({ type: 'product' })).resolves.toBe(
         true,
@@ -197,8 +202,9 @@ describe('bulk product type changes', () => {
       [{ variables: { _id: 'first', type: 'product' } }],
       [{ variables: { _id: 'second', type: 'product' } }],
       [{ variables: { _id: 'first', type: 'product' } }],
+      [{ variables: { _id: 'first', type: 'product' } }],
     ]);
-    expect(mockRefetch).toHaveBeenCalledTimes(2);
+    expect(mockRefetch).toHaveBeenCalledTimes(3);
     expect(mockClearSelection).toHaveBeenLastCalledWith({});
   });
 

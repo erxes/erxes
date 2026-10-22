@@ -9,6 +9,9 @@ import type {
   UseProductsChangeTypeResult,
 } from '@/products/types/productTypeChange';
 
+const getErrorMessage = (error: unknown): string =>
+  error instanceof Error ? error.message : String(error);
+
 export const useProductsChangeType = (
   products: ProductTypeChangeTarget[],
 ): UseProductsChangeTypeResult => {
@@ -18,20 +21,26 @@ export const useProductsChangeType = (
   const { productsEdit } = useProductsEdit();
   const client = useApolloClient();
   const pending = useRef(false);
+  const needsRefresh = useRef(false);
   const [saving, setSaving] = useState(false);
   const [refreshPending, setRefreshPending] = useState(false);
 
-  const apply = async (values: ProductTypeChangeValues): Promise<boolean> => {
+  const refreshProducts = async (): Promise<void> => {
+    await client.refetchQueries({ include: ['ProductsMain'] });
+    needsRefresh.current = false;
+    setRefreshPending(false);
+  };
+
+  const apply = async (values?: ProductTypeChangeValues): Promise<boolean> => {
     if (pending.current) return false;
     const targets = products.filter((product) => product.status !== 'deleted');
-    if (!targets.length && !refreshPending) return false;
+    if (!refreshPending && (!values || !targets.length)) return false;
     pending.current = true;
     setSaving(true);
 
     try {
-      if (refreshPending) {
-        await client.refetchQueries({ include: ['ProductsMain'] });
-        setRefreshPending(false);
+      if (refreshPending || !values) {
+        await refreshProducts();
         table.setRowSelection({});
         return true;
       }
@@ -56,7 +65,7 @@ export const useProductsChangeType = (
           updated += 1;
         } catch (error) {
           failedSelection[product._id] = true;
-          errors.push(error instanceof Error ? error.message : String(error));
+          errors.push(getErrorMessage(error));
         }
       }, Promise.resolve());
 
@@ -75,10 +84,10 @@ export const useProductsChangeType = (
       });
 
       if (updated && errors.length) table.setRowSelection(failedSelection);
-      if (updated) {
+      needsRefresh.current ||= updated > 0;
+      if (needsRefresh.current) {
         setRefreshPending(errors.length === 0);
-        await client.refetchQueries({ include: ['ProductsMain'] });
-        setRefreshPending(false);
+        await refreshProducts();
       }
       if (!errors.length) table.setRowSelection({});
       return errors.length === 0;
@@ -88,7 +97,7 @@ export const useProductsChangeType = (
           'bulk.type-refresh-failed',
           'Updates saved; unable to refresh products',
         ),
-        description: error instanceof Error ? error.message : String(error),
+        description: getErrorMessage(error),
         variant: 'destructive',
       });
       return false;

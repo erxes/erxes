@@ -25,6 +25,7 @@ import { ProductsDelete } from './delete/productDelete';
 import { ProductsRestore } from './restore/productRestore';
 import { ProductMerge, ProductMergeTrigger } from './ProductMerge';
 import { ProductsChangeTypeDialog } from './ProductsChangeTypeDialog';
+import { useProductsChangeType } from '@/products/hooks/useProductsChangeType';
 import {
   ProductsChangeCategoryContent,
   ProductsChangeCategoryTrigger,
@@ -70,6 +71,7 @@ export const ProductCommandBar = () => {
     () => selectedRows.map((row: Row<IProduct>) => row.original),
     [selectedRows],
   );
+  const changeType = useProductsChangeType(products);
   const productIds = useMemo(
     () => products.map((product) => product._id),
     [products],
@@ -261,6 +263,7 @@ export const ProductCommandBar = () => {
       {changeTypeOpen && (
         <ProductsChangeTypeDialog
           products={products}
+          changeType={changeType}
           open={changeTypeOpen}
           onOpenChange={setChangeTypeOpen}
         />
