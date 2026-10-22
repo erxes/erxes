@@ -20,6 +20,7 @@ import {
   RecordTableInlineCell,
   RecordTableTree,
   RelativeDateDisplay,
+  toast,
   useConfirm,
   useMultiQueryState,
   useQueryState,
@@ -365,15 +366,29 @@ export const PipelineRecordTable = () => {
   );
 
   // Filters run on the loaded rows, so load every page while filtering;
-  // otherwise matches on later pages would be missed.
+  // otherwise matches on later pages would be missed. A failed page stops
+  // the automatic loading; scrolling to the bottom skeleton row retries it.
   const requestedCursor = useRef<string | null | undefined>(undefined);
-  const loadingRemainingPages = isFiltered && Boolean(pageInfo?.hasNextPage);
+  const [failedCursor, setFailedCursor] = useState<string | null>();
+  const loadingRemainingPages =
+    isFiltered &&
+    Boolean(pageInfo?.hasNextPage) &&
+    failedCursor !== pageInfo?.endCursor;
 
   useEffect(() => {
     if (!loadingRemainingPages || loading) return;
     if (requestedCursor.current === pageInfo?.endCursor) return;
-    requestedCursor.current = pageInfo?.endCursor;
-    handleFetchMore();
+    const cursor = pageInfo?.endCursor;
+    requestedCursor.current = cursor;
+    handleFetchMore()?.catch((fetchError: unknown) => {
+      requestedCursor.current = undefined;
+      setFailedCursor(cursor);
+      toast({
+        title:
+          fetchError instanceof Error ? fetchError.message : String(fetchError),
+        variant: 'destructive',
+      });
+    });
   }, [loadingRemainingPages, loading, pageInfo?.endCursor, handleFetchMore]);
 
   if (!boardsLoading && !boardsError && boards && !hasSelectedBoard) {
@@ -413,12 +428,14 @@ export const PipelineRecordTable = () => {
                 {(boardsLoading || loading) && (
                   <RecordTable.RowSkeleton rows={30} />
                 )}
-                {!loading && pageInfo?.hasNextPage && (
-                  <RecordTable.RowSkeleton
-                    rows={1}
-                    handleInView={handleFetchMore}
-                  />
-                )}
+                {!loading &&
+                  pageInfo?.hasNextPage &&
+                  !loadingRemainingPages && (
+                    <RecordTable.RowSkeleton
+                      rows={1}
+                      handleInView={handleFetchMore}
+                    />
+                  )}
               </RecordTable.Body>
             </RecordTable>
           </RecordTable.Scroll>
