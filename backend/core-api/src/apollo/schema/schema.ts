@@ -227,6 +227,11 @@ import {
   queries as searchQueries,
 } from '@/search/graphql/schema';
 import { queries as ReferenceQueries } from '~/meta/references/graphql/schema';
+import {
+  mutations as DataModelMutations,
+  queries as DataModelQueries,
+  types as DataModelTypes,
+} from '@/data-models/graphql/schema';
 
 import {
   mutations as AgentsConnectionMutations,
@@ -291,6 +296,7 @@ export const types = `
     ${NotificationsTypes}
     ${InternalNoteTypes}
     ${PropertiesTypes}
+    ${DataModelTypes}
     ${ClientPortalTypes}
     ${ImportExportCommonTypes}
     ${ImportTypes}
@@ -340,6 +346,7 @@ export const queries = `
     ${NotificationsQueries}
     ${InternalNoteQueries}  
     ${PropertiesQueries}
+    ${DataModelQueries}
     ${ClientPortalQueries}
     ${ImportExportCommonQueries}
     ${ImportQueries}
@@ -385,6 +392,7 @@ export const mutations = `
     ${NotificationsMutations}
     ${InternalNoteMutations}
     ${PropertiesMutations}
+    ${DataModelMutations}
     ${ClientPortalMutations}
     ${ImportMutations}
     ${ExportMutations}

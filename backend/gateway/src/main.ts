@@ -36,6 +36,7 @@ import {
 } from 'erxes-api-shared/utils';
 import { generateModels } from '~/connectionResolver';
 import { applyGraphqlLimiters } from '~/middlewares/graphql-limiter';
+import { applyWorkspaceGraphQL } from '~/middlewares/workspace-graphql';
 import {
   startSubscriptionServer,
   stopSubscriptionServer,
@@ -245,6 +246,13 @@ async function start() {
     console.log('Router started successfully');
 
     // Apply the initial proxy middleware
+    applyWorkspaceGraphQL(app, () => {
+      const core = global.currentTargets.find(
+        (target) => target.name === 'core',
+      );
+      if (!core) throw new Error('Core service is unavailable');
+      return core.address;
+    });
     applyGraphqlLimiters(app);
     applyProxiesCoreless(app);
     applyProxyToCore(app, global.currentTargets);
