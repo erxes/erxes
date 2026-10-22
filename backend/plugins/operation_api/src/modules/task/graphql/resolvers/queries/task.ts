@@ -217,12 +217,12 @@ export const taskQueries = {
     }
 
     // The tasks of these customers / companies.
-    if (filter.customerIds?.length) {
-      filterQuery.customerIds = { $in: filter.customerIds };
+    if (filter.customerId) {
+      filterQuery.customerId = filter.customerId;
     }
 
-    if (filter.companyIds?.length) {
-      filterQuery.companyIds = { $in: filter.companyIds };
+    if (filter.companyId) {
+      filterQuery.companyId = filter.companyId;
     }
 
     if (filter.labelIds && filter.labelIds.length > 0) {

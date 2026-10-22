@@ -1,8 +1,7 @@
-import { compactList } from '@/operation/utils/cursorList';
 import { ContactsRelationField } from 'ui-modules';
 
-// A task's / triage's / project's customers or companies: kept on the
-// record itself and saved with its own update mutation.
+// A task's / triage's one customer or company: kept on the record itself
+// and saved with its own update mutation.
 export const RecordContactsField = ({
   kind,
   value,
@@ -10,13 +9,13 @@ export const RecordContactsField = ({
   onValueChange,
 }: {
   kind: 'customer' | 'company';
-  value?: (string | null)[] | null;
+  value?: string | null;
   scope: string;
-  onValueChange: (ids: string[]) => void;
+  onValueChange: (id: string | null) => void;
 }) => (
   <ContactsRelationField
     kind={kind}
-    value={compactList(value)}
+    value={value}
     scope={scope}
     onValueChange={onValueChange}
   />

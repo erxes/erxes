@@ -23,8 +23,8 @@ export const ProjectsContactSection = ({
   const [createOpen, setCreateOpen] = useState(false);
   const contacts =
     contentType === 'core:company'
-      ? { companyIds: [contentId] }
-      : { customerIds: [contentId] };
+      ? { companyId: contentId }
+      : { customerId: contentId };
   const { data, loading } = useQuery(GET_PROJECTS, {
     variables: { filter: { ...contacts, limit: CONTACT_RECORDS_LIMIT } },
   });

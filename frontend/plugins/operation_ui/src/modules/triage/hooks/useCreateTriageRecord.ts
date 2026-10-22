@@ -18,8 +18,8 @@ export type TTriageDraft = {
   teamId?: string;
   priority?: number;
   description?: string;
-  customerIds?: string[];
-  companyIds?: string[];
+  customerId?: string | null;
+  companyId?: string | null;
   host?: TRelationEntity;
 };
 
@@ -72,8 +72,8 @@ export const useCreateTriageRecord = () => {
     teamId: draftTeamId,
     priority,
     description,
-    customerIds,
-    companyIds,
+    customerId,
+    companyId,
     host,
   }: TTriageDraft & { name: string }) => {
     if (loading || !draftTeamId) {
@@ -87,8 +87,8 @@ export const useCreateTriageRecord = () => {
           teamId: draftTeamId,
           priority,
           description,
-          customerIds,
-          companyIds,
+          customerId,
+          companyId,
         },
       },
       onCompleted: ({ operationAddTriage: created }) => {

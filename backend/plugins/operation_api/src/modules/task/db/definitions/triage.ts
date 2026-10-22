@@ -18,8 +18,8 @@ export const triageSchema = new Schema(
     // The triage's contacts, mirrored from core relations; missing until
     // migrated (see contactFieldsSchemaPlugin). Carried to the task it
     // becomes.
-    customerIds: { type: [String], label: 'Customer IDs', default: undefined },
-    companyIds: { type: [String], label: 'Company IDs', default: undefined },
+    customerId: { type: String, label: 'Customer', default: undefined },
+    companyId: { type: String, label: 'Company', default: undefined },
   },
   {
     timestamps: true,
@@ -31,7 +31,7 @@ triageSchema.index(
   { unique: true, sparse: true },
 );
 
-triageSchema.index({ customerIds: 1 });
-triageSchema.index({ companyIds: 1 });
+triageSchema.index({ customerId: 1 });
+triageSchema.index({ companyId: 1 });
 
 triageSchema.plugin(contactFieldsSchemaPlugin);

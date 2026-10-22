@@ -21,7 +21,7 @@ export const AddTicketSheet = ({
   ...props
 }: {
   onComplete?: (ticketId: string) => void;
-  contacts?: { customerIds?: string[]; companyIds?: string[] };
+  contacts?: { customerId?: string; companyId?: string };
   isRelation?: boolean;
   // Opened from elsewhere through `ticketCreateSheetState`.
   hideTrigger?: boolean;

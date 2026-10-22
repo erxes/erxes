@@ -75,5 +75,11 @@ export const useRelateRecord = ({
     );
   };
 
-  return { relateRecord, relateToHost, contacts, loading };
+  // The host's contact as a new record's own (it keeps one of each).
+  const ownContacts = {
+    customerId: contacts.customerIds[0],
+    companyId: contacts.companyIds[0],
+  };
+
+  return { relateRecord, relateToHost, contacts: ownContacts, loading };
 };

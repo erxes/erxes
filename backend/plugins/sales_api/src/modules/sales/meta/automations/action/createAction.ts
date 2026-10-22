@@ -72,11 +72,12 @@ export const actionCreate = async ({
     newData.stageId = config.stageId;
   }
 
+  // A deal keeps one customer and one company: the first chosen.
   if (newData?.customers) {
-    newData.customerIds = generateIds(newData.customers);
+    newData.customerId = generateIds(newData.customers)[0];
   }
   if (newData?.companies) {
-    newData.companyIds = generateIds(newData.companies);
+    newData.companyId = generateIds(newData.companies)[0];
   }
 
   if (Object.keys(newData).some((key) => key.startsWith('propertiesData.'))) {
@@ -121,15 +122,15 @@ export const actionCreate = async ({
   if (mainType === 'inbox:conversation') {
     await setDealContacts(models, {
       dealId: item._id,
-      customerIds: [execution.target.customerId],
+      customerId: execution.target.customerId,
     });
   } else if (serviceName !== 'sales') {
     const contactType = mainType.replace('lead', 'customer');
 
     await setDealContacts(models, {
       dealId: item._id,
-      customerIds: contactType === 'customer' ? [execution.targetId] : [],
-      companyIds: contactType === 'company' ? [execution.targetId] : [],
+      customerId: contactType === 'customer' ? execution.targetId : undefined,
+      companyId: contactType === 'company' ? execution.targetId : undefined,
     });
   }
 

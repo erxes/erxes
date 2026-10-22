@@ -2,14 +2,15 @@ import { sendTRPCMessage } from 'erxes-api-shared/utils';
 
 type TDealContacts = {
   _id: string;
-  customerIds?: string[];
-  companyIds?: string[];
+  customerId?: string | null;
+  companyId?: string | null;
 };
 
 /**
- * A deal's customer or company ids. Deals keep them on themselves once
- * migrated (both fields set, as erxes-api-shared `hasContactFields`); until
- * then, or when only the id is known, core relations answer as before.
+ * A deal's customer or company id, as a list of at most one. Deals keep it
+ * on themselves once migrated (both fields set, as erxes-api-shared
+ * `hasContactFields`); until then, or when only the id is known, core
+ * relations answer as before.
  */
 export const getDealContactIds = async (
   subdomain: string,
@@ -18,10 +19,12 @@ export const getDealContactIds = async (
 ): Promise<string[]> => {
   if (
     typeof deal !== 'string' &&
-    Array.isArray(deal.customerIds) &&
-    Array.isArray(deal.companyIds)
+    deal.customerId !== undefined &&
+    deal.companyId !== undefined
   ) {
-    return kind === 'customer' ? deal.customerIds : deal.companyIds;
+    const contactId = kind === 'customer' ? deal.customerId : deal.companyId;
+
+    return contactId ? [contactId] : [];
   }
 
   return (

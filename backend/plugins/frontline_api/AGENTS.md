@@ -661,7 +661,7 @@ The root router mounts its authenticated webhook at `/telegram`.
 ### Provides
 
 - Internal `contactFields.sync` tRPC mutation (`TContactFieldsSync`) — core broadcasts contact merges and removals to every plugin declaring `meta.contactFields` (frontline declares `frontline:ticket` in `main.ts`); applied with `applyContactFieldsSync`. Not agent-callable.
-- `createTicket` / `updateTicket` accept `customerIds` / `companyIds` and save them on the ticket; `getTickets` filters by them. Tickets made elsewhere save their customer the same way: mail (`createTicketFromMail`), the messenger widget, client portal (`cpCreateTicket`), conversation convert and the create-ticket automation. Only the conversation ↔ ticket link stays a core relation.
+- `createTicket` / `updateTicket` accept `customerId` / `companyId` (one of each) and save them on the ticket; `getTickets` filters by them. Tickets made elsewhere save their customer the same way: mail (`createTicketFromMail`), the messenger widget, client portal (`cpCreateTicket`), conversation convert and the create-ticket automation. Only the conversation ↔ ticket link stays a core relation.
 - Telegram: `POST /telegram/receive/:_id` authenticates the stored webhook
   secret. `telegramBots`, `telegramConversationChats`, `telegramBotWebhookInfo` and
   `telegramMessageLinkPreviews` expose permission-checked setup/status and
@@ -1160,7 +1160,7 @@ placeholder, order, isRequired, type, options }`, where `type` and `options`
   (`widgetsMessengerConnect`) returns the whole document as `ticketConfig: JSON`,
   so both lists reach the messenger widget without a schema change there.
 - GraphQL: `widgetTicketCreated(name, description, attachments, statusId,
-customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
+tagIds, propertiesData: JSON)` (the customer comes from the widget session) — the public messenger ticket
   submission. `propertiesData` is a `{ [fieldId]: value }` map that is narrowed
   to the `propertyFields` of the pipeline's ticket config, checked for the
   required ones, validated through core `fields.validateFieldValues`, and stored
@@ -1354,7 +1354,7 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 ## Data and State
 
-- `frontline_tickets` owns its contacts as `customerIds` / `companyIds` (indexed, `default: undefined`; `contactFieldsSchemaPlugin` gives new tickets `[]`); frontline saves them itself and makes no core relation for them. `core-api` `commands/migrateRelationsToContactFields.ts` backfills tickets linked before, merging into existing `companyIds`. `conversations` keep their single `customerId` and are not migrated.
+- `frontline_tickets` owns one customer and one company as `customerId` / `companyId` (indexed, `default: undefined` until migrated; `contactFieldsSchemaPlugin` gives new tickets `null`); frontline saves them itself and makes no core relation for them. Core's contact merge / remove reaches them through tRPC `contactFields.sync`. `core-api` `commands/migrateRelationsToContactFields.ts` backfills tickets linked before: the first of old `customerIds` / `companyIds` arrays (then removed), else the oldest related contact; extra contacts are dropped. The create-ticket automation action saves `companyId` (old actions' `companyIds` give their first). `conversations` keep their single `customerId` and are not migrated.
 - Models are generated per request subdomain. Telegram owns `telegram_bots`,
   `customers_telegram`, `conversations_telegram`, `conversation_messages_telegram`
   and `telegram_reactions`; canonical inbox history stays in Frontline's

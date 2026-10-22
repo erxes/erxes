@@ -82,12 +82,8 @@ const SalesItemDetailView = () => {
               </div>
             </div>
             <RelationWidgetSideTabs
-              customerIds={deal?.customers?.map(
-                (customer) => customer?._id ?? null,
-              )}
-              companyIds={deal?.companies?.map(
-                (company) => company?._id ?? null,
-              )}
+              customerId={deal?.customers?.[0]?._id}
+              companyId={deal?.companies?.[0]?._id}
             />
           </FocusSheet.Content>
         </>

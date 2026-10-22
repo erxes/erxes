@@ -6,7 +6,7 @@
 - **Project:** `posclient_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/posclient_api`
-- **Last synchronized:** `2026-10-21`
+- **Last synchronized:** `2026-10-22`
 
 ## Scope
 
@@ -172,7 +172,7 @@
 
 ## Local Invariants
 
-- An order converted to a deal sends its customer / company on the deal (`customerIds` / `companyIds` in the `sales` `deal.create` input); no core relation is made for it.
+- An order converted to a deal sends its customer / company on the deal (`customerId` / `companyId` in the `sales` `deal.create` input); no core relation is made for it.
 
 - `cpOrdersAdd` and `cpOrdersEdit` always require client portal context;
   only `customerType: visitor` bypasses the portal user requirement.

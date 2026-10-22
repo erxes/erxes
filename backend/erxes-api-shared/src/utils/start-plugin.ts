@@ -93,7 +93,7 @@ type IMeta = {
   relations?: {
     subscribedTypes: string[];
   };
-  // Record types keeping their own customerIds / companyIds; core tells the
+  // Record types keeping their own customerId / companyId; core tells the
   // plugin when a contact is merged or removed (tRPC `contactFields.sync`).
   contactFields?: IContactFieldsMeta;
 };

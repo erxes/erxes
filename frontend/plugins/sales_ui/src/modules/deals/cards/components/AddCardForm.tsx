@@ -27,6 +27,9 @@ import { useNavigate } from 'react-router-dom';
 import { SelectLabels } from '../../components/common/filters/SelectLabel';
 import WorkflowFields from './WorkflowFields';
 
+const toSingleId = (value?: string | string[]) =>
+  (Array.isArray(value) ? value[0] : value) || null;
+
 export function AddCardForm({
   onCloseSheet,
   onComplete,
@@ -36,9 +39,9 @@ export function AddCardForm({
   onCloseSheet: () => void;
   onComplete?: (dealId: string) => void;
   showWorkflowFields?: boolean;
-  // Customers / companies to start with, e.g. the one it is created from;
-  // dealsAdd links them on the server.
-  contacts?: { customerIds?: string[]; companyIds?: string[] };
+  // The customer / company to start with, e.g. the one it is created from;
+  // dealsAdd saves it on the deal.
+  contacts?: { customerId?: string; companyId?: string };
 }) {
   const form = useForm<SalesFormType>({
     resolver: zodResolver(salesFormSchema),
@@ -46,8 +49,8 @@ export function AddCardForm({
       name: '',
       assignedUserIds: [],
       description: '',
-      companyIds: contacts?.companyIds || [],
-      customerIds: contacts?.customerIds || [],
+      companyId: contacts?.companyId ?? null,
+      customerId: contacts?.customerId ?? null,
       labelIds: [],
       tagIds: [],
       propertiesData: {},
@@ -192,15 +195,17 @@ export function AddCardForm({
                 />
                 <Form.Field
                   control={form.control}
-                  name="companyIds"
+                  name="companyId"
                   render={({ field }) => (
                     <Form.Item>
                       <Form.Label>{t('select-companies')}</Form.Label>
                       <Form.Control>
                         <SelectCompany
-                          mode="multiple"
-                          value={field.value}
-                          onValueChange={field.onChange}
+                          mode="single"
+                          value={field.value ?? undefined}
+                          onValueChange={(value) =>
+                            field.onChange(toSingleId(value))
+                          }
                         />
                       </Form.Control>
                       <Form.Message />
@@ -209,14 +214,16 @@ export function AddCardForm({
                 />
                 <Form.Field
                   control={form.control}
-                  name={'customerIds'}
+                  name="customerId"
                   render={({ field }) => (
                     <Form.Item>
                       <Form.Label>{t('select-customers')}</Form.Label>
                       <SelectCustomer.FormItem
-                        mode="multiple"
-                        value={field.value}
-                        onValueChange={field.onChange}
+                        mode="single"
+                        value={field.value ?? undefined}
+                        onValueChange={(value) =>
+                          field.onChange(toSingleId(value))
+                        }
                       />
                     </Form.Item>
                   )}

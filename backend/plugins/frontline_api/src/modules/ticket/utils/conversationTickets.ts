@@ -32,7 +32,7 @@ export const resolveInboxConversationId = async (
 
 // The relation a manual "convert to ticket" writes, so the ticket shows on
 // the conversation and a later message can find it. The ticket keeps the
-// conversation's customer itself (customerIds).
+// conversation's customer itself (customerId).
 export const relateTicketToConversation = async ({
   subdomain,
   ticketId,

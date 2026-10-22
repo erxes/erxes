@@ -226,14 +226,10 @@ export const dealMutations: Record<string, Resolver> = {
 
     const clone = await models.Deals.createDeal(doc);
 
-    const companyIds = await getCompanyIds(subdomain, models, _id);
-    const customerIds = await getCustomerIds(subdomain, models, _id);
+    const [companyId] = await getCompanyIds(subdomain, models, _id);
+    const [customerId] = await getCustomerIds(subdomain, models, _id);
 
-    await setDealContacts(models, {
-      dealId: clone._id,
-      companyIds,
-      customerIds,
-    });
+    await setDealContacts(models, { dealId: clone._id, companyId, customerId });
 
     await copyChecklists(models, {
       contentType: 'deal',

@@ -25,8 +25,8 @@ export const GET_TASK = gql(`
       githubIssueUrl
       githubRepoName
       propertiesData
-      customerIds
-      companyIds
+      customerId
+      companyId
     }
   }
 `);

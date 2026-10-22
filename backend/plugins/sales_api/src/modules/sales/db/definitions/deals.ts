@@ -143,11 +143,11 @@ export const dealSchema = schemaWrapper(
       assignedUserIds: { type: [String] },
       watchedUserIds: { type: [String] },
       labelIds: { type: [String] },
-      // The deal's contacts, kept on the deal instead of core relations.
-      // Missing (not `[]`) until the deal is migrated; see
+      // The deal's one customer and one company, kept on the deal.
+      // Missing (not `null`) until the deal is migrated; see
       // contactFieldsSchemaPlugin.
-      customerIds: { type: [String], default: undefined, index: true },
-      companyIds: { type: [String], default: undefined, index: true },
+      customerId: { type: String, default: undefined, index: true },
+      companyId: { type: String, default: undefined, index: true },
       attachments: { type: [attachmentSchema], label: 'Attachments' },
       stageId: { type: String, index: true },
       initialStageId: {

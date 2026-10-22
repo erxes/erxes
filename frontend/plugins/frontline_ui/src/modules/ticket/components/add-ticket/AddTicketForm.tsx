@@ -45,7 +45,7 @@ export const AddTicketForm = ({
   onClose: () => void;
   onComplete?: (ticketId: string) => void;
   // Customers / companies the ticket is created for; linked on the server.
-  contacts?: { customerIds?: string[]; companyIds?: string[] };
+  contacts?: { customerId?: string; companyId?: string };
 }) => {
   const { t } = useTranslation('frontline');
   const [pipelineId] = useQueryState<string>('pipelineId');

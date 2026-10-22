@@ -110,8 +110,8 @@ export const TicketDetailSheet = ({
           </div>
           {!hideRelationWidgetSideTabs && (
             <RelationWidgetSideTabs
-              customerIds={ticket?.customerIds}
-              companyIds={ticket?.companyIds}
+              customerId={ticket?.customerId}
+              companyId={ticket?.companyId}
             />
           )}
         </FocusSheet.Content>

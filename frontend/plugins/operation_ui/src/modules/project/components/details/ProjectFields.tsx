@@ -119,13 +119,13 @@ export const ProjectFields = ({
         <ProjectContactsField
           projectId={projectId}
           kind="customer"
-          value={project.customerIds}
+          value={project.customerId}
           label={t('customers', 'Customers')}
         />
         <ProjectContactsField
           projectId={projectId}
           kind="company"
-          value={project.companyIds}
+          value={project.companyId}
           label={t('companies', 'Companies')}
         />
       </div>

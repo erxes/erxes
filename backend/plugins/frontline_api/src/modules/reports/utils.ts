@@ -572,11 +572,11 @@ export async function narrowTicketMatchByContacts(
     await contactFieldsReady(models.Ticket, `${subdomain}:frontline_tickets`)
   ) {
     if (filters.customerIds?.length) {
-      match.customerIds = { $in: filters.customerIds };
+      match.customerId = { $in: filters.customerIds };
     }
 
     if (filters.companyIds?.length) {
-      match.companyIds = { $in: filters.companyIds };
+      match.companyId = { $in: filters.companyIds };
     }
 
     return match;

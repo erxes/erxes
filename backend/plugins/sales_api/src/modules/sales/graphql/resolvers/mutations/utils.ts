@@ -10,7 +10,6 @@ import { IModels } from '~/connectionResolvers';
 import { IDeal, IDealDocument, IProductData } from '~/modules/sales/@types';
 import {
   checkMovePermission,
-  setDealContacts,
   getNewOrder,
   getTotalAmounts,
   sendNotifications,
@@ -107,7 +106,7 @@ export const addDeal = async ({
         ...extendedDoc,
         ...(await getTotalAmounts(extendedDoc.productsData || [])),
       },
-      customerIds: doc.customerIds,
+      customerIds: doc.customerId ? [doc.customerId] : undefined,
     }),
   );
 
@@ -116,11 +115,7 @@ export const addDeal = async ({
 
   const stage = await models.Stages.getStage(deal.stageId);
 
-  await setDealContacts(models, {
-    dealId: deal._id,
-    companyIds: doc.companyIds,
-    customerIds: doc.customerIds,
-  });
+  // The deal keeps its customer / company itself (saved with the doc).
 
   try {
     await syncDealPoints({

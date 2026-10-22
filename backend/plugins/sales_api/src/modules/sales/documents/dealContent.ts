@@ -260,12 +260,15 @@ export const buildDealReplacer = async (
       defaultValue: [],
     });
 
+  const ownIds = (contactId?: string | null) =>
+    Promise.resolve(contactId ? [contactId] : []);
+
   const customerIdsPromise = hasContactFields(deal)
-    ? Promise.resolve(deal.customerIds)
+    ? ownIds(deal.customerId)
     : relatedIdsPromise('core:customer');
 
   const companyIdsPromise = hasContactFields(deal)
-    ? Promise.resolve(deal.companyIds)
+    ? ownIds(deal.companyId)
     : relatedIdsPromise('core:company');
 
   const [
@@ -289,12 +292,8 @@ export const buildDealReplacer = async (
   attrMap.assignedUsers = joinNames(users, userName);
   attrMap.labels = joinNames(labels, (label) => label?.name);
 
-  const customerIds: string[] = relatedCustomerIds?.length
-    ? relatedCustomerIds
-    : deal.customerIds || [];
-  const companyIds: string[] = relatedCompanyIds?.length
-    ? relatedCompanyIds
-    : deal.companyIds || [];
+  const customerIds: string[] = relatedCustomerIds || [];
+  const companyIds: string[] = relatedCompanyIds || [];
 
   const [customers, companies] = await Promise.all([
     customerIds.length

@@ -167,20 +167,20 @@ export const TaskPanelDetail = ({ taskId }: { taskId: string }) => {
         <PanelField label={t('customers', 'Customers')}>
           <RecordContactsField
             kind="customer"
-            value={task.customerIds}
+            value={task.customerId}
             scope={`${SCOPE}.customer`}
-            onValueChange={(customerIds) =>
-              updateTask({ variables: { _id, customerIds } })
+            onValueChange={(customerId) =>
+              updateTask({ variables: { _id, customerId } })
             }
           />
         </PanelField>
         <PanelField label={t('companies', 'Companies')}>
           <RecordContactsField
             kind="company"
-            value={task.companyIds}
+            value={task.companyId}
             scope={`${SCOPE}.company`}
-            onValueChange={(companyIds) =>
-              updateTask({ variables: { _id, companyIds } })
+            onValueChange={(companyId) =>
+              updateTask({ variables: { _id, companyId } })
             }
           />
         </PanelField>

@@ -62,7 +62,7 @@ export const createDealAction = async ({
     ['customers', 'leads', 'companies'].includes(collectionName) &&
     pluginName === 'core'
   ) {
-    newData.customerIds = toIds(execution.targetId);
+    newData.customerId = toIds(execution.targetId)[0];
   }
 
   if (hasOwn(newData, 'attachments')) {
@@ -125,13 +125,14 @@ const normalizeDealActionData = (data: Record<string, any>) => {
     delete newData.cardName;
   }
 
+  // A deal keeps one customer and one company: the first chosen.
   if (hasOwn(newData, 'customers')) {
-    newData.customerIds = toIds(newData.customers);
+    newData.customerId = toIds(newData.customers)[0];
     delete newData.customers;
   }
 
   if (hasOwn(newData, 'companies')) {
-    newData.companyIds = toIds(newData.companies);
+    newData.companyId = toIds(newData.companies)[0];
     delete newData.companies;
   }
 
@@ -141,8 +142,6 @@ const normalizeDealActionData = (data: Record<string, any>) => {
     'tagIds',
     'branchIds',
     'departmentIds',
-    'customerIds',
-    'companyIds',
     'sourceConversationIds',
   ].forEach((key) => {
     if (hasOwn(newData, key)) {
@@ -214,7 +213,7 @@ const setSourceContact = async ({
     const customerId = execution?.target?.customerId;
 
     if (customerId) {
-      await setDealContacts(models, { dealId, customerIds: [customerId] });
+      await setDealContacts(models, { dealId, customerId });
     }
 
     return;
@@ -234,14 +233,14 @@ const setSourceContact = async ({
   if (['customers', 'leads'].includes(sourceType)) {
     await setDealContacts(models, {
       dealId,
-      customerIds: [execution.targetId],
+      customerId: execution.targetId,
     });
   }
 
   if (sourceType === 'companies') {
     await setDealContacts(models, {
       dealId,
-      companyIds: [execution.targetId],
+      companyId: execution.targetId,
     });
   }
 };

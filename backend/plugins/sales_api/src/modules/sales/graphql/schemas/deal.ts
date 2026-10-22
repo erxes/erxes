@@ -126,8 +126,8 @@ export const types = `
 
     companies: [Company]
     customers: [Customer]
-    customerIds: [String]
-    companyIds: [String]
+    customerId: String
+    companyId: String
 
     tags: [Tag]
 
@@ -236,8 +236,8 @@ const mutationParams = `
 `;
 
 export const mutations = `
-  dealsAdd(name: String, companyIds: [String], customerIds: [String], labelIds: [String], ${mutationParams}): Deal
-  dealsEdit(_id: String!, name: String, companyIds: [String], customerIds: [String], ${mutationParams}): Deal
+  dealsAdd(name: String, companyId: String, customerId: String, labelIds: [String], ${mutationParams}): Deal
+  dealsEdit(_id: String!, name: String, companyId: String, customerId: String, ${mutationParams}): Deal
   dealsChange(itemId: String!, aboveItemId: String, destinationStageId: String!, sourceStageId: String, processId: String): Deal
   dealsRemove(_id: String!): Deal
   dealsWatch(_id: String!, isAdd: Boolean): Deal
@@ -247,7 +247,7 @@ export const mutations = `
   dealsEditProductData(processId: String, dealId: String, dataId: String, doc: JSON): JSON
   dealsDeleteProductData(processId: String, dealId: String, dataIds: [String]): JSON
 
-  cpDealsAdd(name: String, companyIds: [String], customerIds: [String], labelIds: [String], ${mutationParams}): Deal
+  cpDealsAdd(name: String, companyId: String, customerId: String, labelIds: [String], ${mutationParams}): Deal
   cpDealsEdit(_id: String!, name: String, ${mutationParams}): Deal
   cpDealsChange(itemId: String!, aboveItemId: String, destinationStageId: String!, sourceStageId: String, processId: String): Deal
   cpDealsCreateProductsData(processId: String, dealId: String, docs: JSON): JSON

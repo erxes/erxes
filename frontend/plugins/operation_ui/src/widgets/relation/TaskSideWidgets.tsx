@@ -9,21 +9,21 @@ const PROPERTIES_TAB = 'operation-properties';
 export const TaskSideWidgets = ({
   contentId,
   propertiesData,
-  customerIds,
-  companyIds,
+  customerId,
+  companyId,
 }: {
   contentId: string;
   propertiesData?: Record<string, unknown>;
   // The task's own contacts.
-  customerIds?: (string | null)[] | null;
-  companyIds?: (string | null)[] | null;
+  customerId?: string | null;
+  companyId?: string | null;
 }) => {
   const { t } = useTranslation('operation');
 
   return (
     <RelationWidgetSideTabs
-      customerIds={customerIds}
-      companyIds={companyIds}
+      customerId={customerId}
+      companyId={companyId}
       extraTabs={[
         {
           value: PROPERTIES_TAB,

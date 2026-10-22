@@ -64,9 +64,9 @@ export interface IDeal {
    */
   createdVia?: TCreatedVia;
   name?: string;
-  // TODO migrate after remove 2row
-  companyIds?: string[];
-  customerIds?: string[];
+  // The deal's one company and one customer.
+  companyId?: string | null;
+  customerId?: string | null;
   startDate?: Date;
   closeDate?: Date;
   stageChangedDate?: Date;

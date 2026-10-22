@@ -439,8 +439,8 @@ export const dealTrpcRouter = t.router({
           startDate: agentIsoDate.optional(),
           closeDate: agentIsoDate.optional(),
           assignedUserIds: agentIdList.optional(),
-          customerIds: agentIdList.optional(),
-          companyIds: agentIdList.optional(),
+          customerId: agentRecordId.optional(),
+          companyId: agentRecordId.optional(),
         }),
       )
       .mutation(async ({ ctx, input }) => {
@@ -473,11 +473,11 @@ export const dealTrpcRouter = t.router({
         if (input.assignedUserIds !== undefined) {
           doc.assignedUserIds = input.assignedUserIds;
         }
-        if (input.customerIds !== undefined) {
-          doc.customerIds = input.customerIds;
+        if (input.customerId !== undefined) {
+          doc.customerId = input.customerId;
         }
-        if (input.companyIds !== undefined) {
-          doc.companyIds = input.companyIds;
+        if (input.companyId !== undefined) {
+          doc.companyId = input.companyId;
         }
 
         return addDeal({

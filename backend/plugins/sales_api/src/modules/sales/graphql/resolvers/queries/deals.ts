@@ -184,7 +184,7 @@ const getCustomerPhoneCondition = async (
   const phoneCustomerIds = customers.map(({ _id }) => String(_id));
 
   if (await dealContactsReady(models, subdomain)) {
-    return { customerIds: { $in: phoneCustomerIds } };
+    return { customerId: { $in: phoneCustomerIds } };
   }
 
   const dealIds: string[] = await sendTRPCMessage({
@@ -330,12 +330,13 @@ export const generateFilter = async (
       : false;
 
   if (contactsReady) {
+    // Filters may name several contacts; a deal keeps one of each.
     if (customerIds) {
-      filter.customerIds = { $in: customerIds };
+      filter.customerId = { $in: customerIds };
     }
 
     if (companyIds) {
-      filter.companyIds = { $in: companyIds };
+      filter.companyId = { $in: companyIds };
     }
   }
 
@@ -384,9 +385,9 @@ export const generateFilter = async (
   }
 
   if (contactsReady && relationType === 'core:customer' && relationId) {
-    filter.customerIds = relationId;
+    filter.customerId = relationId;
   } else if (contactsReady && relationType === 'core:company' && relationId) {
-    filter.companyIds = relationId;
+    filter.companyId = relationId;
   } else if (relationType && relationId) {
     const relIds = await sendTRPCMessage({
       subdomain,

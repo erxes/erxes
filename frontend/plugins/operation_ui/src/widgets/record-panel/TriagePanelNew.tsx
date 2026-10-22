@@ -26,8 +26,8 @@ const triageDraftSchema = z.object({
   teamId: z.string().min(1, 'Team is required'),
   priority: z.number().optional(),
   description: z.string().optional(),
-  customerIds: z.array(z.string()).optional(),
-  companyIds: z.array(z.string()).optional(),
+  customerId: z.string().nullable().optional(),
+  companyId: z.string().nullable().optional(),
 });
 
 type TTriageDraftForm = z.infer<typeof triageDraftSchema>;
@@ -48,8 +48,8 @@ export const TriagePanelNew = () => {
       name: '',
       teamId: draft.teamId || '',
       priority: draft.priority ?? 0,
-      customerIds: draft.customerIds || [],
-      companyIds: draft.companyIds || [],
+      customerId: draft.customerId ?? null,
+      companyId: draft.companyId ?? null,
     },
   });
   const { errors } = form.formState;
@@ -114,16 +114,16 @@ export const TriagePanelNew = () => {
             <ContactsRelationField
               kind="customer"
               scope={`${SCOPE}.customer`}
-              value={values.customerIds || []}
-              onValueChange={(ids) => set('customerIds', ids)}
+              value={values.customerId}
+              onValueChange={(id) => set('customerId', id)}
             />
           </PanelFormRow>
           <PanelFormRow label={t('companies', 'Companies')}>
             <ContactsRelationField
               kind="company"
               scope={`${SCOPE}.company`}
-              value={values.companyIds || []}
-              onValueChange={(ids) => set('companyIds', ids)}
+              value={values.companyId}
+              onValueChange={(id) => set('companyId', id)}
             />
           </PanelFormRow>
           <div className="flex flex-col gap-1.5 pt-2">

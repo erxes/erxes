@@ -10,18 +10,19 @@ import {
 dotenv.config();
 
 /**
- * Copies record ↔ customer/company links out of the core `relations`
- * collection onto the records themselves, as `customerIds` / `companyIds`.
+ * Gives plugin records one customer and one company of their own
+ * (`customerId` / `companyId`).
  *
- * Covers the plugin records that show the relation sidebar. Records that
- * already keep their contact as `customerId` (conversations, block opptys,
- * offers and contracts) are left alone. Only adds ids ($addToSet) or empty
- * fields where none exist, never removes any, and keeps the `relations`
- * rows, so it is safe to run again.
+ * For each record, in this order:
+ * 1. `customerIds` / `companyIds` arrays (an earlier migration) → their first
+ *    id; the arrays are removed;
+ * 2. otherwise its core relations to customers / companies, oldest first →
+ *    the first one;
+ * 3. otherwise `null` (no contact; the record is migrated).
  *
- * Until a collection has run, its plugin reads contacts from relations as
- * before (see erxes-api-shared `contact-fields`); once every record has both
- * fields, it reads the fields.
+ * A record with several customers or companies keeps only the first; the
+ * counts are printed. Relations are left in place. Safe to run again: a
+ * record that already has its fields is not changed.
  *
  *   MONGO_URL=... npx ts-node src/commands/migrateRelationsToContactFields.ts
  *   DRY_RUN=true  → count only, write nothing
@@ -34,18 +35,10 @@ const { MONGO_URL = 'mongodb://127.0.0.1:27017/erxes?directConnection=true' } =
 
 const DRY_RUN = process.env.DRY_RUN === 'true';
 
-if (!MONGO_URL) {
-  throw new Error('Environment variable MONGO_URL not set.');
-}
-
 const client = new MongoClient(MONGO_URL);
 
 const CUSTOMER = 'core:customer';
 const COMPANY = 'core:company';
-const CONTACT_FIELDS: Record<string, 'customerIds' | 'companyIds'> = {
-  [CUSTOMER]: 'customerIds',
-  [COMPANY]: 'companyIds',
-};
 
 interface ITarget {
   collection: string;
@@ -54,8 +47,14 @@ interface ITarget {
 }
 
 const TARGETS: ITarget[] = [
-  { collection: 'deals', contentTypes: ['sales:deal'] },
-  { collection: 'frontline_tickets', contentTypes: ['frontline:ticket'] },
+  {
+    collection: 'deals',
+    contentTypes: ['sales:deal'],
+  },
+  {
+    collection: 'frontline_tickets',
+    contentTypes: ['frontline:ticket'],
+  },
   { collection: 'operation_tasks', contentTypes: ['operation:task'] },
   { collection: 'operation_projects', contentTypes: ['operation:project'] },
   // Triages were related as tasks before they had a type of their own.
@@ -66,212 +65,177 @@ const TARGETS: ITarget[] = [
   { collection: 'cars', contentTypes: ['car:car', 'cars:car'] },
 ];
 
-const BATCH_SIZE = 2000;
+const BATCH_SIZE = 1000;
 
-type TContacts = { customerIds: Set<string>; companyIds: Set<string> };
-
-// Most erxes records use string ids; some (operation tasks) use ObjectIds.
-interface IContactRecord {
+interface IRecord {
   _id: string | ObjectId;
-  customerId?: string;
-  // Missing (or null) until the record is migrated.
+  customerId?: string | null;
+  companyId?: string | null;
   customerIds?: string[] | null;
   companyIds?: string[] | null;
 }
 
-const hasOwnCustomerField = async (records: Collection<IContactRecord>) =>
-  Boolean(
-    await records.findOne(
-      { customerId: { $exists: true } },
-      { projection: { _id: 1 } },
-    ),
-  );
+interface IRelationDoc {
+  entities?: { contentType?: string; contentId?: string }[];
+  createdAt?: Date;
+}
 
-const toUpdates = (
-  contactsByRecord: Map<string, TContacts>,
-): AnyBulkWriteOperation<IContactRecord>[] =>
-  [...contactsByRecord].map(([recordId, { customerIds, companyIds }]) => {
-    const addToSet: {
-      customerIds?: { $each: string[] };
-      companyIds?: { $each: string[] };
-    } = {};
+const firstOf = (ids?: (string | null)[] | null) =>
+  (ids || []).find((id): id is string => !!id) ?? null;
 
-    if (customerIds.size) {
-      addToSet.customerIds = { $each: [...customerIds] };
-    }
+const countOf = (ids?: (string | null)[] | null) =>
+  (ids || []).filter(Boolean).length;
 
-    if (companyIds.size) {
-      addToSet.companyIds = { $each: [...companyIds] };
-    }
-
-    // Relations store ids as strings; match the record whichever id type it
-    // was saved with.
-    const ids: (string | ObjectId)[] = [recordId];
-
-    if (ObjectId.isValid(recordId) && /^[a-f\d]{24}$/i.test(recordId)) {
-      ids.push(new ObjectId(recordId));
-    }
-
-    return {
-      updateOne: {
-        filter: { _id: { $in: ids } },
-        update: { $addToSet: addToSet },
-      },
-    };
-  });
-
-const CONTACT_FIELD_NAMES = ['customerIds', 'companyIds'] as const;
-
-/**
- * Indexes an older schema made on the contact fields (sparse, which `null`
- * lookups cannot use). They share the plain index's name, so they are
- * dropped before the migration and the plain ones made after it.
- */
-const oldFieldIndexNames = async (records: Collection<IContactRecord>) =>
-  (await records.indexes())
-    .filter(
-      (index) =>
-        Object.keys(index.key).length === 1 &&
-        CONTACT_FIELD_NAMES.some((field) => index.key[field] === 1) &&
-        (index.sparse || index.partialFilterExpression),
-    )
-    .flatMap((index) => (index.name ? [index.name] : []));
-
-// Copies every record ↔ contact relation of these records onto them.
-const copyFromRelations = async (
+// The record's first related customer and company, oldest relation first.
+const firstRelatedContacts = async (
   db: Db,
-  records: Collection<IContactRecord>,
   contentTypes: string[],
+  recordId: string,
 ) => {
-  // Relations with one end on these records and the other on a contact.
-  const cursor = db
-    .collection('relations')
-    .find(
-      {
-        $and: [
-          { 'entities.contentType': { $in: contentTypes } },
-          { 'entities.contentType': { $in: [CUSTOMER, COMPANY] } },
-        ],
+  const relations = await db
+    .collection<IRelationDoc>('relations')
+    .find({
+      entities: {
+        $elemMatch: {
+          contentType: { $in: contentTypes },
+          contentId: recordId,
+        },
       },
-      { projection: { entities: 1 } },
-    )
-    .batchSize(BATCH_SIZE);
+      'entities.contentType': { $in: [CUSTOMER, COMPANY] },
+    })
+    .sort({ createdAt: 1 })
+    .toArray();
 
-  let relationCount = 0;
-  let modifiedCount = 0;
-  let contactsByRecord = new Map<string, TContacts>();
+  const contactsOf = (type: string) =>
+    relations.flatMap(({ entities = [] }) =>
+      entities
+        .filter((entity) => entity.contentType === type && entity.contentId)
+        .map((entity) => entity.contentId as string),
+    );
+  const customers = contactsOf(CUSTOMER);
+  const companies = contactsOf(COMPANY);
 
-  const flush = async () => {
-    if (!contactsByRecord.size) {
-      return;
-    }
+  return {
+    customerId: customers[0] ?? null,
+    companyId: companies[0] ?? null,
+    extra:
+      Math.max(0, new Set(customers).size - 1) +
+      Math.max(0, new Set(companies).size - 1),
+  };
+};
 
-    if (!DRY_RUN) {
-      const result = await records.bulkWrite(toUpdates(contactsByRecord), {
-        ordered: false,
-      });
-      modifiedCount += result.modifiedCount;
-    }
-
-    contactsByRecord = new Map();
+const migrateTarget = async (db: Db, target: ITarget) => {
+  const records: Collection<IRecord> = db.collection<IRecord>(
+    target.collection,
+  );
+  // Records not migrated yet: a missing contact field or a leftover array.
+  const query = {
+    $or: [
+      { customerId: { $exists: false } },
+      { companyId: { $exists: false } },
+      { customerIds: { $exists: true } },
+      { companyIds: { $exists: true } },
+    ],
   };
 
-  for await (const relation of cursor) {
-    const entities: { contentType?: string; contentId?: string }[] =
-      relation.entities || [];
-    const record = entities.find(
-      (entity) =>
-        entity.contentType && contentTypes.includes(entity.contentType),
-    );
-    const contact = entities.find(
-      (entity) => entity.contentType && CONTACT_FIELDS[entity.contentType],
-    );
+  const stats = {
+    records: 0,
+    fromArrays: 0,
+    fromRelations: 0,
+    droppedContacts: 0,
+  };
+  let operations: AnyBulkWriteOperation<IRecord>[] = [];
 
-    if (!record?.contentId || !contact?.contentId || !contact.contentType) {
-      continue;
+  const flush = async () => {
+    if (operations.length && !DRY_RUN) {
+      await records.bulkWrite(operations, { ordered: false });
     }
 
-    relationCount += 1;
+    operations = [];
+  };
 
-    const contacts = contactsByRecord.get(record.contentId) || {
-      customerIds: new Set<string>(),
-      companyIds: new Set<string>(),
-    };
-    contacts[CONTACT_FIELDS[contact.contentType]].add(contact.contentId);
-    contactsByRecord.set(record.contentId, contacts);
+  const cursor = records.find(query).batchSize(BATCH_SIZE);
 
-    if (contactsByRecord.size >= BATCH_SIZE) {
+  for await (const record of cursor) {
+    stats.records += 1;
+
+    const set: Partial<IRecord> = {};
+    const unset: Record<string, ''> = {};
+    const hasArrays =
+      Array.isArray(record.customerIds) || Array.isArray(record.companyIds);
+
+    if (record.customerId === undefined || record.companyId === undefined) {
+      if (hasArrays) {
+        stats.fromArrays += 1;
+        stats.droppedContacts +=
+          Math.max(0, countOf(record.customerIds) - 1) +
+          Math.max(0, countOf(record.companyIds) - 1);
+
+        if (record.customerId === undefined) {
+          set.customerId = firstOf(record.customerIds);
+        }
+
+        if (record.companyId === undefined) {
+          set.companyId = firstOf(record.companyIds);
+        }
+      } else {
+        const related = await firstRelatedContacts(
+          db,
+          target.contentTypes,
+          String(record._id),
+        );
+
+        if (related.customerId || related.companyId) {
+          stats.fromRelations += 1;
+        }
+
+        stats.droppedContacts += related.extra;
+
+        if (record.customerId === undefined) {
+          set.customerId = related.customerId;
+        }
+
+        if (record.companyId === undefined) {
+          set.companyId = related.companyId;
+        }
+      }
+    }
+
+    if (record.customerIds !== undefined) unset.customerIds = '';
+    if (record.companyIds !== undefined) unset.companyIds = '';
+
+    operations.push({
+      updateOne: {
+        filter: { _id: record._id },
+        update: {
+          ...(Object.keys(set).length ? { $set: set } : {}),
+          ...(Object.keys(unset).length ? { $unset: unset } : {}),
+        },
+      },
+    });
+
+    if (operations.length >= BATCH_SIZE) {
       await flush();
     }
   }
 
   await flush();
 
-  return { relationCount, modifiedCount };
-};
-
-/**
- * 1. copy the relations onto the records;
- * 2. give every record still missing a field an empty one: from then on it
- *    keeps its contacts itself, and core's sync keeps it current;
- * 3. copy again, catching relations made while 1–2 ran (a record that got
- *    its empty field in 2 had no sync for them yet). Copying only adds, so
- *    the second pass changes nothing else.
- */
-const migrateTarget = async (db: Db, { collection, contentTypes }: ITarget) => {
-  const records = db.collection<IContactRecord>(collection);
-
-  if (await hasOwnCustomerField(records)) {
-    console.log(`[SKIP] ${collection}: records already have customerId`);
-    return;
-  }
-
-  const oldIndexes = await oldFieldIndexNames(records);
-
   if (!DRY_RUN) {
-    for (const name of oldIndexes) {
-      await records.dropIndex(name);
+    // Indexes for the new fields; old ones on the arrays are dropped.
+    for (const name of ['customerIds_1', 'companyIds_1']) {
+      await records.dropIndex(name).catch(() => undefined);
     }
-  }
 
-  const first = await copyFromRelations(db, records, contentTypes);
-
-  if (DRY_RUN) {
-    const missing = await records.countDocuments({
-      $or: [{ customerIds: null }, { companyIds: null }],
-    });
-
-    console.log(
-      `[DRY RUN] ${collection}: ${first.relationCount} contact relation(s) to copy, ${missing} record(s) to give empty fields` +
-        (oldIndexes.length
-          ? `, old index(es) to replace: ${oldIndexes.join(', ')}`
-          : ''),
-    );
-    return;
-  }
-
-  const filledCustomers = await records.updateMany(
-    { customerIds: null },
-    { $set: { customerIds: [] } },
-  );
-  const filledCompanies = await records.updateMany(
-    { companyIds: null },
-    { $set: { companyIds: [] } },
-  );
-
-  const second = await copyFromRelations(db, records, contentTypes);
-
-  for (const field of CONTACT_FIELD_NAMES) {
-    await records.createIndex({ [field]: 1 });
+    await records.createIndex({ customerId: 1 });
+    await records.createIndex({ companyId: 1 });
   }
 
   console.log(
-    `[DONE] ${collection}: ${first.relationCount} relation(s), ${first.modifiedCount} record(s) updated, ` +
-      `${filledCustomers.modifiedCount}/${filledCompanies.modifiedCount} given empty customer/company fields, ` +
-      `${second.modifiedCount} caught on the second pass` +
-      (oldIndexes.length
-        ? `, replaced old index(es): ${oldIndexes.join(', ')}`
-        : ''),
+    `${DRY_RUN ? '[DRY RUN]' : '[DONE]'} ${target.collection}: ` +
+      `${stats.records} record(s) to migrate, ${stats.fromArrays} from ` +
+      `arrays, ${stats.fromRelations} from relations; extra contacts ` +
+      `dropped: ${stats.droppedContacts}`,
   );
 };
 

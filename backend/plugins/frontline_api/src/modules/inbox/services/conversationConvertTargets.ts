@@ -152,7 +152,7 @@ const ticketHandler: IConvertTargetHandler = {
         attachments: doc.attachments,
         propertiesData,
         // The ticket keeps its customer itself.
-        customerIds: conversation.customerId ? [conversation.customerId] : [],
+        customerId: conversation.customerId || null,
       },
       user._id,
       subdomain,
@@ -229,7 +229,7 @@ const dealHandler: IConvertTargetHandler = {
         name,
         stageId,
         sourceConversationIds: [conversation._id],
-        customerIds: conversation.customerId ? [conversation.customerId] : [],
+        customerId: conversation.customerId || null,
         assignedUserIds,
         description: doc.description,
         priority: DEAL_PRIORITIES[toPriorityNumber(doc.priority)],

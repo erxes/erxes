@@ -2,8 +2,8 @@ import { TContactKind } from './constants';
 
 /**
  * What a plugin declares in `startPlugin({ meta: { contactFields } })`: its
- * record types that keep their contacts on themselves as `customerIds` /
- * `companyIds`. The plugin saves those fields itself; core only tells it
+ * record types that keep their contact on themselves as `customerId` /
+ * `companyId`. The plugin saves those fields itself; core only tells it
  * (tRPC `contactFields.sync`) when a contact is merged or removed.
  */
 export interface IContactFieldsMeta {
@@ -21,8 +21,9 @@ export type TContactFieldsSync =
   | { action: 'merge'; kind: TContactKind; oldIds: string[]; newId: string }
   | { action: 'remove'; kind: TContactKind; ids: string[] };
 
-// The two contact fields a record keeps.
+// The record's one customer and one company. `null`: none; missing: the
+// record is not migrated yet (its contacts are still in core relations).
 export interface IContactFields {
-  customerIds?: string[];
-  companyIds?: string[];
+  customerId?: string | null;
+  companyId?: string | null;
 }

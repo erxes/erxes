@@ -17,8 +17,8 @@ export const UPDATE_TASK_MUTATION = gql(`
     $milestoneId: String
     $tagIds: [String]
     $propertiesData: JSON
-    $customerIds: [String]
-    $companyIds: [String]
+    $customerId: String
+    $companyId: String
   ) {
     updateTask(
       _id: $_id
@@ -36,15 +36,15 @@ export const UPDATE_TASK_MUTATION = gql(`
       milestoneId: $milestoneId
       tagIds: $tagIds
       propertiesData: $propertiesData
-      customerIds: $customerIds
-      companyIds: $companyIds
+      customerId: $customerId
+      companyId: $companyId
     ) {
       _id
       tagIds
       status
       propertiesData
-      customerIds
-      companyIds
+      customerId
+      companyId
     }
   }
 `);

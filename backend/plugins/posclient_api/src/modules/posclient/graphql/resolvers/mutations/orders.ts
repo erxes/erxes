@@ -1373,11 +1373,11 @@ const orderMutations: Record<string, Resolver> = {
     const contactKind = order.customerType || 'customer';
 
     if (order.customerId && contactKind === 'customer') {
-      dealData.customerIds = [order.customerId];
+      dealData.customerId = order.customerId;
     }
 
     if (order.customerId && contactKind === 'company') {
-      dealData.companyIds = [order.customerId];
+      dealData.companyId = order.customerId;
     }
 
     const deal = await sendTRPCMessage({

@@ -125,7 +125,7 @@ export const ContactRecordChip = ({
   );
 
 /**
- * Customers or companies linked to a record, as relation fields:
+ * A record's one customer or company, as a relation field:
  * each shows as a chip that opens it in the side panel, and the pencil (or
  * "Add") opens the usual customer / company picker to change the selection.
  * `variant="chip"` draws it like `Combobox.ChipTrigger`, with its `label`,
@@ -140,8 +140,9 @@ export const ContactsRelationField = ({
   label,
 }: {
   kind: TContactKind;
-  value: string[];
-  onValueChange: (value: string[]) => void;
+  // The record's one customer or company.
+  value?: string | null;
+  onValueChange: (value: string | null) => void;
   scope?: string;
   variant?: 'inline' | 'chip';
   label?: string;
@@ -157,8 +158,12 @@ export const ContactsRelationField = ({
       { stack: true },
     );
 
-  const handleChange = (next: string[] | string) =>
-    onValueChange(Array.isArray(next) ? next : next ? [next] : []);
+  const selected = value ? [value] : [];
+
+  const handleChange = (next: string[] | string) => {
+    onValueChange((Array.isArray(next) ? next[0] : next) || null);
+    setOpen(false);
+  };
 
   const addLabel =
     kind === 'customer'
@@ -168,23 +173,23 @@ export const ContactsRelationField = ({
   const picker =
     kind === 'customer' ? (
       <SelectCustomer.Provider
-        mode="multiple"
-        value={value}
+        mode="single"
+        value={value || ''}
         onValueChange={handleChange}
       >
         <SelectCustomer.Content />
       </SelectCustomer.Provider>
     ) : (
       <SelectCompany.Provider
-        mode="multiple"
-        value={value}
+        mode="single"
+        value={value || ''}
         onValueChange={handleChange}
       >
         <SelectCompany.Content />
       </SelectCompany.Provider>
     );
 
-  const chips = value.map((id) =>
+  const chips = selected.map((id) =>
     kind === 'customer' ? (
       <CustomerChip key={id} customerId={id} onOpen={() => openContact(id)} />
     ) : (
@@ -200,7 +205,7 @@ export const ContactsRelationField = ({
             {label}
           </span>
         )}
-        {value.length > 0 && (
+        {selected.length > 0 && (
           <div className="flex min-w-0 items-center gap-1 overflow-hidden pl-1.5">
             {chips}
           </div>
@@ -212,10 +217,10 @@ export const ContactsRelationField = ({
               aria-label={addLabel}
               className={cn(
                 'group/trigger h-full shrink-0 gap-1.5 rounded-none font-medium',
-                value.length ? 'px-2' : 'pl-3 pr-2.5',
+                selected.length ? 'px-2' : 'pl-3 pr-2.5',
               )}
             >
-              {!value.length && (
+              {!selected.length && (
                 <span className="text-muted-foreground">
                   {t('not-specified', 'Not specified')}
                 </span>
@@ -234,7 +239,7 @@ export const ContactsRelationField = ({
       {chips}
       <PopoverScoped scope={scope} open={open} onOpenChange={setOpen}>
         <Popover.Trigger asChild>
-          {value.length ? (
+          {selected.length ? (
             <Button
               variant="ghost"
               size="icon"

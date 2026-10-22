@@ -16,8 +16,8 @@ const TASK_OPTIMISTIC_FIELDS = gql(`
   fragment TaskOptimisticFields on Task {
     tagIds
     propertiesData
-    customerIds
-    companyIds
+    customerId
+    companyId
   }
 `);
 
@@ -51,8 +51,8 @@ export const useUpdateTask = () => {
               status: variables.status,
               tagIds: cached?.tagIds ?? null,
               propertiesData: cached?.propertiesData ?? null,
-              customerIds: cached?.customerIds ?? null,
-              companyIds: cached?.companyIds ?? null,
+              customerId: cached?.customerId ?? null,
+              companyId: cached?.companyId ?? null,
             },
           }
         : undefined);

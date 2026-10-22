@@ -38,7 +38,7 @@ export const AddProjectForm = ({
   onComplete?: (projectId: string) => void;
   task?: ITask;
   // Customers / companies the project is created for; linked on the server.
-  contacts?: { customerIds?: string[]; companyIds?: string[] };
+  contacts?: { customerId?: string; companyId?: string };
 }) => {
   const { t } = useTranslation('operation');
   const navigate = useNavigate();

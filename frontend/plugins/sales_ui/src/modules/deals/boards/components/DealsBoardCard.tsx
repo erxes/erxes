@@ -252,13 +252,15 @@ export const DealsBoardCard = memo(function DealsBoardCard({
     deal.customers
       ?.filter(isDefined)
       .map(({ _id }) => _id)
-      .filter(isDefined) || [],
+      .filter(isDefined)
+      .slice(0, 1) || [],
   );
   const [currentCompanies, setCurrentCompanies] = useState(
     deal.companies
       ?.filter(isDefined)
       .map(({ _id }) => _id)
-      .filter(isDefined) || [],
+      .filter(isDefined)
+      .slice(0, 1) || [],
   );
   const { t } = useTranslation('sales');
 
@@ -370,14 +372,12 @@ export const DealsBoardCard = memo(function DealsBoardCard({
             initialValue={currentCustomers}
             value={currentCustomers}
             onValueChange={(value?: string | string[]) => {
-              const selectedIds = normalizeSelectedIds(value);
+              // One per deal: the latest pick replaces it.
+              const selectedId = normalizeSelectedIds(value).at(-1) ?? null;
 
-              if (!selectedIds.length) return;
+              setCurrentCustomers(selectedId ? [selectedId] : []);
 
-              setCurrentCustomers(selectedIds);
-
-              // The deal keeps its contacts itself.
-              editDeals({ variables: { _id, customerIds: selectedIds } });
+              editDeals({ variables: { _id, customerId: selectedId } });
             }}
             hideAvatar
           />
@@ -390,14 +390,12 @@ export const DealsBoardCard = memo(function DealsBoardCard({
             initialValue={currentCompanies}
             value={currentCompanies}
             onValueChange={(value?: string | string[]) => {
-              const selectedIds = normalizeSelectedIds(value);
+              // One per deal: the latest pick replaces it.
+              const selectedId = normalizeSelectedIds(value).at(-1) ?? null;
 
-              if (!selectedIds.length) return;
+              setCurrentCompanies(selectedId ? [selectedId] : []);
 
-              setCurrentCompanies(selectedIds);
-
-              // The deal keeps its contacts itself.
-              editDeals({ variables: { _id, companyIds: selectedIds } });
+              editDeals({ variables: { _id, companyId: selectedId } });
             }}
             hideAvatar
           />

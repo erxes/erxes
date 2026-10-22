@@ -14,12 +14,7 @@ export const cpTicketMutations: Record<string, Resolver> = {
 
     // The ticket keeps its customer itself.
     const ticket = await models.Ticket.addTicket(
-      userId
-        ? {
-            ...params,
-            customerIds: [...new Set([...(params.customerIds || []), userId])],
-          }
-        : params,
+      userId ? { ...params, customerId: params.customerId || userId } : params,
       `cp:${userId}`,
       subdomain,
     );

@@ -27,15 +27,14 @@ const contactsByDealId =
     const idsByDeal = new Map<string, string[]>();
     const deals = await models.Deals.find(
       { _id: { $in: dealIds } },
-      { customerIds: 1, companyIds: 1 },
+      { customerId: 1, companyId: 1 },
     ).lean();
 
     for (const deal of deals) {
       if (hasContactFields(deal)) {
-        idsByDeal.set(
-          deal._id,
-          kind === 'customer' ? deal.customerIds : deal.companyIds,
-        );
+        const contactId = kind === 'customer' ? deal.customerId : deal.companyId;
+
+        idsByDeal.set(deal._id, contactId ? [contactId] : []);
       }
     }
 

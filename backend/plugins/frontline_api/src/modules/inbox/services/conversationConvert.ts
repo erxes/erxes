@@ -76,7 +76,7 @@ const relateConvertedItem = async (
   const { contentType } = CONVERT_TARGET_HANDLERS[type];
   const item = { contentType, contentId: itemId };
 
-  // The item keeps the conversation's customer itself (customerIds); only
+  // The item keeps the conversation's customer itself (customerId); only
   // the conversation is linked here.
   const relatedEntities = [
     { contentType: CONVERSATION_CONTENT_TYPE, contentId: conversation._id },

@@ -25,7 +25,7 @@ export const TICKET_FIELDS = gql(`
     pipelineId
     state
     propertiesData
-    customerIds
-    companyIds
+    customerId
+    companyId
   }
 `);

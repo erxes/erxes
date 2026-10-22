@@ -15,8 +15,8 @@ export const CREATE_TASK_MUTATION = gql(`
     $projectId: String
     $milestoneId: String
     $tagIds: [String]
-    $customerIds: [String]
-    $companyIds: [String]
+    $customerId: String
+    $companyId: String
   ) {
     createTask(
       name: $name
@@ -32,8 +32,8 @@ export const CREATE_TASK_MUTATION = gql(`
       projectId: $projectId
       milestoneId: $milestoneId
       tagIds: $tagIds
-      customerIds: $customerIds
-      companyIds: $companyIds
+      customerId: $customerId
+      companyId: $companyId
     ) {
       _id
     }

@@ -940,8 +940,8 @@ const relatedContactIds = (
     defaultValue: [],
   });
 
-// A deal's contacts: from the deal once it keeps both (as erxes-api-shared
-// `hasContactFields`), else from relations.
+// A deal's contact (as a list of at most one): from the deal once it keeps
+// both fields (as erxes-api-shared `hasContactFields`), else from relations.
 const getDealContactIds = async (
   subdomain: string,
   models: IModels,
@@ -950,11 +950,12 @@ const getDealContactIds = async (
 ): Promise<string[]> => {
   const deal = await models.Deals.findOne(
     { _id: dealId },
-    { customerIds: 1, companyIds: 1 },
+    { customerId: 1, companyId: 1 },
   ).lean();
 
-  if (Array.isArray(deal?.customerIds) && Array.isArray(deal?.companyIds)) {
-    return kind === 'customer' ? deal.customerIds : deal.companyIds;
+  if (deal && deal.customerId !== undefined && deal.companyId !== undefined) {
+    const contactId = kind === 'customer' ? deal.customerId : deal.companyId;
+    return contactId ? [contactId] : [];
   }
 
   return relatedContactIds(subdomain, dealId, kind);
@@ -974,34 +975,28 @@ export const getCustomerIds = (
   getDealContactIds(subdomain, models, dealId, 'customer');
 
 /**
- * Adds customers / companies to a deal. Sales keeps its deals' contacts
- * itself (`customerIds` / `companyIds`); core only reports merged or removed
- * contacts (`contactFields.sync`).
+ * Sets a deal's customer / company. Sales keeps its deals' contact itself
+ * (`customerId` / `companyId`, one each); core only reports merged or
+ * removed contacts (`contactFields.sync`).
  */
 export const setDealContacts = async (
   models: IModels,
   {
     dealId,
-    companyIds = [],
-    customerIds = [],
-  }: { dealId: string; companyIds?: string[]; customerIds?: string[] },
+    companyId,
+    customerId,
+  }: { dealId: string; companyId?: string | null; customerId?: string | null },
 ) => {
-  const customers = [...new Set(customerIds.filter(Boolean))];
-  const companies = [...new Set(companyIds.filter(Boolean))];
+  const set = {
+    ...(customerId ? { customerId } : {}),
+    ...(companyId ? { companyId } : {}),
+  };
 
-  if (!customers.length && !companies.length) {
+  if (!Object.keys(set).length) {
     return;
   }
 
-  await models.Deals.updateOne(
-    { _id: dealId },
-    {
-      $addToSet: {
-        customerIds: { $each: customers },
-        companyIds: { $each: companies },
-      },
-    },
-  );
+  await models.Deals.updateOne({ _id: dealId }, { $set: set });
 };
 
 export const getTotalAmounts = async (productsData: IProductData[]) => {

@@ -49,14 +49,14 @@ export const StaticSideMenuTab = ({
   );
 };
 
-const compactIds = (ids?: (string | null)[] | null) =>
+const compactIds = (ids?: (string | null | undefined)[] | null) =>
   [...new Set((ids || []).filter((id): id is string => !!id))];
 
 const CUSTOMERS_TAB = 'customers';
 const COMPANIES_TAB = 'companies';
 
 /**
- * A record's side rail in a detail sheet: its customers and its companies
+ * A record's side rail in a detail sheet: its customer and its company
  * (given from the record's own fields),
  * each opening the side panel's view of them in the sheet (the app's side
  * panel cannot be reached from a modal sheet). Everything else linked to the
@@ -64,13 +64,13 @@ const COMPANIES_TAB = 'companies';
  * properties, follow.
  */
 export const RelationWidgetSideTabs = ({
-  customerIds = [],
-  companyIds = [],
+  customerId,
+  companyId,
   extraTabs = [],
 }: {
-  // The record's own contacts (its customerIds / companyIds).
-  customerIds?: (string | null)[] | null;
-  companyIds?: (string | null)[] | null;
+  // The record's own customer and company.
+  customerId?: string | null;
+  companyId?: string | null;
   // Host-owned tabs shown after the contacts, e.g. properties.
   extraTabs?: IRelationWidgetExtraTab[];
 }) => {
@@ -86,7 +86,7 @@ export const RelationWidgetSideTabs = ({
           value: CUSTOMERS_TAB,
           label: t('customers', 'Customers'),
           icon: IconUser,
-          records: compactIds(customerIds).map((id) => ({
+          records: compactIds([customerId]).map((id) => ({
             contentType: CUSTOMER_CONTENT_TYPE,
             contentId: id,
           })),
@@ -95,7 +95,7 @@ export const RelationWidgetSideTabs = ({
           value: COMPANIES_TAB,
           label: t('companies', 'Companies'),
           icon: IconBuilding,
-          records: compactIds(companyIds).map((id) => ({
+          records: compactIds([companyId]).map((id) => ({
             contentType: COMPANY_CONTENT_TYPE,
             contentId: id,
           })),

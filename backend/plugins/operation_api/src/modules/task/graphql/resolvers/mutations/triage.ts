@@ -76,14 +76,18 @@ const moveTriageRelations = async (subdomain: string, triageId: string) => {
   });
 };
 
-// A triage's customers and companies: its fields once migrated, else its
-// relations under either type.
+// A triage's customer and company: its fields once migrated, else the first
+// of its relations under either type.
 const getTriageContacts = async (
   subdomain: string,
-  triage: { _id: unknown; customerIds?: string[]; companyIds?: string[] },
+  triage: {
+    _id: unknown;
+    customerId?: string | null;
+    companyId?: string | null;
+  },
 ) => {
   if (hasContactFields(triage)) {
-    return { customerIds: triage.customerIds, companyIds: triage.companyIds };
+    return { customerId: triage.customerId, companyId: triage.companyId };
   }
 
   const triageId = String(triage._id);
@@ -101,7 +105,7 @@ const getTriageContacts = async (
     ),
   );
 
-  return { customerIds: customers, companyIds: companies };
+  return { customerId: customers[0] ?? null, companyId: companies[0] ?? null };
 };
 
 export const triageMutations = {
@@ -122,8 +126,8 @@ export const triageMutations = {
         number: 0,
         priority: input.priority || 0,
         status: input.status || STATUS_TYPES.TRIAGE,
-        customerIds: input.customerIds || [],
-        companyIds: input.companyIds || [],
+        customerId: input.customerId || null,
+        companyId: input.companyId || null,
       },
       subdomain: subdomain,
     });

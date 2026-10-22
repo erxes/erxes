@@ -13,7 +13,7 @@ const CONTACT_RECORDS_LIMIT = 50;
 
 /**
  * A customer's or company's tasks and the triages not yet accepted, found by
- * the contact on the records themselves (their customerIds / companyIds).
+ * the contact on the records themselves (their customerId / companyId).
  * "+" files a triage for them, only offered while a team has triage on;
  * accepted, it becomes a task that keeps them.
  */
@@ -24,8 +24,8 @@ export const TasksContactSection = ({
   const { t } = useTranslation('operation');
   const contacts =
     contentType === 'core:company'
-      ? { companyIds: [contentId] }
-      : { customerIds: [contentId] };
+      ? { companyId: contentId }
+      : { customerId: contentId };
   const tasksQuery = useQuery(GET_TASKS, {
     variables: { filter: { ...contacts, limit: CONTACT_RECORDS_LIMIT } },
   });

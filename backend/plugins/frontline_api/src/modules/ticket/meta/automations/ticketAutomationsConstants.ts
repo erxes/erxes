@@ -95,10 +95,10 @@ const TICKET_OUTPUT: TAutomationRuntimeOutputDefinition<ITicket> = {
     },
     { key: 'tagIds', label: 'Tags', exposure: 'reference', field: 'tagIds' },
     {
-      key: 'companyIds',
-      label: 'Companies',
+      key: 'companyId',
+      label: 'Company',
       exposure: 'reference',
-      field: 'companyIds',
+      field: 'companyId',
       referenceType: 'core:company',
     },
     {

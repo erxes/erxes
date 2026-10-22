@@ -18,16 +18,16 @@ import {
 // What a task draft starts with: the task's fields and the contacts
 // `createTask` links it to.
 export type TTaskDraft = Partial<TAddTask> & {
-  customerIds?: string[];
-  companyIds?: string[];
+  customerId?: string | null;
+  companyId?: string | null;
 };
 
 // The contact a task is created from, as the create mutation takes it.
 const toContactIds = (linkTo?: TRelationEntity) => ({
-  customerIds:
-    linkTo?.contentType === 'core:customer' ? [linkTo.contentId] : undefined,
-  companyIds:
-    linkTo?.contentType === 'core:company' ? [linkTo.contentId] : undefined,
+  customerId:
+    linkTo?.contentType === 'core:customer' ? linkTo.contentId : undefined,
+  companyId:
+    linkTo?.contentType === 'core:company' ? linkTo.contentId : undefined,
 });
 
 /**

@@ -1,7 +1,7 @@
 import { useDealsContext } from '@/deals/context/DealContext';
 import { ContactsRelationField } from 'ui-modules';
 
-// The deal's customers or companies, kept on the deal itself.
+// The deal's customer or company, kept on the deal itself.
 export const DealContactsField = ({
   dealId,
   kind,
@@ -11,10 +11,10 @@ export const DealContactsField = ({
   dealId: string;
   kind: 'customer' | 'company';
   label: string;
-  value: string[];
+  value?: string | null;
 }) => {
   const { editDeals } = useDealsContext();
-  const field = kind === 'customer' ? 'customerIds' : 'companyIds';
+  const field = kind === 'customer' ? 'customerId' : 'companyId';
 
   return (
     <ContactsRelationField
@@ -23,9 +23,9 @@ export const DealContactsField = ({
       label={label}
       value={value}
       scope={`deal-detail.${kind}`}
-      onValueChange={(ids) =>
+      onValueChange={(id) =>
         editDeals({
-          variables: { _id: dealId, [field]: ids },
+          variables: { _id: dealId, [field]: id },
           // Contacts' deal lists change with them.
           update: (cache) =>
             cache.evict({ id: 'ROOT_QUERY', fieldName: 'deals' }),

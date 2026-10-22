@@ -39,12 +39,12 @@ export const triageQueries = {
     }
 
     // The triages of these customers / companies.
-    if (filter.customerIds?.length) {
-      filterQuery.customerIds = { $in: filter.customerIds };
+    if (filter.customerId) {
+      filterQuery.customerId = filter.customerId;
     }
 
-    if (filter.companyIds?.length) {
-      filterQuery.companyIds = { $in: filter.companyIds };
+    if (filter.companyId) {
+      filterQuery.companyId = filter.companyId;
     }
 
     const { list, totalCount, pageInfo } =

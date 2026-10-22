@@ -33,8 +33,8 @@ export const TriageContent = ({
       <FocusSheet>
         <TaskSideWidgets
           contentId={triage._id}
-          customerIds={triage.customerIds}
-          companyIds={triage.companyIds}
+          customerId={triage.customerId}
+          companyId={triage.companyId}
         />
       </FocusSheet>
     </div>

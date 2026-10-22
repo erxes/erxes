@@ -1304,7 +1304,7 @@ export const widgetMutations: Record<string, Resolver> = {
         statusId: statusId,
         pipelineId: status.pipelineId,
         channelId: pipeline.channelId,
-        customerIds: [customerId],
+        customerId,
         createdAt: new Date(),
         modifiedAt: new Date(),
         stageChangedDate: new Date(),
@@ -1416,7 +1416,7 @@ export const widgetMutations: Record<string, Resolver> = {
     }
 
     const ticket = await models.Ticket.findOne(
-      ticketIds ? { _id: { $in: ticketIds } } : { customerIds: customer._id },
+      ticketIds ? { _id: { $in: ticketIds } } : { customerId: customer._id },
     )
       .sort({ createdAt: -1 })
       .lean();

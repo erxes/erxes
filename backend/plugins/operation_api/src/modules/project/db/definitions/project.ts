@@ -17,8 +17,8 @@ export const projectSchema = new Schema(
     // The project's contacts, kept on the project as well as core relations.
     // Missing (not `[]`) until the project is migrated; see
     // contactFieldsSchemaPlugin.
-    customerIds: { type: [String], label: 'Customer IDs', default: undefined },
-    companyIds: { type: [String], label: 'Company IDs', default: undefined },
+    customerId: { type: String, label: 'Customer', default: undefined },
+    companyId: { type: String, label: 'Company', default: undefined },
     startDate: { type: Date, label: 'Start Date', default: null },
     targetDate: { type: Date, label: 'Target Date', default: null },
     leadId: { type: String, label: 'Lead ID', default: null },
@@ -36,7 +36,7 @@ export const projectSchema = new Schema(
   },
 );
 
-projectSchema.index({ customerIds: 1 });
-projectSchema.index({ companyIds: 1 });
+projectSchema.index({ customerId: 1 });
+projectSchema.index({ companyId: 1 });
 
 projectSchema.plugin(contactFieldsSchemaPlugin);

@@ -70,20 +70,20 @@ export const getJournal = async (
 type TDealOwner = { customerType: 'company' | 'customer'; customerId?: string };
 
 /**
- * Who a deal's transactions are for: its first company, else its first
- * customer. Read from the deal once it keeps its contacts, else (deal not
+ * Who a deal's transactions are for: its company, else its
+ * customer. Read from the deal once it keeps its contact, else (deal not
  * migrated yet) asked of core relations as before.
  */
 export const getDealOwner = async (
   subdomain: string,
-  deal: { _id: string; customerIds?: string[]; companyIds?: string[] },
+  deal: { _id: string; customerId?: string | null; companyId?: string | null },
 ): Promise<TDealOwner> => {
   // Same rule as erxes-api-shared `hasContactFields`: both fields set means
   // the deal keeps its contacts itself.
-  if (Array.isArray(deal.customerIds) && Array.isArray(deal.companyIds)) {
-    return deal.companyIds.length
-      ? { customerType: 'company', customerId: deal.companyIds[0] }
-      : { customerType: 'customer', customerId: deal.customerIds[0] };
+  if (deal.customerId !== undefined && deal.companyId !== undefined) {
+    return deal.companyId
+      ? { customerType: 'company', customerId: deal.companyId }
+      : { customerType: 'customer', customerId: deal.customerId ?? undefined };
   }
 
   const relatedIds = (relatedContentType: string): Promise<string[]> =>

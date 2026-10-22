@@ -96,7 +96,7 @@ describe('deal.add', () => {
       name: 'New deal',
       stageId: 'stage1',
       closeDate: '2026-11-15',
-      customerIds: ['c1'],
+      customerId: 'c1',
     });
 
     expect(mockedSendTRPCMessage).toHaveBeenCalledWith(
@@ -119,7 +119,7 @@ describe('deal.add', () => {
         name: 'New deal',
         stageId: 'stage1',
         closeDate: new Date('2026-11-15'),
-        customerIds: ['c1'],
+        customerId: 'c1',
       },
     });
     expect(result).toMatchObject({ _id: 'deal1', name: 'New deal' });

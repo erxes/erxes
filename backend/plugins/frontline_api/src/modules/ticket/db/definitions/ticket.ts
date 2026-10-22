@@ -71,18 +71,18 @@ export const ticketSchema = schemaWrapper(
         optional: true,
         label: 'Properties data',
       },
-      // The ticket's contacts, kept on the ticket instead of core relations.
-      // Missing (not `[]`) until the ticket is migrated; see
+      // The ticket's one customer and one company, kept on the ticket.
+      // Missing (not `null`) until the ticket is migrated; see
       // contactFieldsSchemaPlugin.
-      customerIds: {
-        type: [String],
-        label: 'Customers',
+      customerId: {
+        type: String,
+        label: 'Customer',
         default: undefined,
         index: true,
       },
-      companyIds: {
-        type: [String],
-        label: 'Companies',
+      companyId: {
+        type: String,
+        label: 'Company',
         default: undefined,
         index: true,
       },

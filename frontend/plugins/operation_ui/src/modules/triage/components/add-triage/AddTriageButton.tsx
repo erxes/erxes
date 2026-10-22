@@ -16,7 +16,7 @@ export const AddTriageButton = ({
   iconOnly,
 }: {
   // Linked to the triage by its create mutation.
-  contacts?: { customerIds?: string[]; companyIds?: string[] };
+  contacts?: { customerId?: string; companyId?: string };
   // A record (not a contact) the triage is created from and linked to.
   host?: TRelationEntity;
   iconOnly?: boolean;

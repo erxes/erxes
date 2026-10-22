@@ -169,7 +169,7 @@ export const resolveSessionCustomerId = async (
 
 /**
  * Tickets of the session's customer: those keeping it in their own
- * `customerIds` (given `models`), and those related to it before tickets kept
+ * `customerId` (given `models`), and those related to it before tickets kept
  * their contacts. A bare visitor owns none.
  */
 export const getOwnedTicketIds = async (
@@ -185,7 +185,7 @@ export const getOwnedTicketIds = async (
 
   const ownIds: string[] = models
     ? (
-        await models.Ticket.find({ customerIds: customerId }, { _id: 1 }).lean()
+        await models.Ticket.find({ customerId }, { _id: 1 }).lean()
       ).map((ticket) => String(ticket._id))
     : [];
 

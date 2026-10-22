@@ -53,8 +53,8 @@ export const NotificationTaskDetail = ({
           <FocusSheet>
             <TaskSideWidgets
               contentId={sideContentId}
-              customerIds={task?.customerIds}
-              companyIds={task?.companyIds}
+              customerId={task?.customerId}
+              companyId={task?.companyId}
               propertiesData={
                 task?.propertiesData && isRecord(task.propertiesData)
                   ? task.propertiesData

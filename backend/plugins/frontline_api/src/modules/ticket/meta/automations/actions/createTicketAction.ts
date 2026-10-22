@@ -252,7 +252,10 @@ const buildTicketDoc = (data: Record<string, unknown>): ITicket => {
     userId: getString(data, 'userId'),
     labelIds: toStringArray(data.labelIds),
     tagIds: toStringArray(data.tagIds),
-    companyIds: toStringArray(data.companyIds),
+    // A ticket keeps one company; actions saved before it was single keep
+    // `companyIds`, of which the first is used.
+    companyId:
+      getString(data, 'companyId') || toStringArray(data.companyIds)?.[0],
     startDate: parseDate(data.startDate),
     targetDate: parseDate(data.targetDate),
     propertiesData: normalizePropertiesData(data),
@@ -321,12 +324,7 @@ export const createTicketAction = async ({
   const customerId = getString(target, 'customerId');
   // A ticket from a conversation keeps the conversation's customer itself.
   const ticket = await models.Ticket.addTicket(
-    inboxConversationId && customerId
-      ? {
-          ...doc,
-          customerIds: [...new Set([...(doc.customerIds || []), customerId])],
-        }
-      : doc,
+    inboxConversationId && customerId ? { ...doc, customerId } : doc,
     userId,
     subdomain,
   );

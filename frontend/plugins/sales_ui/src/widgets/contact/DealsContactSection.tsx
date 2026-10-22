@@ -47,12 +47,17 @@ export const DealsContactSection = ({
   contentId,
 }: Omit<IContactWidgetProps, 'module'>) => {
   const { t } = useTranslation('sales');
-  const contacts =
-    contentType === 'core:company'
-      ? { companyIds: [contentId] }
-      : { customerIds: [contentId] };
+  const isCompany = contentType === 'core:company';
+  const contacts = isCompany
+    ? { companyId: contentId }
+    : { customerId: contentId };
   const { data, loading } = useQuery(SALES_CONTACT_DEALS, {
-    variables: { ...contacts, limit: CONTACT_RECORDS_LIMIT },
+    variables: {
+      ...(isCompany
+        ? { companyIds: [contentId] }
+        : { customerIds: [contentId] }),
+      limit: CONTACT_RECORDS_LIMIT,
+    },
   });
   const setOpenCreateDeal = useSetAtom(dealCreateSheetState);
   const deals = (data?.deals?.list || []).flatMap((deal) =>

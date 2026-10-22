@@ -20,8 +20,8 @@ export const projectMutations = {
       tagIds,
       convertedFromId,
       propertiesData,
-      customerIds,
-      companyIds,
+      customerId,
+      companyId,
     },
     { models, user, subdomain, checkPermission }: IContext,
   ) => {
@@ -48,8 +48,8 @@ export const projectMutations = {
         createdBy: user._id,
         convertedFromId,
         propertiesData: validatedPropertiesData,
-        customerIds,
-        companyIds,
+        customerId,
+        companyId,
       },
       user,
     );

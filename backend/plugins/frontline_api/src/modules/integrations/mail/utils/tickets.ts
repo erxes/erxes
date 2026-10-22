@@ -1,3 +1,4 @@
+import { hasContactFields } from 'erxes-api-shared/core-modules';
 import { graphqlPubsub, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IUserDocument } from 'erxes-api-shared/core-types';
 import { IModels } from '~/connectionResolvers';
@@ -114,7 +115,7 @@ export const createTicketFromMail = async ({
       statusId: status._id,
       description: toDescription(body),
       // The ticket keeps its customer itself.
-      customerIds: [customerId],
+      customerId,
     },
     `cp:${customerId}`,
     subdomain,
@@ -189,7 +190,7 @@ const lastInboundSender = async (
   return inbound?.from?.[0]?.address;
 };
 
-// The ticket's customers: from the ticket once it keeps them (both contact
+// The ticket's customer: from the ticket once it keeps it (both contact
 // fields set, as erxes-api-shared `hasContactFields`), else from relations.
 const ticketCustomerIds = async (
   models: IModels,
@@ -198,11 +199,11 @@ const ticketCustomerIds = async (
 ): Promise<string[]> => {
   const ticket = await models.Ticket.findOne(
     { _id: ticketId },
-    { customerIds: 1, companyIds: 1 },
+    { customerId: 1, companyId: 1 },
   ).lean();
 
-  if (Array.isArray(ticket?.customerIds) && Array.isArray(ticket?.companyIds)) {
-    return ticket.customerIds;
+  if (ticket && hasContactFields(ticket)) {
+    return ticket.customerId ? [ticket.customerId] : [];
   }
 
   return relatedIds(subdomain, ticketId, CUSTOMER_TYPE);

@@ -42,10 +42,6 @@ interface BrokerSelection {
   type: BrokerType;
 }
 
-// A deal's contacts, as their ids.
-const compactIds = (ids?: (string | null | undefined)[] | null) =>
-  (ids || []).filter((id): id is string => !!id);
-
 const normalizeMultiValue = (value: string | string[]) =>
   Array.isArray(value) ? value : [value];
 
@@ -265,13 +261,13 @@ export const SalesFormFields = ({ deal }: { deal: IDealDetail }) => {
           <DealContactsField
             dealId={_id}
             kind="customer"
-            value={compactIds(deal.customers?.map((customer) => customer?._id))}
+            value={deal.customers?.[0]?._id}
             label={t('customers', 'Customers')}
           />
           <DealContactsField
             dealId={_id}
             kind="company"
-            value={compactIds(deal.companies?.map((company) => company?._id))}
+            value={deal.companies?.[0]?._id}
             label={t('companies', 'Companies')}
           />
         </div>

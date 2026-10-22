@@ -15,8 +15,8 @@ export const types = `
     githubIssueNumber: Int
     githubIssueUrl: String
     githubRepoName: String
-    customerIds: [String]
-    companyIds: [String]
+    customerId: String
+    companyId: String
   }
 
   input ITriageAddInput {
@@ -25,8 +25,8 @@ export const types = `
     teamId: String!
     priority: Int
     status: Int
-    customerIds: [String]
-    companyIds: [String]
+    customerId: String
+    companyId: String
   }
 
   input ITriageUpdateInput {
@@ -35,8 +35,8 @@ export const types = `
     teamId: String
     priority: Int
     status: Int
-    customerIds: [String]
-    companyIds: [String]
+    customerId: String
+    companyId: String
   }
 
   type TriageListResponse {
@@ -54,8 +54,8 @@ export const types = `
     name: String
     description: String
     priority: Int
-    customerIds: [String]
-    companyIds: [String]
+    customerId: String
+    companyId: String
 
     ${GQL_CURSOR_PARAM_DEFS}
   }

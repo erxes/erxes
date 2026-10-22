@@ -504,8 +504,8 @@ const createDeliveryDeal = async ({ subdomain, models, doneOrder, pos }) => {
 
       await setDealContacts(models, {
         dealId: deal._id,
-        customerIds: kind === 'customer' ? [doneOrder.customerId] : [],
-        companyIds: kind === 'company' ? [doneOrder.customerId] : [],
+        customerId: kind === 'customer' ? doneOrder.customerId : undefined,
+        companyId: kind === 'company' ? doneOrder.customerId : undefined,
       });
     }
 
@@ -696,8 +696,8 @@ const createDealPerOrder = async ({
 
       await setDealContacts(models, {
         dealId: cardDeal._id,
-        customerIds: kind === 'customer' ? [newOrder.customerId] : [],
-        companyIds: kind === 'company' ? [newOrder.customerId] : [],
+        customerId: kind === 'customer' ? newOrder.customerId : undefined,
+        companyId: kind === 'company' ? newOrder.customerId : undefined,
       });
     }
 

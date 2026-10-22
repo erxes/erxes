@@ -10,7 +10,7 @@ export const AddDealSheet = ({
 }: {
   onComplete?: (dealId: string) => void;
   showWorkflowFields?: boolean;
-  contacts?: { customerIds?: string[]; companyIds?: string[] };
+  contacts?: { customerId?: string; companyId?: string };
 }) => {
   const [open, setOpen] = useAtom(dealCreateSheetState);
 

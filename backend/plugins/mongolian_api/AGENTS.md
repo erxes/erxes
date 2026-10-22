@@ -6,7 +6,7 @@
 - **Project:** `mongolian_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/mongolian_api`
-- **Last synchronized:** `2026-10-20`
+- **Last synchronized:** `2026-10-22`
 
 ## Scope
 
@@ -78,7 +78,7 @@
 
 ## Local Invariants
 
-- Deal contacts for ebarimt, erkhet and product places come from `getDealContactIds` (`modules/ebarimt/utils/dealContacts.ts`): the deal's `customerIds` / `companyIds` when it has both, else core relations (also when only the deal id is known).
+- Deal contacts for ebarimt, erkhet and product places come from `getDealContactIds` (`modules/ebarimt/utils/dealContacts.ts`): the deal's `customerId` / `companyId` (as a list of at most one) when it has both fields, else core relations (also when only the deal id is known).
 - Subscription fields (`ebarimtResponded`, `productPlacesResponded`) are declared only in `src/apollo/subscription.ts`, which the gateway serves. Declaring one again in the subgraph SDL fails `schema:print`.
 - Exchange-rate lookup accepts Date-coercible values because service-to-service tRPC calls serialize JavaScript `Date` values over HTTP.
 - Active-rate lookup must return the latest rate on or before the requested day.

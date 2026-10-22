@@ -35,8 +35,8 @@ import { z } from 'zod';
 const SCOPE = 'side-panel-task-new';
 
 const taskDraftSchema = addTaskSchema.extend({
-  customerIds: z.array(z.string()).optional(),
-  companyIds: z.array(z.string()).optional(),
+  customerId: z.string().nullable().optional(),
+  companyId: z.string().nullable().optional(),
 });
 
 type TTaskDraftForm = z.infer<typeof taskDraftSchema>;
@@ -67,8 +67,8 @@ export const TaskPanelNew = () => {
       startDate: draft.startDate,
       targetDate: draft.targetDate,
       tagIds: draft.tagIds || [],
-      customerIds: draft.customerIds || [],
-      companyIds: draft.companyIds || [],
+      customerId: draft.customerId ?? null,
+      companyId: draft.companyId ?? null,
     },
   });
   const { errors } = form.formState;
@@ -253,16 +253,16 @@ export const TaskPanelNew = () => {
             <ContactsRelationField
               kind="customer"
               scope={`${SCOPE}.customer`}
-              value={values.customerIds || []}
-              onValueChange={(ids) => set('customerIds', ids)}
+              value={values.customerId}
+              onValueChange={(id) => set('customerId', id)}
             />
           </PanelFormRow>
           <PanelFormRow label={t('companies', 'Companies')}>
             <ContactsRelationField
               kind="company"
               scope={`${SCOPE}.company`}
-              value={values.companyIds || []}
-              onValueChange={(ids) => set('companyIds', ids)}
+              value={values.companyId}
+              onValueChange={(id) => set('companyId', id)}
             />
           </PanelFormRow>
           <div className="flex flex-col gap-1.5 pt-2">

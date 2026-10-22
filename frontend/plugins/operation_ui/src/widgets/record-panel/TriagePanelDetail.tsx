@@ -33,14 +33,14 @@ export const TriagePanelDetail = ({ triageId }: { triageId: string }) => {
     name?: string;
     priority?: number;
     description?: string;
-    customerIds?: string[];
-    companyIds?: string[];
+    customerId?: string | null;
+    companyId?: string | null;
   }) =>
     updateTriage({
       variables: { _id, input },
       // Contacts' triage lists change with them.
       update: (cache) => {
-        if (input.customerIds || input.companyIds) {
+        if (input.customerId !== undefined || input.companyId !== undefined) {
           cache.evict({ id: 'ROOT_QUERY', fieldName: 'operationGetTriageList' });
         }
       },
@@ -74,17 +74,17 @@ export const TriagePanelDetail = ({ triageId }: { triageId: string }) => {
         <PanelField label={t('customers', 'Customers')}>
           <RecordContactsField
             kind="customer"
-            value={triage.customerIds}
+            value={triage.customerId}
             scope={`${SCOPE}.customer`}
-            onValueChange={(customerIds) => update({ customerIds })}
+            onValueChange={(customerId) => update({ customerId })}
           />
         </PanelField>
         <PanelField label={t('companies', 'Companies')}>
           <RecordContactsField
             kind="company"
-            value={triage.companyIds}
+            value={triage.companyId}
             scope={`${SCOPE}.company`}
-            onValueChange={(companyIds) => update({ companyIds })}
+            onValueChange={(companyId) => update({ companyId })}
           />
         </PanelField>
         <PanelDescriptionField

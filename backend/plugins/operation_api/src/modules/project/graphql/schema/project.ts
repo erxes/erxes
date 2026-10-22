@@ -19,8 +19,8 @@ type Project {
     updatedAt: Date!
     convertedFromId: String
     propertiesData: JSON
-    customerIds: [String]
-    companyIds: [String]
+    customerId: String
+    companyId: String
 }
 
 
@@ -39,8 +39,8 @@ input IProjectFilter {
     priority: Int
     teamIds: [String]
     tagIds: [String]
-    customerIds: [String]
-    companyIds: [String]
+    customerId: String
+    companyId: String
     leadId: String
     memberIds: [String]
     memberId: String
@@ -110,8 +110,8 @@ const createProjectParams = `
   targetDate: Date
   convertedFromId: String
   propertiesData: JSON
-  customerIds: [String]
-  companyIds: [String]
+  customerId: String
+  companyId: String
 `;
 
 const updateProjectParams = `
@@ -128,8 +128,8 @@ const updateProjectParams = `
   startDate: Date
   targetDate: Date
   propertiesData: JSON
-  customerIds: [String]
-  companyIds: [String]
+  customerId: String
+  companyId: String
 `;
 
 export const queries = `
