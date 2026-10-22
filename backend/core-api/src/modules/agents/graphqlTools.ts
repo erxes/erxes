@@ -31,9 +31,11 @@ import {
   getPlugins,
 } from 'erxes-api-shared/utils';
 import {
+  AGENT_CODE_MODE_MAX_RESPONSE_BYTES,
   agentToolResponseTooLargeError,
   getAgentToolMaxResponseBytes,
   oversizedAgentToolResultBytes,
+  truncateToByteBudget,
 } from '@/agents/responseLimit';
 import { gatewayUrl } from '~/utils/email/links';
 import {
@@ -437,6 +439,27 @@ const sanitizeGraphqlErrors = (errors: unknown): IGraphqlErrorEntry[] => {
 
 // @mastra/core/tools is ESM-only under nodenext; load it dynamically (like the
 // other Mastra entries) and build the two tools once per process.
+/** Set on the call context by the code-mode bridge. */
+export const CODE_MODE_CALL = 'agentsCodeModeCall';
+
+const isCodeModeCall = (context: unknown) =>
+  (context as Record<string, unknown> | undefined)?.[CODE_MODE_CALL] === true;
+
+const truncationHint = (
+  truncated: { path: string; kept: number; total: number }[],
+  context: { requestContext?: { get?(key: string): unknown } } | undefined,
+) => {
+  const cut = truncated
+    .map(({ path, kept, total }) => `${path}: first ${kept} of ${total}`)
+    .join('; ');
+  const next =
+    context?.requestContext?.get?.('codeModeEnabled') === true
+      ? 'To count, group or scan every item, run this query inside execute_typescript and return only the summary.'
+      : 'Narrow the filter or page with limit and cursor to read the rest.';
+
+  return `The result was cut to fit the response limit (${cut}). ${next}`;
+};
+
 let graphqlToolsPromise:
   | Promise<{ searchGraphql: MastraTool; callGraphql: MastraTool }>
   | null = null;
@@ -614,23 +637,38 @@ export const buildGraphqlTools = async (): Promise<{
           }
 
           const errors = sanitizeGraphqlErrors(payload?.errors);
-          const data = payload?.data ?? null;
+          let data = payload?.data ?? null;
+          let truncated: { path: string; kept: number; total: number }[] = [];
 
           if (data !== null) {
-            const maxResponseBytes = getAgentToolMaxResponseBytes();
+            // A code-mode program reduces the result itself, so it may read a
+            // large one; a direct call is cut to its first rows instead.
+            const inCodeMode = isCodeModeCall(context);
+            const maxResponseBytes = inCodeMode
+              ? AGENT_CODE_MODE_MAX_RESPONSE_BYTES
+              : getAgentToolMaxResponseBytes();
             const dataBytes = oversizedAgentToolResultBytes(
               data,
               maxResponseBytes,
             );
 
             if (dataBytes !== null) {
-              return toToolFailure(
-                agentToolResponseTooLargeError(
-                  'callGraphql',
-                  dataBytes,
-                  maxResponseBytes,
-                ),
-              );
+              const cut = inCodeMode
+                ? null
+                : truncateToByteBudget(data, maxResponseBytes);
+
+              if (!cut) {
+                return toToolFailure(
+                  agentToolResponseTooLargeError(
+                    'callGraphql',
+                    dataBytes,
+                    maxResponseBytes,
+                  ),
+                );
+              }
+
+              data = cut.data;
+              truncated = cut.truncated;
             }
 
             try {
@@ -646,6 +684,9 @@ export const buildGraphqlTools = async (): Promise<{
             return {
               status: 'ok',
               data,
+              ...(truncated.length
+                ? { truncated, hint: truncationHint(truncated, context) }
+                : {}),
               ...(references.length ? issueAgentReferences(references) : {}),
               ...(errors.length ? { errors } : {}),
             };
