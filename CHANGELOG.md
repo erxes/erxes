@@ -1,4 +1,8 @@
+## [3.3.9](https://github.com/erxes/erxes/compare/3.3.8...3.3.9) (2026-10-22)
 
+### Bug Fixes
+
+* **content:** keep CMS editors usable when custom dropdown fields contain blank choices ([#9924](https://github.com/erxes/erxes/pull/9924)) ([dfd1def](https://github.com/erxes/erxes/commit/dfd1def0ddf153a5c9e3505fabe6d0905074d620))
 
 ## [3.3.8](https://github.com/erxes/erxes/compare/3.3.7...3.3.8) (2026-10-22)
 
