@@ -16,15 +16,17 @@ import {
 // it to once created.
 export type TTriageDraft = {
   teamId?: string;
+  priority?: number;
+  description?: string;
   customerIds?: string[];
   companyIds?: string[];
   host?: TRelationEntity;
 };
 
 /**
- * New triages start as a draft in the side panel (`openTriageDraft`):
- * nothing is saved until it is named, then `createTriageRecord` creates it
- * and the triage replaces the draft. It goes to the page's team, else the
+ * New triages start as a draft in the side panel (`openTriageDraft`): its
+ * form saves nothing until Save, then `createTriageRecord` creates it and
+ * the triage replaces the draft. It goes to the page's team, else the
  * first team with triage on (`canCreate` is false when there is none).
  */
 export const useCreateTriageRecord = () => {
@@ -68,6 +70,8 @@ export const useCreateTriageRecord = () => {
   const createTriageRecord = ({
     name,
     teamId: draftTeamId,
+    priority,
+    description,
     customerIds,
     companyIds,
     host,
@@ -78,7 +82,14 @@ export const useCreateTriageRecord = () => {
 
     createTriage({
       variables: {
-        input: { name, teamId: draftTeamId, customerIds, companyIds },
+        input: {
+          name,
+          teamId: draftTeamId,
+          priority,
+          description,
+          customerIds,
+          companyIds,
+        },
       },
       onCompleted: ({ operationAddTriage: created }) => {
         if (!created?._id) {

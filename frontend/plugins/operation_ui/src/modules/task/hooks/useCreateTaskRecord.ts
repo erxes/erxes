@@ -31,8 +31,8 @@ const toContactIds = (linkTo?: TRelationEntity) => ({
 });
 
 /**
- * New tasks start as a draft in the side panel (`openTaskDraft`): nothing is
- * saved until it is named, then `createTaskRecord` creates it in one
+ * New tasks start as a draft in the side panel (`openTaskDraft`): its form
+ * saves nothing until Save, then `createTaskRecord` creates it in one
  * mutation and the task replaces the draft. A draft starts in the page's
  * team, project and cycle (any `defaults` on top); the backend gives the
  * task the team's first to-do status.

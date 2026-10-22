@@ -8,7 +8,7 @@ export * from './record-side-panel/EmbeddedRecordPanel';
 export * from './record-side-panel/recordPanel';
 export * from './record-side-panel/PanelField';
 export * from './record-side-panel/PanelDescriptionField';
-export * from './record-side-panel/PanelDraftFields';
+export * from './record-side-panel/PanelForm';
 export * from './relation-settings/RelationSettingsWidget';
 export * from './relation-settings/relationSettingsWidgetContext';
 export * from './record-picker/RecordPickerWidget';

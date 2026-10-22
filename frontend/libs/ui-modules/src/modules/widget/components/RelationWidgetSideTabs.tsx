@@ -1,9 +1,11 @@
 import { Icon, IconBuilding, IconUser } from '@tabler/icons-react';
 import { FocusSheet, SideMenuContext, Tabs, useFocusSheet } from 'erxes-ui';
 import { useCallback, useMemo } from 'react';
+import { useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { EmbeddedRecordPanel } from '../record-side-panel/EmbeddedRecordPanel';
 import { useRecordView } from '../record-side-panel/recordView';
+import { sidePanelWidthState } from '../record-side-panel/useSidePanel';
 import { COMPANY_CONTENT_TYPE, CUSTOMER_CONTENT_TYPE } from '../utils';
 
 export interface IRelationWidgetExtraTab {
@@ -75,6 +77,7 @@ export const RelationWidgetSideTabs = ({
   const { t } = useTranslation('common', { keyPrefix: 'side-panel' });
   const { setActiveSideTab } = useFocusSheet();
   const hasRecordView = !!useRecordView();
+  const panelWidth = useAtomValue(sidePanelWidthState);
   const close = useCallback(() => setActiveSideTab?.(null), [setActiveSideTab]);
 
   const contactTabs = hasRecordView
@@ -107,7 +110,13 @@ export const RelationWidgetSideTabs = ({
   return (
     <FocusSheet.SideTabs>
       {contactTabs.map((tab) => (
-        <FocusSheet.SideContent key={tab.value} value={tab.value}>
+        <FocusSheet.SideContent
+          key={tab.value}
+          value={tab.value}
+          // As wide as the app's side panel, whatever is loading inside.
+          className="flex-none max-w-[50vw]"
+          style={{ width: panelWidth }}
+        >
           <EmbeddedRecordPanel
             key={tab.records.map((record) => record.contentId).join(',')}
             records={tab.records}
