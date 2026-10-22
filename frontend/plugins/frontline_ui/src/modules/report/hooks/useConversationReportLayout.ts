@@ -13,7 +13,7 @@ import { useEffect, useMemo, useState } from 'react';
 import {
   DEFAULT_CARD_CONFIGS,
   reportComponents,
-} from '../types/component-registry';
+} from '@/report/types/component-registry';
 import { useReportCharts } from '@/report/hooks/useReportCharts';
 import type {
   ConversationReportCard,

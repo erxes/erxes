@@ -1,5 +1,5 @@
-import { useConversationTranslation } from '../translations';
-import { conversationMessagePreview } from '../utils/conversationMessagePreview';
+import { useConversationTranslation } from '@/inbox/conversations/translations';
+import { conversationMessagePreview } from '@/inbox/conversations/utils/conversationMessagePreview';
 import {
   Avatar,
   BlockEditorReadOnly,
@@ -19,7 +19,7 @@ import {
   IconPhoneOutgoing,
   IconPhoneX,
 } from '@tabler/icons-react';
-import { useConversationContext } from '../hooks/useConversationContext';
+import { useConversationContext } from '@/inbox/conversations/hooks/useConversationContext';
 import { currentUserState, CustomersInline, MembersInline } from 'ui-modules';
 import { IntegrationType } from '@/types/Integration';
 import {
@@ -28,12 +28,12 @@ import {
   parseCallConversationContent,
 } from '@/integrations/call/utils/callContentUtils';
 import { useAtomValue, useSetAtom } from 'jotai';
-import { activeConversationState } from '../states/activeConversationState';
+import { activeConversationState } from '@/inbox/conversations/states/activeConversationState';
 import { useEffect, useState } from 'react';
 import {
   selectConversationsState,
   setSelectConversationsState,
-} from '../states/selectConversationsState';
+} from '@/inbox/conversations/states/selectConversationsState';
 import { useInboxLayout } from '@/inbox/hooks/useInboxLayout';
 import { useTranslation } from 'react-i18next';
 import { INTEGRATION_ICONS } from '@/integrations/constants/integrationImages';
@@ -41,8 +41,8 @@ import {
   conversationAssigneeIds,
   conversationAssignees,
   integrationAppearance,
-} from '../utils/conversationDisplay';
-import { ConversationIdleIndicator } from './ConversationIdleIndicator';
+} from '@/inbox/conversations/utils/conversationDisplay';
+import { ConversationIdleIndicator } from '@/inbox/conversations/components/ConversationIdleIndicator';
 
 export const ConversationItem = ({
   onConversationSelect,

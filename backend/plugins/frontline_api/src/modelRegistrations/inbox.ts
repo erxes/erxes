@@ -1,5 +1,5 @@
 import type { Connection } from 'mongoose';
-import type { IModels } from './types';
+import type { IModels } from '~/modelRegistrations/types';
 import { withConversationReportEvents } from '@/reports/services/conversationReportEvents';
 import type { IIntegrationDocument } from '@/inbox/@types/integrations';
 import type { IConversationDocument } from '@/inbox/@types/conversations';

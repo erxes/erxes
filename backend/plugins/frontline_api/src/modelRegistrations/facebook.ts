@@ -1,5 +1,5 @@
 import type { Connection } from 'mongoose';
-import type { IModels } from './types';
+import type { IModels } from '~/modelRegistrations/types';
 import type { IFacebookIntegrationDocument } from '@/integrations/facebook/@types/integrations';
 import type { IFacebookLogDocument } from '@/integrations/facebook/@types/logs';
 import type { IFacebookAccountDocument } from '@/integrations/facebook/@types/accounts';

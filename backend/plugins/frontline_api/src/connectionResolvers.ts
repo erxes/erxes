@@ -1,4 +1,4 @@
-import type { IModels } from './modelRegistrations/types';
+import type { IModels } from '~/modelRegistrations/types';
 import type { Connection } from 'mongoose';
 import {
   createGenerateModels,
@@ -8,26 +8,26 @@ import {
   registerResponseTemplateModel,
   registerInboxModels,
   registerMessengerModels,
-} from './modelRegistrations/inbox';
+} from '~/modelRegistrations/inbox';
 import {
   registerTicketModels,
   registerSupportContentModels,
-} from './modelRegistrations/support';
+} from '~/modelRegistrations/support';
 import {
   registerFacebookModels,
   registerFacebookBotModel,
-} from './modelRegistrations/facebook';
-import { registerInstagramModels } from './modelRegistrations/instagram';
+} from '~/modelRegistrations/facebook';
+import { registerInstagramModels } from '~/modelRegistrations/instagram';
 import {
   registerCallModels,
   registerCallProModels,
-} from './modelRegistrations/calls';
+} from '~/modelRegistrations/calls';
 import {
   registerChatModels,
   registerMailModels,
-} from './modelRegistrations/messaging';
+} from '~/modelRegistrations/messaging';
 
-export type { IModels, IContext } from './modelRegistrations/types';
+export type { IModels, IContext } from '~/modelRegistrations/types';
 
 export const loadClasses = (
   db: Connection,

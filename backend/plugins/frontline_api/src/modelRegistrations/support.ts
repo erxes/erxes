@@ -1,5 +1,5 @@
 import type { Connection } from 'mongoose';
-import type { IModels } from './types';
+import type { IModels } from '~/modelRegistrations/types';
 import type { ScopedEventHandlers } from 'erxes-api-shared/utils';
 import {
   type ITicketPipelineModel,

@@ -1,5 +1,5 @@
 import type { Connection } from 'mongoose';
-import type { IModels } from './types';
+import type { IModels } from '~/modelRegistrations/types';
 // Discord integration models
 // Discord integration models
 import type { IDiscordBotDocument } from '@/integrations/discord/@types/bot';

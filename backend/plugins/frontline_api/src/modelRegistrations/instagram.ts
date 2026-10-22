@@ -1,5 +1,5 @@
 import type { Connection } from 'mongoose';
-import type { IModels } from './types';
+import type { IModels } from '~/modelRegistrations/types';
 // Instagram imports
 // Instagram imports
 import {

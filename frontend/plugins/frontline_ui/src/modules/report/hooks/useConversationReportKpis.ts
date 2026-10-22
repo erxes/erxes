@@ -2,11 +2,11 @@ import { useConversationClosed } from '@/report/hooks/useConversationClose';
 import { useConversationOpen } from '@/report/hooks/useConversationOpen';
 import { useConversationSources } from '@/report/hooks/useConversationSource';
 import { useMemo } from 'react';
-import { getTopSource } from '../utils';
+import { getTopSource } from '@/report/utils';
 import { useAtomValue } from 'jotai';
 import { getReportDateFilterAtom } from '@/report/states';
 import { getFilters } from '@/report/utils/dateFilters';
-import { OVERVIEW_KPI_DATE_FILTER_ID } from '../components/filter-popover/ReportKpiDateFilter';
+import { OVERVIEW_KPI_DATE_FILTER_ID } from '@/report/components/filter-popover/ReportKpiDateFilter';
 import type { ConversationReportKpiData } from '@/report/types/conversationReportKpis';
 
 export const useConversationReportKpis = (): ConversationReportKpiData => {

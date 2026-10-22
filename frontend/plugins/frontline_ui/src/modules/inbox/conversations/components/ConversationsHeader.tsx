@@ -1,4 +1,4 @@
-import { ConversationCountValue } from './ConversationCountValue';
+import { ConversationCountValue } from '@/inbox/conversations/components/ConversationCountValue';
 import { Filter, Skeleton, cn } from 'erxes-ui';
 
 import { ConversationFilterBar } from '@/inbox/conversations/components/ConversationsFilter';

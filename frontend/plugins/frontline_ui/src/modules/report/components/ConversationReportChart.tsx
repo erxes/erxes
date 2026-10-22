@@ -5,7 +5,7 @@ import {
   DEFAULT_CARD_CONFIGS,
   type ReportComponentProps,
   reportComponents,
-} from '../types/component-registry';
+} from '@/report/types/component-registry';
 import type { ConversationReportChartProps } from '@/report/types/conversationReportLayout';
 
 export const ConversationReportChart = ({

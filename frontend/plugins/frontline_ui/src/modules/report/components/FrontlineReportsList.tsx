@@ -6,9 +6,9 @@ import {
 } from '@dnd-kit/sortable';
 import { ScrollArea } from 'erxes-ui';
 import { useConversationReportLayout } from '@/report/hooks/useConversationReportLayout';
-import { ConversationReportKpis } from './ConversationReportKpis';
-import { ConversationReportChart } from './ConversationReportChart';
-import { ConversationReportDropArea } from './ConversationReportDropArea';
+import { ConversationReportKpis } from '@/report/components/ConversationReportKpis';
+import { ConversationReportChart } from '@/report/components/ConversationReportChart';
+import { ConversationReportDropArea } from '@/report/components/ConversationReportDropArea';
 
 export const FrontlineReportsList = () => {
   useConversationReportUpdates();

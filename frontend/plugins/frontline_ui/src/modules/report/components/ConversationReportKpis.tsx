@@ -5,7 +5,7 @@ import {
   IconTrophyFilled,
   IconChartArcs,
 } from '@tabler/icons-react';
-import { KpiCard } from '../call/components/KpiSection/KpiCard';
+import { KpiCard } from '@/report/call/components/KpiSection/KpiCard';
 import { Alert, Skeleton } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useConversationReportKpis } from '@/report/hooks/useConversationReportKpis';
