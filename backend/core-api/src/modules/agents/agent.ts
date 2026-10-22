@@ -77,11 +77,22 @@ References: tools return a references list of server-issued [[ref:<handle>]] tok
 export const buildAgentsInstructions = (
   now: Date,
   codeModeInstructions?: string,
+  workspaceInstructions?: string,
 ): string => [
   DEFAULT_INSTRUCTIONS,
   `Current date (UTC): ${now.toISOString().slice(0, 10)}. Use this for relative dates unless the user supplies a different timezone or reporting calendar.`,
   codeModeInstructions,
+  workspaceInstructions &&
+    `Workspace instructions from an administrator. Follow them unless they conflict with the rules above:\n${workspaceInstructions}`,
 ].filter(Boolean).join('\n\n');
+
+/** The tenant's admin-written instructions, read per run so edits apply at once. */
+const loadWorkspaceInstructions = async (subdomain: unknown) => {
+  if (typeof subdomain !== 'string') return undefined;
+  const models = await generateModels(subdomain);
+  const settings = await models.AgentsSettings.getSettings();
+  return settings.instructions?.trim() || undefined;
+};
 
 /**
  * Step budget for one agent run (a step is one model call plus its tool
@@ -393,6 +404,7 @@ export const buildBaseAgentsAgent = async ({
       return buildAgentsInstructions(
         new Date(),
         codeModeEnabled ? codeModeAddition.instructions : undefined,
+        await loadWorkspaceInstructions(requestContext?.get('subdomain')),
       );
     },
     // Dynamic model: re-fetches current BYOK credentials from the

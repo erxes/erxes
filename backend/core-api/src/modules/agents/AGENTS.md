@@ -83,7 +83,13 @@ plugin; ported from the former private `erxes-agent` service). It provides:
   `codeModeEnvironment: 'in-process'`, `approvalMode: 'writes' |
   'destructive'` — default `'writes'`, stamped per run into RequestContext;
   `'writes'` asks before every GraphQL mutation; `'destructive'` asks before
-  deletes, merges, archives, publishes and customer-facing sends/replies.
+  deletes, merges, archives, publishes and customer-facing sends/replies),
+  plus admin-written `instructions` (≤8000 characters, Settings → Agents →
+  Instructions) appended to every run's system prompt; the instructions
+  callback reads them per run, so they never enter RequestContext snapshots;
+- per-user working memory (Mastra `workingMemory`, `scope: 'resource'`, the
+  resource being the user id) keeps stated preferences across that user's
+  threads through Mastra's `updateWorkingMemory` tool.
 
 
 ## Surfaces

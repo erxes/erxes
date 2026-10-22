@@ -10,6 +10,7 @@ export const toPublicSettings = (doc: IAgentsSettingsDocument) => ({
   codeModeEnvironment: doc.codeModeEnvironment,
   // Fallback: docs written before approvalMode existed default to 'writes'.
   approvalMode: doc.approvalMode ?? 'writes',
+  instructions: doc.instructions ?? '',
   updatedAt: doc.updatedAt,
 });
 

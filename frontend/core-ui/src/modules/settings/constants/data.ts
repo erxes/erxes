@@ -350,6 +350,7 @@ export const GET_SETTINGS_SUB_NAVIGATION = (
       { name: 'API key', path: `${settingsPath('agent')}/connection` },
       { name: 'Code mode', path: `${settingsPath('agent')}/code-mode` },
       { name: 'Approvals', path: `${settingsPath('agent')}/approvals` },
+      { name: 'Instructions', path: `${settingsPath('agent')}/instructions` },
       { name: 'Appearance', path: `${settingsPath('agent')}/appearance` },
     ],
   },
