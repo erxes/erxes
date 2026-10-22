@@ -18,6 +18,8 @@ const en = {
   storyReply: 'Story reply',
   forwarded: 'Forwarded message',
   sharedContent: 'Shared content',
+  createdAt: 'Created at',
+  resolvedAt: 'Resolved at',
 };
 const mn: Record<keyof typeof en, string> = {
   noMessages: 'Зурвас хараахан алга',
@@ -37,11 +39,16 @@ const mn: Record<keyof typeof en, string> = {
   storyReply: 'Story-д хариулсан',
   forwarded: 'Дамжуулсан зурвас',
   sharedContent: 'Хуваалцсан агуулга',
+  createdAt: 'Үүссэн огноо',
+  resolvedAt: 'Шийдвэрлэсэн огноо',
 };
-export type ConversationPreviewLabel = keyof typeof en;
+export type ConversationPreviewLabel = Exclude<
+  keyof typeof en,
+  'createdAt' | 'resolvedAt'
+>;
 
-export const useConversationPreviewTranslation = (): {
-  t: (key: ConversationPreviewLabel, count?: number) => string;
+export const useConversationTranslation = (): {
+  t: (key: keyof typeof en, count?: number) => string;
 } => {
   const { i18n } = useTranslation('frontline');
   for (const [language, resources] of Object.entries({ en, mn })) {

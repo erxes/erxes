@@ -5,7 +5,7 @@ import { ConversationFilterBar } from '@/inbox/conversations/components/Conversa
 import { useConversationListContext } from '@/inbox/conversations/hooks/useConversationListContext';
 import { useInboxLayout } from '@/inbox/hooks/useInboxLayout';
 import { useTranslation } from 'react-i18next';
-import { useConversationDateFilterTranslation } from '@/inbox/conversations/filterTranslations';
+import { useConversationTranslation } from '@/inbox/conversations/translations';
 
 export const ConversationCount = ({ className }: { className?: string }) => {
   const { t } = useTranslation('frontline');
@@ -36,7 +36,7 @@ export const ConversationsHeader = ({
   children: React.ReactNode;
 }) => {
   const inboxLayout = useInboxLayout();
-  const { t: dateT } = useConversationDateFilterTranslation();
+  const { t: dateT } = useConversationTranslation();
 
   return (
     <Filter id="conversations-filter-bar">

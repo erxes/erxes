@@ -1,4 +1,4 @@
-import { useConversationPreviewTranslation } from '../translations';
+import { useConversationTranslation } from '../translations';
 import { conversationMessagePreview } from '../utils/conversationMessagePreview';
 import {
   Avatar,
@@ -207,7 +207,7 @@ const ConversationAssignees = () => {
 export const ConversationItemContent = () => {
   const conversation = useConversationContext();
   const { integration } = conversation;
-  const { t: translatePreview } = useConversationPreviewTranslation();
+  const { t: translatePreview } = useConversationTranslation();
   const { content, label, labelKey, count } =
     conversationMessagePreview(conversation);
   if (!content)

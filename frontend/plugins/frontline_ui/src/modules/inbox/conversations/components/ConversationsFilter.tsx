@@ -45,7 +45,7 @@ import {
 } from '@/inbox/conversations/components/AutomationStatusFilter';
 import { TAutomationStatusFilter } from '@/inbox/constants/automationStatusFilters';
 import { useIntegrationInline } from '@/integrations/hooks/useIntegrations';
-import { useConversationDateFilterTranslation } from '@/inbox/conversations/filterTranslations';
+import { useConversationTranslation } from '@/inbox/conversations/translations';
 
 type ConversationFilterQueries = {
   status: ConversationStatus;
@@ -137,7 +137,7 @@ const ConversationFilterCommand = ({
   setQueries: (values: Partial<ConversationFilterQueryValues>) => void;
 }) => {
   const { t } = useTranslation('frontline');
-  const { t: dateT } = useConversationDateFilterTranslation();
+  const { t: dateT } = useConversationTranslation();
   const { setView } = useFilterContext();
   const { status, unassigned, awaitingResponse, participated } = queries;
 
@@ -228,7 +228,7 @@ const ConversationFilterCommand = ({
 };
 
 export const FilterConversationsPopover = () => {
-  const { t: dateT } = useConversationDateFilterTranslation();
+  const { t: dateT } = useConversationTranslation();
   const [queries, setQueries] = useMultiQueryState<ConversationFilterQueries>([
     'status',
     'unassigned',
@@ -294,7 +294,7 @@ export const ConversationFilterBar = ({
   className?: string;
 }) => {
   const { t } = useTranslation('frontline');
-  const { t: dateT } = useConversationDateFilterTranslation();
+  const { t: dateT } = useConversationTranslation();
   const [status] = useQueryState<ConversationStatus>('status');
   const filterStates = useNonNullMultiQueryState<{
     status: ConversationStatus;
