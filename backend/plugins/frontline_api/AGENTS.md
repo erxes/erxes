@@ -1373,6 +1373,11 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 ## Local Invariants
 
+- Every integration removal path (GraphQL `integrationsRemove` and tRPC
+  `inbox.integrations.remove`) runs `sendRemoveIntegration` for provider
+  kinds before deleting the integration, so provider tokens, webhook
+  subscriptions and records are not orphaned; a failed cleanup keeps the
+  integration. `lead` and `messenger` have no provider cleanup.
 - A Form submitted condition on an array value (checkbox group, multi-select)
   matches when any option matches; `dne`/`numberdne`/`dnc` must hold for every
   option, and `is`/`ins` test the whole value. Number and boolean values are
@@ -1651,6 +1656,12 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-10-22` — Provider cleanup on tRPC integration removal
+
+- **Summary:** tRPC `inbox.integrations.remove` now runs the same provider cleanup as `integrationsRemove` before deleting; it used to leave tokens, webhook subscriptions and provider records behind.
+- **Affected areas:** `modules/inbox/trpc/inbox.ts` (+ `trpc/__tests__/integrationsRemove.test.ts`).
+- **Contracts changed:** none; a failed provider cleanup now returns the procedure's error envelope instead of deleting.
 
 ### `2026-10-19` — Conversation segment filter on the paged contract
 

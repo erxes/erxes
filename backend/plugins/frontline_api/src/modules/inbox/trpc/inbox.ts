@@ -1,5 +1,6 @@
 import { IEngageData } from '@/inbox/@types/conversationMessages';
 import { sendNotifications } from '@/inbox/graphql/resolvers/mutations/conversations';
+import { sendRemoveIntegration } from '@/inbox/graphql/resolvers/mutations/integrations';
 import { pConversationClientMessageInserted } from '@/inbox/graphql/resolvers/mutations/widget';
 import {
   receiveInboxMessage,
@@ -116,8 +117,26 @@ export const integrationsRouter = t.router({
         timestamp: new Date().toISOString(),
       };
     }
-    const { models } = ctx;
+    const { models, subdomain } = ctx;
     try {
+      const integration = await models.Integrations.getIntegration({ _id });
+      const kind = integration.kind.split('-')[0];
+
+      // Same provider cleanup as the integrationsRemove mutation, so a
+      // provider's tokens, webhooks and accounts are not left behind.
+      if (!['lead', 'messenger'].includes(kind)) {
+        await sendRemoveIntegration(subdomain, kind, {
+          integrationId: _id,
+        }).catch((error: unknown) => {
+          if (
+            !(error instanceof Error) ||
+            error.message !== 'Integration not found'
+          ) {
+            throw error;
+          }
+        });
+      }
+
       const conversationIds = await models.Conversations.find({
         integrationId: _id,
       }).distinct('_id');
