@@ -28,6 +28,11 @@ import {
   queries as TelegramQueries,
   types as TelegramTypes,
 } from '@/integrations/telegram/graphql/schema/telegram';
+import {
+  mutations as WhatsappMutations,
+  queries as WhatsappQueries,
+  types as WhatsappTypes,
+} from '@/integrations/whatsapp/graphql/schema/whatsapp';
 
 import {
   mutations as InstagramMutations,
@@ -128,6 +133,7 @@ export const types = `
     ${FacebookTypes}
     ${DiscordTypes}
     ${TelegramTypes}
+    ${WhatsappTypes}
     ${InstagramTypes}
     ${CallTypes}
     ${CallProTypes}
@@ -155,6 +161,7 @@ export const queries = `
     ${FacebookQueries}
     ${DiscordQueries}
     ${TelegramQueries}
+    ${WhatsappQueries}
     ${InstagramQueries}
     ${CallQueries}
     ${CallProQueries}
@@ -183,6 +190,7 @@ export const mutations = `
    ${FacebookMutations}
    ${DiscordMutations}
    ${TelegramMutations}
+   ${WhatsappMutations}
    ${InstagramMutations}
    ${CallMutations}
    ${CallProMutations}

@@ -171,6 +171,23 @@ import {
   loadTelegramConversationMessageClass,
 } from '@/integrations/telegram/db/models/ConversationMessages';
 
+//WhatsApp imports
+import { IWhatsappIntegrationDocument } from '@/integrations/whatsapp/@types/integrations';
+import {
+  IWhatsappIntegrationModel,
+  loadWhatsappIntegrationClass,
+} from '@/integrations/whatsapp/db/models/Integrations';
+import { IWhatsappCustomerDocument } from '@/integrations/whatsapp/@types/customers';
+import {
+  IWhatsappCustomerModel,
+  loadWhatsappCustomerClass,
+} from '@/integrations/whatsapp/db/models/Customers';
+import { IWhatsappConfigDocument } from '@/integrations/whatsapp/@types/configs';
+import {
+  IWhatsappConfigModel,
+  loadWhatsappConfigClass,
+} from '@/integrations/whatsapp/db/models/Configs';
+
 //Callpro imports
 
 import { ICallProIntegrationDocument } from '@/integrations/callpro/@types/integrations';
@@ -436,6 +453,11 @@ export interface IModels {
   TelegramCustomers: ITelegramCustomerModel;
   TelegramConversations: ITelegramConversationModel;
   TelegramConversationMessages: ITelegramConversationMessageModel;
+
+  // whatsapp
+  WhatsappIntegrations: IWhatsappIntegrationModel;
+  WhatsappCustomers: IWhatsappCustomerModel;
+  WhatsappConfigs: IWhatsappConfigModel;
 
   // ticket
   Pipeline: ITicketPipelineModel;
@@ -735,6 +757,20 @@ export const loadClasses = (
     'conversation_messages_telegram',
     loadTelegramConversationMessageClass(models),
   );
+
+  // whatsapp models
+  models.WhatsappIntegrations = db.model<
+    IWhatsappIntegrationDocument,
+    IWhatsappIntegrationModel
+  >('whatsapp_integrations', loadWhatsappIntegrationClass(models));
+  models.WhatsappCustomers = db.model<
+    IWhatsappCustomerDocument,
+    IWhatsappCustomerModel
+  >('customers_whatsapp', loadWhatsappCustomerClass(models));
+  models.WhatsappConfigs = db.model<
+    IWhatsappConfigDocument,
+    IWhatsappConfigModel
+  >('whatsapp_configs', loadWhatsappConfigClass(models));
 
   models.CallProIntegrations = db.model<
     ICallProIntegrationDocument,

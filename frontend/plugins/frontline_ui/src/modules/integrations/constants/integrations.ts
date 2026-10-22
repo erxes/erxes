@@ -6,6 +6,11 @@ export const INTEGRATIONS = {
     descriptionKey: 'frontline-telegram:description',
     img: 'telegram.svg',
   },
+  [IntegrationType.WHATSAPP_MESSENGER]: {
+    name: 'WhatsApp',
+    descriptionKey: 'frontline-whatsapp:description',
+    img: 'whatsapp.webp',
+  },
   [IntegrationType.ERXES_MESSENGER]: {
     name: 'erxes Messenger',
     descriptionKey: 'integration-desc-erxes-messenger',

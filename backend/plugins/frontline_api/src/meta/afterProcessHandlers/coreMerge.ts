@@ -129,6 +129,10 @@ const updateCustomerIdField = async (
       { customerId: { $in: oldIds } },
       { $set: { customerId: newId } },
     ),
+    models.WhatsappCustomers.updateMany(
+      { erxesApiId: { $in: oldIds } },
+      { $set: { erxesApiId: newId } },
+    ),
     models.CallSessions.updateMany(
       { customerId: { $in: oldIds } },
       { $set: { customerId: newId } },

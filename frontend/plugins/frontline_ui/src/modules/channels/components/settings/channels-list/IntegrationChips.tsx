@@ -4,7 +4,12 @@ import {
   InstagramIcon,
   MessengerIcon,
 } from '@/integrations/components/Icons';
-import { IconMail, IconMessageFilled, IconPhone } from '@tabler/icons-react';
+import {
+  IconBrandWhatsapp,
+  IconMail,
+  IconMessageFilled,
+  IconPhone,
+} from '@tabler/icons-react';
 import type { ComponentType, CSSProperties } from 'react';
 
 type ProviderIcon = ComponentType<{
@@ -42,6 +47,10 @@ const PROVIDER_META: Record<
   [IntegrationType.MAIL]: {
     Icon: IconMail,
     iconClass: 'text-amber-500',
+  },
+  [IntegrationType.WHATSAPP_MESSENGER]: {
+    Icon: IconBrandWhatsapp,
+    iconClass: 'text-green-600',
   },
 };
 

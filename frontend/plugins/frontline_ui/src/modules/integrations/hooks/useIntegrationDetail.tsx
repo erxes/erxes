@@ -6,7 +6,7 @@ export const useIntegrationDetail = ({
 }: {
   integrationId: string | null;
 }) => {
-  const { data, loading } = useQuery(GET_INTEGRATION_DETAIL, {
+  const { data, loading, error, refetch } = useQuery(GET_INTEGRATION_DETAIL, {
     variables: integrationId ? { id: integrationId } : undefined,
     skip: !integrationId,
   });
@@ -14,5 +14,7 @@ export const useIntegrationDetail = ({
   return {
     integrationDetail: data?.integrationDetail,
     loading,
+    error,
+    refetch,
   };
 };

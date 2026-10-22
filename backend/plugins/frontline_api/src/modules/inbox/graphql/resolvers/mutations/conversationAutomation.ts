@@ -7,6 +7,7 @@ import { handleFacebookIntegration } from '@/integrations/facebook/messageBroker
 import { handleInstagramIntegration } from '@/integrations/instagram/messageBroker';
 import { handleDiscordIntegration } from '@/integrations/discord/messageBroker';
 import { handleTelegramIntegration } from '@/integrations/telegram/messageBroker';
+import { handleWhatsappIntegration } from '@/integrations/whatsapp/messageBroker';
 import { publishConversationUnreadCounts } from '@/inbox/services/conversationUnreadCounts';
 import { getErrorMessage } from '@/integrations/utils';
 import type { IModels } from '~/connectionResolvers';
@@ -49,6 +50,9 @@ export const dispatchConversationToService = async (
 
       case 'telegram':
         return await handleTelegramIntegration({ subdomain, data });
+
+      case 'whatsapp':
+        return await handleWhatsappIntegration({ subdomain, data });
 
       case 'calls':
         break;

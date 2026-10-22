@@ -25,6 +25,7 @@ jest.mock('@/integrations/callpro/messageBroker', () => ({
   callProUpdateIntegration: jest.fn(),
 }));
 jest.mock('@/integrations/discord/messageBroker', () => ({}));
+jest.mock('@/integrations/whatsapp/messageBroker', () => ({}));
 jest.mock('../messageBroker', () => ({}));
 jest.mock('erxes-api-shared/utils', () => ({ markResolvers: jest.fn() }));
 
