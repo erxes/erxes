@@ -80,6 +80,22 @@ export const useNotificationListActions = ({
   );
 
   useScopedHotkeys(
+    'ctrl+a,meta+a',
+    () => {
+      if (!loading && !pending && selectedIds.length < notifications.length) {
+        toggleAll();
+      }
+    },
+    MyInboxHotkeyScope.MainPage,
+    [loading, pending, selectedIds.length, notifications.length, toggleAll],
+    {
+      enableOnContentEditable: false,
+      enableOnFormTags: false,
+      ignoreEventWhen: shouldIgnoreNotificationHotkey,
+    },
+  );
+
+  useScopedHotkeys(
     'esc',
     () => {
       if (!pending) clear();

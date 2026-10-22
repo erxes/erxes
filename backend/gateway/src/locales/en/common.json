@@ -325,6 +325,7 @@
     "reset-password": "Reset password"
   },
   "notification": {
+    "wrap-messages": "Wrap long messages",
     "select-notification-label": "Select notification: {{title}}",
     "select-visible": "Select displayed notifications",
     "notification-count_one": "{{count}} notification",

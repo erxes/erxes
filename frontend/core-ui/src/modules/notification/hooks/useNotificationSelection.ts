@@ -39,7 +39,7 @@ export const useNotificationSelection = (
     const anchorIndex = anchor.current ? ids.indexOf(anchor.current) : -1;
     const targetIndex = ids.indexOf(id);
     if (targetIndex === -1) return;
-    setFocusedId(id);
+    setFocusedId(null);
     keyboardBase.current = null;
 
     if (shiftKey && anchorIndex !== -1) {

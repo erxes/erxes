@@ -36,11 +36,34 @@ export const NotificationItem = ({
   const appName = contentType.split(/[:.]/)[0] || 'core';
   const isActive = id === _id;
   const linkRef = useNotificationItemScroll({ isActive, selectionFocused });
+  const avatar = (
+    <div
+      className={cn(
+        'relative flex size-8 flex-none items-center justify-center rounded-full transition-opacity',
+        NOTIFICATION_APP_COLORS[appName] || 'bg-muted text-muted-foreground',
+        selected
+          ? 'opacity-0'
+          : onToggleSelection &&
+              'group-hover/avatar:opacity-0 peer-focus-visible/selection:opacity-0',
+      )}
+      title={appName}
+    >
+      <NotificationIcon contentType={contentType} />
+      <span className="sr-only">{t(type, type)}</span>
+      {!isRead && (
+        <>
+          <span className="size-1.5 absolute bg-primary ring-2 ring-background rounded-full top-0 right-0" />
+          <span className="sr-only">{t('unread', 'Unread')}</span>
+        </>
+      )}
+    </div>
+  );
 
   return (
     <div
       className={cn(
         'group relative flex items-start rounded-lg border-l-2 border-transparent p-2 select-none hover:bg-accent',
+        onToggleSelection && 'gap-2',
         !isRead && 'border-primary bg-background hover:bg-primary/5',
         (isActive || selected) &&
           'border-primary bg-primary/10 hover:bg-primary/15',
@@ -48,21 +71,24 @@ export const NotificationItem = ({
       )}
     >
       {onToggleSelection && (
-        <Checkbox
-          checked={selected}
-          disabled={selectionDisabled}
-          className={cn(
-            'pointer-events-none absolute left-[18px] top-4 z-10 bg-background opacity-0 transition-opacity group-hover:pointer-events-auto group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:opacity-100',
-            selected && 'pointer-events-auto opacity-100',
-          )}
-          aria-label={t('select-notification-label', {
-            title: message || title,
-          })}
-          onClick={(event) => {
-            event.preventDefault();
-            onToggleSelection(event.shiftKey);
-          }}
-        />
+        <div className="group/avatar relative size-8 flex-none">
+          <Checkbox
+            checked={selected}
+            disabled={selectionDisabled}
+            className={cn(
+              'peer/selection pointer-events-none absolute left-2 top-2 z-10 bg-background opacity-0 transition-opacity group-hover/avatar:pointer-events-auto group-hover/avatar:opacity-100 focus-visible:pointer-events-auto focus-visible:opacity-100',
+              selected && 'pointer-events-auto opacity-100',
+            )}
+            aria-label={t('select-notification-label', {
+              title: message || title,
+            })}
+            onClick={(event) => {
+              event.preventDefault();
+              onToggleSelection(event.shiftKey);
+            }}
+          />
+          {avatar}
+        </div>
       )}
       <Button
         asChild
@@ -79,32 +105,15 @@ export const NotificationItem = ({
           }}
           to={`/my-inbox/${_id}${window.location.search}`}
         >
-          <div
-            className={cn(
-              'relative flex size-8 flex-none items-center justify-center rounded-full transition-opacity',
-              NOTIFICATION_APP_COLORS[appName] ||
-                'bg-muted text-muted-foreground',
-              selected
-                ? 'opacity-0'
-                : onToggleSelection &&
-                    'group-hover:opacity-0 group-focus-within:opacity-0',
-            )}
-            title={appName}
-          >
-            <NotificationIcon contentType={contentType} />
-            <span className="sr-only">{t(type, type)}</span>
-            {!isRead && (
-              <>
-                <span className="size-1.5 absolute bg-primary ring-2 ring-background rounded-full top-0 right-0" />
-                <span className="sr-only">{t('unread', 'Unread')}</span>
-              </>
-            )}
-          </div>
+          {!onToggleSelection && avatar}
           <div className="flex-auto space-y-1 overflow-hidden">
             <div className="flex items-center justify-between">
               <h4
                 className={cn(
-                  'line-clamp-1 truncate text-left',
+                  'text-left',
+                  display.wrapMessages
+                    ? 'line-clamp-2 whitespace-normal break-words'
+                    : 'line-clamp-1 truncate',
                   isRead ? 'text-muted-foreground' : 'font-semibold',
                   isActive && 'text-foreground',
                 )}

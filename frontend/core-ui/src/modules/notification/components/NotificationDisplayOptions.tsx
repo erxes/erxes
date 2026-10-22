@@ -11,6 +11,7 @@ export const NotificationDisplayOptions = () => {
     { key: 'unreadFirst', label: t('unread-first', 'Show unread first') },
     { key: 'showPriority', label: t('show-priority', 'Show priority') },
     { key: 'showSender', label: t('show-sender', 'Show sender') },
+    { key: 'wrapMessages', label: t('wrap-messages', 'Wrap long messages') },
   ] as const;
   return (
     <DropdownMenu>
@@ -27,7 +28,7 @@ export const NotificationDisplayOptions = () => {
         {toggles.map(({ key, label }) => (
           <DropdownMenu.CheckboxItem
             key={key}
-            checked={display[key]}
+            checked={display[key] ?? false}
             onCheckedChange={(checked) =>
               setDisplay((prev) => ({ ...prev, [key]: checked }))
             }

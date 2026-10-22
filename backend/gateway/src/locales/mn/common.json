@@ -326,6 +326,7 @@
     "reset-password": "Нууц үг сэргээх"
   },
   "notification": {
+    "wrap-messages": "Урт мэдэгдлийг хоёр мөрөөр харах",
     "select-notification-label": "Мэдэгдэл сонгох: {{title}}",
     "select-visible": "Харагдаж буй мэдэгдлүүдийг сонгох",
     "notification-count_one": "{{count}} мэдэгдэл",

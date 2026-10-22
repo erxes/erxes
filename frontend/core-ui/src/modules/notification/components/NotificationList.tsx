@@ -2,6 +2,7 @@ import { Fragment } from 'react';
 import { useAtomValue } from 'jotai';
 import {
   Button,
+  Checkbox,
   ScrollArea,
   Spinner,
   useNonNullMultiQueryState,
@@ -146,13 +147,25 @@ export const NotificationList = () => {
         />
       ) : (
         <div className="flex h-10 shrink-0 items-center justify-between border-t px-4 text-[11px] text-muted-foreground">
-          <span>
-            {t('conversation-count', {
-              count: notifications.length,
-              defaultValue_one: '{{count}} conversation',
-              defaultValue_other: '{{count}} conversations',
-            })}
-          </span>
+          <div className="flex items-center gap-2">
+            <Checkbox
+              id="notification-select-visible"
+              checked={false}
+              disabled={actions.pending || notifications.length === 0}
+              aria-label={t('select-visible')}
+              onCheckedChange={actions.toggleAll}
+            />
+            <label
+              htmlFor="notification-select-visible"
+              className="cursor-pointer"
+            >
+              {t('conversation-count', {
+                count: notifications.length,
+                defaultValue_one: '{{count}} conversation',
+                defaultValue_other: '{{count}} conversations',
+              })}
+            </label>
+          </div>
           <NotificationShortcuts />
         </div>
       )}

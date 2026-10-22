@@ -8,6 +8,7 @@ export const NotificationShortcuts = () => {
     { label: t('shortcut-navigate'), keys: 'J / K' },
     { label: t('shortcut-range'), keys: 'Shift + ↑ / ↓' },
     { label: t('shortcut-toggle'), keys: t('shortcut-toggle-keys') },
+    { label: t('select-visible'), keys: 'Ctrl / ⌘ + A' },
     { label: t('shortcut-action'), keys: 'Ctrl / ⌘ + ⌫' },
     { label: t('clear-selection'), keys: 'Esc' },
   ];
