@@ -41,6 +41,10 @@ plugin; ported from the former private `erxes-agent` service). It provides:
   reference manifest is emitted; credential-bearing JSON returns only a policy
   error. Standard `__type`/`__schema` introspection is allowed and follows
   gateway configuration. Other queries/mutations use existing resolver permissions;
+- `callGraphql` results are capped at 64KB (`AGENT_TOOLS_MAX_RESPONSE_BYTES`).
+  A direct call over the cap keeps the first rows of its longest lists and
+  returns `truncated` plus a hint; a call from the code-mode sandbox may read up
+  to 4MB, because only the program's own return value reaches the model.
 - optional code mode exposes only `searchGraphql` and `callGraphql` in a
   QuickJS sandbox; approval-gated mutations must run interactively in chat.
   Its native output schema is Zod v4: extensions must import `zod/v4` too.
