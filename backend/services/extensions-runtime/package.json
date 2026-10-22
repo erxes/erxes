@@ -1,0 +1,27 @@
+{
+  "name": "extensions-runtime",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Runs tenant extension code in workerd isolates",
+  "scripts": {
+    "dev": "tsx watch src/main.ts",
+    "build": "tsc --project tsconfig.build.json && tsc-alias -p tsconfig.build.json && cp src/workerd/config.capnp src/workerd/supervisor.js dist/src/workerd/",
+    "start": "node dist/src/main.js"
+  },
+  "license": "ISC",
+  "dependencies": {
+    "@hono/node-server": "^2.1.5",
+    "@hono/zod-validator": "^0.9.1",
+    "erxes-api-shared": "workspace:^",
+    "hono": "^4.13.13",
+    "jsonwebtoken": "^9.0.2",
+    "workerd": "^1.20261018.1",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.9",
+    "erxes-sdk": "workspace:^",
+    "esbuild": "^0.19.2",
+    "mingo": "^7.2.5"
+  }
+}

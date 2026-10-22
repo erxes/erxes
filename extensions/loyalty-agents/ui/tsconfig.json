@@ -1,0 +1,40 @@
+{
+  "compilerOptions": {
+    "target": "es2022",
+    "lib": [
+      "es2022",
+      "dom",
+      "dom.iterable"
+    ],
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "paths": {
+      "erxes-ui": [
+        "../../../frontend/libs/erxes-ui/src/index.ts"
+      ],
+      "ui-modules": [
+        "../../../frontend/libs/ui-modules/src/index.ts"
+      ],
+      "erxes-ui/*": [
+        "../../../frontend/libs/erxes-ui/src/*"
+      ],
+      "react": [
+        "../../../node_modules/@types/react"
+      ],
+      "react/*": [
+        "../../../node_modules/@types/react/*"
+      ],
+      "react-hook-form": [
+        "../../../node_modules/react-hook-form"
+      ]
+    }
+  },
+  "include": [
+    "src"
+  ]
+}
