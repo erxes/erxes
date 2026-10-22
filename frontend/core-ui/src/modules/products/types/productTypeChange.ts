@@ -5,11 +5,10 @@ import type { productTypeChangeSchema } from '@/products/constants/productTypeCh
 export type ProductTypeChangeValues = z.infer<typeof productTypeChangeSchema>;
 export type ProductTypeChangeTarget = Pick<IProduct, '_id' | 'status'>;
 
-export interface ProductsChangeTypeDialogProps {
+export interface ProductsChangeTypeContentProps {
   products: ProductTypeChangeTarget[];
   changeType: UseProductsChangeTypeResult;
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
+  onClose: () => void;
 }
 
 export interface UseProductsChangeTypeResult {

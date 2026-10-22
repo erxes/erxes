@@ -24,7 +24,7 @@ import { Can, Export, IProduct, PrintDocument, TagsSelect } from 'ui-modules';
 import { ProductsDelete } from './delete/productDelete';
 import { ProductsRestore } from './restore/productRestore';
 import { ProductMerge, ProductMergeTrigger } from './ProductMerge';
-import { ProductsChangeTypeDialog } from './ProductsChangeTypeDialog';
+import { ProductsChangeTypeContent } from './ProductsChangeType';
 import { useProductsChangeType } from '@/products/hooks/useProductsChangeType';
 import {
   ProductsChangeCategoryContent,
@@ -64,7 +64,6 @@ export const ProductCommandBar = () => {
   const [open, setOpen] = useState(false);
   const [currentContent, setCurrentContent] = useState('main');
   const [mergeOpen, setMergeOpen] = useState(false);
-  const [changeTypeOpen, setChangeTypeOpen] = useState(false);
 
   const selectedRows = table.getFilteredSelectedRowModel().rows;
   const products = useMemo(
@@ -126,6 +125,7 @@ export const ProductCommandBar = () => {
         <Popover
           open={open}
           onOpenChange={(nextOpen) => {
+            if (currentContent === 'type' && changeType.saving) return;
             if (nextOpen) {
               setOpen(true);
               return;
@@ -166,14 +166,12 @@ export const ProductCommandBar = () => {
                         icon={IconBox}
                         label={t('bulk.change-type', 'Change type')}
                         disabled={
+                          !changeType.refreshPending &&
                           !products.some(
                             (product) => product.status !== 'deleted',
                           )
                         }
-                        onSelect={() => {
-                          closeActionsPopover();
-                          setChangeTypeOpen(true);
-                        }}
+                        onSelect={() => setCurrentContent('type')}
                       />
                     </Can>
                     <Can action="productsUpdate">
@@ -257,17 +255,16 @@ export const ProductCommandBar = () => {
                 setOpen={closeActionsPopover}
               />
             )}
+            {currentContent === 'type' && (
+              <ProductsChangeTypeContent
+                products={products}
+                changeType={changeType}
+                onClose={closeActionsPopover}
+              />
+            )}
           </Popover.Content>
         </Popover>
       </CommandBar.Bar>
-      {changeTypeOpen && (
-        <ProductsChangeTypeDialog
-          products={products}
-          changeType={changeType}
-          open={changeTypeOpen}
-          onOpenChange={setChangeTypeOpen}
-        />
-      )}
       <ProductMerge
         productIds={productIds}
         products={products}

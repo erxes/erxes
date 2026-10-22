@@ -1,5 +1,12 @@
 import { z } from 'zod';
 
+export const PRODUCT_TYPE_CHANGE_TYPES = [
+  'product',
+  'service',
+  'unique',
+  'subscription',
+] as const;
+
 export const PRODUCT_TYPE_CHANGE_DURATION_UNITS = [
   'minute',
   'hour',
@@ -12,7 +19,7 @@ export const PRODUCT_TYPE_CHANGE_DURATION_UNITS = [
 
 export const productTypeChangeSchema = z
   .object({
-    type: z.enum(['product', 'service', 'unique', 'subscription']),
+    type: z.enum(PRODUCT_TYPE_CHANGE_TYPES),
     duration: z
       .number()
       .finite('Duration must be finite')
