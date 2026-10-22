@@ -6,6 +6,7 @@ import { IModels } from '~/connectionResolvers';
 import { escapeRegExp, sendTRPCMessage } from 'erxes-api-shared/utils';
 import type { FilterQuery, PipelineStage } from 'mongoose';
 import type { IConversationDocument } from '@/inbox/@types/conversations';
+import type { IIntegrationDocument } from '@/inbox/@types/integrations';
 
 export const sourceMap: Record<string, string[]> = {
   'facebook-messenger': ['facebook-messenger'],
@@ -48,6 +49,23 @@ export const normalizeStatus = (status?: string) => {
   return status.toLowerCase();
 };
 
+const getConversationReportIntegrationIds = async (
+  filters: IReportFilters,
+  models: IModels,
+): Promise<string[]> => {
+  const query: FilterQuery<IIntegrationDocument> = {};
+
+  if (filters.channelIds?.length) {
+    query.channelId = { $in: filters.channelIds };
+  }
+  if (filters.source && sourceMap[filters.source]) {
+    query.kind = { $in: sourceMap[filters.source] };
+  }
+
+  const integrations = await models.Integrations.find(query, { _id: 1 }).lean();
+  return integrations.map((integration) => String(integration._id));
+};
+
 export async function generateConversationReportFilter(
   filters: IReportFilters,
   models: IModels,
@@ -57,7 +75,6 @@ export async function generateConversationReportFilter(
   } = {},
 ): Promise<FilterQuery<IConversationDocument>> {
   const match: FilterQuery<IConversationDocument> = {};
-  let integrationIds: string[] | undefined;
 
   const status = options.statusOverride ?? normalizeStatus(filters.status);
   if (status) match.status = status;
@@ -65,37 +82,13 @@ export async function generateConversationReportFilter(
   const dateField = options.dateField ?? 'createdAt';
   Object.assign(match, buildDateMatch(filters, dateField));
 
-  if (filters.channelIds?.length) {
-    const integrations = await models.Integrations.find({
-      channelId: { $in: filters.channelIds },
-    }).lean();
-
-    if (!integrations.length) {
-      return { integrationId: { $in: [] } };
-    }
-
-    integrationIds = integrations.map((integration) => String(integration._id));
-  }
+  match.integrationId = {
+    $in: await getConversationReportIntegrationIds(filters, models),
+  };
 
   if (filters.memberIds?.length) {
     Object.assign(match, buildAssigneeFilter(filters.memberIds));
   }
-
-  if (filters.source && sourceMap[filters.source]) {
-    const sourceIntegrations = await models.Integrations.find({
-      kind: { $in: sourceMap[filters.source] },
-    }).lean();
-
-    const sourceIds = sourceIntegrations.map((integration) =>
-      String(integration._id),
-    );
-    const channelIds = integrationIds ? new Set(integrationIds) : undefined;
-    integrationIds = channelIds
-      ? sourceIds.filter((id) => channelIds.has(id))
-      : sourceIds;
-  }
-
-  if (integrationIds) match.integrationId = { $in: integrationIds };
 
   if (filters.callStatus && filters.source === 'calls') {
     const callHistories = await models.CallHistory.find(
@@ -204,8 +197,24 @@ export async function buildConversationDateReport(
 export async function buildConversationResponsesPipeline(
   filters: IReportFilters,
   models: IModels,
-): Promise<any[] | null> {
-  const pipeline: any[] = [];
+): Promise<PipelineStage[] | null> {
+  const integrationIds = await getConversationReportIntegrationIds(
+    filters,
+    models,
+  );
+  if (!integrationIds.length) return null;
+
+  const pipeline: PipelineStage[] = [
+    {
+      $lookup: {
+        from: 'conversations',
+        localField: 'conversationId',
+        foreignField: '_id',
+        as: 'conversation',
+      },
+    },
+    { $unwind: '$conversation' },
+  ];
   const messageMatch: {
     internal: boolean;
     userId: { $exists: boolean; $ne: null };
@@ -214,6 +223,7 @@ export async function buildConversationResponsesPipeline(
   } = {
     internal: false,
     userId: { $exists: true, $ne: null },
+    'conversation.integrationId': { $in: integrationIds },
   };
 
   if (filters.fromDate || filters.toDate) {
@@ -223,55 +233,11 @@ export async function buildConversationResponsesPipeline(
     messageMatch.createdAt = range;
   }
 
-  const needsConversationJoin =
-    filters.channelIds?.length || filters.memberIds?.length || filters.source;
-
-  if (needsConversationJoin) {
-    pipeline.push(
-      {
-        $lookup: {
-          from: 'conversations',
-          localField: 'conversationId',
-          foreignField: '_id',
-          as: 'conversation',
-        },
-      },
-      { $unwind: '$conversation' },
+  if (filters.memberIds?.length) {
+    Object.assign(
+      messageMatch,
+      buildAssigneeFilter(filters.memberIds, 'conversation.'),
     );
-
-    if (filters.channelIds?.length) {
-      const integrations = await models.Integrations.find({
-        channelId: { $in: filters.channelIds },
-      }).lean();
-
-      if (!integrations.length) return null;
-
-      messageMatch['conversation.integrationId'] = {
-        $in: integrations.map((i) => i._id),
-      };
-    }
-
-    if (filters.memberIds?.length) {
-      Object.assign(
-        messageMatch,
-        buildAssigneeFilter(filters.memberIds, 'conversation.'),
-      );
-    }
-
-    if (filters.source && sourceMap[filters.source]) {
-      pipeline.push(
-        {
-          $lookup: {
-            from: 'integrations',
-            localField: 'conversation.integrationId',
-            foreignField: '_id',
-            as: 'integration',
-          },
-        },
-        { $unwind: '$integration' },
-      );
-      messageMatch['integration.kind'] = { $in: sourceMap[filters.source] };
-    }
   }
 
   pipeline.push({ $match: messageMatch });
