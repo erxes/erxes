@@ -124,7 +124,7 @@ export interface IModels {
   DiscordBots: IDiscordBotModel;
   DiscordCustomers: IDiscordCustomerModel;
   DiscordConversations: IDiscordConversationModel;
-  DiscordConversationMessages: IDiscordConversationMessageModel;
+  DiscordConversationMessages: IDiscordConversationMessageModel; // betterleaks:allow -- Type reference, not a client secret.
 
   CallProIntegrations: ICallProIntegrationModel;
   CallProCustomers: ICallProCustomerModel;
