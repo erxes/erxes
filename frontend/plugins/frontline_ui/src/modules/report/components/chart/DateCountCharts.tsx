@@ -91,7 +91,7 @@ const DateCountBarChart = memo(function DateCountBarChart({
           label={{ value: t('count'), angle: -90, position: 'insideLeft' }}
         />
         <Tooltip content={<ChartTooltipContent />} />
-        <Legend content={(props) => <CustomLegendContent {...props} />} />
+        <Legend content={<CustomLegendContent />} />
       </BarChart>
     </ChartContainer>
   );
@@ -151,7 +151,7 @@ const DateCountLineChart = memo(function DateCountLineChart({
           label={{ value: t('count'), angle: -90, position: 'insideLeft' }}
         />
         <Tooltip content={<ChartTooltipContent />} />
-        <Legend content={(props) => <CustomLegendContent {...props} />} />
+        <Legend content={<CustomLegendContent />} />
       </AreaChart>
     </ChartContainer>
   );
@@ -215,27 +215,23 @@ const DateCountPieChart = memo(function DateCountPieChart({
           innerRadius={70}
           nameKey="date"
         >
-          {data?.map((entry, index) => (
+          {data?.map((entry) => (
             <Cell
-              key={`cell-${index}`}
+              key={entry.date}
               fill={entry.fill}
               opacity={hoveredDate && hoveredDate !== entry.date ? 0.5 : 1}
             />
           ))}
         </Pie>
         <Legend
-          content={(props) => (
-            <CustomLegendContent
-              {...props}
-              onMouseEnter={(data: LegendPayload) => {
-                const date = data.value as string;
-                if (date) {
-                  handleMouseEnter(date);
-                }
-              }}
-              onMouseLeave={handleMouseLeave}
-            />
-          )}
+          onMouseEnter={(data: LegendPayload) => {
+            const date = data.value as string;
+            if (date) {
+              handleMouseEnter(date);
+            }
+          }}
+          onMouseLeave={handleMouseLeave}
+          content={<CustomLegendContent />}
         />
         <Tooltip content={<ChartTooltipContent />} />
       </PieChart>
@@ -295,7 +291,7 @@ const DateCountRadarChart = memo(function DateCountRadarChart({
           fill="var(--primary)"
           fillOpacity={0.3}
         />
-        <Legend content={(props) => <CustomLegendContent {...props} />} />
+        <Legend content={<CustomLegendContent />} />
         <Tooltip content={<ChartTooltipContent />} />
       </RadarChart>
     </ChartContainer>
