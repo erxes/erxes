@@ -1,7 +1,8 @@
-import { useProjects } from '@/project/hooks/useGetProjects';
+import { useGetProject } from '@/project/hooks/useGetProject';
 import { IProject } from '@/project/types';
-import { cn } from 'erxes-ui';
+import { cn, Spinner } from 'erxes-ui';
 import { forwardRef } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export const ProjectInline = forwardRef<
   HTMLDivElement,
@@ -10,16 +11,12 @@ export const ProjectInline = forwardRef<
     projectId: string | null | undefined;
   } & React.HTMLAttributes<HTMLDivElement>
 >(({ project, projectId, className, ...props }, ref) => {
-  const { projects } = useProjects({
-    variables: {
-      _ids: projectId ? [projectId] : [],
-    },
-    skip: Boolean(project) || !projectId,
+  const { t } = useTranslation('operation');
+  const { project: projectDetail, loading } = useGetProject(projectId, {
+    skip: Boolean(project),
   });
 
-  const name =
-    projects?.find((project) => project._id === projectId)?.name ||
-    project?.name;
+  const name = project?.name || projectDetail?.name;
 
   return (
     <div
@@ -27,7 +24,12 @@ export const ProjectInline = forwardRef<
       className={cn('inline-flex gap-1 items-center font-medium', className)}
       {...props}
     >
-      {name || 'No Project'}
+      {name ||
+        (loading ? (
+          <Spinner className="size-4" />
+        ) : (
+          t(projectId ? 'no-project-found' : 'no-project')
+        ))}
     </div>
   );
 });

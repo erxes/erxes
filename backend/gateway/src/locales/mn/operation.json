@@ -262,6 +262,8 @@
   "please-select-triage": "Дэлгэрэнгүй харахын тулд триаж сонгоно уу.",
   "add-triage": "Триаж нэмэх",
   "new-triage": "Шинэ триаж",
+  "name-required": "Нэр оруулна уу",
+  "team-required": "Баг сонгоно уу",
   "no-triages-to-display": "Одоогоор харуулах триаж байхгүй байна.",
   "loading-more": "нэмж ачааллаж байна...",
   "triage-created-successfully": "Триаж амжилттай үүслээ",

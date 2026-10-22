@@ -7,6 +7,7 @@ export const CREATE_TRIAGE_MUTATION = gql(`
       name
       description
       teamId
+      projectId
       createdBy
       number
       createdAt

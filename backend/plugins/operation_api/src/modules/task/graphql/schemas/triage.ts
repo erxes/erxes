@@ -6,6 +6,7 @@ export const types = `
     name: String!
     description: String
     teamId: String!
+    projectId: String
     createdBy: String
     priority: Int
     number: Int
@@ -21,6 +22,7 @@ export const types = `
     name: String!
     description: String
     teamId: String!
+    projectId: String
     priority: Int
     status: Int
   }
