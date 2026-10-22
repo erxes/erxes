@@ -2,7 +2,6 @@ import { IMainContext } from '../../core-types';
 import { GraphQLResolveInfo } from 'graphql';
 import { logHandler } from '../logs';
 import { runBeforeResolvers } from './runBeforeResolvers';
-import { isCredentialField } from '../credential-privacy';
 
 type GraphqlLogHandler<TArgs = any, TReturn = any> = (
   root: any,
@@ -13,9 +12,6 @@ type GraphqlLogHandler<TArgs = any, TReturn = any> = (
 
 const withLogging = (resolver: GraphqlLogHandler): GraphqlLogHandler => {
   return async (root, args, context, info) => {
-    if (isCredentialField(info.fieldName)) {
-      return resolver(root, args, context, info);
-    }
     const { user, req, processId, subdomain } = context;
     const requestData = req.headers;
 

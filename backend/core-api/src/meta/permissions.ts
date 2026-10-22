@@ -5,30 +5,6 @@ export const permissions: IPermissionConfig = {
 
   modules: [
     {
-      name: 'credentials',
-      description: 'Workspace connections',
-      scopeField: null,
-      ownerFields: [],
-      scopes: [{ name: 'all', description: 'All connections' }],
-      actions: [
-        {
-          title: 'View connections',
-          name: 'credentialsRead',
-          description: 'View connections and available providers',
-        },
-        {
-          title: 'Manage connections',
-          name: 'credentialsManage',
-          description: 'Create, update, and remove connections',
-        },
-        {
-          title: 'Manage connection app access',
-          name: 'credentialGrantsManage',
-          description: 'Issue and revoke backend consumer grants',
-        },
-      ],
-    },
-    {
       name: 'emailTemplates',
       description: 'Email templates',
       scopeField: null,
@@ -778,16 +754,6 @@ export const permissions: IPermissionConfig = {
       name: 'Core modules admin',
       description: 'Full access to Core modules',
       permissions: [
-        {
-          plugin: 'core',
-          module: 'credentials',
-          actions: [
-            'credentialsRead',
-            'credentialsManage',
-            'credentialGrantsManage',
-          ],
-          scope: 'all',
-        },
         {
           plugin: 'core',
           module: 'contacts',

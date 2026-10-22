@@ -227,14 +227,8 @@ import {
   queries as searchQueries,
 } from '@/search/graphql/schema';
 import { queries as ReferenceQueries } from '~/meta/references/graphql/schema';
-import {
-  types as CredentialTypes,
-  queries as CredentialQueries,
-  mutations as CredentialMutations,
-} from '@/credentials/graphql/schema';
 
 export const types = `
-    ${CredentialTypes}
     enum CacheControlScope {
       PUBLIC
       PRIVATE
@@ -291,7 +285,6 @@ export const types = `
   `;
 
 export const queries = `
-    ${CredentialQueries}
     _sentryGraphqlTest: String
     ${ReferenceQueries}
     ${CustomerQueries}
@@ -337,7 +330,6 @@ export const queries = `
   `;
 
 export const mutations = `
-    ${CredentialMutations}
     ${CustomerMutations}
     ${CompanyMutations}
     ${AuthMutations}
