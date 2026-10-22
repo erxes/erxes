@@ -16,6 +16,9 @@ export const AGENTS_CODE_MODE_ENVIRONMENTS = ['in-process'] as const;
  */
 export const AGENTS_APPROVAL_MODES = ['writes', 'destructive'] as const;
 
+/** Upper bound for the admin-written workspace instructions, in characters. */
+export const AGENTS_INSTRUCTIONS_MAX_LENGTH = 8000;
+
 /**
  * Tenant-wide agents settings: one document per tenant. The in-process
  * sandbox runs inside the plugin's own Node process, isolated by the
@@ -35,6 +38,7 @@ export const agentsSettingsSchema = new Schema(
       enum: AGENTS_APPROVAL_MODES,
       default: 'writes',
     },
+    instructions: { type: String, default: '' },
   },
   {
     timestamps: true,

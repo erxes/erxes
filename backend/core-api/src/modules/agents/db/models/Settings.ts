@@ -7,6 +7,7 @@ export interface IAgentsSettingsUpdateInput {
   codeModeEnabled?: boolean;
   codeModeEnvironment?: string;
   approvalMode?: string;
+  instructions?: string;
 }
 
 export interface IAgentsSettingsModel extends Model<IAgentsSettingsDocument> {
@@ -69,6 +70,10 @@ export const loadAgentsSettingsClass = (models: IModels) => {
 
       if (input.approvalMode !== undefined) {
         set.approvalMode = input.approvalMode;
+      }
+
+      if (input.instructions !== undefined) {
+        set.instructions = input.instructions;
       }
 
       const settings = await models.AgentsSettings.getSettings();

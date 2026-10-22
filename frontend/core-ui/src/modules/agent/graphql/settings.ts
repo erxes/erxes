@@ -14,17 +14,19 @@ export const AGENTS_SETTINGS = gql`
       codeModeEnabled
       codeModeEnvironment
       approvalMode
+      instructions
       updatedAt
     }
   }
 `;
 
 export const AGENTS_SETTINGS_UPDATE = gql`
-  mutation AgentsSettingsUpdate($codeModeEnabled: Boolean, $codeModeEnvironment: String, $approvalMode: String) {
-    agentsSettingsUpdate(codeModeEnabled: $codeModeEnabled, codeModeEnvironment: $codeModeEnvironment, approvalMode: $approvalMode) {
+  mutation AgentsSettingsUpdate($codeModeEnabled: Boolean, $codeModeEnvironment: String, $approvalMode: String, $instructions: String) {
+    agentsSettingsUpdate(codeModeEnabled: $codeModeEnabled, codeModeEnvironment: $codeModeEnvironment, approvalMode: $approvalMode, instructions: $instructions) {
       codeModeEnabled
       codeModeEnvironment
       approvalMode
+      instructions
       updatedAt
     }
   }
@@ -36,6 +38,7 @@ export interface IAgentsSettings {
   codeModeEnabled: boolean | null;
   codeModeEnvironment: string | null;
   approvalMode: AgentsApprovalMode | null;
+  instructions?: string | null;
   updatedAt?: string | null;
 }
 
@@ -51,4 +54,5 @@ export interface IAgentsSettingsUpdateVariables {
   codeModeEnabled?: boolean;
   codeModeEnvironment?: string;
   approvalMode?: AgentsApprovalMode;
+  instructions?: string;
 }

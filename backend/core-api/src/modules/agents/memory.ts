@@ -97,6 +97,16 @@ export interface IAgentsRuntime {
   agent: DurableAgent;
 }
 
+/** What the agent remembers about one user across threads. */
+const WORKING_MEMORY_TEMPLATE = `# User
+- Preferred language:
+- Timezone:
+- Default reporting period:
+- Currency:
+- Pipelines, teams or channels they work in:
+- Report and formatting preferences:
+`;
+
 const createAgentsRuntime = async (subdomain: string): Promise<IAgentsRuntime> => {
   const models = await generateModels(subdomain);
   const connection = models.Users.db;
@@ -138,6 +148,13 @@ const createAgentsRuntime = async (subdomain: string): Promise<IAgentsRuntime> =
     options: {
       lastMessages: LAST_MESSAGES_WINDOW,
       generateTitle: true,
+      // Per-user notes the model keeps across all of that user's threads
+      // (resource = user id), so stated preferences carry into new chats.
+      workingMemory: {
+        enabled: true,
+        scope: 'resource',
+        template: WORKING_MEMORY_TEMPLATE,
+      },
     },
   });
 

@@ -15,6 +15,8 @@ export interface IAgentsSettings {
   codeModeEnvironment: string;
   /** Which tool calls suspend for human approval. Defaults to 'writes'. */
   approvalMode: AgentsApprovalMode;
+  /** Admin-written guidance appended to every run's instructions. */
+  instructions?: string;
 }
 
 export interface IAgentsSettingsDocument
