@@ -1,3 +1,4 @@
+import 'erxes-api-shared/instrument';
 import { getEnv, getSubdomain, startPlugin } from 'erxes-api-shared/utils';
 import express from 'express';
 import fs from 'fs';

@@ -36,6 +36,12 @@
       "require": "./core-modules/dist/erxes-api-shared-core-modules.cjs.js",
       "default": "./core-modules/dist/erxes-api-shared-core-modules.cjs.js"
     },
+    "./instrument": {
+      "types": "./instrument/dist/erxes-api-shared-instrument.cjs.d.ts",
+      "import": "./instrument/dist/erxes-api-shared-instrument.esm.js",
+      "require": "./instrument/dist/erxes-api-shared-instrument.cjs.js",
+      "default": "./instrument/dist/erxes-api-shared-instrument.cjs.js"
+    },
     "./src": "./src/index.ts",
     "./src/*": [
       "./src/*.ts",
@@ -70,6 +76,11 @@
     "@apollo/subgraph": "^2.9.3",
     "@azure/storage-blob": "^12.29.1",
     "@google-cloud/storage": "^7.17.3",
+    "@opentelemetry/api": "^1.9.0",
+    "@opentelemetry/core": "^2.8.0",
+    "@opentelemetry/exporter-trace-otlp-http": "^0.218.0",
+    "@opentelemetry/resources": "^2.8.0",
+    "@opentelemetry/sdk-trace-base": "^2.8.0",
     "@sendgrid/mail": "^8.1.5",
     "@sentry/node": "^10.55.0",
     "@sniptt/guards": "^0.2.0",
@@ -109,7 +120,8 @@
       "./index.ts",
       "./utils/index.ts",
       "./core-types/index.ts",
-      "./core-modules/index.ts"
+      "./core-modules/index.ts",
+      "./instrument/index.ts"
     ]
   },
   "files": [
@@ -117,6 +129,7 @@
     "core-types",
     "utils",
     "core-modules",
+    "instrument",
     "src"
   ]
 }
