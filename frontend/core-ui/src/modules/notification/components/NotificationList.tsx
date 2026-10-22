@@ -2,7 +2,6 @@ import { Fragment } from 'react';
 import { useAtomValue } from 'jotai';
 import {
   Button,
-  Checkbox,
   ScrollArea,
   Spinner,
   useNonNullMultiQueryState,
@@ -13,7 +12,6 @@ import type { NotificationFilterQueryState } from '@/notification/types/notifica
 import { NotificationItem } from '@/notification/components/NotificationItem';
 import { NotificationSelectionToolbar } from '@/notification/components/NotificationSelectionToolbar';
 import { NotificationEmptyState } from '@/notification/components/NotificationEmptyState';
-import { NotificationShortcuts } from '@/notification/components/NotificationShortcuts';
 import { useNotificationList } from '@/notification/hooks/useNotificationList';
 import { useNotificationListActions } from '@/notification/hooks/useNotificationListActions';
 import { inboxDisplayOptionsState } from '@/notification/states/notificationState';
@@ -134,41 +132,16 @@ export const NotificationList = () => {
         </ScrollArea.Viewport>
         <ScrollArea.Bar orientation="vertical" />
       </ScrollArea.Root>
-      {actions.selectedIds.length > 0 ? (
-        <NotificationSelectionToolbar
-          selectedCount={actions.selectedIds.length}
-          visibleCount={notifications.length}
-          pending={actions.pending}
-          allRead={actions.allRead}
-          onToggleAll={actions.toggleAll}
-          onMarkAsRead={actions.markSelectedAsRead}
-          onDelete={actions.deleteSelected}
-          onClear={actions.clear}
-        />
-      ) : (
-        <div className="flex h-10 shrink-0 items-center justify-between border-t px-4 text-[11px] text-muted-foreground">
-          <div className="flex items-center gap-2">
-            <Checkbox
-              id="notification-select-visible"
-              checked={false}
-              disabled={actions.pending || notifications.length === 0}
-              aria-label={t('select-visible')}
-              onCheckedChange={actions.toggleAll}
-            />
-            <label
-              htmlFor="notification-select-visible"
-              className="cursor-pointer"
-            >
-              {t('conversation-count', {
-                count: notifications.length,
-                defaultValue_one: '{{count}} conversation',
-                defaultValue_other: '{{count}} conversations',
-              })}
-            </label>
-          </div>
-          <NotificationShortcuts />
-        </div>
-      )}
+      <NotificationSelectionToolbar
+        selectedCount={actions.selectedIds.length}
+        visibleCount={notifications.length}
+        pending={actions.pending}
+        allRead={actions.allRead}
+        onToggleAll={actions.toggleAll}
+        onMarkAsRead={actions.markSelectedAsRead}
+        onDelete={actions.deleteSelected}
+        onClear={actions.clear}
+      />
     </div>
   );
 };

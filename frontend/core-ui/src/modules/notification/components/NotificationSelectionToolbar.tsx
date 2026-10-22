@@ -1,7 +1,8 @@
 import type { NotificationSelectionToolbarProps } from '@/notification/types/myInbox';
 import { IconCheck, IconTrash, IconX } from '@tabler/icons-react';
-import { Button, Checkbox, Spinner } from 'erxes-ui';
+import { Button, Checkbox, Spinner, cn } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import { NotificationShortcuts } from './NotificationShortcuts';
 
 export const NotificationSelectionToolbar = ({
   selectedCount,
@@ -20,7 +21,12 @@ export const NotificationSelectionToolbar = ({
   const ActionIcon = allRead ? IconTrash : IconCheck;
 
   return (
-    <div className="flex h-10 shrink-0 items-center gap-2 border-t bg-background px-4 whitespace-nowrap">
+    <div
+      className={cn(
+        'flex h-10 shrink-0 items-center gap-2 border-t px-4 whitespace-nowrap',
+        selectedCount > 0 && 'bg-background',
+      )}
+    >
       <Checkbox
         id="notification-select-visible"
         checked={
@@ -36,35 +42,50 @@ export const NotificationSelectionToolbar = ({
       />
       <label
         htmlFor="notification-select-visible"
-        className="mr-auto cursor-pointer text-xs text-muted-foreground"
+        className={cn(
+          'mr-auto cursor-pointer text-muted-foreground',
+          selectedCount > 0 ? 'text-xs' : 'text-[11px]',
+        )}
         aria-live="polite"
       >
-        {t('selected-count', {
-          defaultValue: '{{count}} selected',
-          count: selectedCount,
-        })}
+        {selectedCount > 0
+          ? t('selected-count', {
+              defaultValue: '{{count}} selected',
+              count: selectedCount,
+            })
+          : t('conversation-count', {
+              count: visibleCount,
+              defaultValue_one: '{{count}} conversation',
+              defaultValue_other: '{{count}} conversations',
+            })}
       </label>
-      <Button
-        variant="ghost"
-        className="h-7 gap-1.5 px-2 text-xs"
-        aria-label={actionLabel}
-        title={`${actionLabel} (Ctrl/Cmd + Backspace / Delete)`}
-        disabled={pending || selectedCount === 0}
-        onClick={() => void (allRead ? onDelete() : onMarkAsRead())}
-      >
-        {pending ? <Spinner containerClassName="size-4" /> : <ActionIcon />}
-        {actionLabel}
-      </Button>
-      <Button
-        variant="ghost"
-        size="icon"
-        className="size-7 shrink-0 text-muted-foreground"
-        aria-label={t('clear-selection', 'Clear selection')}
-        disabled={pending}
-        onClick={onClear}
-      >
-        <IconX />
-      </Button>
+      {selectedCount > 0 ? (
+        <>
+          <Button
+            variant="ghost"
+            className="h-7 gap-1.5 px-2 text-xs"
+            aria-label={actionLabel}
+            title={`${actionLabel} (Ctrl/Cmd + Backspace / Delete)`}
+            disabled={pending}
+            onClick={() => void (allRead ? onDelete() : onMarkAsRead())}
+          >
+            {pending ? <Spinner containerClassName="size-4" /> : <ActionIcon />}
+            {actionLabel}
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="size-7 shrink-0 text-muted-foreground"
+            aria-label={t('clear-selection', 'Clear selection')}
+            disabled={pending}
+            onClick={onClear}
+          >
+            <IconX />
+          </Button>
+        </>
+      ) : (
+        <NotificationShortcuts />
+      )}
     </div>
   );
 };
