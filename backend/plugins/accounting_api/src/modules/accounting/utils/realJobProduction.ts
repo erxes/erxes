@@ -2,7 +2,9 @@ import { fixNum } from 'erxes-api-shared/utils';
 import { nanoid } from 'nanoid';
 import { IModels } from '~/connectionResolvers';
 import { IJobExecutionItem } from '../../inventories/@types/jobExecutions';
+import { IJobDocument } from '../../inventories/@types/jobs';
 import { buildJobExecutionTransactions } from '../../inventories/utils/jobExecutionTransactions';
+import { matchProductionDetailIds } from '../../inventories/utils/productionTransactionDetails';
 import {
   executionJobsInBaseUnits,
   getExecutionProductUnits,
@@ -59,6 +61,95 @@ const inventoryMultiplier = (transaction: ITransaction) => {
 
 export const isRealJobFollow = (transaction: ITransaction): boolean =>
   followTypes.includes(transaction.originType || '');
+
+const scaleProductionJob = async (
+  subdomain: string,
+  template: IJobDocument,
+  productId: string,
+  shortage: number,
+): Promise<IJobExecutionItem> => {
+  const job: IJobExecutionItem = {
+    _id: nanoid(),
+    jobId: template._id,
+    jobName: template.name,
+    quantity: 1,
+    inputs: template.inputs,
+    outputs: template.outputs,
+    laborCosts: template.laborCosts ?? [],
+    overheadCosts: template.overheadCosts ?? [],
+  };
+  const { products, units } = await getExecutionProductUnits(subdomain, [job]);
+  const [base] = executionJobsInBaseUnits([job], products, units);
+  const outputCount = base.outputs
+    .filter((row) => row.productId === productId)
+    .reduce((sum, row) => sum + row.quantity, 0);
+  if (!Number.isFinite(outputCount) || outputCount <= 0)
+    throw new Error('Real job output quantity must be positive');
+  const quantity = shortage / outputCount;
+  const scaled: IJobExecutionItem = {
+    ...base,
+    quantity,
+    inputs: base.inputs.map((row) => ({
+      ...row,
+      quantity: row.quantity * quantity,
+    })),
+    outputs: base.outputs.map((row) => ({
+      ...row,
+      quantity: row.quantity * quantity,
+    })),
+    laborCosts: base.laborCosts.map((row) => ({
+      ...row,
+      amount: fixNum(row.amount * quantity, 4),
+    })),
+    overheadCosts: base.overheadCosts.map((row) => ({
+      ...row,
+      amount: fixNum(row.amount * quantity, 4),
+    })),
+  };
+  return scaled;
+};
+
+const productionExpenseJournals = async (
+  models: IModels,
+  accountId: string,
+  scaled: IJobExecutionItem,
+): Promise<Map<string, string>> => {
+  const expenseIds = [
+    ...new Set(
+      [...scaled.laborCosts, ...scaled.overheadCosts].map(
+        (row) => row.accountId,
+      ),
+    ),
+  ];
+  const accounts = await Promise.all(
+    [accountId, ...expenseIds].map((_id) =>
+      models.Accounts.getAccount({
+        _id,
+        status: 'active',
+        isOutBalance: false,
+      }),
+    ),
+  );
+  const inventory = accounts[0];
+  if (inventory.journal !== 'inventory')
+    throw new Error('Real job requires an inventory account');
+  const journals = new Map(
+    accounts.slice(1).map((account) => {
+      if (
+        !['main', 'tax', 'cash', 'bank', 'debt'].includes(account.journal) ||
+        account.currency !== inventory.currency
+      )
+        throw new Error(
+          'Real job cost accounts must support single journals in the inventory currency',
+        );
+      return [
+        account._id,
+        getSingleJournalByAccount(account.journal, account.kind),
+      ];
+    }),
+  );
+  return journals;
+};
 
 const costProductionGroup = async (
   {
@@ -119,89 +210,23 @@ const costProductionGroup = async (
             .sort({ modifiedAt: -1, _id: -1 })
             .lean();
           if (template) {
-            const job: IJobExecutionItem = {
-              _id: nanoid(),
-              jobId: template._id,
-              jobName: template.name,
-              quantity: 1,
-              inputs: template.inputs,
-              outputs: template.outputs,
-              laborCosts: template.laborCosts ?? [],
-              overheadCosts: template.overheadCosts ?? [],
-            };
-            const { products, units } = await getExecutionProductUnits(
+            const scaled = await scaleProductionJob(
               subdomain,
-              [job],
+              template,
+              detail.productId,
+              shortage,
             );
-            const [base] = executionJobsInBaseUnits([job], products, units);
-            const outputCount = base.outputs
-              .filter((row) => row.productId === detail.productId)
-              .reduce((sum, row) => sum + row.quantity, 0);
-            if (!Number.isFinite(outputCount) || outputCount <= 0)
-              throw new Error('Real job output quantity must be positive');
-            const quantity = shortage / outputCount;
-            const scaled: IJobExecutionItem = {
-              ...base,
-              quantity,
-              inputs: base.inputs.map((row) => ({
-                ...row,
-                quantity: row.quantity * quantity,
-              })),
-              outputs: base.outputs.map((row) => ({
-                ...row,
-                quantity: row.quantity * quantity,
-              })),
-              laborCosts: base.laborCosts.map((row) => ({
-                ...row,
-                amount: fixNum(row.amount * quantity, 4),
-              })),
-              overheadCosts: base.overheadCosts.map((row) => ({
-                ...row,
-                amount: fixNum(row.amount * quantity, 4),
-              })),
-            };
             await load(
               [...scaled.inputs, ...scaled.outputs].map((row) => row.productId),
             );
-            const expenseIds = [
-              ...new Set(
-                [...scaled.laborCosts, ...scaled.overheadCosts].map(
-                  (row) => row.accountId,
-                ),
-              ),
-            ];
-            const accounts = await Promise.all(
-              [group.accountId, ...expenseIds].map((_id) =>
-                models.Accounts.getAccount({
-                  _id,
-                  status: 'active',
-                  isOutBalance: false,
-                }),
-              ),
-            );
-            const inventory = accounts[0];
-            if (inventory.journal !== 'inventory')
-              throw new Error('Real job requires an inventory account');
-            const journals = new Map(
-              accounts.slice(1).map((account) => {
-                if (
-                  !['main', 'tax', 'cash', 'bank', 'debt'].includes(
-                    account.journal,
-                  ) ||
-                  account.currency !== inventory.currency
-                )
-                  throw new Error(
-                    'Real job cost accounts must support single journals in the inventory currency',
-                  );
-                return [
-                  account._id,
-                  getSingleJournalByAccount(account.journal, account.kind),
-                ];
-              }),
+            const journals = await productionExpenseJournals(
+              models,
+              group.accountId,
+              scaled,
             );
             const generated = buildJobExecutionTransactions(
               {
-                _id: job._id,
+                _id: scaled._id,
                 date: inventoryDoc.date,
                 jobs: [scaled],
                 inputAccountId: group.accountId,
@@ -346,15 +371,7 @@ export const syncRealJobProduction = async (
             row.originSubId === doc.originSubId && !retained.has(row._id),
         );
         if (old) retained.add(old._id);
-        const details = doc.details.map((detail) => ({
-          ...detail,
-          _id:
-            old?.details.find(
-              (row) =>
-                row.accountId === detail.accountId &&
-                row.productId === detail.productId,
-            )?._id || detail._id,
-        }));
+        const details = matchProductionDetailIds(doc.details, old?.details);
         const transaction = await createOrUpdateTr(
           models,
           userId,

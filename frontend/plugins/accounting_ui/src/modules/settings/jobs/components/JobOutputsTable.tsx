@@ -11,6 +11,7 @@ import { useJobOutputs } from '../hooks/useJobOutputs';
 import { IJobOutputRow } from '../types/Job';
 import { JobListStatus } from './JobListStatus';
 import { JobActions } from './JobActions';
+import { JobDuration } from '@/settings/jobs/components/JobDuration';
 
 const getColumns = (t: TFunction<'accounting'>): ColumnDef<IJobOutputRow>[] => [
   {
@@ -79,15 +80,7 @@ const getColumns = (t: TFunction<'accounting'>): ColumnDef<IJobOutputRow>[] => [
     id: 'duration',
     header: () => <RecordTable.InlineHead label={t('job-duration')} />,
     size: 150,
-    cell: ({ row }) => {
-      const { duration, durationType } = row.original.job;
-      const unitLabel = durationType ? t(`job-duration-${durationType}`) : '';
-      const durationLabel =
-        durationType === 'real'
-          ? t('job-duration-real')
-          : `${duration ?? '-'} ${unitLabel}`;
-      return <RecordTableInlineCell>{durationLabel}</RecordTableInlineCell>;
-    },
+    cell: ({ row }) => <JobDuration {...row.original.job} />,
   },
 ];
 

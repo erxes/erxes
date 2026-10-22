@@ -7,10 +7,8 @@ import { AccountingSheet } from '~/modules/layout/components/Sheet';
 import { useJobDetail } from '../hooks/useJobDetail';
 import { useJobEdit } from '../hooks/useJobMutations';
 import { TJobForm } from '../types/Job';
-import {
-  normalizeJobDurationType,
-  getJobFormSchema,
-} from '../types/jobFormSchema';
+import { getJobFormSchema } from '@/settings/jobs/types/jobFormSchema';
+import { jobFormValues } from '@/settings/jobs/utils/jobFormValues';
 import { JobForm } from './JobForm';
 
 export const EditJobForm = () => {
@@ -30,21 +28,7 @@ export const EditJobForm = () => {
 
   useEffect(() => {
     if (jobDetail) {
-      reset({
-        code: jobDetail.code || '',
-        name: jobDetail.name,
-        description: jobDetail.description || '',
-        duration:
-          jobDetail.durationType === 'real'
-            ? undefined
-            : jobDetail.duration ?? undefined,
-        durationType: normalizeJobDurationType(jobDetail.durationType),
-        status: jobDetail.status || 'active',
-        laborCosts: jobDetail.laborCosts ?? [],
-        overheadCosts: jobDetail.overheadCosts ?? [],
-        inputs: jobDetail.inputs ?? [],
-        outputs: jobDetail.outputs ?? [],
-      });
+      reset(jobFormValues(jobDetail));
     }
   }, [reset, jobDetail]);
 
@@ -53,21 +37,7 @@ export const EditJobForm = () => {
       return;
     }
 
-    const initialData = {
-      code: jobDetail.code || '',
-      name: jobDetail.name,
-      description: jobDetail.description || '',
-      duration:
-        jobDetail.durationType === 'real'
-          ? undefined
-          : jobDetail.duration ?? undefined,
-      durationType: normalizeJobDurationType(jobDetail.durationType),
-      status: jobDetail.status || 'active',
-      laborCosts: jobDetail.laborCosts ?? [],
-      overheadCosts: jobDetail.overheadCosts ?? [],
-      inputs: jobDetail.inputs ?? [],
-      outputs: jobDetail.outputs ?? [],
-    };
+    const initialData = jobFormValues(jobDetail);
 
     if (isDeeplyEqual(data, initialData)) {
       reset();

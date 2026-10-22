@@ -2,6 +2,7 @@ import { fixNum } from 'erxes-api-shared/utils';
 import { nanoid } from 'nanoid';
 import { IJobExecution, IJobExecutionItem } from '../@types/jobExecutions';
 import { ITransaction } from '../../accounting/@types/transaction';
+import { matchProductionDetailIds } from './productionTransactionDetails';
 
 const buildJobTransactions = (
   execution: Omit<IJobExecution, 'jobs'> & IJobExecutionItem & { _id: string },
@@ -193,19 +194,7 @@ export const matchExecutionTransactionIds = (
     );
     if (!old) return doc;
     used.add(old._id);
-    const usedDetails = new Set<string>();
-    const details = doc.details.map((detail) => {
-      const oldDetail = old.details.find(
-        (row) =>
-          row._id &&
-          !usedDetails.has(row._id) &&
-          row.accountId === detail.accountId &&
-          row.productId === detail.productId,
-      );
-      if (!oldDetail?._id) return detail;
-      usedDetails.add(oldDetail._id);
-      return { ...detail, _id: oldDetail._id };
-    });
+    const details = matchProductionDetailIds(doc.details, old.details);
     return { ...doc, _id: old._id, details };
   });
 };

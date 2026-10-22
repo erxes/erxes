@@ -1,4 +1,4 @@
-import { jobValues } from '../types';
+import { jobValues } from '@/inventories/job-executions/jobValues';
 import { IJob } from '@/settings/jobs/types/Job';
 
 test('copies and scales planned quantities and costs without mutating the technology card', () => {

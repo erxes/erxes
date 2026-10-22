@@ -7,9 +7,11 @@ import { Button, Form, Input, RecordTable, Sheet, Table } from 'erxes-ui';
 import { AccountingSheet } from '@/layout/components/Sheet';
 import { JobForm } from '@/settings/jobs/components/JobForm';
 import { TJobForm } from '@/settings/jobs/types/Job';
+import { scaleJobFormValues } from '@/settings/jobs/utils/jobFormValues';
 import { getJobFormSchema } from '@/settings/jobs/types/jobFormSchema';
 import { ExecutionMetadata } from './JobExecutionEditor';
-import { JobExecution, jobValues } from './types';
+import { JobExecution } from './types';
+import { jobValues } from '@/inventories/job-executions/jobValues';
 import { SelectExecutionJob } from './SelectExecutionJob';
 
 export const ExecutionJobEditor = ({
@@ -156,27 +158,19 @@ export const ExecutionJobEditor = ({
                       if (!Number.isFinite(quantity) || quantity <= 0) return;
                       const multiplier = quantity / lastQuantity.current;
                       lastQuantity.current = quantity;
-                      for (const name of ['inputs', 'outputs'] as const)
-                        form.setValue(
-                          name,
-                          form.getValues(name).map((row) => ({
-                            ...row,
-                            quantity: row.quantity * multiplier,
-                          })),
-                          { shouldDirty: true },
-                        );
+                      const scaled = scaleJobFormValues(
+                        form.getValues(),
+                        multiplier,
+                      );
                       for (const name of [
+                        'inputs',
+                        'outputs',
                         'laborCosts',
                         'overheadCosts',
                       ] as const)
-                        form.setValue(
-                          name,
-                          form.getValues(name).map((row) => ({
-                            ...row,
-                            amount: row.amount * multiplier,
-                          })),
-                          { shouldDirty: true },
-                        );
+                        form.setValue(name, scaled[name], {
+                          shouldDirty: true,
+                        });
                     }}
                   />
                 </Form.Control>

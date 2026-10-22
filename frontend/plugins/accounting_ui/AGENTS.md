@@ -180,6 +180,9 @@
 
 ## Local Invariants
 
+- Job master edit initialization and unchanged-value comparison both use `settings/jobs/utils/jobFormValues.ts`. The same module's immutable scaling helper scales execution products and costs while retaining UOMs, metadata, and raw output ratios; changing quantity must not reset child-form state or persist anything.
+- Job product rows live in `settings/jobs/components/JobItems.tsx`, with shared numeric entry in `JobNumberInput.tsx`; `JobForm.tsx` owns metadata, unit loading/synchronization, cost groups, and submit behavior. Both master lists use `JobDuration` for identical real/fixed/missing-duration display. Execution recipe copies live in `inventories/job-executions/jobValues.ts`; `types.ts` contains the generated execution type only.
+
 - Execution list columns live in `src/modules/inventories/job-executions/JobExecutionColumns.tsx` with module-level header/cell components and stable column definitions. `ExecutionTableProvider` supplies the page's edit callback without defining React components inside the page render. Keep translated short side headings, saved column preferences, and source column order unchanged.
 - Execution bulk actions remove successfully completed ids through a separate selection callback; preserve remaining selection on partial failure and avoid deeply nested event/update callbacks.
 
