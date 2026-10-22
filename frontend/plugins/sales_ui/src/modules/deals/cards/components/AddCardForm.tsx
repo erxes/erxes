@@ -93,7 +93,7 @@ export function AddCardForm({
 
   const onConfigureProperties = () => {
     onCloseSheet();
-    navigate('/settings/properties/sales:deal');
+    navigate('/sales/settings/properties/sales:deal');
   };
 
   return (
