@@ -1,3 +1,4 @@
+import 'erxes-api-shared/instrument';
 import './sentry-instrument';
 import * as Sentry from '@sentry/node';
 import * as dotenv from 'dotenv';

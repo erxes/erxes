@@ -213,7 +213,8 @@ function createBackendPlugin(pluginName, moduleName, options = {}) {
   );
 
   // Create main.ts
-  const mainContent = `import { startPlugin } from 'erxes-api-shared/utils';
+  const mainContent = `import 'erxes-api-shared/instrument';
+import { startPlugin } from 'erxes-api-shared/utils';
 import { typeDefs } from '~/apollo/typeDefs';
 import { appRouter } from '~/trpc/init-trpc';
 import { resolvers } from '~/apollo/resolvers';
