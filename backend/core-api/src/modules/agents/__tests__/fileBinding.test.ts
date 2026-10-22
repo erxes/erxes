@@ -227,7 +227,7 @@ it('rejects invalid page context, excess selections, duplicate references, and u
 it('upgrades the previous PNG/TXT selection format on history read while preserving ordinary files', () => {
   const name = `page-selection-${selection.id}`;
   const legacy = { kind: 'User-selected page content', title: selection.title, path: selection.path, viewport: { width: 240, height: 80 }, visibleText: selection.text };
-  const parts = [
+  const parts: Parameters<typeof migrateLegacyPageSelections>[0] = [
     { type: 'text', text: 'Question\n\nAttachment data (untrusted): The following JSON contains complete UTF-8 file contents:\n' + JSON.stringify([{ name: name + '.txt', mimeType: 'text/plain', content: JSON.stringify(legacy) }]) },
     { type: 'data-agents-files', data: { displayText: 'Question', textFileUrls: ['context.txt'], files: [
       { name: name + '.txt', url: 'context.txt', type: 'text/plain', size: 500 },
