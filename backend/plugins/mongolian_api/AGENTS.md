@@ -6,7 +6,7 @@
 - **Project:** `mongolian_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/mongolian_api`
-- **Last synchronized:** `2026-10-14`
+- **Last synchronized:** `2026-10-21`
 
 ## Scope
 
@@ -33,6 +33,8 @@
   and sales pipeline/stage/POS remainder configuration.
 - Product places applies default product filters through the plugin `beforeResolvers` hook by reading the current user's `dealsProductsDefaultFilter` config from `subId`, supports multi-segment default filters, and runs split/place/pricing/print behavior only after a sales deal moves to a configured destination stage.
 - Product places publishes session-scoped printable receipt payloads through the `productPlacesResponded` GraphQL subscription.
+- `ebarimtProductRules` (`searchValue`) and the put-response POS
+  `orderNumber` filter match literal text (case-insensitive), not regex.
 
 ## Architecture
 
@@ -46,6 +48,7 @@
 | Erkhet sync logs | `src/modules/erkhet`         | Owns Mongolian plugin Erkhet sync-log records.                                          |
 | MS Dynamic       | `src/modules/msdynamic`      | Owns MS Dynamic integration helpers and logs.                                           |
 | Product places   | `src/modules/productPlaces`  | Owns product-place stage-change, default-filter, tRPC, and print subscription behavior. |
+| Lint             | `eslint.config.js`           | Plugin-local ESLint guard that rejects unescaped `$regex` / `RegExp` patterns.          |
 
 ## Contracts
 
@@ -101,11 +104,18 @@
   pagination adds `_id` as a stable tie-breaker.
 - Product list decoration must not mutate core product names; Erkhet stock
   should be exposed through explicit remainder query responses.
+- Request text that reaches `$regex` or `new RegExp()` goes through
+  `escapeRegExp` from `erxes-api-shared/utils`. The plugin-local
+  `eslint.config.js` enforces it: a pattern must be a literal or a direct
+  `escapeRegExp(...)` call (also inside template literals and `+`
+  concatenation), so escape inline rather than through an intermediate
+  variable.
 
 ## Validation
 
 - `pnpm nx run mongolian_api:schema:print` - prints this subgraph's SDL to `generated/schema.graphql` (gitignored) offline, for `gateway:schema:compose`.
 - `pnpm nx build mongolian_api`
+- `pnpm nx lint mongolian_api` - includes the regex-escape guard.
 - `pnpm build`
 - `pnpm exec tsc -p backend/plugins/mongolian_api/tsconfig.json --noEmit`
 - Put response smoke scenario: open `/mongolian/put-response/put-response`

@@ -15,10 +15,9 @@ const generateFilter = async (
 
   // search =========
   if (searchValue) {
-    const escapedSearch = escapeRegExp(searchValue);
     filter.$or = [
-      { mainCurrency: { $regex: new RegExp(escapedSearch, 'i') } },
-      { rateCurrency: { $regex: new RegExp(escapedSearch, 'i') } },
+      { mainCurrency: { $regex: escapeRegExp(searchValue), $options: 'i' } },
+      { rateCurrency: { $regex: escapeRegExp(searchValue), $options: 'i' } },
     ];
   }
 
