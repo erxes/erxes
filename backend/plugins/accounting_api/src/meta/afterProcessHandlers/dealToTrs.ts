@@ -1,4 +1,3 @@
-import { saveSaleTransactions } from './saveSaleTransactions';
 import { fixNum, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { nanoid } from 'nanoid';
 import { IModels } from '~/connectionResolvers';
@@ -18,6 +17,7 @@ import {
 } from './taxRules';
 import { getDealAccountingDate } from './dealDate';
 import { getJournal } from './utils';
+import { saveSaleTransactions } from './saveSaleTransactions';
 
 export const dealToTrs = async ({
   subdomain,

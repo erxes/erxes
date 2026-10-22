@@ -1,4 +1,3 @@
-import { saveSaleTransactions } from './saveSaleTransactions';
 import { fixNum } from 'erxes-api-shared/utils';
 import { nanoid } from 'nanoid';
 import { IModels } from '~/connectionResolvers';
@@ -17,6 +16,7 @@ import {
   subtractPreTaxAmount,
 } from './taxRules';
 import { getJournal } from './utils';
+import { saveSaleTransactions } from './saveSaleTransactions';
 
 export const orderToTrs = async ({
   subdomain,
@@ -116,8 +116,7 @@ export const orderToTrs = async ({
 
   const hasVat = config.hasVat && config.vatRowId;
   const firstCtaxRule = Object.values(ctaxRuleByProductId)[0];
-  const reverseCtaxRow = config.hasCtax
-    ? undefined
+  const reverseCtaxRow = config.hasCtax ? undefined
     : await ensureCtaxRowByProductRule(models, firstCtaxRule);
 
   const ctaxRowId = config.hasCtax ? config.ctaxRowId : reverseCtaxRow?._id;

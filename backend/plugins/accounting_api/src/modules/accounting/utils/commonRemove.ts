@@ -82,7 +82,6 @@ export const commonRemoveValidation = async (
 function getJournalHandler(journal: string) {
   const handlers: Record<string, TJournalRemoveHandler> = {
     main: handleNone,
-    tax: handleNone,
     cash: handleNone,
     bank: handleNone,
     receivable: handleNone,
@@ -159,19 +158,13 @@ async function handleInvMove(
 }
 
 async function handleInvSale(
-  models: IModels,
+  _models: IModels,
   subdomain: string,
   transaction: ITransactionDocument,
   followTrs?: ITransactionDocument[],
   _options?: TCommonRemoveOptions,
 ) {
-  const linked =
-    followTrs ??
-    (await models.Transactions.find({
-      originId: transaction._id,
-      originType: TR_FOLLOW_TYPES.INV_SALE_OUT,
-    }).lean());
-  const saleOutTr = linked.find(
+  const saleOutTr = followTrs?.find(
     (ftr) =>
       ftr.originId === transaction._id &&
       ftr.originType === TR_FOLLOW_TYPES.INV_SALE_OUT,

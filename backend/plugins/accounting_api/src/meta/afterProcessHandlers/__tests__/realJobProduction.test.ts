@@ -170,7 +170,51 @@ describe('real job shortage production', () => {
     },
   );
 
-  it('skips jobs and follows when available inventory covers the quantity', async () => {
+  it('preserves location-aware sale cost pricing without changing revenue or running jobs', async () => {
+    const { models } = setup();
+    const doc: ITransaction = {
+      ...source([2, 3]),
+      journal: 'invSale',
+      followInfos: {
+        saleOutAccountId: 'inventory',
+        saleCostAccountId: 'sale-cost',
+      },
+    };
+    doc.details[1].branchId = 'other-branch';
+    doc.details[1].departmentId = 'other-department';
+    jest
+      .mocked(activeCost)
+      .mockImplementation(async (_models, _account, branch) => ({
+        output: {
+          remainder: 10,
+          totalCost: 100,
+          unitCost: branch === 'other-branch' ? 7 : 10,
+        },
+      }));
+    const result = await commonSave('tenant', models, 'user', doc);
+    const revenue = jest
+      .mocked(createOrUpdateTr)
+      .mock.calls.find((call) => call[2].journal === 'invSale');
+    expect(revenue?.[2].details.map((row) => row.amount)).toEqual([1998, 2997]);
+    const out = result.otherTrs?.find((row) => row.journal === 'invSaleOut');
+    expect(out?.details).toEqual([
+      expect.objectContaining({
+        count: 2,
+        amount: 20,
+        branchId: 'branch',
+        departmentId: 'department',
+      }),
+      expect.objectContaining({
+        count: 3,
+        amount: 21,
+        branchId: 'other-branch',
+        departmentId: 'other-department',
+      }),
+    ]);
+    expect(models.Jobs.findOne).not.toHaveBeenCalled();
+  });
+
+  it('skips production when available inventory covers the quantity', async () => {
     const { models, jobs } = setup();
     const result = await prepareRealJobProduction(
       'tenant',
