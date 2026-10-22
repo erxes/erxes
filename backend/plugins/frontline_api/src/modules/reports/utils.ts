@@ -72,6 +72,38 @@ const getConversationReportIntegrations = async (
   }));
 };
 
+const buildConversationCallStatusFilter = async (
+  callStatus: string,
+  models: IModels,
+  integrations: Pick<IIntegrationDocument, '_id' | 'kind'>[],
+  prefix = '',
+): Promise<FilterQuery<IConversationDocument>> => {
+  const callHistories = await models.CallHistory.find(
+    { callStatus },
+    { conversationId: 1 },
+  ).lean();
+
+  // Callpro stores its own dispositions rather than CallHistory records.
+  return {
+    $or: [
+      {
+        [`${prefix}_id`]: {
+          $in: callHistories
+            .map((history) => history.conversationId)
+            .filter(Boolean),
+        },
+      },
+      {
+        [`${prefix}integrationId`]: {
+          $in: integrations
+            .filter((integration) => integration.kind === 'callpro')
+            .map((integration) => integration._id),
+        },
+      },
+    ],
+  };
+};
+
 export async function generateConversationReportFilter(
   filters: IReportFilters,
   models: IModels,
@@ -98,29 +130,12 @@ export async function generateConversationReportFilter(
   }
 
   if (filters.callStatus && filters.source === 'calls') {
-    const callHistories = await models.CallHistory.find(
-      { callStatus: filters.callStatus },
-      { conversationId: 1 },
-    ).lean();
-
-    const conversationIds = callHistories
-      .map((h) => h.conversationId)
-      .filter(Boolean);
-
-    // Callpro stores its own dispositions rather than CallHistory records.
     match.$and = [
-      {
-        $or: [
-          { _id: { $in: conversationIds } },
-          {
-            integrationId: {
-              $in: integrations
-                .filter((integration) => integration.kind === 'callpro')
-                .map((integration) => integration._id),
-            },
-          },
-        ],
-      },
+      await buildConversationCallStatusFilter(
+        filters.callStatus,
+        models,
+        integrations,
+      ),
     ];
   }
 
@@ -257,6 +272,17 @@ export async function buildConversationResponsesPipeline(
       messageMatch,
       buildAssigneeFilter(filters.memberIds, 'conversation.'),
     );
+  }
+
+  if (filters.callStatus && filters.source === 'calls') {
+    messageMatch.$and = [
+      await buildConversationCallStatusFilter(
+        filters.callStatus,
+        models,
+        integrations,
+        'conversation.',
+      ),
+    ];
   }
 
   pipeline.push({ $match: messageMatch });
