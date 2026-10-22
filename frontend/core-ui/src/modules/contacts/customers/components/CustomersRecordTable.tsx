@@ -1,3 +1,5 @@
+import { builtinModelColumns } from '@/data-models/components/BuiltinModelFields';
+import { DataModelError } from '@/data-models/components/DataModelFeedback';
 import { RecordTable, Spinner } from 'erxes-ui';
 import { useCustomers } from '@/contacts/customers/hooks/useCustomers';
 import { createCustomersColumns } from './CustomersColumns';
@@ -11,7 +13,15 @@ import { useMemo } from 'react';
 import { EmailLanesProvider } from '@/settings/email-addresses/contexts/EmailLanes';
 
 export const CustomersRecordTable = () => {
-  const { customers, handleFetchMore, loading, pageInfo } = useCustomers();
+  const {
+    customers,
+    handleFetchMore,
+    loading,
+    pageInfo,
+    modelFields,
+    modelFieldsError,
+    retryModelFields,
+  } = useCustomers();
   const { fields, loading: fieldsLoading } = useFields({
     contentType: 'core:customer',
   });
@@ -25,14 +35,28 @@ export const CustomersRecordTable = () => {
     mutateHook: useCustomerCustomFieldEdit,
   });
 
+  const modelColumns = useMemo(
+    () => builtinModelColumns<ICustomer>('customer', modelFields),
+    [modelFields],
+  );
   if (fieldsLoading) return <Spinner />;
+  if (modelFieldsError)
+    return (
+      <DataModelError error={modelFieldsError} onRetry={retryModelFields} />
+    );
 
   return (
     <EmailLanesProvider
       emails={(customers || []).map((customer) => customer.primaryEmail || '')}
     >
       <RecordTable.Provider
-        columns={[...customersColumns, ...columns] as ColumnDef<ICustomer>[]}
+        columns={
+          [
+            ...customersColumns,
+            ...modelColumns,
+            ...columns,
+          ] as ColumnDef<ICustomer>[]
+        }
         data={customers || [{}]}
         stickyColumns={['more', 'checkbox', 'avatar', 'name']}
         className="m-3"

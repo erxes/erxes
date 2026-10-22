@@ -104,6 +104,12 @@ const PropertiesSettingsRoutes = lazy(() =>
   })),
 );
 
+const DataModelsRoutes = lazy(() =>
+  import('@/data-models/components/DataModelsRoutes').then((module) => ({
+    default: module.DataModelsRoutes,
+  })),
+);
+
 const LogsRoutes = lazy(() =>
   import('~/pages/settings/logs/LogsIndexPage').then((module) => ({
     default: module.LogsIndexPage,
@@ -266,6 +272,14 @@ export function SettingsRoutes() {
         <Route
           path={SettingsWorkspacePath.PropertiesCatchAll}
           element={<PropertiesSettingsRoutes />}
+        />
+        <Route
+          path={SettingsWorkspacePath.DataModelsCatchAll}
+          element={
+            <PermissionRouteGuard action="dataModelsRead">
+              <DataModelsRoutes />
+            </PermissionRouteGuard>
+          }
         />
 
         <Route
