@@ -1,5 +1,6 @@
 import { Cell, ColumnDef } from '@tanstack/react-table';
 import {
+  Empty,
   RecordTable,
   RecordTableInlineCell,
   TextOverflowTooltip,
@@ -22,7 +23,6 @@ import { GET_MN_CONFIGS } from '@/ebarimt/settings/stage-in-ebarimt-config/graph
 import { IStageInEbarimtConfigRow } from '@/ebarimt/settings/stage-in-ebarimt-config/states/stageInEbarimtConfigStates';
 import { useRemoveStageInEbarimtConfig } from '@/ebarimt/settings/stage-in-ebarimt-config/hooks/useRemoveStageInEbarimtConfig';
 import { normalizeRuleIds } from '@/ebarimt/settings/stage-in-ebarimt-config/types';
-import { AddStageInEBarimtConfig } from './AddStageInEBarimtConfig';
 import { StageInEBarimtConfigCommandbar } from './StageInEBarimtConfigCommandbar';
 
 const useStageInEbarimtConfigRows = () => {
@@ -210,18 +210,17 @@ export const StageInEBarimtConfigTable = () => {
           </RecordTable.Body>
         </RecordTable>
         {!loading && rows?.length === 0 && (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="flex flex-col items-center text-center">
-              <IconClipboardList size={48} className="text-gray-400 mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900">
-                {t('no-stage-in-ebarimt-config-yet')}
-              </h3>
-              <p className="mt-1 text-sm text-gray-500 mb-4">
+          <Empty className="absolute inset-0 border-0 bg-transparent">
+            <Empty.Header>
+              <Empty.Media variant="icon">
+                <IconClipboardList />
+              </Empty.Media>
+              <Empty.Title>{t('no-stage-in-ebarimt-config-yet')}</Empty.Title>
+              <Empty.Description>
                 {t('create-first-stage-in-ebarimt-config')}
-              </p>
-              <AddStageInEBarimtConfig />
-            </div>
-          </div>
+              </Empty.Description>
+            </Empty.Header>
+          </Empty>
         )}
       </RecordTable.Scroll>
       <StageInEBarimtConfigCommandbar />

@@ -6,7 +6,7 @@
 - **Project:** `mongolian_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/mongolian_ui`
-- **Last synchronized:** `2026-10-21`
+- **Last synchronized:** `2026-10-22`
 
 ## Scope
 
@@ -45,7 +45,11 @@
   unfolds these four pages (`PRODUCT_PLACES_SETTINGS_ROUTES` in
   `src/modules/productplaces/constants/settingRoutes.ts`) through the
   `ui-modules` `PluginNavigationItem`, so product places pages render
-  no in-page side panel.
+  no in-page side panel. `ProductPlacesConfigManager` renders each page's
+  `SettingsHeader`: `ProductPlacesBreadcrumb` (Product place, then the
+  current page label from the same routes map) and the Add config button;
+  the page body carries no separate title row, and an empty list shows the
+  `erxes-ui` `Empty` state (`no-configs-yet`) with no button of its own.
 - Product places configuration screens render code-scoped `mnConfigs` rows in
   `RecordTable` lists and manage create/edit/delete through a right-side
   `Sheet`; place, split, and print config rows display board, pipeline, and
@@ -154,9 +158,16 @@
 - Sync Erkhet settings config tables share `ErkhetConfigRecordTable`, which owns
   row selection, sticky structural columns, and vertical scrolling for the list
   pane.
+- The Sync Erkhet general config form (`SyncErkhetGeneralConfigForm`) renders
+  its fields from `GENERAL_CONFIG_SECTIONS` as bordered section cards with a
+  two-column field grid; the full-width body scrolls and the Save button stays
+  in a fixed footer bar.
 
 ## Local Invariants
 
+- Settings config tables (eBarimt and product places) show an empty list with
+  the `erxes-ui` `Empty` state and no add button inside the table; the add
+  action lives only in the page header.
 - The plugin owns its whole app sidebar. `src/modules/MongolianMain.tsx` (the `./mongolian`
   expose) wraps its routes in `erxes-ui` `AppLayout` (`id="mongolian"`) with
   `MongolianSidebar`. Core-ui draws only the top `CoreTab` bar; `navigationGroup` in
@@ -220,7 +231,9 @@
 - Product places navigation smoke scenario: open
   `/mongolian/settings/product-places`; the Product places row in the settings
   sidebar unfolds the four pages with the current page highlighted and no
-  in-page side panel.
+  in-page side panel; the page header shows the Product place breadcrumb
+  with the current page name and the Add config button, which opens the
+  config sheet.
 - Put response smoke scenario: open `/mongolian/put-response/put-response` with
   rows where `date` is `null`; the table renders without `Invalid time value`
   and displays `createdAt` relatively when available.

@@ -1,5 +1,6 @@
 import { Cell, ColumnDef } from '@tanstack/react-table';
 import {
+  Empty,
   RecordTable,
   RecordTableInlineCell,
   TextOverflowTooltip,
@@ -28,24 +29,22 @@ import { ProductGroupRowsCommandbar } from '@/ebarimt/settings/product-group/com
 import { IProductGroup } from '@/ebarimt/settings/product-group/constants/productGroupDefaultValues';
 import { PRODUCT_GROUP_CURSOR_SESSION_KEY } from '@/ebarimt/settings/product-group/constants/productGroupRowDefaultVariables';
 import { useMemo } from 'react';
-import { AddProductGroup } from './ProductGroup';
 import { useProductGroupRowsRemove } from '@/ebarimt/settings/product-group/hooks/useProductGroupRowsRemove';
 
 const ProductGroupEmptyState = () => {
   const { t } = useTranslation('mongolian');
   return (
-    <div className="absolute inset-0 flex items-center justify-center">
-      <div className="flex flex-col items-center text-center">
-        <IconClipboardList size={48} className="text-gray-400 mb-4" />
-        <h3 className="text-lg font-semibold text-gray-900">
-          {t('no-product-group-config-yet')}
-        </h3>
-        <p className="mt-1 text-sm text-gray-500 mb-4">
+    <Empty className="absolute inset-0 border-0 bg-transparent">
+      <Empty.Header>
+        <Empty.Media variant="icon">
+          <IconClipboardList />
+        </Empty.Media>
+        <Empty.Title>{t('no-product-group-config-yet')}</Empty.Title>
+        <Empty.Description>
           {t('create-first-product-group-config')}
-        </p>
-        <AddProductGroup />
-      </div>
-    </div>
+        </Empty.Description>
+      </Empty.Header>
+    </Empty>
   );
 };
 

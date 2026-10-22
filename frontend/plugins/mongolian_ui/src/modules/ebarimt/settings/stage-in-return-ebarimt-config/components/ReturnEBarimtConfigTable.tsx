@@ -1,5 +1,6 @@
 import { Cell, ColumnDef } from '@tanstack/react-table';
 import {
+  Empty,
   RecordTable,
   RecordTableInlineCell,
   TextOverflowTooltip,
@@ -25,7 +26,6 @@ import {
   IReturnEbarimtConfigRow,
 } from '@/ebarimt/settings/stage-in-return-ebarimt-config/states/returnEbarimtConfigStates';
 import { useRemoveEbarimtReturnConfig } from '@/ebarimt/settings/stage-in-return-ebarimt-config/hooks/useRemoveEbarimtReturnConfig';
-import { AddReturnEBarimtConfig } from './AddReturnEBarimtConfig';
 import { ReturnEBarimtConfigCommandbar } from './ReturnEBarimtConfigCommandbar';
 
 const useReturnEbarimtConfigRows = () => {
@@ -211,18 +211,17 @@ export const ReturnEBarimtConfigTable = () => {
           </RecordTable.Body>
         </RecordTable>
         {!loading && rows?.length === 0 && (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="flex flex-col items-center text-center">
-              <IconClipboardList size={48} className="text-gray-400 mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900">
-                {t('no-return-ebarimt-config-yet')}
-              </h3>
-              <p className="mt-1 text-sm text-gray-500 mb-4">
+          <Empty className="absolute inset-0 border-0 bg-transparent">
+            <Empty.Header>
+              <Empty.Media variant="icon">
+                <IconClipboardList />
+              </Empty.Media>
+              <Empty.Title>{t('no-return-ebarimt-config-yet')}</Empty.Title>
+              <Empty.Description>
                 {t('create-first-return-ebarimt-config')}
-              </p>
-              <AddReturnEBarimtConfig />
-            </div>
-          </div>
+              </Empty.Description>
+            </Empty.Header>
+          </Empty>
         )}
       </RecordTable.Scroll>
       <ReturnEBarimtConfigCommandbar />
