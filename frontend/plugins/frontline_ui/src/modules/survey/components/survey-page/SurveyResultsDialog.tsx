@@ -11,7 +11,7 @@ export const SurveyResultsDialog = ({
   surveyId: string;
   trigger: ReactNode;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.survey' });
   const [open, setOpen] = useState(false);
 
   const { survey, loading } = useSurveyDetail({

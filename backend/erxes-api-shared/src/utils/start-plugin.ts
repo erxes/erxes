@@ -268,6 +268,7 @@ export async function startPlugin(
     app.use(
       '/trpc',
       trpcExpress.createExpressMiddleware({
+        allowMethodOverride: true,
         router,
         createContext: createTRPCContext(createContext),
       }),

@@ -466,6 +466,7 @@ const createDeliveryDeal = async ({ subdomain, models, doneOrder, pos }) => {
         selector: { _id: doneOrder.deliveryInfo.dealId },
         modifier: dealsData,
       },
+      throwOnError: true,
     });
 
     await sendTRPCMessage({
@@ -491,6 +492,7 @@ const createDeliveryDeal = async ({ subdomain, models, doneOrder, pos }) => {
       input: {
         ...dealsData,
       },
+      throwOnError: true,
     });
     if (
       doneOrder.customerId &&

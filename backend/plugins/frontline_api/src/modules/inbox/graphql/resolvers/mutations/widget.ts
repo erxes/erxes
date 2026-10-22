@@ -8,7 +8,6 @@ import {
 } from 'erxes-api-shared/core-types';
 import { sendAutomationTrigger } from 'erxes-api-shared/core-modules';
 import {
-  getEnv,
   graphqlPubsub,
   markResolvers,
   redis,
@@ -20,7 +19,6 @@ import {
   IIntegrationDocument,
   IMessengerDataMessagesItem,
 } from '~/modules/inbox/@types/integrations';
-import { VERIFY_EMAIL_TRANSLATIONS } from '~/modules/inbox/constants';
 import {
   AUTO_BOT_MESSAGES,
   CONVERSATION_OPERATOR_STATUS,
@@ -30,6 +28,16 @@ import {
 import { trackViewPageEvent } from '~/modules/inbox/events';
 import { debugError, fillSearchTextItem } from '~/modules/inbox/utils';
 import { withLiveTicketOptions } from '~/modules/ticket/utils/ticketConfig';
+import { nanoid } from 'nanoid';
+import {
+  assertOwnsConversation,
+  assertOwnsTicket,
+  findVisitorCustomer,
+  readWidgetSession,
+  requireWidgetSession,
+  resolveSessionCustomerId,
+  signWidgetSession,
+} from '~/modules/inbox/widgetSession';
 
 export const pConversationClientMessageInserted = async (
   subdomain,
@@ -212,6 +220,13 @@ export const getMessengerData = async (
   };
 };
 
+const getOrCreateVisitorCustomer = async (
+  subdomain: string,
+  visitorId: string,
+) =>
+  (await findVisitorCustomer(subdomain, visitorId)) ||
+  (await createVisitor(subdomain, visitorId));
+
 const createVisitor = async (subdomain: string, visitorId: string) => {
   const customer = await sendTRPCMessage({
     subdomain,
@@ -225,6 +240,50 @@ const createVisitor = async (subdomain: string, visitorId: string) => {
   });
 
   return customer;
+};
+
+/**
+ * A typed contact becomes the primary one only while no other customer holds
+ * it: core refuses a duplicate primary, and an unverified claim must never
+ * fail the save or touch someone else's record. It stays in the list anyway.
+ */
+const freePrimaryContacts = async (
+  subdomain: string,
+  customerId: string,
+  { email, phone }: { email?: string; phone?: string },
+) => {
+  const isFree = async (
+    field: 'primaryEmail' | 'primaryPhone',
+    value: string,
+  ) => {
+    const holders: Array<{ _id: string }> =
+      (await sendTRPCMessage({
+        subdomain,
+        pluginName: 'core',
+        method: 'query',
+        module: 'customers',
+        action: 'find',
+        input: {
+          query: {
+            [field]: value,
+            _id: { $ne: customerId },
+            status: { $ne: 'deleted' },
+          },
+        },
+        defaultValue: [],
+      })) || [];
+
+    return !holders.length;
+  };
+
+  return {
+    ...(email && (await isFree('primaryEmail', email)) && {
+      primaryEmail: email,
+    }),
+    ...(phone && (await isFree('primaryPhone', phone)) && {
+      primaryPhone: phone,
+    }),
+  };
 };
 
 const findMessengerCompany = async (
@@ -271,7 +330,6 @@ export interface ITicketWidget {
   pipelineId: string;
   channelId: string;
   type: string;
-  customerIds: string[];
   tagIds: string[];
   propertiesData?: IPropertyField;
 }
@@ -345,11 +403,9 @@ export const widgetMutations: Record<string, Resolver> = {
       isUser?: boolean;
       companyData?: any;
       data?: any;
-      cachedCustomerId?: string;
       deviceToken?: string;
-      visitorId?: string;
     },
-    { models, subdomain }: IContext,
+    { models, subdomain, req }: IContext,
   ) {
     const {
       integrationId,
@@ -359,11 +415,19 @@ export const widgetMutations: Record<string, Resolver> = {
       isUser,
       companyData,
       data,
-      cachedCustomerId,
       deviceToken,
-      visitorId,
     } = args;
-    console.log(JSON.stringify({ args }, null, 2));
+
+    const session = readWidgetSession(req);
+    const ownSession =
+      session?.integrationId === integrationId ? session : null;
+
+    // A visitor who has written becomes a customer; the session follows.
+    const sessionCustomerId =
+      ownSession?.customerId ||
+      (ownSession?.visitorId
+        ? (await findVisitorCustomer(subdomain, ownSession.visitorId))?._id
+        : undefined);
 
     const customData = data;
 
@@ -385,25 +449,22 @@ export const widgetMutations: Record<string, Resolver> = {
 
     let customer;
 
-    console.log({ cachedCustomerId, email, phone, code });
-
-    if (cachedCustomerId || email || phone || code) {
-      customer = await sendTRPCMessage({
-        subdomain,
-        pluginName: 'core',
-        method: 'query',
-        module: 'customers',
-        action: 'getWidgetCustomer',
-        input: {
-          integrationId: integration._id,
-          cachedCustomerId,
-          email,
-          phone,
-          code,
-        },
-      });
-
-      console.log(JSON.stringify({ customer }));
+    // Identity comes only from our own token: a claimed email or phone never
+    // finds an existing customer, it is stored on the visitor's own record.
+    if (sessionCustomerId || email || phone || code) {
+      customer = sessionCustomerId
+        ? await sendTRPCMessage({
+            subdomain,
+            pluginName: 'core',
+            method: 'query',
+            module: 'customers',
+            action: 'getWidgetCustomer',
+            input: {
+              integrationId: integration._id,
+              cachedCustomerId: sessionCustomerId,
+            },
+          })
+        : null;
 
       const doc = {
         integrationId: integration._id,
@@ -415,7 +476,7 @@ export const widgetMutations: Record<string, Resolver> = {
       };
 
       if (customer) {
-        const updatedCustomer = await sendTRPCMessage({
+        await sendTRPCMessage({
           subdomain,
           pluginName: 'core',
           method: 'mutation',
@@ -427,11 +488,8 @@ export const widgetMutations: Record<string, Resolver> = {
             customData,
           },
         });
-        console.log({ updatedCustomer });
-
-        // customer = updatedCustomer
       } else {
-        const newCustomer = await sendTRPCMessage({
+        customer = await sendTRPCMessage({
           subdomain,
           pluginName: 'core',
           method: 'mutation',
@@ -442,10 +500,6 @@ export const widgetMutations: Record<string, Resolver> = {
             customData,
           },
         });
-
-        console.log(JSON.stringify({ newCustomer }, null, 2));
-
-        customer = newCustomer;
       }
     }
 
@@ -559,34 +613,10 @@ export const widgetMutations: Record<string, Resolver> = {
       }
     }
 
-    console.log({ visitorId, cachedCustomerId, customer });
-
-    // if (visitorId && !cachedCustomerId && !customer) {
-    //   const lead = await createVisitor(subdomain, visitorId);
-    //   const docs = { ...args } as any;
-    //   docs.customerId = lead._id;
-
-    //   await models.ConversationMessages.updateVisitorEngageMessages(
-    //     visitorId,
-    //     lead._id,
-    //   );
-    //   await models.Conversations.updateMany(
-    //     {
-    //       visitorId,
-    //     },
-    //     { $set: { customerId: lead._id, visitorId: '' } },
-    //   );
-    //   customer = await sendTRPCMessage({
-    //     subdomain,
-    //     pluginName: 'core',
-    //     method: 'mutation',
-    //     module: 'customers',
-    //     action: 'saveVisitorContactInfo',
-    //     input: {
-    //       params: docs,
-    //     },
-    //   });
-    // }
+    // Fingerprints collide and are not secret, so visitors get a server-made id.
+    const sessionVisitorId = customer
+      ? undefined
+      : ownSession?.visitorId || nanoid();
 
     if (!integration.isConnected) {
       await models.Integrations.updateOne(
@@ -617,7 +647,12 @@ export const widgetMutations: Record<string, Resolver> = {
       ticketConfigs,
       messengerData: await getMessengerData(models, subdomain, integration),
       customerId: customer?._id,
-      visitorId: customer ? null : visitorId,
+      visitorId: sessionVisitorId,
+      sessionToken: signWidgetSession({
+        integrationId: integration._id,
+        customerId: customer?._id,
+        visitorId: sessionVisitorId,
+      }),
       channel: {
         _id: channel._id,
       },
@@ -630,8 +665,6 @@ export const widgetMutations: Record<string, Resolver> = {
     _root,
     args: {
       integrationId: string;
-      customerId?: string;
-      visitorId?: string;
       conversationId?: string;
       message: string;
       skillId?: string;
@@ -639,11 +672,10 @@ export const widgetMutations: Record<string, Resolver> = {
       contentType: string;
       payload: string;
     },
-    { models, subdomain }: IContext,
+    { models, subdomain, req }: IContext,
   ) {
     const {
       integrationId,
-      visitorId,
       conversationId,
       message,
       skillId,
@@ -695,14 +727,23 @@ export const widgetMutations: Record<string, Resolver> = {
       }
     }
 
+    const session = requireWidgetSession(req, integrationId);
+
+    if (conversationId) {
+      assertOwnsConversation(
+        session,
+        await models.Conversations.findOne({ _id: conversationId }),
+      );
+    }
+
     const conversationContent = strip(message || '').substring(0, 100);
 
-    let { customerId } = args;
-
-    if (visitorId && !customerId) {
-      const customer = await createVisitor(subdomain, visitorId);
-      customerId = customer._id;
-    }
+    const { visitorId } = session;
+    const customerId =
+      session.customerId ||
+      (visitorId
+        ? (await getOrCreateVisitorCustomer(subdomain, visitorId))._id
+        : undefined);
 
     let conversation;
 
@@ -969,8 +1010,13 @@ export const widgetMutations: Record<string, Resolver> = {
   async widgetsReadConversationMessages(
     _root,
     args: { conversationId: string },
-    { models, subdomain }: IContext,
+    { models, subdomain, req }: IContext,
   ) {
+    assertOwnsConversation(
+      requireWidgetSession(req),
+      await models.Conversations.findOne({ _id: args.conversationId }),
+    );
+
     const unreadMessages = await models.ConversationMessages.find({
       conversationId: args.conversationId,
       userId: { $exists: true },
@@ -1004,55 +1050,16 @@ export const widgetMutations: Record<string, Resolver> = {
     return args.conversationId;
   },
 
-  async widgetsSaveCustomerGetNotified(
-    _root,
-    args,
-    { models, subdomain }: IContext,
-  ) {
-    const { visitorId, customerId } = args;
-
-    if (visitorId && !customerId) {
-      const customer = await createVisitor(subdomain, visitorId);
-      args.customerId = customer._id;
-
-      await models.ConversationMessages.updateVisitorEngageMessages(
-        visitorId,
-        customer._id,
-      );
-      await models.Conversations.updateMany(
-        {
-          visitorId,
-        },
-        { $set: { customerId: customer._id, visitorId: '' } },
-      );
-    }
-
-    const customer = await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      method: 'mutation',
-      module: 'customers',
-      action: 'saveVisitorContactInfo',
-      input: {
-        params: args,
-      },
-    });
-
-    return customer;
-  },
-
   /*
    * Update customer location field
    */
   async widgetsSaveBrowserInfo(
     _root,
-    {
-      visitorId,
-      customerId,
-      browserInfo,
-    }: { visitorId?: string; customerId?: string; browserInfo: IBrowserInfo },
-    { models, subdomain }: IContext,
+    { browserInfo }: { browserInfo: IBrowserInfo },
+    { models, subdomain, req }: IContext,
   ) {
+    const { visitorId, customerId } = requireWidgetSession(req);
+
     if (customerId) {
       await sendTRPCMessage({
         subdomain,
@@ -1078,19 +1085,6 @@ export const widgetMutations: Record<string, Resolver> = {
       });
     }
 
-    // if (visitorId) {
-    //   await sendTRPCMessage({subdomain,
-    //     pluginName: 'core',
-    //     method: 'mutation',
-    //     module: 'customers',
-    //     action: 'updateEntry',
-    //     input: {
-    //       visitorId,
-    //       location: browserInfo,
-    //     },
-    //   });
-    // }
-
     try {
       await trackViewPageEvent(models, subdomain, {
         visitorId,
@@ -1110,7 +1104,13 @@ export const widgetMutations: Record<string, Resolver> = {
   async widgetsSendTypingInfo(
     _root,
     args: { conversationId: string; text?: string },
+    { models, req }: IContext,
   ) {
+    assertOwnsConversation(
+      requireWidgetSession(req),
+      await models.Conversations.findOne({ _id: args.conversationId }),
+    );
+
     graphqlPubsub.publish(
       `conversationClientTypingStatusChanged:${args.conversationId}`,
       {
@@ -1121,112 +1121,29 @@ export const widgetMutations: Record<string, Resolver> = {
     return 'ok';
   },
 
-  async widgetsSendEmail(_root, args, { subdomain }: IContext) {
-    const { toEmails, fromEmail, title, content, customerId, formId } = args;
-
-    const attachments = args.attachments || [];
-
-    const form = await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      method: 'query',
-      module: 'forms',
-      action: 'findOne',
-      input: {
-        query: {
-          _id: formId,
-        },
-      },
-    });
-
-    let finalContent = content;
-
-    let mailAttachment: any = [];
-
-    if (attachments.length > 0) {
-      mailAttachment = attachments.map((file) => {
-        return {
-          filename: file.name || '',
-          path: file.url || '',
-        };
-      });
-    }
-
-    const { verifyEmail = false } = form.leadData || {};
-
-    if (verifyEmail) {
-      const domain = getEnv({ name: 'DOMAIN', subdomain })
-        ? `${getEnv({ name: 'DOMAIN', subdomain })}/gateway`
-        : 'http://localhost:4000';
-
-      for (const email of toEmails) {
-        const params = Buffer.from(
-          JSON.stringify({
-            email,
-            formId,
-            customerId,
-          }),
-        ).toString('base64');
-
-        const emailValidationUrl = `${domain}/verify?p=${params}`;
-
-        const languageCode = form.languageCode || 'en';
-        const text =
-          VERIFY_EMAIL_TRANSLATIONS[languageCode] ||
-          VERIFY_EMAIL_TRANSLATIONS.en;
-
-        finalContent += `\n<p><a href="${emailValidationUrl}" target="_blank">${text}</a></p>`;
-
-        await sendTRPCMessage({
-          subdomain,
-          pluginName: 'core',
-          method: 'mutation',
-          module: 'core',
-          action: 'sendEmail',
-          input: {
-            toEmails: [email],
-            fromEmail,
-            title,
-            template: { data: { content: finalContent } },
-            attachments: mailAttachment,
-          },
-        });
-      }
-
-      return;
-    }
-
-    await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      method: 'mutation',
-      module: 'core',
-      action: 'sendEmail',
-      input: {
-        toEmails,
-        fromEmail,
-        title,
-        template: { data: { content: finalContent } },
-        attachments: mailAttachment,
-      },
-    });
-  },
-
   async widgetBotRequest(
     _root,
     {
       integrationId,
       conversationId,
-      customerId,
       message,
     }: {
       conversationId?: string;
-      customerId?: string;
       integrationId: string;
       message: string;
     },
-    { models }: IContext,
+    { models, req }: IContext,
   ) {
+    const session = requireWidgetSession(req, integrationId);
+    const { customerId } = session;
+
+    if (conversationId) {
+      assertOwnsConversation(
+        session,
+        await models.Conversations.findOne({ _id: conversationId }),
+      );
+    }
+
     const integration =
       (await models.Integrations.findOne({ _id: integrationId })) ||
       ({} as any);
@@ -1270,8 +1187,13 @@ export const widgetMutations: Record<string, Resolver> = {
       conversationId,
       operatorStatus,
     }: { conversationId: string; operatorStatus: string },
-    { models }: IContext,
+    { models, req }: IContext,
   ) {
+    assertOwnsConversation(
+      requireWidgetSession(req),
+      await models.Conversations.findOne({ _id: conversationId }),
+    );
+
     if (operatorStatus === CONVERSATION_OPERATOR_STATUS.OPERATOR) {
       const message = await models.ConversationMessages.createMessage({
         conversationId,
@@ -1327,9 +1249,25 @@ export const widgetMutations: Record<string, Resolver> = {
   async widgetTicketCreated(
     _root,
     doc: ITicketWidget,
-    { models, subdomain, user }: IContext,
+    { models, subdomain, user, req }: IContext,
   ) {
-    const { statusId, propertiesData, ...restFields } = doc;
+    const session = requireWidgetSession(req);
+    const { statusId, propertiesData, name, description, attachments, tagIds } =
+      doc;
+
+    // Only the start statuses of this messenger's own ticket configs.
+    const integration = await models.Integrations.findOne({
+      _id: session.integrationId,
+    }).lean();
+    const allowedConfig = await models.TicketConfig.findOne({
+      _id: { $in: integration?.ticketConfigIds || [] },
+      selectedStatusId: statusId,
+    }).lean();
+
+    if (!allowedConfig) {
+      throw new Error('Status not found');
+    }
+
     const status = await models.Status.findOne({ _id: statusId });
     if (!status) {
       throw new Error('Status not found');
@@ -1339,18 +1277,15 @@ export const widgetMutations: Record<string, Resolver> = {
       throw new Error('Pipeline not found');
     }
 
-    const customerIds = doc.customerIds || [];
+    const customerId =
+      session.customerId ||
+      (session.visitorId
+        ? (await getOrCreateVisitorCustomer(subdomain, session.visitorId))._id
+        : undefined);
 
-    const customers = await sendTRPCMessage({
-      subdomain,
-      method: 'query',
-      pluginName: 'core',
-      module: 'customers',
-      action: 'find',
-      input: { query: { _id: { $in: customerIds } } },
-      defaultValue: [],
-    });
-    const validCustomerIds = customers.map((c: any) => c._id);
+    if (!customerId) {
+      throw new Error('Widget session required');
+    }
 
     const validatedPropertiesData = await buildTicketPropertiesData(
       models,
@@ -1361,12 +1296,15 @@ export const widgetMutations: Record<string, Resolver> = {
 
     try {
       const ticket = await models.Ticket.create({
-        ...restFields,
+        name,
+        description,
+        attachments,
+        tagIds,
         propertiesData: validatedPropertiesData,
         statusId: statusId,
         pipelineId: status.pipelineId,
         channelId: pipeline.channelId,
-        customerIds: validCustomerIds,
+        customerIds: [customerId],
         createdAt: new Date(),
         modifiedAt: new Date(),
         stageChangedDate: new Date(),
@@ -1374,7 +1312,27 @@ export const widgetMutations: Record<string, Resolver> = {
         number: Date.now().toString(),
         createdBy: user?._id,
       });
-      // The ticket keeps its customers itself (customerIds above).
+      await sendTRPCMessage({
+        subdomain,
+        pluginName: 'core',
+        method: 'mutation',
+        module: 'relation',
+        action: 'createRelation',
+        input: {
+          relation: {
+            entities: [
+              {
+                contentType: 'core:customer',
+                contentId: customerId,
+              },
+              {
+                contentType: 'frontline:ticket',
+                contentId: ticket._id,
+              },
+            ],
+          },
+        },
+      });
       return ticket;
     } catch (e) {
       throw new Error(e.message);
@@ -1383,20 +1341,34 @@ export const widgetMutations: Record<string, Resolver> = {
   async widgetsTicketCustomersEdit(
     _root,
     args: {
-      customerId?: string;
       firstName?: string;
       lastName?: string;
       emails?: string[];
       phones?: string[];
     },
-    { subdomain }: IContext,
+    { models, subdomain, req }: IContext,
   ) {
-    const { customerId, firstName, lastName, emails, phones } = args;
+    const session = requireWidgetSession(req);
+    const { firstName, lastName, emails, phones } = args;
+
+    // A claimed contact lands on the visitor's own record, never someone else's.
+    const customerId =
+      session.customerId ||
+      (session.visitorId
+        ? (await getOrCreateVisitorCustomer(subdomain, session.visitorId))._id
+        : undefined);
+
     if (!customerId) {
-      throw new Error('Customer ID not found');
+      throw new Error('Widget session required');
     }
 
-    return await sendTRPCMessage({
+    // Core does not derive primaries from the lists; staff forms read them.
+    const primaries = await freePrimaryContacts(subdomain, customerId, {
+      email: emails?.[0],
+      phone: phones?.[0],
+    });
+
+    const customer = await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
       method: 'mutation',
@@ -1410,33 +1382,13 @@ export const widgetMutations: Record<string, Resolver> = {
           lastName,
           emails,
           phones,
+          ...primaries,
         },
       },
     });
-  },
 
-  async widgetTicketCheckProgressForget(
-    _root,
-    args: {
-      email?: string;
-      phoneNumber?: string;
-    },
-    { models, subdomain }: IContext,
-  ) {
-    const { email, phoneNumber } = args;
-    const field = email ? 'emails' : phoneNumber ? 'phones' : '';
-    const value = email || phoneNumber;
-
-    const customer = await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      method: 'query',
-      module: 'customers',
-      action: 'findOne',
-      input: { query: { [field]: value } },
-    });
     if (!customer) {
-      throw new Error('Customer not found');
+      throw new Error('Could not save your contact info. Please try again.');
     }
     // The customer's latest ticket: from the tickets once they keep their
     // customers, else through relations.
@@ -1479,12 +1431,21 @@ export const widgetMutations: Record<string, Resolver> = {
     args: {
       contentId: string;
       content: string;
-      customerId: string;
     },
-    { models, subdomain, user }: IContext,
+    { models, subdomain, req }: IContext,
   ) {
-    const { content, contentId, customerId } = args;
-    const userId = user._id;
+    const session = requireWidgetSession(req);
+    const { content, contentId } = args;
+
+    await assertOwnsTicket(subdomain, session, contentId, models);
+
+    const customerId = await resolveSessionCustomerId(subdomain, session);
+
+    // Visitors own no tickets, so the check above already refused them.
+    if (!customerId) {
+      throw new Error('Ticket not found');
+    }
+
     return await models.Note.createNote({
       doc: {
         content,
@@ -1492,7 +1453,7 @@ export const widgetMutations: Record<string, Resolver> = {
         createdBy: customerId,
       },
       subdomain,
-      userId,
+      userId: customerId,
     });
   },
   async widgetTicketCommentRemove(
@@ -1500,10 +1461,20 @@ export const widgetMutations: Record<string, Resolver> = {
     args: {
       _id: string;
     },
-    { models }: IContext,
+    { models, subdomain, req }: IContext,
   ) {
-    const { _id } = args;
-    await models.Note.deleteOne({ _id });
+    const session = requireWidgetSession(req);
+    const note = await models.Note.findOne({ _id: args._id }).lean();
+    const customerId = await resolveSessionCustomerId(subdomain, session);
+
+    // Only the customer's own comment on their own ticket.
+    if (!note || !customerId || note.createdBy !== customerId) {
+      throw new Error('Comment not found');
+    }
+
+    await assertOwnsTicket(subdomain, session, note.contentId, models);
+    await models.Note.deleteOne({ _id: note._id });
+
     return 'success';
   },
 };

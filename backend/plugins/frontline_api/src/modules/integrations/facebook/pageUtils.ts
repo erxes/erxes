@@ -1,3 +1,4 @@
+import { getPageUsage } from '@/integrations/pageUsage';
 import { IFacebookIntegrationDocument } from './@types/integrations';
 import { IModels } from '~/connectionResolvers';
 import { getErrorMessage } from '@/integrations/utils';
@@ -27,6 +28,7 @@ export const getPageList = async (
       id: page.id,
       name: page.name,
       isUsed: Boolean(integration),
+      usage: await getPageUsage(models, integration?.erxesApiId),
     });
   }
 
@@ -122,9 +124,10 @@ export const getFacebookUser = async (
     const message = getErrorMessage(e);
 
     if (message.includes('access token')) {
-      await models.FacebookIntegrations.updateOne(
+      await models.FacebookIntegrations.markUnhealthy(
         { facebookPageIds: pageId },
-        { $set: { healthStatus: 'page-token', error: message } },
+        'page-token',
+        message,
       );
     }
 

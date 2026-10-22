@@ -38,6 +38,10 @@ import {
   normalizeProductUomInfo,
   syncProductUomInfo,
 } from '~/modules/sales/utils/productUom';
+import {
+  assertDealBoardIsActive,
+  assertDealUpdatesAllowed,
+} from '~/modules/sales/utils/archiveGuard';
 
 export const addDeal = async ({
   models,
@@ -50,6 +54,7 @@ export const addDeal = async ({
   doc: IDeal & { processId: string; aboveItemId: string };
   user: IUserDocument;
 }) => {
+  await assertDealBoardIsActive(models, doc.stageId);
   doc.initialStageId = doc.stageId;
   if (doc.productsData) {
     doc.productsData = await normalizeProductUomInfo(
@@ -164,6 +169,9 @@ export const editDeal = async ({
   user: IUserDocument;
 }) => {
   const oldDeal = await models.Deals.getDeal(_id);
+  await assertDealUpdatesAllowed(models, [oldDeal], doc, {
+    allowRestore: true,
+  });
 
   if (doc.assignedUserIds) {
     const { removedUserIds } = checkUserIds(
@@ -398,6 +406,9 @@ export const changeDeal = async (
   if (!item) {
     throw new Error('Deal not found');
   }
+  await assertDealUpdatesAllowed(models, [item], {
+    stageId: destinationStageId,
+  });
 
   const stage = await models.Stages.getStage(item.stageId);
   const destinationStage = await models.Stages.getStage(destinationStageId);
@@ -503,6 +514,7 @@ export const createProductsData = async ({
   docs.forEach(validateProductDataInput);
 
   const deal = await models.Deals.getDeal(dealId);
+  await assertDealUpdatesAllowed(models, [deal], { productsData: docs });
   const stage = await models.Stages.getStage(deal.stageId);
 
   const oldDataIds = (deal.productsData || []).map((pd) => pd._id);

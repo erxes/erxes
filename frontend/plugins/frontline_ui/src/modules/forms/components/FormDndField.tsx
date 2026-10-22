@@ -181,7 +181,7 @@ export const FormDndFieldIcon = ({ type }: { type: string }) => {
 };
 
 export const AddField = ({ step }: { step: UniqueIdentifier }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
   const { handleAddField } = useFormDnd();
   const [view, setView] = useState<'main' | 'customer'>('main');
 
@@ -215,7 +215,7 @@ export const AddField = ({ step }: { step: UniqueIdentifier }) => {
         {view === 'main' ? (
           <>
             <DropdownMenu.Label className="font-bold">
-              {FORM_GROUP_LABELS.basic.label}
+              {t(FORM_GROUP_LABELS.basic.labelKey)}
             </DropdownMenu.Label>
 
             {GROUPED_FIELD_TYPES.basic.map((type) => (
@@ -231,7 +231,7 @@ export const AddField = ({ step }: { step: UniqueIdentifier }) => {
             <DropdownMenu.Separator />
 
             <DropdownMenu.Label className="font-bold">
-              {FORM_GROUP_LABELS['core:customer'].label}
+              {t(FORM_GROUP_LABELS['core:customer'].labelKey)}
             </DropdownMenu.Label>
 
             <DropdownMenu.Item
@@ -284,7 +284,7 @@ export const FieldContextMenu = ({
   stepId: UniqueIdentifier;
   setOpen: (open: boolean) => void;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
   const [_open, _setOpen] = React.useState<boolean>(false);
   const { handleDeleteField } = useFormDnd();
   const handleRemoveField = () => {

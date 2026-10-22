@@ -58,12 +58,12 @@ export const CONFIG: IUIConfig = {
   widgets: {
     relationWidgets: [
       {
-        name: 'tasks',
-        icon: IconChecklist,
-      },
-      {
         name: 'projects',
         icon: IconClipboard,
+      },
+      {
+        name: 'tasks',
+        icon: IconChecklist,
       },
     ],
     // A customer's / company's tasks and projects on their overview

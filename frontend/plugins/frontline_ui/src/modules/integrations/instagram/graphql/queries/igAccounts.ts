@@ -15,6 +15,12 @@ export const GET_IG_PAGES = gql(`
       id
       name
       isUsed
+      usage {
+        integrationId
+        integrationName
+        channelId
+        channelName
+      }
     }
   }
 `);

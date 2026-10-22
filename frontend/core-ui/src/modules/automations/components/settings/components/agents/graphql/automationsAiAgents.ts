@@ -64,6 +64,29 @@ export const AUTOMATIONS_AI_AGENT_HEALTH = gql`
   }
 `;
 
+export const AUTOMATIONS_AI_AGENT_MODELS = gql`
+  query AutomationsAiAgentModels(
+    $agentId: String
+    $provider: String!
+    $selectedModel: String
+  ) {
+    automationsAiAgentModels(
+      agentId: $agentId
+      provider: $provider
+      selectedModel: $selectedModel
+    ) {
+      id
+      group
+      status
+      suggestion
+      isDefault
+      releasedAt
+      reasoning
+      contextWindow
+    }
+  }
+`;
+
 export const AUTOMATIONS_AI_AGENT_KNOWLEDGE_SOURCE_STATUSES = gql`
   query automationsAiAgentKnowledgeSourceStatuses($agentId: String!) {
     automationsAiAgentKnowledgeSourceStatuses(agentId: $agentId)

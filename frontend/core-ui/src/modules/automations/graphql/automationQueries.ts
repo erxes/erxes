@@ -18,8 +18,8 @@ export const AUTOMATION_CONSTANTS = gql`
 `;
 
 export const AUTOMATION_NODE_OUTPUT = gql`
-  query AutomationNodeOutput($nodeType: String!) {
-    automationNodeOutput(nodeType: $nodeType)
+  query AutomationNodeOutput($nodeType: String!, $config: JSON) {
+    automationNodeOutput(nodeType: $nodeType, config: $config)
   }
 `;
 

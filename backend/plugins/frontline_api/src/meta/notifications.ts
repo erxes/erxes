@@ -42,6 +42,20 @@ export const notifications = {
       ],
     },
     {
+      name: 'integrations',
+      description: 'Integrations',
+      icon: 'IconPlug',
+
+      events: [
+        {
+          name: 'integrationHealthBroken',
+          title: 'Connection broken',
+          description:
+            'Triggered when an integration loses access to its provider',
+        },
+      ],
+    },
+    {
       name: 'channels',
       description: 'Channels',
       icon: 'IconDeviceLaptop',

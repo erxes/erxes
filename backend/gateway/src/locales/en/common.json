@@ -728,6 +728,12 @@
     "appearance-play-all": "Play all",
     "appearance-animations-hint": "Click a state to play it in the preview."
   },
+  "pending-approval": "pending approval",
+  "integrations": {
+    "config": {
+      "header": "Integrations config"
+    }
+  },
   "home": {
     "good-morning": "Good morning, {{name}}",
     "good-afternoon": "Good afternoon, {{name}}",

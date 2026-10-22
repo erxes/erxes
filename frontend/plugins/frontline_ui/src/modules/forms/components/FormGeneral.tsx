@@ -21,7 +21,7 @@ import { useParams } from 'react-router';
 import { useTranslation } from 'react-i18next';
 
 export const FormGeneral = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
   const { id, formId } = useParams<{ id: string; formId: string }>();
   const form = useForm<z.infer<typeof FORM_GENERAL_SCHEMA>>({
     resolver: zodResolver(

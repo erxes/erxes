@@ -1,16 +1,23 @@
-import { SelectAssigneeTicket } from '@/ticket/components/ticket-selects/SelectAssigneeTicket';
+import { useCanManageChannels } from '@/channels/hooks/useCanManageChannels';
+import {
+  PIPELINE_TAB_SEGMENTS,
+  getPipelinePath,
+} from '@/pipelines/constants/pipelineTabs';
+import { TicketCreateLayoutRows } from '@/ticket/components/add-ticket/TicketCreateLayoutRows';
 import { SelectChannel } from '@/ticket/components/ticket-selects/SelectChannel';
-import { SelectDateTicket } from '@/ticket/components/ticket-selects/SelectDateTicket';
-import { SelectBranchTicket } from '@/ticket/components/ticket-selects/SelectBranchTicket';
-import { SelectDepartmentTicket } from '@/ticket/components/ticket-selects/SelectDepartmentTicket';
 import { SelectPipeline } from '@/ticket/components/ticket-selects/SelectPipeline';
-import { SelectPriorityTicket } from '@/ticket/components/ticket-selects/SelectPriorityTicket';
 import { SelectStatusTicket } from '@/ticket/components/ticket-selects/SelectStatusTicket';
-import { SelectTagsTicket } from '@/ticket/components/ticket-selects/SelectTagsTicket';
+import { TICKET_LAYOUT_SYSTEM_LABELS } from '@/ticket/constants/createLayout';
 import { useCreateTicket } from '@/ticket/hooks/useCreateTicket';
+import { useTicketCreateFields } from '@/ticket/hooks/useTicketCreateFields';
+import {
+  TTicketLayoutCell,
+  useTicketCreateLayout,
+} from '@/ticket/hooks/useTicketCreateLayout';
 import { ticketCreateDefaultValuesState } from '@/ticket/states/ticketCreateSheetState';
 import { TAddTicket, addTicketSchema } from '@/ticket/types';
 import { Block } from '@blocknote/core';
+import { IconSettings } from '@tabler/icons-react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   BlockEditor,
@@ -27,6 +34,7 @@ import { useAtom, useAtomValue } from 'jotai';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 import { currentUserState } from 'ui-modules';
 
 export const AddTicketForm = ({
@@ -70,6 +78,30 @@ export const AddTicketForm = ({
     defaultValues,
   });
 
+  const selectedPipelineId = form.watch('pipelineId');
+  const selectedChannelId = form.watch('channelId');
+  const canManageChannel = useCanManageChannels(
+    selectedChannelId ? [selectedChannelId] : [],
+  );
+  const { rows, rules } = useTicketCreateLayout(selectedPipelineId || undefined);
+  const {
+    visibleRows,
+    propertiesData,
+    missingIds,
+    setPropertyValue,
+    findMissing,
+    shownPropertiesData,
+    reset: resetFields,
+  } = useTicketCreateFields({ rows, rules });
+
+  const labelOf = (cell: TTicketLayoutCell) =>
+    cell.kind === 'system'
+      ? t(
+          TICKET_LAYOUT_SYSTEM_LABELS[cell.code].key,
+          TICKET_LAYOUT_SYSTEM_LABELS[cell.code].fallback,
+        )
+      : cell.field.name;
+
   useEffect(() => {
     form.setFocus('name');
   }, [form]);
@@ -91,12 +123,29 @@ export const AddTicketForm = ({
   };
 
   const onSubmit = async (data: TAddTicket) => {
+    const missing = findMissing({
+      values: data,
+      descriptionEmpty: !descriptionContent?.length,
+      descriptionLabel: t('description', 'Description'),
+      labelOf,
+    });
+
+    if (missing.length) {
+      toast({
+        title: t('required-fields-missing', 'Fill in the required fields'),
+        description: missing.join(', '),
+        variant: 'destructive',
+      });
+      return;
+    }
+
     createTicket({
       variables: {
         ...data,
         description: JSON.stringify(descriptionContent),
         priority: data.priority || 0,
         statusId: data.statusId,
+        propertiesData: shownPropertiesData(),
         ...contacts,
       },
       // The ticket keeps its contacts itself; contacts' ticket lists are
@@ -227,128 +276,14 @@ export const AddTicketForm = ({
                 </Form.Item>
               )}
             />
-            <Form.Field
-              name="priority"
-              control={form.control}
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label className="sr-only">
-                    {t('priority-label', 'Priority')}
-                  </Form.Label>
-                  <SelectPriorityTicket.FormItem
-                    label={t('priority', 'Priority')}
-                    value={field.value || 0}
-                    onValueChange={(value) => field.onChange(value)}
-                  />
-                </Form.Item>
-              )}
-            />
-            <Form.Field
-              name="assigneeId"
-              control={form.control}
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label className="sr-only">
-                    {t('assignee-label', 'Assignee')}
-                  </Form.Label>
-                  <SelectAssigneeTicket.FormItem
-                    label={t('assignee', 'Assignee')}
-                    value={field.value || ''}
-                    onValueChange={(value: any) => {
-                      field.onChange(value);
-                    }}
-                  />
-                </Form.Item>
-              )}
-            />
-
-            <Form.Field
-              name="branchId"
-              control={form.control}
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label className="sr-only">
-                    {t('branch-label', 'Branch')}
-                  </Form.Label>
-                  <SelectBranchTicket.FormItem
-                    label={t('branch-label', 'Branch')}
-                    value={field.value || ''}
-                    onValueChange={(value) =>
-                      field.onChange(value || undefined)
-                    }
-                  />
-                </Form.Item>
-              )}
-            />
-
-            <Form.Field
-              name="departmentId"
-              control={form.control}
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label className="sr-only">
-                    {t('department-label', 'Department')}
-                  </Form.Label>
-                  <SelectDepartmentTicket.FormItem
-                    label={t('department-label', 'Department')}
-                    value={field.value || ''}
-                    onValueChange={(value) =>
-                      field.onChange(value || undefined)
-                    }
-                  />
-                </Form.Item>
-              )}
-            />
-
-            <Form.Field
-              name="startDate"
-              control={form.control}
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label className="sr-only">
-                    {t('start-date-label', 'Start Date')}
-                  </Form.Label>
-                  <SelectDateTicket.FormItem
-                    value={field.value}
-                    label={t('start-date', 'Start date')}
-                    onValueChange={(value) => field.onChange(value)}
-                  />
-                </Form.Item>
-              )}
-            />
-            <Form.Field
-              name="targetDate"
-              control={form.control}
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label className="sr-only">
-                    {t('due-date-label', 'Due Date')}
-                  </Form.Label>
-                  <SelectDateTicket.FormItem
-                    value={field.value}
-                    onValueChange={(value) => field.onChange(value)}
-                    label={t('target-date', 'Target date')}
-                  />
-                </Form.Item>
-              )}
-            />
-            <Form.Field
-              name="tagIds"
-              control={form.control}
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label className="sr-only">
-                    {t('tags-label', 'Tags')}
-                  </Form.Label>
-                  <SelectTagsTicket.FormItem
-                    label={t('tags', 'Tags')}
-                    value={field.value || []}
-                    onValueChange={(value) => field.onChange(value)}
-                  />
-                </Form.Item>
-              )}
-            />
           </div>
+          <TicketCreateLayoutRows
+            rows={visibleRows}
+            form={form}
+            propertiesData={propertiesData}
+            missingIds={missingIds}
+            onPropertyChange={setPropertyValue}
+          />
           <Separator className="my-4" />
           <div className="flex-1 overflow-y-auto">
             <BlockEditor
@@ -359,6 +294,27 @@ export const AddTicketForm = ({
           </div>
         </Sheet.Content>
         <Sheet.Footer className="flex justify-end shrink-0 gap-1 px-5">
+          {selectedChannelId &&
+            selectedPipelineId &&
+            canManageChannel(selectedChannelId) && (
+              <Button
+                variant="ghost"
+                className="mr-auto text-muted-foreground"
+                asChild
+              >
+                <Link
+                  to={getPipelinePath(
+                    selectedChannelId,
+                    selectedPipelineId,
+                    PIPELINE_TAB_SEGMENTS.properties,
+                  )}
+                  onClick={onClose}
+                >
+                  <IconSettings />
+                  {t('edit-create-form', 'Edit form')}
+                </Link>
+              </Button>
+            )}
           <Button
             type="button"
             variant="ghost"
@@ -366,6 +322,7 @@ export const AddTicketForm = ({
             onClick={() => {
               onClose();
               form.reset();
+              resetFields();
               editor?.removeBlocks(editor?.document);
               setDescriptionContent(undefined);
             }}

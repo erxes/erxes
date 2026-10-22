@@ -5,7 +5,7 @@ import { AutomationExecutionActionResultProps } from 'ui-modules';
 export const InstagramAutomationHistoryResult = ({
   result,
 }: AutomationExecutionActionResultProps) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.instagram' });
   if (result?.error) {
     return (
       <Tooltip.Provider>

@@ -9,7 +9,7 @@ export const ChannelForm = ({
 }: {
   form: UseFormReturn<TChannelForm>;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.channels' });
   const scope = form.watch('scope');
   const isTeam = scope === 'team';
   return (

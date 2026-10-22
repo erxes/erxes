@@ -80,7 +80,7 @@ const NoteDeliveryStatus = ({
 }: {
   delivery: ITicketNoteMailDelivery;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.activity' });
 
   if (delivery.status === 'pending') {
     return (
@@ -110,7 +110,7 @@ const NoteDeliveryRetry = ({
   noteId: string;
   delivery: ITicketNoteMailDelivery;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.activity' });
   const { retryTicketNoteMail, loading } = useRetryTicketNoteMail();
 
   let hint = t(
@@ -155,7 +155,7 @@ const NoteDeliveryIssue = ({
   noteId: string;
   delivery: ITicketNoteMailDelivery;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.activity' });
 
   let reason: string | null | undefined = null;
 
@@ -186,7 +186,7 @@ const NoteDeliveryIssue = ({
 };
 
 const NoteKindBadge = ({ note, kind }: { note: INote; kind: TNoteKind }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.activity' });
   const { icon, labelKey, label } = NOTE_KIND_BADGES[kind];
   const delivery = note.mailDelivery;
   const recipients = (delivery?.to ?? []).filter(Boolean).join(', ');
@@ -296,6 +296,7 @@ const NoteReadOnlyAttachment = ({
   attachment: ITicketNoteAttachment;
   single: boolean;
 }) => {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.activity' });
   const { isCovered, reveal } = useUnverifiedAttachments();
 
   if (attachment.type?.startsWith('image') && isCovered(attachment.url)) {
@@ -337,7 +338,7 @@ const NoteReadOnlyAttachment = ({
       <IconFile className="size-8 shrink-0 text-muted-foreground" />
       <div className="flex min-w-0 flex-col">
         <span className="truncate text-sm font-medium text-primary">
-          {attachment.name || 'File'}
+          {attachment.name || t('file')}
         </span>
         {Boolean(attachment.size) && (
           <span className="text-xs text-muted-foreground">
@@ -359,7 +360,7 @@ const NoteUnsavedAttachment = ({
 }: {
   attachment: ITicketNoteUnsavedAttachment;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.activity' });
   const daysLeft = daysUntil(attachment.expiresAt);
   const link = attachment.url && daysLeft > 0 ? attachment.url : '';
 
@@ -384,7 +385,7 @@ const NoteUnsavedAttachment = ({
             link ? 'text-primary' : 'text-muted-foreground',
           )}
         >
-          {attachment.name || 'File'}
+          {attachment.name || t('file')}
           {Boolean(attachment.size) && (
             <span className="ml-2 text-xs font-normal text-muted-foreground">
               {formatBytes(attachment.size ?? 0)}

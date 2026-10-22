@@ -729,6 +729,12 @@
     "appearance-play-all": "Бүгдийг тоглуулах",
     "appearance-animations-hint": "Төлөвийг дарж урьдчилан харахдаа тоглуулна уу."
   },
+  "pending-approval": "зөвшөөрөл хүлээж буй",
+  "integrations": {
+    "config": {
+      "header": "Холболтын тохиргоо"
+    }
+  },
   "home": {
     "good-morning": "Өглөөний мэнд, {{name}}",
     "good-afternoon": "Өдрийн мэнд, {{name}}",

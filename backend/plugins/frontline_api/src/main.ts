@@ -3,6 +3,7 @@ import initCallApp from '@/integrations/call/initApp';
 import { initDiscord } from '@/integrations/discord/services/gateway/ownership';
 import { startPlugin } from 'erxes-api-shared/utils';
 import { startFacebookCommentOutboxWorker } from '@/integrations/facebook/commentOutboxWorker';
+import { startFacebookInputTimeoutWorker } from '@/integrations/facebook/meta/automation/messages/inputWait';
 import { startCustomDomainWorker } from '@/customdomain/worker';
 import { startScheduledPublishWorker } from '@/knowledgebase/utils/scheduledPublish';
 import {
@@ -77,6 +78,7 @@ startPlugin({
     await initCallApp(app);
     // initDiscord();
     startFacebookCommentOutboxWorker();
+    startFacebookInputTimeoutWorker();
     startCustomDomainWorker();
     startScheduledPublishWorker();
   },

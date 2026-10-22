@@ -1,6 +1,6 @@
 import { PluginSettingsRoutes } from 'ui-modules';
 import { lazy, Suspense } from 'react';
-import { AppLayout, Spinner } from 'erxes-ui';
+import { AppLayout, Spinner, useQueryState } from 'erxes-ui';
 import {
   FrontlineSidebar,
   FrontlineSidebarFooter,
@@ -110,6 +110,56 @@ const FormSubmissionIndexPage = lazy(() =>
 );
 
 const IntegrationsMain = () => {
+  const [inPreview] = useQueryState<boolean>('inPreview');
+
+  const routes = (
+    <Suspense fallback={<div />}>
+      <Routes>
+        <Route path="/inbox" element={<Inbox />} />
+        <Route path="/tickets" element={<Ticket />} />
+        <Route
+          path="/calls"
+          element={<Navigate to="/frontline/calls/dashboard" replace />}
+        />
+        <Route path="/calls/dashboard" element={<CallDashboardIndexPage />} />
+        <Route
+          path="/calls/dashboard/:id"
+          element={<CallDashboardDetailPage />}
+        />
+        <Route path="/calls/statistics" element={<CallStatisticsIndexPage />} />
+        <Route
+          path="/calls/statistics/:id"
+          element={
+            <CallDashboardDetailPage backPath="/frontline/calls/statistics" />
+          }
+        />
+        <Route path="/calls/:id" element={<CallDashboardDetailPage />} />
+        <Route path="/reports/*" element={<Report />} />
+        <Route path="/forms" element={<FormsView />}>
+          <Route index element={<Forms />} />
+          <Route path="create" element={<FormCreatePage />} />
+          <Route path=":formId" element={<FormDetailPage />} />
+          <Route
+            path="submissions/:formId"
+            element={<FormSubmissionIndexPage />}
+          />
+        </Route>
+        <Route path="/forms/preview" element={<FormPreviewPage />} />
+        <Route path="/surveys" element={<SurveysView />}>
+          <Route index element={<Surveys />} />
+          <Route path="create" element={<SurveyCreatePage />} />
+        </Route>
+        <Route path="/knowledgebase/*" element={<KnowledgeBase />} />
+        <Route path="/helpcenter" element={<HelpCenter />} />
+      </Routes>
+    </Suspense>
+  );
+
+  // The form preview iframe renders bare, as core's DefaultLayout does.
+  if (inPreview) {
+    return routes;
+  }
+
   return (
     <AppLayout
       id="frontline"
@@ -117,49 +167,7 @@ const IntegrationsMain = () => {
       sidebar={<FrontlineSidebar />}
       footer={<FrontlineSidebarFooter />}
     >
-      <Suspense fallback={<div />}>
-        <Routes>
-          <Route path="/inbox" element={<Inbox />} />
-          <Route path="/tickets" element={<Ticket />} />
-          <Route
-            path="/calls"
-            element={<Navigate to="/frontline/calls/dashboard" replace />}
-          />
-          <Route path="/calls/dashboard" element={<CallDashboardIndexPage />} />
-          <Route
-            path="/calls/dashboard/:id"
-            element={<CallDashboardDetailPage />}
-          />
-          <Route
-            path="/calls/statistics"
-            element={<CallStatisticsIndexPage />}
-          />
-          <Route
-            path="/calls/statistics/:id"
-            element={
-              <CallDashboardDetailPage backPath="/frontline/calls/statistics" />
-            }
-          />
-          <Route path="/calls/:id" element={<CallDashboardDetailPage />} />
-          <Route path="/reports/*" element={<Report />} />
-          <Route path="/forms" element={<FormsView />}>
-            <Route index element={<Forms />} />
-            <Route path="create" element={<FormCreatePage />} />
-            <Route path=":formId" element={<FormDetailPage />} />
-            <Route
-              path="submissions/:formId"
-              element={<FormSubmissionIndexPage />}
-            />
-          </Route>
-          <Route path="/forms/preview" element={<FormPreviewPage />} />
-          <Route path="/surveys" element={<SurveysView />}>
-            <Route index element={<Surveys />} />
-            <Route path="create" element={<SurveyCreatePage />} />
-          </Route>
-          <Route path="/knowledgebase/*" element={<KnowledgeBase />} />
-          <Route path="/helpcenter" element={<HelpCenter />} />
-        </Routes>
-      </Suspense>
+      {routes}
     </AppLayout>
   );
 };

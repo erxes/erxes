@@ -24,7 +24,7 @@ import { FormMutateLayout } from './FormMutateLayout';
 import { FormValueEffectComponent } from './FormValueEffectComponent';
 
 export const FormCallout = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
   const form = useForm<z.infer<typeof FORM_CALLOUT_SCHEMA>>({
     resolver: zodResolver(FORM_CALLOUT_SCHEMA),
     defaultValues: FORM_STATES_DEFAULT_VALUES.CALLOUT,

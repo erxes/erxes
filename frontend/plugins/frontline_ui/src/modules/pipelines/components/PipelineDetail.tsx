@@ -1,6 +1,5 @@
 import { useParams } from 'react-router-dom';
 import { useGetPipeline } from '@/pipelines/hooks/useGetPipeline';
-import { compactList } from '@/shared/utils/cursorList';
 import { CreatePipelineForm } from '@/pipelines/components/CreatePipelineForm';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -13,7 +12,7 @@ import { TUpdatePipelineForm } from '@/pipelines/types';
 import { PipelineConfig } from '@/pipelines/components/PipelineConfig';
 
 export const PipelineDetail = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.pipelines' });
   const { pipelineId } = useParams<{
     pipelineId: string;
   }>();
@@ -35,7 +34,6 @@ export const PipelineDetail = () => {
       numberConfig: pipeline?.numberConfig || '',
       numberSize: pipeline?.numberSize || '',
       nameConfig: pipeline?.nameConfig || '',
-      propertyIds: compactList(pipeline?.propertyIds),
     });
   }, [form, pipeline, pipelineId]);
 
