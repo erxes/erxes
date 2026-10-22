@@ -1,7 +1,6 @@
 import {
   GET_SETTINGS_PATH_DATA,
   SETTINGS_PERMISSION_MAP,
-  SETTINGS_ACTION_PERMISSION_MAP,
   TSettingSubPath,
 } from '../constants/data';
 import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
@@ -19,7 +18,7 @@ import { useSettingsSubNavigation } from '@/settings/hooks/useSettingsSubNavigat
 import { useTranslation } from 'react-i18next';
 
 export function SettingsSidebar() {
-  const { isLoaded, isWildcard, hasModulePermission, hasActionPermission } = usePermissionCheck();
+  const { isLoaded, isWildcard, hasModulePermission } = usePermissionCheck();
 
   const version = useVersion();
   const { t } = useTranslation('common', { keyPrefix: 'sidebar' });
@@ -29,10 +28,8 @@ export function SettingsSidebar() {
   const subNavigation = useSettingsSubNavigation();
 
   const filterByPermission = (items: typeof sidebar.nav) => {
+    if (!isLoaded || isWildcard) return items;
     return items.filter((item) => {
-      const requiredAction = SETTINGS_ACTION_PERMISSION_MAP[item.path];
-      if (requiredAction) return isLoaded && hasActionPermission(requiredAction);
-      if (!isLoaded || isWildcard) return true;
       const requiredModule = SETTINGS_PERMISSION_MAP[item.path];
       if (!requiredModule) return true;
       return hasModulePermission(requiredModule);

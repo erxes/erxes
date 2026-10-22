@@ -8,7 +8,6 @@
 import * as Sentry from '@sentry/node';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { containsCredentialTraffic } from './credential-privacy';
 
 function findUp(startDir: string, predicate: (dir: string) => boolean) {
   let dir = startDir;
@@ -124,17 +123,6 @@ export function initErxesSentry(
     release: getSentryRelease(),
     serverName: serverName || process.env.SENTRY_SERVER_NAME,
     tracesSampleRate: Number(process.env.SENTRY_TRACES_SAMPLE_RATE || 0),
-    // Inputs can occur in request bodies, GraphQL documents, spans or previous
-    // request breadcrumbs. Never send any part of a vault operation to Sentry.
-    beforeSend(event, hint) {
-      if (containsCredentialTraffic(event)) return null;
-      return beforeSend ? beforeSend(event, hint) : event;
-    },
-    beforeSendTransaction(event) {
-      return containsCredentialTraffic(event) ? null : event;
-    },
-    beforeBreadcrumb(breadcrumb) {
-      return containsCredentialTraffic(breadcrumb) ? null : breadcrumb;
-    },
+    ...(beforeSend ? { beforeSend } : {}),
   });
 }

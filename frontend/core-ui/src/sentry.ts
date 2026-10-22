@@ -21,10 +21,6 @@
  */
 import * as Sentry from '@sentry/react';
 import {
-  containsCredentialTelemetry,
-  isCredentialSettingsPage,
-} from './providers/credentialPrivacy';
-import {
   NODE_ENV,
   REACT_APP_SENTRY_DSN,
   REACT_APP_SENTRY_ENVIRONMENT,
@@ -61,25 +57,12 @@ export function initSentry() {
     // Full traces locally, light sampling in prod.
     tracesSampleRate: NODE_ENV === 'development' ? 1.0 : 0.1,
     beforeSend(event) {
-      if (isCredentialSettingsPage() || containsCredentialTelemetry(event))
-        return null;
       const message =
         event.exception?.values?.[0]?.value || event.message || '';
       if (NOISE_PATTERNS.some((pattern) => pattern.test(message))) {
         return null;
       }
       return event;
-    },
-    beforeSendTransaction(event) {
-      return isCredentialSettingsPage() || containsCredentialTelemetry(event)
-        ? null
-        : event;
-    },
-    beforeBreadcrumb(breadcrumb) {
-      return isCredentialSettingsPage() ||
-        containsCredentialTelemetry(breadcrumb)
-        ? null
-        : breadcrumb;
     },
   });
 
