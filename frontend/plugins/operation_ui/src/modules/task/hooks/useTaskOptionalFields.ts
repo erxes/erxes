@@ -14,14 +14,17 @@ export const useTaskOptionalFields = ({
   teamId?: string | null;
   projectId?: string | null;
 }) => {
-  const { team } = useGetTeam(teamId);
-  const { estimateChoices } = useGetEstimateChoiceByTeam({
-    variables: { teamId: teamId || '' },
-    skip: !teamId,
-  });
-  const { totalCount } = useMilestones(projectId);
+  const { team, loading: loadingTeam } = useGetTeam(teamId);
+  const { estimateChoices, loading: loadingEstimates } =
+    useGetEstimateChoiceByTeam({
+      variables: { teamId: teamId || '' },
+      skip: !teamId,
+    });
+  const { totalCount, loading: loadingMilestones } = useMilestones(projectId);
 
   return {
+    // Still finding out; a form waits so its rows do not jump in later.
+    loading: loadingTeam || loadingEstimates || loadingMilestones,
     showCycle: !!team?.cycleEnabled,
     showEstimate: !!estimateChoices?.length,
     showMilestone: !!projectId && !!totalCount,

@@ -1,6 +1,5 @@
 import { compactList } from '@/operation/utils/cursorList';
 import { GET_TASKS } from '@/task/graphql/queries/getTasks';
-import { useCreateTaskRecord } from '@/task/hooks/useCreateTaskRecord';
 import { GET_TRIAGES } from '@/triage/graphql/queries/getTriages';
 import { useCreateTriageRecord } from '@/triage/hooks/useCreateTriageRecord';
 import { useQuery } from '@apollo/client';
@@ -15,7 +14,7 @@ const CONTACT_RECORDS_LIMIT = 50;
 /**
  * A customer's or company's tasks and the triages not yet accepted, found by
  * the contact on the records themselves (their customerIds / companyIds).
- * "+" files a triage for them (a task where no team has triage on);
+ * "+" files a triage for them, only offered while a team has triage on;
  * accepted, it becomes a task that keeps them.
  */
 export const TasksContactSection = ({
@@ -33,7 +32,6 @@ export const TasksContactSection = ({
   const triagesQuery = useQuery(GET_TRIAGES, {
     variables: { filter: { ...contacts, limit: CONTACT_RECORDS_LIMIT } },
   });
-  const { openTaskDraft } = useCreateTaskRecord();
   const { openTriageDraft, canCreate: canCreateTriage } =
     useCreateTriageRecord();
 
@@ -42,23 +40,19 @@ export const TasksContactSection = ({
   const triagesById = new Map(triages.map((triage) => [triage._id, triage]));
   const tasksById = new Map(tasks.map((task) => [task._id, task]));
 
-  const onCreate = () => {
-    if (!canCreateTriage) {
-      openTaskDraft({}, { linkTo: { contentType, contentId } });
-      return;
-    }
-
-    openTriageDraft(contacts, { stack: true });
-  };
 
   return (
     <ContactWidgetSection
       icon={IconChecklist}
-      label={t('tasks', 'Tasks')}
+      label={t('tasks-and-triages', 'Tasks & triages')}
       ids={[...triagesById.keys(), ...tasksById.keys()]}
       loading={tasksQuery.loading || triagesQuery.loading}
-      createLabel={canCreateTriage ? t('add-triage') : t('add-task')}
-      onCreate={onCreate}
+      createLabel={t('add-triage')}
+      onCreate={
+        canCreateTriage
+          ? () => openTriageDraft(contacts, { stack: true })
+          : undefined
+      }
       renderItem={(id) => {
         const triage = triagesById.get(id);
         const task = tasksById.get(id);

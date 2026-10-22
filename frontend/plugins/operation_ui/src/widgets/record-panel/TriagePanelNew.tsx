@@ -90,6 +90,7 @@ export const TriagePanelNew = () => {
           </PanelFormRow>
           <PanelFormRow label={t('priority')}>
             <SelectPriority.FormItem
+              variant="table"
               value={values.priority ?? 0}
               onValueChange={(priority) => set('priority', priority)}
             />
@@ -100,6 +101,7 @@ export const TriagePanelNew = () => {
             error={errors.teamId?.message}
           >
             <SelectTeam.FormItem
+              variant="table"
               mode="single"
               isTriageEnabled
               value={values.teamId}

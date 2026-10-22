@@ -404,12 +404,14 @@ const RecordSidePanelTabs = ({
     <Tabs
       value={value}
       onValueChange={onValueChange}
-      className="flex flex-col flex-1 min-h-0"
+      className="flex flex-col flex-1 min-h-0 min-w-0"
     >
       {/* Lines up with a page's breadcrumb row: h-10 plus its 1px rule. */}
+      {/* Never wider than its container: pinning a tab moves tabs into More
+          instead of widening whatever holds the panel. */}
       <div
         ref={barRef}
-        className="box-content flex items-center gap-1 h-10 px-2 border-b bg-background flex-none"
+        className="box-content flex items-center gap-1 h-10 px-2 border-b bg-background flex-none min-w-0 overflow-hidden"
       >
         <Tabs.List className="flex h-full min-w-0 items-stretch border-b-0 gap-1 py-0">
           {visible.map((tab) => (

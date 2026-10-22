@@ -1,4 +1,3 @@
-import { OperationTagsChip } from '@/operation/components/OperationChips';
 import { SelectPriority } from '@/operation/components/SelectPriority';
 import { DateSelectTask } from '@/task/components/task-selects/DateSelectTask';
 import { SelectAssigneeTask } from '@/task/components/task-selects/SelectAssigneeTask';
@@ -15,8 +14,11 @@ import {
 import { useTaskOptionalFields } from '@/task/hooks/useTaskOptionalFields';
 import { addTaskSchema } from '@/task/types/validations';
 import { SelectTeam } from '@/team/components/SelectTeam';
+import { useGetStatusByTeam } from '@/task/hooks/useGetStatusByTeam';
+import { STATUS_TYPES } from '@/operation/components/StatusInline';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Editor, Form, Input } from 'erxes-ui';
+import { Editor, Form, Input, Spinner } from 'erxes-ui';
+import { useEffect, useRef } from 'react';
 import { Path, PathValue, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import {
@@ -24,6 +26,7 @@ import {
   PANEL_INPUT_CLASS_NAME,
   PanelFormLayout,
   PanelFormRow,
+  TagsSelect,
   useSidePanel,
   useSidePanelDraft,
 } from 'ui-modules';
@@ -70,7 +73,12 @@ export const TaskPanelNew = () => {
   });
   const { errors } = form.formState;
   const values = form.watch();
-  const { showCycle, showEstimate, showMilestone } = useTaskOptionalFields({
+  const {
+    showCycle,
+    showEstimate,
+    showMilestone,
+    loading: loadingOptional,
+  } = useTaskOptionalFields({
     teamId: values.teamId,
     projectId: values.projectId,
   });
@@ -80,7 +88,34 @@ export const TaskPanelNew = () => {
     value: PathValue<TTaskDraftForm, K>,
   ) => form.setValue(name, value, { shouldValidate: name === 'teamId' });
 
+  // The team's statuses, to start on its first to-do one instead of an
+  // empty status that fills in a moment later.
+  const { statuses, loading: loadingStatuses } = useGetStatusByTeam({
+    variables: { teamId: values.teamId },
+    skip: !values.teamId,
+  });
+  const firstStatus = statuses.find(
+    (status) => status.type === STATUS_TYPES.UNSTARTED,
+  )?.value;
+
+  useEffect(() => {
+    if (firstStatus && !form.getValues('status')) {
+      form.setValue('status', firstStatus);
+    }
+  }, [firstStatus, form]);
+
+  // Drawn once: the optional rows and the status are known first.
+  const ready = useRef(false);
+
+  if (!loadingOptional && !loadingStatuses) {
+    ready.current = true;
+  }
+
   const cancel = () => (canGoBack ? back() : close());
+
+  if (!ready.current) {
+    return <Spinner containerClassName="py-12" />;
+  }
 
   return (
     <Form {...form}>
@@ -109,6 +144,7 @@ export const TaskPanelNew = () => {
           </PanelFormRow>
           <PanelFormRow label={t('status')}>
             <SelectStatusTask.FormItem
+              variant="table"
               form={form}
               value={values.status || ''}
               onValueChange={(status) => set('status', status)}
@@ -116,12 +152,14 @@ export const TaskPanelNew = () => {
           </PanelFormRow>
           <PanelFormRow label={t('priority')}>
             <SelectPriority.FormItem
+              variant="table"
               value={values.priority ?? 0}
               onValueChange={(priority) => set('priority', priority)}
             />
           </PanelFormRow>
           <PanelFormRow label={t('assignee')}>
             <SelectAssigneeTask.FormItem
+              variant="table"
               scope={`${SCOPE}.assignee`}
               value={values.assigneeId || ''}
               teamIds={values.teamId ? [values.teamId] : undefined}
@@ -130,12 +168,14 @@ export const TaskPanelNew = () => {
           </PanelFormRow>
           <PanelFormRow label={t('start-date')}>
             <DateSelectTask.FormItem
+              variant="table"
               value={values.startDate}
               onValueChange={(date) => set('startDate', date)}
             />
           </PanelFormRow>
           <PanelFormRow label={t('due-date')}>
             <DateSelectTask.FormItem
+              variant="table"
               value={values.targetDate}
               onValueChange={(date) => set('targetDate', date)}
             />
@@ -146,6 +186,7 @@ export const TaskPanelNew = () => {
             error={errors.teamId?.message}
           >
             <SelectTeam.FormItem
+              variant="table"
               mode="single"
               value={values.teamId}
               onValueChange={(teamId) =>
@@ -155,6 +196,7 @@ export const TaskPanelNew = () => {
           </PanelFormRow>
           <PanelFormRow label={t('project')}>
             <SelectProject.FormItem
+              variant="table"
               scope={`${SCOPE}.project`}
               teamId={values.teamId}
               value={values.projectId}
@@ -166,6 +208,7 @@ export const TaskPanelNew = () => {
           {showCycle && (
             <PanelFormRow label={t('cycle')}>
               <SelectCycle.FormItem
+                variant="table"
                 scope={`${SCOPE}.cycle`}
                 teamId={values.teamId}
                 value={values.cycleId}
@@ -176,18 +219,18 @@ export const TaskPanelNew = () => {
           {showMilestone && (
             <PanelFormRow label={t('milestone')}>
               <SelectMilestone.FormItem
+                variant="table"
                 scope={`${SCOPE}.milestone`}
                 projectId={values.projectId}
                 value={values.milestoneId}
-                onValueChange={(milestoneId) =>
-                  set('milestoneId', milestoneId)
-                }
+                onValueChange={(milestoneId) => set('milestoneId', milestoneId)}
               />
             </PanelFormRow>
           )}
           {showEstimate && (
             <PanelFormRow label={t('estimate')}>
               <SelectEstimatedPoint.FormItem
+                variant="table"
                 scope={`${SCOPE}.estimate`}
                 teamId={values.teamId}
                 value={values.estimatePoint}
@@ -196,11 +239,14 @@ export const TaskPanelNew = () => {
             </PanelFormRow>
           )}
           <PanelFormRow label={t('tags')}>
-            <OperationTagsChip
+            <TagsSelect.InlineCell
               type={TASK_CONTENT_TYPE}
-              label={t('tags')}
+              mode="multiple"
+              scope={`${SCOPE}.tags`}
               value={values.tagIds || []}
-              onValueChange={(tagIds) => set('tagIds', tagIds)}
+              onValueChange={(tagIds) =>
+                set('tagIds', Array.isArray(tagIds) ? tagIds : [tagIds])
+              }
             />
           </PanelFormRow>
           <PanelFormRow label={t('customers', 'Customers')}>

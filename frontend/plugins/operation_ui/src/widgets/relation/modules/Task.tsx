@@ -88,7 +88,7 @@ export const Task = ({
   return (
     <RelationWidgetList
       dense
-      label={t('tasks-and-triages')}
+      label={t('tasks-and-triages', 'Tasks & triages')}
       actions={
         <AddTriageButton contacts={contacts} host={host} iconOnly />
       }
