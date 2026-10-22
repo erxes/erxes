@@ -49,10 +49,10 @@ export const normalizeStatus = (status?: string) => {
   return status.toLowerCase();
 };
 
-const getConversationReportIntegrationIds = async (
+const getConversationReportIntegrations = async (
   filters: IReportFilters,
   models: IModels,
-): Promise<string[]> => {
+): Promise<Pick<IIntegrationDocument, '_id' | 'kind'>[]> => {
   const query: FilterQuery<IIntegrationDocument> = {};
 
   if (filters.channelIds?.length) {
@@ -62,8 +62,14 @@ const getConversationReportIntegrationIds = async (
     query.kind = { $in: sourceMap[filters.source] };
   }
 
-  const integrations = await models.Integrations.find(query, { _id: 1 }).lean();
-  return integrations.map((integration) => String(integration._id));
+  const integrations = await models.Integrations.find(query, {
+    _id: 1,
+    kind: 1,
+  }).lean();
+  return integrations.map((integration) => ({
+    _id: String(integration._id),
+    kind: integration.kind,
+  }));
 };
 
 export async function generateConversationReportFilter(
@@ -82,8 +88,9 @@ export async function generateConversationReportFilter(
   const dateField = options.dateField ?? 'createdAt';
   Object.assign(match, buildDateMatch(filters, dateField));
 
+  const integrations = await getConversationReportIntegrations(filters, models);
   match.integrationId = {
-    $in: await getConversationReportIntegrationIds(filters, models),
+    $in: integrations.map((integration) => integration._id),
   };
 
   if (filters.memberIds?.length) {
@@ -100,7 +107,21 @@ export async function generateConversationReportFilter(
       .map((h) => h.conversationId)
       .filter(Boolean);
 
-    match._id = { $in: conversationIds };
+    // Callpro stores its own dispositions rather than CallHistory records.
+    match.$and = [
+      {
+        $or: [
+          { _id: { $in: conversationIds } },
+          {
+            integrationId: {
+              $in: integrations
+                .filter((integration) => integration.kind === 'callpro')
+                .map((integration) => integration._id),
+            },
+          },
+        ],
+      },
+    ];
   }
 
   return match;
@@ -198,10 +219,8 @@ export async function buildConversationResponsesPipeline(
   filters: IReportFilters,
   models: IModels,
 ): Promise<PipelineStage[] | null> {
-  const integrationIds = await getConversationReportIntegrationIds(
-    filters,
-    models,
-  );
+  const integrations = await getConversationReportIntegrations(filters, models);
+  const integrationIds = integrations.map((integration) => integration._id);
   if (!integrationIds.length) return null;
 
   const pipeline: PipelineStage[] = [
