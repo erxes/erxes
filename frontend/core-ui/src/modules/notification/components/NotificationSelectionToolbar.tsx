@@ -19,6 +19,10 @@ export const NotificationSelectionToolbar = ({
     ? t('delete', 'Delete')
     : t('mark-as-read', 'Mark as read');
   const ActionIcon = allRead ? IconTrash : IconCheck;
+  let checked: boolean | 'indeterminate' = false;
+  if (selectedCount > 0) {
+    checked = selectedCount === visibleCount ? true : 'indeterminate';
+  }
 
   return (
     <div
@@ -29,13 +33,7 @@ export const NotificationSelectionToolbar = ({
     >
       <Checkbox
         id="notification-select-visible"
-        checked={
-          selectedCount === visibleCount && visibleCount > 0
-            ? true
-            : selectedCount > 0
-            ? 'indeterminate'
-            : false
-        }
+        checked={checked}
         disabled={pending || visibleCount === 0}
         aria-label={t('select-visible')}
         onCheckedChange={onToggleAll}
