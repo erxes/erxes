@@ -7,64 +7,42 @@ import {
 import { AppPath } from '@/types/paths/AppPath';
 import { Button } from 'erxes-ui';
 import { Link } from 'react-router-dom';
-import { NotificationFeed } from '@/notification/components/NotificationFeed';
+import { NotificationItem } from '@/notification/components/NotificationItem';
 import { useNotifications } from '@/notification/hooks/useNotifications';
 import { useTranslation } from 'react-i18next';
-import { useState } from 'react';
-import { NotificationTabs } from '@/notification/components/NotificationTabs';
-import type { NotificationTabValue } from '@/notification/types/myInbox';
 
 const HOME_NOTIFICATIONS_LIMIT = 6;
 
 // Home has no inbox multi-select; the item's link opens it in the inbox.
 const openNotification = () => undefined;
 
-/** Recent unread and seen notifications; live through the inbox subscription. */
+/** Latest unread notifications; live through the inbox subscription. */
 export const HomeNotifications = () => {
-  const [tab, setTab] = useState<NotificationTabValue>('unread');
-  const unread = useNotifications({
-    variables: { limit: HOME_NOTIFICATIONS_LIMIT, status: 'UNREAD' },
-  });
-  const seen = useNotifications({
-    variables: {
-      limit: HOME_NOTIFICATIONS_LIMIT,
-      status: 'READ',
-      unreadFirst: false,
-    },
+  const { notifications, loading } = useNotifications({
+    variables: { limit: HOME_NOTIFICATIONS_LIMIT },
   });
   const { t } = useTranslation('common', { keyPrefix: 'home' });
-  const active = tab === 'read' ? seen : unread;
-  const notifications = active.notifications.filter((item) =>
-    tab === 'read' ? item.isRead : !item.isRead,
-  );
 
   const renderContent = () => {
-    if (active.loading && notifications.length === 0) {
+    if (loading && notifications.length === 0) {
       return <HomeListSkeleton />;
     }
 
-    if (notifications.length === 0 && !active.error) {
+    if (notifications.length === 0) {
       return <HomeEmptyState>{t('notifications-empty')}</HomeEmptyState>;
     }
 
     return (
       <div className="flex flex-col gap-1">
-        {active.error && (
-          <div role="alert" className="text-xs text-destructive">
-            {t('notifications-load-failed', 'Unable to load notifications')}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => void active.retry()}
-            >
-              {t('retry', 'Retry')}
-            </Button>
-          </div>
-        )}
-        <NotificationFeed
-          groups={[['', notifications]]}
-          onOpen={openNotification}
-        />
+        {notifications.map((notification) => (
+          <NotificationItem
+            key={notification._id}
+            {...notification}
+            selected={false}
+            selectionFocused={false}
+            onOpen={openNotification}
+          />
+        ))}
       </div>
     );
   };
@@ -78,16 +56,7 @@ export const HomeNotifications = () => {
         </Button>
       }
     >
-      <NotificationTabs
-        value={tab}
-        onValueChange={setTab}
-        unreadCount={
-          unread.loading || unread.error ? undefined : unread.totalCount
-        }
-        seenCount={seen.loading || seen.error ? undefined : seen.totalCount}
-      >
-        {renderContent()}
-      </NotificationTabs>
+      {renderContent()}
     </HomeSection>
   );
 };

@@ -100,6 +100,9 @@ export const useNotificationListActions = ({
         .filter((result) => result.success)
         .map((result) => result.id);
       if (completedIds.length > 0) {
+        setHiddenIds((previous) => [
+          ...new Set([...previous, ...completedIds]),
+        ]);
         setSelectedIds((previous) =>
           previous.filter((selectedId) => !completedIds.includes(selectedId)),
         );

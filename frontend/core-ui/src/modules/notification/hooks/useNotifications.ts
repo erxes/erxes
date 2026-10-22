@@ -68,7 +68,7 @@ export const useNotifications = (
   }, [refetch]);
   const subscriptionOptions = {
     variables: { userId: currentUser?._id },
-    skip: options?.skip || !currentUser?._id,
+    skip: !currentUser?._id,
     onData: () => {
       void retry();
     },

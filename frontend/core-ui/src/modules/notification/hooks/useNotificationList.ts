@@ -5,18 +5,12 @@ import {
   inboxDisplayOptionsState,
 } from '@/notification/states/notificationState';
 import { groupNotifications } from '@/notification/utils/groupNotifications';
-import { groupNotificationsByAuthor } from '@/notification/utils/groupNotificationsByAuthor';
 import { useInView } from 'react-intersection-observer';
 import { useNotifications } from '@/notification/hooks/useNotifications';
 import { useNotificationFilters } from '@/notification/hooks/useNotificationFilters';
 import type { UseNotificationListResult } from '@/notification/types/myInbox';
 
 export const useNotificationList = (): UseNotificationListResult => {
-  const unread = useNotifications({ variables: { status: 'UNREAD' } });
-  const seen = useNotifications({
-    variables: { status: 'READ', unreadFirst: false },
-  });
-  const { status } = useNotificationFilters();
   const {
     notifications,
     loading,
@@ -26,8 +20,8 @@ export const useNotificationList = (): UseNotificationListResult => {
     retry,
     fetchingMore,
     fetchMoreError,
-    pageInfo,
-  } = status === 'READ' ? seen : unread;
+  } = useNotifications();
+  const { status } = useNotificationFilters();
   const hiddenIds = useAtomValue(hiddenNotificationIdsState);
   const { grouping, unreadFirst } = useAtomValue(inboxDisplayOptionsState);
   const { t, i18n } = useTranslation('common', { keyPrefix: 'notification' });
@@ -39,7 +33,7 @@ export const useNotificationList = (): UseNotificationListResult => {
   const visible = notifications.filter(
     (item) =>
       !hiddenIds.includes(item._id) &&
-      (status === 'READ' ? item.isRead : !item.isRead),
+      (status === 'ALL' || (status === 'READ' ? item.isRead : !item.isRead)),
   );
   const groups = groupNotifications(
     visible,
@@ -48,14 +42,9 @@ export const useNotificationList = (): UseNotificationListResult => {
     t('system', 'System'),
     unreadFirst,
   );
-  const hasMore = !!pageInfo?.hasNextPage;
   return {
-    unreadCount: unread.loading || unread.error ? undefined : unread.totalCount,
-    seenCount: seen.loading || seen.error ? undefined : seen.totalCount,
     groups,
-    notifications: groups.flatMap(([, items]) =>
-      groupNotificationsByAuthor(items).flatMap((group) => group.items),
-    ),
+    notifications: groups.flatMap(([, items]) => items),
     loading,
     inViewRef,
     isEmpty:
@@ -63,7 +52,7 @@ export const useNotificationList = (): UseNotificationListResult => {
       !error &&
       visible.length === 0 &&
       totalCount <= notifications.length,
-    hasMore,
+    hasMore: !!notifications.length && totalCount > notifications.length,
     error,
     retry,
     fetchingMore,
