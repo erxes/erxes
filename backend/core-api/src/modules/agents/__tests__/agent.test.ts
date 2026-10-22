@@ -130,7 +130,6 @@ describe('buildFallbackAgentsModelEntry', () => {
       model: {
         id: `openai/${getProviderDefaultModel('openai')}`,
         apiKey: '',
-        headers: {},
       },
     });
     expect(generateModels).not.toHaveBeenCalled();

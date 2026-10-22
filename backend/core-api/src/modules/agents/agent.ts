@@ -17,7 +17,6 @@ import type { IAiAgentConnection } from 'erxes-api-shared/core-modules';
 import {
   createModelConfig,
   getProviderDefaultModel,
-  PROVIDER_DEFAULTS,
   resolveModelConnection,
 } from '@/agents/providers';
 import { buildAskUserTool } from '@/agents/askUser';
@@ -308,9 +307,7 @@ export const buildFallbackAgentsModelEntry =
     const fallback = await createModelConfig({
       provider: 'openai',
       model: getProviderDefaultModel('openai'),
-      baseUrl: PROVIDER_DEFAULTS.openai.baseUrl,
       apiKey: '',
-      headers: {},
     });
 
     return [{ model: fallback }];
