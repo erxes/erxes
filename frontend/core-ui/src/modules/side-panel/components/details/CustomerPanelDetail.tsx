@@ -1,5 +1,3 @@
-import { BuiltinModelFields } from '@/data-models/components/BuiltinModelFields';
-import { useCustomerDetailData } from '@/contacts/customers/hooks/useCustomerDetailData';
 import { useChangeCustomerState } from '@/contacts/customers/hooks/useChangeCustomerState';
 import { format } from 'date-fns';
 import {
@@ -24,6 +22,7 @@ import {
   CustomerPhones,
   ICustomerDetail,
   TagsSelect,
+  useCustomerDetail,
   useCustomerEdit,
   PANEL_TEXT_FIELD_CLASS_NAME,
   PanelDescriptionField,
@@ -196,7 +195,7 @@ const CustomerDescriptionField = ({
 export const CustomerPanelDetail = ({ customerId }: { customerId: string }) => {
   const { t } = useTranslation('contact', { keyPrefix: 'customer' });
   const { t: addT } = useTranslation('contact', { keyPrefix: 'customer.add' });
-  const { customerDetail, loading } = useCustomerDetailData({
+  const { customerDetail, loading } = useCustomerDetail({
     variables: { _id: customerId },
     skip: !customerId,
   });
@@ -316,7 +315,6 @@ export const CustomerPanelDetail = ({ customerId }: { customerId: string }) => {
           <CustomerSubscribedField customer={customer} />
         </PanelField>
         <CustomerDescriptionField customer={customer} />
-        <BuiltinModelFields model="customer" record={customer} />
       </div>
     </ScrollArea>
   );

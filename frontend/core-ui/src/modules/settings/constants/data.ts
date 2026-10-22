@@ -8,7 +8,6 @@ import {
   IconBolt,
   IconBuilding,
   IconChessKnight,
-  IconDatabase,
   IconFile,
   IconFileImport,
   IconHierarchy,
@@ -171,11 +170,6 @@ export const SETTINGS_PATH_DATA = (
       name: t('properties', 'Properties'),
       icon: IconHierarchy2,
       path: SettingsWorkspacePath.Properties,
-    },
-    {
-      name: t('data-models', 'Data Models'),
-      icon: IconDatabase,
-      path: SettingsWorkspacePath.DataModels,
     },
     {
       name: t('products', 'Products'),
@@ -369,7 +363,6 @@ export const GET_SETTINGS_SUB_NAVIGATION = (
 });
 
 export const SETTINGS_PERMISSION_MAP: Record<string, string> = {
-  [SettingsWorkspacePath.DataModels]: 'dataModels',
   [SettingsWorkspacePath.Agent]: 'agents',
   [SettingsWorkspacePath.TeamMember]: 'teamMembers',
   [SettingsWorkspacePath.Structure]: 'organization',

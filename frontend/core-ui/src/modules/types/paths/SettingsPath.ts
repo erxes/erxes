@@ -23,8 +23,6 @@ export enum SettingsWorkspacePath {
   TeamMember = 'team',
   TeamMemberCatchAll = `${TeamMember}/*`,
   Properties = 'properties',
-  DataModels = 'data-models',
-  DataModelsCatchAll = 'data-models/*',
   Structure = 'structures',
   StructureCatchAll = 'structures/*',
   Tags = 'tags',

@@ -44,9 +44,6 @@ import { agentsModelsQueries } from '@/agents/graphql/resolvers/queries/models';
 import { agentsThreadsQueries } from '@/agents/graphql/resolvers/queries/threads';
 import { agentsSettingsQueries } from '@/agents/graphql/resolvers/queries/settings';
 import { agentsToolsQueries } from '@/agents/graphql/resolvers/queries/tools';
-import { dataModelQueries } from '@/data-models/graphql/resolvers';
-import { dataModelRecordQueries } from '@/data-models/graphql/records';
-import { dataModelFieldQueries } from '@/data-models/graphql/fields';
 
 const sentryTestQueries = {
   _sentryGraphqlTest: () => {
@@ -89,9 +86,6 @@ export const queries = {
   ...internalNoteQueries,
   ...broadcastQueries,
   ...propertiesQueries,
-  ...dataModelQueries,
-  ...dataModelRecordQueries,
-  ...dataModelFieldQueries,
   ...clientPortalQueries,
   ...importExportCommonQueries,
   ...importQueries,

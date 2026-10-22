@@ -5,55 +5,6 @@ export const permissions: IPermissionConfig = {
 
   modules: [
     {
-      name: 'dataModelRecords',
-      description: 'Custom data model records',
-      scopeField: null,
-      ownerFields: [],
-      scopes: [{ name: 'all', description: 'All custom data model records' }],
-      actions: [
-        {
-          title: 'View custom model records',
-          name: 'dataModelRecordsRead',
-          description: 'Read records from active custom data models',
-        },
-        {
-          title: 'Create custom model records',
-          name: 'dataModelRecordsCreate',
-          description: 'Create records in active custom data models',
-        },
-        {
-          title: 'Update custom model records',
-          name: 'dataModelRecordsUpdate',
-          description: 'Edit and restore custom data model records',
-        },
-        {
-          title: 'Delete custom model records',
-          name: 'dataModelRecordsDelete',
-          description: 'Soft-delete custom data model records',
-        },
-      ],
-    },
-    {
-      name: 'dataModels',
-      description: 'Data model registry',
-      scopeField: null,
-      ownerFields: [],
-      scopes: [{ name: 'all', description: 'All data model definitions' }],
-      actions: [
-        {
-          title: 'View data models',
-          name: 'dataModelsRead',
-          description: 'View built-in and custom data model definitions',
-        },
-        {
-          title: 'Manage custom data models',
-          name: 'dataModelsManage',
-          description:
-            'Create, edit, archive and restore custom data model definitions',
-        },
-      ],
-    },
-    {
       name: 'emailTemplates',
       description: 'Email templates',
       scopeField: null,
@@ -833,23 +784,6 @@ export const permissions: IPermissionConfig = {
       permissions: [
         {
           plugin: 'core',
-          module: 'dataModels',
-          actions: ['dataModelsRead', 'dataModelsManage'],
-          scope: 'all',
-        },
-        {
-          plugin: 'core',
-          module: 'dataModelRecords',
-          actions: [
-            'dataModelRecordsRead',
-            'dataModelRecordsCreate',
-            'dataModelRecordsUpdate',
-            'dataModelRecordsDelete',
-          ],
-          scope: 'all',
-        },
-        {
-          plugin: 'core',
           module: 'contacts',
           actions: [
             'contactsCreate',
@@ -1023,22 +957,6 @@ export const permissions: IPermissionConfig = {
       permissions: [
         {
           plugin: 'core',
-          module: 'dataModelRecords',
-          actions: [
-            'dataModelRecordsRead',
-            'dataModelRecordsCreate',
-            'dataModelRecordsUpdate',
-          ],
-          scope: 'all',
-        },
-        {
-          plugin: 'core',
-          module: 'dataModels',
-          actions: ['dataModelsRead'],
-          scope: 'all',
-        },
-        {
-          plugin: 'core',
           module: 'teamMembers',
           actions: ['teamMembersUpdate'],
           scope: 'own',
@@ -1088,18 +1006,6 @@ export const permissions: IPermissionConfig = {
       description:
         'Read-only access to all Core modules, with own-data mutations',
       permissions: [
-        {
-          plugin: 'core',
-          module: 'dataModelRecords',
-          actions: ['dataModelRecordsRead'],
-          scope: 'all',
-        },
-        {
-          plugin: 'core',
-          module: 'dataModels',
-          actions: ['dataModelsRead'],
-          scope: 'all',
-        },
         {
           plugin: 'core',
           module: 'contacts',

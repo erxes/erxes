@@ -12,7 +12,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@apollo/composition": "2.9.3",
     "@apollo/client": "^3.11.8",
     "@bull-board/api": "^6.7.7",
     "@bull-board/express": "^6.7.7",

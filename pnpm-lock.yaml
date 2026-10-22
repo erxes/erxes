@@ -1085,9 +1085,6 @@ importers:
       '@apollo/client':
         specifier: ^3.11.8
         version: 3.13.6(@types/react@19.1.12)(graphql-ws@5.16.2(graphql@16.10.0))(graphql@16.10.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
-      '@apollo/composition':
-        specifier: 2.9.3
-        version: 2.9.3(graphql@16.10.0)
       '@bull-board/api':
         specifier: ^6.7.7
         version: 6.9.0(@bull-board/ui@6.9.0)

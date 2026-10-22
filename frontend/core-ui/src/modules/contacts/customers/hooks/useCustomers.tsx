@@ -1,4 +1,3 @@
-import { useBuiltinModelDocument } from '@/data-models/useBuiltinModelFields';
 import { QueryHookOptions, useQuery } from '@apollo/client';
 import { GET_CUSTOMERS } from '@/contacts/customers/graphql/queries/getCustomers';
 import { ICustomer } from 'ui-modules';
@@ -18,7 +17,6 @@ import { useEffect } from 'react';
 import { useIsCustomerLeadSessionKey } from './useCustomerLeadSessionKey';
 
 const CUSTOMERS_PER_PAGE = 30;
-const CUSTOMER_LIST_PATHS = [['customers', 'list']];
 
 export const useCustomersVariables = (
   variables?: QueryHookOptions<ICursorListResponse<ICustomer>>['variables'],
@@ -104,19 +102,11 @@ export const useCustomers = (
   // Customer Filter implementation
 
   const variables = useCustomersVariables(options?.variables);
-  const metadata = useBuiltinModelDocument(
-    GET_CUSTOMERS,
-    'customer',
-    CUSTOMER_LIST_PATHS,
-  );
   const { data, loading, fetchMore } = useQuery<ICursorListResponse<ICustomer>>(
-    metadata.document,
+    GET_CUSTOMERS,
     {
       ...options,
-      skip:
-        options?.skip ||
-        metadata.loading ||
-        isUndefinedOrNull(variables.cursor),
+      skip: options?.skip || isUndefinedOrNull(variables.cursor),
       variables,
     },
   );
@@ -162,10 +152,7 @@ export const useCustomers = (
   };
 
   return {
-    loading: loading || metadata.loading,
-    modelFields: metadata.fields,
-    modelFieldsError: metadata.error,
-    retryModelFields: metadata.retry,
+    loading,
     customers,
     handleFetchMore,
     pageInfo,
