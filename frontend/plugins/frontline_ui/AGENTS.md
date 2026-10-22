@@ -70,7 +70,7 @@
 - Report screens for the frontline plugin, including the default chart catalogue
   and the saved charts board built on top of it.
 - Automation remote entries under `src/widgets` for facebook, instagram, inbox,
-  discord, mail, knowledgebase, and ticket — trigger forms, action forms, node
+  discord, mail, form, knowledgebase, and ticket — trigger forms, action forms, node
   configuration content, bot management, and execution history renderers.
 - Notification, relation, activity, and floating widgets exposed to the host.
 
@@ -457,6 +457,19 @@
   pipelines, and response templates.
 - Renders plugin-specific automation trigger/action forms selected by node type
   in each module's `*RemoteEntry.tsx`.
+- The **Form submitted** trigger form (`widgets/automations/modules/form`)
+  picks a channel, then a form from that channel, then optional field
+  condition rows (field · operator · value) joined by Match all / Match any.
+  Operators come from `ui-modules` `AUTOMATION_CONDITION_OPERATORS`; a field
+  with options offers them as the value, and unary operators hide the value.
+  Changing the channel or form clears the rows, because field ids belong to
+  one form.
+  The form's answers appear in the builder's Variables panel as **Form
+  answers**, which `frontline_api` lists from the saved trigger config; no UI
+  code here builds them.
+  In execution history the run's name links to the form's submissions
+  (`/frontline/forms/submissions/:formId`), the customer and the
+  conversation (`FormHistoryName`).
 - The Create ticket action's Priority, Assignee and placement can be made
   conditional: rows of conditions each with their own value, plus an Otherwise.
   Placement (channel, pipeline, status) is one conditional over all three keys,

@@ -23,6 +23,7 @@ import {
   LookupAiToolInput,
   ReceiveActionsInput,
   ResolveOutputPathsInput,
+  ResolveOutputVariablesInput,
   SetPropertiesInput,
 } from './zodTypes';
 
@@ -96,6 +97,7 @@ export const startAutomations = async (
     generateAiContext,
     loadAiKnowledgeDocumentBatch,
     lookupAiTool,
+    resolveOutputVariables,
   } = config || {};
 
   const automationProcedures: Partial<
@@ -139,6 +141,13 @@ export const startAutomations = async (
     automationProcedures[TAutomationProducers.LOOKUP_AI_TOOL] = t.procedure
       .input(LookupAiToolInput)
       .mutation(async ({ ctx, input }) => lookupAiTool(input, ctx));
+  }
+
+  if (resolveOutputVariables) {
+    automationProcedures[TAutomationProducers.RESOLVE_OUTPUT_VARIABLES] =
+      t.procedure
+        .input(ResolveOutputVariablesInput)
+        .mutation(async ({ ctx, input }) => resolveOutputVariables(input, ctx));
   }
 
   const runtimeResolveOutputPaths = generateRuntimeResolveOutputPaths(

@@ -341,7 +341,20 @@
 - Resolves the Meta app per integration kind, so page posting can run on its own
   `FACEBOOK_POST_APP_ID`/`FACEBOOK_POST_APP_SECRET` credentials while Messenger
   keeps the shared app.
-- Runs Facebook/Instagram/Discord/mail/inbox/ticket automation triggers and actions,
+- The **Form submitted** trigger (`frontline:form.submissions`) fires from
+  `widgetsSaveLead` and `cpWidgetsSaveLead` after the submission rows are
+  saved. The target is `TFormSubmittedTriggerTarget`: `_id` is the submission
+  `groupId`, plus `formId`, `channelId`, `customerId`, `conversationId` and
+  `fieldValues` keyed by form field id. Config is `{ channelId?, formId,
+  conjunction: 'and' | 'or', conditions: [{ fieldId, operator, value? }] }`;
+  `checkCustomTrigger` (`modules/form/meta/automation/workers.ts`) needs the
+  exact `formId` and decides each condition with the shared
+  `isAutomationConditionMatched`. `channelId` only narrows the UI form list.
+  Its output sets `dynamicVariables`, so `resolveOutputVariables` lists the
+  chosen form's fields as a **Form answers** group (`fieldValues.<fieldId>`,
+  typed, with options); actions read them as
+  `{{ trigger.fieldValues.<fieldId> }}`, resolved straight from the target.
+- Runs Facebook/Instagram/Discord/mail/inbox/ticket/form automation triggers and actions,
   including bot message sequences with postback buttons and wait conditions.
 - Takes turns on Facebook Messenger for AI replies: a typed direct message
   reaches automations through a delayed BullMQ trigger (2 s for text, 5 s for
@@ -1305,6 +1318,9 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - Automation types — trigger `frontline:mail.messages` (target
   `TMailTriggerTarget`), actions `frontline:mail.messages.create` (Send Email)
   and `frontline:mail.drafts.create` (Draft Email Reply).
+- Automation type — trigger `frontline:form.submissions` (target
+  `TFormSubmittedTriggerTarget`, config `TFormSubmittedTriggerConfig` in
+  `modules/form/meta/automation/types.ts`).
 - Nx target `schema:print` uses the shared `scripts/print-subgraph-schema.ts` printer (cached, output `generated/schema.graphql`),
   consumed by `gateway:schema:compose`; `frontline_ui:codegen` uses that composed schema.
 
@@ -1356,6 +1372,11 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   tenant, integration and chat, with topic identity included where applicable.
 
 ## Local Invariants
+
+- A Form submitted condition on an array value (checkbox group, multi-select)
+  matches when any option matches; `dne`/`numberdne`/`dnc` must hold for every
+  option, and `is`/`ins` test the whole value. Number and boolean values are
+  compared as text, because the rule value is text.
 
 - A typed reply is never routed by the automation engine's `payload.btnId`
   wait (it has no payload); only `claimFacebookInputReply` resumes an Input

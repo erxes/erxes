@@ -99,7 +99,9 @@ export const automationHistoriesColumns: ColumnDef<IAutomationHistory>[] = [
     accessorKey: 'title',
     header: TitleHeader,
     cell: ({ cell }) => (
-      <AutomationHistoryResultName executionDetail={cell.row.original} />
+      <RecordTableInlineCell>
+        <AutomationHistoryResultName executionDetail={cell.row.original} />
+      </RecordTableInlineCell>
     ),
   },
   {
