@@ -6,7 +6,7 @@
 - **Project:** `operation_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/operation_api`
-- **Last synchronized:** `2026-10-17`
+- **Last synchronized:** `2026-10-22`
 
 ## Scope
 
@@ -180,6 +180,10 @@ propertiesData? } })`
   additionally requires `teamMemberManage`; omitting it leaves membership
   untouched. Member roles are deprecated end to end, so `teamUpdateMember`
   is gone from the SDL and the resolvers.
+- `teamRemoveMember` atomically deletes the membership matching both `teamId`
+  and `memberId` and returns the deleted `TeamMember`, including its non-null
+  `_id`; a missing membership throws `Team member not found`. Never return a
+  MongoDB deletion summary for this GraphQL field.
 - `Cycle.endCycle(_id, subdomain)` needs the tenant to resolve the timezone
   for the progress chart; the worker and the mutation both pass it.
 - Progress queries (`getProjectProgress*`, `getCycleProgress*`) return
@@ -225,6 +229,10 @@ propertiesData? } })`
   no errors.
 - `pnpm nx build operation_api` - its type-declaration step can exhaust the
   default Node heap; run with `NODE_OPTIONS=--max-old-space-size=8192`.
+- Team membership smoke: remove a member in Operation settings; confirm the
+  mutation returns the removed membership's `_id`, the success toast appears,
+  and the member list updates without reloading. Repeat removal of the same
+  membership and confirm `Team member not found`.
 - Smoke (conversation convert): from a frontline conversation convert into a
   task on a team status; the task appears in that team with the chosen status
   and `Go to a task` opens `/operation/tasks/<id>`.

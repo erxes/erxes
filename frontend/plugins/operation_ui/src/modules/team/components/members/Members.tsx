@@ -73,6 +73,7 @@ export function Members() {
                     <Table.Cell className="font-medium border-none pl-2 w-auto">
                       <MembersInline.Provider
                         memberIds={member.memberId ? [member.memberId] : []}
+                        showInactive
                       >
                         <span className="w-full flex gap-2 items-center">
                           <span className="[1lh] flex items-center">
