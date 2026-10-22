@@ -75,9 +75,12 @@ describe('bulk product type changes', () => {
     });
   });
 
-  it('continues after one failure and keeps selection for retry', async () => {
+  it('retries only failed products after a partial update', async () => {
     mockEdit.mockRejectedValueOnce(new Error('Permission denied'));
-    const { result } = renderHook(() => useProductsChangeType(targets));
+    const { result, rerender } = renderHook(
+      ({ products }) => useProductsChangeType(products),
+      { initialProps: { products: targets } },
+    );
     await act(async () => {
       await expect(result.current.apply({ type: 'product' })).resolves.toBe(
         false,
@@ -85,13 +88,26 @@ describe('bulk product type changes', () => {
     });
     expect(mockEdit).toHaveBeenCalledTimes(2);
     expect(mockRefetch).toHaveBeenCalled();
-    expect(mockClearSelection).not.toHaveBeenCalled();
+    expect(mockClearSelection).toHaveBeenCalledWith({ first: true });
     expect(mockToast).toHaveBeenCalledWith(
       expect.objectContaining({
         variant: 'destructive',
         description: expect.stringContaining('Permission denied'),
       }),
     );
+
+    rerender({ products: [targets[0]] });
+    await act(async () => {
+      await expect(result.current.apply({ type: 'product' })).resolves.toBe(
+        true,
+      );
+    });
+    expect(mockEdit.mock.calls).toEqual([
+      [{ variables: { _id: 'first', type: 'product' } }],
+      [{ variables: { _id: 'second', type: 'product' } }],
+      [{ variables: { _id: 'first', type: 'product' } }],
+    ]);
+    expect(mockClearSelection).toHaveBeenLastCalledWith({});
   });
 
   it('does not refresh or clear selection when every update fails', async () => {

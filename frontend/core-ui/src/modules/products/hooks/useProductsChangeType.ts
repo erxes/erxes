@@ -29,6 +29,7 @@ export const useProductsChangeType = (
 
     try {
       const errors: string[] = [];
+      const failedSelection: Record<string, boolean> = {};
       let updated = 0;
       // Serialize updates to keep per-product mutation side effects bounded.
       await targets.reduce(async (previous, product) => {
@@ -46,6 +47,7 @@ export const useProductsChangeType = (
           });
           updated += 1;
         } catch (error) {
+          failedSelection[product._id] = true;
           errors.push(error instanceof Error ? error.message : String(error));
         }
       }, Promise.resolve());
@@ -64,6 +66,7 @@ export const useProductsChangeType = (
         variant: errors.length ? 'destructive' : 'success',
       });
 
+      if (updated && errors.length) table.setRowSelection(failedSelection);
       if (updated) {
         await client.refetchQueries({ include: ['ProductsMain'] });
       }
