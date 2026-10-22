@@ -3,7 +3,7 @@ import {
   agentToolResponseTooLargeError,
   getAgentToolMaxResponseBytes,
   oversizedAgentToolResultBytes,
-} from './responseLimit';
+} from '@/agents/responseLimit';
 
 describe('responseLimit', () => {
   const ORIGINAL_ENV = process.env.AGENT_TOOLS_MAX_RESPONSE_BYTES;

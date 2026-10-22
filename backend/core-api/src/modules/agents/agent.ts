@@ -20,8 +20,6 @@ import {
   PROVIDER_DEFAULTS,
   resolveModelConnection,
 } from '@/agents/providers';
-// MongoDB 4.4.25 compatible
-import { makeToolInputSchemaMongoCompatible } from '@/agents/toolSchemaCompatibility';
 import { buildAskUserTool } from '@/agents/askUser';
 import { buildFindPagesTool } from '@/agents/findPages';
 import { buildCreateArtifactTool } from '@/agents/createArtifact';
@@ -389,15 +387,6 @@ export const buildBaseAgentsAgent = async ({
   // Code mode addition is also static — the tool itself doesn't change,
   // only whether it's included in the active tools for a given run.
   const codeModeAddition = await buildCodeModeAddition();
-
-  // MongoDB 4.4.25 compatible
-  makeToolInputSchemaMongoCompatible(searchGraphql);
-  makeToolInputSchemaMongoCompatible(callGraphql);
-  makeToolInputSchemaMongoCompatible(askUserTool);
-  makeToolInputSchemaMongoCompatible(readFileTool);
-  makeToolInputSchemaMongoCompatible(findPagesTool);
-  makeToolInputSchemaMongoCompatible(createArtifactTool);
-  makeToolInputSchemaMongoCompatible(codeModeAddition.tool);
 
   return new Agent({
     id: 'agents',

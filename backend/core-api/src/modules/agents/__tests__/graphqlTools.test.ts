@@ -1,6 +1,5 @@
 import {
   buildGraphqlTools,
-  listGraphqlCapabilities,
 } from '@/agents/graphqlTools';
 import { decodeAgentToolsAuthHeader } from 'erxes-api-shared/utils/agent-tools/auth';
 
@@ -11,13 +10,9 @@ jest.mock('erxes-api-shared/utils', () => {
   const auth = jest.requireActual<
     typeof import('erxes-api-shared/utils/agent-tools/auth')
   >('erxes-api-shared/utils/agent-tools/auth');
-  const responseLimit = jest.requireActual<
-    typeof import('erxes-api-shared/utils/agent-tools/responseLimit')
-  >('erxes-api-shared/utils/agent-tools/responseLimit');
 
   return {
     ...auth,
-    ...responseLimit,
     getEnv: ({ name, defaultValue }: { name: string; defaultValue?: string }) =>
       process.env[name] || defaultValue || '',
     getPluginAddress: jest.fn(),
@@ -154,38 +149,6 @@ const stubSchemaSources = (options?: { fail?: string[] }) => {
     return sdlResponse(DEALS_SDL);
   });
 };
-
-describe('listGraphqlCapabilities', () => {
-  it('preserves each root operation owner, including schema extensions', async () => {
-    stubSchemaSources();
-    const dateSpy = jest.spyOn(Date, 'now').mockReturnValue(1_699_999_900_000);
-    try {
-      const catalog = await listGraphqlCapabilities();
-      expect(catalog).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({
-            path: 'customers',
-            plugin: 'contacts',
-            method: 'query',
-          }),
-          expect.objectContaining({
-            path: 'customersAdd',
-            plugin: 'contacts',
-            method: 'mutation',
-          }),
-          expect.objectContaining({
-            path: 'deals',
-            plugin: 'sales',
-            method: 'query',
-          }),
-        ]),
-      );
-      expect(catalog.some((entry) => entry.path === 'login')).toBe(false);
-    } finally {
-      dateSpy.mockRestore();
-    }
-  });
-});
 
 describe('searchGraphql', () => {
   const context = {

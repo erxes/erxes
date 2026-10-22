@@ -43,7 +43,6 @@ import { agentsConnectionsQueries } from '@/agents/graphql/resolvers/queries/con
 import { agentsModelsQueries } from '@/agents/graphql/resolvers/queries/models';
 import { agentsThreadsQueries } from '@/agents/graphql/resolvers/queries/threads';
 import { agentsSettingsQueries } from '@/agents/graphql/resolvers/queries/settings';
-import { agentsToolsQueries } from '@/agents/graphql/resolvers/queries/tools';
 
 const sentryTestQueries = {
   _sentryGraphqlTest: () => {
@@ -101,5 +100,4 @@ export const queries = {
   ...agentsModelsQueries,
   ...agentsThreadsQueries,
   ...agentsSettingsQueries,
-  ...agentsToolsQueries,
 };
