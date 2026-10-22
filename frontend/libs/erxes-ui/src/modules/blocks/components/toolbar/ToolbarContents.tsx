@@ -1,5 +1,6 @@
 import {
   BasicTextStyleButton,
+  AddCommentButton,
   ComponentsContext,
   BlockTypeSelect,
   ColorStyleButton,
@@ -56,6 +57,7 @@ export const ToolbarContents = () => {
         <NestBlockButton key={'nestBlockButton'} />
         <UnnestBlockButton key={'unnestBlockButton'} />
         <CreateLinkButton key={'createLinkButton'} />
+        <AddCommentButton />
         <TableCellMergeButton key={'mergeTableCellButton'} />
       </FormattingToolbar>
     </ComponentsContext.Provider>

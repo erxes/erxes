@@ -1,3 +1,4 @@
+import { PrintDocument } from 'ui-modules';
 import type { TaskFieldsProps } from '@/task/types/taskFields';
 import { compactList } from '@/operation/utils/cursorList';
 import { useTranslation } from 'react-i18next';
@@ -157,6 +158,7 @@ export const TaskFields = ({ task, titleAction }: TaskFieldsProps) => {
           label={t('tags')}
         />
         <ConvertToProject task={task} />
+        <PrintDocument items={[{ _id: taskId }]} contentType="operation:task" />
       </div>
       <Separator className="mb-4 mt-2" />
       <div className="min-h-56 overflow-y-auto">

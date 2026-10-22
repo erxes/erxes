@@ -45,12 +45,18 @@ export function DocumentsRecordTable({
     handleFetchMore,
     pageInfo,
     refetch,
-  } =
-    useDocuments();
+  } = useDocuments();
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
 
   if (hasError) {
-    return <DocumentsErrorState error={error} onRetry={refetch} />;
+    return (
+      <DocumentsErrorState
+        error={error}
+        onRetry={() => {
+          void refetch().catch(() => undefined);
+        }}
+      />
+    );
   }
 
   if (!loading && documents.length === 0) {

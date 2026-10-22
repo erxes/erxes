@@ -5,7 +5,7 @@ export const ATTRIBUTE_DND_MIME = 'application/x-erxes-attribute';
 export interface DraggableAttribute {
   label?: string;
   name: string;
-  value?: any;
+  value?: string;
 }
 
 const buildAttributeInlineContent = (attribute: DraggableAttribute) => [
@@ -14,6 +14,8 @@ const buildAttributeInlineContent = (attribute: DraggableAttribute) => [
     props: {
       name: attribute.label || attribute.name,
       value: attribute.value || attribute.name,
+      width: 150,
+      height: 50,
     },
   },
   ' ',

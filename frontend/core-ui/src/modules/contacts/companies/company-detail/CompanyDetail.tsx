@@ -17,6 +17,7 @@ import {
   AddInternalNote,
   FieldsInDetail,
   RelationWidgetSideTabs,
+  PrintDocument,
 } from 'ui-modules';
 import { useCompanyCustomFieldEdit } from '../hooks/useCompanyCustomFieldEdit';
 import { companyCustomActivities } from './CompanyActivityRows';
@@ -43,6 +44,14 @@ export const CompanyDetail = () => {
           </FocusSheet.SideBar>
           <div className="flex-1 flex flex-col overflow-hidden">
             <CompanyDetailGeneral />
+            {companyDetail?._id && (
+              <div className="flex flex-wrap items-center gap-2 px-8 pb-5">
+                <PrintDocument
+                  items={[{ _id: companyDetail._id }]}
+                  contentType="core:contact.company"
+                />
+              </div>
+            )}
             <Separator />
             <div className="flex-1 min-h-0">
               <Tabs

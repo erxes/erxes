@@ -12,6 +12,7 @@ import {
   AddInternalNote,
   FieldsInDetail,
   RelationWidgetSideTabs,
+  PrintDocument,
 } from 'ui-modules';
 import { CustomerDetailGeneral } from './CustomerDetailGeneral';
 import { CustomerDetailFields } from './CustomerDetailFields';
@@ -50,6 +51,14 @@ export const CustomerDetail = () => {
           </FocusSheet.SideBar>
           <div className="flex-1 flex flex-col overflow-hidden">
             <CustomerDetailGeneral />
+            {customerDetail?._id && (
+              <div className="flex flex-wrap items-center gap-2 px-8 pb-5">
+                <PrintDocument
+                  items={[{ _id: customerDetail._id }]}
+                  contentType="core:contact.customer"
+                />
+              </div>
+            )}
             <Separator />
             <div className="flex-1 min-h-0">
               <Tabs

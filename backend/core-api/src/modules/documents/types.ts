@@ -2,7 +2,7 @@ import {
   ICursorPaginateParams,
   IListParams,
 } from 'erxes-api-shared/core-types';
-import { Document } from 'mongoose';
+import { Document, Types } from 'mongoose';
 
 export interface IDocument {
   contentType: string;
@@ -12,15 +12,17 @@ export interface IDocument {
   replacer: string;
   code?: string;
   tagIds?: string[];
+  commentState?: string;
 }
 
 export interface IDocumentDocument extends IDocument, Document {
-  _id: string;
+  _id: Types.ObjectId;
   createdUserId: string;
 }
 
 export interface IDocumentFilterQueryParams
-  extends IListParams, ICursorPaginateParams {
+  extends IListParams,
+    ICursorPaginateParams {
   limit: number;
   contentType: string;
   subType?: string;

@@ -11,6 +11,7 @@ import { useSearchParams } from 'react-router';
 import { SelectMember, TagsSelect } from 'ui-modules';
 import { DocumentFilterState } from '../types';
 import { useTranslation } from 'react-i18next';
+import { DocumentsTotalCount } from './DocumentsTotalCount';
 import { DocumentsViewControl } from './DocumentsViewControl';
 
 const EMPTY_TAG_IDS: string[] = [];
@@ -46,6 +47,7 @@ export const DocumentsFilter = () => {
                 <DocumentFilterView />
               </Combobox.Content>
             </Filter.Popover>
+            <DocumentsTotalCount />
             <Filter.Dialog>
               <Filter.View filterKey="searchValue" inDialog>
                 <Filter.DialogStringView filterKey="searchValue" />

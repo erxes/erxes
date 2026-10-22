@@ -5,10 +5,7 @@ import {
   defaultStyleSpecs,
   createStyleSpec,
 } from '@blocknote/core';
-import {
-  Attribute,
-  Mention,
-} from 'erxes-ui/modules/blocks/components/BlockEditor';
+import { Attribute, Mention } from '../components/BlockEditorInlineContent';
 import { customFileBlock } from 'erxes-ui/modules/blocks/components/CustomFileBlock';
 import { customImageBlock } from 'erxes-ui/modules/blocks/components/CustomImageBlock';
 import { documentPlaceholderBlock } from 'erxes-ui/modules/blocks/components/DocumentPlaceholderBlock';
