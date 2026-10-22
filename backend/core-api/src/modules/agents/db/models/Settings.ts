@@ -42,7 +42,7 @@ export const loadAgentsSettingsClass = (models: IModels) => {
         { _id: SETTINGS_ID },
         {
           $setOnInsert: {
-            codeModeEnabled: false,
+            codeModeEnabled: true,
             codeModeEnvironment: 'in-process',
             approvalMode: 'writes',
           },
