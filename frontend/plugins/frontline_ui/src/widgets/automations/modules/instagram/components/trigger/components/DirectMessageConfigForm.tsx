@@ -20,7 +20,7 @@ const DirectMessageCondition = ({
       | TMessageTriggerFormDirectMessage[number]['operator'],
   ) => void;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.instagram' });
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       const { value } = e.currentTarget;
@@ -123,9 +123,9 @@ const DirectMessageCondition = ({
           <Select.Value placeholder={t('select', 'Select...')} />
         </Select.Trigger>
         <Select.Content>
-          {DIRECT_MESSAGE_OPERATOR_TYPES.map(({ label, value }) => (
+          {DIRECT_MESSAGE_OPERATOR_TYPES.map(({ labelKey, value }) => (
             <Select.Item key={value} value={value}>
-              {label}
+              {t(labelKey)}
             </Select.Item>
           ))}
         </Select.Content>
@@ -153,7 +153,7 @@ export const DirectMessageConfigForm = ({
   conditions = [],
   onConditionChange,
 }: Props) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.instagram' });
   const onRemoveCondition = (id: string) => {
     onConditionChange(
       'conditions',

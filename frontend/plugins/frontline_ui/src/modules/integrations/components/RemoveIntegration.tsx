@@ -17,6 +17,8 @@ export const RemoveIntegration = ({
       'Integrations',
       'IntegrationsGetUsedTypes',
       'IntegrationsGetUsedTypesByChannel',
+      'ChannelIntegrationsPeek',
+      'frontlineChannelList',
     ],
     onCompleted() {
       toast({

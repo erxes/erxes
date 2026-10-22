@@ -6,6 +6,7 @@ import {
 } from 'erxes-api-shared/core-modules';
 import { IModels } from '~/connectionResolvers';
 import { SALES_DEAL_FIND_OBJECT_TYPE } from '~/modules/sales/meta/automations/constants';
+import { assertDealUpdatesAllowed } from '~/modules/sales/utils/archiveGuard';
 
 type TReceiveActionsData =
   TAutomationProducersInput[TAutomationProducers.RECEIVE_ACTIONS];
@@ -230,6 +231,7 @@ export const createChecklist = async (
   if (!targetDeal) {
     throw new Error('Sales deal target was not found');
   }
+  await assertDealUpdatesAllowed(models, [targetDeal], { checklist: config });
 
   const targetStage = targetDeal.stageId
     ? await models.Stages.findOne({ _id: targetDeal.stageId }).lean()

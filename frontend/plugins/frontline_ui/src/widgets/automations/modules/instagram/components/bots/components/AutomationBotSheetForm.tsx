@@ -2,6 +2,7 @@ import { IconPlus } from '@tabler/icons-react';
 import { Button, cn, Sheet, useQueryState } from 'erxes-ui';
 import { useAtom, useAtomValue } from 'jotai';
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { AutomationBotForm } from '~/widgets/automations/modules/instagram/components/bots/components/AutomationBotForm';
 import {
   isOpenInstagramBotSecondarySheet,
@@ -9,6 +10,7 @@ import {
 } from '~/widgets/automations/modules/instagram/components/bots/states/instagramBotStates';
 
 export const AutomationBotSheetForm = () => {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.instagram' });
   const [instagramBotId, setInstagramBotId] =
     useQueryState<string>('instagramBotId');
   const [isOpen, setOpen] = useAtom(isOpenInstagramBotSheet);
@@ -34,7 +36,7 @@ export const AutomationBotSheetForm = () => {
         <Sheet.Trigger asChild>
           <Button>
             <IconPlus />
-            Add Bot
+            {t('add-bot')}
           </Button>
         </Sheet.Trigger>
         <Sheet.View

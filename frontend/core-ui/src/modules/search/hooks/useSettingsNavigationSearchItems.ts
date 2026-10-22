@@ -2,6 +2,7 @@ import { GET_CORE_MODULES } from '~/plugins/constants/core-plugins.constants';
 import {
   GET_SETTINGS_PATH_DATA,
   SETTINGS_PERMISSION_MAP,
+  SETTINGS_ACTION_PERMISSION_MAP,
 } from '@/settings/constants/data';
 import { TeamMembersPath } from '@/settings/team-member/constants/teamMemberRoutes';
 import { TNavigationSearchItem } from '@/search/types/GlobalSearch';
@@ -42,7 +43,7 @@ export const useSettingsNavigationSearchItems = () => {
   const version = useVersion();
   const { t } = useTranslation('common', { keyPrefix: 'sidebar' });
   const { t: tSettings } = useTranslation('settings');
-  const { isLoaded, isWildcard, hasModulePermission } = usePermissionCheck();
+  const { isLoaded, isWildcard, hasModulePermission, hasActionPermission } = usePermissionCheck();
   const settingsData = useMemo(
     () => GET_SETTINGS_PATH_DATA(version, t),
     [t, version],
@@ -50,6 +51,8 @@ export const useSettingsNavigationSearchItems = () => {
 
   return useMemo(() => {
     const canAccessPath = (path: string) => {
+      const requiredAction = SETTINGS_ACTION_PERMISSION_MAP[path];
+      if (requiredAction) return isLoaded && hasActionPermission(requiredAction);
       const requiredModule = SETTINGS_PERMISSION_MAP[path];
 
       return (
@@ -99,6 +102,7 @@ export const useSettingsNavigationSearchItems = () => {
 
     return items;
   }, [
+    hasActionPermission,
     hasModulePermission,
     isLoaded,
     isWildcard,

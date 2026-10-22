@@ -19,7 +19,7 @@ export const SurveyRejectDialog = ({
   surveyIds: string[];
   onRejected?: () => void;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.survey' });
   const [reason, setReason] = useState('');
   const { toggleSurveyStatus, loading } = useSurveyToggleStatus();
 

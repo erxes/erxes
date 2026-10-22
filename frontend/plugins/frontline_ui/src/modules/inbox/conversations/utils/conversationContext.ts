@@ -1,6 +1,6 @@
-import type { ICustomerInline } from 'ui-modules';
 import type {
   IConversationContextIntegration,
+  IConversationCustomer,
   IConversationContextValue,
   IConversationDetail,
 } from '@/inbox/types/Conversation';
@@ -11,6 +11,7 @@ type ConversationCustomer = {
   middleName?: string | null;
   lastName?: string | null;
   primaryEmail?: string | null;
+  emails?: (string | null)[] | null;
   primaryPhone?: string | null;
   avatar?: string | null;
 };
@@ -18,7 +19,7 @@ type ConversationCustomer = {
 /** Core customers can resolve without an `_id`; those cannot be shown inline. */
 export const toCustomerInline = (
   customer?: ConversationCustomer | null,
-): ICustomerInline | undefined =>
+): IConversationCustomer | undefined =>
   customer?._id
     ? {
         _id: customer._id,
@@ -26,6 +27,7 @@ export const toCustomerInline = (
         middleName: customer.middleName ?? undefined,
         lastName: customer.lastName ?? undefined,
         primaryEmail: customer.primaryEmail ?? undefined,
+        emails: customer.emails?.filter((email): email is string => !!email),
         primaryPhone: customer.primaryPhone ?? undefined,
         avatar: customer.avatar ?? undefined,
       }

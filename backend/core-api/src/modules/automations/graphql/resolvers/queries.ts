@@ -21,6 +21,7 @@ import {
   generateAutomationHistoriesFilter,
   generateAutomationStatsFilter,
   generateAutomationsFilter,
+  addDynamicOutputVariables,
   addReferenceExtensionsToAutomationOutput,
   getAutomationReferenceFields,
   getAutomationConstants,
@@ -331,13 +332,25 @@ export const automationQueries = {
     );
   },
 
-  async automationNodeOutput(_root, { nodeType }: { nodeType: string }) {
+  async automationNodeOutput(
+    _root,
+    {
+      nodeType,
+      config,
+    }: { nodeType: string; config?: Record<string, unknown> | null },
+    { subdomain }: IContext,
+  ) {
     const { triggersConst, actionsConst } = await getAutomationConstants();
 
     const matchedTrigger = triggersConst.find(({ type }) => type === nodeType);
 
     const matchedAction = actionsConst.find(({ type }) => type === nodeType);
-    const output = matchedTrigger?.output || matchedAction?.output || null;
+    const output = await addDynamicOutputVariables({
+      subdomain,
+      nodeType,
+      output: matchedTrigger?.output || matchedAction?.output || null,
+      config,
+    });
 
     return await addReferenceExtensionsToAutomationOutput({
       nodeType,
@@ -514,6 +527,37 @@ export const automationQueries = {
       jobName: 'checkAiAgentHealth',
       subdomain,
       data: { agentId },
+      timeout: 10000,
+    });
+  },
+
+  async automationsAiAgentModels(
+    _root,
+    {
+      agentId,
+      provider,
+      selectedModel,
+    }: { agentId?: string; provider: string; selectedModel?: string },
+    { models, subdomain, user, checkPermission }: IContext,
+  ) {
+    // Without an agent this lists with the platform key, so gate it like create.
+    if (agentId) {
+      await models.ApprovalLocks.assertAccess({
+        user,
+        contentType: AUTOMATION_APPROVAL_CONTENT_TYPES.AUTOMATION_AI_AGENT,
+        contentId: agentId,
+        action: 'view',
+      });
+    } else {
+      await checkPermission('automationsAiAgentAdd');
+    }
+
+    return await sendWorkerMessage({
+      pluginName: 'automations',
+      queueName: 'aiAgent',
+      jobName: 'listAiAgentModels',
+      subdomain,
+      data: { agentId, provider, selectedModel },
       timeout: 10000,
     });
   },

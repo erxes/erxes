@@ -26,7 +26,7 @@ const TicketStatusSelect = ({
   value: string | null;
   onValueChange: (value: string | null) => void;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.survey' });
   const { statuses, loading } = useGetAccessibleTicketStatuses({
     variables: { pipelineId },
     skip: !pipelineId,
@@ -67,7 +67,7 @@ export const SurveyOptionTicketConfig = ({
   stepIndex: number;
   optionIndex: number;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.survey' });
   const { channelId } = useSurveySetupChannel();
   const path = `steps.${stepIndex}.options.${optionIndex}` as const;
 

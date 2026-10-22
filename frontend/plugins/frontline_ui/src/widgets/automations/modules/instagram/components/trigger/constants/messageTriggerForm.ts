@@ -1,10 +1,10 @@
 export const DIRECT_MESSAGE_OPERATOR_TYPES = [
-  { label: 'Is Equal to', value: 'isEqual' },
-  { label: 'Is Contains', value: 'isContains' },
-  { label: 'Is Every keywords includes', value: 'every' },
-  { label: 'Is Some keywords includes', value: 'some' },
-  { label: 'Start with', value: 'startWith' },
-  { label: 'End with', value: 'endWith' },
+  { labelKey: 'operator-is-equal-to', value: 'isEqual' },
+  { labelKey: 'operator-is-contains', value: 'isContains' },
+  { labelKey: 'operator-every-keywords', value: 'every' },
+  { labelKey: 'operator-some-keywords', value: 'some' },
+  { labelKey: 'operator-start-with', value: 'startWith' },
+  { labelKey: 'operator-end-with', value: 'endWith' },
 ];
 
 export const MESSAGE_TRIGGER_CONDITIONS = [

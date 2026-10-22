@@ -1,12 +1,11 @@
-import { GET_PROJECTS } from '@/project/graphql/queries/getProjects';
-import { compactList } from '@/operation/utils/cursorList';
-import { IProject } from '@/project/types';
 import { IconClipboard } from '@tabler/icons-react';
-import { useQuery } from '@apollo/client';
 import { ScrollArea, Separator, Spinner } from 'erxes-ui';
-import { useCreateMultipleRelations, useRelations } from 'ui-modules';
+import { useCreateWidgetRelations } from '../hooks/useCreateWidgetRelations';
+import { useConnectedProjects } from '../hooks/useConnectedProjects';
 import { AddProjectRelation } from './AddProjectRelation';
+import { ConnectProjectRelation } from './ConnectProjectRelation';
 import { ProjectWidgetCard } from './ProjectWidgetCard';
+import { WidgetQueryError } from './WidgetQueryError';
 import { useTranslation } from 'react-i18next';
 
 export const Project = ({
@@ -21,66 +20,50 @@ export const Project = ({
   companyId?: string;
 }) => {
   const { t } = useTranslation('operation');
-  const { ownEntities, loading: loadingRelations } = useRelations({
-    variables: {
-      contentId,
-      contentType,
-      relatedContentType: 'operation:project',
-    },
+  const { projectIds, projects, loading, error, retry } = useConnectedProjects({
+    contentId,
+    contentType,
   });
 
-  const projectIds = ownEntities.map((e) => e.contentId);
-
-  const { data, loading: loadingProjects } = useQuery(GET_PROJECTS, {
-    variables: { filter: { _ids: projectIds, limit: projectIds.length || 1 } },
-    skip: projectIds.length === 0,
+  const { createRelations, loading: connecting } = useCreateWidgetRelations({
+    contentId,
+    contentType,
+    customerId,
+    companyId,
+    relatedContentType: 'operation:project',
+    successMessage: t('project-connected', {
+      defaultValue: 'Project connected successfully',
+    }),
   });
-
-  const { createMultipleRelations } = useCreateMultipleRelations();
-
-  const loading =
-    loadingRelations || (projectIds.length > 0 && loadingProjects);
 
   if (loading) {
     return <Spinner containerClassName="py-20" />;
   }
+  if (error) return <WidgetQueryError error={error} onRetry={retry} />;
 
-  const onSelect = (projectId: string) => {
-    const createRelation = (ct: string, cid: string) => ({
-      entities: [
-        { contentType: ct, contentId: cid },
-        { contentType: 'operation:project', contentId: projectId },
-      ],
-    });
-
-    const seen = new Set<string>();
-
-    const relations = [
-      [contentType, contentId],
-      ...(customerId ? [['core:customer', customerId]] : []),
-      ...(companyId ? [['core:company', companyId]] : []),
-    ]
-      .filter(([ct, cid]) => {
-        const key = `${ct}:${cid}`;
-        if (seen.has(key)) return false;
-        seen.add(key);
-        return true;
-      })
-      .map(([ct, cid]) => createRelation(ct, cid));
-
-    createMultipleRelations(relations);
+  const onSelect = async (projectId: string): Promise<boolean> => {
+    if (connecting || projectIds.includes(projectId)) return false;
+    return createRelations(projectId);
   };
 
-  const projects: IProject[] = compactList(data?.getProjects?.list);
-
-  if (ownEntities.length === 0 || projects.length === 0) {
+  if (projects.length === 0) {
     return (
       <div className="flex flex-auto flex-col gap-4 justify-center items-center text-muted-foreground">
         <div className="border border-dashed p-6 bg-background rounded-xl">
           <IconClipboard />
         </div>
         <span className="text-sm">{t('no-projects-to-display')}</span>
-        <AddProjectRelation onSelect={onSelect} label="Add project" />
+        <AddProjectRelation
+          onSelect={onSelect}
+          label={t('add-project')}
+          disabled={connecting}
+        />
+        <ConnectProjectRelation
+          projectIds={projectIds}
+          onSelect={onSelect}
+          disabled={connecting}
+          showText
+        />
       </div>
     );
   }
@@ -89,7 +72,14 @@ export const Project = ({
     <>
       <div className="h-11 px-4 flex items-center gap-2 flex-none bg-background justify-between">
         <span className="font-medium text-primary">{t('projects')}</span>
-        <AddProjectRelation onSelect={onSelect} />
+        <div className="flex items-center gap-2">
+          <AddProjectRelation onSelect={onSelect} disabled={connecting} />
+          <ConnectProjectRelation
+            projectIds={projectIds}
+            onSelect={onSelect}
+            disabled={connecting}
+          />
+        </div>
       </div>
       <Separator />
       <ScrollArea className="flex-auto">

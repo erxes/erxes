@@ -9,7 +9,7 @@ export const AutomationBotForm = ({
 }: {
   instagramBotId: string | null;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.instagram' });
   const { loadingDetail, instagramMessengerBot } =
     useInstagramBotForm(instagramBotId);
 

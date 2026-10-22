@@ -2,14 +2,18 @@ import { AddProjectForm } from '@/project/components/add-project/AddProjectForm'
 import { IconPlus } from '@tabler/icons-react';
 import { Button, Sheet } from 'erxes-ui';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export const AddProjectRelation = ({
   onSelect,
   label,
+  disabled,
 }: {
   onSelect: (projectId: string) => void;
   label?: string;
+  disabled?: boolean;
 }) => {
+  const { t } = useTranslation('operation');
   const [open, setOpen] = useState(false);
 
   const onClose = () => setOpen(false);
@@ -18,7 +22,7 @@ export const AddProjectRelation = ({
     <Sheet open={open} onOpenChange={setOpen}>
       <Sheet.Trigger asChild>
         {label ? (
-          <Button onClick={(e) => e.stopPropagation()}>
+          <Button disabled={disabled} onClick={(e) => e.stopPropagation()}>
             <IconPlus className="size-4" />
             {label}
           </Button>
@@ -26,6 +30,8 @@ export const AddProjectRelation = ({
           <Button
             size="sm"
             variant="ghost"
+            aria-label={t('add-project')}
+            disabled={disabled}
             onClick={(e) => e.stopPropagation()}
           >
             <IconPlus className="size-4" />

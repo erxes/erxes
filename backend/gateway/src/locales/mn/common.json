@@ -530,6 +530,12 @@
     "message": "Уучлаарай! Хуудас олдсонгүй.",
     "go-back": "Буцах"
   },
+  "pending-approval": "зөвшөөрөл хүлээж буй",
+  "integrations": {
+    "config": {
+      "header": "Холболтын тохиргоо"
+    }
+    },
   "home": {
     "good-morning": "Өглөөний мэнд, {{name}}",
     "good-afternoon": "Өдрийн мэнд, {{name}}",

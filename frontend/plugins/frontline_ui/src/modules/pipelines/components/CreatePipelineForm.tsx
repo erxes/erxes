@@ -16,7 +16,7 @@ const PIPELINE_DESCRIPTION_FIELD =
 export const CreatePipelineForm = <T extends PipelineFormValues>({
   form,
 }: CreatePipelineFormProps<T>) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.pipelines' });
   return (
     <div className="flex flex-col gap-3">
       <Form.Field

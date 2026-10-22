@@ -67,6 +67,8 @@ export interface IConversation {
 export interface IConversationDocument extends IConversation, Document {
   _id: string;
   lastMessage?: IMessageDocument | null;
+  /** Set by customer-facing queries; their `messages` exclude internal notes. */
+  customerView?: boolean;
   createdAt: Date | undefined;
   updatedAt: Date | undefined;
 }

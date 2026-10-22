@@ -43,6 +43,7 @@ export const GET_CONVERSATION_DETAIL = gql(`
         firstName
         lastName
         primaryEmail
+        emails
         primaryPhone
         avatar
       }

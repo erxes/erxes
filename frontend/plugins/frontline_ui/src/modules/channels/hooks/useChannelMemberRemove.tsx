@@ -8,7 +8,7 @@ import type {
 } from '~/gql/graphql';
 
 export const useChannelMemberRemove = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.channels' });
   const { toast } = useToast();
   const [removeChannelMember, { loading, error }] = useMutation(
     REMOVE_CHANNEL_MEMBER,

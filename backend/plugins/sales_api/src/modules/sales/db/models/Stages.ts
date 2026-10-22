@@ -6,6 +6,7 @@ import { IStage, IStageDocument } from '../../@types';
 import { removeStageItems } from '~/modules/sales/graphql/resolvers/utils';
 import { stageSchema } from '../definitions/stages';
 import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
+import { assertPipelineIsActive } from '../../utils/archiveGuard';
 
 export interface IStageModel extends Model<IStageDocument> {
   getStage(_id: string): Promise<IStageDocument>;
@@ -63,6 +64,7 @@ export const loadStageClass = (
       userId?: string,
       skipCodeDuplication = false,
     ) {
+      await assertPipelineIsActive(models, doc.pipelineId);
       const normalizedDoc = {
         ...doc,
         ...(doc.code !== undefined ? { code: doc.code.trim() } : {}),
@@ -89,6 +91,13 @@ export const loadStageClass = (
     public static async updateStage(_id: string, doc: IStage, userId?: string) {
       const prevStage = await models.Stages.findOne({ _id });
       if (!prevStage) throw new Error('Stage not found');
+      if (doc.pipelineId && doc.pipelineId !== prevStage.pipelineId) {
+        await assertPipelineIsActive(models, prevStage.pipelineId);
+      }
+      await assertPipelineIsActive(
+        models,
+        doc.pipelineId || prevStage.pipelineId,
+      );
 
       const normalizedDoc = {
         ...doc,

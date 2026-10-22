@@ -25,6 +25,7 @@ export const initPropertyProducers = (
   app.use(
     '/properties',
     trpcExpress.createExpressMiddleware({
+      allowMethodOverride: true,
       router,
       createContext: createTRPCContext(async (_subdomain, context) => context),
     }),

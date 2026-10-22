@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react';
 import { Navigate, Route, Routes } from 'react-router';
 import { EmailTemplatesSettingsRoutes } from '@/emailTemplates/components/EmailTemplatesSettingsRoutes';
 import { SettingsPageEffect } from '@/settings/components/SettingsPageEffect';
+import { AppPath } from '@/types/paths/AppPath';
 import {
   SettingsPath,
   SettingsWorkspacePath,
@@ -66,6 +67,14 @@ const OAuthClientsSettings = lazy(() =>
   import('~/pages/settings/workspace/OAuthClientsSettingsPage').then(
     (module) => ({
       default: module.OAuthClientsSettingsPage,
+    }),
+  ),
+);
+
+const ConnectionsSettings = lazy(() =>
+  import('~/pages/settings/workspace/ConnectionsSettingsPage').then(
+    (module) => ({
+      default: module.ConnectionsSettingsPage,
     }),
   ),
 );
@@ -245,6 +254,19 @@ export function SettingsRoutes() {
         <Route
           path={SettingsWorkspacePath.OAuthClients}
           element={<OAuthClientsSettings />}
+        />
+        <Route
+          path={SettingsWorkspacePath.Credentials}
+          element={
+            <Navigate
+              to={`/${AppPath.Settings}/${SettingsWorkspacePath.Connections}`}
+              replace
+            />
+          }
+        />
+        <Route
+          path={SettingsWorkspacePath.Connections}
+          element={<ConnectionsSettings />}
         />
         <Route
           path={SettingsWorkspacePath.PropertiesCatchAll}

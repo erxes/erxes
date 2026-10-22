@@ -18,6 +18,7 @@ import {
   IconMessage,
   IconNotification,
   IconPassword,
+  IconPlugConnected,
   IconShoppingCart,
   IconShieldCheck,
   IconShieldLock,
@@ -140,6 +141,11 @@ export const SETTINGS_PATH_DATA = (
     },
   ],
   nav: [
+    {
+      name: t('connections', 'Connections'),
+      icon: IconPlugConnected,
+      path: SettingsWorkspacePath.Connections,
+    },
     {
       name: t('general'),
       icon: IconAdjustmentsAlt,
@@ -351,6 +357,8 @@ export const GET_SETTINGS_SUB_NAVIGATION = (
 });
 
 export const SETTINGS_PERMISSION_MAP: Record<string, string> = {
+  [SettingsWorkspacePath.Credentials]: 'credentials',
+  [SettingsWorkspacePath.Connections]: 'credentials',
   [SettingsWorkspacePath.TeamMember]: 'teamMembers',
   [SettingsWorkspacePath.Structure]: 'organization',
   [SettingsWorkspacePath.Tags]: 'tags',
@@ -363,4 +371,10 @@ export const SETTINGS_PERMISSION_MAP: Record<string, string> = {
   [SettingsWorkspacePath.Permissions]: 'permissions',
   [SettingsWorkspacePath.ApprovalRequests]: 'approval',
   [SettingsWorkspacePath.EmailTemplates]: 'emailTemplates',
+};
+
+// Sensitive settings stay hidden until their exact read action is loaded.
+export const SETTINGS_ACTION_PERMISSION_MAP: Record<string, string> = {
+  [SettingsWorkspacePath.Credentials]: 'credentialsRead',
+  [SettingsWorkspacePath.Connections]: 'credentialsRead',
 };

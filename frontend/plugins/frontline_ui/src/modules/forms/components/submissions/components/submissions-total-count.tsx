@@ -4,7 +4,7 @@ import { useParams } from 'react-router';
 import { useTranslation } from 'react-i18next';
 
 export const SubmissionsTotalCount = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
   const { formId } = useParams<{ formId: string }>();
   const { totalCount } = useGetFormSubmissions({
     variables: {

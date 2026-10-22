@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { RETRY_TICKET_NOTE_MAIL } from '@/activity/graphql/mutations/retryTicketNoteMail';
 
 export const useRetryTicketNoteMail = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.activity' });
   const [retry, { loading }] = useMutation(RETRY_TICKET_NOTE_MAIL);
 
   const retryTicketNoteMail = (noteId: string) =>

@@ -21,7 +21,7 @@ import {
 } from '@/survey/states/surveySetupStates';
 
 export const SurveyGeneral = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.survey' });
   const { surveyId } = useParams<{ surveyId: string }>();
   const { isChannelRoute } = useSurveySetupChannel();
   const showChannelSelect = !isChannelRoute && !surveyId;
@@ -101,7 +101,7 @@ export const SurveyGeneral = () => {
             name="channelId"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>{t('channel-label', 'Channel')}</Form.Label>
+                <Form.Label>{t('channel-label')}</Form.Label>
                 <SelectChannel.FormItem
                   value={field.value ?? ''}
                   mode="single"

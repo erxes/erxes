@@ -20,7 +20,7 @@ const CreateConfigSheetForm = ({
   onSubmit: SubmitHandler<TPipelineConfig>;
   onCancel: () => void;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.pipelines' });
 
   return (
     <Form {...methods}>
@@ -51,7 +51,7 @@ const CreateConfigSheetForm = ({
 };
 
 export const CreateConfig = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.pipelines' });
   const [open, setOpen] = useAtom(configCreateModalAtom);
   const { saveTicketsConfig, loading } = useSaveTicketsConfig();
   const { methods } = usePipelineConfigForm();

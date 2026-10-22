@@ -5,7 +5,7 @@ import { Skeleton } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
 export const PersonalChannelDetails = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.channels' });
   const { channel, loading, error } = useGetPersonalChannel();
 
   if (loading && !channel)

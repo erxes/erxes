@@ -1,3 +1,4 @@
+import { getPageUsage } from '@/integrations/pageUsage';
 import * as graph from 'fbgraph';
 import { IModels } from '~/connectionResolvers';
 import { debugError, debugInstagram } from '@/integrations/instagram/debuggers';
@@ -279,6 +280,7 @@ export const getPageList = async (
         id: accounInfo.id,
         name: accounInfo.username,
         isUsed: !!integration,
+        usage: await getPageUsage(models, integration?.erxesApiId),
       });
     }
   }

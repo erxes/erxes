@@ -10,7 +10,7 @@ export const TicketNumberPreview = ({
   numberConfig,
   numberSize,
 }: TicketNumberPreviewProps) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.pipelines' });
   const preview = buildTicketNumberPreview(numberConfig, numberSize);
 
   return (

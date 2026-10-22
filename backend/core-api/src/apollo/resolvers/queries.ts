@@ -1,4 +1,5 @@
 import { markResolvers } from 'erxes-api-shared/utils';
+import { credentialsQueries } from '@/credentials/graphql/resolvers';
 import { appQueries } from '@/apps/graphql/queries';
 import { authQueries } from '@/auth/graphql/resolvers/queries';
 import { oauthClientAppQueries } from '@/auth/graphql/resolvers/oauthClientApps';
@@ -53,6 +54,7 @@ markResolvers(sentryTestQueries, {
 });
 
 export const queries = {
+  ...credentialsQueries,
   ...sentryTestQueries,
   ...referenceQueries,
   ...contactQueries,

@@ -18,7 +18,7 @@ import { SelectTags } from 'ui-modules';
 
 export const ChannelFormsSubHeader = () => {
   const { t } = useTranslation('common');
-  const { t: tf } = useTranslation('frontline');
+  const { t: tf } = useTranslation('frontline', { keyPrefix: 'modules.channels' });
   const { id: channelId } = useParams<{ id: string }>();
 
   const [queries] = useMultiQueryState<{
@@ -88,7 +88,7 @@ export const ChannelFormsSubHeader = () => {
 };
 
 const ChannelFormsTagFilterBarItem = ({ queryKey }: { queryKey: string }) => {
-  const { t: tf } = useTranslation('frontline');
+  const { t: tf } = useTranslation('frontline', { keyPrefix: 'modules.channels' });
   const [query, setQuery] = useQueryState<string | null>(queryKey);
   return (
     <Filter.BarItem queryKey={queryKey}>
