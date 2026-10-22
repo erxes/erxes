@@ -4,7 +4,7 @@ import { useTeamMemberRemove } from '@/team/hooks/useTeamMemberRemove';
 import { useTranslation } from 'react-i18next';
 import { ITeamMember } from '@/team/types';
 import { IconX } from '@tabler/icons-react';
-import { Button, Skeleton, Table } from 'erxes-ui';
+import { Button, Skeleton, Table, useConfirm } from 'erxes-ui';
 import { useParams } from 'react-router';
 import { MembersInline } from 'ui-modules';
 
@@ -14,13 +14,16 @@ export function Members() {
   const { id: teamId } = useParams();
   const { members, loading } = useGetTeamMembers({ teamIds: teamId });
   const { removeTeamMember } = useTeamMemberRemove();
+  const { confirm } = useConfirm();
 
   const removeHandler = (teamId: string, memberId: string) => {
-    removeTeamMember({
-      variables: {
-        teamId,
-        memberId,
-      },
+    confirm({ message: t('are-you-sure-delete') }).then(() => {
+      removeTeamMember({
+        variables: {
+          teamId,
+          memberId,
+        },
+      });
     });
   };
 
