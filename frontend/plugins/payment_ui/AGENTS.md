@@ -6,7 +6,7 @@
 - **Project:** `payment_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/payment_ui`
-- **Last synchronized:** `2026-09-09`
+- **Last synchronized:** `2026-10-18`
 
 ## Scope
 
@@ -40,7 +40,7 @@
 
 | Area              | Path                                                    | Responsibility                                                 |
 | ----------------- | ------------------------------------------------------- | -------------------------------------------------------------- |
-| Federation config | `src/config.tsx`                                        | `IUIConfig`: settings navigation + `invoices` relation widget  |
+| Federation config | `src/config.tsx`                                        | `IUIConfig`: `navigationGroup` (Payment app tab) + `invoices` relation widget |
 | Dev server config | `rspack.config.ts`                                      | Module Federation development serving and watch ignore rules    |
 | Pages             | `src/pages/payment`                                     | Invoices, payment settings, corporate gateway route entries    |
 | Payment module    | `src/modules/payment`                                   | Payment/invoice GraphQL documents, hooks, types, Jotai state   |
@@ -53,7 +53,11 @@
 
 ### Provides
 
-- Module Federation exposes: `./config`, `./paymentSettings`, `./widgets`, `./relationWidget`.
+- Module Federation exposes: `./config`, `./payment`, `./widgets`, `./relationWidget`.
+- Payment is an app (`./payment` → `src/modules/payment/Main.tsx`): `/payment/invoices`
+  in its own `AppLayout` (`PaymentSidebar`, `PaymentSidebarFooter`), and its settings
+  (payment methods, corporate gateway) at `/payment/settings/*` inside
+  `PaymentSettingsLayout` and `PluginSettingsRoutes`.
 - Relation widget named `invoices` declared in `CONFIG.widgets.relationWidgets`.
 - Dev server port `3010`.
 
@@ -77,6 +81,7 @@
 
 ## Local Invariants
 
+- Page header breadcrumbs follow the shared pattern: crumbs are default ghost `Button`s (no `font-semibold`), the first crumb carries a 16px icon in the default text color, crumbs are separated by `Separator.Inline` or `Breadcrumb.Separator`, and settings pages carry no favorite toggle.
 - Sales board/pipeline/stage pickers must come from `ui-modules`. Do not add payment-local
   GraphQL documents for `salesBoards` / `salesPipelines` / `salesStages`.
 - **Never deep-import a context-bearing component from `erxes-ui`.** `module-federation.config.ts`
@@ -107,5 +112,5 @@
 
 - `pnpm nx lint payment_ui`
 - `pnpm nx build payment_ui`
-- Smoke: Settings → Payments → add/edit a payment method, toggle **Create deal on payment**,
+- Smoke: Payment → Settings (`/payment/settings/methods`) → add/edit a payment method, toggle **Create deal on payment**,
   pick board → pipeline → stage, save, and confirm the row updates without a page refresh.

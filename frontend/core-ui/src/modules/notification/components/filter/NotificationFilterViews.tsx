@@ -3,30 +3,39 @@ import { NotificationTypeCommandBar } from '@/notification/components/filter/Not
 import { Command, Filter, useMultiQueryState } from 'erxes-ui';
 import { IconCheck, IconLock } from '@tabler/icons-react';
 import { SelectMember } from 'ui-modules';
+import { useMemo } from 'react';
 
 export const NotificationFilterViews = () => {
   const [queries, setQueries] = useMultiQueryState<{
     status?: string;
-    priority?: string;
-    fromUserId?: string;
+    notificationPriority?: string;
+    notificationFromUserId?: string;
     notificationModule?: string | null;
-  }>(['priority', 'fromUserId', 'notificationModule']);
+  }>(['notificationPriority', 'notificationFromUserId', 'notificationModule']);
 
-  const { priority, fromUserId, notificationModule } = queries;
+  const {
+    notificationPriority: priority,
+    notificationFromUserId: fromUserId,
+    notificationModule,
+  } = queries;
+  const senderIds = useMemo(
+    () => fromUserId?.split(',').filter(Boolean) || [],
+    [fromUserId],
+  );
 
   return (
     <>
-      <Filter.View filterKey="type">
+      <Filter.View filterKey="notificationType">
         <NotificationTypeCommandBar />
       </Filter.View>
 
-      <Filter.View filterKey="priority">
+      <Filter.View filterKey="notificationPriority">
         <NotificationPriorityCommandBar
           priority={priority || ''}
           setQueries={setQueries}
         />
       </Filter.View>
-      <Filter.View filterKey="module">
+      <Filter.View filterKey="notificationModule">
         <Command>
           <Command.List>
             <Command.Item
@@ -47,17 +56,21 @@ export const NotificationFilterViews = () => {
           </Command.List>
         </Command>
       </Filter.View>
-      <Filter.View filterKey="createdAt">
-        <Filter.DateView filterKey="createdAt" />
+      <Filter.View filterKey="notificationCreatedAt">
+        <Filter.DateView filterKey="notificationCreatedAt" />
       </Filter.View>
 
-      <Filter.View filterKey="fromUserId">
+      <Filter.View filterKey="notificationFromUserId">
         <Command shouldFilter={false}>
           <SelectMember.Provider
-            value={fromUserId || ''}
+            value={senderIds}
             mode="multiple"
             onValueChange={(memberId) =>
-              setQueries({ fromUserId: memberId as string })
+              setQueries({
+                notificationFromUserId: Array.isArray(memberId)
+                  ? memberId.join(',')
+                  : memberId,
+              })
             }
           >
             <SelectMember.Content />

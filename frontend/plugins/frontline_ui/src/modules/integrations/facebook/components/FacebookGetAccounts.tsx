@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import {
+  Badge,
   Button,
   cn,
   Command,
@@ -7,8 +8,12 @@ import {
   REACT_APP_API_URL,
   RadioGroup,
   Spinner,
+  Tooltip,
 } from 'erxes-ui';
-import { useFacebookAccounts } from '@/integrations/facebook/hooks/useFacebookAccounts';
+import {
+  TFacebookAccount,
+  useFacebookAccounts,
+} from '@/integrations/facebook/hooks/useFacebookAccounts';
 import { IconBrandFacebook } from '@tabler/icons-react';
 import { useAtom, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
@@ -29,13 +34,16 @@ const FacebookAccountRow = ({
   selectedAccount,
   onSelect,
 }: {
-  account: { _id: string; name: string };
+  account: TFacebookAccount;
   selectedAccount: string | undefined;
   onSelect: (id: string) => void;
 }) => {
-  const { facebookGetPages, loading: pagesLoading } = useFacebookPages(
-    account._id,
-  );
+  const { t } = useTranslation('frontline');
+  const {
+    facebookGetPages,
+    loading: pagesLoading,
+    error: pagesError,
+  } = useFacebookPages(account._id);
   return (
     <Command.Item
       key={account._id}
@@ -54,11 +62,26 @@ const FacebookAccountRow = ({
       />
       <div className="font-semibold">{account.name}</div>
       <div className="text-sm text-muted-foreground font-mono uppercase ml-auto">
-        {pagesLoading ? (
-          <Spinner className="w-3 h-3" />
-        ) : (
-          `${facebookGetPages.length} pages`
+        {pagesLoading && <Spinner className="w-3 h-3" />}
+        {!pagesLoading && pagesError && (
+          <Tooltip.Provider>
+            <Tooltip delayDuration={0}>
+              <Tooltip.Trigger asChild>
+                <Badge variant="destructive" className="normal-case">
+                  {t('reconnect', 'Reconnect')}
+                </Badge>
+              </Tooltip.Trigger>
+              <Tooltip.Content className="max-w-80 whitespace-pre-wrap break-words normal-case font-sans">
+                {pagesError.message}
+              </Tooltip.Content>
+            </Tooltip>
+          </Tooltip.Provider>
         )}
+        {!pagesLoading &&
+          !pagesError &&
+          t('pages-count', '{{count}} pages', {
+            count: facebookGetPages.length,
+          })}
       </div>
     </Command.Item>
   );
@@ -95,7 +118,7 @@ export const FacebookGetAccounts = () => {
   const onNext = () => setActiveStep(2);
 
   const filteredAccounts = facebookGetAccounts.filter((account) =>
-    account.name.toLowerCase().includes(searchTerm.toLowerCase()),
+    (account.name ?? '').toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   return (

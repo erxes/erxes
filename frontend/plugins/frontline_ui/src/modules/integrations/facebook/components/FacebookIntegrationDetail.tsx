@@ -1,6 +1,5 @@
-import { CellContext } from '@tanstack/react-table';
 import { FacebookIntegrationFormSheet } from './FacebookIntegrationForm';
-import { IIntegrationDetail } from '@/integrations/types/Integration';
+import { IIntegration } from '@/integrations/types/Integration';
 import {
   Button,
   Dialog,
@@ -75,11 +74,11 @@ export const FacebookIntegrationDetail = ({ isPost }: { isPost?: boolean }) => {
 };
 
 export const FacebookIntegrationActions = ({
-  cell,
+  integration,
 }: {
-  cell: CellContext<IIntegrationDetail, unknown>;
+  integration: IIntegration;
 }) => {
-  return <FacebookIntegrationEditSheet id={cell.row.original._id} />;
+  return <FacebookIntegrationEditSheet id={integration._id} />;
 };
 
 export const FacebookIntegrationEditSheet = ({ id }: { id: string }) => {
@@ -161,7 +160,7 @@ export const FacebookIntegrationEditForm = ({
               <Label htmlFor="pageName">{t('page-name')}</Label>
               <Input
                 id="pageName"
-                value={integrationDetail?.facebookPage?.[0]?.name}
+                value={integrationDetail?.facebookPage?.[0]?.name ?? undefined}
                 className="mt-2"
                 readOnly
               />

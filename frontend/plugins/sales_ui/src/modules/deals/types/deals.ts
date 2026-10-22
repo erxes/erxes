@@ -1,113 +1,16 @@
-import {
-  IBranch,
-  ICompany,
-  ICustomer,
-  IDepartment,
-  IProductData,
-  ITag,
-  IUser,
-} from 'ui-modules';
-import { IPipeline, IPipelineLabel } from './pipelines';
+import type { DealPaymentsData, toDealDetail } from '@/deals/utils/dealJson';
+import type {
+  SalesDealListQuery,
+  SalesDealSearchDropdownQuery,
+} from '~/gql/graphql';
 
-import { IAttachment } from './attachments';
-import { IStage } from './stages';
+export type IDealList = NonNullable<SalesDealListQuery['deals']>;
+export type IDeal = NonNullable<NonNullable<IDealList['list']>[number]>;
+export type IDealDetail = ReturnType<typeof toDealDetail>;
+export type IDealSearch = NonNullable<
+  NonNullable<
+    NonNullable<SalesDealSearchDropdownQuery['deals']>['list']
+  >[number]
+>;
 
-export interface IItem {
-  _id: string;
-  name: string;
-  order: number;
-  boardId?: string;
-  startDate: Date;
-  closeDate: Date;
-  description: string;
-  unusedAmount?: number;
-  amount: number;
-  modifiedAt: Date;
-  assignedUserIds?: string[];
-  assignedUsers: IUser[];
-  createdUser?: IUser;
-  companies: ICompany[];
-  customers: ICustomer[];
-  attachments?: IAttachment[];
-  labels: IPipelineLabel[];
-  pipeline: IPipeline;
-  pipelineId?: string;
-  stage?: IStage;
-  stageId?: string;
-  columnId?: string;
-  isWatched?: boolean;
-  priority?: string;
-  hasNotified?: boolean;
-  isComplete: boolean;
-  reminderMinute: number;
-  labelIds: string[];
-  status?: string;
-  createdAt: Date;
-  timeTrack: {
-    status: string;
-    timeSpent: number;
-    startDate?: string;
-  };
-  score?: number;
-  number?: string;
-  relations: any[];
-  tags: ITag[];
-  tagIds: string[];
-  customProperties?: any;
-  propertiesData?: Record<string, any>;
-  departmentIds: string[];
-  branchIds: string[];
-}
-
-export interface IPaymentsData {
-  [key: string]: {
-    currency?: string;
-    amount?: number;
-    info?: any;
-  };
-}
-
-export interface IDealList {
-  list: IDeal[];
-  pageInfo: {
-    endCursor: string;
-    startCursor: string;
-    hasNextPage: boolean;
-    hasPreviousPage: boolean;
-  };
-  totalCount: number;
-}
-
-export interface IDeal extends IItem {
-  products?: any[];
-  productsData?: IProductData[];
-  mobileAmount?: number;
-  mobileAmounts?: Array<{ _id?: string; amount: number }>;
-  paymentsData?: IPaymentsData;
-  departments?: IDepartment[];
-  branches?: IBranch[];
-  brokerType?: 'customer' | 'company' | 'user';
-  brokerId?: string;
-}
-
-export type dealsProductDataMutationParams = {
-  processId?: string;
-  dealId?: string;
-  dataId?: string;
-  doc?: any;
-  docs?: any;
-};
-
-export type DealsQueryResponse = {
-  deals: IDeal[];
-  loading: boolean;
-  refetch: () => void;
-  fetchMore: any;
-};
-
-export type DealsTotalCountQueryResponse = {
-  dealsTotalCount: number;
-  loading: boolean;
-  refetch: () => void;
-  fetchMore: any;
-};
+export type IPaymentsData = DealPaymentsData;

@@ -32,7 +32,7 @@ export const Articles = () => {
   return (
     <KnowledgeBaseLayout
       topicId={topicId}
-      topicTitle={topic?.title}
+      topicTitle={topic?.title ?? undefined}
       section="articles"
       actions={
         <Button onClick={openCreate} className="py-1 h-7" disabled={!canCreate}>

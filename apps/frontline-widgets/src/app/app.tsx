@@ -14,6 +14,7 @@ import {
   unreadNotificationCountAtom,
   faqCurrentViewAtom,
   uiOptionsAtom,
+  contactEditOpenAtom,
 } from './messenger/states';
 import { useAtomValue } from 'jotai';
 import { Ticket } from './messenger/ticket/components/ticket';
@@ -35,6 +36,7 @@ export function App() {
   const unreadCount = useAtomValue(unreadNotificationCountAtom);
   const faqView = useAtomValue(faqCurrentViewAtom);
   const { hasEmailOrPhone } = useCustomerData();
+  const [editingContact, setEditingContact] = useAtom(contactEditOpenAtom);
   // Always-on subscription: sound + web notifications work on every tab
   useWidgetNotifications();
 
@@ -188,7 +190,12 @@ export function App() {
       </div>
       {(activeTab === 'default' || activeTab === 'chat') && (
         <AnimatePresence mode="wait" initial={false}>
-          {showAuthForm ? (
+          {editingContact ? (
+            <CustomerFormInline
+              key="contact-edit"
+              onDone={() => setEditingContact(false)}
+            />
+          ) : showAuthForm ? (
             <CustomerFormInline key="auth-form" />
           ) : (
             <motion.div

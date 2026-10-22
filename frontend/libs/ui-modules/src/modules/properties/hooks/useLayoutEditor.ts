@@ -121,6 +121,29 @@ export const useLayoutEditor = ({
 
   const addRow = () => setRows((prev) => [...prev, { key: nanoid(), ids: [] }]);
 
+  // Into the last row with room, else a new one.
+  const placeItem = (id: string) =>
+    setRows((prev) => {
+      if (prev.some((row) => row.ids.includes(id))) {
+        return prev;
+      }
+
+      const last = prev[prev.length - 1];
+
+      if (last && last.ids.length < MAX_PER_ROW) {
+        return prev.map((row) =>
+          row.key === last.key ? { ...row, ids: [...row.ids, id] } : row,
+        );
+      }
+
+      return [...prev, { key: nanoid(), ids: [id] }];
+    });
+
+  const unplaceItem = (id: string) =>
+    setRows((prev) =>
+      prev.map((row) => ({ ...row, ids: row.ids.filter((x) => x !== id) })),
+    );
+
   // Only an empty row can go; a filled one would drop its fields.
   const removeRow = (key: string) =>
     setRows((prev) =>
@@ -136,6 +159,8 @@ export const useLayoutEditor = ({
     handleDragEnd,
     addRow,
     removeRow,
+    placeItem,
+    unplaceItem,
     saveLayout: () =>
       onSave(rows.map((row) => row.ids).filter((ids) => ids.length)),
     resetLayout: () => onSave(null),

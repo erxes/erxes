@@ -33,13 +33,18 @@ import { useTranslation } from 'react-i18next';
 import { CustomFieldsHeader } from './components/CustomFieldsHeader';
 import { CmsSidebar } from '../shared/CmsSidebar';
 
-import { ICustomFieldGroup, ICustomField } from './types/customFieldTypes';
+import {
+  ICustomFieldGroup,
+  ICustomField,
+  FieldFormValues,
+} from './types/customFieldTypes';
 import { useCustomFieldGroups } from './hooks/useCustomFieldGroups';
 import { FieldGroupDrawer } from './components/field-group-drawer/FieldGroupDrawer';
 import { FieldDrawer } from './components/field-drawer/FieldDrawer';
 import { CustomFieldGroupItem } from './components/CustomFieldGroupItem';
 import { CMS_CUSTOM_POST_TYPES } from '../graphql/queries';
 import { useSyncedState } from './hooks/useSyncedState';
+import { getValidCustomFieldOptions } from './utils/getValidCustomFieldOptions';
 
 /** Provides drag positioning and handle props for a custom-field group. */
 function SortableGroup({
@@ -155,7 +160,7 @@ export function CustomFields() {
     setEditingGroup(null);
   };
 
-  const handleFieldSubmit = async (data: any) => {
+  const handleFieldSubmit = async (data: FieldFormValues) => {
     if (!selectedGroup) return;
 
     const latestGroup =
@@ -168,9 +173,9 @@ export function CustomFields() {
       type: data.type,
       description: data.description,
       isRequired: data.isRequired,
-      options: data.options
-        ? data.options.split(',').map((o: string) => o.trim())
-        : [],
+      options: getValidCustomFieldOptions(
+        data.options.split(',').map((option) => option.trim()),
+      ),
     };
 
     const currentFields = Array.isArray(latestGroup.fields)
@@ -273,20 +278,20 @@ export function CustomFields() {
   };
 
   return (
-    <PageContainer>
-      <CustomFieldsHeader>
-        <Button
-          onClick={() => {
-            setEditingGroup(null);
-            setIsGroupDrawerOpen(true);
-          }}
-        >
-          <IconPlus className="w-4 h-4 mr-2" />
-          {t('add-group')}
-        </Button>
-      </CustomFieldsHeader>
-      <div className="flex overflow-hidden flex-auto">
-        <CmsSidebar />
+    <PageContainer className="flex-row">
+      <CmsSidebar />
+      <div className="flex min-w-0 flex-auto flex-col overflow-hidden">
+        <CustomFieldsHeader>
+          <Button
+            onClick={() => {
+              setEditingGroup(null);
+              setIsGroupDrawerOpen(true);
+            }}
+          >
+            <IconPlus className="w-4 h-4 mr-2" />
+            {t('add-group')}
+          </Button>
+        </CustomFieldsHeader>
         <div className="flex min-h-0 overflow-hidden flex-col flex-auto w-full">
           <div className="min-h-0 flex-auto overflow-y-auto">
             <div className="p-6">

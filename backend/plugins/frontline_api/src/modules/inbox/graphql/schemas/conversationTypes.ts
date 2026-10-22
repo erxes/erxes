@@ -8,6 +8,14 @@ export const types = `
     _id: String @external
   }
 
+  type ConversationAutomatedReplyControl {
+    status: String
+    pausedUntil: Date
+    reason: String
+    updatedAt: Date
+    updatedBy: String
+  }
+
   type Conversation {
     _id: String!
     content: String
@@ -15,6 +23,8 @@ export const types = `
     customerId: String
     userId: String
     assignedUserId: String
+    assignedUserIds: [String!]
+    assignedUsers: [User]
     participatedUserIds: [String]
     readUserIds: [String]
     createdAt: Date
@@ -25,8 +35,9 @@ export const types = `
     number: Int
     tagIds: [String]
     operatorStatus: String
-    automatedReplyControl: JSON
+    automatedReplyControl: ConversationAutomatedReplyControl
 
+    lastMessage: ConversationMessage
     messages: [ConversationMessage]
     callProAudio: String
     callProPotentialCustomerIds: [String]
@@ -56,6 +67,28 @@ export const types = `
     sentAs: String
   }
 
+  type ConversationMessageProviderData {
+    messageId: String
+    attachmentType: String
+    fallbackReason: String
+    previewText: String
+    previewUrl: String
+    shareType: String
+    storyUrl: String
+  }
+
+  type ConversationMessageReplyTo {
+    messageId: String
+    content: String
+    authorName: String
+  }
+
+  type ConversationMessageReaction {
+    senderId: String
+    emoji: String
+    reaction: String
+  }
+
   type ConversationMessage {
     _id: String!
     content: String
@@ -82,9 +115,9 @@ export const types = `
     contentType: String
     mid: String
     messageKind: String
-    providerData: JSON
-    replyTo: JSON
-    reactions: JSON
+    providerData: ConversationMessageProviderData
+    replyTo: ConversationMessageReplyTo
+    reactions: [ConversationMessageReaction]
     deliveryStatus: String
     expiresAt: Date
   }

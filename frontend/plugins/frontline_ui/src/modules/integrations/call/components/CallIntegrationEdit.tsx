@@ -1,6 +1,6 @@
 import { callEditSheetAtom } from '@/integrations/call/states/callEditSheetAtom';
 import { useAtom } from 'jotai';
-import { Sheet, Spinner, toast } from 'erxes-ui';
+import { isDefined, Sheet, Spinner, toast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -11,7 +11,6 @@ import { useEffect } from 'react';
 import { useIntegrationDetail } from '@/integrations/hooks/useIntegrationDetail';
 import { useCallIntegrationDetail } from '@/integrations/call/hooks/useCallIntegrationDetail';
 import { useIntegrationEdit } from '@/integrations/hooks/useIntegrationEdit';
-import { useParams } from 'react-router';
 
 export const CallIntegrationSheetEdit = () => {
   const [callEditSheet, setCallEditSheet] = useAtom(callEditSheetAtom);
@@ -27,7 +26,6 @@ export const CallIntegrationSheetEdit = () => {
 
 export const CallIntegrationEdit = () => {
   const { t } = useTranslation('frontline');
-  const { id } = useParams();
 
   const [integrationId, setEditSheet] = useAtom(callEditSheetAtom);
   const { integrationDetail, loading } = useIntegrationDetail({
@@ -43,11 +41,13 @@ export const CallIntegrationEdit = () => {
   });
 
   const onSubmit = (data: z.infer<typeof CALL_INTEGRATION_FORM_SCHEMA>) => {
+    // The channel comes from the record, so editing works from any page.
+    if (!integrationId || !integrationDetail) return;
     editIntegration({
       variables: {
         _id: integrationId,
         name: data.name,
-        channelId: id || '',
+        channelId: integrationDetail.channelId ?? '',
         brandId: data.brandId,
         details: {
           phone: data.phone,
@@ -67,6 +67,7 @@ export const CallIntegrationEdit = () => {
         'Integrations',
         'callsIntegrationDetail',
         'IntegrationDetail',
+        'ChannelIntegrationsPeek',
       ],
       onCompleted() {
         setEditSheet(null);
@@ -103,7 +104,13 @@ export const CallIntegrationEdit = () => {
         queues: Array.isArray(callsIntegrationDetail?.queues)
           ? callsIntegrationDetail?.queues.join(',')
           : callsIntegrationDetail?.queues || '',
-        operators: callsIntegrationDetail?.operators || '',
+        operators: (callsIntegrationDetail?.operators ?? [])
+          .filter(isDefined)
+          .map((operator) => ({
+            userId: operator.userId ?? undefined,
+            gsUsername: operator.gsUsername ?? '',
+            gsPassword: operator.gsPassword ?? '',
+          })),
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

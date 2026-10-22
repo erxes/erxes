@@ -18,14 +18,14 @@ export const ChannelsMoreColumnCell = ({
 }: {
   cell: Cell<IChannel, unknown>;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.channels' });
   const { _id } = cell.row.original;
   const navigate = useNavigate();
   const { removeChannel, loading } = useChannelRemove();
   const { confirm } = useConfirm();
 
   const handleEdit = () => {
-    navigate(`/settings/frontline/channels/${_id}`);
+    navigate(`/frontline/settings/channels/${_id}`);
   };
 
   const handleDelete = () => {

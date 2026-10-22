@@ -1,3 +1,4 @@
+import { ConversationCountValue } from '@/inbox/conversations/components/ConversationCountValue';
 import { IconCheck, IconInbox } from '@tabler/icons-react';
 import {
   Button,
@@ -10,7 +11,7 @@ import { useTranslation } from 'react-i18next';
 
 import { FacebookPostSheet } from '@/integrations/facebook/components/FacebookPostSheet';
 import { INTEGRATION_ICONS } from '@/integrations/constants/integrationImages';
-import type { IIntegration } from '@/integrations/types/Integration';
+import type { IConversationIntegration } from '@/inbox/types/Conversation';
 import { IntegrationType } from '@/types/Integration';
 import {
   CLEARED_INBOX_NAVIGATION_FILTERS,
@@ -19,7 +20,7 @@ import {
 } from '@/inbox/types/InboxNavigation';
 
 type InboxIntegrationItemProps = Pick<
-  IIntegration,
+  IConversationIntegration,
   '_id' | 'channelId' | 'kind' | 'name'
 > & {
   awaitingCount?: number;
@@ -52,7 +53,10 @@ export const InboxIntegrationItem = ({
   const trigger = (
     <Button
       aria-pressed={isActive}
-      className="w-full justify-start gap-2 overflow-hidden pl-7 text-left"
+      className={cn(
+        'w-full justify-start gap-2 overflow-hidden pl-7 text-left rounded-lg',
+        isActive && 'bg-primary/10 text-primary hover:bg-primary/15',
+      )}
       onClick={selectIntegration}
       variant={isActive ? 'secondary' : 'ghost'}
     >
@@ -78,7 +82,9 @@ export const InboxIntegrationItem = ({
         </>
       )}
       {count > 0 && (
-        <span className="shrink-0 text-xs tabular-nums">{count}</span>
+        <span className="shrink-0 text-xs tabular-nums">
+          <ConversationCountValue count={count} />
+        </span>
       )}
     </Button>
   );

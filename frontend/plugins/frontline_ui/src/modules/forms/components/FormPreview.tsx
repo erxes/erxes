@@ -34,7 +34,7 @@ import {
 import { useTranslation } from 'react-i18next';
 
 export const FormPreview = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
   const formContent = useAtomValue(formSetupContentAtom);
   const formGeneral = useAtomValue(formSetupGeneralAtom);
   const formCallout = useAtomValue(formSetupCalloutAtom);
@@ -219,7 +219,7 @@ export const FormPreviewContent = ({
   stepsLength: number;
   setActiveStep: (step: number) => void;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
     defaultValues: defaultValues,

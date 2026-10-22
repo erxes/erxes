@@ -1,92 +1,31 @@
-export interface ISurveyOption {
-  _id: string;
-  text: string;
-  order?: number;
-  ticketCreationEnabled?: boolean;
-  ticketCreationThreshold?: number;
-  ticketPipelineId?: string;
-  ticketStatusId?: string;
-  ticketCreated?: boolean;
-  ticketId?: string;
-}
+import type {
+  SurveyDetailQuery,
+  SurveyFieldsFragment,
+  SurveyResultsListQuery,
+} from '~/gql/graphql';
 
+export type ISurvey = SurveyFieldsFragment;
+
+export type ISurveyDetail = NonNullable<SurveyDetailQuery['surveyDetail']>;
+
+export type ISurveyWithResults = NonNullable<
+  NonNullable<NonNullable<SurveyResultsListQuery['surveyList']>['list']>[number]
+>;
+
+export type ISurveyStep = ISurvey['steps'][number];
+
+export type ISurveyOption = ISurveyStep['options'][number];
+
+export type ISurveyStepResult = NonNullable<
+  ISurveyDetail['results']
+>['steps'][number];
+
+/** The attachment shape the survey form keeps and sends as `AttachmentInput`. */
 export interface ISurveyAttachment {
   url: string;
   name: string;
   type: string;
   size: number;
-}
-
-export interface ISurveyStep {
-  _id: string;
-  name?: string;
-  description?: string;
-  order: number;
-  question: string;
-  attachments?: ISurveyAttachment[];
-  options: ISurveyOption[];
-  allowMultiselect?: boolean;
-}
-
-export interface ISurveyOptionResult {
-  _id: string;
-  text: string;
-  count: number;
-  percent: number;
-}
-
-export interface ISurveyStepResult {
-  _id: string;
-  name?: string;
-  question: string;
-  totalVotes: number;
-  options: ISurveyOptionResult[];
-}
-
-export interface ISurveyResults {
-  totalVotes: number;
-  voterCount: number;
-  options: ISurveyOptionResult[];
-  steps?: ISurveyStepResult[];
-}
-
-export interface ISurveyCreatedUser {
-  _id: string;
-  details?: {
-    fullName?: string;
-    avatar?: string;
-  };
-}
-
-export interface ISurveyCpRequester {
-  _id: string;
-  firstName?: string;
-  lastName?: string;
-  email?: string;
-  phone?: string;
-  avatar?: string;
-}
-
-export interface ISurvey {
-  _id: string;
-  title: string;
-  question: string;
-  channelId?: string;
-  brandId?: string;
-  code?: string;
-  options: ISurveyOption[];
-  steps?: ISurveyStep[];
-  allowMultiselect?: boolean;
-  durationHours?: number | null;
-  status: string;
-  rejectionReason?: string;
-  sentCount?: number;
-  createdAt?: string;
-  createdUserId?: string;
-  createdUser?: ISurveyCreatedUser;
-  createdCpUserId?: string;
-  createdCpUser?: ISurveyCpRequester;
-  results?: ISurveyResults;
 }
 
 export enum SurveysPageHotKeyScope {
@@ -115,12 +54,12 @@ export const MAX_SURVEY_OPTIONS = 10;
 
 export const MAX_SURVEY_STEPS = 10;
 
-export const SURVEY_DURATIONS: { label: string; value: number | null }[] = [
-  { label: 'No end date', value: null },
-  { label: '1 hour', value: 1 },
-  { label: '4 hours', value: 4 },
-  { label: '8 hours', value: 8 },
-  { label: '1 day', value: 24 },
-  { label: '3 days', value: 72 },
-  { label: '7 days', value: 168 },
+export const SURVEY_DURATIONS: { labelKey: string; value: number | null }[] = [
+  { labelKey: 'duration-none', value: null },
+  { labelKey: 'duration-1-hour', value: 1 },
+  { labelKey: 'duration-4-hours', value: 4 },
+  { labelKey: 'duration-8-hours', value: 8 },
+  { labelKey: 'duration-1-day', value: 24 },
+  { labelKey: 'duration-3-days', value: 72 },
+  { labelKey: 'duration-7-days', value: 168 },
 ];

@@ -2,16 +2,22 @@ import {
   buildAiKnowledgeTool,
   isAiClassificationResultEmpty,
   loadAiActionMemory,
-  loadAiConversationState,
   parseAiAgentActionConfig,
   parseAiAgentInput,
   persistAiActionMemory,
-  persistAiConversationState,
+  AI_KNOWLEDGE_EMPTY_RESULT,
+  AI_KNOWLEDGE_TOOL_NAME,
+  recordAiKnowledgeRoutes,
+  resolveAiMemoryScopes,
+  loadAiPastActions,
+  buildAiMemoryRecallTool,
+  resolveAiAgentKnowledge,
   runAiAction,
+  toAiKnowledgeRoutePhrase,
   TAiActionExecutionResult,
   TAiAgentActionConfig,
 } from '../../ai';
-import { generateModels } from '../../connectionResolver';
+import { generateModels, IModels } from '../../connectionResolver';
 import { buildAiAgentTools } from './aiAgentTools';
 import {
   AUTOMATION_ERROR_CODES,
@@ -67,6 +73,46 @@ type TAiAgentActionWorkerResponse = {
   attributesEmpty?: boolean;
 };
 
+// A reply that held up teaches which section answered how this was asked.
+const learnAiKnowledgeRoutes = async ({
+  models,
+  agentId,
+  result,
+  aiContext,
+}: {
+  models: IModels;
+  agentId: string;
+  result: TAiActionExecutionResult;
+  aiContext?: TAiContext | null;
+}) => {
+  if (result.type !== 'generateText' || result.degraded || result.handoff) {
+    return;
+  }
+
+  const phrase = toAiKnowledgeRoutePhrase(aiContext?.input?.text);
+  const searches = (result.toolCalls || [])
+    .filter(
+      ({ name, error, result: toolResult }) =>
+        name === AI_KNOWLEDGE_TOOL_NAME &&
+        !error &&
+        toolResult !== AI_KNOWLEDGE_EMPTY_RESULT,
+    )
+    .map(({ arguments: args }) =>
+      Array.isArray(args.sections)
+        ? args.sections.filter(
+            (section): section is string => typeof section === 'string',
+          )
+        : [],
+    )
+    .filter((sections) => sections.length);
+
+  if (!phrase || !searches.length) {
+    return;
+  }
+
+  await recordAiKnowledgeRoutes({ models, agentId, phrase, searches });
+};
+
 export const executeAiAgentAction = async (
   subdomain: string,
   execution: IAutomationExecutionDocument,
@@ -83,12 +129,6 @@ export const executeAiAgentAction = async (
     const aiContext = await getAiContext(subdomain, execution);
     const inputData = await getInputData(execution, parsedActionConfig);
     const memory = await loadAiActionMemory({
-      models,
-      execution,
-      actionConfig: parsedActionConfig,
-      aiContext,
-    });
-    const conversationState = await loadAiConversationState({
       models,
       execution,
       actionConfig: parsedActionConfig,
@@ -116,6 +156,11 @@ export const executeAiAgentAction = async (
       execution,
       action.id,
     );
+    const knowledge = await resolveAiAgentKnowledge({
+      models,
+      agentId: aiAgentId,
+      agent: parsedAgent,
+    });
     // Two registries meet here: action tools come from the canvas node, the
     // knowledge tool follows the agent wherever it is used.
     const knowledgeTool =
@@ -124,6 +169,7 @@ export const executeAiAgentAction = async (
             models,
             agentId: aiAgentId,
             agent: parsedAgent,
+            knowledge,
           })
         : null;
     const actionTools = await buildAiAgentTools({
@@ -131,8 +177,23 @@ export const executeAiAgentAction = async (
       models,
       execution,
       actionConfig: parsedActionConfig,
+      aiContext,
     });
-    const tools = [...(knowledgeTool ? [knowledgeTool] : []), ...actionTools];
+    // What the agent's tools did earlier for this conversation or customer,
+    // read with each record's state as it is now.
+    const memoryScopes = resolveAiMemoryScopes(execution, aiContext);
+    const { pastActions, olderCount } =
+      parsedActionConfig.goalType === 'generateText'
+        ? await loadAiPastActions({ subdomain, models, scopes: memoryScopes })
+        : { pastActions: [], olderCount: 0 };
+    const recallTool = olderCount
+      ? buildAiMemoryRecallTool({ subdomain, models, scopes: memoryScopes })
+      : null;
+    const tools = [
+      ...(knowledgeTool ? [knowledgeTool] : []),
+      ...(recallTool ? [recallTool] : []),
+      ...actionTools,
+    ];
 
     const timerLabel = `runAiAction:${execution._id}:${action.id}`;
     console.time(timerLabel);
@@ -144,8 +205,10 @@ export const executeAiAgentAction = async (
       actionConfig: parsedActionConfig,
       inputData,
       aiContext,
-      memory,
-      conversationState,
+      memory: pastActions.length
+        ? { ...memory, pastActions, olderPastActions: olderCount }
+        : memory,
+      knowledge,
       tools: tools.length ? tools : undefined,
     });
     console.timeEnd(timerLabel);
@@ -154,6 +217,22 @@ export const executeAiAgentAction = async (
         'AI agent returned an empty response.',
         AUTOMATION_ERROR_CODES.AI_AGENT_FAILED,
       );
+    }
+
+    if (knowledge.kind === 'indexed') {
+      await learnAiKnowledgeRoutes({
+        models,
+        agentId: aiAgentId,
+        result: response.result,
+        aiContext,
+      }).catch((error) =>
+        console.error('AI knowledge route learning failed:', error),
+      );
+    }
+
+    // Actions behind the tool file what they did under these scopes.
+    if (response.result.type === 'generateText' && response.result.handoff) {
+      response.result.memoryScopes = memoryScopes;
     }
 
     const attributesEmpty = isAiClassificationResultEmpty(response.result);
@@ -169,13 +248,6 @@ export const executeAiAgentAction = async (
         aiContext,
       });
     }
-    await persistAiConversationState({
-      models,
-      execution,
-      actionConfig: parsedActionConfig,
-      aiContext,
-      state: response.conversationState,
-    });
 
     return {
       result: response.result,

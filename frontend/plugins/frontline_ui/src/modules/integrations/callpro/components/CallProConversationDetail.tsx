@@ -11,7 +11,7 @@ export const CallProConversationDetail = () => {
   const [conversationId] = useQueryState<string>('conversationId');
 
   const { conversationDetail, loading } = useConversationDetail({
-    variables: { _id: conversationId },
+    variables: conversationId ? { _id: conversationId } : undefined,
     skip: !conversationId,
   });
 
@@ -100,7 +100,7 @@ export const CallProConversationDetail = () => {
           <CallProCustomerSelect
             conversationId={_id || ''}
             customers={callProCustomersByPhone || []}
-            selectedCustomerId={customerId}
+            selectedCustomerId={customerId ?? undefined}
           />
         </CallProCustomerPicker>
       )}

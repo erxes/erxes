@@ -12,6 +12,7 @@ import {
 import { useState } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
+import { useProductFileLinks } from '../hooks/useProductFiles';
 import { useAddProduct } from '../hooks/useProductsAdd';
 import { IProductFormValues } from '../types';
 import { AddProductFormAttachmentsAndExtra } from './ProductAttachments';
@@ -35,11 +36,17 @@ export function AddProductForm({
   form: UseFormReturn<IProductFormValues>;
 }>) {
   const { productsAdd, loading } = useAddProduct();
+  const { linkFiles } = useProductFileLinks();
 
   async function onSubmit(data: IProductFormValues) {
     const cleanData: Record<string, unknown> = {};
+    const files = await linkFiles(data.files);
 
-    Object.entries(data).forEach(([key, value]) => {
+    if (!files) {
+      return;
+    }
+
+    Object.entries({ ...data, files }).forEach(([key, value]) => {
       if (value === undefined || value === null || value === '') return;
       if (Array.isArray(value) && value.length === 0) return;
 

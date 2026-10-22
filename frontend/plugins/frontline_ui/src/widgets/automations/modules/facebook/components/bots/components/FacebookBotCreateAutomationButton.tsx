@@ -30,7 +30,7 @@ export const FacebookBotCreateAutomationButton = ({
       buildAutomationSeedLink({
         triggerType,
         triggerConfig,
-        name: bot.name,
+        name: bot.name ?? undefined,
       }),
     );
 

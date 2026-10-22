@@ -1,29 +1,13 @@
+import { parsePosPaidAmounts } from '@/pos/utils/posOrderJson';
+import type { TPosOrderFormData } from '../../types/posOrderType';
 import React from 'react';
 import { useForm } from 'react-hook-form';
 
-const normalizePaidAmounts = (
-  paidAmounts: any,
-): Array<{ type: string; amount: number }> => {
-  if (!paidAmounts) return [];
-
-  if (Array.isArray(paidAmounts)) {
-    return paidAmounts;
-  }
-
-  if (typeof paidAmounts === 'object') {
-    return Object.entries(paidAmounts as Record<string, number>).map(
-      ([type, amount]) => ({ type, amount }),
-    );
-  }
-
-  return [];
-};
-
 const buildDefaultValues = (
-  paidAmounts: any,
-  summary: any,
+  paidAmounts: unknown,
+  summary: Record<string, number> | undefined,
 ): Record<string, number> => {
-  const normalized = normalizePaidAmounts(paidAmounts);
+  const normalized = parsePosPaidAmounts(paidAmounts);
 
   const result: Record<string, number> = {};
 
@@ -32,13 +16,16 @@ const buildDefaultValues = (
   });
 
   normalized.forEach(({ type, amount }) => {
-    result[type] = amount;
+    if (type) result[type] = amount;
   });
 
   return result;
 };
 
-export const usePosOrderForm = (paidAmounts?: any, summary?: any) => {
+export const usePosOrderForm = (
+  paidAmounts?: unknown,
+  summary?: Record<string, number>,
+) => {
   const paidAmountsKey = React.useMemo(() => {
     try {
       return JSON.stringify(paidAmounts);
@@ -60,7 +47,7 @@ export const usePosOrderForm = (paidAmounts?: any, summary?: any) => {
     [paidAmounts, summary],
   );
 
-  const methods = useForm<any>({
+  const methods = useForm<TPosOrderFormData>({
     mode: 'onBlur',
     defaultValues,
   });

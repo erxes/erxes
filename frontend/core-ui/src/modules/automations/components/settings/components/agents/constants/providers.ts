@@ -8,6 +8,13 @@ export const AI_AGENT_PROVIDER_TYPES = [
 
 export type TAiAgentProvider = (typeof AI_AGENT_PROVIDER_TYPES)[number];
 
+export const AI_AGENT_PROVIDERS_REQUIRING_API_KEY: TAiAgentProvider[] = [
+  'grok',
+  'kimi',
+  'kimi-code',
+  'openai',
+];
+
 export const AI_AGENT_PROVIDER_LABELS: Record<TAiAgentProvider, string> = {
   'cloudflare-ai-gateway': 'Cloudflare AI Gateway',
   grok: 'Grok',
@@ -33,49 +40,9 @@ export const AI_AGENT_PROVIDER_DEFAULT_MODELS: Record<
 > = {
   'cloudflare-ai-gateway': 'openai/gpt-5-mini',
   grok: 'grok-4.3',
-  kimi: 'kimi-k2.5',
+  kimi: 'kimi-k2.6',
   'kimi-code': 'kimi-for-coding',
   openai: 'gpt-5-mini',
-};
-
-export const AI_AGENT_PROVIDER_MODEL_OPTIONS: Record<
-  TAiAgentProvider,
-  string[]
-> = {
-  'cloudflare-ai-gateway': [
-    'openai/gpt-5-mini',
-    'openai/gpt-5',
-    'openai/gpt-4.1-mini',
-    'openai/gpt-4o-mini',
-    'anthropic/claude-sonnet-4-5',
-    'google-ai-studio/gemini-2.5-flash',
-    'workers-ai/@cf/moonshotai/kimi-k2.5',
-    'workers-ai/@cf/moonshotai/kimi-k2.6',
-  ],
-  grok: [
-    'grok-4.3',
-    'grok-4.1',
-    'grok-4',
-    'grok-3',
-    'grok-3-mini',
-    'grok-code-fast-1',
-  ],
-  kimi: [
-    'kimi-k2.5',
-    'kimi-k2-turbo-preview',
-    'kimi-k2-thinking',
-    'kimi-k2-thinking-turbo',
-    'kimi-k2-0905-preview',
-  ],
-  'kimi-code': ['kimi-for-coding'],
-  openai: [
-    'gpt-5',
-    'gpt-5-mini',
-    'gpt-5-nano',
-    'gpt-4.1',
-    'gpt-4.1-mini',
-    'gpt-4o-mini',
-  ],
 };
 
 export const AI_AGENT_PROVIDER_DEFAULT_BASE_URLS: Record<

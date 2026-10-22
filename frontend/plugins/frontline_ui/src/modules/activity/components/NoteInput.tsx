@@ -1,3 +1,4 @@
+import { INTERNAL_NOTE_BACKGROUND } from '@/inbox/constants/internalNoteStyles';
 import {
   BlockEditor,
   cn,
@@ -21,15 +22,15 @@ import {
   serializeNoteBlocks,
   trimEmptyBlocks,
 } from '@/activity/utils/noteBlocks';
-import { ITicketNoteMailDelivery } from '@/activity/types';
+import type { ITicketNoteMailDelivery, NoteInputProps } from '@/activity/types';
 import { useCreateTicketNote } from '@/activity/hooks/useCreateTicketNote';
 import { useGetChannels } from '@/channels/hooks/useGetChannels';
 import { useNoteAttachments } from '@/activity/hooks/useNoteAttachments';
 import { useNoteTemplateSuggestions } from '@/activity/hooks/useNoteTemplateSuggestions';
 import { useTranslation } from 'react-i18next';
 
-export const NoteInput = ({ contentId }: { contentId: string }) => {
-  const { t } = useTranslation('frontline');
+export const NoteInput = ({ contentId }: NoteInputProps) => {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.activity' });
   const editor = useBlockEditor({
     placeholder: t('write-a-message', 'Write a message...'),
   });
@@ -40,7 +41,9 @@ export const NoteInput = ({ contentId }: { contentId: string }) => {
     goBackToPreviousHotkeyScope,
   } = usePreviousHotkeyScope();
 
-  const { channels: availableChannels } = useGetChannels();
+  const { channels: availableChannels } = useGetChannels({
+    skip: isInternalNote,
+  });
   const {
     suggestions,
     showSuggestions,
@@ -88,7 +91,7 @@ export const NoteInput = ({ contentId }: { contentId: string }) => {
               'The receiving server rejected {{recipients}}',
               { recipients: (delivery.bouncedRecipients ?? []).join(', ') },
             )
-          : (delivery.error ?? undefined),
+          : delivery.error ?? undefined,
       variant: 'destructive',
     });
   };
@@ -105,7 +108,7 @@ export const NoteInput = ({ contentId }: { contentId: string }) => {
           trimmedContent as Parameters<typeof getMentionedUserIds>[0],
         ),
         attachments: attachments
-          .filter((file) => !!file.url)
+          .filter((file): file is typeof file & { url: string } => !!file.url)
           .map(({ name, url, type, size }) => ({ name, url, type, size })),
         isInternal: isInternalNote,
       },
@@ -151,7 +154,7 @@ export const NoteInput = ({ contentId }: { contentId: string }) => {
       className={cn(
         'relative flex flex-col overflow-hidden border rounded-lg px-4 py-3 gap-1',
         'transition-colors duration-150',
-        isInternalNote && 'border-warning/50 bg-warning/20',
+        isInternalNote && ['border-border', INTERNAL_NOTE_BACKGROUND],
       )}
     >
       <div className="flex flex-col gap-1.5 border-b border-border/50 pb-2 mb-1">
@@ -183,7 +186,7 @@ export const NoteInput = ({ contentId }: { contentId: string }) => {
             setHotkeyScopeAndMemorizePreviousScope(TicketHotKeyScope.NoteInput)
           }
           onBlur={() => goBackToPreviousHotkeyScope()}
-          className="read-only min-h-30 overflow-y-auto"
+          className={cn('read-only min-h-30 overflow-y-auto')}
         >
           {isInternalNote && <AssignMemberInEditor editor={editor} />}
         </BlockEditor>

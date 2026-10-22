@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const GET_CONVERSATION_CONVERTED_ITEMS = gql`
+export const GET_CONVERSATION_CONVERTED_ITEMS = gql(`
   query ConversationConvertedItems($_id: String!) {
     conversationConvertedItems(_id: $_id) {
       _id
@@ -8,4 +8,4 @@ export const GET_CONVERSATION_CONVERTED_ITEMS = gql`
       url
     }
   }
-`;
+`);

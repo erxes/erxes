@@ -6,12 +6,19 @@ export type TAiBridgeConnection = TAiAgentInput['connection'];
 export type TAiBridgeRuntime = TAiAgentInput['runtime'];
 
 // JSON-schema-ish function definition sent to the provider
+export type TAiBridgeToolParameter = {
+  type: string;
+  description?: string;
+  enum?: string[];
+  items?: { type: string; enum?: string[] };
+};
+
 export type TAiBridgeToolDefinition = {
   name: string;
   description?: string;
   parameters: {
     type: 'object';
-    properties: Record<string, { type: string; description?: string }>;
+    properties: Record<string, TAiBridgeToolParameter>;
     required?: string[];
   };
 };
@@ -32,6 +39,11 @@ export type TAiBridgeMessage = {
 };
 
 export type TAiBridgeHealthInput = {
+  connection: TAiBridgeConnection;
+  runtime: TAiBridgeRuntime;
+};
+
+export type TAiBridgeListModelsInput = {
   connection: TAiBridgeConnection;
   runtime: TAiBridgeRuntime;
 };
@@ -74,4 +86,6 @@ export type TAiBridgeInvokeResult = {
 export interface IAiProviderBridge {
   checkHealth(input: TAiBridgeHealthInput): Promise<TAiBridgeHealthResult>;
   invoke(input: TAiBridgeInvokeInput): Promise<TAiBridgeInvokeResult>;
+  // null means the provider gave no list, not that it has no models.
+  listModels(input: TAiBridgeListModelsInput): Promise<string[] | null>;
 }

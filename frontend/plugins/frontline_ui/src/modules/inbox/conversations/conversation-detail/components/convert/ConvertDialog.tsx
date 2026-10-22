@@ -47,7 +47,8 @@ const ConvertForm = ({
   onClose: () => void;
 }) => {
   const { t } = useTranslation('frontline');
-  const { _id, assignedUserId, integration } = useConversationContext();
+  const { _id, assignedUserId, assignedUserIds, integration } =
+    useConversationContext();
   const { convertToCard, loading } = useConversationConvertToCard();
   const [propertiesData, setPropertiesData] = useState<TConvertPropertiesData>(
     {},
@@ -61,7 +62,6 @@ const ConvertForm = ({
   const namePlaceholders: Record<ConversationConvertType, string> = {
     ticket: t('add-a-new-ticket', 'Add a new ticket'),
     deal: t('add-a-new-deal', 'Add a new deal'),
-    task: t('add-a-new-task', 'Add a new task'),
   };
 
   const schema = useMemo(() => buildConvertSchema(type), [type]);
@@ -72,10 +72,10 @@ const ConvertForm = ({
       channelId: type === 'ticket' ? integration?.channelId || '' : '',
       boardId: '',
       pipelineId: '',
-      teamId: '',
       stageId: '',
       name: '',
-      assignedUserIds: assignedUserId ? [assignedUserId] : [],
+      assignedUserIds:
+        assignedUserIds ?? (assignedUserId ? [assignedUserId] : []),
       branchIds: [],
       departmentIds: [],
       attachments: [],

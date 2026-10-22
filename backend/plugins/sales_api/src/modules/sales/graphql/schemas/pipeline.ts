@@ -71,7 +71,6 @@ export const queries = `
   salesPipelineAssignedUsers(_id: String!): [User]
   salesPipelineStateCount(boardId: String): JSON
   cpSalesPipelines(${queryParams}): SalesPipelinesListResponse
-  cpSalesPipelineDetail(_id: String!): SalesPipeline
 `;
 
 const mutationParams = `

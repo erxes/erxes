@@ -7,6 +7,7 @@ import { getSocialLinkKey } from '~/modules/form/utils';
 import { ILink } from '~/modules/inbox/@types/integrations';
 import { findMessengerCompany } from '~/modules/inbox/graphql/resolvers/mutations/widget';
 import { createConversationAndMessage } from '~/modules/inbox/trpc/inbox';
+import { sendFormSubmittedTrigger } from '~/modules/form/meta/automation/workers';
 // helpers
 
 type SchemaLabel = {
@@ -322,6 +323,8 @@ async function saveFormSubmissions(
   });
 
   await models.FormSubmissions.insertMany(submissionDocs);
+
+  return groupId;
 }
 
 function updateCustomerDoc(
@@ -473,7 +476,7 @@ export const widgetFormMutation: Record<
     const customerDoc: any = {};
     const customFieldsData: ICustomField[] = [];
     const customerLinks: ILink = {};
-    const submissionValues = {};
+    const submissionValues: Record<string, unknown> = {};
 
     for (const submission of submissions) {
       const submissionType = submission.type || '';
@@ -635,30 +638,21 @@ export const widgetFormMutation: Record<
     });
     const conversationId = conversation?._id || '';
 
-    await saveFormSubmissions(models, {
+    const submissionGroupId = await saveFormSubmissions(models, {
       submissions,
       formId,
       customerId: customer._id,
       conversationId,
     });
 
-    // sendCommonMessage({
-    //   subdomain,
-    //   serviceName: 'automations',
-    //   action: 'trigger',
-    //   data: {
-    //     type: 'core:form_submission',
-    //     targets: [
-    //       {
-    //         ...submissionValues,
-    //         _id: customer._id,
-    //         conversationId: conversationId || null,
-    //       },
-    //     ],
-    //   },
-    //   isRPC: true,
-    //   defaultValue: null,
-    // });
+    sendFormSubmittedTrigger(subdomain, {
+      _id: submissionGroupId,
+      formId,
+      channelId: form.channelId,
+      customerId: customer._id,
+      conversationId: conversationId || null,
+      fieldValues: submissionValues,
+    });
 
     return {
       status: 'ok',
@@ -710,7 +704,7 @@ export const widgetFormMutation: Record<
     const customerDoc: any = {};
     const customFieldsData: ICustomField[] = [];
     const customerLinks: ILink = {};
-    const submissionValues = {};
+    const submissionValues: Record<string, unknown> = {};
 
     for (const submission of submissions) {
       const submissionType = submission.type || '';
@@ -873,30 +867,21 @@ export const widgetFormMutation: Record<
     });
     const conversationId = conversation?._id || '';
 
-    await saveFormSubmissions(models, {
+    const submissionGroupId = await saveFormSubmissions(models, {
       submissions,
       formId,
       customerId: customer._id,
       conversationId,
     });
 
-    // sendCommonMessage({
-    //   subdomain,
-    //   serviceName: 'automations',
-    //   action: 'trigger',
-    //   data: {
-    //     type: 'core:form_submission',
-    //     targets: [
-    //       {
-    //         ...submissionValues,
-    //         _id: customer._id,
-    //         conversationId: conversationId || null,
-    //       },
-    //     ],
-    //   },
-    //   isRPC: true,
-    //   defaultValue: null,
-    // });
+    sendFormSubmittedTrigger(subdomain, {
+      _id: submissionGroupId,
+      formId,
+      channelId: form.channelId,
+      customerId: customer._id,
+      conversationId: conversationId || null,
+      fieldValues: submissionValues,
+    });
 
     return {
       status: 'ok',

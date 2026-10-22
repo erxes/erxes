@@ -1,4 +1,10 @@
 import {
+  IconChevronRight,
+  IconDotsVertical,
+  IconLink,
+  IconSettings,
+} from '@tabler/icons-react';
+import {
   Button,
   Collapsible,
   DropdownMenu,
@@ -7,22 +13,18 @@ import {
   Skeleton,
   TextOverflowTooltip,
   cn,
+  isDefined,
   useMultiQueryState,
   useQueryState,
   useToast,
 } from 'erxes-ui';
-import {
-  IconDotsVertical,
-  IconLink,
-  IconSettings,
-  IconChevronRight,
-} from '@tabler/icons-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import { IBoard } from '@/deals/types/boards';
-import { useBoards } from '~/modules/deals/boards/hooks/useBoards';
+import { useBoardArchiveSubscription } from '@/deals/boards/hooks/useBoardArchiveSubscription';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useBoards } from '@/deals/boards/hooks/useBoards';
 
 type TBoardSelection = {
   boardId: string;
@@ -46,7 +48,7 @@ function BoardItem({ board }: { board: IBoard }) {
     useMultiQueryState<TBoardSelection>(['boardId', 'pipelineId', 'stageId']);
 
   const isActive = boardId === board._id;
-  const pipelines = (board.pipelines || []).filter(
+  const pipelines = (board.pipelines?.filter(isDefined) || []).filter(
     (pipeline) => pipeline.status !== 'archived',
   );
 
@@ -208,7 +210,8 @@ const ActionsMenu = () => {
 };
 
 const DealsNavigation = () => {
-  const { boards, loading } = useBoards();
+  useBoardArchiveSubscription();
+  const { boards, loading, error } = useBoards();
   const [boardId, setBoardId] = useQueryState<string | null>('boardId');
   const [pipelineId, setPipelineId] = useQueryState<string | null>(
     'pipelineId',
@@ -216,29 +219,27 @@ const DealsNavigation = () => {
   const { t } = useTranslation('sales');
 
   useEffect(() => {
-    if (!boards || boards.length === 0) return;
+    if (!boards || boards.some((board) => board._id === boardId)) return;
 
     const storedBoardId = localStorage.getItem('erxesCurrentBoardId');
-
-    if (!boardId && storedBoardId) {
-      setBoardId(storedBoardId);
-      return;
-    }
-
-    if (!boardId && boards[0]?._id) {
-      setBoardId(boards[0]._id);
-    }
+    const storedBoard = boards.find((board) => board._id === storedBoardId);
+    const nextBoardId = storedBoard?._id || boards[0]?._id || null;
+    if (nextBoardId !== boardId) setBoardId(nextBoardId);
   }, [boards, setBoardId, boardId]);
 
   // Keep the selected pipeline within the selected board.
   useEffect(() => {
-    if (!boards || boards.length === 0 || !boardId) return;
+    if (!boards) return;
+    if (boards.length === 0 || !boardId) {
+      if (pipelineId) setPipelineId(null);
+      return;
+    }
 
     const currentBoard = boards.find((board) => board._id === boardId);
 
     if (!currentBoard) return;
 
-    const pipelines = (currentBoard.pipelines || []).filter(
+    const pipelines = (currentBoard.pipelines?.filter(isDefined) || []).filter(
       (pipeline) => pipeline.status !== 'archived',
     );
 
@@ -256,6 +257,12 @@ const DealsNavigation = () => {
     <NavigationMenuGroup name={t('boards')} actions={<ActionsMenu />}>
       {loading ? (
         <LoadingSkeleton />
+      ) : error ? (
+        <p className="p-2 text-sm text-destructive">{error.message}</p>
+      ) : !boards?.length ? (
+        <p className="p-2 text-sm text-muted-foreground">
+          {t('no-boards', 'No boards')}
+        </p>
       ) : (
         boards?.map((board) => <BoardItem key={board._id} board={board} />)
       )}

@@ -94,11 +94,13 @@ const SelectPriorityValue = () => {
 };
 
 const SelectPriorityCommandItem = ({ priority }: { priority: number }) => {
+  const { t } = useTranslation('operation');
   const { onValueChange, value } = useSelectPriorityContext();
   const priorityLabel = PROJECT_PRIORITIES_OPTIONS[priority];
   return (
     <Command.Item
       value={clsx(priorityLabel, value)}
+      keywords={[t(priorityLabel)]}
       onSelect={() => onValueChange(priority)}
     >
       <div className="flex items-center gap-2 flex-1">
@@ -130,11 +132,13 @@ const SelectPriorityRoot = ({
   onValueChange,
   scope,
   variant,
+  label,
 }: {
   value?: number | null;
   onValueChange: (value: number) => void;
   scope?: string;
   variant: `${SelectTriggerVariant}`;
+  label?: string;
 }) => {
   const [open, setOpen] = useState(false);
   return (
@@ -147,7 +151,7 @@ const SelectPriorityRoot = ({
       variant={variant}
     >
       <PopoverScoped scope={scope} open={open} onOpenChange={setOpen}>
-        <SelectTriggerOperation variant={variant}>
+        <SelectTriggerOperation variant={variant} label={label}>
           {variant === SelectTriggerVariant.TABLE ? (
             <SelectPriorityBadgeValue />
           ) : (
@@ -210,9 +214,11 @@ const SelectPriorityFilterBar = ({
 export const SelectPriorityFormItem = ({
   value,
   onValueChange,
+  label,
 }: {
   value: number;
   onValueChange: (value: number) => void;
+  label?: string;
 }) => {
   const [open, setOpen] = useState(false);
   return (
@@ -224,7 +230,7 @@ export const SelectPriorityFormItem = ({
       }}
     >
       <PopoverScoped open={open} onOpenChange={setOpen}>
-        <SelectTriggerOperation variant="form">
+        <SelectTriggerOperation variant="form" label={label}>
           <SelectPriorityValue />
         </SelectTriggerOperation>
         <Combobox.Content>

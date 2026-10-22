@@ -18,8 +18,8 @@ export const AUTOMATION_CONSTANTS = gql`
 `;
 
 export const AUTOMATION_NODE_OUTPUT = gql`
-  query AutomationNodeOutput($nodeType: String!) {
-    automationNodeOutput(nodeType: $nodeType)
+  query AutomationNodeOutput($nodeType: String!, $config: JSON) {
+    automationNodeOutput(nodeType: $nodeType, config: $config)
   }
 `;
 
@@ -130,6 +130,19 @@ export const AUTOMATIONS_MAIN_LIST = gql`
         updatedUser {
           ${COMMON_USER_FIELDS}
         }
+      }
+      ${GQL_PAGE_INFO}
+    }
+  }
+`;
+
+export const AUTOMATIONS_SWITCHER_LIST = gql`
+  query AutomationsSwitcherList(${AUTOMATION_MAIN_LIST_PARAMS}) {
+    automationsMain(${AUTOMATION_MAIN_LIST_PARAMS_DEFS}) {
+      list {
+        _id
+        name
+        status
       }
       ${GQL_PAGE_INFO}
     }

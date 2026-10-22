@@ -12,7 +12,7 @@ import { TUpdatePipelineForm } from '@/pipelines/types';
 import { PipelineConfig } from '@/pipelines/components/PipelineConfig';
 
 export const PipelineDetail = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.pipelines' });
   const { pipelineId } = useParams<{
     pipelineId: string;
   }>();
@@ -34,7 +34,6 @@ export const PipelineDetail = () => {
       numberConfig: pipeline?.numberConfig || '',
       numberSize: pipeline?.numberSize || '',
       nameConfig: pipeline?.nameConfig || '',
-      propertyIds: pipeline?.propertyIds || [],
     });
   }, [form, pipeline, pipelineId]);
 

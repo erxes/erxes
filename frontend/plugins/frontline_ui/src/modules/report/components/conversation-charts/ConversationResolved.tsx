@@ -1,4 +1,5 @@
 import {
+  isDefined,
   ChartContainer,
   ChartTooltipContent,
   RecordTable,
@@ -104,7 +105,7 @@ export const ResolvedBarChart = memo(function ResolvedBarChart({
           />
         </Bar>
         <Tooltip content={<ChartTooltipContent />} />
-        <Legend content={(props: any) => <CustomLegendContent {...props} />} />
+        <Legend content={(props) => <CustomLegendContent {...props} />} />
       </BarChart>
     </ChartContainer>
   );
@@ -162,7 +163,7 @@ export const ResolvedLineChart = memo(function ResolvedLineChart({
           label={{ value: 'Count', angle: -90, position: 'insideLeft' }}
         />
         <Tooltip content={<ChartTooltipContent />} />
-        <Legend content={(props: any) => <CustomLegendContent {...props} />} />
+        <Legend content={(props) => <CustomLegendContent {...props} />} />
       </AreaChart>
     </ChartContainer>
   );
@@ -235,7 +236,7 @@ export const ResolvedPieChart = memo(function ResolvedPieChart({
           ))}
         </Pie>
         <Legend
-          content={(props: any) => (
+          content={(props) => (
             <CustomLegendContent
               {...props}
               onMouseEnter={(data: LegendPayload) => {
@@ -305,7 +306,7 @@ export const ResolvedRadarChart = memo(function ResolvedRadarChart({
           fill="var(--primary)"
           fillOpacity={0.3}
         />
-        <Legend content={(props: any) => <CustomLegendContent {...props} />} />
+        <Legend content={(props) => <CustomLegendContent {...props} />} />
         <Tooltip content={<ChartTooltipContent />} />
       </RadarChart>
     </ChartContainer>
@@ -400,7 +401,10 @@ export const ConversationResolved = ({
   });
 
   const allData = useMemo(
-    () => reports?.reportConversationResolvedDate || [],
+    () =>
+      (reports?.reportConversationResolvedDate ?? [])
+        .filter(isDefined)
+        .map((row) => ({ date: row.date ?? '', count: row.count ?? 0 })),
     [reports],
   );
   const {

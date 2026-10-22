@@ -1,3 +1,4 @@
+import { getConversationAssigneeIds } from '@/inbox/utils/conversationAssignees';
 import { IUserDocument } from 'erxes-api-shared/core-types';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
@@ -166,7 +167,7 @@ export const convertConversation = async (
   const assignedUserIds = (
     doc.assignedUserIds?.length
       ? doc.assignedUserIds
-      : [conversation.assignedUserId]
+      : getConversationAssigneeIds(conversation)
   ).filter((userId): userId is string => Boolean(userId));
 
   const itemId = await handler.create(context, {

@@ -6,10 +6,10 @@ export const NotificationPriorityCommandBar = ({
   priority,
   setQueries,
 }: {
-  priority?: string;
+  priority?: string | null;
   setQueries: (
     values: Partial<{
-      priority?: string | null;
+      notificationPriority?: string | null;
     }>,
   ) => void;
 }) => {
@@ -24,7 +24,9 @@ export const NotificationPriorityCommandBar = ({
             key={value}
             value={value}
             onSelect={() =>
-              setQueries({ priority: priority === value ? null : value })
+              setQueries({
+                notificationPriority: priority === value ? null : value,
+              })
             }
           >
             <span className="capitalize">{value}</span>

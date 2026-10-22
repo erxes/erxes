@@ -2,8 +2,7 @@ import { CellContext, ColumnDef } from '@tanstack/react-table';
 import { IconArrowBarToRight } from '@tabler/icons-react';
 import { Popover, Command, Combobox, RecordTable } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { useParams } from 'react-router-dom';
-import { IIntegrationDetail } from '../types/Integration';
+import { IIntegration } from '../types/Integration';
 import { ArchiveIntegration } from '@/integrations/components/ArchiveIntegration';
 import { RemoveIntegration } from '@/integrations/components/RemoveIntegration';
 import { IntegrationType } from '@/types/Integration';
@@ -13,7 +12,7 @@ import { DiscordIntegrationRepair } from '../discord/components/DiscordIntegrati
 import { EMInstallScript } from '../erxes-messenger/components/EMInstallScript';
 import { MoveToChannelDialog } from '@/channels/components/move-resources/MoveToChannelDialog';
 import { ChannelResourceType } from '@/channels/types';
-import { lazy, Suspense, useState } from 'react';
+import { lazy, ReactNode, Suspense, useState } from 'react';
 
 const ErxesMessengerActions = lazy(() =>
   import('../erxes-messenger/components/ErxesMessengerDetail').then(
@@ -67,14 +66,101 @@ const TelegramIntegrationActions = lazy(() =>
   })),
 );
 
-export const IntegrationMoreColumnCell = ({
-  cell,
+const FACEBOOK_KINDS: string[] = [
+  IntegrationType.FACEBOOK_MESSENGER,
+  IntegrationType.FACEBOOK_POST,
+];
+
+const INSTAGRAM_KINDS: string[] = [
+  IntegrationType.INSTAGRAM_MESSENGER,
+  IntegrationType.INSTAGRAM_POST,
+];
+
+// Kinds with an edit action below; others (e.g. lead forms) get no Edit item.
+const EDITABLE_KINDS: string[] = [
+  IntegrationType.ERXES_MESSENGER,
+  ...FACEBOOK_KINDS,
+  ...INSTAGRAM_KINDS,
+  IntegrationType.CALL,
+  IntegrationType.CALLPRO,
+  IntegrationType.MAIL,
+  IntegrationType.DISCORD_MESSENGER,
+  IntegrationType.TELEGRAM_MESSENGER,
+];
+
+export const isRepairableIntegration = (kind: string) =>
+  FACEBOOK_KINDS.includes(kind) ||
+  INSTAGRAM_KINDS.includes(kind) ||
+  kind === IntegrationType.DISCORD_MESSENGER;
+
+/** The kind's own repair action, for every place an integration is listed. */
+export const IntegrationRepairAction = ({
+  integration,
 }: {
-  cell: CellContext<IIntegrationDetail, unknown>;
+  integration: IIntegration;
+}) => {
+  if (FACEBOOK_KINDS.includes(integration.kind)) {
+    return <FacebookIntegrationRepair integration={integration} />;
+  }
+
+  if (INSTAGRAM_KINDS.includes(integration.kind)) {
+    return <InstagramIntegrationRepair integration={integration} />;
+  }
+
+  if (integration.kind === IntegrationType.DISCORD_MESSENGER) {
+    return <DiscordIntegrationRepair integration={integration} />;
+  }
+
+  return null;
+};
+
+const IntegrationEditAction = ({
+  integration,
+}: {
+  integration: IIntegration;
+}) => {
+  const { kind } = integration;
+
+  return (
+    <Suspense fallback={<div />}>
+      {kind === IntegrationType.ERXES_MESSENGER && (
+        <ErxesMessengerActions integration={integration} />
+      )}
+      {FACEBOOK_KINDS.includes(kind) && (
+        <FacebookIntegrationActions integration={integration} />
+      )}
+      {kind === IntegrationType.CALL && (
+        <CallIntegrationActions integration={integration} />
+      )}
+      {kind === IntegrationType.CALLPRO && (
+        <CallProIntegrationActions integration={integration} />
+      )}
+      {kind === IntegrationType.MAIL && (
+        <MailIntegrationActions integration={integration} />
+      )}
+      {INSTAGRAM_KINDS.includes(kind) && (
+        <InstagramIntegrationActions integration={integration} />
+      )}
+      {kind === IntegrationType.DISCORD_MESSENGER && (
+        <DiscordIntegrationActions integration={integration} />
+      )}
+      {kind === IntegrationType.TELEGRAM_MESSENGER && (
+        <TelegramIntegrationActions integration={integration} />
+      )}
+    </Suspense>
+  );
+};
+
+/** Row actions of one integration, independent of the page it is listed on. */
+export const IntegrationActionsMenu = ({
+  integration,
+  trigger,
+}: {
+  integration: IIntegration;
+  trigger?: ReactNode;
 }) => {
   const { t } = useTranslation('frontline');
-  const { _id, name, isActive, channelId } = cell.row.original;
-  const { integrationType } = useParams();
+  const { _id, name, isActive, channelId, kind } = integration;
   const [menuOpen, setMenuOpen] = useState(false);
   const [moveOpen, setMoveOpen] = useState(false);
 
@@ -82,63 +168,26 @@ export const IntegrationMoreColumnCell = ({
     <>
       <Popover open={menuOpen} onOpenChange={setMenuOpen}>
         <Popover.Trigger asChild>
-          <RecordTable.MoreButton className="w-full h-full" />
+          {trigger ?? <RecordTable.MoreButton className="w-full h-full" />}
         </Popover.Trigger>
         <Combobox.Content>
           <Command shouldFilter={false}>
             <Command.List>
-              <Command.Item value="edit">
-                <Suspense fallback={<div />}>
-                  {integrationType === IntegrationType.ERXES_MESSENGER && (
-                    <ErxesMessengerActions cell={cell} />
-                  )}
-                  {(integrationType === IntegrationType.FACEBOOK_MESSENGER ||
-                    integrationType === IntegrationType.FACEBOOK_POST) && (
-                    <FacebookIntegrationActions cell={cell} />
-                  )}
-                  {integrationType === IntegrationType.CALL && (
-                    <CallIntegrationActions cell={cell} />
-                  )}
-                  {integrationType === IntegrationType.CALLPRO && (
-                    <CallProIntegrationActions cell={cell} />
-                  )}
-                  {integrationType === IntegrationType.MAIL && (
-                    <MailIntegrationActions cell={cell} />
-                  )}
-                  {(integrationType === IntegrationType.INSTAGRAM_MESSENGER ||
-                    integrationType === IntegrationType.INSTAGRAM_POST) && (
-                    <InstagramIntegrationActions cell={cell} />
-                  )}
-                  {integrationType === IntegrationType.DISCORD_MESSENGER && (
-                    <DiscordIntegrationActions cell={cell} />
-                  )}
-                  {integrationType === IntegrationType.TELEGRAM_MESSENGER && (
-                    <TelegramIntegrationActions cell={cell} />
-                  )}
-                </Suspense>
-              </Command.Item>
-              {integrationType === IntegrationType.ERXES_MESSENGER && (
-                <Command.Item value="install">
-                  <EMInstallScript integrationId={cell.row.original._id} />
+              {EDITABLE_KINDS.includes(kind) && (
+                <Command.Item value="edit">
+                  <IntegrationEditAction integration={integration} />
                 </Command.Item>
               )}
-              {IntegrationType.FACEBOOK_MESSENGER === integrationType ||
-              IntegrationType.FACEBOOK_POST === integrationType ? (
-                <Command.Item value="repair">
-                  <FacebookIntegrationRepair cell={cell} />
+              {kind === IntegrationType.ERXES_MESSENGER && (
+                <Command.Item value="install">
+                  <EMInstallScript integrationId={_id} />
                 </Command.Item>
-              ) : null}
-              {IntegrationType.INSTAGRAM_MESSENGER === integrationType ||
-              IntegrationType.INSTAGRAM_POST === integrationType ? (
+              )}
+              {isRepairableIntegration(kind) && (
                 <Command.Item value="repair">
-                  <InstagramIntegrationRepair cell={cell} />
+                  <IntegrationRepairAction integration={integration} />
                 </Command.Item>
-              ) : null}
-              {integrationType === IntegrationType.DISCORD_MESSENGER ? (
-                <Command.Item value="repair">
-                  <DiscordIntegrationRepair cell={cell} />
-                </Command.Item>
-              ) : null}
+              )}
               <Command.Item
                 value="move"
                 onSelect={() => {
@@ -150,7 +199,11 @@ export const IntegrationMoreColumnCell = ({
                 {t('move-to-channel', 'Move to Channel')}
               </Command.Item>
               <Command.Item value="archive">
-                <ArchiveIntegration _id={_id} name={name} isActive={isActive} />
+                <ArchiveIntegration
+                  _id={_id}
+                  name={name}
+                  isActive={isActive ?? false}
+                />
               </Command.Item>
               <Command.Item value="remove">
                 <RemoveIntegration _id={_id} name={name} />
@@ -164,7 +217,7 @@ export const IntegrationMoreColumnCell = ({
         onOpenChange={setMoveOpen}
         resourceType={ChannelResourceType.INTEGRATION}
         resourceIds={[_id]}
-        sourceChannelId={channelId}
+        sourceChannelId={channelId ?? ''}
       />
     </>
   );
@@ -172,11 +225,11 @@ export const IntegrationMoreColumnCell = ({
 
 export const integrationMoreColumn = (
   showColumnSelector = false,
-): ColumnDef<IIntegrationDetail> => ({
+): ColumnDef<IIntegration> => ({
   id: 'more',
   header: showColumnSelector ? () => <RecordTable.ColumnSelector /> : undefined,
-  cell: (cell: CellContext<IIntegrationDetail, unknown>) => (
-    <IntegrationMoreColumnCell cell={cell} />
+  cell: (cell: CellContext<IIntegration, unknown>) => (
+    <IntegrationActionsMenu integration={cell.row.original} />
   ),
   size: 33,
 });

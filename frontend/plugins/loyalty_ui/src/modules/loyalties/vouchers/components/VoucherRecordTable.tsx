@@ -1,8 +1,5 @@
 import { RecordTable, Spinner } from 'erxes-ui';
-import {
-  firstVoucherColumns,
-  secondVoucherColumns,
-} from '@/loyalties/vouchers/components/VoucherColumns';
+import { voucherColumns } from '@/loyalties/vouchers/components/VoucherColumns';
 import { useVouchersList } from '@/loyalties/vouchers/hooks/UseVoucherList';
 import { IconShoppingCartX } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
@@ -14,10 +11,7 @@ export const VoucherRecordTable = ({ posId }: { posId?: string }) => {
   });
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
 
-  const allColumns = [
-    ...firstVoucherColumns(t),
-    ...secondVoucherColumns(t),
-  ];
+  const allColumns = voucherColumns(t);
   const columnsKey = allColumns.map((c) => c.id || '').join('|');
 
   if (loading) return <Spinner />;

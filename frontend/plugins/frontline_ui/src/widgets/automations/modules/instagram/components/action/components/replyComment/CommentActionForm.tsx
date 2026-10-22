@@ -26,7 +26,7 @@ export const CommentActionForm = ({
   currentAction,
   onSaveActionConfig,
 }: AutomationActionFormProps) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.instagram' });
   const form = useForm<TCommentActionForm>({
     resolver: zodResolver(commentActionFormSchema),
     defaultValues: { ...(currentAction?.config || {}) },

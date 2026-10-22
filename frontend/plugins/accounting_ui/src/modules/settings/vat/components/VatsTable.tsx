@@ -8,13 +8,14 @@ import {
 } from '~/modules/settings/components/SettingsRowsTable';
 import { toast, useConfirm, useQueryState } from 'erxes-ui';
 
-import { IVatRow } from '../types/VatRow';
-import { VatRowsCommandbar } from './VatRowsCommandbar';
+import { IVatRow } from '@/settings/vat/types/VatRow';
+import { VatRowsCommandbar } from '@/settings/vat/components/VatRowsCommandbar';
 import { useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
-import { useVatRows } from '../hooks/useVatRows';
-import { useVatRowsRemove } from '../hooks/useVatRowsRemove';
-import { vatRowDetailAtom } from '../states/vatRowStates';
+import { useVatRows } from '@/settings/vat/hooks/useVatRows';
+import { useVatRowsRemove } from '@/settings/vat/hooks/useVatRowsRemove';
+import { vatRowDetailAtom } from '@/settings/vat/states/vatRowStates';
+import { AddVats } from '@/settings/vat/components/AddVats';
 
 export const VatRowMoreColumnCell = ({
   cell,
@@ -73,13 +74,15 @@ export const vatRowsColumns = (
 
 export const VatRowsTable = () => {
   const { t } = useTranslation('accounting');
-  const { vatRows, loading, handleFetchMore, totalCount } = useVatRows();
+  const { vatRows, loading, error, handleFetchMore, totalCount } = useVatRows();
 
   return (
     <SettingsRowsTable
       columns={vatRowsColumns(t)}
       data={vatRows || []}
       loading={loading}
+      error={error}
+      emptyAction={<AddVats />}
       totalCount={totalCount}
       handleFetchMore={handleFetchMore}
       Commandbar={VatRowsCommandbar}

@@ -1,3 +1,8 @@
+import {
+  assigneeAggregation,
+  getConversationAssigneeIds,
+} from '@/inbox/utils/conversationAssignees';
+import type { IConversationDocument } from '@/inbox/@types/conversations';
 import { IContext } from '~/connectionResolvers';
 import { CONVERSATION_STATUSES } from '@/inbox/db/definitions/constants';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
@@ -129,14 +134,16 @@ export const reportInboxQueries = {
       {
         $match: {
           customerId,
-          assignedUserId: { $exists: true, $ne: null },
+
           status: { $in: statuses },
           ...buildDateFilter(fromDate, toDate),
         },
       },
+      { $set: { reportAssigneeId: assigneeAggregation } },
+      { $unwind: '$reportAssigneeId' },
       {
         $group: {
-          _id: { assigneeId: '$assignedUserId', status: '$status' },
+          _id: { assigneeId: '$reportAssigneeId', status: '$status' },
           count: { $sum: 1 },
         },
       },
@@ -507,7 +514,9 @@ export const reportInboxQueries = {
 
     const assigneeIds = [
       ...new Set(
-        conversations.map((c: any) => c.assignedUserId).filter(Boolean),
+        conversations.flatMap((conversation: IConversationDocument) =>
+          getConversationAssigneeIds(conversation),
+        ),
       ),
     ];
     const customerIds = [
@@ -586,9 +595,10 @@ export const reportInboxQueries = {
       _id: c._id,
       content: c.content || '',
       status: c.status || '',
-      assignedUserName: c.assignedUserId
-        ? memberMap.get(c.assignedUserId.toString()) || 'Unknown'
-        : 'Unassigned',
+      assignedUserName:
+        getConversationAssigneeIds(c)
+          .map((id) => memberMap.get(id) || 'Unknown')
+          .join(', ') || 'Unassigned',
       customerName: c.customerId
         ? customerMap.get(c.customerId.toString()) || 'Unknown'
         : '',

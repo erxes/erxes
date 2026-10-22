@@ -29,7 +29,7 @@ export const FormMutateLayout = ({
   onSubmit?: (values: z.infer<any>) => void;
   isLoading?: boolean;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
   const [step, setStep] = useAtom(formSetupStepAtom);
   const { id } = useParams<{ id: string }>();
 
@@ -40,7 +40,7 @@ export const FormMutateLayout = ({
     resetFormSetup();
     if (!id) {
       navigate('/frontline/forms');
-    } else navigate(`/settings/frontline/channels/${id}/forms`);
+    } else navigate(`/frontline/settings/channels/${id}/forms`);
     return;
   };
 
@@ -93,7 +93,7 @@ export const FormMutateLayout = ({
 };
 
 export const FormMutateLayoutPreviousStepButton = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
   const [step, setStep] = useAtom(formSetupStepAtom);
   return (
     <Button

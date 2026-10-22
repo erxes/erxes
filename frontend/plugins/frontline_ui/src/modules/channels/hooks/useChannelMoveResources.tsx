@@ -1,20 +1,10 @@
 import { MOVE_CHANNEL_RESOURCES } from '@/channels/graphql';
-import {
-  ChannelResourceType,
-  IChannelMoveResourcesResult,
-} from '@/channels/types';
+import { ChannelResourceType } from '@/channels/types';
 import { MutationHookOptions, useMutation } from '@apollo/client';
-
-export interface IChannelMoveResourcesVariables {
-  resourceType: ChannelResourceType;
-  resourceIds: string[];
-  sourceChannelId: string;
-  targetChannelId: string;
-}
-
-interface IChannelMoveResourcesResponse {
-  channelMoveResources: IChannelMoveResourcesResult;
-}
+import type {
+  ChannelMoveResourcesMutation,
+  ChannelMoveResourcesMutationVariables,
+} from '~/gql/graphql';
 
 const CHANNEL_COUNT_QUERIES = [
   'frontlineChannelList',
@@ -30,6 +20,7 @@ export const CHANNEL_RESOURCE_LIST_QUERIES: Record<
     'Integrations',
     'IntegrationsGetUsedTypes',
     'IntegrationsGetUsedTypesByChannel',
+    'ChannelIntegrationsPeek',
   ],
   [ChannelResourceType.PIPELINE]: ['GetTicketPipelines'],
   [ChannelResourceType.FORM]: ['Forms', 'FormsTotalCount'],
@@ -38,15 +29,12 @@ export const CHANNEL_RESOURCE_LIST_QUERIES: Record<
 };
 
 export const useChannelMoveResources = (resourceType: ChannelResourceType) => {
-  const [mutate, { loading }] = useMutation<
-    IChannelMoveResourcesResponse,
-    IChannelMoveResourcesVariables
-  >(MOVE_CHANNEL_RESOURCES);
+  const [mutate, { loading }] = useMutation(MOVE_CHANNEL_RESOURCES);
 
   const moveResources = (
     options: MutationHookOptions<
-      IChannelMoveResourcesResponse,
-      IChannelMoveResourcesVariables
+      ChannelMoveResourcesMutation,
+      ChannelMoveResourcesMutationVariables
     >,
   ) =>
     mutate({

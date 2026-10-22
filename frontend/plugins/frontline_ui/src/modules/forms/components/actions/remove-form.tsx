@@ -10,7 +10,7 @@ export const RemoveForm = ({
   formId: string;
   title?: string;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
   const { removeForm, loading } = useRemoveForm();
   const { confirm } = useConfirm();
   const { toast } = useToast();

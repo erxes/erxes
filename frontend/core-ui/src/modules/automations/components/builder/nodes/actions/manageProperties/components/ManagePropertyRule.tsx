@@ -1,16 +1,26 @@
 import { useTranslation } from 'react-i18next';
-import { useManagePropertyRule } from '@/automations/components/builder/nodes/actions/manageProperties/hooks/useManagePropertyRule';
+import {
+  describeManagePropertyRule,
+  useManagePropertyRule,
+} from '@/automations/components/builder/nodes/actions/manageProperties/hooks/useManagePropertyRule';
+import { AutomationRuleCard } from '@/automations/components/builder/sidebar/components/content/action/conditional/AutomationRuleCard';
 import {
   ManagePropertyCustomInput,
   useManagePropertyCustomInput,
 } from '@/automations/components/builder/nodes/actions/manageProperties/components/ManagePropertyCustomInput';
-import { IconCornerDownRight, IconTrash, IconX } from '@tabler/icons-react';
+import { IconPlus, IconX } from '@tabler/icons-react';
 import { Button, Form, Select } from 'erxes-ui';
 import { useState } from 'react';
-import { PlaceholderInput, TPlaceholderInputSuggestion } from 'ui-modules';
+import {
+  AutomationConditionalField,
+  PlaceholderInput,
+  TPlaceholderInputSuggestion,
+} from 'ui-modules';
 
 interface LocalRuleProps {
+  id: string;
   index: number;
+  onRemove: () => void;
   propertyType: string;
   sourceType: string;
 }
@@ -18,15 +28,17 @@ interface LocalRuleProps {
 export const ManagePropertyRule = ({
   propertyType,
   sourceType,
+  id,
   index,
+  onRemove,
 }: LocalRuleProps) => {
   const {
+    form,
     control,
     setValue,
     groups,
     operators,
     handleFieldChange,
-    handleRemove,
     handleUpdate,
     placeholderInputProps,
     rule,
@@ -34,6 +46,8 @@ export const ManagePropertyRule = ({
   } = useManagePropertyRule({ propertyType, sourceType, index });
   const { t } = useTranslation('automations');
   const CustomInput = useManagePropertyCustomInput(propertyType, selectedField);
+  // A custom input stores ids, which read as noise in a one-line summary
+  const summary = describeManagePropertyRule(rule, operators, !CustomInput);
   const [showFallback, setShowFallback] = useState(
     () => !!String(rule?.fallbackValue ?? '').trim(),
   );
@@ -44,8 +58,13 @@ export const ManagePropertyRule = ({
   };
 
   return (
-    <div className="border rounded p-4  mb-2 relative group">
-      <div className="flex flex-row gap-4 mb-4  items-end">
+    <AutomationRuleCard
+      id={id}
+      title={t('manage-properties-rule', { index: index + 1 })}
+      summary={summary}
+      onRemove={onRemove}
+    >
+      <div className="flex flex-row items-end gap-2">
         <Form.Field
           control={control}
           name={`rules.${index}.field`}
@@ -89,7 +108,7 @@ export const ManagePropertyRule = ({
           control={control}
           name={`rules.${index}.operator`}
           render={({ field }) => (
-            <Form.Item className="w-2/5 ">
+            <Form.Item className="w-2/5">
               <Form.Label>{t('manage-properties-operator')}</Form.Label>
 
               <Select value={field.value} onValueChange={field.onChange}>
@@ -110,56 +129,42 @@ export const ManagePropertyRule = ({
             </Form.Item>
           )}
         />
-
-        <Button
-          variant="destructive"
-          size="icon"
-          className="flex-shrink-0 opacity-0  absolute -top-6 right-1 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 ease-in-out"
-          onClick={handleRemove}
-        >
-          <IconTrash size={16} />
-        </Button>
       </div>
-      <div className="mb-4">
-        <Form.Field
-          control={control}
-          name={`rules.${index}.value`}
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>{t('value')}</Form.Label>
-
-              {CustomInput ? (
-                <ManagePropertyCustomInput
-                  CustomInput={CustomInput}
-                  value={field.value ?? ''}
-                  onChange={field.onChange}
-                  meta={rule?.meta}
-                  onMetaChange={(meta) =>
-                    setValue(`rules.${index}.meta`, meta, {
-                      shouldDirty: true,
-                    })
-                  }
-                  disabled={placeholderInputProps.isDisabled}
-                />
-              ) : (
-                <PlaceholderInput
-                  propertyType={propertyType}
-                  value={field.value ?? ''}
-                  onChange={field.onChange}
-                  disabled={[TPlaceholderInputSuggestion.Attribute]}
-                  isExpression={rule.isExpression}
-                  onChangeInputMode={(mode) =>
-                    handleUpdate({ isExpression: mode === 'expression' })
-                  }
-                  {...placeholderInputProps}
-                >
-                  <PlaceholderInput.Header />
-                </PlaceholderInput>
-              )}
-
-              <Form.Message />
-            </Form.Item>
-          )}
+      <div>
+        <AutomationConditionalField
+          form={form}
+          names={[`rules.${index}.value`, `rules.${index}.meta`]}
+          label={t('value')}
+          render={({ field, form: valueForm }) =>
+            CustomInput ? (
+              <ManagePropertyCustomInput
+                CustomInput={CustomInput}
+                value={field.value ?? ''}
+                onChange={field.onChange}
+                meta={valueForm.watch(`rules.${index}.meta`)}
+                onMetaChange={(meta) =>
+                  valueForm.setValue(`rules.${index}.meta`, meta, {
+                    shouldDirty: true,
+                  })
+                }
+                disabled={placeholderInputProps.isDisabled}
+              />
+            ) : (
+              <PlaceholderInput
+                propertyType={propertyType}
+                value={field.value ?? ''}
+                onChange={field.onChange}
+                disabled={[TPlaceholderInputSuggestion.Attribute]}
+                isExpression={rule.isExpression}
+                onChangeInputMode={(mode) =>
+                  handleUpdate({ isExpression: mode === 'expression' })
+                }
+                {...placeholderInputProps}
+              >
+                <PlaceholderInput.Header />
+              </PlaceholderInput>
+            )
+          }
         />
 
         {!CustomInput &&
@@ -168,9 +173,9 @@ export const ManagePropertyRule = ({
               control={control}
               name={`rules.${index}.fallbackValue`}
               render={({ field }) => (
-                <Form.Item className="mt-2">
+                <Form.Item className="mt-3">
                   <div className="flex items-center justify-between">
-                    <Form.Label className="text-muted-foreground">
+                    <Form.Label>
                       {t('manage-properties-else-description')}
                     </Form.Label>
                     <Button
@@ -204,11 +209,11 @@ export const ManagePropertyRule = ({
               className="mt-2 text-muted-foreground"
               onClick={() => setShowFallback(true)}
             >
-              <IconCornerDownRight size={14} />
+              <IconPlus size={14} />
               {t('manage-properties-else-fallback')}
             </Button>
           ))}
       </div>
-    </div>
+    </AutomationRuleCard>
   );
 };

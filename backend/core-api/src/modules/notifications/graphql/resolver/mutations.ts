@@ -4,6 +4,29 @@ import { generateNotificationsFilter } from '~/modules/notifications/graphql/res
 import { release } from '~/utils/email/ramp';
 
 export const notificationMutations = {
+  async coreNotificationsDelete(
+    _root: undefined,
+    { ids }: { ids: string[] },
+    { models, user }: IContext,
+  ): Promise<string[]> {
+    if (!user?._id) throw new Error('Login required');
+    if (!ids.length || ids.length > 500 || ids.some((id) => !id.trim())) {
+      throw new Error('Select between 1 and 500 notifications');
+    }
+    const notificationIds = [...new Set(ids)];
+    const selector = {
+      _id: { $in: notificationIds },
+      userId: user._id,
+      isRead: true,
+    };
+    const ownedIds = await models.Notifications.find(selector).distinct('_id');
+    if (ownedIds.length !== notificationIds.length) {
+      throw new Error('Only your existing read notifications can be deleted');
+    }
+    await models.Notifications.deleteMany(selector);
+    return notificationIds;
+  },
+
   async archiveNotification(
     _root: undefined,
     { _id }: { _id: string },
@@ -110,14 +133,30 @@ export const notificationMutations = {
     _root: undefined,
     {
       input,
-    }: { input: { event: string; enabled: boolean; channels: string[] } },
+    }: {
+      input: {
+        event: string;
+        enabled: boolean;
+        channels: string[];
+        mutedChannels?: string[];
+      };
+    },
     { models, user }: IContext,
   ) {
-    const { event, enabled, channels } = input;
+    const { event, enabled, channels, mutedChannels } = input;
 
+    // field-level set so an on/off toggle keeps the event's muted channels
     await models.NotificationSettings.updateOne(
       { userId: user._id },
-      { $set: { [`events.${event}`]: { enabled, channels } } },
+      {
+        $set: {
+          [`events.${event}.enabled`]: enabled,
+          [`events.${event}.channels`]: channels,
+          ...(mutedChannels && {
+            [`events.${event}.mutedChannels`]: mutedChannels,
+          }),
+        },
+      },
       { upsert: true },
     );
 

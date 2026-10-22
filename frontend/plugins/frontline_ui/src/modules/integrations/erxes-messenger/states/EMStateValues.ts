@@ -33,12 +33,10 @@ export const erxesMessengerSetupValuesAtom = atom((get) => {
       name: config?.name,
       channelId: config?.channelId,
       brandId: config?.brandId,
-      ticketConfigIds: config?.ticketConfigIds,
       languageCode: settings?.languageCode || DEFAULT_LANGUAGE,
     },
     saveConfigVariables: {
       messengerData: {
-        notifyCustomer: settings?.notifyCustomer ?? false,
         botEndpointUrl: '',
         botShowInitialMessage: config?.botSetup?.botShowInitialMessage ?? false,
         botCheck: config?.botSetup?.botCheck ?? false,
@@ -87,7 +85,6 @@ export const erxesMessengerSetupValuesAtom = atom((get) => {
         knowledgeBaseTopicId: config?.knowledgeBaseTopicId ?? '',
         websiteApps: settings?.websiteApps ?? [],
       },
-      callData: {},
     },
     uiOptions: {
       primary: {

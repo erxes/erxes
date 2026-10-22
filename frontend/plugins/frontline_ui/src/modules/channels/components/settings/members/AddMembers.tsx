@@ -19,7 +19,7 @@ import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 export const AddMembers = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.channels' });
   const form = useChannelMembersForm({});
   const { id } = useParams();
   const { toast } = useToast();
@@ -46,8 +46,9 @@ export const AddMembers = () => {
 
   const submitHandler: SubmitHandler<TChannelMemberForm> = React.useCallback(
     async (data) => {
+      if (!id) return;
       channelAddMembers({
-        variables: { ...data, id },
+        variables: { id, memberIds: data.memberIds ?? [] },
         onCompleted: () => {
           toast({ title: t('success', 'Success!') });
           form.reset();

@@ -5,6 +5,8 @@ import { AutomationErrorState } from '@/automations/components/common/Automation
 import { RenderPluginsComponentWrapper } from '@/automations/components/common/RenderPluginsComponentWrapper';
 import { Card, Spinner, toast } from 'erxes-ui';
 import { Suspense, useRef } from 'react';
+import { AutomationConditionalsProvider } from 'ui-modules';
+import { AutomationConditionalEditorSheet } from '@/automations/components/builder/sidebar/components/content/action/conditional/AutomationConditionalEditorSheet';
 import { ErrorBoundary } from 'react-error-boundary';
 import { useTranslation } from 'react-i18next';
 
@@ -16,6 +18,7 @@ export const AutomationActionContentSidebar = () => {
     isCoreActionComponent,
     currentAction,
     onSaveActionConfig,
+    conditionalsStore,
     pluginName,
     moduleName,
     trigger,
@@ -29,63 +32,69 @@ export const AutomationActionContentSidebar = () => {
 
   if (!isCoreActionComponent) {
     return (
-      <div className="flex h-full min-h-0 flex-col">
-        <div className="min-h-0 flex-1 overflow-hidden">
-          <AutomationConfigFormWrapper
-            onSave={() => {
-              if (
-                !formRef.current ||
-                typeof formRef.current.submit !== 'function'
-              ) {
-                toast({
-                  title: t('sidebar-form-not-configured'),
-                  description: t('sidebar-configure-form-before-saving'),
-                  variant: 'destructive',
-                });
-                return;
-              }
-              formRef.current.submit();
-            }}
-          >
-            <Suspense fallback={<Spinner />}>
-              <ErrorBoundary
-                FallbackComponent={({ resetErrorBoundary }) => (
-                  <AutomationErrorState onRetry={resetErrorBoundary} />
-                )}
-              >
-                <RenderPluginsComponentWrapper
-                  key={currentAction.id}
-                  pluginName={pluginName}
-                  moduleName={moduleName}
-                  props={{
-                    formRef,
-                    componentType: 'actionForm',
-                    type: currentAction?.type,
-                    currentAction,
-                    onSaveActionConfig: onSaveActionConfig,
-                    trigger,
-                    targetType,
-                    previousActions,
-                  }}
-                />
-              </ErrorBoundary>
-            </Suspense>
-          </AutomationConfigFormWrapper>
+      <AutomationConditionalsProvider store={conditionalsStore}>
+        <AutomationConditionalEditorSheet />
+        <div className="flex h-full min-h-0 flex-col">
+          <div className="min-h-0 flex-1 overflow-hidden">
+            <AutomationConfigFormWrapper
+              onSave={() => {
+                if (
+                  !formRef.current ||
+                  typeof formRef.current.submit !== 'function'
+                ) {
+                  toast({
+                    title: t('sidebar-form-not-configured'),
+                    description: t('sidebar-configure-form-before-saving'),
+                    variant: 'destructive',
+                  });
+                  return;
+                }
+                formRef.current.submit();
+              }}
+            >
+              <Suspense fallback={<Spinner />}>
+                <ErrorBoundary
+                  FallbackComponent={({ resetErrorBoundary }) => (
+                    <AutomationErrorState onRetry={resetErrorBoundary} />
+                  )}
+                >
+                  <RenderPluginsComponentWrapper
+                    key={currentAction.id}
+                    pluginName={pluginName}
+                    moduleName={moduleName}
+                    props={{
+                      formRef,
+                      componentType: 'actionForm',
+                      type: currentAction?.type,
+                      currentAction,
+                      onSaveActionConfig: onSaveActionConfig,
+                      trigger,
+                      targetType,
+                      previousActions,
+                    }}
+                  />
+                </ErrorBoundary>
+              </Suspense>
+            </AutomationConfigFormWrapper>
+          </div>
         </div>
-      </div>
+      </AutomationConditionalsProvider>
     );
   }
 
   return (
-    <div className="flex h-full min-h-0 flex-col">
-      <div className="min-h-0 flex-1 overflow-hidden">
-        <AutomationCoreActionSidebarContent
-          key={currentAction.id}
-          currentIndex={currentIndex}
-          currentAction={currentAction}
-          onSaveActionConfig={onSaveActionConfig}
-        />
+    <AutomationConditionalsProvider store={conditionalsStore}>
+      <AutomationConditionalEditorSheet />
+      <div className="flex h-full min-h-0 flex-col">
+        <div className="min-h-0 flex-1 overflow-hidden">
+          <AutomationCoreActionSidebarContent
+            key={currentAction.id}
+            currentIndex={currentIndex}
+            currentAction={currentAction}
+            onSaveActionConfig={onSaveActionConfig}
+          />
+        </div>
       </div>
-    </div>
+    </AutomationConditionalsProvider>
   );
 };

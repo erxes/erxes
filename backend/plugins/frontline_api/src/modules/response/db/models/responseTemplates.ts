@@ -32,6 +32,10 @@ export const loadClass = (models: IModels) => {
       _id: string,
       fields: IResponseTemplate,
     ) {
+      if (!_id) {
+        throw new Error('Response template id is required');
+      }
+
       await models.ResponseTemplates.updateOne(
         { _id },
         { $set: { ...fields } },

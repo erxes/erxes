@@ -41,15 +41,23 @@ import ReserveRem from '@/inventories/graphql/resolvers/customResolvers/reserveR
 import SafeRemainderItem from '@/inventories/graphql/resolvers/customResolvers/safeRemainderItem';
 import SafeRemainder from '@/inventories/graphql/resolvers/customResolvers/safeRemainder';
 import {
+  Job,
+  JobItem,
+} from '@/inventories/graphql/resolvers/customResolvers/job';
+import {
   ReserveRems as QueriesReserveRem,
   SafeRemainderItems as QueriesSafeRemainderItem,
   SafeRemainders as QueriesSafeRemainder,
+  Jobs as QueriesJob,
+  JobExecutions as jobExecutionQueries,
 } from '@/inventories/graphql/resolvers/queries';
 import {
   Remainders as MutationsRemainder,
   ReserveRems as MutationsReserveRem,
   SafeRemainderItems as MutationsSafeRemainderItem,
   SafeRemainders as MutationsSafeRemainder,
+  Jobs as MutationsJob,
+  JobExecutions as jobExecutionMutations,
 } from '@/inventories/graphql/resolvers/mutations';
 import adjustClosingEntryMutations from '~/modules/accounting/graphql/resolvers/mutations/adjustClosing';
 import MutationsFixedAssets from '~/modules/fixedAssets/graphql/resolvers/mutations/fixedAssets';
@@ -69,6 +77,8 @@ const resolvers: any = {
   ReserveRem,
   SafeRemainderItem,
   SafeRemainder,
+  JobItem,
+  Job,
 
   Mutation: {
     ...MutationsAccountCategory,
@@ -87,6 +97,8 @@ const resolvers: any = {
     ...MutationsReserveRem,
     ...MutationsSafeRemainderItem,
     ...MutationsSafeRemainder,
+    ...MutationsJob,
+    ...jobExecutionMutations,
     ...adjustClosingEntryMutations,
     ...MutationsFixedAssets,
   },
@@ -108,6 +120,8 @@ const resolvers: any = {
     ...QueriesReserveRem,
     ...QueriesSafeRemainderItem,
     ...QueriesSafeRemainder,
+    ...QueriesJob,
+    ...jobExecutionQueries,
     ...QueriesFixedAssets,
   },
 };

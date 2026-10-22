@@ -10,19 +10,21 @@ export const useAddTicketToView = () => {
   const setTicketCountByBoard = useSetAtom(ticketCountByBoardAtom);
 
   const addTicketToView = (ticket: ITicket) => {
+    const statusId = ticket.statusId ?? '';
+
     setAllTicketsMap((prev) => ({ ...prev, [ticket._id]: ticket }));
     setFetchedTickets((prev) => {
       if (prev.some((item) => item.id === ticket._id)) {
         return prev;
       }
       return [
-        { id: ticket._id, column: ticket.statusId, sort: ticket.updatedAt },
+        { id: ticket._id, column: statusId, sort: ticket.updatedAt },
         ...prev,
       ];
     });
     setTicketCountByBoard((prev) => ({
       ...prev,
-      [ticket.statusId]: (prev[ticket.statusId] || 0) + 1,
+      [statusId]: (prev[statusId] || 0) + 1,
     }));
   };
 

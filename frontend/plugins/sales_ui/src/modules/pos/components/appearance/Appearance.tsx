@@ -1,13 +1,13 @@
-import { useCallback, useEffect, type ReactNode } from 'react';
-import { useMutation } from '@apollo/client';
-import { Button, Form, InfoCard, Label, toast } from 'erxes-ui';
-import { useForm } from 'react-hook-form';
+import { Infos } from '@/pos/components/appearance/Infos';
 import { LogosAndFavicon } from '@/pos/components/appearance/LogosAndFavicon';
 import { MainColors } from '@/pos/components/appearance/MainColors';
-import { Infos } from '@/pos/components/appearance/Infos';
-import mutations from '@/pos/graphql/mutations';
+import { mutations } from '@/pos/graphql/mutations';
 import { usePosDetail } from '@/pos/hooks/usePosDetail';
 import { cleanData } from '@/pos/utils/cleanData';
+import { useMutation } from '@apollo/client';
+import { Button, Form, InfoCard, Label, toast } from 'erxes-ui';
+import { useCallback, useEffect, type ReactNode } from 'react';
+import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 
 interface AppearanceProps {
@@ -224,4 +224,4 @@ const Appearance: React.FC<AppearanceProps> = ({
   );
 };
 
-export default Appearance;
+export { Appearance };

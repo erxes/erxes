@@ -3,10 +3,10 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { Suspense, lazy } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { BoardsList } from '~/modules/deals/boards/components/settings/BoardsList';
+import { BoardsList } from '@/deals/boards/components/settings/BoardsList';
 import { IconSandbox } from '@tabler/icons-react';
 import { PipelineFormBar } from '@/deals/pipelines/components/PipelineFormBar';
-import PipelineRecordTable from '@/deals/pipelines/components/PipelineRecordTable';
+import { PipelineRecordTable } from '@/deals/pipelines/components/PipelineRecordTable';
 import { SettingsHeader } from 'ui-modules';
 
 const PosSettingsPage = lazy(() =>
@@ -24,19 +24,17 @@ const PosEditPage = lazy(() =>
 const DealsSettings = () => {
   const { t } = useTranslation('sales');
   return (
-    <PageContainer>
-      <SettingsHeader breadcrumbs={[]}>
-        <Button variant="ghost" className="font-semibold">
-          <IconSandbox className="w-4 h-4 text-accent-foreground" />
-          {t('boards-and-pipelines')}
-        </Button>
-        <PipelineFormBar />
-      </SettingsHeader>
-      <div className="flex flex-auto overflow-hidden">
-        <BoardsList />
-        <div className="relative flex min-w-0 flex-1 flex-col overflow-hidden">
-          <PipelineRecordTable />
-        </div>
+    <PageContainer className="flex-row">
+      <BoardsList />
+      <div className="relative flex min-w-0 flex-1 flex-col overflow-hidden">
+        <SettingsHeader breadcrumbs={[]}>
+          <Button variant="ghost">
+            <IconSandbox />
+            {t('boards-and-pipelines')}
+          </Button>
+          <PipelineFormBar />
+        </SettingsHeader>
+        <PipelineRecordTable />
       </div>
     </PageContainer>
   );

@@ -11,6 +11,10 @@ import {
 } from '~/modules/sales/graphql/resolvers/utils';
 import { generateLastNum, watchItem } from '~/modules/sales/utils';
 import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
+import {
+  assertBoardIsActive,
+  assertPipelineIsActive,
+} from '../../utils/archiveGuard';
 
 export interface IPipelineModel extends Model<IPipelineDocument> {
   getPipeline(_id: string): Promise<IPipelineDocument>;
@@ -26,7 +30,11 @@ export interface IPipelineModel extends Model<IPipelineDocument> {
     userId?: string,
   ): Promise<IPipelineDocument>;
   updateOrder(orders: IOrderInput[]): Promise<IPipelineDocument[]>;
-  watchPipeline(_id: string, isAdd: boolean, userId: string): void;
+  watchPipeline(
+    _id: string,
+    isAdd: boolean,
+    userId: string,
+  ): Promise<IPipelineDocument | null>;
   removePipeline(
     _id: string,
     checked?: boolean,
@@ -74,6 +82,7 @@ export const loadPipelineClass = (
       stages?: IStageDocument[],
       userId?: string,
     ) {
+      await assertBoardIsActive(models, doc.boardId);
       if (doc.paymentTypes) {
         doc.paymentTypes = normalizePaymentTypes(doc.paymentTypes);
       }
@@ -105,6 +114,16 @@ export const loadPipelineClass = (
       userId?: string,
     ) {
       const prevPipeline = await models.Pipelines.getPipeline(_id);
+      const changingBoard = Boolean(
+        doc.boardId && doc.boardId !== prevPipeline.boardId,
+      );
+      if (changingBoard) {
+        await assertBoardIsActive(models, prevPipeline.boardId);
+      }
+      if (changingBoard || doc.status === SALES_STATUSES.ACTIVE) {
+        await assertBoardIsActive(models, doc.boardId || prevPipeline.boardId);
+      }
+      if (stages) await assertPipelineIsActive(models, _id);
 
       if (doc.paymentTypes) {
         doc.paymentTypes = normalizePaymentTypes(doc.paymentTypes);
@@ -174,6 +193,10 @@ export const loadPipelineClass = (
           ? SALES_STATUSES.ARCHIVED
           : SALES_STATUSES.ACTIVE;
 
+      if (status === SALES_STATUSES.ACTIVE) {
+        await assertBoardIsActive(models, pipeline.boardId);
+      }
+
       await models.Pipelines.updateOne({ _id }, { $set: { status, userId } });
 
       sendDbEventLog?.({
@@ -188,7 +211,11 @@ export const loadPipelineClass = (
     }
 
     /** Watch pipeline */
-    public static watchPipeline(_id: string, isAdd: boolean, userId: string) {
+    public static watchPipeline(
+      _id: string,
+      isAdd: boolean,
+      userId: string,
+    ): Promise<IPipelineDocument | null> {
       return watchItem(models.Pipelines, _id, isAdd, userId);
     }
   }

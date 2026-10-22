@@ -11,7 +11,6 @@ import {
 import { cva } from 'class-variance-authority';
 import {
   Avatar,
-  Badge,
   Button,
   cn,
   Empty,
@@ -20,6 +19,7 @@ import {
   IconComponent,
   InfoCard,
   Input,
+  isDefined,
   Label,
   PhoneInput,
   readImage,
@@ -31,6 +31,7 @@ import { MembersInline, useMembersInlineContext } from 'ui-modules';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { EMGreetingAvatar } from '@/integrations/erxes-messenger/components/EMGreeting';
 import { EMPreviewChatInput } from './EMPreviewChatInput';
+import { EMPreviewTicketFlow } from './EMPreviewTicketFlow';
 import { Weekday } from '../types/Weekday';
 import { ScheduleDay } from '../constants/emHoursSchema';
 import { format, parse } from 'date-fns';
@@ -40,9 +41,6 @@ import {
   IconArrowRight,
   IconBook,
   IconBookmark,
-  IconChevronRight,
-  IconCircleMinus,
-  IconCirclePlus,
   IconHelp,
   IconHelpCircle,
   IconHome,
@@ -60,7 +58,6 @@ import {
 } from '../states/emPreviewStates';
 import { useQuery } from '@apollo/client';
 import { GET_KNOWLEDGE_BASE_TOPIC_DETAILS } from '@/knowledgebase/graphql/queries';
-import { IKnowledgeBaseTopic } from '@/knowledgebase/types';
 import { EMPreviewWebsiteApp } from './EMPreviewWebsiteApp';
 import { EMPreviewMessages } from './EMPreviewMessages';
 
@@ -735,75 +732,46 @@ export const EMPreviewTickets = () => {
   const settings = useAtomValue(erxesMessengerSetupSettingsAtom);
   const config = useAtomValue(erxesMessengerSetupConfigAtom);
   const step = useAtomValue(erxesMessengerSetupStepAtom);
+  const configIds = config?.ticketConfigIds ?? [];
 
-  if (!config?.ticketConfigIds?.length) {
-    return (
-      <div className="flex flex-col h-full">
-        <div className="flex-none pb-5.5 px-5 pt-4.5 bg-primary relative">
-          <span className="text-primary-foreground/60 text-xs font-light">
-            Tickets
-          </span>
-          <h1 className="text-primary-foreground text-2xl">Issue a ticket</h1>
-        </div>
-
-        <div className="flex-1 px-2 pb-2 flex flex-col bg-muted relative h-full overflow-y-hidden">
+  return (
+    <div className="flex flex-col h-full">
+      <div className="flex-none pb-5.5 px-5 pt-4.5 bg-primary relative">
+        <span className="text-primary-foreground/60 text-xs font-light">
+          {t('tickets', 'Tickets')}
+        </span>
+        <h1 className="text-primary-foreground text-2xl">
+          {t('issue-a-ticket', 'Issue a ticket')}
+        </h1>
+      </div>
+      <div className="flex-1 px-2 pb-2 flex flex-col bg-muted relative h-full overflow-y-hidden">
+        {!configIds.length ? (
           <Empty>
             <Empty.Header>
               <Empty.Media>
                 <IconTicket size={64} className="stroke-1 text-scroll" />
               </Empty.Media>
-              <Empty.Title>{t('ticket-not-configured')}</Empty.Title>
+              <Empty.Title>
+                {t('ticket-not-configured', 'Ticket not configured')}
+              </Empty.Title>
               <Empty.Description>
-                Select a Ticket config in your config to display articles here.
+                {t(
+                  'ticket-not-configured-description',
+                  'Pick a ticket config in the Config step, Ticket tab.',
+                )}
               </Empty.Description>
             </Empty.Header>
           </Empty>
-        </div>
-      </div>
-    );
-  }
-  return (
-    <div className="flex flex-col h-full">
-      <div className="flex-none pb-5.5 px-5 pt-4.5 bg-primary relative">
-        <span className="text-primary-foreground/60 text-xs font-light">
-          Tickets
-        </span>
-        <h1 className="text-primary-foreground text-2xl">Issue a ticket</h1>
-      </div>
-      <div className="flex-1 px-2 pb-2 flex flex-col bg-muted relative h-full overflow-y-hidden">
-        {(settings?.requireAuth && step === 5 && (
+        ) : settings?.requireAuth && step === 5 ? (
           <div className="flex items-center gap-2 justify-start pt-4 px-2">
             <EMPreviewAuthForm />
           </div>
-        )) || (
+        ) : (
           <div className="flex relative flex-col h-full hide-scroll overflow-y-auto flex-1 font-medium text-sm">
-            <Empty>
-              <Empty.Header>
-                <Empty.Media>
-                  <IconCircleMinus size={64} className="text-scroll stroke-1" />
-                </Empty.Media>
-                <Empty.Title>{t('no-tickets-found')}</Empty.Title>
-                <Empty.Description>
-                  Please create a ticket to get started.
-                </Empty.Description>
-              </Empty.Header>
-              <Empty.Content>
-                <Button variant={'outline'} className="flex gap-2 h-auto">
-                  <span className="flex-0 size-6">
-                    <IconCirclePlus />
-                  </span>
-                  <span className="flex flex-col items-start gap-0.5">
-                    <p className="text-foreground">{t('issue-a-new-ticket')}</p>
-                    <span className="text-accent-foreground text-xs font-normal">
-                      {t('choose-a-form')}
-                    </span>
-                  </span>
-                  <span className="flex-0 size-5 text-muted-foreground">
-                    <IconChevronRight size={16} />
-                  </span>
-                </Button>
-              </Empty.Content>
-            </Empty>
+            <EMPreviewTicketFlow
+              channelId={config?.channelId}
+              configIds={configIds}
+            />
           </div>
         )}
       </div>
@@ -818,17 +786,16 @@ export const EMPreviewFaq = () => {
   const heroStyle = appearance?.backgroundColor
     ? ({ '--color-hero': appearance.backgroundColor } as React.CSSProperties)
     : undefined;
-  const { data, loading } = useQuery<{
-    knowledgeBaseTopicDetail: IKnowledgeBaseTopic;
-  }>(GET_KNOWLEDGE_BASE_TOPIC_DETAILS, {
-    variables: {
-      _id: config?.knowledgeBaseTopicId,
-    },
-    skip: !config?.knowledgeBaseTopicId,
+  const knowledgeBaseTopicId = config?.knowledgeBaseTopicId;
+  const { data, loading } = useQuery(GET_KNOWLEDGE_BASE_TOPIC_DETAILS, {
+    variables: knowledgeBaseTopicId ? { _id: knowledgeBaseTopicId } : undefined,
+    skip: !knowledgeBaseTopicId,
   });
 
   const { knowledgeBaseTopicDetail } = data || {};
-  const { parentCategories, title, color } = knowledgeBaseTopicDetail || {};
+  const { title, color } = knowledgeBaseTopicDetail || {};
+  const parentCategories =
+    knowledgeBaseTopicDetail?.parentCategories?.filter(isDefined);
 
   if (loading) {
     return <Spinner containerClassName="py-32" />;

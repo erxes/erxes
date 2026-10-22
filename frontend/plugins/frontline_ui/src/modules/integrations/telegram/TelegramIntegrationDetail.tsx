@@ -1,7 +1,6 @@
 import { useApolloClient, useMutation, useQuery } from '@apollo/client';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IconBrandTelegram, IconSettings } from '@tabler/icons-react';
-import type { CellContext } from '@tanstack/react-table';
 import {
   Button,
   Collapsible,
@@ -21,7 +20,7 @@ import { useParams } from 'react-router';
 import { SelectBrand } from 'ui-modules';
 import { z } from 'zod';
 import { ADD_INTEGRATION } from '@/integrations/graphql/mutations/AddIntegration';
-import type { IIntegrationDetail } from '@/integrations/types/Integration';
+import type { IIntegration } from '@/integrations/types/Integration';
 import {
   TELEGRAM_ADD_BOT,
   TELEGRAM_BOTS,
@@ -30,7 +29,6 @@ import {
   TELEGRAM_UPDATE_BOT,
   TELEGRAM_WEBHOOK_INFO,
   type TelegramBot,
-  type TelegramWebhookInfo,
 } from './graphql';
 import { useTelegramTranslation } from './translations';
 import {
@@ -59,9 +57,9 @@ type SetupValues = z.infer<ReturnType<typeof getSetupSchema>>;
 
 /** Opens setup for the integration selected in the native integrations table. */
 export const TelegramIntegrationActions = ({
-  cell,
+  integration,
 }: {
-  cell: CellContext<IIntegrationDetail, unknown>;
+  integration: IIntegration;
 }) => {
   const setOpen = useSetAtom(telegramSetupState);
   const { t } = useTelegramTranslation();
@@ -69,7 +67,7 @@ export const TelegramIntegrationActions = ({
     <Button
       variant="ghost"
       className="w-full justify-start"
-      onClick={() => setOpen(cell.row.original._id)}
+      onClick={() => setOpen(integration._id)}
     >
       <IconSettings className="size-4" />
       {t('configure')}
@@ -88,7 +86,7 @@ const TelegramSetup = ({ integrationId }: { integrationId: string | null }) => {
   const [progress, setProgress] = useState<'saved' | 'linked' | undefined>();
   const defaultAddress = getTelegramDefaultServerAddress(REACT_APP_API_URL);
   const [showAddress, setShowAddress] = useState(!defaultAddress);
-  const botsQuery = useQuery<{ telegramBots: TelegramBot[] }>(TELEGRAM_BOTS, {
+  const botsQuery = useQuery(TELEGRAM_BOTS, {
     fetchPolicy: 'cache-and-network',
   });
   const form = useForm<SetupValues>({
@@ -111,14 +109,11 @@ const TelegramSetup = ({ integrationId }: { integrationId: string | null }) => {
           : item._id === chosenId,
     ) ?? savedBot;
   const needsLink = !bot?.erxesApiId;
-  const statusQuery = useQuery<{ telegramBotWebhookInfo: TelegramWebhookInfo }>(
-    TELEGRAM_WEBHOOK_INFO,
-    {
-      variables: { _id: bot?._id ?? '' },
-      skip: !bot?.erxesApiId,
-      fetchPolicy: 'network-only',
-    },
-  );
+  const statusQuery = useQuery(TELEGRAM_WEBHOOK_INFO, {
+    variables: { _id: bot?._id ?? '' },
+    skip: !bot?.erxesApiId,
+    fetchPolicy: 'network-only',
+  });
   const status = statusQuery.data?.telegramBotWebhookInfo;
   useEffect(() => {
     if (status && !form.getFieldState('url').isDirty)
@@ -129,21 +124,11 @@ const TelegramSetup = ({ integrationId }: { integrationId: string | null }) => {
           : (defaultAddress ?? ''),
       );
   }, [status, defaultAddress, form]);
-  const [addBot] = useMutation<{ telegramAddBot: TelegramBot }>(
-    TELEGRAM_ADD_BOT,
-  );
-  const [updateBot] = useMutation<{ telegramUpdateBot: TelegramBot }>(
-    TELEGRAM_UPDATE_BOT,
-  );
-  const [register] = useMutation<{ telegramSetWebhook: boolean }>(
-    TELEGRAM_SET_WEBHOOK,
-  );
-  const [disconnect] = useMutation<{ telegramDisconnectBot: boolean }>(
-    TELEGRAM_DISCONNECT,
-  );
-  const [addIntegration] = useMutation<{
-    integrationsCreateExternalIntegration: { _id: string };
-  }>(ADD_INTEGRATION);
+  const [addBot] = useMutation(TELEGRAM_ADD_BOT);
+  const [updateBot] = useMutation(TELEGRAM_UPDATE_BOT);
+  const [register] = useMutation(TELEGRAM_SET_WEBHOOK);
+  const [disconnect] = useMutation(TELEGRAM_DISCONNECT);
+  const [addIntegration] = useMutation(ADD_INTEGRATION);
 
   /** Refetches active setup and inbox queries after connection changes. */
   const refresh = async (): Promise<void> => {
@@ -224,10 +209,12 @@ const TelegramSetup = ({ integrationId }: { integrationId: string | null }) => {
             data: { sourceBotId: current._id },
           },
         });
-        if (!result.data) throw new Error(t('failed'));
+        const createdId =
+          result.data?.integrationsCreateExternalIntegration?._id;
+        if (!createdId) throw new Error(t('failed'));
         current = {
           ...current,
-          erxesApiId: result.data.integrationsCreateExternalIntegration._id,
+          erxesApiId: createdId,
         };
         setSavedBot(current);
         setProgress('linked');
@@ -602,8 +589,15 @@ const TelegramSetup = ({ integrationId }: { integrationId: string | null }) => {
   );
 };
 
-/** Owns the shared connection sheet for new and existing Telegram bots. */
-export const TelegramIntegrationDetail = () => {
+/**
+ * Owns the shared connection sheet for new and existing Telegram bots. Hosts
+ * that only edit existing bots mount it without the connect trigger.
+ */
+export const TelegramIntegrationDetail = ({
+  showTrigger = true,
+}: {
+  showTrigger?: boolean;
+}) => {
   const [integrationId, setIntegrationId] = useAtom(telegramSetupState);
   const { t } = useTelegramTranslation();
   return (
@@ -611,12 +605,14 @@ export const TelegramIntegrationDetail = () => {
       open={integrationId !== undefined}
       onOpenChange={(open) => setIntegrationId(open ? null : undefined)}
     >
-      <Sheet.Trigger asChild>
-        <Button>
-          <IconBrandTelegram />
-          {t('connect')}
-        </Button>
-      </Sheet.Trigger>
+      {showTrigger && (
+        <Sheet.Trigger asChild>
+          <Button>
+            <IconBrandTelegram />
+            {t('connect')}
+          </Button>
+        </Sheet.Trigger>
+      )}
       <Sheet.View className="sm:max-w-2xl">
         {integrationId !== undefined && (
           <TelegramSetup

@@ -1,6 +1,10 @@
 import * as dotenv from 'dotenv';
 import { redis } from './redis';
-import { getSaasOrganizationDetail } from './saas';
+import {
+  getGlobalProfileV2Plugins,
+  getSaasOrganizationDetail,
+  isGlobalProfileV2,
+} from './saas';
 import { getEnv } from './utils';
 import { IOrganizationCharge } from '../core-types';
 import { sendWorkerQueue } from './mq-worker';
@@ -62,6 +66,16 @@ export const getAvailablePlugins = async (
       subdomain,
     });
 
+    if (isGlobalProfileV2(organizationInfo)) {
+      const enabled = [
+        ...ENABLED_PLUGINS.split(','),
+        ...ENABLED_API_PLUGINS.split(','),
+      ];
+      const plugins = await getGlobalProfileV2Plugins(organizationInfo);
+
+      return ['core', ...plugins.filter((plugin) => enabled.includes(plugin))];
+    }
+
     const charges = organizationInfo.charge as IOrganizationCharge;
 
     const plugins: string[] = [];
@@ -120,7 +134,11 @@ export const getPlugin = async (
   result.config = JSON.parse(configJson || '{}');
 
   Object.freeze(result);
-  serviceInfoCache[name] = result;
+  // Registration writes config and address separately. A lookup during startup
+  // must not pin a missing/partial service for the lifetime of this process.
+  if (result.address && Object.keys(result.config || {}).length > 0) {
+    serviceInfoCache[name] = result;
+  }
 
   return result;
 };

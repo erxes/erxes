@@ -20,7 +20,7 @@ function CopyButton({
   text: string;
   label?: string;
 }) {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
   const [copied, setCopied] = useState(false);
 
   const handleCopy = () => {
@@ -72,7 +72,7 @@ export function FormInstallScript({
   channelId: string;
   inActionBar?: boolean;
 }) {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
   const [dialogOpen, setDialogOpen] = useState(false);
   const API = REACT_APP_WIDGETS_URL;
   const script = `<script>
@@ -242,7 +242,7 @@ export function FormInstallScript({
               <Button>
                 <Link
                   target="_blank"
-                  to={`/settings/frontline/forms/form-preview?inPreview=true&formId=${formId}`}
+                  to={`/frontline/settings/forms/form-preview?inPreview=true&formId=${formId}`}
                 >
                   {t('preview-form', 'Preview Form')}
                 </Link>

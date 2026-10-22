@@ -11,6 +11,8 @@ import { useTranslation } from 'react-i18next';
 import { IAttachment } from '@/ticket/types/attachments';
 import { useAttachmentContext } from './AttachmentContext';
 import { useCreateTicket } from '@/ticket/hooks/useCreateTicket';
+import { useUnverifiedAttachments } from '@/ticket/hooks/useUnverifiedAttachments';
+import { UnverifiedAttachmentCover } from './UnverifiedAttachmentCover';
 
 const MediaAttachments = ({ attachments }: { attachments: IAttachment[] }) => {
   const { t } = useTranslation('frontline');
@@ -19,6 +21,7 @@ const MediaAttachments = ({ attachments }: { attachments: IAttachment[] }) => {
 
   const { loading } = useCreateTicket();
   const { handleRemoveImage, removingUrl } = useAttachmentContext();
+  const { isCovered, reveal } = useUnverifiedAttachments();
 
   const currentAttachment = attachments[currentIndex];
 
@@ -59,11 +62,17 @@ const MediaAttachments = ({ attachments }: { attachments: IAttachment[] }) => {
                 setOpen(true);
               }}
             >
-              <img
-                className="w-full h-full object-cover"
-                src={readImage(attachment.url)}
-                alt={attachment.name}
-              />
+              {isCovered(attachment.url) ? (
+                <UnverifiedAttachmentCover
+                  onReveal={() => reveal(attachment.url)}
+                />
+              ) : (
+                <img
+                  className="w-full h-full object-cover"
+                  src={readImage(attachment.url)}
+                  alt={attachment.name}
+                />
+              )}
               <div className="absolute inset-0 flex items-center justify-center bg-background/30 opacity-0 group-hover:opacity-100 transition-opacity">
                 {loading && removingUrl === attachment.url ? (
                   <Spinner />

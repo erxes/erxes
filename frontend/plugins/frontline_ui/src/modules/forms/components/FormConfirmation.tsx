@@ -24,7 +24,7 @@ import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 
 export const FormConfirmation = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
   const form = useForm<z.infer<typeof FORM_CONFIRMATION_SCHEMA>>({
     resolver: zodResolver(FORM_CONFIRMATION_SCHEMA),
     defaultValues: {

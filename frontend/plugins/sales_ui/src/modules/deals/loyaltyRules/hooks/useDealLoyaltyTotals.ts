@@ -1,15 +1,14 @@
 import { useQuery } from '@apollo/client';
-import { isEnabled } from 'erxes-ui';
+import { isDefined } from 'erxes-ui';
 import { SALES_DEAL_LOYALTY_TOTALS } from '../graphql/loyaltyRulesQueries';
+import { useLoyaltyEnabled } from './useLoyaltyEnabled';
 
 /** Net points per deal for the deals the list has loaded; none without loyalty. */
 export const useDealLoyaltyTotals = (dealIds: string[]) => {
-  const enabled = isEnabled('loyalty');
+  const enabled = useLoyaltyEnabled();
   // Sorted so the same page asks the same question whatever its order.
   const targetIds = [...new Set(dealIds)].sort();
-  const { data, previousData, loading } = useQuery<{
-    loyaltyScoreTargetTotals?: { targetId: string; total: number }[];
-  }>(SALES_DEAL_LOYALTY_TOTALS, {
+  const { data, previousData, loading } = useQuery(SALES_DEAL_LOYALTY_TOTALS, {
     variables: { targetIds },
     skip: !enabled || !targetIds.length,
     fetchPolicy: 'cache-and-network',
@@ -17,10 +16,9 @@ export const useDealLoyaltyTotals = (dealIds: string[]) => {
   // A board asks again as each column loads; the last answer stays shown.
   const shown = data || previousData;
   const totals = new Map(
-    (shown?.loyaltyScoreTargetTotals || []).map(({ targetId, total }) => [
-      targetId,
-      total,
-    ]),
+    (shown?.loyaltyScoreTargetTotals?.filter(isDefined) || []).map(
+      ({ targetId, total }) => [targetId, total],
+    ),
   );
 
   return {

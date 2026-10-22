@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const MAIL_SEND_MAIL_MUTATION = gql`
+export const MAIL_SEND_MAIL_MUTATION = gql(`
   mutation mailSendMail(
     $integrationId: String
     $conversationId: String
@@ -30,11 +30,16 @@ export const MAIL_SEND_MAIL_MUTATION = gql`
       references: $references
       attachments: $attachments
       customerId: $customerId
-    )
+    ) {
+      _id
+      deliveryStatus
+      deliveryError
+      bouncedRecipients
+    }
   }
-`;
+`);
 
-export const MAIL_SEND_REACTION_MUTATION = gql`
+export const MAIL_SEND_REACTION_MUTATION = gql(`
   mutation frontlineMailSendReaction(
     $conversationId: String!
     $messageId: String!
@@ -44,17 +49,27 @@ export const MAIL_SEND_REACTION_MUTATION = gql`
       conversationId: $conversationId
       messageId: $messageId
       emoji: $emoji
-    )
+    ) {
+      _id
+      deliveryStatus
+      deliveryError
+      bouncedRecipients
+    }
   }
-`;
+`);
 
-export const MAIL_MESSAGE_RETRY_MUTATION = gql`
+export const MAIL_MESSAGE_RETRY_MUTATION = gql(`
   mutation mailMessageRetry($_id: String!) {
-    mailMessageRetry(_id: $_id)
+    mailMessageRetry(_id: $_id) {
+      _id
+      deliveryStatus
+      deliveryError
+      bouncedRecipients
+    }
   }
-`;
+`);
 
-export const MAIL_CHECK_CONNECTION_MUTATION = gql`
+export const MAIL_CHECK_CONNECTION_MUTATION = gql(`
   mutation mailCheckConnection {
     mailCheckConnection {
       ok
@@ -63,9 +78,9 @@ export const MAIL_CHECK_CONNECTION_MUTATION = gql`
       error
     }
   }
-`;
+`);
 
-export const MAIL_DRAFT_SAVE_MUTATION = gql`
+export const MAIL_DRAFT_SAVE_MUTATION = gql(`
   mutation mailDraftSave($_id: String!, $subject: String, $body: String!) {
     mailDraftSave(_id: $_id, subject: $subject, body: $body) {
       _id
@@ -74,18 +89,23 @@ export const MAIL_DRAFT_SAVE_MUTATION = gql`
       status
     }
   }
-`;
+`);
 
-export const MAIL_DRAFT_APPROVE_MUTATION = gql`
+export const MAIL_DRAFT_APPROVE_MUTATION = gql(`
   mutation mailDraftApprove($_id: String!) {
-    mailDraftApprove(_id: $_id)
+    mailDraftApprove(_id: $_id) {
+      _id
+      deliveryStatus
+      deliveryError
+      bouncedRecipients
+    }
   }
-`;
+`);
 
-export const MAIL_DRAFT_REMOVE_MUTATION = gql`
+export const MAIL_DRAFT_REMOVE_MUTATION = gql(`
   mutation mailDraftRemove($_id: String!) {
     mailDraftRemove(_id: $_id) {
       _id
     }
   }
-`;
+`);

@@ -63,12 +63,14 @@ export const InstagramGetPages = () => {
             <Command.List>
               {instagramGetPages.map((page) => (
                 <Command.Item
-                  disabled={page.isUsed}
+                  disabled={page.isUsed ?? undefined}
                   key={page.id}
-                  value={page.name}
+                  value={page.name ?? ''}
                   onSelect={() =>
                     setSelectedPage(
-                      selectedPage === page.id ? undefined : page.id,
+                      selectedPage === page.id
+                        ? undefined
+                        : page.id ?? undefined,
                     )
                   }
                   className={cn(
@@ -77,12 +79,24 @@ export const InstagramGetPages = () => {
                   )}
                 >
                   <RadioGroup.Item
-                    value={page.id}
+                    value={page.id ?? ''}
                     checked={selectedPage === page.id}
                     className="bg-background"
-                    onClick={() => setSelectedPage(page.id)}
+                    onClick={() => setSelectedPage(page.id ?? undefined)}
                   />
                   <div className="font-semibold">{page.name}</div>
+                  {page.usage && (
+                    <div className="ml-auto text-xs text-muted-foreground truncate">
+                      {`${
+                        page.usage.channelName ||
+                        t('no-channel', { defaultValue: 'No channel' })
+                      } › ${
+                        page.usage.integrationName ||
+                        page.usage.integrationId ||
+                        ''
+                      }`}
+                    </div>
+                  )}
                 </Command.Item>
               ))}
             </Command.List>

@@ -31,11 +31,11 @@ function DocumentsContent({
   onClearFilters,
   viewType,
 }: DocumentsContentProps) {
-  const { documents, hasError, loading, refetch } = useDocuments();
+  const { documents, error, hasError, loading, refetch } = useDocuments();
   const Component = DOCUMENTS_VIEW_TYPES[viewType] ?? DocumentsList;
 
   if (hasError) {
-    return <DocumentsErrorState onRetry={refetch} />;
+    return <DocumentsErrorState error={error} onRetry={refetch} />;
   }
 
   if (viewType === 'grid' && !loading && documents.length === 0) {

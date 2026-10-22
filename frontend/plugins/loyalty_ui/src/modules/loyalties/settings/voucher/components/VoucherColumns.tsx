@@ -32,9 +32,7 @@ export const voucherColumns = (
   {
     id: 'title',
     accessorKey: 'title',
-    header: () => (
-      <RecordTable.InlineHead icon={IconTag} label={t('title')} />
-    ),
+    header: () => <RecordTable.InlineHead icon={IconTag} label={t('title')} />,
     cell: ({ cell }) => {
       return (
         <VoucherNameCell
@@ -46,7 +44,7 @@ export const voucherColumns = (
     size: 150,
   },
   settingsStartDateColumn<IVoucher>(t),
-  settingsEndDateColumn<IVoucher>(t),
+  settingsEndDateColumn<IVoucher>(t, t('voucher-no-end')),
   {
     id: 'voucherType',
     accessorKey: 'voucherType',
@@ -68,5 +66,6 @@ export const voucherColumns = (
         _id,
         status,
       },
-    })),
+    }),
+  ),
 ];

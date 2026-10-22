@@ -24,11 +24,11 @@ type Props = {
 };
 
 export const InstagramBotSelector = ({ botId, onSelect }: Props) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.instagram' });
   const [selectedBotId, setBotId] = useState(botId || '');
   const [isOpen, setOpen] = useState(!botId || false);
   const { bots, loading } = useInstagramBots();
-  const selectedBot = bots.find((bot: any) => bot._id === selectedBotId);
+  const selectedBot = bots.find((bot) => bot._id === selectedBotId);
 
   if (loading) return <Spinner />;
 
@@ -79,7 +79,7 @@ const InstagramBotList = ({
   selectedBotId: string;
   handleSelect: (_id: string) => void;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.instagram' });
   if (!bots?.length) {
     return (
       <div className="flex flex-col gap-2 items-center text-accent-foreground">
@@ -99,7 +99,7 @@ const InstagramBotList = ({
     );
   }
 
-  return bots.map(({ _id, profileUrl, name }: any) => (
+  return bots.map(({ _id, profileUrl, name }) => (
     <div
       className="border rounded-sm px-4 py-2 flex flex-row justify-between items-center"
       key={_id}

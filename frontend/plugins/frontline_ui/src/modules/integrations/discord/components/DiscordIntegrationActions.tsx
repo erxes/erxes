@@ -1,6 +1,5 @@
-import { gql, useMutation } from '@apollo/client';
+import { useMutation } from '@apollo/client';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { CellContext } from '@tanstack/react-table';
 import { IconEdit, IconTool } from '@tabler/icons-react';
 import {
   Button,
@@ -13,21 +12,22 @@ import {
 } from 'erxes-ui';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useParams } from 'react-router-dom';
 import { SelectBrands } from 'ui-modules';
 import { z } from 'zod';
-import { IIntegrationDetail } from '@/integrations/types/Integration';
+import { IIntegration } from '@/integrations/types/Integration';
+import { IntegrationType } from '@/types/Integration';
+import { gql } from '~/gql';
 import { useIntegrationDetail } from '@/integrations/hooks/useIntegrationDetail';
 import { useIntegrationEdit } from '@/integrations/hooks/useIntegrationEdit';
 import { DISCORD_EDIT_SCHEMA } from '../constants/discordSchema';
 
 // Both edit + repair reuse the generic inbox integration mutations; the only
 // Discord-specific piece is the repair backend handler (re-validate + reconnect).
-const REPAIR_INTEGRATION = gql`
+const REPAIR_INTEGRATION = gql(`
   mutation IntegrationsRepair($_id: String!, $kind: String!) {
     integrationsRepair(_id: $_id, kind: $kind)
   }
-`;
+`);
 
 /** Edit form for a Discord integration's name and brand. */
 const DiscordIntegrationEditForm = ({
@@ -131,9 +131,9 @@ const DiscordIntegrationEditForm = ({
 
 /** Row actions (edit dialog) for a Discord integration. */
 export const DiscordIntegrationActions = ({
-  cell,
+  integration,
 }: {
-  cell: CellContext<IIntegrationDetail, unknown>;
+  integration: IIntegration;
 }) => {
   const [open, setOpen] = useState(false);
 
@@ -147,7 +147,7 @@ export const DiscordIntegrationActions = ({
       </Dialog.Trigger>
       <Dialog.Content className="p-0 gap-0 border-0 shadow-lg">
         <DiscordIntegrationEditForm
-          id={cell.row.original._id}
+          id={integration._id}
           setOpen={setOpen}
         />
       </Dialog.Content>
@@ -157,13 +157,13 @@ export const DiscordIntegrationActions = ({
 
 /** Repair action that re-syncs a broken Discord integration. */
 export const DiscordIntegrationRepair = ({
-  cell,
+  integration,
 }: {
-  cell: CellContext<IIntegrationDetail, unknown>;
+  integration: IIntegration;
 }) => {
-  const { integrationType } = useParams();
+  const kind = integration.kind || IntegrationType.DISCORD_MESSENGER;
   const [repairIntegration, { loading }] = useMutation(REPAIR_INTEGRATION, {
-    refetchQueries: ['Integrations'],
+    refetchQueries: ['Integrations', 'ChannelIntegrationsPeek'],
   });
 
   /** Trigger the repair mutation for this integration. */
@@ -171,7 +171,7 @@ export const DiscordIntegrationRepair = ({
     if (loading) return;
 
     repairIntegration({
-      variables: { _id: cell.row.original._id, kind: integrationType },
+      variables: { _id: integration._id, kind },
       onCompleted: () => toast({ title: 'Repaired successfully' }),
       onError: (error) =>
         toast({ title: error.message, variant: 'destructive' }),

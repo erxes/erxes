@@ -12,6 +12,7 @@ import { createChecklist } from '~/modules/sales/meta/automations/action/createC
 import { checkTriggerDealStageChanged } from '~/modules/sales/meta/automations/trigger/checkStageChangedTrigger';
 import { checkTriggerDealStageProbality } from '~/modules/sales/meta/automations/trigger/checkStageProbalityTrigger';
 import { syncWrittenDealPoints } from '~/modules/sales/utils/dealPoints';
+import { assertDealUpdatesAllowed } from '~/modules/sales/utils/archiveGuard';
 
 const getSalesSetPropertyModel = (models: IModels, module: string) => {
   const [, moduleName, collectionName] = module.replace(/\./g, ':').split(':');
@@ -91,6 +92,7 @@ export const salesAutomationHandlers = {
       targetType,
       relation: setPropertyTarget?.relation,
       targetPath: setPropertyTarget?.targetPath,
+      targetActionId: action.targetActionId,
     });
 
     const setPropertyArgs = {
@@ -104,6 +106,7 @@ export const salesAutomationHandlers = {
       fetchItems: async (itemSelector) => await model.find(itemSelector).lean(),
       update: async ({ selector: itemSelector, modifier }) => {
         const before = await model.find(itemSelector).lean();
+        await assertDealUpdatesAllowed(models, before, modifier);
         const result = await model.updateMany(itemSelector, modifier);
 
         await syncWrittenDealPoints({ subdomain, models, before });

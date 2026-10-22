@@ -1,10 +1,10 @@
-import { IChannel } from '@/channels/types';
+import { IChannelDetail } from '@/channels/types';
 import { useGetPipelines } from '@/pipelines/hooks/useGetPipelines';
 import { useTranslation } from 'react-i18next';
 import { PipelineSettingsLink } from '@/pipelines/components/PipelineSettingsLink';
 
-export const PipelinesSection = ({ channel }: { channel: IChannel }) => {
-  const { t } = useTranslation('frontline');
+export const PipelinesSection = ({ channel }: { channel: IChannelDetail }) => {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.channels' });
   const { totalCount } = useGetPipelines({
     variables: { filter: { channelId: channel._id, limit: 1 } },
   });
@@ -15,7 +15,7 @@ export const PipelinesSection = ({ channel }: { channel: IChannel }) => {
     <PipelineSettingsLink
       description={t('pipeline', { count })}
       title={t('manage-ticket-pipelines', 'Manage ticket pipelines')}
-      to={`/settings/frontline/channels/${channel._id}/pipelines`}
+      to={`/frontline/settings/channels/${channel._id}/pipelines`}
     />
   );
 };

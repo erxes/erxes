@@ -1,3 +1,4 @@
+import { isDefined } from 'erxes-ui';
 import { QueryHookOptions, useMutation, useQuery } from '@apollo/client';
 import {
   GET_FACEBOOK_ACTIVITY,
@@ -7,73 +8,70 @@ import {
   GET_FACEBOOK_SUMMARY,
 } from '@/report/graphql/queries/getFacebookChart';
 import { SYNC_FACEBOOK_POST_STATS } from '@/report/graphql/mutations/facebookReportMutations';
-import {
-  FacebookActivityPoint,
-  FacebookBotRow,
-  FacebookPage,
-  FacebookPostResult,
-  FacebookSummary,
-  FacebookSyncResult,
-} from '@/report/types';
-
-interface FacebookPagesResponse {
-  reportFacebookPages: FacebookPage[];
-}
-
-interface FacebookSummaryResponse {
-  reportFacebookSummary: FacebookSummary;
-}
-
-interface FacebookActivityResponse {
-  reportFacebookActivity: FacebookActivityPoint[];
-}
-
-interface FacebookPostsResponse {
-  reportFacebookPosts: FacebookPostResult;
-}
-
-interface FacebookBotsResponse {
-  reportFacebookBots: FacebookBotRow[];
-}
+import type {
+  ReportFacebookPagesQuery,
+  ReportFacebookPagesQueryVariables,
+  ReportFacebookSummaryQuery,
+  ReportFacebookSummaryQueryVariables,
+  ReportFacebookActivityQuery,
+  ReportFacebookActivityQueryVariables,
+  ReportFacebookPostsQuery,
+  ReportFacebookPostsQueryVariables,
+  ReportFacebookBotsQuery,
+  ReportFacebookBotsQueryVariables,
+} from '~/gql/graphql';
 
 export const useFacebookPages = (
-  options?: QueryHookOptions<FacebookPagesResponse>,
+  options?: QueryHookOptions<
+    ReportFacebookPagesQuery,
+    ReportFacebookPagesQueryVariables
+  >,
 ) => {
-  const { data, loading, error } = useQuery<FacebookPagesResponse>(
-    GET_FACEBOOK_PAGES,
-    options,
-  );
+  const { data, loading, error } = useQuery(GET_FACEBOOK_PAGES, options);
 
-  return { facebookPages: data?.reportFacebookPages, loading, error };
+  return {
+    facebookPages: data?.reportFacebookPages?.filter(isDefined),
+    loading,
+    error,
+  };
 };
 
 export const useFacebookSummary = (
-  options: QueryHookOptions<FacebookSummaryResponse>,
+  options: QueryHookOptions<
+    ReportFacebookSummaryQuery,
+    ReportFacebookSummaryQueryVariables
+  >,
 ) => {
-  const { data, loading, error } = useQuery<FacebookSummaryResponse>(
-    GET_FACEBOOK_SUMMARY,
-    options,
-  );
+  const { data, loading, error } = useQuery(GET_FACEBOOK_SUMMARY, options);
 
   return { facebookSummary: data?.reportFacebookSummary, loading, error };
 };
 
 export const useFacebookActivity = (
-  options: QueryHookOptions<FacebookActivityResponse>,
+  options: QueryHookOptions<
+    ReportFacebookActivityQuery,
+    ReportFacebookActivityQueryVariables
+  >,
 ) => {
-  const { data, loading, error } = useQuery<FacebookActivityResponse>(
-    GET_FACEBOOK_ACTIVITY,
-    options,
-  );
+  const { data, loading, error } = useQuery(GET_FACEBOOK_ACTIVITY, options);
 
-  return { facebookActivity: data?.reportFacebookActivity, loading, error };
+  return {
+    facebookActivity: data?.reportFacebookActivity?.filter(isDefined),
+    loading,
+    error,
+  };
 };
 
 export const useFacebookPosts = (
-  options: QueryHookOptions<FacebookPostsResponse>,
+  options: QueryHookOptions<
+    ReportFacebookPostsQuery,
+    ReportFacebookPostsQueryVariables
+  >,
 ) => {
-  const { data, previousData, loading, error } =
-    useQuery<FacebookPostsResponse>(GET_FACEBOOK_POSTS, options);
+  const { data, previousData, loading, error } = useQuery(
+    GET_FACEBOOK_POSTS,
+    options,
+  );
 
   return {
     facebookPosts:
@@ -84,28 +82,28 @@ export const useFacebookPosts = (
 };
 
 export const useFacebookBots = (
-  options: QueryHookOptions<FacebookBotsResponse>,
+  options: QueryHookOptions<
+    ReportFacebookBotsQuery,
+    ReportFacebookBotsQueryVariables
+  >,
 ) => {
-  const { data, loading, error } = useQuery<FacebookBotsResponse>(
-    GET_FACEBOOK_BOTS,
-    options,
-  );
+  const { data, loading, error } = useQuery(GET_FACEBOOK_BOTS, options);
 
-  return { facebookBots: data?.reportFacebookBots, loading, error };
+  return {
+    facebookBots: data?.reportFacebookBots?.filter(isDefined),
+    loading,
+    error,
+  };
 };
 
-interface FacebookSyncResponse {
-  reportFacebookSyncPostStats: FacebookSyncResult;
-}
-
 export const useSyncFacebookPostStats = () => {
-  const [syncFacebookPostStats, { loading }] = useMutation<
-    FacebookSyncResponse,
-    { pageIds?: string[]; limit?: number }
-  >(SYNC_FACEBOOK_POST_STATS, {
-    refetchQueries: [GET_FACEBOOK_POSTS, GET_FACEBOOK_SUMMARY],
-    awaitRefetchQueries: true,
-  });
+  const [syncFacebookPostStats, { loading }] = useMutation(
+    SYNC_FACEBOOK_POST_STATS,
+    {
+      refetchQueries: [GET_FACEBOOK_POSTS, GET_FACEBOOK_SUMMARY],
+      awaitRefetchQueries: true,
+    },
+  );
 
   return { syncFacebookPostStats, syncing: loading };
 };

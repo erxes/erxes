@@ -179,6 +179,29 @@ const types = `
     errorMessages: [AutomationStatsErrorMessage]
   }
 
+  type AutomationTraceBucket {
+    start: Date
+    total: Int
+    complete: Int
+    error: Int
+    waiting: Int
+  }
+
+  type AutomationLatencyBucket {
+    start: Date
+    count: Int
+    p50Ms: Float
+    p95Ms: Float
+  }
+
+  type AutomationActivity {
+    bucketMs: Float
+    traces: [AutomationTraceBucket]
+    latency: [AutomationLatencyBucket]
+    p50Ms: Float
+    p95Ms: Float
+  }
+
   input TriggerInput {
     ${commonTriggerTypes}
   }
@@ -201,6 +224,17 @@ const types = `
     errors: [String!]!
     warnings: [String!]!
     checks: JSON
+  }
+
+  type AiAgentModelOption {
+    id: String!
+    group: String!
+    status: String!
+    suggestion: String
+    isDefault: Boolean
+    releasedAt: String
+    reasoning: Boolean
+    contextWindow: Int
   }
 
   type AutomationWorkflowTemplate {

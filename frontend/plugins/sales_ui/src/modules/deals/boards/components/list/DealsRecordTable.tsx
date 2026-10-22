@@ -1,18 +1,18 @@
-import { Empty, RecordTable, useQueryState } from 'erxes-ui';
+import { Empty, isDefined, RecordTable, useQueryState } from 'erxes-ui';
 
-import { DealsColumn } from '@/deals/boards/components/list/DealsColumn';
-import { DealLoyaltyTotalsProvider } from '@/deals/loyaltyRules/components/DealLoyaltyTotals';
 import { BoardEmptyState } from '@/deals/boards/components/BoardEmptyState';
+import { DealsColumn } from '@/deals/boards/components/list/DealsColumn';
 import { DealsCommandBar } from '@/deals/boards/components/list/DealsListCommandBar';
-import { NoStagesWarning } from '@/deals/components/common/NoStagesWarning';
-import { PipelineEmptyState } from '@/deals/pipelines/components/PipelineEmptyState';
 import { useBoards } from '@/deals/boards/hooks/useBoards';
 import { useDeals } from '@/deals/cards/hooks/useDeals';
-import { getDealsQueryVariables } from '@/deals/utils/queryVariables';
-import { useSearchParams } from 'react-router-dom';
+import { NoStagesWarning } from '@/deals/components/common/NoStagesWarning';
+import { DealLoyaltyTotalsProvider } from '@/deals/loyaltyRules/components/DealLoyaltyTotals';
+import { PipelineEmptyState } from '@/deals/pipelines/components/PipelineEmptyState';
 import { useStages } from '@/deals/stage/hooks/useStages';
+import { getDealsQueryVariables } from '@/deals/utils/queryVariables';
 import { IconBriefcaseOff } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
+import { useSearchParams } from 'react-router-dom';
 
 const DealsEmptyState = () => {
   const { t } = useTranslation('sales');
@@ -66,7 +66,9 @@ export const DealsRecordTable = () => {
     !boardsLoading &&
     !boardsError &&
     board &&
-    !(board.pipelines || []).some((pipeline) => pipeline.status !== 'archived')
+    !(board.pipelines?.filter(isDefined) || []).some(
+      (pipeline) => pipeline.status !== 'archived',
+    )
   ) {
     return <PipelineEmptyState boardId={board._id} />;
   }

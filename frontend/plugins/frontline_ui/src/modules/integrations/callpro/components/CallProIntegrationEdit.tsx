@@ -4,7 +4,6 @@ import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
-import { useParams } from 'react-router';
 import { z } from 'zod';
 import { useIntegrationDetail } from '@/integrations/hooks/useIntegrationDetail';
 import { useIntegrationEdit } from '@/integrations/hooks/useIntegrationEdit';
@@ -32,7 +31,6 @@ export const CallProIntegrationSheetEdit = () => {
 
 export const CallProIntegrationEdit = () => {
   const { t } = useTranslation('frontline');
-  const { id } = useParams();
 
   const [integrationId, setEditSheet] = useAtom(callProEditSheetAtom);
   const { integrationDetail, loading } = useIntegrationDetail({
@@ -48,11 +46,13 @@ export const CallProIntegrationEdit = () => {
   });
 
   const onSubmit = (data: z.infer<typeof CALL_PRO_INTEGRATION_FORM_SCHEMA>) => {
+    // The channel comes from the record, so editing works from any page.
+    if (!integrationId || !integrationDetail) return;
     editIntegration({
       variables: {
         _id: integrationId,
         name: data.name,
-        channelId: id || '',
+        channelId: integrationDetail.channelId ?? '',
         brandId: data.brandId,
         details: {
           phoneNumber: data.phoneNumber,
@@ -63,6 +63,7 @@ export const CallProIntegrationEdit = () => {
         'Integrations',
         'IntegrationDetail',
         'callProIntegrationDetail',
+        'ChannelIntegrationsPeek',
       ],
       onCompleted() {
         setEditSheet(null);

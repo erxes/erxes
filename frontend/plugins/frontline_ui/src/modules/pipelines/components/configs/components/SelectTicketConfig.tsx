@@ -52,7 +52,9 @@ export const SelectTicketConfigProvider = ({
   const effectiveChannelId = channelId || routeChannelId;
 
   const { ticketConfigs, loading, error } = useGetTicketConfigs({
-    variables: { channelId: effectiveChannelId as string },
+    variables: effectiveChannelId
+      ? { channelId: effectiveChannelId }
+      : undefined,
     skip: !effectiveChannelId,
   });
 
@@ -79,7 +81,7 @@ const SelectTicketConfigValue = ({
   placeholder?: string;
   className?: string;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.pipelines' });
   const { value, configs } = useSelectTicketConfigContext();
   const selectedConfigs = (configs || []).filter((config) =>
     value.includes(config.id),
@@ -173,7 +175,7 @@ const SelectTicketConfigCommandItem = ({ config }: { config: IConfig }) => {
 };
 
 const SelectTicketConfigContent = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.pipelines' });
   const { configs, channelId, loading, error } = useSelectTicketConfigContext();
   return (
     <Command>

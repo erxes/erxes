@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const GET_CONVERT_SYSTEM_FIELDS = gql`
+export const GET_CONVERT_SYSTEM_FIELDS = gql(`
   query FrontlineConvertSystemFields($contentType: String!) {
     propertySystemFields(contentType: $contentType) {
       code
@@ -10,4 +10,4 @@ export const GET_CONVERT_SYSTEM_FIELDS = gql`
       logics
     }
   }
-`;
+`);

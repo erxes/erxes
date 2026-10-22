@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { IconPlus } from '@tabler/icons-react';
 import {
   Combobox,
   Command,
@@ -13,6 +14,7 @@ import { IAccountCategory } from '../types/AccountCategory';
 import { Except } from 'type-fest';
 import { useDebounce } from 'use-debounce';
 import { toGraphqlView } from '@/utils/graphql';
+import { CreateAccountCategoryForm } from './CreateAccountCategoryForm';
 
 export const SelectAccountCategory = React.forwardRef<
   React.ElementRef<typeof Combobox.Trigger>,
@@ -25,65 +27,88 @@ export const SelectAccountCategory = React.forwardRef<
     recordId: string;
     nullable?: boolean;
     exclude?: string[];
+    allowCreate?: boolean;
   }
->(({ onSelect, selected, recordId, nullable, exclude, ...props }, ref) => {
-  const [open, setOpen] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState<
-    IAccountCategory | undefined
-  >();
+>(
+  (
+    { onSelect, selected, recordId, nullable, exclude, allowCreate, ...props },
+    ref,
+  ) => {
+    const [open, setOpen] = useState(false);
+    const [newCategoryName, setNewCategoryName] = useState('');
+    const [selectedCategory, setSelectedCategory] = useState<
+      IAccountCategory | undefined
+    >();
 
-  const { accountCategories, loading } = useAccountCategories({
-    onCompleted: (result) => {
-      const { accountCategories } = toGraphqlView(result);
-      setSelectedCategory(
-        accountCategories?.find((category) => category._id === selected),
-      );
-    },
-  });
+    const { accountCategories, loading } = useAccountCategories({
+      onCompleted: (result) => {
+        const { accountCategories } = toGraphqlView(result);
+        setSelectedCategory(
+          accountCategories?.find((category) => category._id === selected),
+        );
+      },
+    });
 
-  useEffect(() => {
-    if (accountCategories && selected) {
-      setSelectedCategory(
-        accountCategories?.find((category) => category._id === selected),
-      );
-    }
-  }, [selected, accountCategories]);
+    useEffect(() => {
+      if (accountCategories && selected) {
+        setSelectedCategory(
+          accountCategories?.find((category) => category._id === selected),
+        );
+      }
+    }, [selected, accountCategories]);
 
-  return (
-    <SelectTree.Provider id="select-account-category" ordered>
-      <PopoverScoped
-        open={open}
-        onOpenChange={setOpen}
-        scope={`select-account-category.${recordId}`}
-      >
-        <RecordTableInlineCell.Trigger className="overflow-visible px-0">
-          <SelectAccountCategoryTrigger
-            ref={ref}
-            {...props}
-            selectedCategory={selectedCategory}
-            loading={loading}
-          />
-        </RecordTableInlineCell.Trigger>
-        <RecordTableInlineCell.Content>
-          <SelectAccountCatCommand
-            nullable={nullable}
-            exclude={exclude}
-            selected={selected}
-            onSelect={(categoryId) => {
-              onSelect(categoryId);
-              setSelectedCategory(
-                accountCategories?.find(
-                  (category) => category._id === categoryId,
-                ),
-              );
-              setOpen(false);
-            }}
-          />
-        </RecordTableInlineCell.Content>
-      </PopoverScoped>
-    </SelectTree.Provider>
-  );
-});
+    return (
+      <SelectTree.Provider id="select-account-category" ordered>
+        <PopoverScoped
+          open={open}
+          onOpenChange={(nextOpen) => {
+            setOpen(nextOpen);
+            if (!nextOpen) setNewCategoryName('');
+          }}
+          scope={`select-account-category.${recordId}`}
+        >
+          <RecordTableInlineCell.Trigger className="overflow-visible px-0">
+            <SelectAccountCategoryTrigger
+              ref={ref}
+              {...props}
+              selectedCategory={selectedCategory}
+              loading={loading}
+            />
+          </RecordTableInlineCell.Trigger>
+          <RecordTableInlineCell.Content>
+            {newCategoryName ? (
+              <CreateAccountCategoryForm
+                name={newCategoryName}
+                onBack={() => setNewCategoryName('')}
+                onCreated={(categoryId) => {
+                  onSelect(categoryId);
+                  setNewCategoryName('');
+                  setOpen(false);
+                }}
+              />
+            ) : (
+              <SelectAccountCatCommand
+                nullable={nullable}
+                exclude={exclude}
+                selected={selected}
+                onCreate={allowCreate ? setNewCategoryName : undefined}
+                onSelect={(categoryId) => {
+                  onSelect(categoryId);
+                  setSelectedCategory(
+                    accountCategories?.find(
+                      (category) => category._id === categoryId,
+                    ),
+                  );
+                  setOpen(false);
+                }}
+              />
+            )}
+          </RecordTableInlineCell.Content>
+        </PopoverScoped>
+      </SelectTree.Provider>
+    );
+  },
+);
 
 export const SelectAccountCatCommand = ({
   selected,
@@ -91,12 +116,14 @@ export const SelectAccountCatCommand = ({
   focusOnMount,
   nullable,
   exclude,
+  onCreate,
 }: {
   selected?: string;
   onSelect: (categoryId: string | null) => void;
   focusOnMount?: boolean;
   nullable?: boolean;
   exclude?: string[];
+  onCreate?: (name: string) => void;
 }) => {
   const { t } = useTranslation('accounting');
   const [search, setSearch] = useState('');
@@ -127,6 +154,16 @@ export const SelectAccountCatCommand = ({
         onValueChange={(value) => setSearch(value)}
       />
       <Command.List className="p-1">
+        {onCreate && search && !loading && !accountCategories?.length && (
+          <Command.Item
+            value="create"
+            onSelect={() => onCreate(search)}
+            className="font-medium"
+          >
+            <IconPlus />
+            {t('add-account-category')}: "{search}"
+          </Command.Item>
+        )}
         <Combobox.Empty error={error} loading={loading} />
         {nullable && (
           <Command.Item key="null" value="null" onSelect={() => onSelect(null)}>

@@ -35,7 +35,7 @@ export function PricingHeader() {
           <Breadcrumb.List className="gap-1">
             <Breadcrumb.Item>
               <Button variant="ghost" asChild>
-                <Link to="/settings/loyalty/pricing">
+                <Link to="/loyalty/settings/pricing">
                   <IconCoins />
                   {t('pricing')}
                 </Link>

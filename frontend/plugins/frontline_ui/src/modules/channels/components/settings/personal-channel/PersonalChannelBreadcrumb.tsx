@@ -5,14 +5,14 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 export const PersonalChannelBreadcrumb = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.channels' });
 
   return (
     <Link
-      to={`/settings/${FrontlinePaths.Frontline}${FrontlinePaths.PersonalChannel}`}
+      to={`/${FrontlinePaths.Frontline}/settings${FrontlinePaths.PersonalChannel}`}
     >
-      <Button variant="ghost" className="font-semibold">
-        <IconUserCircle className="w-4 h-4 text-accent-foreground" />
+      <Button variant="ghost">
+        <IconUserCircle />
         {t('personal-channel', 'Personal channel')}
       </Button>
     </Link>

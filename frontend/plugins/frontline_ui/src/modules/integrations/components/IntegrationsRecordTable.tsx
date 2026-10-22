@@ -15,7 +15,7 @@ import {
   useConfirm,
 } from 'erxes-ui';
 import { useApolloClient, useMutation } from '@apollo/client';
-import { IIntegrationDetail } from '../types/Integration';
+import { IIntegration } from '../types/Integration';
 import {
   INTEGRATIONS_PER_PAGE,
   useIntegrations,
@@ -27,6 +27,7 @@ import { InboxHotkeyScope } from '@/inbox/types/InboxHotkeyScope';
 import clsx from 'clsx';
 import { IntegrationType } from '@/types/Integration';
 import { integrationMoreColumn } from './IntegrationMoreColumn';
+import { FacebookPageLink } from '@/integrations/facebook/components/FacebookPageLink';
 import { REMOVE_INTEGRATION } from '@/integrations/graphql/mutations/RemoveIntegration';
 import { IconMessagesOff, IconTrash } from '@tabler/icons-react';
 import { INTEGRATIONS } from '../constants/integrations';
@@ -48,12 +49,14 @@ export const IntegrationsRecordTable = () => {
     INTEGRATIONS[params?.integrationType as keyof typeof INTEGRATIONS]?.name;
 
   const { integrations, loading, pageInfo, handleFetchMore } = useIntegrations({
-    variables: {
-      kind: params?.integrationType,
-      channelId: params?.id,
-      ...(isDiscord ? { limit: INTEGRATIONS_PER_PAGE } : {}),
-    },
-    skip: !params?.integrationType,
+    variables: params?.id
+      ? {
+          kind: params?.integrationType,
+          channelId: params.id,
+          ...(isDiscord ? { limit: INTEGRATIONS_PER_PAGE } : {}),
+        }
+      : undefined,
+    skip: !params?.integrationType || !params?.id,
     errorPolicy: 'all',
   });
 
@@ -101,7 +104,7 @@ export const IntegrationsRecordTable = () => {
       data={(integrations || []).filter((integration) => integration)}
       tableId={`frontline_${params?.integrationType}_integrations_record_table`}
       stickyColumns={
-        isDiscord ? ['more', 'checkbox', 'name'] : ['more', 'name']
+        isDiscord ? ['more', 'checkbox', 'name'] : ['more', 'page', 'name']
       }
     >
       {isDiscord ? (
@@ -212,13 +215,15 @@ const IntegrationsCommandBar = () => {
   );
 };
 
-const NameField = ({
-  cell,
-}: {
-  cell: CellContext<IIntegrationDetail, unknown>;
-}) => {
+const NameField = ({ cell }: { cell: CellContext<IIntegration, unknown> }) => {
   const [name, setName] = useState(cell.row.original.name);
-  const { editIntegrationField } = useIntegrationEditField(cell.row.original);
+  const { _id, name: savedName, channelId, brandId } = cell.row.original;
+  const { editIntegrationField } = useIntegrationEditField({
+    _id,
+    name: savedName,
+    channelId: channelId ?? '',
+    brandId,
+  });
   const handleSave = () => {
     editIntegrationField(
       {
@@ -261,20 +266,48 @@ export const BrandField = () => {
 
 export const useIntegrationTypeColumns = (
   withSelection = false,
-): ColumnDef<IIntegrationDetail>[] => {
+): ColumnDef<IIntegration>[] => {
   const { t } = useTranslation('frontline');
   const { integrationType } = useParams();
 
   return [
     integrationMoreColumn(withSelection),
     ...(withSelection
-      ? [RecordTable.checkboxColumn as ColumnDef<IIntegrationDetail>]
+      ? [RecordTable.checkboxColumn as ColumnDef<IIntegration>]
+      : []),
+    ...(integrationType === IntegrationType.FACEBOOK_MESSENGER ||
+    integrationType === IntegrationType.FACEBOOK_POST
+      ? [
+          {
+            id: 'page',
+            header: () => (
+              <RecordTable.InlineHead
+                label={t('page', { defaultValue: 'Page' })}
+              />
+            ),
+            cell: (cell: CellContext<IIntegration, unknown>) => (
+              <RecordTableInlineCell className="gap-2">
+                {(cell.row.original.facebookPage ?? []).map(
+                  (page) =>
+                    page && (
+                      <FacebookPageLink
+                        key={page.pageId}
+                        pageId={page.pageId}
+                        name={page.name}
+                      />
+                    ),
+                )}
+              </RecordTableInlineCell>
+            ),
+            size: 240,
+          } as ColumnDef<IIntegration>,
+        ]
       : []),
     {
       id: 'name',
       accessorKey: 'name',
       header: () => <RecordTable.InlineHead label={t('name')} />,
-      cell: (cell: CellContext<IIntegrationDetail, unknown>) => (
+      cell: (cell: CellContext<IIntegration, unknown>) => (
         <NameField cell={cell} />
       ),
       size: 300,
@@ -283,7 +316,7 @@ export const useIntegrationTypeColumns = (
       id: 'isActive',
       accessorKey: 'isActive',
       header: () => <RecordTable.InlineHead label={t('status')} />,
-      cell: (cell: CellContext<IIntegrationDetail, unknown>) => {
+      cell: (cell: CellContext<IIntegration, unknown>) => {
         const status = cell.getValue() as boolean;
         return (
           <RecordTableInlineCell>
@@ -302,9 +335,8 @@ export const useIntegrationTypeColumns = (
       id: 'healthStatus',
       accessorKey: 'healthStatus',
       header: () => <RecordTable.InlineHead label={t('health-status')} />,
-      cell: (cell: CellContext<IIntegrationDetail, unknown>) => {
-        const healthStatus =
-          cell.getValue() as IIntegrationDetail['healthStatus'];
+      cell: (cell: CellContext<IIntegration, unknown>) => {
+        const { healthStatus } = cell.row.original;
         const status = healthStatus?.status;
         const error = healthStatus?.error;
 
@@ -347,7 +379,7 @@ export const useIntegrationTypeColumns = (
           {
             id: 'bot',
             header: () => <RecordTable.InlineHead label={t('bot')} />,
-            cell: (cell: CellContext<IIntegrationDetail, unknown>) => (
+            cell: (cell: CellContext<IIntegration, unknown>) => (
               <Suspense fallback={<RecordTableInlineCell />}>
                 <FacebookIntegrationBotCell
                   integrationId={cell.row.original._id}
@@ -355,7 +387,7 @@ export const useIntegrationTypeColumns = (
               </Suspense>
             ),
             size: 220,
-          } as ColumnDef<IIntegrationDetail>,
+          } as ColumnDef<IIntegration>,
         ]
       : []),
   ];

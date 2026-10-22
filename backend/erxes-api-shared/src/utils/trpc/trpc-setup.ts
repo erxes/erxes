@@ -84,6 +84,7 @@ export function setupTRPCRoute(app: Application, options: TRPCSetupOptions) {
     // trpcRateLimit,
     // createTRPCSecurityMiddleware(securityConfig),
     trpcExpress.createExpressMiddleware({
+      allowMethodOverride: true,
       router,
       createContext: createTRPCContext(createContext),
     }),

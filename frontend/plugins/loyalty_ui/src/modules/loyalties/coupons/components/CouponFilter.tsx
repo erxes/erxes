@@ -108,6 +108,7 @@ export const CouponFilter = () => {
   return (
     <Filter id="coupon-filter" sessionKey="coupons_cursor">
       <Filter.Bar>
+        <CouponFilterPopover />
         <SelectCouponCampaignFilterBar />
         <SelectOwnerType.FilterBar />
         <SelectOwner.FilterBar queryKey="ownerId" ownerTypeKey="ownerType" />
@@ -121,7 +122,6 @@ export const CouponFilter = () => {
           </Filter.BarName>
           <Filter.Date filterKey="couponDate" />
         </Filter.BarItem>
-        <CouponFilterPopover />
         <CouponTotalCount />
       </Filter.Bar>
     </Filter>

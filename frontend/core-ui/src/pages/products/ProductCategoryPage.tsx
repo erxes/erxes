@@ -8,13 +8,12 @@ import { ProductSidebar } from '@/products/components/ProductSidebar';
 
 export const ProductCategoryPage = () => {
   return (
-    <PageContainer>
-      <ProductsHeader>
-        <ProductCategoryAddSheet />
-      </ProductsHeader>
-
-      <div className="flex overflow-hidden flex-auto">
-        <ProductSidebar />
+    <PageContainer className="flex-row">
+      <ProductSidebar />
+      <div className="flex min-w-0 flex-auto flex-col overflow-hidden">
+        <ProductsHeader>
+          <ProductCategoryAddSheet />
+        </ProductsHeader>
         <div className="flex overflow-hidden flex-col flex-auto w-full">
           <ProductCategoryPageContent />
         </div>

@@ -8,6 +8,7 @@ export const types = `
       ticketConfigs: JSON
       customerId: String
       visitorId: String
+      sessionToken: String
       channel: Channel
       customer: Customer
     }
@@ -46,22 +47,20 @@ export const types = `
   `;
 
 export const queries = `
-    widgetsConversations(integrationId: String!, customerId: String, visitorId: String): [Conversation]
+    widgetsConversations(integrationId: String!): [Conversation]
     widgetsConversationDetail(_id: String, integrationId: String!): ConversationDetailResponse
-    widgetsGetMessengerIntegration(channelId: String!): Integration
    
     widgetsMessages(conversationId: String): [ConversationMessage]
     widgetsUnreadCount(conversationId: String): Int
-    widgetsTotalUnreadCount(integrationId: String!, customerId: String, visitorId: String): Int
+    widgetsTotalUnreadCount(integrationId: String!): Int
     widgetsMessengerSupporters(integrationId: String!): MessengerSupportersResponse
-    widgetsGetEngageMessage(integrationId: String, customerId: String, visitorId: String, browserInfo: JSON!): ConversationMessage
   
-    widgetsTicketCustomerDetail(customerId: String, type: String): Customer
+    widgetsTicketCustomerDetail(type: String): Customer
     widgetsGetTicketTags(configId: String,parentId: String): [Tag]
     widgetTicketCheckProgress(number: String!): Ticket
     widgetTicketComments(contentId: String!): [TicketNote]
     widgetTicketActivityLogs(contentId: String): [TicketActivity]
-    widgetTicketsByCustomer(customerId: String): [Ticket]
+    widgetTicketsByCustomer: [Ticket]
     `;
 
 export const mutations = `
@@ -73,22 +72,16 @@ export const mutations = `
       isUser: Boolean
       companyData: JSON
       data: JSON
-      visitorId: String
-      cachedCustomerId: String
       deviceToken: String
     ): MessengerConnectResponse
   
     widgetsSaveBrowserInfo(
-      visitorId: String
-      customerId: String
       browserInfo: JSON!
     ): ConversationMessage
   
     widgetsInsertMessage(
       integrationId: String!
-      customerId: String
       payload: String
-      visitorId: String
       conversationId: String
       message: String,
       attachments: [AttachmentInput],
@@ -97,27 +90,12 @@ export const mutations = `
     ): ConversationMessage
   
     widgetBotRequest(
-      customerId: String
-      payload: String
-      visitorId: String
       conversationId: String
       integrationId: String!,
       message: String!
-      type: String!
       ): JSON
   
     widgetsReadConversationMessages(conversationId: String): JSON
-    widgetsSaveCustomerGetNotified(customerId: String, visitorId: String, type: String!, value: String!): JSON
-  
-    widgetsSendEmail(
-      toEmails: [String]
-      fromEmail: String
-      title: String
-      content: String
-      customerId: String
-      formId: String
-      attachments: [AttachmentInput]
-    ): String
   
     widgetChangeOperatorStatus(
       conversationId: String!
@@ -128,14 +106,13 @@ export const mutations = `
     widgetsLeadIncreaseViewCount(formId: String!): JSON
     widgetsSendTypingInfo(conversationId: String!, text: String): String
     
-    widgetsTicketCustomersEdit(customerId: String!, firstName: String, lastName: String, emails: [String], phones: [String]): Customer
+    widgetsTicketCustomersEdit(firstName: String, lastName: String, emails: [String], phones: [String]): Customer
  
     widgetTicketCreated(
       name: String!
       description: String
       attachments: [AttachmentInput]
       statusId: String!
-      customerIds: [String!]!
       tagIds: [String!]
       propertiesData: JSON
     ): Ticket
@@ -143,8 +120,6 @@ export const mutations = `
     widgetTicketCommentAdd(
        contentId: String!
        content: String!
-       customerId: String
      ): TicketNote
     widgetTicketCommentRemove(_id: String!): String
-    widgetTicketCheckProgressForget(email: String, phoneNumber: String): JSON
   `;

@@ -4,12 +4,12 @@ import { toast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
 export const useChannelRemove = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.channels' });
   const [removeChannel, { loading, error }] = useMutation(REMOVE_CHANNEL, {
     onCompleted: (data) => {
       toast({ title: t('channel-removed', 'Channel removed successfully') });
     },
-    refetchQueries: ['GetChannels'],
+    refetchQueries: ['frontlineChannelList'],
   });
   return { removeChannel, loading, error };
 };

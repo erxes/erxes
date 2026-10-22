@@ -1,17 +1,10 @@
+import { TEmailScreenReason } from 'erxes-api-shared/core-modules';
 import { getEnv, normalizeEmail, redis } from 'erxes-api-shared/utils';
 import { promises as dns } from 'dns';
 
-export type TIntakeReason =
-  | 'syntax'
-  | 'no_mx'
-  | 'disposable'
-  | 'role'
-  | 'random';
-
-export interface IIntakeVerdict {
-  ok: boolean;
-  reason?: TIntakeReason;
-}
+export type IIntakeVerdict =
+  | { ok: true; reason?: 'role' }
+  | { ok: false; reason: TEmailScreenReason };
 
 const ROLE_LOCAL_PARTS = new Set([
   'admin',
@@ -56,24 +49,22 @@ const disposableDomains = () =>
 
 const SYNTAX = /^[^\s@]+@[^\s@.]+(\.[^\s@.]+)+$/;
 
+// Digits are ignored: name + phone number or birth date is a common real pattern.
 const looksRandom = (localPart: string) => {
-  const value = localPart.toLowerCase().replace(/[._+-]/g, '');
+  const letters = localPart.toLowerCase().replace(/[^a-z]/g, '');
 
-  if (value.length < 8) {
+  if (letters.length < 8) {
     return false;
   }
 
-  const vowels = (value.match(/[aeiouy]/g) || []).length;
-  const digits = (value.match(/\d/g) || []).length;
+  const vowels = (letters.match(/[aeiouy]/g) || []).length;
   const longestConsonantRun = Math.max(
-    ...(value.match(/[bcdfghjklmnpqrstvwxz]+/g) || ['']).map(
+    ...(letters.match(/[bcdfghjklmnpqrstvwxz]+/g) || ['']).map(
       (run) => run.length,
     ),
   );
 
-  return (
-    vowels === 0 || digits / value.length > 0.4 || longestConsonantRun >= 6
-  );
+  return vowels === 0 || longestConsonantRun >= 6;
 };
 
 const MX_CACHE_SECONDS = 24 * 60 * 60;

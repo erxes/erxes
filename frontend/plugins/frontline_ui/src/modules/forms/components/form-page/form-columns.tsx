@@ -24,7 +24,10 @@ import { MembersInline, SelectTags } from 'ui-modules';
 import { useState } from 'react';
 import { SelectChannel } from '@/inbox/channel/components/SelectChannel';
 import { useFormEdit } from '@/forms/hooks/useFormEdit';
-import { GET_FORMS_LIST } from '@/forms/graphql/formQueries';
+import {
+  GET_FORMS_LIST,
+  GET_FORMS_TOTAL_COUNT,
+} from '@/forms/graphql/formQueries';
 import { useFormToggleStatus } from '@/forms/hooks/useFormToggleStatus';
 import { MoveToChannelDialog } from '@/channels/components/move-resources/MoveToChannelDialog';
 import { ChannelResourceType } from '@/channels/types';
@@ -43,7 +46,7 @@ export function FormToggleStatus({
   status: string;
   setOpen: (open: boolean) => void;
 }) {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
   const { toggleStatus } = useFormToggleStatus();
 
   const onSelect = () => {
@@ -80,7 +83,7 @@ export const FormsMoreColumnCell = ({
 }: {
   cell: Cell<IForm, unknown>;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
   const { _id, status, code, channelId } = cell.row.original;
   const navigate = useNavigate();
 
@@ -94,7 +97,7 @@ export const FormsMoreColumnCell = ({
       </DropdownMenu.Trigger>
       <DropdownMenu.Content side="bottom" align="start">
         <FormInstallScript
-          formId={code}
+          formId={code ?? ''}
           channelId={channelId as string}
           inActionBar={true}
         />
@@ -107,7 +110,11 @@ export const FormsMoreColumnCell = ({
         </DropdownMenu.Item>
         <OpenLiveForm formId={_id} channelId={channelId as string} />
         <OpenSubmissionsAction formId={_id} />
-        <FormToggleStatus formId={_id} status={status} setOpen={setOpen} />
+        <FormToggleStatus
+          formId={_id}
+          status={status ?? ''}
+          setOpen={setOpen}
+        />
         <DropdownMenu.Item
           onSelect={() => {
             setOpen(false);
@@ -117,7 +124,7 @@ export const FormsMoreColumnCell = ({
           <IconArrowBarToRight />
           {t('move-to-channel', 'Move to Channel')}
         </DropdownMenu.Item>
-        <RemoveForm formId={_id} title={cell.row.original.name} />
+        <RemoveForm formId={_id} title={cell.row.original.name ?? undefined} />
       </DropdownMenu.Content>
       <MoveToChannelDialog
         open={moveOpen}
@@ -144,7 +151,7 @@ export const formColumns: ColumnDef<IForm>[] = [
     accessorKey: 'name',
     id: 'name',
     header: function FormPageNameHeader() {
-      const { t } = useTranslation('frontline');
+      const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
       return (
         <RecordTable.InlineHead
           label={t('col-name', 'Name')}
@@ -173,7 +180,7 @@ export const formColumns: ColumnDef<IForm>[] = [
     accessorKey: 'status',
     id: 'status',
     header: function FormPageStatusHeader() {
-      const { t } = useTranslation('frontline');
+      const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
       return (
         <RecordTable.InlineHead
           label={t('status', 'Status')}
@@ -192,7 +199,7 @@ export const formColumns: ColumnDef<IForm>[] = [
   {
     accessorKey: 'channelId',
     header: function FormPageChannelHeader() {
-      const { t } = useTranslation('frontline');
+      const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
       return (
         <RecordTable.InlineHead
           label={t('channel-label', 'Channel')}
@@ -202,7 +209,7 @@ export const formColumns: ColumnDef<IForm>[] = [
     },
     id: 'channelId',
     cell: function FormPageChannelCell({ cell }) {
-      const { t } = useTranslation('frontline');
+      const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
       const { channel, _id, name, type } = cell.row.original;
       const { editForm } = useFormEdit();
 
@@ -210,11 +217,11 @@ export const formColumns: ColumnDef<IForm>[] = [
         editForm({
           variables: {
             id: _id,
-            name,
-            type,
-            channelId: value,
+            name: name ?? '',
+            type: type ?? '',
+            channelId: Array.isArray(value) ? value[0] : value,
           },
-          refetchQueries: [GET_FORMS_LIST],
+          refetchQueries: [GET_FORMS_LIST, GET_FORMS_TOTAL_COUNT],
           onCompleted: () => {
             toast({
               title: t('success', 'Success!'),
@@ -247,7 +254,7 @@ export const formColumns: ColumnDef<IForm>[] = [
     accessorKey: 'tagIds',
     id: 'tagIds',
     header: function FormPageTagsHeader() {
-      const { t } = useTranslation('frontline');
+      const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
       return (
         <RecordTable.InlineHead label={t('tags', 'Tags')} icon={IconTag} />
       );
@@ -259,6 +266,9 @@ export const formColumns: ColumnDef<IForm>[] = [
           mode="multiple"
           value={cell.getValue() as string[]}
           targetIds={[cell.row.original._id]}
+          options={() => ({
+            refetchQueries: [GET_FORMS_LIST, GET_FORMS_TOTAL_COUNT],
+          })}
         />
       );
     },
@@ -268,7 +278,7 @@ export const formColumns: ColumnDef<IForm>[] = [
     accessorKey: 'createdUserId',
     id: 'createdUserId',
     header: function FormPageCreatedByHeader() {
-      const { t } = useTranslation('frontline');
+      const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
       return (
         <RecordTable.InlineHead
           label={t('created-by', 'Created by')}
@@ -288,7 +298,7 @@ export const formColumns: ColumnDef<IForm>[] = [
     accessorKey: 'createdDate',
     id: 'createdDate',
     header: function FormPageCreatedAtHeader() {
-      const { t } = useTranslation('frontline');
+      const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
       return (
         <RecordTable.InlineHead
           label={t('created-at', 'Created at')}

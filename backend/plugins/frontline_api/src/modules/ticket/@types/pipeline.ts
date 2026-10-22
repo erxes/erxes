@@ -28,8 +28,7 @@ export interface ITicketPipeline {
   visibility?: string;
   memberIds?: string[];
   statusId?: string;
-  propertyIds?: string[];
-  isPropertySelectionConfigured?: boolean;
+  createLayout?: string[][] | null;
 }
 
 export interface ITicketPipelineUpdate extends ITicketPipeline {
@@ -46,4 +45,9 @@ export interface TicketsPipelineFilter
   userId?: string;
   createdAt?: Date;
   applyVisibilityFilter?: boolean;
+}
+
+export interface ICpTicketPipelineFilter extends ICursorPaginateParams {
+  channelId?: string;
+  name?: string;
 }

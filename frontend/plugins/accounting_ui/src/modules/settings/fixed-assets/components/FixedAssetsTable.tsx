@@ -19,10 +19,13 @@ import {
   SettingsRowsTable,
   moreColumn,
 } from '~/modules/settings/components/SettingsRowsTable';
-import { useFixedAssetCategories } from '../hooks/useFixedAssetCategories';
-import { useFixedAssetRemove } from '../hooks/useFixedAssetMutations';
-import { useFixedAssets } from '../hooks/useFixedAssets';
-import { IFixedAsset, IFixedAssetCategory } from '../types/FixedAsset';
+import { useFixedAssetCategories } from '@/settings/fixed-assets/hooks/useFixedAssetCategories';
+import { useFixedAssetRemove } from '@/settings/fixed-assets/hooks/useFixedAssetMutations';
+import { useFixedAssets } from '@/settings/fixed-assets/hooks/useFixedAssets';
+import {
+  IFixedAsset,
+  IFixedAssetCategory,
+} from '@/settings/fixed-assets/types/FixedAsset';
 
 const FixedAssetMoreCell = ({ cell }: { cell: Cell<IFixedAsset, unknown> }) => {
   const { t } = useTranslation('accounting');
@@ -200,7 +203,7 @@ const FixedAssetsDelete = () => {
 
 export const FixedAssetsTable = () => {
   const { t } = useTranslation('accounting');
-  const { fixedAssets, loading } = useFixedAssets();
+  const { fixedAssets, loading, error } = useFixedAssets();
   const { fixedAssetCategories } = useFixedAssetCategories();
   const categoriesById = useMemo(
     () =>
@@ -223,6 +226,8 @@ export const FixedAssetsTable = () => {
       columns={columns}
       data={fixedAssets || []}
       loading={loading}
+      error={error}
+      emptyDescription={t('empty-generated-description')}
       stickyColumns={['more', 'checkbox', 'code']}
       className="m-3"
       Commandbar={FixedAssetsCommandbar}

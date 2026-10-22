@@ -5,12 +5,10 @@ import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 export function ChannelIntegrations() {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.channels' });
   const { id: channelId } = useParams();
   const { integrations, loading } = useIntegrations({
-    variables: {
-      channelId: channelId,
-    },
+    variables: channelId ? { channelId } : undefined,
     skip: !channelId,
   });
   return (

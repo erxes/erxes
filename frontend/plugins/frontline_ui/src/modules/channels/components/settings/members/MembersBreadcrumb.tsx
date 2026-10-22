@@ -3,13 +3,11 @@ import { Button } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
 export const MembersBreadcrumb = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.channels' });
   const { id } = useParams<{ id: string }>();
   return (
-    <Link to={`/settings/frontline/channels/${id}/members`}>
-      <Button variant="ghost" className="font-semibold">
-        {t('members-title', 'Members')}
-      </Button>
+    <Link to={`/frontline/settings/channels/${id}/members`}>
+      <Button variant="ghost">{t('members-title', 'Members')}</Button>
     </Link>
   );
 };

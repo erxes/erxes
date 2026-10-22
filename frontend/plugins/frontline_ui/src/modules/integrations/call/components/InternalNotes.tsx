@@ -1,8 +1,15 @@
+import { INTERNAL_NOTE_BACKGROUND } from '@/inbox/constants/internalNoteStyles';
 import { HAS_ATTACHMENT } from '@/inbox/constants/messengerConstants';
 import { MessageContent } from '@/inbox/conversation-messages/components/MessageContent';
 import { activeConversationState } from '@/inbox/conversations/states/activeConversationState';
 import { useCallConversationNoteContext } from '@/integrations/call/context/conversationNoteContext';
-import { Button, cn, IAttachment, RelativeDateDisplay } from 'erxes-ui';
+import {
+  Button,
+  cn,
+  IAttachment,
+  isDefined,
+  RelativeDateDisplay,
+} from 'erxes-ui';
 import { useAtomValue } from 'jotai';
 import React from 'react';
 import { CustomersInline, MembersInline } from 'ui-modules';
@@ -28,17 +35,20 @@ export const InternalNotes = (): JSX.Element => {
             className={cn(
               'mt-2 h-auto py-2 text-left **:whitespace-pre-wrap block font-normal space-y-2 overflow-x-hidden text-pretty wrap-break-word [&_a]:text-primary [&_a]:underline [&_img]:aspect-square [&_img]:object-cover [&_img]:rounded',
               userId && 'bg-primary/10 hover:bg-primary/10',
-              internal && 'bg-warning/20 hover:bg-warning/5',
+              internal && INTERNAL_NOTE_BACKGROUND,
               separatePrevious && 'mt-8',
             )}
             asChild
           >
             <div>
-              <MessageContent content={content} internal={internal} />
+              <MessageContent
+                content={content ?? ''}
+                internal={internal ?? undefined}
+              />
               {separateNext && (
                 <div className="text-muted-foreground mt-1">
-                  <RelativeDateDisplay value={createdAt}>
-                    <RelativeDateDisplay.Value value={createdAt} />
+                  <RelativeDateDisplay value={createdAt ?? ''}>
+                    <RelativeDateDisplay.Value value={createdAt ?? ''} />
                   </RelativeDateDisplay>
                 </div>
               )}
@@ -47,7 +57,14 @@ export const InternalNotes = (): JSX.Element => {
         ) : (
           <div className={cn(separatePrevious ? 'mt-2' : 'mt-8')} />
         )}
-        <Attachments attachments={attachments} />
+        <Attachments
+          attachments={attachments?.filter(isDefined).map((attachment) => ({
+            url: attachment.url,
+            name: attachment.name ?? '',
+            type: attachment.type ?? '',
+            size: attachment.size ?? 0,
+          }))}
+        />
       </div>
     </MessageWrapper>
   );

@@ -577,7 +577,7 @@ export const loadClasses = (
   models.FacebookIntegrations = db.model<
     IFacebookIntegrationDocument,
     IFacebookIntegrationModel
-  >('facebook_integrations', loadFacebookIntegrationClass(models));
+  >('facebook_integrations', loadFacebookIntegrationClass(models, subdomain));
   models.FacebookLogs = db.model<IFacebookLogDocument, IFacebookLogModel>(
     'facebook_logs',
     loadFacebookLogClass(models),
@@ -595,7 +595,7 @@ export const loadClasses = (
   models.InstagramIntegrations = db.model<
     IInstagramIntegrationDocument,
     IInstagramIntegrationModel
-  >('instagram_integrations', loadInstagramIntegrationClass(models));
+  >('instagram_integrations', loadInstagramIntegrationClass(models, subdomain));
   models.InstagramAccounts = db.model<
     IInstagramAccountDocument,
     IInstagramAccountModel

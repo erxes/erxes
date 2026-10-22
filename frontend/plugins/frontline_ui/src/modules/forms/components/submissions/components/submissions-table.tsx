@@ -8,6 +8,7 @@ import {
   RecordTable,
   RecordTableInlineCell,
   RelativeDateDisplay,
+  isDefined,
   parseFilesAsAttachments,
   readImage,
   useQueryState,
@@ -28,7 +29,7 @@ type FlatRow = { _id: string } & Record<string, unknown>;
 type FieldMeta = { text: string; type: string };
 
 const MoreColumnCell = ({ cell }: { cell: Cell<FlatRow, unknown> }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
   const { _id } = cell.row.original;
   const [__blank, setSubmissionId] = useQueryState<string>('submissionId');
 
@@ -49,7 +50,7 @@ const MoreColumnCell = ({ cell }: { cell: Cell<FlatRow, unknown> }) => {
 };
 
 export const CheckboxCell = ({ value }: { value: string[] }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
   if (!value || value.length === 0) {
     return <RecordTableInlineCell>-</RecordTableInlineCell>;
   }
@@ -69,7 +70,7 @@ function buildColumnsAndRows(submissions: IFormSubmission[]): {
 } {
   const fieldMetaMap = new Map<string, FieldMeta>();
   for (const submission of submissions) {
-    for (const item of submission.submissions) {
+    for (const item of (submission.submissions ?? []).filter(isDefined)) {
       if (item.formFieldText && !fieldMetaMap.has(item.formFieldText)) {
         fieldMetaMap.set(item.formFieldText, {
           text: item.formFieldText,
@@ -86,7 +87,7 @@ function buildColumnsAndRows(submissions: IFormSubmission[]): {
     accessorKey: '__submittedAt',
     header: () => {
       // eslint-disable-next-line react-hooks/rules-of-hooks
-      const { t } = useTranslation('frontline');
+      const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
       return (
         <RecordTable.InlineHead label={t('submitted-at', 'Submitted At')} />
       );
@@ -116,7 +117,7 @@ function buildColumnsAndRows(submissions: IFormSubmission[]): {
     header: () => <RecordTable.InlineHead label={text} />,
     cell: ({ getValue }) => {
       // eslint-disable-next-line react-hooks/rules-of-hooks
-      const { t } = useTranslation('frontline');
+      const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
       const value = getValue();
 
       if (type === 'core:customer:avatar' || type === 'core:company:avatar') {
@@ -255,7 +256,7 @@ function buildColumnsAndRows(submissions: IFormSubmission[]): {
       _id: submission._id,
       __submittedAt: submission.createdAt,
     };
-    for (const item of submission.submissions) {
+    for (const item of (submission.submissions ?? []).filter(isDefined)) {
       if (item.formFieldText) {
         row[item.formFieldText] =
           typeof item.value === 'object'

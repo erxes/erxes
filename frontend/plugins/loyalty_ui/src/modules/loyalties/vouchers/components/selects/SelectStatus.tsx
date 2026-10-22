@@ -24,9 +24,13 @@ interface StatusOption {
   label: string;
 }
 
+// `expired` is read from the dates on the server, not stored.
 const STATUS_OPTIONS: StatusOption[] = [
-  { value: 'new', label: 'new' },
-  { value: 'used', label: 'used' },
+  { value: 'new', label: 'voucher-status.new' },
+  { value: 'onhold', label: 'voucher-status.onhold' },
+  { value: 'used', label: 'voucher-status.used' },
+  { value: 'cancelled', label: 'voucher-status.cancelled' },
+  { value: 'expired', label: 'voucher-status.expired' },
 ];
 
 interface SelectStatusContextType {

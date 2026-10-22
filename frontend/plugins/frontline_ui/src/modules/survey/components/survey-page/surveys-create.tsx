@@ -7,12 +7,18 @@ import { Link, useParams } from 'react-router-dom';
 const SurveysCreateButton: FC<React.ComponentProps<typeof Button>> = (
   props,
 ) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.survey' });
   const { id: channelId } = useParams<{ id: string }>();
 
   return (
     <Button asChild {...props}>
-      <Link to={`/settings/frontline/channels/${channelId}/surveys/create`}>
+      <Link
+        to={
+          channelId
+            ? `/frontline/settings/channels/${channelId}/surveys/create`
+            : '/frontline/surveys/create'
+        }
+      >
         <IconPlus />
         {t('create-survey', 'Create survey')}
       </Link>

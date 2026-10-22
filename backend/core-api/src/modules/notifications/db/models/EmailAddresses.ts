@@ -2,12 +2,14 @@ import {
   emailAddressSchema,
   IEmailAddressDocument,
   TEmailLane,
+  TEmailScreenReason,
   TEmailSuppressionReason,
   TMailKind,
 } from 'erxes-api-shared/core-modules';
 import { getEnv, normalizeEmail } from 'erxes-api-shared/utils';
 import { FilterQuery, Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
+import { screenAddress } from '~/utils/email/intake';
 
 export interface IEmailAddressModel extends Model<IEmailAddressDocument> {
   recordSent(emails: string[]): Promise<void>;
@@ -17,7 +19,9 @@ export interface IEmailAddressModel extends Model<IEmailAddressDocument> {
     email: string,
     reason: TEmailSuppressionReason,
     userId?: string,
+    screenReason?: TEmailScreenReason,
   ): Promise<void>;
+  screen(email: string, screenReason: TEmailScreenReason): Promise<void>;
   release(email: string, userId?: string, note?: string): Promise<void>;
 
   laneFilter(lane: TEmailLane): FilterQuery<IEmailAddressDocument>;
@@ -26,6 +30,9 @@ export interface IEmailAddressModel extends Model<IEmailAddressDocument> {
   ): TEmailLane;
   listProven(emails: string[]): Promise<Set<string>>;
   listSuppressed(emails: string[], kind: TMailKind): Promise<Set<string>>;
+  rescreen(
+    address: Pick<IEmailAddressDocument, 'email' | 'screenReason'>,
+  ): Promise<boolean>;
   messageLane(emails: string[]): Promise<TEmailLane | undefined>;
 }
 
@@ -102,6 +109,7 @@ export const loadEmailAddressClass = (models: IModels) => {
       email: string,
       reason: TEmailSuppressionReason,
       userId?: string,
+      screenReason?: TEmailScreenReason,
     ) {
       await models.EmailAddresses.updateOne(
         { email: normalizeEmail(email) },
@@ -111,10 +119,24 @@ export const loadEmailAddressClass = (models: IModels) => {
             suppressionReason: reason,
             suppressedBy: userId,
             updatedAt: new Date(),
+            ...(screenReason ? { screenReason } : {}),
           },
+          ...(screenReason ? {} : { $unset: { screenReason: '' } }),
           $setOnInsert: { createdAt: new Date() },
         },
         { upsert: true },
+      );
+    }
+
+    public static async screen(
+      email: string,
+      screenReason: TEmailScreenReason,
+    ) {
+      await models.EmailAddresses.suppress(
+        email,
+        'screened',
+        undefined,
+        screenReason,
       );
     }
 
@@ -125,6 +147,7 @@ export const loadEmailAddressClass = (models: IModels) => {
           $unset: {
             suppressedAt: '',
             suppressionReason: '',
+            screenReason: '',
             suppressedBy: '',
           },
           $set: {
@@ -198,15 +221,58 @@ export const loadEmailAddressClass = (models: IModels) => {
         return new Set<string>();
       }
 
-      return new Set<string>(
-        await models.EmailAddresses.find({
+      const closed = await models.EmailAddresses.find(
+        {
           email: { $in: addresses },
           suppressedAt: { $exists: true },
           ...(kind === 'marketing'
             ? {}
             : { suppressionReason: { $ne: 'unsubscribe' } }),
-        }).distinct('email'),
-      );
+        },
+        { email: 1, suppressionReason: 1, screenReason: 1 },
+      ).lean();
+
+      const suppressed = new Set<string>();
+
+      for (const address of closed) {
+        if (
+          address.suppressionReason === 'screened' &&
+          (await models.EmailAddresses.rescreen(address))
+        ) {
+          continue;
+        }
+
+        suppressed.add(address.email);
+      }
+
+      return suppressed;
+    }
+
+    // Screening rules can loosen, so a screened address gets another chance on every send.
+    public static async rescreen({
+      email,
+      screenReason,
+    }: Pick<IEmailAddressDocument, 'email' | 'screenReason'>) {
+      const verdict = await screenAddress(email);
+
+      if (verdict.ok) {
+        await models.EmailAddresses.release(
+          email,
+          undefined,
+          'Passed re-screening',
+        );
+
+        return true;
+      }
+
+      if (verdict.reason !== screenReason) {
+        await models.EmailAddresses.updateOne(
+          { email },
+          { $set: { screenReason: verdict.reason, updatedAt: new Date() } },
+        );
+      }
+
+      return false;
     }
 
     public static async messageLane(emails: string[]) {

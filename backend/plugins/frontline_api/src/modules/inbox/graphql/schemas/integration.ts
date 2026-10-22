@@ -79,7 +79,7 @@ export const types = `
 
     websiteMessengerApps: [MessengerApp]
 
-    healthStatus: JSON
+    healthStatus: IntegrationHealthStatus
     form : Form
 
     visibility: String
@@ -87,9 +87,21 @@ export const types = `
 
     details: JSON
     callData: CloudflareCallsData
-    facebookPage: JSON
+    facebookPage: [IntegrationFacebookPage!]
     instagramPage: JSON
   }
+
+  type IntegrationHealthStatus {
+    status: String!
+    error: String
+  }
+
+  type IntegrationFacebookPage {
+    pageId: String!
+    id: String
+    name: String
+  }
+
   type IntegrationRespone {
     list: [Integration],
     pageInfo: PageInfo
@@ -105,18 +117,18 @@ export const types = `
   }
 
   type integrationsGetUsedTypes {
-    _id: String
-    name: String
+    _id: String!
+    name: String!
   }
 
   # A used integration kind inside the caller's channels. The counts cover the
   # conversations held by that kind's integrations across the matched channels;
   # unreadConversationCount is per-viewer.
   type integrationsGetUsedTypesByChannel {
-    _id: String
-    name: String
-    conversationCount: Int
-    unreadConversationCount: Int
+    _id: String!
+    name: String!
+    conversationCount: Int!
+    unreadConversationCount: Int!
   }
 
   input BotPersistentMenuTypeMessenger {
@@ -162,7 +174,6 @@ export const types = `
 
   input IntegrationMessengerData {
     _id: String
-    notifyCustomer: Boolean
     botEndpointUrl: String
     skillData: JSON
     botShowInitialMessage: Boolean
@@ -201,26 +212,6 @@ export const types = `
     isSupportInAppView: Boolean
   }
 
-  input OperatorInput {
-    _id: String
-    userId: String
-    name: String
-  }
-
-  input DepartmentInput {
-    _id: String
-    name: String
-    operators: [OperatorInput]
-  }
-
-  input IntegrationCallData {
-    header: String
-    description: String
-    secondPageHeader: String
-    secondPageDescription: String
-    departments: [DepartmentInput]
-    isReceiveWebCall: Boolean
-  }
 `;
 
 export const queries = `
@@ -241,7 +232,6 @@ export const queries = `
   allLeadIntegrations: [Integration]
   integrationsGetUsedTypes: [integrationsGetUsedTypes]
   integrationsGetUsedTypesByChannel(channelId: String, scope: String): [integrationsGetUsedTypesByChannel]
-  integrationGetLineWebhookUrl(_id: String!): String
   integrationDetail(_id: String!): Integration
   integrationsTotalCount(kind: String, tag: String, channelId: String!, status: String, formLoadType: String): integrationsTotalCount
 `;
@@ -281,7 +271,6 @@ export const mutations = `
 
   integrationsSaveMessengerAppearanceData(
     _id: String!,
-    channelId: String!,
     uiOptions: MessengerUiOptions,
     brandId: String!): Integration
 
@@ -292,10 +281,8 @@ export const mutations = `
 
   integrationsSaveMessengerConfigs(
     _id: String!,
-    channelId: String!,
     brandId: String!,
     messengerData: IntegrationMessengerData,
-    callData: IntegrationCallData
     ): Integration
 
   integrationsCreateExternalIntegration(
@@ -313,8 +300,6 @@ export const mutations = `
   integrationsRepair(_id: String!, kind: String!): JSON
 
   integrationsArchive(_id: String!, status: Boolean!): Integration
-
-  integrationsSendSms(integrationId: String!, content: String!, to: String!): JSON
 
   integrationsCreateLeadIntegration(
     name: String!,

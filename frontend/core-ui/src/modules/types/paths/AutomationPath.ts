@@ -16,8 +16,6 @@ export enum AutomationsAbsolutePath {
 /** Relative route paths used by `AutomationSettingsRoutes`. */
 export enum AutomationSettingsRoutesPath {
   Agents = '/agents',
-  AgentDetail = `${Agents}/:id`,
-  AgentCreate = `${Agents}/create`,
   Bots = '/bots',
   BotDetail = `${Bots}/:type`,
 }

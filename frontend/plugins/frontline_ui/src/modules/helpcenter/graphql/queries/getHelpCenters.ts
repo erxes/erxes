@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const HELP_CENTER_CONFIG_FIELDS = gql`
+export const HELP_CENTER_CONFIG_FIELDS = gql(`
   fragment HelpCenterConfigFields on HelpCenterConfig {
     _id
     title
@@ -80,10 +80,9 @@ export const HELP_CENTER_CONFIG_FIELDS = gql`
     }
     createdAt
   }
-`;
+`);
 
-export const GET_HELP_CENTERS = gql`
-  ${HELP_CENTER_CONFIG_FIELDS}
+export const GET_HELP_CENTERS = gql(`
   query frontlineHelpCenterList(
     $page: Int
     $perPage: Int
@@ -100,13 +99,12 @@ export const GET_HELP_CENTERS = gql`
     }
     helpCenterConfigsTotalCount(searchValue: $searchValue, brandId: $brandId)
   }
-`;
+`);
 
-export const GET_HELP_CENTER = gql`
-  ${HELP_CENTER_CONFIG_FIELDS}
+export const GET_HELP_CENTER = gql(`
   query frontlineHelpCenterDetail($_id: String!) {
     helpCenterConfig(_id: $_id) {
       ...HelpCenterConfigFields
     }
   }
-`;
+`);

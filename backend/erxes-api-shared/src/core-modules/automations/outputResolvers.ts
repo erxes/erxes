@@ -793,6 +793,14 @@ const findAutomationNodeConstant = async (
   });
 };
 
+/** The action's own declaration from its plugin, e.g. isTargetSource. */
+export const getAutomationActionConstant = async (actionType: string) =>
+  (await findAutomationNodeConstant(actionType, ['actions'])) as
+    | (IAutomationsActionConfig & {
+        output?: TAutomationRuntimeOutputDefinition;
+      })
+    | undefined;
+
 const getAutomationOutputDefinition = async (nodeType: string) =>
   (
     await findAutomationNodeConstant(nodeType, [
@@ -1158,6 +1166,7 @@ export const toTransportOutput = (
     variables: output.variables,
     propertySource: output.propertySource,
     resolverKeys: Object.keys(output.resolvers || {}),
+    dynamicVariables: output.dynamicVariables,
   };
 };
 

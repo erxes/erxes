@@ -252,7 +252,7 @@ const StatusBarChart = memo(function StatusBarChart({
         <YAxis tickLine={false} axisLine={false} />
         <Bar dataKey="count" name="Count">
           {chartData.map((entry, i) => (
-            <Cell key={i} fill={entry.fill} />
+            <Cell key={i} fill={entry.fill ?? undefined} />
           ))}
           <LabelList
             dataKey="count"
@@ -330,7 +330,7 @@ const StatusLineChart = memo(function StatusLineChart({
           dot={false}
           activeDot={{ r: 4 }}
         />
-        <Legend content={(props: any) => <CustomLegendContent {...props} />} />
+        <Legend content={(props) => <CustomLegendContent {...props} />} />
         <Tooltip content={<ChartTooltipContent />} />
       </AreaChart>
     </ChartContainer>
@@ -372,13 +372,13 @@ const StatusPieChart = memo(function StatusPieChart({
           {chartData.map((item, i) => (
             <Cell
               key={i}
-              fill={item.fill}
+              fill={item.fill ?? undefined}
               opacity={hovered && hovered !== item.name ? 0.5 : 1}
             />
           ))}
         </Pie>
         <Legend
-          content={(props: any) => (
+          content={(props) => (
             <CustomLegendContent
               {...props}
               onMouseEnter={(d: LegendPayload) => setHovered(d.value as string)}

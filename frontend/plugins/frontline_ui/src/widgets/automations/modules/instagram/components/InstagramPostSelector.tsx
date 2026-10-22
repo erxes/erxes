@@ -4,10 +4,23 @@ import {
 } from '@/integrations/instagram/graphql/queries/instagramBots';
 import { useQuery } from '@apollo/client';
 import { IconImageInPicture } from '@tabler/icons-react';
-import { Button, Card, cn, Collapsible, Separator, Spinner } from 'erxes-ui';
+import {
+  Button,
+  Card,
+  cn,
+  Collapsible,
+  Separator,
+  Spinner,
+  isDefined,
+} from 'erxes-ui';
 import { format } from 'date-fns';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import type { InstagramGetBotPostsQuery } from '~/gql/graphql';
+
+type TInstagramBotPost = NonNullable<
+  NonNullable<InstagramGetBotPostsQuery['instagramGetBotPosts']>[number]
+>;
 
 export const InstagramPostSelector = ({
   botId,
@@ -18,7 +31,7 @@ export const InstagramPostSelector = ({
   selectedPostId?: string;
   onSelect: (id: string) => void;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.instagram' });
   const [isOpen, setOpen] = useState(false);
 
   return (
@@ -33,8 +46,8 @@ export const InstagramPostSelector = ({
             {isOpen
               ? t('hide-posts', 'Hide posts')
               : selectedPostId
-                ? t('change-selected-post', 'Change selected post')
-                : t('select-post', 'Select post')}
+              ? t('change-selected-post', 'Change selected post')
+              : t('select-post', 'Select post')}
           </Button>
         </div>
       </Collapsible.Trigger>
@@ -58,17 +71,8 @@ const InstagramSelectedPost = ({
   botId: string;
   selectedPostId?: string;
 }) => {
-  const { t } = useTranslation('frontline');
-  const { data, loading } = useQuery<{
-    instagramGetBotPost: {
-      id: string;
-      message: string;
-      created_time: string;
-      full_picture: string;
-      picture: string;
-      permalink_url: string;
-    };
-  }>(INSTAGRAM_GET_BOT_POST, {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.instagram' });
+  const { data, loading } = useQuery(INSTAGRAM_GET_BOT_POST, {
     variables: { botId, postId: selectedPostId },
     skip: !botId || !selectedPostId,
   });
@@ -107,7 +111,7 @@ const InstagramSelectedPost = ({
           </span>
         </div>
         <a
-          href={instagramGetBotPost?.permalink_url}
+          href={instagramGetBotPost?.permalink_url ?? undefined}
           target="_blank"
           rel="noopener noreferrer"
           className="text-xs text-pink-600 hover:text-pink-800"
@@ -128,20 +132,15 @@ const InstagramPostsList = ({
   selectedPostId?: string;
   onSelect: (id: string) => void;
 }) => {
-  const { data, loading } = useQuery<{
-    instagramGetBotPosts: {
-      id: string;
-      message: string;
-      created_time: string;
-      full_picture: string;
-      picture: string;
-      permalink_url: string;
-    }[];
-  }>(INSTAGRAM_GET_BOT_POSTS, { variables: { botId }, skip: !botId });
+  const { data, loading } = useQuery(INSTAGRAM_GET_BOT_POSTS, {
+    variables: { botId },
+    skip: !botId,
+  });
 
   if (loading) return <Spinner />;
 
-  const { instagramGetBotPosts = [] } = data || {};
+  const instagramGetBotPosts =
+    data?.instagramGetBotPosts?.filter(isDefined) ?? [];
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-96 overflow-y-auto p-2">
@@ -164,22 +163,15 @@ const InstagramPost = ({
 }: {
   isSelected?: boolean;
   onSelect: (id: string) => void;
-  post: {
-    id: string;
-    message: string;
-    created_time: string;
-    full_picture: string;
-    picture: string;
-    permalink_url: string;
-  };
+  post: TInstagramBotPost;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.instagram' });
   return (
     <Card
       className={cn('overflow-hidden', {
         'shadow-lg ring-2 border-primary ring-primary/50': isSelected,
       })}
-      onClick={() => onSelect(post.id)}
+      onClick={() => post.id && onSelect(post.id)}
     >
       <div className="aspect-video overflow-hidden">
         {post?.full_picture ? (
@@ -202,11 +194,13 @@ const InstagramPost = ({
             {t('created-at', 'Created at')}
           </p>
           <p className="text-xs text-accent-foreground mb-3">
-            {format(post?.created_time, 'MMM dd, yyyy HH:mm')}
+            {post.created_time
+              ? format(post.created_time, 'MMM dd, yyyy HH:mm')
+              : ''}
           </p>
         </div>
         <a
-          href={post.permalink_url}
+          href={post.permalink_url ?? undefined}
           target="_blank"
           className="text-xs text-pink-600 hover:text-pink-800"
         >

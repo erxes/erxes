@@ -4,7 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 export const ChannelHeader = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.channels' });
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
@@ -13,15 +13,15 @@ export const ChannelHeader = () => {
   }
 
   return (
-    <div className="px-4 h-16 flex items-center">
+    <div className="px-4 h-10 flex items-center">
       <Breadcrumb>
         <Breadcrumb.List>
           <Breadcrumb.Item>
             <Breadcrumb.Link asChild className="flex items-center gap-1">
               <Button
                 variant="ghost"
-                className="text-foreground font-semibold"
-                onClick={() => navigate(`/settings/frontline/channels/${id}`)}
+                className="text-foreground"
+                onClick={() => navigate(`/frontline/settings/channels/${id}`)}
               >
                 <IconArrowLeft size={16} className="stroke-foreground" />
                 {t('channel-settings', 'Channel Settings')}

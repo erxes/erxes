@@ -11,6 +11,32 @@ export const getNavigationChildOrder = (
   return (index === -1 ? storedPaths.length : index) + 1;
 };
 
+/**
+ * A menu item added after the user reordered keeps its default spot (right
+ * after its default predecessor) instead of piling up below the saved ones.
+ */
+export const mergeNavigationChildOrder = (
+  storedPaths: string[],
+  defaultPaths: string[],
+) => {
+  const merged = [...storedPaths];
+
+  defaultPaths.forEach((path, index) => {
+    if (merged.includes(path)) {
+      return;
+    }
+
+    const previous = defaultPaths
+      .slice(0, index)
+      .reverse()
+      .find((candidate) => merged.includes(candidate));
+
+    merged.splice(previous ? merged.indexOf(previous) + 1 : 0, 0, path);
+  });
+
+  return merged;
+};
+
 export const getVisualNavigationChildPaths = (item: Element | null) => {
   const siblings = Array.from(item?.parentElement?.children ?? []).filter(
     (element): element is HTMLElement =>

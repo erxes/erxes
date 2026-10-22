@@ -1,12 +1,15 @@
 import { useAutomation } from '@/automations/context/AutomationProvider';
 import { useAutomationNodes } from '@/automations/hooks/useAutomationNodes';
 import {
+  getConnectedNextActions,
   getConnectedPreviousActions,
   getTriggerOfAction,
 } from '@/automations/utils/automationBuilderUtils/triggerUtils';
 import { useMemo } from 'react';
+import { TAutomationAction, TAutomationOptionalConnect } from 'ui-modules';
 
 const ACTION_TYPES_CANNOT_BE_SELECTED_AS_TARGET = ['waitEvent'];
+const ACTION_TYPE_READING_AI_MEMORY = 'setProperty';
 
 export const useActionTarget = ({
   actionId,
@@ -51,10 +54,43 @@ export const useActionTarget = ({
     },
   );
 
+  // A record made on another tool branch of the same AI agent: that branch
+  // ran in an earlier conversation turn, and the agent remembers what it made.
+  // Only Manage properties reads that memory when it runs.
+  const readsAiMemory =
+    actions.find(({ id }) => id === actionId)?.type ===
+    ACTION_TYPE_READING_AI_MEMORY;
+  const siblingBranchActions = (readsAiMemory ? connectedPreviousActions : [])
+    .filter(({ type }) => type === 'aiAgent')
+    .flatMap(({ config }) =>
+      (config?.optionalConnects || [])
+        .map(({ actionId: branchStartId }: TAutomationOptionalConnect) =>
+          branchStartId
+            ? getConnectedNextActions(branchStartId, actions, actionFolks)
+            : [],
+        )
+        .filter(
+          (branch: TAutomationAction[]) =>
+            !branch.some(({ id }) => id === actionId),
+        ),
+    )
+    .flat()
+    .filter(
+      ({ id, type }) =>
+        type !== 'findObject' &&
+        actionTypesCanBeTarget.includes(type) &&
+        !actionsCanBeTarget.some((action) => action.id === id),
+    )
+    .filter(
+      (action, index, list) =>
+        list.findIndex(({ id }) => id === action.id) === index,
+    );
+  const targetOptions = [...actionsCanBeTarget, ...siblingBranchActions];
+
   let selectedActionType = trigger?.type;
   if (targetActionId) {
     const { type, config } =
-      actionsCanBeTarget.find((a) => a.id === targetActionId) || {};
+      targetOptions.find((a) => a.id === targetActionId) || {};
 
     if (type === 'findObject') {
       selectedActionType = config?.objectType;
@@ -67,7 +103,7 @@ export const useActionTarget = ({
 
   return {
     selectedActionType,
-    actionsCanBeTarget,
+    actionsCanBeTarget: targetOptions,
     actionTypesCanBeTarget,
   };
 };

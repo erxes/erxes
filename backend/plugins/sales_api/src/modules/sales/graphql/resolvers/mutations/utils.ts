@@ -24,13 +24,24 @@ import {
   resolveDealSubscriptionItem,
   subscriptionWrapper,
 } from '../utils';
-import { checkLoyalties, checkPricing, confirmLoyalties } from './loyaltyUtils';
+import { checkLoyalties, checkPricing } from './loyaltyUtils';
 import {
   checkDealPoints,
   planDealPoints,
   syncDealPoints,
+  syncDealVoucher,
 } from '~/modules/sales/utils/dealPoints';
 import { normalizeProductDiscountInfos } from '~/modules/sales/utils/discountInfos';
+import { normalizeProductCurrencies } from '~/modules/sales/utils/productCurrency';
+import { validateProductDataInput } from '~/modules/sales/utils/productDataInput';
+import {
+  normalizeProductUomInfo,
+  syncProductUomInfo,
+} from '~/modules/sales/utils/productUom';
+import {
+  assertDealBoardIsActive,
+  assertDealUpdatesAllowed,
+} from '~/modules/sales/utils/archiveGuard';
 
 export const addDeal = async ({
   models,
@@ -43,7 +54,18 @@ export const addDeal = async ({
   doc: IDeal & { processId: string; aboveItemId: string };
   user: IUserDocument;
 }) => {
+  await assertDealBoardIsActive(models, doc.stageId);
   doc.initialStageId = doc.stageId;
+  if (doc.productsData) {
+    doc.productsData = await normalizeProductUomInfo(
+      subdomain,
+      doc.productsData,
+    );
+    doc.productsData = await normalizeProductCurrencies(
+      subdomain,
+      doc.productsData,
+    );
+  }
   doc.watchedUserIds = user && [user._id];
 
   const extendedDoc = {
@@ -147,6 +169,9 @@ export const editDeal = async ({
   user: IUserDocument;
 }) => {
   const oldDeal = await models.Deals.getDeal(_id);
+  await assertDealUpdatesAllowed(models, [oldDeal], doc, {
+    allowRestore: true,
+  });
 
   if (doc.assignedUserIds) {
     const { removedUserIds } = checkUserIds(
@@ -168,6 +193,14 @@ export const editDeal = async ({
   }
 
   if (doc.productsData) {
+    doc.productsData = await normalizeProductUomInfo(
+      subdomain,
+      doc.productsData,
+    );
+    doc.productsData = await normalizeProductCurrencies(
+      subdomain,
+      doc.productsData,
+    );
     const { assignedUserIds } = checkAssignedUserFromPData(
       oldDeal.assignedUserIds,
       doc.productsData
@@ -178,17 +211,36 @@ export const editDeal = async ({
 
     doc.assignedUserIds = assignedUserIds;
 
-    doc.productsData = await checkLoyalties(subdomain, _id, {
-      ...oldDeal.toObject?.(),
-      ...oldDeal,
-      ...doc,
-    });
+    // A voucher picked or taken off is held or freed before it is priced in.
+    if (doc.extraData !== undefined) {
+      await syncDealVoucher({
+        subdomain,
+        dealId: _id,
+        previousVoucherId: oldDeal.extraData?.voucherId,
+        voucherId: doc.extraData?.voucherId,
+        totalAmount: (doc.productsData || [])
+          .filter((pd) => pd.tickUsed && !pd.bonusCount)
+          .reduce((sum, pd) => sum + (Number(pd.amount) || 0), 0),
+        userId: user._id,
+      });
+    }
 
+    // Pricing first: a voucher or coupon comes off the priced amount, and
+    // pricing never mistakes their discount for one a plan baked in.
     doc.productsData = await checkPricing(subdomain, models, {
       ...oldDeal.toObject?.(),
       ...oldDeal,
       ...doc,
     });
+
+    doc.productsData = await checkLoyalties(subdomain, _id, {
+      ...oldDeal.toObject?.(),
+      ...oldDeal,
+      ...doc,
+    });
+    if (doc.productsData) {
+      doc.productsData = syncProductUomInfo(doc.productsData);
+    }
   }
 
   const extendedDoc = {
@@ -319,7 +371,6 @@ export const editDeal = async ({
     oldDeal,
     userId: user._id,
   });
-  await confirmLoyalties(subdomain, _id, updatedItem);
 
   if (oldDeal.stageId === updatedItem.stageId) {
     return updatedItem;
@@ -354,6 +405,9 @@ export const changeDeal = async (
   if (!item) {
     throw new Error('Deal not found');
   }
+  await assertDealUpdatesAllowed(models, [item], {
+    stageId: destinationStageId,
+  });
 
   const stage = await models.Stages.getStage(item.stageId);
   const destinationStage = await models.Stages.getStage(destinationStageId);
@@ -399,7 +453,6 @@ export const changeDeal = async (
       oldDeal: item,
       userId,
     });
-    await confirmLoyalties(subdomain, item._id, updatedItem);
   }
 
   await itemMover(models, userId, item, destinationStageId);
@@ -437,16 +490,30 @@ export const changeDeal = async (
 
 export const createProductsData = async ({
   models,
+  subdomain,
   processId,
   dealId,
   docs,
 }: {
   models: IModels;
+  subdomain: string;
   processId: string;
   dealId: string;
   docs: IProductData[];
 }) => {
+  if (!dealId) {
+    throw new Error('dealId is required');
+  }
+  if (
+    !Array.isArray(docs) ||
+    docs.some((doc) => !doc || typeof doc !== 'object' || Array.isArray(doc))
+  ) {
+    throw new Error('docs must be an array of product objects');
+  }
+  docs.forEach(validateProductDataInput);
+
   const deal = await models.Deals.getDeal(dealId);
+  await assertDealUpdatesAllowed(models, [deal], { productsData: docs });
   const stage = await models.Stages.getStage(deal.stageId);
 
   const oldDataIds = (deal.productsData || []).map((pd) => pd._id);
@@ -478,10 +545,14 @@ export const createProductsData = async ({
   // undefined or null then true
   const tickUsed = !(stage.defaultTick === false);
   const addDocs = normalizeProductDiscountInfos(
-    (docs || []).map((doc) => ({ ...doc, tickUsed })),
+    await normalizeProductUomInfo(
+      subdomain,
+      (docs || []).map((doc) => ({ ...doc, tickUsed })),
+    ),
   );
-  const productsData: IProductData[] = (deal.productsData || []).concat(
-    addDocs,
+  const productsData = await normalizeProductCurrencies(
+    subdomain,
+    (deal.productsData || []).concat(addDocs),
   );
 
   const updatedItem = await models.Deals.findOneAndUpdate(

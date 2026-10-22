@@ -39,6 +39,7 @@ export const conversationSchemaOptions = {
   },
   userId: { type: 'String' },
   assignedUserId: { type: 'String' },
+  assignedUserIds: { type: ['String'], default: undefined },
   participatedUserIds: { type: ['String'] },
   userRelevance: { type: 'String' },
   readUserIds: { type: ['String'] },
@@ -143,6 +144,7 @@ conversationSchema.index(
 conversationSchema.index({ createdAt: 1 });
 conversationSchema.index({ closedAt: 1 });
 conversationSchema.index({ assignedUserId: 1 });
+conversationSchema.index({ assignedUserIds: 1, updatedAt: -1, _id: -1 });
 conversationSchema.index({ createdAt: 1, integrationId: 1 });
 conversationSchema.index({ createdAt: 1, assignedUserId: 1 });
 conversationSchema.index({ createdAt: 1, status: 1 });

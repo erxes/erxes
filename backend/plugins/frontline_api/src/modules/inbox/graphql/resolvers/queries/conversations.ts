@@ -1,3 +1,4 @@
+import { withConversationPreviews } from '@/inbox/utils/conversationPreview';
 import { inboxFieldQueries } from '@/inbox/graphql/resolvers/queries/inboxFields';
 import type { FilterQuery } from 'mongoose';
 import {
@@ -53,7 +54,11 @@ export const conversationQueries = {
           query: { _id: { $in: params.ids } },
         });
 
-      return { list, totalCount, pageInfo };
+      return {
+        list: await withConversationPreviews(models, list),
+        totalCount,
+        pageInfo,
+      };
     }
 
     if (params?.customerId) {
@@ -68,7 +73,11 @@ export const conversationQueries = {
           query: { customerId: params.customerId },
         });
 
-      return { list, totalCount, pageInfo };
+      return {
+        list: await withConversationPreviews(models, list),
+        totalCount,
+        pageInfo,
+      };
     }
 
     const qb = new QueryBuilder(models, subdomain, params, toQueryUser(user));
@@ -86,7 +95,11 @@ export const conversationQueries = {
         query: qb.mainQuery(),
       });
 
-    return { list, totalCount, pageInfo };
+    return {
+      list: await withConversationPreviews(models, list),
+      totalCount,
+      pageInfo,
+    };
   },
 
   /**
@@ -267,6 +280,10 @@ export const conversationQueries = {
     { _id, perPage, ...args }: { _id: string; perPage: number },
     { models }: IContext,
   ) {
+    if (!_id) {
+      throw new Error('User id is required');
+    }
+
     const query = { participatedUserIds: { $in: [_id] } };
 
     const { list, totalCount, pageInfo } =

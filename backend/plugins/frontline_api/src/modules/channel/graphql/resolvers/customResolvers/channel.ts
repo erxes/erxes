@@ -55,12 +55,6 @@ export const Channel = {
     return models.Forms.countDocuments({ channelId: channel._id });
   },
 
-  async integrations(channel: IChannelDocument, _args, { models }: IContext) {
-    return models.Integrations.find({
-      channelId: channel._id,
-    });
-  },
-
   integrationCount: async (
     channel: IChannelDocument,
     _params: undefined,

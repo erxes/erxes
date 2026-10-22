@@ -45,7 +45,7 @@ const SubmissionFieldDisplay = ({
   item: ISubmissionItem;
   value: unknown;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
   const { formFieldType } = item;
 
   if (
@@ -139,10 +139,10 @@ const SubmissionFieldDisplay = ({
 };
 
 export const SubmissionDetails = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
   const [submissionId, setSubmissionId] = useQueryState<string>('submissionId');
   const { submissionDetails, loading } = useGetFormSubmissionDetails({
-    variables: { _id: submissionId },
+    variables: submissionId ? { _id: submissionId } : undefined,
     skip: !submissionId,
   });
   const { form, fields } = useSubmissionDetailsForm(submissionDetails);

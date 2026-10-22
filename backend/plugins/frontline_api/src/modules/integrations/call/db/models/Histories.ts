@@ -8,6 +8,7 @@ import {
 } from '@/integrations/call/@types/histories';
 import { IModels } from '~/connectionResolvers';
 
+import { escapeRegExp } from 'erxes-api-shared/utils';
 /**
  * Interface for Call History Model with enhanced type safety
  */
@@ -270,9 +271,10 @@ export const loadCallHistoryClass = (models: IModels) => {
       }
 
       if (searchValue) {
-        const escaped = searchValue.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
         pipeline.push({
-          $match: { customerPhone: { $regex: escaped, $options: 'i' } },
+          $match: {
+            customerPhone: { $regex: escapeRegExp(searchValue), $options: 'i' },
+          },
         });
       }
 

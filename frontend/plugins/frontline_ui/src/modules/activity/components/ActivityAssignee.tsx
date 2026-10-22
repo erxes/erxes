@@ -8,8 +8,9 @@ export const ActivityAssignee = ({
 }: {
   metadata: IActivity['metadata'];
 }) => {
-  const { t } = useTranslation('frontline');
-  const { previousValue, newValue } = metadata;
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.activity' });
+  const previousValue = metadata?.previousValue;
+  const newValue = metadata?.newValue;
 
   return (
     <div className="inline-flex items-center gap-1">

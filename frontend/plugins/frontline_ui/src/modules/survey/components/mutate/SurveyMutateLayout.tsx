@@ -8,6 +8,7 @@ import {
   SURVEY_SETUP_STEPS,
   SURVEY_SETUP_STEPS_LENGTH,
 } from '@/survey/constants/surveySetupDefaultValues';
+import { useSurveySetupChannel } from '@/survey/hooks/useSurveySetupChannel';
 import {
   surveySetupStepAtom,
   resetSurveySetupAtom,
@@ -28,15 +29,16 @@ export const SurveyMutateLayout = <TValues extends FieldValues>({
   onSubmit?: (values: TValues) => void;
   isLoading?: boolean;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.survey' });
   const [step, setStep] = useAtom(surveySetupStepAtom);
-  const { id, surveyId } = useParams<{ id: string; surveyId: string }>();
+  const { surveyId } = useParams<{ surveyId: string }>();
+  const { returnPath } = useSurveySetupChannel();
   const resetSurveySetup = useSetAtom(resetSurveySetupAtom);
   const navigate = useNavigate();
 
   const handleCancel = () => {
     resetSurveySetup();
-    navigate(`/settings/frontline/channels/${id}/surveys`);
+    navigate(returnPath);
   };
 
   return (
@@ -89,7 +91,7 @@ export const SurveyMutateLayout = <TValues extends FieldValues>({
 };
 
 export const SurveyMutateLayoutPreviousStepButton = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.survey' });
   const [step, setStep] = useAtom(surveySetupStepAtom);
 
   return (

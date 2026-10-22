@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const UPDATE_PIPELINE = gql`
+export const UPDATE_PIPELINE = gql(`
   mutation UpdatePipeline(
     $_id: String!
     $description: String
@@ -16,7 +16,7 @@ export const UPDATE_PIPELINE = gql`
     $numberConfig: String
     $numberSize: String
     $nameConfig: String
-    $propertyIds: [String]
+    $createLayout: [[String!]!]
   ) {
     updatePipeline(
       _id: $_id
@@ -33,7 +33,7 @@ export const UPDATE_PIPELINE = gql`
       numberConfig: $numberConfig
       numberSize: $numberSize
       nameConfig: $nameConfig
-      propertyIds: $propertyIds
+      createLayout: $createLayout
     ) {
       _id
       name
@@ -53,8 +53,7 @@ export const UPDATE_PIPELINE = gql`
       numberConfig
       numberSize
       nameConfig
-      propertyIds
-      isPropertySelectionConfigured
+      createLayout
     }
   }
-`;
+`);

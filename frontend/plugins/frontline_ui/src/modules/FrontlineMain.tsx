@@ -1,4 +1,11 @@
+import { PluginSettingsRoutes } from 'ui-modules';
 import { lazy, Suspense } from 'react';
+import { AppLayout, Spinner, useQueryState } from 'erxes-ui';
+import {
+  FrontlineSidebar,
+  FrontlineSidebarFooter,
+  FrontlineSettingsLayout,
+} from '~/Sidebar';
 import { Navigate, Route, Routes } from 'react-router';
 
 const CallDashboardIndexPage = lazy(() =>
@@ -20,7 +27,7 @@ const CallStatisticsIndexPage = lazy(() =>
 
 const Inbox = lazy(() =>
   import('~/pages/InboxIndexPage').then((module) => ({
-    default: module.default,
+    default: module.InboxIndexPage,
   })),
 );
 
@@ -72,9 +79,21 @@ const HelpCenter = lazy(() =>
   })),
 );
 
+const SurveysView = lazy(() =>
+  import('@/survey/components/survey-page/SurveyView').then((module) => ({
+    default: module.SurveyView,
+  })),
+);
+
 const Surveys = lazy(() =>
   import('~/pages/SurveysIndexPage').then((module) => ({
     default: module.SurveysIndexPage,
+  })),
+);
+
+const SurveyCreatePage = lazy(() =>
+  import('~/pages/SurveyCreatePage').then((module) => ({
+    default: module.SurveyCreatePage,
   })),
 );
 
@@ -91,7 +110,9 @@ const FormSubmissionIndexPage = lazy(() =>
 );
 
 const IntegrationsMain = () => {
-  return (
+  const [inPreview] = useQueryState<boolean>('inPreview');
+
+  const routes = (
     <Suspense fallback={<div />}>
       <Routes>
         <Route path="/inbox" element={<Inbox />} />
@@ -124,12 +145,59 @@ const IntegrationsMain = () => {
           />
         </Route>
         <Route path="/forms/preview" element={<FormPreviewPage />} />
-        <Route path="/surveys" element={<Surveys />} />
+        <Route path="/surveys" element={<SurveysView />}>
+          <Route index element={<Surveys />} />
+          <Route path="create" element={<SurveyCreatePage />} />
+        </Route>
         <Route path="/knowledgebase/*" element={<KnowledgeBase />} />
         <Route path="/helpcenter" element={<HelpCenter />} />
       </Routes>
     </Suspense>
   );
+
+  // The form preview iframe renders bare, as core's DefaultLayout does.
+  if (inPreview) {
+    return routes;
+  }
+
+  return (
+    <AppLayout
+      id="frontline"
+      title="Frontline"
+      sidebar={<FrontlineSidebar />}
+      footer={<FrontlineSidebarFooter />}
+    >
+      {routes}
+    </AppLayout>
+  );
 };
 
-export default IntegrationsMain;
+const FrontlineSettingsRoutes = lazy(
+  () => import('~/modules/FrontlineSettings'),
+);
+// JSX needs a capitalised name.
+const FrontlineAppRoutes = IntegrationsMain;
+
+/** The plugin owns its settings too: `/frontline/settings/*` has its own sidebar. */
+const FrontlineEntry = () => (
+  <Routes>
+    <Route
+      path="settings/*"
+      element={
+        <FrontlineSettingsLayout>
+          <Suspense fallback={<Spinner />}>
+            <PluginSettingsRoutes
+              pluginName="frontline"
+              basePath="/frontline/settings"
+            >
+              <FrontlineSettingsRoutes />
+            </PluginSettingsRoutes>
+          </Suspense>
+        </FrontlineSettingsLayout>
+      }
+    />
+    <Route path="*" element={<FrontlineAppRoutes />} />
+  </Routes>
+);
+
+export default FrontlineEntry;

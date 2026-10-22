@@ -21,8 +21,10 @@ import {
   RecordTable,
   RecordTableInlineCell,
   RelativeDateDisplay,
+  Spinner,
   toast,
   Tooltip,
+  useConfirm,
 } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -39,7 +41,7 @@ import { MoveToChannelDialog } from '@/channels/components/move-resources/MoveTo
 import { ChannelResourceType } from '@/channels/types';
 
 const SurveyMoreColumnCell = ({ cell }: { cell: Cell<ISurvey, unknown> }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.survey' });
   const [open, setOpen] = useState(false);
   const [moveOpen, setMoveOpen] = useState(false);
   const [rejectOpen, setRejectOpen] = useState(false);
@@ -49,7 +51,8 @@ const SurveyMoreColumnCell = ({ cell }: { cell: Cell<ISurvey, unknown> }) => {
   const { id } = useParams<{ id: string }>();
   const channelId = survey.channelId || id;
   const { toggleSurveyStatus } = useSurveyToggleStatus();
-  const { removeSurveys } = useSurveyRemove();
+  const { removeSurveys, loading: removing } = useSurveyRemove();
+  const { confirm } = useConfirm();
 
   const onError = (error: Error) =>
     toast({
@@ -85,17 +88,21 @@ const SurveyMoreColumnCell = ({ cell }: { cell: Cell<ISurvey, unknown> }) => {
     });
 
   const handleRemove = () =>
-    removeSurveys({
-      variables: { _ids: [survey._id] },
-      onCompleted: () => {
-        setOpen(false);
-        toast({
-          variant: 'success',
-          title: t('survey-removed', 'Survey removed'),
-        });
-      },
-      onError,
-    });
+    confirm({
+      message: t('confirm-delete-survey-title', { title: survey.title }),
+    }).then(() =>
+      removeSurveys({
+        variables: { _ids: [survey._id] },
+        onCompleted: () => {
+          setOpen(false);
+          toast({
+            variant: 'success',
+            title: t('survey-removed', 'Survey removed'),
+          });
+        },
+        onError,
+      }),
+    );
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
@@ -105,7 +112,7 @@ const SurveyMoreColumnCell = ({ cell }: { cell: Cell<ISurvey, unknown> }) => {
       <DropdownMenu.Content side="bottom" align="start">
         <DropdownMenu.Item asChild>
           <Link
-            to={`/settings/frontline/channels/${channelId}/surveys/${survey._id}`}
+            to={`/frontline/settings/channels/${channelId}/surveys/${survey._id}`}
           >
             <IconEdit />
             {t('edit')}
@@ -155,9 +162,13 @@ const SurveyMoreColumnCell = ({ cell }: { cell: Cell<ISurvey, unknown> }) => {
           <IconArrowBarToRight />
           {t('move-to-channel', 'Move to Channel')}
         </DropdownMenu.Item>
-        <DropdownMenu.Item onSelect={handleRemove}>
-          <IconTrash />
-          {t('remove')}
+        <DropdownMenu.Item
+          disabled={removing}
+          onSelect={handleRemove}
+          className="text-destructive"
+        >
+          {removing ? <Spinner /> : <IconTrash />}
+          {t('delete')}
         </DropdownMenu.Item>
       </DropdownMenu.Content>
       <SurveyRejectDialog
@@ -188,7 +199,9 @@ export const surveyColumns: ColumnDef<ISurvey>[] = [
     accessorKey: 'title',
     id: 'title',
     header: function SurveyTitleHeader() {
-      const { t } = useTranslation('frontline');
+      const { t } = useTranslation('frontline', {
+        keyPrefix: 'modules.survey',
+      });
       return <RecordTable.InlineHead label={t('col-name')} icon={IconLabel} />;
     },
     cell: function SurveyTitleCell({ cell }) {
@@ -198,7 +211,7 @@ export const surveyColumns: ColumnDef<ISurvey>[] = [
       return (
         <RecordTableInlineCell>
           <Link
-            to={`/settings/frontline/channels/${channelId}/surveys/${cell.row.original._id}`}
+            to={`/frontline/settings/channels/${channelId}/surveys/${cell.row.original._id}`}
           >
             <RecordTableInlineCell.Anchor>
               {cell.getValue() as string}
@@ -213,7 +226,9 @@ export const surveyColumns: ColumnDef<ISurvey>[] = [
     accessorKey: 'question',
     id: 'question',
     header: function SurveyQuestionHeader() {
-      const { t } = useTranslation('frontline');
+      const { t } = useTranslation('frontline', {
+        keyPrefix: 'modules.survey',
+      });
       return (
         <RecordTable.InlineHead
           label={t('survey-question', 'Question')}
@@ -230,7 +245,9 @@ export const surveyColumns: ColumnDef<ISurvey>[] = [
     accessorKey: 'steps',
     id: 'steps',
     header: function SurveyStepsHeader() {
-      const { t } = useTranslation('frontline');
+      const { t } = useTranslation('frontline', {
+        keyPrefix: 'modules.survey',
+      });
       return (
         <RecordTable.InlineHead
           label={t('survey-steps', 'Steps')}
@@ -251,7 +268,9 @@ export const surveyColumns: ColumnDef<ISurvey>[] = [
     accessorKey: 'status',
     id: 'status',
     header: function SurveyStatusHeader() {
-      const { t } = useTranslation('frontline');
+      const { t } = useTranslation('frontline', {
+        keyPrefix: 'modules.survey',
+      });
       return (
         <RecordTable.InlineHead label={t('status')} icon={IconToggleRight} />
       );
@@ -289,7 +308,9 @@ export const surveyColumns: ColumnDef<ISurvey>[] = [
   {
     id: 'createdBy',
     header: function SurveyCreatedByHeader() {
-      const { t } = useTranslation('frontline');
+      const { t } = useTranslation('frontline', {
+        keyPrefix: 'modules.survey',
+      });
       return (
         <RecordTable.InlineHead
           label={t('created-by', 'Created by')}
@@ -298,7 +319,9 @@ export const surveyColumns: ColumnDef<ISurvey>[] = [
       );
     },
     cell: function SurveyCreatedByCell({ cell }) {
-      const { t } = useTranslation('frontline');
+      const { t } = useTranslation('frontline', {
+        keyPrefix: 'modules.survey',
+      });
       const { createdCpUser, createdCpUserId, createdUser } = cell.row.original;
 
       if (!createdCpUserId) {
@@ -333,7 +356,9 @@ export const surveyColumns: ColumnDef<ISurvey>[] = [
     accessorKey: 'sentCount',
     id: 'sentCount',
     header: function SurveySentCountHeader() {
-      const { t } = useTranslation('frontline');
+      const { t } = useTranslation('frontline', {
+        keyPrefix: 'modules.survey',
+      });
       return (
         <RecordTable.InlineHead
           label={t('survey-sent', 'Survey sent')}
@@ -352,7 +377,9 @@ export const surveyColumns: ColumnDef<ISurvey>[] = [
     accessorKey: 'createdAt',
     id: 'createdAt',
     header: function SurveyCreatedAtHeader() {
-      const { t } = useTranslation('frontline');
+      const { t } = useTranslation('frontline', {
+        keyPrefix: 'modules.survey',
+      });
       return (
         <RecordTable.InlineHead
           label={t('created-at')}

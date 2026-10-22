@@ -12,9 +12,9 @@ export const ImportExportSettingsBreadcrumb = () => {
     <Breadcrumb>
       <Breadcrumb.List className="gap-1">
         <Breadcrumb.Item>
-          <Button variant="ghost" className="font-semibold" asChild>
+          <Button variant="ghost" asChild>
             <Link to={ImportExportSettingsPath.Import}>
-              <IconFileImport className="size-4 text-accent-foreground" />
+              <IconFileImport />
               {t('import-and-export')}
             </Link>
           </Button>

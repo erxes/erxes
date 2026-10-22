@@ -124,7 +124,7 @@ export function TasksBoard() {
             {t('create-team-to-start')}
           </p>
           <Button variant="outline" asChild>
-            <Link to="/settings/operation/team">
+            <Link to="/operation/settings/team">
               <IconSettings />
               {t('go-to-settings')}
             </Link>

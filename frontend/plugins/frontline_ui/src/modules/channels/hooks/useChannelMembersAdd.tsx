@@ -1,16 +1,18 @@
-import { IChannelMember } from '@/channels/types';
 import { ADD_CHANNEL_MEMBERS } from '@/channels/graphql';
 import { MutationFunctionOptions, useMutation } from '@apollo/client';
-
-interface IChannelMembersAddMutationResponse {
-  channelAddMembers: IChannelMember[];
-}
+import type {
+  ChannelAddMembersMutation,
+  ChannelAddMembersMutationVariables,
+} from '~/gql/graphql';
 
 export const useChannelMembersAdd = () => {
   const [channelAddMembers, { loading, error }] =
-    useMutation<IChannelMembersAddMutationResponse>(ADD_CHANNEL_MEMBERS);
+    useMutation(ADD_CHANNEL_MEMBERS);
   const handleChannelMembersAdd = (
-    options: MutationFunctionOptions<IChannelMembersAddMutationResponse, any>,
+    options: MutationFunctionOptions<
+      ChannelAddMembersMutation,
+      ChannelAddMembersMutationVariables
+    >,
   ) => {
     channelAddMembers({
       ...options,

@@ -10,8 +10,9 @@ export const ActivityDate = ({
   metadata: IActivity['metadata'];
   type: 'start' | 'end';
 }) => {
-  const { t } = useTranslation('frontline');
-  const { previousValue, newValue } = metadata;
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.activity' });
+  const previousValue = metadata?.previousValue;
+  const newValue = metadata?.newValue;
 
   return (
     <div className="inline-flex items-center gap-1 whitespace-nowrap">
@@ -26,7 +27,7 @@ export const ActivityDate = ({
       )}{' '}
       {t('to', 'to')}
       <Badge variant="secondary" className="flex-none">
-        {format(new Date(newValue), 'MMM d, yyyy')}
+        {newValue && format(new Date(newValue), 'MMM d, yyyy')}
       </Badge>
     </div>
   );

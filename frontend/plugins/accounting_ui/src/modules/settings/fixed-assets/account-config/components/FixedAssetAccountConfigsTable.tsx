@@ -26,16 +26,16 @@ import {
 import {
   FIXED_ASSET_ACCOUNT_CONFIG_DEFAULT_VALUES,
   fixedAssetAccountConfigSchema,
-} from '../constants/schema';
+} from '@/settings/fixed-assets/account-config/constants/schema';
 import {
   useFixedAssetAccountConfigMutations,
   useFixedAssetAccountConfigs,
-} from '../hooks/useFixedAssetAccountConfigs';
+} from '@/settings/fixed-assets/account-config/hooks/useFixedAssetAccountConfigs';
 import {
   IFixedAssetAccountConfig,
   TFixedAssetAccountConfigForm,
-} from '../types/FixedAssetAccountConfig';
-import { FixedAssetAccountConfigForm } from './FixedAssetAccountConfigForm';
+} from '@/settings/fixed-assets/account-config/types/FixedAssetAccountConfig';
+import { FixedAssetAccountConfigForm } from '@/settings/fixed-assets/account-config/components/FixedAssetAccountConfigForm';
 
 const AccountConfigMoreCell = ({
   cell,
@@ -238,7 +238,7 @@ const FixedAssetAccountConfigsDelete = () => {
 
 export const FixedAssetAccountConfigsTable = () => {
   const { t } = useTranslation('accounting');
-  const { configs, loading } = useFixedAssetAccountConfigs();
+  const { configs, loading, error } = useFixedAssetAccountConfigs();
   const [selectedConfig, setSelectedConfig] =
     useState<IFixedAssetAccountConfig>();
   const columns = getColumns((config) => setSelectedConfig(config), t);
@@ -249,6 +249,8 @@ export const FixedAssetAccountConfigsTable = () => {
         columns={columns}
         data={configs || []}
         loading={loading}
+        error={error}
+        emptyAction={<AddFixedAssetAccountConfig />}
         stickyColumns={['more', 'checkbox', 'accountId']}
         className="m-3"
         Commandbar={FixedAssetAccountConfigsCommandbar}

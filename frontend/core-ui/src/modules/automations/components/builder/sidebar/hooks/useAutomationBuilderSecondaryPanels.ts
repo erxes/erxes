@@ -45,6 +45,17 @@ export const useAutomationBuilderSecondaryPanels = () => {
       ? secondaryPanel
       : null;
 
+  // Retrying or branching on error changes how the node behaves, so it shows
+  // on the toggle without opening the panel.
+  const errorPolicy = currentAction?.config?.errorPolicy;
+  const hasCustomErrorPolicy =
+    availablePanels.includes(AutomationSecondaryPanel.ErrorPolicy) &&
+    (errorPolicy?.onError === 'branch' ||
+      Number(errorPolicy?.retry?.attempts) > 0);
+
+  const isPanelCustomized = (panel: AutomationSecondaryPanel) =>
+    panel === AutomationSecondaryPanel.ErrorPolicy && hasCustomErrorPolicy;
+
   const togglePanel = (panel: AutomationSecondaryPanel) =>
     setSecondaryPanel(activePanel === panel ? null : panel);
 
@@ -54,6 +65,7 @@ export const useAutomationBuilderSecondaryPanels = () => {
     availablePanels,
     activePanel,
     panelMeta,
+    isPanelCustomized,
     togglePanel,
     closePanel,
   };

@@ -18,12 +18,12 @@ export const MSDynamicBreadCrumb = () => {
 
   return (
     <>
-      <Button variant="ghost" className="font-semibold">
+      <Button variant="ghost">
         <IconSandbox className="w-4 h-4 mr-1.5" />
         {t('ms-dynamic')}
       </Button>
       <Separator.Inline />
-      <Button variant="ghost" className="hover:bg-transparent font-semibold">
+      <Button variant="ghost" className="hover:bg-transparent">
         {currentLabel}
       </Button>
       <Separator.Inline />

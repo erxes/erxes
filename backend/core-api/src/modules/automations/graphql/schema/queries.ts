@@ -53,17 +53,19 @@ const queries = `
   automationHistories(${GQL_CURSOR_PARAM_DEFS},${historiesParams}): AutomationHistories
   automationHistoriesTotalCount(${historiesParams}):Int
   automationStats(automationId: String!, beginDate: Date, endDate: Date): AutomationStats
+  automationActivity(automationId: String!, beginDate: Date!, endDate: Date!, buckets: Int!, actionId: String): AutomationActivity
   automationExecutionCounts(automationIds: [String!]!): [AutomationStatsCount]
   automationsTotalCount(status: String): automationsTotalCountResponse
   automationConstants: JSON
   automationSetPropertyTargets(sourceType: String!): JSON
-  automationNodeOutput(nodeType: String!): JSON
+  automationNodeOutput(nodeType: String!, config: JSON): JSON
   automationReferenceFields(type: String!, field: String!): JSON
   automationBotsConstants:JSON
   automationsAiAgents(kind:String):JSON
   automationsAiAgentTotalCounts:JSON
   automationsAiAgentDetail(_id:String):JSON
   automationsAiAgentHealth(agentId: String!): AiAgentHealth!
+  automationsAiAgentModels(agentId: String, provider: String!, selectedModel: String): [AiAgentModelOption!]!
   automationsAiAgentKnowledgeSourceStatuses(agentId: String!): JSON
   getAutomationWebhookEndpoint(_id:String!,waitEventActionId:String):String
   getAutomationExecutionDetail(executionId: String!): AutomationHistory

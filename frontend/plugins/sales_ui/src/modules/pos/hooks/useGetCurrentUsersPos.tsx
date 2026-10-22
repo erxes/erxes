@@ -1,27 +1,25 @@
-import { useQuery, QueryHookOptions } from '@apollo/client';
 import { POS_LIST } from '@/pos/graphql/queries/getPos';
-import { IPos } from '@/pos/types/pos';
-import { currentUserState } from 'ui-modules';
-import { useAtomValue } from 'jotai';
-
-interface IGetPosQueryResponse {
-  posList: IPos[];
-}
+import { QueryHookOptions, useQuery } from '@apollo/client';
+import type {
+  SalesPosNavigationListQuery,
+  SalesPosNavigationListQueryVariables,
+} from '~/gql/graphql';
+import { hasId } from '../utils/posJson';
 
 export const useGetCurrentUsersPos = (
-  options?: QueryHookOptions<IGetPosQueryResponse>,
+  options?: QueryHookOptions<
+    SalesPosNavigationListQuery,
+    SalesPosNavigationListQueryVariables
+  >,
 ) => {
-  const currentUser = useAtomValue(currentUserState);
-  const userId = currentUser?._id;
-  const { data, loading } = useQuery<IGetPosQueryResponse>(POS_LIST, {
+  const { data, loading } = useQuery(POS_LIST, {
     ...options,
     variables: {
-      userId,
       ...options?.variables,
     },
   });
 
-  const pos = data?.posList;
+  const pos = data?.posList?.filter(hasId);
 
   return { pos, loading };
 };

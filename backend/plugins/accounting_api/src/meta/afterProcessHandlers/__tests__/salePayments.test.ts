@@ -8,6 +8,13 @@ import {
 import { ITransaction } from '~/modules/accounting/@types/transaction';
 import { dealToTrs } from '../dealToTrs';
 import { orderToTrs } from '../orderToTrs';
+import { prepareRealJobProduction } from '../realJobProduction';
+
+jest.mock('../realJobProduction', () => ({
+  prepareRealJobProduction: jest
+    .fn()
+    .mockResolvedValue({ docs: [], details: [] }),
+}));
 
 jest.mock('erxes-api-shared/utils', () => ({
   fixNum: (value: number) => value,
@@ -55,6 +62,7 @@ describe.each(['deal', 'order'] as const)('%s sale payment sync', (source) => {
     paidAmount: number,
     paymentAccountId?: string,
     debtAccountId = '',
+    allowRealJobProduction = false,
   ) => {
     const config: Parameters<typeof orderToTrs>[0]['config'] = {
       dateRule: 'alwaysNow',
@@ -74,7 +82,13 @@ describe.each(['deal', 'order'] as const)('%s sale payment sync', (source) => {
       defaultPayment: { accountId: debtAccountId },
       defaultNegPayment: { accountId: '' },
     };
-    const context = { subdomain: 'tenant', models, userId: 'user', config };
+    const context = {
+      subdomain: 'tenant',
+      models,
+      userId: 'user',
+      config,
+      allowRealJobProduction,
+    };
     if (source === 'order') {
       await orderToTrs({
         ...context,
@@ -152,4 +166,15 @@ describe.each(['deal', 'order'] as const)('%s sale payment sync', (source) => {
       details: [{ accountId: 'cash-account', amount: 100 }],
     });
   });
+
+  it.each([false, true])(
+    'keeps production opt-in local to after-process (enabled=%s)',
+    async (enabled) => {
+      await sync(0, undefined, '', enabled);
+      expect(createPTransaction.mock.calls[0][2]).toEqual({
+        skipAccountPermission: true,
+      });
+      expect(prepareRealJobProduction).toHaveBeenCalledTimes(enabled ? 1 : 0);
+    },
+  );
 });

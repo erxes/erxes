@@ -5,6 +5,7 @@ import { AddFixedAssetCategory } from '@/settings/fixed-assets/components/AddFix
 import { AddFixedAssetAccountConfig } from '@/settings/fixed-assets/account-config/components/FixedAssetAccountConfigsTable';
 import { AddVats } from '@/settings/vat/components/AddVats';
 import { AddCtaxs } from '@/settings/ctax/components/AddCtaxs';
+import { AddJob } from '@/settings/jobs/components/AddJob';
 import { AddAccountingConfig } from '../syncSettings/AddAccountingConfig';
 import { ACCOUNTING_SETTINGS_CODES } from '../constants/settingsRoutes';
 import { Can, Import } from 'ui-modules';
@@ -12,19 +13,19 @@ import { Can, Import } from 'ui-modules';
 export const AccountingTopbar = () => {
   const { pathname } = useLocation();
   const fixedAssetCategoryPaths = [
-    '/settings/accounting/config/fixed-assets/categories',
-    '/settings/accounting/fixed-assets/categories',
+    '/accounting/settings/config/fixed-assets/categories',
+    '/accounting/settings/fixed-assets/categories',
   ];
   const fixedAssetPaths = [
-    '/settings/accounting/config/fixed-assets/assets',
-    '/settings/accounting/fixed-assets/assets',
+    '/accounting/settings/config/fixed-assets/assets',
+    '/accounting/settings/fixed-assets/assets',
   ];
   const fixedAssetAccountConfigPaths = [
-    '/settings/accounting/config/fixed-assets/accounts-config',
-    '/settings/accounting/fixed-assets/accounts-config',
+    '/accounting/settings/config/fixed-assets/accounts-config',
+    '/accounting/settings/fixed-assets/accounts-config',
   ];
 
-  if (pathname === '/settings/accounting/config/accounts') {
+  if (pathname === '/accounting/settings/config/accounts') {
     return (
       <div className="flex items-center gap-3">
         <AddAccount />
@@ -32,7 +33,7 @@ export const AccountingTopbar = () => {
     );
   }
 
-  if (pathname === '/settings/accounting/config/account-categories') {
+  if (pathname === '/accounting/settings/config/account-categories') {
     return (
       <div className="flex items-center gap-3">
         <AddAccountCategory />
@@ -60,7 +61,7 @@ export const AccountingTopbar = () => {
     );
   }
 
-  if (pathname === '/settings/accounting/config/vat-rows') {
+  if (pathname === '/accounting/settings/config/vat-rows') {
     return (
       <div className="flex items-center gap-3">
         <Can action="taxRowsImportManage">
@@ -75,7 +76,7 @@ export const AccountingTopbar = () => {
     );
   }
 
-  if (pathname === '/settings/accounting/config/ctax-rows') {
+  if (pathname === '/accounting/settings/config/ctax-rows') {
     return (
       <div className="flex items-center gap-3">
         <AddCtaxs />
@@ -83,7 +84,20 @@ export const AccountingTopbar = () => {
     );
   }
 
-  if (pathname === '/settings/accounting/config/sync-deal') {
+  if (
+    [
+      '/accounting/settings/inventories/jobs',
+      '/accounting/settings/inventories/job-outputs',
+    ].includes(pathname)
+  ) {
+    return (
+      <div className="flex items-center gap-3">
+        <AddJob />
+      </div>
+    );
+  }
+
+  if (pathname === '/accounting/settings/config/sync-deal') {
     return (
       <div className="flex items-center gap-3">
         <AddAccountingConfig code={ACCOUNTING_SETTINGS_CODES.SYNC_DEAL} />
@@ -91,7 +105,7 @@ export const AccountingTopbar = () => {
     );
   }
 
-  if (pathname === '/settings/accounting/config/sync-deal-movement') {
+  if (pathname === '/accounting/settings/config/sync-deal-movement') {
     return (
       <div className="flex items-center gap-3">
         <AddAccountingConfig
@@ -101,7 +115,7 @@ export const AccountingTopbar = () => {
     );
   }
 
-  if (pathname === '/settings/accounting/config/sync-deal-return') {
+  if (pathname === '/accounting/settings/config/sync-deal-return') {
     return (
       <div className="flex items-center gap-3">
         <AddAccountingConfig
@@ -111,7 +125,7 @@ export const AccountingTopbar = () => {
     );
   }
 
-  if (pathname === '/settings/accounting/config/sync-order') {
+  if (pathname === '/accounting/settings/config/sync-order') {
     return (
       <div className="flex items-center gap-3">
         <AddAccountingConfig code={ACCOUNTING_SETTINGS_CODES.SYNC_ORDER} />

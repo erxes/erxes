@@ -83,14 +83,6 @@ export default {
     });
   },
 
-  async knowledgeBaseMessengerApps(_args) {
-    return [];
-  },
-
-  async leadMessengerApps(_args) {
-    return [];
-  },
-
   async healthStatus(
     integration: IIntegrationDocument,
     _args,
@@ -108,7 +100,8 @@ export default {
       });
       return response?.data ?? { status: 'healthy' };
     } catch (e) {
-      return { status: 'healthy' };
+      // an unreachable service is not evidence of a healthy integration
+      return { status: 'unknown', error: e.message };
     }
   },
 

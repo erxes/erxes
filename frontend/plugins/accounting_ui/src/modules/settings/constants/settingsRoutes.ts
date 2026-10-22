@@ -1,18 +1,24 @@
 export const SETTINGS_ROUTES = {
-  '/settings/accounting/config': 'general-settings',
+  '/accounting/settings/config': 'general-settings',
   account: '',
-  '/settings/accounting/config/accounts': 'account',
-  '/settings/accounting/config/account-categories': 'account-category-label',
-  '/settings/accounting/config/permissions': 'account-permissions',
+  '/accounting/settings/config/accounts': 'account',
+  '/accounting/settings/config/account-categories': 'account-category-label',
+  '/accounting/settings/config/permissions': 'account-permissions',
   tax: '',
-  '/settings/accounting/config/vat-rows': 'vat-row-label',
-  '/settings/accounting/config/ctax-rows': 'city-tax-row',
+  '/accounting/settings/config/vat-rows': 'vat-row-label',
+  '/accounting/settings/config/ctax-rows': 'city-tax-row',
   sync: '',
-  '/settings/accounting/config/sync-deal': 'deal-rule',
-  '/settings/accounting/config/sync-deal-movement':
+  '/accounting/settings/config/sync-deal': 'deal-rule',
+  '/accounting/settings/config/sync-deal-movement':
     'deal-inventory-movement-rule',
-  '/settings/accounting/config/sync-deal-return': 'deal-return-rule',
-  '/settings/accounting/config/sync-order': 'pos-order-rule-label',
+  '/accounting/settings/config/sync-deal-return': 'deal-return-rule',
+  '/accounting/settings/config/sync-order': 'pos-order-rule-label',
+};
+
+export const INVENTORY_SETTINGS_ROUTES = {
+  '/accounting/settings/inventories/jobs': 'job-production-stage',
+  '/accounting/settings/inventories/job-outputs':
+    'job-production-stage-outputs',
 };
 
 export enum ACCOUNTING_SETTINGS_CODES {

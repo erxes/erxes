@@ -2,6 +2,7 @@ import { IInstagramBot } from '@/integrations/instagram/types/InstagramBot';
 import { useMutation } from '@apollo/client';
 import { IconEdit, IconRefresh, IconX } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
+import { TFunction } from 'i18next';
 import {
   Avatar,
   Button,
@@ -27,7 +28,7 @@ const INSTAGRAM_BOTS_REFETCH_QUERIES = [
 ];
 
 const BotActionsCell = ({ _id }: { _id?: string }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.instagram' });
   const [, setInstagramBotId] = useQueryState('instagramBotId');
 
   const [repairBot, { loading: loadingRepair }] = useMutation(
@@ -87,11 +88,13 @@ const BotActionsCell = ({ _id }: { _id?: string }) => {
   );
 };
 
-export const automationInstagramBotsColumns: ColumnDef<IInstagramBot>[] = [
+export const automationInstagramBotsColumns = (
+  t: TFunction,
+): ColumnDef<IInstagramBot>[] => [
   {
     id: 'name',
     accessorKey: 'name',
-    header: () => <RecordTable.InlineHead label="Name" />,
+    header: () => <RecordTable.InlineHead label={t('name')} />,
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -104,9 +107,9 @@ export const automationInstagramBotsColumns: ColumnDef<IInstagramBot>[] = [
   {
     id: 'account',
     accessorKey: 'account',
-    header: () => <RecordTable.InlineHead label="Account" />,
+    header: () => <RecordTable.InlineHead label={t('account')} />,
     cell: ({ cell }) => {
-      const { name = '-' } = cell.getValue() || ({} as any);
+      const name = cell.row.original.account?.name ?? '-';
       return <RecordTableInlineCell>{name}</RecordTableInlineCell>;
     },
     size: 235,
@@ -114,14 +117,14 @@ export const automationInstagramBotsColumns: ColumnDef<IInstagramBot>[] = [
   {
     id: 'page',
     accessorKey: 'page',
-    header: () => <RecordTable.InlineHead label="Page" />,
+    header: () => <RecordTable.InlineHead label={t('page')} />,
     cell: ({ cell }) => {
       const { profileUrl = '' } = cell.row.original || {};
-      const { name = '-' } = cell.getValue() || ({} as any);
+      const name = cell.row.original.page?.name ?? '-';
       return (
         <RecordTableInlineCell className="w-full flex items-center justify-center">
           <Avatar>
-            <Avatar.Image src={profileUrl} />
+            <Avatar.Image src={profileUrl ?? undefined} />
             <Avatar.Fallback>{name}</Avatar.Fallback>
           </Avatar>
           {name}
@@ -131,7 +134,7 @@ export const automationInstagramBotsColumns: ColumnDef<IInstagramBot>[] = [
   },
   {
     id: 'action-group',
-    header: () => <RecordTable.InlineHead label="Actions" />,
+    header: () => <RecordTable.InlineHead label={t('actions')} />,
     cell: ({ cell }) => <BotActionsCell _id={cell.row.original?._id} />,
   },
 ];

@@ -26,7 +26,7 @@ type Props = {
 };
 
 export const CreateChannel = ({ isIconOnly = false }: Props) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.channels' });
   const navigate = useNavigate();
   const form = useChannelsForm({});
   const { addChannel, loading } = useChannelAdd();
@@ -59,7 +59,9 @@ export const CreateChannel = ({ isIconOnly = false }: Props) => {
         variables: { ...data },
         onCompleted: (data) => {
           toast({ title: t('success', 'Success!') });
-          navigate(`/settings/frontline/channels/${data.channelAdd._id}`);
+          if (data.channelAdd) {
+            navigate(`/frontline/settings/channels/${data.channelAdd._id}`);
+          }
           form.reset();
           setOpen(false);
         },

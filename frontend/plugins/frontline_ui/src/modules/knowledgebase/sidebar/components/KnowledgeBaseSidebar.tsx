@@ -14,11 +14,11 @@ import {
 } from '@/knowledgebase/sidebar/states/kbSidebarWidthState';
 import { TopicDrawer } from '@/knowledgebase/topics/components/TopicDrawer';
 import { useTopics } from '@/knowledgebase/topics/hooks/useTopics';
-import { ICategory, ITopic } from '@/knowledgebase/types';
+import { ICategoryFields, ITopic } from '@/knowledgebase/types';
 
 type TCategoryDraft = {
   topicId: string;
-  category?: ICategory;
+  category?: ICategoryFields;
 };
 
 const TopicTree = ({
@@ -32,7 +32,7 @@ const TopicTree = ({
   loading: boolean;
   error?: { message: string };
   onAddCategory: (topicId: string) => void;
-  onEditCategory: (topicId: string, category: ICategory) => void;
+  onEditCategory: (topicId: string, category: ICategoryFields) => void;
 }) => {
   const { t } = useTranslation('frontline');
 
@@ -109,7 +109,7 @@ export const KnowledgeBaseSidebar = () => {
       className={cn('flex-none border-r', resizing && 'transition-none')}
       style={width ? { width } : undefined}
     >
-      <div className="flex gap-1 items-center px-2 h-12 shrink-0">
+      <div className="flex gap-1 items-center px-2 h-10 shrink-0">
         <span className="block flex-1 px-2 min-w-0 text-sm font-medium truncate">
           {t('knowledge-base', 'Knowledge Base')}
         </span>

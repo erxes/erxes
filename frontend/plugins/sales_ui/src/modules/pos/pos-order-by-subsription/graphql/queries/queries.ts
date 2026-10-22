@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const POS_ORDER_BY_SUBSCRIPTION = gql`
+export const POS_ORDER_BY_SUBSCRIPTION = gql(`
   query PosOrderBySubscriptions(
     $page: Int
     $perPage: Int
@@ -33,7 +33,7 @@ export const POS_ORDER_BY_SUBSCRIPTION = gql`
       closeDate
     }
   }
-`;
-export default {
+`);
+export const queries = {
   POS_ORDER_BY_SUBSCRIPTION,
 };

@@ -52,12 +52,6 @@ export const AUTOMATIONS_AI_AGENTS = gql`
   }
 `;
 
-export const AUTOMATIONS_AI_AGENT_TOTAL_COUNTS = gql`
-  query AutomationsAiAgentTotalCounts {
-    automationsAiAgentTotalCounts
-  }
-`;
-
 export const AUTOMATIONS_AI_AGENT_HEALTH = gql`
   query AutomationsAiAgentHealth($agentId: String!) {
     automationsAiAgentHealth(agentId: $agentId) {
@@ -66,6 +60,29 @@ export const AUTOMATIONS_AI_AGENT_HEALTH = gql`
       errors
       warnings
       checks
+    }
+  }
+`;
+
+export const AUTOMATIONS_AI_AGENT_MODELS = gql`
+  query AutomationsAiAgentModels(
+    $agentId: String
+    $provider: String!
+    $selectedModel: String
+  ) {
+    automationsAiAgentModels(
+      agentId: $agentId
+      provider: $provider
+      selectedModel: $selectedModel
+    ) {
+      id
+      group
+      status
+      suggestion
+      isDefault
+      releasedAt
+      reasoning
+      contextWindow
     }
   }
 `;

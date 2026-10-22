@@ -1,4 +1,6 @@
+import { isRecord } from '@/deals/utils/dealJson';
 import {
+  MutationFunctionOptions,
   MutationHookOptions,
   QueryHookOptions,
   useApolloClient,
@@ -8,12 +10,31 @@ import {
 } from '@apollo/client';
 import {
   EnumCursorDirection,
-  ICursorListResponse,
+  isDefined,
   toast,
   useQueryState,
   useToast,
 } from 'erxes-ui';
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import type {
+  SalesPipelineDetailQuery,
+  SalesPipelineDetailQueryVariables,
+  SalesPipelinesAddMutation,
+  SalesPipelinesAddMutationVariables,
+  SalesPipelinesArchiveMutation,
+  SalesPipelinesArchiveMutationVariables,
+  SalesPipelinesCopiedMutation,
+  SalesPipelinesCopiedMutationVariables,
+  SalesPipelinesEditMutation,
+  SalesPipelinesEditMutationVariables,
+  SalesPipelinesQuery,
+  SalesPipelinesQueryVariables,
+  SalesPipelinesRemoveMutation,
+  SalesPipelinesRemoveMutationVariables,
+  SalesPipelinesUpdateOrderMutation,
+  SalesPipelinesUpdateOrderMutationVariables,
+} from '~/gql/graphql';
 
 import {
   ADD_PIPELINE,
@@ -32,32 +53,17 @@ import { IPipeline } from '@/deals/types/pipelines';
 
 const PIPELINES_PER_PAGE = 20;
 
-interface IPipelineArchiveData {
-  salesPipelinesArchive: boolean;
-}
-
-interface IPipelineArchiveVariables {
-  _id: string;
-}
-
-interface IPipelineListChangedData {
-  salesPipelineListChanged: {
-    _id: string;
-    action: string;
-    data: {
-      status?: string;
-    };
-  };
-}
-
 export const usePipelines = (
-  options?: QueryHookOptions<ICursorListResponse<IPipeline>>,
+  options?: QueryHookOptions<SalesPipelinesQuery, SalesPipelinesQueryVariables>,
 ) => {
-  useSubscription<IPipelineListChangedData>(PIPELINE_LIST_CHANGED, {
+  useSubscription(PIPELINE_LIST_CHANGED, {
     skip: options?.skip,
     onData: ({ client, data: result }) => {
       const event = result.data?.salesPipelineListChanged;
-      const status = event?.data?.status;
+      const status =
+        isRecord(event?.data) && typeof event.data.status === 'string'
+          ? event.data.status
+          : undefined;
 
       if (event?.action !== 'statusChanged' || !event._id || !status) {
         return;
@@ -90,23 +96,25 @@ export const usePipelines = (
     },
   });
 
-  const { data, loading, error, fetchMore } = useQuery<
-    ICursorListResponse<IPipeline>
-  >(GET_PIPELINES, {
+  const { data, loading, error, fetchMore } = useQuery(GET_PIPELINES, {
     ...options,
-    variables: {
-      ...options?.variables,
-    },
+    variables: options?.variables,
   });
 
   const {
-    list: pipelines,
-    totalCount = 0,
+    list,
+    totalCount: rawTotalCount,
     pageInfo,
   } = data?.salesPipelines || {};
-  const visiblePipelines = options?.variables?.isAll
-    ? pipelines
-    : pipelines?.filter(({ status }) => status !== 'archived');
+  const pipelines = useMemo(() => list?.filter(isDefined), [list]);
+  const totalCount = rawTotalCount ?? 0;
+  const visiblePipelines = useMemo(
+    () =>
+      options?.variables?.isAll
+        ? pipelines
+        : pipelines?.filter(({ status }) => status !== 'archived'),
+    [options?.variables?.isAll, pipelines],
+  );
 
   const handleFetchMore = () => {
     if (totalCount <= (pipelines?.length || 0)) return;
@@ -118,12 +126,12 @@ export const usePipelines = (
         direction: EnumCursorDirection.FORWARD,
       },
       updateQuery: (prev, { fetchMoreResult }) => {
-        if (!fetchMoreResult) return prev;
+        if (!fetchMoreResult.salesPipelines) return prev;
         return Object.assign({}, prev, {
           salesPipelines: {
             list: [
               ...(prev.salesPipelines?.list || []),
-              ...fetchMoreResult.salesPipelines.list,
+              ...(fetchMoreResult.salesPipelines?.list ?? []),
             ],
             totalCount: fetchMoreResult.salesPipelines.totalCount,
             pageInfo: fetchMoreResult.salesPipelines.pageInfo,
@@ -144,14 +152,15 @@ export const usePipelines = (
 };
 
 export const usePipelineRemove = (
-  options?: MutationHookOptions<{ salesPipelines: IPipeline[] }>,
+  options?: MutationHookOptions<
+    SalesPipelinesRemoveMutation,
+    SalesPipelinesRemoveMutationVariables
+  >,
 ) => {
   const { t } = useTranslation('sales');
   const [removePipeline, { loading, error }] = useMutation(REMOVE_PIPELINE, {
     ...options,
-    variables: {
-      ...options?.variables,
-    },
+    variables: options?.variables,
     refetchQueries: ['SalesPipelines', 'SalesBoards'],
     awaitRefetchQueries: true,
     onCompleted: (...args) => {
@@ -180,8 +189,14 @@ export const usePipelineRemove = (
 export const usePipelineAdd = () => {
   const [addPipeline, { loading, error }] = useMutation(ADD_PIPELINE);
 
-  const mutate = ({ variables, ...options }: MutationHookOptions) => {
-    addPipeline({
+  const mutate = ({
+    variables,
+    ...options
+  }: MutationFunctionOptions<
+    SalesPipelinesAddMutation,
+    SalesPipelinesAddMutationVariables
+  >) => {
+    return addPipeline({
       ...options,
       variables,
       refetchQueries: ['SalesPipelines', 'SalesBoards'],
@@ -210,19 +225,32 @@ export const usePipelineEdit = () => {
   const [editPipeline, { loading, error }] = useMutation(EDIT_PIPELINE);
   const { toast } = useToast();
 
-  const mutate = ({ variables, ...options }: MutationHookOptions) => {
-    editPipeline({
+  const mutate = ({
+    variables,
+    ...options
+  }: MutationFunctionOptions<
+    SalesPipelinesEditMutation,
+    SalesPipelinesEditMutationVariables
+  >) => {
+    return editPipeline({
       ...options,
       variables,
-      refetchQueries: ['SalesPipelines', 'SalesBoards', 'SalesStages'],
+      refetchQueries: [
+        'SalesPipelines',
+        'SalesBoards',
+        'salesDealStages',
+        'salesDealConversionStages',
+        'SalesStages', // Still used by shared selectors and Loyalty.
+      ],
       awaitRefetchQueries: true,
-      update: (cache, { data: { salesPipelinesEdit } }) => {
+      update: (cache, { data }) => {
+        const salesPipelinesEdit = data?.salesPipelinesEdit;
         if (salesPipelinesEdit) {
           cache.modify({
             id: cache.identify(salesPipelinesEdit),
-            fields: Object.keys(variables || {}).reduce(
-              (fields: Record<string, () => unknown>, field) => {
-                fields[field] = () => variables?.[field];
+            fields: Object.entries(variables || {}).reduce(
+              (fields: Record<string, () => unknown>, [field, value]) => {
+                fields[field] = () => value;
                 return fields;
               },
               {},
@@ -247,21 +275,15 @@ export const usePipelineEdit = () => {
 
 export const usePipelineArchive = (
   options?: MutationHookOptions<
-    IPipelineArchiveData,
-    IPipelineArchiveVariables
+    SalesPipelinesArchiveMutation,
+    SalesPipelinesArchiveMutationVariables
   >,
 ) => {
   const { t } = useTranslation('sales');
-  const [archivePipeline, { loading, error }] = useMutation<
-    IPipelineArchiveData,
-    IPipelineArchiveVariables
-  >(ARCHIVE_PIPELINE, {
+  const [archivePipeline, { loading, error }] = useMutation(ARCHIVE_PIPELINE, {
     ...options,
     optimisticResponse: {
       salesPipelinesArchive: true,
-    },
-    variables: {
-      ...options?.variables,
     },
     update: (cache, _result, { variables }) => {
       if (!variables?._id) return;
@@ -304,14 +326,15 @@ export const usePipelineArchive = (
 };
 
 export const usePipelineCopy = (
-  options?: MutationHookOptions<{ salesPipelines: IPipeline[] }>,
+  options?: MutationHookOptions<
+    SalesPipelinesCopiedMutation,
+    SalesPipelinesCopiedMutationVariables
+  >,
 ) => {
   const { t } = useTranslation('sales');
   const [copyPipeline, { loading, error }] = useMutation(COPY_PIPELINE, {
     ...options,
-    variables: {
-      ...options?.variables,
-    },
+    variables: options?.variables,
     refetchQueries: ['SalesPipelines', 'SalesBoards'],
     awaitRefetchQueries: true,
     onCompleted: () => {
@@ -335,16 +358,17 @@ export const usePipelineCopy = (
 };
 
 export const usePipelineUpdateOrder = (
-  options?: MutationHookOptions<{ salesPipelines: IPipeline[] }>,
+  options?: MutationHookOptions<
+    SalesPipelinesUpdateOrderMutation,
+    SalesPipelinesUpdateOrderMutationVariables
+  >,
 ) => {
   const { t } = useTranslation('sales');
   const [updatePipelineOrder, { loading, error }] = useMutation(
     UPDATE_PIPELINE_ORDER,
     {
       ...options,
-      variables: {
-        ...options?.variables,
-      },
+      variables: options?.variables,
       refetchQueries: ['SalesPipelines', 'SalesBoards'],
       awaitRefetchQueries: true,
       onCompleted: () => {
@@ -425,24 +449,21 @@ export const usePipelinesBulkRemove = () => {
 };
 
 export const usePipelineDetail = (
-  options?: QueryHookOptions<{ salesPipelineDetail: IPipeline }>,
+  options?: QueryHookOptions<
+    SalesPipelineDetailQuery,
+    SalesPipelineDetailQueryVariables
+  >,
 ) => {
-  const [pipelineIdFromQuery] = useQueryState('pipelineId');
+  const [pipelineIdFromQuery] = useQueryState<string>('pipelineId');
 
   // Prioritize _id from passed variables, fallback to query state
   const pipelineId = options?.variables?._id || pipelineIdFromQuery;
 
-  const { data, loading, error } = useQuery<{ salesPipelineDetail: IPipeline }>(
-    GET_PIPELINE_DETAIL,
-    {
-      ...options,
-      variables: {
-        ...options?.variables,
-        _id: pipelineId,
-      },
-      skip: !pipelineId,
-    },
-  );
+  const { data, loading, error } = useQuery(GET_PIPELINE_DETAIL, {
+    ...options,
+    variables: pipelineId ? { _id: pipelineId } : undefined,
+    skip: !pipelineId || options?.skip,
+  });
 
   return { pipelineDetail: data?.salesPipelineDetail, loading, error };
 };

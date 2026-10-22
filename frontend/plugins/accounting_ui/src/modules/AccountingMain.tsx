@@ -1,6 +1,12 @@
+import { PluginSettingsRoutes } from 'ui-modules';
 import { lazy, Suspense } from 'react';
 import { Route, Routes } from 'react-router';
-import { Spinner } from 'erxes-ui';
+import { Spinner, AppLayout } from 'erxes-ui';
+import {
+  AccountingSidebar,
+  AccountingSidebarFooter,
+  AccountingSettingsLayout,
+} from '~/Sidebar';
 import { PageChangeEffect } from './app/AccountingPageChangeEffect';
 
 const TransactionList = lazy(() =>
@@ -107,6 +113,11 @@ const InventoryReserveRemainders = lazy(() =>
     default: module.ReserveRemaindersPage,
   })),
 );
+const JobExecutions = lazy(() =>
+  import('~/pages/inventories/JobExecutionsPage').then((module) => ({
+    default: module.JobExecutionsPage,
+  })),
+);
 
 const FxaOwnerRecords = lazy(() =>
   import('~/pages/fixed-assets/FxaOwnerRecordsPage').then((module) => ({
@@ -146,78 +157,125 @@ const AccountingCheckSync = lazy(() =>
 
 const PluginAccounting = () => {
   return (
-    <Suspense
-      fallback={
-        <div className="flex justify-center items-center h-full">
-          <Spinner size="sm" />
-        </div>
-      }
+    <AppLayout
+      id="accounting"
+      title="Accounting"
+      sidebar={<AccountingSidebar />}
+      footer={<AccountingSidebarFooter />}
     >
-      <Routes>
-        <Route path="/" element={<TransactionList />} />
-        <Route path="/main" element={<TransactionList />} />
-        <Route path="/records" element={<TrRecordList />} />
-        <Route path="/transaction/edit" element={<TransactionForm />} />
-        <Route path="/transaction/create" element={<TransactionForm />} />
-        <Route path="transaction/print" element={<TransactionPrint />} />
-        <Route path="/adjustment" element={<AdjustmentsHomePage />} />
-        <Route path="/adjustment/inventory" element={<AdjustInventoryList />} />
-        <Route
-          path="/adjustment/inventory/detail"
-          element={<AdjustInventoryDetail />}
-        />
-        <Route path="/adjustment/fundRate" element={<AdjustFundRateList />} />
-        <Route
-          path="/adjustment/fundRate/detail"
-          element={<AdjustFundRateDetail />}
-        />
-        <Route path="/adjustment/debRate" element={<AdjustDebtRateList />} />
-        <Route
-          path="/adjustment/debRate/detail"
-          element={<AdjustDebtRateDetail />}
-        />
-        <Route path="/adjustment/fxa" element={<AdjustFixedAssetList />} />
-        <Route
-          path="/adjustment/fxa/detail"
-          element={<AdjustFixedAssetDetail />}
-        />
-        <Route path="/journal-reports" element={<AccountingJournalReports />} />
-        <Route path="/check-sync/*" element={<AccountingCheckSync />} />
-        <Route
-          path="/gen-journal-report"
-          element={<AccountingGenJournalReport />}
-        />
+      <Suspense
+        fallback={
+          <div className="flex justify-center items-center h-full">
+            <Spinner size="sm" />
+          </div>
+        }
+      >
+        <Routes>
+          <Route path="/" element={<TransactionList />} />
+          <Route path="/main" element={<TransactionList />} />
+          <Route path="/records" element={<TrRecordList />} />
+          <Route path="/transaction/edit" element={<TransactionForm />} />
+          <Route path="/transaction/create" element={<TransactionForm />} />
+          <Route path="transaction/print" element={<TransactionPrint />} />
+          <Route path="/adjustment" element={<AdjustmentsHomePage />} />
+          <Route
+            path="/adjustment/inventory"
+            element={<AdjustInventoryList />}
+          />
+          <Route
+            path="/adjustment/inventory/detail"
+            element={<AdjustInventoryDetail />}
+          />
+          <Route path="/adjustment/fundRate" element={<AdjustFundRateList />} />
+          <Route
+            path="/adjustment/fundRate/detail"
+            element={<AdjustFundRateDetail />}
+          />
+          <Route path="/adjustment/debRate" element={<AdjustDebtRateList />} />
+          <Route
+            path="/adjustment/debRate/detail"
+            element={<AdjustDebtRateDetail />}
+          />
+          <Route path="/adjustment/fxa" element={<AdjustFixedAssetList />} />
+          <Route
+            path="/adjustment/fxa/detail"
+            element={<AdjustFixedAssetDetail />}
+          />
+          <Route
+            path="/journal-reports"
+            element={<AccountingJournalReports />}
+          />
+          <Route path="/check-sync/*" element={<AccountingCheckSync />} />
+          <Route
+            path="/gen-journal-report"
+            element={<AccountingGenJournalReport />}
+          />
 
-        <Route
-          path="/inventories/remainders"
-          element={<InventoryRemainders />}
-        />
-        <Route
-          path="/inventories/safe-remainders"
-          element={<InventorySafeRemainders />}
-        />
-        <Route
-          path="/inventories/safe-remainder/detail"
-          element={<InventorySafeRemainderDetail />}
-        />
-        <Route
-          path="/inventories/reserve-remainders"
-          element={<InventoryReserveRemainders />}
-        />
-        <Route
-          path="/fixed-assets/owner-records"
-          element={<FxaOwnerRecords />}
-        />
-        <Route path="/fixed-assets/remainders" element={<FxaRemainders />} />
-        <Route path="adjustment/closing" element={<AdjustClosingList />} />
-        <Route
-          path="adjustment/closing/:id"
-          element={<AdjustClosingDetail />}
-        />
-      </Routes>
-      <PageChangeEffect />
-    </Suspense>
+          <Route
+            path="/inventories/remainders"
+            element={<InventoryRemainders />}
+          />
+          <Route
+            path="/inventories/job-executions"
+            element={<JobExecutions />}
+          />
+          <Route
+            path="/inventories/safe-remainders"
+            element={<InventorySafeRemainders />}
+          />
+          <Route
+            path="/inventories/safe-remainder/detail"
+            element={<InventorySafeRemainderDetail />}
+          />
+          <Route
+            path="/inventories/reserve-remainders"
+            element={<InventoryReserveRemainders />}
+          />
+          <Route
+            path="/fixed-assets/owner-records"
+            element={<FxaOwnerRecords />}
+          />
+          <Route path="/fixed-assets/remainders" element={<FxaRemainders />} />
+          <Route path="adjustment/closing" element={<AdjustClosingList />} />
+          <Route
+            path="adjustment/closing/:id"
+            element={<AdjustClosingDetail />}
+          />
+        </Routes>
+        <PageChangeEffect />
+      </Suspense>
+    </AppLayout>
   );
 };
 
-export default PluginAccounting;
+const AccountingSettingsRoutes = lazy(() =>
+  import('~/modules/AccountingSettings').then((module) => ({
+    default: module.AccountingSettings,
+  })),
+);
+// JSX needs a capitalised name.
+const AccountingAppRoutes = PluginAccounting;
+
+/** The plugin owns its settings too: `/accounting/settings/*` has its own sidebar. */
+const AccountingEntry = () => (
+  <Routes>
+    <Route
+      path="settings/*"
+      element={
+        <AccountingSettingsLayout>
+          <Suspense fallback={<Spinner />}>
+            <PluginSettingsRoutes
+              pluginName="accounting"
+              basePath="/accounting/settings"
+            >
+              <AccountingSettingsRoutes />
+            </PluginSettingsRoutes>
+          </Suspense>
+        </AccountingSettingsLayout>
+      }
+    />
+    <Route path="*" element={<AccountingAppRoutes />} />
+  </Routes>
+);
+
+export default AccountingEntry;

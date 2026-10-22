@@ -1,9 +1,9 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-const UPDATE_RESPONSE = gql`
+const UPDATE_RESPONSE = gql(`
   mutation ResponseTemplatesEdit(
     $name: String!
-    $id: String
+    $id: String!
     $content: String
     $channelId: String
     $files: [String]
@@ -18,6 +18,6 @@ const UPDATE_RESPONSE = gql`
       _id
     }
   }
-`;
+`);
 
 export { UPDATE_RESPONSE };
