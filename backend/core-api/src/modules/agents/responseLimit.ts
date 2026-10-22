@@ -1,4 +1,4 @@
-import { getEnv } from '../utils';
+import { getEnv } from 'erxes-api-shared/utils';
 
 /**
  * Response-size guard for agent tool calls.

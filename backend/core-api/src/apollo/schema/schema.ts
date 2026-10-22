@@ -243,10 +243,6 @@ import {
   queries as AgentsSettingsQueries,
   types as AgentsSettingsTypes,
 } from '@/agents/graphql/schemas/settings';
-import {
-  queries as AgentsToolQueries,
-  types as AgentsToolTypes,
-} from '@/agents/graphql/schemas/tools';
 
 export const types = `
     enum CacheControlScope {
@@ -305,7 +301,6 @@ export const types = `
     ${AgentsConnectionTypes}
     ${AgentsThreadTypes}
     ${AgentsSettingsTypes}
-    ${AgentsToolTypes}
   `;
 
 export const queries = `
@@ -354,7 +349,6 @@ export const queries = `
     ${AgentsConnectionQueries}
     ${AgentsThreadQueries}
     ${AgentsSettingsQueries}
-    ${AgentsToolQueries}
   `;
 
 export const mutations = `

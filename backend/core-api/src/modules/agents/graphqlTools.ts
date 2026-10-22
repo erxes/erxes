@@ -25,14 +25,16 @@ import {
   type GraphQLSchema,
 } from 'graphql';
 import {
-  agentToolResponseTooLargeError,
   agentToolsAuthHeaderName,
   encodeAgentToolsAuthHeader,
-  getAgentToolMaxResponseBytes,
   getPluginAddress,
   getPlugins,
-  oversizedAgentToolResultBytes,
 } from 'erxes-api-shared/utils';
+import {
+  agentToolResponseTooLargeError,
+  getAgentToolMaxResponseBytes,
+  oversizedAgentToolResultBytes,
+} from '@/agents/responseLimit';
 import { gatewayUrl } from '~/utils/email/links';
 import {
   AGENT_GRAPHQL_DENIED_FIELD,
@@ -82,7 +84,6 @@ const ROOT_OPERATION_TYPES = new Set(['Query', 'Mutation', 'Subscription']);
 let schemaCache: {
   schema: GraphQLSchema | null;
   fetchedAt: number;
-  owners: Map<string, string>;
 } | null = null;
 
 const fetchSubgraphSdl = async (plugin: string): Promise<string | null> => {
@@ -174,34 +175,9 @@ const buildMergedSchema = async (): Promise<GraphQLSchema | null> => {
   const now = Date.now();
 
   const plugins = await getPlugins();
-  const sources = await Promise.all(
-    plugins.map(async (plugin) => ({ plugin, sdl: await fetchSubgraphSdl(plugin) })),
+  const sdls = (await Promise.all(plugins.map(fetchSubgraphSdl))).filter(
+    (sdl): sdl is string => sdl !== null,
   );
-  const sdls: string[] = [];
-  const owners = new Map<string, string>();
-
-  for (const { plugin, sdl } of sources) {
-    if (!sdl) continue;
-    sdls.push(sdl);
-    try {
-      for (const definition of parse(sdl).definitions) {
-        if (
-          (definition.kind === 'ObjectTypeDefinition' ||
-            definition.kind === 'ObjectTypeExtension') &&
-          (definition.name.value === 'Query' ||
-            definition.name.value === 'Mutation')
-        ) {
-          const operation = definition.name.value.toLowerCase();
-          for (const field of definition.fields ?? []) {
-            const key = `${operation}.${field.name.value}`;
-            if (!owners.has(key)) owners.set(key, plugin);
-          }
-        }
-      }
-    } catch {
-      // Schema construction below handles malformed SDL.
-    }
-  }
 
   let schema: GraphQLSchema | null = null;
 
@@ -219,7 +195,7 @@ const buildMergedSchema = async (): Promise<GraphQLSchema | null> => {
     }
   }
 
-  schemaCache = { schema, fetchedAt: now, owners };
+  schemaCache = { schema, fetchedAt: now };
 
   return schema;
 };
@@ -461,21 +437,6 @@ const sanitizeGraphqlErrors = (errors: unknown): IGraphqlErrorEntry[] => {
 
 // @mastra/core/tools is ESM-only under nodenext; load it dynamically (like the
 // other Mastra entries) and build the two tools once per process.
-export const listGraphqlCapabilities = async () => {
-  const schema = await loadMergedSchema();
-  return schema ? collectRootFields(schema).map((entry) => ({
-    id: `graphql.${entry.operation}.${entry.name}`,
-    plugin: schemaCache?.owners.get(`${entry.operation}.${entry.name}`) ?? 'graphql',
-    module: entry.operation,
-    path: entry.name,
-    method: entry.operation,
-    description: entry.field.description ?? fieldSignature(entry.field),
-    inputFields: entry.field.args.map((arg) => ({
-      name: arg.name, type: String(arg.type), required: String(arg.type).endsWith('!'),
-    })),
-  })) : [];
-};
-
 let graphqlToolsPromise:
   | Promise<{ searchGraphql: MastraTool; callGraphql: MastraTool }>
   | null = null;

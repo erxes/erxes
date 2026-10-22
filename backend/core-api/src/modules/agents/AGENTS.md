@@ -107,10 +107,7 @@ plugin; ported from the former private `erxes-agent` service). It provides:
   `agentsThreadUpdate(threadId, title?, pinned?)` (rename ≤120 chars /
   pin; ownership-scoped, merges `metadata.pinned`, publishes
   `agentsThreadsChanged`), `agentsThreadRemove` (same errors, same
-  publish), `agentsTools` (capabilities catalog: sorted by plugin then
-  path, `requiresApproval` shared with the approval predicate,
-  `allowed` per `ctx.checkPermission(action)`, failures → plugin names
-  only, never `inputSchema`), `agentsSettings`, `agentsSettingsUpdate`.
+  publish), `agentsSettings`, `agentsSettingsUpdate`.
 - Subscription `agentsThreadsChanged { userId }` in
   `src/apollo/subscription.ts` — **plain JavaScript only** (the gateway
   parses the file as .js; no TS syntax).
@@ -157,7 +154,7 @@ plugin; ported from the former private `erxes-agent` service). It provides:
   (subdomain/userId/provider/model/thinkingLevel/codeModeEnabled/
   approvalMode/threadId/attachmentUrls); never secrets.
 - `codeMode.ts`, `askUser.ts`, `readFile.ts`, `fileBinding.ts`,
-  `fileTimeout.ts`, `fileValidation.ts`, `toolSchemaCompatibility.ts`, `mongo44Compatibility.ts`,
+  `fileTimeout.ts`, `fileValidation.ts`, `mongo44Compatibility.ts`,
   `providerModels.ts`, `providers.ts`, `threadsEvents.ts`.
 - `db/` — `AgentsConnection` + `AgentsSettings` models (registered in
   `src/connectionResolvers.ts`); `graphql/` — schemas + thin resolvers.
