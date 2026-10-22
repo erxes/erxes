@@ -24,7 +24,7 @@ export const AGENTS_APPROVAL_MODES = ['writes', 'destructive'] as const;
  */
 export const agentsSettingsSchema = new Schema(
   {
-    codeModeEnabled: { type: Boolean, default: false },
+    codeModeEnabled: { type: Boolean, default: true },
     codeModeEnvironment: {
       type: String,
       enum: AGENTS_CODE_MODE_ENVIRONMENTS,
