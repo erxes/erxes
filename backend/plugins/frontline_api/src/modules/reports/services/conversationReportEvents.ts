@@ -10,12 +10,19 @@ export const withConversationReportEvents = <T>(
   const tenant = process.env.VERSION === 'saas' ? subdomain : 'os';
 
   const publish = async () => {
-    await graphqlPubsub.publish(
-      `frontlineConversationReportChanged:${tenant}`,
-      {
-        frontlineConversationReportChanged: true,
-      },
-    );
+    try {
+      await graphqlPubsub.publish(
+        `frontlineConversationReportChanged:${tenant}`,
+        {
+          frontlineConversationReportChanged: true,
+        },
+      );
+    } catch (error) {
+      console.error(
+        '[frontline:reports] Failed to publish change event',
+        error,
+      );
+    }
   };
 
   reportSchema.post('save', publish);

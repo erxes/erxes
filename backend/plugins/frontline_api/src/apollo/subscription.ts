@@ -270,7 +270,7 @@ export default {
         subscribe: withFilter(
           (_, { _id }) =>
             graphqlPubsub.asyncIterator(`conversationMessageInserted:${_id}`),
-          async (payload, variables, context) =>
+          (payload, variables, context) =>
             shouldDeliverConversationMessage(
               payload.conversationMessageInserted,
               variables._id,

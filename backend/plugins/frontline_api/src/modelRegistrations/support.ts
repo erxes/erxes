@@ -23,9 +23,11 @@ import {
   loadTicketConfigClass,
 } from '@/ticket/db/models/TicketConfig';
 import type { IFieldDocument } from '@/form/db/definitions/fields';
-import type { IFormDocument } from '@/form/db/definitions/forms';
+import type {
+  IFormDocument,
+  IFormSubmissionDocument,
+} from '@/form/db/definitions/forms';
 import { type IFieldModel, loadFieldClass } from '@/form/db/models/Fields';
-import type { IFormSubmissionDocument } from '@/form/db/definitions/forms';
 import {
   type IFormModel,
   type IFormSubmissionModel,

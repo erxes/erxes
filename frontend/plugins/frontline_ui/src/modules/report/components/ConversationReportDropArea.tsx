@@ -5,7 +5,7 @@ export function ConversationReportDropArea({
   id,
   colSpan,
   children,
-}: ConversationReportDropAreaProps) {
+}: Readonly<ConversationReportDropAreaProps>) {
   const { isOver, setNodeRef } = useDroppable({ id });
 
   return (
