@@ -13,6 +13,7 @@ import { createClient } from 'graphql-ws';
 
 import { REACT_APP_API_URL } from 'erxes-ui';
 import { createDataExtensionsCreateLink } from 'ui-modules';
+import { reportApolloError } from '../../sentryApollo';
 
 const SESSION_CODE_STORAGE_KEY = 'sessioncode';
 
@@ -63,7 +64,7 @@ const httpLink = createHttpLink({
 });
 
 // Error handler
-const errorLink = onError(({ graphQLErrors, operation }) => {
+const errorLink = onError(({ graphQLErrors, networkError, operation }) => {
   if (graphQLErrors && graphQLErrors.length > 0) {
     const [error] = graphQLErrors;
 
@@ -74,6 +75,15 @@ const errorLink = onError(({ graphQLErrors, operation }) => {
       globalThis.window.location.reload();
     }
   }
+
+  reportApolloError({
+    operationName: operation.operationName,
+    graphQLErrors,
+    networkError: networkError as {
+      message?: string;
+      statusCode?: number;
+    } | null,
+  });
 });
 
 const authLink = setContext((_, { headers }) => {

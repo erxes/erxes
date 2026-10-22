@@ -147,6 +147,11 @@ const EXPECTED_PATTERNS: RegExp[] = [
   /must be greater/i,
   /must be less/i,
   /must be a valid/i,
+  // Normal answers reported as errors on officenext (Oct 2026)
+  /not logged in/i, // client portal: "User is not logged in" (85 events in 4 days)
+  /belongs to someone else/i, // ownership guard: "… belongs to someone else. Ask its owner …"
+  /must contain at least/i, // password rules: "Must contain at least one number …"
+  /project has tasks/i, // operation: a project with tasks cannot be deleted
 ];
 
 // System error patterns — infrastructure/bugs
