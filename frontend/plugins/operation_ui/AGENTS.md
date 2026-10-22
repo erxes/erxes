@@ -6,7 +6,7 @@
 - **Project:** `operation_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/operation_ui`
-- **Last synchronized:** `2026-10-22`
+- **Last synchronized:** `2026-10-19`
 
 ## Scope
 
@@ -123,11 +123,6 @@
 
 - Teams are main-menu items in `MainNavigation` that link to `operation/team/:teamId`, which redirects to tasks, so every team sub-route keeps the team row active. `TeamsNavigation` renders only on `/operation/team/:teamId/*`, loads the team with `useGetTeam` so non-member team links still resolve, and returns `null` elsewhere. Its `subGroup` Suspense fallback is `null`, so the host context column stays hidden off team routes instead of flashing open while the chunk loads.
 - Keep operation-specific UI inside `frontend/plugins/operation_ui`.
-- Team settings membership rows use `MembersInline.Provider` with
-  `showInactive` so inactive accounts remain identifiable and removable;
-  unresolved user references display `Unknown member` instead of the member
-  selector placeholder. Successful membership removal refetches
-  `GET_TEAM_MEMBERS` through `useTeamMemberRemove`.
 - Use `isGithubTriage` for GitHub triage attribution and source-link visibility: require a `system` creator, numeric triage status, non-empty issue URL, and numeric issue number. Tasks, projects without issue metadata, and other triages retain normal creator attribution.
 - GitHub triage attribution consumes `ITriageDetail` from the generated detail query, which selects the triage status and issue metadata. Keep the shared helper and relation card on detail types; `ITriage` is the list-query item and does not select those fields. Render the source link from the guarded triage object so `isGithubTriage` narrows the nullable issue URL.
 - `CreatorInfo` uses one `ActivityTimelineItem` for both GitHub and member creation attribution; only the avatar and attribution content vary, with `ActivityActor.Provider` supplying member context and skipping member lookup for `system` creators.
@@ -169,9 +164,6 @@
 ## Validation
 
 - `pnpm nx lint operation_ui`
-- Team membership smoke: open Operation settings team members, confirm inactive
-  accounts show their names with inactive labels, and remove a membership;
-  the row disappears after the mutation succeeds without a page reload.
 - `pnpm nx build operation_ui`
 - `pnpm nx test operation_ui --passWithNoTests` (the inferred Jest target currently has no test files)
 - `pnpm nx run operation_ui:codegen`
