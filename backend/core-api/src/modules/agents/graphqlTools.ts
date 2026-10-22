@@ -14,6 +14,12 @@ import {
   isUnionType,
   parse,
   printType,
+  validate,
+  FieldsOnCorrectTypeRule,
+  KnownArgumentNamesRule,
+  ProvidedRequiredArgumentsRule,
+  ScalarLeafsRule,
+  type DocumentNode,
   type GraphQLField,
   type GraphQLNamedType,
   type GraphQLSchema,
@@ -148,12 +154,24 @@ const stubRootTypeDefs = (sdls: string[]): string[] => {
     .map((name) => `type ${name} { ${STUB_ROOT_FIELD}: Boolean }`);
 };
 
-export const loadMergedSchema = async (): Promise<GraphQLSchema | null> => {
-  const now = Date.now();
+let schemaLoading: Promise<GraphQLSchema | null> | null = null;
 
-  if (schemaCache && now - schemaCache.fetchedAt < SCHEMA_CACHE_TTL_MS) {
+// Concurrent runs share one rebuild: makeExecutableSchema is synchronous and
+// heavy, and a stampede of rebuilds stalls the event loop.
+export const loadMergedSchema = async (): Promise<GraphQLSchema | null> => {
+  if (schemaCache && Date.now() - schemaCache.fetchedAt < SCHEMA_CACHE_TTL_MS) {
     return schemaCache.schema;
   }
+
+  schemaLoading ??= buildMergedSchema().finally(() => {
+    schemaLoading = null;
+  });
+
+  return schemaLoading;
+};
+
+const buildMergedSchema = async (): Promise<GraphQLSchema | null> => {
+  const now = Date.now();
 
   const plugins = await getPlugins();
   const sources = await Promise.all(
@@ -318,6 +336,52 @@ const collectArgumentTypes = (
  * nested objects by name only. `printed` dedupes types already emitted for
  * earlier results so shared inputs are not repeated.
  */
+const MAX_NESTED_TYPES = 12;
+
+// Only the rules that catch what the model gets wrong; the gateway still runs
+// the full validation, so a gap here costs a round trip, never correctness.
+const VALIDATION_RULES = [
+  FieldsOnCorrectTypeRule,
+  ScalarLeafsRule,
+  KnownArgumentNamesRule,
+  ProvidedRequiredArgumentsRule,
+];
+
+/**
+ * Rejects a document the gateway would reject, before the round trip, and
+ * returns the SDL of every type the errors name so the retry is informed.
+ */
+const validateAgainstSchema = async (document: DocumentNode) => {
+  // Validation only saves a round trip, so an unavailable schema sends the call unchecked.
+  const schema = await loadMergedSchema().catch(() => null);
+  if (!schema) {
+    return null;
+  }
+
+  const errors = validate(schema, document, VALIDATION_RULES);
+  if (!errors.length) {
+    return null;
+  }
+
+  const typeNames = new Set(
+    errors.flatMap((error) =>
+      [...error.message.matchAll(/type "(\w+)"/g)].map((match) => match[1]),
+    ),
+  );
+  const types = [...typeNames]
+    .map((name) => schema.getType(name))
+    .filter((type) => type !== undefined)
+    .map((type) => printType(type))
+    .join('\n\n');
+
+  return {
+    status: 'error',
+    code: 'GRAPHQL_VALIDATION_FAILED',
+    error: errors.map((error) => error.message).join('; '),
+    ...(types ? { types } : {}),
+  };
+};
+
 const typesSdlForField = (
   field: GraphQLField<unknown, unknown>,
   printed: Set<string>,
@@ -332,6 +396,22 @@ const typesSdlForField = (
     isEnumType(returnType)
   ) {
     types.push(returnType);
+  }
+
+  // One level of nested object types, so the model sees e.g. User.details
+  // instead of guessing User.firstName.
+  if (isObjectType(returnType) || isInterfaceType(returnType)) {
+    const nested = Object.values(returnType.getFields())
+      .map((child) => getNamedType(child.type))
+      .filter(
+        (type, index, all) =>
+          (isObjectType(type) || isInterfaceType(type)) &&
+          type.name !== returnType.name &&
+          !type.name.startsWith('_') &&
+          all.findIndex((other) => other.name === type.name) === index,
+      )
+      .slice(0, MAX_NESTED_TYPES);
+    types.push(...nested);
   }
 
   return types
@@ -527,6 +607,11 @@ export const buildGraphqlTools = async (): Promise<{
             );
           } catch (error) {
             return toToolFailure(error);
+          }
+
+          const invalid = await validateAgainstSchema(parsed.document);
+          if (invalid) {
+            return invalid;
           }
 
           let response: Response;
