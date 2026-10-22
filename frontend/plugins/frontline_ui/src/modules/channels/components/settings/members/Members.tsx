@@ -7,7 +7,7 @@ import columns from './MembersColumn';
 import { useTranslation } from 'react-i18next';
 
 export function Members() {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.channels' });
   const { id: channelId } = useParams<{ id: string }>();
   const { members, loading } = useGetChannelMembers({ channelIds: channelId });
   const activeMembers = members?.filter(

@@ -35,7 +35,7 @@ export const SurveyStepCard = ({
   form: UseFormReturn<TSurveyContent>;
   onRemove: () => void;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.survey' });
   const { attributes, listeners, setNodeRef, transition, transform } =
     useSortable({ id });
 

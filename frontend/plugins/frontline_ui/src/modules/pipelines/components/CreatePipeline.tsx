@@ -30,7 +30,7 @@ const CreatePipelineSheetForm = ({
   channelId: string;
   onClose: () => void;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.pipelines' });
   const { toast } = useToast();
   const navigate = useNavigate();
   const { addPipeline, loading } = usePipelineAdd();
@@ -101,7 +101,7 @@ const CreatePipelineSheetForm = ({
 };
 
 export const CreatePipeline = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.pipelines' });
   const { id: channelId } = useParams<{ id: string }>();
 
   const [open, setOpen] = useAtom(createPipelineSheetState);

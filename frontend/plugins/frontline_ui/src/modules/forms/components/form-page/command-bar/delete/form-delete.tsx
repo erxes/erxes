@@ -11,7 +11,7 @@ export const FormDelete = ({
   formIds: string[];
   rows: Row<any>[];
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
   const { confirm } = useConfirm();
 
   const { removeForm, loading } = useRemoveForm();

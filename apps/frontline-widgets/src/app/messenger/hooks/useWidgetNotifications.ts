@@ -38,15 +38,11 @@ export const useWidgetNotifications = () => {
   const { notify: webNotify } = useWebNotification();
 
   const cachedCustomerId = getLocalStorageItem('customerId');
-  const { customerId, visitorId } = connection.widgetsMessengerConnect || {};
+  const { customerId } = connection.widgetsMessengerConnect || {};
 
   const { data, loading, error, subscribeToMore, refetch } =
     useQuery<IQueryResponse>(GET_WIDGET_NOTIFICATIONS, {
-      variables: {
-        integrationId,
-        customerId: customerId || cachedCustomerId || undefined,
-        visitorId: visitorId || undefined,
-      },
+      variables: { integrationId },
       fetchPolicy: 'network-only',
       skip: !integrationId,
     });

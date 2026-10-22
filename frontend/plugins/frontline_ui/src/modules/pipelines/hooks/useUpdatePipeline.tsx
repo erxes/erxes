@@ -11,7 +11,7 @@ import type {
   UpdatePipelineMutationVariables,
 } from '~/gql/graphql';
 export const useUpdatePipeline = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.pipelines' });
   const { toast } = useToast();
   const [_updatePipeline, { loading }] = useMutation(UPDATE_PIPELINE);
   const updatePipeline = (

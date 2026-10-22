@@ -36,8 +36,8 @@ const formSchema = z.object({
 });
 
 const POST_TYPES = [
-  { label: 'specific-post', value: 'specific' },
-  { label: 'any-post', value: 'any' },
+  { labelKey: 'specific-post', value: 'specific' },
+  { labelKey: 'any-post', value: 'any' },
 ];
 
 export const CommentTriggerForm = ({
@@ -45,7 +45,7 @@ export const CommentTriggerForm = ({
   activeTrigger,
   onSaveTriggerConfig,
 }: AutomationTriggerFormProps) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.instagram' });
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: { postType: 'specific', ...(activeTrigger.config || {}) },
@@ -91,9 +91,9 @@ export const CommentTriggerForm = ({
                       <Select.Value />
                     </Select.Trigger>
                     <Select.Content>
-                      {POST_TYPES.map(({ label, value }) => (
+                      {POST_TYPES.map(({ labelKey, value }) => (
                         <Select.Item key={value} value={value}>
-                          {t(label)}
+                          {t(labelKey)}
                         </Select.Item>
                       ))}
                     </Select.Content>

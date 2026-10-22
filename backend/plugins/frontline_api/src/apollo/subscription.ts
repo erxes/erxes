@@ -74,6 +74,46 @@ export default {
       return true;
     };
 
+    /*
+     * Staff listen to any conversation; a widget only to its own, proven by
+     * the session token the gateway verified. "Not found" so a guessed id
+     * learns nothing.
+     */
+    const assertCanListenToConversation = async (context, conversationId) => {
+      if (context?.user?._id) {
+        return;
+      }
+
+      const session = context?.widgetSession;
+      const owners = [
+        session?.customerId && { customerId: session.customerId },
+        session?.visitorId && { visitorId: session.visitorId },
+      ].filter(Boolean);
+
+      const found =
+        session && conversationId && owners.length
+          ? await sendTRPCMessage({
+              subdomain: context.subdomain,
+              pluginName: 'frontline',
+              method: 'query',
+              module: 'conversation',
+              action: 'find',
+              input: {
+                query: {
+                  _id: conversationId,
+                  integrationId: session.integrationId,
+                  $or: owners,
+                },
+              },
+              defaultValue: [],
+            })
+          : [];
+
+      if (!found?.length) {
+        throw new Error('Conversation not found');
+      }
+    };
+
     const sessionBelongsToUser = (session, variables, userId) => {
       if (!userId) {
         return false;
@@ -233,8 +273,11 @@ export default {
        * Listen for conversation changes like status, assignee, read state
        */
       conversationChanged: {
-        subscribe: (_, { _id }) =>
-          graphqlPubsub.asyncIterator(`conversationChanged:${_id}`),
+        subscribe: async (_, { _id }, context) => {
+          await assertCanListenToConversation(context, _id);
+
+          return graphqlPubsub.asyncIterator(`conversationChanged:${_id}`);
+        },
       },
 
       frontlineConversationReportChanged: {
@@ -267,16 +310,20 @@ export default {
        */
       conversationMessageInserted: {
         resolve: (payload) => payload.conversationMessageInserted,
-        subscribe: withFilter(
-          (_, { _id }) =>
-            graphqlPubsub.asyncIterator(`conversationMessageInserted:${_id}`),
-          (payload, variables, context) =>
-            shouldDeliverConversationMessage(
-              payload.conversationMessageInserted,
-              variables._id,
-              Boolean(context?.user?._id),
-            ),
-        ),
+        subscribe: async (root, args, context, info) => {
+          await assertCanListenToConversation(context, args._id);
+
+          return withFilter(
+            (_, { _id }) =>
+              graphqlPubsub.asyncIterator(`conversationMessageInserted:${_id}`),
+            (payload, variables, filterContext) =>
+              shouldDeliverConversationMessage(
+                payload.conversationMessageInserted,
+                variables._id,
+                Boolean(filterContext?.user?._id),
+              ),
+          )(root, args, context, info);
+        },
       },
 
       /*
@@ -305,18 +352,26 @@ export default {
        * Show typing while waiting Bot response
        */
       conversationBotTypingStatus: {
-        subscribe: (_, { _id }) =>
-          graphqlPubsub.asyncIterator(`conversationBotTypingStatus:${_id}`),
+        subscribe: async (_, { _id }, context) => {
+          await assertCanListenToConversation(context, _id);
+
+          return graphqlPubsub.asyncIterator(
+            `conversationBotTypingStatus:${_id}`,
+          );
+        },
       },
 
       /*
        * Admin is listening for this subscription to show typing notification
        */
       conversationClientTypingStatusChanged: {
-        subscribe: (_, { _id }) =>
-          graphqlPubsub.asyncIterator(
+        subscribe: async (_, { _id }, context) => {
+          await assertCanListenToConversation(context, _id);
+
+          return graphqlPubsub.asyncIterator(
             `conversationClientTypingStatusChanged:${_id}`,
-          ),
+          );
+        },
       },
 
       /*
@@ -386,10 +441,18 @@ export default {
        * Widget is listening for this subscription to show unread notification
        */
       conversationAdminMessageInserted: {
-        subscribe: (_, { customerId }) =>
-          graphqlPubsub.asyncIterator(
+        subscribe: (_, { customerId }, context) => {
+          if (
+            !context?.user?._id &&
+            (!customerId || context?.widgetSession?.customerId !== customerId)
+          ) {
+            throw new Error('Customer not found');
+          }
+
+          return graphqlPubsub.asyncIterator(
             `conversationAdminMessageInserted:${customerId}`,
-          ),
+          );
+        },
       },
 
       /*

@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-10-21`
+- **Last synchronized:** `2026-10-22`
 
 ## Scope
 
@@ -70,7 +70,7 @@
 - Report screens for the frontline plugin, including the default chart catalogue
   and the saved charts board built on top of it.
 - Automation remote entries under `src/widgets` for facebook, instagram, inbox,
-  discord, mail, knowledgebase, and ticket — trigger forms, action forms, node
+  discord, mail, form, knowledgebase, and ticket — trigger forms, action forms, node
   configuration content, bot management, and execution history renderers.
 - Notification, relation, activity, and floating widgets exposed to the host.
 
@@ -88,6 +88,38 @@
 
 ## Current Capabilities
 
+- Pipeline → Properties has a **Create form** card: a preview of the rows and
+  "Edit layout", which opens the shared `LayoutEditor` drawn like the
+  new-ticket sheet (`TicketCreateFormHeader`/`Footer`, chips via
+  `TicketLayoutChip`) with a **Fields** side panel
+  (`TicketLayoutFieldsPanel`). In the panel the checkbox puts a field on this
+  pipeline's form; "Turn on" and the Required switch edit the Settings →
+  Properties rules in place (`frontlineTicketSystemFieldEdit` /
+  `frontlineTicketFieldEdit`), so nothing needs a page switch; "New property"
+  opens `PropertyAddSheet` and places the new field turned on. Fields saved
+  with a type the form cannot render are flagged "Unsupported type" and never
+  shown. A placed field that Settings → Properties hides on detail
+  (`isVisible: false`) gets a "Hidden in detail" badge; the editor never
+  changes that rule. Reset clears the layout back to
+  `DEFAULT_TICKET_CREATE_LAYOUT`. It is the only card on the page; there is no
+  detail selection.
+- Tickets sidebar channel and pipeline rows show a hover ⚙ link to their
+  settings (channel detail / pipeline General tab), and the new-ticket footer
+  shows "Edit form" to the selected pipeline's Properties tab. Both appear
+  only when `useCanManageChannels` allows the channel: owner, or the
+  channel's `admin` member — the rule `channelUpdate`, `updatePipeline` and
+  `removePipeline` enforce.
+- The new-ticket sheet renders name, channel/pipeline/status and description
+  fixed, and the selected pipeline's `createLayout` rows between them
+  (`useTicketCreateLayout`): system chips via `TicketCreateSystemField`,
+  properties via `PropertyFormField`. Property logic hides cells; required
+  system fields, properties and description block Save with a toast and a red
+  ring. Only shown properties are sent as `propertiesData`.
+- The conversation header shows a warning badge "+N same email" when other
+  customers hold exactly the conversation customer's email (primary or listed).
+  Its popover lists them (links to `/contacts/customers?contactId=`) and
+  "Review and merge" opens `/contacts/customers?searchValue=<email>`, where
+  core's existing merge runs. Nothing is merged automatically.
 - AI knowledge source selector (`widgets/automations/modules/knowledgebase`):
   a topic/category tree above the article list. Checking a topic or category
   sends `config.topicIds` / `config.categoryIds` (hand-picked articles move to
@@ -299,11 +331,6 @@
   rows are disjoint — the API keeps survey conversations out of an
   `integrationType`-scoped list.
 
-- Ticket pipeline settings include a Properties route that lists only Core
-  `frontline:ticket` properties, grouped by their Core field group. Checked
-  fields are stored on the pipeline, and ticket detail renders only that
-  pipeline's selected fields. Legacy pipelines continue rendering all fields
-  until their Properties selection is saved for the first time.
 - Ticket detail actions — Archive/Unarchive, Subscribe/Unsubscribe and Delete —
   live in one `Actions` menu (`ticket-detail/TicketDetailActions.tsx`) in the
   ticket sheet header; the fields row carries no actions. The notification
@@ -368,7 +395,9 @@
   `EM_SETTINGS_SCHEMA`. `EMStateValues.ts` emits it on
   `messengerData.isSupportInAppView` through `integrationsSaveMessengerConfigs`
   and `EMSetupSetAtom.ts` reads it back for the edit flow; the API input field
-  must exist for the save to succeed.
+  must exist for the save to succeed. There is no "notify customer" switch:
+  messenger replies are never emailed, so `notifyCustomer` was removed from
+  the UI and the `IntegrationMessengerData` input.
 - The messenger save mutations (`SAVE_EM_CONFIGS_MUTATION`,
   `SAVE_EM_APPEARANCE_MUTATION`) send only `_id`, `brandId` and their payload.
   The channel goes through `integrationsCreateMessengerIntegration` /
@@ -428,6 +457,19 @@
   pipelines, and response templates.
 - Renders plugin-specific automation trigger/action forms selected by node type
   in each module's `*RemoteEntry.tsx`.
+- The **Form submitted** trigger form (`widgets/automations/modules/form`)
+  picks a channel, then a form from that channel, then optional field
+  condition rows (field · operator · value) joined by Match all / Match any.
+  Operators come from `ui-modules` `AUTOMATION_CONDITION_OPERATORS`; a field
+  with options offers them as the value, and unary operators hide the value.
+  Changing the channel or form clears the rows, because field ids belong to
+  one form.
+  The form's answers appear in the builder's Variables panel as **Form
+  answers**, which `frontline_api` lists from the saved trigger config; no UI
+  code here builds them.
+  In execution history the run's name links to the form's submissions
+  (`/frontline/forms/submissions/:formId`), the customer and the
+  conversation (`FormHistoryName`).
 - The Create ticket action's Priority, Assignee and placement can be made
   conditional: rows of conditions each with their own value, plus an Otherwise.
   Placement (channel, pipeline, status) is one conditional over all three keys,
@@ -537,6 +579,17 @@
   integration of that channel with kind, Facebook page names and health —
   broken first, archived last — plus a Repair button on broken rows and the
   full row action menu, without leaving the list.
+- The erxes Messenger setup keeps its six steps; their labelled progress
+  segments jump to any step (`IntegrationSteps` `onStepClick`), and an edit can
+  be saved from every step (`useEMEditSave`). The Config step puts name and
+  brand on top and Bot / Ticket / Knowledge base in tabs: Bot lists the
+  automations whose `frontline:inbox.messages` trigger names this integration
+  and opens a seeded builder in a new tab; Ticket and Knowledge base create a
+  ticket config or topic in place when none exists, then select it.
+- The messenger setup preview walks the widget's ticket flow over the picked
+  configs (`EMPreviewTicketFlow`): start, choose a config when there are
+  several, then its form with the config's labels, placeholders and required
+  marks. Submit stays disabled; the preview sends nothing.
 - Facebook pages show as `FacebookPageLink` (avatar from the public Graph
   picture URL, name, opens `facebook.com/<pageId>` in a new tab): the `Page`
   first column of the Facebook messenger/post integration tables, the channel peek,
@@ -1013,6 +1066,29 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
 
 ## Local Invariants
 
+- Preview iframes load plugin routes with `?inPreview=true` (messenger
+  `settings/channels/erxes-messenger-preview`, `settings/forms/form-preview`,
+  `forms/preview`). `FrontlineSettingsLayout` and `IntegrationsMain` render
+  their children without `AppLayout` when that flag is set, matching core's
+  `DefaultLayout`; a new layout wrapper must honor it too.
+- `TICKET_CREATE_LAYOUT_SYSTEM_CODES` in `modules/ticket/constants/createLayout.ts`
+  mirrors the backend list; a code added on one side must be added on the
+  other and get a renderer in `TicketCreateSystemField`.
+- The ticket detail's Properties tab (`TicketPipelineProperties`) is
+  Settings → Properties as is: every property with `isVisible !== false`, in
+  its own group. The pipeline and its create layout never move or hide a
+  field there, so a field has one home whatever the pipeline.
+- A create-form cell shows only when Settings → Properties allows it on create
+  (`useSystemFieldRules(..., 'create')` / `field.isVisibleToCreate`), whatever
+  the pipeline layout says.
+- `inboxCustomersSharingEmail` uses core `customers(searchValue)`, which is a
+  fuzzy search; `useCustomersSharingEmail` must keep only exact,
+  case-insensitive matches on `primaryEmail`/`emails` and drop the current
+  customer. `conversationDetail.customer` carries `emails` for this, because
+  widget-typed emails held by another customer are never made primary.
+- `usePipelineConfigForm` and `SelectTicketConfig` take the channel (and
+  pipeline) from their caller first and the route only as a fallback; hosts
+  outside the pipeline pages must pass them.
 - Integration row actions live in `IntegrationActionsMenu({ integration })`
   and read the kind from `integration.kind`, never from the route; action and
   repair components take `integration`, not a table `cell`. Erxes messenger,
@@ -1976,6 +2052,10 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 - New user-visible strings go through `useTranslation('frontline')` with keys
   added to both `en` and `mn` gateway-owned locale files; that is a
   repository-level change and must be requested explicitly.
+- Translated modules scope their keys with a `keyPrefix` matching the module
+  (`modules.integrations`, `modules.helpcenter`, `widgets.automations-mail`, …)
+  and call `t('key')` without inline English defaults; every key used under a
+  prefix must exist in both `en` and `mn` under the same path.
 - Ticket tag selectors must go through `SelectTagsTicket`
   (`src/modules/ticket/components/ticket-selects/SelectTagsTicket.tsx`), never
   `TagsSelect.SelectedList` directly — the shared component chains every
@@ -2288,7 +2368,7 @@ null }`, fall back to the route pipeline and skip without one; never pass
   `GetTicketPipelines` list row and `IPipelineDetail` is
   `getTicketPipeline`. Only the detail selects `userId`, `visibility` and
   `memberIds`, so `useTicketPermissions` takes an `IPipelineDetail` from
-  `useGetPipeline`. Pipeline id lists (`propertyIds`, `memberIds`,
+  `useGetPipeline`. Pipeline id lists (`memberIds`, `departmentIds`,
   `excludeCheckUserIds`, …) are `[String]` in the SDL; read them with
   `compactList`. `IConfig` is a `TicketConfigs` row and
   `ITicketConfigDetail` is `ticketConfigDetail`; `ConfigsForm` turns a

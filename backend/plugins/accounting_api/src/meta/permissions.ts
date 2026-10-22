@@ -76,6 +76,18 @@ const SAFE_REMAINDER_ACTIONS = {
   viewItemCounts: 'viewSafeRemainderItemCounts',
 } as const;
 
+const JOB_ACTIONS = {
+  read: 'readJobs',
+  manage: 'manageJobs',
+  remove: 'removeJobs',
+} as const;
+
+const JOB_EXECUTION_ACTIONS = {
+  read: 'readJobExecutions',
+  manage: 'manageJobExecutions',
+  remove: 'removeJobExecutions',
+} as const;
+
 const CONFIG_ACTIONS = {
   read: 'readAccountingConfigs',
   manage: 'manageAccountingConfigs',
@@ -105,6 +117,8 @@ const allAdjFundRateActions = Object.values(ADJ_FUND_RATE_ACTIONS);
 const allAdjDebtRateActions = Object.values(ADJ_DEBT_RATE_ACTIONS);
 const allAdjClosingActions = Object.values(ADJ_CLOSING_ACTIONS);
 const allSafeRemainderActions = Object.values(SAFE_REMAINDER_ACTIONS);
+const allJobActions = Object.values(JOB_ACTIONS);
+const allJobExecutionActions = Object.values(JOB_EXECUTION_ACTIONS);
 const allConfigActions = Object.values(CONFIG_ACTIONS);
 const allCheckSyncActions = Object.values(CHECK_SYNC_ACTIONS);
 const allPermissionActions = Object.values(ACCOUNT_PERMISSION_ACTIONS);
@@ -509,6 +523,55 @@ export const permissions: IPermissionConfig = {
         },
       ],
     },
+    {
+      name: 'jobExecution',
+      description: 'Inventory job executions',
+      scopes: [{ name: 'all', description: 'All job executions' }],
+      actions: [
+        {
+          title: 'View job executions',
+          name: JOB_EXECUTION_ACTIONS.read,
+          description: 'View job executions',
+          always: true,
+        },
+        {
+          title: 'Manage job executions',
+          name: JOB_EXECUTION_ACTIONS.manage,
+          description: 'Create, edit, post and undo job executions',
+        },
+        {
+          title: 'Remove job executions',
+          name: JOB_EXECUTION_ACTIONS.remove,
+          description: 'Delete draft job executions',
+        },
+      ],
+    },
+    {
+      name: 'job',
+      description: 'Inventory job management',
+      scopes: [
+        { name: 'own', description: 'Jobs created by the user' },
+        { name: 'all', description: 'All jobs' },
+      ],
+      actions: [
+        {
+          title: 'View jobs',
+          name: JOB_ACTIONS.read,
+          description: 'View inventory jobs',
+          always: true,
+        },
+        {
+          title: 'Manage jobs',
+          name: JOB_ACTIONS.manage,
+          description: 'Create and update inventory jobs',
+        },
+        {
+          title: 'Remove jobs',
+          name: JOB_ACTIONS.remove,
+          description: 'Delete inventory jobs',
+        },
+      ],
+    },
     // --- config---
     {
       name: 'config',
@@ -621,6 +684,18 @@ export const permissions: IPermissionConfig = {
         },
         {
           plugin: 'accounting',
+          module: 'job',
+          actions: [...allJobActions],
+          scope: 'all',
+        },
+        {
+          plugin: 'accounting',
+          module: 'jobExecution',
+          actions: [...allJobExecutionActions],
+          scope: 'all',
+        },
+        {
+          plugin: 'accounting',
           module: 'config',
           actions: [...allConfigActions],
           scope: 'all',
@@ -702,6 +777,18 @@ export const permissions: IPermissionConfig = {
           plugin: 'accounting',
           module: 'safeRemainder',
           actions: [SAFE_REMAINDER_ACTIONS.read],
+          scope: 'all',
+        },
+        {
+          plugin: 'accounting',
+          module: 'job',
+          actions: [JOB_ACTIONS.read],
+          scope: 'all',
+        },
+        {
+          plugin: 'accounting',
+          module: 'jobExecution',
+          actions: [JOB_EXECUTION_ACTIONS.read],
           scope: 'all',
         },
         {
