@@ -1,6 +1,6 @@
 import { DefaultChatTransport } from 'ai';
 import { getAgentsApprovalDecision } from './approvalDecisions';
-import type { ChatTransport, UIMessage, UIMessageChunk } from 'ai';
+import type { ChatTransport, UIMessageChunk } from 'ai';
 
 import {
   AGENTS_ANSWER_URL,
@@ -9,6 +9,7 @@ import {
   AGENTS_CHAT_URL,
 } from './api';
 import type { IAgentsNavigationEntry } from './utils/navigationCatalog';
+import type { AgentsUIMessage } from './types';
 
 /** Header the backend stamps with the resolved thread id on every chat SSE. */
 const THREAD_ID_HEADER = 'X-Agents-Thread-Id';
@@ -62,7 +63,7 @@ export interface IAgentsChatTransportOptions {
    */
   onActiveRunId: (runId: string | undefined) => void;
   /** Receives the SDK-assigned user message before request dispatch. */
-  onPendingMessage?: (message: UIMessage) => void;
+  onPendingMessage?: (message: AgentsUIMessage) => void;
   /**
    * Returns the ask_user answer awaiting submission, if any. The transport
    * consumes it exactly once in `sendMessages` — which the hook triggers
@@ -126,12 +127,12 @@ const selectionToBody = (
  *   endpoint instead of re-running the whole transcript.
  */
 export class AgentsChatTransport
-  extends DefaultChatTransport<UIMessage>
-  implements ChatTransport<UIMessage>
+  extends DefaultChatTransport<AgentsUIMessage>
+  implements ChatTransport<AgentsUIMessage>
 {
   readonly resumeStreamIsReplay = true;
 
-  private readonly onPendingMessage?: (message: UIMessage) => void;
+  private readonly onPendingMessage?: (message: AgentsUIMessage) => void;
 
   private readonly getThreadId: () => string | undefined;
 
@@ -239,7 +240,7 @@ export class AgentsChatTransport
   }
 
   async sendMessages(
-    options: Parameters<ChatTransport<UIMessage>['sendMessages']>[0],
+    options: Parameters<ChatTransport<AgentsUIMessage>['sendMessages']>[0],
   ): Promise<ReadableStream<UIMessageChunk>> {
     // An ask_user answer travels as a normal send: the hook stages the answer
     // and sends a user message carrying it, and this branch reroutes that one

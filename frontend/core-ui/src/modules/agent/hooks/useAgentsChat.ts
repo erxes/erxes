@@ -1,6 +1,5 @@
 import { isToolUIPart } from 'ai';
 import { hasAgentsApprovalDecision } from '../approvalDecisions';
-import type { UIMessage } from 'ai';
 import { Chat, useChat } from '@ai-sdk/react';
 import { useLazyQuery } from '@apollo/client';
 import { useSetAtom } from 'jotai';
@@ -13,7 +12,6 @@ import {
   readAskUserQuestionsFromInput,
 } from '../askUserAnswers';
 import type { IAskUserQuestionEntry } from '../components/AskUserPrompt';
-import { mapStoredMessagesToUIMessages } from '../mapStoredMessages';
 import { extractPageContext } from '../utils/pageContext';
 import { useNavigationCatalog } from './useNavigationCatalog';
 import { agentNavigationCatalogState } from '../states/agentNavigationCatalogState';
@@ -29,6 +27,8 @@ import {
   restoreInFlightTurn,
   type IInFlightTurn,
 } from '../inFlightPrompt';
+import { withUserDisplayText } from '../utils/messages';
+import type { AgentsUIMessage } from '../types';
 
 /** Thinking depth selectable per turn in the chat UI. */
 export type IAgentsThinkingLevel =
@@ -173,30 +173,21 @@ const readInFlightPrompt = (threadId: string): IInFlightTurn | undefined => {
  * message's tool part is keyed by, plus the questions being asked.
  */
 const findAskUserSuspension = (
-  message: UIMessage | undefined,
+  message: AgentsUIMessage | undefined,
 ): { toolCallId: string; questions: IAskUserQuestionEntry[] } | null => {
   if (!message || message.role !== 'assistant') {
     return null;
   }
 
   for (const part of message.parts) {
-    const typed = part as {
-      type: string;
-      data?: {
-        toolName?: string;
-        toolCallId?: string;
-        suspendPayload?: unknown;
-      };
-    };
-
     if (
-      typed.type === 'data-tool-call-suspended' &&
-      typed.data?.toolName === 'askUser' &&
-      typed.data.toolCallId
+      part.type === 'data-tool-call-suspended' &&
+      part.data.toolName === 'askUser' &&
+      part.data.toolCallId
     ) {
       return {
-        toolCallId: typed.data.toolCallId,
-        questions: readAskUserQuestionsFromInput(typed.data.suspendPayload),
+        toolCallId: part.data.toolCallId,
+        questions: readAskUserQuestionsFromInput(part.data.suspendPayload),
       };
     }
   }
@@ -211,18 +202,16 @@ const findAskUserSuspension = (
  * parts are already decided and do not count.
  */
 export const messageHasPendingSuspension = (
-  message: UIMessage | undefined,
+  message: AgentsUIMessage | undefined,
 ): boolean => {
   if (!message || message.role !== 'assistant') {
     return false;
   }
 
   for (const part of message.parts) {
-    const typed = part as { type: string; data?: { toolName?: string } };
-
     if (
-      typed.type === 'data-tool-call-suspended' &&
-      typed.data?.toolName === 'askUser'
+      part.type === 'data-tool-call-suspended' &&
+      part.data.toolName === 'askUser'
     ) {
       return true;
     }
@@ -236,17 +225,17 @@ export const messageHasPendingSuspension = (
 };
 
 export interface IUseAgentsChatResult {
-  messages: UIMessage[];
-  status: ReturnType<typeof useChat<UIMessage>>['status'];
+  messages: AgentsUIMessage[];
+  status: ReturnType<typeof useChat<AgentsUIMessage>>['status'];
   error: Error | undefined;
   threadId: string | undefined;
   loadingThread: boolean;
-  sendMessage: ReturnType<typeof useChat<UIMessage>>['sendMessage'];
+  sendMessage: ReturnType<typeof useChat<AgentsUIMessage>>['sendMessage'];
   addToolApprovalResponse: ReturnType<
-    typeof useChat<UIMessage>
+    typeof useChat<AgentsUIMessage>
   >['addToolApprovalResponse'];
-  stop: ReturnType<typeof useChat<UIMessage>>['stop'];
-  clearError: ReturnType<typeof useChat<UIMessage>>['clearError'];
+  stop: ReturnType<typeof useChat<AgentsUIMessage>>['stop'];
+  clearError: ReturnType<typeof useChat<AgentsUIMessage>>['clearError'];
   /** Starts a fresh conversation, dropping the local transcript and thread. */
   startNewConversation: () => Promise<void>;
   /** Loads an existing thread's stored messages into the chat. */
@@ -348,9 +337,9 @@ export const useAgentsChat = (options?: {
    */
   const pendingAnswerRef = useRef<IPendingAnswer | undefined>(undefined);
   const pendingEditRef = useRef<
-    { messages: UIMessage[]; selection: number; messageId: string } | undefined
+    { messages: AgentsUIMessage[]; selection: number; messageId: string } | undefined
   >(undefined);
-  const restoreEditRef = useRef<(messages: UIMessage[]) => void>(
+  const restoreEditRef = useRef<(messages: AgentsUIMessage[]) => void>(
     () => undefined,
   );
 
@@ -438,7 +427,7 @@ export const useAgentsChat = (options?: {
   // preserved. useChat's internal transport wrapper forwards only methods.
   const sdkChat = useMemo(
     () =>
-      new Chat<UIMessage>({
+      new Chat<AgentsUIMessage>({
         transport,
         sendAutomaticallyWhen: hasAgentsApprovalDecision,
         onFinish: ({ message, isAbort, isDisconnect }) => {
@@ -470,7 +459,7 @@ export const useAgentsChat = (options?: {
     addToolApprovalResponse,
     resumeStream: sdkResumeStream,
     regenerate,
-  } = useChat<UIMessage>({ chat: sdkChat, throttle: 50 });
+  } = useChat<AgentsUIMessage>({ chat: sdkChat, throttle: 50 });
 
   // The SDK methods above are bound to a stable internal chat instance, so
   // they keep their identity across renders; the mutable values below are
@@ -632,7 +621,7 @@ export const useAgentsChat = (options?: {
           }
 
           return part;
-        }) as UIMessage['parts'];
+        }) as AgentsUIMessage['parts'];
 
         setMessages([
           ...currentMessages.slice(0, -1),
@@ -701,7 +690,7 @@ export const useAgentsChat = (options?: {
         threadIdRef.current = nextThreadId;
         setThreadId(nextThreadId);
         writeSelectedThreadId(sessionScope, nextThreadId);
-        const mappedMessages = mapStoredMessagesToUIMessages(detail.messages);
+        const mappedMessages = withUserDisplayText(detail.messages);
 
         // Restore any stored active run id for this thread via the
         // setter so canReconnect updates reactively.
@@ -786,7 +775,7 @@ export const useAgentsChat = (options?: {
                   return mappedMessages.length;
                 }
 
-                setMessages(mapStoredMessagesToUIMessages(refetchedMessages));
+                setMessages(withUserDisplayText(refetchedMessages));
 
                 return refetchedMessages.length;
               };

@@ -5,7 +5,6 @@ import {
   createAgentReferenceRegistry,
   readAgentReferenceEvidence,
 } from '../references/referenceRegistry';
-import { mapStoredMessagesToUIMessages } from '../mapStoredMessages';
 import { maskAgentReferences } from '../references/maskAgentReferences';
 import { buildThreadMarkdown } from '../utils/exportThreadMarkdown';
 const handle = 'e626782b-5d90-494b-a2d6-bf2140295c64';
@@ -87,27 +86,21 @@ it('scopes evidence to its actual position and restores it from persisted tool o
   const scopes = buildAgentReferenceScopes([before, toolMessage()]);
   expect(scopes[0].byHandle.size).toBe(0);
   expect(scopes[1].byHandle.get(handle)?.label).toBe('Actual customer');
-  const restored = mapStoredMessagesToUIMessages([
+  const restored: UIMessage[] = [
     {
       id: 'stored',
       role: 'assistant',
-      content: {
-        format: 2,
-        parts: [
-          {
-            type: 'tool-invocation',
-            toolInvocation: {
-              toolCallId: 'call',
-              toolName: 'callGraphql',
-              state: 'result',
-              args: {},
-              result: output,
-            },
-          },
-        ],
-      },
+      parts: [
+        {
+          type: 'tool-callGraphql',
+          toolCallId: 'call',
+          state: 'output-available',
+          input: {},
+          output,
+        },
+      ],
     },
-  ]);
+  ];
   expect(
     buildAgentReferenceScopes(restored)[0].byHandle.get(handle),
   ).toMatchObject({ id: 'actual-id', label: 'Actual customer' });

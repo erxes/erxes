@@ -7,7 +7,7 @@ import {
   mimeFromFile,
   readAgentsFilesPart,
 } from '../agentsFiles';
-import { mapStoredMessagesToUIMessages } from '../mapStoredMessages';
+import { withUserDisplayText } from '../utils/messages';
 
 const file = {
   name: 'products.csv',
@@ -38,21 +38,18 @@ describe('data-agents-files parts', () => {
         contentsNotRead: false,
       },
     };
-    const mapped = mapStoredMessagesToUIMessages([
+    const mapped = withUserDisplayText([
       {
         id: 'm1',
         role: 'user',
-        createdAt: '2026-09-07T00:00:00.000Z',
-        content: {
-          format: 2,
-          parts: [
-            {
-              type: 'text',
-              text: 'Add these products plus extracted CSV contents',
-            },
-            part,
-          ],
-        },
+        metadata: { createdAt: '2026-09-07T00:00:00.000Z' },
+        parts: [
+          {
+            type: 'text',
+            text: 'Add these products plus extracted CSV contents',
+          },
+          part,
+        ],
       },
     ]);
     expect(mapped[0].parts[0]).toEqual({

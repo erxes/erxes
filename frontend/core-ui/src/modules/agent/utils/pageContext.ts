@@ -1,10 +1,9 @@
-import type { UIMessage } from 'ai';
-
 import {
   AGENT_REFERENCE_TYPES,
   AGENT_REFERENCE_ID_RE,
   type TAgentReferenceType,
 } from '../references/parseAgentReferences';
+import type { AgentsUIMessage } from '../types';
 
 export const AGENT_PAGE_CONTEXT_PREFIX = '[Page context]';
 
@@ -20,8 +19,8 @@ export interface IAgentPageContext {
  * returned so it can render as a small chip under the bubble instead.
  */
 export const extractPageContext = (
-  parts: UIMessage['parts'],
-): { context: IAgentPageContext | null; parts: UIMessage['parts'] } => {
+  parts: AgentsUIMessage['parts'],
+): { context: IAgentPageContext | null; parts: AgentsUIMessage['parts'] } => {
   const first = parts[0];
 
   if (

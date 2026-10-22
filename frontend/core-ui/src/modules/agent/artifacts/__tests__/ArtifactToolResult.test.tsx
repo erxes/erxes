@@ -2,7 +2,8 @@
 import { render, screen } from '@testing-library/react';
 import { ArtifactToolResult } from '../ArtifactToolResult';
 import { readArtifactResult } from '../artifactResult';
-import { mapStoredMessagesToUIMessages } from '../../mapStoredMessages';
+import { getToolName, isToolUIPart } from 'ai';
+import type { AgentsUIMessage } from '../../types';
 import { groupAgentWorkSteps } from '../../utils/agentWorkSteps';
 
 jest.mock('../HtmlPreview', () => ({
@@ -77,43 +78,41 @@ it.each(['output-error', 'output-denied'])(
 );
 
 it('preserves a structured artifact after history reload and keeps it out of work steps', () => {
-  const messages = mapStoredMessagesToUIMessages(
-    JSON.parse(
-      JSON.stringify([
-        {
-          id: 'message-1',
-          role: 'assistant',
-          content: {
-            format: 2,
-            parts: [
-              {
-                type: 'tool-invocation',
-                toolInvocation: {
-                  toolName: 'createArtifact',
-                  toolCallId: 'file-1',
-                  state: 'result',
-                  args: output.artifact,
-                  result: output,
-                },
-              },
-            ],
+  // The shape agentsThreadDetail returns: toAISdkMessages on the server.
+  const messages: AgentsUIMessage[] = JSON.parse(
+    JSON.stringify([
+      {
+        id: 'message-1',
+        role: 'assistant',
+        parts: [
+          {
+            type: 'tool-createArtifact',
+            toolCallId: 'file-1',
+            state: 'output-available',
+            input: output.artifact,
+            output,
           },
-        },
-      ]),
-    ),
+        ],
+      },
+    ]),
   );
   const items = groupAgentWorkSteps(messages[0].parts);
   expect(items).toHaveLength(1);
   expect(items[0].kind).toBe('part');
-  expect(messages[0].parts[0]).toMatchObject({
-    type: 'dynamic-tool',
-    toolName: 'createArtifact',
-    state: 'output-available',
-    output,
-  });
   const part = messages[0].parts[0];
-  if (part.type !== 'dynamic-tool') throw new Error('Expected tool part');
-  render(<ArtifactToolResult tool={part} />);
+  if (!isToolUIPart(part)) throw new Error('Expected tool part');
+  expect(getToolName(part)).toBe('createArtifact');
+  render(
+    <ArtifactToolResult
+      tool={{
+        toolCallId: part.toolCallId,
+        toolName: getToolName(part),
+        state: part.state,
+        input: part.input,
+        output: part.state === 'output-available' ? part.output : undefined,
+      }}
+    />,
+  );
   expect(
     screen.getByRole('button', { name: 'Download artifact' }),
   ).toBeTruthy();

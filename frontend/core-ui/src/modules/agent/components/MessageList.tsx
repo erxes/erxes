@@ -3,7 +3,7 @@ import {
   useAgentReferenceRegistry,
 } from '../references/AgentReferenceScope';
 import { buildAgentReferenceScopes } from '../references/referenceRegistry';
-import { isTextUIPart, isToolUIPart, type UIMessage } from 'ai';
+import { isTextUIPart, isToolUIPart } from 'ai';
 import { Button, ScrollArea, Skeleton, Tooltip, cn } from 'erxes-ui';
 import {
   Fragment,
@@ -44,9 +44,10 @@ import {
 import { buildTranscriptRows } from '../utils/transcriptRows';
 import { UserMessage } from './UserMessage';
 import { AgentMessageIdentity } from './AgentMessageIdentity';
+import type { AgentsUIMessage } from '../types';
 
 export interface IMessageListProps {
-  messages: UIMessage[];
+  messages: AgentsUIMessage[];
   /** Transcript column width preset; defaults to 'standard'. */
   width?: AgentChatWidth;
   status: string;
@@ -75,14 +76,8 @@ const NEAR_BOTTOM_THRESHOLD = 120;
  * server) as an epoch-ms timestamp. Live-streamed messages carry no
  * metadata; those silently yield `null`.
  */
-const getMessageCreatedAt = (message: UIMessage): number | null => {
-  const { metadata } = message;
-
-  if (!metadata || typeof metadata !== 'object' || Array.isArray(metadata)) {
-    return null;
-  }
-
-  const { createdAt } = metadata as { createdAt?: unknown };
+const getMessageCreatedAt = (message: AgentsUIMessage): number | null => {
+  const createdAt = message.metadata?.createdAt;
 
   if (typeof createdAt !== 'string') {
     return null;
@@ -107,8 +102,8 @@ const formatTimestamp = (timestamp: number): string =>
  * so the assistant turns they sit between merge into one row.
  */
 const isHiddenTurn = (
-  message: UIMessage,
-  previousMessage: UIMessage | undefined,
+  message: AgentsUIMessage,
+  previousMessage: AgentsUIMessage | undefined,
 ): boolean => {
   if (message.role !== 'user') {
     return false;
@@ -143,8 +138,8 @@ const isHiddenTurn = (
 };
 
 interface IMessageRowProps {
-  message: UIMessage;
-  previousMessage: UIMessage | undefined;
+  message: AgentsUIMessage;
+  previousMessage: AgentsUIMessage | undefined;
   /** True for the last message while a run is in flight. */
   isStreamingTail: boolean;
   /** Last assistant message in the transcript — gets Regenerate + always-visible actions. */
@@ -168,7 +163,7 @@ interface IMessageRowProps {
 
 /**
  * One transcript row, memoized so settled rows do not re-render on each
- * streamed delta: the AI SDK keeps settled `UIMessage` object identities
+ * streamed delta: the AI SDK keeps settled `AgentsUIMessage` object identities
  * stable across updates, and the row's remaining props (stable callbacks
  * from the surfaces above, the immutable previous message, and a streaming
  * flag that only changes on the tail) do not change either.

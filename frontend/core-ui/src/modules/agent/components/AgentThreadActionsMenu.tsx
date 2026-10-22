@@ -8,13 +8,13 @@ import {
 import { Button, Dialog, DropdownMenu, Input } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { UIMessage } from 'ai';
 
 import { useAgentsThreadActions } from '../hooks/useAgentsThreadActions';
 import {
   buildThreadMarkdown,
   downloadThreadMarkdown,
 } from '../utils/exportThreadMarkdown';
+import type { AgentsUIMessage } from '../types';
 
 const TITLE_MAX_LENGTH = 120;
 
@@ -23,7 +23,7 @@ export interface IAgentThreadActionsMenuProps {
   title: string;
   pinned: boolean;
   /** Current transcript — export stays disabled while it's empty. */
-  messages: UIMessage[];
+  messages: AgentsUIMessage[];
   triggerClassName?: string;
 }
 

@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client';
 
-import type { IAgentsThread, IStoredMessage } from '../types';
+import type { AgentsUIMessage, IAgentsThread } from '../types';
 
 /**
  * GraphQL documents for the agents thread history surface.
@@ -56,12 +56,7 @@ export const AGENTS_THREAD_DETAIL = gql`
         createdAt
         updatedAt
       }
-      messages {
-        id
-        role
-        createdAt
-        content
-      }
+      messages
     }
   }
 `;
@@ -109,7 +104,7 @@ export interface IAgentsThreadsData {
 export interface IAgentsThreadDetailData {
   agentsThreadDetail: {
     thread: IAgentsThread;
-    messages: IStoredMessage[];
+    messages: AgentsUIMessage[];
   } | null;
 }
 

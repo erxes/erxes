@@ -1,18 +1,9 @@
-import type { DynamicToolUIPart, ToolUIPart, UIMessage } from 'ai';
+import { getToolName, isReasoningUIPart, isToolUIPart } from 'ai';
 import { parse } from 'graphql';
 
-import type { ICallToolInput } from '../types';
+import type { AgentsUIMessage, ICallToolInput } from '../types';
 
-type TUIPart = UIMessage['parts'][number];
-
-// Local predicates instead of the `ai` package's is*UIPart helpers: `ai`
-// is ESM-only and the module would pull it into every consumer (including
-// jest, which runs CJS) for three one-line checks.
-const isReasoningPart = (part: TUIPart): part is TUIPart & { text: string } =>
-  part.type === 'reasoning';
-
-const isToolPart = (part: TUIPart): part is DynamicToolUIPart | ToolUIPart =>
-  part.type === 'dynamic-tool' || part.type.startsWith('tool-');
+type TUIPart = AgentsUIMessage['parts'][number];
 
 /** Normalized view of one tool part (live stream or mapped history). */
 export interface IAgentToolStep {
@@ -39,7 +30,7 @@ export type TAgentWorkStep = IAgentReasoningStep | IAgentToolStepEntry;
 
 export type TAgentTranscriptItem =
   | { kind: 'work'; steps: TAgentWorkStep[] }
-  | { kind: 'part'; part: UIMessage['parts'][number]; index: number };
+  | { kind: 'part'; part: AgentsUIMessage['parts'][number]; index: number };
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   Boolean(value) && typeof value === 'object' && !Array.isArray(value);
@@ -128,19 +119,14 @@ export const describeToolCall = (
   return { label: toolName, args: input };
 };
 
-const toolNameOf = (part: TUIPart): string =>
-  'toolName' in part && typeof part.toolName === 'string'
-    ? part.toolName
-    : part.type.slice('tool-'.length);
-
 /**
  * Parts rendered as their own cards — pending approvals and ask_user
  * suspensions/results — are never folded into a work-steps group, so a
  * group stops right before them and they surface on their own.
  */
 const isStandalonePart = (part: TUIPart): boolean => {
-  if (isToolPart(part)) {
-    const name = toolNameOf(part);
+  if (isToolUIPart(part)) {
+    const name = getToolName(part);
 
     return (
       /^ask_?user$/i.test(name) ||
@@ -161,7 +147,7 @@ const isStandalonePart = (part: TUIPart): boolean => {
  * slots so rendering order is preserved.
  */
 export const groupAgentWorkSteps = (
-  parts: UIMessage['parts'],
+  parts: AgentsUIMessage['parts'],
 ): TAgentTranscriptItem[] => {
   const items: TAgentTranscriptItem[] = [];
   let steps: TAgentWorkStep[] = [];
@@ -181,17 +167,17 @@ export const groupAgentWorkSteps = (
       return;
     }
 
-    if (isReasoningPart(part)) {
+    if (isReasoningUIPart(part)) {
       steps.push({ kind: 'reasoning', text: part.text });
       return;
     }
 
-    if (isToolPart(part) && !isStandalonePart(part)) {
+    if (isToolUIPart(part) && !isStandalonePart(part)) {
       steps.push({
         kind: 'tool',
         tool: {
           toolCallId: part.toolCallId,
-          toolName: toolNameOf(part),
+          toolName: getToolName(part),
           state: part.state,
           input: part.input,
           output: 'output' in part ? part.output : undefined,
@@ -332,16 +318,18 @@ export const agentStepLabel = (step: TAgentWorkStep): string => {
 };
 
 /** The newest meaningful part owns the turn's single live activity label. */
-export const agentMessageActivity = (parts: UIMessage['parts']): string => {
+export const agentMessageActivity = (
+  parts: AgentsUIMessage['parts'],
+): string => {
   for (let index = parts.length - 1; index >= 0; index -= 1) {
     const part = parts[index];
     if (part.type === 'text' && 'text' in part && part.text.trim())
       return 'Writing…';
-    if (isReasoningPart(part)) return 'Thinking…';
-    if (!isToolPart(part)) continue;
+    if (isReasoningUIPart(part)) return 'Thinking…';
+    if (!isToolUIPart(part)) continue;
     if (part.state !== 'input-streaming' && part.state !== 'input-available')
       return 'Working…';
-    const name = toolNameOf(part);
+    const name = getToolName(part);
     const input = isRecord(part.input) ? part.input : {};
     switch (name) {
       case 'createArtifact':

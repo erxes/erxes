@@ -120,20 +120,27 @@ export const agentsThreadsQueries = {
       perPage: MAX_PER_PAGE,
     });
 
+    // ESM-only; load it dynamically from CommonJS. Converts stored messages to
+    // the AI SDK v7 UIMessages the chat renders, including pending approvals
+    // and suspended ask_user parts.
+    const { toAISdkMessages } = await import('@mastra/ai-sdk/ui');
+
     return {
       thread: toPublicThread(thread),
-      messages: result.messages.map((message) => ({
-        id: message.id,
-        role: message.role,
-        createdAt: message.createdAt,
-        content:
+      messages: toAISdkMessages(
+        result.messages.map((message) =>
           message.role === 'user' && Array.isArray(message.content.parts)
             ? {
-                ...message.content,
-                parts: migrateLegacyPageSelections(message.content.parts),
+                ...message,
+                content: {
+                  ...message.content,
+                  parts: migrateLegacyPageSelections(message.content.parts),
+                },
               }
-            : message.content,
-      })),
+            : message,
+        ),
+        { version: 'v7' },
+      ),
     };
   },
 };

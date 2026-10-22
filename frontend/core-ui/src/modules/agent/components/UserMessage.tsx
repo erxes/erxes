@@ -4,15 +4,15 @@ import {
   IconCopy,
   IconPencil,
 } from '@tabler/icons-react';
-import type { UIMessage } from 'ai';
 import { Button, Textarea } from 'erxes-ui';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 
 import { extractPageContext } from '../utils/pageContext';
 import { getMessageText } from '../utils/messages';
+import type { AgentsUIMessage } from '../types';
 
 export interface IUserMessageProps {
-  message: UIMessage;
+  message: AgentsUIMessage;
   editing: boolean;
   disabled: boolean;
   onEditingChange: (messageId: string | null) => void;

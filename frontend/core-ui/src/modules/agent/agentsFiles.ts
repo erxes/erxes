@@ -1,4 +1,4 @@
-import type { UIMessage } from 'ai';
+import type { AgentsUIMessage } from './types';
 
 export const AGENTS_FILES_DATA_TYPE = 'data-agents-files';
 export const AGENTS_FILE_MAX_BYTES = 10 * 1024 * 1024;
@@ -62,7 +62,7 @@ export const isAgentsFileMeta = (file: unknown): file is IAgentsFileMeta =>
   file.size <= AGENTS_FILE_MAX_BYTES;
 
 export const readAgentsFilesPart = (
-  part: UIMessage['parts'][number],
+  part: AgentsUIMessage['parts'][number],
 ): IAgentsFileMeta[] => {
   if (!isRecord(part) || part.type !== AGENTS_FILES_DATA_TYPE) {
     return [];
@@ -83,12 +83,14 @@ export const readAgentsFilesPart = (
 
 export const agentsFilesPart = (
   files: IAgentsFileMeta[],
-): UIMessage['parts'][number] => ({
+): AgentsUIMessage['parts'][number] => ({
   type: AGENTS_FILES_DATA_TYPE,
   data: { files },
 });
 
-export const agentsFilesNotice = (part: UIMessage['parts'][number]): string => {
+export const agentsFilesNotice = (
+  part: AgentsUIMessage['parts'][number],
+): string => {
   if (part.type !== AGENTS_FILES_DATA_TYPE || !isRecord(part.data)) {
     return '';
   }
@@ -108,7 +110,7 @@ export const agentsFilesNotice = (part: UIMessage['parts'][number]): string => {
 };
 
 export const agentsFilesDisplayText = (
-  parts: UIMessage['parts'],
+  parts: AgentsUIMessage['parts'],
 ): string | undefined => {
   for (const part of parts) {
     if (
