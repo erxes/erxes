@@ -75,6 +75,33 @@ export type Stored<T> = T & {
 // written as { $regex, $options }.
 export type Filter = Record<string, unknown>;
 
+// Indexes on the extension's own collections, created when a version is
+// activated. Keys are top-level fields, ascending (1) or descending (-1). A
+// unique index makes a write that would duplicate its keys fail with CONFLICT:
+//
+//   export const indexes = defineIndexes({
+//     followUps: [{ keys: { dealId: 1 }, unique: true }],
+//   });
+export type Index<T> = {
+  keys: { [F in keyof T & string]?: 1 | -1 };
+  unique?: boolean;
+};
+
+export type Indexes = Record<
+  string,
+  { keys: Record<string, 1 | -1>; unique?: boolean }[]
+>;
+
+export const defineIndexes = (indexes: {
+  [K in keyof RegisteredSchema]?: Index<z.output<RegisteredSchema[K]>>[];
+}) => indexes;
+
+// With `upsert: true`, `set` is the whole document: it's inserted when the
+// filter matches nothing, so every top-level field of the filter must be one
+// `set` also sets.
+type UpdateOptions = { upsert?: boolean };
+type Upsert = { upsert: true };
+
 export type Collection<T> = {
   find(
     filter?: Filter,
@@ -84,7 +111,12 @@ export type Collection<T> = {
   count(filter?: Filter): Promise<number>;
   insertOne(doc: T): Promise<Stored<T>>;
   // $set only. Returns the updated document, or null when nothing matched.
-  updateOne(filter: Filter, set: Partial<T>): Promise<Stored<T> | null>;
+  // A write a unique index refuses fails with CONFLICT.
+  updateOne<O extends UpdateOptions = Record<never, never>>(
+    filter: Filter,
+    set: O extends Upsert ? T : Partial<T>,
+    options?: O,
+  ): Promise<O extends Upsert ? Stored<T> : Stored<T> | null>;
   deleteOne(filter: Filter): Promise<Stored<T> | null>;
 };
 
@@ -144,7 +176,8 @@ const isFunction = (value: unknown): value is ExtensionFunction =>
   'kind' in value &&
   (value.kind === 'query' || value.kind === 'mutation');
 
-// Reads an extension's server barrel: `schema`, `permissions`, `uses`, plus one namespace per file
+// Reads an extension's server barrel: `schema`, `permissions`, `uses`,
+// `indexes`, plus one namespace per file
 // (`export * as agents from './agents'`). A function's name is its path,
 // `agents.list`.
 export const collectExtension = (mod: Record<string, unknown>) => {
@@ -155,6 +188,7 @@ export const collectExtension = (mod: Record<string, unknown>) => {
       name === 'schema' ||
       name === 'permissions' ||
       name === 'uses' ||
+      name === 'indexes' ||
       name === 'default'
     ) {
       continue;
@@ -174,6 +208,7 @@ export const collectExtension = (mod: Record<string, unknown>) => {
   const schema = (mod.schema ?? {}) as Schema;
   const permissions = (mod.permissions ?? {}) as Permissions;
   const uses = (mod.uses ?? {}) as Record<string, number>;
+  const indexes = (mod.indexes ?? {}) as Indexes;
 
-  return { schema, permissions, uses, functions };
+  return { schema, permissions, uses, indexes, functions };
 };

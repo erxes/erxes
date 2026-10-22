@@ -4,7 +4,7 @@ import { getPlugins } from 'erxes-api-shared/utils';
 import { z } from 'zod';
 import type { IModels } from './connectionResolver';
 import { ApiError } from './errors';
-import { collectionName, dropCollections } from './hostDb';
+import { collectionName, dropCollections, ensureIndexes } from './hostDb';
 import { LIMITS } from './limits';
 import { pluginName, rebuildPermissions } from './permissions';
 import { revokeGrants } from './sandbox';
@@ -14,7 +14,9 @@ export const InstallBody = z.object({
   version: z.string().min(1),
   code: z.string().min(1).max(LIMITS.workerBytes),
   functions: z.array(z.string()),
-  collections: z.array(z.string().regex(/^[a-zA-Z][a-zA-Z0-9_]*$/)),
+  collections: z
+    .array(z.string().regex(/^[a-zA-Z][a-zA-Z0-9_]*$/))
+    .max(LIMITS.maxCollections),
   permissions: z.record(z.string(), z.record(z.string(), z.string())),
   functionPermissions: z.record(z.string(), z.string()),
   // Only contract versions this runtime serves.
@@ -28,6 +30,29 @@ export const InstallBody = z.object({
         ),
       { message: 'pins a host contract version this runtime does not serve' },
     ),
+  // Plain ascending or descending keys on top-level fields, optionally
+  // unique. installBuild checks each names a declared collection and caps
+  // the total.
+  indexes: z
+    .record(
+      z.string(),
+      z.array(
+        z
+          .object({
+            keys: z
+              .record(
+                z.string().regex(/^[a-zA-Z][a-zA-Z0-9_]*$/),
+                z.union([z.literal(1), z.literal(-1)]),
+              )
+              .refine((keys) => Object.keys(keys).length > 0, {
+                message: 'an index needs at least one key',
+              }),
+            unique: z.boolean().optional(),
+          })
+          .strict(),
+      ),
+    )
+    .default({}),
   ui: z
     .object({
       remote: z.string(),
@@ -95,6 +120,10 @@ export const activateVersion = async (
     );
   }
 
+  // Before the pointer moves, so a version whose indexes can't be built never
+  // becomes the active one.
+  await ensureIndexes(models.Extensions.db, extId, build.indexes ?? {});
+
   const previous = await models.Extensions.findById(
     `${tenant}:${extId}`,
   ).lean();
@@ -113,6 +142,7 @@ export const activateVersion = async (
         permissions: build.permissions,
         functionPermissions: build.functionPermissions,
         uses: build.uses ?? {},
+        indexes: build.indexes ?? {},
         status: 'installed',
         installedBy: build.installedBy,
         installedAt: new Date(),
@@ -140,6 +170,27 @@ export const installBuild = async (
 ) => {
   const { id, version, code, ui } = body;
   const _id = `${tenant}:${id}@${version}`;
+  const strays = Object.keys(body.indexes).filter(
+    (name) => !body.collections.includes(name),
+  );
+
+  const indexCount = Object.values(body.indexes).flat().length;
+
+  if (indexCount > LIMITS.maxIndexes) {
+    throw new ApiError(
+      400,
+      'INVALID_INPUT',
+      `${id} declares ${indexCount} indexes; at most ${LIMITS.maxIndexes} are allowed`,
+    );
+  }
+
+  if (strays.length > 0) {
+    throw new ApiError(
+      400,
+      'INVALID_INPUT',
+      `indexes name collections ${id} doesn't declare: ${strays.join(', ')}`,
+    );
+  }
   const existing = await models.ExtensionVersions.findById(_id).lean();
 
   if (existing) {
@@ -192,6 +243,7 @@ export const installBuild = async (
     permissions: body.permissions,
     functionPermissions: body.functionPermissions,
     uses: body.uses,
+    indexes: body.indexes,
     uiRemote: ui?.remote,
     installedBy: userId,
   });

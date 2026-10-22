@@ -5,6 +5,7 @@ import {
   extensionTenant,
   type PermissionUser,
 } from 'erxes-api-shared/core-modules';
+import { contracts } from 'erxes-sdk';
 import { getSubdomain, redis } from 'erxes-api-shared/utils';
 import {
   Hono,
@@ -19,7 +20,13 @@ import { z } from 'zod';
 import { generateModels } from './connectionResolver';
 import { gatewayUpstream, HostCallRequest, runContractCall } from './contracts';
 import { ApiError, invalidInput } from './errors';
-import { HostDbRequest, parseDbOp, runDbOp } from './hostDb';
+import {
+  conflict,
+  HostDbRequest,
+  isDuplicateKey,
+  parseDbOp,
+  runDbOp,
+} from './hostDb';
 import {
   activateVersion,
   InstallBody,
@@ -193,6 +200,7 @@ const maxBody = (maxSize: number) =>
 // are its own failures: 422.
 const STATUS_BY_CODE = new Map<string, ApiError['status']>([
   ['INVALID_INPUT', 400],
+  ['CONFLICT', 409],
   ['RESULT_TOO_LARGE', 413],
   ['SANDBOX_RESTARTED', 503],
   ['TIMEOUT', 504],
@@ -331,6 +339,26 @@ export const app = new Hono<Env>()
 
   // ---- Install and lifecycle, owner only.
 
+  // The host contracts this runtime serves, for the install-approval dialog:
+  // names, kinds and descriptions, never schemas. Read from the same objects
+  // calls are checked against, so it can't drift from what runs.
+  .get('/contracts', signedIn, owner, (c) =>
+    c.json({
+      ok: true as const,
+      data: Object.values(contracts).flatMap((versions) =>
+        Object.values(versions).map(({ host, version, entries }) => ({
+          host,
+          version,
+          entries: entries.map(({ name, kind, description }) => ({
+            name,
+            kind,
+            description,
+          })),
+        })),
+      ),
+    }),
+  )
+
   .get('/installed', signedIn, owner, async (c) => {
     const { tenant } = c.get('caller');
     const models = await generateModels(tenant);
@@ -460,19 +488,21 @@ export const hostApp = new Hono()
 
       const call = parseDbOp(request);
       const models = await generateModels(grant.tenant);
-      // A duplicate key or a bad value is the extension's mistake: hand it the
-      // driver's message.
+      // A duplicate key arrives as CONFLICT. Any other driver error, a bad
+      // value say, is the extension's mistake: hand it the driver's message.
       const data = await runDbOp(
         models.Extensions.db,
         grant.extId,
         request.collection,
         call,
       ).catch((e: unknown) => {
-        throw new ApiError(
-          400,
-          'DB_ERROR',
-          e instanceof Error ? e.message : String(e),
-        );
+        throw isDuplicateKey(e)
+          ? conflict(request.collection, e.keyValue ?? {})
+          : new ApiError(
+              400,
+              'DB_ERROR',
+              e instanceof Error ? e.message : String(e),
+            );
       });
 
       if (

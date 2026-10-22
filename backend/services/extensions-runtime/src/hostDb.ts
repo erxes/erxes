@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import type { ErrorIssue } from 'erxes-sdk';
+import type { ErrorIssue, Indexes } from 'erxes-sdk';
 import type { Connection } from 'mongoose';
 import { z } from 'zod';
 import { ApiError, invalidInput } from './errors';
@@ -25,7 +25,11 @@ const ops = {
   findOne: z.tuple([json]),
   count: z.tuple([json]),
   insertOne: z.tuple([json]),
-  updateOne: z.tuple([json, json]),
+  updateOne: z.tuple([
+    json,
+    json,
+    z.object({ upsert: z.boolean().optional() }).strict().optional(),
+  ]),
   deleteOne: z.tuple([json]),
 };
 
@@ -167,17 +171,57 @@ export const parseDbOp = ({ op, args }: { op: DbOpName; args: unknown[] }) => {
         doc: plain('The document', parseArgs(ops.insertOne, args)[0]),
       } as const;
     case 'updateOne': {
-      const [query, set] = parseArgs(ops.updateOne, args);
+      const [query, set, { upsert = false } = {}] = parseArgs(
+        ops.updateOne,
+        args,
+      );
+      // Mongo inserts the filter's equality fields too. Each one being a field
+      // of `set` means the inserted document is `set`, which the worker
+      // validated as a whole.
+      // Own keys only: `in` would also accept `constructor` or `toString`.
+      // (Object.hasOwn is ES2022; this project's lib stops at ES2021.)
+      const unset = Object.keys(query).filter(
+        (key) => !Object.prototype.hasOwnProperty.call(set, key),
+      );
+
+      if (upsert && unset.length > 0) {
+        throw new ApiError(
+          400,
+          'INVALID_INPUT',
+          `An upsert's filter may only use fields its update sets, not ${unset.join(
+            ', ',
+          )}`,
+          unset.map((key) => ({
+            path: key,
+            message: 'not a field the update sets',
+          })),
+        );
+      }
+
       return {
         op,
         query: filter(query),
         set: plain('The update', set),
+        upsert,
       } as const;
     }
   }
 };
 
 const maxTimeMS = LIMITS.dbMaxTimeMs;
+
+// What a unique index refused, as the extension sees it.
+export const conflict = (collection: string, keyValue: unknown) =>
+  new ApiError(
+    409,
+    'CONFLICT',
+    `${collection} already has a document with ${JSON.stringify(keyValue)}`,
+  );
+
+export const isDuplicateKey = (
+  e: unknown,
+): e is { code: 11000; keyValue?: Record<string, unknown> } =>
+  typeof e === 'object' && e !== null && 'code' in e && e.code === 11000;
 
 export const runDbOp = async (
   db: Connection,
@@ -215,11 +259,78 @@ export const runDbOp = async (
     case 'updateOne':
       return coll.findOneAndUpdate(
         call.query,
-        { $set: { ...call.set, updatedAt: now } },
-        { returnDocument: 'after', maxTimeMS },
+        {
+          $set: { ...call.set, updatedAt: now },
+          ...(call.upsert && {
+            $setOnInsert: { _id: randomUUID(), createdAt: now },
+          }),
+        },
+        { returnDocument: 'after', upsert: call.upsert, maxTimeMS },
       );
     case 'deleteOne':
       return coll.findOneAndDelete(call.query, { maxTimeMS });
+  }
+};
+
+// Creates the indexes a version declares. createIndex is a no-op for an
+// index that already exists as declared, so activating again or rolling back
+// is safe. Indexes an older version declared stay. Fails with INDEX_FAILED
+// when existing documents break a unique index, an index with the same keys
+// exists with other options, or the builds run past LIMITS.indexBuildMs. The
+// caller then keeps the active version, so every index this attempt built is
+// dropped again: the old version must not start refusing writes it accepted.
+export const ensureIndexes = async (
+  db: Connection,
+  extId: string,
+  indexes: Indexes,
+) => {
+  const deadline = Date.now() + LIMITS.indexBuildMs;
+  const created: { collection: string; name: string }[] = [];
+  let current = '';
+
+  try {
+    for (const [collection, list] of Object.entries(indexes)) {
+      const coll = db.collection(collectionName(extId, collection));
+      // A collection that doesn't exist yet has no indexes: NamespaceNotFound.
+      const existing = new Set(
+        (
+          await coll.indexes().catch((e: { code?: number }) => {
+            if (e.code === 26) return [];
+            throw e;
+          })
+        ).map((index) => index.name),
+      );
+
+      for (const { keys, unique = false } of list) {
+        current = `${collection} on ${JSON.stringify(keys)}`;
+        const name = await coll.createIndex(keys, {
+          unique,
+          maxTimeMS: Math.max(1, deadline - Date.now()),
+        });
+
+        if (!existing.has(name)) {
+          existing.add(name);
+          created.push({ collection, name });
+        }
+      }
+    }
+  } catch (e) {
+    for (const { collection, name } of created) {
+      await db
+        .collection(collectionName(extId, collection))
+        .dropIndex(name)
+        .catch((dropError: unknown) =>
+          console.error(`couldn't drop ${extId} index ${name}`, dropError),
+        );
+    }
+
+    throw new ApiError(
+      409,
+      'INDEX_FAILED',
+      `Couldn't index ${current}: ${
+        e instanceof Error ? e.message : String(e)
+      }`,
+    );
   }
 };
 
