@@ -388,12 +388,34 @@ export default class Builder {
     ) {
       throw new TypeError('Invalid conversation date range');
     }
+    if (/^\d{4}-\d{2}-\d{2}$/.test(endDate)) {
+      to.setUTCHours(23, 59, 59, 999);
+    }
     if (from > to) {
       throw new RangeError('Conversation start date must precede the end date');
     }
     return {
       [field]: { $gte: from, $lte: to },
     };
+  }
+
+  private buildDateFilters(): void {
+    const { startDate, endDate, closedAtFrom, closedAtTo } = this.params;
+
+    if (startDate && endDate) {
+      this.queries.createdAt = this.dateFilter(startDate, endDate);
+    }
+
+    if (closedAtFrom || closedAtTo) {
+      if (!closedAtFrom || !closedAtTo) {
+        throw new TypeError('Both conversation resolution dates are required');
+      }
+      this.queries.closedAt = this.dateFilter(
+        closedAtFrom,
+        closedAtTo,
+        'closedAt',
+      );
+    }
   }
 
   public async searchFilter(searchValue: string): Promise<{ $or: object[] }> {
@@ -552,23 +574,7 @@ export default class Builder {
       this.queries.tag = await this.tagFilter(this.params.tag.split(','));
     }
 
-    if (this.params.startDate && this.params.endDate) {
-      this.queries.createdAt = this.dateFilter(
-        this.params.startDate,
-        this.params.endDate,
-      );
-    }
-
-    if (this.params.closedAtFrom || this.params.closedAtTo) {
-      if (!this.params.closedAtFrom || !this.params.closedAtTo) {
-        throw new Error('Both conversation resolution dates are required');
-      }
-      this.queries.closedAt = this.dateFilter(
-        this.params.closedAtFrom,
-        this.params.closedAtTo,
-        'closedAt',
-      );
-    }
+    this.buildDateFilters();
 
     if (this.params.segment) {
       this.queries.segments = await this.segmentFilter(this.params.segment);

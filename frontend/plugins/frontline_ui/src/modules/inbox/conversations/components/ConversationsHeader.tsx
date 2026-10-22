@@ -5,6 +5,7 @@ import { ConversationFilterBar } from '@/inbox/conversations/components/Conversa
 import { useConversationListContext } from '@/inbox/conversations/hooks/useConversationListContext';
 import { useInboxLayout } from '@/inbox/hooks/useInboxLayout';
 import { useTranslation } from 'react-i18next';
+import { useConversationDateFilterTranslation } from '@/inbox/conversations/filterTranslations';
 
 export const ConversationCount = ({ className }: { className?: string }) => {
   const { t } = useTranslation('frontline');
@@ -35,6 +36,7 @@ export const ConversationsHeader = ({
   children: React.ReactNode;
 }) => {
   const inboxLayout = useInboxLayout();
+  const { t: dateT } = useConversationDateFilterTranslation();
 
   return (
     <Filter id="conversations-filter-bar">
@@ -57,10 +59,16 @@ export const ConversationsHeader = ({
             <Filter.DialogStringView filterKey="searchValue" />
           </Filter.View>
           <Filter.View filterKey="created" inDialog>
-            <Filter.DialogDateView filterKey="created" />
+            <Filter.DialogDateView
+              filterKey="created"
+              label={dateT('createdAt')}
+            />
           </Filter.View>
           <Filter.View filterKey="resolved" inDialog>
-            <Filter.DialogDateView filterKey="resolved" label="Resolved at" />
+            <Filter.DialogDateView
+              filterKey="resolved"
+              label={dateT('resolvedAt')}
+            />
           </Filter.View>
         </Filter.Dialog>
       </div>

@@ -45,6 +45,7 @@ import {
 } from '@/inbox/conversations/components/AutomationStatusFilter';
 import { TAutomationStatusFilter } from '@/inbox/constants/automationStatusFilters';
 import { useIntegrationInline } from '@/integrations/hooks/useIntegrations';
+import { useConversationDateFilterTranslation } from '@/inbox/conversations/filterTranslations';
 
 type ConversationFilterQueries = {
   status: ConversationStatus;
@@ -136,6 +137,7 @@ const ConversationFilterCommand = ({
   setQueries: (values: Partial<ConversationFilterQueryValues>) => void;
 }) => {
   const { t } = useTranslation('frontline');
+  const { t: dateT } = useConversationDateFilterTranslation();
   const { setView } = useFilterContext();
   const { status, unassigned, awaitingResponse, participated } = queries;
 
@@ -208,7 +210,7 @@ const ConversationFilterCommand = ({
         <Command.Separator className="my-1" />
         <Filter.Item value="created">
           <IconCalendarPlus />
-          {t('created-at', 'Created at')}
+          {dateT('createdAt')}
         </Filter.Item>
         <Filter.Item
           value="resolved"
@@ -218,7 +220,7 @@ const ConversationFilterCommand = ({
           }}
         >
           <IconCheckbox />
-          {t('resolved-at', 'Resolved at')}
+          {dateT('resolvedAt')}
         </Filter.Item>
       </Command.List>
     </Command>
@@ -226,6 +228,7 @@ const ConversationFilterCommand = ({
 };
 
 export const FilterConversationsPopover = () => {
+  const { t: dateT } = useConversationDateFilterTranslation();
   const [queries, setQueries] = useMultiQueryState<ConversationFilterQueries>([
     'status',
     'unassigned',
@@ -272,10 +275,10 @@ export const FilterConversationsPopover = () => {
         <SelectChannel.FilterView />
         <AutomationStatusFilterView counts={counts} loading={loading} />
         <Filter.View filterKey="created">
-          <Filter.DateView filterKey="created" />
+          <Filter.DateView filterKey="created" label={dateT('createdAt')} />
         </Filter.View>
         <Filter.View filterKey="resolved">
-          <Filter.DateView filterKey="resolved" label="Resolved at" />
+          <Filter.DateView filterKey="resolved" label={dateT('resolvedAt')} />
         </Filter.View>
         <IntegrationTypeFilterView />
       </Combobox.Content>
@@ -291,6 +294,7 @@ export const ConversationFilterBar = ({
   className?: string;
 }) => {
   const { t } = useTranslation('frontline');
+  const { t: dateT } = useConversationDateFilterTranslation();
   const [status] = useQueryState<ConversationStatus>('status');
   const filterStates = useNonNullMultiQueryState<{
     status: ConversationStatus;
@@ -349,17 +353,17 @@ export const ConversationFilterBar = ({
       <Filter.BarItem queryKey="created">
         <Filter.BarName>
           <IconCalendarPlus />
-          {t('created-at', 'Created at')}
+          {dateT('createdAt')}
         </Filter.BarName>
-        <Filter.Date filterKey="created" label="Created at" />
+        <Filter.Date filterKey="created" label={dateT('createdAt')} />
       </Filter.BarItem>
 
       <Filter.BarItem queryKey="resolved">
         <Filter.BarName>
           <IconCheckbox />
-          {t('resolved-at', 'Resolved at')}
+          {dateT('resolvedAt')}
         </Filter.BarName>
-        <Filter.Date filterKey="resolved" label="Resolved at" />
+        <Filter.Date filterKey="resolved" label={dateT('resolvedAt')} />
       </Filter.BarItem>
 
       <Filter.BarItem queryKey="unassigned">
