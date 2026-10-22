@@ -1,4 +1,6 @@
 import { IAppModel, loadAppClass } from '@/apps/db/models/Apps';
+import { credentialsSchema, credentialGrantsSchema } from '@/credentials/db/schemas';
+import type { StoredCredential, StoredCredentialGrant } from '@/credentials/types';
 import { IOAuthClientAppDocument } from '@/auth/db/definitions/oauthClientApps';
 import {
   IOAuthClientAppModel,
@@ -369,6 +371,8 @@ import {
 } from '@/logs/db/models/ActivityLogs';
 
 export interface IModels {
+  Credentials: Model<StoredCredential>;
+  CredentialGrants: Model<StoredCredentialGrant>;
   Brands: IBrandModel;
   Customers: ICustomerModel;
   Companies: ICompanyModel;
@@ -470,6 +474,10 @@ export const loadClasses = (
   ) => (moduleName: string, collectionName: string) => any,
 ): IModels => {
   const models = {} as IModels;
+
+  // Vault models intentionally have no event handlers or full-document hooks.
+  models.Credentials = db.model<StoredCredential>('credentials', credentialsSchema);
+  models.CredentialGrants = db.model<StoredCredentialGrant>('credential_grants', credentialGrantsSchema);
 
   const coreEventHandlers = eventHandlers('core');
 

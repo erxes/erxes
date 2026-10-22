@@ -1,0 +1,11 @@
+{
+  "extends": "../../../../tsconfig.spec.json",
+  "compilerOptions": {
+    "isolatedModules": true,
+    "esModuleInterop": true
+  },
+  "include": [
+    "__tests__/**/*",
+    "../../../../src/providers/credentialPrivacy.test.ts"
+  ]
+}
