@@ -831,7 +831,7 @@ export const useAgentsChat = (options?: {
                 return;
               }
 
-              setMessages(mapStoredMessagesToUIMessages(freshMessages));
+              setMessages(withUserDisplayText(freshMessages));
             })
             .catch(() => {
               // Keep the cached transcript; the next open retries.
