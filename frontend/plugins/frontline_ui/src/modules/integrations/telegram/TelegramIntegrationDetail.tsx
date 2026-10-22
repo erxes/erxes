@@ -1,7 +1,6 @@
 import { useApolloClient, useMutation, useQuery } from '@apollo/client';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IconBrandTelegram, IconSettings } from '@tabler/icons-react';
-import type { CellContext } from '@tanstack/react-table';
 import {
   Button,
   Collapsible,
@@ -58,9 +57,9 @@ type SetupValues = z.infer<ReturnType<typeof getSetupSchema>>;
 
 /** Opens setup for the integration selected in the native integrations table. */
 export const TelegramIntegrationActions = ({
-  cell,
+  integration,
 }: {
-  cell: CellContext<IIntegration, unknown>;
+  integration: IIntegration;
 }) => {
   const setOpen = useSetAtom(telegramSetupState);
   const { t } = useTelegramTranslation();
@@ -68,7 +67,7 @@ export const TelegramIntegrationActions = ({
     <Button
       variant="ghost"
       className="w-full justify-start"
-      onClick={() => setOpen(cell.row.original._id)}
+      onClick={() => setOpen(integration._id)}
     >
       <IconSettings className="size-4" />
       {t('configure')}
@@ -590,8 +589,15 @@ const TelegramSetup = ({ integrationId }: { integrationId: string | null }) => {
   );
 };
 
-/** Owns the shared connection sheet for new and existing Telegram bots. */
-export const TelegramIntegrationDetail = () => {
+/**
+ * Owns the shared connection sheet for new and existing Telegram bots. Hosts
+ * that only edit existing bots mount it without the connect trigger.
+ */
+export const TelegramIntegrationDetail = ({
+  showTrigger = true,
+}: {
+  showTrigger?: boolean;
+}) => {
   const [integrationId, setIntegrationId] = useAtom(telegramSetupState);
   const { t } = useTelegramTranslation();
   return (
@@ -599,12 +605,14 @@ export const TelegramIntegrationDetail = () => {
       open={integrationId !== undefined}
       onOpenChange={(open) => setIntegrationId(open ? null : undefined)}
     >
-      <Sheet.Trigger asChild>
-        <Button>
-          <IconBrandTelegram />
-          {t('connect')}
-        </Button>
-      </Sheet.Trigger>
+      {showTrigger && (
+        <Sheet.Trigger asChild>
+          <Button>
+            <IconBrandTelegram />
+            {t('connect')}
+          </Button>
+        </Sheet.Trigger>
+      )}
       <Sheet.View className="sm:max-w-2xl">
         {integrationId !== undefined && (
           <TelegramSetup

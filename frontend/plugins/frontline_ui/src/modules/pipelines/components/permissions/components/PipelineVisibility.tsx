@@ -9,7 +9,7 @@ interface PipelineVisibilityProps {
 }
 
 export const PipelineVisibility = ({ control }: PipelineVisibilityProps) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.pipelines' });
   const visibility = useWatch({ control, name: 'visibility' });
 
   return (

@@ -23,7 +23,7 @@ export const NoteInputToolbar = ({
   onSend,
   isSending,
 }: NoteInputToolbarProps) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.activity' });
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {

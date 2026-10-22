@@ -72,7 +72,7 @@ export const getAccountingCheckSyncedOrdersColumns = ({
     header: () => <HeaderCell icon={IconCategory} labelKey="sync-status" />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
-        <TextOverflowTooltip value={(cell.getValue() as string) || 'skipped'} />
+        <TextOverflowTooltip value={t((cell.getValue() as string) || 'skipped')} />
       </RecordTableInlineCell>
     ),
   },

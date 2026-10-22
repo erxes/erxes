@@ -43,7 +43,13 @@ export const useBoards = (
   });
 
   const boards = useMemo(
-    () => data?.salesBoards?.filter(isDefined),
+    () =>
+      data?.salesBoards
+        ?.filter(isDefined)
+        .sort(
+          (a, b) =>
+            Number(a.status === 'archived') - Number(b.status === 'archived'),
+        ),
     [data?.salesBoards],
   );
 
@@ -87,12 +93,7 @@ export const useBoardAdd = (
   const [addBoard, { loading, error }] = useMutation(ADD_BOARD, {
     ...options,
     variables: options?.variables,
-    refetchQueries: [
-      {
-        query: GET_BOARDS,
-        variables: options?.variables,
-      },
-    ],
+    refetchQueries: [GET_BOARDS],
     awaitRefetchQueries: true,
   });
 
@@ -112,12 +113,7 @@ export const useBoardEdit = (
   const [editBoard, { loading, error }] = useMutation(EDIT_BOARD, {
     ...options,
     variables: options?.variables,
-    refetchQueries: [
-      {
-        query: GET_BOARDS,
-        variables: options?.variables,
-      },
-    ],
+    refetchQueries: [GET_BOARDS],
     awaitRefetchQueries: true,
   });
 
@@ -138,12 +134,7 @@ export const useBoardRemove = (
   const [removeBoard, { loading, error }] = useMutation(REMOVE_BOARD, {
     ...options,
     variables: options?.variables,
-    refetchQueries: [
-      {
-        query: GET_BOARDS,
-        variables: options?.variables,
-      },
-    ],
+    refetchQueries: [GET_BOARDS],
     awaitRefetchQueries: true,
     onCompleted: (...args) => {
       toast({

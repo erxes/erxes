@@ -36,7 +36,7 @@ export const InstagramBotPersistenceMenuSelector = ({
   selectedPersistentMenuIds = [],
   onConditionChange,
 }: Props) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.instagram' });
   const { instagramMessengerBot, loading } = useInstagramBotDetail(botId);
 
   if (loading) return <Spinner />;

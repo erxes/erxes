@@ -16,7 +16,7 @@ export const MoveToChannelCommandBarButton = ({
   sourceChannelIds: string[];
   onMoved?: () => void;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.channels' });
   const [open, setOpen] = useState(false);
 
   const distinctChannelIds = [...new Set(sourceChannelIds.filter(Boolean))];

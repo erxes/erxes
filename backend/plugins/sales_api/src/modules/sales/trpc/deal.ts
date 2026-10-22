@@ -1,4 +1,4 @@
-import { initTRPC } from '@trpc/server';
+import { initTRPC, TRPCError } from '@trpc/server';
 import { ITRPCContext } from 'erxes-api-shared/utils';
 import { z } from 'zod';
 import { IModels } from '~/connectionResolvers';
@@ -16,10 +16,43 @@ import {
 } from '~/modules/sales/utils';
 import { replaceDealContent } from '~/modules/sales/documents/dealContent';
 import { syncWrittenDealPoints } from '~/modules/sales/utils/dealPoints';
+import {
+  assertDealUpdatesAllowed,
+  SalesArchiveError,
+} from '~/modules/sales/utils/archiveGuard';
 
 export type SalesTRPCContext = ITRPCContext<{ models: IModels }>;
 
-const t = initTRPC.context<SalesTRPCContext>().create();
+const t = initTRPC.context<SalesTRPCContext>().create({
+  errorFormatter({ shape, error }) {
+    return {
+      ...shape,
+      data: {
+        ...shape.data,
+        ...(error.cause instanceof SalesArchiveError
+          ? {
+              archiveCode: error.cause.code,
+              entityType: error.cause.extensions.entityType,
+              entityId: error.cause.extensions.entityId,
+            }
+          : {}),
+      },
+    };
+  },
+});
+
+const salesProcedure = t.procedure.use(async ({ next }) => {
+  const result = await next();
+  if (!result.ok && result.error.cause instanceof SalesArchiveError) {
+    const cause = result.error.cause;
+    throw new TRPCError({
+      code: cause.code === 'SALES_BOARD_ARCHIVING' ? 'CONFLICT' : 'FORBIDDEN',
+      message: cause.message,
+      cause,
+    });
+  }
+  return result;
+});
 
 const publishDealSubscription = t.procedure
   .input(z.any())
@@ -39,7 +72,7 @@ const publishDealSubscription = t.procedure
     return null;
   });
 
-const createDealProcedure = t.procedure
+const createDealProcedure = salesProcedure
   .input(z.any())
   .mutation(async ({ ctx, input }) => {
     const { models, subdomain } = ctx;
@@ -55,7 +88,7 @@ const createDealProcedure = t.procedure
     return deal;
   });
 
-const updateDealProcedure = t.procedure
+const updateDealProcedure = salesProcedure
   .input(z.any())
   .mutation(async ({ ctx, input }) => {
     const { models } = ctx;
@@ -71,11 +104,15 @@ const updateDealProcedure = t.procedure
         : { $set: modifier };
 
     const before = await models.Deals.findOne(selector).lean();
-    const updated = await models.Deals.findOneAndUpdate(selector, updateDoc, {
-      new: true,
-    });
+    if (!before) return null;
+    await assertDealUpdatesAllowed(models, [before], updateDoc);
+    const updated = await models.Deals.findOneAndUpdate(
+      { $and: [selector, { _id: before._id }] },
+      updateDoc,
+      { new: true },
+    );
 
-    if (before) {
+    if (updated) {
       await syncWrittenDealPoints({
         subdomain: ctx.subdomain,
         models,
@@ -182,20 +219,18 @@ export const dealTrpcRouter = t.router({
         return dealProductIds;
       }),
 
-    createItem: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
-      const { models, subdomain } = ctx;
-      const { user, processId, ...doc } = input;
-      if (!user || !processId) {
-        throw new Error('you must provide some params');
-      }
-      try {
+    createItem: salesProcedure
+      .input(z.any())
+      .mutation(async ({ ctx, input }) => {
+        const { models, subdomain } = ctx;
+        const { user, processId, ...doc } = input;
+        if (!user || !processId) {
+          throw new Error('you must provide some params');
+        }
         return await addDeal({ models, subdomain, user, doc });
-      } catch (e) {
-        throw new Error(e.message);
-      }
-    }),
+      }),
 
-    editItem: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
+    editItem: salesProcedure.input(z.any()).mutation(async ({ ctx, input }) => {
       const { models, subdomain } = ctx;
 
       const { itemId, processId, user, ...doc } = input;
@@ -204,18 +239,14 @@ export const dealTrpcRouter = t.router({
         throw new Error('you must provide some params');
       }
 
-      try {
-        return await editDeal({
-          models,
-          subdomain,
-          _id: itemId,
-          doc,
-          processId,
-          user,
-        });
-      } catch (e) {
-        throw new Error(e.message);
-      }
+      return await editDeal({
+        models,
+        subdomain,
+        _id: itemId,
+        doc,
+        processId,
+        user,
+      });
     }),
 
     removeItem: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
@@ -279,7 +310,7 @@ export const dealTrpcRouter = t.router({
         return userIds;
       }),
 
-    tag: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
+    tag: salesProcedure.input(z.any()).mutation(async ({ ctx, input }) => {
       const { action, _ids, tagIds, targetIds } = input;
       const { models } = ctx;
 
@@ -290,6 +321,10 @@ export const dealTrpcRouter = t.router({
       }
 
       if (action === 'tagObject') {
+        const before = await models.Deals.find({
+          _id: { $in: targetIds },
+        }).lean();
+        await assertDealUpdatesAllowed(models, before, { $set: { tagIds } });
         await models.Deals.updateMany(
           { _id: { $in: targetIds } },
           { $set: { tagIds } },

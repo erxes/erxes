@@ -17,8 +17,14 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { IconGripVertical, IconPlus, IconX } from '@tabler/icons-react';
+import {
+  IconGripVertical,
+  IconLock,
+  IconPlus,
+  IconX,
+} from '@tabler/icons-react';
 import { Button, cn, Sheet } from 'erxes-ui';
+import { createContext, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ILayoutRow,
@@ -53,6 +59,16 @@ const collisionDetection: CollisionDetection = (args) => {
 // Rows resize as chips move between them, so measure them every frame.
 const MEASURING = { droppable: { strategy: MeasuringStrategy.Always } };
 
+export interface ILayoutAsideApi {
+  placedIds: Set<string>;
+  placeItem: (id: string) => void;
+  unplaceItem: (id: string) => void;
+}
+
+const ChipRenderContext = createContext<
+  ((item: ILayoutItem) => React.ReactNode) | undefined
+>(undefined);
+
 export interface ILayoutItem {
   id: string;
   name: string;
@@ -67,6 +83,10 @@ export const LayoutEditor = ({
   saving,
   onSave,
   onClose,
+  header,
+  footer,
+  renderChip,
+  aside,
 }: {
   title: string;
   items: ILayoutItem[];
@@ -74,6 +94,13 @@ export const LayoutEditor = ({
   saving: boolean;
   onSave: (layout: string[][] | null) => void;
   onClose: () => void;
+  // Shown above and below the rows, e.g. the fixed parts of the real form.
+  header?: React.ReactNode;
+  footer?: React.ReactNode;
+  // Chip content in place of the plain name, e.g. how the field looks on the form.
+  renderChip?: (item: ILayoutItem) => React.ReactNode;
+  // A side panel that can place and unplace fields; replaces the pool.
+  aside?: (api: ILayoutAsideApi) => React.ReactNode;
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });
   const {
@@ -85,6 +112,8 @@ export const LayoutEditor = ({
     handleDragEnd,
     addRow,
     removeRow,
+    placeItem,
+    unplaceItem,
     saveLayout,
     resetLayout,
   } = useLayoutEditor({ initialRows, onSave });
@@ -98,6 +127,7 @@ export const LayoutEditor = ({
       : undefined;
   const activeItem =
     activeId && !activeRow ? itemById.get(activeId) : undefined;
+  const placedIds = new Set(rows.flatMap((row) => row.ids));
 
   return (
     <>
@@ -111,60 +141,87 @@ export const LayoutEditor = ({
         </Sheet.Description>
         <Sheet.Close />
       </Sheet.Header>
-      <Sheet.Content className="flex flex-col gap-2 overflow-y-auto p-5">
-        <p className="text-sm text-muted-foreground">
-          {t(
-            'layout-description',
-            'Drag fields between rows. Fields in a row share its width, up to 4.',
-          )}
-        </p>
-        <DndContext
-          sensors={sensors}
-          collisionDetection={collisionDetection}
-          measuring={MEASURING}
-          onDragStart={handleDragStart}
-          onDragOver={handleDragOver}
-          onDragEnd={handleDragEnd}
-          onDragCancel={handleDragCancel}
-        >
-          <SortableContext
-            items={rows.map((row) => rowId(row.key))}
-            strategy={verticalListSortingStrategy}
+      <Sheet.Content
+        className={cn(
+          aside
+            ? 'flex min-h-0 p-0'
+            : 'flex flex-col gap-2 overflow-y-auto p-5',
+        )}
+      >
+        <ChipRenderContext.Provider value={renderChip}>
+          <div
+            className={cn(
+              'flex flex-col gap-2',
+              aside && 'min-w-0 flex-1 overflow-y-auto p-5',
+            )}
           >
-            {rows.map((row) => (
-              <LayoutRow
-                key={row.key}
-                row={row}
-                itemById={itemById}
-                onRemove={() => removeRow(row.key)}
-              />
-            ))}
-          </SortableContext>
-          <DragOverlay>
-            {activeRow && (
-              <RowBody className="bg-background shadow-md">
-                {activeRow.ids.map((id) => (
-                  <ChipBody
-                    key={id}
-                    label={itemById.get(id)?.name ?? id}
-                    dimmed={itemById.get(id)?.dimmed}
+            <p className="text-sm text-muted-foreground">
+              {t(
+                'layout-description',
+                'Drag fields between rows. Fields in a row share its width, up to 4.',
+              )}
+            </p>
+
+            {header}
+            <DndContext
+              sensors={sensors}
+              collisionDetection={collisionDetection}
+              measuring={MEASURING}
+              onDragStart={handleDragStart}
+              onDragOver={handleDragOver}
+              onDragEnd={handleDragEnd}
+              onDragCancel={handleDragCancel}
+            >
+              <SortableContext
+                items={rows.map((row) => rowId(row.key))}
+                strategy={verticalListSortingStrategy}
+              >
+                {rows.map((row) => (
+                  <LayoutRow
+                    key={row.key}
+                    row={row}
+                    itemById={itemById}
+                    onRemove={() => removeRow(row.key)}
+                    onUnplace={aside ? unplaceItem : undefined}
+                    showLock={!!aside}
                   />
                 ))}
-              </RowBody>
-            )}
-            {activeItem && (
-              <ChipBody
-                label={activeItem.name}
-                dimmed={activeItem.dimmed}
-                className="shadow-md"
-              />
-            )}
-          </DragOverlay>
-        </DndContext>
-        <Button variant="secondary" className="self-start" onClick={addRow}>
-          <IconPlus />
-          {t('add-row', 'Add row')}
-        </Button>
+              </SortableContext>
+              <DragOverlay>
+                {activeRow && (
+                  <RowBody className="bg-background shadow-md">
+                    {activeRow.ids.map((id) => (
+                      <ChipBody
+                        key={id}
+                        item={itemById.get(id)}
+                        label={itemById.get(id)?.name ?? id}
+                        dimmed={itemById.get(id)?.dimmed}
+                      />
+                    ))}
+                  </RowBody>
+                )}
+                {activeItem && (
+                  <ChipBody
+                    item={activeItem}
+                    label={activeItem.name}
+                    dimmed={activeItem.dimmed}
+                    className="shadow-md"
+                  />
+                )}
+              </DragOverlay>
+            </DndContext>
+            <Button variant="secondary" className="self-start" onClick={addRow}>
+              <IconPlus />
+              {t('add-row', 'Add row')}
+            </Button>
+            {footer}
+          </div>
+        </ChipRenderContext.Provider>
+        {aside && (
+          <div className="flex w-80 shrink-0 flex-col overflow-y-auto border-l">
+            {aside({ placedIds, placeItem, unplaceItem })}
+          </div>
+        )}
       </Sheet.Content>
       <Sheet.Footer>
         <Button
@@ -209,10 +266,14 @@ const LayoutRow = ({
   row,
   itemById,
   onRemove,
+  onUnplace,
+  showLock,
 }: {
   row: ILayoutRow;
   itemById: Map<string, ILayoutItem>;
   onRemove: () => void;
+  onUnplace?: (id: string) => void;
+  showLock?: boolean;
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });
   const {
@@ -253,8 +314,11 @@ const LayoutRow = ({
           <LayoutChip
             key={id}
             id={id}
+            item={itemById.get(id)}
             label={itemById.get(id)?.name ?? id}
             dimmed={itemById.get(id)?.dimmed}
+            locked={showLock && itemById.get(id)?.dimmed}
+            onUnplace={onUnplace && (() => onUnplace(id))}
           />
         ))}
         {!row.ids.length && (
@@ -275,15 +339,22 @@ const LayoutRow = ({
 };
 
 const ChipBody = ({
+  item,
   label,
   dimmed,
+  locked,
   className,
+  onUnplace,
 }: {
+  item?: ILayoutItem;
   label: string;
   dimmed?: boolean;
+  locked?: boolean;
   className?: string;
+  onUnplace?: () => void;
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });
+  const renderChip = useContext(ChipRenderContext);
 
   return (
     <div
@@ -293,13 +364,38 @@ const ChipBody = ({
         className,
       )}
       title={
-        dimmed
+        locked
+          ? t(
+              'layout-locked-hint',
+              'Turned off for this form in Settings → Properties',
+            )
+          : dimmed
           ? t('layout-hidden-hint', 'Hidden where records show')
           : undefined
       }
     >
-      <IconGripVertical className="size-3.5 shrink-0 text-muted-foreground" />
-      <span className="truncate">{label}</span>
+      {locked ? (
+        <IconLock className="size-3.5 shrink-0 text-muted-foreground" />
+      ) : (
+        <IconGripVertical className="size-3.5 shrink-0 text-muted-foreground" />
+      )}
+      {renderChip && item ? (
+        <div className="min-w-0 flex-1">{renderChip(item)}</div>
+      ) : (
+        <span className="truncate">{label}</span>
+      )}
+      {onUnplace && (
+        <button
+          type="button"
+          className="ml-auto flex shrink-0 items-center text-muted-foreground hover:text-foreground"
+          aria-label={t('layout-unplace', 'Remove from the form')}
+          title={t('layout-unplace', 'Remove from the form')}
+          onPointerDown={(event) => event.stopPropagation()}
+          onClick={onUnplace}
+        >
+          <IconX className="size-3.5" />
+        </button>
+      )}
     </div>
   );
 };
@@ -307,12 +403,18 @@ const ChipBody = ({
 // The dragged copy follows the pointer in the overlay; this stays as its placeholder.
 const LayoutChip = ({
   id,
+  item,
   label,
   dimmed,
+  locked,
+  onUnplace,
 }: {
   id: string;
+  item?: ILayoutItem;
   label: string;
   dimmed?: boolean;
+  locked?: boolean;
+  onUnplace?: () => void;
 }) => {
   const {
     attributes,
@@ -331,7 +433,13 @@ const LayoutChip = ({
       {...attributes}
       {...listeners}
     >
-      <ChipBody label={label} dimmed={dimmed} />
+      <ChipBody
+        item={item}
+        label={label}
+        dimmed={dimmed}
+        locked={locked}
+        onUnplace={onUnplace}
+      />
     </div>
   );
 };

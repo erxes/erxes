@@ -6,7 +6,7 @@
 - **Project:** `posclient_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/posclient_api`
-- **Last synchronized:** `2026-10-19`
+- **Last synchronized:** `2026-10-23`
 
 ## Scope
 
@@ -147,6 +147,11 @@
   `orderId`, `posToken`, `userId`, `createdAt`, and per-field old/new values.
   The `items` field contains complete before/after item snapshots, including
   additions, removals, quantity, price, discounts, and item status changes.
+- Order change logs expire 30 days after server `createdAt` through the
+  single-field `createdAt_1` TTL index (`expireAfterSeconds: 2592000`). MongoDB
+  removes expired rows asynchronously. Existing non-TTL `createdAt_1` indexes
+  must be converted with `collMod` when deploying; schema declarations alone
+  do not change existing index options. This also expires older existing logs.
 - Client cart logs use `source: cart`, optional `orderId`, `cartId`, `eventId`,
   `occurredAt` (client-reported action time), and `createdAt` (server receipt
   time). `itemActions` names removed/reduced items and their before/after counts.

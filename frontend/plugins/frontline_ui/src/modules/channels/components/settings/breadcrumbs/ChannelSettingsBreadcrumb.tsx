@@ -16,7 +16,7 @@ import { MembersBreadcrumb } from '../members/MembersBreadcrumb';
 import { useTranslation } from 'react-i18next';
 
 export const ChannelSettingsBreadcrumb = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.channels' });
   const isMatchingLocation = useIsMatchingLocation(
     '/frontline/settings/channels',
   );

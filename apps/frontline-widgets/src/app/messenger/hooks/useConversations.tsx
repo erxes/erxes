@@ -1,10 +1,9 @@
-import { connectionAtom, integrationIdAtom } from '../states';
+import { integrationIdAtom } from '../states';
 import { GET_WIDGETS_CONVERSATIONS } from '../graphql/queries';
 import { QueryHookOptions, useQuery } from '@apollo/client';
 import { useAtomValue } from 'jotai';
 import { useMemo, useEffect, useRef } from 'react';
 import { IConversationMessage } from '../types';
-import { getLocalStorageItem } from '@libs/utils';
 import { ConversationMessageInserted } from '../graphql/subscriptions';
 
 interface IQueryResponse {
@@ -19,18 +18,11 @@ export const useConversations = (
   options?: QueryHookOptions<IQueryResponse>,
 ) => {
   const integrationId = useAtomValue(integrationIdAtom);
-  const connection = useAtomValue(connectionAtom);
-  const cachedCustomerId = getLocalStorageItem('customerId');
-  const { customerId, visitorId } = connection.widgetsMessengerConnect || {};
   const { data, loading, error, subscribeToMore } = useQuery<IQueryResponse>(
     GET_WIDGETS_CONVERSATIONS,
     {
       ...options,
-      variables: {
-        integrationId,
-        customerId: customerId || cachedCustomerId || undefined,
-        visitorId: visitorId || undefined,
-      },
+      variables: { integrationId },
       fetchPolicy: 'network-only',
       skip: !integrationId,
     },

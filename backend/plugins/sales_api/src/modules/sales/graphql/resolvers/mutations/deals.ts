@@ -13,6 +13,7 @@ import { normalizeProductDiscountInfos } from '~/modules/sales/utils/discountInf
 import { normalizeProductCurrencies } from '~/modules/sales/utils/productCurrency';
 import { normalizeProductUomInfo } from '~/modules/sales/utils/productUom';
 import { validateProductDataInput } from '~/modules/sales/utils/productDataInput';
+import { assertDealUpdatesAllowed } from '~/modules/sales/utils/archiveGuard';
 import {
   checkAssignedUserFromPData,
   copyChecklists,
@@ -324,6 +325,7 @@ export const dealMutations: Record<string, Resolver> = {
     }
     validateProductDataInput(doc);
     const deal = await models.Deals.getDeal(dealId);
+    await assertDealUpdatesAllowed(models, [deal], { productsData: doc });
 
     if (!deal.productsData?.length) {
       throw new Error('Deals productData not found');
@@ -437,6 +439,7 @@ export const dealMutations: Record<string, Resolver> = {
     }
     validateProductDataInput(doc);
     const deal = await models.Deals.getDeal(dealId);
+    await assertDealUpdatesAllowed(models, [deal], { productsData: doc });
 
     if (!deal.productsData?.length) {
       throw new Error('Deals productData not found');
@@ -537,6 +540,7 @@ export const dealMutations: Record<string, Resolver> = {
       throw new Error('dataIds must be an array');
     }
     const deal = await models.Deals.getDeal(dealId);
+    await assertDealUpdatesAllowed(models, [deal], { productsData: dataIds });
 
     const oldPData = (deal.productsData || []).filter(
       (pdata) => pdata._id && dataIds.includes(pdata._id),

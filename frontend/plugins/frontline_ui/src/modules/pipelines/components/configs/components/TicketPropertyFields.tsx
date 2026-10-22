@@ -61,7 +61,7 @@ const GROUP_DRAG_PREFIX = 'group:';
 const FIELD_DRAG_PREFIX = 'field:';
 
 export const TicketPropertyFields = ({ form }: Props) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.pipelines' });
   const { control } = form;
 
   const { fieldGroups, loading: fieldGroupsLoading } = useFieldGroups({
@@ -394,7 +394,7 @@ const SortablePropertyGroup = ({
   required: boolean;
   selectedIds: string[];
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.pipelines' });
   const {
     attributes,
     listeners,
@@ -515,7 +515,7 @@ const SelectedPropertyFieldRow = ({
   index: number;
   onToggle: (checked: boolean) => void;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.pipelines' });
   const {
     attributes,
     listeners,

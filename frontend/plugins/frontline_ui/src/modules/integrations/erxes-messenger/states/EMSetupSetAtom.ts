@@ -135,7 +135,6 @@ export const erxesMessengerSetSetupAtom = atom(
         showChat: messengerData.showChat ?? true,
         showLauncher: messengerData.showLauncher ?? true,
         forceLogoutWhenResolve: messengerData.forceLogoutWhenResolve ?? false,
-        notifyCustomer: messengerData.notifyCustomer ?? false,
         showVideoCallRequest: messengerData.showVideoCallRequest ?? false,
         isSupportInAppView: uiOptions.isSupportInAppView ?? false,
         websiteApps: (payload.websiteMessengerApps ?? [])

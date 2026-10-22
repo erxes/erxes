@@ -21,7 +21,7 @@ import { SURVEY_DURATIONS } from '@/survey/types/surveyTypes';
 const NO_DURATION = 'none';
 
 export const SurveyConfirmation = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.survey' });
   const general = useAtomValue(surveySetupGeneralAtom);
   const content = useAtomValue(surveySetupContentAtom);
   const { handleMutateSurvey, loading } = useSurveyMutate();
@@ -71,7 +71,7 @@ export const SurveyConfirmation = () => {
                           : String(duration.value)
                       }
                     >
-                      {duration.label}
+                      {t(duration.labelKey)}
                     </Select.Item>
                   ))}
                 </Select.Content>

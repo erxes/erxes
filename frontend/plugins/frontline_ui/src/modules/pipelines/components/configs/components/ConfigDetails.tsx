@@ -9,7 +9,7 @@ import { useGetTicketConfigDetail } from '../hooks/useGetTicketConfigDetail';
 import { useTranslation } from 'react-i18next';
 
 export const ConfigDetails = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.pipelines' });
   const [configId, setConfigId] = useQueryState<string>('configId');
   const { ticketConfigDetail } = useGetTicketConfigDetail({
     variables: configId ? { id: configId } : undefined,

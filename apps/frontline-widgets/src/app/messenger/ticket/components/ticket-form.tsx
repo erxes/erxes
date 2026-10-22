@@ -1,4 +1,3 @@
-import { getLocalStorageItem } from '@libs/utils';
 import {
   Button,
   Form,
@@ -69,7 +68,6 @@ const buildPropertiesData = (
 
 export const TicketForm = () => {
   const setPage = useSetAtom(ticketTabAtom);
-  const cachedCustomerId = getLocalStorageItem('customerId');
   const { form, ticketSchema } = useTicketForm();
   const { createTicket, loading, saveTicketCustomersLoading } =
     useCreateWidgetTicket();
@@ -105,7 +103,6 @@ export const TicketForm = () => {
         attachments: (formData?.attachments as any[]) ?? [],
         statusId: ticketConfig?.selectedStatusId as string,
         tagIds: (formData?.tags as string[]) ?? [],
-        customerIds: [cachedCustomerId],
         propertiesData,
       },
       onCompleted: (dataOnCompleted: {
