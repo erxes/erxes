@@ -4,19 +4,9 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { FieldValues, UseFormReturn } from 'react-hook-form';
 
-import { IPaymentDocument } from '../../../payment/types/Payment';
+import { configsList as TDB_CONFIGS_LIST } from '~/modules/corporateGateway/tdb/configs/graphql/queries';
 
-const CONFIGS_QUERY = gql`
-  query TdbConfigsList($limit: Int, $cursor: String) {
-    tdbConfigsList(limit: $limit, cursor: $cursor) {
-      list {
-        _id
-        name
-      }
-      totalCount
-    }
-  }
-`;
+import { IPaymentDocument } from '../../../payment/types/Payment';
 
 const ACCOUNTS_QUERY = gql`
   query TdbAccounts($configId: String!) {

@@ -13,10 +13,8 @@ const SelectDistrict = (props: Props) => {
   const { t } = useTranslation('payment');
   const { cityCode, value, onChange } = props;
 
-  const { data } = useQuery<{
-    qpayGetDistricts: { code: string; name: string }[];
-  }>(DISTRICTS, {
-    variables: { cityCode },
+  const { data } = useQuery(DISTRICTS, {
+    variables: { cityCode: cityCode || '' },
     skip: !cityCode,
   });
 
@@ -27,13 +25,11 @@ const SelectDistrict = (props: Props) => {
       </Select.Trigger>
       <Select.Content>
         <Select.Group>
-          {data?.qpayGetDistricts.map(
-            (district: { code: string; name: string }) => (
-              <Select.Item key={district.code} value={district.code}>
-                {district.name}
-              </Select.Item>
-            ),
-          )}
+          {data?.qpayGetDistricts?.districts.map((district) => (
+            <Select.Item key={district} value={district}>
+              {district}
+            </Select.Item>
+          ))}
         </Select.Group>
       </Select.Content>
     </Select>

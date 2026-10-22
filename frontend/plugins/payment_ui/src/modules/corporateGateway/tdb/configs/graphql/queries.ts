@@ -1,10 +1,14 @@
 import gql from 'graphql-tag';
-import { configFields } from './fragments';
 
 export const configs = gql`
   query tdbConfigs {
     tdbConfigs {
-      ${configFields}
+      _id
+      name
+      description
+      apiUrl
+      clientId
+      testMode
     }
   }
 `;
@@ -13,7 +17,12 @@ export const configsList = gql`
   query tdbConfigsList($limit: Int, $cursor: String) {
     tdbConfigsList(limit: $limit, cursor: $cursor) {
       list {
-        ${configFields}
+        _id
+        name
+        description
+        apiUrl
+        clientId
+        testMode
       }
       totalCount
     }
@@ -23,7 +32,12 @@ export const configsList = gql`
 export const configDetail = gql`
   query tdbConfigsDetail($_id: String!) {
     tdbConfigsDetail(_id: $_id) {
-      ${configFields}
+      _id
+      name
+      description
+      apiUrl
+      clientId
+      testMode
     }
   }
 `;
