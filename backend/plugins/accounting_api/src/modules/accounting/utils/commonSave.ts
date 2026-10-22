@@ -1,6 +1,5 @@
 import { IModels } from '~/connectionResolvers';
 import { ITransaction, ITransactionDocument } from '../@types/transaction';
-import { fixNum } from 'erxes-api-shared/utils';
 import CurrencyTr from './currencyTr';
 import TaxTrs from './taxTrs';
 import { InvIncomeExpenseTrs } from './invIncome';
@@ -22,11 +21,7 @@ import {
   prepareFxaOwnerRecordTransaction,
   rebuildFixedAssetCurrentCounts,
 } from './fixedAssets';
-import { activeCost } from './inventories';
-import {
-  prepareRealJobProduction,
-  syncRealJobProduction,
-} from './realJobProduction';
+import { applyActiveInventoryCosts } from './inventoryCosts';
 import { saveInvJustify } from './invJustify';
 import {
   normalizeInvSplitTransaction,
@@ -129,63 +124,6 @@ function getJournalHandler(journal: string) {
 }
 
 const isNonEmptyString = (value?: string): value is string => !!value;
-
-const applyActiveInventoryCosts = async (
-  models: IModels,
-  doc: ITransaction,
-  excludedTransactionIds: string[] = [],
-) => {
-  const details = (doc.details || []).map((detail) => ({ ...detail }));
-  const groups = new Map<
-    string,
-    {
-      accountId: string;
-      branchId?: string;
-      departmentId?: string;
-      detailIndexes: number[];
-    }
-  >();
-
-  details.forEach((detail, detailIndex) => {
-    const branchId = detail.branchId || doc.branchId;
-    const departmentId = detail.departmentId || doc.departmentId;
-    const key = JSON.stringify([detail.accountId, branchId, departmentId]);
-    const group = groups.get(key) || {
-      accountId: detail.accountId,
-      branchId,
-      departmentId,
-      detailIndexes: [],
-    };
-
-    group.detailIndexes.push(detailIndex);
-    groups.set(key, group);
-  });
-
-  await Promise.all(
-    [...groups.values()].map(async (group) => {
-      const productIds = group.detailIndexes
-        .map((detailIndex) => details[detailIndex].productId)
-        .filter(isNonEmptyString);
-      const costs = await activeCost(
-        models,
-        group.accountId,
-        group.branchId,
-        group.departmentId,
-        productIds,
-        excludedTransactionIds,
-      );
-
-      for (const detailIndex of group.detailIndexes) {
-        const detail = details[detailIndex];
-        const unitPrice = costs[detail.productId || '']?.unitCost ?? 0;
-        detail.unitPrice = unitPrice;
-        detail.amount = fixNum(unitPrice * (detail.count ?? 0), 4);
-      }
-    }),
-  );
-
-  return { ...doc, details };
-};
 
 const getRemovedFxaDetailIds = (
   oldTr: ITransactionDocument,
@@ -308,13 +246,9 @@ async function handleInvOut(
     ).lean();
     excludedIds.push(...linked.map((transaction) => transaction._id));
   }
-  const production =
-    !doc.originId && doc.contentType !== 'jobExecution'
-      ? await prepareRealJobProduction(subdomain, models, userId, doc, oldTr)
-      : undefined;
-  const costedDoc = production
-    ? { ...doc, details: production.details }
-    : await applyActiveInventoryCosts(models, doc, [...new Set(excludedIds)]);
+  const costedDoc = await applyActiveInventoryCosts(models, doc, [
+    ...new Set(excludedIds),
+  ]);
   const mainTr = await createOrUpdateTr(
     models,
     userId,
@@ -324,10 +258,7 @@ async function handleInvOut(
 
   await syncProductsInventory(subdomain, mainTr, oldTr, -1);
 
-  const otherTrs = production
-    ? await syncRealJobProduction(subdomain, models, userId, mainTr, production)
-    : [];
-  return { mainTr, otherTrs };
+  return { mainTr, otherTrs: [] };
 }
 
 async function handleInvMove(

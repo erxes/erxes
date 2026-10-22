@@ -12,11 +12,8 @@ import {
   ITransactionDocument,
   ITrDetail,
 } from '../@types/transaction';
-import {
-  prepareRealJobProduction,
-  syncRealJobProduction,
-} from './realJobProduction';
 import { createOrUpdateTr, syncProductsInventory } from './utils';
+import { applyActiveInventoryCosts } from './inventoryCosts';
 
 class InvSaleOutCostTrs {
   private readonly models: IModels;
@@ -77,20 +74,6 @@ class InvSaleOutCostTrs {
   public async doTrs(transaction: ITransactionDocument) {
     const { details } = transaction;
 
-    const production = await prepareRealJobProduction(
-      this.subdomain,
-      this.models,
-      this.userId,
-      {
-        ...transaction,
-        details: details.map((detail) => ({
-          ...detail,
-          accountId: this.outAccount?._id ?? '',
-        })),
-      },
-      transaction,
-    );
-
     const oldFollowOutTrs = await this.models.Transactions.find({
       originId: transaction._id,
       originType: TR_FOLLOW_TYPES.INV_SALE_OUT,
@@ -107,6 +90,21 @@ class InvSaleOutCostTrs {
 
     const oldFollowOutTr = await this.cleanFollowTrs(oldFollowOutTrs);
     const oldFollowCostTr = await this.cleanFollowTrs(oldFollowCostTrs);
+
+    const inventoryDoc: ITransaction = {
+      ...transaction,
+      details: details.map((detail) => ({
+        ...detail,
+        accountId: this.outAccount?._id ?? '',
+      })),
+    };
+    const costedDetails = (
+      await applyActiveInventoryCosts(
+        this.models,
+        inventoryDoc,
+        oldFollowOutTr ? [oldFollowOutTr._id] : [],
+      )
+    ).details;
 
     const ptrId = oldFollowOutTr?.ptrId || oldFollowCostTr?.ptrId || nanoid();
 
@@ -138,7 +136,7 @@ class InvSaleOutCostTrs {
         (oldDet) => oldDet.originId === detail._id,
       );
 
-      const amount = production.details[index].amount;
+      const amount = costedDetails[index].amount;
 
       const commonDetail = {
         originId: detail._id,
@@ -195,14 +193,7 @@ class InvSaleOutCostTrs {
     );
 
     await syncProductsInventory(this.subdomain, outTr, oldFollowOutTr, -1);
-    const productionTrs = await syncRealJobProduction(
-      this.subdomain,
-      this.models,
-      this.userId,
-      transaction,
-      production,
-    );
-    return [outTr, costTr, ...productionTrs];
+    return [outTr, costTr];
   }
 }
 

@@ -1,38 +1,32 @@
 import { IModels } from '~/connectionResolvers';
-import { IJobDocument } from '../../../inventories/@types/jobs';
-import { getExecutionProductUnits } from '../../../inventories/utils/jobExecutionUnits';
-import { ITransaction, ITransactionDocument } from '../../@types/transaction';
-import { activeCost } from '../inventories';
+import { IJobDocument } from '@/inventories/@types/jobs';
+import { getExecutionProductUnits } from '@/inventories/utils/jobExecutionUnits';
 import {
-  prepareRealJobProduction,
-  syncRealJobProduction,
-  removeRealJobProduction,
-  REAL_JOB_FOLLOW_TYPES,
-} from '../realJobProduction';
-import { assertCanWriteTransactionAccounts } from '../trPermissions';
-import {
-  createOrUpdateTr,
-  syncProductsInventory,
-  removeSyncProductsInventory,
-} from '../utils';
-import { commonSave } from '../commonSave';
-import { commonRemove } from '../commonRemove';
-import InvSaleOutCostTrs from '../invSale';
+  ITransaction,
+  ITransactionDocument,
+} from '@/accounting/@types/transaction';
+import { activeCost } from '@/accounting/utils/inventories';
+import { prepareRealJobProduction } from '../realJobProduction';
+import { assertCanWriteTransactionAccounts } from '@/accounting/utils/trPermissions';
+import { createOrUpdateTr } from '@/accounting/utils/utils';
+import { commonSave } from '@/accounting/utils/commonSave';
 
-jest.mock('../inventories', () => ({ activeCost: jest.fn() }));
-jest.mock('../trPermissions', () => ({
+jest.mock('@/accounting/utils/inventories', () => ({ activeCost: jest.fn() }));
+jest.mock('@/accounting/utils/trPermissions', () => ({
   assertCanWriteTransactionAccounts: jest.fn(),
 }));
-jest.mock('../utils', () => ({
-  ...jest.requireActual<typeof import('../utils')>('../utils'),
+jest.mock('@/accounting/utils/utils', () => ({
+  ...jest.requireActual<typeof import('@/accounting/utils/utils')>(
+    '@/accounting/utils/utils',
+  ),
   createOrUpdateTr: jest.fn(),
   syncProductsInventory: jest.fn(),
   removeSyncProductsInventory: jest.fn(),
 }));
-jest.mock('../../../inventories/utils/jobExecutionUnits', () => ({
-  ...jest.requireActual<
-    typeof import('../../../inventories/utils/jobExecutionUnits')
-  >('../../../inventories/utils/jobExecutionUnits'),
+jest.mock('@/inventories/utils/jobExecutionUnits', () => ({
+  ...jest.requireActual<typeof import('@/inventories/utils/jobExecutionUnits')>(
+    '@/inventories/utils/jobExecutionUnits',
+  ),
   getExecutionProductUnits: jest.fn(),
 }));
 
@@ -142,6 +136,40 @@ const setup = (
 describe('real job shortage production', () => {
   beforeEach(() => jest.clearAllMocks());
 
+  it.each(['invOut', 'invSale'])(
+    'does not auto-produce for a manual %s even with a linked sales content type',
+    async (journal) => {
+      const { models } = setup();
+      const doc: ITransaction = {
+        ...source(),
+        journal,
+        contentType: 'sales:deal',
+        contentId: 'deal',
+        followInfos: {
+          saleOutAccountId: 'inventory',
+          saleCostAccountId: 'sale-cost',
+          allowRealJobProduction: true,
+        },
+      };
+      const result = await commonSave('tenant', models, 'user', doc);
+      expect(result.otherTrs).toHaveLength(journal === 'invSale' ? 2 : 0);
+      expect(models.Jobs.findOne).not.toHaveBeenCalled();
+      expect(getExecutionProductUnits).not.toHaveBeenCalled();
+      expect(assertCanWriteTransactionAccounts).not.toHaveBeenCalled();
+      const inventory = jest
+        .mocked(createOrUpdateTr)
+        .mock.calls.find(
+          (call) =>
+            call[2].journal === 'invOut' || call[2].journal === 'invSaleOut',
+        );
+      expect(inventory?.[2].details[0]).toMatchObject({
+        count: 5,
+        unitPrice: 10,
+        amount: 50,
+      });
+    },
+  );
+
   it('skips jobs and follows when available inventory covers the quantity', async () => {
     const { models, jobs } = setup();
     const result = await prepareRealJobProduction(
@@ -188,7 +216,9 @@ describe('real job shortage production', () => {
     ).toMatchObject({ productId: 'output', count: 3, amount: 27 });
     expect(
       result.docs
-        .filter((row) => row.originType === REAL_JOB_FOLLOW_TYPES.COST)
+        .filter(
+          (row) => row.journal !== 'invOut' && row.journal !== 'invIncome',
+        )
         .map((row) => row.details[0].amount),
     ).toEqual([6, 3]);
     expect(
@@ -200,7 +230,7 @@ describe('real job shortage production', () => {
       result.docs.every((row) =>
         row.details.every(
           (detail) =>
-            row.originType === REAL_JOB_FOLLOW_TYPES.COST ||
+            (row.journal !== 'invOut' && row.journal !== 'invIncome') ||
             detail.accountId === 'inventory',
         ),
       ),
@@ -287,7 +317,7 @@ describe('real job shortage production', () => {
     expect(result.details[0].amount).toBe(50);
   });
 
-  it('creates exactly two inventory follows when the job has no extra costs', async () => {
+  it('creates exactly two inventory roots when the job has no extra costs', async () => {
     const job = recipe();
     job.laborCosts = [];
     job.overheadCosts = [];
@@ -298,10 +328,13 @@ describe('real job shortage production', () => {
       'user',
       source(),
     );
-    expect(result.docs.map((row) => row.originType)).toEqual([
-      REAL_JOB_FOLLOW_TYPES.OUT,
-      REAL_JOB_FOLLOW_TYPES.INCOME,
+    expect(result.docs.map((row) => row.journal)).toEqual([
+      'invOut',
+      'invIncome',
     ]);
+    expect(result.docs.every((row) => !row.originId && !row.originType)).toBe(
+      true,
+    );
     expect(result.details[0].amount).toBe(38);
   });
 
@@ -334,41 +367,26 @@ describe('real job shortage production', () => {
     );
   });
 
-  it('rejects denied production cost accounts before persisting a source', async () => {
+  it('validates production permissions before any write', async () => {
     const { models } = setup();
     jest
       .mocked(assertCanWriteTransactionAccounts)
-      .mockRejectedValueOnce(new Error('Account write permission denied'));
+      .mockRejectedValueOnce(new Error('Denied'));
     await expect(
-      commonSave('tenant', models, 'user', source()),
-    ).rejects.toThrow('Account write permission denied');
+      prepareRealJobProduction('tenant', models, 'user', source()),
+    ).rejects.toThrow('Denied');
     expect(createOrUpdateTr).not.toHaveBeenCalled();
-    expect(syncProductsInventory).not.toHaveBeenCalled();
   });
 
-  it('excludes the old sale movement and production group when recalculating edits', async () => {
-    const old = document(source(), 'source');
-    const previous = [
-      document(
-        {
-          ...source(),
-          originType: REAL_JOB_FOLLOW_TYPES.INCOME,
-          originId: 'source',
-        },
-        'old-income',
-      ),
-      document(
-        { ...source(), originType: 'invSaleOut', originId: 'source' },
-        'old-sale-out',
-      ),
-    ];
-    const { models } = setup(recipe(), previous);
-    const result = await prepareRealJobProduction(
+  it('excludes the entire previous group when planning a resync', async () => {
+    const { models } = setup();
+    const excluded = ['sale', 'old-income', 'old-out', 'old-sale-out'];
+    await prepareRealJobProduction(
       'tenant',
       models,
       'user',
       source(),
-      old,
+      excluded,
     );
     expect(activeCost).toHaveBeenCalledWith(
       models,
@@ -376,211 +394,7 @@ describe('real job shortage production', () => {
       'branch',
       'department',
       ['output'],
-      ['source', 'old-income', 'old-sale-out'],
+      excluded,
     );
-    expect(result.previous.map((row) => row._id)).toEqual(['old-income']);
-  });
-
-  it('preserves transaction and detail ids on resave, links all follows to the source, and reverses removed rows', async () => {
-    const { models } = setup();
-    const production = await prepareRealJobProduction(
-      'tenant',
-      models,
-      'user',
-      source(),
-    );
-    const root = document(source(), 'source');
-    const first = await syncRealJobProduction(
-      'tenant',
-      models,
-      'user',
-      root,
-      production,
-    );
-    expect(
-      first.every(
-        (row) =>
-          row.parentId === 'parent' &&
-          row.originId === 'source' &&
-          row.ptrId === first[0].ptrId,
-      ),
-    ).toBe(true);
-    expect(first[0].ptrId).not.toBe(root.ptrId);
-    const second = await syncRealJobProduction('tenant', models, 'user', root, {
-      ...production,
-      previous: first,
-    });
-    expect(second.map((row) => row._id)).toEqual(first.map((row) => row._id));
-    expect(
-      second.map((row) => row.details.map((detail) => detail._id)),
-    ).toEqual(first.map((row) => row.details.map((detail) => detail._id)));
-    await syncRealJobProduction('tenant', models, 'user', root, {
-      details: [],
-      docs: [],
-      previous: second,
-    });
-    expect(removeSyncProductsInventory).toHaveBeenCalledTimes(2);
-    expect(models.Transactions.deleteMany).toHaveBeenCalledWith({
-      _id: { $in: second.map((row) => row._id) },
-    });
-  });
-
-  it('wires invOut saves through production and returns the generated rows for TBalance', async () => {
-    const { models } = setup();
-    const result = await commonSave('tenant', models, 'user', source());
-    expect(result.otherTrs).toHaveLength(4);
-    expect(createOrUpdateTr).toHaveBeenCalledWith(
-      models,
-      'user',
-      expect.objectContaining({
-        journal: 'invOut',
-        details: [expect.objectContaining({ count: 5, amount: 47 })],
-      }),
-      undefined,
-    );
-    expect(syncProductsInventory).toHaveBeenCalledTimes(3);
-  });
-
-  it('uses sale-out inventory accounts and leaves sale revenue unchanged', async () => {
-    const { models } = setup();
-    const doc: ITransaction = {
-      ...source(),
-      journal: 'invSale',
-      followInfos: {
-        saleOutAccountId: 'inventory',
-        saleCostAccountId: 'sale-cost',
-      },
-      details: [
-        {
-          accountId: 'revenue',
-          productId: 'output',
-          count: 5,
-          unitPrice: 100,
-          amount: 500,
-        },
-      ],
-    };
-    const result = await commonSave('tenant', models, 'user', doc);
-    expect(createOrUpdateTr).toHaveBeenCalledWith(
-      models,
-      'user',
-      expect.objectContaining({
-        journal: 'invSale',
-        details: [expect.objectContaining({ amount: 500 })],
-      }),
-      undefined,
-    );
-    expect(
-      result.otherTrs.find((row) => row.journal === 'invSaleOut')?.details[0],
-    ).toMatchObject({ accountId: 'inventory', count: 5, amount: 47 });
-    expect(
-      result.otherTrs.find((row) => row.journal === 'invSaleCost')?.details[0],
-    ).toMatchObject({ accountId: 'sale-cost', amount: 47 });
-    expect(
-      result.otherTrs.filter(
-        (row) => row.originType === REAL_JOB_FOLLOW_TYPES.INCOME,
-      ),
-    ).toHaveLength(1);
-  });
-
-  it.each([2, 5])(
-    'lets the sale handler resolve stock and return its own follows for quantity %i',
-    async (count) => {
-      const { models } = setup();
-      const sale = document(
-        {
-          ...source([count]),
-          journal: 'invSale',
-          followInfos: {
-            saleOutAccountId: 'inventory',
-            saleCostAccountId: 'sale-cost',
-          },
-          details: [
-            {
-              accountId: 'revenue',
-              productId: 'output',
-              count,
-              amount: count * 100,
-            },
-          ],
-        },
-        'sale-source',
-      );
-      const handler = new InvSaleOutCostTrs('tenant', models, 'user', sale);
-      await handler.checkValidation();
-      const follows = await handler.doTrs(sale);
-      expect(follows.slice(0, 2).map((row) => row.journal)).toEqual([
-        'invSaleOut',
-        'invSaleCost',
-      ]);
-      expect(follows).toHaveLength(count === 2 ? 2 : 6);
-      expect(follows[0].details[0].amount).toBe(count === 2 ? 20 : 47);
-      expect(follows.every((row) => row.originId === sale._id)).toBe(true);
-      expect(activeCost).toHaveBeenCalledWith(
-        models,
-        'inventory',
-        'branch',
-        'department',
-        ['output'],
-        ['sale-source'],
-      );
-      expect(sale.details[0].amount).toBe(count * 100);
-    },
-  );
-
-  it('reverses production when the source is removed, but not again for a generated row', async () => {
-    const generated = document(
-      { ...source(), originType: REAL_JOB_FOLLOW_TYPES.INCOME },
-      'income',
-    );
-    const { models } = setup(recipe(), [generated]);
-    await commonRemove('tenant', models, document(source(), 'source'));
-    expect(removeSyncProductsInventory).toHaveBeenCalledTimes(2);
-    jest.mocked(removeSyncProductsInventory).mockClear();
-    await commonRemove('tenant', models, generated);
-    expect(removeSyncProductsInventory).not.toHaveBeenCalled();
-    await removeRealJobProduction('tenant', models, 'source');
-    expect(removeSyncProductsInventory).toHaveBeenCalledWith(
-      'tenant',
-      generated,
-      1,
-    );
-  });
-
-  it('reverses both production and the generated sale movement on source removal', async () => {
-    const income = document(
-      {
-        ...source(),
-        originId: 'source',
-        originType: REAL_JOB_FOLLOW_TYPES.INCOME,
-      },
-      'income',
-    );
-    const saleOut = document(
-      {
-        ...source(),
-        journal: 'invSaleOut',
-        originId: 'source',
-        originType: 'invSaleOut',
-      },
-      'sale-out',
-    );
-    const { models } = setup(recipe(), [income, saleOut]);
-    await commonRemove(
-      'tenant',
-      models,
-      document({ ...source(), journal: 'invSale' }, 'source'),
-    );
-    expect(removeSyncProductsInventory).toHaveBeenCalledWith(
-      'tenant',
-      income,
-      1,
-    );
-    expect(removeSyncProductsInventory).toHaveBeenCalledWith(
-      'tenant',
-      saleOut,
-      -1,
-    );
-    expect(removeSyncProductsInventory).toHaveBeenCalledTimes(2);
   });
 });

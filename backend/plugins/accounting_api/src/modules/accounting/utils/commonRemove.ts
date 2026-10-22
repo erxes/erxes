@@ -12,7 +12,6 @@ import {
 } from './fixedAssets';
 import { removeInvJustify } from './invJustify';
 import { isInvSplitFollow, removeInvSplitFollowTrs } from './invSplit';
-import { isRealJobFollow, removeRealJobProduction } from './realJobProduction';
 
 export type TCommonRemoveOptions = {
   detailIds?: string[];
@@ -120,7 +119,7 @@ async function handleInvIncome(
   _followTrs?: ITransactionDocument[],
   _options?: TCommonRemoveOptions,
 ) {
-  if (isInvSplitFollow(transaction) || isRealJobFollow(transaction)) {
+  if (isInvSplitFollow(transaction)) {
     return;
   }
   await removeSyncProductsInventory(subdomain, transaction, 1);
@@ -128,17 +127,16 @@ async function handleInvIncome(
 }
 
 async function handleInvOut(
-  models: IModels,
+  _models: IModels,
   subdomain: string,
   transaction: ITransactionDocument,
   _followTrs?: ITransactionDocument[],
   _options?: TCommonRemoveOptions,
 ) {
-  if (isInvSplitFollow(transaction) || isRealJobFollow(transaction)) {
+  if (isInvSplitFollow(transaction)) {
     return;
   }
   await removeSyncProductsInventory(subdomain, transaction, -1);
-  await removeRealJobProduction(subdomain, models, transaction._id);
 }
 
 async function handleInvMove(
@@ -167,7 +165,6 @@ async function handleInvSale(
   followTrs?: ITransactionDocument[],
   _options?: TCommonRemoveOptions,
 ) {
-  await removeRealJobProduction(subdomain, models, transaction._id);
   const linked =
     followTrs ??
     (await models.Transactions.find({

@@ -1,40 +1,21 @@
 import { fixNum } from 'erxes-api-shared/utils';
 import { nanoid } from 'nanoid';
 import { IModels } from '~/connectionResolvers';
-import { IJobExecutionItem } from '../../inventories/@types/jobExecutions';
-import { IJobDocument } from '../../inventories/@types/jobs';
-import { buildJobExecutionTransactions } from '../../inventories/utils/jobExecutionTransactions';
-import { matchProductionDetailIds } from '../../inventories/utils/productionTransactionDetails';
+import { IJobExecutionItem } from '@/inventories/@types/jobExecutions';
+import { IJobDocument } from '@/inventories/@types/jobs';
+import { buildJobExecutionTransactions } from '@/inventories/utils/jobExecutionTransactions';
 import {
   executionJobsInBaseUnits,
   getExecutionProductUnits,
-} from '../../inventories/utils/jobExecutionUnits';
-import {
-  ITransaction,
-  ITransactionDocument,
-  ITrDetail,
-} from '../@types/transaction';
-import { TR_FOLLOW_TYPES } from '../@types/constants';
-import { activeCost } from './inventories';
-import { assertCanWriteTransactionAccounts } from './trPermissions';
-import {
-  createOrUpdateTr,
-  getSingleJournalByAccount,
-  removeSyncProductsInventory,
-  syncProductsInventory,
-} from './utils';
-
-export const REAL_JOB_FOLLOW_TYPES = {
-  OUT: 'realJobOut',
-  INCOME: 'realJobIncome',
-  COST: 'realJobCost',
-};
-const followTypes = Object.values(REAL_JOB_FOLLOW_TYPES);
+} from '@/inventories/utils/jobExecutionUnits';
+import { ITransaction, ITrDetail } from '@/accounting/@types/transaction';
+import { activeCost } from '@/accounting/utils/inventories';
+import { assertCanWriteTransactionAccounts } from '@/accounting/utils/trPermissions';
+import { getSingleJournalByAccount } from '@/accounting/utils/utils';
 
 export interface RealJobProduction {
   details: ITrDetail[];
   docs: ITransaction[];
-  previous: ITransactionDocument[];
 }
 
 interface ProductionLocation {
@@ -54,13 +35,10 @@ interface ProductionPlan {
 }
 
 const inventoryMultiplier = (transaction: ITransaction) => {
-  if (transaction.originType === REAL_JOB_FOLLOW_TYPES.OUT) return -1;
-  if (transaction.originType === REAL_JOB_FOLLOW_TYPES.INCOME) return 1;
+  if (transaction.journal === 'invOut') return -1;
+  if (transaction.journal === 'invIncome') return 1;
   return 0;
 };
-
-export const isRealJobFollow = (transaction: ITransaction): boolean =>
-  followTypes.includes(transaction.originType || '');
 
 const scaleProductionJob = async (
   subdomain: string,
@@ -240,21 +218,14 @@ const costProductionGroup = async (
               journals,
             );
             for (const generatedDoc of generated) {
-              let originType = REAL_JOB_FOLLOW_TYPES.COST;
-              if (generatedDoc.journal === 'invOut')
-                originType = REAL_JOB_FOLLOW_TYPES.OUT;
-              if (generatedDoc.journal === 'invIncome')
-                originType = REAL_JOB_FOLLOW_TYPES.INCOME;
               const next: ITransaction = {
                 ...generatedDoc,
                 status: inventoryDoc.status,
                 contentType: inventoryDoc.contentType,
                 contentId: inventoryDoc.contentId,
-                originType,
-                description:
-                  originType === REAL_JOB_FOLLOW_TYPES.COST
-                    ? generatedDoc.description
-                    : inventoryDoc.description,
+                description: !inventoryMultiplier(generatedDoc)
+                  ? generatedDoc.description
+                  : inventoryDoc.description,
               };
               docs.push(next);
               const multiplier = inventoryMultiplier(next);
@@ -271,26 +242,14 @@ const costProductionGroup = async (
   );
 };
 
-// Only the source owns inventory synchronization; generated rows are not saved
-// through commonSave, so material shortages cannot recursively run more jobs.
+// Plan before writes, excluding the previous parent group from stock.
 export const prepareRealJobProduction = async (
   subdomain: string,
   models: IModels,
   userId: string,
   inventoryDoc: ITransaction,
-  oldSource?: ITransactionDocument,
+  excludedIds: string[] = [],
 ): Promise<RealJobProduction> => {
-  const oldLinked = oldSource
-    ? await models.Transactions.find({
-        originId: oldSource._id,
-        originType: { $in: [...followTypes, TR_FOLLOW_TYPES.INV_SALE_OUT] },
-      }).lean()
-    : [];
-  const previous = oldLinked.filter(isRealJobFollow);
-  const excludedIds = [
-    ...(oldSource ? [oldSource._id] : []),
-    ...oldLinked.map((transaction) => transaction._id),
-  ];
   const details = inventoryDoc.details.map((detail) => ({ ...detail }));
   const groups = new Map<string, ProductionLocation>();
   details.forEach((detail, index) => {
@@ -324,14 +283,19 @@ export const prepareRealJobProduction = async (
   const merged = new Map<string, ITransaction>();
   for (const doc of docs) {
     const key = JSON.stringify([
-      doc.originType,
+      doc.journal,
+      doc.side,
       doc.branchId,
       doc.departmentId,
-      doc.originType === REAL_JOB_FOLLOW_TYPES.COST
+      !inventoryMultiplier(doc)
         ? [doc.details[0].accountId, doc.description]
         : doc.details[0].accountId,
     ]);
-    const target = merged.get(key) ?? { ...doc, originSubId: key, details: [] };
+    const target = merged.get(key) ?? {
+      ...doc,
+      extraData: { jobProductionKey: key },
+      details: [],
+    };
     merged.set(key, target);
     for (const row of doc.details) {
       const existing = target.details.find(
@@ -350,87 +314,5 @@ export const prepareRealJobProduction = async (
   const result = [...merged.values()];
   if (result.length)
     await assertCanWriteTransactionAccounts({ models, docs: result, userId });
-  return { details, docs: result, previous };
-};
-
-export const syncRealJobProduction = async (
-  subdomain: string,
-  models: IModels,
-  userId: string,
-  source: ITransactionDocument,
-  production: RealJobProduction,
-): Promise<ITransactionDocument[]> => {
-  const ptrId = production.previous[0]?.ptrId || nanoid();
-  const retained = new Set<string>();
-  const saved: ITransactionDocument[] = [];
-  await production.docs.reduce<Promise<void>>(
-    (pending, doc) =>
-      pending.then(async () => {
-        const old = production.previous.find(
-          (row) =>
-            row.originSubId === doc.originSubId && !retained.has(row._id),
-        );
-        if (old) retained.add(old._id);
-        const details = matchProductionDetailIds(doc.details, old?.details);
-        const transaction = await createOrUpdateTr(
-          models,
-          userId,
-          {
-            ...doc,
-            details,
-            ptrId,
-            parentId: source.parentId,
-            originId: source._id,
-            number: source.number,
-            date: source.date,
-            status: source.status,
-            mentionOwnerId: source.mentionOwnerId,
-            mentionUserIds: source.mentionUserIds,
-          },
-          old,
-        );
-        const multiplier = inventoryMultiplier(transaction);
-        if (multiplier)
-          await syncProductsInventory(subdomain, transaction, old, multiplier);
-        saved.push(transaction);
-      }),
-    Promise.resolve(),
-  );
-  const removed = production.previous.filter((row) => !retained.has(row._id));
-  await reverseProduction(subdomain, removed);
-  if (removed.length)
-    await models.Transactions.deleteMany({
-      _id: { $in: removed.map((row) => row._id) },
-    });
-  return saved;
-};
-
-const reverseProduction = async (
-  subdomain: string,
-  rows: ITransactionDocument[],
-) =>
-  rows.reduce<Promise<void>>(
-    (pending, row) =>
-      pending.then(async () => {
-        const multiplier = inventoryMultiplier(row);
-        if (multiplier)
-          await removeSyncProductsInventory(subdomain, row, multiplier);
-      }),
-    Promise.resolve(),
-  );
-
-export const removeRealJobProduction = async (
-  subdomain: string,
-  models: IModels,
-  sourceId: string,
-): Promise<void> => {
-  const rows = await models.Transactions.find({
-    originId: sourceId,
-    originType: { $in: followTypes },
-  }).lean();
-  await reverseProduction(subdomain, rows);
-  if (rows.length)
-    await models.Transactions.deleteMany({
-      _id: { $in: rows.map((row) => row._id) },
-    });
+  return { details, docs: result };
 };

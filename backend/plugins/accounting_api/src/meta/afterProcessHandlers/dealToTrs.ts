@@ -1,3 +1,4 @@
+import { saveSaleTransactions } from './saveSaleTransactions';
 import { fixNum, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { nanoid } from 'nanoid';
 import { IModels } from '~/connectionResolvers';
@@ -25,12 +26,14 @@ export const dealToTrs = async ({
   deal,
   config,
   dateType,
+  allowRealJobProduction = false,
 }: {
   subdomain: string;
   models: IModels;
   userId: string;
   deal: any;
   dateType?: string;
+  allowRealJobProduction?: boolean;
   config: {
     dateRule: 'alwaysNow' | 'syncedDateOrNow';
     responseFieldId?: string;
@@ -331,18 +334,14 @@ export const dealToTrs = async ({
         });
       }
     }
-
-    await models.Transactions.updatePTransaction(
-      parentId,
-      [{ ...saleTrDoc }, ...paymentTrs],
-      userId,
-      { skipAccountPermission: true },
-    );
-  } else {
-    await models.Transactions.createPTransaction(
-      [{ ...saleTrDoc }, ...paymentTrs],
-      userId,
-      { skipAccountPermission: true },
-    );
   }
+
+  await saveSaleTransactions({
+    subdomain,
+    models,
+    userId,
+    docs: [{ ...saleTrDoc }, ...paymentTrs],
+    parentId: oldTrs.length ? parentId : undefined,
+    allowRealJobProduction,
+  });
 };

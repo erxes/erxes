@@ -1,3 +1,4 @@
+import { saveSaleTransactions } from './saveSaleTransactions';
 import { fixNum } from 'erxes-api-shared/utils';
 import { nanoid } from 'nanoid';
 import { IModels } from '~/connectionResolvers';
@@ -23,10 +24,12 @@ export const orderToTrs = async ({
   userId,
   order,
   config,
+  allowRealJobProduction = false,
 }: {
   subdomain: string;
   models: IModels;
   userId: string;
+  allowRealJobProduction?: boolean;
   order: any;
   config: {
     dateRule: 'alwaysNow' | 'syncedDateOrNow';
@@ -113,7 +116,8 @@ export const orderToTrs = async ({
 
   const hasVat = config.hasVat && config.vatRowId;
   const firstCtaxRule = Object.values(ctaxRuleByProductId)[0];
-  const reverseCtaxRow = config.hasCtax ? undefined
+  const reverseCtaxRow = config.hasCtax
+    ? undefined
     : await ensureCtaxRowByProductRule(models, firstCtaxRule);
 
   const ctaxRowId = config.hasCtax ? config.ctaxRowId : reverseCtaxRow?._id;
@@ -277,18 +281,14 @@ export const orderToTrs = async ({
         });
       }
     }
-
-    await models.Transactions.updatePTransaction(
-      parentId,
-      [{ ...saleTrDoc }, ...paymentTrs],
-      userId,
-      { skipAccountPermission: true },
-    );
-  } else {
-    await models.Transactions.createPTransaction(
-      [{ ...saleTrDoc }, ...paymentTrs],
-      userId,
-      { skipAccountPermission: true },
-    );
   }
+
+  await saveSaleTransactions({
+    subdomain,
+    models,
+    userId,
+    docs: [{ ...saleTrDoc }, ...paymentTrs],
+    parentId: oldTrs.length ? parentId : undefined,
+    allowRealJobProduction,
+  });
 };
