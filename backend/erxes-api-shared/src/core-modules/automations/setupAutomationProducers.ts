@@ -180,6 +180,7 @@ export const startAutomations = async (
   const automationsRouter = t.router(automationProcedures);
 
   const trpcMiddleware = trpcExpress.createExpressMiddleware({
+    allowMethodOverride: true,
     router: automationsRouter,
     createContext: createTRPCContext<IAutomationContext>(
       async (_subdomain, context) => {

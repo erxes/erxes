@@ -137,6 +137,7 @@ app.get('/subscriptionPlugin.js', fileLimiter, async (_req, res) => {
 app.use(
   '/trpc',
   trpcExpress.createExpressMiddleware({
+    allowMethodOverride: true,
     router: appRouter,
     createContext: createTRPCContext(async (subdomain, context) => {
       const models = await generateModels(subdomain, context);

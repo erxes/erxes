@@ -1,7 +1,6 @@
 import { createScopedEventHandlers } from '../../core-modules/common/eventHandlers/generateEventHandlers';
 import {
   createTRPCUntypedClient,
-  httpBatchLink,
   TRPCRequestOptions,
 } from '@trpc/client';
 import * as trpcExpress from '@trpc/server/adapters/express';
@@ -9,6 +8,7 @@ import { IncomingHttpHeaders } from 'http';
 import { getPlugin, isEnabled } from '../service-discovery';
 import { generateRequestProcess, getEnv } from '../utils';
 import { setEventHandlerRuntimeContext } from '../../core-modules/common/eventHandlers/runtimeContext';
+import { createInternalHTTPBatchLink } from './httpBatchLink';
 
 export type MessageProps = {
   subdomain: string;
@@ -134,7 +134,7 @@ export const sendTRPCMessage = async ({
     if (VERSION && VERSION === 'saas') {
       client = createTRPCUntypedClient({
         links: [
-          httpBatchLink({
+          createInternalHTTPBatchLink({
             url: `https://${subdomain}.next.erxes.io/gateway/pl:${pluginName}/trpc`,
             headers: () => ({
               [trpcContextHeaderName]: contextHeader,
@@ -157,7 +157,7 @@ export const sendTRPCMessage = async ({
 
       client = createTRPCUntypedClient({
         links: [
-          httpBatchLink({
+          createInternalHTTPBatchLink({
             url: `${pluginInfo.address}/trpc`,
             headers: () => ({
               [trpcContextHeaderName]: contextHeader,
