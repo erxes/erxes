@@ -1,3 +1,5 @@
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
 import { REPORT_CREATION_SKILL } from '@/agents/skills/reportCreation';
 import type { Agent } from '@mastra/core/agent' with {
   'resolution-mode': 'import',
@@ -440,6 +442,12 @@ export const buildBaseAgentsAgent = async ({
           : {}),
       };
     },
+    // Domain playbooks (SKILL.md) the model loads on demand.
+    skills: AGENTS_SKILLS,
     memory,
   });
 };
+
+const AGENTS_SKILLS = ['sales', 'frontline', 'operation', 'contacts']
+  .map((name) => join(__dirname, 'skills', name))
+  .filter((dir) => existsSync(join(dir, 'SKILL.md')));

@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "tsx watch src/main.ts",
-    "build": "tsc --project tsconfig.build.json && tsc-alias -p tsconfig.build.json",
+    "build": "tsc --project tsconfig.build.json && tsc-alias -p tsconfig.build.json && node -e \"require('fs').cpSync('src/modules/agents/skills','dist/src/modules/agents/skills',{recursive:true,filter:(s)=>!s.endsWith('.ts')})\"",
     "start": "node -r tsconfig-paths/register dist/src/main.js"
   },
   "keywords": [],
