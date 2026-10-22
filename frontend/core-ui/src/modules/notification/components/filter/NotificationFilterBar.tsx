@@ -1,11 +1,13 @@
 import {
   IconCalendar,
   IconFlag,
+  IconFilterOff,
   IconLock,
   IconNotification,
 } from '@tabler/icons-react';
 import {
   Combobox,
+  Button,
   Filter,
   PageSubHeader,
   Popover,
@@ -18,19 +20,17 @@ import { NotificationPriority } from '@/notification/components/NotificationPrio
 import { NotificationPluginFilterBarItem } from './NotificationPluginFilterBarItem';
 import { NotificationSenderFilterBarItem } from './NotificationSenderFilterBarItem';
 import type { NotificationFilterQueries } from '@/notification/types/notificationFilters';
+import { useNotificationFilterControls } from '@/notification/hooks/useNotificationFilterControls';
+import { NOTIFICATION_CONTENT_FILTER_QUERY_KEYS } from '@/notification/constants/notifications';
 
 export const NotificationFilterBar = () => {
   const { t } = useTranslation('common', { keyPrefix: 'notification' });
-  const [queries] = useMultiQueryState<NotificationFilterQueries>([
-    'notificationPriority',
-    'notificationType',
-    'notificationCreatedAt',
-    'notificationFromUserId',
-    'notificationModule',
-    'notificationPlugin',
-  ]);
+  const { hasActiveFilters, clearFilters } = useNotificationFilterControls();
+  const [queries] = useMultiQueryState<NotificationFilterQueries>(
+    NOTIFICATION_CONTENT_FILTER_QUERY_KEYS,
+  );
 
-  if (!Object.values(queries).some(Boolean)) return null;
+  if (!hasActiveFilters) return null;
 
   return (
     <PageSubHeader>
@@ -85,6 +85,15 @@ export const NotificationFilterBar = () => {
               {t('approval')}
             </Filter.BarName>
           </Filter.BarItem>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="shrink-0 text-muted-foreground"
+            onClick={clearFilters}
+          >
+            <IconFilterOff />
+            {t('clear-filters')}
+          </Button>
         </Filter.Bar>
       </Filter>
     </PageSubHeader>

@@ -1,12 +1,14 @@
 import type { NotificationSelectionToolbarProps } from '@/notification/types/myInbox';
 import { IconCheck, IconTrash, IconX } from '@tabler/icons-react';
-import { Button, Spinner } from 'erxes-ui';
+import { Button, Checkbox, Spinner } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
 export const NotificationSelectionToolbar = ({
   selectedCount,
+  visibleCount,
   pending,
   allRead,
+  onToggleAll,
   onMarkAsRead,
   onDelete,
   onClear,
@@ -18,30 +20,45 @@ export const NotificationSelectionToolbar = ({
   const ActionIcon = allRead ? IconTrash : IconCheck;
 
   return (
-    <div className="absolute bottom-4 left-1/2 z-10 flex h-10 -translate-x-1/2 items-center gap-1 rounded-lg border bg-background px-2 shadow-lg whitespace-nowrap">
-      <span className="px-2 text-xs text-muted-foreground" aria-live="polite">
+    <div className="flex h-10 shrink-0 items-center gap-2 border-t bg-background px-4 whitespace-nowrap">
+      <Checkbox
+        id="notification-select-visible"
+        checked={
+          selectedCount === visibleCount && visibleCount > 0
+            ? true
+            : selectedCount > 0
+            ? 'indeterminate'
+            : false
+        }
+        disabled={pending || visibleCount === 0}
+        aria-label={t('select-visible')}
+        onCheckedChange={onToggleAll}
+      />
+      <label
+        htmlFor="notification-select-visible"
+        className="mr-auto cursor-pointer text-xs text-muted-foreground"
+        aria-live="polite"
+      >
         {t('selected-count', {
           defaultValue: '{{count}} selected',
           count: selectedCount,
         })}
-      </span>
+      </label>
       <Button
         variant="ghost"
-        size="icon"
+        className="h-7 gap-1.5 px-2 text-xs"
         aria-label={actionLabel}
         title={`${actionLabel} (Ctrl/Cmd + Backspace / Delete)`}
-        disabled={pending}
+        disabled={pending || selectedCount === 0}
         onClick={() => void (allRead ? onDelete() : onMarkAsRead())}
       >
-        {pending ? (
-          <Spinner containerClassName="size-4" />
-        ) : (
-          <ActionIcon />
-        )}
+        {pending ? <Spinner containerClassName="size-4" /> : <ActionIcon />}
+        {actionLabel}
       </Button>
       <Button
         variant="ghost"
         size="icon"
+        className="size-7 shrink-0 text-muted-foreground"
         aria-label={t('clear-selection', 'Clear selection')}
         disabled={pending}
         onClick={onClear}

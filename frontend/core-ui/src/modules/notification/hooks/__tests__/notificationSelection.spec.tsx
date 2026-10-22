@@ -22,12 +22,16 @@ jest.mock('react-router-dom', () => ({
 jest.mock('erxes-ui', () => ({
   useScopedHotkeys: jest.fn(),
   useToast: () => ({ toast: jest.fn() }),
+  useConfirm: () => ({ confirm: jest.fn().mockResolvedValue(true) }),
 }));
 jest.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string) => key }),
 }));
 jest.mock('ui-modules', () => ({ TNotificationKind: { USER: 'user' } }));
 jest.mock('../useMarkAsReadNotification');
+jest.mock('../useDeleteNotifications', () => ({
+  useDeleteNotifications: () => jest.fn(),
+}));
 
 const setupStore = () => {
   const store = createStore();
@@ -38,6 +42,32 @@ const setupStore = () => {
 };
 
 describe('notification selection across page refetches', () => {
+  it('selects only loaded items and leaves newly loaded items unselected', () => {
+    const { wrapper } = setupStore();
+    const { result, rerender } = renderHook(
+      ({ ids }) => useNotificationSelection(ids, ''),
+      { initialProps: { ids: ['first', 'second'] }, wrapper },
+    );
+    act(() => result.current.toggleAll());
+    expect(result.current.selectedIds).toEqual(['first', 'second']);
+    rerender({ ids: ['first', 'second', 'third'] });
+    expect(result.current.selectedIds).toEqual(['first', 'second']);
+    act(() => result.current.toggleAll());
+    expect(result.current.selectedIds).toEqual(['first', 'second', 'third']);
+    act(() => result.current.toggleAll());
+    expect(result.current.selectedIds).toEqual([]);
+  });
+
+  it('extends a checkbox selection from its anchor with Shift', () => {
+    const { wrapper } = setupStore();
+    const { result } = renderHook(
+      () => useNotificationSelection(['first', 'second', 'third'], ''),
+      { wrapper },
+    );
+    act(() => result.current.select('first', false));
+    act(() => result.current.select('third', true));
+    expect(result.current.selectedIds).toEqual(['first', 'second', 'third']);
+  });
   it('restores a selected item when its page is loaded again', () => {
     const { wrapper } = setupStore();
     const { result, rerender } = renderHook(
@@ -157,6 +187,19 @@ describe('pending bulk read completion', () => {
     expect(mockNavigate).not.toHaveBeenCalled();
     expect(store.get(hiddenNotificationIdsState)).toEqual([]);
     expect(store.get(selectedNotificationIdsState)).toEqual(['first']);
+  });
+
+  it('does not change selection while a bulk action is pending', async () => {
+    const { result, store, complete } = setupBatch(['first', 'second']);
+    act(() => {
+      result.current.select('first', false);
+      result.current.toggleAll();
+    });
+    expect(store.get(selectedNotificationIdsState)).toEqual([
+      'first',
+      'second',
+    ]);
+    await complete();
   });
 
   it('starts selected reads together and retains only failed items for retry', async () => {

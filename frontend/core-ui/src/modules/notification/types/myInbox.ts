@@ -38,7 +38,9 @@ export type NotificationItemProps = Pick<
   | 'fromUser'
 > & {
   selected: boolean;
+  selectionDisabled?: boolean;
   selectionFocused: boolean;
+  onToggleSelection?: (shiftKey: boolean) => void;
   onOpen: (event: MouseEvent<HTMLAnchorElement>) => void;
 };
 
@@ -77,13 +79,17 @@ export interface NotificationSelection {
   selectedIds: string[];
   focusedId: string | null;
   select: (id: string, shiftKey: boolean) => void;
+  toggleAll: () => void;
   extend: (direction: 1 | -1) => void;
   setAnchor: (id: string) => void;
   clear: () => void;
 }
 
 export interface UseNotificationListActionsResult
-  extends Pick<NotificationSelection, 'selectedIds' | 'focusedId' | 'clear'> {
+  extends Pick<
+    NotificationSelection,
+    'selectedIds' | 'focusedId' | 'clear' | 'select' | 'toggleAll'
+  > {
   pending: boolean;
   allRead: boolean;
   markSelectedAsRead: () => Promise<void>;
@@ -93,8 +99,10 @@ export interface UseNotificationListActionsResult
 
 export interface NotificationSelectionToolbarProps {
   selectedCount: number;
+  visibleCount: number;
   pending: boolean;
   allRead: boolean;
+  onToggleAll: () => void;
   onMarkAsRead: () => Promise<void>;
   onDelete: () => Promise<void>;
   onClear: () => void;

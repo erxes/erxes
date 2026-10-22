@@ -7,18 +7,26 @@ import {
 import type { BadgeProps } from 'erxes-ui';
 import type { TNotificationPriority, TNotificationType } from 'ui-modules';
 import type { NotificationPriorityOption } from '@/notification/types/notifications';
-import type { NotificationFilterQueryState } from '@/notification/types/notificationFilters';
+import type {
+  NotificationFilterQueries,
+  NotificationFilterQueryState,
+} from '@/notification/types/notificationFilters';
+
+export const NOTIFICATION_CONTENT_FILTER_QUERY_KEYS: (keyof NotificationFilterQueries)[] =
+  [
+    'notificationType',
+    'notificationPriority',
+    'notificationCreatedAt',
+    'notificationFromUserId',
+    'notificationModule',
+    'notificationPlugin',
+  ];
 
 export const NOTIFICATION_FILTER_QUERY_KEYS: (keyof NotificationFilterQueryState)[] =
   [
     'notificationStatus',
-    'notificationType',
-    'notificationPriority',
-    'notificationCreatedAt',
     'notificationOrderBy',
-    'notificationFromUserId',
-    'notificationModule',
-    'notificationPlugin',
+    ...NOTIFICATION_CONTENT_FILTER_QUERY_KEYS,
   ];
 
 export const NOTIFICATION_TYPE_ICONS = {
