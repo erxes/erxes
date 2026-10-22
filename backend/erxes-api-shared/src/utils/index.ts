@@ -26,4 +26,6 @@ export * from './editor';
 export * from './errorClassifier';
 export * from './sentry-init';
 export * from './logger';
+export * from './sentryFingerprint';
+export * from './sentryScrub';
 export * from './email';
