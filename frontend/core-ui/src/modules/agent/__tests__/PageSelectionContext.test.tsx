@@ -5,7 +5,7 @@ import {
   pageSelectionsPart,
   pageSelectionsDisplayText,
 } from '../pageSelections';
-import { mapStoredMessagesToUIMessages } from '../mapStoredMessages';
+import { withUserDisplayText } from '../utils/messages';
 jest.mock('erxes-ui', () => ({
   readImage: (url: string) => `/read-file?key=${url}`,
 }));
@@ -43,19 +43,17 @@ it('restores the question and typed context without showing model-only context t
     ...part,
     data: { selections: [selection], displayText: 'Report on this company' },
   };
-  const messages = mapStoredMessagesToUIMessages([
+  const messages = withUserDisplayText([
     {
       id: 'm1',
       role: 'user',
-      content: {
-        parts: [
-          {
-            type: 'text',
-            text: 'Report on this company + model-only selection JSON',
-          },
-          persisted,
-        ],
-      },
+      parts: [
+        {
+          type: 'text',
+          text: 'Report on this company + model-only selection JSON',
+        },
+        persisted,
+      ],
     },
   ]);
   expect(messages[0].parts[0]).toEqual({

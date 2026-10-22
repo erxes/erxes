@@ -3,7 +3,7 @@ import {
   referenceIdentity,
   type IAgentReferenceRegistry,
 } from '../references/referenceRegistry';
-import type { TextUIPart, UIMessage } from 'ai';
+import { isTextUIPart } from 'ai';
 
 import {
   AGENT_REFERENCE_PLACEHOLDER_PATTERN,
@@ -11,14 +11,11 @@ import {
 } from '../references/maskAgentReferences';
 import { extractPageContext } from './pageContext';
 import { getMessageText, isAgentsAnswerTurn } from './messages';
-
-// `ai` is ESM-only — `import type` only so jest (CJS) can load this util.
-const isTextPart = (part: UIMessage['parts'][number]): part is TextUIPart =>
-  part.type === 'text';
+import type { AgentsUIMessage } from '../types';
 
 export interface IBuildThreadMarkdownArgs {
   title: string;
-  messages: UIMessage[];
+  messages: AgentsUIMessage[];
   exportedAt: Date;
 }
 
@@ -72,7 +69,7 @@ export const buildThreadMarkdown = ({
 
       const { parts } = extractPageContext(message.parts);
       const text = parts
-        .filter(isTextPart)
+        .filter(isTextUIPart)
         .map((part) => part.text)
         .join('\n\n')
         .trim();

@@ -1,4 +1,4 @@
-import type { UIMessage } from 'ai';
+import { isToolUIPart } from 'ai';
 import { useSetAtom } from 'jotai';
 import { useEffect, useRef } from 'react';
 
@@ -11,24 +11,20 @@ import {
   agentActivityState,
   type AgentActivityPhase,
 } from '../states/agentActivityState';
+import type { AgentsUIMessage } from '../types';
 
-// Local predicate, like `utils/agentWorkSteps.ts` — `ai` is ESM-only and
-// hooks must stay importable from jest (CJS).
-const isToolPart = (part: UIMessage['parts'][number]) =>
-  part.type === 'dynamic-tool' || part.type.startsWith('tool-');
-
-const lastAssistantOf = (messages: UIMessage[]): UIMessage | undefined =>
+const lastAssistantOf = (
+  messages: AgentsUIMessage[],
+): AgentsUIMessage | undefined =>
   [...messages].reverse().find((message) => message.role === 'assistant');
 
 /** The last assistant message has a tool call still gathering input. */
 const lastAssistantHasRunningTool = (chat: IUseAgentsChatResult): boolean =>
-  lastAssistantOf(chat.messages)?.parts.some((part) => {
-    const state = (part as { state?: string }).state;
-    return (
-      isToolPart(part) &&
-      (state === 'input-streaming' || state === 'input-available')
-    );
-  }) ?? false;
+  lastAssistantOf(chat.messages)?.parts.some(
+    (part) =>
+      isToolUIPart(part) &&
+      (part.state === 'input-streaming' || part.state === 'input-available'),
+  ) ?? false;
 
 const phaseOf = (chat: IUseAgentsChatResult): AgentActivityPhase => {
   if (chat.error) {

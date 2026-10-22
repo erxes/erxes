@@ -19,11 +19,6 @@ jest.mock('react-i18next', () => ({
   }),
 }));
 
-jest.mock('ai', () => ({
-  isTextUIPart: (part: { type: string }) => part.type === 'text',
-  isToolUIPart: (part: { type: string }) =>
-    part.type === 'dynamic-tool' || part.type.startsWith('tool-'),
-}));
 jest.mock('erxes-ui', () => {
   const React = jest.requireActual<typeof import('react')>('react');
   const Wrapper = ({ children }: { children?: ReactNode }) => (

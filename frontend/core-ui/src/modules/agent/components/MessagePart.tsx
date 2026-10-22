@@ -3,8 +3,7 @@ import {
   readPageSelectionsPart,
 } from '../pageSelections';
 import { PageSelectionContext } from './PageSelectionContext';
-import { isDataUIPart, isTextUIPart, isToolUIPart } from 'ai';
-import type { UIMessage } from 'ai';
+import { getToolName, isDataUIPart, isTextUIPart, isToolUIPart } from 'ai';
 
 import { ApprovalPrompt, ApprovalStatusRow } from './ApprovalPrompt';
 import {
@@ -27,12 +26,13 @@ import {
 import { AttachedFiles } from './AttachedFiles';
 import type { IAgentToolStep } from '../utils/agentWorkSteps';
 import { TextWithAgentReferences } from './TextWithAgentReferences';
+import type { AgentsUIMessage } from '../types';
 
-type TMessagePart = UIMessage['parts'][number];
+type TMessagePart = AgentsUIMessage['parts'][number];
 
 export interface IMessagePartRendererProps {
   part: TMessagePart;
-  role: UIMessage['role'];
+  role: AgentsUIMessage['role'];
   /** True while the approval decision is being submitted. */
   approvalBusy: boolean;
   onApprovalRespond: (decision: {
@@ -58,28 +58,13 @@ export interface IMessagePartRendererProps {
 const readAskUserQuestions = (
   part: TMessagePart,
 ): IAskUserQuestionGroup | null => {
-  if (!isDataUIPart(part)) {
+  if (part.type !== 'data-tool-call-suspended') {
     return null;
   }
 
-  const typed = part as { type: string; data?: unknown };
+  const { data } = part;
 
-  if (typed.type !== 'data-tool-call-suspended') {
-    return null;
-  }
-
-  const data = typed.data as {
-    toolName?: string;
-    toolCallId?: string;
-    suspendPayload?: {
-      questions?: unknown;
-      question?: unknown;
-      options?: unknown;
-      selectionMode?: unknown;
-    };
-  } | null;
-
-  if (data?.toolName !== 'askUser') {
+  if (data.toolName !== 'askUser') {
     return null;
   }
 
@@ -92,9 +77,6 @@ const readAskUserQuestions = (
   return questions.length ? { questions } : null;
 };
 
-const toolNameOf = (part: TMessagePart): string =>
-  'toolName' in part ? part.toolName : part.type.slice('tool-'.length);
-
 const toolStepOf = (part: TMessagePart): IAgentToolStep | null => {
   if (!isToolUIPart(part)) {
     return null;
@@ -102,7 +84,7 @@ const toolStepOf = (part: TMessagePart): IAgentToolStep | null => {
 
   return {
     toolCallId: part.toolCallId,
-    toolName: toolNameOf(part),
+    toolName: getToolName(part),
     state: part.state,
     input: part.input,
     output: 'output' in part ? part.output : undefined,
@@ -125,7 +107,7 @@ const readAskUserAnswerCard = (
     return null;
   }
 
-  if (!/^ask_?user$/i.test(toolNameOf(part))) {
+  if (!/^ask_?user$/i.test(getToolName(part))) {
     return null;
   }
 
@@ -147,7 +129,7 @@ const readAskUserAnswerCard = (
  * to detect the ask_user turn a following answer bubble belongs to.
  */
 export const readMessageAskUserAnswerCard = (
-  message: UIMessage,
+  message: AgentsUIMessage,
 ): IAskUserAnswerEntry[] | null => {
   for (const part of message.parts) {
     const card = readAskUserAnswerCard(part);
@@ -193,12 +175,12 @@ export const hasVisibleParts = (
         return false;
       }
 
-      const typed = part as { data?: { toolCallId?: string } };
+      const toolCallId =
+        part.type === 'data-tool-call-suspended'
+          ? part.data.toolCallId
+          : undefined;
 
-      return (
-        !typed.data?.toolCallId ||
-        !answeredToolCallIds.has(typed.data.toolCallId)
-      );
+      return !toolCallId || !answeredToolCallIds.has(toolCallId);
     }
 
     return false;
@@ -314,18 +296,18 @@ export const MessagePartRenderer = ({
       return null;
     }
 
-    const typed = part as { data?: { toolCallId?: string } };
+    const toolCallId =
+      part.type === 'data-tool-call-suspended'
+        ? part.data.toolCallId
+        : undefined;
 
-    if (
-      typed.data?.toolCallId &&
-      answeredToolCallIds.has(typed.data.toolCallId)
-    ) {
+    if (toolCallId && answeredToolCallIds.has(toolCallId)) {
       return null;
     }
 
     return (
       <AskUserPrompt
-        key={typed.data?.toolCallId ?? JSON.stringify(group.questions)}
+        key={toolCallId ?? JSON.stringify(group.questions)}
         group={group}
         busy={answerBusy}
         onAnswer={onAnswer}

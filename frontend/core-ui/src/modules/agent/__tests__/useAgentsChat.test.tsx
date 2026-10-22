@@ -6,6 +6,7 @@ import { useAgentsChat } from '../hooks/useAgentsChat';
 import type { IAgentsRequestSelection } from '../transport';
 
 jest.mock('ai', () => ({
+  ...jest.requireActual('ai'),
   isToolUIPart: () => false,
   lastAssistantMessageIsCompleteWithApprovalResponses: () => false,
 }));
@@ -38,9 +39,6 @@ jest.mock('../transport', () => ({
 }));
 jest.mock('../hooks/useNavigationCatalog', () => ({
   useNavigationCatalog: () => [],
-}));
-jest.mock('../mapStoredMessages', () => ({
-  mapStoredMessagesToUIMessages: (messages: unknown) => messages,
 }));
 
 import { Chat, useChat } from '@ai-sdk/react';
