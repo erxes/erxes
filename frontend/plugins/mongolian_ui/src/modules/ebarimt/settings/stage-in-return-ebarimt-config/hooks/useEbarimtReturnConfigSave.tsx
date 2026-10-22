@@ -57,11 +57,12 @@ export const useEbarimtReturnConfigSave = () => {
       });
 
       const saved = result?.data;
-      const savedId = !saved
-        ? undefined
-        : 'mnConfigsCreate' in saved
-        ? saved.mnConfigsCreate?._id
-        : saved.mnConfigsUpdate?._id;
+      if (!saved) return configId;
+
+      const savedId =
+        'mnConfigsCreate' in saved
+          ? saved.mnConfigsCreate?._id
+          : saved.mnConfigsUpdate?._id;
 
       return savedId || configId;
     } catch (error) {
