@@ -1,5 +1,4 @@
 import {
-  Alert,
   ChartContainer,
   ChartTooltipContent,
   cn,
@@ -7,6 +6,7 @@ import {
   RecordTableInlineCell,
 } from 'erxes-ui';
 import { FrontlineCard } from '../frontline-card/FrontlineCard';
+import { FrontlineChartCard } from '../frontline-card/FrontlineChartCard';
 import { useTicketTags } from '@/report/hooks/useTicketTags';
 import { SelectChartType } from '../select-chart-type/SelectChartType';
 import { ReportChart, ResponsesChartType, TagData } from '@/report/types';
@@ -115,70 +115,19 @@ export const TicketTags = ({
     </>
   );
 
-  if (loading || !filtersRestored) {
-    return (
-      <FrontlineCard
-        id={id}
-        title={title}
-        description={t('tickets-by-tag')}
-        colSpan={colSpan}
-        onColSpanChange={onColSpanChange}
-      >
-        <FrontlineCard.Header filter={filterEl} />
-        <FrontlineCard.Content>
-          <FrontlineCard.Skeleton />
-        </FrontlineCard.Content>
-      </FrontlineCard>
-    );
-  }
-
-  if (error) {
-    return (
-      <FrontlineCard
-        id={id}
-        title={title}
-        description={t('tickets-by-tag')}
-        colSpan={colSpan}
-        onColSpanChange={onColSpanChange}
-      >
-        <FrontlineCard.Content>
-          <Alert variant="destructive">
-            <Alert.Title>
-              {t('error-loading-data', 'Error loading data')}
-            </Alert.Title>
-            <Alert.Description>{error.message}</Alert.Description>
-          </Alert>
-        </FrontlineCard.Content>
-      </FrontlineCard>
-    );
-  }
-
-  if (!allTags.length) {
-    return (
-      <FrontlineCard
-        id={id}
-        title={title}
-        description={t('no-ticket-tags-found')}
-        colSpan={colSpan}
-        onColSpanChange={onColSpanChange}
-      >
-        <FrontlineCard.Header filter={filterEl} />
-        <FrontlineCard.Content>
-          <FrontlineCard.Empty />
-        </FrontlineCard.Content>
-      </FrontlineCard>
-    );
-  }
-
   return (
-    <FrontlineCard
+    <FrontlineChartCard
       id={id}
       title={title}
       description={t('tickets-by-tag')}
+      emptyDescription={t('no-ticket-tags-found')}
       colSpan={colSpan}
       onColSpanChange={onColSpanChange}
+      filter={filterEl}
+      loading={loading || !filtersRestored}
+      error={error}
+      isEmpty={!allTags.length}
     >
-      <FrontlineCard.Header filter={filterEl} />
       <FrontlineCard.Content>
         <div
           className={cn(
@@ -210,7 +159,7 @@ export const TicketTags = ({
           onNext={handleNext}
         />
       </FrontlineCard.Content>
-    </FrontlineCard>
+    </FrontlineChartCard>
   );
 };
 

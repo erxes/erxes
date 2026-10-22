@@ -1,5 +1,4 @@
 import {
-  Alert,
   ChartContainer,
   ChartTooltipContent,
   cn,
@@ -7,6 +6,7 @@ import {
   RecordTableInlineCell,
 } from 'erxes-ui';
 import { FrontlineCard } from '../frontline-card/FrontlineCard';
+import { FrontlineChartCard } from '../frontline-card/FrontlineChartCard';
 import { useConversationSources } from '@/report/hooks/useConversationSource';
 import {
   Area,
@@ -123,72 +123,20 @@ export const ConversationSource = ({
     </>
   );
 
-  if (loading || !filtersRestored) {
-    return (
-      <FrontlineCard
-        id={id}
-        title={title}
-        description={t('conversation-statistics-by-source')}
-        colSpan={colSpan}
-        onColSpanChange={onColSpanChange}
-      >
-        <FrontlineCard.Header filter={filterEl} />
-        <FrontlineCard.Content>
-          <FrontlineCard.Skeleton />
-        </FrontlineCard.Content>
-      </FrontlineCard>
-    );
-  }
-
-  if (error) {
-    return (
-      <FrontlineCard
-        id={id}
-        title={title}
-        description={t('conversation-statistics-by-source')}
-        colSpan={colSpan}
-        onColSpanChange={onColSpanChange}
-      >
-        <FrontlineCard.Content>
-          <Alert variant="destructive">
-            <Alert.Title>
-              {t('error-loading-data', 'Error loading data')}
-            </Alert.Title>
-            <Alert.Description>
-              {error.message || t('failed-to-load-conversation-sources')}
-            </Alert.Description>
-          </Alert>
-        </FrontlineCard.Content>
-      </FrontlineCard>
-    );
-  }
-
-  if (!conversationSources || conversationSources.length === 0) {
-    return (
-      <FrontlineCard
-        id={id}
-        title={title}
-        description={t('no-conversation-sources-found')}
-        colSpan={colSpan}
-        onColSpanChange={onColSpanChange}
-      >
-        <FrontlineCard.Header filter={filterEl} />
-        <FrontlineCard.Content>
-          <FrontlineCard.Empty />
-        </FrontlineCard.Content>
-      </FrontlineCard>
-    );
-  }
-
   return (
-    <FrontlineCard
+    <FrontlineChartCard
       id={id}
       title={title}
       description={t('conversation-statistics-by-source')}
+      emptyDescription={t('no-conversation-sources-found')}
       colSpan={colSpan}
       onColSpanChange={onColSpanChange}
+      filter={filterEl}
+      loading={loading || !filtersRestored}
+      error={error}
+      errorFallback={t('failed-to-load-conversation-sources')}
+      isEmpty={!conversationSources || conversationSources.length === 0}
     >
-      <FrontlineCard.Header filter={filterEl} />
       <FrontlineCard.Content>
         <div
           className={cn(
@@ -222,7 +170,7 @@ export const ConversationSource = ({
           onNext={handleNext}
         />
       </FrontlineCard.Content>
-    </FrontlineCard>
+    </FrontlineChartCard>
   );
 };
 

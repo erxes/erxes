@@ -1,5 +1,4 @@
 import {
-  Alert,
   ChartContainer,
   ChartTooltipContent,
   cn,
@@ -7,6 +6,7 @@ import {
   RecordTableInlineCell,
 } from 'erxes-ui';
 import { FrontlineCard } from '../frontline-card/FrontlineCard';
+import { FrontlineChartCard } from '../frontline-card/FrontlineChartCard';
 import { useConversationTags } from '@/report/hooks/useConversationTags';
 import { SelectChartType } from '../select-chart-type/SelectChartType';
 import { ChartExportButton } from '../chart-export/ChartExportButton';
@@ -119,72 +119,20 @@ export const ConversationTag = ({
     </>
   );
 
-  if (loading || !filtersRestored) {
-    return (
-      <FrontlineCard
-        id={id}
-        title={title}
-        description={t('conversation-statistics-by-tag')}
-        colSpan={colSpan}
-        onColSpanChange={onColSpanChange}
-      >
-        <FrontlineCard.Header filter={filterEl} />
-        <FrontlineCard.Content>
-          <FrontlineCard.Skeleton />
-        </FrontlineCard.Content>
-      </FrontlineCard>
-    );
-  }
-
-  if (error) {
-    return (
-      <FrontlineCard
-        id={id}
-        title={title}
-        description={t('conversation-statistics-by-tag')}
-        colSpan={colSpan}
-        onColSpanChange={onColSpanChange}
-      >
-        <FrontlineCard.Content>
-          <Alert variant="destructive">
-            <Alert.Title>
-              {t('error-loading-data', 'Error loading data')}
-            </Alert.Title>
-            <Alert.Description>
-              {error.message || t('failed-to-load-conversation-tags')}
-            </Alert.Description>
-          </Alert>
-        </FrontlineCard.Content>
-      </FrontlineCard>
-    );
-  }
-
-  if (!conversationTags || conversationTags.length === 0) {
-    return (
-      <FrontlineCard
-        id={id}
-        title={title}
-        description={t('no-conversation-tags-found')}
-        colSpan={colSpan}
-        onColSpanChange={onColSpanChange}
-      >
-        <FrontlineCard.Header filter={filterEl} />
-        <FrontlineCard.Content>
-          <FrontlineCard.Empty />
-        </FrontlineCard.Content>
-      </FrontlineCard>
-    );
-  }
-
   return (
-    <FrontlineCard
+    <FrontlineChartCard
       id={id}
       title={title}
       description={t('conversation-statistics-by-tag')}
+      emptyDescription={t('no-conversation-tags-found')}
       colSpan={colSpan}
       onColSpanChange={onColSpanChange}
+      filter={filterEl}
+      loading={loading || !filtersRestored}
+      error={error}
+      errorFallback={t('failed-to-load-conversation-tags')}
+      isEmpty={!conversationTags || conversationTags.length === 0}
     >
-      <FrontlineCard.Header filter={filterEl} />
       <FrontlineCard.Content>
         <div
           className={cn(
@@ -218,7 +166,7 @@ export const ConversationTag = ({
           onNext={handleNext}
         />
       </FrontlineCard.Content>
-    </FrontlineCard>
+    </FrontlineChartCard>
   );
 };
 
@@ -328,7 +276,10 @@ export const TagBarChart = memo(function TagBarChart({
           content={<ChartTooltipContent />}
           formatter={(value: number, name: string, props: any) => {
             if (name === 'Percentage') {
-              return [props.payload.percentage?.toFixed(1) + '%', t('percentage')];
+              return [
+                props.payload.percentage?.toFixed(1) + '%',
+                t('percentage'),
+              ];
             }
             return [value, name === 'Count' ? t('count') : name];
           }}
@@ -653,9 +604,7 @@ export const TagRecordTableChart = memo(function TagRecordTableChart({
   );
 });
 
-export const tagRecordTableColumns = (
-  t: TFunction,
-): ColumnDef<TagData>[] => [
+export const tagRecordTableColumns = (t: TFunction): ColumnDef<TagData>[] => [
   {
     id: 'name',
     header: t('tag'),

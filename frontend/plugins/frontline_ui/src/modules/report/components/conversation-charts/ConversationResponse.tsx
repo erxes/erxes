@@ -1,5 +1,4 @@
 import {
-  Alert,
   ChartContainer,
   ChartTooltipContent,
   cn,
@@ -7,6 +6,7 @@ import {
   RecordTableInlineCell,
 } from 'erxes-ui';
 import { FrontlineCard } from '../frontline-card/FrontlineCard';
+import { FrontlineChartCard } from '../frontline-card/FrontlineChartCard';
 import { useConversationResponses } from '@/report/hooks/useConversationResponses';
 import {
   Area,
@@ -127,71 +127,20 @@ export const ConversationResponse = ({
     </>
   );
 
-  if (loading || !filtersRestored) {
-    return (
-      <FrontlineCard
-        id={id}
-        title={title}
-        description={t('message-response-statistics-by-user')}
-        colSpan={colSpan}
-        onColSpanChange={onColSpanChange}
-      >
-        <FrontlineCard.Header filter={filterEl} />
-        <FrontlineCard.Content>
-          <FrontlineCard.Skeleton />
-        </FrontlineCard.Content>
-      </FrontlineCard>
-    );
-  }
-
-  if (error) {
-    return (
-      <FrontlineCard
-        id={id}
-        title={title}
-        description={t('message-response-statistics-by-user')}
-        colSpan={colSpan}
-        onColSpanChange={onColSpanChange}
-      >
-        <FrontlineCard.Content>
-          <Alert variant="destructive">
-            <Alert.Title>
-              {t('error-loading-data', 'Error loading data')}
-            </Alert.Title>
-            <Alert.Description>
-              {error.message || t('failed-to-load-conversation-responses')}
-            </Alert.Description>
-          </Alert>
-        </FrontlineCard.Content>
-      </FrontlineCard>
-    );
-  }
-  if (!conversationResponses || conversationResponses.length === 0) {
-    return (
-      <FrontlineCard
-        id={id}
-        title={title}
-        description={t('no-conversation-responses-found')}
-        colSpan={colSpan}
-        onColSpanChange={onColSpanChange}
-      >
-        <FrontlineCard.Header filter={filterEl} />
-        <FrontlineCard.Content>
-          <FrontlineCard.Empty />
-        </FrontlineCard.Content>
-      </FrontlineCard>
-    );
-  }
-
   return (
-    <FrontlineCard
+    <FrontlineChartCard
       id={id}
       title={title}
       description={t('message-response-statistics-by-user')}
+      emptyDescription={t('no-conversation-responses-found')}
       colSpan={colSpan}
       onColSpanChange={onColSpanChange}
+      filter={filterEl}
+      loading={loading || !filtersRestored}
+      error={error}
+      errorFallback={t('failed-to-load-conversation-responses')}
+      isEmpty={!conversationResponses || conversationResponses.length === 0}
     >
-      <FrontlineCard.Header filter={filterEl} />
       <FrontlineCard.Content>
         <div
           className={cn(
@@ -225,7 +174,7 @@ export const ConversationResponse = ({
           onNext={handleNext}
         />
       </FrontlineCard.Content>
-    </FrontlineCard>
+    </FrontlineChartCard>
   );
 };
 
@@ -322,7 +271,11 @@ export const ResponseBarChart = memo(function ResponseBarChart({
           domain={stackedYAxisDomain}
           tickLine={false}
           axisLine={false}
-          label={{ value: t('message-count'), angle: -90, position: 'insideLeft' }}
+          label={{
+            value: t('message-count'),
+            angle: -90,
+            position: 'insideLeft',
+          }}
         />
         <Bar dataKey="messageCount" fill="var(--primary)" name="Message Count">
           <LabelList
@@ -346,9 +299,15 @@ export const ResponseBarChart = memo(function ResponseBarChart({
           content={<ChartTooltipContent />}
           formatter={(value: number, name: string, props) => {
             if (name === 'Percentage') {
-              return [props.payload.percentage?.toFixed(1) + '%', t('percentage')];
+              return [
+                props.payload.percentage?.toFixed(1) + '%',
+                t('percentage'),
+              ];
             }
-            return [value, name === 'Message Count' ? t('message-count') : name];
+            return [
+              value,
+              name === 'Message Count' ? t('message-count') : name,
+            ];
           }}
         />
       </BarChart>
@@ -431,7 +390,11 @@ export const ResponseLineChart = memo(function ResponseLineChart({
           domain={messageCountYAxisDomain}
           tickLine={false}
           axisLine={false}
-          label={{ value: t('message-count'), angle: -90, position: 'insideLeft' }}
+          label={{
+            value: t('message-count'),
+            angle: -90,
+            position: 'insideLeft',
+          }}
         />
         <YAxis
           yAxisId="percentage"
@@ -697,29 +660,28 @@ export const ResponseRecordTableChart = memo(function ResponseRecordTableChart({
 
 export const responseRecordTableColumns = (
   t: TFunction,
-): ColumnDef<ConversationUserMessageStat>[] =>
-  [
-    {
-      header: t('user'),
-      accessorKey: 'user',
-      cell: ({ cell }) => (
-        <RecordTableInlineCell className="text-xs">
-          <MembersInline
-            memberIds={
-              cell.row.original.user?._id ? [cell.row.original.user._id] : []
-            }
-          />
-        </RecordTableInlineCell>
-      ),
-    },
-    {
-      header: t('message-count'),
-      accessorKey: 'messageCount',
-      size: 50,
-      cell: ({ cell }) => (
-        <RecordTableInlineCell className="px-4 text-xs flex items-center justify-end text-muted-foreground">
-          {cell.getValue() as string}
-        </RecordTableInlineCell>
-      ),
-    },
-  ];
+): ColumnDef<ConversationUserMessageStat>[] => [
+  {
+    header: t('user'),
+    accessorKey: 'user',
+    cell: ({ cell }) => (
+      <RecordTableInlineCell className="text-xs">
+        <MembersInline
+          memberIds={
+            cell.row.original.user?._id ? [cell.row.original.user._id] : []
+          }
+        />
+      </RecordTableInlineCell>
+    ),
+  },
+  {
+    header: t('message-count'),
+    accessorKey: 'messageCount',
+    size: 50,
+    cell: ({ cell }) => (
+      <RecordTableInlineCell className="px-4 text-xs flex items-center justify-end text-muted-foreground">
+        {cell.getValue() as string}
+      </RecordTableInlineCell>
+    ),
+  },
+];

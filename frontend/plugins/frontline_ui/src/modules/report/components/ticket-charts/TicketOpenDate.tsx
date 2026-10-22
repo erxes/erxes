@@ -1,43 +1,12 @@
-import {
-  Alert,
-  ChartContainer,
-  ChartTooltipContent,
-  cn,
-  RecordTable,
-  RecordTableInlineCell,
-  isDefined,
-} from 'erxes-ui';
+import { Alert, cn, isDefined } from 'erxes-ui';
 import { FrontlineCard } from '../frontline-card/FrontlineCard';
 import { useTicketDate } from '@/report/hooks/useTicketOpenDate';
 import { SelectChartType } from '../select-chart-type/SelectChartType';
 import { ReportChart, ResponsesChartType } from '@/report/types';
-import { memo, useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
-import {
-  Bar,
-  BarChart,
-  Area,
-  AreaChart,
-  XAxis,
-  YAxis,
-  Legend,
-  LabelList,
-  Tooltip,
-  CartesianGrid,
-  PieChart,
-  Pie,
-  Cell,
-  PolarGrid,
-  PolarAngleAxis,
-  PolarRadiusAxis,
-  Radar,
-  RadarChart,
-  type LegendPayload,
-} from 'recharts';
-import { ColumnDef } from '@tanstack/table-core';
-import { AreaGradient } from '../chart/AreaGradient';
-import { CustomLegendContent } from '../chart/legend';
+import { DateCountChart } from '../chart/DateCountCharts';
 import {
   getReportChartTypeAtom,
   getReportFrequencyFilterAtom,
@@ -59,10 +28,6 @@ interface TicketOpenDateProps {
   savedChart?: ReportChart;
   colSpan?: 6 | 12;
   onColSpanChange?: (span: 6 | 12) => void;
-}
-
-interface ChartProps {
-  chartData: Array<{ date: string; count: number }>;
 }
 
 export const TicketOpenDate = ({
@@ -171,18 +136,13 @@ export const TicketOpenDate = ({
 
   const renderChart = () => {
     if (!chartData.length) return <FrontlineCard.Empty />;
-    switch (chartType) {
-      case ResponsesChartType.Line:
-        return <TicketOpenLineChart chartData={chartData} />;
-      case ResponsesChartType.Pie:
-        return <TicketOpenPieChart chartData={chartData} />;
-      case ResponsesChartType.Radar:
-        return <TicketOpenRadarChart chartData={chartData} />;
-      case ResponsesChartType.Table:
-        return <TicketOpenTableChart chartData={chartData} />;
-      default:
-        return <TicketOpenBarChart chartData={chartData} />;
-    }
+    return (
+      <DateCountChart
+        chartType={chartType}
+        chartData={chartData}
+        gradientId="tk-open-primary"
+      />
+    );
   };
 
   return (
@@ -214,246 +174,3 @@ export const TicketOpenDate = ({
     </FrontlineCard>
   );
 };
-
-export const TicketOpenBarChart = memo(function TicketOpenBarChart({
-  chartData,
-}: ChartProps) {
-  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
-  const chartConfig = useMemo(
-    () => ({ count: { label: 'Count', color: 'var(--primary)' } }),
-    [],
-  );
-  if (!chartData.length) return null;
-  return (
-    <ChartContainer config={chartConfig} className="aspect-video w-full">
-      <BarChart
-        data={chartData}
-        margin={{ top: 24, right: 10, left: 10, bottom: 60 }}
-      >
-        <CartesianGrid vertical={false} strokeDasharray="3 3" />
-        <Bar dataKey="count" fill="var(--primary)" name={t('count')}>
-          <LabelList
-            dataKey="count"
-            position="top"
-            className="fill-foreground"
-            fontSize={12}
-          />
-        </Bar>
-        <XAxis
-          dataKey="date"
-          tickLine={false}
-          axisLine={false}
-          angle={-45}
-          textAnchor="end"
-          height={60}
-        />
-        <YAxis
-          tickLine={false}
-          axisLine={false}
-          label={{ value: t('count'), angle: -90, position: 'insideLeft' }}
-        />
-        <Tooltip content={<ChartTooltipContent />} />
-        <Legend content={(props) => <CustomLegendContent {...props} />} />
-      </BarChart>
-    </ChartContainer>
-  );
-});
-
-export const TicketOpenLineChart = memo(function TicketOpenLineChart({
-  chartData,
-}: ChartProps) {
-  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
-  const chartConfig = useMemo(
-    () => ({ count: { label: 'Count', color: 'var(--primary)' } }),
-    [],
-  );
-  if (!chartData.length) return null;
-  return (
-    <ChartContainer config={chartConfig} className="aspect-video w-full">
-      <AreaChart
-        data={chartData}
-        margin={{ top: 10, right: 10, left: 10, bottom: 60 }}
-      >
-        <defs>
-          <AreaGradient id="tk-open-primary" color="var(--primary)" />
-        </defs>
-        <CartesianGrid vertical={false} strokeDasharray="3 3" />
-        <Area
-          type="monotone"
-          dataKey="count"
-          stroke="var(--primary)"
-          fill="url(#tk-open-primary)"
-          strokeWidth={2}
-          name={t('count')}
-          dot={false}
-          activeDot={{ r: 4 }}
-        />
-        <XAxis
-          dataKey="date"
-          tickLine={false}
-          axisLine={false}
-          angle={-45}
-          textAnchor="end"
-          height={60}
-        />
-        <YAxis
-          tickLine={false}
-          axisLine={false}
-          label={{ value: t('count'), angle: -90, position: 'insideLeft' }}
-        />
-        <Tooltip content={<ChartTooltipContent />} />
-        <Legend content={(props) => <CustomLegendContent {...props} />} />
-      </AreaChart>
-    </ChartContainer>
-  );
-});
-
-export const TicketOpenPieChart = memo(function TicketOpenPieChart({
-  chartData,
-}: ChartProps) {
-  const [hoveredDate, setHoveredDate] = useState<string | undefined>(undefined);
-  const chartConfig = useMemo(
-    () => ({ count: { label: 'Count', color: 'var(--primary)' } }),
-    [],
-  );
-  const colors = [
-    'var(--chart-50)',
-    'var(--chart-100)',
-    'var(--chart-200)',
-    'var(--chart-300)',
-    'var(--chart-400)',
-    'var(--chart-500)',
-    'var(--chart-600)',
-    'var(--chart-700)',
-    'var(--chart-800)',
-    'var(--chart-900)',
-    'var(--chart-950)',
-  ];
-  const data = useMemo(
-    () =>
-      chartData.map((item, i) => ({
-        ...item,
-        fill: colors[i % colors.length],
-      })),
-    [chartData],
-  );
-  return (
-    <ChartContainer config={chartConfig} className="aspect-video w-full">
-      <PieChart>
-        <Pie
-          dataKey="count"
-          data={data}
-          cx="50%"
-          cy="50%"
-          outerRadius={100}
-          innerRadius={70}
-          nameKey="date"
-        >
-          {data.map((entry, i) => (
-            <Cell
-              key={i}
-              fill={entry.fill}
-              opacity={hoveredDate && hoveredDate !== entry.date ? 0.5 : 1}
-            />
-          ))}
-        </Pie>
-        <Legend
-          content={(props) => (
-            <CustomLegendContent
-              {...props}
-              onMouseEnter={(d: LegendPayload) =>
-                setHoveredDate(d.value as string)
-              }
-              onMouseLeave={() => setHoveredDate(undefined)}
-            />
-          )}
-        />
-        <Tooltip content={<ChartTooltipContent />} />
-      </PieChart>
-    </ChartContainer>
-  );
-});
-
-export const TicketOpenRadarChart = memo(function TicketOpenRadarChart({
-  chartData,
-}: ChartProps) {
-  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
-  const chartConfig = useMemo(
-    () => ({ count: { label: 'Count', color: 'var(--primary)' } }),
-    [],
-  );
-  const maxCount = useMemo(
-    () =>
-      Math.ceil(Math.max(...chartData.map((d) => d.count), 0) / 10) * 10 || 100,
-    [chartData],
-  );
-  return (
-    <ChartContainer config={chartConfig} className="aspect-video w-full">
-      <RadarChart data={chartData}>
-        <PolarGrid />
-        <PolarAngleAxis
-          dataKey="date"
-          tickLine={false}
-          tick={{ fontSize: 12 }}
-        />
-        <PolarRadiusAxis
-          angle={90}
-          domain={[0, maxCount]}
-          tick={false}
-          axisLine={false}
-        />
-        <Radar
-          name={t('count')}
-          dataKey="count"
-          stroke="var(--primary)"
-          fill="var(--primary)"
-          fillOpacity={0.3}
-        />
-        <Legend content={(props) => <CustomLegendContent {...props} />} />
-        <Tooltip content={<ChartTooltipContent />} />
-      </RadarChart>
-    </ChartContainer>
-  );
-});
-
-export const TicketOpenTableChart = memo(function TicketOpenTableChart({
-  chartData,
-}: ChartProps) {
-  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
-  const columns: ColumnDef<{ date: string; count: number }>[] = [
-    {
-      id: 'date',
-      header: t('date'),
-      accessorKey: 'date',
-      cell: ({ cell }) => (
-        <RecordTableInlineCell className="px-4 text-xs">
-          {cell.getValue() as string}
-        </RecordTableInlineCell>
-      ),
-    },
-    {
-      id: 'count',
-      header: t('count'),
-      accessorKey: 'count',
-      cell: ({ cell }) => (
-        <RecordTableInlineCell className="px-3 text-xs flex items-center justify-end text-muted-foreground">
-          {cell.getValue() as number}
-        </RecordTableInlineCell>
-      ),
-    },
-  ];
-  return (
-    <div className="bg-sidebar w-full rounded-lg [&_th]:last-of-type:text-right">
-      <RecordTable.Provider data={chartData} columns={columns} className="m-3">
-        <RecordTable.Scroll>
-          <RecordTable>
-            <RecordTable.Header />
-            <RecordTable.Body>
-              <RecordTable.RowList />
-            </RecordTable.Body>
-          </RecordTable>
-        </RecordTable.Scroll>
-      </RecordTable.Provider>
-    </div>
-  );
-});
