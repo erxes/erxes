@@ -131,6 +131,7 @@ const generateImportExportRouter = (
   }
 
   const trpcMiddleware = trpcExpress.createExpressMiddleware({
+    allowMethodOverride: true,
     router: trpcRouter.router(routerConfig),
     createContext: createTRPCContext(async (_subdomain, context) => {
       const processId = nanoid(12);

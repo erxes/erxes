@@ -2,7 +2,12 @@ import { PluginSharedSettingsNavigation } from 'ui-modules';
 import { FrontlineSettingsNavigation } from '@/FrontlineSettingsNavigation';
 import type { ReactNode } from 'react';
 import { IconSettings, IconArrowLeft } from '@tabler/icons-react';
-import { AppLayoutFooterLink, Sidebar, AppLayout } from 'erxes-ui';
+import {
+  AppLayoutFooterLink,
+  Sidebar,
+  AppLayout,
+  useQueryState,
+} from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { FrontlineNavigation } from '@/FrontlineNavigation';
 import { FrontlineSubGroups } from '@/FrontlineSubGroups';
@@ -41,6 +46,12 @@ export const FrontlineSettingsLayout = ({
   children: ReactNode;
 }) => {
   const { t } = useTranslation('common', { keyPrefix: 'navigation' });
+  const [inPreview] = useQueryState<boolean>('inPreview');
+
+  // Preview iframes (messenger, form) render bare, as core's DefaultLayout does.
+  if (inPreview) {
+    return <>{children}</>;
+  }
 
   return (
     <AppLayout

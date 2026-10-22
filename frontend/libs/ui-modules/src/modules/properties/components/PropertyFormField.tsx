@@ -32,6 +32,8 @@ export function PropertyFormField({
         field={field}
         value={value}
         handleChange={handleChange}
+        // Enter submits the form before blur, so commit on every keystroke.
+        onInputChange={handleChange}
         loading={false}
         id={id}
       />

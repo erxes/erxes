@@ -1,7 +1,32 @@
 import { graphqlPubsub } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
+import { ChannelMemberRoles } from '@/channel/@types/channel';
+import { checkUserRole } from '@/channel/utils';
 import { ITicketPipelineUpdate } from '@/ticket/@types/pipeline';
-import { validatePipelinePropertyIds } from '@/ticket/utils/pipelineProperties';
+import { validatePipelineCreateLayout } from '@/ticket/utils/pipelineCreateLayout';
+
+// Same rule as channel edits: a pipeline is part of its channel's settings.
+const checkCanManageChannels = async (
+  { models, user }: IContext,
+  channelIds: string[],
+) => {
+  if (!user) {
+    throw new Error('Authentication required');
+  }
+
+  if (user.isOwner) {
+    return;
+  }
+
+  for (const channelId of new Set(channelIds)) {
+    await checkUserRole({
+      models,
+      channelId,
+      userId: user._id,
+      allowedRoles: [ChannelMemberRoles.ADMIN],
+    });
+  }
+};
 
 export const pipelineMutations = {
   createPipeline: async (
@@ -13,15 +38,14 @@ export const pipelineMutations = {
       throw new Error('Authentication required');
     }
 
-    const propertyIds = await validatePipelinePropertyIds(
+    const createLayout = await validatePipelineCreateLayout(
       subdomain,
-      params.propertyIds,
+      params.createLayout,
     );
 
     const pipeline = await models.Pipeline.addPipeline({
       ...params,
-      propertyIds,
-      isPropertySelectionConfigured: params.propertyIds !== undefined,
+      createLayout,
       userId: user._id,
     });
 
@@ -41,18 +65,23 @@ export const pipelineMutations = {
     context: IContext,
   ) => {
     const { models, user, subdomain } = context;
-    const propertyIds =
-      params.propertyIds === undefined
+    const pipeline = await models.Pipeline.getPipeline(params._id);
+
+    // Moving it to another channel needs that channel's admin too.
+    await checkCanManageChannels(context, [
+      pipeline.channelId,
+      ...(params.channelId ? [params.channelId] : []),
+    ]);
+
+    const createLayout =
+      params.createLayout === undefined
         ? undefined
-        : await validatePipelinePropertyIds(subdomain, params.propertyIds);
+        : await validatePipelineCreateLayout(subdomain, params.createLayout);
     const updatedPipeline = await models.Pipeline.updatePipeline(
       params._id,
       {
         ...params,
-        ...(propertyIds !== undefined && {
-          propertyIds,
-          isPropertySelectionConfigured: true,
-        }),
+        ...(createLayout !== undefined && { createLayout }),
       },
       user,
     );
@@ -70,15 +99,12 @@ export const pipelineMutations = {
   removePipeline: async (
     _parent: undefined,
     { _id }: { _id: string },
-    { models }: IContext,
+    context: IContext,
   ) => {
+    const { models } = context;
     const pipeline = await models.Pipeline.getPipeline(_id);
 
-    // if (pipeline.userId !== user._id) {
-    //   throw new PermissionError(
-    //     'Access denied: Only the pipeline owner can delete this pipeline',
-    //   );
-    // }
+    await checkCanManageChannels(context, [pipeline.channelId]);
 
     const deletedPipeline = await models.Pipeline.removePipeline(_id);
 

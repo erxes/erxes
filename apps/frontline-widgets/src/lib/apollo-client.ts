@@ -10,6 +10,8 @@ import { getMainDefinition } from '@apollo/client/utilities';
 import { createClient } from 'graphql-ws';
 import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
 import { REACT_APP_API_URL } from 'erxes-ui';
+import { setContext } from '@apollo/client/link/context';
+import { WIDGET_SESSION_HEADER, getWidgetToken } from './widgetSession';
 
 interface Definition {
   kind: string;
@@ -44,6 +46,7 @@ export const wsLink = new GraphQLWsLink(
     connectionParams: () => {
       const params: Record<string, unknown> = {};
       params.messengerDataJson = localStorage.getItem('messengerDataJson');
+      params.widgetToken = getWidgetToken();
       return params;
     },
   }),
@@ -58,7 +61,18 @@ const splitLink = split(
   httpLink,
 );
 
+const sessionLink = setContext((_, { headers }) => {
+  const token = getWidgetToken();
+
+  return {
+    headers: {
+      ...headers,
+      ...(token ? { [WIDGET_SESSION_HEADER]: token } : {}),
+    },
+  };
+});
+
 export const apolloClient = new ApolloClient({
-  link: ApolloLink.from([errorLink, splitLink]),
+  link: ApolloLink.from([errorLink, sessionLink, splitLink]),
   cache: new InMemoryCache(),
 });
