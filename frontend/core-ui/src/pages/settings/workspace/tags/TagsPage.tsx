@@ -62,7 +62,8 @@ export const TagsPage = ({ pluginName }: { pluginName?: string }) => {
 
   return (
     <PageContainer className="flex-row">
-      <TagsSidebar className="max-md:hidden" pluginName={pluginName} />
+      {/* Inside a plugin, its tag types are listed in the settings sidebar. */}
+      {!pluginName && <TagsSidebar className="max-md:hidden" />}
       <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
         <SettingsHeader breadcrumbs={<TagsBreadcrumb />}>
           {canShowTags && (

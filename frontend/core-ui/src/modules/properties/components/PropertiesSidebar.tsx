@@ -9,11 +9,7 @@ export const PropertiesSidebar = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });
   const { t: tSidebar } = useTranslation('common', { keyPrefix: 'sidebar' });
   const { propertyTypes } = usePropertyTypes();
-  const { pluginName: scopePluginName } = usePropertiesScope();
-  // Inside a plugin's settings only that plugin's types are listed.
-  const groups = Object.entries(propertyTypes).filter(
-    ([pluginName]) => !scopePluginName || pluginName === scopePluginName,
-  );
+  const groups = Object.entries(propertyTypes);
 
   return (
     <Sidebar.Panel
