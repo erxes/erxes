@@ -1,3 +1,17 @@
+
+
+## [3.3.10](https://github.com/erxes/erxes/compare/3.3.9...3.3.10) (2026-10-22)
+
+
+### Bug Fixes
+
+* posclient orders log with expire ([a9cfe27](https://github.com/erxes/erxes/commit/a9cfe278a1209e8af65855be353c326c5c157b49))
+
+
+### Features
+
+* **accounting:** add production jobs(techcart) and executions, refine accounting workflows ([#9781](https://github.com/erxes/erxes/issues/9781)) ([742afc7](https://github.com/erxes/erxes/commit/742afc7a241588d4d4be7899588abfe260426a34))
+
 ## [3.3.9](https://github.com/erxes/erxes/compare/3.3.8...3.3.9) (2026-10-22)
 
 ### Bug Fixes
