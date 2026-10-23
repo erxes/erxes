@@ -10,6 +10,7 @@ const AUTH_TTL_MS = 5 * 60 * 1000;
 export interface AgentToolsAuthPayload {
   subdomain: string;
   userId: string | null;
+  threadId?: string;
 }
 
 /**
@@ -48,9 +49,20 @@ const signPayload = (payloadBase64: string): string =>
 export const encodeAgentToolsAuthHeader = (
   subdomain: string,
   userId?: string,
+  meta?: { threadId?: string },
 ): string => {
+  const threadId =
+    typeof meta?.threadId === 'string' && meta.threadId !== ''
+      ? meta.threadId
+      : undefined;
+
   const payloadBase64 = Buffer.from(
-    JSON.stringify({ subdomain, userId: userId || null, at: Date.now() }),
+    JSON.stringify({
+      subdomain,
+      userId: userId || null,
+      at: Date.now(),
+      ...(threadId ? { threadId } : {}),
+    }),
     'utf8',
   ).toString('base64url');
 
@@ -122,6 +134,9 @@ export const decodeAgentToolsAuthHeader = (
     return {
       subdomain: payload.subdomain,
       userId: typeof payload.userId === 'string' ? payload.userId : null,
+      ...(typeof payload.threadId === 'string' && payload.threadId !== ''
+        ? { threadId: payload.threadId }
+        : {}),
     };
   } catch {
     return null;

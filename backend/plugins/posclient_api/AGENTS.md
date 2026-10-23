@@ -177,6 +177,8 @@
 
 ## Local Invariants
 
+- An order converted to a deal sends its customer / company on the deal (`customerId` / `companyId` in the `sales` `deal.create` input); no core relation is made for it.
+
 - `cpOrdersAdd` and `cpOrdersEdit` always require client portal context;
   only `customerType: visitor` bypasses the portal user requirement.
   The regular `ordersAdd` mutation continues to require an authenticated POS user.

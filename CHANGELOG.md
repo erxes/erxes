@@ -1,5 +1,20 @@
 
 
+## [3.4.1](https://github.com/erxes/erxes/compare/3.4.0...3.4.1) (2026-10-23)
+
+
+### Reverts
+
+* unset customerIds and companyIds ([#9952](https://github.com/erxes/erxes/issues/9952)) ([15daf84](https://github.com/erxes/erxes/commit/15daf84b025a3a70822d666860c4c0ebba218a42))
+
+# [3.4.0](https://github.com/erxes/erxes/compare/3.3.10...3.4.0) (2026-10-23)
+
+
+### Features
+
+* remove deal relations from operations ([e9eaa4a](https://github.com/erxes/erxes/commit/e9eaa4af9b6fd9f337b87b5243ba542dbe395bb2))
+* remove relations collections and change relations  ([d83e2fa](https://github.com/erxes/erxes/commit/d83e2fa8e4be557bce37df0882aeb234bea74d63))
+
 ## [3.3.10](https://github.com/erxes/erxes/compare/3.3.9...3.3.10) (2026-10-22)
 
 

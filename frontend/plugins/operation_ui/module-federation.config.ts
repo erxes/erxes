@@ -18,6 +18,8 @@ const config: ModuleFederationConfig = {
     './config': './src/config.tsx',
     './operation': './src/modules/OperationMain.tsx',
     './relationWidget': './src/widgets/relation/RelationWidgets.tsx',
+    './recordPanel': './src/widgets/record-panel/RecordPanel.tsx',
+    './contactWidget': './src/widgets/contact/ContactWidgets.tsx',
     './notificationWidget':
       './src/widgets/notifications/NotificationsWidgets.tsx',
     './automationsWidget':

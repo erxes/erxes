@@ -66,6 +66,17 @@ export const CONFIG: IUIConfig = {
         icon: IconChecklist,
       },
     ],
+    // A customer's / company's tasks and projects on their overview
+    // (`./contactWidget`).
+    contactWidgets: [
+      { name: 'tasks', label: 'Tasks & triages', icon: IconChecklist },
+      { name: 'projects', label: 'Projects', icon: IconClipboard },
+    ],
+    // Tasks and triages open in the app's side panel (`./recordPanel`).
+    recordPanels: [
+      { contentType: 'operation:task' },
+      { contentType: 'operation:triage', properties: false },
+    ],
     propertyInputs: {
       taskStatus: (props: TPropertyInputProps) => (
         <Suspense fallback={<div />}>

@@ -10,7 +10,6 @@ import { IModels } from '~/connectionResolvers';
 import { IDeal, IDealDocument, IProductData } from '~/modules/sales/@types';
 import {
   checkMovePermission,
-  createRelations,
   getNewOrder,
   getTotalAmounts,
   sendNotifications,
@@ -107,7 +106,7 @@ export const addDeal = async ({
         ...extendedDoc,
         ...(await getTotalAmounts(extendedDoc.productsData || [])),
       },
-      customerIds: doc.customerIds,
+      customerIds: doc.customerId ? [doc.customerId] : undefined,
     }),
   );
 
@@ -116,11 +115,7 @@ export const addDeal = async ({
 
   const stage = await models.Stages.getStage(deal.stageId);
 
-  await createRelations(subdomain, {
-    dealId: deal._id,
-    companyIds: doc.companyIds,
-    customerIds: doc.customerIds,
-  });
+  // The deal keeps its customer / company itself (saved with the doc).
 
   try {
     await syncDealPoints({
@@ -215,6 +210,7 @@ export const editDeal = async ({
     if (doc.extraData !== undefined) {
       await syncDealVoucher({
         subdomain,
+        models,
         dealId: _id,
         previousVoucherId: oldDeal.extraData?.voucherId,
         voucherId: doc.extraData?.voucherId,
@@ -233,7 +229,7 @@ export const editDeal = async ({
       ...doc,
     });
 
-    doc.productsData = await checkLoyalties(subdomain, _id, {
+    doc.productsData = await checkLoyalties(subdomain, models, _id, {
       ...oldDeal.toObject?.(),
       ...oldDeal,
       ...doc,
