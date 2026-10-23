@@ -1,12 +1,16 @@
 import { APICallError, isToolUIPart } from 'ai';
 import { hasAgentsApprovalDecision } from '../approvalDecisions';
 import { Chat, useChat } from '@ai-sdk/react';
-import { useLazyQuery } from '@apollo/client';
+import { useLazyQuery, useMutation } from '@apollo/client';
 import { useSetAtom } from 'jotai';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import { AGENTS_THREAD_DETAIL } from '../graphql/threads';
-import type { IAgentsThreadDetailData } from '../graphql/threads';
+import { AGENTS_THREAD_DETAIL, AGENTS_THREAD_STOP } from '../graphql/threads';
+import type {
+  IAgentsThreadDetailData,
+  IAgentsThreadRemoveVariables,
+  IAgentsThreadStopData,
+} from '../graphql/threads';
 import type { IAskUserAnswer } from '../components/AskUserPrompt';
 import { extractPageContext } from '../utils/pageContext';
 import { useNavigationCatalog } from './useNavigationCatalog';
@@ -208,10 +212,23 @@ export const useAgentsChat = (options?: {
     error,
     sendMessage: sdkSendMessage,
     clearError,
-    stop,
+    stop: detach,
     addToolApprovalResponse,
     regenerate,
   } = useChat<AgentsUIMessage>({ chat, throttle: 50 });
+
+  // `useChat`'s stop only detaches this tab's stream, so the server run is
+  // stopped too; otherwise it keeps going and its planned writes still land.
+  const [stopThread] = useMutation<
+    IAgentsThreadStopData,
+    IAgentsThreadRemoveVariables
+  >(AGENTS_THREAD_STOP);
+  const stop = useCallback(async () => {
+    await Promise.all([
+      detach(),
+      stopThread({ variables: { threadId: chat.id } }),
+    ]);
+  }, [chat, detach, stopThread]);
 
   const sendMessage = useCallback<IUseChat['sendMessage']>(
     (...args) => {

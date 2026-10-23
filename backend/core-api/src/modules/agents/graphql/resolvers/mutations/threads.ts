@@ -121,6 +121,24 @@ export const agentsThreadMutations = {
   },
 
   /**
+   * Stops the thread's running turn on whichever replica executes it. The
+   * client's own `stop()` only detaches its stream; without this the run
+   * keeps going, and a write the model already planned still lands.
+   */
+  agentsThreadStop: async (
+    _p: undefined,
+    { threadId }: IAgentsThreadRemoveArgs,
+    ctx: IContext,
+  ) => {
+    await ctx.checkPermission('agentsChat');
+
+    const { agent, memory } = await getAgentsRuntime(ctx.subdomain);
+    await requireOwnedThread(memory, threadId, ctx.user._id);
+
+    return agent.abortThreadStream({ threadId, resourceId: ctx.user._id });
+  },
+
+  /**
    * Deletes one of the acting user's agents threads. The thread must exist
    * and belong to the acting user; the ownership error masks whether the
    * thread exists at all for other users. Publishes the standard refresh

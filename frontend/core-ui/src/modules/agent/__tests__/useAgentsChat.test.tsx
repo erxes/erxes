@@ -9,6 +9,7 @@ import type { IAgentsRequestSelection } from '../transport';
 jest.mock('@apollo/client', () => ({
   ...jest.requireActual('@apollo/client'),
   useLazyQuery: jest.fn(),
+  useMutation: jest.fn(),
 }));
 const mockSendMessages = jest.fn();
 const mockReconnectToStream = jest.fn();
@@ -28,9 +29,10 @@ jest.mock('../hooks/useNavigationCatalog', () => ({
   useNavigationCatalog: () => [],
 }));
 
-import { useLazyQuery } from '@apollo/client';
+import { useLazyQuery, useMutation } from '@apollo/client';
 
 const load = jest.fn();
+const stopThread = jest.fn();
 
 const deferred = <T,>() => {
   let resolve!: (value: T) => void;
@@ -70,6 +72,7 @@ beforeEach(() => {
   sessionStorage.clear();
   jest.clearAllMocks();
   (useLazyQuery as jest.Mock).mockReturnValue([load]);
+  (useMutation as jest.Mock).mockReturnValue([stopThread]);
   mockReconnectToStream.mockResolvedValue(null);
 });
 
