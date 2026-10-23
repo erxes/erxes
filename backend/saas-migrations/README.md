@@ -79,7 +79,10 @@ code serves traffic; both are safe to run again, and `DRY_RUN=true` only counts.
 
 - `migrateRelationsToContactFields.ts`: gives deals, tickets, tasks, projects,
   triages and cars one `customerId` / `companyId` (old arrays or relations →
-  the first), and rewrites saved automations to those fields.
+  the first), and rewrites saved automations to those fields. Old
+  `customerIds` / `companyIds` arrays are kept (only their indexes are
+  dropped), so every contact stays on the record and old code can be rolled
+  back.
 - `migrateConversationRelationsToSourceFields.ts`: gives tickets and deals the
   conversations they were made from (`sourceConversationIds`).
 
