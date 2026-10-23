@@ -209,7 +209,15 @@ const migrateTarget = async (db: Db, target: ITarget) => {
     }
 
     operations.push({
-      updateOne: { filter: { _id: record._id }, update: { $set: set } },
+      updateOne: {
+        filter: { _id: record._id },
+        update: {
+          $set: set,
+          // Kept for now: the old arrays still hold every contact. Uncomment
+          // to remove them once every organization runs the new code.
+          // $unset: { customerIds: '', companyIds: '' },
+        },
+      },
     });
 
     if (operations.length >= BATCH_SIZE) {
