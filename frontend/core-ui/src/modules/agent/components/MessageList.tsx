@@ -15,7 +15,12 @@ import {
   useRef,
   useState,
 } from 'react';
-import { IconCheck, IconCopy, IconRefresh } from '@tabler/icons-react';
+import {
+  IconCheck,
+  IconCopy,
+  IconGitBranch,
+  IconRefresh,
+} from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 
 import { formatAskUserAnswers } from '../askUserAnswers';
@@ -60,6 +65,7 @@ export interface IMessageListProps {
   answerBusy: boolean;
   onAnswer: (answers: IAskUserAnswer[]) => void;
   onRetryTurn: () => void;
+  onForkMessage: (messageId: string) => void;
   onEditMessage: (messageId: string, text: string) => void;
   editingDisabled: boolean;
   error: string | undefined;
@@ -137,6 +143,7 @@ interface IMessageRowProps {
   /** Only the current response owns the transcript avatar. */
   showIdentity: boolean;
   onRetryTurn: () => void;
+  onForkMessage: (messageId: string) => void;
   approvalBusy: boolean;
   onApprovalRespond: (decision: IApprovalDecision) => void;
   answerBusy: boolean;
@@ -162,6 +169,7 @@ const MessageRow = memo(
     isLastAssistant,
     showIdentity,
     onRetryTurn,
+    onForkMessage,
     approvalBusy,
     onApprovalRespond,
     answerBusy,
@@ -334,6 +342,26 @@ const MessageRow = memo(
                       </Tooltip>
                     </Tooltip.Provider>
                   )}
+                  {!isStreamingTail && (
+                    <Tooltip.Provider delayDuration={200}>
+                      <Tooltip>
+                        <Tooltip.Trigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="size-7"
+                            aria-label={t('fork-from-here', 'Fork from here')}
+                            onClick={() => onForkMessage(message.id)}
+                          >
+                            <IconGitBranch className="size-3.5" />
+                          </Button>
+                        </Tooltip.Trigger>
+                        <Tooltip.Content>
+                          {t('fork-from-here', 'Fork from here')}
+                        </Tooltip.Content>
+                      </Tooltip>
+                    </Tooltip.Provider>
+                  )}
                   {createdAt !== null && (
                     <span className="ml-1 text-[11px] text-muted-foreground">
                       {formatTimestamp(createdAt)}
@@ -417,6 +445,7 @@ export const MessageList = ({
   answerBusy,
   onAnswer,
   onRetryTurn,
+  onForkMessage,
   onEditMessage,
   editingDisabled,
   error,
@@ -474,6 +503,7 @@ export const MessageList = ({
               row.lastIndex === lastAssistantIndex && !showPendingResponse
             }
             onRetryTurn={onRetryTurn}
+            onForkMessage={onForkMessage}
             approvalBusy={approvalBusy}
             onApprovalRespond={onApprovalRespond}
             answerBusy={answerBusy}
@@ -492,6 +522,7 @@ export const MessageList = ({
       activeResponseRow,
       showPendingResponse,
       onRetryTurn,
+      onForkMessage,
       approvalBusy,
       onApprovalRespond,
       answerBusy,

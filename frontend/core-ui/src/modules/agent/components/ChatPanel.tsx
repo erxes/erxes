@@ -88,6 +88,7 @@ export const ChatPanel = ({
     submitAnswer,
     resumeStream,
     retryLastTurn,
+    forkFromMessage,
   } = chat;
 
   const { connections, loading: connectionsLoading } = useAgentsConnection();
@@ -350,6 +351,7 @@ export const ChatPanel = ({
         answerBusy={isStreaming}
         onAnswer={submitAnswer}
         onRetryTurn={retryLastTurn}
+        onForkMessage={forkFromMessage}
         onEditMessage={chat.editMessage}
         editingDisabled={isStreaming || loadingThread || noConnection}
         error={error ? describeError(error) : undefined}
