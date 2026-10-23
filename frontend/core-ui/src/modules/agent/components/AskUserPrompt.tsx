@@ -26,10 +26,13 @@ export interface IAskUserQuestionGroup {
   questions: IAskUserQuestionEntry[];
 }
 
+/** One answer per question, in order: text, or the picked labels. */
+export type IAskUserAnswer = string | string[];
+
 export interface IAskUserPromptProps {
   group: IAskUserQuestionGroup;
   busy: boolean;
-  onAnswer: (answer: string | string[] | (string | string[])[]) => void;
+  onAnswer: (answers: IAskUserAnswer[]) => void;
 }
 
 /** Choices and custom answers share one explicit submission path. */
@@ -89,9 +92,7 @@ export const AskUserPrompt = ({
       return;
     }
     if (!allAnswered) return;
-    const first = answers[0];
-    if (first === undefined) return;
-    onAnswer(questions.length === 1 ? first : answers);
+    onAnswer(answers);
   };
 
   return (

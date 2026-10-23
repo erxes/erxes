@@ -60,42 +60,6 @@ export const readAskUserQuestionsFromInput = (
 
 const HEADER = 'User answered:';
 const LEGACY_INLINE = 'User answered: ';
-const NO_ANSWER = '(no answer)';
-
-const formatAnswerParts = (value: string | string[] | undefined): string => {
-  if (value === undefined) {
-    return NO_ANSWER;
-  }
-
-  return Array.isArray(value) ? value.join(', ') : value;
-};
-
-/**
- * Builds the tool-result content the backend's ask_user tool would persist
- * for the same answers — the transcript's answered card parses both forms,
- * so the live optimistic state must mirror the stored shape exactly.
- */
-export const buildAskUserResult = (
-  questions: IAskUserQuestionEntry[],
-  answer: string | string[] | (string | string[])[],
-): { content: string; isError: false; answers: (string | string[])[] } => {
-  // One-question suspensions keep the backend's legacy shapes: the answer is
-  // a bare string (or string array for multi-select); batched suspensions
-  // answer positionally — element i answers question i.
-  const perQuestion: (string | string[])[] =
-    questions.length === 1
-      ? [answer as string | string[]]
-      : (answer as (string | string[])[]);
-
-  const content = `User answered:\n${questions
-    .map(
-      (question, index) =>
-        `${question.question}: ${formatAnswerParts(perQuestion[index])}`,
-    )
-    .join('\n')}`;
-
-  return { content, isError: false, answers: perQuestion };
-};
 
 /**
  * Formats parsed answers back into the exact text legacy threads stored as
@@ -110,7 +74,7 @@ export const formatAskUserAnswers = (answers: IAskUserAnswerEntry[]): string =>
 /**
  * Pairs the askUser questions (from the tool input) with the user's answers
  * (from the tool result) for the answered transcript card. Accepts either
- * the structured `answers` array of the live optimistic patch or the stored
+ * the tool result's structured `answers` array or the stored
  * `content` text the backend persists (`User answered:\n<q>: <a>` lines, or
  * the legacy single-line `User answered: <answer>`). Returns null when
  * nothing parseable is there — the caller then hides the card instead of
@@ -126,7 +90,7 @@ export const readAskUserAnswers = (
 
   const result = output as { content?: unknown; answers?: unknown };
 
-  // The structured form is the live patch's array; a bare string is accepted
+  // The structured form is the tool result's array; a bare string is accepted
   // for symmetry with the resume shapes (it answers a single question).
   const structured = Array.isArray(result.answers)
     ? result.answers

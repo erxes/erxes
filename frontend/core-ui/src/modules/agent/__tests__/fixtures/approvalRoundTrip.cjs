@@ -21,7 +21,7 @@ const load = (name) =>
     { Memory },
     { createTool },
     { MockLanguageModelV3 },
-    { toAISdkStream },
+    { handleChatStream },
     ai,
     { Chat },
     { z },
@@ -148,43 +148,32 @@ const load = (name) =>
     workers: false,
     logger: false,
   });
-  let runId;
-  let first;
   const requests = [];
   const failures = [];
   const originalFetch = global.fetch;
+  // Stands in for POST /agents/chat: the same handler the route calls.
   global.fetch = async (url, init) => {
     const body = JSON.parse(init.body);
     requests.push({ url: String(url), body });
-    let output;
-    if (String(url).endsWith('/approve')) {
-      output = await agent[
-        body.approved ? 'approveToolCall' : 'declineToolCall'
-      ]({ runId, toolCallId: body.toolCallId, maxSteps: 4 });
-    } else {
-      first = await agent.stream('Report', {
-        runId: body.runId,
+    const stream = await handleChatStream({
+      mastra,
+      agentId: 'approval-test',
+      version: 'v7',
+      params: {
+        messages: body.messages,
+        maxSteps: 4,
         closeOnSuspend: true,
-        memory: { thread: 'thread', resource: 'user' },
-      });
-      output = first.output;
-    }
-    return ai.createUIMessageStreamResponse({
-      stream: toAISdkStream(output, { from: 'agent', version: 'v7' }),
+        memory: { thread: body.threadId, resource: 'user' },
+      },
     });
+    return ai.createUIMessageStreamResponse({ stream });
   };
   try {
     const transport = new AgentsChatTransport({
-      getThreadId: () => 'thread',
       getRequestSelection: () => ({}),
-      getActiveRunId: () => runId,
-      onActiveRunId: (id) => {
-        runId = id;
-      },
-      onThreadId: () => {},
-      consumePendingAnswer: () => undefined,
     });
     const chat = new Chat({
+      id: 'thread',
       transport,
       sendAutomaticallyWhen: hasAgentsApprovalDecision,
       onError: (error) => failures.push(error.message),
@@ -248,22 +237,22 @@ const load = (name) =>
         ),
     );
     assert.deepEqual(executed, ['query Read', 'mutation A', 'query Later']);
+    // One user turn, then each decision continues the assistant message.
     assert.deepEqual(
-      requests
-        .filter((entry) => entry.url.endsWith('/approve'))
-        .map((entry) => [entry.body.toolCallId, entry.body.approved]),
+      requests.map(({ url, body }) => [
+        url,
+        body.threadId,
+        body.messages.length,
+        body.messages[0].role,
+      ]),
       [
-        ['write-a', true],
-        ['write-b', false],
+        ['http://fixture/pl:core/agents/chat', 'thread', 1, 'user'],
+        ['http://fixture/pl:core/agents/chat', 'thread', 1, 'assistant'],
+        ['http://fixture/pl:core/agents/chat', 'thread', 1, 'assistant'],
       ],
-    );
-    assert.equal(
-      requests.filter((entry) => entry.url.endsWith('/chat')).length,
-      1,
     );
     assert.equal(modelCalls, 2);
     assert.deepEqual(failures, []);
-    first.cleanup();
   } finally {
     global.fetch = originalFetch;
     await mastra.shutdown();

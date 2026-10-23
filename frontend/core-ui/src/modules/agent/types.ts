@@ -14,8 +14,6 @@ import type { IAgentPageSelectionContext } from './pageSelections';
 /** Metadata the agents chat carries on each message. */
 export interface IAgentsMessageMetadata {
   createdAt?: string;
-  /** Marks an ask_user answer sent as a user turn; never rendered as a bubble. */
-  agentsAnswer?: boolean;
 }
 
 /** Payload of Mastra's `data-tool-call-suspended` part (ask_user and other suspensions). */
@@ -25,6 +23,8 @@ export interface IAgentsToolCallSuspendedData {
   toolName?: string;
   args?: unknown;
   suspendPayload?: unknown;
+  /** Set once the run resumes past this suspension. */
+  resumed?: boolean;
 }
 
 /** The custom data parts the agents chat sends and receives, keyed by name without `data-`. */

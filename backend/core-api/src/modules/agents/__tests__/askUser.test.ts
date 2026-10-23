@@ -1,53 +1,66 @@
-import { askUserResumeSchema, normalizeAskUserResume } from '@/agents/askUser';
+import { buildAskUserTool } from '@/agents/askUser';
+
+// Mastra's `createTool` wraps execute with validation; pass the definition
+// through so the test drives the plugin's own resume handling.
+jest.mock('@mastra/core/tools', () => ({
+  createTool: (definition: unknown) => definition,
+}));
 
 const questions = [
   { question: 'Which subjects?' },
   { question: 'Which period?' },
 ];
 
+const resumeWith = async (resumeData: unknown, asked = questions) => {
+  const tool = (await buildAskUserTool()) as unknown as {
+    execute: (
+      input: { questions: typeof questions },
+      context: { agent: { resumeData: unknown } },
+    ) => Promise<unknown>;
+  };
+  return tool.execute({ questions: asked }, { agent: { resumeData } });
+};
+
 describe('ask_user resume contract', () => {
-  it('accepts the mixed positional payload sent by the question UI', () => {
-    const answer = [['Sales', 'Support', 'Regional only'], 'Last month'];
-    expect(askUserResumeSchema.safeParse(answer).success).toBe(true);
-    expect(normalizeAskUserResume(questions, answer)).toEqual(answer);
+  it('answers each question in order, including multi-select and custom text', async () => {
+    await expect(
+      resumeWith({
+        answers: [['Sales', 'Support', 'Regional only'], 'Last month'],
+      }),
+    ).resolves.toEqual({
+      content:
+        'User answered:\nWhich subjects?: Sales, Support, Regional only\nWhich period?: Last month',
+      answers: [['Sales', 'Support', 'Regional only'], 'Last month'],
+      isError: false,
+    });
   });
 
-  it('keeps a single multi-select response together', () => {
-    expect(
-      normalizeAskUserResume(questions.slice(0, 1), ['Sales', 'Support']),
-    ).toEqual([['Sales', 'Support']]);
-  });
-
-  it('accepts text-only and selected options with custom details', () => {
-    expect(
-      normalizeAskUserResume(questions, [
-        'Inventory\nWarehouses only',
-        'Since Monday',
-      ]),
-    ).toEqual(['Inventory\nWarehouses only', 'Since Monday']);
-    expect(normalizeAskUserResume(questions.slice(0, 1), 'Inventory')).toEqual([
-      'Inventory',
-    ]);
-  });
-
-  it('accepts legacy structured question-answer pairs by question', () => {
-    expect(
-      normalizeAskUserResume(questions, [
-        { question: 'Which period?', answer: 'This month' },
-        { question: 'Which subjects?', answer: ['Sales', 'Support'] },
-      ]),
-    ).toEqual([['Sales', 'Support'], 'This month']);
+  it('trims answers', async () => {
+    await expect(
+      resumeWith(
+        { answers: ['  Inventory\nWarehouses only '] },
+        questions.slice(0, 1),
+      ),
+    ).resolves.toEqual(
+      expect.objectContaining({ answers: ['Inventory\nWarehouses only'] }),
+    );
   });
 
   it.each([
     null,
-    [],
-    ['Sales'],
-    ['Sales', ' '],
-    [[''], 'Last month'],
-    ['Sales', 'Last month', 'Extra'],
-    { answer: 'Sales' },
-  ])('rejects missing, empty, and malformed batch answers: %j', (answer) => {
-    expect(normalizeAskUserResume(questions, answer)).toBeNull();
-  });
+    'Sales',
+    ['Sales', 'Last month'],
+    { answers: [] },
+    { answers: ['Sales'] },
+    { answers: ['Sales', ' '] },
+    { answers: [[], 'Last month'] },
+    { answers: ['Sales', 'Last month', 'Extra'] },
+  ])(
+    'rejects missing, empty, and malformed answers: %j',
+    async (resumeData) => {
+      await expect(resumeWith(resumeData)).resolves.toEqual(
+        expect.objectContaining({ isError: true }),
+      );
+    },
+  );
 });
