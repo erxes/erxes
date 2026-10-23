@@ -89,6 +89,8 @@ export const ChatPanel = ({
     resumeStream,
     retryLastTurn,
     forkFromMessage,
+    queuedMessages,
+    removeQueued,
   } = chat;
 
   const { connections, loading: connectionsLoading } = useAgentsConnection();
@@ -252,28 +254,54 @@ export const ChatPanel = ({
   );
 
   const composer = (
-    <Composer
-      status={status}
-      disabled={loadingThread || noConnection}
-      draftScope={threadId ?? 'new'}
-      onSend={(text, files, selections = []) => {
-        if (files.length > 0 || selections.length > 0) {
-          void sendMessage({
-            parts: [
-              { type: 'text', text },
-              ...(files.length ? [agentsFilesPart(files)] : []),
-              ...(selections.length ? [pageSelectionsPart(selections)] : []),
-            ],
-          });
-          return;
-        }
+    <>
+      {queuedMessages.length > 0 && (
+        <ul className="mb-2 space-y-1">
+          {queuedMessages.map((text, index) => (
+            <li
+              key={index}
+              className="flex items-center gap-2 rounded-lg bg-muted/50 px-3 py-1.5 text-xs text-muted-foreground"
+            >
+              <span className="shrink-0">{t('queued', 'Queued')}</span>
+              <span className="min-w-0 flex-1 truncate text-foreground">
+                {text}
+              </span>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-5"
+                aria-label={t('remove-queued', 'Remove queued message')}
+                onClick={() => removeQueued(index)}
+              >
+                <IconX className="size-3" />
+              </Button>
+            </li>
+          ))}
+        </ul>
+      )}
+      <Composer
+        status={status}
+        disabled={loadingThread || noConnection}
+        draftScope={threadId ?? 'new'}
+        onSend={(text, files, selections = []) => {
+          if (files.length > 0 || selections.length > 0) {
+            void sendMessage({
+              parts: [
+                { type: 'text', text },
+                ...(files.length ? [agentsFilesPart(files)] : []),
+                ...(selections.length ? [pageSelectionsPart(selections)] : []),
+              ],
+            });
+            return;
+          }
 
-        void sendMessage({ text });
-      }}
-      onStop={stop}
-      pickers={pickers}
-      contextRow={contextRow}
-    />
+          void sendMessage({ text });
+        }}
+        onStop={stop}
+        pickers={pickers}
+        contextRow={contextRow}
+      />
+    </>
   );
 
   const suggestionCards = (
