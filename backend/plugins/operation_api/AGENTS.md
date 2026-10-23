@@ -6,7 +6,7 @@
 - **Project:** `operation_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/operation_api`
-- **Last synchronized:** `2026-10-17`
+- **Last synchronized:** `2026-10-23`
 
 ## Scope
 
@@ -80,6 +80,7 @@
 
 ### Provides
 
+- Internal `contactFields.sync` tRPC mutation (`TContactFieldsSync`) — core broadcasts contact merges and removals to every plugin declaring `meta.contactFields` (operation declares `operation:task`, `operation:project`, `operation:triage` in `main.ts`); applied with `applyContactFieldsSync`. Not agent-callable.
 - Plugin meta `properties` (`src/meta/properties.ts`) — the `task` and `project` property
   types, each with the `systemFields` (`code`, `name`, `type`) core lists as
   the read-only "Basic information" group in Settings → Properties. A
@@ -115,6 +116,8 @@ propertiesData? } })`
 
 ## Data and State
 
+- Tasks, projects and triages own one customer and one company as `customerId` / `companyId` (indexed, `default: null`). Operation saves and reads them itself, with no relation fallback; accepting a triage copies its fields to the task and moves no relations. Tasks have ObjectId `_id`s; `backend/saas-migrations/core/commands/migrateRelationsToContactFields.ts` (targets `operation_tasks`, `operation_projects`, `operation_triage`, the last also from legacy `operation:task` relations) backfills records linked before (first of old `customerIds` / `companyIds` arrays, else the oldest related contact; extra contacts are dropped).
+- `operationConvertTriageToTask` gives the task the triage's `_id` and its contacts (the triage's fields, else its legacy relations), re-creates the triage's other `operation:triage` relations as `operation:task`, then cleans them.
 - Every model is generated from the request `subdomain`.
 - `operation_tasks` carries `segmentIds`, written only by the segmentation
   worker through `applyMembership`.
@@ -127,6 +130,9 @@ propertiesData? } })`
 
 ## Local Invariants
 
+- `createTask` / `updateTask`, `createProject` / `updateProject` and `operationAddTriage` / `operationUpdateTriage` accept `customerId` / `companyId` (one of each) and save them on the record; `getTasks`, `getProjects` and `operationGetTriageList` filter by them (a contact's records). `Task`, `Project` and `Triage` expose both fields.
+- `createTask` and `operationAddTriage` require a name (the UI creates a task or triage only once its draft is named in the side panel). `createTask` accepts a task without a status: a triage then starts in the team's backlog, any other task in its first to-do (`UNSTARTED`) status by `order`.
+- Operation owns its records' contacts: change them only through its own mutations (and `contactFields.sync` for merges and removals); never create core relations for record ↔ contact links.
 - Set property handlers pass `targetActionId: action.targetActionId` to
   `getSetPropertySelector`, so a Manage properties action targeting an earlier
   action (Find object, Create) updates that action's record, not the trigger's.

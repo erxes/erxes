@@ -11,7 +11,6 @@ import { cursorPaginate } from 'erxes-api-shared/utils';
 import { z } from 'zod';
 import { IModels } from '~/connectionResolvers';
 import { FrontlineTRPCContext } from '~/init-trpc';
-import { agentMeta } from '~/trpc/agentMeta';
 import { IConversationDocument } from '../@types/conversations';
 
 const t = initTRPC.context<FrontlineTRPCContext>().create();
@@ -145,12 +144,6 @@ export const integrationsRouter = t.router({
   }),
 
   find: t.procedure
-    .meta(
-      agentMeta(
-        'Search active integrations (messenger, lead, webhook, or external kinds): { query?: {...}, options?: projection }, e.g. { query: { kind: "messenger" } } or { query: { channelId: "..." } }. Inactive integrations are excluded automatically. Use inbox.getIntegrationKinds to see valid kind values.',
-        { module: 'integration', action: 'showIntegrations' },
-      ),
-    )
     .input(z.any())
     .query(async ({ ctx, input }) => {
       const { query = {}, options } = input;
@@ -224,12 +217,6 @@ export const integrationsRouter = t.router({
     }),
 
   count: t.procedure
-    .meta(
-      agentMeta(
-        'Count integrations matching a filter: { selector?: {...}, filters?: {...} }, merged into one Mongo query, e.g. { selector: { kind: "lead" } }. Use for "how many integrations ..." questions instead of inbox.integrations.find.',
-        { module: 'integration', action: 'showIntegrations' },
-      ),
-    )
     .input(z.any())
     .query(async ({ ctx, input }) => {
       const { models } = ctx;
@@ -271,12 +258,6 @@ export const integrationsRouter = t.router({
     }),
 
   findOne: t.procedure
-    .meta(
-      agentMeta(
-        'Get a single integration by any MongoDB-style query, e.g. { _id } or { kind: "messenger", brandId: "..." }. Returns a NOT_FOUND error when nothing matches.',
-        { module: 'integration', action: 'showIntegrations' },
-      ),
-    )
     .input(z.any())
     .query(async ({ ctx, input }) => {
       const { models } = ctx;
@@ -321,12 +302,6 @@ export const integrationsRouter = t.router({
 
 export const conversationMessagesRouter = t.router({
   findOne: t.procedure
-    .meta(
-      agentMeta(
-        'Get a single conversation message by any MongoDB-style query, e.g. { _id } or { conversationId: "..." }. Returns a MESSAGE_NOT_FOUND error when nothing matches. Use inbox.conversationMessages.find to list a conversation\'s messages.',
-        { module: 'inbox', action: 'showConversations' },
-      ),
-    )
     .input(z.any())
     .query(async ({ ctx, input }) => {
       const { models } = ctx;
@@ -370,12 +345,6 @@ export const conversationMessagesRouter = t.router({
     }),
 
   find: t.procedure
-    .meta(
-      agentMeta(
-        'List conversation messages matching a MongoDB-style filter, e.g. { conversationId: "...", skip?: number, limit?: number }. When skip or limit is present the result is paged (default limit 20); otherwise every matching message is returned.',
-        { module: 'inbox', action: 'showConversations' },
-      ),
-    )
     .input(z.any())
     .query(async ({ ctx, input }) => {
       try {
@@ -427,12 +396,6 @@ export const conversationMessagesRouter = t.router({
 
 export const conversationsRouter = t.router({
   count: t.procedure
-    .meta(
-      agentMeta(
-        'Count inbox conversations matching a filter: { query?: {...}, options?: { skip?, limit? } }, e.g. { query: { status: "new", integrationId: "..." } }. Use for "how many conversations ..." questions instead of inbox.getConversationsList.',
-        { module: 'inbox', action: 'showConversations' },
-      ),
-    )
     .input(z.any())
     .query(async ({ ctx, input }) => {
       try {
@@ -464,12 +427,6 @@ export const conversationsRouter = t.router({
     }),
 
   findOne: t.procedure
-    .meta(
-      agentMeta(
-        'Get a single inbox conversation by a MongoDB-style query: { query: { _id } } or { query: { customerId: "...", integrationId: "..." } }. Returns data null when nothing matches. Use inbox.getConversationsList to browse many conversations.',
-        { module: 'inbox', action: 'showConversations' },
-      ),
-    )
     .input(z.any())
     .query(async ({ ctx, input }) => {
       try {
@@ -919,12 +876,6 @@ export const inboxTrpcRouter = t.router({
       }),
 
     getIntegrationKinds: t.procedure
-      .meta(
-        agentMeta(
-          'List the integration kinds available on this workspace as a kind to label map (e.g. messenger, lead, webhook, mail, facebook-messenger). Call this before filtering integrations by kind with inbox.integrations.find.',
-          { module: 'integration', action: 'showIntegrations' },
-        ),
-      )
       .input(z.any())
       .query(async () => {
         try {
@@ -946,12 +897,6 @@ export const inboxTrpcRouter = t.router({
       }),
 
     getConversationsList: t.procedure
-      .meta(
-        agentMeta(
-          'List inbox conversations with cursor pagination: { query: {...}, listParams: { limit?, cursor?, direction?, orderBy? } }, e.g. { query: { status: "new" }, listParams: { limit: 20, orderBy: { updatedAt: -1 } } }. Returns { list, totalCount, pageInfo }; pass pageInfo.endCursor back as listParams.cursor for the next page.',
-          { module: 'inbox', action: 'showConversations' },
-        ),
-      )
       .input(z.any())
       .query(async ({ ctx, input }) => {
         const { query, listParams } = input;

@@ -1,3 +1,46 @@
+
+
+## [3.4.1](https://github.com/erxes/erxes/compare/3.4.0...3.4.1) (2026-10-23)
+
+
+### Reverts
+
+* unset customerIds and companyIds ([#9952](https://github.com/erxes/erxes/issues/9952)) ([15daf84](https://github.com/erxes/erxes/commit/15daf84b025a3a70822d666860c4c0ebba218a42))
+
+# [3.4.0](https://github.com/erxes/erxes/compare/3.3.10...3.4.0) (2026-10-23)
+
+
+### Features
+
+* remove deal relations from operations ([e9eaa4a](https://github.com/erxes/erxes/commit/e9eaa4af9b6fd9f337b87b5243ba542dbe395bb2))
+* remove relations collections and change relations  ([d83e2fa](https://github.com/erxes/erxes/commit/d83e2fa8e4be557bce37df0882aeb234bea74d63))
+
+## [3.3.10](https://github.com/erxes/erxes/compare/3.3.9...3.3.10) (2026-10-22)
+
+
+### Bug Fixes
+
+* posclient orders log with expire ([a9cfe27](https://github.com/erxes/erxes/commit/a9cfe278a1209e8af65855be353c326c5c157b49))
+
+
+### Features
+
+* **accounting:** add production jobs(techcart) and executions, refine accounting workflows ([#9781](https://github.com/erxes/erxes/issues/9781)) ([742afc7](https://github.com/erxes/erxes/commit/742afc7a241588d4d4be7899588abfe260426a34))
+
+## [3.3.9](https://github.com/erxes/erxes/compare/3.3.8...3.3.9) (2026-10-22)
+
+### Bug Fixes
+
+* **content:** keep CMS editors usable when custom dropdown fields contain blank choices ([#9924](https://github.com/erxes/erxes/pull/9924)) ([dfd1def](https://github.com/erxes/erxes/commit/dfd1def0ddf153a5c9e3505fabe6d0905074d620))
+
+## [3.3.8](https://github.com/erxes/erxes/compare/3.3.7...3.3.8) (2026-10-22)
+
+
+### Reverts
+
+* Revert "feat(core-ui): group notifications by author and add status tabs (#9912)" (#9915) ([e6fac5a](https://github.com/erxes/erxes/commit/e6fac5a4602cae22ad18c3feedf5af04cb9fad62)), closes [#9912](https://github.com/erxes/erxes/issues/9912) [#9915](https://github.com/erxes/erxes/issues/9915)
+* Revert "feat(core): add provider-first workspace connections (#9905)" (#9914) ([9ebe4f8](https://github.com/erxes/erxes/commit/9ebe4f84a0b61bcedfd7413d109ca797dfe3ede2)), closes [#9905](https://github.com/erxes/erxes/issues/9905) [#9914](https://github.com/erxes/erxes/issues/9914)
+
 # Changelog
 
 ## [3.3.7](https://github.com/erxes/erxes/compare/3.3.4...3.3.7) (2026-10-22)

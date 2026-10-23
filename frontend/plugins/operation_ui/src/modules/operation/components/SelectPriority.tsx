@@ -212,6 +212,7 @@ const SelectPriorityFilterBar = ({
 };
 
 export const SelectPriorityFormItem = ({
+  variant = 'form',
   value,
   onValueChange,
   label,
@@ -219,6 +220,8 @@ export const SelectPriorityFormItem = ({
   value: number;
   onValueChange: (value: number) => void;
   label?: string;
+  // `table` draws it as a record table cell, as in the side panel.
+  variant?: `${SelectTriggerVariant}`;
 }) => {
   const [open, setOpen] = useState(false);
   return (
@@ -230,12 +233,16 @@ export const SelectPriorityFormItem = ({
       }}
     >
       <PopoverScoped open={open} onOpenChange={setOpen}>
-        <SelectTriggerOperation variant="form" label={label}>
-          <SelectPriorityValue />
+        <SelectTriggerOperation variant={variant} label={label}>
+          {variant === SelectTriggerVariant.TABLE ? (
+            <SelectPriorityBadgeValue />
+          ) : (
+            <SelectPriorityValue />
+          )}
         </SelectTriggerOperation>
-        <Combobox.Content>
+        <SelectOperationContent variant={variant}>
           <SelectPriorityContent />
-        </Combobox.Content>
+        </SelectOperationContent>
       </PopoverScoped>
     </SelectPriorityProvider>
   );
