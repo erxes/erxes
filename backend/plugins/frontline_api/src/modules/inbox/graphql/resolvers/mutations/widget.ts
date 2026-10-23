@@ -287,7 +287,7 @@ const freePrimaryContacts = async (
   };
 };
 
-const findMessengerCompany = async (
+export const findMessengerCompany = async (
   subdomain: string,
   companyData: { name?: string; email?: string; phone?: string },
 ) => {

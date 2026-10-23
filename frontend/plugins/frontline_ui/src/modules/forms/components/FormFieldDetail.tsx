@@ -277,7 +277,8 @@ export const FormFieldDetail = ({
               />
             </div>
             {/* Validator Configuration */}
-            {draft.type?.startsWith('core:customer') ? null : (
+            {draft.type?.startsWith('core:customer') ||
+            draft.type?.startsWith('core:company') ? null : (
               <div className="space-y-3 col-span-2">
                 <Label>{t('validation', 'Validation')}</Label>
                 <ToggleGroup
@@ -343,19 +344,18 @@ export const FormFieldDetail = ({
                   />
                 )}
 
-                {draft.validator?.type &&
-                  draft.validator.type !== 'NONE' && (
-                    <Input
-                      value={draft.validator.errorMessage ?? ''}
-                      onChange={(e) =>
-                        handleChangeValidator({ errorMessage: e.target.value })
-                      }
-                      placeholder={t(
-                        'error-message-placeholder',
-                        'Error message shown to the user',
-                      )}
-                    />
-                  )}
+                {draft.validator?.type && draft.validator.type !== 'NONE' && (
+                  <Input
+                    value={draft.validator.errorMessage ?? ''}
+                    onChange={(e) =>
+                      handleChangeValidator({ errorMessage: e.target.value })
+                    }
+                    placeholder={t(
+                      'error-message-placeholder',
+                      'Error message shown to the user',
+                    )}
+                  />
+                )}
               </div>
             )}
 
