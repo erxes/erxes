@@ -252,10 +252,8 @@ const buildTicketDoc = (data: Record<string, unknown>): ITicket => {
     userId: getString(data, 'userId'),
     labelIds: toStringArray(data.labelIds),
     tagIds: toStringArray(data.tagIds),
-    // A ticket keeps one company; actions saved before it was single keep
-    // `companyIds`, of which the first is used.
-    companyId:
-      getString(data, 'companyId') || toStringArray(data.companyIds)?.[0],
+    // A ticket keeps one company (old `companyIds` configs are migrated).
+    companyId: getString(data, 'companyId'),
     startDate: parseDate(data.startDate),
     targetDate: parseDate(data.targetDate),
     propertiesData: normalizePropertiesData(data),

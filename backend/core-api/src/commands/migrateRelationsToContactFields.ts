@@ -25,6 +25,12 @@ dotenv.config();
  * (`null` or missing) is looked up again, so a record saved by new code
  * before this ran still gets its contact. Safe to run again.
  *
+ * Saved automations' "set property" targets that reached a deal's or
+ * ticket's customers / companies through relations ("Deal customers") are
+ * rewritten to read the record's own field (`targetField` `customerId` /
+ * `companyId`), as the trigger definitions now do. Create-ticket actions
+ * saved with `companyIds` get `companyId` (the first / the same text).
+ *
  *   MONGO_URL=... npx ts-node src/commands/migrateRelationsToContactFields.ts
  *   DRY_RUN=true  → count only, write nothing
  *
@@ -241,6 +247,155 @@ const migrateTarget = async (db: Db, target: ITarget) => {
   );
 };
 
+// Records whose contacts set-property targets used to reach by relation.
+const CONTACT_TARGET_LABELS: Record<string, string> = {
+  'sales:deal': 'Deal',
+  'frontline:ticket': 'Ticket',
+};
+
+const CONTACT_TARGET_FIELDS: Record<string, 'customerId' | 'companyId'> = {
+  [CUSTOMER]: 'customerId',
+  [COMPANY]: 'companyId',
+};
+
+interface ISetPropertyTarget {
+  label?: string;
+  source?: string;
+  cardinality?: string;
+  relation?: { contentType?: string; relatedContentType?: string };
+  targetPath?: string;
+  [key: string]: unknown;
+}
+
+interface IAutomationAction {
+  type?: string;
+  config?: {
+    setPropertyTarget?: ISetPropertyTarget;
+    companyIds?: unknown;
+    companyId?: unknown;
+    [key: string]: unknown;
+  };
+  [key: string]: unknown;
+}
+
+interface IAutomationDoc {
+  _id: string | ObjectId;
+  actions?: IAutomationAction[];
+  workflows?: { actions?: IAutomationAction[]; [key: string]: unknown }[];
+}
+
+// The target rewritten to the record's own field, or null when unchanged.
+const toFieldTarget = (
+  target?: ISetPropertyTarget,
+): ISetPropertyTarget | null => {
+  const recordLabel =
+    CONTACT_TARGET_LABELS[target?.relation?.contentType || ''];
+  const field =
+    CONTACT_TARGET_FIELDS[target?.relation?.relatedContentType || ''];
+
+  if (!target || target.source !== 'relation' || !recordLabel || !field) {
+    return null;
+  }
+
+  const rest: ISetPropertyTarget = { ...target };
+
+  delete rest.relation;
+
+  return {
+    ...rest,
+    label: `${recordLabel} ${field === 'customerId' ? 'customer' : 'company'}`,
+    source: 'targetField',
+    targetPath: field,
+    cardinality: 'one',
+  };
+};
+
+const migrateActions = (actions?: IAutomationAction[]) => {
+  let changed = 0;
+
+  for (const action of actions || []) {
+    const { config } = action;
+
+    if (!config) {
+      continue;
+    }
+
+    const next = toFieldTarget(config.setPropertyTarget);
+
+    if (next) {
+      config.setPropertyTarget = next;
+      changed += 1;
+    }
+
+    // A ticket keeps one company: its create action configures `companyId`.
+    if (
+      action.type?.startsWith('frontline:tickets') &&
+      config.companyIds !== undefined
+    ) {
+      const companyIds = config.companyIds;
+
+      if (config.companyId === undefined) {
+        config.companyId = Array.isArray(companyIds)
+          ? companyIds[0]
+          : companyIds;
+      }
+
+      delete config.companyIds;
+      changed += 1;
+    }
+  }
+
+  return changed;
+};
+
+const migrateAutomationTargets = async (db: Db) => {
+  const automations = db.collection<IAutomationDoc>('automations');
+  const cursor = automations.find({
+    $or: [
+      { 'actions.config.setPropertyTarget.source': 'relation' },
+      { 'workflows.actions.config.setPropertyTarget.source': 'relation' },
+      { 'actions.config.companyIds': { $exists: true } },
+      { 'workflows.actions.config.companyIds': { $exists: true } },
+    ],
+  });
+  let automationCount = 0;
+  let actionCount = 0;
+
+  for await (const automation of cursor) {
+    const changed =
+      migrateActions(automation.actions) +
+      (automation.workflows || []).reduce(
+        (sum, workflow) => sum + migrateActions(workflow.actions),
+        0,
+      );
+
+    if (!changed) {
+      continue;
+    }
+
+    automationCount += 1;
+    actionCount += changed;
+
+    if (!DRY_RUN) {
+      await automations.updateOne(
+        { _id: automation._id },
+        {
+          $set: {
+            ...(automation.actions && { actions: automation.actions }),
+            ...(automation.workflows && { workflows: automation.workflows }),
+          },
+        },
+      );
+    }
+  }
+
+  console.log(
+    `${DRY_RUN ? '[DRY RUN]' : '[DONE]'} automations: ${actionCount} ` +
+      `action(s) in ${automationCount} automation(s) now read or set the ` +
+      `record's customerId / companyId`,
+  );
+};
+
 const command = async () => {
   await client.connect();
 
@@ -266,6 +421,15 @@ const command = async () => {
         }`,
       );
     }
+  }
+
+  try {
+    await migrateAutomationTargets(db);
+  } catch (error) {
+    failed.push('automations');
+    console.error(
+      `[FAILED] automations: ${error instanceof Error ? error.message : error}`,
+    );
   }
 
   console.log(`Process finished at: ${new Date().toISOString()}`);
