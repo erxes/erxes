@@ -2,6 +2,7 @@ import { memo, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAtom } from 'jotai';
 import { ColumnDef } from '@tanstack/table-core';
+import { TFunction } from 'i18next';
 import {
   Alert,
   ChartContainer,
@@ -71,7 +72,7 @@ export const FacebookBots = ({
   colSpan = 6,
   onColSpanChange,
 }: FacebookBotsProps) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const { id, filterConfig, queryFilters, filtersRestored } =
     useFacebookChartCard({ title, cardId, savedChart });
   const [chartType, setChartType] = useAtom(getReportChartTypeAtom(id));
@@ -222,6 +223,7 @@ interface BotChartProps {
 export const FacebookBotBarChart = memo(function FacebookBotBarChart({
   bots,
 }: BotChartProps) {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   return (
     <ChartContainer config={botChartConfig} className="aspect-video w-full">
       <BarChart
@@ -231,7 +233,7 @@ export const FacebookBotBarChart = memo(function FacebookBotBarChart({
         <CartesianGrid vertical={false} strokeDasharray="3 3" />
         <XAxis dataKey="name" tickLine={false} axisLine={false} />
         <YAxis tickLine={false} axisLine={false} />
-        <Bar dataKey="count" fill="var(--primary)" name="Conversations">
+        <Bar dataKey="count" fill="var(--primary)" name={t('conversations-label')}>
           <LabelList
             dataKey="count"
             position="top"
@@ -239,7 +241,7 @@ export const FacebookBotBarChart = memo(function FacebookBotBarChart({
             fontSize={12}
           />
         </Bar>
-        <Bar dataKey="messages" fill="var(--chart-2)" name="Bot messages" />
+        <Bar dataKey="messages" fill="var(--chart-2)" name={t('bot-messages')} />
         <Legend content={<CustomLegendContent />} />
         <Tooltip content={<ChartTooltipContent />} />
       </BarChart>
@@ -285,9 +287,14 @@ export const FacebookBotPieChart = memo(function FacebookBotPieChart({
 export const FacebookBotTable = memo(function FacebookBotTable({
   bots,
 }: BotChartProps) {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   return (
     <div className="bg-sidebar w-full rounded-lg [&_th]:last-of-type:text-right">
-      <RecordTable.Provider data={bots} columns={botColumns} className="m-3">
+      <RecordTable.Provider
+        data={bots}
+        columns={botColumns(t)}
+        className="m-3"
+      >
         <RecordTable.Scroll>
           <RecordTable>
             <RecordTable.Header />
@@ -301,10 +308,10 @@ export const FacebookBotTable = memo(function FacebookBotTable({
   );
 });
 
-export const botColumns: ColumnDef<FacebookBotRow>[] = [
+export const botColumns = (t: TFunction): ColumnDef<FacebookBotRow>[] => [
   {
     id: 'name',
-    header: 'Bot',
+    header: t('bot'),
     accessorKey: 'name',
     cell: ({ cell }) => (
       <RecordTableInlineCell className="px-4 text-xs truncate">
@@ -314,7 +321,7 @@ export const botColumns: ColumnDef<FacebookBotRow>[] = [
   },
   {
     id: 'messages',
-    header: 'Bot messages',
+    header: t('bot-messages'),
     accessorKey: 'messages',
     cell: ({ cell }) => (
       <RecordTableInlineCell className="px-4 text-xs">
@@ -325,7 +332,7 @@ export const botColumns: ColumnDef<FacebookBotRow>[] = [
   },
   {
     id: 'count',
-    header: 'Conversations',
+    header: t('conversations-label'),
     accessorKey: 'count',
     cell: ({ cell }) => {
       const { count, percentage } = cell.row.original || {};

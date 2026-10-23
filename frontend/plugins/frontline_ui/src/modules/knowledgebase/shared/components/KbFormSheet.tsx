@@ -21,7 +21,9 @@ export const KbFormSheet = ({
   className?: string;
   children: ReactNode;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.knowledgebase',
+  });
 
   return (
     <Sheet open={isOpen} onOpenChange={(open) => !open && onClose()}>

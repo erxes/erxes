@@ -7,8 +7,10 @@ import { ISegment } from 'ui-modules';
 /** Only for a segment the clock moves: there is a nightly refresh to follow. */
 export const SegmentBroadcastCreateButton = ({
   segment,
+  size,
 }: {
   segment?: ISegment;
+  size?: 'sm';
 }) => {
   const { t } = useTranslation('segment', { keyPrefix: 'detail' });
   const { canCreate, createBroadcast } = useSegmentBroadcastCreate(segment);
@@ -18,7 +20,12 @@ export const SegmentBroadcastCreateButton = ({
   }
 
   return (
-    <Button type="button" variant="outline" onClick={createBroadcast}>
+    <Button
+      type="button"
+      variant="outline"
+      size={size}
+      onClick={createBroadcast}
+    >
       <IconSend className="size-4" />
       {t('broadcast-create')}
     </Button>

@@ -7,7 +7,7 @@ import { useInboxLayout } from '@/inbox/hooks/useInboxLayout';
 import { useTranslation } from 'react-i18next';
 
 export const ConversationCount = ({ className }: { className?: string }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const { totalCount, loading } = useConversationListContext();
 
   return (

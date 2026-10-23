@@ -59,7 +59,7 @@ const ThreadsSubsection = ({
   threadMap: ThreadMap;
   renderItem: RenderItem;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const [open, setOpen] = useState(true);
 
   const byThread = useMemo(() => {

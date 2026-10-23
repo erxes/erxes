@@ -18,7 +18,9 @@ import {
 import { EMFormValueEffectComponent } from '@/integrations/erxes-messenger/components/EMFormValueEffect';
 
 export const EMGreeting = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const atomValue = useAtomValue(erxesMessengerSetupGreetingAtom);
   const form = useForm<z.infer<typeof EMGREETING_SCHEMA>>({
     resolver: zodResolver(EMGREETING_SCHEMA),

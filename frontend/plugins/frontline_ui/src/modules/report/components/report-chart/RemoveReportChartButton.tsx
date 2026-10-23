@@ -12,7 +12,7 @@ export const RemoveReportChartButton = ({
   chartId,
   chartName,
 }: RemoveReportChartButtonProps) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const { toast } = useToast();
   const { removeReportChart, removing } = useReportChartMutations();
 

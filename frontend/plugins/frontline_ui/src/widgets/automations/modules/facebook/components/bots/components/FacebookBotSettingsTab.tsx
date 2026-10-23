@@ -12,7 +12,7 @@ import {
 import { useFbBotFormContext } from '../context/FbBotFormContext';
 
 export const FacebookBotSettingsTab = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.facebook' });
   const { form } = useFbBotFormContext();
   const [isOptionalOpen, setOptionalOpen] = useState(false);
   const persistentMenus = form.watch('persistentMenus');

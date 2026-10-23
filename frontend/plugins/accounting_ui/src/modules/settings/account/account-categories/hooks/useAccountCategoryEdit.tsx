@@ -1,7 +1,10 @@
 import { useMutation } from '@apollo/client';
+import { useTranslation } from 'react-i18next';
+import { toast } from 'erxes-ui';
 import { ACCOUNT_CATEGORIES_EDIT } from '@/settings/account/account-categories/graphql/mutations/accountsCategory';
 
 export const useAccountCategoryEdit = () => {
+  const { t } = useTranslation('accounting');
   const [editAccountCategory, { loading }] = useMutation(
     ACCOUNT_CATEGORIES_EDIT,
     {
@@ -9,6 +12,13 @@ export const useAccountCategoryEdit = () => {
       update(cache) {
         cache.evict({ fieldName: 'accountCategories' });
         cache.gc();
+      },
+      onError: (error) => {
+        toast({
+          title: t('error'),
+          description: error.message,
+          variant: 'destructive',
+        });
       },
     },
   );

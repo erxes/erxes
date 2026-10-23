@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { Sheet, Spinner, isDeeplyEqual, useQueryState } from 'erxes-ui';
+import { Sheet, Spinner, isDeeplyEqual, toast, useQueryState } from 'erxes-ui';
 
 import { AccountingSheet } from '~/modules/layout/components/Sheet';
 import { CtaxRowForm } from './CtaxRowForm';
@@ -13,6 +13,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 
 export const EditCtaxRowForm = ({ onClose }: { onClose?: () => void }) => {
   const { ctaxRowDetail, closeDetail, loading } = useCtaxRowDetail();
+  const { t } = useTranslation('accounting');
   const { editCtaxRow, loading: editLoading } = useCtaxRowEdit();
   const form = useForm<TCtaxRowForm>({
     resolver: zodResolver(ctaxFormSchema),
@@ -42,6 +43,7 @@ export const EditCtaxRowForm = ({ onClose }: { onClose?: () => void }) => {
         ...data,
       },
       onCompleted: () => {
+        toast({ title: t('success'), variant: 'success' });
         onClose ? onClose() : closeDetail();
         reset();
       },

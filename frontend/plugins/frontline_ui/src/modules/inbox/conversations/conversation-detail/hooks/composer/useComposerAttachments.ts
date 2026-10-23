@@ -10,7 +10,7 @@ import type {
 export const useComposerAttachments = (
   editor: ComposerBlockEditor,
 ): ComposerAttachmentsResult => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const [uploadingGalleries, setUploadingGalleries] = useState<Set<string>>(
     new Set(),
   );

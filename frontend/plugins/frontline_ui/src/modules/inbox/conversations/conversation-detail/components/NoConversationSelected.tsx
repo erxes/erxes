@@ -3,7 +3,7 @@ import { Empty } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
 export const NoConversationSelected = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   return (
     <Empty className="h-full rounded-none border-0 bg-muted/20">
       <Empty.Header>

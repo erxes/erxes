@@ -239,7 +239,9 @@ const createArticlesColumns = (
 ];
 
 export const useArticlesColumns = (topicId: string): ColumnDef<IArticle>[] => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.knowledgebase',
+  });
 
   return useMemo(() => createArticlesColumns(t, topicId), [t, topicId]);
 };

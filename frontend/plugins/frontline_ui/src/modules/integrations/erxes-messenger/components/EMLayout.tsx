@@ -72,7 +72,9 @@ export const EMLayout = ({
 };
 
 export const EMLayoutPreviousStepButton = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const [step, setStep] = useAtom(erxesMessengerSetupStepAtom);
   return (
     <Button

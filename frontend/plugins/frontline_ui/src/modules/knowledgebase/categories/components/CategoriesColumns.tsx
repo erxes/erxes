@@ -185,7 +185,9 @@ const createCategoriesColumns = (t: TFunction): ColumnDef<TCategoryRow>[] => [
 ];
 
 export const useCategoriesColumns = (): ColumnDef<TCategoryRow>[] => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.knowledgebase',
+  });
 
   return useMemo(() => createCategoriesColumns(t), [t]);
 };

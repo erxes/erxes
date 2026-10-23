@@ -7,7 +7,7 @@ import { AutomationBotForm } from '~/widgets/automations/modules/facebook/compon
 import { isOpenFacebookBotSecondarySheet } from '~/widgets/automations/modules/facebook/components/bots/states/facebookBotStates';
 
 export const AutomationBotSheetForm = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.facebook' });
   const [facebookBotId, setFacebookBotId] =
     useQueryState<string>('facebookBotId');
   const [isOpen, setOpen] = useState(false);

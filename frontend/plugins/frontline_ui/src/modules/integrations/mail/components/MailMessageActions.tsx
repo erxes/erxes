@@ -20,7 +20,9 @@ import { useMailThreadActions } from '@/integrations/mail/hooks/useMailThreadAct
 export const AttachmentChip: React.FC<{ attachment: Attachment }> = ({
   attachment,
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const href = attachment.url ? readImage(attachment.url) : '';
 
   const content = (
@@ -83,7 +85,9 @@ export const SenderContextMenu = ({
   sender?: EmailAddress;
   children: React.ReactNode;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const { open, onNewEmail, readOnly } = useMailThreadActions();
   const email = sender?.email;
 
@@ -92,10 +96,10 @@ export const SenderContextMenu = ({
 
     try {
       await navigator.clipboard.writeText(email);
-      toast({ title: 'Email address copied' });
+      toast({ title: t('mail-email-address-copied') });
     } catch {
       toast({
-        title: 'Could not copy email address',
+        title: t('mail-copy-email-address-failed'),
         variant: 'destructive',
       });
     }
@@ -106,12 +110,12 @@ export const SenderContextMenu = ({
       <ContextMenu.Trigger asChild>{children}</ContextMenu.Trigger>
       <ContextMenu.Content className="w-56">
         <ContextMenu.Label className="truncate text-xs text-muted-foreground">
-          {email || sender?.name || 'Unknown sender'}
+          {email || sender?.name || t('mail-unknown-sender')}
         </ContextMenu.Label>
         <ContextMenu.Separator />
         <ContextMenu.Item disabled={!email} onSelect={copyAddress}>
           <IconCopy className="size-4" />
-          Copy address
+          {t('mail-copy-address')}
         </ContextMenu.Item>
         <ContextMenu.Item
           disabled={!email || !onNewEmail}
@@ -120,7 +124,7 @@ export const SenderContextMenu = ({
           }}
         >
           <IconMailPlus className="size-4" />
-          New email
+          {t('new-email')}
         </ContextMenu.Item>
         {!readOnly && (
           <>

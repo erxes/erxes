@@ -216,6 +216,7 @@ const NOTIFICATIONS_QUERIES_PARAMS = `
   endDate:String,
   fromUserId:String,
   module:String,
+  plugin:String,
   unreadFirst:Boolean
 `;
 

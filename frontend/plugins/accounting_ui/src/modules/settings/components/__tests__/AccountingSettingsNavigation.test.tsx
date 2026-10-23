@@ -1,8 +1,8 @@
 import { render, screen } from '@testing-library/react';
 import { useLocation } from 'react-router';
-import { SettingsNavigation } from '../../../SettingsNavigation';
-import { AccountingTopbar } from '../AccountingTopbar';
-import { INVENTORY_SETTINGS_ROUTES } from '../../constants/settingsRoutes';
+import { SettingsNavigation } from '@/SettingsNavigation';
+import { AccountingTopbar } from '@/settings/components/AccountingTopbar';
+import { INVENTORY_SETTINGS_ROUTES } from '@/settings/constants/settingsRoutes';
 
 jest.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string) => key }),
@@ -10,15 +10,15 @@ jest.mock('react-i18next', () => ({
 jest.mock('react-router', () => ({ useLocation: jest.fn() }));
 jest.mock('erxes-ui', () => ({
   Sidebar: { Group: 'div', GroupContent: 'div', Menu: 'nav' },
-  NavigationMenuLinkItem: ({
+}));
+jest.mock('@/NavigationSection', () => ({
+  NavigationSection: ({
     name,
-    path,
-    pathPrefix,
+    sectionPath,
   }: {
     name: string;
-    path: string;
-    pathPrefix: string;
-  }) => <a href={`/${pathPrefix}${path}`}>{name}</a>,
+    sectionPath: string;
+  }) => <a href={sectionPath}>{name}</a>,
 }));
 jest.mock('ui-modules', () => ({ Can: () => null, Import: () => null }));
 jest.mock('@/settings/account/components/AddAccount', () => ({
@@ -42,7 +42,7 @@ jest.mock('@/settings/ctax/components/AddCtaxs', () => ({
 jest.mock('@/settings/jobs/components/AddJob', () => ({
   AddJob: () => <button>Add technology card</button>,
 }));
-jest.mock('../../syncSettings/AddAccountingConfig', () => ({
+jest.mock('@/settings/syncSettings/AddAccountingConfig', () => ({
   AddAccountingConfig: ({ code }: { code: string }) => <button>{code}</button>,
 }));
 
@@ -59,7 +59,7 @@ test('settings links use the plugin-owned prefix and retain inventory', () => {
   ).toBe('/accounting/settings/inventories');
 });
 
-test.each(Object.keys(INVENTORY_SETTINGS_ROUTES))(
+test.each(INVENTORY_SETTINGS_ROUTES.map(({ path }) => `/${path}`))(
   'retains the add-card action on %s',
   (pathname) => {
     jest.mocked(useLocation).mockReturnValue({

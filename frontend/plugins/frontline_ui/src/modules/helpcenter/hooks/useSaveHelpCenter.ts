@@ -6,7 +6,9 @@ import { GET_HELP_CENTERS } from '@/helpcenter/graphql/queries/getHelpCenters';
 import { IHelpCenterConfigInput } from '@/helpcenter/types';
 
 export const useSaveHelpCenter = ({ onSaved }: { onSaved: () => void }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.helpcenter',
+  });
 
   const [updateConfig, { loading }] = useMutation(HELP_CENTER_CONFIG_UPDATE, {
     refetchQueries: [GET_HELP_CENTERS],

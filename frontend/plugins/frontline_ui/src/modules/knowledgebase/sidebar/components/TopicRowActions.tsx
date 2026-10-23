@@ -12,7 +12,9 @@ export const TopicRowActions = ({
   topic: ITopic;
   onAddCategory: () => void;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.knowledgebase',
+  });
   const navigate = useNavigate();
   const topicPath = `${KNOWLEDGE_BASE_PATH}/${topic._id}`;
 

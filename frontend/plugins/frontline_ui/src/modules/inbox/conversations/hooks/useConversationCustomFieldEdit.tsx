@@ -13,7 +13,7 @@ type IConversationEditCustomFieldsVariables = {
 };
 
 export const useConversationCustomFieldEdit = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const [editCustomFields, { loading }] = useMutation(
     CONVERSATION_EDIT_CUSTOM_FIELDS,
   );
