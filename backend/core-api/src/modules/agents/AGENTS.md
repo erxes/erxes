@@ -83,11 +83,13 @@ plugin; ported from the former private `erxes-agent` service). It provides:
 ## Surfaces
 
 - HTTP (mounted in `src/routes.ts` via `src/modules/agents/routes.ts`):
-  `POST /agents/chat` (SSE; optional `runId` UUID, `provider`, `model`,
-  `thinkingLevel`, `pageContext`; `X-Agents-Thread-Id` response header),
-  `POST /agents/approve` `{ threadId, toolCallId?, approved, reason? }`,
-  `POST /agents/answer` `{ threadId, answer }`,
-  `POST /agents/chat/reconnect` `{ threadId, runId }` (SSE replay or 204).
+  `POST /agents/chat` (SSE through `@mastra/ai-sdk` `handleChatStream`;
+  `threadId` = the client's Chat id, one newest message, optional `provider`,
+  `model`, `thinkingLevel`, `pageContext`). A user message starts a turn; an
+  assistant message carrying approval-responded tool parts resumes those
+  gates; `resume: { runId, toolCallId, answers }` resumes an ask_user call.
+  `GET /agents/chat/:threadId/stream` reattaches to the thread's active run via
+  `listActiveRuns` + `observe`, or returns 204.
   All require the gateway `user` header and `agentsChat`, including plain text,
   approval, answer and reconnect requests. Permission denial precedes credential,
   runtime and attachment access. Identity is stamped from the header into Mastra
@@ -189,11 +191,10 @@ plugin; ported from the former private `erxes-agent` service). It provides:
   from Mastra `onFinish`/`onTitleGenerated` hooks, `agentsThreadUpdate`, and
   `agentsThreadRemove`. Creation persists and publishes before model generation,
   with an absent title so native asynchronous auto-titling still applies.
-- The resume routes share `findSuspendedToolCall` (kind-aware: approval vs
-  ask_user, newest suspended run, ownership re-checked, wrong-kind → 409).
-  Approval requests carry the answered `toolCallId`, checked against the current
-  suspension; stale ids return 409 rather than deciding another call. Legacy
-  callers without an id retain server discovery. Invalid/denied GraphQL inputs
+- Resume requests are checked against `listSuspendedRuns({ threadId,
+  resourceId })`: each approval id (`runId::toolCallId`) or ask_user target
+  must be a call suspended in this user's thread, of the matching kind, or the
+  route returns 409. Invalid/denied GraphQL inputs
   return tool errors without approval or network execution; human approval never
   grants an exception to GraphQL policy.
 - Session removal verifies ownership, aborts and cancels scoped running/suspended

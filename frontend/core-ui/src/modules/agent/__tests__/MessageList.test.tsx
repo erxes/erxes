@@ -165,25 +165,6 @@ it('uses current tool activity beside Bloub while multiple step groups stay stat
   expect(screen.getAllByTestId('bloub')).toHaveLength(1);
 });
 
-it('keeps one live header when a hidden answer turn follows the assistant row', () => {
-  const answer: UIMessage = {
-    id: 'answer',
-    role: 'user',
-    metadata: { agentsAnswer: true },
-    parts: [{ type: 'text', text: 'Last month' }],
-  };
-  render(
-    <MessageList
-      {...props}
-      status="submitted"
-      messages={[user, assistant([query]), answer]}
-    />,
-  );
-  expect(screen.getAllByRole('status')).toHaveLength(1);
-  expect(screen.getByRole('status').textContent).toBe('Querying deals');
-  expect(screen.getAllByTestId('bloub')).toHaveLength(1);
-});
-
 it('does not repeat file generation progress in the body', () => {
   render(
     <MessageList

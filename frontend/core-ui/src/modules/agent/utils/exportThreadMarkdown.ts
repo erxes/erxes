@@ -10,7 +10,7 @@ import {
   maskAgentReferences,
 } from '../references/maskAgentReferences';
 import { extractPageContext } from './pageContext';
-import { getMessageText, isAgentsAnswerTurn } from './messages';
+import { getMessageText } from './messages';
 import type { AgentsUIMessage } from '../types';
 
 export interface IBuildThreadMarkdownArgs {
@@ -44,9 +44,8 @@ const referencesToLabels = (
 
 /**
  * Renders a thread as Markdown: `## You` / `## AI Agent` turns with text
- * parts only. Skips reasoning/tool parts, ask_user answer echoes
- * (`metadata.agentsAnswer`), and each user turn's leading `[Page context]`
- * block.
+ * parts only. Skips reasoning/tool parts and each user turn's leading
+ * `[Page context]` block.
  */
 export const buildThreadMarkdown = ({
   title,
@@ -63,10 +62,6 @@ export const buildThreadMarkdown = ({
   const scopes = buildAgentReferenceScopes(messages);
   for (const [index, message] of messages.entries()) {
     if (message.role === 'user') {
-      if (isAgentsAnswerTurn(message)) {
-        continue;
-      }
-
       const { parts } = extractPageContext(message.parts);
       const text = parts
         .filter(isTextUIPart)

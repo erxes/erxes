@@ -81,9 +81,7 @@ export const ChatPanel = ({
     addToolApprovalResponse,
     stop,
     clearError,
-    answerBusy,
     submitAnswer,
-    canReconnect,
     resumeStream,
     retryLastTurn,
   } = chat;
@@ -163,25 +161,22 @@ export const ChatPanel = ({
         className="mt-0.5"
       />
       <p className="min-w-0 flex-1 break-words">{describeError(error)}</p>
-      {canReconnect ? (
-        <Button
-          variant="ghost"
-          size="sm"
-          className="h-7 shrink-0 text-xs"
-          onClick={() => void resumeStream()}
-        >
-          {t('reconnect', 'Reconnect')}
-        </Button>
-      ) : (
-        <Button
-          variant="ghost"
-          size="sm"
-          className="h-7 shrink-0 text-xs"
-          onClick={retryLastTurn}
-        >
-          {t('retry', 'Retry')}
-        </Button>
-      )}
+      <Button
+        variant="ghost"
+        size="sm"
+        className="h-7 shrink-0 text-xs"
+        onClick={() => void resumeStream()}
+      >
+        {t('reconnect', 'Reconnect')}
+      </Button>
+      <Button
+        variant="ghost"
+        size="sm"
+        className="h-7 shrink-0 text-xs"
+        onClick={retryLastTurn}
+      >
+        {t('retry', 'Retry')}
+      </Button>
       <Button
         variant="ghost"
         size="icon"
@@ -338,17 +333,11 @@ export const ChatPanel = ({
         loadingThread={loadingThread}
         approvalBusy={isStreaming}
         onApprovalRespond={handleApprovalRespond}
-        answerBusy={answerBusy || isStreaming}
+        answerBusy={isStreaming}
         onAnswer={submitAnswer}
         onRetryTurn={retryLastTurn}
         onEditMessage={chat.editMessage}
-        editingDisabled={
-          isStreaming ||
-          loadingThread ||
-          answerBusy ||
-          canReconnect ||
-          noConnection
-        }
+        editingDisabled={isStreaming || loadingThread || noConnection}
         error={error ? describeError(error) : undefined}
       />
       {/* `pb` keeps the composer clear of the iOS home indicator without

@@ -51,22 +51,6 @@ describe('buildThreadMarkdown', () => {
     expect(markdown).toContain('Show me this customer');
   });
 
-  it('skips ask_user answer turns marked metadata.agentsAnswer', () => {
-    const markdown = buildThreadMarkdown({
-      title: 'T',
-      exportedAt,
-      messages: [
-        message('user', [textPart('real question')]),
-        message('user', [textPart('Picked: blue')], {
-          agentsAnswer: true,
-        }),
-      ],
-    });
-
-    expect(markdown).toContain('real question');
-    expect(markdown).not.toContain('Picked: blue');
-  });
-
   it('rewrites valid references to their label but keeps code literal', () => {
     const markdown = buildThreadMarkdown({
       title: 'T',

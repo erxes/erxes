@@ -104,12 +104,6 @@ export const AgentSidePanel = ({
       onNew={handleNewConversation}
       onDelete={remove}
       onDeleted={(deletedId, nextId) => {
-        try {
-          sessionStorage.removeItem(`agents-active-run:${deletedId}`);
-          sessionStorage.removeItem(`agents-in-flight-prompt:${deletedId}`);
-        } catch {
-          /* Storage may be disabled; selection must still work. */
-        }
         if (currentThreadId.current === deletedId) {
           if (nextId) handleSelectThread(nextId);
           else handleNewConversation();

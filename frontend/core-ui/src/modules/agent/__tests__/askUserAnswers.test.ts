@@ -1,5 +1,4 @@
 import {
-  buildAskUserResult,
   formatAskUserAnswers,
   readAskUserAnswers,
   readAskUserQuestionsFromInput,
@@ -124,37 +123,6 @@ describe('readAskUserAnswers — stored content', () => {
     expect(readAskUserAnswers(questions(['Q?']), { content: 'garbage' })).toBeNull();
     expect(readAskUserAnswers(questions(['Q?']), undefined)).toBeNull();
     expect(readAskUserAnswers([], { content: 'User answered: x' })).toBeNull();
-  });
-});
-
-describe('buildAskUserResult', () => {
-  it('mirrors the backend tool result for a batched suspension', () => {
-    const result = buildAskUserResult(questions(['Q1?', 'Q2?']), ['a1', ['b1', 'b2']]);
-
-    expect(result).toEqual({
-      content: 'User answered:\nQ1?: a1\nQ2?: b1, b2',
-      isError: false,
-      answers: ['a1', ['b1', 'b2']],
-    });
-  });
-
-  it('wraps a single multi-select answer without splitting it positionally', () => {
-    const result = buildAskUserResult(questions(['Q?']), ['a', 'b']);
-
-    expect(result).toEqual({
-      content: 'User answered:\nQ?: a, b',
-      isError: false,
-      answers: [['a', 'b']],
-    });
-  });
-
-  it('round-trips through the content parser', () => {
-    const result = buildAskUserResult(questions(['Q1?', 'Q2?']), ['a 1', 'b 2']);
-
-    expect(readAskUserAnswers(questions(['Q1?', 'Q2?']), result)).toEqual([
-      { question: 'Q1?', answer: 'a 1' },
-      { question: 'Q2?', answer: 'b 2' },
-    ]);
   });
 });
 

@@ -94,10 +94,59 @@ jest.mock('@/agents/threadsEvents', () => ({
 }));
 jest.mock('ai', () => ({
   pipeUIMessageStreamToResponse: jest.fn(),
+  isToolUIPart: (part: { type: string }) =>
+    part.type.startsWith('tool-') || part.type === 'dynamic-tool',
 }));
-jest.mock('@mastra/ai-sdk', () => ({
-  toAISdkStream: jest.fn(),
+// The real MessageList pulls in all of @mastra/core; the route only needs it
+// to turn the prompt into a storable message.
+jest.mock('@mastra/core/agent', () => ({
+  MessageList: class {
+    private messages: unknown[] = [];
+    add(message: unknown) {
+      this.messages.push(message);
+      return this;
+    }
+    get get() {
+      return { all: { db: () => this.messages } };
+    }
+  },
 }));
+jest.mock('@mastra/ai-sdk', () => {
+  const toAISdkStream = jest.fn();
+  return {
+    toAISdkStream,
+    // Mirrors the real handler's dispatch: `resumeData` resumes the run, an
+    // assistant message resumes its approval-responded call, and anything
+    // else streams a new turn. The result goes through `toAISdkStream`.
+    handleChatStream: jest.fn(async ({ mastra, agentId, params, onError }) => {
+      const agent = mastra.getAgentById(agentId);
+      const { messages, resumeData, ...options } = params;
+      const decision = messages
+        .at(-1)
+        ?.parts?.find(
+          (part: { state?: string }) => part.state === 'approval-responded',
+        );
+      const output = resumeData
+        ? await agent.resumeStream(resumeData, options)
+        : decision
+          ? await agent.resumeStream(
+              {
+                approved: decision.approval.approved,
+                ...(decision.approval.reason
+                  ? { reason: decision.approval.reason }
+                  : {}),
+              },
+              {
+                ...options,
+                runId: decision.approval.id.split('::')[0],
+                toolCallId: decision.toolCallId,
+              },
+            )
+          : (await agent.stream(messages, options)).output;
+      return toAISdkStream(output, { from: 'agent', version: 'v7', onError });
+    }),
+  };
+});
 
 import { generateModels } from '~/connectionResolvers';
 import { buildAgentsModelSettings } from '@/agents/agent';
@@ -111,9 +160,13 @@ import type { IAgentsRequestContext } from '@/agents/requestContext';
 const { pipeUIMessageStreamToResponse: mockedPipe } = jest.requireMock(
   'ai',
 ) as { pipeUIMessageStreamToResponse: jest.Mock };
-const { toAISdkStream: mockedToAISdkStream } = jest.requireMock(
-  '@mastra/ai-sdk',
-) as { toAISdkStream: jest.Mock };
+const {
+  toAISdkStream: mockedToAISdkStream,
+  handleChatStream: mockedHandleChatStream,
+} = jest.requireMock('@mastra/ai-sdk') as {
+  toAISdkStream: jest.Mock;
+  handleChatStream: jest.Mock;
+};
 
 const mockedGenerateModels = generateModels as jest.MockedFunction<
   typeof generateModels
@@ -156,9 +209,7 @@ const getHandler = (method: string, path: string) => {
 };
 
 const chatHandler = getHandler('post', '/agents/chat');
-const approveHandler = getHandler('post', '/agents/approve');
-const answerHandler = getHandler('post', '/agents/answer');
-const reconnectHandler = getHandler('post', '/agents/chat/reconnect');
+const streamHandler = getHandler('get', '/agents/chat/:threadId/stream');
 
 interface IFakeResponse {
   statusCode: number;
@@ -215,17 +266,23 @@ const buildReq = (options: IReqOptions = {}) => {
       'base64',
     );
   }
+  // The AI SDK client always sends its Chat id as the thread id.
+  const requestBody =
+    options.body &&
+    typeof options.body === 'object' &&
+    'messages' in options.body &&
+    !('threadId' in options.body)
+      ? { threadId: 'thread-1', ...options.body }
+      : options.body;
   return {
     headers,
-    body: options.body ?? {},
+    body: requestBody ?? {},
     query: options.query ?? {},
     params: options.params ?? {},
   };
 };
 
 const ACTING_USER = { _id: 'user-1', email: 'agent@example.com' };
-const UUID_PATTERN =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 const CONNECTION_DOC = {
   userId: 'user-1',
@@ -308,7 +365,7 @@ interface IStreamOptions {
     onTitleGenerated?: () => void;
   };
   onFinish?: () => void;
-  onSuspended?: () => void;
+  closeOnSuspend?: boolean;
   requestContext?: { get(key: string): unknown };
 }
 
@@ -335,35 +392,10 @@ interface ISuspendedRun {
   }[];
 }
 
-interface IApproveOptions {
-  runId?: string;
-  toolCallId?: string;
-  reason?: string;
-  memory?: {
-    thread: string;
-    resource: string;
-    onTitleGenerated?: () => void;
-  };
-  onFinish?: () => void;
-  onSuspended?: () => void;
-  requestContext?: { get(key: string): unknown };
-}
-
 const listSuspendedRunsMock = jest.fn<
   Promise<{ runs: ISuspendedRun[]; total: number }>,
   [{ threadId?: string; resourceId?: string }?]
 >(async () => ({ runs: [], total: 0 }));
-
-const APPROVED_OUTPUT_SENTINEL = { sentinel: 'approved-output' };
-const DECLINED_OUTPUT_SENTINEL = { sentinel: 'declined-output' };
-
-const approveToolCallMock = jest.fn<Promise<unknown>, [IApproveOptions]>(
-  async () => APPROVED_OUTPUT_SENTINEL,
-);
-
-const declineToolCallMock = jest.fn<Promise<unknown>, [IApproveOptions]>(
-  async () => DECLINED_OUTPUT_SENTINEL,
-);
 
 interface IResumeOptions {
   runId?: string;
@@ -375,7 +407,7 @@ interface IResumeOptions {
     onTitleGenerated?: () => void;
   };
   onFinish?: () => void;
-  onSuspended?: () => void;
+  closeOnSuspend?: boolean;
   requestContext?: { get(key: string): unknown };
 }
 
@@ -384,8 +416,6 @@ const RESUMED_OUTPUT_SENTINEL = { sentinel: 'resumed-output' };
 const resumeStreamMock = jest.fn<Promise<unknown>, [unknown, IResumeOptions]>(
   async () => RESUMED_OUTPUT_SENTINEL,
 );
-
-const MASTRA_SENTINEL = { sentinel: 'mastra-instance' };
 
 const listActiveRunsMock = jest.fn<
   Promise<{ runs: { runId: string; status: string }[]; total: number }>,
@@ -426,8 +456,6 @@ beforeEach(() => {
     runId: options?.runId ?? 'generated-run-id',
     cleanup: jest.fn(),
   }));
-  approveToolCallMock.mockImplementation(async () => APPROVED_OUTPUT_SENTINEL);
-  declineToolCallMock.mockImplementation(async () => DECLINED_OUTPUT_SENTINEL);
   resumeStreamMock.mockImplementation(async () => RESUMED_OUTPUT_SENTINEL);
   observeMock.mockImplementation(async (runId: string) => ({
     output: OBSERVED_OUTPUT_SENTINEL,
@@ -444,18 +472,18 @@ beforeEach(() => {
     codeModeEnabled: false,
     codeModeEnvironment: 'in-process',
   });
+  const agent = {
+    id: 'agents',
+    stream: streamMock,
+    listSuspendedRuns: listSuspendedRunsMock,
+    resumeStream: resumeStreamMock,
+    listActiveRuns: listActiveRunsMock,
+    observe: observeMock,
+  };
   mockedGetAgentsRuntime.mockResolvedValue({
     memory,
-    mastra: MASTRA_SENTINEL,
-    agent: {
-      stream: streamMock,
-      listSuspendedRuns: listSuspendedRunsMock,
-      approveToolCall: approveToolCallMock,
-      declineToolCall: declineToolCallMock,
-      resumeStream: resumeStreamMock,
-      listActiveRuns: listActiveRunsMock,
-      observe: observeMock,
-    },
+    mastra: { getAgentById: (id: string) => (id === 'agents' ? agent : null) },
+    agent,
   } as unknown as Awaited<ReturnType<typeof getAgentsRuntime>>);
   mockedBuildAgentsRequestContext.mockImplementation(
     async (values: IAgentsRequestContext) =>
@@ -518,27 +546,37 @@ describe('POST /agents/chat — authentication and validation', () => {
     expect(streamMock).not.toHaveBeenCalled();
   });
 
-  it('rejects when the newest message is not from the user', async () => {
+  it('requires the client Chat id as the thread id', async () => {
+    for (const threadId of [undefined, '   ', 42]) {
+      const res = buildRes();
+      await chatHandler(
+        buildReq({
+          user: ACTING_USER,
+          body: { messages: [userMessage('hi')], threadId },
+        }),
+        res,
+      );
+      expect(res.statusCode).toBe(400);
+    }
+    expect(streamMock).not.toHaveBeenCalled();
+  });
+
+  it('rejects a newest message that is neither user nor assistant', async () => {
     const res = buildRes();
     await chatHandler(
       buildReq({
         user: ACTING_USER,
         body: {
-          messages: [
-            userMessage('hi'),
-            {
-              id: 'a1',
-              role: 'assistant',
-              content: [{ type: 'text', text: 'hello' }],
-            },
-          ],
+          messages: [{ id: 's1', role: 'system', parts: [] }],
         },
       }),
       res,
     );
 
     expect(res.statusCode).toBe(400);
-    expect(body(res).error).toBe('The newest message must be from the user.');
+    expect(body(res).error).toBe(
+      'The newest message must be from the user or the assistant.',
+    );
     expect(streamMock).not.toHaveBeenCalled();
   });
 
@@ -672,7 +710,6 @@ describe('POST /agents/chat — thread ownership and isolation', () => {
     );
 
     expect(res.statusCode).toBe(200);
-    expect(res.headers['X-Agents-Thread-Id']).toBe('own-thread');
     // The durable agent's stream is called with the request context
     // carrying the resolved selection.
     expect(streamMock).toHaveBeenCalledWith(
@@ -686,40 +723,29 @@ describe('POST /agents/chat — thread ownership and isolation', () => {
     );
   });
 
-  it('starts a new thread when no threadId is supplied and announces the id before streaming', async () => {
-    const res = buildRes();
-    await chatHandler(
-      buildReq({ user: ACTING_USER, body: { messages: [userMessage('hi')] } }),
-      res,
-    );
-
-    const announced = res.headers['X-Agents-Thread-Id'];
-    expect(announced).toMatch(UUID_PATTERN);
-    expect(memory.getThreadById).toHaveBeenCalledWith({ threadId: announced });
-    expect(streamMock).toHaveBeenCalledWith(
-      expect.any(Array),
-      expect.objectContaining({
-        memory: expect.objectContaining({
-          thread: announced,
-          resource: 'user-1',
-        }),
-      }),
-    );
-  });
-
-  it('treats a blank threadId as a request for a new thread', async () => {
+  it('starts a new thread under the client-supplied id', async () => {
     const res = buildRes();
     await chatHandler(
       buildReq({
         user: ACTING_USER,
-        body: { messages: [userMessage('hi')], threadId: '   ' },
+        body: { messages: [userMessage('hi')], threadId: 'new-thread' },
       }),
       res,
     );
 
-    const announced = res.headers['X-Agents-Thread-Id'];
-    expect(announced).toMatch(UUID_PATTERN);
-    expect(announced).not.toBe('   ');
+    expect(memory.createThread).toHaveBeenCalledWith({
+      threadId: 'new-thread',
+      resourceId: 'user-1',
+    });
+    expect(streamMock).toHaveBeenCalledWith(
+      expect.any(Array),
+      expect.objectContaining({
+        memory: expect.objectContaining({
+          thread: 'new-thread',
+          resource: 'user-1',
+        }),
+      }),
+    );
   });
 });
 
@@ -793,6 +819,10 @@ describe('POST /agents/chat — model input and identity', () => {
       res,
     );
 
+    expect(mockedHandleChatStream).toHaveBeenCalledWith(
+      expect.objectContaining({ agentId: 'agents', version: 'v7' }),
+    );
+
     expect(mockedToAISdkStream).toHaveBeenCalledWith(
       OUTPUT_SENTINEL,
       expect.objectContaining({ version: 'v7' }),
@@ -850,68 +880,14 @@ describe('POST /agents/chat — model input and identity', () => {
     );
   });
 
-  it('ends the response on suspension when writableEnded is false (headersSent true during SSE)', async () => {
+  it('closes the response at a suspension once its snapshot is saved', async () => {
     const res = buildRes();
-    // Simulate SSE state: headers already sent but stream not ended.
-    res.headers['X-Agents-Thread-Id'] = 'test';
-
     await chatHandler(
       buildReq({ user: ACTING_USER, body: { messages: [userMessage('hi')] } }),
       res,
     );
 
-    // The onSuspended callback was passed to stream; invoke it.
-    const options = streamMock.mock.calls[0][1];
-    expect(options.onSuspended).toBeDefined();
-
-    // Before calling: writableEnded is false.
-    expect(res.writableEnded).toBe(false);
-    options.onSuspended?.();
-    expect(res.writableEnded).toBe(true);
-  });
-
-  it('does not end the response on suspension when already ended', async () => {
-    const res = buildRes();
-    res.writableEnded = true;
-
-    await chatHandler(
-      buildReq({ user: ACTING_USER, body: { messages: [userMessage('hi')] } }),
-      res,
-    );
-
-    const options = streamMock.mock.calls[0][1];
-    options.onSuspended?.();
-    // Stays true — no double-end.
-    expect(res.writableEnded).toBe(true);
-  });
-
-  it('rejects a non-string runId with 400 instead of crashing', async () => {
-    const res = buildRes();
-    await chatHandler(
-      buildReq({
-        user: ACTING_USER,
-        body: { messages: [userMessage('hi')], runId: 42 },
-      }),
-      res,
-    );
-
-    expect(res.statusCode).toBe(400);
-    expect(body(res).error).toBe('`runId` must be a valid UUID.');
-    expect(streamMock).not.toHaveBeenCalled();
-  });
-
-  it('rejects a malformed string runId with 400', async () => {
-    const res = buildRes();
-    await chatHandler(
-      buildReq({
-        user: ACTING_USER,
-        body: { messages: [userMessage('hi')], runId: 'not-a-uuid' },
-      }),
-      res,
-    );
-
-    expect(res.statusCode).toBe(400);
-    expect(streamMock).not.toHaveBeenCalled();
+    expect(streamMock.mock.calls[0][1].closeOnSuspend).toBe(true);
   });
 
   it('rejects non-string provider/model overrides with 400 instead of crashing', async () => {
@@ -932,895 +908,196 @@ describe('POST /agents/chat — model input and identity', () => {
     expect(streamMock).not.toHaveBeenCalled();
   });
 
-  it('rejects a non-string threadId with 400 instead of crashing', async () => {
-    const res = buildRes();
-    await chatHandler(
-      buildReq({
-        user: ACTING_USER,
-        body: { messages: [userMessage('hi')], threadId: 42 },
-      }),
-      res,
-    );
-
-    expect(res.statusCode).toBe(400);
-    expect(streamMock).not.toHaveBeenCalled();
-  });
 });
 
-describe('POST /agents/approve — destructive action approval resume', () => {
-  const suspendedRun = (runId: string): ISuspendedRun => ({
-    runId,
+describe('POST /agents/chat — resuming a suspended run', () => {
+  const approvalRun: ISuspendedRun = {
+    runId: 'run-1',
     toolCalls: [
+      { toolCallId: 'call-1', toolName: 'callGraphql', requiresApproval: true },
+    ],
+  };
+  const askRun: ISuspendedRun = {
+    runId: 'run-ask',
+    toolCalls: [
+      { toolCallId: 'ask-1', toolName: 'askUser', requiresApproval: false },
+    ],
+  };
+  const decided = (
+    approved: boolean,
+    { runId = 'run-1', toolCallId = 'call-1', reason = '' } = {},
+  ) => ({
+    id: 'assistant-1',
+    role: 'assistant',
+    parts: [
       {
-        toolCallId: 'call-1',
-        toolName: 'callTool',
-        requiresApproval: true,
-        suspendPayload: {
-          toolId: 'sales.trpc.deal.remove',
-          input: { id: 'deal-1' },
+        type: 'tool-callGraphql',
+        toolCallId,
+        state: 'approval-responded',
+        input: { query: 'mutation Remove' },
+        approval: {
+          id: `${runId}::${toolCallId}`,
+          approved,
+          ...(reason ? { reason } : {}),
         },
       },
     ],
   });
+  const asked = { id: 'assistant-1', role: 'assistant', parts: [] };
+  const resume = (body: Record<string, unknown>) =>
+    buildReq({ user: ACTING_USER, body: { threadId: 't1', ...body } });
 
-  it('rejects unauthenticated requests before touching the agent runtime', async () => {
-    const res = buildRes();
-    await approveHandler(
-      buildReq({ body: { threadId: 't1', approved: true } }),
-      res,
-    );
-
-    expect(res.statusCode).toBe(401);
-    expect(body(res).error).toBe('Authentication required');
-    expect(streamMock).not.toHaveBeenCalled();
-    expect(approveToolCallMock).not.toHaveBeenCalled();
-    expect(declineToolCallMock).not.toHaveBeenCalled();
-  });
-
-  it('requires a threadId', async () => {
-    const res = buildRes();
-    await approveHandler(
-      buildReq({ user: ACTING_USER, body: { approved: true } }),
-      res,
-    );
-
-    expect(res.statusCode).toBe(400);
-    expect(body(res).error).toBe('`threadId` is required.');
-    expect(approveToolCallMock).not.toHaveBeenCalled();
-  });
-
-  it('requires an explicit boolean decision', async () => {
-    const res = buildRes();
-    await approveHandler(
-      buildReq({
-        user: ACTING_USER,
-        body: { threadId: 't1', approved: 'yes' },
-      }),
-      res,
-    );
-
-    expect(res.statusCode).toBe(400);
-    expect(body(res).error).toBe('`approved` must be true or false.');
-    expect(approveToolCallMock).not.toHaveBeenCalled();
-  });
-
-  it('defers connection validation to the durable agent on resume', async () => {
-    // With durable agents, the connection check happens inside the
-    // agent's dynamic model callback, not in the route preamble.
-    // The route only checks ownership; if the thread exists and belongs
-    // to the user, the resume proceeds.
+  beforeEach(() => {
     memory.getThreadById.mockResolvedValue({ resourceId: 'user-1' });
     listSuspendedRunsMock.mockResolvedValue({
-      runs: [suspendedRun('run-1')],
-      total: 1,
+      runs: [approvalRun, askRun],
+      total: 2,
     });
-    connectionModel.getConnections.mockResolvedValue(null);
-    const res = buildRes();
-    await approveHandler(
-      buildReq({ user: ACTING_USER, body: { threadId: 't1', approved: true } }),
-      res,
-    );
+  });
 
-    // The route succeeds; connection validation is deferred to the agent.
+  it('approves the decided call and streams the continuation', async () => {
+    const res = buildRes();
+    await chatHandler(resume({ messages: [decided(true)] }), res);
+
     expect(res.statusCode).toBe(200);
-    expect(approveToolCallMock).toHaveBeenCalled();
-  });
-
-  it('returns 404 for an unknown thread', async () => {
-    const res = buildRes();
-    await approveHandler(
-      buildReq({
-        user: ACTING_USER,
-        body: { threadId: 'missing', approved: true },
-      }),
-      res,
-    );
-
-    expect(res.statusCode).toBe(404);
-    expect(body(res).error).toBe('Thread not found.');
-    expect(listSuspendedRunsMock).not.toHaveBeenCalled();
-    expect(approveToolCallMock).not.toHaveBeenCalled();
-  });
-
-  it('refuses to resume a run in a thread owned by another user', async () => {
-    memory.getThreadById.mockResolvedValue({ resourceId: 'user-other' });
-    const res = buildRes();
-    await approveHandler(
-      buildReq({ user: ACTING_USER, body: { threadId: 't1', approved: true } }),
-      res,
-    );
-
-    expect(res.statusCode).toBe(403);
-    expect(body(res).error).toBe('Thread belongs to another user.');
-    expect(listSuspendedRunsMock).not.toHaveBeenCalled();
-    expect(approveToolCallMock).not.toHaveBeenCalled();
-  });
-
-  it('reports when nothing is awaiting approval on the thread', async () => {
-    memory.getThreadById.mockResolvedValue({ resourceId: 'user-1' });
-    const res = buildRes();
-    await approveHandler(
-      buildReq({ user: ACTING_USER, body: { threadId: 't1', approved: true } }),
-      res,
-    );
-
-    expect(res.statusCode).toBe(409);
-    expect(body(res).error).toBe('No pending approval exists for this thread.');
-    expect(approveToolCallMock).not.toHaveBeenCalled();
-  });
-
-  it('discovers the suspended run scoped to the thread and the acting user', async () => {
-    memory.getThreadById.mockResolvedValue({ resourceId: 'user-1' });
-    listSuspendedRunsMock.mockResolvedValue({
-      runs: [suspendedRun('run-1')],
-      total: 1,
-    });
-    const res = buildRes();
-    await approveHandler(
-      buildReq({ user: ACTING_USER, body: { threadId: 't1', approved: true } }),
-      res,
-    );
-
     expect(listSuspendedRunsMock).toHaveBeenCalledWith({
       threadId: 't1',
       resourceId: 'user-1',
     });
-    expect(res.statusCode).toBe(200);
-  });
-
-  it('ends the response when the resumed run suspends again (chained approval)', async () => {
-    memory.getThreadById.mockResolvedValue({ resourceId: 'user-1' });
-    listSuspendedRunsMock.mockResolvedValue({
-      runs: [suspendedRun('run-1')],
-      total: 1,
-    });
-    const res = buildRes();
-    await approveHandler(
-      buildReq({ user: ACTING_USER, body: { threadId: 't1', approved: true } }),
-      res,
-    );
-
-    const options = approveToolCallMock.mock.calls[0][0];
-    expect(options.onSuspended).toBeDefined();
-    expect(res.writableEnded).toBe(false);
-    options.onSuspended?.();
-    expect(res.writableEnded).toBe(true);
-  });
-
-  it('approves the newest suspended tool call and streams the continuation', async () => {
-    memory.getThreadById.mockResolvedValue({ resourceId: 'user-1' });
-    listSuspendedRunsMock.mockResolvedValue({
-      runs: [suspendedRun('run-newest'), suspendedRun('run-older')],
-      total: 2,
-    });
-    const res = buildRes();
-    await approveHandler(
-      buildReq({ user: ACTING_USER, body: { threadId: 't1', approved: true } }),
-      res,
-    );
-
-    expect(approveToolCallMock).toHaveBeenCalledTimes(1);
-    expect(declineToolCallMock).not.toHaveBeenCalled();
-    expect(approveToolCallMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        runId: 'run-newest',
-        toolCallId: 'call-1',
-        memory: expect.objectContaining({
-          thread: 't1',
-          resource: 'user-1',
-        }),
-      }),
-    );
-    const options = approveToolCallMock.mock.calls[0][0];
-    // Durable agent resume options carry runId/toolCallId/memory/onFinish
-    // but NOT requestContext (the agent uses its registered snapshot).
-    expect(options.runId).toBe('run-newest');
-    expect(options.toolCallId).toBe('call-1');
-    expect(options.onFinish).toBeDefined();
-    // onFinish publishes thread change so sidebar refreshes after resume.
-    mockedPublishAgentsThreadsChanged.mockClear();
-    options.onFinish?.();
-    expect(mockedPublishAgentsThreadsChanged).toHaveBeenCalledWith('user-1');
-    expect(res.headers['X-Agents-Thread-Id']).toBe('t1');
-    expect(mockedToAISdkStream).toHaveBeenCalledWith(
-      APPROVED_OUTPUT_SENTINEL,
-      expect.objectContaining({ version: 'v7' }),
-    );
-    expect(mockedPipe).toHaveBeenCalledWith(
-      expect.objectContaining({
-        response: res,
-        stream: { wrapped: APPROVED_OUTPUT_SENTINEL },
-      }),
-    );
-  });
-
-  it('declines the held tool call with the user’s reason instead of executing it', async () => {
-    memory.getThreadById.mockResolvedValue({ resourceId: 'user-1' });
-    listSuspendedRunsMock.mockResolvedValue({
-      runs: [suspendedRun('run-1')],
-      total: 1,
-    });
-    const res = buildRes();
-    await approveHandler(
-      buildReq({
-        user: ACTING_USER,
-        body: { threadId: 't1', approved: false, reason: 'too risky' },
-      }),
-      res,
-    );
-
-    expect(res.statusCode).toBe(200);
-    expect(approveToolCallMock).not.toHaveBeenCalled();
-    expect(declineToolCallMock).toHaveBeenCalledWith(
+    expect(resumeStreamMock).toHaveBeenCalledWith(
+      { approved: true },
       expect.objectContaining({
         runId: 'run-1',
         toolCallId: 'call-1',
-        reason: 'too risky',
-      }),
-    );
-  });
-
-  it('omits an empty rejection reason', async () => {
-    memory.getThreadById.mockResolvedValue({ resourceId: 'user-1' });
-    listSuspendedRunsMock.mockResolvedValue({
-      runs: [suspendedRun('run-1')],
-      total: 1,
-    });
-    const res = buildRes();
-    await approveHandler(
-      buildReq({
-        user: ACTING_USER,
-        body: { threadId: 't1', approved: false, reason: '   ' },
-      }),
-      res,
-    );
-
-    const options = declineToolCallMock.mock.calls[0][0];
-    expect(options).toEqual(
-      expect.objectContaining({ runId: 'run-1', toolCallId: 'call-1' }),
-    );
-    expect(options).not.toHaveProperty('reason');
-  });
-
-  it('omits toolCallId when the suspended run does not report one', async () => {
-    memory.getThreadById.mockResolvedValue({ resourceId: 'user-1' });
-    listSuspendedRunsMock.mockResolvedValue({
-      runs: [
-        {
-          runId: 'run-1',
-          toolCalls: [{ toolName: 'callTool', requiresApproval: true }],
-        },
-      ],
-      total: 1,
-    });
-    const res = buildRes();
-    await approveHandler(
-      buildReq({ user: ACTING_USER, body: { threadId: 't1', approved: true } }),
-      res,
-    );
-
-    expect(res.statusCode).toBe(200);
-    // Without a toolCallId the route defers to Mastra, which approves the
-    // run's single pending tool call from its own snapshot.
-    const options = approveToolCallMock.mock.calls[0][0];
-    expect(options).not.toHaveProperty('toolCallId');
-    expect(options).toEqual(expect.objectContaining({ runId: 'run-1' }));
-  });
-
-  it('409s when the newest suspension is an ask_user question, not an approval', async () => {
-    memory.getThreadById.mockResolvedValue({ resourceId: 'user-1' });
-    listSuspendedRunsMock.mockResolvedValue({
-      runs: [
-        {
-          runId: 'run-ask',
-          toolCalls: [
-            {
-              toolCallId: 'call-ask-1',
-              toolName: 'askUser',
-              requiresApproval: false,
-            },
-          ],
-        },
-      ],
-      total: 1,
-    });
-    const res = buildRes();
-    await approveHandler(
-      buildReq({ user: ACTING_USER, body: { threadId: 't1', approved: true } }),
-      res,
-    );
-
-    // Approving an ask_user suspension would decide a question instead of
-    // the human's answer; it must be answered through /agents/answer.
-    expect(res.statusCode).toBe(409);
-    expect(body(res).error).toBe(
-      'This thread is waiting for an answer, not an approval decision.',
-    );
-    expect(approveToolCallMock).not.toHaveBeenCalled();
-    expect(declineToolCallMock).not.toHaveBeenCalled();
-  });
-
-  it('keeps 409 on a foreign-kind newest run even when an older run holds an approval', async () => {
-    memory.getThreadById.mockResolvedValue({ resourceId: 'user-1' });
-    listSuspendedRunsMock.mockResolvedValue({
-      runs: [
-        {
-          runId: 'run-ask',
-          toolCalls: [
-            {
-              toolCallId: 'call-ask-1',
-              toolName: 'askUser',
-              requiresApproval: false,
-            },
-          ],
-        },
-        suspendedRun('run-approval'),
-      ],
-      total: 2,
-    });
-    const res = buildRes();
-    await approveHandler(
-      buildReq({ user: ACTING_USER, body: { threadId: 't1', approved: true } }),
-      res,
-    );
-
-    // Suspensions resolve newest-first so the transcript stays in order;
-    // the route never skips past a newer suspension to reach an older one.
-    expect(res.statusCode).toBe(409);
-    expect(approveToolCallMock).not.toHaveBeenCalled();
-  });
-
-  it('selects the approval-gated call when the newest run holds mixed pending calls', async () => {
-    memory.getThreadById.mockResolvedValue({ resourceId: 'user-1' });
-    listSuspendedRunsMock.mockResolvedValue({
-      runs: [
-        {
-          runId: 'run-mixed',
-          toolCalls: [
-            {
-              toolCallId: 'call-ask-1',
-              toolName: 'askUser',
-              requiresApproval: false,
-            },
-            {
-              toolCallId: 'call-destructive',
-              toolName: 'callTool',
-              requiresApproval: true,
-            },
-          ],
-        },
-      ],
-      total: 1,
-    });
-    const res = buildRes();
-    await approveHandler(
-      buildReq({ user: ACTING_USER, body: { threadId: 't1', approved: true } }),
-      res,
-    );
-
-    expect(approveToolCallMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        runId: 'run-mixed',
-        toolCallId: 'call-destructive',
-      }),
-    );
-  });
-
-  it.each([42, '', 'x'.repeat(201)])(
-    'rejects an invalid approval target (%s)',
-    async (toolCallId) => {
-      const res = buildRes();
-      await approveHandler(
-        buildReq({
-          user: ACTING_USER,
-          body: { threadId: 't1', approved: true, toolCallId },
-        }),
-        res,
-      );
-      expect(res.statusCode).toBe(400);
-      expect(approveToolCallMock).not.toHaveBeenCalled();
-    },
-  );
-
-  it('rejects a stale approval rather than applying it to the next suspended call', async () => {
-    memory.getThreadById.mockResolvedValue({ resourceId: 'user-1' });
-    listSuspendedRunsMock.mockResolvedValue({
-      runs: [suspendedRun('run-1')],
-      total: 1,
-    });
-    const res = buildRes();
-    await approveHandler(
-      buildReq({
-        user: ACTING_USER,
-        body: {
-          threadId: 't1',
-          approved: true,
-          toolCallId: 'old-call',
-        },
-      }),
-      res,
-    );
-    expect(res.statusCode).toBe(409);
-    expect(approveToolCallMock).not.toHaveBeenCalled();
-  });
-
-  it('resumes the explicitly answered call rather than the first listed approval', async () => {
-    memory.getThreadById.mockResolvedValue({ resourceId: 'user-1' });
-    const run = suspendedRun('run-1');
-    run.toolCalls?.push({
-      toolCallId: 'call-2',
-      toolName: 'callGraphql',
-      requiresApproval: true,
-    });
-    listSuspendedRunsMock.mockResolvedValue({ runs: [run], total: 1 });
-    const res = buildRes();
-    await approveHandler(
-      buildReq({
-        user: ACTING_USER,
-        body: {
-          threadId: 't1',
-          approved: false,
-          toolCallId: 'call-2',
-        },
-      }),
-      res,
-    );
-    expect(declineToolCallMock).toHaveBeenCalledWith(
-      expect.objectContaining({ toolCallId: 'call-2' }),
-    );
-  });
-
-  it('maps unexpected resume failures to a JSON 500 instead of crashing', async () => {
-    memory.getThreadById.mockResolvedValue({ resourceId: 'user-1' });
-    listSuspendedRunsMock.mockResolvedValue({
-      runs: [suspendedRun('run-1')],
-      total: 1,
-    });
-    approveToolCallMock.mockRejectedValueOnce(new Error('snapshot lost'));
-    const res = buildRes();
-    await approveHandler(
-      buildReq({ user: ACTING_USER, body: { threadId: 't1', approved: true } }),
-      res,
-    );
-
-    expect(res.statusCode).toBe(500);
-    expect(body(res).error).toBe('snapshot lost');
-    expect(mockedPipe).not.toHaveBeenCalled();
-  });
-});
-
-describe('POST /agents/answer — ask_user answer resume', () => {
-  // The canonical ask_user suspension: requiresApproval false (the tool
-  // called suspend() itself) and a suspendPayload carrying the question.
-  const askUserRun = (runId: string): ISuspendedRun => ({
-    runId,
-    toolCalls: [
-      {
-        toolCallId: 'call-ask-1',
-        toolName: 'askUser',
-        requiresApproval: false,
-        suspendPayload: {
-          question: 'Which deal should I summarize?',
-          options: [
-            { label: 'Biggest open deal' },
-            { label: 'Most recent deal' },
-          ],
-        },
-      },
-    ],
-  });
-
-  it('rejects unauthenticated requests before touching the agent runtime', async () => {
-    const res = buildRes();
-    await answerHandler(
-      buildReq({ body: { threadId: 't1', answer: 'yes' } }),
-      res,
-    );
-
-    expect(res.statusCode).toBe(401);
-    expect(body(res).error).toBe('Authentication required');
-    expect(streamMock).not.toHaveBeenCalled();
-    expect(resumeStreamMock).not.toHaveBeenCalled();
-  });
-
-  it('rejects a missing threadId', async () => {
-    const res = buildRes();
-    await answerHandler(
-      buildReq({ user: ACTING_USER, body: { answer: 'yes' } }),
-      res,
-    );
-
-    expect(res.statusCode).toBe(400);
-    expect(body(res).error).toBe('`threadId` is required.');
-    expect(resumeStreamMock).not.toHaveBeenCalled();
-  });
-
-  it.each([
-    ['missing', undefined],
-    ['empty string', '   '],
-    ['empty array', []],
-    ['array of blanks', ['  ', '']],
-    ['array with an empty inner array', [['yes'], []]],
-    ['non-string object', { text: 'yes' }],
-    ['number', 42],
-  ])('rejects an answer that is %s', async (_label, answer) => {
-    const res = buildRes();
-    await answerHandler(
-      buildReq({ user: ACTING_USER, body: { threadId: 't1', answer } }),
-      res,
-    );
-
-    expect(res.statusCode).toBe(400);
-    expect(body(res).error).toBe(
-      '`answer` must be a non-empty string, a non-empty string array, or an array of per-question answers.',
-    );
-    expect(resumeStreamMock).not.toHaveBeenCalled();
-  });
-
-  it('resumes with per-question positional answers untouched', async () => {
-    memory.getThreadById.mockResolvedValue({ resourceId: 'user-1' });
-    listSuspendedRunsMock.mockResolvedValue({
-      runs: [askUserRun('run-1')],
-      total: 1,
-    });
-    const res = buildRes();
-    await answerHandler(
-      buildReq({
-        user: ACTING_USER,
-        body: { threadId: 't1', answer: ['Sales', ['Won deals', 'Pipeline']] },
-      }),
-      res,
-    );
-
-    expect(resumeStreamMock).toHaveBeenCalledTimes(1);
-    const [resumeData, options] = resumeStreamMock.mock.calls[0];
-    expect(resumeData).toEqual(['Sales', ['Won deals', 'Pipeline']]);
-    expect(options).toEqual(
-      expect.objectContaining({
-        runId: 'run-1',
-        toolCallId: 'call-ask-1',
-        maxSteps: 32,
-        memory: {
-          thread: 't1',
-          resource: 'user-1',
-          onTitleGenerated: expect.any(Function),
-        },
-      }),
-    );
-  });
-
-  it('does not persist the answer as a user message before resuming', async () => {
-    memory.getThreadById.mockResolvedValue({ resourceId: 'user-1' });
-    listSuspendedRunsMock.mockResolvedValue({
-      runs: [askUserRun('run-1')],
-      total: 1,
-    });
-    const res = buildRes();
-    await answerHandler(
-      buildReq({
-        user: ACTING_USER,
-        body: {
-          threadId: 't1',
-          answer: ['Сар сонгосон', ['Долоо хоног 1', 'Долоо хоног 2']],
-        },
-      }),
-      res,
-    );
-
-    expect(res.statusCode).toBe(200);
-    // The answer survives inside the ask_user tool result that the resumed
-    // run persists (the UI renders it as the answered Q&A card), so storing
-    // it a second time as a user message would only duplicate model context.
-    expect(memory.saveMessages).not.toHaveBeenCalled();
-  });
-
-  it('refuses to resume a run owned by another user', async () => {
-    memory.getThreadById.mockResolvedValue({ resourceId: 'user-other' });
-    const res = buildRes();
-    await answerHandler(
-      buildReq({ user: ACTING_USER, body: { threadId: 't1', answer: 'yes' } }),
-      res,
-    );
-
-    expect(res.statusCode).toBe(403);
-    expect(body(res).error).toBe('Thread belongs to another user.');
-    expect(resumeStreamMock).not.toHaveBeenCalled();
-  });
-
-  it('404s for a missing thread', async () => {
-    memory.getThreadById.mockResolvedValue(null);
-    const res = buildRes();
-    await answerHandler(
-      buildReq({
-        user: ACTING_USER,
-        body: { threadId: 'ghost', answer: 'yes' },
-      }),
-      res,
-    );
-
-    expect(res.statusCode).toBe(404);
-    expect(body(res).error).toBe('Thread not found.');
-  });
-
-  it('409s when no run is suspended for the thread', async () => {
-    memory.getThreadById.mockResolvedValue({ resourceId: 'user-1' });
-    listSuspendedRunsMock.mockResolvedValue({ runs: [], total: 0 });
-    const res = buildRes();
-    await answerHandler(
-      buildReq({ user: ACTING_USER, body: { threadId: 't1', answer: 'yes' } }),
-      res,
-    );
-
-    expect(res.statusCode).toBe(409);
-    expect(body(res).error).toBe(
-      'No pending interaction exists for this thread.',
-    );
-    expect(resumeStreamMock).not.toHaveBeenCalled();
-  });
-
-  it('409s when the suspension is an approval, not an ask_user question', async () => {
-    memory.getThreadById.mockResolvedValue({ resourceId: 'user-1' });
-    listSuspendedRunsMock.mockResolvedValue({
-      runs: [
-        {
-          runId: 'run-gate',
-          toolCalls: [
-            {
-              toolCallId: 'call-1',
-              toolName: 'callTool',
-              requiresApproval: true,
-            },
-          ],
-        },
-      ],
-      total: 1,
-    });
-    const res = buildRes();
-    await answerHandler(
-      buildReq({ user: ACTING_USER, body: { threadId: 't1', answer: 'yes' } }),
-      res,
-    );
-
-    // Answering an approval gate would execute the gated tool; it must be
-    // decided through /agents/approve instead.
-    expect(res.statusCode).toBe(409);
-    expect(body(res).error).toBe(
-      'This thread is waiting for an approval decision, not an answer.',
-    );
-    expect(approveToolCallMock).not.toHaveBeenCalled();
-    expect(resumeStreamMock).not.toHaveBeenCalled();
-    // An approval is not an answer; nothing may be persisted for it.
-    expect(memory.saveMessages).not.toHaveBeenCalled();
-  });
-
-  it('resumes the newest suspended ask_user run with the answer and streams it', async () => {
-    memory.getThreadById.mockResolvedValue({ resourceId: 'user-1' });
-    listSuspendedRunsMock.mockResolvedValue({
-      runs: [askUserRun('run-2'), askUserRun('run-1')],
-      total: 2,
-    });
-    const res = buildRes();
-    await answerHandler(
-      buildReq({
-        user: ACTING_USER,
-        body: { threadId: 't1', answer: 'Biggest open deal' },
-      }),
-      res,
-    );
-
-    expect(res.statusCode).toBe(200);
-    expect(res.headers['X-Agents-Thread-Id']).toBe('t1');
-    // The answer is exactly what the user picked, resumed into the newest
-    // run, scoped to that specific tool call, with memory/thread continuity.
-    expect(resumeStreamMock).toHaveBeenCalledTimes(1);
-    const [resumeData, options] = resumeStreamMock.mock.calls[0];
-    expect(resumeData).toBe('Biggest open deal');
-    expect(options).toEqual(
-      expect.objectContaining({
-        runId: 'run-2',
-        toolCallId: 'call-ask-1',
-        maxSteps: 32,
-        memory: {
-          thread: 't1',
-          resource: 'user-1',
-          onTitleGenerated: expect.any(Function),
-        },
+        closeOnSuspend: true,
+        memory: expect.objectContaining({ thread: 't1', resource: 'user-1' }),
       }),
     );
     expect(mockedPipe).toHaveBeenCalledWith(
-      expect.objectContaining({
-        response: res,
-        stream: { wrapped: RESUMED_OUTPUT_SENTINEL },
-      }),
+      expect.objectContaining({ stream: { wrapped: RESUMED_OUTPUT_SENTINEL } }),
     );
-  });
-
-  it('resumes with a trimmed multi-select answer array', async () => {
-    memory.getThreadById.mockResolvedValue({ resourceId: 'user-1' });
-    listSuspendedRunsMock.mockResolvedValue({
-      runs: [askUserRun('run-1')],
-      total: 1,
-    });
-    const res = buildRes();
-    await answerHandler(
-      buildReq({
-        user: ACTING_USER,
-        body: { threadId: 't1', answer: [' Deal A  ', 'Deal B'] },
-      }),
-      res,
-    );
-
-    expect(res.statusCode).toBe(200);
-    const [resumeData] = resumeStreamMock.mock.calls[0];
-    expect(resumeData).toEqual(['Deal A', 'Deal B']);
-    // The answer is only resumed into the run — never stored as its own
-    // user message (it survives inside the ask_user tool result).
-    expect(memory.saveMessages).not.toHaveBeenCalled();
-  });
-
-  it('ends the response when the answered run suspends again (chained gate)', async () => {
-    memory.getThreadById.mockResolvedValue({ resourceId: 'user-1' });
-    listSuspendedRunsMock.mockResolvedValue({
-      runs: [askUserRun('run-1')],
-      total: 1,
-    });
-    const res = buildRes();
-    await answerHandler(
-      buildReq({ user: ACTING_USER, body: { threadId: 't1', answer: 'yes' } }),
-      res,
-    );
-
-    const options = resumeStreamMock.mock.calls[0][1];
-    expect(options.onSuspended).toBeDefined();
-    expect(res.writableEnded).toBe(false);
-    options.onSuspended?.();
-    expect(res.writableEnded).toBe(true);
-  });
-
-  it('accepts body selection fields on resume without controlling rehydration', async () => {
-    memory.getThreadById.mockResolvedValue({ resourceId: 'user-1' });
-    listSuspendedRunsMock.mockResolvedValue({
-      runs: [askUserRun('run-1')],
-      total: 1,
-    });
-    const res = buildRes();
-    await answerHandler(
-      buildReq({
-        user: ACTING_USER,
-        body: {
-          threadId: 't1',
-          answer: 'yes',
-          provider: 'openai',
-          model: 'gpt-5.6-luna',
-          thinkingLevel: 'high',
-        },
-      }),
-      res,
-    );
-
-    expect(res.statusCode).toBe(200);
-    // The durable agent uses its registered/snapshot RequestContext so
-    // provider/model/thinking stay from the original run; body fields
-    // are accepted for compatibility but do not rebuild anything.
+    // Resumes keep the run's RequestContext snapshot.
+    expect(mockedBuildAgentsRequestContext).not.toHaveBeenCalled();
     expect(streamMock).not.toHaveBeenCalled();
-    expect(resumeStreamMock).toHaveBeenCalled();
   });
 
-  it('omits toolCallId when the suspended run does not report one', async () => {
-    memory.getThreadById.mockResolvedValue({ resourceId: 'user-1' });
-    listSuspendedRunsMock.mockResolvedValue({
-      runs: [
-        {
-          runId: 'run-1',
-          toolCalls: [{ toolName: 'askUser', requiresApproval: false }],
-        },
-      ],
-      total: 1,
-    });
+  it('declines with the user reason instead of executing the call', async () => {
     const res = buildRes();
-    await answerHandler(
-      buildReq({ user: ACTING_USER, body: { threadId: 't1', answer: 'yes' } }),
-      res,
-    );
-
-    expect(res.statusCode).toBe(200);
-    const options = resumeStreamMock.mock.calls[0][1];
-    expect(options).not.toHaveProperty('toolCallId');
-    expect(options).toEqual(expect.objectContaining({ runId: 'run-1' }));
-  });
-
-  it('selects the ask_user call when the newest run holds mixed pending calls', async () => {
-    memory.getThreadById.mockResolvedValue({ resourceId: 'user-1' });
-    listSuspendedRunsMock.mockResolvedValue({
-      runs: [
-        {
-          runId: 'run-mixed',
-          toolCalls: [
-            {
-              toolCallId: 'call-destructive',
-              toolName: 'callTool',
-              requiresApproval: true,
-            },
-            {
-              toolCallId: 'call-ask-1',
-              toolName: 'askUser',
-              requiresApproval: false,
-            },
-          ],
-        },
-      ],
-      total: 1,
-    });
-    const res = buildRes();
-    await answerHandler(
-      buildReq({ user: ACTING_USER, body: { threadId: 't1', answer: 'yes' } }),
+    await chatHandler(
+      resume({ messages: [decided(false, { reason: 'Wrong deal' })] }),
       res,
     );
 
     expect(resumeStreamMock).toHaveBeenCalledWith(
-      'yes',
+      { approved: false, reason: 'Wrong deal' },
+      expect.objectContaining({ runId: 'run-1', toolCallId: 'call-1' }),
+    );
+  });
+
+  it('answers ask_user with the structured answers', async () => {
+    const res = buildRes();
+    await chatHandler(
+      resume({
+        messages: [asked],
+        resume: {
+          runId: 'run-ask',
+          toolCallId: 'ask-1',
+          answers: ['Last month', ['Sales', 'Support']],
+        },
+      }),
+      res,
+    );
+
+    expect(res.statusCode).toBe(200);
+    expect(resumeStreamMock).toHaveBeenCalledWith(
+      { answers: ['Last month', ['Sales', 'Support']] },
       expect.objectContaining({
-        runId: 'run-mixed',
-        toolCallId: 'call-ask-1',
+        runId: 'run-ask',
+        toolCallId: 'ask-1',
+        closeOnSuspend: true,
       }),
     );
   });
 
-  it('maps unexpected resume failures to a JSON 500 instead of crashing', async () => {
-    memory.getThreadById.mockResolvedValue({ resourceId: 'user-1' });
-    listSuspendedRunsMock.mockResolvedValue({
-      runs: [askUserRun('run-1')],
-      total: 1,
-    });
-    resumeStreamMock.mockRejectedValueOnce(new Error('snapshot lost'));
-    const res = buildRes();
-    await answerHandler(
-      buildReq({ user: ACTING_USER, body: { threadId: 't1', answer: 'yes' } }),
-      res,
+  it('404s for an unknown thread and 403s for a foreign one', async () => {
+    memory.getThreadById.mockResolvedValueOnce(null);
+    const missing = buildRes();
+    await chatHandler(resume({ messages: [decided(true)] }), missing);
+    expect(missing.statusCode).toBe(404);
+
+    memory.getThreadById.mockResolvedValueOnce({ resourceId: 'user-other' });
+    const foreign = buildRes();
+    await chatHandler(resume({ messages: [decided(true)] }), foreign);
+    expect(foreign.statusCode).toBe(403);
+
+    expect(listSuspendedRunsMock).not.toHaveBeenCalled();
+    expect(resumeStreamMock).not.toHaveBeenCalled();
+  });
+
+  it('409s for a call that is not suspended in this thread', async () => {
+    for (const message of [
+      decided(true, { runId: 'other-run' }),
+      decided(true, { toolCallId: 'stale-call' }),
+    ]) {
+      const res = buildRes();
+      await chatHandler(resume({ messages: [message] }), res);
+      expect(res.statusCode).toBe(409);
+    }
+    expect(resumeStreamMock).not.toHaveBeenCalled();
+  });
+
+  it('never answers an approval gate with ask_user data, or approves a question', async () => {
+    const answered = buildRes();
+    await chatHandler(
+      resume({
+        messages: [asked],
+        resume: { runId: 'run-1', toolCallId: 'call-1', answers: ['Yes'] },
+      }),
+      answered,
     );
+    expect(answered.statusCode).toBe(409);
+
+    const approved = buildRes();
+    await chatHandler(
+      resume({
+        messages: [decided(true, { runId: 'run-ask', toolCallId: 'ask-1' })],
+      }),
+      approved,
+    );
+    expect(approved.statusCode).toBe(409);
+    expect(resumeStreamMock).not.toHaveBeenCalled();
+  });
+
+  it('400s for an assistant message with nothing to resume or a malformed answer', async () => {
+    const empty = buildRes();
+    await chatHandler(resume({ messages: [asked] }), empty);
+    expect(empty.statusCode).toBe(400);
+
+    for (const answers of [[], [''], 'Yes']) {
+      const res = buildRes();
+      await chatHandler(
+        resume({
+          messages: [asked],
+          resume: { runId: 'run-ask', toolCallId: 'ask-1', answers },
+        }),
+        res,
+      );
+      expect(res.statusCode).toBe(400);
+    }
+    expect(resumeStreamMock).not.toHaveBeenCalled();
+  });
+
+  it('maps unexpected resume failures to a JSON 500 instead of crashing', async () => {
+    resumeStreamMock.mockRejectedValueOnce(new Error('store down'));
+    const res = buildRes();
+    await chatHandler(resume({ messages: [decided(true)] }), res);
 
     expect(res.statusCode).toBe(500);
-    expect(body(res).error).toBe('snapshot lost');
-    expect(mockedPipe).not.toHaveBeenCalled();
+    expect(body(res).error).toBe('store down');
   });
 });
 
 describe('code mode flag resolved from tenant settings', () => {
-  const codeSuspendedRun = (runId: string): ISuspendedRun => ({
-    runId,
-    toolCalls: [
-      {
-        toolCallId: 'call-code',
-        toolName: 'callTool',
-        requiresApproval: true,
-        suspendPayload: {
-          toolId: 'sales.trpc.deal.remove',
-          input: { id: 'deal-1' },
-        },
-      },
-    ],
-  });
-
   const enableCodeMode = () =>
     settingsModel.getSettings.mockResolvedValue({
       codeModeEnabled: true,
@@ -1887,25 +1164,6 @@ describe('code mode flag resolved from tenant settings', () => {
     );
   });
 
-  it('does not stamp codeModeEnabled on resume routes (uses snapshot)', async () => {
-    enableCodeMode();
-    memory.getThreadById.mockResolvedValue({ resourceId: 'user-1' });
-    listSuspendedRunsMock.mockResolvedValue({
-      runs: [codeSuspendedRun('run-code')],
-      total: 1,
-    });
-    const res = buildRes();
-    await approveHandler(
-      buildReq({ user: ACTING_USER, body: { threadId: 't1', approved: true } }),
-      res,
-    );
-
-    // Resume routes use the durable agent's snapshot context; no new
-    // request context is built.
-    expect(mockedBuildAgentsRequestContext).not.toHaveBeenCalled();
-    expect(approveToolCallMock).toHaveBeenCalled();
-  });
-
   it('stamps codeModeEnabled false when the flag is off (default)', async () => {
     // beforeEach already mocks codeModeEnabled: false.
     const res = buildRes();
@@ -1923,57 +1181,25 @@ describe('code mode flag resolved from tenant settings', () => {
   });
 });
 
-describe('POST /agents/chat/reconnect', () => {
+describe('GET /agents/chat/:threadId/stream', () => {
   it('rejects unauthenticated requests', async () => {
     const res = buildRes();
-    await reconnectHandler(
-      buildReq({ body: { threadId: 't1', runId: 'r1' } }),
+    await streamHandler(
+      buildReq({ params: { threadId: 't1' } }),
       res,
     );
 
     expect(res.statusCode).toBe(401);
   });
 
-  it('requires both threadId and runId', async () => {
-    const res = buildRes();
-    await reconnectHandler(
-      buildReq({ user: ACTING_USER, body: { threadId: 't1' } }),
-      res,
-    );
-
-    expect(res.statusCode).toBe(400);
-  });
-
-  it('requires runId to be a valid UUID but accepts arbitrary threadId', async () => {
-    const res = buildRes();
-    await reconnectHandler(
-      buildReq({
-        user: ACTING_USER,
-        body: {
-          threadId: 'legacy-thread-id',
-          runId: 'not-a-uuid',
-        },
-      }),
-      res,
-    );
-
-    expect(res.statusCode).toBe(400);
-    expect((res.body as { error: string }).error).toBe(
-      '`runId` must be a valid UUID.',
-    );
-  });
-
   it('returns 204 when the run is not active', async () => {
     memory.getThreadById.mockResolvedValue({ resourceId: 'user-1' });
     listActiveRunsMock.mockResolvedValue({ runs: [], total: 0 });
     const res = buildRes();
-    await reconnectHandler(
+    await streamHandler(
       buildReq({
         user: ACTING_USER,
-        body: {
-          threadId: 't1',
-          runId: '550e8400-e29b-41d4-a716-446655440000',
-        },
+        params: { threadId: 't1' },
       }),
       res,
     );
@@ -1982,7 +1208,7 @@ describe('POST /agents/chat/reconnect', () => {
     expect(observeMock).not.toHaveBeenCalled();
   });
 
-  it('observes the exact active run and pipes its output', async () => {
+  it('observes the thread\'s running run and pipes its output', async () => {
     memory.getThreadById.mockResolvedValue({ resourceId: 'user-1' });
     const targetRunId = '550e8400-e29b-41d4-a716-446655440000';
     listActiveRunsMock.mockResolvedValue({
@@ -1990,10 +1216,10 @@ describe('POST /agents/chat/reconnect', () => {
       total: 1,
     });
     const res = buildRes();
-    await reconnectHandler(
+    await streamHandler(
       buildReq({
         user: ACTING_USER,
-        body: { threadId: 't1', runId: targetRunId },
+        params: { threadId: 't1' },
       }),
       res,
     );
@@ -2020,13 +1246,10 @@ describe('POST /agents/chat/reconnect', () => {
       total: 1,
     });
     const res = buildRes();
-    // Simulate SSE state: headers already sent but stream not ended.
-    res.headers['X-Agents-Thread-Id'] = 't1';
-
-    await reconnectHandler(
+    await streamHandler(
       buildReq({
         user: ACTING_USER,
-        body: { threadId: 't1', runId: targetRunId },
+        params: { threadId: 't1' },
       }),
       res,
     );
@@ -2043,13 +1266,10 @@ describe('POST /agents/chat/reconnect', () => {
   it("refuses to observe a run in another user's thread", async () => {
     memory.getThreadById.mockResolvedValue({ resourceId: 'user-other' });
     const res = buildRes();
-    await reconnectHandler(
+    await streamHandler(
       buildReq({
         user: ACTING_USER,
-        body: {
-          threadId: 't1',
-          runId: '550e8400-e29b-41d4-a716-446655440000',
-        },
+        params: { threadId: 't1' },
       }),
       res,
     );
@@ -2066,10 +1286,10 @@ describe('POST /agents/chat/reconnect', () => {
       total: 1,
     });
     const res = buildRes();
-    await reconnectHandler(
+    await streamHandler(
       buildReq({
         user: ACTING_USER,
-        body: { threadId: 't1', runId: targetRunId },
+        params: { threadId: 't1' },
       }),
       res,
     );
@@ -2090,10 +1310,10 @@ describe('POST /agents/chat/reconnect', () => {
     });
     // By the time the idle probe fires the run has suspended: alive.
     const res = buildRes();
-    await reconnectHandler(
+    await streamHandler(
       buildReq({
         user: ACTING_USER,
-        body: { threadId: 't1', runId: targetRunId },
+        params: { threadId: 't1' },
       }),
       res,
     );
@@ -2117,10 +1337,10 @@ describe('POST /agents/chat/reconnect', () => {
       total: 1,
     });
     const res = buildRes();
-    await reconnectHandler(
+    await streamHandler(
       buildReq({
         user: ACTING_USER,
-        body: { threadId: 't1', runId: targetRunId },
+        params: { threadId: 't1' },
       }),
       res,
     );
@@ -2140,10 +1360,10 @@ describe('POST /agents/chat/reconnect', () => {
       total: 1,
     });
     const res = buildRes();
-    await reconnectHandler(
+    await streamHandler(
       buildReq({
         user: ACTING_USER,
-        body: { threadId: 't1', runId: targetRunId },
+        params: { threadId: 't1' },
       }),
       res,
     );
@@ -2166,19 +1386,23 @@ describe('POST /agents/chat/reconnect', () => {
       runs: [{ runId: targetRunId, status: 'running' }],
       total: 1,
     });
-    mockedPipe.mockImplementationOnce(() => {
-      throw new Error('late stream failure');
-    });
+    // The real pipe writes the SSE headers before pumping the stream.
+    mockedPipe.mockImplementationOnce(
+      ({ response }: { response: IFakeResponse }) => {
+        response.setHeader('Content-Type', 'text/event-stream');
+        throw new Error('late stream failure');
+      },
+    );
     const res = buildRes();
-    await reconnectHandler(
+    await streamHandler(
       buildReq({
         user: ACTING_USER,
-        body: { threadId: 't1', runId: targetRunId },
+        params: { threadId: 't1' },
       }),
       res,
     );
 
-    // pipeModelOutput sent the SSE headers before the pump failed, so the
+    // The pipe sent the SSE headers before the pump failed, so the
     // shared error helper must end the stream rather than write a JSON
     // error (which throws ERR_HTTP_HEADERS_SENT and crashes the process).
     expect(res.headersSent).toBe(true);
@@ -2653,10 +1877,9 @@ describe('POST /agents/references/resolve', () => {
 describe('agentsChat permission enforcement', () => {
   const runId = '550e8400-e29b-41d4-a716-446655440000';
   const cases = [
-    {name: 'plain-text chat', handler: chatHandler, body: {messages: [{id: 'permission-message', role: 'user', parts: [{type: 'text', text: 'Hello'}]}]}},
-    {name: 'approval', handler: approveHandler, body: {threadId: 'thread', approved: true}},
-    {name: 'answer', handler: answerHandler, body: {threadId: 'thread', answer: 'Yes'}},
-    {name: 'reconnect', handler: reconnectHandler, body: {threadId: 'thread', runId}},
+    {name: 'plain-text chat', handler: chatHandler, body: {threadId: 'thread', messages: [{id: 'permission-message', role: 'user', parts: [{type: 'text', text: 'Hello'}]}]}},
+    {name: 'resume', handler: chatHandler, body: {threadId: 'thread', messages: [{id: 'assistant', role: 'assistant', parts: []}], resume: {runId, toolCallId: 'ask', answers: ['Yes']}}},
+    {name: 'reconnect', handler: streamHandler, body: {}},
   ];
 
   it.each(cases)('rejects $name before accessing credentials or runtime when permission is revoked', async ({handler, body}) => {
@@ -2664,12 +1887,11 @@ describe('agentsChat permission enforcement', () => {
       throw new ExpectedError('Permission denied', 'FORBIDDEN');
     });
     const res = buildRes();
-    await handler(buildReq({user: ACTING_USER, body}), res);
+    await handler(buildReq({user: ACTING_USER, body, params: {threadId: 'thread'}}), res);
     expect(res.statusCode).toBe(403);
     expect(mockedGetAgentsRuntime).not.toHaveBeenCalled();
     expect(mockedGenerateModels).not.toHaveBeenCalled();
     expect(streamMock).not.toHaveBeenCalled();
-    expect(approveToolCallMock).not.toHaveBeenCalled();
     expect(resumeStreamMock).not.toHaveBeenCalled();
     expect(observeMock).not.toHaveBeenCalled();
   });
@@ -2677,7 +1899,7 @@ describe('agentsChat permission enforcement', () => {
   it('passes the authenticated thread and user to the native liveness check', async () => {
     memory.getThreadById.mockResolvedValue({resourceId: ACTING_USER._id});
     listActiveRunsMock.mockResolvedValue({runs: [{runId, status: 'running'}], total: 1});
-    await reconnectHandler(buildReq({user: ACTING_USER, body: {threadId: 'thread', runId}}), buildRes());
+    await streamHandler(buildReq({user: ACTING_USER, params: {threadId: 'thread'}}), buildRes());
     await observeMock.mock.calls[0][1]?.isAlive?.();
     expect(isAgentsRunAlive).toHaveBeenCalledWith(
       expect.objectContaining({memory}),

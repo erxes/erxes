@@ -4,15 +4,6 @@ import { agentsFilesDisplayText } from '../agentsFiles';
 import { pageSelectionsDisplayText } from '../pageSelections';
 import type { AgentsUIMessage } from '../types';
 
-/**
- * Ask_user answers travel through the send pipeline as user messages (the
- * transport reroutes them to the answer endpoint), but they display as the
- * assistant's answered Q&A card — never as a bubble of their own. The send
- * marks them with `metadata.agentsAnswer`.
- */
-export const isAgentsAnswerTurn = (message: AgentsUIMessage): boolean =>
-  message.metadata?.agentsAnswer === true;
-
 /** Joins a message's text parts — the only parts shown as bubbles. */
 export const getMessageText = (message: AgentsUIMessage): string =>
   message.parts

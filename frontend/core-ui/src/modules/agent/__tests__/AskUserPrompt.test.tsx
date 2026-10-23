@@ -58,7 +58,7 @@ it('requires an explicit send and accepts an option with additional context', ()
     target: { value: 'Only closed deals' },
   });
   fireEvent.click(send);
-  expect(onAnswer).toHaveBeenCalledWith('This month\nOnly closed deals');
+  expect(onAnswer).toHaveBeenCalledWith(['This month\nOnly closed deals']);
 });
 
 it('keeps drafts when moving back, reviews all answers, and submits positionally', () => {
@@ -118,7 +118,7 @@ it('supports a custom response without selecting any suggested option', () => {
     target: { value: '  Last quarter  ' },
   });
   fireEvent.click(screen.getByRole('button', { name: 'Send answer' }));
-  expect(onAnswer).toHaveBeenCalledWith('Last quarter');
+  expect(onAnswer).toHaveBeenCalledWith(['Last quarter']);
 });
 
 it('prevents empty answers and interaction while submitting', () => {

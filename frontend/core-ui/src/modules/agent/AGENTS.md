@@ -34,8 +34,8 @@ The `agent` module is the core-ui surface for the core-api `agents` backend
   navigation and Delete to close. Plus opens a blank conversation; an empty tab
   remains usable after closing the last session. Existing saved sessions load in
   pages through the same `useAgentsThreads` subscription. Closing a tab deletes
-  its session with one click, selects the neighboring tab only if it was active,
-  and clears that session's reconnect pointers. Pending closes cannot duplicate
+  its session with one click and selects the neighboring tab only if it was
+  active. Pending closes cannot duplicate
   mutations; failed deletes retain the tab. Rename, pin and export remain in the
   current-session actions menu; the old history popup and delete dialog are gone.
   Shared mutations live in `hooks/useAgentsThreadActions.ts` with immediate
@@ -127,35 +127,25 @@ The `agent` module is the core-ui surface for the core-api `agents` backend
 
 - REST goes through the gateway at `${REACT_APP_API_URL}/pl:core/agents/*`
   (`api.ts`) — `/pl:core` because the root core proxy idles out after 60s
-  and would kill SSE. `transport.ts` (`AgentsChatTransport`) filters
-  approval/reconnect chunks, sends `credentials: 'include'`, reads
-  `X-Agents-Thread-Id`, persists active runs per thread for reconnect,
-  and reroutes approval/answer sends to `/agents/approve` and
-  `/agents/answer`. `approvalDecisions.ts` resumes the answered Mastra gate even
+  and would kill SSE. `transport.ts` (`AgentsChatTransport`) is the AI SDK's
+  `DefaultChatTransport`: the Chat id is the thread id, it sends only the
+  newest message, and reconnect uses the default
+  `GET /agents/chat/:threadId/stream`. `approvalDecisions.ts`
+  (`hasAgentsApprovalDecision`) resends after each approval decision even
   when later calls in the same model step remain input-available. Those calls
   cannot execute until resume, so the SDK's all-tool-completed predicate would
-  deadlock. Decisions carry their exact `toolCallId`; outstanding approval cards
-  still require explicit answers, and older steps never authorize another send.
+  deadlock.
 - GraphQL documents in `graphql/` — `Agents*` prefixed operation names,
   consumed verbatim from the backend schema; `AgentsThreadsChanged` is a
   refetch signal only.
-- `hooks/useAgentsChat.ts` wraps the AI SDK `useChat` with durable-run
-  semantics: `openThread` (history restore + active-run reconnect +
-  bounded re-read), `startNewConversation`, `submitAnswer` (ask_user
-  resume), `sendMessage`, `retryLastTurn` (`regenerate`),
-  `setPageContext`. The selected-thread namespace defaults to `panel`;
-  active runs remain keyed by thread. Switching sessions awaits SDK stream
-  detachment before clearing the shared transcript, preserves the previous run id,
-  and reattaches through the backend when that thread is reopened. Detachment is
-  not a backend cancellation command. The hook owns a native SDK `Chat` and passes
-  it to `useChat`, preserving `resumeStreamIsReplay`. The transport captures the
-  actual SDK-assigned pending user id before dispatch. History restore matches that
-  id and removes only the active response suffix before replay; it never appends
-  a synthetic turn based on prompt equality. Legacy prompt-only sessions strip
-  the hidden page-context prefix during migration. Manual reconnect uses the same
-  restore/replay path. Approval/question suspensions keep their stored cards.
-  The legacy `page` storage namespace is
-  retained in the hook's type only for compatibility, with no page UI.
+- `hooks/useAgentsChat.ts` keeps one AI SDK `Chat` per thread (id = thread
+  id) and passes the open one to `useChat`. The server owns runs, so the hook
+  holds no run ids. Sends, approvals and ask_user answers
+  (`sendMessage(undefined, { body: { resume } })`) all post to
+  `/agents/chat`. Switching threads leaves the old Chat streaming in the
+  background. Opening a thread, including after a refresh, loads its stored
+  messages and calls `resumeStream()`, which reattaches to a running run or
+  gets 204. Edits resend the same user message id with `editMessageId`.
 - Attachments: up to 5 files/turn via platform `/upload-file`
   (`agentsFiles.ts` limits, `uploadAgentsFile.ts`), chips in the composer,
   image previews and download chips in history (`AttachedFiles`).
@@ -235,8 +225,7 @@ turn. A single-step card names the action.
   `ui-modules`; old independent agent panel/tray state is no longer consumed.
 - `states/agentActivityState.ts` — unread/working/awaiting activity from
   `useAgentActivity`, displayed by the top-bar Assistant button.
-- sessionStorage: `agents-selected-thread:<scope>`,
-  `agents-active-run:<threadId>`, `agents-in-flight-prompt:<threadId>`.
+- sessionStorage: `agents-selected-thread:<scope>`.
   Model and thinking selections live in memory only.
 
 ## Invariants
