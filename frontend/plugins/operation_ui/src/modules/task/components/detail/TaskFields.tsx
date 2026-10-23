@@ -1,6 +1,7 @@
 import type { TaskFieldsProps } from '@/task/types/taskFields';
 import { compactList } from '@/operation/utils/cursorList';
 import { useTranslation } from 'react-i18next';
+import { DataExtensionRecordSection } from 'ui-modules';
 import { OperationTagsChip } from '@/operation/components/OperationChips';
 import { ActivityList } from '@/activity/components/ActivityList';
 import { ConvertToProject } from '@/task/components/task-selects/ConvertToProject';
@@ -158,6 +159,10 @@ export const TaskFields = ({ task, titleAction }: TaskFieldsProps) => {
         />
         <ConvertToProject task={task} />
       </div>
+      <DataExtensionRecordSection
+        recordType="operation:task"
+        recordId={taskId}
+      />
       <Separator className="mb-4 mt-2" />
       <div className="min-h-56 overflow-y-auto">
         {isDescriptionReady ? (

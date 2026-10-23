@@ -30,6 +30,7 @@ import {
   useBlockEditor,
   useToast,
 } from 'erxes-ui';
+import { DataExtensionDraftFields, useDataExtensionDraft } from 'ui-modules';
 import { useAtom, useAtomValue } from 'jotai';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -57,6 +58,7 @@ export const AddTaskForm = ({
   const { teams } = useGetCurrentUsersTeams();
   const currentUser = useAtomValue(currentUserState);
   const { createTask, loading: createTaskLoading } = useCreateTask();
+  const extensions = useDataExtensionDraft('operation:task');
   const [descriptionContent, setDescriptionContent] = useState<Block[]>();
   const editor = useBlockEditor();
   const [defaultValuesState, setDefaultValues] = useAtom(
@@ -126,7 +128,21 @@ export const AddTaskForm = ({
         priority: data.priority || 0,
         status: data.status,
       },
-      onCompleted: ({ createTask }) => {
+      onCompleted: async ({ createTask }) => {
+        if (createTask?._id) {
+          try {
+            await extensions.saveTo(createTask._id);
+          } catch (error) {
+            toast({
+              variant: 'destructive',
+              title: t('toast.created-values-failed', { ns: 'dataExtensions' }),
+              description: error instanceof Error ? error.message : undefined,
+            });
+          }
+        }
+
+        extensions.reset();
+
         if (onComplete && createTask?._id) {
           onComplete(createTask._id);
         } else {
@@ -375,6 +391,12 @@ export const AddTaskForm = ({
             />
           </div>
 
+          {extensions.fields.length > 0 && (
+            <>
+              <Separator className="my-4" />
+              <DataExtensionDraftFields draft={extensions} />
+            </>
+          )}
           <Separator className="my-4" />
           <div className="flex-1 overflow-y-auto">
             <BlockEditor
@@ -392,6 +414,7 @@ export const AddTaskForm = ({
             onClick={() => {
               onClose();
               form.reset();
+              extensions.reset();
               editor?.removeBlocks(editor?.document);
               setDescriptionContent(undefined);
             }}

@@ -1,6 +1,7 @@
 import type { ProjectFieldsProps } from '@/project/types/projectFields';
 import { Input, IconPicker, Separator, BlockEditor } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import { DataExtensionRecordSection } from 'ui-modules';
 import {
   SelectLead,
   DateSelect,
@@ -116,6 +117,10 @@ export const ProjectFields = ({
           label={t('tags')}
         />
       </div>
+      <DataExtensionRecordSection
+        recordType="operation:project"
+        recordId={projectId}
+      />
       <Separator className="my-4" />
       <div className="min-h-56 overflow-y-auto">
         <BlockEditor
