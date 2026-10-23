@@ -25,7 +25,9 @@ export const TopicDrawer = ({
   onClose: () => void;
   onSaved?: () => void;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.knowledgebase',
+  });
   const isEditing = !!topic;
   const { saveTopic, loading } = useSaveTopic();
 

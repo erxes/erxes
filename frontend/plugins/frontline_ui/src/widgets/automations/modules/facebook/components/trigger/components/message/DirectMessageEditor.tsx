@@ -27,7 +27,7 @@ export const DirectMessageEditor = ({
   conditions,
   onConditionChange,
 }: Props) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.facebook' });
   const { claims } = useFacebookBotTriggerClaims(botId, currentTriggerId);
   const { hasConditions, addCondition, removeCondition, updateCondition } =
     useDirectMessageEditor({

@@ -9,7 +9,7 @@ export const TicketsAssignToTrigger = ({
 }: {
   setCurrentContent: (currentContent: string) => void;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   return (
     <Command.Item
       className="flex justify-between"
@@ -31,7 +31,7 @@ export const TicketsAssignToContent = ({
   ticketIds: string[];
   setOpen: (open: boolean) => void;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   const { bulkUpdateTickets } = useBulkUpdateTickets();
 
   return (
