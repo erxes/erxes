@@ -57,6 +57,7 @@ export interface IUser {
   score?: number;
   customFieldsData?: ICustomField[];
   propertiesData?: IPropertyField;
+  dataExtensions?: Record<string, unknown>;
   departmentIds?: string[];
   branchIds?: string[];
   positionIds?: string[];
