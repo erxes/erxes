@@ -4,7 +4,9 @@ import { useRemoveArticles } from '@/knowledgebase/articles/hooks/useArticleMuta
 import { KbSelectionCommandBar } from '@/knowledgebase/shared/components/KbSelectionCommandBar';
 
 export const ArticlesCommandBar = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.knowledgebase',
+  });
   const { removeArticles, loading } = useRemoveArticles();
 
   return (

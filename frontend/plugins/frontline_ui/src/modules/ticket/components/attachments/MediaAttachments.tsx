@@ -15,7 +15,7 @@ import { useUnverifiedAttachments } from '@/ticket/hooks/useUnverifiedAttachment
 import { UnverifiedAttachmentCover } from './UnverifiedAttachmentCover';
 
 const MediaAttachments = ({ attachments }: { attachments: IAttachment[] }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   const [open, setOpen] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -49,7 +49,7 @@ const MediaAttachments = ({ attachments }: { attachments: IAttachment[] }) => {
   return (
     <div className="py-4 px-8">
       <h4 className="uppercase text-sm text-muted-foreground pb-4">
-        {t('media-attachments', 'Media Attachments')}
+        {t('media-attachments')}
       </h4>
       <div className="relative">
         <div className="overflow-x-auto flex gap-4">

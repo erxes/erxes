@@ -49,7 +49,7 @@ export const useFbBotFileUploadSection = ({
   limit: number;
   onUpload?: (fileUrl: string | null) => void;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.facebook' });
   const [isDragOver, setIsDragOver] = useState(false);
   const [uploadedFileUrl, setUploadedFileUrl] = useState<string | null>(
     resolveUploadedFileUrl(url),

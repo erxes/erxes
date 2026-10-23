@@ -3460,7 +3460,10 @@
       "status-type-closed": "Хаагдсан",
       "cancelled": "Цуцлагдсан",
       "confirm-delete-selected-tickets_one": "{{count}} сонгосон тикетийг устгахдаа итгэлтэй байна уу?",
-      "confirm-delete-selected-tickets_other": "{{count}} сонгосон тикетийг устгахдаа итгэлтэй байна уу?"
+      "confirm-delete-selected-tickets_other": "{{count}} сонгосон тикетийг устгахдаа итгэлтэй байна уу?",
+      "description": "Тайлбар",
+      "edit-create-form": "Маягт засах",
+      "required-fields-missing": "Шаардлагатай талбаруудыг бөглөнө үү"
     },
     "forms": {
       "activate": "Идэвхжүүлэх",

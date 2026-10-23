@@ -50,8 +50,8 @@ export const types = `
 
 const queryParams = `
   search: String,
-  companyIds: [String]
-  customerIds: [String]
+  companyId: String
+  customerId: String
   assignedUserIds: [String]
   labelIds: [String]
   extraParams: JSON,

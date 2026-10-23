@@ -3460,7 +3460,10 @@
       "status-type-closed": "Closed",
       "cancelled": "Cancelled",
       "confirm-delete-selected-tickets_one": "Are you sure you want to delete the {{count}} selected ticket?",
-      "confirm-delete-selected-tickets_other": "Are you sure you want to delete the {{count}} selected tickets?"
+      "confirm-delete-selected-tickets_other": "Are you sure you want to delete the {{count}} selected tickets?",
+      "description": "Description",
+      "edit-create-form": "Edit form",
+      "required-fields-missing": "Fill in the required fields"
     },
     "forms": {
       "activate": "Activate",

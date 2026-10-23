@@ -15,7 +15,9 @@ const CategoriesMoreColumnCell = ({
 }: {
   cell: Cell<TCategoryRow, unknown>;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.knowledgebase',
+  });
   const { _id, title } = cell.row.original;
   const { topicId = '' } = useParams();
   const navigate = useNavigate();

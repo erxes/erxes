@@ -1,4 +1,5 @@
 import { useAtom } from 'jotai';
+import { useMemo } from 'react';
 import {
   pluginsConfigState,
   IRelationModules,
@@ -14,28 +15,31 @@ export const useRelationWidgetsModules = (): IRelationModules[] => {
   const [pluginsMetaData] = useAtom(pluginsConfigState);
   const { isLoaded, isWildcard, hasPluginPermission } = usePermissionCheck();
 
-  if (!pluginsMetaData) {
-    return [];
-  }
-
-  const plugins = Object.values(pluginsMetaData);
-
-  const pluginsRelationWidgets = plugins.flatMap((plugin) => {
-    if (isLoaded && !isWildcard && !hasPluginPermission(plugin.name)) {
+  return useMemo(() => {
+    if (!pluginsMetaData) {
       return [];
     }
 
-    return (plugin.widgets?.relationWidgets || []).map((module) => ({
-      pluginName: plugin.name,
-      icon: module.icon as Icon,
-      name: module.name,
-      label: module.label,
-    }));
-  });
+    const pluginsRelationWidgets = Object.values(pluginsMetaData).flatMap(
+      (plugin) => {
+        if (isLoaded && !isWildcard && !hasPluginPermission(plugin.name)) {
+          return [];
+        }
 
-  return [
-    ...CORE_RELATIONS,
-    ...pluginsRelationWidgets,
-    ...CORE_TRAILING_RELATIONS,
-  ];
+        return (plugin.widgets?.relationWidgets || []).map((module) => ({
+          pluginName: plugin.name,
+          icon: module.icon as Icon,
+          name: module.name,
+          label: module.label,
+          contentTypes: module.contentTypes,
+        }));
+      },
+    );
+
+    return [
+      ...CORE_RELATIONS,
+      ...pluginsRelationWidgets,
+      ...CORE_TRAILING_RELATIONS,
+    ];
+  }, [pluginsMetaData, isLoaded, isWildcard, hasPluginPermission]);
 };

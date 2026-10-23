@@ -31,7 +31,7 @@ export const FacebookIceBreakerGenerator = ({
   setIceBreakers: (iceBreakers: TIceBreaker[]) => void;
   limit: number;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.facebook' });
   const sensors = useSensors(useSensor(PointerSensor));
 
   const handleDragEnd = ({ active, over }: DragEndEvent) => {
@@ -106,7 +106,7 @@ const FacebookIceBreakerRow = ({
   onChange: (iceBreaker: TIceBreaker) => void;
   onRemove: () => void;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.facebook' });
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id: iceBreaker._id });
 

@@ -17,7 +17,9 @@ export const CategoriesRecordTable = ({
   topicId: string;
   onCreate: () => void;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.knowledgebase',
+  });
   const { categories, loading, error } = useCategories(topicId);
   const columns = useCategoriesColumns();
 

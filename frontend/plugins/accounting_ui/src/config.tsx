@@ -103,6 +103,21 @@ export const CONFIG: IUIConfig = {
       icon: IconCashBanknote,
       path: 'accounting/settings/fixed-assets',
     },
+    {
+      name: 'inventory-jobs',
+      icon: IconFlagStar,
+      path: 'accounting/settings/inventories',
+    },
+    {
+      name: 'job-executions',
+      icon: IconFlagStar,
+      path: 'accounting/inventories/job-executions',
+    },
+    {
+      name: 'inventory-job-outputs',
+      icon: IconFlagStar,
+      path: 'accounting/settings/inventories/job-outputs',
+    },
   ],
   widgets: {
     relationWidgets: [

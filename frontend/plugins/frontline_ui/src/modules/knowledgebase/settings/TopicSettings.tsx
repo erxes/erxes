@@ -20,7 +20,9 @@ import { useConfirmRemoveTopic } from '@/knowledgebase/topics/hooks/useConfirmRe
 import { useSaveTopic } from '@/knowledgebase/topics/hooks/useTopicMutations';
 
 export const TopicSettings = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.knowledgebase',
+  });
   const { topicId = '' } = useParams();
   const navigate = useNavigate();
   const { topic, loading, refetch } = useTopicDetail(topicId);

@@ -84,6 +84,7 @@ const useSelectCycleContext = () => {
 };
 
 export const SelectCycleFormItem = ({
+  variant = 'form',
   onValueChange,
   teamId,
   scope,
@@ -95,6 +96,8 @@ export const SelectCycleFormItem = ({
   onValueChange: (value: string) => void;
   value?: string;
   label?: string;
+  // `table` draws it as a record table cell, as in the side panel.
+  variant?: `${SelectTriggerVariant}`;
 }) => {
   const [open, setOpen] = useState(false);
 
@@ -108,10 +111,10 @@ export const SelectCycleFormItem = ({
       teamId={teamId}
     >
       <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
-        <SelectTriggerOperation variant="form" label={label}>
+        <SelectTriggerOperation variant={variant} label={label}>
           <SelectCycleValue />
         </SelectTriggerOperation>
-        <SelectOperationContent variant="form">
+        <SelectOperationContent variant={variant}>
           <SelectCycleContent />
         </SelectOperationContent>
       </PopoverScoped>

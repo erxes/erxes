@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { ISystemFieldRules } from '../../properties/hooks/useSystemFieldRules';
+import { PHONE_VALIDATION_STATUS_VALUES } from '../types/Customer';
 
 // One shape for every customer form, so its field renderers fit both.
 export const customerFormSchema = z.object({
@@ -21,7 +22,9 @@ export const customerFormSchema = z.object({
   isSubscribed: z.string().default('Yes'),
   links: z.record(z.unknown()).default({}),
   code: z.string().default(''),
-  phoneValidationStatus: z.string().default('unknown'),
+  phoneValidationStatus: z
+    .enum(PHONE_VALIDATION_STATUS_VALUES)
+    .default('unknown'),
 });
 
 export type ICustomerFormValues = z.infer<typeof customerFormSchema>;

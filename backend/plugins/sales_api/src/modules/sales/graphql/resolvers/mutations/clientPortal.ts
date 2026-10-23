@@ -3,7 +3,7 @@ import { markResolvers, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import { IDeal } from '~/modules/sales/@types';
 import { subscriptionWrapper } from '../utils';
-import { createRelations, getNewOrder } from '~/modules/sales/utils';
+import { getNewOrder } from '~/modules/sales/utils';
 
 export const cpDealMutations: Record<string, Resolver> = {
   async cpDealsAdd(
@@ -48,35 +48,7 @@ export const cpDealMutations: Record<string, Resolver> = {
 
     const stage = await models.Stages.getStage(deal.stageId);
 
-    await createRelations(subdomain, {
-      dealId: deal._id,
-      companyIds: doc.companyIds,
-      customerIds: doc.customerIds,
-    });
-
-    if (deal && userId) {
-      await sendTRPCMessage({
-        subdomain,
-        pluginName: 'core',
-        method: 'mutation',
-        module: 'relation',
-        action: 'createRelation',
-        input: {
-          relation: {
-            entities: [
-              {
-                contentType: 'core:cp.user',
-                contentId: userId,
-              },
-              {
-                contentType: 'sales:deal',
-                contentId: deal._id,
-              },
-            ],
-          },
-        },
-      });
-    }
+    // The deal keeps its customer / company itself (saved with the doc).
 
     await subscriptionWrapper(models, {
       action: 'create',

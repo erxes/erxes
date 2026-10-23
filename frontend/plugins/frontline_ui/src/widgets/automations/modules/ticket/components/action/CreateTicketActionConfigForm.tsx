@@ -29,7 +29,7 @@ type TPlaceholderFieldName =
   | 'targetDate'
   | 'labelIds'
   | 'tagIds'
-  | 'companyIds'
+  | 'companyId'
   | 'attachmentIds';
 
 type TPlaceholderFieldOptions = {
@@ -264,10 +264,10 @@ export const CreateTicketActionConfigForm = ({
         />
         <PlaceholderFormField
           control={control}
-          name="companyIds"
-          label={t('companies', 'Companies')}
+          name="companyId"
+          label={t('company', 'Company')}
           propertyType={propertyType}
-          selectMode="many"
+          selectMode="one"
           enabled={[TPlaceholderInputSuggestion.CallCompany]}
         />
       </div>

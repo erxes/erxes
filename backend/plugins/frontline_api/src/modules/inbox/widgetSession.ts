@@ -1,6 +1,7 @@
 import { createHmac } from 'crypto';
 import * as jwt from 'jsonwebtoken';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import type { IModels } from '~/connectionResolvers';
 
 export const WIDGET_SESSION_HEADER = 'erxes-widget-token';
 
@@ -166,50 +167,34 @@ export const resolveSessionCustomerId = async (
   return (await findVisitorCustomer(subdomain, session.visitorId))?._id;
 };
 
-/** Tickets the session's customer is related to; a bare visitor owns none. */
+/**
+ * Tickets of the session's customer: those keeping it in their own
+ * `customerId` (given `models`). A bare visitor owns none.
+ */
 export const getOwnedTicketIds = async (
   subdomain: string,
   session: TWidgetSession,
+  models?: IModels,
 ): Promise<string[]> => {
   const customerId = await resolveSessionCustomerId(subdomain, session);
 
-  if (!customerId) {
+  if (!customerId || !models) {
     return [];
   }
 
-  const relations: Array<{
-    entities?: Array<{ contentType?: string; contentId?: string }>;
-  }> =
-    (await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      method: 'query',
-      module: 'relation',
-      action: 'getRelationsByEntities',
-      input: {
-        contentType: 'core:customer',
-        contentId: customerId,
-      },
-      defaultValue: [],
-    })) || [];
+  const tickets = await models.Ticket.find({ customerId }, { _id: 1 }).lean();
 
-  return relations.flatMap((relation) =>
-    (relation.entities || [])
-      .filter(
-        (entity) =>
-          entity.contentType === 'frontline:ticket' && !!entity.contentId,
-      )
-      .map((entity) => entity.contentId as string),
-  );
+  return tickets.map((ticket) => String(ticket._id));
 };
 
 export const assertOwnsTicket = async (
   subdomain: string,
   session: TWidgetSession,
   ticketId?: string | null,
+  models?: IModels,
 ) => {
   const owned = ticketId
-    ? (await getOwnedTicketIds(subdomain, session)).includes(ticketId)
+    ? (await getOwnedTicketIds(subdomain, session, models)).includes(ticketId)
     : false;
 
   if (!owned) {

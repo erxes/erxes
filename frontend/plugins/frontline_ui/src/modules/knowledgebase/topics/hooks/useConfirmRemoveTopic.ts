@@ -3,7 +3,9 @@ import { useKbConfirmRemove } from '@/knowledgebase/shared/hooks/useKbConfirmRem
 import { useRemoveTopics } from '@/knowledgebase/topics/hooks/useTopicMutations';
 
 export const useConfirmRemoveTopic = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.knowledgebase',
+  });
   const { removeTopics, loading } = useRemoveTopics();
   const confirmRemove = useKbConfirmRemove();
 
