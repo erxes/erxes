@@ -6,7 +6,7 @@
 - **Project:** `operation_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/operation_ui`
-- **Last synchronized:** `2026-10-19`
+- **Last synchronized:** `2026-10-23`
 
 ## Scope
 
@@ -95,6 +95,9 @@
 
 ## Local Invariants
 
+- `PropertiesSidePanel` styles `FieldsInDetail` only through padding, height
+  and column utilities. It never targets the component's internal `div`
+  structure, which renders the property groups directly with no outer card.
 - "Your teams" collapsibles in `TeamsNavigation` are controlled by
   `openTeamsNavigationState` (localStorage `operation:open-teams-navigation`),
   and the team in the current route (`/operation/team/:teamId/…`) always

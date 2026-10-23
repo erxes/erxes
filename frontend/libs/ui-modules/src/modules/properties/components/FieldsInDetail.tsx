@@ -32,7 +32,6 @@ import {
   buttonVariants,
   cn,
   Collapsible,
-  InfoCard,
   Spinner,
   Tooltip,
 } from 'erxes-ui';
@@ -178,28 +177,22 @@ export const FieldsInDetail = ({
   if (fieldGroupsLoading) {
     return <Spinner containerClassName="py-6" />;
   }
-  const [, propertyName] = fieldContentType.split(':');
-
   return (
     <div className={cn('flex flex-col gap-4', className)}>
-      <InfoCard title={`${propertyName} Properties`}>
-        <InfoCard.Content>
-          {fieldGroups.length === 0 ? (
-            <EmptyProperties fieldContentType={fieldContentType} />
-          ) : (
-            fieldGroups.map((group) => (
-              <FieldGroupContent
-                key={group._id}
-                group={group}
-                id={id}
-                contentType={fieldContentType}
-                propertiesData={propertiesData}
-                mutateHook={mutateHook}
-              />
-            ))
-          )}
-        </InfoCard.Content>
-      </InfoCard>
+      {fieldGroups.length === 0 ? (
+        <EmptyProperties fieldContentType={fieldContentType} />
+      ) : (
+        fieldGroups.map((group) => (
+          <FieldGroupContent
+            key={group._id}
+            group={group}
+            id={id}
+            contentType={fieldContentType}
+            propertiesData={propertiesData}
+            mutateHook={mutateHook}
+          />
+        ))
+      )}
     </div>
   );
 };

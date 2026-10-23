@@ -42,7 +42,7 @@ export const PropertiesSidePanel = ({
         viewportClassName="[&>div]:!block [&>div]:h-full"
       >
         <FieldsInDetail
-          className="h-full min-w-0 gap-0 p-4 [&>div]:h-full [&>div]:rounded-none [&>div]:bg-transparent [&>div]:p-0 [&>div>div:first-child]:hidden [&>div>div:last-child]:rounded-none [&>div>div:last-child]:bg-transparent [&>div>div:last-child]:p-0 [&>div>div:last-child]:shadow-none [&_.grid-cols-2]:grid-cols-1"
+          className="h-full min-w-0 p-4 [&_.grid-cols-2]:grid-cols-1"
           fieldContentType={contentType}
           id={contentId}
           propertiesData={propertiesData ?? EMPTY_PROPERTIES_DATA}
