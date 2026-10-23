@@ -37,9 +37,10 @@ export const PAYMENTS = gql(`
 `);
 
 export const DISTRICTS = gql(`
-  query qpayGetDistricts($cityCode: String!) {
+    query qpayGetDistricts($cityCode: String!) {
     qpayGetDistricts(cityCode: $cityCode) {
-      districts
+      code
+      name
     }
   }
 `);

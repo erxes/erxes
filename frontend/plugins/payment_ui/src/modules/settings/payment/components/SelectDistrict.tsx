@@ -1,5 +1,6 @@
 import { useQuery } from '@apollo/client';
 import { Select } from 'erxes-ui';
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DISTRICTS } from '~/modules/payment/graphql/queries';
 
@@ -9,25 +10,35 @@ type Props = {
   onChange: (value: string) => void;
 };
 
-const SelectDistrict = (props: Props) => {
+const SelectDistrict = ({ cityCode, value, onChange }: Props) => {
   const { t } = useTranslation('payment');
-  const { cityCode, value, onChange } = props;
 
   const { data } = useQuery(DISTRICTS, {
     variables: { cityCode: cityCode || '' },
     skip: !cityCode,
   });
 
+  const options = useMemo(
+    () =>
+      (data?.qpayGetDistricts ?? []).map((district) => ({
+        value: district.code,
+        label: district.name,
+      })),
+    [data],
+  );
+
+  const isDisabled = !cityCode;
+
   return (
-    <Select onValueChange={onChange} value={value} disabled={!cityCode}>
+    <Select onValueChange={onChange} value={value} disabled={isDisabled}>
       <Select.Trigger>
         <Select.Value placeholder={t('select-district')} />
       </Select.Trigger>
       <Select.Content>
         <Select.Group>
-          {data?.qpayGetDistricts?.districts.map((district) => (
-            <Select.Item key={district} value={district}>
-              {district}
+          {options.map((option) => (
+            <Select.Item key={option.value} value={option.value}>
+              {option.label}
             </Select.Item>
           ))}
         </Select.Group>

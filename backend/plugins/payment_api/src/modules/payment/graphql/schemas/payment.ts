@@ -40,9 +40,10 @@ export const types = `
     name: String
     kind: String
   }
-  type QPayDistricts {
-  districts: [String!]!
-   }
+  type QPayDistrict {
+    code: String!
+    name: String!
+  }
 `;
 
 export const inputs = `
@@ -64,7 +65,7 @@ export const queries = `
   paymentsTotalCount(kind: String, status: String): paymentsTotalCount
 
   qpayGetMerchant(_id: String!): JSON
-  qpayGetDistricts(cityCode: String!): QPayDistricts
+  qpayGetDistricts(cityCode: String!): [QPayDistrict!]!
 
   paymentsGetStripeKey(_id: String!): String
 

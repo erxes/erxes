@@ -367,7 +367,7 @@ export class QPayQuickQrAPI extends VendorBaseAPI {
   }
 
   async getDistricts(city: string) {
-    return await this.makeRequest<{ districts: string[] }>({
+    return await this.makeRequest<{ code: string; name: string }[]>({
       method: 'GET',
       path: `${meta.paths.districts}/${city}`,
     });
