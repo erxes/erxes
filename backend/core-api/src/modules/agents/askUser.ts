@@ -7,9 +7,7 @@ import { z } from 'zod';
  * question. The host renders every question, collects all answers, and
  * resumes the run once with the positional answer list.
  *
- * Kept contract-compatible with the built-in for single-question calls:
- * a resumed bare string (or string array for multi-select) still answers a
- * one-question suspension, so older clients and tests keep working.
+ * The run resumes with `{ answers }`: one answer per question, in order.
  */
 
 /** A structured choice rendered by the host for one ask_user question. */
@@ -61,59 +59,17 @@ const questionSchema = z.object({
     ),
 });
 
-const answerSchema = z.union([z.string(), z.array(z.string())]);
-
-const questionAnswerSchema = z.object({
-  question: z.string(),
-  answer: answerSchema,
-});
-
-const questionAnswersSchema = z.array(questionAnswerSchema);
-
-// Match the REST/UI positional contract, including mixed text and multi-select answers.
-export const askUserResumeSchema = z.union([
-  answerSchema,
-  z.array(answerSchema),
-  questionAnswersSchema,
-]);
-
-export const normalizeAskUserResume = (
-  questions: IAskUserQuestion[],
-  value: unknown,
-): IAskUserAnswer[] | null => {
-  const parsed = askUserResumeSchema.safeParse(value);
-  if (!parsed.success) return null;
-  const data = parsed.data;
-  let answers: IAskUserAnswer[];
-  const structured = questionAnswersSchema.safeParse(data);
-  if (structured.success) {
-    answers = questions.map((question) =>
-      structured.data.find((entry) => entry.question === question.question)?.answer ?? '',
-    );
-  } else if (questions.length === 1) {
-    if (typeof data === 'string') answers = [data];
-    else if (data.every((entry) => typeof entry === 'string')) answers = [data];
-    else if (data.length === 1 && Array.isArray(data[0])) answers = [data[0]];
-    else return null;
-  } else {
-    if (
-      !Array.isArray(data) ||
-      !data.every((entry) => typeof entry === 'string' || Array.isArray(entry))
-    )
-      return null;
-    answers = data;
-  }
-  if (
-    answers.length !== questions.length ||
-    answers.some((answer) =>
-      typeof answer === 'string'
-        ? !answer.trim()
-        : !answer.length || answer.some((part) => !part.trim()),
-    )
+/** One answer per question, in order: text, or the picked labels. */
+export const askUserAnswersSchema = z
+  .array(
+    z.union([
+      z.string().trim().min(1),
+      z.array(z.string().trim().min(1)).min(1),
+    ]),
   )
-    return null;
-  return answers;
-};
+  .min(1);
+
+const askUserResumeSchema = z.object({ answers: askUserAnswersSchema });
 
 /** Formats one answer the way the model reads it back. */
 const formatAnswer = (answer: IAskUserAnswer): string =>
@@ -157,8 +113,10 @@ export const buildAskUserTool = async () => {
         const resumeData: unknown = context?.agent?.resumeData;
 
         if (resumeData !== undefined) {
-          const perQuestion = normalizeAskUserResume(questions, resumeData);
-          if (!perQuestion) {
+          const parsed = askUserResumeSchema.safeParse(resumeData);
+          const perQuestion = parsed.success ? parsed.data.answers : undefined;
+
+          if (perQuestion?.length !== questions.length) {
             return {
               content:
                 'Failed to read the answers. Provide one non-empty answer per question.',

@@ -9,6 +9,7 @@ import { ApprovalPrompt, ApprovalStatusRow } from './ApprovalPrompt';
 import {
   AskUserAnswered,
   AskUserPrompt,
+  type IAskUserAnswer,
   type IAskUserQuestionEntry,
   type IAskUserQuestionGroup,
 } from './AskUserPrompt';
@@ -43,7 +44,7 @@ export interface IMessagePartRendererProps {
   }) => void;
   /** True while an ask_user answer is being submitted. */
   answerBusy: boolean;
-  onAnswer: (answer: string | string[] | (string | string[])[]) => void;
+  onAnswer: (answers: IAskUserAnswer[]) => void;
   /** Tool calls already resolved somewhere in the message. */
   answeredToolCallIds: Set<string>;
   isStreaming?: boolean;

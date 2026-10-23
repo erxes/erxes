@@ -36,8 +36,8 @@ The `agent` module is the core-ui surface for the core-api `agents` backend
   navigation and Delete to close. Plus opens a blank conversation; an empty tab
   remains usable after closing the last session. Existing saved sessions load in
   pages through the same `useAgentsThreads` subscription. Closing a tab deletes
-  its session with one click, selects the neighboring tab only if it was active,
-  and clears that session's reconnect pointers. Pending closes cannot duplicate
+  its session with one click and selects the neighboring tab only if it was
+  active. Pending closes cannot duplicate
   mutations; failed deletes retain the tab. Rename, pin and export remain in the
   current-session actions menu; the old history popup and delete dialog are gone.
   Shared mutations live in `hooks/useAgentsThreadActions.ts` with immediate
@@ -77,7 +77,7 @@ The `agent` module is the core-ui surface for the core-api `agents` backend
   have a review/edit step before explicit submission; answers keep the existing
   positional string/string-array contract. `AskUserAnswered` is the persisted
   summary in the transcript. Both share one surface (`rounded-xl border
-  bg-card`, `bg-muted/20` header bar, px-4 rows). The internal `AnswerValue`
+bg-card`, `bg-muted/20` header bar, px-4 rows). The internal `AnswerValue`
   renders the review step and the summary the same way: picked options as
   erxes-ui `Badge` chips (wrapping at 320px) and the user's own words as a
   separate muted text line (pencil icon + sr-only "Your own answer" when the
@@ -115,7 +115,7 @@ The `agent` module is the core-ui surface for the core-api `agents` backend
   a key without Models: Read, or one the server cannot decrypt), an
   `Unavailable` marker when not in use, its saved model and its recent picks.
   A well-formed unlisted id typed in search offers `Use "<id>"` (`Custom
-  model`); it is selected only after `onVerifyModel` (`useAgentsModelVerify` →
+model`); it is selected only after `onVerifyModel` (`useAgentsModelVerify` →
   `AgentsModelVerify`) resolves null, otherwise the reason shows inline. Listed
   models get the same check when first picked, because listings ignore some
   access rules (OpenAI lists the organisation's models regardless of a
@@ -211,65 +211,45 @@ The `agent` module is the core-ui surface for the core-api `agents` backend
 
 - REST goes through the gateway at `${REACT_APP_API_URL}/pl:core/agents/*`
   (`api.ts`) — `/pl:core` because the root core proxy idles out after 60s
-  and would kill SSE. `transport.ts` (`AgentsChatTransport`) filters
-  approval/reconnect chunks, sends `credentials: 'include'`, reads
-  `X-Agents-Thread-Id`, persists active runs per thread for reconnect,
-  and reroutes approval/answer sends to `/agents/approve` and
-  `/agents/answer`. `approvalDecisions.ts` resumes the answered Mastra gate even
+  and would kill SSE. `transport.ts` (`AgentsChatTransport`) is the AI SDK's
+  `DefaultChatTransport`: the Chat id is the thread id, it sends only the
+  newest message, and reconnect uses the default
+  `GET /agents/chat/:threadId/stream`. `approvalDecisions.ts`
+  (`hasAgentsApprovalDecision`) resends after each approval decision even
   when later calls in the same model step remain input-available. Those calls
   cannot execute until resume, so the SDK's all-tool-completed predicate would
-  deadlock. Decisions carry their exact `toolCallId`; outstanding approval cards
-  still require explicit answers, and older steps never authorize another send.
-- Restarts (`streamHealth.ts`): every agents SSE body passes through
-  `watchAgentsStream`; 20s without bytes (the backend writes keep-alive
-  comments every 5s) fails it with `AgentsStreamStalledError`, a network
-  `TypeError` the SDK treats as a disconnect. `useAgentsChat` then reconnects
-  once per run: the backend replays it, reports it finished (204), or answers
-  409 `AGENTS_RUN_INTERRUPTED`, which clears the run id. That code, also sent
-  as stream error text on server shutdown, shows `agent.run-interrupted` with
-  Retry (`regenerate`); a repeated stall shows `agent.stream-lost` with
-  Reconnect. `describeAgentsChatError` builds the banner text.
-  `__tests__/serverRestart.test.ts` drives the real SDK `Chat` and transport
-  through the restart, reconnect and Retry.
+  deadlock.
+- Restarts (`streamHealth.ts`): the transport's `fetch` passes every agents
+  SSE body (sends and reconnects) through `watchAgentsStream`; 20s without
+  bytes (the backend writes keep-alive comments every 5s) fails it with
+  `AgentsStreamStalledError`, a network `TypeError`. `useAgentsChat` then
+  reconnects once per turn: the backend replays the run, reports it finished
+  (204), or answers 409 `AGENTS_RUN_INTERRUPTED`. That code, also sent as
+  stream error text on server shutdown, shows `agent.run-interrupted` with
+  Retry only (`regenerate`); other errors also offer Reconnect.
+  `describeAgentsChatError` builds the banner text.
 - GraphQL documents in `graphql/` — `Agents*` prefixed operation names,
   consumed verbatim from the backend schema; `AgentsThreadsChanged` is a
   refetch signal only.
-- `hooks/useAgentsChat.ts` wraps the AI SDK `useChat` with durable-run
-  semantics: `openThread` (history restore + active-run reconnect +
-  bounded re-read), `startNewConversation`, `submitAnswer` (ask_user
-  resume), `sendMessage`, `retryLastTurn` (`regenerate`),
-  `setPageContext`. The selected-thread namespace defaults to `panel`;
-  active runs remain keyed by thread. Switching sessions awaits SDK stream
-  detachment before clearing the shared transcript, preserves the previous run id,
-  and reattaches through the backend when that thread is reopened. Detachment is
-  not a backend cancellation command. The hook owns a native SDK `Chat` and passes
-  it to `useChat`, preserving `resumeStreamIsReplay`. The transport captures the
-  actual SDK-assigned pending user id before dispatch. History restore matches that
-  id and removes only the active response suffix before replay; it never appends
-  a synthetic turn based on prompt equality. Legacy prompt-only sessions strip
-  the hidden page-context prefix during migration. Manual reconnect uses the same
-  restore/replay path. Approval/question suspensions keep their stored cards.
-  The legacy `page` storage namespace is
-  retained in the hook's type only for compatibility, with no page UI.
-- Session switching is stale-while-revalidate over Apollo's normalized cache
-  (no parallel store). `openThread` renders a cached `AgentsThreadDetail`
-  immediately (no `loadingThread`), then re-reads it `network-only` and
-  replaces the transcript only when the stored messages differ and the same
-  selection/thread is still open with no active run and `status === 'ready'`.
-  Loading shows only on a cache miss. A thread with a stored active run always
-  reads the network first, so reconnect/replay and the bounded re-read are
-  unchanged. Freshness: a new run id from the transport (send, edit,
-  regenerate, answer, approval resume) and every `onFinish` evict that
-  thread's detail; leaving a thread (`openThread` elsewhere or
-  `startNewConversation`) re-reads it into the cache when missing; delete
-  evicts in `useAgentsThreadActions`; rename/pin update `AgentsThread` by
-  normalization. `utils/threadDetailCache.ts` bounds the cache to the 10 most
-  recently used transcripts (LRU per Apollo cache; every read/fetch records
-  use) and evicts a thread by removing its root field and its normalized
-  `AgentsMessage` entities only: never a global `cache.gc()`. Lazy detail
-  reads use `nextFetchPolicy: 'cache-only'` so the lingering watch never
-  refetches on its own after an eviction. Session-list pagination (`useAgentsThreads`, `no-cache`) is
-  unchanged.
+- `hooks/useAgentsChat.ts` keeps one AI SDK `Chat` per thread (id = thread
+  id) and passes the open one to `useChat`. The server owns runs, so the hook
+  holds no run ids. Sends, approvals and ask_user answers
+  (`sendMessage(undefined, { body: { resume } })`) all post to
+  `/agents/chat`. Switching threads leaves the old Chat streaming in the
+  background. Opening a thread, including after a refresh, loads its stored
+  messages and calls `resumeStream()`, which reattaches to a running run or
+  gets 204. Edits resend the same user message id with `editMessageId` and
+  rebuild the mention part from the edited text.
+- Session switching is stale-while-revalidate over Apollo's normalized cache.
+  `openThread` renders a cached `AgentsThreadDetail` at once, then re-reads it
+  `network-only` and replaces the Chat's messages only when they differ and
+  the Chat is still `ready`. Every chat request (transport `onRequest`) and
+  every `onFinish` evict that thread's detail; leaving a thread re-reads it
+  into the cache when missing; delete evicts in
+  `useAgentsThreadActions`. `utils/threadDetailCache.ts` keeps the 10 most
+  recently used transcripts and evicts a thread's root field and its
+  `AgentsMessage` entities only, never a global `cache.gc()`. Lazy detail
+  reads use `nextFetchPolicy: 'cache-only'`.
 - Attachments: up to 5 files/turn via platform `/upload-file`
   (`agentsFiles.ts` limits/accepted types, `uploadAgentsFile.ts`). Accepted:
   PNG/JPEG/WebP/GIF, TXT/Markdown/CSV/JSON, PDF, DOCX, XLSX, PPTX, ODT, ODS, ODP
@@ -453,8 +433,7 @@ last assistant turn.
   `ui-modules`; old independent agent panel/tray state is no longer consumed.
 - `states/agentActivityState.ts` — unread/working/awaiting activity from
   `useAgentActivity`, displayed by the top-bar Assistant button.
-- sessionStorage: `agents-selected-thread:<scope>`,
-  `agents-active-run:<threadId>`, `agents-in-flight-prompt:<threadId>`.
+- sessionStorage: `agents-selected-thread:<scope>`.
   Model and thinking selections live in memory only.
 
 ## Translations

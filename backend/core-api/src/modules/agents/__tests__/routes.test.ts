@@ -20,7 +20,10 @@ import { probeAgentsRun } from '@/agents/runLiveness';
 import { checkPermissionGroup } from 'erxes-api-shared/core-modules';
 import { ExpectedError } from 'erxes-api-shared/utils';
 import { Readable } from 'stream';
-import { readFileFromStorage, readFileStreamFromStorage } from 'erxes-api-shared/utils';
+import {
+  readFileFromStorage,
+  readFileStreamFromStorage,
+} from 'erxes-api-shared/utils';
 
 jest.mock('erxes-api-shared/utils', () => ({
   readFileStreamFromStorage: jest.fn(),
@@ -91,10 +94,59 @@ jest.mock('@/agents/threadsEvents', () => ({
 }));
 jest.mock('ai', () => ({
   pipeUIMessageStreamToResponse: jest.fn(),
+  isToolUIPart: (part: { type: string }) =>
+    part.type.startsWith('tool-') || part.type === 'dynamic-tool',
 }));
-jest.mock('@mastra/ai-sdk', () => ({
-  toAISdkStream: jest.fn(),
+// The real MessageList pulls in all of @mastra/core; the route only needs it
+// to turn the prompt into a storable message.
+jest.mock('@mastra/core/agent', () => ({
+  MessageList: class {
+    private messages: unknown[] = [];
+    add(message: unknown) {
+      this.messages.push(message);
+      return this;
+    }
+    get get() {
+      return { all: { db: () => this.messages } };
+    }
+  },
 }));
+jest.mock('@mastra/ai-sdk', () => {
+  const toAISdkStream = jest.fn();
+  return {
+    toAISdkStream,
+    // Mirrors the real handler's dispatch: `resumeData` resumes the run, an
+    // assistant message resumes its approval-responded call, and anything
+    // else streams a new turn. The result goes through `toAISdkStream`.
+    handleChatStream: jest.fn(async ({ mastra, agentId, params, onError }) => {
+      const agent = mastra.getAgentById(agentId);
+      const { messages, resumeData, ...options } = params;
+      const decision = messages
+        .at(-1)
+        ?.parts?.find(
+          (part: { state?: string }) => part.state === 'approval-responded',
+        );
+      const output = resumeData
+        ? await agent.resumeStream(resumeData, options)
+        : decision
+          ? await agent.resumeStream(
+              {
+                approved: decision.approval.approved,
+                ...(decision.approval.reason
+                  ? { reason: decision.approval.reason }
+                  : {}),
+              },
+              {
+                ...options,
+                runId: decision.approval.id.split('::')[0],
+                toolCallId: decision.toolCallId,
+              },
+            )
+          : (await agent.stream(messages, options)).output;
+      return toAISdkStream(output, { from: 'agent', version: 'v7', onError });
+    }),
+  };
+});
 
 import { generateModels } from '~/connectionResolvers';
 import { buildAgentsModelSettings } from '@/agents/agent';
@@ -108,9 +160,13 @@ import type { IAgentsRequestContext } from '@/agents/requestContext';
 const { pipeUIMessageStreamToResponse: mockedPipe } = jest.requireMock(
   'ai',
 ) as { pipeUIMessageStreamToResponse: jest.Mock };
-const { toAISdkStream: mockedToAISdkStream } = jest.requireMock(
-  '@mastra/ai-sdk',
-) as { toAISdkStream: jest.Mock };
+const {
+  toAISdkStream: mockedToAISdkStream,
+  handleChatStream: mockedHandleChatStream,
+} = jest.requireMock('@mastra/ai-sdk') as {
+  toAISdkStream: jest.Mock;
+  handleChatStream: jest.Mock;
+};
 
 const mockedGenerateModels = generateModels as jest.MockedFunction<
   typeof generateModels
@@ -153,9 +209,7 @@ const getHandler = (method: string, path: string) => {
 };
 
 const chatHandler = getHandler('post', '/agents/chat');
-const approveHandler = getHandler('post', '/agents/approve');
-const answerHandler = getHandler('post', '/agents/answer');
-const reconnectHandler = getHandler('post', '/agents/chat/reconnect');
+const streamHandler = getHandler('get', '/agents/chat/:threadId/stream');
 
 interface IFakeResponse {
   statusCode: number;
@@ -217,17 +271,23 @@ const buildReq = (options: IReqOptions = {}) => {
       'base64',
     );
   }
+  // The AI SDK client always sends its Chat id as the thread id.
+  const requestBody =
+    options.body &&
+    typeof options.body === 'object' &&
+    'messages' in options.body &&
+    !('threadId' in options.body)
+      ? { threadId: 'thread-1', ...options.body }
+      : options.body;
   return {
     headers,
-    body: options.body ?? {},
+    body: requestBody ?? {},
     query: options.query ?? {},
     params: options.params ?? {},
   };
 };
 
 const ACTING_USER = { _id: 'user-1', email: 'agent@example.com' };
-const UUID_PATTERN =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 const CONNECTION_DOC = {
   userId: 'user-1',
@@ -293,7 +353,10 @@ const messagePage = (
 });
 
 const buildMemory = (): IMemoryFake => ({
-  createThread: jest.fn(async ({ threadId, resourceId }) => ({id:threadId,resourceId})),
+  createThread: jest.fn(async ({ threadId, resourceId }) => ({
+    id: threadId,
+    resourceId,
+  })),
   getThreadById: jest.fn(async () => null),
   listThreads: jest.fn(async () => threadPage([])),
   recall: jest.fn(async () => messagePage([], null)),
@@ -310,7 +373,7 @@ interface IStreamOptions {
     onTitleGenerated?: () => void;
   };
   onFinish?: () => void;
-  onSuspended?: () => void;
+  closeOnSuspend?: boolean;
   requestContext?: { get(key: string): unknown };
 }
 
@@ -337,35 +400,10 @@ interface ISuspendedRun {
   }[];
 }
 
-interface IApproveOptions {
-  runId?: string;
-  toolCallId?: string;
-  reason?: string;
-  memory?: {
-    thread: string;
-    resource: string;
-    onTitleGenerated?: () => void;
-  };
-  onFinish?: () => void;
-  onSuspended?: () => void;
-  requestContext?: { get(key: string): unknown };
-}
-
 const listSuspendedRunsMock = jest.fn<
   Promise<{ runs: ISuspendedRun[]; total: number }>,
   [{ threadId?: string; resourceId?: string }?]
 >(async () => ({ runs: [], total: 0 }));
-
-const APPROVED_OUTPUT_SENTINEL = { sentinel: 'approved-output' };
-const DECLINED_OUTPUT_SENTINEL = { sentinel: 'declined-output' };
-
-const approveToolCallMock = jest.fn<Promise<unknown>, [IApproveOptions]>(
-  async () => APPROVED_OUTPUT_SENTINEL,
-);
-
-const declineToolCallMock = jest.fn<Promise<unknown>, [IApproveOptions]>(
-  async () => DECLINED_OUTPUT_SENTINEL,
-);
 
 interface IResumeOptions {
   runId?: string;
@@ -377,7 +415,7 @@ interface IResumeOptions {
     onTitleGenerated?: () => void;
   };
   onFinish?: () => void;
-  onSuspended?: () => void;
+  closeOnSuspend?: boolean;
   requestContext?: { get(key: string): unknown };
 }
 
@@ -386,8 +424,6 @@ const RESUMED_OUTPUT_SENTINEL = { sentinel: 'resumed-output' };
 const resumeStreamMock = jest.fn<Promise<unknown>, [unknown, IResumeOptions]>(
   async () => RESUMED_OUTPUT_SENTINEL,
 );
-
-const MASTRA_SENTINEL = { sentinel: 'mastra-instance' };
 
 const listActiveRunsMock = jest.fn<
   Promise<{ runs: { runId: string; status: string }[]; total: number }>,
@@ -415,7 +451,9 @@ let memory: IMemoryFake;
 
 beforeEach(() => {
   jest.clearAllMocks();
-  jest.mocked(checkPermissionGroup).mockImplementation(() => async () => undefined);
+  jest
+    .mocked(checkPermissionGroup)
+    .mockImplementation(() => async () => undefined);
   jest.mocked(probeAgentsRun).mockResolvedValue('live');
   // Restore default implementations that mockResolvedValue overrides.
   listSuspendedRunsMock.mockImplementation(async () => ({
@@ -428,8 +466,6 @@ beforeEach(() => {
     runId: options?.runId ?? 'generated-run-id',
     cleanup: jest.fn(),
   }));
-  approveToolCallMock.mockImplementation(async () => APPROVED_OUTPUT_SENTINEL);
-  declineToolCallMock.mockImplementation(async () => DECLINED_OUTPUT_SENTINEL);
   resumeStreamMock.mockImplementation(async () => RESUMED_OUTPUT_SENTINEL);
   observeMock.mockImplementation(async (runId: string) => ({
     output: OBSERVED_OUTPUT_SENTINEL,
@@ -446,18 +482,18 @@ beforeEach(() => {
     codeModeEnabled: false,
     codeModeEnvironment: 'in-process',
   });
+  const agent = {
+    id: 'agents',
+    stream: streamMock,
+    listSuspendedRuns: listSuspendedRunsMock,
+    resumeStream: resumeStreamMock,
+    listActiveRuns: listActiveRunsMock,
+    observe: observeMock,
+  };
   mockedGetAgentsRuntime.mockResolvedValue({
     memory,
-    mastra: MASTRA_SENTINEL,
-    agent: {
-      stream: streamMock,
-      listSuspendedRuns: listSuspendedRunsMock,
-      approveToolCall: approveToolCallMock,
-      declineToolCall: declineToolCallMock,
-      resumeStream: resumeStreamMock,
-      listActiveRuns: listActiveRunsMock,
-      observe: observeMock,
-    },
+    mastra: { getAgentById: (id: string) => (id === 'agents' ? agent : null) },
+    agent,
   } as unknown as Awaited<ReturnType<typeof getAgentsRuntime>>);
   mockedBuildAgentsRequestContext.mockImplementation(
     async (values: IAgentsRequestContext) =>
@@ -467,6 +503,8 @@ beforeEach(() => {
         },
       }) as unknown as Awaited<ReturnType<typeof buildAgentsRequestContext>>,
   );
+  // Routes pipe through a shutdown-aware ReadableStream, so the mocked
+  // adapter returns a real one carrying the wrapped output.
   mockedToAISdkStream.mockImplementation(
     (stream: unknown) =>
       new ReadableStream({
@@ -540,27 +578,37 @@ describe('POST /agents/chat — authentication and validation', () => {
     expect(streamMock).not.toHaveBeenCalled();
   });
 
-  it('rejects when the newest message is not from the user', async () => {
+  it('requires the client Chat id as the thread id', async () => {
+    for (const threadId of [undefined, '   ', 42]) {
+      const res = buildRes();
+      await chatHandler(
+        buildReq({
+          user: ACTING_USER,
+          body: { messages: [userMessage('hi')], threadId },
+        }),
+        res,
+      );
+      expect(res.statusCode).toBe(400);
+    }
+    expect(streamMock).not.toHaveBeenCalled();
+  });
+
+  it('rejects a newest message that is neither user nor assistant', async () => {
     const res = buildRes();
     await chatHandler(
       buildReq({
         user: ACTING_USER,
         body: {
-          messages: [
-            userMessage('hi'),
-            {
-              id: 'a1',
-              role: 'assistant',
-              content: [{ type: 'text', text: 'hello' }],
-            },
-          ],
+          messages: [{ id: 's1', role: 'system', parts: [] }],
         },
       }),
       res,
     );
 
     expect(res.statusCode).toBe(400);
-    expect(body(res).error).toBe('The newest message must be from the user.');
+    expect(body(res).error).toBe(
+      'The newest message must be from the user or the assistant.',
+    );
     expect(streamMock).not.toHaveBeenCalled();
   });
 
@@ -694,7 +742,6 @@ describe('POST /agents/chat — thread ownership and isolation', () => {
     );
 
     expect(res.statusCode).toBe(200);
-    expect(res.headers['X-Agents-Thread-Id']).toBe('own-thread');
     // The durable agent's stream is called with the request context
     // carrying the resolved selection.
     expect(streamMock).toHaveBeenCalledWith(
@@ -708,40 +755,29 @@ describe('POST /agents/chat — thread ownership and isolation', () => {
     );
   });
 
-  it('starts a new thread when no threadId is supplied and announces the id before streaming', async () => {
-    const res = buildRes();
-    await chatHandler(
-      buildReq({ user: ACTING_USER, body: { messages: [userMessage('hi')] } }),
-      res,
-    );
-
-    const announced = res.headers['X-Agents-Thread-Id'];
-    expect(announced).toMatch(UUID_PATTERN);
-    expect(memory.getThreadById).toHaveBeenCalledWith({ threadId: announced });
-    expect(streamMock).toHaveBeenCalledWith(
-      expect.any(Array),
-      expect.objectContaining({
-        memory: expect.objectContaining({
-          thread: announced,
-          resource: 'user-1',
-        }),
-      }),
-    );
-  });
-
-  it('treats a blank threadId as a request for a new thread', async () => {
+  it('starts a new thread under the client-supplied id', async () => {
     const res = buildRes();
     await chatHandler(
       buildReq({
         user: ACTING_USER,
-        body: { messages: [userMessage('hi')], threadId: '   ' },
+        body: { messages: [userMessage('hi')], threadId: 'new-thread' },
       }),
       res,
     );
 
-    const announced = res.headers['X-Agents-Thread-Id'];
-    expect(announced).toMatch(UUID_PATTERN);
-    expect(announced).not.toBe('   ');
+    expect(memory.createThread).toHaveBeenCalledWith({
+      threadId: 'new-thread',
+      resourceId: 'user-1',
+    });
+    expect(streamMock).toHaveBeenCalledWith(
+      expect.any(Array),
+      expect.objectContaining({
+        memory: expect.objectContaining({
+          thread: 'new-thread',
+          resource: 'user-1',
+        }),
+      }),
+    );
   });
 });
 
@@ -792,10 +828,17 @@ describe('POST /agents/chat — model input and identity', () => {
 
     expect(res.statusCode).toBe(200);
 
-    expect(memory.createThread).toHaveBeenCalledWith({threadId: expect.any(String), resourceId: 'user-1'});
-    expect(memory.createThread.mock.invocationCallOrder[0]).toBeLessThan(streamMock.mock.invocationCallOrder[0]);
+    expect(memory.createThread).toHaveBeenCalledWith({
+      threadId: expect.any(String),
+      resourceId: 'user-1',
+    });
+    expect(memory.createThread.mock.invocationCallOrder[0]).toBeLessThan(
+      streamMock.mock.invocationCallOrder[0],
+    );
     expect(mockedPublishAgentsThreadsChanged).toHaveBeenCalledTimes(1);
-    expect(mockedPublishAgentsThreadsChanged.mock.invocationCallOrder[0]).toBeLessThan(streamMock.mock.invocationCallOrder[0]);
+    expect(
+      mockedPublishAgentsThreadsChanged.mock.invocationCallOrder[0],
+    ).toBeLessThan(streamMock.mock.invocationCallOrder[0]);
 
     const options = streamMock.mock.calls[0][1];
 
@@ -815,6 +858,10 @@ describe('POST /agents/chat — model input and identity', () => {
       res,
     );
 
+    expect(mockedHandleChatStream).toHaveBeenCalledWith(
+      expect.objectContaining({ agentId: 'agents', version: 'v7' }),
+    );
+
     expect(mockedToAISdkStream).toHaveBeenCalledWith(
       OUTPUT_SENTINEL,
       expect.objectContaining({ version: 'v7' }),
@@ -822,7 +869,9 @@ describe('POST /agents/chat — model input and identity', () => {
     expect(mockedPipe).toHaveBeenCalledWith(
       expect.objectContaining({ response: res, keepAliveMs: 5_000 }),
     );
-    await expect(pipedChunks()).resolves.toEqual([{ wrapped: OUTPUT_SENTINEL }]);
+    await expect(pipedChunks()).resolves.toEqual([
+      { wrapped: OUTPUT_SENTINEL },
+    ]);
   });
 
   it('forwards provider error text from serialized and native onError shapes', async () => {
@@ -846,9 +895,7 @@ describe('POST /agents/chat — model input and identity', () => {
     ).toBe('invalid temperature: only 1 is allowed for this model');
     expect(onError(new Error('  rate limited  '))).toBe('rate limited');
     expect(onError({})).toBe('The model failed to generate a response.');
-    expect(onError(undefined)).toBe(
-      'The model failed to generate a response.',
-    );
+    expect(onError(undefined)).toBe('The model failed to generate a response.');
   });
 
   it('passes modelSettings from buildAgentsModelSettings to the durable stream', async () => {
@@ -861,7 +908,7 @@ describe('POST /agents/chat — model input and identity', () => {
     expect(mockedBuildAgentsModelSettings).toHaveBeenCalledWith(
       'openai',
       'off',
-      'gpt-5.6-luna',
+      CONNECTION_DOC.connections[0].model,
     );
     expect(streamMock).toHaveBeenCalledWith(
       expect.any(Array),
@@ -871,68 +918,14 @@ describe('POST /agents/chat — model input and identity', () => {
     );
   });
 
-  it('ends the response on suspension when writableEnded is false (headersSent true during SSE)', async () => {
+  it('closes the response at a suspension once its snapshot is saved', async () => {
     const res = buildRes();
-    // Simulate SSE state: headers already sent but stream not ended.
-    res.headers['X-Agents-Thread-Id'] = 'test';
-
     await chatHandler(
       buildReq({ user: ACTING_USER, body: { messages: [userMessage('hi')] } }),
       res,
     );
 
-    // The onSuspended callback was passed to stream; invoke it.
-    const options = streamMock.mock.calls[0][1];
-    expect(options.onSuspended).toBeDefined();
-
-    // Before calling: writableEnded is false.
-    expect(res.writableEnded).toBe(false);
-    options.onSuspended?.();
-    expect(res.writableEnded).toBe(true);
-  });
-
-  it('does not end the response on suspension when already ended', async () => {
-    const res = buildRes();
-    res.writableEnded = true;
-
-    await chatHandler(
-      buildReq({ user: ACTING_USER, body: { messages: [userMessage('hi')] } }),
-      res,
-    );
-
-    const options = streamMock.mock.calls[0][1];
-    options.onSuspended?.();
-    // Stays true — no double-end.
-    expect(res.writableEnded).toBe(true);
-  });
-
-  it('rejects a non-string runId with 400 instead of crashing', async () => {
-    const res = buildRes();
-    await chatHandler(
-      buildReq({
-        user: ACTING_USER,
-        body: { messages: [userMessage('hi')], runId: 42 },
-      }),
-      res,
-    );
-
-    expect(res.statusCode).toBe(400);
-    expect(body(res).error).toBe('`runId` must be a valid UUID.');
-    expect(streamMock).not.toHaveBeenCalled();
-  });
-
-  it('rejects a malformed string runId with 400', async () => {
-    const res = buildRes();
-    await chatHandler(
-      buildReq({
-        user: ACTING_USER,
-        body: { messages: [userMessage('hi')], runId: 'not-a-uuid' },
-      }),
-      res,
-    );
-
-    expect(res.statusCode).toBe(400);
-    expect(streamMock).not.toHaveBeenCalled();
+    expect(streamMock.mock.calls[0][1].closeOnSuspend).toBe(true);
   });
 
   it('rejects non-string provider/model overrides with 400 instead of crashing', async () => {
@@ -952,20 +945,1030 @@ describe('POST /agents/chat — model input and identity', () => {
     expect(res.statusCode).toBe(400);
     expect(streamMock).not.toHaveBeenCalled();
   });
+});
 
-  it('rejects a non-string threadId with 400 instead of crashing', async () => {
+describe('POST /agents/chat — resuming a suspended run', () => {
+  const approvalRun: ISuspendedRun = {
+    runId: 'run-1',
+    toolCalls: [
+      { toolCallId: 'call-1', toolName: 'callGraphql', requiresApproval: true },
+    ],
+  };
+  const askRun: ISuspendedRun = {
+    runId: 'run-ask',
+    toolCalls: [
+      { toolCallId: 'ask-1', toolName: 'askUser', requiresApproval: false },
+    ],
+  };
+  const decided = (
+    approved: boolean,
+    { runId = 'run-1', toolCallId = 'call-1', reason = '' } = {},
+  ) => ({
+    id: 'assistant-1',
+    role: 'assistant',
+    parts: [
+      {
+        type: 'tool-callGraphql',
+        toolCallId,
+        state: 'approval-responded',
+        input: { query: 'mutation Remove' },
+        approval: {
+          id: `${runId}::${toolCallId}`,
+          approved,
+          ...(reason ? { reason } : {}),
+        },
+      },
+    ],
+  });
+  const asked = { id: 'assistant-1', role: 'assistant', parts: [] };
+  const resume = (body: Record<string, unknown>) =>
+    buildReq({ user: ACTING_USER, body: { threadId: 't1', ...body } });
+
+  beforeEach(() => {
+    memory.getThreadById.mockResolvedValue({ resourceId: 'user-1' });
+    listSuspendedRunsMock.mockResolvedValue({
+      runs: [approvalRun, askRun],
+      total: 2,
+    });
+  });
+
+  it('approves the decided call and streams the continuation', async () => {
+    const res = buildRes();
+    await chatHandler(resume({ messages: [decided(true)] }), res);
+
+    expect(res.statusCode).toBe(200);
+    expect(listSuspendedRunsMock).toHaveBeenCalledWith({
+      threadId: 't1',
+      resourceId: 'user-1',
+    });
+    expect(resumeStreamMock).toHaveBeenCalledWith(
+      { approved: true },
+      expect.objectContaining({
+        runId: 'run-1',
+        toolCallId: 'call-1',
+        closeOnSuspend: true,
+        memory: expect.objectContaining({ thread: 't1', resource: 'user-1' }),
+      }),
+    );
+    await expect(pipedChunks()).resolves.toEqual([
+      { wrapped: RESUMED_OUTPUT_SENTINEL },
+    ]);
+    // Resumes keep the run's RequestContext snapshot.
+    expect(mockedBuildAgentsRequestContext).not.toHaveBeenCalled();
+    expect(streamMock).not.toHaveBeenCalled();
+  });
+
+  it('declines with the user reason instead of executing the call', async () => {
     const res = buildRes();
     await chatHandler(
-      buildReq({
-        user: ACTING_USER,
-        body: { messages: [userMessage('hi')], threadId: 42 },
+      resume({ messages: [decided(false, { reason: 'Wrong deal' })] }),
+      res,
+    );
+
+    expect(resumeStreamMock).toHaveBeenCalledWith(
+      { approved: false, reason: 'Wrong deal' },
+      expect.objectContaining({ runId: 'run-1', toolCallId: 'call-1' }),
+    );
+  });
+
+  it('answers ask_user with the structured answers', async () => {
+    const res = buildRes();
+    await chatHandler(
+      resume({
+        messages: [asked],
+        resume: {
+          runId: 'run-ask',
+          toolCallId: 'ask-1',
+          answers: ['Last month', ['Sales', 'Support']],
+        },
       }),
       res,
     );
 
+    expect(res.statusCode).toBe(200);
+    expect(resumeStreamMock).toHaveBeenCalledWith(
+      { answers: ['Last month', ['Sales', 'Support']] },
+      expect.objectContaining({
+        runId: 'run-ask',
+        toolCallId: 'ask-1',
+        closeOnSuspend: true,
+      }),
+    );
+  });
+
+  it('404s for an unknown thread and 403s for a foreign one', async () => {
+    memory.getThreadById.mockResolvedValueOnce(null);
+    const missing = buildRes();
+    await chatHandler(resume({ messages: [decided(true)] }), missing);
+    expect(missing.statusCode).toBe(404);
+
+    memory.getThreadById.mockResolvedValueOnce({ resourceId: 'user-other' });
+    const foreign = buildRes();
+    await chatHandler(resume({ messages: [decided(true)] }), foreign);
+    expect(foreign.statusCode).toBe(403);
+
+    expect(listSuspendedRunsMock).not.toHaveBeenCalled();
+    expect(resumeStreamMock).not.toHaveBeenCalled();
+  });
+
+  it('409s for a call that is not suspended in this thread', async () => {
+    for (const message of [
+      decided(true, { runId: 'other-run' }),
+      decided(true, { toolCallId: 'stale-call' }),
+    ]) {
+      const res = buildRes();
+      await chatHandler(resume({ messages: [message] }), res);
+      expect(res.statusCode).toBe(409);
+    }
+    expect(resumeStreamMock).not.toHaveBeenCalled();
+  });
+
+  it('never answers an approval gate with ask_user data, or approves a question', async () => {
+    const answered = buildRes();
+    await chatHandler(
+      resume({
+        messages: [asked],
+        resume: { runId: 'run-1', toolCallId: 'call-1', answers: ['Yes'] },
+      }),
+      answered,
+    );
+    expect(answered.statusCode).toBe(409);
+
+    const approved = buildRes();
+    await chatHandler(
+      resume({
+        messages: [decided(true, { runId: 'run-ask', toolCallId: 'ask-1' })],
+      }),
+      approved,
+    );
+    expect(approved.statusCode).toBe(409);
+    expect(resumeStreamMock).not.toHaveBeenCalled();
+  });
+
+  it('400s for an assistant message with nothing to resume or a malformed answer', async () => {
+    const empty = buildRes();
+    await chatHandler(resume({ messages: [asked] }), empty);
+    expect(empty.statusCode).toBe(400);
+
+    for (const answers of [[], [''], 'Yes']) {
+      const res = buildRes();
+      await chatHandler(
+        resume({
+          messages: [asked],
+          resume: { runId: 'run-ask', toolCallId: 'ask-1', answers },
+        }),
+        res,
+      );
+      expect(res.statusCode).toBe(400);
+    }
+    expect(resumeStreamMock).not.toHaveBeenCalled();
+  });
+
+  it('maps unexpected resume failures to a JSON 500 instead of crashing', async () => {
+    resumeStreamMock.mockRejectedValueOnce(new Error('store down'));
+    const res = buildRes();
+    await chatHandler(resume({ messages: [decided(true)] }), res);
+
+    expect(res.statusCode).toBe(500);
+    expect(body(res).error).toBe('store down');
+  });
+});
+
+describe('code mode flag resolved from tenant settings', () => {
+  const enableCodeMode = () =>
+    settingsModel.getSettings.mockResolvedValue({
+      codeModeEnabled: true,
+      codeModeEnvironment: 'in-process',
+    });
+
+  it('stamps codeModeEnabled into the request context when the tenant enables code mode', async () => {
+    enableCodeMode();
+    const res = buildRes();
+    await chatHandler(
+      buildReq({
+        user: ACTING_USER,
+        body: { messages: [userMessage('compute this in code')] },
+      }),
+      res,
+    );
+
+    expect(res.statusCode).toBe(200);
+    // The code mode flag is stamped into the RequestContext so the
+    // durable agent's dynamic instructions include code mode.
+    expect(mockedBuildAgentsRequestContext).toHaveBeenCalledWith(
+      expect.objectContaining({ codeModeEnabled: true }),
+    );
+  });
+
+  it('stamps the tenant approvalMode into the request context', async () => {
+    settingsModel.getSettings.mockResolvedValue({
+      codeModeEnabled: false,
+      codeModeEnvironment: 'in-process',
+      approvalMode: 'destructive',
+    });
+    const res = buildRes();
+    await chatHandler(
+      buildReq({
+        user: ACTING_USER,
+        body: { messages: [userMessage('update a deal')] },
+      }),
+      res,
+    );
+
+    expect(res.statusCode).toBe(200);
+    expect(mockedBuildAgentsRequestContext).toHaveBeenCalledWith(
+      expect.objectContaining({ approvalMode: 'destructive' }),
+    );
+  });
+
+  it('stamps approvalMode writes when the stored settings lack the field', async () => {
+    settingsModel.getSettings.mockResolvedValue({
+      codeModeEnabled: false,
+      codeModeEnvironment: 'in-process',
+    });
+    const res = buildRes();
+    await chatHandler(
+      buildReq({
+        user: ACTING_USER,
+        body: { messages: [userMessage('hello')] },
+      }),
+      res,
+    );
+
+    expect(res.statusCode).toBe(200);
+    expect(mockedBuildAgentsRequestContext).toHaveBeenCalledWith(
+      expect.objectContaining({ approvalMode: 'writes' }),
+    );
+  });
+
+  it('stamps codeModeEnabled false when the flag is off (default)', async () => {
+    // beforeEach already mocks codeModeEnabled: false.
+    const res = buildRes();
+    await chatHandler(
+      buildReq({
+        user: ACTING_USER,
+        body: { messages: [userMessage('hello')] },
+      }),
+      res,
+    );
+
+    expect(mockedBuildAgentsRequestContext).toHaveBeenCalledWith(
+      expect.objectContaining({ codeModeEnabled: false }),
+    );
+  });
+});
+
+describe('GET /agents/chat/:threadId/stream', () => {
+  it('rejects unauthenticated requests', async () => {
+    const res = buildRes();
+    await streamHandler(buildReq({ params: { threadId: 't1' } }), res);
+
+    expect(res.statusCode).toBe(401);
+  });
+
+  it('returns 204 when the run is not active', async () => {
+    memory.getThreadById.mockResolvedValue({ resourceId: 'user-1' });
+    listActiveRunsMock.mockResolvedValue({ runs: [], total: 0 });
+    const res = buildRes();
+    await streamHandler(
+      buildReq({
+        user: ACTING_USER,
+        params: { threadId: 't1' },
+      }),
+      res,
+    );
+
+    expect(res.statusCode).toBe(204);
+    expect(observeMock).not.toHaveBeenCalled();
+  });
+
+  it("observes the thread's running run and pipes its output", async () => {
+    memory.getThreadById.mockResolvedValue({ resourceId: 'user-1' });
+    const targetRunId = '550e8400-e29b-41d4-a716-446655440000';
+    listActiveRunsMock.mockResolvedValue({
+      runs: [{ runId: targetRunId, status: 'running' }],
+      total: 1,
+    });
+    const res = buildRes();
+    await streamHandler(
+      buildReq({
+        user: ACTING_USER,
+        params: { threadId: 't1' },
+      }),
+      res,
+    );
+
+    expect(res.statusCode).toBe(200);
+    expect(observeMock).toHaveBeenCalledWith(
+      targetRunId,
+      expect.objectContaining({
+        idleTimeoutMs: 10_000,
+        onSuspended: expect.any(Function),
+      }),
+    );
+    expect(mockedToAISdkStream).toHaveBeenCalledWith(
+      OBSERVED_OUTPUT_SENTINEL,
+      expect.objectContaining({ version: 'v7' }),
+    );
+  });
+
+  it('ends the response on suspension during reconnect observe', async () => {
+    memory.getThreadById.mockResolvedValue({ resourceId: 'user-1' });
+    const targetRunId = '550e8400-e29b-41d4-a716-446655440000';
+    listActiveRunsMock.mockResolvedValue({
+      runs: [{ runId: targetRunId, status: 'running' }],
+      total: 1,
+    });
+    const res = buildRes();
+    await streamHandler(
+      buildReq({
+        user: ACTING_USER,
+        params: { threadId: 't1' },
+      }),
+      res,
+    );
+
+    // Capture the onSuspended callback passed to observe.
+    const observeOptions = observeMock.mock.calls[0][1];
+    expect(observeOptions?.onSuspended).toBeDefined();
+
+    expect(res.writableEnded).toBe(false);
+    observeOptions?.onSuspended?.();
+    expect(res.writableEnded).toBe(true);
+  });
+
+  it("refuses to observe a run in another user's thread", async () => {
+    memory.getThreadById.mockResolvedValue({ resourceId: 'user-other' });
+    const res = buildRes();
+    await streamHandler(
+      buildReq({
+        user: ACTING_USER,
+        params: { threadId: 't1' },
+      }),
+      res,
+    );
+
+    expect(res.statusCode).toBe(403);
+    expect(observeMock).not.toHaveBeenCalled();
+  });
+
+  it('passes a run-liveness probe that re-arms the idle timer while the run is alive', async () => {
+    memory.getThreadById.mockResolvedValue({ resourceId: 'user-1' });
+    const targetRunId = '550e8400-e29b-41d4-a716-446655440000';
+    listActiveRunsMock.mockResolvedValue({
+      runs: [{ runId: targetRunId, status: 'running' }],
+      total: 1,
+    });
+    const res = buildRes();
+    await streamHandler(
+      buildReq({
+        user: ACTING_USER,
+        params: { threadId: 't1' },
+      }),
+      res,
+    );
+
+    const observeOptions = observeMock.mock.calls[0][1];
+    expect(observeOptions?.isAlive).toBeDefined();
+
+    // Still executing: the idle timer must re-arm instead of closing.
+    await expect(observeOptions?.isAlive?.()).resolves.toBe(true);
+  });
+
+  it('keeps the reconnect alive while the run is parked at an HITL gate', async () => {
+    memory.getThreadById.mockResolvedValue({ resourceId: 'user-1' });
+    const targetRunId = '550e8400-e29b-41d4-a716-446655440000';
+    listActiveRunsMock.mockResolvedValue({
+      runs: [{ runId: targetRunId, status: 'running' }],
+      total: 1,
+    });
+    // By the time the idle probe fires the run has suspended: alive.
+    const res = buildRes();
+    await streamHandler(
+      buildReq({
+        user: ACTING_USER,
+        params: { threadId: 't1' },
+      }),
+      res,
+    );
+
+    const observeOptions = observeMock.mock.calls[0][1];
+
+    listActiveRunsMock.mockResolvedValue({ runs: [], total: 0 });
+    listSuspendedRunsMock.mockResolvedValue({
+      runs: [{ runId: targetRunId }],
+      total: 1,
+    });
+
+    await expect(observeOptions?.isAlive?.()).resolves.toBe(true);
+  });
+
+  it('ends the reconnect wait when the run is neither active nor suspended', async () => {
+    memory.getThreadById.mockResolvedValue({ resourceId: 'user-1' });
+    const targetRunId = '550e8400-e29b-41d4-a716-446655440000';
+    listActiveRunsMock.mockResolvedValue({
+      runs: [{ runId: targetRunId, status: 'running' }],
+      total: 1,
+    });
+    const res = buildRes();
+    await streamHandler(
+      buildReq({
+        user: ACTING_USER,
+        params: { threadId: 't1' },
+      }),
+      res,
+    );
+
+    const observeOptions = observeMock.mock.calls[0][1];
+
+    jest.mocked(probeAgentsRun).mockResolvedValue('inactive');
+
+    await expect(observeOptions?.isAlive?.()).resolves.toBe(false);
+  });
+
+  it('lets discovery errors propagate so Mastra treats the run as alive', async () => {
+    memory.getThreadById.mockResolvedValue({ resourceId: 'user-1' });
+    const targetRunId = '550e8400-e29b-41d4-a716-446655440000';
+    listActiveRunsMock.mockResolvedValue({
+      runs: [{ runId: targetRunId, status: 'running' }],
+      total: 1,
+    });
+    const res = buildRes();
+    await streamHandler(
+      buildReq({
+        user: ACTING_USER,
+        params: { threadId: 't1' },
+      }),
+      res,
+    );
+
+    const observeOptions = observeMock.mock.calls[0][1];
+
+    // Mastra catches isAlive throws as "still alive", so a momentary store
+    // failure must never resolve the probe to false here.
+    jest
+      .mocked(probeAgentsRun)
+      .mockRejectedValue(new Error('store unavailable'));
+
+    await expect(observeOptions?.isAlive?.()).rejects.toThrow(
+      'store unavailable',
+    );
+  });
+
+  it('ends the stream instead of crashing when piping fails after headers were sent', async () => {
+    memory.getThreadById.mockResolvedValue({ resourceId: 'user-1' });
+    const targetRunId = '550e8400-e29b-41d4-a716-446655440000';
+    listActiveRunsMock.mockResolvedValue({
+      runs: [{ runId: targetRunId, status: 'running' }],
+      total: 1,
+    });
+    // The real pipe writes the SSE headers before pumping the stream.
+    mockedPipe.mockImplementationOnce(
+      ({ response }: { response: IFakeResponse }) => {
+        response.setHeader('Content-Type', 'text/event-stream');
+        throw new Error('late stream failure');
+      },
+    );
+    const res = buildRes();
+    await streamHandler(
+      buildReq({
+        user: ACTING_USER,
+        params: { threadId: 't1' },
+      }),
+      res,
+    );
+
+    // The pipe sent the SSE headers before the pump failed, so the
+    // shared error helper must end the stream rather than write a JSON
+    // error (which throws ERR_HTTP_HEADERS_SENT and crashes the process).
+    expect(res.headersSent).toBe(true);
+    expect(res.writableEnded).toBe(true);
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toBeUndefined();
+  });
+});
+
+describe('POST /agents/chat — file attachments', () => {
+  const csv = 'name,price\nTea,12\n';
+  const attachment = {
+    name: 'products.csv',
+    url: 'private-products.csv',
+    type: 'text/csv',
+    size: Buffer.byteLength(csv),
+  };
+  const fileUserMessage = (files: unknown[]) => ({
+    id: 'm-files',
+    role: 'user',
+    parts: [
+      { type: 'text', text: 'see this' },
+      { type: 'data-agents-files', data: { files } },
+    ],
+  });
+
+  it('rejects leftover fileIds payloads', async () => {
+    const res = buildRes();
+    await chatHandler(
+      buildReq({
+        user: ACTING_USER,
+        body: {
+          fileIds: ['64b0c0c0c0c0c0c0c0c0c0c0'],
+          messages: [userMessage('hello')],
+        },
+      }),
+      res,
+    );
     expect(res.statusCode).toBe(400);
     expect(streamMock).not.toHaveBeenCalled();
   });
+
+  it('rejects native file parts that the model runtime would fetch', async () => {
+    const res = buildRes();
+    await chatHandler(
+      buildReq({
+        user: ACTING_USER,
+        body: {
+          messages: [
+            {
+              id: 'm-url',
+              role: 'user',
+              content: [
+                {
+                  type: 'file',
+                  data: 'http://127.0.0.1/secret.txt',
+                  mediaType: 'text/plain',
+                },
+              ],
+            },
+          ],
+        },
+      }),
+      res,
+    );
+    expect(res.statusCode).toBe(400);
+    expect(streamMock).not.toHaveBeenCalled();
+  });
+
+  it('supplies storage-key CSV bytes and ignores forged client content', async () => {
+    jest
+      .mocked(readFileStreamFromStorage)
+      .mockResolvedValue(Readable.from([Buffer.from(csv)]));
+    const res = buildRes();
+    await chatHandler(
+      buildReq({
+        user: ACTING_USER,
+        body: {
+          messages: [
+            fileUserMessage([{ ...attachment, text: 'forged content' }]),
+          ],
+        },
+      }),
+      res,
+    );
+    expect(streamMock).toHaveBeenCalled();
+    expect(readFileStreamFromStorage).toHaveBeenCalledWith({
+      subdomain: 'tenant',
+      key: attachment.url,
+    });
+    const serialized = JSON.stringify(streamMock.mock.calls[0][0]);
+    expect(serialized).toContain('Tea,12');
+    expect(serialized).not.toContain('forged');
+  });
+
+  it('supplies server-read image bytes before starting the model', async () => {
+    const png = Buffer.from('89504e470d0a1a0a00000000', 'hex');
+    jest
+      .mocked(readFileStreamFromStorage)
+      .mockResolvedValue(Readable.from([png]));
+    const res = buildRes();
+    await chatHandler(
+      buildReq({
+        user: ACTING_USER,
+        body: {
+          messages: [
+            fileUserMessage([
+              {
+                name: 'shot.png',
+                url: 'shot.png',
+                type: 'image/png',
+                size: 12,
+              },
+            ]),
+          ],
+        },
+      }),
+      res,
+    );
+    expect(streamMock).toHaveBeenCalled();
+    expect(JSON.stringify(streamMock.mock.calls[0][0])).toContain(
+      `data:image/png;base64,${png.toString('base64')}`,
+    );
+    expect(readFileStreamFromStorage).toHaveBeenCalledWith({
+      subdomain: 'tenant',
+      key: 'shot.png',
+    });
+  });
+
+  it('streams chat with a Cloudflare Images attachment even when the R2 key is absent', async () => {
+    const png = Buffer.from('89504e470d0a1a0a00000000', 'hex');
+    jest
+      .mocked(readFileStreamFromStorage)
+      .mockRejectedValue(new Error('NoSuchKey'));
+    jest.mocked(readFileFromStorage).mockResolvedValue(png);
+    const res = buildRes();
+    await chatHandler(
+      buildReq({
+        user: ACTING_USER,
+        body: {
+          messages: [
+            fileUserMessage([
+              {
+                name: 'shot.png',
+                url: 'bucket/shot.png',
+                type: 'image/png',
+                size: png.length,
+              },
+            ]),
+          ],
+        },
+      }),
+      res,
+    );
+    expect(res.statusCode).toBe(200);
+    expect(streamMock).toHaveBeenCalled();
+    expect(JSON.stringify(streamMock.mock.calls[0][0])).toContain(
+      `data:image/png;base64,${png.toString('base64')}`,
+    );
+    expect(readFileFromStorage).toHaveBeenCalledWith({
+      subdomain: 'tenant',
+      key: 'bucket/shot.png',
+    });
+  });
+
+  it('refuses private image URLs before starting the model', async () => {
+    const res = buildRes();
+    await chatHandler(
+      buildReq({
+        user: ACTING_USER,
+        body: {
+          messages: [
+            fileUserMessage([
+              {
+                name: 'shot.png',
+                url: 'http://127.0.0.1/shot.png',
+                type: 'image/png',
+                size: 12,
+              },
+            ]),
+          ],
+        },
+      }),
+      res,
+    );
+    expect(res.statusCode).toBe(502);
+    expect(streamMock).not.toHaveBeenCalled();
+    expect(readFileStreamFromStorage).not.toHaveBeenCalled();
+  });
+
+  it('fails before streaming when text extraction fails', async () => {
+    jest
+      .mocked(readFileStreamFromStorage)
+      .mockRejectedValue(new Error('secret/key credentials'));
+    const res = buildRes();
+    await chatHandler(
+      buildReq({
+        user: ACTING_USER,
+        body: { messages: [fileUserMessage([attachment])] },
+      }),
+      res,
+    );
+    expect(res.statusCode).toBe(502);
+    expect(JSON.stringify(res.body)).not.toContain('secret/key');
+    expect(streamMock).not.toHaveBeenCalled();
+  });
+});
+
+describe('POST /agents/chat — page context', () => {
+  const partsUserMessage = (text: string) => ({
+    id: `m-${text}`,
+    role: 'user',
+    parts: [{ type: 'text', text }],
+  });
+
+  const firstSentPartText = (): string | undefined => {
+    const messages = streamMock.mock.calls[0][0] as {
+      parts?: { type: string; text?: string }[];
+    }[];
+
+    return messages[0]?.parts?.[0]?.text;
+  };
+
+  it('prepends a delimited context part to the model input when pageContext is valid', async () => {
+    const res = buildRes();
+    await chatHandler(
+      buildReq({
+        user: ACTING_USER,
+        body: {
+          messages: [partsUserMessage('hi')],
+          pageContext: { path: '/sales/deals' },
+        },
+      }),
+      res,
+    );
+
+    expect(res.statusCode).toBe(200);
+    expect(streamMock).toHaveBeenCalled();
+    expect(firstSentPartText()).toBe(
+      '[Page context] The user is viewing /sales/deals.',
+    );
+  });
+
+  it('includes a validated open record in the context line', async () => {
+    const res = buildRes();
+    await chatHandler(
+      buildReq({
+        user: ACTING_USER,
+        body: {
+          messages: [partsUserMessage('hi')],
+          pageContext: {
+            path: '/sales/deal/board',
+            record: { type: 'deal', id: 'deal_1-Ab' },
+          },
+        },
+      }),
+      res,
+    );
+
+    expect(res.statusCode).toBe(200);
+    expect(firstSentPartText()).toBe(
+      '[Page context] The user is viewing /sales/deal/board. Open record: deal deal_1-Ab (fetch it with tools if relevant).',
+    );
+  });
+
+  it('silently drops an invalid pageContext instead of failing the request', async () => {
+    for (const pageContext of [
+      'not-an-object',
+      { path: 'no-leading-slash' },
+      { path: '/with\nnewline' },
+      { path: `/${'x'.repeat(300)}` },
+      { path: 42 },
+    ]) {
+      jest.clearAllMocks();
+      jest
+        .mocked(checkPermissionGroup)
+        .mockImplementation(() => async () => undefined);
+      jest.mocked(probeAgentsRun).mockResolvedValue('live');
+      const res = buildRes();
+      await chatHandler(
+        buildReq({
+          user: ACTING_USER,
+          body: { messages: [partsUserMessage('hi')], pageContext },
+        }),
+        res,
+      );
+
+      expect(res.statusCode).toBe(200);
+      expect(streamMock).toHaveBeenCalled();
+      expect(firstSentPartText()).not.toContain('[Page context]');
+    }
+  });
+
+  it('drops an invalid record while keeping the valid path', async () => {
+    for (const record of [
+      { type: 'not-a-type', id: 'abc' },
+      { type: 'deal', id: 'bad id!' },
+      { type: 'deal' },
+      'deal',
+    ]) {
+      jest.clearAllMocks();
+      jest
+        .mocked(checkPermissionGroup)
+        .mockImplementation(() => async () => undefined);
+      jest.mocked(probeAgentsRun).mockResolvedValue('live');
+      const res = buildRes();
+      await chatHandler(
+        buildReq({
+          user: ACTING_USER,
+          body: {
+            messages: [partsUserMessage('hi')],
+            pageContext: { path: '/sales/deals', record },
+          },
+        }),
+        res,
+      );
+
+      expect(res.statusCode).toBe(200);
+      expect(firstSentPartText()).toBe(
+        '[Page context] The user is viewing /sales/deals.',
+      );
+    }
+  });
+});
+
+describe('POST /agents/chat — navigation catalog', () => {
+  const partsUserMessage = (text: string) => ({
+    id: `m-${text}`,
+    role: 'user',
+    parts: [{ type: 'text', text }],
+  });
+
+  it('stamps a validated catalog into RequestContext', async () => {
+    const res = buildRes();
+    await chatHandler(
+      buildReq({
+        user: ACTING_USER,
+        body: {
+          messages: [partsUserMessage('hi')],
+          navigation: [
+            { path: '/sales/deals', label: 'Deals', group: 'Sales' },
+            { path: 'contacts/customers', label: 'Customers' },
+          ],
+        },
+      }),
+      res,
+    );
+
+    expect(res.statusCode).toBe(200);
+    expect(mockedBuildAgentsRequestContext).toHaveBeenCalledWith(
+      expect.objectContaining({
+        navigation: expect.arrayContaining([
+          { path: '/sales/deals', label: 'Deals', group: 'Sales' },
+        ]),
+      }),
+    );
+    const stamped = mockedBuildAgentsRequestContext.mock.calls[0][0].navigation;
+    // '/contacts/customers' lacks the leading slash the validator requires.
+    expect(stamped).toHaveLength(1);
+  });
+
+  it('sanitizes labels and drops malformed entries silently', async () => {
+    const res = buildRes();
+    await chatHandler(
+      buildReq({
+        user: ACTING_USER,
+        body: {
+          messages: [partsUserMessage('hi')],
+          navigation: [
+            { path: '/a', label: 'has [[brackets]]\n and newline' },
+            { path: '/with\nnewline', label: 'bad path' },
+            { path: '/too-long', label: `x${'a'.repeat(120)}` },
+            { path: '/dup', label: 'first' },
+            { path: '/dup', label: 'second' },
+            { path: '/nolabel' },
+            'not-an-entry',
+          ],
+        },
+      }),
+      res,
+    );
+
+    expect(res.statusCode).toBe(200);
+    const stamped = mockedBuildAgentsRequestContext.mock.calls[0][0].navigation;
+    expect(stamped).toEqual([
+      { path: '/a', label: 'has brackets and newline' },
+      { path: '/too-long', label: `x${'a'.repeat(79)}` },
+      { path: '/dup', label: 'first' },
+    ]);
+  });
+
+  it('caps the catalog at 400 entries', async () => {
+    const res = buildRes();
+    await chatHandler(
+      buildReq({
+        user: ACTING_USER,
+        body: {
+          messages: [partsUserMessage('hi')],
+          navigation: Array.from({ length: 450 }, (_, i) => ({
+            path: `/p${i}`,
+            label: `p${i}`,
+          })),
+        },
+      }),
+      res,
+    );
+
+    expect(res.statusCode).toBe(200);
+    const stamped = mockedBuildAgentsRequestContext.mock.calls[0][0].navigation;
+    expect(stamped).toHaveLength(400);
+  });
+
+  it('rejects a page record type in pageContext (page is not a record type)', async () => {
+    const res = buildRes();
+    await chatHandler(
+      buildReq({
+        user: ACTING_USER,
+        body: {
+          messages: [partsUserMessage('hi')],
+          pageContext: {
+            path: '/sales/deals',
+            record: { type: 'page', id: 'abc123' },
+          },
+        },
+      }),
+      res,
+    );
+
+    expect(res.statusCode).toBe(200);
+    // The record is dropped; the valid path survives.
+    const calls = streamMock.mock.calls[0][0] as {
+      parts?: { type: string; text?: string }[];
+    }[];
+    expect(calls[0]?.parts?.[0]?.text).toBe(
+      '[Page context] The user is viewing /sales/deals.',
+    );
+  });
+
+  it('omits navigation when every entry is invalid', async () => {
+    const res = buildRes();
+    await chatHandler(
+      buildReq({
+        user: ACTING_USER,
+        body: {
+          messages: [partsUserMessage('hi')],
+          navigation: 'not-an-array',
+        },
+      }),
+      res,
+    );
+
+    expect(res.statusCode).toBe(200);
+    expect(
+      mockedBuildAgentsRequestContext.mock.calls[0][0].navigation,
+    ).toBeUndefined();
+  });
+});
+
+it('validates selected page context and binds its snapshot as model media', async () => {
+  const png = Buffer.from('89504e470d0a1a0a00000000', 'hex');
+  jest
+    .mocked(readFileStreamFromStorage)
+    .mockResolvedValue(Readable.from([png]));
+  const selection = {
+    id: '47b58525-fceb-48ee-9262-dcd040c63bb2',
+    title: 'Company',
+    path: '/contacts',
+    text: 'Company',
+    width: 200,
+    height: 60,
+    snapshot: { url: 'snapshot.png', type: 'image/png', size: png.length },
+  };
+  const res = buildRes();
+  await chatHandler(
+    buildReq({
+      user: ACTING_USER,
+      body: {
+        messages: [
+          {
+            id: 'selection',
+            role: 'user',
+            parts: [
+              { type: 'text', text: 'Report on this company' },
+              {
+                type: 'data-agents-page-selections',
+                data: { selections: [selection] },
+              },
+            ],
+          },
+        ],
+      },
+    }),
+    res,
+  );
+  expect(streamMock).toHaveBeenCalled();
+  expect(JSON.stringify(streamMock.mock.calls[0][0])).toContain(
+    `data:image/png;base64,${png.toString('base64')}`,
+  );
+  expect(JSON.stringify(streamMock.mock.calls[0][0])).not.toContain(
+    'data-agents-files',
+  );
+  expect(mockedBuildAgentsRequestContext).toHaveBeenCalledWith(
+    expect.objectContaining({ attachmentUrls: ['snapshot.png'] }),
+  );
+});
+it('rejects malformed page context before accessing storage or starting the model', async () => {
+  const res = buildRes();
+  await chatHandler(
+    buildReq({
+      user: ACTING_USER,
+      body: {
+        messages: [
+          {
+            id: 'selection',
+            role: 'user',
+            parts: [
+              { type: 'text', text: 'Explain' },
+              {
+                type: 'data-agents-page-selections',
+                data: { selections: [{ title: 'incomplete' }] },
+              },
+            ],
+          },
+        ],
+      },
+    }),
+    res,
+  );
+  expect(res.statusCode).toBe(400);
+  expect(streamMock).not.toHaveBeenCalled();
 });
 
 describe('POST /agents/chat — default connection', () => {
@@ -1065,1617 +2068,25 @@ describe('POST /agents/chat — thinking level validation', () => {
 
   it.each([
     ['never sends Off to k3.1-pro', 'kimi-code', 'k3.1-pro', 'off', 'low'],
-    ['keeps unknown models on the original five', 'openai', 'gpt-99', 'max', 'high'],
-    ['treats an unrecognised level as Off, then clamps', 'kimi-code', 'k3.1-pro', 'ultra', 'low'],
+    [
+      'keeps unknown models on the original five',
+      'openai',
+      'gpt-99',
+      'max',
+      'high',
+    ],
+    [
+      'treats an unrecognised level as Off, then clamps',
+      'kimi-code',
+      'k3.1-pro',
+      'ultra',
+      'low',
+    ],
   ])('%s', async (_case, provider, model, requested, stamped) => {
-    await expect(
-      stampedLevel({ provider, model }, requested),
-    ).resolves.toBe(stamped);
-  });
-});
-
-describe('POST /agents/approve — destructive action approval resume', () => {
-  const suspendedRun = (runId: string): ISuspendedRun => ({
-    runId,
-    toolCalls: [
-      {
-        toolCallId: 'call-1',
-        toolName: 'callTool',
-        requiresApproval: true,
-        suspendPayload: {
-          toolId: 'sales.trpc.deal.remove',
-          input: { id: 'deal-1' },
-        },
-      },
-    ],
-  });
-
-  it('rejects unauthenticated requests before touching the agent runtime', async () => {
-    const res = buildRes();
-    await approveHandler(
-      buildReq({ body: { threadId: 't1', approved: true } }),
-      res,
-    );
-
-    expect(res.statusCode).toBe(401);
-    expect(body(res).error).toBe('Authentication required');
-    expect(streamMock).not.toHaveBeenCalled();
-    expect(approveToolCallMock).not.toHaveBeenCalled();
-    expect(declineToolCallMock).not.toHaveBeenCalled();
-  });
-
-  it('requires a threadId', async () => {
-    const res = buildRes();
-    await approveHandler(
-      buildReq({ user: ACTING_USER, body: { approved: true } }),
-      res,
-    );
-
-    expect(res.statusCode).toBe(400);
-    expect(body(res).error).toBe('`threadId` is required.');
-    expect(approveToolCallMock).not.toHaveBeenCalled();
-  });
-
-  it('requires an explicit boolean decision', async () => {
-    const res = buildRes();
-    await approveHandler(
-      buildReq({
-        user: ACTING_USER,
-        body: { threadId: 't1', approved: 'yes' },
-      }),
-      res,
-    );
-
-    expect(res.statusCode).toBe(400);
-    expect(body(res).error).toBe('`approved` must be true or false.');
-    expect(approveToolCallMock).not.toHaveBeenCalled();
-  });
-
-  it('defers connection validation to the durable agent on resume', async () => {
-    // With durable agents, the connection check happens inside the
-    // agent's dynamic model callback, not in the route preamble.
-    // The route only checks ownership; if the thread exists and belongs
-    // to the user, the resume proceeds.
-    memory.getThreadById.mockResolvedValue({ resourceId: 'user-1' });
-    listSuspendedRunsMock.mockResolvedValue({
-      runs: [suspendedRun('run-1')],
-      total: 1,
-    });
-    connectionModel.getConnections.mockResolvedValue(null);
-    const res = buildRes();
-    await approveHandler(
-      buildReq({ user: ACTING_USER, body: { threadId: 't1', approved: true } }),
-      res,
-    );
-
-    // The route succeeds; connection validation is deferred to the agent.
-    expect(res.statusCode).toBe(200);
-    expect(approveToolCallMock).toHaveBeenCalled();
-  });
-
-  it('returns 404 for an unknown thread', async () => {
-    const res = buildRes();
-    await approveHandler(
-      buildReq({
-        user: ACTING_USER,
-        body: { threadId: 'missing', approved: true },
-      }),
-      res,
-    );
-
-    expect(res.statusCode).toBe(404);
-    expect(body(res).error).toBe('Thread not found.');
-    expect(listSuspendedRunsMock).not.toHaveBeenCalled();
-    expect(approveToolCallMock).not.toHaveBeenCalled();
-  });
-
-  it('refuses to resume a run in a thread owned by another user', async () => {
-    memory.getThreadById.mockResolvedValue({ resourceId: 'user-other' });
-    const res = buildRes();
-    await approveHandler(
-      buildReq({ user: ACTING_USER, body: { threadId: 't1', approved: true } }),
-      res,
-    );
-
-    expect(res.statusCode).toBe(403);
-    expect(body(res).error).toBe('Thread belongs to another user.');
-    expect(listSuspendedRunsMock).not.toHaveBeenCalled();
-    expect(approveToolCallMock).not.toHaveBeenCalled();
-  });
-
-  it('reports when nothing is awaiting approval on the thread', async () => {
-    memory.getThreadById.mockResolvedValue({ resourceId: 'user-1' });
-    const res = buildRes();
-    await approveHandler(
-      buildReq({ user: ACTING_USER, body: { threadId: 't1', approved: true } }),
-      res,
-    );
-
-    expect(res.statusCode).toBe(409);
-    expect(body(res).error).toBe('No pending approval exists for this thread.');
-    expect(approveToolCallMock).not.toHaveBeenCalled();
-  });
-
-  it('discovers the suspended run scoped to the thread and the acting user', async () => {
-    memory.getThreadById.mockResolvedValue({ resourceId: 'user-1' });
-    listSuspendedRunsMock.mockResolvedValue({
-      runs: [suspendedRun('run-1')],
-      total: 1,
-    });
-    const res = buildRes();
-    await approveHandler(
-      buildReq({ user: ACTING_USER, body: { threadId: 't1', approved: true } }),
-      res,
-    );
-
-    expect(listSuspendedRunsMock).toHaveBeenCalledWith({
-      threadId: 't1',
-      resourceId: 'user-1',
-    });
-    expect(res.statusCode).toBe(200);
-  });
-
-  it('ends the response when the resumed run suspends again (chained approval)', async () => {
-    memory.getThreadById.mockResolvedValue({ resourceId: 'user-1' });
-    listSuspendedRunsMock.mockResolvedValue({
-      runs: [suspendedRun('run-1')],
-      total: 1,
-    });
-    const res = buildRes();
-    await approveHandler(
-      buildReq({ user: ACTING_USER, body: { threadId: 't1', approved: true } }),
-      res,
-    );
-
-    const options = approveToolCallMock.mock.calls[0][0];
-    expect(options.onSuspended).toBeDefined();
-    expect(res.writableEnded).toBe(false);
-    options.onSuspended?.();
-    expect(res.writableEnded).toBe(true);
-  });
-
-  it('approves the newest suspended tool call and streams the continuation', async () => {
-    memory.getThreadById.mockResolvedValue({ resourceId: 'user-1' });
-    listSuspendedRunsMock.mockResolvedValue({
-      runs: [suspendedRun('run-newest'), suspendedRun('run-older')],
-      total: 2,
-    });
-    const res = buildRes();
-    await approveHandler(
-      buildReq({ user: ACTING_USER, body: { threadId: 't1', approved: true } }),
-      res,
-    );
-
-    expect(approveToolCallMock).toHaveBeenCalledTimes(1);
-    expect(declineToolCallMock).not.toHaveBeenCalled();
-    expect(approveToolCallMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        runId: 'run-newest',
-        toolCallId: 'call-1',
-        memory: expect.objectContaining({
-          thread: 't1',
-          resource: 'user-1',
-        }),
-      }),
-    );
-    const options = approveToolCallMock.mock.calls[0][0];
-    // Durable agent resume options carry runId/toolCallId/memory/onFinish
-    // but NOT requestContext (the agent uses its registered snapshot).
-    expect(options.runId).toBe('run-newest');
-    expect(options.toolCallId).toBe('call-1');
-    expect(options.onFinish).toBeDefined();
-    // onFinish publishes thread change so sidebar refreshes after resume.
-    mockedPublishAgentsThreadsChanged.mockClear();
-    options.onFinish?.();
-    expect(mockedPublishAgentsThreadsChanged).toHaveBeenCalledWith('user-1');
-    expect(res.headers['X-Agents-Thread-Id']).toBe('t1');
-    expect(mockedToAISdkStream).toHaveBeenCalledWith(
-      APPROVED_OUTPUT_SENTINEL,
-      expect.objectContaining({ version: 'v7' }),
-    );
-    expect(mockedPipe).toHaveBeenCalledWith(
-      expect.objectContaining({ response: res, keepAliveMs: 5_000 }),
-    );
-    await expect(pipedChunks()).resolves.toEqual([{ wrapped: APPROVED_OUTPUT_SENTINEL }]);
-  });
-
-  it('declines the held tool call with the user’s reason instead of executing it', async () => {
-    memory.getThreadById.mockResolvedValue({ resourceId: 'user-1' });
-    listSuspendedRunsMock.mockResolvedValue({
-      runs: [suspendedRun('run-1')],
-      total: 1,
-    });
-    const res = buildRes();
-    await approveHandler(
-      buildReq({
-        user: ACTING_USER,
-        body: { threadId: 't1', approved: false, reason: 'too risky' },
-      }),
-      res,
-    );
-
-    expect(res.statusCode).toBe(200);
-    expect(approveToolCallMock).not.toHaveBeenCalled();
-    expect(declineToolCallMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        runId: 'run-1',
-        toolCallId: 'call-1',
-        reason: 'too risky',
-      }),
-    );
-  });
-
-  it('omits an empty rejection reason', async () => {
-    memory.getThreadById.mockResolvedValue({ resourceId: 'user-1' });
-    listSuspendedRunsMock.mockResolvedValue({
-      runs: [suspendedRun('run-1')],
-      total: 1,
-    });
-    const res = buildRes();
-    await approveHandler(
-      buildReq({
-        user: ACTING_USER,
-        body: { threadId: 't1', approved: false, reason: '   ' },
-      }),
-      res,
-    );
-
-    const options = declineToolCallMock.mock.calls[0][0];
-    expect(options).toEqual(
-      expect.objectContaining({ runId: 'run-1', toolCallId: 'call-1' }),
-    );
-    expect(options).not.toHaveProperty('reason');
-  });
-
-  it('omits toolCallId when the suspended run does not report one', async () => {
-    memory.getThreadById.mockResolvedValue({ resourceId: 'user-1' });
-    listSuspendedRunsMock.mockResolvedValue({
-      runs: [
-        {
-          runId: 'run-1',
-          toolCalls: [{ toolName: 'callTool', requiresApproval: true }],
-        },
-      ],
-      total: 1,
-    });
-    const res = buildRes();
-    await approveHandler(
-      buildReq({ user: ACTING_USER, body: { threadId: 't1', approved: true } }),
-      res,
-    );
-
-    expect(res.statusCode).toBe(200);
-    // Without a toolCallId the route defers to Mastra, which approves the
-    // run's single pending tool call from its own snapshot.
-    const options = approveToolCallMock.mock.calls[0][0];
-    expect(options).not.toHaveProperty('toolCallId');
-    expect(options).toEqual(expect.objectContaining({ runId: 'run-1' }));
-  });
-
-  it('409s when the newest suspension is an ask_user question, not an approval', async () => {
-    memory.getThreadById.mockResolvedValue({ resourceId: 'user-1' });
-    listSuspendedRunsMock.mockResolvedValue({
-      runs: [
-        {
-          runId: 'run-ask',
-          toolCalls: [
-            {
-              toolCallId: 'call-ask-1',
-              toolName: 'askUser',
-              requiresApproval: false,
-            },
-          ],
-        },
-      ],
-      total: 1,
-    });
-    const res = buildRes();
-    await approveHandler(
-      buildReq({ user: ACTING_USER, body: { threadId: 't1', approved: true } }),
-      res,
-    );
-
-    // Approving an ask_user suspension would decide a question instead of
-    // the human's answer; it must be answered through /agents/answer.
-    expect(res.statusCode).toBe(409);
-    expect(body(res).error).toBe(
-      'This thread is waiting for an answer, not an approval decision.',
-    );
-    expect(approveToolCallMock).not.toHaveBeenCalled();
-    expect(declineToolCallMock).not.toHaveBeenCalled();
-  });
-
-  it('keeps 409 on a foreign-kind newest run even when an older run holds an approval', async () => {
-    memory.getThreadById.mockResolvedValue({ resourceId: 'user-1' });
-    listSuspendedRunsMock.mockResolvedValue({
-      runs: [
-        {
-          runId: 'run-ask',
-          toolCalls: [
-            {
-              toolCallId: 'call-ask-1',
-              toolName: 'askUser',
-              requiresApproval: false,
-            },
-          ],
-        },
-        suspendedRun('run-approval'),
-      ],
-      total: 2,
-    });
-    const res = buildRes();
-    await approveHandler(
-      buildReq({ user: ACTING_USER, body: { threadId: 't1', approved: true } }),
-      res,
-    );
-
-    // Suspensions resolve newest-first so the transcript stays in order;
-    // the route never skips past a newer suspension to reach an older one.
-    expect(res.statusCode).toBe(409);
-    expect(approveToolCallMock).not.toHaveBeenCalled();
-  });
-
-  it('selects the approval-gated call when the newest run holds mixed pending calls', async () => {
-    memory.getThreadById.mockResolvedValue({ resourceId: 'user-1' });
-    listSuspendedRunsMock.mockResolvedValue({
-      runs: [
-        {
-          runId: 'run-mixed',
-          toolCalls: [
-            {
-              toolCallId: 'call-ask-1',
-              toolName: 'askUser',
-              requiresApproval: false,
-            },
-            {
-              toolCallId: 'call-destructive',
-              toolName: 'callTool',
-              requiresApproval: true,
-            },
-          ],
-        },
-      ],
-      total: 1,
-    });
-    const res = buildRes();
-    await approveHandler(
-      buildReq({ user: ACTING_USER, body: { threadId: 't1', approved: true } }),
-      res,
-    );
-
-    expect(approveToolCallMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        runId: 'run-mixed',
-        toolCallId: 'call-destructive',
-      }),
-    );
-  });
-
-  it.each([42, '', 'x'.repeat(201)])(
-    'rejects an invalid approval target (%s)',
-    async (toolCallId) => {
-      const res = buildRes();
-      await approveHandler(
-        buildReq({
-          user: ACTING_USER,
-          body: { threadId: 't1', approved: true, toolCallId },
-        }),
-        res,
-      );
-      expect(res.statusCode).toBe(400);
-      expect(approveToolCallMock).not.toHaveBeenCalled();
-    },
-  );
-
-  it('rejects a stale approval rather than applying it to the next suspended call', async () => {
-    memory.getThreadById.mockResolvedValue({ resourceId: 'user-1' });
-    listSuspendedRunsMock.mockResolvedValue({
-      runs: [suspendedRun('run-1')],
-      total: 1,
-    });
-    const res = buildRes();
-    await approveHandler(
-      buildReq({
-        user: ACTING_USER,
-        body: {
-          threadId: 't1',
-          approved: true,
-          toolCallId: 'old-call',
-        },
-      }),
-      res,
-    );
-    expect(res.statusCode).toBe(409);
-    expect(approveToolCallMock).not.toHaveBeenCalled();
-  });
-
-  it('resumes the explicitly answered call rather than the first listed approval', async () => {
-    memory.getThreadById.mockResolvedValue({ resourceId: 'user-1' });
-    const run = suspendedRun('run-1');
-    run.toolCalls?.push({
-      toolCallId: 'call-2',
-      toolName: 'callGraphql',
-      requiresApproval: true,
-    });
-    listSuspendedRunsMock.mockResolvedValue({ runs: [run], total: 1 });
-    const res = buildRes();
-    await approveHandler(
-      buildReq({
-        user: ACTING_USER,
-        body: {
-          threadId: 't1',
-          approved: false,
-          toolCallId: 'call-2',
-        },
-      }),
-      res,
-    );
-    expect(declineToolCallMock).toHaveBeenCalledWith(
-      expect.objectContaining({ toolCallId: 'call-2' }),
-    );
-  });
-
-  it('maps unexpected resume failures to a JSON 500 instead of crashing', async () => {
-    memory.getThreadById.mockResolvedValue({ resourceId: 'user-1' });
-    listSuspendedRunsMock.mockResolvedValue({
-      runs: [suspendedRun('run-1')],
-      total: 1,
-    });
-    approveToolCallMock.mockRejectedValueOnce(new Error('snapshot lost'));
-    const res = buildRes();
-    await approveHandler(
-      buildReq({ user: ACTING_USER, body: { threadId: 't1', approved: true } }),
-      res,
-    );
-
-    expect(res.statusCode).toBe(500);
-    expect(body(res).error).toBe('snapshot lost');
-    expect(mockedPipe).not.toHaveBeenCalled();
-  });
-});
-
-describe('POST /agents/answer — ask_user answer resume', () => {
-  // The canonical ask_user suspension: requiresApproval false (the tool
-  // called suspend() itself) and a suspendPayload carrying the question.
-  const askUserRun = (runId: string): ISuspendedRun => ({
-    runId,
-    toolCalls: [
-      {
-        toolCallId: 'call-ask-1',
-        toolName: 'askUser',
-        requiresApproval: false,
-        suspendPayload: {
-          question: 'Which deal should I summarize?',
-          options: [
-            { label: 'Biggest open deal' },
-            { label: 'Most recent deal' },
-          ],
-        },
-      },
-    ],
-  });
-
-  it('rejects unauthenticated requests before touching the agent runtime', async () => {
-    const res = buildRes();
-    await answerHandler(
-      buildReq({ body: { threadId: 't1', answer: 'yes' } }),
-      res,
-    );
-
-    expect(res.statusCode).toBe(401);
-    expect(body(res).error).toBe('Authentication required');
-    expect(streamMock).not.toHaveBeenCalled();
-    expect(resumeStreamMock).not.toHaveBeenCalled();
-  });
-
-  it('rejects a missing threadId', async () => {
-    const res = buildRes();
-    await answerHandler(
-      buildReq({ user: ACTING_USER, body: { answer: 'yes' } }),
-      res,
-    );
-
-    expect(res.statusCode).toBe(400);
-    expect(body(res).error).toBe('`threadId` is required.');
-    expect(resumeStreamMock).not.toHaveBeenCalled();
-  });
-
-  it.each([
-    ['missing', undefined],
-    ['empty string', '   '],
-    ['empty array', []],
-    ['array of blanks', ['  ', '']],
-    ['array with an empty inner array', [['yes'], []]],
-    ['non-string object', { text: 'yes' }],
-    ['number', 42],
-  ])('rejects an answer that is %s', async (_label, answer) => {
-    const res = buildRes();
-    await answerHandler(
-      buildReq({ user: ACTING_USER, body: { threadId: 't1', answer } }),
-      res,
-    );
-
-    expect(res.statusCode).toBe(400);
-    expect(body(res).error).toBe(
-      '`answer` must be a non-empty string, a non-empty string array, or an array of per-question answers.',
-    );
-    expect(resumeStreamMock).not.toHaveBeenCalled();
-  });
-
-  it('resumes with per-question positional answers untouched', async () => {
-    memory.getThreadById.mockResolvedValue({ resourceId: 'user-1' });
-    listSuspendedRunsMock.mockResolvedValue({
-      runs: [askUserRun('run-1')],
-      total: 1,
-    });
-    const res = buildRes();
-    await answerHandler(
-      buildReq({
-        user: ACTING_USER,
-        body: { threadId: 't1', answer: ['Sales', ['Won deals', 'Pipeline']] },
-      }),
-      res,
-    );
-
-    expect(resumeStreamMock).toHaveBeenCalledTimes(1);
-    const [resumeData, options] = resumeStreamMock.mock.calls[0];
-    expect(resumeData).toEqual(['Sales', ['Won deals', 'Pipeline']]);
-    expect(options).toEqual(
-      expect.objectContaining({
-        runId: 'run-1',
-        toolCallId: 'call-ask-1',
-        maxSteps: 32,
-        memory: {
-          thread: 't1',
-          resource: 'user-1',
-          onTitleGenerated: expect.any(Function),
-        },
-      }),
-    );
-  });
-
-  it('does not persist the answer as a user message before resuming', async () => {
-    memory.getThreadById.mockResolvedValue({ resourceId: 'user-1' });
-    listSuspendedRunsMock.mockResolvedValue({
-      runs: [askUserRun('run-1')],
-      total: 1,
-    });
-    const res = buildRes();
-    await answerHandler(
-      buildReq({
-        user: ACTING_USER,
-        body: {
-          threadId: 't1',
-          answer: ['Сар сонгосон', ['Долоо хоног 1', 'Долоо хоног 2']],
-        },
-      }),
-      res,
-    );
-
-    expect(res.statusCode).toBe(200);
-    // The answer survives inside the ask_user tool result that the resumed
-    // run persists (the UI renders it as the answered Q&A card), so storing
-    // it a second time as a user message would only duplicate model context.
-    expect(memory.saveMessages).not.toHaveBeenCalled();
-  });
-
-  it('refuses to resume a run owned by another user', async () => {
-    memory.getThreadById.mockResolvedValue({ resourceId: 'user-other' });
-    const res = buildRes();
-    await answerHandler(
-      buildReq({ user: ACTING_USER, body: { threadId: 't1', answer: 'yes' } }),
-      res,
-    );
-
-    expect(res.statusCode).toBe(403);
-    expect(body(res).error).toBe('Thread belongs to another user.');
-    expect(resumeStreamMock).not.toHaveBeenCalled();
-  });
-
-  it('404s for a missing thread', async () => {
-    memory.getThreadById.mockResolvedValue(null);
-    const res = buildRes();
-    await answerHandler(
-      buildReq({
-        user: ACTING_USER,
-        body: { threadId: 'ghost', answer: 'yes' },
-      }),
-      res,
-    );
-
-    expect(res.statusCode).toBe(404);
-    expect(body(res).error).toBe('Thread not found.');
-  });
-
-  it('409s when no run is suspended for the thread', async () => {
-    memory.getThreadById.mockResolvedValue({ resourceId: 'user-1' });
-    listSuspendedRunsMock.mockResolvedValue({ runs: [], total: 0 });
-    const res = buildRes();
-    await answerHandler(
-      buildReq({ user: ACTING_USER, body: { threadId: 't1', answer: 'yes' } }),
-      res,
-    );
-
-    expect(res.statusCode).toBe(409);
-    expect(body(res).error).toBe(
-      'No pending interaction exists for this thread.',
-    );
-    expect(resumeStreamMock).not.toHaveBeenCalled();
-  });
-
-  it('409s when the suspension is an approval, not an ask_user question', async () => {
-    memory.getThreadById.mockResolvedValue({ resourceId: 'user-1' });
-    listSuspendedRunsMock.mockResolvedValue({
-      runs: [
-        {
-          runId: 'run-gate',
-          toolCalls: [
-            {
-              toolCallId: 'call-1',
-              toolName: 'callTool',
-              requiresApproval: true,
-            },
-          ],
-        },
-      ],
-      total: 1,
-    });
-    const res = buildRes();
-    await answerHandler(
-      buildReq({ user: ACTING_USER, body: { threadId: 't1', answer: 'yes' } }),
-      res,
-    );
-
-    // Answering an approval gate would execute the gated tool; it must be
-    // decided through /agents/approve instead.
-    expect(res.statusCode).toBe(409);
-    expect(body(res).error).toBe(
-      'This thread is waiting for an approval decision, not an answer.',
-    );
-    expect(approveToolCallMock).not.toHaveBeenCalled();
-    expect(resumeStreamMock).not.toHaveBeenCalled();
-    // An approval is not an answer; nothing may be persisted for it.
-    expect(memory.saveMessages).not.toHaveBeenCalled();
-  });
-
-  it('resumes the newest suspended ask_user run with the answer and streams it', async () => {
-    memory.getThreadById.mockResolvedValue({ resourceId: 'user-1' });
-    listSuspendedRunsMock.mockResolvedValue({
-      runs: [askUserRun('run-2'), askUserRun('run-1')],
-      total: 2,
-    });
-    const res = buildRes();
-    await answerHandler(
-      buildReq({
-        user: ACTING_USER,
-        body: { threadId: 't1', answer: 'Biggest open deal' },
-      }),
-      res,
-    );
-
-    expect(res.statusCode).toBe(200);
-    expect(res.headers['X-Agents-Thread-Id']).toBe('t1');
-    // The answer is exactly what the user picked, resumed into the newest
-    // run, scoped to that specific tool call, with memory/thread continuity.
-    expect(resumeStreamMock).toHaveBeenCalledTimes(1);
-    const [resumeData, options] = resumeStreamMock.mock.calls[0];
-    expect(resumeData).toBe('Biggest open deal');
-    expect(options).toEqual(
-      expect.objectContaining({
-        runId: 'run-2',
-        toolCallId: 'call-ask-1',
-        maxSteps: 32,
-        memory: {
-          thread: 't1',
-          resource: 'user-1',
-          onTitleGenerated: expect.any(Function),
-        },
-      }),
-    );
-    expect(mockedPipe).toHaveBeenCalledWith(
-      expect.objectContaining({ response: res, keepAliveMs: 5_000 }),
-    );
-    await expect(pipedChunks()).resolves.toEqual([{ wrapped: RESUMED_OUTPUT_SENTINEL }]);
-  });
-
-  it('resumes with a trimmed multi-select answer array', async () => {
-    memory.getThreadById.mockResolvedValue({ resourceId: 'user-1' });
-    listSuspendedRunsMock.mockResolvedValue({
-      runs: [askUserRun('run-1')],
-      total: 1,
-    });
-    const res = buildRes();
-    await answerHandler(
-      buildReq({
-        user: ACTING_USER,
-        body: { threadId: 't1', answer: [' Deal A  ', 'Deal B'] },
-      }),
-      res,
-    );
-
-    expect(res.statusCode).toBe(200);
-    const [resumeData] = resumeStreamMock.mock.calls[0];
-    expect(resumeData).toEqual(['Deal A', 'Deal B']);
-    // The answer is only resumed into the run — never stored as its own
-    // user message (it survives inside the ask_user tool result).
-    expect(memory.saveMessages).not.toHaveBeenCalled();
-  });
-
-  it('ends the response when the answered run suspends again (chained gate)', async () => {
-    memory.getThreadById.mockResolvedValue({ resourceId: 'user-1' });
-    listSuspendedRunsMock.mockResolvedValue({
-      runs: [askUserRun('run-1')],
-      total: 1,
-    });
-    const res = buildRes();
-    await answerHandler(
-      buildReq({ user: ACTING_USER, body: { threadId: 't1', answer: 'yes' } }),
-      res,
-    );
-
-    const options = resumeStreamMock.mock.calls[0][1];
-    expect(options.onSuspended).toBeDefined();
-    expect(res.writableEnded).toBe(false);
-    options.onSuspended?.();
-    expect(res.writableEnded).toBe(true);
-  });
-
-  it('accepts body selection fields on resume without controlling rehydration', async () => {
-    memory.getThreadById.mockResolvedValue({ resourceId: 'user-1' });
-    listSuspendedRunsMock.mockResolvedValue({
-      runs: [askUserRun('run-1')],
-      total: 1,
-    });
-    const res = buildRes();
-    await answerHandler(
-      buildReq({
-        user: ACTING_USER,
-        body: {
-          threadId: 't1',
-          answer: 'yes',
-          provider: 'openai',
-          model: 'gpt-5.6-luna',
-          thinkingLevel: 'high',
-        },
-      }),
-      res,
-    );
-
-    expect(res.statusCode).toBe(200);
-    // The durable agent uses its registered/snapshot RequestContext so
-    // provider/model/thinking stay from the original run; body fields
-    // are accepted for compatibility but do not rebuild anything.
-    expect(streamMock).not.toHaveBeenCalled();
-    expect(resumeStreamMock).toHaveBeenCalled();
-  });
-
-  it('omits toolCallId when the suspended run does not report one', async () => {
-    memory.getThreadById.mockResolvedValue({ resourceId: 'user-1' });
-    listSuspendedRunsMock.mockResolvedValue({
-      runs: [
-        {
-          runId: 'run-1',
-          toolCalls: [{ toolName: 'askUser', requiresApproval: false }],
-        },
-      ],
-      total: 1,
-    });
-    const res = buildRes();
-    await answerHandler(
-      buildReq({ user: ACTING_USER, body: { threadId: 't1', answer: 'yes' } }),
-      res,
-    );
-
-    expect(res.statusCode).toBe(200);
-    const options = resumeStreamMock.mock.calls[0][1];
-    expect(options).not.toHaveProperty('toolCallId');
-    expect(options).toEqual(expect.objectContaining({ runId: 'run-1' }));
-  });
-
-  it('selects the ask_user call when the newest run holds mixed pending calls', async () => {
-    memory.getThreadById.mockResolvedValue({ resourceId: 'user-1' });
-    listSuspendedRunsMock.mockResolvedValue({
-      runs: [
-        {
-          runId: 'run-mixed',
-          toolCalls: [
-            {
-              toolCallId: 'call-destructive',
-              toolName: 'callTool',
-              requiresApproval: true,
-            },
-            {
-              toolCallId: 'call-ask-1',
-              toolName: 'askUser',
-              requiresApproval: false,
-            },
-          ],
-        },
-      ],
-      total: 1,
-    });
-    const res = buildRes();
-    await answerHandler(
-      buildReq({ user: ACTING_USER, body: { threadId: 't1', answer: 'yes' } }),
-      res,
-    );
-
-    expect(resumeStreamMock).toHaveBeenCalledWith(
-      'yes',
-      expect.objectContaining({
-        runId: 'run-mixed',
-        toolCallId: 'call-ask-1',
-      }),
-    );
-  });
-
-  it('maps unexpected resume failures to a JSON 500 instead of crashing', async () => {
-    memory.getThreadById.mockResolvedValue({ resourceId: 'user-1' });
-    listSuspendedRunsMock.mockResolvedValue({
-      runs: [askUserRun('run-1')],
-      total: 1,
-    });
-    resumeStreamMock.mockRejectedValueOnce(new Error('snapshot lost'));
-    const res = buildRes();
-    await answerHandler(
-      buildReq({ user: ACTING_USER, body: { threadId: 't1', answer: 'yes' } }),
-      res,
-    );
-
-    expect(res.statusCode).toBe(500);
-    expect(body(res).error).toBe('snapshot lost');
-    expect(mockedPipe).not.toHaveBeenCalled();
-  });
-});
-
-describe('code mode flag resolved from tenant settings', () => {
-  const codeSuspendedRun = (runId: string): ISuspendedRun => ({
-    runId,
-    toolCalls: [
-      {
-        toolCallId: 'call-code',
-        toolName: 'callTool',
-        requiresApproval: true,
-        suspendPayload: {
-          toolId: 'sales.trpc.deal.remove',
-          input: { id: 'deal-1' },
-        },
-      },
-    ],
-  });
-
-  const enableCodeMode = () =>
-    settingsModel.getSettings.mockResolvedValue({
-      codeModeEnabled: true,
-      codeModeEnvironment: 'in-process',
-    });
-
-  it('stamps codeModeEnabled into the request context when the tenant enables code mode', async () => {
-    enableCodeMode();
-    const res = buildRes();
-    await chatHandler(
-      buildReq({
-        user: ACTING_USER,
-        body: { messages: [userMessage('compute this in code')] },
-      }),
-      res,
-    );
-
-    expect(res.statusCode).toBe(200);
-    // The code mode flag is stamped into the RequestContext so the
-    // durable agent's dynamic instructions include code mode.
-    expect(mockedBuildAgentsRequestContext).toHaveBeenCalledWith(
-      expect.objectContaining({ codeModeEnabled: true }),
-    );
-  });
-
-  it('stamps the tenant approvalMode into the request context', async () => {
-    settingsModel.getSettings.mockResolvedValue({
-      codeModeEnabled: false,
-      codeModeEnvironment: 'in-process',
-      approvalMode: 'destructive',
-    });
-    const res = buildRes();
-    await chatHandler(
-      buildReq({
-        user: ACTING_USER,
-        body: { messages: [userMessage('update a deal')] },
-      }),
-      res,
-    );
-
-    expect(res.statusCode).toBe(200);
-    expect(mockedBuildAgentsRequestContext).toHaveBeenCalledWith(
-      expect.objectContaining({ approvalMode: 'destructive' }),
-    );
-  });
-
-  it('stamps approvalMode writes when the stored settings lack the field', async () => {
-    settingsModel.getSettings.mockResolvedValue({
-      codeModeEnabled: false,
-      codeModeEnvironment: 'in-process',
-    });
-    const res = buildRes();
-    await chatHandler(
-      buildReq({
-        user: ACTING_USER,
-        body: { messages: [userMessage('hello')] },
-      }),
-      res,
-    );
-
-    expect(res.statusCode).toBe(200);
-    expect(mockedBuildAgentsRequestContext).toHaveBeenCalledWith(
-      expect.objectContaining({ approvalMode: 'writes' }),
-    );
-  });
-
-  it('does not stamp codeModeEnabled on resume routes (uses snapshot)', async () => {
-    enableCodeMode();
-    memory.getThreadById.mockResolvedValue({ resourceId: 'user-1' });
-    listSuspendedRunsMock.mockResolvedValue({
-      runs: [codeSuspendedRun('run-code')],
-      total: 1,
-    });
-    const res = buildRes();
-    await approveHandler(
-      buildReq({ user: ACTING_USER, body: { threadId: 't1', approved: true } }),
-      res,
-    );
-
-    // Resume routes use the durable agent's snapshot context; no new
-    // request context is built.
-    expect(mockedBuildAgentsRequestContext).not.toHaveBeenCalled();
-    expect(approveToolCallMock).toHaveBeenCalled();
-  });
-
-  it('stamps codeModeEnabled false when the flag is off (default)', async () => {
-    // beforeEach already mocks codeModeEnabled: false.
-    const res = buildRes();
-    await chatHandler(
-      buildReq({
-        user: ACTING_USER,
-        body: { messages: [userMessage('hello')] },
-      }),
-      res,
-    );
-
-    expect(mockedBuildAgentsRequestContext).toHaveBeenCalledWith(
-      expect.objectContaining({ codeModeEnabled: false }),
-    );
-  });
-});
-
-describe('POST /agents/chat/reconnect', () => {
-  const ACTIVE_RUN_ID = '550e8400-e29b-41d4-a716-446655440000';
-
-  /** Reconnects the acting user to their own thread whose run is listed active. */
-  const reconnectToActiveRun = async (res = buildRes()) => {
-    memory.getThreadById.mockResolvedValue({ resourceId: 'user-1' });
-    listActiveRunsMock.mockResolvedValue({
-      runs: [{ runId: ACTIVE_RUN_ID, status: 'running' }],
-      total: 1,
-    });
-    await reconnectHandler(
-      buildReq({
-        user: ACTING_USER,
-        body: { threadId: 't1', runId: ACTIVE_RUN_ID },
-      }),
-      res,
-    );
-    return res;
-  };
-  it('rejects unauthenticated requests', async () => {
-    const res = buildRes();
-    await reconnectHandler(
-      buildReq({ body: { threadId: 't1', runId: 'r1' } }),
-      res,
-    );
-
-    expect(res.statusCode).toBe(401);
-  });
-
-  it('requires both threadId and runId', async () => {
-    const res = buildRes();
-    await reconnectHandler(
-      buildReq({ user: ACTING_USER, body: { threadId: 't1' } }),
-      res,
-    );
-
-    expect(res.statusCode).toBe(400);
-  });
-
-  it('requires runId to be a valid UUID but accepts arbitrary threadId', async () => {
-    const res = buildRes();
-    await reconnectHandler(
-      buildReq({
-        user: ACTING_USER,
-        body: {
-          threadId: 'legacy-thread-id',
-          runId: 'not-a-uuid',
-        },
-      }),
-      res,
-    );
-
-    expect(res.statusCode).toBe(400);
-    expect((res.body as { error: string }).error).toBe(
-      '`runId` must be a valid UUID.',
-    );
-  });
-
-  it('returns 204 when the run is not active', async () => {
-    memory.getThreadById.mockResolvedValue({ resourceId: 'user-1' });
-    listActiveRunsMock.mockResolvedValue({ runs: [], total: 0 });
-    const res = buildRes();
-    await reconnectHandler(
-      buildReq({
-        user: ACTING_USER,
-        body: {
-          threadId: 't1',
-          runId: '550e8400-e29b-41d4-a716-446655440000',
-        },
-      }),
-      res,
-    );
-
-    expect(res.statusCode).toBe(204);
-    expect(observeMock).not.toHaveBeenCalled();
-  });
-
-  it('observes the exact active run and pipes its output', async () => {
-    const res = await reconnectToActiveRun();
-
-    expect(res.statusCode).toBe(200);
-    expect(observeMock).toHaveBeenCalledWith(
-      ACTIVE_RUN_ID,
-      expect.objectContaining({
-        idleTimeoutMs: 10_000,
-        onSuspended: expect.any(Function),
-      }),
-    );
-    expect(mockedToAISdkStream).toHaveBeenCalledWith(
-      OBSERVED_OUTPUT_SENTINEL,
-      expect.objectContaining({ version: 'v7' }),
-    );
-  });
-
-  it('ends the response on suspension during reconnect observe', async () => {
-    const res = buildRes();
-    // Simulate SSE state: headers already sent but stream not ended.
-    res.headers['X-Agents-Thread-Id'] = 't1';
-
-    await reconnectToActiveRun(res);
-
-    // Capture the onSuspended callback passed to observe.
-    const observeOptions = observeMock.mock.calls[0][1];
-    expect(observeOptions?.onSuspended).toBeDefined();
-
-    expect(res.writableEnded).toBe(false);
-    observeOptions?.onSuspended?.();
-    expect(res.writableEnded).toBe(true);
-  });
-
-  it("refuses to observe a run in another user's thread", async () => {
-    memory.getThreadById.mockResolvedValue({ resourceId: 'user-other' });
-    const res = buildRes();
-    await reconnectHandler(
-      buildReq({
-        user: ACTING_USER,
-        body: {
-          threadId: 't1',
-          runId: '550e8400-e29b-41d4-a716-446655440000',
-        },
-      }),
-      res,
-    );
-
-    expect(res.statusCode).toBe(403);
-    expect(observeMock).not.toHaveBeenCalled();
-  });
-
-  it('passes a run-liveness probe that re-arms the idle timer while the run is alive', async () => {
-    await reconnectToActiveRun();
-
-    const observeOptions = observeMock.mock.calls[0][1];
-    expect(observeOptions?.isAlive).toBeDefined();
-
-    // Still executing: the idle timer must re-arm instead of closing.
-    await expect(observeOptions?.isAlive?.()).resolves.toBe(true);
-  });
-
-  it('keeps the reconnect alive while the run is parked at an HITL gate', async () => {
-    // By the time the idle probe fires the run has suspended: alive.
-    await reconnectToActiveRun();
-
-    const observeOptions = observeMock.mock.calls[0][1];
-
-    listActiveRunsMock.mockResolvedValue({ runs: [], total: 0 });
-    listSuspendedRunsMock.mockResolvedValue({
-      runs: [{ runId: ACTIVE_RUN_ID }],
-      total: 1,
-    });
-
-    await expect(observeOptions?.isAlive?.()).resolves.toBe(true);
-  });
-
-  it('ends the reconnect wait when the run is neither active nor suspended', async () => {
-    await reconnectToActiveRun();
-
-    const observeOptions = observeMock.mock.calls[0][1];
-
-    jest.mocked(probeAgentsRun).mockResolvedValue('inactive');
-
-    await expect(observeOptions?.isAlive?.()).resolves.toBe(false);
-  });
-
-  it('lets discovery errors propagate so Mastra treats the run as alive', async () => {
-    await reconnectToActiveRun();
-
-    const observeOptions = observeMock.mock.calls[0][1];
-
-    // Mastra catches isAlive throws as "still alive", so a momentary store
-    // failure must never resolve the probe to false here.
-    jest.mocked(probeAgentsRun).mockRejectedValue(new Error('store unavailable'));
-
-    await expect(observeOptions?.isAlive?.()).rejects.toThrow(
-      'store unavailable',
-    );
-  });
-
-  it('reports a run whose producer is gone at once instead of waiting on it', async () => {
-    jest.mocked(probeAgentsRun).mockResolvedValue('interrupted');
-    const res = await reconnectToActiveRun();
-
-    expect(res.statusCode).toBe(409);
-    expect(res.body).toEqual({
-      error: 'The server restarted while answering. Retry to continue.',
-      code: 'AGENTS_RUN_INTERRUPTED',
-    });
-    expect(observeMock).not.toHaveBeenCalled();
-    expect(mockedPipe).not.toHaveBeenCalled();
-  });
-
-  it('returns 204 when the active run finished before its producer was checked', async () => {
-    jest.mocked(probeAgentsRun).mockResolvedValue('inactive');
-    const res = await reconnectToActiveRun();
-
-    expect(res.statusCode).toBe(204);
-    expect(observeMock).not.toHaveBeenCalled();
-  });
-
-  it('ends an observed run with the restart error when its producer dies', async () => {
-    await reconnectToActiveRun();
-    const { onError } = mockedToAISdkStream.mock.calls[0][1] as {
-      onError: (error: unknown) => string;
-    };
-    const idle = new Error(
-      'Durable agent stream idle for 10000ms with no live producer',
-    );
-    expect(onError(idle)).toBe(idle.message);
-
-    jest.mocked(probeAgentsRun).mockResolvedValue('interrupted');
-    await expect(observeMock.mock.calls[0][1]?.isAlive?.()).resolves.toBe(
-      false,
-    );
-
-    expect(JSON.parse(onError(idle))).toEqual({
-      error: 'The server restarted while answering. Retry to continue.',
-      code: 'AGENTS_RUN_INTERRUPTED',
-    });
-  });
-
-  it('ends the stream instead of crashing when piping fails after headers were sent', async () => {
-    mockedPipe.mockImplementationOnce(() => {
-      throw new Error('late stream failure');
-    });
-    const res = await reconnectToActiveRun();
-
-    // pipeModelOutput sent the SSE headers before the pump failed, so the
-    // shared error helper must end the stream rather than write a JSON
-    // error (which throws ERR_HTTP_HEADERS_SENT and crashes the process).
-    expect(res.headersSent).toBe(true);
-    expect(res.writableEnded).toBe(true);
-    expect(res.statusCode).toBe(200);
-    expect(res.body).toBeUndefined();
-  });
-});
-
-describe('POST /agents/chat — file attachments', () => {
-  const csv = 'name,price\nTea,12\n';
-  const attachment = {
-    name: 'products.csv',
-    url: 'private-products.csv',
-    type: 'text/csv',
-    size: Buffer.byteLength(csv),
-  };
-  const fileUserMessage = (files: unknown[]) => ({
-    id: 'm-files',
-    role: 'user',
-    parts: [
-      { type: 'text', text: 'see this' },
-      { type: 'data-agents-files', data: { files } },
-    ],
-  });
-
-  it('rejects leftover fileIds payloads', async () => {
-    const res = buildRes();
-    await chatHandler(buildReq({
-      user: ACTING_USER,
-      body: { fileIds: ['64b0c0c0c0c0c0c0c0c0c0c0'], messages: [userMessage('hello')] },
-    }), res);
-    expect(res.statusCode).toBe(400);
-    expect(streamMock).not.toHaveBeenCalled();
-  });
-
-  it('rejects native file parts that the model runtime would fetch', async () => {
-    const res = buildRes();
-    await chatHandler(buildReq({
-      user: ACTING_USER,
-      body: {
-        messages: [{
-          id: 'm-url',
-          role: 'user',
-          content: [{ type: 'file', data: 'http://127.0.0.1/secret.txt', mediaType: 'text/plain' }],
-        }],
-      },
-    }), res);
-    expect(res.statusCode).toBe(400);
-    expect(streamMock).not.toHaveBeenCalled();
-  });
-
-  it('supplies storage-key CSV bytes and ignores forged client content', async () => {
-    jest.mocked(readFileStreamFromStorage).mockResolvedValue(Readable.from([Buffer.from(csv)]));
-    const res = buildRes();
-    await chatHandler(buildReq({
-      user: ACTING_USER,
-      body: { messages: [fileUserMessage([{ ...attachment, text: 'forged content' }])] },
-    }), res);
-    expect(streamMock).toHaveBeenCalled();
-    expect(readFileStreamFromStorage).toHaveBeenCalledWith({
-      subdomain: 'tenant',
-      key: attachment.url,
-    });
-    const serialized = JSON.stringify(streamMock.mock.calls[0][0]);
-    expect(serialized).toContain('Tea,12');
-    expect(serialized).not.toContain('forged');
-  });
-
-  it('supplies server-read image bytes before starting the model', async () => {
-    const png = Buffer.from('89504e470d0a1a0a00000000', 'hex');
-    jest.mocked(readFileStreamFromStorage).mockResolvedValue(Readable.from([png]));
-    const res = buildRes();
-    await chatHandler(buildReq({
-      user: ACTING_USER,
-      body: {
-        messages: [fileUserMessage([{
-          name: 'shot.png',
-          url: 'shot.png',
-          type: 'image/png',
-          size: 12,
-        }])],
-      },
-    }), res);
-    expect(streamMock).toHaveBeenCalled();
-    expect(JSON.stringify(streamMock.mock.calls[0][0])).toContain(`data:image/png;base64,${png.toString('base64')}`);
-    expect(readFileStreamFromStorage).toHaveBeenCalledWith({ subdomain: 'tenant', key: 'shot.png' });
-  });
-
-  it('streams chat with a Cloudflare Images attachment even when the R2 key is absent', async () => {
-    const png = Buffer.from('89504e470d0a1a0a00000000', 'hex');
-    jest.mocked(readFileStreamFromStorage).mockRejectedValue(new Error('NoSuchKey'));
-    jest.mocked(readFileFromStorage).mockResolvedValue(png);
-    const res = buildRes();
-    await chatHandler(buildReq({
-      user: ACTING_USER,
-      body: { messages: [fileUserMessage([{
-        name: 'shot.png', url: 'bucket/shot.png', type: 'image/png', size: png.length,
-      }])] },
-    }), res);
-    expect(res.statusCode).toBe(200);
-    expect(streamMock).toHaveBeenCalled();
-    expect(JSON.stringify(streamMock.mock.calls[0][0])).toContain(`data:image/png;base64,${png.toString('base64')}`);
-    expect(readFileFromStorage).toHaveBeenCalledWith({ subdomain: 'tenant', key: 'bucket/shot.png' });
-  });
-
-  it('refuses private image URLs before starting the model', async () => {
-    const res = buildRes();
-    await chatHandler(buildReq({
-      user: ACTING_USER,
-      body: { messages: [fileUserMessage([{
-        name: 'shot.png', url: 'http://127.0.0.1/shot.png', type: 'image/png', size: 12,
-      }])] },
-    }), res);
-    expect(res.statusCode).toBe(502);
-    expect(streamMock).not.toHaveBeenCalled();
-    expect(readFileStreamFromStorage).not.toHaveBeenCalled();
-  });
-
-  it('fails before streaming when text extraction fails', async () => {
-    jest.mocked(readFileStreamFromStorage).mockRejectedValue(new Error('secret/key credentials'));
-    const res = buildRes();
-    await chatHandler(buildReq({
-      user: ACTING_USER,
-      body: { messages: [fileUserMessage([attachment])] },
-    }), res);
-    expect(res.statusCode).toBe(502);
-    expect(JSON.stringify(res.body)).not.toContain('secret/key');
-    expect(streamMock).not.toHaveBeenCalled();
-  });
-});
-
-describe('POST /agents/chat — page context', () => {
-  const partsUserMessage = (text: string) => ({
-    id: `m-${text}`,
-    role: 'user',
-    parts: [{ type: 'text', text }],
-  });
-
-  const firstSentPartText = (): string | undefined => {
-    const messages = streamMock.mock.calls[0][0] as {
-      parts?: { type: string; text?: string }[];
-    }[];
-
-    return messages[0]?.parts?.[0]?.text;
-  };
-
-  it('prepends a delimited context part to the model input when pageContext is valid', async () => {
-    const res = buildRes();
-    await chatHandler(
-      buildReq({
-        user: ACTING_USER,
-        body: {
-          messages: [partsUserMessage('hi')],
-          pageContext: { path: '/sales/deals' },
-        },
-      }),
-      res,
-    );
-
-    expect(res.statusCode).toBe(200);
-    expect(streamMock).toHaveBeenCalled();
-    expect(firstSentPartText()).toBe(
-      '[Page context] The user is viewing /sales/deals.',
-    );
-  });
-
-  it('includes a validated open record in the context line', async () => {
-    const res = buildRes();
-    await chatHandler(
-      buildReq({
-        user: ACTING_USER,
-        body: {
-          messages: [partsUserMessage('hi')],
-          pageContext: {
-            path: '/sales/deal/board',
-            record: { type: 'deal', id: 'deal_1-Ab' },
-          },
-        },
-      }),
-      res,
-    );
-
-    expect(res.statusCode).toBe(200);
-    expect(firstSentPartText()).toBe(
-      '[Page context] The user is viewing /sales/deal/board. Open record: deal deal_1-Ab (fetch it with tools if relevant).',
-    );
-  });
-
-  it('silently drops an invalid pageContext instead of failing the request', async () => {
-    for (const pageContext of [
-      'not-an-object',
-      { path: 'no-leading-slash' },
-      { path: '/with\nnewline' },
-      { path: `/${'x'.repeat(300)}` },
-      { path: 42 },
-    ]) {
-      jest.clearAllMocks();
-  jest.mocked(checkPermissionGroup).mockImplementation(() => async () => undefined);
-  jest.mocked(probeAgentsRun).mockResolvedValue('live');
-      const res = buildRes();
-      await chatHandler(
-        buildReq({
-          user: ACTING_USER,
-          body: { messages: [partsUserMessage('hi')], pageContext },
-        }),
-        res,
-      );
-
-      expect(res.statusCode).toBe(200);
-      expect(streamMock).toHaveBeenCalled();
-      expect(firstSentPartText()).not.toContain('[Page context]');
-    }
-  });
-
-  it('drops an invalid record while keeping the valid path', async () => {
-    for (const record of [
-      { type: 'not-a-type', id: 'abc' },
-      { type: 'deal', id: 'bad id!' },
-      { type: 'deal' },
-      'deal',
-    ]) {
-      jest.clearAllMocks();
-  jest.mocked(checkPermissionGroup).mockImplementation(() => async () => undefined);
-  jest.mocked(probeAgentsRun).mockResolvedValue('live');
-      const res = buildRes();
-      await chatHandler(
-        buildReq({
-          user: ACTING_USER,
-          body: {
-            messages: [partsUserMessage('hi')],
-            pageContext: { path: '/sales/deals', record },
-          },
-        }),
-        res,
-      );
-
-      expect(res.statusCode).toBe(200);
-      expect(firstSentPartText()).toBe(
-        '[Page context] The user is viewing /sales/deals.',
-      );
-    }
-  });
-});
-
-describe('POST /agents/chat — navigation catalog', () => {
-  const partsUserMessage = (text: string) => ({
-    id: `m-${text}`,
-    role: 'user',
-    parts: [{ type: 'text', text }],
-  });
-
-  it('stamps a validated catalog into RequestContext', async () => {
-    const res = buildRes();
-    await chatHandler(
-      buildReq({
-        user: ACTING_USER,
-        body: {
-          messages: [partsUserMessage('hi')],
-          navigation: [
-            { path: '/sales/deals', label: 'Deals', group: 'Sales' },
-            { path: 'contacts/customers', label: 'Customers' },
-          ],
-        },
-      }),
-      res,
-    );
-
-    expect(res.statusCode).toBe(200);
-    expect(mockedBuildAgentsRequestContext).toHaveBeenCalledWith(
-      expect.objectContaining({
-        navigation: expect.arrayContaining([
-          { path: '/sales/deals', label: 'Deals', group: 'Sales' },
-        ]),
-      }),
-    );
-    const stamped =
-      mockedBuildAgentsRequestContext.mock.calls[0][0].navigation;
-    // '/contacts/customers' lacks the leading slash the validator requires.
-    expect(stamped).toHaveLength(1);
-  });
-
-  it('sanitizes labels and drops malformed entries silently', async () => {
-    const res = buildRes();
-    await chatHandler(
-      buildReq({
-        user: ACTING_USER,
-        body: {
-          messages: [partsUserMessage('hi')],
-          navigation: [
-            { path: '/a', label: 'has [[brackets]]\n and newline' },
-            { path: '/with\nnewline', label: 'bad path' },
-            { path: '/too-long', label: `x${'a'.repeat(120)}` },
-            { path: '/dup', label: 'first' },
-            { path: '/dup', label: 'second' },
-            { path: '/nolabel' },
-            'not-an-entry',
-          ],
-        },
-      }),
-      res,
-    );
-
-    expect(res.statusCode).toBe(200);
-    const stamped =
-      mockedBuildAgentsRequestContext.mock.calls[0][0].navigation;
-    expect(stamped).toEqual([
-      { path: '/a', label: 'has brackets and newline' },
-      { path: '/too-long', label: `x${'a'.repeat(79)}` },
-      { path: '/dup', label: 'first' },
-    ]);
-  });
-
-  it('caps the catalog at 400 entries', async () => {
-    const res = buildRes();
-    await chatHandler(
-      buildReq({
-        user: ACTING_USER,
-        body: {
-          messages: [partsUserMessage('hi')],
-          navigation: Array.from({ length: 450 }, (_, i) => ({
-            path: `/p${i}`,
-            label: `p${i}`,
-          })),
-        },
-      }),
-      res,
-    );
-
-    expect(res.statusCode).toBe(200);
-    const stamped =
-      mockedBuildAgentsRequestContext.mock.calls[0][0].navigation;
-    expect(stamped).toHaveLength(400);
-  });
-
-  it('rejects a page record type in pageContext (page is not a record type)', async () => {
-    const res = buildRes();
-    await chatHandler(
-      buildReq({
-        user: ACTING_USER,
-        body: {
-          messages: [partsUserMessage('hi')],
-          pageContext: {
-            path: '/sales/deals',
-            record: { type: 'page', id: 'abc123' },
-          },
-        },
-      }),
-      res,
-    );
-
-    expect(res.statusCode).toBe(200);
-    // The record is dropped; the valid path survives.
-    const calls = streamMock.mock.calls[0][0] as {
-      parts?: { type: string; text?: string }[];
-    }[];
-    expect(calls[0]?.parts?.[0]?.text).toBe(
-      '[Page context] The user is viewing /sales/deals.',
-    );
-  });
-
-  it('omits navigation when every entry is invalid', async () => {
-    const res = buildRes();
-    await chatHandler(
-      buildReq({
-        user: ACTING_USER,
-        body: {
-          messages: [partsUserMessage('hi')],
-          navigation: 'not-an-array',
-        },
-      }),
-      res,
+    await expect(stampedLevel({ provider, model }, requested)).resolves.toBe(
+      stamped,
     );
-
-    expect(res.statusCode).toBe(200);
-    expect(
-      mockedBuildAgentsRequestContext.mock.calls[0][0].navigation,
-    ).toBeUndefined();
   });
-});
-
-
-it('validates selected page context and binds its snapshot as model media', async () => {
-  const png = Buffer.from('89504e470d0a1a0a00000000', 'hex');
-  jest.mocked(readFileStreamFromStorage).mockResolvedValue(Readable.from([png]));
-  const selection = {
-    id: '47b58525-fceb-48ee-9262-dcd040c63bb2', title: 'Company', path: '/contacts', text: 'Company', width: 200, height: 60,
-    snapshot: { url: 'snapshot.png', type: 'image/png', size: png.length },
-  };
-  const res = buildRes();
-  await chatHandler(buildReq({ user: ACTING_USER, body: { messages: [{ id: 'selection', role: 'user', parts: [
-    { type: 'text', text: 'Report on this company' }, { type: 'data-agents-page-selections', data: { selections: [selection] } },
-  ] }] } }), res);
-  expect(streamMock).toHaveBeenCalled();
-  expect(JSON.stringify(streamMock.mock.calls[0][0])).toContain(`data:image/png;base64,${png.toString('base64')}`);
-  expect(JSON.stringify(streamMock.mock.calls[0][0])).not.toContain('data-agents-files');
-  expect(mockedBuildAgentsRequestContext).toHaveBeenCalledWith(expect.objectContaining({ attachmentUrls: ['snapshot.png'] }));
-});
-it('rejects malformed page context before accessing storage or starting the model', async () => {
-  const res = buildRes();
-  await chatHandler(buildReq({ user: ACTING_USER, body: { messages: [{ id: 'selection', role: 'user', parts: [
-    { type: 'text', text: 'Explain' }, { type: 'data-agents-page-selections', data: { selections: [{ title: 'incomplete' }] } },
-  ] }] } }), res);
-  expect(res.statusCode).toBe(400); expect(streamMock).not.toHaveBeenCalled();
 });
 
 describe('POST /agents/chat — mentions', () => {
@@ -2692,9 +2103,11 @@ describe('POST /agents/chat — mentions', () => {
   });
 
   it('verifies mentions as the acting user and sends the model a typed list', async () => {
-    jest
-      .mocked(resolveAgentsReference)
-      .mockResolvedValueOnce({ type: 'customer', id: 'c1', label: 'Ann Smith' });
+    jest.mocked(resolveAgentsReference).mockResolvedValueOnce({
+      type: 'customer',
+      id: 'c1',
+      label: 'Ann Smith',
+    });
     const res = buildRes();
     await chatHandler(
       buildReq({
@@ -2740,7 +2153,9 @@ describe('POST /agents/chat — mentions', () => {
       res,
     );
     expect(res.statusCode).toBe(400);
-    expect(body(res).error).toContain('unavailable or you no longer have access');
+    expect(body(res).error).toContain(
+      'unavailable or you no longer have access',
+    );
     expect(memory.deleteMessages).not.toHaveBeenCalled();
     expect(streamMock).not.toHaveBeenCalled();
   });
@@ -2811,6 +2226,64 @@ describe('POST /agents/chat — mentions', () => {
   });
 });
 
+describe('GET /agents/chat/:threadId/stream — interrupted producers', () => {
+  const ACTIVE_RUN_ID = '550e8400-e29b-41d4-a716-446655440000';
+  const reconnectToActiveRun = async (res = buildRes()) => {
+    memory.getThreadById.mockResolvedValue({ resourceId: 'user-1' });
+    listActiveRunsMock.mockResolvedValue({
+      runs: [{ runId: ACTIVE_RUN_ID, status: 'running' }],
+      total: 1,
+    });
+    await streamHandler(
+      buildReq({ user: ACTING_USER, params: { threadId: 't1' } }),
+      res,
+    );
+    return res;
+  };
+
+  it('reports a run whose producer is gone at once instead of waiting on it', async () => {
+    jest.mocked(probeAgentsRun).mockResolvedValue('interrupted');
+    const res = await reconnectToActiveRun();
+
+    expect(res.statusCode).toBe(409);
+    expect(res.body).toEqual({
+      error: 'The server restarted while answering. Retry to continue.',
+      code: 'AGENTS_RUN_INTERRUPTED',
+    });
+    expect(observeMock).not.toHaveBeenCalled();
+    expect(mockedPipe).not.toHaveBeenCalled();
+  });
+
+  it('returns 204 when the active run finished before its producer was checked', async () => {
+    jest.mocked(probeAgentsRun).mockResolvedValue('inactive');
+    const res = await reconnectToActiveRun();
+
+    expect(res.statusCode).toBe(204);
+    expect(observeMock).not.toHaveBeenCalled();
+  });
+
+  it('ends an observed run with the restart error when its producer dies', async () => {
+    await reconnectToActiveRun();
+    const { onError } = mockedToAISdkStream.mock.calls[0][1] as {
+      onError: (error: unknown) => string;
+    };
+    const idle = new Error(
+      'Durable agent stream idle for 10000ms with no live producer',
+    );
+    expect(onError(idle)).toBe(idle.message);
+
+    jest.mocked(probeAgentsRun).mockResolvedValue('interrupted');
+    await expect(observeMock.mock.calls[0][1]?.isAlive?.()).resolves.toBe(
+      false,
+    );
+
+    expect(JSON.parse(onError(idle))).toEqual({
+      error: 'The server restarted while answering. Retry to continue.',
+      code: 'AGENTS_RUN_INTERRUPTED',
+    });
+  });
+});
+
 describe('POST /agents/references/resolve', () => {
   const resolveHandler = getHandler('post', '/agents/references/resolve');
   it('requires authentication and rejects model URLs or malformed identities', async () => {
@@ -2832,13 +2305,11 @@ describe('POST /agents/references/resolve', () => {
     expect(resolveAgentsReference).not.toHaveBeenCalled();
   });
   it('takes identity from the gateway and returns the current verified record', async () => {
-    jest
-      .mocked(resolveAgentsReference)
-      .mockResolvedValueOnce({
-        type: 'customer',
-        id: 'c1',
-        label: 'Current name',
-      });
+    jest.mocked(resolveAgentsReference).mockResolvedValueOnce({
+      type: 'customer',
+      id: 'c1',
+      label: 'Current name',
+    });
     const res = buildRes();
     await resolveHandler(
       buildReq({
@@ -2874,40 +2345,69 @@ describe('POST /agents/references/resolve', () => {
   });
 });
 
-
-
 describe('agentsChat permission enforcement', () => {
   const runId = '550e8400-e29b-41d4-a716-446655440000';
   const cases = [
-    {name: 'plain-text chat', handler: chatHandler, body: {messages: [{id: 'permission-message', role: 'user', parts: [{type: 'text', text: 'Hello'}]}]}},
-    {name: 'approval', handler: approveHandler, body: {threadId: 'thread', approved: true}},
-    {name: 'answer', handler: answerHandler, body: {threadId: 'thread', answer: 'Yes'}},
-    {name: 'reconnect', handler: reconnectHandler, body: {threadId: 'thread', runId}},
+    {
+      name: 'plain-text chat',
+      handler: chatHandler,
+      body: {
+        threadId: 'thread',
+        messages: [
+          {
+            id: 'permission-message',
+            role: 'user',
+            parts: [{ type: 'text', text: 'Hello' }],
+          },
+        ],
+      },
+    },
+    {
+      name: 'resume',
+      handler: chatHandler,
+      body: {
+        threadId: 'thread',
+        messages: [{ id: 'assistant', role: 'assistant', parts: [] }],
+        resume: { runId, toolCallId: 'ask', answers: ['Yes'] },
+      },
+    },
+    { name: 'reconnect', handler: streamHandler, body: {} },
   ];
 
-  it.each(cases)('rejects $name before accessing credentials or runtime when permission is revoked', async ({handler, body}) => {
-    jest.mocked(checkPermissionGroup).mockImplementation(() => async () => {
-      throw new ExpectedError('Permission denied', 'FORBIDDEN');
-    });
-    const res = buildRes();
-    await handler(buildReq({user: ACTING_USER, body}), res);
-    expect(res.statusCode).toBe(403);
-    expect(mockedGetAgentsRuntime).not.toHaveBeenCalled();
-    expect(mockedGenerateModels).not.toHaveBeenCalled();
-    expect(streamMock).not.toHaveBeenCalled();
-    expect(approveToolCallMock).not.toHaveBeenCalled();
-    expect(resumeStreamMock).not.toHaveBeenCalled();
-    expect(observeMock).not.toHaveBeenCalled();
-  });
+  it.each(cases)(
+    'rejects $name before accessing credentials or runtime when permission is revoked',
+    async ({ handler, body }) => {
+      jest.mocked(checkPermissionGroup).mockImplementation(() => async () => {
+        throw new ExpectedError('Permission denied', 'FORBIDDEN');
+      });
+      const res = buildRes();
+      await handler(
+        buildReq({ user: ACTING_USER, body, params: { threadId: 'thread' } }),
+        res,
+      );
+      expect(res.statusCode).toBe(403);
+      expect(mockedGetAgentsRuntime).not.toHaveBeenCalled();
+      expect(mockedGenerateModels).not.toHaveBeenCalled();
+      expect(streamMock).not.toHaveBeenCalled();
+      expect(resumeStreamMock).not.toHaveBeenCalled();
+      expect(observeMock).not.toHaveBeenCalled();
+    },
+  );
 
   it('passes the authenticated thread and user to the native liveness check', async () => {
-    memory.getThreadById.mockResolvedValue({resourceId: ACTING_USER._id});
-    listActiveRunsMock.mockResolvedValue({runs: [{runId, status: 'running'}], total: 1});
-    await reconnectHandler(buildReq({user: ACTING_USER, body: {threadId: 'thread', runId}}), buildRes());
+    memory.getThreadById.mockResolvedValue({ resourceId: ACTING_USER._id });
+    listActiveRunsMock.mockResolvedValue({
+      runs: [{ runId, status: 'running' }],
+      total: 1,
+    });
+    await streamHandler(
+      buildReq({ user: ACTING_USER, params: { threadId: 'thread' } }),
+      buildRes(),
+    );
     await observeMock.mock.calls[0][1]?.isAlive?.();
     expect(probeAgentsRun).toHaveBeenCalledWith(
-      expect.objectContaining({memory}),
-      {runId, threadId: 'thread', resourceId: ACTING_USER._id},
+      expect.objectContaining({ memory }),
+      { runId, threadId: 'thread', resourceId: ACTING_USER._id },
     );
   });
 });

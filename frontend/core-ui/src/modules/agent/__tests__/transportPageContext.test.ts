@@ -1,33 +1,30 @@
-import { randomUUID } from 'node:crypto';
 import type { UIMessage } from 'ai';
 
 import { withUserDisplayText } from '../utils/messages';
 import { AgentsChatTransport } from '../transport';
 
-const mockSent: { messages: UIMessage[] }[] = [];
+type TPrepare = (options: {
+  id: string;
+  messages: UIMessage[];
+  body?: Record<string, unknown>;
+}) => { body: { messages: UIMessage[] } };
 
-// `ai` is ESM-only; the base transport only needs to record what it sends.
+let mockPrepare: TPrepare = () => {
+  throw new Error('The transport was not constructed.');
+};
+
+// `ai` is ESM-only; the base transport only needs its request preparer.
 jest.mock('ai', () => ({
   DefaultChatTransport: class {
-    sendMessages(options: { messages: UIMessage[] }) {
-      mockSent.push(options);
-      return Promise.resolve(null);
+    constructor(options: { prepareSendMessagesRequest: TPrepare }) {
+      mockPrepare = options.prepareSendMessagesRequest;
     }
   },
 }));
 
 jest.mock('../api', () => ({
-  AGENTS_ANSWER_URL: '/agents/answer',
-  AGENTS_APPROVE_URL: '/agents/approve',
-  AGENTS_CHAT_RECONNECT_URL: '/agents/chat/reconnect',
   AGENTS_CHAT_URL: '/agents/chat',
 }));
-
-// Each normal send starts a new run id.
-Object.defineProperty(globalThis, 'crypto', {
-  value: { randomUUID },
-  configurable: true,
-});
 
 const PAGE_CONTEXT = '[Page context] The user is viewing /contacts.';
 const wire = 'Email [[customer:c1:Ann Lee]] today';
@@ -54,29 +51,22 @@ it('sends a restored turn without its stored page context on Regenerate', async 
   ]);
   expect(restored.parts[0]).toEqual({ type: 'text', text: PAGE_CONTEXT });
 
-  const onPendingMessage = jest.fn();
-  const transport = new AgentsChatTransport({
-    getThreadId: () => 'thread-1',
+  new AgentsChatTransport({
     getRequestSelection: () => ({}),
     getPageContext: () => ({ path: '/deals' }),
-    onThreadId: jest.fn(),
-    getActiveRunId: () => undefined,
-    onActiveRunId: jest.fn(),
-    onPendingMessage,
-    consumePendingAnswer: () => undefined,
-  } as unknown as ConstructorParameters<typeof AgentsChatTransport>[0]);
+  });
 
   // Regenerate drops the reply and resends the turn; the server prepends the
   // current page context, so the client must not resend the stored one.
-  await transport.sendMessages({
-    trigger: 'regenerate-message',
-    chatId: 'chat-1',
-    messageId: undefined,
+  const {
+    body: {
+      messages: [sent],
+    },
+  } = mockPrepare({
+    id: 'thread-1',
     messages: [restored],
-    abortSignal: undefined,
   });
 
-  const [sent] = mockSent[0].messages;
   expect(sent.parts).toEqual([
     { type: 'text', text: wire },
     {
@@ -87,7 +77,6 @@ it('sends a restored turn without its stored page context on Regenerate', async 
       },
     },
   ]);
-  expect(onPendingMessage).toHaveBeenCalledWith(sent);
   // The transcript keeps the stored line for display and Edit.
   expect(restored.parts[0]).toEqual({ type: 'text', text: PAGE_CONTEXT });
 });

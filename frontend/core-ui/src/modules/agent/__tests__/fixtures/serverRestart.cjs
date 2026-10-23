@@ -62,19 +62,11 @@ process.on('beforeExit', () => {
     assert(next, `Unexpected request to ${url}`);
     return next();
   };
-  let runId;
   const transport = new AgentsChatTransport({
-    getThreadId: () => 'thread',
     getRequestSelection: () => ({}),
-    getActiveRunId: () => runId,
-    onActiveRunId: (id) => {
-      runId = id;
-    },
-    onThreadId: () => {},
-    consumePendingAnswer: () => undefined,
     stallTimeoutMs: STALL_MS,
   });
-  const chat = new Chat({ transport });
+  const chat = new Chat({ id: 'thread', transport });
   const text = () =>
     chat.messages
       .at(-1)
@@ -106,8 +98,6 @@ process.on('beforeExit', () => {
     assert(Date.now() - started < STALL_MS * 10, 'the stall was not detected');
     assert.equal(chat.status, 'error');
     assert(isAgentsStreamStalled(chat.error));
-    const interruptedRun = runId;
-    assert(interruptedRun, 'a lost connection keeps the run reconnectable');
 
     // Reconnecting finds the run's producer gone.
     responses.push(
@@ -123,7 +113,6 @@ process.on('beforeExit', () => {
     await chat.resumeStream();
     assert.equal(chat.status, 'error');
     assert(isAgentsRunInterrupted(chat.error));
-    assert.equal(runId, undefined);
 
     // Retry answers the same question again.
     responses.push(() => stream([...reply('Answer'), ...finish]));
@@ -131,11 +120,10 @@ process.on('beforeExit', () => {
     assert.equal(chat.status, 'ready');
     assert.equal(chat.error, undefined);
     assert.equal(text(), 'Answer');
-    assert.notEqual(runId, interruptedRun);
     assert.deepEqual(requests, [
       '/agents/chat',
       '/agents/chat',
-      '/agents/chat/reconnect',
+      '/agents/chat/thread/stream',
       '/agents/chat',
     ]);
 

@@ -101,7 +101,7 @@ plugin; ported from the former private `erxes-agent` service). It provides:
   name and validated deal board/pipeline, or an unavailable response. It never
   calls a model, accepts a model URL, or bypasses normal resolver permissions;
 - **pageContext**: `POST /agents/chat` accepts `pageContext: { path, record? }
-  ` — strictly validated (path starts `/`, ≤200 chars, no control chars;
+` — strictly validated (path starts `/`, ≤200 chars, no control chars;
   record.type from the reference-type set; record.id matches
   `^[A-Za-z0-9_-]{1,64}$`; invalid parts silently dropped) and prepended to
   the newest user message as a `[Page context] ...` text part, which Mastra
@@ -132,26 +132,27 @@ plugin; ported from the former private `erxes-agent` service). It provides:
   never grant permission; later reads still use resolver permissions;
 - tenant-wide `AgentsSettings` on `agents_settings` (`codeModeEnabled`,
   `codeModeEnvironment: 'in-process'`, `approvalMode: 'writes' |
-  'destructive'` — default `'writes'`, stamped per run into RequestContext;
+'destructive'` — default `'writes'`, stamped per run into RequestContext;
   `'writes'` asks before every GraphQL mutation; `'destructive'` asks before
   deletes, merges, archives, publishes and customer-facing sends/replies.
-
 
 ## Surfaces
 
 - HTTP (mounted in `src/routes.ts` via `src/modules/agents/routes.ts`):
-  `POST /agents/chat` (SSE; optional `runId` UUID, `provider`, `model`,
-  `thinkingLevel` (clamped to the selected model's levels by
-  `normalizeThinkingLevel` before it is stamped), `pageContext`, mention parts
-  in the newest message; without `provider`, `pickConnection` uses
-  `findDefaultConnection`; `X-Agents-Thread-Id` response header),
-  `POST /agents/approve` `{ threadId, toolCallId?, approved, reason? }`,
-  `POST /agents/answer` `{ threadId, answer }`,
-  `POST /agents/chat/reconnect` `{ threadId, runId }` (SSE replay, 204 when
-  not running, or 409 `{ error, code: 'AGENTS_RUN_INTERRUPTED' }` when the
-  run's producer is gone — probed before observing, never after an idle wait).
+  `POST /agents/chat` (SSE through `@mastra/ai-sdk` `handleChatStream`;
+  `threadId` = the client's Chat id, one newest message with optional mention
+  parts, optional `provider`, `model`, `thinkingLevel` (clamped to the
+  selected model's levels by `normalizeThinkingLevel`), `pageContext`;
+  without `provider`, `pickConnection` uses `findDefaultConnection`). A user
+  message starts a turn; an assistant message carrying approval-responded tool
+  parts resumes those gates; `resume: { runId, toolCallId, answers }` resumes
+  an ask_user call.
+  `GET /agents/chat/:threadId/stream` reattaches to the thread's active run via
+  `listActiveRuns` + `observe`, returns 204 when nothing runs, or 409
+  `{ error, code: 'AGENTS_RUN_INTERRUPTED' }` when the run's producer is gone
+  (probed before observing, never after an idle wait).
   All require the gateway `user` header and `agentsChat`, including plain text,
-  approval, answer and reconnect requests. Permission denial precedes credential,
+  resume and reconnect requests. Permission denial precedes credential,
   runtime and attachment access. Chat then resolves the connection and checks
   its key opens (400 with the key-free reason otherwise) before any mention
   lookup through the gateway. Identity is stamped from the header into Mastra
@@ -167,14 +168,14 @@ plugin; ported from the former private `erxes-agent` service). It provides:
   `agentsConnections`, `agentsModels` (server-side provider /models fetch,
   filtered by `modelCatalog.ts`; per provider `models` = usable ids in rank
   order, additive `catalog: [AgentsModelInfo { id, family, recommended, name,
-  thinking: AgentsModelThinking { kind, levels } }]` (`modelThinking.ts`; null
+thinking: AgentsModelThinking { kind, levels } }]` (`modelThinking.ts`; null
   name/thinking = not in the snapshot), and
   a key-free `error` that says why when the stored key cannot be opened
   (missing vs changed `JWT_TOKEN_SECRET`, or no key) or the listing fails
   (OpenAI keys without Models: Read / `api.model.read`, 401, 403, 429, 5xx);
   every saved provider is returned, never silently dropped),
   `agentsModelVerify(provider: String!, model: String!): AgentsModelVerification
-  { provider model ok error }` (`agentsChat`; own saved connection only;
+{ provider model ok error }` (`agentsChat`; own saved connection only;
   `modelProbe.ts` sends one minimal request through `providers.ts` +
   Mastra `resolveModelConfig` — 16 output tokens, kimi-code with the
   `MIN_ANTHROPIC_THINKING_BUDGET` (1,024) thinking budget because `k3.1-pro`
@@ -225,7 +226,7 @@ plugin; ported from the former private `erxes-agent` service). It provides:
   `MongoDBStore` (`core-agents-store`) on the dedicated `{db}_agents_memory`
   sub-database via the shared mongoose `connectorHandler`; installs the
   MongoDB 4.4 workflow-snapshot codec; `Mastra({ logger:false, workers:false,
-  pubsub })`.
+pubsub })`.
 - DurableAgent explicitly persists all workflow statuses. Reconnect and
   concurrent-turn guards require stored running snapshots; Mastra's default skips
   them with automatic crash recovery off. Terminal snapshots prevent completed
@@ -246,14 +247,15 @@ plugin; ported from the former private `erxes-agent` service). It provides:
   re-drives a run from its last persisted step, so tool calls after that
   checkpoint (approved mutations included) could run twice, and it waits for
   the lapsed lease anyway.
-- `agentsStream.ts` — `pipeAgentsStream` (AI SDK v7 SSE with native
+- `agentsStream.ts` — `pipeAgentsStream` (converts a `MastraModelOutput`) and
+  `pipeAgentsUIStream` (pipes `handleChatStream`'s UI stream) (AI SDK v7 SSE with native
   `keepAliveMs` 5s comments: the gateway holds a client connection open after
   its producer process dies, so clients detect the silence),
   `describeAgentsStreamError`, and `interruptAgentsStreams`, called from
-  `main.ts` on SIGINT/SIGTERM before the HTTP server closes: chat, approve and
-  answer streams (runs produced in this process, which die with it) end with
+  `main.ts` on SIGINT/SIGTERM before the HTTP server closes: chat streams,
+  resumes included (runs produced in this process, which die with it), end with
   an `error` chunk whose text is the JSON `{ error, code:
-  'AGENTS_RUN_INTERRUPTED' }` body (also the reconnect 409). Reconnect streams
+'AGENTS_RUN_INTERRUPTED' }` body (also the reconnect 409). Reconnect streams
   pass `observed`: their run may live on another replica, so shutdown only
   drops the connection and the client's stall detection reconnects.
 - `pubsub.ts` — process-wide `RedisStreamsPubSub` (key prefix `core-agents`,
@@ -386,11 +388,10 @@ plugin; ported from the former private `erxes-agent` service). It provides:
   from Mastra `onFinish`/`onTitleGenerated` hooks, `agentsThreadUpdate`, and
   `agentsThreadRemove`. Creation persists and publishes before model generation,
   with an absent title so native asynchronous auto-titling still applies.
-- The resume routes share `findSuspendedToolCall` (kind-aware: approval vs
-  ask_user, newest suspended run, ownership re-checked, wrong-kind → 409).
-  Approval requests carry the answered `toolCallId`, checked against the current
-  suspension; stale ids return 409 rather than deciding another call. Legacy
-  callers without an id retain server discovery. Invalid/denied GraphQL inputs
+- Resume requests are checked against `listSuspendedRuns({ threadId,
+resourceId })`: each approval id (`runId::toolCallId`) or ask_user target
+  must be a call suspended in this user's thread, of the matching kind, or the
+  route returns 409. Invalid/denied GraphQL inputs
   return tool errors without approval or network execution; human approval never
   grants an exception to GraphQL policy.
 - Session removal verifies ownership, aborts and cancels scoped running/suspended

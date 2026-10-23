@@ -30,10 +30,13 @@ export interface IAskUserQuestionGroup {
   questions: IAskUserQuestionEntry[];
 }
 
+/** One answer per question, in order: text, or the picked labels. */
+export type IAskUserAnswer = string | string[];
+
 export interface IAskUserPromptProps {
   group: IAskUserQuestionGroup;
   busy: boolean;
-  onAnswer: (answer: string | string[] | (string | string[])[]) => void;
+  onAnswer: (answers: IAskUserAnswer[]) => void;
 }
 
 /** Shared by the live card and its answered summary so both read as one. */
@@ -146,9 +149,7 @@ export const AskUserPrompt = ({
       return;
     }
     if (!allAnswered) return;
-    const first = answers[0];
-    if (first === undefined) return;
-    onAnswer(questions.length === 1 ? first : answers);
+    onAnswer(answers);
   };
 
   return (
@@ -177,8 +178,8 @@ export const AskUserPrompt = ({
           {busy
             ? 'Sending…'
             : reviewing
-            ? `${answeredCount} answered`
-            : `${step + 1} of ${questions.length}`}
+              ? `${answeredCount} answered`
+              : `${step + 1} of ${questions.length}`}
         </span>
       </div>
       {questions.length > 1 && (
@@ -283,8 +284,8 @@ export const AskUserPrompt = ({
                       ? IconSquareCheckFilled
                       : IconSquare
                     : active
-                    ? IconCircleCheckFilled
-                    : IconCircle;
+                      ? IconCircleCheckFilled
+                      : IconCircle;
                   return (
                     <Button
                       key={option.label}
@@ -386,10 +387,10 @@ export const AskUserPrompt = ({
           {busy
             ? 'Sending…'
             : reviewing || questions.length === 1
-            ? 'Send answer'
-            : step === questions.length - 1
-            ? 'Review answers'
-            : 'Next'}
+              ? 'Send answer'
+              : step === questions.length - 1
+                ? 'Review answers'
+                : 'Next'}
           {busy ? (
             <IconLoader2 className="size-4 animate-spin" />
           ) : (

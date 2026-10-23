@@ -12,7 +12,6 @@ import {
 import { readAgentMentions } from '../agentMentions';
 import { agentTurnAnswerText } from './agentTurnTimeline';
 import { extractPageContext } from './pageContext';
-import { isAgentsAnswerTurn } from './messages';
 import type { AgentsUIMessage } from '../types';
 
 export interface IBuildThreadMarkdownArgs {
@@ -49,11 +48,9 @@ const referencesToLabels = (
 
 /**
  * Renders a thread as Markdown: `## You` / `## AI Agent` turns with text
- * parts only. Consecutive assistant messages separated only by skipped
- * user turns form one agent turn, exported as its final answer: narration
- * between steps, reasoning and tool parts stay out, like Copy. Skips
- * ask_user answer echoes (`metadata.agentsAnswer`) and each user turn's
- * leading `[Page context]` block.
+ * parts only. Consecutive assistant messages form one agent turn, exported
+ * as its final answer: narration between steps, reasoning and tool parts
+ * stay out, like Copy. Skips each user turn's leading `[Page context]` block.
  */
 export const buildThreadMarkdown = ({
   title,
@@ -88,10 +85,6 @@ export const buildThreadMarkdown = ({
 
   for (const [index, message] of messages.entries()) {
     if (message.role === 'user') {
-      if (isAgentsAnswerTurn(message)) {
-        continue;
-      }
-
       const { parts } = extractPageContext(message.parts);
       const text = parts
         .filter(isTextUIPart)
