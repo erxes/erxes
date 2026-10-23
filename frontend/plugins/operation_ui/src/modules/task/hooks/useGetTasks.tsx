@@ -180,7 +180,10 @@ export const useTasks = (
       if (!task) return;
 
       // Recheck date membership when a task enters or leaves the selected range.
-      if (TASK_DATE_RANGE_KEYS.some((key) => variables[key] != null)) {
+      if (
+        variables.cycleFilter ||
+        TASK_DATE_RANGE_KEYS.some((key) => variables[key] != null)
+      ) {
         void refetch();
         return;
       }
