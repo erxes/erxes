@@ -84,6 +84,12 @@ const Permissions = lazy(() =>
   })),
 );
 
+const Jobs = lazy(() =>
+  import('~/pages/JobsPage').then((module) => ({
+    default: module.JobsPage,
+  })),
+);
+
 const AccountingSubSettings = () => {
   return (
     <Filter id="accounting-settings">
@@ -180,6 +186,20 @@ const AccountingSubSettings = () => {
                   element={<SettingSyncOrder />}
                 />
                 <Route path="/config/permissions" element={<Permissions />} />
+                <Route
+                  path="/inventories"
+                  element={
+                    <Navigate
+                      to="/accounting/settings/inventories/jobs"
+                      replace
+                    />
+                  }
+                />
+                <Route path="/inventories/jobs" element={<Jobs />} />
+                <Route
+                  path="/inventories/job-outputs"
+                  element={<Jobs unwindOutputs />}
+                />
               </Routes>
             </Suspense>
           </div>
@@ -189,12 +209,10 @@ const AccountingSubSettings = () => {
   );
 };
 
-const AccountingSettings = () => {
+export const AccountingSettings = () => {
   return (
     <Routes>
       <Route path="/*" element={<AccountingSubSettings />} />
     </Routes>
   );
 };
-
-export default AccountingSettings;

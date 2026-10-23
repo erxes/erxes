@@ -1,8 +1,33 @@
-import { TASK_DETAIL_QUERY_KEY } from '@/task/constants';
-import { useQueryState } from 'erxes-ui';
+import { TASK_CONTENT_TYPE } from '@/task/constants';
+import { useCallback } from 'react';
+import { IOpenRecordOptions, useSidePanel } from 'ui-modules';
 
-// The URL is the single source of truth for the task detail sheet: it is open
-// exactly when `?task_id=` is present. Browser back/forward and copied links
-// work for free, with no manual history bookkeeping.
-export const useTaskDetailSheet = () =>
-  useQueryState<string>(TASK_DETAIL_QUERY_KEY);
+/**
+ * The task open in the app's side panel (`?panel=/detail/operation:task/<id>`)
+ * and a setter opening one there, or closing it with `null`. Links, back and
+ * forward work as the panel is part of the URL.
+ */
+export const useTaskDetailSheet = () => {
+  const { record, openRecord, close } = useSidePanel();
+  const activeTask =
+    record?.contentType === TASK_CONTENT_TYPE ? record.contentId : null;
+
+  const setActiveTask = useCallback(
+    (taskId: string | null, options?: IOpenRecordOptions) => {
+      if (taskId) {
+        openRecord(
+          { contentType: TASK_CONTENT_TYPE, contentId: taskId },
+          options,
+        );
+        return;
+      }
+
+      if (activeTask) {
+        close();
+      }
+    },
+    [activeTask, openRecord, close],
+  );
+
+  return [activeTask, setActiveTask] as const;
+};

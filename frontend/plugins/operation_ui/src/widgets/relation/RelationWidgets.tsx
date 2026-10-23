@@ -13,29 +13,13 @@ const Project = lazy(() =>
   })),
 );
 
-export const RelationWidgets = ({
-  module,
-  contentId,
-  contentType,
-  customerId,
-  companyId,
-}: IRelationWidgetProps) => {
+export const RelationWidgets = ({ module, ...props }: IRelationWidgetProps) => {
   return (
     <Suspense>
       {module === 'tasks' ? (
-        <Task
-          contentId={contentId}
-          contentType={contentType}
-          customerId={customerId}
-          companyId={companyId}
-        />
+        <Task {...props} />
       ) : module === 'projects' ? (
-        <Project
-          contentId={contentId}
-          contentType={contentType}
-          customerId={customerId}
-          companyId={companyId}
-        />
+        <Project {...props} />
       ) : null}
     </Suspense>
   );

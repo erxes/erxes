@@ -47,6 +47,7 @@ const useSelectMilestoneContext = () => {
 };
 
 export const SelectMilestoneFormItem = ({
+  variant = 'form',
   onValueChange,
   projectId,
   scope,
@@ -58,6 +59,8 @@ export const SelectMilestoneFormItem = ({
   onValueChange: (value: string) => void;
   value?: string;
   label?: string;
+  // `table` draws it as a record table cell, as in the side panel.
+  variant?: `${SelectTriggerVariant}`;
 }) => {
   const [open, setOpen] = useState(false);
 
@@ -71,10 +74,10 @@ export const SelectMilestoneFormItem = ({
       projectId={projectId}
     >
       <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
-        <SelectTriggerOperation variant="form" label={label}>
+        <SelectTriggerOperation variant={variant} label={label}>
           <SelectMilestoneValue />
         </SelectTriggerOperation>
-        <SelectOperationContent variant="form">
+        <SelectOperationContent variant={variant}>
           <SelectMilestoneContent />
         </SelectOperationContent>
       </PopoverScoped>

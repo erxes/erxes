@@ -38,6 +38,15 @@ export const triageQueries = {
       filterQuery.createdBy = filter.createdBy;
     }
 
+    // The triages of these customers / companies.
+    if (filter.customerId) {
+      filterQuery.customerId = filter.customerId;
+    }
+
+    if (filter.companyId) {
+      filterQuery.companyId = filter.companyId;
+    }
+
     const { list, totalCount, pageInfo } =
       await cursorPaginate<ITriageDocument>({
         model: models.Triage,

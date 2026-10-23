@@ -2,7 +2,7 @@ import { FavoriteToggleIconButton, PageHeader } from 'ui-modules';
 import { Breadcrumb, Separator, Skeleton } from 'erxes-ui';
 import { useParams } from 'react-router-dom';
 import { TeamBreadCrumb } from '@/team/components/breadcrumb/TeamBreadCrumb';
-import { AddTaskSheet } from '@/task/components/add-task/AddTaskSheet';
+import { AddTaskButton } from '@/task/components/add-task/AddTaskButton';
 import { CyclesBreadcrumb } from '@/cycle/components/CyclesBreadcrumb';
 import { useGetCycle } from '@/cycle/hooks/useGetCycle';
 import { useTeamFavoriteBreadcrumb } from '@/team/hooks/useTeamFavoriteBreadcrumb';
@@ -43,7 +43,7 @@ export const CycleDetailHeader = () => {
         </Breadcrumb>
       </PageHeader.Start>
       <PageHeader.End>
-        {!cycleDetail?.isCompleted && <AddTaskSheet />}
+        {!cycleDetail?.isCompleted && <AddTaskButton />}
       </PageHeader.End>
     </PageHeader>
   );

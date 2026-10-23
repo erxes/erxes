@@ -40,9 +40,12 @@ import { currentUserState } from 'ui-modules';
 export const AddTicketForm = ({
   onClose,
   onComplete,
+  contacts,
 }: {
   onClose: () => void;
   onComplete?: (ticketId: string) => void;
+  // Customers / companies the ticket is created for; linked on the server.
+  contacts?: { customerId?: string; companyId?: string };
 }) => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   const [pipelineId] = useQueryState<string>('pipelineId');
@@ -143,7 +146,12 @@ export const AddTicketForm = ({
         priority: data.priority || 0,
         statusId: data.statusId,
         propertiesData: shownPropertiesData(),
+        ...contacts,
       },
+      // The ticket keeps its contacts itself; contacts' ticket lists are
+      // read again.
+      update: (cache) =>
+        cache.evict({ id: 'ROOT_QUERY', fieldName: 'getTickets' }),
       onCompleted: (data) => {
         toast({
           title: t('success', 'Success!'),

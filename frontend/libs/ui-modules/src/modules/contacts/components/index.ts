@@ -19,3 +19,4 @@ export * from 'ui-modules/modules/contacts/components/CustomerPhones';
 export * from 'ui-modules/modules/contacts/components/CustomerWidget';
 export * from 'ui-modules/modules/contacts/components/CompanyWidget';
 export * from 'ui-modules/modules/contacts/components/SendEmailButton';
+export * from 'ui-modules/modules/contacts/components/ContactsRelationField';
