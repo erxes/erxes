@@ -61,7 +61,7 @@ export const EDIT_ELEMENT = gql`
 `;
 
 export const REMOVE_ELEMENT = gql`
-  mutation BmsElementRemove($ids: [String]) {
+  mutation BmsElementRemove($ids: [String!]!) {
     bmsElementRemove(ids: $ids)
   }
 `;

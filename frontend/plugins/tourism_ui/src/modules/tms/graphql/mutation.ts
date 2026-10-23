@@ -36,7 +36,7 @@ export const CREATE_BRANCH = gql`
 
 export const EDIT_BRANCH = gql`
   mutation BmsBranchEdit(
-    $id: String
+    $id: String!
     $name: String
     $generalManagerIds: [String]
     $managerIds: [String]

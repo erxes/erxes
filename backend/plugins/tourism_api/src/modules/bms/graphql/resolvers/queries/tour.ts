@@ -1,4 +1,4 @@
-import { cursorPaginate } from 'erxes-api-shared/utils';
+import { cursorPaginate, escapeRegExp } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import {
   ITourDocument,
@@ -33,9 +33,6 @@ function buildDateSelector(
     }
   }
 }
-
-const escapeRegExp = (value: string): string =>
-  value.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
 
 async function buildSubCategoryIds(
   models: IContext['models'],
