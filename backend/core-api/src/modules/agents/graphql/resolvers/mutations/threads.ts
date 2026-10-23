@@ -172,6 +172,48 @@ export const agentsThreadMutations = {
   },
 
   /**
+   * Starts a new thread holding this thread's messages up to and including
+   * `messageId`, so the user can take the conversation another way without
+   * losing the original. Mastra copies the messages inside the store.
+   */
+  agentsThreadFork: async (
+    _p: undefined,
+    { threadId, messageId }: { threadId: string; messageId: string },
+    ctx: IContext,
+  ) => {
+    await ctx.checkPermission('agentsChat');
+
+    const memory: MastraMemory = await getAgentsMemory(ctx.subdomain);
+    const thread = await requireOwnedThread(memory, threadId, ctx.user._id);
+    const { messages } = await memory.recall({
+      threadId,
+      resourceId: ctx.user._id,
+      perPage: false,
+      orderBy: { field: 'createdAt', direction: 'ASC' },
+    });
+    const index = messages.findIndex((message) => message.id === messageId);
+
+    if (index < 0) {
+      throw new ExpectedError('Message not found.', 'NOT_FOUND');
+    }
+
+    const { thread: forked } = await memory.copyThread({
+      sourceThreadId: threadId,
+      resourceId: ctx.user._id,
+      title: thread.title ? `Fork of ${thread.title}` : undefined,
+      options: {
+        messageFilter: {
+          messageIds: messages.slice(0, index + 1).map((message) => message.id),
+        },
+      },
+    });
+
+    publishAgentsThreadsChanged(ctx.user._id);
+
+    return toPublicThread(forked);
+  },
+
+  /**
    * Stops the thread's running turn on whichever replica executes it. The
    * client's own `stop()` only detaches its stream; without this the run
    * keeps going, and a write the model already planned still lands.

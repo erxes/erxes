@@ -100,6 +100,14 @@ export const AGENTS_THREAD_ALLOW_ROOT_FIELDS = gql`
   }
 `;
 
+export const AGENTS_THREAD_FORK = gql`
+  mutation AgentsThreadFork($threadId: String!, $messageId: String!) {
+    agentsThreadFork(threadId: $threadId, messageId: $messageId) {
+      id
+    }
+  }
+`;
+
 export const AGENTS_THREADS_CHANGED = gql`
   subscription AgentsThreadsChanged {
     agentsThreadsChanged {
@@ -146,6 +154,15 @@ export interface IAgentsThreadRemoveVariables {
 export interface IAgentsThreadAllowRootFieldsVariables {
   threadId: string;
   rootFields: string[];
+}
+
+export interface IAgentsThreadForkData {
+  agentsThreadFork: { id: string } | null;
+}
+
+export interface IAgentsThreadForkVariables {
+  threadId: string;
+  messageId: string;
 }
 
 export interface IAgentsThreadStopData {

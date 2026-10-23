@@ -5,9 +5,15 @@ import { useLazyQuery, useMutation } from '@apollo/client';
 import { useSetAtom } from 'jotai';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import { AGENTS_THREAD_DETAIL, AGENTS_THREAD_STOP } from '../graphql/threads';
+import {
+  AGENTS_THREAD_DETAIL,
+  AGENTS_THREAD_FORK,
+  AGENTS_THREAD_STOP,
+} from '../graphql/threads';
 import type {
   IAgentsThreadDetailData,
+  IAgentsThreadForkData,
+  IAgentsThreadForkVariables,
   IAgentsThreadRemoveVariables,
   IAgentsThreadStopData,
 } from '../graphql/threads';
@@ -132,6 +138,7 @@ export interface IUseAgentsChatResult {
   retryLastTurn: () => void;
   /** Replaces a user turn and continues from that exact point in stored history. */
   editMessage: (messageId: string, text: string) => void;
+  forkFromMessage: (messageId: string) => Promise<void>;
 }
 
 /**
@@ -159,8 +166,9 @@ export const useAgentsChat = (options?: {
   );
   const [modelProvider, setModelProvider] = useState('');
   const [modelId, setModelId] = useState('');
-  const [thinkingLevel, setThinkingLevel] =
-    useState<IAgentsThinkingLevel>(DEFAULT_THINKING_LEVEL);
+  const [thinkingLevel, setThinkingLevel] = useState<IAgentsThinkingLevel>(
+    DEFAULT_THINKING_LEVEL,
+  );
 
   const threadSelectionRef = useRef(0);
   const selectionRef = useRef<IAgentsRequestSelection>({
@@ -376,6 +384,22 @@ export const useAgentsChat = (options?: {
     }
   }, [openThread, sessionScope]);
 
+  const [forkThread] = useMutation<
+    IAgentsThreadForkData,
+    IAgentsThreadForkVariables
+  >(AGENTS_THREAD_FORK);
+  // Copies the thread up to this message into a new thread and opens it.
+  const forkFromMessage = useCallback(
+    async (messageId: string) => {
+      const { data } = await forkThread({
+        variables: { threadId: chat.id, messageId },
+      });
+      const forkedId = data?.agentsThreadFork?.id;
+      if (forkedId) await openThread(forkedId);
+    },
+    [chat, forkThread, openThread],
+  );
+
   const resumeStream = useCallback(
     () => openThread(chat.id),
     [chat, openThread],
@@ -409,5 +433,6 @@ export const useAgentsChat = (options?: {
     setPageContext,
     retryLastTurn,
     editMessage,
+    forkFromMessage,
   };
 };
