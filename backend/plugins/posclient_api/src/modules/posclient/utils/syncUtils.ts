@@ -229,6 +229,39 @@ export const importProducts = async (
       }
     }
   } // end group loop
+
+  const categoryIds = (
+    await models.Products.distinct('categoryId', { tokens: token })
+  ).filter(isString);
+  const categories = await models.ProductCategories.find(
+    {},
+    { _id: 1, order: 1 },
+  ).lean<{ _id: string; order?: string }[]>();
+  const retainedCategoryIds = new Set(categoryIds);
+  const retainedOrders = new Set<string>();
+
+  for (const category of categories) {
+    if (!retainedCategoryIds.has(category._id) || !category.order) {
+      continue;
+    }
+
+    let order = '';
+    for (const code of category.order.split('/').filter(isString)) {
+      order += `${code}/`;
+      retainedOrders.add(order);
+    }
+  }
+
+  for (const category of categories) {
+    if (category.order && retainedOrders.has(category.order)) {
+      retainedCategoryIds.add(category._id);
+    }
+  }
+
+  await models.ProductCategories.updateMany(
+    { tokens: token, _id: { $nin: [...retainedCategoryIds] } },
+    { $pull: { tokens: token } },
+  );
 };
 
 // Pos config created in main erxes differs from here
