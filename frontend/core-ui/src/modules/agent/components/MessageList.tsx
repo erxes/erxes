@@ -4,7 +4,8 @@ import {
 } from '../references/AgentReferenceScope';
 import { buildAgentReferenceScopes } from '../references/referenceRegistry';
 import { isTextUIPart, isToolUIPart } from 'ai';
-import { Button, ScrollArea, Skeleton, Tooltip, cn } from 'erxes-ui';
+import { Button, Skeleton, Tooltip, cn } from 'erxes-ui';
+import type { StickToBottomContext } from 'use-stick-to-bottom';
 import {
   Fragment,
   memo,
@@ -14,12 +15,7 @@ import {
   useRef,
   useState,
 } from 'react';
-import {
-  IconArrowDown,
-  IconCheck,
-  IconCopy,
-  IconRefresh,
-} from '@tabler/icons-react';
+import { IconCheck, IconCopy, IconRefresh } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 
 import { formatAskUserAnswers } from '../askUserAnswers';
@@ -31,6 +27,11 @@ import {
 } from './MessagePart';
 import type { IAskUserAnswer } from './AskUserPrompt';
 import { AgentWorkSteps } from './AgentWorkSteps';
+import {
+  Conversation,
+  ConversationContent,
+  ConversationScrollButton,
+} from '../elements/conversation';
 import {
   agentMessageActivity,
   groupAgentWorkSteps,
@@ -69,8 +70,6 @@ export interface IMessageListProps {
 
 /** Show a timestamp divider only after gaps longer than this. */
 const TIMESTAMP_GAP_MS = 10 * 60 * 1000;
-/** Distance from the bottom (px) that still counts as "near bottom". */
-const NEAR_BOTTOM_THRESHOLD = 120;
 
 /**
  * Reads `metadata.createdAt` (present on history messages mapped from the
@@ -411,10 +410,9 @@ const TranscriptSkeleton = ({ width }: { width: AgentChatWidth }) => (
 );
 
 /**
- * Scrollable transcript. Follows the inbox ScrollArea viewport pattern:
- * sticks to the bottom while new content streams in, and pauses
- * auto-scroll — showing a floating "scroll to bottom" button — as soon as
- * the user scrolls up.
+ * Scrollable transcript. `use-stick-to-bottom` (through the AI Elements
+ * Conversation) follows new content while the reader is at the bottom and
+ * shows a scroll-to-bottom button once they scroll up.
  */
 export const MessageList = ({
   messages,
@@ -431,11 +429,7 @@ export const MessageList = ({
   error,
 }: IMessageListProps) => {
   const { t } = useTranslation('common', { keyPrefix: 'agent' });
-  const viewportRef = useRef<HTMLDivElement | null>(null);
-  const nearBottomRef = useRef(true);
-  const [showScrollDown, setShowScrollDown] = useState(false);
-  const contentRef = useRef<HTMLDivElement>(null);
-  const prevLoadingThreadRef = useRef(loadingThread);
+  const conversationRef = useRef<StickToBottomContext>(null);
   const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -444,111 +438,11 @@ export const MessageList = ({
 
   const handleEditMessage = useCallback(
     (messageId: string, text: string) => {
-      nearBottomRef.current = true;
-      setShowScrollDown(false);
+      void conversationRef.current?.scrollToBottom();
       onEditMessage(messageId, text);
     },
     [onEditMessage],
   );
-
-  const lastMessagePartsLength =
-    messages[messages.length - 1]?.parts.length ?? 0;
-
-  const handleScroll = () => {
-    const viewport = viewportRef.current;
-
-    if (!viewport) {
-      return;
-    }
-
-    const nearBottom =
-      viewport.scrollHeight - viewport.scrollTop - viewport.clientHeight <
-      NEAR_BOTTOM_THRESHOLD;
-    nearBottomRef.current = nearBottom;
-    setShowScrollDown(!nearBottom);
-  };
-
-  const scrollToBottom = () => {
-    const viewport = viewportRef.current;
-
-    if (viewport) {
-      viewport.scrollTop = viewport.scrollHeight;
-      nearBottomRef.current = true;
-      setShowScrollDown(false);
-    }
-  };
-
-  useEffect(() => {
-    const wasLoadingThread = prevLoadingThreadRef.current;
-    prevLoadingThreadRef.current = loadingThread;
-
-    // A new conversation clears the transcript: re-arm auto-scroll so the
-    // first reply lands at the bottom.
-    if (messages.length === 0) {
-      nearBottomRef.current = true;
-      setShowScrollDown(false);
-      return;
-    }
-
-    if (loadingThread) {
-      return;
-    }
-
-    // After openThread finishes loading history, always jump to the bottom
-    // regardless of where the user had scrolled in the previous thread.
-    const threadJustLoaded = wasLoadingThread && !loadingThread;
-
-    if (threadJustLoaded) {
-      nearBottomRef.current = true;
-    }
-
-    if (!nearBottomRef.current) {
-      return;
-    }
-
-    const timer = setTimeout(() => {
-      const viewport = viewportRef.current;
-
-      if (viewport) {
-        viewport.scrollTop = viewport.scrollHeight;
-      }
-    }, 0);
-
-    return () => clearTimeout(timer);
-  }, [messages.length, lastMessagePartsLength, loadingThread]);
-
-  // Artifact previews resize after load; follow only while the reader is
-  // at the bottom.
-  useEffect(() => {
-    const content = contentRef.current;
-
-    if (!content) {
-      return;
-    }
-
-    let timer: ReturnType<typeof setTimeout>;
-    const observer = new ResizeObserver(() => {
-      clearTimeout(timer);
-
-      if (!nearBottomRef.current) {
-        return;
-      }
-
-      timer = setTimeout(() => {
-        const viewport = viewportRef.current;
-
-        if (viewport && nearBottomRef.current) {
-          viewport.scrollTop = viewport.scrollHeight;
-        }
-      }, 0);
-    });
-    observer.observe(content);
-
-    return () => {
-      clearTimeout(timer);
-      observer.disconnect();
-    };
-  }, [loadingThread]);
 
   const lastAssistantIndex = messages.reduce(
     (last, message, index) => (message.role === 'assistant' ? index : last),
@@ -620,59 +514,41 @@ export const MessageList = ({
   }
 
   return (
-    <div className="relative flex min-h-0 min-w-0 flex-1 flex-col">
-      <ScrollArea.Root className="min-h-0 min-w-0 flex-1">
-        <ScrollArea.Viewport
-          ref={viewportRef}
-          onScroll={handleScroll}
-          // Radix's display:table wrapper otherwise grows to long tool labels.
-          className="min-w-0 [&>div]:block! [&>div]:min-w-0"
-        >
-          <div
-            ref={contentRef}
-            className={cn(
-              'mx-auto w-full min-w-0 space-y-3 py-4 sm:space-y-4 sm:py-5',
-              AGENT_CHAT_WIDTH_CLASSES[width],
-              AGENT_CHAT_WIDTH_PADDING[width],
-            )}
-          >
-            {transcript}
-            {showPendingResponse && (
-              <div className="agent-message-enter">
-                <AgentMessageIdentity
-                  activity={t('working', 'Working…')}
-                  current
-                />
-              </div>
-            )}
-            {error && status !== 'submitted' && status !== 'streaming' && (
-              <div className="flex items-center gap-2 text-xs text-destructive">
-                <span className="min-w-0 flex-1 break-words">{error}</span>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="h-7 shrink-0 text-xs"
-                  onClick={onRetryTurn}
-                >
-                  {t('retry', 'Retry')}
-                </Button>
-              </div>
-            )}
+    <Conversation
+      contextRef={conversationRef}
+      initial="instant"
+      className="min-h-0 min-w-0"
+    >
+      <ConversationContent
+        className={cn(
+          'mx-auto w-full min-w-0 gap-3 py-4 sm:gap-4 sm:py-5',
+          AGENT_CHAT_WIDTH_CLASSES[width],
+          AGENT_CHAT_WIDTH_PADDING[width],
+        )}
+      >
+        {transcript}
+        {showPendingResponse && (
+          <div className="agent-message-enter">
+            <AgentMessageIdentity activity={t('working', 'Working…')} current />
           </div>
-        </ScrollArea.Viewport>
-        <ScrollArea.Bar orientation="vertical" />
-      </ScrollArea.Root>
-      {showScrollDown && (
-        <Button
-          variant="outline"
-          size="icon"
-          className="absolute bottom-4 left-1/2 size-8 -translate-x-1/2 rounded-full shadow-md"
-          onClick={scrollToBottom}
-          aria-label={t('scroll-to-bottom', 'Scroll to bottom')}
-        >
-          <IconArrowDown className="size-4" />
-        </Button>
-      )}
-    </div>
+        )}
+        {error && status !== 'submitted' && status !== 'streaming' && (
+          <div className="flex items-center gap-2 text-xs text-destructive">
+            <span className="min-w-0 flex-1 break-words">{error}</span>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-7 shrink-0 text-xs"
+              onClick={onRetryTurn}
+            >
+              {t('retry', 'Retry')}
+            </Button>
+          </div>
+        )}
+      </ConversationContent>
+      <ConversationScrollButton
+        aria-label={t('scroll-to-bottom', 'Scroll to bottom')}
+      />
+    </Conversation>
   );
 };

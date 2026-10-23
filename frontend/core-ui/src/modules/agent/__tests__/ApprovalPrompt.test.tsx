@@ -2,7 +2,7 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import type { ButtonHTMLAttributes } from 'react';
 import { ApprovalPrompt } from '../components/ApprovalPrompt';
-import type { IAgentToolStep } from '../utils/agentWorkSteps';
+import type { ToolUIPart } from 'ai';
 
 jest.mock('erxes-ui', () => ({
   Button: ({
@@ -24,10 +24,11 @@ jest.mock('erxes-ui', () => ({
 jest.mock('../components/BotBadge', () => ({ BotBadge: () => null }));
 jest.mock('../components/ChatInput', () => ({ ChatInput: () => null }));
 
-const tool: IAgentToolStep = {
-  toolName: 'callGraphql',
+const part: ToolUIPart = {
+  type: 'tool-callGraphql',
   toolCallId: 'remove-customer',
   state: 'approval-requested',
+  approval: { id: 'run-1::remove-customer' },
   input: {
     query:
       'mutation AgentsRemove($ids: [String]) { customersRemove(customerIds: $ids) }',
@@ -39,7 +40,7 @@ const tool: IAgentToolStep = {
 };
 
 it('shows mutation variables, including nested objects, arrays, false and null', () => {
-  render(<ApprovalPrompt busy={false} onRespond={jest.fn()} tool={tool} />);
+  render(<ApprovalPrompt busy={false} onRespond={jest.fn()} part={part} />);
   expect(screen.getByText(/mutation customersRemove/)).toBeTruthy();
   expect(screen.getByText(/customer-123/).textContent).toContain(
     '"active": false',
@@ -58,9 +59,9 @@ it('keeps complete values and all arguments available before approval', () => {
     <ApprovalPrompt
       busy={false}
       onRespond={jest.fn()}
-      tool={{
-        ...tool,
-        toolName: 'businessAction',
+      part={{
+        ...part,
+        type: 'tool-businessAction',
         input: { ...input, content },
       }}
     />,
@@ -72,12 +73,12 @@ it('keeps complete values and all arguments available before approval', () => {
 it('requires explicit approval and disables decisions while submitting', () => {
   const onRespond = jest.fn();
   const view = render(
-    <ApprovalPrompt busy={false} onRespond={onRespond} tool={tool} />,
+    <ApprovalPrompt busy={false} onRespond={onRespond} part={part} />,
   );
   expect(onRespond).not.toHaveBeenCalled();
   fireEvent.click(screen.getByRole('button', { name: 'Approve' }));
   expect(onRespond).toHaveBeenCalledWith({ approved: true });
-  view.rerender(<ApprovalPrompt busy onRespond={onRespond} tool={tool} />);
+  view.rerender(<ApprovalPrompt busy onRespond={onRespond} part={part} />);
   expect(
     (screen.getByRole('button', { name: 'Approve' }) as HTMLButtonElement)
       .disabled,
