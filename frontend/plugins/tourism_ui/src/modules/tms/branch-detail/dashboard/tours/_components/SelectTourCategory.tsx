@@ -4,20 +4,6 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useCategories } from '../../category/hooks/useCategories';
 
-interface ITourCategory {
-  _id: string;
-  name: string;
-  parentId?: string;
-  order?: number;
-  attachment?: {
-    url?: string;
-    name?: string;
-    type?: string;
-    size?: number;
-    duration?: number;
-  };
-}
-
 interface SelectTourCategoryProps {
   value?: string[];
   onValueChange?: (value: string[]) => void;
@@ -76,7 +62,7 @@ export const SelectTourCategory = ({
                 {t('loading')}
               </Command.Item>
             ) : (
-              (categories as ITourCategory[]).map((category) => {
+              categories.map((category) => {
                 const isSelected = value.includes(category._id);
 
                 return (

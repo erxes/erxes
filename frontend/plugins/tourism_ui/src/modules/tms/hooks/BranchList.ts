@@ -1,29 +1,8 @@
 import { useQuery } from '@apollo/client';
+import { useMemo } from 'react';
 import { GET_BRANCH_LIST } from '../graphql/queries';
-import { IBranch } from '../types/branch';
-
-interface PageInfo {
-  hasNextPage: boolean;
-  hasPreviousPage: boolean;
-  startCursor: string | null;
-  endCursor: string | null;
-}
-
-interface BranchListResponse {
-  bmsBranchList: {
-    list: IBranch[];
-    totalCount: number;
-    pageInfo: PageInfo;
-  };
-}
-
-interface UseBranchListParams {
-  limit?: number;
-  cursor?: string | null;
-  cursorMode?: 'AFTER' | 'BEFORE';
-  direction?: 'FORWARD' | 'BACKWARD';
-  orderBy?: Record<string, any>;
-}
+import type { BmsBranchListQueryVariables } from '~/gql/graphql';
+import { compactList } from '~/utils/cursorList';
 
 export const useBranchList = ({
   limit = 30,
@@ -31,23 +10,21 @@ export const useBranchList = ({
   cursorMode,
   direction,
   orderBy = { createdAt: -1 },
-}: UseBranchListParams = {}) => {
-  const { data, loading, error, refetch } = useQuery<BranchListResponse>(
-    GET_BRANCH_LIST,
-    {
-      variables: {
-        limit,
-        cursor,
-        cursorMode,
-        direction,
-        orderBy,
-      },
-      fetchPolicy: 'network-only',
-      notifyOnNetworkStatusChange: true,
+}: BmsBranchListQueryVariables = {}) => {
+  const { data, loading, error, refetch } = useQuery(GET_BRANCH_LIST, {
+    variables: {
+      limit,
+      cursor,
+      cursorMode,
+      direction,
+      orderBy,
     },
-  );
+    fetchPolicy: 'network-only',
+    notifyOnNetworkStatusChange: true,
+  });
 
-  const list = data?.bmsBranchList?.list || [];
+  const rawList = data?.bmsBranchList?.list;
+  const list = useMemo(() => compactList(rawList), [rawList]);
   const totalCount = data?.bmsBranchList?.totalCount || 0;
   const pageInfo = data?.bmsBranchList?.pageInfo;
 

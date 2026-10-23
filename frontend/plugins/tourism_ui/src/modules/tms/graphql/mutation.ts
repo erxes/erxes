@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const CREATE_BRANCH = gql`
+export const CREATE_BRANCH = gql(`
   mutation BmsBranchAdd(
     $name: String
     $generalManagerIds: [String]
@@ -32,9 +32,9 @@ export const CREATE_BRANCH = gql`
       _id
     }
   }
-`;
+`);
 
-export const EDIT_BRANCH = gql`
+export const EDIT_BRANCH = gql(`
   mutation BmsBranchEdit(
     $id: String!
     $name: String
@@ -68,10 +68,10 @@ export const EDIT_BRANCH = gql`
       _id
     }
   }
-`;
+`);
 
-export const REMOVE_BRANCH = gql`
+export const REMOVE_BRANCH = gql(`
   mutation BmsBranchRemove($id: String!) {
     bmsBranchRemove(_id: $id)
   }
-`;
+`);

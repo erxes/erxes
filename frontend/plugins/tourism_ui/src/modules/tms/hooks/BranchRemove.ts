@@ -2,14 +2,6 @@ import { useMutation } from '@apollo/client';
 import { REMOVE_BRANCH } from '@/tms/graphql/mutation';
 import { toast } from 'erxes-ui';
 
-interface RemoveBranchVariables {
-  id: string;
-}
-
-interface RemoveBranchResponse {
-  bmsBranchRemove: boolean;
-}
-
 interface UseBranchRemoveOptions {
   onSuccess?: () => void;
   onError?: (error: unknown) => void;
@@ -31,10 +23,7 @@ const showToast = {
 };
 
 export const useBranchRemove = (options?: UseBranchRemoveOptions) => {
-  const [deleteBranchMutation, { loading }] = useMutation<
-    RemoveBranchResponse,
-    RemoveBranchVariables
-  >(REMOVE_BRANCH, {
+  const [deleteBranchMutation, { loading }] = useMutation(REMOVE_BRANCH, {
     refetchQueries: ['BmsBranchList'],
     awaitRefetchQueries: false,
   });
@@ -58,7 +47,7 @@ export const useBranchRemove = (options?: UseBranchRemoveOptions) => {
 
   const handleDeleteBranch = async (
     branchId: string,
-    refetch?: () => Promise<any>,
+    refetch?: () => Promise<unknown>,
   ): Promise<void> => {
     try {
       const success = await removeBranchById(branchId);

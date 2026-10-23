@@ -44,7 +44,10 @@ export const SelectPricingPlan = ({
   const renderTriggerValue = () => {
     if (selectedPlan) {
       return (
-        <TextOverflowTooltip value={selectedPlan.name} className="max-w-40" />
+        <TextOverflowTooltip
+          value={selectedPlan.name ?? ''}
+          className="max-w-40"
+        />
       );
     }
 
@@ -79,11 +82,11 @@ export const SelectPricingPlan = ({
               <Command.Item
                 key={pricingPlan._id}
                 value={pricingPlan._id}
-                keywords={[pricingPlan.name]}
+                keywords={pricingPlan.name ? [pricingPlan.name] : []}
                 onSelect={() => handleSelect(pricingPlan)}
               >
                 <div className="flex overflow-hidden flex-1 gap-2 items-center">
-                  <TextOverflowTooltip value={pricingPlan.name} />
+                  <TextOverflowTooltip value={pricingPlan.name ?? ''} />
                 </div>
                 <Combobox.Check checked={value === pricingPlan._id} />
               </Command.Item>

@@ -1,22 +1,5 @@
-import { IAttachment } from 'erxes-ui';
-import { ApolloError } from '@apollo/client';
+import type { PmsProductCategoriesQuery } from '~/gql/graphql';
 
-export interface IProductCategory {
-  _id: string;
-  name: string;
-  avatar?: IAttachment;
-  code: string;
-  order: string;
-  productCount: number;
-  parentId?: string;
-}
-
-export interface ProductCategoriesResponse {
-  productCategories: IProductCategory[];
-}
-
-export interface UseProductCategoriesResult {
-  productCategories: IProductCategory[] | undefined;
-  loading: boolean;
-  error: ApolloError | undefined;
-}
+export type IProductCategory = NonNullable<
+  NonNullable<PmsProductCategoriesQuery['productCategories']>[number]
+>;

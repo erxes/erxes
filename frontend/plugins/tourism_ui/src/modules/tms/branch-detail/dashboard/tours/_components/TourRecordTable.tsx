@@ -13,6 +13,7 @@ import { TOURS_CURSOR_SESSION_KEY } from '../constants/tourCursorSessionKey';
 import { TourCommandBar } from './TourCommandBar';
 import { useCategories } from '../../category/hooks/useCategories';
 import type { TourSideTab } from './TourOrdersSidePanel';
+import type { Date_Type } from '~/gql/graphql';
 
 export const TourRecordTable = ({
   branchId,
@@ -27,7 +28,7 @@ export const TourRecordTable = ({
   const [sideTab, setSideTab] = useState<TourSideTab | null>(null);
   const [duplicateTourId, setDuplicateTourId] = useState<string | null>(null);
   const [duplicateTourDateType, setDuplicateTourDateType] = useState<
-    'fixed' | 'flexible' | undefined
+    Date_Type | null | undefined
   >(undefined);
 
   const { t } = useTranslation('tourism');
@@ -52,7 +53,7 @@ export const TourRecordTable = ({
   }, []);
 
   const handleDuplicate = useCallback(
-    (tourId: string, dateType?: 'fixed' | 'flexible') => {
+    (tourId: string, dateType?: Date_Type | null) => {
       setDuplicateTourId(tourId);
       setDuplicateTourDateType(dateType);
     },

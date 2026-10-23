@@ -1,25 +1,13 @@
-export interface IElementTranslation {
-  _id?: string;
-  objectId?: string;
-  language: string;
-  name?: string;
-  note?: string;
-  cost?: number;
-}
+import type { BmsElementDetailQuery, BmsElementsQuery } from '~/gql/graphql';
 
-export interface IElement {
-  _id: string;
-  branchId?: string;
-  name?: string;
-  content?: string;
-  note?: string;
-  startTime?: string;
-  duration?: number;
-  cost?: number;
-  categories?: string[];
-  quick?: boolean;
-  language?: string;
-  createdAt?: string;
-  modifiedAt?: string;
-  translations?: IElementTranslation[];
-}
+export type IElement = NonNullable<
+  NonNullable<NonNullable<BmsElementsQuery['bmsElements']>['list']>[number]
+>;
+
+export type IElementTranslation = NonNullable<
+  NonNullable<IElement['translations']>[number]
+>;
+
+export type IElementDetail = NonNullable<
+  BmsElementDetailQuery['bmsElementDetail']
+>;

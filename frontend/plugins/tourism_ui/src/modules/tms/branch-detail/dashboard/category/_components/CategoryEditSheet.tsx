@@ -25,6 +25,7 @@ import {
   sanitizeCategoryTranslations,
   resolveMainLanguageName,
 } from '../utils/translationHelpers';
+import { toAttachmentFormValue, toAttachmentInput } from '~/utils/attachment';
 
 interface CategoryEditSheetProps {
   category: ICategory;
@@ -61,7 +62,8 @@ export const CategoryEditSheet = ({
 
   const { editCategory, loading } = useEditCategory();
   const { toast } = useToast();
-  const normalizedAttachment = category.attachment ?? undefined;
+  const normalizedAttachment =
+    toAttachmentFormValue(category.attachment) ?? undefined;
 
   const form = useForm<CategoryCreateFormType>({
     resolver: zodResolver(CategoryCreateFormSchema),
@@ -93,7 +95,7 @@ export const CategoryEditSheet = ({
       name: resolveMainLanguageName(category, mainLanguage),
       code: category.code || '',
       parentId: category.parentId || '',
-      attachment: category.attachment ?? undefined,
+      attachment: toAttachmentFormValue(category.attachment) ?? undefined,
       translations: buildTranslationsFromCategory(
         category,
         translationLanguages,
@@ -122,7 +124,7 @@ export const CategoryEditSheet = ({
           ...(values.parentId &&
             values.parentId.trim() !== '' && { parentId: values.parentId }),
           ...(category.branchId && { branchId: category.branchId }),
-          ...(values.attachment && { attachment: values.attachment }),
+          attachment: toAttachmentInput(values.attachment),
           language: mainLanguage,
           translations: sanitizeCategoryTranslations(values.translations),
         },

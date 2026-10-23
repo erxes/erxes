@@ -39,7 +39,7 @@ const ORDER_STATUS_OPTIONS = [
   { value: 'cancelled', label: 'Cancelled' },
 ];
 
-function formatDate(dateStr?: string): string {
+function formatDate(dateStr?: string | null): string {
   if (!dateStr) return '—';
 
   return new Date(dateStr).toLocaleDateString('mn-MN', {
@@ -49,14 +49,14 @@ function formatDate(dateStr?: string): string {
   });
 }
 
-function formatAmount(amount?: number): string {
+function formatAmount(amount?: number | null): string {
   if (amount == null) return '—';
   return `${amount.toLocaleString()} USD`;
 }
 
 const TERMINAL_ORDER_STATUSES = new Set(['refunded', 'cancelled']);
 
-function StatusBadge({ status }: Readonly<{ status?: string }>) {
+function StatusBadge({ status }: Readonly<{ status?: string | null }>) {
   const toneMap: Record<string, string> = {
     paid: 'border-emerald-500/15 bg-emerald-500/6 text-emerald-200',
     pending: 'border-amber-500/15 bg-amber-500/6 text-amber-200',

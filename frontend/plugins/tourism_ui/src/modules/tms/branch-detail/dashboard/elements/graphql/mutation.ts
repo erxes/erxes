@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const CREATE_ELEMENT = gql`
+export const CREATE_ELEMENT = gql(`
   mutation BmsElementAdd(
     $name: String
     $note: String
@@ -28,9 +28,9 @@ export const CREATE_ELEMENT = gql`
       _id
     }
   }
-`;
+`);
 
-export const EDIT_ELEMENT = gql`
+export const EDIT_ELEMENT = gql(`
   mutation BmsElementEdit(
     $id: String!
     $name: String
@@ -58,10 +58,10 @@ export const EDIT_ELEMENT = gql`
       _id
     }
   }
-`;
+`);
 
-export const REMOVE_ELEMENT = gql`
+export const REMOVE_ELEMENT = gql(`
   mutation BmsElementRemove($ids: [String!]!) {
     bmsElementRemove(ids: $ids)
   }
-`;
+`);

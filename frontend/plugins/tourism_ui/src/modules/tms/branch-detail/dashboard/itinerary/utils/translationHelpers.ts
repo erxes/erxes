@@ -1,6 +1,7 @@
 import { IItineraryTranslationInput } from '../hooks/useCreateItinerary';
 import { ItineraryCreateFormType } from '../constants/formSchema';
 import { IItinerary } from '../types/itinerary';
+import { compactList } from '~/utils/cursorList';
 
 export const buildEmptyTranslations = (
   translationLanguages: string[],
@@ -23,18 +24,22 @@ export const buildTranslationsFromItinerary = (
 ): ItineraryCreateFormType['translations'] =>
   translationLanguages.map((lang) => {
     const existing = (itinerary.translations || []).find(
-      (t) => t.language === lang,
+      (t) => t?.language === lang,
     );
     return {
       language: lang,
       name: existing?.name || '',
       content: existing?.content || '',
-      foodCost: existing?.foodCost,
-      gasCost: existing?.gasCost,
-      driverCost: existing?.driverCost,
-      guideCost: existing?.guideCost,
-      guideCostExtra: existing?.guideCostExtra,
-      groupDays: existing?.groupDays || [],
+      foodCost: existing?.foodCost ?? undefined,
+      gasCost: existing?.gasCost ?? undefined,
+      driverCost: existing?.driverCost ?? undefined,
+      guideCost: existing?.guideCost ?? undefined,
+      guideCostExtra: existing?.guideCostExtra ?? undefined,
+      groupDays: compactList(existing?.groupDays).map((groupDay) => ({
+        day: groupDay.day ?? undefined,
+        title: groupDay.title ?? undefined,
+        content: groupDay.content ?? undefined,
+      })),
     };
   });
 
@@ -108,7 +113,7 @@ export const resolveMainLanguageName = (
   if (!mainLanguage) return itinerary.name || '';
 
   const mainTranslation = itinerary.translations?.find(
-    (t) => t.language === mainLanguage,
+    (t) => t?.language === mainLanguage,
   );
 
   return mainTranslation?.name || itinerary.name || '';

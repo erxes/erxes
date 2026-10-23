@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const CREATE_ITINERARY = gql`
+export const CREATE_ITINERARY = gql(`
   mutation BmsItineraryAdd(
     $groupDays: [DayItemInput]
     $totalCost: Float
@@ -40,9 +40,9 @@ export const CREATE_ITINERARY = gql`
       _id
     }
   }
-`;
+`);
 
-export const EDIT_ITINERARY = gql`
+export const EDIT_ITINERARY = gql(`
   mutation BmsItineraryEdit(
     $id: String!
     $branchId: String
@@ -84,10 +84,10 @@ export const EDIT_ITINERARY = gql`
       _id
     }
   }
-`;
+`);
 
-export const REMOVE_ITINERARY = gql`
+export const REMOVE_ITINERARY = gql(`
   mutation BmsItineraryRemove($ids: [String!]!) {
     bmsItineraryRemove(ids: $ids)
   }
-`;
+`);

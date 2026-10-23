@@ -2,12 +2,11 @@ import { useCallback } from 'react';
 import { toast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { getWebsiteUrl } from '~/utils/websiteUrl';
+import { toPmsUiOptions } from '@/pms/utils/branchOptions';
 
 type BranchWithWebsite = {
   _id: string;
-  uiOptions?: {
-    website?: string;
-  };
+  uiOptions?: unknown;
 };
 
 export const useVisitWebsite = (
@@ -26,7 +25,7 @@ export const useVisitWebsite = (
         type,
         hostname,
         protocol,
-        branch.uiOptions?.website,
+        toPmsUiOptions(branch.uiOptions).website,
       );
 
       if (!url) {

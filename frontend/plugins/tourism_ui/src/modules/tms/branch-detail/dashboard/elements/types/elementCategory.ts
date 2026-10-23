@@ -1,5 +1,5 @@
-export interface IElementCategory {
-  _id: string;
-  name: string;
-  parentId?: string | null;
-}
+import type { BmsElementCategoriesQuery } from '~/gql/graphql';
+
+export type IElementCategory = NonNullable<
+  NonNullable<BmsElementCategoriesQuery['bmsElementCategories']>[number]
+>;

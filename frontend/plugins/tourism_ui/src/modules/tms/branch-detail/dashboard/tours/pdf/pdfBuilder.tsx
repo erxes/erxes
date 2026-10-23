@@ -11,10 +11,11 @@ import type {
   IPricingOption,
   IPricingOptionTranslation,
   ITourDetail,
-  ITourTranslation,
 } from '../hooks/useTourDetail';
 import { pdf } from '@react-pdf/renderer';
 import { TourPDF } from './TourPDF';
+import { compactList } from '~/utils/cursorList';
+import { toBranchUiOptions } from '@/tms/utils/branchUiOptions';
 import type { TourPdfRenderConfig } from './types';
 
 export interface LocalizedTourDetail extends ITourDetail {
@@ -53,7 +54,7 @@ function setCachedPdf(key: string, blob: Blob) {
 }
 
 const convertTrackedSingleImage = async (
-  imagePath?: string,
+  imagePath?: string | null,
   stats?: ImageLoadStats,
 ): Promise<string> => {
   if (!imagePath) return '';
@@ -81,7 +82,9 @@ const mergePricingOptionTranslation = (
     ? { accommodationType: translation.accommodationType }
     : {}),
   ...(translation?.note ? { note: translation.note } : {}),
-  ...(translation?.prices?.length ? { prices: translation.prices } : {}),
+  ...(translation?.prices?.length
+    ? { prices: compactList(translation.prices) }
+    : {}),
   ...(typeof translation?.pricePerPerson === 'number'
     ? { pricePerPerson: translation.pricePerPerson }
     : {}),
@@ -101,8 +104,8 @@ export const resolveTourForPdf = (
     return tour;
   }
 
-  const translation = tour.translations?.find(
-    (item: ITourTranslation) => item.language === language,
+  const translation = compactList(tour.translations).find(
+    (item) => item.language === language,
   );
 
   if (!translation) {
@@ -110,7 +113,10 @@ export const resolveTourForPdf = (
   }
 
   const pricingTranslationMap = new Map(
-    (translation.pricingOptions || []).map((item) => [item.optionId, item]),
+    compactList(translation.pricingOptions).map((item) => [
+      item.optionId,
+      item,
+    ]),
   );
 
   return {
@@ -123,7 +129,7 @@ export const resolveTourForPdf = (
     info3: translation.info3 || tour.info3,
     info4: translation.info4 || tour.info4,
     info5: translation.info5 || tour.info5,
-    pricingOptions: (tour.pricingOptions || []).map((option) =>
+    pricingOptions: compactList(tour.pricingOptions).map((option) =>
       mergePricingOptionTranslation(
         option,
         pricingTranslationMap.get(option._id),
@@ -214,24 +220,22 @@ export const buildTourPdfBlob = async ({
     ? {
         ...itinerary,
         groupDays: await Promise.all(
-          (itinerary.groupDays || []).map(async (day) => {
+          compactList(itinerary.groupDays).map(async (day) => {
             const base64Image = await convertTrackedSingleImage(
-              day.images?.[0],
+              compactList(day.images)[0],
               imageLoadStats,
             );
 
             return {
               ...day,
               base64Images: base64Image ? [base64Image] : [],
-              resolvedElements: (day.elements || [])
-                .slice()
+              resolvedElements: compactList(day.elements)
                 .sort((a, b) => (a.orderOfDay || 0) - (b.orderOfDay || 0))
                 .map((item) => item.elementId && elementMap.get(item.elementId))
                 .filter((element): element is ItineraryPdfElementData =>
                   Boolean(element),
                 ),
-              resolvedAmenities: (day.elementsQuick || [])
-                .slice()
+              resolvedAmenities: compactList(day.elementsQuick)
                 .sort((a, b) => (a.orderOfDay || 0) - (b.orderOfDay || 0))
                 .map((item) => item.elementId && amenityMap.get(item.elementId))
                 .filter((amenity): amenity is ItineraryPdfAmenityData =>
@@ -245,15 +249,17 @@ export const buildTourPdfBlob = async ({
 
   const coverImageCandidates = [
     tour.imageThumbnail,
-    ...(tour.images || []),
-    ...(itinerary?.images || []),
+    ...compactList(tour.images),
+    ...compactList(itinerary?.images),
   ].filter(Boolean);
   const coverImageBase64 = await convertTrackedSingleImage(
     coverImageCandidates[0],
     imageLoadStats,
   );
   const mainLogoBase64 = await convertTrackedSingleImage(
-    branchDetail?.uiOptions?.mainLogo || branchDetail?.uiOptions?.logo || '',
+    toBranchUiOptions(branchDetail?.uiOptions).mainLogo ||
+      toBranchUiOptions(branchDetail?.uiOptions).logo ||
+      '',
     imageLoadStats,
   );
 

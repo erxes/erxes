@@ -53,7 +53,7 @@ export const ItineraryRecordTable = ({
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
 
   const handleEditClick = useCallback(
-    (itineraryId: string, itineraryBranchId?: string) => {
+    (itineraryId: string, itineraryBranchId?: string | null) => {
       setEditSheetState({
         open: true,
         itineraryId,

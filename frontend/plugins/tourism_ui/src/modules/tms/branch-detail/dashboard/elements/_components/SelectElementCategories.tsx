@@ -6,6 +6,7 @@ import { Form, Button, Popover, Command } from 'erxes-ui';
 import { IconCheck } from '@tabler/icons-react';
 import { GET_ELEMENT_CATEGORIES } from '../graphql/categoryQueries';
 import { IElementCategory } from '../types/elementCategory';
+import { compactList } from '~/utils/cursorList';
 import { ElementCreateFormType } from '../constants/formSchema';
 
 interface SelectElementCategoriesProps {
@@ -18,12 +19,10 @@ export const SelectElementCategories = ({
   const { t } = useTranslation('tourism');
   const [open, setOpen] = useState(false);
 
-  const { data, loading } = useQuery<{
-    bmsElementCategories: IElementCategory[];
-  }>(GET_ELEMENT_CATEGORIES);
+  const { data, loading } = useQuery(GET_ELEMENT_CATEGORIES);
 
   const categories = useMemo(
-    () => data?.bmsElementCategories || [],
+    () => compactList(data?.bmsElementCategories),
     [data?.bmsElementCategories],
   );
 
