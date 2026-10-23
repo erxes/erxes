@@ -16,6 +16,7 @@ jest.mock('@apollo/client', () => ({
   ...jest.requireActual('@apollo/client'),
   useLazyQuery: jest.fn(),
   useApolloClient: () => mockApolloClient,
+  useMutation: jest.fn(),
 }));
 const mockSendMessages = jest.fn();
 const mockReconnectToStream = jest.fn();
@@ -35,10 +36,11 @@ jest.mock('../hooks/useNavigationCatalog', () => ({
   useNavigationCatalog: () => [],
 }));
 
-import { InMemoryCache, useLazyQuery } from '@apollo/client';
+import { InMemoryCache, useLazyQuery, useMutation } from '@apollo/client';
 import { AgentsStreamStalledError } from '../streamHealth';
 
 const load = jest.fn();
+const stopThread = jest.fn();
 
 const deferred = <T,>() => {
   let resolve!: (value: T) => void;
@@ -79,6 +81,7 @@ beforeEach(() => {
   jest.clearAllMocks();
   mockApolloClient.cache = new InMemoryCache();
   (useLazyQuery as jest.Mock).mockReturnValue([load]);
+  (useMutation as jest.Mock).mockReturnValue([stopThread]);
   mockReconnectToStream.mockResolvedValue(null);
 });
 
