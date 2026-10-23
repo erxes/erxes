@@ -1,6 +1,7 @@
 import { IconPaperclip } from '@tabler/icons-react';
 import { cn } from 'erxes-ui';
 import { IMessageSurvey, IMessageSurveyStep } from '@/inbox/types/Conversation';
+import { useTranslation } from 'react-i18next';
 
 const timeLeftLabel = (expiry?: string): string => {
   if (!expiry) return '';
@@ -34,6 +35,7 @@ const SurveyStep = ({
   step: IMessageSurveyStep;
   countById: Map<string | number, number>;
 }) => {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const stepVotes = step.answers.reduce(
     (sum, answer) => sum + (countById.get(answer.id) ?? 0),
     0,
@@ -41,7 +43,9 @@ const SurveyStep = ({
 
   return (
     <div className="flex flex-col gap-1.5">
-      <div className="text-sm font-semibold">{step.question || 'Survey'}</div>
+      <div className="text-sm font-semibold">
+        {step.question || t('survey')}
+      </div>
       {step.description && (
         <div className="text-xs text-muted-foreground">{step.description}</div>
       )}
@@ -72,8 +76,8 @@ const SurveyStep = ({
       )}
       <div className="text-xs text-muted-foreground">
         {step.allowMultiselect
-          ? 'Select multiple answers'
-          : 'Select one answer'}
+          ? t('select-multiple-answers')
+          : t('select-one-answer')}
       </div>
       {step.answers.map((answer) => {
         const count = countById.get(answer.id) ?? 0;
@@ -105,6 +109,7 @@ const SurveyStep = ({
 };
 
 export const MessageSurvey = ({ survey }: { survey: IMessageSurvey }) => {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const countById = new Map<string | number, number>(
     (survey.results?.answerCounts ?? []).map((c) => [c.id, c.count]),
   );
@@ -114,7 +119,7 @@ export const MessageSurvey = ({ survey }: { survey: IMessageSurvey }) => {
   const closed =
     Boolean(survey.results?.isFinalized) ||
     (survey.expiry ? new Date(survey.expiry).getTime() <= Date.now() : false);
-  const status = closed ? 'Survey closed' : timeLeftLabel(survey.expiry);
+  const status = closed ? t('survey-closed') : timeLeftLabel(survey.expiry);
 
   return (
     <div className="mt-2 w-full rounded-lg border bg-background p-3">
@@ -123,7 +128,7 @@ export const MessageSurvey = ({ survey }: { survey: IMessageSurvey }) => {
           <div key={step.stepId} className="flex flex-col gap-1.5">
             {steps.length > 1 && (
               <div className="text-xs font-mono uppercase text-muted-foreground">
-                {step.name || `Step ${index + 1}`}
+                {step.name || t('step-number', { number: index + 1 })}
               </div>
             )}
             <SurveyStep step={step} countById={countById} />

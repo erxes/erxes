@@ -21,7 +21,7 @@ const ALL_STATUSES = ['new', 'open', 'closed', 'resolved'] as const;
 type ProgressStatus = (typeof ALL_STATUSES)[number];
 
 export const ProgressSource = ({ customerId }: { customerId?: string }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const { conversationSourceProgress } = useGetConversationSourceProgress({
     variables: customerId ? { customerId } : undefined,
     skip: !customerId,

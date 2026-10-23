@@ -24,6 +24,7 @@ import {
   SelectTriggerTicket,
   SelectTriggerVariant,
 } from '@/ticket/components/ticket-selects/SelectTicket';
+import { useTranslation } from 'react-i18next';
 
 const SelectAssigneeProvider = SelectMember.Provider;
 
@@ -34,6 +35,7 @@ const SelectAssigneeValue = ({
   placeholder?: string;
   variant?: `${SelectTriggerVariant}`;
 }) => {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   const { memberIds, members, setMembers } = useSelectMemberContext();
   if (memberIds.includes('no-assignee')) {
     return <MembersInline memberIds={[]} allowUnassigned />;
@@ -50,7 +52,7 @@ const SelectAssigneeValue = ({
       </MembersInline.Provider>
     );
   }
-  return <SelectMember.Value placeholder={placeholder || 'Select assignee'} />;
+  return <SelectMember.Value placeholder={placeholder || t('select-assignee')} />;
 };
 
 const SelectTeamMemberContent = ({

@@ -8,7 +8,7 @@ import { useTranslation } from 'react-i18next';
 import { useConversationTranslation } from '@/inbox/conversations/translations';
 
 export const ConversationCount = ({ className }: { className?: string }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const { totalCount, loading } = useConversationListContext();
 
   return (

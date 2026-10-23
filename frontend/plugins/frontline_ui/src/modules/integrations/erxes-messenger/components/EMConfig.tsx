@@ -55,7 +55,9 @@ type EMConfigFormValues = z.infer<typeof EM_CONFIG_SCHEMA>;
 type TConfigTab = 'bot' | 'ticket' | 'kb';
 
 export const EMConfig = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const { id } = useParams();
   const form = useForm<EMConfigFormValues>({
     resolver: zodResolver(EM_CONFIG_SCHEMA),
@@ -292,7 +294,9 @@ const PersistentMenu = ({
 }: {
   form: UseFormReturn<z.infer<typeof EM_CONFIG_SCHEMA>>;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const { control, watch } = form;
 
   const { fields, append, remove } = useFieldArray({
@@ -407,9 +411,9 @@ const PersistentMenu = ({
                         </Select.Trigger>
                       </Form.Control>
                       <Select.Content>
-                        {EM_CONTENT_TYPES.map(({ type, label }) => (
+                        {EM_CONTENT_TYPES.map(({ type, labelKey }) => (
                           <Select.Item key={type} value={type}>
-                            {label}
+                            {t(labelKey)}
                           </Select.Item>
                         ))}
                       </Select.Content>
@@ -441,7 +445,9 @@ const CallRouting = ({
 }: {
   form: UseFormReturn<z.infer<typeof EM_CONFIG_SCHEMA>>;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const { control } = form;
 
   const { fields, append, remove } = useFieldArray({
@@ -514,7 +520,9 @@ const SelectMessengerAutomation = ({
   value: string;
   onChange: (v: string) => void;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const [open, setOpen] = useState(false);
   const { data, loading } = useQuery(EM_MESSENGER_AUTOMATIONS, {
     variables: { triggerTypes: ['frontline:inbox.messages'] },

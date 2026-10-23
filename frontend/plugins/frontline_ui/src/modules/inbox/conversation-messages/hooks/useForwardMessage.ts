@@ -15,11 +15,13 @@ import {
 } from '@/inbox/conversation-messages/types/forwardMessage';
 import { buildForwardMessage } from '@/inbox/conversation-messages/utils/forwardMessage';
 import { previewOf } from '@/inbox/conversation-messages/utils/messageActionText';
+import { useTranslation } from 'react-i18next';
 
 export const useForwardMessage = (
   open: boolean,
   onOpenChange: (open: boolean) => void,
 ) => {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const message = useConversationMessageContext();
   const { _id: sourceConversationId } = useConversationContext();
   const preview = previewOf(message);
@@ -91,11 +93,11 @@ export const useForwardMessage = (
         }));
         toast({
           title: remaining.length
-            ? 'Message partially forwarded'
-            : 'Message forwarded with a warning',
+            ? t('message-partially-forwarded')
+            : t('message-forwarded-with-warning'),
           description: remaining.length
-            ? 'Retry will send only the remaining attachments.'
-            : 'Facebook accepted the message, but saving its history failed. Do not resend it.',
+            ? t('retry-sends-remaining-attachments')
+            : t('facebook-forward-history-failed'),
           variant: 'destructive',
         });
         return;
@@ -106,12 +108,12 @@ export const useForwardMessage = (
           [destinationId]: [],
         }));
       }
-      toast({ title: 'Message forwarded', variant: 'default' });
+      toast({ title: t('message-forwarded'), variant: 'default' });
       form.reset();
       onOpenChange(false);
     } catch (error) {
       toast({
-        title: `Failed to forward: ${(error as Error).message}`,
+        title: t('forward-failed', { message: (error as Error).message }),
         variant: 'destructive',
       });
     }

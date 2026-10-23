@@ -52,7 +52,7 @@ export const PollComposer = ({
   disabled?: boolean;
   provider?: 'Discord' | 'Telegram';
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const [open, setOpen] = useState(false);
   const [question, setQuestion] = useState('');
   const [options, setOptions] = useState(() => [makeOption(), makeOption()]);

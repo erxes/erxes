@@ -12,7 +12,9 @@ import type {
 } from '@/integrations/mail/types/mailDelivery';
 
 export const useDeliveryToast = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
 
   return (outcome?: MailDeliveryOutcome | null) => {
     if (!outcome) {
@@ -41,7 +43,9 @@ export const useDeliveryToast = () => {
 };
 
 export const useMailSendMail = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const showDeliveryOutcome = useDeliveryToast();
   const [sendMailMutation, { loading }] = useMutation(MAIL_SEND_MAIL_MUTATION);
 
@@ -78,7 +82,9 @@ export const useMailSendMail = () => {
 };
 
 export const useMailSendReaction = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const showDeliveryOutcome = useDeliveryToast();
   const [sendReaction, { loading }] = useMutation(MAIL_SEND_REACTION_MUTATION);
 
@@ -107,7 +113,9 @@ export const useMailSendReaction = () => {
 };
 
 export const useMailMessageRetry = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const showDeliveryOutcome = useDeliveryToast();
   const [retryMutation, { loading }] = useMutation(MAIL_MESSAGE_RETRY_MUTATION);
 

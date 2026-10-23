@@ -84,7 +84,7 @@ export const Status = ({
   status: ITicketStatus;
   isDragDisabled: boolean;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.status' });
   const setEditingStatus = useSetAtom(editingStatusState);
   const {
     attributes,
@@ -158,7 +158,7 @@ const StatusOptionMenu = ({
   statusId: string;
   statusType: number;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.status' });
   const setEditingStatus = useSetAtom(editingStatusState);
   const { toast } = useToast();
   const { deleteStatus } = useDeleteTicketStatus(statusType);
@@ -214,6 +214,9 @@ export const StatusGroup = ({
   statusType: number;
 }) => {
   const { t } = useTranslation('frontline');
+  const { t: tf } = useTranslation('frontline', {
+    keyPrefix: 'modules.status',
+  });
   const { statuses = [], loading } = useGetTicketStatus(statusType);
   const { updateStatus } = useUpdateTicketStatus();
   const { toast } = useToast();
@@ -285,11 +288,8 @@ export const StatusGroup = ({
 
       if (hasFailure) {
         toast({
-          title: t('error', 'Error'),
-          description: t(
-            'reorder-failed',
-            'Some statuses could not be reordered.',
-          ),
+          title: tf('error'),
+          description: tf('reorder-failed'),
           variant: 'destructive',
         });
       }
@@ -318,7 +318,7 @@ export const StatusGroup = ({
           )}
           {!isEmpty && (
             <Button
-              aria-label={t('add', 'Add')}
+              aria-label={tf('add')}
               className="ml-auto"
               disabled={loading || isEditingSomewhere}
               onClick={() => setAddingStatus(statusType)}
@@ -359,7 +359,7 @@ export const StatusGroup = ({
             variant="outline"
           >
             <IconPlus />
-            {t('add', 'Add')}
+            {tf('add')}
           </Button>
         )}
 

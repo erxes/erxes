@@ -14,7 +14,7 @@ import { CONVERT_TYPES, CONVERT_TYPE_OPTIONS } from './convertForm';
 const HOST_PLUGIN_NAME = 'frontline';
 
 export const ConversationConvert = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const navigate = useNavigate();
   const { _id } = useConversationContext();
   const pluginsConfig = useAtomValue(pluginsConfigState);

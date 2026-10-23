@@ -106,7 +106,7 @@ export function FrontlineCardHeader({
   filter?: React.ReactNode;
   titleAccessory?: React.ReactNode;
 }) {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const { title, dragHandleProps, colSpan, onColSpanChange } =
     useFrontlineCardContext();
 
@@ -171,7 +171,7 @@ export function FrontlineCardHeader({
 }
 
 export function FrontlineCardEmpty() {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const { description } = useFrontlineCardContext();
   return (
     <Empty>

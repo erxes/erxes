@@ -911,7 +911,7 @@ export const loadClasses = (
 
   models.Files = db.model<IFileDocument, IFileModel>(
     'files',
-    loadFileClass(models),
+    loadFileClass(models, subdomain),
   );
   models.FileFolders = db.model<IFileFolderDocument, IFileFolderModel>(
     'files_folders',

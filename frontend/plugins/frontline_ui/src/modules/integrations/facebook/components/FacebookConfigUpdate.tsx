@@ -51,7 +51,9 @@ export const FacebookConfigUpdateCollapse = () => {
 };
 
 export const FacebookConfigUpdate = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const confirmationValue = 'update';
   const { confirm } = useConfirm();
   const confirmOptions = { confirmationValue };

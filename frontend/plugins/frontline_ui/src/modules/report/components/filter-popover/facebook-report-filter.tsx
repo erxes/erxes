@@ -31,7 +31,7 @@ export const FacebookReportFilter = ({
   cardId,
   showSearch,
 }: FacebookReportFilterProps) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const [dateValue, setDateValue] = useAtom(getReportDateFilterAtom(cardId));
   const [pageFilter, setPageFilter] = useAtom(
     getReportFacebookPageFilterAtom(cardId),
@@ -127,7 +127,7 @@ const PostSearchDialog = ({
   value: string;
   onChange: (value: string) => void;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const { setDialogView, setOpenDialog } = useFilterContext();
   const [draft, setDraft] = useState(value);
 
@@ -180,7 +180,7 @@ const PageFilterView = ({
   onValueChange: (value: string[]) => void;
   pages: FacebookPage[];
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
 
   const handleSelect = (selectedValue: string) => {
     if (selectedValue === 'all') {

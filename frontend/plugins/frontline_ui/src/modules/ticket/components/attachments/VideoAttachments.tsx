@@ -17,7 +17,7 @@ const getCloudflareStreamIframe = (url: string): string | null => {
 };
 
 const VideoAttachments = ({ attachments }: { attachments: IAttachment[] }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   const { handleRemoveImage, removingUrl } = useAttachmentContext();
   const { loading } = useCreateTicket();
   const { isCovered, reveal } = useUnverifiedAttachments();
@@ -25,7 +25,7 @@ const VideoAttachments = ({ attachments }: { attachments: IAttachment[] }) => {
   return (
     <div className="py-4 px-8">
       <h4 className="uppercase text-sm text-muted-foreground pb-4">
-        {t('video-attachments', 'Video Attachments')}
+        {t('video-attachments')}
       </h4>
       <div className="overflow-x-auto flex gap-4">
         {attachments.map((attachment) => {

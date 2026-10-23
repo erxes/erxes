@@ -167,7 +167,7 @@ export const useConversations = (
       refetchRef.current().catch(() => undefined);
     }, 0);
   }, []);
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const { toast } = useToast();
   const containerRef = useRef<HTMLDivElement>(null);
   const fetchingMoreRef = useRef(false);

@@ -9,7 +9,7 @@ export const FacebookBotHealthCell = ({
 }: {
   health?: IFacebookBotHealth | null;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.facebook' });
   const { statusLabel, statusVariant, showDetails, detailItems } =
     useFacebookBotHealthCell(health);
 

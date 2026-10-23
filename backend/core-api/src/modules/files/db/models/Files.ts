@@ -34,6 +34,7 @@ import {
   TFilesActor,
   withOwnerGrant,
 } from '@/files/utils/access';
+import { isSaas } from '@/files/utils/config';
 import { getFilesMaxFileSize, MB } from '@/files/utils/limits';
 import { canServeInline, getExtension, SNIFF_BYTES, sniffMimeType } from '@/files/utils/mime';
 import { buildPreview, getPreviewKind, withPreviewWorkspace } from '@/files/utils/previews';
@@ -168,9 +169,11 @@ export interface IFileModel extends Model<IFileDocument> {
   sweep(): Promise<TFilesSweepResult>;
 }
 
-export const loadFileClass = (models: IModels) => {
+export const loadFileClass = (models: IModels, subdomain: string) => {
+  // SaaS tenants share one bucket; the prefix lets a tenant's objects be measured or removed together.
+  const keyPrefix = isSaas() ? `${subdomain}/files` : 'files';
   const storageKeyFor = (fileId: string, versionId: string) =>
-    `files/${fileId}/${versionId}`;
+    `${keyPrefix}/${fileId}/${versionId}`;
 
   const previewUpdate = ({ previewStatus, thumbnailKey, viewerKey }: TFilePreviewFields) => {
     const $set: Record<string, string> = {

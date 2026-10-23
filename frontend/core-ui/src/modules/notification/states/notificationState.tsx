@@ -11,6 +11,7 @@ export interface InboxDisplayOptions {
   unreadFirst: boolean;
   showPriority: boolean;
   showSender: boolean;
+  wrapMessages: boolean;
   grouping: 'none' | 'date' | 'plugin';
 }
 
@@ -20,6 +21,7 @@ export const inboxDisplayOptionsState = atomWithStorage<InboxDisplayOptions>(
     unreadFirst: true,
     showPriority: true,
     showSender: true,
+    wrapMessages: false,
     grouping: 'none',
   },
 );
