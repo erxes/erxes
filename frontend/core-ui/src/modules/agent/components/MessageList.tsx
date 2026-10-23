@@ -27,6 +27,7 @@ import {
 } from './MessagePart';
 import { AgentTurnActivity } from './AgentTurnActivity';
 import type { IAskUserAnswer } from './AskUserPrompt';
+import type { IApprovalDecision } from './ApprovalPrompt';
 import {
   agentTurnActivity,
   buildAgentTurnLayout,
@@ -56,11 +57,7 @@ export interface IMessageListProps {
   status: string;
   loadingThread: boolean;
   approvalBusy: boolean;
-  onApprovalRespond: (decision: {
-    approvalId: string;
-    approved: boolean;
-    reason?: string;
-  }) => void;
+  onApprovalRespond: (decision: IApprovalDecision) => void;
   answerBusy: boolean;
   onAnswer: (answers: IAskUserAnswer[]) => void;
   onRetryTurn: () => void;
@@ -144,11 +141,7 @@ interface IMessageRowProps {
   durationMs?: number;
   onRetryTurn: () => void;
   approvalBusy: boolean;
-  onApprovalRespond: (decision: {
-    approvalId: string;
-    approved: boolean;
-    reason?: string;
-  }) => void;
+  onApprovalRespond: (decision: IApprovalDecision) => void;
   answerBusy: boolean;
   onAnswer: (answers: IAskUserAnswer[]) => void;
   editing: boolean;

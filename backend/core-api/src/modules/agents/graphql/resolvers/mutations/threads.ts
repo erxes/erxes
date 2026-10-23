@@ -5,6 +5,7 @@ import type { MastraMemory } from '@mastra/core/memory' with {
 
 import { getAgentsMemory, getAgentsRuntime } from '@/agents/memory';
 import { publishAgentsThreadsChanged } from '@/agents/threadsEvents';
+import { readAllowedRootFields } from '@/agents/threadApprovals';
 import type { IContext } from '~/connectionResolvers';
 
 export interface IAgentsThreadRemoveArgs {
@@ -18,6 +19,8 @@ export interface IAgentsThreadUpdateArgs {
 }
 
 const TITLE_MAX_LENGTH = 120;
+const ALLOWED_ROOT_FIELDS_MAX = 50;
+const GRAPHQL_NAME = /^[_A-Za-z][_0-9A-Za-z]*$/;
 
 /** C0 control chars + DEL — lint forbids control chars in regex literals. */
 const hasControlCharacters = (value: string): boolean =>
@@ -116,6 +119,54 @@ export const agentsThreadMutations = {
     });
 
     publishAgentsThreadsChanged(ctx.user._id);
+
+    return toPublicThread(updated);
+  },
+
+  /**
+   * Lets the acting user skip approval for these mutation root fields for
+   * the rest of the thread. `callGraphql`'s approval gate reads the list
+   * from the thread metadata; GraphQL policy still applies to every call.
+   */
+  agentsThreadAllowRootFields: async (
+    _p: undefined,
+    { threadId, rootFields }: { threadId: string; rootFields: string[] },
+    ctx: IContext,
+  ) => {
+    await ctx.checkPermission('agentsChat');
+
+    if (
+      !rootFields.length ||
+      !rootFields.every((field) => GRAPHQL_NAME.test(field))
+    ) {
+      throw new ExpectedError(
+        'Root fields must be GraphQL field names.',
+        'BAD_USER_INPUT',
+      );
+    }
+
+    const memory: MastraMemory = await getAgentsMemory(ctx.subdomain);
+    const thread = await requireOwnedThread(memory, threadId, ctx.user._id);
+    const allowed = new Set([
+      ...readAllowedRootFields(thread.metadata),
+      ...rootFields,
+    ]);
+
+    if (allowed.size > ALLOWED_ROOT_FIELDS_MAX) {
+      throw new ExpectedError(
+        'Too many allowed actions in this thread.',
+        'BAD_USER_INPUT',
+      );
+    }
+
+    const updated = await memory.updateThread({
+      id: threadId,
+      title: thread.title,
+      metadata: {
+        ...(thread.metadata ?? {}),
+        allowedRootFields: [...allowed],
+      },
+    });
 
     return toPublicThread(updated);
   },

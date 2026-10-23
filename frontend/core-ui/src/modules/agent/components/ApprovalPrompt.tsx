@@ -1,5 +1,6 @@
 import { IconCheck, IconX } from '@tabler/icons-react';
 import { getToolName, type DynamicToolUIPart, type ToolUIPart } from 'ai';
+import { Checkbox } from 'erxes-ui';
 import { useState } from 'react';
 
 import {
@@ -15,12 +16,23 @@ import { POSES } from '../bloub/engine/states';
 import { BotBadge } from './BotBadge';
 
 import { ChatInput } from './ChatInput';
-import { describeToolCall } from '../utils/agentWorkSteps';
+import {
+  describeToolCall,
+  summarizeGraphqlCall,
+} from '../utils/agentWorkSteps';
+
+export interface IApprovalDecision {
+  approvalId: string;
+  approved: boolean;
+  reason?: string;
+  /** Mutation root fields to stop asking about for the rest of the thread. */
+  allowForThread?: string[];
+}
 
 export interface IApprovalPromptProps {
   part: ToolUIPart | DynamicToolUIPart;
   busy: boolean;
-  onRespond: (decision: { approved: boolean; reason?: string }) => void;
+  onRespond: (decision: Omit<IApprovalDecision, 'approvalId'>) => void;
 }
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
@@ -71,7 +83,15 @@ export const ApprovalPrompt = ({
 }: IApprovalPromptProps) => {
   const [declining, setDeclining] = useState(false);
   const [reason, setReason] = useState('');
-  const { label, args } = describeToolCall(getToolName(part), part.input);
+  const [allowForThread, setAllowForThread] = useState(false);
+  const toolName = getToolName(part);
+  const { label, args } = describeToolCall(toolName, part.input);
+  const call =
+    toolName === 'callGraphql' && isRecord(part.input)
+      ? summarizeGraphqlCall(part.input)
+      : null;
+  const mutationFields =
+    call?.operation === 'mutation' && call.fields.length ? call.fields : null;
 
   return (
     <Confirmation approval={part.approval} state={part.state}>
@@ -129,23 +149,46 @@ export const ApprovalPrompt = ({
                   </ConfirmationActions>
                 </div>
               ) : (
-                <ConfirmationActions className="mt-2.5">
-                  <ConfirmationAction
-                    disabled={busy}
-                    onClick={() => onRespond({ approved: true })}
-                  >
-                    <IconCheck />
-                    Approve
-                  </ConfirmationAction>
-                  <ConfirmationAction
-                    variant="outline"
-                    disabled={busy}
-                    onClick={() => setDeclining(true)}
-                  >
-                    <IconX />
-                    Decline
-                  </ConfirmationAction>
-                </ConfirmationActions>
+                <>
+                  {mutationFields && (
+                    <label className="mt-2.5 flex items-center gap-2 text-xs text-muted-foreground">
+                      <Checkbox
+                        checked={allowForThread}
+                        onCheckedChange={(checked) =>
+                          setAllowForThread(checked === true)
+                        }
+                        disabled={busy}
+                      />
+                      Don't ask again for {mutationFields.join(', ')} in this
+                      chat
+                    </label>
+                  )}
+                  <ConfirmationActions className="mt-2.5">
+                    <ConfirmationAction
+                      disabled={busy}
+                      onClick={() =>
+                        onRespond({
+                          approved: true,
+                          allowForThread:
+                            allowForThread && mutationFields
+                              ? mutationFields
+                              : undefined,
+                        })
+                      }
+                    >
+                      <IconCheck />
+                      Approve
+                    </ConfirmationAction>
+                    <ConfirmationAction
+                      variant="outline"
+                      disabled={busy}
+                      onClick={() => setDeclining(true)}
+                    >
+                      <IconX />
+                      Decline
+                    </ConfirmationAction>
+                  </ConfirmationActions>
+                </>
               )}
             </div>
           </div>
