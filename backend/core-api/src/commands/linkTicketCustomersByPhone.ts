@@ -137,7 +137,7 @@ const command = async () => {
     if (!bulkOps.length) return;
 
     if (!isDryRun) {
-      await Relations.bulkWrite(bulkOps, { ordered: false });
+      await Tickets.bulkWrite(bulkOps, { ordered: false });
     }
 
     bulkOps = [];
@@ -145,13 +145,15 @@ const command = async () => {
 
   for await (const ticket of Tickets.find(
     {},
-    { projection: { name: 1, description: 1 } },
+    { projection: { name: 1, description: 1, customerId: 1 } },
   )) {
     stats.tickets++;
 
     const ticketId = String(ticket._id);
 
-    if (linkedTicketIds.has(ticketId)) {
+    // A ticket keeps its one customer itself (`customerId`); one not
+    // migrated yet may still have it as a relation.
+    if (ticket.customerId || linkedTicketIds.has(ticketId)) {
       stats.alreadyLinked++;
       continue;
     }
@@ -183,35 +185,11 @@ const command = async () => {
     }
 
     const [customerId] = [...customerIds];
-    const now = new Date();
 
     bulkOps.push({
       updateOne: {
-        filter: {
-          $and: [
-            {
-              entities: {
-                $elemMatch: { contentType: TICKET, contentId: ticketId },
-              },
-            },
-            {
-              entities: {
-                $elemMatch: { contentType: CUSTOMER, contentId: customerId },
-              },
-            },
-          ],
-        },
-        update: {
-          $setOnInsert: {
-            entities: [
-              { contentType: TICKET, contentId: ticketId },
-              { contentType: CUSTOMER, contentId: customerId },
-            ],
-            createdAt: now,
-            updatedAt: now,
-          },
-        },
-        upsert: true,
+        filter: { _id: ticket._id, customerId: { $in: [null] } },
+        update: { $set: { customerId } },
       },
     });
 

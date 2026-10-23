@@ -84,7 +84,7 @@ const TicketNameCell = ({ cell }: CellContext<ITicket, unknown>) => {
 };
 
 export const useTicketsColumns = (): ColumnDef<ITicket>[] => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   const checkBoxColumn = RecordTable.checkboxColumn as ColumnDef<ITicket>;
 
   return [

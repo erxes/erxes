@@ -14,7 +14,7 @@ export const FacebookBotPageAccountsStep = ({
 }: {
   accountId?: string;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.facebook' });
   const [selectedAccountId, setSelectedAccountId] = useAtom(
     selectedFacebookAccountAtom,
   );

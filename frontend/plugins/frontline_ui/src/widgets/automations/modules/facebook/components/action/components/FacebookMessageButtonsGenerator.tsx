@@ -144,7 +144,7 @@ const FacebookMessageButton = ({
     handleChangeButton: (button: TBotMessageButton) => void;
   }) => React.ReactNode;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.facebook' });
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id: button._id });
 

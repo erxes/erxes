@@ -35,6 +35,9 @@ export const customerDataAtom = atomWithStorage<ICustomerData | null>(
   null,
 );
 
+// Opens the contact form from the home contact chip.
+export const contactEditOpenAtom = atom<boolean>(false);
+
 export const messengerTabAtom = atom<string>('default');
 export const setActiveTabAtom = atom(null, (get, set, tab: string) => {
   set(messengerTabAtom, tab);

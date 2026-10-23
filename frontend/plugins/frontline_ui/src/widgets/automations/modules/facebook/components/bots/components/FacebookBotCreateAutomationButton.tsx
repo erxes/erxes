@@ -15,7 +15,7 @@ export const FacebookBotCreateAutomationButton = ({
 }: {
   bot?: IFacebookBot;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.facebook' });
   const navigate = useNavigate();
 
   if (!bot?._id) {

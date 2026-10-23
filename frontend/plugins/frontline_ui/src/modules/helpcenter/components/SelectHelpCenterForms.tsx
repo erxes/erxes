@@ -77,7 +77,9 @@ export const SelectHelpCenterForms = ({
   onValueChange: (formIds: string[]) => void;
   scope?: string;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.helpcenter',
+  });
   const [open, setOpen] = useState(false);
 
   const { data, loading, error } = useQuery(GET_HELP_CENTER_FORM_OPTIONS, {

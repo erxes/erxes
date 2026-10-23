@@ -49,7 +49,9 @@ const SipProvider = ({
   debug = false,
   children,
 }: SipProviderProps & { children: React.ReactNode }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const [callInfo] = useAtom(callInfoAtom);
   const setCallNumber = useSetAtom(callNumberState);
   // State

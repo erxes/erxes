@@ -32,6 +32,12 @@ export const PropertyFormGroupField = ({
     }
   }, [pendingGroupId, fieldGroups, form]);
 
+  // Nothing to choose when the content type has a single group.
+  useEffect(() => {
+    if (form.getValues('groupId') || fieldGroups.length !== 1) return;
+    form.setValue('groupId', fieldGroups[0]._id, { shouldValidate: true });
+  }, [fieldGroups, form]);
+
   const handleCreateGroup = async (data: { name: string; code?: string }) => {
     const result = await addPropertyGroup({
       variables: { name: data.name, code: data.code, contentType },

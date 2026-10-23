@@ -1,111 +1,98 @@
-import { useGetPipeline } from '@/pipelines/hooks/useGetPipeline';
-import { compactList } from '@/shared/utils/cursorList';
+import { TICKET_PROPERTY_CONTENT_TYPE } from '@/ticket/constants/createLayout';
 import { InfoCard, Spinner } from 'erxes-ui';
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   FieldsInGroup,
-  IFieldGroup,
   MultipleFieldsInGroup,
   PropertyGroupCard,
   PropertyGroupShell,
-  FieldsInDetail,
   mutateFunction,
   useFieldGroups,
   useFields,
 } from 'ui-modules';
 
-const CONTENT_TYPE = 'frontline:ticket';
+const PROPERTY_LIMIT = 100;
 
 type Props = {
   id: string;
-  pipelineId: string;
   propertiesData: Record<string, unknown>;
   mutateHook: () => { mutate: mutateFunction; loading: boolean };
 };
 
-const SelectedGroup = ({
-  group,
-  selectedIds,
-  ...props
-}: Props & { group: IFieldGroup; selectedIds: Set<string> }) => {
-  const { fields, loading } = useFields({
-    groupId: group._id,
-    contentType: CONTENT_TYPE,
+/**
+ * Settings → Properties as is: each field in its own group, whatever the
+ * pipeline. The create form layout never moves or hides a field here.
+ */
+const useTicketDetailFields = () => {
+  const { fieldGroups, loading: groupsLoading } = useFieldGroups({
+    contentType: TICKET_PROPERTY_CONTENT_TYPE,
+    limit: PROPERTY_LIMIT,
   });
-  const selectedFields = fields.filter(
-    (field) => selectedIds.has(field._id) && field.isVisible !== false,
-  );
+  const { fields, loading: fieldsLoading } = useFields({
+    contentType: TICKET_PROPERTY_CONTENT_TYPE,
+    limit: PROPERTY_LIMIT,
+  });
 
-  if (loading) return <Spinner containerClassName="py-4" />;
-  if (!selectedFields.length) return null;
-
-  if (group.configs?.isMultiple) {
-    return (
-      <MultipleFieldsInGroup
-        group={group}
-        fields={selectedFields}
-        contentType={CONTENT_TYPE}
-        {...props}
-      />
-    );
-  }
-
-  return (
-    <PropertyGroupShell group={group}>
-      <PropertyGroupCard>
-        <FieldsInGroup
-          group={group}
-          fields={selectedFields}
-          contentType={CONTENT_TYPE}
-          {...props}
-        />
-      </PropertyGroupCard>
-    </PropertyGroupShell>
+  return useMemo(
+    () => ({
+      loading: groupsLoading || fieldsLoading,
+      groups: fieldGroups
+        .map((group) => ({
+          group,
+          fields: fields.filter(
+            (field) =>
+              field.groupId === group._id && field.isVisible !== false,
+          ),
+        }))
+        .filter(({ fields: groupFields }) => groupFields.length),
+    }),
+    [fieldGroups, fields, groupsLoading, fieldsLoading],
   );
 };
 
 export const TicketPipelineProperties = (props: Props) => {
   const { t } = useTranslation(['frontline', 'common']);
-  const { pipeline, loading: pipelineLoading } = useGetPipeline(
-    props.pipelineId,
-  );
-  const { fieldGroups, loading: groupsLoading } = useFieldGroups({
-    contentType: CONTENT_TYPE,
-    limit: 100,
-  });
-  const selectedIds = new Set(compactList(pipeline?.propertyIds));
+  const { loading, groups } = useTicketDetailFields();
+  const fieldProps = { ...props, contentType: TICKET_PROPERTY_CONTENT_TYPE };
 
-  if (!pipelineLoading && pipeline?.isPropertySelectionConfigured !== true) {
+  if (loading) {
+    return <Spinner containerClassName="py-8" />;
+  }
+
+  if (!groups.length) {
     return (
-      <FieldsInDetail
-        fieldContentType={CONTENT_TYPE}
-        propertiesData={props.propertiesData}
-        mutateHook={props.mutateHook}
-        id={props.id}
-      />
+      <InfoCard title={t('common:properties')}>
+        <InfoCard.Content>
+          <p className="text-sm text-muted-foreground">
+            {t(
+              'no-ticket-detail-fields',
+              'No properties to show. Mark them visible in Settings → Properties.',
+            )}
+          </p>
+        </InfoCard.Content>
+      </InfoCard>
     );
   }
 
   return (
-    <InfoCard title={t('common:properties')}>
-      <InfoCard.Content>
-        {pipelineLoading || groupsLoading ? (
-          <Spinner containerClassName="py-8" />
-        ) : selectedIds.size === 0 ? (
-          <p className="text-sm text-muted-foreground">
-            {t('no-ticket-property-fields', 'No ticket property fields found')}
-          </p>
+    <div className="flex flex-col gap-4">
+      {groups.map(({ group, fields }) =>
+        group.configs?.isMultiple ? (
+          <MultipleFieldsInGroup
+            key={group._id}
+            group={group}
+            fields={fields}
+            {...fieldProps}
+          />
         ) : (
-          fieldGroups.map((group) => (
-            <SelectedGroup
-              key={group._id}
-              group={group}
-              selectedIds={selectedIds}
-              {...props}
-            />
-          ))
-        )}
-      </InfoCard.Content>
-    </InfoCard>
+          <PropertyGroupShell key={group._id} group={group}>
+            <PropertyGroupCard>
+              <FieldsInGroup group={group} fields={fields} {...fieldProps} />
+            </PropertyGroupCard>
+          </PropertyGroupShell>
+        ),
+      )}
+    </div>
   );
 };

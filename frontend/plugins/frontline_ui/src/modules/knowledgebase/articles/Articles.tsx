@@ -11,7 +11,9 @@ import { KnowledgeBaseLayout } from '@/knowledgebase/shared/components/Knowledge
 import { useTopicDetail } from '@/knowledgebase/shared/hooks/useTopicDetail';
 
 export const Articles = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.knowledgebase',
+  });
   const { topicId = '' } = useParams();
   const { topic } = useTopicDetail(topicId);
   const { categories } = useCategories(topicId);

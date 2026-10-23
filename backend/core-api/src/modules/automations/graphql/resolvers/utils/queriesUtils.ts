@@ -13,9 +13,14 @@ import {
   normalizeAutomationConstantsForTransport,
   splitType,
   TAutomationBuiltInTemplate,
+  TAutomationProducers,
 } from 'erxes-api-shared/core-modules';
 import { IListArgs, IStatsParams } from '../queries';
-import { getPlugin, getPlugins } from 'erxes-api-shared/utils';
+import {
+  getPlugin,
+  getPlugins,
+  sendCoreModuleProducer,
+} from 'erxes-api-shared/utils';
 import { CORE_AUTOMATION_CONSTANTS } from '~/meta/automations/constants';
 import { CORE_REFERENCE_TYPES } from '~/meta/references/referenceTypes';
 import {
@@ -721,6 +726,52 @@ const getReferenceExtensionFields = (
   extensions
     .filter((extension) => isSameReferenceType(extension.type, type))
     .flatMap((extension) => extension.fields || []);
+
+// Variables the node's own config adds, asked of the plugin that owns it
+export const addDynamicOutputVariables = async ({
+  subdomain,
+  nodeType,
+  output,
+  config,
+}: {
+  subdomain: string;
+  nodeType: string;
+  output: TAutomationOutputDefinition | null;
+  config?: Record<string, unknown> | null;
+}): Promise<TAutomationOutputDefinition | null> => {
+  if (!output?.dynamicVariables || !config) {
+    return output;
+  }
+
+  const [pluginName, moduleName, collectionType] = splitType(nodeType);
+
+  if (!pluginName || !moduleName) {
+    return output;
+  }
+
+  const variables: TAutomationOutputVariable[] = await sendCoreModuleProducer({
+    subdomain,
+    moduleName: 'automations',
+    pluginName,
+    producerName: TAutomationProducers.RESOLVE_OUTPUT_VARIABLES,
+    input: { moduleName, collectionType, nodeType, config },
+    defaultValue: [],
+  });
+
+  if (!Array.isArray(variables) || !variables.length) {
+    return output;
+  }
+
+  const keys = new Set(variables.map(({ key }) => key));
+
+  return {
+    ...output,
+    variables: [
+      ...output.variables.filter(({ key }) => !keys.has(key)),
+      ...variables,
+    ],
+  };
+};
 
 export const addReferenceExtensionsToAutomationOutput = async ({
   nodeType,

@@ -1,8 +1,8 @@
 import { PROJECT_PRIORITIES_OPTIONS } from '@/ticket/constants/priorityOption';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Form } from 'erxes-ui';
+import { Form, toast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { Control, useForm, UseFormReturn } from 'react-hook-form';
+import { Control, FieldErrors, useForm, UseFormReturn } from 'react-hook-form';
 import {
   AutomationActionFormProps,
   AutomationConditionalField,
@@ -11,7 +11,6 @@ import {
   TPlaceholderInputSuggestionsOption,
   TPlaceholderInputSuggestionType,
   useAutomationRemoteFormSubmit,
-  useFormValidationErrorHandler,
 } from 'ui-modules';
 import {
   TTicketActionConfigForm,
@@ -30,7 +29,7 @@ type TPlaceholderFieldName =
   | 'targetDate'
   | 'labelIds'
   | 'tagIds'
-  | 'companyIds'
+  | 'companyId'
   | 'attachmentIds';
 
 type TPlaceholderFieldOptions = {
@@ -143,9 +142,15 @@ export const CreateTicketActionConfigForm = ({
   });
   const { control, handleSubmit } = form;
 
-  const { handleValidationErrors } = useFormValidationErrorHandler({
-    formName: 'Ticket Action Configuration',
-  });
+  const handleValidationErrors = (errors: FieldErrors) => {
+    toast({
+      title: t('ticket-action-configuration-error', {
+        count: Object.keys(errors).length,
+      }),
+      description: t('ticket-action-configuration-error-description'),
+      variant: 'destructive',
+    });
+  };
 
   useAutomationRemoteFormSubmit({
     formRef,
@@ -259,10 +264,10 @@ export const CreateTicketActionConfigForm = ({
         />
         <PlaceholderFormField
           control={control}
-          name="companyIds"
-          label={t('companies', 'Companies')}
+          name="companyId"
+          label={t('company', 'Company')}
           propertyType={propertyType}
-          selectMode="many"
+          selectMode="one"
           enabled={[TPlaceholderInputSuggestion.CallCompany]}
         />
       </div>

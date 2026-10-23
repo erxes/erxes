@@ -48,10 +48,11 @@
     },
 
     "test": {
-      "executor": "@nx/jest:jest",
+      "executor": "nx:run-commands",
       "outputs": ["{workspaceRoot}/coverage/backend/core-api"],
       "options": {
-        "jestConfig": "backend/core-api/jest.config.ts"
+        "cwd": "backend/core-api",
+        "command": "NODE_OPTIONS=--experimental-vm-modules pnpm exec jest --runInBand --forceExit"
       }
     },
 

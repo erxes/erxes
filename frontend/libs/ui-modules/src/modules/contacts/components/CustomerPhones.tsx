@@ -1,3 +1,4 @@
+import { TPhoneValidationStatus } from '../types/Customer';
 import {
   type IPhoneFieldProps,
   PhoneDisplay,
@@ -12,7 +13,8 @@ interface CustomerPhonesProps {
   _id: string;
   primaryPhone: string;
   phones: string[];
-  phoneValidationStatus?: `${ValidationStatus}`;
+  // Any stored status; only valid/invalid are marked.
+  phoneValidationStatus?: TPhoneValidationStatus;
   scope?: string;
   Trigger: React.ComponentType<{ children: React.ReactNode }>;
 }

@@ -61,11 +61,6 @@ const SETTINGS_SWITCHES: {
     description: 'force-logout-description',
   },
   {
-    name: 'notifyCustomer',
-    label: 'notify-customer',
-    description: 'notify-customer-description',
-  },
-  {
     name: 'showVideoCallRequest',
     label: 'show-video-call-request',
   },
@@ -82,7 +77,6 @@ export const EMSettings = () => {
       showChat: true,
       showLauncher: true,
       forceLogoutWhenResolve: false,
-      notifyCustomer: false,
       showVideoCallRequest: false,
       isSupportInAppView: false,
       websiteApps: [],

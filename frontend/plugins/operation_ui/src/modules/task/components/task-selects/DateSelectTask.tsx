@@ -265,11 +265,14 @@ export const DateSelectTaskFormItem = ({
   onValueChange,
   placeholder,
   label,
+  variant = DateSelectVariant.FORM,
 }: {
   value?: Date | string | null;
   onValueChange?: (value?: Date) => void;
   placeholder?: string;
   label?: string;
+  // `table` draws it as a record table cell, as in the side panel.
+  variant?: `${DateSelectVariant}`;
 }) => {
   const { t } = useTranslation('operation');
   const [open, setOpen] = useState(false);
@@ -282,11 +285,15 @@ export const DateSelectTaskFormItem = ({
         onValueChange?.(date);
         setOpen(false);
       }}
-      variant={DateSelectVariant.FORM}
+      variant={variant as DateSelectVariant}
       onClose={() => setOpen(false)}
     >
       <Popover open={open} onOpenChange={setOpen}>
-        {label ? (
+        {variant === DateSelectVariant.TABLE ? (
+          <DateSelectTrigger>
+            <DateSelectValue placeholder={placeholder || t('not-specified')} />
+          </DateSelectTrigger>
+        ) : label ? (
           <Combobox.ChipTrigger
             label={label}
             onClear={dateValue ? () => onValueChange?.() : undefined}

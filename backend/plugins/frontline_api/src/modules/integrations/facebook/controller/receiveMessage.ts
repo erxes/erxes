@@ -153,7 +153,7 @@ const storeFacebookMessage = async ({
       return;
     }
 
-    triggerFacebookMessageAutomation(subdomain, {
+    await triggerFacebookMessageAutomation(models, subdomain, {
       conversationMessage: created.toObject(),
       payload: message?.payload,
       adData,

@@ -36,7 +36,7 @@ export type TUseBulkUpdateTickets = {
 };
 
 export const useBulkUpdateTickets = (): TUseBulkUpdateTickets => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   const { toast } = useToast();
   const { updateTicket } = useUpdateTicket();
   const client = useApolloClient();

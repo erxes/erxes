@@ -1,9 +1,27 @@
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import subscription from '../subscription';
 
 jest.mock('erxes-api-shared/utils', () => ({
   escapeRegExp: (value: string) => value,
   sendTRPCMessage: jest.fn(),
 }));
+
+const sendTRPCMessageMock = sendTRPCMessage as jest.Mock;
+
+type TContext = {
+  subdomain?: string;
+  user?: { _id: string };
+  widgetSession?: {
+    integrationId: string;
+    customerId?: string;
+    visitorId?: string;
+  };
+};
+
+const widgetContext: TContext = {
+  subdomain: 'sub',
+  widgetSession: { integrationId: 'int-1', customerId: 'cust-1' },
+};
 
 type MessageEvent = {
   _id: string;
@@ -53,7 +71,7 @@ const resolvers = subscription.generateResolvers(pubsub);
 
 const deliveredIds = async (
   field: 'conversationMessageInserted' | 'cpConversationMessageInserted',
-  context: { user?: { _id: string } },
+  context: TContext,
 ) => {
   const iterator = await resolvers[field].subscribe(
     undefined,
@@ -70,11 +88,45 @@ const deliveredIds = async (
   return ids;
 };
 
+beforeEach(() => {
+  sendTRPCMessageMock.mockReset();
+});
+
 describe('conversation message subscriptions', () => {
-  it('hides internal notes from the unauthenticated messenger widget', async () => {
+  it("hides internal notes from the conversation owner's widget", async () => {
+    sendTRPCMessageMock.mockResolvedValueOnce([{ _id: CONVERSATION_ID }]);
+
+    await expect(
+      deliveredIds('conversationMessageInserted', widgetContext),
+    ).resolves.toEqual(['customer-visible-1', 'customer-visible-2']);
+    expect(sendTRPCMessageMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        module: 'conversation',
+        action: 'find',
+        input: {
+          query: {
+            _id: CONVERSATION_ID,
+            integrationId: 'int-1',
+            $or: [{ customerId: 'cust-1' }],
+          },
+        },
+      }),
+    );
+  });
+
+  it("refuses a widget listening to someone else's conversation", async () => {
+    sendTRPCMessageMock.mockResolvedValueOnce([]);
+
+    await expect(
+      deliveredIds('conversationMessageInserted', widgetContext),
+    ).rejects.toThrow('Conversation not found');
+  });
+
+  it('refuses a listener without staff login or widget session', async () => {
     await expect(
       deliveredIds('conversationMessageInserted', {}),
-    ).resolves.toEqual(['customer-visible-1', 'customer-visible-2']);
+    ).rejects.toThrow('Conversation not found');
+    expect(sendTRPCMessageMock).not.toHaveBeenCalled();
   });
 
   it('delivers internal notes to an authenticated team member', async () => {

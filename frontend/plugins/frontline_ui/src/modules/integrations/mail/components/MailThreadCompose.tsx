@@ -261,9 +261,7 @@ export const MailThreadCompose: React.FC<ComposeProps> = ({
       {failedDelivery && (
         <div role="alert" className="px-4 py-2 text-sm text-destructive">
           {failedDelivery.deliveryError || t('email-not-delivered')}
-          <p>
-            Retry this message or close the composer to start another email.
-          </p>
+          <p>{t('mail-retry-or-close-composer')}</p>
         </div>
       )}
 
