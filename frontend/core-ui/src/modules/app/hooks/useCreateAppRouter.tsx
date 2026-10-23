@@ -27,6 +27,7 @@ import { PermissionRouteGuard } from '@/auth/components/PermissionRouteGuard';
 import { Providers } from '~/providers';
 import { RouteErrorBoundary } from '@/error-handler/components/RouteErrorBoundary';
 import { SegmentRoutes } from '@/app/components/SegmentsRoutes';
+import { DataExtensionsRoutes } from '@/app/components/DataExtensionsRoutes';
 import { SettingsRoutes } from '@/app/components/SettingsRoutes';
 import { TemplateRoutes } from '../components/TemplateRoutes';
 import { UserProvider } from '@/auth/providers/UserProvider';
@@ -110,6 +111,15 @@ export const useCreateAppRouter = () => {
                 element={
                   <PermissionRouteGuard module="segments">
                     <SegmentRoutes />
+                  </PermissionRouteGuard>
+                }
+              />
+
+              <Route
+                path={AppPath.DataExtensionsCatchAll}
+                element={
+                  <PermissionRouteGuard module="data-extensions">
+                    <DataExtensionsRoutes />
                   </PermissionRouteGuard>
                 }
               />
