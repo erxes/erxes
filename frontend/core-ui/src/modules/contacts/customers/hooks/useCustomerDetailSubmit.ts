@@ -23,7 +23,7 @@ export const useCustomerDetailSubmit = (
       variant: 'destructive',
     });
 
-  // Verification statuses and links have their own flows; this form never sends them.
+  // Links have their own flow; this form never sends them.
   const submit = async (values: ICustomerFormValues) => {
     if (!customer) {
       return;
@@ -44,6 +44,7 @@ export const useCustomerDetailSubmit = (
         ownerId: values.ownerId,
         primaryEmail: values.primaryEmail,
         primaryPhone: values.primaryPhone,
+        phoneValidationStatus: values.phoneValidationStatus,
         emails: values.emails,
         phones: values.phones,
         sex: values.sex ?? undefined,

@@ -5,7 +5,7 @@ import { PageContainer, PageSubHeader } from 'erxes-ui';
 import { Can, Import } from 'ui-modules';
 import { Export } from 'ui-modules/modules/import-export/components/epxort/Export';
 import { useCustomersVariables } from '@/contacts/customers/hooks/useCustomers';
-import { CustomerDetail } from '@/contacts/customers/customer-detail/components/CustomerDetail';
+import { ContactDetailLink } from '@/contacts/components/ContactDetailLink';
 import { BroadcastSheet } from '@/broadcast/components/BroadcastSheet';
 
 export const CustomersIndexPage = () => {
@@ -38,7 +38,7 @@ export const CustomersIndexPage = () => {
         </Can>
       </PageSubHeader>
       <CustomersRecordTable />
-      <CustomerDetail />
+      <ContactDetailLink queryKey="contactId" contentType="core:customer" />
       <BroadcastSheet showTrigger={false} />
     </PageContainer>
   );
