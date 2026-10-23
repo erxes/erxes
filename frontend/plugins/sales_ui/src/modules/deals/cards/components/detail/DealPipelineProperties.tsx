@@ -86,6 +86,7 @@ export const DealPipelineProperties = (props: Props) => {
         propertiesData={props.propertiesData}
         mutateHook={props.mutateHook}
         id={props.id}
+        className="[&>div]:bg-transparent [&>div]:p-0 [&>div>div:first-child]:hidden [&>div>div:last-child]:bg-transparent [&>div>div:last-child]:p-0 [&>div>div:last-child]:shadow-none"
       />
     );
   }

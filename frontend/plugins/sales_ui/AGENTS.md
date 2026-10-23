@@ -6,7 +6,7 @@
 - **Project:** `sales_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/sales_ui`
-- **Last synchronized:** `2026-10-19`
+- **Last synchronized:** `2026-10-23`
 
 ## Scope
 
@@ -100,7 +100,9 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
 - In a deal's Payments tab a payment type with a score campaign asks loyalty's `loyaltyScoreSpendLimit` (`DealPointPaymentLimit` / `useDealPointLimit`) and shows the customer's points and the most it may pay; the row stays disabled without a customer, while loading, or when loyalty blocks spending, and typed amounts are capped at the limit. There is no hand refund: refunds follow stages.
 - Deal detail renders only the properties selected on the deal's pipeline;
   legacy pipelines continue showing all deal properties until their selection is
-  saved for the first time.
+  saved for the first time. On that legacy path `DealPipelineProperties` passes
+  `FieldsInDetail` a `className` that hides its outer "deal Properties" card, so
+  the property groups render directly in the tab, as operation's side panel does.
 - Deal detail chips (priority, assignee, dates, labels, tags, branch,
   department, broker) render as a field group: a muted label segment, then the
   value and a chevron, e.g. `Broker | None ⌄`; the stage chip has no label.
