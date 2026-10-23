@@ -18,7 +18,9 @@
         "{projectRoot}/core-types/package.json",
         "{projectRoot}/core-types/dist",
         "{projectRoot}/core-modules/package.json",
-        "{projectRoot}/core-modules/dist"
+        "{projectRoot}/core-modules/dist",
+        "{projectRoot}/instrument/package.json",
+        "{projectRoot}/instrument/dist"
       ]
     },
     "test": {
