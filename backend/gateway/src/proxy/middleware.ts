@@ -1,5 +1,19 @@
 import * as dotenv from 'dotenv';
-import { Express } from 'express';
+import { Express, NextFunction, Request, Response } from 'express';
+import {
+  clientPortalHeaderName,
+  cpUserHeaderName,
+  erxesSubdomainHeaderName,
+  getSubdomain,
+  redis,
+  setUserHeader,
+  userHeaderName,
+} from 'erxes-api-shared/utils';
+import {
+  DATA_EXTENSIONS_PROOF_HEADERS,
+  gatewayProofPayload,
+  signDataExtensionsProof,
+} from 'erxes-api-shared/core-modules';
 import { createProxyMiddleware, fixRequestBody } from 'http-proxy-middleware';
 import { Agent, ServerResponse } from 'http';
 import { apolloRouterPort } from '~/apollo-router';
@@ -155,6 +169,95 @@ export function applyProxyToCore(app: Express, targets: ErxesProxyTarget[]) {
     createProxyMiddleware({
       target:
         NODE_ENV === 'production' ? core.address : 'http://localhost:3300',
+      agent: proxyAgent,
+      proxyTimeout: PROXY_IDLE_TIMEOUT_MS,
+      on: {
+        proxyReq,
+        proxyRes,
+        error: proxyError,
+      },
+    }),
+  );
+}
+
+const DATA_EXTENSIONS_SERVICE_KEY = 'erxes-service-data-extensions';
+const DATA_EXTENSIONS_ADDRESS_TTL_MS = 30_000;
+
+let dataExtensionsAddress: { value: string; readAt: number } | null = null;
+
+const resolveDataExtensionsTarget = async () => {
+  if (
+    dataExtensionsAddress &&
+    Date.now() - dataExtensionsAddress.readAt < DATA_EXTENSIONS_ADDRESS_TTL_MS
+  ) {
+    return dataExtensionsAddress.value;
+  }
+
+  const registered = await redis.get(DATA_EXTENSIONS_SERVICE_KEY);
+  const value =
+    registered || (NODE_ENV === 'production' ? '' : 'http://localhost:3330');
+
+  if (!value) {
+    throw new Error('Data Extensions service is not registered');
+  }
+
+  dataExtensionsAddress = { value, readAt: Date.now() };
+
+  return value;
+};
+
+/**
+ * Identity headers on this route come only from what the gateway verified.
+ * Anything a client sent under those names is dropped first, and the result
+ * is signed so the runtime can tell it apart from the generic plugin proxy.
+ */
+const forwardVerifiedIdentity = (
+  req: Request & { user?: Record<string, unknown> },
+  _res: Response,
+  next: NextFunction,
+) => {
+  delete req.headers[userHeaderName];
+  delete req.headers.userid;
+  delete req.headers[cpUserHeaderName];
+  delete req.headers[clientPortalHeaderName];
+  delete req.headers[erxesSubdomainHeaderName];
+
+  for (const header of Object.values(DATA_EXTENSIONS_PROOF_HEADERS)) {
+    delete req.headers[header];
+  }
+
+  if (req.user?._id) {
+    setUserHeader(req.headers, req.user);
+  }
+
+  const userHeader = req.headers[userHeaderName];
+
+  if (req.user?._id && typeof userHeader === 'string') {
+    // The tenant the user was authenticated against in userMiddleware.
+    const subdomain = getSubdomain(req);
+    const proof = signDataExtensionsProof(
+      'gateway',
+      gatewayProofPayload(subdomain, userHeader),
+    );
+
+    req.headers[DATA_EXTENSIONS_PROOF_HEADERS.subdomain] = subdomain;
+    req.headers[DATA_EXTENSIONS_PROOF_HEADERS.issuedAt] = String(
+      proof.issuedAt,
+    );
+    req.headers[DATA_EXTENSIONS_PROOF_HEADERS.signature] = proof.signature;
+  }
+
+  next();
+};
+
+/** Tenant-generated Data Extensions schemas, served outside the router. */
+export function applyDataExtensionsProxy(app: Express) {
+  app.use(
+    '/data-extensions/graphql',
+    forwardVerifiedIdentity,
+    createProxyMiddleware({
+      router: resolveDataExtensionsTarget,
+      pathRewrite: () => '/graphql',
       agent: proxyAgent,
       proxyTimeout: PROXY_IDLE_TIMEOUT_MS,
       on: {

@@ -77,7 +77,8 @@
     "cancel": "Cancel",
     "delete": "Delete",
     "save": "Save",
-    "settings": "Settings"
+    "settings": "Settings",
+    "data-extensions": "Data Extensions"
   },
   "filter": {
     "_": "Filter",
