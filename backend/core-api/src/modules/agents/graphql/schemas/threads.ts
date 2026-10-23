@@ -52,4 +52,5 @@ export const mutations = `
     pinned: Boolean
   ): AgentsThread
   agentsThreadRemove(threadId: String!): Boolean
+  agentsThreadStop(threadId: String!): Boolean
 `;
