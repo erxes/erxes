@@ -227,14 +227,28 @@ import {
   queries as searchQueries,
 } from '@/search/graphql/schema';
 import { queries as ReferenceQueries } from '~/meta/references/graphql/schema';
+
 import {
-  types as CredentialTypes,
-  queries as CredentialQueries,
-  mutations as CredentialMutations,
-} from '@/credentials/graphql/schema';
+  mutations as AgentsConnectionMutations,
+  queries as AgentsConnectionQueries,
+  types as AgentsConnectionTypes,
+} from '@/agents/graphql/schemas/connection';
+import {
+  mutations as AgentsThreadMutations,
+  queries as AgentsThreadQueries,
+  types as AgentsThreadTypes,
+} from '@/agents/graphql/schemas/threads';
+import {
+  mutations as AgentsSettingsMutations,
+  queries as AgentsSettingsQueries,
+  types as AgentsSettingsTypes,
+} from '@/agents/graphql/schemas/settings';
+import {
+  queries as AgentsToolQueries,
+  types as AgentsToolTypes,
+} from '@/agents/graphql/schemas/tools';
 
 export const types = `
-    ${CredentialTypes}
     enum CacheControlScope {
       PUBLIC
       PRIVATE
@@ -288,10 +302,13 @@ export const types = `
     ${bundleTypes}
     ${templateTypes}
     ${searchTypes}
+    ${AgentsConnectionTypes}
+    ${AgentsThreadTypes}
+    ${AgentsSettingsTypes}
+    ${AgentsToolTypes}
   `;
 
 export const queries = `
-    ${CredentialQueries}
     _sentryGraphqlTest: String
     ${ReferenceQueries}
     ${CustomerQueries}
@@ -334,10 +351,13 @@ export const queries = `
     ${bundleQueries}
     ${templateQueries}
     ${searchQueries}
+    ${AgentsConnectionQueries}
+    ${AgentsThreadQueries}
+    ${AgentsSettingsQueries}
+    ${AgentsToolQueries}
   `;
 
 export const mutations = `
-    ${CredentialMutations}
     ${CustomerMutations}
     ${CompanyMutations}
     ${AuthMutations}
@@ -375,6 +395,9 @@ export const mutations = `
     ${bundleMutations}
     ${templateMutations}
     ${LogsMutations}
+    ${AgentsConnectionMutations}
+    ${AgentsThreadMutations}
+    ${AgentsSettingsMutations}
   `;
 
 export default { types, queries, mutations };

@@ -36,12 +36,12 @@ export enum SettingsWorkspacePath {
   ClientPortals = 'client-portals',
   AppTokens = 'app-tokens',
   OAuthClients = 'oauth-clients',
-  Credentials = 'credentials',
-  Connections = 'connections',
   ClienPortalsCatchAll = 'client-portals/*',
   Logs = 'logs',
   Broadcast = 'broadcast',
   MessagePro = 'message-pro',
+  Agent = 'agent',
+  AgentCatchAll = 'agent/*',
 }
 
 export type TSettingPath = {

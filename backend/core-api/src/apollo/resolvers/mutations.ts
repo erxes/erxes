@@ -1,5 +1,4 @@
 import { appMutations } from '@/apps/graphql/mutations';
-import { credentialsMutations } from '@/credentials/graphql/resolvers';
 import { authMutations } from '@/auth/graphql/resolvers/mutations';
 import { oauthClientAppMutations } from '@/auth/graphql/resolvers/oauthClientApps';
 import { automationMutations } from '@/automations/graphql/resolvers/mutations';
@@ -33,9 +32,11 @@ import { commentMutations } from '@/clientportal/graphql/resolvers/mutations/com
 import { cpNotificationMutations } from '@/clientportal/graphql/resolvers/mutations/cpNotification';
 import { bundleMutations } from '@/bundle/graphql/resolvers/mutations';
 import { templateMutations } from '@/template/graphql/mutations';
+import { agentsConnectionMutations } from '@/agents/graphql/resolvers/mutations/connection';
+import { agentsThreadMutations } from '@/agents/graphql/resolvers/mutations/threads';
+import { agentsSettingsMutations } from '@/agents/graphql/resolvers/mutations/settings';
 
 export const mutations = {
-  ...credentialsMutations,
   ...contactMutations,
   ...authMutations,
   ...oauthClientAppMutations,
@@ -68,4 +69,7 @@ export const mutations = {
   ...cpNotificationMutations,
   ...bundleMutations,
   ...templateMutations,
+  ...agentsConnectionMutations,
+  ...agentsThreadMutations,
+  ...agentsSettingsMutations,
 };

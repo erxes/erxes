@@ -157,8 +157,15 @@ const PhoneOptions = forwardRef<
     setEditingPhone(phone || null);
   };
 
+  // The menu speaks the stored statuses, as the email field does.
   const handleVerificationChange = (value: string) => {
-    onValidationStatusChange?.(value);
+    const next =
+      value === ValidationStatus.Valid
+        ? ValidationStatus.Valid
+        : ValidationStatus.Invalid;
+
+    if (next === status) return;
+    onValidationStatusChange?.(next);
   };
 
   const handleDeleteClick = () => {
@@ -201,12 +208,15 @@ const PhoneOptions = forwardRef<
         {isPrimary && (
           <>
             <DropdownMenu.Separator />
-            <DropdownMenu.RadioGroup onValueChange={handleVerificationChange}>
-              <DropdownMenu.RadioItem value="verified">
+            <DropdownMenu.RadioGroup
+              value={status}
+              onValueChange={handleVerificationChange}
+            >
+              <DropdownMenu.RadioItem value={ValidationStatus.Valid}>
                 <IconCircleDashedCheck className="text-success data-[state=active]:bg-muted " />
                 Verified
               </DropdownMenu.RadioItem>
-              <DropdownMenu.RadioItem value="unverified">
+              <DropdownMenu.RadioItem value={ValidationStatus.Invalid}>
                 <IconCircleDashed className="text-muted-foreground" />
                 Unverified
               </DropdownMenu.RadioItem>
@@ -377,13 +387,17 @@ const PhoneListFieldRoot = forwardRef<
       phoneValidationStatus,
     );
 
+    // Re-sync when the phones themselves change (number, primary or status),
+    // not on every new array a parent passes.
+    const phonesKey = JSON.stringify(formattedPhones);
+
     useEffect(() => {
       setPhones(formattedPhones);
       return () => {
         setShowPhoneInput(false);
       };
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [phones, setPhones]);
+    }, [phonesKey, setPhones]);
 
     const handleValueChange = (values: TPhones) => {
       if (onValueChange) {

@@ -5,30 +5,6 @@ export const permissions: IPermissionConfig = {
 
   modules: [
     {
-      name: 'credentials',
-      description: 'Workspace connections',
-      scopeField: null,
-      ownerFields: [],
-      scopes: [{ name: 'all', description: 'All connections' }],
-      actions: [
-        {
-          title: 'View connections',
-          name: 'credentialsRead',
-          description: 'View connections and available providers',
-        },
-        {
-          title: 'Manage connections',
-          name: 'credentialsManage',
-          description: 'Create, update, and remove connections',
-        },
-        {
-          title: 'Manage connection app access',
-          name: 'credentialGrantsManage',
-          description: 'Issue and revoke backend consumer grants',
-        },
-      ],
-    },
-    {
       name: 'emailTemplates',
       description: 'Email templates',
       scopeField: null,
@@ -771,6 +747,34 @@ export const permissions: IPermissionConfig = {
         },
       ],
     },
+    {
+      name: 'agents',
+      description: 'AI agents',
+      scopeField: null,
+      ownerFields: [],
+
+      scopes: [{ name: 'all', description: 'All agents access' }],
+
+      actions: [
+        {
+          title: 'View agents',
+          name: 'showAgents',
+          description: 'View agents',
+          always: true,
+        },
+        {
+          title: 'Use agents chat',
+          name: 'agentsChat',
+          description: 'Use agents chat',
+        },
+        {
+          title: 'Manage agents settings',
+          name: 'manageAgentsSettings',
+          description:
+            'Manage tenant-wide agents settings (code mode toggle)',
+        },
+      ],
+    },
   ],
   defaultGroups: [
     {
@@ -778,16 +782,6 @@ export const permissions: IPermissionConfig = {
       name: 'Core modules admin',
       description: 'Full access to Core modules',
       permissions: [
-        {
-          plugin: 'core',
-          module: 'credentials',
-          actions: [
-            'credentialsRead',
-            'credentialsManage',
-            'credentialGrantsManage',
-          ],
-          scope: 'all',
-        },
         {
           plugin: 'core',
           module: 'contacts',
@@ -944,6 +938,12 @@ export const permissions: IPermissionConfig = {
         },
         {
           plugin: 'core',
+          module: 'agents',
+          actions: ['showAgents', 'agentsChat', 'manageAgentsSettings'],
+          scope: 'all',
+        },
+        {
+          plugin: 'core',
           module: 'files',
           actions: ['filesRead'],
           scope: 'all',
@@ -984,6 +984,12 @@ export const permissions: IPermissionConfig = {
           module: 'broadcasts',
           actions: ['broadcastRead', 'broadcastCreate', 'broadcastUpdate'],
           scope: 'own',
+        },
+        {
+          plugin: 'core',
+          module: 'agents',
+          actions: ['showAgents', 'agentsChat'],
+          scope: 'all',
         },
         // What each person sees inside Files is decided by folder access.
         {
@@ -1131,6 +1137,12 @@ export const permissions: IPermissionConfig = {
           module: 'internalNotes',
           actions: ['internalNotesManage'],
           scope: 'own',
+        },
+        {
+          plugin: 'core',
+          module: 'agents',
+          actions: ['showAgents'],
+          scope: 'all',
         },
         {
           plugin: 'core',

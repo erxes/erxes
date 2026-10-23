@@ -18,8 +18,8 @@ import {
   IconMessage,
   IconNotification,
   IconPassword,
-  IconPlugConnected,
   IconShoppingCart,
+  IconSparkles,
   IconShieldCheck,
   IconShieldLock,
   IconTag,
@@ -142,11 +142,6 @@ export const SETTINGS_PATH_DATA = (
   ],
   nav: [
     {
-      name: t('connections', 'Connections'),
-      icon: IconPlugConnected,
-      path: SettingsWorkspacePath.Connections,
-    },
-    {
       name: t('general'),
       icon: IconAdjustmentsAlt,
       path: SettingsWorkspacePath.General,
@@ -195,6 +190,11 @@ export const SETTINGS_PATH_DATA = (
       name: t('message-pro', 'Message Pro'),
       icon: IconMessage,
       path: SettingsWorkspacePath.MessagePro,
+    },
+    {
+      name: t('agents', 'Agents'),
+      icon: IconSparkles,
+      path: SettingsWorkspacePath.Agent,
     },
   ],
   developer: [
@@ -344,6 +344,15 @@ export const GET_SETTINGS_SUB_NAVIGATION = (
       },
     ],
   },
+  [SettingsWorkspacePath.Agent]: {
+    name: sidebarT('agents', 'Agents'),
+    items: [
+      { name: 'API key', path: `${settingsPath('agent')}/connection` },
+      { name: 'Code mode', path: `${settingsPath('agent')}/code-mode` },
+      { name: 'Approvals', path: `${settingsPath('agent')}/approvals` },
+      { name: 'Appearance', path: `${settingsPath('agent')}/appearance` },
+    ],
+  },
   contacts: {
     name: sidebarT('contacts', 'Contacts'),
     items: [
@@ -354,8 +363,7 @@ export const GET_SETTINGS_SUB_NAVIGATION = (
 });
 
 export const SETTINGS_PERMISSION_MAP: Record<string, string> = {
-  [SettingsWorkspacePath.Credentials]: 'credentials',
-  [SettingsWorkspacePath.Connections]: 'credentials',
+  [SettingsWorkspacePath.Agent]: 'agents',
   [SettingsWorkspacePath.TeamMember]: 'teamMembers',
   [SettingsWorkspacePath.Structure]: 'organization',
   [SettingsWorkspacePath.Tags]: 'tags',
@@ -368,10 +376,4 @@ export const SETTINGS_PERMISSION_MAP: Record<string, string> = {
   [SettingsWorkspacePath.Permissions]: 'permissions',
   [SettingsWorkspacePath.ApprovalRequests]: 'approval',
   [SettingsWorkspacePath.EmailTemplates]: 'emailTemplates',
-};
-
-// Sensitive settings stay hidden until their exact read action is loaded.
-export const SETTINGS_ACTION_PERMISSION_MAP: Record<string, string> = {
-  [SettingsWorkspacePath.Credentials]: 'credentialsRead',
-  [SettingsWorkspacePath.Connections]: 'credentialsRead',
 };

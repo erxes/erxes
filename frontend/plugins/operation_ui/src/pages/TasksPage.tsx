@@ -1,6 +1,6 @@
 import { TasksFilter } from '@/task/components/TasksFilter';
 import { TasksView, TasksViewControl } from '@/task/components/TasksView';
-import { AddTaskSheet } from '@/task/components/add-task/AddTaskSheet';
+import { AddTaskButton } from '@/task/components/add-task/AddTaskButton';
 import { TaskBreadCrump } from '@/task/components/breadcrump/TaskBreadCrump';
 import { TasksSideWidget } from '@/task/components/detail/TasksSideWidget';
 import { TeamBreadCrumb } from '@/team/components/breadcrumb/TeamBreadCrumb';
@@ -55,7 +55,7 @@ export const TasksPage = () => {
           </Breadcrumb>
         </PageHeader.Start>
         <Can action="taskCreate">
-          <AddTaskSheet />
+          <AddTaskButton />
         </Can>
       </PageHeader>
       <div className="flex overflow-hidden w-full h-full">

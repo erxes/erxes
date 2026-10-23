@@ -15,6 +15,12 @@ export const SETTINGS_ROUTES = {
   '/accounting/settings/config/sync-order': 'pos-order-rule-label',
 };
 
+export const INVENTORY_SETTINGS_ROUTES = {
+  '/accounting/settings/inventories/jobs': 'job-production-stage',
+  '/accounting/settings/inventories/job-outputs':
+    'job-production-stage-outputs',
+};
+
 export enum ACCOUNTING_SETTINGS_CODES {
   SYNC_DEAL = 'syncDeal',
   SYNC_DEAL_MOVEMENT = 'syncDealMovement',

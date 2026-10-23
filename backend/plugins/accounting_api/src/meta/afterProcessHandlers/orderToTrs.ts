@@ -16,6 +16,7 @@ import {
   subtractPreTaxAmount,
 } from './taxRules';
 import { getJournal } from './utils';
+import { saveSaleTransactions } from './saveSaleTransactions';
 
 export const orderToTrs = async ({
   subdomain,
@@ -23,10 +24,12 @@ export const orderToTrs = async ({
   userId,
   order,
   config,
+  allowRealJobProduction = false,
 }: {
   subdomain: string;
   models: IModels;
   userId: string;
+  allowRealJobProduction?: boolean;
   order: any;
   config: {
     dateRule: 'alwaysNow' | 'syncedDateOrNow';
@@ -277,18 +280,14 @@ export const orderToTrs = async ({
         });
       }
     }
-
-    await models.Transactions.updatePTransaction(
-      parentId,
-      [{ ...saleTrDoc }, ...paymentTrs],
-      userId,
-      { skipAccountPermission: true },
-    );
-  } else {
-    await models.Transactions.createPTransaction(
-      [{ ...saleTrDoc }, ...paymentTrs],
-      userId,
-      { skipAccountPermission: true },
-    );
   }
+
+  await saveSaleTransactions({
+    subdomain,
+    models,
+    userId,
+    docs: [{ ...saleTrDoc }, ...paymentTrs],
+    parentId: oldTrs.length ? parentId : undefined,
+    allowRealJobProduction,
+  });
 };

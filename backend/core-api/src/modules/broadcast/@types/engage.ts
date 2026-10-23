@@ -2,7 +2,9 @@ import { TBroadcastRecurrence } from '@/broadcast/utils/recurrence';
 import { ICursorPaginateParams, IRule } from 'erxes-api-shared/core-types';
 import { Document } from 'mongoose';
 import type { TEmailContentFormat } from 'erxes-api-shared/core-modules';
-import type { JSONContent } from '@tiptap/core';
+import type { JSONContent } from '@tiptap/core' with {
+  'resolution-mode': 'import',
+};
 
 interface IEmail {
   attachments?: any;

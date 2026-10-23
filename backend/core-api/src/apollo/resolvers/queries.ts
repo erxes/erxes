@@ -1,5 +1,4 @@
 import { markResolvers } from 'erxes-api-shared/utils';
-import { credentialsQueries } from '@/credentials/graphql/resolvers';
 import { appQueries } from '@/apps/graphql/queries';
 import { authQueries } from '@/auth/graphql/resolvers/queries';
 import { oauthClientAppQueries } from '@/auth/graphql/resolvers/oauthClientApps';
@@ -40,6 +39,11 @@ import { bundleQueries } from '@/bundle/graphql/resolvers/queries';
 import { templateQueries } from '@/template/graphql/queries';
 import { globalSearchQueries } from '@/search/graphql/resolvers/queries/globalSearch';
 import { referenceQueries } from '~/meta/references/graphql/queries';
+import { agentsConnectionsQueries } from '@/agents/graphql/resolvers/queries/connection';
+import { agentsModelsQueries } from '@/agents/graphql/resolvers/queries/models';
+import { agentsThreadsQueries } from '@/agents/graphql/resolvers/queries/threads';
+import { agentsSettingsQueries } from '@/agents/graphql/resolvers/queries/settings';
+import { agentsToolsQueries } from '@/agents/graphql/resolvers/queries/tools';
 
 const sentryTestQueries = {
   _sentryGraphqlTest: () => {
@@ -54,7 +58,6 @@ markResolvers(sentryTestQueries, {
 });
 
 export const queries = {
-  ...credentialsQueries,
   ...sentryTestQueries,
   ...referenceQueries,
   ...contactQueries,
@@ -94,4 +97,9 @@ export const queries = {
   ...bundleQueries,
   ...templateQueries,
   ...globalSearchQueries,
+  ...agentsConnectionsQueries,
+  ...agentsModelsQueries,
+  ...agentsThreadsQueries,
+  ...agentsSettingsQueries,
+  ...agentsToolsQueries,
 };

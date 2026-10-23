@@ -15,6 +15,7 @@ import { ActivityList } from '@/activity/components/ActivityList';
 import { SelectProjectStatus } from '@/project/components/select/SelectProjectStatus';
 import { compactList } from '@/operation/utils/cursorList';
 import { useProjectFieldsEditor } from '@/project/hooks/useProjectFieldsEditor';
+import { ProjectContactsField } from './ProjectContactsField';
 
 export const ProjectFields = ({
   projectId,
@@ -114,6 +115,18 @@ export const ProjectFields = ({
           value={tagIds ? compactList(tagIds) : []}
           onValueChange={handleTagsChange}
           label={t('tags')}
+        />
+        <ProjectContactsField
+          projectId={projectId}
+          kind="customer"
+          value={project.customerId}
+          label={t('customers', 'Customers')}
+        />
+        <ProjectContactsField
+          projectId={projectId}
+          kind="company"
+          value={project.companyId}
+          label={t('companies', 'Companies')}
         />
       </div>
       <Separator className="my-4" />

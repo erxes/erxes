@@ -238,25 +238,20 @@ const SALES_DEAL_SET_PROPERTY_TARGETS: TAutomationSetPropertyTarget[] = [
     source: 'target',
     cardinality: 'one',
   },
+  // The deal keeps one customer and one company itself.
   {
-    label: 'Deal customers',
+    label: 'Deal customer',
     type: 'core:contacts.customers',
-    source: 'relation',
-    cardinality: 'many',
-    relation: {
-      contentType: 'sales:deal',
-      relatedContentType: 'core:customer',
-    },
+    source: 'targetField',
+    targetPath: 'customerId',
+    cardinality: 'one',
   },
   {
-    label: 'Deal companies',
+    label: 'Deal company',
     type: 'core:contacts.companies',
-    source: 'relation',
-    cardinality: 'many',
-    relation: {
-      contentType: 'sales:deal',
-      relatedContentType: 'core:company',
-    },
+    source: 'targetField',
+    targetPath: 'companyId',
+    cardinality: 'one',
   },
 ];
 

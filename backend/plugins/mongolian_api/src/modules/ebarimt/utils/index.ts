@@ -1,3 +1,4 @@
+import { getDealContactIds } from './dealContacts';
 import { fixNum, sendTRPCMessage } from 'erxes-api-shared/utils';
 import lodash from 'lodash';
 import moment from 'moment';
@@ -463,18 +464,7 @@ const billTypeCustomFieldsData = async (config, deal) => {
 };
 
 const billTypeConfomityCompany = async (subdomain, config, deal) => {
-  const companyIds = await sendTRPCMessage({
-    subdomain,
-    pluginName: 'core',
-    module: 'relation',
-    action: 'getRelationIds',
-    input: {
-      contentType: 'sales:deal',
-      contentId: deal._id,
-      relatedContentType: 'core:company',
-    },
-    defaultValue: [],
-  });
+  const companyIds = await getDealContactIds(subdomain, deal, 'company');
 
   if (companyIds.length > 0) {
     const companies = await sendTRPCMessage({
@@ -537,18 +527,7 @@ const checkBillType = async (subdomain, config, deal) => {
   }
 
   if (type === 'B2C_RECEIPT') {
-    const customerIds = await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      module: 'relation',
-      action: 'getRelationIds',
-      input: {
-        contentType: 'sales:deal',
-        contentId: deal._id,
-        relatedContentType: 'core:customer',
-      },
-      defaultValue: [],
-    });
+    const customerIds = await getDealContactIds(subdomain, deal, 'customer');
 
     if (customerIds.length > 0) {
       const customers = await sendTRPCMessage({

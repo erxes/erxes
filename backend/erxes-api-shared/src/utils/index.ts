@@ -25,5 +25,3 @@ export * from './editor';
 export * from './errorClassifier';
 export * from './sentry-init';
 export * from './email';
-export * from './credential-privacy';
-export * from './credentials';

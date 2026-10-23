@@ -65,6 +65,7 @@ export const SideMenuContentHeader = forwardRef<
     <>
       <div
         ref={ref}
+        data-side-menu-header=""
         className={cn(
           'h-10 px-4 flex items-center gap-2 flex-none bg-background',
           className,

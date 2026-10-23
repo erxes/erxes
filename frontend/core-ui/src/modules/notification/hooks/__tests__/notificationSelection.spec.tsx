@@ -22,16 +22,12 @@ jest.mock('react-router-dom', () => ({
 jest.mock('erxes-ui', () => ({
   useScopedHotkeys: jest.fn(),
   useToast: () => ({ toast: jest.fn() }),
-  useConfirm: () => ({ confirm: jest.fn().mockResolvedValue(undefined) }),
 }));
 jest.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string) => key }),
 }));
 jest.mock('ui-modules', () => ({ TNotificationKind: { USER: 'user' } }));
 jest.mock('../useMarkAsReadNotification');
-jest.mock('../useDeleteNotifications', () => ({
-  useDeleteNotifications: () => jest.fn(),
-}));
 
 const setupStore = () => {
   const store = createStore();
@@ -124,7 +120,7 @@ describe('pending bulk read completion', () => {
     const { store, complete } = setupBatch();
     await complete();
     expect(mockNavigate).toHaveBeenCalledWith('/my-inbox?status=unread');
-    expect(store.get(hiddenNotificationIdsState)).toEqual([]);
+    expect(store.get(hiddenNotificationIdsState)).toEqual(['first']);
     expect(store.get(selectedNotificationIdsState)).toEqual([]);
   });
 
@@ -170,7 +166,7 @@ describe('pending bulk read completion', () => {
     );
     expect(markAsRead.mock.calls).toEqual([['first'], ['failed'], ['third']]);
     await complete();
-    expect(store.get(hiddenNotificationIdsState)).toEqual([]);
+    expect(store.get(hiddenNotificationIdsState)).toEqual(['first', 'third']);
     expect(store.get(selectedNotificationIdsState)).toEqual(['failed']);
   });
 });

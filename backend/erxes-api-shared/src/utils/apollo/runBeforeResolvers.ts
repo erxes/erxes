@@ -1,7 +1,6 @@
 import { getPlugin, getPlugins } from '../service-discovery';
 import { sendCoreModuleProducer } from '../trpc/sendCoreModuleProducer';
 import { createExpectedError } from '../errorClassifier';
-import { isCredentialField } from '../credential-privacy';
 import {
   BeforeResolverBlockedResult,
   BeforeResolversConfig,
@@ -85,9 +84,6 @@ export const runBeforeResolvers = async (
     headers?: Record<string, string | string[] | undefined>;
   },
 ): Promise<BeforeResolverRunResult> => {
-  // Extension hooks execute in optional plugins and are not vault consumers.
-  // They must neither receive secret inputs nor short-circuit authorization.
-  if (isCredentialField(resolverName)) return { resolved: false, args };
   const pluginNames = await getPlugins();
 
   let mergedArgs = args;
@@ -155,9 +151,6 @@ export const checkBeforeResolvers = async (
     headers?: Record<string, string | string[] | undefined>;
   },
 ): Promise<BeforeResolverCheckResult> => {
-  if (isCredentialField(resolverName)) {
-    return { available: true, args, blocked: [] };
-  }
   const pluginNames = await getPlugins();
 
   let mergedArgs = args;
