@@ -123,9 +123,9 @@ export const Composer = ({
     item.context ? [item.context] : [],
   );
   const selectionCount = attachments.filter((item) => item.selection).length;
+  // While a run streams, Enter still sends: the message waits for the run.
   const canSend =
     !disabled &&
-    !isStreaming &&
     !hasPending &&
     !hasError &&
     (trimmed.length > 0 ||

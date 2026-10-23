@@ -1,4 +1,4 @@
-import { APICallError, isToolUIPart } from 'ai';
+import { APICallError, isTextUIPart, isToolUIPart } from 'ai';
 import { hasAgentsApprovalDecision } from '../approvalDecisions';
 import { Chat, useChat } from '@ai-sdk/react';
 import { useLazyQuery, useMutation } from '@apollo/client';
@@ -114,6 +114,9 @@ export interface IUseAgentsChatResult {
   threadId: string | undefined;
   loadingThread: boolean;
   sendMessage: IUseChat['sendMessage'];
+  /** Text of the messages waiting for the current run to end. */
+  queuedMessages: string[];
+  removeQueued: (index: number) => void;
   addToolApprovalResponse: IUseChat['addToolApprovalResponse'];
   stop: IUseChat['stop'];
   clearError: IUseChat['clearError'];
@@ -238,12 +241,47 @@ export const useAgentsChat = (options?: {
     ]);
   }, [chat, detach, stopThread]);
 
+  // Messages sent while a run streams wait here and go out, in order, once
+  // the run ends. Mastra can deliver into a running turn, but only on the
+  // replica that already watches the thread, so the client holds them.
+  const [queue, setQueue] = useState<
+    { chatId: string; args: Parameters<IUseChat['sendMessage']> }[]
+  >([]);
   const sendMessage = useCallback<IUseChat['sendMessage']>(
-    (...args) => {
+    async (...args) => {
       writeSelectedThreadId(sessionScope, chat.id);
+      if (
+        args[0] &&
+        (chat.status === 'submitted' || chat.status === 'streaming')
+      ) {
+        setQueue((entries) => [...entries, { chatId: chat.id, args }]);
+        return;
+      }
       return sdkSendMessage(...args);
     },
     [chat, sdkSendMessage, sessionScope],
+  );
+  useEffect(() => {
+    const next = queue.find((entry) => entry.chatId === chat.id);
+    if (
+      !next ||
+      status !== 'ready' ||
+      messageHasPendingSuspension(chat.lastMessage)
+    )
+      return;
+    setQueue((entries) => entries.filter((entry) => entry !== next));
+    void sdkSendMessage(...next.args);
+  }, [queue, status, chat, sdkSendMessage]);
+  const queued = queue.filter((entry) => entry.chatId === chat.id);
+  const removeQueued = useCallback(
+    (index: number) =>
+      setQueue((entries) => {
+        const target = entries.filter((entry) => entry.chatId === chat.id)[
+          index
+        ];
+        return entries.filter((entry) => entry !== target);
+      }),
+    [chat],
   );
 
   const editMessage = useCallback(
@@ -423,6 +461,14 @@ export const useAgentsChat = (options?: {
     threadId: messages.length ? chat.id : undefined,
     loadingThread,
     sendMessage,
+    queuedMessages: queued.map(({ args: [message] }) =>
+      !message
+        ? ''
+        : 'text' in message && typeof message.text === 'string'
+        ? message.text
+        : message.parts?.find(isTextUIPart)?.text ?? '',
+    ),
+    removeQueued,
     addToolApprovalResponse,
     stop,
     clearError,
