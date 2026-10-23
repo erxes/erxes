@@ -108,8 +108,11 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   The broker entity selector that follows is
   labelled by its type (`Customer`, `Company`, `User`) with a `Select broker`
   placeholder. Customers and Companies follow tags (`DealContactsField`:
-  ui-modules `ContactsRelationField` with `variant="chip"`); each linked
-  contact opens in the side panel, the chevron opens the picker, and changes
+  ui-modules `ContactsRelationField` with `variant="chip"`); inside the
+  deal sheet a linked contact opens in the sheet's own Customers / Companies
+  rail tab (`onOpen` → `setActiveSideTab(RELATION_CONTACT_SIDE_TABS[kind])`,
+  the app's side panel sits behind the modal sheet), elsewhere (a
+  notification) in the side panel; the chevron opens the picker, and changes
   are saved on the deal's own single `customerId` / `companyId` through
   `dealsEdit` (no core relation). The board card's customer / company chips
   save the same way (the latest pick replaces the one before). The add form

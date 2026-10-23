@@ -138,6 +138,7 @@ export const ContactsRelationField = ({
   scope,
   variant = 'inline',
   label,
+  onOpen,
 }: {
   kind: TContactKind;
   // The record's one customer or company.
@@ -146,17 +147,22 @@ export const ContactsRelationField = ({
   scope?: string;
   variant?: 'inline' | 'chip';
   label?: string;
+  // Opens the linked contact somewhere else than the side panel, e.g. the
+  // sheet's own rail where the panel cannot be reached.
+  onOpen?: (contactId: string) => void;
 }) => {
   const { t } = useTranslation('common', { keyPrefix: 'side-panel' });
   const { openRecord } = useSidePanel();
   const [open, setOpen] = useState(false);
 
   const openContact = (contentId: string) =>
-    // Opened from inside the panel: Back returns to this record.
-    openRecord(
-      { contentType: CONTENT_TYPES[kind], contentId },
-      { stack: true },
-    );
+    onOpen
+      ? onOpen(contentId)
+      : // Opened from inside the panel: Back returns to this record.
+        openRecord(
+          { contentType: CONTENT_TYPES[kind], contentId },
+          { stack: true },
+        );
 
   const selected = value ? [value] : [];
 

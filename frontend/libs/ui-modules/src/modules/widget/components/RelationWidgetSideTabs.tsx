@@ -52,8 +52,18 @@ export const StaticSideMenuTab = ({
 const compactIds = (ids?: (string | null | undefined)[] | null) =>
   [...new Set((ids || []).filter((id): id is string => !!id))];
 
-const CUSTOMERS_TAB = 'customers';
-const COMPANIES_TAB = 'companies';
+/**
+ * The rail's tab showing the record's customer or company: hosts whose
+ * contact fields sit in the same sheet open it with
+ * `useFocusSheet().setActiveSideTab(RELATION_CONTACT_SIDE_TABS[kind])`.
+ */
+export const RELATION_CONTACT_SIDE_TABS = {
+  customer: 'customers',
+  company: 'companies',
+} as const;
+
+const CUSTOMERS_TAB = RELATION_CONTACT_SIDE_TABS.customer;
+const COMPANIES_TAB = RELATION_CONTACT_SIDE_TABS.company;
 
 /**
  * A record's side rail in a detail sheet: its customer and its company
