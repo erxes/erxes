@@ -1,112 +1,6 @@
 import { IContext } from '~/connectionResolvers';
 import { ITriageAddInput, ITriageUpdateInput } from '@/task/@types/triage';
 import { STATUS_TYPES } from '@/status/constants/types';
-import { hasContactFields } from 'erxes-api-shared/core-modules';
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
-
-const TRIAGE_CONTENT_TYPE = 'operation:triage';
-// Triages were related as tasks before they had a type of their own; an
-// accepted triage's task takes its id, so those links are the task's.
-const LEGACY_TRIAGE_CONTENT_TYPE = 'operation:task';
-
-const getRelatedIds = (
-  subdomain: string,
-  contentType: string,
-  contentId: string,
-  relatedContentType: string,
-): Promise<string[]> =>
-  sendTRPCMessage({
-    subdomain,
-    pluginName: 'core',
-    method: 'query',
-    module: 'relation',
-    action: 'getRelationIds',
-    input: { contentType, contentId, relatedContentType },
-    defaultValue: [],
-  });
-
-type TRelationEntity = { contentType: string; contentId: string };
-
-/**
- * Moves the links an accepted triage has to other records (relations) to
- * the task that replaces it, then drops the triage's own.
- */
-const moveTriageRelations = async (subdomain: string, triageId: string) => {
-  const relations: { entities?: TRelationEntity[] }[] = await sendTRPCMessage({
-    subdomain,
-    pluginName: 'core',
-    method: 'query',
-    module: 'relation',
-    action: 'getRelationsByEntities',
-    input: { contentType: TRIAGE_CONTENT_TYPE, contentId: triageId },
-    defaultValue: [],
-  });
-  const isTriage = (entity: TRelationEntity) =>
-    entity.contentType === TRIAGE_CONTENT_TYPE && entity.contentId === triageId;
-  const moved = relations
-    .filter(({ entities = [] }) => entities.some(isTriage))
-    .map(({ entities = [] }) => ({
-      entities: entities.map(({ contentType, contentId }) =>
-        isTriage({ contentType, contentId })
-          ? { contentType: LEGACY_TRIAGE_CONTENT_TYPE, contentId }
-          : { contentType, contentId },
-      ),
-    }));
-
-  if (moved.length) {
-    await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      method: 'mutation',
-      module: 'relation',
-      action: 'createMultipleRelations',
-      input: { relations: moved },
-      defaultValue: [],
-    });
-  }
-
-  await sendTRPCMessage({
-    subdomain,
-    pluginName: 'core',
-    method: 'mutation',
-    module: 'relation',
-    action: 'cleanRelation',
-    input: { contentType: TRIAGE_CONTENT_TYPE, contentIds: [triageId] },
-    defaultValue: null,
-  });
-};
-
-// A triage's customer and company: its fields once migrated, else the first
-// of its relations under either type.
-const getTriageContacts = async (
-  subdomain: string,
-  triage: {
-    _id: unknown;
-    customerId?: string | null;
-    companyId?: string | null;
-  },
-) => {
-  if (hasContactFields(triage)) {
-    return { customerId: triage.customerId, companyId: triage.companyId };
-  }
-
-  const triageId = String(triage._id);
-  const [customers, companies] = await Promise.all(
-    ['core:customer', 'core:company'].map(async (relatedContentType) =>
-      (
-        await Promise.all(
-          [TRIAGE_CONTENT_TYPE, LEGACY_TRIAGE_CONTENT_TYPE].map((type) =>
-            getRelatedIds(subdomain, type, triageId, relatedContentType),
-          ),
-        )
-      )
-        .flat()
-        .filter(Boolean),
-    ),
-  );
-
-  return { customerId: customers[0] ?? null, companyId: companies[0] ?? null };
-};
 
 export const triageMutations = {
   operationAddTriage: async (
@@ -187,12 +81,11 @@ export const triageMutations = {
     }
 
     // The task takes the triage's _id (see Task.createTask) and keeps its
-    // customers and companies.
-    const contacts = await getTriageContacts(subdomain, triage);
-
+    // customer and company.
     const task = await models.Task.createTask({
       doc: {
-        ...contacts,
+        customerId: triage.customerId ?? null,
+        companyId: triage.companyId ?? null,
         name: triage.name,
         description: triage.description,
         teamId: triage.teamId,
@@ -209,8 +102,6 @@ export const triageMutations = {
     });
 
     if (task) {
-      await moveTriageRelations(subdomain, _id);
-
       if (reason) {
         await models.Note.createNote({
           doc: {

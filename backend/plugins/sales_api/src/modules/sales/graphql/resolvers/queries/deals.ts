@@ -21,7 +21,6 @@ import {
   sendTRPCMessage,
 } from 'erxes-api-shared/utils';
 import { FilterQuery } from 'mongoose';
-import { contactFieldsReady } from 'erxes-api-shared/core-modules';
 import dealResolvers from '@/sales/graphql/resolvers/customResolvers/deal';
 import moment from 'moment';
 import { Resolver } from 'erxes-api-shared/core-types';
@@ -133,11 +132,6 @@ const getPipelineVisibilityFilter = async ({
   };
 };
 
-// Deals keep their contacts on themselves once the collection is migrated;
-// until then contact filters go through relations as before.
-const dealContactsReady = (models: IModels, subdomain: string) =>
-  contactFieldsReady(models.Deals, `${subdomain}:deals`);
-
 const getCustomerPhoneCondition = async (
   models: IModels,
   subdomain: string,
@@ -183,25 +177,8 @@ const getCustomerPhoneCondition = async (
 
   const phoneCustomerIds = customers.map(({ _id }) => String(_id));
 
-  if (await dealContactsReady(models, subdomain)) {
-    return { customerId: { $in: phoneCustomerIds } };
-  }
-
-  const dealIds: string[] = await sendTRPCMessage({
-    subdomain,
-    pluginName: 'core',
-    method: 'query',
-    module: 'relation',
-    action: 'filterRelationIds',
-    input: {
-      contentType: 'core:customer',
-      contentIds: phoneCustomerIds,
-      relatedContentType: 'sales:deal',
-    },
-    defaultValue: [],
-  });
-
-  return dealIds.length ? { _id: { $in: dealIds } } : null;
+  // Deals keep their customer themselves.
+  return { customerId: { $in: phoneCustomerIds } };
 };
 
 export const generateFilter = async (
@@ -269,7 +246,6 @@ export const generateFilter = async (
       : { status: { $ne: SALES_STATUSES.ARCHIVED }, parentId: undefined },
   );
 
-  let filterIds: string[] = [];
 
   if (parentId) {
     filter.parentId = parentId;
@@ -321,71 +297,22 @@ export const generateFilter = async (
     filter.departmentIds = { $in: departments.map((item) => item._id) };
   }
 
-  const contactsReady =
-    customerId ||
-    companyId ||
-    relationType === 'core:customer' ||
-    relationType === 'core:company'
-      ? await dealContactsReady(models, subdomain)
-      : false;
-
-  if (contactsReady) {
-    if (customerId) {
-      filter.customerId = customerId;
-    }
-
-    if (companyId) {
-      filter.companyId = companyId;
-    }
+  // Deals keep their customer and company themselves.
+  if (customerId) {
+    filter.customerId = customerId;
   }
 
-  if (!contactsReady && customerId) {
-    const relIds = await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      module: 'relation',
-      action: 'filterRelationIds',
-      input: {
-        contentType: 'core:customer',
-        contentIds: [customerId],
-        relatedContentType: 'sales:deal',
-      },
-      defaultValue: [],
-    });
-
-    filterIds = relIds;
-  }
-
-  if (!contactsReady && companyId) {
-    const relIds = await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      module: 'relation',
-      action: 'filterRelationIds',
-      input: {
-        contentType: 'core:company',
-        contentIds: [companyId],
-        relatedContentType: 'sales:deal',
-      },
-      defaultValue: [],
-    });
-
-    filterIds = filterIds.length
-      ? filterIds.filter((id) => relIds.includes(id))
-      : relIds;
-  }
-
-  if (!contactsReady && (customerId || companyId)) {
-    filter._id = { $in: filterIds };
+  if (companyId) {
+    filter.companyId = companyId;
   }
 
   if (_ids?.length) {
     filter._id = { $in: _ids };
   }
 
-  if (contactsReady && relationType === 'core:customer' && relationId) {
+  if (relationType === 'core:customer' && relationId) {
     filter.customerId = relationId;
-  } else if (contactsReady && relationType === 'core:company' && relationId) {
+  } else if (relationType === 'core:company' && relationId) {
     filter.companyId = relationId;
   } else if (relationType && relationId) {
     const relIds = await sendTRPCMessage({

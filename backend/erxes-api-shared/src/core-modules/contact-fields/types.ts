@@ -21,8 +21,7 @@ export type TContactFieldsSync =
   | { action: 'merge'; kind: TContactKind; oldIds: string[]; newId: string }
   | { action: 'remove'; kind: TContactKind; ids: string[] };
 
-// The record's one customer and one company. `null`: none; missing: the
-// record is not migrated yet (its contacts are still in core relations).
+// The record's one customer and one company; `null` for none.
 export interface IContactFields {
   customerId?: string | null;
   companyId?: string | null;

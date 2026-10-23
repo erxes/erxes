@@ -1,4 +1,3 @@
-import { contactFieldsReady } from 'erxes-api-shared/core-modules';
 import crypto from 'crypto';
 import {
   IAttachment,
@@ -1369,34 +1368,8 @@ export const widgetMutations: Record<string, Resolver> = {
     if (!customer) {
       throw new Error('Could not save your contact info. Please try again.');
     }
-    // The customer's latest ticket: from the tickets once they keep their
-    // customers, else through relations.
-    let ticketIds: string[] | undefined;
-
-    if (
-      !(await contactFieldsReady(
-        models.Ticket,
-        `${subdomain}:frontline_tickets`,
-      ))
-    ) {
-      ticketIds = await sendTRPCMessage({
-        subdomain,
-        pluginName: 'core',
-        method: 'query',
-        module: 'relation',
-        action: 'getRelationIds',
-        input: {
-          contentType: 'core:customer',
-          contentId: customer._id,
-          relatedContentType: 'frontline:ticket',
-        },
-        defaultValue: [],
-      });
-    }
-
-    const ticket = await models.Ticket.findOne(
-      ticketIds ? { _id: { $in: ticketIds } } : { customerId: customer._id },
-    )
+    // The customer's latest ticket: tickets keep their customer themselves.
+    const ticket = await models.Ticket.findOne({ customerId: customer._id })
       .sort({ createdAt: -1 })
       .lean();
 

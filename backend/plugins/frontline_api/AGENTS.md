@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-10-22`
+- **Last synchronized:** `2026-10-23`
 
 ## Scope
 
@@ -1354,7 +1354,7 @@ tagIds, propertiesData: JSON)` (the customer comes from the widget session) — 
 
 ## Data and State
 
-- `frontline_tickets` owns one customer and one company as `customerId` / `companyId` (indexed, `default: undefined` until migrated; `contactFieldsSchemaPlugin` gives new tickets `null`); frontline saves them itself and makes no core relation for them. Core's contact merge / remove reaches them through tRPC `contactFields.sync`. `core-api` `commands/migrateRelationsToContactFields.ts` backfills tickets linked before: the first of old `customerIds` / `companyIds` arrays (then removed), else the oldest related contact; extra contacts are dropped. The create-ticket automation action saves `companyId` (old actions' `companyIds` give their first). `conversations` keep their single `customerId` and are not migrated.
+- `frontline_tickets` owns one customer and one company as `customerId` / `companyId` (indexed, `default: null`; read only from the record — the migration must run before deploy, there is no relation fallback); frontline saves them itself and makes no core relation for them. Core's contact merge / remove reaches them through tRPC `contactFields.sync`. `core-api` `commands/migrateRelationsToContactFields.ts` backfills tickets linked before: the first of old `customerIds` / `companyIds` arrays (then removed), else the oldest related contact; extra contacts are dropped. The create-ticket automation action saves `companyId` (old actions' `companyIds` give their first). `conversations` keep their single `customerId` and are not migrated.
 - Models are generated per request subdomain. Telegram owns `telegram_bots`,
   `customers_telegram`, `conversations_telegram`, `conversation_messages_telegram`
   and `telegram_reactions`; canonical inbox history stays in Frontline's
@@ -1365,7 +1365,7 @@ tagIds, propertiesData: JSON)` (the customer comes from the widget session) — 
 
 ## Local Invariants
 
-- Ticket contacts are read per doc (`hasContactFields` ⇒ fields, else relations): mail recipients (`integrations/mail/utils/tickets.ts`), report contact narrowing, widget ticket lists and `widgetTicketCheckProgressForget` use the fields once `contactFieldsReady(models.Ticket, ...)` holds, else relations. Conversation ↔ ticket/deal and customer ↔ company links remain core relations.
+- Ticket contacts are read only from `customerId` / `companyId`: mail recipients (`integrations/mail/utils/tickets.ts`), report contact filters (`narrowTicketMatchByContacts`), widget ticket ownership (`getOwnedTicketIds`, needs `models`) and `widgetTicketCheckProgressForget`. Never read a ticket's contacts or source conversations from core relations; customer ↔ company links remain core relations.
 - A Form submitted condition on an array value (checkbox group, multi-select)
   matches when any option matches; `dne`/`numberdne`/`dnc` must hold for every
   option, and `is`/`ins` test the whole value. Number and boolean values are

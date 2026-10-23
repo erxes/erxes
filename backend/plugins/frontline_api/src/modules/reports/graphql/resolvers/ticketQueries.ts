@@ -368,12 +368,11 @@ export const reportTicketQueries = {
   async reportTicketSource(
     _parent: undefined,
     { filters = {} }: { filters?: IReportFilters },
-    { models, subdomain }: IContext,
+    { models }: IContext,
   ) {
-    const matchFilter = await narrowTicketMatchByContacts(
+    const matchFilter = narrowTicketMatchByContacts(
       buildTicketMatch(filters),
       filters,
-      subdomain,
     );
 
     // Tickets keep the conversations they were made from themselves.
@@ -423,9 +422,9 @@ export const reportTicketQueries = {
   async reportTicketDate(
     _parent,
     { filters = {} }: { filters?: IReportFilters },
-    { models, subdomain },
+    { models },
   ) {
-    const pipeline = await buildTicketPipeline(filters, subdomain);
+    const pipeline = buildTicketPipeline(filters);
 
     pipeline.push(...buildDateGroupPipeline('createdAt', filters.frequency));
 
@@ -434,19 +433,17 @@ export const reportTicketQueries = {
     return result.map((r) => ({ date: r._id, count: r.count }));
   },
 
-  async reportTicketOpen(_parent, { filters = {} }, { models, subdomain }) {
-    const query = await narrowTicketMatchByContacts(
+  async reportTicketOpen(_parent, { filters = {} }, { models }) {
+    const query = narrowTicketMatchByContacts(
       buildTicketMatch(filters),
       filters,
-      subdomain,
     );
-    const baseQuery = await narrowTicketMatchByContacts(
+    const baseQuery = narrowTicketMatchByContacts(
       buildTicketMatch({
         ...filters,
         status: undefined,
       }),
       filters,
-      subdomain,
     );
 
     const [openCount, totalCount] = await Promise.all([
@@ -463,9 +460,9 @@ export const reportTicketQueries = {
   async reportTicketList(
     _parent,
     { filters = {} }: { filters?: IReportFilters },
-    { models, subdomain },
+    { models },
   ) {
-    const basePipeline = await buildTicketPipeline(filters, subdomain);
+    const basePipeline = buildTicketPipeline(filters);
 
     basePipeline.push({ $sort: { updatedAt: -1, _id: -1 } });
 
@@ -498,9 +495,9 @@ export const reportTicketQueries = {
   async reportTicketTotalCount(
     _parent: undefined,
     { filters = {} }: { filters?: IReportFilters },
-    { models, subdomain }: IContext,
+    { models }: IContext,
   ) {
-    const pipeline = await buildTicketPipeline(filters, subdomain);
+    const pipeline = buildTicketPipeline(filters);
     pipeline.push({ $count: 'total' });
     const result = await models.Ticket.aggregate(pipeline);
     return result[0]?.total ?? 0;
@@ -511,10 +508,9 @@ export const reportTicketQueries = {
     { filters = {} }: { filters?: IReportFilters },
     { models, subdomain }: IContext,
   ) {
-    const matchFilter = await narrowTicketMatchByContacts(
+    const matchFilter = narrowTicketMatchByContacts(
       buildTicketTagMatch(filters),
       filters,
-      subdomain,
     );
 
     const pipeline: any[] = [
@@ -573,10 +569,9 @@ export const reportTicketQueries = {
     { filters = {} }: { filters?: IReportFilters },
     { models, subdomain }: IContext,
   ) {
-    const matchFilter = await narrowTicketMatchByContacts(
+    const matchFilter = narrowTicketMatchByContacts(
       buildTicketMatch(filters),
       filters,
-      subdomain,
     );
 
     if (filters.groupPropertyId) {
@@ -727,12 +722,11 @@ export const reportTicketQueries = {
   async reportTicketStatusSummary(
     _parent: undefined,
     { filters = {} }: { filters?: IReportFilters },
-    { models, subdomain }: IContext,
+    { models }: IContext,
   ) {
-    const matchFilter = await narrowTicketMatchByContacts(
+    const matchFilter = narrowTicketMatchByContacts(
       buildTicketMatch(filters),
       filters,
-      subdomain,
     );
 
     const pipeline: any[] = [
@@ -811,12 +805,11 @@ export const reportTicketQueries = {
   async reportTicketPriority(
     _parent: undefined,
     { filters = {} }: { filters?: IReportFilters },
-    { models, subdomain }: IContext,
+    { models }: IContext,
   ) {
-    const matchFilter = await narrowTicketMatchByContacts(
+    const matchFilter = narrowTicketMatchByContacts(
       buildTicketMatch(filters),
       filters,
-      subdomain,
     );
     const pipeline: any[] = [
       { $match: matchFilter },
@@ -855,7 +848,7 @@ export const reportTicketQueries = {
     { filters = {} }: { filters?: IReportFilters },
     { models, subdomain }: IContext,
   ) {
-    const pipeline = await buildTicketPipeline(filters, subdomain);
+    const pipeline = buildTicketPipeline(filters);
     pipeline.push({ $sort: { createdAt: -1 } });
 
     const tickets = await models.Ticket.aggregate(pipeline);

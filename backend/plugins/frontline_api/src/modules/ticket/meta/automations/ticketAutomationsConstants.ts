@@ -15,25 +15,20 @@ const FRONTLINE_TICKET_SET_PROPERTY_TARGETS: TAutomationSetPropertyTarget[] = [
     source: 'target',
     cardinality: 'one',
   },
+  // The ticket keeps one customer and one company itself.
   {
-    label: 'Ticket customers',
+    label: 'Ticket customer',
     type: 'core:contacts.customers',
-    source: 'relation',
-    cardinality: 'many',
-    relation: {
-      contentType: 'frontline:ticket',
-      relatedContentType: 'core:customer',
-    },
+    source: 'targetField',
+    targetPath: 'customerId',
+    cardinality: 'one',
   },
   {
-    label: 'Ticket companies',
+    label: 'Ticket company',
     type: 'core:contacts.companies',
-    source: 'relation',
-    cardinality: 'many',
-    relation: {
-      contentType: 'frontline:ticket',
-      relatedContentType: 'core:company',
-    },
+    source: 'targetField',
+    targetPath: 'companyId',
+    cardinality: 'one',
   },
 ];
 

@@ -56,6 +56,8 @@ type TDealForMovement = {
   branchIds?: string[];
   departmentIds?: string[];
   assignedUserIds?: string[];
+  customerId?: string | null;
+  companyId?: string | null;
 };
 
 type TMovementProductRow = {
@@ -265,7 +267,7 @@ export const dealToMovementTrs = async ({
     details: [],
   };
 
-  const owner = await getDealOwner(subdomain, deal);
+  const owner = getDealOwner(deal);
   moveTrDoc.customerType = owner.customerType;
   moveTrDoc.customerId = owner.customerId;
 

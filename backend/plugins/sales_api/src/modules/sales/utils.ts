@@ -921,29 +921,8 @@ export const getAmountsMap = async (
 
 type TDealContactKind = 'customer' | 'company';
 
-const relatedContactIds = (
-  subdomain: string,
-  dealId: string,
-  kind: TDealContactKind,
-): Promise<string[]> =>
-  sendTRPCMessage({
-    subdomain,
-    pluginName: 'core',
-    module: 'relation',
-    action: 'getRelationIds',
-    input: {
-      contentType: 'sales:deal',
-      contentId: dealId,
-      relatedContentType:
-        kind === 'customer' ? 'core:customer' : 'core:company',
-    },
-    defaultValue: [],
-  });
-
-// A deal's contact (as a list of at most one): from the deal once it keeps
-// both fields (as erxes-api-shared `hasContactFields`), else from relations.
+// A deal's customer or company, as a list of at most one: kept on the deal.
 const getDealContactIds = async (
-  subdomain: string,
   models: IModels,
   dealId: string,
   kind: TDealContactKind,
@@ -952,27 +931,22 @@ const getDealContactIds = async (
     { _id: dealId },
     { customerId: 1, companyId: 1 },
   ).lean();
+  const contactId = kind === 'customer' ? deal?.customerId : deal?.companyId;
 
-  if (deal && deal.customerId !== undefined && deal.companyId !== undefined) {
-    const contactId = kind === 'customer' ? deal.customerId : deal.companyId;
-    return contactId ? [contactId] : [];
-  }
-
-  return relatedContactIds(subdomain, dealId, kind);
+  return contactId ? [contactId] : [];
 };
 
 export const getCompanyIds = (
   subdomain: string,
   models: IModels,
   dealId: string,
-): Promise<string[]> => getDealContactIds(subdomain, models, dealId, 'company');
+): Promise<string[]> => getDealContactIds(models, dealId, 'company');
 
 export const getCustomerIds = (
   subdomain: string,
   models: IModels,
   dealId: string,
-): Promise<string[]> =>
-  getDealContactIds(subdomain, models, dealId, 'customer');
+): Promise<string[]> => getDealContactIds(models, dealId, 'customer');
 
 /**
  * Sets a deal's customer / company. Sales keeps its deals' contact itself

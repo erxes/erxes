@@ -106,7 +106,7 @@ export const dealToTrs = async ({
     details: [],
   };
 
-  const owner = await getDealOwner(subdomain, deal);
+  const owner = getDealOwner(deal);
   saleTrDoc.customerType = owner.customerType;
   saleTrDoc.customerId = owner.customerId;
 

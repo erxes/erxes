@@ -1,4 +1,3 @@
-import { contactFieldsSchemaPlugin } from 'erxes-api-shared/core-modules';
 import { Schema } from 'mongoose';
 import { STATUS_TYPES } from '@/status/constants/types';
 
@@ -15,11 +14,10 @@ export const triageSchema = new Schema(
     githubIssueNumber: { type: Number, label: 'GitHub Issue Number' },
     githubIssueUrl: { type: String, label: 'GitHub Issue URL' },
     githubRepoName: { type: String, label: 'GitHub Repo Name' },
-    // The triage's contacts, mirrored from core relations; missing until
-    // migrated (see contactFieldsSchemaPlugin). Carried to the task it
+    // The triage's one customer and one company; carried to the task it
     // becomes.
-    customerId: { type: String, label: 'Customer', default: undefined },
-    companyId: { type: String, label: 'Company', default: undefined },
+    customerId: { type: String, label: 'Customer', default: null, index: true },
+    companyId: { type: String, label: 'Company', default: null, index: true },
   },
   {
     timestamps: true,
@@ -34,4 +32,3 @@ triageSchema.index(
 triageSchema.index({ customerId: 1 });
 triageSchema.index({ companyId: 1 });
 
-triageSchema.plugin(contactFieldsSchemaPlugin);

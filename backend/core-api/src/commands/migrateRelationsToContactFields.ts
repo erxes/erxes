@@ -21,8 +21,9 @@ dotenv.config();
  * 3. otherwise `null` (no contact; the record is migrated).
  *
  * A record with several customers or companies keeps only the first; the
- * counts are printed. Relations are left in place. Safe to run again: a
- * record that already has its fields is not changed.
+ * counts are printed. Relations are left in place. A field that is empty
+ * (`null` or missing) is looked up again, so a record saved by new code
+ * before this ran still gets its contact. Safe to run again.
  *
  *   MONGO_URL=... npx ts-node src/commands/migrateRelationsToContactFields.ts
  *   DRY_RUN=true  → count only, write nothing
@@ -128,11 +129,12 @@ const migrateTarget = async (db: Db, target: ITarget) => {
   const records: Collection<IRecord> = db.collection<IRecord>(
     target.collection,
   );
-  // Records not migrated yet: a missing contact field or a leftover array.
+  // Records with an empty contact field (`null` matches missing too) or a
+  // leftover array.
   const query = {
     $or: [
-      { customerId: { $exists: false } },
-      { companyId: { $exists: false } },
+      { customerId: null },
+      { companyId: null },
       { customerIds: { $exists: true } },
       { companyIds: { $exists: true } },
     ],
@@ -164,18 +166,18 @@ const migrateTarget = async (db: Db, target: ITarget) => {
     const hasArrays =
       Array.isArray(record.customerIds) || Array.isArray(record.companyIds);
 
-    if (record.customerId === undefined || record.companyId === undefined) {
+    if (!record.customerId || !record.companyId) {
       if (hasArrays) {
         stats.fromArrays += 1;
         stats.droppedContacts +=
           Math.max(0, countOf(record.customerIds) - 1) +
           Math.max(0, countOf(record.companyIds) - 1);
 
-        if (record.customerId === undefined) {
+        if (!record.customerId) {
           set.customerId = firstOf(record.customerIds);
         }
 
-        if (record.companyId === undefined) {
+        if (!record.companyId) {
           set.companyId = firstOf(record.companyIds);
         }
       } else {
@@ -191,11 +193,11 @@ const migrateTarget = async (db: Db, target: ITarget) => {
 
         stats.droppedContacts += related.extra;
 
-        if (record.customerId === undefined) {
+        if (!record.customerId) {
           set.customerId = related.customerId;
         }
 
-        if (record.companyId === undefined) {
+        if (!record.companyId) {
           set.companyId = related.companyId;
         }
       }

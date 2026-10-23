@@ -1,4 +1,3 @@
-import { contactFieldsSchemaPlugin } from 'erxes-api-shared/core-modules';
 import { Schema } from 'mongoose';
 
 export const taskSchema = new Schema(
@@ -10,11 +9,9 @@ export const taskSchema = new Schema(
     priority: { type: Number, label: 'Priority', default: 0 },
     labelIds: { type: [String], label: 'Label IDs' },
     tagIds: { type: [String], label: 'Tag IDs' },
-    // The task's contacts, kept on the task instead of core relations.
-    // Missing (not `[]`) until the task is migrated; see
-    // contactFieldsSchemaPlugin.
-    customerId: { type: String, label: 'Customer', default: undefined },
-    companyId: { type: String, label: 'Company', default: undefined },
+    // The task's one customer and one company, kept on the task.
+    customerId: { type: String, label: 'Customer', default: null, index: true },
+    companyId: { type: String, label: 'Company', default: null, index: true },
     assigneeId: { type: String, label: 'Assignee' },
     createdBy: { type: String, label: 'Created By' },
     startDate: { type: Date, label: 'Start Date' },
@@ -58,4 +55,3 @@ taskSchema.index({ createdBy: 1 }, { sparse: true });
 taskSchema.index({ customerId: 1 });
 taskSchema.index({ companyId: 1 });
 
-taskSchema.plugin(contactFieldsSchemaPlugin);

@@ -167,35 +167,9 @@ export const resolveSessionCustomerId = async (
   return (await findVisitorCustomer(subdomain, session.visitorId))?._id;
 };
 
-// Whether every ticket keeps its contacts itself, as erxes-api-shared
-// `contactFieldsReady` (not imported: the core-modules barrel loads before
-// `utils` here and breaks its schemas). Rechecked each minute until true.
-const TICKETS_READY_RECHECK_MS = 60 * 1000;
-const ticketsReady = new Map<string, { ready: boolean; checkedAt: number }>();
-
-const ticketContactsReady = async (subdomain: string, models: IModels) => {
-  const cached = ticketsReady.get(subdomain);
-
-  if (
-    cached &&
-    (cached.ready || Date.now() - cached.checkedAt < TICKETS_READY_RECHECK_MS)
-  ) {
-    return cached.ready;
-  }
-
-  const ready = !(await models.Ticket.exists({
-    $or: [{ customerId: { $exists: false } }, { companyId: { $exists: false } }],
-  }));
-
-  ticketsReady.set(subdomain, { ready, checkedAt: Date.now() });
-
-  return ready;
-};
-
 /**
  * Tickets of the session's customer: those keeping it in their own
- * `customerId` (given `models`), and, until every ticket is migrated, those
- * related to it before tickets kept their contacts. A bare visitor owns none.
+ * `customerId` (given `models`). A bare visitor owns none.
  */
 export const getOwnedTicketIds = async (
   subdomain: string,
@@ -204,46 +178,13 @@ export const getOwnedTicketIds = async (
 ): Promise<string[]> => {
   const customerId = await resolveSessionCustomerId(subdomain, session);
 
-  if (!customerId) {
+  if (!customerId || !models) {
     return [];
   }
 
-  const ownIds: string[] = models
-    ? (
-        await models.Ticket.find({ customerId }, { _id: 1 }).lean()
-      ).map((ticket) => String(ticket._id))
-    : [];
+  const tickets = await models.Ticket.find({ customerId }, { _id: 1 }).lean();
 
-  if (models && (await ticketContactsReady(subdomain, models))) {
-    return ownIds;
-  }
-
-  const relations: Array<{
-    entities?: Array<{ contentType?: string; contentId?: string }>;
-  }> =
-    (await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      method: 'query',
-      module: 'relation',
-      action: 'getRelationsByEntities',
-      input: {
-        contentType: 'core:customer',
-        contentId: customerId,
-      },
-      defaultValue: [],
-    })) || [];
-
-  const relatedIds = relations.flatMap((relation) =>
-    (relation.entities || [])
-      .filter(
-        (entity) =>
-          entity.contentType === 'frontline:ticket' && !!entity.contentId,
-      )
-      .map((entity) => entity.contentId as string),
-  );
-
-  return [...new Set([...ownIds, ...relatedIds])];
+  return tickets.map((ticket) => String(ticket._id));
 };
 
 export const assertOwnsTicket = async (

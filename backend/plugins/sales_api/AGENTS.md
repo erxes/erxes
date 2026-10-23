@@ -6,7 +6,7 @@
 - **Project:** `sales_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/sales_api`
-- **Last synchronized:** `2026-10-22`
+- **Last synchronized:** `2026-10-23`
 
 ## Scope
 
@@ -247,7 +247,7 @@
 
 ## Data and State
 
-- `deals` owns one customer and one company as `customerId` / `companyId` (indexed, `default: undefined` until migrated; `contactFieldsSchemaPlugin` gives new deals `null`); sales saves them itself and makes no core relation for them. `dealsAdd` / `dealsEdit`, `cpDealsAdd`, the agent `deal.add` tool and the `deal.create` / `deal.createItem` tRPC take them on the doc; copies take the source deal's; automations set them with `setDealContacts` (`modules/sales/utils.ts`). `Deal` exposes `customerId` / `companyId` and keeps `customers` / `companies` (0–1 items). `core-api` `commands/migrateRelationsToContactFields.ts` backfills deals linked before (first of old arrays, else the oldest related contact).
+- `deals` owns one customer and one company as `customerId` / `companyId` (indexed, `default: null`; read only from the record — the migration must run before deploy, there is no relation fallback); sales saves them itself and makes no core relation for them. `dealsAdd` / `dealsEdit`, `cpDealsAdd`, the agent `deal.add` tool and the `deal.create` / `deal.createItem` tRPC take them on the doc; copies take the source deal's; automations set them with `setDealContacts` (`modules/sales/utils.ts`). `Deal` exposes `customerId` / `companyId` and keeps `customers` / `companies` (0–1 items). `core-api` `commands/migrateRelationsToContactFields.ts` backfills deals linked before (first of old arrays, else the oldest related contact).
 - Tenant-scoped Mongo collections are loaded through plugin connection
   resolvers.
 - Deal stage browsing uses `stageId`; its total count filters archived and
@@ -264,7 +264,7 @@
 
 ## Local Invariants
 
-- A deal's contacts are read per doc: both `customerId` and `companyId` present, `null` included ⇒ the fields, otherwise core relations (`modules/sales/utils.ts` checks this inline, not with `hasContactFields`, which would make an import cycle in tests). Use `getCustomerIds` / `getCompanyIds(subdomain, models, dealId)` (`modules/sales/utils.ts`) or the deal loader, never a direct `relation.getRelationIds` for `core:customer` / `core:company`. List filters (`customerId`, `companyId` args on `deals`, archived deals and stages, one id each; customer phone, `relationType` core:customer/company) use the fields only when `contactFieldsReady(models.Deals, ...)` says every deal has them. Tests that mock `erxes-api-shared/core-modules` or `utils` must declare the contact-field helpers they reach.
+- A deal's contacts are read only from `customerId` / `companyId`: `getCustomerIds` / `getCompanyIds(subdomain, models, dealId)` (`modules/sales/utils.ts`), the deal loader, documents, list filters (`customerId`, `companyId` args on `deals`, archived deals and stages; customer phone search; `relationType` core:customer/company) and automation targets ("Deal customer/company" are `targetField`s; "Customer/Company deals" select by the field in `getDealSetPropertySelector`). Never call `relation.getRelationIds` for a deal's contacts. Importing the `erxes-api-shared/core-modules` barrel from `modules/sales/utils.ts` breaks test schemas (import cycle); keep it out.
 - Set property handlers pass `targetActionId: action.targetActionId` to
   `getSetPropertySelector`, so a Manage properties action targeting an earlier
   action (Find object, Create) updates that action's record, not the trigger's.

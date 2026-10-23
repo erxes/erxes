@@ -1,4 +1,3 @@
-import { hasContactFields } from 'erxes-api-shared/core-modules';
 import { graphqlPubsub, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IUserDocument } from 'erxes-api-shared/core-types';
 import { IModels } from '~/connectionResolvers';
@@ -13,10 +12,6 @@ import { findPipelineIntegration } from '@/integrations/mail/utils/pipeline';
 import { mailScopeId } from '@/integrations/mail/utils/scope';
 import { MAIL_MESSAGE_TYPES } from '@/integrations/mail/constants';
 import { toPlainText } from '@/integrations/mail/utils/transports/common';
-
-const TICKET_TYPE = 'frontline:ticket';
-
-const CUSTOMER_TYPE = 'core:customer';
 
 const UNTITLED_TICKET = 'Mail without a subject';
 
@@ -35,28 +30,6 @@ interface ICreateTicketFromMailInput {
   subject?: string;
   body: string;
 }
-
-const relatedIds = async (
-  subdomain: string,
-  ticketId: string,
-  relatedContentType: string,
-): Promise<string[]> => {
-  const ids: string[] = await sendTRPCMessage({
-    subdomain,
-    pluginName: 'core',
-    method: 'query',
-    module: 'relation',
-    action: 'getRelationIds',
-    input: {
-      contentType: TICKET_TYPE,
-      contentId: ticketId,
-      relatedContentType,
-    },
-    defaultValue: [],
-  });
-
-  return ids.filter(Boolean);
-};
 
 const toDescription = (body: string) => {
   const text = toPlainText(body).trim();
@@ -190,23 +163,17 @@ const lastInboundSender = async (
   return inbound?.from?.[0]?.address;
 };
 
-// The ticket's customer: from the ticket once it keeps it (both contact
-// fields set, as erxes-api-shared `hasContactFields`), else from relations.
+// The ticket's customer, kept on the ticket.
 const ticketCustomerIds = async (
   models: IModels,
-  subdomain: string,
   ticketId: string,
 ): Promise<string[]> => {
   const ticket = await models.Ticket.findOne(
     { _id: ticketId },
-    { customerId: 1, companyId: 1 },
+    { customerId: 1 },
   ).lean();
 
-  if (ticket && hasContactFields(ticket)) {
-    return ticket.customerId ? [ticket.customerId] : [];
-  }
-
-  return relatedIds(subdomain, ticketId, CUSTOMER_TYPE);
+  return ticket?.customerId ? [ticket.customerId] : [];
 };
 
 const relatedCustomerEmail = async (
@@ -214,7 +181,7 @@ const relatedCustomerEmail = async (
   subdomain: string,
   ticketId: string,
 ): Promise<string | undefined> => {
-  const customerIds = await ticketCustomerIds(models, subdomain, ticketId);
+  const customerIds = await ticketCustomerIds(models, ticketId);
 
   for (const customerId of customerIds) {
     const customer: { primaryEmail?: string } | null = await sendTRPCMessage({
