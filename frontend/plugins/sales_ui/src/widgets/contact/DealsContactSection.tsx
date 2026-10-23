@@ -53,9 +53,7 @@ export const DealsContactSection = ({
     : { customerId: contentId };
   const { data, loading } = useQuery(SALES_CONTACT_DEALS, {
     variables: {
-      ...(isCompany
-        ? { companyIds: [contentId] }
-        : { customerIds: [contentId] }),
+      ...contacts,
       limit: CONTACT_RECORDS_LIMIT,
     },
   });

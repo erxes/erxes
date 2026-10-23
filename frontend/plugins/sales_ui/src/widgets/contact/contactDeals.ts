@@ -3,11 +3,11 @@ import { gql } from '~/gql';
 // A customer's or company's deals, by the contact kept on the deals.
 export const SALES_CONTACT_DEALS = gql(`
   query salesContactDeals(
-    $customerIds: [String]
-    $companyIds: [String]
+    $customerId: String
+    $companyId: String
     $limit: Int
   ) {
-    deals(customerIds: $customerIds, companyIds: $companyIds, limit: $limit) {
+    deals(customerId: $customerId, companyId: $companyId, limit: $limit) {
       list {
         _id
         name

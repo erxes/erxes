@@ -1,4 +1,4 @@
-import { IRelation, IRelationInput } from 'erxes-ui';
+import { IRelation } from 'erxes-ui';
 import { WidgetAccessProp } from './widget-provider/context/widgetContext';
 
 export type TRelationEntity = IRelation['entities'][number];
@@ -52,37 +52,6 @@ export const getRelatedEntities = (
   );
 };
 
-/**
- * Links a newly made or picked record to the host and to the customer and
- * company the host is about, skipping any of those that are the same record.
- */
-export const buildRelationInputs = ({
-  related,
-  sources,
-}: {
-  related: TRelationEntity;
-  sources: (TRelationEntity | false | null | undefined)[];
-}): IRelationInput[] => {
-  const seen = new Set<string>([entityKey(related)]);
-
-  return sources
-    .filter((source): source is TRelationEntity => {
-      if (!source || !source.contentId) {
-        return false;
-      }
-
-      const key = entityKey(source);
-
-      if (seen.has(key)) {
-        return false;
-      }
-
-      seen.add(key);
-      return true;
-    })
-    .map((source) => ({ entities: [source, related] }));
-};
-
 export const CUSTOMER_CONTENT_TYPE = 'core:customer';
 export const COMPANY_CONTENT_TYPE = 'core:company';
 
@@ -108,3 +77,45 @@ export const getWidgetContacts = ({
   customerIds: uniqueIds(customerId, customerIds),
   companyIds: uniqueIds(companyId, companyIds),
 });
+
+/**
+ * The one customer and one company a relation widget lists records by: the
+ * host itself when it is a contact, else the host's first of each. Records
+ * keep their own `customerId` / `companyId`, so a widget lists the records
+ * sharing them and a record created there starts with them.
+ */
+export const getHostContacts = ({
+  contentType,
+  contentId,
+  customerId,
+  companyId,
+  customerIds,
+  companyIds,
+}: {
+  contentType: string;
+  contentId: string;
+  customerId?: string;
+  companyId?: string;
+  customerIds?: string[];
+  companyIds?: string[];
+}): { customerId?: string; companyId?: string } => {
+  if (contentType === CUSTOMER_CONTENT_TYPE) {
+    return { customerId: contentId };
+  }
+
+  if (contentType === COMPANY_CONTENT_TYPE) {
+    return { companyId: contentId };
+  }
+
+  const contacts = getWidgetContacts({
+    customerId,
+    companyId,
+    customerIds,
+    companyIds,
+  });
+
+  return {
+    customerId: contacts.customerIds[0],
+    companyId: contacts.companyIds[0],
+  };
+};

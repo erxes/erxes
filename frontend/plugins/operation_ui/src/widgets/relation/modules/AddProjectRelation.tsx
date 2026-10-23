@@ -8,9 +8,9 @@ export const AddProjectRelation = ({
   label,
   contacts,
 }: {
-  onSelect: (projectId: string) => void;
+  onSelect?: (projectId: string) => void;
   label?: string;
-  // Linked to the new project by createProject itself.
+  // Saved on the new project by createProject itself.
   contacts?: { customerId?: string; companyId?: string };
 }) => {
   const [open, setOpen] = useState(false);

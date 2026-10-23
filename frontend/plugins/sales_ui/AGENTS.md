@@ -98,6 +98,7 @@
 onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both come from the `posDetail` query (`graphql/queries.ts` `posCommonFields`), which the tab loads and saves back; a field missing there is saved as empty. The POS
   Automations tab is listed last, beside the Loyalty tab.
 - In a deal's Payments tab a payment type with a score campaign asks loyalty's `loyaltyScoreSpendLimit` (`DealPointPaymentLimit` / `useDealPointLimit`) and shows the customer's points and the most it may pay; the row stays disabled without a customer, while loading, or when loyalty blocks spending, and typed amounts are capped at the limit. There is no hand refund: refunds follow stages.
+- The deals filter bar filters by one customer and one company (`customerId` / `companyId` URL keys, single-select pickers), passed straight to `deals` / stage queries.
 - Deal detail renders only the properties selected on the deal's pipeline;
   legacy pipelines continue showing all deal properties until their selection is
   saved for the first time.
@@ -208,7 +209,7 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
 
 ### Provides
 
-- `widgets.contactWidgets: [{ name: 'deals' }]` with `./contactWidget` (`src/widgets/contact/ContactWidgets.tsx`): the Deals section of a customer's / company's side panel overview (ui-modules `ContactWidgetSection`): the contact's deals from `deals(customerIds | companyIds)` (`salesContactDeals`), rows opening the deal on its board in a new tab, `+` opening `AddDealSheet` with `contacts` (`customerId` / `companyId`), which prefill the form's Customers / Companies saved on the deal by `dealsAdd`; `AddCardForm` evicts the cached `deals` lists so contact sections read again.
+- `widgets.contactWidgets: [{ name: 'deals' }]` with `./contactWidget` (`src/widgets/contact/ContactWidgets.tsx`): the Deals section of a customer's / company's side panel overview (ui-modules `ContactWidgetSection`): the contact's deals from `deals(customerId | companyId)` (`salesContactDeals`), rows opening the deal on its board in a new tab, `+` opening `AddDealSheet` with `contacts` (`customerId` / `companyId`), which prefill the form's Customers / Companies saved on the deal by `dealsAdd`; `AddCardForm` evicts the cached `deals` lists so contact sections read again.
 - Deal trigger forms' optional stage fields (`SalesTriggerStageField`) pass
   `autoSelectFirst={false}`: `SelectStage` otherwise picks the first stage and
   silently narrows the trigger.
@@ -251,11 +252,14 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
 
 ## Local Invariants
 
-- Relation widgets go through contacts: each lists the records linked to the
-  host itself, then the ones linked to the host's customers and companies
-  (`customerIds` / `companyIds` from `IRelationWidgetProps`, via
-  `useContactRelations`) under `RelationWidgetContactsSection`. New records
-  are linked with `useRelateRecord`, which also links them to those contacts.
+- Relation widgets go only through contacts: each lists the records whose
+  own `customerId` / `companyId` is the host's customer or company
+  (ui-modules `getHostContacts`: the host itself when it is a contact, else
+  the first of `customerId(s)` / `companyId(s)` from `IRelationWidgetProps`),
+  read with this plugin's own list query, the host left out. "+" creates a
+  record with those contacts through its create mutation. No core relation
+  is created or read for record ↔ record or record ↔ contact links, and there
+  is no "choose existing" picker.
 - The plugin owns its whole app sidebar. `src/modules/Main.tsx` (the `./sales`
   expose) wraps its routes in `erxes-ui` `AppLayout` (`id="sales"`) with
   `SalesSidebar`. Core-ui draws only the top `CoreTab` bar; `navigationGroup` in

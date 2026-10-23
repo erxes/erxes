@@ -4,23 +4,16 @@ import { useCreateTriage } from '@/triage/hooks/useCreateTriage';
 import { useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
-import {
-  IOpenRecordOptions,
-  TRelationEntity,
-  useCreateMultipleRelations,
-  useSidePanel,
-} from 'ui-modules';
+import { IOpenRecordOptions, useSidePanel } from 'ui-modules';
 
-// What a triage draft starts with: its team, the contacts
-// `operationAddTriage` links it to, and a record (not a contact) to link
-// it to once created.
+// What a triage draft starts with: its team and the customer / company
+// `operationAddTriage` saves on it.
 export type TTriageDraft = {
   teamId?: string;
   priority?: number;
   description?: string;
   customerId?: string | null;
   companyId?: string | null;
-  host?: TRelationEntity;
 };
 
 /**
@@ -35,7 +28,6 @@ export const useCreateTriageRecord = () => {
   const { teamId } = useParams<{ teamId?: string }>();
   const { teams } = useGetCurrentUsersTeams();
   const { createTriage, loading } = useCreateTriage();
-  const { createMultipleRelations } = useCreateMultipleRelations();
   const { openRecord, openNewRecord } = useSidePanel();
 
   const triageTeams = teams.filter((team) => team.triageEnabled);
@@ -74,7 +66,6 @@ export const useCreateTriageRecord = () => {
     description,
     customerId,
     companyId,
-    host,
   }: TTriageDraft & { name: string }) => {
     if (loading || !draftTeamId) {
       return;
@@ -94,21 +85,6 @@ export const useCreateTriageRecord = () => {
       onCompleted: ({ operationAddTriage: created }) => {
         if (!created?._id) {
           return;
-        }
-
-        // A contact is linked by the mutation; any other record here.
-        if (host) {
-          createMultipleRelations(
-            [
-              {
-                entities: [
-                  host,
-                  { contentType: TRIAGE_CONTENT_TYPE, contentId: created._id },
-                ],
-              },
-            ],
-            { silent: true },
-          );
         }
 
         openRecord(

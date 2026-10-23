@@ -1,6 +1,5 @@
 import { useMemo } from 'react';
 import { StaticSideMenuTab } from '../components/RelationWidgetSideTabs';
-import { useRelatedContacts } from '../hooks/useRelatedContacts';
 import { getRelationWidgetLabel, resolveAccess } from '../utils';
 import {
   useRelationWidget,
@@ -14,8 +13,9 @@ export type IRelationWidgetTab = IRecordSidePanelTab & { pluginName: string };
 
 /**
  * Every enabled plugin's relation widget for a record, as side panel tabs.
- * Each widget gets the record's contacts, so it also lists what reaches the
- * record through its customers and companies.
+ * Each widget lists the records of the host's customer and company (the
+ * host itself when it is one), read by its plugin from the records' own
+ * `customerId` / `companyId`.
  */
 export const useRelationWidgetTabs = ({
   contentType,
@@ -43,13 +43,6 @@ export const useRelationWidgetTabs = ({
     hiddenPlugins,
     hiddenModules,
   });
-  const { customerIds, companyIds } = useRelatedContacts({
-    contentType,
-    contentId,
-    customerId,
-    companyId,
-    skip,
-  });
 
   return useMemo(
     () =>
@@ -68,8 +61,6 @@ export const useRelationWidgetTabs = ({
                 contentType={contentType}
                 customerId={customerId}
                 companyId={companyId}
-                customerIds={customerIds}
-                companyIds={companyIds}
                 access={resolveAccess(access, module.name)}
               />
             </div>
@@ -84,8 +75,6 @@ export const useRelationWidgetTabs = ({
       contentType,
       customerId,
       companyId,
-      customerIds,
-      companyIds,
       access,
     ],
   );

@@ -66,10 +66,7 @@ export const TriagePanelNew = () => {
     <Form {...form}>
       <form
         className="flex flex-1 min-h-0 flex-col"
-        onSubmit={form.handleSubmit((triage) =>
-          // A non-contact record it was created from stays linked too.
-          createTriageRecord({ ...triage, host: draft.host }),
-        )}
+        onSubmit={form.handleSubmit(createTriageRecord)}
       >
         <PanelFormLayout
           onCancel={cancel}

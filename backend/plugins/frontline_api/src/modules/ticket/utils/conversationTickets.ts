@@ -1,11 +1,8 @@
 import { IAttachment } from 'erxes-api-shared/core-types';
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { parseAiMediaId } from '@/integrations/facebook/meta/automation/utils/turnTaking';
 import { isClosingStatus } from '@/ticket/utils/cpNotifications';
 
-const CONVERSATION_CONTENT_TYPE = 'frontline:conversation';
-const TICKET_CONTENT_TYPE = 'frontline:ticket';
 const MAX_OPEN_TICKETS = 5;
 
 // Automation targets carry either the inbox conversation id or, for Facebook,
@@ -30,68 +27,17 @@ export const resolveInboxConversationId = async (
   return facebookConversation?.erxesApiId || undefined;
 };
 
-// The relation a manual "convert to ticket" writes, so the ticket shows on
-// the conversation and a later message can find it. The ticket keeps the
-// conversation's customer itself (customerId).
-export const relateTicketToConversation = async ({
-  subdomain,
-  ticketId,
-  conversationId,
-  userId,
-}: {
-  subdomain: string;
-  ticketId: string;
-  conversationId: string;
-  userId: string;
-}) => {
-  await sendTRPCMessage({
-    subdomain,
-    pluginName: 'core',
-    method: 'mutation',
-    module: 'relation',
-    action: 'createRelation',
-    input: {
-      relation: {
-        entities: [
-          { contentType: CONVERSATION_CONTENT_TYPE, contentId: conversationId },
-          { contentType: TICKET_CONTENT_TYPE, contentId: ticketId },
-        ],
-      },
-    },
-    context: { userId },
-    defaultValue: null,
-  });
-};
-
+// The open tickets made from a conversation, newest first: tickets keep
+// their source conversations themselves (`sourceConversationIds`).
 export const findOpenConversationTickets = async ({
   models,
-  subdomain,
   conversationId,
 }: {
   models: IModels;
-  subdomain: string;
   conversationId: string;
 }) => {
-  const ticketIds: string[] = await sendTRPCMessage({
-    subdomain,
-    pluginName: 'core',
-    method: 'query',
-    module: 'relation',
-    action: 'getRelationIds',
-    input: {
-      contentType: CONVERSATION_CONTENT_TYPE,
-      contentId: conversationId,
-      relatedContentType: TICKET_CONTENT_TYPE,
-    },
-    defaultValue: [],
-  });
-
-  if (!ticketIds?.length) {
-    return [];
-  }
-
   const tickets = await models.Ticket.find(
-    { _id: { $in: ticketIds } },
+    { sourceConversationIds: conversationId },
     { _id: 1, number: 1, name: 1, statusType: 1 },
   )
     .sort({ createdAt: -1 })

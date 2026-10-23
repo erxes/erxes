@@ -2,7 +2,6 @@ import { TaskHotKeyScope } from '@/task/TaskHotkeyScope';
 import { useCreateTriageRecord } from '@/triage/hooks/useCreateTriageRecord';
 import { IconPlus } from '@tabler/icons-react';
 import { Button, useScopedHotkeys } from 'erxes-ui';
-import { TRelationEntity } from 'ui-modules';
 import { useTranslation } from 'react-i18next';
 
 /**
@@ -12,20 +11,15 @@ import { useTranslation } from 'react-i18next';
  */
 export const AddTriageButton = ({
   contacts,
-  host,
   iconOnly,
 }: {
-  // Linked to the triage by its create mutation.
+  // Saved on the triage by its create mutation.
   contacts?: { customerId?: string; companyId?: string };
-  // A record (not a contact) the triage is created from and linked to.
-  host?: TRelationEntity;
   iconOnly?: boolean;
 }) => {
   const { t } = useTranslation('operation');
   const { openTriageDraft, canCreate } = useCreateTriageRecord();
-  const fromRecord = !!contacts || !!host;
-  const create = () =>
-    openTriageDraft({ ...contacts, host }, { stack: fromRecord });
+  const create = () => openTriageDraft(contacts, { stack: !!contacts });
 
   useScopedHotkeys(
     'c',

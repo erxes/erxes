@@ -1071,14 +1071,18 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
 
 ## Local Invariants
 
-- Relation widgets go through contacts: each lists the records linked to the
-  host itself, then the ones linked to the host's customers and companies
-  (`customerIds` / `companyIds` from `IRelationWidgetProps`, via
-  `useContactRelations`) under `RelationWidgetContactsSection`. New records
-  are linked with `useRelateRecord`, which also links them to those contacts.
+- Relation widgets go only through contacts: each lists the records whose
+  own `customerId` / `companyId` is the host's customer or company
+  (ui-modules `getHostContacts`: the host itself when it is a contact, else
+  the first of `customerId(s)` / `companyId(s)` from `IRelationWidgetProps`),
+  read with this plugin's own list query, the host left out. "+" creates a
+  record with those contacts through its create mutation. No core relation
+  is created or read for record ↔ record or record ↔ contact links, and there
+  is no "choose existing" picker.
 - Conversations belong to a customer by `customerId`, not by relation: the
-  conversation relation widget lists a contact's conversations through
-  `useConversations({ variables: { customerId } })`, one per host customer.
+  conversation relation widget lists the host customer's conversations
+  (`getHostContacts`) through `useConversations({ variables: { customerId } })`
+  and reads no relation, also on a ticket host.
 - Preview iframes load plugin routes with `?inPreview=true` (messenger
   `settings/channels/erxes-messenger-preview`, `settings/forms/form-preview`,
   `forms/preview`). `FrontlineSettingsLayout` and `IntegrationsMain` render
@@ -1292,9 +1296,9 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
   `closeDate` differs (`CONVERT_TYPE_OPTIONS[type].closeDateCode`, which is
   `targetDate` on tickets and tasks). Name, stage,
   assignee, branch, department, attachments and description stay always shown.
-- A successful convert refetches `ConversationConvertedItems` and
-  `getRelationsByEntity`, so the menu and the relation widgets update without
-  a reload.
+- A successful convert refetches `ConversationConvertedItems` and evicts
+  cached `getTickets` / `deals` lists, so the menu and the customer's lists
+  update without a reload. Convert makes no relation.
 - Any new call atom created with `atomWithStorage` must also be reset in
   `ClearCallCacheButton` (`call/components/CallSipActions.tsx`), otherwise the
   clear-cache action leaves stale call state behind. `callConfigAtom` is reset

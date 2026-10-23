@@ -264,7 +264,7 @@
 
 ## Local Invariants
 
-- A deal's contacts are read per doc: both `customerId` and `companyId` present, `null` included ⇒ the fields, otherwise core relations (`modules/sales/utils.ts` checks this inline, not with `hasContactFields`, which would make an import cycle in tests). Use `getCustomerIds` / `getCompanyIds(subdomain, models, dealId)` (`modules/sales/utils.ts`) or the deal loader, never a direct `relation.getRelationIds` for `core:customer` / `core:company`. List filters (`customerIds`, `companyIds` args, matched with `$in` on the single fields; customer phone, `relationType` core:customer/company) use the fields only when `contactFieldsReady(models.Deals, ...)` says every deal has them. Tests that mock `erxes-api-shared/core-modules` or `utils` must declare the contact-field helpers they reach.
+- A deal's contacts are read per doc: both `customerId` and `companyId` present, `null` included ⇒ the fields, otherwise core relations (`modules/sales/utils.ts` checks this inline, not with `hasContactFields`, which would make an import cycle in tests). Use `getCustomerIds` / `getCompanyIds(subdomain, models, dealId)` (`modules/sales/utils.ts`) or the deal loader, never a direct `relation.getRelationIds` for `core:customer` / `core:company`. List filters (`customerId`, `companyId` args on `deals`, archived deals and stages, one id each; customer phone, `relationType` core:customer/company) use the fields only when `contactFieldsReady(models.Deals, ...)` says every deal has them. Tests that mock `erxes-api-shared/core-modules` or `utils` must declare the contact-field helpers they reach.
 - Set property handlers pass `targetActionId: action.targetActionId` to
   `getSetPropertySelector`, so a Manage properties action targeting an earlier
   action (Find object, Create) updates that action's record, not the trigger's.
@@ -411,11 +411,11 @@
   `meta/segments/fields/` and `meta/segments/evaluate/`, with an `index.ts`
   keying them by content type. Shared field builders come from
   `erxes-api-shared`; do not re-declare operator sets locally.
-- A deal carries no customer or company id. `customer.deals` and
-  `company.deals` are declared `join: { via: 'relation' }`, and core resolves
-  the edges from its own relation records and sends them on the request. Never
-  declare a field join on a path the deal schema does not store, and never
-  query core's collections to find the link.
+- A deal keeps its customer and company itself: `customer.deals` and
+  `company.deals` are field joins (`on: 'related'`, `customerId` /
+  `companyId`), and the deal `customers` / `companies` references are
+  `kind: 'field'` on the same paths. Never query core's collections to find
+  the link.
 - A relation measure costs one query per request for the whole batch: a grouped
   aggregation for a field join, one `find` over the resolved related ids for a
   relation join. Never a query per subject.

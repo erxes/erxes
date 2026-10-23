@@ -167,10 +167,35 @@ export const resolveSessionCustomerId = async (
   return (await findVisitorCustomer(subdomain, session.visitorId))?._id;
 };
 
+// Whether every ticket keeps its contacts itself, as erxes-api-shared
+// `contactFieldsReady` (not imported: the core-modules barrel loads before
+// `utils` here and breaks its schemas). Rechecked each minute until true.
+const TICKETS_READY_RECHECK_MS = 60 * 1000;
+const ticketsReady = new Map<string, { ready: boolean; checkedAt: number }>();
+
+const ticketContactsReady = async (subdomain: string, models: IModels) => {
+  const cached = ticketsReady.get(subdomain);
+
+  if (
+    cached &&
+    (cached.ready || Date.now() - cached.checkedAt < TICKETS_READY_RECHECK_MS)
+  ) {
+    return cached.ready;
+  }
+
+  const ready = !(await models.Ticket.exists({
+    $or: [{ customerId: { $exists: false } }, { companyId: { $exists: false } }],
+  }));
+
+  ticketsReady.set(subdomain, { ready, checkedAt: Date.now() });
+
+  return ready;
+};
+
 /**
  * Tickets of the session's customer: those keeping it in their own
- * `customerId` (given `models`), and those related to it before tickets kept
- * their contacts. A bare visitor owns none.
+ * `customerId` (given `models`), and, until every ticket is migrated, those
+ * related to it before tickets kept their contacts. A bare visitor owns none.
  */
 export const getOwnedTicketIds = async (
   subdomain: string,
@@ -188,6 +213,10 @@ export const getOwnedTicketIds = async (
         await models.Ticket.find({ customerId }, { _id: 1 }).lean()
       ).map((ticket) => String(ticket._id))
     : [];
+
+  if (models && (await ticketContactsReady(subdomain, models))) {
+    return ownIds;
+  }
 
   const relations: Array<{
     entities?: Array<{ contentType?: string; contentId?: string }>;

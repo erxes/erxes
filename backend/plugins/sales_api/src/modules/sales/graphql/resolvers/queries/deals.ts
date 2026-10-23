@@ -224,9 +224,9 @@ export const generateFilter = async (
     search,
     closeDateType,
     assignedUserIds,
-    customerIds,
+    customerId,
     vendorCustomerIds,
-    companyIds,
+    companyId,
     relationType,
     relationId,
     initialStageId,
@@ -322,25 +322,24 @@ export const generateFilter = async (
   }
 
   const contactsReady =
-    customerIds ||
-    companyIds ||
+    customerId ||
+    companyId ||
     relationType === 'core:customer' ||
     relationType === 'core:company'
       ? await dealContactsReady(models, subdomain)
       : false;
 
   if (contactsReady) {
-    // Filters may name several contacts; a deal keeps one of each.
-    if (customerIds) {
-      filter.customerId = { $in: customerIds };
+    if (customerId) {
+      filter.customerId = customerId;
     }
 
-    if (companyIds) {
-      filter.companyId = { $in: companyIds };
+    if (companyId) {
+      filter.companyId = companyId;
     }
   }
 
-  if (!contactsReady && customerIds) {
+  if (!contactsReady && customerId) {
     const relIds = await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
@@ -348,7 +347,7 @@ export const generateFilter = async (
       action: 'filterRelationIds',
       input: {
         contentType: 'core:customer',
-        contentIds: customerIds,
+        contentIds: [customerId],
         relatedContentType: 'sales:deal',
       },
       defaultValue: [],
@@ -357,7 +356,7 @@ export const generateFilter = async (
     filterIds = relIds;
   }
 
-  if (!contactsReady && companyIds) {
+  if (!contactsReady && companyId) {
     const relIds = await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
@@ -365,7 +364,7 @@ export const generateFilter = async (
       action: 'filterRelationIds',
       input: {
         contentType: 'core:company',
-        contentIds: companyIds,
+        contentIds: [companyId],
         relatedContentType: 'sales:deal',
       },
       defaultValue: [],
@@ -376,7 +375,7 @@ export const generateFilter = async (
       : relIds;
   }
 
-  if (!contactsReady && (customerIds || companyIds)) {
+  if (!contactsReady && (customerId || companyId)) {
     filter._id = { $in: filterIds };
   }
 

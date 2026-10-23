@@ -31,9 +31,11 @@ const useRelationsOfContacts = (
   });
 
 /**
- * Records of `relatedContentType` that reach the host only through its
- * contacts: a task's view of the deals its customer has. Records already
- * linked to the host (`excludeIds`) and the host itself are left out.
+ * Contacts of `relatedContentType` linked to the host's contacts through
+ * core relations: the companies of a record's customers. Only customer ↔
+ * company links are core relations; plugin records keep their own
+ * `customerId` / `companyId` and are listed with their plugin's queries.
+ * Contacts already shown (`excludeIds`) and the host itself are left out.
  */
 export const useContactRelations = ({
   contentType,

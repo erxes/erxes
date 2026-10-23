@@ -32,9 +32,9 @@ const queryParams = `
   parentId:String
   pipelineId: String
   pipelineIds: [String]
-  customerIds: [String]
+  customerId: String
   vendorCustomerIds: [String]
-  companyIds: [String]
+  companyId: String
   assignedUserIds: [String]
   productIds: [String]
   closeDateType: String
@@ -181,8 +181,8 @@ const archivedDealsParams = `
   assignedUserIds: [String]
   labelIds: [String]
   productIds: [String]
-  companyIds: [String]
-  customerIds: [String]
+  companyId: String
+  customerId: String
   startDate: String
   endDate: String
 

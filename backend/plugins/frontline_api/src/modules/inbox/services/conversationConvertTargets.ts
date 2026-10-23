@@ -35,10 +35,11 @@ export interface IConvertedTarget {
 export interface IConvertTargetHandler {
   contentType: string;
   requiredStageMessage: string;
+  // The item already made from the conversation, found by the
+  // conversation kept on it (`sourceConversationIds`).
   findExisting: (
     context: Pick<IConvertContext, 'models' | 'subdomain'>,
     conversationId: string,
-    relatedIds: string[],
   ) => Promise<IConvertedTarget | null>;
   getUrl: (subdomain: string, target: IConvertedTarget) => Promise<string>;
   create: (context: IConvertContext, input: IConvertInput) => Promise<string>;
@@ -72,11 +73,12 @@ const ticketHandler: IConvertTargetHandler = {
   contentType: 'frontline:ticket',
   requiredStageMessage: 'Status is required',
 
-  findExisting: async ({ models }, conversationId, relatedIds) => {
+  findExisting: async ({ models }, conversationId) => {
     const ticket = await models.Ticket.findOne(
       {
         $or: [
-          { _id: { $in: relatedIds } },
+          { sourceConversationIds: conversationId },
+          // Tickets moved from the old ticket module keep it here.
           { 'customerFieldData.sourceConversationIds': conversationId },
         ],
         state: { $ne: 'deleted' },
@@ -151,8 +153,9 @@ const ticketHandler: IConvertTargetHandler = {
         targetDate: doc.closeDate,
         attachments: doc.attachments,
         propertiesData,
-        // The ticket keeps its customer itself.
+        // The ticket keeps its customer and source conversation itself.
         customerId: conversation.customerId || null,
+        sourceConversationIds: [conversation._id],
       },
       user._id,
       subdomain,
@@ -174,19 +177,14 @@ const dealHandler: IConvertTargetHandler = {
   contentType: 'sales:deal',
   requiredStageMessage: 'Stage is required',
 
-  findExisting: ({ subdomain }, conversationId, relatedIds) =>
+  findExisting: ({ subdomain }, conversationId) =>
     sendTRPCMessage({
       subdomain,
       pluginName: 'sales',
       method: 'query',
       module: 'deal',
       action: 'findOne',
-      input: {
-        $or: [
-          { _id: { $in: relatedIds } },
-          { sourceConversationIds: conversationId },
-        ],
-      },
+      input: { sourceConversationIds: conversationId },
       defaultValue: null,
     }),
 

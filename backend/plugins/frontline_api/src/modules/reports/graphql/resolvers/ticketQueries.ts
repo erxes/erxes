@@ -376,27 +376,11 @@ export const reportTicketQueries = {
       subdomain,
     );
 
-    const tickets = await models.Ticket.find(matchFilter, { _id: 1 }).lean();
-
-    if (!tickets.length) {
-      return [];
-    }
-
-    const ticketIds = tickets.map((t) => t._id.toString());
-
-    const conversationIds: string[] = await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      method: 'query',
-      module: 'relation',
-      action: 'filterRelationIds',
-      input: {
-        contentType: 'frontline:ticket',
-        contentIds: ticketIds,
-        relatedContentType: 'frontline:conversation',
-      },
-      defaultValue: [],
-    });
+    // Tickets keep the conversations they were made from themselves.
+    const conversationIds: string[] = await models.Ticket.distinct(
+      'sourceConversationIds',
+      matchFilter,
+    );
 
     if (!conversationIds.length) {
       return [];

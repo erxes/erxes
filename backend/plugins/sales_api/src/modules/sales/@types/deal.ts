@@ -133,8 +133,8 @@ export interface IDealQueryParams extends IListParams, ICursorPaginateParams {
   limit?: number;
   date?: IDate;
   search?: string;
-  customerIds?: string[];
-  companyIds?: string[];
+  customerId?: string;
+  companyId?: string;
   assignedUserIds?: string[];
   labelIds?: string[];
   userIds?: string[];
@@ -156,8 +156,8 @@ export interface IArchiveArgs extends ICursorPaginateParams {
   assignedUserIds?: string[];
   labelIds?: string[];
   productIds?: string[];
-  companyIds?: string[];
-  customerIds?: string[];
+  companyId?: string;
+  customerId?: string;
   startDate?: string;
   endDate?: string;
   sources?: string[];

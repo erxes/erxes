@@ -8,10 +8,10 @@ import { graphqlPubsub, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { ITicket } from '~/modules/ticket/@types/ticket';
 import {
-  relateTicketToConversation,
   resolveConversationMedia,
   resolveInboxConversationId,
 } from '~/modules/ticket/utils/conversationTickets';
+import { logConversationFormSubmission } from '~/modules/inbox/utils/conversationFormSubmission';
 
 type TReceiveActionInput =
   TAutomationProducersInput[TAutomationProducers.RECEIVE_ACTIONS];
@@ -322,19 +322,26 @@ export const createTicketAction = async ({
   }
 
   const customerId = getString(target, 'customerId');
-  // A ticket from a conversation keeps the conversation's customer itself.
+  // A ticket from a conversation keeps the conversation's customer and the
+  // conversation itself, so a later message finds it open; no relation.
   const ticket = await models.Ticket.addTicket(
-    inboxConversationId && customerId ? { ...doc, customerId } : doc,
+    inboxConversationId
+      ? {
+          ...doc,
+          ...(customerId && { customerId }),
+          sourceConversationIds: [inboxConversationId],
+        }
+      : doc,
     userId,
     subdomain,
   );
 
-  // Lets the conversation show its ticket and a later message find it open.
   if (inboxConversationId) {
-    await relateTicketToConversation({
+    await logConversationFormSubmission({
+      models,
       subdomain,
-      ticketId: ticket._id,
       conversationId: inboxConversationId,
+      target: { contentType: 'frontline:ticket', contentId: ticket._id },
       userId,
     });
   }

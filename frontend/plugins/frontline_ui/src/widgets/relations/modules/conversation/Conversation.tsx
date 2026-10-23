@@ -1,10 +1,5 @@
 import { useConversations } from '@/inbox/conversations/hooks/useConversations';
-import {
-  getWidgetContacts,
-  IRelationWidgetProps,
-  RelationWidgetContactsSection,
-  useRelations,
-} from 'ui-modules';
+import { getHostContacts, IRelationWidgetProps } from 'ui-modules';
 import { ConversationRelationDetails } from './ConversationDetails';
 import { ConversationReportContent } from '@/inbox/conversations/conversation-detail/components/ConversationReportContent';
 
@@ -13,11 +8,9 @@ import { ConversationReportContent } from '@/inbox/conversations/conversation-de
 const CustomerConversations = ({
   customerId,
   excludeIds,
-  asContactSection,
 }: {
   customerId: string;
   excludeIds: string[];
-  asContactSection?: boolean;
 }) => {
   const { conversations } = useConversations({
     variables: { customerId },
@@ -32,69 +25,36 @@ const CustomerConversations = ({
       />
     ));
 
-  if (!asContactSection) {
-    return <>{items}</>;
-  }
-
-  if (!items.length) {
-    return null;
-  }
-
-  return <RelationWidgetContactsSection>{items}</RelationWidgetContactsSection>;
+  return <>{items}</>;
 };
 
+/**
+ * The conversations of the host's customer (the host itself when it is
+ * one): conversations keep their customer in `customerId`. No relation is
+ * read; a ticket keeps the conversations it was made from itself.
+ */
 export const ConversationRelationWidget = ({
   contentId,
   contentType,
   customerId,
   customerIds,
 }: IRelationWidgetProps) => {
-  const isCustomerScoped =
-    contentType === 'core:customer' || contentType === 'frontline:conversation';
-
-  const { relatedIds } = useRelations({
-    variables: {
-      contentId,
-      contentType,
-      relatedContentType: 'frontline:conversation',
-    },
-    skip: isCustomerScoped,
-  });
-
-  if (isCustomerScoped) {
-    return (
-      <div className="flex flex-col flex-1 overflow-y-auto h-full gap-2 w-full p-2">
-        <ConversationReportContent customerId={customerId} />
-        <CustomerConversations
-          customerId={customerId || contentId}
-          excludeIds={[contentId]}
-        />
-      </div>
-    );
-  }
-
-  const contactCustomerIds = getWidgetContacts({
+  const hostCustomerId = getHostContacts({
+    contentType,
+    contentId,
     customerId,
     customerIds,
-  }).customerIds;
+  }).customerId;
 
   return (
     <div className="flex flex-col flex-1 overflow-y-auto h-full gap-2 w-full p-2">
-      <ConversationReportContent customerId={customerId} />
-      {relatedIds.map((conversationId) => (
-        <ConversationRelationDetails
-          key={conversationId}
-          conversationId={conversationId}
-        />
-      ))}
-      {contactCustomerIds.map((contactCustomerId) => (
+      <ConversationReportContent customerId={hostCustomerId} />
+      {hostCustomerId && (
         <CustomerConversations
-          key={contactCustomerId}
-          customerId={contactCustomerId}
-          excludeIds={relatedIds}
-          asContactSection
+          customerId={hostCustomerId}
+          excludeIds={[contentId]}
         />
-      ))}
+      )}
     </div>
   );
 };

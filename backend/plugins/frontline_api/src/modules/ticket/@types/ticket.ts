@@ -54,6 +54,7 @@ export interface ITicket {
   attachments?: IAttachment[];
   customerId?: string | null;
   companyId?: string | null;
+  sourceConversationIds?: string[];
   customerFieldData?: any;
   sourceSurvey?: ITicketSourceSurvey;
 }

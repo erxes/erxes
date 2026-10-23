@@ -1,22 +1,27 @@
+import { useQuery } from '@apollo/client';
 import { Button, Spinner } from 'erxes-ui';
 import { IconCaretLeftRight, IconPlus } from '@tabler/icons-react';
 import {
+  getHostContacts,
   IRelationWidgetProps,
-  RelationWidgetContactsSection,
   RelationWidgetEmptyState,
   RelationWidgetList,
-  useContactRelations,
-  useRelateRecord,
-  useRelations,
 } from 'ui-modules';
 
 import { AddDealSheet } from '@/deals/components/AddDealSheet';
-import ChooseDealSheet from '@/deals/components/ChooseDealSheet';
 import { DealWidget } from './DealWidget';
 import { dealCreateSheetState } from '@/deals/states/dealCreateSheetState';
+import { SALES_CONTACT_DEALS } from '~/widgets/contact/contactDeals';
 import { useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
+// The most deals listed for one customer or company.
+const CONTACT_RECORDS_LIMIT = 50;
+
+/**
+ * The deals of the host's customer and company, found by the contact on the
+ * deals themselves; "+" creates one for them (dealsAdd saves the contact).
+ */
 export const Deal = ({
   contentId,
   contentType,
@@ -26,45 +31,49 @@ export const Deal = ({
   companyIds,
 }: Omit<IRelationWidgetProps, 'module' | 'pluginName'>) => {
   const { t } = useTranslation('sales');
-  const { relatedIds, loading: loadingRelations } = useRelations({
+  const contacts = getHostContacts({
+    contentType,
+    contentId,
+    customerId,
+    companyId,
+    customerIds,
+    companyIds,
+  });
+  const customerDeals = useQuery(SALES_CONTACT_DEALS, {
     variables: {
-      contentId,
-      contentType,
-      relatedContentType: 'sales:deal',
+      customerId: contacts.customerId,
+      limit: CONTACT_RECORDS_LIMIT,
     },
+    skip: !contacts.customerId,
   });
-
-  const { relateRecord, relateToHost, contacts } = useRelateRecord({
-    contentType,
-    contentId,
-    relatedContentType: 'sales:deal',
-    customerId,
-    companyId,
-    customerIds,
-    companyIds,
-  });
-
-  const contactRecords = useContactRelations({
-    contentType,
-    contentId,
-    relatedContentType: 'sales:deal',
-    customerId,
-    companyId,
-    customerIds,
-    companyIds,
-    excludeIds: relatedIds,
+  const companyDeals = useQuery(SALES_CONTACT_DEALS, {
+    variables: {
+      companyId: contacts.companyId,
+      limit: CONTACT_RECORDS_LIMIT,
+    },
+    skip: !contacts.companyId,
   });
   const setOpenCreateDeal = useSetAtom(dealCreateSheetState);
 
-  if (loadingRelations || contactRecords.loading) {
+  if (customerDeals.loading || companyDeals.loading) {
     return <Spinner containerClassName="py-20" />;
   }
+
+  // The host itself is not listed among its contacts' deals.
+  const dealIds = [
+    ...new Set(
+      [
+        ...(customerDeals.data?.deals?.list || []),
+        ...(companyDeals.data?.deals?.list || []),
+      ].flatMap((deal) => (deal && deal._id !== contentId ? [deal._id] : [])),
+    ),
+  ];
 
   const handleDealOpen = () => {
     setOpenCreateDeal(true);
   };
 
-  if (relatedIds.length === 0 && contactRecords.relatedIds.length === 0) {
+  if (dealIds.length === 0) {
     return (
       <RelationWidgetEmptyState
         icon={IconCaretLeftRight}
@@ -74,12 +83,7 @@ export const Deal = ({
           <IconPlus />
           {t('add-a-deal')}
         </Button>
-        <AddDealSheet
-          onComplete={relateToHost}
-          contacts={contacts}
-          showWorkflowFields
-        />
-        <ChooseDealSheet onComplete={relateRecord} showText={true} />
+        <AddDealSheet contacts={contacts} showWorkflowFields />
       </RelationWidgetEmptyState>
     );
   }
@@ -92,25 +96,13 @@ export const Deal = ({
           <Button variant="secondary" onClick={handleDealOpen}>
             <IconPlus />
           </Button>
-          <AddDealSheet
-            onComplete={relateToHost}
-            contacts={contacts}
-            showWorkflowFields
-          />
-          <ChooseDealSheet onComplete={relateRecord} />
+          <AddDealSheet contacts={contacts} showWorkflowFields />
         </>
       }
     >
-      {relatedIds.map((dealId) => (
+      {dealIds.map((dealId) => (
         <DealWidget key={dealId} dealId={dealId} />
       ))}
-      {contactRecords.relatedIds.length > 0 && (
-        <RelationWidgetContactsSection>
-          {contactRecords.relatedIds.map((dealId) => (
-            <DealWidget key={dealId} dealId={dealId} />
-          ))}
-        </RelationWidgetContactsSection>
-      )}
     </RelationWidgetList>
   );
 };
