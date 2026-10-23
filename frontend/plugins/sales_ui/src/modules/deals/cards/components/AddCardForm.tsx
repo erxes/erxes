@@ -4,6 +4,7 @@ import {
   Editor,
   Form,
   Input,
+  Label,
   ScrollArea,
   Sheet,
   Spinner,
@@ -175,7 +176,7 @@ export function AddCardForm({
                 )}
                 {stagePipelineId && (
                   <Form.Item className="col-span-2">
-                    <Form.Label>{t('select-stage')}</Form.Label>
+                    <Label>{t('select-stage')}</Label>
                     <SelectStage.FormItem
                       mode="single"
                       pipelineId={stagePipelineId}

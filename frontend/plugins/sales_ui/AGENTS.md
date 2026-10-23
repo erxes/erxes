@@ -276,6 +276,9 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
 
 ## Local Invariants
 
+- In `AddCardForm`, the stage selector shown when the sheet opens with a
+  pipeline is not a form field (it writes `createDefaults`), so its heading is
+  the plain erxes-ui `Label`, never `Form.Label`, which needs `Form.Field`.
 - Relation widgets go only through contacts: each lists the records whose
   own `customerId` / `companyId` is the host's customer or company
   (ui-modules `getHostContacts`: the host itself when it is a contact, else
