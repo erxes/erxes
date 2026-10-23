@@ -5,7 +5,7 @@ import {
 import { PageSelectionContext } from './PageSelectionContext';
 import { getToolName, isDataUIPart, isTextUIPart, isToolUIPart } from 'ai';
 
-import { ApprovalPrompt, ApprovalStatusRow } from './ApprovalPrompt';
+import { ApprovalPrompt } from './ApprovalPrompt';
 import {
   AskUserAnswered,
   AskUserPrompt,
@@ -232,24 +232,24 @@ export const MessagePartRenderer = ({
       return <ArtifactToolResult tool={tool} isStreaming={isStreaming} />;
     }
 
-    if (part.state === 'approval-requested' && tool.approval) {
+    if (
+      part.state === 'approval-requested' ||
+      part.state === 'approval-responded' ||
+      part.state === 'output-denied'
+    ) {
       return (
         <ApprovalPrompt
-          tool={tool}
+          part={part}
           busy={approvalBusy}
           onRespond={({ approved, reason }) =>
             onApprovalRespond({
-              approvalId: tool.approval?.id ?? part.toolCallId,
+              approvalId: part.approval?.id ?? part.toolCallId,
               approved,
               reason,
             })
           }
         />
       );
-    }
-
-    if (part.state === 'approval-responded' || part.state === 'output-denied') {
-      return <ApprovalStatusRow tool={tool} />;
     }
 
     // Failed work tools surface as a red row outside the collapsible group
