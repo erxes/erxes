@@ -13,62 +13,69 @@ import {
   Command,
   CurrencyCode,
   CurrencyFormatedDisplay,
-  Input,
   Popover,
   PopoverScoped,
   RecordTable,
   RecordTableInlineCell,
+  TextField,
   useConfirm,
 } from 'erxes-ui';
-import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useTransactionsRemove } from '../transaction-form/hooks/useTransactionsRemove';
-import { TR_JOURNAL_LABELS, TR_STATUS_LABELS } from '../types/constants';
-import { ITransaction } from '../types/Transaction';
+import { useTransactionInlineEdit } from '@/transactions/hooks/useTransactionInlineEdit';
+import { useTransactionsRemove } from '@/transactions/transaction-form/hooks/useTransactionsRemove';
+import {
+  TR_JOURNAL_LABELS,
+  TR_STATUS_LABELS,
+} from '@/transactions/types/constants';
+import { ITransaction } from '@/transactions/types/Transaction';
 import {
   buildTransactionEditPath,
   getCurrentTransactionReturnPath,
-} from '../utils/transactionNavigation';
+} from '@/transactions/utils/transactionNavigation';
 
-// Create named components for cell renderers to fix React Hook usage
-const NumberCell = ({ getValue, row }: any) => {
-  const [number, setNumber] = useState(getValue() as string);
-  const { _id } = row.original;
+const useOpenTransactionEdit = ({
+  parentId,
+  _id,
+  originId,
+}: ITransaction) => {
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  return (
-    <PopoverScoped scope={`accounting-${_id}-number`}>
-      <RecordTableInlineCell.Trigger>
-        {getValue() as string}
-      </RecordTableInlineCell.Trigger>
-      <RecordTableInlineCell.Content>
-        <Input
-          value={number}
-          onChange={(e) => setNumber(e.target.value)}
-          className="w-full"
-        />
-      </RecordTableInlineCell.Content>
-    </PopoverScoped>
-  );
+  return () => {
+    void navigate(
+      buildTransactionEditPath({
+        parentId,
+        trId: originId || _id,
+        returnTo: getCurrentTransactionReturnPath(location),
+      }),
+    );
+  };
 };
 
-const DescriptionCell = ({ getValue, row }: any) => {
-  const [description, setDescription] = useState(getValue() as string);
+const TransactionTextCell = ({
+  row,
+  field,
+}: {
+  row: Row<ITransaction>;
+  field: 'number' | 'description';
+}) => {
+  const { editTransaction } = useTransactionInlineEdit();
   const { _id } = row.original;
+  const value = row.original[field] || '';
 
   return (
-    <PopoverScoped scope={`accounting-${_id}-description`}>
-      <RecordTableInlineCell.Trigger>
-        {getValue() as string}
-      </RecordTableInlineCell.Trigger>
-      <RecordTableInlineCell.Content>
-        <Input
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          className="w-full"
-        />
-      </RecordTableInlineCell.Content>
-    </PopoverScoped>
+    <TextField
+      value={value}
+      scope={`accounting-${_id}-${field}`}
+      onSave={(nextValue) => {
+        if (field === 'number' && !nextValue.trim()) {
+          return;
+        }
+        void editTransaction(row.original, { [field]: nextValue });
+      }}
+      className="shadow-none rounded-none px-2"
+    />
   );
 };
 
@@ -160,9 +167,8 @@ const DateCell = ({ getValue }: any) => {
 };
 
 const AccountCell = ({ row }: any) => {
-  const { details, parentId, _id, originId } = row.original;
-  const navigate = useNavigate();
-  const location = useLocation();
+  const { details } = row.original;
+  const handleEditAccount = useOpenTransactionEdit(row.original);
 
   const name0 = details[0].account?.name;
 
@@ -176,16 +182,6 @@ const AccountCell = ({ row }: any) => {
   );
 
   const codes = Object.keys(infoByCode);
-
-  const handleEditAccount = () => {
-    navigate(
-      buildTransactionEditPath({
-        parentId,
-        trId: originId || _id,
-        returnTo: getCurrentTransactionReturnPath(location),
-      }),
-    );
-  };
 
   return (
     <RecordTableInlineCell
@@ -212,20 +208,10 @@ const TransactionMoreColumnCell = ({
   cell: Cell<ITransaction, unknown>;
 }) => {
   const { t } = useTranslation('accounting');
-  const { parentId, _id, originId } = cell.row.original;
-  const navigate = useNavigate();
-  const location = useLocation();
+  const { parentId } = cell.row.original;
   const { confirm } = useConfirm();
   const { removeTransactions } = useTransactionsRemove();
-  const handleEditAcc = () => {
-    navigate(
-      buildTransactionEditPath({
-        parentId,
-        trId: originId || _id,
-        returnTo: getCurrentTransactionReturnPath(location),
-      }),
-    );
-  };
+  const handleEditAcc = useOpenTransactionEdit(cell.row.original);
   const handleDelete = () =>
     confirm({
       message: t('are-you-sure-delete-transactions'),
@@ -234,7 +220,7 @@ const TransactionMoreColumnCell = ({
         cancelLabel: t('cancel'),
       },
     }).then(() => {
-      removeTransactions(parentId);
+      void removeTransactions(parentId);
     });
 
   return (
@@ -285,7 +271,7 @@ export const transactionColumns = (
       <RecordTable.InlineHead icon={IconFile} label={t('number')} />
     ),
     accessorKey: 'number',
-    cell: ({ getValue, row }) => <NumberCell getValue={getValue} row={row} />,
+    cell: ({ row }) => <TransactionTextCell row={row} field="number" />,
   },
   {
     id: 'date',
@@ -302,9 +288,7 @@ export const transactionColumns = (
       <RecordTable.InlineHead icon={IconFile} label={t('description')} />
     ),
     accessorKey: 'description',
-    cell: ({ getValue, row }) => (
-      <DescriptionCell getValue={getValue} row={row} />
-    ),
+    cell: ({ row }) => <TransactionTextCell row={row} field="description" />,
     size: 200,
   },
   {
