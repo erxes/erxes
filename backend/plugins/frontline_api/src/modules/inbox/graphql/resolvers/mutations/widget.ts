@@ -276,12 +276,14 @@ const freePrimaryContacts = async (
   };
 
   return {
-    ...(email && (await isFree('primaryEmail', email)) && {
-      primaryEmail: email,
-    }),
-    ...(phone && (await isFree('primaryPhone', phone)) && {
-      primaryPhone: phone,
-    }),
+    ...(email &&
+      (await isFree('primaryEmail', email)) && {
+        primaryEmail: email,
+      }),
+    ...(phone &&
+      (await isFree('primaryPhone', phone)) && {
+        primaryPhone: phone,
+      }),
   };
 };
 
@@ -559,54 +561,6 @@ export const widgetMutations: Record<string, Resolver> = {
           action: 'createCompany',
           input: {
             doc: { ...companyData },
-          },
-        });
-      }
-
-      if (customer && company) {
-        // add company to customer's companyIds list
-        const relatedCompanyIds: string[] = await sendTRPCMessage({
-          subdomain,
-          pluginName: 'core',
-          method: 'query',
-          module: 'relation',
-          action: 'getRelationIds',
-          input: {
-            contentType: 'core:customer',
-            contentId: customer._id,
-            relatedContentType: 'core:company',
-          },
-          defaultValue: [],
-        });
-
-        if (!relatedCompanyIds.includes(company._id)) {
-          await sendTRPCMessage({
-            subdomain,
-            pluginName: 'core',
-            method: 'mutation',
-            module: 'relation',
-            action: 'createRelation',
-            input: {
-              relation: {
-                entities: [
-                  { contentType: 'core:customer', contentId: customer._id },
-                  { contentType: 'core:company', contentId: company._id },
-                ],
-              },
-            },
-          });
-        }
-        await sendTRPCMessage({
-          subdomain,
-          pluginName: 'core',
-          method: 'mutation',
-          module: 'conformity',
-          action: 'create',
-          input: {
-            mainType: 'customer',
-            mainTypeId: customer._id,
-            relType: 'company',
-            relTypeId: company._id,
           },
         });
       }

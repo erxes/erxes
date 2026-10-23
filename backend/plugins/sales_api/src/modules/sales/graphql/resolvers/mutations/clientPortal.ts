@@ -50,30 +50,6 @@ export const cpDealMutations: Record<string, Resolver> = {
 
     // The deal keeps its customer / company itself (saved with the doc).
 
-    if (deal && userId) {
-      await sendTRPCMessage({
-        subdomain,
-        pluginName: 'core',
-        method: 'mutation',
-        module: 'relation',
-        action: 'createRelation',
-        input: {
-          relation: {
-            entities: [
-              {
-                contentType: 'core:cp.user',
-                contentId: userId,
-              },
-              {
-                contentType: 'sales:deal',
-                contentId: deal._id,
-              },
-            ],
-          },
-        },
-      });
-    }
-
     await subscriptionWrapper(models, {
       action: 'create',
       deal,
