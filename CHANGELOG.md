@@ -1,5 +1,12 @@
 
 
+## [3.4.1](https://github.com/erxes/erxes/compare/3.4.0...3.4.1) (2026-10-23)
+
+
+### Reverts
+
+* unset customerIds and companyIds ([#9952](https://github.com/erxes/erxes/issues/9952)) ([15daf84](https://github.com/erxes/erxes/commit/15daf84b025a3a70822d666860c4c0ebba218a42))
+
 # [3.4.0](https://github.com/erxes/erxes/compare/3.3.10...3.4.0) (2026-10-23)
 
 
