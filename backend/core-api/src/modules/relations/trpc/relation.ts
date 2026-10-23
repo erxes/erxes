@@ -100,13 +100,6 @@ export const relationTrpcRouter = t.router({
         };
       }),
 
-    createRelation: t.procedure
-      .input(z.any())
-      .mutation(async ({ ctx, input }) => {
-        const { models } = ctx;
-
-        return models.Relations.createRelation(input);
-      }),
     createMultipleRelations: t.procedure
       .input(z.any())
       .mutation(async ({ ctx, input }) => {
