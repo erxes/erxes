@@ -247,7 +247,7 @@
 
 ## Data and State
 
-- `deals` owns one customer and one company as `customerId` / `companyId` (indexed, `default: null`; read only from the record — the migration must run before deploy, there is no relation fallback); sales saves them itself and makes no core relation for them. `dealsAdd` / `dealsEdit`, `cpDealsAdd`, the agent `deal.add` tool and the `deal.create` / `deal.createItem` tRPC take them on the doc; copies take the source deal's; automations set them with `setDealContacts` (`modules/sales/utils.ts`). `Deal` exposes `customerId` / `companyId` and keeps `customers` / `companies` (0–1 items). `core-api` `commands/migrateRelationsToContactFields.ts` backfills deals linked before (first of old arrays, else the oldest related contact).
+- `deals` owns one customer and one company as `customerId` / `companyId` (indexed, `default: null`; read only from the record — the migration must run before deploy, there is no relation fallback); sales saves them itself and makes no core relation for them. `dealsAdd` / `dealsEdit`, `cpDealsAdd`, the agent `deal.add` tool and the `deal.create` / `deal.createItem` tRPC take them on the doc; copies take the source deal's; automations set them with `setDealContacts` (`modules/sales/utils.ts`). `Deal` exposes `customerId` / `companyId` and keeps `customers` / `companies` (0–1 items). `backend/saas-migrations/core/commands/migrateRelationsToContactFields.ts` backfills deals linked before (first of old arrays, else the oldest related contact).
 - Tenant-scoped Mongo collections are loaded through plugin connection
   resolvers.
 - Deal stage browsing uses `stageId`; its total count filters archived and

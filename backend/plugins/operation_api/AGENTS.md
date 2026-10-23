@@ -116,7 +116,7 @@ propertiesData? } })`
 
 ## Data and State
 
-- Tasks, projects and triages own one customer and one company as `customerId` / `companyId` (indexed, `default: null`). Operation saves and reads them itself, with no relation fallback; accepting a triage copies its fields to the task and moves no relations. Tasks have ObjectId `_id`s; `core-api` `commands/migrateRelationsToContactFields.ts` (targets `operation_tasks`, `operation_projects`, `operation_triage`, the last also from legacy `operation:task` relations) backfills records linked before (first of old `customerIds` / `companyIds` arrays, else the oldest related contact; extra contacts are dropped).
+- Tasks, projects and triages own one customer and one company as `customerId` / `companyId` (indexed, `default: null`). Operation saves and reads them itself, with no relation fallback; accepting a triage copies its fields to the task and moves no relations. Tasks have ObjectId `_id`s; `backend/saas-migrations/core/commands/migrateRelationsToContactFields.ts` (targets `operation_tasks`, `operation_projects`, `operation_triage`, the last also from legacy `operation:task` relations) backfills records linked before (first of old `customerIds` / `companyIds` arrays, else the oldest related contact; extra contacts are dropped).
 - `operationConvertTriageToTask` gives the task the triage's `_id` and its contacts (the triage's fields, else its legacy relations), re-creates the triage's other `operation:triage` relations as `operation:task`, then cleans them.
 - Every model is generated from the request `subdomain`.
 - `operation_tasks` carries `segmentIds`, written only by the segmentation

@@ -6,6 +6,7 @@ import {
   MongoClient,
   ObjectId,
 } from 'mongodb';
+import { getTargetDbs } from './_organizationDbs';
 
 dotenv.config();
 
@@ -31,18 +32,21 @@ dotenv.config();
  * `companyId`), as the trigger definitions now do. Create-ticket actions
  * saved with `companyIds` get `companyId` (the first / the same text).
  *
- *   MONGO_URL=... npx ts-node src/commands/migrateRelationsToContactFields.ts
- *   DRY_RUN=true  → count only, write nothing
- *
- * SaaS: run once per organization database (erxes_<organizationId>).
+ * Run (DRY_RUN=true counts only, writes nothing):
+ *   self-hosted:  MONGO_URL=mongodb://.../erxes npx tsx <this file>
+ *   SaaS, one:    MONGO_URL=<core db> TARGET_SUBDOMAIN=<subdomain> npx tsx <this file>
+ *   SaaS, all:    MONGO_URL=<core db> ALL_ORGS=true npx tsx <this file>
+ *   or: tsx backend/saas-migrations/run-commands.ts --org=<subdomain> <name>
  */
 
-const { MONGO_URL = 'mongodb://127.0.0.1:27017/erxes?directConnection=true' } =
-  process.env;
+const {
+  CORE_MONGO_URL,
+  MONGO_URL = 'mongodb://127.0.0.1:27017/erxes?directConnection=true',
+} = process.env;
 
 const DRY_RUN = process.env.DRY_RUN === 'true';
 
-const client = new MongoClient(MONGO_URL);
+const client = new MongoClient(CORE_MONGO_URL || MONGO_URL);
 
 const CUSTOMER = 'core:customer';
 const COMPANY = 'core:company';
@@ -396,25 +400,13 @@ const migrateAutomationTargets = async (db: Db) => {
   );
 };
 
-const command = async () => {
-  await client.connect();
-
-  const db = client.db();
-
-  console.log(
-    `Process start at: ${new Date().toISOString()}${
-      DRY_RUN ? ' (dry run)' : ''
-    }`,
-  );
-
+const migrateDb = async (db: Db, failed: string[], label: string) => {
   // One collection failing does not stop the others; re-running finishes it.
-  const failed: string[] = [];
-
   for (const target of TARGETS) {
     try {
       await migrateTarget(db, target);
     } catch (error) {
-      failed.push(target.collection);
+      failed.push(`${label}: ${target.collection}`);
       console.error(
         `[FAILED] ${target.collection}: ${
           error instanceof Error ? error.message : error
@@ -426,10 +418,31 @@ const command = async () => {
   try {
     await migrateAutomationTargets(db);
   } catch (error) {
-    failed.push('automations');
+    failed.push(`${label}: automations`);
     console.error(
       `[FAILED] automations: ${error instanceof Error ? error.message : error}`,
     );
+  }
+};
+
+const command = async () => {
+  await client.connect();
+
+  console.log(
+    `Process start at: ${new Date().toISOString()}${
+      DRY_RUN ? ' (dry run)' : ''
+    }`,
+  );
+
+  const failed: string[] = [];
+
+  for (const { label, db } of await getTargetDbs(client)) {
+    console.log(`\n== ${label}`);
+    await migrateDb(db, failed, label);
+  }
+
+  if (failed.length) {
+    console.error(`\nFailed:\n  ${failed.join('\n  ')}`);
   }
 
   console.log(`Process finished at: ${new Date().toISOString()}`);

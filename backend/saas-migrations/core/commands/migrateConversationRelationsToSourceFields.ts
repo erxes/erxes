@@ -7,6 +7,7 @@ import {
   MongoClient,
   ObjectId,
 } from 'mongodb';
+import { getTargetDbs } from './_organizationDbs';
 
 dotenv.config();
 
@@ -23,18 +24,21 @@ dotenv.config();
  * Relations are left in place; nothing reads them any more. Safe to run
  * again (`$addToSet`).
  *
- *   MONGO_URL=... npx ts-node src/commands/migrateConversationRelationsToSourceFields.ts
- *   DRY_RUN=true  → count only, write nothing
- *
- * SaaS: run once per organization database (erxes_<organizationId>).
+ * Run (DRY_RUN=true counts only, writes nothing):
+ *   self-hosted:  MONGO_URL=mongodb://.../erxes npx tsx <this file>
+ *   SaaS, one:    MONGO_URL=<core db> TARGET_SUBDOMAIN=<subdomain> npx tsx <this file>
+ *   SaaS, all:    MONGO_URL=<core db> ALL_ORGS=true npx tsx <this file>
+ *   or: tsx backend/saas-migrations/run-commands.ts --org=<subdomain> <name>
  */
 
-const { MONGO_URL = 'mongodb://127.0.0.1:27017/erxes?directConnection=true' } =
-  process.env;
+const {
+  CORE_MONGO_URL,
+  MONGO_URL = 'mongodb://127.0.0.1:27017/erxes?directConnection=true',
+} = process.env;
 
 const DRY_RUN = process.env.DRY_RUN === 'true';
 
-const client = new MongoClient(MONGO_URL);
+const client = new MongoClient(CORE_MONGO_URL || MONGO_URL);
 
 const CONVERSATION = 'frontline:conversation';
 
@@ -174,24 +178,26 @@ const migrateLegacyTicketField = async (db: Db) => {
 const command = async () => {
   await client.connect();
 
-  const db = client.db();
-
   console.log(
     `Process start at: ${new Date().toISOString()}${
       DRY_RUN ? ' (dry run)' : ''
     }`,
   );
 
-  for (const target of TARGETS) {
-    await migrateRelations(db, target);
-  }
+  for (const { label, db } of await getTargetDbs(client)) {
+    console.log(`\n== ${label}`);
 
-  await migrateLegacyTicketField(db);
+    for (const target of TARGETS) {
+      await migrateRelations(db, target);
+    }
 
-  if (!DRY_RUN) {
-    await db
-      .collection('frontline_tickets')
-      .createIndex({ sourceConversationIds: 1 });
+    await migrateLegacyTicketField(db);
+
+    if (!DRY_RUN) {
+      await db
+        .collection('frontline_tickets')
+        .createIndex({ sourceConversationIds: 1 });
+    }
   }
 
   console.log(`Process finished at: ${new Date().toISOString()}`);
