@@ -7,6 +7,7 @@ import {
   useState,
   type ReactNode,
 } from 'react';
+import { useMutation } from '@apollo/client';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
@@ -20,6 +21,9 @@ import { BotBadge } from './BotBadge';
 import { Composer } from './Composer';
 import { modelSelectionValue, ModelPicker } from './ModelPicker';
 import { MessageList } from './MessageList';
+import type { IApprovalDecision } from './ApprovalPrompt';
+import { AGENTS_THREAD_ALLOW_ROOT_FIELDS } from '../graphql/threads';
+import type { IAgentsThreadAllowRootFieldsVariables } from '../graphql/threads';
 import { ThinkingPicker } from './ThinkingPicker';
 import {
   AGENT_CHAT_WIDTH_CLASSES,
@@ -139,17 +143,27 @@ export const ChatPanel = ({
 
   // Stable identity so the memoized transcript rows skip re-renders while
   // the streaming tail updates.
+  const [allowRootFields] = useMutation<
+    unknown,
+    IAgentsThreadAllowRootFieldsVariables
+  >(AGENTS_THREAD_ALLOW_ROOT_FIELDS);
   const handleApprovalRespond = useCallback(
-    ({
+    async ({
       approvalId,
       approved,
       reason,
-    }: {
-      approvalId: string;
-      approved: boolean;
-      reason?: string;
-    }) => addToolApprovalResponse({ id: approvalId, approved, reason }),
-    [addToolApprovalResponse],
+      allowForThread,
+    }: IApprovalDecision) => {
+      // Saved before resuming so later calls in this run already see it.
+      if (approved && allowForThread?.length && threadId) {
+        await allowRootFields({
+          variables: { threadId, rootFields: allowForThread },
+        });
+      }
+
+      addToolApprovalResponse({ id: approvalId, approved, reason });
+    },
+    [addToolApprovalResponse, allowRootFields, threadId],
   );
 
   const errorBanner = error ? (

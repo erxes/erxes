@@ -5,7 +5,7 @@ import {
 import { PageSelectionContext } from './PageSelectionContext';
 import { getToolName, isDataUIPart, isTextUIPart, isToolUIPart } from 'ai';
 
-import { ApprovalPrompt } from './ApprovalPrompt';
+import { ApprovalPrompt, type IApprovalDecision } from './ApprovalPrompt';
 import {
   AskUserAnswered,
   AskUserPrompt,
@@ -36,11 +36,7 @@ export interface IMessagePartRendererProps {
   role: AgentsUIMessage['role'];
   /** True while the approval decision is being submitted. */
   approvalBusy: boolean;
-  onApprovalRespond: (decision: {
-    approvalId: string;
-    approved: boolean;
-    reason?: string;
-  }) => void;
+  onApprovalRespond: (decision: IApprovalDecision) => void;
   /** True while an ask_user answer is being submitted. */
   answerBusy: boolean;
   onAnswer: (answers: IAskUserAnswer[]) => void;
@@ -241,11 +237,10 @@ export const MessagePartRenderer = ({
         <ApprovalPrompt
           part={part}
           busy={approvalBusy}
-          onRespond={({ approved, reason }) =>
+          onRespond={(decision) =>
             onApprovalRespond({
+              ...decision,
               approvalId: part.approval?.id ?? part.toolCallId,
-              approved,
-              reason,
             })
           }
         />

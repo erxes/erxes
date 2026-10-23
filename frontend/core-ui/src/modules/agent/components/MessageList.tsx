@@ -26,6 +26,7 @@ import {
   readMessageAskUserAnswerCard,
 } from './MessagePart';
 import type { IAskUserAnswer } from './AskUserPrompt';
+import type { IApprovalDecision } from './ApprovalPrompt';
 import { AgentWorkSteps } from './AgentWorkSteps';
 import {
   Conversation,
@@ -55,11 +56,7 @@ export interface IMessageListProps {
   status: string;
   loadingThread: boolean;
   approvalBusy: boolean;
-  onApprovalRespond: (decision: {
-    approvalId: string;
-    approved: boolean;
-    reason?: string;
-  }) => void;
+  onApprovalRespond: (decision: IApprovalDecision) => void;
   answerBusy: boolean;
   onAnswer: (answers: IAskUserAnswer[]) => void;
   onRetryTurn: () => void;
@@ -141,11 +138,7 @@ interface IMessageRowProps {
   showIdentity: boolean;
   onRetryTurn: () => void;
   approvalBusy: boolean;
-  onApprovalRespond: (decision: {
-    approvalId: string;
-    approved: boolean;
-    reason?: string;
-  }) => void;
+  onApprovalRespond: (decision: IApprovalDecision) => void;
   answerBusy: boolean;
   onAnswer: (answers: IAskUserAnswer[]) => void;
   editing: boolean;
