@@ -1,4 +1,5 @@
 import { Schema } from 'mongoose';
+import { applyDataExtensionsNamespace } from 'erxes-api-shared/core-modules';
 
 export const projectSchema = new Schema(
   {
@@ -29,3 +30,5 @@ export const projectSchema = new Schema(
     timestamps: true,
   },
 );
+
+applyDataExtensionsNamespace(projectSchema);

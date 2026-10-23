@@ -1,4 +1,5 @@
 import { Schema } from 'mongoose';
+import { applyDataExtensionsNamespace } from 'erxes-api-shared/core-modules';
 
 export const taskSchema = new Schema(
   {
@@ -46,6 +47,8 @@ export const taskSchema = new Schema(
     timestamps: true,
   },
 );
+
+applyDataExtensionsNamespace(taskSchema);
 
 taskSchema.index({ assigneeId: 1 }, { sparse: true });
 taskSchema.index({ createdBy: 1 }, { sparse: true });
