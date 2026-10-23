@@ -556,16 +556,6 @@ export const MultipleFieldsInGroup = ({
   );
 };
 
-// Core types live in organization settings; a plugin's types in its own
-// settings (`/<plugin>/settings/properties`).
-const getPropertiesSettingsPath = (contentType: string) => {
-  const [pluginName] = contentType.split(':');
-
-  return pluginName === 'core'
-    ? `/settings/properties/${contentType}`
-    : `/${pluginName}/settings/properties/${contentType}`;
-};
-
 const EmptyProperties = ({
   fieldContentType,
 }: {
@@ -589,7 +579,7 @@ const EmptyProperties = ({
         <Button
           size="sm"
           onClick={() => {
-            navigate(getPropertiesSettingsPath(fieldContentType));
+            navigate(`/settings/properties/${fieldContentType}`);
           }}
         >
           Create property
