@@ -1,0 +1,17 @@
+{
+  "name": "data-extensions-api",
+  "version": "1.0.0",
+  "description": "Tenant-generated GraphQL endpoint for Data Extensions",
+  "private": true,
+  "scripts": {
+    "dev": "tsx watch src/main.ts",
+    "build": "tsc --project tsconfig.build.json && tsc-alias -p tsconfig.build.json",
+    "start": "node -r tsconfig-paths/register dist/src/main.js"
+  },
+  "license": "AGPL-3.0-only",
+  "dependencies": {
+    "erxes-api-shared": "workspace:^",
+    "tslib": "^2.6.3"
+  },
+  "devDependencies": {}
+}
