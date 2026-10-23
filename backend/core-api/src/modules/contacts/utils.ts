@@ -1,11 +1,12 @@
 import { buildPropertyFilter } from 'erxes-api-shared/core-modules';
 import {
   buildSearchTokenFilter,
+  ExpectedError,
   ISearchTokenConfig,
   sendTRPCMessage,
 } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
-import { CONTACT_STATUSES } from './constants';
+import { CONTACT_ROLES, CONTACT_STATUSES } from './constants';
 
 export const generateFilter = async (
   subdomain: string,
@@ -282,4 +283,21 @@ export const customersCount = async ({
   }
 
   return counts;
+};
+
+/** Validates a role list and returns the update that stores it. */
+export const buildContactRolesUpdate = (roles: string[]) => {
+  const contactRoles = Array.from(new Set(roles));
+  const unknown = contactRoles.filter((role) => !CONTACT_ROLES.includes(role));
+
+  if (unknown.length) {
+    throw new ExpectedError(
+      `Unknown contact roles: ${unknown.join(', ')}`,
+      'BAD_USER_INPUT',
+    );
+  }
+
+  return contactRoles.length
+    ? { $set: { contactRoles } }
+    : { $unset: { contactRoles: '' as const } };
 };

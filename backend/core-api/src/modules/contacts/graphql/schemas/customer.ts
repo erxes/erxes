@@ -37,6 +37,7 @@ export const types = `
     visitorContactInfo: JSON
     trackedData: JSON
     propertiesData: JSON
+    contactRoles: [String]
     ownerId: String
     position: String
     department: String
@@ -159,6 +160,7 @@ export const mutations = `
   customersRemove(customerIds: [String]): [String]
 
   customersMerge(customerIds: [String], customerFields: JSON): Customer
+  customersSetContactRoles(_id: String!, contactRoles: [String!]!): Customer
   customersVerify(verificationType:String!): String
 
   customersChangeState(_id: String!, value: String!): Customer

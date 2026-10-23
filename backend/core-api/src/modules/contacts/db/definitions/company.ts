@@ -1,5 +1,8 @@
-import { COMPANY_SELECT_OPTIONS } from '@/contacts/constants';
-import { customFieldSchema } from 'erxes-api-shared/core-modules';
+import { COMPANY_SELECT_OPTIONS, CONTACT_ROLES } from '@/contacts/constants';
+import {
+  applyDataExtensionsNamespace,
+  customFieldSchema,
+} from 'erxes-api-shared/core-modules';
 import { mongooseStringRandomId, schemaWrapper } from 'erxes-api-shared/utils';
 import { Schema } from 'mongoose';
 
@@ -154,6 +157,12 @@ export const companySchema = schemaWrapper(
         optional: true,
         label: 'Score',
       },
+      contactRoles: {
+        type: [String],
+        enum: CONTACT_ROLES,
+        default: undefined,
+        label: 'Contact roles',
+      },
     },
     {
       timestamps: true,
@@ -161,5 +170,8 @@ export const companySchema = schemaWrapper(
   ),
 );
 
+applyDataExtensionsNamespace(companySchema);
+
 companySchema.index({ _id: 1, createdAt: 1, searchText: 1 });
+companySchema.index({ contactRoles: 1 }, { sparse: true });
 companySchema.index({ ownerId: 1 }, { sparse: true });

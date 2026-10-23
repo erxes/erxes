@@ -233,6 +233,11 @@ import {
   queries as searchQueries,
 } from '@/search/graphql/schema';
 import { queries as ReferenceQueries } from '~/meta/references/graphql/schema';
+import {
+  mutations as DataExtensionMutations,
+  queries as DataExtensionQueries,
+  types as DataExtensionTypes,
+} from '@/data-extensions/graphql/schemas';
 
 import {
   mutations as AgentsConnectionMutations,
@@ -313,6 +318,7 @@ export const types = `
     ${AgentsThreadTypes}
     ${AgentsSettingsTypes}
     ${AgentsToolTypes}
+    ${DataExtensionTypes}
   `;
 
 export const queries = `
@@ -363,6 +369,7 @@ export const queries = `
     ${AgentsThreadQueries}
     ${AgentsSettingsQueries}
     ${AgentsToolQueries}
+    ${DataExtensionQueries}
   `;
 
 export const mutations = `
@@ -407,6 +414,7 @@ export const mutations = `
     ${AgentsConnectionMutations}
     ${AgentsThreadMutations}
     ${AgentsSettingsMutations}
+    ${DataExtensionMutations}
   `;
 
 export default { types, queries, mutations };

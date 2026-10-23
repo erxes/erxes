@@ -223,6 +223,28 @@ export const permissions: IPermissionConfig = {
       ],
     },
     {
+      name: 'data-extensions',
+      description: 'Data Extensions field definitions',
+      scopeField: null,
+      ownerFields: [],
+
+      scopes: [{ name: 'all', description: 'All records' }],
+
+      actions: [
+        {
+          title: 'View Data Extensions fields',
+          name: 'dataExtensionsRead',
+          description: 'View the extension fields defined for each record type',
+          always: true,
+        },
+        {
+          title: 'Manage Data Extensions fields',
+          name: 'dataExtensionsManage',
+          description: 'Add, edit, archive and restore extension fields',
+        },
+      ],
+    },
+    {
       name: 'properties',
       description: 'Custom fields and field groups',
       scopeField: null,
@@ -835,6 +857,12 @@ export const permissions: IPermissionConfig = {
           plugin: 'core',
           module: 'properties',
           actions: ['fieldsManage', 'fieldGroupsManage'],
+          scope: 'all',
+        },
+        {
+          plugin: 'core',
+          module: 'data-extensions',
+          actions: ['dataExtensionsRead', 'dataExtensionsManage'],
           scope: 'all',
         },
         {

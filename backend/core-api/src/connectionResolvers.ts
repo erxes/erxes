@@ -97,7 +97,10 @@ import {
   aiAgentSchema,
   IActivityLogDocument,
   IAutomationDocument,
+  getDataExtensionModels,
   IAutomationExecutionDocument,
+  IDataExtensionFieldModel,
+  IDataExtensionSchemaVersionModel,
   IEmailAddressDocument,
   IEmailDeliveryDocument,
   IEmailRampDocument,
@@ -384,6 +387,8 @@ import {
 } from '@/agents/db/models/Settings';
 
 export interface IModels {
+  DataExtensionFields: IDataExtensionFieldModel;
+  DataExtensionSchemaVersions: IDataExtensionSchemaVersionModel;
   Brands: IBrandModel;
   Customers: ICustomerModel;
   Companies: ICompanyModel;
@@ -980,6 +985,7 @@ export const loadClasses = (
     IAgentsSettingsDocument,
     IAgentsSettingsModel
   >('agents_settings', loadAgentsSettingsClass(models));
+  Object.assign(models, getDataExtensionModels(db));
 
   const db_name = db.name;
 
