@@ -34,6 +34,7 @@ import {
   oversizedAgentToolResultBytes,
 } from 'erxes-api-shared/utils';
 import { gatewayUrl } from '~/utils/email/links';
+import { isAllowedForThread } from './threadApprovals';
 import {
   AGENT_GRAPHQL_DENIED_FIELD,
   assertAgentGraphqlResultAllowed,
@@ -577,18 +578,26 @@ export const buildGraphqlTools = async (): Promise<{
             return false;
           }
 
+          let parsed: ReturnType<typeof parseAgentGraphqlOperation>;
           try {
-            return requiresGraphqlApproval(
-              parseAgentGraphqlOperation(
-                query,
-                typeof operationName === 'string' ? operationName : undefined,
-                input?.variables,
-              ),
-              readApprovalMode(ctx),
+            parsed = parseAgentGraphqlOperation(
+              query,
+              typeof operationName === 'string' ? operationName : undefined,
+              input?.variables,
             );
           } catch {
             return false;
           }
+
+          if (!requiresGraphqlApproval(parsed, readApprovalMode(ctx))) {
+            return false;
+          }
+
+          // The user may have allowed these fields for the rest of the thread.
+          return !(await isAllowedForThread(
+            ctx?.requestContext,
+            parsed.rootFields,
+          ));
         },
         execute: async ({ query, variables, operationName }, context) => {
           const { subdomain, userId } = readIdentity(context);

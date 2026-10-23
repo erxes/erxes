@@ -89,6 +89,17 @@ export const AGENTS_THREAD_STOP = gql`
   }
 `;
 
+export const AGENTS_THREAD_ALLOW_ROOT_FIELDS = gql`
+  mutation AgentsThreadAllowRootFields(
+    $threadId: String!
+    $rootFields: [String!]!
+  ) {
+    agentsThreadAllowRootFields(threadId: $threadId, rootFields: $rootFields) {
+      id
+    }
+  }
+`;
+
 export const AGENTS_THREADS_CHANGED = gql`
   subscription AgentsThreadsChanged {
     agentsThreadsChanged {
@@ -130,6 +141,11 @@ export interface IAgentsThreadRemoveData {
 
 export interface IAgentsThreadRemoveVariables {
   threadId: string;
+}
+
+export interface IAgentsThreadAllowRootFieldsVariables {
+  threadId: string;
+  rootFields: string[];
 }
 
 export interface IAgentsThreadStopData {

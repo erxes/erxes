@@ -40,7 +40,7 @@ const isRecord = (value: unknown): value is Record<string, unknown> =>
  * document, or null when the input carries no parseable query. Malformed or
  * absent queries fall back to a generic label.
  */
-const summarizeGraphqlCall = (
+export const summarizeGraphqlCall = (
   input: Record<string, unknown>,
 ): { operation: string; fields: string[] } | null => {
   const query = input.query;
