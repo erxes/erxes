@@ -184,6 +184,10 @@
   Channel field and the form is always created in that channel:
   `useFormMutate` prefers the route's channel over the persisted setup state,
   so a stale draft can never redirect it to another channel.
+- The wizard's submit button (`FormMutateLayout`) reads `Create form` /
+  `Creating form...` or `Update form` / `Updating form...` from the `formId`
+  param alone, never the channel `id`, so both entry points label create and
+  edit the same way.
 - The `frontline/forms` sidebar Channels group (`ChooseChannel`), the
   sub-header's channel filter (`FormChannelFilterView`, in place of the shared
   `SelectChannel.FilterView`) and the sidebar Tags group (`ChooseFormTag`,
