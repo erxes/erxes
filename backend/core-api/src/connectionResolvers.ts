@@ -97,7 +97,10 @@ import {
   aiAgentSchema,
   IActivityLogDocument,
   IAutomationDocument,
+  getDataExtensionModels,
   IAutomationExecutionDocument,
+  IDataExtensionFieldModel,
+  IDataExtensionSchemaVersionModel,
   IEmailAddressDocument,
   IEmailDeliveryDocument,
   IEmailRampDocument,
@@ -369,6 +372,8 @@ import {
 } from '@/logs/db/models/ActivityLogs';
 
 export interface IModels {
+  DataExtensionFields: IDataExtensionFieldModel;
+  DataExtensionSchemaVersions: IDataExtensionSchemaVersionModel;
   Brands: IBrandModel;
   Customers: ICustomerModel;
   Companies: ICompanyModel;
@@ -944,6 +949,8 @@ export const loadClasses = (
     IOAuthRefreshTokenDocument,
     Model<IOAuthRefreshTokenDocument>
   >('oauth_refresh_tokens', oauthRefreshTokenSchema);
+
+  Object.assign(models, getDataExtensionModels(db));
 
   const db_name = db.name;
 

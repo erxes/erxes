@@ -227,6 +227,11 @@ import {
   queries as searchQueries,
 } from '@/search/graphql/schema';
 import { queries as ReferenceQueries } from '~/meta/references/graphql/schema';
+import {
+  mutations as DataExtensionMutations,
+  queries as DataExtensionQueries,
+  types as DataExtensionTypes,
+} from '@/data-extensions/graphql/schemas';
 
 export const types = `
     enum CacheControlScope {
@@ -282,6 +287,7 @@ export const types = `
     ${bundleTypes}
     ${templateTypes}
     ${searchTypes}
+    ${DataExtensionTypes}
   `;
 
 export const queries = `
@@ -327,6 +333,7 @@ export const queries = `
     ${bundleQueries}
     ${templateQueries}
     ${searchQueries}
+    ${DataExtensionQueries}
   `;
 
 export const mutations = `
@@ -367,6 +374,7 @@ export const mutations = `
     ${bundleMutations}
     ${templateMutations}
     ${LogsMutations}
+    ${DataExtensionMutations}
   `;
 
 export default { types, queries, mutations };

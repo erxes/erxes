@@ -54,6 +54,9 @@ export const COC_LIFECYCLE_STATE_TYPES = [
   'other',
 ];
 
+/** Roles a company or customer can hold as well as its own type. */
+export const CONTACT_ROLES = ['vendor', 'client'];
+
 export const CONTACT_STATUSES = {
   active: 'Active',
   deleted: 'deleted',
