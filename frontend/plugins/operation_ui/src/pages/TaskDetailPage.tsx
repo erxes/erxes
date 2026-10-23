@@ -50,6 +50,8 @@ export const TaskDetailPage = () => {
           <FocusSheet>
             <TaskSideWidgets
               contentId={task._id}
+              customerId={task.customerId}
+              companyId={task.companyId}
               propertiesData={
                 isRecord(task.propertiesData) ? task.propertiesData : undefined
               }

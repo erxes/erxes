@@ -23,6 +23,7 @@ const config: ModuleFederationConfig = {
     './notificationWidget':
       './src/widgets/notifications/NotificationRemoteEntries.tsx',
     './relationWidget': './src/widgets/RelationWidget.tsx',
+    './contactWidget': './src/widgets/contact/ContactWidgets.tsx',
     './floatingWidget': './src/widgets/FloatingWidget.tsx',
     './selectErxesMessenger':
       './src/modules/integrations/erxes-messenger/components/SelectErxesMessenger.tsx',

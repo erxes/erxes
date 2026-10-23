@@ -40,6 +40,8 @@ export enum SettingsWorkspacePath {
   Logs = 'logs',
   Broadcast = 'broadcast',
   MessagePro = 'message-pro',
+  Agent = 'agent',
+  AgentCatchAll = 'agent/*',
 }
 
 export type TSettingPath = {

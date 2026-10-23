@@ -23,6 +23,19 @@ export const useConvertTriage = () => {
     return convertTriageToTaskMutation({
       ...options,
       refetchQueries: [GET_TRIAGES, GET_TRIAGE],
+      // The task takes the triage's id: drop the cached "no task" for it so
+      // rows listing that id show the task.
+      update: (cache, { data }) => {
+        const taskId = data?.operationConvertTriageToTask?._id;
+
+        if (taskId) {
+          cache.evict({
+            id: 'ROOT_QUERY',
+            fieldName: 'getTask',
+            args: { _id: taskId },
+          });
+        }
+      },
       onError: (error) => {
         toast({
           title: t('error'),

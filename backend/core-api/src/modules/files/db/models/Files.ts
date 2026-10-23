@@ -396,16 +396,17 @@ export const loadFileClass = (models: IModels) => {
     trashed: boolean,
   ) => {
     const state = trashed ? { deletedAt: { $ne: null } } : { deletedAt: null };
-    const [files, folders] = await Promise.all([
-      fileIds.length
-        ? models.Files.find({ _id: { $in: fileIds }, ...state }).lean<IFileDocument[]>()
-        : [],
-      folderIds.length
-        ? models.FileFolders.find({ _id: { $in: folderIds }, ...state }).lean<
-            IFileFolderDocument[]
-          >()
-        : [],
-    ]);
+    const [files, folders]: [IFileDocument[], IFileFolderDocument[]] =
+      await Promise.all([
+        fileIds.length
+          ? models.Files.find({ _id: { $in: fileIds }, ...state }).lean<IFileDocument[]>()
+          : [],
+        folderIds.length
+          ? models.FileFolders.find({ _id: { $in: folderIds }, ...state }).lean<
+              IFileFolderDocument[]
+            >()
+          : [],
+      ]);
 
     files.forEach((file) => assertRole(actor, file, FILE_ACCESS_ROLES.MANAGER, operation, 'file'));
     folders.forEach((folder) => {

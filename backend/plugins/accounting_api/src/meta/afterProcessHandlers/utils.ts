@@ -5,9 +5,12 @@ import {
   TR_SIDES,
 } from '~/modules/accounting/@types/constants';
 
-type TPayConfig = {
-  accountId?: string;
-} | null | undefined;
+type TPayConfig =
+  | {
+      accountId?: string;
+    }
+  | null
+  | undefined;
 
 export const getJournal = async (
   models: IModels,
@@ -62,3 +65,17 @@ export const getJournal = async (
     lastAmount,
   };
 };
+
+type TDealOwner = { customerType: 'company' | 'customer'; customerId?: string };
+
+/**
+ * Who a deal's transactions are for: its company, else its customer, both
+ * kept on the deal.
+ */
+export const getDealOwner = (deal: {
+  customerId?: string | null;
+  companyId?: string | null;
+}): TDealOwner =>
+  deal.companyId
+    ? { customerType: 'company', customerId: deal.companyId }
+    : { customerType: 'customer', customerId: deal.customerId ?? undefined };

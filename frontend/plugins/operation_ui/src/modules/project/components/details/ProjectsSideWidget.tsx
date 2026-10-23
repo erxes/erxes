@@ -69,6 +69,8 @@ export const ProjectsSideWidget = ({ projectId }: { projectId: string }) => {
   const dealWidget = relationWidgetsModules.find(
     (module) => module.pluginName === 'sales' && module.name === 'deals',
   );
+  // The Deals tab lists the deals of the project's customer and company.
+  const { project } = useGetProject(projectId, { skip: !dealWidget });
 
   return (
     <SideMenu defaultValue="project">
@@ -119,6 +121,8 @@ export const ProjectsSideWidget = ({ projectId }: { projectId: string }) => {
             pluginName={dealWidget.pluginName}
             contentId={projectId}
             contentType="operation:project"
+            customerId={project?.customerId || undefined}
+            companyId={project?.companyId || undefined}
           />
         </SideMenu.Content>
       )}

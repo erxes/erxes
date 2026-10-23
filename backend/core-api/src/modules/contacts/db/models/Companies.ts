@@ -1,4 +1,5 @@
 import { companySchema } from '@/contacts/db/definitions/company';
+import { sendContactFieldsSync } from '@/relations/utils/contactFieldsSync';
 import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 import {
   ICompany,
@@ -87,6 +88,14 @@ export const loadCompanyClass = (
       type: 'company',
       newTypeId: newCompanyId,
       oldTypeIds: oldCompanyIds,
+    });
+
+    // Records keeping their companies as fields move to the merged one too.
+    await sendContactFieldsSync(subdomain, {
+      action: 'merge',
+      kind: 'company',
+      oldIds: oldCompanyIds,
+      newId: newCompanyId,
     });
   };
 
@@ -286,6 +295,13 @@ export const loadCompanyClass = (
         docIds: companyIds,
         prevDocuments,
       });
+
+      await sendContactFieldsSync(subdomain, {
+        action: 'remove',
+        kind: 'company',
+        ids: companyIds,
+      });
+
       return deletedCompanies;
     }
 

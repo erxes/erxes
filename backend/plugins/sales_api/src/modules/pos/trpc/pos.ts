@@ -2,7 +2,6 @@ import { initTRPC } from '@trpc/server';
 import { ITRPCContext } from 'erxes-api-shared/utils';
 import { z } from 'zod';
 import { IModels } from '~/connectionResolvers';
-import { agentMeta } from '~/trpc/agentMeta';
 import {
   getBranchesUtil,
   statusToDone,
@@ -19,12 +18,6 @@ const t = initTRPC.context<SalesTRPCContext>().create();
 export const posTrpcRouter = t.router({
   pos: t.router({
     findOne: t.procedure
-      .meta(
-        agentMeta(
-          'Get a single POS configuration by { query } or { selector } (MongoDB-style), e.g. { query: { name: "..." } } or { query: { token: "..." } }. Returns {} when input is empty, null when nothing matches.',
-          { module: 'pos', action: 'posRead' },
-        ),
-      )
       .input(z.any())
       .query(async ({ ctx, input }) => {
         const { models } = ctx;
@@ -37,12 +30,6 @@ export const posTrpcRouter = t.router({
         return await models.Pos.findOne(query).lean();
       }),
     find: t.procedure
-      .meta(
-        agentMeta(
-          'List POS configurations matching an optional MongoDB-style filter, e.g. { isOnline: true }. Returns all POS configs when input is empty.',
-          { module: 'pos', action: 'posRead' },
-        ),
-      )
       .input(z.any())
       .query(async ({ ctx, input }) => {
         const { models } = ctx;
@@ -88,12 +75,6 @@ export const posTrpcRouter = t.router({
         return await getBranchesUtil(subdomain, models, posToken);
       }),
     ordersDeliveryInfo: t.procedure
-      .meta(
-        agentMeta(
-          'Get delivery status of a POS order: { orderId }. Returns { status } — "onKitchen" while being prepared, otherwise the name of the delivery deal stage — or { error } when delivery info was removed. Find the orderId first with orders.find.',
-          { module: 'pos', action: 'posOrderRead' },
-        ),
-      )
       .input(z.any())
       .query(async ({ ctx, input }) => {
         const { orderId } = input;
@@ -219,12 +200,6 @@ export const posTrpcRouter = t.router({
   }),
   orders: t.router({
     findOne: t.procedure
-      .meta(
-        agentMeta(
-          'Get a single POS order by { query } or { selector } (MongoDB-style), e.g. { query: { number: "..." } } or { query: { _id } }. Returns {} when input is empty, null when nothing matches.',
-          { module: 'pos', action: 'posOrderRead' },
-        ),
-      )
       .input(z.any())
       .query(async ({ ctx, input }) => {
         const { models } = ctx;
@@ -237,12 +212,6 @@ export const posTrpcRouter = t.router({
         return await models.PosOrders.findOne(query).lean();
       }),
     find: t.procedure
-      .meta(
-        agentMeta(
-          'Search POS orders with a MongoDB-style filter: { query: {...}, skip?, limit?, sort? }, e.g. { query: { posToken: "..." }, sort: { createdAt: -1 } } or { query: { customerId: "..." } }. Resolve the posToken with pos.find first when filtering by POS.',
-          { module: 'pos', action: 'posOrderRead' },
-        ),
-      )
       .input(z.any())
       .query(async ({ ctx, input }) => {
         const { models } = ctx;

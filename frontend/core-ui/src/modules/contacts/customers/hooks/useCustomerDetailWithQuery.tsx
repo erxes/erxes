@@ -1,3 +1,4 @@
+import { useContactDetailId } from '@/contacts/contexts/ContactDetailIdContext';
 import { useTranslation } from 'react-i18next';
 import { QueryHookOptions } from '@apollo/client';
 
@@ -11,7 +12,8 @@ export const useCustomerDetailWithQuery = (
   options?: QueryHookOptions<{ customerDetail: ICustomerDetail }>,
 ) => {
   const { t } = useTranslation('contact', { keyPrefix: 'customer' });
-  const [_id] = useQueryState('contactId');
+  const [queryId] = useQueryState<string>('contactId');
+  const _id = useContactDetailId() ?? queryId;
   const setRendering = useSetAtom(renderingCustomerDetailAtom);
 
   const { customerDetail, loading, error } = useCustomerDetail({

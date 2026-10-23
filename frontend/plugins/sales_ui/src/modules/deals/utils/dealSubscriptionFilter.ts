@@ -13,8 +13,6 @@ export const toDealSubscriptionFilter = (
         _ids: toList(variables._ids),
         assignedUserIds: toList(variables.assignedUserIds),
         branchIds: toList(variables.branchIds),
-        companyIds: toList(variables.companyIds),
-        customerIds: toList(variables.customerIds),
         departmentIds: toList(variables.departmentIds),
         labelIds: toList(variables.labelIds),
         priority: toList(variables.priority),

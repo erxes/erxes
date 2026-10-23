@@ -6,7 +6,7 @@
 - **Project:** `accounting_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/accounting_api`
-- **Last synchronized:** `2026-10-22`
+- **Last synchronized:** `2026-10-23`
 
 ## Scope
 
@@ -156,6 +156,7 @@
 
 ## Local Invariants
 
+- Deal → transaction handlers (`meta/afterProcessHandlers/dealToTrs.ts`, `dealToMovementTrs.ts`) take the deal owner from `getDealOwner` (`meta/afterProcessHandlers/utils.ts`): its company, else its customer, read from the deal's own `customerId` / `companyId` (no relations). Keep the completeness check local; this code runs under tests that mock `erxes-api-shared/utils`.
 - Transaction model callers supply complete follow rows to `commonRemove` and its validators for every journal. Group update/removal reuse the loaded parent/group rows; single removal loads its source's follows before dispatch. Journal removal handlers consume that context without fallback follow lookups.
 - Inventory outgoing adjustment groups and their records are processed sequentially through promise chains. Preserve record order, apply the outgoing cache write before reallocating execution income, and check pointers only after the affected transaction totals have been recalculated.
 - Real-job production preparation delegates each inventory location to the module-level `costProductionGroup` helper. Keep location and row processing sequential, share the plan's output arrays across groups, and keep lexical function nesting at five levels or fewer.

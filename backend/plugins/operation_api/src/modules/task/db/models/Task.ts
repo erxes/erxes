@@ -123,11 +123,13 @@ export const loadTaskClass = (
 
       const nextNumber = (result?.maxNumber || 0) + 1;
 
-      if (!doc.status && doc.triageId) {
+      // Without a status a triage starts in the backlog, any other task in
+      // the team's first to-do status (as the add-task form picks).
+      if (!doc.status) {
         const statusDocument = await models.Status.findOne({
           teamId: doc.teamId,
-          type: STATUS_TYPES.BACKLOG,
-        });
+          type: doc.triageId ? STATUS_TYPES.BACKLOG : STATUS_TYPES.UNSTARTED,
+        }).sort({ order: 1 });
 
         doc.status = statusDocument?._id;
       }

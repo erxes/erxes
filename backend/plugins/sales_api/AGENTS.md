@@ -6,7 +6,7 @@
 - **Project:** `sales_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/sales_api`
-- **Last synchronized:** `2026-10-19`
+- **Last synchronized:** `2026-10-23`
 
 ## Scope
 
@@ -113,7 +113,7 @@
   `purchaseItems`. Earning is decided by automations, never by sales.
 - Sales tells loyalty what a purchase paid with points and when it is undone
   (`modules/sales/utils/dealPoints.ts`): `planDealPoints` decides per deal
-  create, edit or move (a new deal passes its `customerIds` and a pre-made
+  create, edit or move (a new deal passes its `customerId` as `customerIds` and a pre-made
   `_id`, since it has no relations yet), `checkDealPoints` asks loyalty's `score.checkSpend` before the
   deal is saved (a point payment without a customer, or one loyalty refuses,
   fails the save), and `syncDealPoints` records `score.spend` after it,
@@ -194,10 +194,7 @@
 - POS product sync calculates tax rules from the POS-specific `posInEbarimt`
   config document's `value`; selected VAT and city-tax rules are fetched through
   Mongolian `productRules.find` with a `data` filter before sending products.
-- Read-only deal, stage, pipeline, POS, and POS-order tRPC procedures are
-  exposed to AI agents through `/agent-tools/manifest` and `/agent-tools/call`
-  via `.meta(agentMeta(...))` annotations; every other procedure remains
-  invisible to agents.
+- Agent CRM access uses the public GraphQL API; tRPC stays internal.
 
 ## Architecture
 
@@ -205,7 +202,6 @@
 | ------------------- | ------------------------------------------------------- | --------------------------------------------------------------------- |
 | Bootstrap           | `src/main.ts`                                           | Starts and registers the sales plugin                                 |
 | Runtime             | `src/main.ts`, `src/connectionResolvers.ts`, `src/trpc` | Start the plugin, load tenant-scoped models, and expose tRPC          |
-| Agent tool metadata | `src/trpc/agentMeta.ts`                                 | Local `agentMeta` helper for agent-callable tRPC annotations          |
 | Models              | `src/modules/sales/db`                                  | Sales Mongoose schemas and models                                     |
 | GraphQL             | `src/modules/sales/graphql`, `src/apollo`               | Sales schemas, resolvers, mutations, queries, and subscriptions       |
 | Pipeline validation | `src/modules/sales/utils/pipelineProperties.ts`         | Validates pipeline property ids through Core tRPC                     |
@@ -217,6 +213,7 @@
 
 ### Provides
 
+- Internal `contactFields.sync` tRPC mutation (`TContactFieldsSync`) — core broadcasts contact merges and removals to every plugin declaring `meta.contactFields` (sales declares `sales:deal` in `main.ts`); applied with `applyContactFieldsSync`. Not agent-callable.
 - Internal `pos.cancelOrder({_id, posToken, userId?})` tRPC mutation returns
   `{cancelled: true}` after cancelling the POS order; it is not agent-callable.
 - Plugin meta `properties` (`src/meta/properties.ts`) — the `deal` property
@@ -250,6 +247,7 @@
 
 ## Data and State
 
+- `deals` owns one customer and one company as `customerId` / `companyId` (indexed, `default: null`; read only from the record — the migration must run before deploy, there is no relation fallback); sales saves them itself and makes no core relation for them. `dealsAdd` / `dealsEdit`, `cpDealsAdd`, the agent `deal.add` tool and the `deal.create` / `deal.createItem` tRPC take them on the doc; copies take the source deal's; automations set them with `setDealContacts` (`modules/sales/utils.ts`). `Deal` exposes `customerId` / `companyId` and keeps `customers` / `companies` (0–1 items). `backend/saas-migrations/core/commands/migrateRelationsToContactFields.ts` backfills deals linked before (first of old arrays, else the oldest related contact).
 - Tenant-scoped Mongo collections are loaded through plugin connection
   resolvers.
 - Deal stage browsing uses `stageId`; its total count filters archived and
@@ -266,6 +264,7 @@
 
 ## Local Invariants
 
+- A deal's contacts are read only from `customerId` / `companyId`: `getCustomerIds` / `getCompanyIds(subdomain, models, dealId)` (`modules/sales/utils.ts`), the deal loader, documents, list filters (`customerId`, `companyId` args on `deals`, archived deals and stages; customer phone search; `relationType` core:customer/company) and automation targets ("Deal customer/company" are `targetField`s; "Customer/Company deals" select by the field in `getDealSetPropertySelector`). Never call `relation.getRelationIds` for a deal's contacts. Importing the `erxes-api-shared/core-modules` barrel from `modules/sales/utils.ts` breaks test schemas (import cycle); keep it out.
 - Set property handlers pass `targetActionId: action.targetActionId` to
   `getSetPropertySelector`, so a Manage properties action targeting an earlier
   action (Find object, Create) updates that action's record, not the trigger's.
@@ -412,11 +411,11 @@
   `meta/segments/fields/` and `meta/segments/evaluate/`, with an `index.ts`
   keying them by content type. Shared field builders come from
   `erxes-api-shared`; do not re-declare operator sets locally.
-- A deal carries no customer or company id. `customer.deals` and
-  `company.deals` are declared `join: { via: 'relation' }`, and core resolves
-  the edges from its own relation records and sends them on the request. Never
-  declare a field join on a path the deal schema does not store, and never
-  query core's collections to find the link.
+- A deal keeps its customer and company itself: `customer.deals` and
+  `company.deals` are field joins (`on: 'related'`, `customerId` /
+  `companyId`), and the deal `customers` / `companies` references are
+  `kind: 'field'` on the same paths. Never query core's collections to find
+  the link.
 - A relation measure costs one query per request for the whole batch: a grouped
   aggregation for a field join, one `find` over the resolved related ids for a
   relation join. Never a query per subject.
@@ -447,13 +446,9 @@
   would make those segment fields wrong.
 - Federated sales GraphQL contracts including `salesPipelineDetail`,
   `salesPipelinesAdd`, and `salesPipelinesEdit`.
-- Agent-callable tRPC tools (admit-only via `.meta({ agent })`), each gated by
-  the listed sales permission action:
-  - `deal.findOne`, `deal.find`, `deal.count`, `deal.getLink` — `showDeals`
-  - `stage.findOne`, `stage.find` — `showDeals`
-  - `pipeline.findOne` — `pipelinesWatch`
-  - `pos.findOne`, `pos.find` — `posRead`
-  - `pos.ordersDeliveryInfo`, `orders.findOne`, `orders.find` — `posOrderRead`
+- Agents discover the GraphQL schema and execute through the gateway as the
+  acting user. Internal tRPC procedures carry no agent metadata.
+
 - tRPC service contracts under `src/trpc` and module-specific `trpc`
   directories for platform and cross-plugin callers (not agent-visible).
 - GraphQL `salesLoyaltyRules` and `salesLoyaltyRulesSave(rules)` (whole
@@ -557,18 +552,6 @@
   `replacerIds` order: `Deals.find({ _id: { $in } })` returns Mongo natural
   order, which does not match the order the caller selected the deals in.
 - Do not introduce new `schemaWrapper` usage in backend schemas.
-- Agent tool annotations are admit-only: never annotate raw-mongo helpers
-  (`deal.aggregate`, `deal.updateOne`, `orders.updateOne`), system-user
-  procedures (`deal.create`, `deal.updateOne`), procedures that trust a caller
-  supplied `user` object (`deal.createItem`, `deal.editItem`), POS device-sync
-  endpoints (`pos.createOrUpdateOrders*`, `pos.confirmCover`), token-scoped
-  lookups (`pos.ecommerceGetBranches`), destructive bulk operations
-  (`deal.removeItem`), or internal plumbing (`deal.subscriptionWrapper`,
-  `deal.tag`, `deal.getFilterParams`, `deal.replaceContent`,
-  `deal.contentIds`, `deal.generateInternalNoteNotif`, `deal.notifiedUserIds`,
-  `deal.createCommentActivityLog`, `documents.editorAttributes`,
-  `fields.getFieldList`). New procedures are agent-invisible unless explicitly
-  annotated.
 
 ## Validation
 
@@ -604,9 +587,9 @@
 - Smoke scenario: print a deal document whose template embeds the
   `productsInfo` attribute; the processed HTML contains a `<table>` with one
   row per `productsData` item.
-- Smoke scenario: `GET /agent-tools/manifest` on the sales service lists only
-  the annotated procedures above; `deal.create`, `deal.updateOne`, and
-  `deal.subscriptionWrapper` never appear.
+- Agent smoke: discover a sales GraphQL operation and run it through the
+  gateway as the acting user; denied resolver permissions remain denied.
+
 - Smoke scenario: complete and resync a POS client order with a matching
   `cardsConfig` branch; the order keeps one `convertDealId`, and the second
   sync updates that deal instead of creating another.
