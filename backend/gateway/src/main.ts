@@ -18,6 +18,7 @@ import { startRouter, stopRouter } from '~/apollo-router';
 import userMiddleware from '~/middlewares/userMiddleware';
 import { initMQWorkers } from '~/mq/workers/workers';
 import {
+  applyDataExtensionsProxy,
   applyProxiesCoreless,
   applyProxyToCore,
   proxyReq,
@@ -240,6 +241,7 @@ async function start() {
 
     // Apply the initial proxy middleware
     applyGraphqlLimiters(app);
+    applyDataExtensionsProxy(app);
     applyProxiesCoreless(app);
     applyProxyToCore(app, global.currentTargets);
 
