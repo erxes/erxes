@@ -6,7 +6,7 @@ import { useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
 export const ConversationDisplay = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const [view, setView] = useAtom(inboxLayoutState);
   const canSplit = useCanSplitInbox();
 

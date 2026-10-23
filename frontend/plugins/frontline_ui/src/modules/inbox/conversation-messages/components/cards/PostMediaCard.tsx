@@ -4,6 +4,7 @@ import { InboxImage } from '@/inbox/conversation-messages/components/InboxImage'
 import { useFacebookPost } from '@/integrations/facebook/hooks/useFacebookPost';
 import { useIgPost } from '@/integrations/instagram/hooks/useIgPost';
 import { IntegrationType } from '@/types/Integration';
+import { useTranslation } from 'react-i18next';
 
 export const PostMediaCard = ({
   conversationId,
@@ -16,6 +17,7 @@ export const PostMediaCard = ({
     | IntegrationType.INSTAGRAM_POST;
   fallbackUrl?: string;
 }) => {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const isFacebook = integrationKind === IntegrationType.FACEBOOK_POST;
   const { post: facebookPost, loading: facebookLoading } = useFacebookPost({
     erxesApiId: isFacebook ? conversationId : '',
@@ -27,7 +29,7 @@ export const PostMediaCard = ({
   const post = isFacebook ? facebookPost : instagramPost;
   const permalink = post?.permalink_url;
   const thumbnail = post?.attachments?.[0] || fallbackUrl;
-  const label = permalink?.includes('/reel/') ? 'Reel' : 'Post';
+  const label = permalink?.includes('/reel/') ? t('reel') : t('post');
 
   if (facebookLoading || instagramLoading) {
     return <Skeleton className="mt-1 h-20 w-52 rounded-xl" />;
@@ -52,7 +54,7 @@ export const PostMediaCard = ({
           {label}
         </span>
         <span className="block text-xs text-muted-foreground">
-          View on {isFacebook ? 'Facebook' : 'Instagram'}
+          {t('view-on', { platform: isFacebook ? 'Facebook' : 'Instagram' })}
         </span>
       </span>
       {permalink && (

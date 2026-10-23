@@ -85,7 +85,7 @@ export const ConvertProperties = ({
   type: ConversationConvertType;
   onNavigate: () => void;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const navigate = useNavigate();
   const contentType = CONVERT_TYPE_OPTIONS[type].propertyContentType;
   const { fieldGroups, loading } = useFieldGroups({ contentType, limit: 100 });

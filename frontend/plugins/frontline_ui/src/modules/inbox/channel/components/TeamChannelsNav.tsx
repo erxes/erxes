@@ -40,7 +40,7 @@ import { NavigationGroupActions } from '@/NavigationGroupActions';
  * nothing waiting fold away behind a single "quiet teams" row.
  */
 export const TeamChannelsNav = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const { channels, loading, refetch } = useGetMyChannels();
   const [showQuiet, setShowQuiet] = useState(false);
 
@@ -167,7 +167,7 @@ const TeamChannelItem = ({
   unreadCount: number;
   defaultOpen: boolean;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const [open, setOpen] = useState(defaultOpen);
   const [{ channelId }, setFilters] =
     useMultiQueryState<InboxTarget>(INBOX_TARGET_KEYS);

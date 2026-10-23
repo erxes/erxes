@@ -16,7 +16,7 @@ export const ReportDateFilterMenu = ({
   onClose?: () => void;
   label?: string;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const { setDialogView, setOpenDialog, setOpen } = useFilterContext();
 
   const isCustomDate = selected && !REPORT_FIXED_DATES.includes(selected);

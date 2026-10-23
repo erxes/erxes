@@ -17,7 +17,7 @@ import { TConvertFormReturn, toSingleValue } from './convertForm';
 type TTargetFieldsProps = { form: TConvertFormReturn };
 
 const TicketTargetFields = ({ form }: TTargetFieldsProps) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
 
   return (
     <ConvertTargetRow columns={3}>
@@ -71,7 +71,7 @@ const TicketTargetFields = ({ form }: TTargetFieldsProps) => {
 };
 
 const DealTargetFields = ({ form }: TTargetFieldsProps) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const boardId = useWatch({ control: form.control, name: 'boardId' });
   const pipelineId = useWatch({ control: form.control, name: 'pipelineId' });
 
