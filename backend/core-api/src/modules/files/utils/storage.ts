@@ -17,10 +17,8 @@ import { stat } from 'fs/promises';
 import { Readable } from 'stream';
 import { pipeline } from 'stream/promises';
 import { IModels } from '~/connectionResolvers';
-import {
-  getConfig,
-  getFileUploadConfigs,
-} from '~/modules/organization/settings/utils/configs';
+import { getFileUploadConfigs } from '~/modules/organization/settings/utils/configs';
+import { getFilesConfig } from '@/files/utils/config';
 
 export type TFilesStorage = {
   client: S3Client;
@@ -41,7 +39,7 @@ export const SIGNED_VIEWER_TTL_SECONDS = 30 * 60;
 export const getFilesStorage = async (
   models: IModels,
 ): Promise<TFilesStorage> => {
-  const bucket = await getConfig('FILES_BUCKET', '', models);
+  const bucket = await getFilesConfig('FILES_BUCKET', '', models);
 
   if (!bucket) {
     throw new ExpectedError(
@@ -78,15 +76,15 @@ export const getFilesStorage = async (
   }
 
   if (configs.UPLOAD_SERVICE_TYPE === 'AWS') {
-    const accessKeyId = await getConfig('AWS_ACCESS_KEY_ID', '', models);
-    const secretAccessKey = await getConfig('AWS_SECRET_ACCESS_KEY', '', models);
-    const region = await getConfig('AWS_REGION', 'us-east-1', models);
-    const endpoint = await getConfig(
+    const accessKeyId = await getFilesConfig('AWS_ACCESS_KEY_ID', '', models);
+    const secretAccessKey = await getFilesConfig('AWS_SECRET_ACCESS_KEY', '', models);
+    const region = await getFilesConfig('AWS_REGION', 'us-east-1', models);
+    const endpoint = await getFilesConfig(
       'AWS_COMPATIBLE_SERVICE_ENDPOINT',
       '',
       models,
     );
-    const forcePathStyle = await getConfig('AWS_FORCE_PATH_STYLE', '', models);
+    const forcePathStyle = await getFilesConfig('AWS_FORCE_PATH_STYLE', '', models);
 
     if (!accessKeyId || !secretAccessKey) {
       throw new ExpectedError(
