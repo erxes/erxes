@@ -16,7 +16,9 @@ const ACCEPTED_IMAGE_TYPES = [
 const STORABLE_KEY = /^[a-zA-Z0-9/_\-., ()\p{L}\p{M}]+$/u;
 
 export const useFacebookPostImages = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const { toast } = useToast();
 
   const [images, setImages] = useState<IAttachment[]>([]);

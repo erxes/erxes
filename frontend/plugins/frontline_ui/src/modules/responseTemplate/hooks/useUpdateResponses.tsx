@@ -12,7 +12,7 @@ import type {
   ResponseTemplatesEditMutationVariables,
 } from '~/gql/graphql';
 export const useUpdateResponse = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.response-template' });
   const { toast } = useToast();
   const [_updateResponse, { loading }] = useMutation(UPDATE_RESPONSE);
   const updateResponse = (

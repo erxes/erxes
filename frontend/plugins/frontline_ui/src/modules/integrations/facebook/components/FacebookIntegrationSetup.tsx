@@ -22,7 +22,9 @@ import {
 } from '@/integrations/facebook/components/FacebookIntegrationForm';
 
 export const FacebookIntegrationSetup = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const { id: channelId } = useParams();
   const { isPost } = useFbIntegrationContext();
   const form = useForm<z.infer<typeof FACEBOOK_INTEGRATION_SCHEMA>>({
