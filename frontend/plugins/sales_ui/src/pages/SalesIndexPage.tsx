@@ -4,10 +4,12 @@ import {
   PageContainer,
   PageSubHeader,
   Separator,
+  Tooltip,
 } from 'erxes-ui';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
+import { AddDealButton } from '@/deals/components/AddDealButton';
 import { AddDealSheet } from '@/deals/components/AddDealSheet';
 import { CommonDealSearch } from '@/deals/components/commonSearch';
 import { DealsView } from '@/deals/actionBar/components/DealViewControl';
@@ -51,14 +53,24 @@ export const SalesIndexPage = () => {
           </PageHeader.Start>
           <PageHeader.End>
             <CommonDealSearch />
-            <Button variant="ghost" asChild>
-              <Link
-                to={`/sales/settings/deals?${settingsSearchParams.toString()}`}
-              >
-                <IconSettings />
-                {t('go-to-settings', 'Go to Settings')}
-              </Link>
-            </Button>
+            <Tooltip.Provider>
+              <Tooltip>
+                <Tooltip.Trigger asChild>
+                  <Button variant="ghost" size="icon" asChild>
+                    <Link
+                      to={`/sales/settings/deals?${settingsSearchParams.toString()}`}
+                      aria-label={t('go-to-settings', 'Go to Settings')}
+                    >
+                      <IconSettings />
+                    </Link>
+                  </Button>
+                </Tooltip.Trigger>
+                <Tooltip.Content>
+                  {t('go-to-settings', 'Go to Settings')}
+                </Tooltip.Content>
+              </Tooltip>
+            </Tooltip.Provider>
+            <AddDealButton />
           </PageHeader.End>
           <AddDealSheet />
         </PageHeader>

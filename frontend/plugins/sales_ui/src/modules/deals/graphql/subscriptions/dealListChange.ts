@@ -94,3 +94,11 @@ subscription salesDealListChanged($pipelineId: String!, $userId: String, $filter
   }
 }
 `);
+
+export const DEAL_COUNTS_CHANGED = gql(`
+  subscription salesDealCountsChanged($pipelineId: String!, $userId: String) {
+    salesDealListChanged(pipelineId: $pipelineId, userId: $userId) {
+      action
+    }
+  }
+`);
