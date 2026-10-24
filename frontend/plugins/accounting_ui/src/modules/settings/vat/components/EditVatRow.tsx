@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { Sheet, Spinner, isDeeplyEqual, useQueryState } from 'erxes-ui';
+import { Sheet, Spinner, isDeeplyEqual, toast, useQueryState } from 'erxes-ui';
 
 import { AccountingSheet } from '~/modules/layout/components/Sheet';
 import { TVatRowForm } from '../types/VatRow';
@@ -13,6 +13,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 
 export const EditVatRowForm = () => {
   const { vatRowDetail, closeDetail, loading } = useVatRowDetail();
+  const { t } = useTranslation('accounting');
   const { editVatRow, loading: editLoading } = useVatRowEdit();
   const form = useForm<TVatRowForm>({
     resolver: zodResolver(vatFormSchema),
@@ -42,6 +43,7 @@ export const EditVatRowForm = () => {
         ...data,
       },
       onCompleted: () => {
+        toast({ title: t('success'), variant: 'success' });
         closeDetail();
         reset();
       },

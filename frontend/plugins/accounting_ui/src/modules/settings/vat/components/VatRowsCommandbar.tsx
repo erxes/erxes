@@ -34,7 +34,7 @@ export const VatRowsDelete = () => {
   const { removeVatRows, loading } = useVatRowsRemove();
 
   const handleDelete = () => {
-    confirm({
+    void confirm({
       message: t('are-you-sure-you-want-to-delete-these-vat-rows'),
       options: {
         okLabel: t('delete'),
@@ -45,7 +45,7 @@ export const VatRowsDelete = () => {
         .getFilteredSelectedRowModel()
         .rows.map((row) => row.original._id);
 
-      removeVatRows({
+      void removeVatRows({
         variables: { vatRowIds },
         onError: (error: Error) => {
           toast({
