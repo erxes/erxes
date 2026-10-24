@@ -1,4 +1,3 @@
-import { gql as apolloGql } from '@apollo/client';
 import { gql } from '~/gql';
 
 // Queries
@@ -454,7 +453,7 @@ export const INSURANCE_CUSTOMER = gql(`
   }
 `);
 
-export const CONTRACTS = apolloGql`
+export const CONTRACTS = gql(`
   query InsuranceContracts(
     $vendorId: ID
     $customerId: ID
@@ -527,9 +526,9 @@ export const CONTRACTS = apolloGql`
       updatedAt
     }
   }
-`;
+`);
 
-export const CONTRACT = apolloGql`
+export const CONTRACT = gql(`
   query InsuranceContract($id: ID!) {
     contract(id: $id) {
       id
@@ -580,9 +579,9 @@ export const CONTRACT = apolloGql`
       updatedAt
     }
   }
-`;
+`);
 
-export const VENDOR_CONTRACTS = apolloGql`
+export const VENDOR_CONTRACTS = gql(`
   query InsuranceVendorContracts {
     vendorContracts {
       id
@@ -633,9 +632,9 @@ export const VENDOR_CONTRACTS = apolloGql`
       updatedAt
     }
   }
-`;
+`);
 
-export const VENDOR_CONTRACT = apolloGql`
+export const VENDOR_CONTRACT = gql(`
   query InsuranceVendorContract($id: ID!) {
     vendorContract(id: $id) {
       id
@@ -686,7 +685,7 @@ export const VENDOR_CONTRACT = apolloGql`
       updatedAt
     }
   }
-`;
+`);
 
 export const INSURANCE_REGIONS = gql(`
   query InsuranceRegions {

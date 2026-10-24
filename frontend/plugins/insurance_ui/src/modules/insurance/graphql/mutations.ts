@@ -1,4 +1,3 @@
-import { gql as apolloGql } from '@apollo/client';
 import { gql } from '~/gql';
 
 // Risk Type Mutations
@@ -603,7 +602,7 @@ export const DELETE_CUSTOMER = gql(`
 `);
 
 // Contract Mutations
-export const CREATE_INSURANCE_CONTRACT = apolloGql`
+export const CREATE_INSURANCE_CONTRACT = gql(`
   mutation InsuranceCreateContract(
     $vendorId: ID!
     $customerId: ID!
@@ -670,9 +669,9 @@ export const CREATE_INSURANCE_CONTRACT = apolloGql`
       updatedAt
     }
   }
-`;
+`);
 
-export const GENERATE_CONTRACT_PDF = apolloGql`
+export const GENERATE_CONTRACT_PDF = gql(`
   mutation InsuranceGenerateContractPDF($contractId: ID!) {
     generateContractPDF(contractId: $contractId) {
       success
@@ -680,7 +679,7 @@ export const GENERATE_CONTRACT_PDF = apolloGql`
       filename
     }
   }
-`;
+`);
 
 // Vendor User Mutations
 export const CREATE_VENDOR_USER = gql(`

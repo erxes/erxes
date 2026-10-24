@@ -191,7 +191,6 @@ export const CarInsurancePage = () => {
           startDate: formData.startDate,
           endDate: formData.endDate,
           paymentKind: formData.paymentKind,
-          chargedAmount: calculatedPremium,
         },
       });
       setSuccess(true);

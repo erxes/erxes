@@ -1,7 +1,6 @@
 import { useQuery, useMutation } from '@apollo/client';
 import { useMultiQueryState } from 'erxes-ui';
 import { queries, mutations } from '../graphql';
-import { InsuranceContract } from '../types';
 
 export function useContracts(vendorId?: string, customerId?: string) {
   const [filterParams] = useMultiQueryState<{
@@ -48,7 +47,7 @@ export function useContracts(vendorId?: string, customerId?: string) {
   });
 
   return {
-    contracts: (data?.contracts || []) as InsuranceContract[],
+    contracts: data?.contracts || [],
     loading,
     error,
     refetch,
@@ -62,7 +61,7 @@ export function useContract(id: string) {
   });
 
   return {
-    contract: data?.contract as InsuranceContract | undefined,
+    contract: data?.contract,
     loading,
     error,
   };
@@ -72,7 +71,7 @@ export function useVendorContracts() {
   const { data, loading, error, refetch } = useQuery(queries.VENDOR_CONTRACTS);
 
   return {
-    contracts: (data?.vendorContracts || []) as InsuranceContract[],
+    contracts: data?.vendorContracts || [],
     loading,
     error,
     refetch,

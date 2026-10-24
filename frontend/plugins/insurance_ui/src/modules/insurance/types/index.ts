@@ -1,4 +1,5 @@
 import type {
+  InsuranceContractsQuery,
   InsuranceCustomersQuery,
   InsuranceProductsQuery,
   InsuranceRegionsQuery,
@@ -11,11 +12,6 @@ import type {
 export type RiskType = InsuranceRiskTypesQuery['riskTypes'][number];
 
 export type InsuranceType = InsuranceTypesQuery['insuranceTypes'][number];
-
-export interface CoveredRisk {
-  risk: RiskType;
-  coveragePercentage: number;
-}
 
 export interface AdditionalCoverage {
   name: string;
@@ -55,38 +51,10 @@ export type VendorUser = InsuranceVendorUsersQuery['vendorUsers'][number];
 export type InsuranceCustomer =
   InsuranceCustomersQuery['insuranceCustomers'][number];
 
-export interface InsuranceContract {
-  id: string;
-  contractNumber: string;
-  vendor: InsuranceVendor;
-  customer: InsuranceCustomer;
-  insuranceType: InsuranceType;
-  insuranceProduct: InsuranceProduct;
-  coveredRisks: CoveredRisk[];
-  chargedAmount: number;
-  startDate: Date;
-  endDate: Date;
-  insuredObject: any;
-  paymentKind: string;
-  paymentStatus: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
+export type InsuranceContract = InsuranceContractsQuery['contracts'][number];
 
 // Input Types
 export interface CoveredRiskInput {
   riskId: string;
   coveragePercentage: number;
-}
-
-export interface InsuranceContractInput {
-  vendorId: string;
-  customerId: string;
-  insuranceTypeId: string;
-  insuranceProductId: string;
-  coveredRisks: CoveredRiskInput[];
-  chargedAmount: number;
-  startDate: Date;
-  endDate: Date;
-  insuredObject: any;
 }

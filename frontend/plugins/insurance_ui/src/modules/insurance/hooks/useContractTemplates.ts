@@ -1,12 +1,24 @@
 import {
-  gql,
   MutationHookOptions,
   QueryHookOptions,
   useMutation,
   useQuery,
 } from '@apollo/client';
+import { gql } from '~/gql';
+import type {
+  InsuranceContractTemplateQuery,
+  InsuranceContractTemplateQueryVariables,
+  InsuranceContractTemplatesQuery,
+  InsuranceContractTemplatesQueryVariables,
+  InsuranceCreateContractTemplateMutation,
+  InsuranceCreateContractTemplateMutationVariables,
+  InsuranceDeleteContractTemplateMutation,
+  InsuranceDeleteContractTemplateMutationVariables,
+  InsuranceUpdateContractTemplateMutation,
+  InsuranceUpdateContractTemplateMutationVariables,
+} from '~/gql/graphql';
 
-const CONTRACT_TEMPLATES = gql`
+const CONTRACT_TEMPLATES = gql(`
   query InsuranceContractTemplates {
     contractTemplates {
       id
@@ -20,9 +32,9 @@ const CONTRACT_TEMPLATES = gql`
       updatedAt
     }
   }
-`;
+`);
 
-const CONTRACT_TEMPLATE = gql`
+const CONTRACT_TEMPLATE = gql(`
   query InsuranceContractTemplate($id: ID!) {
     contractTemplate(id: $id) {
       id
@@ -36,9 +48,9 @@ const CONTRACT_TEMPLATE = gql`
       updatedAt
     }
   }
-`;
+`);
 
-const CREATE_CONTRACT_TEMPLATE = gql`
+const CREATE_CONTRACT_TEMPLATE = gql(`
   mutation InsuranceCreateContractTemplate(
     $name: String!
     $description: String
@@ -62,9 +74,9 @@ const CREATE_CONTRACT_TEMPLATE = gql`
       updatedAt
     }
   }
-`;
+`);
 
-const UPDATE_CONTRACT_TEMPLATE = gql`
+const UPDATE_CONTRACT_TEMPLATE = gql(`
   mutation InsuranceUpdateContractTemplate(
     $id: ID!
     $name: String
@@ -92,32 +104,29 @@ const UPDATE_CONTRACT_TEMPLATE = gql`
       updatedAt
     }
   }
-`;
+`);
 
-const DELETE_CONTRACT_TEMPLATE = gql`
+const DELETE_CONTRACT_TEMPLATE = gql(`
   mutation InsuranceDeleteContractTemplate($id: ID!) {
     deleteContractTemplate(id: $id) {
       success
     }
   }
-`;
+`);
 
-export interface ContractTemplate {
-  id: string;
-  name: string;
-  description?: string;
-  htmlContent: string;
-  cssContent?: string;
-  version: number;
-  status: string;
-  createdAt: string;
-  updatedAt: string;
-}
+export type ContractTemplate =
+  InsuranceContractTemplatesQuery['contractTemplates'][number];
 
-export function useContractTemplates(options?: QueryHookOptions) {
-  const { data, loading, error, refetch } = useQuery<{
-    contractTemplates: ContractTemplate[];
-  }>(CONTRACT_TEMPLATES, options);
+export function useContractTemplates(
+  options?: QueryHookOptions<
+    InsuranceContractTemplatesQuery,
+    InsuranceContractTemplatesQueryVariables
+  >,
+) {
+  const { data, loading, error, refetch } = useQuery(
+    CONTRACT_TEMPLATES,
+    options,
+  );
 
   return {
     contractTemplates: data?.contractTemplates || [],
@@ -127,10 +136,14 @@ export function useContractTemplates(options?: QueryHookOptions) {
   };
 }
 
-export function useContractTemplate(id: string, options?: QueryHookOptions) {
-  const { data, loading, error, refetch } = useQuery<{
-    contractTemplate: ContractTemplate;
-  }>(CONTRACT_TEMPLATE, {
+export function useContractTemplate(
+  id: string,
+  options?: QueryHookOptions<
+    InsuranceContractTemplateQuery,
+    InsuranceContractTemplateQueryVariables
+  >,
+) {
+  const { data, loading, error, refetch } = useQuery(CONTRACT_TEMPLATE, {
     variables: { id },
     skip: !id,
     ...options,
@@ -146,75 +159,54 @@ export function useContractTemplate(id: string, options?: QueryHookOptions) {
 
 export function useCreateContractTemplate(
   options?: MutationHookOptions<
-    { createContractTemplate: ContractTemplate },
-    {
-      name: string;
-      description?: string;
-      htmlContent?: string;
-      cssContent?: string;
-    }
+    InsuranceCreateContractTemplateMutation,
+    InsuranceCreateContractTemplateMutationVariables
   >,
 ) {
-  const [createContractTemplate, { loading, error }] = useMutation<
-    { createContractTemplate: ContractTemplate },
+  const [createContractTemplate, { loading, error }] = useMutation(
+    CREATE_CONTRACT_TEMPLATE,
     {
-      name: string;
-      description?: string;
-      htmlContent?: string;
-      cssContent?: string;
-    }
-  >(CREATE_CONTRACT_TEMPLATE, {
-    refetchQueries: ['InsuranceContractTemplates'],
-    ...options,
-  });
+      refetchQueries: ['InsuranceContractTemplates'],
+      ...options,
+    },
+  );
 
   return { createContractTemplate, loading, error };
 }
 
 export function useUpdateContractTemplate(
   options?: MutationHookOptions<
-    { updateContractTemplate: ContractTemplate },
-    {
-      id: string;
-      name?: string;
-      description?: string;
-      htmlContent?: string;
-      cssContent?: string;
-      status?: string;
-    }
+    InsuranceUpdateContractTemplateMutation,
+    InsuranceUpdateContractTemplateMutationVariables
   >,
 ) {
-  const [updateContractTemplate, { loading, error }] = useMutation<
-    { updateContractTemplate: ContractTemplate },
+  const [updateContractTemplate, { loading, error }] = useMutation(
+    UPDATE_CONTRACT_TEMPLATE,
     {
-      id: string;
-      name?: string;
-      description?: string;
-      htmlContent?: string;
-      cssContent?: string;
-      status?: string;
-    }
-  >(UPDATE_CONTRACT_TEMPLATE, {
-    refetchQueries: ['InsuranceContractTemplates', 'InsuranceContractTemplate'],
-    ...options,
-  });
+      refetchQueries: [
+        'InsuranceContractTemplates',
+        'InsuranceContractTemplate',
+      ],
+      ...options,
+    },
+  );
 
   return { updateContractTemplate, loading, error };
 }
 
 export function useDeleteContractTemplate(
   options?: MutationHookOptions<
-    { deleteContractTemplate: { success: boolean } },
-    { id: string }
+    InsuranceDeleteContractTemplateMutation,
+    InsuranceDeleteContractTemplateMutationVariables
   >,
 ) {
-  const [deleteContractTemplate, { loading, error }] = useMutation<
-    { deleteContractTemplate: { success: boolean } },
-    { id: string }
-  >(DELETE_CONTRACT_TEMPLATE, {
-    refetchQueries: ['InsuranceContractTemplates'],
-    ...options,
-  });
+  const [deleteContractTemplate, { loading, error }] = useMutation(
+    DELETE_CONTRACT_TEMPLATE,
+    {
+      refetchQueries: ['InsuranceContractTemplates'],
+      ...options,
+    },
+  );
 
   return { deleteContractTemplate, loading, error };
 }
