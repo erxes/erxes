@@ -36,7 +36,7 @@ export function useCreateRiskType(
     { createRiskType: RiskType },
     { name: string; description?: string }
   >(mutations.CREATE_RISK_TYPE, {
-    refetchQueries: ['RiskTypes'],
+    refetchQueries: ['InsuranceRiskTypes'],
     ...options,
   });
 
@@ -53,7 +53,7 @@ export function useUpdateRiskType(
     { updateRiskType: RiskType },
     { id: string; name?: string; description?: string }
   >(mutations.UPDATE_RISK_TYPE, {
-    refetchQueries: ['RiskTypes', 'RiskType'],
+    refetchQueries: ['InsuranceRiskTypes', 'InsuranceRiskType'],
     ...options,
   });
 
@@ -67,7 +67,7 @@ export function useDeleteRiskType(
     { deleteRiskType: boolean },
     { id: string }
   >(mutations.DELETE_RISK_TYPE, {
-    refetchQueries: ['RiskTypes'],
+    refetchQueries: ['InsuranceRiskTypes'],
     ...options,
   });
 

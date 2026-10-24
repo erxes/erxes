@@ -36,7 +36,7 @@ export function useCreateVendor(
     { createVendor: InsuranceVendor },
     { name: string }
   >(mutations.CREATE_VENDOR, {
-    refetchQueries: ['Vendors'],
+    refetchQueries: ['InsuranceVendors'],
     ...options,
   });
 
@@ -53,7 +53,7 @@ export function useUpdateVendor(
     { updateVendor: InsuranceVendor },
     { id: string; name: string }
   >(mutations.UPDATE_VENDOR, {
-    refetchQueries: ['Vendors', 'Vendor'],
+    refetchQueries: ['InsuranceVendors', 'InsuranceVendor'],
     ...options,
   });
 
@@ -70,7 +70,7 @@ export function useAddProductToVendor(
     { addProductToVendor: InsuranceVendor },
     { vendorId: string; productId: string; pricingOverride?: any }
   >(mutations.ADD_PRODUCT_TO_VENDOR, {
-    refetchQueries: ['Vendors', 'Vendor'],
+    refetchQueries: ['InsuranceVendors', 'InsuranceVendor'],
     ...options,
   });
 
@@ -87,7 +87,7 @@ export function useRemoveProductFromVendor(
     { removeProductFromVendor: InsuranceVendor },
     { vendorId: string; productId: string }
   >(mutations.REMOVE_PRODUCT_FROM_VENDOR, {
-    refetchQueries: ['Vendors', 'Vendor'],
+    refetchQueries: ['InsuranceVendors', 'InsuranceVendor'],
     ...options,
   });
 

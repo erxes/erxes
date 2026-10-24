@@ -26,7 +26,7 @@ import { useMutation, gql } from '@apollo/client';
 import { useTranslation } from 'react-i18next';
 
 const MIGRATE_TEMPLATE_COLLECTION = gql`
-  mutation MigrateTemplateCollection {
+  mutation InsuranceMigrateTemplateCollection {
     _migrateTemplateCollection
   }
 `;
