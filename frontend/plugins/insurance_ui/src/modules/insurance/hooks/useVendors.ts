@@ -1,13 +1,21 @@
 import { useQuery, useMutation, MutationHookOptions } from '@apollo/client';
+import type {
+  InsuranceAddProductToVendorMutation,
+  InsuranceAddProductToVendorMutationVariables,
+  InsuranceCreateVendorMutation,
+  InsuranceCreateVendorMutationVariables,
+  InsuranceRemoveProductFromVendorMutation,
+  InsuranceRemoveProductFromVendorMutationVariables,
+  InsuranceUpdateVendorMutation,
+  InsuranceUpdateVendorMutationVariables,
+} from '~/gql/graphql';
 import { queries, mutations } from '../graphql';
-import { InsuranceVendor, DiscountTier } from '../types';
-import type { PricingConfig } from '../types/pricing';
 
 export function useVendors() {
   const { data, loading, error, refetch } = useQuery(queries.VENDORS);
 
   return {
-    vendors: (data?.vendors || []) as InsuranceVendor[],
+    vendors: data?.vendors || [],
     loading,
     error,
     refetch,
@@ -21,7 +29,7 @@ export function useVendor(id: string) {
   });
 
   return {
-    vendor: data?.vendor as InsuranceVendor | undefined,
+    vendor: data?.vendor,
     loading,
     error,
   };
@@ -29,78 +37,68 @@ export function useVendor(id: string) {
 
 export function useCreateVendor(
   options?: MutationHookOptions<
-    { createVendor: InsuranceVendor },
-    { name: string }
+    InsuranceCreateVendorMutation,
+    InsuranceCreateVendorMutationVariables
   >,
 ) {
-  const [createVendor, { loading, error }] = useMutation<
-    { createVendor: InsuranceVendor },
-    { name: string }
-  >(mutations.CREATE_VENDOR, {
-    refetchQueries: ['InsuranceVendors'],
-    ...options,
-  });
+  const [createVendor, { loading, error }] = useMutation(
+    mutations.CREATE_VENDOR,
+    {
+      refetchQueries: ['InsuranceVendors'],
+      ...options,
+    },
+  );
 
   return { createVendor, loading, error };
 }
 
 export function useUpdateVendor(
   options?: MutationHookOptions<
-    { updateVendor: InsuranceVendor },
-    { id: string; name: string }
+    InsuranceUpdateVendorMutation,
+    InsuranceUpdateVendorMutationVariables
   >,
 ) {
-  const [updateVendor, { loading, error }] = useMutation<
-    { updateVendor: InsuranceVendor },
-    { id: string; name: string }
-  >(mutations.UPDATE_VENDOR, {
-    refetchQueries: ['InsuranceVendors', 'InsuranceVendor'],
-    ...options,
-  });
+  const [updateVendor, { loading, error }] = useMutation(
+    mutations.UPDATE_VENDOR,
+    {
+      refetchQueries: ['InsuranceVendors', 'InsuranceVendor'],
+      ...options,
+    },
+  );
 
   return { updateVendor, loading, error };
 }
 
 export function useAddProductToVendor(
   options?: MutationHookOptions<
-    { addProductToVendor: InsuranceVendor },
-    {
-      vendorId: string;
-      productId: string;
-      pricingOverride?: PricingConfig | null;
-      discountTiers?: DiscountTier[];
-    }
+    InsuranceAddProductToVendorMutation,
+    InsuranceAddProductToVendorMutationVariables
   >,
 ) {
-  const [addProductToVendor, { loading, error }] = useMutation<
-    { addProductToVendor: InsuranceVendor },
+  const [addProductToVendor, { loading, error }] = useMutation(
+    mutations.ADD_PRODUCT_TO_VENDOR,
     {
-      vendorId: string;
-      productId: string;
-      pricingOverride?: PricingConfig | null;
-      discountTiers?: DiscountTier[];
-    }
-  >(mutations.ADD_PRODUCT_TO_VENDOR, {
-    refetchQueries: ['InsuranceVendors', 'InsuranceVendor'],
-    ...options,
-  });
+      refetchQueries: ['InsuranceVendors', 'InsuranceVendor'],
+      ...options,
+    },
+  );
 
   return { addProductToVendor, loading, error };
 }
 
 export function useRemoveProductFromVendor(
   options?: MutationHookOptions<
-    { removeProductFromVendor: InsuranceVendor },
-    { vendorId: string; productId: string }
+    InsuranceRemoveProductFromVendorMutation,
+    InsuranceRemoveProductFromVendorMutationVariables
   >,
 ) {
-  const [removeProductFromVendor, { loading, error }] = useMutation<
-    { removeProductFromVendor: InsuranceVendor },
-    { vendorId: string; productId: string }
-  >(mutations.REMOVE_PRODUCT_FROM_VENDOR, {
-    refetchQueries: ['InsuranceVendors', 'InsuranceVendor'],
-    ...options,
-  });
+  const [removeProductFromVendor, { loading, error }] = useMutation(
+    mutations.REMOVE_PRODUCT_FROM_VENDOR,
+    {
+      refetchQueries: ['InsuranceVendors', 'InsuranceVendor'],
+      ...options,
+    },
+  );
 
   return { removeProductFromVendor, loading, error };
 }

@@ -1,16 +1,12 @@
 import type {
+  InsuranceCustomersQuery,
   InsuranceProductsQuery,
   InsuranceRegionsQuery,
   InsuranceRiskTypesQuery,
   InsuranceTypesQuery,
+  InsuranceVendorUsersQuery,
+  InsuranceVendorsQuery,
 } from '~/gql/graphql';
-import type { PricingConfig } from './pricing';
-
-// Customer Types
-export enum CustomerType {
-  INDIVIDUAL = 'individual',
-  COMPANY = 'company',
-}
 
 export type RiskType = InsuranceRiskTypesQuery['riskTypes'][number];
 
@@ -38,11 +34,6 @@ export interface DeductibleConfig {
 
 export type InsuranceRegion = InsuranceRegionsQuery['insuranceRegions'][number];
 
-export interface DiscountTier {
-  minTravelers: number;
-  discountPercent: number;
-}
-
 export interface Traveler {
   firstName: string;
   lastName: string;
@@ -55,43 +46,14 @@ export interface Traveler {
 export type InsuranceProduct =
   InsuranceProductsQuery['insuranceProducts'][number];
 
-export interface InsuranceVendorProduct {
-  product: InsuranceProduct;
-  pricingOverride?: PricingConfig | null;
-  discountTiers?: DiscountTier[];
-}
+export type InsuranceVendor = InsuranceVendorsQuery['vendors'][number];
 
-export interface InsuranceVendor {
-  id: string;
-  name: string;
-  offeredProducts: InsuranceVendorProduct[];
-  createdAt: Date;
-  updatedAt: Date;
-}
+export type InsuranceVendorProduct = InsuranceVendor['offeredProducts'][number];
 
-export interface VendorUser {
-  id: string;
-  name?: string;
-  email: string;
-  phone?: string;
-  vendor: InsuranceVendor;
-  role: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
+export type VendorUser = InsuranceVendorUsersQuery['vendorUsers'][number];
 
-export interface InsuranceCustomer {
-  id: string;
-  firstName: string;
-  lastName: string;
-  type: CustomerType;
-  registrationNumber: string;
-  email?: string;
-  phone?: string;
-  companyName?: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
+export type InsuranceCustomer =
+  InsuranceCustomersQuery['insuranceCustomers'][number];
 
 export interface InsuranceContract {
   id: string;
@@ -112,16 +74,6 @@ export interface InsuranceContract {
 }
 
 // Input Types
-export interface InsuranceCustomerInput {
-  firstName: string;
-  lastName: string;
-  type: CustomerType;
-  registrationNumber: string;
-  email?: string;
-  phone?: string;
-  companyName?: string;
-}
-
 export interface CoveredRiskInput {
   riskId: string;
   coveragePercentage: number;

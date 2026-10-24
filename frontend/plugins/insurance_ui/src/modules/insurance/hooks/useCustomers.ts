@@ -1,6 +1,5 @@
 import { useQuery, useMutation } from '@apollo/client';
 import { queries, mutations } from '../graphql';
-import { InsuranceCustomer } from '../types';
 
 export function useCustomers() {
   const { data, loading, error, refetch } = useQuery(
@@ -8,7 +7,7 @@ export function useCustomers() {
   );
 
   return {
-    customers: (data?.insuranceCustomers || []) as InsuranceCustomer[],
+    customers: data?.insuranceCustomers || [],
     loading,
     error,
     refetch,
@@ -22,7 +21,7 @@ export function useCustomer(id: string) {
   });
 
   return {
-    customer: data?.insuranceCustomer as InsuranceCustomer | undefined,
+    customer: data?.insuranceCustomer,
     loading,
     error,
   };
