@@ -6,6 +6,7 @@ export interface IBranchListItem {
   code: string;
   address: string;
   parentId: string;
+  supervisorId?: string;
   userCount: number;
   title: string;
   order: string;

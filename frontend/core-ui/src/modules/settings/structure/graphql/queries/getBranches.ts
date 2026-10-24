@@ -9,12 +9,9 @@ const GET_BRANCHES_LIST = gql`
     $onlyFirstLevel: Boolean
     $parentId: String
     $sortField: String
-    $limit: Int
-    $cursor: String
-    $direction: CURSOR_DIRECTION
     $withoutUserFilter: Boolean
   ) {
-    branchesMain(
+    branches(
       ids: $ids
       excludeIds: $excludeIds
       searchValue: $searchValue
@@ -22,27 +19,16 @@ const GET_BRANCHES_LIST = gql`
       onlyFirstLevel: $onlyFirstLevel
       parentId: $parentId
       sortField: $sortField
-      limit: $limit
-      cursor: $cursor
-      direction: $direction
       withoutUserFilter: $withoutUserFilter
     ) {
-      list {
-        _id
-        address
-        code
-        parentId
-        userCount
-        title
-        order
-      }
-      pageInfo {
-        endCursor
-        hasNextPage
-        hasPreviousPage
-        startCursor
-      }
-      totalCount
+      _id
+      address
+      code
+      parentId
+      supervisorId
+      userCount
+      title
+      order
     }
   }
 `;

@@ -983,7 +983,21 @@
     "position-created": "Position created successfully",
     "create-position": "Create Position",
     "create-position-title": "Create position",
-    "position-updated": "Position updated successfully"
+    "position-updated": "Position updated successfully",
+    "list-view": "List",
+    "chart-view": "Chart",
+    "no-supervisor": "No supervisor",
+    "expand": "Expand",
+    "collapse": "Collapse",
+    "chart-empty": "No records to show",
+    "add-child": "Add child",
+    "insert-here": "Insert here",
+    "zoom-in": "Zoom in",
+    "zoom-out": "Zoom out",
+    "fit-view": "Fit to screen",
+    "expand-all": "Expand all",
+    "collapse-all": "Collapse all",
+    "edit-structure": "Edit"
   },
   "owner-permissions-title": "The Don of this workspace",
   "owner-permissions-hint": "The owner makes the rules here, so there is nothing to set. Permissions are for the rest of the family."
