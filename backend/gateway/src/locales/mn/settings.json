@@ -984,7 +984,18 @@
     "fit-view": "Дэлгэцэнд багтаах",
     "expand-all": "Бүгдийг дэлгэх",
     "collapse-all": "Бүгдийг хураах",
-    "edit-structure": "Засах"
+    "edit-structure": "Засах",
+    "location": "Байршил",
+    "location-search-placeholder": "Газар хайх, эсвэл координат/холбоос оруулах",
+    "use-current-location": "Одоогийн байршлаа ашиглах",
+    "coordinates-recognised": "Координат танигдлаа. Pin тавихын тулд Enter дарна уу",
+    "short-map-link": "Богино холбоосыг уншиж чадахгүй. Бүтэн холбоос эсвэл координат оруулна уу",
+    "location-not-found": "Газар олдсонгүй",
+    "location-search-failed": "Байршил хайхад алдаа гарлаа",
+    "location-unavailable": "Байршлыг тодорхойлж чадсангүй",
+    "no-location": "Байршил тохируулаагүй",
+    "edit-manually": "Гараар засах",
+    "clear-location": "Арилгах"
   },
   "owner-permissions-title": "Энэ workspace-ийн Дон",
   "owner-permissions-hint": "Дүрмийг эзэмшигч өөрөө тогтоодог тул энд тохируулах зүйл алга. Эрх нь гэр бүлийн бусад гишүүдэд."

@@ -10,6 +10,7 @@ export interface IBranchListItem {
   userCount: number;
   title: string;
   order: string;
+  coordinate?: { latitude?: string | null; longitude?: string | null } | null;
   hasChildren?: boolean;
 }
 export enum BranchHotKeyScope {

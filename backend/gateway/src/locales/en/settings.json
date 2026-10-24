@@ -997,7 +997,18 @@
     "fit-view": "Fit to screen",
     "expand-all": "Expand all",
     "collapse-all": "Collapse all",
-    "edit-structure": "Edit"
+    "edit-structure": "Edit",
+    "location": "Location",
+    "location-search-placeholder": "Search a place, or paste coordinates or a map link",
+    "use-current-location": "Use my current location",
+    "coordinates-recognised": "Coordinates recognised. Press Enter to drop the pin",
+    "short-map-link": "Short map links can't be read. Paste the full link or the coordinates",
+    "location-not-found": "No places found",
+    "location-search-failed": "Location search failed",
+    "location-unavailable": "Couldn't get your location",
+    "no-location": "No location set",
+    "edit-manually": "Edit manually",
+    "clear-location": "Clear"
   },
   "owner-permissions-title": "The Don of this workspace",
   "owner-permissions-hint": "The owner makes the rules here, so there is nothing to set. Permissions are for the rest of the family."

@@ -29,6 +29,10 @@ const GET_BRANCHES_LIST = gql`
       userCount
       title
       order
+      coordinate {
+        latitude
+        longitude
+      }
     }
   }
 `;
