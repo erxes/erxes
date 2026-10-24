@@ -7,9 +7,11 @@ import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { NavigationMenuLinkItem, Sidebar, cn } from 'erxes-ui';
 import React, { useEffect, useMemo, useState } from 'react';
-import { usePermissionCheck, useVersion } from 'ui-modules';
+import { currentUserState, usePermissionCheck, useVersion } from 'ui-modules';
+import { useAtomValue } from 'jotai';
 
 import { AppPath } from '@/types/paths/AppPath';
+import { SettingsWorkspacePath } from '@/types/paths/SettingsPath';
 import { GET_CORE_MODULES } from '~/plugins/constants/core-plugins.constants';
 import { NavigationDisclosure } from '@/navigation/components/app-sidebar/NavigationDisclosure';
 import { findActiveNavigationPath } from '@/navigation/utils/navigationPathMatch';
@@ -21,6 +23,7 @@ export function SettingsSidebar() {
   const { isLoaded, isWildcard, hasModulePermission } = usePermissionCheck();
 
   const version = useVersion();
+  const isOwner = useAtomValue(currentUserState)?.isOwner;
   const { t } = useTranslation('common', { keyPrefix: 'sidebar' });
 
   const CORE_MODULES = GET_CORE_MODULES(t, version);
@@ -36,7 +39,10 @@ export function SettingsSidebar() {
     });
   };
 
-  const filteredNav = filterByPermission(sidebar.nav);
+  // Extensions are managed by the workspace owner only.
+  const filteredNav = filterByPermission(sidebar.nav).filter(
+    (item) => isOwner || item.path !== SettingsWorkspacePath.Extensions,
+  );
   const filteredDeveloper = filterByPermission(sidebar.developer);
 
   const filteredCoreModules = CORE_MODULES.filter((item) => {
