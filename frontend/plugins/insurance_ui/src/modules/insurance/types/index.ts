@@ -1,3 +1,5 @@
+import type { PricingConfig } from './pricing';
+
 // Customer Types
 export enum CustomerType {
   INDIVIDUAL = 'individual',
@@ -89,7 +91,7 @@ export interface InsuranceProduct {
   insuranceType: InsuranceType;
   regions?: InsuranceRegion[];
   coveredRisks: CoveredRisk[];
-  pricingConfig: any;
+  pricingConfig: PricingConfig | null;
   pdfContent?: string;
   additionalCoverages?: AdditionalCoverage[];
   compensationCalculations?: CompensationCalculation[];
@@ -100,7 +102,7 @@ export interface InsuranceProduct {
 
 export interface InsuranceVendorProduct {
   product: InsuranceProduct;
-  pricingOverride?: any;
+  pricingOverride?: PricingConfig | null;
   discountTiers?: DiscountTier[];
 }
 

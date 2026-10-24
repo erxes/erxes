@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useLazyQuery } from '@apollo/client';
+import type { InsuranceRegion } from '../types';
 import {
   INSURANCE_REGIONS,
   INSURANCE_REGION,
@@ -16,7 +17,7 @@ import {
 export const useRegions = () => {
   const { data, loading, error, refetch } = useQuery(INSURANCE_REGIONS);
   return {
-    regions: data?.insuranceRegions || [],
+    regions: (data?.insuranceRegions || []) as InsuranceRegion[],
     loading,
     error,
     refetch,

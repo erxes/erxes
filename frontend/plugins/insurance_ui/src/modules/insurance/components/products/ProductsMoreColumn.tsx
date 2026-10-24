@@ -1,4 +1,4 @@
-import { IconEye, IconEdit, IconTrash, IconDotsVertical } from '@tabler/icons-react';
+import { IconEdit, IconTrash, IconDotsVertical } from '@tabler/icons-react';
 import { Button, DropdownMenu } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { InsuranceProduct } from '~/modules/insurance/types';

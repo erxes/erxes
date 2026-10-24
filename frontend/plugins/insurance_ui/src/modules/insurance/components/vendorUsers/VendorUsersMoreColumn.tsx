@@ -17,7 +17,7 @@ export const VendorUsersMoreColumn = ({
   const { deleteVendorUser } = useDeleteVendorUser();
 
   const handleDelete = async () => {
-    if (confirm(t('confirm-delete-user'))) {
+    if (window.confirm(t('confirm-delete-user'))) {
       await deleteVendorUser(user.id);
       onRefetch();
     }

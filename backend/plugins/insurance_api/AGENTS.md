@@ -42,6 +42,7 @@
 
 - GraphQL documents assembled by `src/apollo/typeDefs.ts` from shared scalar/common types and Insurance's SDL. There is no Insurance subscription module.
 - Contract preview and PDF handlers at `/contracts/:id/preview` and `/contracts/:id/pdf`.
+- Insurance-type create/update operations accept optional `isCitizen`; `addProductToVendor` accepts optional `discountTiers` alongside its JSON pricing override. Frontend input types must retain these arguments.
 - Existing JSON fields for product `pricingConfig`, vendor-product `pricingOverride`, and contract `insuredObject`.
 - Nx target `schema:print` (cached, output `generated/schema.graphql`, gitignored), composed with every other subgraph by `gateway:schema:compose`.
 

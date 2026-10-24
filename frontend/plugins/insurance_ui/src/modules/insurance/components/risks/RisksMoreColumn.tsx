@@ -6,7 +6,6 @@ import { useDeleteRiskType } from '~/modules/insurance/hooks';
 export const RisksMoreColumn = ({ cell }: { cell: any }) => {
   const { t } = useTranslation('insurance');
   const riskId = cell.row.original.id;
-  const riskName = cell.row.original.name;
   const { deleteRiskType, loading } = useDeleteRiskType();
 
   const handleDelete = async () => {

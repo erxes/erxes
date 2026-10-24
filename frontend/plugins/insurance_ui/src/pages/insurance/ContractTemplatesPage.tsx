@@ -68,7 +68,7 @@ export default function ContractTemplatesPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (confirm(t('delete-template-confirm'))) {
+    if (window.confirm(t('delete-template-confirm'))) {
       try {
         await deleteContractTemplate({ variables: { id } });
       } catch (error) {

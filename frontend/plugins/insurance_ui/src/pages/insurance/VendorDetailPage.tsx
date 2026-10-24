@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { nanoid } from 'nanoid';
 import {
   IconSandbox,
   IconBuilding,
@@ -33,7 +34,7 @@ import {
   useAddProductToVendor,
   useRemoveProductFromVendor,
 } from '~/modules/insurance/hooks';
-import { VendorUser } from '~/modules/insurance/types';
+import { InsuranceVendorProduct, VendorUser } from '~/modules/insurance/types';
 import { VendorUserForm } from '~/modules/insurance/components';
 
 export const VendorDetailPage = () => {
@@ -50,15 +51,16 @@ export const VendorDetailPage = () => {
   const [editingUser, setEditingUser] = useState<VendorUser | undefined>();
   const [isProductDialogOpen, setIsProductDialogOpen] = useState(false);
   const [selectedProductId, setSelectedProductId] = useState('');
-  const [vendorPercentage, setVendorPercentage] = useState<number | undefined>(
-    undefined,
-  );
+  const [vendorPercentage, setVendorPercentage] = useState<
+    number | string | undefined
+  >(undefined);
   const [vendorDurationFields, setVendorDurationFields] = useState<
-    { duration: string; percentage: number }[]
+    { rowId: string; duration: string; percentage: number | string }[]
   >([]);
-  const [editingProduct, setEditingProduct] = useState<any>(null);
+  const [editingProduct, setEditingProduct] =
+    useState<InsuranceVendorProduct | null>(null);
   const [discountTiers, setDiscountTiers] = useState<
-    { minTravelers: number; discountPercent: number }[]
+    { rowId: string; minTravelers: number; discountPercent: number }[]
   >([]);
 
   const handleEdit = (user: VendorUser) => {
@@ -81,14 +83,14 @@ export const VendorDetailPage = () => {
   };
 
   const handleDelete = async (userId: string) => {
-    if (confirm(t('confirm-delete-user'))) {
+    if (window.confirm(t('confirm-delete-user'))) {
       await deleteVendorUser(userId);
       refetch();
     }
   };
 
   const handleRemoveProduct = async (productId: string) => {
-    if (confirm(t('remove-product-confirm'))) {
+    if (window.confirm(t('remove-product-confirm'))) {
       try {
         await removeProductFromVendor({
           variables: {
@@ -102,7 +104,7 @@ export const VendorDetailPage = () => {
     }
   };
 
-  const handleEditProduct = (vp: any) => {
+  const handleEditProduct = (vp: InsuranceVendorProduct) => {
     setEditingProduct(vp);
     setSelectedProductId(vp.product.id);
 
@@ -114,8 +116,9 @@ export const VendorDetailPage = () => {
         const durationFields = Object.entries(
           vp.pricingOverride.percentageByDuration,
         ).map(([duration, percentage]) => ({
+          rowId: nanoid(),
           duration,
-          percentage: percentage as number,
+          percentage,
         }));
         setVendorDurationFields(durationFields);
       } else {
@@ -130,6 +133,7 @@ export const VendorDetailPage = () => {
       setDiscountTiers(
         vp.discountTiers.map(
           (t: { minTravelers: number; discountPercent: number }) => ({
+            rowId: nanoid(),
             minTravelers: t.minTravelers,
             discountPercent: t.discountPercent,
           }),
@@ -149,7 +153,7 @@ export const VendorDetailPage = () => {
       let pricingOverride = null;
 
       if (vendorDurationFields.length > 0) {
-        const percentageByDuration: Record<string, number> = {};
+        const percentageByDuration: Record<string, number | string> = {};
         vendorDurationFields.forEach((f) => {
           if (f.duration) {
             percentageByDuration[f.duration] = f.percentage;
@@ -180,7 +184,12 @@ export const VendorDetailPage = () => {
           pricingOverride,
           discountTiers:
             discountTiers.length > 0
-              ? discountTiers.filter((t) => t.minTravelers > 0)
+              ? discountTiers
+                  .filter((t) => t.minTravelers > 0)
+                  .map(({ minTravelers, discountPercent }) => ({
+                    minTravelers,
+                    discountPercent,
+                  }))
               : undefined,
         },
       });
@@ -303,7 +312,7 @@ export const VendorDetailPage = () => {
               </div>
               {vendor.offeredProducts.length > 0 ? (
                 <div className="space-y-2">
-                  {vendor.offeredProducts.map((vp: any) => (
+                  {vendor.offeredProducts.map((vp: InsuranceVendorProduct) => (
                     <div
                       key={vp.product.id}
                       className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
@@ -546,7 +555,7 @@ export const VendorDetailPage = () => {
                   onClick={() => {
                     setVendorDurationFields([
                       ...vendorDurationFields,
-                      { duration: '', percentage: 0 },
+                      { rowId: nanoid(), duration: '', percentage: 0 },
                     ]);
                   }}
                 >
@@ -560,8 +569,8 @@ export const VendorDetailPage = () => {
                 </p>
               ) : (
                 <div className="space-y-2">
-                  {vendorDurationFields.map((field) => (
-                    <div key={field.key} className="flex gap-2 items-end">
+                  {vendorDurationFields.map((field, index) => (
+                    <div key={field.rowId} className="flex gap-2 items-end">
                       <div className="flex-1">
                         <Label className="text-xs">{t('duration')}</Label>
                         <Input
@@ -629,7 +638,11 @@ export const VendorDetailPage = () => {
                   onClick={() => {
                     setDiscountTiers([
                       ...discountTiers,
-                      { minTravelers: 5, discountPercent: 10 },
+                      {
+                        rowId: nanoid(),
+                        minTravelers: 5,
+                        discountPercent: 10,
+                      },
                     ]);
                   }}
                 >
@@ -644,11 +657,8 @@ export const VendorDetailPage = () => {
                 </p>
               ) : (
                 <div className="space-y-2">
-                  {discountTiers.map((tier) => (
-                    <div
-                      key={tier.minTravelers}
-                      className="flex gap-2 items-end"
-                    >
+                  {discountTiers.map((tier, index) => (
+                    <div key={tier.rowId} className="flex gap-2 items-end">
                       <div className="flex-1">
                         <Label className="text-xs">Хүний тоо (≥)</Label>
                         <Input
