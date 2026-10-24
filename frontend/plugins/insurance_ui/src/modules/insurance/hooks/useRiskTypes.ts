@@ -1,12 +1,19 @@
 import { useQuery, useMutation, MutationHookOptions } from '@apollo/client';
+import type {
+  InsuranceCreateRiskTypeMutation,
+  InsuranceCreateRiskTypeMutationVariables,
+  InsuranceDeleteRiskTypeMutation,
+  InsuranceDeleteRiskTypeMutationVariables,
+  InsuranceUpdateRiskTypeMutation,
+  InsuranceUpdateRiskTypeMutationVariables,
+} from '~/gql/graphql';
 import { queries, mutations } from '../graphql';
-import { RiskType } from '../types';
 
 export function useRiskTypes() {
   const { data, loading, error, refetch } = useQuery(queries.RISK_TYPES);
 
   return {
-    riskTypes: (data?.riskTypes || []) as RiskType[],
+    riskTypes: data?.riskTypes || [],
     loading,
     error,
     refetch,
@@ -20,7 +27,7 @@ export function useRiskType(id: string) {
   });
 
   return {
-    riskType: data?.riskType as RiskType | undefined,
+    riskType: data?.riskType,
     loading,
     error,
   };
@@ -28,48 +35,51 @@ export function useRiskType(id: string) {
 
 export function useCreateRiskType(
   options?: MutationHookOptions<
-    { createRiskType: RiskType },
-    { name: string; description?: string }
+    InsuranceCreateRiskTypeMutation,
+    InsuranceCreateRiskTypeMutationVariables
   >,
 ) {
-  const [createRiskType, { loading, error }] = useMutation<
-    { createRiskType: RiskType },
-    { name: string; description?: string }
-  >(mutations.CREATE_RISK_TYPE, {
-    refetchQueries: ['RiskTypes'],
-    ...options,
-  });
+  const [createRiskType, { loading, error }] = useMutation(
+    mutations.CREATE_RISK_TYPE,
+    {
+      refetchQueries: ['InsuranceRiskTypes'],
+      ...options,
+    },
+  );
 
   return { createRiskType, loading, error };
 }
 
 export function useUpdateRiskType(
   options?: MutationHookOptions<
-    { updateRiskType: RiskType },
-    { id: string; name?: string; description?: string }
+    InsuranceUpdateRiskTypeMutation,
+    InsuranceUpdateRiskTypeMutationVariables
   >,
 ) {
-  const [updateRiskType, { loading, error }] = useMutation<
-    { updateRiskType: RiskType },
-    { id: string; name?: string; description?: string }
-  >(mutations.UPDATE_RISK_TYPE, {
-    refetchQueries: ['RiskTypes', 'RiskType'],
-    ...options,
-  });
+  const [updateRiskType, { loading, error }] = useMutation(
+    mutations.UPDATE_RISK_TYPE,
+    {
+      refetchQueries: ['InsuranceRiskTypes', 'InsuranceRiskType'],
+      ...options,
+    },
+  );
 
   return { updateRiskType, loading, error };
 }
 
 export function useDeleteRiskType(
-  options?: MutationHookOptions<{ deleteRiskType: boolean }, { id: string }>,
+  options?: MutationHookOptions<
+    InsuranceDeleteRiskTypeMutation,
+    InsuranceDeleteRiskTypeMutationVariables
+  >,
 ) {
-  const [deleteRiskType, { loading, error }] = useMutation<
-    { deleteRiskType: boolean },
-    { id: string }
-  >(mutations.DELETE_RISK_TYPE, {
-    refetchQueries: ['RiskTypes'],
-    ...options,
-  });
+  const [deleteRiskType, { loading, error }] = useMutation(
+    mutations.DELETE_RISK_TYPE,
+    {
+      refetchQueries: ['InsuranceRiskTypes'],
+      ...options,
+    },
+  );
 
   return { deleteRiskType, loading, error };
 }

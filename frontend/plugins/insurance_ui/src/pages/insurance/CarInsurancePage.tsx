@@ -24,6 +24,8 @@ import {
   PaymentSection,
   FormSubmitButtons,
 } from '~/modules/insurance/components';
+import { toPricingConfig } from '~/modules/insurance/utils/pricing';
+import { hasProduct } from '~/modules/insurance/utils/vendorProducts';
 
 export const CarInsurancePage = () => {
   const { t } = useTranslation('insurance');
@@ -53,8 +55,8 @@ export const CarInsurancePage = () => {
   // Filter products for Vehicle/Car insurance type
   const carInsuranceType = insuranceTypes.find(
     (t) =>
-      t.name.toLowerCase().includes('vehicle') ||
-      t.name.toLowerCase().includes('car'),
+      t.name?.toLowerCase().includes('vehicle') ||
+      t.name?.toLowerCase().includes('car'),
   );
 
   // Get selected vendor
@@ -63,13 +65,15 @@ export const CarInsurancePage = () => {
   // Filter products based on selected vendor's offered products
   const products = selectedVendor
     ? selectedVendor.offeredProducts
+        .filter(hasProduct)
         .filter((vp) => {
           // Filter out products with pricingOverride.percentage === 0
           // If no pricingOverride exists, include the product
-          if (!vp.pricingOverride) return true;
+          const pricingOverride = toPricingConfig(vp.pricingOverride);
+          if (!pricingOverride) return true;
 
           // If pricingOverride exists, check the percentage value
-          const percentage = vp.pricingOverride.percentage;
+          const percentage = pricingOverride.percentage;
 
           // If percentage is undefined or null, include the product
           if (percentage === undefined || percentage === null) return true;
@@ -97,14 +101,17 @@ export const CarInsurancePage = () => {
 
   // Get selected product for premium calculation
   const selectedProduct = products.find((p) => p.id === formData.productId);
+  const percentageByDuration = toPricingConfig(
+    selectedProduct?.pricingConfig,
+  )?.percentageByDuration;
 
   // Get vendor's pricing override for the selected product
   const getVendorPricing = () => {
     if (!selectedVendor || !selectedProduct) return null;
     const vendorProduct = selectedVendor.offeredProducts.find(
-      (vp) => vp.product.id === selectedProduct.id,
+      (vp) => vp.product?.id === selectedProduct.id,
     );
-    return vendorProduct?.pricingOverride;
+    return toPricingConfig(vendorProduct?.pricingOverride);
   };
 
   const vendorPricing = getVendorPricing();
@@ -146,8 +153,9 @@ export const CarInsurancePage = () => {
     }
 
     // Check if product has duration-based pricing
-    const percentageByDuration =
-      selectedProduct.pricingConfig?.percentageByDuration;
+    const percentageByDuration = toPricingConfig(
+      selectedProduct.pricingConfig,
+    )?.percentageByDuration;
     if (percentageByDuration && durationInMonths > 0) {
       const durationKey = `${durationInMonths}months`;
       if (percentageByDuration[durationKey] !== undefined) {
@@ -156,7 +164,7 @@ export const CarInsurancePage = () => {
     }
 
     // Fall back to product's base percentage
-    return selectedProduct.pricingConfig?.percentage || 3;
+    return toPricingConfig(selectedProduct.pricingConfig)?.percentage || 3;
   };
 
   const productPercentage = getEffectivePercentage();
@@ -164,7 +172,7 @@ export const CarInsurancePage = () => {
   // Calculate premium based on effective percentage and assessed value
   const calculatePremium = () => {
     if (!selectedProduct || !insuredObject.assessedValue) return 0;
-    return insuredObject.assessedValue * (productPercentage / 100);
+    return insuredObject.assessedValue * (Number(productPercentage) / 100);
   };
 
   const calculatedPremium = calculatePremium();
@@ -183,7 +191,6 @@ export const CarInsurancePage = () => {
           startDate: formData.startDate,
           endDate: formData.endDate,
           paymentKind: formData.paymentKind,
-          chargedAmount: calculatedPremium,
         },
       });
       setSuccess(true);
@@ -488,7 +495,7 @@ export const CarInsurancePage = () => {
                       <label className="block text-sm font-medium mb-2">
                         {t('duration-required')}
                       </label>
-                      {selectedProduct?.pricingConfig?.percentageByDuration ? (
+                      {percentageByDuration ? (
                         <Select
                           value={
                             durationInMonths > 0
@@ -510,22 +517,20 @@ export const CarInsurancePage = () => {
                             <Select.Value placeholder={t('select-duration')} />
                           </Select.Trigger>
                           <Select.Content>
-                            {Object.keys(
-                              selectedProduct.pricingConfig
-                                .percentageByDuration,
-                            ).map((duration) => {
-                              const months = Number.parseFloat(
-                                duration.replace('months', ''),
-                              );
-                              const percentage =
-                                selectedProduct.pricingConfig
-                                  .percentageByDuration[duration];
-                              return (
-                                <Select.Item key={duration} value={duration}>
-                                  {months} {t('months')} ({percentage}%)
-                                </Select.Item>
-                              );
-                            })}
+                            {Object.keys(percentageByDuration).map(
+                              (duration) => {
+                                const months = Number.parseFloat(
+                                  duration.replace('months', ''),
+                                );
+                                const percentage =
+                                  percentageByDuration[duration];
+                                return (
+                                  <Select.Item key={duration} value={duration}>
+                                    {months} {t('months')} ({percentage}%)
+                                  </Select.Item>
+                                );
+                              },
+                            )}
                           </Select.Content>
                         </Select>
                       ) : (
@@ -538,7 +543,7 @@ export const CarInsurancePage = () => {
                         />
                       )}
                       {selectedProduct &&
-                        !selectedProduct.pricingConfig
+                        !toPricingConfig(selectedProduct.pricingConfig)
                           ?.percentageByDuration && (
                           <p className="text-xs text-muted-foreground mt-1">
                             {t('end-date')}

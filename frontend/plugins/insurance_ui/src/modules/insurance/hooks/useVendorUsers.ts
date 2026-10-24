@@ -1,6 +1,9 @@
 import { useQuery, useMutation } from '@apollo/client';
 import { queries, mutations } from '../graphql';
-import { VendorUser } from '../types';
+import type {
+  InsuranceCreateVendorUserMutationVariables,
+  InsuranceUpdateVendorUserMutationVariables,
+} from '~/gql/graphql';
 
 export const useVendorUsers = (vendorId?: string) => {
   const { data, loading, error, refetch } = useQuery(queries.VENDOR_USERS, {
@@ -9,7 +12,7 @@ export const useVendorUsers = (vendorId?: string) => {
   });
 
   return {
-    vendorUsers: (data?.vendorUsers || []) as VendorUser[],
+    vendorUsers: data?.vendorUsers || [],
     loading,
     error,
     refetch,
@@ -23,7 +26,7 @@ export const useVendorUser = (id: string) => {
   });
 
   return {
-    vendorUser: data?.vendorUser as VendorUser | undefined,
+    vendorUser: data?.vendorUser,
     loading,
     error,
   };
@@ -35,16 +38,11 @@ export const useCreateVendorUser = () => {
   );
 
   return {
-    createVendorUser: async (variables: {
-      name?: string;
-      email: string;
-      phone?: string;
-      password: string;
-      vendorId: string;
-      role?: string;
-    }) => {
+    createVendorUser: async (
+      variables: InsuranceCreateVendorUserMutationVariables,
+    ) => {
       const result = await createVendorUser({ variables });
-      return result.data?.createVendorUser as VendorUser;
+      return result.data?.createVendorUser;
     },
     loading,
     error,
@@ -57,16 +55,11 @@ export const useUpdateVendorUser = () => {
   );
 
   return {
-    updateVendorUser: async (variables: {
-      id: string;
-      name?: string;
-      email?: string;
-      phone?: string;
-      password?: string;
-      role?: string;
-    }) => {
+    updateVendorUser: async (
+      variables: InsuranceUpdateVendorUserMutationVariables,
+    ) => {
       const result = await updateVendorUser({ variables });
-      return result.data?.updateVendorUser as VendorUser;
+      return result.data?.updateVendorUser;
     },
     loading,
     error,

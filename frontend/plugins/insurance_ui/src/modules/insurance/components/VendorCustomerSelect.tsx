@@ -8,8 +8,8 @@ interface Vendor {
 
 interface Customer {
   id: string;
-  firstName: string;
-  lastName: string;
+  firstName: string | null;
+  lastName: string | null;
 }
 
 interface VendorCustomerSelectProps {

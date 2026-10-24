@@ -15,12 +15,12 @@ import {
 const attributesColumn: ColumnDef<InsuranceType> = {
   id: 'attributes',
   accessorKey: 'attributes',
-  header: () => {
+  header: function InsuranceAttributesHeader() {
     const { t } = useTranslation('insurance');
     return <RecordTable.InlineHead icon={IconList} label={t('attributes')} />;
   },
   cell: ({ cell }) => {
-    const attributes = cell.getValue() as any[];
+    const attributes = cell.row.original.attributes;
     return (
       <RecordTableInlineCell>
         <Badge variant="secondary">{attributes?.length || 0} attributes</Badge>
