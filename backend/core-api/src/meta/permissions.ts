@@ -40,6 +40,23 @@ export const permissions: IPermissionConfig = {
       ],
     },
     {
+      name: 'notificationTemplates',
+      description: 'Notification email templates',
+      scopeField: null,
+      ownerFields: [],
+
+      scopes: [{ name: 'all', description: 'All templates' }],
+
+      actions: [
+        {
+          title: 'Manage notification templates',
+          name: 'notificationTemplatesManage',
+          description:
+            'Edit, publish and revert notification emails and the email brand',
+        },
+      ],
+    },
+    {
       name: 'contacts',
       description: 'Contact management',
       scopeField: null,

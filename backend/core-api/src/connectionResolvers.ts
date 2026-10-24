@@ -161,6 +161,11 @@ import {
   IEmailTemplateModel,
   loadEmailTemplateClass,
 } from './modules/emailTemplates/db/models/EmailTemplates';
+import { INotificationTemplateDocument } from './modules/notificationTemplates/db/definitions/notificationTemplates';
+import {
+  INotificationTemplateModel,
+  loadNotificationTemplateClass,
+} from './modules/notificationTemplates/db/models/NotificationTemplates';
 import {
   IAutomationWorkflowTemplateDocument,
   IAutomationWorkflowTemplateModel,
@@ -417,6 +422,7 @@ export interface IModels {
   Automations: IAutomationModel;
   AutomationExecutions: IExecutionModel;
   EmailTemplates: IEmailTemplateModel;
+  NotificationTemplates: INotificationTemplateModel;
   AutomationWorkflowTemplates: IAutomationWorkflowTemplateModel;
   Logs: ILogModel;
   Imports: IImportModel;
@@ -735,6 +741,11 @@ export const loadClasses = (
     'automation_email_templates',
     loadEmailTemplateClass(models),
   );
+
+  models.NotificationTemplates = db.model<
+    INotificationTemplateDocument,
+    INotificationTemplateModel
+  >('notification_templates', loadNotificationTemplateClass(models));
 
   models.AutomationWorkflowTemplates = db.model<
     IAutomationWorkflowTemplateDocument,

@@ -4,7 +4,8 @@ export const types = `
   type NotificationModuleEvent {
     name:String,
     title:String,
-    description:String
+    description:String,
+    defaultChannels:[String]
   }
 
   type NotificationModule {

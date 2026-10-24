@@ -39,5 +39,6 @@ export const notifyIntegrationBroken = async (
     contentTypeId: integration._id,
     action: 'healthBroken',
     notificationType: 'integrationHealthBroken',
+    event: 'frontline:integrations:integrationHealthBroken',
   });
 };
