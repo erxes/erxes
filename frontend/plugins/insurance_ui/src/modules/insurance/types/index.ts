@@ -1,3 +1,9 @@
+import type {
+  InsuranceProductsQuery,
+  InsuranceRegionsQuery,
+  InsuranceRiskTypesQuery,
+  InsuranceTypesQuery,
+} from '~/gql/graphql';
 import type { PricingConfig } from './pricing';
 
 // Customer Types
@@ -6,33 +12,9 @@ export enum CustomerType {
   COMPANY = 'company',
 }
 
-export interface RiskType {
-  id: string;
-  name: string;
-  description?: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
+export type RiskType = InsuranceRiskTypesQuery['riskTypes'][number];
 
-export interface AttributeDefinition {
-  name: string;
-  dataType: string;
-  required: boolean;
-  description?: string;
-  options?: string[];
-  min?: number;
-  max?: number;
-  subAttributes?: AttributeDefinition[];
-}
-
-export interface InsuranceType {
-  id: string;
-  name: string;
-  isCitizen?: boolean;
-  attributes: AttributeDefinition[];
-  createdAt: Date;
-  updatedAt: Date;
-}
+export type InsuranceType = InsuranceTypesQuery['insuranceTypes'][number];
 
 export interface CoveredRisk {
   risk: RiskType;
@@ -54,26 +36,11 @@ export interface DeductibleConfig {
   levels: string[];
 }
 
-export interface InsuranceRegion {
-  id: string;
-  name: string;
-  countries: string[];
-  createdAt: Date;
-  updatedAt: Date;
-}
+export type InsuranceRegion = InsuranceRegionsQuery['insuranceRegions'][number];
 
 export interface DiscountTier {
   minTravelers: number;
   discountPercent: number;
-}
-
-export interface TravelPriceResult {
-  perPerson: number;
-  total: number;
-  discountPercent: number;
-  days: number;
-  travelerCount: number;
-  dailyRate: number;
 }
 
 export interface Traveler {
@@ -85,20 +52,8 @@ export interface Traveler {
   passportNumber: string;
 }
 
-export interface InsuranceProduct {
-  id: string;
-  name: string;
-  insuranceType: InsuranceType;
-  regions?: InsuranceRegion[];
-  coveredRisks: CoveredRisk[];
-  pricingConfig: PricingConfig | null;
-  pdfContent?: string;
-  additionalCoverages?: AdditionalCoverage[];
-  compensationCalculations?: CompensationCalculation[];
-  deductibleConfig?: DeductibleConfig;
-  createdAt: Date;
-  updatedAt: Date;
-}
+export type InsuranceProduct =
+  InsuranceProductsQuery['insuranceProducts'][number];
 
 export interface InsuranceVendorProduct {
   product: InsuranceProduct;
@@ -157,17 +112,6 @@ export interface InsuranceContract {
 }
 
 // Input Types
-export interface AttributeInput {
-  name: string;
-  dataType: string;
-  required?: boolean;
-  description?: string;
-  options?: string[];
-  min?: number;
-  max?: number;
-  subAttributes?: AttributeInput[];
-}
-
 export interface InsuranceCustomerInput {
   firstName: string;
   lastName: string;

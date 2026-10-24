@@ -70,10 +70,12 @@
   no `content`/`subGroup`.
 - Keep insurance-specific UI inside `frontend/plugins/insurance_ui`.
 - Module Federation exposes, route paths, and named exports must stay aligned.
+- Risk-type, insurance-type, product, region and travel-price documents are `gql()` calls from `~/gql`, and their hooks infer result and variable types from those documents. `RiskType`, `InsuranceType`, `InsuranceRegion` and `InsuranceProduct` in `src/modules/insurance/types` are derived from the generated queries; their nullable fields stay nullable. The remaining vendor, customer, contract and template documents still use `apolloGql` from `@apollo/client` until they are converted.
 - GraphQL documents use static selections without JavaScript interpolation. Operation names start with `Insurance`; update string-based `refetchQueries` whenever an operation is renamed, preserving the backend field names, arguments, and selections.
 - Product/vendor pricing form shapes live in `src/modules/insurance/types/pricing.ts`. Preserve extra JSON keys and legacy string percentages in both base rates and `percentageByDuration` entries; type cleanup must not introduce payload filtering or change pricing defaults/calculations.
+- When the product form loads a product, it copies only the input fields of additional coverages, compensation calculations and the deductible config into form state. Apollo response objects carry `__typename`, which the product mutation inputs reject.
 - Product/vendor duration and vendor discount rows use stable UI-only `rowId` keys assigned when loaded or added. Preserve these keys during edits/removal and omit them from mutation variables; changing an editable value must not change the row identity.
-- Pricing configuration, vendor pricing overrides, and insured objects are existing JSON API contracts. Preserve their payloads and the form state that edits them when changing response types.
+- Pricing configuration, vendor pricing overrides, and insured objects are existing JSON API contracts. Preserve their payloads and the form state that edits them when changing response types. Read a generated `pricingConfig` (`unknown`) through `toPricingConfig` in `src/modules/insurance/utils/pricing.ts`, which keeps the saved object unchanged and treats a non-object as missing; do not replace it with a stripping parser.
 - Vendor mutation documents select nested product regions. Keep these selections aligned with the API's populated responses; do not hide a response error by dropping region fields or coercing pricing JSON in the client.
 - The `InsuranceCustomer` operation selects the public `insuranceCustomer(id: ID!)` field. Preserve that field and its nullable result; customer list rows come from `insuranceCustomers` independently of the single-customer lookup.
 - `src/gql/` is generated, gitignored, and excluded from lint/document scanning. Do not edit generated files manually; JSON maps to `unknown` and Date outputs to `string`.
@@ -88,7 +90,7 @@
 - `pnpm nx lint insurance_ui`
 - `pnpm nx build insurance_ui`
 - `pnpm nx run insurance_ui:codegen --skip-nx-cache`
-- `pnpm nx run insurance_ui:codegen:watch`
+- `pnpm nx run insurance_ui:codegen:watch` (after `codegen`, which composes the schema the watcher reads)
 - `pnpm nx test insurance_ui --passWithNoTests` (Jest is configured; there are currently no test files).
 - `pnpm exec tsc -p frontend/plugins/insurance_ui/tsconfig.app.json --noEmit` (distinguish plugin diagnostics from diagnostics in shared libraries).
 - Smoke scenario: open the insurance navigation and verify insurance type, product, risk, vendor, customer, region, and contract routes load through the remote.

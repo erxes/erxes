@@ -23,6 +23,7 @@ import type {
   TravelFormula,
 } from '../types/pricing';
 import { getDefaultPdfTemplate } from '~/utils/contractPdfGenerator';
+import { toPricingConfig } from '../utils/pricing';
 
 interface ProductFormProps {
   open: boolean;
@@ -105,23 +106,42 @@ export const ProductForm = ({
 
   useEffect(() => {
     if (product) {
+      const pc = toPricingConfig(product.pricingConfig);
       setFormData({
-        name: product.name,
-        insuranceTypeId: product.insuranceType.id,
+        name: product.name ?? '',
+        insuranceTypeId: product.insuranceType?.id ?? '',
         pdfContent: product.pdfContent || '',
-        coveredRisks: product.coveredRisks.map((cr) => ({
-          riskId: cr.risk.id,
-          coveragePercentage: cr.coveragePercentage,
-        })),
-        pricingConfig: product.pricingConfig || { percentage: 3 },
-        additionalCoverages: product.additionalCoverages || [],
-        compensationCalculations: product.compensationCalculations || [],
-        deductibleConfig: product.deductibleConfig || { levels: [] },
+        // A covered risk whose risk was deleted has no ID to submit.
+        coveredRisks: (product.coveredRisks || []).flatMap((cr) =>
+          cr.risk
+            ? [
+                {
+                  riskId: cr.risk.id,
+                  coveragePercentage: cr.coveragePercentage ?? 0,
+                },
+              ]
+            : [],
+        ),
+        pricingConfig: pc || { percentage: 3 },
+        // Copy only input fields: Apollo adds __typename to response objects,
+        // and the mutation inputs reject it.
+        additionalCoverages: (product.additionalCoverages || []).map(
+          ({ name, limits, appliesTo }) => ({
+            name,
+            limits,
+            appliesTo: appliesTo || [],
+          }),
+        ),
+        compensationCalculations: (product.compensationCalculations || []).map(
+          ({ name, methodologies }) => ({ name, methodologies }),
+        ),
+        deductibleConfig: {
+          levels: product.deductibleConfig?.levels || [],
+        },
         regionIds: product.regions?.map((r) => r.id) || [],
       });
 
       // Detect pricing mode from existing config
-      const pc = product.pricingConfig;
       if (pc?.formulas && pc.formulas.length > 0) {
         setPricingMode('formula');
         setFormulas(pc.formulas);
