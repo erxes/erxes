@@ -17,7 +17,23 @@ import { ACCOUNTING_SETTINGS_CODES } from '@/settings/constants/settingsRoutes';
 import { accountingConfigDetailAtom } from '@/settings/states/accountingConfigState';
 import { IConfig } from '@/settings/types/Config';
 import { useAccountingConfigs } from '@/settings/hooks/useAccountingConfigs';
+import { useAccountingConfigEdit } from '@/settings/hooks/useAccountingConfigEdit';
 import { EditAccountingConfig } from '@/settings/syncSettings/EditAccountingConfig';
+
+export const useSyncConfigValueUpdate = (config: IConfig) => {
+  const { editConfig } = useAccountingConfigEdit();
+
+  return (key: string, fieldValue?: string[] | string) => {
+    void editConfig({
+      id: config._id,
+      subId: config.subId,
+      value: {
+        ...config.value,
+        [key]: Array.isArray(fieldValue) ? fieldValue[0] : fieldValue,
+      },
+    });
+  };
+};
 
 export const SyncInitialSkeleton = ({
   rows = 20,
@@ -123,15 +139,17 @@ export const SyncConfigTable = ({
       tableId={tableId}
       className="relative"
     >
-      <RecordTable>
-        <RecordTable.Header showColumnSelector={showColumnSelector} />
-        <RecordTable.Body>
-          <RecordTable.RowList />
-          {isInitialLoading && (
-            <SyncInitialSkeleton rows={20} columns={columns} />
-          )}
-        </RecordTable.Body>
-      </RecordTable>
+      <RecordTable.Scroll>
+        <RecordTable>
+          <RecordTable.Header showColumnSelector={showColumnSelector} />
+          <RecordTable.Body>
+            <RecordTable.RowList />
+            {isInitialLoading && (
+              <SyncInitialSkeleton rows={20} columns={columns} />
+            )}
+          </RecordTable.Body>
+        </RecordTable>
+      </RecordTable.Scroll>
       <EditAccountingConfig code={code} />
       {isEmpty && (
         <AccountingEmptyState
