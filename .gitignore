@@ -75,3 +75,6 @@ cloudflare/mail-worker/.wrangler/
 
 # printed and composed GraphQL schemas (schema:print, gateway:schema:compose)
 backend/**/generated/
+.env.backup.*
+.env.backup.*
+.env.backup.*
