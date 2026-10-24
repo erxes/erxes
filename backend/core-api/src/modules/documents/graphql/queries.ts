@@ -108,9 +108,9 @@ export const documentQueries = {
     const states = await models.ApprovalLocks.getStates({
       user,
       contentType: DOCUMENT_APPROVAL_CONTENT_TYPE,
-      contentIds: list.map((document) => document._id),
+      contentIds: list.map((document) => String(document._id)),
       ownerIdsByContentId: Object.fromEntries(
-        list.map((document) => [document._id, document.createdUserId]),
+        list.map((document) => [String(document._id), document.createdUserId]),
       ),
       action: 'view',
     });
@@ -120,11 +120,11 @@ export const documentQueries = {
       list: await Promise.all(
         list.map(async (document) => {
           const approvalLockState =
-            statesById.get(document._id) ||
+            statesById.get(String(document._id)) ||
             (await models.ApprovalLocks.getState({
               user,
               contentType: DOCUMENT_APPROVAL_CONTENT_TYPE,
-              contentId: document._id,
+              contentId: String(document._id),
               ownerId: document.createdUserId,
               action: 'view',
             }));

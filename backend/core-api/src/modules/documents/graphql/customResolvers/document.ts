@@ -24,7 +24,7 @@ export default {
       models.ApprovalLocks.getState({
         user,
         contentType: DOCUMENT_APPROVAL_CONTENT_TYPE,
-        contentId: document._id,
+        contentId: String(document._id),
         ownerId: document.createdUserId,
         action: 'view',
       })
