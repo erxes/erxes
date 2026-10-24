@@ -62,6 +62,7 @@
 
 - Preserve request tenancy in every resolver and HTTP handler; vendor-user context is separate from the core user context.
 - Keep Insurance-owned schema, persistence, and services inside this plugin.
+- Request text that reaches `$regex` or `new RegExp()` goes through `escapeRegExp` from `erxes-api-shared/utils`, so customer and contract searches match it literally. Contract-number generation builds its prefix from server-side date values only.
 - Do not change JSON field shapes or tighten output nullability solely to satisfy frontend types. Contract changes require resolver/write-path and stored-data evidence and compatibility review.
 - `src/apollo/typeDefs.ts` must stay importable without service startup or models, because the shared printer imports it to build the subgraph SDL.
 
