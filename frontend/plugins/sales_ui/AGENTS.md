@@ -101,7 +101,8 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
 - The deals filter bar filters by one customer and one company (`customerId` / `companyId` URL keys, single-select pickers), passed straight to `deals` / stage queries.
 - Deal detail renders only the properties selected on the deal's pipeline;
   legacy pipelines continue showing all deal properties until their selection is
-  saved for the first time.
+  saved for the first time. That legacy path renders `FieldsInDetail` with
+  `bare`, so the property groups show without the outer card.
 - Deal detail chips (priority, assignee, dates, labels, tags, branch,
   department, broker) render as a field group: a muted label segment, then the
   value and a chevron, e.g. `Broker | None ⌄`; the stage chip has no label.
