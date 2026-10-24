@@ -31,7 +31,7 @@ export const FormMutateLayout = ({
 }) => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
   const [step, setStep] = useAtom(formSetupStepAtom);
-  const { id } = useParams<{ id: string }>();
+  const { id, formId } = useParams<{ id: string; formId: string }>();
 
   const resetFormSetup = useSetAtom(resetFormSetupAtom);
   const navigate = useNavigate();
@@ -77,11 +77,11 @@ export const FormMutateLayout = ({
           <FormMutateLayoutPreviousStepButton />
           <Button type="submit" disabled={isLoading}>
             {isLoading
-              ? id
+              ? formId
                 ? t('updating-form', 'Updating form...')
                 : t('creating-form', 'Creating form...')
               : step === FORM_SETUP_STEPS.CONFIRMATION
-                ? id
+                ? formId
                   ? t('update-form', 'Update form')
                   : t('create-form', 'Create form')
                 : t('next-step', 'Next step')}
