@@ -1,4 +1,4 @@
-import type { IMessageDocument } from './conversationMessages';
+import type { IMessageDocument } from '@/inbox/@types/conversationMessages';
 import { Document } from 'mongoose';
 import {
   ICursorPaginateParams,
@@ -94,6 +94,8 @@ export interface IConversationListParams
   ids?: string[];
   startDate?: string;
   endDate?: string;
+  closedAtFrom?: string;
+  closedAtTo?: string;
   only?: string;
   page?: number;
   perPage?: number;

@@ -13,6 +13,7 @@ export type InboxConversationQueryState = {
   status: string;
   conversationId: string;
   created: string;
+  resolved: string;
   brandId: string;
   searchValue: string;
 };

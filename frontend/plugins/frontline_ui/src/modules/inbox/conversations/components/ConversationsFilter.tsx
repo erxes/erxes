@@ -1,49 +1,52 @@
 import {
+  AutomationStatusFilterBar,
+  AutomationStatusFilterItem,
+  AutomationStatusFilterView,
+} from '@/inbox/conversations/components/AutomationStatusFilter';
+import {
   Combobox,
   Command,
   Filter,
   Skeleton,
   cn,
   parseDateRangeFromString,
+  useFilterContext,
   useMultiQueryState,
   useNonNullMultiQueryState,
   useQueryState,
 } from 'erxes-ui';
-import { InboxHotkeyScope } from '@/inbox/types/InboxHotkeyScope';
 import {
-  IconCalendarPlus,
   IconAt,
   IconBuildingStore,
+  IconCalendarPlus,
   IconCheck,
   IconCheckbox,
   IconInbox,
   IconLoader,
   IconSquare,
   IconUserCheck,
-  IconUsersGroup,
   IconUserX,
+  IconUsersGroup,
 } from '@tabler/icons-react';
-import { SelectMember } from 'ui-modules';
-import { useQuery } from '@apollo/client';
-import { gql } from '~/gql';
-import { SelectChannel } from '@/inbox/channel/components/SelectChannel';
-import { DiscordChannelFilterBar } from '@/integrations/discord/components/DiscordChannelFilterBar';
-import { ConversationStatus } from '@/inbox/types/Conversation';
 import {
   IntegrationTypeFilterBar,
   IntegrationTypeFilterItem,
   IntegrationTypeFilterView,
 } from '@/integrations/components/IntegrationTypeFilter';
-import { useTranslation } from 'react-i18next';
-import { useConversationFilterCounts } from '@/inbox/conversations/hooks/useConversationCounts';
-import { getDateFilterVariable } from '@/inbox/conversations/utils/useConversations';
-import {
-  AutomationStatusFilterBar,
-  AutomationStatusFilterItem,
-  AutomationStatusFilterView,
-} from '@/inbox/conversations/components/AutomationStatusFilter';
+
+import { ConversationStatus } from '@/inbox/types/Conversation';
+import { DiscordChannelFilterBar } from '@/integrations/discord/components/DiscordChannelFilterBar';
+import { InboxHotkeyScope } from '@/inbox/types/InboxHotkeyScope';
+import { SelectChannel } from '@/inbox/channel/components/SelectChannel';
+import { SelectMember } from 'ui-modules';
 import { TAutomationStatusFilter } from '@/inbox/constants/automationStatusFilters';
+import { getDateFilterVariable } from '@/inbox/conversations/utils/useConversations';
+import { gql } from '~/gql';
+import { useConversationFilterCounts } from '@/inbox/conversations/hooks/useConversationCounts';
+import { useConversationTranslation } from '@/inbox/conversations/translations';
 import { useIntegrationInline } from '@/integrations/hooks/useIntegrations';
+import { useQuery } from '@apollo/client';
+import { useTranslation } from 'react-i18next';
 
 type ConversationFilterQueries = {
   status: ConversationStatus;
@@ -56,6 +59,7 @@ type ConversationFilterQueries = {
   integrationType: string;
   brandId: string;
   created: string;
+  resolved: string;
   searchValue: string;
 };
 
@@ -134,6 +138,8 @@ const ConversationFilterCommand = ({
   setQueries: (values: Partial<ConversationFilterQueryValues>) => void;
 }) => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
+  const { t: dateT } = useConversationTranslation();
+  const { setView } = useFilterContext();
   const { status, unassigned, awaitingResponse, participated } = queries;
 
   return (
@@ -205,7 +211,17 @@ const ConversationFilterCommand = ({
         <Command.Separator className="my-1" />
         <Filter.Item value="created">
           <IconCalendarPlus />
-          {t('created-at', 'Created at')}
+          {dateT('createdAt')}
+        </Filter.Item>
+        <Filter.Item
+          value="resolved"
+          onSelect={() => {
+            setQueries({ status: ConversationStatus.CLOSED });
+            setView('resolved');
+          }}
+        >
+          <IconCheckbox />
+          {dateT('resolvedAt')}
         </Filter.Item>
       </Command.List>
     </Command>
@@ -213,6 +229,7 @@ const ConversationFilterCommand = ({
 };
 
 export const FilterConversationsPopover = () => {
+  const { t: dateT } = useConversationTranslation();
   const [queries, setQueries] = useMultiQueryState<ConversationFilterQueries>([
     'status',
     'unassigned',
@@ -224,9 +241,11 @@ export const FilterConversationsPopover = () => {
     'integrationType',
     'brandId',
     'created',
+    'resolved',
     'searchValue',
   ]);
   const parsedDate = parseDateRangeFromString(queries.created || '');
+  const resolvedDate = parseDateRangeFromString(queries.resolved || '');
   const { counts, loading } = useConversationFilterCounts({
     channelId: queries.channelId,
     integrationId: queries.integrationId,
@@ -234,6 +253,8 @@ export const FilterConversationsPopover = () => {
     brandId: queries.brandId,
     startDate: getDateFilterVariable(parsedDate?.from),
     endDate: getDateFilterVariable(parsedDate?.to),
+    closedAtFrom: getDateFilterVariable(resolvedDate?.from),
+    closedAtTo: getDateFilterVariable(resolvedDate?.to),
     searchValue: queries.searchValue,
   });
 
@@ -255,7 +276,10 @@ export const FilterConversationsPopover = () => {
         <SelectChannel.FilterView />
         <AutomationStatusFilterView counts={counts} loading={loading} />
         <Filter.View filterKey="created">
-          <Filter.DateView filterKey="created" />
+          <Filter.DateView filterKey="created" label={dateT('createdAt')} />
+        </Filter.View>
+        <Filter.View filterKey="resolved">
+          <Filter.DateView filterKey="resolved" label={dateT('resolvedAt')} />
         </Filter.View>
         <IntegrationTypeFilterView />
       </Combobox.Content>
@@ -271,6 +295,7 @@ export const ConversationFilterBar = ({
   className?: string;
 }) => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
+  const { t: dateT } = useConversationTranslation();
   const [status] = useQueryState<ConversationStatus>('status');
   const filterStates = useNonNullMultiQueryState<{
     status: ConversationStatus;
@@ -280,7 +305,8 @@ export const ConversationFilterBar = ({
     participated: boolean;
     participating: boolean;
     mentioned: boolean;
-    created: Date;
+    created: string;
+    resolved: string;
     channelId: string;
     integrationId: string;
     integrationType: string;
@@ -295,6 +321,7 @@ export const ConversationFilterBar = ({
     'participating',
     'mentioned',
     'created',
+    'resolved',
     'channelId',
     'integrationId',
     'integrationType',
@@ -325,7 +352,19 @@ export const ConversationFilterBar = ({
       )}
 
       <Filter.BarItem queryKey="created">
-        <Filter.Date filterKey="created" className="rounded-l" />
+        <Filter.BarName>
+          <IconCalendarPlus />
+          {dateT('createdAt')}
+        </Filter.BarName>
+        <Filter.Date filterKey="created" label={dateT('createdAt')} />
+      </Filter.BarItem>
+
+      <Filter.BarItem queryKey="resolved">
+        <Filter.BarName>
+          <IconCheckbox />
+          {dateT('resolvedAt')}
+        </Filter.BarName>
+        <Filter.Date filterKey="resolved" label={dateT('resolvedAt')} />
       </Filter.BarItem>
 
       <Filter.BarItem queryKey="unassigned">

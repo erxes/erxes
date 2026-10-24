@@ -3,7 +3,8 @@ import {
   CONVERSATION_AUTOMATION_STATUS,
   CONVERSATION_STATUSES,
 } from '@/inbox/db/definitions/constants';
-import { escapeRegExp, fixDate, sendTRPCMessage } from 'erxes-api-shared/utils';
+import { escapeRegExp, sendTRPCMessage } from 'erxes-api-shared/utils';
+import { isValid, parseISO } from 'date-fns';
 import * as _ from 'underscore';
 import { IModels } from '~/connectionResolvers';
 import {
@@ -39,6 +40,8 @@ export interface IListArgs {
   ids?: string[];
   startDate?: string;
   endDate?: string;
+  closedAtFrom?: string;
+  closedAtTo?: string;
   only?: string;
   page?: number;
   perPage?: number;
@@ -371,27 +374,48 @@ export default class Builder {
     };
   }
 
-  public dateFilter(startDate: string, endDate: string) {
+  public dateFilter(
+    startDate: string,
+    endDate: string,
+    field: 'createdAt' | 'closedAt' = 'createdAt',
+  ) {
+    const from = new Date(startDate);
+    const to = new Date(endDate);
+    if (
+      [startDate, endDate].some((date) => !isValid(parseISO(date))) ||
+      !isValid(from) ||
+      !isValid(to)
+    ) {
+      throw new TypeError('Invalid conversation date range');
+    }
+    if (/^\d{4}-\d{2}-\d{2}$/.test(endDate)) {
+      to.setUTCHours(23, 59, 59, 999);
+    }
+    if (from > to) {
+      throw new RangeError('Conversation start date must precede the end date');
+    }
     return {
-      $and: [
-        {
-          $or: [
-            {
-              createdAt: {
-                $gte: fixDate(startDate),
-                $lte: fixDate(endDate),
-              },
-            },
-            {
-              updatedAt: {
-                $gte: fixDate(startDate),
-                $lte: fixDate(endDate),
-              },
-            },
-          ],
-        },
-      ],
+      [field]: { $gte: from, $lte: to },
     };
+  }
+
+  private buildDateFilters(): void {
+    const { startDate, endDate, closedAtFrom, closedAtTo } = this.params;
+
+    if (startDate && endDate) {
+      this.queries.createdAt = this.dateFilter(startDate, endDate);
+    }
+
+    if (closedAtFrom || closedAtTo) {
+      if (!closedAtFrom || !closedAtTo) {
+        throw new TypeError('Both conversation resolution dates are required');
+      }
+      this.queries.closedAt = this.dateFilter(
+        closedAtFrom,
+        closedAtTo,
+        'closedAt',
+      );
+    }
   }
 
   public async searchFilter(searchValue: string): Promise<{ $or: object[] }> {
@@ -494,6 +518,7 @@ export default class Builder {
       mentioned: {},
       unread: {},
       createdAt: {},
+      closedAt: {},
       segments: {},
       automationStatus: {},
       withSurvey: {},
@@ -549,12 +574,7 @@ export default class Builder {
       this.queries.tag = await this.tagFilter(this.params.tag.split(','));
     }
 
-    if (this.params.startDate && this.params.endDate) {
-      this.queries.createdAt = this.dateFilter(
-        this.params.startDate,
-        this.params.endDate,
-      );
-    }
+    this.buildDateFilters();
 
     if (this.params.segment) {
       this.queries.segments = await this.segmentFilter(this.params.segment);
@@ -576,6 +596,7 @@ export default class Builder {
       ...this.queries.starred,
       ...this.queries.tag,
       ...this.queries.createdAt,
+      ...this.queries.closedAt,
       ...this.queries.awaitingResponse,
       ...this.queries.automationStatus,
       ...this.queries.withSurvey,

@@ -1,10 +1,11 @@
-import { ConversationCountValue } from './ConversationCountValue';
+import { ConversationCountValue } from '@/inbox/conversations/components/ConversationCountValue';
 import { Filter, Skeleton, cn } from 'erxes-ui';
 
 import { ConversationFilterBar } from '@/inbox/conversations/components/ConversationsFilter';
 import { useConversationListContext } from '@/inbox/conversations/hooks/useConversationListContext';
 import { useInboxLayout } from '@/inbox/hooks/useInboxLayout';
 import { useTranslation } from 'react-i18next';
+import { useConversationTranslation } from '@/inbox/conversations/translations';
 
 export const ConversationCount = ({ className }: { className?: string }) => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
@@ -35,6 +36,7 @@ export const ConversationsHeader = ({
   children: React.ReactNode;
 }) => {
   const inboxLayout = useInboxLayout();
+  const { t: dateT } = useConversationTranslation();
 
   return (
     <Filter id="conversations-filter-bar">
@@ -57,7 +59,16 @@ export const ConversationsHeader = ({
             <Filter.DialogStringView filterKey="searchValue" />
           </Filter.View>
           <Filter.View filterKey="created" inDialog>
-            <Filter.DialogDateView filterKey="created" />
+            <Filter.DialogDateView
+              filterKey="created"
+              label={dateT('createdAt')}
+            />
+          </Filter.View>
+          <Filter.View filterKey="resolved" inDialog>
+            <Filter.DialogDateView
+              filterKey="resolved"
+              label={dateT('resolvedAt')}
+            />
           </Filter.View>
         </Filter.Dialog>
       </div>
