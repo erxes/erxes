@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { PosEditSidebar } from '@/pos/components/pos-edit/Sidebar';
 import { MainContent } from '@/pos/components/pos-edit/MainContent';
 import { usePosDetail } from '@/pos/hooks/usePosDetail';
 
@@ -26,8 +25,8 @@ export const PosEdit = ({ id, header }: PosEditProps) => {
   }, [searchParams, setSearchParams]);
 
   return (
+    // Tabs are listed under this POS in the settings sidebar.
     <div className="flex h-full min-h-0">
-      <PosEditSidebar activeTab={activeTab} posId={id} />
       <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
         {header}
         <div className="flex min-h-0 flex-1">

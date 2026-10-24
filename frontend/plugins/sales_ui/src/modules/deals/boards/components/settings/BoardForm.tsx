@@ -21,6 +21,9 @@ import { SubmitHandler } from 'react-hook-form';
 
 export const BoardForm = () => {
   const [boardId, setBoardId] = useQueryState<string>('boardId');
+  // Set by the sidebar BOARDS `+` to start a new board.
+  const [createBoard, setCreateBoard] = useQueryState<string>('createBoard');
+  const isCreating = Boolean(createBoard);
 
   const { methods } = useAddBoardForm();
   const { handleSubmit, reset } = methods;
@@ -30,15 +33,16 @@ export const BoardForm = () => {
   const { boardDetail, loading: boardDetailLoading } = useBoardDetail();
 
   React.useEffect(() => {
-    setOpen(!!boardId);
+    setOpen(!!boardId || isCreating);
     if (!boardId) reset();
-  }, [boardId, reset]);
+  }, [boardId, isCreating, reset]);
 
   const handleClose = React.useCallback(() => {
     setOpen(false);
     setBoardId(null);
+    setCreateBoard(null);
     reset();
-  }, [reset, setBoardId]);
+  }, [reset, setBoardId, setCreateBoard]);
 
   const { addBoard, loading: addLoading } = useBoardAdd();
   const { editBoard, loading: editLoading } = useBoardEdit();
@@ -64,7 +68,7 @@ export const BoardForm = () => {
     <Dialog
       open={open}
       onOpenChange={(isOpen) =>
-        boardId ? !isOpen && handleClose() : setOpen(isOpen)
+        boardId || isCreating ? !isOpen && handleClose() : setOpen(isOpen)
       }
     >
       <Dialog.Trigger asChild>
