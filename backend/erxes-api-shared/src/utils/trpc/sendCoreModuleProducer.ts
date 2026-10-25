@@ -28,6 +28,7 @@ import {
   TPropertyProducers,
   TPropertyProducersInput,
 } from '../../core-modules/properties/valueUsage';
+import { CONNECTIONS_TEST_PRODUCER } from '../../core-modules/connections/constants';
 type TModuleProducerInputMap = {
   automations: {
     [K in TAutomationProducers]: TAutomationProducersInput[K];
@@ -52,6 +53,9 @@ type TModuleProducerInputMap = {
   };
   properties: {
     [K in TPropertyProducers]: TPropertyProducersInput[K];
+  };
+  connections: {
+    [CONNECTIONS_TEST_PRODUCER]: { token: string };
   };
 };
 

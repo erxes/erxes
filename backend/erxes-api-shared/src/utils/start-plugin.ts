@@ -19,6 +19,8 @@ import * as path from 'path';
 import rateLimit from 'express-rate-limit';
 import { startPayments } from '../common-modules/payment/worker';
 import type { IContactFieldsMeta } from '../core-modules/contact-fields';
+import type { IConnectionsMeta } from '../core-modules/connections/types';
+import { initConnections } from '../core-modules/connections/init';
 import type {
   IPropertyMeta,
   LogsConfigs,
@@ -96,6 +98,9 @@ type IMeta = {
   // Record types keeping their own customerId / companyId; core tells the
   // plugin when a contact is merged or removed (tRPC `contactFields.sync`).
   contactFields?: IContactFieldsMeta;
+  // Connection types this service registers and other types its server code
+  // reads (`getConnection`); core denies reads of undeclared types.
+  connections?: IConnectionsMeta;
 };
 
 type ApiHandler = {
@@ -400,6 +405,7 @@ export async function startPlugin(
       importExport,
       approval,
       properties,
+      connections,
     } = meta || {};
 
     if (beforeResolvers) {
@@ -444,6 +450,10 @@ export async function startPlugin(
 
     if (payments) {
       await startPayments(name, payments);
+    }
+
+    if (connections) {
+      await initConnections(app, name, connections);
     }
   } // end meta if
 
