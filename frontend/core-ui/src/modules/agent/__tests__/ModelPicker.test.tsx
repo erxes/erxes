@@ -1,5 +1,11 @@
 /** @jest-environment jsdom */
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react';
 import { createStore, Provider } from 'jotai';
 import type { MutableRefObject, Ref } from 'react';
 import { ModelPicker, type IModelPickerProps } from '../components/ModelPicker';
@@ -424,6 +430,49 @@ describe('typed model ids', () => {
     typeModel('gpt-7-mini');
     expect(screen.queryByText(/rejected "gpt-7"/)).toBeNull();
   });
+
+  it.each([
+    [
+      'the picker closed',
+      () => fireEvent.keyDown(document.body, { key: 'Escape' }),
+      [],
+    ],
+    [
+      'another choice was picked',
+      () => {
+        fireEvent.click(
+          screen.getByRole('button', { name: 'Back to providers' }),
+        );
+        fireEvent.click(
+          screen.getByRole('option', { name: /Use saved default/ }),
+        );
+      },
+      [['']],
+    ],
+  ])(
+    'ignores a model check that resolves after %s',
+    async (_case, interrupt, calls) => {
+      let resolveCheck: (error: string | null) => void = () => undefined;
+      const onVerifyModel = jest.fn(
+        () =>
+          new Promise<string | null>((resolve) => {
+            resolveCheck = resolve;
+          }),
+      );
+      const { onChange } = setup({ models: forbidden, onVerifyModel });
+      chooseProvider();
+      typeModel('gpt-5.6-luna');
+      fireEvent.click(
+        screen.getByRole('option', { name: 'Use "gpt-5.6-luna"' }),
+      );
+      expect(onVerifyModel).toHaveBeenCalledTimes(1);
+
+      interrupt();
+      await act(async () => resolveCheck(null));
+
+      expect(onChange.mock.calls).toEqual(calls);
+    },
+  );
 
   it('offers recent picks when the provider cannot list models', () => {
     setup({ value: '', models: forbidden }, [

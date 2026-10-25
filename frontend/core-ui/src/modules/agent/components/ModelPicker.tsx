@@ -222,8 +222,16 @@ export const ModelPicker = ({
     group.choices.map(choiceValue),
   );
 
+  // A model check that outlives the step it started in is ignored: closing,
+  // reopening, leaving the provider or picking something else bumps the id.
+  const verifyRequest = useRef(0);
+  const cancelVerify = () => {
+    verifyRequest.current += 1;
+    setVerifying('');
+  };
   const handleOpenChange = (next: boolean) => {
     setOpen(next);
+    cancelVerify();
     if (next) {
       setActiveProvider('');
       setBrowse(false);
@@ -243,6 +251,7 @@ export const ModelPicker = ({
           ]),
         ).slice(0, 6),
       );
+    cancelVerify();
     onChange(next);
     setOpen(false);
   };
@@ -261,6 +270,7 @@ export const ModelPicker = ({
 
   const activeLabel = getProviderLabel(activeProvider);
   const navigateProvider = (provider: string) => {
+    cancelVerify();
     setActiveProvider(provider);
     setBrowse(false);
     setSearch('');
@@ -282,6 +292,7 @@ export const ModelPicker = ({
       return;
     }
     if (verifying) return;
+    const request = ++verifyRequest.current;
     setVerifying(key);
     setVerifyError(null);
     const error = await onVerifyModel(provider, model).catch(
@@ -290,6 +301,7 @@ export const ModelPicker = ({
           ? failure.message
           : 'Could not check this model.',
     );
+    if (request !== verifyRequest.current) return;
     setVerifying('');
     if (error) {
       setVerifyError(error);
