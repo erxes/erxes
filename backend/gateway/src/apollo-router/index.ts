@@ -12,6 +12,7 @@ import {
   supergraphPath,
 } from '~/apollo-router/paths';
 import supergraphCompose from '~/apollo-router/supergraph-compose';
+import { getRouterHeadersConfig } from '~/apollo-router/headers';
 
 dotenv.config();
 
@@ -210,17 +211,7 @@ const createRouterConfig = async () => {
     cors: {
       allow_credentials: true,
     },
-    headers: {
-      all: {
-        request: [
-          {
-            propagate: {
-              matching: '.*',
-            },
-          },
-        ],
-      },
-    },
+    headers: getRouterHeadersConfig(),
     supergraph: {
       listen: `127.0.0.1:${apolloRouterPort}`,
       introspection:
