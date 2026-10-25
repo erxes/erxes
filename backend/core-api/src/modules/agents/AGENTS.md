@@ -22,21 +22,21 @@ plugin; ported from the former private `erxes-agent` service). It provides:
   scripts/external resources are unavailable. Record reference tokens belong
   verbatim in HTML text nodes, never attributes, links, styles or code;
 - `skills/reportCreation.ts` is the built-in report skill, composed into every
-  run's instructions by `buildAgentsInstructions`. Report creation/revisions use
-  formula-driven interactive what-if charts through the renderer-owned
-  `data-agent-chart` JSON contract (bounded postfix arithmetic; never model scripts).
-  The contract documents optional display hints (`format`, `currency`,
-  `decimals`, `description`, output `better`) that must stay in sync with
-  core-ui `artifacts/whatIfChartModel.ts`; its JSON example must remain valid.
-  Editable factors compare baseline/scenario results locally; they do not mutate
-  workspace data. Downloads retain a baseline HTML fallback rather than live controls.
-  Reports lead with visuals: one-line scope, KPI summary row, charts/tables, the
-  what-if card, then two to four bullet takeaways; captions are one sentence.
-  Assumptions belong in the chart's `assumption` field, and prose never restates
-  what the renderer's card shows. Reports use transparent backgrounds (no filled
-  report, card, section, chart canvas or table surfaces), verified references beside
-  data points, simple language with parenthetical explanations of technical terms,
-  and no unsolicited next-step offers. Ordinary replies keep their existing presentation.
+  run's instructions by `buildAgentsInstructions`. Reports are dashboard-first
+  static HTML: one-line scope, KPI row, inline SVG or CSS bar charts, tables,
+  then two to four bullet takeaways; captions are one sentence. All numbers are
+  computed by the agent from verified tool data (code mode when available).
+  What-if questions get agent-computed scenarios (e.g. baseline, −20%, +20%,
+  the user's case) in a comparison table plus bars, with assumptions stated
+  once in the caption; new scenarios are requested in chat and recomputed. No
+  scripts, controls or client-side formulas. The documented class vocabulary
+  (`scope`, `kpis`/`kpi`, `bars`/`bar`/`baseline`, `legend`, `up`/`down`,
+  `highlight`, SVG `mark`/`line`/`axis`/`gridline`) must match core-ui's
+  renderer stylesheet in `artifacts/htmlSandbox.ts`. Reports use transparent
+  backgrounds (no filled report, card, section, chart canvas or table surfaces),
+  verified references beside data points, simple language with parenthetical
+  explanations of technical terms, and no unsolicited next-step offers.
+  Ordinary replies keep their existing presentation.
 - GraphQL discovery (`searchGraphql`) and execution (`callGraphql`) through
   the gateway as the acting user, using a fresh HMAC-signed identity header.
   `graphqlPolicy.ts` denies authentication, credential and system-security

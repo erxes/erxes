@@ -1,44 +1,43 @@
 import { REPORT_CREATION_SKILL } from '../skills/reportCreation';
 
-describe('interactive report skill', () => {
+describe('dashboard report skill', () => {
   const { instructions } = REPORT_CREATION_SKILL;
 
-  it('requires formula-driven what-if charts without enabling generated JavaScript', () => {
+  it('makes reports dashboard-first with short takeaways', () => {
     expect(instructions).toContain(
-      'Every created or revised HTML report must include',
+      'Every created or revised HTML report is a dashboard',
     );
-    expect(instructions).toContain('data-agent-chart');
-    expect(instructions).toContain('Formulas are postfix token arrays');
-    expect(instructions).toContain('Generated scripts remain blocked');
-    expect(instructions).toContain('never executable model code');
-    expect(instructions).toContain('downloaded HTML retains that summary');
-    expect(instructions).toContain('rather than fabricate');
-  });
-
-  it('documents the optional display fields with a valid example', () => {
-    for (const field of [
-      '"format":"percent"',
-      '"format":"currency","currency":"USD"',
-      '"better":"lower"',
-      '"description":',
-      'decimals is an integer 0–6',
-      'older specs with only unit stay valid',
-    ])
-      expect(instructions).toContain(field);
-    const example = instructions.match(/The JSON shape is (\{.*?\})\. This/);
-    expect(example).not.toBeNull();
-    const spec = JSON.parse(example?.[1] ?? '');
-    expect(spec.outputs).toHaveLength(2);
-    expect(spec.inputs[1].min).toBeGreaterThan(0);
-  });
-
-  it('leads reports with visuals and keeps prose to captions and takeaways', () => {
-    expect(instructions).toContain('Lead with visuals, not paragraphs');
-    expect(instructions).toContain('KPI summary row');
+    expect(instructions).toContain('<p class="scope">');
     expect(instructions).toContain('two to four bullet takeaways');
+    expect(instructions).toContain('Never write introductions');
+  });
+
+  it('documents only renderer-styled HTML, never scripts or controls', () => {
+    for (const vocabulary of [
+      'class="kpis"',
+      'class="bars"',
+      'class="bar baseline"',
+      'class mark',
+      '<tr class="highlight">',
+      '<meter',
+      '<details><summary>',
+    ])
+      expect(instructions).toContain(vocabulary);
+    expect(instructions).toContain('Do not write scripts');
+    expect(instructions).toContain('sliders or other fake controls');
+    expect(instructions).not.toContain('data-agent-chart');
+    expect(instructions).not.toMatch(/postfix|formula token/i);
+  });
+
+  it('has the agent compute what-if scenarios itself from verified data', () => {
     expect(instructions).toContain(
-      'do not restate in prose what this card already shows',
+      'Correctness comes from your own computation',
     );
-    expect(instructions).toContain('limitations in the assumption field');
+    expect(instructions).toContain('execute_typescript');
+    expect(instructions).toContain('compute the scenarios yourself');
+    expect(instructions).toContain('baseline, −20%, +20%');
+    expect(instructions).toContain('once, in the table caption');
+    expect(instructions).toContain('they ask in chat and you recompute');
+    expect(instructions).toContain('rather than fabricate');
   });
 });
