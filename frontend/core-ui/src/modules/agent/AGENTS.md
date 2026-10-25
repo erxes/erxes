@@ -112,15 +112,24 @@ The `agent` module is the core-ui surface for the core-api `agents` backend
   as quick picks. Auto remains usable while model discovery loads or fails;
   provider/model ids and the empty-value server-default contract are unchanged.
   `useAgentsModels` normalizes `agentsModels` into ranked
-  `{ id, family, recommended }` options per provider (falling back to the flat
-  `models` ids). Saving or removing a connection in settings refetches the
+  `{ id, family, recommended, name, thinking }` options per provider (falling
+  back to the flat `models` ids). A model with a models.dev `name` shows it as
+  the row title (raw id muted beside it) and in the trigger; search matches
+  name and id; without a name the raw id shows as before. Saving or removing a connection in settings refetches the
   active `AgentsModels` query. Settings marks a connection whose key the
   server cannot read (`hasKey: false`) with `Re-enter key`.
 - The thinking picker starts at High, and the initial outgoing request explicitly
   sends `thinkingLevel: 'high'`. Manual selections override that default for later turns.
   The trigger is a compact ghost button with an intensity mark and the level name
-  only; the menu lists each level with a one-line description. `thinkingLevel` values
-  stay `off`, `minimal`, `low`, `medium` and `high`.
+  only; the menu lists each level with a one-line description. Levels follow the
+  model a turn runs on (the selection, else the server default connection) via
+  `catalog[].thinking { kind, levels }`: only that model's levels are offered
+  (`k3.1-pro` has no Off), bars spread over its depth range, a toggle reads
+  Off/On, and `none`/`fixed` models lock the trigger ("Off"/"Auto").
+  `useThinkingLevelClamp` moves an unsupported level to the nearest one (ties go
+  deeper) when the model changes. Models without catalog data keep `off`,
+  `minimal`, `low`, `medium` and `high`; the vocabulary also has `xhigh` and
+  `max` (`utils/thinkingLevels.ts` mirrors the backend order and clamp).
 - `PageElementPicker` is the composer's Select on page mode. Trusted capture-phase
   listeners inspect the app and accessible same-origin frames, including sandboxed
   HTML reports. Selection clicks cannot activate the underlying controls. Escape

@@ -55,8 +55,6 @@ export const modelSelectionValue = (provider: string, model: string) =>
   provider && model ? `${provider}${VALUE_SEPARATOR}${model}` : '';
 const choiceValue = (choice: IModelChoice) =>
   modelSelectionValue(choice.provider, choice.model);
-const describeChoice = (choice: IModelChoice) =>
-  `${getProviderLabel(choice.provider)} · ${choice.model}`;
 
 const rowClassName =
   'h-9 gap-3 rounded-md px-3 text-[13px] data-[selected=true]:bg-muted';
@@ -95,6 +93,24 @@ export const ModelPicker = ({
       new Map(models.providerModels.map((group) => [group.provider, group])),
     [models.providerModels],
   );
+  // models.dev display names ("GPT-6 Luna"); a model without one keeps its id.
+  const displayNames = useMemo(
+    () =>
+      new Map(
+        models.providerModels.flatMap((group) =>
+          group.models.flatMap((model) =>
+            model.name
+              ? [[modelSelectionValue(group.provider, model.id), model.name]]
+              : [],
+          ),
+        ),
+      ),
+    [models.providerModels],
+  );
+  const nameOf = (choice: IModelChoice) =>
+    displayNames.get(choiceValue(choice)) ?? choice.model;
+  const describeChoice = (choice: IModelChoice) =>
+    `${getProviderLabel(choice.provider)} · ${nameOf(choice)}`;
   const activeCatalog = catalogs.get(activeProvider);
   const activeModels: IAgentsModelOption[] = activeCatalog?.models ?? [];
   const toChoice = (model: IAgentsModelOption): IModelChoice => ({
@@ -141,7 +157,9 @@ export const ModelPicker = ({
     if (showCatalog) {
       const terms = search.toLowerCase().trim().split(/\s+/).filter(Boolean);
       const matches = activeModels.filter((model) => {
-        const searchable = `${model.id} ${model.family}`.toLowerCase();
+        const searchable = `${model.name ?? ''} ${model.id} ${
+          model.family
+        }`.toLowerCase();
         return terms.every((term) => searchable.includes(term));
       });
       return [
@@ -284,7 +302,18 @@ export const ModelPicker = ({
       >
         {verifying === key && <Spinner className="size-3.5 shrink-0" />}
         <span className="min-w-0 flex-1 truncate" title={choice.model}>
-          {verifying === key ? `Checking ${choice.model}…` : choice.model}
+          {verifying === key ? (
+            `Checking ${nameOf(choice)}…`
+          ) : nameOf(choice) === choice.model ? (
+            choice.model
+          ) : (
+            <>
+              {nameOf(choice)}
+              <span className="ml-1.5 text-[11px] text-muted-foreground">
+                {choice.model}
+              </span>
+            </>
+          )}
         </span>
         {key === defaultValue && (
           <span className="shrink-0 text-[11px] text-muted-foreground">
@@ -382,7 +411,7 @@ export const ModelPicker = ({
             />
           )}
           <span className="truncate">
-            {triggerChoice?.model || 'Default model'}
+            {triggerChoice ? nameOf(triggerChoice) : 'Default model'}
           </span>
         </span>
       </Combobox.Trigger>

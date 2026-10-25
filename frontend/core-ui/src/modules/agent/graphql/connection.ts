@@ -32,6 +32,11 @@ export const AGENTS_MODELS = gql`
         id
         family
         recommended
+        name
+        thinking {
+          kind
+          levels
+        }
       }
       error
     }
@@ -92,12 +97,33 @@ export interface IAgentsConnectionsData {
   agentsConnections: IAgentsConnectionEntry[] | null;
 }
 
+/**
+ * How a model exposes thinking (bundled models.dev data): an effort scale,
+ * an on/off toggle, a token budget, always-on reasoning (`fixed`) or none.
+ */
+export type IAgentsModelThinkingKind =
+  | 'effort'
+  | 'toggle'
+  | 'budget'
+  | 'fixed'
+  | 'none';
+
+export interface IAgentsModelThinkingData {
+  kind: string | null;
+  /** Selectable levels, shallowest first; empty for `fixed` and `none`. */
+  levels: string[] | null;
+}
+
 export interface IAgentsModelInfo {
   id: string;
   /** Generation line such as `gpt-5.6`; empty when unknown. */
   family: string | null;
   /** Part of the provider's short list shown before searching. */
   recommended: boolean | null;
+  /** Human name ("GPT-6 Luna"); null shows the raw id. */
+  name?: string | null;
+  /** Null for models without catalog data (original five levels apply). */
+  thinking?: IAgentsModelThinkingData | null;
 }
 
 export interface IAgentsProviderModels {

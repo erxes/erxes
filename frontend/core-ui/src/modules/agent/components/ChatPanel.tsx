@@ -14,6 +14,8 @@ import { useTranslation } from 'react-i18next';
 import { useAgentsConnection } from '../hooks/useAgentsConnection';
 import { useAgentsModelVerify } from '../hooks/useAgentsModelVerify';
 import { useAgentsModels } from '../hooks/useAgentsModels';
+import { useThinkingLevelClamp } from '../hooks/useThinkingLevelClamp';
+import { findModelThinking } from '../utils/thinkingLevels';
 import type { IUseAgentsChatResult } from '../hooks/useAgentsChat';
 import { agentsFilesPart } from '../agentsFiles';
 import { pageSelectionsPart } from '../pageSelections';
@@ -97,6 +99,21 @@ export const ChatPanel = ({
   const { connections, loading: connectionsLoading } = useAgentsConnection();
   const models = useAgentsModels();
   const verifyModel = useAgentsModelVerify();
+  // Thinking levels follow the model a turn runs on: the selection, or the
+  // server default connection when nothing is selected.
+  const defaultConnection =
+    connections.find((connection) => connection.isDefault) ?? connections[0];
+  const modelThinking = findModelThinking(
+    models.providerModels,
+    chat.modelId
+      ? { provider: chat.modelProvider, model: chat.modelId }
+      : defaultConnection,
+  );
+  useThinkingLevelClamp(
+    modelThinking,
+    chat.thinkingLevel,
+    chat.selectThinkingLevel,
+  );
 
   const isStreaming = status === 'submitted' || status === 'streaming';
   const isEmpty = messages.length === 0 && !loadingThread;
@@ -240,6 +257,7 @@ export const ChatPanel = ({
       <ThinkingPicker
         value={chat.thinkingLevel}
         onChange={chat.selectThinkingLevel}
+        thinking={modelThinking}
       />
     </>
   );

@@ -3,13 +3,20 @@ import { Combobox, Command, Popover } from 'erxes-ui';
 import { useEffect, useRef, useState } from 'react';
 
 import type { IAgentsThinkingLevel } from '../hooks/useAgentsChat';
+import {
+  clampThinkingLevel,
+  thinkingLevelsFor,
+  type IAgentsModelThinking,
+} from '../utils/thinkingLevels';
+
+type IIntensity = 0 | 1 | 2 | 3 | 4;
 
 interface IThinkingOption {
   value: IAgentsThinkingLevel;
   label: string;
   description: string;
   /** Filled bars out of four. Off stays empty. */
-  intensity: 0 | 1 | 2 | 3 | 4;
+  intensity: IIntensity;
 }
 
 const THINKING_OPTIONS: IThinkingOption[] = [
@@ -43,7 +50,57 @@ const THINKING_OPTIONS: IThinkingOption[] = [
     description: 'Deepest reasoning, slower',
     intensity: 4,
   },
+  {
+    value: 'xhigh',
+    label: 'Extra high',
+    description: 'Even deeper reasoning, slower still',
+    intensity: 4,
+  },
+  {
+    value: 'max',
+    label: 'Max',
+    description: 'Deepest reasoning, slowest',
+    intensity: 4,
+  },
 ];
+
+const TOGGLE_ON: Pick<IThinkingOption, 'label' | 'description'> = {
+  label: 'On',
+  description: 'Reason before answering',
+};
+
+/**
+ * The options a model offers. Bars spread over its own depth range, so the
+ * deepest offered level always fills all four; the original five levels keep
+ * their original fill.
+ */
+const optionsFor = (
+  thinking: IAgentsModelThinking | null,
+): IThinkingOption[] => {
+  const levels = thinkingLevelsFor(thinking);
+  const deep = levels.filter((level) => level !== 'off');
+
+  return THINKING_OPTIONS.filter((option) => levels.includes(option.value)).map(
+    (option) => {
+      const rank = deep.indexOf(option.value) + 1;
+      const intensity = (
+        rank === 0 ? 0 : Math.max(1, Math.round((rank * 4) / deep.length))
+      ) as IIntensity;
+
+      return {
+        ...option,
+        // High is only "deepest" when nothing deeper is offered.
+        ...(option.value === 'high' && deep[deep.length - 1] !== 'high'
+          ? { description: 'Deep reasoning, slower' }
+          : {}),
+        ...(thinking?.kind === 'toggle' && option.value !== 'off'
+          ? TOGGLE_ON
+          : {}),
+        intensity,
+      };
+    },
+  );
+};
 
 const BRAIN_OPACITY: Record<IThinkingOption['intensity'], string> = {
   0: 'opacity-40',
@@ -64,6 +121,11 @@ export interface IThinkingPickerProps {
   value: IAgentsThinkingLevel;
   onChange: (level: IAgentsThinkingLevel) => void;
   disabled?: boolean;
+  /**
+   * The selected model's thinking control. Null or absent (no catalog data)
+   * offers the original five levels.
+   */
+  thinking?: IAgentsModelThinking | null;
 }
 
 const ThinkingBars = ({ filled }: { filled: IThinkingOption['intensity'] }) => (
@@ -84,12 +146,28 @@ export const ThinkingPicker = ({
   value,
   onChange,
   disabled = false,
+  thinking = null,
 }: IThinkingPickerProps) => {
   const [open, setOpen] = useState(false);
   const commandRef = useRef<HTMLDivElement>(null);
-  const active =
-    THINKING_OPTIONS.find((option) => option.value === value) ??
-    THINKING_OPTIONS[THINKING_OPTIONS.length - 1];
+  const options = optionsFor(thinking);
+  // Models that always reason (fixed) or never do (none) offer no choice.
+  const fixedLabel =
+    options.length > 0 ? null : thinking?.kind === 'none' ? 'Off' : 'Auto';
+  const shown = clampThinkingLevel(
+    value,
+    options.map((option) => option.value),
+  );
+  const active: IThinkingOption = fixedLabel
+    ? {
+        value: shown,
+        label: fixedLabel,
+        description: '',
+        intensity: thinking?.kind === 'none' ? 0 : 4,
+      }
+    : options.find((option) => option.value === shown) ??
+      options[options.length - 1];
+  const locked = disabled || Boolean(fixedLabel);
 
   useEffect(() => {
     if (open) commandRef.current?.focus();
@@ -99,14 +177,21 @@ export const ThinkingPicker = ({
     <Popover
       open={open}
       onOpenChange={(next) => {
-        if (!disabled) setOpen(next);
+        if (!locked) setOpen(next);
       }}
     >
       <Combobox.Trigger
         variant="ghost"
         className="h-8 w-auto shrink-0 gap-1.5 rounded-md px-2 text-[13px]"
-        disabled={disabled}
+        disabled={locked}
         aria-label={`Thinking level: ${active.label}`}
+        title={
+          fixedLabel === 'Off'
+            ? "This model doesn't reason"
+            : fixedLabel
+            ? 'This model sets its own reasoning depth'
+            : undefined
+        }
       >
         <span className="flex min-w-0 items-center gap-1.5">
           <IconBrain
@@ -130,13 +215,13 @@ export const ThinkingPicker = ({
           ref={commandRef}
           label="Thinking level"
           shouldFilter={false}
-          defaultValue={value}
+          defaultValue={shown}
         >
           <div className="px-4 pb-1 pt-3 text-[11px] font-medium text-muted-foreground">
             Thinking
           </div>
           <Command.List className="m-0 max-h-none p-1.5">
-            {THINKING_OPTIONS.map((option) => (
+            {options.map((option) => (
               <Command.Item
                 key={option.value}
                 value={option.value}
@@ -157,7 +242,7 @@ export const ThinkingPicker = ({
                 </span>
                 <span className="flex size-4 shrink-0 items-center justify-center">
                   <Combobox.Check
-                    checked={value === option.value}
+                    checked={shown === option.value}
                     className="ml-0 text-foreground"
                   />
                 </span>

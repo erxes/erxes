@@ -31,13 +31,15 @@ import {
   type IInFlightTurn,
 } from '../inFlightPrompt';
 
-/** Thinking depth selectable per turn in the chat UI. */
+/** Thinking depth selectable per turn in the chat UI, shallowest first. */
 export type IAgentsThinkingLevel =
   | 'off'
   | 'minimal'
   | 'low'
   | 'medium'
-  | 'high';
+  | 'high'
+  | 'xhigh'
+  | 'max';
 
 const DEFAULT_THINKING_LEVEL: IAgentsThinkingLevel = 'high';
 

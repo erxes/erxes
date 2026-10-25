@@ -116,3 +116,80 @@ it('does not open while disabled', () => {
   expect(screen.queryByText('Fastest, no reasoning')).toBeNull();
   expect(onChange).not.toHaveBeenCalled();
 });
+
+describe('per-model levels', () => {
+  const openMenu = (label: string) =>
+    fireEvent.click(
+      screen.getByRole('combobox', { name: `Thinking level: ${label}` }),
+    );
+  const levelLabels = () =>
+    screen
+      .getAllByRole('option')
+      .map((option) => option.querySelector('.font-medium')?.textContent);
+  const filledBars = (option: HTMLElement) =>
+    option.querySelectorAll('.bg-foreground').length;
+
+  it('offers exactly an effort model’s levels, deepest with full bars', () => {
+    setup({
+      value: 'high',
+      thinking: {
+        kind: 'effort',
+        levels: ['off', 'low', 'medium', 'high', 'xhigh', 'max'],
+      },
+    });
+    openMenu('High');
+    expect(levelLabels()).toEqual([
+      'Off',
+      'Low',
+      'Medium',
+      'High',
+      'Extra high',
+      'Max',
+    ]);
+    expect(screen.getByText('Deep reasoning, slower')).toBeTruthy();
+    expect(filledBars(screen.getByRole('option', { name: /^Max/ }))).toBe(4);
+    expect(filledBars(screen.getByRole('option', { name: /^Off/ }))).toBe(0);
+  });
+
+  it('never offers Off for k3.1-pro and shows the clamped level', async () => {
+    const { onChange } = setup({
+      value: 'off',
+      thinking: { kind: 'effort', levels: ['low', 'high', 'max'] },
+    });
+    openMenu('Low');
+    expect(levelLabels()).toEqual(['Low', 'High', 'Max']);
+    fireEvent.click(screen.getByRole('option', { name: /^Max/ }));
+    expect(onChange).toHaveBeenCalledWith('max');
+  });
+
+  it('labels a toggle model On/Off', () => {
+    setup({
+      value: 'high',
+      thinking: { kind: 'toggle', levels: ['off', 'high'] },
+    });
+    openMenu('On');
+    expect(levelLabels()).toEqual(['Off', 'On']);
+  });
+
+  it.each([
+    ['none', 'Off', "This model doesn't reason"],
+    ['fixed', 'Auto', 'This model sets its own reasoning depth'],
+  ] as const)('locks the control for a %s model', (kind, label, title) => {
+    const { onChange } = setup({ thinking: { kind, levels: [] } });
+    const trigger = screen.getByRole('combobox', {
+      name: `Thinking level: ${label}`,
+    });
+
+    expect(trigger.hasAttribute('disabled')).toBe(true);
+    expect(trigger.getAttribute('title')).toBe(title);
+    fireEvent.click(trigger);
+    expect(screen.queryByRole('option')).toBeNull();
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
+  it('keeps the original five levels when the model is unknown', () => {
+    setup({ thinking: null });
+    openMenu('High');
+    expect(levelLabels()).toEqual(['Off', 'Minimal', 'Low', 'Medium', 'High']);
+  });
+});

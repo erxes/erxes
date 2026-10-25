@@ -3,12 +3,18 @@ import { useMemo } from 'react';
 
 import { AGENTS_MODELS } from '../graphql/connection';
 import type { IAgentsModelsData } from '../graphql/connection';
+import { toModelThinking } from '../utils/thinkingLevels';
+import type { IAgentsModelThinking } from '../utils/thinkingLevels';
 
 /** One usable model of a provider, in the backend's ranked order. */
 export interface IAgentsModelOption {
   id: string;
   family: string;
   recommended: boolean;
+  /** Human name; absent or null shows the raw id. */
+  name?: string | null;
+  /** Absent or null: no catalog data, the original five levels apply. */
+  thinking?: IAgentsModelThinking | null;
 }
 
 export interface IAgentsProviderCatalog {
@@ -52,6 +58,10 @@ export const useAgentsModels = (): IUseAgentsModelsResult => {
           id: model.id,
           family: model.family ?? '',
           recommended: model.recommended === true,
+          name: 'name' in model && model.name ? model.name : null,
+          thinking: toModelThinking(
+            'thinking' in model ? model.thinking : null,
+          ),
         })),
         ...(group.error ? { error: group.error } : {}),
       })),

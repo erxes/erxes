@@ -506,3 +506,45 @@ describe('access checks for listed models', () => {
     expect(onVerifyModel).not.toHaveBeenCalled();
   });
 });
+
+describe('display names', () => {
+  const named = {
+    loading: false,
+    error: undefined,
+    providerModels: [
+      {
+        provider: 'openai',
+        models: [
+          { ...option('gpt-6-luna', true), name: 'GPT-6 Luna' },
+          option('gpt-6', true),
+        ],
+      },
+    ],
+  };
+
+  it('titles a model with its name and shows the id muted', () => {
+    setup({ value: 'openai|gpt-6-luna', models: named });
+    expect(screen.getByRole('combobox', { name: 'Model' }).textContent).toBe(
+      'GPT-6 Luna',
+    );
+    chooseProvider();
+    const row = screen.getByRole('option', { name: /^GPT-6 Luna/ });
+    expect(row.querySelector('.text-muted-foreground')?.textContent).toBe(
+      'gpt-6-luna',
+    );
+    // A model without a name keeps its raw id only.
+    expect(screen.getByRole('option', { name: /^gpt-6$/ }).textContent).toBe(
+      'gpt-6',
+    );
+  });
+
+  it('finds a model by its name or its id', () => {
+    setup({ models: named });
+    chooseProvider();
+    const search = screen.getByRole('combobox', { name: 'Search models' });
+    fireEvent.change(search, { target: { value: 'luna' } });
+    expect(optionNames()).toEqual(['GPT-6 Lunagpt-6-lunaDefault']);
+    fireEvent.change(search, { target: { value: 'GPT-6 L' } });
+    expect(optionNames()).toEqual(['GPT-6 Lunagpt-6-lunaDefault']);
+  });
+});
