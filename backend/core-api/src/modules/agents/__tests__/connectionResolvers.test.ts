@@ -27,6 +27,7 @@ interface IFakeConnectionModel {
   getConnections: jest.Mock;
   upsertConnection: jest.Mock;
   removeConnection: jest.Mock;
+  setDefaultProvider: jest.Mock;
 }
 
 const STORED_DOC = {
@@ -54,7 +55,7 @@ const buildContext = ({
 }: {
   permissionAllowed?: boolean;
   userId?: string;
-  storedDoc?: typeof STORED_DOC | null;
+  storedDoc?: (typeof STORED_DOC & { defaultProvider?: string }) | null;
 } = {}) => {
   const checkPermission = jest.fn(async () => {
     if (!permissionAllowed) {
@@ -85,6 +86,20 @@ const buildContext = ({
       },
     ),
     removeConnection: jest.fn(async () => undefined),
+    setDefaultProvider: jest.fn(async (_actor: string, provider: string) => {
+      if (!storedDoc) {
+        return null;
+      }
+
+      if (
+        provider &&
+        !storedDoc.connections.some((entry) => entry.provider === provider)
+      ) {
+        return null;
+      }
+
+      return { ...storedDoc, defaultProvider: provider || undefined };
+    }),
   };
 
   const ctx = {
@@ -113,12 +128,14 @@ describe('agentsConnections query', () => {
         provider: 'openai',
         model: 'gpt-5.6-luna',
         hasKey: true,
+        isDefault: true,
         updatedAt: STORED_DOC.updatedAt,
       },
       {
         provider: 'grok',
         model: 'grok-4.5',
         hasKey: true,
+        isDefault: false,
         updatedAt: STORED_DOC.updatedAt,
       },
     ]);
@@ -147,6 +164,118 @@ describe('agentsConnections query', () => {
       agentsConnectionsQueries.agentsConnections(undefined, undefined, ctx),
     ).rejects.toThrow('Permission denied');
     expect(connectionModel.getConnections).not.toHaveBeenCalled();
+  });
+});
+
+describe('default connection', () => {
+  const defaults = (result: { provider?: string; isDefault: boolean }[]) =>
+    result.filter((entry) => entry.isDefault).map((entry) => entry.provider);
+
+  it('marks the explicit default as the only default entry', async () => {
+    const { ctx } = buildContext({
+      storedDoc: { ...STORED_DOC, defaultProvider: 'grok' },
+    });
+
+    const result = await agentsConnectionsQueries.agentsConnections(
+      undefined,
+      undefined,
+      ctx,
+    );
+
+    expect(defaults(result)).toEqual(['grok']);
+  });
+
+  it('falls back to the first saved entry when the default is no longer connected', async () => {
+    const { ctx } = buildContext({
+      storedDoc: { ...STORED_DOC, defaultProvider: 'kimi' },
+    });
+
+    const result = await agentsConnectionsQueries.agentsConnections(
+      undefined,
+      undefined,
+      ctx,
+    );
+
+    expect(defaults(result)).toEqual(['openai']);
+  });
+
+  it('sets the default for the acting user only and returns the updated list', async () => {
+    const { ctx, checkPermission, connectionModel } = buildContext({
+      userId: 'user-2',
+    });
+
+    const result = await agentsConnectionMutations.agentsConnectionSetDefault(
+      undefined,
+      { provider: ' grok ' },
+      ctx,
+    );
+
+    expect(checkPermission).toHaveBeenCalledWith('agentsChat');
+    expect(connectionModel.setDefaultProvider).toHaveBeenCalledWith(
+      'user-2',
+      'grok',
+    );
+    expect(defaults(result)).toEqual(['grok']);
+    expect(JSON.stringify(result)).not.toContain('sk-');
+  });
+
+  it('clears the explicit default when no provider is given', async () => {
+    const { ctx, connectionModel } = buildContext({
+      storedDoc: { ...STORED_DOC, defaultProvider: 'grok' },
+    });
+
+    const result = await agentsConnectionMutations.agentsConnectionSetDefault(
+      undefined,
+      { provider: null },
+      ctx,
+    );
+
+    expect(connectionModel.setDefaultProvider).toHaveBeenCalledWith(
+      'user-1',
+      '',
+    );
+    expect(defaults(result)).toEqual(['openai']);
+  });
+
+  it('rejects a provider the acting user has not saved', async () => {
+    const { ctx } = buildContext();
+
+    await expect(
+      agentsConnectionMutations.agentsConnectionSetDefault(
+        undefined,
+        { provider: 'kimi' },
+        ctx,
+      ),
+    ).rejects.toThrow('No connection stored for provider "kimi"');
+  });
+
+  it('short-circuits without touching the model when permission is denied', async () => {
+    const { ctx, connectionModel } = buildContext({
+      permissionAllowed: false,
+    });
+
+    await expect(
+      agentsConnectionMutations.agentsConnectionSetDefault(
+        undefined,
+        { provider: 'grok' },
+        ctx,
+      ),
+    ).rejects.toThrow('Permission denied');
+    expect(connectionModel.setDefaultProvider).not.toHaveBeenCalled();
+  });
+
+  it('reports whether an upserted entry is the effective default', async () => {
+    const { ctx } = buildContext({
+      storedDoc: { ...STORED_DOC, defaultProvider: 'grok' },
+    });
+
+    const result = await agentsConnectionMutations.agentsConnectionUpsert(
+      undefined,
+      { provider: 'openai' },
+      ctx,
+    );
+
+    expect(result).toMatchObject({ provider: 'openai', isDefault: false });
   });
 });
 
@@ -574,6 +703,7 @@ describe('sealed keys at rest', () => {
         provider: 'openai',
         model: 'gpt-5.6-luna',
         hasKey: false,
+        isDefault: true,
         updatedAt: STORED_DOC.updatedAt,
       },
     ]);

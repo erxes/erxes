@@ -10,11 +10,16 @@
  * - `getConnections` lazily migrates legacy plaintext entries: it seals
  *   them and writes the sealed array back, best-effort;
  * - a missing encryption secret fails the write path closed — nothing is
- *   persisted in plaintext.
+ *   persisted in plaintext;
+ * - the explicit default is user-scoped, conditional on the provider still
+ *   being saved, clearable, and dropped when its connection is removed.
  */
 
 import type { IAgentsConnectionModel } from '@/agents/db/models/Connection';
-import { loadAgentsConnectionClass } from '@/agents/db/models/Connection';
+import {
+  findDefaultConnection,
+  loadAgentsConnectionClass,
+} from '@/agents/db/models/Connection';
 import { isSealedSecret, openSecret, sealSecret } from '@/agents/secretBox';
 
 process.env.JWT_TOKEN_SECRET ??= 'secretbox-test-secret';
@@ -146,5 +151,91 @@ describe('AgentsConnection key sealing', () => {
       process.env.JWT_TOKEN_SECRET = original;
       jest.resetModules();
     }
+  });
+});
+
+describe('AgentsConnection default provider', () => {
+  const SAVED = {
+    userId: 'user-1',
+    connections: [
+      { provider: 'openai', model: 'gpt-5', config: {} },
+      { provider: 'kimi', model: 'kimi-k3', config: {} },
+    ],
+  };
+
+  it('resolves the explicit default, else the first saved entry', () => {
+    expect(findDefaultConnection(SAVED as never)?.provider).toBe('openai');
+    expect(
+      findDefaultConnection({ ...SAVED, defaultProvider: 'kimi' } as never)
+        ?.provider,
+    ).toBe('kimi');
+    expect(
+      findDefaultConnection({ ...SAVED, defaultProvider: 'grok' } as never)
+        ?.provider,
+    ).toBe('openai');
+    expect(findDefaultConnection(null)).toBeUndefined();
+  });
+
+  it('sets the default only on the acting user’s document when that provider is saved', async () => {
+    const { fake, statics } = buildModels({ ...SAVED, defaultProvider: 'kimi' });
+
+    const doc = await statics.setDefaultProvider('user-1', 'kimi');
+
+    expect(fake.findOneAndUpdate).toHaveBeenCalledWith(
+      { userId: 'user-1', 'connections.provider': 'kimi' },
+      { $set: { defaultProvider: 'kimi' } },
+      { new: true },
+    );
+    expect(doc?.defaultProvider).toBe('kimi');
+  });
+
+  it('returns null for a provider the user has not saved', async () => {
+    const { fake, statics } = buildModels(null);
+    fake.findOneAndUpdate.mockResolvedValueOnce(null);
+
+    await expect(
+      statics.setDefaultProvider('user-1', 'grok'),
+    ).resolves.toBeNull();
+    expect(fake.findOneAndUpdate.mock.calls[0][0]).toEqual({
+      userId: 'user-1',
+      'connections.provider': 'grok',
+    });
+  });
+
+  it('clears the explicit default for an empty provider', async () => {
+    const { fake, statics } = buildModels(SAVED);
+
+    await statics.setDefaultProvider('user-1', '');
+
+    expect(fake.findOneAndUpdate).toHaveBeenCalledWith(
+      { userId: 'user-1' },
+      { $unset: { defaultProvider: '' } },
+      { new: true },
+    );
+  });
+
+  it('drops the default when its connection is removed', async () => {
+    const { fake, statics } = buildModels({ ...SAVED, defaultProvider: 'kimi' });
+
+    await statics.removeConnection('user-1', 'kimi');
+
+    expect(fake.findOneAndUpdate).toHaveBeenCalledWith(
+      { userId: 'user-1' },
+      {
+        $set: { connections: [SAVED.connections[0]] },
+        $unset: { connection: '', defaultProvider: '' },
+      },
+    );
+  });
+
+  it('keeps the default when another connection is removed', async () => {
+    const { fake, statics } = buildModels({ ...SAVED, defaultProvider: 'kimi' });
+
+    await statics.removeConnection('user-1', 'openai');
+
+    expect(fake.findOneAndUpdate.mock.calls[0][1]).toEqual({
+      $set: { connections: [SAVED.connections[1]] },
+      $unset: { connection: '' },
+    });
   });
 });

@@ -2,7 +2,8 @@
  * GraphQL schema for the acting user's bring-your-own-key agents
  * connections. Multiple providers may be configured at once; the API key
  * itself never appears in the schema: reads expose only a `hasKey` flag,
- * and writes accept the key as input only.
+ * and writes accept the key as input only. `isDefault` marks the one entry
+ * an unselected chat turn runs on (explicit default, else the first saved).
  */
 
 export const types = `
@@ -10,6 +11,7 @@ export const types = `
     provider: String
     model: String
     hasKey: Boolean
+    isDefault: Boolean
     updatedAt: Date
   }
 
@@ -35,4 +37,5 @@ export const queries = `
 export const mutations = `
   agentsConnectionUpsert(provider: String!, model: String, apiKey: String): AgentsConnectionEntry
   agentsConnectionRemove(provider: String!): Boolean
+  agentsConnectionSetDefault(provider: String): [AgentsConnectionEntry]
 `;

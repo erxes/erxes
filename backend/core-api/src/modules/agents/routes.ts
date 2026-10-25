@@ -32,6 +32,8 @@ import {
   buildAgentsModelSettings,
   type IAgentsThinkingLevel,
 } from '@/agents/agent';
+import type { IAgentsConnections } from '@/agents/@types/connection';
+import { findDefaultConnection } from '@/agents/db/models/Connection';
 import { getAgentsRuntime } from '@/agents/memory';
 import { isAgentsRunAlive } from '@/agents/runLiveness';
 import { publishAgentsThreadsChanged } from '@/agents/threadsEvents';
@@ -178,40 +180,41 @@ const resolveOwnedThreadId = async ({
 };
 
 /**
- * Resolves the acting user's stored BYOK connection, shared by chat and
+ * Resolves the acting user's stored BYOK connections, shared by chat and
  * approve. Without one the user is told exactly what is missing; the key
  * itself is never echoed into the error.
  */
 const resolveUserConnections = async (
   models: IModels,
   userId: string,
-): Promise<IAiAgentConnection[]> => {
+): Promise<IAgentsConnections> => {
   const doc = await models.AgentsConnection.getConnections(userId);
 
   if (!doc || doc.connections.length === 0) {
     throw new HttpError(400, 'Add your API key to start using Agents.');
   }
 
-  return doc.connections;
+  return doc;
 };
 
 /**
  * Picks the connection a turn runs on: the body's provider when given
- * (validated against the user's stored entries), otherwise the first
- * configured provider. An explicit `model` overrides the stored one for
- * this turn only and is never persisted.
+ * (validated against the user's stored entries), otherwise the user's
+ * default (`findDefaultConnection`: the explicit default while it is still
+ * saved, else the first saved provider). An explicit `model` overrides the
+ * stored one for this turn only and is never persisted.
  */
-const pickConnection = (
-  connections: IAiAgentConnection[],
+export const pickConnection = (
+  stored: Pick<IAgentsConnections, 'connections' | 'defaultProvider'>,
   provider?: string,
   model?: string,
 ): IAiAgentConnection => {
   const requestedProvider = provider?.trim();
   const selected = requestedProvider
-    ? connections.find(
+    ? stored.connections.find(
         (connection) => connection.provider === requestedProvider,
       )
-    : connections[0];
+    : findDefaultConnection(stored);
 
   if (!selected) {
     throw new HttpError(
@@ -720,9 +723,12 @@ router.post('/agents/chat', async (req, res) => {
     );
 
     const models = await generateModels(identity.subdomain);
-    const connections = await resolveUserConnections(models, identity.userId);
+    const storedConnections = await resolveUserConnections(
+      models,
+      identity.userId,
+    );
     const connection = pickConnection(
-      connections,
+      storedConnections,
       body.provider,
       body.model,
     );

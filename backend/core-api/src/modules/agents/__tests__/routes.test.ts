@@ -947,6 +947,77 @@ describe('POST /agents/chat — model input and identity', () => {
   });
 });
 
+describe('POST /agents/chat — default connection', () => {
+  const TWO_CONNECTIONS = {
+    userId: 'user-1',
+    connections: [
+      { provider: 'openai', model: 'gpt-5.6-luna', config: { apiKey: 'sk-a' } },
+      { provider: 'kimi', model: 'kimi-k3', config: { apiKey: 'sk-b' } },
+    ],
+  };
+  const runOn = async (body: Record<string, unknown> = {}) => {
+    await chatHandler(
+      buildReq({
+        user: ACTING_USER,
+        hostname: 'tenant.example.com',
+        body: { messages: [userMessage('hi')], ...body },
+      }),
+      buildRes(),
+    );
+    const context = streamMock.mock.calls[0][1].requestContext;
+    return {
+      provider: context?.get('provider'),
+      model: context?.get('model'),
+    };
+  };
+
+  it('keeps the first saved connection when no default was chosen', async () => {
+    connectionModel.getConnections.mockResolvedValue(TWO_CONNECTIONS);
+
+    await expect(runOn()).resolves.toEqual({
+      provider: 'openai',
+      model: 'gpt-5.6-luna',
+    });
+  });
+
+  it('runs an unselected turn on the explicit default, read for the acting user and tenant', async () => {
+    connectionModel.getConnections.mockResolvedValue({
+      ...TWO_CONNECTIONS,
+      defaultProvider: 'kimi',
+    });
+
+    await expect(runOn()).resolves.toEqual({
+      provider: 'kimi',
+      model: 'kimi-k3',
+    });
+    expect(generateModels).toHaveBeenCalledWith('tenant');
+    expect(connectionModel.getConnections).toHaveBeenCalledWith('user-1');
+  });
+
+  it('falls back to the first saved connection when the default is no longer connected', async () => {
+    connectionModel.getConnections.mockResolvedValue({
+      ...TWO_CONNECTIONS,
+      defaultProvider: 'grok',
+    });
+
+    await expect(runOn()).resolves.toEqual({
+      provider: 'openai',
+      model: 'gpt-5.6-luna',
+    });
+  });
+
+  it('lets an explicit provider/model selection override the default', async () => {
+    connectionModel.getConnections.mockResolvedValue({
+      ...TWO_CONNECTIONS,
+      defaultProvider: 'kimi',
+    });
+
+    await expect(
+      runOn({ provider: 'openai', model: 'gpt-5.6' }),
+    ).resolves.toEqual({ provider: 'openai', model: 'gpt-5.6' });
+  });
+});
+
 describe('POST /agents/approve — destructive action approval resume', () => {
   const suspendedRun = (runId: string): ISuspendedRun => ({
     runId,

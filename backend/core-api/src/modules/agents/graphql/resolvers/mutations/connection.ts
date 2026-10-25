@@ -6,7 +6,11 @@ import type {
 import type { IContext } from '~/connectionResolvers';
 import { getProviderDefaultModel } from '@/agents/providers';
 import { isByokProvider } from '@/agents/providerModels';
-import { toPublicConnection } from '@/agents/graphql/resolvers/queries/connection';
+import { findDefaultConnection } from '@/agents/db/models/Connection';
+import {
+  toPublicConnection,
+  toPublicConnections,
+} from '@/agents/graphql/resolvers/queries/connection';
 
 export interface IAgentsConnectionUpsertArgs {
   provider: string;
@@ -16,6 +20,11 @@ export interface IAgentsConnectionUpsertArgs {
 
 export interface IAgentsConnectionRemoveArgs {
   provider: string;
+}
+
+export interface IAgentsConnectionSetDefaultArgs {
+  /** Empty or omitted clears the explicit default (first saved applies). */
+  provider?: string | null;
 }
 
 export const agentsConnectionMutations = {
@@ -98,7 +107,11 @@ export const agentsConnectionMutations = {
         (connection) => connection.provider === provider,
       ) ?? connection;
 
-    return toPublicConnection(saved, updated.updatedAt);
+    return toPublicConnection(
+      saved,
+      updated.updatedAt,
+      findDefaultConnection(updated)?.provider === provider,
+    );
   },
 
   /** Removes ONE provider's entry from the acting user's connections. */
@@ -115,5 +128,34 @@ export const agentsConnectionMutations = {
     );
 
     return true;
+  },
+
+  /**
+   * Chooses which of the acting user's saved providers an unselected chat
+   * turn runs on; an empty provider clears the choice so the first saved
+   * entry applies again. Only the user's own document is touched, and the
+   * provider must already be saved there.
+   */
+  agentsConnectionSetDefault: async (
+    _p: undefined,
+    args: IAgentsConnectionSetDefaultArgs,
+    ctx: IContext,
+  ) => {
+    await ctx.checkPermission('agentsChat');
+
+    const provider = (args.provider || '').trim();
+    const doc = await ctx.models.AgentsConnection.setDefaultProvider(
+      ctx.user._id,
+      provider,
+    );
+
+    if (!doc && provider) {
+      throw new ExpectedError(
+        `No connection stored for provider "${provider}". Add it under Settings → API key.`,
+        'VALIDATION_ERROR',
+      );
+    }
+
+    return toPublicConnections(doc);
   },
 };

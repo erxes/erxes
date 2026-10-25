@@ -6,7 +6,10 @@ plugin; ported from the former private `erxes-agent` service). It provides:
 - per-user **BYOK** multi-provider connections (`openai`, `grok`, `kimi`,
   `kimi-code`; `cloudflare-ai-gateway` resolves but is not offered on the BYOK
   surface) stored on `agents_user_connections` — one doc per user per tenant,
-  one entry per provider, `hasKey`-only reads; `config.apiKey` is sealed at
+  one entry per provider, `hasKey`-only reads; an optional top-level
+  `defaultProvider` names the entry an unselected turn runs on
+  (`findDefaultConnection`: explicit default while still saved, else the first
+  entry — documents without it keep the first-saved behaviour, no migration); `config.apiKey` is sealed at
   rest (`secretBox.ts`, AES-256-GCM, `enc:v1:` envelope keyed from
   `JWT_TOKEN_SECRET`) — readers use `openSecret`, writers seal on upsert,
   `getConnections` lazily re-seals legacy plaintext;
@@ -84,7 +87,8 @@ plugin; ported from the former private `erxes-agent` service). It provides:
 
 - HTTP (mounted in `src/routes.ts` via `src/modules/agents/routes.ts`):
   `POST /agents/chat` (SSE; optional `runId` UUID, `provider`, `model`,
-  `thinkingLevel`, `pageContext`; `X-Agents-Thread-Id` response header),
+  `thinkingLevel`, `pageContext`; without `provider`, `pickConnection` uses
+  `findDefaultConnection`; `X-Agents-Thread-Id` response header),
   `POST /agents/approve` `{ threadId, toolCallId?, approved, reason? }`,
   `POST /agents/answer` `{ threadId, answer }`,
   `POST /agents/chat/reconnect` `{ threadId, runId }` (SSE replay or 204).
@@ -105,7 +109,11 @@ plugin; ported from the former private `erxes-agent` service). It provides:
   order, additive `catalog: [AgentsModelInfo { id, family, recommended }]`, and
   a key-free `error` with empty lists when that provider's listing fails),
   `agentsConnectionUpsert`/`agentsConnectionRemove` (BYOK; key never read
-  back), `agentsThreads(page, perPage, pinned)` (`pinned: true` →
+  back; `AgentsConnectionEntry.isDefault` is the effective default),
+  `agentsConnectionSetDefault(provider: String): [AgentsConnectionEntry]`
+  (`agentsChat`; own document only; the write is conditional on the provider
+  being saved, unknown providers are a VALIDATION_ERROR, empty clears;
+  `removeConnection` unsets a removed default), `agentsThreads(page, perPage, pinned)` (`pinned: true` →
   `filter.metadata.pinned`), `agentsThreadDetail(threadId)`,
   `agentsThreadUpdate(threadId, title?, pinned?)` (rename ≤120 chars /
   pin; ownership-scoped, merges `metadata.pinned`, publishes
