@@ -69,7 +69,18 @@ The `agent` module is the core-ui surface for the core-api `agents` backend
   custom text, progress navigation and retained drafts. Multi-question groups
   have a review/edit step before explicit submission; answers keep the existing
   positional string/string-array contract. `AskUserAnswered` is the persisted
-  summary in the transcript;
+  summary in the transcript. Both share one surface (`rounded-xl border
+  bg-card`, `bg-muted/20` header bar, px-4 rows). The internal `AnswerValue`
+  renders the review step and the summary the same way: picked options as
+  erxes-ui `Badge` chips (wrapping at 320px) and the user's own words as a
+  separate muted text line (pencil icon + sr-only "Your own answer" when the
+  question had options). `splitAskUserAnswer` (`askUserAnswers.ts`, display
+  only) recovers picks vs custom text from the stored answer and the
+  question's options (longest-label match for comma-joined multi-select;
+  first line for single-select); `MessagePart` passes the tool input's
+  questions to the summary. Groups longer than 4 show 3 pairs behind "Show all
+  N answers". The summary settles in with `agent-ask-settle` (220ms fade/rise,
+  none for reduced motion);
 - settings at `/settings/agent/*`: `connection` (BYOK; each saved connection
   shows a `Default` badge or a `Set as default` action →
   `AgentsConnectionSetDefault`, toasts, awaited `AgentsConnections` refetch;

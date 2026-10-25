@@ -10,6 +10,7 @@ import { ApprovalPrompt, ApprovalStatusRow } from './ApprovalPrompt';
 import {
   AskUserAnswered,
   AskUserPrompt,
+  type IAskUserQuestionEntry,
   type IAskUserQuestionGroup,
 } from './AskUserPrompt';
 import {
@@ -115,12 +116,16 @@ const toolStepOf = (part: TMessagePart): IAgentToolStep | null => {
  * Extracts the answered Q&A pairs from an askUser tool part in its
  * `output-available` state — the settled card that replaces the suspension
  * prompt and survives reloads (the questions live in the tool input, the
- * answers in the tool result). Returns null for every other tool or an
- * unparseable result.
+ * answers in the tool result). The questions travel along so the card can
+ * tell picked options from custom text. Returns null for every other tool
+ * or an unparseable result.
  */
 const readAskUserAnswerCard = (
   part: TMessagePart,
-): IAskUserAnswerEntry[] | null => {
+): {
+  questions: IAskUserQuestionEntry[];
+  answers: IAskUserAnswerEntry[];
+} | null => {
   if (!isToolUIPart(part) || part.state !== 'output-available') {
     return null;
   }
@@ -135,10 +140,12 @@ const readAskUserAnswerCard = (
     return null;
   }
 
-  return readAskUserAnswers(
+  const answers = readAskUserAnswers(
     questions,
     'output' in part ? part.output : undefined,
   );
+
+  return answers ? { questions, answers } : null;
 };
 
 /**
@@ -153,7 +160,7 @@ export const readMessageAskUserAnswerCard = (
     const card = readAskUserAnswerCard(part);
 
     if (card) {
-      return card;
+      return card.answers;
     }
   }
 
@@ -237,7 +244,12 @@ export const MessagePartRenderer = ({
     const answerCard = readAskUserAnswerCard(part);
 
     if (answerCard) {
-      return <AskUserAnswered answers={answerCard} />;
+      return (
+        <AskUserAnswered
+          answers={answerCard.answers}
+          questions={answerCard.questions}
+        />
+      );
     }
 
     const tool = toolStepOf(part);
