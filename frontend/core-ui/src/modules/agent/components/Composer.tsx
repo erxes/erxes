@@ -183,6 +183,16 @@ export const Composer = ({
     }
   };
 
+  const patchAttachment = (
+    localId: string,
+    patch: Partial<IComposerAttachment>,
+  ) =>
+    setAttachments((current) =>
+      current.map((item) =>
+        item.localId === localId ? { ...item, ...patch } : item,
+      ),
+    );
+
   const uploadFile = (localId: string, file: File, resize: boolean) => {
     const controller = new AbortController();
     uploadsRef.current.set(localId, controller);
@@ -200,38 +210,23 @@ export const Composer = ({
         if (signal.aborted) {
           return;
         }
-        setAttachments((current) =>
-          current.map((item) =>
-            item.localId === localId
-              ? {
-                  ...item,
-                  name: uploaded.name,
-                  mimeType: uploaded.type,
-                  size: uploaded.size,
-                  status: 'ready',
-                  error: undefined,
-                  file: uploaded,
-                }
-              : item,
-          ),
-        );
+        patchAttachment(localId, {
+          name: uploaded.name,
+          mimeType: uploaded.type,
+          size: uploaded.size,
+          status: 'ready',
+          error: undefined,
+          file: uploaded,
+        });
       })
       .catch((error: unknown) => {
         if (signal.aborted) {
           return;
         }
-        setAttachments((current) =>
-          current.map((item) =>
-            item.localId === localId
-              ? {
-                  ...item,
-                  status: 'error',
-                  error:
-                    error instanceof Error ? error.message : 'Upload failed.',
-                }
-              : item,
-          ),
-        );
+        patchAttachment(localId, {
+          status: 'error',
+          error: error instanceof Error ? error.message : 'Upload failed.',
+        });
       })
       .finally(() => {
         if (uploadsRef.current.get(localId) === controller)
@@ -302,13 +297,7 @@ export const Composer = ({
 
   const retryUpload = (item: IComposerAttachment) => {
     if (!item.source || !canAttach) return;
-    setAttachments((current) =>
-      current.map((entry) =>
-        entry.localId === item.localId
-          ? { ...entry, status: 'uploading', error: undefined }
-          : entry,
-      ),
-    );
+    patchAttachment(item.localId, { status: 'uploading', error: undefined });
     uploadFile(item.localId, item.source, item.resize === true);
   };
 
@@ -342,13 +331,7 @@ export const Composer = ({
     if (!selection) return;
     const controller = new AbortController();
     uploadsRef.current.set(item.localId, controller);
-    setAttachments((current) =>
-      current.map((entry) =>
-        entry.localId === item.localId
-          ? { ...entry, status: 'uploading', error: undefined }
-          : entry,
-      ),
-    );
+    patchAttachment(item.localId, { status: 'uploading', error: undefined });
     const image = new File(
       [selection.image],
       `selection-snapshot-${item.localId}.png`,
@@ -357,47 +340,33 @@ export const Composer = ({
     void uploadAgentsFile(image, { signal: controller.signal })
       .then((snapshot) => {
         if (!controller.signal.aborted)
-          setAttachments((current) =>
-            current.map((entry) =>
-              entry.localId === item.localId
-                ? {
-                    ...entry,
-                    status: 'ready',
-                    context: {
-                      id: item.localId,
-                      title: selection.title,
-                      path: selection.path.slice(0, 200),
-                      frame: selection.frame?.slice(0, 80) || undefined,
-                      text: selection.text,
-                      width: selection.width,
-                      height: selection.height,
-                      snapshot: {
-                        url: snapshot.url,
-                        type: 'image/png',
-                        size: snapshot.size,
-                      },
-                    },
-                  }
-                : entry,
-            ),
-          );
+          patchAttachment(item.localId, {
+            status: 'ready',
+            context: {
+              id: item.localId,
+              title: selection.title,
+              path: selection.path.slice(0, 200),
+              frame: selection.frame?.slice(0, 80) || undefined,
+              text: selection.text,
+              width: selection.width,
+              height: selection.height,
+              snapshot: {
+                url: snapshot.url,
+                type: 'image/png',
+                size: snapshot.size,
+              },
+            },
+          });
       })
       .catch((error: unknown) => {
         if (!controller.signal.aborted)
-          setAttachments((current) =>
-            current.map((entry) =>
-              entry.localId === item.localId
-                ? {
-                    ...entry,
-                    status: 'error',
-                    error:
-                      error instanceof Error
-                        ? error.message
-                        : 'Could not attach selection.',
-                  }
-                : entry,
-            ),
-          );
+          patchAttachment(item.localId, {
+            status: 'error',
+            error:
+              error instanceof Error
+                ? error.message
+                : 'Could not attach selection.',
+          });
       })
       .finally(() => {
         if (uploadsRef.current.get(item.localId) === controller)

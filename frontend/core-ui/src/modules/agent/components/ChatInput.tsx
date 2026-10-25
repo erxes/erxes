@@ -73,6 +73,8 @@ export const ChatInput = ({
     [externalRef],
   );
 
+  const resizeRef = useRef<() => void>(() => undefined);
+
   useEffect(() => {
     const node = inputRef.current;
 
@@ -80,50 +82,48 @@ export const ChatInput = ({
       return;
     }
 
-    let frame = 0;
-    const resize = () => {
-      // Hidden panels report zero; always keep one usable line, then measure
-      // again when the panel becomes visible or its width changes.
-      // Resetting to auto is only for measurement. Restore it when the capped
-      // height is already applied so an unchanged field does not restyle.
-      const previousHeight = node.style.height;
+    // Hidden panels report zero; always keep one usable line, then measure
+    // again when the panel becomes visible or its width changes. Resetting to
+    // auto is only for measurement.
+    resizeRef.current = () => {
       const previousOverflow = node.style.overflowY;
       node.style.height = 'auto';
       const contentHeight = Math.max(minHeight, node.scrollHeight);
-      const nextHeight = `${Math.min(contentHeight, maxHeight)}px`;
       const nextOverflow = contentHeight > maxHeight ? 'auto' : 'hidden';
-      node.style.height =
-        previousHeight === nextHeight ? previousHeight : nextHeight;
+      node.style.height = `${Math.min(contentHeight, maxHeight)}px`;
       if (previousOverflow !== nextOverflow)
         node.style.overflowY = nextOverflow;
     };
-    const schedule = () => {
-      if (frame) cancelAnimationFrame(frame);
-      frame = requestAnimationFrame(() => {
-        frame = 0;
-        resize();
-      });
-    };
-    resize();
-    if (typeof ResizeObserver === 'undefined') {
-      return () => {
-        if (frame) cancelAnimationFrame(frame);
-      };
+    resizeRef.current();
+  }, [value, maxHeight, minHeight]);
+
+  // One observer for the field's lifetime. The mention mirror observes this
+  // textarea too, so a width change remeasures on the next frame instead of
+  // writing a height inside this callback.
+  useEffect(() => {
+    const node = inputRef.current;
+
+    if (!node || typeof ResizeObserver === 'undefined') {
+      return;
     }
-    // The mention mirror observes this textarea too. A height write in this
-    // callback leaves that observer a notification in the same frame.
+
+    let frame = 0;
     let width = node.getBoundingClientRect().width;
     const observer = new ResizeObserver(([entry]) => {
       if (!entry || entry.contentRect.width === width) return;
       width = entry.contentRect.width;
-      schedule();
+      if (frame) cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        frame = 0;
+        resizeRef.current();
+      });
     });
     observer.observe(node);
     return () => {
       if (frame) cancelAnimationFrame(frame);
       observer.disconnect();
     };
-  }, [value, maxHeight, minHeight]);
+  }, []);
 
   return (
     <textarea
