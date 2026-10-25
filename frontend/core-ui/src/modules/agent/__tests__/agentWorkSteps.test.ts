@@ -6,7 +6,9 @@ import {
   agentStepLabel,
   agentMessageActivity,
   describeToolCall,
-  groupAgentWorkSteps,
+  isStandalonePart,
+  isWorkPart,
+  toAgentWorkStep,
 } from '../utils/agentWorkSteps';
 import type { TAgentWorkStep } from '../utils/agentWorkSteps';
 
@@ -43,61 +45,60 @@ const toolPart = (
   return base;
 };
 
-describe('groupAgentWorkSteps', () => {
-  it('groups contiguous reasoning + tool parts into one work item', () => {
-    const items = groupAgentWorkSteps([
-      reasoningPart('thinking'),
-      toolPart('searchTools', 'output-available', { intent: 'deals' }),
-      toolPart('callTool', 'output-available', {
-        toolId: 'sales.trpc.deal.find',
-      }),
-      textPart('done'),
-      toolPart('callTool', 'input-available', { toolId: 'x.trpc.y.z' }),
-    ]);
-
-    expect(items).toHaveLength(3);
-    expect(items[0].kind).toBe('work');
-    expect((items[0] as { steps: unknown[] }).steps).toHaveLength(3);
-    expect(items[1].kind).toBe('part');
-    expect(items[2].kind).toBe('work');
-    expect((items[2] as { steps: unknown[] }).steps).toHaveLength(1);
+describe('work part predicates', () => {
+  it('treats reasoning and ordinary tool parts as work', () => {
+    expect(isWorkPart(reasoningPart('thinking'))).toBe(true);
+    expect(
+      isWorkPart(
+        toolPart('callTool', 'output-available', {
+          toolId: 'sales.trpc.deal.find',
+        }),
+      ),
+    ).toBe(true);
+    expect(isWorkPart(textPart('done'))).toBe(false);
+    expect(isWorkPart({ type: 'step-start' })).toBe(false);
   });
 
-  it('treats step-start as transparent', () => {
-    const items = groupAgentWorkSteps([
-      toolPart('callTool', 'output-available', { toolId: 'a.trpc.b.c' }),
-      { type: 'step-start' },
-      reasoningPart('more'),
-    ]);
-
-    expect(items).toHaveLength(1);
-    expect((items[0] as { steps: unknown[] }).steps).toHaveLength(2);
-  });
-
-  it('keeps approval-requested parts standalone', () => {
+  it('keeps approval, ask_user and artifact parts standalone', () => {
     const approval = toolPart('callTool', 'approval-requested', {
       toolId: 'x.trpc.a.b',
     });
-    (approval as { approval?: { id: string } }).approval = { id: 'ap-1' };
 
-    const items = groupAgentWorkSteps([
-      reasoningPart('t'),
-      approval,
-      reasoningPart('u'),
-    ]);
-
-    expect(items).toHaveLength(3);
-    expect(items[1].kind).toBe('part');
-    expect((items[0] as { steps: unknown[] }).steps).toHaveLength(1);
-    expect((items[2] as { steps: unknown[] }).steps).toHaveLength(1);
+    expect(isStandalonePart(approval)).toBe(true);
+    expect(isStandalonePart(toolPart('callTool', 'output-denied'))).toBe(true);
+    expect(isStandalonePart(toolPart('callTool', 'approval-responded'))).toBe(
+      true,
+    );
+    expect(
+      isStandalonePart(toolPart('askUser', 'output-available', {}, {})),
+    ).toBe(true);
+    expect(
+      isStandalonePart(toolPart('createArtifact', 'input-streaming')),
+    ).toBe(true);
+    expect(isWorkPart(approval)).toBe(false);
   });
 
-  it('keeps askUser tool parts standalone', () => {
-    const items = groupAgentWorkSteps([
-      toolPart('askUser', 'output-available', {}, {}),
-    ]);
-
-    expect(items).toEqual([expect.objectContaining({ kind: 'part' })]);
+  it('normalizes work parts into timeline steps', () => {
+    expect(toAgentWorkStep(reasoningPart('plan'))).toEqual({
+      kind: 'reasoning',
+      text: 'plan',
+    });
+    expect(
+      toAgentWorkStep(
+        toolPart('readFile', 'output-available', { url: '/a.pdf' }, 'ok'),
+      ),
+    ).toEqual({
+      kind: 'tool',
+      tool: expect.objectContaining({
+        toolCallId: 'call-readFile-output-available',
+        toolName: 'readFile',
+        state: 'output-available',
+        input: { url: '/a.pdf' },
+        output: 'ok',
+      }),
+    });
+    expect(toAgentWorkStep(textPart('answer'))).toBeNull();
+    expect(toAgentWorkStep(toolPart('askUser', 'input-available'))).toBeNull();
   });
 });
 
@@ -284,7 +285,7 @@ describe('agentMessageActivity', () => {
   });
 });
 
-describe('work-steps summary pluralisation', () => {
+describe('activity summary locale keys', () => {
   // The component calls t('step-count', { count }) — i18next resolves the
   // _one/_other forms; these keys must exist in both shipped locales.
   const en = JSON.parse(
@@ -315,5 +316,14 @@ describe('work-steps summary pluralisation', () => {
     expect(en.agent['step-count_other']).toBe('{{count}} steps');
     expect(mn.agent['step-count_one']).toBeTruthy();
     expect(mn.agent['step-count_other']).toBeTruthy();
+  });
+
+  it('has the settled activity summaries in both locales', () => {
+    for (const key of ['thought', 'thought-for', 'worked-for']) {
+      expect(en.agent[key]).toBeTruthy();
+      expect(mn.agent[key]).toBeTruthy();
+    }
+    expect(en.agent['worked-for']).toContain('{{duration}}');
+    expect(mn.agent['worked-for']).toContain('{{duration}}');
   });
 });

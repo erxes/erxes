@@ -9,8 +9,9 @@ import {
   AGENT_REFERENCE_PLACEHOLDER_PATTERN,
   maskAgentReferences,
 } from '../references/maskAgentReferences';
+import { agentTurnAnswerText } from './agentTurnTimeline';
 import { extractPageContext } from './pageContext';
-import { getMessageText, isAgentsAnswerTurn } from './messages';
+import { isAgentsAnswerTurn } from './messages';
 
 // `ai` is ESM-only — `import type` only so jest (CJS) can load this util.
 const isTextPart = (part: UIMessage['parts'][number]): part is TextUIPart =>
@@ -47,9 +48,11 @@ const referencesToLabels = (
 
 /**
  * Renders a thread as Markdown: `## You` / `## AI Agent` turns with text
- * parts only. Skips reasoning/tool parts, ask_user answer echoes
- * (`metadata.agentsAnswer`), and each user turn's leading `[Page context]`
- * block.
+ * parts only. Consecutive assistant messages separated only by skipped
+ * user turns form one agent turn, exported as its final answer: narration
+ * between steps, reasoning and tool parts stay out, like Copy. Skips
+ * ask_user answer echoes (`metadata.agentsAnswer`) and each user turn's
+ * leading `[Page context]` block.
  */
 export const buildThreadMarkdown = ({
   title,
@@ -64,6 +67,24 @@ export const buildThreadMarkdown = ({
   ];
 
   const scopes = buildAgentReferenceScopes(messages);
+  let turnParts: UIMessage['parts'] = [];
+  let turnLastIndex = -1;
+
+  const flushTurn = () => {
+    const text = agentTurnAnswerText(turnParts).trim();
+
+    if (text) {
+      lines.push(
+        '## AI Agent',
+        '',
+        referencesToLabels(text, scopes[turnLastIndex]),
+        '',
+      );
+    }
+
+    turnParts = [];
+  };
+
   for (const [index, message] of messages.entries()) {
     if (message.role === 'user') {
       if (isAgentsAnswerTurn(message)) {
@@ -78,6 +99,7 @@ export const buildThreadMarkdown = ({
         .trim();
 
       if (text) {
+        flushTurn();
         lines.push('## You', '', referencesToLabels(text, scopes[index]), '');
       }
 
@@ -85,18 +107,12 @@ export const buildThreadMarkdown = ({
     }
 
     if (message.role === 'assistant') {
-      const text = getMessageText(message).trim();
-
-      if (text) {
-        lines.push(
-          '## AI Agent',
-          '',
-          referencesToLabels(text, scopes[index]),
-          '',
-        );
-      }
+      turnParts = [...turnParts, ...message.parts];
+      turnLastIndex = index;
     }
   }
+
+  flushTurn();
 
   return `${lines.join('\n').trimEnd()}\n`;
 };

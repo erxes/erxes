@@ -164,7 +164,7 @@ export const readMessageAskUserAnswerCard = (
  * Whether an assistant message renders anything at all outside the work
  * steps: text, an approval prompt/status, an unanswered ask_user card, or
  * an answered ask_user Q&A card. Reasoning/tool parts count through the
- * work-steps group, so this is only used to drop messages whose EVERY part
+ * turn's activity timeline, so this is only used to drop messages whose EVERY part
  * is hidden.
  */
 export const hasVisibleParts = (
@@ -208,7 +208,8 @@ export const hasVisibleParts = (
  * Renders one non-work part of a message: text (markdown for the
  * assistant), attachments, approval prompts/status rows, and ask_user
  * cards. Reasoning and ordinary tool parts are grouped upstream by
- * `groupAgentWorkSteps` and never reach this renderer.
+ * `buildAgentTurnLayout` into the turn's activity timeline and never reach
+ * this renderer.
  */
 export const MessagePartRenderer = ({
   part,

@@ -399,6 +399,23 @@
   }
   .agent-send:not(:disabled):hover { transform: translateY(-1px); }
   .agent-send:not(:disabled):active { transform: scale(0.97); }
+  .agent-activity-enter {
+    animation: agent-activity-enter 220ms ease-out both;
+  }
+  .agent-activity-exit {
+    animation: agent-activity-exit 220ms ease-in both;
+  }
+  .agent-timeline-content[data-state='open'] {
+    animation: agent-message-arrive 160ms ease-out both;
+  }
+}
+@keyframes agent-activity-enter {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes agent-activity-exit {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(-5px); }
 }
 @keyframes agent-message-arrive {
   from { opacity: 0; transform: translateY(6px); }
