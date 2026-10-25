@@ -141,14 +141,19 @@ export const AgentMentionInput = ({
     const mirror = mirrorRef.current;
     if (!node || !mirror) return;
     const style = window.getComputedStyle(node);
-    for (const property of MIRRORED_STYLES)
-      mirror.style.setProperty(property, style.getPropertyValue(property));
+    for (const property of MIRRORED_STYLES) {
+      const next = style.getPropertyValue(property);
+      if (mirror.style.getPropertyValue(property) !== next)
+        mirror.style.setProperty(property, next);
+    }
     const borders =
       (parseFloat(style.borderLeftWidth) || 0) +
       (parseFloat(style.borderRightWidth) || 0);
-    mirror.style.width = `${node.clientWidth + borders}px`;
-    mirror.style.height = `${node.offsetHeight}px`;
-    mirror.scrollTop = node.scrollTop;
+    const width = `${node.clientWidth + borders}px`;
+    const height = `${node.offsetHeight}px`;
+    if (mirror.style.width !== width) mirror.style.width = width;
+    if (mirror.style.height !== height) mirror.style.height = height;
+    if (mirror.scrollTop !== node.scrollTop) mirror.scrollTop = node.scrollTop;
     const marker = mirror.querySelector<HTMLElement>(
       '[data-agent-mention-anchor]',
     );
@@ -173,9 +178,21 @@ export const AgentMentionInput = ({
   useEffect(() => {
     const node = textareaRef.current;
     if (!node || typeof ResizeObserver === 'undefined') return;
-    const observer = new ResizeObserver(syncMirror);
+    // ChatInput grows this textarea from its own observer. Matching the mirror
+    // in that same callback retriggers it, so the write waits for the next frame.
+    let frame = 0;
+    const observer = new ResizeObserver(() => {
+      if (frame) cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        frame = 0;
+        syncMirror();
+      });
+    });
     observer.observe(node);
-    return () => observer.disconnect();
+    return () => {
+      if (frame) cancelAnimationFrame(frame);
+      observer.disconnect();
+    };
   }, [syncMirror]);
 
   const handleChange = (next: string) => {

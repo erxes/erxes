@@ -127,6 +127,63 @@ it('dismisses with Escape until the trigger changes, then forwards keys', async 
   expect((await screen.findByRole('listbox')).textContent).toBe('menu:b');
 });
 
+it('aligns the mention mirror on the next frame and skips an unchanged size', () => {
+  const callbacks: ResizeObserverCallback[] = [];
+  const originalObserver = global.ResizeObserver;
+  const pending = new Map<number, FrameRequestCallback>();
+  let frameId = 0;
+  global.ResizeObserver = class {
+    constructor(callback: ResizeObserverCallback) {
+      callbacks.push(callback);
+    }
+    observe() {
+      return undefined;
+    }
+    unobserve() {
+      return undefined;
+    }
+    disconnect() {
+      return undefined;
+    }
+  } as typeof ResizeObserver;
+  jest.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => {
+    const id = ++frameId;
+    pending.set(id, callback);
+    return id;
+  });
+  jest
+    .spyOn(window, 'cancelAnimationFrame')
+    .mockImplementation((id) => pending.delete(id));
+
+  try {
+    const { container, unmount } = render(<Harness />);
+    const mirror = container.querySelector('[aria-hidden]') as HTMLDivElement;
+    const mirrorObserver = callbacks[callbacks.length - 1];
+    if (!mirrorObserver)
+      throw new Error('Mention mirror observer was not registered');
+    const painted = mirror.style.cssText;
+
+    act(() => mirrorObserver([], {} as ResizeObserver));
+    expect(pending.size).toBe(1);
+    expect(mirror.style.cssText).toBe(painted);
+    act(() => mirrorObserver([], {} as ResizeObserver));
+    expect(pending.size).toBe(1);
+
+    act(() => {
+      for (const callback of pending.values()) callback(0);
+      pending.clear();
+    });
+    expect(mirror.style.cssText).toBe(painted);
+
+    act(() => mirrorObserver([], {} as ResizeObserver));
+    unmount();
+    expect(pending.size).toBe(0);
+  } finally {
+    global.ResizeObserver = originalObserver;
+    jest.restoreAllMocks();
+  }
+});
+
 it('closes when the textarea loses focus', async () => {
   render(<Harness />);
   act(() => input().focus());

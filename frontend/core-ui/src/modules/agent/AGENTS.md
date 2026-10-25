@@ -404,6 +404,9 @@ last assistant turn.
   invent ids.
 - Mention tokens must round-trip: labels follow the backend's sanitization
   (no brackets/newlines, ≤80 chars) and `page` is never mentionable.
+- `ChatInput` and the mention mirror both observe the composer textarea.
+  Height and mirror writes from those observers run on the next animation
+  frame and are skipped when the measured value is unchanged.
 
 ## Validation
 
