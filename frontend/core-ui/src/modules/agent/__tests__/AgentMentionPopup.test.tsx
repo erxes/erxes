@@ -15,12 +15,13 @@ import {
   useAgentMentionSearch,
   type IAgentMentionSearchResult,
 } from '../hooks/useAgentMentionSearch';
+import { initAgentI18n, readCommonLocale } from './support/agentI18n';
 
-jest.mock('react-i18next', () => ({
-  useTranslation: () => ({
-    t: (_key: string, fallback?: string) => fallback ?? _key,
-  }),
-}));
+const i18n = initAgentI18n('en');
+afterEach(async () => {
+  await i18n.changeLanguage('en');
+});
+
 jest.mock('../hooks/useAgentMentionSearch', () => ({
   useAgentMentionSearch: jest.fn(),
 }));
@@ -167,4 +168,21 @@ it('keeps already mentioned records pickable at the per-message limit', () => {
   expect(onPick).not.toHaveBeenCalled();
   expect(key(ref, 'Enter')).toBe(true);
   expect(onPick).toHaveBeenCalledWith(ann);
+});
+
+it('announces suggestions and labels groups in Mongolian', async () => {
+  const mn = readCommonLocale('mn').agent;
+  const groups = mn['mention-groups'] as Record<string, string>;
+  await act(async () => {
+    await i18n.changeLanguage('mn');
+  });
+  renderPopup('a');
+  expect(screen.getByRole('group', { name: groups.customer })).toBeTruthy();
+  expect(
+    screen.getByRole('listbox', { name: String(mn['mention-menu']) }),
+  ).toBeTruthy();
+  expect(screen.getByRole('status').textContent).toBe(
+    i18n.t('agent.mention-suggestions', { count: 2 }),
+  );
+  expect(screen.getByRole('status').textContent).not.toMatch(/suggestion/);
 });

@@ -259,8 +259,8 @@ export const Composer = ({
       toast({
         title:
           plan.accepted.length > 0
-            ? 'Some files were not attached'
-            : 'Files not attached',
+            ? t('attach-some-not-attached', 'Some files were not attached')
+            : t('attach-not-attached', 'Files not attached'),
         description: rejection,
         variant: 'destructive',
       });
@@ -318,10 +318,13 @@ export const Composer = ({
     event.preventDefault();
     if (!canAttach) {
       toast({
-        title: 'Files not attached',
+        title: t('attach-not-attached', 'Files not attached'),
         description: isStreaming
-          ? 'Wait for the current response to finish, then paste again.'
-          : 'Attachments are unavailable right now.',
+          ? t(
+              'paste-wait-for-response',
+              'Wait for the current response to finish, then paste again.',
+            )
+          : t('attach-unavailable', 'Attachments are unavailable right now.'),
       });
       return;
     }

@@ -5,6 +5,12 @@ import { createRef } from 'react';
 import { AgentFileDropZone } from '../components/AgentFileDropZone';
 import type { IComposerAttachHandle } from '../components/Composer';
 import type { TAgentsAttachAvailability } from '../utils/fileDrag';
+import { initAgentI18n, readCommonLocale } from './support/agentI18n';
+
+const i18n = initAgentI18n('en');
+afterEach(async () => {
+  await i18n.changeLanguage('en');
+});
 
 jest.mock(
   'erxes-ui',
@@ -152,4 +158,21 @@ it('explains the limit when every slot is used and resets on window drop', () =>
     window.dispatchEvent(new Event('drop'));
   });
   expect(overlay().getAttribute('data-state')).toBe('closed');
+});
+
+it('shows the overlay and its status in Mongolian', async () => {
+  const mn = readCommonLocale('mn').agent;
+  await act(async () => {
+    await i18n.changeLanguage('mn');
+  });
+  setup();
+  fireEvent.dragEnter(screen.getByTestId('header'), {
+    dataTransfer: fileTransfer(),
+  });
+  expect(screen.getByText(String(mn['drop-title']))).toBeTruthy();
+  expect(screen.getByRole('status').textContent).toBe(mn['drop-status']);
+  expect(
+    screen.getByText(i18n.t('agent.drop-file-count', { count: 2 })),
+  ).toBeTruthy();
+  expect(screen.queryByText('Drop files to attach')).toBeNull();
 });

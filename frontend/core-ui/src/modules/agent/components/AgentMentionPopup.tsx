@@ -162,10 +162,10 @@ export const AgentMentionPopup = forwardRef<
     const placeholder = limitReached
       ? options.some(pickable)
         ? undefined
-        : t(
-            'mention-limit',
-            `Up to ${AGENTS_MENTION_MAX_PER_TURN} mentions per message`,
-          )
+        : t('mention-limit', {
+            max: AGENTS_MENTION_MAX_PER_TURN,
+            defaultValue: 'Up to {{max}} mentions per message',
+          })
       : undefined;
     const emptyText = loading
       ? t('mention-searching', 'Searching…')
@@ -214,7 +214,10 @@ export const AgentMentionPopup = forwardRef<
           <span role="status" className="sr-only">
             {loading
               ? t('mention-searching', 'Searching…')
-              : `${options.length} ${t('mention-suggestions', 'suggestions')}`}
+              : t('mention-suggestions', {
+                  count: options.length,
+                  defaultValue: '{{count}} suggestions',
+                })}
           </span>
           <SuggestionMenu
             id={listboxId}

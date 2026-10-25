@@ -434,6 +434,16 @@ last assistant turn.
   `agents-active-run:<threadId>`, `agents-in-flight-prompt:<threadId>`.
   Model and thinking selections live in memory only.
 
+## Translations
+
+Mention popup states, `mention-groups.<type>` labels, attachment/paste toast
+titles and messages and the drop-zone overlay use `t()` with `agent.*` keys in
+`backend/gateway/src/locales/{en,mn}/common.json`; counts use i18next plurals
+(`_one`/`_other`) and limits interpolate `{{max}}`. Built-up English sentences
+(attachment rejection details listing file names, the accepted-types list)
+stay English. Tests render with a real i18next instance loaded from the
+shipped locale files (`__tests__/support/agentI18n.ts`).
+
 ## Invariants
 
 - Keep the transcript and panel flex children shrinkable (`min-w-0` /
