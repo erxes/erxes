@@ -28,6 +28,9 @@ export interface IUseAgentsThreadActionsResult {
  * Shared thread mutations (rename, pin, delete) used by the thread list,
  * the page header, and the side-panel header. Every call refetches both
  * thread list queries by operation name and reports through toasts.
+ * Rename/pin results are normalized `AgentsThread` objects, so a cached
+ * `AgentsThreadDetail` picks up the new title by itself; delete evicts the
+ * thread's cached detail so it can never be restored from cache.
  */
 export const useAgentsThreadActions = (): IUseAgentsThreadActionsResult => {
   const { t } = useTranslation('common', { keyPrefix: 'agent' });
@@ -58,9 +61,7 @@ export const useAgentsThreadActions = (): IUseAgentsThreadActionsResult => {
         toast({
           title: failureTitle,
           description:
-            mutationError instanceof Error
-              ? mutationError.message
-              : undefined,
+            mutationError instanceof Error ? mutationError.message : undefined,
           variant: 'destructive',
         });
         return false;
@@ -113,6 +114,13 @@ export const useAgentsThreadActions = (): IUseAgentsThreadActionsResult => {
         () =>
           removeThread({
             variables: { threadId },
+            update: (cache) => {
+              cache.evict({
+                fieldName: 'agentsThreadDetail',
+                args: { threadId },
+              });
+              cache.gc();
+            },
             refetchQueries: [
               { query: AGENTS_THREADS },
               { query: AGENTS_PINNED_THREADS },

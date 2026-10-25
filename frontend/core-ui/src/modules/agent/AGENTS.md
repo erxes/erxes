@@ -234,6 +234,20 @@ The `agent` module is the core-ui surface for the core-api `agents` backend
   restore/replay path. Approval/question suspensions keep their stored cards.
   The legacy `page` storage namespace is
   retained in the hook's type only for compatibility, with no page UI.
+- Session switching is stale-while-revalidate over Apollo's normalized cache
+  (no parallel store). `openThread` renders a cached `AgentsThreadDetail`
+  immediately (no `loadingThread`), then re-reads it `network-only` and
+  replaces the transcript only when the stored messages differ and the same
+  selection/thread is still open with no active run and `status === 'ready'`.
+  Loading shows only on a cache miss. A thread with a stored active run always
+  reads the network first, so reconnect/replay and the bounded re-read are
+  unchanged. Freshness: a new run id from the transport (send, edit,
+  regenerate, answer, approval resume) and every `onFinish` evict that
+  thread's detail; leaving a thread (`openThread` elsewhere or
+  `startNewConversation`) re-reads it into the cache when missing; delete
+  evicts in `useAgentsThreadActions`; rename/pin update `AgentsThread` by
+  normalization. Session-list pagination (`useAgentsThreads`, `no-cache`) is
+  unchanged.
 - Attachments: up to 5 files/turn via platform `/upload-file`
   (`agentsFiles.ts` limits/accepted types, `uploadAgentsFile.ts`). Accepted:
   PNG/JPEG/WebP/GIF, TXT/Markdown/CSV/JSON, PDF, DOCX, XLSX, PPTX, ODT, ODS, ODP
