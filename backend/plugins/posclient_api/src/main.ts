@@ -1,3 +1,4 @@
+import 'erxes-api-shared/instrument';
 import { typeDefs } from './apollo/typeDefs';
 import { appRouter } from './init-trpc';
 
