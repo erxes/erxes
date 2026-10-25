@@ -21,7 +21,6 @@ import type { IAskUserQuestionEntry } from '../components/AskUserPrompt';
 import { mapStoredMessagesToUIMessages } from '../mapStoredMessages';
 import { extractPageContext } from '../utils/pageContext';
 import { withAgentMentionsParts } from '../agentMentions';
-import { clampThinkingLevel } from '../utils/thinkingLevels';
 import { useNavigationCatalog } from './useNavigationCatalog';
 import { agentNavigationCatalogState } from '../states/agentNavigationCatalogState';
 import type {
@@ -267,11 +266,6 @@ export interface IUseAgentsChatResult {
   /** Picks the provider/model the next turns run on ('' = auto). */
   selectModel: (provider: string, model: string) => void;
   selectThinkingLevel: (level: IAgentsThinkingLevel) => void;
-  /**
-   * Levels the model a turn runs on accepts. Sends are clamped to them;
-   * `thinkingLevel` keeps the user's own choice for later models.
-   */
-  setThinkingLevels: (levels: readonly IAgentsThinkingLevel[]) => void;
   /** True while an ask_user answer is being submitted and resumed. */
   answerBusy: boolean;
   /**
@@ -347,7 +341,6 @@ export const useAgentsChat = (options?: {
     thinkingLevel: DEFAULT_THINKING_LEVEL,
   });
   // Empty until the panel reports the run model's levels: send as chosen.
-  const thinkingLevelsRef = useRef<readonly IAgentsThinkingLevel[]>([]);
   const pageContextRef = useRef<IAgentsPageContext | undefined>(undefined);
   const navigation = useNavigationCatalog();
   const navigationRef = useRef(navigation);
@@ -449,13 +442,9 @@ export const useAgentsChat = (options?: {
     () =>
       new AgentsChatTransport({
         getThreadId: () => threadIdRef.current,
-        getRequestSelection: () => ({
-          ...selectionRef.current,
-          thinkingLevel: clampThinkingLevel(
-            selectionRef.current.thinkingLevel,
-            thinkingLevelsRef.current,
-          ),
-        }),
+        // The chosen level is sent as chosen; the server clamps it to the
+        // selected model's levels (single source of truth).
+        getRequestSelection: () => selectionRef.current,
         getPageContext: () => pageContextRef.current,
         getNavigation: () => navigationRef.current,
         onThreadId: (nextThreadId) => {
@@ -644,13 +633,6 @@ export const useAgentsChat = (options?: {
     selectionRef.current = { ...selectionRef.current, thinkingLevel: level };
     setThinkingLevel(level);
   }, []);
-
-  const setThinkingLevels = useCallback(
-    (levels: readonly IAgentsThinkingLevel[]) => {
-      thinkingLevelsRef.current = levels;
-    },
-    [],
-  );
 
   const setPageContext = useCallback(
     (context: IAgentsPageContext | undefined) => {
@@ -1054,7 +1036,6 @@ export const useAgentsChat = (options?: {
     thinkingLevel,
     selectModel,
     selectThinkingLevel,
-    setThinkingLevels,
     messages,
     status,
     error,

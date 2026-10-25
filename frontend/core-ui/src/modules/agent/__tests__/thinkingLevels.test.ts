@@ -1,7 +1,3 @@
-/** @jest-environment jsdom */
-import { renderHook } from '@testing-library/react';
-
-import { useThinkingLevelClamp } from '../hooks/useThinkingLevelClamp';
 import {
   clampThinkingLevel,
   findModelThinking,
@@ -53,40 +49,5 @@ describe('thinking level utilities', () => {
       findModelThinking(catalog, { provider: 'openai', model: 'gpt-99' }),
     ).toBeNull();
     expect(findModelThinking(catalog, undefined)).toBeNull();
-  });
-});
-
-describe('useThinkingLevelClamp', () => {
-  const render = (thinking: IAgentsModelThinking | null) => {
-    const setLevels = jest.fn();
-    const hook = renderHook(
-      (props: { thinking: IAgentsModelThinking | null }) =>
-        useThinkingLevelClamp(props.thinking, setLevels),
-      { initialProps: { thinking } },
-    );
-    return { ...hook, setLevels };
-  };
-
-  it.each([
-    ['k3.1-pro’s own levels', K31_PRO, ['low', 'high', 'max']],
-    [
-      'the original five for an unknown model',
-      null,
-      ['off', 'minimal', 'low', 'medium', 'high'],
-    ],
-    [
-      'no levels for a model without a choice',
-      { kind: 'none', levels: [] },
-      [],
-    ],
-  ] as const)('reports %s', (_case, thinking, levels) => {
-    const { setLevels } = render(thinking as IAgentsModelThinking | null);
-    expect(setLevels).toHaveBeenLastCalledWith(levels);
-  });
-
-  it('does not report again when the catalog rebuilds equal options', () => {
-    const { rerender, setLevels } = render(K31_PRO);
-    rerender({ thinking: { ...K31_PRO, levels: [...K31_PRO.levels] } });
-    expect(setLevels).toHaveBeenCalledTimes(1);
   });
 });

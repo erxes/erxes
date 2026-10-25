@@ -142,11 +142,10 @@ The `agent` module is the core-ui surface for the core-api `agents` backend
   `catalog[].thinking { kind, levels }`: only that model's levels are offered
   (`k3.1-pro` has no Off), bars spread over its depth range, a toggle reads
   Off/On, and `none`/`fixed` models lock the trigger ("Off"/"Auto").
-  The user's chosen level is never rewritten: `useThinkingLevelClamp` reports
-  the run model's levels to `useAgentsChat` (`setThinkingLevels`), and only
-  the sent level is clamped to the nearest one (ties go deeper), so switching
-  back to a deeper model restores the choice. The picker clamps what it
-  shows the same way. Models without catalog data keep `off`,
+  The user's chosen level is sent as chosen and never rewritten; the server
+  (`normalizeThinkingLevel`) is the single clamp for what reaches the
+  provider, so switching back to a deeper model restores the choice. The
+  picker only clamps what it shows (nearest level, ties go deeper). Models without catalog data keep `off`,
   `minimal`, `low`, `medium` and `high`; the vocabulary also has `xhigh` and
   `max` (`utils/thinkingLevels.ts` mirrors the backend order and clamp).
 - `PageElementPicker` is the composer's Select on page mode. Trusted capture-phase

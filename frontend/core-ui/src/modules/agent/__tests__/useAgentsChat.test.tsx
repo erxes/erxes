@@ -122,18 +122,22 @@ it.each(['off', 'minimal', 'low', 'medium', 'high'] as const)(
   },
 );
 
-it('clamps only the sent level, keeping the choice for deeper models', () => {
+it('sends the chosen level as chosen and leaves model clamping to the server', () => {
   const { result } = renderHook(() => useAgentsChat());
 
+  // k3.1-pro rejects Off; the server clamps it, so the client never rewrites
+  // what it sends or reports a model's levels for a second clamp.
+  act(() => result.current.selectModel('kimi-code', 'k3.1-pro'));
+  act(() => result.current.selectThinkingLevel('off'));
+
+  expect(mockGetRequestSelection()).toMatchObject({
+    provider: 'kimi-code',
+    model: 'k3.1-pro',
+    thinkingLevel: 'off',
+  });
+  expect(result.current).not.toHaveProperty('setThinkingLevels');
+
   act(() => result.current.selectThinkingLevel('max'));
-  // A model without Max: the request is clamped, the choice is kept.
-  act(() => result.current.setThinkingLevels(['off', 'low', 'medium', 'high']));
-  expect(mockGetRequestSelection().thinkingLevel).toBe('high');
-  expect(result.current.thinkingLevel).toBe('max');
-  // Switching back to a model with Max sends Max again.
-  act(() =>
-    result.current.setThinkingLevels(['off', 'low', 'high', 'xhigh', 'max']),
-  );
   expect(mockGetRequestSelection().thinkingLevel).toBe('max');
 });
 
