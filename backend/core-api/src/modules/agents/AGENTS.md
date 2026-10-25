@@ -254,12 +254,24 @@ plugin; ported from the former private `erxes-agent` service). It provides:
   stored ODF `mimetype` entry, OOXML part names), never the name or declared
   type. Spreadsheets become CSV per sheet with formatted dates and formula
   results; other documents become text with `|` table rows. Output is capped at
-  128 KiB with a truncation notice. The parser config is part of the security
-  contract: `allowRemoteAssets: false` (no CDN worker/OCR/font fetches), OCR,
-  attachments and raw XML off, 64 MiB decompression and element/cell limits,
-  and pdf.js in a separate 512 MB child process with a 15s budget. A 20s overall
-  timeout bounds every parse. Password-protected and corrupt files return
-  actionable `readFile` errors. Legacy binary `.doc/.xls/.ppt` are not accepted.
+  128 KiB with a truncation notice. Parsing never runs on the event loop: each
+  document (Office and PDF alike) is parsed in a fresh `node:worker_threads`
+  worker (`documentTextWorker.ts`, which must stay free of path aliases) with a
+  capped heap. pdf.js runs inside that worker (`separateProcess: false`), so
+  officeparser starts no child processes. One gate limits parses per process:
+  `AGENTS_DOCUMENT_PARSE_CONCURRENCY` (default 2), `AGENTS_DOCUMENT_PARSE_QUEUE`
+  (default 4 waiting; beyond that "busy, try again") and
+  `AGENTS_DOCUMENT_PARSE_MEMORY_MB` (default 384 heap per parse). The 20s
+  timeout covers waiting and parsing and terminates the worker; a worker out of
+  memory reports "too large or complex". The parser config is part of the
+  security contract: `allowRemoteAssets: false` (no CDN worker/OCR/font
+  fetches), OCR, attachments and raw XML off, and decompression limits of
+  32 MiB / 250k XML elements, matched to the default heap (measured: the
+  largest admitted DOCX needs >320 MB). Raise the heap together with the
+  element limit. Password-protected and corrupt files return actionable
+  `readFile` errors. Legacy binary `.doc/.xls/.ppt` are not accepted.
+  `__tests__/documentParsingResources.test.ts` is the operational gate
+  (event-loop delay, termination CPU, limits, busy, no child processes).
 - `codeMode.ts`, `askUser.ts`, `fileBinding.ts`, `fileTimeout.ts`,
   `fileValidation.ts` (allowed MIME types, including
   `AGENTS_DOCUMENT_MIME_TYPES`; keep aligned with core-ui `agentsFiles.ts`),

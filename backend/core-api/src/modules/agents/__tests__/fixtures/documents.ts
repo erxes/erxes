@@ -179,3 +179,11 @@ export const xlsxFixture = async (): Promise<Buffer> => {
   workbook.addWorksheet('Empty');
   return Buffer.from(await workbook.xlsx.writeBuffer());
 };
+
+/** A legitimate but heavy DOCX: three XML elements per paragraph. */
+export const manyParagraphsDocx = (paragraphs: number): Buffer =>
+  docxFixture(
+    Array.from({ length: paragraphs }, (_, index) =>
+      wordParagraph(`Row ${index}`),
+    ).join(''),
+  );
