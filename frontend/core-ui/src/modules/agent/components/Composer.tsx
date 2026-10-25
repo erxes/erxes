@@ -319,7 +319,9 @@ export const Composer = ({
     if (!canAttach) {
       toast({
         title: 'Files not attached',
-        description: 'Wait for the current response to finish, then paste again.',
+        description: isStreaming
+          ? 'Wait for the current response to finish, then paste again.'
+          : 'Attachments are unavailable right now.',
       });
       return;
     }

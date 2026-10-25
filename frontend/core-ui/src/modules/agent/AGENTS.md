@@ -120,7 +120,8 @@ The `agent` module is the core-ui surface for the core-api `agents` backend
   access rules (OpenAI lists the organisation's models regardless of a
   project's allowed models); current, saved and recent selections skip it.
   A check that resolves after the picker closed, reopened, left the provider
-  or selected something else is ignored (request id). Values are `provider|model` (`modelSelectionValue` / `parseModelSelection`).
+  or selected something else, or after the search text changed, is ignored
+  (request id). Values are `provider|model` (`modelSelectionValue` / `parseModelSelection`).
   Device-local `agent:recent-models` keeps six explicit picks,
   intersected with the live catalog so removed models/providers cannot return;
   the current selection always stays visible. The saved default stays usable
@@ -283,7 +284,9 @@ The `agent` module is the core-ui surface for the core-api `agents` backend
   browser image copies; a generic `image.png` becomes
   `pasted-image-<timestamp>.png`. Rich text copies (`text/plain` +
   `text/html`, such as Excel cells) and text pastes stay ordinary edits.
-  Pasting files while streaming is refused with a toast.
+  Pasting files while attachments are unavailable is refused with a toast: it
+  asks to wait only while a response is streaming, otherwise it says attachments
+  are unavailable.
 - `AgentAttachmentCard` is the one attachment card for composer and history:
   thumbnail or type icon (Word, document, spreadsheet, presentation, PDF, …),
   name, `label · size` (`agentsFileKindLabel`), spinner, error, Retry/Remove; in

@@ -497,6 +497,8 @@ export const ModelPicker = ({
                 aria-label="Search models"
                 value={search}
                 onValueChange={(next) => {
+                  // A check for the previous text must not select it later.
+                  cancelVerify();
                   setSearch(next);
                   setVerifyError(null);
                 }}

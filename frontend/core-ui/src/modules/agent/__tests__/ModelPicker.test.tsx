@@ -449,6 +449,7 @@ describe('typed model ids', () => {
       },
       [['']],
     ],
+    ['the search text changed', () => typeModel('gpt-5.6-luna-mini'), []],
   ])(
     'ignores a model check that resolves after %s',
     async (_case, interrupt, calls) => {
