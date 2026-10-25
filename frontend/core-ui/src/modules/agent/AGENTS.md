@@ -93,8 +93,17 @@ The `agent` module is the core-ui surface for the core-api `agents` backend
   `pickConnection`; the first saved entry when no entry is flagged) is marked
   `Default` and its provider `In use`, and the trigger/`Use saved default` row
   name it; other connections' stored models are not defaults. A provider whose listing failed
-  shows its key-free `error`, an `Unavailable` provider marker when not in use,
-  and its saved model as the only choice. Loading, empty and no-match states
+  shows its key-free `error` (it names the cause, e.g. a key without Models:
+  Read or a key the server cannot decrypt), an `Unavailable` provider marker
+  when not in use, its saved model and its recent picks. Typing an unlisted,
+  well-formed id in search offers `Use "<id>"` (`Custom model` group); it is
+  selected only after `onVerifyModel` (`useAgentsModelVerify` →
+  `AgentsModelVerify`) resolves null, otherwise the reason shows inline.
+  Listed models get the same check the first time they are picked, because
+  listings ignore some access rules (OpenAI lists the whole organisation's
+  models regardless of a project's allowed models); the current, saved and
+  recent selections skip it. A verified pick enters `agent:recent-models`; the
+  current selection always stays visible even when unlisted. Loading, empty and no-match states
   are explicit. Back returns to provider selection without changing the model.
   Reopening always starts with providers, and neither step displays a
   model-count badge.
@@ -105,7 +114,8 @@ The `agent` module is the core-ui surface for the core-api `agents` backend
   `useAgentsModels` normalizes `agentsModels` into ranked
   `{ id, family, recommended }` options per provider (falling back to the flat
   `models` ids). Saving or removing a connection in settings refetches the
-  active `AgentsModels` query.
+  active `AgentsModels` query. Settings marks a connection whose key the
+  server cannot read (`hasKey: false`) with `Re-enter key`.
 - The thinking picker starts at High, and the initial outgoing request explicitly
   sends `thinkingLevel: 'high'`. Manual selections override that default for later turns.
   The trigger is a compact ghost button with an intensity mark and the level name

@@ -315,6 +315,7 @@ it('flags an unavailable provider that is not in use', () => {
 
 it('shows an empty state when a provider lists no usable models', () => {
   setup({
+    value: '',
     models: {
       loading: false,
       error: undefined,
@@ -362,4 +363,146 @@ it('scopes model search and always reopens at provider selection', async () => {
   ).toBeNull();
   expect(screen.getByText('Provider')).toBeTruthy();
   expect(screen.getAllByRole('option')).toHaveLength(3);
+});
+
+describe('typed model ids', () => {
+  const forbidden = {
+    loading: false,
+    error: undefined,
+    providerModels: [
+      {
+        provider: 'openai',
+        models: [],
+        error:
+          "This OpenAI key can't list models (missing Models: Read permission). Type a model id to use it, or allow Models: Read for the key.",
+      },
+    ],
+  };
+  const typeModel = (text: string) =>
+    fireEvent.change(screen.getByRole('combobox', { name: 'Search models' }), {
+      target: { value: text },
+    });
+
+  it('verifies and selects a model the key cannot list', async () => {
+    const onVerifyModel = jest.fn(async () => null);
+    const { onChange, store } = setup({
+      value: '',
+      models: forbidden,
+      onVerifyModel,
+    });
+    chooseProvider();
+    expect(screen.getByRole('status').textContent).toContain(
+      'missing Models: Read permission',
+    );
+    expect(optionNames()).toEqual(['gpt-6-lunaDefault']);
+
+    typeModel(' gpt-5.6-luna ');
+    fireEvent.click(screen.getByRole('option', { name: 'Use "gpt-5.6-luna"' }));
+
+    await waitFor(() =>
+      expect(onChange).toHaveBeenCalledWith('openai|gpt-5.6-luna'),
+    );
+    expect(onVerifyModel).toHaveBeenCalledWith('openai', 'gpt-5.6-luna');
+    expect(store.get(agentRecentModelsState)[0]).toBe('openai|gpt-5.6-luna');
+  });
+
+  it('shows why a typed model was rejected and keeps the selection', async () => {
+    const onVerifyModel = jest.fn(
+      async () => 'OpenAI rejected "gpt-7" (404): The model does not exist.',
+    );
+    const { onChange } = setup({ models: forbidden, onVerifyModel });
+    chooseProvider();
+    typeModel('gpt-7');
+    fireEvent.click(screen.getByRole('option', { name: 'Use "gpt-7"' }));
+
+    expect(
+      await screen.findByText(
+        'OpenAI rejected "gpt-7" (404): The model does not exist.',
+      ),
+    ).toBeTruthy();
+    expect(onChange).not.toHaveBeenCalled();
+    typeModel('gpt-7-mini');
+    expect(screen.queryByText(/rejected "gpt-7"/)).toBeNull();
+  });
+
+  it('offers recent picks when the provider cannot list models', () => {
+    setup({ value: '', models: forbidden }, [
+      'openai|gpt-5.6-luna',
+      'kimi|kimi-k3',
+    ]);
+    chooseProvider();
+    expect(screen.getByText('Recent')).toBeTruthy();
+    expect(optionNames()).toEqual(['gpt-6-lunaDefault', 'gpt-5.6-luna']);
+  });
+
+  it('keeps a verified unlisted selection visible next to the catalog', () => {
+    setup({ value: 'openai|gpt-6-luna-preview' });
+    chooseProvider();
+    expect(optionNames()[0]).toBe('gpt-6-luna-preview');
+  });
+
+  it('only offers custom ids that are unlisted, valid and verifiable', () => {
+    setup({ onVerifyModel: jest.fn(async () => null) });
+    chooseProvider();
+    typeModel('gpt-6-luna');
+    expect(screen.queryByRole('option', { name: /^Use "/ })).toBeNull();
+    typeModel('gpt 6');
+    expect(screen.queryByRole('option', { name: /^Use "/ })).toBeNull();
+    typeModel('gpt-6-nano');
+    expect(
+      screen.getByRole('option', { name: 'Use "gpt-6-nano"' }),
+    ).toBeTruthy();
+  });
+
+  it('offers no custom ids without a verifier', () => {
+    setup({ models: forbidden });
+    chooseProvider();
+    typeModel('gpt-6-nano');
+    expect(screen.queryByRole('option', { name: /^Use "/ })).toBeNull();
+  });
+});
+
+describe('access checks for listed models', () => {
+  it('checks a listed model the user has not used before', async () => {
+    const onVerifyModel = jest.fn(
+      async () =>
+        'OpenAI rejected "gpt-6" (403): Project does not have access to model gpt-6.',
+    );
+    const { onChange } = setup({ onVerifyModel });
+    chooseProvider();
+    fireEvent.click(screen.getByRole('option', { name: /^gpt-6$/ }));
+
+    expect(
+      await screen.findByText(/Project does not have access to model gpt-6/),
+    ).toBeTruthy();
+    expect(onVerifyModel).toHaveBeenCalledWith('openai', 'gpt-6');
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
+  it('selects a listed model once the provider accepts it', async () => {
+    const onVerifyModel = jest.fn(async () => null);
+    const { onChange } = setup({ onVerifyModel });
+    chooseProvider();
+    fireEvent.click(screen.getByRole('option', { name: /^gpt-6-mini$/ }));
+
+    await waitFor(() =>
+      expect(onChange).toHaveBeenCalledWith('openai|gpt-6-mini'),
+    );
+  });
+
+  it('skips the check for current, saved and recent selections', () => {
+    const onVerifyModel = jest.fn(async () => null);
+    const { onChange } = setup({ value: '', onVerifyModel }, [
+      'openai|gpt-6-mini',
+    ]);
+    chooseProvider();
+    fireEvent.click(screen.getByRole('option', { name: /^gpt-6-mini$/ }));
+    expect(onChange).toHaveBeenCalledWith('openai|gpt-6-mini');
+
+    fireEvent.click(screen.getByRole('combobox', { name: 'Model' }));
+    chooseProvider();
+    fireEvent.click(screen.getByRole('option', { name: /^gpt-6-luna/ }));
+    expect(onChange).toHaveBeenLastCalledWith('openai|gpt-6-luna');
+    expect(onVerifyModel).not.toHaveBeenCalled();
+  });
 });

@@ -12,6 +12,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 import { useAgentsConnection } from '../hooks/useAgentsConnection';
+import { useAgentsModelVerify } from '../hooks/useAgentsModelVerify';
 import { useAgentsModels } from '../hooks/useAgentsModels';
 import type { IUseAgentsChatResult } from '../hooks/useAgentsChat';
 import { agentsFilesPart } from '../agentsFiles';
@@ -95,6 +96,7 @@ export const ChatPanel = ({
 
   const { connections, loading: connectionsLoading } = useAgentsConnection();
   const models = useAgentsModels();
+  const verifyModel = useAgentsModelVerify();
 
   const isStreaming = status === 'submitted' || status === 'streaming';
   const isEmpty = messages.length === 0 && !loadingThread;
@@ -216,6 +218,7 @@ export const ChatPanel = ({
         models={models}
         value={modelSelectionValue(chat.modelProvider, chat.modelId)}
         savedModels={connections}
+        onVerifyModel={verifyModel}
         onChange={(value) => {
           if (!value) {
             chat.selectModel('', '');

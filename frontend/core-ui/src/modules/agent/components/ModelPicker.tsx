@@ -38,11 +38,19 @@ export interface IModelPickerProps {
    * carries the Default marker.
    */
   savedModels?: ISavedModelChoice[];
+  /**
+   * Checks a typed model id against the provider (server-side probe) and
+   * resolves to null when it works or to a readable reason when it does not.
+   * Without it the picker offers listed models only.
+   */
+  onVerifyModel?: (provider: string, model: string) => Promise<string | null>;
 }
 
 const VALUE_SEPARATOR = '|';
 const RECENT_LIMIT = 3;
 const FALLBACK_RECOMMENDED_LIMIT = 4;
+/** Mirrors the backend probe's accepted model id shape. */
+const MODEL_ID_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._:/@-]{0,127}$/;
 export const modelSelectionValue = (provider: string, model: string) =>
   provider && model ? `${provider}${VALUE_SEPARATOR}${model}` : '';
 const choiceValue = (choice: IModelChoice) =>
@@ -60,11 +68,14 @@ export const ModelPicker = ({
   onChange,
   disabled = false,
   savedModels = [],
+  onVerifyModel,
 }: IModelPickerProps) => {
   const [open, setOpen] = useState(false);
   const [browse, setBrowse] = useState(false);
   const [activeProvider, setActiveProvider] = useState('');
   const [search, setSearch] = useState('');
+  const [verifying, setVerifying] = useState('');
+  const [verifyError, setVerifyError] = useState<string | null>(null);
   const commandRef = useRef<HTMLDivElement>(null);
   const [recentModels, setRecentModels] = useAtom(agentRecentModelsState);
   const separatorIndex = value.indexOf(VALUE_SEPARATOR);
@@ -98,6 +109,31 @@ export const ModelPicker = ({
   );
   const catalogUnavailable =
     !models.loading && (!activeCatalog || Boolean(activeCatalog.error));
+  const typedId = search.trim();
+  // Keys that may call models they cannot list (or listings that omit some)
+  // can still use any id the provider accepts once the probe confirms it.
+  const customId =
+    onVerifyModel &&
+    activeProvider &&
+    MODEL_ID_PATTERN.test(typedId) &&
+    !activeModels.some((model) => model.id === typedId)
+      ? typedId
+      : '';
+  const customKey = modelSelectionValue(activeProvider, customId);
+  const recentForProvider = (keep: (model: string, key: string) => boolean) =>
+    Array.from(
+      new Set([value, ...(Array.isArray(recentModels) ? recentModels : [])]),
+    )
+      .flatMap((key) => {
+        if (typeof key !== 'string') return [];
+        const index = key.indexOf(VALUE_SEPARATOR);
+        const provider = key.slice(0, index);
+        const model = key.slice(index + 1);
+        return index > 0 && provider === activeProvider && keep(model, key)
+          ? [{ provider, model }]
+          : [];
+      })
+      .slice(0, RECENT_LIMIT);
 
   const groups = ((): IModelGroup[] => {
     if (!activeProvider) return [];
@@ -121,9 +157,20 @@ export const ModelPicker = ({
     }
 
     if (catalogUnavailable) {
-      return savedForProvider
-        ? [{ heading: 'Saved model', choices: [savedForProvider] }]
-        : [];
+      // Without a listing there is nothing to check recents against; they
+      // were all explicit (listed or verified) selections.
+      return [
+        {
+          heading: 'Saved model',
+          choices: savedForProvider ? [savedForProvider] : [],
+        },
+        {
+          heading: 'Recent',
+          choices: recentForProvider(
+            (model) => model !== savedForProvider?.model,
+          ),
+        },
+      ];
     }
 
     const recommended = activeModels.some((model) => model.recommended)
@@ -132,23 +179,12 @@ export const ModelPicker = ({
     const recommendedIds = new Set(recommended.map((model) => model.id));
     const listedIds = new Set(activeModels.map((model) => model.id));
     // Current and recent selections stay close. Removed/unavailable models
-    // never leak back into the choices from local storage.
-    const recent = Array.from(
-      new Set([value, ...(Array.isArray(recentModels) ? recentModels : [])]),
-    )
-      .flatMap((key) => {
-        if (typeof key !== 'string') return [];
-        const index = key.indexOf(VALUE_SEPARATOR);
-        const provider = key.slice(0, index);
-        const model = key.slice(index + 1);
-        return index > 0 &&
-          provider === activeProvider &&
-          listedIds.has(model) &&
-          !recommendedIds.has(model)
-          ? [{ provider, model }]
-          : [];
-      })
-      .slice(0, RECENT_LIMIT);
+    // never leak back into the choices from local storage; the current
+    // selection (possibly a verified unlisted id) always stays visible.
+    const recent = recentForProvider(
+      (model, key) =>
+        (listedIds.has(model) || key === value) && !recommendedIds.has(model),
+    );
 
     return [
       { heading: 'Recent', choices: recent },
@@ -166,6 +202,7 @@ export const ModelPicker = ({
       setActiveProvider('');
       setBrowse(false);
       setSearch('');
+      setVerifyError(null);
     }
   };
   const select = (next: string) => {
@@ -201,6 +238,38 @@ export const ModelPicker = ({
     setActiveProvider(provider);
     setBrowse(false);
     setSearch('');
+    setVerifyError(null);
+  };
+
+  // Listings do not reflect every access rule (OpenAI lists the whole
+  // organisation's models regardless of a project's allowed models), so a
+  // model the user has not used before is checked before it is selected.
+  const knownValues = new Set([
+    value,
+    ...savedModels.map(choiceValue),
+    ...(Array.isArray(recentModels) ? recentModels : []),
+  ]);
+  const choose = async (provider: string, model: string) => {
+    const key = modelSelectionValue(provider, model);
+    if (!onVerifyModel || knownValues.has(key)) {
+      select(key);
+      return;
+    }
+    if (verifying) return;
+    setVerifying(key);
+    setVerifyError(null);
+    const error = await onVerifyModel(provider, model).catch(
+      (failure: unknown) =>
+        failure instanceof Error
+          ? failure.message
+          : 'Could not check this model.',
+    );
+    setVerifying('');
+    if (error) {
+      setVerifyError(error);
+      return;
+    }
+    select(key);
   };
 
   const renderChoice = (choice: IModelChoice) => {
@@ -209,11 +278,13 @@ export const ModelPicker = ({
       <Command.Item
         key={key}
         value={key}
-        onSelect={() => select(key)}
+        onSelect={() => void choose(choice.provider, choice.model)}
+        disabled={Boolean(verifying) && verifying !== key}
         className={rowClassName}
       >
+        {verifying === key && <Spinner className="size-3.5 shrink-0" />}
         <span className="min-w-0 flex-1 truncate" title={choice.model}>
-          {choice.model}
+          {verifying === key ? `Checking ${choice.model}…` : choice.model}
         </span>
         {key === defaultValue && (
           <span className="shrink-0 text-[11px] text-muted-foreground">
@@ -234,6 +305,13 @@ export const ModelPicker = ({
   const statusClassName = 'px-3 py-3 text-xs leading-5 text-muted-foreground';
   const providerStatus = (() => {
     if (!activeProvider) return null;
+    if (verifyError) {
+      return (
+        <p role="status" className={`${statusClassName} text-destructive`}>
+          {verifyError}
+        </p>
+      );
+    }
     if (models.loading && !activeCatalog) {
       return (
         <div
@@ -248,7 +326,8 @@ export const ModelPicker = ({
     if (!activeCatalog) {
       return (
         <p role="status" className={statusClassName}>
-          Model list unavailable. Your saved model is still available.
+          Model list unavailable. Your saved model is still available
+          {onVerifyModel ? '; type a model id to use another.' : '.'}
         </p>
       );
     }
@@ -259,7 +338,7 @@ export const ModelPicker = ({
         </p>
       );
     }
-    if (searching && visibleValues.length === 0) {
+    if (searching && visibleValues.length === 0 && !customId) {
       return (
         <div
           role="status"
@@ -368,7 +447,10 @@ export const ModelPicker = ({
                 placeholder={`Find a ${activeLabel} model…`}
                 aria-label="Search models"
                 value={search}
-                onValueChange={setSearch}
+                onValueChange={(next) => {
+                  setSearch(next);
+                  setVerifyError(null);
+                }}
                 variant="primary"
                 className="h-10 text-[13px] font-normal placeholder:text-muted-foreground"
                 wrapperClassName="px-4"
@@ -461,6 +543,28 @@ export const ModelPicker = ({
                 {group.choices.map(renderChoice)}
               </Command.Group>
             ))}
+            {customId && (
+              <Command.Group
+                heading="Custom model"
+                className="p-0 **:[[cmdk-group-heading]]:px-3 **:[[cmdk-group-heading]]:text-[11px] **:[[cmdk-group-heading]]:text-muted-foreground"
+              >
+                <Command.Item
+                  value={`verify:${customId}`}
+                  onSelect={() => void choose(activeProvider, customId)}
+                  disabled={Boolean(verifying)}
+                  className={rowClassName}
+                >
+                  {verifying === customKey && (
+                    <Spinner className="size-3.5 shrink-0" />
+                  )}
+                  <span className="min-w-0 flex-1 truncate" title={customId}>
+                    {verifying === customKey
+                      ? `Checking "${customId}"…`
+                      : `Use "${customId}"`}
+                  </span>
+                </Command.Item>
+              </Command.Group>
+            )}
             {providerStatus}
           </Command.List>
           {activeProvider && !showCatalog && activeModels.length > 0 && (

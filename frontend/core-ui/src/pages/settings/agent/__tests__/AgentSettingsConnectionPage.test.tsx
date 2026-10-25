@@ -191,3 +191,15 @@ it('reports a failed default change and keeps the current default', async () => 
     screen.getByRole('button', { name: 'Set Kimi as default' }),
   ).toBeTruthy();
 });
+
+it('asks to re-enter a key the server cannot read', async () => {
+  renderPage([
+    connectionsMock([
+      { ...entry('openai', 'gpt-5.6-luna', true), hasKey: false },
+      entry('kimi', 'kimi-k3', false),
+    ]),
+  ]);
+
+  expect(await screen.findByText('Re-enter key')).toBeTruthy();
+  expect(screen.getAllByText('Re-enter key')).toHaveLength(1);
+});

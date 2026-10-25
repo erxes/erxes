@@ -68,6 +68,17 @@ export const AGENTS_CONNECTION_SET_DEFAULT = gql`
   }
 `;
 
+export const AGENTS_MODEL_VERIFY = gql`
+  mutation AgentsModelVerify($provider: String!, $model: String!) {
+    agentsModelVerify(provider: $provider, model: $model) {
+      provider
+      model
+      ok
+      error
+    }
+  }
+`;
+
 export interface IAgentsConnectionEntry {
   provider: string;
   model: string;
@@ -129,4 +140,18 @@ export interface IAgentsConnectionSetDefaultData {
 export interface IAgentsConnectionSetDefaultVariables {
   /** Omit or send '' to clear the explicit default. */
   provider?: string;
+}
+
+export interface IAgentsModelVerifyData {
+  agentsModelVerify: {
+    provider: string;
+    model: string;
+    ok: boolean | null;
+    error: string | null;
+  } | null;
+}
+
+export interface IAgentsModelVerifyVariables {
+  provider: string;
+  model: string;
 }

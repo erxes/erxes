@@ -288,17 +288,32 @@ export const AgentSettingsConnectionPage = () => {
                             )}
                           </Button>
                         )}
-                        <span className="flex shrink-0 items-center gap-1.5 text-xs text-muted-foreground">
+                        {connection.hasKey ? (
+                          <span className="flex shrink-0 items-center gap-1.5 text-xs text-muted-foreground">
+                            <span
+                              className="size-1.5 shrink-0 rounded-full bg-emerald-500"
+                              aria-hidden="true"
+                            />
+                            {connection.updatedAt
+                              ? formatDateISOStringToRelativeDate(
+                                  connection.updatedAt,
+                                )
+                              : ''}
+                          </span>
+                        ) : (
+                          // The server cannot open this stored key (missing or
+                          // changed encryption secret); saving it again fixes it.
                           <span
-                            className="size-1.5 shrink-0 rounded-full bg-emerald-500"
-                            aria-hidden="true"
-                          />
-                          {connection.updatedAt
-                            ? formatDateISOStringToRelativeDate(
-                                connection.updatedAt,
-                              )
-                            : ''}
-                        </span>
+                            className="flex shrink-0 items-center gap-1.5 text-xs text-destructive"
+                            title="This key can't be read on the server. Select the provider below and paste the key again."
+                          >
+                            <span
+                              className="size-1.5 shrink-0 rounded-full bg-destructive"
+                              aria-hidden="true"
+                            />
+                            Re-enter key
+                          </span>
+                        )}
                         <Button
                           variant="ghost"
                           size="icon"
