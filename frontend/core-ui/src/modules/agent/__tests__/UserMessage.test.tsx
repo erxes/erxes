@@ -129,20 +129,6 @@ it('disables editing during an active run', () => {
   expect(screen.queryByRole('textbox')).toBeNull();
 });
 
-it('edits mentions as @labels and resends their tokens', () => {
-  const onEdit = jest.fn();
-  render(<Harness onEdit={onEdit} turn={mentionMessage} />);
-  fireEvent.click(screen.getByRole('button', { name: 'Edit message' }));
-  const input = screen.getByRole('textbox') as HTMLTextAreaElement;
-  expect(input.value).toBe('Email @Ann Lee today');
-  fireEvent.change(input, { target: { value: 'Email @Ann Lee tomorrow' } });
-  fireEvent.keyDown(input, { key: 'Enter', ctrlKey: true });
-  expect(onEdit).toHaveBeenCalledWith(
-    'mention-turn',
-    'Email [[customer:c1:Ann Lee]] tomorrow',
-  );
-});
-
 it('lets a files-only turn gain a question without copying the placeholder', () => {
   const onEdit = jest.fn();
   const filesOnly: UIMessage = {
@@ -160,21 +146,7 @@ it('lets a files-only turn gain a question without copying the placeholder', () 
       },
     ],
   };
-  const FilesHarness = () => {
-    const [editing, setEditing] = useState<string | null>(null);
-    return (
-      <UserMessage
-        message={filesOnly}
-        editing={editing === filesOnly.id}
-        disabled={false}
-        onEditingChange={setEditing}
-        onEdit={onEdit}
-      >
-        attachments
-      </UserMessage>
-    );
-  };
-  render(<FilesHarness />);
+  render(<Harness onEdit={onEdit} turn={filesOnly} />);
   expect(screen.queryByRole('button', { name: 'Copy message' })).toBeNull();
   fireEvent.click(screen.getByRole('button', { name: 'Edit message' }));
   const editor = screen.getByRole('textbox', { name: 'Edit message' });
@@ -184,7 +156,7 @@ it('lets a files-only turn gain a question without copying the placeholder', () 
   expect(onEdit).toHaveBeenCalledWith('files-turn', 'Summarize the PDF');
 });
 
-it('copies mentions as @labels and resends them with the turn’s files', async () => {
+it('copies and edits mentions as @labels and resends their tokens with the turn’s files', async () => {
   const writeText = jest.fn(() => Promise.resolve());
   Object.assign(navigator, { clipboard: { writeText } });
   const onEdit = jest.fn();
