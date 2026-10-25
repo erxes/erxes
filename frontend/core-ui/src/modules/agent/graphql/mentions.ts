@@ -18,6 +18,17 @@ export const AGENTS_MENTION_COMPANIES = gql`
   }
 `;
 
+/**
+ * Stands in for the plugin search while no plugin provider is available
+ * (plugins disabled, permissions missing or still loading). The query is
+ * skipped then; an empty GlobalSearch selection would not even parse.
+ */
+export const AGENTS_MENTION_PLUGIN_SEARCH_IDLE = gql`
+  query AgentsMentionPluginSearchIdle {
+    __typename
+  }
+`;
+
 export interface IAgentsMentionCompaniesData {
   companies?: {
     list?: {

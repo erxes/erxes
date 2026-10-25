@@ -9,6 +9,7 @@ import { useSearchProviders } from '@/search/hooks/useSearchProviders';
 import { buildGlobalSearchDocument } from '@/search/utils/composeSearchDocument';
 import {
   AGENTS_MENTION_COMPANIES,
+  AGENTS_MENTION_PLUGIN_SEARCH_IDLE,
   type IAgentsMentionCompaniesData,
 } from '../graphql/mentions';
 import { AGENT_REFERENCE_TARGETS } from '../references/agentReferenceTargets';
@@ -108,7 +109,10 @@ export const useAgentMentionSearch = (
     [providers, allowed],
   );
   const pluginDocument = useMemo(
-    () => buildGlobalSearchDocument(pluginProviders),
+    () =>
+      pluginProviders.length
+        ? buildGlobalSearchDocument(pluginProviders)
+        : AGENTS_MENTION_PLUGIN_SEARCH_IDLE,
     [pluginProviders],
   );
   const plugins = useQuery<TSearchPayload>(pluginDocument, {
