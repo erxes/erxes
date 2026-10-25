@@ -14,6 +14,24 @@ import { parseWhatIfChart, type WhatIfChartSpec } from './whatIfChartModel';
 
 const EMPTY_FRAME = buildSandboxedSrcDoc('');
 
+interface IChartMount {
+  element: Element | ShadowRoot;
+  spec: WhatIfChartSpec;
+}
+
+/**
+ * Host Tailwind/erxes-ui CSS does not exist inside the report frame, and model
+ * CSS must not restyle trusted controls. A shadow root isolates the widget's own
+ * stylesheet in both directions while inheriting the synced theme tokens.
+ */
+const chartRoot = (element: Element): Element | ShadowRoot => {
+  try {
+    return element.shadowRoot ?? element.attachShadow({ mode: 'open' });
+  } catch {
+    return element;
+  }
+};
+
 export const HtmlPreview = ({
   html,
   title = 'HTML artifact preview',
@@ -32,9 +50,7 @@ export const HtmlPreview = ({
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [height, setHeight] = useState(48);
   const [mounts, setMounts] = useState<IHtmlReferenceMount[]>([]);
-  const [charts, setCharts] = useState<
-    { element: Element; spec: WhatIfChartSpec }[]
-  >([]);
+  const [charts, setCharts] = useState<IChartMount[]>([]);
 
   useEffect(() => {
     // Update the existing document at most every 120ms while streaming,
@@ -107,7 +123,7 @@ export const HtmlPreview = ({
         if (!allowed) anchor.replaceWith(...Array.from(anchor.childNodes));
       }
       document.body.innerHTML = parsed.body.innerHTML;
-      const chartMounts: { element: Element; spec: WhatIfChartSpec }[] = [];
+      const chartMounts: IChartMount[] = [];
       for (const element of Array.from(
         document.body.querySelectorAll('div[data-agent-chart]'),
       )) {
@@ -117,9 +133,10 @@ export const HtmlPreview = ({
         element.removeAttribute('data-agent-chart');
         if (spec && chartMounts.length < 4) {
           element.replaceChildren();
-          chartMounts.push({ element, spec });
+          chartMounts.push({ element: chartRoot(element), spec });
         } else {
           const error = document.createElement('p');
+          error.className = 'agent-chart-error';
           error.textContent =
             'Interactive chart unavailable: invalid or unsupported formula.';
           element.replaceChildren(error);
