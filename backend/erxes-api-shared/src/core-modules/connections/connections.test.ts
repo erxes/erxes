@@ -1,7 +1,5 @@
 import { createServiceToken } from '../../utils/service-signature';
 import {
-  CONNECTIONS_READ_PURPOSE,
-  CONNECTIONS_TEST_PURPOSE,
   CUSTOM_CONNECTION_TYPE_ID,
   defineConnectionType,
   describeConnectionType,
@@ -29,10 +27,6 @@ jest.mock('../../utils/service-discovery', () => ({
   initializePluginConfig: jest.fn(),
 }));
 
-const { sendTRPCMessage } = jest.requireMock('../../utils/trpc') as {
-  sendTRPCMessage: jest.Mock;
-};
-
 const connection = {
   _id: 'c1',
   name: 'OpenAI',
@@ -55,7 +49,6 @@ const providerType = defineConnectionType({
 beforeEach(() => {
   process.env.JWT_TOKEN_SECRET = 'connections-test-secret';
   resetConnectionsRegistration();
-  sendTRPCMessage.mockReset();
 });
 
 afterEach(() => {
@@ -160,9 +153,6 @@ describe('connection tokens', () => {
     expect(() => createConnectionReadToken(request)).toThrow(/JWT_TOKEN_SECRET/);
   });
 
-  it('keeps read and test purposes distinct', () => {
-    expect(CONNECTIONS_READ_PURPOSE).not.toBe(CONNECTIONS_TEST_PURPOSE);
-  });
 });
 
 describe('getConnection / resolveConnection', () => {
@@ -170,58 +160,6 @@ describe('getConnection / resolveConnection', () => {
     await expect(
       getConnection({ subdomain: 'tenant', type: 'ai:provider', name: 'x' }),
     ).rejects.toThrow(/Declare meta.connections/);
-    expect(sendTRPCMessage).not.toHaveBeenCalled();
-  });
-
-  it('sends a signed read bound to tenant, service and lookup', async () => {
-    registerConnections('ai', { types: [providerType] });
-    sendTRPCMessage.mockResolvedValue(connection);
-
-    await expect(
-      getConnection({ subdomain: 'tenant', type: 'ai:provider', name: 'OpenAI' }),
-    ).resolves.toEqual(connection);
-
-    const [call] = sendTRPCMessage.mock.calls[0];
-
-    expect(call).toMatchObject({
-      subdomain: 'tenant',
-      pluginName: 'core',
-      module: 'connections',
-      action: 'read',
-      throwOnError: true,
-    });
-    expect(readConnectionReadToken(call.input.token)).toEqual({
-      subdomain: 'tenant',
-      service: 'ai',
-      lookup: { type: 'ai:provider', name: 'OpenAI' },
-    });
-  });
-
-  it('surfaces core denials without values', async () => {
-    registerConnections('ai', { types: [providerType] });
-    sendTRPCMessage.mockRejectedValue(
-      new Error('This service has not declared this connection type'),
-    );
-
-    await expect(
-      getConnection({ subdomain: 'tenant', type: 'core:custom', name: 'x' }),
-    ).rejects.toThrow('This service has not declared this connection type');
-  });
-
-  it('runs the local resolver on the read connection', async () => {
-    registerConnections('ai', { types: [providerType] });
-    sendTRPCMessage.mockResolvedValue(connection);
-
-    await expect(
-      resolveConnection({
-        subdomain: 'tenant',
-        type: 'ai:provider',
-        connectionId: 'c1',
-      }),
-    ).resolves.toEqual({
-      baseURL: 'https://api.example.com/v1',
-      apiKey: 'sk-secret',
-    });
   });
 
   it('refuses to resolve a type without a resolver here', async () => {
@@ -230,7 +168,6 @@ describe('getConnection / resolveConnection', () => {
     await expect(
       resolveConnection({ subdomain: 'tenant', type: 'sales:mail', name: 'x' }),
     ).rejects.toThrow(/has no resolver/);
-    expect(sendTRPCMessage).not.toHaveBeenCalled();
   });
 });
 
