@@ -4,13 +4,17 @@ import {
   agentToolsAuthHeaderName,
   decodeAgentToolsAuthHeader,
   getSubdomain,
+  isTRPCContextHeaderTrusted,
   redis,
   sanitizeHeaders,
   setClientPortalHeader,
   setCPUserHeader,
   setUserHeader,
+  trpcContextHeaderName,
+  trpcContextSignatureHeaderName,
 } from 'erxes-api-shared/utils';
 import { NextFunction, Request, Response } from 'express';
+import { IncomingHttpHeaders } from 'http';
 import * as jwt from 'jsonwebtoken';
 import { createHash } from 'crypto';
 import fetch from 'node-fetch';
@@ -54,6 +58,27 @@ const debugAuth = (
   );
 };
 
+// Every service's tRPC and producer endpoints (`/trpc`, `/segments`, ...)
+// take tenant and caller from the tRPC context header, and the gateway proxies
+// to them. Outside SaaS, services call those endpoints directly, so the header
+// never legitimately arrives here. SaaS services route through the gateway,
+// so only a context accepted by its signature check is let through.
+export const dropUntrustedTRPCContext = (headers: IncomingHttpHeaders) => {
+  if (
+    headers[trpcContextHeaderName] === undefined &&
+    headers[trpcContextSignatureHeaderName] === undefined
+  ) {
+    return;
+  }
+
+  if (process.env.VERSION === 'saas' && isTRPCContextHeaderTrusted(headers)) {
+    return;
+  }
+
+  delete headers[trpcContextHeaderName];
+  delete headers[trpcContextSignatureHeaderName];
+};
+
 const getBearerToken = (req: Request) => {
   const authorization = req.headers.authorization;
 
@@ -77,9 +102,11 @@ export default async function userMiddleware(
   next: NextFunction,
 ) {
   // Spoofed identity headers (`user`, `userid`, `cpuser`, `clientportal`,
-  // `erxes-subdomain`) must never reach the router — subgraphs trust them
-  // verbatim. Only identity established here is forwarded.
+  // `erxes-subdomain`, the identity signature) must never reach a service.
+  // This runs before every proxied route; only identity established here is
+  // forwarded, signed by `proxyReq`.
   sanitizeHeaders(req.headers);
+  dropUntrustedTRPCContext(req.headers);
 
   const startedAt = Date.now();
   const url = req.headers['erxes-core-website-url'];

@@ -11,23 +11,21 @@ import { Queue } from 'bullmq';
 import { createBullBoard } from '@bull-board/api';
 import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
 import { ExpressAdapter } from '@bull-board/express';
-import { createProxyMiddleware } from 'http-proxy-middleware';
 
 import { retryGetProxyTargets } from '~/proxy/targets';
 import { startRouter, stopRouter } from '~/apollo-router';
 import userMiddleware from '~/middlewares/userMiddleware';
 import { initMQWorkers } from '~/mq/workers/workers';
 import {
+  applyPluginProxy,
   applyProxiesCoreless,
   applyProxyToCore,
-  proxyReq,
 } from '~/proxy/middleware';
 
 import {
   applyTrustProxy,
   decodeAgentToolsAuthHeader,
   DEFAULT_JOB_OPTIONS,
-  getPlugin,
   getPlugins,
   getSubdomain,
   isDev,
@@ -187,42 +185,7 @@ app.get('/locales/:lng/:file', async (req, res) => {
   return res.json(locale);
 });
 
-app.use('/pl:serviceName', async (req, res) => {
-  try {
-    const serviceName: string = req.params.serviceName.replace(':', '');
-    // const path = req.path;
-
-    // // Forbid access to trpc endpoints
-    // if (path.startsWith('/trpc')) {
-    //   return res.status(403).json({
-    //     error: 'Access to trpc endpoints through plugin proxy is forbidden',
-    //   });
-    // }
-
-    const service = await getPlugin(serviceName);
-
-    const targetUrl = service.address;
-
-    if (targetUrl) {
-      // Proxy the request to the target service using the custom headers
-      return createProxyMiddleware({
-        target: targetUrl,
-        changeOrigin: true, // Change the origin header to the target URL's origin
-        on: {
-          proxyReq,
-        },
-        pathRewrite: {
-          [`^/pl:${serviceName}`]: '/', // Rewriting the path if needed
-        },
-      })(req, res); // Forward the request to the target service
-    } else {
-      // Service not found, return 404
-      res.status(404).send('Service not found');
-    }
-  } catch {
-    res.status(500).send('Error fetching services');
-  }
-});
+applyPluginProxy(app);
 
 let httpServer: http.Server;
 
