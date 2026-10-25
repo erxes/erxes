@@ -1,9 +1,11 @@
 import { IncomingHttpHeaders } from 'http';
 import { identitySignatureHeaderName } from './names';
 import {
+  assertInternalHeaderSignatureConfig,
   createInternalHeaderSignature,
   dropUntrustedIdentityHeaders,
   getSubdomainFromHeaders,
+  isIdentityHeaderTrusted,
   signIdentityHeaders,
   verifyIdentityHeaders,
 } from './signature';
@@ -160,6 +162,28 @@ describe('internal identity header signature', () => {
       );
     });
 
+    it('trusts the empty identity the gateway sends for anonymous requests', () => {
+      const headers: IncomingHttpHeaders = {
+        hostname: 'tenant.example.com',
+        userid: '',
+      };
+
+      expect(isIdentityHeaderTrusted(headers)).toBe(true);
+      expect(warn).not.toHaveBeenCalled();
+    });
+
+    it('refuses a startup configuration without JWT_TOKEN_SECRET', () => {
+      process.env.JWT_TOKEN_SECRET = '  ';
+
+      expect(() => assertInternalHeaderSignatureConfig()).toThrow(
+        'INTERNAL_HEADER_SIGNATURE=enforce requires JWT_TOKEN_SECRET',
+      );
+    });
+
+    it('accepts a startup configuration with JWT_TOKEN_SECRET', () => {
+      expect(() => assertInternalHeaderSignatureConfig()).not.toThrow();
+    });
+
     it('drops untrusted identity headers before routes read them', () => {
       const headers = spoofedHeaders();
       dropUntrustedIdentityHeaders(headers);
@@ -177,6 +201,12 @@ describe('internal identity header signature', () => {
   });
 
   describe('report mode (default)', () => {
+    it('starts without JWT_TOKEN_SECRET so local setups keep working', () => {
+      delete process.env.JWT_TOKEN_SECRET;
+
+      expect(() => assertInternalHeaderSignatureConfig()).not.toThrow();
+    });
+
     it('still accepts unsigned headers so older gateways keep working', () => {
       const headers: IncomingHttpHeaders = { hostname: 'tenant.example.com' };
       setUserHeader(headers, owner);

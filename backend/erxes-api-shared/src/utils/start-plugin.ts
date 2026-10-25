@@ -44,7 +44,11 @@ import {
   expectedErrorPlugin,
 } from './apollo';
 import { BeforeResolversConfig } from './apollo/beforeResolvers';
-import { dropUntrustedIdentityHeaders, extractUserFromHeader } from './headers';
+import {
+  assertInternalHeaderSignatureConfig,
+  dropUntrustedIdentityHeaders,
+  extractUserFromHeader,
+} from './headers';
 import { AfterProcessConfigs, logHandler, startAfterProcess } from './logs';
 import { closeMongooose } from './mongo';
 import {
@@ -164,6 +168,8 @@ export async function startPlugin(
     meta,
   } = configs || {};
   const PORT = process.env.PORT ? Number(process.env.PORT) : port;
+
+  assertInternalHeaderSignatureConfig();
 
   Sentry.getGlobalScope().setTags({
     plugin: name,

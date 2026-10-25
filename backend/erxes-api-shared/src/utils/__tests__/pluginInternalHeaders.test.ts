@@ -200,6 +200,15 @@ describe('plugin service: internal identity and tRPC headers', () => {
       process.env.INTERNAL_HEADER_SIGNATURE = 'enforce';
     });
 
+    it('keeps the empty userid the gateway sends for anonymous requests', async () => {
+      expect(
+        await get('/raw-userid', {
+          hostname: 'tenant.example.com',
+          userid: '',
+        }),
+      ).toEqual({ userid: '' });
+    });
+
     it('drops an unsigned userid before plugin routes read it', async () => {
       expect(await get('/raw-userid', unsignedHeaders())).toEqual({
         userid: null,
@@ -294,5 +303,32 @@ describe('plugin service: internal identity and tRPC headers', () => {
         userId: null,
       });
     });
+  });
+});
+
+describe('startPlugin with INTERNAL_HEADER_SIGNATURE=enforce', () => {
+  const env = { ...process.env };
+
+  afterEach(() => {
+    process.env = { ...env };
+  });
+
+  it('refuses to start without JWT_TOKEN_SECRET', async () => {
+    process.env.INTERNAL_HEADER_SIGNATURE = 'enforce';
+    delete process.env.JWT_TOKEN_SECRET;
+
+    await expect(
+      startPlugin({
+        name: 'startupcheck',
+        port: await freePort(),
+        graphql: async () => ({
+          typeDefs: parse('type Query { startupCheck: String }'),
+          resolvers: { Query: { startupCheck: whoAmI } },
+        }),
+        apolloServerContext: async (_subdomain, context) => context,
+      }),
+    ).rejects.toThrow(
+      'INTERNAL_HEADER_SIGNATURE=enforce requires JWT_TOKEN_SECRET',
+    );
   });
 });

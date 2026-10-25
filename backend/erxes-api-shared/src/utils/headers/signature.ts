@@ -81,6 +81,20 @@ const warnRateLimited = (key: string, message: string) => {
 /**
  * Sign `values` for `scope`. Returns null when JWT_TOKEN_SECRET is not set.
  */
+/**
+ * Startup check: enforce mode cannot verify anything without the secret, so
+ * a service configured that way would silently treat every signed-in request
+ * as anonymous. Fail at startup instead.
+ */
+export const assertInternalHeaderSignatureConfig = () => {
+  if (getInternalHeaderSignatureMode() === 'enforce' && !getSigningKey()) {
+    throw new Error(
+      `${internalHeaderSignatureEnvName}=enforce requires JWT_TOKEN_SECRET; ` +
+        'set it to the same value on the gateway and every backend service.',
+    );
+  }
+};
+
 export const createInternalHeaderSignature = (
   scope: string,
   values: string[],
@@ -213,8 +227,12 @@ const identityValues = (headers: HeaderBag): string[] => [
  * Signature for the identity headers in `headers` as they will be sent.
  * Returns null when there is no identity to sign or no secret to sign with.
  */
+// The gateway sends `userid: ''` for anonymous requests; that is no identity.
+const hasIdentity = (headers: HeaderBag) =>
+  SIGNED_IDENTITY_HEADERS.some((name) => readHeader(headers, name) !== '');
+
 export const signIdentityHeaders = (headers: HeaderBag): string | null => {
-  if (SIGNED_IDENTITY_HEADERS.every((name) => !readHeader(headers, name))) {
+  if (!hasIdentity(headers)) {
     return null;
   }
 
@@ -231,6 +249,7 @@ export const verifyIdentityHeaders = (
   );
 
 export const isIdentityHeaderTrusted = (headers: IncomingHttpHeaders) =>
+  !hasIdentity(headers) ||
   isInternalHeaderSignatureAccepted(
     IDENTITY_SCOPE,
     verifyIdentityHeaders(headers),
@@ -242,10 +261,6 @@ export const isIdentityHeaderTrusted = (headers: IncomingHttpHeaders) =>
  * no-op in report mode.
  */
 export const dropUntrustedIdentityHeaders = (headers: IncomingHttpHeaders) => {
-  if (SIGNED_IDENTITY_HEADERS.every((name) => headers[name] === undefined)) {
-    return;
-  }
-
   if (isIdentityHeaderTrusted(headers)) {
     return;
   }
