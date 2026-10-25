@@ -270,6 +270,11 @@ describe('activity summary locale keys', () => {
     expect(mn.agent['step-count_other']).toBeTruthy();
   });
 
+  it('hints @ mentions in the composer placeholder in both locales', () => {
+    expect(en.agent['composer-placeholder']).toBe('Ask anything, @ to mention');
+    expect(mn.agent['composer-placeholder']).toContain('@');
+  });
+
   it('has the settled activity summaries in both locales', () => {
     for (const key of ['thought', 'thought-for', 'worked-for']) {
       expect(en.agent[key]).toBeTruthy();

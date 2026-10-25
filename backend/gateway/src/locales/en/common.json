@@ -697,7 +697,7 @@
       "conversation": "Conversation",
       "page": "Page"
     },
-    "composer-placeholder": "Ask anything…",
+    "composer-placeholder": "Ask anything, @ to mention",
     "conversation": "Conversation",
     "conversation-actions": "Conversation actions",
     "rename": "Rename",
