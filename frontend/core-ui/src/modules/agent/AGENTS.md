@@ -298,8 +298,9 @@ The `agent` module is the core-ui surface for the core-api `agents` backend
   asks to wait only while a response is streaming, otherwise it says attachments
   are unavailable.
 - `AgentAttachmentCard` is the one attachment card for composer and history:
-  thumbnail or type icon (Word, document, spreadsheet, presentation, PDF, …),
-  name, `label · size` (`agentsFileKindLabel`), spinner, error, Retry/Remove; in
+  thumbnail or the platform uploader's icon (erxes-ui `getFileIcon`), name,
+  `label · size` (`agentsFileKindLabel` + erxes-ui `formatBytes(size, 2)`, decimal
+  units like the rest of erxes), spinner, error, Retry/Remove; in
   history the card opens the stored file. Composer chips enter with
   `.agent-chip-enter` (`src/styles.css`, reduced-motion gated). `AttachedFiles`
   renders images first (one at `w-64`, several as square tiles), then document

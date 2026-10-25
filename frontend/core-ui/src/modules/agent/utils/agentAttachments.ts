@@ -13,73 +13,27 @@ import {
 export const AGENTS_ACCEPTED_TYPES_LABEL =
   'images, PDF, Word, Excel, PowerPoint, OpenDocument, RTF, CSV, text, Markdown or JSON';
 
-export type TAgentsFileKind =
-  | 'image'
-  | 'pdf'
-  | 'word'
-  | 'document'
-  | 'spreadsheet'
-  | 'presentation'
-  | 'csv'
-  | 'json'
-  | 'markdown'
-  | 'text'
-  | 'file';
-
-const FILE_TYPES: Record<string, { kind: TAgentsFileKind; label: string }> = {
-  'application/pdf': { kind: 'pdf', label: 'PDF' },
-  'application/vnd.openxmlformats-officedocument.wordprocessingml.document': {
-    kind: 'word',
-    label: 'Word',
-  },
-  'application/vnd.oasis.opendocument.text': {
-    kind: 'document',
-    label: 'OpenDocument text',
-  },
-  'application/rtf': { kind: 'document', label: 'Rich text' },
-  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': {
-    kind: 'spreadsheet',
-    label: 'Excel',
-  },
-  'application/vnd.oasis.opendocument.spreadsheet': {
-    kind: 'spreadsheet',
-    label: 'OpenDocument sheet',
-  },
-  'application/vnd.openxmlformats-officedocument.presentationml.presentation': {
-    kind: 'presentation',
-    label: 'PowerPoint',
-  },
-  'application/vnd.oasis.opendocument.presentation': {
-    kind: 'presentation',
-    label: 'OpenDocument slides',
-  },
-  'text/csv': { kind: 'csv', label: 'CSV' },
-  'application/json': { kind: 'json', label: 'JSON' },
-  'text/markdown': { kind: 'markdown', label: 'Markdown' },
-  'text/plain': { kind: 'text', label: 'Text' },
+const FILE_TYPE_LABELS: Record<string, string> = {
+  'application/pdf': 'PDF',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
+    'Word',
+  'application/vnd.oasis.opendocument.text': 'OpenDocument text',
+  'application/rtf': 'Rich text',
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'Excel',
+  'application/vnd.oasis.opendocument.spreadsheet': 'OpenDocument sheet',
+  'application/vnd.openxmlformats-officedocument.presentationml.presentation':
+    'PowerPoint',
+  'application/vnd.oasis.opendocument.presentation': 'OpenDocument slides',
+  'text/csv': 'CSV',
+  'application/json': 'JSON',
+  'text/markdown': 'Markdown',
+  'text/plain': 'Text',
 };
-
-export const agentsFileKind = (mimeType: string): TAgentsFileKind =>
-  mimeType.startsWith('image/')
-    ? 'image'
-    : (FILE_TYPES[mimeType]?.kind ?? 'file');
 
 export const agentsFileKindLabel = (mimeType: string): string =>
   mimeType.startsWith('image/')
     ? 'Image'
-    : (FILE_TYPES[mimeType]?.label ?? 'File');
-
-/** Binary units, matching the MiB/KiB limits quoted in the composer. */
-export const formatAgentsFileSize = (bytes: number): string => {
-  if (!Number.isFinite(bytes) || bytes < 1024) {
-    return `${Math.max(0, Math.round(bytes || 0))} B`;
-  }
-  if (bytes < 1024 * 1024) {
-    return `${Math.round(bytes / 1024)} KB`;
-  }
-  const mb = bytes / (1024 * 1024);
-  return `${mb < 10 ? mb.toFixed(1) : Math.round(mb)} MB`;
-};
+    : (FILE_TYPE_LABELS[mimeType] ?? 'File');
 
 export interface IAgentsAttachmentCandidate {
   file: File;

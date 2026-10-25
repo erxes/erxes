@@ -9,10 +9,7 @@ import {
 import { createRef, type ButtonHTMLAttributes, type ReactNode } from 'react';
 import { randomUUID } from 'crypto';
 import { toast } from 'erxes-ui';
-import {
-  Composer,
-  type IComposerAttachHandle,
-} from '../components/Composer';
+import { Composer, type IComposerAttachHandle } from '../components/Composer';
 import { uploadAgentsFile } from '../uploadAgentsFile';
 import { resizeAgentsImage } from '../utils/resizeAgentsImage';
 import type { IAgentsFileMeta } from '../agentsFiles';
@@ -39,6 +36,8 @@ jest.mock('../components/PageElementPicker', () => ({
   ),
 }));
 
+jest.mock('erxes-ui/lib', () => ({ cn: () => '' }), { virtual: true });
+jest.mock('erxes-ui/hooks/use-upload-new', () => ({}), { virtual: true });
 jest.mock(
   'erxes-ui',
   () => {
@@ -46,6 +45,13 @@ jest.mock(
       children;
 
     return {
+      // The platform's real file helpers, from erxes-ui source.
+      formatBytes: jest.requireActual(
+        '../../../../../libs/erxes-ui/src/components/upload-new',
+      ).formatBytes,
+      getFileIcon: jest.requireActual(
+        '../../../../../libs/erxes-ui/src/components/upload-new',
+      ).getFileIcon,
       toast: jest.fn(),
       Spinner: () => <span />,
       Button: ({
@@ -379,7 +385,7 @@ it('attaches pasted screenshots with a thumbnail and sends them', async () => {
   await waitFor(() => expect(sendButton().disabled).toBe(false));
   const list = screen.getByRole('list', { name: 'Attachments' });
   expect(list.querySelector('img')?.getAttribute('src')).toBe('blob:selection');
-  expect(list.textContent).toContain('Image · 3 B');
+  expect(list.textContent).toContain('Image · 3 bytes');
   fireEvent.click(sendButton());
   expect(onSend).toHaveBeenCalledWith('Uploaded files', [
     expect.objectContaining({ name: pasted.name, type: 'image/png' }),
@@ -449,9 +455,7 @@ it('exposes availability and attaches dropped files through the handle', async (
       variant: 'destructive',
     }),
   );
-  expect(notify.mock.calls[0][0].description).toContain(
-    "6.txt wasn't added",
-  );
+  expect(notify.mock.calls[0][0].description).toContain("6.txt wasn't added");
   expect(attachRef.current?.availability()).toBe('full');
   rerender(<Composer {...props} status="streaming" />);
   expect(attachRef.current?.availability()).toBe('disabled');

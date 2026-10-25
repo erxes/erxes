@@ -4,7 +4,16 @@ import type { ButtonHTMLAttributes } from 'react';
 import { AttachedFiles } from '../components/AttachedFiles';
 import type { IAgentsFileMeta } from '../agentsFiles';
 
+jest.mock('erxes-ui/lib', () => ({ cn: () => '' }), { virtual: true });
+jest.mock('erxes-ui/hooks/use-upload-new', () => ({}), { virtual: true });
 jest.mock('erxes-ui', () => ({
+  // The platform's real file helpers, from erxes-ui source.
+  formatBytes: jest.requireActual(
+    '../../../../../libs/erxes-ui/src/components/upload-new',
+  ).formatBytes,
+  getFileIcon: jest.requireActual(
+    '../../../../../libs/erxes-ui/src/components/upload-new',
+  ).getFileIcon,
   Button: ({
     variant: _variant,
     ...props
@@ -45,7 +54,7 @@ it('keeps document labels and downloads unchanged in mixed messages', () => {
   expect(screen.getAllByRole('img')).toHaveLength(1);
   const card = screen.getByRole('button', { name: `Open ${document.name}` });
   expect(card.textContent).toContain('report.pdf');
-  expect(card.textContent).toContain('PDF · 100 B');
+  expect(card.textContent).toContain('PDF · 100 bytes');
   fireEvent.click(card);
   expect(open).toHaveBeenCalledWith('/read-file?key=report.pdf', '_blank', 'noopener,noreferrer');
 });
@@ -65,7 +74,7 @@ it('falls back to a working filename chip if the preview fails', () => {
   expect(screen.queryByRole('img')).toBeNull();
   expect(screen.queryByRole('status')).toBeNull();
   const card = screen.getByRole('button', { name: `Open ${image.name}` });
-  expect(card.textContent).toContain('Image · 100 B');
+  expect(card.textContent).toContain('Image · 100 bytes');
   fireEvent.click(card);
   expect(open).toHaveBeenCalled();
 });

@@ -1,10 +1,8 @@
 import {
-  agentsFileKind,
   agentsFileKindLabel,
   describeAgentsAttachmentRejections,
   filesFromClipboard,
   fitImageDimensions,
-  formatAgentsFileSize,
   planAgentsAttachments,
 } from '../utils/agentAttachments';
 
@@ -181,17 +179,7 @@ describe('filesFromClipboard', () => {
 });
 
 describe('display helpers', () => {
-  it('formats sizes in binary units', () => {
-    expect(formatAgentsFileSize(0)).toBe('0 B');
-    expect(formatAgentsFileSize(1023)).toBe('1023 B');
-    expect(formatAgentsFileSize(1536)).toBe('2 KB');
-    expect(formatAgentsFileSize(1.5 * 1024 * 1024)).toBe('1.5 MB');
-    expect(formatAgentsFileSize(12 * 1024 * 1024)).toBe('12 MB');
-  });
-
-  it('maps MIME types to kinds and labels', () => {
-    expect(agentsFileKind('image/webp')).toBe('image');
-    expect(agentsFileKind('application/pdf')).toBe('pdf');
+  it('labels each accepted file type', () => {
     expect(
       agentsFileKindLabel(
         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
@@ -199,13 +187,10 @@ describe('display helpers', () => {
     ).toBe('Excel');
     expect(agentsFileKindLabel('application/zip')).toBe('File');
     expect(
-      agentsFileKind(
+      agentsFileKindLabel(
         'application/vnd.openxmlformats-officedocument.presentationml.presentation',
       ),
-    ).toBe('presentation');
-    expect(agentsFileKind('application/vnd.oasis.opendocument.text')).toBe(
-      'document',
-    );
+    ).toBe('PowerPoint');
     expect(
       agentsFileKindLabel('application/vnd.oasis.opendocument.spreadsheet'),
     ).toBe('OpenDocument sheet');

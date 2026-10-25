@@ -1,57 +1,8 @@
-import {
-  IconDownload,
-  IconFile,
-  IconFileText,
-  IconFileTypeCsv,
-  IconFileTypeDocx,
-  IconFileTypePdf,
-  IconFileTypePpt,
-  IconFileTypeTxt,
-  IconFileTypeXls,
-  IconJson,
-  IconMarkdown,
-  IconPhoto,
-  IconRefresh,
-  IconX,
-  type Icon,
-} from '@tabler/icons-react';
-import { Button, Spinner } from 'erxes-ui';
+import { IconDownload, IconRefresh, IconX } from '@tabler/icons-react';
+import { Button, Spinner, formatBytes, getFileIcon } from 'erxes-ui';
 import { useState, type ReactNode } from 'react';
 
-import {
-  agentsFileKind,
-  agentsFileKindLabel,
-  formatAgentsFileSize,
-  type TAgentsFileKind,
-} from '../utils/agentAttachments';
-
-const KIND_ICON: Record<TAgentsFileKind, Icon> = {
-  image: IconPhoto,
-  pdf: IconFileTypePdf,
-  word: IconFileTypeDocx,
-  document: IconFileText,
-  spreadsheet: IconFileTypeXls,
-  presentation: IconFileTypePpt,
-  csv: IconFileTypeCsv,
-  json: IconJson,
-  markdown: IconMarkdown,
-  text: IconFileTypeTxt,
-  file: IconFile,
-};
-
-const KIND_TONE: Record<TAgentsFileKind, string> = {
-  image: 'text-sky-600 dark:text-sky-400',
-  pdf: 'text-red-600 dark:text-red-400',
-  word: 'text-blue-600 dark:text-blue-400',
-  document: 'text-blue-600 dark:text-blue-400',
-  spreadsheet: 'text-emerald-600 dark:text-emerald-400',
-  presentation: 'text-orange-600 dark:text-orange-400',
-  csv: 'text-emerald-600 dark:text-emerald-400',
-  json: 'text-amber-600 dark:text-amber-400',
-  markdown: 'text-muted-foreground',
-  text: 'text-muted-foreground',
-  file: 'text-muted-foreground',
-};
+import { agentsFileKindLabel } from '../utils/agentAttachments';
 
 export interface IAgentAttachmentCardProps {
   name: string;
@@ -80,8 +31,6 @@ export const AgentAttachmentCard = ({
   onOpen,
 }: IAgentAttachmentCardProps) => {
   const [previewFailed, setPreviewFailed] = useState(false);
-  const kind = agentsFileKind(mimeType);
-  const KindIcon = KIND_ICON[kind];
   const showPreview = Boolean(previewUrl) && !previewFailed;
 
   const thumbnail = (
@@ -94,7 +43,7 @@ export const AgentAttachmentCard = ({
           onError={() => setPreviewFailed(true)}
         />
       ) : (
-        <KindIcon className={`size-5 ${KIND_TONE[kind]}`} aria-hidden />
+        getFileIcon(mimeType, name)
       )}
       {status === 'uploading' && (
         <span className="absolute inset-0 flex items-center justify-center bg-background/70">
@@ -104,7 +53,7 @@ export const AgentAttachmentCard = ({
     </span>
   );
 
-  let detail: ReactNode = `${agentsFileKindLabel(mimeType)} · ${formatAgentsFileSize(size)}`;
+  let detail: ReactNode = `${agentsFileKindLabel(mimeType)} · ${formatBytes(size, 2)}`;
   if (status === 'uploading') {
     detail = (
       <span role="status" className="text-muted-foreground">

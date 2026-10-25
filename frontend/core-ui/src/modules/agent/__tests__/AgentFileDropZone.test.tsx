@@ -1,5 +1,11 @@
 /** @jest-environment jsdom */
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react';
 import { randomUUID } from 'crypto';
 import { createRef, type ButtonHTMLAttributes, type ReactNode } from 'react';
 import { toast } from 'erxes-ui';
@@ -22,12 +28,21 @@ afterEach(async () => {
 jest.mock('../components/PageElementPicker', () => ({
   PageElementPicker: () => null,
 }));
+jest.mock('erxes-ui/lib', () => ({ cn: () => '' }), { virtual: true });
+jest.mock('erxes-ui/hooks/use-upload-new', () => ({}), { virtual: true });
 jest.mock(
   'erxes-ui',
   () => {
     const Wrapper = ({ children }: { children: ReactNode }): ReactNode =>
       children;
     return {
+      // The platform's real file helpers, from erxes-ui source.
+      formatBytes: jest.requireActual(
+        '../../../../../libs/erxes-ui/src/components/upload-new',
+      ).formatBytes,
+      getFileIcon: jest.requireActual(
+        '../../../../../libs/erxes-ui/src/components/upload-new',
+      ).getFileIcon,
       cn: (...values: unknown[]) => values.filter(Boolean).join(' '),
       toast: jest.fn(),
       Spinner: () => <span />,
@@ -122,8 +137,9 @@ const setup = ({
       ?.getAttribute('data-state') === 'open';
   const chips = () =>
     Array.from(
-      screen.queryByRole('list', { name: 'Attachments' })?.querySelectorAll('li') ??
-        [],
+      screen
+        .queryByRole('list', { name: 'Attachments' })
+        ?.querySelectorAll('li') ?? [],
     ).map((item) => item.textContent ?? '');
   return { view, overlayOpen, chips };
 };
@@ -243,7 +259,9 @@ it('reports unsupported and excess dropped files instead of attaching them', asy
   expect(chips()[0]).toContain('notes.txt');
   expect(notify).toHaveBeenCalledWith(
     expect.objectContaining({
-      description: expect.stringContaining("archive.zip isn't a supported type"),
+      description: expect.stringContaining(
+        "archive.zip isn't a supported type",
+      ),
     }),
   );
 });
