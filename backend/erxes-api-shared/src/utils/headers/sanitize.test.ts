@@ -9,6 +9,7 @@ describe('sanitizeHeaders', () => {
       userid: 'u1',
       cpuser: 'base64-cp-user',
       clientportal: 'base64-portal',
+      'x-erxes-identity-signature': 'v1.0.forged',
       'content-type': 'application/json',
     };
 

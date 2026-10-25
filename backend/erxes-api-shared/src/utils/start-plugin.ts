@@ -44,7 +44,7 @@ import {
   expectedErrorPlugin,
 } from './apollo';
 import { BeforeResolversConfig } from './apollo/beforeResolvers';
-import { extractUserFromHeader } from './headers';
+import { dropUntrustedIdentityHeaders, extractUserFromHeader } from './headers';
 import { AfterProcessConfigs, logHandler, startAfterProcess } from './logs';
 import { closeMongooose } from './mongo';
 import {
@@ -183,6 +183,13 @@ export async function startPlugin(
     }),
   );
   app.use(cookieParser());
+
+  // Ignore gateway identity headers whose signature does not verify
+  // (INTERNAL_HEADER_SIGNATURE=enforce) before any route reads them.
+  app.use((req, _res, next) => {
+    dropUntrustedIdentityHeaders(req.headers);
+    next();
+  });
 
   // for health check
   app.get('/health', async (_req, res) => {
