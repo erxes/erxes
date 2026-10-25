@@ -5,6 +5,7 @@ import { oauthClientAppQueries } from '@/auth/graphql/resolvers/oauthClientApps'
 import { automationQueries } from '@/automations/graphql/resolvers/queries';
 import { emailTemplateQueries } from '@/emailTemplates/graphql/resolvers';
 import { notificationTemplateQueries } from '@/notificationTemplates/graphql/resolvers';
+import { connectionQueries } from '@/connections/graphql/resolvers';
 import { beforeResolverQueries } from '@/beforeResolvers/graphql/queries';
 import { clientPortalQueries } from '@/clientportal/graphql/resolvers/queries/clientPortal';
 import { cpUserQueries } from '@/clientportal/graphql/resolvers/queries/cpUser';
@@ -82,6 +83,7 @@ export const queries = {
   ...automationQueries,
   ...emailTemplateQueries,
   ...notificationTemplateQueries,
+  ...connectionQueries,
   ...beforeResolverQueries,
   ...logQueries,
   ...notificationQueries,

@@ -792,6 +792,27 @@ export const permissions: IPermissionConfig = {
         },
       ],
     },
+    {
+      name: 'connections',
+      description: 'Integration connections and their credentials',
+      scopeField: null,
+      ownerFields: [],
+
+      scopes: [{ name: 'all', description: 'All connections' }],
+
+      actions: [
+        {
+          title: 'View connections',
+          name: 'showConnections',
+          description: 'View connections without their secret values',
+        },
+        {
+          title: 'Manage connections',
+          name: 'manageConnections',
+          description: 'Create, edit, test and delete connections',
+        },
+      ],
+    },
   ],
   defaultGroups: [
     {
@@ -957,6 +978,12 @@ export const permissions: IPermissionConfig = {
           plugin: 'core',
           module: 'agents',
           actions: ['showAgents', 'agentsChat', 'manageAgentsSettings'],
+          scope: 'all',
+        },
+        {
+          plugin: 'core',
+          module: 'connections',
+          actions: ['showConnections', 'manageConnections'],
           scope: 'all',
         },
         {

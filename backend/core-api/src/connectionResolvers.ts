@@ -378,6 +378,11 @@ import {
   loadAgentsConnectionClass,
 } from '@/agents/db/models/Connection';
 import { IAgentsSettingsDocument } from '@/agents/@types/settings';
+import { IConnectionDocument } from '@/connections/@types/connection';
+import {
+  IConnectionModel,
+  loadConnectionClass,
+} from '@/connections/db/models/Connections';
 import {
   IAgentsSettingsModel,
   loadAgentsSettingsClass,
@@ -473,6 +478,7 @@ export interface IModels {
 
   AgentsConnection: IAgentsConnectionModel;
   AgentsSettings: IAgentsSettingsModel;
+  Connections: IConnectionModel;
 }
 
 export interface IContext extends IMainContext {
@@ -980,6 +986,12 @@ export const loadClasses = (
     IAgentsSettingsDocument,
     IAgentsSettingsModel
   >('agents_settings', loadAgentsSettingsClass(models));
+
+  // Tenant integration credentials; secret field values are sealed.
+  models.Connections = db.model<IConnectionDocument, IConnectionModel>(
+    'connections',
+    loadConnectionClass(models),
+  );
 
   const db_name = db.name;
 

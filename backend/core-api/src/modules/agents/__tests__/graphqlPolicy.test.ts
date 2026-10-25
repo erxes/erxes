@@ -151,6 +151,13 @@ describe('system-operation deny policy', () => {
     'usersInvite',
     'permissionGroupsEdit',
     'agentsConnectionUpsert',
+    'connections',
+    'connectionsTypes',
+    'connectionsDetail',
+    'connectionsAdd',
+    'connectionsEdit',
+    'connectionsRemove',
+    'connectionsTest',
   ])('refuses %s even behind aliases', (field) => {
     expect(() =>
       parseAgentGraphqlOperation(

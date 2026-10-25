@@ -150,6 +150,12 @@ import {
 } from '@/notificationTemplates/graphql/schema';
 
 import {
+  mutations as ConnectionsMutations,
+  queries as ConnectionsQueries,
+  types as ConnectionsTypes,
+} from '@/connections/graphql/schema';
+
+import {
   mutations as LogsMutations,
   queries as LogsQueries,
   types as LogsTypes,
@@ -294,6 +300,7 @@ export const types = `
     ${AutomationsTypes}
     ${EmailTemplateTypes}
     ${NotificationTemplateTypes}
+    ${ConnectionsTypes}
     ${LogsTypes}
     ${NotificationsTypes}
     ${InternalNoteTypes}
@@ -343,6 +350,7 @@ export const queries = `
     ${AutomationsQueries}
     ${EmailTemplateQueries}
     ${NotificationTemplateQueries}
+    ${ConnectionsQueries}
     ${BeforeResolverQueries}
     ${LogsQueries}
     ${NotificationsQueries}
@@ -391,6 +399,7 @@ export const mutations = `
     ${AutomationsMutations}
     ${EmailTemplateMutations}
     ${NotificationTemplateMutations}
+    ${ConnectionsMutations}
     ${NotificationsMutations}
     ${InternalNoteMutations}
     ${PropertiesMutations}
