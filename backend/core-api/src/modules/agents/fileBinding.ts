@@ -3,6 +3,7 @@ import {
   collectAgentsPageSelections,
   type IAgentPageSelectionContext,
 } from '@/agents/pageSelections';
+import { AGENTS_MENTIONS_DATA_TYPE } from '@/agents/mentions';
 import type { UIMessage } from 'ai' with { 'resolution-mode': 'import' };
 import { Writable } from 'stream';
 import { pipeline } from 'stream/promises';
@@ -120,6 +121,8 @@ export const collectAgentsAttachments = (
       }
       continue;
     }
+    // Validated and resolved by `collectAgentsMentions`; carries no media.
+    if (isRecord(part) && part.type === AGENTS_MENTIONS_DATA_TYPE) continue;
     if (
       !isRecord(part) ||
       (part.type !== 'text' && part.type !== AGENTS_FILES_DATA_TYPE)

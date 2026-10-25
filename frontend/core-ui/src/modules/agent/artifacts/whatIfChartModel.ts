@@ -2,6 +2,17 @@ import { z } from 'zod';
 
 const identifier = z.string().regex(/^[a-zA-Z][a-zA-Z0-9_]{0,31}$/);
 const finite = z.number().finite().min(-1e12).max(1e12);
+// Optional presentation hints; older specs that only supply `unit` stay valid.
+const display = {
+  unit: z.string().max(20).optional(),
+  format: z.enum(['number', 'currency', 'percent']).optional(),
+  currency: z
+    .string()
+    .regex(/^[A-Z]{3}$/)
+    .optional(),
+  decimals: z.number().int().min(0).max(6).optional(),
+  description: z.string().min(1).max(160).optional(),
+};
 const chartSchema = z.object({
   title: z.string().min(1).max(120),
   assumption: z.string().min(1).max(500),
@@ -15,7 +26,7 @@ const chartSchema = z.object({
           min: finite,
           max: finite,
           step: z.number().finite().positive().max(1e12),
-          unit: z.string().max(20).optional(),
+          ...display,
         })
         .refine(
           (input) =>
@@ -30,7 +41,8 @@ const chartSchema = z.object({
     .array(
       z.object({
         label: z.string().min(1).max(80),
-        unit: z.string().max(20).optional(),
+        ...display,
+        better: z.enum(['higher', 'lower']).optional(),
         formula: z
           .array(
             z.union([
@@ -48,6 +60,8 @@ const chartSchema = z.object({
 });
 
 export type WhatIfChartSpec = z.infer<typeof chartSchema>;
+export type WhatIfChartInput = WhatIfChartSpec['inputs'][number];
+export type WhatIfChartOutput = WhatIfChartSpec['outputs'][number];
 
 /** Bounded postfix arithmetic, never eval/Function or property/function access. */
 export const evaluateChartFormula = (

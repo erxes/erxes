@@ -6,6 +6,7 @@ import {
   useRef,
   useState,
   type ReactNode,
+  type Ref,
 } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -15,9 +16,10 @@ import { useAgentsModels } from '../hooks/useAgentsModels';
 import type { IUseAgentsChatResult } from '../hooks/useAgentsChat';
 import { agentsFilesPart } from '../agentsFiles';
 import { pageSelectionsPart } from '../pageSelections';
+import { agentMentionsPartsForText } from '../agentMentions';
 import { POSES } from '../bloub/engine/states';
 import { BotBadge } from './BotBadge';
-import { Composer } from './Composer';
+import { Composer, type IComposerAttachHandle } from './Composer';
 import { modelSelectionValue, ModelPicker } from './ModelPicker';
 import { MessageList } from './MessageList';
 import { ThinkingPicker } from './ThinkingPicker';
@@ -50,6 +52,8 @@ export interface IChatPanelProps {
   width?: AgentChatWidth;
   /** Composer page-context chip row (side panel only). */
   contextRow?: ReactNode;
+  /** Receives the composer's attach handle for panel-wide drop. */
+  attachRef?: Ref<IComposerAttachHandle>;
 }
 
 /**
@@ -68,6 +72,7 @@ export const ChatPanel = ({
   className,
   width = 'full',
   contextRow,
+  attachRef,
 }: IChatPanelProps) => {
   const { t } = useTranslation('common', { keyPrefix: 'agent' });
   const suggestions = useAgentSuggestions();
@@ -90,10 +95,6 @@ export const ChatPanel = ({
 
   const { connections, loading: connectionsLoading } = useAgentsConnection();
   const models = useAgentsModels();
-
-  // The server default (Auto) runs the first configured provider's stored
-  // model; showing it keeps the default from being hidden.
-  const autoModel = connections[0]?.model;
 
   const isStreaming = status === 'submitted' || status === 'streaming';
   const isEmpty = messages.length === 0 && !loadingThread;
@@ -214,8 +215,7 @@ export const ChatPanel = ({
       <ModelPicker
         models={models}
         value={modelSelectionValue(chat.modelProvider, chat.modelId)}
-        autoModel={autoModel}
-        defaultModels={connections}
+        savedModels={connections}
         onChange={(value) => {
           if (!value) {
             chat.selectModel('', '');
@@ -247,12 +247,14 @@ export const ChatPanel = ({
       disabled={loadingThread || noConnection}
       draftScope={threadId ?? 'new'}
       onSend={(text, files, selections = []) => {
-        if (files.length > 0 || selections.length > 0) {
+        const mentionParts = agentMentionsPartsForText(text);
+        if (files.length > 0 || selections.length > 0 || mentionParts.length) {
           void sendMessage({
             parts: [
               { type: 'text', text },
               ...(files.length ? [agentsFilesPart(files)] : []),
               ...(selections.length ? [pageSelectionsPart(selections)] : []),
+              ...mentionParts,
             ],
           });
           return;
@@ -263,6 +265,7 @@ export const ChatPanel = ({
       onStop={stop}
       pickers={pickers}
       contextRow={contextRow}
+      attachRef={attachRef}
     />
   );
 

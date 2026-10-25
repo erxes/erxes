@@ -22,6 +22,10 @@ import {
   AGENTS_FILE_READ_TIMEOUT_MS,
   waitForAgentsFileOperation,
 } from '@/agents/fileTimeout';
+import {
+  extractOfficeDocumentText,
+  isZipBuffer,
+} from '@/agents/documentText';
 
 export const AGENTS_READ_FILE_MAX_BYTES = AGENTS_FILE_MAX_BYTES;
 export const AGENTS_READ_IMAGE_MAX_BYTES = 2 * 1024 * 1024;
@@ -584,6 +588,28 @@ export const readAgentsUploadedFile = async (input: {
     throw new AgentsReadFileError('The file is empty.');
   }
 
+  if (isZipBuffer(bytes)) {
+    let document: ReturnType<typeof extractOfficeDocumentText>;
+    try {
+      document = extractOfficeDocumentText(bytes);
+    } catch {
+      throw new AgentsReadFileError(
+        'The document could not be read. Upload a valid DOCX or XLSX file.',
+      );
+    }
+    if (document) {
+      return {
+        url: raw,
+        mimeType: document.mimeType,
+        kind: 'text',
+        text: document.text || '(The document contains no extractable text.)',
+      };
+    }
+  }
+  if (bytes.subarray(0, 5).toString('latin1') === '%PDF-') {
+    return { url: raw, mimeType: 'application/pdf', kind: 'binary' };
+  }
+
   const { kind, mimeType } = classify(headerMime, bytes);
   if (kind === 'text') {
     if (bytes.length > AGENTS_FILE_TEXT_MAX_BYTES) {
@@ -626,7 +652,7 @@ export const buildReadFileTool = async () => {
   return createTool({
     id: 'readFile',
     description:
-      'Read an uploaded chat attachment by its url from this conversation. Pass the url from the attachment metadata. Never invent urls.',
+      'Read an uploaded chat attachment by its url from this conversation. Returns text for text, CSV, JSON, Markdown, DOCX and XLSX files (spreadsheets as CSV per sheet) and image data for images. Pass the url from the attachment metadata. Never invent urls.',
     inputSchema: z.object({
       url: z
         .string()
@@ -698,6 +724,13 @@ export const buildReadFileTool = async () => {
       }
       if (output.kind === 'text' && output.text) {
         return { type: 'text', value: output.text };
+      }
+      if (output.mimeType === 'application/pdf') {
+        return {
+          type: 'text',
+          value:
+            'PDF text extraction is not available. Tell the user you cannot read this PDF and ask them to paste the relevant text or attach it as a DOCX, text file or image.',
+        };
       }
       return {
         type: 'text',

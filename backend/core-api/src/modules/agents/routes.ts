@@ -6,6 +6,13 @@ import {
   collectAgentsPageSelections,
   AgentsPageSelectionError,
 } from '@/agents/pageSelections';
+import {
+  AgentsMentionError,
+  applyAgentsMentions,
+  collectAgentsMentions,
+  resolveAgentsMentions,
+  rewriteAgentsMentionText,
+} from '@/agents/mentions';
 import type { UIMessage } from 'ai' with { 'resolution-mode': 'import' };
 import type { MastraMemory } from '@mastra/core/memory' with {
   'resolution-mode': 'import',
@@ -718,6 +725,16 @@ router.post('/agents/chat', async (req, res) => {
     const files = collectAgentsAttachments(
       Array.isArray(newestMessage.parts) ? newestMessage.parts : [],
     );
+    const requestedMentions = collectAgentsMentions(
+      Array.isArray(newestMessage.parts) ? newestMessage.parts : [],
+    );
+    // Verified as the acting user before any storage, rewind or model work.
+    const mentions = await resolveAgentsMentions(identity, requestedMentions);
+    const mentionText = rewriteAgentsMentionText(
+      Array.isArray(newestMessage.parts) ? newestMessage.parts : [],
+      requestedMentions,
+      mentions,
+    );
 
     const models = await generateModels(identity.subdomain);
     const connections = await resolveUserConnections(models, identity.userId);
@@ -735,11 +752,24 @@ router.post('/agents/chat', async (req, res) => {
       requestedThreadId: body.threadId,
     });
 
-    const preparedMessage = await prepareAgentsFileMessage(
-      identity.subdomain,
-      { id: typeof newestMessage.id === 'string' ? newestMessage.id : randomUUID(), role: 'user', parts: newestMessage.parts },
-      files,
-      selections,
+    const preparedMessage = applyAgentsMentions(
+      await prepareAgentsFileMessage(
+        identity.subdomain,
+        {
+          id:
+            typeof newestMessage.id === 'string'
+              ? newestMessage.id
+              : randomUUID(),
+          role: 'user',
+          parts: (mentions.length
+            ? mentionText.parts
+            : newestMessage.parts) as UIMessage['parts'],
+        },
+        files,
+        selections,
+      ),
+      mentions,
+      mentionText.displayText,
     );
 
     // Page context is a model-only hint: a delimited text part prepended to
@@ -831,6 +861,7 @@ router.post('/agents/chat', async (req, res) => {
   } catch (error) {
     if (
       error instanceof AgentsPageSelectionError ||
+      error instanceof AgentsMentionError ||
       error instanceof AgentsFileBindError ||
       error instanceof AgentsMessageEditError
     ) {

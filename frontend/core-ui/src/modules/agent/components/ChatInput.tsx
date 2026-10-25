@@ -1,9 +1,31 @@
-import { useEffect, useRef, type KeyboardEvent } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  type ClipboardEvent,
+  type KeyboardEvent,
+  type MutableRefObject,
+  type TextareaHTMLAttributes,
+} from 'react';
+
+export type TChatInputTextareaProps = Omit<
+  TextareaHTMLAttributes<HTMLTextAreaElement>,
+  | 'value'
+  | 'onChange'
+  | 'onKeyDown'
+  | 'onPaste'
+  | 'placeholder'
+  | 'disabled'
+  | 'rows'
+  | 'style'
+  | 'className'
+>;
 
 export interface IChatInputProps {
   value: string;
   onChange: (value: string) => void;
   onKeyDown?: (event: KeyboardEvent<HTMLTextAreaElement>) => void;
+  onPaste?: (event: ClipboardEvent<HTMLTextAreaElement>) => void;
   placeholder?: string;
   disabled?: boolean;
   /** Height (px) the field grows to before it scrolls internally. */
@@ -12,6 +34,10 @@ export interface IChatInputProps {
   minHeight?: number;
   ariaLabel?: string;
   className?: string;
+  /** Receives the underlying textarea (caret-aware layers such as mentions). */
+  inputRef?: MutableRefObject<HTMLTextAreaElement | null>;
+  /** Extra textarea attributes/handlers (selection, focus, ARIA). */
+  textareaProps?: TChatInputTextareaProps;
 }
 
 /**
@@ -28,14 +54,24 @@ export const ChatInput = ({
   value,
   onChange,
   onKeyDown,
+  onPaste,
   placeholder,
   disabled = false,
   maxHeight = 168,
   minHeight = 20,
   ariaLabel,
   className,
+  inputRef: externalRef,
+  textareaProps,
 }: IChatInputProps) => {
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
+  const setRefs = useCallback(
+    (node: HTMLTextAreaElement | null) => {
+      inputRef.current = node;
+      if (externalRef) externalRef.current = node;
+    },
+    [externalRef],
+  );
 
   useEffect(() => {
     const node = inputRef.current;
@@ -67,10 +103,12 @@ export const ChatInput = ({
 
   return (
     <textarea
-      ref={inputRef}
+      {...textareaProps}
+      ref={setRefs}
       value={value}
       onChange={(event) => onChange(event.target.value)}
       onKeyDown={onKeyDown}
+      onPaste={onPaste}
       placeholder={placeholder}
       disabled={disabled}
       rows={1}

@@ -15,6 +15,7 @@ import {
 import type { IAskUserQuestionEntry } from '../components/AskUserPrompt';
 import { mapStoredMessagesToUIMessages } from '../mapStoredMessages';
 import { extractPageContext } from '../utils/pageContext';
+import { withAgentMentionsParts } from '../agentMentions';
 import { useNavigationCatalog } from './useNavigationCatalog';
 import { agentNavigationCatalogState } from '../states/agentNavigationCatalogState';
 import type {
@@ -533,10 +534,14 @@ export const useAgentsChat = (options?: {
       void sendMessage(
         {
           messageId,
-          parts: [
-            ...parts.filter((part) => part.type !== 'text'),
-            { type: 'text', text: text.trim() },
-          ],
+          // The edited text decides which records stay mentioned.
+          parts: withAgentMentionsParts(
+            [
+              ...parts.filter((part) => part.type !== 'text'),
+              { type: 'text', text: text.trim() },
+            ],
+            text.trim(),
+          ),
           metadata: message.metadata,
         },
         {
