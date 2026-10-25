@@ -7,7 +7,7 @@ plugin; ported from the former private `erxes-agent` service). It provides:
   `kimi-code`; `cloudflare-ai-gateway` resolves but is not offered on the BYOK
   surface) stored on `agents_user_connections` — one doc per user per tenant,
   one entry per provider, `hasKey`-only reads; `config.apiKey` is sealed at
-  rest (`secretBox.ts`, AES-256-GCM, `enc:v1:` envelope keyed from
+  rest (`secretBox.ts` over the core `~/utils/secretBox`, AES-256-GCM, `enc:v1:` envelope keyed from
   `JWT_TOKEN_SECRET`) — readers use `openSecret`, writers seal on upsert,
   `getConnections` lazily re-seals legacy plaintext;
 - a Mastra **DurableAgent** chat over SSE with durable suspend/resume

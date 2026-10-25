@@ -401,6 +401,26 @@ Authentication, credential and system-security operations are denied by
 are discoverable; existing resolver permissions apply to every execution.
 The configured approval policy gates mutations, including calls from code mode.
 
+### Connections (integration credentials)
+
+Store new integration credentials (API keys, tokens, endpoints, passwords) as
+**Connections** in core, not in plugin-local configs, models or env vars. A
+connection has a tenant-unique name, an icon or logo, a registered type and
+key/value fields whose secret values core seals at rest and never returns to a
+browser. Existing plugin storage stays until it is migrated deliberately.
+
+- Register a type (field schema, optional `test` and `resolve`) and declare the
+  other types your server code reads in `startPlugin({ meta: { connections:
+  { types, uses } } })`. Prefer one configurable type over per-vendor types.
+- Read only from server code with `getConnection` / `resolveConnection` from
+  `erxes-api-shared/core-modules`. Core admits only the types a service
+  declared, for the request's tenant, and audits every read.
+- Never return, log or cache decrypted values; never read another tenant's or
+  an undeclared type's connections.
+
+Contract, security model and a worked example:
+`backend/core-api/src/modules/connections/AGENTS.md`.
+
 ### Frontend plugin requirements
 
 The frontend project owns its routes, navigation, pages, widgets, GraphQL
