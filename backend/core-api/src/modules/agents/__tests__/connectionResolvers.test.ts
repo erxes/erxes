@@ -14,7 +14,8 @@
  *   refuses to save an entry that carries no key;
  * - the remove deletes exactly one provider's entry;
  * - the models query fetches every configured provider's /models endpoint
- *   server-side with the stored keys and swallows per-provider failures.
+ *   server-side with the stored keys, returns only usable models, and
+ *   reports per-provider failures without a key instead of failing.
  */
 
 import { agentsConnectionsQueries } from '@/agents/graphql/resolvers/queries/connection';
@@ -386,7 +387,7 @@ describe('agentsModels query', () => {
     jest.restoreAllMocks();
   });
 
-  it('fetches every configured provider server-side with its stored key and returns sorted unique ids', async () => {
+  it('fetches every configured provider server-side with its stored key and returns its usable catalog', async () => {
     const { ctx, checkPermission } = buildContext();
     const fetchSpy = jest.spyOn(global, 'fetch').mockImplementation(
       async (input) =>
@@ -396,7 +397,13 @@ describe('agentsModels query', () => {
           json: async () => {
             if (String(input).includes('api.openai.com')) {
               return {
-                data: [{ id: 'b-model' }, { id: 'a-model' }, { id: 'a-model' }],
+                data: [
+                  { id: 'gpt-5.6-luna', created: 1 },
+                  { id: 'text-embedding-3-large' },
+                  { id: 'gpt-5.6' },
+                  { id: 'gpt-5.6-luna' },
+                  { id: 'whisper-1' },
+                ],
               };
             }
 
@@ -423,20 +430,33 @@ describe('agentsModels query', () => {
       }),
     );
     expect(result).toEqual([
-      { provider: 'openai', models: ['a-model', 'b-model'] },
-      { provider: 'grok', models: ['grok-4.5'] },
+      {
+        provider: 'openai',
+        models: ['gpt-5.6', 'gpt-5.6-luna'],
+        catalog: [
+          { id: 'gpt-5.6', family: 'gpt-5.6', recommended: true },
+          { id: 'gpt-5.6-luna', family: 'gpt-5.6', recommended: true },
+        ],
+        error: null,
+      },
+      {
+        provider: 'grok',
+        models: ['grok-4.5'],
+        catalog: [{ id: 'grok-4.5', family: 'grok-4.5', recommended: true }],
+        error: null,
+      },
     ]);
     expect(JSON.stringify(result)).not.toContain('sk-openai');
   });
 
-  it('leaves a failing provider out instead of failing the whole query', async () => {
+  it('reports a failing provider without its key instead of failing the whole query', async () => {
     const { ctx } = buildContext();
     jest.spyOn(global, 'fetch').mockImplementation(async (input) => {
       if (String(input).includes('api.openai.com')) {
         return {
           ok: false,
           status: 401,
-          json: async () => ({ error: 'bad key' }),
+          json: async () => ({ error: 'bad key sk-openai' }),
         } as Response;
       }
 
@@ -449,7 +469,55 @@ describe('agentsModels query', () => {
       ctx,
     );
 
-    expect(result).toEqual([{ provider: 'grok', models: ['grok-4.5'] }]);
+    expect(result).toEqual([
+      {
+        provider: 'openai',
+        models: [],
+        catalog: [],
+        error: 'Failed to list models for "openai" (401). Check your API key.',
+      },
+      {
+        provider: 'grok',
+        models: ['grok-4.5'],
+        catalog: [{ id: 'grok-4.5', family: 'grok-4.5', recommended: true }],
+        error: null,
+      },
+    ]);
+    expect(JSON.stringify(result)).not.toContain('sk-openai');
+  });
+
+  it('replaces an unexpected failure with a generic message', async () => {
+    const { ctx } = buildContext();
+    jest.spyOn(global, 'fetch').mockImplementation(
+      async () =>
+        ({
+          ok: true,
+          status: 200,
+          json: async () => ({ data: [{ id: 'grok-4.5' }] }),
+        }) as Response,
+    );
+    jest
+      .spyOn(
+        jest.requireActual<typeof import('@/agents/modelCatalog')>(
+          '@/agents/modelCatalog',
+        ),
+        'buildProviderModelCatalog',
+      )
+      .mockImplementation(() => {
+        throw new Error('upstream detail sk-grok');
+      });
+
+    const result = await agentsModelsQueries.agentsModels(
+      undefined,
+      undefined,
+      ctx,
+    );
+
+    expect(result.map((entry) => entry.error)).toEqual([
+      'Could not list models for "openai".',
+      'Could not list models for "grok".',
+    ]);
+    expect(JSON.stringify(result)).not.toContain('sk-grok');
   });
 
   it('returns an empty list without fetching when nothing is configured', async () => {

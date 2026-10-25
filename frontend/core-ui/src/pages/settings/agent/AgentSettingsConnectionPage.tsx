@@ -32,6 +32,7 @@ import {
   AGENTS_CONNECTIONS,
   AGENTS_CONNECTION_REMOVE,
   AGENTS_CONNECTION_UPSERT,
+  AGENTS_MODELS,
 } from '@/agent/graphql/connection';
 import type {
   IAgentsConnectionRemoveData,
@@ -61,7 +62,9 @@ export const AgentSettingsConnectionPage = () => {
   const [showKey, setShowKey] = useState(false);
   const [removingProvider, setRemovingProvider] = useState<string | null>(null);
 
-  const refetchQueries = [{ query: AGENTS_CONNECTIONS }];
+  // An active chat model picker lists models per connection; a bare document
+  // refetches it only while mounted, so saving never lists models needlessly.
+  const refetchQueries = [{ query: AGENTS_CONNECTIONS }, AGENTS_MODELS];
 
   const [upsertConnection, { loading: saving }] = useMutation<
     IAgentsConnectionUpsertData,

@@ -91,10 +91,6 @@ export const ChatPanel = ({
   const { connections, loading: connectionsLoading } = useAgentsConnection();
   const models = useAgentsModels();
 
-  // The server default (Auto) runs the first configured provider's stored
-  // model; showing it keeps the default from being hidden.
-  const autoModel = connections[0]?.model;
-
   const isStreaming = status === 'submitted' || status === 'streaming';
   const isEmpty = messages.length === 0 && !loadingThread;
   const noConnection = !connectionsLoading && connections.length === 0;
@@ -214,8 +210,7 @@ export const ChatPanel = ({
       <ModelPicker
         models={models}
         value={modelSelectionValue(chat.modelProvider, chat.modelId)}
-        autoModel={autoModel}
-        defaultModels={connections}
+        savedModels={connections}
         onChange={(value) => {
           if (!value) {
             chat.selectModel('', '');
