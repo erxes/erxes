@@ -16,6 +16,11 @@ interface IModelChoice {
   model: string;
 }
 
+interface ISavedModelChoice extends IModelChoice {
+  /** Server-resolved default (explicit choice, else the first saved). */
+  isDefault?: boolean | null;
+}
+
 interface IModelGroup {
   heading: string;
   choices: IModelChoice[];
@@ -28,10 +33,11 @@ export interface IModelPickerProps {
   onChange: (value: string) => void;
   disabled?: boolean;
   /**
-   * Saved connections in server order. The first one is what an empty value
-   * runs, so only it carries the Default marker.
+   * Saved connections in server order. The one marked `isDefault` (else the
+   * first, for older responses) is what an empty value runs, so only it
+   * carries the Default marker.
    */
-  savedModels?: IModelChoice[];
+  savedModels?: ISavedModelChoice[];
 }
 
 const VALUE_SEPARATOR = '|';
@@ -66,7 +72,8 @@ export const ModelPicker = ({
     separatorIndex === -1 ? '' : value.slice(0, separatorIndex);
   const selectedModel =
     separatorIndex === -1 ? '' : value.slice(separatorIndex + 1);
-  const serverDefault = savedModels[0];
+  const serverDefault: IModelChoice | undefined =
+    savedModels.find((choice) => choice.isDefault) ?? savedModels[0];
   const defaultValue = serverDefault ? choiceValue(serverDefault) : '';
   const inUseProvider = selectedProvider || serverDefault?.provider || '';
   const searching = search.trim().length > 0;

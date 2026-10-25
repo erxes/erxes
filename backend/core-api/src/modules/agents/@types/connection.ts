@@ -15,6 +15,11 @@ export type IAgentsConnectionEntry = IAiAgentConnection;
 export interface IAgentsConnections {
   userId: string;
   connections: IAgentsConnectionEntry[];
+  /**
+   * Provider the user chose as the server default. Optional and never
+   * migrated: unset or no longer connected means the first entry applies.
+   */
+  defaultProvider?: string;
 }
 
 export interface IAgentsConnectionsDocument

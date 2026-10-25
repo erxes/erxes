@@ -152,6 +152,33 @@ it('marks only the model an empty selection runs as Default', () => {
   expect(optionNames()).toEqual(['kimi-for-codingDefault']);
 });
 
+it('follows the explicit default rather than the first saved connection', () => {
+  setup({
+    value: '',
+    savedModels: [
+      { provider: 'openai', model: 'gpt-6-luna', isDefault: false },
+      { provider: 'kimi', model: 'kimi-k3', isDefault: true },
+    ],
+  });
+  const trigger = screen.getByRole('combobox', { name: 'Model' });
+  expect(trigger.textContent).toBe('kimi-k3');
+  expect(trigger.getAttribute('title')).toBe('Kimi · kimi-k3 (saved default)');
+  expect(screen.getByRole('option', { name: /^Kimi/ }).textContent).toContain(
+    'In use',
+  );
+  expect(
+    screen.getByRole('option', { name: /^OpenAI/ }).textContent,
+  ).not.toContain('In use');
+  expect(
+    screen.getByRole('option', { name: /Use saved default/ }).textContent,
+  ).toContain('Kimi · kimi-k3');
+  chooseProvider();
+  expect(optionNames()).toEqual(['gpt-6', 'gpt-6-luna', 'gpt-6-mini']);
+  fireEvent.click(screen.getByRole('button', { name: 'Back to providers' }));
+  chooseProvider('Kimi');
+  expect(optionNames()).toEqual(['kimi-k3Default']);
+});
+
 it('selects a provider then an exact model with the keyboard', async () => {
   const { onChange, store } = setup();
   expect(

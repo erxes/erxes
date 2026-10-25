@@ -5,6 +5,7 @@ import { IModels } from '~/connectionResolvers';
 import { agentsConnectionSchema } from '@/agents/db/definitions/connection';
 import {
   IAgentsConnectionEntry,
+  IAgentsConnections,
   IAgentsConnectionsDocument,
 } from '@/agents/@types/connection';
 
@@ -30,7 +31,35 @@ export interface IAgentsConnectionModel
    * and deletes the document when the array becomes empty.
    */
   removeConnection(userId: string, provider: string): Promise<void>;
+  /**
+   * Marks one of the acting user's saved providers as the server default, or
+   * clears the explicit default when `provider` is empty. Returns null when
+   * the provider is not one of the user's saved connections.
+   */
+  setDefaultProvider(
+    userId: string,
+    provider: string,
+  ): Promise<IAgentsConnectionsDocument | null>;
 }
+
+/**
+ * The connection an unselected chat turn runs on: the explicit
+ * `defaultProvider` while that provider is still saved, otherwise the first
+ * saved entry (the behaviour every document had before defaults existed).
+ */
+export const findDefaultConnection = (
+  doc: Pick<IAgentsConnections, 'connections' | 'defaultProvider'> | null,
+): IAgentsConnectionEntry | undefined => {
+  const connections = doc?.connections ?? [];
+
+  return (
+    connections.find(
+      (connection) =>
+        Boolean(doc?.defaultProvider) &&
+        connection.provider === doc?.defaultProvider,
+    ) ?? connections[0]
+  );
+};
 
 /**
  * Documents written by the previous single-connection shape carry a legacy
@@ -192,10 +221,44 @@ export const loadAgentsConnectionClass = (models: IModels) => {
         return;
       }
 
+      // Removing the default provider falls back to the first remaining
+      // entry instead of leaving a dangling default.
       await models.AgentsConnection.findOneAndUpdate(
         { userId },
-        { $set: { connections: remaining }, $unset: { connection: '' } },
+        {
+          $set: { connections: remaining },
+          $unset: {
+            connection: '',
+            ...(normalized.defaultProvider === provider
+              ? { defaultProvider: '' }
+              : {}),
+          },
+        },
       );
+    }
+
+    /**
+     * Sets or clears the explicit default. The provider filter makes the
+     * write conditional on that provider still being saved, so a concurrent
+     * removal can never leave the default pointing at a missing entry.
+     */
+    public static async setDefaultProvider(
+      userId: string,
+      provider: string,
+    ): Promise<IAgentsConnectionsDocument | null> {
+      const doc = provider
+        ? await models.AgentsConnection.findOneAndUpdate(
+            { userId, 'connections.provider': provider },
+            { $set: { defaultProvider: provider } },
+            { new: true },
+          )
+        : await models.AgentsConnection.findOneAndUpdate(
+            { userId },
+            { $unset: { defaultProvider: '' } },
+            { new: true },
+          );
+
+      return normalizeConnections(doc);
     }
   }
 
