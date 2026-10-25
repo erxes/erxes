@@ -142,3 +142,87 @@ it('edits mentions as @labels and resends their tokens', () => {
     'Email [[customer:c1:Ann Lee]] tomorrow',
   );
 });
+
+it('lets a files-only turn gain a question without copying the placeholder', () => {
+  const onEdit = jest.fn();
+  const filesOnly: UIMessage = {
+    id: 'files-turn',
+    role: 'user',
+    parts: [
+      { type: 'text', text: 'Uploaded files' },
+      {
+        type: 'data-agents-files',
+        data: {
+          files: [
+            { name: 'a.pdf', url: 'a.pdf', type: 'application/pdf', size: 3 },
+          ],
+        },
+      },
+    ],
+  };
+  const FilesHarness = () => {
+    const [editing, setEditing] = useState<string | null>(null);
+    return (
+      <UserMessage
+        message={filesOnly}
+        editing={editing === filesOnly.id}
+        disabled={false}
+        onEditingChange={setEditing}
+        onEdit={onEdit}
+      >
+        attachments
+      </UserMessage>
+    );
+  };
+  render(<FilesHarness />);
+  expect(screen.queryByRole('button', { name: 'Copy message' })).toBeNull();
+  fireEvent.click(screen.getByRole('button', { name: 'Edit message' }));
+  const editor = screen.getByRole('textbox', { name: 'Edit message' });
+  expect((editor as HTMLTextAreaElement).value).toBe('');
+  fireEvent.change(editor, { target: { value: 'Summarize the PDF' } });
+  fireEvent.click(screen.getByRole('button', { name: /Save & resend/ }));
+  expect(onEdit).toHaveBeenCalledWith('files-turn', 'Summarize the PDF');
+});
+
+it('copies mentions as @labels and resends them with the turn’s files', async () => {
+  const writeText = jest.fn(() => Promise.resolve());
+  Object.assign(navigator, { clipboard: { writeText } });
+  const onEdit = jest.fn();
+  render(
+    <Harness
+      onEdit={onEdit}
+      turn={{
+        ...mentionMessage,
+        parts: [
+          ...mentionMessage.parts,
+          {
+            type: 'data-agents-files',
+            data: {
+              files: [
+                {
+                  name: 'a.pdf',
+                  url: 'a.pdf',
+                  type: 'application/pdf',
+                  size: 3,
+                },
+              ],
+            },
+          },
+        ],
+      }}
+    />,
+  );
+  fireEvent.click(screen.getByRole('button', { name: 'Copy message' }));
+  expect(writeText).toHaveBeenCalledWith('Email @Ann Lee today');
+  fireEvent.click(screen.getByRole('button', { name: 'Edit message' }));
+  const input = screen.getByRole('textbox') as HTMLTextAreaElement;
+  expect(input.value).toBe('Email @Ann Lee today');
+  fireEvent.change(input, {
+    target: { value: 'Email @Ann Lee and summarize' },
+  });
+  fireEvent.click(screen.getByRole('button', { name: /Save & resend/ }));
+  expect(onEdit).toHaveBeenCalledWith(
+    'mention-turn',
+    'Email [[customer:c1:Ann Lee]] and summarize',
+  );
+});

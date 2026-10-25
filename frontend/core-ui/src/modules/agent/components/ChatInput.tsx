@@ -2,6 +2,7 @@ import {
   useCallback,
   useEffect,
   useRef,
+  type ClipboardEvent,
   type KeyboardEvent,
   type MutableRefObject,
   type TextareaHTMLAttributes,
@@ -12,6 +13,7 @@ export type TChatInputTextareaProps = Omit<
   | 'value'
   | 'onChange'
   | 'onKeyDown'
+  | 'onPaste'
   | 'placeholder'
   | 'disabled'
   | 'rows'
@@ -23,6 +25,7 @@ export interface IChatInputProps {
   value: string;
   onChange: (value: string) => void;
   onKeyDown?: (event: KeyboardEvent<HTMLTextAreaElement>) => void;
+  onPaste?: (event: ClipboardEvent<HTMLTextAreaElement>) => void;
   placeholder?: string;
   disabled?: boolean;
   /** Height (px) the field grows to before it scrolls internally. */
@@ -51,6 +54,7 @@ export const ChatInput = ({
   value,
   onChange,
   onKeyDown,
+  onPaste,
   placeholder,
   disabled = false,
   maxHeight = 168,
@@ -104,6 +108,7 @@ export const ChatInput = ({
       value={value}
       onChange={(event) => onChange(event.target.value)}
       onKeyDown={onKeyDown}
+      onPaste={onPaste}
       placeholder={placeholder}
       disabled={disabled}
       rows={1}

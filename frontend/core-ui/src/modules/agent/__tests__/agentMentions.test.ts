@@ -104,5 +104,5 @@ it('exports mentions as their record names', () => {
       },
     ],
   });
-  expect(markdown).toContain('## You\n\nEmail Ann Lee today');
+  expect(markdown).toContain('## You\n\nEmail @Ann Lee today');
 });

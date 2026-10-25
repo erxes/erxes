@@ -41,4 +41,14 @@ describe('HTML sandbox', () => {
     expect(source).not.toContain('data-id');
     expect(source).toContain("script-src 'none'");
   });
+
+  it('marks only the renderer stylesheet as trusted', () => {
+    const source = buildSandboxedSrcDoc(
+      '<html><head><style data-agent-renderer>p{color:red}</style></head><body><p data-agent-renderer>Report</p></body></html>',
+    );
+    expect(source.match(/data-agent-renderer/g)).toHaveLength(1);
+    expect(source.indexOf('data-agent-renderer')).toBeLessThan(
+      source.indexOf('p{color:red}'),
+    );
+  });
 });

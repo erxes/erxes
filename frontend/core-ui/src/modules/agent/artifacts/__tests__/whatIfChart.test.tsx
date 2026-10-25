@@ -1,10 +1,10 @@
 /** @jest-environment jsdom */
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import { WhatIfChart } from '../WhatIfChart';
 import { evaluateChartFormula, parseWhatIfChart } from '../whatIfChartModel';
+import { formatWhatIfValue } from '../whatIfFormat';
 import { HtmlPreview } from '../HtmlPreview';
 
-jest.mock('erxes-ui', () => ({ Input: 'input', Button: 'button' }));
 jest.mock('../../components/AgentReferenceChip', () => ({
   AgentReferenceChip: () => null,
 }));
@@ -27,6 +27,14 @@ const example = {
   outputs: [
     { label: 'Revenue', unit: 'USD', formula: ['volume', 'price', '*'] },
   ],
+};
+const usd = (value: number, sign = false) =>
+  formatWhatIfValue(value, { unit: 'USD' }, { sign });
+
+const renderChart = (source: unknown = example) => {
+  const spec = parseWhatIfChart(JSON.stringify(source));
+  if (!spec) throw new Error('Invalid fixture');
+  return render(<WhatIfChart spec={spec} />);
 };
 
 it('evaluates arithmetic formulas, not arbitrary JavaScript', () => {
@@ -70,38 +78,130 @@ it('validates bounds, identifiers, duplicates and complete formulas', () => {
   expect(parseWhatIfChart(' '.repeat(20_001))).toBeNull();
 });
 
-it('recalculates bars and values when a factor changes and resets the baseline', () => {
-  const spec = parseWhatIfChart(JSON.stringify(example));
-  if (!spec) throw new Error('Invalid fixture');
-  render(<WhatIfChart spec={spec} />);
-  expect(screen.getByRole('img').getAttribute('aria-label')).toContain(
-    'scenario 200 USD',
+it('accepts optional presentation hints and rejects invalid ones', () => {
+  const output = example.outputs[0];
+  const input = example.inputs[1];
+  const hinted = parseWhatIfChart(
+    JSON.stringify({
+      ...example,
+      inputs: [
+        example.inputs[0],
+        {
+          ...input,
+          format: 'currency',
+          currency: 'MNT',
+          decimals: 0,
+          description: 'Average closed value',
+        },
+      ],
+      outputs: [{ ...output, format: 'currency', better: 'lower' }],
+    }),
   );
-  fireEvent.change(screen.getByLabelText('Volume'), {
-    target: { value: '30' },
-  });
-  expect(screen.getByRole('img').getAttribute('aria-label')).toContain(
-    'baseline 200 USD, scenario 600 USD',
-  );
-  fireEvent.click(screen.getByRole('button', { name: 'Reset scenario' }));
-  expect(screen.getByRole('img').getAttribute('aria-label')).toContain(
-    'scenario 200 USD',
-  );
-  fireEvent.change(screen.getByLabelText('Volume'), {
-    target: { value: '1000' },
-  });
+  expect(hinted?.inputs[1]).toMatchObject({ currency: 'MNT', decimals: 0 });
+  expect(hinted?.outputs[0].better).toBe('lower');
+  for (const invalid of [
+    { ...input, format: 'date' },
+    { ...input, currency: 'mnt' },
+    { ...input, currency: 'MONGOLIA' },
+    { ...input, decimals: 7 },
+    { ...input, decimals: 1.5 },
+    { ...input, description: 'x'.repeat(161) },
+  ])
+    expect(
+      parseWhatIfChart(
+        JSON.stringify({ ...example, inputs: [example.inputs[0], invalid] }),
+      ),
+    ).toBeNull();
   expect(
-    screen.getByRole('spinbutton', { name: 'Volume' }).getAttribute('value'),
-  ).toBe('100');
+    parseWhatIfChart(
+      JSON.stringify({ ...example, outputs: [{ ...output, better: 'up' }] }),
+    ),
+  ).toBeNull();
 });
 
-it('mounts trusted controls in the script-disabled report and rejects executable payloads', () => {
+it('recalculates KPI, chart and table from sliders and numeric fields, then resets', () => {
+  renderChart();
+  const reset = screen.getByRole('button', { name: 'Reset scenario' });
+  expect(reset).toHaveProperty('disabled', true);
+  expect(screen.getByText('What-if · does not change records')).toBeTruthy();
+  expect(
+    screen.getByRole('img', { name: /^Revenue:/ }).getAttribute('aria-label'),
+  ).toContain(`baseline ${usd(200)}, scenario ${usd(200)}`);
+
+  fireEvent.change(screen.getByRole('slider', { name: 'Volume' }), {
+    target: { value: '30' },
+  });
+  expect(reset).toHaveProperty('disabled', false);
+  expect(
+    screen.getByRole('img', { name: /^Revenue:/ }).getAttribute('aria-label'),
+  ).toContain(`baseline ${usd(200)}, scenario ${usd(600)}`);
+  // The input shows its change from baseline; outputs show a positive delta.
+  expect(screen.getAllByText('+200%').length).toBeGreaterThanOrEqual(2);
+
+  fireEvent.click(screen.getByRole('button', { name: 'Table' }));
+  const row = screen.getByRole('row', { name: /Revenue/ });
+  const cells = within(row).getAllByRole('cell');
+  expect(cells.map((cell) => cell.textContent)).toEqual([
+    usd(200),
+    usd(600),
+    usd(400, true),
+    '+200%',
+  ]);
+  expect(cells[2].getAttribute('data-tone')).toBe('positive');
+
+  fireEvent.click(reset);
+  expect(within(row).getAllByRole('cell')[1].textContent).toBe(usd(200));
+  expect(reset).toHaveProperty('disabled', true);
+
+  const field = screen.getByRole('textbox', { name: 'Volume' });
+  fireEvent.focus(field);
+  fireEvent.change(field, { target: { value: '1000' } });
+  expect(field.getAttribute('aria-invalid')).toBe('true');
+  fireEvent.blur(field);
+  expect(field).toHaveProperty('value', '100');
+  expect(within(row).getAllByRole('cell')[1].textContent).toBe(usd(2000));
+});
+
+it('colors deltas by the preferred direction and notes per-metric scales', () => {
+  renderChart({
+    ...example,
+    outputs: [
+      ...example.outputs,
+      {
+        label: 'Units per order',
+        unit: 'units',
+        better: 'lower',
+        formula: ['volume', 2, '*'],
+      },
+    ],
+  });
+  fireEvent.change(screen.getByRole('slider', { name: 'Volume' }), {
+    target: { value: '20' },
+  });
+  expect(screen.getByText('Each metric uses its own scale.')).toBeTruthy();
+  fireEvent.click(screen.getByRole('button', { name: 'Table' }));
+  const units = within(
+    screen.getByRole('row', { name: /Units per order/ }),
+  ).getAllByRole('cell');
+  expect(units[2].getAttribute('data-tone')).toBe('negative');
+});
+
+it('collapses long assumptions behind an accessible toggle', () => {
+  renderChart({ ...example, assumption: 'Held constant. '.repeat(12).trim() });
+  const toggle = screen.getByRole('button', { name: 'Show full assumptions' });
+  expect(toggle.getAttribute('aria-expanded')).toBe('false');
+  fireEvent.click(toggle);
+  expect(toggle.getAttribute('aria-expanded')).toBe('true');
+  expect(toggle.textContent).toBe('Show less');
+});
+
+it('mounts trusted controls in an isolated shadow root of the script-disabled report', async () => {
   const encoded = JSON.stringify(example)
     .replace(/&/g, '&amp;')
     .replace(/"/g, '&quot;');
   render(
     <HtmlPreview
-      html={`<div data-agent-chart="${encoded}">Baseline 200 USD</div><script>alert(1)</script><input oninput="alert(1)">`}
+      html={`<style>.aw{display:none}</style><div data-agent-chart="${encoded}">Baseline 200 USD</div><div data-agent-chart="{&quot;title&quot;:1}"></div><script>alert(1)</script><input oninput="alert(1)">`}
     />,
   );
   const frame = screen.getByTitle('HTML artifact preview') as HTMLIFrameElement;
@@ -111,10 +211,21 @@ it('mounts trusted controls in the script-disabled report and rejects executable
   expect(frame.getAttribute('sandbox')).not.toContain('allow-scripts');
   expect(document.querySelector('script')).toBeNull();
   expect(document.querySelector('[oninput]')).toBeNull();
-  const control = document.querySelector('input');
+  expect(document.querySelector('input')).toBeNull();
+  expect(document.querySelector('.agent-chart-error')?.textContent).toContain(
+    'Interactive chart unavailable',
+  );
+  const root = document.querySelector('div')?.shadowRoot;
+  if (!root) throw new Error('Chart shadow root missing');
+  expect(root.querySelector('style')?.textContent).toContain('.aw-slider');
+  const control = root.querySelector('input[type="range"]');
   if (!control) throw new Error('Trusted control missing');
   fireEvent.change(control, { target: { value: '30' } });
-  expect(document.querySelector('svg')?.getAttribute('aria-label')).toContain(
-    'scenario 600 USD',
-  );
+  expect(
+    root.querySelector('[role="img"]')?.getAttribute('aria-label'),
+  ).toContain(`scenario ${usd(600)}`);
+  // Let the frame's own load event settle inside act.
+  await act(async () => {
+    await new Promise((resolve) => setTimeout(resolve, 0));
+  });
 });

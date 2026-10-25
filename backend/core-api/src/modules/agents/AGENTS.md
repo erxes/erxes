@@ -22,12 +22,18 @@ plugin; ported from the former private `erxes-agent` service). It provides:
   run's instructions by `buildAgentsInstructions`. Report creation/revisions use
   formula-driven interactive what-if charts through the renderer-owned
   `data-agent-chart` JSON contract (bounded postfix arithmetic; never model scripts).
+  The contract documents optional display hints (`format`, `currency`,
+  `decimals`, `description`, output `better`) that must stay in sync with
+  core-ui `artifacts/whatIfChartModel.ts`; its JSON example must remain valid.
   Editable factors compare baseline/scenario results locally; they do not mutate
   workspace data. Downloads retain a baseline HTML fallback rather than live controls.
-  Reports use meaningful visual elements on transparent backgrounds (no filled report, card,
-  section, chart canvas or table surfaces), concise text, verified references beside data points,
-  simple language with parenthetical explanations of technical terms, and no
-  unsolicited next-step offers. Ordinary replies keep their existing presentation.
+  Reports lead with visuals: one-line scope, KPI summary row, charts/tables, the
+  what-if card, then two to four bullet takeaways; captions are one sentence.
+  Assumptions belong in the chart's `assumption` field, and prose never restates
+  what the renderer's card shows. Reports use transparent backgrounds (no filled
+  report, card, section, chart canvas or table surfaces), verified references beside
+  data points, simple language with parenthetical explanations of technical terms,
+  and no unsolicited next-step offers. Ordinary replies keep their existing presentation.
 - GraphQL discovery (`searchGraphql`) and execution (`callGraphql`) through
   the gateway as the acting user, using a fresh HMAC-signed identity header.
   `graphqlPolicy.ts` denies authentication, credential and system-security
@@ -112,7 +118,10 @@ plugin; ported from the former private `erxes-agent` service). It provides:
   rewind. Failed stream startup restores the removed messages. Editing does
   not reverse business operations already executed by tools.
 - GraphQL (wired into `src/apollo/schema/schema.ts` + resolvers):
-  `agentsConnections`, `agentsModels` (server-side provider /models fetch),
+  `agentsConnections`, `agentsModels` (server-side provider /models fetch,
+  filtered by `modelCatalog.ts`; per provider `models` = usable ids in rank
+  order, additive `catalog: [AgentsModelInfo { id, family, recommended }]`, and
+  a key-free `error` with empty lists when that provider's listing fails),
   `agentsConnectionUpsert`/`agentsConnectionRemove` (BYOK; key never read
   back), `agentsThreads(page, perPage, pinned)` (`pinned: true` →
   `filter.metadata.pinned`), `agentsThreadDetail(threadId)`,
@@ -170,7 +179,24 @@ plugin; ported from the former private `erxes-agent` service). It provides:
 - `requestContext.ts` — JSON-safe per-run snapshot
   (subdomain/userId/provider/model/thinkingLevel/codeModeEnabled/
   approvalMode/threadId/attachmentUrls); never secrets.
-- `codeMode.ts`, `askUser.ts`, `readFile.ts`, `fileBinding.ts`,
+- `modelCatalog.ts` — data-driven per-provider usability rules (shared
+  non-chat deny patterns: embeddings, tts/whisper/transcribe/audio/realtime,
+  image/video, moderation, search; OpenAI also drops legacy completion/GPT-3.5/
+  GPT-4 lines, chat-latest aliases, o1-mini/preview, codex, computer-use,
+  deep-research; Kimi drops `kimi-thinking-preview`). Dated snapshots collapse
+  behind a listed alias, otherwise to the newest snapshot. Ranking: family tier,
+  version, alias before variants, `created`. Up to four `recommended`: the
+  stored connection model and `PROVIDER_DEFAULTS` model when listed, then the
+  leading generation line minus slow/preview variants. Never hardcode model
+  lists here; add patterns. `providerModels.ts` only fetches raw entries.
+- `readFile.ts` — the `readFile` tool for this turn's or the thread's stored
+  attachments. Text/CSV/JSON/Markdown return text, images return model image
+  data (≤2 MiB), DOCX/XLSX return extracted text via `documentText.ts` (a bounded
+  ZIP reader over `node:zlib`, no document dependency; XLSX as CSV per sheet;
+  128 KiB text cap with a truncation notice; content-sniffed, not name-based).
+  PDFs are detected by signature and the model is told plainly that PDF text
+  extraction is unavailable; there is no PDF parser.
+- `codeMode.ts`, `askUser.ts`, `fileBinding.ts`,
   `fileTimeout.ts`, `fileValidation.ts`, `toolSchemaCompatibility.ts`, `mongo44Compatibility.ts`,
   `providerModels.ts`, `providers.ts`, `threadsEvents.ts`.
 - `db/` — `AgentsConnection` + `AgentsSettings` models (registered in

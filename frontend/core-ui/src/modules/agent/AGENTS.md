@@ -40,8 +40,9 @@ The `agent` module is the core-ui surface for the core-api `agents` backend
   current-session actions menu; the old history popup and delete dialog are gone.
   Shared mutations live in `hooks/useAgentsThreadActions.ts` with immediate
   refetch and error feedback.
-- a Twenty-style transcript: work-steps grouping, approval card, ask_user
-  card, artifact cards, rendered HTML replies + clickable record references;
+- a transcript with one activity timeline per assistant turn (see "Turn
+  activity timeline"), approval card, ask_user card, artifact cards, rendered
+  HTML replies + clickable record references;
 - approval cards display every supplied argument and the complete GraphQL
   variables, including nested objects, arrays, false and null. The bounded scroll
   region never truncates content or drops arguments before a human decision;
@@ -51,13 +52,12 @@ The `agent` module is the core-ui surface for the core-api `agents` backend
   replacing the previous reply's icon. The current avatar follows the pointer
   at rest and uses the thinking state while working. `BotBadge`
   freezes animation for reduced-motion users. The submitted state shares this
-  identity as the only visible working indicator. Activity text remains available
-  to screen readers through a status region; no extra dots or visible status label
-  accompany it. `agentMessageActivity` derives that status from the newest
-  text/reasoning/tool part. Step groups use compact, unboxed disclosures with a
-  leading chevron and an indented history rail. A pending
-  response header appears only before a visible assistant row exists, including
-  during the submitted-to-streaming transition and hidden answer turns.
+  identity as the only working indicator until the turn has timeline work; then
+  the turn's activity header shows the same label visibly. The identity's
+  sr-only status region is the only live region: `agentTurnActivity` derives it
+  from the newest text/reasoning/tool part, and the header adds no second one.
+  A pending response header appears only before a visible assistant row exists,
+  including during the submitted-to-streaming transition and hidden answer turns.
   Transcript entry/send motion respects reduced motion; file previews retain their full available width;
 - user turns have Copy and inline Edit actions (`components/UserMessage.tsx`).
   Save & resend uses the SDK's `messageId` replacement and sends
@@ -78,17 +78,35 @@ The `agent` module is the core-ui surface for the core-api `agents` backend
 - `ModelPicker` first lists connected providers plus the saved workspace default
   text action at the bottom, with no decorative default icon or provider-search
   field. Provider rows show bare brand marks and names; the saved-default shortcut is a
-  single muted row. The trigger uses a quiet ghost button. The model view does
-  not repeat provider marks/names on each row. Choosing a provider opens only its current/recent/saved model quick
-  picks (at most four), provider-scoped search and Browse all models. Back returns
-  to provider selection without changing the model. Reopening always starts with
-  providers, and neither step displays a model-count badge.
+  single muted row naming the provider and model it runs. The trigger uses a
+  quiet ghost button whose title names provider and model. The model view does
+  not repeat provider marks/names on each row (compact 13px rows). Choosing a
+  provider immediately shows `Recent` (current/recent picks outside the
+  recommended set, at most three) and `Recommended` (the backend's
+  `catalog[].recommended` shortlist), provider-scoped search and Browse all
+  models. Search and Browse group the usable catalog into `Recommended` /
+  `Others` in backend rank order; `Show less` returns to the shortlist. Only
+  the first saved connection (what the empty value runs, per backend
+  `pickConnection`) is marked `Default` and its provider `In use`; other
+  connections' stored models are not defaults. A provider whose listing failed
+  shows its key-free `error`, an `Unavailable` provider marker when not in use,
+  and its saved model as the only choice. Loading, empty and no-match states
+  are explicit. Back returns to provider selection without changing the model.
+  Reopening always starts with providers, and neither step displays a
+  model-count badge.
   Device-local `agent:recent-models` remembers six explicit selections and is
   intersected with the live catalog, so removed models/providers cannot return
   as quick picks. Auto remains usable while model discovery loads or fails;
   provider/model ids and the empty-value server-default contract are unchanged.
+  `useAgentsModels` normalizes `agentsModels` into ranked
+  `{ id, family, recommended }` options per provider (falling back to the flat
+  `models` ids). Saving or removing a connection in settings refetches the
+  active `AgentsModels` query.
 - The thinking picker starts at High, and the initial outgoing request explicitly
   sends `thinkingLevel: 'high'`. Manual selections override that default for later turns.
+  The trigger is a compact ghost button with an intensity mark and the level name
+  only; the menu lists each level with a one-line description. `thinkingLevel` values
+  stay `off`, `minimal`, `low`, `medium` and `high`.
 - `PageElementPicker` is the composer's Select on page mode. Trusted capture-phase
   listeners inspect the app and accessible same-origin frames, including sandboxed
   HTML reports. Selection clicks cannot activate the underlying controls. Escape
@@ -128,14 +146,18 @@ The `agent` module is the core-ui surface for the core-api `agents` backend
   binds ranges to one exact text value, so resets drop them automatically.
 - BYOK-gated composer: no configured connection shows an inline banner
   linking to the settings page and disables input.
-- assistant message action row under each turn (Copy; Regenerate on the
+- assistant message action row under each turn (Copy — the turn's answer
+  text only, never narration; Regenerate on the
   last assistant message only and not while streaming → `retryLastTurn`;
   timestamp when `createdAt` exists) — hover/focus-revealed, always
   visible on the last assistant message; the old `w-7` copy gutter is
   gone so transcripts use full width.
 - export: `AgentThreadActionsMenu` → `utils/exportThreadMarkdown.ts`
-  (`## You` / `## AI Agent`, text parts only, `[Page context]` stripped,
-  `metadata.agentsAnswer` turns skipped, tokens→labels outside code,
+  (`## You` / `## AI Agent`; consecutive assistant messages separated only by
+  skipped user turns export once, as `agentTurnAnswerText` — no narration,
+  reasoning or tools; `[Page context]` stripped,
+  `metadata.agentsAnswer` turns skipped, tokens→labels outside code (the
+  user's own mentions export as `@Label`),
   Blob download `slugified-title.md` / `conversation-<date>.md`).
 - empty state (`ChatPanel`): compact centered greeting, composer and stacked
   suggestions from `constants/agentSuggestions.ts` (plugin-gated prompts
@@ -175,8 +197,37 @@ The `agent` module is the core-ui surface for the core-api `agents` backend
   The legacy `page` storage namespace is
   retained in the hook's type only for compatibility, with no page UI.
 - Attachments: up to 5 files/turn via platform `/upload-file`
-  (`agentsFiles.ts` limits, `uploadAgentsFile.ts`), chips in the composer,
-  image previews and download chips in history (`AttachedFiles`).
+  (`agentsFiles.ts` limits/accepted types, `uploadAgentsFile.ts`). The picker,
+  panel-wide drop and paste all call the composer's `attachFiles`, which uses
+  `planAgentsAttachments` (`utils/agentAttachments.ts`): unsupported types and
+  files past the limit are toasted and never become chips; empty, oversized and
+  text-budget failures are error chips without Retry; failed uploads keep the
+  source `File` and offer Retry. Non-GIF images over 2 MiB are re-encoded in the
+  browser to JPEG ≤2 MiB (`utils/resizeAgentsImage.ts`), because the backend
+  shares only ≤2 MiB images as model media and not every provider takes WebP.
+- Drop: `AgentFileDropZone` wraps the whole side panel (tabs header + `ChatPanel`)
+  and reaches the composer through `IComposerAttachHandle` (`attachRef`, set with
+  `useImperativeHandle`). `useAgentFileDrop` counts dragenter/dragleave depth
+  (`utils/fileDrag.ts`) so nested children never flicker. It accepts only
+  external `Files` drags: drags that start in this document (links, images, text)
+  are ignored. It always cancels file dragover so a drop never navigates the tab,
+  and resets on window drop/dragend/blur. Disabled/streaming composers show no
+  overlay and refuse the drop (`dropEffect: none`); a full composer shows a limit
+  state. The pointer-events-none overlay fades and scales over 200ms, with no
+  transition for reduced motion.
+- Paste reaches the composer through `AgentMentionInput` → `ChatInput`
+  `onPaste`; text pastes stay ordinary edits for mention ranges.
+- Paste: `filesFromClipboard` attaches screenshots, Finder copies and browser
+  image copies; a generic `image.png` becomes `pasted-image-<timestamp>.png`.
+  Rich text copies (`text/plain` + `text/html`, such as Excel cells) stay text.
+  Pasting files while streaming is refused with a toast.
+- `AgentAttachmentCard` is the one attachment card for composer and history:
+  thumbnail or type icon, name, `kind · size`, spinner, error, Retry/Remove; in
+  history the card opens the stored file. Composer chips enter with
+  `.agent-chip-enter` (`src/styles.css`, reduced-motion gated). `AttachedFiles`
+  renders images first (one at `w-64`, several as square tiles), then document
+  cards. Files-only turns hide the `Uploaded files` placeholder prompt in the
+  bubble and Copy (`withoutFileOnlyText`); Edit starts from an empty draft.
 - Replies: `MessageContent` renders every assistant text segment through
   `HtmlPreview`; `replyHtml.ts` converts legacy Markdown/prose into HTML.
   HTML previews preserve isolated layout CSS and SVG. `htmlTheme.ts` uses native
@@ -189,12 +240,32 @@ The `agent` module is the core-ui surface for the core-api `agents` backend
   grow to content height and update the existing frame while streaming.
   `htmlSandbox.ts` sanitizes content and enforces a restrictive CSP; the frame
    permits same-origin for trusted parent sizing/portals but never model scripts.
+   Its base stylesheet is marked `data-agent-renderer` (sanitized markup cannot
+   carry that attribute) and is exempt from theme normalization; it styles
+   headings, lists, captions and tables (uppercase muted headers, tabular
+   numbers, row hover). `htmlTheme.ts` right-aligns body columns after the first
+   whose non-empty cells are all figures (`.agent-num`; skips colspan/rowspan).
+   Host `primary-foreground`, `success` and `destructive` tokens are synced too.
    `data-agent-chart` is the sole admitted chart attribute. `whatIfChartModel.ts`
    validates bounded JSON and evaluates postfix arithmetic without eval/Function.
-   `WhatIfChart` portals trusted erxes-ui numeric inputs, reset and accessible
-   baseline/scenario SVG bars into valid containers. Inputs change local scenario
-   state only; invalid specifications fail visibly. Generated scripts stay blocked;
-   downloaded HTML retains the model's baseline fallback, not interactive controls.
+   Optional, backwards-compatible display hints per input/output: `format`
+   (`number|currency|percent`), `currency` (ISO 4217), `decimals` (0–6),
+   `description` (≤160); outputs may set `better` (`higher|lower`). Legacy
+   `unit` still works: `%` → percent, 3-letter codes/₮€£$ → currency.
+   `whatIfFormat.ts` owns locale formatting/parsing, deltas and tones.
+   Host Tailwind/erxes-ui CSS does not exist inside the frame, so erxes-ui
+   controls render unstyled there. `HtmlPreview` therefore portals `WhatIfChart`
+   into an open shadow root on each chart container; the widget ships its own
+   scoped stylesheet (`whatIfChartStyles.ts`) using the synced tokens, isolated
+   from model CSS and the theme policy. The card has a header/badge/collapsible
+   assumption, slider + locale numeric field per input with baseline tick and
+   delta chip, reset (disabled at baseline), KPI tiles with animated values,
+   per-metric or shared-scale grouped bars, a table toggle and a debounced live
+   region. Motion respects `prefers-reduced-motion`. Inputs change local scenario
+   state only; invalid specifications fail visibly (`.agent-chart-error`).
+   Generated scripts stay blocked; downloaded HTML retains the model's baseline
+   fallback, not interactive controls. Avoid `@container` in renderer CSS: jsdom
+   cannot parse it, so tests use media queries (the frame viewport is the report width).
   `htmlReferences.ts` replaces valid text tokens with real `AgentReferenceChip`
   portals, retaining permission-aware navigation; attributes, code, anchors,
   styles and SVG never produce reference controls. User messages, approvals,
@@ -206,7 +277,7 @@ The `agent` module is the core-ui surface for the core-api `agents` backend
   `ArtifactCard` with source/download controls. Tool inputs never create a file
   card; pending calls use the turn header's progress and show an interruption
   notice after streaming stops. Invalid/failed results show an error. These tool parts stay
-  outside collapsed work steps. `parseArtifacts.ts` only decodes old fences for
+  outside the collapsed activity timeline. `parseArtifacts.ts` only decodes old fences for
   readable reply display; no text fence, title or marker grants file controls.
   DOCX/PDF conversion failures offer Retry.
 
@@ -237,23 +308,52 @@ The backend verifies each record as the user and stores
 keeps a leading `[Page context]` line. `AgentMentionScope` adds only the
 message's own mention part to that bubble's registry, so its tokens render as
 `AgentReferenceChip`s (navigation still resolves first). Editing restores
-`@Label` ranges and resends tokens; Copy uses `@Label`; export uses names.
+`@Label` ranges and resends tokens alongside the turn's attachments; Copy and
+export use `@Label`. The composer placeholder hints `Ask anything, @ to mention`.
 
 `utils/pageContext.ts` strips persisted `[Page context]` from user bubbles.
 `references/getPageRecordFromLocation.ts` supplies the next send's page context.
 
-## Work steps
+## Turn activity timeline
 
-`utils/agentWorkSteps.ts` folds contiguous reasoning + tool parts of an
-assistant message into compact `AgentWorkSteps` disclosures ("N steps");
-`step-start` parts are transparent, approvals/ask_user stay standalone. `agentStepLabel` derives the per-row label
-(`callGraphql` shows its operation/field name,
-`execute_typescript` → "Ran code", `readFile` → "Read <name>").
+One prompt's whole run is one process instance. `utils/agentTurnTimeline.ts`
+(pure, `import type` only) splits a transcript row's parts:
+
+- `classifyAgentTurnText`: non-empty text followed by more work (reasoning or
+  a non-standalone tool; text, `step-start` and data parts are transparent) is
+  **narration**; text before a standalone card (approval, ask_user, artifact)
+  or after the last work is the **answer**. Narration that is the first text,
+  before any tool call, is the visible **intro**. While streaming, trailing
+  text is provisionally the answer and becomes narration as soon as another
+  work part arrives. A settled turn without answer text promotes its last
+  narration so nothing collapses to empty. Settled empty reasoning is ignored;
+  streaming reasoning counts as work.
+- `buildAgentTurnLayout`: timeline `sections` (narration title + following
+  steps; work before the first narration forms an untitled lead section), the
+  `body` (intro, answer and every non-work part in original order), counts,
+  `activeIndex` and `answerText` (copy/export).
+- `agentTurnActivity`: running tool label (`agentMessageActivity`), latest
+  `**title**` of reasoning summaries or "Thinking…", "Writing…" for text, or
+  the newest narration's last sentence between steps.
+
+`AgentTurnActivity` renders one collapsed-by-default header per turn when it
+has timeline content (plain answers get none). Live: shimmering label that
+crossfades in place. Settled: "Worked for 42s · N steps" when `MessageList`
+timed the run (fresh send, or continuation of a timed turn after approval or
+answer; reattached runs are never timed), else "N steps", a single tool's
+label, or "Thought". Expanded: thin-rail timeline; narration titles render via
+`TextWithAgentReferences`, tools via `AgentStepRow` (`agentStepLabel`:
+`callGraphql` operation/field names, "Ran code", "Read <file>"), reasoning via
+`AgentThinkingBlock` (muted, expandable, shimmer while it is the live part).
+Approvals, ask_user and artifact cards are never folded.
+
+`utils/agentWorkSteps.ts` owns the part predicates (`isWorkPart`,
+`isStandalonePart`, `toAgentWorkStep`) and step labels.
 
 `utils/transcriptRows.ts` merges consecutive assistant messages separated only
-by hidden turns into one transcript row. Adjacent work-step groups combine;
-the action row renders only when the turn has text or is the last assistant
-turn. A single-step card names the action.
+by hidden turns into one transcript row, so a resumed run continues the same
+timeline. The action row renders only when the turn has answer text or is the
+last assistant turn.
 
 ## State
 
@@ -290,6 +390,8 @@ turn. A single-step card names the action.
 ## Validation
 
 - `pnpm nx test core-ui` — tests in `__tests__` + `artifacts/__tests__`.
+  `approvalRoundTrip.test.ts` resolves its fixture from the repository root, so
+  run it with jest from the root when the Nx run reports a resolve error.
 - `pnpm nx build core-ui` — rspack.
 - eslint on touched files — 0 errors expected.
 
@@ -301,5 +403,7 @@ turn. A single-step card names the action.
 - Session tabs enter/exit and shift position over 160ms. Removal still waits
   for successful deletion; failed deletion keeps the session.
 - New conversation surfaces and user/assistant arrivals use short fades with a
-  6px rise. Stream deltas do not restart row animation. All motion respects
+  6px rise. The activity header label slides/fades in place over 220ms
+  (`agent-activity-enter/exit` in `styles.css`) and the expanded timeline fades
+  in; shimmer is `motion-safe` only. Stream deltas do not restart row animation. All motion respects
   the system reduced-motion preference; send-button feedback has no bounce.

@@ -43,8 +43,19 @@ it('keeps document labels and downloads unchanged in mixed messages', () => {
   const open = jest.spyOn(window, 'open').mockImplementation(() => null);
   render(<AttachedFiles files={[image, document]} notice="" />);
   expect(screen.getAllByRole('img')).toHaveLength(1);
-  fireEvent.click(screen.getByRole('button', { name: document.name }));
+  const card = screen.getByRole('button', { name: `Open ${document.name}` });
+  expect(card.textContent).toContain('report.pdf');
+  expect(card.textContent).toContain('PDF · 100 B');
+  fireEvent.click(card);
   expect(open).toHaveBeenCalledWith('/read-file?key=report.pdf', '_blank', 'noopener,noreferrer');
+});
+
+it('shows several images as square tiles in one row', () => {
+  const second = { ...image, name: 'chart.png', url: 'bucket/chart.png' };
+  render(<AttachedFiles files={[image, second]} notice="" />);
+  const tiles = screen.getAllByRole('button', { name: /^Open / });
+  expect(tiles).toHaveLength(2);
+  expect(tiles[0].className).toContain('size-28');
 });
 
 it('falls back to a working filename chip if the preview fails', () => {
@@ -53,7 +64,9 @@ it('falls back to a working filename chip if the preview fails', () => {
   fireEvent.error(screen.getByRole('img', { name: image.name }));
   expect(screen.queryByRole('img')).toBeNull();
   expect(screen.queryByRole('status')).toBeNull();
-  fireEvent.click(screen.getByRole('button', { name: image.name }));
+  const card = screen.getByRole('button', { name: `Open ${image.name}` });
+  expect(card.textContent).toContain('Image · 100 B');
+  fireEvent.click(card);
   expect(open).toHaveBeenCalled();
 });
 

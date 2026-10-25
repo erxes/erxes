@@ -5,13 +5,12 @@ import {
   IconLoader2,
   IconSearch,
   IconTool,
-  IconBrain,
   IconX,
 } from '@tabler/icons-react';
 import { Collapsible, cn } from 'erxes-ui';
 import { useState } from 'react';
 
-import type { TAgentWorkStep } from '../utils/agentWorkSteps';
+import type { IAgentToolStepEntry } from '../utils/agentWorkSteps';
 import { agentStepLabel, describeToolCall } from '../utils/agentWorkSteps';
 
 const truncate = (text: string, max = 4000): string =>
@@ -25,11 +24,7 @@ const formatJson = (value: unknown): string => {
   }
 };
 
-const stepIcon = (step: TAgentWorkStep) => {
-  if (step.kind === 'reasoning') {
-    return IconBrain;
-  }
-
+const stepIcon = (step: IAgentToolStepEntry) => {
   switch (step.tool.toolName) {
     case 'searchTools':
     case 'searchGraphql':
@@ -44,15 +39,7 @@ const stepIcon = (step: TAgentWorkStep) => {
 };
 
 /** Expandable detail payloads for one step row. */
-const StepDetails = ({ step }: { step: TAgentWorkStep }) => {
-  if (step.kind === 'reasoning') {
-    return step.text ? (
-      <p className="mt-1 whitespace-pre-wrap rounded-md border border-dashed bg-muted/30 p-2 text-xs text-muted-foreground">
-        {truncate(step.text, 8000)}
-      </p>
-    ) : null;
-  }
-
+const StepDetails = ({ step }: { step: IAgentToolStepEntry }) => {
   const { tool } = step;
   const { args } = describeToolCall(tool.toolName, tool.input);
   const inputText = formatJson(args);
@@ -86,31 +73,28 @@ const StepDetails = ({ step }: { step: TAgentWorkStep }) => {
 };
 
 /**
- * One row inside the collapsible work-steps group: icon, human label, and
+ * One tool row inside a turn's activity timeline: icon, human label, and
  * an expandable input/output detail. A still-running step spins; a failed
- * one turns red.
+ * one turns red. Reasoning renders as `AgentThinkingBlock` instead.
  */
 export const AgentStepRow = ({
   step,
   streaming,
 }: {
-  step: TAgentWorkStep;
+  step: IAgentToolStepEntry;
   streaming: boolean;
 }) => {
   const [open, setOpen] = useState(false);
-  const isTool = step.kind === 'tool';
   const running =
     streaming &&
-    isTool &&
     (step.tool.state === 'input-streaming' ||
       step.tool.state === 'input-available');
-  const failed = isTool && step.tool.state === 'output-error';
+  const failed = step.tool.state === 'output-error';
   const Icon = stepIcon(step);
   const label = agentStepLabel(step);
-  const expandable =
-    step.kind === 'reasoning'
-      ? step.text.length > 0
-      : Boolean(step.tool.input || step.tool.output || step.tool.errorText);
+  const expandable = Boolean(
+    step.tool.input || step.tool.output || step.tool.errorText,
+  );
 
   if (!expandable) {
     return (

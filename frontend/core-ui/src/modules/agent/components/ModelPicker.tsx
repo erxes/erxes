@@ -3,7 +3,10 @@ import { Button, Combobox, Command, Popover, Spinner } from 'erxes-ui';
 import { useAtom } from 'jotai';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-import type { IUseAgentsModelsResult } from '../hooks/useAgentsModels';
+import type {
+  IAgentsModelOption,
+  IUseAgentsModelsResult,
+} from '../hooks/useAgentsModels';
 import { agentRecentModelsState } from '../states/agentRecentModelsState';
 import { ProviderIcon } from './ProviderIcon';
 import { getProviderLabel } from './ProviderPicker';
@@ -13,31 +16,44 @@ interface IModelChoice {
   model: string;
 }
 
+interface IModelGroup {
+  heading: string;
+  choices: IModelChoice[];
+}
+
 export interface IModelPickerProps {
   models: IUseAgentsModelsResult;
   /** Selected `provider|model` value; '' means the saved workspace default. */
   value: string;
   onChange: (value: string) => void;
   disabled?: boolean;
-  autoModel?: string;
-  /** Actual saved connections, rather than guesses based on model names. */
-  defaultModels?: IModelChoice[];
+  /**
+   * Saved connections in server order. The first one is what an empty value
+   * runs, so only it carries the Default marker.
+   */
+  savedModels?: IModelChoice[];
 }
 
 const VALUE_SEPARATOR = '|';
+const RECENT_LIMIT = 3;
+const FALLBACK_RECOMMENDED_LIMIT = 4;
 export const modelSelectionValue = (provider: string, model: string) =>
   provider && model ? `${provider}${VALUE_SEPARATOR}${model}` : '';
 const choiceValue = (choice: IModelChoice) =>
   modelSelectionValue(choice.provider, choice.model);
+const describeChoice = (choice: IModelChoice) =>
+  `${getProviderLabel(choice.provider)} · ${choice.model}`;
 
-/** Choose a provider first, then its shortlist or searchable model catalog. */
+const rowClassName =
+  'h-9 gap-3 rounded-md px-3 text-[13px] data-[selected=true]:bg-muted';
+
+/** Choose a provider first, then its recommended models or full catalog. */
 export const ModelPicker = ({
   models,
   value,
   onChange,
   disabled = false,
-  autoModel,
-  defaultModels = [],
+  savedModels = [],
 }: IModelPickerProps) => {
   const [open, setOpen] = useState(false);
   const [browse, setBrowse] = useState(false);
@@ -50,46 +66,92 @@ export const ModelPicker = ({
     separatorIndex === -1 ? '' : value.slice(0, separatorIndex);
   const selectedModel =
     separatorIndex === -1 ? '' : value.slice(separatorIndex + 1);
+  const serverDefault = savedModels[0];
+  const defaultValue = serverDefault ? choiceValue(serverDefault) : '';
+  const inUseProvider = selectedProvider || serverDefault?.provider || '';
   const searching = search.trim().length > 0;
   const showCatalog = browse || searching;
 
-  const catalog = useMemo(() => {
-    const entries = new Map<string, IModelChoice>();
-    for (const group of models.providerModels) {
-      for (const model of group.models ?? []) {
-        const choice = { provider: group.provider, model };
-        entries.set(choiceValue(choice), choice);
-      }
-    }
-    return entries;
-  }, [models.providerModels]);
+  const catalogs = useMemo(
+    () =>
+      new Map(models.providerModels.map((group) => [group.provider, group])),
+    [models.providerModels],
+  );
+  const activeCatalog = catalogs.get(activeProvider);
+  const activeModels: IAgentsModelOption[] = activeCatalog?.models ?? [];
+  const toChoice = (model: IAgentsModelOption): IModelChoice => ({
+    provider: activeProvider,
+    model: model.id,
+  });
 
-  // Current and recent selections stay close. Removed/unavailable models never
-  // leak back into the choices from local storage or another connection.
-  const quickPicks = Array.from(
-    new Set([
-      value,
-      ...(Array.isArray(recentModels) ? recentModels : []),
-      ...defaultModels.map(choiceValue),
-    ]),
-  )
-    .flatMap((key) => {
-      const choice = catalog.get(key);
-      return choice?.provider === activeProvider ? [choice] : [];
-    })
-    .slice(0, 4);
-  const terms = search.toLowerCase().trim().split(/\s+/).filter(Boolean);
-  const choices = showCatalog
-    ? Array.from(catalog.values()).filter((choice) => {
-        const searchable = `${getProviderLabel(choice.provider)} ${
-          choice.model
-        }`.toLowerCase();
-        return (
-          choice.provider === activeProvider &&
-          terms.every((term) => searchable.includes(term))
-        );
+  // Without a usable listing, the provider's saved model is still what the
+  // server runs for it, so it stays selectable.
+  const savedForProvider = savedModels.find(
+    (choice) => choice.provider === activeProvider,
+  );
+  const catalogUnavailable =
+    !models.loading && (!activeCatalog || Boolean(activeCatalog.error));
+
+  const groups = ((): IModelGroup[] => {
+    if (!activeProvider) return [];
+
+    if (showCatalog) {
+      const terms = search.toLowerCase().trim().split(/\s+/).filter(Boolean);
+      const matches = activeModels.filter((model) => {
+        const searchable = `${model.id} ${model.family}`.toLowerCase();
+        return terms.every((term) => searchable.includes(term));
+      });
+      return [
+        {
+          heading: 'Recommended',
+          choices: matches.filter((model) => model.recommended).map(toChoice),
+        },
+        {
+          heading: 'Others',
+          choices: matches.filter((model) => !model.recommended).map(toChoice),
+        },
+      ];
+    }
+
+    if (catalogUnavailable) {
+      return savedForProvider
+        ? [{ heading: 'Saved model', choices: [savedForProvider] }]
+        : [];
+    }
+
+    const recommended = activeModels.some((model) => model.recommended)
+      ? activeModels.filter((model) => model.recommended)
+      : activeModels.slice(0, FALLBACK_RECOMMENDED_LIMIT);
+    const recommendedIds = new Set(recommended.map((model) => model.id));
+    const listedIds = new Set(activeModels.map((model) => model.id));
+    // Current and recent selections stay close. Removed/unavailable models
+    // never leak back into the choices from local storage.
+    const recent = Array.from(
+      new Set([value, ...(Array.isArray(recentModels) ? recentModels : [])]),
+    )
+      .flatMap((key) => {
+        if (typeof key !== 'string') return [];
+        const index = key.indexOf(VALUE_SEPARATOR);
+        const provider = key.slice(0, index);
+        const model = key.slice(index + 1);
+        return index > 0 &&
+          provider === activeProvider &&
+          listedIds.has(model) &&
+          !recommendedIds.has(model)
+          ? [{ provider, model }]
+          : [];
       })
-    : quickPicks;
+      .slice(0, RECENT_LIMIT);
+
+    return [
+      { heading: 'Recent', choices: recent },
+      { heading: 'Recommended', choices: recommended.map(toChoice) },
+    ];
+  })().filter((group) => group.choices.length > 0);
+
+  const visibleValues = groups.flatMap((group) =>
+    group.choices.map(choiceValue),
+  );
 
   const handleOpenChange = (next: boolean) => {
     setOpen(next);
@@ -117,11 +179,10 @@ export const ModelPicker = ({
 
   const providers = Array.from(
     new Set([
-      ...defaultModels.map((choice) => choice.provider),
+      ...savedModels.map((choice) => choice.provider),
       ...models.providerModels.map((group) => group.provider),
     ]),
   );
-  const defaultProvider = defaultModels[0]?.provider;
 
   // With no provider search field, the command root owns keyboard navigation.
   useEffect(() => {
@@ -135,29 +196,81 @@ export const ModelPicker = ({
     setSearch('');
   };
 
-  const renderChoice = (choice: IModelChoice) => (
-    <Command.Item
-      key={choiceValue(choice)}
-      value={choiceValue(choice)}
-      onSelect={() => select(choiceValue(choice))}
-      className="h-10 gap-3 rounded-md px-3 text-[13px] data-[selected=true]:bg-muted"
-    >
-      <span className="min-w-0 flex-1 truncate" title={choice.model}>
-        {choice.model}
-      </span>
-      {defaultModels.some(
-        (saved) => choiceValue(saved) === choiceValue(choice),
-      ) && (
-        <span className="shrink-0 text-[11px] text-muted-foreground">
-          Default
+  const renderChoice = (choice: IModelChoice) => {
+    const key = choiceValue(choice);
+    return (
+      <Command.Item
+        key={key}
+        value={key}
+        onSelect={() => select(key)}
+        className={rowClassName}
+      >
+        <span className="min-w-0 flex-1 truncate" title={choice.model}>
+          {choice.model}
         </span>
-      )}
-      <Combobox.Check
-        checked={value === choiceValue(choice)}
-        className="shrink-0 text-foreground"
-      />
-    </Command.Item>
-  );
+        {key === defaultValue && (
+          <span className="shrink-0 text-[11px] text-muted-foreground">
+            Default
+          </span>
+        )}
+        <Combobox.Check
+          checked={value === key}
+          className="shrink-0 text-foreground"
+        />
+      </Command.Item>
+    );
+  };
+
+  const triggerChoice = selectedModel
+    ? { provider: selectedProvider, model: selectedModel }
+    : serverDefault;
+  const statusClassName = 'px-3 py-3 text-xs leading-5 text-muted-foreground';
+  const providerStatus = (() => {
+    if (!activeProvider) return null;
+    if (models.loading && !activeCatalog) {
+      return (
+        <div
+          role="status"
+          className="flex items-center gap-2 px-3 py-4 text-xs text-muted-foreground"
+        >
+          <Spinner className="size-3.5" />
+          Loading {activeLabel} models…
+        </div>
+      );
+    }
+    if (!activeCatalog) {
+      return (
+        <p role="status" className={statusClassName}>
+          Model list unavailable. Your saved model is still available.
+        </p>
+      );
+    }
+    if (activeCatalog?.error) {
+      return (
+        <p role="status" className={statusClassName}>
+          {activeCatalog.error}
+        </p>
+      );
+    }
+    if (searching && visibleValues.length === 0) {
+      return (
+        <div
+          role="status"
+          className="px-3 py-5 text-center text-xs text-muted-foreground"
+        >
+          No matching models.
+        </div>
+      );
+    }
+    if (activeCatalog && activeModels.length === 0) {
+      return (
+        <p role="status" className={statusClassName}>
+          No usable chat models are listed for this provider.
+        </p>
+      );
+    }
+    return null;
+  })();
 
   return (
     <Popover open={open} onOpenChange={handleOpenChange}>
@@ -166,17 +279,24 @@ export const ModelPicker = ({
         className="h-8 min-w-0 max-w-[200px] flex-1 justify-between rounded-md px-2 text-[13px]"
         disabled={disabled}
         aria-label="Model"
+        title={
+          triggerChoice
+            ? `${describeChoice(triggerChoice)}${
+                selectedModel ? '' : ' (saved default)'
+              }`
+            : undefined
+        }
       >
         <span className="flex min-w-0 items-center gap-1.5">
-          {(selectedProvider || defaultProvider) && (
+          {triggerChoice && (
             <ProviderIcon
-              provider={selectedProvider || defaultProvider || ''}
+              provider={triggerChoice.provider}
               variant="plain"
               className="size-4 shrink-0"
             />
           )}
           <span className="truncate">
-            {selectedModel || autoModel || 'Default model'}
+            {triggerChoice?.model || 'Default model'}
           </span>
         </span>
       </Combobox.Trigger>
@@ -199,10 +319,10 @@ export const ModelPicker = ({
           label={activeProvider ? 'Search models' : 'Providers'}
           defaultValue={
             activeProvider
-              ? quickPicks[0]
-                ? choiceValue(quickPicks[0])
-                : ''
-              : selectedProvider || 'workspace-default'
+              ? visibleValues.includes(value)
+                ? value
+                : visibleValues[0] ?? ''
+              : inUseProvider || 'workspace-default'
           }
           shouldFilter={false}
         >
@@ -233,7 +353,7 @@ export const ModelPicker = ({
                       setSearch('');
                     }}
                   >
-                    Your models
+                    Show less
                   </Button>
                 )}
               </div>
@@ -271,10 +391,16 @@ export const ModelPicker = ({
                     <span className="min-w-0 flex-1 truncate font-medium">
                       {getProviderLabel(provider)}
                     </span>
-                    {selectedProvider === provider && (
+                    {inUseProvider === provider ? (
                       <span className="text-[11px] text-muted-foreground">
                         In use
                       </span>
+                    ) : (
+                      catalogs.get(provider)?.error && (
+                        <span className="text-[11px] text-muted-foreground">
+                          Unavailable
+                        </span>
+                      )
                     )}
                     <IconChevronRight
                       className="size-3.5 shrink-0 text-muted-foreground"
@@ -289,12 +415,12 @@ export const ModelPicker = ({
                   className="h-10 gap-3 rounded-md px-3 text-xs text-muted-foreground data-[selected=true]:bg-muted"
                 >
                   <span className="shrink-0">Use saved default</span>
-                  {autoModel && (
+                  {serverDefault && (
                     <span
                       className="ml-auto truncate text-[11px]"
-                      title={autoModel}
+                      title={describeChoice(serverDefault)}
                     >
-                      {autoModel}
+                      {describeChoice(serverDefault)}
                     </span>
                   )}
                   <Combobox.Check
@@ -302,64 +428,35 @@ export const ModelPicker = ({
                     className="text-foreground"
                   />
                 </Command.Item>
+                {models.loading && (
+                  <div
+                    role="status"
+                    className="flex items-center gap-2 px-3 py-3 text-xs text-muted-foreground"
+                  >
+                    <Spinner className="size-3.5" />
+                    Loading your models…
+                  </div>
+                )}
+                {!models.loading && models.error && (
+                  <p role="status" className={statusClassName}>
+                    Model list unavailable. Your saved default is still
+                    available.
+                  </p>
+                )}
               </>
             )}
-            {activeProvider && choices.length > 0 && (
+            {groups.map((group) => (
               <Command.Group
-                heading={showCatalog ? 'All models' : 'Your models'}
-                className="p-0"
+                key={group.heading}
+                heading={group.heading}
+                className="p-0 **:[[cmdk-group-heading]]:px-3 **:[[cmdk-group-heading]]:text-[11px] **:[[cmdk-group-heading]]:text-muted-foreground"
               >
-                {choices.map(renderChoice)}
+                {group.choices.map(renderChoice)}
               </Command.Group>
-            )}
-            {models.loading && (
-              <div
-                role="status"
-                className="flex items-center gap-2 px-3 py-4 text-xs text-muted-foreground"
-              >
-                <Spinner className="size-3.5" />
-                Loading your models…
-              </div>
-            )}
-            {!models.loading && models.error && (
-              <p
-                role="status"
-                className="px-3 py-3 text-xs leading-5 text-muted-foreground"
-              >
-                Model list unavailable. Your saved default is still available.
-              </p>
-            )}
-            {activeProvider &&
-              searching &&
-              choices.length === 0 &&
-              !models.loading && (
-                <div
-                  role="status"
-                  className="px-3 py-5 text-center text-xs text-muted-foreground"
-                >
-                  No matching models.
-                </div>
-              )}
-            {activeProvider &&
-              browse &&
-              !searching &&
-              choices.length === 0 &&
-              !models.loading &&
-              !models.error && (
-                <p className="px-3 py-3 text-xs leading-5 text-muted-foreground">
-                  No models are listed for this provider.
-                </p>
-              )}
-            {activeProvider &&
-              !showCatalog &&
-              choices.length === 0 &&
-              !models.loading && (
-                <p className="px-3 py-3 text-xs leading-5 text-muted-foreground">
-                  Search for a model, or browse this provider’s full list below.
-                </p>
-              )}
+            ))}
+            {providerStatus}
           </Command.List>
-          {activeProvider && !showCatalog && (
+          {activeProvider && !showCatalog && activeModels.length > 0 && (
             <div className="border-t p-1.5">
               <Button
                 variant="ghost"

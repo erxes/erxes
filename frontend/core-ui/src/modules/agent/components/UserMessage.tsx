@@ -9,6 +9,7 @@ import { Button } from 'erxes-ui';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 
 import { readAgentMentions } from '../agentMentions';
+import { readAgentsFilesPart, withoutFileOnlyText } from '../agentsFiles';
 import { useAgentMentions } from '../hooks/useAgentMentions';
 import { AgentMentionScope } from '../references/AgentMentionScope';
 import { extractPageContext } from '../utils/pageContext';
@@ -38,7 +39,12 @@ export const UserMessage = ({
   children,
 }: IUserMessageProps) => {
   const { parts } = extractPageContext(message.parts);
-  const text = getMessageText({ ...message, parts });
+  // Files-only turns hide the placeholder prompt; mention tokens stay wire text.
+  const text = getMessageText({
+    ...message,
+    parts: withoutFileOnlyText(parts),
+  });
+  const hasFiles = parts.some((part) => readAgentsFilesPart(part).length > 0);
   const [initialDraft] = useState(() => parseAgentMentionText(text));
   const [draft, setDraft] = useState(initialDraft.value);
   const draftMentions = useAgentMentions(draft, initialDraft);
@@ -153,7 +159,7 @@ export const UserMessage = ({
             )}
           </Button>
         )}
-        {text && !editing && (
+        {(text || hasFiles) && !editing && (
           <Button
             ref={editButtonRef}
             type="button"

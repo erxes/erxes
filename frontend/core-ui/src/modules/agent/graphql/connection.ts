@@ -6,9 +6,9 @@ import { gql } from '@apollo/client';
  * Operation names are prefixed with `Agents` to stay unique repo-wide. The
  * backend never returns stored API keys; `hasKey` only reports whether one
  * is stored. Multiple providers may be configured side by side, and
- * `agentsModels` lists each configured provider's model ids (fetched
- * server-side from the provider's own /models endpoint) for the chat's
- * model picker.
+ * `agentsModels` lists each configured provider's usable chat models
+ * (fetched server-side from the provider's own /models endpoint, then
+ * filtered and ranked) for the chat's model picker.
  */
 
 export const AGENTS_CONNECTIONS = gql`
@@ -27,6 +27,12 @@ export const AGENTS_MODELS = gql`
     agentsModels {
       provider
       models
+      catalog {
+        id
+        family
+        recommended
+      }
+      error
     }
   }
 `;
@@ -59,9 +65,21 @@ export interface IAgentsConnectionsData {
   agentsConnections: IAgentsConnectionEntry[] | null;
 }
 
+export interface IAgentsModelInfo {
+  id: string;
+  /** Generation line such as `gpt-5.6`; empty when unknown. */
+  family: string | null;
+  /** Part of the provider's short list shown before searching. */
+  recommended: boolean | null;
+}
+
 export interface IAgentsProviderModels {
   provider: string;
+  /** Usable model ids in ranked order (same order as `catalog`). */
   models: string[] | null;
+  catalog: IAgentsModelInfo[] | null;
+  /** Key-free reason the provider's listing failed; null on success. */
+  error: string | null;
 }
 
 export interface IAgentsModelsData {
