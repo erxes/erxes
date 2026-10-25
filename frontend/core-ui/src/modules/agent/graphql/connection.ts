@@ -17,6 +17,7 @@ export const AGENTS_CONNECTIONS = gql`
       provider
       model
       hasKey
+      isDefault
       updatedAt
     }
   }
@@ -43,6 +44,7 @@ export const AGENTS_CONNECTION_UPSERT = gql`
       provider
       model
       hasKey
+      isDefault
       updatedAt
     }
   }
@@ -54,10 +56,24 @@ export const AGENTS_CONNECTION_REMOVE = gql`
   }
 `;
 
+export const AGENTS_CONNECTION_SET_DEFAULT = gql`
+  mutation AgentsConnectionSetDefault($provider: String) {
+    agentsConnectionSetDefault(provider: $provider) {
+      provider
+      model
+      hasKey
+      isDefault
+      updatedAt
+    }
+  }
+`;
+
 export interface IAgentsConnectionEntry {
   provider: string;
   model: string;
   hasKey: boolean;
+  /** The one entry an unselected chat turn runs on. */
+  isDefault?: boolean | null;
   updatedAt?: string | null;
 }
 
@@ -104,4 +120,13 @@ export interface IAgentsConnectionRemoveData {
 
 export interface IAgentsConnectionRemoveVariables {
   provider: string;
+}
+
+export interface IAgentsConnectionSetDefaultData {
+  agentsConnectionSetDefault: IAgentsConnectionEntry[] | null;
+}
+
+export interface IAgentsConnectionSetDefaultVariables {
+  /** Omit or send '' to clear the explicit default. */
+  provider?: string;
 }

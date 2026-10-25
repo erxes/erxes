@@ -70,7 +70,10 @@ The `agent` module is the core-ui surface for the core-api `agents` backend
   have a review/edit step before explicit submission; answers keep the existing
   positional string/string-array contract. `AskUserAnswered` is the persisted
   summary in the transcript;
-- settings at `/settings/agent/*`: `connection` (BYOK), `code-mode`
+- settings at `/settings/agent/*`: `connection` (BYOK; each saved connection
+  shows a `Default` badge or a `Set as default` action →
+  `AgentsConnectionSetDefault`, toasts, awaited `AgentsConnections` refetch;
+  tests in `pages/settings/agent/__tests__`), `code-mode`
   (admin-gated switch), `approvals` (admin-gated `approvalMode` radio —
   `writes` default asks before every mutation), wired through
   `settingsPath('agent')` + `SettingsWorkspacePath.Agent` +
@@ -86,9 +89,10 @@ The `agent` module is the core-ui surface for the core-api `agents` backend
   `catalog[].recommended` shortlist), provider-scoped search and Browse all
   models. Search and Browse group the usable catalog into `Recommended` /
   `Others` in backend rank order; `Show less` returns to the shortlist. Only
-  the first saved connection (what the empty value runs, per backend
-  `pickConnection`) is marked `Default` and its provider `In use`; other
-  connections' stored models are not defaults. A provider whose listing failed
+  the connection the backend marks `isDefault` (what the empty value runs, per
+  `pickConnection`; the first saved entry when no entry is flagged) is marked
+  `Default` and its provider `In use`, and the trigger/`Use saved default` row
+  name it; other connections' stored models are not defaults. A provider whose listing failed
   shows its key-free `error`, an `Unavailable` provider marker when not in use,
   and its saved model as the only choice. Loading, empty and no-match states
   are explicit. Back returns to provider selection without changing the model.
