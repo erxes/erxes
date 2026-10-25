@@ -2,7 +2,10 @@ import { useQuery } from '@apollo/client';
 import { useMemo } from 'react';
 
 import { AGENTS_MODELS } from '../graphql/connection';
-import type { IAgentsModelsData } from '../graphql/connection';
+import type {
+  IAgentsModelInfo,
+  IAgentsModelsData,
+} from '../graphql/connection';
 import { toModelThinking } from '../utils/thinkingLevels';
 import type { IAgentsModelThinking } from '../utils/thinkingLevels';
 
@@ -49,19 +52,15 @@ export const useAgentsModels = (): IUseAgentsModelsResult => {
         provider: group.provider,
         models: (
           group.catalog ??
-          (group.models ?? []).map((id) => ({
-            id,
-            family: '',
-            recommended: false,
-          }))
+          (group.models ?? []).map(
+            (id): IAgentsModelInfo => ({ id, family: '', recommended: false }),
+          )
         ).map((model) => ({
           id: model.id,
           family: model.family ?? '',
           recommended: model.recommended === true,
-          name: 'name' in model && model.name ? model.name : null,
-          thinking: toModelThinking(
-            'thinking' in model ? model.thinking : null,
-          ),
+          name: model.name || null,
+          thinking: toModelThinking(model.thinking),
         })),
         ...(group.error ? { error: group.error } : {}),
       })),
