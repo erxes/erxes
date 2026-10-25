@@ -21,8 +21,9 @@ The `agent` module is the core-ui surface for the core-api `agents` backend
   supports arrow keys (Shift for larger steps) and Home/End for width limits.
   Pointer capture and a temporary viewport shield keep resize events out of HTML
   frames. Drag paints are batched per animation frame; persisted width changes
-  only on release/cancel. Entrance animation never transitions drag width. Lost capture, missing primary button, blur, Escape and
-  unmount all clean up the drag.
+  only on release/cancel. Entrance animation never transitions drag width.
+  Lost capture, missing primary button, blur, Escape and unmount all clean up
+  the drag.
   The shared panel displays either a record or Assistant. After first open,
   the chat stays mounted but hidden while closed or showing a record, keeping
   drafts, streams and activity alive. The header uses browser-style session tabs,
@@ -89,46 +90,43 @@ The `agent` module is the core-ui surface for the core-api `agents` backend
   `writes` default asks before every mutation), wired through
   `settingsPath('agent')` + `SettingsWorkspacePath.Agent` +
   `GET_SETTINGS_SUB_NAVIGATION`;
-- `ModelPicker` first lists connected providers plus the saved workspace default
-  text action at the bottom, with no decorative default icon or provider-search
-  field. Provider rows show bare brand marks and names; the saved-default shortcut is a
-  single muted row naming the provider and model it runs. The trigger uses a
-  quiet ghost button whose title names provider and model. The model view does
-  not repeat provider marks/names on each row (compact 13px rows). Choosing a
-  provider immediately shows `Recent` (current/recent picks outside the
-  recommended set, at most three) and `Recommended` (the backend's
-  `catalog[].recommended` shortlist), provider-scoped search and Browse all
-  models. Search and Browse group the usable catalog into `Recommended` /
-  `Others` in backend rank order; `Show less` returns to the shortlist. Only
-  the connection the backend marks `isDefault` (what the empty value runs, per
-  `pickConnection`; the first saved entry when no entry is flagged) is marked
-  `Default` and its provider `In use`, and the trigger/`Use saved default` row
-  name it; other connections' stored models are not defaults. A provider whose listing failed
-  shows its key-free `error` (it names the cause, e.g. a key without Models:
-  Read or a key the server cannot decrypt), an `Unavailable` provider marker
-  when not in use, its saved model and its recent picks. Typing an unlisted,
-  well-formed id in search offers `Use "<id>"` (`Custom model` group); it is
-  selected only after `onVerifyModel` (`useAgentsModelVerify` →
-  `AgentsModelVerify`) resolves null, otherwise the reason shows inline.
-  Listed models get the same check the first time they are picked, because
-  listings ignore some access rules (OpenAI lists the whole organisation's
-  models regardless of a project's allowed models); the current, saved and
-  recent selections skip it. A verified pick enters `agent:recent-models`; the
-  current selection always stays visible even when unlisted. Loading, empty and no-match states
-  are explicit. Back returns to provider selection without changing the model.
-  Reopening always starts with providers, and neither step displays a
-  model-count badge.
-  Device-local `agent:recent-models` remembers six explicit selections and is
-  intersected with the live catalog, so removed models/providers cannot return
-  as quick picks. Auto remains usable while model discovery loads or fails;
-  provider/model ids and the empty-value server-default contract are unchanged.
+- `ModelPicker` opens on the connected providers (bare brand marks and names,
+  no provider search or decorative icons) with one muted `Use saved default`
+  row at the bottom naming the provider and model it runs. The trigger is a
+  quiet ghost button titled with provider and model. Picking a provider shows
+  compact 13px model rows without repeated provider marks: `Recent` (current or
+  recent picks outside the shortlist, at most three) and `Recommended`
+  (`catalog[].recommended`), plus provider-scoped search and Browse all models,
+  which group the usable catalog into `Recommended` / `Others` in backend rank
+  order (`Show less` returns). Back keeps the selection; reopening starts at
+  providers; there is no model-count badge. Loading, empty and no-match states
+  are explicit.
+  Only the connection the backend marks `isDefault` — what the empty value
+  runs (`findDefaultAgentsConnection` in `useAgentsConnection.ts`, first saved
+  entry when none is flagged; shared with `ChatPanel` and settings) — is
+  marked `Default`, its provider `In use`, and named by the trigger and saved
+  default row. A provider whose listing failed shows its key-free `error` (e.g.
+  a key without Models: Read, or one the server cannot decrypt), an
+  `Unavailable` marker when not in use, its saved model and its recent picks.
+  A well-formed unlisted id typed in search offers `Use "<id>"` (`Custom
+  model`); it is selected only after `onVerifyModel` (`useAgentsModelVerify` →
+  `AgentsModelVerify`) resolves null, otherwise the reason shows inline. Listed
+  models get the same check when first picked, because listings ignore some
+  access rules (OpenAI lists the organisation's models regardless of a
+  project's allowed models); current, saved and recent selections skip it.
+  Values are `provider|model` (`modelSelectionValue` / `parseModelSelection`).
+  Device-local `agent:recent-models` keeps six explicit picks,
+  intersected with the live catalog so removed models/providers cannot return;
+  the current selection always stays visible. The saved default stays usable
+  while discovery loads or fails; ids and the empty-value server-default
+  contract are unchanged.
   `useAgentsModels` normalizes `agentsModels` into ranked
   `{ id, family, recommended, name, thinking }` options per provider (falling
-  back to the flat `models` ids). A model with a models.dev `name` shows it as
-  the row title (raw id muted beside it) and in the trigger; search matches
-  name and id; without a name the raw id shows as before. Saving or removing a connection in settings refetches the
-  active `AgentsModels` query. Settings marks a connection whose key the
-  server cannot read (`hasKey: false`) with `Re-enter key`.
+  back to the flat `models` ids). A models.dev `name` titles the row (raw id
+  muted beside it) and the trigger; search matches name and id. Saving or
+  removing a connection in settings refetches the active `AgentsModels` query;
+  settings marks a key the server cannot read (`hasKey: false`) with
+  `Re-enter key`.
 - The thinking picker starts at High, and the initial outgoing request explicitly
   sends `thinkingLevel: 'high'`. Manual selections override that default for later turns.
   The trigger is a compact ghost button with an intensity mark and the level name
@@ -237,9 +235,9 @@ The `agent` module is the core-ui surface for the core-api `agents` backend
   every document type as text. Legacy `.doc/.xls/.ppt` stay unsupported. The
   platform upload allowlist (core `utils/file`) admits PPTX/ODF/RTF only when a
   tenant configures `UPLOAD_FILE_TYPES`; otherwise their chip shows the upload
-  error. The picker,
-  panel-wide drop and paste all call the composer's `attachFiles`, which uses
-  `planAgentsAttachments` (`utils/agentAttachments.ts`): unsupported types and
+  error. The picker, panel-wide drop and paste all call the composer's
+  `attachFiles`, which uses `planAgentsAttachments`
+  (`utils/agentAttachments.ts`): unsupported types and
   files past the limit are toasted and never become chips; empty, oversized and
   text-budget failures are error chips without Retry; failed uploads keep the
   source `File` and offer Retry. Non-GIF images over 2 MiB are re-encoded in the
@@ -256,10 +254,10 @@ The `agent` module is the core-ui surface for the core-api `agents` backend
   state. The pointer-events-none overlay fades and scales over 200ms, with no
   transition for reduced motion.
 - Paste reaches the composer through `AgentMentionInput` → `ChatInput`
-  `onPaste`; text pastes stay ordinary edits for mention ranges.
-- Paste: `filesFromClipboard` attaches screenshots, Finder copies and browser
-  image copies; a generic `image.png` becomes `pasted-image-<timestamp>.png`.
-  Rich text copies (`text/plain` + `text/html`, such as Excel cells) stay text.
+  `onPaste`. `filesFromClipboard` attaches screenshots, Finder copies and
+  browser image copies; a generic `image.png` becomes
+  `pasted-image-<timestamp>.png`. Rich text copies (`text/plain` +
+  `text/html`, such as Excel cells) and text pastes stay ordinary edits.
   Pasting files while streaming is refused with a toast.
 - `AgentAttachmentCard` is the one attachment card for composer and history:
   thumbnail or type icon (Word, document, spreadsheet, presentation, PDF, …),
@@ -361,7 +359,7 @@ One prompt's whole run is one process instance. `utils/agentTurnTimeline.ts`
   steps; work before the first narration forms an untitled lead section), the
   `body` (intro, answer and every non-work part in original order), counts,
   `activeIndex` and `answerText` (copy/export).
-- `agentTurnActivity`: running tool label (`agentMessageActivity`), latest
+- `agentTurnActivity`: running tool label (`agentToolActivity`), latest
   `**title**` of reasoning summaries or "Thinking…", "Writing…" for text, or
   the newest narration's last sentence between steps.
 
@@ -376,8 +374,9 @@ label, or "Thought". Expanded: thin-rail timeline; narration titles render via
 `AgentThinkingBlock` (muted, expandable, shimmer while it is the live part).
 Approvals, ask_user and artifact cards are never folded.
 
-`utils/agentWorkSteps.ts` owns the part predicates (`isWorkPart`,
-`isStandalonePart`, `toAgentWorkStep`) and step labels.
+`utils/agentWorkSteps.ts` owns the part predicates (`isToolPart`,
+`isReasoningPart`, `isStandalonePart`), `toAgentWorkStep`, step labels and
+the running-tool label `agentToolActivity`.
 
 `utils/transcriptRows.ts` merges consecutive assistant messages separated only
 by hidden turns into one transcript row, so a resumed run continues the same
@@ -416,8 +415,9 @@ last assistant turn.
 - Mention tokens must round-trip: labels follow the backend's sanitization
   (no brackets/newlines, ≤80 chars) and `page` is never mentionable.
 - `ChatInput` and the mention mirror both observe the composer textarea.
-  Height and mirror writes from those observers run on the next animation
-  frame and are skipped when the measured value is unchanged.
+  `ChatInput` keeps one observer for the field's lifetime and remeasures only
+  when the width changes; the mirror skips unchanged values. Both write on the
+  next animation frame, never inside the observer callback.
 
 ## Validation
 

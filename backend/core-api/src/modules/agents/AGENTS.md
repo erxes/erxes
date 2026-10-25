@@ -8,9 +8,8 @@ plugin; ported from the former private `erxes-agent` service). It provides:
   surface) stored on `agents_user_connections` — one doc per user per tenant,
   one entry per provider, `hasKey`-only reads; an optional top-level
   `defaultProvider` names the entry an unselected turn runs on
-  (`findDefaultConnection`: explicit default while still saved, else the first
-  entry — documents without it keep the first-saved behaviour, no migration); `config.apiKey` is sealed at
-  rest (`secretBox.ts`, AES-256-GCM, `enc:v1:` envelope keyed from
+  (`findDefaultConnection`: that entry while still saved, else the first; no
+  migration); `config.apiKey` is sealed at rest (`secretBox.ts`, AES-256-GCM, `enc:v1:` envelope keyed from
   `JWT_TOKEN_SECRET`) — readers use `openSecret`, writers seal on upsert,
   `getConnections` lazily re-seals legacy plaintext;
 - a Mastra **DurableAgent** chat over SSE with durable suspend/resume
@@ -24,19 +23,18 @@ plugin; ported from the former private `erxes-agent` service). It provides:
 - `skills/reportCreation.ts` is the built-in report skill, composed into every
   run's instructions by `buildAgentsInstructions`. Reports are dashboard-first
   static HTML: one-line scope, KPI row, inline SVG or CSS bar charts, tables,
-  then two to four bullet takeaways; captions are one sentence. All numbers are
-  computed by the agent from verified tool data (code mode when available).
-  What-if questions get agent-computed scenarios (e.g. baseline, −20%, +20%,
-  the user's case) in a comparison table plus bars, with assumptions stated
-  once in the caption; new scenarios are requested in chat and recomputed. No
-  scripts, controls or client-side formulas. The documented class vocabulary
-  (`scope`, `kpis`/`kpi`, `bars`/`bar`/`baseline`, `legend`, `up`/`down`,
-  `highlight`, SVG `mark`/`line`/`axis`/`gridline`) must match core-ui's
-  renderer stylesheet in `artifacts/htmlSandbox.ts`. Reports use transparent
-  backgrounds (no filled report, card, section, chart canvas or table surfaces),
-  verified references beside data points, simple language with parenthetical
-  explanations of technical terms, and no unsolicited next-step offers.
-  Ordinary replies keep their existing presentation.
+  then two to four bullet takeaways; one-sentence captions. The agent computes
+  every number from verified tool data (code mode when available). What-if
+  questions get computed scenarios (e.g. baseline, −20%, +20%, the user's case)
+  in a comparison table plus bars, assumptions stated once in the caption; new
+  scenarios are asked for in chat. No scripts, controls or client-side
+  formulas. The class vocabulary (`scope`, `kpis`/`kpi`, `bars`/`bar`/
+  `baseline`, `legend`, `up`/`down`, `highlight`, SVG `mark`/`line`/`axis`/
+  `gridline`) must match core-ui's `artifacts/htmlSandbox.ts` stylesheet.
+  Reports have transparent backgrounds (no filled report, card, section, chart
+  canvas or table surfaces), references beside data points, plain language
+  with parenthetical explanations of technical terms, and no unsolicited
+  next-step offers. Ordinary replies keep their existing presentation.
 - GraphQL discovery (`searchGraphql`) and execution (`callGraphql`) through
   the gateway as the acting user, using a fresh HMAC-signed identity header.
   `graphqlPolicy.ts` denies authentication, credential and system-security
@@ -104,11 +102,10 @@ plugin; ported from the former private `erxes-agent` service). It provides:
 
 - HTTP (mounted in `src/routes.ts` via `src/modules/agents/routes.ts`):
   `POST /agents/chat` (SSE; optional `runId` UUID, `provider`, `model`,
-  `thinkingLevel` — validated and clamped to the selected model's levels by
-  `normalizeThinkingLevel` before it is stamped — `pageContext`; mention parts
-  in the newest message;
-  without `provider`, `pickConnection` uses `findDefaultConnection`;
-  `X-Agents-Thread-Id` response header),
+  `thinkingLevel` (clamped to the selected model's levels by
+  `normalizeThinkingLevel` before it is stamped), `pageContext`, mention parts
+  in the newest message; without `provider`, `pickConnection` uses
+  `findDefaultConnection`; `X-Agents-Thread-Id` response header),
   `POST /agents/approve` `{ threadId, toolCallId?, approved, reason? }`,
   `POST /agents/answer` `{ threadId, answer }`,
   `POST /agents/chat/reconnect` `{ threadId, runId }` (SSE replay or 204).
@@ -145,7 +142,8 @@ plugin; ported from the former private `erxes-agent` service). It provides:
   `agentsConnectionSetDefault(provider: String): [AgentsConnectionEntry]`
   (`agentsChat`; own document only; the write is conditional on the provider
   being saved, unknown providers are a VALIDATION_ERROR, empty clears;
-  `removeConnection` unsets a removed default), `agentsThreads(page, perPage, pinned)` (`pinned: true` →
+  `removeConnection` unsets a removed default),
+  `agentsThreads(page, perPage, pinned)` (`pinned: true` →
   `filter.metadata.pinned`), `agentsThreadDetail(threadId)`,
   `agentsThreadUpdate(threadId, title?, pinned?)` (rename ≤120 chars /
   pin; ownership-scoped, merges `metadata.pinned`, publishes
@@ -170,7 +168,8 @@ plugin; ported from the former private `erxes-agent` service). It provides:
   No CRM mutation or separate artifact database. Assistant text always remains
   reply content; reports/files are delivered through this tool only.
 - `agent.ts` — instructions (incl. the References contract, `[Page context]`
-  and `[Mentions]` sentences), `AGENTS_MAX_STEPS` (32), thinking-level → per-provider options,
+  and `[Mentions]` sentences), `AGENTS_MAX_STEPS` (32), model settings
+  (thinking translation lives in `modelThinking.ts`),
   BYOK model resolution with construction-safe fallback, `buildBaseAgentsAgent`.
 - `memory.ts` — per-subdomain runtime `{ memory, mastra, agent }` cache;
   `MongoDBStore` (`core-agents-store`) on the dedicated `{db}_agents_memory`
@@ -228,8 +227,9 @@ plugin; ported from the former private `erxes-agent` service). It provides:
   (Off/High = on), `budget_tokens` (Off only when min is 0; Low/Medium/High =
   25/50/100% of max), `fixed` (reasoning without options) and `none`.
   Levels: `off` < `minimal` < `low` < `medium` < `high` < `xhigh` < `max`;
-  clamping picks the nearest, deeper on ties. Translation is the only
-  thinking path (`agent.ts` delegates): openai native `reasoning.effort`;
+  clamping picks the nearest, deeper on ties; each call resolves a model's
+  snapshot entry once. Translation is the only thinking path (`agent.ts`
+  delegates): openai native `reasoning.effort`;
   grok/kimi OpenAI-compatible `reasoning_effort` under the provider's own
   options key (the client ignores `xai`/`openaiCompatible` keys for unknown
   fields), Kimi toggles as `thinking: { type }`; kimi-code Anthropic
@@ -252,10 +252,11 @@ plugin; ported from the former private `erxes-agent` service). It provides:
   and pdf.js in a separate 512 MB child process with a 15s budget. A 20s overall
   timeout bounds every parse. Password-protected and corrupt files return
   actionable `readFile` errors. Legacy binary `.doc/.xls/.ppt` are not accepted.
-- `codeMode.ts`, `askUser.ts`, `fileBinding.ts`,
-  `fileTimeout.ts`, `fileValidation.ts` (allowed MIME types, including
-  `AGENTS_DOCUMENT_MIME_TYPES`; keep aligned with core-ui `agentsFiles.ts`), `toolSchemaCompatibility.ts`, `mongo44Compatibility.ts`,
-  `providerModels.ts`, `providers.ts`, `threadsEvents.ts`.
+- `codeMode.ts`, `askUser.ts`, `fileBinding.ts`, `fileTimeout.ts`,
+  `fileValidation.ts` (allowed MIME types, including
+  `AGENTS_DOCUMENT_MIME_TYPES`; keep aligned with core-ui `agentsFiles.ts`),
+  `toolSchemaCompatibility.ts`, `mongo44Compatibility.ts`, `providers.ts`,
+  `threadsEvents.ts`.
 - `db/` — `AgentsConnection` + `AgentsSettings` models (registered in
   `src/connectionResolvers.ts`); `graphql/` — schemas + thin resolvers.
 
