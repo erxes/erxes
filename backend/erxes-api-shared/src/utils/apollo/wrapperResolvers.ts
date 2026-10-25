@@ -69,7 +69,8 @@ const withBeforeResolvers = (
   };
 };
 
-const withLogging = (resolver: Resolver): Resolver => {
+// `sensitiveArgs` mutations are logged without their arguments.
+const withLogging = (resolver: Resolver, sensitiveArgs = false): Resolver => {
   return async (root, args, context, info) => {
     const { user, req, processId, subdomain } = context;
     const requestData = req.headers;
@@ -83,7 +84,7 @@ const withLogging = (resolver: Resolver): Resolver => {
         payload: {
           mutationName: info.fieldName,
           requestData,
-          args,
+          ...(sensitiveArgs ? { argsRedacted: true } : { args }),
         },
         processId,
         userId: user?._id,
@@ -100,22 +101,25 @@ export const wrapApolloResolvers = (resolvers: Record<string, Resolver>) => {
       const mutationResolvers: any = {};
 
       for (const [mutationKey, mutationResolver] of Object.entries(resolver)) {
-        const { skipPermission, cpUserRequired, forClientPortal } =
-          mutationResolver.wrapperConfig || {};
+        const {
+          skipPermission,
+          cpUserRequired,
+          forClientPortal,
+          sensitiveArgs,
+        } = mutationResolver.wrapperConfig || {};
         const isPublic = skipPermission || forClientPortal || cpUserRequired;
+        // Secret-bearing arguments are never forwarded to plugin hooks.
+        const inner = sensitiveArgs
+          ? mutationResolver
+          : withBeforeResolvers(mutationResolver, mutationKey);
 
         let wrapped: Resolver;
         if (isPublic) {
-          wrapped = wrapPublicResolver(
-            withBeforeResolvers(mutationResolver, mutationKey),
-            mutationResolver.wrapperConfig,
-          );
+          wrapped = wrapPublicResolver(inner, mutationResolver.wrapperConfig);
         } else {
           wrapped = withLogging(
-            wrapPermission(
-              withBeforeResolvers(mutationResolver, mutationKey),
-              mutationKey,
-            ),
+            wrapPermission(inner, mutationKey),
+            Boolean(sensitiveArgs),
           );
         }
 
@@ -134,21 +138,22 @@ export const wrapApolloResolvers = (resolvers: Record<string, Resolver>) => {
       const queryResolvers: any = {};
 
       for (const [queryKey, queryResolver] of Object.entries(resolver)) {
-        const { skipPermission, cpUserRequired, forClientPortal } =
-          queryResolver.wrapperConfig || {};
+        const {
+          skipPermission,
+          cpUserRequired,
+          forClientPortal,
+          sensitiveArgs,
+        } = queryResolver.wrapperConfig || {};
         const isPublic = skipPermission || forClientPortal || cpUserRequired;
+        const inner = sensitiveArgs
+          ? queryResolver
+          : withBeforeResolvers(queryResolver, queryKey);
 
         let wrapped: Resolver;
         if (isPublic) {
-          wrapped = wrapPublicResolver(
-            withBeforeResolvers(queryResolver, queryKey),
-            queryResolver.wrapperConfig,
-          );
+          wrapped = wrapPublicResolver(inner, queryResolver.wrapperConfig);
         } else {
-          wrapped = wrapPermission(
-            withBeforeResolvers(queryResolver, queryKey),
-            queryKey,
-          );
+          wrapped = wrapPermission(inner, queryKey);
         }
 
         queryResolvers[queryKey] = withSentryCapture(

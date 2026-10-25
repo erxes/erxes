@@ -1,5 +1,5 @@
-import { createHmac, timingSafeEqual } from 'node:crypto';
 import { IncomingHttpHeaders } from 'node:http';
+import { signServicePayload, verifyServiceToken } from '../service-signature';
 
 export const agentToolsAuthHeaderName = 'x-erxes-agent-auth';
 
@@ -14,37 +14,10 @@ export interface AgentToolsAuthPayload {
 }
 
 /**
- * Secret used to sign/verify the agent-tools auth header. Every backend
- * service shares the auth JWT secret, so a header signed by one service
- * verifies in another.
- *
- * There is intentionally NO default value. A hardcoded fallback would let
- * anyone reproduce the HMAC and re-open the unauthenticated tool-execution
- * hole this signing is meant to close, so we fail closed: sign/verify throws
- * until JWT_TOKEN_SECRET is configured.
- */
-const getAgentToolsSecret = (): string => {
-  const secret = process.env.JWT_TOKEN_SECRET;
-
-  if (!secret || secret.trim() === '') {
-    throw new Error(
-      'JWT_TOKEN_SECRET is required to sign and verify the agent-tools ' +
-        'auth header used for service-to-service authentication. Set ' +
-        'JWT_TOKEN_SECRET to the same value across all backend services.',
-    );
-  }
-
-  return secret;
-};
-
-const signPayload = (payloadBase64: string): string =>
-  createHmac('sha256', getAgentToolsSecret())
-    .update(payloadBase64)
-    .digest('base64url');
-
-/**
  * Mint a signed agent-tools auth header binding the given tenant (and
- * optionally the acting user) into a tamper-proof credential.
+ * optionally the acting user) into a tamper-proof credential. Signed with the
+ * shared service secret (`service-signature.ts`): signing throws and verifying
+ * fails closed until JWT_TOKEN_SECRET is configured.
  */
 export const encodeAgentToolsAuthHeader = (
   subdomain: string,
@@ -66,7 +39,7 @@ export const encodeAgentToolsAuthHeader = (
     'utf8',
   ).toString('base64url');
 
-  return `${payloadBase64}.${signPayload(payloadBase64)}`;
+  return `${payloadBase64}.${signServicePayload(payloadBase64)}`;
 };
 
 /**
@@ -83,62 +56,28 @@ export const decodeAgentToolsAuthHeader = (
     return null;
   }
 
-  const separatorIndex = header.lastIndexOf('.');
+  const payload = verifyServiceToken(header);
 
-  if (separatorIndex === -1) {
+  if (!payload) {
     return null;
   }
 
-  const payloadBase64 = header.slice(0, separatorIndex);
-  const signature = header.slice(separatorIndex + 1);
-
-  let expectedSignature: string;
-
-  try {
-    expectedSignature = signPayload(payloadBase64);
-  } catch {
-    // Secret not configured — fail closed.
+  if (typeof payload.subdomain !== 'string' || !payload.subdomain) {
     return null;
   }
-
-  const signatureBuffer = Buffer.from(signature);
-  const expectedBuffer = Buffer.from(expectedSignature);
 
   if (
-    signatureBuffer.length !== expectedBuffer.length ||
-    !timingSafeEqual(signatureBuffer, expectedBuffer)
+    typeof payload.at !== 'number' ||
+    Math.abs(Date.now() - payload.at) > AUTH_TTL_MS
   ) {
     return null;
   }
 
-  try {
-    const payload = JSON.parse(
-      Buffer.from(payloadBase64, 'base64url').toString('utf8'),
-    );
-
-    if (
-      !payload ||
-      typeof payload.subdomain !== 'string' ||
-      !payload.subdomain
-    ) {
-      return null;
-    }
-
-    if (
-      typeof payload.at !== 'number' ||
-      Math.abs(Date.now() - payload.at) > AUTH_TTL_MS
-    ) {
-      return null;
-    }
-
-    return {
-      subdomain: payload.subdomain,
-      userId: typeof payload.userId === 'string' ? payload.userId : null,
-      ...(typeof payload.threadId === 'string' && payload.threadId !== ''
-        ? { threadId: payload.threadId }
-        : {}),
-    };
-  } catch {
-    return null;
-  }
+  return {
+    subdomain: payload.subdomain,
+    userId: typeof payload.userId === 'string' ? payload.userId : null,
+    ...(typeof payload.threadId === 'string' && payload.threadId !== ''
+      ? { threadId: payload.threadId }
+      : {}),
+  };
 };

@@ -133,6 +133,9 @@ export interface IResolverSymbol {
     skipPermission?: boolean;
     forClientPortal?: boolean;
     cpUserRequired?: boolean;
+    // Arguments carry secrets: keep them out of mutation logs and
+    // before-resolver hooks.
+    sensitiveArgs?: boolean;
   };
 }
 
