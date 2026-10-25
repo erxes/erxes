@@ -78,7 +78,9 @@ const optionsFor = (
   thinking: IAgentsModelThinking | null,
 ): IThinkingOption[] => {
   const levels = thinkingLevelsFor(thinking);
-  const deep = levels.filter((level) => level !== 'off');
+  const deep: readonly IAgentsThinkingLevel[] = levels.filter(
+    (level) => level !== 'off',
+  );
 
   return THINKING_OPTIONS.filter((option) => levels.includes(option.value)).map(
     (option) => {
