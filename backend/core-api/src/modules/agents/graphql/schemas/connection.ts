@@ -13,9 +13,17 @@ export const types = `
     updatedAt: Date
   }
 
+  type AgentsModelInfo {
+    id: String
+    family: String
+    recommended: Boolean
+  }
+
   type AgentsProviderModels {
     provider: String
     models: [String]
+    catalog: [AgentsModelInfo]
+    error: String
   }
 `;
 

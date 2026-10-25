@@ -100,7 +100,10 @@ plugin; ported from the former private `erxes-agent` service). It provides:
   rewind. Failed stream startup restores the removed messages. Editing does
   not reverse business operations already executed by tools.
 - GraphQL (wired into `src/apollo/schema/schema.ts` + resolvers):
-  `agentsConnections`, `agentsModels` (server-side provider /models fetch),
+  `agentsConnections`, `agentsModels` (server-side provider /models fetch,
+  filtered by `modelCatalog.ts`; per provider `models` = usable ids in rank
+  order, additive `catalog: [AgentsModelInfo { id, family, recommended }]`, and
+  a key-free `error` with empty lists when that provider's listing fails),
   `agentsConnectionUpsert`/`agentsConnectionRemove` (BYOK; key never read
   back), `agentsThreads(page, perPage, pinned)` (`pinned: true` →
   `filter.metadata.pinned`), `agentsThreadDetail(threadId)`,
@@ -156,6 +159,16 @@ plugin; ported from the former private `erxes-agent` service). It provides:
 - `requestContext.ts` — JSON-safe per-run snapshot
   (subdomain/userId/provider/model/thinkingLevel/codeModeEnabled/
   approvalMode/threadId/attachmentUrls); never secrets.
+- `modelCatalog.ts` — data-driven per-provider usability rules (shared
+  non-chat deny patterns: embeddings, tts/whisper/transcribe/audio/realtime,
+  image/video, moderation, search; OpenAI also drops legacy completion/GPT-3.5/
+  GPT-4 lines, chat-latest aliases, o1-mini/preview, codex, computer-use,
+  deep-research; Kimi drops `kimi-thinking-preview`). Dated snapshots collapse
+  behind a listed alias, otherwise to the newest snapshot. Ranking: family tier,
+  version, alias before variants, `created`. Up to four `recommended`: the
+  stored connection model and `PROVIDER_DEFAULTS` model when listed, then the
+  leading generation line minus slow/preview variants. Never hardcode model
+  lists here; add patterns. `providerModels.ts` only fetches raw entries.
 - `codeMode.ts`, `askUser.ts`, `readFile.ts`, `fileBinding.ts`,
   `fileTimeout.ts`, `fileValidation.ts`, `toolSchemaCompatibility.ts`, `mongo44Compatibility.ts`,
   `providerModels.ts`, `providers.ts`, `threadsEvents.ts`.
