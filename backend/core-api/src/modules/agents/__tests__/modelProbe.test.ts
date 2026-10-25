@@ -108,6 +108,17 @@ it('reports the provider’s reason when it rejects the model', async () => {
   });
 });
 
+it('does not accept a stream that ends without any model response', async () => {
+  doStream.mockResolvedValue(streamOf({ type: 'stream-start' }));
+
+  await expect(
+    probeProviderModel({ connection: connection('openai'), model: 'gpt-6-luna' }),
+  ).resolves.toEqual({
+    ok: false,
+    error: 'OpenAI sent no response while checking "gpt-6-luna". Try again.',
+  });
+});
+
 it('reports a rejection delivered as an error chunk', async () => {
   doStream.mockResolvedValue(
     streamOf(

@@ -169,6 +169,7 @@ export const probeProviderModel = async ({
       abortSignal: AbortSignal.timeout(PROBE_TIMEOUT_MS),
     });
     const reader = stream.getReader();
+    let accepted = false;
 
     try {
       // Model output or metadata proves the model accepted the request; an
@@ -176,7 +177,12 @@ export const probeProviderModel = async ({
       for (let index = 0; index < PROBE_CHUNK_LIMIT; index += 1) {
         const { value, done } = await reader.read();
 
-        if (done || ACCEPTED_CHUNK_TYPES.has(value.type)) {
+        if (done) {
+          break;
+        }
+
+        if (ACCEPTED_CHUNK_TYPES.has(value.type)) {
+          accepted = true;
           break;
         }
 
@@ -196,7 +202,13 @@ export const probeProviderModel = async ({
       await reader.cancel().catch(() => undefined);
     }
 
-    return { ok: true, error: null };
+    // A stream that ends (or stalls) without any of those proves nothing.
+    return accepted
+      ? { ok: true, error: null }
+      : {
+          ok: false,
+          error: `${label} sent no response while checking "${model}". Try again.`,
+        };
   } catch (error: unknown) {
     return {
       ok: false,
