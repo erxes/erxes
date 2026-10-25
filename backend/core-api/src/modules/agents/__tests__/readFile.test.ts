@@ -23,6 +23,11 @@ jest.mock('dns/promises', () => ({
   }),
 }));
 
+// The shared core-modules barrel loads Mongoose models built from the mocked
+// utils; the agents module only needs the agent contract from it.
+jest.mock('erxes-api-shared/core-modules', () =>
+  jest.requireActual('erxes-api-shared/core-modules/agent'),
+);
 jest.mock('erxes-api-shared/utils', () => ({
   readFileStreamFromStorage: jest.fn(),
   readFileFromStorage: jest.fn(),
