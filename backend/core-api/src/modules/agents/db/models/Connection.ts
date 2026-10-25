@@ -113,6 +113,11 @@ export const loadAgentsConnectionClass = (models: IModels) => {
       const doc = await models.AgentsConnection.findOne({
         userId,
       }).lean<IAgentsConnectionsDocument>();
+      // A single-`connection` document is rewritten into the array shape so
+      // its old field (and any plaintext key in it) leaves the database.
+      const legacyShape = Boolean(
+        doc && (doc as unknown as { connection?: unknown }).connection,
+      );
 
       const normalized = normalizeConnections(doc);
 
@@ -120,7 +125,7 @@ export const loadAgentsConnectionClass = (models: IModels) => {
         // Lazy migration: any legacy plaintext key is sealed and written
         // back here so every read path sees envelopes only. Best-effort —
         // a write-back failure never fails the read.
-        let migrated = false;
+        let migrated = legacyShape;
 
         for (const entry of normalized.connections ?? []) {
           const apiKey = entry?.config?.apiKey;
@@ -143,7 +148,10 @@ export const loadAgentsConnectionClass = (models: IModels) => {
         if (migrated) {
           await models.AgentsConnection.updateOne(
             { userId },
-            { $set: { connections: normalized.connections } },
+            {
+              $set: { connections: normalized.connections },
+              $unset: { connection: '' },
+            },
           ).catch(() => undefined);
         }
       }

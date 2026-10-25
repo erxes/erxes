@@ -26,6 +26,10 @@ export const agentsConnectionSchema = new Schema(
       default: [],
     },
     defaultProvider: { type: String },
+    // Legacy single-connection shape. Declared only so the migrating writes'
+    // `$unset` reaches MongoDB (strict mode drops unknown paths); nothing
+    // writes it, and readers normalize it into `connections`.
+    connection: { type: Object },
   },
   {
     timestamps: true,
