@@ -192,7 +192,8 @@ describe('artifact output allowance', () => {
       )
         throw new Error('Missing thinking budget');
       expect(
-        buildAgentsModelSettings('kimi-code', thinkingLevel).maxOutputTokens -
+        buildAgentsModelSettings('kimi-code', thinkingLevel, 'kimi-for-coding')
+          .maxOutputTokens -
           thinking.budgetTokens,
       ).toBe(16384);
     },

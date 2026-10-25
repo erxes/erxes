@@ -33,12 +33,12 @@ import {
   extractUserFromHeader,
   getSubdomain,
 } from 'erxes-api-shared/utils';
+import { AGENTS_MAX_STEPS, buildAgentsModelSettings } from '@/agents/agent';
 import {
   isAgentsThinkingLevel,
-  AGENTS_MAX_STEPS,
-  buildAgentsModelSettings,
+  normalizeThinkingLevel,
   type IAgentsThinkingLevel,
-} from '@/agents/agent';
+} from '@/agents/modelThinking';
 import type { IAgentsConnections } from '@/agents/@types/connection';
 import { findDefaultConnection } from '@/agents/db/models/Connection';
 import { getAgentsRuntime } from '@/agents/memory';
@@ -749,7 +749,13 @@ router.post('/agents/chat', async (req, res) => {
       body.provider,
       body.model,
     );
-    const thinkingLevel = parseThinkingLevel(body.thinkingLevel);
+    // Only levels the selected model supports reach the provider (clamped to
+    // the nearest one; unknown models keep the original five levels).
+    const thinkingLevel = normalizeThinkingLevel(
+      connection.provider,
+      connection.model,
+      parseThinkingLevel(body.thinkingLevel),
+    );
     const runSettings = await resolveRunSettings(models);
     const runtime = await getAgentsRuntime(identity.subdomain);
     const { threadId, isNew } = await resolveOwnedThreadId({
@@ -834,6 +840,7 @@ router.post('/agents/chat', async (req, res) => {
       modelSettings: buildAgentsModelSettings(
         connection.provider,
         thinkingLevel,
+        connection.model,
       ),
       memory: {
         thread: threadId,

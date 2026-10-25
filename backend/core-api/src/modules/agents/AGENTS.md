@@ -104,7 +104,9 @@ plugin; ported from the former private `erxes-agent` service). It provides:
 
 - HTTP (mounted in `src/routes.ts` via `src/modules/agents/routes.ts`):
   `POST /agents/chat` (SSE; optional `runId` UUID, `provider`, `model`,
-  `thinkingLevel`, `pageContext`; mention parts in the newest message;
+  `thinkingLevel` — validated and clamped to the selected model's levels by
+  `normalizeThinkingLevel` before it is stamped — `pageContext`; mention parts
+  in the newest message;
   without `provider`, `pickConnection` uses `findDefaultConnection`;
   `X-Agents-Thread-Id` response header),
   `POST /agents/approve` `{ threadId, toolCallId?, approved, reason? }`,
@@ -124,7 +126,9 @@ plugin; ported from the former private `erxes-agent` service). It provides:
 - GraphQL (wired into `src/apollo/schema/schema.ts` + resolvers):
   `agentsConnections`, `agentsModels` (server-side provider /models fetch,
   filtered by `modelCatalog.ts`; per provider `models` = usable ids in rank
-  order, additive `catalog: [AgentsModelInfo { id, family, recommended }]`, and
+  order, additive `catalog: [AgentsModelInfo { id, family, recommended, name,
+  thinking: AgentsModelThinking { kind, levels } }]` (`modelThinking.ts`; null
+  name/thinking = not in the snapshot), and
   a key-free `error` that says why when the stored key cannot be opened
   (missing vs changed `JWT_TOKEN_SECRET`, or no key) or the listing fails
   (OpenAI keys without Models: Read / `api.model.read`, 401, 403, 429, 5xx);
@@ -214,6 +218,26 @@ plugin; ported from the former private `erxes-agent` service). It provides:
   `providerModels.ts` fetches raw entries and turns failures into sanitized
   messages (`sanitizeProviderMessage` strips the key, `sk-`/`xai-` fragments
   and long tokens; `describeUnreadableKey`).
+- `modelThinking.ts` + `data/modelsDevSnapshot.json` — display names and
+  thinking options per model from a bundled models.dev snapshot (MIT, source
+  URL/licence/date in the file; never fetched at runtime). Only `id`, `name`,
+  `reasoning`, `reasoning_options` of four providers, mapped to the endpoint we
+  call: openai → `openai`, grok → `xai`, kimi → `moonshotai`, kimi-code →
+  `kimi-code-plan-cn` (`api.kimi.com`). A name that only repeats the id
+  (ignoring case) is null. Kinds: `effort` (models.dev `none` = Off), `toggle`
+  (Off/High = on), `budget_tokens` (Off only when min is 0; Low/Medium/High =
+  25/50/100% of max), `fixed` (reasoning without options) and `none`.
+  Levels: `off` < `minimal` < `low` < `medium` < `high` < `xhigh` < `max`;
+  clamping picks the nearest, deeper on ties. Translation is the only
+  thinking path (`agent.ts` delegates): openai native `reasoning.effort`;
+  grok/kimi OpenAI-compatible `reasoning_effort` under the provider's own
+  options key (the client ignores `xai`/`openaiCompatible` keys for unknown
+  fields), Kimi toggles as `thinking: { type }`; kimi-code Anthropic
+  `thinking.budget_tokens` (1k–24k, output capped at 32,768). Models not in the
+  snapshot keep the original five levels and mapping (openai effort, kimi-code
+  budgets, nothing for grok/kimi). Refresh:
+  `node backend/core-api/src/modules/agents/data/refreshModelsDevSnapshot.mjs`
+  (plain fetch + fs; fails if a mapped provider's endpoint changes).
 - `readFile.ts` — the `readFile` tool for this turn's or the thread's stored
   attachments. Text/CSV/JSON/Markdown return text and images return model image
   data (≤2 MiB). Documents (PDF, DOCX, XLSX, PPTX, ODT, ODS, ODP, RTF) return

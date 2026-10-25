@@ -841,6 +841,7 @@ describe('POST /agents/chat — model input and identity', () => {
     expect(mockedBuildAgentsModelSettings).toHaveBeenCalledWith(
       'openai',
       'off',
+      'gpt-5.6-luna',
     );
     expect(streamMock).toHaveBeenCalledWith(
       expect.any(Array),
@@ -1015,6 +1016,55 @@ describe('POST /agents/chat — default connection', () => {
     await expect(
       runOn({ provider: 'openai', model: 'gpt-5.6' }),
     ).resolves.toEqual({ provider: 'openai', model: 'gpt-5.6' });
+  });
+});
+
+describe('POST /agents/chat — thinking level validation', () => {
+  const stampedLevel = async (
+    connection: { provider: string; model: string },
+    thinkingLevel: unknown,
+  ) => {
+    connectionModel.getConnections.mockResolvedValue({
+      userId: 'user-1',
+      connections: [{ ...connection, config: { apiKey: 'sk-a' } }],
+    });
+    await chatHandler(
+      buildReq({
+        user: ACTING_USER,
+        body: { messages: [userMessage('hi')], thinkingLevel },
+      }),
+      buildRes(),
+    );
+    return streamMock.mock.calls[0][1].requestContext?.get('thinkingLevel');
+  };
+
+  it('passes a level the model supports, including the larger vocabulary', async () => {
+    await expect(
+      stampedLevel({ provider: 'openai', model: 'gpt-6-luna' }, 'xhigh'),
+    ).resolves.toBe('xhigh');
+    expect(mockedBuildAgentsModelSettings).toHaveBeenCalledWith(
+      'openai',
+      'xhigh',
+      'gpt-6-luna',
+    );
+  });
+
+  it('never sends Off to k3.1-pro', async () => {
+    await expect(
+      stampedLevel({ provider: 'kimi-code', model: 'k3.1-pro' }, 'off'),
+    ).resolves.toBe('low');
+  });
+
+  it('keeps unknown models on the original five levels', async () => {
+    await expect(
+      stampedLevel({ provider: 'openai', model: 'gpt-99' }, 'max'),
+    ).resolves.toBe('high');
+  });
+
+  it('treats an unrecognised level as Off, then clamps it', async () => {
+    await expect(
+      stampedLevel({ provider: 'kimi-code', model: 'k3.1-pro' }, 'ultra'),
+    ).resolves.toBe('low');
   });
 });
 

@@ -27,6 +27,13 @@ import { buildReadFileTool } from '@/agents/readFile';
 import { buildGraphqlTools } from '@/agents/graphqlTools';
 import { buildCodeModeAddition } from '@/agents/codeMode';
 import type { IAgentsRequestContext } from '@/agents/requestContext';
+import {
+  buildThinkingProviderOptions,
+  isAgentsThinkingLevel,
+  normalizeThinkingLevel,
+  thinkingOutputTokens,
+  type IAgentsThinkingLevel,
+} from '@/agents/modelThinking';
 import { generateModels } from '~/connectionResolvers';
 
 /**
@@ -102,96 +109,13 @@ const TEMPERATURE = 0.2;
 // not a requested response length; concise answers still end naturally.
 const MAX_OUTPUT_TOKENS = 16384;
 
-/** Thinking depth the chat UI can pick per turn. */
-export type IAgentsThinkingLevel =
-  | 'off'
-  | 'minimal'
-  | 'low'
-  | 'medium'
-  | 'high';
-
-const THINKING_LEVELS: readonly IAgentsThinkingLevel[] = [
-  'off',
-  'minimal',
-  'low',
-  'medium',
-  'high',
-];
-
-export const isAgentsThinkingLevel = (value: unknown): value is IAgentsThinkingLevel =>
-  typeof value === 'string' &&
-  (THINKING_LEVELS as readonly string[]).includes(value);
-
-const OPENAI_REASONING_EFFORT: Record<
-  Exclude<IAgentsThinkingLevel, 'off'>,
-  'none' | 'minimal' | 'low' | 'medium' | 'high' | 'xhigh' | 'max'
-> = {
-  minimal: 'minimal',
-  low: 'low',
-  medium: 'medium',
-  high: 'high',
-};
-
-/** xAI has no 'minimal'; its floor is 'low'. */
-const XAI_REASONING_EFFORT: Record<
-  Exclude<IAgentsThinkingLevel, 'off'>,
-  'none' | 'low' | 'medium' | 'high'
-> = {
-  minimal: 'low',
-  low: 'low',
-  medium: 'medium',
-  high: 'high',
-};
-
-const ANTHROPIC_THINKING_BUDGET: Record<
-  Exclude<IAgentsThinkingLevel, 'off'>,
-  number
-> = {
-  minimal: 1000,
-  low: 4000,
-  medium: 10000,
-  high: 16000,
-};
-
-/**
- * Maps the normalized thinking level to each provider family's native
- * option shape. Kimi's OpenAI-compatible endpoint has no verified thinking
- * control, so it is left untouched. Returns undefined when the provider
- * takes no options for the requested level.
- */
-const buildThinkingProviderOptions = (
-  provider: string,
-  thinkingLevel: IAgentsThinkingLevel,
-): ProviderOptions | undefined => {
-  if (thinkingLevel === 'off') {
-    return undefined;
-  }
-
-  switch (provider) {
-    case 'openai':
-      return { openai: { reasoningEffort: OPENAI_REASONING_EFFORT[thinkingLevel] } };
-    case 'grok':
-      return { xai: { reasoningEffort: XAI_REASONING_EFFORT[thinkingLevel] } };
-    case 'kimi-code': {
-      // Anthropic requires maxTokens > budgetTokens; keep a healthy margin
-      // for the visible response and floor the budget so 'minimal' is real.
-      const budget = ANTHROPIC_THINKING_BUDGET[thinkingLevel];
-
-      return {
-        anthropic: {
-          thinking: { type: 'enabled', budgetTokens: Math.max(budget, 1000) },
-        },
-      };
-    }
-    default:
-      return undefined;
-  }
-};
+export { isAgentsThinkingLevel, type IAgentsThinkingLevel };
 
 /**
  * Returns the modelSettings for a stream call. Temperature is constant;
  * maxOutputTokens is raised for kimi-code when thinking is on so the
- * Anthropic thinking budget doesn't starve the visible response.
+ * Anthropic thinking budget doesn't starve the visible response
+ * (`modelThinking.ts`; `model` selects that model's thinking options).
  *
  * Installed durable serialization drops list-entry modelSettings but
  * serializes stream-level modelSettings, so callers pass this via
@@ -201,15 +125,14 @@ const buildThinkingProviderOptions = (
 export const buildAgentsModelSettings = (
   provider: string,
   thinkingLevel: IAgentsThinkingLevel,
+  model?: string,
 ): { temperature?: number; maxOutputTokens: number } => {
-  const thinkingBudget =
-    thinkingLevel === 'off'
-      ? 0
-      : ANTHROPIC_THINKING_BUDGET[thinkingLevel];
-  const maxOutputTokens =
-    provider === 'kimi-code' && thinkingBudget > 0
-      ? MAX_OUTPUT_TOKENS + thinkingBudget
-      : MAX_OUTPUT_TOKENS;
+  const maxOutputTokens = thinkingOutputTokens(
+    provider,
+    model,
+    thinkingLevel,
+    MAX_OUTPUT_TOKENS,
+  );
 
   // Moonshot's kimi endpoint rejects any temperature but 1, so the key is
   // omitted entirely and the provider default applies.
@@ -277,11 +200,15 @@ const resolveRunConnection = async (
     connection,
     provider,
     model,
-    thinkingLevel:
-      typeof thinkingLevel === 'string' &&
-      isAgentsThinkingLevel(thinkingLevel)
+    // Clamped to the model's supported levels (stamped by the chat route,
+    // re-checked here for resumes of older runs).
+    thinkingLevel: normalizeThinkingLevel(
+      provider,
+      model,
+      typeof thinkingLevel === 'string' && isAgentsThinkingLevel(thinkingLevel)
         ? thinkingLevel
         : 'off',
+    ),
     codeModeEnabled: codeModeEnabled === true,
   };
 };
@@ -334,13 +261,15 @@ export const resolveAgentsModelEntry = async (requestContext?: {
     return buildFallbackAgentsModelEntry();
   }
 
-  const { connection, provider, thinkingLevel } = await resolveRunConnection(
-    requestContext as RequestContext<IAgentsRequestContext>,
-  );
+  const { connection, provider, model: modelId, thinkingLevel } =
+    await resolveRunConnection(
+      requestContext as RequestContext<IAgentsRequestContext>,
+    );
   const resolved = resolveModelConnection({ connection });
   const model = await createModelConfig(resolved);
   const providerOptions = buildThinkingProviderOptions(
     provider,
+    modelId,
     thinkingLevel,
   );
 

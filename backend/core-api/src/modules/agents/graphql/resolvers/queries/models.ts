@@ -6,6 +6,7 @@ import {
   getDocumentedProviderModels,
 } from '@/agents/modelCatalog';
 import type { IProviderModelEntry } from '@/agents/modelCatalog';
+import { getModelDisplayName, getModelThinking } from '@/agents/modelThinking';
 import {
   describeUnreadableKey,
   fetchProviderModels,
@@ -32,7 +33,13 @@ const listProviderModels = async (connection: IAgentsConnectionEntry) => {
     return {
       provider,
       models: catalog.map((model) => model.id),
-      catalog,
+      // Display name and thinking control come from the bundled models.dev
+      // snapshot; null means unknown (raw id, original five levels).
+      catalog: catalog.map((model) => ({
+        ...model,
+        name: getModelDisplayName(provider, model.id),
+        thinking: getModelThinking(provider, model.id),
+      })),
       error,
     };
   };
@@ -68,8 +75,8 @@ const listProviderModels = async (connection: IAgentsConnectionEntry) => {
  * fetched server-side from each provider's /models endpoint with the stored
  * keys and filtered to chat models this agent can drive (`modelCatalog.ts`).
  * Providers that document a fixed model set have it merged in. `models` keeps
- * the flat id list for older clients; `catalog` adds family and
- * recommendation metadata in ranked order. A provider whose key is unreadable
+ * the flat id list for older clients; `catalog` adds family, recommendation,
+ * display name and thinking metadata in ranked order. A provider whose key is unreadable
  * or whose listing fails is still returned, with a key-free `error` that says
  * why, so the chat picker can explain it and offer manual model entry.
  */

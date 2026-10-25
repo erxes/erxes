@@ -15,10 +15,17 @@ export const types = `
     updatedAt: Date
   }
 
+  type AgentsModelThinking {
+    kind: String
+    levels: [String]
+  }
+
   type AgentsModelInfo {
     id: String
     family: String
     recommended: Boolean
+    name: String
+    thinking: AgentsModelThinking
   }
 
   type AgentsModelVerification {

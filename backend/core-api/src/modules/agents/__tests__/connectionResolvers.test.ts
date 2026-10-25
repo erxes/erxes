@@ -568,15 +568,35 @@ describe('agentsModels query', () => {
         provider: 'openai',
         models: ['gpt-5.6', 'gpt-5.6-luna'],
         catalog: [
-          { id: 'gpt-5.6', family: 'gpt-5.6', recommended: true },
-          { id: 'gpt-5.6-luna', family: 'gpt-5.6', recommended: true },
+          {
+            id: 'gpt-5.6',
+            family: 'gpt-5.6',
+            recommended: true,
+            name: null,
+            thinking: { kind: 'effort', levels: ['off', 'low', 'medium', 'high', 'xhigh', 'max'] },
+          },
+          {
+            id: 'gpt-5.6-luna',
+            family: 'gpt-5.6',
+            recommended: true,
+            name: 'GPT-5.6 Luna',
+            thinking: { kind: 'effort', levels: ['off', 'low', 'medium', 'high', 'xhigh', 'max'] },
+          },
         ],
         error: null,
       },
       {
         provider: 'grok',
         models: ['grok-4.5'],
-        catalog: [{ id: 'grok-4.5', family: 'grok-4.5', recommended: true }],
+        catalog: [
+          {
+            id: 'grok-4.5',
+            family: 'grok-4.5',
+            recommended: true,
+            name: 'Grok 4.5',
+            thinking: { kind: 'effort', levels: ['low', 'medium', 'high', 'xhigh'] },
+          },
+        ],
         error: null,
       },
     ]);
@@ -614,7 +634,15 @@ describe('agentsModels query', () => {
       {
         provider: 'grok',
         models: ['grok-4.5'],
-        catalog: [{ id: 'grok-4.5', family: 'grok-4.5', recommended: true }],
+        catalog: [
+          {
+            id: 'grok-4.5',
+            family: 'grok-4.5',
+            recommended: true,
+            name: 'Grok 4.5',
+            thinking: { kind: 'effort', levels: ['low', 'medium', 'high', 'xhigh'] },
+          },
+        ],
         error: null,
       },
     ]);
