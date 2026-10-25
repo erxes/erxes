@@ -4,7 +4,8 @@ const assert = require('node:assert/strict');
 const { createRequire } = require('node:module');
 const path = require('node:path');
 const { pathToFileURL } = require('node:url');
-const repo = process.cwd();
+// Resolve from this file, not the cwd: nx runs jest from frontend/core-ui.
+const repo = path.resolve(__dirname, '../../../../../../..');
 const serviceRequire = createRequire(
   path.join(repo, 'backend/core-api/package.json'),
 );
