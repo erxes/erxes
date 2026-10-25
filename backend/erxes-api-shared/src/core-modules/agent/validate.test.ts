@@ -138,11 +138,13 @@ describe('validateAgentPluginMeta', () => {
   });
 
   it('rejects metadata that is not an object', () => {
-    expect(validateAgentPluginMeta('skills').rejections).toEqual([
-      { reason: 'agent metadata Expected object, received string' },
-    ]);
-    expect(validateAgentPluginMeta({ skills: {} }).rejections).toEqual([
-      { reason: 'agent metadata skills Expected array, received object' },
-    ]);
+    for (const meta of ['skills', { skills: {} }]) {
+      const result = validateAgentPluginMeta(meta);
+
+      expect(result.skills).toEqual([]);
+      expect(result.rejections).toEqual([
+        { reason: expect.stringMatching(/^agent metadata/) },
+      ]);
+    }
   });
 });

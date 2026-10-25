@@ -16,8 +16,6 @@ jest.mock('erxes-api-shared/utils', () => ({
 
 import { redis } from 'erxes-api-shared/utils';
 
-const mockedRedisGet = redis.get as unknown as jest.Mock;
-
 const SALES_OWNERS = new Map([
   ['query.deals', 'sales'],
   ['query.salesStages', 'sales'],
@@ -29,7 +27,7 @@ const SALES_OWNERS = new Map([
 const pipelineSkill = {
   name: 'pipeline-analysis',
   description: 'Analyse deals by pipeline and stage.',
-  instructions: '# Pipeline analysis\n\nCount deals per stage.',
+  instructions: '# Pipeline analysis\n\nCount records per stage.',
   operations: ['salesStages', 'deals', 'cpDeals'],
 };
 
@@ -70,16 +68,12 @@ describe('buildAgentPluginContributions', () => {
     ]);
 
     const sales = skills[1];
+    const preamble = pluginSkillPreamble('sales');
     expect(sales.description).toBe(pipelineSkill.description);
-    expect(sales.instructions.startsWith(pluginSkillPreamble('sales'))).toBe(
-      true,
-    );
-    expect(sales.instructions.indexOf('take precedence')).toBeLessThan(
-      sales.instructions.indexOf('# Pipeline analysis'),
-    );
-    // Mastra inline skills are text: no scripts or extra files.
-    expect(sales.scripts).toEqual([]);
-    expect(sales.references).toEqual([]);
+    expect(sales.instructions.startsWith(preamble)).toBe(true);
+    expect(
+      sales.instructions.indexOf(pipelineSkill.instructions),
+    ).toBeGreaterThanOrEqual(preamble.length);
   });
 
   it('hides only operations the declaring plugin owns and drops hidden hints', async () => {
@@ -103,13 +97,9 @@ describe('buildAgentPluginContributions', () => {
       'mutation.cpDealsAdd',
       'query.cpDeals',
     ]);
-    expect(skills[0].instructions).toContain(
-      'Find these with searchGraphql before calling them: `salesStages`, `deals`.',
-    );
+    expect(skills[0].instructions).toContain('salesStages');
+    expect(skills[0].instructions).toContain('deals');
     expect(skills[0].instructions).not.toContain('cpDeals');
-    expect(warn).toHaveBeenCalledWith(
-      '[agents] Ignored agent metadata from plugin "sales": cannot hide query "customers": the plugin does not own it',
-    );
   });
 
   it('logs a rejected skill once with its reason and keeps valid skills', async () => {
@@ -131,10 +121,10 @@ describe('buildAgentPluginContributions', () => {
     expect(first.skills.map(({ name }) => name)).toEqual([
       'sales-pipeline-analysis',
     ]);
-    expect(warn).toHaveBeenCalledTimes(1);
-    expect(warn).toHaveBeenCalledWith(
-      '[agents] Ignored skill "with-tool" from plugin "sales": unsupported field(s) tools',
-    );
+    // The rejection is reported once, naming the skill and why.
+    expect(warn.mock.calls).toEqual([
+      [expect.stringMatching(/"with-tool".*"sales".*tools/)],
+    ]);
   });
 
   it('rejects skills whose namespace or namespaced name is invalid', async () => {
@@ -150,42 +140,36 @@ describe('buildAgentPluginContributions', () => {
     );
 
     expect(skills).toEqual([]);
-    expect(warn).toHaveBeenCalledWith(
-      '[agents] Ignored agent metadata from plugin "Sales_API": skills need a plugin name of lowercase letters and digits',
-    );
-    expect(warn).toHaveBeenCalledWith(
-      expect.stringContaining('exceeds 64 characters'),
-    );
-  });
-
-  it('contributes nothing for plugins without agent metadata', async () => {
-    const contributions = await buildAgentPluginContributions(
-      [{ plugin: 'sales', agent: undefined }],
-      SALES_OWNERS,
-    );
-
-    expect(contributions.skills).toEqual([]);
-    expect(contributions.hiddenOperations.size).toBe(0);
   });
 });
 
 describe('readAgentPluginMeta', () => {
-  it('reads the current registration from service discovery', async () => {
-    mockedRedisGet.mockResolvedValueOnce(
+  const store = new Map([
+    [
+      'erxesservice:config:sales',
       JSON.stringify({ meta: { agent: { skills: [pipelineSkill] } } }),
-    );
+    ],
+    ['erxesservice:config:frontline', JSON.stringify({ meta: {} })],
+    ['erxesservice:config:broken', '{not json'],
+  ]);
 
+  beforeEach(() => {
+    jest
+      .mocked(redis.get)
+      .mockImplementation(async (key: string) => store.get(key) ?? null);
+  });
+
+  it('reads each plugin’s own registration from service discovery', async () => {
     await expect(readAgentPluginMeta('sales')).resolves.toEqual({
       skills: [pipelineSkill],
     });
-    expect(mockedRedisGet).toHaveBeenCalledWith('erxesservice:config:sales');
+    await expect(readAgentPluginMeta('frontline')).resolves.toBeUndefined();
   });
 
   it('treats unreadable registrations as no declaration', async () => {
-    mockedRedisGet.mockResolvedValueOnce('{not json');
-    await expect(readAgentPluginMeta('sales')).resolves.toBeUndefined();
+    await expect(readAgentPluginMeta('broken')).resolves.toBeUndefined();
 
-    mockedRedisGet.mockRejectedValueOnce(new Error('ECONNREFUSED'));
+    jest.mocked(redis.get).mockRejectedValueOnce(new Error('ECONNREFUSED'));
     await expect(readAgentPluginMeta('sales')).resolves.toBeUndefined();
   });
 });

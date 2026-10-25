@@ -414,4 +414,11 @@ export const agent: IAgentPluginMeta = {
   `ts-blank-space` is mapped to a callable CJS stub in `jest.config.ts`.
 - `pnpm nx lint core-api` — repo has pre-existing lint errors outside this
   module; keep this module's files clean.
+- Plugin skills are proven on the real base agent: `agentPluginSkills.test.ts`
+  runs `__tests__/fixtures/pluginSkills.mjs` (`node --test`), which bundles
+  the module sources with esbuild against the installed Mastra runtime. Only
+  service discovery, tenant models and the provider model factory are faked.
+  jest cannot host the Mastra `Agent` (its CJS build requires ESM-only AI SDK
+  packages). Mastra resolves dynamic skills once per `RequestContext`, so each
+  simulated run uses a fresh context.
 - Smoke: `POST /agents/chat` without a `user` header returns 401.

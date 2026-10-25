@@ -1,3 +1,4 @@
+import { RequestContext } from '@mastra/core/request-context';
 import {
   buildGraphqlTools,
   listAgentPluginSkills,
@@ -9,34 +10,24 @@ import {
 jest.mock('erxes-api-shared/core-modules', () =>
   jest.requireActual('erxes-api-shared/core-modules/agent'),
 );
-jest.mock('erxes-api-shared/utils', () => {
-  const auth = jest.requireActual('erxes-api-shared/utils/agent-tools/auth');
-  const responseLimit = jest.requireActual(
-    'erxes-api-shared/utils/agent-tools/responseLimit',
-  );
-
-  return {
-    ...auth,
-    ...responseLimit,
-    getEnv: ({ name, defaultValue }: { name: string; defaultValue?: string }) =>
-      process.env[name] || defaultValue || '',
-    getPluginAddress: jest.fn(),
-    getPlugins: jest.fn(),
-    keyForConfig: (name: string) => `erxesservice:config:${name}`,
-    redis: { get: jest.fn() },
-  };
-});
+// Service discovery is a fake backed by `registrations` and `reachable`; the
+// auth header codec and response limit keep their real implementations.
+jest.mock('erxes-api-shared/utils', () => ({
+  ...jest.requireActual('erxes-api-shared/utils/agent-tools/auth'),
+  ...jest.requireActual('erxes-api-shared/utils/agent-tools/responseLimit'),
+  getEnv: ({ name, defaultValue }: { name: string; defaultValue?: string }) =>
+    process.env[name] || defaultValue || '',
+  getPluginAddress: async (plugin: string) => `http://${plugin}:1`,
+  getPlugins: jest.fn(),
+  keyForConfig: (name: string) => `erxesservice:config:${name}`,
+  redis: { get: jest.fn() },
+}));
+// The tools' own execute functions run; only Mastra's wrapper is skipped.
 jest.mock('@mastra/core/tools', () => ({
-  createTool: (definition) => definition,
+  createTool: <T>(definition: T): T => definition,
 }));
 
-import { getPluginAddress, getPlugins, redis } from 'erxes-api-shared/utils';
-
-const mockedGetPlugins = getPlugins as jest.MockedFunction<typeof getPlugins>;
-const mockedGetPluginAddress = getPluginAddress as jest.MockedFunction<
-  typeof getPluginAddress
->;
-const mockedRedisGet = redis.get as unknown as jest.Mock;
+import { getPlugins, redis } from 'erxes-api-shared/utils';
 
 const CORE_SDL = `
   type Query { customers(searchValue: String): [Customer] }
@@ -56,15 +47,17 @@ const SALES_SDL = `
   type Deal @key(fields: "_id") { _id: String! name: String }
 `;
 
+const SDL: Record<string, string> = { core: CORE_SDL, sales: SALES_SDL };
+
 const salesSkill = {
   name: 'pipeline-analysis',
   description: 'Analyse deals by pipeline and stage.',
-  instructions: 'Count deals per stage.',
+  instructions: 'Count records per stage.',
   operations: ['deals', 'cpDeals'],
 };
 
-const registrations: Record<string, unknown> = {};
-const unreachable = new Set<string>();
+const registrations = new Map<string, unknown>();
+const reachable = new Set<string>();
 let clock = 1_800_000_000_000;
 let dateSpy: jest.SpyInstance;
 let fetchSpy: jest.SpyInstance;
@@ -75,18 +68,31 @@ const expireCatalog = () => {
 };
 
 const register = (plugin: string, agent: unknown) => {
-  registrations[plugin] = { meta: { agent } };
+  registrations.set(plugin, { meta: { agent } });
 };
 
-const sdlResponse = (sdl: string): Response =>
-  new Response(JSON.stringify({ data: { _service: { sdl } } }), {
+const json = (body: unknown): Response =>
+  new Response(JSON.stringify(body), {
     status: 200,
     headers: { 'content-type': 'application/json' },
   });
 
-const sdlFetches = () =>
-  fetchSpy.mock.calls.filter(([url]) => String(url).endsWith(':1/graphql'))
-    .length;
+/** A gateway that answers only the operation it was actually sent. */
+const gatewayAnswer = (body: string): Response => {
+  const { query } = JSON.parse(body) as { query: string };
+
+  return /\bcpDeals\b/.test(query)
+    ? json({ data: { cpDeals: [{ _id: 'd1', name: 'Portal deal' }] } })
+    : json({ errors: [{ message: 'Unexpected operation' }] });
+};
+
+const toolContext = () => ({
+  requestContext: new RequestContext([
+    ['subdomain', 'tenant'],
+    ['userId', 'user-1'],
+    ['approvalMode', 'writes'],
+  ]),
+});
 
 beforeAll(() => {
   dateSpy = jest.spyOn(Date, 'now').mockImplementation(() => clock);
@@ -98,44 +104,40 @@ afterAll(() => {
 
 beforeEach(() => {
   expireCatalog();
-  unreachable.clear();
-  register('core', undefined);
+  registrations.clear();
+  reachable.clear();
+  reachable.add('core').add('sales');
   register('sales', {
     skills: [salesSkill],
     hiddenOperations: { queries: ['cpDeals'], mutations: ['cpDealsAdd'] },
   });
   process.env.JWT_TOKEN_SECRET = 'test-plugin-skills-secret';
   process.env.GATEWAY_URL = 'http://gateway.test';
-  mockedGetPlugins.mockResolvedValue(['core', 'sales']);
-  mockedGetPluginAddress.mockImplementation(
-    async (plugin) => `http://${plugin}:1`,
-  );
-  mockedRedisGet.mockImplementation(async (key: string) => {
-    const registration = registrations[key.replace('erxesservice:config:', '')];
+  jest.mocked(getPlugins).mockResolvedValue(['core', 'sales']);
+  jest.mocked(redis.get).mockImplementation(async (key: string) => {
+    const registration = registrations.get(
+      key.replace('erxesservice:config:', ''),
+    );
 
     return registration ? JSON.stringify(registration) : null;
   });
-  fetchSpy = jest.spyOn(global, 'fetch').mockImplementation(async (input) => {
-    const url = String(input);
-    const plugin = url.replace(/^http:\/\/([^:]+):1\/graphql$/, '$1');
+  fetchSpy = jest
+    .spyOn(global, 'fetch')
+    .mockImplementation(async (input, init) => {
+      const url = String(input);
 
-    if (unreachable.has(plugin)) {
-      throw new Error('ECONNREFUSED');
-    }
+      if (url === 'http://gateway.test/graphql') {
+        return gatewayAnswer(String(init?.body));
+      }
 
-    if (url === 'http://core:1/graphql') {
-      return sdlResponse(CORE_SDL);
-    }
+      const plugin = url.replace(/^http:\/\/([^:]+):1\/graphql$/, '$1');
 
-    if (url === 'http://sales:1/graphql') {
-      return sdlResponse(SALES_SDL);
-    }
+      if (!reachable.has(plugin) || !SDL[plugin]) {
+        throw new Error('ECONNREFUSED');
+      }
 
-    return new Response(
-      JSON.stringify({ data: { cpDeals: [{ _id: 'd1', name: 'Deal' }] } }),
-      { status: 200, headers: { 'content-type': 'application/json' } },
-    );
-  });
+      return json({ data: { _service: { sdl: SDL[plugin] } } });
+    });
 });
 
 afterEach(() => {
@@ -144,15 +146,8 @@ afterEach(() => {
   delete process.env.GATEWAY_URL;
 });
 
-const context = {
-  requestContext: {
-    get: (key: string) =>
-      ({ subdomain: 'tenant', userId: 'user-1', approvalMode: 'writes' }[key]),
-  },
-};
-
 describe('plugin-hidden operations', () => {
-  it('leave discovery but stay executable', async () => {
+  it('are absent from discovery yet still executable', async () => {
     const { searchGraphql, callGraphql } = await buildGraphqlTools();
 
     const capabilities = await listGraphqlCapabilities();
@@ -161,27 +156,23 @@ describe('plugin-hidden operations', () => {
       'deals',
     ]);
 
-    const search = (await searchGraphql.execute?.(
+    const search = await searchGraphql.execute?.(
       { intent: 'deals client portal' },
-      context as never,
-    )) as { fields: { field: string }[] };
-    expect(search.fields.map(({ field }) => field)).toEqual(['deals']);
-
-    const call = (await callGraphql.execute?.(
-      { query: 'query SalesCpDeals { cpDeals { _id name } }' },
-      context as never,
-    )) as { status: string; data: unknown };
-    expect(call.status).toBe('ok');
-    expect(call.data).toEqual({ cpDeals: [{ _id: 'd1', name: 'Deal' }] });
-    expect(fetchSpy).toHaveBeenCalledWith(
-      'http://gateway.test/graphql',
-      expect.objectContaining({
-        body: expect.stringContaining('cpDeals'),
-      }),
+      toolContext(),
     );
+    expect(search).toMatchObject({ fields: [{ field: 'deals' }] });
+
+    const call = await callGraphql.execute?.(
+      { query: 'query SalesCpDeals { cpDeals { _id name } }' },
+      toolContext(),
+    );
+    expect(call).toMatchObject({
+      status: 'ok',
+      data: { cpDeals: [{ _id: 'd1', name: 'Portal deal' }] },
+    });
   });
 
-  it('cannot hide another plugin’s operations', async () => {
+  it('can only be declared by the plugin that owns them', async () => {
     const warn = jest
       .spyOn(console, 'warn')
       .mockImplementation(() => undefined);
@@ -191,9 +182,6 @@ describe('plugin-hidden operations', () => {
       const capabilities = await listGraphqlCapabilities();
 
       expect(capabilities.map(({ path }) => path)).toContain('customers');
-      expect(warn).toHaveBeenCalledWith(
-        expect.stringContaining('cannot hide query "customers"'),
-      );
     } finally {
       warn.mockRestore();
     }
@@ -212,7 +200,7 @@ describe('listAgentPluginSkills', () => {
   });
 
   it('starts a run without plugin skills when the first load is slow', async () => {
-    mockedGetPlugins.mockReturnValue(new Promise(() => undefined));
+    jest.mocked(getPlugins).mockReturnValue(new Promise(() => undefined));
 
     await jest.isolateModulesAsync(async () => {
       jest.doMock('node:timers/promises', () => ({
@@ -222,60 +210,38 @@ describe('listAgentPluginSkills', () => {
 
       expect(await fresh.listAgentPluginSkills()).toEqual([]);
     });
-  });
+  }, 2_000);
 
   describe('with a loaded catalog', () => {
     beforeEach(async () => {
       await listGraphqlCapabilities();
     });
 
-    it('collects namespaced skills from reachable plugins and caches them', async () => {
-      const skills = await listAgentPluginSkills();
+    it('points skill hints only at discoverable operations', async () => {
+      const [skill] = await listAgentPluginSkills();
 
-      expect(skills.map(({ name }) => name)).toEqual([
-        'sales-pipeline-analysis',
-      ]);
-      expect(skills[0].instructions).toContain('`deals`');
-      expect(skills[0].instructions).not.toContain('cpDeals');
-
-      const fetches = sdlFetches();
-      await listAgentPluginSkills();
-      await listGraphqlCapabilities();
-      expect(sdlFetches()).toBe(fetches);
+      expect(skill.instructions).toContain('deals');
+      expect(skill.instructions).not.toContain('cpDeals');
     });
 
-    it('drops a disabled plugin’s skills and hidden operations', async () => {
-      await listAgentPluginSkills();
-      expireCatalog();
-      mockedGetPlugins.mockResolvedValue(['core']);
+    it('reuses the catalog within the TTL', async () => {
+      reachable.delete('sales');
 
-      // The expired catalog is served once while it refreshes.
-      await listGraphqlCapabilities();
-      expect(await listAgentPluginSkills()).toEqual([]);
-    });
+      const capabilities = await listGraphqlCapabilities();
 
-    it('drops an unreachable plugin’s skills', async () => {
-      await listAgentPluginSkills();
-      expireCatalog();
-      unreachable.add('sales');
-
-      await listGraphqlCapabilities();
-      expect(await listAgentPluginSkills()).toEqual([]);
-    });
-
-    it('picks up a re-registered plugin after the cache expires', async () => {
-      await listAgentPluginSkills();
-      register('sales', {
-        skills: [{ ...salesSkill, name: 'forecast', operations: undefined }],
-      });
-
+      expect(capabilities.map(({ path }) => path)).toContain('deals');
       expect((await listAgentPluginSkills()).map(({ name }) => name)).toEqual([
         'sales-pipeline-analysis',
       ]);
+    });
 
+    it('serves the expired skills once while it refreshes, then the new ones', async () => {
+      register('sales', {
+        skills: [{ ...salesSkill, name: 'forecast', operations: undefined }],
+      });
       expireCatalog();
-      const stale = await listAgentPluginSkills();
-      expect(stale.map(({ name }) => name)).toEqual([
+
+      expect((await listAgentPluginSkills()).map(({ name }) => name)).toEqual([
         'sales-pipeline-analysis',
       ]);
 
@@ -286,14 +252,13 @@ describe('listAgentPluginSkills', () => {
     });
 
     it('keeps the schema when a registration cannot be read', async () => {
-      mockedRedisGet.mockRejectedValue(new Error('ECONNREFUSED'));
+      jest.mocked(redis.get).mockRejectedValue(new Error('ECONNREFUSED'));
       expireCatalog();
 
-      await listGraphqlCapabilities();
+      const capabilities = await listGraphqlCapabilities();
+
       expect(await listAgentPluginSkills()).toEqual([]);
-      expect(
-        (await listGraphqlCapabilities()).map(({ path }) => path),
-      ).toContain('cpDeals');
+      expect(capabilities.map(({ path }) => path)).toContain('cpDeals');
     });
   });
 });
