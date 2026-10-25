@@ -15,6 +15,7 @@ import { useAgentsModels } from '../hooks/useAgentsModels';
 import type { IUseAgentsChatResult } from '../hooks/useAgentsChat';
 import { agentsFilesPart } from '../agentsFiles';
 import { pageSelectionsPart } from '../pageSelections';
+import { agentMentionsPartsForText } from '../agentMentions';
 import { POSES } from '../bloub/engine/states';
 import { BotBadge } from './BotBadge';
 import { Composer } from './Composer';
@@ -247,12 +248,14 @@ export const ChatPanel = ({
       disabled={loadingThread || noConnection}
       draftScope={threadId ?? 'new'}
       onSend={(text, files, selections = []) => {
-        if (files.length > 0 || selections.length > 0) {
+        const mentionParts = agentMentionsPartsForText(text);
+        if (files.length > 0 || selections.length > 0 || mentionParts.length) {
           void sendMessage({
             parts: [
               { type: 'text', text },
               ...(files.length ? [agentsFilesPart(files)] : []),
               ...(selections.length ? [pageSelectionsPart(selections)] : []),
+              ...mentionParts,
             ],
           });
           return;

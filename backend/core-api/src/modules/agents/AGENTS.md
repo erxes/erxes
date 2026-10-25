@@ -73,6 +73,17 @@ plugin; ported from the former private `erxes-agent` service). It provides:
   admission set; chat permission/ownership checks apply before reading pixels.
   Thread detail reads normalize the former PNG/TXT pair only when its stored JSON
   context and matching snapshot validate, preserving ordinary attachments;
+- **mentions** (`mentions.ts`): the newest user message may carry a
+  `data-agents-mentions` part `{ mentions: [{ type, id, label }] }` (≤10,
+  unique, reference types only, ids `^[A-Za-z0-9_-]{1,64}$`, sanitized labels).
+  Each entry must appear as its exact `[[type:id:label]]` token in the text.
+  After the `agentsChat` check and before any rewind or runtime work,
+  `resolveAgentsMentions` re-reads every record through
+  `resolveAgentsReference` as the acting user; missing, denied or failing
+  records reject the turn with 400. The model text replaces tokens with
+  `@Label` and appends a delimited `[Mentions] ...` JSON list; the stored data
+  part keeps canonical `{ mentions, displayText }` for restore/edit. Mentions
+  never grant permission; later reads still use resolver permissions;
 - tenant-wide `AgentsSettings` on `agents_settings` (`codeModeEnabled`,
   `codeModeEnvironment: 'in-process'`, `approvalMode: 'writes' |
   'destructive'` — default `'writes'`, stamped per run into RequestContext;
@@ -84,7 +95,8 @@ plugin; ported from the former private `erxes-agent` service). It provides:
 
 - HTTP (mounted in `src/routes.ts` via `src/modules/agents/routes.ts`):
   `POST /agents/chat` (SSE; optional `runId` UUID, `provider`, `model`,
-  `thinkingLevel`, `pageContext`; `X-Agents-Thread-Id` response header),
+  `thinkingLevel`, `pageContext`; mention parts in the newest message;
+  `X-Agents-Thread-Id` response header),
   `POST /agents/approve` `{ threadId, toolCallId?, approved, reason? }`,
   `POST /agents/answer` `{ threadId, answer }`,
   `POST /agents/chat/reconnect` `{ threadId, runId }` (SSE replay or 204).
@@ -126,8 +138,8 @@ plugin; ported from the former private `erxes-agent` service). It provides:
   type/title/safe filename/content; Mastra persists this as a normal tool result.
   No CRM mutation or separate artifact database. Assistant text always remains
   reply content; reports/files are delivered through this tool only.
-- `agent.ts` — instructions (incl. the References contract + `[Page context]`
-  sentence), `AGENTS_MAX_STEPS` (32), thinking-level → per-provider options,
+- `agent.ts` — instructions (incl. the References contract, `[Page context]`
+  and `[Mentions]` sentences), `AGENTS_MAX_STEPS` (32), thinking-level → per-provider options,
   BYOK model resolution with construction-safe fallback, `buildBaseAgentsAgent`.
 - `memory.ts` — per-subdomain runtime `{ memory, mastra, agent }` cache;
   `MongoDBStore` (`core-agents-store`) on the dedicated `{db}_agents_memory`
@@ -151,6 +163,8 @@ plugin; ported from the former private `erxes-agent` service). It provides:
 - `graphqlTools.ts` — live schema discovery, capabilities catalog (each root
   operation retains its owning service/plugin from that service’s SDL) and bounded
   GraphQL execution; `tools.ts` — request identity and error helpers.
+- `mentions.ts` — user @ mention validation, verification and model/display
+  text; `fileBinding.ts` admits its data part without media.
 - `references.ts` — token grammar, toolId→type table, label pickers, result
   walking, sanitization (max 25 tokens, label ≤80 chars).
 - `requestContext.ts` — JSON-safe per-run snapshot

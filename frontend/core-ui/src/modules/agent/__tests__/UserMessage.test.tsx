@@ -36,18 +36,31 @@ const message: UIMessage = {
     { type: 'text', text: 'Show this month’s deals' },
   ],
 };
+const mentionMessage: UIMessage = {
+  id: 'mention-turn',
+  role: 'user',
+  parts: [
+    { type: 'text', text: 'Email [[customer:c1:Ann Lee]] today' },
+    {
+      type: 'data-agents-mentions',
+      data: { mentions: [{ type: 'customer', id: 'c1', label: 'Ann Lee' }] },
+    },
+  ],
+};
 const Harness = ({
   onEdit = jest.fn(),
   disabled = false,
+  turn = message,
 }: {
   onEdit?: (id: string, text: string) => void;
   disabled?: boolean;
+  turn?: UIMessage;
 }) => {
   const [editing, setEditing] = useState<string | null>(null);
   return (
     <UserMessage
-      message={message}
-      editing={editing === message.id}
+      message={turn}
+      editing={editing === turn.id}
       disabled={disabled}
       onEditingChange={setEditing}
       onEdit={onEdit}
@@ -114,4 +127,18 @@ it('disables editing during an active run', () => {
   render(<Harness disabled />);
   fireEvent.click(screen.getByRole('button', { name: 'Edit message' }));
   expect(screen.queryByRole('textbox')).toBeNull();
+});
+
+it('edits mentions as @labels and resends their tokens', () => {
+  const onEdit = jest.fn();
+  render(<Harness onEdit={onEdit} turn={mentionMessage} />);
+  fireEvent.click(screen.getByRole('button', { name: 'Edit message' }));
+  const input = screen.getByRole('textbox') as HTMLTextAreaElement;
+  expect(input.value).toBe('Email @Ann Lee today');
+  fireEvent.change(input, { target: { value: 'Email @Ann Lee tomorrow' } });
+  fireEvent.keyDown(input, { key: 'Enter', ctrlKey: true });
+  expect(onEdit).toHaveBeenCalledWith(
+    'mention-turn',
+    'Email [[customer:c1:Ann Lee]] tomorrow',
+  );
 });

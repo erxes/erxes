@@ -27,7 +27,8 @@ import {
 import { useTranslation } from 'react-i18next';
 
 import { uploadAgentsFile } from '../uploadAgentsFile';
-import { ChatInput } from './ChatInput';
+import { useAgentMentions } from '../hooks/useAgentMentions';
+import { AgentMentionInput } from './AgentMentionInput';
 import { PageElementPicker } from './PageElementPicker';
 import type { IPageSelection } from '../utils/pageSelection';
 import {
@@ -77,6 +78,7 @@ export const Composer = ({
 }: IComposerProps) => {
   const { t } = useTranslation('common', { keyPrefix: 'agent' });
   const [text, setText] = useState('');
+  const mentions = useAgentMentions(text);
   const [selecting, setSelecting] = useState(false);
   const [attachments, setAttachments] = useState<IComposerAttachment[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -113,7 +115,8 @@ export const Composer = ({
   useEffect(() => {
     if (disabled || isStreaming) setSelecting(false);
   }, [disabled, isStreaming]);
-  const trimmed = text.trim();
+  // Mentions are sent as `[[type:id:label]]` tokens (see agentMentions.ts).
+  const trimmed = mentions.serialize(text).trim();
   const hasPending = attachments.some((item) => item.status === 'uploading');
   const hasError = attachments.some((item) => item.status === 'error');
   const readyFiles = attachments.flatMap((item) =>
@@ -475,7 +478,8 @@ export const Composer = ({
         </ul>
       )}
       <div className="px-3.5 pt-3 sm:px-4">
-        <ChatInput
+        <AgentMentionInput
+          mentions={mentions}
           value={text}
           onChange={setText}
           onKeyDown={handleKeyDown}

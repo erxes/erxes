@@ -2585,6 +2585,115 @@ it('rejects malformed page context before accessing storage or starting the mode
   expect(res.statusCode).toBe(400); expect(streamMock).not.toHaveBeenCalled();
 });
 
+describe('POST /agents/chat — mentions', () => {
+  const mentionMessage = (label = 'Ann Lee') => ({
+    id: 'm-mention',
+    role: 'user',
+    parts: [
+      { type: 'text', text: `Email [[customer:c1:${label}]] today` },
+      {
+        type: 'data-agents-mentions',
+        data: { mentions: [{ type: 'customer', id: 'c1', label }] },
+      },
+    ],
+  });
+
+  it('verifies mentions as the acting user and sends the model a typed list', async () => {
+    jest
+      .mocked(resolveAgentsReference)
+      .mockResolvedValueOnce({ type: 'customer', id: 'c1', label: 'Ann Smith' });
+    const res = buildRes();
+    await chatHandler(
+      buildReq({
+        user: ACTING_USER,
+        hostname: 'tenant.example.com',
+        body: { messages: [mentionMessage()] },
+      }),
+      res,
+    );
+    expect(res.statusCode).toBe(200);
+    expect(resolveAgentsReference).toHaveBeenCalledWith(
+      expect.objectContaining({ subdomain: 'tenant', userId: 'user-1' }),
+      { type: 'customer', id: 'c1' },
+    );
+    const [forwarded] = streamMock.mock.calls[0][0] as [
+      { parts: { type: string; text?: string; data?: unknown }[] },
+    ];
+    expect(forwarded.parts[0].text).toContain('Email @Ann Smith today');
+    expect(forwarded.parts[0].text).toContain('"type":"customer","id":"c1"');
+    expect(forwarded.parts[0].text).not.toContain('[[customer:');
+    expect(forwarded.parts.at(-1)).toEqual({
+      type: 'data-agents-mentions',
+      data: {
+        mentions: [{ type: 'customer', id: 'c1', label: 'Ann Smith' }],
+        displayText: 'Email [[customer:c1:Ann Smith]] today',
+      },
+    });
+  });
+
+  it('rejects inaccessible mentions before rewinding history or starting the model', async () => {
+    jest.mocked(resolveAgentsReference).mockResolvedValueOnce(undefined);
+    memory.getThreadById.mockResolvedValue({ resourceId: 'user-1' });
+    const res = buildRes();
+    await chatHandler(
+      buildReq({
+        user: ACTING_USER,
+        body: {
+          messages: [mentionMessage()],
+          threadId: 'own-thread',
+          editMessageId: 'm-mention',
+        },
+      }),
+      res,
+    );
+    expect(res.statusCode).toBe(400);
+    expect(body(res).error).toContain('unavailable or you no longer have access');
+    expect(memory.deleteMessages).not.toHaveBeenCalled();
+    expect(streamMock).not.toHaveBeenCalled();
+  });
+
+  it('rejects malformed mention data without resolving anything', async () => {
+    const res = buildRes();
+    await chatHandler(
+      buildReq({
+        user: ACTING_USER,
+        body: {
+          messages: [
+            {
+              id: 'm-mention',
+              role: 'user',
+              parts: [
+                { type: 'text', text: 'Hi' },
+                {
+                  type: 'data-agents-mentions',
+                  data: { mentions: [{ type: 'customer', id: 'c1', label: 'Hidden' }] },
+                },
+              ],
+            },
+          ],
+        },
+      }),
+      res,
+    );
+    expect(res.statusCode).toBe(400);
+    expect(resolveAgentsReference).not.toHaveBeenCalled();
+    expect(streamMock).not.toHaveBeenCalled();
+  });
+
+  it('checks chat permission before resolving any mention', async () => {
+    jest.mocked(checkPermissionGroup).mockImplementation(() => async () => {
+      throw new ExpectedError('Permission required', 'FORBIDDEN');
+    });
+    const res = buildRes();
+    await chatHandler(
+      buildReq({ user: ACTING_USER, body: { messages: [mentionMessage()] } }),
+      res,
+    );
+    expect(res.statusCode).toBe(403);
+    expect(resolveAgentsReference).not.toHaveBeenCalled();
+  });
+});
+
 describe('POST /agents/references/resolve', () => {
   const resolveHandler = getHandler('post', '/agents/references/resolve');
   it('requires authentication and rejects model URLs or malformed identities', async () => {

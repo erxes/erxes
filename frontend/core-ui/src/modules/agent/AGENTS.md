@@ -108,6 +108,24 @@ The `agent` module is the core-ui surface for the core-api `agents` backend
   validated stored context; filenames alone never change attachment semantics.
   Thread changes/unmount abort uploads, cancel picking and release object URLs.
   Composer controls use container queries at narrow panel widths.
+- Composer @ mentions: `AgentMentionInput` layers mentions over the plain
+  `ChatInput` textarea (no BlockNote). Typing `@` at a word boundary opens a
+  caret-anchored erxes-ui `Popover` with `SuggestionMenu`/`SuggestionMenuItem`,
+  following `MentionInEditor`'s item layout, placeholder rows and status note,
+  grouped by record type with `AGENT_REFERENCE_TARGETS` icons. Arrow keys,
+  Enter/Tab and Escape stay in the textarea (popup imperative handle); Enter
+  never sends while results load. `AgentMentionPopup` (search + menu) is
+  lazy-loaded on the first `@`. Sources (`hooks/useAgentMentionSearch.ts`):
+  ui-modules `useUsers` (empty query lists team members only), `useCustomers`,
+  local `AgentsMentionCompanies` (ui-modules keeps its companies hook private),
+  and plugin records only through published `searchProviders`
+  (`sales-deals` → deal, `frontline-conversations` → conversation) via core-ui
+  search's document builder. Each source requires the target's module
+  permission. Visible text keeps `@Label`; a pointer-transparent mirror paints
+  pills and locates the caret. Backspace/Delete remove a mention as one unit;
+  other edits inside one turn it into plain text. At most 10 distinct records
+  per message. `utils/mentionText.ts` owns ranges/tokens; `useAgentMentions`
+  binds ranges to one exact text value, so resets drop them automatically.
 - BYOK-gated composer: no configured connection shows an inline banner
   linking to the settings page and disables input.
 - assistant message action row under each turn (Copy; Regenerate on the
@@ -211,6 +229,16 @@ Pages require exact membership in the current navigation catalog. Registered
 route builders own destinations and preserve the Assistant panel. Async resolution
 cannot navigate after the chip unmounts or changes identity.
 
+User mentions (`agentMentions.ts`): wire text carries one `[[type:id:label]]`
+token per mention plus a `data-agents-mentions` part `{ mentions }` derived
+from those tokens (send, edit and in-flight restore all derive it from text).
+The backend verifies each record as the user and stores
+`{ mentions, displayText }`; `mapStoredMessages` prefers that display text and
+keeps a leading `[Page context]` line. `AgentMentionScope` adds only the
+message's own mention part to that bubble's registry, so its tokens render as
+`AgentReferenceChip`s (navigation still resolves first). Editing restores
+`@Label` ranges and resends tokens; Copy uses `@Label`; export uses names.
+
 `utils/pageContext.ts` strips persisted `[Page context]` from user bubbles.
 `references/getPageRecordFromLocation.ts` supplies the next send's page context.
 
@@ -252,8 +280,12 @@ turn. A single-step card names the action.
 - Permission gates mirror the backend: rail/panel need `agentsChat`,
   thread list needs `showAgents`, settings toggle needs
   `manageAgentsSettings`.
-- Clickable references require native tool evidence; canonical metadata and
-  registered routes own their labels/targets. Never repair or invent ids.
+- Clickable references require native tool evidence, or — in the user's own
+  bubble only — the server-verified mention part of that message; canonical
+  metadata and registered routes own their labels/targets. Never repair or
+  invent ids.
+- Mention tokens must round-trip: labels follow the backend's sanitization
+  (no brackets/newlines, ≤80 chars) and `page` is never mentionable.
 
 ## Validation
 
