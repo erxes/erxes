@@ -3,6 +3,7 @@ import { Button, Combobox, Command, Popover, Spinner } from 'erxes-ui';
 import { useAtom } from 'jotai';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
+import { findDefaultAgentsConnection } from '../hooks/useAgentsConnection';
 import type {
   IAgentsModelOption,
   IUseAgentsModelsResult,
@@ -53,11 +54,20 @@ const FALLBACK_RECOMMENDED_LIMIT = 4;
 const MODEL_ID_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._:/@-]{0,127}$/;
 export const modelSelectionValue = (provider: string, model: string) =>
   provider && model ? `${provider}${VALUE_SEPARATOR}${model}` : '';
+/** Splits a `provider|model` value; null when it carries no separator. */
+export const parseModelSelection = (value: string): IModelChoice | null => {
+  const index = value.indexOf(VALUE_SEPARATOR);
+  return index === -1
+    ? null
+    : { provider: value.slice(0, index), model: value.slice(index + 1) };
+};
 const choiceValue = (choice: IModelChoice) =>
   modelSelectionValue(choice.provider, choice.model);
 
 const rowClassName =
   'h-9 gap-3 rounded-md px-3 text-[13px] data-[selected=true]:bg-muted';
+const groupClassName =
+  'p-0 **:[[cmdk-group-heading]]:px-3 **:[[cmdk-group-heading]]:text-[11px] **:[[cmdk-group-heading]]:text-muted-foreground';
 
 /** Choose a provider first, then its recommended models or full catalog. */
 export const ModelPicker = ({
@@ -76,13 +86,13 @@ export const ModelPicker = ({
   const [verifyError, setVerifyError] = useState<string | null>(null);
   const commandRef = useRef<HTMLDivElement>(null);
   const [recentModels, setRecentModels] = useAtom(agentRecentModelsState);
-  const separatorIndex = value.indexOf(VALUE_SEPARATOR);
-  const selectedProvider =
-    separatorIndex === -1 ? '' : value.slice(0, separatorIndex);
-  const selectedModel =
-    separatorIndex === -1 ? '' : value.slice(separatorIndex + 1);
+  // Device storage may hold anything; only an array is a recent list.
+  const recentList: unknown[] = Array.isArray(recentModels) ? recentModels : [];
+  const selected = parseModelSelection(value);
+  const selectedProvider = selected?.provider ?? '';
+  const selectedModel = selected?.model ?? '';
   const serverDefault: IModelChoice | undefined =
-    savedModels.find((choice) => choice.isDefault) ?? savedModels[0];
+    findDefaultAgentsConnection(savedModels);
   const defaultValue = serverDefault ? choiceValue(serverDefault) : '';
   const inUseProvider = selectedProvider || serverDefault?.provider || '';
   const searching = search.trim().length > 0;
@@ -137,16 +147,14 @@ export const ModelPicker = ({
       : '';
   const customKey = modelSelectionValue(activeProvider, customId);
   const recentForProvider = (keep: (model: string, key: string) => boolean) =>
-    Array.from(
-      new Set([value, ...(Array.isArray(recentModels) ? recentModels : [])]),
-    )
+    Array.from(new Set([value, ...recentList]))
       .flatMap((key) => {
         if (typeof key !== 'string') return [];
-        const index = key.indexOf(VALUE_SEPARATOR);
-        const provider = key.slice(0, index);
-        const model = key.slice(index + 1);
-        return index > 0 && provider === activeProvider && keep(model, key)
-          ? [{ provider, model }]
+        const choice = parseModelSelection(key);
+        return choice?.provider === activeProvider &&
+          choice.provider &&
+          keep(choice.model, key)
+          ? [choice]
           : [];
       })
       .slice(0, RECENT_LIMIT);
@@ -265,7 +273,7 @@ export const ModelPicker = ({
   const knownValues = new Set([
     value,
     ...savedModels.map(choiceValue),
-    ...(Array.isArray(recentModels) ? recentModels : []),
+    ...recentList,
   ]);
   const choose = async (provider: string, model: string) => {
     const key = modelSelectionValue(provider, model);
@@ -360,7 +368,7 @@ export const ModelPicker = ({
         </p>
       );
     }
-    if (activeCatalog?.error) {
+    if (activeCatalog.error) {
       return (
         <p role="status" className={statusClassName}>
           {activeCatalog.error}
@@ -377,7 +385,7 @@ export const ModelPicker = ({
         </div>
       );
     }
-    if (activeCatalog && activeModels.length === 0) {
+    if (activeModels.length === 0) {
       return (
         <p role="status" className={statusClassName}>
           No usable chat models are listed for this provider.
@@ -567,16 +575,13 @@ export const ModelPicker = ({
               <Command.Group
                 key={group.heading}
                 heading={group.heading}
-                className="p-0 **:[[cmdk-group-heading]]:px-3 **:[[cmdk-group-heading]]:text-[11px] **:[[cmdk-group-heading]]:text-muted-foreground"
+                className={groupClassName}
               >
                 {group.choices.map(renderChoice)}
               </Command.Group>
             ))}
             {customId && (
-              <Command.Group
-                heading="Custom model"
-                className="p-0 **:[[cmdk-group-heading]]:px-3 **:[[cmdk-group-heading]]:text-[11px] **:[[cmdk-group-heading]]:text-muted-foreground"
-              >
+              <Command.Group heading="Custom model" className={groupClassName}>
                 <Command.Item
                   value={`verify:${customId}`}
                   onSelect={() => void choose(activeProvider, customId)}

@@ -11,7 +11,10 @@ import {
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
-import { useAgentsConnection } from '../hooks/useAgentsConnection';
+import {
+  findDefaultAgentsConnection,
+  useAgentsConnection,
+} from '../hooks/useAgentsConnection';
 import { useAgentsModelVerify } from '../hooks/useAgentsModelVerify';
 import { useAgentsModels } from '../hooks/useAgentsModels';
 import { useThinkingLevelClamp } from '../hooks/useThinkingLevelClamp';
@@ -23,7 +26,11 @@ import { agentMentionsPartsForText } from '../agentMentions';
 import { POSES } from '../bloub/engine/states';
 import { BotBadge } from './BotBadge';
 import { Composer, type IComposerAttachHandle } from './Composer';
-import { modelSelectionValue, ModelPicker } from './ModelPicker';
+import {
+  modelSelectionValue,
+  ModelPicker,
+  parseModelSelection,
+} from './ModelPicker';
 import { MessageList } from './MessageList';
 import { ThinkingPicker } from './ThinkingPicker';
 import {
@@ -101,8 +108,7 @@ export const ChatPanel = ({
   const verifyModel = useAgentsModelVerify();
   // Thinking levels follow the model a turn runs on: the selection, or the
   // server default connection when nothing is selected.
-  const defaultConnection =
-    connections.find((connection) => connection.isDefault) ?? connections[0];
+  const defaultConnection = findDefaultAgentsConnection(connections);
   const modelThinking = findModelThinking(
     models.providerModels,
     chat.modelId
@@ -242,16 +248,11 @@ export const ChatPanel = ({
             return;
           }
 
-          const separatorIndex = value.indexOf('|');
+          const choice = parseModelSelection(value);
 
-          if (separatorIndex === -1) {
-            return;
+          if (choice) {
+            chat.selectModel(choice.provider, choice.model);
           }
-
-          chat.selectModel(
-            value.slice(0, separatorIndex),
-            value.slice(separatorIndex + 1),
-          );
         }}
       />
       <ThinkingPicker

@@ -44,7 +44,10 @@ import type {
   IAgentsConnectionUpsertData,
   IAgentsConnectionUpsertVariables,
 } from '@/agent/graphql/connection';
-import { useAgentsConnection } from '@/agent/hooks/useAgentsConnection';
+import {
+  findDefaultAgentsConnection,
+  useAgentsConnection,
+} from '@/agent/hooks/useAgentsConnection';
 
 /**
  * Settings BYOK management: every configured provider is listed with its
@@ -133,11 +136,7 @@ export const AgentSettingsConnectionPage = () => {
     },
   });
 
-  // The server marks the effective default; older responses fall back to the
-  // first saved entry, matching the backend's own fallback.
-  const defaultProvider =
-    connections.find((connection) => connection.isDefault)?.provider ??
-    connections[0]?.provider;
+  const defaultProvider = findDefaultAgentsConnection(connections)?.provider;
 
   const handleSetDefault = (nextProvider: string) => {
     if (settingDefault) {
