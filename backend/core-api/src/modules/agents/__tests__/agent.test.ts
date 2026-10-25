@@ -47,6 +47,7 @@ jest.mock('@mastra/core/agent', () => ({
     }
   },
 }));
+const capturedAgentConfig = (): IRunConfig | undefined => mockAgentConfig;
 // Memory is only handed through to the (replaced) Agent container.
 const mockMemory = Object.create(null);
 jest.mock('@ai-sdk/anthropic', () => ({
@@ -240,8 +241,9 @@ describe('what every run mounts', () => {
   const buildRunConfig = async () => {
     mockAgentConfig = undefined;
     await buildBaseAgentsAgent({ memory: mockMemory });
-    if (!mockAgentConfig) throw new Error('The agent was not constructed');
-    return mockAgentConfig;
+    const config = capturedAgentConfig();
+    if (!config) throw new Error('The agent was not constructed');
+    return config;
   };
   const runWith = (codeModeEnabled: boolean) => ({
     requestContext: contextWith({ codeModeEnabled }),

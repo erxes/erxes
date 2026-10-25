@@ -26,6 +26,7 @@ import { probeProviderModel } from '@/agents/modelProbe';
 import { agentsConnectionsQueries } from '@/agents/graphql/resolvers/queries/connection';
 import { agentsModelsQueries } from '@/agents/graphql/resolvers/queries/models';
 import { agentsConnectionMutations } from '@/agents/graphql/resolvers/mutations/connection';
+import type { IAiAgentConnection } from 'erxes-api-shared/core-modules';
 import type { IContext } from '~/connectionResolvers';
 
 interface IFakeConnectionModel {
@@ -35,7 +36,16 @@ interface IFakeConnectionModel {
   setDefaultProvider: jest.Mock;
 }
 
-const STORED_DOC = {
+/** A stored connections document as the resolvers read it. */
+interface IStoredDocFixture {
+  _id: string;
+  userId: string;
+  connections: IAiAgentConnection[];
+  defaultProvider?: string;
+  updatedAt: Date;
+}
+
+const STORED_DOC: IStoredDocFixture = {
   _id: 'conn-1',
   userId: 'user-1',
   connections: [
@@ -60,7 +70,7 @@ const buildContext = ({
 }: {
   permissionAllowed?: boolean;
   userId?: string;
-  storedDoc?: (typeof STORED_DOC & { defaultProvider?: string }) | null;
+  storedDoc?: IStoredDocFixture | null;
 } = {}) => {
   const checkPermission = jest.fn(async () => {
     if (!permissionAllowed) {
@@ -691,7 +701,7 @@ describe('agentsModels query', () => {
             model: 'gpt-5.6-luna',
             config: { apiKey: 'enc:v1:AAAA:AAAA:AAAA' },
           },
-          { provider: 'grok', model: 'grok-4.5', config: {} } as never,
+          { provider: 'grok', model: 'grok-4.5', config: {} },
         ],
       },
     });
@@ -725,7 +735,7 @@ describe('agentsModels query', () => {
   });
 
   describe('kimi-code documented models', () => {
-    const KIMI_CODE_DOC = {
+    const KIMI_CODE_DOC: IStoredDocFixture = {
       ...STORED_DOC,
       connections: [
         {
@@ -830,7 +840,7 @@ describe('agentsModels query', () => {
 
 describe('sealed keys at rest', () => {
   it('reports hasKey=false for an envelope that can no longer be opened', async () => {
-    const tampered = {
+    const tampered: IStoredDocFixture = {
       ...STORED_DOC,
       connections: [
         {
@@ -861,7 +871,7 @@ describe('sealed keys at rest', () => {
   });
 
   it('keeps the stored (sealed) key when apiKey is omitted on upsert', async () => {
-    const sealed = {
+    const sealed: IStoredDocFixture = {
       ...STORED_DOC,
       connections: [
         {

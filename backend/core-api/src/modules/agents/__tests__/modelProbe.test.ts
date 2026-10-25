@@ -5,7 +5,10 @@
  */
 
 const doStream = jest.fn();
-const resolveModelConfig = jest.fn(async () => ({ doStream }));
+const resolveModelConfig = jest.fn<
+  Promise<{ doStream: jest.Mock }>,
+  unknown[]
+>(async () => ({ doStream }));
 
 jest.mock('@mastra/core/llm', () => ({
   resolveModelConfig: (...args: unknown[]) => resolveModelConfig(...args),
@@ -112,7 +115,10 @@ it('does not accept a stream that ends without any model response', async () => 
   doStream.mockResolvedValue(streamOf({ type: 'stream-start' }));
 
   await expect(
-    probeProviderModel({ connection: connection('openai'), model: 'gpt-6-luna' }),
+    probeProviderModel({
+      connection: connection('openai'),
+      model: 'gpt-6-luna',
+    }),
   ).resolves.toEqual({
     ok: false,
     error: 'OpenAI sent no response while checking "gpt-6-luna". Try again.',
