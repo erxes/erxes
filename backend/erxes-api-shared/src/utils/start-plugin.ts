@@ -20,7 +20,10 @@ import rateLimit from 'express-rate-limit';
 import { startPayments } from '../common-modules/payment/worker';
 import type { IContactFieldsMeta } from '../core-modules/contact-fields';
 import type { IConnectionsMeta } from '../core-modules/connections/types';
-import { initConnections } from '../core-modules/connections/init';
+import {
+  initConnections,
+  publishConnectionsMeta,
+} from '../core-modules/connections/init';
 import type {
   IPropertyMeta,
   LogsConfigs,
@@ -390,7 +393,7 @@ export async function startPlugin(
     name,
     port: PORT,
     hasSubscriptions,
-    meta,
+    meta: meta && publishConnectionsMeta(name, meta),
   });
 
   if (meta) {

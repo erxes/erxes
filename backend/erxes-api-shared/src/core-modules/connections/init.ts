@@ -2,7 +2,6 @@ import { initTRPC, TRPCError } from '@trpc/server';
 import * as trpcExpress from '@trpc/server/adapters/express';
 import { Express } from 'express';
 import { z } from 'zod';
-import { initializePluginConfig } from '../../utils/service-discovery';
 import { createTRPCContext } from '../../utils/trpc';
 import { CONNECTIONS_MODULE, CONNECTIONS_TEST_PRODUCER } from './constants';
 import { getLocalConnectionType, registerConnections } from './registry';
@@ -10,6 +9,7 @@ import { readConnectionTestToken } from './tokens';
 import {
   IConnectionResolverContext,
   IConnectionsMeta,
+  IConnectionsRegistration,
   IConnectionTestResult,
   IConnectionTypeDefinition,
   IConnectionValue,
@@ -69,9 +69,28 @@ export const runConnectionTest = async (
 };
 
 /**
- * `startPlugin({ meta: { connections } })`: records this service's types and
- * allow-list, publishes them to service discovery for core, and serves the
- * signed `test` producer core calls when a user tests a connection.
+ * The meta `startPlugin` publishes when the service joins service discovery:
+ * `connections` becomes the validated registration (type descriptors and the
+ * allow-list), so core never reads raw definitions in the moment between the
+ * join and the rest of startup. Throws on an invalid declaration.
+ */
+export const publishConnectionsMeta = <
+  TMeta extends { connections?: IConnectionsMeta },
+>(
+  pluginName: string,
+  meta: TMeta,
+): Omit<TMeta, 'connections'> & { connections?: IConnectionsRegistration } => {
+  const { connections, ...rest } = meta;
+
+  return connections
+    ? { ...rest, connections: registerConnections(pluginName, connections) }
+    : rest;
+};
+
+/**
+ * `startPlugin({ meta: { connections } })`, after the join: records this
+ * service's types and allow-list for its own helpers and serves the signed
+ * `test` producer core calls when a user tests a connection.
  */
 export const initConnections = async (
   app: Express,
@@ -79,8 +98,6 @@ export const initConnections = async (
   config: IConnectionsMeta,
 ) => {
   const registration = registerConnections(pluginName, config);
-
-  await initializePluginConfig(pluginName, CONNECTIONS_MODULE, registration);
 
   if (!registration.types.some((type) => type.hasTest)) {
     return;

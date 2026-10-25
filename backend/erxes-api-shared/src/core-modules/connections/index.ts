@@ -15,6 +15,7 @@ export type { IConnectionReadRequest } from './tokens';
 export {
   executeConnectionTest,
   initConnections,
+  publishConnectionsMeta,
   runConnectionTest,
 } from './init';
 export { getLocalConnectionType } from './registry';
