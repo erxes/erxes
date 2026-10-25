@@ -6,6 +6,7 @@
 
 import {
   buildProviderModelCatalog,
+  getDocumentedProviderModels,
   isUsableProviderModel,
   RECOMMENDED_MODEL_LIMIT,
 } from '@/agents/modelCatalog';
@@ -189,5 +190,64 @@ describe('buildProviderModelCatalog', () => {
     expect(isUsableProviderModel('other', 'Some-Embedding-Model')).toBe(false);
     expect(isUsableProviderModel('kimi', 'kimi-thinking-preview')).toBe(false);
     expect(isUsableProviderModel('openai', 'gpt-4.5-preview')).toBe(true);
+  });
+});
+
+describe('allowed-model style ids', () => {
+  it('keeps gpt-6-* and *-luna ids and ranks the newest generation first', () => {
+    const catalog = buildProviderModelCatalog({
+      provider: 'openai',
+      entries: ids(['gpt-5.6-luna', 'gpt-6-luna', 'gpt-6', 'gpt-6-luna-mini']),
+      preferred: ['gpt-5.6-luna'],
+    });
+
+    expect(catalog.map((model) => [model.id, model.family])).toEqual([
+      ['gpt-6', 'gpt-6'],
+      ['gpt-6-luna', 'gpt-6'],
+      ['gpt-6-luna-mini', 'gpt-6'],
+      ['gpt-5.6-luna', 'gpt-5.6'],
+    ]);
+    expect(catalog.every((model) => model.recommended)).toBe(true);
+    expect(isUsableProviderModel('openai', 'gpt-6-luna')).toBe(true);
+    expect(isUsableProviderModel('openai', 'gpt-5.6-luna')).toBe(true);
+  });
+
+  it('keeps a project restricted to exactly two luna models intact', () => {
+    const catalog = buildProviderModelCatalog({
+      provider: 'openai',
+      entries: ids(['gpt-6-luna', 'gpt-5.6-luna']),
+      preferred: ['gpt-5.6-luna'],
+    });
+
+    expect(catalog).toEqual([
+      { id: 'gpt-6-luna', family: 'gpt-6', recommended: true },
+      { id: 'gpt-5.6-luna', family: 'gpt-5.6', recommended: true },
+    ]);
+  });
+});
+
+describe('documented provider models', () => {
+  it('lists Kimi Code’s documented ids as usable, recommending standard tiers', () => {
+    const catalog = buildProviderModelCatalog({
+      provider: 'kimi-code',
+      entries: getDocumentedProviderModels('kimi-code'),
+      preferred: ['kimi-for-coding'],
+    });
+
+    expect(catalog.map((model) => [model.id, model.family])).toEqual([
+      ['k3.1-pro', 'k3.1'],
+      ['k3.1-pro-highspeed', 'k3.1'],
+      ['k3', 'k3'],
+      ['k3-256k', 'k3'],
+      ['kimi-for-coding', ''],
+      ['kimi-for-coding-highspeed', ''],
+    ]);
+    expect(
+      catalog.filter((model) => !model.recommended).map((model) => model.id),
+    ).toEqual(['k3.1-pro-highspeed', 'kimi-for-coding-highspeed']);
+  });
+
+  it('has no documented set for providers that publish a listing', () => {
+    expect(getDocumentedProviderModels('openai')).toEqual([]);
   });
 });

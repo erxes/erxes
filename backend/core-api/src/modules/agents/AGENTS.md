@@ -125,7 +125,17 @@ plugin; ported from the former private `erxes-agent` service). It provides:
   `agentsConnections`, `agentsModels` (server-side provider /models fetch,
   filtered by `modelCatalog.ts`; per provider `models` = usable ids in rank
   order, additive `catalog: [AgentsModelInfo { id, family, recommended }]`, and
-  a key-free `error` with empty lists when that provider's listing fails),
+  a key-free `error` that says why when the stored key cannot be opened
+  (missing vs changed `JWT_TOKEN_SECRET`, or no key) or the listing fails
+  (OpenAI keys without Models: Read / `api.model.read`, 401, 403, 429, 5xx);
+  every saved provider is returned, never silently dropped),
+  `agentsModelVerify(provider: String!, model: String!): AgentsModelVerification
+  { provider model ok error }` (`agentsChat`; own saved connection only;
+  `modelProbe.ts` sends one minimal request through `providers.ts` +
+  Mastra `resolveModelConfig` — 16 output tokens, kimi-code with a 1,024-token
+  thinking budget because `k3.1-pro` rejects thinking off; id shape and
+  `isUsableProviderModel` are checked first; nothing is persisted; like
+  `agentsConnectionSetDefault`, denied to the agent by `graphqlPolicy.ts`),
   `agentsConnectionUpsert`/`agentsConnectionRemove` (BYOK; key never read
   back; `AgentsConnectionEntry.isDefault` is the effective default),
   `agentsConnectionSetDefault(provider: String): [AgentsConnectionEntry]`
@@ -196,7 +206,14 @@ plugin; ported from the former private `erxes-agent` service). It provides:
   version, alias before variants, `created`. Up to four `recommended`: the
   stored connection model and `PROVIDER_DEFAULTS` model when listed, then the
   leading generation line minus slow/preview variants. Never hardcode model
-  lists here; add patterns. `providerModels.ts` only fetches raw entries.
+  lists here; add patterns. The only exception is `DOCUMENTED_PROVIDER_MODELS`
+  for providers that document a fixed set instead of a listing (kimi-code: the
+  six ids in the Kimi Code overview, with the source URL and check date),
+  merged with whatever the endpoint returns; a 404 listing is then not an
+  error. Kimi Code ids use the `k3.1-pro` / `k3-256k` family form.
+  `providerModels.ts` fetches raw entries and turns failures into sanitized
+  messages (`sanitizeProviderMessage` strips the key, `sk-`/`xai-` fragments
+  and long tokens; `describeUnreadableKey`).
 - `readFile.ts` — the `readFile` tool for this turn's or the thread's stored
   attachments. Text/CSV/JSON/Markdown return text and images return model image
   data (≤2 MiB). Documents (PDF, DOCX, XLSX, PPTX, ODT, ODS, ODP, RTF) return

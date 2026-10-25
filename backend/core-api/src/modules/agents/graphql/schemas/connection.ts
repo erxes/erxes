@@ -21,6 +21,13 @@ export const types = `
     recommended: Boolean
   }
 
+  type AgentsModelVerification {
+    provider: String
+    model: String
+    ok: Boolean
+    error: String
+  }
+
   type AgentsProviderModels {
     provider: String
     models: [String]
@@ -38,4 +45,5 @@ export const mutations = `
   agentsConnectionUpsert(provider: String!, model: String, apiKey: String): AgentsConnectionEntry
   agentsConnectionRemove(provider: String!): Boolean
   agentsConnectionSetDefault(provider: String): [AgentsConnectionEntry]
+  agentsModelVerify(provider: String!, model: String!): AgentsModelVerification
 `;

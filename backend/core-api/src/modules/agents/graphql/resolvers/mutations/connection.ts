@@ -7,6 +7,7 @@ import type { IContext } from '~/connectionResolvers';
 import { getProviderDefaultModel } from '@/agents/providers';
 import { isByokProvider } from '@/agents/providerModels';
 import { findDefaultConnection } from '@/agents/db/models/Connection';
+import { probeProviderModel } from '@/agents/modelProbe';
 import {
   toPublicConnection,
   toPublicConnections,
@@ -20,6 +21,11 @@ export interface IAgentsConnectionUpsertArgs {
 
 export interface IAgentsConnectionRemoveArgs {
   provider: string;
+}
+
+export interface IAgentsModelVerifyArgs {
+  provider: string;
+  model: string;
 }
 
 export interface IAgentsConnectionSetDefaultArgs {
@@ -157,5 +163,39 @@ export const agentsConnectionMutations = {
     }
 
     return toPublicConnections(doc);
+  },
+
+  /**
+   * Checks that a typed model id works for one of the acting user's saved
+   * connections with a minimal request through the chat's own provider
+   * client, so a key that cannot list models can still use every model it
+   * is allowed to call. Nothing is persisted; the error is key-free.
+   */
+  agentsModelVerify: async (
+    _p: undefined,
+    args: IAgentsModelVerifyArgs,
+    ctx: IContext,
+  ) => {
+    await ctx.checkPermission('agentsChat');
+
+    const provider = (args.provider || '').trim();
+    const model = (args.model || '').trim();
+    const doc = await ctx.models.AgentsConnection.getConnections(ctx.user._id);
+    const connection = doc?.connections.find(
+      (entry) => entry.provider === provider,
+    );
+
+    if (!connection) {
+      throw new ExpectedError(
+        `No connection stored for provider "${provider}". Add it under Settings → API key.`,
+        'VALIDATION_ERROR',
+      );
+    }
+
+    return {
+      provider,
+      model,
+      ...(await probeProviderModel({ connection, model })),
+    };
   },
 };

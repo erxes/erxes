@@ -18,6 +18,11 @@
  *   reports per-provider failures without a key instead of failing.
  */
 
+jest.mock('@/agents/modelProbe', () => ({
+  probeProviderModel: jest.fn(),
+}));
+
+import { probeProviderModel } from '@/agents/modelProbe';
 import { agentsConnectionsQueries } from '@/agents/graphql/resolvers/queries/connection';
 import { agentsModelsQueries } from '@/agents/graphql/resolvers/queries/models';
 import { agentsConnectionMutations } from '@/agents/graphql/resolvers/mutations/connection';
@@ -603,7 +608,8 @@ describe('agentsModels query', () => {
         provider: 'openai',
         models: [],
         catalog: [],
-        error: 'Failed to list models for "openai" (401). Check your API key.',
+        error:
+          'OpenAI rejected the saved API key (401). Re-enter it in Settings → API key. OpenAI said: "bad key <key>"',
       },
       {
         provider: 'grok',
@@ -617,24 +623,14 @@ describe('agentsModels query', () => {
 
   it('replaces an unexpected failure with a generic message', async () => {
     const { ctx } = buildContext();
-    jest.spyOn(global, 'fetch').mockImplementation(
-      async () =>
-        ({
-          ok: true,
-          status: 200,
-          json: async () => ({ data: [{ id: 'grok-4.5' }] }),
-        }) as Response,
-    );
     jest
       .spyOn(
-        jest.requireActual<typeof import('@/agents/modelCatalog')>(
-          '@/agents/modelCatalog',
+        jest.requireActual<typeof import('@/agents/providerModels')>(
+          '@/agents/providerModels',
         ),
-        'buildProviderModelCatalog',
+        'fetchProviderModels',
       )
-      .mockImplementation(() => {
-        throw new Error('upstream detail sk-grok');
-      });
+      .mockRejectedValue(new Error('upstream detail sk-grok'));
 
     const result = await agentsModelsQueries.agentsModels(
       undefined,
@@ -647,6 +643,155 @@ describe('agentsModels query', () => {
       'Could not list models for "grok".',
     ]);
     expect(JSON.stringify(result)).not.toContain('sk-grok');
+  });
+
+  it('says a key cannot list models when it lacks Models: Read', async () => {
+    const { ctx } = buildContext({
+      storedDoc: { ...STORED_DOC, connections: [STORED_DOC.connections[0]] },
+    });
+    jest.spyOn(global, 'fetch').mockResolvedValue({
+      ok: false,
+      status: 403,
+      json: async () => ({
+        error: {
+          message:
+            'You have insufficient permissions for this operation. Missing scopes: api.model.read.',
+        },
+      }),
+    } as Response);
+
+    const [openai] = await agentsModelsQueries.agentsModels(
+      undefined,
+      undefined,
+      ctx,
+    );
+
+    expect(openai).toEqual({
+      provider: 'openai',
+      models: [],
+      catalog: [],
+      error:
+        "This OpenAI key can't list models (missing Models: Read permission). Type a model id to use it, or allow Models: Read for the key.",
+    });
+  });
+
+  it('reports a stored key this server cannot read instead of dropping the provider', async () => {
+    const { ctx } = buildContext({
+      storedDoc: {
+        ...STORED_DOC,
+        connections: [
+          {
+            provider: 'openai',
+            model: 'gpt-5.6-luna',
+            config: { apiKey: 'enc:v1:AAAA:AAAA:AAAA' },
+          },
+          { provider: 'grok', model: 'grok-4.5', config: {} } as never,
+        ],
+      },
+    });
+    const fetchSpy = jest
+      .spyOn(global, 'fetch')
+      .mockRejectedValue(new Error('must not be called'));
+
+    const result = await agentsModelsQueries.agentsModels(
+      undefined,
+      undefined,
+      ctx,
+    );
+
+    expect(fetchSpy).not.toHaveBeenCalled();
+    // This suite runs without JWT_TOKEN_SECRET, like a misconfigured server.
+    expect(result).toEqual([
+      {
+        provider: 'openai',
+        models: [],
+        catalog: [],
+        error:
+          "Saved API keys can't be read because key encryption isn't configured on this server (JWT_TOKEN_SECRET). Ask an administrator to set it, then re-enter the OpenAI key.",
+      },
+      {
+        provider: 'grok',
+        models: [],
+        catalog: [],
+        error: 'No Grok API key is saved. Add it in Settings → API key.',
+      },
+    ]);
+  });
+
+  describe('kimi-code documented models', () => {
+    const KIMI_CODE_DOC = {
+      ...STORED_DOC,
+      connections: [
+        {
+          provider: 'kimi-code',
+          model: 'kimi-for-coding',
+          config: { apiKey: 'sk-kimi-code' },
+        },
+      ],
+    };
+    const respond = (status: number, body: unknown) =>
+      jest.spyOn(global, 'fetch').mockResolvedValue({
+        ok: status < 400,
+        status,
+        json: async () => body,
+      } as Response);
+
+    it('offers the documented ids when the endpoint has no listing', async () => {
+      const { ctx } = buildContext({ storedDoc: KIMI_CODE_DOC });
+      respond(404, { error: { message: 'The requested resource was not found' } });
+
+      const [kimiCode] = await agentsModelsQueries.agentsModels(
+        undefined,
+        undefined,
+        ctx,
+      );
+
+      expect(kimiCode.error).toBeNull();
+      expect(kimiCode.models).toEqual([
+        'k3.1-pro',
+        'k3.1-pro-highspeed',
+        'k3',
+        'k3-256k',
+        'kimi-for-coding',
+        'kimi-for-coding-highspeed',
+      ]);
+      expect(
+        kimiCode.catalog
+          .filter((model) => model.recommended)
+          .map((model) => model.id),
+      ).toEqual(['k3.1-pro', 'k3', 'k3-256k', 'kimi-for-coding']);
+    });
+
+    it('merges a returned listing with the documented ids', async () => {
+      const { ctx } = buildContext({ storedDoc: KIMI_CODE_DOC });
+      respond(200, { data: [{ id: 'kimi-for-coding' }, { id: 'k4-preview' }] });
+
+      const [kimiCode] = await agentsModelsQueries.agentsModels(
+        undefined,
+        undefined,
+        ctx,
+      );
+
+      expect(kimiCode.error).toBeNull();
+      expect(kimiCode.models[0]).toBe('k4-preview');
+      expect(kimiCode.models).toHaveLength(7);
+    });
+
+    it('keeps the documented ids but reports a rejected key', async () => {
+      const { ctx } = buildContext({ storedDoc: KIMI_CODE_DOC });
+      respond(401, {
+        error: { message: 'The API Key appears to be invalid or may have expired.' },
+      });
+
+      const [kimiCode] = await agentsModelsQueries.agentsModels(
+        undefined,
+        undefined,
+        ctx,
+      );
+
+      expect(kimiCode.models).toHaveLength(6);
+      expect(kimiCode.error).toContain('Kimi Code rejected the saved API key (401)');
+    });
   });
 
   it('returns an empty list without fetching when nothing is configured', async () => {
@@ -734,5 +879,76 @@ describe('sealed keys at rest', () => {
     // The stored envelope is reused verbatim — the model seals on write,
     // and a sealed value is never double-sealed.
     expect(saved.config.apiKey).toBe('enc:v1:previously-sealed');
+  });
+});
+
+describe('agentsModelVerify mutation', () => {
+  it('probes the typed model on the acting user’s saved connection', async () => {
+    const { ctx, checkPermission, connectionModel } = buildContext();
+    jest
+      .mocked(probeProviderModel)
+      .mockResolvedValue({ ok: true, error: null });
+
+    const result = await agentsConnectionMutations.agentsModelVerify(
+      undefined,
+      { provider: ' openai ', model: ' gpt-6-luna ' },
+      ctx,
+    );
+
+    expect(checkPermission).toHaveBeenCalledWith('agentsChat');
+    expect(connectionModel.getConnections).toHaveBeenCalledWith('user-1');
+    expect(probeProviderModel).toHaveBeenCalledWith({
+      connection: STORED_DOC.connections[0],
+      model: 'gpt-6-luna',
+    });
+    expect(result).toEqual({
+      provider: 'openai',
+      model: 'gpt-6-luna',
+      ok: true,
+      error: null,
+    });
+  });
+
+  it('returns the probe’s rejection without throwing', async () => {
+    const { ctx } = buildContext();
+    jest.mocked(probeProviderModel).mockResolvedValue({
+      ok: false,
+      error: 'OpenAI rejected "gpt-7" (404): The model does not exist.',
+    });
+
+    await expect(
+      agentsConnectionMutations.agentsModelVerify(
+        undefined,
+        { provider: 'openai', model: 'gpt-7' },
+        ctx,
+      ),
+    ).resolves.toMatchObject({ ok: false, error: expect.stringContaining('gpt-7') });
+  });
+
+  it('rejects a provider the acting user has not saved', async () => {
+    const { ctx } = buildContext();
+    jest.mocked(probeProviderModel).mockClear();
+
+    await expect(
+      agentsConnectionMutations.agentsModelVerify(
+        undefined,
+        { provider: 'kimi', model: 'kimi-k3' },
+        ctx,
+      ),
+    ).rejects.toThrow('No connection stored for provider "kimi"');
+    expect(probeProviderModel).not.toHaveBeenCalled();
+  });
+
+  it('short-circuits when permission is denied', async () => {
+    const { ctx, connectionModel } = buildContext({ permissionAllowed: false });
+
+    await expect(
+      agentsConnectionMutations.agentsModelVerify(
+        undefined,
+        { provider: 'openai', model: 'gpt-6-luna' },
+        ctx,
+      ),
+    ).rejects.toThrow('Permission denied');
+    expect(connectionModel.getConnections).not.toHaveBeenCalled();
   });
 });

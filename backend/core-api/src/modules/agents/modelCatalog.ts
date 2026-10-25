@@ -101,10 +101,39 @@ const PROVIDER_CATALOG_RULES: Record<string, IProviderCatalogRules> = {
   },
   'kimi-code': {
     deny: NON_CHAT_MODELS,
-    families: [KIMI_FAMILY],
-    notRecommended: [],
+    // Kimi Code ids drop the `kimi-` prefix (`k3.1-pro`, `k3-256k`).
+    families: [/^k(\d+)(?:\.(\d+))?(?=-|$)/, KIMI_FAMILY],
+    // Highspeed variants need the top membership tiers.
+    notRecommended: [/highspeed/],
   },
 };
+
+/**
+ * Model ids a provider documents as a fixed set because it publishes no
+ * model listing. They are merged with any listing the endpoint does return,
+ * then filtered and ranked like listed models.
+ *
+ * kimi-code — "Both protocols accept the following 6 model IDs", Kimi Code
+ * overview, https://www.kimi.com/code/docs/en/ (checked 2026-10-25). Which
+ * ids a key can use depends on the membership tier; `k3.1-pro` rejects
+ * requests with thinking disabled.
+ */
+export const DOCUMENTED_PROVIDER_MODELS: Record<string, readonly string[]> = {
+  'kimi-code': [
+    'k3.1-pro',
+    'k3.1-pro-highspeed',
+    'k3',
+    'k3-256k',
+    'kimi-for-coding',
+    'kimi-for-coding-highspeed',
+  ],
+};
+
+/** Documented ids for a provider that publishes no model listing. */
+export const getDocumentedProviderModels = (
+  provider: string,
+): IProviderModelEntry[] =>
+  (DOCUMENTED_PROVIDER_MODELS[provider] ?? []).map((id) => ({ id }));
 
 const FALLBACK_RULES: IProviderCatalogRules = {
   deny: NON_CHAT_MODELS,
