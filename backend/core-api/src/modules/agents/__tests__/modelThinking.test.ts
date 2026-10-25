@@ -246,6 +246,14 @@ describe('provider translation', () => {
     });
   });
 
+  it('never sends kimi-code less than Anthropic’s 1,024-token minimum', () => {
+    expect(
+      buildThinkingProviderOptions('kimi-code', 'kimi-k9', 'minimal'),
+    ).toEqual({
+      anthropic: { thinking: { type: 'enabled', budgetTokens: 1024 } },
+    });
+  });
+
   it('keeps kimi-code budgets inside the output ceiling', () => {
     expect(
       buildThinkingProviderOptions('kimi-code', 'kimi-for-coding', 'off'),
@@ -290,7 +298,7 @@ describe('provider translation', () => {
       buildThinkingProviderOptions('grok', 'grok-9', 'high'),
     ).toBeUndefined();
     expect(thinkingOutputTokens('kimi-code', undefined, 'minimal', 16384)).toBe(
-      17384,
+      17408,
     );
   });
 });

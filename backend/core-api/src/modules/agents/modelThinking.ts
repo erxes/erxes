@@ -260,12 +260,18 @@ const OPENAI_REASONING_EFFORT: Record<ILegacyLevel, string> = {
 };
 
 /**
+ * Smallest Anthropic-protocol `budget_tokens` (Anthropic documents 1,024 as
+ * the minimum). The minimal level and the model check both use it.
+ */
+export const MIN_ANTHROPIC_THINKING_BUDGET = 1024;
+
+/**
  * Anthropic-protocol (kimi-code) thinking budgets. Kimi Code takes thinking
  * as `budget_tokens`; deeper levels keep growing but stay inside the output
  * ceiling below.
  */
 const ANTHROPIC_THINKING_BUDGET: Record<ILegacyLevel, number> = {
-  minimal: 1000,
+  minimal: MIN_ANTHROPIC_THINKING_BUDGET,
   low: 4000,
   medium: 10000,
   high: 16000,
@@ -275,9 +281,6 @@ const ANTHROPIC_THINKING_BUDGET: Record<ILegacyLevel, number> = {
 
 /** Smallest Kimi Code output limit (kimi-for-coding, models.dev). */
 const KIMI_CODE_OUTPUT_CEILING = 32768;
-
-/** Anthropic rejects tiny budgets; the smallest level is still real. */
-const MIN_ANTHROPIC_BUDGET = 1000;
 
 const anthropicThinking = (budget: number): ProviderOptions => ({
   anthropic: { thinking: { type: 'enabled', budgetTokens: budget } },
@@ -303,7 +306,7 @@ const kimiCodeBudget = (
         )
       : ANTHROPIC_THINKING_BUDGET[level];
 
-  return Math.max(budget, MIN_ANTHROPIC_BUDGET);
+  return Math.max(budget, MIN_ANTHROPIC_THINKING_BUDGET);
 };
 
 /**

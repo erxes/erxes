@@ -6,6 +6,7 @@ import {
   readProviderErrorMessage,
   sanitizeProviderMessage,
 } from '@/agents/providerModels';
+import { MIN_ANTHROPIC_THINKING_BUDGET } from '@/agents/modelThinking';
 import { createModelConfig, resolveModelConnection } from '@/agents/providers';
 
 /** Provider model ids: letters, digits and `._:/@-`, at most 128 chars. */
@@ -15,11 +16,12 @@ const PROBE_TIMEOUT_MS = 20_000;
 /** OpenAI's Responses API rejects `max_output_tokens` below 16. */
 const PROBE_OUTPUT_TOKENS = 16;
 /**
- * kimi-code (Anthropic protocol) probes with a small thinking budget because
- * some Kimi Code models (k3.1-pro) reject requests with thinking disabled.
- * Anthropic requires max_tokens > budget_tokens.
+ * kimi-code (Anthropic protocol) probes with the smallest thinking budget,
+ * the same one the chat's minimal level uses, because some Kimi Code models
+ * (k3.1-pro) reject requests with thinking disabled. Anthropic requires
+ * max_tokens > budget_tokens.
  */
-const KIMI_CODE_THINKING_BUDGET = 1_024;
+const KIMI_CODE_THINKING_BUDGET = MIN_ANTHROPIC_THINKING_BUDGET;
 
 /** Chunks that only appear once the provider accepted the request. */
 const ACCEPTED_CHUNK_TYPES = new Set([
