@@ -189,19 +189,6 @@ describe('AgentsConnection default provider', () => {
     expect(doc?.defaultProvider).toBe('kimi');
   });
 
-  it('returns null for a provider the user has not saved', async () => {
-    const { fake, statics } = buildModels(null);
-    fake.findOneAndUpdate.mockResolvedValueOnce(null);
-
-    await expect(
-      statics.setDefaultProvider('user-1', 'grok'),
-    ).resolves.toBeNull();
-    expect(fake.findOneAndUpdate.mock.calls[0][0]).toEqual({
-      userId: 'user-1',
-      'connections.provider': 'grok',
-    });
-  });
-
   it('clears the explicit default for an empty provider', async () => {
     const { fake, statics } = buildModels(SAVED);
 

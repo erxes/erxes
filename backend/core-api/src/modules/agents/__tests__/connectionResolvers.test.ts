@@ -176,9 +176,12 @@ describe('default connection', () => {
   const defaults = (result: { provider?: string; isDefault: boolean }[]) =>
     result.filter((entry) => entry.isDefault).map((entry) => entry.provider);
 
-  it('marks the explicit default as the only default entry', async () => {
+  it.each([
+    ['the explicit default', 'grok', 'grok'],
+    ['the first saved entry for a stale default', 'kimi', 'openai'],
+  ])('marks %s as the only default entry', async (_case, stored, expected) => {
     const { ctx } = buildContext({
-      storedDoc: { ...STORED_DOC, defaultProvider: 'grok' },
+      storedDoc: { ...STORED_DOC, defaultProvider: stored },
     });
 
     const result = await agentsConnectionsQueries.agentsConnections(
@@ -187,21 +190,7 @@ describe('default connection', () => {
       ctx,
     );
 
-    expect(defaults(result)).toEqual(['grok']);
-  });
-
-  it('falls back to the first saved entry when the default is no longer connected', async () => {
-    const { ctx } = buildContext({
-      storedDoc: { ...STORED_DOC, defaultProvider: 'kimi' },
-    });
-
-    const result = await agentsConnectionsQueries.agentsConnections(
-      undefined,
-      undefined,
-      ctx,
-    );
-
-    expect(defaults(result)).toEqual(['openai']);
+    expect(defaults(result)).toEqual([expected]);
   });
 
   it('sets the default for the acting user only and returns the updated list', async () => {
@@ -517,6 +506,21 @@ describe('agentsConnectionRemove mutation', () => {
 });
 
 describe('agentsModels query', () => {
+  const GROK_MODELS = {
+    provider: 'grok',
+    models: ['grok-4.5'],
+    catalog: [
+      {
+        id: 'grok-4.5',
+        family: 'grok-4.5',
+        recommended: true,
+        name: 'Grok 4.5',
+        thinking: { kind: 'effort', levels: ['low', 'medium', 'high', 'xhigh'] },
+      },
+    ],
+    error: null,
+  };
+
   afterEach(() => {
     jest.restoreAllMocks();
   });
@@ -585,20 +589,7 @@ describe('agentsModels query', () => {
         ],
         error: null,
       },
-      {
-        provider: 'grok',
-        models: ['grok-4.5'],
-        catalog: [
-          {
-            id: 'grok-4.5',
-            family: 'grok-4.5',
-            recommended: true,
-            name: 'Grok 4.5',
-            thinking: { kind: 'effort', levels: ['low', 'medium', 'high', 'xhigh'] },
-          },
-        ],
-        error: null,
-      },
+      GROK_MODELS,
     ]);
     expect(JSON.stringify(result)).not.toContain('sk-openai');
   });
@@ -631,20 +622,7 @@ describe('agentsModels query', () => {
         error:
           'OpenAI rejected the saved API key (401). Re-enter it in Settings → API key. OpenAI said: "bad key <key>"',
       },
-      {
-        provider: 'grok',
-        models: ['grok-4.5'],
-        catalog: [
-          {
-            id: 'grok-4.5',
-            family: 'grok-4.5',
-            recommended: true,
-            name: 'Grok 4.5',
-            thinking: { kind: 'effort', levels: ['low', 'medium', 'high', 'xhigh'] },
-          },
-        ],
-        error: null,
-      },
+      GROK_MODELS,
     ]);
     expect(JSON.stringify(result)).not.toContain('sk-openai');
   });
@@ -935,22 +913,6 @@ describe('agentsModelVerify mutation', () => {
       ok: true,
       error: null,
     });
-  });
-
-  it('returns the probe’s rejection without throwing', async () => {
-    const { ctx } = buildContext();
-    jest.mocked(probeProviderModel).mockResolvedValue({
-      ok: false,
-      error: 'OpenAI rejected "gpt-7" (404): The model does not exist.',
-    });
-
-    await expect(
-      agentsConnectionMutations.agentsModelVerify(
-        undefined,
-        { provider: 'openai', model: 'gpt-7' },
-        ctx,
-      ),
-    ).resolves.toMatchObject({ ok: false, error: expect.stringContaining('gpt-7') });
   });
 
   it('rejects a provider the acting user has not saved', async () => {

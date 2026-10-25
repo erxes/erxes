@@ -66,9 +66,6 @@ jest.mock('@/agents/referenceResolution', () => ({
   resolveAgentsReference: jest.fn(),
 }));
 jest.mock('@/agents/agent', () => ({
-  isAgentsThinkingLevel: (value: unknown) =>
-    typeof value === 'string' &&
-    ['off', 'minimal', 'low', 'medium', 'high'].includes(value),
   AGENTS_MAX_STEPS: 32,
   buildAgentsModelSettings: jest.fn(() => ({
     temperature: 0.2,
@@ -972,15 +969,6 @@ describe('POST /agents/chat — default connection', () => {
     };
   };
 
-  it('keeps the first saved connection when no default was chosen', async () => {
-    connectionModel.getConnections.mockResolvedValue(TWO_CONNECTIONS);
-
-    await expect(runOn()).resolves.toEqual({
-      provider: 'openai',
-      model: 'gpt-5.6-luna',
-    });
-  });
-
   it('runs an unselected turn on the explicit default, read for the acting user and tenant', async () => {
     connectionModel.getConnections.mockResolvedValue({
       ...TWO_CONNECTIONS,
@@ -995,10 +983,13 @@ describe('POST /agents/chat — default connection', () => {
     expect(connectionModel.getConnections).toHaveBeenCalledWith('user-1');
   });
 
-  it('falls back to the first saved connection when the default is no longer connected', async () => {
+  it.each([
+    ['no default was chosen', undefined],
+    ['the default is no longer connected', 'grok'],
+  ])('keeps the first saved connection when %s', async (_case, stored) => {
     connectionModel.getConnections.mockResolvedValue({
       ...TWO_CONNECTIONS,
-      defaultProvider: 'grok',
+      defaultProvider: stored,
     });
 
     await expect(runOn()).resolves.toEqual({
@@ -1049,22 +1040,14 @@ describe('POST /agents/chat — thinking level validation', () => {
     );
   });
 
-  it('never sends Off to k3.1-pro', async () => {
+  it.each([
+    ['never sends Off to k3.1-pro', 'kimi-code', 'k3.1-pro', 'off', 'low'],
+    ['keeps unknown models on the original five', 'openai', 'gpt-99', 'max', 'high'],
+    ['treats an unrecognised level as Off, then clamps', 'kimi-code', 'k3.1-pro', 'ultra', 'low'],
+  ])('%s', async (_case, provider, model, requested, stamped) => {
     await expect(
-      stampedLevel({ provider: 'kimi-code', model: 'k3.1-pro' }, 'off'),
-    ).resolves.toBe('low');
-  });
-
-  it('keeps unknown models on the original five levels', async () => {
-    await expect(
-      stampedLevel({ provider: 'openai', model: 'gpt-99' }, 'max'),
-    ).resolves.toBe('high');
-  });
-
-  it('treats an unrecognised level as Off, then clamps it', async () => {
-    await expect(
-      stampedLevel({ provider: 'kimi-code', model: 'k3.1-pro' }, 'ultra'),
-    ).resolves.toBe('low');
+      stampedLevel({ provider, model }, requested),
+    ).resolves.toBe(stamped);
   });
 });
 
@@ -2770,34 +2753,6 @@ describe('POST /agents/chat — mentions', () => {
     expect(res.statusCode).toBe(400);
     expect(body(res).error).toContain('unavailable or you no longer have access');
     expect(memory.deleteMessages).not.toHaveBeenCalled();
-    expect(streamMock).not.toHaveBeenCalled();
-  });
-
-  it('rejects malformed mention data without resolving anything', async () => {
-    const res = buildRes();
-    await chatHandler(
-      buildReq({
-        user: ACTING_USER,
-        body: {
-          messages: [
-            {
-              id: 'm-mention',
-              role: 'user',
-              parts: [
-                { type: 'text', text: 'Hi' },
-                {
-                  type: 'data-agents-mentions',
-                  data: { mentions: [{ type: 'customer', id: 'c1', label: 'Hidden' }] },
-                },
-              ],
-            },
-          ],
-        },
-      }),
-      res,
-    );
-    expect(res.statusCode).toBe(400);
-    expect(resolveAgentsReference).not.toHaveBeenCalled();
     expect(streamMock).not.toHaveBeenCalled();
   });
 

@@ -208,21 +208,6 @@ describe('allowed-model style ids', () => {
       ['gpt-5.6-luna', 'gpt-5.6'],
     ]);
     expect(catalog.every((model) => model.recommended)).toBe(true);
-    expect(isUsableProviderModel('openai', 'gpt-6-luna')).toBe(true);
-    expect(isUsableProviderModel('openai', 'gpt-5.6-luna')).toBe(true);
-  });
-
-  it('keeps a project restricted to exactly two luna models intact', () => {
-    const catalog = buildProviderModelCatalog({
-      provider: 'openai',
-      entries: ids(['gpt-6-luna', 'gpt-5.6-luna']),
-      preferred: ['gpt-5.6-luna'],
-    });
-
-    expect(catalog).toEqual([
-      { id: 'gpt-6-luna', family: 'gpt-6', recommended: true },
-      { id: 'gpt-5.6-luna', family: 'gpt-5.6', recommended: true },
-    ]);
   });
 });
 

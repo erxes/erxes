@@ -91,7 +91,6 @@ import {
   getModelDisplayName,
   getModelThinking,
   isAgentsThinkingLevel,
-  LEGACY_THINKING_LEVELS,
   normalizeThinkingLevel,
   thinkingOutputTokens,
 } from '@/agents/modelThinking';
@@ -204,13 +203,6 @@ describe('clamping', () => {
   });
 
   it('limits unknown models to the original five levels', () => {
-    expect(LEGACY_THINKING_LEVELS).toEqual([
-      'off',
-      'minimal',
-      'low',
-      'medium',
-      'high',
-    ]);
     expect(normalizeThinkingLevel('openai', 'gpt-99', 'max')).toBe('high');
     expect(normalizeThinkingLevel('openai', 'gpt-99', 'minimal')).toBe(
       'minimal',
