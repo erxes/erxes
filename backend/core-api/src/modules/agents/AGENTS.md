@@ -171,7 +171,11 @@ plugin; ported from the former private `erxes-agent` service). It provides:
   No CRM mutation or separate artifact database. Assistant text always remains
   reply content; reports/files are delivered through this tool only.
 - `agent.ts` — instructions (incl. the References contract, `[Page context]`
-  and `[Mentions]` sentences), `AGENTS_MAX_STEPS` (32), model settings
+  and `[Mentions]` sentences; the prompt asks the model to reference every
+  mentioned person and record, to select `_id` plus display fields — including
+  nested authors/senders/assignees — in GraphQL queries, and to make one more
+  narrow query rather than fall back to plain text; guidance only, evidence
+  verification is unchanged), `AGENTS_MAX_STEPS` (32), model settings
   (thinking translation lives in `modelThinking.ts`),
   BYOK model resolution with construction-safe fallback, `buildBaseAgentsAgent`.
 - `memory.ts` — per-subdomain runtime `{ memory, mastra, agent }` cache;

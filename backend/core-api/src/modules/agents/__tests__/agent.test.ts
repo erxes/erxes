@@ -238,6 +238,25 @@ describe('base instructions', () => {
     );
   });
 
+  it('asks for references to every mentioned person and record, with the evidence to back them', () => {
+    expect(DEFAULT_INSTRUCTIONS).toContain(
+      'always select its _id plus its display fields so the reply can reference it',
+    );
+    expect(DEFAULT_INSTRUCTIONS).toContain('users details { fullName }');
+    expect(DEFAULT_INSTRUCTIONS).toContain(
+      "use that person's supplied reference instead of writing their name or email as text, including inside tables and lists",
+    );
+    expect(DEFAULT_INSTRUCTIONS).toContain(
+      'make one more cheap, narrowly filtered query that selects its _id and display fields',
+    );
+    expect(DEFAULT_INSTRUCTIONS).toContain('never invent an id');
+    // The safety rules stay as they were.
+    expect(DEFAULT_INSTRUCTIONS).toContain(
+      'Copy only a supplied token verbatim where the record or page belongs in your reply.',
+    );
+    expect(DEFAULT_INSTRUCTIONS).toContain('Never invent a handle.');
+  });
+
   it('instructs findPages page-token navigation over prose directions', () => {
     expect(DEFAULT_INSTRUCTIONS).toContain(
       "call findPages and answer with that page's reference token",
