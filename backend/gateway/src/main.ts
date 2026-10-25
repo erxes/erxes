@@ -24,6 +24,7 @@ import {
 
 import {
   applyTrustProxy,
+  assertInternalHeaderSignatureConfig,
   decodeAgentToolsAuthHeader,
   DEFAULT_JOB_OPTIONS,
   getPlugins,
@@ -191,6 +192,8 @@ let httpServer: http.Server;
 
 async function start() {
   try {
+    assertInternalHeaderSignatureConfig();
+
     const enabledPlugins = await getPlugins();
     await setActivePlugins(enabledPlugins);
 

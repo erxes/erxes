@@ -173,7 +173,14 @@ const downloadRouter = async () => {
 
 export const createRouterConfig = async () => {
   if (NODE_ENV === 'production' && fs.existsSync(routerConfigPath)) {
-    // Don't rewrite in production if it exists. Delete and restart to update the config
+    // Keep an existing production config (operators may have edited it), but
+    // always refresh the header rules so it never forwards client headers the
+    // allow-list excludes.
+    const existing = yaml.parse(fs.readFileSync(routerConfigPath, 'utf8'));
+    fs.writeFileSync(
+      routerConfigPath,
+      yaml.stringify({ ...existing, headers: getRouterHeadersConfig() }),
+    );
     return;
   }
 
