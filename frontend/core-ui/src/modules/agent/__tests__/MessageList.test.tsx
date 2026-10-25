@@ -367,3 +367,57 @@ it('does not invent a duration for a reattached run', () => {
   expect(screen.getByRole('button', { name: /^2 steps$/ })).toBeTruthy();
   expect(screen.queryByText(/Worked for/)).toBeNull();
 });
+
+describe('avatar and activity header row', () => {
+  const avatarRow = () => {
+    const identity = screen.getByTestId('bloub').parentElement;
+    const row = identity?.parentElement;
+    if (!row) throw new Error('Expected the avatar inside a row');
+    return row;
+  };
+
+  it('puts the live header beside the avatar and opens the timeline below the row', () => {
+    render(
+      <MessageList
+        {...props}
+        status="streaming"
+        messages={[user, assistant(runParts('input-available'))]}
+      />,
+    );
+    const row = avatarRow();
+    expect(
+      row.contains(screen.getByRole('button', { name: /Querying deals/ })),
+    ).toBe(true);
+    const [timeline] = screen.getAllByRole('list');
+    expect(row.contains(timeline)).toBe(false);
+    expect(screen.getAllByRole('status')).toHaveLength(1);
+  });
+
+  it('keeps the settled summary on the avatar row', () => {
+    render(
+      <MessageList
+        {...props}
+        status="ready"
+        messages={[
+          user,
+          assistant([...runParts(), { type: 'text', text: 'Done' }]),
+        ]}
+      />,
+    );
+    expect(
+      avatarRow().contains(screen.getByRole('button', { name: /2 steps/ })),
+    ).toBe(true);
+  });
+
+  it('shows the avatar alone above a plain answer', () => {
+    render(
+      <MessageList
+        {...props}
+        status="ready"
+        messages={[user, assistant([{ type: 'text', text: 'Plain answer' }])]}
+      />,
+    );
+    expect(screen.getAllByTestId('bloub')).toHaveLength(1);
+    expect(avatarRow().contains(screen.getByText('Plain answer'))).toBe(false);
+  });
+});

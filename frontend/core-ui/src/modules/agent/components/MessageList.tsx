@@ -267,6 +267,10 @@ const MessageRow = memo(
       const activity = isStreamingTail
         ? agentTurnActivity(message.parts)
         : undefined;
+      // The avatar shares one row with the activity header when there is one.
+      const identity = showIdentity ? (
+        <AgentMessageIdentity activity={activity} current />
+      ) : null;
 
       // Fully hide turns with nothing left to show: an assistant message
       // whose only parts are resolved cards (or other hidden tool state)
@@ -285,16 +289,18 @@ const MessageRow = memo(
             </div>
           )}
           <div className="group/assistant agent-message-enter flex w-full flex-col">
-            {showIdentity && (
-              <AgentMessageIdentity activity={activity} current />
-            )}
             <div className="min-w-0 flex-1">
-              <AgentTurnActivity
-                layout={layout}
-                streaming={isStreamingTail}
-                activity={activity ?? ''}
-                durationMs={durationMs}
-              />
+              {layout.sections.length > 0 ? (
+                <AgentTurnActivity
+                  layout={layout}
+                  streaming={isStreamingTail}
+                  activity={activity ?? ''}
+                  durationMs={durationMs}
+                  leading={identity}
+                />
+              ) : (
+                identity && <div className="mb-3">{identity}</div>
+              )}
               {layout.body.map((item) => (
                 <MessagePartRenderer
                   key={item.index}
@@ -370,9 +376,7 @@ const MessageRow = memo(
 
     // User turn: muted right-aligned bubble. The persisted `[Page context]`
     // prefix is stripped and not shown; attachments render above.
-    const parts = withoutFileOnlyText(
-      extractPageContext(message.parts).parts,
-    );
+    const parts = withoutFileOnlyText(extractPageContext(message.parts).parts);
 
     return (
       <Fragment>
@@ -697,7 +701,7 @@ export const MessageList = ({
           >
             {transcript}
             {showPendingResponse && (
-              <div className="agent-message-enter">
+              <div className="agent-message-enter mb-3">
                 <AgentMessageIdentity
                   activity={t('working', 'Working…')}
                   current

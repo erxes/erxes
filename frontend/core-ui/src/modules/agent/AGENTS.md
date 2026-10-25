@@ -57,6 +57,11 @@ The `agent` module is the core-ui surface for the core-api `agents` backend
   the turn's activity header shows the same label visibly. The identity's
   sr-only status region is the only live region: `agentTurnActivity` derives it
   from the newest text/reasoning/tool part, and the header adds no second one.
+  The avatar and the activity header share one vertically centred row
+  (`AgentTurnActivity`'s `leading` slot) while working and once settled; the
+  expanded timeline opens below that row. Without a header (plain answer) the
+  avatar stands alone in the same place. `AgentMessageIdentity` has no margin
+  of its own; callers own the spacing.
   A pending response header appears only before a visible assistant row exists,
   including during the submitted-to-streaming transition and hidden answer turns.
   Transcript entry/send motion respects reduced motion; file previews retain their full available width;

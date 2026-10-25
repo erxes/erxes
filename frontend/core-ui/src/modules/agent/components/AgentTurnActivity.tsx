@@ -1,6 +1,6 @@
 import { IconChevronRight } from '@tabler/icons-react';
 import { Collapsible, cn } from 'erxes-ui';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import {
@@ -112,6 +112,8 @@ export interface IAgentTurnActivityProps {
   activity: string;
   /** Measured working time, when this session watched the run. */
   durationMs?: number;
+  /** Shown before the header on the same row (the turn's avatar). */
+  leading?: ReactNode;
 }
 
 /**
@@ -126,6 +128,7 @@ export const AgentTurnActivity = ({
   streaming,
   activity,
   durationMs,
+  leading,
 }: IAgentTurnActivityProps) => {
   const { t } = useTranslation('common', { keyPrefix: 'agent' });
   const [open, setOpen] = useState(false);
@@ -174,24 +177,31 @@ export const AgentTurnActivity = ({
   };
 
   return (
-    <Collapsible open={open} onOpenChange={setOpen} className="mb-2 min-w-0">
-      <Collapsible.Trigger asChild>
-        <button
-          type="button"
-          className="flex max-w-full items-center gap-1 rounded-md py-1 pr-1 text-left text-xs text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-        >
-          <ActivityLabel
-            label={streaming ? activity : summary()}
-            live={streaming}
-          />
-          <IconChevronRight
-            className={cn(
-              'size-3.5 shrink-0 transition-transform motion-reduce:transition-none',
-              open && 'rotate-90',
-            )}
-          />
-        </button>
-      </Collapsible.Trigger>
+    <Collapsible
+      open={open}
+      onOpenChange={setOpen}
+      className={cn('min-w-0', leading ? 'mb-3' : 'mb-2')}
+    >
+      <div className="flex min-w-0 items-center gap-2.5">
+        {leading}
+        <Collapsible.Trigger asChild>
+          <button
+            type="button"
+            className="flex min-w-0 max-w-full items-center gap-1 rounded-md py-1 pr-1 text-left text-xs text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            <ActivityLabel
+              label={streaming ? activity : summary()}
+              live={streaming}
+            />
+            <IconChevronRight
+              className={cn(
+                'size-3.5 shrink-0 transition-transform motion-reduce:transition-none',
+                open && 'rotate-90',
+              )}
+            />
+          </button>
+        </Collapsible.Trigger>
+      </div>
       <Collapsible.Content className="agent-timeline-content">
         <AgentTurnTimeline
           sections={layout.sections}
