@@ -1,13 +1,12 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import type { UIMessage } from 'ai';
+import type { DynamicToolUIPart, UIMessage } from 'ai';
 
 import {
   agentStepLabel,
-  agentMessageActivity,
+  agentToolActivity,
   describeToolCall,
   isStandalonePart,
-  isWorkPart,
   toAgentWorkStep,
 } from '../utils/agentWorkSteps';
 import type { TAgentWorkStep } from '../utils/agentWorkSteps';
@@ -46,19 +45,6 @@ const toolPart = (
 };
 
 describe('work part predicates', () => {
-  it('treats reasoning and ordinary tool parts as work', () => {
-    expect(isWorkPart(reasoningPart('thinking'))).toBe(true);
-    expect(
-      isWorkPart(
-        toolPart('callTool', 'output-available', {
-          toolId: 'sales.trpc.deal.find',
-        }),
-      ),
-    ).toBe(true);
-    expect(isWorkPart(textPart('done'))).toBe(false);
-    expect(isWorkPart({ type: 'step-start' })).toBe(false);
-  });
-
   it('keeps approval, ask_user and artifact parts standalone', () => {
     const approval = toolPart('callTool', 'approval-requested', {
       toolId: 'x.trpc.a.b',
@@ -75,7 +61,7 @@ describe('work part predicates', () => {
     expect(
       isStandalonePart(toolPart('createArtifact', 'input-streaming')),
     ).toBe(true);
-    expect(isWorkPart(approval)).toBe(false);
+    expect(toAgentWorkStep(approval)).toBeNull();
   });
 
   it('normalizes work parts into timeline steps', () => {
@@ -235,53 +221,19 @@ describe('describeToolCall', () => {
   });
 });
 
-describe('agentMessageActivity', () => {
-  it('uses the newest tool rather than earlier reply text', () => {
+// Text, reasoning and settled-tool labels are covered by agentTurnActivity.
+describe('agentToolActivity', () => {
+  it.each([
+    ['callGraphql', { query: '{ deals { _id } }' }, 'Querying deals'],
+    ['createArtifact', {}, 'Creating file…'],
+    ['readFile', { url: '/files/brief.pdf' }, 'Reading brief.pdf'],
+    ['somethingElse', {}, 'Working…'],
+  ])('labels a running %s call', (toolName, input, label) => {
     expect(
-      agentMessageActivity([
-        textPart('I will check.'),
-        toolPart('callGraphql', 'input-available', {
-          query: '{ deals { _id } }',
-        }),
-        { type: 'step-start' },
-      ]),
-    ).toBe('Querying deals');
-  });
-
-  it('switches from tool execution to writing when reply text arrives', () => {
-    expect(
-      agentMessageActivity([
-        toolPart('callGraphql', 'output-available', {
-          query: '{ deals { _id } }',
-        }),
-        textPart('The report is ready.'),
-      ]),
-    ).toBe('Writing…');
-  });
-
-  it('switches from an earlier tool to new reasoning', () => {
-    expect(
-      agentMessageActivity([
-        toolPart('callGraphql', 'output-available'),
-        reasoningPart('Planning'),
-      ]),
-    ).toBe('Thinking…');
-  });
-
-  it('never describes a completed tool as still running', () => {
-    expect(
-      agentMessageActivity([toolPart('readFile', 'output-available')]),
-    ).toBe('Working…');
-  });
-
-  it('identifies file generation independently from reply text', () => {
-    expect(
-      agentMessageActivity([toolPart('createArtifact', 'input-streaming')]),
-    ).toBe('Creating file…');
-  });
-
-  it('has one default before any response part arrives', () => {
-    expect(agentMessageActivity([])).toBe('Working…');
+      agentToolActivity(
+        toolPart(toolName, 'input-available', input) as DynamicToolUIPart,
+      ),
+    ).toBe(label);
   });
 });
 

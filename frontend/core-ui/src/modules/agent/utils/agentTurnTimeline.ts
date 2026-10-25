@@ -1,7 +1,7 @@
 import type { TextUIPart, UIMessage } from 'ai';
 
 import {
-  agentMessageActivity,
+  agentToolActivity,
   isReasoningPart,
   isStandalonePart,
   isToolPart,
@@ -319,7 +319,7 @@ export const agentTurnActivity = (parts: UIMessage['parts']): string => {
     }
 
     if (part.state === 'input-streaming' || part.state === 'input-available') {
-      return agentMessageActivity([part]);
+      return agentToolActivity(part);
     }
 
     for (let previous = index - 1; previous >= 0; previous -= 1) {

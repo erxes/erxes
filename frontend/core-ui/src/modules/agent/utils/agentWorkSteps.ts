@@ -153,13 +153,6 @@ export const isStandalonePart = (part: TUIPart): boolean => {
   return false;
 };
 
-/**
- * Reasoning and ordinary tool parts — the work a turn folds into its
- * activity timeline. `step-start` boundaries are not work.
- */
-export const isWorkPart = (part: TUIPart): boolean =>
-  isReasoningPart(part) || (isToolPart(part) && !isStandalonePart(part));
-
 /** Timeline entry for one work part, or null for any other part. */
 export const toAgentWorkStep = (part: TUIPart): TAgentWorkStep | null => {
   if (isReasoningPart(part)) {
@@ -304,45 +297,36 @@ export const agentStepLabel = (step: TAgentWorkStep): string => {
   return `Ran ${tool.toolName}`;
 };
 
-/** The newest meaningful part owns the turn's single live activity label. */
-export const agentMessageActivity = (parts: UIMessage['parts']): string => {
-  for (let index = parts.length - 1; index >= 0; index -= 1) {
-    const part = parts[index];
-    if (part.type === 'text' && 'text' in part && part.text.trim())
-      return 'Writing…';
-    if (isReasoningPart(part)) return 'Thinking…';
-    if (!isToolPart(part)) continue;
-    if (part.state !== 'input-streaming' && part.state !== 'input-available')
-      return 'Working…';
-    const name = toolNameOf(part);
-    const input = isRecord(part.input) ? part.input : {};
-    switch (name) {
-      case 'createArtifact':
-        return 'Creating file…';
-      case 'searchTools':
-      case 'searchGraphql':
-        return 'Searching workspace…';
-      case 'findPages':
-        return 'Finding a page…';
-      case 'readFile':
-        return typeof input.url === 'string'
-          ? `Reading ${readFileName(input.url)}`
-          : 'Reading file…';
-      case 'execute_typescript':
-        return 'Running code…';
-      case 'callGraphql': {
-        const summary = summarizeGraphqlCall(input);
-        return summary?.fields.length
-          ? `${
-              summary.operation === 'mutation' ? 'Running' : 'Querying'
-            } ${summary.fields.join(', ')}`
-          : 'Looking up workspace data…';
-      }
-      case 'askUser':
-        return 'Preparing a question…';
-      default:
-        return 'Working…';
+/** Live activity label for a tool call that is still running. */
+export const agentToolActivity = (
+  part: DynamicToolUIPart | ToolUIPart,
+): string => {
+  const input = isRecord(part.input) ? part.input : {};
+  switch (toolNameOf(part)) {
+    case 'createArtifact':
+      return 'Creating file…';
+    case 'searchTools':
+    case 'searchGraphql':
+      return 'Searching workspace…';
+    case 'findPages':
+      return 'Finding a page…';
+    case 'readFile':
+      return typeof input.url === 'string'
+        ? `Reading ${readFileName(input.url)}`
+        : 'Reading file…';
+    case 'execute_typescript':
+      return 'Running code…';
+    case 'callGraphql': {
+      const summary = summarizeGraphqlCall(input);
+      return summary?.fields.length
+        ? `${
+            summary.operation === 'mutation' ? 'Running' : 'Querying'
+          } ${summary.fields.join(', ')}`
+        : 'Looking up workspace data…';
     }
+    case 'askUser':
+      return 'Preparing a question…';
+    default:
+      return 'Working…';
   }
-  return 'Working…';
 };
