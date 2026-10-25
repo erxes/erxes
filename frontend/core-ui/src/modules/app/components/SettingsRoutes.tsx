@@ -77,6 +77,14 @@ const OAuthClientsSettings = lazy(() =>
   ),
 );
 
+const ConnectionsSettings = lazy(() =>
+  import('~/pages/settings/workspace/ConnectionsSettingsPage').then(
+    (module) => ({
+      default: module.ConnectionsSettingsPage,
+    }),
+  ),
+);
+
 const ProductsSettingsRoutes = lazy(() =>
   import('@/products/settings/components/ProductSettingsRoutes').then(
     (module) => ({
@@ -262,6 +270,14 @@ export function SettingsRoutes() {
         <Route
           path={SettingsWorkspacePath.OAuthClients}
           element={<OAuthClientsSettings />}
+        />
+        <Route
+          path={SettingsWorkspacePath.Connections}
+          element={
+            <PermissionRouteGuard action="showConnections">
+              <ConnectionsSettings />
+            </PermissionRouteGuard>
+          }
         />
         <Route
           path={SettingsWorkspacePath.PropertiesCatchAll}

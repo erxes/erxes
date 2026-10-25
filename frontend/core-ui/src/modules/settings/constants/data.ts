@@ -18,6 +18,7 @@ import {
   IconMessage,
   IconNotification,
   IconPassword,
+  IconPlug,
   IconShoppingCart,
   IconSparkles,
   IconShieldCheck,
@@ -214,6 +215,11 @@ export const SETTINGS_PATH_DATA = (
       path: SettingsWorkspacePath.OAuthClients,
     },
     {
+      name: t('connections', 'Connections'),
+      icon: IconPlug,
+      path: SettingsWorkspacePath.Connections,
+    },
+    {
       name: t('system-logs'),
       icon: IconFile,
       path: SettingsWorkspacePath.Logs,
@@ -373,6 +379,7 @@ export const SETTINGS_PERMISSION_MAP: Record<string, string> = {
   [SettingsWorkspacePath.Automations]: 'automations',
   [SettingsWorkspacePath.ClientPortals]: 'clientPortal',
   [SettingsWorkspacePath.OAuthClients]: 'apps',
+  [SettingsWorkspacePath.Connections]: 'connections',
   [SettingsWorkspacePath.Permissions]: 'permissions',
   [SettingsWorkspacePath.ApprovalRequests]: 'approval',
   [SettingsWorkspacePath.EmailTemplates]: 'emailTemplates',
