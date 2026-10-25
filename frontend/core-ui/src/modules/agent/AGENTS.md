@@ -89,6 +89,9 @@ The `agent` module is the core-ui surface for the core-api `agents` backend
   provider/model ids and the empty-value server-default contract are unchanged.
 - The thinking picker starts at High, and the initial outgoing request explicitly
   sends `thinkingLevel: 'high'`. Manual selections override that default for later turns.
+  The trigger is a compact ghost button with an intensity mark and the level name
+  only; the menu lists each level with a one-line description. `thinkingLevel` values
+  stay `off`, `minimal`, `low`, `medium` and `high`.
 - `PageElementPicker` is the composer's Select on page mode. Trusted capture-phase
   listeners inspect the app and accessible same-origin frames, including sandboxed
   HTML reports. Selection clicks cannot activate the underlying controls. Escape
