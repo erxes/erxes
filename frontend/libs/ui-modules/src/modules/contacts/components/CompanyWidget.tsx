@@ -4,17 +4,14 @@ import {
   IconBuildingCog,
   IconCaretDownFilled,
 } from '@tabler/icons-react';
-import { useNavigate } from 'react-router-dom';
 
 import { CompaniesInline } from './CompaniesInline';
 import { SelectCompaniesBulk } from './SelectCompaniesBulk';
 import { useCompanyDetail } from '../hooks/useCompanyDetail';
-import { RelationWidgetContactsSection } from '../../widget/components/RelationWidgetLayout';
+import { useSidePanel } from '../../widget/record-side-panel/useSidePanel';
 
 interface CompanyWidgetProps {
   companyIds: string[];
-  // Companies of the host's customers, not linked to the host itself.
-  contactCompanyIds?: string[];
   scope: string;
   onManageCompanies?: (companyIds: string[]) => void;
 }
@@ -26,7 +23,7 @@ const CompanyWidgetItem = ({
   companyId: string;
   scope: string;
 }) => {
-  const navigate = useNavigate();
+  const { openRecord } = useSidePanel();
 
   const { companyDetail, loading } = useCompanyDetail(
     {
@@ -68,7 +65,10 @@ const CompanyWidgetItem = ({
             size="sm"
             className="w-full text-accent-foreground"
             onClick={() =>
-              navigate(`/contacts/companies?companyId=${companyId}`)
+              openRecord(
+                { contentType: 'core:company', contentId: companyId },
+                { stack: true },
+              )
             }
           >
             View details
@@ -136,7 +136,6 @@ const CompanyWidgetHeader = ({
 
 export const CompanyWidget = ({
   companyIds,
-  contactCompanyIds = [],
   scope,
   onManageCompanies,
 }: CompanyWidgetProps) => {
@@ -146,22 +145,7 @@ export const CompanyWidget = ({
         companyIds={companyIds}
         onManageCompanies={onManageCompanies}
       />
-      {(companyIds.length > 0 || contactCompanyIds.length === 0) && (
-        <CompanyWidgetContent companyIds={companyIds} scope={scope} />
-      )}
-      {contactCompanyIds.length > 0 && (
-        <div className="p-4">
-          <RelationWidgetContactsSection>
-            {contactCompanyIds.map((companyId) => (
-              <CompanyWidgetItem
-                key={companyId}
-                companyId={companyId}
-                scope={scope}
-              />
-            ))}
-          </RelationWidgetContactsSection>
-        </div>
-      )}
+      <CompanyWidgetContent companyIds={companyIds} scope={scope} />
     </SideMenu.Content>
   );
 };

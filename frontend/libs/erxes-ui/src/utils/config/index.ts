@@ -1,3 +1,5 @@
+import { readProcessEnvironment } from './readProcessEnvironment';
+
 declare global {
   interface Window {
     env?: Record<string, string>;
@@ -5,66 +7,72 @@ declare global {
   }
 }
 
+const browserEnvironment =
+  typeof window === 'undefined' ? undefined : window.env;
+const NODE_ENV =
+  readProcessEnvironment(() => process.env.NODE_ENV) || 'development';
+
 const getDefaultUrl = () => {
-  if (process.env.NODE_ENV === 'development') {
+  if (NODE_ENV === 'development') {
     return 'http://localhost:4000';
-  } else {
-    return `${window.location.protocol}//${window.location.hostname}/gateway`;
   }
+  return typeof window === 'undefined'
+    ? '/gateway'
+    : `${window.location.protocol}//${window.location.hostname}/gateway`;
 };
 
 const getSubdomain = () => {
-  return window.location.hostname.split('.')[0];
+  return typeof window === 'undefined'
+    ? ''
+    : window.location.hostname.split('.')[0];
 };
 
-let memoizedApiUrl: string | null = null;
-
 const getApi = (): string => {
-  // if (memoizedApiUrl) return memoizedApiUrl;
-
   const envApiUrl =
-    window.env?.REACT_APP_API_URL ??
-    (process.env.REACT_APP_API_URL || getDefaultUrl());
+    browserEnvironment?.REACT_APP_API_URL ??
+    (readProcessEnvironment(() => process.env.REACT_APP_API_URL) ||
+      getDefaultUrl());
 
-  memoizedApiUrl = envApiUrl?.includes('<subdomain>')
+  return envApiUrl.includes('<subdomain>')
     ? envApiUrl.replace('<subdomain>', getSubdomain())
     : envApiUrl;
-
-  return memoizedApiUrl;
 };
 
 const cdnUrl = () => {
   return (
-    window.env?.REACT_APP_IMAGE_CDN_URL ?? process.env.REACT_APP_IMAGE_CDN_URL
+    browserEnvironment?.REACT_APP_IMAGE_CDN_URL ??
+    readProcessEnvironment(() => process.env.REACT_APP_IMAGE_CDN_URL)
   );
 };
 
 const googleMapApiKey = () => {
   return (
-    window.env?.REACT_APP_GOOGLE_MAP_API_KEY ??
-    process.env.REACT_APP_GOOGLE_MAP_API_KEY
+    browserEnvironment?.REACT_APP_GOOGLE_MAP_API_KEY ??
+    readProcessEnvironment(() => process.env.REACT_APP_GOOGLE_MAP_API_KEY)
   );
 };
 
 const hideCoreModules = () => {
   return (
-    window.env?.REACT_APP_HIDE_CORE_MODULES ??
-    process.env.REACT_APP_HIDE_CORE_MODULES
+    browserEnvironment?.REACT_APP_HIDE_CORE_MODULES ??
+    readProcessEnvironment(() => process.env.REACT_APP_HIDE_CORE_MODULES)
   );
 };
 
 const sentryDsn = () => {
-  return window.env?.REACT_APP_SENTRY_DSN ?? process.env.REACT_APP_SENTRY_DSN;
+  return (
+    browserEnvironment?.REACT_APP_SENTRY_DSN ??
+    readProcessEnvironment(() => process.env.REACT_APP_SENTRY_DSN)
+  );
 };
 
 const sentryEnvironment = () => {
   return (
-    window.env?.REACT_APP_SENTRY_ENVIRONMENT ??
-    process.env.REACT_APP_SENTRY_ENVIRONMENT
+    browserEnvironment?.REACT_APP_SENTRY_ENVIRONMENT ??
+    readProcessEnvironment(() => process.env.REACT_APP_SENTRY_ENVIRONMENT)
   );
 };
 
-const NODE_ENV = process.env.NODE_ENV || 'development';
 const REACT_APP_API_URL = getApi();
 const REACT_APP_IMAGE_CDN_URL = cdnUrl();
 const REACT_APP_GOOGLE_MAP_API_KEY = googleMapApiKey();

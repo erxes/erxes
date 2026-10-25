@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-10-20`
+- **Last synchronized:** `2026-10-23`
 
 ## Scope
 
@@ -154,6 +154,14 @@
   campaign, whose steps run against a customer. The ticket one declares
   `frontline:tickets.channel|pipeline|status` requirements that are answered
   before it can be installed.
+- A Facebook message action with an **Input** message waits for the person's
+  next typed message (`meta/automation/messages/inputWait.ts`). It stores
+  `conversations_facebooks.inputWait` (`executionId`, `actionId`,
+  `replyConnectId`, `expiresAt` from the step's "Wait for"). The next typed
+  direct message claims it once and resumes the run through `repeatOptions`
+  with the trigger `botId` as the "If Reply" connect; the
+  `facebookInputTimeout` queue resumes `ifNotReply` at expiry if nobody
+  claimed it. Nothing is stored when neither branch is connected.
 - Surveys are a reusable definition (`title`, ordered `steps`, optional
   `durationHours`, optional `brandId`, `active`/`archived` status) owned by a
   channel through `channelId`. Each step is one question with its own `name`,
@@ -295,10 +303,18 @@
   and `tagId`. Picking a channel or tag therefore never zeroes the other
   entries in the forms page sidebar.
 
-- Ticket pipelines persist an ordered unique `propertyIds` selection. Create
-  and update validate every id against Core `frontline:ticket` fields before
-  writing it. `isPropertySelectionConfigured` distinguishes untouched legacy
-  pipelines from an intentional empty selection.
+- Ticket pipelines may persist a `createLayout`: rows (max 4) of placeable
+  system codes (`TICKET_CREATE_LAYOUT_SYSTEM_CODES` in
+  `modules/ticket/utils/pipelineCreateLayout.ts`) and `property:<fieldId>`.
+  Saving validates it: unknown or fixed codes are refused, deleted properties
+  dropped; `null` means the default form. There is no separate detail
+  selection: `propertyIds` and `isPropertySelectionConfigured` were removed
+  (old values stay in Mongo, unread).
+- Ticket meta system fields: name, channel, pipeline, status are
+  `alwaysFilled` + `outsideLayout`; description is `outsideLayout`; the
+  placeable chips are `visibleToCreateByDefault`; number, labels, companies and
+  attachments are `notOnCreate`. Core caches plugin meta until it restarts, so
+  a meta change needs a core restart to show in rules.
 - Runs as a federated subgraph plus tRPC service on port `3304`, with GraphQL
   subscriptions enabled.
 - Multi-channel inbox with membership-scoped conversation visibility.
@@ -325,7 +341,20 @@
 - Resolves the Meta app per integration kind, so page posting can run on its own
   `FACEBOOK_POST_APP_ID`/`FACEBOOK_POST_APP_SECRET` credentials while Messenger
   keeps the shared app.
-- Runs Facebook/Instagram/Discord/mail/inbox/ticket automation triggers and actions,
+- The **Form submitted** trigger (`frontline:form.submissions`) fires from
+  `widgetsSaveLead` and `cpWidgetsSaveLead` after the submission rows are
+  saved. The target is `TFormSubmittedTriggerTarget`: `_id` is the submission
+  `groupId`, plus `formId`, `channelId`, `customerId`, `conversationId` and
+  `fieldValues` keyed by form field id. Config is `{ channelId?, formId,
+  conjunction: 'and' | 'or', conditions: [{ fieldId, operator, value? }] }`;
+  `checkCustomTrigger` (`modules/form/meta/automation/workers.ts`) needs the
+  exact `formId` and decides each condition with the shared
+  `isAutomationConditionMatched`. `channelId` only narrows the UI form list.
+  Its output sets `dynamicVariables`, so `resolveOutputVariables` lists the
+  chosen form's fields as a **Form answers** group (`fieldValues.<fieldId>`,
+  typed, with options); actions read them as
+  `{{ trigger.fieldValues.<fieldId> }}`, resolved straight from the target.
+- Runs Facebook/Instagram/Discord/mail/inbox/ticket/form automation triggers and actions,
   including bot message sequences with postback buttons and wait conditions.
 - Takes turns on Facebook Messenger for AI replies: a typed direct message
   reaches automations through a delayed BullMQ trigger (2 s for text, 5 s for
@@ -335,8 +364,8 @@
   video, audio or file (never a sticker or share) still starts a run.
   `generateAiContext` merges every customer message since the last reply into
   the input, shows media as `[media <messageId>-<index> <type>]` markers, and
-  adds `facts.mediaIds` and `facts.openTickets` (tickets related to the inbox
-  conversation that are not resolved or closed). `actionCreateMessage` skips an
+  adds `facts.mediaIds` and `facts.openTickets` (tickets keeping the inbox
+  conversation in `sourceConversationIds` that are not resolved or closed). `actionCreateMessage` skips an
   AI-written reply as `superseded-by-newer-message` when a newer customer
   message exists.
 - AI long-term memory scopes: Facebook and Messenger `generateAiContext` set
@@ -374,6 +403,20 @@
 - Logs Facebook Graph delivery failures with provider error metadata and request
   context while excluding outbound message content; comment-triggered bot flows
   do not send Messenger typing indicators.
+- Marks a Facebook or Instagram integration broken through
+  `FacebookIntegrations.markUnhealthy` / `InstagramIntegrations.markUnhealthy`
+  (`selector`, `'page-token' | 'account-token'`, `error`). On the
+  healthy → broken transition only, `notifyIntegrationBroken`
+  (`src/modules/integrations/healthNotification.ts`) sends an `urgent`
+  `integrationHealthBroken` notification to the members of the integration's
+  channel; it stays one unread notification per integration until read.
+- `facebookGetPages` and `instagramGetPages` throw the Graph error (prefixed
+  `Facebook:` / `Instagram:`) instead of returning an empty list, and each
+  page carries `usage` (`IntegrationPageUsage`: integration id/name, channel
+  id/name of the inbox integration already holding it), built by
+  `getPageUsage` in `src/modules/integrations/pageUsage.ts`.
+- Facebook automation actions that fail on an access token report
+  `PROVIDER_ERROR` instead of `UNKNOWN`.
 - Boots the Call app and the Discord gateway client from `onServerInit`.
 - Runs the **mail** channel: an inbox owns a generated catch-all address, a
   Cloudflare Worker posts every delivery to `POST /mail/receive` under an HMAC
@@ -540,7 +583,7 @@ The root router mounts its authenticated webhook at `/telegram`.
 | Bootstrap                | `src/main.ts`                                                                                                                                                    | `startPlugin({ name: 'frontline', port: 3304 })`, wires tRPC, routes, meta, and every surface                                                                                                                          |
 | Models                   | `src/connectionResolvers.ts`                                                                                                                                     | Per-subdomain model container for all modules                                                                                                                                                                          |
 | GraphQL                  | `src/apollo/`                                                                                                                                                    | Aggregated `typeDefs` and `resolvers` across modules                                                                                                                                                                   |
-| Schema print             | `scripts/print-subgraph-schema.ts`                                                                                                                                                | Prints the subgraph schema for `frontline_ui` codegen (`generated/`, gitignored)                                                                                                                                       |
+| Schema print             | `scripts/print-subgraph-schema.ts`                                                                                                                               | Prints the subgraph schema for `frontline_ui` codegen (`generated/`, gitignored)                                                                                                                                       |
 | tRPC                     | `src/init-trpc.ts`                                                                                                                                               | `appRouter` for service-to-service calls                                                                                                                                                                               |
 | HTTP                     | `src/routes.ts`                                                                                                                                                  | Mounts the `/facebook`, `/instagram`, `/mail`, and (when enabled) `/callpro` webhook routers                                                                                                                           |
 | Platform extensions      | `src/meta/`                                                                                                                                                      | automations, permissions, notifications, segments, references, import/export                                                                                                                                           |
@@ -617,8 +660,8 @@ The root router mounts its authenticated webhook at `/telegram`.
 
 ### Provides
 
-- Internal `contactFields.find` tRPC query (`TContactFieldsFind`) — core answers `getRelationsByEntity` / `getRelationsByContentIds` between contacts and 'frontline:ticket' from the tickets' `customerIds` / `companyIds` through it: by contacts (`null` until every ticket has its fields, then newest 200) or by ids (only tickets that have them; core reads relations for the rest). Not agent-callable.
-- Internal `contactFields.sync` tRPC mutation (`TContactFieldsSync`) — core calls it on ticket ↔ customer/company relation changes and contact merge/removal. Not agent-callable.
+- Internal `contactFields.sync` tRPC mutation (`TContactFieldsSync`) — core broadcasts contact merges and removals to every plugin declaring `meta.contactFields` (frontline declares `frontline:ticket` in `main.ts`); applied with `applyContactFieldsSync`. Not agent-callable.
+- `createTicket` / `updateTicket` accept `customerId` / `companyId` (one of each) and save them on the ticket; `getTickets` filters by them. Tickets made elsewhere save their customer the same way: mail (`createTicketFromMail`), the messenger widget, client portal (`cpCreateTicket`), conversation convert and the create-ticket automation. No core relation is made for a ticket: a ticket made from a conversation (convert or the create-ticket automation) keeps it in `sourceConversationIds` (indexed); convert's "already converted" check, the converted-items list, open-ticket facts (`findOpenConversationTickets`) and the ticket source-channel report read that field, and the conversation's form submissions are logged on the new ticket or deal directly (`inbox/utils/conversationFormSubmission.ts`). `backend/saas-migrations/core/commands/migrateConversationRelationsToSourceFields.ts` copies old conversation ↔ ticket / deal relations and `customerFieldData.sourceConversationIds` into the field. The `customer.tickets` / `company.tickets` segments and the ticket `customers` reference join on `customerId` / `companyId`.
 - Telegram: `POST /telegram/receive/:_id` authenticates the stored webhook
   secret. `telegramBots`, `telegramConversationChats`, `telegramBotWebhookInfo` and
   `telegramMessageLinkPreviews` expose permission-checked setup/status and
@@ -1074,7 +1117,24 @@ errors }` — `missingInErxes` is the number of Meta posts this deployment has
   this service: it may import only packages the gateway resolves
   (`erxes-api-shared/utils`, `graphql-subscriptions`), never `~/` or `@/` plugin
   paths. Anything that needs models goes through a frontline tRPC procedure via
-  `sendTRPCMessage`.
+  `sendTRPCMessage`. Keep it free of TypeScript-only syntax (type aliases,
+  annotations, `as` casts): in development the gateway saves the raw `.ts`
+  source as `downloads/frontline.js` and Node imports it as plain ESM, so type
+  syntax is a `SyntaxError` that drops every plugin's subscriptions.
+- Internal notes share the `conversationMessageInserted:<conversationId>`
+  topic with customer-visible messages. `conversationMessageInserted` delivers
+  an `internal` message only when the subscription context has `user._id`
+  (team member); `cpConversationMessageInserted` never delivers one. Internal
+  notes are stored as BlockNote JSON, so a leak shows customers raw JSON.
+  `sendNotifications({ internal: true })` skips the client portal mobile push
+  and still notifies agents, with the note rendered by `noteContentToHtml`.
+- Customer-facing queries that return `Conversation` (`widgetsConversations`,
+  `cpConversations`, `cpConversation`, `cpConversationDetail`) wrap each result
+  with `toCustomerConversationView` (`src/modules/inbox/utils/`), which sets
+  `customerView: true`; `Conversation.messages` then excludes internal notes.
+  Team-facing results never set it, so admin queries such as
+  `reportConversationList` still list notes. Any new customer-facing query
+  returning `Conversation` must wrap its results the same way.
 - `TicketReportFilter.statusIds: [String]` — real pipeline `Status._id` values
   (multi-select). `buildTicketMatch` turns a non-empty list into
   `statusId: { $in: filters.statusIds }`. This is distinct from the older,
@@ -1100,7 +1160,7 @@ placeholder, order, isRequired, type, options }`, where `type` and `options`
   (`widgetsMessengerConnect`) returns the whole document as `ticketConfig: JSON`,
   so both lists reach the messenger widget without a schema change there.
 - GraphQL: `widgetTicketCreated(name, description, attachments, statusId,
-customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
+tagIds, propertiesData: JSON)` (the customer comes from the widget session) — the public messenger ticket
   submission. `propertiesData` is a `{ [fieldId]: value }` map that is narrowed
   to the `propertyFields` of the pipeline's ticket config, checked for the
   required ones, validated through core `fields.validateFieldValues`, and stored
@@ -1249,6 +1309,9 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - Automation types — trigger `frontline:mail.messages` (target
   `TMailTriggerTarget`), actions `frontline:mail.messages.create` (Send Email)
   and `frontline:mail.drafts.create` (Draft Email Reply).
+- Automation type — trigger `frontline:form.submissions` (target
+  `TFormSubmittedTriggerTarget`, config `TFormSubmittedTriggerConfig` in
+  `modules/form/meta/automation/types.ts`).
 - Nx target `schema:print` uses the shared `scripts/print-subgraph-schema.ts` printer (cached, output `generated/schema.graphql`),
   consumed by `gateway:schema:compose`; `frontline_ui:codegen` uses that composed schema.
 
@@ -1276,6 +1339,10 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   The portal account behind a ticket is resolved from its `cp:<id>` author with
   `cpUsers.get` by `{ id }` and then by `{ erxesCustomerId }`, because a ticket
   records whichever of the two the portal session carried.
+- `core` over tRPC — `segment.fetchSegment`
+  (`{ segmentId, cursor?, limit? }` → `{ ids, nextCursor? }`), which backs the
+  conversation list `segment` filter. `segmentFilter` pages until `nextCursor`
+  is empty; core caps each page, so one call is never the whole segment.
 - `core` over tRPC — `notifications.sendMobileNotification` (mutation,
   `{ title, body, receivers, data }`), which pushes a new chat message to the
   assigned and participating agents' `deviceTokens`. The path is
@@ -1287,7 +1354,7 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 ## Data and State
 
-- `frontline_tickets` keeps its contacts as `customerIds` / `companyIds` (indexed, `default: undefined`; `contactFieldsSchemaPlugin` gives new tickets `[]`). Core `relations` (`frontline:ticket ↔ core:customer/company`) stay the source of truth; core mirrors each change into the fields incrementally through `contactFields.sync` (so a directly written `companyIds` is never overwritten). `core-api` `commands/migrateRelationsToContactFields.ts` backfills, merging into existing `companyIds`. `conversations` keep their single `customerId` and are not migrated.
+- `frontline_tickets` owns one customer and one company as `customerId` / `companyId` (indexed, `default: null`; read only from the record — the migration must run before deploy, there is no relation fallback); frontline saves them itself and makes no core relation for them. Core's contact merge / remove reaches them through tRPC `contactFields.sync`. `backend/saas-migrations/core/commands/migrateRelationsToContactFields.ts` backfills tickets linked before: the first of old `customerIds` / `companyIds` arrays (then removed), else the oldest related contact; extra contacts are dropped. The create-ticket automation action saves `companyId` (old actions' `companyIds` give their first). `conversations` keep their single `customerId` and are not migrated.
 - Models are generated per request subdomain. Telegram owns `telegram_bots`,
   `customers_telegram`, `conversations_telegram`, `conversation_messages_telegram`
   and `telegram_reactions`; canonical inbox history stays in Frontline's
@@ -1298,7 +1365,57 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 ## Local Invariants
 
-- Ticket contacts are read per doc (`hasContactFields` ⇒ fields, else relations): mail recipients (`integrations/mail/utils/tickets.ts`), report contact narrowing, widget ticket lists and `widgetTicketCheckProgressForget` use the fields once `contactFieldsReady(models.Ticket, ...)` holds, else relations. Conversation ↔ ticket/deal and customer ↔ company links remain core relations.
+- Ticket contacts are read only from `customerId` / `companyId`: mail recipients (`integrations/mail/utils/tickets.ts`), report contact filters (`narrowTicketMatchByContacts`), widget ticket ownership (`getOwnedTicketIds`, needs `models`) and `widgetTicketCheckProgressForget`. Never read a ticket's contacts or source conversations from core relations; customer ↔ company links remain core relations.
+- A Form submitted condition on an array value (checkbox group, multi-select)
+  matches when any option matches; `dne`/`numberdne`/`dnc` must hold for every
+  option, and `is`/`ins` test the whole value. Number and boolean values are
+  compared as text, because the rule value is text.
+
+- A typed reply is never routed by the automation engine's `payload.btnId`
+  wait (it has no payload); only `claimFacebookInputReply` resumes an Input
+  step, and the claim and the timeout both unset `inputWait` atomically so
+  exactly one of "If Reply" / "If Not Reply" runs.
+- `updatePipeline` and `removePipeline` allow only the owner or an `admin`
+  member of the pipeline's channel (and of the target channel when
+  `updatePipeline` moves it), the same rule as `channelUpdate`.
+  `createPipeline` still checks only that a user is signed in.
+- Widget identity comes only from the signed session token in the
+  `erxes-widget-token` header (`src/modules/inbox/widgetSession.ts`), issued
+  by `widgetsMessengerConnect` as `sessionToken`. Widget operations take no
+  `customerId`/`visitorId` arguments; anything addressed by id (conversation,
+  ticket, comment) passes `assertOwnsConversation` / `assertOwnsTicket` and
+  answers "not found" otherwise. A claimed email, phone or code never finds an
+  existing customer; visitor ids are server-made, never browser fingerprints.
+- Conversation subscriptions (`conversationMessageInserted`,
+  `conversationChanged`, `conversationBotTypingStatus`,
+  `conversationClientTypingStatusChanged`) admit staff (`context.user`) or a
+  widget whose gateway-verified `context.widgetSession` owns the conversation
+  (checked through the `conversation.find` tRPC); `conversationAdminMessageInserted`
+  requires the session's own `customerId`. The widget sends its token as ws
+  `connectionParams.widgetToken`. `src/apollo/subscription.ts` stays untyped JS.
+- `widgetsTicketCustomersEdit` stores typed emails/phones in the lists and
+  also as `primaryEmail`/`primaryPhone` (staff forms read only primaries), but
+  only while no other customer holds that primary: core's `checkDuplication`
+  would otherwise fail the whole save. A failed core update throws instead of
+  returning `null`.
+- Core's `customers.findOne` tRPC only filters by `_id`, `customerPrimaryEmail`,
+  `customerPrimaryPhone` and `customerCode` and silently ignores other keys, so
+  any other lookup (e.g. by `visitorId`) must use `customers.find` with a
+  non-empty value — `findVisitorCustomer` does this.
+- Widget ticket creation accepts only the start statuses of the messenger's own
+  ticket configs and only name, description, attachments, tags and properties.
+- Widget resolvers never log request arguments or customer documents: they
+  carry visitors' emails, phones and custom data.
+- The widget API has no endpoint that sends email to caller-chosen recipients
+  or with caller-chosen content (`widgetsSendEmail` was removed as an open
+  relay). Any widget email goes to the session's own customer with server-side
+  content. Messenger replies are not emailed to the customer (only `lead`
+  replies are), so the widget offers no "get notified by email" step
+  (`widgetsSaveCustomerGetNotified` was removed).
+- Facebook and Instagram `healthStatus` is written as broken only through
+  `markUnhealthy`; a direct `updateOne` skips the channel notification.
+- The integration `healthStatus` resolver answers `unknown`, never `healthy`,
+  when the owning service cannot be reached.
 - Set property handlers pass `targetActionId: action.targetActionId` to
   `getSetPropertySelector`, so a Manage properties action targeting an earlier
   action (Find object, Create) updates that action's record, not the trigger's.
@@ -1494,6 +1611,10 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   Reply, mail the inbox twice, and confirm each mail gets its own draft card;
   edit one, send it, delete the other. Swap the last step for Send Email and
   confirm the fourth reply within an hour is refused.
+- Facebook Input step: Messenger trigger → Send Message with an Input (Wait
+  for 1 minute), connect "If Reply" and "If Not Reply" to two text messages.
+  Reply within the minute and get only the first; stay silent and get only
+  the second; a reply does not start the automation again.
 - Move a form, survey, response template, ticket pipeline and integration
   between two channels and confirm each leaves the source channel's list,
   appears in the destination's, and survives a reload.
@@ -1523,6 +1644,12 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-10-19` — Conversation segment filter on the paged contract
+
+- **Summary:** The inbox `segment` filter sends `{ segmentId, cursor, limit }` and collects every `ids` page; it used the pre-cutover `options` input and read `_id` from an array, so it matched nothing.
+- **Affected areas:** `conversationQueryBuilder.ts` (+ `__tests__/conversationQueryBuilder.segment.test.ts`).
+- **Contracts changed:** none provided; consumes core `segment.fetchSegment` paging.
 
 ### `2026-10-18` — Ticket remembered through action placement
 

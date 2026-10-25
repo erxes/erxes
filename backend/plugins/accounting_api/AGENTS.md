@@ -6,7 +6,7 @@
 - **Project:** `accounting_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/accounting_api`
-- **Last synchronized:** `2026-10-20`
+- **Last synchronized:** `2026-10-23`
 
 ## Scope
 
@@ -23,6 +23,12 @@
 - Other plugins' data models or implementation details.
 
 ## Current Capabilities
+
+- Accounting after-process deal/order events can manufacture inventory shortages without creating a job execution document. The newest active real job supplies the missing quantity using the sale inventory account and effective location. Production invOut, invIncome and expense journals are ordinary roots in the sale parent/pointer, visible as editable transaction tabs and in TBalance; they are not follows.
+
+- Owns multi-job executions through `JobExecutions`: root date, description, input/output inventory accounts and locations, with independent `jobs[]` rows holding job id/name, quantity, actual inputs/outputs and cost arrays. No redundant planned arrays are persisted.
+- `loadJobExecutionClass` registers typed tenant-scoped model methods for execution reads, saves, posting, undo and draft deletion. Successful create, edit/post/undo and delete operations emit scoped database event logs with document snapshots.
+- Both job masters and job executions emit create/update/delete database event logs from their model methods, scoped through the accounting event dispatcher to `inventories_jobs` and `job_executions` respectively. Update logs include previous and saved snapshots; delete logs use the atomically removed snapshot. Execution post/undo/repost are update events; unsuccessful operations must not emit success logs.
 
 - Prints the federated accounting SDL without starting a server via `schema:print`; `gateway:schema:compose` includes this subgraph in the schema used by accounting UI codegen.
 - Creates, updates, removes, links, prints, and reports accounting transactions across main, cash, bank, receivable, payable, tax, inventory, fixed asset, and exchange-difference journals.
@@ -42,6 +48,7 @@
 - Stores related debit/credit account codes without nested subdocument ids, normalizes empty related-account overrides before transaction persistence, and recalculates related codes from all transactions sharing the same `ptrId`.
 - Provides account, account category, permission, tax row, inventory, fixed asset, and journal report GraphQL contracts.
 - Provides safe remainder GraphQL list, detail, item list/count, create, edit, remove, recalculate, submit, cancel, transaction-run, transaction-undo, item edit, item bulk edit, and item remove contracts guarded by safe remainder permissions.
+- Provides inventory job GraphQL list, detail, create, edit, and remove contracts for production-stage master data with input products, output products, units, quantities, output cost-allocation ratios, and duration.
 - Safe remainder creation uses the selected product category, while recalculation filters products only by that remainder's existing item product ids, including imports outside the category; it stores each item's current total inventory cost, preserves counted zero values, and defaults non-explicit counted total cost from the refreshed quantity and value.
 - Safe remainder bulk import supports deterministic `skip`, `last`, and `add` duplicate rules; `skip` never overwrites an existing census row, `add` sums duplicate counts and explicit total costs, and imported products are recalculated immediately even when they fall outside the original category.
 - Generates journal report transaction/detail filters, source transaction-kind to current journal filters, grouping keys, date buckets, line records, shared drill-down rows for every report base unless explicitly disabled, and account/customer/product/fixed-asset/user/content enrichment from shared `ReportBase` definitions; filters support pointer, customer/company tags, product category/code/name, fixed-asset category/code/name, and created/modified/assigned users, account enrichment includes currency metadata, product metadata enrichment is fetched from core in batches of at most 1000 ids, and inventory adjustment kind `28` maps only to the cost-only `invJustify` journal.
@@ -72,6 +79,9 @@
 | Inventory splitting | `src/modules/accounting/utils/invSplit.ts`                   | Normalizes split inputs and synchronizes cost-neutral `invOut`/`invIncome` follow transactions.                         |
 | Cost adjustment     | `src/modules/accounting/utils/invJustify.ts`                 | Owns inventory cost-adjustment save, side validation, inventory synchronization, and removal behavior.                  |
 | Safe remainders     | `src/modules/inventories`                                    | Owns inventory count snapshots, typed item transaction metadata, bulk import updates, and generated transactions.       |
+| After-process production | `src/meta/afterProcessHandlers/realJobProduction.ts`, `saveSaleTransactions.ts` | Plans shortages and persists ordinary production roots beside synced sales. |
+| Jobs    | `src/modules/inventories`                                    | Owns production-stage job master data for inventory input/output recipes.                                   |
+| Execution model | `src/modules/inventories/db/models/JobExecutions.ts` | Owns execution validation, lifecycle locks, grouped posting/undo, deletion and database event logs. |
 | Census calculation  | `src/modules/inventories/utils/safeRemainderTransactions.ts` | Purely calculates income, out, sale, and remaining cost-adjustment details from counted quantity and target value.      |
 | Journal reports     | `src/modules/accounting/utils/journalReports`                | Builds shared filters, aggregation groups, period splits, and display enrichment for journal reports.                   |
 | Report bases        | `src/modules/accounting/utils/journalReports/strategies`     | Groups report base definitions by main, fund, debt, inventory, and fixed asset report families.                         |
@@ -83,6 +93,8 @@
 ## Contracts
 
 ### Provides
+
+- `jobExecutions`, `jobExecutionDetail`, `jobExecutionSave`, `jobExecutionPost`, `jobExecutionUndo`, and `jobExecutionRemove`, guarded by `readJobExecutions`, `manageJobExecutions`, and `removeJobExecutions` under `jobExecution`.
 
 - Accounting GraphQL schema and resolvers from `src/modules/accounting/graphql`.
 - Import/export metadata for `accounting:account.transactions`, including transaction export headers and data batches.
@@ -97,6 +109,9 @@
 - Transaction journal enum accepts `invJustify`, with dedicated read, manage, and remove permission actions; `side: "dt"` means cost increase and `side: "ct"` means cost decrease.
 - GraphQL query `fixedAssetLocationRemainders(searchValue, fixedAssetId, categoryId, branchId, departmentId, date, limit)`, returning positive fixed asset quantities grouped by fixed asset, branch, and department.
 - Permission actions `readSafeRemainders`, `manageSafeRemainders`, `removeSafeRemainders`, and `viewSafeRemainderItemCounts` under the `safeRemainder` module.
+- Permission actions `readJobs`, `manageJobs`, and `removeJobs` under the `job` module.
+- Job GraphQL contracts: `jobs`, `jobDetail`, `jobAdd`, `jobEdit`, and `jobRemove`.
+- `jobs` and `jobOutputs` accept shared search, labor/overhead name, input/output product, duration-type, and status filters. `jobOutputs` unwinds outputs before counting/pagination, returns the source card plus one output and its index, and identifies each row by card id plus output index. Output-product filters apply again after unwind so unrelated outputs are excluded; products shared by different cards remain separate rows.
 - Safe remainder GraphQL fields expose `costIncreaseRule`, `costDecreaseRule`, `costIncreaseTrId`, and `costDecreaseTrId`; item `trInfo` carries active/target total cost, explicit-cost state, last income price, sale flag, and sale price metadata.
 - Fixed asset category GraphQL contracts expose `defaultAnnualDepreciationRate` and `defaultTaxAnnualDepreciationRate`; fixed asset contracts expose `annualDepreciationRate` and `taxAnnualDepreciationRate`. Useful-life years are derived UI/helper values only and are not persisted by the accounting API.
 - GraphQL query `fxaOwnerRecords(searchValue, ids, fixedAssetIds, fixedAssetId, categoryId, action, status, ownerId, balanceOnly, createdFrom, createdTo, transactionId, page, perPage, limit)`, returning owner-record ledger rows or fixed asset/owner balance rows when `balanceOnly` is true.
@@ -125,6 +140,7 @@
 - Inventory cost adjustment transaction details keep `count` at zero and store the cost delta in `amount`; adjustment calculation includes those rows in inventory cost while leaving remainder quantity unchanged.
 - Current inventory cost is derived from the latest published adjustment detail for the requested account/product/location plus business-active real-inventory transaction detail movements strictly after the adjustment date; when no published adjustment exists, calculation starts from all business-active movements.
 - Safe remainder items persist backend-derived current total cost separately from imported target total cost, while safe remainder documents retain independent cost-increase and cost-decrease parent transaction ids for redo and undo.
+- Jobs persist in `inventories_jobs`; each job stores production-stage code/name/description, optional duration, input product rows, and output product rows with raw cost-allocation ratios. Allocation shares are derived as each ratio divided by the sum of output ratios; stored values are not normalized to percentages.
 - Accounting transaction indexes focus on journal, detail account, date-range, and cursor sort paths for transaction lists; journal reports prefilter indexed detail fields before unwind and keep exact detail matching after unwind.
 - Journal reports do not persist state; they aggregate tenant-scoped transaction documents and enrich rows from accounting accounts, fixed assets, and core branch, department, customer, product, user, and synced-content public contracts.
 - Fixed asset category, fixed asset, fixed asset owner record, fixed asset adjustment, inventory remainder, reserve remainder, tax, and accounting setting collections remain owned by this plugin.
@@ -140,7 +156,42 @@
 
 ## Local Invariants
 
-- Deal → transaction handlers (`meta/afterProcessHandlers/dealToTrs.ts`, `dealToMovementTrs.ts`) take the deal owner from `getDealOwner` (`meta/afterProcessHandlers/utils.ts`): first company, else first customer, from the deal's `customerIds` / `companyIds` when it has both, else core relations. Keep the completeness check local; this code runs under tests that mock `erxes-api-shared/utils`.
+- Deal → transaction handlers (`meta/afterProcessHandlers/dealToTrs.ts`, `dealToMovementTrs.ts`) take the deal owner from `getDealOwner` (`meta/afterProcessHandlers/utils.ts`): its company, else its customer, read from the deal's own `customerId` / `companyId` (no relations). Keep the completeness check local; this code runs under tests that mock `erxes-api-shared/utils`.
+- Transaction model callers supply complete follow rows to `commonRemove` and its validators for every journal. Group update/removal reuse the loaded parent/group rows; single removal loads its source's follows before dispatch. Journal removal handlers consume that context without fallback follow lookups.
+- Inventory outgoing adjustment groups and their records are processed sequentially through promise chains. Preserve record order, apply the outgoing cache write before reallocating execution income, and check pointers only after the affected transaction totals have been recalculated.
+- Real-job production preparation delegates each inventory location to the module-level `costProductionGroup` helper. Keep location and row processing sequential, share the plan's output arrays across groups, and keep lexical function nesting at five levels or fewer.
+- Real-job recipe scaling/UOM normalization and expense-account journal validation are separate preparation steps in `realJobProduction.ts`; keep their validation behavior distinct from explicit execution preparation. Production detail identity matching is shared by explicit execution updates and automatic production roots through `inventories/utils/productionTransactionDetails.ts`, matching account/product and consuming each prior id at most once.
+
+- Automatic real-job production belongs only to `src/meta/afterProcessHandlers/realJobProduction.ts` and `saveSaleTransactions.ts`. Deal/order created/updated hooks explicitly enable planning; direct sync callers do not manufacture new stock and retain existing production roots. Normal transaction models, commonSave/commonRemove and InvSaleOutCostTrs contain no production flags, job lookups or special production cleanup.
+- Choose a matching active real job by `modifiedAt: -1, _id: -1`; skip if inventory covers demand or no recipe matches. Convert recipe UOMs to base units before scaling, reuse per-job output allocation and consolidate repeated inventory products per account/location. Validate active single-journal expense accounts in the inventory currency and normal write permissions before changing the sale.
+- After-process planning excludes every transaction in the previous sale parent. Event resync replaces owned production roots through ordinary group removal, retains matching transaction/detail identities, saves newly planned root costs directly without recursively manufacturing materials, and refreshes normal sale COGS only after production income exists. Never overwrite sale revenue or create JobExecutions. Mark owned roots with `extraData.jobProductionKey`, never originId/originType; normal group removal reverses each inventory root independently.
+- Publish the completed parent group after production and sale cost refresh so transaction tabs and TBalance update immediately. Shared `inventoryCosts.ts` handles ordinary location-aware active-cost pricing without job logic.
+
+- Inventory adjustment repricing of `jobExecution` invOut rows reallocates that parent group's invIncome from saved per-job actuals, labor/overhead and ratios using the shared production builder. It reads current merged input amounts, preserves output ids/counts and expense credits, updates income totals, and adds only income cost deltas (zero quantity) to the adjustment cache after the outgoing cache write. It never calls activeCost again or the generic related-main debit correction for execution rows.
+
+- Calling `jobExecutionPost` on a posted execution rebuilds its existing transaction group via the same locked update path as posted edits, preserving parent/pointer/source ids and excluding its old inventory effects. It must not create a second group or reload/convert product units. Draft posting still creates the initial group; concurrent busy/error states remain blocked.
+
+- Job execution list/count use one shared filter built before pagination. Optional exact job/product ids, literal case-insensitive saved job/cost names, status, and separate input/output account/branch/department ids combine with AND semantics across execution records. Recipe/cost matching uses only saved `jobs[]` actuals, never current master jobs or obsolete root fields.
+
+- Execution save resolves product `uom`, `subUoms` and unit aliases through tenant-scoped Core tRPC and always persists main-unit quantities. Missing products or invalid selected conversions fail before writes. Posting consumes these saved quantities without product-unit lookup, conversion, or a redundant normalization marker.
+
+- Execution transaction generation consumes persisted base quantities, allocates input plus labor/overhead cost independently inside each job, then merges repeated inventory products by journal/side/account/location. Inputs and outputs never net. Output unit prices are weighted by amount/count; cumulative four-decimal material rounding matches invOut repricing. Initial posting uses one `createPTransaction` call; posted edits use one `updatePTransaction` call with stable source/detail ids and existing parent/pointer linkage.
+- Execution queries and mutations live in their corresponding `graphql/resolvers/queries/jobExecutions.ts` and `mutations/jobExecutions.ts` files and are exported through those directory barrels.
+- Execution resolvers check permissions and delegate detail/save/post/undo/remove to `IJobExecutionModel`; business writes must not live in resolvers or a parallel lifecycle utility. `loadJobExecutionClass` receives tenant models, subdomain and the standard accounting event dispatcher for `job_executions`. Cost allocation, unit conversion, filters and adjustment helpers remain inventory utilities. Draft deletion atomically returns the removed document for audit logging; failed operations do not emit successful lifecycle logs.
+- Execution preparation, active-cost transaction document generation and posted transaction rebuilding are typed model methods (`prepareExecution`, `getTransactionDocs`, `saveTr`). Save/post call these through the tenant's `JobExecutions` model; get/undo/remove are also model methods, not free lifecycle functions outside the class. `saveTr` retains the posted compare-and-set lock, account permissions, source ownership checks and audit logging.
+- Production identifiers, GraphQL contracts and permissions use `jobExecution`/`JobExecutions`, persisted in tenant collection `job_executions`. Only the current `jobs[]` shape and `jobExecution` transaction content type are supported; do not add adapters, alias content types, legacy-field unsets, or migrations for earlier development names.
+
+- Each execution job copies master quantities and costs on selection and stores edited actuals only. Stable row ids preserve the saved source name independently of later master edits/removal. Drafts and posted executions are editable; compare-and-set locks guard edit/post/undo. Posted edits exclude the entire old group from active-cost calculation and check write access to old/new accounts. A failed update after the grouped writer starts enters error state requiring undo; pre-write failures restore posted status without changing saved actuals. Unrelated manual source rows in the parent group must not be silently removed.
+- The invOut journal handler also excludes the complete old parent group when repricing `jobExecution` edits, so shared input/output products in the same account cannot change the outgoing cost or unbalance the rebuilt group. Ordinary invOut edit repricing is unchanged.
+- Saved execution actuals remain usable after a source job changes, is archived or removed; only adding a new row or switching its source requires an active job.
+- Explicit job execution transaction writes go through `Transactions.createPTransaction` or `updatePTransaction` for shared parent/pointer ids, account-write permissions, journal handlers and inventory synchronization. Undo checks existing-account write access and uses grouped removal. Partial write errors retain an error state requiring undo; no retry may duplicate linked transactions.
+- Production uses active inventory unit costs and converts product sub-UOM counts to base units using the core product ratio. Input cost plus labor/overhead is allocated by raw output ratios with cumulative four-decimal rounding. Cost credits use the account's single journal; the tax journal shares the standard main-journal handler. All production accounts must use the main currency; foreign-currency production is rejected before writes.
+
+- `jobOutputs(duplicatedOutput: Boolean)` checks whether each output product appears on another card in the same tenant, independently of other list filters. The source card is excluded, duplicate filtering precedes count/pagination, and `outputs.productId` has an index for the tenant-local self lookup.
+- Job duplicate lookups use `let` plus `pipeline` with `$expr` and a null-safe output-product array; do not combine `pipeline` with `localField`/`foreignField`, because deployed MongoDB versions may reject that newer syntax.
+
+- Both job lists accept optional `hasLabor` and `hasOverhead` booleans combined with other filters. Presence means the corresponding cost array has a first element; false matches empty or missing arrays, not a zero amount.
+
 - Tax row filter builders are synchronous; resolver barrels re-export named resolver objects directly while retaining their public aliases. Import payload type checks use `TypeError` with actionable messages.
 
 - Lookup ids and destructive id lists must be required in SDL when the resolver needs them; `graphql/validateRequired.ts` rejects blank ids and empty destructive batches. `accountsEdit` relies on its required SDL id and `getAccount` not-found check before update rather than duplicating single-id validation.
@@ -176,6 +227,11 @@
 - Deal movement sync must resolve product-row `branchId`/`departmentId` first, then deal-level branch/department, then configured defaults; when the deal location side is destination, source details use default source location and generated `invMoveIn` details use deal/product location, and vice versa for source-side configs. It must cost source details from active inventory cost for the configured source account and effective source location, excluding the existing synced movement during resync.
 - Deal and POS order sale sync must preserve sale journal validation. Missing payment, receivable, or cash/bank account configuration skips only those payment rows; actual paid amounts must be deducted before checking account configuration, and the sync must not invent balancing rows solely to force `ptrStatus: ok`.
 - Safe remainder item `preCount` must return `0` and `diffType` filters must be ignored for users without `viewSafeRemainderItemCounts` so they cannot compare the system inventory balance with counted inventory.
+- Jobs must have at least one positive-quantity input row and one positive-quantity output row; output cost-allocation ratios must be finite non-negative numbers with a positive finite total and no percentage cap.
+- Job add/edit GraphQL inputs and outputs use `[JobItemInput!]!`; reject null product rows during GraphQL coercion before model normalization runs.
+- Job duration types are `real`, `minut`, `hour`, and `day`; fixed units require a finite non-negative duration. `real` stores no duration, including unsetting a previously saved value on edit. Omitted duration types default to `minut`; other strings are rejected.
+- Job estimated costs use only `laborCosts` and `overheadCosts` arrays of `{ name, amount, accountId }` rows. Both default to empty arrays; each row requires a trimmed name, finite non-negative amount, and active tenant-owned posting account. Schema, GraphQL, and model logic must not retain scalar cost/account fields or conversions. These remain card settings for subsequent production posting.
+- Estimated-cost account validation deduplicates account ids and awaits all independent tenant-scoped account reads before creating or updating a job.
 - Inventory adjustment outgoing-cost fixes may adjust only related debit transactions in `main`, `receivable`, and `payable` journals; cash and bank debit amounts are explicit payment amounts and must not be rewritten by cost recalculation.
 - Inventory adjustment grouping must use detail-level branch/department when present and fall back to transaction root branch/department so mixed-location transaction rows cost against the correct location.
 - Journal report filters that target transaction details must be applied after `$unwind` so unrelated detail rows from the same transaction are not included in report sums.
@@ -205,8 +261,12 @@
 
 ## Validation
 
+- Smoke scenario: sync a deal/order with insufficient output stock and an active real job, confirm production out/in tabs share the sale parent without originId, verify allocated cost feeds sale COGS, resync without duplicates, edit tabs manually, then remove the group and verify inventory reversal. Manual inventory out/sale saves must never run jobs.
+
+- Smoke scenario: add jobs A at quantity 5 and B at quantity 10, save/reopen and post once. Verify repeated products merge independently per side and job cost allocation is preserved. Edit posted actuals/accounts/locations/costs and confirm the existing parent/pointer updates without duplicate transactions; undo then remove the draft.
+
 - `pnpm nx run accounting_api:schema:print --skip-nx-cache` prints this subgraph offline for `gateway:schema:compose`.
-- `pnpm nx lint accounting_api`
+- No Nx lint target is defined; run `pnpm exec eslint` on changed TypeScript paths.
 - `pnpm nx build accounting_api`
 - `pnpm nx test accounting_api`
 - `node_modules/.bin/tsc -p backend/plugins/accounting_api/tsconfig.build.json --noEmit`
@@ -216,5 +276,6 @@
 - Smoke scenario: calculate a closing adjustment, edit a detail entry tax percent, run transactions, and verify `taxImpactValue`, grouped details, and linked transaction ids are stored.
 - Smoke scenario: run `journalReportData` and `journalReportMore` for every registered report with account/category/currency, `trKind`, pointer, customer/product/fixed-asset/user/content grouping, and branch/department grouping filters, then verify grouped totals and detail rows match every selected hierarchy value.
 - Smoke scenario: recalculate a safe remainder and test equal, higher, and lower counted quantities; verify income absorbs positive target-value differences, negative income is zero with a capped decrease adjustment, out/sale uses active cost, and remaining increases/decreases create balanced `invJustify` parents after quantity transactions.
+- Smoke scenario: create, edit, list, and remove a job with multiple input products and three output products at cost ratios `1, 1, 2`; verify raw ratios persist, totals above 100 are accepted, and negative or all-zero ratios are rejected.
 - Smoke scenario: create and edit inventory income plus internal movement with five details and enable `details[].followInfos.invSplit` on three; verify exactly one linked three-detail `invOut` and one linked three-detail `invIncome` share a pointer different from the source transaction, total cost is unchanged, converted quantity/unit price follow the ratio, and removing the source reverses both inventory effects.
 - Smoke scenario: configure deal movement sync for a stage, choose inventory source/destination accounts, default source/destination branch/department, and source vs destination deal-location side; move a deal with product rows into that stage and verify the generated `invMove` and `invMoveIn` rows keep the configured side defaults plus product/deal branch and department on the selected side, and use active cost rather than the deal product sale price.

@@ -6,7 +6,7 @@
 - **Project:** `posclient_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/posclient_api`
-- **Last synchronized:** `2026-10-19`
+- **Last synchronized:** `2026-10-23`
 
 ## Scope
 
@@ -129,6 +129,9 @@
 - Loyalty tRPC `loyalty.ownerSummary` and `coupon.checkCoupon`.
 - Core tRPC `fields.find`, `customers.findActiveCustomers`, and
   `customers.createCustomer`.
+- Core tRPC `segment.fetchSegment` (`{ segmentId, cursor?, limit? }` →
+  `{ ids, nextCursor? }`); `segmentProductIds` pages on `nextCursor` until it
+  is empty.
 - Synced eBarimt config fields including `hasCopy`, `hasSumQty`, and
   `isCleanTaxPrice`.
 - Shared `erxes-api-shared` context, GraphQL, and date utility contracts.
@@ -144,6 +147,11 @@
   `orderId`, `posToken`, `userId`, `createdAt`, and per-field old/new values.
   The `items` field contains complete before/after item snapshots, including
   additions, removals, quantity, price, discounts, and item status changes.
+- Order change logs expire 30 days after server `createdAt` through the
+  single-field `createdAt_1` TTL index (`expireAfterSeconds: 2592000`). MongoDB
+  removes expired rows asynchronously. Existing non-TTL `createdAt_1` indexes
+  must be converted with `collMod` when deploying; schema declarations alone
+  do not change existing index options. This also expires older existing logs.
 - Client cart logs use `source: cart`, optional `orderId`, `cartId`, `eventId`,
   `occurredAt` (client-reported action time), and `createdAt` (server receipt
   time). `itemActions` names removed/reduced items and their before/after counts.
@@ -168,6 +176,8 @@
 - Worker startup removes the legacy `posclient-hourly-sync-remainder` scheduler from `posclient-sync-remainder` and cleans failed jobs from both remainder queues. Scheduler and tenant jobs are removed on completion or terminal failure. A job with missing, non-string, or blank tenant data completes with `{ skipped: true, reason: 'missing-subdomain' }` before model access; its warning includes job ID, name, and repeat key. Valid tenant sync errors still propagate. Queue metadata remains while the queues are in use.
 
 ## Local Invariants
+
+- An order converted to a deal sends its customer / company on the deal (`customerId` / `companyId` in the `sales` `deal.create` input); no core relation is made for it.
 
 - `cpOrdersAdd` and `cpOrdersEdit` always require client portal context;
   only `customerType: visitor` bypasses the portal user requirement.

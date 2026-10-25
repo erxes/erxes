@@ -49,6 +49,7 @@
 
     "test": {
       "executor": "nx:run-commands",
+      "outputs": ["{workspaceRoot}/coverage/backend/core-api"],
       "options": {
         "cwd": "backend/core-api",
         "command": "NODE_OPTIONS=--experimental-vm-modules pnpm exec jest --runInBand --forceExit"

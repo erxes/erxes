@@ -37,12 +37,20 @@ export function DocumentsRecordTable({
 }: DocumentsRecordTableProps) {
   const { t } = useTranslation('documents', { keyPrefix: 'document' });
   const columns = useMemo(() => DocumentsColumn(t), [t]);
-  const { documents, hasError, loading, handleFetchMore, pageInfo, refetch } =
+  const {
+    documents,
+    error,
+    hasError,
+    loading,
+    handleFetchMore,
+    pageInfo,
+    refetch,
+  } =
     useDocuments();
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
 
   if (hasError) {
-    return <DocumentsErrorState onRetry={refetch} />;
+    return <DocumentsErrorState error={error} onRetry={refetch} />;
   }
 
   if (!loading && documents.length === 0) {

@@ -1,7 +1,6 @@
 import { getPlugin, isEnabled } from '../../utils/service-discovery';
 import {
   createTRPCUntypedClient,
-  httpBatchLink,
   TRPCRequestOptions,
 } from '@trpc/client';
 import { TAutomationProducers } from '../../core-modules/automations/types';
@@ -16,6 +15,7 @@ import { TSegmentProducersInput } from '../../core-modules/segments/zodSchemas';
 import { TImportExportProducersInput } from '../../core-modules/import-export/zodSchemas';
 import { TImportExportProducers } from '../../core-modules/import-export/types';
 import { encodeTRPCContextHeader, TRPCContext, trpcContextHeaderName } from '.';
+import { createInternalHTTPBatchLink } from './httpBatchLink';
 import {
   TRecordReferenceProducers,
   TRecordReferenceProducersInput,
@@ -108,7 +108,7 @@ export const sendCoreModuleProducer = async <
   try {
     const client = createTRPCUntypedClient({
       links: [
-        httpBatchLink({
+        createInternalHTTPBatchLink({
           url: baseUrl,
           headers: () => ({
             [trpcContextHeaderName]: contextHeader,

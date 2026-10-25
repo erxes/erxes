@@ -111,10 +111,19 @@ export const ThreadTabs = ({
   }, [measure]);
   useLayoutEffect(() => {
     revealActive();
-    const observer = new ResizeObserver(revealActive);
+    let frame = 0;
+    // Scrolling and the overflow state resize the observed nodes; doing it
+    // inside the callback would loop the ResizeObserver in one frame.
+    const observer = new ResizeObserver(() => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(revealActive);
+    });
     if (viewport.current) observer.observe(viewport.current);
     if (list.current) observer.observe(list.current);
-    return () => observer.disconnect();
+    return () => {
+      cancelAnimationFrame(frame);
+      observer.disconnect();
+    };
   }, [revealActive]);
   useLayoutEffect(revealActive, [active, order, deleted, revealActive]);
 

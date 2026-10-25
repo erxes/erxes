@@ -2,42 +2,32 @@ import { sendTRPCMessage } from 'erxes-api-shared/utils';
 
 type TDealContacts = {
   _id: string;
-  customerIds?: string[];
-  companyIds?: string[];
+  customerId?: string | null;
+  companyId?: string | null;
 };
 
 /**
- * A deal's customer or company ids. Deals keep them on themselves once
- * migrated (both fields set, as erxes-api-shared `hasContactFields`); until
- * then, or when only the id is known, core relations answer as before.
+ * A deal's customer or company id, as a list of at most one: the deal keeps
+ * one of each itself. Given only its id, the deal is read from sales.
  */
 export const getDealContactIds = async (
   subdomain: string,
   deal: TDealContacts | string,
   kind: 'customer' | 'company',
 ): Promise<string[]> => {
-  if (
-    typeof deal !== 'string' &&
-    Array.isArray(deal.customerIds) &&
-    Array.isArray(deal.companyIds)
-  ) {
-    return kind === 'customer' ? deal.customerIds : deal.companyIds;
-  }
+  const doc: TDealContacts | null =
+    typeof deal === 'string'
+      ? await sendTRPCMessage({
+          subdomain,
+          pluginName: 'sales',
+          method: 'query',
+          module: 'deal',
+          action: 'findOne',
+          input: { _id: deal },
+          defaultValue: null,
+        })
+      : deal;
+  const contactId = kind === 'customer' ? doc?.customerId : doc?.companyId;
 
-  return (
-    (await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      method: 'query',
-      module: 'relation',
-      action: 'getRelationIds',
-      input: {
-        contentType: 'sales:deal',
-        contentId: typeof deal === 'string' ? deal : deal._id,
-        relatedContentType:
-          kind === 'customer' ? 'core:customer' : 'core:company',
-      },
-      defaultValue: [],
-    })) || []
-  );
+  return contactId ? [contactId] : [];
 };

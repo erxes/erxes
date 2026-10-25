@@ -1,7 +1,5 @@
 import {
   applyContactFieldsSync,
-  findContactFieldsRecords,
-  TContactFieldsFind,
   TContactFieldsSync,
 } from 'erxes-api-shared/core-modules';
 import { initTRPC } from '@trpc/server';
@@ -62,31 +60,15 @@ export const appRouter = t.mergeRouters(
   }),
   t.router({
     contactFields: t.router({
-      // Core reads record ↔ contact links from the fields through this.
-      find: t.procedure
-        .input(z.custom<TContactFieldsFind>())
-        .query(async ({ ctx, input }) => {
-          const { models, subdomain } = ctx;
-
-          if (input.contentType !== 'operation:task') {
-            return null;
-          }
-
-          return findContactFieldsRecords(
-            models.Task,
-            `${subdomain}:operation_tasks`,
-            input,
-          );
-        }),
-      // Core keeps these records' customerIds / companyIds in step with
-      // relations; see erxes-api-shared contact-fields.
+      // Core broadcasts contact merges and removals; operation saves its
+      // records' contacts itself otherwise.
       sync: t.procedure
         .input(z.custom<TContactFieldsSync>())
         .mutation(async ({ ctx, input }) => {
           const { models } = ctx;
 
           await applyContactFieldsSync(
-            { 'operation:task': models.Task },
+            [models.Task, models.Project, models.Triage],
             input,
           );
         }),

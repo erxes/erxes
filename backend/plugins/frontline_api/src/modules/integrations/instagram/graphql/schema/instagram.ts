@@ -149,6 +149,7 @@ export const types = `
     id: String
     name: String
     isUsed: Boolean
+    usage: IntegrationPageUsage
   }
 
   type InstagramMessengerBot {

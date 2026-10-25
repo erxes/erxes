@@ -1,6 +1,5 @@
 import { TicketSubmissions } from './ticket-submissions';
 import { useCustomerData } from '../../hooks/useCustomerData';
-import { NotifyCustomerForm } from '../../components/notify-customer-form';
 import { useAtomValue } from 'jotai';
 import { selectedTicketConfigAtom, ticketTabAtom } from '../../states';
 import { SelectTicketForm } from './select-ticket-form';
@@ -17,7 +16,7 @@ export const Ticket = () => {
   if (!hasEmailOrPhone)
     return (
       <div className="flex flex-col gap-3 p-4 w-full h-full overflow-y-auto styled-scroll">
-        <CustomerFormInline className='rounded-lg' />
+        <CustomerFormInline className="rounded-lg" />
       </div>
     );
 

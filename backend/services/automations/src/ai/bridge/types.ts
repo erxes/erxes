@@ -43,6 +43,11 @@ export type TAiBridgeHealthInput = {
   runtime: TAiBridgeRuntime;
 };
 
+export type TAiBridgeListModelsInput = {
+  connection: TAiBridgeConnection;
+  runtime: TAiBridgeRuntime;
+};
+
 export type TAiBridgeHealthResult = {
   ready: boolean;
   errors: string[];
@@ -81,4 +86,6 @@ export type TAiBridgeInvokeResult = {
 export interface IAiProviderBridge {
   checkHealth(input: TAiBridgeHealthInput): Promise<TAiBridgeHealthResult>;
   invoke(input: TAiBridgeInvokeInput): Promise<TAiBridgeInvokeResult>;
+  // null means the provider gave no list, not that it has no models.
+  listModels(input: TAiBridgeListModelsInput): Promise<string[] | null>;
 }

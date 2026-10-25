@@ -1,3 +1,4 @@
+import { ConversationCountValue } from '@/inbox/conversations/components/ConversationCountValue';
 import {
   Button,
   Collapsible,
@@ -37,14 +38,15 @@ export const ChannelNavItem = ({
     <Button
       variant={isActive ? 'secondary' : 'ghost'}
       className={cn(
-        'justify-start gap-2 overflow-hidden text-left flex-auto min-w-0 py-2 pl-2 pr-2',
+        'justify-start gap-2 overflow-hidden text-left flex-auto min-w-0 py-2 pl-2 pr-2 rounded-lg',
+        isActive && 'bg-primary/10 text-primary hover:bg-primary/15',
         unreadCount === 0 && !isActive && 'text-muted-foreground',
       )}
       onClick={onSelect}
     >
       {isActive ? <IconCheck className="size-3.5 shrink-0" /> : icon}
       <TextOverflowTooltip
-        className="flex-1 min-w-0 font-semibold"
+        className="flex-1 min-w-0 font-medium"
         value={name}
       />
       {members.length > 0 && (
@@ -53,8 +55,8 @@ export const ChannelNavItem = ({
         </MembersInline.Provider>
       )}
       {unreadCount > 0 && (
-        <span className="shrink-0 px-1 text-xs rounded-sm bg-primary text-primary-foreground tabular-nums">
-          {unreadCount}
+        <span className="shrink-0 px-1 text-xs text-muted-foreground tabular-nums">
+          <ConversationCountValue count={unreadCount} />
         </span>
       )}
     </Button>

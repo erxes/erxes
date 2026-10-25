@@ -1,18 +1,27 @@
-import { AddTriageSheet } from '@/triage/components/add-triage/AddTriageSheet';
+import { compactList } from '@/operation/utils/cursorList';
+import { GET_TASKS } from '@/task/graphql/queries/getTasks';
+import { AddTriageButton } from '@/triage/components/add-triage/AddTriageButton';
+import { GET_TRIAGES } from '@/triage/graphql/queries/getTriages';
+import { useQuery } from '@apollo/client';
 import { IconCaretLeftRight } from '@tabler/icons-react';
 import { Spinner } from 'erxes-ui';
 import {
+  getHostContacts,
   IRelationWidgetProps,
-  RelationWidgetContactsSection,
   RelationWidgetEmptyState,
   RelationWidgetList,
-  useContactRelations,
-  useRelateRecord,
-  useRelations,
 } from 'ui-modules';
-import { TaskWidget } from './TaskWidget';
+import { TaskItemRow, TriageRow } from '~/widgets/rows/TaskRow';
 import { useTranslation } from 'react-i18next';
 
+// The most records listed for one customer or company.
+const CONTACT_RECORDS_LIMIT = 50;
+
+/**
+ * The tasks and triages of the host's customer and company, found by the
+ * contact on the records themselves. "+" files a triage for them (its create
+ * mutation saves the contact); accepted, it becomes a task that keeps it.
+ */
 export const Task = ({
   contentId,
   contentType,
@@ -22,65 +31,82 @@ export const Task = ({
   companyIds,
 }: Omit<IRelationWidgetProps, 'module' | 'pluginName'>) => {
   const { t } = useTranslation('operation');
-  const { relatedIds, loading: loadingRelations } = useRelations({
+  const contacts = getHostContacts({
+    contentType,
+    contentId,
+    customerId,
+    companyId,
+    customerIds,
+    companyIds,
+  });
+  const byCustomer = {
     variables: {
-      contentId,
-      contentType,
-      relatedContentType: 'operation:task',
+      filter: { customerId: contacts.customerId, limit: CONTACT_RECORDS_LIMIT },
     },
-  });
+    skip: !contacts.customerId,
+  };
+  const byCompany = {
+    variables: {
+      filter: { companyId: contacts.companyId, limit: CONTACT_RECORDS_LIMIT },
+    },
+    skip: !contacts.companyId,
+  };
+  const customerTasks = useQuery(GET_TASKS, byCustomer);
+  const companyTasks = useQuery(GET_TASKS, byCompany);
+  const customerTriages = useQuery(GET_TRIAGES, byCustomer);
+  const companyTriages = useQuery(GET_TRIAGES, byCompany);
 
-  const { relateRecord } = useRelateRecord({
-    contentType,
-    contentId,
-    relatedContentType: 'operation:task',
-    customerId,
-    companyId,
-    customerIds,
-    companyIds,
-  });
-
-  const contactRecords = useContactRelations({
-    contentType,
-    contentId,
-    relatedContentType: 'operation:task',
-    customerId,
-    companyId,
-    customerIds,
-    companyIds,
-    excludeIds: relatedIds,
-  });
-
-  if (loadingRelations || contactRecords.loading) {
+  if (
+    customerTasks.loading ||
+    companyTasks.loading ||
+    customerTriages.loading ||
+    companyTriages.loading
+  ) {
     return <Spinner containerClassName="py-20" />;
   }
 
-  if (relatedIds.length === 0 && contactRecords.relatedIds.length === 0) {
+  // Each record once, the host itself left out.
+  const notHost = <T extends { _id: string }>(records: T[]) => [
+    ...new Map(
+      records
+        .filter((record) => record._id !== contentId)
+        .map((record) => [record._id, record]),
+    ).values(),
+  ];
+  const triages = notHost([
+    ...compactList(customerTriages.data?.operationGetTriageList?.list),
+    ...compactList(companyTriages.data?.operationGetTriageList?.list),
+  ]);
+  // An accepted triage's task keeps its id: list it once, as the triage.
+  const triageIds = new Set(triages.map((triage) => triage._id));
+  const tasks = notHost([
+    ...compactList(customerTasks.data?.getTasks?.list),
+    ...compactList(companyTasks.data?.getTasks?.list),
+  ]).filter((task) => !triageIds.has(task._id));
+
+  if (triages.length === 0 && tasks.length === 0) {
     return (
       <RelationWidgetEmptyState
         icon={IconCaretLeftRight}
         message={t('no-triages-to-display')}
       >
-        <AddTriageSheet onComplete={relateRecord} />
+        <AddTriageButton contacts={contacts} />
       </RelationWidgetEmptyState>
     );
   }
 
   return (
     <RelationWidgetList
-      label={t('tasks-and-triages')}
-      actions={<AddTriageSheet onComplete={relateRecord} />}
+      dense
+      label={t('tasks-and-triages', 'Tasks & triages')}
+      actions={<AddTriageButton contacts={contacts} iconOnly />}
     >
-      {relatedIds.map((taskId) => (
-        <TaskWidget key={taskId} taskId={taskId} />
+      {triages.map((triage) => (
+        <TriageRow key={triage._id} triage={triage} />
       ))}
-      {contactRecords.relatedIds.length > 0 && (
-        <RelationWidgetContactsSection>
-          {contactRecords.relatedIds.map((taskId) => (
-            <TaskWidget key={taskId} taskId={taskId} />
-          ))}
-        </RelationWidgetContactsSection>
-      )}
+      {tasks.map((task) => (
+        <TaskItemRow key={task._id} task={task} />
+      ))}
     </RelationWidgetList>
   );
 };

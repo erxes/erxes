@@ -52,8 +52,9 @@ export interface ITicket {
   isSubscribed?: boolean;
   propertiesData?: IPropertyField;
   attachments?: IAttachment[];
-  customerIds?: string[];
-  companyIds?: string[];
+  customerId?: string | null;
+  companyId?: string | null;
+  sourceConversationIds?: string[];
   customerFieldData?: any;
   sourceSurvey?: ITicketSourceSurvey;
 }

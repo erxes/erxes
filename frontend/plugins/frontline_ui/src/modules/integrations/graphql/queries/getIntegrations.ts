@@ -41,6 +41,10 @@ export const GET_INTEGRATIONS_BY_KIND = gql(`
         }
         brandId
         channelId
+        facebookPage {
+          pageId
+          name
+        }
       }
       totalCount
       pageInfo {

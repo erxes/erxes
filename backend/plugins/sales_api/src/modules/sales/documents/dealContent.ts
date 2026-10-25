@@ -1,4 +1,3 @@
-import { hasContactFields } from 'erxes-api-shared/core-modules';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { IDeal, IProductData } from '~/modules/sales/@types';
@@ -244,30 +243,6 @@ export const buildDealReplacer = async (
       }).lean()
     : Promise.resolve([]);
 
-  // The deal's contacts: from the deal once it keeps them, else relations.
-  const relatedIdsPromise = (relatedContentType: string): Promise<string[]> =>
-    sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      method: 'query',
-      module: 'relation',
-      action: 'getRelationIds',
-      input: {
-        contentType: 'sales:deal',
-        contentId: deal._id,
-        relatedContentType,
-      },
-      defaultValue: [],
-    });
-
-  const customerIdsPromise = hasContactFields(deal)
-    ? Promise.resolve(deal.customerIds)
-    : relatedIdsPromise('core:customer');
-
-  const companyIdsPromise = hasContactFields(deal)
-    ? Promise.resolve(deal.companyIds)
-    : relatedIdsPromise('core:company');
-
   const [
     stageContext,
     users,
@@ -279,8 +254,8 @@ export const buildDealReplacer = async (
     stageContextPromise,
     assignedUsersPromise,
     labelsPromise,
-    customerIdsPromise,
-    companyIdsPromise,
+    Promise.resolve(deal.customerId ? [deal.customerId] : []),
+    Promise.resolve(deal.companyId ? [deal.companyId] : []),
     generateProducts(subdomain, deal.productsData),
   ]);
 
@@ -289,12 +264,8 @@ export const buildDealReplacer = async (
   attrMap.assignedUsers = joinNames(users, userName);
   attrMap.labels = joinNames(labels, (label) => label?.name);
 
-  const customerIds: string[] = relatedCustomerIds?.length
-    ? relatedCustomerIds
-    : deal.customerIds || [];
-  const companyIds: string[] = relatedCompanyIds?.length
-    ? relatedCompanyIds
-    : deal.companyIds || [];
+  const customerIds: string[] = relatedCustomerIds || [];
+  const companyIds: string[] = relatedCompanyIds || [];
 
   const [customers, companies] = await Promise.all([
     customerIds.length

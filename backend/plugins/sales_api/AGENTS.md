@@ -6,7 +6,7 @@
 - **Project:** `sales_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/sales_api`
-- **Last synchronized:** `2026-10-20`
+- **Last synchronized:** `2026-10-23`
 
 ## Scope
 
@@ -113,7 +113,7 @@
   `purchaseItems`. Earning is decided by automations, never by sales.
 - Sales tells loyalty what a purchase paid with points and when it is undone
   (`modules/sales/utils/dealPoints.ts`): `planDealPoints` decides per deal
-  create, edit or move (a new deal passes its `customerIds` and a pre-made
+  create, edit or move (a new deal passes its `customerId` as `customerIds` and a pre-made
   `_id`, since it has no relations yet), `checkDealPoints` asks loyalty's `score.checkSpend` before the
   deal is saved (a point payment without a customer, or one loyalty refuses,
   fails the save), and `syncDealPoints` records `score.spend` after it,
@@ -213,8 +213,7 @@
 
 ### Provides
 
-- Internal `contactFields.find` tRPC query (`TContactFieldsFind`) — core answers `getRelationsByEntity` / `getRelationsByContentIds` between contacts and 'sales:deal' from the deals' `customerIds` / `companyIds` through it: by contacts (`null` until every deal has its fields, then newest 200) or by ids (only deals that have them; core reads relations for the rest). Not agent-callable.
-- Internal `contactFields.sync` tRPC mutation (`TContactFieldsSync` from `erxes-api-shared/core-modules`) — core calls it when a deal ↔ customer/company relation is made, removed or a contact is merged/removed; applied with `applyContactFieldsSync`. Not agent-callable.
+- Internal `contactFields.sync` tRPC mutation (`TContactFieldsSync`) — core broadcasts contact merges and removals to every plugin declaring `meta.contactFields` (sales declares `sales:deal` in `main.ts`); applied with `applyContactFieldsSync`. Not agent-callable.
 - Internal `pos.cancelOrder({_id, posToken, userId?})` tRPC mutation returns
   `{cancelled: true}` after cancelling the POS order; it is not agent-callable.
 - Plugin meta `properties` (`src/meta/properties.ts`) — the `deal` property
@@ -248,7 +247,7 @@
 
 ## Data and State
 
-- `deals` keeps its contacts as `customerIds` / `companyIds` (indexed, `default: undefined`; `contactFieldsSchemaPlugin` gives new deals `[]`). Core `relations` (`sales:deal ↔ core:customer/company`) stay the source of truth and core mirrors every change into the fields through `contactFields.sync`; `core-api` `commands/migrateRelationsToContactFields.ts` backfills existing deals and, re-run, repairs a lost sync.
+- `deals` owns one customer and one company as `customerId` / `companyId` (indexed, `default: null`; read only from the record — the migration must run before deploy, there is no relation fallback); sales saves them itself and makes no core relation for them. `dealsAdd` / `dealsEdit`, `cpDealsAdd`, the agent `deal.add` tool and the `deal.create` / `deal.createItem` tRPC take them on the doc; copies take the source deal's; automations set them with `setDealContacts` (`modules/sales/utils.ts`). `Deal` exposes `customerId` / `companyId` and keeps `customers` / `companies` (0–1 items). `backend/saas-migrations/core/commands/migrateRelationsToContactFields.ts` backfills deals linked before (first of old arrays, else the oldest related contact).
 - Tenant-scoped Mongo collections are loaded through plugin connection
   resolvers.
 - Deal stage browsing uses `stageId`; its total count filters archived and
@@ -265,7 +264,7 @@
 
 ## Local Invariants
 
-- A deal's contacts are read per doc: both `customerIds` and `companyIds` set (`hasContactFields`) ⇒ the fields, otherwise core relations. Use `getCustomerIds` / `getCompanyIds(subdomain, models, dealId)` (`modules/sales/utils.ts`) or the deal loader, never a direct `relation.getRelationIds` for `core:customer` / `core:company`. List filters (`customerIds`, `companyIds`, customer phone, `relationType` core:customer/company) use the fields only when `contactFieldsReady(models.Deals, ...)` says every deal has them. Tests that mock `erxes-api-shared/core-modules` or `utils` must declare the contact-field helpers they reach.
+- A deal's contacts are read only from `customerId` / `companyId`: `getCustomerIds` / `getCompanyIds(subdomain, models, dealId)` (`modules/sales/utils.ts`), the deal loader, documents, list filters (`customerId`, `companyId` args on `deals`, archived deals and stages; customer phone search; `relationType` core:customer/company) and automation targets ("Deal customer/company" are `targetField`s; "Customer/Company deals" select by the field in `getDealSetPropertySelector`). Never call `relation.getRelationIds` for a deal's contacts. Importing the `erxes-api-shared/core-modules` barrel from `modules/sales/utils.ts` breaks test schemas (import cycle); keep it out.
 - Set property handlers pass `targetActionId: action.targetActionId` to
   `getSetPropertySelector`, so a Manage properties action targeting an earlier
   action (Find object, Create) updates that action's record, not the trigger's.
@@ -412,11 +411,11 @@
   `meta/segments/fields/` and `meta/segments/evaluate/`, with an `index.ts`
   keying them by content type. Shared field builders come from
   `erxes-api-shared`; do not re-declare operator sets locally.
-- A deal carries no customer or company id. `customer.deals` and
-  `company.deals` are declared `join: { via: 'relation' }`, and core resolves
-  the edges from its own relation records and sends them on the request. Never
-  declare a field join on a path the deal schema does not store, and never
-  query core's collections to find the link.
+- A deal keeps its customer and company itself: `customer.deals` and
+  `company.deals` are field joins (`on: 'related'`, `customerId` /
+  `companyId`), and the deal `customers` / `companies` references are
+  `kind: 'field'` on the same paths. Never query core's collections to find
+  the link.
 - A relation measure costs one query per request for the whole batch: a grouped
   aggregation for a field join, one `find` over the resolved related ids for a
   relation join. Never a query per subject.

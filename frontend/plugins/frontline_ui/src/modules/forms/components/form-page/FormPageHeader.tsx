@@ -28,7 +28,7 @@ export const FormDetailsBreadcrumbItem = ({ formId }: { formId: string }) => {
 };
 
 export const FormPageHeader = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
   const { formId } = useParams<{ formId: string }>();
   const isMatchingLocation = useIsMatchingLocation('/frontline');
   const isCreateRoute = isMatchingLocation(FrontlinePaths.FormCreate);

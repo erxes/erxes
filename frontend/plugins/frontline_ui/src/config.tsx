@@ -39,6 +39,12 @@ export const CONFIG: IUIConfig = {
     icon: IconStackFront,
   },
   widgets: {
+    // A customer's / company's tickets and conversations on their overview
+    // (`./contactWidget`).
+    contactWidgets: [
+      { name: 'ticket', label: 'Tickets', icon: IconTicket },
+      { name: 'conversation', label: 'Conversations', icon: IconMail },
+    ],
     relationWidgets: [
       {
         name: 'conversation',
@@ -115,14 +121,14 @@ export const CONFIG: IUIConfig = {
       path: 'frontline/helpcenter',
     },
     {
-      name: 'channels',
-      icon: IconMail,
-      path: 'frontline/settings/channels',
-    },
-    {
       name: 'personal-channel',
       icon: IconMail,
       path: 'frontline/settings/personal-channel',
+    },
+    {
+      name: 'channels',
+      icon: IconMail,
+      path: 'frontline/settings/channels',
     },
     {
       name: 'integrations-config',

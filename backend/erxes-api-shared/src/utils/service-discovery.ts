@@ -134,7 +134,11 @@ export const getPlugin = async (
   result.config = JSON.parse(configJson || '{}');
 
   Object.freeze(result);
-  serviceInfoCache[name] = result;
+  // Registration writes config and address separately. A lookup during startup
+  // must not pin a missing/partial service for the lifetime of this process.
+  if (result.address && Object.keys(result.config || {}).length > 0) {
+    serviceInfoCache[name] = result;
+  }
 
   return result;
 };

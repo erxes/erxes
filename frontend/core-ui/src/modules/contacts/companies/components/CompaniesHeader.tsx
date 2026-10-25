@@ -1,7 +1,12 @@
-import { Can, PageHeader, createFavoriteBreadcrumb } from 'ui-modules';
+import { CompanyCreateButton } from '@/contacts/companies/components/CompanyCreateButton';
 import { ContactsBreadcrumb } from '@/contacts/components/ContactsBreadcrumb';
-import { CompanyAddSheet } from './CompanyAddSheet';
 import { useTranslation } from 'react-i18next';
+import {
+  Can,
+  createFavoriteBreadcrumb,
+  PageHeader,
+  SendEmailButton,
+} from 'ui-modules';
 
 export const CompaniesHeader = () => {
   const { t } = useTranslation('contact', { keyPrefix: 'company' });
@@ -17,8 +22,9 @@ export const CompaniesHeader = () => {
         />
       </PageHeader.Start>
       <PageHeader.End>
+        <SendEmailButton />
         <Can action="contactsCreate">
-          <CompanyAddSheet />
+          <CompanyCreateButton />
         </Can>
       </PageHeader.End>
     </PageHeader>

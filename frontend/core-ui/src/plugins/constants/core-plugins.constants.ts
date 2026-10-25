@@ -6,10 +6,13 @@ import {
   IconBuilding,
   IconChartPie,
   IconFile,
+  IconFolders,
   IconLayoutGrid,
   IconMagnet,
   IconSpiral,
+  IconTrash,
   IconUser,
+  IconUsersGroup,
 } from '@tabler/icons-react';
 import { ICoreModule } from 'erxes-ui';
 import { TFunction } from 'i18next';
@@ -93,6 +96,33 @@ export const GET_CORE_MODULES = (
       name: t('documents'),
       icon: IconFile,
       path: 'documents',
+    },
+    {
+      name: t('files'),
+      icon: IconFolders,
+      path: 'files',
+      submenus: [
+        {
+          name: t('my-files'),
+          path: 'files',
+          icon: IconUser,
+        },
+        {
+          name: t('org-drive'),
+          path: 'files/org',
+          icon: IconFolders,
+        },
+        {
+          name: t('shared-with-me'),
+          path: 'files/shared',
+          icon: IconUsersGroup,
+        },
+        {
+          name: t('trash'),
+          path: 'files/trash',
+          icon: IconTrash,
+        },
+      ],
     },
   ];
 

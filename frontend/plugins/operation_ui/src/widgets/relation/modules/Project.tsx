@@ -5,18 +5,23 @@ import { IconClipboard } from '@tabler/icons-react';
 import { useQuery } from '@apollo/client';
 import { Spinner } from 'erxes-ui';
 import {
+  getHostContacts,
   IRelationWidgetProps,
-  RelationWidgetContactsSection,
   RelationWidgetEmptyState,
   RelationWidgetList,
-  useContactRelations,
-  useRelateRecord,
-  useRelations,
 } from 'ui-modules';
 import { AddProjectRelation } from './AddProjectRelation';
-import { ProjectWidgetCard } from './ProjectWidgetCard';
+import { ProjectRow } from '~/widgets/rows/ProjectRow';
 import { useTranslation } from 'react-i18next';
 
+// The most projects listed for one customer or company.
+const CONTACT_RECORDS_LIMIT = 50;
+
+/**
+ * The projects of the host's customer and company, found by the contact on
+ * the projects themselves; "+" creates one for them (createProject saves the
+ * contact).
+ */
 export const Project = ({
   contentId,
   contentType,
@@ -26,60 +31,42 @@ export const Project = ({
   companyIds,
 }: Omit<IRelationWidgetProps, 'module' | 'pluginName'>) => {
   const { t } = useTranslation('operation');
-  const { relatedIds: projectIds, loading: loadingRelations } = useRelations({
-    variables: {
-      contentId,
-      contentType,
-      relatedContentType: 'operation:project',
-    },
-  });
-
-  const contactRecords = useContactRelations({
+  const contacts = getHostContacts({
     contentType,
     contentId,
-    relatedContentType: 'operation:project',
-    customerId,
-    companyId,
-    customerIds,
-    companyIds,
-    excludeIds: projectIds,
-  });
-
-  const allProjectIds = [...projectIds, ...contactRecords.relatedIds];
-
-  const { data, loading: loadingProjects } = useQuery(GET_PROJECTS, {
-    variables: {
-      filter: { _ids: allProjectIds, limit: allProjectIds.length || 1 },
-    },
-    skip: allProjectIds.length === 0,
-  });
-
-  const { relateRecord } = useRelateRecord({
-    contentType,
-    contentId,
-    relatedContentType: 'operation:project',
     customerId,
     companyId,
     customerIds,
     companyIds,
   });
+  const customerProjects = useQuery(GET_PROJECTS, {
+    variables: {
+      filter: { customerId: contacts.customerId, limit: CONTACT_RECORDS_LIMIT },
+    },
+    skip: !contacts.customerId,
+  });
+  const companyProjects = useQuery(GET_PROJECTS, {
+    variables: {
+      filter: { companyId: contacts.companyId, limit: CONTACT_RECORDS_LIMIT },
+    },
+    skip: !contacts.companyId,
+  });
 
-  const loading =
-    loadingRelations ||
-    contactRecords.loading ||
-    (allProjectIds.length > 0 && loadingProjects);
-
-  if (loading) {
+  if (customerProjects.loading || companyProjects.loading) {
     return <Spinner containerClassName="py-20" />;
   }
 
-  const projects: IProject[] = compactList(data?.getProjects?.list);
-  const directProjects = projects.filter((project) =>
-    projectIds.includes(project._id),
-  );
-  const contactProjects = projects.filter((project) =>
-    contactRecords.relatedIds.includes(project._id),
-  );
+  // Each project once, the host itself left out.
+  const projects: IProject[] = [
+    ...new Map(
+      [
+        ...compactList(customerProjects.data?.getProjects?.list),
+        ...compactList(companyProjects.data?.getProjects?.list),
+      ]
+        .filter((project: IProject) => project._id !== contentId)
+        .map((project: IProject) => [project._id, project]),
+    ).values(),
+  ];
 
   if (projects.length === 0) {
     return (
@@ -87,26 +74,20 @@ export const Project = ({
         icon={IconClipboard}
         message={t('no-projects-to-display')}
       >
-        <AddProjectRelation onSelect={relateRecord} label="Add project" />
+        <AddProjectRelation contacts={contacts} label="Add project" />
       </RelationWidgetEmptyState>
     );
   }
 
   return (
     <RelationWidgetList
+      dense
       label={t('projects')}
-      actions={<AddProjectRelation onSelect={relateRecord} />}
+      actions={<AddProjectRelation contacts={contacts} />}
     >
-      {directProjects.map((project) => (
-        <ProjectWidgetCard key={project._id} project={project} />
+      {projects.map((project) => (
+        <ProjectRow key={project._id} project={project} />
       ))}
-      {contactProjects.length > 0 && (
-        <RelationWidgetContactsSection>
-          {contactProjects.map((project) => (
-            <ProjectWidgetCard key={project._id} project={project} />
-          ))}
-        </RelationWidgetContactsSection>
-      )}
     </RelationWidgetList>
   );
 };

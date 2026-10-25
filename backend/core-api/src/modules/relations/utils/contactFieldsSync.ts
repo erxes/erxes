@@ -1,11 +1,6 @@
-import {
-  CONTACT_FIELD_RECORD_PLUGINS,
-  IContactLink,
-  TContactFieldsSync,
-} from 'erxes-api-shared/core-modules';
+import { TContactFieldsSync } from 'erxes-api-shared/core-modules';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
-
-const ALL_PLUGINS = [...new Set(Object.values(CONTACT_FIELD_RECORD_PLUGINS))];
+import { getContactFieldPlugins } from './contactFieldPlugins';
 
 const send = async (
   subdomain: string,
@@ -23,8 +18,8 @@ const send = async (
       throwOnError: true,
     });
   } catch (error) {
-    // The relation itself is saved; re-running the contact-fields migration
-    // repairs a record whose sync was lost.
+    // The contact change itself is saved; the plugin's records keep the old
+    // id until it is applied again.
     console.error(
       `[contact fields] ${pluginName} could not apply "${sync.action}": ${
         error instanceof Error ? error.message : error
@@ -34,41 +29,17 @@ const send = async (
 };
 
 /**
- * Tells the plugins owning these records that their contact links changed,
- * so their `customerIds` / `companyIds` follow `relations`. Merges and
- * removals go to every such plugin.
+ * Tells every plugin keeping contact fields (`meta.contactFields`) that
+ * contacts were merged or removed, so its records follow. Plugins save
+ * their records' contacts themselves otherwise.
  */
 export const sendContactFieldsSync = async (
   subdomain: string,
   sync: TContactFieldsSync,
 ) => {
-  if (sync.action === 'merge' || sync.action === 'remove') {
-    await Promise.all(
-      ALL_PLUGINS.map((pluginName) => send(subdomain, pluginName, sync)),
-    );
-    return;
-  }
-
-  if (!sync.links.length) {
-    return;
-  }
-
-  const linksByPlugin = new Map<string, IContactLink[]>();
-
-  for (const link of sync.links) {
-    const pluginName = CONTACT_FIELD_RECORD_PLUGINS[link.contentType];
-
-    if (pluginName) {
-      linksByPlugin.set(pluginName, [
-        ...(linksByPlugin.get(pluginName) || []),
-        link,
-      ]);
-    }
-  }
+  const pluginNames = await getContactFieldPlugins();
 
   await Promise.all(
-    [...linksByPlugin].map(([pluginName, links]) =>
-      send(subdomain, pluginName, { action: sync.action, links }),
-    ),
+    pluginNames.map((pluginName) => send(subdomain, pluginName, sync)),
   );
 };

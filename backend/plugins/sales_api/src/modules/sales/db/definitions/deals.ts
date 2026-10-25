@@ -1,4 +1,3 @@
-import { contactFieldsSchemaPlugin } from 'erxes-api-shared/core-modules';
 import {
   attachmentSchema,
   customFieldSchema,
@@ -143,11 +142,9 @@ export const dealSchema = schemaWrapper(
       assignedUserIds: { type: [String] },
       watchedUserIds: { type: [String] },
       labelIds: { type: [String] },
-      // The deal's contacts, kept on the deal instead of core relations.
-      // Missing (not `[]`) until the deal is migrated; see
-      // contactFieldsSchemaPlugin.
-      customerIds: { type: [String], default: undefined, index: true },
-      companyIds: { type: [String], default: undefined, index: true },
+      // The deal's one customer and one company, kept on the deal.
+      customerId: { type: String, default: null, index: true },
+      companyId: { type: String, default: null, index: true },
       attachments: { type: [attachmentSchema], label: 'Attachments' },
       stageId: { type: String, index: true },
       initialStageId: {
@@ -255,4 +252,3 @@ dealSchema.index({ stageId: 1, status: 1, parentId: 1 });
 dealSchema.index({ parentId: 1, order: 1, _id: 1, status: 1 });
 dealSchema.index({ stageId: 1, number: 1 });
 
-dealSchema.plugin(contactFieldsSchemaPlugin);

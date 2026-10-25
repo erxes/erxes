@@ -921,108 +921,56 @@ export const getAmountsMap = async (
 
 type TDealContactKind = 'customer' | 'company';
 
-const relatedContactIds = (
-  subdomain: string,
-  dealId: string,
-  kind: TDealContactKind,
-): Promise<string[]> =>
-  sendTRPCMessage({
-    subdomain,
-    pluginName: 'core',
-    module: 'relation',
-    action: 'getRelationIds',
-    input: {
-      contentType: 'sales:deal',
-      contentId: dealId,
-      relatedContentType:
-        kind === 'customer' ? 'core:customer' : 'core:company',
-    },
-    defaultValue: [],
-  });
-
-// A deal's contacts: from the deal once it keeps both (as erxes-api-shared
-// `hasContactFields`), else from relations.
+// A deal's customer or company, as a list of at most one: kept on the deal.
 const getDealContactIds = async (
-  subdomain: string,
   models: IModels,
   dealId: string,
   kind: TDealContactKind,
 ): Promise<string[]> => {
   const deal = await models.Deals.findOne(
     { _id: dealId },
-    { customerIds: 1, companyIds: 1 },
+    { customerId: 1, companyId: 1 },
   ).lean();
+  const contactId = kind === 'customer' ? deal?.customerId : deal?.companyId;
 
-  if (Array.isArray(deal?.customerIds) && Array.isArray(deal?.companyIds)) {
-    return kind === 'customer' ? deal.customerIds : deal.companyIds;
-  }
-
-  return relatedContactIds(subdomain, dealId, kind);
+  return contactId ? [contactId] : [];
 };
 
 export const getCompanyIds = (
   subdomain: string,
   models: IModels,
   dealId: string,
-): Promise<string[]> => getDealContactIds(subdomain, models, dealId, 'company');
+): Promise<string[]> => getDealContactIds(models, dealId, 'company');
 
 export const getCustomerIds = (
   subdomain: string,
   models: IModels,
   dealId: string,
-): Promise<string[]> =>
-  getDealContactIds(subdomain, models, dealId, 'customer');
+): Promise<string[]> => getDealContactIds(models, dealId, 'customer');
 
-export const createRelations = async (
-  subdomain: string,
+/**
+ * Sets a deal's customer / company. Sales keeps its deals' contact itself
+ * (`customerId` / `companyId`, one each); core only reports merged or
+ * removed contacts (`contactFields.sync`).
+ */
+export const setDealContacts = async (
+  models: IModels,
   {
     dealId,
-    companyIds,
-    customerIds,
-  }: { dealId: string; companyIds?: string[]; customerIds?: string[] },
+    companyId,
+    customerId,
+  }: { dealId: string; companyId?: string | null; customerId?: string | null },
 ) => {
-  const companyEntities =
-    companyIds?.map((companyId) => ({
-      entities: [
-        {
-          contentType: 'sales:deal',
-          contentId: dealId,
-        },
-        {
-          contentType: 'core:company',
-          contentId: companyId,
-        },
-      ],
-    })) ?? [];
+  const set = {
+    ...(customerId ? { customerId } : {}),
+    ...(companyId ? { companyId } : {}),
+  };
 
-  const customerEntities =
-    customerIds?.map((customerId) => ({
-      entities: [
-        {
-          contentType: 'sales:deal',
-          contentId: dealId,
-        },
-        {
-          contentType: 'core:customer',
-          contentId: customerId,
-        },
-      ],
-    })) ?? [];
-
-  if (!(companyEntities.length + customerEntities.length)) {
+  if (!Object.keys(set).length) {
     return;
   }
 
-  await sendTRPCMessage({
-    subdomain,
-    method: 'mutation',
-    pluginName: 'core',
-    module: 'relation',
-    action: 'createMultipleRelations',
-    input: {
-      relations: [...companyEntities, ...customerEntities],
-    },
-  });
+  await models.Deals.updateOne({ _id: dealId }, { $set: set });
 };
 
 export const getTotalAmounts = async (productsData: IProductData[]) => {

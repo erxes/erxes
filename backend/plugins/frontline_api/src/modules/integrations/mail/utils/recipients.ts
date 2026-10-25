@@ -16,6 +16,21 @@ export interface MailVerifiedContact {
   emailValidationStatus?: string;
 }
 
+export const validateMailRecipients = (recipients: {
+  to: string[];
+  cc?: string[];
+  bcc?: string[];
+}): void => {
+  z.array(z.string().trim().email().max(320))
+    .min(1)
+    .max(500)
+    .parse([
+      ...recipients.to,
+      ...(recipients.cc ?? []),
+      ...(recipients.bcc ?? []),
+    ]);
+};
+
 export const readMailVerifiedContacts = async (
   subdomain: string,
   args: { searchValue?: string; cursor?: string },

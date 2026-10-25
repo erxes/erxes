@@ -24,7 +24,7 @@ const PREVIEW_WIDTHS = {
 type PreviewWidth = keyof typeof PREVIEW_WIDTHS;
 
 export const SurveyPreview = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.survey' });
   const [width, setWidth] = useState<PreviewWidth>('desktop');
   const general = useAtomValue(surveySetupGeneralAtom);
   const content = useAtomValue(surveySetupContentAtom);

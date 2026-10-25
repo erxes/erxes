@@ -70,6 +70,30 @@ tsx backend/saas-migrations/run.ts --org=belty,hipay core
 tsx backend/saas-migrations/run-commands.ts --org=belty propertiesData
 ```
 
+## Single customer / company and source conversations
+
+Two commands in `core/commands/` move existing data to the model where records
+keep their own contacts. Unlike the source → target migrations, they change one
+database in place and also serve self-hosted servers. Run them before the new
+code serves traffic; both are safe to run again, and `DRY_RUN=true` only counts.
+
+- `migrateRelationsToContactFields.ts`: gives deals, tickets, tasks, projects,
+  triages and cars one `customerId` / `companyId` (old arrays or relations →
+  the first), and rewrites saved automations to those fields.
+- `migrateConversationRelationsToSourceFields.ts`: gives tickets and deals the
+  conversations they were made from (`sourceConversationIds`).
+
+Which databases they touch (`core/commands/_organizationDbs.ts`):
+
+```bash
+# SaaS, every organization (MONGO_URL = core database)
+ALL_ORGS=true npx tsx backend/saas-migrations/core/commands/migrateRelationsToContactFields.ts
+# SaaS, one organization
+TARGET_SUBDOMAIN=<subdomain> npx tsx backend/saas-migrations/core/commands/migrateRelationsToContactFields.ts
+# Self-hosted (MONGO_URL = the erxes database)
+npx tsx backend/saas-migrations/core/commands/migrateRelationsToContactFields.ts
+```
+
 ## Knowledge Base to CMS
 
 The explicit [Knowledge Base importer](content/knowledgebase/README.md) converts

@@ -57,6 +57,7 @@ export const permissions: IPermissionConfig = {
           name: 'boardsAdd',
           description: 'Create boards',
         },
+        { title: 'Archive / unarchive boards', name: 'boardsArchive', description: 'Archive boards and their pipelines and deals; unarchive boards' },
         {
           title: 'Edit boards',
           name: 'boardsEdit',
@@ -289,6 +290,7 @@ export const permissions: IPermissionConfig = {
           module: 'board',
           actions: [
             'boardsAdd',
+            'boardsArchive',
             'boardsEdit',
             'boardsRemove',
             'updateTimeTracking',

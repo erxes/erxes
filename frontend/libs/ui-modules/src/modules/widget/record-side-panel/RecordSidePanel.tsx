@@ -1,11 +1,18 @@
 import {
   Icon,
   IconChevronDown,
+  IconChevronLeft,
   IconMaximize,
   IconX,
 } from '@tabler/icons-react';
 import { Button, cn, DropdownMenu, Tabs } from 'erxes-ui';
-import { useEffect, useRef, useState } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 
@@ -213,11 +220,17 @@ const RecordSidePanelRoot = ({
 const RecordSidePanelHeader = ({
   avatar,
   title,
+  actions,
+  onBack,
   onExpand,
   onClose,
 }: {
+  // Shown when the panel came here from another record.
+  onBack?: () => void;
   avatar?: React.ReactNode;
   title: React.ReactNode;
+  // The record's own actions (e.g. a "more" menu), before expand and close.
+  actions?: React.ReactNode;
   onExpand?: () => void;
   onClose: () => void;
 }) => {
@@ -226,10 +239,25 @@ const RecordSidePanelHeader = ({
   return (
     // Same height and surface as the app's top bar, so the two read as one.
     <div className="flex items-center gap-1 h-12 px-2 border-b bg-sidebar flex-none">
+      {onBack && (
+        <Button
+          variant="ghost"
+          size="icon"
+          className="size-7 flex-none"
+          onClick={onBack}
+          title={t('back', 'Back')}
+          aria-label={t('back', 'Back')}
+        >
+          <IconChevronLeft className="size-4" />
+        </Button>
+      )}
       {avatar}
       <div className="flex-1 min-w-0 px-1 text-sm font-medium truncate">
         {title}
       </div>
+      {actions && (
+        <div className="flex flex-none items-center gap-1">{actions}</div>
+      )}
       {onExpand && (
         <Button
           variant="ghost"
@@ -258,6 +286,12 @@ const RecordSidePanelHeader = ({
  * The first `visibleCount` tabs show as triggers; the rest sit behind a
  * "+N More" menu. A tab picked from the menu takes the last visible slot.
  */
+// Tab bar layout, in px: the gap between triggers, the "+N More" button, and
+// a tab's width before it was ever shown.
+const TAB_GAP = 4;
+const MORE_BUTTON_WIDTH = 96;
+const TAB_FALLBACK_WIDTH = 104;
+
 const RecordSidePanelTabs = ({
   tabs,
   value,
@@ -270,29 +304,123 @@ const RecordSidePanelTabs = ({
   visibleCount?: number;
 }) => {
   const { t } = useTranslation('common', { keyPrefix: 'side-panel' });
+  const barRef = useRef<HTMLDivElement>(null);
+  const tabWidths = useRef(new Map<string, number>());
+  const tabsRef = useRef(tabs);
+  tabsRef.current = tabs;
+  const tabsKey = tabs.map((tab) => tab.value).join(',');
+  // How many tabs fit the bar beside the More button; never more than
+  // `visibleCount`. A narrow panel moves the rest into More.
+  const [fitCount, setFitCount] = useState(visibleCount);
 
+  const measure = useCallback(() => {
+    const bar = barRef.current;
+
+    if (!bar) {
+      return;
+    }
+
+    bar
+      .querySelectorAll<HTMLElement>('[data-panel-tab]')
+      .forEach((trigger) =>
+        tabWidths.current.set(
+          trigger.dataset.panelTab || '',
+          trigger.offsetWidth,
+        ),
+      );
+
+    const candidates = tabsRef.current.slice(0, visibleCount);
+    const widths = candidates.map(
+      (tab) => tabWidths.current.get(tab.value) ?? TAB_FALLBACK_WIDTH,
+    );
+    const style = getComputedStyle(bar);
+    const available =
+      bar.clientWidth -
+      (parseFloat(style.paddingLeft) || 0) -
+      (parseFloat(style.paddingRight) || 0);
+    const total =
+      widths.reduce((sum, width) => sum + width, 0) +
+      TAB_GAP * (widths.length - 1);
+    const needsMore =
+      tabsRef.current.length > visibleCount || total > available;
+    const budget = needsMore ? available - MORE_BUTTON_WIDTH : available;
+
+    let used = 0;
+    let count = 0;
+
+    for (const width of widths) {
+      const next = used + (count ? TAB_GAP : 0) + width;
+
+      if (next > budget) {
+        break;
+      }
+
+      used = next;
+      count += 1;
+    }
+
+    setFitCount(Math.max(1, count));
+  }, [visibleCount]);
+
+  useLayoutEffect(() => {
+    const bar = barRef.current;
+
+    measure();
+
+    if (!bar || typeof ResizeObserver === 'undefined') {
+      return;
+    }
+
+    let frame = 0;
+    // Measured in the next frame, outside the observer callback.
+    const observer = new ResizeObserver(() => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(measure);
+    });
+
+    observer.observe(bar);
+
+    return () => {
+      cancelAnimationFrame(frame);
+      observer.disconnect();
+    };
+  }, [measure, tabsKey]);
+
+  const shownCount = Math.min(visibleCount, fitCount);
+
+  // Tabs shown for the first time are measured once drawn; their real width
+  // then settles the count (each width is measured once, so it converges).
+  useLayoutEffect(() => {
+    measure();
+  }, [shownCount, measure]);
   const activeIndex = tabs.findIndex((tab) => tab.value === value);
   const visible =
-    activeIndex >= visibleCount
-      ? [...tabs.slice(0, visibleCount - 1), tabs[activeIndex]]
-      : tabs.slice(0, visibleCount);
+    activeIndex >= shownCount
+      ? [...tabs.slice(0, shownCount - 1), tabs[activeIndex]]
+      : tabs.slice(0, shownCount);
   const overflow = tabs.filter((tab) => !visible.includes(tab));
 
   return (
     <Tabs
       value={value}
       onValueChange={onValueChange}
-      className="flex flex-col flex-1 min-h-0"
+      className="flex flex-col flex-1 min-h-0 min-w-0"
     >
       {/* Lines up with a page's breadcrumb row: h-10 plus its 1px rule. */}
-      <div className="box-content flex items-center gap-1 h-10 px-2 border-b bg-background flex-none">
-        <Tabs.List className="flex h-full items-stretch border-b-0 gap-1 py-0">
+      {/* Never wider than its container: pinning a tab moves tabs into More
+          instead of widening whatever holds the panel. */}
+      <div
+        ref={barRef}
+        className="box-content flex items-center gap-1 h-10 px-2 border-b bg-background flex-none min-w-0 overflow-hidden"
+      >
+        <Tabs.List className="flex h-full min-w-0 items-stretch border-b-0 gap-1 py-0">
           {visible.map((tab) => (
             // Full row height, so the active underline lands on the row's
             // bottom border instead of above it.
             <Tabs.Trigger
               key={tab.value}
               value={tab.value}
+              data-panel-tab={tab.value}
               className="h-full gap-1.5 rounded-none after:-mb-px"
             >
               <tab.icon className="size-4" />

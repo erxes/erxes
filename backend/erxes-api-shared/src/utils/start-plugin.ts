@@ -18,6 +18,7 @@ import * as http from 'http';
 import * as path from 'path';
 import rateLimit from 'express-rate-limit';
 import { startPayments } from '../common-modules/payment/worker';
+import type { IContactFieldsMeta } from '../core-modules/contact-fields';
 import type {
   IPropertyMeta,
   LogsConfigs,
@@ -92,6 +93,9 @@ type IMeta = {
   relations?: {
     subscribedTypes: string[];
   };
+  // Record types keeping their own customerId / companyId; core tells the
+  // plugin when a contact is merged or removed (tRPC `contactFields.sync`).
+  contactFields?: IContactFieldsMeta;
 };
 
 type ApiHandler = {
@@ -264,6 +268,7 @@ export async function startPlugin(
     app.use(
       '/trpc',
       trpcExpress.createExpressMiddleware({
+        allowMethodOverride: true,
         router,
         createContext: createTRPCContext(createContext),
       }),

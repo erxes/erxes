@@ -59,7 +59,6 @@ const messengerDataSchema = new Schema(
     automationId: { type: String },
     persistentMenus: { type: [persistentMenuSchema] }, // Corrected to an array
     supporterIds: { type: [String] },
-    notifyCustomer: { type: Boolean },
     availabilityMethod: {
       type: String,
       enum: MESSENGER_DATA_AVAILABILITY.ALL,

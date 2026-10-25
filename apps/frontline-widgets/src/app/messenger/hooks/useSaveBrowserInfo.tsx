@@ -25,16 +25,12 @@ export const useSaveBrowserInfo = () => {
       setBrowserInfo(info);
 
       mutate({
-        variables: {
-          customerId,
-          visitorId,
-          browserInfo: info,
-        },
+        variables: { browserInfo: info },
       }).catch((error) => {
         console.error('Error saving browser info mutation', error);
       });
     },
-    [customerId, visitorId, mutate, setBrowserInfo, setConnection],
+    [mutate, setBrowserInfo, setConnection],
   );
 
   React.useEffect(() => {

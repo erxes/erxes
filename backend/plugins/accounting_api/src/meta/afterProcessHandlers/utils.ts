@@ -1,4 +1,3 @@
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import {
   ACCOUNT_JOURNALS,
@@ -70,43 +69,13 @@ export const getJournal = async (
 type TDealOwner = { customerType: 'company' | 'customer'; customerId?: string };
 
 /**
- * Who a deal's transactions are for: its first company, else its first
- * customer. Read from the deal once it keeps its contacts, else (deal not
- * migrated yet) asked of core relations as before.
+ * Who a deal's transactions are for: its company, else its customer, both
+ * kept on the deal.
  */
-export const getDealOwner = async (
-  subdomain: string,
-  deal: { _id: string; customerIds?: string[]; companyIds?: string[] },
-): Promise<TDealOwner> => {
-  // Same rule as erxes-api-shared `hasContactFields`: both fields set means
-  // the deal keeps its contacts itself.
-  if (Array.isArray(deal.customerIds) && Array.isArray(deal.companyIds)) {
-    return deal.companyIds.length
-      ? { customerType: 'company', customerId: deal.companyIds[0] }
-      : { customerType: 'customer', customerId: deal.customerIds[0] };
-  }
-
-  const relatedIds = (relatedContentType: string): Promise<string[]> =>
-    sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      module: 'relation',
-      action: 'getRelationIds',
-      input: {
-        contentType: 'sales:deal',
-        contentId: deal._id,
-        relatedContentType,
-      },
-      defaultValue: [],
-    });
-
-  const companyIds = await relatedIds('core:company');
-
-  if (companyIds?.length) {
-    return { customerType: 'company', customerId: companyIds[0] };
-  }
-
-  const customerIds = await relatedIds('core:customer');
-
-  return { customerType: 'customer', customerId: customerIds?.[0] };
-};
+export const getDealOwner = (deal: {
+  customerId?: string | null;
+  companyId?: string | null;
+}): TDealOwner =>
+  deal.companyId
+    ? { customerType: 'company', customerId: deal.companyId }
+    : { customerType: 'customer', customerId: deal.customerId ?? undefined };

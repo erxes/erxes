@@ -2,7 +2,10 @@ import { IModels } from '~/connectionResolvers';
 
 import { AuthenticationError } from '@/clientportal/services/errorHandler';
 import { updateLastLogin } from '@/clientportal/services/helpers/userUtils';
-import { handleCPContacts } from '@/clientportal/services/user/contactService';
+import {
+  handleCPContacts,
+  updateCustomerStateToCustomer,
+} from '@/clientportal/services/user/contactService';
 import { IClientPortalDocument } from '@/clientportal/types/clientPortal';
 import { ICPUserDocument } from '@/clientportal/types/cpUser';
 import { getTokiConnection } from '~/modules/clientportal/utils';
@@ -73,6 +76,10 @@ export async function loginWithToki(
       },
     },
   );
+
+  if (user.erxesCustomerId) {
+    await updateCustomerStateToCustomer(user.erxesCustomerId, models);
+  }
 
   await updateLastLogin(user._id, models);
 

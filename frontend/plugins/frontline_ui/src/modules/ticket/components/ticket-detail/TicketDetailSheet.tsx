@@ -85,7 +85,7 @@ export const TicketDetailSheet = ({
             <TicketSidebar />
           </FocusSheet.SideBar>
           <div className="flex-auto flex">
-            <ScrollArea>
+            <ScrollArea className="min-w-0 flex-1">
               <Tabs
                 value={selectedTab ?? 'overview'}
                 onValueChange={setSelectedTab}
@@ -96,7 +96,6 @@ export const TicketDetailSheet = ({
 
                 <Tabs.Content value="properties" className="p-6">
                   <TicketPipelineProperties
-                    pipelineId={ticket?.pipelineId || ''}
                     propertiesData={
                       isRecord(ticket?.propertiesData)
                         ? ticket.propertiesData
@@ -111,11 +110,8 @@ export const TicketDetailSheet = ({
           </div>
           {!hideRelationWidgetSideTabs && (
             <RelationWidgetSideTabs
-              contentId={activeTicket || ''}
-              contentType="frontline:ticket"
-              hookOptions={{
-                hiddenModules: ['ticket'],
-              }}
+              customerId={ticket?.customerId}
+              companyId={ticket?.companyId}
             />
           )}
         </FocusSheet.Content>

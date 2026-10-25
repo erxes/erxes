@@ -6,9 +6,12 @@ import { useState } from 'react';
 export const AddProjectRelation = ({
   onSelect,
   label,
+  contacts,
 }: {
-  onSelect: (projectId: string) => void;
+  onSelect?: (projectId: string) => void;
   label?: string;
+  // Saved on the new project by createProject itself.
+  contacts?: { customerId?: string; companyId?: string };
 }) => {
   const [open, setOpen] = useState(false);
 
@@ -36,7 +39,11 @@ export const AddProjectRelation = ({
         className="sm:max-w-3xl w-full p-0"
         onEscapeKeyDown={(e) => e.preventDefault()}
       >
-        <AddProjectForm onClose={onClose} onComplete={onSelect} />
+        <AddProjectForm
+          onClose={onClose}
+          onComplete={onSelect}
+          contacts={contacts}
+        />
       </Sheet.View>
     </Sheet>
   );

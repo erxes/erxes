@@ -22,6 +22,7 @@ import { structureQueries } from '@/organization/structure/graphql/resolvers/que
 import { userQueries } from '@/organization/team-member/graphql/queries';
 import { permissionQueries } from '~/modules/permissions/graphql/resolvers/queries/permission';
 import { approvalQueries } from '@/approval/graphql/resolvers/queries';
+import { filesQueries } from '@/files/graphql/resolvers/queries';
 import { productQueries } from '@/products/graphql/resolvers/queries';
 import { relationsQueries } from '@/relations/graphql/queries';
 import { segmentQueries } from '@/segments/graphql/resolvers';
@@ -75,6 +76,7 @@ export const queries = {
   ...organizationConfigQueries,
   ...permissionQueries,
   ...approvalQueries,
+  ...filesQueries,
   ...documentQueries,
   ...automationQueries,
   ...emailTemplateQueries,

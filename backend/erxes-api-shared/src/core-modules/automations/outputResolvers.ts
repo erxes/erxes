@@ -1166,6 +1166,7 @@ export const toTransportOutput = (
     variables: output.variables,
     propertySource: output.propertySource,
     resolverKeys: Object.keys(output.resolvers || {}),
+    dynamicVariables: output.dynamicVariables,
   };
 };
 

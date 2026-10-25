@@ -12,6 +12,7 @@ import { createChecklist } from '~/modules/sales/meta/automations/action/createC
 import { checkTriggerDealStageChanged } from '~/modules/sales/meta/automations/trigger/checkStageChangedTrigger';
 import { checkTriggerDealStageProbality } from '~/modules/sales/meta/automations/trigger/checkStageProbalityTrigger';
 import { syncWrittenDealPoints } from '~/modules/sales/utils/dealPoints';
+import { assertDealUpdatesAllowed } from '~/modules/sales/utils/archiveGuard';
 
 const getSalesSetPropertyModel = (models: IModels, module: string) => {
   const [, moduleName, collectionName] = module.replace(/\./g, ':').split(':');
@@ -22,6 +23,35 @@ const getSalesSetPropertyModel = (models: IModels, module: string) => {
   }
 
   throw new Error(`Unsupported sales set property module: ${module}`);
+};
+
+// A contact's deals ("Customer deals" / "Company deals") are the deals
+// keeping that contact (`customerId` / `companyId`), not core relations.
+const CONTACT_DEAL_FIELDS: Record<string, 'customerId' | 'companyId'> = {
+  'core:customer': 'customerId',
+  'core:company': 'companyId',
+};
+
+const getDealSetPropertySelector = async (
+  args: Parameters<typeof getSetPropertySelector>[0],
+) => {
+  const contactField =
+    args.relation?.relatedContentType === 'sales:deal'
+      ? CONTACT_DEAL_FIELDS[args.relation.contentType]
+      : undefined;
+
+  if (!contactField) {
+    return getSetPropertySelector(args);
+  }
+
+  // The contact's id: the trigger's (or the target action's) record.
+  const { _id } = await getSetPropertySelector({
+    ...args,
+    relation: undefined,
+    targetPath: '_id',
+  });
+
+  return { [contactField]: _id };
 };
 
 export const salesAutomationHandlers = {
@@ -84,7 +114,7 @@ export const salesAutomationHandlers = {
     const { action, execution, targetType } = data;
     const { module, rules, setPropertyTarget } = action.config;
     const model = getSalesSetPropertyModel(models, module);
-    const selector = await getSetPropertySelector({
+    const selector = await getDealSetPropertySelector({
       subdomain,
       module,
       execution,
@@ -105,6 +135,7 @@ export const salesAutomationHandlers = {
       fetchItems: async (itemSelector) => await model.find(itemSelector).lean(),
       update: async ({ selector: itemSelector, modifier }) => {
         const before = await model.find(itemSelector).lean();
+        await assertDealUpdatesAllowed(models, before, modifier);
         const result = await model.updateMany(itemSelector, modifier);
 
         await syncWrittenDealPoints({ subdomain, models, before });

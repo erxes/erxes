@@ -1,3 +1,4 @@
+import { ConversationCountValue } from '@/inbox/conversations/components/ConversationCountValue';
 import {
   Button,
   Sidebar,
@@ -97,7 +98,8 @@ export const IntegrationTypeItem = ({
     <Button
       variant={isActive ? 'secondary' : 'ghost'}
       className={cn(
-        'relative w-full justify-start overflow-hidden text-left',
+        'relative w-full justify-start overflow-hidden text-left rounded-lg',
+        isActive && 'bg-primary/10 text-primary hover:bg-primary/15',
         nested ? 'pl-10' : 'pl-7',
       )}
       onClick={handleClick}
@@ -122,7 +124,9 @@ export const IntegrationTypeItem = ({
         />
       )}
       {count > 0 && (
-        <span className="shrink-0 text-xs tabular-nums">{count}</span>
+        <span className="shrink-0 text-xs tabular-nums">
+          <ConversationCountValue count={count} />
+        </span>
       )}
     </Button>
   );

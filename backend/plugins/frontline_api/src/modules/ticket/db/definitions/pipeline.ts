@@ -30,8 +30,8 @@ export const ticketPipelineSchema = new Schema(
     tagId: { type: String },
     visibility: { type: String },
     memberIds: [{ type: String }],
-    propertyIds: [{ type: String }],
-    isPropertySelectionConfigured: { type: Boolean, default: false },
+    // Rows of system codes and `property:<id>`; null means the default form.
+    createLayout: { type: [[String]], default: undefined },
   },
   {
     timestamps: true,

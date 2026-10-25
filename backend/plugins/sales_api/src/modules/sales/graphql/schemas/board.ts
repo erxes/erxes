@@ -6,7 +6,16 @@ export const types = `
     order: Int
     createdAt: Date
     type: String
+    status: String
     pipelines: [SalesPipeline]
+  }
+
+  type SalesBoardArchivePreview {
+    pipelineCount: Int!
+    dealCount: Int!
+    automationCount: Int!
+    posCount: Int!
+    paymentCount: Int!
   }
 
   type SalesConvertTo {
@@ -33,7 +42,8 @@ export const types = `
 `;
 
 export const queries = `
-  salesBoards: [SalesBoard]
+  salesBoards(includeArchived: Boolean): [SalesBoard]
+  salesBoardArchivePreview(_id: String!): SalesBoardArchivePreview!
   cpSalesBoards: [SalesBoard]
   salesBoardCounts: [SalesBoardCount]
   salesBoardGetLast: SalesBoard
@@ -56,6 +66,8 @@ export const mutations = `
   salesBoardsAdd(${mutationParams}): SalesBoard
   salesBoardsEdit(_id: String!, ${mutationParams}): SalesBoard
   salesBoardsRemove(_id: String!): JSON
+  salesBoardsArchive(_id: String!, acknowledgeAutomations: Boolean, acknowledgeConnections: Boolean): SalesBoard!
+  salesBoardsUnarchive(_id: String!): SalesBoard!
   salesBoardItemUpdateTimeTracking(_id: String!, status: String!, timeSpent: Int!, startDate: String): JSON
   salesBoardItemsSaveForGanttTimeline(items: JSON, links: JSON): String
 `;

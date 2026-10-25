@@ -3,8 +3,8 @@ import { gql } from '~/gql';
 export const ADD_DEALS = gql(`
   mutation dealsAdd(
     $name: String
-    $companyIds: [String]
-    $customerIds: [String]
+    $companyId: String
+    $customerId: String
     $labelIds: [String]
     $productsData: JSON
     $mobileAmount: Float
@@ -35,8 +35,8 @@ export const ADD_DEALS = gql(`
   ) {
     dealsAdd(
       name: $name
-      companyIds: $companyIds
-      customerIds: $customerIds
+      companyId: $companyId
+      customerId: $customerId
       labelIds: $labelIds
       productsData: $productsData
       mobileAmount: $mobileAmount
@@ -101,6 +101,8 @@ export const EDIT_DEALS = gql(`
     $tagIds: [String]
     $branchIds: [String]
     $departmentIds: [String]
+    $customerId: String
+    $companyId: String
   ) {
     dealsEdit(
       _id: $_id
@@ -131,6 +133,8 @@ export const EDIT_DEALS = gql(`
       tagIds: $tagIds
       branchIds: $branchIds
       departmentIds: $departmentIds
+      customerId: $customerId
+      companyId: $companyId
     ) {
       _id
       name
