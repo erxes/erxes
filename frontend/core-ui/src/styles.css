@@ -394,6 +394,9 @@
   .agent-session-enter {
     animation: agent-message-arrive 160ms ease-out both;
   }
+  .agent-chip-enter {
+    animation: agent-chip-arrive 180ms ease-out both;
+  }
   .agent-send {
     transition: transform 140ms ease-out;
   }
@@ -420,4 +423,8 @@
 @keyframes agent-message-arrive {
   from { opacity: 0; transform: translateY(6px); }
   to { opacity: 1; transform: translateY(0); }
+}
+@keyframes agent-chip-arrive {
+  from { opacity: 0; transform: translateY(4px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }

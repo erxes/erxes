@@ -6,6 +6,7 @@ import {
   useRef,
   useState,
   type ReactNode,
+  type Ref,
 } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -17,7 +18,7 @@ import { agentsFilesPart } from '../agentsFiles';
 import { pageSelectionsPart } from '../pageSelections';
 import { POSES } from '../bloub/engine/states';
 import { BotBadge } from './BotBadge';
-import { Composer } from './Composer';
+import { Composer, type IComposerAttachHandle } from './Composer';
 import { modelSelectionValue, ModelPicker } from './ModelPicker';
 import { MessageList } from './MessageList';
 import { ThinkingPicker } from './ThinkingPicker';
@@ -50,6 +51,8 @@ export interface IChatPanelProps {
   width?: AgentChatWidth;
   /** Composer page-context chip row (side panel only). */
   contextRow?: ReactNode;
+  /** Receives the composer's attach handle for panel-wide drop. */
+  attachRef?: Ref<IComposerAttachHandle>;
 }
 
 /**
@@ -68,6 +71,7 @@ export const ChatPanel = ({
   className,
   width = 'full',
   contextRow,
+  attachRef,
 }: IChatPanelProps) => {
   const { t } = useTranslation('common', { keyPrefix: 'agent' });
   const suggestions = useAgentSuggestions();
@@ -258,6 +262,7 @@ export const ChatPanel = ({
       onStop={stop}
       pickers={pickers}
       contextRow={contextRow}
+      attachRef={attachRef}
     />
   );
 

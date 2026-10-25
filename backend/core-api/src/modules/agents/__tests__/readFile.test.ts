@@ -54,6 +54,7 @@ import {
 } from '@/agents/readFile';
 
 import { prepareAgentsFileMessage } from '@/agents/fileBinding';
+import { buildZip } from './fixtures/officeZip';
 
 const originalDownload = httpTransport.download;
 afterEach(() => {
@@ -406,6 +407,85 @@ describe('readAgentsUploadedFile', () => {
         allowedUrls: ['https://imagedelivery.net/abc/shot.svg'],
       }),
     ).resolves.toMatchObject({ kind: 'binary' });
+  });
+
+  it('reads DOCX and XLSX attachments as text for the model', async () => {
+    const docx = buildZip({
+      'word/document.xml':
+        '<w:document><w:body><w:p><w:r><w:t>Renewal terms</w:t></w:r></w:p></w:body></w:document>',
+    });
+    const xlsx = buildZip({
+      'xl/workbook.xml': '<workbook><sheets><sheet name="Q1" r:id="rId1"/></sheets></workbook>',
+      'xl/_rels/workbook.xml.rels':
+        '<Relationships><Relationship Id="rId1" Target="worksheets/sheet1.xml"/></Relationships>',
+      'xl/worksheets/sheet1.xml':
+        '<worksheet><sheetData><row><c t="inlineStr"><is><t>Revenue</t></is></c><c><v>42</v></c></row></sheetData></worksheet>',
+    });
+    jest
+      .mocked(readFileStreamFromStorage)
+      .mockResolvedValueOnce(Readable.from([docx]))
+      .mockResolvedValueOnce(Readable.from([xlsx]));
+    const tool = await buildReadFileTool();
+    const readDocx = await readAgentsUploadedFile({
+      subdomain: 'acme',
+      url: 'contract.docx',
+      allowedUrls: ['contract.docx'],
+    });
+    expect(readDocx).toMatchObject({
+      kind: 'text',
+      mimeType:
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      text: 'Renewal terms',
+    });
+    expect(tool.toModelOutput?.(readDocx)).toEqual({
+      type: 'text',
+      value: 'Renewal terms',
+    });
+    await expect(
+      readAgentsUploadedFile({
+        subdomain: 'acme',
+        url: 'sales.xlsx',
+        allowedUrls: ['sales.xlsx'],
+      }),
+    ).resolves.toMatchObject({
+      kind: 'text',
+      text: '## Sheet: Q1\nRevenue,42',
+    });
+  });
+
+  it('reports corrupt Office documents as unreadable', async () => {
+    const docx = buildZip({ 'word/document.xml': '<w:document/>' });
+    jest
+      .mocked(readFileStreamFromStorage)
+      .mockResolvedValue(Readable.from([docx.subarray(0, 60)]));
+    await expect(
+      readAgentsUploadedFile({
+        subdomain: 'acme',
+        url: 'broken.docx',
+        allowedUrls: ['broken.docx'],
+      }),
+    ).rejects.toThrow('The document could not be read.');
+  });
+
+  it('tells the model plainly that PDF text cannot be read', async () => {
+    jest
+      .mocked(readFileStreamFromStorage)
+      .mockResolvedValue(Readable.from([Buffer.from('%PDF-1.4\nplain ascii body')]));
+    const result = await readAgentsUploadedFile({
+      subdomain: 'acme',
+      url: 'brief.pdf',
+      allowedUrls: ['brief.pdf'],
+    });
+    expect(result).toEqual({
+      url: 'brief.pdf',
+      mimeType: 'application/pdf',
+      kind: 'binary',
+    });
+    const tool = await buildReadFileTool();
+    expect(tool.toModelOutput?.(result)).toEqual({
+      type: 'text',
+      value: expect.stringContaining('PDF text extraction is not available'),
+    });
   });
 });
 
