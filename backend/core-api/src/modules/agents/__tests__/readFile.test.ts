@@ -54,7 +54,7 @@ import {
 } from '@/agents/readFile';
 
 import { prepareAgentsFileMessage } from '@/agents/fileBinding';
-import { buildZip } from './fixtures/officeZip';
+import { docxFixture, pdfFixture, wordParagraph } from './fixtures/documents';
 
 const originalDownload = httpTransport.download;
 afterEach(() => {
@@ -409,29 +409,22 @@ describe('readAgentsUploadedFile', () => {
     ).resolves.toMatchObject({ kind: 'binary' });
   });
 
-  it('reads DOCX and XLSX attachments as text for the model', async () => {
-    const docx = buildZip({
-      'word/document.xml':
-        '<w:document><w:body><w:p><w:r><w:t>Renewal terms</w:t></w:r></w:p></w:body></w:document>',
-    });
-    const xlsx = buildZip({
-      'xl/workbook.xml': '<workbook><sheets><sheet name="Q1" r:id="rId1"/></sheets></workbook>',
-      'xl/_rels/workbook.xml.rels':
-        '<Relationships><Relationship Id="rId1" Target="worksheets/sheet1.xml"/></Relationships>',
-      'xl/worksheets/sheet1.xml':
-        '<worksheet><sheetData><row><c t="inlineStr"><is><t>Revenue</t></is></c><c><v>42</v></c></row></sheetData></worksheet>',
-    });
+  it('reads Office documents and PDFs as text for the model', async () => {
     jest
       .mocked(readFileStreamFromStorage)
-      .mockResolvedValueOnce(Readable.from([docx]))
-      .mockResolvedValueOnce(Readable.from([xlsx]));
+      .mockResolvedValueOnce(
+        Readable.from([docxFixture(wordParagraph('Renewal terms'))]),
+      )
+      .mockResolvedValueOnce(Readable.from([pdfFixture(['Brief summary'])]));
     const tool = await buildReadFileTool();
+    // The storage key name says nothing; the format comes from the bytes.
     const readDocx = await readAgentsUploadedFile({
       subdomain: 'acme',
-      url: 'contract.docx',
-      allowedUrls: ['contract.docx'],
+      url: 'upload-1',
+      allowedUrls: ['upload-1'],
     });
-    expect(readDocx).toMatchObject({
+    expect(readDocx).toEqual({
+      url: 'upload-1',
       kind: 'text',
       mimeType:
         'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
@@ -444,48 +437,32 @@ describe('readAgentsUploadedFile', () => {
     await expect(
       readAgentsUploadedFile({
         subdomain: 'acme',
-        url: 'sales.xlsx',
-        allowedUrls: ['sales.xlsx'],
+        url: 'brief.pdf',
+        allowedUrls: ['brief.pdf'],
       }),
     ).resolves.toMatchObject({
       kind: 'text',
-      text: '## Sheet: Q1\nRevenue,42',
+      mimeType: 'application/pdf',
+      text: 'Brief summary',
     });
-  });
+  }, 30_000);
 
-  it('reports corrupt Office documents as unreadable', async () => {
-    const docx = buildZip({ 'word/document.xml': '<w:document/>' });
+  it('reports corrupt documents as unreadable', async () => {
+    const docx = docxFixture(wordParagraph('x'));
+    // Without its end-of-central-directory record the archive cannot open.
+    const corrupt = docx.subarray(0, docx.length - 22);
     jest
       .mocked(readFileStreamFromStorage)
-      .mockResolvedValue(Readable.from([docx.subarray(0, 60)]));
+      .mockResolvedValue(Readable.from([corrupt]));
     await expect(
       readAgentsUploadedFile({
         subdomain: 'acme',
         url: 'broken.docx',
         allowedUrls: ['broken.docx'],
       }),
-    ).rejects.toThrow('The document could not be read.');
-  });
-
-  it('tells the model plainly that PDF text cannot be read', async () => {
-    jest
-      .mocked(readFileStreamFromStorage)
-      .mockResolvedValue(Readable.from([Buffer.from('%PDF-1.4\nplain ascii body')]));
-    const result = await readAgentsUploadedFile({
-      subdomain: 'acme',
-      url: 'brief.pdf',
-      allowedUrls: ['brief.pdf'],
-    });
-    expect(result).toEqual({
-      url: 'brief.pdf',
-      mimeType: 'application/pdf',
-      kind: 'binary',
-    });
-    const tool = await buildReadFileTool();
-    expect(tool.toModelOutput?.(result)).toEqual({
-      type: 'text',
-      value: expect.stringContaining('PDF text extraction is not available'),
-    });
+    ).rejects.toThrow(
+      'The document could not be read. Upload a valid, unprotected file.',
+    );
   });
 });
 

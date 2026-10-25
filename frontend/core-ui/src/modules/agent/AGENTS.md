@@ -157,7 +157,13 @@ The `agent` module is the core-ui surface for the core-api `agents` backend
   The legacy `page` storage namespace is
   retained in the hook's type only for compatibility, with no page UI.
 - Attachments: up to 5 files/turn via platform `/upload-file`
-  (`agentsFiles.ts` limits/accepted types, `uploadAgentsFile.ts`). The picker,
+  (`agentsFiles.ts` limits/accepted types, `uploadAgentsFile.ts`). Accepted:
+  PNG/JPEG/WebP/GIF, TXT/Markdown/CSV/JSON, PDF, DOCX, XLSX, PPTX, ODT, ODS, ODP
+  and RTF. The MIME map must match backend `fileValidation.ts`; the backend reads
+  every document type as text. Legacy `.doc/.xls/.ppt` stay unsupported. The
+  platform upload allowlist (core `utils/file`) admits PPTX/ODF/RTF only when a
+  tenant configures `UPLOAD_FILE_TYPES`; otherwise their chip shows the upload
+  error. The picker,
   panel-wide drop and paste all call the composer's `attachFiles`, which uses
   `planAgentsAttachments` (`utils/agentAttachments.ts`): unsupported types and
   files past the limit are toasted and never become chips; empty, oversized and
@@ -180,7 +186,8 @@ The `agent` module is the core-ui surface for the core-api `agents` backend
   Rich text copies (`text/plain` + `text/html`, such as Excel cells) stay text.
   Pasting files while streaming is refused with a toast.
 - `AgentAttachmentCard` is the one attachment card for composer and history:
-  thumbnail or type icon, name, `kind · size`, spinner, error, Retry/Remove; in
+  thumbnail or type icon (Word, document, spreadsheet, presentation, PDF, …),
+  name, `label · size` (`agentsFileKindLabel`), spinner, error, Retry/Remove; in
   history the card opens the stored file. Composer chips enter with
   `.agent-chip-enter` (`src/styles.css`, reduced-motion gated). `AttachedFiles`
   renders images first (one at `w-64`, several as square tiles), then document

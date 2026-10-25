@@ -11,48 +11,63 @@ import {
 } from '../agentsFiles';
 
 export const AGENTS_ACCEPTED_TYPES_LABEL =
-  'images, PDF, Word, Excel, CSV, text, Markdown or JSON';
+  'images, PDF, Word, Excel, PowerPoint, OpenDocument, RTF, CSV, text, Markdown or JSON';
 
 export type TAgentsFileKind =
   | 'image'
   | 'pdf'
   | 'word'
+  | 'document'
   | 'spreadsheet'
+  | 'presentation'
   | 'csv'
   | 'json'
   | 'markdown'
   | 'text'
   | 'file';
 
-const KIND_BY_MIME: Record<string, TAgentsFileKind> = {
-  'application/pdf': 'pdf',
-  'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
-    'word',
-  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':
-    'spreadsheet',
-  'text/csv': 'csv',
-  'application/json': 'json',
-  'text/markdown': 'markdown',
-  'text/plain': 'text',
-};
-
-const KIND_LABEL: Record<TAgentsFileKind, string> = {
-  image: 'Image',
-  pdf: 'PDF',
-  word: 'Word',
-  spreadsheet: 'Excel',
-  csv: 'CSV',
-  json: 'JSON',
-  markdown: 'Markdown',
-  text: 'Text',
-  file: 'File',
+const FILE_TYPES: Record<string, { kind: TAgentsFileKind; label: string }> = {
+  'application/pdf': { kind: 'pdf', label: 'PDF' },
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document': {
+    kind: 'word',
+    label: 'Word',
+  },
+  'application/vnd.oasis.opendocument.text': {
+    kind: 'document',
+    label: 'OpenDocument text',
+  },
+  'application/rtf': { kind: 'document', label: 'Rich text' },
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': {
+    kind: 'spreadsheet',
+    label: 'Excel',
+  },
+  'application/vnd.oasis.opendocument.spreadsheet': {
+    kind: 'spreadsheet',
+    label: 'OpenDocument sheet',
+  },
+  'application/vnd.openxmlformats-officedocument.presentationml.presentation': {
+    kind: 'presentation',
+    label: 'PowerPoint',
+  },
+  'application/vnd.oasis.opendocument.presentation': {
+    kind: 'presentation',
+    label: 'OpenDocument slides',
+  },
+  'text/csv': { kind: 'csv', label: 'CSV' },
+  'application/json': { kind: 'json', label: 'JSON' },
+  'text/markdown': { kind: 'markdown', label: 'Markdown' },
+  'text/plain': { kind: 'text', label: 'Text' },
 };
 
 export const agentsFileKind = (mimeType: string): TAgentsFileKind =>
-  mimeType.startsWith('image/') ? 'image' : (KIND_BY_MIME[mimeType] ?? 'file');
+  mimeType.startsWith('image/')
+    ? 'image'
+    : (FILE_TYPES[mimeType]?.kind ?? 'file');
 
 export const agentsFileKindLabel = (mimeType: string): string =>
-  KIND_LABEL[agentsFileKind(mimeType)];
+  mimeType.startsWith('image/')
+    ? 'Image'
+    : (FILE_TYPES[mimeType]?.label ?? 'File');
 
 /** Binary units, matching the MiB/KiB limits quoted in the composer. */
 export const formatAgentsFileSize = (bytes: number): string => {

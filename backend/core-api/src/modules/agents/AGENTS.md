@@ -157,14 +157,22 @@ plugin; ported from the former private `erxes-agent` service). It provides:
   (subdomain/userId/provider/model/thinkingLevel/codeModeEnabled/
   approvalMode/threadId/attachmentUrls); never secrets.
 - `readFile.ts` — the `readFile` tool for this turn's or the thread's stored
-  attachments. Text/CSV/JSON/Markdown return text, images return model image
-  data (≤2 MiB), DOCX/XLSX return extracted text via `documentText.ts` (a bounded
-  ZIP reader over `node:zlib`, no document dependency; XLSX as CSV per sheet;
-  128 KiB text cap with a truncation notice; content-sniffed, not name-based).
-  PDFs are detected by signature and the model is told plainly that PDF text
-  extraction is unavailable; there is no PDF parser.
+  attachments. Text/CSV/JSON/Markdown return text and images return model image
+  data (≤2 MiB). Documents (PDF, DOCX, XLSX, PPTX, ODT, ODS, ODP, RTF) return
+  text through `documentText.ts`, which delegates parsing to `officeparser`.
+  The format comes from the bytes (`sniffAgentsDocumentType`: PDF/RTF magic, the
+  stored ODF `mimetype` entry, OOXML part names), never the name or declared
+  type. Spreadsheets become CSV per sheet with formatted dates and formula
+  results; other documents become text with `|` table rows. Output is capped at
+  128 KiB with a truncation notice. The parser config is part of the security
+  contract: `allowRemoteAssets: false` (no CDN worker/OCR/font fetches), OCR,
+  attachments and raw XML off, 64 MiB decompression and element/cell limits,
+  and pdf.js in a separate 512 MB child process with a 15s budget. A 20s overall
+  timeout bounds every parse. Password-protected and corrupt files return
+  actionable `readFile` errors. Legacy binary `.doc/.xls/.ppt` are not accepted.
 - `codeMode.ts`, `askUser.ts`, `fileBinding.ts`,
-  `fileTimeout.ts`, `fileValidation.ts`, `toolSchemaCompatibility.ts`, `mongo44Compatibility.ts`,
+  `fileTimeout.ts`, `fileValidation.ts` (allowed MIME types, including
+  `AGENTS_DOCUMENT_MIME_TYPES`; keep aligned with core-ui `agentsFiles.ts`), `toolSchemaCompatibility.ts`, `mongo44Compatibility.ts`,
   `providerModels.ts`, `providers.ts`, `threadsEvents.ts`.
 - `db/` — `AgentsConnection` + `AgentsSettings` models (registered in
   `src/connectionResolvers.ts`); `graphql/` — schemas + thin resolvers.
@@ -216,6 +224,12 @@ Core-api declares its own Mastra dependencies in `backend/core-api/package.json`
 updating the workspace root alone does not upgrade the running service. Keep both
 manifests aligned: core 1.78.0, memory 1.38.0, MongoDB 1.23.1, Redis Streams 0.6.3,
 AI SDK adapter 1.11.1 and QuickJS 0.1.3. Verify package resolution from core-api.
+
+`officeparser` is pinned exactly (8.2.0, MIT) in `backend/core-api/package.json`
+only: the runtime image installs core-api's and `erxes-api-shared`'s manifests,
+not the root. It brings `pdfjs-dist` (pinned by officeparser), `tesseract.js`
+(never loaded while `ocr` is off) and the optional prebuilt `@napi-rs/canvas`
+(not needed for text; parsing works without it). It needs Node ≥22.13.
 
 ## Validation
 
