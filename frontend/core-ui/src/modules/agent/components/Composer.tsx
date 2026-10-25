@@ -610,8 +610,9 @@ export const Composer = ({
             </Tooltip.Trigger>
             <Tooltip.Content side="top" className="max-w-xs">
               Up to 5 files, 10 MiB each. Drop or paste them anywhere in the
-              chat. Large images are resized for the AI. CSV, TXT, Markdown and
-              JSON: 64 KiB each, 128 KiB total.
+              chat. The AI reads images, PDF, Word, Excel, PowerPoint,
+              OpenDocument and RTF. Large images are resized. CSV, TXT, Markdown
+              and JSON: 64 KiB each, 128 KiB total.
             </Tooltip.Content>
           </Tooltip>
         </Tooltip.Provider>

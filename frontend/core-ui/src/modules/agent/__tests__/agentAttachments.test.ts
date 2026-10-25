@@ -71,6 +71,34 @@ describe('planAgentsAttachments', () => {
     );
   });
 
+  it('accepts every document format the agent can read', () => {
+    const plan = planAgentsAttachments(
+      ['deck.pptx', 'notes.odt', 'budget.ods', 'pitch.odp', 'memo.rtf'].map(
+        (name) => file(name, 10),
+      ),
+      { remainingSlots: 5, textBytesInUse: 0 },
+    );
+    expect(plan.unsupported).toEqual([]);
+    expect(plan.accepted.map((item) => [item.mimeType, item.error])).toEqual([
+      [
+        'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+        undefined,
+      ],
+      ['application/vnd.oasis.opendocument.text', undefined],
+      ['application/vnd.oasis.opendocument.spreadsheet', undefined],
+      ['application/vnd.oasis.opendocument.presentation', undefined],
+      ['application/rtf', undefined],
+    ]);
+  });
+
+  it('still rejects legacy binary Office formats', () => {
+    const plan = planAgentsAttachments(
+      [file('old.doc', 10, 'application/msword'), file('old.ppt', 10)],
+      { remainingSlots: 5, textBytesInUse: 0 },
+    );
+    expect(plan.unsupported).toEqual(['old.doc', 'old.ppt']);
+  });
+
   it('uses the browser type when the name has no known extension', () => {
     const plan = planAgentsAttachments([file('Screenshot', 10, 'image/png')], {
       remainingSlots: 1,
@@ -91,7 +119,7 @@ describe('describeAgentsAttachmentRejections', () => {
         overflow: ['x.png', 'y.png'],
       }),
     ).toBe(
-      "a.zip isn't a supported type. Attach images, PDF, Word, Excel, CSV, text, Markdown or JSON. Up to 5 files can be attached per message; 2 files weren't added.",
+      "a.zip isn't a supported type. Attach images, PDF, Word, Excel, PowerPoint, OpenDocument, RTF, CSV, text, Markdown or JSON. Up to 5 files can be attached per message; 2 files weren't added.",
     );
     expect(
       describeAgentsAttachmentRejections({
@@ -170,6 +198,19 @@ describe('display helpers', () => {
       ),
     ).toBe('Excel');
     expect(agentsFileKindLabel('application/zip')).toBe('File');
+    expect(
+      agentsFileKind(
+        'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+      ),
+    ).toBe('presentation');
+    expect(agentsFileKind('application/vnd.oasis.opendocument.text')).toBe(
+      'document',
+    );
+    expect(
+      agentsFileKindLabel('application/vnd.oasis.opendocument.spreadsheet'),
+    ).toBe('OpenDocument sheet');
+    expect(agentsFileKindLabel('application/rtf')).toBe('Rich text');
+    expect(agentsFileKindLabel('image/png')).toBe('Image');
   });
 
   it('fits images inside the longest edge without upscaling', () => {
