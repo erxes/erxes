@@ -63,7 +63,7 @@ const TemplateListSkeleton = (): JSX.Element => (
 );
 
 const TemplateListEmpty = ({ search }: { search: string }): JSX.Element => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
 
   return (
     <div className="col-span-2 p-8 text-center text-muted-foreground text-sm italic">
@@ -75,7 +75,7 @@ const TemplateListEmpty = ({ search }: { search: string }): JSX.Element => {
 export const ResponseTemplateSelector: React.FC<
   ResponseTemplateSelectorProps
 > = ({ onSelect, disabled, children }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [search, setSearch] = useState<string>('');
   const [debouncedSearch] = useDebounce(search, 500);

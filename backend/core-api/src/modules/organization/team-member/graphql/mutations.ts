@@ -190,13 +190,21 @@ export const userMutations: Record<string, Resolver<any, any, IContext>> = {
       };
     }
 
+    const previous = await models.Users.getUser(_id);
     const updatedUser = await models.Users.updateUser(_id, updatedDoc);
 
     if (args.departmentIds || args.branchIds) {
       await models.UserMovements.manageUserMovement({
         user: updatedUser,
+        createdBy: user._id,
       });
     }
+
+    models.UserMovements.notifyStructureChanges({
+      previous,
+      updated: updatedUser,
+      createdBy: user._id,
+    });
 
     if (unitId !== undefined) {
       await models.Units.updateMany(

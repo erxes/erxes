@@ -16,13 +16,14 @@ dotenv.config();
  *
  * For each record, in this order:
  * 1. `customerIds` / `companyIds` arrays (an earlier migration) → their first
- *    id; the arrays are removed;
+ *    id; the arrays are kept as they are (nothing reads them any more; they
+ *    still hold every contact and let old code be rolled back);
  * 2. otherwise its core relations to customers / companies, oldest first →
  *    the first one;
  * 3. otherwise `null` (no contact; the record is migrated).
  *
- * A record with several customers or companies keeps only the first; the
- * counts are printed. Relations are left in place. A field that is empty
+ * A record with several customers or companies keeps only the first in its
+ * fields; the counts are printed. The old array indexes are dropped. Relations are left in place. A field that is empty
  * (`null` or missing) is looked up again, so a record saved by new code
  * before this ran still gets its contact. Safe to run again.
  *
@@ -139,15 +140,10 @@ const migrateTarget = async (db: Db, target: ITarget) => {
   const records: Collection<IRecord> = db.collection<IRecord>(
     target.collection,
   );
-  // Records with an empty contact field (`null` matches missing too) or a
-  // leftover array.
+  // Records with an empty contact field (`null` matches missing too). The
+  // old arrays are kept, so they do not mark a record as unmigrated.
   const query = {
-    $or: [
-      { customerId: null },
-      { companyId: null },
-      { customerIds: { $exists: true } },
-      { companyIds: { $exists: true } },
-    ],
+    $or: [{ customerId: null }, { companyId: null }],
   };
 
   const stats = {
@@ -172,7 +168,6 @@ const migrateTarget = async (db: Db, target: ITarget) => {
     stats.records += 1;
 
     const set: Partial<IRecord> = {};
-    const unset: Record<string, ''> = {};
     const hasArrays =
       Array.isArray(record.customerIds) || Array.isArray(record.companyIds);
 
@@ -213,15 +208,14 @@ const migrateTarget = async (db: Db, target: ITarget) => {
       }
     }
 
-    if (record.customerIds !== undefined) unset.customerIds = '';
-    if (record.companyIds !== undefined) unset.companyIds = '';
-
     operations.push({
       updateOne: {
         filter: { _id: record._id },
         update: {
-          ...(Object.keys(set).length ? { $set: set } : {}),
-          ...(Object.keys(unset).length ? { $unset: unset } : {}),
+          $set: set,
+          // Kept for now: the old arrays still hold every contact. Uncomment
+          // to remove them once every organization runs the new code.
+          // $unset: { customerIds: '', companyIds: '' },
         },
       },
     });
@@ -246,8 +240,8 @@ const migrateTarget = async (db: Db, target: ITarget) => {
   console.log(
     `${DRY_RUN ? '[DRY RUN]' : '[DONE]'} ${target.collection}: ` +
       `${stats.records} record(s) to migrate, ${stats.fromArrays} from ` +
-      `arrays, ${stats.fromRelations} from relations; extra contacts ` +
-      `dropped: ${stats.droppedContacts}`,
+      `arrays, ${stats.fromRelations} from relations; extra contacts not ` +
+      `in the fields (still in arrays / relations): ${stats.droppedContacts}`,
   );
 };
 

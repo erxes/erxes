@@ -30,7 +30,7 @@ type Props = {
 const getPageName = (bot?: IFacebookBot) => bot?.page?.name || '';
 
 export const FacebookBotSelector = ({ botId, onSelect }: Props) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.facebook' });
   const [selectedBotId, setBotId] = useState(botId || '');
   const [isOpen, setOpen] = useState(!botId || false);
 
@@ -127,13 +127,13 @@ const MessengerBotList = ({
   selectedBotId: string;
   handleSelect: (_id: string) => void;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.facebook' });
 
   if (!bots?.length) {
     return (
       <div className="flex flex-col items-center gap-2 text-accent-foreground">
         <IconRobotFace />
-        <p>{t('no-bots-configured', "There's no bots configured")}</p>
+        <p>{t('no-bots-configured', 'No bots are configured')}</p>
         <Button variant="secondary" asChild>
           <Link to={`/settings/automations/bots/facebook-messenger-bots`}>
             <Label>

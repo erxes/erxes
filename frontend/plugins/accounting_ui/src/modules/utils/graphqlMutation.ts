@@ -1,5 +1,7 @@
 import type { MutationHookOptions, ApolloError } from '@apollo/client';
 import type { ResultOf, VariablesOf } from '@graphql-typed-document-node/core';
+import { toast } from 'erxes-ui';
+import { getI18n } from 'react-i18next';
 
 export type GraphqlMutationOptions<
   Document,
@@ -10,6 +12,14 @@ export type GraphqlMutationOptions<
 > & {
   variables?: Omit<VariablesOf<Document>, Injected> &
     Partial<Pick<VariablesOf<Document>, Injected>>;
+};
+
+export const notifyMutationResult = (success: boolean, description: string) => {
+  toast({
+    title: getI18n().t(success ? 'success' : 'error', { ns: 'accounting' }),
+    description: description || undefined,
+    variant: success ? 'success' : 'destructive',
+  });
 };
 
 export const withMutationToast = <

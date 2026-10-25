@@ -1,4 +1,4 @@
-import { useIsMobile } from 'erxes-ui';
+import { cn, useIsMobile } from 'erxes-ui';
 import { FormProvider } from 'react-hook-form';
 import { SegmentProvider, useSegment } from '../../context/SegmentProvider';
 import { useSegmentDetail } from '../../hooks/useSegmentDetail';
@@ -58,26 +58,36 @@ const SegmentFormWrapper = ({ children }: { children: React.ReactNode }) => {
 };
 
 const SegmentFormHeader = () => (
-  <div className="w-full p-2 pb-0">
+  <div className="w-full px-5 pt-4">
     <SegmentMetadataForm />
   </div>
 );
 
 SegmentFormHeader.displayName = 'SegmentFormHeader';
 
-const SegmentFormContent = ({ children }: { children?: React.ReactNode }) => {
+const SegmentFormContent = ({
+  children,
+  className,
+}: {
+  children?: React.ReactNode;
+  className?: string;
+}) => {
   const stepped = useIsMobile();
 
   return (
-    <div className="flex flex-col flex-1 min-h-0 overflow-y-auto w-full p-2 pt-0">
+    <div
+      className={cn(
+        'flex flex-col flex-1 min-h-0 overflow-y-auto w-full p-2 pt-0',
+        className,
+      )}
+    >
       {children ??
         (stepped ? (
           <SegmentTreeSteps />
         ) : (
           <div className="pt-4 overflow-x-auto">
             <div className="min-w-[640px]">
-              <SegmentConditionHeader />
-              <SegmentGroup path="root" />
+              <SegmentGroup path="root" header={<SegmentConditionHeader />} />
             </div>
           </div>
         ))}
@@ -103,7 +113,7 @@ const SegmentFormDefault = ({
   <SegmentFormRoot contentType={contentType} segmentId={segmentId}>
     <SegmentFormWrapper>
       <SegmentFormHeader />
-      <SegmentFormContent />
+      <SegmentFormContent className="px-5 pb-4" />
       <SegmentFormFooter
         callback={callback}
         onCreateSuccess={onCreateSuccess}

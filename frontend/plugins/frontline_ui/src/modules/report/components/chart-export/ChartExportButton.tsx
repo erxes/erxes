@@ -22,7 +22,7 @@ export function ChartExportButton<T>({
   columns,
   filename,
 }: ChartExportButtonProps<T>) {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const [exporting, setExporting] = useState(false);
 
   const handleExport = useCallback(async () => {

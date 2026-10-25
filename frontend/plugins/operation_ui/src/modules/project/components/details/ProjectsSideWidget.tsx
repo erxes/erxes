@@ -24,7 +24,6 @@ import {
 } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { getRelationWidgetLabel, useRelationWidget } from 'ui-modules';
 
 export enum ProjectsSideWidgetTabsEnum {
   Assignees = 'assignees',
@@ -63,14 +62,6 @@ const ProjectPropertiesSidePanel = ({ projectId }: { projectId: string }) => {
 
 export const ProjectsSideWidget = ({ projectId }: { projectId: string }) => {
   const { t } = useTranslation('operation');
-  const { relationWidgetsModules, RelationWidget } = useRelationWidget({
-    contentType: 'operation:project',
-  });
-  const dealWidget = relationWidgetsModules.find(
-    (module) => module.pluginName === 'sales' && module.name === 'deals',
-  );
-  // The Deals tab lists the deals of the project's customer and company.
-  const { project } = useGetProject(projectId, { skip: !dealWidget });
 
   return (
     <SideMenu defaultValue="project">
@@ -114,18 +105,7 @@ export const ProjectsSideWidget = ({ projectId }: { projectId: string }) => {
       <SideMenu.Content value={PROPERTIES_TAB}>
         <ProjectPropertiesSidePanel projectId={projectId} />
       </SideMenu.Content>
-      {dealWidget && (
-        <SideMenu.Content value={dealWidget.name}>
-          <RelationWidget
-            module={dealWidget.name}
-            pluginName={dealWidget.pluginName}
-            contentId={projectId}
-            contentType="operation:project"
-            customerId={project?.customerId || undefined}
-            companyId={project?.companyId || undefined}
-          />
-        </SideMenu.Content>
-      )}
+
       <SideMenu.Sidebar>
         <SideMenu.Trigger
           value="project"
@@ -137,13 +117,6 @@ export const ProjectsSideWidget = ({ projectId }: { projectId: string }) => {
           label={t('properties', { defaultValue: 'Properties' })}
           Icon={IconHierarchy2}
         />
-        {dealWidget && (
-          <SideMenu.Trigger
-            value={dealWidget.name}
-            label={getRelationWidgetLabel(dealWidget)}
-            Icon={dealWidget.icon}
-          />
-        )}
       </SideMenu.Sidebar>
     </SideMenu>
   );

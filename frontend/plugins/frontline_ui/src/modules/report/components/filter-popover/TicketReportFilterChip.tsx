@@ -25,7 +25,7 @@ export const TicketReportFilterChip = ({
   inDialog,
   renderEditor,
 }: TicketReportFilterChipProps) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const [open, setOpen] = useState(false);
   const valueButton = (
     <Filter.BarButton
@@ -68,7 +68,7 @@ export const TicketReportFilterChip = ({
 };
 
 export const TicketReportPipelineValue = ({ ids }: { ids: string[] }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const { pipeline, loading } = useGetPipeline(ids[0]);
   if (loading) return <Skeleton className="h-4 w-16" />;
   return (
@@ -80,7 +80,7 @@ export const TicketReportPipelineValue = ({ ids }: { ids: string[] }) => {
 };
 
 export const TicketReportStatusValue = ({ ids }: { ids: string[] }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const { status, loading } = useGetTicketStatusById(ids[0]);
   if (loading) return <Skeleton className="h-4 w-16" />;
   return (

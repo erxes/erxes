@@ -76,7 +76,9 @@ export const CallWidgetContent = () => {
 };
 
 export const CallWidgetMoreActions = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const setPositionState = useSetAtom(callWidgetPositionState);
   const setCallUi = useSetAtom(callUiAtom);
   const setOpen = useSetAtom(callWidgetOpenAtom);

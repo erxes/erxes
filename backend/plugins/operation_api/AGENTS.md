@@ -6,7 +6,7 @@
 - **Project:** `operation_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/operation_api`
-- **Last synchronized:** `2026-10-23`
+- **Last synchronized:** `2026-10-24`
 
 ## Scope
 
@@ -113,6 +113,9 @@ propertiesData? } })`
 - Core's `users` and `tags` list queries, named by the lookup fields a segment
   renders.
 - Core's `fields.validateFieldValues` tRPC mutation for task and project custom property values.
+- `sendNotification` with `event` (`TOperationNotificationEvent`) from
+  `src/utils/notifications.ts`; core sends email and push on the channels each
+  recipient's settings resolve to.
 
 ## Data and State
 
@@ -130,6 +133,14 @@ propertiesData? } })`
 
 ## Local Invariants
 
+- Every `createNotifications` call passes `event`, typed
+  `TOperationNotificationEvent` from `src/meta/notifications.ts`: task
+  assignment (on create and on update) `operation:task:taskAssignee`, note
+  mentions `operation:note:noteMention`, a new triage
+  `operation:triage:triageCreated`, added team members
+  `operation:team:teamMemberAdded`. The meta names are the keys users' settings
+  are saved under; renaming one drops saved choices, and the meta lists only
+  events that have a sender.
 - `createTask` / `updateTask`, `createProject` / `updateProject` and `operationAddTriage` / `operationUpdateTriage` accept `customerId` / `companyId` (one of each) and save them on the record; `getTasks`, `getProjects` and `operationGetTriageList` filter by them (a contact's records). `Task`, `Project` and `Triage` expose both fields.
 - `createTask` and `operationAddTriage` require a name (the UI creates a task or triage only once its draft is named in the side panel). `createTask` accepts a task without a status: a triage then starts in the team's backlog, any other task in its first to-do (`UNSTARTED`) status by `order`.
 - Operation owns its records' contacts: change them only through its own mutations (and `contactFields.sync` for merges and removals); never create core relations for record ↔ contact links.

@@ -99,7 +99,7 @@ export const SelectChannelsContent = ({
   myChannelsOnly?: boolean;
   excludeChannelIds?: string[];
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const [search, setSearch] = useState('');
   const [debouncedSearch] = useDebounce(search, 500);
   const { onSelect, channels } = useSelectChannelContext();
@@ -211,7 +211,7 @@ export const SelectChannelsFormItem = ({
 };
 
 export const SelectChannelFilterItem = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   return (
     <Filter.Item value="channelId">
       <IconTopologyStar3 />
@@ -250,7 +250,7 @@ export const SelectChannelFilterBar = ({
   queryKey?: string;
   mode?: 'single' | 'multiple';
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const [channelId, setChannelId] = useQueryState<string | string[]>(
     queryKey || 'channelId',
   );

@@ -27,8 +27,8 @@ import type {
 const TICKETS_PER_PAGE = 30;
 
 export const TICKET_SORT_FIELDS = [
-  { label: 'Updated', value: 'updatedAt' },
-  { label: 'Created', value: 'createdAt' },
+  { labelKey: 'sort-updated', value: 'updatedAt' },
+  { labelKey: 'sort-created', value: 'createdAt' },
 ] as const;
 
 export type TicketSortField = (typeof TICKET_SORT_FIELDS)[number]['value'];
@@ -125,7 +125,7 @@ export const useTickets = (
     variables?: ITicketFilter;
   },
 ) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   const variables = useTicketsVariables(options?.variables);
   const { toast } = useToast();
   const { data, loading, fetchMore, subscribeToMore } = useQuery(GET_TICKETS, {

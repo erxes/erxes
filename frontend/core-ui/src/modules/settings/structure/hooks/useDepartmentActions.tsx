@@ -14,7 +14,7 @@ import {
 } from '../graphql';
 
 interface AddDepartmentResult {
-  departmentsAdd: TDepartmentForm;
+  departmentsAdd: TDepartmentForm & { _id: string };
 }
 
 export function useDepartmentAdd(

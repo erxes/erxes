@@ -75,7 +75,7 @@ export const DateSelectProvider = ({
 };
 
 const DateSelectValue = ({ placeholder }: { placeholder?: string }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   const { value } = useDateSelectContext();
 
   if (!value) {
@@ -98,7 +98,7 @@ const DateSelectValue = ({ placeholder }: { placeholder?: string }) => {
 };
 
 const DateSelectContent = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   const { value, onValueChange, onClose } = useDateSelectContext();
 
   return (
@@ -111,8 +111,8 @@ const DateSelectContent = () => {
         inline
         value={value}
         onChange={(date) => onValueChange(toSingleDate(date))}
-        placeholder={t('select-date', 'Select date')}
-        clearLabel={t('clear', 'Clear')}
+        placeholder={t('select-date')}
+        clearLabel={t('clear')}
         className="h-8"
       />
     </div>
@@ -168,7 +168,7 @@ export const DateSelectTicketRoot = ({
   disabled?: boolean;
   label?: string;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const { updateTicket, loading, error } = useUpdateTicket();
@@ -200,7 +200,7 @@ export const DateSelectTicketRoot = ({
       },
       onError: (e) => {
         toast({
-          title: t('error', 'Error'),
+          title: t('error'),
           description: e.message,
           variant: 'destructive',
         });
@@ -241,13 +241,13 @@ export const DateSelectTicketRoot = ({
             onClear={
               dateValue && !disabled ? () => commitValue() : undefined
             }
-            clearLabel={t('clear', 'Clear')}
+            clearLabel={t('clear')}
           >
             {dateValue ? (
               formatDateLabel(dateValue)
             ) : (
               <span className="text-accent-foreground">
-                {t('not-specified', 'Not specified')}
+                {t('not-specified')}
               </span>
             )}
           </Combobox.ChipTrigger>
@@ -292,7 +292,7 @@ export const DateSelectTicketFormItem = ({
   placeholder?: string;
   label?: string;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   const [open, setOpen] = useState(false);
   const dateValue = value ? new Date(value) : undefined;
 
@@ -311,13 +311,13 @@ export const DateSelectTicketFormItem = ({
           <Combobox.ChipTrigger
             label={label}
             onClear={dateValue ? () => onValueChange?.() : undefined}
-            clearLabel={t('clear', 'Clear')}
+            clearLabel={t('clear')}
           >
             {dateValue ? (
               formatDateLabel(dateValue)
             ) : (
               <span className="text-accent-foreground">
-                {t('not-specified', 'Not specified')}
+                {t('not-specified')}
               </span>
             )}
           </Combobox.ChipTrigger>

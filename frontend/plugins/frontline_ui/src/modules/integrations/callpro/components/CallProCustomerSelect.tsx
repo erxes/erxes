@@ -13,7 +13,9 @@ export const CallProCustomerSelect = ({
   customers: ICustomer[];
   selectedCustomerId?: string;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const { callProCustomerSelect, loading } = useCallProCustomerSelect();
 
   if (customers.length === 0) {

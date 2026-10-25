@@ -15,6 +15,37 @@ export interface NotificationEvent {
   mutedChannels?: string[];
 }
 
+// what an event can reach a user on besides their inbox
+export const NOTIFICATION_CHANNELS = ['email', 'mobile'] as const;
+
+export type TNotificationChannel = (typeof NOTIFICATION_CHANNELS)[number];
+
+export interface INotificationEventConfig {
+  name: string;
+  title: string;
+  description?: string;
+  // used until the user saves a choice for the event; absent means off
+  defaultChannels?: readonly TNotificationChannel[];
+}
+
+export interface INotificationModuleConfig {
+  name: string;
+  description: string;
+  icon: string;
+  events: readonly INotificationEventConfig[];
+}
+
+// a plugin's `notifications` meta
+export interface INotificationsConfig {
+  plugin: string;
+  modules: readonly INotificationModuleConfig[];
+}
+
+// `<plugin>:<module>:<event>` for every event a meta declared `as const`
+export type TNotificationEventKey<T extends INotificationsConfig> = {
+  [M in T['modules'][number] as M['name']]: `${T['plugin']}:${M['name']}:${M['events'][number]['name']}`;
+}[T['modules'][number]['name']];
+
 export interface NotificationSettings {
   userId: string;
   channels: Map<string, NotificationChannel>;

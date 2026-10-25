@@ -7,13 +7,14 @@ import {
 } from 'erxes-api-shared/utils';
 import { nanoid } from 'nanoid';
 import { IModels } from '~/connectionResolvers';
+import { TSalesNotificationEvent } from '~/meta/notifications';
 import { IDeal, IDealDocument, IProductData } from '~/modules/sales/@types';
 import {
   checkMovePermission,
   getNewOrder,
   getTotalAmounts,
-  sendNotifications,
 } from '~/modules/sales/utils';
+import { sendNotifications } from '~/modules/sales/utils/notifications';
 import {
   changeItemStatus,
   checkAssignedUserFromPData,
@@ -138,6 +139,7 @@ export const addDeal = async ({
     user,
     action: `invited you to the ${pipeline.name}`,
     content: `'${deal.name}'.`,
+    event: 'sales:deals:dealAssignee',
   });
 
   await subscriptionWrapper(models, {
@@ -308,15 +310,20 @@ export const editDeal = async ({
     content: string;
     invitedUsers?: string[];
     removedUsers?: string[];
+    event: TSalesNotificationEvent;
   } = {
     item: updatedItem,
     user,
     action: 'updated',
     content: `deal '${updatedItem.name}'`,
+    event: 'sales:deals:dealUpdated',
   };
 
   if (doc.status && oldDeal.status && oldDeal.status !== doc.status) {
     const activityAction = doc.status === 'active' ? 'activated' : 'archived';
+
+    notificationDoc.action = activityAction;
+    notificationDoc.event = 'sales:deals:dealStatus';
 
     // order notification
     await changeItemStatus(models, user, {

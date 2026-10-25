@@ -1,3 +1,5 @@
+import type { TNotificationPriority } from 'ui-modules';
+
 export type SetAtom<Args extends unknown[], Result> = (...args: Args) => Result;
 
 export enum MyInboxHotkeyScope {
@@ -14,6 +16,8 @@ export type PluginsNotificationConfigEvents = {
   name: string;
   title: string;
   description: string;
+  // delivered on these until the user saves a choice for the event
+  defaultChannels?: string[] | null;
 };
 
 export type PluginsNotificationConfigModules = {
@@ -49,4 +53,10 @@ export interface NotificationSettings {
   events: Map<string, NotificationEvent>;
   createdAt: Date;
   updatedAt: Date;
+}
+export interface NotificationPriorityOption {
+  value: TNotificationPriority;
+  label: string;
+  translationKey: string;
+  color: string;
 }

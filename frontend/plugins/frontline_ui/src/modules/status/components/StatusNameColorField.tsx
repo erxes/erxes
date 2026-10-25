@@ -17,7 +17,7 @@ export const StatusNameColorField = <
   form: UseFormReturn<TFieldValues>;
   statusType: number;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.status' });
   const control = form.control as Control<FieldValues>;
 
   return (
@@ -26,7 +26,7 @@ export const StatusNameColorField = <
       name="name"
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>{t('name', 'Name')}</Form.Label>
+          <Form.Label>{t('name')}</Form.Label>
           <div className="flex items-center gap-2">
             <Form.Field
               control={control}
@@ -37,7 +37,7 @@ export const StatusNameColorField = <
                   onValueChange={colorField.onChange}
                 >
                   <ColorPicker.Trigger
-                    aria-label={t('color', 'Color')}
+                    aria-label={t('color')}
                     className="size-8 flex-none justify-center p-0"
                     style={{
                       backgroundColor: `${colorField.value || '#000000'}25`,
@@ -53,7 +53,7 @@ export const StatusNameColorField = <
               )}
             />
             <Form.Control>
-              <Input placeholder={t('name', 'Name')} {...field} />
+              <Input placeholder={t('name')} {...field} />
             </Form.Control>
           </div>
           <Form.Message />

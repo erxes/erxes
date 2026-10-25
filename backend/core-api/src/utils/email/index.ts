@@ -8,6 +8,8 @@ import {
 } from 'erxes-api-shared/utils';
 import * as Handlebars from 'handlebars';
 import { IModels } from '~/connectionResolvers';
+import { buildBuiltInBrand } from '@/notificationTemplates/brand';
+import { loadSystemEmail } from '@/notificationTemplates/render';
 import { applyTemplate } from '~/utils/common';
 import {
   createDeliveryLogPort,
@@ -84,15 +86,33 @@ export const sendEmail = async (
   const suppression = models ? createSuppressionPort(models) : undefined;
   const alignedFrom = models ? await resolveAlignedFrom(models) : null;
 
+  // a template the workspace published in place of a built-in file
+  const systemEmail =
+    models && name ? await loadSystemEmail(models, subdomain, name) : null;
+
+  // the built-in file itself is sent in the workspace's brand once one is set
+  const builtInBrand =
+    models && name ? await buildBuiltInBrand(models, subdomain, name) : null;
+
+  if (builtInBrand) {
+    data.brand = builtInBrand;
+  }
+
   for (const toEmail of toEmails) {
     if (modifier) {
       await modifier(data, toEmail);
     }
 
+    // without a published template, or when it cannot be filled, the
+    // built-in file is sent as before
+    const custom = systemEmail ? await systemEmail.render(data) : null;
+
     // generate email content by given template
     let html;
 
-    if (name) {
+    if (custom) {
+      html = custom.html;
+    } else if (name) {
       html = await applyTemplate(data, name);
     } else if (
       !defaultTemplate ||
@@ -128,7 +148,7 @@ export const sendEmail = async (
           from,
           replyTo,
           to: [toEmail],
-          subject: title || '',
+          subject: custom?.subject || title || '',
           html: html || '',
           attachments: (attachments || []).map((attachment: any) => ({
             filename: attachment.filename || attachment.name || '',

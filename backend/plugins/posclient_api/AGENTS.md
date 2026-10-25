@@ -177,6 +177,14 @@
 
 ## Local Invariants
 
+- Product imports finish by removing the importing POS token from categories
+  with no products carrying that token in that category or any descendant.
+  Retain all ancestors using the slash-delimited code prefixes in `order`
+  (`parent.order + code + '/'`) for categories with matching products;
+  an empty sibling does not inherit its parent's retention. This runs after all
+  groups are imported, including an empty import, and preserves other POS tokens
+  and the category documents.
+
 - An order converted to a deal sends its customer / company on the deal (`customerId` / `companyId` in the `sales` `deal.create` input); no core relation is made for it.
 
 - `cpOrdersAdd` and `cpOrdersEdit` always require client portal context;
@@ -241,6 +249,7 @@
   `source: cart`, `action: update` and item-specific details. Admin audit UI
   displays the action and keeps action-less historical entries readable.
 - `pnpm nx build posclient_api`
+- `node --test backend/plugins/posclient_api/src/modules/posclient/utils/__tests__/syncUtils.test.cjs`
 - `node --test backend/plugins/posclient_api/src/worker/__tests__/remainder.test.cjs`
 - `node --test backend/plugins/posclient_api/src/modules/posclient/graphql/resolvers/mutations/__tests__/orders.test.cjs`
 - `node --test backend/plugins/posclient_api/src/modules/posclient/utils/__tests__/cancelOrder.test.cjs`
