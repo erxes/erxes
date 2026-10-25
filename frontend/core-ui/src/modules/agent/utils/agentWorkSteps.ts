@@ -8,10 +8,13 @@ type TUIPart = UIMessage['parts'][number];
 // Local predicates instead of the `ai` package's is*UIPart helpers: `ai`
 // is ESM-only and the module would pull it into every consumer (including
 // jest, which runs CJS) for three one-line checks.
-const isReasoningPart = (part: TUIPart): part is TUIPart & { text: string } =>
-  part.type === 'reasoning';
+export const isReasoningPart = (
+  part: TUIPart,
+): part is TUIPart & { text: string } => part.type === 'reasoning';
 
-const isToolPart = (part: TUIPart): part is DynamicToolUIPart | ToolUIPart =>
+export const isToolPart = (
+  part: TUIPart,
+): part is DynamicToolUIPart | ToolUIPart =>
   part.type === 'dynamic-tool' || part.type.startsWith('tool-');
 
 /** Normalized view of one tool part (live stream or mapped history). */
@@ -36,10 +39,6 @@ export interface IAgentToolStepEntry {
 }
 
 export type TAgentWorkStep = IAgentReasoningStep | IAgentToolStepEntry;
-
-export type TAgentTranscriptItem =
-  | { kind: 'work'; steps: TAgentWorkStep[] }
-  | { kind: 'part'; part: UIMessage['parts'][number]; index: number };
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   Boolean(value) && typeof value === 'object' && !Array.isArray(value);
@@ -134,11 +133,11 @@ const toolNameOf = (part: TUIPart): string =>
     : part.type.slice('tool-'.length);
 
 /**
- * Parts rendered as their own cards — pending approvals and ask_user
- * suspensions/results — are never folded into a work-steps group, so a
- * group stops right before them and they surface on their own.
+ * Parts rendered as their own cards — pending approvals, ask_user
+ * suspensions/results and file cards — are never folded into the turn's
+ * work timeline; they surface on their own in the response body.
  */
-const isStandalonePart = (part: TUIPart): boolean => {
+export const isStandalonePart = (part: TUIPart): boolean => {
   if (isToolPart(part)) {
     const name = toolNameOf(part);
 
@@ -155,59 +154,33 @@ const isStandalonePart = (part: TUIPart): boolean => {
 };
 
 /**
- * Groups an assistant message's parts for the Twenty-style transcript:
- * every contiguous run of reasoning + tool parts becomes one collapsible
- * "work" item; text, data, file and standalone tool parts keep their own
- * slots so rendering order is preserved.
+ * Reasoning and ordinary tool parts — the work a turn folds into its
+ * activity timeline. `step-start` boundaries are not work.
  */
-export const groupAgentWorkSteps = (
-  parts: UIMessage['parts'],
-): TAgentTranscriptItem[] => {
-  const items: TAgentTranscriptItem[] = [];
-  let steps: TAgentWorkStep[] = [];
+export const isWorkPart = (part: TUIPart): boolean =>
+  isReasoningPart(part) || (isToolPart(part) && !isStandalonePart(part));
 
-  const flush = () => {
-    if (steps.length) {
-      items.push({ kind: 'work', steps });
-      steps = [];
-    }
-  };
+/** Timeline entry for one work part, or null for any other part. */
+export const toAgentWorkStep = (part: TUIPart): TAgentWorkStep | null => {
+  if (isReasoningPart(part)) {
+    return { kind: 'reasoning', text: part.text };
+  }
 
-  parts.forEach((part, index) => {
-    // Step boundaries mark where one model step ends and the next begins —
-    // they carry no renderable content, so they neither flush the group
-    // nor appear as their own item.
-    if (part.type === 'step-start') {
-      return;
-    }
+  if (isToolPart(part) && !isStandalonePart(part)) {
+    return {
+      kind: 'tool',
+      tool: {
+        toolCallId: part.toolCallId,
+        toolName: toolNameOf(part),
+        state: part.state,
+        input: part.input,
+        output: 'output' in part ? part.output : undefined,
+        errorText: 'errorText' in part ? part.errorText : undefined,
+      },
+    };
+  }
 
-    if (isReasoningPart(part)) {
-      steps.push({ kind: 'reasoning', text: part.text });
-      return;
-    }
-
-    if (isToolPart(part) && !isStandalonePart(part)) {
-      steps.push({
-        kind: 'tool',
-        tool: {
-          toolCallId: part.toolCallId,
-          toolName: toolNameOf(part),
-          state: part.state,
-          input: part.input,
-          output: 'output' in part ? part.output : undefined,
-          errorText: 'errorText' in part ? part.errorText : undefined,
-        },
-      });
-      return;
-    }
-
-    flush();
-    items.push({ kind: 'part', part, index });
-  });
-
-  flush();
-
-  return items;
+  return null;
 };
 
 const singularize = (noun: string): string =>
@@ -269,7 +242,7 @@ const readFileName = (url: string): string => {
   }
 };
 
-/** Display label for one work-steps row. */
+/** Display label for one timeline step. */
 export const agentStepLabel = (step: TAgentWorkStep): string => {
   if (step.kind === 'reasoning') {
     return 'Thought';

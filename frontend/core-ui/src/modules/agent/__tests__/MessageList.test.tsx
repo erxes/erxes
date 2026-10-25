@@ -1,5 +1,5 @@
 /** @jest-environment jsdom */
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import type { UIMessage } from 'ai';
 import type { ReactNode } from 'react';
 import { MessageList, type IMessageListProps } from '../components/MessageList';
@@ -8,13 +8,13 @@ jest.mock('react-i18next', () => ({
   useTranslation: () => ({
     t: (
       key: string,
-      options?: string | { defaultValue?: string; count?: number },
+      options?: string | ({ defaultValue?: string } & Record<string, unknown>),
     ) =>
       typeof options === 'string'
         ? options
         : (options?.defaultValue ?? key).replace(
-            '{{count}}',
-            String(options?.count ?? ''),
+            /{{(\w+)}}/g,
+            (_: string, name: string) => String(options?.[name] ?? ''),
           ),
   }),
 }));
@@ -32,7 +32,9 @@ jest.mock('erxes-ui', () => {
   const compound = Object.assign(Wrapper, {
     Provider: Wrapper,
     Trigger: Wrapper,
-    Content: Wrapper,
+    Content: ({ children }: { children?: ReactNode }) => (
+      <div data-testid="collapsible-content">{children}</div>
+    ),
   });
   return {
     Button: ({ children, ...props }: { children?: ReactNode }) => (
@@ -56,6 +58,9 @@ jest.mock('../artifacts/ArtifactCard', () => ({
 }));
 jest.mock('../components/BotBadge', () => ({
   BotBadge: () => <span data-testid="bloub" />,
+}));
+jest.mock('../components/TextWithAgentReferences', () => ({
+  TextWithAgentReferences: ({ text }: { text: string }) => <>{text}</>,
 }));
 jest.mock('../components/UserMessage', () => ({
   UserMessage: ({ children }: { children: ReactNode }) => <div>{children}</div>,
@@ -257,4 +262,108 @@ it('shows only the latest response avatar across earlier replies, pending, strea
   expect(screen.getByText('Earlier reply')).toBeTruthy();
   expect(screen.getByText('Previous reply')).toBeTruthy();
   expect(screen.getByText('Latest reply')).toBeTruthy();
+});
+
+const runParts = (
+  finalState: 'input-available' | 'output-available' = 'output-available',
+): UIMessage['parts'] => [
+  { type: 'step-start' },
+  { type: 'reasoning', text: '**Planning the report**\n\nLooking at deals' },
+  { type: 'text', text: "I'll pull together your sales data." },
+  { ...query, toolCallId: 'q1', state: 'output-available' },
+  { type: 'step-start' },
+  { type: 'text', text: 'Found the endpoints. Now fetching September deals…' },
+  { ...query, toolCallId: 'q2', state: finalState },
+];
+
+it('folds narration and steps into one activity header while the answer stays visible', () => {
+  render(
+    <MessageList
+      {...props}
+      status="ready"
+      messages={[
+        user,
+        assistant([
+          ...runParts(),
+          { type: 'text', text: 'September: 12 deals won.' },
+        ]),
+      ]}
+    />,
+  );
+  const [timeline] = screen.getAllByRole('list');
+  expect(
+    within(timeline).getByText(
+      'Found the endpoints. Now fetching September deals…',
+    ),
+  ).toBeTruthy();
+  expect(
+    screen.getAllByText('Found the endpoints. Now fetching September deals…'),
+  ).toHaveLength(1);
+  expect(within(timeline).queryByText('September: 12 deals won.')).toBeNull();
+  expect(screen.getByText('September: 12 deals won.')).toBeTruthy();
+  expect(screen.getByText("I'll pull together your sales data.")).toBeTruthy();
+  expect(
+    within(timeline).getAllByText('Planning the report').length,
+  ).toBeGreaterThan(0);
+  expect(screen.getByRole('button', { name: /2 steps/ })).toBeTruthy();
+});
+
+it('shows the live action in the header and the status region while working', () => {
+  render(
+    <MessageList
+      {...props}
+      status="streaming"
+      messages={[user, assistant(runParts('input-available'))]}
+    />,
+  );
+  expect(screen.getByRole('status').textContent).toBe('Querying deals');
+  expect(screen.getByRole('button', { name: /Querying deals/ })).toBeTruthy();
+});
+
+it('copies only the final answer', () => {
+  const writeText = jest.fn(() => Promise.resolve());
+  Object.assign(navigator, { clipboard: { writeText } });
+  render(
+    <MessageList
+      {...props}
+      status="ready"
+      messages={[
+        user,
+        assistant([...runParts(), { type: 'text', text: 'Final answer' }]),
+      ]}
+    />,
+  );
+  fireEvent.click(screen.getByRole('button', { name: 'Copy' }));
+  expect(writeText).toHaveBeenCalledWith('Final answer');
+});
+
+it('summarizes a watched run with its duration and step count', () => {
+  const now = jest.spyOn(Date, 'now').mockReturnValue(1_000);
+  const messages = [
+    user,
+    assistant([...runParts(), { type: 'text', text: 'Done' }]),
+  ];
+  const { rerender } = render(
+    <MessageList {...props} status="submitted" messages={[user]} />,
+  );
+  rerender(<MessageList {...props} status="streaming" messages={messages} />);
+  now.mockReturnValue(43_000);
+  rerender(<MessageList {...props} status="ready" messages={messages} />);
+  expect(
+    screen.getByRole('button', { name: /Worked for 42s · 2 steps/ }),
+  ).toBeTruthy();
+  now.mockRestore();
+});
+
+it('does not invent a duration for a reattached run', () => {
+  const messages = [
+    user,
+    assistant([...runParts(), { type: 'text', text: 'Done' }]),
+  ];
+  const { rerender } = render(
+    <MessageList {...props} status="streaming" messages={messages} />,
+  );
+  rerender(<MessageList {...props} status="ready" messages={messages} />);
+  expect(screen.getByRole('button', { name: /^2 steps$/ })).toBeTruthy();
+  expect(screen.queryByText(/Worked for/)).toBeNull();
 });

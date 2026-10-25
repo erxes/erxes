@@ -40,8 +40,9 @@ The `agent` module is the core-ui surface for the core-api `agents` backend
   current-session actions menu; the old history popup and delete dialog are gone.
   Shared mutations live in `hooks/useAgentsThreadActions.ts` with immediate
   refetch and error feedback.
-- a Twenty-style transcript: work-steps grouping, approval card, ask_user
-  card, artifact cards, rendered HTML replies + clickable record references;
+- a transcript with one activity timeline per assistant turn (see "Turn
+  activity timeline"), approval card, ask_user card, artifact cards, rendered
+  HTML replies + clickable record references;
 - approval cards display every supplied argument and the complete GraphQL
   variables, including nested objects, arrays, false and null. The bounded scroll
   region never truncates content or drops arguments before a human decision;
@@ -51,13 +52,12 @@ The `agent` module is the core-ui surface for the core-api `agents` backend
   replacing the previous reply's icon. The current avatar follows the pointer
   at rest and uses the thinking state while working. `BotBadge`
   freezes animation for reduced-motion users. The submitted state shares this
-  identity as the only visible working indicator. Activity text remains available
-  to screen readers through a status region; no extra dots or visible status label
-  accompany it. `agentMessageActivity` derives that status from the newest
-  text/reasoning/tool part. Step groups use compact, unboxed disclosures with a
-  leading chevron and an indented history rail. A pending
-  response header appears only before a visible assistant row exists, including
-  during the submitted-to-streaming transition and hidden answer turns.
+  identity as the only working indicator until the turn has timeline work; then
+  the turn's activity header shows the same label visibly. The identity's
+  sr-only status region is the only live region: `agentTurnActivity` derives it
+  from the newest text/reasoning/tool part, and the header adds no second one.
+  A pending response header appears only before a visible assistant row exists,
+  including during the submitted-to-streaming transition and hidden answer turns.
   Transcript entry/send motion respects reduced motion; file previews retain their full available width;
 - user turns have Copy and inline Edit actions (`components/UserMessage.tsx`).
   Save & resend uses the SDK's `messageId` replacement and sends
@@ -110,13 +110,16 @@ The `agent` module is the core-ui surface for the core-api `agents` backend
   Composer controls use container queries at narrow panel widths.
 - BYOK-gated composer: no configured connection shows an inline banner
   linking to the settings page and disables input.
-- assistant message action row under each turn (Copy; Regenerate on the
+- assistant message action row under each turn (Copy — the turn's answer
+  text only, never narration; Regenerate on the
   last assistant message only and not while streaming → `retryLastTurn`;
   timestamp when `createdAt` exists) — hover/focus-revealed, always
   visible on the last assistant message; the old `w-7` copy gutter is
   gone so transcripts use full width.
 - export: `AgentThreadActionsMenu` → `utils/exportThreadMarkdown.ts`
-  (`## You` / `## AI Agent`, text parts only, `[Page context]` stripped,
+  (`## You` / `## AI Agent`; consecutive assistant messages separated only by
+  skipped user turns export once, as `agentTurnAnswerText` — no narration,
+  reasoning or tools; `[Page context]` stripped,
   `metadata.agentsAnswer` turns skipped, tokens→labels outside code,
   Blob download `slugified-title.md` / `conversation-<date>.md`).
 - empty state (`ChatPanel`): compact centered greeting, composer and stacked
@@ -188,7 +191,7 @@ The `agent` module is the core-ui surface for the core-api `agents` backend
   `ArtifactCard` with source/download controls. Tool inputs never create a file
   card; pending calls use the turn header's progress and show an interruption
   notice after streaming stops. Invalid/failed results show an error. These tool parts stay
-  outside collapsed work steps. `parseArtifacts.ts` only decodes old fences for
+  outside the collapsed activity timeline. `parseArtifacts.ts` only decodes old fences for
   readable reply display; no text fence, title or marker grants file controls.
   DOCX/PDF conversion failures offer Retry.
 
@@ -214,18 +217,46 @@ cannot navigate after the chip unmounts or changes identity.
 `utils/pageContext.ts` strips persisted `[Page context]` from user bubbles.
 `references/getPageRecordFromLocation.ts` supplies the next send's page context.
 
-## Work steps
+## Turn activity timeline
 
-`utils/agentWorkSteps.ts` folds contiguous reasoning + tool parts of an
-assistant message into compact `AgentWorkSteps` disclosures ("N steps");
-`step-start` parts are transparent, approvals/ask_user stay standalone. `agentStepLabel` derives the per-row label
-(`callGraphql` shows its operation/field name,
-`execute_typescript` → "Ran code", `readFile` → "Read <name>").
+One prompt's whole run is one process instance. `utils/agentTurnTimeline.ts`
+(pure, `import type` only) splits a transcript row's parts:
+
+- `classifyAgentTurnText`: non-empty text followed by more work (reasoning or
+  a non-standalone tool; text, `step-start` and data parts are transparent) is
+  **narration**; text before a standalone card (approval, ask_user, artifact)
+  or after the last work is the **answer**. Narration that is the first text,
+  before any tool call, is the visible **intro**. While streaming, trailing
+  text is provisionally the answer and becomes narration as soon as another
+  work part arrives. A settled turn without answer text promotes its last
+  narration so nothing collapses to empty. Settled empty reasoning is ignored;
+  streaming reasoning counts as work.
+- `buildAgentTurnLayout`: timeline `sections` (narration title + following
+  steps; work before the first narration forms an untitled lead section), the
+  `body` (intro, answer and every non-work part in original order), counts,
+  `activeIndex` and `answerText` (copy/export).
+- `agentTurnActivity`: running tool label (`agentMessageActivity`), latest
+  `**title**` of reasoning summaries or "Thinking…", "Writing…" for text, or
+  the newest narration's last sentence between steps.
+
+`AgentTurnActivity` renders one collapsed-by-default header per turn when it
+has timeline content (plain answers get none). Live: shimmering label that
+crossfades in place. Settled: "Worked for 42s · N steps" when `MessageList`
+timed the run (fresh send, or continuation of a timed turn after approval or
+answer; reattached runs are never timed), else "N steps", a single tool's
+label, or "Thought". Expanded: thin-rail timeline; narration titles render via
+`TextWithAgentReferences`, tools via `AgentStepRow` (`agentStepLabel`:
+`callGraphql` operation/field names, "Ran code", "Read <file>"), reasoning via
+`AgentThinkingBlock` (muted, expandable, shimmer while it is the live part).
+Approvals, ask_user and artifact cards are never folded.
+
+`utils/agentWorkSteps.ts` owns the part predicates (`isWorkPart`,
+`isStandalonePart`, `toAgentWorkStep`) and step labels.
 
 `utils/transcriptRows.ts` merges consecutive assistant messages separated only
-by hidden turns into one transcript row. Adjacent work-step groups combine;
-the action row renders only when the turn has text or is the last assistant
-turn. A single-step card names the action.
+by hidden turns into one transcript row, so a resumed run continues the same
+timeline. The action row renders only when the turn has answer text or is the
+last assistant turn.
 
 ## State
 
@@ -269,5 +300,7 @@ turn. A single-step card names the action.
 - Session tabs enter/exit and shift position over 160ms. Removal still waits
   for successful deletion; failed deletion keeps the session.
 - New conversation surfaces and user/assistant arrivals use short fades with a
-  6px rise. Stream deltas do not restart row animation. All motion respects
+  6px rise. The activity header label slides/fades in place over 220ms
+  (`agent-activity-enter/exit` in `styles.css`) and the expanded timeline fades
+  in; shimmer is `motion-safe` only. Stream deltas do not restart row animation. All motion respects
   the system reduced-motion preference; send-button feedback has no bounce.
