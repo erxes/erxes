@@ -246,19 +246,56 @@ export const loadAgentsConnectionClass = (models: IModels) => {
       userId: string,
       provider: string,
     ): Promise<IAgentsConnectionsDocument | null> {
-      const doc = provider
-        ? await models.AgentsConnection.findOneAndUpdate(
-            { userId, 'connections.provider': provider },
-            { $set: { defaultProvider: provider } },
-            { new: true },
-          )
-        : await models.AgentsConnection.findOneAndUpdate(
+      if (!provider) {
+        return normalizeConnections(
+          await models.AgentsConnection.findOneAndUpdate(
             { userId },
             { $unset: { defaultProvider: '' } },
             { new: true },
-          );
+          ),
+        );
+      }
 
-      return normalizeConnections(doc);
+      const doc = await models.AgentsConnection.findOneAndUpdate(
+        { userId, 'connections.provider': provider },
+        { $set: { defaultProvider: provider } },
+        { new: true },
+      );
+
+      if (doc) {
+        return normalizeConnections(doc);
+      }
+
+      // A document still in the single-`connection` shape has no array for
+      // that filter to match. Write the normalized (sealed) array with the
+      // default, as the other writes do; the shape check in the filter keeps
+      // a concurrent write from being overwritten.
+      const stored = await models.AgentsConnection.findOne({
+        userId,
+      }).lean<IAgentsConnectionsDocument>();
+
+      if (!stored || Array.isArray(stored.connections)) {
+        return null;
+      }
+
+      const entries = normalizeConnections(stored)?.connections ?? [];
+
+      if (!entries.some((entry) => entry.provider === provider)) {
+        return null;
+      }
+
+      entries.forEach(sealEntryConfig);
+
+      return normalizeConnections(
+        await models.AgentsConnection.findOneAndUpdate(
+          { userId, connections: { $exists: false } },
+          {
+            $set: { connections: entries, defaultProvider: provider },
+            $unset: { connection: '' },
+          },
+          { new: true },
+        ),
+      );
     }
   }
 

@@ -189,6 +189,55 @@ describe('AgentsConnection default provider', () => {
     expect(doc?.defaultProvider).toBe('kimi');
   });
 
+  it('moves a single-connection document into the array when setting its default', async () => {
+    const legacy = {
+      userId: 'user-1',
+      connection: {
+        provider: 'openai',
+        model: 'gpt-5',
+        config: { apiKey: 'sk-legacy-plain' },
+      },
+    };
+    const { fake, statics } = buildModels(legacy);
+    fake.findOneAndUpdate.mockResolvedValueOnce(null).mockResolvedValueOnce({
+      userId: 'user-1',
+      connections: [legacy.connection],
+      defaultProvider: 'openai',
+    });
+
+    const doc = await statics.setDefaultProvider('user-1', 'openai');
+
+    const [filter, update] = fake.findOneAndUpdate.mock.calls[1] as [
+      unknown,
+      {
+        $set: {
+          connections: { provider: string; config: { apiKey: string } }[];
+          defaultProvider: string;
+        };
+        $unset: Record<string, string>;
+      },
+    ];
+    expect(filter).toEqual({ userId: 'user-1', connections: { $exists: false } });
+    expect(update.$set.defaultProvider).toBe('openai');
+    expect(update.$set.connections.map((entry) => entry.provider)).toEqual([
+      'openai',
+    ]);
+    expect(isSealedSecret(update.$set.connections[0].config.apiKey)).toBe(true);
+    expect(update.$unset).toEqual({ connection: '' });
+    expect(doc?.defaultProvider).toBe('openai');
+  });
+
+  it('does not migrate a single-connection document for another provider', async () => {
+    const { fake, statics } = buildModels({
+      userId: 'user-1',
+      connection: { provider: 'openai', model: 'gpt-5', config: {} },
+    });
+    fake.findOneAndUpdate.mockResolvedValueOnce(null);
+
+    await expect(statics.setDefaultProvider('user-1', 'kimi')).resolves.toBeNull();
+    expect(fake.findOneAndUpdate).toHaveBeenCalledTimes(1);
+  });
+
   it('clears the explicit default for an empty provider', async () => {
     const { fake, statics } = buildModels(SAVED);
 
