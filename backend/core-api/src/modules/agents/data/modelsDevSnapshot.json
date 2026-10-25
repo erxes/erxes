@@ -6,7 +6,9 @@
     "id",
     "name",
     "reasoning",
-    "reasoning_options"
+    "reasoning_options",
+    "tool_call",
+    "modalities"
   ],
   "providers": {
     "openai": {
@@ -15,62 +17,185 @@
         "chatgpt-image-latest": {
           "id": "chatgpt-image-latest",
           "name": "chatgpt-image-latest",
-          "reasoning": false
+          "reasoning": false,
+          "tool_call": false,
+          "modalities": {
+            "input": [
+              "text",
+              "image"
+            ],
+            "output": [
+              "text",
+              "image"
+            ]
+          }
         },
         "gpt-3.5-turbo": {
           "id": "gpt-3.5-turbo",
           "name": "GPT-3.5-turbo",
-          "reasoning": false
+          "reasoning": false,
+          "tool_call": false,
+          "modalities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ]
+          }
         },
         "gpt-4": {
           "id": "gpt-4",
           "name": "GPT-4",
-          "reasoning": false
+          "reasoning": false,
+          "tool_call": true,
+          "modalities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ]
+          }
         },
         "gpt-4-turbo": {
           "id": "gpt-4-turbo",
           "name": "GPT-4 Turbo",
-          "reasoning": false
+          "reasoning": false,
+          "tool_call": true,
+          "modalities": {
+            "input": [
+              "text",
+              "image"
+            ],
+            "output": [
+              "text"
+            ]
+          }
         },
         "gpt-4.1": {
           "id": "gpt-4.1",
           "name": "GPT-4.1",
-          "reasoning": false
+          "reasoning": false,
+          "tool_call": true,
+          "modalities": {
+            "input": [
+              "text",
+              "image",
+              "pdf"
+            ],
+            "output": [
+              "text"
+            ]
+          }
         },
         "gpt-4.1-mini": {
           "id": "gpt-4.1-mini",
           "name": "GPT-4.1 mini",
-          "reasoning": false
+          "reasoning": false,
+          "tool_call": true,
+          "modalities": {
+            "input": [
+              "text",
+              "image",
+              "pdf"
+            ],
+            "output": [
+              "text"
+            ]
+          }
         },
         "gpt-4.1-nano": {
           "id": "gpt-4.1-nano",
           "name": "GPT-4.1 nano",
-          "reasoning": false
+          "reasoning": false,
+          "tool_call": true,
+          "modalities": {
+            "input": [
+              "text",
+              "image"
+            ],
+            "output": [
+              "text"
+            ]
+          }
         },
         "gpt-4o": {
           "id": "gpt-4o",
           "name": "GPT-4o",
-          "reasoning": false
+          "reasoning": false,
+          "tool_call": true,
+          "modalities": {
+            "input": [
+              "text",
+              "image",
+              "pdf"
+            ],
+            "output": [
+              "text"
+            ]
+          }
         },
         "gpt-4o-2024-05-13": {
           "id": "gpt-4o-2024-05-13",
           "name": "GPT-4o (2024-05-13)",
-          "reasoning": false
+          "reasoning": false,
+          "tool_call": true,
+          "modalities": {
+            "input": [
+              "text",
+              "image"
+            ],
+            "output": [
+              "text"
+            ]
+          }
         },
         "gpt-4o-2024-08-06": {
           "id": "gpt-4o-2024-08-06",
           "name": "GPT-4o (2024-08-06)",
-          "reasoning": false
+          "reasoning": false,
+          "tool_call": true,
+          "modalities": {
+            "input": [
+              "text",
+              "image"
+            ],
+            "output": [
+              "text"
+            ]
+          }
         },
         "gpt-4o-2024-11-20": {
           "id": "gpt-4o-2024-11-20",
           "name": "GPT-4o (2024-11-20)",
-          "reasoning": false
+          "reasoning": false,
+          "tool_call": true,
+          "modalities": {
+            "input": [
+              "text",
+              "image"
+            ],
+            "output": [
+              "text"
+            ]
+          }
         },
         "gpt-4o-mini": {
           "id": "gpt-4o-mini",
           "name": "GPT-4o mini",
-          "reasoning": false
+          "reasoning": false,
+          "tool_call": true,
+          "modalities": {
+            "input": [
+              "text",
+              "image",
+              "pdf"
+            ],
+            "output": [
+              "text"
+            ]
+          }
         },
         "gpt-5": {
           "id": "gpt-5",
@@ -86,7 +211,17 @@
                 "high"
               ]
             }
-          ]
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": [
+              "text",
+              "image"
+            ],
+            "output": [
+              "text"
+            ]
+          }
         },
         "gpt-5-mini": {
           "id": "gpt-5-mini",
@@ -102,7 +237,17 @@
                 "high"
               ]
             }
-          ]
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": [
+              "text",
+              "image"
+            ],
+            "output": [
+              "text"
+            ]
+          }
         },
         "gpt-5-nano": {
           "id": "gpt-5-nano",
@@ -118,7 +263,17 @@
                 "high"
               ]
             }
-          ]
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": [
+              "text",
+              "image"
+            ],
+            "output": [
+              "text"
+            ]
+          }
         },
         "gpt-5-pro": {
           "id": "gpt-5-pro",
@@ -131,7 +286,17 @@
                 "high"
               ]
             }
-          ]
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": [
+              "text",
+              "image"
+            ],
+            "output": [
+              "text"
+            ]
+          }
         },
         "gpt-5.1": {
           "id": "gpt-5.1",
@@ -147,7 +312,17 @@
                 "high"
               ]
             }
-          ]
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": [
+              "text",
+              "image"
+            ],
+            "output": [
+              "text"
+            ]
+          }
         },
         "gpt-5.2": {
           "id": "gpt-5.2",
@@ -164,7 +339,17 @@
                 "xhigh"
               ]
             }
-          ]
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": [
+              "text",
+              "image"
+            ],
+            "output": [
+              "text"
+            ]
+          }
         },
         "gpt-5.2-pro": {
           "id": "gpt-5.2-pro",
@@ -179,7 +364,17 @@
                 "xhigh"
               ]
             }
-          ]
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": [
+              "text",
+              "image"
+            ],
+            "output": [
+              "text"
+            ]
+          }
         },
         "gpt-5.3-codex": {
           "id": "gpt-5.3-codex",
@@ -196,7 +391,18 @@
                 "xhigh"
               ]
             }
-          ]
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": [
+              "text",
+              "image",
+              "pdf"
+            ],
+            "output": [
+              "text"
+            ]
+          }
         },
         "gpt-5.3-codex-spark": {
           "id": "gpt-5.3-codex-spark",
@@ -213,7 +419,18 @@
                 "xhigh"
               ]
             }
-          ]
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": [
+              "text",
+              "image",
+              "pdf"
+            ],
+            "output": [
+              "text"
+            ]
+          }
         },
         "gpt-5.4": {
           "id": "gpt-5.4",
@@ -230,7 +447,18 @@
                 "xhigh"
               ]
             }
-          ]
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": [
+              "text",
+              "image",
+              "pdf"
+            ],
+            "output": [
+              "text"
+            ]
+          }
         },
         "gpt-5.4-mini": {
           "id": "gpt-5.4-mini",
@@ -247,7 +475,17 @@
                 "xhigh"
               ]
             }
-          ]
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": [
+              "text",
+              "image"
+            ],
+            "output": [
+              "text"
+            ]
+          }
         },
         "gpt-5.4-nano": {
           "id": "gpt-5.4-nano",
@@ -264,7 +502,17 @@
                 "xhigh"
               ]
             }
-          ]
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": [
+              "text",
+              "image"
+            ],
+            "output": [
+              "text"
+            ]
+          }
         },
         "gpt-5.4-pro": {
           "id": "gpt-5.4-pro",
@@ -279,7 +527,17 @@
                 "xhigh"
               ]
             }
-          ]
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": [
+              "text",
+              "image"
+            ],
+            "output": [
+              "text"
+            ]
+          }
         },
         "gpt-5.5": {
           "id": "gpt-5.5",
@@ -296,7 +554,18 @@
                 "xhigh"
               ]
             }
-          ]
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": [
+              "text",
+              "image",
+              "pdf"
+            ],
+            "output": [
+              "text"
+            ]
+          }
         },
         "gpt-5.5-pro": {
           "id": "gpt-5.5-pro",
@@ -311,7 +580,18 @@
                 "xhigh"
               ]
             }
-          ]
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": [
+              "text",
+              "image",
+              "pdf"
+            ],
+            "output": [
+              "text"
+            ]
+          }
         },
         "gpt-5.6": {
           "id": "gpt-5.6",
@@ -329,7 +609,18 @@
                 "max"
               ]
             }
-          ]
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": [
+              "text",
+              "image",
+              "pdf"
+            ],
+            "output": [
+              "text"
+            ]
+          }
         },
         "gpt-5.6-luna": {
           "id": "gpt-5.6-luna",
@@ -347,7 +638,18 @@
                 "max"
               ]
             }
-          ]
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": [
+              "text",
+              "image",
+              "pdf"
+            ],
+            "output": [
+              "text"
+            ]
+          }
         },
         "gpt-5.6-sol": {
           "id": "gpt-5.6-sol",
@@ -365,7 +667,18 @@
                 "max"
               ]
             }
-          ]
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": [
+              "text",
+              "image",
+              "pdf"
+            ],
+            "output": [
+              "text"
+            ]
+          }
         },
         "gpt-5.6-terra": {
           "id": "gpt-5.6-terra",
@@ -383,7 +696,18 @@
                 "max"
               ]
             }
-          ]
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": [
+              "text",
+              "image",
+              "pdf"
+            ],
+            "output": [
+              "text"
+            ]
+          }
         },
         "gpt-6-astra": {
           "id": "gpt-6-astra",
@@ -400,7 +724,18 @@
                 "max"
               ]
             }
-          ]
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": [
+              "text",
+              "image",
+              "pdf"
+            ],
+            "output": [
+              "text"
+            ]
+          }
         },
         "gpt-6-luna": {
           "id": "gpt-6-luna",
@@ -418,7 +753,18 @@
                 "max"
               ]
             }
-          ]
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": [
+              "text",
+              "image",
+              "pdf"
+            ],
+            "output": [
+              "text"
+            ]
+          }
         },
         "gpt-6-sol": {
           "id": "gpt-6-sol",
@@ -436,7 +782,18 @@
                 "max"
               ]
             }
-          ]
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": [
+              "text",
+              "image",
+              "pdf"
+            ],
+            "output": [
+              "text"
+            ]
+          }
         },
         "gpt-6.1-sol": {
           "id": "gpt-6.1-sol",
@@ -453,7 +810,18 @@
                 "max"
               ]
             }
-          ]
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": [
+              "text",
+              "image",
+              "pdf"
+            ],
+            "output": [
+              "text"
+            ]
+          }
         },
         "gpt-daybreak-blue-latest": {
           "id": "gpt-daybreak-blue-latest",
@@ -471,7 +839,18 @@
                 "max"
               ]
             }
-          ]
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": [
+              "text",
+              "image",
+              "pdf"
+            ],
+            "output": [
+              "text"
+            ]
+          }
         },
         "gpt-daybreak-red-latest": {
           "id": "gpt-daybreak-red-latest",
@@ -489,27 +868,79 @@
                 "max"
               ]
             }
-          ]
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": [
+              "text",
+              "image"
+            ],
+            "output": [
+              "text"
+            ]
+          }
         },
         "gpt-image-1": {
           "id": "gpt-image-1",
           "name": "gpt-image-1",
-          "reasoning": false
+          "reasoning": false,
+          "tool_call": false,
+          "modalities": {
+            "input": [
+              "text",
+              "image"
+            ],
+            "output": [
+              "image"
+            ]
+          }
         },
         "gpt-image-1-mini": {
           "id": "gpt-image-1-mini",
           "name": "gpt-image-1-mini",
-          "reasoning": false
+          "reasoning": false,
+          "tool_call": false,
+          "modalities": {
+            "input": [
+              "text",
+              "image"
+            ],
+            "output": [
+              "text",
+              "image"
+            ]
+          }
         },
         "gpt-image-1.5": {
           "id": "gpt-image-1.5",
           "name": "gpt-image-1.5",
-          "reasoning": false
+          "reasoning": false,
+          "tool_call": false,
+          "modalities": {
+            "input": [
+              "text",
+              "image"
+            ],
+            "output": [
+              "text",
+              "image"
+            ]
+          }
         },
         "gpt-image-2": {
           "id": "gpt-image-2",
           "name": "gpt-image-2",
-          "reasoning": false
+          "reasoning": false,
+          "tool_call": false,
+          "modalities": {
+            "input": [
+              "text",
+              "image"
+            ],
+            "output": [
+              "image"
+            ]
+          }
         },
         "gpt-realtime-2.1": {
           "id": "gpt-realtime-2.1",
@@ -526,7 +957,19 @@
                 "xhigh"
               ]
             }
-          ]
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": [
+              "text",
+              "audio",
+              "image"
+            ],
+            "output": [
+              "text",
+              "audio"
+            ]
+          }
         },
         "o1": {
           "id": "o1",
@@ -541,7 +984,18 @@
                 "high"
               ]
             }
-          ]
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": [
+              "text",
+              "image",
+              "pdf"
+            ],
+            "output": [
+              "text"
+            ]
+          }
         },
         "o1-pro": {
           "id": "o1-pro",
@@ -556,7 +1010,17 @@
                 "high"
               ]
             }
-          ]
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": [
+              "text",
+              "image"
+            ],
+            "output": [
+              "text"
+            ]
+          }
         },
         "o3": {
           "id": "o3",
@@ -571,7 +1035,18 @@
                 "high"
               ]
             }
-          ]
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": [
+              "text",
+              "image",
+              "pdf"
+            ],
+            "output": [
+              "text"
+            ]
+          }
         },
         "o3-mini": {
           "id": "o3-mini",
@@ -586,7 +1061,16 @@
                 "high"
               ]
             }
-          ]
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ]
+          }
         },
         "o3-pro": {
           "id": "o3-pro",
@@ -601,7 +1085,17 @@
                 "high"
               ]
             }
-          ]
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": [
+              "text",
+              "image"
+            ],
+            "output": [
+              "text"
+            ]
+          }
         },
         "o4-mini": {
           "id": "o4-mini",
@@ -616,22 +1110,59 @@
                 "high"
               ]
             }
-          ]
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": [
+              "text",
+              "image"
+            ],
+            "output": [
+              "text"
+            ]
+          }
         },
         "text-embedding-3-large": {
           "id": "text-embedding-3-large",
           "name": "text-embedding-3-large",
-          "reasoning": false
+          "reasoning": false,
+          "tool_call": false,
+          "modalities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ]
+          }
         },
         "text-embedding-3-small": {
           "id": "text-embedding-3-small",
           "name": "text-embedding-3-small",
-          "reasoning": false
+          "reasoning": false,
+          "tool_call": false,
+          "modalities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ]
+          }
         },
         "text-embedding-ada-002": {
           "id": "text-embedding-ada-002",
           "name": "text-embedding-ada-002",
-          "reasoning": false
+          "reasoning": false,
+          "tool_call": false,
+          "modalities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ]
+          }
         }
       }
     },
@@ -641,12 +1172,34 @@
         "grok-4.20-0309-non-reasoning": {
           "id": "grok-4.20-0309-non-reasoning",
           "name": "Grok 4.20 (Non-Reasoning)",
-          "reasoning": false
+          "reasoning": false,
+          "tool_call": true,
+          "modalities": {
+            "input": [
+              "text",
+              "image",
+              "pdf"
+            ],
+            "output": [
+              "text"
+            ]
+          }
         },
         "grok-4.20-0309-reasoning": {
           "id": "grok-4.20-0309-reasoning",
           "name": "Grok 4.20 (Reasoning)",
-          "reasoning": true
+          "reasoning": true,
+          "tool_call": true,
+          "modalities": {
+            "input": [
+              "text",
+              "image",
+              "pdf"
+            ],
+            "output": [
+              "text"
+            ]
+          }
         },
         "grok-4.20-multi-agent-0309": {
           "id": "grok-4.20-multi-agent-0309",
@@ -662,7 +1215,18 @@
                 "xhigh"
               ]
             }
-          ]
+          ],
+          "tool_call": false,
+          "modalities": {
+            "input": [
+              "text",
+              "image",
+              "pdf"
+            ],
+            "output": [
+              "text"
+            ]
+          }
         },
         "grok-4.3": {
           "id": "grok-4.3",
@@ -679,7 +1243,18 @@
                 "xhigh"
               ]
             }
-          ]
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": [
+              "text",
+              "image",
+              "pdf"
+            ],
+            "output": [
+              "text"
+            ]
+          }
         },
         "grok-4.5": {
           "id": "grok-4.5",
@@ -695,7 +1270,18 @@
                 "xhigh"
               ]
             }
-          ]
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": [
+              "text",
+              "image",
+              "pdf"
+            ],
+            "output": [
+              "text"
+            ]
+          }
         },
         "grok-4.6": {
           "id": "grok-4.6",
@@ -711,7 +1297,18 @@
                 "xhigh"
               ]
             }
-          ]
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": [
+              "text",
+              "image",
+              "pdf"
+            ],
+            "output": [
+              "text"
+            ]
+          }
         },
         "grok-4.7": {
           "id": "grok-4.7",
@@ -727,37 +1324,111 @@
                 "xhigh"
               ]
             }
-          ]
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": [
+              "text",
+              "image",
+              "pdf"
+            ],
+            "output": [
+              "text"
+            ]
+          }
         },
         "grok-build-0.1": {
           "id": "grok-build-0.1",
           "name": "Grok Build 0.1",
-          "reasoning": true
+          "reasoning": true,
+          "tool_call": true,
+          "modalities": {
+            "input": [
+              "text",
+              "image",
+              "pdf"
+            ],
+            "output": [
+              "text"
+            ]
+          }
         },
         "grok-imagine-image": {
           "id": "grok-imagine-image",
           "name": "Grok Imagine Image",
-          "reasoning": false
+          "reasoning": false,
+          "tool_call": false,
+          "modalities": {
+            "input": [
+              "text",
+              "image"
+            ],
+            "output": [
+              "image"
+            ]
+          }
         },
         "grok-imagine-image-quality": {
           "id": "grok-imagine-image-quality",
           "name": "Grok Imagine Image Quality",
-          "reasoning": false
+          "reasoning": false,
+          "tool_call": false,
+          "modalities": {
+            "input": [
+              "text",
+              "image"
+            ],
+            "output": [
+              "image"
+            ]
+          }
         },
         "grok-imagine-video": {
           "id": "grok-imagine-video",
           "name": "Grok Imagine Video",
-          "reasoning": false
+          "reasoning": false,
+          "tool_call": false,
+          "modalities": {
+            "input": [
+              "text",
+              "image",
+              "video"
+            ],
+            "output": [
+              "video"
+            ]
+          }
         },
         "grok-imagine-video-1.5": {
           "id": "grok-imagine-video-1.5",
           "name": "Grok Imagine Video 1.5",
-          "reasoning": false
+          "reasoning": false,
+          "tool_call": false,
+          "modalities": {
+            "input": [
+              "text",
+              "image",
+              "audio"
+            ],
+            "output": [
+              "video"
+            ]
+          }
         },
         "grok-imagine-video-1.5-lite": {
           "id": "grok-imagine-video-1.5-lite",
           "name": "Grok Imagine Video 1.5 Lite",
-          "reasoning": false
+          "reasoning": false,
+          "tool_call": false,
+          "modalities": {
+            "input": [
+              "text",
+              "image"
+            ],
+            "output": [
+              "video"
+            ]
+          }
         }
       }
     },
@@ -772,17 +1443,50 @@
             {
               "type": "toggle"
             }
-          ]
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": [
+              "text",
+              "image",
+              "video"
+            ],
+            "output": [
+              "text"
+            ]
+          }
         },
         "kimi-k2.7-code": {
           "id": "kimi-k2.7-code",
           "name": "Kimi K2.7 Code",
-          "reasoning": true
+          "reasoning": true,
+          "tool_call": true,
+          "modalities": {
+            "input": [
+              "text",
+              "image",
+              "video"
+            ],
+            "output": [
+              "text"
+            ]
+          }
         },
         "kimi-k2.7-code-highspeed": {
           "id": "kimi-k2.7-code-highspeed",
           "name": "Kimi K2.7 Code HighSpeed",
-          "reasoning": true
+          "reasoning": true,
+          "tool_call": true,
+          "modalities": {
+            "input": [
+              "text",
+              "image",
+              "video"
+            ],
+            "output": [
+              "text"
+            ]
+          }
         },
         "kimi-k3": {
           "id": "kimi-k3",
@@ -797,7 +1501,18 @@
                 "max"
               ]
             }
-          ]
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": [
+              "text",
+              "image",
+              "video"
+            ],
+            "output": [
+              "text"
+            ]
+          }
         },
         "kimi-k3.1-pro": {
           "id": "kimi-k3.1-pro",
@@ -812,7 +1527,18 @@
                 "max"
               ]
             }
-          ]
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": [
+              "text",
+              "image",
+              "video"
+            ],
+            "output": [
+              "text"
+            ]
+          }
         },
         "kimi-k3.1-pro-highspeed": {
           "id": "kimi-k3.1-pro-highspeed",
@@ -827,7 +1553,18 @@
                 "max"
               ]
             }
-          ]
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": [
+              "text",
+              "image",
+              "video"
+            ],
+            "output": [
+              "text"
+            ]
+          }
         }
       }
     },
@@ -848,7 +1585,18 @@
                 "max"
               ]
             }
-          ]
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": [
+              "text",
+              "image",
+              "video"
+            ],
+            "output": [
+              "text"
+            ]
+          }
         },
         "k3-256k": {
           "id": "k3-256k",
@@ -864,7 +1612,17 @@
                 "max"
               ]
             }
-          ]
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": [
+              "text",
+              "image"
+            ],
+            "output": [
+              "text"
+            ]
+          }
         },
         "k3.1-pro": {
           "id": "k3.1-pro",
@@ -879,7 +1637,18 @@
                 "max"
               ]
             }
-          ]
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": [
+              "text",
+              "image",
+              "video"
+            ],
+            "output": [
+              "text"
+            ]
+          }
         },
         "k3.1-pro-highspeed": {
           "id": "k3.1-pro-highspeed",
@@ -894,7 +1663,18 @@
                 "max"
               ]
             }
-          ]
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": [
+              "text",
+              "image",
+              "video"
+            ],
+            "output": [
+              "text"
+            ]
+          }
         },
         "kimi-for-coding": {
           "id": "kimi-for-coding",
@@ -910,12 +1690,34 @@
                 "max"
               ]
             }
-          ]
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": [
+              "text",
+              "image",
+              "video"
+            ],
+            "output": [
+              "text"
+            ]
+          }
         },
         "kimi-for-coding-highspeed": {
           "id": "kimi-for-coding-highspeed",
           "name": "Kimi For Coding HighSpeed",
-          "reasoning": true
+          "reasoning": true,
+          "tool_call": true,
+          "modalities": {
+            "input": [
+              "text",
+              "image",
+              "video"
+            ],
+            "output": [
+              "text"
+            ]
+          }
         }
       }
     }

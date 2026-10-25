@@ -3,9 +3,9 @@
 //   node backend/core-api/src/modules/agents/data/refreshModelsDevSnapshot.mjs
 //
 // models.dev (https://models.dev, MIT, github.com/anomalyco/models.dev) is the
-// catalog Mastra builds its registry from. Only display names and reasoning
-// options of the four BYOK providers are kept; nothing calls models.dev at
-// runtime. The run fails if a provider's endpoint no longer matches the one
+// catalog Mastra builds its registry from. Only display names, reasoning
+// options, tool calling and modalities of the four BYOK providers are kept;
+// nothing calls models.dev at runtime. The run fails if a provider's endpoint no longer matches the one
 // `providers.ts` calls, so a stale mapping is never written.
 
 import { writeFile } from 'node:fs/promises';
@@ -29,13 +29,29 @@ const PROVIDERS = {
   },
 };
 
-const pickModel = ({ id, name, reasoning, reasoning_options }) => ({
+const stringList = (value) =>
+  Array.isArray(value) ? value.filter((item) => typeof item === 'string') : [];
+
+const pickModel = ({
+  id,
+  name,
+  reasoning,
+  reasoning_options,
+  tool_call,
+  modalities,
+}) => ({
   id,
   ...(typeof name === 'string' ? { name } : {}),
   reasoning: reasoning === true,
   ...(Array.isArray(reasoning_options) && reasoning_options.length > 0
     ? { reasoning_options }
     : {}),
+  // Catalog usability: tool calling and text-only output (modelCatalog.ts).
+  tool_call: tool_call === true,
+  modalities: {
+    input: stringList(modalities?.input),
+    output: stringList(modalities?.output),
+  },
 });
 
 const response = await fetch(SOURCE, { signal: AbortSignal.timeout(30_000) });
@@ -81,7 +97,14 @@ const snapshot = {
   source: SOURCE,
   license: 'MIT, https://github.com/anomalyco/models.dev',
   snapshotDate: new Date().toISOString().slice(0, 10),
-  fields: ['id', 'name', 'reasoning', 'reasoning_options'],
+  fields: [
+    'id',
+    'name',
+    'reasoning',
+    'reasoning_options',
+    'tool_call',
+    'modalities',
+  ],
   providers,
 };
 

@@ -1,7 +1,7 @@
 import type { ProviderOptions } from '@mastra/core/llm/model/provider-options' with {
   'resolution-mode': 'import',
 };
-import snapshot from '@/agents/data/modelsDevSnapshot.json';
+import { findModelsDevModel } from '@/agents/modelsDevSnapshot';
 
 /**
  * Display names and thinking controls per model, from the bundled models.dev
@@ -64,27 +64,6 @@ export interface IAgentsModelThinking {
   levels: IAgentsThinkingLevel[];
 }
 
-interface IModelsDevReasoningOption {
-  type: string;
-  values?: string[];
-  min?: number;
-  max?: number;
-}
-
-interface IModelsDevModel {
-  id: string;
-  name?: string;
-  reasoning: boolean;
-  reasoning_options?: IModelsDevReasoningOption[];
-}
-
-interface IModelsDevSnapshot {
-  providers: Record<
-    string,
-    { modelsDevProvider: string; models: Record<string, IModelsDevModel> }
-  >;
-}
-
 interface IResolvedThinking extends IAgentsModelThinking {
   /** effort: our level → the provider's native value. */
   native: Partial<Record<IAgentsThinkingLevel, string>>;
@@ -92,15 +71,6 @@ interface IResolvedThinking extends IAgentsModelThinking {
   min: number;
   max: number;
 }
-
-const SNAPSHOT = snapshot as IModelsDevSnapshot;
-
-/** The bundled models.dev entry for one of our provider/model pairs. */
-const findModelsDevModel = (
-  provider: string,
-  model: string,
-): IModelsDevModel | undefined =>
-  SNAPSHOT.providers[provider]?.models[model.trim()];
 
 /**
  * The human name for a model, or null when the snapshot has none or its name

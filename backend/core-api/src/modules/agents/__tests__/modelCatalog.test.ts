@@ -1,12 +1,16 @@
 /**
- * Model catalog classification: each provider's raw /models listing is
- * reduced to tool-calling chat models, dated snapshots collapse behind their
- * alias, and a short recommended list leads with the saved/default model.
+ * Model catalog classification for ids the models.dev snapshot does not know:
+ * the name-pattern fallback reduces each provider's raw /models listing to
+ * tool-calling chat models, dated snapshots collapse behind their alias, and
+ * a short recommended list leads with the saved/default model. The snapshot
+ * is empty here so every id takes the fallback path; snapshot-driven
+ * behaviour is covered by modelCatalogSnapshot.test.ts.
  */
+
+jest.mock('@/agents/data/modelsDevSnapshot.json', () => ({ providers: {} }));
 
 import {
   buildProviderModelCatalog,
-  getDocumentedProviderModels,
   isUsableProviderModel,
   RECOMMENDED_MODEL_LIMIT,
 } from '@/agents/modelCatalog';
@@ -208,31 +212,5 @@ describe('allowed-model style ids', () => {
       ['gpt-5.6-luna', 'gpt-5.6'],
     ]);
     expect(catalog.every((model) => model.recommended)).toBe(true);
-  });
-});
-
-describe('documented provider models', () => {
-  it('lists Kimi Code’s documented ids as usable, recommending standard tiers', () => {
-    const catalog = buildProviderModelCatalog({
-      provider: 'kimi-code',
-      entries: getDocumentedProviderModels('kimi-code'),
-      preferred: ['kimi-for-coding'],
-    });
-
-    expect(catalog.map((model) => [model.id, model.family])).toEqual([
-      ['k3.1-pro', 'k3.1'],
-      ['k3.1-pro-highspeed', 'k3.1'],
-      ['k3', 'k3'],
-      ['k3-256k', 'k3'],
-      ['kimi-for-coding', ''],
-      ['kimi-for-coding-highspeed', ''],
-    ]);
-    expect(
-      catalog.filter((model) => !model.recommended).map((model) => model.id),
-    ).toEqual(['k3.1-pro-highspeed', 'kimi-for-coding-highspeed']);
-  });
-
-  it('has no documented set for providers that publish a listing', () => {
-    expect(getDocumentedProviderModels('openai')).toEqual([]);
   });
 });

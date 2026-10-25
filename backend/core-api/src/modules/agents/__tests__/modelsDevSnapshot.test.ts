@@ -1,6 +1,7 @@
 /**
  * The bundled models.dev snapshot: provenance is recorded, only the four BYOK
- * providers and the four allowed fields are kept, each provider maps to the
+ * providers and the allowed fields (names, thinking options, and the tool
+ * calling and modalities the catalog's usability check reads) are kept, each provider maps to the
  * models.dev provider whose endpoint `providers.ts` calls, and the models the
  * picker depends on are present.
  */
@@ -9,7 +10,14 @@ import snapshot from '@/agents/data/modelsDevSnapshot.json';
 import { BYOK_PROVIDERS } from '@/agents/providerModels';
 import { getModelDisplayName, getModelThinking } from '@/agents/modelThinking';
 
-const ALLOWED_FIELDS = ['id', 'name', 'reasoning', 'reasoning_options'];
+const ALLOWED_FIELDS = [
+  'id',
+  'name',
+  'reasoning',
+  'reasoning_options',
+  'tool_call',
+  'modalities',
+];
 
 it('records source, licence and date', () => {
   expect(snapshot.source).toBe('https://models.dev/api.json');

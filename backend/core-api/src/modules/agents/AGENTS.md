@@ -215,19 +215,22 @@ plugin; ported from the former private `erxes-agent` service). It provides:
   behind a listed alias, otherwise to the newest snapshot. Ranking: family tier,
   version, alias before variants, `created`. Up to four `recommended`: the
   stored connection model and `PROVIDER_DEFAULTS` model when listed, then the
-  leading generation line minus slow/preview variants. Never hardcode model
-  lists here; add patterns. The only exception is `DOCUMENTED_PROVIDER_MODELS`
-  for providers that document a fixed set instead of a listing (kimi-code: the
-  six ids in the Kimi Code overview, with the source URL and check date),
-  merged with whatever the endpoint returns; a 404 listing is then not an
-  error. Kimi Code ids use the `k3.1-pro` / `k3-256k` family form.
+  leading generation line minus slow/preview variants. Model knowledge has
+  one source, the bundled snapshot (`modelsDevSnapshot.ts`): a model it knows
+  is usable only when it calls tools, takes text and answers in text only;
+  the deny patterns decide only for ids the snapshot lacks (dated snapshots,
+  newer models). Never hardcode model lists. `SNAPSHOT_CATALOG_PROVIDERS`
+  (kimi-code) takes its fixed plan catalog from the snapshot, merged with
+  whatever the endpoint returns; a 404 listing is then not an error. Kimi Code
+  ids use the `k3.1-pro` / `k3-256k` family form.
   `providerModels.ts` fetches raw entries and turns failures into sanitized
   messages (`sanitizeProviderMessage` strips the key, `sk-`/`xai-` fragments
   and long tokens; `describeUnreadableKey`).
 - `modelThinking.ts` + `data/modelsDevSnapshot.json` — display names and
   thinking options per model from a bundled models.dev snapshot (MIT, source
   URL/licence/date in the file; never fetched at runtime). Only `id`, `name`,
-  `reasoning`, `reasoning_options` of four providers, mapped to the endpoint we
+  `reasoning`, `reasoning_options`, `tool_call` and `modalities` of four
+  providers, mapped to the endpoint we
   call: openai → `openai`, grok → `xai`, kimi → `moonshotai`, kimi-code →
   `kimi-code-plan-cn` (`api.kimi.com`). A name that only repeats the id
   (ignoring case) is null. Kinds: `effort` (models.dev `none` = Off), `toggle`

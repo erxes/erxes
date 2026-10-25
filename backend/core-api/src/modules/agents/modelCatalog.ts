@@ -1,3 +1,8 @@
+import {
+  findModelsDevModel,
+  listModelsDevModels,
+} from '@/agents/modelsDevSnapshot';
+
 /**
  * Turns a provider's raw `/models` listing into the models this agent can
  * actually run: chat-capable, tool-calling text models reachable through the
@@ -5,9 +10,11 @@
  * client; OpenAI-compatible Chat Completions for grok/kimi; the Anthropic
  * Messages protocol for kimi-code).
  *
- * The rules classify ids by pattern rather than listing model names, so new
- * releases appear without a code change and retired ones disappear with the
- * provider's own listing.
+ * Model knowledge has one source, the bundled models.dev snapshot
+ * (`modelsDevSnapshot.ts`): it decides usability for every model it knows and
+ * supplies Kimi Code's fixed catalog. The id patterns below are the explicit
+ * fallback for ids the snapshot lacks and the ranking heuristic; nothing here
+ * lists model names.
  */
 
 /** One raw entry from a provider's `/models` endpoint. */
@@ -109,31 +116,23 @@ const PROVIDER_CATALOG_RULES: Record<string, IProviderCatalogRules> = {
 };
 
 /**
- * Model ids a provider documents as a fixed set because it publishes no
- * model listing. They are merged with any listing the endpoint does return,
- * then filtered and ranked like listed models.
- *
- * kimi-code — "Both protocols accept the following 6 model IDs", Kimi Code
- * overview, https://www.kimi.com/code/docs/en/ (checked 2026-10-25). Which
- * ids a key can use depends on the membership tier; `k3.1-pro` rejects
- * requests with thinking disabled.
+ * Providers whose snapshot entry is their complete, fixed plan catalog.
+ * Kimi Code plans accept a documented fixed set of models
+ * (https://www.kimi.com/code/docs/en/); models.dev lists exactly that set for
+ * `kimi-code-plan-cn`, so the snapshot supplies it and is merged with any
+ * listing the endpoint returns. Other providers list what a key may use
+ * themselves; their snapshot is never merged in, because it also contains
+ * models a key cannot reach.
  */
-export const DOCUMENTED_PROVIDER_MODELS: Record<string, readonly string[]> = {
-  'kimi-code': [
-    'k3.1-pro',
-    'k3.1-pro-highspeed',
-    'k3',
-    'k3-256k',
-    'kimi-for-coding',
-    'kimi-for-coding-highspeed',
-  ],
-};
+const SNAPSHOT_CATALOG_PROVIDERS: ReadonlySet<string> = new Set(['kimi-code']);
 
-/** Documented ids for a provider that publishes no model listing. */
+/** A provider's fixed plan catalog from the snapshot, else nothing. */
 export const getDocumentedProviderModels = (
   provider: string,
 ): IProviderModelEntry[] =>
-  (DOCUMENTED_PROVIDER_MODELS[provider] ?? []).map((id) => ({ id }));
+  SNAPSHOT_CATALOG_PROVIDERS.has(provider)
+    ? listModelsDevModels(provider).map(({ id }) => ({ id }))
+    : [];
 
 const FALLBACK_RULES: IProviderCatalogRules = {
   deny: NON_CHAT_MODELS,
@@ -187,11 +186,35 @@ const compareRanked = (a: IRankedModel, b: IRankedModel): number =>
   (b.created ?? 0) - (a.created ?? 0) ||
   a.id.localeCompare(b.id);
 
-/** Whether one id passes the provider's usability rules. */
-export const isUsableProviderModel = (provider: string, id: string): boolean =>
-  !(PROVIDER_CATALOG_RULES[provider] ?? FALLBACK_RULES).deny.some((pattern) =>
-    pattern.test(id.toLowerCase()),
+/**
+ * Whether one id is a chat model the agent can drive. A model the snapshot
+ * knows is judged by its data alone: it must call tools, take text and answer
+ * in text only (audio, image or realtime output needs another API). The name
+ * patterns are the fallback for ids the snapshot does not know, such as dated
+ * snapshots or models newer than the bundled data.
+ */
+export const isUsableProviderModel = (
+  provider: string,
+  id: string,
+): boolean => {
+  const known = findModelsDevModel(provider, id);
+
+  if (known) {
+    const input = known.modalities?.input ?? [];
+    const output = known.modalities?.output ?? [];
+
+    return (
+      known.tool_call === true &&
+      input.includes('text') &&
+      output.length > 0 &&
+      output.every((modality) => modality === 'text')
+    );
+  }
+
+  return !(PROVIDER_CATALOG_RULES[provider] ?? FALLBACK_RULES).deny.some(
+    (pattern) => pattern.test(id.toLowerCase()),
   );
+};
 
 /**
  * Filters, de-duplicates, collapses and ranks one provider's listing.
