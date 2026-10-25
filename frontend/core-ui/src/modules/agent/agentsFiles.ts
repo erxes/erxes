@@ -76,7 +76,7 @@ export const isAgentsFileMeta = (file: unknown): file is IAgentsFileMeta =>
   typeof file.name === 'string' &&
   file.name.length > 0 &&
   typeof file.type === 'string' &&
-  Object.values(MIME_BY_EXTENSION).includes(file.type) &&
+  isAgentsAcceptedMimeType(file.type) &&
   typeof file.size === 'number' &&
   Number.isSafeInteger(file.size) &&
   file.size > 0 &&

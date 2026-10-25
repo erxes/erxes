@@ -20,11 +20,11 @@ import {
   type IAgentMentionOption,
 } from '../hooks/useAgentMentionSearch';
 import { AGENT_REFERENCE_TARGETS } from '../references/agentReferenceTargets';
-import {
-  agentMentionIdentity,
-  type IAgentMention,
-  type IAgentMentionQuery,
-  type TAgentMentionType,
+import { referenceIdentity } from '../references/referenceRegistry';
+import type {
+  IAgentMention,
+  IAgentMentionQuery,
+  TAgentMentionType,
 } from '../utils/mentionText';
 import { AGENTS_MENTION_MAX_PER_TURN } from '../agentMentions';
 
@@ -103,7 +103,7 @@ export const AgentMentionPopup = forwardRef<
         : 0;
     const limitReached = mentioned.size >= AGENTS_MENTION_MAX_PER_TURN;
     const pickable = (option: IAgentMentionOption) =>
-      !limitReached || mentioned.has(agentMentionIdentity(option.mention));
+      !limitReached || mentioned.has(referenceIdentity(option.mention));
     const active = options[index];
     const activeId = active ? optionId(listboxId, active) : undefined;
 

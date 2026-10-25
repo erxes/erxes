@@ -13,8 +13,8 @@ import {
 } from 'react';
 
 import type { IAgentMentionsController } from '../hooks/useAgentMentions';
+import { referenceIdentity } from '../references/referenceRegistry';
 import {
-  agentMentionIdentity,
   applyAgentMentionEdit,
   findAgentMentionQuery,
   insertAgentMention,
@@ -102,7 +102,7 @@ export const AgentMentionInput = ({
       : null;
   const query = active && active.start !== dismissedAt ? active : null;
   const mentioned = useMemo(
-    () => new Set(ranges.map((range) => agentMentionIdentity(range.mention))),
+    () => new Set(ranges.map((range) => referenceIdentity(range.mention))),
     [ranges],
   );
 

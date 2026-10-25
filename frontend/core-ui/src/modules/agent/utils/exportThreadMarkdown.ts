@@ -11,7 +11,6 @@ import {
 } from '../references/maskAgentReferences';
 import { readAgentMentions } from '../agentMentions';
 import { agentTurnAnswerText } from './agentTurnTimeline';
-import { agentMentionIdentity } from './mentionText';
 import { extractPageContext } from './pageContext';
 import { isAgentsAnswerTurn } from './messages';
 
@@ -106,7 +105,7 @@ export const buildThreadMarkdown = ({
       if (text) {
         flushTurn();
         const mentioned = new Set(
-          readAgentMentions(message.parts).map(agentMentionIdentity),
+          readAgentMentions(message.parts).map(referenceIdentity),
         );
         lines.push(
           '## You',

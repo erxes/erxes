@@ -2,6 +2,7 @@ import type { UIMessage } from 'ai';
 import { z } from 'zod';
 import { AGENT_REFERENCE_ID_RE } from './references/parseAgentReferences';
 import {
+  AGENT_MENTION_LABEL_MAX,
   AGENT_MENTION_TYPES,
   agentMentionsFromText,
   type IAgentMention,
@@ -14,23 +15,27 @@ export const AGENTS_MENTION_MAX_PER_TURN = 10;
  * structured copy. Keep this wire schema in sync with the other side of the
  * agents REST boundary (core-api `mentions.ts`), which re-reads every record
  * as the signed-in user before the model sees it. */
-export const agentMentionSchema = z.object({
+const agentMentionSchema = z.object({
   type: z.enum(AGENT_MENTION_TYPES),
   id: z.string().regex(AGENT_REFERENCE_ID_RE),
   label: z
     .string()
     .trim()
     .min(1)
-    .max(80)
+    .max(AGENT_MENTION_LABEL_MAX)
     .refine((label) => !/[[\]\r\n]/.test(label)),
 });
 
-export const agentMentionsSchema = z
+const agentMentionsSchema = z
   .array(agentMentionSchema)
   .min(1)
   .max(AGENTS_MENTION_MAX_PER_TURN);
+const mentionsDataSchema = z.object({ mentions: agentMentionsSchema });
+const storedMentionsDataSchema = mentionsDataSchema.extend({
+  displayText: z.string(),
+});
 
-export const agentMentionsPart = (
+const agentMentionsPart = (
   mentions: IAgentMention[],
 ): UIMessage['parts'][number] => ({
   type: AGENTS_MENTIONS_DATA_TYPE,
@@ -46,9 +51,7 @@ export const agentMentionsPartsForText = (text: string): UIMessage['parts'] => {
 export const readAgentMentions = (parts: UIMessage['parts']): IAgentMention[] =>
   parts.flatMap((part) => {
     if (part.type !== AGENTS_MENTIONS_DATA_TYPE || !('data' in part)) return [];
-    const result = z
-      .object({ mentions: agentMentionsSchema })
-      .safeParse(part.data);
+    const result = mentionsDataSchema.safeParse(part.data);
     return result.success ? result.data.mentions : [];
   });
 
@@ -59,9 +62,7 @@ export const agentMentionsDisplayText = (
 ): string | undefined => {
   for (const part of parts) {
     if (part.type !== AGENTS_MENTIONS_DATA_TYPE || !('data' in part)) continue;
-    const result = z
-      .object({ mentions: agentMentionsSchema, displayText: z.string() })
-      .safeParse(part.data);
+    const result = storedMentionsDataSchema.safeParse(part.data);
     if (result.success) return result.data.displayText;
   }
   return undefined;

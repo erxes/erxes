@@ -2,6 +2,7 @@ import {
   parseAgentReferences,
   type TAgentReferenceType,
 } from '../references/parseAgentReferences';
+import { referenceIdentity } from '../references/referenceRegistry';
 
 /** Record types a user can mention; `page` tokens come only from findPages. */
 export type TAgentMentionType = Exclude<TAgentReferenceType, 'page'>;
@@ -65,9 +66,6 @@ export const agentMentionDisplay = (mention: IAgentMention) =>
 
 export const agentMentionToken = (mention: IAgentMention) =>
   `[[${mention.type}:${mention.id}:${mention.label}]]`;
-
-export const agentMentionIdentity = (mention: { type: string; id: string }) =>
-  `${mention.type}:${mention.id}`;
 
 const sortRanges = (ranges: IAgentMentionRange[]) =>
   [...ranges].sort((a, b) => a.start - b.start);
@@ -141,7 +139,7 @@ export const agentMentionPlainText = (text: string) =>
 export const agentMentionsFromText = (text: string): IAgentMention[] => {
   const seen = new Map<string, IAgentMention>();
   for (const { mention } of parseAgentMentionText(text).mentions) {
-    const identity = agentMentionIdentity(mention);
+    const identity = referenceIdentity(mention);
     if (!seen.has(identity)) seen.set(identity, mention);
   }
   return [...seen.values()];
