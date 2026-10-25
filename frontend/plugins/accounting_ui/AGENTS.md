@@ -6,7 +6,7 @@
 - **Project:** `accounting_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/accounting_ui`
-- **Last synchronized:** `2026-10-23`
+- **Last synchronized:** `2026-10-25`
 
 ## Scope
 
@@ -189,6 +189,8 @@
 
 ## Local Invariants
 
+- Fixed asset adjustment GraphQL documents and hooks live in `src/modules/adjustments/fxa`; add, remove, run and transaction mutations each own a document and hook file. Header and depreciation-row queries share `graphql/adjustFixedAssetQueries.ts`, and their view types share `types/AdjustFixedAsset.ts` because details belong to the parent adjustment; mutation hooks preserve success/error callbacks, list/detail refetches and navigation.
+
 - Job master edit initialization and unchanged-value comparison both use `settings/jobs/utils/jobFormValues.ts`. The same module's immutable scaling helper scales execution products and costs while retaining UOMs, metadata, and raw output ratios; changing quantity must not reset child-form state or persist anything.
 - Job product rows live in `settings/jobs/components/JobItems.tsx`, with shared numeric entry in `JobNumberInput.tsx`; `JobForm.tsx` owns metadata, unit loading/synchronization, cost groups, and submit behavior. Both master lists use `JobDuration` for identical real/fixed/missing-duration display. Execution recipe copies live in `inventories/job-executions/jobValues.ts`; `types.ts` contains the generated execution type only.
 
@@ -347,7 +349,7 @@
 - Smoke scenario: add jobs A at quantity 5 and B at quantity 10, save/reopen and post once. Edit posted actuals and confirm linked journals update under the same parent/pointer and the list refreshes. Read-only users and posting/undoing/error records cannot edit; undo allows draft deletion.
 
 - `pnpm nx run accounting_ui:codegen --skip-nx-cache`
-- No Nx lint target is defined; run `pnpm exec eslint` on changed TypeScript paths.
+- `pnpm nx lint accounting_ui` (inferred from the workspace ESLint plugin).
 - `pnpm nx test accounting_ui`
 - `pnpm nx build accounting_ui`
 - `pnpm exec tsc -p frontend/plugins/accounting_ui/tsconfig.app.json --noEmit --pretty false`

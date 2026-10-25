@@ -10,7 +10,7 @@ import {
 import {
   adjustFixedAssetSchema,
   adjustFxaDetailSchema,
-} from '../definitions/fixedAsset';
+} from '../definitions/adjustFixedAsset';
 import { IModels } from '~/connectionResolvers';
 
 export interface IAdjustFixedAssetModel extends Model<IAdjustFixedAssetDocument> {
