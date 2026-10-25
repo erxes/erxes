@@ -9,6 +9,7 @@ import {
   AGENTS_THREAD_REMOVE,
   AGENTS_THREAD_UPDATE,
 } from '../graphql/threads';
+import { evictThreadDetail } from '../utils/threadDetailCache';
 import type {
   IAgentsThreadRemoveData,
   IAgentsThreadRemoveVariables,
@@ -30,7 +31,8 @@ export interface IUseAgentsThreadActionsResult {
  * thread list queries by operation name and reports through toasts.
  * Rename/pin results are normalized `AgentsThread` objects, so a cached
  * `AgentsThreadDetail` picks up the new title by itself; delete evicts the
- * thread's cached detail so it can never be restored from cache.
+ * thread's cached detail and messages (only those) so it can never be
+ * restored from cache.
  */
 export const useAgentsThreadActions = (): IUseAgentsThreadActionsResult => {
   const { t } = useTranslation('common', { keyPrefix: 'agent' });
@@ -114,13 +116,7 @@ export const useAgentsThreadActions = (): IUseAgentsThreadActionsResult => {
         () =>
           removeThread({
             variables: { threadId },
-            update: (cache) => {
-              cache.evict({
-                fieldName: 'agentsThreadDetail',
-                args: { threadId },
-              });
-              cache.gc();
-            },
+            update: (cache) => evictThreadDetail(cache, threadId),
             refetchQueries: [
               { query: AGENTS_THREADS },
               { query: AGENTS_PINNED_THREADS },

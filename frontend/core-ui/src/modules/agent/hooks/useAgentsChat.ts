@@ -9,6 +9,11 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AGENTS_THREAD_DETAIL } from '../graphql/threads';
 import type { IAgentsThreadDetailData } from '../graphql/threads';
 import {
+  evictThreadDetail as evictCachedDetail,
+  readCachedThreadDetail as readCachedDetail,
+  rememberThreadDetail as rememberCachedDetail,
+} from '../utils/threadDetailCache';
+import {
   buildAskUserResult,
   readAskUserQuestionsFromInput,
 } from '../askUserAnswers';
@@ -381,34 +386,25 @@ export const useAgentsChat = (options?: {
   // Apollo's normalized cache is the transcript cache: `openThread` renders a
   // cached `AgentsThreadDetail` instantly and revalidates it in the
   // background. A send evicts that thread's entry (the stored transcript is
-  // about to change) and leaving a thread re-reads it into the cache.
+  // about to change) and leaving a thread re-reads it into the cache. At
+  // most `AGENTS_THREAD_DETAIL_CACHE_LIMIT` recently used transcripts stay
+  // cached; eviction removes only this module's entries (no global gc).
   const apolloClient = useApolloClient();
 
-  /** The thread's cached detail, or undefined when Apollo holds none. */
   const readCachedThreadDetail = useCallback(
-    (id: string) => {
-      try {
-        return (
-          apolloClient.readQuery<IAgentsThreadDetailData>({
-            query: AGENTS_THREAD_DETAIL,
-            variables: { threadId: id },
-          })?.agentsThreadDetail ?? undefined
-        );
-      } catch {
-        return undefined;
-      }
-    },
+    (id: string) => readCachedDetail(apolloClient.cache, id),
+    [apolloClient],
+  );
+
+  /** Records that a thread's detail was just read or written to the cache. */
+  const rememberThreadDetail = useCallback(
+    (id: string) => rememberCachedDetail(apolloClient.cache, id),
     [apolloClient],
   );
 
   const evictThreadDetail = useCallback(
     (id: string | undefined) => {
-      if (!id) return;
-      apolloClient.cache.evict({
-        fieldName: 'agentsThreadDetail',
-        args: { threadId: id },
-      });
-      apolloClient.cache.gc();
+      if (id) evictCachedDetail(apolloClient.cache, id);
     },
     [apolloClient],
   );
@@ -423,9 +419,12 @@ export const useAgentsChat = (options?: {
           variables: { threadId: id },
           fetchPolicy: 'network-only',
         })
+        .then((result) => {
+          if (result.data?.agentsThreadDetail) rememberThreadDetail(id);
+        })
         .catch(() => undefined);
     },
-    [apolloClient, readCachedThreadDetail],
+    [apolloClient, readCachedThreadDetail, rememberThreadDetail],
   );
 
   /** Generates the conversation's thread id on first use. */
@@ -737,6 +736,9 @@ export const useAgentsChat = (options?: {
     [sdkSendMessage, setMessages],
   );
 
+  // Every read below asks for the network explicitly. `nextFetchPolicy:
+  // 'cache-only'` keeps the lazy query's lingering watch from refetching on
+  // its own when this module evicts the thread at a run start or finish.
   const [loadThreadDetail] =
     useLazyQuery<IAgentsThreadDetailData>(AGENTS_THREAD_DETAIL);
 
@@ -795,6 +797,7 @@ export const useAgentsChat = (options?: {
             await loadThreadDetail({
               variables: { threadId: nextThreadId },
               fetchPolicy: 'network-only',
+              nextFetchPolicy: 'cache-only',
             })
           ).data?.agentsThreadDetail;
         if (selection !== threadSelectionRef.current) return;
@@ -802,6 +805,7 @@ export const useAgentsChat = (options?: {
         if (!detail) {
           throw new Error('Thread not found.');
         }
+        rememberThreadDetail(nextThreadId);
 
         threadIdRef.current = nextThreadId;
         setThreadId(nextThreadId);
@@ -837,9 +841,11 @@ export const useAgentsChat = (options?: {
           void loadThreadDetail({
             variables: { threadId: nextThreadId },
             fetchPolicy: 'network-only',
+            nextFetchPolicy: 'cache-only',
           })
             .then((fresh) => {
               const freshMessages = fresh.data?.agentsThreadDetail?.messages;
+              if (freshMessages) rememberThreadDetail(nextThreadId);
 
               if (
                 !freshMessages ||
@@ -908,9 +914,11 @@ export const useAgentsChat = (options?: {
                 const refetch = await loadThreadDetail({
                   variables: { threadId: nextThreadId },
                   fetchPolicy: 'network-only',
+                  nextFetchPolicy: 'cache-only',
                 });
                 const refetchedMessages =
                   refetch.data?.agentsThreadDetail?.messages;
+                if (refetchedMessages) rememberThreadDetail(nextThreadId);
 
                 if (
                   !refetchedMessages ||
@@ -989,6 +997,7 @@ export const useAgentsChat = (options?: {
       stop,
       sessionScope,
       readCachedThreadDetail,
+      rememberThreadDetail,
       prefetchThreadDetail,
     ],
   );

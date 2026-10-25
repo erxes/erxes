@@ -252,7 +252,12 @@ The `agent` module is the core-ui surface for the core-api `agents` backend
   thread's detail; leaving a thread (`openThread` elsewhere or
   `startNewConversation`) re-reads it into the cache when missing; delete
   evicts in `useAgentsThreadActions`; rename/pin update `AgentsThread` by
-  normalization. Session-list pagination (`useAgentsThreads`, `no-cache`) is
+  normalization. `utils/threadDetailCache.ts` bounds the cache to the 10 most
+  recently used transcripts (LRU per Apollo cache; every read/fetch records
+  use) and evicts a thread by removing its root field and its normalized
+  `AgentsMessage` entities only: never a global `cache.gc()`. Lazy detail
+  reads use `nextFetchPolicy: 'cache-only'` so the lingering watch never
+  refetches on its own after an eviction. Session-list pagination (`useAgentsThreads`, `no-cache`) is
   unchanged.
 - Attachments: up to 5 files/turn via platform `/upload-file`
   (`agentsFiles.ts` limits/accepted types, `uploadAgentsFile.ts`). Accepted:

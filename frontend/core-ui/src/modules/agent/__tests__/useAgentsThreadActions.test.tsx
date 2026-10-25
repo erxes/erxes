@@ -1,5 +1,5 @@
 /** @jest-environment jsdom */
-import { InMemoryCache } from '@apollo/client';
+import { InMemoryCache, gql } from '@apollo/client';
 import { MockedProvider, type MockedResponse } from '@apollo/client/testing';
 import { act, renderHook } from '@testing-library/react';
 import type { ReactNode } from 'react';
@@ -119,4 +119,42 @@ it('updates the cached transcript title through normalization on rename', async 
   });
 
   expect(readDetail(cache)?.agentsThreadDetail.thread.title).toBe('New title');
+});
+
+it("removes only the deleted thread's entries, keeping unrelated cache data", async () => {
+  const cache = cacheWithDetail();
+  // Another module's orphaned entity, kept for reads by id.
+  cache.writeQuery({
+    query: gql`
+      query UnrelatedCustomerDetail {
+        customerDetail(_id: "c1") {
+          _id
+          firstName
+        }
+      }
+    `,
+    data: {
+      customerDetail: { __typename: 'Customer', _id: 'c1', firstName: 'Ann' },
+    },
+  });
+  cache.evict({ fieldName: 'customerDetail' });
+  const { result } = renderActions(cache, [
+    {
+      request: { query: AGENTS_THREAD_REMOVE, variables: { threadId: 't1' } },
+      result: { data: { agentsThreadRemove: true } },
+    },
+    ...listRefetches,
+  ]);
+
+  await act(async () => {
+    await result.current.remove('t1');
+  });
+
+  const snapshot = cache.extract();
+  expect(snapshot['Customer:c1']).toEqual({
+    __typename: 'Customer',
+    _id: 'c1',
+    firstName: 'Ann',
+  });
+  expect(snapshot['AgentsMessage:m1']).toBeUndefined();
 });
