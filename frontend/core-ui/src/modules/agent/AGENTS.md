@@ -276,14 +276,19 @@ The `agent` module is the core-ui surface for the core-api `agents` backend
   shares only ≤2 MiB images as model media and not every provider takes WebP.
 - Drop: `AgentFileDropZone` wraps the whole side panel (tabs header + `ChatPanel`)
   and reaches the composer through `IComposerAttachHandle` (`attachRef`, set with
-  `useImperativeHandle`). `useAgentFileDrop` counts dragenter/dragleave depth
-  (`utils/fileDrag.ts`) so nested children never flicker. It accepts only
-  external `Files` drags: drags that start in this document (links, images, text)
-  are ignored. It always cancels file dragover so a drop never navigates the tab,
-  and resets on window drop/dragend/blur. Disabled/streaming composers show no
-  overlay and refuse the drop (`dropEffect: none`); a full composer shows a limit
-  state. The pointer-events-none overlay fades and scales over 200ms, with no
-  transition for reduced motion.
+  `useImperativeHandle`). `useAgentFileDrop` is built on `react-dropzone`
+  (`useDropzone`, `noClick`/`noKeyboard`), which tracks nested drag targets, cancels
+  file drags and reads dropped files; the root `ref` must be attached for that.
+  Admission (types, counts, sizes, toasts) stays in the composer. The hook adds
+  only what the library cannot do: drags that start in this document (links,
+  images) are ignored (`utils/fileDrag.ts`); only file drags reach the library, so
+  text still drops into inputs; `preventDropOnDocument` is off so the app's other
+  drop targets keep working; disabled/streaming composers show no overlay but
+  still cancel the drag with `dropEffect: none` (the library's `disabled` would
+  let the browser open the file); a full composer shows a limit state. The
+  pointer-events-none overlay fades and scales over 200ms, with no transition for
+  reduced motion. `__tests__/AgentFileDropZone.test.tsx` drives the real composer
+  and is the regression gate for this behaviour.
 - Paste reaches the composer through `AgentMentionInput` → `ChatInput`
   `onPaste`. `filesFromClipboard` attaches screenshots, Finder copies and
   browser image copies; a generic `image.png` becomes

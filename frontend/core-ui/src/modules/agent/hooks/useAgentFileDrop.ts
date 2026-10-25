@@ -1,17 +1,16 @@
 import {
-  useCallback,
   useEffect,
-  useReducer,
   useRef,
+  useState,
   type DragEvent,
+  type DragEventHandler,
+  type Ref,
 } from 'react';
+import { useDropzone } from 'react-dropzone';
 
 import {
-  FILE_DRAG_IDLE,
   dragFileCount,
-  fileDragReducer,
   isExternalFileDrag,
-  type IFileDragState,
   type TAgentsAttachAvailability,
 } from '../utils/fileDrag';
 
@@ -21,88 +20,97 @@ export interface IUseAgentFileDropOptions {
 }
 
 export interface IUseAgentFileDropResult {
-  state: IFileDragState;
-  handlers: {
-    onDragEnter: (event: DragEvent<HTMLElement>) => void;
-    onDragOver: (event: DragEvent<HTMLElement>) => void;
-    onDragLeave: (event: DragEvent<HTMLElement>) => void;
-    onDrop: (event: DragEvent<HTMLElement>) => void;
+  visible: boolean;
+  full: boolean;
+  /** Number of dragged files, when the browser exposes it before drop. */
+  count?: number;
+  rootProps: {
+    ref: Ref<HTMLDivElement>;
+    onDragEnter: DragEventHandler<HTMLDivElement>;
+    onDragOver: DragEventHandler<HTMLDivElement>;
+    onDragLeave: DragEventHandler<HTMLDivElement>;
+    onDrop: DragEventHandler<HTMLDivElement>;
   };
 }
 
 /**
- * Drop-target state for external file drags. A depth counter keeps nested
- * children from flickering the overlay; window-level drop/dragend reset it
- * when a drag is cancelled or released elsewhere.
+ * Panel-wide drop target on `react-dropzone`, which tracks nested drag
+ * targets, cancels file drags and reads the dropped files. Admission (types,
+ * counts, sizes, toasts) stays in the composer. Kept here, because the
+ * library cannot do it:
+ * - drags that start inside the page (links, images) are ignored;
+ * - only file drags reach the library, so text still drops into inputs;
+ * - a disabled or full composer keeps cancelling drags with `dropEffect:
+ *   none` (the library's `disabled` would let the browser open the file).
  */
 export const useAgentFileDrop = ({
   availability,
   onFiles,
 }: IUseAgentFileDropOptions): IUseAgentFileDropResult => {
-  const [state, dispatch] = useReducer(fileDragReducer, FILE_DRAG_IDLE);
   const internalDragRef = useRef(false);
-  const optionsRef = useRef({ availability, onFiles });
-  optionsRef.current = { availability, onFiles };
+  const [current, setCurrent] =
+    useState<TAgentsAttachAvailability>('disabled');
+  const [count, setCount] = useState<number>();
 
   useEffect(() => {
-    const markInternal = () => {
+    const start = () => {
       internalDragRef.current = true;
     };
-    const reset = () => {
+    const end = () => {
       internalDragRef.current = false;
-      dispatch({ type: 'reset' });
     };
-    // `drop` is observed while bubbling, after the panel's own handler, so
-    // an internal drag is still recognised when it lands on the panel.
-    window.addEventListener('dragstart', markInternal, true);
-    window.addEventListener('dragend', reset, true);
-    window.addEventListener('drop', reset);
-    window.addEventListener('blur', reset);
+    // `drop` is observed while bubbling, after the panel's own handler.
+    window.addEventListener('dragstart', start, true);
+    window.addEventListener('dragend', end, true);
+    window.addEventListener('drop', end);
     return () => {
-      window.removeEventListener('dragstart', markInternal, true);
-      window.removeEventListener('dragend', reset, true);
-      window.removeEventListener('drop', reset);
-      window.removeEventListener('blur', reset);
+      window.removeEventListener('dragstart', start, true);
+      window.removeEventListener('dragend', end, true);
+      window.removeEventListener('drop', end);
     };
   }, []);
 
-  const onDragEnter = useCallback((event: DragEvent<HTMLElement>) => {
-    if (!isExternalFileDrag(event.dataTransfer, internalDragRef.current))
-      return;
-    event.preventDefault();
-    dispatch({
-      type: 'enter',
-      count: dragFileCount(event.dataTransfer),
-      availability: optionsRef.current.availability(),
-    });
-  }, []);
+  const { getRootProps, isDragActive } = useDropzone({
+    noClick: true,
+    noKeyboard: true,
+    // A document-wide drop blocker would also swallow text drops elsewhere.
+    preventDropOnDocument: false,
+    onDragEnter: (event) => {
+      setCount(dragFileCount(event.dataTransfer));
+      setCurrent(availability());
+    },
+    onDragOver: (event) => {
+      const next = availability();
+      setCurrent(next);
+      event.dataTransfer.dropEffect = next === 'ready' ? 'copy' : 'none';
+    },
+    onDrop: (files) => {
+      if (files.length && availability() !== 'disabled') onFiles(files);
+    },
+  });
 
-  const onDragOver = useCallback((event: DragEvent<HTMLElement>) => {
-    if (!isExternalFileDrag(event.dataTransfer, internalDragRef.current))
-      return;
-    // Always cancel so a dropped file never navigates the tab away.
-    event.preventDefault();
-    const current = optionsRef.current.availability();
-    event.dataTransfer.dropEffect = current === 'ready' ? 'copy' : 'none';
-    dispatch({ type: 'over', availability: current });
-  }, []);
+  const { onDragEnter, onDragOver, onDragLeave, onDrop, ...root } =
+    getRootProps();
+  // react-dropzone types its root ref loosely; it is a ref to our div.
+  const ref: Ref<HTMLDivElement> = root.ref;
+  const filesOnly =
+    (handler?: DragEventHandler<HTMLElement>) =>
+    (event: DragEvent<HTMLDivElement>) => {
+      if (isExternalFileDrag(event.dataTransfer, internalDragRef.current)) {
+        handler?.(event);
+      }
+    };
 
-  const onDragLeave = useCallback((event: DragEvent<HTMLElement>) => {
-    if (!isExternalFileDrag(event.dataTransfer, internalDragRef.current))
-      return;
-    dispatch({ type: 'leave' });
-  }, []);
-
-  const onDrop = useCallback((event: DragEvent<HTMLElement>) => {
-    if (!isExternalFileDrag(event.dataTransfer, internalDragRef.current))
-      return;
-    event.preventDefault();
-    dispatch({ type: 'reset' });
-    const files = Array.from(event.dataTransfer.files ?? []);
-    if (files.length && optionsRef.current.availability() !== 'disabled') {
-      optionsRef.current.onFiles(files);
-    }
-  }, []);
-
-  return { state, handlers: { onDragEnter, onDragOver, onDragLeave, onDrop } };
+  return {
+    visible: isDragActive && current !== 'disabled',
+    full: current === 'full',
+    count,
+    rootProps: {
+      ref,
+      onDragEnter: filesOnly(onDragEnter),
+      onDragOver: filesOnly(onDragOver),
+      onDragLeave: filesOnly(onDragLeave),
+      onDrop: filesOnly(onDrop),
+    },
+  };
 };

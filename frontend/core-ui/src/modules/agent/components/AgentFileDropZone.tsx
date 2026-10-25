@@ -6,7 +6,6 @@ import { useTranslation } from 'react-i18next';
 import { AGENTS_FILE_MAX_PER_TURN } from '../agentsFiles';
 import { useAgentFileDrop } from '../hooks/useAgentFileDrop';
 import { AGENTS_ACCEPTED_TYPES_LABEL } from '../utils/agentAttachments';
-import { isFileDragOverlayVisible } from '../utils/fileDrag';
 import type { IComposerAttachHandle } from './Composer';
 
 export interface IAgentFileDropZoneProps {
@@ -30,9 +29,10 @@ export const AgentFileDropZone = ({
     (files: File[]) => attachRef.current?.attachFiles(files),
     [attachRef],
   );
-  const { state, handlers } = useAgentFileDrop({ availability, onFiles });
-  const visible = isFileDragOverlayVisible(state);
-  const full = state.availability === 'full';
+  const { visible, full, count, rootProps } = useAgentFileDrop({
+    availability,
+    onFiles,
+  });
 
   // The accepted-types list is technical and stays in English.
   let detail =
@@ -44,15 +44,15 @@ export const AgentFileDropZone = ({
       defaultValue:
         'Remove an attachment first. Up to {{max}} files per message.',
     });
-  } else if (state.count) {
+  } else if (count) {
     detail = t('drop-file-count', {
-      count: state.count,
+      count,
       defaultValue: '{{count}} files',
     });
   }
 
   return (
-    <div className={cn('relative', className)} {...handlers}>
+    <div className={cn('relative', className)} {...rootProps}>
       {children}
       <div
         aria-hidden={!visible}
