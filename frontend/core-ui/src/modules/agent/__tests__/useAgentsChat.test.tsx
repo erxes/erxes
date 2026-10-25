@@ -111,6 +111,21 @@ it.each(['off', 'minimal', 'low', 'medium', 'high'] as const)(
   },
 );
 
+it('clamps only the sent level, keeping the choice for deeper models', () => {
+  const { result } = renderHook(() => useAgentsChat());
+
+  act(() => result.current.selectThinkingLevel('max'));
+  // A model without Max: the request is clamped, the choice is kept.
+  act(() => result.current.setThinkingLevels(['off', 'low', 'medium', 'high']));
+  expect(mockGetRequestSelection().thinkingLevel).toBe('high');
+  expect(result.current.thinkingLevel).toBe('max');
+  // Switching back to a model with Max sends Max again.
+  act(() =>
+    result.current.setThinkingLevels(['off', 'low', 'high', 'xhigh', 'max']),
+  );
+  expect(mockGetRequestSelection().thinkingLevel).toBe('max');
+});
+
 it('keeps the latest selected thread when an older request resolves last', async () => {
   const a = deferred();
   const b = deferred();

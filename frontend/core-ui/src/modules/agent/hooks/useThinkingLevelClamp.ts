@@ -2,33 +2,24 @@ import { useEffect } from 'react';
 
 import type { IAgentsThinkingLevel } from './useAgentsChat';
 import {
-  clampThinkingLevel,
   isAgentsThinkingLevel,
   thinkingLevelsFor,
   type IAgentsModelThinking,
 } from '../utils/thinkingLevels';
 
 /**
- * Keeps the chosen thinking level valid for the model a turn runs on: when
- * the model changes, an unsupported level moves to the nearest supported one
- * (k3.1-pro never keeps Off). Models without a level choice keep the level.
+ * Reports the levels of the model a turn runs on, so sends are clamped to
+ * the nearest supported one (k3.1-pro never receives Off). The user's choice
+ * itself is never rewritten: switching back to a deeper model restores it.
  */
 export const useThinkingLevelClamp = (
   thinking: IAgentsModelThinking | null,
-  level: IAgentsThinkingLevel,
-  onChange: (level: IAgentsThinkingLevel) => void,
+  setLevels: (levels: readonly IAgentsThinkingLevel[]) => void,
 ): void => {
   // A string key: the catalog may rebuild equal option objects.
   const supported = thinkingLevelsFor(thinking).join(',');
 
   useEffect(() => {
-    const next = clampThinkingLevel(
-      level,
-      supported.split(',').filter(isAgentsThinkingLevel),
-    );
-
-    if (next !== level) {
-      onChange(next);
-    }
-  }, [supported, level, onChange]);
+    setLevels(supported.split(',').filter(isAgentsThinkingLevel));
+  }, [supported, setLevels]);
 };

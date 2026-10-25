@@ -115,11 +115,7 @@ export const ChatPanel = ({
       ? { provider: chat.modelProvider, model: chat.modelId }
       : defaultConnection,
   );
-  useThinkingLevelClamp(
-    modelThinking,
-    chat.thinkingLevel,
-    chat.selectThinkingLevel,
-  );
+  useThinkingLevelClamp(modelThinking, chat.setThinkingLevels);
 
   const isStreaming = status === 'submitted' || status === 'streaming';
   const isEmpty = messages.length === 0 && !loadingThread;

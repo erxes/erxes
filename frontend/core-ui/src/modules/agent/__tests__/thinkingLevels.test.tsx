@@ -1,7 +1,6 @@
 /** @jest-environment jsdom */
 import { renderHook } from '@testing-library/react';
 
-import type { IAgentsThinkingLevel } from '../hooks/useAgentsChat';
 import { useThinkingLevelClamp } from '../hooks/useThinkingLevelClamp';
 import {
   clampThinkingLevel,
@@ -58,45 +57,36 @@ describe('thinking level utilities', () => {
 });
 
 describe('useThinkingLevelClamp', () => {
-  const render = (
-    thinking: IAgentsModelThinking | null,
-    level: IAgentsThinkingLevel,
-  ) => {
-    const onChange = jest.fn();
+  const render = (thinking: IAgentsModelThinking | null) => {
+    const setLevels = jest.fn();
     const hook = renderHook(
-      (props: {
-        thinking: IAgentsModelThinking | null;
-        level: IAgentsThinkingLevel;
-      }) => useThinkingLevelClamp(props.thinking, props.level, onChange),
-      { initialProps: { thinking, level } },
+      (props: { thinking: IAgentsModelThinking | null }) =>
+        useThinkingLevelClamp(props.thinking, setLevels),
+      { initialProps: { thinking } },
     );
-    return { ...hook, onChange };
+    return { ...hook, setLevels };
   };
 
-  it('moves Off to the nearest level when switching to k3.1-pro', () => {
-    const { rerender, onChange } = render(GPT_6, 'off');
-    expect(onChange).not.toHaveBeenCalled();
-
-    rerender({ thinking: K31_PRO, level: 'off' });
-    expect(onChange).toHaveBeenCalledWith('low');
+  it.each([
+    ['k3.1-pro’s own levels', K31_PRO, ['low', 'high', 'max']],
+    [
+      'the original five for an unknown model',
+      null,
+      ['off', 'minimal', 'low', 'medium', 'high'],
+    ],
+    [
+      'no levels for a model without a choice',
+      { kind: 'none', levels: [] },
+      [],
+    ],
+  ] as const)('reports %s', (_case, thinking, levels) => {
+    const { setLevels } = render(thinking as IAgentsModelThinking | null);
+    expect(setLevels).toHaveBeenLastCalledWith(levels);
   });
 
-  it('limits an unknown model to the original five levels', () => {
-    const { onChange } = render(null, 'max');
-    expect(onChange).toHaveBeenCalledWith('high');
-  });
-
-  it('leaves the level alone for models without a level choice', () => {
-    const { onChange } = render({ kind: 'none', levels: [] }, 'xhigh');
-    expect(onChange).not.toHaveBeenCalled();
-  });
-
-  it('does not loop when the catalog rebuilds equal options', () => {
-    const { rerender, onChange } = render(K31_PRO, 'high');
-    rerender({
-      thinking: { ...K31_PRO, levels: [...K31_PRO.levels] },
-      level: 'high',
-    });
-    expect(onChange).not.toHaveBeenCalled();
+  it('does not report again when the catalog rebuilds equal options', () => {
+    const { rerender, setLevels } = render(K31_PRO);
+    rerender({ thinking: { ...K31_PRO, levels: [...K31_PRO.levels] } });
+    expect(setLevels).toHaveBeenCalledTimes(1);
   });
 });
