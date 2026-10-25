@@ -133,16 +133,19 @@ plugin; ported from the former private `erxes-agent` service). It provides:
   `agentsModelVerify(provider: String!, model: String!): AgentsModelVerification
   { provider model ok error }` (`agentsChat`; own saved connection only;
   `modelProbe.ts` sends one minimal request through `providers.ts` +
-  Mastra `resolveModelConfig` — 16 output tokens, kimi-code with a 1,024-token
-  thinking budget because `k3.1-pro` rejects thinking off; id shape and
-  `isUsableProviderModel` are checked first; nothing is persisted; like
+  Mastra `resolveModelConfig` — 16 output tokens, kimi-code with the
+  `MIN_ANTHROPIC_THINKING_BUDGET` (1,024) thinking budget because `k3.1-pro`
+  rejects thinking off; ok only after an output, metadata or finish chunk,
+  otherwise a "no response" error; id shape and `isUsableProviderModel` are
+  checked first; nothing is persisted; like
   `agentsConnectionSetDefault`, denied to the agent by `graphqlPolicy.ts`),
   `agentsConnectionUpsert`/`agentsConnectionRemove` (BYOK; key never read
   back; `AgentsConnectionEntry.isDefault` is the effective default),
   `agentsConnectionSetDefault(provider: String): [AgentsConnectionEntry]`
   (`agentsChat`; own document only; the write is conditional on the provider
-  being saved, unknown providers are a VALIDATION_ERROR, empty clears;
-  `removeConnection` unsets a removed default),
+  being saved, unknown providers are a VALIDATION_ERROR, empty clears; a
+  document still in the old single-`connection` shape is written as the
+  sealed array with the default; `removeConnection` unsets a removed default),
   `agentsThreads(page, perPage, pinned)` (`pinned: true` →
   `filter.metadata.pinned`), `agentsThreadDetail(threadId)`,
   `agentsThreadUpdate(threadId, title?, pinned?)` (rename ≤120 chars /
@@ -233,7 +236,8 @@ plugin; ported from the former private `erxes-agent` service). It provides:
   grok/kimi OpenAI-compatible `reasoning_effort` under the provider's own
   options key (the client ignores `xai`/`openaiCompatible` keys for unknown
   fields), Kimi toggles as `thinking: { type }`; kimi-code Anthropic
-  `thinking.budget_tokens` (1k–24k, output capped at 32,768). Models not in the
+  `thinking.budget_tokens` (1,024–24k, never below Anthropic's documented
+  1,024 minimum; output capped at 32,768). Models not in the
   snapshot keep the original five levels and mapping (openai effort, kimi-code
   budgets, nothing for grok/kimi). Refresh:
   `node backend/core-api/src/modules/agents/data/refreshModelsDevSnapshot.mjs`

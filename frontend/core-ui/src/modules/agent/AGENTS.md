@@ -114,7 +114,8 @@ The `agent` module is the core-ui surface for the core-api `agents` backend
   models get the same check when first picked, because listings ignore some
   access rules (OpenAI lists the organisation's models regardless of a
   project's allowed models); current, saved and recent selections skip it.
-  Values are `provider|model` (`modelSelectionValue` / `parseModelSelection`).
+  A check that resolves after the picker closed, reopened, left the provider
+  or selected something else is ignored (request id). Values are `provider|model` (`modelSelectionValue` / `parseModelSelection`).
   Device-local `agent:recent-models` keeps six explicit picks,
   intersected with the live catalog so removed models/providers cannot return;
   the current selection always stays visible. The saved default stays usable
@@ -135,8 +136,11 @@ The `agent` module is the core-ui surface for the core-api `agents` backend
   `catalog[].thinking { kind, levels }`: only that model's levels are offered
   (`k3.1-pro` has no Off), bars spread over its depth range, a toggle reads
   Off/On, and `none`/`fixed` models lock the trigger ("Off"/"Auto").
-  `useThinkingLevelClamp` moves an unsupported level to the nearest one (ties go
-  deeper) when the model changes. Models without catalog data keep `off`,
+  The user's chosen level is never rewritten: `useThinkingLevelClamp` reports
+  the run model's levels to `useAgentsChat` (`setThinkingLevels`), and only
+  the sent level is clamped to the nearest one (ties go deeper), so switching
+  back to a deeper model restores the choice. The picker clamps what it
+  shows the same way. Models without catalog data keep `off`,
   `minimal`, `low`, `medium` and `high`; the vocabulary also has `xhigh` and
   `max` (`utils/thinkingLevels.ts` mirrors the backend order and clamp).
 - `PageElementPicker` is the composer's Select on page mode. Trusted capture-phase
@@ -171,7 +175,9 @@ The `agent` module is the core-ui surface for the core-api `agents` backend
   and plugin records only through published `searchProviders`
   (`sales-deals` → deal, `frontline-conversations` → conversation) via core-ui
   search's document builder. Each source requires the target's module
-  permission. Visible text keeps `@Label`; a pointer-transparent mirror paints
+  permission. With no plugin provider (plugins off, permissions missing or
+  loading) the skipped query uses `AgentsMentionPluginSearchIdle`, because an
+  empty GlobalSearch document does not parse. Visible text keeps `@Label`; a pointer-transparent mirror paints
   pills and locates the caret. Backspace/Delete remove a mention as one unit;
   other edits inside one turn it into plain text. At most 10 distinct records
   per message. `utils/mentionText.ts` owns ranges/tokens; `useAgentMentions`
@@ -336,9 +342,15 @@ keeps a leading `[Page context]` line. `AgentMentionScope` adds only the
 message's own mention part to that bubble's registry, so its tokens render as
 `AgentReferenceChip`s (navigation still resolves first). Editing restores
 `@Label` ranges and resends tokens alongside the turn's attachments; Copy and
-export use `@Label`. The composer placeholder hints `Ask anything, @ to mention`.
+export use `@Label`. The composer placeholder hints `Ask anything, @ to mention`
+(`agent.composer-placeholder` in both gateway locales).
 
 `utils/pageContext.ts` strips persisted `[Page context]` from user bubbles.
+Restored turns keep that stored line (Edit reads it and sends it as
+`pageContext`); the transport drops it from the newest user message before
+every normal send (`withoutResentPageContext`), so Regenerate/Retry after a
+reload never gives the model two. The server is the only producer of the
+line.
 `references/getPageRecordFromLocation.ts` supplies the next send's page context.
 
 ## Turn activity timeline
