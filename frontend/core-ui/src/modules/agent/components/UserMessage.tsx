@@ -8,6 +8,7 @@ import type { UIMessage } from 'ai';
 import { Button, Textarea } from 'erxes-ui';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 
+import { readAgentsFilesPart, withoutFileOnlyText } from '../agentsFiles';
 import { extractPageContext } from '../utils/pageContext';
 import { getMessageText } from '../utils/messages';
 
@@ -30,7 +31,8 @@ export const UserMessage = ({
   children,
 }: IUserMessageProps) => {
   const { parts } = extractPageContext(message.parts);
-  const text = getMessageText({ ...message, parts });
+  const text = getMessageText({ ...message, parts: withoutFileOnlyText(parts) });
+  const hasFiles = parts.some((part) => readAgentsFilesPart(part).length > 0);
   const [draft, setDraft] = useState(text);
   const [copied, setCopied] = useState(false);
   const editButtonRef = useRef<HTMLButtonElement>(null);
@@ -138,7 +140,7 @@ export const UserMessage = ({
             )}
           </Button>
         )}
-        {text && !editing && (
+        {(text || hasFiles) && !editing && (
           <Button
             ref={editButtonRef}
             type="button"

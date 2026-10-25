@@ -156,7 +156,14 @@ plugin; ported from the former private `erxes-agent` service). It provides:
 - `requestContext.ts` — JSON-safe per-run snapshot
   (subdomain/userId/provider/model/thinkingLevel/codeModeEnabled/
   approvalMode/threadId/attachmentUrls); never secrets.
-- `codeMode.ts`, `askUser.ts`, `readFile.ts`, `fileBinding.ts`,
+- `readFile.ts` — the `readFile` tool for this turn's or the thread's stored
+  attachments. Text/CSV/JSON/Markdown return text, images return model image
+  data (≤2 MiB), DOCX/XLSX return extracted text via `documentText.ts` (a bounded
+  ZIP reader over `node:zlib`, no document dependency; XLSX as CSV per sheet;
+  128 KiB text cap with a truncation notice; content-sniffed, not name-based).
+  PDFs are detected by signature and the model is told plainly that PDF text
+  extraction is unavailable; there is no PDF parser.
+- `codeMode.ts`, `askUser.ts`, `fileBinding.ts`,
   `fileTimeout.ts`, `fileValidation.ts`, `toolSchemaCompatibility.ts`, `mongo44Compatibility.ts`,
   `providerModels.ts`, `providers.ts`, `threadsEvents.ts`.
 - `db/` — `AgentsConnection` + `AgentsSettings` models (registered in

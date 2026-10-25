@@ -157,8 +157,35 @@ The `agent` module is the core-ui surface for the core-api `agents` backend
   The legacy `page` storage namespace is
   retained in the hook's type only for compatibility, with no page UI.
 - Attachments: up to 5 files/turn via platform `/upload-file`
-  (`agentsFiles.ts` limits, `uploadAgentsFile.ts`), chips in the composer,
-  image previews and download chips in history (`AttachedFiles`).
+  (`agentsFiles.ts` limits/accepted types, `uploadAgentsFile.ts`). The picker,
+  panel-wide drop and paste all call the composer's `attachFiles`, which uses
+  `planAgentsAttachments` (`utils/agentAttachments.ts`): unsupported types and
+  files past the limit are toasted and never become chips; empty, oversized and
+  text-budget failures are error chips without Retry; failed uploads keep the
+  source `File` and offer Retry. Non-GIF images over 2 MiB are re-encoded in the
+  browser to JPEG ≤2 MiB (`utils/resizeAgentsImage.ts`), because the backend
+  shares only ≤2 MiB images as model media and not every provider takes WebP.
+- Drop: `AgentFileDropZone` wraps the whole side panel (tabs header + `ChatPanel`)
+  and reaches the composer through `IComposerAttachHandle` (`attachRef`, set with
+  `useImperativeHandle`). `useAgentFileDrop` counts dragenter/dragleave depth
+  (`utils/fileDrag.ts`) so nested children never flicker. It accepts only
+  external `Files` drags: drags that start in this document (links, images, text)
+  are ignored. It always cancels file dragover so a drop never navigates the tab,
+  and resets on window drop/dragend/blur. Disabled/streaming composers show no
+  overlay and refuse the drop (`dropEffect: none`); a full composer shows a limit
+  state. The pointer-events-none overlay fades and scales over 200ms, with no
+  transition for reduced motion.
+- Paste: `filesFromClipboard` attaches screenshots, Finder copies and browser
+  image copies; a generic `image.png` becomes `pasted-image-<timestamp>.png`.
+  Rich text copies (`text/plain` + `text/html`, such as Excel cells) stay text.
+  Pasting files while streaming is refused with a toast.
+- `AgentAttachmentCard` is the one attachment card for composer and history:
+  thumbnail or type icon, name, `kind · size`, spinner, error, Retry/Remove; in
+  history the card opens the stored file. Composer chips enter with
+  `.agent-chip-enter` (`src/styles.css`, reduced-motion gated). `AttachedFiles`
+  renders images first (one at `w-64`, several as square tiles), then document
+  cards. Files-only turns hide the `Uploaded files` placeholder prompt in the
+  bubble and Copy (`withoutFileOnlyText`); Edit starts from an empty draft.
 - Replies: `MessageContent` renders every assistant text segment through
   `HtmlPreview`; `replyHtml.ts` converts legacy Markdown/prose into HTML.
   HTML previews preserve isolated layout CSS and SVG. `htmlTheme.ts` uses native
@@ -258,6 +285,8 @@ turn. A single-step card names the action.
 ## Validation
 
 - `pnpm nx test core-ui` — tests in `__tests__` + `artifacts/__tests__`.
+  `approvalRoundTrip.test.ts` resolves its fixture from the repository root, so
+  run it with jest from the root when the Nx run reports a resolve error.
 - `pnpm nx build core-ui` — rspack.
 - eslint on touched files — 0 errors expected.
 

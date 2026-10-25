@@ -34,6 +34,7 @@ import {
   agentMessageActivity,
   groupAgentWorkSteps,
 } from '../utils/agentWorkSteps';
+import { withoutFileOnlyText } from '../agentsFiles';
 import { extractPageContext } from '../utils/pageContext';
 import { getMessageText, isAgentsAnswerTurn } from '../utils/messages';
 import {
@@ -367,7 +368,9 @@ const MessageRow = memo(
 
     // User turn: muted right-aligned bubble. The persisted `[Page context]`
     // prefix is stripped and not shown; attachments render above.
-    const { parts } = extractPageContext(message.parts);
+    const parts = withoutFileOnlyText(
+      extractPageContext(message.parts).parts,
+    );
 
     return (
       <Fragment>

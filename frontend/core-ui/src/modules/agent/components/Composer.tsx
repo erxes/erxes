@@ -5,28 +5,36 @@ import {
   IconSend,
   IconX,
 } from '@tabler/icons-react';
-import { Button, Spinner, Tooltip } from 'erxes-ui';
+import { Button, Spinner, Tooltip, toast } from 'erxes-ui';
 import {
   useEffect,
+  useImperativeHandle,
   useRef,
   useState,
+  type ClipboardEvent,
   type KeyboardEvent,
   type ReactNode,
+  type Ref,
 } from 'react';
 
 import {
-  AGENTS_FILE_MAX_BYTES,
+  AGENTS_FILE_ACCEPT,
   AGENTS_FILE_MAX_PER_TURN,
   AGENTS_FILE_ONLY_TEXT,
-  AGENTS_FILE_TEXT_MAX_BYTES,
-  AGENTS_FILE_TEXT_TOTAL_MAX_BYTES,
   isAgentsTextMimeType,
-  mimeFromFile,
   type IAgentsFileMeta,
 } from '../agentsFiles';
 import { useTranslation } from 'react-i18next';
 
 import { uploadAgentsFile } from '../uploadAgentsFile';
+import {
+  describeAgentsAttachmentRejections,
+  filesFromClipboard,
+  planAgentsAttachments,
+} from '../utils/agentAttachments';
+import type { TAgentsAttachAvailability } from '../utils/fileDrag';
+import { resizeAgentsImage } from '../utils/resizeAgentsImage';
+import { AgentAttachmentCard } from './AgentAttachmentCard';
 import { ChatInput } from './ChatInput';
 import { PageElementPicker } from './PageElementPicker';
 import type { IPageSelection } from '../utils/pageSelection';
@@ -46,6 +54,15 @@ export interface IComposerAttachment {
   context?: IAgentPageSelectionContext;
   selection?: IPageSelection;
   previewUrl?: string;
+  /** Original file, kept so a failed upload can be retried. */
+  source?: File;
+  resize?: boolean;
+}
+
+/** Lets the panel-wide drop zone attach files through this composer. */
+export interface IComposerAttachHandle {
+  availability: () => TAgentsAttachAvailability;
+  attachFiles: (files: File[]) => void;
 }
 
 export interface IComposerProps {
@@ -63,7 +80,11 @@ export interface IComposerProps {
   pickers?: ReactNode;
   /** Optional page-context chip row above the textarea (side panel). */
   contextRow?: ReactNode;
+  attachRef?: Ref<IComposerAttachHandle>;
 }
+
+const countFileSlots = (items: IComposerAttachment[]): number =>
+  items.reduce((total, item) => total + (item.selection ? 0 : 1), 0);
 
 export const Composer = ({
   status,
@@ -74,6 +95,7 @@ export const Composer = ({
   onStop,
   pickers,
   contextRow,
+  attachRef,
 }: IComposerProps) => {
   const { t } = useTranslation('common', { keyPrefix: 'agent' });
   const [text, setText] = useState('');
@@ -106,10 +128,7 @@ export const Composer = ({
   }, [draftScope]);
 
   const isStreaming = status === 'submitted' || status === 'streaming';
-  const usedSlots = attachments.reduce(
-    (total, item) => total + (item.selection ? 0 : 1),
-    0,
-  );
+  const usedSlots = countFileSlots(attachments);
   useEffect(() => {
     if (disabled || isStreaming) setSelecting(false);
   }, [disabled, isStreaming]);
@@ -161,19 +180,70 @@ export const Composer = ({
     }
   };
 
-  const startUploads = (fileList: FileList | null) => {
-    if (disabled || isStreaming || !fileList || fileList.length === 0) {
+  const uploadFile = (localId: string, file: File, resize: boolean) => {
+    const controller = new AbortController();
+    uploadsRef.current.set(localId, controller);
+    const { signal } = controller;
+    const request = resize
+      ? resizeAgentsImage(file).then((prepared) =>
+          signal.aborted
+            ? Promise.reject(new Error('Upload cancelled.'))
+            : uploadAgentsFile(prepared, { signal }),
+        )
+      : uploadAgentsFile(file, { signal });
+
+    void request
+      .then((uploaded) => {
+        if (signal.aborted) {
+          return;
+        }
+        setAttachments((current) =>
+          current.map((item) =>
+            item.localId === localId
+              ? {
+                  ...item,
+                  name: uploaded.name,
+                  mimeType: uploaded.type,
+                  size: uploaded.size,
+                  status: 'ready',
+                  error: undefined,
+                  file: uploaded,
+                }
+              : item,
+          ),
+        );
+      })
+      .catch((error: unknown) => {
+        if (signal.aborted) {
+          return;
+        }
+        setAttachments((current) =>
+          current.map((item) =>
+            item.localId === localId
+              ? {
+                  ...item,
+                  status: 'error',
+                  error:
+                    error instanceof Error ? error.message : 'Upload failed.',
+                }
+              : item,
+          ),
+        );
+      })
+      .finally(() => {
+        if (uploadsRef.current.get(localId) === controller)
+          uploadsRef.current.delete(localId);
+      });
+  };
+
+  const canAttach = !disabled && !isStreaming;
+
+  const attachFiles = (files: File[]) => {
+    if (!canAttach || files.length === 0) {
       return;
     }
 
-    const remaining = AGENTS_FILE_MAX_PER_TURN - usedSlots;
-    const picked = Array.from(fileList).slice(0, Math.max(0, remaining));
-
-    if (picked.length === 0) {
-      return;
-    }
-
-    const readyTextBytes = attachments.reduce(
+    const textBytesInUse = attachmentsRef.current.reduce(
       (total, item) =>
         total +
         (item.status !== 'error' && isAgentsTextMimeType(item.mimeType)
@@ -181,79 +251,87 @@ export const Composer = ({
           : 0),
       0,
     );
-    let incomingTextBytes = 0;
-    const drafts: IComposerAttachment[] = picked.map((file) => {
-      const mimeType = mimeFromFile(file);
-      const textFile = isAgentsTextMimeType(mimeType);
-      let error: string | undefined;
-      if (file.size > AGENTS_FILE_MAX_BYTES) {
-        error = 'File is too large.';
-      } else if (textFile && file.size > AGENTS_FILE_TEXT_MAX_BYTES) {
-        error =
-          'Text attachments must be at most 64 KiB each. Split the file and retry.';
-      } else if (
-        textFile &&
-        readyTextBytes + incomingTextBytes + file.size >
-          AGENTS_FILE_TEXT_TOTAL_MAX_BYTES
-      ) {
-        error =
-          'Text attachments must total at most 128 KiB per message. Send fewer files.';
-      } else if (textFile) {
-        incomingTextBytes += file.size;
-      }
-      return {
+    const plan = planAgentsAttachments(files, {
+      remainingSlots:
+        AGENTS_FILE_MAX_PER_TURN - countFileSlots(attachmentsRef.current),
+      textBytesInUse,
+    });
+    const rejection = describeAgentsAttachmentRejections(plan);
+    if (rejection) {
+      toast({
+        title:
+          plan.accepted.length > 0
+            ? 'Some files were not attached'
+            : 'Files not attached',
+        description: rejection,
+        variant: 'destructive',
+      });
+    }
+    if (plan.accepted.length === 0) {
+      return;
+    }
+
+    const drafts: IComposerAttachment[] = plan.accepted.map(
+      ({ file, mimeType, error, resize }) => ({
         localId: crypto.randomUUID(),
         name: file.name,
         mimeType,
         size: file.size,
         status: error ? 'error' : 'uploading',
         error,
-      };
-    });
-
+        source: error ? undefined : file,
+        resize,
+        previewUrl: mimeType.startsWith('image/')
+          ? URL.createObjectURL(file)
+          : undefined,
+      }),
+    );
+    // Keep the ref current so a second drop in the same tick sees these slots.
+    attachmentsRef.current = [...attachmentsRef.current, ...drafts];
     setAttachments((current) => [...current, ...drafts]);
 
-    picked.forEach((file, index) => {
-      const localId = drafts[index].localId;
-      if (drafts[index].status === 'error') {
-        return;
+    drafts.forEach((draft) => {
+      if (draft.source) {
+        uploadFile(draft.localId, draft.source, draft.resize === true);
       }
-
-      const controller = new AbortController();
-      uploadsRef.current.set(localId, controller);
-
-      void uploadAgentsFile(file, { signal: controller.signal })
-        .then((uploaded) => {
-          if (controller.signal.aborted) {
-            return;
-          }
-          setAttachments((current) =>
-            current.map((item) =>
-              item.localId === localId
-                ? { ...item, status: 'ready', file: uploaded }
-                : item,
-            ),
-          );
-        })
-        .catch((error: unknown) => {
-          if (controller.signal.aborted) {
-            return;
-          }
-          setAttachments((current) =>
-            current.map((item) =>
-              item.localId === localId
-                ? {
-                    ...item,
-                    status: 'error',
-                    error:
-                      error instanceof Error ? error.message : 'Upload failed.',
-                  }
-                : item,
-            ),
-          );
-        })
-        .finally(() => uploadsRef.current.delete(localId));
     });
+  };
+
+  const retryUpload = (item: IComposerAttachment) => {
+    if (!item.source || !canAttach) return;
+    setAttachments((current) =>
+      current.map((entry) =>
+        entry.localId === item.localId
+          ? { ...entry, status: 'uploading', error: undefined }
+          : entry,
+      ),
+    );
+    uploadFile(item.localId, item.source, item.resize === true);
+  };
+
+  const availability = (): TAgentsAttachAvailability => {
+    if (!canAttach) return 'disabled';
+    return countFileSlots(attachmentsRef.current) >= AGENTS_FILE_MAX_PER_TURN
+      ? 'full'
+      : 'ready';
+  };
+
+  useImperativeHandle(attachRef, () => ({ availability, attachFiles }));
+
+  const handlePaste = (event: ClipboardEvent<HTMLTextAreaElement>) => {
+    const files = filesFromClipboard(event.clipboardData);
+    if (files.length === 0) {
+      return;
+    }
+    event.preventDefault();
+    if (!canAttach) {
+      toast({
+        title: 'Files not attached',
+        description: 'Wait for the current response to finish, then paste again.',
+      });
+      return;
+    }
+    attachFiles(files);
   };
 
   const uploadSelection = (item: IComposerAttachment) => {
@@ -383,95 +461,102 @@ export const Composer = ({
         </div>
       )}
       {attachments.length > 0 && (
-        <ul className="flex flex-wrap gap-1.5 px-3.5 pt-3 sm:px-4">
-          {attachments.map((item) => (
-            <li
-              key={item.localId}
-              className={
-                item.selection
-                  ? 'flex w-full min-w-0 items-center gap-3 rounded-xl border bg-muted/30 p-2'
-                  : 'flex max-w-full items-center gap-1 rounded-full border bg-muted/40 px-2 py-0.5 text-[11px]'
-              }
-            >
-              {item.selection ? (
-                <>
-                  <div className="relative flex h-12 w-16 shrink-0 items-center justify-center overflow-hidden rounded-md border bg-background">
-                    <img
-                      src={item.previewUrl}
-                      alt={`Selected ${item.name}`}
-                      className="h-full w-full object-contain"
-                    />
-                    {item.status === 'uploading' && (
-                      <div className="absolute inset-0 flex items-center justify-center bg-background/70">
-                        <Spinner className="size-4" />
-                      </div>
-                    )}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p
-                      className="truncate text-xs font-medium"
-                      title={item.name}
-                    >
-                      {item.name}
-                    </p>
-                    <p className="truncate text-[11px] text-muted-foreground">
-                      {item.selection.frame || item.selection.path} ·{' '}
-                      {item.selection.width} × {item.selection.height}
-                    </p>
-                    {item.status === 'uploading' && (
-                      <p
-                        role="status"
-                        className="text-[11px] text-muted-foreground"
-                      >
-                        Attaching selection…
-                      </p>
-                    )}
-                    {item.status === 'ready' && (
-                      <p className="text-[11px] text-muted-foreground">
-                        Page selection
-                      </p>
-                    )}
-                    {item.status === 'error' && (
-                      <p role="alert" className="text-[11px] text-destructive">
-                        {item.error}
-                      </p>
-                    )}
-                  </div>
-                  {item.status === 'error' && (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      className="h-7 px-2 text-xs"
-                      onClick={() => uploadSelection(item)}
-                    >
-                      Retry
-                    </Button>
-                  )}
-                </>
-              ) : (
-                <>
-                  <span className="truncate">{item.name}</span>
-                  {item.status === 'uploading' && (
-                    <span className="text-muted-foreground">Uploading…</span>
-                  )}
-                  {item.status === 'error' && (
-                    <span className="text-destructive">{item.error}</span>
-                  )}
-                </>
-              )}
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                className="size-5 rounded-full p-0.5 text-muted-foreground hover:text-foreground"
-                onClick={() => removeAttachment(item.localId)}
-                aria-label={`Remove ${item.name}`}
+        <ul
+          aria-label="Attachments"
+          className="flex flex-wrap gap-1.5 px-3.5 pt-3 sm:px-4"
+        >
+          {attachments.map((item) =>
+            item.selection ? (
+              <li
+                key={item.localId}
+                className="agent-chip-enter flex w-full min-w-0 items-center gap-3 rounded-xl border bg-muted/30 p-2"
               >
-                <IconX className="size-3" />
-              </Button>
-            </li>
-          ))}
+                <div className="relative flex h-12 w-16 shrink-0 items-center justify-center overflow-hidden rounded-md border bg-background">
+                  <img
+                    src={item.previewUrl}
+                    alt={`Selected ${item.name}`}
+                    className="h-full w-full object-contain"
+                  />
+                  {item.status === 'uploading' && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-background/70">
+                      <Spinner className="size-4" />
+                    </div>
+                  )}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p
+                    className="truncate text-xs font-medium"
+                    title={item.name}
+                  >
+                    {item.name}
+                  </p>
+                  <p className="truncate text-[11px] text-muted-foreground">
+                    {item.selection.frame || item.selection.path} ·{' '}
+                    {item.selection.width} × {item.selection.height}
+                  </p>
+                  {item.status === 'uploading' && (
+                    <p
+                      role="status"
+                      className="text-[11px] text-muted-foreground"
+                    >
+                      Attaching selection…
+                    </p>
+                  )}
+                  {item.status === 'ready' && (
+                    <p className="text-[11px] text-muted-foreground">
+                      Page selection
+                    </p>
+                  )}
+                  {item.status === 'error' && (
+                    <p role="alert" className="text-[11px] text-destructive">
+                      {item.error}
+                    </p>
+                  )}
+                </div>
+                {item.status === 'error' && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 px-2 text-xs"
+                    onClick={() => uploadSelection(item)}
+                  >
+                    Retry
+                  </Button>
+                )}
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="size-5 rounded-full p-0.5 text-muted-foreground hover:text-foreground"
+                  onClick={() => removeAttachment(item.localId)}
+                  aria-label={`Remove ${item.name}`}
+                >
+                  <IconX className="size-3" />
+                </Button>
+              </li>
+            ) : (
+              <li
+                key={item.localId}
+                className="agent-chip-enter min-w-0 max-w-full"
+              >
+                <AgentAttachmentCard
+                  name={item.name}
+                  mimeType={item.mimeType}
+                  size={item.size}
+                  previewUrl={item.previewUrl}
+                  status={item.status}
+                  error={item.error}
+                  onRetry={
+                    item.source && canAttach
+                      ? () => retryUpload(item)
+                      : undefined
+                  }
+                  onRemove={() => removeAttachment(item.localId)}
+                />
+              </li>
+            ),
+          )}
         </ul>
       )}
       <div className="px-3.5 pt-3 sm:px-4">
@@ -479,6 +564,7 @@ export const Composer = ({
           value={text}
           onChange={setText}
           onKeyDown={handleKeyDown}
+          onPaste={handlePaste}
           placeholder={t('composer-placeholder', 'Ask anything…')}
           disabled={disabled}
           ariaLabel="Message"
@@ -492,10 +578,10 @@ export const Composer = ({
           type="file"
           className="hidden"
           multiple
-          accept=".png,.jpg,.jpeg,.webp,.gif,.txt,.md,.markdown,.csv,.json,.pdf,.docx,.xlsx"
+          accept={AGENTS_FILE_ACCEPT}
           aria-label="Choose attachments"
           onChange={(event) => {
-            startUploads(event.target.files);
+            attachFiles(Array.from(event.target.files ?? []));
             event.target.value = '';
           }}
         />
@@ -519,8 +605,9 @@ export const Composer = ({
               </Button>
             </Tooltip.Trigger>
             <Tooltip.Content side="top" className="max-w-xs">
-              Up to 5 files, 10 MiB each. Images up to 2 MiB are shared with the
-              AI. CSV, TXT, Markdown and JSON: 64 KiB each, 128 KiB total.
+              Up to 5 files, 10 MiB each. Drop or paste them anywhere in the
+              chat. Large images are resized for the AI. CSV, TXT, Markdown and
+              JSON: 64 KiB each, 128 KiB total.
             </Tooltip.Content>
           </Tooltip>
         </Tooltip.Provider>

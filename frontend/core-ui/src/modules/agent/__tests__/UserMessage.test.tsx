@@ -115,3 +115,44 @@ it('disables editing during an active run', () => {
   fireEvent.click(screen.getByRole('button', { name: 'Edit message' }));
   expect(screen.queryByRole('textbox')).toBeNull();
 });
+
+it('lets a files-only turn gain a question without copying the placeholder', () => {
+  const onEdit = jest.fn();
+  const filesOnly: UIMessage = {
+    id: 'files-turn',
+    role: 'user',
+    parts: [
+      { type: 'text', text: 'Uploaded files' },
+      {
+        type: 'data-agents-files',
+        data: {
+          files: [
+            { name: 'a.pdf', url: 'a.pdf', type: 'application/pdf', size: 3 },
+          ],
+        },
+      },
+    ],
+  };
+  const FilesHarness = () => {
+    const [editing, setEditing] = useState<string | null>(null);
+    return (
+      <UserMessage
+        message={filesOnly}
+        editing={editing === filesOnly.id}
+        disabled={false}
+        onEditingChange={setEditing}
+        onEdit={onEdit}
+      >
+        attachments
+      </UserMessage>
+    );
+  };
+  render(<FilesHarness />);
+  expect(screen.queryByRole('button', { name: 'Copy message' })).toBeNull();
+  fireEvent.click(screen.getByRole('button', { name: 'Edit message' }));
+  const editor = screen.getByRole('textbox', { name: 'Edit message' });
+  expect((editor as HTMLTextAreaElement).value).toBe('');
+  fireEvent.change(editor, { target: { value: 'Summarize the PDF' } });
+  fireEvent.click(screen.getByRole('button', { name: /Save & resend/ }));
+  expect(onEdit).toHaveBeenCalledWith('files-turn', 'Summarize the PDF');
+});
