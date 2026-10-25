@@ -46,25 +46,31 @@ afterAll(() => {
   HTMLElement.prototype.scrollIntoView = originalScroll;
 });
 
-const defaults = [
+const saved = [
   { provider: 'openai', model: 'gpt-6-luna' },
   { provider: 'kimi', model: 'kimi-k3' },
 ];
-const modelIds = [
-  'gpt-6-luna',
-  ...Array.from({ length: 132 }, (_, i) => `catalog-model-${i}`),
+const option = (id: string, recommended = false) => ({
+  id,
+  family: id.startsWith('gpt-6') ? 'gpt-6' : '',
+  recommended,
+});
+const openaiModels = [
+  option('gpt-6', true),
+  option('gpt-6-luna', true),
+  option('gpt-6-mini', true),
+  ...Array.from({ length: 132 }, (_, i) => option(`catalog-model-${i}`)),
 ];
 const baseProps: IModelPickerProps = {
   value: 'openai|gpt-6-luna',
   onChange: jest.fn(),
-  autoModel: 'gpt-6-luna',
-  defaultModels: defaults,
+  savedModels: saved,
   models: {
     loading: false,
     error: undefined,
     providerModels: [
-      { provider: 'openai', models: modelIds },
-      { provider: 'kimi', models: ['kimi-k3'] },
+      { provider: 'openai', models: openaiModels },
+      { provider: 'kimi', models: [option('kimi-k3', true)] },
     ],
   },
 };
@@ -86,27 +92,64 @@ const setup = (
 
 const chooseProvider = (name = 'OpenAI') =>
   fireEvent.click(screen.getByRole('option', { name: new RegExp(`^${name}`) }));
+const optionNames = () =>
+  screen.getAllByRole('option').map((item) => item.textContent);
 
-it('opens with providers, then shows only the chosen provider’s quick picks', async () => {
-  const { onChange } = setup();
+it('opens with providers, then shows the provider’s recommended models immediately', async () => {
+  const { onChange } = setup({ value: '' });
   expect(screen.getByText('Provider')).toBeTruthy();
   expect(screen.getAllByRole('option')).toHaveLength(3);
-  expect(screen.queryByText('Your models')).toBeNull();
+  expect(screen.queryByText('Recommended')).toBeNull();
   expect(
     screen.queryByRole('button', { name: 'Browse all models' }),
   ).toBeNull();
-  expect(screen.queryByText('133 models')).toBeNull();
   chooseProvider();
   expect(onChange).not.toHaveBeenCalled();
-  expect(screen.getAllByRole('option')).toHaveLength(1);
+  expect(screen.getByText('Recommended')).toBeTruthy();
+  expect(optionNames()).toEqual(['gpt-6', 'gpt-6-lunaDefault', 'gpt-6-mini']);
   expect(screen.queryByRole('option', { name: /kimi-k3/ })).toBeNull();
+  expect(screen.queryByText('135 models')).toBeNull();
   await waitFor(() =>
     expect(
       screen
-        .getByRole('option', { name: /gpt-6-luna/ })
+        .getByRole('option', { name: /^gpt-6$/ })
         .getAttribute('aria-selected'),
     ).toBe('true'),
   );
+});
+
+it('marks only the model an empty selection runs as Default', () => {
+  setup({
+    value: '',
+    savedModels: [
+      { provider: 'kimi-code', model: 'kimi-for-coding' },
+      { provider: 'kimi', model: 'kimi-k3' },
+    ],
+    models: {
+      loading: false,
+      error: undefined,
+      providerModels: [
+        { provider: 'kimi-code', models: [option('kimi-for-coding', true)] },
+        { provider: 'kimi', models: [option('kimi-k3', true)] },
+      ],
+    },
+  });
+  const trigger = screen.getByRole('combobox', { name: 'Model' });
+  expect(trigger.textContent).toBe('kimi-for-coding');
+  expect(trigger.getAttribute('title')).toBe(
+    'Kimi Code · kimi-for-coding (saved default)',
+  );
+  expect(
+    screen.getByRole('option', { name: /^Kimi Code/ }).textContent,
+  ).toContain('In use');
+  expect(
+    screen.getByRole('option', { name: /Use saved default/ }).textContent,
+  ).toContain('Kimi Code · kimi-for-coding');
+  chooseProvider('Kimi$');
+  expect(optionNames()).toEqual(['kimi-k3']);
+  fireEvent.click(screen.getByRole('button', { name: 'Back to providers' }));
+  chooseProvider('Kimi Code');
+  expect(optionNames()).toEqual(['kimi-for-codingDefault']);
 });
 
 it('selects a provider then an exact model with the keyboard', async () => {
@@ -122,6 +165,7 @@ it('selects a provider then an exact model with the keyboard', async () => {
   const search = screen.getByRole('combobox', { name: 'Search models' });
   fireEvent.change(search, { target: { value: 'catalog-model-131' } });
   await waitFor(() => expect(screen.getAllByRole('option')).toHaveLength(1));
+  expect(screen.getByText('Others')).toBeTruthy();
   fireEvent.keyDown(search, { key: 'ArrowDown' });
   fireEvent.keyDown(search, { key: 'Enter' });
   expect(onChange).toHaveBeenCalledWith('openai|catalog-model-131');
@@ -129,14 +173,16 @@ it('selects a provider then an exact model with the keyboard', async () => {
   await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
 });
 
-it('exposes only the selected provider’s complete catalog and returns to quick picks', () => {
+it('browses the selected provider’s complete usable catalog in groups', () => {
   setup();
   chooseProvider();
   fireEvent.click(screen.getByRole('button', { name: 'Browse all models' }));
-  expect(screen.getAllByRole('option')).toHaveLength(133);
+  expect(screen.getAllByRole('option')).toHaveLength(135);
+  expect(screen.getByText('Recommended')).toBeTruthy();
+  expect(screen.getByText('Others')).toBeTruthy();
   expect(screen.queryByRole('option', { name: /kimi-k3/ })).toBeNull();
-  fireEvent.click(screen.getByRole('button', { name: 'Your models' }));
-  expect(screen.getAllByRole('option')).toHaveLength(1);
+  fireEvent.click(screen.getByRole('button', { name: 'Show less' }));
+  expect(screen.getAllByRole('option')).toHaveLength(3);
 });
 
 it('can go back and switch providers without changing the selection', () => {
@@ -166,22 +212,101 @@ it('focuses a model from the newly chosen provider for keyboard selection', asyn
   expect(onChange).toHaveBeenCalledWith('kimi|kimi-k3');
 });
 
-it('bounds recent choices per provider and excludes unavailable models', () => {
+it('lists bounded recent choices above recommendations and excludes unavailable models', () => {
   setup({}, [
     'openai|catalog-model-4',
     'kimi|kimi-k3',
     'removed|private',
     'openai|missing',
+    'openai|gpt-6-mini',
     'openai|catalog-model-3',
     'openai|catalog-model-2',
     'openai|catalog-model-1',
   ]);
   chooseProvider();
-  expect(screen.getAllByRole('option')).toHaveLength(4);
-  expect(screen.queryByRole('option', { name: /kimi-k3/ })).toBeNull();
+  expect(screen.getByText('Recent')).toBeTruthy();
+  expect(optionNames()).toEqual([
+    'catalog-model-4',
+    'catalog-model-3',
+    'catalog-model-2',
+    'gpt-6',
+    'gpt-6-lunaDefault',
+    'gpt-6-mini',
+  ]);
   expect(screen.queryByText('private')).toBeNull();
   expect(screen.queryByText('missing')).toBeNull();
-  expect(screen.getByRole('option', { name: /catalog-model-4/ })).toBeTruthy();
+});
+
+it('explains a provider whose listing failed and keeps its saved model', () => {
+  const { onChange } = setup({
+    value: '',
+    models: {
+      loading: false,
+      error: undefined,
+      providerModels: [
+        {
+          provider: 'openai',
+          models: [],
+          error:
+            'Failed to list models for "openai" (401). Check your API key.',
+        },
+        { provider: 'kimi', models: [option('kimi-k3', true)] },
+      ],
+    },
+  });
+  // A failed listing never hides the provider the saved default runs on.
+  expect(screen.getByRole('option', { name: /^OpenAI/ }).textContent).toContain(
+    'In use',
+  );
+  chooseProvider();
+  expect(screen.getByRole('status').textContent).toContain(
+    'Check your API key',
+  );
+  expect(screen.getByText('Saved model')).toBeTruthy();
+  expect(
+    screen.queryByRole('button', { name: 'Browse all models' }),
+  ).toBeNull();
+  fireEvent.click(screen.getByRole('option', { name: /gpt-6-luna/ }));
+  expect(onChange).toHaveBeenCalledWith('openai|gpt-6-luna');
+});
+
+it('flags an unavailable provider that is not in use', () => {
+  setup({
+    models: {
+      loading: false,
+      error: undefined,
+      providerModels: [
+        { provider: 'openai', models: openaiModels },
+        { provider: 'kimi', models: [], error: 'Could not reach kimi.' },
+      ],
+    },
+  });
+  expect(screen.getByRole('option', { name: /^Kimi/ }).textContent).toContain(
+    'Unavailable',
+  );
+});
+
+it('shows an empty state when a provider lists no usable models', () => {
+  setup({
+    models: {
+      loading: false,
+      error: undefined,
+      providerModels: [{ provider: 'openai', models: [] }],
+    },
+  });
+  chooseProvider();
+  expect(screen.getByRole('status').textContent).toContain(
+    'No usable chat models',
+  );
+  expect(screen.queryAllByRole('option')).toHaveLength(0);
+});
+
+it('shows provider loading while discovery is pending', () => {
+  setup({ models: { loading: true, error: undefined, providerModels: [] } });
+  chooseProvider();
+  expect(screen.getByRole('status').textContent).toContain(
+    'Loading OpenAI models',
+  );
 });
 
 it.each([

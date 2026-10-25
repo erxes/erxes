@@ -78,15 +78,30 @@ The `agent` module is the core-ui surface for the core-api `agents` backend
 - `ModelPicker` first lists connected providers plus the saved workspace default
   text action at the bottom, with no decorative default icon or provider-search
   field. Provider rows show bare brand marks and names; the saved-default shortcut is a
-  single muted row. The trigger uses a quiet ghost button. The model view does
-  not repeat provider marks/names on each row. Choosing a provider opens only its current/recent/saved model quick
-  picks (at most four), provider-scoped search and Browse all models. Back returns
-  to provider selection without changing the model. Reopening always starts with
-  providers, and neither step displays a model-count badge.
+  single muted row naming the provider and model it runs. The trigger uses a
+  quiet ghost button whose title names provider and model. The model view does
+  not repeat provider marks/names on each row (compact 13px rows). Choosing a
+  provider immediately shows `Recent` (current/recent picks outside the
+  recommended set, at most three) and `Recommended` (the backend's
+  `catalog[].recommended` shortlist), provider-scoped search and Browse all
+  models. Search and Browse group the usable catalog into `Recommended` /
+  `Others` in backend rank order; `Show less` returns to the shortlist. Only
+  the first saved connection (what the empty value runs, per backend
+  `pickConnection`) is marked `Default` and its provider `In use`; other
+  connections' stored models are not defaults. A provider whose listing failed
+  shows its key-free `error`, an `Unavailable` provider marker when not in use,
+  and its saved model as the only choice. Loading, empty and no-match states
+  are explicit. Back returns to provider selection without changing the model.
+  Reopening always starts with providers, and neither step displays a
+  model-count badge.
   Device-local `agent:recent-models` remembers six explicit selections and is
   intersected with the live catalog, so removed models/providers cannot return
   as quick picks. Auto remains usable while model discovery loads or fails;
   provider/model ids and the empty-value server-default contract are unchanged.
+  `useAgentsModels` normalizes `agentsModels` into ranked
+  `{ id, family, recommended }` options per provider (falling back to the flat
+  `models` ids). Saving or removing a connection in settings refetches the
+  active `AgentsModels` query.
 - The thinking picker starts at High, and the initial outgoing request explicitly
   sends `thinkingLevel: 'high'`. Manual selections override that default for later turns.
 - `PageElementPicker` is the composer's Select on page mode. Trusted capture-phase
