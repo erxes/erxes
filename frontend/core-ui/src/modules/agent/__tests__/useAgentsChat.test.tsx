@@ -630,38 +630,6 @@ describe('cached thread switching', () => {
 
     expect(isCached('a')).toBe(false);
   });
-
-  it('re-reads a thread into the cache when the user leaves it', async () => {
-    cacheThread('a', [storedMessage('m1', 'Cached reply')]);
-    network();
-    const { result } = renderHook(() => useAgentsChat());
-    await act(async () => {
-      await result.current.openThread('a');
-    });
-    act(() => finishRun());
-    await act(async () => {
-      await result.current.startNewConversation();
-    });
-
-    expect(mockApolloClient.query).toHaveBeenCalledWith(
-      expect.objectContaining({
-        variables: { threadId: 'a' },
-        fetchPolicy: 'network-only',
-      }),
-    );
-  });
-
-  it('does not prefetch a thread that is still cached', async () => {
-    cacheThread('a', [storedMessage('m1', 'Cached reply')]);
-    network();
-    const { result } = renderHook(() => useAgentsChat());
-    await act(async () => {
-      await result.current.openThread('a');
-    });
-    await act(async () => {
-      await result.current.startNewConversation();
-    });
-
-    expect(mockApolloClient.query).not.toHaveBeenCalled();
-  });
+  // Leaving a thread re-reads it into the cache: covered against a real
+  // Apollo client and server link in `threadDetailCache.test.tsx`.
 });

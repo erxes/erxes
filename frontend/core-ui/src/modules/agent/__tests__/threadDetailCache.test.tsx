@@ -257,4 +257,47 @@ describe('thread detail cache', () => {
 
     expect(requests.slice(before)).toEqual([]);
   });
+
+  it('re-reads a thread into the cache when the user leaves it', async () => {
+    const { client, threads, wrapper } = setupServer();
+    threads.set('a', [storedMessage('a-1', 'First')]);
+    const { result } = renderHook(() => useAgentsChat(), { wrapper });
+    await act(async () => {
+      await result.current.openThread('a');
+    });
+    // A turn completes: the stored transcript grows and the stale copy goes.
+    threads.set('a', [
+      storedMessage('a-1', 'First'),
+      storedMessage('a-2', 'Second'),
+    ]);
+    act(() => finishRun());
+    expect(cachedMessageIds(client, 'a')).toBeNull();
+
+    await act(async () => {
+      await result.current.startNewConversation();
+    });
+
+    await waitFor(() =>
+      expect(cachedMessageIds(client, 'a')).toEqual(['a-1', 'a-2']),
+    );
+  });
+
+  it('does not re-read a thread that is still cached when the user leaves it', async () => {
+    const { requests, threads, wrapper } = setupServer();
+    threads.set('a', [storedMessage('a-1', 'First')]);
+    const { result } = renderHook(() => useAgentsChat(), { wrapper });
+    await act(async () => {
+      await result.current.openThread('a');
+    });
+    const before = requests.length;
+
+    await act(async () => {
+      await result.current.startNewConversation();
+    });
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
+
+    expect(requests.slice(before)).toEqual([]);
+  });
 });
