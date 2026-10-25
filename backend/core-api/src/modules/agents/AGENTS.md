@@ -84,10 +84,12 @@ plugin; ported from the former private `erxes-agent` service). It provides:
   `data-agents-mentions` part `{ mentions: [{ type, id, label }] }` (≤10,
   unique, reference types only, ids `^[A-Za-z0-9_-]{1,64}$`, sanitized labels).
   Each entry must appear as its exact `[[type:id:label]]` token in the text.
-  After the `agentsChat` check and before any rewind or runtime work,
-  `resolveAgentsMentions` re-reads every record through
+  After the `agentsChat` and connection checks and before any rewind or
+  runtime work, `resolveAgentsMentions` re-reads every record through
   `resolveAgentsReference` as the acting user; missing, denied or failing
-  records reject the turn with 400. The model text replaces tokens with
+  records reject the turn with 400. Current names become labels through
+  `sanitizeAgentsMentionLabel` (same rules as core-ui: no brackets, collapsed
+  whitespace/newlines, ≤80 chars; an empty result keeps the sent label). The model text replaces tokens with
   `@Label` and appends a delimited `[Mentions] ...` JSON list; the stored data
   part keeps canonical `{ mentions, displayText }` for restore/edit. Mentions
   never grant permission; later reads still use resolver permissions;

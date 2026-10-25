@@ -2,6 +2,8 @@ import { resolveAgentsReference } from '@/agents/referenceResolution';
 import {
   AGENTS_MENTIONS_DATA_TYPE,
   AgentsMentionError,
+  agentsMentionSchema,
+  agentsMentionToken,
   applyAgentsMentions,
   collectAgentsMentions,
   resolveAgentsMentions,
@@ -87,7 +89,11 @@ describe('resolveAgentsMentions', () => {
   it('reads each record as the acting user and keeps its current label', async () => {
     jest
       .mocked(resolveAgentsReference)
-      .mockResolvedValueOnce({ type: 'customer', id: 'c1', label: 'Ann Smith' });
+      .mockResolvedValueOnce({
+        type: 'customer',
+        id: 'c1',
+        label: 'Ann Smith',
+      });
     await expect(resolveAgentsMentions(identity, [ann])).resolves.toEqual([
       { type: 'customer', id: 'c1', label: 'Ann Smith' },
     ]);
@@ -112,9 +118,72 @@ describe('resolveAgentsMentions', () => {
   });
 
   it('treats resolution failures as unavailable records', async () => {
-    jest.mocked(resolveAgentsReference).mockRejectedValueOnce(new Error('down'));
+    jest
+      .mocked(resolveAgentsReference)
+      .mockRejectedValueOnce(new Error('down'));
     await expect(resolveAgentsMentions(identity, [ann])).rejects.toBeInstanceOf(
       AgentsMentionError,
+    );
+  });
+});
+
+describe('resolved labels follow the client label rules', () => {
+  const resolveWith = (label: string) => {
+    jest
+      .mocked(resolveAgentsReference)
+      .mockResolvedValueOnce({ type: 'customer', id: 'c1', label });
+    return resolveAgentsMentions(identity, [ann]);
+  };
+
+  it.each([
+    ['multi-line and bracketed', '  [Ann]\n  Lee ', 'Ann Lee'],
+    ['long', 'x'.repeat(90), 'x'.repeat(80)],
+    ['bracketed company', 'Acme [EU]\r\nHoldings\tLtd', 'Acme EU Holdings Ltd'],
+  ])('normalizes a %s name', async (_case, name, expected) => {
+    const [resolved] = await resolveWith(name);
+
+    expect(resolved.label).toBe(expected);
+    // The label always forms a valid token, so history restore and editing
+    // can parse what the server stored.
+    expect(agentsMentionSchema.safeParse(resolved).success).toBe(true);
+  });
+
+  it('keeps the requested label when the current name has no usable text', async () => {
+    const [resolved] = await resolveWith('[ ]\n');
+
+    expect(resolved.label).toBe('Ann Lee');
+  });
+
+  it('gives the model and the stored text the normalized label only', async () => {
+    const resolved = await resolveWith('Ann\n[Lee]');
+    const parts = [
+      { type: 'text', text: 'Email [[customer:c1:Ann Lee]] today' },
+      mentionsPart([ann]),
+    ];
+    const text = rewriteAgentsMentionText(parts, [ann], resolved);
+    const rewritten = text.parts.flatMap((part) =>
+      typeof part === 'object' &&
+      part !== null &&
+      'text' in part &&
+      typeof part.text === 'string'
+        ? [part.text]
+        : [],
+    );
+    const message = applyAgentsMentions(
+      {
+        id: 'm1',
+        role: 'user',
+        parts: rewritten.map((value) => ({ type: 'text', text: value })),
+      },
+      resolved,
+      text.displayText,
+    );
+    const modelText = (message.parts[0] as { text: string }).text;
+
+    expect(modelText).toContain('Email @Ann Lee today');
+    expect(modelText.split('\n\n[Mentions]')[0]).not.toMatch(/[[\]\r\n]/);
+    expect(text.displayText).toBe(
+      `Email ${agentsMentionToken({ ...ann, label: 'Ann Lee' })} today`,
     );
   });
 });

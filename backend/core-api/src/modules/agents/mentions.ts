@@ -8,6 +8,21 @@ import {
 
 export const AGENTS_MENTIONS_DATA_TYPE = 'data-agents-mentions';
 export const AGENTS_MENTION_MAX_PER_TURN = 10;
+export const AGENTS_MENTION_LABEL_MAX = 80;
+
+/**
+ * Normalizes a record name into a mention label with the client's rules
+ * (core-ui `sanitizeAgentMentionLabel`): no brackets, whitespace and line
+ * breaks collapsed to single spaces, at most 80 characters. A label made
+ * this way always forms a valid `[[type:id:label]]` token.
+ */
+export const sanitizeAgentsMentionLabel = (value: string): string =>
+  value
+    .replace(/[[\]]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, AGENTS_MENTION_LABEL_MAX)
+    .trim();
 
 /** A record the user picked from the composer's @ menu. The text keeps one
  * `[[type:id:label]]` token per mention; this list is the structured copy.
@@ -20,7 +35,7 @@ export const agentsMentionSchema = z.object({
     .string()
     .trim()
     .min(1)
-    .max(80)
+    .max(AGENTS_MENTION_LABEL_MAX)
     .refine((label) => !/[[\]\r\n]/.test(label)),
 });
 export type IAgentsMention = z.infer<typeof agentsMentionSchema>;
@@ -89,7 +104,7 @@ export const collectAgentsMentions = (parts: unknown[]): IAgentsMention[] => {
  * Re-reads every mentioned record as the acting user through the live
  * schema's Detail query. Resolver permissions decide access; a missing,
  * deleted or denied record rejects the turn. Labels come from the current
- * record, never from the client.
+ * record, never from the client, normalized like client labels.
  */
 export const resolveAgentsMentions = async (
   identity: { subdomain: string; userId: string },
@@ -109,7 +124,13 @@ export const resolveAgentsMentions = async (
         throw new AgentsMentionError(
           `“${mention.label}” is unavailable or you no longer have access. Remove the mention and try again.`,
         );
-      return { type: mention.type, id: mention.id, label: resolved.label };
+      // The current name, held to the client's label rules; a name with no
+      // usable text keeps the label the client sent (already valid).
+      return {
+        type: mention.type,
+        id: mention.id,
+        label: sanitizeAgentsMentionLabel(resolved.label) || mention.label,
+      };
     }),
   );
 
