@@ -1,3 +1,7 @@
+import * as fs from 'fs';
+import * as path from 'path';
+import * as yaml from 'yaml';
+
 jest.mock('erxes-api-shared/utils/redis', () => ({ redis: {} }));
 
 jest.mock('erxes-api-shared/utils', () => ({
@@ -6,16 +10,58 @@ jest.mock('erxes-api-shared/utils', () => ({
   ...jest.requireActual('erxes-api-shared/utils/trpc/context-header'),
 }));
 
-import {
-  getRouterHeadersConfig,
-  parseExtraPropagatedHeaders,
-  ROUTER_PROPAGATED_HEADERS,
-} from '~/apollo-router/headers';
+// Write the router config into a throwaway directory instead of src/.
+jest.mock('~/apollo-router/paths', () => {
+  const dir = jest
+    .requireActual<typeof import('fs')>('fs')
+    .mkdtempSync(
+      jest
+        .requireActual<typeof import('path')>('path')
+        .join(
+          jest.requireActual<typeof import('os')>('os').tmpdir(),
+          'router-',
+        ),
+    );
 
-const propagatedNames = (config: ReturnType<typeof getRouterHeadersConfig>) =>
-  config.all.request.map((rule) => rule.propagate.named);
+  return {
+    dirTempPath: dir,
+    routerConfigPath: `${dir}/router.yaml`,
+    routerPath: `${dir}/router`,
+    supergraphPath: `${dir}/supergraph.graphql`,
+    supergraphConfigPath: `${dir}/supergraph.yaml`,
+  };
+});
 
-describe('router header propagation', () => {
+import { createRouterConfig } from '~/apollo-router';
+import { parseExtraPropagatedHeaders } from '~/apollo-router/headers';
+import { routerConfigPath } from '~/apollo-router/paths';
+
+type HeaderRule = { propagate?: { named?: string; matching?: string } };
+
+// The header rules of the router.yaml the gateway hands to Apollo Router.
+const writtenRequestRules = async (extra?: string): Promise<HeaderRule[]> => {
+  if (extra === undefined) {
+    delete process.env.APOLLO_ROUTER_PROPAGATE_HEADERS;
+  } else {
+    process.env.APOLLO_ROUTER_PROPAGATE_HEADERS = extra;
+  }
+
+  await createRouterConfig();
+
+  return yaml.parse(fs.readFileSync(routerConfigPath, 'utf8')).headers.all
+    .request;
+};
+
+// Mirrors Apollo Router: `named` is an exact match, `matching` a regex.
+const isPropagated = (rules: HeaderRule[], header: string) =>
+  rules.some(
+    ({ propagate }) =>
+      propagate?.named === header ||
+      (propagate?.matching !== undefined &&
+        new RegExp(`^(?:${propagate.matching})$`).test(header)),
+  );
+
+describe('router header propagation (written router.yaml)', () => {
   let warn: jest.SpyInstance;
 
   beforeEach(() => {
@@ -26,43 +72,9 @@ describe('router header propagation', () => {
     warn.mockRestore();
   });
 
-  it('propagates only named headers, never a wildcard', () => {
-    const config = getRouterHeadersConfig('');
-
-    for (const rule of config.all.request) {
-      expect(Object.keys(rule)).toEqual(['propagate']);
-      expect(Object.keys(rule.propagate)).toEqual(['named']);
-    }
-    expect(JSON.stringify(config)).not.toContain('matching');
-  });
-
-  it('forwards the identity minted and signed by the gateway', () => {
-    expect(propagatedNames(getRouterHeadersConfig(''))).toEqual(
-      expect.arrayContaining([
-        'user',
-        'userid',
-        'cpuser',
-        'clientportal',
-        'x-erxes-identity-signature',
-        'hostname',
-        'nginx-hostname',
-      ]),
-    );
-  });
-
-  it('keeps client context that subgraphs read', () => {
-    expect(propagatedNames(getRouterHeadersConfig(''))).toEqual(
-      expect.arrayContaining([
-        'cookie',
-        'authorization',
-        'sessioncode',
-        'x-app-token',
-        'erxes-widget-token',
-        'origin',
-        'x-forwarded-for',
-        'x-erxes-process-id',
-      ]),
-    );
+  afterAll(() => {
+    fs.rmSync(path.dirname(routerConfigPath), { recursive: true, force: true });
+    delete process.env.APOLLO_ROUTER_PROPAGATE_HEADERS;
   });
 
   it.each([
@@ -70,30 +82,58 @@ describe('router header propagation', () => {
     'x-erxes-agent-auth',
     'x-trpc-context',
     'x-trpc-context-signature',
-    'x-custom-unknown',
+    'x-some-unlisted-header',
     'host',
     'content-length',
-  ])('does not propagate %s', (name) => {
-    expect(propagatedNames(getRouterHeadersConfig(''))).not.toContain(name);
+  ])('does not forward %s to subgraphs', async (header) => {
+    expect(isPropagated(await writtenRequestRules(), header)).toBe(false);
   });
 
-  it('adds operator-configured headers', () => {
-    const names = propagatedNames(
-      getRouterHeadersConfig(' X-Plugin-Header , x-other '),
-    );
-
-    expect(names).toEqual(
-      expect.arrayContaining(['x-plugin-header', 'x-other']),
-    );
-    expect(names.length).toBe(ROUTER_PROPAGATED_HEADERS.length + 2);
+  it.each([
+    'user',
+    'userid',
+    'cpuser',
+    'clientportal',
+    'x-erxes-identity-signature',
+    'hostname',
+    'nginx-hostname',
+  ])('forwards the gateway-minted %s', async (header) => {
+    expect(isPropagated(await writtenRequestRules(), header)).toBe(true);
   });
 
-  it('refuses internal credentials and invalid names from configuration', () => {
-    expect(
-      parseExtraPropagatedHeaders(
-        'x-trpc-context,x-erxes-agent-auth,erxes-subdomain,bad header,user',
-      ),
-    ).toEqual(['user']);
-    expect(warn).toHaveBeenCalledTimes(4);
+  it.each([
+    'cookie',
+    'authorization',
+    'sessioncode',
+    'x-app-token',
+    'client-auth-token',
+    'erxes-widget-token',
+    'erxes-pos-token',
+    'origin',
+    'x-forwarded-for',
+    'x-erxes-process-id',
+  ])('forwards %s, which subgraph resolvers read', async (header) => {
+    expect(isPropagated(await writtenRequestRules(), header)).toBe(true);
+  });
+
+  it('forwards headers an operator adds for a plugin', async () => {
+    const rules = await writtenRequestRules(' X-Plugin-Header , x-other ');
+
+    expect(isPropagated(rules, 'x-plugin-header')).toBe(true);
+    expect(isPropagated(rules, 'x-other')).toBe(true);
+  });
+
+  it('never forwards internal credentials even when an operator adds them', async () => {
+    const rules = await writtenRequestRules(
+      'x-trpc-context,x-erxes-agent-auth,erxes-subdomain',
+    );
+
+    expect(isPropagated(rules, 'x-trpc-context')).toBe(false);
+    expect(isPropagated(rules, 'x-erxes-agent-auth')).toBe(false);
+    expect(isPropagated(rules, 'erxes-subdomain')).toBe(false);
+  });
+
+  it('ignores names that are not valid header names', () => {
+    expect(parseExtraPropagatedHeaders('bad header,x-ok')).toEqual(['x-ok']);
   });
 });

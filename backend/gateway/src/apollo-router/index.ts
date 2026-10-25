@@ -171,7 +171,7 @@ const downloadRouter = async () => {
   }
 };
 
-const createRouterConfig = async () => {
+export const createRouterConfig = async () => {
   if (NODE_ENV === 'production' && fs.existsSync(routerConfigPath)) {
     // Don't rewrite in production if it exists. Delete and restart to update the config
     return;
