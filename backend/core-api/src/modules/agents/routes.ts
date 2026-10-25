@@ -42,6 +42,8 @@ import {
 import type { IAgentsConnections } from '@/agents/@types/connection';
 import { findDefaultConnection } from '@/agents/db/models/Connection';
 import { getAgentsRuntime } from '@/agents/memory';
+import { describeUnreadableKey } from '@/agents/providerModels';
+import { openSecret } from '@/agents/secretBox';
 import { isAgentsRunAlive } from '@/agents/runLiveness';
 import { publishAgentsThreadsChanged } from '@/agents/threadsEvents';
 import {
@@ -233,6 +235,19 @@ export const pickConnection = (
   const requestedModel = model?.trim();
 
   return requestedModel ? { ...selected, model: requestedModel } : selected;
+};
+
+/**
+ * Rejects a connection whose stored key this server cannot open (missing, or
+ * sealed under another secret) with the same key-free reason the model list
+ * shows, instead of failing later inside the run.
+ */
+const assertUsableConnectionKey = (connection: IAiAgentConnection): void => {
+  const stored = connection.config?.apiKey;
+
+  if (!openSecret(stored)) {
+    throw new HttpError(400, describeUnreadableKey(connection.provider, stored));
+  }
 };
 
 const parseThinkingLevel = (value: unknown): IAgentsThinkingLevel =>
@@ -728,17 +743,8 @@ router.post('/agents/chat', async (req, res) => {
     const files = collectAgentsAttachments(
       Array.isArray(newestMessage.parts) ? newestMessage.parts : [],
     );
-    const requestedMentions = collectAgentsMentions(
-      Array.isArray(newestMessage.parts) ? newestMessage.parts : [],
-    );
-    // Verified as the acting user before any storage, rewind or model work.
-    const mentions = await resolveAgentsMentions(identity, requestedMentions);
-    const mentionText = rewriteAgentsMentionText(
-      Array.isArray(newestMessage.parts) ? newestMessage.parts : [],
-      requestedMentions,
-      mentions,
-    );
-
+    // A turn without a usable connection is rejected before any gateway
+    // work: no mention lookup runs for a request that cannot reach a model.
     const models = await generateModels(identity.subdomain);
     const storedConnections = await resolveUserConnections(
       models,
@@ -748,6 +754,18 @@ router.post('/agents/chat', async (req, res) => {
       storedConnections,
       body.provider,
       body.model,
+    );
+    assertUsableConnectionKey(connection);
+
+    const requestedMentions = collectAgentsMentions(
+      Array.isArray(newestMessage.parts) ? newestMessage.parts : [],
+    );
+    // Verified as the acting user before any storage, rewind or model work.
+    const mentions = await resolveAgentsMentions(identity, requestedMentions);
+    const mentionText = rewriteAgentsMentionText(
+      Array.isArray(newestMessage.parts) ? newestMessage.parts : [],
+      requestedMentions,
+      mentions,
     );
     // Only levels the selected model supports reach the provider (clamped to
     // the nearest one; unknown models keep the original five levels).

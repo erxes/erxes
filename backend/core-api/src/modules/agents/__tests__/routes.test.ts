@@ -2756,6 +2756,58 @@ describe('POST /agents/chat — mentions', () => {
     expect(streamMock).not.toHaveBeenCalled();
   });
 
+  it.each([
+    [
+      'no saved connection',
+      null,
+      {},
+      'Add your API key to start using Agents.',
+    ],
+    [
+      'a requested provider that is not saved',
+      CONNECTION_DOC,
+      { provider: 'grok' },
+      'No connection stored for provider "grok". Add it under Settings → API key.',
+    ],
+    [
+      'a saved key this server cannot read',
+      {
+        userId: 'user-1',
+        connections: [
+          {
+            provider: 'openai',
+            model: 'gpt-5.6-luna',
+            config: { apiKey: 'enc:v1:AAAA:AAAA:AAAA' },
+          },
+        ],
+      },
+      {},
+      'OpenAI',
+    ],
+  ])(
+    'rejects a turn with %s before looking up any mention',
+    async (_case, stored, selection, message) => {
+      connectionModel.getConnections.mockResolvedValue(stored);
+      // A lookup would succeed, so only the order decides the outcome.
+      jest
+        .mocked(resolveAgentsReference)
+        .mockResolvedValue({ type: 'customer', id: 'c1', label: 'Ann Lee' });
+      const res = buildRes();
+      await chatHandler(
+        buildReq({
+          user: ACTING_USER,
+          body: { messages: [mentionMessage()], ...selection },
+        }),
+        res,
+      );
+
+      expect(res.statusCode).toBe(400);
+      expect(body(res).error).toContain(message);
+      expect(resolveAgentsReference).toHaveBeenCalledTimes(0);
+      expect(streamMock).not.toHaveBeenCalled();
+    },
+  );
+
   it('checks chat permission before resolving any mention', async () => {
     jest.mocked(checkPermissionGroup).mockImplementation(() => async () => {
       throw new ExpectedError('Permission required', 'FORBIDDEN');

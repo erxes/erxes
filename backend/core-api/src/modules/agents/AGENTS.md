@@ -111,7 +111,9 @@ plugin; ported from the former private `erxes-agent` service). It provides:
   `POST /agents/chat/reconnect` `{ threadId, runId }` (SSE replay or 204).
   All require the gateway `user` header and `agentsChat`, including plain text,
   approval, answer and reconnect requests. Permission denial precedes credential,
-  runtime and attachment access. Identity is stamped from the header into Mastra
+  runtime and attachment access. Chat then resolves the connection and checks
+  its key opens (400 with the key-free reason otherwise) before any mention
+  lookup through the gateway. Identity is stamped from the header into Mastra
   RequestContext — never from the body or the model.
 - Chat accepts optional `editMessageId`, matching the newest user message id
   and an owned existing thread. `messageEditing.ts` checks active
