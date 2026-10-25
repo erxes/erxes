@@ -9,6 +9,7 @@ import {
   AGENTS_CHAT_URL,
 } from './api';
 import type { IAgentsNavigationEntry } from './utils/navigationCatalog';
+import { withoutResentPageContext } from './utils/pageContext';
 
 /** Header the backend stamps with the resolved thread id on every chat SSE. */
 const THREAD_ID_HEADER = 'X-Agents-Thread-Id';
@@ -258,13 +259,14 @@ export class AgentsChatTransport
       // Normal send: generate a fresh runId so the backend can track the
       // active run for reconnect. Approval/answer resumes keep the existing
       // run id (set by the original send or the prior resume).
-      const message = [...options.messages]
+      const messages = withoutResentPageContext(options.messages);
+      const message = [...messages]
         .reverse()
         .find((entry) => entry.role === 'user');
       if (message) this.onPendingMessage?.(message);
       this.onActiveRunId(crypto.randomUUID());
 
-      return super.sendMessages(options);
+      return super.sendMessages({ ...options, messages });
     }
 
     const threadId = this.getThreadId();
