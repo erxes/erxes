@@ -4,8 +4,6 @@ import { createAgentReferenceRegistry } from '../../references/referenceRegistry
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { HtmlPreview } from '../HtmlPreview';
 
-jest.mock('erxes-ui', () => ({ Input: 'input', Button: 'button' }));
-
 const mockOpen = jest.fn();
 const mockNavigate = jest.fn();
 jest.mock('../../components/AgentReferenceChip', () => ({
@@ -131,4 +129,24 @@ it('syncs authoritative host tokens on a theme change without replacing the repo
   expect(frame.srcdoc).toBe(source);
   unmount();
   window.document.documentElement.classList.remove('dark');
+});
+
+it('renders the fallback of legacy interactive chart reports without controls', async () => {
+  render(
+    <HtmlPreview
+      html={
+        '<h2>Pipeline</h2><div data-agent-chart="{&quot;title&quot;:&quot;Revenue&quot;,&quot;inputs&quot;:[]}"><p>Baseline revenue: ₮118.9M</p></div>'
+      }
+    />,
+  );
+  const frame = screen.getByTitle('HTML artifact preview') as HTMLIFrameElement;
+  fireEvent.load(frame);
+  const document = frame.contentDocument;
+  if (!document) throw new Error('Preview document missing');
+  expect(document.body.textContent).toBe('PipelineBaseline revenue: ₮118.9M');
+  expect(document.querySelector('[data-agent-chart]')).toBeNull();
+  expect(document.querySelector('input, button')).toBeNull();
+  await act(async () => {
+    await Promise.resolve();
+  });
 });

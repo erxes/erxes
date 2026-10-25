@@ -170,33 +170,21 @@ The `agent` module is the core-ui surface for the core-api `agents` backend
   updates and app theme changes without regenerating/reloading the frame. They
   grow to content height and update the existing frame while streaming.
   `htmlSandbox.ts` sanitizes content and enforces a restrictive CSP; the frame
-   permits same-origin for trusted parent sizing/portals but never model scripts.
-   Its base stylesheet is marked `data-agent-renderer` (sanitized markup cannot
-   carry that attribute) and is exempt from theme normalization; it styles
-   headings, lists, captions and tables (uppercase muted headers, tabular
-   numbers, row hover). `htmlTheme.ts` right-aligns body columns after the first
-   whose non-empty cells are all figures (`.agent-num`; skips colspan/rowspan).
-   Host `primary-foreground`, `success` and `destructive` tokens are synced too.
-   `data-agent-chart` is the sole admitted chart attribute. `whatIfChartModel.ts`
-   validates bounded JSON and evaluates postfix arithmetic without eval/Function.
-   Optional, backwards-compatible display hints per input/output: `format`
-   (`number|currency|percent`), `currency` (ISO 4217), `decimals` (0–6),
-   `description` (≤160); outputs may set `better` (`higher|lower`). Legacy
-   `unit` still works: `%` → percent, 3-letter codes/₮€£$ → currency.
-   `whatIfFormat.ts` owns locale formatting/parsing, deltas and tones.
-   Host Tailwind/erxes-ui CSS does not exist inside the frame, so erxes-ui
-   controls render unstyled there. `HtmlPreview` therefore portals `WhatIfChart`
-   into an open shadow root on each chart container; the widget ships its own
-   scoped stylesheet (`whatIfChartStyles.ts`) using the synced tokens, isolated
-   from model CSS and the theme policy. The card has a header/badge/collapsible
-   assumption, slider + locale numeric field per input with baseline tick and
-   delta chip, reset (disabled at baseline), KPI tiles with animated values,
-   per-metric or shared-scale grouped bars, a table toggle and a debounced live
-   region. Motion respects `prefers-reduced-motion`. Inputs change local scenario
-   state only; invalid specifications fail visibly (`.agent-chart-error`).
-   Generated scripts stay blocked; downloaded HTML retains the model's baseline
-   fallback, not interactive controls. Avoid `@container` in renderer CSS: jsdom
-   cannot parse it, so tests use media queries (the frame viewport is the report width).
+  permits same-origin for trusted parent sizing/portals but never model scripts.
+  Reports are agent-written static HTML dashboards; there is no client-side
+  chart widget or formula engine. The base stylesheet is marked
+  `data-agent-renderer` (sanitized markup cannot carry `data-*` attributes) and
+  is exempt from theme normalization. It styles headings, lists, captions,
+  tables (uppercase muted headers, tabular numbers, row hover,
+  `tr.highlight`), `<meter>`, `<progress>`, `<details>` and a small documented
+  class vocabulary shared with the core-api report skill: `.scope`,
+  `.kpis`/`.kpi`, `.bars` + `.bar` (`.baseline`), `.legend`, `.up`/`.down`, and
+  SVG `.mark`/`.line`/`.axis`/`.gridline`. Keep those names in sync with
+  `skills/reportCreation.ts`. `htmlTheme.ts` right-aligns body columns after
+  the first whose non-empty cells are all figures (`.agent-num`; skips
+  colspan/rowspan) and syncs host `primary-foreground`, `success` and
+  `destructive` tokens. Legacy `data-agent-chart` attributes from old saved
+  reports are stripped by the sanitizer; their fallback HTML renders as-is.
   `htmlReferences.ts` replaces valid text tokens with real `AgentReferenceChip`
   portals, retaining permission-aware navigation; attributes, code, anchors,
   styles and SVG never produce reference controls. User messages, approvals,
