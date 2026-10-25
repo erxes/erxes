@@ -33,6 +33,12 @@ export interface IAgentsConnectionSetDefaultArgs {
   provider?: string | null;
 }
 
+const noStoredConnection = (provider: string) =>
+  new ExpectedError(
+    `No connection stored for provider "${provider}". Add it under Settings → API key.`,
+    'VALIDATION_ERROR',
+  );
+
 export const agentsConnectionMutations = {
   /**
    * Adds or replaces ONE provider's entry in the acting user's BYOK
@@ -156,10 +162,7 @@ export const agentsConnectionMutations = {
     );
 
     if (!doc && provider) {
-      throw new ExpectedError(
-        `No connection stored for provider "${provider}". Add it under Settings → API key.`,
-        'VALIDATION_ERROR',
-      );
+      throw noStoredConnection(provider);
     }
 
     return toPublicConnections(doc);
@@ -186,10 +189,7 @@ export const agentsConnectionMutations = {
     );
 
     if (!connection) {
-      throw new ExpectedError(
-        `No connection stored for provider "${provider}". Add it under Settings → API key.`,
-        'VALIDATION_ERROR',
-      );
+      throw noStoredConnection(provider);
     }
 
     return {

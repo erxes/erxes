@@ -96,7 +96,7 @@ interface IResolvedThinking extends IAgentsModelThinking {
 const SNAPSHOT = snapshot as IModelsDevSnapshot;
 
 /** The bundled models.dev entry for one of our provider/model pairs. */
-export const findModelsDevModel = (
+const findModelsDevModel = (
   provider: string,
   model: string,
 ): IModelsDevModel | undefined =>
@@ -229,6 +229,12 @@ export const clampThinkingLevel = (
   });
 };
 
+const clampTo = (
+  thinking: IResolvedThinking | null,
+  level: IAgentsThinkingLevel,
+): IAgentsThinkingLevel =>
+  clampThinkingLevel(level, thinking?.levels ?? LEGACY_THINKING_LEVELS);
+
 /**
  * Server-side validation of a requested level: it is clamped to what the
  * model supports; models the snapshot lacks are clamped to the legacy five.
@@ -237,11 +243,7 @@ export const normalizeThinkingLevel = (
   provider: string,
   model: string,
   level: IAgentsThinkingLevel,
-): IAgentsThinkingLevel =>
-  clampThinkingLevel(
-    level,
-    resolveThinking(provider, model)?.levels ?? LEGACY_THINKING_LEVELS,
-  );
+): IAgentsThinkingLevel => clampTo(resolveThinking(provider, model), level);
 
 // ── Provider translation ────────────────────────────────────────────────
 
@@ -321,7 +323,7 @@ export const buildThinkingProviderOptions = (
   level: IAgentsThinkingLevel,
 ): ProviderOptions | undefined => {
   const thinking = resolveThinking(provider, model);
-  const normalized = normalizeThinkingLevel(provider, model, level);
+  const normalized = clampTo(thinking, level);
 
   if (provider === 'kimi-code') {
     const budget = kimiCodeBudget(thinking, normalized);
@@ -338,13 +340,7 @@ export const buildThinkingProviderOptions = (
   if (thinking.kind === 'effort') {
     const value = thinking.native[normalized];
 
-    if (!value) {
-      return undefined;
-    }
-
-    return provider === 'openai'
-      ? { openai: { reasoningEffort: value } }
-      : { [provider]: { reasoningEffort: value } };
+    return value ? { [provider]: { reasoningEffort: value } } : undefined;
   }
 
   if (thinking.kind === 'toggle' && provider === 'kimi') {
@@ -372,10 +368,7 @@ export const thinkingOutputTokens = (
   }
 
   const thinking = model ? resolveThinking(provider, model) : null;
-  const normalized = model
-    ? normalizeThinkingLevel(provider, model, level)
-    : clampThinkingLevel(level, LEGACY_THINKING_LEVELS);
-  const budget = kimiCodeBudget(thinking, normalized);
+  const budget = kimiCodeBudget(thinking, clampTo(thinking, level));
 
   return budget > 0
     ? Math.min(visibleTokens + budget, KIMI_CODE_OUTPUT_CEILING)

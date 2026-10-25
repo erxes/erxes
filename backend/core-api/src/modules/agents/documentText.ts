@@ -102,7 +102,7 @@ const truncate = (text: string): string =>
 
 /**
  * Plain text of a document: CSV per sheet for spreadsheets, text with
- * tab-separated table rows otherwise. Capped at 128 KiB with a notice.
+ * `|`-separated table rows otherwise. Capped at 128 KiB with a notice.
  */
 export const extractAgentsDocumentText = async (
   bytes: Buffer,

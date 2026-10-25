@@ -15,10 +15,9 @@ const PROBE_TIMEOUT_MS = 20_000;
 /** OpenAI's Responses API rejects `max_output_tokens` below 16. */
 const PROBE_OUTPUT_TOKENS = 16;
 /**
- * kimi-code (Anthropic protocol) probes with the smallest thinking budget the
- * chat uses (`agent.ts` 'minimal'), because some Kimi Code models (k3.1-pro)
- * reject requests with thinking disabled. Anthropic requires
- * max_tokens > budget_tokens.
+ * kimi-code (Anthropic protocol) probes with a small thinking budget because
+ * some Kimi Code models (k3.1-pro) reject requests with thinking disabled.
+ * Anthropic requires max_tokens > budget_tokens.
  */
 const KIMI_CODE_THINKING_BUDGET = 1_024;
 

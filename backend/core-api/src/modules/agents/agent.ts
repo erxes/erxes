@@ -109,8 +109,6 @@ const TEMPERATURE = 0.2;
 // not a requested response length; concise answers still end naturally.
 const MAX_OUTPUT_TOKENS = 16384;
 
-export { isAgentsThinkingLevel, type IAgentsThinkingLevel };
-
 /**
  * Returns the modelSettings for a stream call. Temperature is constant;
  * maxOutputTokens is raised for kimi-code when thinking is on so the

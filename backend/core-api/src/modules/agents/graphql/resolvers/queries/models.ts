@@ -4,8 +4,8 @@ import type { IAgentsConnectionEntry } from '@/agents/@types/connection';
 import {
   buildProviderModelCatalog,
   getDocumentedProviderModels,
+  type IProviderModelEntry,
 } from '@/agents/modelCatalog';
-import type { IProviderModelEntry } from '@/agents/modelCatalog';
 import { getModelDisplayName, getModelThinking } from '@/agents/modelThinking';
 import {
   describeUnreadableKey,

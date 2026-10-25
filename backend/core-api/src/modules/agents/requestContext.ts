@@ -2,7 +2,7 @@ import type { RequestContext } from '@mastra/core/request-context' with {
   'resolution-mode': 'import',
 };
 
-import type { IAgentsThinkingLevel } from '@/agents/agent';
+import type { IAgentsThinkingLevel } from '@/agents/modelThinking';
 import type { AgentsApprovalMode } from '@/agents/@types/settings';
 import type { IAgentsToolContext } from '@/agents/tools';
 
