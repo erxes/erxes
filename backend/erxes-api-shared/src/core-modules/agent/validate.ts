@@ -19,8 +19,8 @@ const GRAPHQL_NAME = /^[_A-Za-z]\w{0,99}$/;
 // Descriptions are one line; instructions keep tabs and line breaks.
 // eslint-disable-next-line no-control-regex
 const DESCRIPTION_CONTROL_CHARACTERS = /[\u0000-\u001f\u007f]/;
-// eslint-disable-next-line no-control-regex
 const INSTRUCTION_CONTROL_CHARACTERS =
+  // eslint-disable-next-line no-control-regex
   /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/;
 
 const graphqlName = z
