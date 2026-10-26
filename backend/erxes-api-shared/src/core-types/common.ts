@@ -136,6 +136,9 @@ export interface IResolverSymbol {
     // Arguments carry secrets: keep them out of mutation logs and
     // before-resolver hooks.
     sensitiveArgs?: boolean;
+    // The result carries secrets: `true` keeps it out of mutation logs, a
+    // list of field names keeps only those fields out.
+    sensitiveResult?: true | string[];
   };
 }
 

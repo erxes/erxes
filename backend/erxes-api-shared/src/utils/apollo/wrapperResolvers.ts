@@ -69,14 +69,59 @@ const withBeforeResolvers = (
   };
 };
 
-// `sensitiveArgs` mutations are logged without their arguments.
-const withLogging = (resolver: Resolver, sensitiveArgs = false): Resolver => {
+type TLogRedaction = {
+  sensitiveArgs?: boolean;
+  sensitiveResult?: true | string[];
+};
+
+const withoutFields = (value: unknown, fields: string[]): unknown => {
+  if (Array.isArray(value)) {
+    return value.map((entry) => withoutFields(entry, fields));
+  }
+
+  const plain =
+    value && typeof (value as { toObject?: unknown }).toObject === 'function'
+      ? (value as { toObject: () => unknown }).toObject()
+      : value;
+
+  if (!plain || typeof plain !== 'object') {
+    return plain;
+  }
+
+  const copy: Record<string, unknown> = { ...(plain as Record<string, unknown>) };
+
+  fields.forEach((field) => delete copy[field]);
+
+  return copy;
+};
+
+// `sensitiveArgs` mutations are logged without their arguments and
+// `sensitiveResult` ones without their result or its listed fields; the
+// caller still receives the full result.
+const withLogging = (
+  resolver: Resolver,
+  { sensitiveArgs, sensitiveResult }: TLogRedaction = {},
+): Resolver => {
   return async (root, args, context, info) => {
     const { user, req, processId, subdomain } = context;
     const requestData = req.headers;
+    // Merged into the stored payload once the resolver has returned.
+    const onSuccess: Record<string, unknown> = {};
 
     return await logHandler(
-      async () => await resolver(root, args, context, info),
+      async () => {
+        const result = await resolver(root, args, context, info);
+
+        if (sensitiveResult) {
+          onSuccess.resultRedacted = true;
+
+          if (sensitiveResult !== true) {
+            onSuccess.result = withoutFields(result, sensitiveResult);
+          }
+        }
+
+        return result;
+      },
       {
         subdomain,
         source: 'graphql',
@@ -89,6 +134,9 @@ const withLogging = (resolver: Resolver, sensitiveArgs = false): Resolver => {
         processId,
         userId: user?._id,
       },
+      onSuccess,
+      undefined,
+      Boolean(sensitiveResult),
     );
   };
 };
@@ -106,6 +154,7 @@ export const wrapApolloResolvers = (resolvers: Record<string, Resolver>) => {
           cpUserRequired,
           forClientPortal,
           sensitiveArgs,
+          sensitiveResult,
         } = mutationResolver.wrapperConfig || {};
         const isPublic = skipPermission || forClientPortal || cpUserRequired;
         // Secret-bearing arguments are never forwarded to plugin hooks.
@@ -117,10 +166,10 @@ export const wrapApolloResolvers = (resolvers: Record<string, Resolver>) => {
         if (isPublic) {
           wrapped = wrapPublicResolver(inner, mutationResolver.wrapperConfig);
         } else {
-          wrapped = withLogging(
-            wrapPermission(inner, mutationKey),
-            Boolean(sensitiveArgs),
-          );
+          wrapped = withLogging(wrapPermission(inner, mutationKey), {
+            sensitiveArgs,
+            sensitiveResult,
+          });
         }
 
         mutationResolvers[mutationKey] = withSentryCapture(
