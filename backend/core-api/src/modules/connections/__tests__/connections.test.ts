@@ -318,7 +318,19 @@ beforeAll(async () => {
 }, 60_000);
 
 afterAll(async () => {
-  for (const name of ['main', 'core', ...organizationIds.map(String)]) {
+  // Background index builds would recreate a dropped database; wait for them
+  // to settle (some core models declare conflicting indexes, which reject).
+  for (const subdomain of [TENANT_A, TENANT_B]) {
+    await Promise.allSettled(
+      Object.values(await modelsOf(subdomain)).map((model) => model.init()),
+    );
+  }
+
+  // Tenant databases and the `_logs` database each tenant's models open.
+  const tenants = organizationIds.map(String);
+  const names = ['main', 'core', ...tenants, ...tenants.map((id) => `${id}_logs`)];
+
+  for (const name of names) {
     await mongoose.connection
       .useDb(`${TEST_DB_PREFIX}_${name}`)
       .dropDatabase();
