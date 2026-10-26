@@ -18,7 +18,8 @@ export interface IConnectionSaveInput {
   name: string;
   icon?: string;
   logo?: string;
-  fields: IConnectionFieldInput[];
+  // Omitted on edit to keep the stored fields as they are.
+  fields?: IConnectionFieldInput[];
 }
 
 // Adds and removes change the list; edits and tests update the normalized

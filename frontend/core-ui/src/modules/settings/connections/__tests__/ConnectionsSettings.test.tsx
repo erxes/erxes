@@ -434,6 +434,141 @@ describe('Settings → Connections', () => {
     expect(await screen.findByText('No connections yet')).toBeTruthy();
   });
 
+  it('locks the key of a row whose secret is saved', async () => {
+    const custom = connection({
+      _id: 'c7',
+      name: 'SMTP',
+      icon: 'IconPlug',
+      type: 'core:custom',
+      typeLabel: 'Custom',
+      hasTest: false,
+      fields: [
+        {
+          __typename: 'ConnectionField',
+          key: 'host',
+          label: null,
+          secret: false,
+          value: 'smtp.example.com',
+          hasValue: true,
+        },
+        {
+          __typename: 'ConnectionField',
+          key: 'password',
+          label: null,
+          secret: true,
+          value: null,
+          hasValue: true,
+        },
+      ],
+    });
+
+    renderPage([
+      typesMock,
+      listMock([custom]),
+      {
+        request: {
+          query: CONNECTIONS_EDIT,
+          variables: {
+            _id: 'c7',
+            input: {
+              name: 'SMTP',
+              icon: 'IconPlug',
+              logo: '',
+              fields: [
+                { key: 'host', secret: false, value: 'smtp.example.com' },
+                { key: 'password', secret: true },
+              ],
+            },
+          },
+        },
+        result: { data: { connectionsEdit: custom } },
+      },
+    ]);
+
+    const sheet = await openEdit('SMTP');
+    const [hostKey, passwordKey] = within(sheet).getAllByLabelText(
+      'Key',
+    ) as HTMLInputElement[];
+
+    // Renaming a saved secret's key would drop the sealed value.
+    expect(passwordKey.readOnly).toBe(true);
+    expect(passwordKey.value).toBe('password');
+    expect(hostKey.readOnly).toBe(false);
+
+    fireEvent.click(within(sheet).getByRole('button', { name: 'Add field' }));
+    const keys = within(sheet).getAllByLabelText('Key') as HTMLInputElement[];
+    expect(keys[2].readOnly).toBe(false);
+    fireEvent.click(within(sheet).getAllByRole('button', { name: 'Remove field' })[2]);
+
+    fireEvent.click(within(sheet).getByRole('button', { name: 'Save' }));
+    await waitFor(() =>
+      expect(screen.queryByRole('dialog', { name: 'Edit connection' })).toBeNull(),
+    );
+    expect(screen.queryByText('Could not save the connection')).toBeNull();
+  });
+
+  it('blocks field changes to a connection whose type is not available', async () => {
+    const orphan = connection({
+      _id: 'c8',
+      name: 'Legacy CRM',
+      icon: 'IconSparkles',
+      type: 'crm:token',
+      typeLabel: 'CRM token',
+      typeAvailable: false,
+      // The server has no descriptor, so it reports no test.
+      hasTest: false,
+      fields: [
+        {
+          __typename: 'ConnectionField',
+          key: 'apiKey',
+          label: 'API key',
+          secret: true,
+          value: null,
+          hasValue: true,
+        },
+      ],
+    });
+
+    renderPage([
+      typesMock,
+      listMock([orphan]),
+      {
+        // Only the name and icon: the stored fields stay as they are.
+        request: {
+          query: CONNECTIONS_EDIT,
+          variables: {
+            _id: 'c8',
+            input: { name: 'Legacy CRM (old)', icon: 'IconSparkles', logo: '' },
+          },
+        },
+        result: { data: { connectionsEdit: { ...orphan, name: 'Legacy CRM (old)' } } },
+      },
+    ]);
+
+    const sheet = await openEdit('Legacy CRM');
+    const save = within(sheet).getByRole('button', { name: 'Save' });
+
+    expect(
+      within(sheet).getByText(/CRM token is not available/),
+    ).toBeTruthy();
+    expect(save.hasAttribute('disabled')).toBe(true);
+    expect(
+      within(sheet).queryByRole('button', { name: 'Test connection' }),
+    ).toBeNull();
+    expect(
+      within(sheet).getByRole('button', { name: 'Delete' }).hasAttribute('disabled'),
+    ).toBe(false);
+
+    typeInto(within(sheet).getByLabelText('Name'), 'Legacy CRM (old)');
+    await waitFor(() => expect(save.hasAttribute('disabled')).toBe(false));
+    fireEvent.click(save);
+
+    await waitFor(() =>
+      expect(screen.queryByRole('dialog', { name: 'Edit connection' })).toBeNull(),
+    );
+    expect(screen.queryByText('Could not save the connection')).toBeNull();
+  });
+
   it('hides changes from users who may only view connections', async () => {
     renderPage(
       [typesMock, listMock([connection()])],

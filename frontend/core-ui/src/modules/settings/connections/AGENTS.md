@@ -31,6 +31,11 @@ action="showConnections"`, the developer sidebar entry and
   prefilled; the input is masked (`type="password"`). A kept secret is sent
   without `value`; only a replaced one carries a value.
 - A saved connection's type is fixed: its sealed values belong to it.
+- A saved secret's key is read-only: a sealed value stays bound to its key, so
+  renaming means removing the row and adding a new one.
+- When a connection's type is unavailable (its plugin is disabled or removed),
+  the sheet says so, offers no test, and saves only the name and icon (no
+  `fields`); Save stays disabled until one of them changes. Delete still works.
 - "Test connection" appears only when the type has a test and tests the saved
   values; results are toasts and the row status (Verified / Failed /
   Incomplete / Not tested).

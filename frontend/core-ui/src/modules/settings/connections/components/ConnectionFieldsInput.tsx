@@ -137,6 +137,8 @@ const CustomRow = ({
   const row = form.watch(`fields.${index}`);
   const errors = form.formState.errors.fields?.[index];
   const valueLabel = t('value', 'Value');
+  // A saved secret stays sealed under its key: renaming would drop it.
+  const keyLocked = row.hasValue;
 
   return (
     <div className="flex flex-col gap-1">
@@ -151,6 +153,15 @@ const CustomRow = ({
                 aria-label={t('key', 'Key')}
                 placeholder={t('key', 'Key')}
                 className="w-40"
+                readOnly={keyLocked}
+                title={
+                  keyLocked
+                    ? t(
+                        'saved-secret-key-locked',
+                        'Remove this row and add a new one to rename a saved secret',
+                      )
+                    : undefined
+                }
               />
             </Form.Control>
           )}

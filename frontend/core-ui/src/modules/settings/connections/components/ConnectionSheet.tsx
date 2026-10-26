@@ -1,6 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IconPlug, IconTrash } from '@tabler/icons-react';
 import {
+  Alert,
   Button,
   Form,
   Sheet,
@@ -51,6 +52,9 @@ const ConnectionSheetForm = ({
   const { removeConnection, loading: removing } = useConnectionsRemove();
   const { testConnection, loading: testing } = useConnectionsTest();
   const connection = sheet.mode === 'edit' ? sheet.connection : null;
+  // A plugin type whose plugin is disabled or removed has no field schema
+  // here: its fields stay as stored, only the name and icon can change.
+  const typeAvailable = !connection || connection.typeAvailable;
   const initialType = connection?.type || types[0]?.id || '';
 
   const form = useForm<TConnectionForm>({
@@ -76,7 +80,7 @@ const ConnectionSheetForm = ({
           name: values.name,
           icon: values.icon || '',
           logo: values.logo || '',
-          fields,
+          ...(typeAvailable ? { fields } : {}),
         });
         toast({ variant: 'success', title: t('saved-toast', 'Connection saved') });
       } else {
@@ -133,6 +137,8 @@ const ConnectionSheetForm = ({
   };
 
   const busy = adding || saving;
+  // Nothing to save for an unavailable type until the name or icon changes.
+  const nothingToSave = !typeAvailable && !form.formState.isDirty;
 
   return (
     <Form {...form}>
@@ -149,7 +155,21 @@ const ConnectionSheetForm = ({
           </Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
-        <Sheet.Content className="flex grow flex-col overflow-y-auto px-5 py-4">
+        <Sheet.Content className="flex grow flex-col gap-4 overflow-y-auto px-5 py-4">
+          {connection && !typeAvailable ? (
+            <Alert>
+              <Alert.Title>
+                {connection.typeLabel}{' '}
+                {t('type-unavailable-title', 'is not available')}
+              </Alert.Title>
+              <Alert.Description>
+                {t(
+                  'type-unavailable-description',
+                  'Its plugin is disabled or removed, so the fields cannot be shown, changed or tested. You can still rename the connection, change its icon or delete it.',
+                )}
+              </Alert.Description>
+            </Alert>
+          ) : null}
           <ConnectionForm types={types} typeLocked={Boolean(connection)} />
         </Sheet.Content>
         <Sheet.Footer className="flex-wrap gap-2">
@@ -165,7 +185,7 @@ const ConnectionSheetForm = ({
               {t('delete', 'Delete')}
             </Button>
           ) : null}
-          {connection?.hasTest ? (
+          {connection?.hasTest && typeAvailable ? (
             <Button
               type="button"
               variant="outline"
@@ -180,7 +200,7 @@ const ConnectionSheetForm = ({
           <Button type="button" variant="secondary" onClick={onClose}>
             {t('cancel', 'Cancel')}
           </Button>
-          <Button type="submit" disabled={busy}>
+          <Button type="submit" disabled={busy || nothingToSave}>
             {busy ? <Spinner /> : null}
             {connection ? t('save', 'Save') : t('create', 'Create')}
           </Button>
