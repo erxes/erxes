@@ -1,4 +1,5 @@
 import {
+  AUTOMATION_STATUSES,
   IAutomationDocument,
   IAutomationExecutionDocument,
   splitType,
@@ -17,6 +18,12 @@ import { IContext, IModels } from '~/connectionResolvers';
 import { AUTOMATION_APPROVAL_CONTENT_TYPES } from '../../constants';
 import { IAutomationActivityParams } from '../../db/models/Executions';
 import { sanitizeAiAgent, sanitizeAiAgents } from '../../utils/aiAgent';
+import {
+  getAutomationNodeCatalog,
+  getAutomationNodeSchema,
+  withoutConfigJsonSchemas,
+} from '../../utils/automationAuthoring';
+import { checkAutomationGraph } from '../../utils/automationGraphCheck';
 import {
   generateAutomationHistoriesFilter,
   generateAutomationStatsFilter,
@@ -319,7 +326,42 @@ export const automationQueries = {
   },
 
   async automationConstants() {
-    return getAutomationConstants();
+    return withoutConfigJsonSchemas(await getAutomationConstants());
+  },
+
+  async automationNodeCatalog() {
+    return getAutomationNodeCatalog();
+  },
+
+  async automationNodeSchema(_root, { type }: { type: string }) {
+    return getAutomationNodeSchema(type);
+  },
+
+  /** Dry run of a save: what it would refuse, and what still blocks activation. */
+  async automationValidate(
+    _root,
+    {
+      _id,
+      ...doc
+    }: Partial<
+      Pick<IAutomationDocument, 'status' | 'triggers' | 'actions' | 'workflows'>
+    > & {
+      _id?: string;
+    },
+    { models, subdomain }: IContext,
+  ) {
+    const previous = _id ? await models.Automations.getAutomation(_id) : null;
+
+    return checkAutomationGraph(subdomain, {
+      next: {
+        status: doc.status ?? previous?.status ?? AUTOMATION_STATUSES.DRAFT,
+        triggers: doc.triggers ?? previous?.triggers ?? [],
+        actions: doc.actions ?? previous?.actions ?? [],
+        workflows: doc.workflows ?? previous?.workflows ?? [],
+      },
+      previous,
+      scope: 'report',
+    });
   },
 
   async automationSetPropertyTargets(

@@ -12,7 +12,7 @@ const mockedProducer = jest.mocked(sendCoreModuleProducer);
 const pluginWith = (trigger: Record<string, unknown>) =>
   ({
     config: { meta: { automations: { constants: { triggers: [trigger] } } } },
-  }) as unknown as Awaited<ReturnType<typeof getPlugin>>;
+  } as unknown as Awaited<ReturnType<typeof getPlugin>>);
 
 describe('resolveAutomationActionInputs', () => {
   beforeEach(() => {

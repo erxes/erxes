@@ -692,6 +692,7 @@
       "brand": "Brand",
       "deal": "Deal",
       "conversation": "Conversation",
+      "automation": "Automation",
       "page": "Page"
     },
     "composer-placeholder": "Ask anything…",

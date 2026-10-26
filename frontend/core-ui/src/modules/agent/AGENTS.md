@@ -207,6 +207,7 @@ canonical labels outside code. Model-authored workspace anchors remain plain tex
 fixed `/agents/references/resolve` endpoint and navigate only after the current
 record identity and location validate. Missing/deleted/denied records never
 navigate. Deals require verified board/pipeline metadata, without fallback routes.
+Automations open their builder (`/automations/edit/:id`, `automations` module).
 Pages require exact membership in the current navigation catalog. Registered
 route builders own destinations and preserve the Assistant panel. Async resolution
 cannot navigate after the chip unmounts or changes identity.

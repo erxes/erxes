@@ -17,6 +17,7 @@ import {
   ISegmentDocument,
   segmentSchema,
 } from '../definitions/segments';
+import { assertSegmentTree } from '../../utils/segmentTreeValidation';
 
 export type ISegmentCreate = Omit<
   ISegment,
@@ -183,6 +184,10 @@ export const loadSegmentClass = (models: IModels) => {
     }
 
     public static async createSegment(doc: ISegmentCreate, userId: string) {
+      await assertSegmentTree(models, {
+        contentType: doc.contentType,
+        root: doc.root,
+      });
       await assertReferencesResolvable(doc.contentType, doc.root);
 
       if (!doc.ownedBy && !doc.name?.trim()) {
@@ -224,6 +229,11 @@ export const loadSegmentClass = (models: IModels) => {
       const stillOwned = wasOwned && !promoting;
 
       if (doc.root && contentType) {
+        await assertSegmentTree(models, {
+          contentType,
+          root: doc.root,
+          previous: current?.root,
+        });
         await assertReferencesResolvable(contentType, doc.root, _id);
 
         if (!stillOwned) {
@@ -239,11 +249,11 @@ export const loadSegmentClass = (models: IModels) => {
 
       const asksSomethingElse = Boolean(
         doc.root &&
-        contentType &&
-        !(
-          current?.root &&
-          sameSegmentDefinition(contentType, doc.root, current.root)
-        ),
+          contentType &&
+          !(
+            current?.root &&
+            sameSegmentDefinition(contentType, doc.root, current.root)
+          ),
       );
 
       const dependsOn =

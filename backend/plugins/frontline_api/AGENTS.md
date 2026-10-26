@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-10-24`
+- **Last synchronized:** `2026-10-25`
 
 ## Scope
 
@@ -1368,6 +1368,7 @@ tagIds, propertiesData: JSON)` (the customer comes from the widget session) — 
 
 ## Local Invariants
 
+- Every automation action declares a `configSchema` (`src/meta/automationConfigSchemas.ts`) with exactly what its handler reads or refuses: messenger/Facebook/Instagram messages (bot `messages`, buttons and quick replies branch through `optionalConnects`; `botId` defaults to the trigger's bot), Facebook/Instagram comment replies, Discord, mail send/draft and ticket create (`channelId`, `pipelineId`, `statusId`, `name`). Write each field in the shape the builder form writes (text, not numbers or lists, where the form writes text). Change the schema with the handler; core publishes it to authors as `configJsonSchema` and enforces it when a flow goes live. Ticket create also declares `validateConfig` (`src/meta/automationConfigValidators.ts`): its channel, pipeline and status exist and belong together.
 - Every team-member notification passes `event`, typed
   `TFrontlineNotificationEvent` from `src/meta/notifications.ts`. The meta
   module and event names are the keys users' notification settings are saved
@@ -1602,6 +1603,8 @@ tagIds, propertiesData: JSON)` (the customer comes from the widget session) — 
 
 ## Validation
 
+- `pnpm nx test frontline_api` (`src/meta/__tests__/builderConfigContract.test.ts`: action schemas accept every config in the neighbouring `builderActionConfigs.json`, which the builder wrote)
+- `pnpm nx test frontline_api` (`src/meta/__tests__/automationConfigSchemas.test.ts`)
 - `pnpm nx run frontline_api:schema:print` - prints this subgraph's SDL to `generated/schema.graphql` (gitignored) offline, for `gateway:schema:compose`.
 - `pnpm nx lint frontline_api` - runs ESLint with the plugin-local
   `eslint.config.js` (regex-escaping rules).

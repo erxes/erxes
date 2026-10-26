@@ -6,6 +6,7 @@ import { AutomationHeaderTabs } from '@/automations/components/builder/header/Au
 import { AutomationSwitcher } from '@/automations/components/builder/header/AutomationSwitcher';
 import { AutomationReturnLink } from '@/automations/components/builder/header/AutomationReturnLink';
 import { AutomationOwnerBadge } from '@/automations/components/builder/header/AutomationOwnerBadge';
+import { AutomationRefetchButton } from '@/automations/components/builder/header/AutomationRefetchButton';
 import { useAutomationHeader } from '@/automations/components/builder/hooks/useAutomationHeader';
 import { useAutomation } from '@/automations/context/AutomationProvider';
 import { useAutomationNodes } from '@/automations/hooks/useAutomationNodes';
@@ -66,6 +67,7 @@ export const AutomationBuilderHeader = () => {
           <AutomationReturnLink />
         </PageHeader.Start>
         <PageHeader.End>
+          <AutomationRefetchButton disabled={loading} />
           <Button variant="outline" asChild>
             <Link
               to={AutomationSettingsPath.Index}

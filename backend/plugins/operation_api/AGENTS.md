@@ -6,7 +6,7 @@
 - **Project:** `operation_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/operation_api`
-- **Last synchronized:** `2026-10-24`
+- **Last synchronized:** `2026-10-25`
 
 ## Scope
 
@@ -133,6 +133,7 @@ propertiesData? } })`
 
 ## Local Invariants
 
+- Every automation action declares a `configSchema` (`src/modules/automations/configSchemas.ts`) with exactly what its handler reads or refuses: create task (`name`, `teamId`, `status`) and create project (`name`, a team). Change the schema with the handler; core publishes it to authors as `configJsonSchema` and enforces it when a flow goes live.
 - Every `createNotifications` call passes `event`, typed
   `TOperationNotificationEvent` from `src/meta/notifications.ts`: task
   assignment (on create and on update) `operation:task:taskAssignee`, note

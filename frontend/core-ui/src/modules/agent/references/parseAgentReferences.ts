@@ -20,6 +20,7 @@ export const AGENT_REFERENCE_TYPES = [
   'brand',
   'deal',
   'conversation',
+  'automation',
   'page',
 ] as const;
 

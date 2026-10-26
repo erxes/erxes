@@ -1,9 +1,15 @@
+import {
+  socialCommentActionConfigSchema,
+  socialMessageActionConfigSchema,
+} from '~/meta/automationConfigSchemas';
+
 export const instagramConstants = {
   actions: [
     {
       moduleName: 'instagram',
       collectionName: 'messages',
       method: 'create',
+      configSchema: socialMessageActionConfigSchema,
       icon: 'IconBrandMessenger',
       label: 'Send Instagram Message',
       description: 'Send Instagram Message',
@@ -13,6 +19,7 @@ export const instagramConstants = {
       moduleName: 'instagram',
       collectionName: 'comments',
       method: 'create',
+      configSchema: socialCommentActionConfigSchema,
       icon: 'IconBrandFacebook',
       label: 'Send Instagram Comment',
       description: 'Send Instagram Comments',

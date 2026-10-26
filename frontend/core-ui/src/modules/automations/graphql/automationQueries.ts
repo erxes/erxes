@@ -209,3 +209,20 @@ export const AUTOMATION_EXECUTION_COUNTS = gql`
     }
   }
 `;
+
+export const AUTOMATION_PREFLIGHT = gql`
+  query automationPreflight(
+    $_id: String
+    $triggers: [TriggerInput]
+    $actions: [ActionInput]
+    $workflows: [WorkflowInput]
+  ) {
+    automationValidate(
+      _id: $_id
+      status: "active"
+      triggers: $triggers
+      actions: $actions
+      workflows: $workflows
+    )
+  }
+`;
