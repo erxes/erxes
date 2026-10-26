@@ -6,7 +6,7 @@
 - **Project:** `sales_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/sales_api`
-- **Last synchronized:** `2026-10-24`
+- **Last synchronized:** `2026-10-26`
 
 ## Scope
 
@@ -267,6 +267,13 @@
 
 ## Local Invariants
 
+- Jest mocks of `erxes-api-shared/utils` must still export `ExpectedError` when
+  the suite loads `SalesArchiveError` (`modules/sales/utils/archiveGuard.ts`),
+  including through deal models, deal mutations, board archive helpers, or the
+  assembled resolver registries. That class extends `ExpectedError` at import
+  time; a mock that omits it fails the suite with `Class extends value undefined`.
+  Product-row contract tests keep an active stage, pipeline, and board on the
+  fixture, because those writes run the archive guard before updating the deal.
 - Deal notifications are sent from `modules/sales/utils/notifications.ts`, not
   `modules/sales/utils.ts` (the barrel rule below). Each passes `event`:
   assigned or removed users get `sales:deals:dealAssignee` (also on deal

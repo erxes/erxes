@@ -32,6 +32,9 @@ jest.mock('erxes-api-shared/utils', () => ({
   GQL_CURSOR_PARAM_DEFS: '',
   graphqlPubsub: { publish: jest.fn() },
   sendTRPCMessage: jest.fn().mockResolvedValue([]),
+  // SalesArchiveError extends this at import time.
+  ExpectedError: jest.requireActual('erxes-api-shared/utils/errorClassifier')
+    .ExpectedError,
 }));
 jest.mock('erxes-api-shared/core-modules', () => ({}));
 jest.mock('../modules/pos/graphql/resolvers/mutations/utils', () => ({
@@ -140,7 +143,22 @@ const createContext = () => ({
         productsData: [{ _id: 'row' }],
       }),
     },
-    Stages: { getStage: jest.fn().mockResolvedValue({ defaultTick: true }) },
+    Stages: {
+      getStage: jest.fn().mockResolvedValue({
+        _id: 'stage',
+        pipelineId: 'pipeline',
+        defaultTick: true,
+      }),
+    },
+    Pipelines: {
+      getPipeline: jest.fn().mockResolvedValue({
+        _id: 'pipeline',
+        boardId: 'board',
+      }),
+    },
+    Boards: {
+      getBoard: jest.fn().mockResolvedValue({ _id: 'board' }),
+    },
     Checklists: {
       createChecklist: jest.fn().mockResolvedValue({ _id: 'list' }),
     },

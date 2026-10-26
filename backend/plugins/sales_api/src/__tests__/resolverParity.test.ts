@@ -11,6 +11,9 @@ import {
 jest.mock('erxes-api-shared/utils', () => ({
   GQL_CURSOR_PARAM_DEFS: '',
   markResolvers: jest.fn(),
+  // SalesArchiveError extends this at import time.
+  ExpectedError: jest.requireActual('erxes-api-shared/utils/errorClassifier')
+    .ExpectedError,
 }));
 jest.mock('erxes-api-shared/core-modules', () => ({}));
 jest.mock('../modules/pos/utils', () => ({}));

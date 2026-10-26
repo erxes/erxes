@@ -20,6 +20,9 @@ jest.mock('erxes-api-shared/utils', () => ({
   cursorPaginate: jest.fn(),
   graphqlPubsub: { publish: jest.fn() },
   sendTRPCMessage: jest.fn(),
+  // SalesArchiveError extends this at import time.
+  ExpectedError: jest.requireActual('erxes-api-shared/utils/errorClassifier')
+    .ExpectedError,
 }));
 jest.mock('erxes-api-shared/core-modules', () => ({}));
 jest.mock('../modules/sales/db/definitions/deals', () => ({
