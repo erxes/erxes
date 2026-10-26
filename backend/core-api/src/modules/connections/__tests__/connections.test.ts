@@ -339,7 +339,7 @@ afterAll(async () => {
   // The shared mongoose connection exits the process on disconnect, so it is
   // left to jest's forced exit.
   servers.forEach((server) => server.close());
-});
+}, 60_000);
 
 beforeEach(() => {
   queuedJobs.length = 0;
