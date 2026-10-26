@@ -367,8 +367,10 @@ export const userMutations: Record<string, Resolver<any, any, IContext>> = {
   async usersResendInvitation(
     _parent: undefined,
     { email }: { email: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('teamMembersInvite');
+
     const token = await models.Users.resendInvitation({ email });
 
     return token;
