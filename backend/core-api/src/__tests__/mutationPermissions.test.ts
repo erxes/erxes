@@ -8,9 +8,18 @@
  * credentials are cleared. Requires a local MongoDB
  * (PERMISSION_TEST_MONGO_URL, default mongodb://127.0.0.1:27017).
  */
-import { randomBytes } from 'crypto';
-import type * as http from 'http';
-import type { AddressInfo } from 'net';
+// Must stay the first import: it points MONGO_URL at the throwaway database.
+import { DB_NAME, throwawayMongoUrl } from './permissionTestEnv';
+import * as trpcExpress from '@trpc/server/adapters/express';
+import { createTRPCContext } from 'erxes-api-shared/utils';
+import { redis as redisStore } from 'erxes-api-shared/utils/redis';
+import express from 'express';
+import * as http from 'http';
+import mongoose from 'mongoose';
+import { AddressInfo, createServer as createNetServer } from 'net';
+import { initApolloServer } from '~/apollo/apolloServer';
+import { generateModels } from '~/connectionResolvers';
+import { appRouter } from '~/init-trpc';
 import { permissions as corePermissions } from '~/meta/permissions';
 
 jest.mock('erxes-api-shared/utils/redis', () => {
@@ -38,13 +47,6 @@ jest.mock('erxes-api-shared/utils/redis', () => {
   };
 });
 
-const DB_NAME = `erxes_permission_test_${process.pid}_${randomBytes(4).toString(
-  'hex',
-)}`;
-const MONGO_BASE = (
-  process.env.PERMISSION_TEST_MONGO_URL || 'mongodb://127.0.0.1:27017'
-).replace(/\/+$/, '');
-
 type GraphqlResult = {
   data?: Record<string, unknown> | null;
   errors?: { message: string }[];
@@ -63,16 +65,11 @@ describe('core mutation permissions', () => {
   const env = { ...process.env };
   let server: http.Server;
   let baseUrl: string;
-  // Loaded after MONGO_URL points at the throwaway database.
-  let models: Awaited<
-    ReturnType<typeof import('~/connectionResolvers').generateModels>
-  >;
-  let redisStore: typeof import('erxes-api-shared/utils/redis').redis;
+  let models: Awaited<ReturnType<typeof generateModels>>;
   let userCount = 0;
 
   const unusedPort = async () => {
-    const { createServer } = await import('net');
-    const probe = createServer();
+    const probe = createNetServer();
     await new Promise<void>((resolve) => probe.listen(0, '127.0.0.1', resolve));
     const { port } = probe.address() as AddressInfo;
     await new Promise((resolve) => probe.close(resolve));
@@ -131,32 +128,6 @@ describe('core mutation permissions', () => {
 
   beforeAll(async () => {
     expect(DB_NAME).toMatch(/^erxes_permission_test_/);
-    process.env.MONGO_URL = `${MONGO_BASE}/${DB_NAME}?directConnection=true`;
-
-    // No cloud or mail credentials can be picked up from the environment.
-    for (const key of Object.keys(process.env)) {
-      if (
-        /^(AWS_|SENDGRID|CLOUDFLARE|GOOGLE_|AZURE|FIREBASE|SMTP|MAIL_)/.test(
-          key,
-        )
-      ) {
-        delete process.env[key];
-      }
-    }
-    process.env.AWS_SHARED_CREDENTIALS_FILE = '/dev/null';
-    process.env.AWS_CONFIG_FILE = '/dev/null';
-    process.env.AWS_EC2_METADATA_DISABLED = 'true';
-    delete process.env.VERSION;
-
-    const mongoose = (await import('mongoose')).default;
-    const express = (await import('express')).default;
-    const httpModule = await import('http');
-    const trpcExpress = await import('@trpc/server/adapters/express');
-    const { createTRPCContext } = await import('erxes-api-shared/utils');
-    ({ redis: redisStore } = await import('erxes-api-shared/utils/redis'));
-    const { generateModels } = await import('~/connectionResolvers');
-    const { appRouter } = await import('~/init-trpc');
-    const { initApolloServer } = await import('~/apollo/apolloServer');
 
     await mongoose.connection.asPromise();
 
@@ -195,7 +166,7 @@ describe('core mutation permissions', () => {
       }),
     );
 
-    server = httpModule.createServer(app);
+    server = http.createServer(app);
     await initApolloServer(app, server);
     await new Promise<void>((resolve) =>
       server.listen(0, '127.0.0.1', resolve),
@@ -215,8 +186,6 @@ describe('core mutation permissions', () => {
 
     // Drop over a separate connection (closing the shared one exits the
     // process), including the `<db>_logs` database core writes logs to.
-    const mongoose = (await import('mongoose')).default;
-
     // Let background index builds settle so they cannot recreate the
     // database after it is dropped (some fail on a pre-existing conflict).
     await Promise.allSettled(
@@ -225,9 +194,7 @@ describe('core mutation permissions', () => {
         .map((name) => mongoose.connection.model(name).init()),
     );
 
-    const dropper = mongoose.createConnection(
-      `${MONGO_BASE}/${DB_NAME}?directConnection=true`,
-    );
+    const dropper = mongoose.createConnection(throwawayMongoUrl(DB_NAME));
     await dropper.asPromise();
     for (const name of [DB_NAME, `${DB_NAME}_logs`]) {
       if (name.startsWith('erxes_permission_test_')) {
@@ -357,6 +324,99 @@ describe('core mutation permissions', () => {
       expect(result.data?.usersResendInvitation).toBe(
         stored?.registrationToken,
       );
+    });
+  });
+
+  describe('usersSetChatStatus', () => {
+    const mutation =
+      'mutation usersSetChatStatus($_id: String!, $status: UserChatStatus) { usersSetChatStatus(_id: $_id, status: $status) { _id } }';
+
+    const seedMember = async (_id: string) => {
+      await models.Users.collection.insertOne({
+        _id: _id as never,
+        email: `${_id}@example.invalid`,
+        chatStatus: 'offline',
+      });
+      return _id;
+    };
+
+    const chatStatus = async (_id: string) =>
+      (await models.Users.collection.findOne({ _id: _id as never }))
+        ?.chatStatus;
+
+    it("refuses to change another member's status without teamMembersUpdate", async () => {
+      const other = await seedMember(`member-${++userCount}`);
+      const result = await gql(userWithoutPermissions(), mutation, {
+        _id: other,
+        status: 'online',
+      });
+
+      expect(firstError(result)).toBe(PERMISSION_REQUIRED);
+      expect(await chatStatus(other)).toBe('offline');
+    });
+
+    it('lets members change their own status', async () => {
+      const self = userWithoutPermissions();
+      await seedMember(self._id);
+      const result = await gql(self, mutation, {
+        _id: self._id,
+        status: 'online',
+      });
+
+      expect(result.errors).toBeUndefined();
+      expect(await chatStatus(self._id)).toBe('online');
+    });
+
+    it("changes another member's status for a user granted teamMembersUpdate", async () => {
+      const other = await seedMember(`member-${++userCount}`);
+      const user = await userGranted('teamMembers', 'teamMembersUpdate');
+      const result = await gql(user, mutation, {
+        _id: other,
+        status: 'online',
+      });
+
+      expect(result.errors).toBeUndefined();
+      expect(await chatStatus(other)).toBe('online');
+    });
+  });
+
+  describe('markNotificationAsRead', () => {
+    const mutation =
+      'mutation markNotificationAsRead($_id: String!) { markNotificationAsRead(_id: $_id) }';
+
+    const seedNotification = async (userId: string) => {
+      const _id = new mongoose.Types.ObjectId();
+      await models.Notifications.collection.insertOne({
+        _id,
+        userId,
+        title: 'Title',
+        isRead: false,
+      });
+      return String(_id);
+    };
+
+    const isRead = async (_id: string) =>
+      (
+        await models.Notifications.collection.findOne({
+          _id: new mongoose.Types.ObjectId(_id),
+        })
+      )?.isRead;
+
+    it("does not mark another user's notification as read", async () => {
+      const _id = await seedNotification('someone-else');
+      const result = await gql(userWithoutPermissions(), mutation, { _id });
+
+      expect(firstError(result)).toBe('Not found notification');
+      expect(await isRead(_id)).toBe(false);
+    });
+
+    it('marks the caller’s own notification as read', async () => {
+      const self = userWithoutPermissions();
+      const _id = await seedNotification(self._id);
+      const result = await gql(self, mutation, { _id });
+
+      expect(result.errors).toBeUndefined();
+      expect(await isRead(_id)).toBe(true);
     });
   });
 
