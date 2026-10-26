@@ -63,4 +63,16 @@ describe('gateway startup', () => {
     );
     expect(code).toBe(1);
   }, 60_000);
+
+  it('refuses to start with an unrecognised INTERNAL_HEADER_SIGNATURE value', async () => {
+    const { code, output } = await runGateway(
+      { INTERNAL_HEADER_SIGNATURE: 'enfroce', JWT_TOKEN_SECRET: 'secret' },
+      45_000,
+    );
+
+    expect(output).toContain(
+      'INTERNAL_HEADER_SIGNATURE must be "report" or "enforce", got "enfroce"',
+    );
+    expect(code).toBe(1);
+  }, 60_000);
 });

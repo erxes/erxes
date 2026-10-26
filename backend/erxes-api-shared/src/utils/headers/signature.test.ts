@@ -299,3 +299,44 @@ describe('tRPC context header signature', () => {
     ).toBe(true);
   });
 });
+
+describe('INTERNAL_HEADER_SIGNATURE values', () => {
+  const env = { ...process.env };
+  let warn: jest.SpyInstance;
+
+  beforeEach(() => {
+    process.env.JWT_TOKEN_SECRET = 'test-secret';
+    warn = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
+  });
+
+  afterEach(() => {
+    process.env = { ...env };
+    warn.mockRestore();
+  });
+
+  it.each(['enfroce', 'enforced', 'true', 'on', 'strict'])(
+    'refuses to start with the unrecognised value %p',
+    (value) => {
+      process.env.INTERNAL_HEADER_SIGNATURE = value;
+
+      expect(() => assertInternalHeaderSignatureConfig()).toThrow(
+        `INTERNAL_HEADER_SIGNATURE must be "report" or "enforce", got "${value}"`,
+      );
+    },
+  );
+
+  it.each(['', 'report', 'enforce', 'ENFORCE', ' Report '])(
+    'starts with the recognised value %p',
+    (value) => {
+      process.env.INTERNAL_HEADER_SIGNATURE = value;
+
+      expect(() => assertInternalHeaderSignatureConfig()).not.toThrow();
+    },
+  );
+
+  it('starts when the variable is unset', () => {
+    delete process.env.INTERNAL_HEADER_SIGNATURE;
+
+    expect(() => assertInternalHeaderSignatureConfig()).not.toThrow();
+  });
+});

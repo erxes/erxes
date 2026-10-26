@@ -42,11 +42,38 @@ const WARN_INTERVAL_MS = 60 * 1000;
 
 const IDENTITY_SCOPE = 'identity';
 
-export const getInternalHeaderSignatureMode = (): InternalHeaderSignatureMode =>
-  (process.env[internalHeaderSignatureEnvName] || '').trim().toLowerCase() ===
-  'enforce'
-    ? 'enforce'
-    : 'report';
+const lastWarnedAt = new Map<string, number>();
+
+const warnRateLimited = (key: string, message: string) => {
+  const now = Date.now();
+
+  if (now - (lastWarnedAt.get(key) ?? 0) < WARN_INTERVAL_MS) {
+    return;
+  }
+
+  lastWarnedAt.set(key, now);
+  console.warn(`[internal-header-signature] ${message}`);
+};
+
+const RECOGNISED_MODES: readonly string[] = ['', 'report', 'enforce'];
+
+const readModeSetting = () =>
+  (process.env[internalHeaderSignatureEnvName] || '').trim().toLowerCase();
+
+// Unknown values keep the compatible default; the startup check rejects them.
+export const getInternalHeaderSignatureMode =
+  (): InternalHeaderSignatureMode => {
+    const setting = readModeSetting();
+
+    if (!RECOGNISED_MODES.includes(setting)) {
+      warnRateLimited(
+        'mode',
+        `Unrecognised ${internalHeaderSignatureEnvName} value "${process.env[internalHeaderSignatureEnvName]}"; treating it as "report".`,
+      );
+    }
+
+    return setting === 'enforce' ? 'enforce' : 'report';
+  };
 
 const getSigningKey = (): Buffer | null => {
   const secret = process.env.JWT_TOKEN_SECRET;
@@ -69,28 +96,19 @@ const computeSignature = (
     .update(JSON.stringify([SIGNATURE_VERSION, scope, issuedAt, ...values]))
     .digest('base64url');
 
-const lastWarnedAt = new Map<string, number>();
-
-const warnRateLimited = (key: string, message: string) => {
-  const now = Date.now();
-
-  if (now - (lastWarnedAt.get(key) ?? 0) < WARN_INTERVAL_MS) {
-    return;
-  }
-
-  lastWarnedAt.set(key, now);
-  console.warn(`[internal-header-signature] ${message}`);
-};
-
 /**
- * Sign `values` for `scope`. Returns null when JWT_TOKEN_SECRET is not set.
- */
-/**
- * Startup check: enforce mode cannot verify anything without the secret, so
- * a service configured that way would silently treat every signed-in request
- * as anonymous. Fail at startup instead.
+ * Startup check. A mistyped mode would silently fall back to report, and
+ * enforce mode cannot verify anything without the secret (every signed-in
+ * request would read as anonymous). Fail at startup instead.
  */
 export const assertInternalHeaderSignatureConfig = () => {
+  if (!RECOGNISED_MODES.includes(readModeSetting())) {
+    throw new Error(
+      `${internalHeaderSignatureEnvName} must be "report" or "enforce", ` +
+        `got "${process.env[internalHeaderSignatureEnvName]}".`,
+    );
+  }
+
   if (getInternalHeaderSignatureMode() === 'enforce' && !getSigningKey()) {
     throw new Error(
       `${internalHeaderSignatureEnvName}=enforce requires JWT_TOKEN_SECRET; ` +
@@ -99,6 +117,9 @@ export const assertInternalHeaderSignatureConfig = () => {
   }
 };
 
+/**
+ * Sign `values` for `scope`. Returns null when JWT_TOKEN_SECRET is not set.
+ */
 export const createInternalHeaderSignature = (
   scope: string,
   values: string[],
