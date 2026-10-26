@@ -14,12 +14,10 @@ import {
 } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { Can } from 'ui-modules';
-import {
-  useGetPermissionDefaultGroups,
-  useGetPermissionGroups,
-} from '@/settings/permissions/hooks/useGetPermissionGroups';
+import { useGetPermissionGroups } from '@/settings/permissions/hooks/useGetPermissionGroups';
 import { useUsersUpdatePermissionGroups } from '@/settings/permissions/hooks/useUsersUpdatePermissionGroups';
-import { IGroupedByPlugin } from '@/settings/permissions/types';
+import { IPermissionGroup } from '@/settings/permissions/types';
+import { groupPermissionGroupsByPlugin } from '@/settings/permissions/utils/groupPermissionGroups';
 
 export const TeamMemberAssignPermissionsTrigger = ({
   onSelect,
@@ -57,28 +55,16 @@ export const TeamMemberAssignPermissionsContent = ({
   const { toast } = useToast();
   const { table } = RecordTable.useRecordTable();
 
-  const { defaultGroups, loading: defaultLoading } =
-    useGetPermissionDefaultGroups();
-  const { permissionGroups, loading: customLoading } = useGetPermissionGroups();
+  const { permissionGroups, loading } = useGetPermissionGroups();
   const { updatePermissionGroups, loading: updateLoading } =
     useUsersUpdatePermissionGroups();
 
   const toggle = (id: string) => {
-    setSelectedGroupIds((prev) => {
-      if (prev.includes(id)) {
-        return prev.filter((groupId) => groupId !== id);
-      }
-
-      if (id.includes(':')) {
-        const pluginPrefix = id.split(':')[0];
-        return [
-          ...prev.filter((groupId) => groupId.split(':')[0] !== pluginPrefix),
-          id,
-        ];
-      }
-
-      return [...prev, id];
-    });
+    setSelectedGroupIds((prev) =>
+      prev.includes(id)
+        ? prev.filter((groupId) => groupId !== id)
+        : [...prev, id],
+    );
   };
 
   const handleApply = () => {
@@ -113,14 +99,25 @@ export const TeamMemberAssignPermissionsContent = ({
     });
   };
 
-  const groupedByPlugin: IGroupedByPlugin = {};
-  for (const group of defaultGroups) {
-    const plugin = group.plugin || 'other';
-    if (!groupedByPlugin[plugin]) groupedByPlugin[plugin] = [];
-    groupedByPlugin[plugin].push(group);
-  }
+  const { pluginGroups, customGroups } =
+    groupPermissionGroupsByPlugin(permissionGroups);
 
-  const loading = defaultLoading || customLoading;
+  const renderGroups = (groups: IPermissionGroup[], prefix: string) =>
+    groups.map((group) => (
+      <Command.Item
+        key={group._id}
+        value={`${prefix} ${group.name}`}
+        disabled={updateLoading}
+        onSelect={() => toggle(group._id)}
+      >
+        <Checkbox
+          checked={selectedGroupIds.includes(group._id)}
+          className="pointer-events-none"
+          aria-label={group.name}
+        />
+        {group.name}
+      </Command.Item>
+    ));
 
   return (
     <Command className="w-96">
@@ -139,46 +136,18 @@ export const TeamMemberAssignPermissionsContent = ({
           </Command.Item>
         ) : (
           <>
-            {Object.entries(groupedByPlugin).map(([plugin, groups]) => (
+            {Object.entries(pluginGroups).map(([plugin, groups]) => (
               <Command.Group
                 key={plugin}
                 heading={<span className="capitalize">{plugin}</span>}
               >
-                {groups.map((group) => (
-                  <Command.Item
-                    key={group.id}
-                    value={`${plugin} ${group.name}`}
-                    disabled={updateLoading}
-                    onSelect={() => toggle(group.id)}
-                  >
-                    <Checkbox
-                      checked={selectedGroupIds.includes(group.id)}
-                      className="pointer-events-none"
-                      aria-label={group.name}
-                    />
-                    {group.name}
-                  </Command.Item>
-                ))}
+                {renderGroups(groups, plugin)}
               </Command.Group>
             ))}
 
-            {permissionGroups.length > 0 && (
+            {customGroups.length > 0 && (
               <Command.Group heading={t('custom-permission-groups')}>
-                {permissionGroups.map((group) => (
-                  <Command.Item
-                    key={group._id}
-                    value={`custom ${group.name}`}
-                    disabled={updateLoading}
-                    onSelect={() => toggle(group._id)}
-                  >
-                    <Checkbox
-                      checked={selectedGroupIds.includes(group._id)}
-                      className="pointer-events-none"
-                      aria-label={group.name}
-                    />
-                    {group.name}
-                  </Command.Item>
-                ))}
+                {renderGroups(customGroups, 'custom')}
               </Command.Group>
             )}
           </>

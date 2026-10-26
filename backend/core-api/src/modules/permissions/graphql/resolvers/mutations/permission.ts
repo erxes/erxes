@@ -63,24 +63,55 @@ export const permissionMutations = {
   async permissionGroupRemove(
     _root: any,
     { _id }: { _id: string },
+    { models, checkPermission }: IContext,
+  ) {
+    await checkPermission('permissionsManage');
+
+    return models.PermissionGroups.removeGroup(_id);
+  },
+
+  async permissionGroupResetToTemplate(
+    _root: any,
+    { _id }: { _id: string },
     { models, checkPermission, subdomain }: IContext,
   ) {
     await checkPermission('permissionsManage');
 
-    const group = await models.PermissionGroups.findOne({ _id });
-    if (!group) throw new Error('Permission group not found');
+    const group = await models.PermissionGroups.resetGroupToTemplate(_id);
 
     await clearGroupActionsCache({ subdomain, groupId: _id });
 
-    // Remove from all users
-    await models.Users.updateMany(
-      { permissionGroupIds: _id },
-      { $pull: { permissionGroupIds: _id } },
+    return group;
+  },
+
+  async permissionGroupMoveMembers(
+    _root: any,
+    {
+      fromGroupId,
+      toGroupId,
+      userIds,
+      excludeUserIds,
+    }: {
+      fromGroupId: string;
+      toGroupId: string;
+      userIds?: string[];
+      excludeUserIds?: string[];
+    },
+    { models, checkPermission }: IContext,
+  ) {
+    await checkPermission('permissionsManage');
+
+    const movedUserIds = await models.PermissionGroups.moveMembers(
+      fromGroupId,
+      toGroupId,
+      { userIds, excludeUserIds },
     );
 
-    await models.PermissionGroups.deleteOne({ _id });
+    await Promise.all(
+      movedUserIds.map((userId) => clearGroupActionsCache({ userId })),
+    );
 
-    return { success: true };
+    return { success: true, count: movedUserIds.length };
   },
 
   // Assign permission groups to user
@@ -102,18 +133,12 @@ export const permissionMutations = {
   },
 
   // Assign permission groups to many users at once.
-  // Default groups (id contains ':') replace any existing group with the
-  // same plugin prefix; custom groups (Mongo ObjectId, no ':') are added.
   async usersUpdatePermissionGroups(
     _root: any,
     { userIds, groupIds }: { userIds: string[]; groupIds: string[] },
     { models, checkPermission }: IContext,
   ) {
     await checkPermission('permissionsManage');
-
-    const newDefaultPrefixes = groupIds
-      .filter((id) => id.includes(':'))
-      .map((id) => id.split(':')[0]);
 
     const users = await models.Users.find({
       _id: { $in: userIds },
@@ -126,15 +151,9 @@ export const permissionMutations = {
     }
 
     for (const user of users) {
-      const existing: string[] = user.permissionGroupIds || [];
-
-      const kept = existing.filter((id) => {
-        if (!id.includes(':')) return true;
-        const prefix = id.split(':')[0];
-        return !newDefaultPrefixes.includes(prefix);
-      });
-
-      const merged = Array.from(new Set([...kept, ...groupIds]));
+      const merged = Array.from(
+        new Set([...(user.permissionGroupIds || []), ...groupIds]),
+      );
 
       await models.Users.updateUser(user._id, {
         permissionGroupIds: merged,

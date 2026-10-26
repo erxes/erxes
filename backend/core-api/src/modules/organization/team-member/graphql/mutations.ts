@@ -8,8 +8,6 @@ import {
 import {
   authCookieOptions,
   getEnv,
-  getPlugin,
-  getPlugins,
   getSaasOrganizationDetail,
   graphqlPubsub,
 } from 'erxes-api-shared/utils';
@@ -17,6 +15,7 @@ import { IContext, IModels } from '~/connectionResolvers';
 import { saveValidatedToken } from '~/modules/auth/utils';
 import { sendInvitationEmail } from '../utils';
 import { sendOnboardNotification } from '~/modules/notifications/utils';
+import { ensurePermissionGroups } from '~/modules/permissions/utils';
 
 export interface IUsersEdit extends IUser {
   channelIds?: string[];
@@ -40,35 +39,15 @@ const validatePermissionGroupIds = async (
   models: IModels,
   permissionGroupIds: string[],
 ) => {
-  const validPermissionGroupIds = new Set<string>();
-  const plugins = await getPlugins();
+  const permissionGroups = await models.PermissionGroups.find({
+    _id: { $in: permissionGroupIds },
+  })
+    .select('_id')
+    .lean();
 
-  for (const name of plugins) {
-    const service = await getPlugin(name);
-    const defaultGroups = service?.config?.meta?.permissions?.defaultGroups;
-
-    if (!defaultGroups) continue;
-
-    for (const group of defaultGroups) {
-      validPermissionGroupIds.add(group.id);
-    }
-  }
-
-  const customPermissionGroupIds = permissionGroupIds.filter(
-    (id) => !validPermissionGroupIds.has(id),
+  const validPermissionGroupIds = new Set(
+    permissionGroups.map((group) => String(group._id)),
   );
-
-  if (customPermissionGroupIds.length > 0) {
-    const permissionGroups = await models.PermissionGroups.find({
-      _id: { $in: customPermissionGroupIds },
-    })
-      .select('_id')
-      .lean();
-
-    for (const group of permissionGroups) {
-      validPermissionGroupIds.add(String(group._id));
-    }
-  }
 
   const invalidPermissionGroupIds = permissionGroupIds.filter(
     (id) => !validPermissionGroupIds.has(id),
@@ -101,13 +80,15 @@ export const userMutations: Record<string, Resolver<any, any, IContext>> = {
       lastName?: string;
       subscribeEmail?: boolean;
     },
-    { models }: IContext,
+    { models, subdomain }: IContext,
   ) {
     const userCount = await models.Users.countDocuments();
 
     if (userCount > 0) {
       throw new Error('Access denied');
     }
+
+    await ensurePermissionGroups(models, subdomain);
 
     const doc: IUser = {
       isOwner: true,

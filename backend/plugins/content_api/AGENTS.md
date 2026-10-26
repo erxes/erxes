@@ -6,7 +6,7 @@
 - **Project:** `content_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/content_api`
-- **Last synchronized:** `2026-10-26`
+- **Last synchronized:** `2026-10-27`
 
 ## Scope
 
@@ -64,6 +64,7 @@
 
 ## Local Invariants
 
+- CMS permissions come from the user's stored permission groups (core `permissionGroups.find`); `meta/permissions.ts` default groups are seed templates and only a fallback for template ids not stored yet.
 - Sharing is only for ordinary published posts. Recheck CMS assignment, publishing/sharing permissions, author scope and language access before enqueue and dispatch.
 - Journalist 2's sharing grant does not grant approval or immediate publication. That role alone still cannot dispatch a share; the existing publish/approve and Postiz membership requirements remain mandatory.
 - Never accept browser workspace IDs or Postiz credentials; agent_api owns workspace routing and Postiz membership.

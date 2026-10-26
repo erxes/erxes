@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-10-25`
+- **Last synchronized:** `2026-10-27`
 
 ## Scope
 
@@ -1368,6 +1368,9 @@ tagIds, propertiesData: JSON)` (the customer comes from the widget session) — 
 
 ## Local Invariants
 
+- Permission groups are editable tenant data seeded from `meta/permissions.ts`
+  templates. Grant access by action (`canGroup`), never by a group id such as
+  `frontline:admin`.
 - Every automation action declares a `configSchema` (`src/meta/automationConfigSchemas.ts`) with exactly what its handler reads or refuses: messenger/Facebook/Instagram messages (bot `messages`, buttons and quick replies branch through `optionalConnects`; `botId` defaults to the trigger's bot), Facebook/Instagram comment replies, Discord, mail send/draft and ticket create (`channelId`, `pipelineId`, `statusId`, `name`). Write each field in the shape the builder form writes (text, not numbers or lists, where the form writes text). Change the schema with the handler; core publishes it to authors as `configJsonSchema` and enforces it when a flow goes live. Ticket create also declares `validateConfig` (`src/meta/automationConfigValidators.ts`): its channel, pipeline and status exist and belong together.
 - Every team-member notification passes `event`, typed
   `TFrontlineNotificationEvent` from `src/meta/notifications.ts`. The meta

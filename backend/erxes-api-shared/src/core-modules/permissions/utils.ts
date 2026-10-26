@@ -83,11 +83,11 @@ const applyDefaultGroupActions = async (
   }
 };
 
-const applyCustomGroupActions = async (
+const applyStoredGroupActions = async (
   actionsMap: Record<string, boolean>,
   subdomain: string,
-  customGroupIds: string[],
-) => {
+  groupIds: string[],
+): Promise<string[]> => {
   const groups = await sendTRPCMessage({
     subdomain,
     pluginName: 'core',
@@ -95,7 +95,7 @@ const applyCustomGroupActions = async (
     module: 'permissionGroups',
     action: 'find',
     input: {
-      query: { _id: { $in: customGroupIds } },
+      query: { _id: { $in: groupIds } },
     },
     defaultValue: [],
   });
@@ -103,6 +103,8 @@ const applyCustomGroupActions = async (
   for (const group of groups) {
     await applyPermissions(actionsMap, group.permissions || []);
   }
+
+  return groups.map((group: { _id: string }) => group._id);
 };
 
 export const getGroupActionsMap = async (
@@ -137,15 +139,20 @@ export const getGroupActionsMap = async (
   const actionsMap: Record<string, boolean> = {};
   const groupIds = user.permissionGroupIds || [];
 
-  const defaultGroupIds = groupIds.filter((id) => id.includes(':'));
-  const customGroupIds = groupIds.filter((id) => !id.includes(':'));
+  if (groupIds.length) {
+    const storedGroupIds = await applyStoredGroupActions(
+      actionsMap,
+      subdomain,
+      groupIds,
+    );
 
-  if (defaultGroupIds.length) {
-    await applyDefaultGroupActions(actionsMap, defaultGroupIds);
-  }
+    const templateGroupIds = groupIds.filter(
+      (id) => id.includes(':') && !storedGroupIds.includes(id),
+    );
 
-  if (customGroupIds.length) {
-    await applyCustomGroupActions(actionsMap, subdomain, customGroupIds);
+    if (templateGroupIds.length) {
+      await applyDefaultGroupActions(actionsMap, templateGroupIds);
+    }
   }
 
   await applyPermissions(actionsMap, user.customPermissions || []);
