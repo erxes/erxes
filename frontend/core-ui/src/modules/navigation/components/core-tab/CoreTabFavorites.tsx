@@ -17,7 +17,7 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Button, cn } from 'erxes-ui';
+import { Button, Tooltip, cn } from 'erxes-ui';
 import { IconGripVertical, IconStarFilled } from '@tabler/icons-react';
 
 import { Link } from 'react-router-dom';
@@ -27,7 +27,7 @@ import { sortNavigationActivitiesByOrder } from '@/navigation/utils/navigationAc
 import { useAtom } from 'jotai';
 import { useFavorites } from '@/navigation/hooks/useFavorites';
 import { useNavigationFavorite } from '@/navigation/hooks/useNavigationFavorite';
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 const CoreTabFavoriteItem = ({
@@ -43,7 +43,6 @@ const CoreTabFavoriteItem = ({
   name: string;
   path: string;
   onNavigate: () => void;
-  // A drop ends with a click on the dragged link; that click must not open it.
   wasDragged: () => boolean;
 }>) => {
   const { t } = useTranslation('common', { keyPrefix: 'navigation' });
@@ -57,6 +56,8 @@ const CoreTabFavoriteItem = ({
     transition,
   } = useSortable({ id: path });
   const label = breadcrumb.length > 1 ? breadcrumb.slice(1).join(' / ') : name;
+  const labelRef = useRef<HTMLSpanElement>(null);
+  const [tooltipOpen, setTooltipOpen] = useState(false);
 
   return (
     <div
@@ -81,14 +82,35 @@ const CoreTabFavoriteItem = ({
         }}
       >
         {Icon && <Icon className="size-4 shrink-0" />}
-        <span className="truncate">{label}</span>
+        <Tooltip
+          open={tooltipOpen}
+          onOpenChange={(open) =>
+            setTooltipOpen(
+              open &&
+                !!labelRef.current &&
+                labelRef.current.scrollWidth > labelRef.current.clientWidth,
+            )
+          }
+        >
+          <Tooltip.Trigger asChild>
+            <span ref={labelRef} className="truncate">
+              {label}
+            </span>
+          </Tooltip.Trigger>
+          <Tooltip.Content
+            side="top"
+            align="start"
+            className="w-max max-w-xs whitespace-normal wrap-anywhere"
+          >
+            {label}
+          </Tooltip.Content>
+        </Tooltip>
         {breadcrumb.length > 1 && (
           <span className="ml-auto shrink-0 truncate text-xs text-muted-foreground">
             {breadcrumb[0]}
           </span>
         )}
       </Link>
-      {/* Hover hint that the favorite can be dragged to reorder. */}
       <IconGripVertical
         aria-hidden
         className={cn(
@@ -110,10 +132,6 @@ const CoreTabFavoriteItem = ({
   );
 };
 
-/**
- * The user's favorites, as the first section of the app chooser. They are
- * dragged to set their order, which is kept like the apps' order.
- */
 export const CoreTabFavoritesSection = ({
   onNavigate,
 }: Readonly<{ onNavigate: () => void }>) => {
