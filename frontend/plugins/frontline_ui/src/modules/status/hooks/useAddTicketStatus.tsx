@@ -9,7 +9,7 @@ import type {
 } from '~/gql/graphql';
 
 export const useAddTicketStatus = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.status' });
   const { toast } = useToast();
   const [_addStatus, { loading, error }] = useMutation(ADD_TICKET_STATUS);
   const addStatus = (

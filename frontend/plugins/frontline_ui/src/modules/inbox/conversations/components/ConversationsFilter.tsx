@@ -133,7 +133,7 @@ const ConversationFilterCommand = ({
   queries: ConversationFilterQueryValues;
   setQueries: (values: Partial<ConversationFilterQueryValues>) => void;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const { status, unassigned, awaitingResponse, participated } = queries;
 
   return (
@@ -270,7 +270,7 @@ export const ConversationFilterBar = ({
   children?: React.ReactNode;
   className?: string;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const [status] = useQueryState<ConversationStatus>('status');
   const filterStates = useNonNullMultiQueryState<{
     status: ConversationStatus;
@@ -372,7 +372,7 @@ export const ConversationFilterBar = ({
 };
 
 const IntegrationFilterBar = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const [integrationId] = useQueryState<string>('integrationId');
   const integrationIds = integrationId?.split(',').filter(Boolean) ?? [];
   const { integration, loading } = useIntegrationInline({

@@ -2,18 +2,17 @@ import { AddProjectForm } from '@/project/components/add-project/AddProjectForm'
 import { IconPlus } from '@tabler/icons-react';
 import { Button, Sheet } from 'erxes-ui';
 import { useState } from 'react';
-import { useTranslation } from 'react-i18next';
 
 export const AddProjectRelation = ({
   onSelect,
   label,
-  disabled,
+  contacts,
 }: {
-  onSelect: (projectId: string) => void;
+  onSelect?: (projectId: string) => void;
   label?: string;
-  disabled?: boolean;
+  // Saved on the new project by createProject itself.
+  contacts?: { customerId?: string; companyId?: string };
 }) => {
-  const { t } = useTranslation('operation');
   const [open, setOpen] = useState(false);
 
   const onClose = () => setOpen(false);
@@ -22,7 +21,7 @@ export const AddProjectRelation = ({
     <Sheet open={open} onOpenChange={setOpen}>
       <Sheet.Trigger asChild>
         {label ? (
-          <Button disabled={disabled} onClick={(e) => e.stopPropagation()}>
+          <Button onClick={(e) => e.stopPropagation()}>
             <IconPlus className="size-4" />
             {label}
           </Button>
@@ -30,8 +29,6 @@ export const AddProjectRelation = ({
           <Button
             size="sm"
             variant="ghost"
-            aria-label={t('add-project')}
-            disabled={disabled}
             onClick={(e) => e.stopPropagation()}
           >
             <IconPlus className="size-4" />
@@ -42,7 +39,11 @@ export const AddProjectRelation = ({
         className="sm:max-w-3xl w-full p-0"
         onEscapeKeyDown={(e) => e.preventDefault()}
       >
-        <AddProjectForm onClose={onClose} onComplete={onSelect} />
+        <AddProjectForm
+          onClose={onClose}
+          onComplete={onSelect}
+          contacts={contacts}
+        />
       </Sheet.View>
     </Sheet>
   );

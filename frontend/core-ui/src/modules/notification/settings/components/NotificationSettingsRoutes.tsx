@@ -13,6 +13,24 @@ const NotificationIndexPage = lazy(() =>
   ),
 );
 
+const NotificationTemplatesPage = lazy(() =>
+  import(
+    '~/pages/settings/account/notification/NotificationTemplatesPage'
+  ).then((module) => ({ default: module.NotificationTemplatesPage })),
+);
+
+const NotificationTemplateEditorPage = lazy(() =>
+  import(
+    '~/pages/settings/account/notification/NotificationTemplateEditorPage'
+  ).then((module) => ({ default: module.NotificationTemplateEditorPage })),
+);
+
+const NotificationEmailBrandPage = lazy(() =>
+  import(
+    '~/pages/settings/account/notification/NotificationEmailBrandPage'
+  ).then((module) => ({ default: module.NotificationEmailBrandPage })),
+);
+
 export const NotificationSettingsRoutes = () => {
   return (
     <Suspense fallback={<></>}>
@@ -39,6 +57,35 @@ export const NotificationSettingsRoutes = () => {
               <PageContainer>
                 <NotificationSettingsLayout>
                   <NotificationMobilePushConfig />
+                </NotificationSettingsLayout>
+              </PageContainer>
+            }
+          />
+          <Route
+            path="/templates"
+            element={
+              <PageContainer>
+                <NotificationSettingsLayout>
+                  <NotificationTemplatesPage />
+                </NotificationSettingsLayout>
+              </PageContainer>
+            }
+          />
+          {/* the editor needs the whole width, so it leaves the settings sidebar */}
+          <Route
+            path="/templates/:key"
+            element={
+              <PageContainer>
+                <NotificationTemplateEditorPage />
+              </PageContainer>
+            }
+          />
+          <Route
+            path="/brand"
+            element={
+              <PageContainer>
+                <NotificationSettingsLayout>
+                  <NotificationEmailBrandPage />
                 </NotificationSettingsLayout>
               </PageContainer>
             }

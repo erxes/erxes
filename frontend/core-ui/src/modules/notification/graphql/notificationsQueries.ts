@@ -15,6 +15,7 @@ export const NOTIFICATIONS = gql`
     $endDate: String
     $fromUserId: String
     $module: String
+    $plugin: String
     $unreadFirst: Boolean
   ) {
     notifications(
@@ -31,6 +32,7 @@ export const NOTIFICATIONS = gql`
       endDate: $endDate
       fromUserId: $fromUserId
       module: $module
+      plugin: $plugin
       unreadFirst: $unreadFirst
     ) {
       list {

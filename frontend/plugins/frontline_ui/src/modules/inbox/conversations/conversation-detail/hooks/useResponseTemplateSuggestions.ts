@@ -18,7 +18,7 @@ export const useResponseTemplateSuggestions = ({
   editor,
   enabled,
 }: ResponseTemplateSuggestionsOptions) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const { channels: availableChannels } = useGetChannels({ skip: !enabled });
   const [searchValue, setSearchValue] = useState('');
   const [debouncedSearchValue] = useDebounce(searchValue, 300);

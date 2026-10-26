@@ -18,7 +18,7 @@ export const FileUploadSection = ({
   mimeType = 'image/*',
 }: FileUploadSectionProps) => {
   const inputId = useId();
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.facebook' });
   const {
     uploadedFileUrl,
     isImageType,

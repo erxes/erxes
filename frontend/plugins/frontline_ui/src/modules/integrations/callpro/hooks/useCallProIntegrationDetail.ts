@@ -6,7 +6,9 @@ import { CALL_PRO_INTEGRATION_DETAIL } from '@/integrations/callpro/graphql/quer
 import { callProEditSheetAtom } from '@/integrations/callpro/states/callProEditSheetAtom';
 
 export const useCallProIntegrationDetail = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const integrationId = useAtomValue(callProEditSheetAtom);
 
   const { data, loading } = useQuery(CALL_PRO_INTEGRATION_DETAIL, {

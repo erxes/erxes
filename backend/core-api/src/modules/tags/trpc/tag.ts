@@ -2,19 +2,12 @@ import { initTRPC } from '@trpc/server';
 import { escapeRegExp } from 'erxes-api-shared/utils';
 import { z } from 'zod';
 import { CoreTRPCContext } from '~/init-trpc';
-import { agentMeta } from '~/utils/agentMeta';
 
 const t = initTRPC.context<CoreTRPCContext>().create();
 
 export const tagTrpcRouter = t.router({
   tags: t.router({
     find: t.procedure
-      .meta(
-        agentMeta(
-          'List tags: { query? }. Tags are scoped per entity type — filter with { type: "core:customer" } for customer tags, "core:company" for companies, "core:product" for products. Use to resolve tag names to _ids before tagging records via customers.tag or setting tagIds in create/update docs.',
-          { module: 'tags', action: 'tagsRead' },
-        ),
-      )
       .input(z.any())
       .query(async ({ ctx, input }) => {
         const { query } = input;
@@ -24,12 +17,6 @@ export const tagTrpcRouter = t.router({
       }),
 
     findOne: t.procedure
-      .meta(
-        agentMeta(
-          'Get a single tag by { _id }, { name, type }, or any MongoDB-style query. Returns {} when nothing matches.',
-          { module: 'tags', action: 'tagsRead' },
-        ),
-      )
       .input(z.any())
       .query(async ({ ctx, input }) => {
         const query = input?.query || input?.selector || input;
@@ -43,12 +30,6 @@ export const tagTrpcRouter = t.router({
       }),
 
     findWithChild: t.procedure
-      .meta(
-        agentMeta(
-          'Get tags matching { query?, fields? } plus all their child tags (tags nest via parentId). Use when a tagging or filtering operation should include sub-tags.',
-          { module: 'tags', action: 'tagsRead' },
-        ),
-      )
       .input(z.any())
       .query(async ({ ctx, input }) => {
         const { query, fields } = input;

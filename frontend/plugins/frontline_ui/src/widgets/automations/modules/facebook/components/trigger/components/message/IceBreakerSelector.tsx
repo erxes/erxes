@@ -17,7 +17,7 @@ export const IceBreakerSelector = ({
   selectedIceBreakerIds?: string[];
   onConditionChange: (fieldName: 'iceBreakerIds', fieldValue: string[]) => void;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.facebook' });
   const { bot, loading } = useFacebookBot(botId);
   const { claims } = useFacebookBotTriggerClaims(botId, currentTriggerId);
   const iceBreakers = (bot?.iceBreakers ?? [])

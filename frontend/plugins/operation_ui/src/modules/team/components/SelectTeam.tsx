@@ -245,6 +245,7 @@ const SelectTeamFilterView = () => {
 };
 
 const SelectTeamFormItem = ({
+  variant = 'form',
   value,
   onValueChange,
   mode = 'multiple',
@@ -254,6 +255,8 @@ const SelectTeamFormItem = ({
   onValueChange: (value: string | string[]) => void;
   mode?: 'single' | 'multiple';
   isTriageEnabled?: boolean;
+  // `table` draws it as a record table cell, as in the side panel.
+  variant?: `${SelectTriggerVariant}`;
 }) => {
   const [open, setOpen] = useState(false);
   return (
@@ -265,10 +268,10 @@ const SelectTeamFormItem = ({
       isTriageEnabled={isTriageEnabled}
     >
       <PopoverScoped open={open} onOpenChange={setOpen}>
-        <SelectTriggerOperation variant="form">
+        <SelectTriggerOperation variant={variant}>
           <SelectTeamValue />
         </SelectTriggerOperation>
-        <SelectOperationContent variant="form">
+        <SelectOperationContent variant={variant}>
           <SelectTeamContent />
         </SelectOperationContent>
       </PopoverScoped>

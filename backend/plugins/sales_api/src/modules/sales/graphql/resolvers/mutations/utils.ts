@@ -7,14 +7,14 @@ import {
 } from 'erxes-api-shared/utils';
 import { nanoid } from 'nanoid';
 import { IModels } from '~/connectionResolvers';
+import { TSalesNotificationEvent } from '~/meta/notifications';
 import { IDeal, IDealDocument, IProductData } from '~/modules/sales/@types';
 import {
   checkMovePermission,
-  createRelations,
   getNewOrder,
   getTotalAmounts,
-  sendNotifications,
 } from '~/modules/sales/utils';
+import { sendNotifications } from '~/modules/sales/utils/notifications';
 import {
   changeItemStatus,
   checkAssignedUserFromPData,
@@ -107,7 +107,7 @@ export const addDeal = async ({
         ...extendedDoc,
         ...(await getTotalAmounts(extendedDoc.productsData || [])),
       },
-      customerIds: doc.customerIds,
+      customerIds: doc.customerId ? [doc.customerId] : undefined,
     }),
   );
 
@@ -116,11 +116,7 @@ export const addDeal = async ({
 
   const stage = await models.Stages.getStage(deal.stageId);
 
-  await createRelations(subdomain, {
-    dealId: deal._id,
-    companyIds: doc.companyIds,
-    customerIds: doc.customerIds,
-  });
+  // The deal keeps its customer / company itself (saved with the doc).
 
   try {
     await syncDealPoints({
@@ -143,6 +139,7 @@ export const addDeal = async ({
     user,
     action: `invited you to the ${pipeline.name}`,
     content: `'${deal.name}'.`,
+    event: 'sales:deals:dealAssignee',
   });
 
   await subscriptionWrapper(models, {
@@ -215,6 +212,7 @@ export const editDeal = async ({
     if (doc.extraData !== undefined) {
       await syncDealVoucher({
         subdomain,
+        models,
         dealId: _id,
         previousVoucherId: oldDeal.extraData?.voucherId,
         voucherId: doc.extraData?.voucherId,
@@ -233,7 +231,7 @@ export const editDeal = async ({
       ...doc,
     });
 
-    doc.productsData = await checkLoyalties(subdomain, _id, {
+    doc.productsData = await checkLoyalties(subdomain, models, _id, {
       ...oldDeal.toObject?.(),
       ...oldDeal,
       ...doc,
@@ -312,15 +310,20 @@ export const editDeal = async ({
     content: string;
     invitedUsers?: string[];
     removedUsers?: string[];
+    event: TSalesNotificationEvent;
   } = {
     item: updatedItem,
     user,
     action: 'updated',
     content: `deal '${updatedItem.name}'`,
+    event: 'sales:deals:dealUpdated',
   };
 
   if (doc.status && oldDeal.status && oldDeal.status !== doc.status) {
     const activityAction = doc.status === 'active' ? 'activated' : 'archived';
+
+    notificationDoc.action = activityAction;
+    notificationDoc.event = 'sales:deals:dealStatus';
 
     // order notification
     await changeItemStatus(models, user, {

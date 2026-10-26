@@ -178,6 +178,7 @@ export const afterProcess: AfterProcessConfigs = {
           if (configSale?.stageId === currentStageId) {
             try {
               await dealToTrs({
+                allowRealJobProduction: true,
                 subdomain,
                 models,
                 userId,
@@ -275,6 +276,7 @@ export const afterProcess: AfterProcessConfigs = {
                 });
               } else {
                 await orderToTrs({
+                  allowRealJobProduction: true,
                   subdomain,
                   models,
                   userId,
@@ -330,6 +332,7 @@ export const afterProcess: AfterProcessConfigs = {
           if (configSale?.stageId === currentStageId) {
             try {
               await dealToTrs({
+                allowRealJobProduction: true,
                 subdomain,
                 models,
                 userId,
@@ -393,6 +396,7 @@ export const afterProcess: AfterProcessConfigs = {
           if (configOrder?.posId === currentPosId) {
             try {
               await orderToTrs({
+                allowRealJobProduction: true,
                 subdomain,
                 models,
                 userId,

@@ -21,7 +21,9 @@ export const MailInternalNotes = ({
   error,
   onRetry,
 }: MailInternalNotesProps) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const [loadingMore, setLoadingMore] = useState(false);
   if (!notes.length && !totalCount && !error) return null;
 
@@ -45,7 +47,7 @@ export const MailInternalNotes = ({
     >
       <div className="flex items-center gap-2 border-b border-warning/20 px-4 py-2.5 text-xs font-medium text-warning">
         <IconLock className="size-3.5" />
-        Internal notes
+        {t('mail-internal-notes')}
         <span className="rounded-full bg-warning/10 px-1.5 py-0.5 text-[10px]">
           {totalCount}
         </span>

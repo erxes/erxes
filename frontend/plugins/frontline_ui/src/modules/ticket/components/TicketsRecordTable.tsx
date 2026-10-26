@@ -10,7 +10,7 @@ import { TicketCommandBar } from '@/ticket/components/ticket-command-bar/TicketC
 import { IconTicket } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 export const TicketsRecordTable = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   const setTicketTotalCount = useSetAtom(ticketTotalCountAtom);
   const [pipelineId] = useQueryState<string | null>('pipelineId');
   const [channelId] = useQueryState<string | null>('channelId');

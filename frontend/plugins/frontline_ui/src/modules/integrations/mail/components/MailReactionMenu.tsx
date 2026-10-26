@@ -9,6 +9,7 @@ import {
 import { useState } from 'react';
 import { useMailSendReaction } from '@/integrations/mail/hooks/useMailConversationDetail';
 import type { MailMessage } from '@/integrations/mail/types/mailThread';
+import { useTranslation } from 'react-i18next';
 
 const EmojiRow = ({ children, ...props }: EmojiPickerListRowProps) => (
   <div {...props} className="scroll-my-1 px-1">
@@ -120,6 +121,9 @@ export const MailReactionMenu = ({
   message: MailMessage;
   compact?: boolean;
 }) => {
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const [open, setOpen] = useState(false);
   const { react, loading } = useMailSendReaction();
 
@@ -130,9 +134,9 @@ export const MailReactionMenu = ({
       type="button"
       variant="ghost"
       size={compact ? 'icon' : 'sm'}
-      aria-label={reason ?? 'Add email reaction'}
+      aria-label={reason ?? t('mail-add-email-reaction')}
       aria-disabled={Boolean(reason) || undefined}
-      title={reason ? undefined : 'Add email reaction'}
+      title={reason ? undefined : t('mail-add-email-reaction')}
       disabled={loading && !reason}
       className={cn(
         compact
@@ -142,7 +146,7 @@ export const MailReactionMenu = ({
       )}
     >
       <IconMoodSmile className="size-4" />
-      {!compact && <span>React</span>}
+      {!compact && <span>{t('mail-react')}</span>}
     </Button>
   );
 

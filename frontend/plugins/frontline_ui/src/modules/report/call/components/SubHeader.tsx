@@ -265,7 +265,7 @@ function SelectChip({
   selected: string;
   disabled?: boolean;
 }) {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const [open, setOpen] = useState(false);
 
   return (
@@ -285,7 +285,7 @@ function SelectChip({
           </Dialog.Header>
           <Command>
             {options.length > 5 && (
-              <Command.Input placeholder={`Search ${label.toLowerCase()}…`} />
+              <Command.Input placeholder={t('search-label', { label: label.toLowerCase() })} />
             )}
             <Command.List className="pb-2">
               <Command.Empty>

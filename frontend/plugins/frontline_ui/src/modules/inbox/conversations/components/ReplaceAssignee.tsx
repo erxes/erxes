@@ -7,7 +7,7 @@ import { useAssignConversations } from '@/inbox/conversations/hooks/useAssignCon
 import { useTranslation } from 'react-i18next';
 
 export const ReplaceAssignee = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const conversationIds = useAtomValue(selectConversationsState);
   const selectionKey = conversationIds.join(',');
   const { assignConversations, loading } = useAssignConversations();
@@ -28,15 +28,13 @@ export const ReplaceAssignee = () => {
       await assignConversations({
         variables: { conversationIds, assignedUserIds: nextIds },
       });
-      toast({ title: t('assignees-updated', 'Assignees updated') });
+      toast({ title: t('assignees-updated') });
     } catch (error) {
       if (activeSelection.current === selectionKey) setIds(previous);
       toast({
-        title: t('error', 'Error'),
+        title: t('error'),
         description:
-          error instanceof Error
-            ? error.message
-            : t('assignment-failed', 'Could not update assignees'),
+          error instanceof Error ? error.message : t('assignment-failed'),
         variant: 'destructive',
       });
     } finally {
@@ -52,7 +50,7 @@ export const ReplaceAssignee = () => {
       onValueChange={(value) => {
         void assign(value);
       }}
-      placeholder={t('select-assignee', 'Select assignees')}
+      placeholder={t('select-assignee')}
     />
   );
 };

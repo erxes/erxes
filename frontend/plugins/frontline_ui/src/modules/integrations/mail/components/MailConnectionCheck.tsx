@@ -8,7 +8,9 @@ import { useTranslation } from 'react-i18next';
 import { useMailConnectionCheck } from '../hooks/useMailConnectionCheck';
 
 export const MailConnectionCheck = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const { checkConnection, result, loading } = useMailConnectionCheck();
 
   return (

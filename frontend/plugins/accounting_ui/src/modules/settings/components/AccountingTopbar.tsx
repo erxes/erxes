@@ -5,6 +5,7 @@ import { AddFixedAssetCategory } from '@/settings/fixed-assets/components/AddFix
 import { AddFixedAssetAccountConfig } from '@/settings/fixed-assets/account-config/components/FixedAssetAccountConfigsTable';
 import { AddVats } from '@/settings/vat/components/AddVats';
 import { AddCtaxs } from '@/settings/ctax/components/AddCtaxs';
+import { AddJob } from '@/settings/jobs/components/AddJob';
 import { AddAccountingConfig } from '../syncSettings/AddAccountingConfig';
 import { ACCOUNTING_SETTINGS_CODES } from '../constants/settingsRoutes';
 import { Can, Import } from 'ui-modules';
@@ -79,6 +80,19 @@ export const AccountingTopbar = () => {
     return (
       <div className="flex items-center gap-3">
         <AddCtaxs />
+      </div>
+    );
+  }
+
+  if (
+    [
+      '/accounting/settings/inventories/jobs',
+      '/accounting/settings/inventories/job-outputs',
+    ].includes(pathname)
+  ) {
+    return (
+      <div className="flex items-center gap-3">
+        <AddJob />
       </div>
     );
   }

@@ -1,4 +1,4 @@
-import { CompanyAddSheet } from '@/contacts/companies/components/CompanyAddSheet';
+import { CompanyCreateButton } from '@/contacts/companies/components/CompanyCreateButton';
 import { ContactsBreadcrumb } from '@/contacts/components/ContactsBreadcrumb';
 import { useTranslation } from 'react-i18next';
 import {
@@ -24,7 +24,7 @@ export const CompaniesHeader = () => {
       <PageHeader.End>
         <SendEmailButton />
         <Can action="contactsCreate">
-          <CompanyAddSheet />
+          <CompanyCreateButton />
         </Can>
       </PageHeader.End>
     </PageHeader>

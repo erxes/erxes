@@ -590,10 +590,8 @@ export const loadTransactionClass = (
       userId: string,
       options: { skipAccountPermission?: boolean } = {},
     ) {
-      const oldTrs = await models.Transactions.find({
-        parentId,
-        $or: [{ originId: { $exists: false } }, { originId: { $eq: '' } }],
-      }).lean();
+      const oldGroupTrs = await models.Transactions.find({ parentId }).lean();
+      const oldTrs = oldGroupTrs.filter((tr) => !tr.originId);
       if (!oldTrs.length) {
         throw new Error('Not found old transactions');
       }
@@ -649,7 +647,9 @@ export const loadTransactionClass = (
             oldTrs.find((tr) => tr._id === doc._id),
           ),
         ),
-        ...deleteTrs.map((tr) => commonRemoveValidation(subdomain, models, tr)),
+        ...deleteTrs.map((tr) =>
+          commonRemoveValidation(subdomain, models, tr, oldGroupTrs),
+        ),
       ]);
 
       const transactions: ITransactionDocument[] = [];
@@ -692,7 +692,7 @@ export const loadTransactionClass = (
         }
 
         for (const tr of deleteTrs) {
-          await commonRemove(subdomain, models, tr);
+          await commonRemove(subdomain, models, tr, oldGroupTrs);
           await models.Transactions.deleteMany({
             $or: [{ _id: tr._id }, { originId: tr._id }],
           });
@@ -768,7 +768,10 @@ export const loadTransactionClass = (
         );
       }
 
-      await commonRemove(subdomain, models, transaction);
+      const followTrs = await models.Transactions.find({
+        originId: _id,
+      }).lean();
+      await commonRemove(subdomain, models, transaction, followTrs);
       await models.Transactions.deleteMany({
         $or: [{ _id }, { originId: _id }],
       });
@@ -827,11 +830,13 @@ export const loadTransactionClass = (
       }
 
       await Promise.all(
-        summaryTrs.map((tr) => commonRemoveValidation(subdomain, models, tr)),
+        summaryTrs.map((tr) =>
+          commonRemoveValidation(subdomain, models, tr, summaryTrs),
+        ),
       );
 
       for (const tr of summaryTrs) {
-        await commonRemove(subdomain, models, tr);
+        await commonRemove(subdomain, models, tr, summaryTrs);
       }
 
       const response = await models.Transactions.deleteMany({

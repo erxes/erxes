@@ -6,17 +6,17 @@ import {
   Kbd,
   Sheet,
   Spinner,
-  usePreviousHotkeyScope,
   useScopedHotkeys,
-  useSetHotkeyScope,
   useToast,
 } from 'erxes-ui';
-import React, { useState } from 'react';
+import { useEffect } from 'react';
+import { ApolloError } from '@apollo/client';
 import { BranchHotKeyScope, TBranchForm } from '../../types/branch';
 import { BranchForm } from './BranchForm';
 import { useBranchForm } from '../../hooks/useBranchForm';
 import { SubmitHandler } from 'react-hook-form';
-import { useBranchAdd } from '../../hooks/useBranchActions';
+import { useBranchAdd, useBranchEdit } from '../../hooks/useBranchActions';
+import { useBranchCreateSheet } from '../../hooks/useStructureCreateSheet';
 import { Can, usePermissionCheck } from 'ui-modules';
 
 export const CreateBranch = () => {
@@ -25,59 +25,69 @@ export const CreateBranch = () => {
     methods,
     methods: { handleSubmit },
   } = useBranchForm();
-  const [open, setOpen] = useState<boolean>(false);
+  const { target, isOpen, openSheet, closeSheet } = useBranchCreateSheet();
   const { handleAdd, loading } = useBranchAdd();
+  const { handleEdit } = useBranchEdit();
   const { toast } = useToast();
-  const setHotkeyScope = useSetHotkeyScope();
-  const { setHotkeyScopeAndMemorizePreviousScope } = usePreviousHotkeyScope();
   const { isLoaded, hasActionPermission } = usePermissionCheck();
   const canManageBranches = isLoaded && hasActionPermission('branchesManage');
+  const presetParentId = target?.parentId;
 
-  const onOpen = () => {
-    setOpen(true);
-    setHotkeyScopeAndMemorizePreviousScope(BranchHotKeyScope.BranchAddSheet);
-  };
-
-  const onClose = () => {
-    setHotkeyScope(BranchHotKeyScope.BranchSettingsPage);
-    setOpen(false);
-  };
+  // A chart "+" opens the sheet with its parent already chosen
+  useEffect(() => {
+    methods.setValue('parentId', presetParentId ?? '');
+  }, [presetParentId, methods]);
 
   useScopedHotkeys(
     `c`,
     () => {
       if (!canManageBranches) return;
-      onOpen();
+      openSheet();
     },
     BranchHotKeyScope.BranchSettingsPage,
   );
-  useScopedHotkeys(`esc`, () => onClose(), BranchHotKeyScope.BranchAddSheet);
+  useScopedHotkeys(`esc`, () => closeSheet(), BranchHotKeyScope.BranchAddSheet);
 
-  const submitHandler: SubmitHandler<TBranchForm> = React.useCallback(
-    async (data) => {
-      handleAdd({
-        variables: data,
-        onCompleted: () => {
-          toast({
-            title: t('success'),
-            variant: 'success',
-            description: t('branch-created'),
+  const showError = (error: ApolloError) =>
+    toast({
+      title: t('error'),
+      description: error.message,
+      variant: 'destructive',
+    });
+
+  const submitHandler: SubmitHandler<TBranchForm> = (data) => {
+    const insertBefore = target?.insertBefore;
+
+    handleAdd({
+      variables: data,
+      onCompleted: ({ branchesAdd }) => {
+        if (insertBefore) {
+          // The backend rebuilds `order` from the code, so it must be sent
+          handleEdit({
+            variables: {
+              id: insertBefore._id,
+              code: insertBefore.code,
+              parentId: branchesAdd._id,
+            },
+            onError: showError,
           });
-          methods.reset();
-          setOpen(false);
-        },
-        onError: (error) =>
-          toast({
-            title: t('error'),
-            description: error.message,
-            variant: 'destructive',
-          }),
-      });
-    },
-    [handleAdd],
-  );
+        }
+        toast({
+          title: t('success'),
+          variant: 'success',
+          description: t('branch-created'),
+        });
+        methods.reset();
+        closeSheet();
+      },
+      onError: showError,
+    });
+  };
   return (
-    <Sheet onOpenChange={(open) => (open ? onOpen() : onClose())} open={open}>
+    <Sheet
+      onOpenChange={(open) => (open ? openSheet() : closeSheet())}
+      open={isOpen}
+    >
       <Can action="branchesManage">
         <Sheet.Trigger asChild>
           <Button>
@@ -108,7 +118,7 @@ export const CreateBranch = () => {
               <BranchForm />
             </Sheet.Content>
             <Sheet.Footer>
-              <Button variant={'ghost'} onClick={() => setOpen(false)}>
+              <Button variant={'ghost'} onClick={closeSheet}>
                 {t('cancel')}
               </Button>
               <Button type="submit" disabled={loading}>

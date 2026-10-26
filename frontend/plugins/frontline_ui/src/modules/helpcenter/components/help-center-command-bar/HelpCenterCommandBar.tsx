@@ -4,7 +4,9 @@ import { IHelpCenter } from '@/helpcenter/types';
 import { HelpCenterDelete } from './HelpCenterDelete';
 
 export const HelpCenterCommandBar = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.helpcenter',
+  });
   const { table } = RecordTable.useRecordTable();
 
   const selectedRows = table.getFilteredSelectedRowModel().rows;

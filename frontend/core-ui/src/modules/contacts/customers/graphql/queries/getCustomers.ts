@@ -5,6 +5,46 @@ import {
   GQL_PAGE_INFO,
 } from 'erxes-ui';
 
+// What a customers table row shows; a customer created from the table is
+// returned with the same fields so it can be added to the list in place.
+export const CUSTOMER_RECORD_TABLE_FIELDS = `
+  _id
+  firstName
+  middleName
+  lastName
+  avatar
+  sex
+  birthDate
+  primaryEmail
+  emails
+  primaryPhone
+  phones
+  updatedAt
+  position
+  department
+  leadStatus
+  hasAuthority
+  description
+  isSubscribed
+  code
+  emailValidationStatus
+  phoneValidationStatus
+  score
+  isOnline
+  lastSeenAt
+  links
+  state
+  ownerId
+  integrationId
+  createdAt
+  remoteAddress
+  location
+  propertiesData
+  trackedData
+  tagIds
+  cursor
+`;
+
 export const GET_CUSTOMERS = gql`
   query customersRecordTable(
     $segment: String
@@ -45,41 +85,7 @@ export const GET_CUSTOMERS = gql`
       ${GQL_CURSOR_PARAMS}
     ) {
       list {
-        _id
-        firstName
-        middleName
-        lastName
-        avatar
-        sex
-        birthDate
-        primaryEmail
-        emails
-        primaryPhone
-        phones
-        updatedAt
-        position
-        department
-        leadStatus
-        hasAuthority
-        description
-        isSubscribed
-        code
-        emailValidationStatus
-        phoneValidationStatus
-        score
-        isOnline
-        lastSeenAt
-        links
-        state
-        ownerId
-        integrationId
-        createdAt
-        remoteAddress
-        location
-        propertiesData
-        trackedData
-        tagIds
-        cursor
+        ${CUSTOMER_RECORD_TABLE_FIELDS}
       }
       ${GQL_PAGE_INFO}
     }

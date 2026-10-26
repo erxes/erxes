@@ -1,5 +1,5 @@
 import { ContactsBreadcrumb } from '@/contacts/components/ContactsBreadcrumb';
-import { CustomerAddSheet } from '@/contacts/customers/components/CustomerAddSheet';
+import { CustomerCreateButton } from '@/contacts/customers/components/CustomerCreateButton';
 import { useIsCustomerLeadSessionKey } from '@/contacts/customers/hooks/useCustomerLeadSessionKey';
 import { useTranslation } from 'react-i18next';
 import {
@@ -29,7 +29,7 @@ export const CustomersHeader = () => {
       <PageHeader.End>
         <SendEmailButton />
         <Can action="contactsCreate">
-          <CustomerAddSheet />
+          <CustomerCreateButton />
         </Can>
       </PageHeader.End>
     </PageHeader>

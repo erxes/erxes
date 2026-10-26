@@ -24,6 +24,8 @@ export enum AppPath {
   Automations = 'automations',
   AutomationsCatchAll = `/${Automations}/*`,
   MyInbox = 'my-inbox',
+  // Backward-compatible redirect only; Assistant has no full-page surface.
+  AgentCatchAll = 'agent/*',
   MyInboxCatchAll = `/${MyInbox}/*`,
   Logs = 'logs',
   LogsCatchAll = `/${Logs}/*`,

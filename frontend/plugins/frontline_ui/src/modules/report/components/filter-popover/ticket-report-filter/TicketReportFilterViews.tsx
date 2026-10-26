@@ -79,7 +79,9 @@ export const PipelineFilterView = ({
     skip: channelIds.length === 0,
   });
 
-  const { t: tPipeline } = useTranslation('frontline');
+  const { t: tPipeline } = useTranslation('frontline', {
+    keyPrefix: 'modules.report',
+  });
   return (
     <Command.List className="max-h-[500px] overflow-y-auto">
       {loading ? (
@@ -198,7 +200,7 @@ export const DescriptionFilterDialog = ({
   value: string;
   onChange: (value: string) => void;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const { setDialogView, setOpenDialog } = useFilterContext();
   const [draft, setDraft] = useState(value);
   useEffect(() => setDraft(value), [value]);

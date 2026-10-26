@@ -5,7 +5,7 @@ import { useFacebookBotHealthCell } from '~/widgets/automations/modules/facebook
 
 /** Whether Facebook is still accepting this bot's Messenger profile. */
 export const FacebookBotProfileHealth = ({ bot }: { bot?: IFacebookBot }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.facebook' });
   const { statusLabel, statusVariant } = useFacebookBotHealthCell(bot?.health);
 
   if (!bot?._id) {
