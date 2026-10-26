@@ -6,7 +6,7 @@
 - **Project:** `sales_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/sales_api`
-- **Last synchronized:** `2026-10-27`
+- **Last synchronized:** `2026-10-26`
 
 ## Scope
 
@@ -32,13 +32,6 @@
 
 ## Current Capabilities
 
-- Deal reads and writes made through GraphQL are filtered by the requesting
-  user's `deal` permission scope (`own`, `unit`, `position`, `department`,
-  `branch`, `all`). The `deal` module in `src/meta/permissions.ts` opts the
-  `deals` collection in through `scopeCollections`, matching `userId` and
-  `assignedUserIds` against the users in scope and `branchIds` /
-  `departmentIds` against the structure in scope. Core resolves the scope;
-  the shared `schemaWrapper` hooks apply it.
 - `pnpm nx run sales_api:schema:print` exports the existing subgraph schema,
   including subscriptions, to `generated/schema.graphql` for type-generation
   tooling without starting the Sales service or executing resolvers.
@@ -282,10 +275,6 @@
 
 ## Local Invariants
 
-- The `deal` permission module's `ownerFields`, `branchField` and
-  `departmentField` must name real `deals` fields. Internal work that must see
-  every deal inside a user request runs in `withoutPermissionScope` from
-  `erxes-api-shared/utils`; tRPC, workers and automations run unscoped.
 - Every automation action declares a `configSchema` (`src/modules/sales/meta/automations/configSchemas.ts` and `src/modules/pos/meta/automations/configSchemas.ts`) with exactly what its handler reads or refuses: create deal (`stageId`, `name`), create checklist (`name`) and create POS order (`posId` or `posToken`; amounts may be `{{ }}` placeholders). Write each field in the shape the builder form writes (text, not numbers or lists, where the form writes text). Change the schema with the handler; core publishes it to authors as `configJsonSchema` and enforces it when a flow goes live. Create deal also declares `validateConfig` (`src/modules/sales/meta/automations/configValidators.ts`): its `stageId` exists. POS `posToken` is builder-only.
 - Deal notifications are sent from `modules/sales/utils/notifications.ts`, not
   `modules/sales/utils.ts` (the barrel rule below). Each passes `event`:
