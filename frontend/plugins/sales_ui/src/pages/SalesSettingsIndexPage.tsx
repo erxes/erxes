@@ -3,7 +3,8 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { Suspense, lazy } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { BoardsList } from '@/deals/boards/components/settings/BoardsList';
+import { BoardForm } from '@/deals/boards/components/settings/BoardForm';
+import { useSettingsActiveBoard } from '@/deals/boards/components/settings/BoardsSettingsNavigation';
 import { IconSandbox } from '@tabler/icons-react';
 import { PipelineFormBar } from '@/deals/pipelines/components/PipelineFormBar';
 import { PipelineRecordTable } from '@/deals/pipelines/components/PipelineRecordTable';
@@ -23,15 +24,17 @@ const PosEditPage = lazy(() =>
 
 const DealsSettings = () => {
   const { t } = useTranslation('sales');
+  useSettingsActiveBoard();
+
   return (
     <PageContainer className="flex-row">
-      <BoardsList />
       <div className="relative flex min-w-0 flex-1 flex-col overflow-hidden">
         <SettingsHeader breadcrumbs={[]}>
           <Button variant="ghost">
             <IconSandbox />
             {t('boards-and-pipelines')}
           </Button>
+          <BoardForm />
           <PipelineFormBar />
         </SettingsHeader>
         <PipelineRecordTable />

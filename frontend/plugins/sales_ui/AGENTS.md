@@ -6,7 +6,7 @@
 - **Project:** `sales_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/sales_ui`
-- **Last synchronized:** `2026-10-23`
+- **Last synchronized:** `2026-10-26`
 
 ## Scope
 
@@ -36,6 +36,15 @@
   to keep local file watchers bounded.
 - Pipeline create/edit supports general settings, stages, product
   configuration, and grouped selection of Core `sales:deal` properties.
+- The deals settings pipelines table (`/sales/settings/deals`) filters by
+  name (`searchValue`), status (`pipelineStatus`: active / archived) and
+  creator (`createdBy`, matched on `userId`) through `PipelinesSubHeader`.
+  `salesPipelines` takes none of these arguments, so `PipelineRecordTable`
+  filters the loaded rows and, while any filter is set, keeps loading every
+  page; a failed page stops that loading with a toast and the bottom skeleton
+  row retries it.
+- The add deal form's properties hint opens
+  `/sales/settings/properties/sales:deal`, inside Sales settings.
 - "Score earn configuration" (`deals/loyaltyRules`, button beside Add
   pipeline, dialog state in `loyaltyRulesDialogOpenAtom`) edits the whole
   `salesLoyaltyRules` list at once in three groups — every board and every
@@ -174,7 +183,7 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   (`SalesSourceAutomationRemove`, evicted from the Apollo cache so every list
   showing it drops it).
 - Other plugins' sections (`relationSettingsWidgets`, from `ui-modules`
-  `useRelationSettingsModules`) become their own tabs: POS sidebar items keyed
+  `useRelationSettingsModules`) become their own tabs: POS settings sidebar items keyed
   `relation.<pluginName>.<name>` (`POS_RELATION_TAB_PREFIX`, saved POS only)
   and pipeline form tabs (saved pipeline only). Each renders
   `RelationSettingsWidget` (`PosRelationSettings` / `PipelineRelationSettings`)
@@ -198,6 +207,8 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
 | Registration        | `frontend/plugins/sales_ui/src/config.tsx`                                                           | Sales routes, navigation, and remote registration                                |
 | Dev server          | `frontend/plugins/sales_ui/rspack.config.ts`                                                         | Module Federation development serving and watch ignore rules                     |
 | Pipeline editor     | `frontend/plugins/sales_ui/src/modules/deals/pipelines`                                              | Pipeline form, stages, product config, and property selection                    |
+| Settings boards nav | `frontend/plugins/sales_ui/src/modules/deals/boards/components/settings/BoardsSettingsNavigation.tsx` | BOARDS settings sidebar group and `useSettingsActiveBoard`                       |
+| Settings POS tabs   | `frontend/plugins/sales_ui/src/modules/pos/components/PosSettingsTabs.tsx`                           | The open POS's tabs as a settings sidebar group                                  |
 | Deal detail         | `frontend/plugins/sales_ui/src/modules/deals/cards/components/detail`                                | Deal overview, properties, activity, products, and payments                      |
 | Product management  | `frontend/plugins/sales_ui/src/modules/deals/cards/components/detail/product`                        | Deal product table, filters, expanded view, row actions, footer totals, and save |
 | Product discounts   | `frontend/plugins/sales_ui/src/modules/deals/cards/components/detail/product/utils/discountInfos.ts` | Reconciles advanced-view row/footer discount edits into `hand` discount metadata |
@@ -281,6 +292,20 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   plugin settings, `config.tsx` has no `settingsNavigation`, and there is
   no `./salesSettings` expose; old `/settings/sales/…` URLs are redirected
   by core. The settings navigation renders no `Sidebar.GroupLabel`.
+- Below the shared Tags/Properties items, `SalesSettingsLayout` renders two
+  route-scoped `NavigationMenuGroup`s, and neither page has a side panel:
+  `BoardsSettingsNavigation` (BOARDS, only on `/sales/settings/deals`) lists
+  every board (archived ones badged); a row links to `?activeBoardId=<id>`,
+  its `⋯` menu edits (`boardId`), archives or deletes the board, and the group
+  `+` sets `createBoard=1`. `PosSettingsTabs` (only on
+  `/sales/settings/pos/<id>`, titled with the POS name) lists the POS steps
+  and other plugins' relation tabs as `?activeTab=` links.
+- `DealsSettings` calls `useSettingsActiveBoard`, which keeps
+  `activeBoardId` on an existing board (the first one by default, clearing
+  `pipelineId` and `tab` when it moves) and runs the board archive
+  subscription. It renders the single `BoardForm` in its `SettingsHeader`;
+  the dialog opens from `boardId` (edit) or `createBoard` (add), and closing
+  clears both. Keep one instance: a second copy stacks two dialogs.
 - All Sales documents use `gql()` from `~/gql`; hooks and cache/subscription updates
   infer their results from those documents. `eslint.config.js` enforces this
   with Operation's rules: `graphql-tag` and `gql` from `@apollo/client` are
@@ -435,7 +460,7 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
 - Expandable group rows (boards, POS) use `rounded-lg`; an active board row is
   gray (`bg-foreground/5 text-foreground`) while its active pipeline item keeps
   the purple `Sidebar.MenuButton` active tint, so the two never stack purple.
-- Page-level side menus render `Sidebar.Panel` from `erxes-ui`, which keeps its own open state (`sidebarPanelOpenState`), separate from the plugin's `AppLayout` sidebar. The panel sits beside the page header, never under it: the page is a row of the panel and a column holding the header and content. The panel passes its heading as `label`, which renders a 40px title row with optional `actions` and the collapse toggle on the right, level with the page header; when collapsed, the toggle moves into the header's panel slot. Do not add a second heading or an in-panel `Sidebar.PanelTrigger` row. Keep `<Sidebar collapsible="none">` for sidebars inside sheets and dialogs. `SalesSettingsIndexPage` renders `BoardsList` beside its `SettingsHeader`, and `PosEdit` takes the POS page header as `header` so `PosEditSidebar` sits beside it. `LeftSidebarLoading` renders the same panel with the trigger beside its first placeholder row. The deal settings `BoardsList` passes its heading as `label` and `BoardForm` as `actions`; keep that single `BoardForm` instance, because every instance opens its dialog from the `boardId` query state and a second copy stacks two dialogs on edit.
+- Page-level side menus render `Sidebar.Panel` from `erxes-ui`, which keeps its own open state (`sidebarPanelOpenState`), separate from the plugin's `AppLayout` sidebar. The panel sits beside the page header, never under it: the page is a row of the panel and a column holding the header and content. The panel passes its heading as `label`, which renders a 40px title row with optional `actions` and the collapse toggle on the right, level with the page header; when collapsed, the toggle moves into the header's panel slot. Do not add a second heading or an in-panel `Sidebar.PanelTrigger` row. Keep `<Sidebar collapsible="none">` for sidebars inside sheets and dialogs. `LeftSidebarLoading` renders the same panel with the trigger beside its first placeholder row. Settings pages use the settings sidebar groups instead of a panel; `PosEdit` still takes the POS page header as `header`.
 - Property choices must come only from Core `sales:deal` fields.
 - Deal detail chips render through erxes-ui `Combobox.ChipTrigger`; every chip except stage
   passes a translated `label` by default so the field is named.
