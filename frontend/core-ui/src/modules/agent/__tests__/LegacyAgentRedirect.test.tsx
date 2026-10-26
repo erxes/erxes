@@ -50,7 +50,7 @@ const openBookmark = (path: string) => {
         initialIndex={1}
       >
         <Routes>
-          <Route path="/agent/*" element={<LegacyAgentRedirect />} />
+          <Route path="/assistant/*" element={<LegacyAgentRedirect />} />
           <Route path="*" element={<Workspace />} />
         </Routes>
       </MemoryRouter>
@@ -60,18 +60,19 @@ const openBookmark = (path: string) => {
 };
 
 it('replaces old thread bookmarks with the workspace Assistant route and requests the same thread', () => {
-  const store = openBookmark('/agent/thread-1');
+  const store = openBookmark('/assistant/thread-1');
   expect(screen.getByText('/?panel=%2Fchat')).toBeTruthy();
   expect(store.get(agentSidePanelThreadRequestState)).toBe('thread-1');
   fireEvent.click(screen.getByRole('button', { name: 'Back' }));
   expect(screen.getByText('/contacts/customers')).toBeTruthy();
 });
 
-it.each(['/agent', '/agent/capabilities', '/agent/invalid/nested/path'])(
-  'opens Assistant without a thread for %s',
-  (path) => {
-    const store = openBookmark(path);
-    expect(screen.getByText('/?panel=%2Fchat')).toBeTruthy();
-    expect(store.get(agentSidePanelThreadRequestState)).toBeNull();
-  },
-);
+it.each([
+  '/assistant',
+  '/assistant/capabilities',
+  '/assistant/invalid/nested/path',
+])('opens Assistant without a thread for %s', (path) => {
+  const store = openBookmark(path);
+  expect(screen.getByText('/?panel=%2Fchat')).toBeTruthy();
+  expect(store.get(agentSidePanelThreadRequestState)).toBeNull();
+});

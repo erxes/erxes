@@ -4,9 +4,10 @@ The `agent` module is the core-ui surface for the core-api `agents` backend
 (ported from the former private `erxes-agent` plugin UI). It provides:
 
 - Assistant chat lives only in the shared side panel. There is no standalone
-  chat or capabilities page. `LegacyAgentRedirect` replaces old `/agent/*`
-  bookmarks with `/?panel=/chat`; an old thread id is forwarded through
-  `agentSidePanelThreadRequestState`. Settings stay at `/settings/agent/*`;
+  chat or capabilities page. `LegacyAgentRedirect` replaces `/assistant/*`
+  links with `/?panel=/chat`; a thread id is forwarded through
+  `agentSidePanelThreadRequestState`. `/agent/*` is left to the Company Brain
+  plugin (`agent_ui`). Settings stay at `/settings/agent/*`;
 - the top-bar `AssistantButton` (`CoreTab`) opens the shared `?panel=/chat`
   route and owns the permission-gated `mod+j` shortcut and unread indicator.
   There is no floating agent tray. The button and shortcut are unavailable

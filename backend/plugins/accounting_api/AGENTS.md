@@ -6,7 +6,7 @@
 - **Project:** `accounting_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/accounting_api`
-- **Last synchronized:** `2026-10-23`
+- **Last synchronized:** `2026-10-25`
 
 ## Scope
 
@@ -88,7 +88,7 @@
 | Report details      | `src/modules/accounting/utils/journalReports/details`        | Owns report-specific detail row lookups such as account statement more rows.                                            |
 | Rate adjustments    | `src/modules/accounting/utils/adjust*Rates.ts`               | Owns fund/debt daily validation, grouping, calculation, and transaction execution.                                      |
 | Closing adjustment  | `src/modules/accounting/utils/adjustClosings.ts`             | Owns temporary account closing calculation, tax impact calculation, and transaction execution.                          |
-| Fixed assets        | `src/modules/fixedAssets`                                    | Owns fixed asset categories, acquisition-backed fixed assets, optional owner-record ledger rows, and adjustment models. |
+| Fixed assets        | `src/modules/fixedAssets`                                    | Owns fixed asset categories, acquisition-backed fixed assets, and optional owner-record ledger rows; adjustment models live in `src/modules/accounting/db/models/AdjustFixedAssets.ts`. |
 
 ## Contracts
 
@@ -155,6 +155,8 @@
 - Fixed asset owner records generated from transactions must assign a per-fixed-asset fallback sequence when the source row omits one so legacy databases with a unique `fixedAssetId + sequence` index do not reject multiple unsequenced owner rows.
 
 ## Local Invariants
+
+- Fixed asset adjustment headers and depreciation details are one feature: keep both schemas in `db/definitions/adjustFixedAsset.ts`, both model loaders in `db/models/AdjustFixedAssets.ts`, their types in `@types/adjustFixedAsset.ts`, and their queries and SDL in the corresponding `adjustFixedAssets.ts` / `adjustFixedAsset.ts` files. Details belong to the parent adjustment and have no independent lifecycle. Keep `adjust_fixed_assets`, `adjust_fxa_details`, permissions and public GraphQL field names stable.
 
 - Deal → transaction handlers (`meta/afterProcessHandlers/dealToTrs.ts`, `dealToMovementTrs.ts`) take the deal owner from `getDealOwner` (`meta/afterProcessHandlers/utils.ts`): its company, else its customer, read from the deal's own `customerId` / `companyId` (no relations). Keep the completeness check local; this code runs under tests that mock `erxes-api-shared/utils`.
 - Transaction model callers supply complete follow rows to `commonRemove` and its validators for every journal. Group update/removal reuse the loaded parent/group rows; single removal loads its source's follows before dispatch. Journal removal handlers consume that context without fallback follow lookups.
@@ -266,7 +268,7 @@
 - Smoke scenario: add jobs A at quantity 5 and B at quantity 10, save/reopen and post once. Verify repeated products merge independently per side and job cost allocation is preserved. Edit posted actuals/accounts/locations/costs and confirm the existing parent/pointer updates without duplicate transactions; undo then remove the draft.
 
 - `pnpm nx run accounting_api:schema:print --skip-nx-cache` prints this subgraph offline for `gateway:schema:compose`.
-- No Nx lint target is defined; run `pnpm exec eslint` on changed TypeScript paths.
+- `pnpm nx lint accounting_api` (inferred from the workspace ESLint plugin).
 - `pnpm nx build accounting_api`
 - `pnpm nx test accounting_api`
 - `node_modules/.bin/tsc -p backend/plugins/accounting_api/tsconfig.build.json --noEmit`
