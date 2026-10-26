@@ -4,6 +4,7 @@ import { act, renderHook } from '@testing-library/react';
 import { randomUUID } from 'crypto';
 import { useAgentsChat } from '../hooks/useAgentsChat';
 import type { IAgentsRequestSelection } from '../transport';
+import { AgentsStreamStalledError } from '../streamHealth';
 
 jest.mock('ai', () => ({
   isToolUIPart: () => false,
@@ -356,6 +357,62 @@ it('detaches the old stream without forgetting its durable run, then reattaches 
   await act(async () => result.current.openThread('old'));
   expect(resume).toHaveBeenCalledTimes(1);
   expect(result.current.canReconnect).toBe(true);
+});
+
+it('asks the server once whether a run survived a stalled stream', async () => {
+  const resume = jest.fn(async () => undefined);
+  const chat = {
+    messages: [],
+    status: 'ready',
+    error: undefined as Error | undefined,
+    sendMessage: noop,
+    setMessages,
+    clearError: noop,
+    stop,
+    addToolApprovalResponse: noop,
+    resumeStream: resume,
+    regenerate: noop,
+  };
+  (useChat as jest.Mock).mockImplementation(() => chat);
+  load.mockResolvedValue(detail('thread'));
+  const { result, rerender } = renderHook(() => useAgentsChat());
+  await act(async () => result.current.openThread('thread'));
+  act(() => mockSetActiveRunId('run-1'));
+  expect(resume).not.toHaveBeenCalled();
+
+  chat.status = 'error';
+  chat.error = new AgentsStreamStalledError();
+  await act(async () => rerender());
+  expect(resume).toHaveBeenCalledTimes(1);
+
+  // The reconnect itself stalls again: the banner offers Reconnect instead
+  // of looping.
+  chat.error = new AgentsStreamStalledError();
+  await act(async () => rerender());
+  expect(resume).toHaveBeenCalledTimes(1);
+  expect(result.current.canReconnect).toBe(true);
+});
+
+it('does not reconnect after other errors', async () => {
+  const resume = jest.fn(async () => undefined);
+  (useChat as jest.Mock).mockReturnValue({
+    messages: [],
+    status: 'error',
+    error: new Error('Provider rate limit'),
+    sendMessage: noop,
+    setMessages,
+    clearError: noop,
+    stop,
+    addToolApprovalResponse: noop,
+    resumeStream: resume,
+    regenerate: noop,
+  });
+  load.mockResolvedValue(detail('thread'));
+  const { result, rerender } = renderHook(() => useAgentsChat());
+  await act(async () => result.current.openThread('thread'));
+  act(() => mockSetActiveRunId('run-1'));
+  await act(async () => rerender());
+  expect(resume).not.toHaveBeenCalled();
 });
 
 it('reopens the reported stored user/reply pair without manufacturing a second pair', async () => {

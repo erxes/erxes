@@ -219,6 +219,17 @@ The `agent` module is the core-ui surface for the core-api `agents` backend
   cannot execute until resume, so the SDK's all-tool-completed predicate would
   deadlock. Decisions carry their exact `toolCallId`; outstanding approval cards
   still require explicit answers, and older steps never authorize another send.
+- Restarts (`streamHealth.ts`): every agents SSE body passes through
+  `watchAgentsStream`; 20s without bytes (the backend writes keep-alive
+  comments every 5s) fails it with `AgentsStreamStalledError`, a network
+  `TypeError` the SDK treats as a disconnect. `useAgentsChat` then reconnects
+  once per run: the backend replays it, reports it finished (204), or answers
+  409 `AGENTS_RUN_INTERRUPTED`, which clears the run id. That code, also sent
+  as stream error text on server shutdown, shows `agent.run-interrupted` with
+  Retry (`regenerate`); a repeated stall shows `agent.stream-lost` with
+  Reconnect. `describeAgentsChatError` builds the banner text.
+  `__tests__/serverRestart.test.ts` drives the real SDK `Chat` and transport
+  through the restart, reconnect and Retry.
 - GraphQL documents in `graphql/` — `Agents*` prefixed operation names,
   consumed verbatim from the backend schema; `AgentsThreadsChanged` is a
   refetch signal only.
@@ -420,7 +431,6 @@ only read the API schema — every root field `__type`/`__schema` — read
 "Checked the API schema" (`agent.schema-checked`, live `agent.schema-checking`,
 en/mn), and consecutive ones in a section collapse into one step whose row
 lists every call's details; `toolCount` counts that step once), reasoning via
-
 `AgentThinkingBlock` (muted, expandable, shimmer while it is the live part).
 Approvals, ask_user and artifact cards are never folded.
 
@@ -482,9 +492,9 @@ shipped locale files (`__tests__/support/agentI18n.ts`).
 ## Validation
 
 - `pnpm nx test core-ui` — tests in `__tests__` + `artifacts/__tests__`.
-  `approvalRoundTrip.test.ts` resolves the repository from its fixture's own
-  path and runs it from the OS temp directory, so it passes under Nx (cwd
-  `frontend/core-ui`) and from the root alike.
+  Spawned SDK fixtures (`approvalRoundTrip`, `serverRestart`) resolve the
+  repository from their own path and run from the OS temp directory, so they
+  pass under Nx (cwd `frontend/core-ui`) and from the root alike.
 - `pnpm nx build core-ui` — rspack.
 - eslint on touched files — 0 errors expected.
 

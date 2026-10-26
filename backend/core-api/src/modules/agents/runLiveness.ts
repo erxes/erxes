@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto';
+import { AGENTS_RUN_INTERRUPTED_MESSAGE } from './agentsStream';
 import type { IAgentsRuntime } from './memory';
 
 interface IAgentsRunScope {
@@ -7,13 +8,21 @@ interface IAgentsRunScope {
   resourceId: string;
 }
 
+/**
+ * - `live`: a producer (or a suspended human-interaction gate) holds the run;
+ * - `interrupted`: the run was still marked running with no producer, so it
+ *   was just settled as failed — its process restarted or crashed;
+ * - `inactive`: not running in this scope, including a run that finished.
+ */
+export type TAgentsRunState = 'live' | 'interrupted' | 'inactive';
+
 /** Persisted running status is discovery data, not evidence of a live producer. */
-export const isAgentsRunAlive = async (
+export const probeAgentsRun = async (
   runtime: IAgentsRuntime,
   scope: IAgentsRunScope,
-): Promise<boolean> => {
+): Promise<TAgentsRunState> => {
   const { runs: suspended } = await runtime.agent.listSuspendedRuns(scope);
-  if (suspended.some((run) => run.runId === scope.runId)) return true;
+  if (suspended.some((run) => run.runId === scope.runId)) return 'live';
 
   const workflows = await runtime.mastra.getStorage()?.getStore('workflows');
   if (!workflows) throw new Error('Agents workflow storage is unavailable.');
@@ -25,7 +34,7 @@ export const isAgentsRunAlive = async (
   const owner = fenced
     ? await workflows.getRunOwnership({ runId: scope.runId })
     : null;
-  if (owner?.live) return true;
+  if (owner?.live) return 'live';
 
   // Standalone MongoDB and runs started before storage fencing use the native
   // Redis thread lease. It expires when the producing process stops renewing it.
@@ -38,7 +47,7 @@ export const isAgentsRunAlive = async (
       scope.resourceId,
     ))
   )
-    return true;
+    return 'live';
 
   const snapshot = await workflows.loadWorkflowSnapshot({
     workflowName: DurableStepIds.AGENTIC_LOOP,
@@ -52,7 +61,7 @@ export const isAgentsRunAlive = async (
     memoryInfo?.threadId !== scope.threadId ||
     memoryInfo?.resourceId !== scope.resourceId
   )
-    return false;
+    return 'inactive';
 
   const claim = fenced
     ? await workflows.claimRunOwnership({
@@ -63,7 +72,7 @@ export const isAgentsRunAlive = async (
       })
     : undefined;
   // A producer/recoverer won the race. Never terminate its execution.
-  if (claim && !claim.acquired) return true;
+  if (claim && !claim.acquired) return 'live';
 
   const fence = claim?.acquired
     ? {
@@ -75,7 +84,7 @@ export const isAgentsRunAlive = async (
   try {
     // Native storage transition, without re-executing tools or model calls.
     // Terminal discovery also releases message editing from the stale run.
-    await workflows.updateWorkflowState({
+    const settled = await workflows.updateWorkflowState({
       workflowName: DurableStepIds.AGENTIC_LOOP,
       runId: scope.runId,
       opts: {
@@ -83,13 +92,13 @@ export const isAgentsRunAlive = async (
         expectedStatus: 'running',
         error: {
           name: 'AgentsRunInterrupted',
-          message:
-            'The response was interrupted by a server restart. Send a new message to continue.',
+          message: AGENTS_RUN_INTERRUPTED_MESSAGE,
         },
       },
       ...(fence ? { fence } : {}),
     });
-    return false;
+    // No write: the run left `running` (it finished) after the read above.
+    return settled ? 'interrupted' : 'inactive';
   } finally {
     if (fence) await workflows.releaseRunOwnership(fence);
   }

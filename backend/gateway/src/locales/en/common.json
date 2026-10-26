@@ -682,6 +682,8 @@
     "remove-context": "Remove page context",
     "reconnect": "Reconnect",
     "dismiss-error": "Dismiss error",
+    "run-interrupted": "The server restarted while answering. Retry to continue.",
+    "stream-lost": "Lost the connection to the server.",
     "no-connection": "Connect an AI provider before chatting. Keys stay on your account.",
     "set-up": "Set up",
     "settings": "Settings",

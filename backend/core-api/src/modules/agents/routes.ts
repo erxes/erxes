@@ -20,9 +20,6 @@ import type { MastraMemory } from '@mastra/core/memory' with {
 import type { DurableAgent } from '@mastra/core/agent/durable' with {
   'resolution-mode': 'import',
 };
-import type { MastraModelOutput } from '@mastra/core/stream' with {
-  'resolution-mode': 'import',
-};
 import type { IAiAgentConnection } from 'erxes-api-shared/core-modules';
 import { randomUUID } from 'crypto';
 import express, { Router } from 'express';
@@ -44,7 +41,12 @@ import { findDefaultConnection } from '@/agents/db/models/Connection';
 import { getAgentsRuntime } from '@/agents/memory';
 import { describeUnreadableKey } from '@/agents/providerModels';
 import { openSecret } from '@/agents/secretBox';
-import { isAgentsRunAlive } from '@/agents/runLiveness';
+import { probeAgentsRun } from '@/agents/runLiveness';
+import {
+  agentsRunInterruptedError,
+  describeAgentsStreamError,
+  pipeAgentsStream,
+} from '@/agents/agentsStream';
 import { publishAgentsThreadsChanged } from '@/agents/threadsEvents';
 import {
   AgentsMessageEditError,
@@ -253,8 +255,11 @@ const assertUsableConnectionKey = (connection: IAiAgentConnection): void => {
 const parseThinkingLevel = (value: unknown): IAgentsThinkingLevel =>
   isAgentsThinkingLevel(value) ? value : 'off';
 
-/** Bounds reconnects to orphaned running snapshots with no live producer. */
-const AGENTS_RECONNECT_IDLE_TIMEOUT_MS = 60_000;
+/**
+ * How often a quiet reconnect re-checks its run's producer. A live producer
+ * re-arms the wait; a dead one is reported once its native lease lapses.
+ */
+const AGENTS_RECONNECT_IDLE_TIMEOUT_MS = 10_000;
 
 /**
  * Reads the tenant's feature flags so chat stamps them into the
@@ -392,56 +397,6 @@ const buildPageContextText = (context: {
     : '';
 
   return `${PAGE_CONTEXT_PREFIX} The user is viewing ${context.path}.${record}`;
-};
-
-/**
- * Readable client-facing message for a failed model stream. Mastra's
- * `@mastra/ai-sdk` adapter may hand `onError` a plain serialized error
- * object (`{ name, message, stack }`) rather than an `Error` instance, so
- * both shapes are unwrapped. Provider errors (rate limits, unsupported
- * parameters, invalid keys) carry actionable text and no secrets — the
- * API key never appears in an error body — so the message is forwarded
- * instead of a generic dead end.
- */
-const describeStreamError = (error: unknown): string => {
-  const message =
-    error instanceof Error
-      ? error.message
-      : typeof error === 'object' &&
-          error !== null &&
-          'message' in error &&
-          typeof error.message === 'string'
-        ? error.message
-        : '';
-
-  return message.trim() || 'The model failed to generate a response.';
-};
-
-/**
- * Pipes a MastraModelOutput to the response as an AI SDK v7 UI message
- * stream, exposing the conversation id before streaming starts so clients
- * can continue the same thread on their next request.
- */
-const pipeModelOutput = async (
-  res: express.Response,
-  threadId: string,
-  output: MastraModelOutput,
-): Promise<void> => {
-  res.setHeader('X-Agents-Thread-Id', threadId);
-
-  // 'ai' and '@mastra/ai-sdk' are ESM-only; load them dynamically from
-  // CommonJS.
-  const { pipeUIMessageStreamToResponse } = await import('ai');
-  const { toAISdkStream } = await import('@mastra/ai-sdk');
-
-  pipeUIMessageStreamToResponse({
-    response: res,
-    stream: toAISdkStream(output, {
-      from: 'agent',
-      version: 'v7',
-      onError: (error) => describeStreamError(error),
-    }),
-  });
 };
 
 /** Which suspension kind a resume route decides. */
@@ -888,7 +843,7 @@ router.post('/agents/chat', async (req, res) => {
         })
       : await start();
 
-    await pipeModelOutput(res, threadId, result.output);
+    await pipeAgentsStream(res, threadId, result.output);
   } catch (error) {
     if (
       error instanceof AgentsPageSelectionError ||
@@ -989,7 +944,7 @@ router.post('/agents/approve', async (req, res) => {
           ...(reason ? { reason } : {}),
         });
 
-    await pipeModelOutput(res, threadId, output);
+    await pipeAgentsStream(res, threadId, output);
   } catch (error) {
     const status = errorStatus(error);
 
@@ -1078,7 +1033,7 @@ router.post('/agents/answer', async (req, res) => {
       buildResumeOptions({ suspended, identity, threadId, res }),
     );
 
-    await pipeModelOutput(res, threadId, output);
+    await pipeAgentsStream(res, threadId, output);
   } catch (error) {
     const status = errorStatus(error);
 
@@ -1157,20 +1112,37 @@ router.post('/agents/chat/reconnect', async (req, res) => {
       return;
     }
 
+    // A stored running status is only discovery data: check the producer
+    // first, so a run orphaned by a restart is reported at once (and settled
+    // without replaying its tools) instead of after an idle wait.
+    const scope = { runId, threadId, resourceId: identity.userId };
+    const state = await probeAgentsRun(runtime, scope);
+
+    if (state === 'interrupted') {
+      res.status(409).json(agentsRunInterruptedError());
+      return;
+    }
+
+    if (state === 'inactive') {
+      res.status(204).end();
+      return;
+    }
+
     // Pipe the observed output through the same AI SDK v7 SSE pipeline.
     // Pass onSuspended so a run that suspends after reconnect ends the
     // HTTP response (headersSent is true during SSE; check writableEnded).
-    // Native ownership/lease liveness keeps slow live runs open, while a
-    // producerless running snapshot is settled without replaying its tools.
+    // Native ownership/lease liveness keeps slow live runs open; a producer
+    // that dies while observed ends the stream with the restart error.
+    let producerGone = false;
     const observed = await runtime.agent.observe(runId, {
       idleTimeoutMs: AGENTS_RECONNECT_IDLE_TIMEOUT_MS,
       // Backend errors propagate: Mastra preserves the observer during a
       // transient storage/Redis failure instead of declaring a live run dead.
-      isAlive: () => isAgentsRunAlive(runtime, {
-        runId,
-        threadId,
-        resourceId: identity.userId,
-      }),
+      isAlive: async () => {
+        const next = await probeAgentsRun(runtime, scope);
+        producerGone = next === 'interrupted';
+        return next === 'live';
+      },
       onSuspended: () => {
         if (!res.writableEnded) {
           res.end();
@@ -1178,7 +1150,13 @@ router.post('/agents/chat/reconnect', async (req, res) => {
       },
     });
 
-    await pipeModelOutput(res, threadId, observed.output);
+    await pipeAgentsStream(res, threadId, observed.output, {
+      observed: true,
+      describeError: (error) =>
+        producerGone
+          ? JSON.stringify(agentsRunInterruptedError())
+          : describeAgentsStreamError(error),
+    });
   } catch (error) {
     const status = errorStatus(error);
 

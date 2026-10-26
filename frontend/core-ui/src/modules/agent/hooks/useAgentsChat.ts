@@ -28,6 +28,7 @@ import type {
   IAgentsRequestSelection,
   IPendingAnswer,
 } from '../transport';
+import { isAgentsStreamStalled } from '../streamHealth';
 import { AgentsChatTransport } from '../transport';
 import {
   decodeInFlightTurn,
@@ -1023,6 +1024,27 @@ export const useAgentsChat = (options?: {
   const resumeStream = useCallback(async () => {
     if (threadIdRef.current) await openThread(threadIdRef.current);
   }, [openThread]);
+
+  // A stalled stream is a lost connection, not a verdict on the run: ask the
+  // server once per run whether its producer survived. The reconnect replays
+  // the reply, finds it finished, or reports the restart.
+  const autoReconnectedRunRef = useRef<string | undefined>(undefined);
+
+  useEffect(() => {
+    const runId = activeRunIdRef.current;
+
+    if (
+      status !== 'error' ||
+      !isAgentsStreamStalled(error) ||
+      !runId ||
+      autoReconnectedRunRef.current === runId
+    ) {
+      return;
+    }
+
+    autoReconnectedRunRef.current = runId;
+    void resumeStream();
+  }, [status, error, resumeStream]);
 
   const retryLastTurn = useCallback(() => {
     void regenerate().catch(() => {

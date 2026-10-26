@@ -16,7 +16,7 @@ import { resolveAgentsReference } from '@/agents/referenceResolution';
  */
 
 import { router } from '@/agents/routes';
-import { isAgentsRunAlive } from '@/agents/runLiveness';
+import { probeAgentsRun } from '@/agents/runLiveness';
 import { checkPermissionGroup } from 'erxes-api-shared/core-modules';
 import { ExpectedError } from 'erxes-api-shared/utils';
 import { Readable } from 'stream';
@@ -72,7 +72,7 @@ jest.mock('@/agents/agent', () => ({
     maxOutputTokens: 2000,
   })),
 }));
-jest.mock('@/agents/runLiveness', () => ({ isAgentsRunAlive: jest.fn() }));
+jest.mock('@/agents/runLiveness', () => ({ probeAgentsRun: jest.fn() }));
 jest.mock('@/agents/memory', () => ({
   getAgentsMemory: jest.fn(),
   getAgentsRuntime: jest.fn(),
@@ -167,6 +167,7 @@ interface IFakeResponse {
   json(payload: unknown): void;
   setHeader(name: string, value: string): void;
   end(): void;
+  once(event: string, listener: () => void): IFakeResponse;
 }
 
 const buildRes = (): IFakeResponse => {
@@ -190,6 +191,10 @@ const buildRes = (): IFakeResponse => {
     },
     end() {
       res.writableEnded = true;
+    },
+    // Reconnect streams listen for the connection closing.
+    once() {
+      return res;
     },
   };
   return res;
@@ -411,7 +416,7 @@ let memory: IMemoryFake;
 beforeEach(() => {
   jest.clearAllMocks();
   jest.mocked(checkPermissionGroup).mockImplementation(() => async () => undefined);
-  jest.mocked(isAgentsRunAlive).mockResolvedValue(true);
+  jest.mocked(probeAgentsRun).mockResolvedValue('live');
   // Restore default implementations that mockResolvedValue overrides.
   listSuspendedRunsMock.mockImplementation(async () => ({
     runs: [],
@@ -462,10 +467,30 @@ beforeEach(() => {
         },
       }) as unknown as Awaited<ReturnType<typeof buildAgentsRequestContext>>,
   );
-  mockedToAISdkStream.mockImplementation((stream: unknown) => ({
-    wrapped: stream,
-  }));
+  mockedToAISdkStream.mockImplementation(
+    (stream: unknown) =>
+      new ReadableStream({
+        start(controller) {
+          controller.enqueue({ wrapped: stream });
+          controller.close();
+        },
+      }),
+  );
 });
+
+/** The chunks the route handed to the AI SDK pipe, read to the end. */
+const pipedChunks = async (): Promise<unknown[]> => {
+  const { stream } = mockedPipe.mock.calls[0][0] as {
+    stream: ReadableStream<unknown>;
+  };
+  const chunks: unknown[] = [];
+  const reader = stream.getReader();
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) return chunks;
+    chunks.push(value);
+  }
+};
 
 const body = (res: IFakeResponse) =>
   res.body as {
@@ -795,11 +820,9 @@ describe('POST /agents/chat — model input and identity', () => {
       expect.objectContaining({ version: 'v7' }),
     );
     expect(mockedPipe).toHaveBeenCalledWith(
-      expect.objectContaining({
-        response: res,
-        stream: { wrapped: OUTPUT_SENTINEL },
-      }),
+      expect.objectContaining({ response: res, keepAliveMs: 5_000 }),
     );
+    await expect(pipedChunks()).resolves.toEqual([{ wrapped: OUTPUT_SENTINEL }]);
   });
 
   it('forwards provider error text from serialized and native onError shapes', async () => {
@@ -1251,11 +1274,9 @@ describe('POST /agents/approve — destructive action approval resume', () => {
       expect.objectContaining({ version: 'v7' }),
     );
     expect(mockedPipe).toHaveBeenCalledWith(
-      expect.objectContaining({
-        response: res,
-        stream: { wrapped: APPROVED_OUTPUT_SENTINEL },
-      }),
+      expect.objectContaining({ response: res, keepAliveMs: 5_000 }),
     );
+    await expect(pipedChunks()).resolves.toEqual([{ wrapped: APPROVED_OUTPUT_SENTINEL }]);
   });
 
   it('declines the held tool call with the user’s reason instead of executing it', async () => {
@@ -1752,11 +1773,9 @@ describe('POST /agents/answer — ask_user answer resume', () => {
       }),
     );
     expect(mockedPipe).toHaveBeenCalledWith(
-      expect.objectContaining({
-        response: res,
-        stream: { wrapped: RESUMED_OUTPUT_SENTINEL },
-      }),
+      expect.objectContaining({ response: res, keepAliveMs: 5_000 }),
     );
+    await expect(pipedChunks()).resolves.toEqual([{ wrapped: RESUMED_OUTPUT_SENTINEL }]);
   });
 
   it('resumes with a trimmed multi-select answer array', async () => {
@@ -2106,7 +2125,7 @@ describe('POST /agents/chat/reconnect', () => {
     expect(observeMock).toHaveBeenCalledWith(
       targetRunId,
       expect.objectContaining({
-        idleTimeoutMs: 60_000,
+        idleTimeoutMs: 10_000,
         onSuspended: expect.any(Function),
       }),
     );
@@ -2231,7 +2250,7 @@ describe('POST /agents/chat/reconnect', () => {
 
     const observeOptions = observeMock.mock.calls[0][1];
 
-    jest.mocked(isAgentsRunAlive).mockResolvedValue(false);
+    jest.mocked(probeAgentsRun).mockResolvedValue('inactive');
 
     await expect(observeOptions?.isAlive?.()).resolves.toBe(false);
   });
@@ -2256,11 +2275,91 @@ describe('POST /agents/chat/reconnect', () => {
 
     // Mastra catches isAlive throws as "still alive", so a momentary store
     // failure must never resolve the probe to false here.
-    jest.mocked(isAgentsRunAlive).mockRejectedValue(new Error('store unavailable'));
+    jest.mocked(probeAgentsRun).mockRejectedValue(new Error('store unavailable'));
 
     await expect(observeOptions?.isAlive?.()).rejects.toThrow(
       'store unavailable',
     );
+  });
+
+  it('reports a run whose producer is gone at once instead of waiting on it', async () => {
+    memory.getThreadById.mockResolvedValue({ resourceId: 'user-1' });
+    const targetRunId = '550e8400-e29b-41d4-a716-446655440000';
+    listActiveRunsMock.mockResolvedValue({
+      runs: [{ runId: targetRunId, status: 'running' }],
+      total: 1,
+    });
+    jest.mocked(probeAgentsRun).mockResolvedValue('interrupted');
+    const res = buildRes();
+    await reconnectHandler(
+      buildReq({
+        user: ACTING_USER,
+        body: { threadId: 't1', runId: targetRunId },
+      }),
+      res,
+    );
+
+    expect(res.statusCode).toBe(409);
+    expect(res.body).toEqual({
+      error: 'The server restarted while answering. Retry to continue.',
+      code: 'AGENTS_RUN_INTERRUPTED',
+    });
+    expect(observeMock).not.toHaveBeenCalled();
+    expect(mockedPipe).not.toHaveBeenCalled();
+  });
+
+  it('returns 204 when the active run finished before its producer was checked', async () => {
+    memory.getThreadById.mockResolvedValue({ resourceId: 'user-1' });
+    const targetRunId = '550e8400-e29b-41d4-a716-446655440000';
+    listActiveRunsMock.mockResolvedValue({
+      runs: [{ runId: targetRunId, status: 'running' }],
+      total: 1,
+    });
+    jest.mocked(probeAgentsRun).mockResolvedValue('inactive');
+    const res = buildRes();
+    await reconnectHandler(
+      buildReq({
+        user: ACTING_USER,
+        body: { threadId: 't1', runId: targetRunId },
+      }),
+      res,
+    );
+
+    expect(res.statusCode).toBe(204);
+    expect(observeMock).not.toHaveBeenCalled();
+  });
+
+  it('ends an observed run with the restart error when its producer dies', async () => {
+    memory.getThreadById.mockResolvedValue({ resourceId: 'user-1' });
+    const targetRunId = '550e8400-e29b-41d4-a716-446655440000';
+    listActiveRunsMock.mockResolvedValue({
+      runs: [{ runId: targetRunId, status: 'running' }],
+      total: 1,
+    });
+    await reconnectHandler(
+      buildReq({
+        user: ACTING_USER,
+        body: { threadId: 't1', runId: targetRunId },
+      }),
+      buildRes(),
+    );
+    const { onError } = mockedToAISdkStream.mock.calls[0][1] as {
+      onError: (error: unknown) => string;
+    };
+    const idle = new Error(
+      'Durable agent stream idle for 10000ms with no live producer',
+    );
+    expect(onError(idle)).toBe(idle.message);
+
+    jest.mocked(probeAgentsRun).mockResolvedValue('interrupted');
+    await expect(observeMock.mock.calls[0][1]?.isAlive?.()).resolves.toBe(
+      false,
+    );
+
+    expect(JSON.parse(onError(idle))).toEqual({
+      error: 'The server restarted while answering. Retry to continue.',
+      code: 'AGENTS_RUN_INTERRUPTED',
+    });
   });
 
   it('ends the stream instead of crashing when piping fails after headers were sent', async () => {
@@ -2482,7 +2581,7 @@ describe('POST /agents/chat — page context', () => {
     ]) {
       jest.clearAllMocks();
   jest.mocked(checkPermissionGroup).mockImplementation(() => async () => undefined);
-  jest.mocked(isAgentsRunAlive).mockResolvedValue(true);
+  jest.mocked(probeAgentsRun).mockResolvedValue('live');
       const res = buildRes();
       await chatHandler(
         buildReq({
@@ -2507,7 +2606,7 @@ describe('POST /agents/chat — page context', () => {
     ]) {
       jest.clearAllMocks();
   jest.mocked(checkPermissionGroup).mockImplementation(() => async () => undefined);
-  jest.mocked(isAgentsRunAlive).mockResolvedValue(true);
+  jest.mocked(probeAgentsRun).mockResolvedValue('live');
       const res = buildRes();
       await chatHandler(
         buildReq({
@@ -2916,7 +3015,7 @@ describe('agentsChat permission enforcement', () => {
     listActiveRunsMock.mockResolvedValue({runs: [{runId, status: 'running'}], total: 1});
     await reconnectHandler(buildReq({user: ACTING_USER, body: {threadId: 'thread', runId}}), buildRes());
     await observeMock.mock.calls[0][1]?.isAlive?.();
-    expect(isAgentsRunAlive).toHaveBeenCalledWith(
+    expect(probeAgentsRun).toHaveBeenCalledWith(
       expect.objectContaining({memory}),
       {runId, threadId: 'thread', resourceId: ACTING_USER._id},
     );

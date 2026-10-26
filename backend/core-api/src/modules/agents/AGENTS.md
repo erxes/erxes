@@ -110,7 +110,9 @@ plugin; ported from the former private `erxes-agent` service). It provides:
   `findDefaultConnection`; `X-Agents-Thread-Id` response header),
   `POST /agents/approve` `{ threadId, toolCallId?, approved, reason? }`,
   `POST /agents/answer` `{ threadId, answer }`,
-  `POST /agents/chat/reconnect` `{ threadId, runId }` (SSE replay or 204).
+  `POST /agents/chat/reconnect` `{ threadId, runId }` (SSE replay, 204 when
+  not running, or 409 `{ error, code: 'AGENTS_RUN_INTERRUPTED' }` when the
+  run's producer is gone — probed before observing, never after an idle wait).
   All require the gateway `user` header and `agentsChat`, including plain text,
   approval, answer and reconnect requests. Permission denial precedes credential,
   runtime and attachment access. Chat then resolves the connection and checks
@@ -192,12 +194,31 @@ plugin; ported from the former private `erxes-agent` service). It provides:
   them with automatic crash recovery off. Terminal snapshots prevent completed
   runs appearing active. Browser stream cancellation detaches observation and
   never aborts backend execution. Automatic crash replay remains off.
-- `runLiveness.ts` uses native workflow ownership or the native Redis thread
-  lease to distinguish live producers from orphaned running snapshots. Suspended
-  human-interaction gates remain live. Idle observation settles abandoned runs
-  as failed through native storage (with ownership fencing when supported and an
-  expected-running status guard), without replaying tools. Backend probe errors
+- `runLiveness.ts` — `probeAgentsRun` returns `live` / `interrupted` /
+  `inactive` from native workflow ownership or the native Redis thread lease
+  (30s / 15s leases, so a crashed producer is detected once its lease lapses).
+  Suspended human-interaction gates remain live. A producerless running
+  snapshot is settled as failed (`AgentsRunInterrupted`, the restart message)
+  through native storage (with ownership fencing when supported and an
+  expected-running status guard), without replaying tools; a run that left
+  `running` during the probe is `inactive`, never interrupted. Reconnect probes
+  before observing, then re-probes every 10s of silence; a producer that dies
+  while observed ends the stream with the restart error. Backend probe errors
   preserve the observer; terminal discovery no longer blocks message editing.
+  Interrupted runs fail clearly instead of resuming: Mastra `recover()`
+  re-drives a run from its last persisted step, so tool calls after that
+  checkpoint (approved mutations included) could run twice, and it waits for
+  the lapsed lease anyway.
+- `agentsStream.ts` — `pipeAgentsStream` (AI SDK v7 SSE with native
+  `keepAliveMs` 5s comments: the gateway holds a client connection open after
+  its producer process dies, so clients detect the silence),
+  `describeAgentsStreamError`, and `interruptAgentsStreams`, called from
+  `main.ts` on SIGINT/SIGTERM before the HTTP server closes: chat, approve and
+  answer streams (runs produced in this process, which die with it) end with
+  an `error` chunk whose text is the JSON `{ error, code:
+  'AGENTS_RUN_INTERRUPTED' }` body (also the reconnect 409). Reconnect streams
+  pass `observed`: their run may live on another replica, so shutdown only
+  drops the connection and the client's stall detection reconnects.
 - `pubsub.ts` — process-wide `RedisStreamsPubSub` (key prefix `core-agents`,
   `REDIS_HOST`/`REDIS_PORT`/`REDIS_PASSWORD`) for cross-replica `observe`
   replay.
@@ -349,4 +370,7 @@ not the root. It brings `pdfjs-dist` (pinned by officeparser), `tesseract.js`
   `ts-blank-space` is mapped to a callable CJS stub in `jest.config.ts`.
 - `pnpm nx lint core-api` — repo has pre-existing lint errors outside this
   module; keep this module's files clean.
+- `__tests__/runLiveness.test.ts` and `__tests__/agentsStream.test.ts` run
+  `node --test` fixtures against the installed Mastra runtime (InMemoryStore,
+  real AI SDK pipe over HTTP); no DB, Redis, storage or provider is touched.
 - Smoke: `POST /agents/chat` without a `user` header returns 401.
