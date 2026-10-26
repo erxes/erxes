@@ -2,6 +2,7 @@ import { IContext } from '~/connectionResolvers';
 import { IPermissionInput } from 'erxes-api-shared/core-types';
 import { generateUserUpdateActivityLogs } from '~/modules/organization/team-member/meta/activity-log';
 import { clearGroupActionsCache } from 'erxes-api-shared/core-modules';
+import { notifyPermissionGroupRemoved } from '../../../utils';
 
 export const permissionMutations = {
   async permissionGroupAdd(
@@ -97,7 +98,7 @@ export const permissionMutations = {
       userIds?: string[];
       excludeUserIds?: string[];
     },
-    { models, checkPermission }: IContext,
+    { models, checkPermission, subdomain, user }: IContext,
   ) {
     await checkPermission('permissionsManage');
 
@@ -111,6 +112,15 @@ export const permissionMutations = {
       movedUserIds.map((userId) => clearGroupActionsCache({ userId })),
     );
 
+    await notifyPermissionGroupRemoved({
+      models,
+      subdomain,
+      fromUserId: user._id,
+      userIds: movedUserIds,
+      removedGroupId: fromGroupId,
+      addedGroupId: toGroupId,
+    });
+
     return { success: true, count: movedUserIds.length };
   },
 
@@ -118,16 +128,32 @@ export const permissionMutations = {
   async userUpdatePermissionGroups(
     _root: any,
     { userId, groupIds }: { userId: string; groupIds: string[] },
-    { models, checkPermission }: IContext,
+    { models, checkPermission, subdomain, user }: IContext,
   ) {
     await checkPermission('permissionsManage');
 
-    const user = await models.Users.findOne({ _id: userId });
-    if (!user) throw new Error('User not found');
+    const targetUser = await models.Users.findOne({ _id: userId });
+    if (!targetUser) throw new Error('User not found');
 
     await models.Users.updateUser(userId, { permissionGroupIds: groupIds });
 
     await clearGroupActionsCache({ userId });
+
+    const removedGroupIds = (targetUser.permissionGroupIds || []).filter(
+      (id) => !groupIds.includes(id),
+    );
+
+    await Promise.all(
+      removedGroupIds.map((removedGroupId) =>
+        notifyPermissionGroupRemoved({
+          models,
+          subdomain,
+          fromUserId: user._id,
+          userIds: [userId],
+          removedGroupId,
+        }),
+      ),
+    );
 
     return models.Users.findOne({ _id: userId });
   },

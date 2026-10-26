@@ -3,6 +3,7 @@ import {
   IPermissionConfig,
   IPermissionModule,
 } from 'erxes-api-shared/core-types';
+import { sendNotification } from 'erxes-api-shared/core-modules';
 import { getPlugin, getPlugins } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { permissions as corePermissions } from '~/meta/permissions';
@@ -144,7 +145,11 @@ const seedPermissionGroups = async (
       continue;
     }
 
-    await insertTemplates(models, plugin, getPermissionTemplates(plugin, config));
+    await insertTemplates(
+      models,
+      plugin,
+      getPermissionTemplates(plugin, config),
+    );
 
     newlySeeded.push(plugin);
   }
@@ -194,4 +199,55 @@ export const ensurePermissionGroups = async (
     seededTenants.delete(key);
     throw e;
   }
+};
+
+export const notifyPermissionGroupRemoved = async ({
+  models,
+  subdomain,
+  fromUserId,
+  userIds,
+  removedGroupId,
+  addedGroupId,
+}: {
+  models: IModels;
+  subdomain: string;
+  fromUserId: string;
+  userIds: string[];
+  removedGroupId: string;
+  addedGroupId?: string;
+}) => {
+  const recipientIds = userIds.filter((id) => id !== fromUserId);
+
+  if (!recipientIds.length) {
+    return;
+  }
+
+  const groups = await models.PermissionGroups.find(
+    { _id: { $in: [removedGroupId, addedGroupId].filter(Boolean) } },
+    { name: 1 },
+  ).lean();
+  const nameOf = (id?: string) =>
+    groups.find((group) => String(group._id) === id)?.name || id;
+
+  sendNotification(subdomain, {
+    title: 'Permission group removed',
+    message: addedGroupId
+      ? `You were moved from "${nameOf(removedGroupId)}" to "${nameOf(
+          addedGroupId,
+        )}". Your access may have changed.`
+      : `You were removed from "${nameOf(
+          removedGroupId,
+        )}". Your access may have changed.`,
+    type: 'warning',
+    fromUserId,
+    userIds: recipientIds,
+    contentType: 'core:permissions.permissionGroup',
+    contentTypeId: removedGroupId,
+    action: 'removed',
+    priority: 'medium',
+    notificationType: 'permissionGroupRemoved',
+    event: 'core:permissions:permissionGroupRemoved',
+  }).catch((e: Error) =>
+    console.error(`Permission notification failed: ${e.message}`),
+  );
 };
