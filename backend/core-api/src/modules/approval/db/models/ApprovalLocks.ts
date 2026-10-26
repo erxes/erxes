@@ -11,6 +11,7 @@ import {
 } from 'erxes-api-shared/core-modules';
 import { ExpectedError } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
+import { DOCUMENT_APPROVAL_CONTENT_TYPE } from '~/modules/documents/types';
 import {
   approvalLockSchema,
   IApprovalLockDocument,
@@ -74,6 +75,23 @@ const isDuplicateKeyError = (error: unknown) =>
   'code' in error &&
   (error as { code?: number }).code === 11000;
 
+const isDocumentObjectId = (contentType: string, contentId: string): boolean =>
+  contentType === DOCUMENT_APPROVAL_CONTENT_TYPE &&
+  /^[0-9a-f]{24}$/i.test(contentId);
+
+const normalizeContentId = (contentType: string, contentId: string): string =>
+  isDocumentObjectId(contentType, contentId)
+    ? contentId.toLowerCase()
+    : contentId;
+
+const contentIdFilter = (
+  contentType: string,
+  contentId: string,
+): string | RegExp =>
+  isDocumentObjectId(contentType, contentId)
+    ? new RegExp(`^${contentId}$`, 'i')
+    : contentId;
+
 export const loadApprovalLockClass = (models: IModels) => {
   const hasLockAccess = ({
     lock,
@@ -96,6 +114,7 @@ export const loadApprovalLockClass = (models: IModels) => {
     }) {
       return models.ApprovalLocks.findOne({
         ...input,
+        contentId: contentIdFilter(input.contentType, input.contentId),
         status: APPROVAL_LOCK_STATUSES.ACTIVE,
       }).lean<ApprovalLock | null>();
     }
@@ -116,6 +135,18 @@ export const loadApprovalLockClass = (models: IModels) => {
       input: ApprovalLockStateInput,
     ): Promise<ApprovalLockState> {
       const { user, contentType, contentId, action } = input;
+      if (contentType === DOCUMENT_APPROVAL_CONTENT_TYPE) {
+        const [state] = await models.ApprovalLocks.getStates({
+          user,
+          contentType,
+          contentIds: [contentId],
+          ownerIdsByContentId: input.ownerId
+            ? { [contentId]: input.ownerId }
+            : undefined,
+          action,
+        });
+        return state;
+      }
       const lock = await models.ApprovalLocks.getActiveLock({
         contentType,
         contentId,
@@ -171,16 +202,33 @@ export const loadApprovalLockClass = (models: IModels) => {
     }: ApprovalLockStatesInput): Promise<ApprovalLockState[]> {
       const locks = await models.ApprovalLocks.find({
         contentType,
-        contentId: { $in: contentIds },
+        contentId: {
+          $in: contentIds.map((id) => contentIdFilter(contentType, id)),
+        },
         status: APPROVAL_LOCK_STATUSES.ACTIVE,
       }).lean<ApprovalLock[]>();
-      const locksByContentId = new Map(
-        locks.map((lock) => [lock.contentId, lock]),
+      const ownerIds = Object.fromEntries(
+        Object.entries(ownerIdsByContentId).map(([id, ownerId]) => [
+          normalizeContentId(contentType, id),
+          ownerId,
+        ]),
       );
+      const locksByContentId = new Map<string, ApprovalLock>();
+      for (const lock of locks) {
+        const id = normalizeContentId(contentType, lock.contentId);
+        const ownerId = ownerIds[id] || lock.ownerIdSnapshot;
+        if (
+          !locksByContentId.has(id) ||
+          !hasLockAccess({ lock, ownerId, user })
+        ) {
+          locksByContentId.set(id, lock);
+        }
+      }
       const inaccessibleLockIds = locks
         .filter((lock) => {
           const ownerId =
-            ownerIdsByContentId[lock.contentId] || lock.ownerIdSnapshot;
+            ownerIds[normalizeContentId(contentType, lock.contentId)] ||
+            lock.ownerIdSnapshot;
 
           return !hasLockAccess({ lock, ownerId, user });
         })
@@ -197,9 +245,9 @@ export const loadApprovalLockClass = (models: IModels) => {
       );
 
       return contentIds.map((contentId) => {
-        const lock = locksByContentId.get(contentId);
-        const ownerId =
-          ownerIdsByContentId[contentId] || lock?.ownerIdSnapshot || undefined;
+        const id = normalizeContentId(contentType, contentId);
+        const lock = locksByContentId.get(id);
+        const ownerId = ownerIds[id] || lock?.ownerIdSnapshot || undefined;
         const content = {
           contentType,
           contentId,
@@ -246,9 +294,19 @@ export const loadApprovalLockClass = (models: IModels) => {
     }
 
     public static async createLock(input: ApprovalLockCreateModelInput) {
+      if (
+        input.contentType === DOCUMENT_APPROVAL_CONTENT_TYPE &&
+        (await models.ApprovalLocks.getActiveLock({
+          contentType: input.contentType,
+          contentId: input.contentId,
+        }))
+      ) {
+        throw new ExpectedError('Resource is already locked', 'CONFLICT');
+      }
       try {
         const lock = await models.ApprovalLocks.create({
           ...input,
+          contentId: normalizeContentId(input.contentType, input.contentId),
           status: APPROVAL_LOCK_STATUSES.ACTIVE,
           createdAt: new Date(),
         });

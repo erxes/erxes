@@ -28,6 +28,38 @@ export const fontFamily = createStyleSpec(
   },
 );
 
+const fontSizeStyle = createStyleSpec(
+  {
+    type: 'fontSize',
+    propSchema: 'string',
+  },
+  {
+    render: (value) => {
+      const span = document.createElement('span');
+      span.style.fontSize = value;
+      return { dom: span };
+    },
+  },
+);
+
+export const fontSize = {
+  ...fontSizeStyle,
+  implementation: {
+    ...fontSizeStyle.implementation,
+    mark: fontSizeStyle.implementation.mark.extend({
+      parseHTML() {
+        return [
+          ...(this.parent?.() ?? []),
+          {
+            style: 'font-size',
+            getAttrs: (value) => ({ stringValue: value }),
+          },
+        ];
+      },
+    }),
+  },
+};
+
 export const BLOCK_SCHEMA = BlockNoteSchema.create({
   blockSpecs: {
     ...defaultBlockSpecs,
@@ -68,6 +100,7 @@ export const BLOCK_SCHEMA = BlockNoteSchema.create({
       },
     },
     fontFamily,
+    fontSize,
   },
 });
 

@@ -14,6 +14,7 @@ import {
   UnnestBlockButton,
 } from '@blocknote/react';
 import { FontFamilyButton } from 'erxes-ui/modules/blocks/components/FontFamilyButton';
+import { FontSizeButton } from 'erxes-ui/modules/blocks/components/FontSizeButton';
 import { ImageStyleButton } from 'erxes-ui/modules/blocks/components/ImageStyleButton';
 
 import { useToolbarComponents } from 'erxes-ui/modules/blocks/hooks/toolbar/useToolbarComponents';
@@ -30,6 +31,7 @@ export const ToolbarContents = () => {
       <FormattingToolbar>
         <BlockTypeSelect key={'blockTypeSelect'} />
         <FontFamilyButton key={'fontFamilyButton'} />
+        <FontSizeButton key={'fontSizeButton'} />
         <ImageStyleButton />
         <FileCaptionButton key={'fileCaptionButton'} />
         <FileReplaceButton key={'replaceFileButton'} />
