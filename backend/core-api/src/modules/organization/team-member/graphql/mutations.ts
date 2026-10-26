@@ -467,8 +467,12 @@ export const userMutations: Record<string, Resolver<any, any, IContext>> = {
   async usersSetChatStatus(
     _parent: undefined,
     { _id, status }: { _id: string; status: string },
-    { models }: IContext,
+    { user, models, checkPermission }: IContext,
   ) {
+    if (user._id !== _id) {
+      await checkPermission('teamMembersUpdate');
+    }
+
     return await models.Users.setChatStatus(_id, status);
   },
 
