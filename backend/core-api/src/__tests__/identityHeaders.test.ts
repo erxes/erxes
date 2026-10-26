@@ -38,6 +38,8 @@ const startCore = async (env: Record<string, string>): Promise<CoreProcess> => {
     [require.resolve('tsx/cli'), 'src/main.ts'],
     {
       cwd: CORE_ROOT,
+      // Own process group, so stopping it also stops tsx's child process.
+      detached: true,
       env: {
         PATH: process.env.PATH || '',
         HOME: process.env.HOME || '',
@@ -46,6 +48,10 @@ const startCore = async (env: Record<string, string>): Promise<CoreProcess> => {
         REDIS_HOST: '127.0.0.1',
         REDIS_PORT: String(redisPort),
         MONGO_URL: `mongodb://127.0.0.1:${mongoPort}/identity_test?directConnection=true`,
+        // Defined (even empty) so a local .env cannot supply them: dotenv
+        // never overrides a variable that is already set.
+        JWT_TOKEN_SECRET: '',
+        INTERNAL_HEADER_SIGNATURE: '',
         ...env,
       },
     },
@@ -87,7 +93,7 @@ const waitUntilServing = async (core: CoreProcess, timeoutMs = 60_000) => {
 
 const stopCore = async (core?: CoreProcess) => {
   if (core && core.child.exitCode === null) {
-    core.child.kill('SIGKILL');
+    process.kill(-(core.child.pid as number), 'SIGKILL');
     await core.exited;
   }
 };
@@ -190,7 +196,10 @@ describe('core-api startup', () => {
   afterEach(() => stopCore(core));
 
   it('refuses to start with INTERNAL_HEADER_SIGNATURE=enforce and no JWT_TOKEN_SECRET', async () => {
-    core = await startCore({ INTERNAL_HEADER_SIGNATURE: 'enforce' });
+    core = await startCore({
+      INTERNAL_HEADER_SIGNATURE: 'enforce',
+      JWT_TOKEN_SECRET: '',
+    });
 
     const code = await Promise.race([
       core.exited,
