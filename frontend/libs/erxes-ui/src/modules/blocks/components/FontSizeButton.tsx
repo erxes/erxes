@@ -21,7 +21,9 @@ export const FontSizeButton = () => {
           label="Font Size"
           mainTooltip="Font Size"
           icon={<IconTextSize size={16} />}
-        />
+        >
+          {currentSize || 'Default'}
+        </Components.FormattingToolbar.Button>
       </Components.Generic.Menu.Trigger>
       <Components.Generic.Menu.Dropdown className="bn-menu-dropdown bn-drag-handle-menu">
         <Components.Generic.Menu.Item
