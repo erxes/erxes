@@ -976,13 +976,13 @@ export const permissions: IPermissionConfig = {
           plugin: 'core',
           module: 'teamMembers',
           actions: ['teamMembersUpdate'],
-          scope: 'own',
+          scope: 'all',
         },
         {
           plugin: 'core',
           module: 'contacts',
           actions: ['contactsCreate', 'contactsUpdate'],
-          scope: 'own',
+          scope: 'all',
         },
         {
           plugin: 'core',
@@ -1000,7 +1000,7 @@ export const permissions: IPermissionConfig = {
           plugin: 'core',
           module: 'broadcasts',
           actions: ['broadcastRead', 'broadcastCreate', 'broadcastUpdate'],
-          scope: 'own',
+          scope: 'all',
         },
         {
           plugin: 'core',
@@ -1033,7 +1033,7 @@ export const permissions: IPermissionConfig = {
           plugin: 'core',
           module: 'contacts',
           actions: ['contactsCreate', 'contactsUpdate'],
-          scope: 'own',
+          scope: 'all',
         },
         {
           plugin: 'core',
@@ -1069,7 +1069,7 @@ export const permissions: IPermissionConfig = {
           plugin: 'core',
           module: 'documents',
           actions: ['manageDocuments', 'removeDocuments'],
-          scope: 'own',
+          scope: 'all',
         },
         {
           plugin: 'core',
@@ -1093,7 +1093,7 @@ export const permissions: IPermissionConfig = {
           plugin: 'core',
           module: 'teamMembers',
           actions: ['teamMembersUpdate'],
-          scope: 'own',
+          scope: 'all',
         },
         {
           plugin: 'core',
@@ -1105,7 +1105,7 @@ export const permissions: IPermissionConfig = {
           plugin: 'core',
           module: 'broadcasts',
           actions: ['broadcastCreate', 'broadcastUpdate'],
-          scope: 'own',
+          scope: 'all',
         },
         {
           plugin: 'core',
@@ -1153,7 +1153,7 @@ export const permissions: IPermissionConfig = {
           plugin: 'core',
           module: 'internalNotes',
           actions: ['internalNotesManage'],
-          scope: 'own',
+          scope: 'all',
         },
         {
           plugin: 'core',

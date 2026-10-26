@@ -11,7 +11,7 @@ import {
 import { getSubdomain } from '../../utils/utils';
 
 export const PERMISSION_SCOPES = {
-  OWN: 'own',
+  SELF: 'self',
   UNIT: 'unit',
   POSITION: 'position',
   DEPARTMENT: 'department',
@@ -20,7 +20,7 @@ export const PERMISSION_SCOPES = {
 } as const;
 
 export const STRUCTURE_PERMISSION_SCOPES: IPermissionScope[] = [
-  { name: PERMISSION_SCOPES.OWN, description: 'Records the user owns' },
+  { name: PERMISSION_SCOPES.SELF, description: 'Records the user owns' },
   {
     name: PERMISSION_SCOPES.UNIT,
     description: 'Records owned by members of the user units',
@@ -39,6 +39,8 @@ export const STRUCTURE_PERMISSION_SCOPES: IPermissionScope[] = [
   },
   { name: PERMISSION_SCOPES.ALL, description: 'All records' },
 ];
+
+export const LEGACY_PERMISSION_SCOPES = ['own', 'group'];
 
 const PERMISSION_SCOPE_CACHE_SECONDS = 60;
 

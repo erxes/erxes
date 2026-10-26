@@ -504,13 +504,13 @@ export const permissions: IPermissionConfig = {
             'conversationConvertToCard',
             'conversationEditCustomFields',
           ],
-          scope: 'group',
+          scope: 'all',
         },
         {
           plugin: 'frontline',
           module: 'ticket',
           actions: ['showTickets', 'createTicket', 'updateTicket'],
-          scope: 'group',
+          scope: 'all',
         },
         {
           plugin: 'frontline',

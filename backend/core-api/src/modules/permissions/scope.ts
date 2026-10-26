@@ -1,13 +1,12 @@
-import { PERMISSION_SCOPES } from 'erxes-api-shared/core-modules';
+import {
+  LEGACY_PERMISSION_SCOPES,
+  PERMISSION_SCOPES,
+} from 'erxes-api-shared/core-modules';
 import {
   escapeRegExp,
   IPermissionScopeResolution,
 } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
-
-const SCOPE_ALIASES: Record<string, string> = {
-  group: PERMISSION_SCOPES.DEPARTMENT,
-};
 
 const ALL_RECORDS: IPermissionScopeResolution = {
   all: true,
@@ -158,7 +157,9 @@ export const resolvePermissionScope = async (
       )
       .map((permission) => {
         const scope = permission.scope || PERMISSION_SCOPES.ALL;
-        return SCOPE_ALIASES[scope] || scope;
+        return LEGACY_PERMISSION_SCOPES.includes(scope)
+          ? PERMISSION_SCOPES.ALL
+          : scope;
       }),
   );
 

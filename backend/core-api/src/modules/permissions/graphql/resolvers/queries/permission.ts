@@ -1,6 +1,9 @@
 import { IContext } from '~/connectionResolvers';
 import { IPermissionModule } from 'erxes-api-shared/core-types';
-import { STRUCTURE_PERMISSION_SCOPES } from 'erxes-api-shared/core-modules';
+import {
+  LEGACY_PERMISSION_SCOPES,
+  STRUCTURE_PERMISSION_SCOPES,
+} from 'erxes-api-shared/core-modules';
 import { getPlugins, getPlugin } from 'erxes-api-shared/utils';
 import { ensurePermissionGroups, getPermissionTemplates } from '../../../utils';
 
@@ -9,11 +12,16 @@ const withStructureScopes = (module: IPermissionModule) => {
     return module.scopes;
   }
 
-  const declared = new Set(module.scopes.map((scope) => scope.name));
+  const declared = module.scopes.filter(
+    (scope) => !LEGACY_PERMISSION_SCOPES.includes(scope.name),
+  );
+  const declaredNames = new Set(declared.map((scope) => scope.name));
 
   return [
-    ...module.scopes,
-    ...STRUCTURE_PERMISSION_SCOPES.filter((scope) => !declared.has(scope.name)),
+    ...declared,
+    ...STRUCTURE_PERMISSION_SCOPES.filter(
+      (scope) => !declaredNames.has(scope.name),
+    ),
   ];
 };
 
@@ -34,6 +42,7 @@ const mergePerm = (map: Map<string, any>, perm: any, plugin?: string) => {
 
   const priority: Record<string, number> = {
     own: 1,
+    self: 1,
     unit: 2,
     position: 3,
     group: 4,
