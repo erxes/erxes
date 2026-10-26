@@ -352,8 +352,6 @@ export const PipelineRecordTable = () => {
       },
     });
 
-  // The pipelines query has no name, status or creator filter, so filter
-  // the loaded rows.
   const search = queries.searchValue?.trim().toLowerCase();
   const statusFilter = queries.pipelineStatus;
   const createdBy = queries.createdBy;
@@ -365,9 +363,6 @@ export const PipelineRecordTable = () => {
       (!createdBy || pipeline.userId === createdBy),
   );
 
-  // Filters run on the loaded rows, so load every page while filtering;
-  // otherwise matches on later pages would be missed. A failed page stops
-  // the automatic loading; scrolling to the bottom skeleton row retries it.
   const requestedCursor = useRef<string | null | undefined>(undefined);
   const [failedCursor, setFailedCursor] = useState<string | null>();
   const loadingRemainingPages =

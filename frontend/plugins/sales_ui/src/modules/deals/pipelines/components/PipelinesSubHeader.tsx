@@ -3,7 +3,6 @@ import { SelectMember } from 'ui-modules';
 import { useTranslation } from 'react-i18next';
 import { PipelineStatusFilter } from './PipelineStatusFilter';
 
-/** Filters and record count above the deals settings pipelines table. */
 export const PipelinesSubHeader = ({
   count,
   loading,

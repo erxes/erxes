@@ -26,8 +26,6 @@ const PosTabsGroup = ({ posId }: Readonly<{ posId: string }>) => {
     })),
   ];
 
-  // A group of its own at the bottom, like BOARDS; `border-l` draws the
-  // vertical guide, as in the settings sidebar.
   return (
     <NavigationMenuGroup name={posDetail?.name || t('pos')}>
       <Sidebar.Sub className="border-l">
@@ -45,11 +43,6 @@ const PosTabsGroup = ({ posId }: Readonly<{ posId: string }>) => {
   );
 };
 
-/**
- * The open POS's tabs (and other plugins' tabs) in the sales settings
- * sidebar, so the POS edit page needs no side panel.
- */
-// `/sales/settings/pos/<id>`, with a nonempty id.
 const POS_EDIT_PATH = /^\/sales\/settings\/pos\/([^/]+)\/?$/;
 
 export const PosSettingsTabs = () => {

@@ -25,7 +25,6 @@ export const PosEdit = ({ id, header }: PosEditProps) => {
   }, [searchParams, setSearchParams]);
 
   return (
-    // Tabs are listed under this POS in the settings sidebar.
     <div className="flex h-full min-h-0">
       <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
         {header}

@@ -18,10 +18,6 @@ import { IBoard } from '@/deals/types/boards';
 import { useBoardArchiveSubscription } from '@/deals/boards/hooks/useBoardArchiveSubscription';
 import { useTranslation } from 'react-i18next';
 
-/**
- * Keeps `activeBoardId` on an existing board (the first one by default) and
- * the boards list fresh across archive changes, for the deals settings page.
- */
 export const useSettingsActiveBoard = () => {
   useBoardArchiveSubscription();
   const navigate = useNavigate();
@@ -69,15 +65,10 @@ function BoardsLoadingSkeleton() {
   );
 }
 
-/**
- * The BOARDS group of the sales settings sidebar, laid out like the deals
- * app sidebar, so the deals settings page needs no boards side panel.
- */
 export const BoardsSettingsNavigation = () => {
   const { t } = useTranslation('sales');
   const navigate = useNavigate();
   const location = useLocation();
-  // Only the deals settings page shows its boards.
   const onDealsPage = location.pathname === DEALS_SETTINGS_PATH;
   const { boards, loading, error } = useBoards({
     variables: { includeArchived: true },
@@ -100,7 +91,6 @@ export const BoardsSettingsNavigation = () => {
         </p>
       );
     }
-    // `border-l` draws the vertical guide, as in the settings sidebar.
     return (
       <Sidebar.Sub className="border-l">
         {boards.map((board) => (
@@ -117,13 +107,10 @@ export const BoardsSettingsNavigation = () => {
         <Button
           variant="ghost"
           size="icon"
-          // `visible` overrides the group's hover-only actions slot.
           className="visible text-muted-foreground"
           aria-label={t('add-board')}
           onClick={(event) => {
-            // The actions sit inside the group's collapse trigger.
             event.stopPropagation();
-            // Stay on the selected board.
             const params = new URLSearchParams(location.search);
             params.set('createBoard', '1');
             navigate(`${DEALS_SETTINGS_PATH}?${params.toString()}`);
@@ -138,8 +125,6 @@ export const BoardsSettingsNavigation = () => {
   );
 };
 
-// One board row, as in the deals app sidebar: the name selects it (its
-// pipelines show in the page table), `⋯` edits it.
 const BoardMenuItem = ({ board }: { board: IBoard }) => {
   const [activeBoardId] = useQueryState('activeBoardId');
   const [, setBoardId] = useQueryState<string>('boardId');
@@ -182,7 +167,6 @@ const BoardMenuItem = ({ board }: { board: IBoard }) => {
           )}
         </Link>
       </Sidebar.SubButton>
-      {/* Shown on hover or focus, over the row's right end. */}
       <div className="absolute right-0.5 top-0.5 hidden items-center group-hover/board-row:flex group-focus-within/board-row:flex has-[[data-state=open]]:flex">
         <DropdownMenu>
           <DropdownMenu.Trigger asChild>

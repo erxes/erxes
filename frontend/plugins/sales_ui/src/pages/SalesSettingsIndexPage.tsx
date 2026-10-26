@@ -34,7 +34,6 @@ const DealsSettings = () => {
             <IconSandbox />
             {t('boards-and-pipelines')}
           </Button>
-          {/* The single BoardForm: adds boards and opens board edits. */}
           <BoardForm />
           <PipelineFormBar />
         </SettingsHeader>

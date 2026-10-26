@@ -116,7 +116,6 @@ const PipelineStatusFilterBar = () => {
   );
 };
 
-/** Status filter of the deals settings pipelines table. */
 export const PipelineStatusFilter = {
   Item: PipelineStatusFilterItem,
   View: PipelineStatusFilterView,

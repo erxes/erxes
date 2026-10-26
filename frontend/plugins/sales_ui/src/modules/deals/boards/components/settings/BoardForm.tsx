@@ -21,7 +21,6 @@ import { SubmitHandler } from 'react-hook-form';
 
 export const BoardForm = () => {
   const [boardId, setBoardId] = useQueryState<string>('boardId');
-  // Set by the sidebar BOARDS `+` to start a new board.
   const [createBoard, setCreateBoard] = useQueryState<string>('createBoard');
   const isCreating = Boolean(createBoard);
 
