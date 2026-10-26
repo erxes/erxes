@@ -17,7 +17,7 @@ const INTEGRATION_REMOVAL_QUERY_NAMES = new Set([
   'frontlineChannelList',
   'Conversations',
   'ConversationCounts',
-  ...CONVERSATION_REPORT_QUERIES.map(getOperationName),
+  ...CONVERSATION_REPORT_QUERIES.map((query) => getOperationName(query)),
 ]);
 
 export const shouldRefetchIntegrationRemovalQuery = (
