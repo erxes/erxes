@@ -1,5 +1,5 @@
 import { schemaWrapper } from 'erxes-api-shared/utils';
-import { Schema } from 'mongoose';
+import { Schema, Types } from 'mongoose';
 
 export const documentSchema = schemaWrapper(
   new Schema(
@@ -21,7 +21,13 @@ export const documentSchema = schemaWrapper(
 );
 
 documentSchema.add({
-  _id: { type: Schema.Types.ObjectId, auto: true },
+  _id: {
+    type: Schema.Types.Mixed,
+    default: () => new Types.ObjectId(),
+    required: true,
+    validate: (value: unknown) =>
+      typeof value === 'string' || value instanceof Types.ObjectId,
+  },
 });
 
 documentSchema.index({ contentType: 1 });

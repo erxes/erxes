@@ -167,6 +167,7 @@ export const approvalMutations = {
     await checkPermission('approvalLocksManage');
 
     let ownerId = input.ownerId;
+    let contentId = input.contentTypeId;
     if (input.contentType === DOCUMENT_APPROVAL_CONTENT_TYPE) {
       await checkPermission('manageDocuments');
       const document = await models.Documents.getDocument({
@@ -175,11 +176,12 @@ export const approvalMutations = {
         action: 'edit',
       });
       ownerId = document.createdUserId;
+      contentId = String(document._id);
     }
 
     return models.ApprovalLocks.createLock({
       contentType: input.contentType,
-      contentId: input.contentTypeId,
+      contentId,
       ownerIdSnapshot: ownerId,
       lockedBy: user._id,
       allowedUserIds: unique(input.allowedUserIds || []),

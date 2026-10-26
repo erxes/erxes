@@ -345,6 +345,10 @@
   min-width: 0;
   overflow-wrap: anywhere;
 }
+.document-comments-sidebar .erxes-comment-card[data-selected='true'] {
+  border-color: var(--erxes-block-primary);
+  box-shadow: var(--shadow-focus);
+}
 .document-comments-sidebar .erxes-comment-card textarea {
   box-sizing: border-box;
   width: 100%;

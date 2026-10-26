@@ -120,6 +120,14 @@ const stylesToCss = (styles?: Record<string, any>, config?: TBlocksToHtmlConfig)
     }
   }
 
+  const fontSize = styles.fontSize;
+  if (
+    typeof fontSize === 'string' &&
+    /^(?:\d+(?:\.\d+)?|\.\d+)(?:pt|px|em|rem|%)$/i.test(fontSize.trim())
+  ) {
+    cssProps.push(`font-size: ${fontSize.trim()}`);
+  }
+
   return cssProps.join('; ');
 };
 
