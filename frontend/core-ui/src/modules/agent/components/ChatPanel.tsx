@@ -38,20 +38,7 @@ import {
   type AgentChatWidth,
 } from '../utils/chatWidth';
 import { useAgentSuggestions } from '../constants/agentSuggestions';
-
-/** Extracts a readable message from a transport error (JSON or plain). */
-const describeError = (error: Error): string => {
-  try {
-    const parsed = JSON.parse(error.message) as { error?: string };
-    if (typeof parsed.error === 'string' && parsed.error) {
-      return parsed.error;
-    }
-  } catch {
-    // Not a JSON body; use the raw message.
-  }
-
-  return error.message || 'Something went wrong.';
-};
+import { describeAgentsChatError } from '../streamHealth';
 
 export interface IChatPanelProps {
   chat: IUseAgentsChatResult;
@@ -174,6 +161,12 @@ export const ChatPanel = ({
     [addToolApprovalResponse],
   );
 
+  const errorText = error
+    ? describeAgentsChatError(error, (key, defaultValue) =>
+        t(key, defaultValue),
+      )
+    : undefined;
+
   const errorBanner = error ? (
     <div className="flex items-start gap-2 border-b border-destructive/30 bg-destructive/10 px-3 py-2 text-[13px] text-destructive sm:text-sm">
       <BotBadge
@@ -182,7 +175,7 @@ export const ChatPanel = ({
         frozenAt={POSES.exclaim}
         className="mt-0.5"
       />
-      <p className="min-w-0 flex-1 break-words">{describeError(error)}</p>
+      <p className="min-w-0 flex-1 break-words">{errorText}</p>
       {canReconnect ? (
         <Button
           variant="ghost"
@@ -368,7 +361,7 @@ export const ChatPanel = ({
           canReconnect ||
           noConnection
         }
-        error={error ? describeError(error) : undefined}
+        error={errorText}
       />
       {/* `pb` keeps the composer clear of the iOS home indicator without
             adding dead space on every other device. */}

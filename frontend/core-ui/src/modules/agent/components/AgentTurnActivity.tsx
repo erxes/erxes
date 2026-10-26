@@ -93,7 +93,11 @@ const AgentTurnTimeline = ({
                     live={streaming && entry.index === activeIndex}
                   />
                 ) : (
-                  <AgentStepRow step={entry.step} streaming={streaming} />
+                  <AgentStepRow
+                    step={entry.step}
+                    lookups={entry.lookups}
+                    streaming={streaming}
+                  />
                 )}
               </li>
             ))}
@@ -162,7 +166,11 @@ export const AgentTurnActivity = ({
         .find((entry) => entry.step.kind === 'tool');
 
       if (tool) {
-        pieces.push(agentStepLabel(tool.step));
+        pieces.push(
+          agentStepLabel(tool.step, (key, defaultValue) =>
+            t(key, defaultValue),
+          ),
+        );
       }
     } else if (toolCount > 0) {
       pieces.push(

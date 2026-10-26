@@ -84,6 +84,36 @@ const summarizeGraphqlCall = (
   }
 };
 
+/**
+ * Translates one fixed label (`agent.<key>`), falling back to its English
+ * text. Pure callers without i18n get the English default.
+ */
+export type TAgentLabelTranslate = (key: string, defaultValue: string) => string;
+
+const inEnglish: TAgentLabelTranslate = (_key, defaultValue) => defaultValue;
+
+/**
+ * A `callGraphql` query that only reads the API schema (`__type`,
+ * `__schema`): the agent checking which fields exist, not workspace data.
+ */
+const isSchemaLookupCall = (toolName: string, input: unknown): boolean => {
+  if (toolName !== 'callGraphql' || !isRecord(input)) {
+    return false;
+  }
+
+  const summary = summarizeGraphqlCall(input);
+
+  return Boolean(
+    summary?.operation === 'query' &&
+      summary.fields.length > 0 &&
+      summary.fields.every((field) => field.startsWith('__')),
+  );
+};
+
+/** Schema look-up steps share one plain label and collapse into one step. */
+export const isSchemaLookupStep = (step: TAgentWorkStep): boolean =>
+  step.kind === 'tool' && isSchemaLookupCall(step.tool.toolName, step.tool.input);
+
 const graphqlCallLabel = (input: Record<string, unknown>): string => {
   const summary = summarizeGraphqlCall(input);
 
@@ -236,9 +266,16 @@ const readFileName = (url: string): string => {
 };
 
 /** Display label for one timeline step. */
-export const agentStepLabel = (step: TAgentWorkStep): string => {
+export const agentStepLabel = (
+  step: TAgentWorkStep,
+  t: TAgentLabelTranslate = inEnglish,
+): string => {
   if (step.kind === 'reasoning') {
     return 'Thought';
+  }
+
+  if (isSchemaLookupStep(step)) {
+    return t('schema-checked', 'Checked the API schema');
   }
 
   const { tool } = step;
@@ -300,9 +337,16 @@ export const agentStepLabel = (step: TAgentWorkStep): string => {
 /** Live activity label for a tool call that is still running. */
 export const agentToolActivity = (
   part: DynamicToolUIPart | ToolUIPart,
+  t: TAgentLabelTranslate = inEnglish,
 ): string => {
   const input = isRecord(part.input) ? part.input : {};
-  switch (toolNameOf(part)) {
+  const toolName = toolNameOf(part);
+
+  if (isSchemaLookupCall(toolName, input)) {
+    return t('schema-checking', 'Checking the API schema…');
+  }
+
+  switch (toolName) {
     case 'createArtifact':
       return 'Creating file…';
     case 'searchTools':

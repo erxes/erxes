@@ -3,9 +3,12 @@ import type { TextUIPart, UIMessage } from 'ai';
 import {
   agentToolActivity,
   isReasoningPart,
+  isSchemaLookupStep,
   isStandalonePart,
   isToolPart,
   toAgentWorkStep,
+  type IAgentToolStepEntry,
+  type TAgentLabelTranslate,
   type TAgentWorkStep,
 } from './agentWorkSteps';
 
@@ -122,7 +125,13 @@ export interface IAgentTimelineStep {
   key: string;
   /** Index of the step's part in the turn. */
   index: number;
+  /** The newest call when several were folded into this step. */
   step: TAgentWorkStep;
+  /**
+   * Every schema look-up folded into this step, oldest first. Set only when
+   * consecutive look-ups collapse into one step.
+   */
+  lookups?: IAgentToolStepEntry[];
 }
 
 /** One narration sentence and the work that followed it. */
@@ -258,6 +267,22 @@ export const buildAgentTurnLayout = (
         sections.push(current);
       }
 
+      // Consecutive schema look-ups (`__type`, `__schema`) are one step:
+      // the newest call represents it, keeping the first call's key.
+      const previous = current.steps[current.steps.length - 1];
+
+      if (
+        step.kind === 'tool' &&
+        previous?.step.kind === 'tool' &&
+        isSchemaLookupStep(step) &&
+        isSchemaLookupStep(previous.step)
+      ) {
+        previous.lookups = [...(previous.lookups ?? [previous.step]), step];
+        previous.index = index;
+        previous.step = step;
+        return;
+      }
+
       current.steps.push({
         key: step.kind === 'tool' ? step.tool.toolCallId : `reasoning-${index}`,
         index,
@@ -299,7 +324,10 @@ export const agentTurnAnswerText = (parts: UIMessage['parts']): string =>
  * current reasoning title, "Writing…" for reply text, or — between steps —
  * the last sentence of the newest narration.
  */
-export const agentTurnActivity = (parts: UIMessage['parts']): string => {
+export const agentTurnActivity = (
+  parts: UIMessage['parts'],
+  t?: TAgentLabelTranslate,
+): string => {
   for (let index = parts.length - 1; index >= 0; index -= 1) {
     const part = parts[index];
 
@@ -319,7 +347,7 @@ export const agentTurnActivity = (parts: UIMessage['parts']): string => {
     }
 
     if (part.state === 'input-streaming' || part.state === 'input-available') {
-      return agentToolActivity(part);
+      return agentToolActivity(part, t);
     }
 
     for (let previous = index - 1; previous >= 0; previous -= 1) {
