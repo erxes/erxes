@@ -9,9 +9,14 @@ import {
 } from 'erxes-api-shared/utils';
 import * as jwt from 'jsonwebtoken';
 import { IContext } from '~/connectionResolvers';
+import { checkRateLimit } from '~/modules/auth/routes/oauth/utils';
 import {
+  assertLoginAllowed,
+  clearLoginFailures,
   getCallbackRedirectUrl,
+  getRequestIp,
   isValidEmail,
+  recordLoginFailure,
   sendSaasMagicLinkEmail,
 } from '~/modules/auth/utils';
 import { assertSaasEnvironment } from '~/utils/saas';
@@ -33,7 +38,18 @@ export const authMutations = {
   ) {
     return await logHandler(
       async () => {
-        const response = await models.Users.login(args);
+        await assertLoginAllowed(subdomain, getRequestIp(req), args.email);
+
+        let response: Awaited<ReturnType<typeof models.Users.login>>;
+
+        try {
+          response = await models.Users.login(args);
+        } catch (e) {
+          await recordLoginFailure(subdomain, args.email);
+          throw e;
+        }
+
+        await clearLoginFailures(subdomain, args.email);
 
         const { token } = response;
 
@@ -103,59 +119,41 @@ export const authMutations = {
   async forgotPassword(
     _parent: undefined,
     { email }: { email: string },
-    { subdomain, models }: IContext,
+    { subdomain, models, req }: IContext,
   ) {
-    const tag = '[forgot-password]';
-    const value = (email || '').toLowerCase().trim();
+    const normalizedEmail = (email || '').toLowerCase().trim();
 
-    const exact = await models.Users.findOne({ email: value }).lean();
-    const insensitive = await models.Users.findOne({
-      email: {
-        $regex: new RegExp(
-          `^${value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`,
-          'i',
-        ),
-      },
-    }).lean();
-
-    console.log(
-      `${tag} subdomain=${subdomain} input=${JSON.stringify(
-        email,
-      )} normalized=${JSON.stringify(value)} exact=${!!exact} ci=${!!insensitive} stored=${JSON.stringify(
-        insensitive?.email,
-      )} userId=${insensitive?._id} isActive=${insensitive?.isActive}`,
+    await checkRateLimit(
+      `auth:forgot:ip:${subdomain}:${getRequestIp(req)}`,
+      5,
+      15 * 60,
+    );
+    await checkRateLimit(
+      `auth:forgot:email:${subdomain}:${normalizedEmail}`,
+      3,
+      60 * 60,
     );
 
     const token = await models.Users.forgotPassword(email);
 
-    // send email ==============
     const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });
 
     const link = `${DOMAIN}/reset-password?token=${token}`;
 
-    console.log(`${tag} token=${!!token} domain=${DOMAIN} to=${email}`);
-
-    try {
-      await sendEmail(
-        subdomain,
-        {
-          toEmails: [email],
-          title: 'Reset password',
-          template: {
-            name: 'resetPassword',
-            data: {
-              content: link,
-            },
+    await sendEmail(
+      subdomain,
+      {
+        toEmails: [email],
+        title: 'Reset password',
+        template: {
+          name: 'resetPassword',
+          data: {
+            content: link,
           },
         },
-        models,
-      );
-
-      console.log(`${tag} sendEmail returned`);
-    } catch (e) {
-      console.log(`${tag} sendEmail threw: ${e.name}: ${e.message}`);
-      throw e;
-    }
+      },
+      models,
+    );
 
     return 'sent';
   },
