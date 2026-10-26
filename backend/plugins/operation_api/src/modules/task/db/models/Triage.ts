@@ -63,6 +63,7 @@ export const loadTriageClass = (models: IModels) => {
           fromUserId: triage.createdBy,
           subdomain,
           notificationType: 'triage',
+          event: 'operation:triage:triageCreated',
           userIds,
           action: 'created',
           models,

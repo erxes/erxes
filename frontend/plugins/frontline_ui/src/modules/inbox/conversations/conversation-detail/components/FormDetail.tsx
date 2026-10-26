@@ -10,7 +10,7 @@ import { IconForms } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 
 export const FormDetailMessages = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const [conversationId] = useQueryState<string>('conversationId');
 
   const { conversationMessages, loading } = useFormWidgetData({

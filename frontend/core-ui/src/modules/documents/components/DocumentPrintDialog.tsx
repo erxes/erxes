@@ -1,6 +1,7 @@
+import { useTranslation } from 'react-i18next';
 import { IconPrinter } from '@tabler/icons-react';
 import { Button, Dialog } from 'erxes-ui';
-import { useState } from 'react';
+import { useDocumentPrintDialog } from '../hooks/useDocumentPrintDialog';
 import {
   PrintDocument,
   SelectCompany,
@@ -10,11 +11,14 @@ import {
 } from 'ui-modules';
 
 import { IDocument } from '../types';
-import { useTranslation } from 'react-i18next';
 
 const DOCUMENT_REPLACER_LABELS: Record<string, string> = {
   'core:contact.customer': 'customer',
+  'core:customer': 'customer',
+  'core:contacts.customers': 'customer',
   'core:contact.company': 'company',
+  'core:company': 'company',
+  'core:contacts.companies': 'company',
   'core:product': 'product',
   'core:user': 'team-member',
   'core:broadcast': 'customer',
@@ -41,6 +45,8 @@ function DocumentReplacerSelect({
 
   switch (contentType) {
     case 'core:contact.customer':
+    case 'core:customer':
+    case 'core:contacts.customers':
     case 'core:broadcast':
       return (
         <SelectCustomer
@@ -50,6 +56,8 @@ function DocumentReplacerSelect({
         />
       );
     case 'core:contact.company':
+    case 'core:company':
+    case 'core:contacts.companies':
       return (
         <SelectCompany
           mode="single"
@@ -100,7 +108,6 @@ function DocumentPrintDialogContent({
   setReplacerId,
 }: DocumentPrintDialogContentProps) {
   const { t } = useTranslation('documents', { keyPrefix: 'document' });
-
   return (
     <Dialog.Content
       className="max-w-md"
@@ -146,33 +153,19 @@ export function DocumentPrintDialog({
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
+  const {
+    replacerId,
+    setReplacerId,
+    printReplacerId,
+    printOpen,
+    setPrintOpen,
+    handleOpenChange,
+    handleContinue,
+  } = useDocumentPrintDialog(onOpenChange);
   const { t } = useTranslation('documents', { keyPrefix: 'document' });
-  const [replacerId, setReplacerId] = useState('');
-  const [printReplacerId, setPrintReplacerId] = useState('');
-  const [printOpen, setPrintOpen] = useState(false);
-
   const replacerLabel = t(
     DOCUMENT_REPLACER_LABELS[documentItem.contentType] || 'record',
   );
-
-  function handleOpenChange(nextOpen: boolean) {
-    onOpenChange(nextOpen);
-
-    if (!nextOpen) {
-      setReplacerId('');
-    }
-  }
-
-  function handleContinue() {
-    if (!replacerId) {
-      return;
-    }
-
-    setPrintReplacerId(replacerId);
-    setReplacerId('');
-    onOpenChange(false);
-    setPrintOpen(true);
-  }
 
   return (
     <>

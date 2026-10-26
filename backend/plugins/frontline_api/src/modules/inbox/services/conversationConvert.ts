@@ -1,8 +1,5 @@
 import { getConversationAssigneeIds } from '@/inbox/utils/conversationAssignees';
-import { IUserDocument } from 'erxes-api-shared/core-types';
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
-import { IConversationDocument } from '@/inbox/@types/conversations';
 import {
   ConversationConvertType,
   IConversationConvert,
@@ -13,10 +10,7 @@ import {
   IConvertContext,
   IConvertedTarget,
 } from '@/inbox/services/conversationConvertTargets';
-
-const CONVERSATION_CONTENT_TYPE = 'frontline:conversation';
-
-const CUSTOMER_CONTENT_TYPE = 'core:customer';
+import { logConversationFormSubmission } from '@/inbox/utils/conversationFormSubmission';
 
 const CONVERT_TYPES = Object.keys(
   CONVERT_TARGET_HANDLERS,
@@ -27,82 +21,12 @@ const isConversationConvertType = (
 ): type is ConversationConvertType =>
   CONVERT_TYPES.includes(type as ConversationConvertType);
 
-const getRelatedIds = async (
-  subdomain: string,
-  conversationId: string,
-  type: ConversationConvertType,
-): Promise<string[]> => {
-  const ids: string[] = await sendTRPCMessage({
-    subdomain,
-    pluginName: 'core',
-    method: 'query',
-    module: 'relation',
-    action: 'getRelationIds',
-    input: {
-      contentType: CONVERSATION_CONTENT_TYPE,
-      contentId: conversationId,
-      relatedContentType: CONVERT_TARGET_HANDLERS[type].contentType,
-    },
-    defaultValue: [],
-  });
-
-  return ids.filter(Boolean);
-};
-
-const findConvertedTarget = async (
+const findConvertedTarget = (
   context: Pick<IConvertContext, 'models' | 'subdomain'>,
   conversationId: string,
   type: ConversationConvertType,
-): Promise<IConvertedTarget | null> => {
-  const relatedIds = await getRelatedIds(
-    context.subdomain,
-    conversationId,
-    type,
-  );
-
-  return CONVERT_TARGET_HANDLERS[type].findExisting(
-    context,
-    conversationId,
-    relatedIds,
-  );
-};
-
-const relateConvertedItem = async (
-  subdomain: string,
-  user: IUserDocument,
-  conversation: IConversationDocument,
-  type: ConversationConvertType,
-  itemId: string,
-) => {
-  const { contentType, relateCustomer } = CONVERT_TARGET_HANDLERS[type];
-  const item = { contentType, contentId: itemId };
-
-  const relatedEntities = [
-    { contentType: CONVERSATION_CONTENT_TYPE, contentId: conversation._id },
-  ];
-
-  if (relateCustomer && conversation.customerId) {
-    relatedEntities.push({
-      contentType: CUSTOMER_CONTENT_TYPE,
-      contentId: conversation.customerId,
-    });
-  }
-
-  await sendTRPCMessage({
-    subdomain,
-    pluginName: 'core',
-    method: 'mutation',
-    module: 'relation',
-    action: 'createMultipleRelations',
-    input: {
-      relations: relatedEntities.map((entity) => ({
-        entities: [entity, item],
-      })),
-    },
-    context: { userId: user._id },
-    throwOnError: true,
-  });
-};
+): Promise<IConvertedTarget | null> =>
+  CONVERT_TARGET_HANDLERS[type].findExisting(context, conversationId);
 
 export const getConversationConvertedItems = async (
   models: IModels,
@@ -178,7 +102,15 @@ export const convertConversation = async (
     assignedUserIds,
   });
 
-  await relateConvertedItem(subdomain, user, conversation, type, itemId);
+  // The item keeps the conversation itself (`sourceConversationIds`); no
+  // relation is made. Its form submissions are logged on it.
+  await logConversationFormSubmission({
+    models,
+    subdomain,
+    conversationId: conversation._id,
+    target: { contentType: handler.contentType, contentId: itemId },
+    userId: user._id,
+  });
 
   return itemId;
 };

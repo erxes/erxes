@@ -23,6 +23,7 @@ import {
   LookupAiToolInput,
   ReceiveActionsInput,
   ResolveOutputPathsInput,
+  ResolveOutputVariablesInput,
   SetPropertiesInput,
 } from './zodTypes';
 
@@ -96,6 +97,7 @@ export const startAutomations = async (
     generateAiContext,
     loadAiKnowledgeDocumentBatch,
     lookupAiTool,
+    resolveOutputVariables,
   } = config || {};
 
   const automationProcedures: Partial<
@@ -141,6 +143,13 @@ export const startAutomations = async (
       .mutation(async ({ ctx, input }) => lookupAiTool(input, ctx));
   }
 
+  if (resolveOutputVariables) {
+    automationProcedures[TAutomationProducers.RESOLVE_OUTPUT_VARIABLES] =
+      t.procedure
+        .input(ResolveOutputVariablesInput)
+        .mutation(async ({ ctx, input }) => resolveOutputVariables(input, ctx));
+  }
+
   const runtimeResolveOutputPaths = generateRuntimeResolveOutputPaths(
     pluginName,
     config,
@@ -171,6 +180,7 @@ export const startAutomations = async (
   const automationsRouter = t.router(automationProcedures);
 
   const trpcMiddleware = trpcExpress.createExpressMiddleware({
+    allowMethodOverride: true,
     router: automationsRouter,
     createContext: createTRPCContext<IAutomationContext>(
       async (_subdomain, context) => {

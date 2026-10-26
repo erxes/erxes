@@ -20,7 +20,7 @@ interface CarrierBarChartProps {
 export const CarrierBarChart = memo(function CarrierBarChart({
   data,
 }: CarrierBarChartProps) {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const total = useMemo(
     () => data.reduce((s, d) => s + (d.value ?? 0), 0),
     [data],

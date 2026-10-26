@@ -1,5 +1,5 @@
-import { mongooseStringRandomId, schemaWrapper } from 'erxes-api-shared/utils';
-import { Schema, Types } from 'mongoose';
+import { schemaWrapper } from 'erxes-api-shared/utils';
+import { Schema } from 'mongoose';
 
 export const documentSchema = schemaWrapper(
   new Schema(
@@ -12,6 +12,7 @@ export const documentSchema = schemaWrapper(
       content: { type: String },
       replacer: { type: String },
       code: { type: String, optional: true },
+      commentState: { type: String },
     },
     {
       timestamps: true,
@@ -20,13 +21,7 @@ export const documentSchema = schemaWrapper(
 );
 
 documentSchema.add({
-  _id: {
-    ...mongooseStringRandomId,
-    cast: (value: unknown) => {
-      if (value instanceof Types.ObjectId) return value;
-      return Schema.Types.String.cast()(value);
-    },
-  },
+  _id: { type: Schema.Types.ObjectId, auto: true },
 });
 
 documentSchema.index({ contentType: 1 });

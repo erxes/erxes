@@ -5,11 +5,11 @@ import { Button, DatePicker, Form, Sheet, Spinner, Textarea } from 'erxes-ui';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { useAdjustFixedAssetAdd } from '../hooks/useAdjustFixedAssetMutations';
+import { useAdjustFixedAssetAdd } from '@/adjustments/fxa/hooks/useAdjustFixedAssetAdd';
 import {
   adjustFixedAssetSchema,
   TAdjustFixedAssetForm,
-} from '../types/adjustFixedAssetSchema';
+} from '@/adjustments/fxa/types/adjustFixedAssetSchema';
 
 export const AddAdjustFixedAsset = () => {
   const { t } = useTranslation('accounting');

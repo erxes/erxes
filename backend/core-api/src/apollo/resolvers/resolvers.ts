@@ -1,12 +1,13 @@
 import automationsResolvers from '@/automations/graphql/resolvers/customResolver';
 import { emailTemplateCustomResolvers } from '@/emailTemplates/graphql/resolvers';
+import { notificationTemplateVersionCustomResolvers } from '@/notificationTemplates/graphql/resolvers';
 import { approvalCustomResolvers } from '@/approval/graphql/resolvers/customResolvers';
 import { filesCustomResolvers } from '@/files/graphql/resolvers/customResolvers';
 import permissionResolvers from '@/permissions/graphql/resolvers/customResolvers';
 import broadcastResolvers from '@/broadcast/graphql/resolvers/customResolvers';
 import clientPortalResolvers from '@/clientportal/graphql/resolvers/customResolvers';
 import contactResolvers from '@/contacts/graphql/resolvers/customResolvers';
-import documentResolvers from '@/documents/graphql/customResolvers';
+import { documentResolvers } from '@/documents/graphql/customResolvers';
 import internalNoteResolvers from '@/internalNote/graphql/customResolvers';
 import logResolvers from '@/logs/graphql/resolvers/customResolvers';
 import notificationResolvers from '@/notifications/graphql/customResolvers';
@@ -28,6 +29,7 @@ export const customResolvers = {
   ...logResolvers,
   ...automationsResolvers,
   EmailTemplate: emailTemplateCustomResolvers,
+  NotificationTemplateVersion: notificationTemplateVersionCustomResolvers,
   ...approvalCustomResolvers,
   ...filesCustomResolvers,
   ...userResolvers,

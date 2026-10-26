@@ -17,7 +17,9 @@ export const CallIntegrationForm = ({
   onSubmit: (data: z.infer<typeof CALL_INTEGRATION_FORM_SCHEMA>) => void;
   loading?: boolean;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const { fields, append, remove } = useFieldArray({
     control: form.control,
     name: 'operators',
@@ -215,7 +217,9 @@ export const CallIntegrationFormLayout = ({
   children: React.ReactNode;
   actions: React.ReactNode;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const callEditSheet = useAtomValue(callEditSheetAtom);
   return (
     <>

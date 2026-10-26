@@ -8,7 +8,7 @@ import {
 import { useAtom, useAtomValue } from 'jotai';
 import { tasksViewAtom } from '@/task/states/tasksViewState';
 import { lazy, Suspense, useState } from 'react';
-import { TaskDetailSheet } from '@/task/components/TaskDetailSheet';
+import { TaskDetailLink } from '@/task/components/TaskDetailLink';
 import { useParams } from 'react-router-dom';
 
 const TasksRecordTable = lazy(() =>
@@ -93,7 +93,7 @@ export const TasksView = ({ isCreatedView = false }: TasksViewProps) => {
       ) : (
         <TasksBoard />
       )}
-      <TaskDetailSheet />
+      <TaskDetailLink />
     </Suspense>
   );
 };

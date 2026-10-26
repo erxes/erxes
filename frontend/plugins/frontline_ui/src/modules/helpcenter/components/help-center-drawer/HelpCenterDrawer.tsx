@@ -119,7 +119,12 @@ export function HelpCenterDrawer({
           <FocusSheet.SideBar>
             <SheetNavSidebar
               tabs={[...tabs]}
-              labels={{ domain: t('customdomain-label', 'Custom domain') }}
+              labels={{
+                general: t('general'),
+                appearance: t('appearance'),
+                embed: t('kb-embed-script'),
+                domain: t('customdomain-label'),
+              }}
               groupLabel={t('kb-topic', 'Help center')}
             />
           </FocusSheet.SideBar>

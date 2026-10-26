@@ -7,6 +7,7 @@ import {
   LookupAiToolInput,
   ReceiveActionsInput,
   ResolveOutputPathsInput,
+  ResolveOutputVariablesInput,
   SetPropertiesInput,
 } from './zodTypes';
 import { IAutomationExecution } from './definitions';
@@ -29,6 +30,8 @@ export type TAutomationOutputVariable = {
   referenceType?: string;
   sourceType?: string;
   type?: string;
+  // Fixed choices, when the value can only be one of them
+  options?: { label: string; value: string }[];
 };
 
 export type TAutomationOutputPropertySource = {
@@ -41,6 +44,9 @@ export type TAutomationOutputDefinition = {
   variables: TAutomationOutputVariable[];
   propertySource?: TAutomationOutputPropertySource;
   resolverKeys?: string[];
+  // The node's config adds variables (a form's fields); the owning plugin
+  // lists them through resolveOutputVariables
+  dynamicVariables?: boolean;
 };
 
 export type TAutomationSetPropertyTarget = {
@@ -468,6 +474,11 @@ export interface AutomationProducers {
     context: IAutomationContext,
   ) => Promise<TAiToolLookupResult>;
 
+  resolveOutputVariables?: (
+    args: z.infer<typeof ResolveOutputVariablesInput>,
+    context: IAutomationContext,
+  ) => Promise<TAutomationOutputVariable[]>;
+
   resolveOutputPaths?: (
     args: z.infer<typeof ResolveOutputPathsInput>,
     context: IAutomationContext,
@@ -615,6 +626,7 @@ export type AutomationExecutionSetWaitCondition =
 export enum TAutomationProducers {
   RECEIVE_ACTIONS = 'receiveActions',
   RESOLVE_OUTPUT_PATHS = 'resolveOutputPaths',
+  RESOLVE_OUTPUT_VARIABLES = 'resolveOutputVariables',
   CHECK_CUSTOM_TRIGGER = 'checkCustomTrigger',
   FIND_OBJECT = 'findObject',
   SET_PROPERTIES = 'setProperties',

@@ -57,7 +57,7 @@ export const ConversationList = ({
   colSpan = 6,
   onColSpanChange,
 }: ConversationListProps) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const { id, filterConfig, queryFilters, filtersRestored } =
     useConversationChartCard({ title, cardId, savedChart });
   const [exporting, setExporting] = useState(false);
@@ -175,7 +175,7 @@ export const ConversationList = ({
       <FrontlineCard
         id={id}
         title={title}
-        description="Total conversations open in the last 30 days"
+        description={t('total-conversations-open-last-30-days')}
         colSpan={colSpan}
         onColSpanChange={onColSpanChange}
       >
@@ -192,7 +192,7 @@ export const ConversationList = ({
       <FrontlineCard
         id={id}
         title={title}
-        description="Total conversations open in the last 30 days"
+        description={t('total-conversations-open-last-30-days')}
         colSpan={colSpan}
         onColSpanChange={onColSpanChange}
       >
@@ -202,7 +202,7 @@ export const ConversationList = ({
               {t('error-loading-data', 'Error loading data')}
             </Alert.Title>
             <Alert.Description>
-              {error.message || 'Failed to load conversation list'}
+              {error.message || t('failed-to-load-conversation-list')}
             </Alert.Description>
           </Alert>
         </FrontlineCard.Content>
@@ -215,7 +215,7 @@ export const ConversationList = ({
       <FrontlineCard
         id={id}
         title={title}
-        description="No conversations found."
+        description={t('no-conversations-found')}
         colSpan={colSpan}
         onColSpanChange={onColSpanChange}
       >
@@ -234,7 +234,7 @@ export const ConversationList = ({
     <FrontlineCard
       id={id}
       title={title}
-      description={`${totalCount} conversations`}
+      description={t('conversations-count', { count: totalCount })}
       colSpan={colSpan}
       onColSpanChange={onColSpanChange}
     >
@@ -272,7 +272,7 @@ const Pagination = memo(function Pagination({
   onPrev: () => void;
   onNext: () => void;
 }) {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   if (totalPages <= 1) return null;
   const from = (page - 1) * PER_PAGE + 1;
   const to = Math.min(page * PER_PAGE, totalCount);
@@ -280,7 +280,7 @@ const Pagination = memo(function Pagination({
   return (
     <div className="flex items-center justify-between px-4 py-3 border-t">
       <span className="text-xs text-muted-foreground">
-        {from}–{to} of {totalCount}
+        {t('range-of-total', { from, to, total: totalCount })}
       </span>
       <div className="flex items-center gap-1">
         <Button
@@ -314,7 +314,7 @@ const ConversationListTable = memo(function ConversationListTable({
 }: {
   conversationList: ConversationListItem[];
 }) {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   return (
     <div className="bg-sidebar w-full rounded-lg [&_th]:last-of-type:text-right">
       <RecordTable.Provider

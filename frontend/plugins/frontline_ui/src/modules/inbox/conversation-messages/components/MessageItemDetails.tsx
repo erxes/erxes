@@ -48,7 +48,7 @@ export const DeletedMessage = ({
   showAuthorName: boolean;
   showBotName: boolean;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
 
   return (
     <div
@@ -72,6 +72,7 @@ export const DeletedMessage = ({
 };
 
 export const MessageReactions = () => {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const {
     reactions,
     loading,
@@ -91,9 +92,11 @@ export const MessageReactions = () => {
           key={reaction.label}
           className="inline-flex h-7 items-center gap-0.5 rounded-full border border-border/70 bg-background px-2 text-xs shadow-xs transition-colors hover:bg-muted disabled:cursor-wait"
           disabled={loading || !providerMessageId}
-          aria-label={`${
-            ownReactionKeys.includes(reaction.reaction) ? 'Remove' : 'Add'
-          } ${reaction.reaction} reaction`}
+          aria-label={
+            ownReactionKeys.includes(reaction.reaction)
+              ? t('remove-reaction-named', { reaction: reaction.reaction })
+              : t('add-reaction-named', { reaction: reaction.reaction })
+          }
           onClick={() => {
             if (!providerMessageId) return;
             toggleReaction({

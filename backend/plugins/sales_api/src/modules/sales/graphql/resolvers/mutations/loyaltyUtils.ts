@@ -14,6 +14,7 @@ const createBonusProductDataId = (productId: string) => {
 
 export const checkLoyalties = async (
   subdomain: string,
+  models: IModels,
   _id: string,
   deal: IDeal,
 ) => {
@@ -24,7 +25,7 @@ export const checkLoyalties = async (
     return deal.productsData;
   }
 
-  const [customerId] = (await getCustomerIds(subdomain, _id)) || [];
+  const [customerId] = (await getCustomerIds(subdomain, models, _id)) || [];
 
   if (!customerId) {
     return deal.productsData;
@@ -110,13 +111,13 @@ export const checkPricing = async (
   let pricingCustomerId = '';
 
   if (deal._id) {
-    const [companyId] = (await getCompanyIds(subdomain, deal._id)) || [];
+    const [companyId] = (await getCompanyIds(subdomain, models, deal._id)) || [];
 
     if (companyId) {
       customerType = 'company';
       pricingCustomerId = companyId;
     } else {
-      const [customerId] = (await getCustomerIds(subdomain, deal._id)) || [];
+      const [customerId] = (await getCustomerIds(subdomain, models, deal._id)) || [];
       pricingCustomerId = customerId || '';
     }
   }

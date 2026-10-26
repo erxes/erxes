@@ -1,94 +1,93 @@
+import { GET_PROJECTS } from '@/project/graphql/queries/getProjects';
+import { compactList } from '@/operation/utils/cursorList';
+import { IProject } from '@/project/types';
 import { IconClipboard } from '@tabler/icons-react';
-import { ScrollArea, Separator, Spinner } from 'erxes-ui';
-import { useCreateWidgetRelations } from '../hooks/useCreateWidgetRelations';
-import { useConnectedProjects } from '../hooks/useConnectedProjects';
+import { useQuery } from '@apollo/client';
+import { Spinner } from 'erxes-ui';
+import {
+  getHostContacts,
+  IRelationWidgetProps,
+  RelationWidgetEmptyState,
+  RelationWidgetList,
+} from 'ui-modules';
 import { AddProjectRelation } from './AddProjectRelation';
-import { ConnectProjectRelation } from './ConnectProjectRelation';
-import { ProjectWidgetCard } from './ProjectWidgetCard';
-import { WidgetQueryError } from './WidgetQueryError';
+import { ProjectRow } from '~/widgets/rows/ProjectRow';
 import { useTranslation } from 'react-i18next';
 
+// The most projects listed for one customer or company.
+const CONTACT_RECORDS_LIMIT = 50;
+
+/**
+ * The projects of the host's customer and company, found by the contact on
+ * the projects themselves; "+" creates one for them (createProject saves the
+ * contact).
+ */
 export const Project = ({
   contentId,
   contentType,
   customerId,
   companyId,
-}: {
-  contentId: string;
-  contentType: string;
-  customerId?: string;
-  companyId?: string;
-}) => {
+  customerIds,
+  companyIds,
+}: Omit<IRelationWidgetProps, 'module' | 'pluginName'>) => {
   const { t } = useTranslation('operation');
-  const { projectIds, projects, loading, error, retry } = useConnectedProjects({
-    contentId,
+  const contacts = getHostContacts({
     contentType,
-  });
-
-  const { createRelations, loading: connecting } = useCreateWidgetRelations({
     contentId,
-    contentType,
     customerId,
     companyId,
-    relatedContentType: 'operation:project',
-    successMessage: t('project-connected', {
-      defaultValue: 'Project connected successfully',
-    }),
+    customerIds,
+    companyIds,
+  });
+  const customerProjects = useQuery(GET_PROJECTS, {
+    variables: {
+      filter: { customerId: contacts.customerId, limit: CONTACT_RECORDS_LIMIT },
+    },
+    skip: !contacts.customerId,
+  });
+  const companyProjects = useQuery(GET_PROJECTS, {
+    variables: {
+      filter: { companyId: contacts.companyId, limit: CONTACT_RECORDS_LIMIT },
+    },
+    skip: !contacts.companyId,
   });
 
-  if (loading) {
+  if (customerProjects.loading || companyProjects.loading) {
     return <Spinner containerClassName="py-20" />;
   }
-  if (error) return <WidgetQueryError error={error} onRetry={retry} />;
 
-  const onSelect = async (projectId: string): Promise<boolean> => {
-    if (connecting || projectIds.includes(projectId)) return false;
-    return createRelations(projectId);
-  };
+  // Each project once, the host itself left out.
+  const projects: IProject[] = [
+    ...new Map(
+      [
+        ...compactList(customerProjects.data?.getProjects?.list),
+        ...compactList(companyProjects.data?.getProjects?.list),
+      ]
+        .filter((project: IProject) => project._id !== contentId)
+        .map((project: IProject) => [project._id, project]),
+    ).values(),
+  ];
 
   if (projects.length === 0) {
     return (
-      <div className="flex flex-auto flex-col gap-4 justify-center items-center text-muted-foreground">
-        <div className="border border-dashed p-6 bg-background rounded-xl">
-          <IconClipboard />
-        </div>
-        <span className="text-sm">{t('no-projects-to-display')}</span>
-        <AddProjectRelation
-          onSelect={onSelect}
-          label={t('add-project')}
-          disabled={connecting}
-        />
-        <ConnectProjectRelation
-          projectIds={projectIds}
-          onSelect={onSelect}
-          disabled={connecting}
-          showText
-        />
-      </div>
+      <RelationWidgetEmptyState
+        icon={IconClipboard}
+        message={t('no-projects-to-display')}
+      >
+        <AddProjectRelation contacts={contacts} label="Add project" />
+      </RelationWidgetEmptyState>
     );
   }
 
   return (
-    <>
-      <div className="h-11 px-4 flex items-center gap-2 flex-none bg-background justify-between">
-        <span className="font-medium text-primary">{t('projects')}</span>
-        <div className="flex items-center gap-2">
-          <AddProjectRelation onSelect={onSelect} disabled={connecting} />
-          <ConnectProjectRelation
-            projectIds={projectIds}
-            onSelect={onSelect}
-            disabled={connecting}
-          />
-        </div>
-      </div>
-      <Separator />
-      <ScrollArea className="flex-auto">
-        <div className="flex flex-col gap-4 p-4">
-          {projects.map((project) => (
-            <ProjectWidgetCard key={project._id} project={project} />
-          ))}
-        </div>
-      </ScrollArea>
-    </>
+    <RelationWidgetList
+      dense
+      label={t('projects')}
+      actions={<AddProjectRelation contacts={contacts} />}
+    >
+      {projects.map((project) => (
+        <ProjectRow key={project._id} project={project} />
+      ))}
+    </RelationWidgetList>
   );
 };

@@ -28,8 +28,7 @@ export interface ITicketPipeline {
   visibility?: string;
   memberIds?: string[];
   statusId?: string;
-  propertyIds?: string[];
-  isPropertySelectionConfigured?: boolean;
+  createLayout?: string[][] | null;
 }
 
 export interface ITicketPipelineUpdate extends ITicketPipeline {

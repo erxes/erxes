@@ -33,7 +33,9 @@ import { useFacebookPostTargets } from '../hooks/useFacebookPostTargets';
 import { FacebookPostImagesField } from './FacebookPostImagesField';
 
 export const FacebookPostSheet = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
 
   return (
     <Sheet>
@@ -55,7 +57,9 @@ export const FacebookPostSheet = () => {
 };
 
 const FacebookPostForm = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const { toast } = useToast();
   const { createPost, loading: posting } = useFacebookCreatePost();
   const [permalinkUrl, setPermalinkUrl] = useState<string | null>(null);

@@ -4,6 +4,7 @@ import {
   IconRestore,
   IconTags,
   IconTrash,
+  IconBox,
 } from '@tabler/icons-react';
 
 import { ApolloCache, ApolloError } from '@apollo/client';
@@ -23,6 +24,8 @@ import { Can, Export, IProduct, PrintDocument, TagsSelect } from 'ui-modules';
 import { ProductsDelete } from './delete/productDelete';
 import { ProductsRestore } from './restore/productRestore';
 import { ProductMerge, ProductMergeTrigger } from './ProductMerge';
+import { ProductsChangeTypeContent } from './ProductsChangeType';
+import { useProductsChangeType } from '@/products/hooks/useProductsChangeType';
 import {
   ProductsChangeCategoryContent,
   ProductsChangeCategoryTrigger,
@@ -67,6 +70,7 @@ export const ProductCommandBar = () => {
     () => selectedRows.map((row: Row<IProduct>) => row.original),
     [selectedRows],
   );
+  const changeType = useProductsChangeType(products);
   const productIds = useMemo(
     () => products.map((product) => product._id),
     [products],
@@ -121,6 +125,7 @@ export const ProductCommandBar = () => {
         <Popover
           open={open}
           onOpenChange={(nextOpen) => {
+            if (currentContent === 'type' && changeType.saving) return;
             if (nextOpen) {
               setOpen(true);
               return;
@@ -154,6 +159,19 @@ export const ProductCommandBar = () => {
                     <Can action="productsUpdate">
                       <ProductsChangeCategoryTrigger
                         setCurrentContent={setCurrentContent}
+                      />
+                    </Can>
+                    <Can action="productsUpdate">
+                      <Command.ActionItem
+                        icon={IconBox}
+                        label={t('bulk.change-type', 'Change type')}
+                        disabled={
+                          !changeType.refreshPending &&
+                          !products.some(
+                            (product) => product.status !== 'deleted',
+                          )
+                        }
+                        onSelect={() => setCurrentContent('type')}
                       />
                     </Can>
                     <Can action="productsUpdate">
@@ -235,6 +253,13 @@ export const ProductCommandBar = () => {
               <ProductsChangeCategoryContent
                 products={products}
                 setOpen={closeActionsPopover}
+              />
+            )}
+            {currentContent === 'type' && (
+              <ProductsChangeTypeContent
+                products={products}
+                changeType={changeType}
+                onClose={closeActionsPopover}
               />
             )}
           </Popover.Content>

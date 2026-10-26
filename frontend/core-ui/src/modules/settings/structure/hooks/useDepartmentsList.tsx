@@ -15,12 +15,12 @@ export const useDepartmentsList = (options?: OperationVariables) => {
       searchValue,
       parentId,
       status,
-      withoutUserFilter: true
+      withoutUserFilter: true,
     },
     ...options,
   });
 
-  const departments = data?.departmentsMain?.list || [];
+  const departments = data?.departments || [];
 
   const departmentsWithHasChildren = departments?.map(
     (dep: IDepartmentListItem) => ({
@@ -35,7 +35,7 @@ export const useDepartmentsList = (options?: OperationVariables) => {
     sortedDepartments: [...(departmentsWithHasChildren || [])].sort((a, b) =>
       a.order?.localeCompare(b.order),
     ),
-    totalCount: data ? data?.departmentsMain?.totalCount : 0,
+    totalCount: departments.length,
     loading,
     error,
   };

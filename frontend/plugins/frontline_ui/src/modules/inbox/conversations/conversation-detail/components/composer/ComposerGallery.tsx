@@ -29,7 +29,7 @@ const ComposerGalleryIcon = () => (
 );
 
 const ComposerGalleryLabel = ({ imageCount }: { imageCount: number }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   return (
     <span className="min-w-0 max-w-40 text-left">
       <span className="block truncate text-xs font-medium">
@@ -53,7 +53,7 @@ const ComposerGallerySummary = ({
   disabled: boolean;
   onRemove: () => void;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   return (
     <div className="flex min-w-0 max-w-full items-center gap-2 rounded-xl border bg-muted/35 p-1.5 pr-2 shadow-xs">
       <Dialog.Trigger asChild>
@@ -100,7 +100,7 @@ const ComposerGalleryContent = ({
     pendingFiles,
     handleUpload,
   } = gallery;
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const retryUpload = (): Promise<void> =>
     handleUpload(pendingFiles.filter((file) => !file.errors.length));
 
@@ -184,7 +184,7 @@ const ComposerGalleryColumns = ({
   editor,
   disabled,
 }: Pick<ComposerGalleryProps, 'block' | 'editor' | 'disabled'>) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   return (
     <fieldset
       className="flex items-center gap-1"
@@ -218,7 +218,7 @@ const ComposerGalleryColumns = ({
 };
 
 const ComposerGalleryHeader = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   return (
     <Dialog.Header className="shrink-0 border-b px-6 py-4">
       <Dialog.Title className="flex items-center gap-2">
@@ -236,7 +236,7 @@ const ComposerGalleryHeader = () => {
 };
 
 const ComposerGalleryDone = ({ disabled }: { disabled: boolean }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   return (
     <Dialog.Close asChild>
       <Button type="button" disabled={disabled}>

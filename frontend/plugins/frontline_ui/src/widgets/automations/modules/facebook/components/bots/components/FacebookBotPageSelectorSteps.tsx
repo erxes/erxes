@@ -11,7 +11,7 @@ import { FacebookBotPagesStep } from '~/widgets/automations/modules/facebook/com
 import { isOpenFacebookBotSecondarySheet } from '~/widgets/automations/modules/facebook/components/bots/states/facebookBotStates';
 
 const useActionButton = (accountId?: string) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.facebook' });
   const [activeStep, setStep] = useState(1);
 
   const selectedAccountId =
@@ -50,7 +50,7 @@ export const FacebookBotPageSelectorSteps = ({
   step: number;
   accountId?: string;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.facebook' });
   const { onClick, disabled, text, activeStep, setStep } =
     useActionButton(accountId);
 

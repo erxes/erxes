@@ -10,7 +10,7 @@ export const triageMutations = {
   ) => {
     await checkPermission('triageCreate');
 
-    return models.Triage.createTriage({
+    const triage = await models.Triage.createTriage({
       triage: {
         name: input.name,
         description: input.description,
@@ -20,9 +20,13 @@ export const triageMutations = {
         number: 0,
         priority: input.priority || 0,
         status: input.status || STATUS_TYPES.TRIAGE,
+        customerId: input.customerId || null,
+        companyId: input.companyId || null,
       },
       subdomain: subdomain,
     });
+
+    return triage;
   },
 
   operationUpdateTriage: async (
@@ -76,8 +80,12 @@ export const triageMutations = {
       statusId = statusDoc._id;
     }
 
+    // The task takes the triage's _id (see Task.createTask) and keeps its
+    // customer and company.
     const task = await models.Task.createTask({
       doc: {
+        customerId: triage.customerId ?? null,
+        companyId: triage.companyId ?? null,
         name: triage.name,
         description: triage.description,
         teamId: triage.teamId,

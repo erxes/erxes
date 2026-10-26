@@ -235,6 +235,7 @@ export const startAfterProcess = async (
   const afterProcessRouter = t.router(routes);
 
   const trpcMiddleware = trpcExpress.createExpressMiddleware({
+    allowMethodOverride: true,
     router: afterProcessRouter,
     createContext: createTRPCContext(async (_subdomain, context) => {
       const processId = nanoid(12);

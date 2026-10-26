@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-10-22`
+- **Last synchronized:** `2026-10-23`
 
 ## Scope
 
@@ -70,7 +70,7 @@
 - Report screens for the frontline plugin, including the default chart catalogue
   and the saved charts board built on top of it.
 - Automation remote entries under `src/widgets` for facebook, instagram, inbox,
-  discord, mail, knowledgebase, and ticket — trigger forms, action forms, node
+  discord, mail, form, knowledgebase, and ticket — trigger forms, action forms, node
   configuration content, bot management, and execution history renderers.
 - Notification, relation, activity, and floating widgets exposed to the host.
 
@@ -88,6 +88,33 @@
 
 ## Current Capabilities
 
+- Pipeline → Properties has a **Create form** card: a preview of the rows and
+  "Edit layout", which opens the shared `LayoutEditor` drawn like the
+  new-ticket sheet (`TicketCreateFormHeader`/`Footer`, chips via
+  `TicketLayoutChip`) with a **Fields** side panel
+  (`TicketLayoutFieldsPanel`). In the panel the checkbox puts a field on this
+  pipeline's form; "Turn on" and the Required switch edit the Settings →
+  Properties rules in place (`frontlineTicketSystemFieldEdit` /
+  `frontlineTicketFieldEdit`), so nothing needs a page switch; "New property"
+  opens `PropertyAddSheet` and places the new field turned on. Fields saved
+  with a type the form cannot render are flagged "Unsupported type" and never
+  shown. A placed field that Settings → Properties hides on detail
+  (`isVisible: false`) gets a "Hidden in detail" badge; the editor never
+  changes that rule. Reset clears the layout back to
+  `DEFAULT_TICKET_CREATE_LAYOUT`. It is the only card on the page; there is no
+  detail selection.
+- Tickets sidebar channel and pipeline rows show a hover ⚙ link to their
+  settings (channel detail / pipeline General tab), and the new-ticket footer
+  shows "Edit form" to the selected pipeline's Properties tab. Both appear
+  only when `useCanManageChannels` allows the channel: owner, or the
+  channel's `admin` member — the rule `channelUpdate`, `updatePipeline` and
+  `removePipeline` enforce.
+- The new-ticket sheet renders name, channel/pipeline/status and description
+  fixed, and the selected pipeline's `createLayout` rows between them
+  (`useTicketCreateLayout`): system chips via `TicketCreateSystemField`,
+  properties via `PropertyFormField`. Property logic hides cells; required
+  system fields, properties and description block Save with a toast and a red
+  ring. Only shown properties are sent as `propertiesData`.
 - The conversation header shows a warning badge "+N same email" when other
   customers hold exactly the conversation customer's email (primary or listed).
   Its popover lists them (links to `/contacts/customers?contactId=`) and
@@ -304,17 +331,15 @@
   rows are disjoint — the API keeps survey conversations out of an
   `integrationType`-scoped list.
 
-- Ticket pipeline settings include a Properties route that lists only Core
-  `frontline:ticket` properties, grouped by their Core field group. Checked
-  fields are stored on the pipeline, and ticket detail renders only that
-  pipeline's selected fields. Legacy pipelines continue rendering all fields
-  until their Properties selection is saved for the first time.
 - Ticket detail actions — Archive/Unarchive, Subscribe/Unsubscribe and Delete —
   live in one `Actions` menu (`ticket-detail/TicketDetailActions.tsx`) in the
   ticket sheet header; the fields row carries no actions. The notification
   ticket view has none of its own — its `Open ticket` button opens that sheet.
   The header's close button sits in a `w-16` strip aligned with the relation
   side tabs, and drops the strip when `hideRelationWidgetSideTabs` is set.
+  Those side tabs (ui-modules `RelationWidgetSideTabs`) hold only Customers and
+  Companies icons, each opening the side panel's view of the ticket's contacts
+  inside the sheet; no relation widgets are listed beside a ticket.
   While one action is in flight the menu and its items stay disabled.
 - Ticket detail chips render as labelled field groups, as Sales' deal detail
   chips do: a muted label segment, then the value and a chevron, e.g.
@@ -435,6 +460,19 @@
   pipelines, and response templates.
 - Renders plugin-specific automation trigger/action forms selected by node type
   in each module's `*RemoteEntry.tsx`.
+- The **Form submitted** trigger form (`widgets/automations/modules/form`)
+  picks a channel, then a form from that channel, then optional field
+  condition rows (field · operator · value) joined by Match all / Match any.
+  Operators come from `ui-modules` `AUTOMATION_CONDITION_OPERATORS`; a field
+  with options offers them as the value, and unary operators hide the value.
+  Changing the channel or form clears the rows, because field ids belong to
+  one form.
+  The form's answers appear in the builder's Variables panel as **Form
+  answers**, which `frontline_api` lists from the saved trigger config; no UI
+  code here builds them.
+  In execution history the run's name links to the form's submissions
+  (`/frontline/forms/submissions/:formId`), the customer and the
+  conversation (`FormHistoryName`).
 - The Create ticket action's Priority, Assignee and placement can be made
   conditional: rows of conditions each with their own value, plus an Otherwise.
   Placement (channel, pipeline, status) is one conditional over all three keys,
@@ -734,6 +772,7 @@ owns the setup form and connection actions.
 
 ### Provides
 
+- `widgets.contactWidgets: [{ name: 'ticket' }, { name: 'conversation' }]` with `./contactWidget` (`src/widgets/contact/ContactWidgets.tsx`): Tickets (the contact's tickets from `getTickets` filtered by `customerId` / `companyId`, rows opening `TicketDetailSheet`, `+` opening `AddTicketSheet` with `hideTrigger` and `contacts`, saved on the ticket by `createTicket`; `AddTicketForm` evicts cached `getTickets` lists) and Conversations (a customer's own, from `useConversations({ customerId })`; none for companies) sections of a contact's side panel overview. Tickets keep one customer and one company themselves (`customerId` / `companyId` in `FrontlineTicketFields`); the ticket sheet's rail is given them. The create-ticket automation action configures one `companyId`.
 - Routes `frontline/forms` (list), `frontline/forms/create` (builder wizard),
   `frontline/forms/:formId` (builder wizard on an existing form),
   `frontline/forms/submissions/:formId` and `frontline/forms/preview`, all
@@ -823,11 +862,12 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
 - `erxes-ui`: all UI primitives — `NavigationMenuGroup`, `Sheet`, `Form`,
   `Dialog`, `Button`, `Badge`, `Label`, `Card`, `toast`, `useQueryState`,
   `useToast`, hotkey hooks.
-- `ui-modules`: `useRelationWidget` in `ConversationSideWidget` is called with
-  `contentType: 'frontline:conversation'`. A relation widget registered with a
-  `contentTypes` list is filtered out of any rail that passes no `contentType`,
-  so dropping this argument silently removes the core Tracked data tab from the
-  conversation rail.
+- `ui-modules`: `useSidePanel().openRecord` in `ConversationSideWidget`. The
+  conversation's right rail (`SideMenu`) holds a customer button, which closes
+  any open rail tab and opens the conversation's customer in the app side panel
+  (`core:customer`, where its linked records, Tracked data included, are
+  shown), and the conversation Properties tab. No relation widgets are rendered
+  beside a conversation.
 - `ui-modules`: `SelectBrand`, `MembersInline`, `CustomersInline`, contacts and
   structure selects,
   `AutomationRemoteEntryWrapper`, `AutomationRemoteEntryTypes`,
@@ -1031,6 +1071,33 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
 
 ## Local Invariants
 
+- Relation widgets go only through contacts: each lists the records whose
+  own `customerId` / `companyId` is the host's customer or company
+  (ui-modules `getHostContacts`: the host itself when it is a contact, else
+  the first of `customerId(s)` / `companyId(s)` from `IRelationWidgetProps`),
+  read with this plugin's own list query, the host left out. "+" creates a
+  record with those contacts through its create mutation. No core relation
+  is created or read for record ↔ record or record ↔ contact links, and there
+  is no "choose existing" picker.
+- Conversations belong to a customer by `customerId`, not by relation: the
+  conversation relation widget lists the host customer's conversations
+  (`getHostContacts`) through `useConversations({ variables: { customerId } })`
+  and reads no relation, also on a ticket host.
+- Preview iframes load plugin routes with `?inPreview=true` (messenger
+  `settings/channels/erxes-messenger-preview`, `settings/forms/form-preview`,
+  `forms/preview`). `FrontlineSettingsLayout` and `IntegrationsMain` render
+  their children without `AppLayout` when that flag is set, matching core's
+  `DefaultLayout`; a new layout wrapper must honor it too.
+- `TICKET_CREATE_LAYOUT_SYSTEM_CODES` in `modules/ticket/constants/createLayout.ts`
+  mirrors the backend list; a code added on one side must be added on the
+  other and get a renderer in `TicketCreateSystemField`.
+- The ticket detail's Properties tab (`TicketPipelineProperties`) is
+  Settings → Properties as is: every property with `isVisible !== false`, in
+  its own group. The pipeline and its create layout never move or hide a
+  field there, so a field has one home whatever the pipeline.
+- A create-form cell shows only when Settings → Properties allows it on create
+  (`useSystemFieldRules(..., 'create')` / `field.isVisibleToCreate`), whatever
+  the pipeline layout says.
 - `inboxCustomersSharingEmail` uses core `customers(searchValue)`, which is a
   fuzzy search; `useCustomersSharingEmail` must keep only exact,
   case-insensitive matches on `primaryEmail`/`emails` and drop the current
@@ -1229,9 +1296,9 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
   `closeDate` differs (`CONVERT_TYPE_OPTIONS[type].closeDateCode`, which is
   `targetDate` on tickets and tasks). Name, stage,
   assignee, branch, department, attachments and description stay always shown.
-- A successful convert refetches `ConversationConvertedItems` and
-  `getRelationsByEntity`, so the menu and the relation widgets update without
-  a reload.
+- A successful convert refetches `ConversationConvertedItems` and evicts
+  cached `getTickets` / `deals` lists, so the menu and the customer's lists
+  update without a reload. Convert makes no relation.
 - Any new call atom created with `atomWithStorage` must also be reset in
   `ClearCallCacheButton` (`call/components/CallSipActions.tsx`), otherwise the
   clear-cache action leaves stale call state behind. `callConfigAtom` is reset
@@ -2006,6 +2073,10 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   (`modules.integrations`, `modules.helpcenter`, `widgets.automations-mail`, …)
   and call `t('key')` without inline English defaults; every key used under a
   prefix must exist in both `en` and `mn` under the same path.
+- `useFormValidationErrorHandler` (ui-modules) builds an English toast title and
+  description, so a translated automation form raises its own validation toast
+  from `handleSubmit`'s error callback with `t()` keys instead (see the inbox
+  triggers and `CreateTicketActionConfigForm`).
 - Ticket tag selectors must go through `SelectTagsTicket`
   (`src/modules/ticket/components/ticket-selects/SelectTagsTicket.tsx`), never
   `TagsSelect.SelectedList` directly — the shared component chains every
@@ -2318,7 +2389,7 @@ null }`, fall back to the route pipeline and skip without one; never pass
   `GetTicketPipelines` list row and `IPipelineDetail` is
   `getTicketPipeline`. Only the detail selects `userId`, `visibility` and
   `memberIds`, so `useTicketPermissions` takes an `IPipelineDetail` from
-  `useGetPipeline`. Pipeline id lists (`propertyIds`, `memberIds`,
+  `useGetPipeline`. Pipeline id lists (`memberIds`, `departmentIds`,
   `excludeCheckUserIds`, …) are `[String]` in the SDL; read them with
   `compactList`. `IConfig` is a `TicketConfigs` row and
   `ITicketConfigDetail` is `ticketConfigDetail`; `ConfigsForm` turns a
@@ -2597,7 +2668,8 @@ null }`, fall back to the route pipeline and skip without one; never pass
   from two channels on `/frontline/forms` must leave that button disabled.
 - Smoke (convert): in a conversation open Convert → `Convert to a ticket`,
   `…a deal` and `…a task`; each save shows a success toast, the entry turns
-  into `Go to a …`, and the Tickets/Deals/Tasks side widgets list the new item.
+  into `Go to a …`, and the customer button's side panel lists the new item
+  under Tickets/Deals/Tasks.
 - Smoke (help center): open `/frontline/helpcenter`, change a name inline, then
   open the drawer and pick a client portal on **General** and save a colour on
   **Appearance**; reload and confirm both persisted. The website picker must

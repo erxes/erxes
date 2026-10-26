@@ -26,7 +26,7 @@ export const InboxMessagesContainer = ({
   conversationId?: string;
   fullWidth?: boolean;
 }>) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const viewportRef = useRef<HTMLDivElement>(null);
   const messagesRef = useRef<HTMLDivElement>(null);
   const shouldFollowNewestRef = useRef(true);

@@ -17,7 +17,7 @@ const LABELS: Partial<Record<keyof TTicketActionConfigForm, string>> = {
   targetDate: 'target-date',
   labelIds: 'labels',
   tagIds: 'tags',
-  companyIds: 'companies',
+  companyId: 'company',
   attachmentIds: 'ticket-attachment-media',
 };
 

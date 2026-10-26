@@ -196,7 +196,9 @@ export const ArticleDrawer = ({
   onClose: () => void;
   onSaved?: () => void;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.knowledgebase',
+  });
   const isEditing = !!articleId;
   const { article } = useArticleDetail(articleId);
   const { saveArticle, loading } = useSaveArticle();

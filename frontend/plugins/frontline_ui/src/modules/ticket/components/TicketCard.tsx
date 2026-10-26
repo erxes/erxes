@@ -26,7 +26,7 @@ export const ticketBoardItemAtom = atom(
 );
 
 export const TicketCard = ({ id, column }: BoardCardProps) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   const ticket = useAtomValue(ticketBoardItemAtom)(id);
   const [, setActiveTicket] = useTicketDetailSheet();
   const [, setSelectedTab] = useQueryState<string>('tab');

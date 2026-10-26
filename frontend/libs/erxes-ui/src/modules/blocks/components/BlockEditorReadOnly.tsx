@@ -1,3 +1,4 @@
+import { BlockEditorEditableContext } from '../hooks/useBlockEditorEditable';
 import { useCreateBlockNote } from '@blocknote/react';
 import { BLOCK_SCHEMA } from 'erxes-ui/modules/blocks/constant/blockEditorSchema';
 import { BlockNoteView } from '@blocknote/shadcn';
@@ -54,14 +55,16 @@ export const BlockEditorReadOnly = React.forwardRef<
   }
 
   return (
-    <BlockNoteView
-      className={cn('read-only', className)}
-      editor={editor}
-      editable={false}
-      formattingToolbar={false}
-      slashMenu={false}
-      sideMenu={false}
-      theme={theme as 'light' | 'dark'}
-    />
+    <BlockEditorEditableContext.Provider value={false}>
+      <BlockNoteView
+        className={cn('read-only', className)}
+        editor={editor}
+        editable={false}
+        formattingToolbar={false}
+        slashMenu={false}
+        sideMenu={false}
+        theme={theme === 'system' ? undefined : theme}
+      />
+    </BlockEditorEditableContext.Provider>
   );
 });

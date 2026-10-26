@@ -15,7 +15,7 @@ export const MessageTriggerConfigPanel = ({
 }: {
   currentTriggerId?: string;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.facebook' });
   const { watch } = useFormContext<TMessageTriggerForm>();
   const { activeConditionType, setActiveConditionType } =
     useMessageTriggerFormContext();

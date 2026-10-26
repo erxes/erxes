@@ -12,6 +12,7 @@ export const NOTIFICATION_PLUGINS_TYPES = gql`
           name
           title
           description
+          defaultChannels
         }
       }
     }

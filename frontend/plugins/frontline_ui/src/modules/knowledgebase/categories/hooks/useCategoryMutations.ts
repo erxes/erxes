@@ -19,7 +19,9 @@ import { withoutEmptyCode } from '@/knowledgebase/utils/withoutEmptyCode';
 const CATEGORY_QUERIES = [CATEGORIES, TOPIC_DETAIL, TOPICS];
 
 export const useSaveCategory = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.knowledgebase',
+  });
   const { run } = useKbToast();
 
   const [addCategory, { loading: adding }] = useMutation(ADD_CATEGORY, {
@@ -52,7 +54,9 @@ export const useSaveCategory = () => {
 };
 
 export const useEditCategoryField = (topicId: string) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.knowledgebase',
+  });
   const { toast } = useToast();
   const [editCategory, { loading }] = useMutation(EDIT_CATEGORY);
 

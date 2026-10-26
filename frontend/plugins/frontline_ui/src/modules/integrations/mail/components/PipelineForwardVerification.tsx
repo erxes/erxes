@@ -14,7 +14,9 @@ import {
 } from '../hooks/useMailPipelineIntegration';
 
 const VerificationCode = ({ code }: { code: string }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const [copied, setCopied] = useState(false);
 
   const copy = async () => {
@@ -37,7 +39,9 @@ const VerificationCode = ({ code }: { code: string }) => {
 };
 
 const AwaitingNotice = ({ forwardFrom }: { forwardFrom: string }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
 
   return (
     <Alert>
@@ -74,7 +78,9 @@ export const PipelineForwardVerification = ({
   integration: IMailPipelineIntegration;
   waiting: boolean;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const { markForwardVerified, loading } = useMailPipelineForwardVerified();
 
   const verification = integration.forwardVerification;

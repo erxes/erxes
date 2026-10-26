@@ -243,34 +243,6 @@ export const buildDealReplacer = async (
       }).lean()
     : Promise.resolve([]);
 
-  const customerIdsPromise = sendTRPCMessage({
-    subdomain,
-    pluginName: 'core',
-    method: 'query',
-    module: 'relation',
-    action: 'getRelationIds',
-    input: {
-      contentType: 'sales:deal',
-      contentId: deal._id,
-      relatedContentType: 'core:customer',
-    },
-    defaultValue: [],
-  });
-
-  const companyIdsPromise = sendTRPCMessage({
-    subdomain,
-    pluginName: 'core',
-    method: 'query',
-    module: 'relation',
-    action: 'getRelationIds',
-    input: {
-      contentType: 'sales:deal',
-      contentId: deal._id,
-      relatedContentType: 'core:company',
-    },
-    defaultValue: [],
-  });
-
   const [
     stageContext,
     users,
@@ -282,8 +254,8 @@ export const buildDealReplacer = async (
     stageContextPromise,
     assignedUsersPromise,
     labelsPromise,
-    customerIdsPromise,
-    companyIdsPromise,
+    Promise.resolve(deal.customerId ? [deal.customerId] : []),
+    Promise.resolve(deal.companyId ? [deal.companyId] : []),
     generateProducts(subdomain, deal.productsData),
   ]);
 
@@ -292,12 +264,8 @@ export const buildDealReplacer = async (
   attrMap.assignedUsers = joinNames(users, userName);
   attrMap.labels = joinNames(labels, (label) => label?.name);
 
-  const customerIds: string[] = relatedCustomerIds?.length
-    ? relatedCustomerIds
-    : deal.customerIds || [];
-  const companyIds: string[] = relatedCompanyIds?.length
-    ? relatedCompanyIds
-    : deal.companyIds || [];
+  const customerIds: string[] = relatedCustomerIds || [];
+  const companyIds: string[] = relatedCompanyIds || [];
 
   const [customers, companies] = await Promise.all([
     customerIds.length

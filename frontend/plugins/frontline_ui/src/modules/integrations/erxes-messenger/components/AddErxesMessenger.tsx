@@ -10,7 +10,9 @@ import { resetErxesMessengerSetupAtom } from '@/integrations/erxes-messenger/sta
 import { useTranslation } from 'react-i18next';
 
 export const AddErxesMessengerSheet = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const [open, setOpen] = useAtom(erxesMessengerSetupSheetOpenAtom);
   const settedIntegrationDetail = useAtomValue(settedIntegrationDetailAtom);
   const resetErxesMessengerSetup = useSetAtom(resetErxesMessengerSetupAtom);

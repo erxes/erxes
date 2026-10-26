@@ -42,7 +42,7 @@ export function StringArrayInput({
       }}
       styleClasses={{
         inlineTagsContainer: cn(
-          'rounded bg-background border-none transition-[color,box-shadow] focus-within:shadow-focus outline-none min-h-8 h-auto p-0 px-1 gap-1 flex-wrap',
+          'rounded bg-background border-none transition-[color,box-shadow] focus-within:shadow-focus outline-none min-h-7 h-auto p-0 px-1 gap-1 flex-wrap',
           styleClasses?.inlineTagsContainer,
         ),
         input: cn(

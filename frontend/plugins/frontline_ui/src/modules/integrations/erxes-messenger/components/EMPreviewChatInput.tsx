@@ -15,7 +15,9 @@ import { Link } from 'react-router-dom';
 import { emPreviewTabAtom } from '../states/emPreviewStates';
 
 export const EMPreviewChatInput = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const intro = useAtomValue(erxesMessengerSetupIntroAtom);
   const activetab = useAtomValue(emPreviewTabAtom);
   const isInChat = activetab === 'chat';

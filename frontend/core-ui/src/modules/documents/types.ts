@@ -5,6 +5,10 @@ export type IDocument = {
   contentType: string;
   name?: string;
   content?: string | null;
+  commentState?: string | null;
+  subType?: string | null;
+  code?: string | null;
+  replacer?: string | null;
   approvalLockState?: ApprovalLockState;
   createdAt?: string;
   createdUser?: IUser;
@@ -12,10 +16,16 @@ export type IDocument = {
 };
 
 export type IDocumentType = {
-  name: string;
   label: string;
   contentType: string;
   subTypes?: string[];
+};
+
+export type DocumentAttribute = {
+  label?: string;
+  name: string;
+  value?: string;
+  groupDetail?: { name: string };
 };
 
 export type DocumentFilterState = {
