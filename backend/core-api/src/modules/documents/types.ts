@@ -16,7 +16,7 @@ export interface IDocument {
 }
 
 export interface IDocumentDocument extends IDocument, Document {
-  _id: Types.ObjectId;
+  _id: string | Types.ObjectId;
   createdUserId: string;
 }
 
