@@ -1,3 +1,4 @@
+import { Resolver } from 'erxes-api-shared/core-types';
 import { appMutations } from '@/apps/graphql/mutations';
 import { authMutations } from '@/auth/graphql/resolvers/mutations';
 import { oauthClientAppMutations } from '@/auth/graphql/resolvers/oauthClientApps';
@@ -77,3 +78,25 @@ export const mutations = {
   ...agentsThreadMutations,
   ...agentsSettingsMutations,
 };
+
+// Arguments that can carry a password, API key or credential: kept out of
+// mutation logs and plugin before-resolver hooks. Public mutations (login,
+// password reset, client portal users) are never logged.
+const SECRET_ARGUMENT_MUTATIONS = [
+  'agentsConnectionUpsert',
+  'usersChangePassword',
+  'usersResetMemberPassword',
+  'usersEdit',
+  'usersInvite',
+  'cpUsersAdd',
+  'cpUsersSetPassword',
+  'clientPortalUpdate',
+  'configsUpdate',
+  'broadcastUpdateConfigs',
+] as const;
+
+for (const name of SECRET_ARGUMENT_MUTATIONS) {
+  const resolver: Resolver = mutations[name];
+
+  resolver.wrapperConfig = { ...resolver.wrapperConfig, sensitiveArgs: true };
+}
