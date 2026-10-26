@@ -476,8 +476,9 @@ shipped locale files (`__tests__/support/agentI18n.ts`).
 ## Validation
 
 - `pnpm nx test core-ui` — tests in `__tests__` + `artifacts/__tests__`.
-  `approvalRoundTrip.test.ts` resolves its fixture from the repository root, so
-  run it with jest from the root when the Nx run reports a resolve error.
+  `approvalRoundTrip.test.ts` resolves the repository from its fixture's own
+  path and runs it from the OS temp directory, so it passes under Nx (cwd
+  `frontend/core-ui`) and from the root alike.
 - `pnpm nx build core-ui` — rspack.
 - eslint on touched files — 0 errors expected.
 
