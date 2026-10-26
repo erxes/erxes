@@ -15,6 +15,7 @@ import {
   PageInfo,
 } from './cursor-util';
 import { mongooseStringRandomId } from './mongoose-types';
+import { applyPermissionScopeHooks } from './permission-scope';
 import {
   configureSchemaSearchTokens,
   ISchemaWrapperOptions,
@@ -324,6 +325,8 @@ export const schemaWrapper = (
   if (options.search) {
     configureSchemaSearchTokens(schema, options.search);
   }
+
+  applyPermissionScopeHooks(schema);
 
   return schema;
 };

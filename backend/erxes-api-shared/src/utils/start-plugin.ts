@@ -50,7 +50,8 @@ import {
 import { BeforeResolversConfig } from './apollo/beforeResolvers';
 import { extractUserFromHeader } from './headers';
 import { AfterProcessConfigs, logHandler, startAfterProcess } from './logs';
-import { closeMongooose } from './mongo';
+import { closeMongooose, registerPermissionScopes } from './mongo';
+import { permissionScopeMiddleware } from '../core-modules/permissions/scope';
 import {
   initializePluginConfig,
   joinErxesGateway,
@@ -373,8 +374,11 @@ export async function startPlugin(
   const apolloServer = await generateApolloServer();
   await apolloServer.start();
 
+  registerPermissionScopes(name, meta?.permissions);
+
   app.use(
     '/graphql',
+    permissionScopeMiddleware,
     expressMiddleware(apolloServer, {
       context: generateApolloContext<IMainContext>(apolloServerContext),
     }),

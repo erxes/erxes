@@ -3,15 +3,34 @@ import { IPermissionConfig } from 'erxes-api-shared/core-types';
 export const permissions: IPermissionConfig = {
   plugin: 'sales',
 
+  // We have allowed any kind of string in permission that is not limited to only "own" | "group" | "all". So its fine.
   modules: [
     {
       name: 'deal',
       description: 'Deals management',
       scopeField: null,
       ownerFields: ['userId', 'assignedUserIds'],
+      scopeCollections: ['deals'],
+      branchField: 'branchIds',
+      departmentField: 'departmentIds',
       scopes: [
         { name: 'own', description: 'Deals created by or assigned to user' },
-        { name: 'group', description: 'Deals in user departments' },
+        {
+          name: 'unit',
+          description: 'Deals owned by members of the user units',
+        },
+        {
+          name: 'position',
+          description: 'Deals owned by the user positions and positions below',
+        },
+        {
+          name: 'department',
+          description: 'Deals of the user departments and sub-departments',
+        },
+        {
+          name: 'branch',
+          description: 'Deals of the user branches and sub-branches',
+        },
         { name: 'all', description: 'All deals' },
       ],
       actions: [
@@ -57,7 +76,12 @@ export const permissions: IPermissionConfig = {
           name: 'boardsAdd',
           description: 'Create boards',
         },
-        { title: 'Archive / unarchive boards', name: 'boardsArchive', description: 'Archive boards and their pipelines and deals; unarchive boards' },
+        {
+          title: 'Archive / unarchive boards',
+          name: 'boardsArchive',
+          description:
+            'Archive boards and their pipelines and deals; unarchive boards',
+        },
         {
           title: 'Edit boards',
           name: 'boardsEdit',

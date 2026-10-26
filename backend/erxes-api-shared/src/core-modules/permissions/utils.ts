@@ -11,6 +11,7 @@ import {
   getActivePlugins,
   ExpectedError,
 } from '../../utils';
+import { permissionScopeCacheKey } from './scope';
 
 export const checkLogin = (user?: IUserDocument) => {
   if (!user?._id) {
@@ -172,7 +173,7 @@ export const clearGroupActionsCache = async ({
   groupId?: string;
 }) => {
   if (userId) {
-    await redis.del(`user_actions_${userId}`);
+    await redis.del(`user_actions_${userId}`, permissionScopeCacheKey(userId));
   }
 
   if (groupId && subdomain) {
@@ -190,7 +191,7 @@ export const clearGroupActionsCache = async ({
     });
 
     for (const u of users) {
-      await redis.del(`user_actions_${u._id}`);
+      await redis.del(`user_actions_${u._id}`, permissionScopeCacheKey(u._id));
     }
   }
 };

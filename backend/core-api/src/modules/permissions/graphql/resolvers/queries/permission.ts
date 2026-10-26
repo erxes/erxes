@@ -1,6 +1,21 @@
 import { IContext } from '~/connectionResolvers';
+import { IPermissionModule } from 'erxes-api-shared/core-types';
+import { STRUCTURE_PERMISSION_SCOPES } from 'erxes-api-shared/core-modules';
 import { getPlugins, getPlugin } from 'erxes-api-shared/utils';
 import { ensurePermissionGroups, getPermissionTemplates } from '../../../utils';
+
+const withStructureScopes = (module: IPermissionModule) => {
+  if (!module.scopeCollections?.length) {
+    return module.scopes;
+  }
+
+  const declared = new Set(module.scopes.map((scope) => scope.name));
+
+  return [
+    ...module.scopes,
+    ...STRUCTURE_PERMISSION_SCOPES.filter((scope) => !declared.has(scope.name)),
+  ];
+};
 
 const mergePerm = (map: Map<string, any>, perm: any, plugin?: string) => {
   const existing = map.get(perm.module);
@@ -17,7 +32,15 @@ const mergePerm = (map: Map<string, any>, perm: any, plugin?: string) => {
 
   existing.actions = [...new Set([...existing.actions, ...perm.actions])];
 
-  const priority: Record<string, number> = { own: 1, group: 2, all: 3 };
+  const priority: Record<string, number> = {
+    own: 1,
+    unit: 2,
+    position: 3,
+    group: 4,
+    department: 4,
+    branch: 5,
+    all: 6,
+  };
   if (priority[perm.scope] > priority[existing.scope]) {
     existing.scope = perm.scope;
   }
@@ -34,7 +57,11 @@ export const permissionQueries = {
       if (!permissions?.modules) continue;
 
       const modules = permissions.modules
-        .map((module: any) => ({ ...module, plugin: name }))
+        .map((module: IPermissionModule) => ({
+          ...module,
+          scopes: withStructureScopes(module),
+          plugin: name,
+        }))
         .sort((a: any, b: any) => a.name.localeCompare(b.name));
 
       grouped.push({ plugin: name, modules });

@@ -21,6 +21,9 @@ export interface IPermissionModule {
   scopes: IPermissionScope[];
   scopeField?: string | null;
   ownerFields?: string[];
+  scopeCollections?: string[];
+  branchField?: string;
+  departmentField?: string;
   actions: IPermissionAction[];
   always?: boolean;
 }
