@@ -78,7 +78,7 @@ export const useFormMutate = () => {
       channelId: selectedChannelId,
     } = formSetupValues(confirmation);
     const channelId =
-      formDetail?.channelId || selectedChannelId || _channelId || '';
+      formDetail?.channelId || _channelId || selectedChannelId || '';
     if (id) {
       await editForm({
         variables: {

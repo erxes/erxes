@@ -25,7 +25,7 @@ export const FormGeneral = () => {
   const { id, formId } = useParams<{ id: string; formId: string }>();
   const form = useForm<z.infer<typeof FORM_GENERAL_SCHEMA>>({
     resolver: zodResolver(
-      formId ? FORM_GENERAL_SCHEMA : FORM_GENERAL_CREATE_SCHEMA,
+      formId || id ? FORM_GENERAL_SCHEMA : FORM_GENERAL_CREATE_SCHEMA,
     ),
     defaultValues: {
       primaryColor: '',
@@ -155,20 +155,22 @@ export const FormGeneral = () => {
             </Form.Item>
           )}
         />
-        <Form.Field
-          name="channelId"
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>{t('channel-label', 'Channel')}</Form.Label>
-              <SelectChannel.FormItem
-                value={field.value}
-                mode="single"
-                onValueChange={field.onChange}
-              />
-              <Form.Message />
-            </Form.Item>
-          )}
-        />
+        {!id && (
+          <Form.Field
+            name="channelId"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label>{t('channel-label', 'Channel')}</Form.Label>
+                <SelectChannel.FormItem
+                  value={field.value}
+                  mode="single"
+                  onValueChange={field.onChange}
+                />
+                <Form.Message />
+              </Form.Item>
+            )}
+          />
+        )}
         <Form.Field
           name="saveAsCustomer"
           render={({ field }) => (
