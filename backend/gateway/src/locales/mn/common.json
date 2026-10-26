@@ -562,7 +562,9 @@
     "keep-editing": "Үргэлжлүүлэн засах",
     "leave-without-saving": "Хадгалалгүй гарах",
     "no-notification-events": "Мэдэгдлийн үйлдэл алга",
-    "no-notification-events-description": "Энэ plugin сонгох боломжтой мэдэгдэл илгээдэггүй."
+    "no-notification-events-description": "Энэ plugin сонгох боломжтой мэдэгдэл илгээдэггүй.",
+    "permission-group": "Эрхийн бүлэг",
+    "unknown-user": "Тодорхойгүй хэрэглэгч"
   },
   "onboarding": {
     "all-set": "Бүх зүйл бэлэн боллоо!",
