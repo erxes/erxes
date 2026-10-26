@@ -46,8 +46,8 @@ import {
 import { BeforeResolversConfig } from './apollo/beforeResolvers';
 import {
   assertInternalHeaderSignatureConfig,
-  dropUntrustedIdentityHeaders,
   extractUserFromHeader,
+  identityHeadersGuard,
 } from './headers';
 import { AfterProcessConfigs, logHandler, startAfterProcess } from './logs';
 import { closeMongooose } from './mongo';
@@ -192,10 +192,7 @@ export async function startPlugin(
 
   // Ignore gateway identity headers whose signature does not verify
   // (INTERNAL_HEADER_SIGNATURE=enforce) before any route reads them.
-  app.use((req, _res, next) => {
-    dropUntrustedIdentityHeaders(req.headers);
-    next();
-  });
+  app.use(identityHeadersGuard);
 
   // for health check
   app.get('/health', async (_req, res) => {

@@ -1,5 +1,9 @@
 import { createHmac, timingSafeEqual } from 'node:crypto';
-import { IncomingHttpHeaders, OutgoingHttpHeaders } from 'node:http';
+import {
+  IncomingHttpHeaders,
+  IncomingMessage,
+  OutgoingHttpHeaders,
+} from 'node:http';
 import { identitySignatureHeaderName, SIGNED_IDENTITY_HEADERS } from './names';
 
 /**
@@ -270,4 +274,18 @@ export const dropUntrustedIdentityHeaders = (headers: IncomingHttpHeaders) => {
   }
 
   delete headers[identitySignatureHeaderName];
+};
+
+/**
+ * Express-compatible middleware running `dropUntrustedIdentityHeaders` before
+ * any route reads identity headers. Mount it ahead of every route in a
+ * service's HTTP app.
+ */
+export const identityHeadersGuard = (
+  req: IncomingMessage,
+  _res: unknown,
+  next: () => void,
+) => {
+  dropUntrustedIdentityHeaders(req.headers);
+  next();
 };
