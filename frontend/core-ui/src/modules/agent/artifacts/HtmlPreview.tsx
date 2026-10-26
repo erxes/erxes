@@ -9,8 +9,6 @@ import {
   type IHtmlReferenceMount,
 } from './htmlReferences';
 import { AgentReferenceChip } from '../components/AgentReferenceChip';
-import { WhatIfChart } from './WhatIfChart';
-import { parseWhatIfChart, type WhatIfChartSpec } from './whatIfChartModel';
 
 const EMPTY_FRAME = buildSandboxedSrcDoc('');
 
@@ -32,9 +30,6 @@ export const HtmlPreview = ({
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [height, setHeight] = useState(48);
   const [mounts, setMounts] = useState<IHtmlReferenceMount[]>([]);
-  const [charts, setCharts] = useState<
-    { element: Element; spec: WhatIfChartSpec }[]
-  >([]);
 
   useEffect(() => {
     // Update the existing document at most every 120ms while streaming,
@@ -107,25 +102,6 @@ export const HtmlPreview = ({
         if (!allowed) anchor.replaceWith(...Array.from(anchor.childNodes));
       }
       document.body.innerHTML = parsed.body.innerHTML;
-      const chartMounts: { element: Element; spec: WhatIfChartSpec }[] = [];
-      for (const element of Array.from(
-        document.body.querySelectorAll('div[data-agent-chart]'),
-      )) {
-        const spec = parseWhatIfChart(
-          element.getAttribute('data-agent-chart') ?? '',
-        );
-        element.removeAttribute('data-agent-chart');
-        if (spec && chartMounts.length < 4) {
-          element.replaceChildren();
-          chartMounts.push({ element, spec });
-        } else {
-          const error = document.createElement('p');
-          error.textContent =
-            'Interactive chart unavailable: invalid or unsupported formula.';
-          element.replaceChildren(error);
-        }
-      }
-      setCharts(chartMounts);
       // Full documents may style the root/body as well as their content.
       for (const [target, source] of [
         [document.documentElement, parsed.documentElement],
@@ -209,9 +185,6 @@ export const HtmlPreview = ({
           element,
           String(index),
         ),
-      )}
-      {charts.map(({ element, spec }, index) =>
-        createPortal(<WhatIfChart spec={spec} />, element, `chart-${index}`),
       )}
     </>
   );

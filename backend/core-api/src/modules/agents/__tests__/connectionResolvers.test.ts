@@ -14,21 +14,38 @@
  *   refuses to save an entry that carries no key;
  * - the remove deletes exactly one provider's entry;
  * - the models query fetches every configured provider's /models endpoint
- *   server-side with the stored keys and swallows per-provider failures.
+ *   server-side with the stored keys, returns only usable models, and
+ *   reports per-provider failures without a key instead of failing.
  */
 
+jest.mock('@/agents/modelProbe', () => ({
+  probeProviderModel: jest.fn(),
+}));
+
+import { probeProviderModel } from '@/agents/modelProbe';
 import { agentsConnectionsQueries } from '@/agents/graphql/resolvers/queries/connection';
 import { agentsModelsQueries } from '@/agents/graphql/resolvers/queries/models';
 import { agentsConnectionMutations } from '@/agents/graphql/resolvers/mutations/connection';
+import type { IAiAgentConnection } from 'erxes-api-shared/core-modules';
 import type { IContext } from '~/connectionResolvers';
 
 interface IFakeConnectionModel {
   getConnections: jest.Mock;
   upsertConnection: jest.Mock;
   removeConnection: jest.Mock;
+  setDefaultProvider: jest.Mock;
 }
 
-const STORED_DOC = {
+/** A stored connections document as the resolvers read it. */
+interface IStoredDocFixture {
+  _id: string;
+  userId: string;
+  connections: IAiAgentConnection[];
+  defaultProvider?: string;
+  updatedAt: Date;
+}
+
+const STORED_DOC: IStoredDocFixture = {
   _id: 'conn-1',
   userId: 'user-1',
   connections: [
@@ -53,7 +70,7 @@ const buildContext = ({
 }: {
   permissionAllowed?: boolean;
   userId?: string;
-  storedDoc?: typeof STORED_DOC | null;
+  storedDoc?: IStoredDocFixture | null;
 } = {}) => {
   const checkPermission = jest.fn(async () => {
     if (!permissionAllowed) {
@@ -84,6 +101,20 @@ const buildContext = ({
       },
     ),
     removeConnection: jest.fn(async () => undefined),
+    setDefaultProvider: jest.fn(async (_actor: string, provider: string) => {
+      if (!storedDoc) {
+        return null;
+      }
+
+      if (
+        provider &&
+        !storedDoc.connections.some((entry) => entry.provider === provider)
+      ) {
+        return null;
+      }
+
+      return { ...storedDoc, defaultProvider: provider || undefined };
+    }),
   };
 
   const ctx = {
@@ -112,12 +143,14 @@ describe('agentsConnections query', () => {
         provider: 'openai',
         model: 'gpt-5.6-luna',
         hasKey: true,
+        isDefault: true,
         updatedAt: STORED_DOC.updatedAt,
       },
       {
         provider: 'grok',
         model: 'grok-4.5',
         hasKey: true,
+        isDefault: false,
         updatedAt: STORED_DOC.updatedAt,
       },
     ]);
@@ -146,6 +179,107 @@ describe('agentsConnections query', () => {
       agentsConnectionsQueries.agentsConnections(undefined, undefined, ctx),
     ).rejects.toThrow('Permission denied');
     expect(connectionModel.getConnections).not.toHaveBeenCalled();
+  });
+});
+
+describe('default connection', () => {
+  const defaults = (result: { provider?: string; isDefault: boolean }[]) =>
+    result.filter((entry) => entry.isDefault).map((entry) => entry.provider);
+
+  it.each([
+    ['the explicit default', 'grok', 'grok'],
+    ['the first saved entry for a stale default', 'kimi', 'openai'],
+  ])('marks %s as the only default entry', async (_case, stored, expected) => {
+    const { ctx } = buildContext({
+      storedDoc: { ...STORED_DOC, defaultProvider: stored },
+    });
+
+    const result = await agentsConnectionsQueries.agentsConnections(
+      undefined,
+      undefined,
+      ctx,
+    );
+
+    expect(defaults(result)).toEqual([expected]);
+  });
+
+  it('sets the default for the acting user only and returns the updated list', async () => {
+    const { ctx, checkPermission, connectionModel } = buildContext({
+      userId: 'user-2',
+    });
+
+    const result = await agentsConnectionMutations.agentsConnectionSetDefault(
+      undefined,
+      { provider: ' grok ' },
+      ctx,
+    );
+
+    expect(checkPermission).toHaveBeenCalledWith('agentsChat');
+    expect(connectionModel.setDefaultProvider).toHaveBeenCalledWith(
+      'user-2',
+      'grok',
+    );
+    expect(defaults(result)).toEqual(['grok']);
+    expect(JSON.stringify(result)).not.toContain('sk-');
+  });
+
+  it('clears the explicit default when no provider is given', async () => {
+    const { ctx, connectionModel } = buildContext({
+      storedDoc: { ...STORED_DOC, defaultProvider: 'grok' },
+    });
+
+    const result = await agentsConnectionMutations.agentsConnectionSetDefault(
+      undefined,
+      { provider: null },
+      ctx,
+    );
+
+    expect(connectionModel.setDefaultProvider).toHaveBeenCalledWith(
+      'user-1',
+      '',
+    );
+    expect(defaults(result)).toEqual(['openai']);
+  });
+
+  it('rejects a provider the acting user has not saved', async () => {
+    const { ctx } = buildContext();
+
+    await expect(
+      agentsConnectionMutations.agentsConnectionSetDefault(
+        undefined,
+        { provider: 'kimi' },
+        ctx,
+      ),
+    ).rejects.toThrow('No connection stored for provider "kimi"');
+  });
+
+  it('short-circuits without touching the model when permission is denied', async () => {
+    const { ctx, connectionModel } = buildContext({
+      permissionAllowed: false,
+    });
+
+    await expect(
+      agentsConnectionMutations.agentsConnectionSetDefault(
+        undefined,
+        { provider: 'grok' },
+        ctx,
+      ),
+    ).rejects.toThrow('Permission denied');
+    expect(connectionModel.setDefaultProvider).not.toHaveBeenCalled();
+  });
+
+  it('reports whether an upserted entry is the effective default', async () => {
+    const { ctx } = buildContext({
+      storedDoc: { ...STORED_DOC, defaultProvider: 'grok' },
+    });
+
+    const result = await agentsConnectionMutations.agentsConnectionUpsert(
+      undefined,
+      { provider: 'openai' },
+      ctx,
+    );
+
+    expect(result).toMatchObject({ provider: 'openai', isDefault: false });
   });
 });
 
@@ -382,11 +516,26 @@ describe('agentsConnectionRemove mutation', () => {
 });
 
 describe('agentsModels query', () => {
+  const GROK_MODELS = {
+    provider: 'grok',
+    models: ['grok-4.5'],
+    catalog: [
+      {
+        id: 'grok-4.5',
+        family: 'grok-4.5',
+        recommended: true,
+        name: 'Grok 4.5',
+        thinking: { kind: 'effort', levels: ['low', 'medium', 'high', 'xhigh'] },
+      },
+    ],
+    error: null,
+  };
+
   afterEach(() => {
     jest.restoreAllMocks();
   });
 
-  it('fetches every configured provider server-side with its stored key and returns sorted unique ids', async () => {
+  it('fetches every configured provider server-side with its stored key and returns its usable catalog', async () => {
     const { ctx, checkPermission } = buildContext();
     const fetchSpy = jest.spyOn(global, 'fetch').mockImplementation(
       async (input) =>
@@ -396,7 +545,13 @@ describe('agentsModels query', () => {
           json: async () => {
             if (String(input).includes('api.openai.com')) {
               return {
-                data: [{ id: 'b-model' }, { id: 'a-model' }, { id: 'a-model' }],
+                data: [
+                  { id: 'gpt-5.6-luna', created: 1 },
+                  { id: 'text-embedding-3-large' },
+                  { id: 'gpt-5.6' },
+                  { id: 'gpt-5.6-luna' },
+                  { id: 'whisper-1' },
+                ],
               };
             }
 
@@ -423,20 +578,40 @@ describe('agentsModels query', () => {
       }),
     );
     expect(result).toEqual([
-      { provider: 'openai', models: ['a-model', 'b-model'] },
-      { provider: 'grok', models: ['grok-4.5'] },
+      {
+        provider: 'openai',
+        models: ['gpt-5.6', 'gpt-5.6-luna'],
+        catalog: [
+          {
+            id: 'gpt-5.6',
+            family: 'gpt-5.6',
+            recommended: true,
+            name: null,
+            thinking: { kind: 'effort', levels: ['off', 'low', 'medium', 'high', 'xhigh', 'max'] },
+          },
+          {
+            id: 'gpt-5.6-luna',
+            family: 'gpt-5.6',
+            recommended: true,
+            name: 'GPT-5.6 Luna',
+            thinking: { kind: 'effort', levels: ['off', 'low', 'medium', 'high', 'xhigh', 'max'] },
+          },
+        ],
+        error: null,
+      },
+      GROK_MODELS,
     ]);
     expect(JSON.stringify(result)).not.toContain('sk-openai');
   });
 
-  it('leaves a failing provider out instead of failing the whole query', async () => {
+  it('reports a failing provider without its key instead of failing the whole query', async () => {
     const { ctx } = buildContext();
     jest.spyOn(global, 'fetch').mockImplementation(async (input) => {
       if (String(input).includes('api.openai.com')) {
         return {
           ok: false,
           status: 401,
-          json: async () => ({ error: 'bad key' }),
+          json: async () => ({ error: 'bad key sk-openai' }),
         } as Response;
       }
 
@@ -449,7 +624,190 @@ describe('agentsModels query', () => {
       ctx,
     );
 
-    expect(result).toEqual([{ provider: 'grok', models: ['grok-4.5'] }]);
+    expect(result).toEqual([
+      {
+        provider: 'openai',
+        models: [],
+        catalog: [],
+        error:
+          'OpenAI rejected the saved API key (401). Re-enter it in Settings → API key. OpenAI said: "bad key <key>"',
+      },
+      GROK_MODELS,
+    ]);
+    expect(JSON.stringify(result)).not.toContain('sk-openai');
+  });
+
+  it('replaces an unexpected failure with a generic message', async () => {
+    const { ctx } = buildContext();
+    jest
+      .spyOn(
+        jest.requireActual<typeof import('@/agents/providerModels')>(
+          '@/agents/providerModels',
+        ),
+        'fetchProviderModels',
+      )
+      .mockRejectedValue(new Error('upstream detail sk-grok'));
+
+    const result = await agentsModelsQueries.agentsModels(
+      undefined,
+      undefined,
+      ctx,
+    );
+
+    expect(result.map((entry) => entry.error)).toEqual([
+      'Could not list models for "openai".',
+      'Could not list models for "grok".',
+    ]);
+    expect(JSON.stringify(result)).not.toContain('sk-grok');
+  });
+
+  it('says a key cannot list models when it lacks Models: Read', async () => {
+    const { ctx } = buildContext({
+      storedDoc: { ...STORED_DOC, connections: [STORED_DOC.connections[0]] },
+    });
+    jest.spyOn(global, 'fetch').mockResolvedValue({
+      ok: false,
+      status: 403,
+      json: async () => ({
+        error: {
+          message:
+            'You have insufficient permissions for this operation. Missing scopes: api.model.read.',
+        },
+      }),
+    } as Response);
+
+    const [openai] = await agentsModelsQueries.agentsModels(
+      undefined,
+      undefined,
+      ctx,
+    );
+
+    expect(openai).toEqual({
+      provider: 'openai',
+      models: [],
+      catalog: [],
+      error:
+        "This OpenAI key can't list models (missing Models: Read permission). Type a model id to use it, or allow Models: Read for the key.",
+    });
+  });
+
+  it('reports a stored key this server cannot read instead of dropping the provider', async () => {
+    const { ctx } = buildContext({
+      storedDoc: {
+        ...STORED_DOC,
+        connections: [
+          {
+            provider: 'openai',
+            model: 'gpt-5.6-luna',
+            config: { apiKey: 'enc:v1:AAAA:AAAA:AAAA' },
+          },
+          { provider: 'grok', model: 'grok-4.5', config: {} },
+        ],
+      },
+    });
+    const fetchSpy = jest
+      .spyOn(global, 'fetch')
+      .mockRejectedValue(new Error('must not be called'));
+
+    const result = await agentsModelsQueries.agentsModels(
+      undefined,
+      undefined,
+      ctx,
+    );
+
+    expect(fetchSpy).not.toHaveBeenCalled();
+    // This suite runs without JWT_TOKEN_SECRET, like a misconfigured server.
+    expect(result).toEqual([
+      {
+        provider: 'openai',
+        models: [],
+        catalog: [],
+        error:
+          "Saved API keys can't be read because key encryption isn't configured on this server (JWT_TOKEN_SECRET). Ask an administrator to set it, then re-enter the OpenAI key.",
+      },
+      {
+        provider: 'grok',
+        models: [],
+        catalog: [],
+        error: 'No Grok API key is saved. Add it in Settings → API key.',
+      },
+    ]);
+  });
+
+  describe('kimi-code documented models', () => {
+    const KIMI_CODE_DOC: IStoredDocFixture = {
+      ...STORED_DOC,
+      connections: [
+        {
+          provider: 'kimi-code',
+          model: 'kimi-for-coding',
+          config: { apiKey: 'sk-kimi-code' },
+        },
+      ],
+    };
+    const respond = (status: number, body: unknown) =>
+      jest.spyOn(global, 'fetch').mockResolvedValue({
+        ok: status < 400,
+        status,
+        json: async () => body,
+      } as Response);
+
+    it('offers the documented ids when the endpoint has no listing', async () => {
+      const { ctx } = buildContext({ storedDoc: KIMI_CODE_DOC });
+      respond(404, { error: { message: 'The requested resource was not found' } });
+
+      const [kimiCode] = await agentsModelsQueries.agentsModels(
+        undefined,
+        undefined,
+        ctx,
+      );
+
+      expect(kimiCode.error).toBeNull();
+      expect(kimiCode.models).toEqual([
+        'k3.1-pro',
+        'k3.1-pro-highspeed',
+        'k3',
+        'k3-256k',
+        'kimi-for-coding',
+        'kimi-for-coding-highspeed',
+      ]);
+      expect(
+        kimiCode.catalog
+          .filter((model) => model.recommended)
+          .map((model) => model.id),
+      ).toEqual(['k3.1-pro', 'k3', 'k3-256k', 'kimi-for-coding']);
+    });
+
+    it('merges a returned listing with the documented ids', async () => {
+      const { ctx } = buildContext({ storedDoc: KIMI_CODE_DOC });
+      respond(200, { data: [{ id: 'kimi-for-coding' }, { id: 'k4-preview' }] });
+
+      const [kimiCode] = await agentsModelsQueries.agentsModels(
+        undefined,
+        undefined,
+        ctx,
+      );
+
+      expect(kimiCode.error).toBeNull();
+      expect(kimiCode.models[0]).toBe('k4-preview');
+      expect(kimiCode.models).toHaveLength(7);
+    });
+
+    it('keeps the documented ids but reports a rejected key', async () => {
+      const { ctx } = buildContext({ storedDoc: KIMI_CODE_DOC });
+      respond(401, {
+        error: { message: 'The API Key appears to be invalid or may have expired.' },
+      });
+
+      const [kimiCode] = await agentsModelsQueries.agentsModels(
+        undefined,
+        undefined,
+        ctx,
+      );
+
+      expect(kimiCode.models).toHaveLength(6);
+      expect(kimiCode.error).toContain('Kimi Code rejected the saved API key (401)');
+    });
   });
 
   it('returns an empty list without fetching when nothing is configured', async () => {
@@ -482,7 +840,7 @@ describe('agentsModels query', () => {
 
 describe('sealed keys at rest', () => {
   it('reports hasKey=false for an envelope that can no longer be opened', async () => {
-    const tampered = {
+    const tampered: IStoredDocFixture = {
       ...STORED_DOC,
       connections: [
         {
@@ -506,13 +864,14 @@ describe('sealed keys at rest', () => {
         provider: 'openai',
         model: 'gpt-5.6-luna',
         hasKey: false,
+        isDefault: true,
         updatedAt: STORED_DOC.updatedAt,
       },
     ]);
   });
 
   it('keeps the stored (sealed) key when apiKey is omitted on upsert', async () => {
-    const sealed = {
+    const sealed: IStoredDocFixture = {
       ...STORED_DOC,
       connections: [
         {
@@ -536,5 +895,60 @@ describe('sealed keys at rest', () => {
     // The stored envelope is reused verbatim — the model seals on write,
     // and a sealed value is never double-sealed.
     expect(saved.config.apiKey).toBe('enc:v1:previously-sealed');
+  });
+});
+
+describe('agentsModelVerify mutation', () => {
+  it('probes the typed model on the acting user’s saved connection', async () => {
+    const { ctx, checkPermission, connectionModel } = buildContext();
+    jest
+      .mocked(probeProviderModel)
+      .mockResolvedValue({ ok: true, error: null });
+
+    const result = await agentsConnectionMutations.agentsModelVerify(
+      undefined,
+      { provider: ' openai ', model: ' gpt-6-luna ' },
+      ctx,
+    );
+
+    expect(checkPermission).toHaveBeenCalledWith('agentsChat');
+    expect(connectionModel.getConnections).toHaveBeenCalledWith('user-1');
+    expect(probeProviderModel).toHaveBeenCalledWith({
+      connection: STORED_DOC.connections[0],
+      model: 'gpt-6-luna',
+    });
+    expect(result).toEqual({
+      provider: 'openai',
+      model: 'gpt-6-luna',
+      ok: true,
+      error: null,
+    });
+  });
+
+  it('rejects a provider the acting user has not saved', async () => {
+    const { ctx } = buildContext();
+    jest.mocked(probeProviderModel).mockClear();
+
+    await expect(
+      agentsConnectionMutations.agentsModelVerify(
+        undefined,
+        { provider: 'kimi', model: 'kimi-k3' },
+        ctx,
+      ),
+    ).rejects.toThrow('No connection stored for provider "kimi"');
+    expect(probeProviderModel).not.toHaveBeenCalled();
+  });
+
+  it('short-circuits when permission is denied', async () => {
+    const { ctx, connectionModel } = buildContext({ permissionAllowed: false });
+
+    await expect(
+      agentsConnectionMutations.agentsModelVerify(
+        undefined,
+        { provider: 'openai', model: 'gpt-6-luna' },
+        ctx,
+      ),
+    ).rejects.toThrow('Permission denied');
+    expect(connectionModel.getConnections).not.toHaveBeenCalled();
   });
 });
