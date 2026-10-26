@@ -81,32 +81,45 @@ const replaceReferences = (
   return value;
 };
 
+async function* getCollectionReferenceUpdates(
+  collection: Collection<StoredDocument>,
+  fields: string[],
+  ids: Map<string, string>,
+  session: ClientSession,
+): AsyncGenerator<ContentReferenceUpdate> {
+  const cursor = collection.find(
+    {},
+    {
+      projection: Object.fromEntries(fields.map((field) => [field, 1])),
+      batchSize: BATCH_SIZE,
+      session,
+    },
+  );
+
+  for await (const document of cursor) {
+    const changes: Record<string, unknown> = {};
+    for (const field of fields) {
+      const updated = replaceReferences(document[field], ids);
+      if (updated !== document[field]) changes[field] = updated;
+    }
+    if (Object.keys(changes).length) {
+      yield { collection, documentId: document._id, changes };
+    }
+  }
+}
+
 async function* getContentReferenceUpdates(
   db: Db,
   ids: Map<string, string>,
   session: ClientSession,
 ): AsyncGenerator<ContentReferenceUpdate> {
   for (const [name, fields] of Object.entries(CONTENT_FIELDS)) {
-    const collection = db.collection<StoredDocument>(name);
-    const cursor = collection.find(
-      {},
-      {
-        projection: Object.fromEntries(fields.map((field) => [field, 1])),
-        batchSize: BATCH_SIZE,
-        session,
-      },
+    yield* getCollectionReferenceUpdates(
+      db.collection<StoredDocument>(name),
+      fields,
+      ids,
+      session,
     );
-
-    for await (const document of cursor) {
-      const changes: Record<string, unknown> = {};
-      for (const field of fields) {
-        const updated = replaceReferences(document[field], ids);
-        if (updated !== document[field]) changes[field] = updated;
-      }
-      if (Object.keys(changes).length) {
-        yield { collection, documentId: document._id, changes };
-      }
-    }
   }
 }
 
