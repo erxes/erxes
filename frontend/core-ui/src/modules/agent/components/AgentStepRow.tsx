@@ -9,6 +9,7 @@ import {
 } from '@tabler/icons-react';
 import { Collapsible, cn } from 'erxes-ui';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import type { IAgentToolStepEntry } from '../utils/agentWorkSteps';
 import { agentStepLabel, describeToolCall } from '../utils/agentWorkSteps';
@@ -76,24 +77,35 @@ const StepDetails = ({ step }: { step: IAgentToolStepEntry }) => {
  * One tool row inside a turn's activity timeline: icon, human label, and
  * an expandable input/output detail. A still-running step spins; a failed
  * one turns red. Reasoning renders as `AgentThinkingBlock` instead.
+ * Collapsed schema look-ups (`lookups`) share one row and list every call's
+ * details.
  */
 export const AgentStepRow = ({
   step,
+  lookups,
   streaming,
 }: {
   step: IAgentToolStepEntry;
+  lookups?: IAgentToolStepEntry[];
   streaming: boolean;
 }) => {
+  const { t } = useTranslation('common', { keyPrefix: 'agent' });
   const [open, setOpen] = useState(false);
+  const calls = lookups ?? [step];
   const running =
     streaming &&
-    (step.tool.state === 'input-streaming' ||
-      step.tool.state === 'input-available');
-  const failed = step.tool.state === 'output-error';
+    calls.some(
+      (call) =>
+        call.tool.state === 'input-streaming' ||
+        call.tool.state === 'input-available',
+    );
+  const failed = calls.every((call) => call.tool.state === 'output-error');
   const Icon = stepIcon(step);
-  const label = agentStepLabel(step);
-  const expandable = Boolean(
-    step.tool.input || step.tool.output || step.tool.errorText,
+  const label = agentStepLabel(step, (key, defaultValue) =>
+    t(key, defaultValue),
+  );
+  const expandable = calls.some((call) =>
+    Boolean(call.tool.input || call.tool.output || call.tool.errorText),
   );
 
   if (!expandable) {
@@ -143,7 +155,9 @@ export const AgentStepRow = ({
         </button>
       </Collapsible.Trigger>
       <Collapsible.Content className="pl-6 pr-1 pb-1">
-        <StepDetails step={step} />
+        {calls.map((call) => (
+          <StepDetails key={call.tool.toolCallId} step={call} />
+        ))}
       </Collapsible.Content>
     </Collapsible>
   );

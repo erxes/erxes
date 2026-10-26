@@ -673,6 +673,8 @@
     "thought": "Thought",
     "thought-for": "Thought for {{duration}}",
     "worked-for": "Worked for {{duration}}",
+    "schema-checked": "Checked the API schema",
+    "schema-checking": "Checking the API schema…",
     "copy": "Copy",
     "retry": "Retry",
     "scroll-to-bottom": "Scroll to bottom",

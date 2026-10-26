@@ -403,7 +403,8 @@ One prompt's whole run is one process instance. `utils/agentTurnTimeline.ts`
   steps; work before the first narration forms an untitled lead section), the
   `body` (intro, answer and every non-work part in original order), counts,
   `activeIndex` and `answerText` (copy/export).
-- `agentTurnActivity`: running tool label (`agentToolActivity`), latest
+- `agentTurnActivity`: running tool label (`agentToolActivity`; an optional
+  `t` translates the schema look-up label), latest
   `**title**` of reasoning summaries or "Thinking…", "Writing…" for text, or
   the newest narration's last sentence between steps.
 
@@ -414,7 +415,12 @@ timed the run (fresh send, or continuation of a timed turn after approval or
 answer; reattached runs are never timed), else "N steps", a single tool's
 label, or "Thought". Expanded: thin-rail timeline; narration titles render via
 `TextWithAgentReferences`, tools via `AgentStepRow` (`agentStepLabel`:
-`callGraphql` operation/field names, "Ran code", "Read <file>"), reasoning via
+`callGraphql` operation/field names, "Ran code", "Read <file>"; queries that
+only read the API schema — every root field `__type`/`__schema` — read
+"Checked the API schema" (`agent.schema-checked`, live `agent.schema-checking`,
+en/mn), and consecutive ones in a section collapse into one step whose row
+lists every call's details; `toolCount` counts that step once), reasoning via
+
 `AgentThinkingBlock` (muted, expandable, shimmer while it is the live part).
 Approvals, ask_user and artifact cards are never folded.
 

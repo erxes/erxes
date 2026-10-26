@@ -674,6 +674,8 @@
     "thought": "Бодсон",
     "thought-for": "{{duration}} бодсон",
     "worked-for": "{{duration}} ажилласан",
+    "schema-checked": "API схемийг шалгасан",
+    "schema-checking": "API схемийг шалгаж байна…",
     "copy": "Хуулах",
     "retry": "Дахин оролдох",
     "scroll-to-bottom": "Доош гүйлгэх",

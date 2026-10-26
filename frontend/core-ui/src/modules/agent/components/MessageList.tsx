@@ -265,7 +265,9 @@ const MessageRow = memo(
         hasVisibleParts(message.parts, answeredToolCallIds);
       const hasText = layout.answerText.trim().length > 0;
       const activity = isStreamingTail
-        ? agentTurnActivity(message.parts)
+        ? agentTurnActivity(message.parts, (key, defaultValue) =>
+            t(key, defaultValue),
+          )
         : undefined;
       // The avatar shares one row with the activity header when there is one.
       const identity = showIdentity ? (
