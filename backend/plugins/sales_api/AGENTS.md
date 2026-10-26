@@ -6,7 +6,7 @@
 - **Project:** `sales_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/sales_api`
-- **Last synchronized:** `2026-10-23`
+- **Last synchronized:** `2026-10-24`
 
 ## Scope
 
@@ -244,6 +244,9 @@
 - Core public contracts for fields, products, customers, companies, users,
   branches, departments, and related records.
 - Public `erxes-api-shared` utilities, types, and extension points.
+- `erxes-api-shared/core-modules` `sendNotification` with `event`
+  (`TSalesNotificationEvent`) for deal notifications; core sends email and
+  push on the channels each recipient's settings resolve to.
 
 ## Data and State
 
@@ -264,6 +267,12 @@
 
 ## Local Invariants
 
+- Deal notifications are sent from `modules/sales/utils/notifications.ts`, not
+  `modules/sales/utils.ts` (the barrel rule below). Each passes `event`:
+  assigned or removed users get `sales:deals:dealAssignee` (also on deal
+  create), an archive/activate `sales:deals:dealStatus`, any other update
+  `sales:deals:dealUpdated`. The meta names in `src/meta/notifications.ts` are
+  the keys users' settings are saved under; renaming one drops saved choices.
 - A deal's contacts are read only from `customerId` / `companyId`: `getCustomerIds` / `getCompanyIds(subdomain, models, dealId)` (`modules/sales/utils.ts`), the deal loader, documents, list filters (`customerId`, `companyId` args on `deals`, archived deals and stages; customer phone search; `relationType` core:customer/company) and automation targets ("Deal customer/company" are `targetField`s; "Customer/Company deals" select by the field in `getDealSetPropertySelector`). Never call `relation.getRelationIds` for a deal's contacts. Importing the `erxes-api-shared/core-modules` barrel from `modules/sales/utils.ts` breaks test schemas (import cycle); keep it out.
 - Set property handlers pass `targetActionId: action.targetActionId` to
   `getSetPropertySelector`, so a Manage properties action targeting an earlier
@@ -598,6 +607,12 @@
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-10-24` — Deal notifications reach email and push
+
+- **Summary:** Deal notifications went straight to core `notifications.create` with no event, so they never reached email or push. They now go through the shared `sendNotification` with an `event` key. Meta adds `dealUpdated`; the `note` module (no sender) is gone.
+- **Affected areas:** `src/meta/notifications.ts`, `modules/sales/utils/notifications.ts` (moved from `modules/sales/utils.ts`), `modules/sales/graphql/resolvers/mutations/utils.ts`.
+- **Contracts changed:** notifications meta events; consumes `sendNotification` instead of core `notifications.create`.
+
 ### `2026-10-14` — Vouchers used once, returned with the order
 
 - **Summary:** POS returns give vouchers back and a refused voucher no longer skips the points; a deal holds its picked voucher, prices with it and its coupon, uses them only in an earning stage and returns or releases them in a refund stage or on removal.
@@ -667,10 +682,3 @@
   as the "Basic information" group in Settings → Properties.
 - **Affected areas:** `src/meta/properties.ts` (`deal`), `src/main.ts`
 - **Contracts changed:** Plugin meta `properties.types[].systemFields` added.
-
-### `2026-09-13` — Discount info type cleanup
-
-- **Summary:** Deal product discount info types now use a plain string with
-  documented known values to avoid redundant literal-union Sonar warnings.
-- **Affected areas:** `src/modules/sales/utils/discountInfos.ts`.
-- **Contracts changed:** None.

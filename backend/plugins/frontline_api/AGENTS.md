@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-10-23`
+- **Last synchronized:** `2026-10-24`
 
 ## Scope
 
@@ -1343,10 +1343,13 @@ tagIds, propertiesData: JSON)` (the customer comes from the widget session) — 
   (`{ segmentId, cursor?, limit? }` → `{ ids, nextCursor? }`), which backs the
   conversation list `segment` filter. `segmentFilter` pages until `nextCursor`
   is empty; core caps each page, so one call is never the whole segment.
-- `core` over tRPC — `notifications.sendMobileNotification` (mutation,
-  `{ title, body, receivers, data }`), which pushes a new chat message to the
-  assigned and participating agents' `deviceTokens`. The path is
-  `notifications.*`, not `core.*`; a wrong path fails silently.
+- `erxes-api-shared/core-modules` — `sendNotification` with `event`
+  (`TFrontlineNotificationEvent`). Core resolves each recipient's settings for
+  that key and sends email and push; the actor is never notified. A new chat
+  message (`sendAgentMobileNotification`) goes as
+  `frontline:conversations:conversationAddMessage` with `inApp: false` (push
+  only, no inbox item) and `pushData` — the FCM data the mobile app routes on
+  (`type: 'messenger'`, `conversationId`, `notificationType: 'chat_message'`).
 - `automations` over tRPC — `automations.trigger`. The path is
   `automations.trigger`, not `triggers.trigger`; `sendTRPCMessage` swallows a
   wrong path or a query/mutation mismatch and returns `defaultValue`, so a
@@ -1365,6 +1368,13 @@ tagIds, propertiesData: JSON)` (the customer comes from the widget session) — 
 
 ## Local Invariants
 
+- Every team-member notification passes `event`, typed
+  `TFrontlineNotificationEvent` from `src/meta/notifications.ts`. The meta
+  module and event names are the keys users' notification settings are saved
+  under: renaming one drops every saved choice for it, and a key the meta does
+  not declare reaches no one. The meta lists only events that have a sender.
+  `conversationAddMessage` declares `defaultChannels: ['mobile']`, so agents
+  who never set it keep getting chat pushes.
 - Ticket contacts are read only from `customerId` / `companyId`: mail recipients (`integrations/mail/utils/tickets.ts`), report contact filters (`narrowTicketMatchByContacts`), widget ticket ownership (`getOwnedTicketIds`, needs `models`) and `widgetTicketCheckProgressForget`. Never read a ticket's contacts or source conversations from core relations; customer ↔ company links remain core relations.
 - A Form submitted condition on an array value (checkbox group, multi-select)
   matches when any option matches; `dne`/`numberdne`/`dnc` must hold for every
@@ -1644,6 +1654,12 @@ tagIds, propertiesData: JSON)` (the customer comes from the widget session) — 
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-10-24` — Notifications named by their settings key
+
+- **Summary:** Senders pass `event` (`frontline:<module>:<event>`) so email and push follow the user's settings; before, keys built from `contentType` matched no saved setting and only in-app items were written. Chat pushes now honor settings (default mobile on) and skip the actor. Meta gains a `tickets` module and `conversationMention`; `conversationCreated`, `conversationParticipantAdded` and `conversationTagged` (no sender) are gone.
+- **Affected areas:** `src/meta/notifications.ts`, `src/utils/notifications.ts`, `conversationNotifications.ts` (+ spec), conversation, ticket, channel and integration-health senders.
+- **Contracts changed:** notifications meta modules/events; consumes `sendNotification` `event`/`inApp`/`pushData` instead of `notifications.sendMobileNotification`.
 
 ### `2026-10-19` — Conversation segment filter on the paged contract
 

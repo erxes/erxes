@@ -40,7 +40,9 @@ const BulkActionPopover = ({
 };
 
 export const ArticlesBulkActions = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.knowledgebase',
+  });
   const { topicId = '' } = useParams();
   const { table } = RecordTable.useRecordTable();
   const { categories, loading: categoriesLoading } = useCategories(topicId);

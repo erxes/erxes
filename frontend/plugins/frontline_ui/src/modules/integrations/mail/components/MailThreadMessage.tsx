@@ -37,14 +37,27 @@ import { MailReactionMenu } from './MailReactionMenu';
 import { useMailSendReaction } from '@/integrations/mail/hooks/useMailConversationDetail';
 
 const MailMessageAddresses = ({ mailData }: { mailData: MailData }) => {
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const isSent = mailData.type === 'SENT';
   return (
     <div className="text-[11px] text-[#5f6368] dark:text-[#9aa0a6] space-y-px">
       {!isSent && mailData.from?.length ? (
-        <p>from: {formatAddresses(mailData.from)}</p>
+        <p>
+          {t('mail-address-from')}: {formatAddresses(mailData.from)}
+        </p>
       ) : null}
-      {mailData.to?.length ? <p>to: {formatAddresses(mailData.to)}</p> : null}
-      {mailData.cc?.length ? <p>cc: {formatAddresses(mailData.cc)}</p> : null}
+      {mailData.to?.length ? (
+        <p>
+          {t('mail-address-to')}: {formatAddresses(mailData.to)}
+        </p>
+      ) : null}
+      {mailData.cc?.length ? (
+        <p>
+          {t('mail-address-cc')}: {formatAddresses(mailData.cc)}
+        </p>
+      ) : null}
     </div>
   );
 };
@@ -112,6 +125,9 @@ const MailMessageHeader = ({
   expanded: boolean;
   onToggle: () => void;
 }) => {
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const { mailData } = message;
   const isSent = mailData.type === 'SENT';
   const sender = mailData.from?.[0];
@@ -147,7 +163,7 @@ const MailMessageHeader = ({
         type="button"
         className="w-full text-left px-4 py-3 hover:bg-background/2 transition-colors"
         onClick={onToggle}
-        title="Right-click for sender actions"
+        title={t('mail-right-click-sender-actions')}
       >
         {headerContent}
       </button>
@@ -166,15 +182,18 @@ const MailMessageReactionChip = ({
   disabled: boolean;
   onReact: () => void;
 }) => {
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const senderNames = senders
-    .map(({ sender, isOwn }) => (isOwn ? 'You' : sender))
+    .map(({ sender, isOwn }) => (isOwn ? t('mail-you') : sender))
     .join(', ');
   const reactionButton = (
     <Button
       type="button"
       variant="ghost"
       size="sm"
-      aria-label={`React with ${emoji}`}
+      aria-label={t('mail-react-with', { emoji })}
       disabled={disabled}
       className="h-auto gap-1 rounded-full border border-border px-2.5 py-1 text-sm text-foreground"
       onClick={onReact}
@@ -188,7 +207,7 @@ const MailMessageReactionChip = ({
     <Tooltip>
       <Tooltip.Trigger asChild>
         <span
-          aria-label={`${senderNames} reacted with ${emoji}`}
+          aria-label={t('mail-reacted-with', { names: senderNames, emoji })}
           className="inline-flex"
         >
           {reactionButton}
@@ -212,6 +231,9 @@ const MailMessageReactionChips = ({
   message: MailMessage;
   conversationId: string;
 }) => {
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const { readOnly } = useMailThreadActions();
   const { react, loading } = useMailSendReaction();
   const { mailData } = message;
@@ -250,7 +272,7 @@ const MailMessageReactionChips = ({
             disabled={!canReact || loading}
             onReact={() => {
               if (senders.some(({ isOwn }) => isOwn)) {
-                toast({ title: `You've already reacted with ${emoji}` });
+                toast({ title: t('mail-already-reacted-with', { emoji }) });
                 return;
               }
               react(conversationId, message._id, emoji);
@@ -269,7 +291,9 @@ const MailMessageReplyActions = ({
   message: MailMessage;
   conversationId: string;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const { readOnly, open } = useMailThreadActions();
   const multiRecipient =
     (message.mailData.to?.length ?? 0) + (message.mailData.cc?.length ?? 0) > 1;
@@ -323,7 +347,9 @@ const MailMessageContent = ({
   showQuoted: boolean;
   onToggleQuoted: () => void;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const { mailData } = message;
   const visibleAttachments = (mailData.attachments ?? []).filter(
     (attachment) => attachment.disposition !== 'inline',

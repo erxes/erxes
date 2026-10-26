@@ -1,5 +1,6 @@
 import type { IConversationDocument } from '@/inbox/@types/conversations';
 import { sendNotifications } from '@/inbox/graphql/resolvers/mutations/conversationNotifications';
+import { sendNotification } from 'erxes-api-shared/core-modules';
 import type { IUserDocument } from 'erxes-api-shared/core-types';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 
@@ -7,10 +8,16 @@ jest.mock('erxes-api-shared/utils', () => ({
   graphqlPubsub: { publish: jest.fn() },
   sendTRPCMessage: jest.fn(),
 }));
+jest.mock('erxes-api-shared/core-modules', () => ({
+  sendNotification: jest.fn(),
+}));
 jest.mock('~/modules/inbox/utils', () => ({ debugError: jest.fn() }));
 
 const sendTRPCMessageMock = sendTRPCMessage as jest.MockedFunction<
   typeof sendTRPCMessage
+>;
+const sendNotificationMock = sendNotification as jest.MockedFunction<
+  typeof sendNotification
 >;
 
 const user = { _id: 'agent-1' } as IUserDocument;
@@ -26,6 +33,7 @@ const calledModules = () =>
 
 describe('sendNotifications', () => {
   beforeEach(() => {
+    sendNotificationMock.mockReset();
     sendTRPCMessageMock.mockReset();
     sendTRPCMessageMock.mockImplementation(async ({ module }) =>
       module === 'cpUsers'
@@ -44,7 +52,19 @@ describe('sendNotifications', () => {
     });
 
     expect(calledModules()).toEqual(
-      expect.arrayContaining(['cpUsers', 'cpNotifications', 'notifications']),
+      expect.arrayContaining(['cpUsers', 'cpNotifications']),
+    );
+    expect(sendNotificationMock).toHaveBeenCalledWith(
+      'os',
+      expect.objectContaining({
+        event: 'frontline:conversations:conversationAddMessage',
+        inApp: false,
+        userIds: ['agent-2'],
+        pushData: expect.objectContaining({
+          conversationId: 'conversation-1',
+          notificationType: 'chat_message',
+        }),
+      }),
     );
   });
 
@@ -60,12 +80,9 @@ describe('sendNotifications', () => {
 
     expect(calledModules()).not.toContain('cpUsers');
     expect(calledModules()).not.toContain('cpNotifications');
-    expect(sendTRPCMessageMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        module: 'notifications',
-        action: 'sendMobileNotification',
-        input: expect.objectContaining({ body: 'Agent-only note' }),
-      }),
+    expect(sendNotificationMock).toHaveBeenCalledWith(
+      'os',
+      expect.objectContaining({ message: 'Agent-only note' }),
     );
   });
 });

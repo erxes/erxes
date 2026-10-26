@@ -2073,6 +2073,10 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   (`modules.integrations`, `modules.helpcenter`, `widgets.automations-mail`, …)
   and call `t('key')` without inline English defaults; every key used under a
   prefix must exist in both `en` and `mn` under the same path.
+- `useFormValidationErrorHandler` (ui-modules) builds an English toast title and
+  description, so a translated automation form raises its own validation toast
+  from `handleSubmit`'s error callback with `t()` keys instead (see the inbox
+  triggers and `CreateTicketActionConfigForm`).
 - Ticket tag selectors must go through `SelectTagsTicket`
   (`src/modules/ticket/components/ticket-selects/SelectTagsTicket.tsx`), never
   `TagsSelect.SelectedList` directly — the shared component chains every

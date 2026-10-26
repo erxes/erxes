@@ -27,7 +27,9 @@ export const ScheduleDateField = ({
   value?: string;
   onChange: (next?: string) => void;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.knowledgebase',
+  });
   const date = value ? new Date(value) : undefined;
   const time = date
     ? new Time(date.getHours(), date.getMinutes())

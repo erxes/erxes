@@ -42,7 +42,9 @@ export const MailTriggerForm = ({
   onSaveTriggerConfig,
   formRef,
 }: AutomationTriggerFormProps<TMailTriggerForm>) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'widgets.automations-mail',
+  });
 
   const form = useForm<TMailTriggerForm>({
     resolver: zodResolver(mailTriggerSchema),

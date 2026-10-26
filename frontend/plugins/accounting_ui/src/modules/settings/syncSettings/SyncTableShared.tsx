@@ -20,18 +20,33 @@ import { useAccountingConfigs } from '@/settings/hooks/useAccountingConfigs';
 import { useAccountingConfigEdit } from '@/settings/hooks/useAccountingConfigEdit';
 import { EditAccountingConfig } from '@/settings/syncSettings/EditAccountingConfig';
 
+type TPendingSyncConfigUpdate = {
+  value: Record<string, unknown>;
+  queue: Promise<unknown>;
+};
+
+const pendingSyncConfigUpdates = new Map<string, TPendingSyncConfigUpdate>();
+
 export const useSyncConfigValueUpdate = (config: IConfig) => {
   const { editConfig } = useAccountingConfigEdit();
 
   return (key: string, fieldValue?: string[] | string) => {
-    void editConfig({
-      id: config._id,
-      subId: config.subId,
-      value: {
-        ...config.value,
-        [key]: Array.isArray(fieldValue) ? fieldValue[0] : fieldValue,
-      },
-    });
+    const pending = pendingSyncConfigUpdates.get(config._id);
+    const value = {
+      ...(pending?.value ?? config.value),
+      [key]: Array.isArray(fieldValue) ? fieldValue[0] : fieldValue,
+    };
+
+    const queue = (pending?.queue ?? Promise.resolve())
+      .catch(() => undefined)
+      .then(() => editConfig({ id: config._id, subId: config.subId, value }))
+      .finally(() => {
+        if (pendingSyncConfigUpdates.get(config._id)?.queue === queue) {
+          pendingSyncConfigUpdates.delete(config._id);
+        }
+      });
+
+    pendingSyncConfigUpdates.set(config._id, { value, queue });
   };
 };
 

@@ -1,4 +1,5 @@
 import {
+  IconChartLine,
   IconReload,
   IconTrendingDown,
   IconTrendingUp,
@@ -46,7 +47,7 @@ const Stat = ({
   tone?: 'up' | 'down';
   icon?: React.ReactNode;
 }) => (
-  <div className="flex flex-col gap-0.5">
+  <div className="flex flex-col gap-1 min-w-36 px-5 py-4 border-r last:border-r-0">
     <span className="text-xs text-muted-foreground">{label}</span>
     <span
       className={cn(
@@ -121,10 +122,33 @@ export const SegmentOverview = ({
   const rising = (growth ?? 0) >= 0;
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-6 space-y-4">
       <SegmentBuildProgress segment={segment} />
 
-      <div className="flex flex-wrap items-start gap-10">
+      <div className="flex flex-wrap items-center justify-end gap-1">
+        <Button
+          variant="ghost"
+          size="sm"
+          type="button"
+          className="text-muted-foreground"
+          onClick={handleRefresh}
+          disabled={refreshing}
+        >
+          <IconReload className={cn('size-4', refreshing && 'animate-spin')} />
+          {t('refresh')}
+        </Button>
+        {/* Re-reading the number and re-deriving it are different actions,
+            so they are two buttons rather than one that guesses. */}
+        {/* While a build runs, its own row carries the stop - repeating it
+            here left two of them on screen with nothing to tell them
+            apart. */}
+        {segment?.status !== 'building' && (
+          <SegmentRebuildButton segment={segment} size="sm" />
+        )}
+        {actions}
+      </div>
+
+      <div className="flex flex-wrap rounded-lg border">
         <Stat
           label={t('members')}
           value={
@@ -164,44 +188,22 @@ export const SegmentOverview = ({
             }
           />
         )}
-
-        <div className="ml-auto flex items-center gap-1">
-          <Button
-            variant="ghost"
-            size="sm"
-            type="button"
-            className="text-muted-foreground"
-            onClick={handleRefresh}
-            disabled={refreshing}
-          >
-            <IconReload
-              className={cn('size-4', refreshing && 'animate-spin')}
-            />
-            {t('refresh')}
-          </Button>
-          {/* Re-reading the number and re-deriving it are different actions,
-              so they are two buttons rather than one that guesses. */}
-          {/* While a build runs, its own row carries the stop - repeating it
-              here left two of them on screen with nothing to tell them
-              apart. */}
-          {segment?.status !== 'building' && (
-            <SegmentRebuildButton segment={segment} size="sm" />
-          )}
-          {actions}
-        </div>
       </div>
 
       {/* Two full charts drawn from a single day look broken rather than new,
           so a segment with nothing to plot yet says so in one line. */}
       {!hasTrend ? (
-        <p className="text-sm text-muted-foreground">
-          {measuredSince
-            ? t('measured-since', { date: measuredSince })
-            : t('no-history')}
-        </p>
+        <div className="flex flex-col items-center gap-2 rounded-lg border border-dashed px-6 py-10 text-center">
+          <IconChartLine className="size-6 text-muted-foreground" />
+          <p className="max-w-md text-sm text-muted-foreground">
+            {measuredSince
+              ? t('measured-since', { date: measuredSince })
+              : t('no-history')}
+          </p>
+        </div>
       ) : (
-        <div className="space-y-6">
-          <section className="space-y-2">
+        <div className="space-y-4">
+          <section className="space-y-2 rounded-lg border p-4">
             <Label>
               {hourly ? t('level-recent') : t('level', { days: span })}
             </Label>
@@ -252,7 +254,7 @@ export const SegmentOverview = ({
             </ChartContainer>
           </section>
 
-          <section className="space-y-2">
+          <section className="space-y-2 rounded-lg border p-4">
             <Label>
               {hourly ? t('movement-recent') : t('movement', { days: span })}
             </Label>

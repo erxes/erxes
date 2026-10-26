@@ -1,10 +1,10 @@
 export const EM_CONTENT_TYPES = [
   {
-    label: 'Text',
+    labelKey: 'text',
     type: 'text',
   },
   {
-    label: 'Create a ticket',
+    labelKey: 'create-a-ticket',
     type: 'requestCreateTicket',
   },
 ];

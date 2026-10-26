@@ -7,7 +7,7 @@ import { ProgressDot } from '@/inbox/conversations/conversation-detail/component
 import { useTranslation } from 'react-i18next';
 
 export const ProgressByAssignee = ({ customerId }: { customerId?: string }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const { conversationMemberProgress } = useGetConversationMemberProgress({
     variables: customerId ? { customerId } : undefined,
     skip: !customerId,

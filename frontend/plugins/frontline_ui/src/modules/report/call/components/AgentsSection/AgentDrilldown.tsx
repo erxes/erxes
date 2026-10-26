@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import type { AgentStat } from '../../types';
 import { fmtDur, fmtPct } from '../../utils';
 
@@ -6,13 +7,14 @@ interface AgentDrilldownProps {
 }
 
 export function AgentDrilldown({ stat }: AgentDrilldownProps) {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const totalTalk = stat.averageTalkTime * stat.answeredCalls;
 
   const items = [
-    { label: 'Shortest call', value: fmtDur(stat.shortestCall) },
-    { label: 'Longest call', value: fmtDur(stat.longestCall) },
-    { label: 'Total talk', value: fmtDur(totalTalk) },
-    { label: 'Miss rate', value: fmtPct(stat.missedRate) },
+    { label: t('shortest-call'), value: fmtDur(stat.shortestCall) },
+    { label: t('longest-call'), value: fmtDur(stat.longestCall) },
+    { label: t('total-talk-time'), value: fmtDur(totalTalk) },
+    { label: t('miss-rate'), value: fmtPct(stat.missedRate) },
   ];
 
   return (

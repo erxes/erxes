@@ -50,7 +50,7 @@ export const TicketReportFilter = ({
   showBar = false,
   children,
 }: TicketReportFilterProps) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const filterState = useTicketReportFilters(cardId);
   const {
     description,

@@ -8,7 +8,9 @@ export const HelpCenterDelete = ({
 }: {
   helpCenterIds: string[];
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.helpcenter',
+  });
   const { confirm } = useConfirm();
   const { toast } = useToast();
   const { table } = RecordTable.useRecordTable();

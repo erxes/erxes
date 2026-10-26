@@ -7,7 +7,7 @@ import { useUpdateResponse } from '@/responseTemplate/hooks/useUpdateResponses';
 import { TUpdateResponseForm } from '@/responseTemplate/types';
 
 export const ResponseDetail = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.response-template' });
   const { responseId } = useParams<{
     responseId: string;
   }>();

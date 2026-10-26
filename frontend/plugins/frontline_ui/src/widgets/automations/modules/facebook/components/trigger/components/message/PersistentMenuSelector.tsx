@@ -22,7 +22,7 @@ export const PersistentMenuSelector = ({
   selectedPersistentMenuIds = [],
   onConditionChange,
 }: Props) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.facebook' });
   const { persistentMenus, loading } = usePersistentMenus(botId);
   const { claims } = useFacebookBotTriggerClaims(botId, currentTriggerId);
   const selectablePersistentMenus = persistentMenus.filter(

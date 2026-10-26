@@ -18,6 +18,21 @@ const PropertiesSettingsRoutes = lazy(() =>
   })),
 );
 
+const PluginNotificationSettings = lazy(() =>
+  import(
+    '@/notification/settings/components/PluginNotificationSettings'
+  ).then((module) => ({
+    default: module.PluginNotificationSettings,
+  })),
+);
+
+// a member's own choices, so it needs no permission beyond signing in
+const PluginNotificationSettingsSlot = ({ pluginName }: { pluginName: string }) => (
+  <Suspense fallback={<Spinner />}>
+    <PluginNotificationSettings pluginName={pluginName} />
+  </Suspense>
+);
+
 const PluginTagsSettings = ({ pluginName }: { pluginName: string }) => (
   <PermissionRouteGuard module="tags">
     <Suspense fallback={<Spinner />}>
@@ -43,8 +58,8 @@ const PluginPropertiesSettings = ({
 );
 
 /**
- * Hands the plugin-scoped Tags / Properties pages to plugins (through
- * `ui-modules`), so each plugin shows them inside its own settings.
+ * Hands the plugin-scoped Tags / Properties / Notification pages to plugins
+ * (through `ui-modules`), so each plugin shows them inside its own settings.
  */
 export const PluginSettingsSlotsEffect = () => {
   const setSlots = useSetAtom(pluginSettingsSlotsState);
@@ -53,6 +68,7 @@ export const PluginSettingsSlotsEffect = () => {
     setSlots({
       tags: PluginTagsSettings,
       properties: PluginPropertiesSettings,
+      notifications: PluginNotificationSettingsSlot,
       navigation: PluginSharedSettingsNavigation,
     });
   }, [setSlots]);

@@ -9,7 +9,9 @@ export type TKbRemoveRequest = {
 };
 
 export const useKbConfirmRemove = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.knowledgebase',
+  });
   const { confirm } = useConfirm();
   const { toast } = useToast();
 

@@ -13,7 +13,7 @@ interface ReportKpiDateFilterProps {
 }
 
 export const ReportKpiDateFilter = ({ filterId }: ReportKpiDateFilterProps) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const [value, onChange] = useAtom(getReportDateFilterAtom(filterId));
 
   return (

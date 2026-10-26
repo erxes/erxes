@@ -37,24 +37,21 @@ const EVENT_ICONS: Record<
 };
 
 const EVENT_LABELS: Record<TMessengerEventType, string> = {
-  directMessage: 'Direct Message',
-  getStarted: 'Get Started',
-  quickReply: 'Quick Reply',
-  customerRegistration: 'Customer Registration',
-  ticketFormSubmission: 'Ticket Form Submission',
-  requestCreateTicket: 'Request Create Ticket',
+  directMessage: 'event-direct-message',
+  getStarted: 'event-get-started',
+  quickReply: 'event-quick-reply',
+  customerRegistration: 'event-customer-registration',
+  ticketFormSubmission: 'event-ticket-form-submission',
+  requestCreateTicket: 'event-request-create-ticket',
 };
 
 const EVENT_DESCRIPTIONS: Record<TMessengerEventType, string> = {
-  directMessage: 'Fires when the customer sends any text message (default)',
-  getStarted: 'Fires when the customer clicks the Get Started button',
-  quickReply: 'Fires when the customer clicks a quick reply button',
-  customerRegistration:
-    'Fires when the customer submits their contact information',
-  ticketFormSubmission:
-    'Fires when the customer submits a ticket creation form with name and description',
-  requestCreateTicket:
-    'Fires when the customer clicks the Create Ticket button in the persistent menu',
+  directMessage: 'event-direct-message-description',
+  getStarted: 'event-get-started-description',
+  quickReply: 'event-quick-reply-description',
+  customerRegistration: 'event-customer-registration-description',
+  ticketFormSubmission: 'event-ticket-form-submission-description',
+  requestCreateTicket: 'event-request-create-ticket-description',
 };
 
 export const InboxMessageTriggerForm = ({
@@ -207,10 +204,10 @@ export const InboxMessageTriggerForm = ({
                       </div>
                       <div className="min-w-0 flex-1">
                         <p className="text-sm font-semibold text-foreground">
-                          {label}
+                          {t(label)}
                         </p>
                         <p className="text-xs text-muted-foreground">
-                          {description}
+                          {t(description)}
                         </p>
                       </div>
                     </div>

@@ -12,7 +12,9 @@ type Props = {
 };
 
 export const FacebookIntegrationRepair = ({ integration }: Props) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const { _id, healthStatus, kind } = integration;
   const { repairIntegrations, loading: repairLoading } =
     useFbIntegrationsRepair();

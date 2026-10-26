@@ -205,7 +205,7 @@ const SelectAccountRoot = React.forwardRef<
     {
       onValueChange,
       className,
-      mode,
+      mode = 'single',
       value,
       placeholder,
       scope,
