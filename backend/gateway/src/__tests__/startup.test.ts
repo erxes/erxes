@@ -35,6 +35,10 @@ const runGateway = async (env: Record<string, string>, timeoutMs: number) => {
           APOLLO_ROUTER_PORT: String(routerPort),
           REDIS_HOST: '127.0.0.1',
           REDIS_PORT: String(redisPort),
+          // Defined (even empty) so a local .env cannot supply them: dotenv
+          // never overrides a variable that is already set.
+          JWT_TOKEN_SECRET: '',
+          INTERNAL_HEADER_SIGNATURE: '',
           ...env,
         },
       },
@@ -54,7 +58,7 @@ const runGateway = async (env: Record<string, string>, timeoutMs: number) => {
 describe('gateway startup', () => {
   it('refuses to start with INTERNAL_HEADER_SIGNATURE=enforce and no JWT_TOKEN_SECRET', async () => {
     const { code, output } = await runGateway(
-      { INTERNAL_HEADER_SIGNATURE: 'enforce' },
+      { INTERNAL_HEADER_SIGNATURE: 'enforce', JWT_TOKEN_SECRET: '' },
       45_000,
     );
 
