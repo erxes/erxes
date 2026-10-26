@@ -6,6 +6,7 @@ import { router } from './routes';
 import segments from './meta/segments';
 import { sendTRPCMessage, startPlugin } from 'erxes-api-shared/utils';
 import { afterProcess } from '~/meta/afterProcess';
+import { agent } from '~/meta/agent';
 import { typeDefs } from './apollo/typeDefs';
 import { createLoaders } from './modules/sales/graphql/resolvers/loaders';
 import { notifications } from './meta/notifications';
@@ -117,6 +118,8 @@ startPlugin({
     // Deals keep their own customerId / companyId; core tells sales when a
     // contact is merged or removed.
     contactFields: { contentTypes: ['sales:deal'] },
+    // Agent skill and the client-portal operations the agent should not plan around.
+    agent,
     automations,
     segments,
     documents,

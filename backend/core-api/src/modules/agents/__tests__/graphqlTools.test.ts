@@ -7,6 +7,11 @@ import { decodeAgentToolsAuthHeader } from 'erxes-api-shared/utils/agent-tools/a
 // Only service discovery is mocked; the auth header codec and the response
 // size guard keep their real implementations so the signed header round-trip
 // and the response cap are exercised for real.
+// The shared core-modules barrel loads Mongoose models built from the mocked
+// utils; the agents module only needs the agent contract from it.
+jest.mock('erxes-api-shared/core-modules', () =>
+  jest.requireActual('erxes-api-shared/core-modules/agent'),
+);
 jest.mock('erxes-api-shared/utils', () => {
   const auth = jest.requireActual<
     typeof import('erxes-api-shared/utils/agent-tools/auth')

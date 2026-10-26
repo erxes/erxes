@@ -19,6 +19,8 @@ import {
   resolveAgentsModelEntry,
 } from '@/agents/agent';
 import { buildCodeModeAddition } from '@/agents/codeMode';
+import { listAgentPluginSkills } from '@/agents/graphqlTools';
+import { buildAgentPluginContributions } from '@/agents/pluginContributions';
 import { REPORT_CREATION_SKILL } from '@/agents/skills/reportCreation';
 import { getProviderDefaultModel } from '@/agents/providers';
 
@@ -34,6 +36,9 @@ interface IRunConfig {
   instructions(run: {
     requestContext: { get(key: string): unknown };
   }): Promise<string>;
+  skills(run: {
+    requestContext: { get(key: string): unknown };
+  }): Promise<unknown[]>;
 }
 
 let mockAgentConfig: IRunConfig | undefined;
@@ -48,6 +53,13 @@ jest.mock('@mastra/core/agent', () => ({
   },
 }));
 const capturedAgentConfig = (): IRunConfig | undefined => mockAgentConfig;
+// The plugin catalog comes from service discovery (covered by
+// pluginSkills.test.ts and the real-agent fixture); here it is fixed so the
+// test sees what the agent mounts from it. Every other GraphQL tool is real.
+jest.mock('@/agents/graphqlTools', () => ({
+  ...jest.requireActual('@/agents/graphqlTools'),
+  listAgentPluginSkills: jest.fn(async () => []),
+}));
 // Memory is only handed through to the (replaced) Agent container.
 const mockMemory = Object.create(null);
 jest.mock('@ai-sdk/anthropic', () => ({
@@ -284,5 +296,35 @@ describe('what every run mounts', () => {
     expect(withCode).toContain(REPORT_CREATION_SKILL.instructions);
     expect(plain).not.toContain(instructions);
     expect(withCode).toContain(instructions);
+  });
+
+  it('mounts the reachable plugins’ skills on every run, outside the instructions', async () => {
+    const pluginText = 'Count deals per stage and report each currency.';
+    const { skills } = await buildAgentPluginContributions(
+      [
+        {
+          plugin: 'sales',
+          agent: {
+            skills: [
+              {
+                name: 'pipeline-analysis',
+                description: 'Analyse deals by pipeline and stage.',
+                instructions: pluginText,
+              },
+            ],
+          },
+        },
+      ],
+      new Map(),
+    );
+    jest.mocked(listAgentPluginSkills).mockResolvedValue(skills);
+    const config = await buildRunConfig();
+
+    for (const codeModeEnabled of [false, true]) {
+      const run = runWith(codeModeEnabled);
+
+      expect(await config.skills(run)).toEqual(skills);
+      expect(await config.instructions(run)).not.toContain(pluginText);
+    }
   });
 });
