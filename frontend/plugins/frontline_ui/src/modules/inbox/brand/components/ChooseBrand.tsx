@@ -24,7 +24,7 @@ import {
 import { useIntegrations } from '@/integrations/hooks/useIntegrations';
 
 export const ChooseBrand = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const [search, setSearch] = useState('');
   const [debouncedSearch] = useDebounce(search, 300);
   const inputRef = useRef<HTMLInputElement>(null);

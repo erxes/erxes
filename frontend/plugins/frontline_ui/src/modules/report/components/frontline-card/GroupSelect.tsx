@@ -11,7 +11,7 @@ export const GroupSelect = ({
   value = 'all',
   onValueChange,
 }: GroupSelectProps) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const [open, setOpen] = useState(false);
 
   const handleValueChange = (newValue: string) => {

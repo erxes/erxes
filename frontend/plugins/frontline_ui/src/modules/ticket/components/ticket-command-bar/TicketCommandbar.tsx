@@ -33,7 +33,7 @@ const getSharedValue = (values: (string | undefined)[]): string | undefined => {
 };
 
 export const TicketCommandBar = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   const { table } = RecordTable.useRecordTable();
 
   const [open, setOpen] = useState(false);

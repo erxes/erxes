@@ -48,12 +48,14 @@ export const orderChangeLogSchema = schemaHooksWrapper(
     posToken: field({ type: String, label: 'POS token', index: true }),
     userId: field({ type: String, optional: true, label: 'Changed user' }),
     // Server receipt time; can be later than occurredAt when an offline action is retried.
-    createdAt: field({ type: Date, label: 'Created at', index: true }),
+    createdAt: field({ type: Date, label: 'Created at' }),
     changes: field({ type: [orderChangeEntrySchema], label: 'Changes' }),
   }),
   'erxes_order_change_logs',
 );
 
+// Retention starts at server receipt time, not the offline client's action time.
+orderChangeLogSchema.index({ createdAt: 1 }, { expireAfterSeconds: 40 * 24 * 60 * 60 });
 orderChangeLogSchema.index({ posToken: 1, orderId: 1, createdAt: -1 });
 orderChangeLogSchema.index({ posToken: 1, userId: 1, occurredAt: -1 });
 orderChangeLogSchema.index(

@@ -1071,6 +1071,20 @@ type ICommonUserMovement = {
   processId?: string;
 };
 
+type TStructureType = 'branch' | 'department' | 'position';
+
+const STRUCTURE_NOTIFICATION_TYPES: Record<string, string | undefined> = {
+  department: 'departmentAssigneeChanged',
+  branch: 'branchAssigneeChanged',
+  position: 'positionAssigneeChanged',
+};
+
+const STRUCTURE_FIELDS = {
+  branch: 'branchIds',
+  department: 'departmentIds',
+  position: 'positionIds',
+} as const;
+
 type IUserStructureAssignee = {
   subdomain: string;
   models: IModels;
@@ -1089,6 +1103,11 @@ export interface IUserMovemmentModel extends Model<IUserMovementDocument> {
   manageUserMovement(
     params: ICommonUserMovement,
   ): Promise<IUserMovementDocument>;
+  notifyStructureChanges(params: {
+    previous: IUserDocument;
+    updated: IUserDocument;
+    createdBy: string;
+  }): void;
 }
 
 export const loadUserMovemmentClass = (
@@ -1211,6 +1230,8 @@ export const loadUserMovemmentClass = (
 
     public static async manageUserMovement(params: ICommonUserMovement) {
       const user = params.user as IUserDocument;
+      // who made the change, not whose record it is
+      const createdBy = params.createdBy || user._id;
 
       for (const contentType of ['department', 'branch']) {
         const contentTypeIds = user[`${contentType}Ids`] || [];
@@ -1227,7 +1248,7 @@ export const loadUserMovemmentClass = (
           userId: user._id,
           contentType,
           contentTypeId: movement.contentTypeId,
-          createdBy: user._id,
+          createdBy,
           status: USER_MOVEMENT_STATUSES.REMOVED,
           isActive: false,
         }));
@@ -1274,7 +1295,7 @@ export const loadUserMovemmentClass = (
               contentType,
               contentTypeId,
               userId: user._id,
-              createdBy: user._id,
+              createdBy,
               isActive: true,
             });
           }
@@ -1354,8 +1375,86 @@ export const loadUserMovemmentClass = (
       return 'edited';
     }
 
+    // the one sender for both ways a member joins or leaves a structure
+    static notifyStructureAssignees({
+      contentType,
+      contentTypeId,
+      createdBy,
+      action,
+      targetUserIds,
+    }: {
+      contentType: string;
+      contentTypeId: string;
+      createdBy?: string;
+      action: string;
+      targetUserIds: string[];
+    }) {
+      const notificationType = STRUCTURE_NOTIFICATION_TYPES[contentType];
+      // the member who made the change is not told about it
+      const userIds = targetUserIds.filter((id) => id !== createdBy);
+
+      if (!createdBy || !notificationType || !userIds.length) {
+        return;
+      }
+
+      const assigned = action === 'assigned';
+
+      sendNotification(subdomain, {
+        title: assigned
+          ? `Assigned to ${contentType}`
+          : `Unassigned from ${contentType}`,
+        message: assigned
+          ? `You have been assigned to ${contentType}.`
+          : `You have been unassigned from ${contentType}.`,
+        type: 'info',
+        fromUserId: createdBy,
+        userIds,
+        contentType: `core:structure.${contentType}`,
+        contentTypeId,
+        action,
+        priority: 'medium',
+        notificationType,
+        event: `core:structure:${notificationType}`,
+      }).catch((e: Error) =>
+        console.error(`Structure notification failed: ${e.message}`),
+      );
+    }
+
+    // a member's own record changed: tell them about each structure joined or left
+    public static notifyStructureChanges({
+      previous,
+      updated,
+      createdBy,
+    }: {
+      previous: IUserDocument;
+      updated: IUserDocument;
+      createdBy: string;
+    }) {
+      for (const contentType of Object.keys(
+        STRUCTURE_FIELDS,
+      ) as TStructureType[]) {
+        const field = STRUCTURE_FIELDS[contentType];
+        const before = previous[field] || [];
+        const after = updated[field] || [];
+
+        for (const [action, contentTypeIds] of [
+          ['assigned', after.filter((id) => !before.includes(id))],
+          ['removed', before.filter((id) => !after.includes(id))],
+        ] as const) {
+          for (const contentTypeId of contentTypeIds) {
+            this.notifyStructureAssignees({
+              contentType,
+              contentTypeId,
+              createdBy,
+              action,
+              targetUserIds: [updated._id],
+            });
+          }
+        }
+      }
+    }
+
     static async handleUsersStructureAssignee({
-      subdomain,
       models,
       fieldName,
       contentType,
@@ -1374,18 +1473,14 @@ export const loadUserMovemmentClass = (
         [fieldName]: { $ne: contentTypeId },
       }).distinct('_id');
 
-      for (const { title, message, targetUserIds, update, action } of [
+      for (const { targetUserIds, update, action } of [
         {
           action: 'removed',
-          title: `Unassigned from ${contentType}`,
-          message: `You have been unassigned from ${contentType}.`,
           targetUserIds: removedAssigneeUserIds,
           update: { $pull: { [fieldName]: contentTypeId } },
         },
         {
           action: 'assigned',
-          title: `Assigned to ${contentType}`,
-          message: `You have been assigned to ${contentType}.`,
           targetUserIds: newlyAssignedUserIds,
           update: { $addToSet: { [fieldName]: contentTypeId } },
         },
@@ -1405,26 +1500,13 @@ export const loadUserMovemmentClass = (
               action,
             });
 
-            if (createdBy) {
-              const notificationType = {
-                department: 'departmentAssigneeChanged',
-                branch: 'branchAssigneeChanged',
-                position: 'positionAssigneeChanged',
-              }[contentType];
-
-              sendNotification(subdomain, {
-                title,
-                message,
-                type: 'info',
-                fromUserId: createdBy,
-                userIds: targetUserIds,
-                contentType: `core:structure.${contentType}`,
-                contentTypeId,
-                action,
-                priority: 'medium',
-                notificationType,
-              });
-            }
+            this.notifyStructureAssignees({
+              contentType,
+              contentTypeId,
+              createdBy,
+              action,
+              targetUserIds,
+            });
           }
         }
       }

@@ -654,7 +654,9 @@ async function migrateTickets(): Promise<void> {
               ]),
             ],
             propertiesData: fields.propertiesData,
-            companyIds: doc.companyIds || [],
+            // One company; the customer is filled from relations by
+            // core's migrateRelationsToContactFields.
+            ...(doc.companyIds?.[0] ? { companyId: doc.companyIds[0] } : {}),
             customerFieldData,
             state: doc.status === 'archived' ? 'archived' : 'active',
             createdAt: doc.createdAt || new Date(),

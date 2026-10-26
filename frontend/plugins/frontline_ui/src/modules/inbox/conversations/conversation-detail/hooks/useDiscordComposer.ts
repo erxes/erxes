@@ -19,7 +19,7 @@ export const useDiscordComposer = ({
   isDiscord: boolean;
   isInternalNote: boolean;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const participants = useDiscordConversationParticipants(
     conversationId,
     !isDiscord || !conversationId,

@@ -145,34 +145,38 @@ describe('visitor customer lookup', () => {
 });
 
 describe('ticket ownership', () => {
-  const ticketRelation = (ticketId: string) => ({
-    entities: [
-      { contentType: 'core:customer', contentId: 'cust-1' },
-      { contentType: 'frontline:ticket', contentId: ticketId },
-    ],
-  });
+  // Tickets keep their customer themselves (`customerId`).
+  const ticketsByCustomer: Record<string, string[]> = {
+    'cust-1': ['ticket-1'],
+  };
+  const Ticket = {
+    find: jest.fn(({ customerId }: { customerId: string }) => ({
+      lean: () =>
+        Promise.resolve(
+          (ticketsByCustomer[customerId] || []).map((_id) => ({ _id })),
+        ),
+    })),
+  };
+  const models = { Ticket } as unknown as Parameters<
+    typeof getOwnedTicketIds
+  >[2];
 
   test("lists only the session customer's tickets", async () => {
-    sendTRPCMessageMock.mockResolvedValueOnce([ticketRelation('ticket-1')]);
-
-    await expect(getOwnedTicketIds('sub', customerSession)).resolves.toEqual([
-      'ticket-1',
-    ]);
-    expect(sendTRPCMessageMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        input: { contentType: 'core:customer', contentId: 'cust-1' },
-      }),
+    await expect(
+      getOwnedTicketIds('sub', customerSession, models),
+    ).resolves.toEqual(['ticket-1']);
+    expect(Ticket.find).toHaveBeenCalledWith(
+      { customerId: 'cust-1' },
+      { _id: 1 },
     );
   });
 
   test('a visitor owns the tickets of the customer it became', async () => {
-    sendTRPCMessageMock
-      .mockResolvedValueOnce([{ _id: 'cust-1' }])
-      .mockResolvedValueOnce([ticketRelation('ticket-1')]);
+    sendTRPCMessageMock.mockResolvedValueOnce([{ _id: 'cust-1' }]);
 
-    await expect(getOwnedTicketIds('sub', visitorSession)).resolves.toEqual([
-      'ticket-1',
-    ]);
+    await expect(
+      getOwnedTicketIds('sub', visitorSession, models),
+    ).resolves.toEqual(['ticket-1']);
     expect(sendTRPCMessageMock).toHaveBeenNthCalledWith(
       1,
       expect.objectContaining({
@@ -185,13 +189,11 @@ describe('ticket ownership', () => {
   });
 
   test("refuses someone else's ticket", async () => {
-    sendTRPCMessageMock.mockResolvedValue([ticketRelation('ticket-1')]);
-
     await expect(
-      assertOwnsTicket('sub', customerSession, 'ticket-2'),
+      assertOwnsTicket('sub', customerSession, 'ticket-2', models),
     ).rejects.toThrow('Ticket not found');
     await expect(
-      assertOwnsTicket('sub', customerSession, 'ticket-1'),
+      assertOwnsTicket('sub', customerSession, 'ticket-1', models),
     ).resolves.toBeUndefined();
   });
 });

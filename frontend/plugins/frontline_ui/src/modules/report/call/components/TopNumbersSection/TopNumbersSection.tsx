@@ -7,7 +7,7 @@ import { ReportTable } from '../ReportTable';
 import { CARRIER_COLOR_VAR, fmtDur, fmtNum } from '../../utils';
 
 export function TopNumbersSection() {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const { numbers, loading } = useTopNumbers(20);
 
   const busiest = Math.max(...numbers.map(({ attempts }) => attempts ?? 0), 1);

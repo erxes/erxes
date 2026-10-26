@@ -12,7 +12,9 @@ export type TPluginSettingsSlots = {
   tags?: ComponentType<{ pluginName: string }>;
   /** Properties pages listing only the plugin's property types. */
   properties?: ComponentType<{ pluginName: string; basePath: string }>;
-  /** Menu items (Tags / Properties) for the plugin's settings sidebar. */
+  /** The member's own notification choices for the plugin's events. */
+  notifications?: ComponentType<{ pluginName: string }>;
+  /** Menu items (Tags / Properties / Notification) for the plugin's settings sidebar. */
   navigation?: ComponentType<{ pluginName: string; pathPrefix: string }>;
 };
 

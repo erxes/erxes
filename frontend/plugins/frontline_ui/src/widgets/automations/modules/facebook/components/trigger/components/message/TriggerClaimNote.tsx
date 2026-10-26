@@ -14,7 +14,7 @@ export const TriggerClaimNote = ({
   claims?: TTriggerClaim[];
   className?: string;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.facebook' });
 
   if (!claims?.length) {
     return null;

@@ -204,14 +204,18 @@ export const loadDepartmentClass = (
           },
         );
       }
-      const { processId } = getContext();
-      await models.UserMovements.manageStructureUsersMovement({
-        userIds: doc.userIds || [],
-        contentType: 'department',
-        contentTypeId: _id,
-        createdBy: user._id,
-        processId,
-      });
+      // Members change only when the caller sends them; partial edits
+      // (inline title/code, re-parenting) must not empty the department
+      if (doc.userIds) {
+        const { processId } = getContext();
+        await models.UserMovements.manageStructureUsersMovement({
+          userIds: doc.userIds,
+          contentType: 'department',
+          contentTypeId: _id,
+          createdBy: user._id,
+          processId,
+        });
+      }
       await models.Departments.updateOne(
         { _id },
         {
@@ -433,14 +437,18 @@ export const loadBranchClass = (
           },
         );
       }
-      const { processId } = getContext();
-      await models.UserMovements.manageStructureUsersMovement({
-        userIds: doc.userIds || [],
-        contentType: 'branch',
-        contentTypeId: _id,
-        createdBy: user._id,
-        processId,
-      });
+      // Members change only when the caller sends them; partial edits
+      // (inline title/code, re-parenting) must not empty the branch
+      if (doc.userIds) {
+        const { processId } = getContext();
+        await models.UserMovements.manageStructureUsersMovement({
+          userIds: doc.userIds,
+          contentType: 'branch',
+          contentTypeId: _id,
+          createdBy: user._id,
+          processId,
+        });
+      }
 
       await models.Branches.updateOne(
         { _id },

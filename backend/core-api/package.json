@@ -12,13 +12,21 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@ai-sdk/anthropic": "4.0.78",
     "@aws-sdk/client-s3": "^3.913.0",
     "@aws-sdk/s3-request-presigner": "^3.913.0",
     "@blocknote/core": "^0.35.0",
     "@faker-js/faker": "^9.9.0",
+    "@mastra/ai-sdk": "1.11.1",
+    "@mastra/core": "1.78.0",
+    "@mastra/memory": "1.38.0",
+    "@mastra/mongodb": "1.23.1",
+    "@mastra/quickjs": "0.1.3",
+    "@mastra/redis-streams": "0.6.3",
     "@sendgrid/mail": "^8.1.5",
     "@sentry/node": "^10.55.0",
     "@workos-inc/node": "^7.65.0",
+    "ai": "7.0.136",
     "bcryptjs": "^3.0.2",
     "bwip-js": "^4.11.1",
     "erxes-api-shared": "workspace:^",
@@ -36,6 +44,7 @@
     "tmp": "^0.2.3",
     "underscore": "^1.13.7",
     "validator": "^13.15.0",
-    "xss": "^1.0.15"
+    "xss": "^1.0.15",
+    "zod": "^3.25.76"
   }
 }

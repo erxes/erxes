@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ColumnDef } from '@tanstack/table-core';
+import { TFunction } from 'i18next';
 import {
   Alert,
   Button,
@@ -44,7 +45,7 @@ export const FacebookPosts = ({
   colSpan = 12,
   onColSpanChange,
 }: FacebookPostsProps) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const { id, filterConfig, queryFilters, filtersRestored } =
     useFacebookChartCard({ title, cardId, savedChart });
   const [page, setPage] = useState(1);
@@ -187,7 +188,7 @@ export const FacebookPosts = ({
         >
           <RecordTable.Provider
             data={posts}
-            columns={postColumns}
+            columns={postColumns(t)}
             className="m-3"
           >
             <RecordTable.Scroll>
@@ -203,7 +204,7 @@ export const FacebookPosts = ({
         {totalPages > 1 && (
           <div className="flex items-center justify-between px-4 py-2 border-t">
             <span className="text-xs text-muted-foreground">
-              {facebookPosts?.totalCount ?? 0} items
+              {t('items-count', { count: facebookPosts?.totalCount ?? 0 })}
             </span>
             <div className="flex items-center gap-1">
               <Button
@@ -238,10 +239,10 @@ export const FacebookPosts = ({
 const formatDate = (value?: string) =>
   value ? new Date(value).toLocaleDateString() : '-';
 
-export const postColumns: ColumnDef<FacebookPostRow>[] = [
+export const postColumns = (t: TFunction): ColumnDef<FacebookPostRow>[] => [
   {
     id: 'content',
-    header: 'Post',
+    header: t('post'),
     accessorKey: 'content',
     cell: ({ cell }) => (
       <RecordTableInlineCell className="px-4 text-xs">
@@ -252,7 +253,7 @@ export const postColumns: ColumnDef<FacebookPostRow>[] = [
   },
   {
     id: 'postedAt',
-    header: 'Posted',
+    header: t('posted'),
     accessorKey: 'postedAt',
     cell: ({ cell }) => (
       <RecordTableInlineCell className="px-4 text-xs text-muted-foreground">
@@ -263,7 +264,7 @@ export const postColumns: ColumnDef<FacebookPostRow>[] = [
   },
   {
     id: 'comments',
-    header: 'Comments',
+    header: t('comments'),
     accessorKey: 'comments',
     cell: ({ cell }) => (
       <RecordTableInlineCell className="px-4 text-xs">
@@ -274,7 +275,7 @@ export const postColumns: ColumnDef<FacebookPostRow>[] = [
   },
   {
     id: 'replies',
-    header: 'Replies',
+    header: t('replies'),
     accessorKey: 'replies',
     cell: ({ cell }) => (
       <RecordTableInlineCell className="px-4 text-xs">
@@ -285,7 +286,7 @@ export const postColumns: ColumnDef<FacebookPostRow>[] = [
   },
   {
     id: 'commenters',
-    header: 'People',
+    header: t('people'),
     accessorKey: 'commenters',
     cell: ({ cell }) => (
       <RecordTableInlineCell className="px-4 text-xs">
@@ -296,7 +297,7 @@ export const postColumns: ColumnDef<FacebookPostRow>[] = [
   },
   {
     id: 'metaCommentCount',
-    header: 'On Meta',
+    header: t('on-meta'),
     accessorKey: 'metaCommentCount',
     cell: ({ cell }) => {
       const { metaCommentCount, comments, replies } = cell.row.original || {};
@@ -331,7 +332,7 @@ export const postColumns: ColumnDef<FacebookPostRow>[] = [
   },
   {
     id: 'metaReactionCount',
-    header: 'Reactions',
+    header: t('reactions'),
     accessorKey: 'metaReactionCount',
     cell: ({ cell }) => (
       <RecordTableInlineCell className="px-4 text-xs text-muted-foreground">
@@ -342,7 +343,7 @@ export const postColumns: ColumnDef<FacebookPostRow>[] = [
   },
   {
     id: 'lastActivityAt',
-    header: 'Last activity',
+    header: t('last-activity'),
     accessorKey: 'lastActivityAt',
     cell: ({ cell }) => (
       <RecordTableInlineCell className="px-4 text-xs text-muted-foreground">
@@ -353,7 +354,7 @@ export const postColumns: ColumnDef<FacebookPostRow>[] = [
   },
   {
     id: 'permalink',
-    header: 'Link',
+    header: t('link'),
     accessorKey: 'permalink',
     cell: ({ cell }) => {
       const permalink = cell.getValue() as string;

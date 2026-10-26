@@ -101,7 +101,7 @@ function ChannelItem({
 }
 
 export function TicketNavigations() {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   const { channels, loading, refetch } = useGetChannels();
   useSubscription(TICKET_LIST_CHANGED, {
     onData: ({ data }) => {
@@ -211,7 +211,7 @@ export function TicketNavigations() {
 
   return (
     <>
-      <NavigationMenuGroup name="Channels">
+      <NavigationMenuGroup name={t('channels')}>
         {navigationLoading ? (
           <LoadingSkeleton />
         ) : (
@@ -264,7 +264,7 @@ export function TicketNavigations() {
         )}
       </NavigationMenuGroup>
       {channelId && (
-        <NavigationMenuGroup name="Pipelines">
+        <NavigationMenuGroup name={t('pipelines')}>
           <Pipelines />
         </NavigationMenuGroup>
       )}
@@ -273,7 +273,7 @@ export function TicketNavigations() {
 }
 
 const Pipelines = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   const [channelId] = useQueryState<string | null>('channelId');
   const [pipelineId, setPipelineId] = useQueryState<string | null>(
     'pipelineId',

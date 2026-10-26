@@ -40,7 +40,9 @@ const FacebookIntegrationBotCell = lazy(() =>
 );
 
 export const IntegrationsRecordTable = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const params = useParams();
   const isDiscord =
     params?.integrationType === IntegrationType.DISCORD_MESSENGER;
@@ -125,7 +127,9 @@ export const IntegrationsRecordTable = () => {
 };
 
 const IntegrationsCommandBar = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const { table } = RecordTable.useRecordTable();
   const { confirm } = useConfirm();
   const client = useApolloClient();
@@ -267,7 +271,9 @@ export const BrandField = () => {
 export const useIntegrationTypeColumns = (
   withSelection = false,
 ): ColumnDef<IIntegration>[] => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const { integrationType } = useParams();
 
   return [
@@ -280,11 +286,7 @@ export const useIntegrationTypeColumns = (
       ? [
           {
             id: 'page',
-            header: () => (
-              <RecordTable.InlineHead
-                label={t('page', { defaultValue: 'Page' })}
-              />
-            ),
+            header: () => <RecordTable.InlineHead label={t('page')} />,
             cell: (cell: CellContext<IIntegration, unknown>) => (
               <RecordTableInlineCell className="gap-2">
                 {(cell.row.original.facebookPage ?? []).map(

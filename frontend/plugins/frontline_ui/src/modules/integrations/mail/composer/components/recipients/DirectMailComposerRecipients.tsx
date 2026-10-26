@@ -9,8 +9,10 @@ import { splitAddresses } from '@/integrations/mail/composer/utils/directMailCom
 import { Button, Form } from 'erxes-ui';
 import { useState } from 'react';
 import { useWatch } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 export const ComposerRecipients = () => {
   const [expanded, setExpanded] = useState(true);
+  const { t } = useTranslation('frontline');
   const { closeEmptyFields } = useDirectMailComposerFields();
   const {
     form: {
@@ -55,7 +57,7 @@ export const ComposerRecipients = () => {
             type="button"
             variant="ghost"
             className="h-9 min-w-0 w-full justify-start px-0 hover:bg-transparent"
-            aria-label="Edit recipients"
+            aria-label={t('edit-recipients')}
             onClick={() => {
               setExpanded(true);
               window.requestAnimationFrame(() =>
@@ -64,7 +66,7 @@ export const ComposerRecipients = () => {
             }}
           >
             <span className="truncate text-sm text-muted-foreground">
-              {recipients[0] || 'Recipients'}
+              {recipients[0] || t('recipients')}
               {recipients.length > 1 && ` +${recipients.length - 1}`}
               {splitAddresses(bcc).length > 0 &&
                 ` (${splitAddresses(bcc).length} Bcc)`}

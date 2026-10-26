@@ -24,6 +24,9 @@ export enum AppPath {
   Automations = 'automations',
   AutomationsCatchAll = `/${Automations}/*`,
   MyInbox = 'my-inbox',
+  // Redirect only; Assistant has no full-page surface. `/agent/*` belongs to
+  // the Company Brain plugin.
+  AssistantCatchAll = 'assistant/*',
   MyInboxCatchAll = `/${MyInbox}/*`,
   Logs = 'logs',
   LogsCatchAll = `/${Logs}/*`,

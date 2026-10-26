@@ -23,7 +23,9 @@ import { z } from 'zod';
 import { SecretInput } from '@/integrations/components/SecretInput';
 
 export const CallConfigUpdateCollapse = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   return (
     <Collapsible className="w-full bg-muted rounded-lg">
       <Collapsible.Trigger asChild>
@@ -50,7 +52,9 @@ export const CallConfigUpdateCollapse = () => {
 };
 
 export const CallConfigUpdate = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const form = useForm<z.infer<typeof CALL_CONFIG_SCHEMA>>({
     resolver: zodResolver(CALL_CONFIG_SCHEMA),
     defaultValues: {

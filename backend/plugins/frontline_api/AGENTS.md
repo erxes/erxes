@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-10-22`
+- **Last synchronized:** `2026-10-25`
 
 ## Scope
 
@@ -364,8 +364,8 @@
   video, audio or file (never a sticker or share) still starts a run.
   `generateAiContext` merges every customer message since the last reply into
   the input, shows media as `[media <messageId>-<index> <type>]` markers, and
-  adds `facts.mediaIds` and `facts.openTickets` (tickets related to the inbox
-  conversation that are not resolved or closed). `actionCreateMessage` skips an
+  adds `facts.mediaIds` and `facts.openTickets` (tickets keeping the inbox
+  conversation in `sourceConversationIds` that are not resolved or closed). `actionCreateMessage` skips an
   AI-written reply as `superseded-by-newer-message` when a newer customer
   message exists.
 - AI long-term memory scopes: Facebook and Messenger `generateAiContext` set
@@ -523,10 +523,8 @@
   its customer, and refuses a second item of the same kind for one
   conversation. There is no task target; `conversationConvertToCard` rejects
   `type: "task"` as an unsupported convert type.
-- Read-only inbox, integration, and form-submission tRPC procedures are
-  exposed to AI agents through `/agent-tools/manifest` and `/agent-tools/call`
-  via `.meta(agentMeta(...))` annotations; every other procedure remains
-  invisible to agents.
+- Agents use the public GraphQL API as the acting user; tRPC remains an
+  internal service contract without agent metadata.
 - A help center points at a client portal by **`clientPortalId`**, and keeps
   that portal's `domain` in `url` and its `token` in `erxesAppToken` as derived
   copies. The copies exist because `ClientPortal` is not a federated entity and
@@ -587,7 +585,6 @@ The root router mounts its authenticated webhook at `/telegram`.
 | GraphQL                  | `src/apollo/`                                                                                                                                                    | Aggregated `typeDefs` and `resolvers` across modules                                                                                                                                                                   |
 | Schema print             | `scripts/print-subgraph-schema.ts`                                                                                                                               | Prints the subgraph schema for `frontline_ui` codegen (`generated/`, gitignored)                                                                                                                                       |
 | tRPC                     | `src/init-trpc.ts`                                                                                                                                               | `appRouter` for service-to-service calls                                                                                                                                                                               |
-| Agent tool metadata      | `src/trpc/agentMeta.ts`                                                                                                                                          | Local `agentMeta` helper for agent-callable tRPC annotations                                                                                                                                                           |
 | HTTP                     | `src/routes.ts`                                                                                                                                                  | Mounts the `/facebook`, `/instagram`, `/mail`, and (when enabled) `/callpro` webhook routers                                                                                                                           |
 | Platform extensions      | `src/meta/`                                                                                                                                                      | automations, permissions, notifications, segments, references, import/export                                                                                                                                           |
 | Channels                 | `src/modules/channel/`                                                                                                                                           | Channel + ChannelMember models, schema, resolvers, role checks                                                                                                                                                         |
@@ -623,7 +620,6 @@ The root router mounts its authenticated webhook at `/telegram`.
 | Models                   | `src/connectionResolvers.ts`                                                                                                                                     | Per-subdomain model container for all modules                                                                                                                                                                          |
 | GraphQL                  | `src/apollo/`                                                                                                                                                    | Aggregated `typeDefs` and `resolvers` across modules                                                                                                                                                                   |
 | tRPC                     | `src/init-trpc.ts`                                                                                                                                               | `appRouter` for service-to-service calls                                                                                                                                                                               |
-| Agent tool metadata      | `src/trpc/agentMeta.ts`                                                                                                                                          | Local `agentMeta` helper for agent-callable tRPC annotations                                                                                                                                                           |
 | HTTP                     | `src/routes.ts`                                                                                                                                                  | Mounts the `/facebook`, `/instagram`, `/mail`, and (when enabled) `/callpro` webhook routers                                                                                                                           |
 | Platform extensions      | `src/meta/`                                                                                                                                                      | automations, permissions, notifications, segments, references, import/export                                                                                                                                           |
 | Channels                 | `src/modules/channel/`                                                                                                                                           | Channel + ChannelMember models, schema, resolvers, role checks                                                                                                                                                         |
@@ -664,6 +660,8 @@ The root router mounts its authenticated webhook at `/telegram`.
 
 ### Provides
 
+- Internal `contactFields.sync` tRPC mutation (`TContactFieldsSync`) — core broadcasts contact merges and removals to every plugin declaring `meta.contactFields` (frontline declares `frontline:ticket` in `main.ts`); applied with `applyContactFieldsSync`. Not agent-callable.
+- `createTicket` / `updateTicket` accept `customerId` / `companyId` (one of each) and save them on the ticket; `getTickets` filters by them. Tickets made elsewhere save their customer the same way: mail (`createTicketFromMail`), the messenger widget, client portal (`cpCreateTicket`), conversation convert and the create-ticket automation. No core relation is made for a ticket: a ticket made from a conversation (convert or the create-ticket automation) keeps it in `sourceConversationIds` (indexed); convert's "already converted" check, the converted-items list, open-ticket facts (`findOpenConversationTickets`) and the ticket source-channel report read that field, and the conversation's form submissions are logged on the new ticket or deal directly (`inbox/utils/conversationFormSubmission.ts`). `backend/saas-migrations/core/commands/migrateConversationRelationsToSourceFields.ts` copies old conversation ↔ ticket / deal relations and `customerFieldData.sourceConversationIds` into the field. The `customer.tickets` / `company.tickets` segments and the ticket `customers` reference join on `customerId` / `companyId`.
 - Telegram: `POST /telegram/receive/:_id` authenticates the stored webhook
   secret. `telegramBots`, `telegramConversationChats`, `telegramBotWebhookInfo` and
   `telegramMessageLinkPreviews` expose permission-checked setup/status and
@@ -837,16 +835,9 @@ accountId, brandId, data)` — `channelId` is **nullable** for every kind;
 - tRPC `appRouter` consumed by other services, including
   `inbox.updateUserChannels({ channelIds, userId })` — replaces a user's team
   channel memberships; never touches their personal channel.
-- Agent-callable tRPC tools (admit-only via `.meta({ agent })`), each gated by
-  the listed frontline permission action:
-  - `inbox.conversations.findOne`, `inbox.conversations.count`,
-    `inbox.getConversationsList`, `inbox.conversationMessages.findOne`,
-    `inbox.conversationMessages.find` — `showConversations`
-  - `inbox.conversations.changeStatus` — `conversationsChangeStatus`
-  - `inbox.integrations.findOne`, `inbox.integrations.find`,
-    `inbox.integrations.count`, `inbox.getIntegrationKinds` —
-    `showIntegrations`
-  - `form.submissionsByConversation` — `showFormSubmissions`
+- Agents discover the GraphQL schema and execute through the gateway as the
+  acting user. Internal tRPC procedures carry no agent metadata.
+
 - GraphQL Facebook bot and page contracts read as object types, not `JSON`:
   `FacebookMessengerBot._id` is non-null; its `account` is `FacebookBotAccount`
   (`_id`, `name`) and its `page` is `FacebookBotPage` (`id`, `name` from the
@@ -1169,7 +1160,7 @@ placeholder, order, isRequired, type, options }`, where `type` and `options`
   (`widgetsMessengerConnect`) returns the whole document as `ticketConfig: JSON`,
   so both lists reach the messenger widget without a schema change there.
 - GraphQL: `widgetTicketCreated(name, description, attachments, statusId,
-customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
+tagIds, propertiesData: JSON)` (the customer comes from the widget session) — the public messenger ticket
   submission. `propertiesData` is a `{ [fieldId]: value }` map that is narrowed
   to the `propertyFields` of the pipeline's ticket config, checked for the
   required ones, validated through core `fields.validateFieldValues`, and stored
@@ -1352,10 +1343,13 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   (`{ segmentId, cursor?, limit? }` → `{ ids, nextCursor? }`), which backs the
   conversation list `segment` filter. `segmentFilter` pages until `nextCursor`
   is empty; core caps each page, so one call is never the whole segment.
-- `core` over tRPC — `notifications.sendMobileNotification` (mutation,
-  `{ title, body, receivers, data }`), which pushes a new chat message to the
-  assigned and participating agents' `deviceTokens`. The path is
-  `notifications.*`, not `core.*`; a wrong path fails silently.
+- `erxes-api-shared/core-modules` — `sendNotification` with `event`
+  (`TFrontlineNotificationEvent`). Core resolves each recipient's settings for
+  that key and sends email and push; the actor is never notified. A new chat
+  message (`sendAgentMobileNotification`) goes as
+  `frontline:conversations:conversationAddMessage` with `inApp: false` (push
+  only, no inbox item) and `pushData` — the FCM data the mobile app routes on
+  (`type: 'messenger'`, `conversationId`, `notificationType: 'chat_message'`).
 - `automations` over tRPC — `automations.trigger`. The path is
   `automations.trigger`, not `triggers.trigger`; `sendTRPCMessage` swallows a
   wrong path or a query/mutation mismatch and returns `defaultValue`, so a
@@ -1363,6 +1357,7 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 ## Data and State
 
+- `frontline_tickets` owns one customer and one company as `customerId` / `companyId` (indexed, `default: null`; read only from the record — the migration must run before deploy, there is no relation fallback); frontline saves them itself and makes no core relation for them. Core's contact merge / remove reaches them through tRPC `contactFields.sync`. `backend/saas-migrations/core/commands/migrateRelationsToContactFields.ts` backfills tickets linked before: the first of old `customerIds` / `companyIds` arrays (kept as they are; only their indexes are dropped), else the oldest related contact; extra contacts are dropped. The create-ticket automation action saves `companyId` (old actions' `companyIds` give their first). `conversations` keep their single `customerId` and are not migrated.
 - Models are generated per request subdomain. Telegram owns `telegram_bots`,
   `customers_telegram`, `conversations_telegram`, `conversation_messages_telegram`
   and `telegram_reactions`; canonical inbox history stays in Frontline's
@@ -1373,6 +1368,15 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 ## Local Invariants
 
+- Every automation action declares a `configSchema` (`src/meta/automationConfigSchemas.ts`) with exactly what its handler reads or refuses: messenger/Facebook/Instagram messages (bot `messages`, buttons and quick replies branch through `optionalConnects`; `botId` defaults to the trigger's bot), Facebook/Instagram comment replies, Discord, mail send/draft and ticket create (`channelId`, `pipelineId`, `statusId`, `name`). Write each field in the shape the builder form writes (text, not numbers or lists, where the form writes text). Change the schema with the handler; core publishes it to authors as `configJsonSchema` and enforces it when a flow goes live. Ticket create also declares `validateConfig` (`src/meta/automationConfigValidators.ts`): its channel, pipeline and status exist and belong together.
+- Every team-member notification passes `event`, typed
+  `TFrontlineNotificationEvent` from `src/meta/notifications.ts`. The meta
+  module and event names are the keys users' notification settings are saved
+  under: renaming one drops every saved choice for it, and a key the meta does
+  not declare reaches no one. The meta lists only events that have a sender.
+  `conversationAddMessage` declares `defaultChannels: ['mobile']`, so agents
+  who never set it keep getting chat pushes.
+- Ticket contacts are read only from `customerId` / `companyId`: mail recipients (`integrations/mail/utils/tickets.ts`), report contact filters (`narrowTicketMatchByContacts`), widget ticket ownership (`getOwnedTicketIds`, needs `models`) and `widgetTicketCheckProgressForget`. Never read a ticket's contacts or source conversations from core relations; customer ↔ company links remain core relations.
 - A Form submitted condition on an array value (checkbox group, multi-select)
   matches when any option matches; `dne`/`numberdne`/`dnc` must hold for every
   option, and `is`/`ins` test the whole value. Number and boolean values are
@@ -1599,6 +1603,8 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 ## Validation
 
+- `pnpm nx test frontline_api` (`src/meta/__tests__/builderConfigContract.test.ts`: action schemas accept every config in the neighbouring `builderActionConfigs.json`, which the builder wrote)
+- `pnpm nx test frontline_api` (`src/meta/__tests__/automationConfigSchemas.test.ts`)
 - `pnpm nx run frontline_api:schema:print` - prints this subgraph's SDL to `generated/schema.graphql` (gitignored) offline, for `gateway:schema:compose`.
 - `pnpm nx lint frontline_api` - runs ESLint with the plugin-local
   `eslint.config.js` (regex-escaping rules).
@@ -1651,6 +1657,12 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-10-24` — Notifications named by their settings key
+
+- **Summary:** Senders pass `event` (`frontline:<module>:<event>`) so email and push follow the user's settings; before, keys built from `contentType` matched no saved setting and only in-app items were written. Chat pushes now honor settings (default mobile on) and skip the actor. Meta gains a `tickets` module and `conversationMention`; `conversationCreated`, `conversationParticipantAdded` and `conversationTagged` (no sender) are gone.
+- **Affected areas:** `src/meta/notifications.ts`, `src/utils/notifications.ts`, `conversationNotifications.ts` (+ spec), conversation, ticket, channel and integration-health senders.
+- **Contracts changed:** notifications meta modules/events; consumes `sendNotification` `event`/`inApp`/`pushData` instead of `notifications.sendMobileNotification`.
 
 ### `2026-10-19` — Conversation segment filter on the paged contract
 

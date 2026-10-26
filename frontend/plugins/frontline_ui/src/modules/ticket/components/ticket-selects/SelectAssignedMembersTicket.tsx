@@ -8,6 +8,7 @@ import {
   SelectTriggerTicket,
   SelectTriggerVariant,
 } from '@/ticket/components/ticket-selects/SelectTicket';
+import { useTranslation } from 'react-i18next';
 
 const SelectAssignedMembersProvider = SelectMember.Provider;
 
@@ -16,9 +17,10 @@ const SelectAssignedMembersValue = ({
 }: {
   placeholder?: string;
 }) => {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   return (
     <SelectMember.Value
-      placeholder={placeholder || 'Select assigned members'}
+      placeholder={placeholder || t('select-assigned-members')}
     />
   );
 };

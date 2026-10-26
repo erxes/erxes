@@ -30,7 +30,9 @@ export const TelegramMessageAttachments = ({
 }: {
   attachments?: IAttachment[];
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   if (!attachments?.length) return null;
   const media = attachments.map((attachment) => ({
     attachment,

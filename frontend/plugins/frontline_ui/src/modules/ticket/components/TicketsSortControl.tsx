@@ -8,7 +8,7 @@ import { fetchedTicketsState } from '@/ticket/states/fetchedTicketState';
 import { TICKET_SORT_FIELDS } from '@/ticket/hooks/useGetTickets';
 
 export const TicketsSortControl = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   const [isOpen, setIsOpen] = useState(false);
   const [sortField, setSortField] = useAtom(ticketSortAtom);
   const setFetchedTickets = useSetAtom(fetchedTicketsState);
@@ -33,7 +33,7 @@ export const TicketsSortControl = () => {
               setIsOpen(false);
             }}
           >
-            {field.label}
+            {t(field.labelKey)}
           </Button>
         ))}
       </Popover.Content>

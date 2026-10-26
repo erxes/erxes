@@ -92,7 +92,7 @@ export const ConversationFormDisplay = ({
   formWidgetData,
   createdAt,
 }: IMessage) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const items = normalizeFormWidgetData(
     formWidgetData as IFormWidgetItem[] | Record<string, string> | null,
   );
