@@ -46,6 +46,19 @@ plugin; ported from the former private `erxes-agent` service). It provides:
   reference manifest is emitted; credential-bearing JSON returns only a policy
   error. Standard `__type`/`__schema` introspection is allowed and follows
   gateway configuration. Other queries/mutations use existing resolver permissions;
+- **plugin contributions** (`pluginContributions.ts`): enabled plugins may
+  declare `meta.agent` (`IAgentPluginMeta`, validated by
+  `validateAgentPluginMeta` in `erxes-api-shared/core-modules`). Skills are
+  text only and mount as Mastra inline skills named `<plugin>-<name>` through
+  the base agent's dynamic `skills` resolver: the catalog system message lists
+  names and descriptions after the core instructions, and Mastra's
+  `skill`/`skill_read` tools load instructions on demand. Each skill's
+  instructions start with a precedence preamble, and `DEFAULT_INSTRUCTIONS`
+  says core rules, approval, unavailable operations, permissions and
+  references win over any skill. `hiddenOperations` drop root fields from
+  `searchGraphql` and `agentsTools` only; `callGraphql` still executes them
+  and `graphqlPolicy.ts` is unchanged. A plugin hides only fields its own SDL
+  defines; hints naming hidden operations are dropped;
 - optional code mode exposes only `searchGraphql` and `callGraphql` in a
   QuickJS sandbox; approval-gated mutations must run interactively in chat.
   Its native output schema is Zod v4: extensions must import `zod/v4` too.
@@ -224,7 +237,16 @@ plugin; ported from the former private `erxes-agent` service). It provides:
   replay.
 - `graphqlTools.ts` — live schema discovery, capabilities catalog (each root
   operation retains its owning service/plugin from that service’s SDL) and bounded
-  GraphQL execution; `tools.ts` — request identity and error helpers.
+  GraphQL execution. One catalog refresh (60s TTL, concurrent callers share it)
+  fetches each enabled service's SDL and reads its `meta.agent` straight from
+  Redis (`getPlugin` would pin a stale config); only services whose SDL
+  answered contribute skills and hidden operations, so a stopped or disabled
+  plugin's contributions disappear on the next refresh. `listAgentPluginSkills`
+  serves a stale catalog while refreshing in the background, waits at most 3s
+  for a process's first load, and never throws;
+- `pluginContributions.ts` — validation, namespacing, ownership checks for
+  hidden operations, once-per-reason rejection warnings
+  (`[agents] Ignored skill ...`), and inline-skill construction; `tools.ts` — request identity and error helpers.
 - `mentions.ts` — user @ mention validation, verification and model/display
   text; `fileBinding.ts` admits its data part without media.
 - `references.ts` — token grammar, toolId→type table, label pickers, result
@@ -310,6 +332,11 @@ plugin; ported from the former private `erxes-agent` service). It provides:
 
 ## Invariants (carry over)
 
+- Plugin skills stay text: never pass plugin-supplied `references`, scripts,
+  metadata or tools to `createSkill`, and never let a skill change tools,
+  approval, the deny policy or permissions. Hidden operations stay a
+  discovery filter; do not turn them into execution blocking.
+
 - Never introduce env-var secrets; BYOK keys live only on the per-user
   document — sealed `enc:v1:` envelopes only, never plaintext — and never
   appear in responses, errors, or logs. `sealSecret` throws when
@@ -362,6 +389,44 @@ not the root. It brings `pdfjs-dist` (pinned by officeparser), `tesseract.js`
 (never loaded while `ocr` is off) and the optional prebuilt `@napi-rs/canvas`
 (not needed for text; parsing works without it). It needs Node ≥22.13.
 
+## Plugin guide: agent skills and hidden operations
+
+Declare both in `startPlugin({ meta: { agent } })`, typically from
+`src/meta/agent.ts` (see `backend/plugins/sales_api/src/meta/agent.ts`):
+
+```ts
+import { IAgentPluginMeta } from 'erxes-api-shared/core-modules';
+
+export const agent: IAgentPluginMeta = {
+  skills: [
+    {
+      name: 'pipeline-analysis', // mounted as `sales-pipeline-analysis`
+      description: 'When to use it, in one line the model sees every turn.',
+      instructions: '# Markdown loaded only when the skill is activated',
+      operations: ['salesStages', 'dealsTotalAmounts'], // optional hints
+    },
+  ],
+  hiddenOperations: { queries: ['cpDeals'], mutations: ['cpDealsAdd'] },
+};
+```
+
+- Limits (`AGENT_SKILL_LIMITS`): 8 skills per plugin; name ≤40 characters of
+  lowercase letters, digits and single hyphens (≤64 once namespaced);
+  one-line description ≤300; instructions ≤12,000 without control characters;
+  ≤20 operation hints; ≤100 hidden operations. Extra fields (tools, scripts,
+  functions) reject the skill. Rejections are warned at plugin start and once
+  in core, and never affect other skills or agent runs.
+- Write skills as guidance for your plugin's data: which operations answer
+  which questions and how to read their fields. Do not restate or relax core
+  rules; they take precedence anyway.
+- Hide operations the agent cannot use well (e.g. client portal `cp*`
+  operations). Hiding is not security: keep resolver permissions, and use
+  `graphqlPolicy.ts` (a core change) for anything that must be denied.
+- Plugin names must be lowercase letters and digits to namespace skills.
+  Changes reach the agent within one catalog refresh (≤60s) after the plugin
+  registers.
+- tRPC procedures stay internal; never add agent metadata to them.
+
 ## Validation
 
 - `pnpm nx build core-api` (tsc + tsc-alias, nodenext)
@@ -370,6 +435,16 @@ not the root. It brings `pdfjs-dist` (pinned by officeparser), `tesseract.js`
   `ts-blank-space` is mapped to a callable CJS stub in `jest.config.ts`.
 - `pnpm nx lint core-api` — repo has pre-existing lint errors outside this
   module; keep this module's files clean.
+- Plugin skills are proven on the real base agent: `agentPluginSkills.test.ts`
+  runs `__tests__/fixtures/pluginSkills.mjs` (`node --test`), which bundles
+  the module sources with esbuild against the installed Mastra runtime. Only
+  service discovery, tenant models and the provider model factory are faked.
+  jest cannot host the Mastra `Agent` (its CJS build requires ESM-only AI SDK
+  packages). Mastra resolves dynamic skills once per `RequestContext`, so each
+  simulated run uses a fresh context.
+  `agent.test.ts` ("what every run mounts") also checks that each run's
+  `skills` callback mounts the plugin catalog and keeps plugin text out of
+  the instructions.
 - `__tests__/runLiveness.test.ts` and `__tests__/agentsStream.test.ts` run
   `node --test` fixtures against the installed Mastra runtime (InMemoryStore,
   real AI SDK pipe over HTTP); no DB, Redis, storage or provider is touched.
