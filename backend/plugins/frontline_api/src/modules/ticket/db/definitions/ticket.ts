@@ -68,7 +68,27 @@ export const ticketSchema = schemaWrapper(
         optional: true,
         label: 'Properties data',
       },
-      companyIds: { type: [String], label: 'Companies' },
+      // The ticket's one customer and one company, kept on the ticket.
+      customerId: {
+        type: String,
+        label: 'Customer',
+        default: null,
+        index: true,
+      },
+      companyId: {
+        type: String,
+        label: 'Company',
+        default: null,
+        index: true,
+      },
+      // Inbox conversations the ticket was made from (convert or a
+      // conversation automation); kept on the ticket, not as relations.
+      sourceConversationIds: {
+        type: [String],
+        optional: true,
+        label: 'Source conversations',
+        index: true,
+      },
       customerFieldData: {
         type: Schema.Types.Mixed,
         optional: true,
@@ -87,3 +107,4 @@ export const ticketSchema = schemaWrapper(
 
 ticketSchema.index({ assigneeId: 1 }, { sparse: true });
 ticketSchema.index({ assignedMembers: 1 }, { sparse: true });
+

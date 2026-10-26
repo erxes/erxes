@@ -21,6 +21,7 @@ import {
   generateAutomationHistoriesFilter,
   generateAutomationStatsFilter,
   generateAutomationsFilter,
+  addDynamicOutputVariables,
   addReferenceExtensionsToAutomationOutput,
   getAutomationReferenceFields,
   getAutomationConstants,
@@ -331,13 +332,25 @@ export const automationQueries = {
     );
   },
 
-  async automationNodeOutput(_root, { nodeType }: { nodeType: string }) {
+  async automationNodeOutput(
+    _root,
+    {
+      nodeType,
+      config,
+    }: { nodeType: string; config?: Record<string, unknown> | null },
+    { subdomain }: IContext,
+  ) {
     const { triggersConst, actionsConst } = await getAutomationConstants();
 
     const matchedTrigger = triggersConst.find(({ type }) => type === nodeType);
 
     const matchedAction = actionsConst.find(({ type }) => type === nodeType);
-    const output = matchedTrigger?.output || matchedAction?.output || null;
+    const output = await addDynamicOutputVariables({
+      subdomain,
+      nodeType,
+      output: matchedTrigger?.output || matchedAction?.output || null,
+      config,
+    });
 
     return await addReferenceExtensionsToAutomationOutput({
       nodeType,

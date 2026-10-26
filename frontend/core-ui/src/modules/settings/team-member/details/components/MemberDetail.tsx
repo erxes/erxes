@@ -4,7 +4,7 @@ import { useUserDetail } from '../../hooks/useUserDetail';
 import { MemberDetailSidebar } from './MemberDetailSidebar';
 import { MemberDetailMainContents } from './MemberDetailMainContents';
 import { MemberDetailErrorState } from './MemberDetailErrorState';
-import { PrintDocument, RelationWidgetSideTabs } from 'ui-modules';
+import { PrintDocument } from 'ui-modules';
 import { MemberDetailEmptyState } from './MemberDetailEmptyState';
 import { useTranslation } from 'react-i18next';
 
@@ -40,10 +40,6 @@ export const MemberDetail = () => {
             <Separator />
             <MemberDetailMainContents />
           </div>
-          <RelationWidgetSideTabs
-            contentId={userDetail?._id || ''}
-            contentType="core:user"
-          />
         </FocusSheet.Content>
       </FocusSheet.View>
     </FocusSheet>

@@ -11,6 +11,7 @@ import { IPosDocument } from './@types/pos';
 import { planOrderPoints } from './orderPoints';
 import { sendAutomationTrigger } from 'erxes-api-shared/core-modules';
 import { IDeal } from '~/modules/sales/@types';
+import { setDealContacts } from '~/modules/sales/utils';
 import { subscriptionWrapper } from '~/modules/sales/graphql/resolvers/utils';
 
 export const getConfig = async (
@@ -465,6 +466,7 @@ const createDeliveryDeal = async ({ subdomain, models, doneOrder, pos }) => {
         selector: { _id: doneOrder.deliveryInfo.dealId },
         modifier: dealsData,
       },
+      throwOnError: true,
     });
 
     await sendTRPCMessage({
@@ -490,32 +492,20 @@ const createDeliveryDeal = async ({ subdomain, models, doneOrder, pos }) => {
       input: {
         ...dealsData,
       },
+      throwOnError: true,
     });
     if (
       doneOrder.customerId &&
       deal._id &&
       ['customer', 'company'].includes(doneOrder.customerType || 'customer')
     ) {
-      await sendTRPCMessage({
-        subdomain,
-        method: 'mutation',
-        pluginName: 'core',
-        module: 'relation',
-        action: 'createRelation',
-        input: {
-          relation: {
-            entities: [
-              {
-                contentType: 'sales:deal',
-                contentId: deal._id,
-              },
-              {
-                contentType: `core:${doneOrder.customerType || 'customer'}`,
-                contentId: doneOrder.customerId,
-              },
-            ],
-          },
-        },
+      // The order's customer becomes the deal's own contact.
+      const kind = doneOrder.customerType || 'customer';
+
+      await setDealContacts(models, {
+        dealId: deal._id,
+        customerId: kind === 'customer' ? doneOrder.customerId : undefined,
+        companyId: kind === 'company' ? doneOrder.customerId : undefined,
       });
     }
 
@@ -701,26 +691,13 @@ const createDealPerOrder = async ({
       cardDeal._id &&
       ['customer', 'company'].includes(newOrder.customerType || 'customer')
     ) {
-      await sendTRPCMessage({
-        subdomain,
-        method: 'mutation',
-        pluginName: 'core',
-        module: 'relation',
-        action: 'createRelation',
-        input: {
-          relation: {
-            entities: [
-              {
-                contentType: 'sales:deal',
-                contentId: cardDeal._id,
-              },
-              {
-                contentType: `core:${newOrder.customerType || 'customer'}`,
-                contentId: newOrder.customerId,
-              },
-            ],
-          },
-        },
+      // The order's customer becomes the deal's own contact.
+      const kind = newOrder.customerType || 'customer';
+
+      await setDealContacts(models, {
+        dealId: cardDeal._id,
+        customerId: kind === 'customer' ? newOrder.customerId : undefined,
+        companyId: kind === 'company' ? newOrder.customerId : undefined,
       });
     }
 

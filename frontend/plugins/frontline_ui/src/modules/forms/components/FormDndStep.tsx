@@ -14,7 +14,7 @@ import { useId } from 'react';
 import { useTranslation } from 'react-i18next';
 
 export const FormDndStep = ({ step }: { step: UniqueIdentifier }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
   const titleInputId = useId();
   const { fields, steps, handleChangeStepValue, getStepValue } = useFormDnd();
   const stepFields = fields[step];
@@ -99,7 +99,7 @@ export const FormDndStep = ({ step }: { step: UniqueIdentifier }) => {
 };
 
 export const AddStep = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
   const { steps, setSteps, fields } = useFormDnd();
 
   function getNextStepId() {

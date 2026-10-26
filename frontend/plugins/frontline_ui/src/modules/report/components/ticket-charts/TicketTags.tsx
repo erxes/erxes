@@ -1,5 +1,4 @@
 import {
-  Alert,
   ChartContainer,
   ChartTooltipContent,
   cn,
@@ -7,6 +6,7 @@ import {
   RecordTableInlineCell,
 } from 'erxes-ui';
 import { FrontlineCard } from '../frontline-card/FrontlineCard';
+import { FrontlineChartCard } from '../frontline-card/FrontlineChartCard';
 import { useTicketTags } from '@/report/hooks/useTicketTags';
 import { SelectChartType } from '../select-chart-type/SelectChartType';
 import { ReportChart, ResponsesChartType, TagData } from '@/report/types';
@@ -63,7 +63,7 @@ export const TicketTags = ({
   colSpan = 6,
   onColSpanChange,
 }: TicketTagsProps) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const { id, filterConfig, queryFilters, filtersRestored } =
     useTicketChartCard({ title, cardId, savedChart });
   const [chartType, setChartType] = useAtom(getReportChartTypeAtom(id));
@@ -115,70 +115,19 @@ export const TicketTags = ({
     </>
   );
 
-  if (loading || !filtersRestored) {
-    return (
-      <FrontlineCard
-        id={id}
-        title={title}
-        description="Tickets by tag"
-        colSpan={colSpan}
-        onColSpanChange={onColSpanChange}
-      >
-        <FrontlineCard.Header filter={filterEl} />
-        <FrontlineCard.Content>
-          <FrontlineCard.Skeleton />
-        </FrontlineCard.Content>
-      </FrontlineCard>
-    );
-  }
-
-  if (error) {
-    return (
-      <FrontlineCard
-        id={id}
-        title={title}
-        description="Tickets by tag"
-        colSpan={colSpan}
-        onColSpanChange={onColSpanChange}
-      >
-        <FrontlineCard.Content>
-          <Alert variant="destructive">
-            <Alert.Title>
-              {t('error-loading-data', 'Error loading data')}
-            </Alert.Title>
-            <Alert.Description>{error.message}</Alert.Description>
-          </Alert>
-        </FrontlineCard.Content>
-      </FrontlineCard>
-    );
-  }
-
-  if (!allTags.length) {
-    return (
-      <FrontlineCard
-        id={id}
-        title={title}
-        description="No ticket tags found."
-        colSpan={colSpan}
-        onColSpanChange={onColSpanChange}
-      >
-        <FrontlineCard.Header filter={filterEl} />
-        <FrontlineCard.Content>
-          <FrontlineCard.Empty />
-        </FrontlineCard.Content>
-      </FrontlineCard>
-    );
-  }
-
   return (
-    <FrontlineCard
+    <FrontlineChartCard
       id={id}
       title={title}
-      description="Tickets by tag"
+      description={t('tickets-by-tag')}
+      emptyDescription={t('no-ticket-tags-found')}
       colSpan={colSpan}
       onColSpanChange={onColSpanChange}
+      filter={filterEl}
+      loading={loading || !filtersRestored}
+      error={error}
+      isEmpty={!allTags.length}
     >
-      <FrontlineCard.Header filter={filterEl} />
       <FrontlineCard.Content>
         <div
           className={cn(
@@ -210,7 +159,7 @@ export const TicketTags = ({
           onNext={handleNext}
         />
       </FrontlineCard.Content>
-    </FrontlineCard>
+    </FrontlineChartCard>
   );
 };
 
@@ -233,6 +182,7 @@ export const TicketTagBarChart = memo(function TicketTagBarChart({
 }: {
   tags: TagData[];
 }) {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const chartConfig = useMemo(
     () => ({
       count: { label: 'Count', color: 'var(--primary)' },
@@ -268,7 +218,7 @@ export const TicketTagBarChart = memo(function TicketTagBarChart({
         <YAxis
           tickLine={false}
           axisLine={false}
-          label={{ value: 'Count', angle: -90, position: 'insideLeft' }}
+          label={{ value: t('count'), angle: -90, position: 'insideLeft' }}
         />
         <Bar dataKey="count" fill="var(--primary)" name="Count">
           <LabelList
@@ -292,7 +242,7 @@ export const TicketTagBarChart = memo(function TicketTagBarChart({
           content={<ChartTooltipContent />}
           formatter={(v: number, name: string, props: any) =>
             name === 'Percentage'
-              ? [props.payload.percentage?.toFixed(1) + '%', 'Percentage']
+              ? [props.payload.percentage?.toFixed(1) + '%', t('percentage')]
               : [v, name]
           }
         />
@@ -306,6 +256,7 @@ export const TicketTagLineChart = memo(function TicketTagLineChart({
 }: {
   tags: TagData[];
 }) {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const chartConfig = useMemo(
     () => ({
       count: { label: 'Count', color: 'var(--primary)' },
@@ -335,7 +286,7 @@ export const TicketTagLineChart = memo(function TicketTagLineChart({
           yAxisId="count"
           tickLine={false}
           axisLine={false}
-          label={{ value: 'Count', angle: -90, position: 'insideLeft' }}
+          label={{ value: t('count'), angle: -90, position: 'insideLeft' }}
         />
         <YAxis
           yAxisId="percentage"
@@ -343,7 +294,7 @@ export const TicketTagLineChart = memo(function TicketTagLineChart({
           tickLine={false}
           axisLine={false}
           label={{
-            value: 'Percentage (%)',
+            value: t('percentage-percent'),
             angle: 90,
             position: 'insideRight',
           }}
@@ -436,6 +387,7 @@ export const TicketTagRadarChart = memo(function TicketTagRadarChart({
 }: {
   tags: TagData[];
 }) {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const chartConfig = useMemo(
     () => ({
       count: { label: 'Count', color: 'var(--primary)' },
@@ -499,7 +451,7 @@ export const TicketTagRadarChart = memo(function TicketTagRadarChart({
             name === 'Percentage'
               ? [
                   props.payload.percentageOriginal?.toFixed(1) + '%',
-                  'Percentage',
+                  t('percentage'),
                 ]
               : [v, name]
           }
@@ -514,10 +466,11 @@ export const TicketTagTableChart = memo(function TicketTagTableChart({
 }: {
   tags: TagData[];
 }) {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const columns: ColumnDef<TagData>[] = [
     {
       id: 'name',
-      header: 'Tag',
+      header: t('tag'),
       accessorKey: 'name',
       cell: ({ cell }) => (
         <RecordTableInlineCell className="px-4 text-xs">
@@ -527,7 +480,7 @@ export const TicketTagTableChart = memo(function TicketTagTableChart({
     },
     {
       id: 'count',
-      header: 'Data',
+      header: t('data'),
       accessorKey: 'count',
       size: 28,
       cell: ({ cell }) => {

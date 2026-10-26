@@ -59,7 +59,7 @@ const DateDisplay = ({ date }: { date: string }) => {
 export const useChannelsColumns = (
   membersByChannel: Record<string, IChannelMember[]> = {},
 ): ColumnDef<IChannel>[] => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.channels' });
 
   return [
     channelsMoreColumn,

@@ -8,7 +8,7 @@ type Props = {
   formId: string;
 };
 export const OpenSubmissionsAction: FC<Props> = ({ formId }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
   const navigate = useNavigate();
   return (
     <DropdownMenu.Item

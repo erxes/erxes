@@ -11,7 +11,9 @@ import { useKbToast } from '@/knowledgebase/shared/hooks/useKbToast';
 import { withoutEmptyCode } from '@/knowledgebase/utils/withoutEmptyCode';
 
 export const useSaveTopic = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.knowledgebase',
+  });
   const { run } = useKbToast();
 
   const refetchQueries = [TOPICS, TOPIC_OPTIONS];
@@ -26,21 +28,28 @@ export const useSaveTopic = () => {
     awaitRefetchQueries: true,
   });
 
-  const saveTopic = (topicDoc: ITopicDoc, topicId?: string) =>
-    run(
+  // Resolves to the saved topic's id, or null when saving failed.
+  const saveTopic = async (topicDoc: ITopicDoc, topicId?: string) => {
+    let savedId: string | null = topicId ?? null;
+
+    const saved = await run(
       async () => {
         const doc = withoutEmptyCode(topicDoc);
 
         if (topicId) {
           await editTopic({ variables: { _id: topicId, doc } });
         } else {
-          await addTopic({ variables: { doc } });
+          const { data } = await addTopic({ variables: { doc } });
+          savedId = data?.knowledgeBaseTopicsAdd?._id ?? null;
         }
       },
       topicId
         ? t('kb-topic-saved', 'Topic saved')
         : t('kb-topic-created', 'Topic created'),
     );
+
+    return saved ? savedId : null;
+  };
 
   return { saveTopic, loading: adding || editing };
 };

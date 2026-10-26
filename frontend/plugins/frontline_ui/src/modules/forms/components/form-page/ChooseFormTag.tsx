@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 const FORM_TAG_TYPE = 'frontline:form';
 
 export const ChooseFormTag = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
   const { tags, loading } = useTags({
     variables: { type: FORM_TAG_TYPE, limit: 100 },
     fetchPolicy: 'cache-and-network',

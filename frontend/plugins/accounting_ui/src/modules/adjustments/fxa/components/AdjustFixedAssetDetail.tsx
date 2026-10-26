@@ -24,15 +24,13 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { ACC_TRS__PER_PAGE } from '@/transactions/types/constants';
-import {
-  useAdjustFixedAssetRemove,
-  useAdjustFixedAssetRun,
-  useAdjustFixedAssetTransaction,
-} from '../hooks/useAdjustFixedAssetMutations';
-import { useAdjustFixedAssetDetail } from '../hooks/useAdjustFixedAssetDetail';
-import { useAdjustFxaDetails } from '../hooks/useAdjustFxaDetails';
-import { ADJ_FXA_STATUSES, IAdjustFixedAsset } from '../types/AdjustFixedAsset';
-import { adjustFxaDetailColumns } from './AdjustFxaDetailColumns';
+import { useAdjustFixedAssetRemove } from '@/adjustments/fxa/hooks/useAdjustFixedAssetRemove';
+import { useAdjustFixedAssetRun } from '@/adjustments/fxa/hooks/useAdjustFixedAssetRun';
+import { useAdjustFixedAssetTransaction } from '@/adjustments/fxa/hooks/useAdjustFixedAssetTransaction';
+import { useAdjustFixedAssetDetail } from '@/adjustments/fxa/hooks/useAdjustFixedAssetDetail';
+import { useAdjustFxaDetails } from '@/adjustments/fxa/hooks/useAdjustFxaDetails';
+import { ADJ_FXA_STATUSES, IAdjustFixedAsset } from '@/adjustments/fxa/types/AdjustFixedAsset';
+import { adjustFxaDetailColumns } from '@/adjustments/fxa/components/AdjustFxaDetailColumns';
 
 export const AdjustFixedAssetDetail = () => {
   const { t } = useTranslation('accounting');

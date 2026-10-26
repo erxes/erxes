@@ -10,7 +10,9 @@ type Props = {
 };
 
 export function EMInstallScript({ integrationId }: Props) {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const navigate = useNavigate();
   const [copied, setCopied] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);

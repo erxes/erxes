@@ -7,7 +7,7 @@ export const ActivityPriority = ({
 }: {
   metadata: IActivity['metadata'];
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.activity' });
   const { newValue, previousValue } = metadata ?? {};
 
   return (

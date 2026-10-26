@@ -4,11 +4,11 @@ import {
   IconBuildingCog,
   IconCaretDownFilled,
 } from '@tabler/icons-react';
-import { useNavigate } from 'react-router-dom';
 
 import { CompaniesInline } from './CompaniesInline';
 import { SelectCompaniesBulk } from './SelectCompaniesBulk';
 import { useCompanyDetail } from '../hooks/useCompanyDetail';
+import { useSidePanel } from '../../widget/record-side-panel/useSidePanel';
 
 interface CompanyWidgetProps {
   companyIds: string[];
@@ -23,7 +23,7 @@ const CompanyWidgetItem = ({
   companyId: string;
   scope: string;
 }) => {
-  const navigate = useNavigate();
+  const { openRecord } = useSidePanel();
 
   const { companyDetail, loading } = useCompanyDetail(
     {
@@ -65,7 +65,10 @@ const CompanyWidgetItem = ({
             size="sm"
             className="w-full text-accent-foreground"
             onClick={() =>
-              navigate(`/contacts/companies?companyId=${companyId}`)
+              openRecord(
+                { contentType: 'core:company', contentId: companyId },
+                { stack: true },
+              )
             }
           >
             View details

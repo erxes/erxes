@@ -23,6 +23,7 @@ import type {
   EditMessageDialogProps,
 } from '@/integrations/discord/types/messageActions';
 import { copyToClipboard } from '@/integrations/discord/utils/messageActions';
+import { useTranslation } from 'react-i18next';
 
 const MessageActionButton = ({
   label,
@@ -129,6 +130,9 @@ export const DiscordMessageActions = ({
   content?: string;
   isOwnMessage?: boolean;
 }) => {
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const { confirm } = useConfirm();
   const text = stripHtml(content);
 
@@ -207,8 +211,8 @@ export const DiscordMessageActions = ({
   return (
     <>
       <MessageActionButton
-        label="Copy Discord message link"
-        tooltip="Copy message link"
+        label={t('discord-copy-message-link-label')}
+        tooltip={t('copy-message-link')}
         icon={<IconLink className="size-4" />}
         onClick={handleCopyLink}
       />

@@ -531,3 +531,22 @@
   [data-sidebar='menu-button'] {
   padding-right: 3.75rem;
 }
+
+/* Assistant: a little movement around the conversation, never inside reports. */
+@media (prefers-reduced-motion: no-preference) {
+  .agent-message-enter {
+    animation: agent-message-arrive 180ms ease-out both;
+  }
+  .agent-session-enter {
+    animation: agent-message-arrive 160ms ease-out both;
+  }
+  .agent-send {
+    transition: transform 140ms ease-out;
+  }
+  .agent-send:not(:disabled):hover { transform: translateY(-1px); }
+  .agent-send:not(:disabled):active { transform: scale(0.97); }
+}
+@keyframes agent-message-arrive {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}

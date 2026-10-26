@@ -82,7 +82,9 @@ export const FacebookIntegrationActions = ({
 };
 
 export const FacebookIntegrationEditSheet = ({ id }: { id: string }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const [open, setOpen] = useState(false);
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -106,7 +108,9 @@ export const FacebookIntegrationEditForm = ({
   id: string;
   setOpen: (open: boolean) => void;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const { loading, integrationDetail } = useIntegrationDetail({
     integrationId: id,
   });

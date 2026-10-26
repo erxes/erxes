@@ -11,7 +11,7 @@ interface SyncFacebookStatsButtonProps {
 export const SyncFacebookStatsButton = ({
   pageIds,
 }: SyncFacebookStatsButtonProps) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const { toast } = useToast();
   const { syncFacebookPostStats, syncing } = useSyncFacebookPostStats();
 
@@ -24,7 +24,7 @@ export const SyncFacebookStatsButton = ({
         if (!result) {
           toast({
             variant: 'destructive',
-            title: t('facebook-sync-failed', 'Sync failed'),
+            title: t('facebook-sync-failed'),
           });
           return;
         }

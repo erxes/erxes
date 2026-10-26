@@ -22,7 +22,7 @@ export const ConvertSystemFields = ({
   shownKeys: TConvertSystemFieldKey[];
   requiredKeys: TConvertSystemFieldKey[];
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
 
   if (!shownKeys.length) {
     return null;

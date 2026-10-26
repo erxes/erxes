@@ -11,7 +11,9 @@ export const RemoveIntegration = ({
   _id: string;
   name: string;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const [removeIntegration, { loading }] = useMutation(REMOVE_INTEGRATION, {
     refetchQueries: [
       'Integrations',

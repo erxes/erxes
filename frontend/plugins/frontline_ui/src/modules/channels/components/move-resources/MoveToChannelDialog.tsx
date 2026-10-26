@@ -62,7 +62,7 @@ export const MoveToChannelDialog = ({
   sourceChannelId: string;
   onMoved?: (movedIds: string[]) => void;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.channels' });
   const [targetChannelId, setTargetChannelId] = useState('');
   const [pickerOpen, setPickerOpen] = useState(false);
 

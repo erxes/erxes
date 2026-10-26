@@ -9,12 +9,9 @@ const GET_DEPARTMENTS_LIST = gql`
     $onlyFirstLevel: Boolean
     $parentId: String
     $sortField: String
-    $limit: Int
-    $cursor: String
-    $direction: CURSOR_DIRECTION
     $withoutUserFilter: Boolean
   ) {
-    departmentsMain(
+    departments(
       ids: $ids
       excludeIds: $excludeIds
       searchValue: $searchValue
@@ -22,27 +19,15 @@ const GET_DEPARTMENTS_LIST = gql`
       onlyFirstLevel: $onlyFirstLevel
       parentId: $parentId
       sortField: $sortField
-      limit: $limit
-      cursor: $cursor
-      direction: $direction
       withoutUserFilter: $withoutUserFilter
     ) {
-      list {
-        _id
-        code
-        title
-        supervisorId
-        userCount
-        order
-        parentId
-      }
-      pageInfo {
-        endCursor
-        hasNextPage
-        hasPreviousPage
-        startCursor
-      }
-      totalCount
+      _id
+      code
+      title
+      supervisorId
+      userCount
+      order
+      parentId
     }
   }
 `;

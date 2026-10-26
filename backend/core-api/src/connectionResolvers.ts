@@ -161,6 +161,11 @@ import {
   IEmailTemplateModel,
   loadEmailTemplateClass,
 } from './modules/emailTemplates/db/models/EmailTemplates';
+import { INotificationTemplateDocument } from './modules/notificationTemplates/db/definitions/notificationTemplates';
+import {
+  INotificationTemplateModel,
+  loadNotificationTemplateClass,
+} from './modules/notificationTemplates/db/models/NotificationTemplates';
 import {
   IAutomationWorkflowTemplateDocument,
   IAutomationWorkflowTemplateModel,
@@ -367,6 +372,16 @@ import {
   IActivityLogsModel,
   loadActivityLogsClass,
 } from '@/logs/db/models/ActivityLogs';
+import { IAgentsConnectionsDocument } from '@/agents/@types/connection';
+import {
+  IAgentsConnectionModel,
+  loadAgentsConnectionClass,
+} from '@/agents/db/models/Connection';
+import { IAgentsSettingsDocument } from '@/agents/@types/settings';
+import {
+  IAgentsSettingsModel,
+  loadAgentsSettingsClass,
+} from '@/agents/db/models/Settings';
 
 export interface IModels {
   Brands: IBrandModel;
@@ -407,6 +422,7 @@ export interface IModels {
   Automations: IAutomationModel;
   AutomationExecutions: IExecutionModel;
   EmailTemplates: IEmailTemplateModel;
+  NotificationTemplates: INotificationTemplateModel;
   AutomationWorkflowTemplates: IAutomationWorkflowTemplateModel;
   Logs: ILogModel;
   Imports: IImportModel;
@@ -454,6 +470,9 @@ export interface IModels {
   TemplateCategory: ITemplateCategoryModal;
   OAuthDeviceCodes: Model<IOAuthDeviceCodeDocument>;
   OAuthRefreshTokens: Model<IOAuthRefreshTokenDocument>;
+
+  AgentsConnection: IAgentsConnectionModel;
+  AgentsSettings: IAgentsSettingsModel;
 }
 
 export interface IContext extends IMainContext {
@@ -723,6 +742,11 @@ export const loadClasses = (
     loadEmailTemplateClass(models),
   );
 
+  models.NotificationTemplates = db.model<
+    INotificationTemplateDocument,
+    INotificationTemplateModel
+  >('notification_templates', loadNotificationTemplateClass(models));
+
   models.AutomationWorkflowTemplates = db.model<
     IAutomationWorkflowTemplateDocument,
     IAutomationWorkflowTemplateModel
@@ -898,7 +922,7 @@ export const loadClasses = (
 
   models.Files = db.model<IFileDocument, IFileModel>(
     'files',
-    loadFileClass(models),
+    loadFileClass(models, subdomain),
   );
   models.FileFolders = db.model<IFileFolderDocument, IFileFolderModel>(
     'files_folders',
@@ -944,6 +968,18 @@ export const loadClasses = (
     IOAuthRefreshTokenDocument,
     Model<IOAuthRefreshTokenDocument>
   >('oauth_refresh_tokens', oauthRefreshTokenSchema);
+
+  // Per-user BYOK agents connection; one document per user per tenant.
+  models.AgentsConnection = db.model<
+    IAgentsConnectionsDocument,
+    IAgentsConnectionModel
+  >('agents_user_connections', loadAgentsConnectionClass(models));
+
+  // Tenant-wide agents settings singleton (admin-controlled code mode flag).
+  models.AgentsSettings = db.model<
+    IAgentsSettingsDocument,
+    IAgentsSettingsModel
+  >('agents_settings', loadAgentsSettingsClass(models));
 
   const db_name = db.name;
 

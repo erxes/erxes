@@ -8,7 +8,7 @@ export const SurveyStepResults = ({
   steps: ISurveyStepResult[];
   showStepLabel: boolean;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.survey' });
 
   return (
     <div className="flex flex-col gap-3">

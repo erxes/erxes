@@ -1,90 +1,112 @@
-import { AddTriageSheet } from '@/triage/components/add-triage/AddTriageSheet';
+import { compactList } from '@/operation/utils/cursorList';
+import { GET_TASKS } from '@/task/graphql/queries/getTasks';
+import { AddTriageButton } from '@/triage/components/add-triage/AddTriageButton';
+import { GET_TRIAGES } from '@/triage/graphql/queries/getTriages';
+import { useQuery } from '@apollo/client';
 import { IconCaretLeftRight } from '@tabler/icons-react';
-import { ScrollArea, Separator, Spinner } from 'erxes-ui';
-import { useCreateMultipleRelations, useRelations } from 'ui-modules';
-import { TaskWidget } from './TaskWidget';
+import { Spinner } from 'erxes-ui';
+import {
+  getHostContacts,
+  IRelationWidgetProps,
+  RelationWidgetEmptyState,
+  RelationWidgetList,
+} from 'ui-modules';
+import { TaskItemRow, TriageRow } from '~/widgets/rows/TaskRow';
 import { useTranslation } from 'react-i18next';
 
+// The most records listed for one customer or company.
+const CONTACT_RECORDS_LIMIT = 50;
+
+/**
+ * The tasks and triages of the host's customer and company, found by the
+ * contact on the records themselves. "+" files a triage for them (its create
+ * mutation saves the contact); accepted, it becomes a task that keeps it.
+ */
 export const Task = ({
   contentId,
   contentType,
   customerId,
   companyId,
-}: {
-  contentId: string;
-  contentType: string;
-  customerId?: string;
-  companyId?: string;
-}) => {
+  customerIds,
+  companyIds,
+}: Omit<IRelationWidgetProps, 'module' | 'pluginName'>) => {
   const { t } = useTranslation('operation');
-  const { ownEntities, loading: loadingRelations } = useRelations({
-    variables: {
-      contentId,
-      contentType,
-      relatedContentType: 'operation:task',
-    },
+  const contacts = getHostContacts({
+    contentType,
+    contentId,
+    customerId,
+    companyId,
+    customerIds,
+    companyIds,
   });
+  const byCustomer = {
+    variables: {
+      filter: { customerId: contacts.customerId, limit: CONTACT_RECORDS_LIMIT },
+    },
+    skip: !contacts.customerId,
+  };
+  const byCompany = {
+    variables: {
+      filter: { companyId: contacts.companyId, limit: CONTACT_RECORDS_LIMIT },
+    },
+    skip: !contacts.companyId,
+  };
+  const customerTasks = useQuery(GET_TASKS, byCustomer);
+  const companyTasks = useQuery(GET_TASKS, byCompany);
+  const customerTriages = useQuery(GET_TRIAGES, byCustomer);
+  const companyTriages = useQuery(GET_TRIAGES, byCompany);
 
-  const { createMultipleRelations } = useCreateMultipleRelations();
-
-  if (loadingRelations) {
+  if (
+    customerTasks.loading ||
+    companyTasks.loading ||
+    customerTriages.loading ||
+    companyTriages.loading
+  ) {
     return <Spinner containerClassName="py-20" />;
   }
 
-  const onComplete = (triageId: string) => {
-    const createRelation = (ct: string, cid: string) => ({
-      entities: [
-        { contentType: ct, contentId: cid },
-        { contentType: 'operation:task', contentId: triageId },
-      ],
-    });
+  // Each record once, the host itself left out.
+  const notHost = <T extends { _id: string }>(records: T[]) => [
+    ...new Map(
+      records
+        .filter((record) => record._id !== contentId)
+        .map((record) => [record._id, record]),
+    ).values(),
+  ];
+  const triages = notHost([
+    ...compactList(customerTriages.data?.operationGetTriageList?.list),
+    ...compactList(companyTriages.data?.operationGetTriageList?.list),
+  ]);
+  // An accepted triage's task keeps its id: list it once, as the triage.
+  const triageIds = new Set(triages.map((triage) => triage._id));
+  const tasks = notHost([
+    ...compactList(customerTasks.data?.getTasks?.list),
+    ...compactList(companyTasks.data?.getTasks?.list),
+  ]).filter((task) => !triageIds.has(task._id));
 
-    const relationKeys = new Set<string>();
-
-    const relations = [
-      [contentType, contentId],
-      ...(customerId ? [['core:customer', customerId]] : []),
-      ...(companyId ? [['core:company', companyId]] : []),
-    ]
-      .filter(([ct, cid]) => {
-        const key = `${ct}:${cid}`;
-        if (relationKeys.has(key)) {
-          return false;
-        }
-        relationKeys.add(key);
-        return true;
-      })
-      .map(([ct, cid]) => createRelation(ct, cid));
-
-    createMultipleRelations(relations);
-  };
-
-  if (ownEntities?.length === 0) {
+  if (triages.length === 0 && tasks.length === 0) {
     return (
-      <div className="flex flex-auto flex-col gap-4 justify-center items-center text-muted-foreground">
-        <div className="border border-dashed p-6 bg-background rounded-xl">
-          <IconCaretLeftRight />
-        </div>
-        <span className="text-sm">{t('no-triages-to-display')}</span>
-        <AddTriageSheet onComplete={onComplete} />
-      </div>
+      <RelationWidgetEmptyState
+        icon={IconCaretLeftRight}
+        message={t('no-triages-to-display')}
+      >
+        <AddTriageButton contacts={contacts} />
+      </RelationWidgetEmptyState>
     );
   }
 
   return (
-    <>
-      <div className="h-11 px-4 flex items-center gap-2 flex-none bg-background justify-between">
-        <span className="font-medium text-primary">{t('tasks-and-triages')}</span>
-        <AddTriageSheet onComplete={onComplete} />
-      </div>
-      <Separator />
-      <ScrollArea className="flex-auto">
-        <div className="flex flex-col gap-4 p-4">
-          {ownEntities?.map((entity) => (
-            <TaskWidget key={entity.contentId} taskId={entity.contentId} />
-          ))}
-        </div>
-      </ScrollArea>
-    </>
+    <RelationWidgetList
+      dense
+      label={t('tasks-and-triages', 'Tasks & triages')}
+      actions={<AddTriageButton contacts={contacts} iconOnly />}
+    >
+      {triages.map((triage) => (
+        <TriageRow key={triage._id} triage={triage} />
+      ))}
+      {tasks.map((task) => (
+        <TaskItemRow key={task._id} task={task} />
+      ))}
+    </RelationWidgetList>
   );
 };

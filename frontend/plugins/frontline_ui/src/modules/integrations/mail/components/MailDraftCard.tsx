@@ -44,7 +44,9 @@ export const MailDraftCard: React.FC<MailDraftCardProps> = ({
   onApprove,
   onRemove,
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const { confirm } = useConfirm();
   const [editing, setEditing] = useState(false);
   const [task, setTask] = useState<TDraftTask | null>(null);

@@ -14,7 +14,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 export const TicketDetailActions = ({ ticket }: { ticket: ITicketDetail }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   const { confirm } = useConfirm();
   const { toast } = useToast();
   const { updateTicket } = useUpdateTicket();
@@ -44,11 +44,11 @@ export const TicketDetailActions = ({ ticket }: { ticket: ITicketDetail }) => {
         variables: { _id: ticket._id, isSubscribed: !isSubscribed },
         onCompleted: () => {
           toast({
-            title: t('success', 'Success!'),
+            title: t('success'),
             variant: 'success',
             description: isSubscribed
-              ? t('ticket-unsubscribed', 'Unsubscribed from ticket')
-              : t('ticket-subscribed', 'Subscribed to ticket'),
+              ? t('ticket-unsubscribed')
+              : t('ticket-subscribed'),
           });
         },
       }),
@@ -58,10 +58,7 @@ export const TicketDetailActions = ({ ticket }: { ticket: ITicketDetail }) => {
     runAction(async () => {
       try {
         await confirm({
-          message: t(
-            'confirm-delete-ticket',
-            'Are you sure you want to delete this ticket?',
-          ),
+          message: t('confirm-delete-ticket'),
         });
       } catch {
         return;
@@ -70,16 +67,13 @@ export const TicketDetailActions = ({ ticket }: { ticket: ITicketDetail }) => {
       try {
         await removeTicket([ticket._id]);
         toast({
-          title: t('success', 'Success!'),
+          title: t('success'),
           variant: 'success',
-          description: t(
-            'ticket-deleted-successfully',
-            'Ticket deleted successfully',
-          ),
+          description: t('ticket-deleted-successfully'),
         });
       } catch (e) {
         toast({
-          title: t('error', 'Error'),
+          title: t('error'),
           description: e instanceof Error ? e.message : String(e),
           variant: 'destructive',
         });
@@ -91,19 +85,19 @@ export const TicketDetailActions = ({ ticket }: { ticket: ITicketDetail }) => {
       <DropdownMenu.Trigger asChild>
         <Button variant="outline" disabled={pending}>
           <IconDotsVertical />
-          {t('actions', 'Actions')}
+          {t('actions')}
         </Button>
       </DropdownMenu.Trigger>
       <DropdownMenu.Content align="end" className="w-48 min-w-fit!">
         <DropdownMenu.Item disabled={pending} onSelect={handleArchiveToggle}>
           <IconSquareToggle />
-          {isArchived ? t('unarchive', 'Unarchive') : t('archive', 'Archive')}
+          {isArchived ? t('unarchive') : t('archive')}
         </DropdownMenu.Item>
         <DropdownMenu.Item disabled={pending} onSelect={handleSubscribeToggle}>
           {isSubscribed ? <IconBellOff /> : <IconBell />}
           {isSubscribed
-            ? t('unsubscribe', 'UnSubscribe')
-            : t('subscribe', 'Subscribe')}
+            ? t('unsubscribe')
+            : t('subscribe')}
         </DropdownMenu.Item>
         <DropdownMenu.Separator />
         <DropdownMenu.Item
@@ -112,7 +106,7 @@ export const TicketDetailActions = ({ ticket }: { ticket: ITicketDetail }) => {
           className="text-destructive"
         >
           <IconTrash />
-          {t('delete', 'Delete')}
+          {t('delete')}
         </DropdownMenu.Item>
       </DropdownMenu.Content>
     </DropdownMenu>

@@ -144,6 +144,12 @@ import {
 } from '@/emailTemplates/graphql/schema';
 
 import {
+  mutations as NotificationTemplateMutations,
+  queries as NotificationTemplateQueries,
+  types as NotificationTemplateTypes,
+} from '@/notificationTemplates/graphql/schema';
+
+import {
   mutations as LogsMutations,
   queries as LogsQueries,
   types as LogsTypes,
@@ -228,6 +234,26 @@ import {
 } from '@/search/graphql/schema';
 import { queries as ReferenceQueries } from '~/meta/references/graphql/schema';
 
+import {
+  mutations as AgentsConnectionMutations,
+  queries as AgentsConnectionQueries,
+  types as AgentsConnectionTypes,
+} from '@/agents/graphql/schemas/connection';
+import {
+  mutations as AgentsThreadMutations,
+  queries as AgentsThreadQueries,
+  types as AgentsThreadTypes,
+} from '@/agents/graphql/schemas/threads';
+import {
+  mutations as AgentsSettingsMutations,
+  queries as AgentsSettingsQueries,
+  types as AgentsSettingsTypes,
+} from '@/agents/graphql/schemas/settings';
+import {
+  queries as AgentsToolQueries,
+  types as AgentsToolTypes,
+} from '@/agents/graphql/schemas/tools';
+
 export const types = `
     enum CacheControlScope {
       PUBLIC
@@ -267,6 +293,7 @@ export const types = `
     ${DocumentTypes}
     ${AutomationsTypes}
     ${EmailTemplateTypes}
+    ${NotificationTemplateTypes}
     ${LogsTypes}
     ${NotificationsTypes}
     ${InternalNoteTypes}
@@ -282,6 +309,10 @@ export const types = `
     ${bundleTypes}
     ${templateTypes}
     ${searchTypes}
+    ${AgentsConnectionTypes}
+    ${AgentsThreadTypes}
+    ${AgentsSettingsTypes}
+    ${AgentsToolTypes}
   `;
 
 export const queries = `
@@ -311,6 +342,7 @@ export const queries = `
     ${DocumentQueries}
     ${AutomationsQueries}
     ${EmailTemplateQueries}
+    ${NotificationTemplateQueries}
     ${BeforeResolverQueries}
     ${LogsQueries}
     ${NotificationsQueries}
@@ -327,6 +359,10 @@ export const queries = `
     ${bundleQueries}
     ${templateQueries}
     ${searchQueries}
+    ${AgentsConnectionQueries}
+    ${AgentsThreadQueries}
+    ${AgentsSettingsQueries}
+    ${AgentsToolQueries}
   `;
 
 export const mutations = `
@@ -354,6 +390,7 @@ export const mutations = `
     ${DocumentMutations}
     ${AutomationsMutations}
     ${EmailTemplateMutations}
+    ${NotificationTemplateMutations}
     ${NotificationsMutations}
     ${InternalNoteMutations}
     ${PropertiesMutations}
@@ -367,6 +404,9 @@ export const mutations = `
     ${bundleMutations}
     ${templateMutations}
     ${LogsMutations}
+    ${AgentsConnectionMutations}
+    ${AgentsThreadMutations}
+    ${AgentsSettingsMutations}
   `;
 
 export default { types, queries, mutations };

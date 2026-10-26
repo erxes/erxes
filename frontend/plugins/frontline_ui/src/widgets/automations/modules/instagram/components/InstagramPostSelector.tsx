@@ -31,7 +31,7 @@ export const InstagramPostSelector = ({
   selectedPostId?: string;
   onSelect: (id: string) => void;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.instagram' });
   const [isOpen, setOpen] = useState(false);
 
   return (
@@ -71,7 +71,7 @@ const InstagramSelectedPost = ({
   botId: string;
   selectedPostId?: string;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.instagram' });
   const { data, loading } = useQuery(INSTAGRAM_GET_BOT_POST, {
     variables: { botId, postId: selectedPostId },
     skip: !botId || !selectedPostId,
@@ -165,7 +165,7 @@ const InstagramPost = ({
   onSelect: (id: string) => void;
   post: TInstagramBotPost;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.instagram' });
   return (
     <Card
       className={cn('overflow-hidden', {

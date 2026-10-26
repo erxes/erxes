@@ -14,7 +14,7 @@ export const TicketsDelete = ({
   rows: Row<ITicket>[];
   setOpen: (open: boolean) => void;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   const { confirm } = useConfirm();
   const { removeTicket } = useTicketRemove();
   const { toast } = useToast();
@@ -24,7 +24,7 @@ export const TicketsDelete = ({
     confirm({
       message: t(
         'confirm-delete-selected-tickets',
-        'Are you sure you want to delete the {{count}} selected Ticket?',
+        'Are you sure you want to delete the {{count}} selected tickets?',
         {
           count: ticketIds.length,
         },

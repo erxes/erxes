@@ -7,12 +7,12 @@ import { SurveysCreateButton } from '@/survey/components/survey-page/surveys-cre
 import { FrontlinePaths } from '@/types/FrontlinePaths';
 
 export const SurveyPageHeader = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.survey' });
   const isMatchingLocation = useIsMatchingLocation('/frontline');
   const isCreateRoute = isMatchingLocation(FrontlinePaths.SurveyCreate);
   const favoriteBreadcrumb = createFavoriteBreadcrumb(
     'Frontline',
-    t('surveys', 'Surveys'),
+    t('surveys'),
   );
 
   return (
@@ -24,7 +24,7 @@ export const SurveyPageHeader = () => {
               <Button variant="ghost" asChild>
                 <Link to="/frontline/surveys">
                   <IconChartBar />
-                  {t('surveys', 'Surveys')}
+                  {t('surveys')}
                 </Link>
               </Button>
             </Breadcrumb.Item>
@@ -33,7 +33,7 @@ export const SurveyPageHeader = () => {
                 <Breadcrumb.Separator />
                 <Breadcrumb.Item>
                   <Button variant="ghost">
-                    {t('create-survey', 'Create survey')}
+                    {t('create-survey')}
                   </Button>
                 </Breadcrumb.Item>
               </>

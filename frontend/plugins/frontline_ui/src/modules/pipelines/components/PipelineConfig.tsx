@@ -16,7 +16,7 @@ export const PipelineConfig = ({
   form: UseFormReturn<TUpdatePipelineForm>;
 }) => {
   const { control } = form;
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.pipelines' });
   const [numberConfig, numberSize, nameConfig] = form.watch([
     'numberConfig',
     'numberSize',

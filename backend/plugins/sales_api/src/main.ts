@@ -22,28 +22,27 @@ import { properties } from './meta/properties';
 import { salesReferences } from './meta/references';
 import { documents } from './meta/documents';
 import { handleCreateDealFromPayment } from '~/modules/sales/meta/payments/createDealFromPayment';
+import { assertDealUpdatesAllowed } from '~/modules/sales/utils/archiveGuard';
 
 import { beforeResolvers } from '~/meta/beforeResolvers';
 
-const handleDealPaymentCallback = async (subdomain: string, data: any) => {
+const handleDealPaymentCallback = async (
+  subdomain: string,
+  data: { _id: string; contentTypeId: string; amount?: number | string },
+): Promise<void> => {
   const { contentTypeId, amount = 0, _id } = data;
   const paidAmount = Number(amount || 0);
   const models = await generateModels(subdomain);
   const oldDeal = await models.Deals.getDeal(contentTypeId);
+  const modifier = {
+    $addToSet: { mobileAmounts: { _id, amount: paidAmount } },
+    $inc: { mobileAmount: paidAmount },
+  };
 
+  await assertDealUpdatesAllowed(models, [oldDeal], modifier);
   const updateResult = await models.Deals.updateOne(
     { _id: contentTypeId, 'mobileAmounts._id': { $ne: _id } },
-    {
-      $addToSet: {
-        mobileAmounts: {
-          _id,
-          amount: paidAmount,
-        },
-      },
-      $inc: {
-        mobileAmount: paidAmount,
-      },
-    },
+    modifier,
   );
 
   if (!updateResult.modifiedCount) {
@@ -115,6 +114,9 @@ startPlugin({
     // await initMQWorkers(redis);
   },
   meta: {
+    // Deals keep their own customerId / companyId; core tells sales when a
+    // contact is merged or removed.
+    contactFields: { contentTypes: ['sales:deal'] },
     automations,
     segments,
     documents,

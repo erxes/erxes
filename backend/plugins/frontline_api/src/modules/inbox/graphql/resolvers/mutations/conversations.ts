@@ -133,6 +133,7 @@ export const conversationMutations = {
             fromUserId: user._id,
             subdomain,
             notificationType: 'inboxAssignee',
+            event: 'frontline:conversations:conversationAssigneeChange',
             userIds: removed,
             action: 'unassign',
           });
@@ -143,6 +144,7 @@ export const conversationMutations = {
             fromUserId: user?._id,
             subdomain,
             notificationType: 'inboxAssignee',
+            event: 'frontline:conversations:conversationAssigneeChange',
             userIds: added,
             action: 'assignee',
           });

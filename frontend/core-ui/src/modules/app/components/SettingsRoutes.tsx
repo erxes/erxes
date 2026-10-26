@@ -1,3 +1,4 @@
+import { PermissionRouteGuard } from '@/auth/components/PermissionRouteGuard';
 import { lazy, Suspense } from 'react';
 import { Navigate, Route, Routes } from 'react-router';
 import { EmailTemplatesSettingsRoutes } from '@/emailTemplates/components/EmailTemplatesSettingsRoutes';
@@ -13,6 +14,12 @@ import { PluginSettingsRedirect } from '@/settings/components/PluginSettingsRedi
 import { ClientPortalDetailPage } from '~/pages/settings/client-portal/ClientPortalDetailPage';
 import { ClientPortalPage } from '~/pages/settings/client-portal/ClientPortalPage';
 import { TeamMemberSettingsRoutes } from '@/settings/team-member/components/TeamMemberSettingsRoutes';
+
+const AgentSettingsRoutes = lazy(() =>
+  import('~/pages/settings/agent/AgentSettingsRoutes').then((module) => ({
+    default: module.AgentSettingsRoutes,
+  })),
+);
 
 const SettingsProfile = lazy(() =>
   import('~/pages/settings/account/ProfilePage').then((module) => ({
@@ -232,6 +239,16 @@ export function SettingsRoutes() {
         <Route
           path={SettingsWorkspacePath.ProductsCatchAll}
           element={<ProductsSettingsRoutes />}
+        />
+        <Route
+          path={SettingsWorkspacePath.AgentCatchAll}
+          element={
+            <PermissionRouteGuard module="agents">
+              <Suspense fallback={<div />}>
+                <AgentSettingsRoutes />
+              </Suspense>
+            </PermissionRouteGuard>
+          }
         />
         <Route
           path={SettingsWorkspacePath.AutomationsCatchAll}

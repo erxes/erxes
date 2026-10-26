@@ -5,13 +5,19 @@ import { CONVERSATION_CONVERT_TO_CARD } from '@/inbox/conversations/graphql/muta
 import { IConversationConvertVariables } from '@/inbox/conversations/types/conversationConvert';
 
 export const useConversationConvertToCard = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const { toast } = useToast();
   const [convertMutation, { loading }] = useMutation(
     CONVERSATION_CONVERT_TO_CARD,
     {
-      refetchQueries: ['ConversationConvertedItems', 'getRelationsByEntity'],
+      refetchQueries: ['ConversationConvertedItems'],
       awaitRefetchQueries: true,
+      // The new ticket or deal joins its customer's lists; no relation is
+      // made for it.
+      update: (cache) => {
+        cache.evict({ id: 'ROOT_QUERY', fieldName: 'getTickets' });
+        cache.evict({ id: 'ROOT_QUERY', fieldName: 'deals' });
+      },
     },
   );
 

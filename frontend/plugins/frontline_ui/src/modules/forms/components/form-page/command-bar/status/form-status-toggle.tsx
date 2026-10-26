@@ -15,7 +15,7 @@ export const FormStatusToggle = ({
   formIds: string[];
   rows: Row<any>[];
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
   const { confirm } = useConfirm();
 
   const { toggleStatus, loading } = useFormToggleStatus();

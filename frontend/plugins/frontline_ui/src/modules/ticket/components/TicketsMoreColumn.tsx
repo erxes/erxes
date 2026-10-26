@@ -21,7 +21,7 @@ function TicketActionsList({
   onEdit: () => void;
   onDelete: () => void;
 }>) {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
 
   return (
     <Command.List>
@@ -40,7 +40,7 @@ export function TicketsMoreColumnCell({
 }: Readonly<{
   cell: Cell<ITicket, unknown>;
 }>) {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   const [, setActiveTicket] = useTicketDetailSheet();
   const { _id } = cell.row.original;
   const { confirm } = useConfirm();

@@ -17,6 +17,8 @@ import { CSS } from '@dnd-kit/utilities';
 import { Button, Popover, ScrollArea, cn } from 'erxes-ui';
 import { IconApps, IconGridDots, IconGripVertical } from '@tabler/icons-react';
 
+import { CoreTabTooltip } from '@/navigation/components/core-tab/CoreTabTooltip';
+import { CoreTabFavoritesSection } from '@/navigation/components/core-tab/CoreTabFavorites';
 import { INavigationActivity } from '@/navigation/types/NavigationActivity';
 import { navigationActivityOrderState } from '@/navigation/states/navigationActivityOrderState';
 import { moveAppTab } from '@/navigation/utils/appTabs';
@@ -145,8 +147,8 @@ const CoreTabAppSwitcherGroup = ({
 };
 
 /**
- * Lists every plugin and core module; the tab row only fits so many. Items
- * are dragged within their group to set the user's order.
+ * Lists the user's favorites, then every plugin and core module; the tab row
+ * only fits so many. Apps are dragged within their group to set their order.
  */
 export const CoreTabAppSwitcher = ({
   activeActivityId,
@@ -189,18 +191,19 @@ export const CoreTabAppSwitcher = ({
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <Popover.Trigger asChild>
-        <Button
-          aria-label={t('open-plugin')}
-          className="size-7 shrink-0"
-          size="icon"
-          title={t('open-plugin')}
-          type="button"
-          variant="ghost"
-        >
-          <IconGridDots className="size-4" />
-        </Button>
-      </Popover.Trigger>
+      <CoreTabTooltip label={t('open-plugin')}>
+        <Popover.Trigger asChild>
+          <Button
+            aria-label={t('open-plugin')}
+            className="size-7 shrink-0"
+            size="icon"
+            type="button"
+            variant="ghost"
+          >
+            <IconGridDots className="size-4" />
+          </Button>
+        </Popover.Trigger>
+      </CoreTabTooltip>
       <Popover.Content
         align="start"
         className="flex max-h-[var(--radix-popover-content-available-height)] w-80 flex-col overflow-hidden rounded-xl border-border/60 p-1.5 shadow-lg"
@@ -208,6 +211,7 @@ export const CoreTabAppSwitcher = ({
         sideOffset={8}
       >
         <ScrollArea className="min-h-0 flex-auto">
+          <CoreTabFavoritesSection onNavigate={() => setOpen(false)} />
           <CoreTabAppSwitcherGroup
             activeActivityId={activeActivityId}
             activities={pluginActivities}

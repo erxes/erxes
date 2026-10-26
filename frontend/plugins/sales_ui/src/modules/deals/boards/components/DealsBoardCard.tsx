@@ -18,7 +18,6 @@ import {
   formatFieldValue,
   hasFieldValue,
   useFields,
-  useManageRelations,
   type CardDetailBadgeItem,
 } from 'ui-modules';
 import {
@@ -249,18 +248,19 @@ export const DealsBoardCard = memo(function DealsBoardCard({
   const setActiveDealAtom = useSetAtom(dealDetailSheetState);
   const [searchParams] = useQueryState<string>('archivedOnly');
   const { editDeals } = useDealsEdit();
-  const { manageRelations } = useManageRelations();
   const [currentCustomers, setCurrentCustomers] = useState(
     deal.customers
       ?.filter(isDefined)
       .map(({ _id }) => _id)
-      .filter(isDefined) || [],
+      .filter(isDefined)
+      .slice(0, 1) || [],
   );
   const [currentCompanies, setCurrentCompanies] = useState(
     deal.companies
       ?.filter(isDefined)
       .map(({ _id }) => _id)
-      .filter(isDefined) || [],
+      .filter(isDefined)
+      .slice(0, 1) || [],
   );
   const { t } = useTranslation('sales');
 
@@ -372,18 +372,12 @@ export const DealsBoardCard = memo(function DealsBoardCard({
             initialValue={currentCustomers}
             value={currentCustomers}
             onValueChange={(value?: string | string[]) => {
-              const selectedIds = normalizeSelectedIds(value);
+              // One per deal: the latest pick replaces it.
+              const selectedId = normalizeSelectedIds(value).at(-1) ?? null;
 
-              if (!selectedIds.length) return;
+              setCurrentCustomers(selectedId ? [selectedId] : []);
 
-              setCurrentCustomers(selectedIds);
-
-              manageRelations({
-                contentType: 'sales:deal',
-                contentId: _id,
-                relatedContentType: 'core:customer',
-                relatedContentIds: selectedIds,
-              });
+              editDeals({ variables: { _id, customerId: selectedId } });
             }}
             hideAvatar
           />
@@ -396,18 +390,12 @@ export const DealsBoardCard = memo(function DealsBoardCard({
             initialValue={currentCompanies}
             value={currentCompanies}
             onValueChange={(value?: string | string[]) => {
-              const selectedIds = normalizeSelectedIds(value);
+              // One per deal: the latest pick replaces it.
+              const selectedId = normalizeSelectedIds(value).at(-1) ?? null;
 
-              if (!selectedIds.length) return;
+              setCurrentCompanies(selectedId ? [selectedId] : []);
 
-              setCurrentCompanies(selectedIds);
-
-              manageRelations({
-                contentType: 'sales:deal',
-                contentId: _id,
-                relatedContentType: 'core:company',
-                relatedContentIds: selectedIds,
-              });
+              editDeals({ variables: { _id, companyId: selectedId } });
             }}
             hideAvatar
           />

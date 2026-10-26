@@ -8,7 +8,9 @@ import { toHelpCenterConfigInput } from '@/helpcenter/utils/toHelpCenterConfigIn
 export type THelpCenterPatch = Partial<IHelpCenterConfigInput>;
 
 export const useEditHelpCenter = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.helpcenter',
+  });
   const [updateConfig, { loading }] = useMutation(HELP_CENTER_CONFIG_UPDATE);
 
   const editHelpCenter = (helpCenter: IHelpCenter, patch: THelpCenterPatch) => {

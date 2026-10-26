@@ -109,6 +109,7 @@ export const startBeforeResolvers = async (
   });
 
   const middleware = trpcExpress.createExpressMiddleware({
+    allowMethodOverride: true,
     router,
     createContext: createTRPCContext(async (_subdomain, context) => context),
   });

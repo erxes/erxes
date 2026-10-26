@@ -31,7 +31,7 @@ const PinnedMessageRow = ({
   onSelectMessage: (messageId: string) => void;
   onUnpin: (message: IMessage) => Promise<void>;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const image = pinnedImage(message);
   return (
     <div className="flex items-start gap-2 px-3 py-2.5">
@@ -109,7 +109,7 @@ export const PinnedMessagesBar = ({
   conversationId: string;
   onSelectMessage: (messageId: string) => void;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const [open, setOpen] = useState(false);
   const { messages, loading, error, refetch } =
     useConversationPinnedMessages(conversationId);

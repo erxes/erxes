@@ -19,6 +19,7 @@ import {
   IconNotification,
   IconPassword,
   IconShoppingCart,
+  IconSparkles,
   IconShieldCheck,
   IconShieldLock,
   IconTag,
@@ -190,6 +191,11 @@ export const SETTINGS_PATH_DATA = (
       icon: IconMessage,
       path: SettingsWorkspacePath.MessagePro,
     },
+    {
+      name: t('agents', 'Agents'),
+      icon: IconSparkles,
+      path: SettingsWorkspacePath.Agent,
+    },
   ],
   developer: [
     {
@@ -338,6 +344,15 @@ export const GET_SETTINGS_SUB_NAVIGATION = (
       },
     ],
   },
+  [SettingsWorkspacePath.Agent]: {
+    name: sidebarT('agents', 'Agents'),
+    items: [
+      { name: 'API key', path: `${settingsPath('agent')}/connection` },
+      { name: 'Code mode', path: `${settingsPath('agent')}/code-mode` },
+      { name: 'Approvals', path: `${settingsPath('agent')}/approvals` },
+      { name: 'Appearance', path: `${settingsPath('agent')}/appearance` },
+    ],
+  },
   contacts: {
     name: sidebarT('contacts', 'Contacts'),
     items: [
@@ -348,6 +363,7 @@ export const GET_SETTINGS_SUB_NAVIGATION = (
 });
 
 export const SETTINGS_PERMISSION_MAP: Record<string, string> = {
+  [SettingsWorkspacePath.Agent]: 'agents',
   [SettingsWorkspacePath.TeamMember]: 'teamMembers',
   [SettingsWorkspacePath.Structure]: 'organization',
   [SettingsWorkspacePath.Tags]: 'tags',

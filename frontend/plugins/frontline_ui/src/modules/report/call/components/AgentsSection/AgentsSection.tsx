@@ -5,7 +5,7 @@ import { SectionCard } from '../SectionCard';
 import { useTranslation } from 'react-i18next';
 
 export function AgentsSection() {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const { agentStats, loading } = useDashboard();
 
   return (

@@ -159,7 +159,9 @@ export const IntegrationActionsMenu = ({
   integration: IIntegration;
   trigger?: ReactNode;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const { _id, name, isActive, channelId, kind } = integration;
   const [menuOpen, setMenuOpen] = useState(false);
   const [moveOpen, setMoveOpen] = useState(false);

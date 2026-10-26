@@ -1,10 +1,12 @@
-import { initTRPC } from '@trpc/server';
-import { ITRPCContext } from 'erxes-api-shared/utils';
+import { initTRPC, TRPCError } from '@trpc/server';
+import { IUserDocument } from 'erxes-api-shared/core-types';
+import { ITRPCContext, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { z } from 'zod';
 import { IModels } from '~/connectionResolvers';
-import { agentMeta } from '~/trpc/agentMeta';
+import { IDeal } from '~/modules/sales/@types';
 import {
   addDeal,
+  changeDeal,
   editDeal,
 } from '~/modules/sales/graphql/resolvers/mutations/utils';
 import { generateFilter } from '~/modules/sales/graphql/resolvers/queries/deals';
@@ -16,10 +18,82 @@ import {
 } from '~/modules/sales/utils';
 import { replaceDealContent } from '~/modules/sales/documents/dealContent';
 import { syncWrittenDealPoints } from '~/modules/sales/utils/dealPoints';
+import {
+  assertDealUpdatesAllowed,
+  SalesArchiveError,
+} from '~/modules/sales/utils/archiveGuard';
 
 export type SalesTRPCContext = ITRPCContext<{ models: IModels }>;
 
-const t = initTRPC.context<SalesTRPCContext>().create();
+const t = initTRPC.context<SalesTRPCContext>().create({
+  errorFormatter({ shape, error }) {
+    return {
+      ...shape,
+      data: {
+        ...shape.data,
+        ...(error.cause instanceof SalesArchiveError
+          ? {
+              archiveCode: error.cause.code,
+              entityType: error.cause.extensions.entityType,
+              entityId: error.cause.extensions.entityId,
+            }
+          : {}),
+      },
+    };
+  },
+});
+
+const salesProcedure = t.procedure.use(async ({ next }) => {
+  const result = await next();
+  if (!result.ok && result.error.cause instanceof SalesArchiveError) {
+    const cause = result.error.cause;
+    throw new TRPCError({
+      code: cause.code === 'SALES_BOARD_ARCHIVING' ? 'CONFLICT' : 'FORBIDDEN',
+      message: cause.message,
+      cause,
+    });
+  }
+  return result;
+});
+
+const agentRecordId = z.string().regex(/^[A-Za-z0-9_-]{1,64}$/);
+const agentIdList = z.array(agentRecordId).max(20);
+const agentIsoDate = z
+  .string()
+  .refine((value) => !Number.isNaN(Date.parse(value)), {
+    message: 'Use an ISO date such as "2026-11-15"',
+  });
+const agentShortText = z.string().trim().min(1).max(200);
+const agentDescriptionText = z.string().trim().max(5000);
+
+// Every agent write runs as the user whose chat session issued it; the
+// HMAC-signed context carries that user's id, resolved through core.
+const requireAgentUser = async (ctx: {
+  subdomain: string;
+  userId?: string;
+}): Promise<IUserDocument> => {
+  const user = ctx.userId
+    ? ((await sendTRPCMessage({
+        subdomain: ctx.subdomain,
+
+        pluginName: 'core',
+        method: 'query',
+        module: 'users',
+        action: 'findOne',
+        input: { query: { _id: ctx.userId, isActive: { $ne: false } } },
+        defaultValue: null,
+      })) as IUserDocument | null)
+    : null;
+
+  if (!user) {
+    throw new TRPCError({
+      code: 'UNAUTHORIZED',
+      message: 'Acting user not found',
+    });
+  }
+
+  return user;
+};
 
 const publishDealSubscription = t.procedure
   .input(z.any())
@@ -39,7 +113,7 @@ const publishDealSubscription = t.procedure
     return null;
   });
 
-const createDealProcedure = t.procedure
+const createDealProcedure = salesProcedure
   .input(z.any())
   .mutation(async ({ ctx, input }) => {
     const { models, subdomain } = ctx;
@@ -55,7 +129,7 @@ const createDealProcedure = t.procedure
     return deal;
   });
 
-const updateDealProcedure = t.procedure
+const updateDealProcedure = salesProcedure
   .input(z.any())
   .mutation(async ({ ctx, input }) => {
     const { models } = ctx;
@@ -71,11 +145,15 @@ const updateDealProcedure = t.procedure
         : { $set: modifier };
 
     const before = await models.Deals.findOne(selector).lean();
-    const updated = await models.Deals.findOneAndUpdate(selector, updateDoc, {
-      new: true,
-    });
+    if (!before) return null;
+    await assertDealUpdatesAllowed(models, [before], updateDoc);
+    const updated = await models.Deals.findOneAndUpdate(
+      { $and: [selector, { _id: before._id }] },
+      updateDoc,
+      { new: true },
+    );
 
-    if (before) {
+    if (updated) {
       await syncWrittenDealPoints({
         subdomain: ctx.subdomain,
         models,
@@ -89,12 +167,6 @@ const updateDealProcedure = t.procedure
 export const dealTrpcRouter = t.router({
   deal: {
     findOne: t.procedure
-      .meta(
-        agentMeta(
-          'Get a single deal by any MongoDB-style query, e.g. { _id } or { name: "..." }. Returns null when nothing matches. Call this before updating a deal, and use deal.getLink to give the user a link to it.',
-          { module: 'deal', action: 'showDeals' },
-        ),
-      )
       .input(z.any())
       .query(async ({ ctx, input }) => {
         const { models } = ctx;
@@ -102,12 +174,6 @@ export const dealTrpcRouter = t.router({
       }),
 
     find: t.procedure
-      .meta(
-        agentMeta(
-          'Search deals with a MongoDB-style filter: { query: {...}, skip?, limit?, sort? }, e.g. { query: { stageId: "..." } } or { query: { assignedUserIds: { $in: ["userId"] } } }. Pass a plain filter object without query to match directly. Resolve stage names to stageId with stage.find and pipeline names with pipeline.findOne first.',
-          { module: 'deal', action: 'showDeals' },
-        ),
-      )
       .input(z.any())
       .query(async ({ ctx, input }) => {
         const { models } = ctx;
@@ -132,12 +198,6 @@ export const dealTrpcRouter = t.router({
     }),
 
     count: t.procedure
-      .meta(
-        agentMeta(
-          'Count deals matching a filter, e.g. { stageId: "..." }. Use for "how many deals ..." questions instead of deal.find.',
-          { module: 'deal', action: 'showDeals' },
-        ),
-      )
       .input(z.any())
       .query(async ({ ctx, input }) => {
         const { models } = ctx;
@@ -146,12 +206,6 @@ export const dealTrpcRouter = t.router({
       }),
 
     getLink: t.procedure
-      .meta(
-        agentMeta(
-          'Get the relative UI link to open a deal on its board: { _id }. Returns a path like "/deal/board?id=...&pipelineId=...&itemId=...". Use after deal.findOne/deal.find to point the user at a deal.',
-          { module: 'deal', action: 'showDeals' },
-        ),
-      )
       .input(z.any())
       .query(async ({ ctx, input }) => {
         const { models } = ctx;
@@ -182,20 +236,18 @@ export const dealTrpcRouter = t.router({
         return dealProductIds;
       }),
 
-    createItem: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
-      const { models, subdomain } = ctx;
-      const { user, processId, ...doc } = input;
-      if (!user || !processId) {
-        throw new Error('you must provide some params');
-      }
-      try {
+    createItem: salesProcedure
+      .input(z.any())
+      .mutation(async ({ ctx, input }) => {
+        const { models, subdomain } = ctx;
+        const { user, processId, ...doc } = input;
+        if (!user || !processId) {
+          throw new Error('you must provide some params');
+        }
         return await addDeal({ models, subdomain, user, doc });
-      } catch (e) {
-        throw new Error(e.message);
-      }
-    }),
+      }),
 
-    editItem: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
+    editItem: salesProcedure.input(z.any()).mutation(async ({ ctx, input }) => {
       const { models, subdomain } = ctx;
 
       const { itemId, processId, user, ...doc } = input;
@@ -204,18 +256,14 @@ export const dealTrpcRouter = t.router({
         throw new Error('you must provide some params');
       }
 
-      try {
-        return await editDeal({
-          models,
-          subdomain,
-          _id: itemId,
-          doc,
-          processId,
-          user,
-        });
-      } catch (e) {
-        throw new Error(e.message);
-      }
+      return await editDeal({
+        models,
+        subdomain,
+        _id: itemId,
+        doc,
+        processId,
+        user,
+      });
     }),
 
     removeItem: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
@@ -279,7 +327,7 @@ export const dealTrpcRouter = t.router({
         return userIds;
       }),
 
-    tag: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
+    tag: salesProcedure.input(z.any()).mutation(async ({ ctx, input }) => {
       const { action, _ids, tagIds, targetIds } = input;
       const { models } = ctx;
 
@@ -290,6 +338,10 @@ export const dealTrpcRouter = t.router({
       }
 
       if (action === 'tagObject') {
+        const before = await models.Deals.find({
+          _id: { $in: targetIds },
+        }).lean();
+        await assertDealUpdatesAllowed(models, before, { $set: { tagIds } });
         await models.Deals.updateMany(
           { _id: { $in: targetIds } },
           { $set: { tagIds } },
@@ -377,6 +429,162 @@ export const dealTrpcRouter = t.router({
           throw new Error(error?.message || 'Failed to create activity log');
         }
       }),
+
+    add: t.procedure
+      .input(
+        z.object({
+          name: agentShortText,
+          stageId: agentRecordId,
+          description: agentDescriptionText.optional(),
+          startDate: agentIsoDate.optional(),
+          closeDate: agentIsoDate.optional(),
+          assignedUserIds: agentIdList.optional(),
+          customerId: agentRecordId.optional(),
+          companyId: agentRecordId.optional(),
+        }),
+      )
+      .mutation(async ({ ctx, input }) => {
+        const { models, subdomain } = ctx;
+        const user = await requireAgentUser(ctx);
+
+        const stage = await models.Stages.findOne({
+          _id: input.stageId,
+        }).lean();
+        if (!stage) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: 'Stage not found',
+          });
+        }
+
+        const doc: IDeal = {
+          name: input.name,
+          stageId: input.stageId,
+        };
+        if (input.description !== undefined) {
+          doc.description = input.description;
+        }
+        if (input.startDate !== undefined) {
+          doc.startDate = new Date(input.startDate);
+        }
+        if (input.closeDate !== undefined) {
+          doc.closeDate = new Date(input.closeDate);
+        }
+        if (input.assignedUserIds !== undefined) {
+          doc.assignedUserIds = input.assignedUserIds;
+        }
+        if (input.customerId !== undefined) {
+          doc.customerId = input.customerId;
+        }
+        if (input.companyId !== undefined) {
+          doc.companyId = input.companyId;
+        }
+
+        return addDeal({
+          models,
+          subdomain,
+          user,
+          doc: doc as IDeal & { processId: string; aboveItemId: string },
+        });
+      }),
+
+    edit: t.procedure
+      .input(
+        z.object({
+          _id: agentRecordId,
+          name: agentShortText.optional(),
+          description: agentDescriptionText.optional(),
+          startDate: agentIsoDate.optional(),
+          closeDate: agentIsoDate.optional(),
+          assignedUserIds: agentIdList.optional(),
+        }),
+      )
+      .mutation(async ({ ctx, input }) => {
+        const { models, subdomain } = ctx;
+
+        const { _id, ...fields } = input;
+
+        const doc: Partial<IDeal> = {};
+        if (fields.name !== undefined) {
+          doc.name = fields.name;
+        }
+        if (fields.description !== undefined) {
+          doc.description = fields.description;
+        }
+        if (fields.startDate !== undefined) {
+          doc.startDate = new Date(fields.startDate);
+        }
+        if (fields.closeDate !== undefined) {
+          doc.closeDate = new Date(fields.closeDate);
+        }
+        if (fields.assignedUserIds !== undefined) {
+          doc.assignedUserIds = fields.assignedUserIds;
+        }
+
+        if (!Object.keys(doc).length) {
+          throw new TRPCError({
+            code: 'BAD_REQUEST',
+            message: 'Provide at least one field to update',
+          });
+        }
+
+        const deal = await models.Deals.findOne({ _id }).lean();
+        if (!deal) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: 'Deal not found',
+          });
+        }
+
+        const user = await requireAgentUser(ctx);
+
+        return editDeal({
+          models,
+          subdomain,
+          _id,
+          processId: ctx.processId ?? '',
+          doc: doc as IDeal,
+          user,
+        });
+      }),
+
+    move: t.procedure
+      .input(
+        z.object({
+          _id: agentRecordId,
+          stageId: agentRecordId,
+        }),
+      )
+      .mutation(async ({ ctx, input }) => {
+        const { models, subdomain } = ctx;
+        const user = await requireAgentUser(ctx);
+
+        const { _id, stageId } = input;
+
+        const deal = await models.Deals.findOne({ _id }).lean();
+        if (!deal) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: 'Deal not found',
+          });
+        }
+
+        const stage = await models.Stages.findOne({ _id: stageId }).lean();
+        if (!stage) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: 'Stage not found',
+          });
+        }
+
+        return changeDeal(subdomain, models, user._id, {
+          itemId: _id,
+          destinationStageId: stageId,
+          sourceStageId: deal.stageId,
+          processId: ctx.processId,
+        });
+      }),
+
     subscriptionWrapper: publishDealSubscription,
     // those create and update procedures are for system user, because of user missing
     create: createDealProcedure,
@@ -385,12 +593,6 @@ export const dealTrpcRouter = t.router({
 
   stage: {
     findOne: t.procedure
-      .meta(
-        agentMeta(
-          'Get a single pipeline stage by any MongoDB-style query, e.g. { _id } or { name: "...", pipelineId: "..." }. Use to resolve a stage name to its _id for deal.find.',
-          { module: 'deal', action: 'showDeals' },
-        ),
-      )
       .input(z.any())
       .query(async ({ ctx, input }) => {
         const { models } = ctx;
@@ -398,12 +600,6 @@ export const dealTrpcRouter = t.router({
         return await models.Stages.findOne(rest).lean();
       }),
     find: t.procedure
-      .meta(
-        agentMeta(
-          "List stages ordered by position: { pipelineId? } or any MongoDB-style query. Pass pipelineId from pipeline.findOne to see a pipeline's stages in order.",
-          { module: 'deal', action: 'showDeals' },
-        ),
-      )
       .input(z.any())
       .query(async ({ ctx, input }) => {
         const { models } = ctx;
@@ -413,12 +609,6 @@ export const dealTrpcRouter = t.router({
   },
   pipeline: {
     findOne: t.procedure
-      .meta(
-        agentMeta(
-          'Get a single sales pipeline: { query: { name: "..." } } with optional { fields } projection, or { stageId } to resolve the pipeline containing a stage. Returns {} when nothing matches. Chain with stage.find to list its stages.',
-          { module: 'pipeline', action: 'pipelinesWatch' },
-        ),
-      )
       .input(z.any())
       .query(async ({ ctx, input }) => {
         const { models } = ctx;

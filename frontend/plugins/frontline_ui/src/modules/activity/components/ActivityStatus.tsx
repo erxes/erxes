@@ -19,7 +19,7 @@ export const ActivityStatus = ({
 }: {
   metadata: IActivity['metadata'];
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.activity' });
   const previousValue = metadata?.previousValue;
   const newValue = metadata?.newValue;
   const contentDetail = useActivityListContext();

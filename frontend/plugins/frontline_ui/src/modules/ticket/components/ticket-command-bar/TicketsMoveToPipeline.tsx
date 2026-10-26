@@ -10,7 +10,7 @@ export const TicketsMoveToPipelineTrigger = ({
 }: {
   setCurrentContent: (currentContent: string) => void;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   return (
     <Command.Item
       className="flex justify-between"
@@ -36,7 +36,7 @@ export const TicketsMoveToPipelineContent = ({
   pipelineId?: string;
   setOpen: (open: boolean) => void;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   const { bulkUpdateTickets } = useBulkUpdateTickets();
   const { removeTicketsFromView } = useRemoveTicketsFromView();
   const [pipelineIdFilter] = useQueryState<string>('pipelineId');

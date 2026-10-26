@@ -1,8 +1,8 @@
 import { gql } from '@apollo/client';
 
 const GET_TICKET_CUSTOMER_DETAILS = gql`
-  query WidgetsTicketCustomerDetail($customerId: String, $type: String) {
-    widgetsTicketCustomerDetail(customerId: $customerId, type: $type) {
+  query WidgetsTicketCustomerDetail($type: String) {
+    widgetsTicketCustomerDetail(type: $type) {
       _id
       avatar
       email
@@ -57,8 +57,8 @@ const GET_TICKET_PROGRESS = gql`
 `;
 
 const GET_TICKETS_BY_CUSTOMER_ID = gql`
-  query WidgetTicketsByCustomer($customerId: String) {
-    widgetTicketsByCustomer(customerId: $customerId) {
+  query WidgetTicketsByCustomer {
+    widgetTicketsByCustomer {
       _id
       name
       description
