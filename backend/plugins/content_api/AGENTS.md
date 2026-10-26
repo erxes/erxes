@@ -6,7 +6,7 @@
 - **Project:** `content_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/content_api`
-- **Last synchronized:** `2026-10-13`
+- **Last synchronized:** `2026-10-26`
 
 ## Scope
 
@@ -27,6 +27,7 @@
 - CMS access respects assigned members, author scope and allowed languages.
 - Ordinary published CMS posts can be explicitly shared to Postiz after CMS and Postiz authorization.
 - Postiz deliveries run only when a user shares, retries or refreshes (`cmsPostizRefresh`); there is no background timer.
+- Web Builder sites store a site-wide `texts` map: the builder reads it from `getWebDetail` and saves it with `editWeb`, and live sites read it from `cpGetWebDetail`.
 
 ## Architecture
 
@@ -44,6 +45,7 @@
 ### Provides
 
 - CMS and Web Builder GraphQL through `src/apollo`, including `cmsPostiz*` sharing, validation, refresh and delivery operations.
+- `Web.texts: JSON` and `WebInput.texts: JSON`; `getWebDetail`, `cpGetWebDetail` return it, and `editWeb`/`cpEditWeb` accept it.
 - `cmsPostsSharePostiz` permission, included in CMS Journalist 1, Journalist 2, Editor and Admin default groups; excluded from CMS Viewer.
 
 ### Consumes
@@ -58,6 +60,7 @@
 - CMS records use `clientPortalId` to identify a website.
 - `cms_postiz_deliveries` stores immutable snapshots and deterministic request IDs through retries.
 - New snapshots include the authenticated request `subdomain`; older records may lack it.
+- `webs.texts` is a Mixed field: string values or nested objects. Older webs may lack it.
 
 ## Local Invariants
 
@@ -72,6 +75,7 @@
 - SaaS runs use the requesting tenant's database and reject snapshots naming another tenant. Legacy SaaS rows can be bound to their database tenant under the claimed lease. Legacy enterprise rows without a tenant become UNKNOWN and require verified operator recovery; never infer ownership from an article URL, user ID or another job.
 - Enqueue/retry accepts tenant context only from the server; conflicting saved tenants are rejected. Delivery history excludes records explicitly bound to another tenant while retaining legacy records for recovery visibility.
 - Never remove JWT or delivery ledgers to stop/retry CMS work. Coordinate both API versions on rollout/rollback.
+- `Web.updateWeb` validates `texts` through `utils/webTexts.ts` and replaces the whole map. Omitted leaves it untouched; `null` clears it. Keys cannot be empty, start with `$` or contain `.`. Values are strings or nested objects at most 5 levels deep, and the map is capped at 512KB. Changes appear in the web activity log.
 - Docker's installer stage uses `NODE_OPTIONS=--jitless`, matching agent_api's QEMU workaround. The runtime stage must not inherit it; dependency-install failures must not be swallowed by optional file pruning.
 
 ## Validation
