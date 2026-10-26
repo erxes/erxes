@@ -117,22 +117,15 @@ export const integrationsRouter = t.router({
     }
     const { models } = ctx;
     try {
-      const conversationIds = await models.Conversations.find({
-        integrationId: _id,
-      }).distinct('_id');
-      await models.ConversationMessages.deleteMany({
-        conversationId: { $in: conversationIds },
-      });
-      await models.Conversations.deleteMany({ integrationId: _id });
-      return models.Integrations.removeIntegration(_id);
+      return await models.Integrations.removeIntegration(_id);
     } catch (error) {
-      console.error('Failed to create integration:', error);
+      console.error('Failed to remove integration:', error);
 
       return {
         status: 'error',
         error: {
-          code: 'INTEGRATION_CREATION_FAILED',
-          message: 'Failed to create integration',
+          code: 'INTEGRATION_REMOVAL_FAILED',
+          message: 'Failed to remove integration',
           details: error instanceof Error ? error.message : undefined,
           ...(process.env.NODE_ENV === 'development' && {
             stack: error instanceof Error ? error.stack : undefined,

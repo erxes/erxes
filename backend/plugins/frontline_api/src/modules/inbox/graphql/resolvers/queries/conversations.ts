@@ -51,7 +51,10 @@ export const conversationQueries = {
             ...params,
             orderBy: params.orderBy ?? { updatedAt: -1 },
           },
-          query: { _id: { $in: params.ids } },
+          query: {
+            _id: { $in: params.ids },
+            status: { $ne: CONVERSATION_STATUSES.DELETED },
+          },
         });
 
       return {
@@ -70,7 +73,10 @@ export const conversationQueries = {
             orderBy: params.orderBy ?? { updatedAt: -1 },
             limit: params.limit || 20,
           },
-          query: { customerId: params.customerId },
+          query: {
+            customerId: params.customerId,
+            status: { $ne: CONVERSATION_STATUSES.DELETED },
+          },
         });
 
       return {

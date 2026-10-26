@@ -3,8 +3,9 @@ export const CONVERSATION_STATUSES = {
   OPEN: 'open',
   CLOSED: 'closed',
   RESOLVED: 'resolved',
+  DELETED: 'deleted',
   ENGAGE_VISITOR_AUTO: 'engageVisitorAuto',
-  ALL: ['new', 'open', 'closed', 'engageVisitorAuto'],
+  ALL: ['new', 'open', 'closed', 'engageVisitorAuto', 'deleted'],
 };
 
 export const CONVERSATION_OPERATOR_STATUS = {

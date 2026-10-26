@@ -13,7 +13,7 @@ export const useConversationResolvedByDate = (
 ) => {
   const { data, loading, error, refetch } = useQuery(
     GET_RESOLVED_CONVERSATIONS_BY_DATE,
-    options,
+    { fetchPolicy: 'cache-and-network', ...options },
   );
 
   const handleRefetch = (

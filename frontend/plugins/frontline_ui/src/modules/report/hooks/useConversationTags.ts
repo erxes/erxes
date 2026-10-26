@@ -12,7 +12,10 @@ export const useConversationTags = (
     ReportConversationTagsQueryVariables
   >,
 ) => {
-  const { data, loading, error } = useQuery(GET_CONVERSATION_TAG, options);
+  const { data, loading, error } = useQuery(GET_CONVERSATION_TAG, {
+    fetchPolicy: 'cache-and-network',
+    ...options,
+  });
 
   return {
     conversationTags: data?.reportConversationTags?.filter(isDefined),

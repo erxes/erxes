@@ -11,7 +11,10 @@ export const useConversationResolved = (
     ReportConversationResolvedQueryVariables
   >,
 ) => {
-  const { data, loading, error } = useQuery(GET_CONVERSATION_RESOLVED, options);
+  const { data, loading, error } = useQuery(GET_CONVERSATION_RESOLVED, {
+    fetchPolicy: 'cache-and-network',
+    ...options,
+  });
 
   return {
     conversationResolved: data?.reportConversationResolved,

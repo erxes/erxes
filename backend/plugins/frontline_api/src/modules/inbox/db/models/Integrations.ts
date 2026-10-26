@@ -6,6 +6,7 @@ import {
   IUiOptions,
 } from '@/inbox/@types/integrations';
 import { integrationSchema } from '@/inbox/db/definitions/integrations';
+import { CONVERSATION_STATUSES } from '@/inbox/db/definitions/constants';
 import moment from 'moment-timezone';
 import { isValidObjectId, Model, Query } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
@@ -455,13 +456,17 @@ export const loadClass = (models: IModels, subdomain: string) => {
     }
 
     /**
-     * Remove integration in addition with its messages, conversations, customers
+     * Remove integrations while retaining their conversations as deleted history.
      */
     public static async removeIntegration(_id: string) {
-      return models.Integrations.deleteMany({ _id });
+      return models.Integrations.removeIntegrations([_id]);
     }
 
     public static async removeIntegrations(_ids: string[]) {
+      await models.Conversations.updateMany(
+        { integrationId: { $in: _ids } },
+        { $set: { status: CONVERSATION_STATUSES.DELETED } },
+      );
       return models.Integrations.deleteMany({ _id: { $in: _ids } });
     }
 

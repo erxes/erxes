@@ -13,7 +13,7 @@ export const useConversationList = (
 ) => {
   const { data, previousData, loading, error } = useQuery(
     GET_CONVERSATION_LIST,
-    options,
+    { fetchPolicy: 'cache-and-network', ...options },
   );
 
   return {

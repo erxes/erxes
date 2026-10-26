@@ -32,6 +32,7 @@ import { REMOVE_INTEGRATION } from '@/integrations/graphql/mutations/RemoveInteg
 import { IconMessagesOff, IconTrash } from '@tabler/icons-react';
 import { INTEGRATIONS } from '../constants/integrations';
 import { useTranslation } from 'react-i18next';
+import { CONVERSATION_REPORT_QUERIES } from '@/report/graphql/queries/getChart';
 
 const FacebookIntegrationBotCell = lazy(() =>
   import(
@@ -160,7 +161,12 @@ const IntegrationsCommandBar = () => {
       let refreshFailed = false;
       try {
         const results = await client.refetchQueries({
-          include: ['Integrations'],
+          include: [
+            'Integrations',
+            'Conversations',
+            'ConversationCounts',
+            ...CONVERSATION_REPORT_QUERIES,
+          ],
         });
         refreshFailed = results.some(
           (result) => result.error || result.errors?.length,

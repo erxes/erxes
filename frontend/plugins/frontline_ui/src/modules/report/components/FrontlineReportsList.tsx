@@ -1,4 +1,3 @@
-import { useConversationReportUpdates } from '@/report/hooks/useConversationReportUpdates';
 import { closestCenter, DndContext, DragOverlay } from '@dnd-kit/core';
 import {
   SortableContext,
@@ -11,7 +10,6 @@ import { ConversationReportChart } from '@/report/components/ConversationReportC
 import { ConversationReportDropArea } from '@/report/components/ConversationReportDropArea';
 
 export const FrontlineReportsList = () => {
-  useConversationReportUpdates();
   const {
     cards,
     savedChartsById,

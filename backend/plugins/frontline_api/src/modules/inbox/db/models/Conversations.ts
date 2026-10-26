@@ -12,7 +12,7 @@ import {
   sendTRPCMessage,
   stream,
 } from 'erxes-api-shared/utils';
-import { Model } from 'mongoose';
+import { Model, type FilterQuery } from 'mongoose';
 import { conversationsChanged } from '@/inbox/meta/segments';
 import { IModels } from '~/connectionResolvers';
 import { getConversationAssigneeIds } from '@/inbox/utils/conversationAssignees';
@@ -189,7 +189,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
       const clearAssignment = doc.assignedUserIds?.length === 0;
       if (clearAssignment) delete fields.assignedUserId;
       const updated = await models.Conversations.updateOne(
-        { _id },
+        { _id, status: { $ne: CONVERSATION_STATUSES.DELETED } },
         {
           $set: fields,
           ...(clearAssignment ? { $unset: { assignedUserId: 1 } } : {}),
@@ -344,7 +344,10 @@ export const loadClass = (models: IModels, subdomain: string) => {
       }
 
       return models.Conversations.updateMany(
-        { _id: { $in: conversationIds } },
+        {
+          _id: { $in: conversationIds },
+          status: { $ne: CONVERSATION_STATUSES.DELETED },
+        },
         { $set: { status, closedAt, closedUserId, updatedAt } },
       );
     }
@@ -509,8 +512,14 @@ export const loadClass = (models: IModels, subdomain: string) => {
     /**
      * Resolve all conversation
      */
-    public static resolveAllConversation(query: any, param: any) {
-      return models.Conversations.updateMany(query, { $set: param });
+    public static resolveAllConversation(
+      query: FilterQuery<IConversationDocument>,
+      param: Partial<IConversation>,
+    ) {
+      return models.Conversations.updateMany(
+        { $and: [query, { status: { $ne: CONVERSATION_STATUSES.DELETED } }] },
+        { $set: param },
+      );
     }
   }
 

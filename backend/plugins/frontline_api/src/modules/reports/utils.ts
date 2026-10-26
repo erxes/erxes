@@ -7,6 +7,7 @@ import { escapeRegExp } from 'erxes-api-shared/utils';
 import type { FilterQuery, PipelineStage } from 'mongoose';
 import type { IConversationDocument } from '@/inbox/@types/conversations';
 import type { IIntegrationDocument } from '@/inbox/@types/integrations';
+import { CONVERSATION_STATUSES } from '@/inbox/db/definitions/constants';
 
 export const sourceMap: Record<string, string[]> = {
   'facebook-messenger': ['facebook-messenger'],
@@ -52,7 +53,7 @@ export const normalizeStatus = (status?: string) => {
 const getConversationReportIntegrations = async (
   filters: IReportFilters,
   models: IModels,
-): Promise<Pick<IIntegrationDocument, '_id' | 'kind'>[]> => {
+): Promise<Pick<IIntegrationDocument, '_id' | 'kind'>[] | null> => {
   const query: FilterQuery<IIntegrationDocument> = {};
 
   if (filters.channelIds?.length) {
@@ -61,6 +62,7 @@ const getConversationReportIntegrations = async (
   if (filters.source && sourceMap[filters.source]) {
     query.kind = { $in: sourceMap[filters.source] };
   }
+  if (!Object.keys(query).length) return null;
 
   const integrations = await models.Integrations.find(query, {
     _id: 1,
@@ -112,18 +114,24 @@ export async function generateConversationReportFilter(
     statusOverride?: string;
   } = {},
 ): Promise<FilterQuery<IConversationDocument>> {
-  const match: FilterQuery<IConversationDocument> = {};
+  const match: FilterQuery<IConversationDocument> = {
+    status: { $ne: CONVERSATION_STATUSES.DELETED },
+  };
 
   const status = options.statusOverride ?? normalizeStatus(filters.status);
-  if (status) match.status = status;
+  if (status) {
+    match.status = { $eq: status, $ne: CONVERSATION_STATUSES.DELETED };
+  }
 
   const dateField = options.dateField ?? 'createdAt';
   Object.assign(match, buildDateMatch(filters, dateField));
 
   const integrations = await getConversationReportIntegrations(filters, models);
-  match.integrationId = {
-    $in: integrations.map((integration) => integration._id),
-  };
+  if (integrations) {
+    match.integrationId = {
+      $in: integrations.map((integration) => integration._id),
+    };
+  }
 
   if (filters.memberIds?.length) {
     Object.assign(match, buildAssigneeFilter(filters.memberIds));
@@ -134,7 +142,7 @@ export async function generateConversationReportFilter(
       await buildConversationCallStatusFilter(
         filters.callStatus,
         models,
-        integrations,
+        integrations ?? [],
       ),
     ];
   }
@@ -184,13 +192,13 @@ export async function buildConversationStatusCountReport(
   const statusOverride =
     normalizeStatus(filters.status) ?? options.statusDefault;
 
-  const [statusFilter, baseFilter] = await Promise.all([
-    generateConversationReportFilter(filters, models, {
-      statusOverride,
-      dateField: options.dateField,
-    }),
-    generateConversationReportFilter(filters, models),
-  ]);
+  const baseFilter = await generateConversationReportFilter(filters, models);
+  const statusFilter: FilterQuery<IConversationDocument> = {
+    ...baseFilter,
+    status: { $eq: statusOverride, $ne: CONVERSATION_STATUSES.DELETED },
+    ...buildDateMatch(filters, options.dateField),
+  };
+  if (options.dateField !== 'createdAt') delete statusFilter.createdAt;
 
   const [count, totalCount] = await Promise.all([
     models.Conversations.countDocuments(statusFilter),
@@ -235,8 +243,7 @@ export async function buildConversationResponsesPipeline(
   models: IModels,
 ): Promise<PipelineStage[] | null> {
   const integrations = await getConversationReportIntegrations(filters, models);
-  const integrationIds = integrations.map((integration) => integration._id);
-  if (!integrationIds.length) return null;
+  if (integrations && !integrations.length) return null;
 
   const pipeline: PipelineStage[] = [
     {
@@ -257,15 +264,16 @@ export async function buildConversationResponsesPipeline(
   } = {
     internal: false,
     userId: { $exists: true, $ne: null },
-    'conversation.integrationId': { $in: integrationIds },
+    'conversation.status': { $ne: CONVERSATION_STATUSES.DELETED },
   };
 
-  if (filters.fromDate || filters.toDate) {
-    const range: { $gte?: Date; $lte?: Date } = {};
-    if (filters.fromDate) range.$gte = new Date(filters.fromDate);
-    if (filters.toDate) range.$lte = new Date(filters.toDate);
-    messageMatch.createdAt = range;
+  if (integrations) {
+    messageMatch['conversation.integrationId'] = {
+      $in: integrations.map((integration) => integration._id),
+    };
   }
+
+  Object.assign(messageMatch, buildDateMatch(filters, 'createdAt'));
 
   if (filters.memberIds?.length) {
     Object.assign(
@@ -279,7 +287,7 @@ export async function buildConversationResponsesPipeline(
       await buildConversationCallStatusFilter(
         filters.callStatus,
         models,
-        integrations,
+        integrations ?? [],
         'conversation.',
       ),
     ];

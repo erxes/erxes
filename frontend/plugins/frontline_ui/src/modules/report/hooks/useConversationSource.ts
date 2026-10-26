@@ -12,7 +12,10 @@ export const useConversationSources = (
     ReportConversationSourcesQueryVariables
   >,
 ) => {
-  const { data, loading, error } = useQuery(GET_CONVERSATION_SOURCE, options);
+  const { data, loading, error } = useQuery(GET_CONVERSATION_SOURCE, {
+    fetchPolicy: 'cache-and-network',
+    ...options,
+  });
 
   return {
     conversationSources: data?.reportConversationSources?.filter(isDefined),

@@ -3,6 +3,7 @@ import { IconTrash } from '@tabler/icons-react';
 import { REMOVE_INTEGRATION } from '@/integrations/graphql/mutations/RemoveIntegration';
 import { useMutation } from '@apollo/client';
 import { useTranslation } from 'react-i18next';
+import { CONVERSATION_REPORT_QUERIES } from '@/report/graphql/queries/getChart';
 
 export const RemoveIntegration = ({
   _id,
@@ -21,6 +22,9 @@ export const RemoveIntegration = ({
       'IntegrationsGetUsedTypesByChannel',
       'ChannelIntegrationsPeek',
       'frontlineChannelList',
+      'Conversations',
+      'ConversationCounts',
+      ...CONVERSATION_REPORT_QUERIES,
     ],
     onCompleted() {
       toast({

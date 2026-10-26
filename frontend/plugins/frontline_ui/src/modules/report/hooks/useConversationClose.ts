@@ -11,7 +11,10 @@ export const useConversationClosed = (
     ReportConversationClosedQueryVariables
   >,
 ) => {
-  const { data, loading, error } = useQuery(GET_CONVERSATION_CLOSE, options);
+  const { data, loading, error } = useQuery(GET_CONVERSATION_CLOSE, {
+    fetchPolicy: 'cache-and-network',
+    ...options,
+  });
 
   return {
     conversationClosed: data?.reportConversationClosed,

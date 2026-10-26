@@ -13,7 +13,7 @@ export const useConversationReportsByStatus = (
 ) => {
   const { data, loading, error, refetch } = useQuery(
     GET_OPEN_CONVERSATIONS_BY_DATE,
-    options,
+    { fetchPolicy: 'cache-and-network', ...options },
   );
 
   const handleRefetch = (

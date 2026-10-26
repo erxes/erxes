@@ -11,7 +11,10 @@ export const useConversationOpen = (
     ReportConversationOpenQueryVariables
   >,
 ) => {
-  const { data, loading, error } = useQuery(GET_CONVERSATION_OPEN, options);
+  const { data, loading, error } = useQuery(GET_CONVERSATION_OPEN, {
+    fetchPolicy: 'cache-and-network',
+    ...options,
+  });
 
   return {
     conversationOpen: data?.reportConversationOpen,

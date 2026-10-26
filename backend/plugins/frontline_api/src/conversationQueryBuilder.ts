@@ -291,9 +291,11 @@ export default class Builder {
     };
   }
 
-  public statusFilter(statusChoices: string[]): { status: IIn } {
+  public statusFilter(statusChoices: string[]): {
+    status: IIn & { $ne: string };
+  } {
     return {
-      status: { $in: statusChoices },
+      status: { $in: statusChoices, $ne: CONVERSATION_STATUSES.DELETED },
     };
   }
 
