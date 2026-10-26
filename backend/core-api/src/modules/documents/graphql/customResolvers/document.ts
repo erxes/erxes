@@ -7,7 +7,7 @@ import {
 
 export const documentCustomResolvers = {
   _id(document: IDocumentDocument): string {
-    return document._id.toHexString();
+    return String(document._id);
   },
 
   async __resolveReference(
