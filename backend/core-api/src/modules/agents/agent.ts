@@ -1,4 +1,5 @@
 import { REPORT_CREATION_SKILL } from '@/agents/skills/reportCreation';
+import { AUTOMATION_AUTHORING_SKILL } from '@/agents/skills/automationAuthoring';
 import type { Agent } from '@mastra/core/agent' with {
   'resolution-mode': 'import',
 };
@@ -96,6 +97,7 @@ export const buildAgentsInstructions = (
 ): string => [
   DEFAULT_INSTRUCTIONS,
   REPORT_CREATION_SKILL.instructions,
+  AUTOMATION_AUTHORING_SKILL.instructions,
   `Current date (UTC): ${now.toISOString().slice(0, 10)}. Use this for relative dates unless the user supplies a different timezone or reporting calendar.`,
   codeModeInstructions,
 ].filter(Boolean).join('\n\n');

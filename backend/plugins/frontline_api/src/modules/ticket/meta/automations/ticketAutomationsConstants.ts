@@ -5,6 +5,8 @@ import {
   TAutomationSetPropertyTarget,
 } from 'erxes-api-shared/core-modules';
 import { ITicket } from '~/modules/ticket/@types/ticket';
+import { ticketCreateActionConfigSchema } from '~/meta/automationConfigSchemas';
+import { validateTicketCreateConfig } from '~/meta/automationConfigValidators';
 
 export const FRONTLINE_TICKET_TARGET_SOURCE_TYPE = 'frontline:tickets.tickets';
 
@@ -158,6 +160,8 @@ export const ticketsAutomationContants = {
       moduleName: 'tickets',
       collectionName: 'tickets',
       method: 'create',
+      configSchema: ticketCreateActionConfigSchema,
+      validateConfig: validateTicketCreateConfig,
       icon: 'IconTicket',
       label: 'Create ticket',
       description: 'Create ticket',

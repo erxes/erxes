@@ -79,3 +79,19 @@ it('never derives a second record type from an operation that was not executed',
     extractGraphqlReferences(typed, query, { result: { _id: 'c1' } }),
   ).toEqual([]);
 });
+
+it('links the automation a save returns, so the reply can open its builder', () => {
+  const automations = buildSchema(`
+    type Automation { _id: String, name: String, status: String }
+    type Query { automationDetail(_id: String!): Automation }
+    type Mutation { automationsAdd(name: String): Automation }
+  `);
+
+  expect(
+    extractGraphqlReferences(
+      automations,
+      parse('mutation Save { automationsAdd(name: "Welcome") { _id name } }'),
+      { automationsAdd: { _id: 'auto1', name: 'Welcome' } },
+    ),
+  ).toEqual(['[[automation:auto1:Welcome]]']);
+});

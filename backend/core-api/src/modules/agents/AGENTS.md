@@ -20,6 +20,28 @@ plugin; ported from the former private `erxes-agent` service). It provides:
   result. Semantic HTML, responsive CSS and inline SVG render inline;
   scripts/external resources are unavailable. Record reference tokens belong
   verbatim in HTML text nodes, never attributes, links, styles or code;
+- `skills/automationAuthoring.ts` is the built-in automation skill, also composed
+  into every run. It authors only through the automations authoring contract
+  (`automationNodeCatalog` → `automationNodeSchema` → `automationNodeOutput` →
+  `automationValidate` → `automationsAdd`/`automationsEdit`) and always saves
+  drafts; activation stays the user's act. A trigger's conditions are written
+  inline as an automation-owned segment (`segmentFields`/`segmentRelations` →
+  `segmentsPreviewCount` → `segmentsAdd(ownedBy: "automation")`), and so is
+  an `if` action's. A step whose type has no readable schema is left out and
+  named to the user, never added empty; every branch is linked (`yes`/`no`,
+  `isExists`/`notExists`, `optionalConnects`) so each action is reached from
+  the trigger. A conversation gets one generateText agent (reply, captured
+  fields, handoff tools), a value that depends on an output a
+  `<< cond:id >>` field with `_conditionals` rather than a split, an email body
+  blocks `content`, and the automation one markdown note. A trigger segment is
+  of the trigger's own type; a split branches either on the record (segments)
+  or on an earlier step's output (`targetActionId`), never both; fields listed
+  in `builderOnlyFields` are left for the builder. Workspace
+  values (verified senders from `emailSenderOptions`, ids) are looked up, and a
+  choice among several goes to `ask_user`. Variables are written `{{ key }}` like the builder,
+  and the reply ends with the saved automation's reference. Node schemas naming
+  credential fields (webhook `auth`) are refused by the credential policy, so
+  such nodes are left for the builder;
 - `skills/reportCreation.ts` is the built-in report skill, composed into every
   run's instructions by `buildAgentsInstructions`. Reports are dashboard-first
   static HTML: one-line scope, KPI row, inline SVG or CSS bar charts, tables,
@@ -72,6 +94,8 @@ plugin; ported from the former private `erxes-agent` service). It provides:
   from actual host GraphQL calls with invocation-local AsyncLocalStorage, outside
   the sandbox's returned JSON. The native `execute_typescript` result persists
   that authoritative manifest separately from untrusted `result` content.
+  Record types come from `AGENTS_GRAPHQL_RECORD_TYPES` (GraphQL type → token
+  type); `Automation` → `automation`, so a saved draft links to its builder.
   `POST /agents/references/resolve` accepts a record type/id and reads the live
   schema's matching Detail query as the signed-in user. It returns the current
   name and validated deal board/pipeline, or an unavailable response. It never

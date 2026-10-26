@@ -6,7 +6,7 @@
 - **Project:** `accounting_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/accounting_ui`
-- **Last synchronized:** `2026-10-23`
+- **Last synchronized:** `2026-10-26`
 
 ## Scope
 
@@ -51,7 +51,7 @@
 - Inventory out and internal movement rows show active unit cost and amount as read-only values; inventory sale unit price remains editable because it is the sale price, while its generated inventory and cost-of-goods rows retain the fetched active cost across sale quantity edits and are costed by the backend on save.
 - Inventory income, out, move, sale, and sale-return bulk product additions fetch journal-specific fill data once, then append rows with the same price, cost, amount, and weight rules as single-row product selection.
 - Inventory internal movement rows can toggle detailed view to edit source branch/department on the outgoing detail and destination branch/department on the generated incoming detail.
-- Accounting sync settings include a deal movement rule page that captures the target sales stage, source/destination inventory accounts, default source/destination branch and department, and whether deal/product branch and department apply to the movement source or destination; deal movement check/resync uses its own `/accounting/check-sync/deal-movement` route and rule picker.
+- Accounting sync settings include a deal movement rule page that captures the target sales stage, source/destination inventory accounts, default source/destination branch and department, and whether deal/product branch and department apply to the movement source or destination; the rule table's account, branch, and department cells are inline-editable and persist immediately through `useSyncConfigValueUpdate`, which queues each config's edits so overlapping cell changes are sent sequentially and merged onto the latest pending value instead of overwriting each other; deal movement check/resync uses its own `/accounting/check-sync/deal-movement` route and rule picker.
 - The inventory cost adjustment journal has an independent form, supports single or bulk product selection, hides quantity input, shows current remainder and unit cost, accepts a per-unit cost delta, calculates the after-adjustment unit cost, and submits cost-only rows.
 - Safe remainder counting opens one import sheet with separate TXT and CSV tabs; TXT and CSV rows with blank total cost default counted total cost from active unit cost and counted quantity, while CSV accepts explicit `totalCost` and legacy `unitCost` aliases.
 - Settings expose `Бараа материал` alongside Accounting and `Үндсэн хөрөнгө` as an independent entry at `/accounting/settings/inventories`, with its own `Ажил` sidebar item at `/accounting/settings/inventories/jobs`. Users can create, edit, list, and delete production-stage jobs with `Орц бараа` and `Гарц бараа`, units, quantities, output cost-allocation ratios, and duration.
@@ -189,6 +189,8 @@
 
 ## Local Invariants
 
+- Fixed asset adjustment GraphQL documents and hooks live in `src/modules/adjustments/fxa`; add, remove, run and transaction mutations each own a document and hook file. Header and depreciation-row queries share `graphql/adjustFixedAssetQueries.ts`, and their view types share `types/AdjustFixedAsset.ts` because details belong to the parent adjustment; mutation hooks preserve success/error callbacks, list/detail refetches and navigation.
+
 - Job master edit initialization and unchanged-value comparison both use `settings/jobs/utils/jobFormValues.ts`. The same module's immutable scaling helper scales execution products and costs while retaining UOMs, metadata, and raw output ratios; changing quantity must not reset child-form state or persist anything.
 - Job product rows live in `settings/jobs/components/JobItems.tsx`, with shared numeric entry in `JobNumberInput.tsx`; `JobForm.tsx` owns metadata, unit loading/synchronization, cost groups, and submit behavior. Both master lists use `JobDuration` for identical real/fixed/missing-duration display. Execution recipe copies live in `inventories/job-executions/jobValues.ts`; `types.ts` contains the generated execution type only.
 
@@ -304,6 +306,7 @@
 - Inventory out and internal movement forms must not allow unit cost or cost amount edits; changing product, account, quantity, or source location must refresh active cost, and editing an existing movement must exclude both its source and generated destination transactions from that lookup.
 - Inventory internal movement detailed view must keep source branch/department on the outgoing detail and destination branch/department on the generated incoming detail; saved incoming detail locations must remain visible and must not be overwritten by root destination values unless the user changes them.
 - Deal movement sync settings must use inventory journal accounts for both source and destination accounts, and the deal-location side selector must determine only which side receives product/deal branch and department; the other side remains the configured default source or destination.
+- Sync config tables (`SyncConfigTable`) wrap `RecordTable` in `RecordTable.Scroll` so wide rule tables scroll horizontally. Editable inline cells there must pass the stored id through `value` (never `branchIds`/`departmentIds`, which the select providers ignore) and save via `useSyncConfigValueUpdate`, which merges the single changed key into the row's config `value`, keeps its `subId`, and refetches `AccountingsConfigs`.
 - Regular deal check/resync must not show `syncDealMovement` rules; `/accounting/check-sync/deal-movement` is the only check/resync route that exposes deal movement rules.
 - Inventory move, sale, and sale-return follow details must retain each source detail `_id` as `originId`; quantity edits update only that source row's generated follow details, preserve every other row's fetched active cost, and ignore transient current-cost responses that do not contain the selected product.
 - Inventory split previews must create one `invOut` and one `invIncome` follow transaction per source transaction, keep both `originId` values pointed at the source transaction, give the pair one shared pointer distinct from the source transaction pointer, include only enabled split details, preserve total cost, derive converted count and unit price from the ratio, and use destination account/location for internal movements.
@@ -347,7 +350,7 @@
 - Smoke scenario: add jobs A at quantity 5 and B at quantity 10, save/reopen and post once. Edit posted actuals and confirm linked journals update under the same parent/pointer and the list refreshes. Read-only users and posting/undoing/error records cannot edit; undo allows draft deletion.
 
 - `pnpm nx run accounting_ui:codegen --skip-nx-cache`
-- No Nx lint target is defined; run `pnpm exec eslint` on changed TypeScript paths.
+- `pnpm nx lint accounting_ui` (inferred from the workspace ESLint plugin).
 - `pnpm nx test accounting_ui`
 - `pnpm nx build accounting_ui`
 - `pnpm exec tsc -p frontend/plugins/accounting_ui/tsconfig.app.json --noEmit --pretty false`

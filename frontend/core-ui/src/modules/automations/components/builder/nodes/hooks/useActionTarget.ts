@@ -10,6 +10,9 @@ import { TAutomationAction, TAutomationOptionalConnect } from 'ui-modules';
 
 const ACTION_TYPES_CANNOT_BE_SELECTED_AS_TARGET = ['waitEvent'];
 const ACTION_TYPE_READING_AI_MEMORY = 'setProperty';
+// A split may branch on what an earlier AI agent read from the conversation;
+// no other action takes an agent as its record.
+const ACTION_TYPE_READING_AI_OUTPUT = 'split';
 
 export const useActionTarget = ({
   actionId,
@@ -85,7 +88,16 @@ export const useActionTarget = ({
       (action, index, list) =>
         list.findIndex(({ id }) => id === action.id) === index,
     );
-  const targetOptions = [...actionsCanBeTarget, ...siblingBranchActions];
+  const aiOutputActions =
+    actions.find(({ id }) => id === actionId)?.type ===
+    ACTION_TYPE_READING_AI_OUTPUT
+      ? connectedPreviousActions.filter(({ type }) => type === 'aiAgent')
+      : [];
+  const targetOptions = [
+    ...actionsCanBeTarget,
+    ...siblingBranchActions,
+    ...aiOutputActions,
+  ];
 
   let selectedActionType = trigger?.type;
   if (targetActionId) {

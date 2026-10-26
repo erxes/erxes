@@ -3,6 +3,7 @@ import type {
   TAutomationSetPropertyTarget,
 } from 'erxes-api-shared/core-modules';
 import type { IConversation } from '@/inbox/@types/conversations';
+import { messengerMessageActionConfigSchema } from '~/meta/automationConfigSchemas';
 
 const CONVERSATION_SET_PROPERTY_TARGETS: TAutomationSetPropertyTarget[] = [
   {
@@ -158,6 +159,7 @@ export const inboxAutomationConstants = {
       moduleName: 'inbox',
       collectionName: 'messages',
       method: 'create',
+      configSchema: messengerMessageActionConfigSchema,
       icon: 'IconMessage',
       label: 'Send Erxes Messenger Message',
       description: 'Send a message to the Erxes Messenger widget conversation',

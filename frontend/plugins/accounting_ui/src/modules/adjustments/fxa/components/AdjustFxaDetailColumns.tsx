@@ -9,7 +9,7 @@ import {
 import { RecordTable, RecordTableInlineCell } from 'erxes-ui';
 import { AccountsInline } from '@/settings/account/components/AccountsInline';
 import { SelectFixedAsset } from '@/settings/fixed-assets/components/SelectFixedAsset';
-import { IAdjustFxaDetail } from '../types/AdjustFixedAsset';
+import { IAdjustFxaDetail } from '@/adjustments/fxa/types/AdjustFixedAsset';
 
 const formatNumber = (value?: number) =>
   typeof value === 'number'

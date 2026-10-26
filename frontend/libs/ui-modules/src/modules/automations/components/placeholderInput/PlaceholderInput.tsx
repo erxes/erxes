@@ -21,7 +21,7 @@ const PlaceholderInputRoot = forwardRef<
   (
     {
       propertyType,
-      value = '',
+      value: storedValue = '',
       onChange,
       isDisabled,
       selectionType,
@@ -33,6 +33,10 @@ const PlaceholderInputRoot = forwardRef<
     },
     ref,
   ) => {
+    // A config written outside the builder can hold a number or a list where
+    // the field writes text; it is shown as text instead of breaking the form.
+    const value =
+      typeof storedValue === 'string' ? storedValue : String(storedValue ?? '');
     const variableInsertion = useOptionalAutomationVariableInsertion();
     const valueRef = useRef(value);
     const onChangeRef = useRef(onChange);
@@ -75,12 +79,14 @@ const PlaceholderInputRoot = forwardRef<
 
     const insertVariable = useCallback(
       (payload: TAutomationVariableDragPayload) => {
-        const { nextCursorPosition, nextValue } = insertAutomationVariableToken({
-          value: valueRef.current,
-          token: payload.token,
-          selectionStart: selectionRef.current.start,
-          selectionEnd: selectionRef.current.end,
-        });
+        const { nextCursorPosition, nextValue } = insertAutomationVariableToken(
+          {
+            value: valueRef.current,
+            token: payload.token,
+            selectionStart: selectionRef.current.start,
+            selectionEnd: selectionRef.current.end,
+          },
+        );
 
         valueRef.current = nextValue;
         selectionRef.current = {

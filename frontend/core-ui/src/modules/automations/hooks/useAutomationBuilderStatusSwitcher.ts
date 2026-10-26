@@ -1,4 +1,5 @@
 import { useAutomation } from '@/automations/context/AutomationProvider';
+import { useAutomationPreflight } from '@/automations/components/builder/header/preflight/useAutomationPreflight';
 import { useAutomationNodeIssues } from '@/automations/hooks/useAutomationNodeIssues';
 import {
   TAutomationBuilderForm,
@@ -33,6 +34,14 @@ export const useAutomationBuilderStatusSwitcher = ({
   );
   const { t } = useTranslation('automations');
   const isActivating = pendingStatus === 'active';
+  const preflight = useAutomationPreflight(isActivating);
+  // A check that could not run leaves the decision to the save, which checks again.
+  const canConfirm = !isActivating || preflight.failed || preflight.canActivate;
+
+  const openFailingNode = (nodeId: string) => {
+    setPendingStatus(null);
+    preflight.openNode(nodeId);
+  };
 
   const isUntouchedDuplicate = !!detail?.duplicatedFrom && !isDirty;
   const duplicatedFromName = detail?.duplicatedFromName;
@@ -98,5 +107,8 @@ export const useAutomationBuilderStatusSwitcher = ({
     handleConfirm,
     isUntouchedDuplicate,
     duplicatedFromName,
+    preflight,
+    canConfirm,
+    openFailingNode,
   };
 };
