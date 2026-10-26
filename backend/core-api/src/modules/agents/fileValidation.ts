@@ -6,13 +6,27 @@ export const AGENTS_TEXT_MIME_TYPES = [
 export const AGENTS_IMAGE_MIME_TYPES = [
   'image/png', 'image/jpeg', 'image/webp', 'image/gif',
 ] as const;
+/** Documents whose text `readFile` extracts (see `documentText.ts`). */
+export const AGENTS_DOCUMENT_MIME_TYPES = {
+  pdf: 'application/pdf',
+  docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  pptx: 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+  odt: 'application/vnd.oasis.opendocument.text',
+  ods: 'application/vnd.oasis.opendocument.spreadsheet',
+  odp: 'application/vnd.oasis.opendocument.presentation',
+  rtf: 'application/rtf',
+} as const;
+export type TAgentsDocumentType = keyof typeof AGENTS_DOCUMENT_MIME_TYPES;
 export const AGENTS_ALLOWED_MIME_TYPES = [
   ...AGENTS_TEXT_MIME_TYPES,
-  ...AGENTS_IMAGE_MIME_TYPES, 'application/pdf',
-  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-] as const;
-export type IAgentsAllowedMimeType = (typeof AGENTS_ALLOWED_MIME_TYPES)[number];
+  ...AGENTS_IMAGE_MIME_TYPES,
+  ...Object.values(AGENTS_DOCUMENT_MIME_TYPES),
+];
+export type IAgentsAllowedMimeType =
+  | (typeof AGENTS_TEXT_MIME_TYPES)[number]
+  | (typeof AGENTS_IMAGE_MIME_TYPES)[number]
+  | (typeof AGENTS_DOCUMENT_MIME_TYPES)[TAgentsDocumentType];
 export const isAgentsAllowedMimeType = (value: string): value is IAgentsAllowedMimeType =>
   (AGENTS_ALLOWED_MIME_TYPES as readonly string[]).includes(value);
 export const isAgentsTextMimeType = (value: string): value is (typeof AGENTS_TEXT_MIME_TYPES)[number] =>

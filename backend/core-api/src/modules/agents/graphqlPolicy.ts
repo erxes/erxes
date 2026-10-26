@@ -43,7 +43,7 @@ export const AGENT_GRAPHQL_DENIED_FIELD = {
         words,
       ) ||
       /\b(sign up|sign in|magic link|two factor|2fa|api key)\b/.test(words) ||
-      /^(apps?(Add|Edit|Revoke|Remove|Detail|List|TotalCount)?|users(CreateOwner|Edit|EditProfile|SetActiveStatus|SetActiveStatusBatch|Invite)|inviteUser|agentsConnections|agentsConnectionUpsert|agentsConnectionRemove|agentsSettingsUpdate|_service|_entities)$/i.test(
+      /^(apps?(Add|Edit|Revoke|Remove|Detail|List|TotalCount)?|users(CreateOwner|Edit|EditProfile|SetActiveStatus|SetActiveStatusBatch|Invite)|inviteUser|agentsConnections|agentsConnectionUpsert|agentsConnectionRemove|agentsConnectionSetDefault|agentsModelVerify|agentsSettingsUpdate|_service|_entities)$/i.test(
         field,
       )
     );

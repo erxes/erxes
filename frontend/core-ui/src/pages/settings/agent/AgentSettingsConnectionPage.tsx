@@ -8,6 +8,7 @@ import {
 import { useMutation } from '@apollo/client';
 import {
   AlertDialog,
+  Badge,
   Breadcrumb,
   Button,
   Input,
@@ -31,22 +32,31 @@ import {
 import {
   AGENTS_CONNECTIONS,
   AGENTS_CONNECTION_REMOVE,
+  AGENTS_CONNECTION_SET_DEFAULT,
   AGENTS_CONNECTION_UPSERT,
+  AGENTS_MODELS,
 } from '@/agent/graphql/connection';
 import type {
   IAgentsConnectionRemoveData,
   IAgentsConnectionRemoveVariables,
+  IAgentsConnectionSetDefaultData,
+  IAgentsConnectionSetDefaultVariables,
   IAgentsConnectionUpsertData,
   IAgentsConnectionUpsertVariables,
 } from '@/agent/graphql/connection';
-import { useAgentsConnection } from '@/agent/hooks/useAgentsConnection';
+import {
+  findDefaultAgentsConnection,
+  useAgentsConnection,
+} from '@/agent/hooks/useAgentsConnection';
 
 /**
  * Settings BYOK management: every configured provider is listed with its
  * stored entry, and more providers can be added side by side — pick a
  * provider, paste the API key, save. The model is chosen server-side by the
  * provider default (overridable from the chat's model picker), so there is
- * no model field here. The backend never returns stored keys.
+ * no model field here. One connection is the default an unselected chat turn
+ * runs on (the first saved until the user picks another). The backend never
+ * returns stored keys.
  */
 export const AgentSettingsConnectionPage = () => {
   const { openPath } = useSidePanel();
@@ -60,8 +70,13 @@ export const AgentSettingsConnectionPage = () => {
   }, [provider]);
   const [showKey, setShowKey] = useState(false);
   const [removingProvider, setRemovingProvider] = useState<string | null>(null);
+  const [defaultingProvider, setDefaultingProvider] = useState<string | null>(
+    null,
+  );
 
-  const refetchQueries = [{ query: AGENTS_CONNECTIONS }];
+  // An active chat model picker lists models per connection; a bare document
+  // refetches it only while mounted, so saving never lists models needlessly.
+  const refetchQueries = [{ query: AGENTS_CONNECTIONS }, AGENTS_MODELS];
 
   const [upsertConnection, { loading: saving }] = useMutation<
     IAgentsConnectionUpsertData,
@@ -100,6 +115,37 @@ export const AgentSettingsConnectionPage = () => {
       });
     },
   });
+
+  const [setDefaultConnection, { loading: settingDefault }] = useMutation<
+    IAgentsConnectionSetDefaultData,
+    IAgentsConnectionSetDefaultVariables
+  >(AGENTS_CONNECTION_SET_DEFAULT, {
+    refetchQueries: [{ query: AGENTS_CONNECTIONS }],
+    awaitRefetchQueries: true,
+    onCompleted: () => {
+      toast({ title: 'Default provider updated' });
+      setDefaultingProvider(null);
+    },
+    onError: (setDefaultError) => {
+      toast({
+        title: 'Failed to set the default provider',
+        description: setDefaultError.message,
+        variant: 'destructive',
+      });
+      setDefaultingProvider(null);
+    },
+  });
+
+  const defaultProvider = findDefaultAgentsConnection(connections)?.provider;
+
+  const handleSetDefault = (nextProvider: string) => {
+    if (settingDefault) {
+      return;
+    }
+
+    setDefaultingProvider(nextProvider);
+    void setDefaultConnection({ variables: { provider: nextProvider } });
+  };
 
   const handleSave = () => {
     const trimmedProvider = provider.trim();
@@ -174,7 +220,8 @@ export const AgentSettingsConnectionPage = () => {
                 </Label>
                 <p className="mt-1 text-xs text-muted-foreground">
                   Each provider keeps its own key; the chat's model picker lists
-                  models from every configured provider.
+                  models from every configured provider. The default provider
+                  runs when no model is selected.
                 </p>
               </div>
 
@@ -215,17 +262,57 @@ export const AgentSettingsConnectionPage = () => {
                             </p>
                           )}
                         </div>
-                        <span className="flex shrink-0 items-center gap-1.5 text-xs text-muted-foreground">
+                        {connection.provider === defaultProvider ? (
+                          <Badge variant="secondary" className="shrink-0">
+                            Default
+                          </Badge>
+                        ) : (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-7 shrink-0 px-2 text-xs font-normal text-muted-foreground"
+                            disabled={settingDefault}
+                            aria-label={`Set ${getProviderLabel(
+                              connection.provider,
+                            )} as default`}
+                            onClick={() =>
+                              handleSetDefault(connection.provider)
+                            }
+                          >
+                            {settingDefault &&
+                            defaultingProvider === connection.provider ? (
+                              <Spinner className="size-3.5" />
+                            ) : (
+                              'Set as default'
+                            )}
+                          </Button>
+                        )}
+                        {connection.hasKey ? (
+                          <span className="flex shrink-0 items-center gap-1.5 text-xs text-muted-foreground">
+                            <span
+                              className="size-1.5 shrink-0 rounded-full bg-emerald-500"
+                              aria-hidden="true"
+                            />
+                            {connection.updatedAt
+                              ? formatDateISOStringToRelativeDate(
+                                  connection.updatedAt,
+                                )
+                              : ''}
+                          </span>
+                        ) : (
+                          // The server cannot open this stored key (missing or
+                          // changed encryption secret); saving it again fixes it.
                           <span
-                            className="size-1.5 shrink-0 rounded-full bg-emerald-500"
-                            aria-hidden="true"
-                          />
-                          {connection.updatedAt
-                            ? formatDateISOStringToRelativeDate(
-                                connection.updatedAt,
-                              )
-                            : ''}
-                        </span>
+                            className="flex shrink-0 items-center gap-1.5 text-xs text-destructive"
+                            title="This key can't be read on the server. Select the provider below and paste the key again."
+                          >
+                            <span
+                              className="size-1.5 shrink-0 rounded-full bg-destructive"
+                              aria-hidden="true"
+                            />
+                            Re-enter key
+                          </span>
+                        )}
                         <Button
                           variant="ghost"
                           size="icon"

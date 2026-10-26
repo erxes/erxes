@@ -5,6 +5,8 @@ import { Schema } from 'mongoose';
  * tenant scope comes from the per-subdomain mongoose connection this schema
  * is registered on); `userId` is unique and `connections` holds one entry
  * per configured provider so the chat can pick between them.
+ * `defaultProvider` optionally names the entry an unselected chat turn runs;
+ * absent (every pre-existing document) or stale, the first entry applies.
  */
 export const agentsConnectionSchema = new Schema(
   {
@@ -23,6 +25,11 @@ export const agentsConnectionSchema = new Schema(
       ],
       default: [],
     },
+    defaultProvider: { type: String },
+    // Legacy single-connection shape. Declared only so the migrating writes'
+    // `$unset` reaches MongoDB (strict mode drops unknown paths); nothing
+    // writes it, and readers normalize it into `connections`.
+    connection: { type: Object },
   },
   {
     timestamps: true,

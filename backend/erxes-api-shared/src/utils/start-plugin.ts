@@ -19,6 +19,10 @@ import * as path from 'path';
 import rateLimit from 'express-rate-limit';
 import { startPayments } from '../common-modules/payment/worker';
 import type { IContactFieldsMeta } from '../core-modules/contact-fields';
+import {
+  type IAgentPluginMeta,
+  validateAgentPluginMeta,
+} from '../core-modules/agent';
 import type {
   IPropertyMeta,
   LogsConfigs,
@@ -96,6 +100,9 @@ type IMeta = {
   // Record types keeping their own customerId / companyId; core tells the
   // plugin when a contact is merged or removed (tRPC `contactFields.sync`).
   contactFields?: IContactFieldsMeta;
+  // Text-only skills and agent-hidden GraphQL operations for the core AI
+  // assistant; core re-validates them when it reads service discovery.
+  agent?: IAgentPluginMeta;
 };
 
 type ApiHandler = {
@@ -400,7 +407,16 @@ export async function startPlugin(
       importExport,
       approval,
       properties,
+      agent,
     } = meta || {};
+
+    for (const { skill, reason } of validateAgentPluginMeta(agent).rejections) {
+      console.warn(
+        `[agent] ${name} ${
+          skill ? `skill "${skill}"` : 'metadata'
+        } ignored: ${reason}`,
+      );
+    }
 
     if (beforeResolvers) {
       await startBeforeResolvers(app, name, beforeResolvers);

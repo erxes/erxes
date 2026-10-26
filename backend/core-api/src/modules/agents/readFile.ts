@@ -22,6 +22,11 @@ import {
   AGENTS_FILE_READ_TIMEOUT_MS,
   waitForAgentsFileOperation,
 } from '@/agents/fileTimeout';
+import {
+  AgentsDocumentTextError,
+  extractAgentsDocumentText,
+  sniffAgentsDocumentType,
+} from '@/agents/documentText';
 
 export const AGENTS_READ_FILE_MAX_BYTES = AGENTS_FILE_MAX_BYTES;
 export const AGENTS_READ_IMAGE_MAX_BYTES = 2 * 1024 * 1024;
@@ -584,6 +589,26 @@ export const readAgentsUploadedFile = async (input: {
     throw new AgentsReadFileError('The file is empty.');
   }
 
+  const documentType = sniffAgentsDocumentType(bytes);
+  if (documentType) {
+    let document: Awaited<ReturnType<typeof extractAgentsDocumentText>>;
+    try {
+      document = await extractAgentsDocumentText(bytes, documentType);
+    } catch (error) {
+      throw new AgentsReadFileError(
+        error instanceof AgentsDocumentTextError
+          ? error.message
+          : 'The document could not be read.',
+      );
+    }
+    return {
+      url: raw,
+      mimeType: document.mimeType,
+      kind: 'text',
+      text: document.text || '(The document contains no extractable text.)',
+    };
+  }
+
   const { kind, mimeType } = classify(headerMime, bytes);
   if (kind === 'text') {
     if (bytes.length > AGENTS_FILE_TEXT_MAX_BYTES) {
@@ -626,7 +651,7 @@ export const buildReadFileTool = async () => {
   return createTool({
     id: 'readFile',
     description:
-      'Read an uploaded chat attachment by its url from this conversation. Pass the url from the attachment metadata. Never invent urls.',
+      'Read an uploaded chat attachment by its url from this conversation. Returns text for text, CSV, JSON, Markdown, PDF, Word, Excel, PowerPoint, OpenDocument and RTF files (spreadsheets as CSV per sheet) and image data for images. Pass the url from the attachment metadata. Never invent urls.',
     inputSchema: z.object({
       url: z
         .string()
@@ -699,6 +724,7 @@ export const buildReadFileTool = async () => {
       if (output.kind === 'text' && output.text) {
         return { type: 'text', value: output.text };
       }
+
       return {
         type: 'text',
         value: 'This file is not readable as text or an image.',
