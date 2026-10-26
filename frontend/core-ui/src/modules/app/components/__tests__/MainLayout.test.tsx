@@ -20,6 +20,12 @@ jest.mock(
   }),
   { virtual: true },
 );
+jest.mock('ui-modules', () => {
+  const { createContext } = jest.requireActual(
+    'react',
+  ) as typeof import('react');
+  return { RecordViewContext: createContext(null) };
+});
 jest.mock('react-router', () => ({
   useLocation: () => ({ pathname: '/contacts' }),
   Outlet: () => null,
@@ -66,6 +72,7 @@ jest.mock(
   '@/side-panel/components/SidePanelLayout',
   () => ({
     SidePanelLayout: () => <aside data-testid="relation-panel" />,
+    SidePanelRecord: () => null,
   }),
   { virtual: true },
 );
