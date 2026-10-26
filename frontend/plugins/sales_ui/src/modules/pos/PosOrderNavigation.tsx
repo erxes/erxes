@@ -46,8 +46,6 @@ function PosItem({ pos }: posItemProps) {
   const isPosActive = pathname.includes(`/sales/pos/${pos._id}`);
   const [open, setOpen] = useState(isPosActive);
 
-  // A POS can become active while this row stays mounted (navigating between
-  // POS routes), so keep opening it instead of relying on the initial state.
   useEffect(() => {
     if (isPosActive) setOpen(true);
   }, [isPosActive]);
