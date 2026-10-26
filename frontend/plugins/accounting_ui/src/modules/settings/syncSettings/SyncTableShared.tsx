@@ -17,7 +17,38 @@ import { ACCOUNTING_SETTINGS_CODES } from '@/settings/constants/settingsRoutes';
 import { accountingConfigDetailAtom } from '@/settings/states/accountingConfigState';
 import { IConfig } from '@/settings/types/Config';
 import { useAccountingConfigs } from '@/settings/hooks/useAccountingConfigs';
+import { useAccountingConfigEdit } from '@/settings/hooks/useAccountingConfigEdit';
 import { EditAccountingConfig } from '@/settings/syncSettings/EditAccountingConfig';
+
+type TPendingSyncConfigUpdate = {
+  value: Record<string, unknown>;
+  queue: Promise<unknown>;
+};
+
+const pendingSyncConfigUpdates = new Map<string, TPendingSyncConfigUpdate>();
+
+export const useSyncConfigValueUpdate = (config: IConfig) => {
+  const { editConfig } = useAccountingConfigEdit();
+
+  return (key: string, fieldValue?: string[] | string) => {
+    const pending = pendingSyncConfigUpdates.get(config._id);
+    const value = {
+      ...(pending?.value ?? config.value),
+      [key]: Array.isArray(fieldValue) ? fieldValue[0] : fieldValue,
+    };
+
+    const queue = (pending?.queue ?? Promise.resolve())
+      .catch(() => undefined)
+      .then(() => editConfig({ id: config._id, subId: config.subId, value }))
+      .finally(() => {
+        if (pendingSyncConfigUpdates.get(config._id)?.queue === queue) {
+          pendingSyncConfigUpdates.delete(config._id);
+        }
+      });
+
+    pendingSyncConfigUpdates.set(config._id, { value, queue });
+  };
+};
 
 export const SyncInitialSkeleton = ({
   rows = 20,
@@ -123,15 +154,17 @@ export const SyncConfigTable = ({
       tableId={tableId}
       className="relative"
     >
-      <RecordTable>
-        <RecordTable.Header showColumnSelector={showColumnSelector} />
-        <RecordTable.Body>
-          <RecordTable.RowList />
-          {isInitialLoading && (
-            <SyncInitialSkeleton rows={20} columns={columns} />
-          )}
-        </RecordTable.Body>
-      </RecordTable>
+      <RecordTable.Scroll>
+        <RecordTable>
+          <RecordTable.Header showColumnSelector={showColumnSelector} />
+          <RecordTable.Body>
+            <RecordTable.RowList />
+            {isInitialLoading && (
+              <SyncInitialSkeleton rows={20} columns={columns} />
+            )}
+          </RecordTable.Body>
+        </RecordTable>
+      </RecordTable.Scroll>
       <EditAccountingConfig code={code} />
       {isEmpty && (
         <AccountingEmptyState
