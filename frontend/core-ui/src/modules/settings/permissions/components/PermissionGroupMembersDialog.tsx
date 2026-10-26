@@ -118,12 +118,95 @@ export const PermissionGroupMembersDialog = ({
     });
   };
 
-  const headerChecked =
-    allSelected && excludedIds.length === 0
-      ? true
-      : selectedCount > 0
-      ? 'indeterminate'
-      : false;
+  const getHeaderChecked = (): boolean | 'indeterminate' => {
+    if (allSelected && excludedIds.length === 0) {
+      return true;
+    }
+
+    return selectedCount > 0 ? 'indeterminate' : false;
+  };
+
+  const renderMembers = () => {
+    if (loading && !members.length) {
+      return <Spinner containerClassName="py-10" />;
+    }
+
+    if (!totalCount) {
+      return null;
+    }
+
+    return (
+      <div className="flex flex-col gap-2">
+        <Table>
+          <Table.Header>
+            <Table.Row>
+              <Table.Head className="w-10">
+                <Checkbox
+                  checked={getHeaderChecked()}
+                  onCheckedChange={(checked) => toggleAll(checked === true)}
+                  aria-label={t('select-all-members')}
+                />
+              </Table.Head>
+              <Table.Head>{t('name')}</Table.Head>
+              <Table.Head>{t('email')}</Table.Head>
+            </Table.Row>
+          </Table.Header>
+          <Table.Body>
+            {members.map((member) => (
+              <Table.Row key={member._id}>
+                <Table.Cell>
+                  <Checkbox
+                    checked={isChecked(member._id)}
+                    onCheckedChange={() => toggleMember(member._id)}
+                    aria-label={memberName(member)}
+                  />
+                </Table.Cell>
+                <Table.Cell>
+                  <span className="flex items-center gap-2">
+                    <Avatar size="lg">
+                      <Avatar.Image src={member.details?.avatar} />
+                      <Avatar.Fallback>
+                        {memberName(member).charAt(0)}
+                      </Avatar.Fallback>
+                    </Avatar>
+                    <span className="truncate">{memberName(member)}</span>
+                  </span>
+                </Table.Cell>
+                <Table.Cell className="text-muted-foreground truncate">
+                  {member.email}
+                </Table.Cell>
+              </Table.Row>
+            ))}
+          </Table.Body>
+        </Table>
+
+        <div className="flex items-center justify-between text-sm text-muted-foreground">
+          <span>{t('members-selected', { count: selectedCount })}</span>
+          <span className="flex items-center gap-2">
+            {t('page-of', { page, pageCount })}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-7"
+              disabled={page <= 1}
+              onClick={() => setPage((current) => current - 1)}
+            >
+              <IconChevronLeft size={16} />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-7"
+              disabled={page >= pageCount}
+              onClick={() => setPage((current) => current + 1)}
+            >
+              <IconChevronRight size={16} />
+            </Button>
+          </span>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -140,79 +223,7 @@ export const PermissionGroupMembersDialog = ({
           </Dialog.Description>
         </Dialog.Header>
 
-        {loading && !members.length ? (
-          <Spinner containerClassName="py-10" />
-        ) : totalCount > 0 ? (
-          <div className="flex flex-col gap-2">
-            <Table>
-              <Table.Header>
-                <Table.Row>
-                  <Table.Head className="w-10">
-                    <Checkbox
-                      checked={headerChecked}
-                      onCheckedChange={(checked) => toggleAll(checked === true)}
-                      aria-label={t('select-all-members')}
-                    />
-                  </Table.Head>
-                  <Table.Head>{t('name')}</Table.Head>
-                  <Table.Head>{t('email')}</Table.Head>
-                </Table.Row>
-              </Table.Header>
-              <Table.Body>
-                {members.map((member) => (
-                  <Table.Row key={member._id}>
-                    <Table.Cell>
-                      <Checkbox
-                        checked={isChecked(member._id)}
-                        onCheckedChange={() => toggleMember(member._id)}
-                        aria-label={memberName(member)}
-                      />
-                    </Table.Cell>
-                    <Table.Cell>
-                      <span className="flex items-center gap-2">
-                        <Avatar size="lg">
-                          <Avatar.Image src={member.details?.avatar} />
-                          <Avatar.Fallback>
-                            {memberName(member).charAt(0)}
-                          </Avatar.Fallback>
-                        </Avatar>
-                        <span className="truncate">{memberName(member)}</span>
-                      </span>
-                    </Table.Cell>
-                    <Table.Cell className="text-muted-foreground truncate">
-                      {member.email}
-                    </Table.Cell>
-                  </Table.Row>
-                ))}
-              </Table.Body>
-            </Table>
-
-            <div className="flex items-center justify-between text-sm text-muted-foreground">
-              <span>{t('members-selected', { count: selectedCount })}</span>
-              <span className="flex items-center gap-2">
-                {t('page-of', { page, pageCount })}
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="size-7"
-                  disabled={page <= 1}
-                  onClick={() => setPage((current) => current - 1)}
-                >
-                  <IconChevronLeft size={16} />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="size-7"
-                  disabled={page >= pageCount}
-                  onClick={() => setPage((current) => current + 1)}
-                >
-                  <IconChevronRight size={16} />
-                </Button>
-              </span>
-            </div>
-          </div>
-        ) : null}
+        {renderMembers()}
 
         <Dialog.Footer className="sm:justify-between gap-2">
           <Button variant="secondary" onClick={() => onOpenChange(false)}>
