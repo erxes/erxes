@@ -16,13 +16,23 @@ import { useConversationResponses } from '../useConversationResponses';
 import { useConversationList } from '../useConversationList';
 import { useConversationReportsByStatus } from '../useConversationReportsByStatus';
 import { useConversationResolvedByDate } from '../useConversationResolvedByDate';
-import { CONVERSATION_REPORT_QUERIES } from '../../graphql/queries/getChart';
+import {
+  REMOVE_INTEGRATION,
+  shouldRefetchIntegrationRemovalQuery,
+} from '@/integrations/graphql/mutations/RemoveIntegration';
+import {
+  GET_CONVERSATION_OPEN,
+  GET_CONVERSATION_EXPORT,
+} from '../../graphql/queries/getChart';
 
 jest.mock('erxes-ui', () => ({
   isDefined: (value: unknown) => value !== null && value !== undefined,
 }));
 
 const results: Record<string, Record<string, unknown>> = {
+  IntegrationsRemove: {
+    integrationsRemove: { acknowledged: true, deletedCount: 1 },
+  },
   ReportConversationOpen: {
     reportConversationOpen: { count: 2, percentage: 50 },
   },
@@ -40,6 +50,7 @@ const results: Record<string, Record<string, unknown>> = {
   },
   ReportConversationOpenDate: { reportConversationOpenDate: [] },
   ReportConversationResolvedDate: { reportConversationResolvedDate: [] },
+  ReportConversationExport: { reportConversationExport: [] },
 };
 
 describe('conversation report gateway requests', () => {
@@ -89,15 +100,82 @@ describe('conversation report gateway requests', () => {
     expect(request).toHaveBeenCalledTimes(9);
 
     await act(async () => {
-      await client.refetchQueries({ include: CONVERSATION_REPORT_QUERIES });
+      await client.mutate({
+        mutation: REMOVE_INTEGRATION,
+        variables: { id: 'removed' },
+        refetchQueries: 'active',
+        onQueryUpdated: shouldRefetchIntegrationRemovalQuery,
+        awaitRefetchQueries: true,
+      });
     });
-    expect(request).toHaveBeenCalledTimes(18);
+    expect(request).toHaveBeenCalledTimes(19);
 
     unmount();
     await act(async () => {
       jest.advanceTimersByTime(60_000);
     });
-    expect(request).toHaveBeenCalledTimes(18);
+    expect(request).toHaveBeenCalledTimes(19);
     client.stop();
+  });
+
+  it('does not target inactive report queries during integration removal', async () => {
+    const warning = jest
+      .spyOn(console, 'warn')
+      .mockImplementation(() => undefined);
+    const request = jest.fn();
+    const client = new ApolloClient({
+      cache: new InMemoryCache({ addTypename: false }),
+      link: new ApolloLink(
+        (operation) =>
+          new Observable((observer) => {
+            request(operation.operationName);
+            observer.next({ data: results[operation.operationName] });
+            observer.complete();
+          }),
+      ),
+    });
+    const Wrapper = ({ children }: PropsWithChildren) => (
+      <ApolloProvider client={client}>{children}</ApolloProvider>
+    );
+    const { result, unmount } = renderHook(() => useConversationOpen(), {
+      wrapper: Wrapper,
+    });
+    // Apollo may retain an observable for the same operation with other filters.
+    client.watchQuery({
+      query: GET_CONVERSATION_OPEN,
+      variables: { filters: { source: 'messenger' } },
+    });
+    const unrelated = client
+      .watchQuery({ query: GET_CONVERSATION_EXPORT })
+      .subscribe({ next: () => undefined });
+    try {
+      await waitFor(() => expect(result.current.loading).toBe(false));
+      await act(async () => {
+        await client.mutate({
+          mutation: REMOVE_INTEGRATION,
+          variables: { id: 'removed' },
+          refetchQueries: 'active',
+          onQueryUpdated: shouldRefetchIntegrationRemovalQuery,
+          awaitRefetchQueries: true,
+        });
+      });
+      expect(request).toHaveBeenCalledTimes(4);
+      expect(
+        request.mock.calls.filter(
+          ([name]) => name === 'ReportConversationExport',
+        ),
+      ).toHaveLength(1);
+      expect(
+        request.mock.calls.filter(
+          ([name]) => name === 'ReportConversationOpen',
+        ),
+      ).toHaveLength(2);
+      expect(warning).not.toHaveBeenCalled();
+    } finally {
+      unrelated.unsubscribe();
+      unmount();
+      client.stop();
+      warning.mockRestore();
+    }
   });
 });

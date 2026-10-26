@@ -1,9 +1,11 @@
 import { Spinner, toast, useConfirm } from 'erxes-ui';
 import { IconTrash } from '@tabler/icons-react';
-import { REMOVE_INTEGRATION } from '@/integrations/graphql/mutations/RemoveIntegration';
+import {
+  REMOVE_INTEGRATION,
+  shouldRefetchIntegrationRemovalQuery,
+} from '@/integrations/graphql/mutations/RemoveIntegration';
 import { useMutation } from '@apollo/client';
 import { useTranslation } from 'react-i18next';
-import { CONVERSATION_REPORT_QUERIES } from '@/report/graphql/queries/getChart';
 
 export const RemoveIntegration = ({
   _id,
@@ -16,16 +18,8 @@ export const RemoveIntegration = ({
     keyPrefix: 'modules.integrations',
   });
   const [removeIntegration, { loading }] = useMutation(REMOVE_INTEGRATION, {
-    refetchQueries: [
-      'Integrations',
-      'IntegrationsGetUsedTypes',
-      'IntegrationsGetUsedTypesByChannel',
-      'ChannelIntegrationsPeek',
-      'frontlineChannelList',
-      'Conversations',
-      'ConversationCounts',
-      ...CONVERSATION_REPORT_QUERIES,
-    ],
+    refetchQueries: 'active',
+    onQueryUpdated: shouldRefetchIntegrationRemovalQuery,
     onCompleted() {
       toast({
         title: t('integration-removed'),

@@ -28,11 +28,13 @@ import clsx from 'clsx';
 import { IntegrationType } from '@/types/Integration';
 import { integrationMoreColumn } from './IntegrationMoreColumn';
 import { FacebookPageLink } from '@/integrations/facebook/components/FacebookPageLink';
-import { REMOVE_INTEGRATION } from '@/integrations/graphql/mutations/RemoveIntegration';
+import {
+  REMOVE_INTEGRATION,
+  shouldRefetchIntegrationRemovalQuery,
+} from '@/integrations/graphql/mutations/RemoveIntegration';
 import { IconMessagesOff, IconTrash } from '@tabler/icons-react';
 import { INTEGRATIONS } from '../constants/integrations';
 import { useTranslation } from 'react-i18next';
-import { CONVERSATION_REPORT_QUERIES } from '@/report/graphql/queries/getChart';
 
 const FacebookIntegrationBotCell = lazy(() =>
   import(
@@ -161,12 +163,8 @@ const IntegrationsCommandBar = () => {
       let refreshFailed = false;
       try {
         const results = await client.refetchQueries({
-          include: [
-            'Integrations',
-            'Conversations',
-            'ConversationCounts',
-            ...CONVERSATION_REPORT_QUERIES,
-          ],
+          include: 'active',
+          onQueryUpdated: shouldRefetchIntegrationRemovalQuery,
         });
         refreshFailed = results.some(
           (result) => result.error || result.errors?.length,
