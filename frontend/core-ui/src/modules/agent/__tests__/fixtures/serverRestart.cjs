@@ -2,16 +2,7 @@
 // shaped like the gateway's: a server restart leaves the reply connection
 // open and silent. No server, provider or conversation is called.
 const assert = require('node:assert/strict');
-const { createRequire } = require('node:module');
-const path = require('node:path');
-const { pathToFileURL } = require('node:url');
-const repo = path.resolve(__dirname, '../../../../../../..');
-const serviceRequire = createRequire(
-  path.join(repo, 'backend/core-api/package.json'),
-);
-const rootRequire = createRequire(path.join(repo, 'package.json'));
-const load = (name) =>
-  import(serviceRequire.resolve(name).replace(/\.cjs$/, '.js'));
+const { importAgentModules, load } = require('./agentModules.cjs');
 
 const STALL_MS = 150;
 const encoder = new TextEncoder();
@@ -56,43 +47,10 @@ process.on('beforeExit', () => {
 
 (async () => {
   const [{ Chat }] = await Promise.all([load('@ai-sdk/react')]);
-  const built = await rootRequire('esbuild').build({
-    stdin: {
-      contents: `export { AgentsChatTransport } from './frontend/core-ui/src/modules/agent/transport';
-      export { isAgentsRunInterrupted, isAgentsStreamStalled } from './frontend/core-ui/src/modules/agent/streamHealth';`,
-      resolveDir: repo,
-    },
-    bundle: true,
-    write: false,
-    format: 'esm',
-    platform: 'node',
-    packages: 'external',
-    plugins: [
-      {
-        name: 'fixture',
-        setup(build) {
-          build.onResolve({ filter: /^ai$/ }, () => ({
-            path: pathToFileURL(
-              serviceRequire.resolve('ai').replace(/\.cjs$/, '.js'),
-            ).href,
-            external: true,
-          }));
-          build.onResolve({ filter: /^erxes-ui$/ }, () => ({
-            path: 'env',
-            namespace: 'fixture',
-          }));
-          build.onLoad({ filter: /.*/, namespace: 'fixture' }, () => ({
-            contents: `export const REACT_APP_API_URL='http://fixture';`,
-            loader: 'js',
-          }));
-        },
-      },
-    ],
-  });
   const { AgentsChatTransport, isAgentsRunInterrupted, isAgentsStreamStalled } =
-    await import(
-      'data:text/javascript;base64,' +
-        Buffer.from(built.outputFiles[0].text).toString('base64')
+    await importAgentModules(
+      `export { AgentsChatTransport } from './frontend/core-ui/src/modules/agent/transport';
+      export { isAgentsRunInterrupted, isAgentsStreamStalled } from './frontend/core-ui/src/modules/agent/streamHealth';`,
     );
 
   const responses = [];

@@ -1,17 +1,7 @@
 // Real SDK + Mastra integration, with an in-memory store and a scripted model.
 // No provider, CRM service, or production conversation is called or modified.
 const assert = require('node:assert/strict');
-const { createRequire } = require('node:module');
-const path = require('node:path');
-const { pathToFileURL } = require('node:url');
-// Resolve from this file, not the cwd: nx runs jest from frontend/core-ui.
-const repo = path.resolve(__dirname, '../../../../../../..');
-const serviceRequire = createRequire(
-  path.join(repo, 'backend/core-api/package.json'),
-);
-const rootRequire = createRequire(path.join(repo, 'package.json'));
-const load = (name) =>
-  import(serviceRequire.resolve(name).replace(/\.cjs$/, '.js'));
+const { importAgentModules, load } = require('./agentModules.cjs');
 
 (async () => {
   const [
@@ -39,43 +29,11 @@ const load = (name) =>
     load('@ai-sdk/react'),
     load('zod/v4'),
   ]);
-  const built = await rootRequire('esbuild').build({
-    stdin: {
-      contents: `export { AgentsChatTransport } from './frontend/core-ui/src/modules/agent/transport';
+  const { AgentsChatTransport, hasAgentsApprovalDecision } =
+    await importAgentModules(
+      `export { AgentsChatTransport } from './frontend/core-ui/src/modules/agent/transport';
       export { hasAgentsApprovalDecision } from './frontend/core-ui/src/modules/agent/approvalDecisions';`,
-      resolveDir: repo,
-    },
-    bundle: true,
-    write: false,
-    format: 'esm',
-    platform: 'node',
-    packages: 'external',
-    plugins: [
-      {
-        name: 'fixture',
-        setup(build) {
-          build.onResolve({ filter: /^ai$/ }, () => ({
-            path: pathToFileURL(
-              serviceRequire.resolve('ai').replace(/\.cjs$/, '.js'),
-            ).href,
-            external: true,
-          }));
-          build.onResolve({ filter: /^erxes-ui$/ }, () => ({
-            path: 'env',
-            namespace: 'fixture',
-          }));
-          build.onLoad({ filter: /.*/, namespace: 'fixture' }, () => ({
-            contents: `export const REACT_APP_API_URL='http://fixture';`,
-            loader: 'js',
-          }));
-        },
-      },
-    ],
-  });
-  const { AgentsChatTransport, hasAgentsApprovalDecision } = await import(
-    'data:text/javascript;base64,' +
-      Buffer.from(built.outputFiles[0].text).toString('base64')
-  );
+    );
   const executed = [];
   let modelCalls = 0;
   const model = new MockLanguageModelV3({

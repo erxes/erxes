@@ -492,9 +492,11 @@ shipped locale files (`__tests__/support/agentI18n.ts`).
 ## Validation
 
 - `pnpm nx test core-ui` — tests in `__tests__` + `artifacts/__tests__`.
-  Spawned SDK fixtures (`approvalRoundTrip`, `serverRestart`) resolve the
-  repository from their own path and run from the OS temp directory, so they
-  pass under Nx (cwd `frontend/core-ui`) and from the root alike.
+  Spawned SDK fixtures (`approvalRoundTrip`, `serverRestart`) load agent
+  modules through `__tests__/fixtures/agentModules.cjs`, which resolves the
+  repository from its own path; the tests run them from the OS temp
+  directory, so they pass under Nx (cwd `frontend/core-ui`) and from the root
+  alike.
 - `pnpm nx build core-ui` — rspack.
 - eslint on touched files — 0 errors expected.
 
