@@ -79,24 +79,84 @@ export const mutations = {
   ...agentsSettingsMutations,
 };
 
-// Arguments that can carry a password, API key or credential: kept out of
-// mutation logs and plugin before-resolver hooks. Public mutations (login,
-// password reset, client portal users) are never logged.
-const SECRET_ARGUMENT_MUTATIONS = [
-  'agentsConnectionUpsert',
-  'usersChangePassword',
-  'usersResetMemberPassword',
-  'usersEdit',
-  'usersInvite',
-  'cpUsersAdd',
-  'cpUsersSetPassword',
-  'clientPortalUpdate',
-  'configsUpdate',
-  'broadcastUpdateConfigs',
-] as const;
+// What the mutation log must not store (`wrapperConfig`): `sensitiveArgs` for
+// arguments carrying a password, API key or credential, `sensitiveResult` for
+// results carrying one (the whole result, or the listed fields). Public
+// mutations (login, password reset, client portal users) are never logged.
+const USER_SECRET_FIELDS = [
+  'password',
+  'resetPasswordToken',
+  'registrationToken',
+  'deviceTokens',
+];
+const CP_USER_SECRET_FIELDS = [
+  'password',
+  'code',
+  'actionCode',
+  'refreshTokens',
+  'fcmTokens',
+];
+const OAUTH_CLIENT_SECRET_FIELDS = ['generatedSecret', 'secretHash'];
 
-for (const name of SECRET_ARGUMENT_MUTATIONS) {
-  const resolver: Resolver = mutations[name];
+const SENSITIVE_MUTATIONS: [string, NonNullable<Resolver['wrapperConfig']>][] =
+  [
+    ['agentsConnectionUpsert', { sensitiveArgs: true }],
+    ['configsUpdate', { sensitiveArgs: true }],
+    ['broadcastUpdateConfigs', { sensitiveArgs: true }],
+    ['usersInvite', { sensitiveArgs: true }],
+    [
+      'usersChangePassword',
+      { sensitiveArgs: true, sensitiveResult: USER_SECRET_FIELDS },
+    ],
+    [
+      'usersResetMemberPassword',
+      { sensitiveArgs: true, sensitiveResult: USER_SECRET_FIELDS },
+    ],
+    ['usersEdit', { sensitiveArgs: true, sensitiveResult: USER_SECRET_FIELDS }],
+    ['usersEditProfile', { sensitiveResult: USER_SECRET_FIELDS }],
+    ['usersSetActiveStatus', { sensitiveResult: USER_SECRET_FIELDS }],
+    ['usersSetChatStatus', { sensitiveResult: USER_SECRET_FIELDS }],
+    ['usersConfigEmailSignatures', { sensitiveResult: USER_SECRET_FIELDS }],
+    [
+      'usersConfigGetNotificationByEmail',
+      { sensitiveResult: USER_SECRET_FIELDS },
+    ],
+    ['userAddCustomPermission', { sensitiveResult: USER_SECRET_FIELDS }],
+    ['userRemoveCustomPermission', { sensitiveResult: USER_SECRET_FIELDS }],
+    ['userUpdatePermissionGroups', { sensitiveResult: USER_SECRET_FIELDS }],
+    // The invitation token signs the invitee in.
+    ['usersResendInvitation', { sensitiveResult: true }],
+    [
+      'cpUsersAdd',
+      { sensitiveArgs: true, sensitiveResult: CP_USER_SECRET_FIELDS },
+    ],
+    [
+      'cpUsersSetPassword',
+      { sensitiveArgs: true, sensitiveResult: CP_USER_SECRET_FIELDS },
+    ],
+    ['cpUsersEdit', { sensitiveResult: CP_USER_SECRET_FIELDS }],
+    // A client portal keeps its token and provider credentials.
+    ['clientPortalAdd', { sensitiveResult: true }],
+    ['clientPortalUpdate', { sensitiveArgs: true, sensitiveResult: true }],
+    ['clientPortalChangeToken', { sensitiveResult: true }],
+    ['appsAdd', { sensitiveResult: ['token'] }],
+    ['appsEdit', { sensitiveResult: ['token'] }],
+    ['appsRevoke', { sensitiveResult: ['token'] }],
+    ['oauthClientAppsAdd', { sensitiveResult: OAUTH_CLIENT_SECRET_FIELDS }],
+    ['oauthClientAppsEdit', { sensitiveResult: OAUTH_CLIENT_SECRET_FIELDS }],
+    ['oauthClientAppsRevoke', { sensitiveResult: OAUTH_CLIENT_SECRET_FIELDS }],
+    // A share token is a public link to the file.
+    ['filesShareCreate', { sensitiveResult: ['token'] }],
+  ];
 
-  resolver.wrapperConfig = { ...resolver.wrapperConfig, sensitiveArgs: true };
+const registeredMutations: Record<string, Resolver> = mutations;
+
+for (const [name, redaction] of SENSITIVE_MUTATIONS) {
+  const resolver = registeredMutations[name];
+
+  if (!resolver) {
+    throw new Error(`Unknown mutation "${name}" in SENSITIVE_MUTATIONS`);
+  }
+
+  resolver.wrapperConfig = { ...resolver.wrapperConfig, ...redaction };
 }

@@ -23,6 +23,8 @@ import { typeDefs } from '~/apollo/typeDefs';
 import { generateModels, IModels } from '~/connectionResolvers';
 import { permissions } from '~/meta/permissions';
 import { TEST_DB_PREFIX } from '@/connections/__tests__/testEnv';
+import { FILE_PRINCIPAL_TYPES, FILE_STATUSES } from '@/files/constants';
+import { principalKey } from '@/files/utils/access';
 
 jest.mock('erxes-api-shared/utils/redis', () => ({
   redis: jest.requireActual('@/connections/__tests__/testInfra').memoryRedis,
@@ -44,6 +46,13 @@ const { memoryRedis, queuedJobs } = jest.requireActual(
 ) as typeof import('@/connections/__tests__/testInfra');
 
 const SECRET = 'sk-live-super-secret-0123456789';
+
+// What a user document keeps at rest: a password hash and live tokens.
+const STORED_USER_SECRETS = {
+  password: `${SECRET}-hash`,
+  resetPasswordToken: `${SECRET}-reset`,
+  registrationToken: `${SECRET}-registration`,
+};
 const TENANT = 'tenanta';
 const organizationId = new mongoose.Types.ObjectId();
 
@@ -80,14 +89,32 @@ beforeAll(async () => {
       email: 'admin@example.com',
       isActive: true,
       permissionGroupIds: ['core:admin'],
+      ...STORED_USER_SECRETS,
     },
     {
       _id: 'member-user',
       email: 'member@example.com',
       isActive: true,
       permissionGroupIds: ['core:user'],
+      ...STORED_USER_SECRETS,
+    },
+    {
+      _id: 'pending-user',
+      email: 'pending@example.com',
+      isActive: true,
+      registrationToken: 'previous-invitation',
     },
   ] as Parameters<typeof models.Users.collection.insertMany>[0]);
+  await models.Files.collection.insertOne({
+    _id: 'shared-file',
+    name: 'report.pdf',
+    status: FILE_STATUSES.READY,
+    // Legacy adoption rebuilds access from the creator.
+    createdBy: 'admin-user',
+    managers: [principalKey(FILE_PRINCIPAL_TYPES.USER, 'admin-user')],
+    contributors: [],
+    readers: [principalKey(FILE_PRINCIPAL_TYPES.USER, 'admin-user')],
+  } as Parameters<typeof models.Files.collection.insertOne>[0]);
   admin = await loadUser('admin-user');
   member = await loadUser('member-user');
 
@@ -275,3 +302,197 @@ describe('mutation logs', () => {
     expect(log.payload).not.toHaveProperty('argsRedacted');
   });
 });
+
+/** The secret a caller receives must be absent from the stored log entry. */
+const expectResultRedacted = (
+  mutationName: string,
+  returnedSecret: unknown,
+) => {
+  const log = mutationLog(mutationName);
+
+  expect(typeof returnedSecret).toBe('string');
+  expect(String(returnedSecret).length).toBeGreaterThan(8);
+  expect(JSON.stringify(log)).not.toContain(String(returnedSecret));
+  expect(log).toMatchObject({
+    status: 'success',
+    payload: { mutationName, resultRedacted: true },
+  });
+
+  return log;
+};
+
+describe('mutation log results', () => {
+  it('store a new OAuth client without its generated secret', async () => {
+    const response = await run(
+      'mutation oauthClientAppsAdd($name: String!, $type: OAuthClientAppType!) { oauthClientAppsAdd(name: $name, type: $type) { _id clientId generatedSecret } }',
+      { name: 'Reporting', type: 'confidential' },
+      admin,
+    );
+    const created = response.data?.oauthClientAppsAdd;
+    const log = expectResultRedacted('oauthClientAppsAdd', created?.generatedSecret);
+
+    expect(log.payload).toMatchObject({
+      args: { name: 'Reporting', type: 'confidential' },
+      result: { name: 'Reporting', clientId: created?.clientId },
+    });
+    expect(log.payload).not.toHaveProperty('result.secretHash');
+  });
+
+  it('store an OAuth client switched to confidential without its new secret', async () => {
+    const added = await run(
+      'mutation oauthClientAppsAdd($name: String!, $type: OAuthClientAppType!) { oauthClientAppsAdd(name: $name, type: $type) { _id } }',
+      { name: 'Widget', type: 'public' },
+      admin,
+    );
+    queuedJobs.length = 0;
+
+    const response = await run(
+      'mutation oauthClientAppsEdit($_id: String!, $name: String!, $type: OAuthClientAppType!) { oauthClientAppsEdit(_id: $_id, name: $name, type: $type) { generatedSecret } }',
+      { _id: added.data?.oauthClientAppsAdd._id, name: 'Widget', type: 'confidential' },
+      admin,
+    );
+
+    expectResultRedacted(
+      'oauthClientAppsEdit',
+      response.data?.oauthClientAppsEdit.generatedSecret,
+    );
+  });
+
+  it('store a new app without its API token', async () => {
+    const response = await run(
+      'mutation appsAdd($name: String!) { appsAdd(name: $name) { _id token } }',
+      { name: 'Integration' },
+      admin,
+    );
+    const log = expectResultRedacted('appsAdd', response.data?.appsAdd.token);
+
+    expect(log.payload).toMatchObject({ result: { name: 'Integration' } });
+  });
+
+  it('store a new client portal without its token', async () => {
+    const response = await run(
+      'mutation clientPortalAdd($name: String!) { clientPortalAdd(name: $name) { _id token } }',
+      { name: 'Customers' },
+      admin,
+    );
+
+    expectResultRedacted('clientPortalAdd', response.data?.clientPortalAdd.token);
+  });
+
+  it('store a client portal token change without the token', async () => {
+    const added = await run(
+      'mutation clientPortalAdd($name: String!) { clientPortalAdd(name: $name) { _id } }',
+      { name: 'Partners' },
+      admin,
+    );
+    queuedJobs.length = 0;
+
+    const response = await run(
+      'mutation clientPortalChangeToken($_id: String!) { clientPortalChangeToken(_id: $_id) }',
+      { _id: added.data?.clientPortalAdd._id },
+      admin,
+    );
+
+    expectResultRedacted(
+      'clientPortalChangeToken',
+      response.data?.clientPortalChangeToken,
+    );
+  });
+
+  it('store a resent invitation without its token', async () => {
+    const response = await run(
+      'mutation usersResendInvitation($email: String!) { usersResendInvitation(email: $email) }',
+      { email: 'pending@example.com' },
+      admin,
+    );
+
+    expectResultRedacted(
+      'usersResendInvitation',
+      response.data?.usersResendInvitation,
+    );
+  });
+
+  it('store a file share link without its token', async () => {
+    const response = await run(
+      'mutation filesShareCreate($fileId: String!) { filesShareCreate(fileId: $fileId) { token } }',
+      { fileId: 'shared-file' },
+      admin,
+    );
+
+    expect(response.errors).toBeUndefined();
+    const log = expectResultRedacted(
+      'filesShareCreate',
+      response.data?.filesShareCreate.token,
+    );
+
+    expect(log.payload).toMatchObject({ result: { fileId: 'shared-file' } });
+  });
+
+  it.each([
+    [
+      'usersSetActiveStatus',
+      'mutation usersSetActiveStatus($_id: String!) { usersSetActiveStatus(_id: $_id) { _id } }',
+      { _id: 'member-user' },
+      'member@example.com',
+    ],
+    [
+      'usersSetChatStatus',
+      'mutation usersSetChatStatus($_id: String!, $status: UserChatStatus) { usersSetChatStatus(_id: $_id, status: $status) { _id } }',
+      { _id: 'admin-user', status: 'online' },
+      'admin@example.com',
+    ],
+    [
+      'usersConfigGetNotificationByEmail',
+      'mutation usersConfigGetNotificationByEmail($isAllowed: Boolean) { usersConfigGetNotificationByEmail(isAllowed: $isAllowed) { _id } }',
+      { isAllowed: true },
+      'admin@example.com',
+    ],
+  ])(
+    'store %s without the password hash or tokens of the user it returns',
+    async (mutationName, source, variables, email) => {
+      const response = await run(source, variables, admin);
+      const log = mutationLog(mutationName);
+
+      expect(response.errors).toBeUndefined();
+      expect(JSON.stringify(log)).not.toContain(SECRET);
+      expect(log).toMatchObject({
+        status: 'success',
+        payload: { mutationName, resultRedacted: true, result: { email } },
+      });
+    },
+  );
+
+  it('store a new client portal user without its password hash', async () => {
+    const portal = await run(
+      'mutation clientPortalAdd($name: String!) { clientPortalAdd(name: $name) { _id } }',
+      { name: 'Members' },
+      admin,
+    );
+    queuedJobs.length = 0;
+
+    const response = await run(
+      'mutation cpUsersAdd($clientPortalId: String!, $email: String, $password: String) { cpUsersAdd(clientPortalId: $clientPortalId, email: $email, password: $password) { _id email } }',
+      {
+        clientPortalId: portal.data?.clientPortalAdd._id,
+        email: 'buyer@example.com',
+        password: 'Str0ng-Passw0rd!',
+      },
+      admin,
+    );
+    const log = mutationLog('cpUsersAdd');
+    const storedHash = (
+      await models.CPUser.findOne({ email: 'buyer@example.com' }).lean<{
+        password?: string;
+      }>()
+    )?.password;
+
+    expect(response.errors).toBeUndefined();
+    expect(typeof storedHash).toBe('string');
+    expect(JSON.stringify(log)).not.toContain(String(storedHash));
+    expect(log).toMatchObject({
+      status: 'success',
+      payload: { resultRedacted: true, result: { email: 'buyer@example.com' } },
+    });
+  });
+});
+

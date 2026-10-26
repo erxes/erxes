@@ -42,9 +42,10 @@ The shared contract lives in `backend/erxes-api-shared/src/core-modules/connecti
 - **No secret in logs or hooks.** Mutations are marked
   `wrapperConfig.sensitiveArgs`: mutation logs record `argsRedacted` instead of
   arguments, and plugin before-resolver hooks never receive them. Other core
-  mutations that accept passwords, keys or credentials are listed in
-  `SECRET_ARGUMENT_MUTATIONS` (`src/apollo/resolvers/mutations.ts`); add any
-  new one there. Never add `console.*` of values; test errors become fixed
+  mutations that accept or return passwords, keys, tokens or credentials are
+  listed in `SENSITIVE_MUTATIONS` (`src/apollo/resolvers/mutations.ts`) with
+  `sensitiveArgs` and/or `sensitiveResult` (the whole result or the listed
+  fields); add any new one there. Never add `console.*` of values; test errors become fixed
   messages.
 - **Permissions on every operation.** Queries require `showConnections`;
   mutations and tests `manageConnections` (`src/meta/permissions.ts`, granted
