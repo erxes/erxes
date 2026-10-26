@@ -421,4 +421,7 @@ export const agent: IAgentPluginMeta = {
   jest cannot host the Mastra `Agent` (its CJS build requires ESM-only AI SDK
   packages). Mastra resolves dynamic skills once per `RequestContext`, so each
   simulated run uses a fresh context.
+  `agent.test.ts` ("what every run mounts") also checks that each run's
+  `skills` callback mounts the plugin catalog and keeps plugin text out of
+  the instructions.
 - Smoke: `POST /agents/chat` without a `user` header returns 401.
