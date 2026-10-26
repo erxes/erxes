@@ -2,7 +2,6 @@ import { initTRPC } from '@trpc/server';
 import { z } from 'zod';
 import { CoreTRPCContext } from '~/init-trpc';
 import { DocumentAccessUser } from '../types';
-import { documentIdCandidates } from '../documentIds';
 
 const t = initTRPC.context<CoreTRPCContext>().create();
 
@@ -24,15 +23,12 @@ export const documentTrpcRouter = t.router({
     find: t.procedure
       .input(z.object({ query: documentQuerySchema.optional() }))
       .query(async ({ ctx, input }) => {
-        const query = { ...input.query };
-        if (typeof query._id === 'string') {
-          query._id = { $in: documentIdCandidates(query._id) };
-        }
+        const { query } = input;
         const { models } = ctx;
         const user = await getDocumentUser(ctx);
         const accessFilter = await models.Documents.getAccessFilter(user);
         return models.Documents.find({
-          $and: [query, accessFilter],
+          $and: [query || {}, accessFilter],
         }).lean();
       }),
 
@@ -46,10 +42,6 @@ export const documentTrpcRouter = t.router({
 
         if (!query || !Object.keys(query).length) {
           return {};
-        }
-
-        if (typeof query._id === 'string') {
-          query._id = { $in: documentIdCandidates(query._id) };
         }
 
         const user = await getDocumentUser(ctx);

@@ -230,19 +230,13 @@ export const loadTagClass = (
       tagIds: string[],
       user?: DocumentAccessUser,
     ) {
-      const targetDocumentIds =
-        type === DOCUMENT_APPROVAL_CONTENT_TYPE
-          ? await Promise.all(
-              targetIds.map(async (_id) => {
-                const document = await models.Documents.getDocument({
-                  _id,
-                  user,
-                  action: 'edit',
-                });
-                return document._id;
-              }),
-            )
-          : targetIds;
+      if (type === DOCUMENT_APPROVAL_CONTENT_TYPE) {
+        await Promise.all(
+          targetIds.map((_id) =>
+            models.Documents.getDocument({ _id, user, action: 'edit' }),
+          ),
+        );
+      }
       const [pluginName, moduleName] = type.split(':');
 
       if (!pluginName || !moduleName) {
@@ -280,13 +274,13 @@ export const loadTagClass = (
           throw new Error(`Unknown content type: ${moduleName}`);
         }
         const targets = await model
-          .find({ _id: { $in: targetDocumentIds } }, { tagIds: 1 })
+          .find({ _id: { $in: targetIds } }, { tagIds: 1 })
           .lean();
 
         const nextTagIds = tags.map((tag) => tag._id);
 
         const result = await model.updateMany(
-          { _id: { $in: targetDocumentIds } },
+          { _id: { $in: targetIds } },
           { $set: { tagIds: nextTagIds } },
         );
 

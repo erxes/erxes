@@ -118,7 +118,7 @@ export const documentQueries = {
       contentType: DOCUMENT_APPROVAL_CONTENT_TYPE,
       contentIds: list.map((document) => String(document._id)),
       ownerIdsByContentId: Object.fromEntries(
-        list.map((document) => [String(document._id), document.createdUserId]),
+        list.map((document) => [document._id, document.createdUserId]),
       ),
       action: 'view',
     });
