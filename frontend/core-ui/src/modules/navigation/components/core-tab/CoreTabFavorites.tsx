@@ -70,47 +70,47 @@ const CoreTabFavoriteItem = ({
       )}
       style={{ transform: CSS.Transform.toString(transform), transition }}
     >
-      <Link
-        className="flex h-8 min-w-0 flex-1 items-center gap-2 px-2 text-sm font-medium"
-        to={`/${path.replace('_ui', '').replace(/^\/+/, '')}`}
-        onClick={(event) => {
-          if (wasDragged()) {
-            event.preventDefault();
-            return;
-          }
-          onNavigate();
-        }}
+      <Tooltip
+        open={tooltipOpen}
+        onOpenChange={(open) =>
+          setTooltipOpen(
+            open &&
+              !!labelRef.current &&
+              labelRef.current.scrollWidth > labelRef.current.clientWidth,
+          )
+        }
       >
-        {Icon && <Icon className="size-4 shrink-0" />}
-        <Tooltip
-          open={tooltipOpen}
-          onOpenChange={(open) =>
-            setTooltipOpen(
-              open &&
-                !!labelRef.current &&
-                labelRef.current.scrollWidth > labelRef.current.clientWidth,
-            )
-          }
-        >
-          <Tooltip.Trigger asChild>
+        <Tooltip.Trigger asChild>
+          <Link
+            className="flex h-8 min-w-0 flex-1 items-center gap-2 px-2 text-sm font-medium"
+            to={`/${path.replace('_ui', '').replace(/^\/+/, '')}`}
+            onClick={(event) => {
+              if (wasDragged()) {
+                event.preventDefault();
+                return;
+              }
+              onNavigate();
+            }}
+          >
+            {Icon && <Icon className="size-4 shrink-0" />}
             <span ref={labelRef} className="truncate">
               {label}
             </span>
-          </Tooltip.Trigger>
-          <Tooltip.Content
-            side="top"
-            align="start"
-            className="w-max max-w-xs whitespace-normal wrap-anywhere"
-          >
-            {label}
-          </Tooltip.Content>
-        </Tooltip>
-        {breadcrumb.length > 1 && (
-          <span className="ml-auto shrink-0 truncate text-xs text-muted-foreground">
-            {breadcrumb[0]}
-          </span>
-        )}
-      </Link>
+            {breadcrumb.length > 1 && (
+              <span className="ml-auto shrink-0 truncate text-xs text-muted-foreground">
+                {breadcrumb[0]}
+              </span>
+            )}
+          </Link>
+        </Tooltip.Trigger>
+        <Tooltip.Content
+          side="top"
+          align="start"
+          className="w-max max-w-xs whitespace-normal wrap-anywhere"
+        >
+          {label}
+        </Tooltip.Content>
+      </Tooltip>
       <IconGripVertical
         aria-hidden
         className={cn(
