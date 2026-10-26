@@ -96,6 +96,13 @@ const built = await build({
   write: false,
   format: 'esm',
   platform: 'node',
+  // The agents sources run as CommonJS in production; documentText.ts locates
+  // its worker from `__dirname`. This fixture never parses a document.
+  banner: {
+    js: `const __dirname = ${JSON.stringify(
+      agentsDir,
+    )}; const __filename = ${JSON.stringify(`${agentsDir}documentText.ts`)};`,
+  },
   logLevel: 'silent',
   plugins: [
     {
