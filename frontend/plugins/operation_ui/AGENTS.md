@@ -6,7 +6,7 @@
 - **Project:** `operation_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/operation_ui`
-- **Last synchronized:** `2026-10-26`
+- **Last synchronized:** `2026-10-23`
 
 ## Scope
 
@@ -20,7 +20,6 @@
 
 ## Current Capabilities
 
-- Task full-page details and record-panel actions print document templates through the public `ui-modules` `PrintDocument` component using `operation:task` and the current task ID.
 - Task date filters use the shared date picker for due, start, creation, update, and completion ranges. Task lists and statistics parse the same URL ranges into paired API bounds, and date-filtered lists refetch on task subscription events.
 
 - The automations widget answers built-in template prerequisites: the
@@ -182,7 +181,6 @@
 
 ## Validation
 
-- Print smoke: open a task from its list and from its full-page route, select a task document template, and confirm the preview and print action use that task's ID.
 - `pnpm nx lint operation_ui`
 - `pnpm nx build operation_ui`
 - `pnpm nx test operation_ui --passWithNoTests` (the inferred Jest target currently has no test files)
