@@ -49,6 +49,9 @@ jobs:
       - name: Build core-api
         run: pnpm nx build core-api
 
+      - name: Test core-api
+        run: pnpm nx test core-api
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
 
