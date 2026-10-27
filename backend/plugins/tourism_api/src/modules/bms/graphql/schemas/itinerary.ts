@@ -140,7 +140,7 @@ const params = `
 
 export const mutations = `
   bmsItineraryAdd(${params}): Itinerary
-  bmsItineraryRemove(ids: [String], branchId: String): JSON
+  bmsItineraryRemove(ids: [String!]!, branchId: String): JSON
   bmsItineraryEdit(_id: String!, ${params}): Itinerary
 
   bmsItineraryTranslationUpsert(input: ItineraryTranslationInput!): ItineraryTranslation

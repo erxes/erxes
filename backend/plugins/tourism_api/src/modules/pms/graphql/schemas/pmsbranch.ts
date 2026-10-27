@@ -50,6 +50,6 @@ export const queries = `
 
 export const mutations = `
   pmsBranchAdd(${commonFields}): PmsBranch
-  pmsBranchEdit(_id: String, ${commonFields}): PmsBranch
+  pmsBranchEdit(_id: String!, ${commonFields}): PmsBranch
   pmsBranchRemove(_id: String!): JSON
 `;
