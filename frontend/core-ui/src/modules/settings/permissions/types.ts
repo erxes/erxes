@@ -26,7 +26,7 @@ export interface IPermissionGroupPermission {
   plugin: string;
   module: string;
   actions: string[];
-  scope: 'own' | 'group' | 'all';
+  scope: string;
 }
 
 export interface IDefaultPermissionGroup {
@@ -41,7 +41,9 @@ export interface IDefaultPermissionGroup {
 export interface IPermissionGroupMember {
   _id: string;
   email: string;
+  isActive?: boolean;
   details?: {
+    fullName?: string;
     firstName?: string;
     lastName?: string;
     avatar?: string;
@@ -52,6 +54,8 @@ export interface IPermissionGroup {
   _id: string;
   name: string;
   description?: string;
+  plugin?: string;
+  templateId?: string;
   permissions: IPermissionGroupPermission[];
   members?: IPermissionGroupMember[];
   createdAt?: Date;
@@ -62,9 +66,4 @@ export interface IPermissionGroup {
 export interface IPermissionModulesByPlugin {
   plugin: string;
   modules: IPermissionModule[];
-}
-
-// For groupedByPlugin
-export interface IGroupedByPlugin {
-  [plugin: string]: IDefaultPermissionGroup[];
 }

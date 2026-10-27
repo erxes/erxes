@@ -82,35 +82,38 @@ const getUserCmsPermissions = async (
   }
 
   const groupIds = user.permissionGroupIds || [];
-  const defaultGroupIds = groupIds.filter((id) => id.includes(':'));
-  const customGroupIds = groupIds.filter((id) => !id.includes(':'));
   const result: CmsPermission[] = [];
 
-  for (const groupId of defaultGroupIds) {
-    const group = permissions.defaultGroups?.find(
-      (item) => item.id === groupId,
-    );
-
-    if (group) {
-      result.push(...(group.permissions as CmsPermission[]));
-    }
-  }
-
-  if (customGroupIds.length) {
-    const groups = await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      method: 'query',
-      module: 'permissionGroups',
-      action: 'find',
-      input: {
-        query: { _id: { $in: customGroupIds } },
-      },
-      defaultValue: [],
-    });
+  if (groupIds.length) {
+    const groups: { _id: string; permissions?: CmsPermission[] }[] =
+      await sendTRPCMessage({
+        subdomain,
+        pluginName: 'core',
+        method: 'query',
+        module: 'permissionGroups',
+        action: 'find',
+        input: {
+          query: { _id: { $in: groupIds } },
+        },
+        defaultValue: [],
+      });
 
     for (const group of groups) {
-      result.push(...((group.permissions || []) as CmsPermission[]));
+      result.push(...(group.permissions || []));
+    }
+
+    const storedGroupIds = groups.map((group) => group._id);
+
+    for (const groupId of groupIds) {
+      if (!groupId.includes(':') || storedGroupIds.includes(groupId)) continue;
+
+      const template = permissions.defaultGroups?.find(
+        (item) => item.id === groupId,
+      );
+
+      if (template) {
+        result.push(...(template.permissions as CmsPermission[]));
+      }
     }
   }
 

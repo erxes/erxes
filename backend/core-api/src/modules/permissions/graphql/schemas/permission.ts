@@ -56,6 +56,8 @@ export const types = `
     _id: String!
     name: String!
     description: String
+    plugin: String
+    templateId: String
     permissions: [PermissionGroupPermission]!
     members: [User]
     createdAt: Date
@@ -74,6 +76,11 @@ export const types = `
     pluginsWithPermissions: [String]!
   }
 
+  type PermissionGroupMembersResponse {
+    list: [User]
+    totalCount: Int
+  }
+
   type CustomPermission {
     plugin: String!
     module: String!
@@ -88,6 +95,11 @@ export const queries = `
   permissionDefaultGroups: [DefaultPermissionGroup]
   permissionGroups: [PermissionGroup]
   permissionGroupDetail(id: String!): PermissionGroup
+  permissionGroupMembers(
+    _id: String!
+    page: Int
+    perPage: Int
+  ): PermissionGroupMembersResponse
   currentUserPermissions: CurrentUserPermissionsResult
 `;
 
@@ -106,6 +118,13 @@ export const mutations = `
   ): PermissionGroup
 
   permissionGroupRemove(_id: String!): JSON
+  permissionGroupResetToTemplate(_id: String!): PermissionGroup
+  permissionGroupMoveMembers(
+    fromGroupId: String!
+    toGroupId: String!
+    userIds: [String]
+    excludeUserIds: [String]
+  ): JSON
 
   userUpdatePermissionGroups(userId: String!, groupIds: [String]!): User
   usersUpdatePermissionGroups(userIds: [String]!, groupIds: [String]!): JSON

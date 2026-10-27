@@ -16,14 +16,9 @@ import { z } from 'zod';
 import { ApolloError } from '@apollo/client';
 import { useTranslation } from 'react-i18next';
 import { usePermissionCheck } from 'ui-modules';
-import {
-  useGetPermissionDefaultGroups,
-  useGetPermissionGroups,
-} from '@/settings/permissions/hooks/useGetPermissionGroups';
-import {
-  IDefaultPermissionGroup,
-  IPermissionGroup,
-} from '@/settings/permissions/types';
+import { useGetPermissionGroups } from '@/settings/permissions/hooks/useGetPermissionGroups';
+import { IPermissionGroup } from '@/settings/permissions/types';
+import { groupPermissionGroupsByPlugin } from '@/settings/permissions/utils/groupPermissionGroups';
 
 const emailSchema = z.string().email();
 type InviteStep = 'emails' | 'permissions';
@@ -51,20 +46,12 @@ export function InviteForm({
   const shouldLoadPermissionGroups =
     canManagePermissions && step === 'permissions';
   const {
-    defaultGroups,
-    loading: defaultGroupsLoading,
-    error: defaultGroupsError,
-  } = useGetPermissionDefaultGroups({
-    skip: !shouldLoadPermissionGroups,
-  });
-  const {
     permissionGroups,
-    loading: customGroupsLoading,
-    error: customGroupsError,
+    loading: permissionGroupsLoading,
+    error: permissionGroupsError,
   } = useGetPermissionGroups({
     skip: !shouldLoadPermissionGroups,
   });
-  const permissionGroupsError = defaultGroupsError || customGroupsError;
 
   const addTag = (value: string) => {
     const normalizedValue = normalizeEmail(value);
@@ -238,55 +225,26 @@ export function InviteForm({
     setStep('permissions');
   }, [getDraftState, validateInvitations]);
 
-  const defaultGroupPluginById = useMemo(() => {
-    return defaultGroups.reduce<Map<string, string>>((groups, group) => {
-      groups.set(group.id, group.plugin || 'other');
-      return groups;
-    }, new Map());
-  }, [defaultGroups]);
-
-  const groupedDefaultGroups = useMemo(() => {
-    return defaultGroups.reduce<Record<string, IDefaultPermissionGroup[]>>(
-      (groups, group) => {
-        const plugin = group.plugin || 'other';
-        groups[plugin] = [...(groups[plugin] || []), group];
-        return groups;
-      },
-      {},
-    );
-  }, [defaultGroups]);
-
-  const handlePermissionGroupChange = useCallback(
-    (groupId: string, checked: boolean, plugin?: string) => {
-      setSelectedPermissionGroupIds((current) => {
-        if (checked) {
-          if (plugin) {
-            return [
-              ...current.filter(
-                (id) => defaultGroupPluginById.get(id) !== plugin,
-              ),
-              groupId,
-            ];
-          }
-
-          if (current.includes(groupId)) {
-            return current;
-          }
-
-          return [...current, groupId];
-        }
-
-        return current.filter((id) => id !== groupId);
-      });
-    },
-    [defaultGroupPluginById],
+  const { pluginGroups, customGroups } = useMemo(
+    () => groupPermissionGroupsByPlugin(permissionGroups),
+    [permissionGroups],
   );
 
-  const renderPermissionGroup = (
-    group: IDefaultPermissionGroup | IPermissionGroup,
-    groupId: string,
-    plugin?: string,
-  ) => {
+  const handlePermissionGroupChange = useCallback(
+    (groupId: string, checked: boolean) => {
+      setSelectedPermissionGroupIds((current) => {
+        if (!checked) {
+          return current.filter((id) => id !== groupId);
+        }
+
+        return current.includes(groupId) ? current : [...current, groupId];
+      });
+    },
+    [],
+  );
+
+  const renderPermissionGroup = (group: IPermissionGroup) => {
+    const groupId = group._id;
     const inputId = `invite-permission-${groupId}`;
 
     return (
@@ -298,7 +256,7 @@ export function InviteForm({
           id={inputId}
           checked={selectedPermissionGroupIds.includes(groupId)}
           onCheckedChange={(checked) =>
-            handlePermissionGroupChange(groupId, checked as boolean, plugin)
+            handlePermissionGroupChange(groupId, checked as boolean)
           }
         />
         <div className="min-w-0 flex-1">
@@ -320,7 +278,7 @@ export function InviteForm({
   };
 
   const isPermissionGroupsLoading =
-    shouldLoadPermissionGroups && (defaultGroupsLoading || customGroupsLoading);
+    shouldLoadPermissionGroups && permissionGroupsLoading;
 
   return (
     <div className="flex flex-col gap-4">
@@ -403,28 +361,24 @@ export function InviteForm({
             </p>
           ) : (
             <div className="flex max-h-80 flex-col gap-4 overflow-y-auto pr-1 styled-scroll">
-              {Object.entries(groupedDefaultGroups).map(([plugin, groups]) => (
+              {Object.entries(pluginGroups).map(([plugin, groups]) => (
                 <div key={plugin} className="space-y-2">
                   <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                     {plugin}
                   </div>
                   <div className="space-y-2">
-                    {groups.map((group) =>
-                      renderPermissionGroup(group, group.id, plugin),
-                    )}
+                    {groups.map(renderPermissionGroup)}
                   </div>
                 </div>
               ))}
 
-              {permissionGroups.length > 0 && (
+              {customGroups.length > 0 && (
                 <div className="space-y-2">
                   <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                     {t('custom-groups')}
                   </div>
                   <div className="space-y-2">
-                    {permissionGroups.map((group) =>
-                      renderPermissionGroup(group, group._id),
-                    )}
+                    {customGroups.map(renderPermissionGroup)}
                   </div>
                 </div>
               )}

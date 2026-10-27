@@ -31,7 +31,10 @@ export const GET_PERMISSION_GROUPS = gql`
       _id
       name
       description
+      plugin
+      templateId
       permissions {
+        plugin
         module
         actions
         scope
@@ -72,6 +75,23 @@ export const GET_PERMISSION_MODULES = gql`
           disabled
         }
       }
+    }
+  }
+`;
+
+export const GET_PERMISSION_GROUP_MEMBERS = gql`
+  query permissionGroupMembers($_id: String!, $page: Int, $perPage: Int) {
+    permissionGroupMembers(_id: $_id, page: $page, perPage: $perPage) {
+      list {
+        _id
+        email
+        isActive
+        details {
+          fullName
+          avatar
+        }
+      }
+      totalCount
     }
   }
 `;

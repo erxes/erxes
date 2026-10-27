@@ -25,6 +25,19 @@ export const CORE_NOTIFICATION_MODULES = [
           },
         ],
       },
+      {
+        name: 'permissions',
+        description: 'Permissions',
+        icon: 'IconShieldLock',
+        events: [
+          {
+            name: 'permissionGroupRemoved',
+            title: 'Permission group removed',
+            description:
+              'Triggered when you are removed from a permission group',
+          },
+        ],
+      },
     ],
   },
 ];

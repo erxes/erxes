@@ -561,7 +561,9 @@
     "keep-editing": "Keep editing",
     "leave-without-saving": "Leave without saving",
     "no-notification-events": "No notification events",
-    "no-notification-events-description": "This plugin sends no notifications you can choose."
+    "no-notification-events-description": "This plugin sends no notifications you can choose.",
+    "permission-group": "Permission group",
+    "unknown-user": "Unknown user"
   },
   "onboarding": {
     "all-set": "You're all set!",

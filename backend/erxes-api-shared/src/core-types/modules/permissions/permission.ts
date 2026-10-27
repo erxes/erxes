@@ -6,11 +6,12 @@ export interface IPermissionAction {
   oauthScopes?: string[];
   always?: boolean;
   disabled?: boolean;
+  readOnly?: boolean;
   type?: 'resolver' | 'custom';
 }
 
 export interface IPermissionScope {
-  name: 'own' | 'group' | 'all';
+  name: string;
   description: string;
 }
 
@@ -20,6 +21,9 @@ export interface IPermissionModule {
   scopes: IPermissionScope[];
   scopeField?: string | null;
   ownerFields?: string[];
+  scopeCollections?: string[];
+  branchField?: string;
+  departmentField?: string;
   actions: IPermissionAction[];
   always?: boolean;
 }
@@ -28,7 +32,7 @@ export interface IPermissionGroupPermission {
   plugin: string;
   module: string;
   actions: string[];
-  scope: 'own' | 'group' | 'all';
+  scope: string;
 }
 
 export interface IDefaultPermissionGroup {
@@ -48,6 +52,8 @@ export interface IPermissionConfig {
 export interface IPermissionGroup {
   name: string;
   description?: string;
+  plugin?: string;
+  templateId?: string;
   permissions: IPermissionGroupPermission[];
 }
 
@@ -59,5 +65,5 @@ export interface IPermissionGroupDocument extends IPermissionGroup, Document {
 export interface IPermissionInput {
   module: string;
   actions: string[];
-  scope: 'own' | 'group' | 'all';
+  scope: string;
 }

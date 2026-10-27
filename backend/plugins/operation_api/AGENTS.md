@@ -6,7 +6,7 @@
 - **Project:** `operation_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/operation_api`
-- **Last synchronized:** `2026-10-25`
+- **Last synchronized:** `2026-10-27`
 
 ## Scope
 
@@ -133,6 +133,9 @@ propertiesData? } })`
 
 ## Local Invariants
 
+- Default permission group templates in `src/meta/permissions.ts` use scope
+  `all`. Record scoping is opt-in through a module's `scopeCollections`, which
+  this plugin does not declare, so its records are not filtered by scope.
 - Every automation action declares a `configSchema` (`src/modules/automations/configSchemas.ts`) with exactly what its handler reads or refuses: create task (`name`, `teamId`, `status`) and create project (`name`, a team). Change the schema with the handler; core publishes it to authors as `configJsonSchema` and enforces it when a flow goes live.
 - Every `createNotifications` call passes `event`, typed
   `TOperationNotificationEvent` from `src/meta/notifications.ts`: task

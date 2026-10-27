@@ -5,7 +5,9 @@ jest.mock('erxes-api-shared/core-modules', () => ({
   canGroup: jest.fn(),
   getGroupActionsMap: jest.fn(),
 }));
-jest.mock('erxes-api-shared/utils', () => ({ sendTRPCMessage: jest.fn() }));
+jest.mock('erxes-api-shared/utils', () => ({
+  sendTRPCMessage: jest.fn().mockResolvedValue([]),
+}));
 
 function contextFor(groupId: string) {
   return {
