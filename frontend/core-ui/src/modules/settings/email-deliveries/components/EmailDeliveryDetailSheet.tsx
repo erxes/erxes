@@ -1,6 +1,7 @@
+import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
 import { useTranslation } from 'react-i18next';
 import { useEmailDeliveryDetail } from '@/settings/email-deliveries/hooks/useEmailDeliveries';
-import { Sheet, Skeleton, useQueryState } from 'erxes-ui';
+import { Skeleton, useQueryState } from 'erxes-ui';
 import dayjs from 'dayjs';
 
 const Row = ({ label, value }: { label: string; value?: string }) =>
@@ -88,19 +89,20 @@ export const EmailDeliveryDetailSheet = () => {
   const [deliveryId, setDeliveryId] = useQueryState<string>('deliveryId');
 
   return (
-    <Sheet
+    <CoreModulePanel
+      name={'settings/email-deliveries/EmailDeliveryDetailSheet'}
       open={!!deliveryId}
-      onOpenChange={() => deliveryId && setDeliveryId(null)}
+      onOpenChange={(open) => !open && deliveryId && setDeliveryId(null)}
     >
-      <Sheet.View className="sm:max-w-2xl flex flex-col gap-0">
-        <Sheet.Header>
-          <Sheet.Title>{t('email-delivery')}</Sheet.Title>
-          <Sheet.Close />
-        </Sheet.Header>
-        <Sheet.Content className="flex-1 min-h-0 overflow-auto">
+      <CoreModulePanel.View className="sm:max-w-2xl flex flex-col gap-0">
+        <CoreModulePanel.Header>
+          <CoreModulePanel.Title>{t('email-delivery')}</CoreModulePanel.Title>
+          <CoreModulePanel.Close />
+        </CoreModulePanel.Header>
+        <CoreModulePanel.Content className="flex-1 min-h-0 overflow-auto">
           {deliveryId && <EmailDeliveryDetail id={deliveryId} />}
-        </Sheet.Content>
-      </Sheet.View>
-    </Sheet>
+        </CoreModulePanel.Content>
+      </CoreModulePanel.View>
+    </CoreModulePanel>
   );
 };

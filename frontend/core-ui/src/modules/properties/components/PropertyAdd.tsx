@@ -1,5 +1,6 @@
+import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
 import { usePropertiesScope } from '@/properties/context/PropertiesScopeContext';
-import { Sheet, toast } from 'erxes-ui';
+import { toast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router';
 import { useSetAtom } from 'jotai';
@@ -44,8 +45,12 @@ export const AddProperty = () => {
   };
 
   return (
-    <Sheet open onOpenChange={handleClose}>
-      <Sheet.View
+    <CoreModulePanel
+      name={'properties/PropertyAdd'}
+      open
+      onOpenChange={handleClose}
+    >
+      <CoreModulePanel.View
         className="p-0"
         onEscapeKeyDown={(e) => {
           e.preventDefault();
@@ -71,7 +76,7 @@ export const AddProperty = () => {
           onCancel={handleClose}
           contentType={type || ''}
         />
-      </Sheet.View>
-    </Sheet>
+      </CoreModulePanel.View>
+    </CoreModulePanel>
   );
 };

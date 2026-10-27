@@ -1,4 +1,5 @@
-import { Sheet, Spinner } from 'erxes-ui';
+import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
+import { Spinner } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import {
   buildLayoutRows,
@@ -18,13 +19,15 @@ export const SystemFieldsLayoutSheet = ({
   open: boolean;
   onClose: () => void;
 }) => (
-  <Sheet open={open} onOpenChange={onClose}>
-    <Sheet.View className="p-0">
-      {open && (
-        <SystemFieldsLayoutEditor contentType={contentType} onClose={onClose} />
-      )}
-    </Sheet.View>
-  </Sheet>
+  <CoreModulePanel
+    name={'properties/SystemFieldsLayoutSheet'}
+    open={open}
+    onOpenChange={(next) => !next && onClose()}
+  >
+    <CoreModulePanel.View className="p-0">
+      <SystemFieldsLayoutEditor contentType={contentType} onClose={onClose} />
+    </CoreModulePanel.View>
+  </CoreModulePanel>
 );
 
 const SystemFieldsLayoutEditor = ({

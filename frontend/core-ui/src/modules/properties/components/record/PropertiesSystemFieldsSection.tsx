@@ -9,9 +9,10 @@ import {
   Spinner,
   Switch,
   Tooltip,
+  useQueryState,
 } from 'erxes-ui';
 import type { TFunction } from 'i18next';
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Can, FIELD_TYPES_OBJECT, useSystemFieldsLayout } from 'ui-modules';
 import { useEditPropertySystemField } from '../../hooks/useEditPropertySystemField';
@@ -221,8 +222,8 @@ export const PropertiesSystemFieldsSection = ({
   const { systemFields, loading } = usePropertySystemFields(contentType);
   // Null unless this content type opened its basic information to layouts.
   const { layout } = useSystemFieldsLayout(contentType);
-  const [logicCode, setLogicCode] = useState<string | null>(null);
-  const [layoutOpen, setLayoutOpen] = useState(false);
+  const [logicCode, setLogicCode] = useQueryState<string>('systemLogicCode');
+  const [layoutOpen, setLayoutOpen] = useQueryState<boolean>('systemLayout');
 
   const columns = useMemo(
     () =>
@@ -315,8 +316,8 @@ export const PropertiesSystemFieldsSection = ({
       />
       <SystemFieldsLayoutSheet
         contentType={contentType}
-        open={layoutOpen}
-        onClose={() => setLayoutOpen(false)}
+        open={!!layoutOpen}
+        onClose={() => setLayoutOpen(null)}
       />
     </Collapsible>
   );

@@ -21,15 +21,13 @@ export const ApprovalRequestsRecordTable = () => {
     hasNextPage,
     hasPreviousPage,
     handleFetchMore,
-    refetch,
   } = useApprovalRequests({ status });
   const columns = useMemo(
     () =>
       approvalRequestColumns({
         t,
-        onCompleted: () => refetch(),
       }),
-    [refetch, t],
+    [t],
   );
   const isEmpty = !loading && !error && totalCount === 0;
 

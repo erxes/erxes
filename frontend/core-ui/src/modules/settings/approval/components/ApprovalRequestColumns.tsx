@@ -16,19 +16,41 @@ import {
   RelativeDateDisplay,
   TextOverflowTooltip,
 } from 'erxes-ui';
-import { ApprovalRequest } from 'ui-modules';
-import { ApprovalRequestDetailSheet } from './ApprovalRequestDetailSheet';
+import { ApprovalRequest, useSidePanel } from 'ui-modules';
 import {
   APPROVAL_REQUEST_STATUS_META,
   getApprovalRequestUserName,
 } from './approvalRequestUtils';
 
+const ApprovalRequestDetailsCell = ({
+  id,
+  t,
+}: {
+  id: string;
+  t: TFunction;
+}) => {
+  const { openRecord } = useSidePanel();
+  return (
+    <RecordTableInlineCell className="justify-center">
+      <Button
+        variant="ghost"
+        size="icon"
+        className="size-7"
+        onClick={() =>
+          openRecord({ contentType: 'core:approvalRequest', contentId: id })
+        }
+      >
+        <IconEye className="size-4" />
+        <span className="sr-only">{t('view-details')}</span>
+      </Button>
+    </RecordTableInlineCell>
+  );
+};
+
 export const approvalRequestColumns = ({
   t,
-  onCompleted,
 }: {
   t: TFunction;
-  onCompleted: () => void;
 }): ColumnDef<ApprovalRequest>[] => [
   {
     id: 'details',
@@ -37,18 +59,7 @@ export const approvalRequestColumns = ({
     minSize: 42,
     header: () => <RecordTable.InlineHead label="" />,
     cell: ({ row }) => (
-      <RecordTableInlineCell className="justify-center">
-        <ApprovalRequestDetailSheet
-          request={row.original}
-          onCompleted={onCompleted}
-          t={t}
-        >
-          <Button variant="ghost" size="icon" className="size-7">
-            <IconEye className="size-4" />
-            <span className="sr-only">{t('view-details')}</span>
-          </Button>
-        </ApprovalRequestDetailSheet>
-      </RecordTableInlineCell>
+      <ApprovalRequestDetailsCell id={row.original._id} t={t} />
     ),
   },
   {

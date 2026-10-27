@@ -1,5 +1,6 @@
-import { Sheet, Spinner } from 'erxes-ui';
-import { useAtom } from 'jotai';
+import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
+import { Spinner } from 'erxes-ui';
+import { useGroupPanelSelection } from '../hooks/useGroupPanelSelection';
 import { useTranslation } from 'react-i18next';
 import { buildGroupRows, LayoutEditor, useFields } from 'ui-modules';
 import { useGroupLayoutSave } from '../hooks/useGroupLayoutSave';
@@ -7,16 +8,28 @@ import { activeLayoutGroupState } from '../states/activeLayoutGroupState';
 import { IFieldGroup } from '../types/Properties';
 
 export const PropertyGroupLayoutSheet = () => {
-  const [group, setGroup] = useAtom(activeLayoutGroupState);
+  const { group, close, loading, error } = useGroupPanelSelection(
+    activeLayoutGroupState,
+    'layoutGroupCode',
+  );
 
   return (
-    <Sheet open={!!group} onOpenChange={() => setGroup(null)}>
-      <Sheet.View className="p-0">
+    <CoreModulePanel
+      name={'properties/PropertyGroupLayoutSheet'}
+      open={!!group}
+      onOpenChange={(open) => !open && close()}
+    >
+      <CoreModulePanel.View
+        className="p-0"
+        loading={loading}
+        error={!!error}
+        notFound={!loading && !group}
+      >
         {group && (
-          <GroupLayoutEditor group={group} onClose={() => setGroup(null)} />
+          <GroupLayoutEditor key={group._id} group={group} onClose={close} />
         )}
-      </Sheet.View>
-    </Sheet>
+      </CoreModulePanel.View>
+    </CoreModulePanel>
   );
 };
 

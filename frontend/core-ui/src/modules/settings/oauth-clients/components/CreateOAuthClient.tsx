@@ -1,6 +1,7 @@
+import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
 import { useTranslation } from 'react-i18next';
 import { IconApi, IconPlus } from '@tabler/icons-react';
-import { Button, Form, Sheet, Spinner, useToast } from 'erxes-ui';
+import { Button, Form, Spinner, useToast } from 'erxes-ui';
 import React, { useState } from 'react';
 import { SubmitHandler } from 'react-hook-form';
 import { useOAuthClientsForm } from '../hooks/useOAuthClientsForm';
@@ -60,39 +61,45 @@ export const CreateOAuthClient = () => {
 
   return (
     <>
-      <Sheet open={open} onOpenChange={setOpen}>
-        <Sheet.Trigger asChild>
+      <CoreModulePanel
+        name={'settings/oauth-clients/CreateOAuthClient'}
+        open={open}
+        onOpenChange={setOpen}
+      >
+        <CoreModulePanel.Trigger asChild>
           <Button>
             <IconPlus />
             {t('create-oauth-client')}
           </Button>
-        </Sheet.Trigger>
-        <Sheet.View className="p-0">
+        </CoreModulePanel.Trigger>
+        <CoreModulePanel.View className="p-0">
           <Form {...methods}>
             <form
               className="flex flex-col gap-0 size-full"
               onSubmit={handleSubmit(submitHandler)}
             >
-              <Sheet.Header>
+              <CoreModulePanel.Header>
                 <IconApi />
-                <Sheet.Title>{t('create-oauth-client')}</Sheet.Title>
-                <Sheet.Close />
-              </Sheet.Header>
-              <Sheet.Content className="grow size-full flex flex-col px-5 py-4">
+                <CoreModulePanel.Title>
+                  {t('create-oauth-client')}
+                </CoreModulePanel.Title>
+                <CoreModulePanel.Close />
+              </CoreModulePanel.Header>
+              <CoreModulePanel.Content className="grow size-full flex flex-col px-5 py-4">
                 <OAuthClientForm />
-              </Sheet.Content>
-              <Sheet.Footer>
+              </CoreModulePanel.Content>
+              <CoreModulePanel.Footer>
                 <Button variant="secondary" onClick={() => setOpen(false)}>
                   {t('cancel')}
                 </Button>
                 <Button type="submit" disabled={loading}>
                   {loading ? <Spinner /> : t('create-client')}
                 </Button>
-              </Sheet.Footer>
+              </CoreModulePanel.Footer>
             </form>
           </Form>
-        </Sheet.View>
-      </Sheet>
+        </CoreModulePanel.View>
+      </CoreModulePanel>
 
       <OAuthClientSecretDialog
         open={!!revealedSecret}

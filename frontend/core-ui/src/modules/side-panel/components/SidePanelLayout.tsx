@@ -66,6 +66,12 @@ const CPUserRecordPanel = lazy(() =>
     '@/contacts/client-portal-users/cp-user-detail/components/CPUserRecordPanel'
   ).then((module) => ({ default: module.CPUserRecordPanel })),
 );
+const ApprovalRequestRecordPanel = lazy(() =>
+  import('@/settings/approval/components/ApprovalRequestRecordPanel').then(
+    (module) => ({ default: module.ApprovalRequestRecordPanel }),
+  ),
+);
+
 // The record's own views, for the types core knows how to show.
 const getRecordViews = ({ contentType, contentId }: TRelationEntity) => {
   if (contentType === 'core:customer') {
@@ -516,7 +522,11 @@ const SidePanelDraft = ({
 export const SidePanelRecord = (
   props: React.ComponentProps<typeof SidePanelSavedRecord>,
 ) =>
-  props.record.contentType === 'core:cpUser' ? (
+  props.record.contentType === 'core:approvalRequest' ? (
+    <Suspense fallback={<Skeleton className="m-3 h-32" />}>
+      <ApprovalRequestRecordPanel {...props} />
+    </Suspense>
+  ) : props.record.contentType === 'core:cpUser' ? (
     <Suspense fallback={<Skeleton className="m-3 h-32" />}>
       <CPUserRecordPanel {...props} />
     </Suspense>

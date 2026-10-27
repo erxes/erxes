@@ -1,13 +1,18 @@
-import { Sheet, useConfirm } from 'erxes-ui';
+import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
+import { useConfirm } from 'erxes-ui';
 import { useFieldGroupEdit } from '../hooks/useFieldGroupEdit';
 import { activePropertyState } from '../states/activePropertyState';
-import { useAtom } from 'jotai';
+import { useGroupPanelSelection } from '../hooks/useGroupPanelSelection';
 import { useTranslation } from 'react-i18next';
 import { IPropertyGroupForm, PropertyGroupForm } from 'ui-modules';
 
 export const PropertyGroupEditSheet = () => {
-  const [activePropertyGroup, setActivePropertyGroup] =
-    useAtom(activePropertyState);
+  const {
+    group: activePropertyGroup,
+    close,
+    loading: groupLoading,
+    error,
+  } = useGroupPanelSelection(activePropertyState, 'editGroupCode');
   const { editFieldGroup, loading } = useFieldGroupEdit();
   const { confirm } = useConfirm();
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });
@@ -21,7 +26,7 @@ export const PropertyGroupEditSheet = () => {
           configs: { ...activePropertyGroup?.configs, isMultiple },
         },
         onCompleted: () => {
-          setActivePropertyGroup(null);
+          close();
         },
         refetchQueries: ['FieldGroups'],
       });
@@ -39,11 +44,15 @@ export const PropertyGroupEditSheet = () => {
   };
 
   return (
-    <Sheet
-      onOpenChange={() => setActivePropertyGroup(null)}
+    <CoreModulePanel
+      name={'properties/PropertyGroupEdit'}
+      onOpenChange={(open) => !open && close()}
       open={!!activePropertyGroup}
     >
-      <Sheet.View
+      <CoreModulePanel.View
+        loading={groupLoading}
+        error={!!error}
+        notFound={!groupLoading && !activePropertyGroup}
         className="p-0"
         onEscapeKeyDown={(e) => {
           e.preventDefault();
@@ -51,6 +60,7 @@ export const PropertyGroupEditSheet = () => {
       >
         {activePropertyGroup && (
           <PropertyGroupForm
+            key={activePropertyGroup._id}
             onSubmit={submitHandler}
             loading={loading}
             defaultValues={{
@@ -58,13 +68,13 @@ export const PropertyGroupEditSheet = () => {
               code: activePropertyGroup.code,
               isMultiple: !!activePropertyGroup.configs?.isMultiple,
             }}
-            onCancel={() => setActivePropertyGroup(null)}
+            onCancel={close}
             locked={!!activePropertyGroup.owner}
             isEdit
             contentType={activePropertyGroup.contentType}
           />
         )}
-      </Sheet.View>
-    </Sheet>
+      </CoreModulePanel.View>
+    </CoreModulePanel>
   );
 };

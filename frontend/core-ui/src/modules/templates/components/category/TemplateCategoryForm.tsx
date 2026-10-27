@@ -1,3 +1,4 @@
+import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -5,7 +6,7 @@ import { z } from 'zod';
 import { useTemplateCategoryAdd } from '@/templates/hooks/useTemplateCategoryAdd';
 import { useTemplateCategoryEdit } from '@/templates/hooks/useTemplateCategoryEdit';
 import { TemplateCategory } from '@/templates/types/TemplateCategory';
-import { Button, Form, Input, Sheet } from 'erxes-ui';
+import { Button, Form, Input } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
 const formSchema = z.object({
@@ -90,7 +91,7 @@ export const TemplateCategoryForm = ({
         onSubmit={form.handleSubmit(onSubmit)}
         className="flex flex-col h-full overflow-hidden"
       >
-        <Sheet.Content className="flex-auto overflow-hidden">
+        <CoreModulePanel.Content className="flex-auto overflow-hidden">
           <div className="flex flex-col gap-4 p-5">
             <Form.Field
               control={form.control}
@@ -132,9 +133,9 @@ export const TemplateCategoryForm = ({
               )}
             /> */}
           </div>
-        </Sheet.Content>
+        </CoreModulePanel.Content>
 
-        <Sheet.Footer className="flex justify-end gap-1 bg-muted p-2.5 shrink-0">
+        <CoreModulePanel.Footer className="flex justify-end gap-1 bg-muted p-2.5 shrink-0">
           <Button
             type="button"
             variant="ghost"
@@ -152,10 +153,10 @@ export const TemplateCategoryForm = ({
             {addLoading || editLoading
               ? t('saving')
               : category
-                ? t('update-category')
-                : t('create-category')}
+              ? t('update-category')
+              : t('create-category')}
           </Button>
-        </Sheet.Footer>
+        </CoreModulePanel.Footer>
       </form>
     </Form>
   );

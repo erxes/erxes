@@ -1,7 +1,8 @@
+import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@apollo/client';
 import { Spinner, Table } from 'erxes-ui';
-import { Sheet } from 'erxes-ui/components/sheet';
+
 import { GET_DEPARTMENT_MEMBERS } from '../../graphql';
 import { useState } from 'react';
 import { IUser, MembersInline } from 'ui-modules';
@@ -42,19 +43,23 @@ export const DepartmentMembersSheet = ({
   const members: IUser[] = data?.departmentDetail?.users || [];
 
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
-      <Sheet.Trigger asChild>
+    <CoreModulePanel
+      name={`settings/department-members/${departmentId}`}
+      open={open}
+      onOpenChange={setOpen}
+    >
+      <CoreModulePanel.Trigger asChild>
         <button className="w-full h-full font-medium text-sm hover:underline">
           {count}
         </button>
-      </Sheet.Trigger>
-      <Sheet.View className="flex flex-col w-80">
-        <Sheet.Header>
-          <Sheet.Title>
+      </CoreModulePanel.Trigger>
+      <CoreModulePanel.View className="flex flex-col w-80">
+        <CoreModulePanel.Header>
+          <CoreModulePanel.Title>
             {data?.departmentDetail?.title || t('department')}
-          </Sheet.Title>
-        </Sheet.Header>
-        <Sheet.Content className="flex-1 px-4 py-4 overflow-y-auto styled-scroll">
+          </CoreModulePanel.Title>
+        </CoreModulePanel.Header>
+        <CoreModulePanel.Content className="flex-1 px-4 py-4 overflow-y-auto styled-scroll">
           {loading ? (
             <div className="flex justify-center py-8">
               <Spinner />
@@ -91,8 +96,8 @@ export const DepartmentMembersSheet = ({
               </Table>
             </div>
           )}
-        </Sheet.Content>
-      </Sheet.View>
-    </Sheet>
+        </CoreModulePanel.Content>
+      </CoreModulePanel.View>
+    </CoreModulePanel>
   );
 };
