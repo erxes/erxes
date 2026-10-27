@@ -32,6 +32,7 @@ jobs:
           - erxes/erxes-next-insurance_api
           - erxes/erxes-next-logs
           - erxes/erxes-next-automations
+          - erxes/erxes-next-data-extensions-api
           - erxes/erxes-next-ui
           - erxes/frontline-widgets
           - erxes/posclient-front

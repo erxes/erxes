@@ -1,0 +1,87 @@
+name: CI Data-extensions-service
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'backend/services/data-extensions-api/**'
+      - 'backend/erxes-api-shared/**'
+      - 'frontend/libs/ui-modules/src/modules/data-extensions/**'
+      - '.github/workflows/ci-service-data-extensions.yml'
+  pull_request:
+    paths:
+      - 'backend/services/data-extensions-api/**'
+      - 'backend/erxes-api-shared/**'
+      - 'frontend/libs/ui-modules/src/modules/data-extensions/**'
+      - '.github/workflows/ci-service-data-extensions.yml'
+
+env:
+  NX_DAEMON: false
+  NODE_OPTIONS: --max-old-space-size=6144
+
+jobs:
+  data-extensions-ci:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 9
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install dependencies
+        run: pnpm install --no-frozen-lockfile
+
+      - name: Set environment variables
+        run: |
+          echo "DATE=$(date +'%Y%m%d')" >> $GITHUB_ENV
+          echo "SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)" >> $GITHUB_ENV
+
+      - name: Test Data Extensions core module
+        run: pnpm exec jest -c backend/erxes-api-shared/jest.config.ts backend/erxes-api-shared/src/core-modules/data-extensions
+
+      - name: Test Data Extensions UI module
+        run: pnpm exec jest -c frontend/libs/ui-modules/jest.config.ts frontend/libs/ui-modules/src/modules/data-extensions
+
+      - name: Test data-extensions-api
+        run: pnpm nx test data-extensions-api
+
+      - name: Build shared module
+        run: pnpm nx build erxes-api-shared
+
+      - name: Build data-extensions-api
+        run: pnpm nx build data-extensions-api
+
+      # Buildx setup
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # Pull requests build the image to check the Dockerfile; main pushes it.
+      - name: Build Docker image (and push on main)
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: backend/services/data-extensions-api/Dockerfile
+          push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+          platforms: ${{ github.event_name == 'push' && 'linux/amd64,linux/arm64' || 'linux/amd64' }}
+          tags: |
+            erxes/erxes-next-data-extensions-api:latest
+            erxes/erxes-next-data-extensions-api:${{ env.DATE }}-${{ env.SHORT_SHA }}
