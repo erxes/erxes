@@ -866,8 +866,9 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
   conversation's right rail (`SideMenu`) holds a customer button, which closes
   any open rail tab and opens the conversation's customer in the app side panel
   (`core:customer`, where its linked records, Tracked data included, are
-  shown), and the conversation Properties tab. No relation widgets are rendered
-  beside a conversation.
+  shown), and the conversation Properties tab, which renders `FieldsInDetail`
+  with `bare` (property groups only, no outer card). No relation widgets are
+  rendered beside a conversation.
 - `ui-modules`: `SelectBrand`, `MembersInline`, `CustomersInline`, contacts and
   structure selects,
   `AutomationRemoteEntryWrapper`, `AutomationRemoteEntryTypes`,

@@ -234,6 +234,7 @@ export const ProductDetailSheet = () => {
                         className="p-4 data-[state=active]:min-h-0"
                       >
                         <FieldsInDetail
+                          bare
                           key={productDetail?._id || productId || 'empty'}
                           fieldContentType="core:product"
                           propertiesData={productDetail?.propertiesData || {}}
