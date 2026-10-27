@@ -10,3 +10,6 @@ export * from './components/DataExtensionRecordPicker';
 export * from './components/DataExtensionRecordSearchPicker';
 export * from './components/DataExtensionFieldsEditor';
 export * from './components/DataExtensionRecordSection';
+export * from './utils/createValues';
+export * from './components/DataExtensionCreateFields';
+export * from './components/DataExtensionRecordFields';

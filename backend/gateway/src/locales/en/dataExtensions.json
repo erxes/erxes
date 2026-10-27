@@ -241,5 +241,11 @@
   "delete": "Delete",
   "delete-confirm": "Delete “{{label}}”?",
   "delete-confirm-description": "This removes the field and every value stored under {{key}} on all records. It cannot be undone. Archive instead if you may need the values later.",
-  "delete-confirm-description-relation": "This removes both sides of the relation and every link stored under {{key}}. It cannot be undone. Archive instead if you may need the links later."
+  "delete-confirm-description-relation": "This removes both sides of the relation and every link stored under {{key}}. It cannot be undone. Archive instead if you may need the links later.",
+  "inline": {
+    "saved": "Saved"
+  },
+  "widget": {
+    "manage": "Manage"
+  }
 }

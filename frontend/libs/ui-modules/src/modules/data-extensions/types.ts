@@ -69,6 +69,10 @@ export interface IDataExtensionRecordType {
   label: string;
   typeName: string;
   owner: string;
+  /** erxes content types whose screens show records of this type. */
+  contentTypes: string[];
+  /** Root mutation fields that create a record of this type. */
+  createMutations: string[];
   fieldCount: number;
 }
 

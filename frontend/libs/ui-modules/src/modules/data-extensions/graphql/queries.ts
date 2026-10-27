@@ -32,6 +32,8 @@ export const DATA_EXTENSION_RECORD_TYPES = gql`
       label
       typeName
       owner
+      contentTypes
+      createMutations
       fieldCount
     }
   }
