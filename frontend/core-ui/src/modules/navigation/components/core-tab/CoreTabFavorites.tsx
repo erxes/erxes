@@ -43,6 +43,7 @@ const CoreTabFavoriteItem = ({
   name: string;
   path: string;
   onNavigate: () => void;
+  // A drop ends with a click on the dragged link; that click must not open it.
   wasDragged: () => boolean;
 }>) => {
   const { t } = useTranslation('common', { keyPrefix: 'navigation' });
@@ -56,8 +57,15 @@ const CoreTabFavoriteItem = ({
     transition,
   } = useSortable({ id: path });
   const label = breadcrumb.length > 1 ? breadcrumb.slice(1).join(' / ') : name;
+  const moduleName = breadcrumb.length > 1 ? breadcrumb[0] : undefined;
   const labelRef = useRef<HTMLSpanElement>(null);
+  const moduleRef = useRef<HTMLSpanElement>(null);
   const [tooltipOpen, setTooltipOpen] = useState(false);
+
+  const isTruncated = () =>
+    [labelRef.current, moduleRef.current].some(
+      (element) => !!element && element.scrollWidth > element.clientWidth,
+    );
 
   return (
     <div
@@ -65,20 +73,14 @@ const CoreTabFavoriteItem = ({
       {...listeners}
       ref={setNodeRef}
       className={cn(
-        'group/favorite flex h-8 items-center rounded hover:bg-accent',
+        'group/favorite flex h-8 w-full min-w-0 items-center rounded hover:bg-accent',
         isDragging && 'relative z-10 bg-accent opacity-80 shadow-sm',
       )}
       style={{ transform: CSS.Transform.toString(transform), transition }}
     >
       <Tooltip
         open={tooltipOpen}
-        onOpenChange={(open) =>
-          setTooltipOpen(
-            open &&
-              !!labelRef.current &&
-              labelRef.current.scrollWidth > labelRef.current.clientWidth,
-          )
-        }
+        onOpenChange={(open) => setTooltipOpen(open && isTruncated())}
       >
         <Tooltip.Trigger asChild>
           <Link
@@ -93,12 +95,15 @@ const CoreTabFavoriteItem = ({
             }}
           >
             {Icon && <Icon className="size-4 shrink-0" />}
-            <span ref={labelRef} className="truncate">
+            <span ref={labelRef} className="min-w-0 flex-1 truncate">
               {label}
             </span>
-            {breadcrumb.length > 1 && (
-              <span className="ml-auto shrink-0 truncate text-xs text-muted-foreground">
-                {breadcrumb[0]}
+            {moduleName && (
+              <span
+                ref={moduleRef}
+                className="min-w-0 max-w-[40%] truncate text-xs text-muted-foreground"
+              >
+                {moduleName}
               </span>
             )}
           </Link>
@@ -108,7 +113,7 @@ const CoreTabFavoriteItem = ({
           align="start"
           className="w-max max-w-xs whitespace-normal wrap-anywhere"
         >
-          {label}
+          {moduleName ? `${label} · ${moduleName}` : label}
         </Tooltip.Content>
       </Tooltip>
       <IconGripVertical
