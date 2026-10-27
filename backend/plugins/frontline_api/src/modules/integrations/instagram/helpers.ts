@@ -172,6 +172,8 @@ export const repairIntegrations = async (
     throw new Error('Page ID not found');
   }
 
+  // Like Discord, repair this connection in place. Other connection IDs are
+  // referenced by history and may also be repaired during OAuth reconnect.
   try {
     const pageTokens = await refreshPageAccesToken(models, pageId, integration);
     await subscribePage(pageId, pageTokens[pageId]);
@@ -188,12 +190,6 @@ export const repairIntegrations = async (
     );
     throw error;
   }
-
-  await models.InstagramIntegrations.deleteMany({
-    erxesApiId: { $ne: integrationId },
-    facebookPageId: pageId,
-    kind: integration.kind,
-  });
 
   await models.InstagramIntegrations.updateOne(
     { erxesApiId: integrationId },

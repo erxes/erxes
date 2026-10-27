@@ -178,9 +178,14 @@ test('Repair reports helper HTTP failure and does not remain healthy', async () 
 });
 
 test.each([INTEGRATION_KINDS.MESSENGER, INTEGRATION_KINDS.POST])(
-  'Repair removes only duplicate %s integrations for the same Page',
+  'Repair preserves other %s connections and leaves each one repairable',
   async (kind) => {
     const current = makeIntegration(kind);
+    const duplicate = {
+      ...current,
+      _id: 'duplicate',
+      erxesApiId: 'duplicate',
+    };
     const sibling = makeIntegration(
       kind === INTEGRATION_KINDS.MESSENGER
         ? INTEGRATION_KINDS.POST
@@ -188,7 +193,7 @@ test.each([INTEGRATION_KINDS.MESSENGER, INTEGRATION_KINDS.POST])(
     );
     rows = [
       current,
-      { ...current, _id: 'duplicate', erxesApiId: 'duplicate' },
+      duplicate,
       sibling,
       {
         ...current,
@@ -203,10 +208,21 @@ test.each([INTEGRATION_KINDS.MESSENGER, INTEGRATION_KINDS.POST])(
 
     expect(rows.map(({ _id }) => _id)).toEqual([
       current._id,
+      duplicate._id,
       sibling._id,
       'other-page',
     ]);
     expect(current.healthStatus).toBe('healthy');
+    expect(duplicate.healthStatus).toBeUndefined();
+
+    // OAuth reconnect repairs every connection for the account in sequence.
+    await expect(repairIntegrations('test', duplicate.erxesApiId)).resolves.toBe(
+      true,
+    );
+    expect(duplicate.healthStatus).toBe('healthy');
+    expect(deletePosts).not.toHaveBeenCalled();
+    expect(deleteMessages).not.toHaveBeenCalled();
+    expect(deleteCustomers).not.toHaveBeenCalled();
   },
 );
 

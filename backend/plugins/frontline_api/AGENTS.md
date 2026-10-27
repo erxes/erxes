@@ -336,6 +336,8 @@
   unavailable. Existing customer profiles are reused without automatic refresh.
 - Instagram Repair marks healthy only after token refresh, Meta subscription,
   and forwarding-helper registration succeed. Helper HTTP failures are errors.
+  Like Discord Repair, it restores the selected connection in place and keeps
+  other connection records and their history intact, including on OAuth login.
   Failed registration removes its new provider row; removing Post or Messenger
   preserves the shared subscription and forwarding endpoint until the last
   integration using that page is removed.
@@ -1572,9 +1574,10 @@ tagIds, propertiesData: JSON)` (the customer comes from the widget session) — 
   and tenant-scoped Mongo leases prevent concurrent retry inserts. Keep the
   original raw-body HMAC verification on webhook delivery.
 - Instagram history's provider-copy lookup uses the non-unique
-  `(conversationId, mid)` index. Repair removes duplicates by the persisted
-  `facebookPageId` and integration kind, preserving the current integration,
-  its Post/Messenger sibling and other Pages.
+  `(conversationId, mid)` index. Repair must not delete or merge other
+  connections: provider conversations/posts and inbox conversations retain
+  references to their original connection IDs. Duplicate cleanup requires an
+  explicit history-preserving lifecycle; it is not part of Repair.
 - Instagram message state changes (reactions, deletions, read/delivery
   receipts) are written to both `instagram_conversation_messages` and the inbox
   `conversation_messages` row matched by `providerData.messageId`/`mid`, then
