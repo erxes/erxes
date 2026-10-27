@@ -9,7 +9,7 @@ import {
   ImportHeaderDataType,
   ImportHeaderDefinition,
 } from 'erxes-api-shared/core-modules';
-import { Model } from 'mongoose';
+import { Model, mongo } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { getCustomFields } from '~/modules/forms/utils';
 
@@ -295,6 +295,113 @@ export const readImportBulkOutcome = ({
     insertedIds[operationIndex] ?? insertedIds[String(operationIndex)];
 
   return insertedId ? { insertedId } : { error: 'Insert was not acknowledged' };
+};
+
+type TMongooseBulkWriteInfo = {
+  validationErrors: Error[];
+  results: Array<Error | mongo.WriteError | null>;
+};
+
+export type TImportBulkOperation =
+  | { insertOne: { document: mongo.Document } }
+  | {
+      updateOne: {
+        filter: { _id: unknown };
+        update: mongo.UpdateFilter<mongo.Document>;
+      };
+    };
+
+export type TImportBulkWriteOutcome = { error?: string; insertedId?: unknown };
+
+/**
+ * Write an import batch as one unordered bulkWrite and report every operation.
+ *
+ * The driver's `insertedIds` are numbered within the inserts alone, and
+ * Mongoose 8 sends operations in string-sorted index order (`10` before `2`),
+ * so neither they nor `writeErrors[].index` line up with the operations
+ * passed in. Each operation is tied to its record instead: an insert gets its
+ * `_id` before it is sent, an update targets one record by `_id`, and a
+ * refused write is matched back through that id. A refused write also makes
+ * the call throw although the rest was applied, so the outcome is read from
+ * the error rather than failing the whole batch.
+ */
+export const runImportBulkWrite = async <T>(
+  model: Model<T>,
+  operations: TImportBulkOperation[],
+): Promise<TImportBulkWriteOutcome[]> => {
+  const targetIds: unknown[] = [];
+
+  const writes = operations.map((operation): TImportBulkOperation => {
+    if ('updateOne' in operation) {
+      targetIds.push(operation.updateOne.filter._id);
+      return operation;
+    }
+
+    const { _id } = new model(operation.insertOne.document);
+
+    targetIds.push(_id);
+    return {
+      insertOne: { document: { ...operation.insertOne.document, _id } },
+    };
+  });
+
+  const indexesByTarget = new Map<string, number[]>();
+
+  targetIds.forEach((targetId, index) => {
+    const key = String(targetId);
+
+    indexesByTarget.set(key, [...(indexesByTarget.get(key) || []), index]);
+  });
+
+  let writeErrors: mongo.WriteError[] = [];
+  let mongooseInfo: TMongooseBulkWriteInfo | undefined;
+
+  try {
+    ({ mongoose: mongooseInfo } = await model.bulkWrite<mongo.Document>(
+      writes,
+      { ordered: false },
+    ));
+  } catch (error) {
+    if (!(error instanceof mongo.MongoBulkWriteError)) {
+      throw error;
+    }
+
+    writeErrors = [error.writeErrors].flat();
+    mongooseInfo = (
+      error as mongo.MongoBulkWriteError & { mongoose?: TMongooseBulkWriteInfo }
+    ).mongoose;
+  }
+
+  const validationErrors = new Set(mongooseInfo?.validationErrors);
+
+  const outcomes = operations.map(
+    (operation, index): TImportBulkWriteOutcome => {
+      const failure = mongooseInfo?.results[index];
+
+      if (failure instanceof Error && validationErrors.has(failure)) {
+        return { error: failure.message };
+      }
+
+      return 'insertOne' in operation ? { insertedId: targetIds[index] } : {};
+    },
+  );
+
+  for (const writeError of writeErrors) {
+    const error =
+      writeError.errmsg || `Write failed with code ${writeError.code}`;
+    const sent = writeError.getOperation();
+    const indexes = indexesByTarget.get(String(sent._id ?? sent.q?._id));
+
+    if (!indexes) {
+      throw new Error(error);
+    }
+
+    for (const index of indexes) {
+      outcomes[index] = { error };
+    }
+  }
+
+  return outcomes;
 };
 
 /**
