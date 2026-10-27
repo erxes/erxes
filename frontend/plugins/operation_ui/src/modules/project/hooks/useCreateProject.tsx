@@ -15,9 +15,9 @@ export const useCreateProject = () => {
     CREATE_PROJECT_MUTATION,
     {
       refetchQueries: [
-        'getProjects',
+        'GetProjects',
         'getConvertedProject',
-        'getProjectsInline',
+        'GetProjectsInline',
       ],
       onCompleted: () => {
         toast({

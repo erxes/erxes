@@ -32,8 +32,7 @@ export const useCreateTriageRecord = () => {
 
   const triageTeams = teams.filter((team) => team.triageEnabled);
   const triageTeamId =
-    triageTeams.find((team) => team._id === teamId)?._id ||
-    triageTeams[0]?._id;
+    triageTeams.find((team) => team._id === teamId)?._id || triageTeams[0]?._id;
 
   const openTriageDraft = (
     draft: Omit<TTriageDraft, 'teamId'> = {},
@@ -81,6 +80,16 @@ export const useCreateTriageRecord = () => {
           customerId,
           companyId,
         },
+      },
+      // Contacts' triage lists may be unmounted (the draft replaced their
+      // record in the side panel), so refetchQueries would skip them.
+      update: (cache) => {
+        if (customerId || companyId) {
+          cache.evict({
+            id: 'ROOT_QUERY',
+            fieldName: 'operationGetTriageList',
+          });
+        }
       },
       onCompleted: ({ operationAddTriage: created }) => {
         if (!created?._id) {
