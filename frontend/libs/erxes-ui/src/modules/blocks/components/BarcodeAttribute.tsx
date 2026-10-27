@@ -1,23 +1,28 @@
 import {
-  PointerEvent as ReactPointerEvent,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
-import { Button } from 'erxes-ui/components';
-import { IconArrowsDiagonal } from '@tabler/icons-react';
-
-const MIN_WIDTH = 80;
-const MIN_HEIGHT = 30;
-const MAX_WIDTH = 600;
-const MAX_HEIGHT = 300;
-
-type BarcodeSize = Readonly<{ width: number; height: number }>;
+  BarcodeSize,
+  BARCODE_SIZE_PRESETS,
+  BARCODE_DIMENSION_LIMITS,
+  useBarcodeAttribute,
+} from '../hooks/useBarcodeAttribute';
+import { useRef } from 'react';
+import { Button } from '../../../components/button';
+import { Form } from '../../../components/form';
+import { Input } from '../../../components/input';
+import { Popover } from '../../../components/popover';
+import { Select } from '../../../components/select';
+import { useBlockEditorEditable } from '../hooks/useBlockEditorEditable';
+import {
+  IconArrowsDiagonal,
+  IconCheck,
+  IconSettings,
+  IconTrash,
+} from '@tabler/icons-react';
 
 type BarcodeAttributeProps = Readonly<{
   editable: boolean;
   height: number;
   onResize: (size: BarcodeSize) => void;
+  onRemove: (element: HTMLElement) => void;
   width: number;
 }>;
 
@@ -25,72 +30,32 @@ export const BarcodeAttribute = ({
   editable,
   height,
   onResize,
+  onRemove,
   width,
 }: BarcodeAttributeProps) => {
-  const [size, setSize] = useState<BarcodeSize>({ width, height });
-  const dragStart = useRef<
-    (BarcodeSize & { clientX: number; clientY: number }) | null
-  >(null);
-
-  useEffect(() => {
-    if (!dragStart.current) {
-      setSize({ width, height });
-    }
-  }, [height, width]);
-
-  const getResizedDimensions = (event: ReactPointerEvent) => {
-    const start = dragStart.current;
-
-    if (!start) {
-      return size;
-    }
-
-    return {
-      width: Math.min(
-        MAX_WIDTH,
-        Math.max(MIN_WIDTH, start.width + event.clientX - start.clientX),
-      ),
-      height: Math.min(
-        MAX_HEIGHT,
-        Math.max(MIN_HEIGHT, start.height + start.clientY - event.clientY),
-      ),
-    };
-  };
-
-  const handleResizeStart = (event: ReactPointerEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-    event.stopPropagation();
-    event.currentTarget.setPointerCapture(event.pointerId);
-    dragStart.current = {
-      ...size,
-      clientX: event.clientX,
-      clientY: event.clientY,
-    };
-  };
-
-  const handleResize = (event: ReactPointerEvent<HTMLButtonElement>) => {
-    if (dragStart.current) {
-      setSize(getResizedDimensions(event));
-    }
-  };
-
-  const handleResizeEnd = (event: ReactPointerEvent<HTMLButtonElement>) => {
-    if (!dragStart.current) {
-      return;
-    }
-
-    const resizedDimensions = getResizedDimensions(event);
-    dragStart.current = null;
-    setSize(resizedDimensions);
-    onResize(resizedDimensions);
-  };
+  const canEdit = useBlockEditorEditable(editable);
+  const barcodeRef = useRef<HTMLSpanElement>(null);
+  const {
+    form,
+    size,
+    preset,
+    settingsOpen,
+    applySize,
+    handleSettingsOpenChange,
+    handlePresetChange,
+    handleInputKeyDown,
+    handleResizeStart,
+    handleResize,
+    handleResizeEnd,
+    handleResizeCancel,
+  } = useBarcodeAttribute({ width, height, onResize });
 
   return (
     <span
-      className="relative inline-block align-middle"
+      ref={barcodeRef}
+      className="inline-flex flex-col items-start align-middle"
       contentEditable={false}
       title="Barcode preview — prints the selected product’s barcode"
-      style={size}
     >
       <svg
         width="100%"
@@ -100,6 +65,7 @@ export const BarcodeAttribute = ({
         role="img"
         aria-label="Product barcode preview"
         className="block bg-white"
+        style={size}
       >
         <path
           stroke="#000"
@@ -118,24 +84,117 @@ export const BarcodeAttribute = ({
         />
         <path stroke="#000" strokeWidth="8" d="M120 69L120 0" />
       </svg>
-      {editable && (
-        <Button
-          type="button"
-          variant="outline"
-          size="icon"
-          aria-label="Resize barcode"
-          title="Drag up to increase height; drag right to increase width"
-          className="absolute -right-1 -top-1 z-10 size-5 touch-none cursor-nesw-resize rounded-full border border-primary bg-background p-0 text-primary"
-          onPointerDown={handleResizeStart}
-          onPointerMove={handleResize}
-          onPointerUp={handleResizeEnd}
-          onPointerCancel={() => {
-            dragStart.current = null;
-            setSize({ width, height });
-          }}
-        >
-          <IconArrowsDiagonal className="size-3" />
-        </Button>
+      {canEdit && (
+        <span className="erxes-block-controls order-first mb-1 flex gap-1 rounded bg-background p-1 text-foreground shadow-sm print:hidden">
+          <Button
+            type="button"
+            variant="outline"
+            size="icon"
+            aria-label="Resize barcode"
+            title="Drag up to increase height; drag right to increase width"
+            className="touch-none cursor-nesw-resize"
+            onPointerDown={handleResizeStart}
+            onPointerMove={handleResize}
+            onPointerUp={handleResizeEnd}
+            onPointerCancel={handleResizeCancel}
+          >
+            <IconArrowsDiagonal />
+          </Button>
+          <Popover open={settingsOpen} onOpenChange={handleSettingsOpenChange}>
+            <Popover.Trigger asChild>
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                aria-label="Barcode settings"
+                title="Barcode settings"
+              >
+                <IconSettings />
+              </Button>
+            </Popover.Trigger>
+            <Popover.Content
+              className="w-64 text-foreground"
+              onClick={(event) => event.stopPropagation()}
+            >
+              <Form {...form}>
+                <div className="space-y-3">
+                  <p className="text-sm font-medium">Barcode size</p>
+                  <Select
+                    value={preset ? String(preset.width) : ''}
+                    onValueChange={handlePresetChange}
+                  >
+                    <Select.Trigger aria-label="Barcode size preset">
+                      <Select.Value placeholder="Custom size" />
+                    </Select.Trigger>
+                    <Select.Content>
+                      {BARCODE_SIZE_PRESETS.map((size) => (
+                        <Select.Item
+                          key={size.width}
+                          value={String(size.width)}
+                        >
+                          {size.width} × {size.height} px
+                        </Select.Item>
+                      ))}
+                    </Select.Content>
+                  </Select>
+                  {(['width', 'height'] as const).map((dimension) => (
+                    <Form.Field
+                      key={dimension}
+                      control={form.control}
+                      name={dimension}
+                      render={({ field }) => (
+                        <Form.Item>
+                          <Form.Label>
+                            {dimension === 'width'
+                              ? 'Width (px)'
+                              : 'Height (px)'}
+                          </Form.Label>
+                          <Form.Control>
+                            <Input
+                              {...field}
+                              onKeyDown={handleInputKeyDown}
+                              type="number"
+                              step={1}
+                              min={BARCODE_DIMENSION_LIMITS[dimension].min}
+                              max={BARCODE_DIMENSION_LIMITS[dimension].max}
+                            />
+                          </Form.Control>
+                          <Form.Message />
+                        </Form.Item>
+                      )}
+                    />
+                  ))}
+                  <div className="flex justify-end">
+                    <Button
+                      type="button"
+                      size="icon"
+                      aria-label="Apply barcode size"
+                      title="Apply barcode size"
+                      onClick={() => void applySize()}
+                    >
+                      <IconCheck />
+                    </Button>
+                  </div>
+                </div>
+              </Form>
+            </Popover.Content>
+          </Popover>
+          <Button
+            type="button"
+            variant="outline"
+            size="icon"
+            aria-label="Delete barcode"
+            title="Delete barcode"
+            className="text-destructive"
+            onClick={(event) => {
+              event.preventDefault();
+              event.stopPropagation();
+              if (barcodeRef.current) onRemove(barcodeRef.current);
+            }}
+          >
+            <IconTrash />
+          </Button>
+        </span>
       )}
     </span>
   );
