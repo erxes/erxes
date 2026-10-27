@@ -14,7 +14,7 @@ export const RecordDescriptionField = ({
   const { t } = useTranslation('operation');
   const { editor, isReady } = useDescriptionEditor(
     value,
-    t('description-placeholder', 'Add a description...'),
+    t('description-command-placeholder', 'Type "/" for commands...'),
   );
   const beforeEditing = useRef<string>();
 
