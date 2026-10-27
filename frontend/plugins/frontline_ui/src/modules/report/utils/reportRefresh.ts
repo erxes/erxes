@@ -38,7 +38,7 @@ export const createReportRefresh = (
         // Cancellation bounds the batch even when a link fails to settle on abort.
         await Promise.race([refetch(scopes, signal), aborted]);
       } catch {
-        // Each query exposes its own error; periodic reconciliation retries later.
+        // Each query exposes its own error; later events or browser recovery can retry.
       } finally {
         clearTimeout(timeout);
         signal.removeEventListener('abort', finishAbort);
