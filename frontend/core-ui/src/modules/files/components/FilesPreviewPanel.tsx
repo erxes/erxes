@@ -3,8 +3,6 @@ import {
   IconDownload,
   IconFileUpload,
   IconFolderSymlink,
-  IconLayoutColumns,
-  IconLayoutSidebarRightExpand,
   IconLink,
   IconLinkOff,
   IconPencil,
@@ -84,19 +82,6 @@ export const FilesPreviewPanel = () => {
             <Separator.Inline />
           </>
         )}
-        <Button
-          variant="ghost"
-          size="icon"
-          aria-label={t(panel.isSplit ? 'open-as-sheet' : 'open-beside-list')}
-          title={t(panel.isSplit ? 'open-as-sheet' : 'open-beside-list')}
-          onClick={panel.toggleMode}
-        >
-          {panel.isSplit ? (
-            <IconLayoutSidebarRightExpand />
-          ) : (
-            <IconLayoutColumns />
-          )}
-        </Button>
         <Button
           variant="ghost"
           size="icon"
