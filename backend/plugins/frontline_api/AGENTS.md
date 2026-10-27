@@ -644,6 +644,7 @@ The root router mounts its authenticated webhook at `/telegram`.
 | FB messenger services    | `src/modules/integrations/facebook/services/`                                                                                                                    | `messengerSend` (messaging params, bot text send with tag retry), `messageEvents` (reaction replace, message publish, reply-to), `automatedReplyControl`, `conversationSync`, `messageNormalization`, `messagePreview` |
 | IG messenger services    | `src/modules/integrations/instagram/services/`, `normalizeMessage.ts`                                                                                            | `messageEvents` (sender reaction replace, inbox publish), `copyInstagramImage` (allow-listed image proxy), webhook payload normalization to the shared message contract                                                |
 | Ticket                   | `src/modules/ticket/`                                                                                                                                            | Boards, pipelines, statuses, tickets, activities, notes                                                                                                                                                                |
+| Dispatched reply storage | `src/modules/inbox/services/storeDispatchedMessage.ts`                                                                                                           | Canonical copy of a provider-delivered agent reply: content priority (forwarded note, Facebook delivery, display content, Instagram forward, composer), Instagram multipart storage and ordered publish                |
 | Forms                    | `src/modules/form/`                                                                                                                                              | Forms, fields, submissions                                                                                                                                                                                             |
 | Surveys                  | `src/modules/survey/`                                                                                                                                            | Survey definitions, vote ledger, message snapshot, tally refresh                                                                                                                                                       |
 | Survey ticket automation | `src/modules/survey/ticketAutomation.ts`                                                                                                                         | Threshold evaluation, atomic single-ticket claim, ticket creation                                                                                                                                                      |
@@ -1662,6 +1663,7 @@ tagIds, propertiesData: JSON)` (the customer comes from the widget session) — 
 
 - `pnpm nx test frontline_api` (`src/meta/__tests__/builderConfigContract.test.ts`: action schemas accept every config in the neighbouring `builderActionConfigs.json`, which the builder wrote)
 - `pnpm nx test frontline_api` (`src/meta/__tests__/automationConfigSchemas.test.ts`)
+- `pnpm nx test frontline_api` (`src/modules/inbox/services/__tests__/storeDispatchedMessage.test.ts`: content priority, Facebook delivery trimming, forwarded snapshot on the first Instagram part only, ordered multipart storage and publish)
 - `pnpm nx run frontline_api:schema:print` - prints this subgraph's SDL to `generated/schema.graphql` (gitignored) offline, for `gateway:schema:compose`.
 - `pnpm nx lint frontline_api` - runs ESLint with the plugin-local
   `eslint.config.js` (regex-escaping rules).
@@ -1670,6 +1672,10 @@ tagIds, propertiesData: JSON)` (the customer comes from the widget session) — 
   Telegram `src/**/*.spec.ts` suites (`jest.config.ts`, `tsconfig.spec.json`).
   Set `INSTAGRAM_MONGO_TESTS=1` to include Instagram delivery/recovery tests in a
   throwaway local Mongo database; the developer's inbox is never used.
+  Those suites open `127.0.0.1:27017` with `directConnection`, so a local
+  replica set that advertises another host name (for example `mongo`) still
+  works. The history `$lookup` explain assertion needs MongoDB 5.0+; older
+  servers only verify that the provider identity index exists.
   Both suffixes are excluded from `tsconfig.build.json`; prefer `.test.ts` for
   new tests. Set `TELEGRAM_MONGO_TESTS=1` to include the isolated local Mongo suite.
 - Instagram: connect Post before Messenger for the same account and confirm each
