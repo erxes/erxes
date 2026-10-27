@@ -19,7 +19,7 @@ import {
   MAX_HEADER_BYTES,
 } from 'erxes-api-shared/utils';
 import { logs as coreLogsConfig } from './meta/logs';
-import express from 'express';
+import express, { Express } from 'express';
 import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
 import * as http from 'http';
 import { IncomingMessage } from 'http';
@@ -33,19 +33,25 @@ import { initAutomation } from './meta/automations/automations';
 import { initBroadcast } from './meta/broadcast';
 import { startFilesWorker } from '@/files/worker';
 import { interruptAgentsStreams } from '@/agents/agentsStream';
-import initImportExport from './meta/import-export';
+import {
+  initImportExportRoute,
+  startImportExportQueueWorkers,
+} from './meta/import-export';
 import { references } from './meta/references';
 import { initSegmentCoreProducers } from './meta/segments';
 import { router } from './routes';
+import { readServiceRole } from './serviceRole';
 
 const PLUGIN_NAME = 'core';
 
+dotenv.config();
+
+const { role, runsApi, runsWorkers } = readServiceRole();
+
 Sentry.getGlobalScope().setTags({
   plugin: PLUGIN_NAME,
-  service: PLUGIN_NAME,
+  service: runsApi ? PLUGIN_NAME : `${PLUGIN_NAME}-worker`,
 });
-
-dotenv.config();
 
 const collectionToContentType = new Map<string, string>(
   coreLogsConfig.contentTypes.map((c) => [
@@ -59,126 +65,120 @@ const { DOMAIN, ALLOWED_ORIGINS, WIDGETS_DOMAIN, ALLOWED_DOMAINS } =
 
 const port = process.env.PORT ? Number(process.env.PORT) : 3300;
 
-const app = express();
-applyTrustProxy(app);
+const mountApiRoutes = (app: Express) => {
+  // don't move it above telnyx controllers
+  app.use(express.urlencoded({ limit: '15mb', extended: true }));
 
-// don't move it above telnyx controllers
-app.use(express.urlencoded({ limit: '15mb', extended: true }));
-
-app.use(
-  express.json({
-    limit: '15mb',
-    verify: (req: IncomingMessage & { rawBody?: Buffer }, _res, buffer) => {
-      req.rawBody = buffer;
-    },
-  }),
-);
-
-app.use(cookieParser());
-
-const corsOptions = {
-  credentials: true,
-  origin: [
-    DOMAIN || 'http://localhost:3000',
-    WIDGETS_DOMAIN || 'http://localhost:3200',
-    ...(isDev ? ['http://localhost:3001', 'http://localhost:4200'] : []),
-    ...(ALLOWED_DOMAINS || '').split(','),
-    ...(ALLOWED_ORIGINS || '').split(',').map((c) => c && RegExp(c)),
-  ],
-};
-
-app.use(cors(corsOptions));
-
-app.options('*', cors(corsOptions));
-app.use(router);
-
-const fileLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 500,
-  keyGenerator: (req) => {
-    const xff = req.headers['x-forwarded-for'];
-    if (xff) {
-      const parts = (Array.isArray(xff) ? xff[0] : xff).split(',');
-      return ipKeyGenerator(parts[parts.length - 1].trim());
-    }
-    return ipKeyGenerator(req.ip || 'unknown');
-  },
-  handler: (_req, res) => {
-    res.status(429).json({
-      errorCode: 'RATE_LIMIT_EXCEEDED',
-      message: 'Too many requests from this IP, please try again later.',
-    });
-  },
-  standardHeaders: true,
-  legacyHeaders: false,
-});
-
-app.get('/subscriptionPlugin.js', fileLimiter, async (_req, res) => {
-  const apolloSubscriptionPath = path.join(
-    require('path').resolve(
-      __dirname,
-      'apollo',
-      process.env.NODE_ENV === 'production'
-        ? 'subscription.js'
-        : 'subscription.ts',
-    ),
+  app.use(
+    express.json({
+      limit: '15mb',
+      verify: (req: IncomingMessage & { rawBody?: Buffer }, _res, buffer) => {
+        req.rawBody = buffer;
+      },
+    }),
   );
 
-  res.sendFile(apolloSubscriptionPath);
-});
+  app.use(cookieParser());
 
-app.use(
-  '/trpc',
-  trpcExpress.createExpressMiddleware({
-    allowMethodOverride: true,
-    router: appRouter,
-    createContext: createTRPCContext(async (subdomain, context) => {
-      const models = await generateModels(subdomain, context);
+  const corsOptions = {
+    credentials: true,
+    origin: [
+      DOMAIN || 'http://localhost:3000',
+      WIDGETS_DOMAIN || 'http://localhost:3200',
+      ...(isDev ? ['http://localhost:3001', 'http://localhost:4200'] : []),
+      ...(ALLOWED_DOMAINS || '').split(','),
+      ...(ALLOWED_ORIGINS || '').split(',').map((c) => c && RegExp(c)),
+    ],
+  };
 
-      context.models = models;
+  app.use(cors(corsOptions));
 
-      return context;
+  app.options('*', cors(corsOptions));
+  app.use(router);
+
+  const fileLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 500,
+    keyGenerator: (req) => {
+      const xff = req.headers['x-forwarded-for'];
+      if (xff) {
+        const parts = (Array.isArray(xff) ? xff[0] : xff).split(',');
+        return ipKeyGenerator(parts[parts.length - 1].trim());
+      }
+      return ipKeyGenerator(req.ip || 'unknown');
+    },
+    handler: (_req, res) => {
+      res.status(429).json({
+        errorCode: 'RATE_LIMIT_EXCEEDED',
+        message: 'Too many requests from this IP, please try again later.',
+      });
+    },
+    standardHeaders: true,
+    legacyHeaders: false,
+  });
+
+  app.get('/subscriptionPlugin.js', fileLimiter, async (_req, res) => {
+    const apolloSubscriptionPath = path.join(
+      require('path').resolve(
+        __dirname,
+        'apollo',
+        process.env.NODE_ENV === 'production'
+          ? 'subscription.js'
+          : 'subscription.ts',
+      ),
+    );
+
+    res.sendFile(apolloSubscriptionPath);
+  });
+
+  app.use(
+    '/trpc',
+    trpcExpress.createExpressMiddleware({
+      allowMethodOverride: true,
+      router: appRouter,
+      createContext: createTRPCContext(async (subdomain, context) => {
+        const models = await generateModels(subdomain, context);
+
+        context.models = models;
+
+        return context;
+      }),
     }),
-  }),
-);
+  );
 
-app.get('/health', async (_req, res) => {
-  res.end('ok');
-});
+  app.get('/get-client-portal-token', async (req, res) => {
+    const token = req.query.GET_CP_TOKEN as string;
 
-app.get('/get-client-portal-token', async (req, res) => {
-  const token = req.query.GET_CP_TOKEN as string;
+    if (!token) {
+      return res.status(400).json({ error: 'GET_CP_TOKEN is required' });
+    }
 
-  if (!token) {
-    return res.status(400).json({ error: 'GET_CP_TOKEN is required' });
-  }
+    if (token !== process.env.GET_CP_TOKEN) {
+      return res.status(401).json({ error: 'Invalid GET_CP_TOKEN' });
+    }
 
-  if (token !== process.env.GET_CP_TOKEN) {
-    return res.status(401).json({ error: 'Invalid GET_CP_TOKEN' });
-  }
+    const subdomain = getSubdomain(req);
+    const models = await generateModels(subdomain);
 
-  const subdomain = getSubdomain(req);
-  const models = await generateModels(subdomain);
+    const clientPortal = await models.ClientPortal.findOne({
+      useB2B: true,
+    }).lean();
 
-  const clientPortal = await models.ClientPortal.findOne({
-    useB2B: true,
-  }).lean();
+    if (!clientPortal) {
+      return res.status(404).json({ error: 'Client portal not found' });
+    }
 
-  if (!clientPortal) {
-    return res.status(404).json({ error: 'Client portal not found' });
-  }
+    return res.status(200).json({ token: clientPortal.token });
+  });
 
-  return res.status(200).json({ token: clientPortal.token });
-});
+  app.get('/debug-sentry', () => {
+    throw new Error(
+      'Sentry test error (core-api): ' + new Date().toISOString(),
+    );
+  });
+};
 
-app.get('/debug-sentry', () => {
-  throw new Error('Sentry test error (core-api): ' + new Date().toISOString());
-});
-
-// Wrap the Express server
-const httpServer = http.createServer({ maxHeaderSize: MAX_HEADER_BYTES }, app);
-
-httpServer.listen(port, async () => {
+const startApi = async (app: Express, httpServer: http.Server) => {
   await initApolloServer(app, httpServer);
 
   Sentry.setupExpressErrorHandler(app);
@@ -193,9 +193,40 @@ httpServer.listen(port, async () => {
   await initRecordReferences(app, PLUGIN_NAME, references);
   await initApproval(app, PLUGIN_NAME, approval);
   await initSegmentCoreProducers(app);
-  await initImportExport(app);
+  initImportExportRoute(app);
+};
+
+const startWorkers = async (app: Express) => {
+  startImportExportQueueWorkers();
   await initBroadcast(app);
   startFilesWorker();
+};
+
+const app = express();
+applyTrustProxy(app);
+
+// Every role answers /health; a worker answers nothing else.
+app.get('/health', async (_req, res) => {
+  res.end('ok');
+});
+
+if (runsApi) {
+  mountApiRoutes(app);
+}
+
+// Wrap the Express server
+const httpServer = http.createServer({ maxHeaderSize: MAX_HEADER_BYTES }, app);
+
+httpServer.listen(port, async () => {
+  console.log(`core-api started with SERVICE_ROLE=${role}`);
+
+  if (runsApi) {
+    await startApi(app, httpServer);
+  }
+
+  if (runsWorkers) {
+    await startWorkers(app);
+  }
 });
 
 // GRACEFULL SHUTDOWN
@@ -234,7 +265,12 @@ async function closeHttpServer() {
     interruptAgentsStreams();
     await closeHttpServer();
     await closeMongooose();
-    await leaveServiceDiscovery();
+
+    // A worker never joined the gateway.
+    if (runsApi) {
+      await leaveServiceDiscovery();
+    }
+
     process.exit(0);
   });
 });

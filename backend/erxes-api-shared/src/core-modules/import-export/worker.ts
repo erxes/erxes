@@ -19,6 +19,7 @@ const IMPORT_QUEUE = 'import-processor';
 const EXPORT_QUEUE = 'export-processor';
 
 const startedWorkers = new Set<string>();
+const mountedRoutes = new Set<string>();
 
 const parsePositiveInteger = (value: string, fallback: number): number => {
   const parsed = Number.parseInt(value, 10);
@@ -143,16 +144,18 @@ const generateImportExportRouter = (
   return trpcMiddleware;
 };
 
-export const startImportExportWorker = ({
+type TImportExportStartOptions = {
+  pluginName: string;
+  config: ImportExportConfigs;
+};
+
+/** The api half: declares the plugin's import/export to service discovery and serves /importExport. */
+export const mountImportExportRoute = ({
   pluginName,
   config,
   app,
-}: {
-  pluginName: string;
-  config: ImportExportConfigs;
-  app: Express;
-}) => {
-  if (startedWorkers.has(pluginName)) {
+}: TImportExportStartOptions & { app: Express }) => {
+  if (mountedRoutes.has(pluginName)) {
     return;
   }
 
@@ -174,8 +177,25 @@ export const startImportExportWorker = ({
     },
   });
 
+  app.use(
+    '/importExport',
+    generateImportExportRouter(importConfig, exportConfig),
+  );
+
+  mountedRoutes.add(pluginName);
+};
+
+/** The worker half: consumes the plugin's import and export queues. */
+export const startImportExportWorkers = ({
+  pluginName,
+  config,
+}: TImportExportStartOptions) => {
+  if (startedWorkers.has(pluginName)) {
+    return;
+  }
+
+  const { import: importConfig, export: exportConfig } = config || {};
   const coreClient = createCoreImportClient();
-  const trpcMiddleware = generateImportExportRouter(importConfig, exportConfig);
 
   if (exportConfig) {
     const exportWorkerOptions = getImportExportWorkerOptions('export');
@@ -212,5 +232,14 @@ export const startImportExportWorker = ({
   }
 
   startedWorkers.add(pluginName);
-  app.use('/importExport', trpcMiddleware);
+};
+
+/** Both halves in one process. */
+export const startImportExportWorker = ({
+  pluginName,
+  config,
+  app,
+}: TImportExportStartOptions & { app: Express }) => {
+  mountImportExportRoute({ pluginName, config, app });
+  startImportExportWorkers({ pluginName, config });
 };
