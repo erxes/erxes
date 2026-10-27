@@ -43,6 +43,30 @@ const getDispatchedMessageExtraData = (
   };
 };
 
+const getDispatchedMessageDoc = (
+  data: DispatchedMessageData,
+  doc: IConversationMessageAdd,
+  kind: string,
+  forwardedSnapshot?: Record<string, unknown>,
+): IConversationMessageAdd & IMessage => ({
+  ...doc,
+  ...(kind === 'instagram-messenger' && doc.extraInfo?.forwardedFrom
+    ? { content: data.content || '' }
+    : {}),
+  ...(data.displayContent ? { content: data.displayContent } : {}),
+  ...(kind === 'facebook-messenger' && data.extraData?.facebookDelivery
+    ? { content: data.content || '', attachments: data.attachments || [] }
+    : {}),
+  ...(forwardedSnapshot
+    ? { content: doc.extraInfo?.forwardedNote || '' }
+    : {}),
+  ...getDispatchedMessageExtraData(data.extraData, forwardedSnapshot, doc),
+  ...(data.messageKind ? { messageKind: data.messageKind } : {}),
+  ...(data.providerData ? { providerData: data.providerData } : {}),
+  ...(data.replyTo ? { replyTo: data.replyTo } : {}),
+  ...(data.deliveryStatus ? { deliveryStatus: data.deliveryStatus } : {}),
+});
+
 export const storeDispatchedMessage = async ({
   data,
   doc,
@@ -64,16 +88,7 @@ export const storeDispatchedMessage = async ({
   subdomain: string;
   forwardedSnapshot?: Record<string, unknown>;
 }) => {
-  const {
-    conversationId: responseConversationId,
-    content,
-    displayContent,
-    extraData,
-    messageKind,
-    providerData,
-    replyTo,
-    deliveryStatus,
-  } = data;
+  const { conversationId: responseConversationId, content } = data;
   if (responseConversationId && content) {
     await models.Conversations.updateConversation(responseConversationId, {
       content,
@@ -81,42 +96,28 @@ export const storeDispatchedMessage = async ({
     });
   }
 
-  const messageDoc: typeof doc & { extraData?: Record<string, unknown> } = {
-    ...doc,
-    ...(kind === 'instagram-messenger' && doc.extraInfo?.forwardedFrom
-      ? { content: content || '' }
-      : {}),
-    ...(displayContent ? { content: displayContent } : {}),
-    ...(kind === 'facebook-messenger' && extraData?.facebookDelivery
-      ? { content: content || '', attachments: data.attachments || [] }
-      : {}),
-    ...(forwardedSnapshot
-      ? { content: doc.extraInfo?.forwardedNote || '' }
-      : {}),
-    ...getDispatchedMessageExtraData(extraData, forwardedSnapshot, doc),
-    ...(messageKind ? { messageKind } : {}),
-    ...(providerData ? { providerData } : {}),
-    ...(replyTo ? { replyTo } : {}),
-    ...(deliveryStatus ? { deliveryStatus } : {}),
-  };
-
   const deliveredParts =
     kind === 'instagram-messenger' && data.parts?.length
       ? data.parts
       : undefined;
   const messageDocs = deliveredParts
-    ? deliveredParts.map((part) => ({
-        ...messageDoc,
-        ...part,
-        conversationId: doc.conversationId,
-        ...getDispatchedMessageExtraData(
-          part.extraData,
-          forwardedSnapshot,
-          doc,
+    ? deliveredParts.map((part, index) =>
+        getDispatchedMessageDoc(
+          part,
+          {
+            ...doc,
+            ...part,
+            content: part.content ?? doc.content,
+            conversationId: doc.conversationId,
+          },
+          kind,
+          index === 0 ? forwardedSnapshot : undefined,
         ),
-      }))
-    : [messageDoc];
+      )
+    : [getDispatchedMessageDoc(data, doc, kind, forwardedSnapshot)];
   const messages: IMessageDocument[] = [];
+  // addMessage also updates the conversation preview and first responder.
+  // Keep writes ordered so later parts cannot be overtaken by earlier ones.
   for (const deliveredDoc of messageDocs) {
     const message = await models.ConversationMessages.addMessage(
       deliveredDoc,
@@ -137,6 +138,7 @@ export const storeDispatchedMessage = async ({
     subdomain,
   });
   await markAutomatedReplyHumanActive({ models, conversation, userId });
+  // Publish in the same order as storage to preserve the live timeline.
   for (const message of messages) {
     await pConversationClientMessageInserted(subdomain, message);
   }

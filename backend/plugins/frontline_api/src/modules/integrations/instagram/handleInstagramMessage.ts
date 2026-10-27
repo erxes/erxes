@@ -294,7 +294,7 @@ const handleInstagramMessengerReply = async (
         conversationId,
         userId,
         createdAt: new Date(),
-        extraData,
+        extraData: acceptedParts.length === 0 ? extraData : {},
         ...(replyToMessageId && { replyTo: { messageId: replyToMessageId } }),
       });
       // Keep the acknowledgement for canonical inbox storage, including when
@@ -314,7 +314,7 @@ const handleInstagramMessengerReply = async (
       content: delivery.textSent ? textContent : '',
       parts: acceptedParts.map((part) => ({
         ...part,
-        extraData: { ...extraData, instagramDelivery: delivery },
+        extraData: { ...part.extraData, instagramDelivery: delivery },
       })),
     },
   };

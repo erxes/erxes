@@ -191,7 +191,7 @@ export const repairIntegrations = async (
 
   await models.InstagramIntegrations.deleteMany({
     erxesApiId: { $ne: integrationId },
-    facebookPageIds: pageId,
+    facebookPageId: pageId,
     kind: integration.kind,
   });
 

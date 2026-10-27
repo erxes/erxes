@@ -42,4 +42,5 @@ export const conversationMessageSchema = schemaWrapper(
 );
 
 conversationMessageSchema.index({ conversationId: 1, createdAt: -1 });
+conversationMessageSchema.index({ conversationId: 1, mid: 1 });
 conversationMessageSchema.index({ customerId: 1, createdAt: -1 });

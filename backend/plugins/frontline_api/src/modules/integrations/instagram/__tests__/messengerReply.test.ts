@@ -1,5 +1,8 @@
 import type { IModels } from '~/connectionResolvers';
-import type { IMessageDocument } from '@/inbox/@types/conversationMessages';
+import type {
+  IConversationMessageAdd,
+  IMessageDocument,
+} from '@/inbox/@types/conversationMessages';
 import type { IConversationDocument } from '@/inbox/@types/conversations';
 import { storeDispatchedMessage } from '@/inbox/services/storeDispatchedMessage';
 import { pConversationClientMessageInserted } from '@/inbox/graphql/resolvers/mutations/widget';
@@ -66,7 +69,10 @@ const models = {
   },
 } as unknown as IModels;
 
-const send = async (overrides: Partial<typeof doc> = {}) => {
+const send = async (
+  overrides: Partial<IConversationMessageAdd> = {},
+  forwardedSnapshot?: Record<string, unknown>,
+) => {
   const outgoing = { ...doc, ...overrides };
   const response = await handleInstagramMessage(
     models,
@@ -88,6 +94,7 @@ const send = async (overrides: Partial<typeof doc> = {}) => {
     userId: 'agent',
     models,
     subdomain: 'test',
+    forwardedSnapshot,
   });
 };
 beforeEach(() => {
@@ -133,6 +140,67 @@ test('text and image each persist and publish once with their own provider ident
     textSent: true,
     sentAttachmentUrls: [attachment.url],
   });
+});
+
+test('a forwarded text and image show one forwarded card and keep the agent note', async () => {
+  const forwardedSnapshot = { content: 'Original text', attachments: [attachment] };
+  const forwardedFrom = { conversationId: 'source', messageId: 'original' };
+  await send(
+    {
+      content: 'FYI\n↪ Forwarded\nOriginal text',
+      extraInfo: {
+        forwardedNote: 'FYI',
+        forwardedFrom,
+        forwardedSnapshot,
+      },
+    },
+    forwardedSnapshot,
+  );
+
+  expect(canonical).toHaveLength(2);
+  expect(canonical[0]).toMatchObject({
+    content: 'FYI',
+    attachments: [],
+    extraData: { forwardedSnapshot, forwardedFrom, forwardedNote: 'FYI' },
+  });
+  expect(canonical[1]).toMatchObject({ content: '', attachments: [attachment] });
+  expect(canonical[1].extraData?.forwardedSnapshot).toBeUndefined();
+  expect(canonical[1].extraData?.forwardedFrom).toBeUndefined();
+  expect(canonical[1].extraData?.forwardedNote).toBeUndefined();
+  expect(providerSave.mock.calls[1][0].extraData).toEqual({});
+  expect(pConversationClientMessageInserted).toHaveBeenNthCalledWith(
+    1,
+    'test',
+    canonical[0],
+  );
+  expect(pConversationClientMessageInserted).toHaveBeenNthCalledWith(
+    2,
+    'test',
+    canonical[1],
+  );
+});
+
+test('a later part without extra data cannot inherit the first forwarded card', async () => {
+  await storeDispatchedMessage({
+    data: {
+      parts: [
+        { content: 'Original text', attachments: [] },
+        { content: 'Attachment caption', attachments: [attachment] },
+      ],
+    },
+    doc: { ...doc, extraInfo: { forwardedNote: 'FYI' } },
+    kind: 'instagram-messenger',
+    conversation: { _id: 'inbox' } as IConversationDocument,
+    integrationId: 'integration',
+    userId: 'agent',
+    models,
+    subdomain: 'test',
+    forwardedSnapshot: { content: 'Original text' },
+  });
+
+  expect(canonical[0].content).toBe('FYI');
+  expect(canonical[1].content).toBe('Attachment caption');
+  expect(canonical[1].extraData?.forwardedSnapshot).toBeUndefined();
 });
 
 test('failed image leaves the delivered text intact and an attachment-only retry sends no duplicate text', async () => {

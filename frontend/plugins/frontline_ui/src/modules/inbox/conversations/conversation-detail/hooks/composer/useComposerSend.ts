@@ -11,6 +11,7 @@ import {
 import { useAtomValue } from 'jotai';
 import { useCallback, useLayoutEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 
 import type { PollDraft } from '@/inbox/conversations/conversation-detail/components/PollComposer';
 import { useConversationMessageAdd } from '@/inbox/conversations/conversation-detail/hooks/useConversationMessageAdd';
@@ -44,6 +45,35 @@ type ComposerSendOptions = {
   responseTemplateId: string | null;
   resetComposer: () => void;
   onPartialDelivery: (remainingAttachments: IAttachment[]) => void;
+};
+
+const getPartialDeliveryFeedback = (
+  t: TFunction<'frontline'>,
+  remainingCount: number,
+  isInstagram: boolean,
+) => {
+  if (remainingCount) {
+    return {
+      title: t('message-partially-sent', 'Message partially sent'),
+      description: t(
+        'message-partially-sent-description',
+        '{{count}} attachment(s) were not sent. Only these remain for retry.',
+        { count: remainingCount },
+      ),
+    };
+  }
+  return {
+    title: t('message-sent-with-warning', 'Message sent with a warning'),
+    description: isInstagram
+      ? t(
+          'instagram-message-history-update-failed',
+          'Instagram accepted the message, but saving its history failed. Do not resend it.',
+        )
+      : t(
+          'message-history-update-failed',
+          'Facebook accepted the message, but saving its history failed. Do not resend it.',
+        ),
+  };
 };
 
 export const useComposerSend = ({
@@ -120,11 +150,10 @@ export const useComposerSend = ({
             : {}),
         },
         onCompleted: (result) => {
-          const delivery = isFacebook
-            ? readFacebookDelivery(result.conversationMessageAdd?.extraData)
-            : isInstagram
-            ? readInstagramDelivery(result.conversationMessageAdd?.extraData)
-            : undefined;
+          let delivery: ReturnType<typeof readFacebookDelivery>;
+          const extraData = result.conversationMessageAdd?.extraData;
+          if (isFacebook) delivery = readFacebookDelivery(extraData);
+          else if (isInstagram) delivery = readInstagramDelivery(extraData);
           if (delivery?.status === 'partial') {
             const remainingAttachments = allAttachments.filter(
               ({ url }) => !delivery.sentAttachmentUrls.includes(url),
@@ -138,24 +167,11 @@ export const useComposerSend = ({
               onPartialDelivery(remainingAttachments);
             }
             toast({
-              title: remainingAttachments.length
-                ? t('message-partially-sent', 'Message partially sent')
-                : t('message-sent-with-warning', 'Message sent with a warning'),
-              description: remainingAttachments.length
-                ? t(
-                    'message-partially-sent-description',
-                    '{{count}} attachment(s) were not sent. Only these remain for retry.',
-                    { count: remainingAttachments.length },
-                  )
-                : isInstagram
-                ? t(
-                    'instagram-message-history-update-failed',
-                    'Instagram accepted the message, but saving its history failed. Do not resend it.',
-                  )
-                : t(
-                    'message-history-update-failed',
-                    'Facebook accepted the message, but saving its history failed. Do not resend it.',
-                  ),
+              ...getPartialDeliveryFeedback(
+                t,
+                remainingAttachments.length,
+                isInstagram,
+              ),
               variant: 'destructive',
             });
             return;

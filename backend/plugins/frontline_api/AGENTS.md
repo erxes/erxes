@@ -351,6 +351,10 @@
   the composer retries only remaining attachments. Legacy provider-only rows
   remain readable. History paginates the combined timeline and checks
   conversation/channel access.
+  Forwarded multipart replies keep their snapshot, source and agent note only
+  on the first accepted part. Canonical storage uses the agent note for that
+  part and preserves later parts' content and attachments. Store and publish
+  parts sequentially to retain conversation-preview and live-message order.
   Preserve legacy provider history and retain Meta comment IDs on sent replies.
 - Instagram ingestion retains incomplete customer and conversation links and
   uses stable Core/inbox IDs to resume redeliveries. New DM/comment records carry
@@ -1567,6 +1571,10 @@ tagIds, propertiesData: JSON)` (the customer comes from the widget session) — 
   metadata and publication before clearing `inboxSyncPending`. Stable message IDs
   and tenant-scoped Mongo leases prevent concurrent retry inserts. Keep the
   original raw-body HMAC verification on webhook delivery.
+- Instagram history's provider-copy lookup uses the non-unique
+  `(conversationId, mid)` index. Repair removes duplicates by the persisted
+  `facebookPageId` and integration kind, preserving the current integration,
+  its Post/Messenger sibling and other Pages.
 - Instagram message state changes (reactions, deletions, read/delivery
   receipts) are written to both `instagram_conversation_messages` and the inbox
   `conversation_messages` row matched by `providerData.messageId`/`mid`, then

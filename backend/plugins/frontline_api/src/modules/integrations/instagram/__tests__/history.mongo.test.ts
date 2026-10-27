@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import mongoose, { Schema, type Connection } from 'mongoose';
+import mongoose, { Schema, type Connection, type PipelineStage } from 'mongoose';
 import type { IModels } from '~/connectionResolvers';
 import type { IMessageDocument } from '@/inbox/@types/conversationMessages';
 import { messageSchema } from '@/inbox/db/definitions/conversationMessages';
@@ -263,5 +263,49 @@ mongoSuite('Instagram history against isolated local MongoDB', () => {
       await readInstagramHistory(models, { conversationId: 'unknown' }),
     ).toEqual([]);
     expect(await countInstagramHistory(models, 'unknown')).toBe(0);
+  });
+
+  test('counting outbound history uses an indexed provider identity lookup', async () => {
+    const size = 64;
+    await models.InstagramConversationMessages.createIndexes();
+    await models.InstagramConversations.create({
+      _id: 'provider',
+      erxesApiId: 'inbox',
+    });
+    await models.InstagramConversationMessages.insertMany(
+      Array.from({ length: size }, (_, n) => ({
+        conversationId: 'provider',
+        mid: `mid-${n}`,
+        content: `Part ${n}`,
+      })),
+    );
+    await models.ConversationMessages.insertMany(
+      Array.from({ length: size }, (_, n) => ({
+        conversationId: 'inbox',
+        content: `Part ${n}`,
+        providerData: { messageId: `mid-${n}` },
+        extraData: { instagramDelivery: { status: 'sent' } },
+      })),
+    );
+    const aggregate = jest.spyOn(models.ConversationMessages, 'aggregate');
+    let pipeline: PipelineStage[] | undefined;
+    try {
+      expect(await countInstagramHistory(models, 'inbox')).toBe(size);
+      pipeline = aggregate.mock.calls[0][0];
+    } finally {
+      aggregate.mockRestore();
+    }
+    const explanation: {
+      stages?: Array<{
+        $lookup?: unknown;
+        indexesUsed?: string[];
+        totalDocsExamined?: number;
+      }>;
+    } = await models.ConversationMessages.aggregate(pipeline).explain(
+      'executionStats',
+    );
+    const lookup = explanation.stages?.find((stage) => stage.$lookup);
+    expect(lookup?.indexesUsed).toContain('conversationId_1_mid_1');
+    expect(lookup?.totalDocsExamined).toBeLessThanOrEqual(size);
   });
 });

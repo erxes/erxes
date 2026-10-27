@@ -1080,6 +1080,9 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
   `readInstagramDelivery`. Like Facebook, partial delivery leaves only unsent
   attachments for retry; an acknowledgement followed by a history failure
   warns against resending accepted content.
+  The composer builds this feedback through `getPartialDeliveryFeedback`;
+  preserve the distinct remaining-attachment and accepted-message warnings
+  for both Facebook and Instagram.
 
 - Relation widgets go only through contacts: each lists the records whose
   own `customerId` / `companyId` is the host's customer or company

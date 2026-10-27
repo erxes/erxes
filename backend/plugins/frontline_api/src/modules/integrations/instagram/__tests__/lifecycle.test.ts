@@ -49,9 +49,12 @@ type Integration = {
 };
 let rows: Integration[];
 const matches = (row: Integration, selector: Record<string, unknown>) =>
-  Object.entries(selector).every(
-    ([key, value]) => Reflect.get(row, key) === value,
-  );
+  Object.entries(selector).every(([key, value]) => {
+    if (value && typeof value === 'object' && '$ne' in value) {
+      return Reflect.get(row, key) !== value.$ne;
+    }
+    return Reflect.get(row, key) === value;
+  });
 const collection = {
   findOne: jest.fn(async (selector: Record<string, unknown>) =>
     rows.find((row) => matches(row, selector)),
@@ -71,7 +74,9 @@ const collection = {
   deleteOne: jest.fn(async ({ _id }: { _id: string }) => {
     rows = rows.filter((row) => row._id !== _id);
   }),
-  deleteMany: jest.fn(),
+  deleteMany: jest.fn(async (selector: Record<string, unknown>) => {
+    rows = rows.filter((row) => !matches(row, selector));
+  }),
   countDocuments: jest.fn(
     async (selector: Record<string, unknown>) =>
       rows.filter((row) => matches(row, selector)).length,
@@ -171,6 +176,39 @@ test('Repair reports helper HTTP failure and does not remain healthy', async () 
   ).resolves.toBe(true);
   expect(rows[0]).toMatchObject({ healthStatus: 'healthy', error: '' });
 });
+
+test.each([INTEGRATION_KINDS.MESSENGER, INTEGRATION_KINDS.POST])(
+  'Repair removes only duplicate %s integrations for the same Page',
+  async (kind) => {
+    const current = makeIntegration(kind);
+    const sibling = makeIntegration(
+      kind === INTEGRATION_KINDS.MESSENGER
+        ? INTEGRATION_KINDS.POST
+        : INTEGRATION_KINDS.MESSENGER,
+    );
+    rows = [
+      current,
+      { ...current, _id: 'duplicate', erxesApiId: 'duplicate' },
+      sibling,
+      {
+        ...current,
+        _id: 'other-page',
+        erxesApiId: 'other-inbox',
+        facebookPageId: 'other-fb-page',
+        instagramPageId: 'other-ig-page',
+      },
+    ];
+
+    await repairIntegrations('test', current.erxesApiId);
+
+    expect(rows.map(({ _id }) => _id)).toEqual([
+      current._id,
+      sibling._id,
+      'other-page',
+    ]);
+    expect(current.healthStatus).toBe('healthy');
+  },
+);
 
 test.each(['token', 'subscription'])(
   'Repair marks a previously healthy integration broken after %s failure',

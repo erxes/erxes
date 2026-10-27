@@ -93,18 +93,19 @@ export const useForwardMessage = (
           ...current,
           [destinationId]: remaining,
         }));
+        const historyFailureDescription = instagramDelivery
+          ? t(
+              'instagram-forward-history-failed',
+              'Instagram accepted the message, but saving its history failed. Do not resend it.',
+            )
+          : t('facebook-forward-history-failed');
         toast({
           title: remaining.length
             ? t('message-partially-forwarded')
             : t('message-forwarded-with-warning'),
           description: remaining.length
             ? t('retry-sends-remaining-attachments')
-            : instagramDelivery
-            ? t(
-                'instagram-forward-history-failed',
-                'Instagram accepted the message, but saving its history failed. Do not resend it.',
-              )
-            : t('facebook-forward-history-failed'),
+            : historyFailureDescription,
           variant: 'destructive',
         });
         return;
