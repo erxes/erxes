@@ -8,7 +8,6 @@ import {
   Sidebar,
   AppLayout,
   useQueryState,
-  Button,
 } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { FrontlineNavigation } from '@/FrontlineNavigation';
@@ -48,6 +47,7 @@ export const FrontlineSettingsLayout = ({
   children: ReactNode;
 }) => {
   const { t } = useTranslation('common', { keyPrefix: 'navigation' });
+  const { t: tSidebar } = useTranslation('common', { keyPrefix: 'sidebar' });
   const [inPreview] = useQueryState<boolean>('inPreview');
 
   // Preview iframes (messenger, form) render bare, as core's DefaultLayout does.
@@ -58,26 +58,21 @@ export const FrontlineSettingsLayout = ({
   return (
     <AppLayout
       id="frontline:settings"
-      title={
-        <Button
-          asChild
-          variant="ghost"
-          size="sm"
-          className="-ml-2 h-7 max-w-full gap-1 px-1.5 font-medium"
-        >
-          <Link
-            to="/frontline/inbox"
-            title={t('back-to-app', { name: 'Frontline' })}
-          >
-            <IconChevronLeft />
-            <span className="truncate">
-              {t('plugin-settings-title', { name: 'Frontline' })}
-            </span>
-          </Link>
-        </Button>
-      }
+      title={t('plugin-settings-title', { name: 'Frontline' })}
       sidebar={
         <>
+          <Sidebar.Header className="sticky top-0 z-10 bg-sidebar px-2 pt-0 pb-1 after:pointer-events-none after:absolute after:inset-x-0 after:top-full after:h-4 after:bg-gradient-to-b after:from-sidebar after:to-transparent">
+            <Sidebar.Menu>
+              <Sidebar.MenuItem>
+                <Sidebar.MenuButton asChild>
+                  <Link to="/frontline/inbox">
+                    <IconChevronLeft />
+                    <span>{tSidebar('exit-settings')}</span>
+                  </Link>
+                </Sidebar.MenuButton>
+              </Sidebar.MenuItem>
+            </Sidebar.Menu>
+          </Sidebar.Header>
           <FrontlineSettingsNavigation />
           <PluginSharedSettingsNavigation
             pluginName="frontline"

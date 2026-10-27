@@ -138,8 +138,8 @@
 - `LoyaltySidebarFooter` pins a Settings link to the bottom of the app
   sidebar. The plugin owns its settings at `/loyalty/settings/*`, served by its
   own entry: the entry's top-level `<Routes>` sends `settings/*` to
-  `LoyaltySettingsLayout` (`src/Sidebar.tsx`, an `AppLayout` whose title
-  "<Plugin> settings" is a chevron Back link to the app; no footer link) and `*` to the app
+  `LoyaltySettingsLayout` (`src/Sidebar.tsx`, an `AppLayout` titled
+  "<Plugin> settings" whose sidebar starts with a sticky core-style "Exit settings" row linking back to the app; no footer link) and `*` to the app
   `AppLayout`. Settings pages render inside `PluginSettingsRoutes`
   (`ui-modules`), which also serves `tags` and `properties/*` scoped to
   this plugin's types; the settings sidebar appends

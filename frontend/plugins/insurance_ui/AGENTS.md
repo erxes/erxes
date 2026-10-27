@@ -59,9 +59,9 @@
 
 ## Local Invariants
 
-- The settings `AppLayout` title is itself the way back: a ghost `Button` wrapping a
-  `Link` (chevron + "<Plugin> settings") to the app's main page. There is no
-  footer Back link on settings pages.
+- The settings sidebar starts with a sticky core-style "Exit settings" row
+  (`Sidebar.Header` + `Sidebar.MenuButton` `Link`, `sidebar.exit-settings`) to the
+  app's main page; the title stays plain text and there is no footer Back link.
 - The plugin owns its whole app sidebar. `src/modules/insurance/Main.tsx` (the `./insurance`
   expose) wraps its routes in `erxes-ui` `AppLayout` (`id="insurance"`) with
   `InsuranceSidebar`. Core-ui draws only the top `CoreTab` bar; `navigationGroup` in

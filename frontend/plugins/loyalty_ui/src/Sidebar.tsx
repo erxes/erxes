@@ -3,7 +3,7 @@ import { LoyaltySettingsNavigation } from '~/LoyaltySettingsNavigation';
 import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { IconSettings, IconChevronLeft } from '@tabler/icons-react';
-import { AppLayoutFooterLink, Sidebar, AppLayout, Button } from 'erxes-ui';
+import { AppLayoutFooterLink, Sidebar, AppLayout } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { MainNavigation } from '@/navigation/MainNavigation';
 
@@ -38,30 +38,26 @@ export const LoyaltySettingsLayout = ({
   children: ReactNode;
 }) => {
   const { t } = useTranslation('common', { keyPrefix: 'navigation' });
+  const { t: tSidebar } = useTranslation('common', { keyPrefix: 'sidebar' });
 
   return (
     <AppLayout
       id="loyalty:settings"
-      title={
-        <Button
-          asChild
-          variant="ghost"
-          size="sm"
-          className="-ml-2 h-7 max-w-full gap-1 px-1.5 font-medium"
-        >
-          <Link
-            to="/loyalty/scores"
-            title={t('back-to-app', { name: 'Loyalty' })}
-          >
-            <IconChevronLeft />
-            <span className="truncate">
-              {t('plugin-settings-title', { name: 'Loyalty' })}
-            </span>
-          </Link>
-        </Button>
-      }
+      title={t('plugin-settings-title', { name: 'Loyalty' })}
       sidebar={
         <>
+          <Sidebar.Header className="sticky top-0 z-10 bg-sidebar px-2 pt-0 pb-1 after:pointer-events-none after:absolute after:inset-x-0 after:top-full after:h-4 after:bg-gradient-to-b after:from-sidebar after:to-transparent">
+            <Sidebar.Menu>
+              <Sidebar.MenuItem>
+                <Sidebar.MenuButton asChild>
+                  <Link to="/loyalty/scores">
+                    <IconChevronLeft />
+                    <span>{tSidebar('exit-settings')}</span>
+                  </Link>
+                </Sidebar.MenuButton>
+              </Sidebar.MenuItem>
+            </Sidebar.Menu>
+          </Sidebar.Header>
           <LoyaltySettingsNavigation />
           <PluginSharedSettingsNavigation
             pluginName="loyalty"
