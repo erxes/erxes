@@ -1,12 +1,13 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import type { UIMessage } from 'ai';
+import type { DynamicToolUIPart, UIMessage } from 'ai';
 
 import {
   agentStepLabel,
-  agentMessageActivity,
+  agentToolActivity,
   describeToolCall,
-  groupAgentWorkSteps,
+  isStandalonePart,
+  toAgentWorkStep,
 } from '../utils/agentWorkSteps';
 import type { TAgentWorkStep } from '../utils/agentWorkSteps';
 
@@ -43,61 +44,47 @@ const toolPart = (
   return base;
 };
 
-describe('groupAgentWorkSteps', () => {
-  it('groups contiguous reasoning + tool parts into one work item', () => {
-    const items = groupAgentWorkSteps([
-      reasoningPart('thinking'),
-      toolPart('searchTools', 'output-available', { intent: 'deals' }),
-      toolPart('callTool', 'output-available', {
-        toolId: 'sales.trpc.deal.find',
-      }),
-      textPart('done'),
-      toolPart('callTool', 'input-available', { toolId: 'x.trpc.y.z' }),
-    ]);
-
-    expect(items).toHaveLength(3);
-    expect(items[0].kind).toBe('work');
-    expect((items[0] as { steps: unknown[] }).steps).toHaveLength(3);
-    expect(items[1].kind).toBe('part');
-    expect(items[2].kind).toBe('work');
-    expect((items[2] as { steps: unknown[] }).steps).toHaveLength(1);
-  });
-
-  it('treats step-start as transparent', () => {
-    const items = groupAgentWorkSteps([
-      toolPart('callTool', 'output-available', { toolId: 'a.trpc.b.c' }),
-      { type: 'step-start' },
-      reasoningPart('more'),
-    ]);
-
-    expect(items).toHaveLength(1);
-    expect((items[0] as { steps: unknown[] }).steps).toHaveLength(2);
-  });
-
-  it('keeps approval-requested parts standalone', () => {
+describe('work part predicates', () => {
+  it('keeps approval, ask_user and artifact parts standalone', () => {
     const approval = toolPart('callTool', 'approval-requested', {
       toolId: 'x.trpc.a.b',
     });
-    (approval as { approval?: { id: string } }).approval = { id: 'ap-1' };
 
-    const items = groupAgentWorkSteps([
-      reasoningPart('t'),
-      approval,
-      reasoningPart('u'),
-    ]);
-
-    expect(items).toHaveLength(3);
-    expect(items[1].kind).toBe('part');
-    expect((items[0] as { steps: unknown[] }).steps).toHaveLength(1);
-    expect((items[2] as { steps: unknown[] }).steps).toHaveLength(1);
+    expect(isStandalonePart(approval)).toBe(true);
+    expect(isStandalonePart(toolPart('callTool', 'output-denied'))).toBe(true);
+    expect(isStandalonePart(toolPart('callTool', 'approval-responded'))).toBe(
+      true,
+    );
+    expect(
+      isStandalonePart(toolPart('askUser', 'output-available', {}, {})),
+    ).toBe(true);
+    expect(
+      isStandalonePart(toolPart('createArtifact', 'input-streaming')),
+    ).toBe(true);
+    expect(toAgentWorkStep(approval)).toBeNull();
   });
 
-  it('keeps askUser tool parts standalone', () => {
-    const items = groupAgentWorkSteps([
-      toolPart('askUser', 'output-available', {}, {}),
-    ]);
-
-    expect(items).toEqual([expect.objectContaining({ kind: 'part' })]);
+  it('normalizes work parts into timeline steps', () => {
+    expect(toAgentWorkStep(reasoningPart('plan'))).toEqual({
+      kind: 'reasoning',
+      text: 'plan',
+    });
+    expect(
+      toAgentWorkStep(
+        toolPart('readFile', 'output-available', { url: '/a.pdf' }, 'ok'),
+      ),
+    ).toEqual({
+      kind: 'tool',
+      tool: expect.objectContaining({
+        toolCallId: 'call-readFile-output-available',
+        toolName: 'readFile',
+        state: 'output-available',
+        input: { url: '/a.pdf' },
+        output: 'ok',
+      }),
+    });
+    expect(toAgentWorkStep(textPart('answer'))).toBeNull();
+    expect(toAgentWorkStep(toolPart('askUser', 'input-available'))).toBeNull();
   });
 });
 
@@ -234,57 +221,23 @@ describe('describeToolCall', () => {
   });
 });
 
-describe('agentMessageActivity', () => {
-  it('uses the newest tool rather than earlier reply text', () => {
+// Text, reasoning and settled-tool labels are covered by agentTurnActivity.
+describe('agentToolActivity', () => {
+  it.each([
+    ['callGraphql', { query: '{ deals { _id } }' }, 'Querying deals'],
+    ['createArtifact', {}, 'Creating file…'],
+    ['readFile', { url: '/files/brief.pdf' }, 'Reading brief.pdf'],
+    ['somethingElse', {}, 'Working…'],
+  ])('labels a running %s call', (toolName, input, label) => {
     expect(
-      agentMessageActivity([
-        textPart('I will check.'),
-        toolPart('callGraphql', 'input-available', {
-          query: '{ deals { _id } }',
-        }),
-        { type: 'step-start' },
-      ]),
-    ).toBe('Querying deals');
-  });
-
-  it('switches from tool execution to writing when reply text arrives', () => {
-    expect(
-      agentMessageActivity([
-        toolPart('callGraphql', 'output-available', {
-          query: '{ deals { _id } }',
-        }),
-        textPart('The report is ready.'),
-      ]),
-    ).toBe('Writing…');
-  });
-
-  it('switches from an earlier tool to new reasoning', () => {
-    expect(
-      agentMessageActivity([
-        toolPart('callGraphql', 'output-available'),
-        reasoningPart('Planning'),
-      ]),
-    ).toBe('Thinking…');
-  });
-
-  it('never describes a completed tool as still running', () => {
-    expect(
-      agentMessageActivity([toolPart('readFile', 'output-available')]),
-    ).toBe('Working…');
-  });
-
-  it('identifies file generation independently from reply text', () => {
-    expect(
-      agentMessageActivity([toolPart('createArtifact', 'input-streaming')]),
-    ).toBe('Creating file…');
-  });
-
-  it('has one default before any response part arrives', () => {
-    expect(agentMessageActivity([])).toBe('Working…');
+      agentToolActivity(
+        toolPart(toolName, 'input-available', input) as DynamicToolUIPart,
+      ),
+    ).toBe(label);
   });
 });
 
-describe('work-steps summary pluralisation', () => {
+describe('activity summary locale keys', () => {
   // The component calls t('step-count', { count }) — i18next resolves the
   // _one/_other forms; these keys must exist in both shipped locales.
   const en = JSON.parse(
@@ -315,5 +268,19 @@ describe('work-steps summary pluralisation', () => {
     expect(en.agent['step-count_other']).toBe('{{count}} steps');
     expect(mn.agent['step-count_one']).toBeTruthy();
     expect(mn.agent['step-count_other']).toBeTruthy();
+  });
+
+  it('hints @ mentions in the composer placeholder in both locales', () => {
+    expect(en.agent['composer-placeholder']).toBe('Ask anything, @ to mention');
+    expect(mn.agent['composer-placeholder']).toContain('@');
+  });
+
+  it('has the settled activity summaries in both locales', () => {
+    for (const key of ['thought', 'thought-for', 'worked-for']) {
+      expect(en.agent[key]).toBeTruthy();
+      expect(mn.agent[key]).toBeTruthy();
+    }
+    expect(en.agent['worked-for']).toContain('{{duration}}');
+    expect(mn.agent['worked-for']).toContain('{{duration}}');
   });
 });

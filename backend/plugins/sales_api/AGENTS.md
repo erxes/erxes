@@ -6,7 +6,7 @@
 - **Project:** `sales_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/sales_api`
-- **Last synchronized:** `2026-10-24`
+- **Last synchronized:** `2026-10-26`
 
 ## Scope
 
@@ -206,6 +206,7 @@
 | GraphQL             | `src/modules/sales/graphql`, `src/apollo`               | Sales schemas, resolvers, mutations, queries, and subscriptions       |
 | Pipeline validation | `src/modules/sales/utils/pipelineProperties.ts`         | Validates pipeline property ids through Core tRPC                     |
 | References          | `src/modules/sales/meta`                                | Sales reference values, automation constants, and after-process logic |
+| Agent metadata      | `src/meta/agent.ts`                                     | Core AI assistant skill and agent-hidden client portal operations     |
 | Documents           | `src/modules/sales/documents`                           | Generate sales document content and amount mappings                   |
 | POS and ecommerce   | `src/modules/pos`, `src/modules/ecommerce`              | Provide sales-owned POS and ecommerce behavior                        |
 
@@ -216,6 +217,13 @@
 - Internal `contactFields.sync` tRPC mutation (`TContactFieldsSync`) — core broadcasts contact merges and removals to every plugin declaring `meta.contactFields` (sales declares `sales:deal` in `main.ts`); applied with `applyContactFieldsSync`. Not agent-callable.
 - Internal `pos.cancelOrder({_id, posToken, userId?})` tRPC mutation returns
   `{cancelled: true}` after cancelling the POS order; it is not agent-callable.
+- Plugin meta `agent` (`src/meta/agent.ts`, `IAgentPluginMeta`) — the
+  text-only `pipeline-analysis` skill (mounted by core as
+  `sales-pipeline-analysis`: boards → pipelines → stages, `salesStages`
+  counts/amounts, `dealsTotalCount`, `dealsTotalAmounts`, `deals`) and
+  `hiddenOperations` listing every `forClientPortal` `cp*` query/mutation, so
+  the agent does not discover them. Hiding is visibility only: they stay
+  callable with their resolver permissions.
 - Plugin meta `properties` (`src/meta/properties.ts`) — the `deal` property
   types, each with the `systemFields` (`code`, `name`, `type`) core lists as
   the read-only "Basic information" group in Settings → Properties. A
@@ -267,6 +275,7 @@
 
 ## Local Invariants
 
+- Every automation action declares a `configSchema` (`src/modules/sales/meta/automations/configSchemas.ts` and `src/modules/pos/meta/automations/configSchemas.ts`) with exactly what its handler reads or refuses: create deal (`stageId`, `name`), create checklist (`name`) and create POS order (`posId` or `posToken`; amounts may be `{{ }}` placeholders). Write each field in the shape the builder form writes (text, not numbers or lists, where the form writes text). Change the schema with the handler; core publishes it to authors as `configJsonSchema` and enforces it when a flow goes live. Create deal also declares `validateConfig` (`src/modules/sales/meta/automations/configValidators.ts`): its `stageId` exists. POS `posToken` is builder-only.
 - Deal notifications are sent from `modules/sales/utils/notifications.ts`, not
   `modules/sales/utils.ts` (the barrel rule below). Each passes `event`:
   assigned or removed users get `sales:deals:dealAssignee` (also on deal
@@ -274,6 +283,10 @@
   `sales:deals:dealUpdated`. The meta names in `src/meta/notifications.ts` are
   the keys users' settings are saved under; renaming one drops saved choices.
 - A deal's contacts are read only from `customerId` / `companyId`: `getCustomerIds` / `getCompanyIds(subdomain, models, dealId)` (`modules/sales/utils.ts`), the deal loader, documents, list filters (`customerId`, `companyId` args on `deals`, archived deals and stages; customer phone search; `relationType` core:customer/company) and automation targets ("Deal customer/company" are `targetField`s; "Customer/Company deals" select by the field in `getDealSetPropertySelector`). Never call `relation.getRelationIds` for a deal's contacts. Importing the `erxes-api-shared/core-modules` barrel from `modules/sales/utils.ts` breaks test schemas (import cycle); keep it out.
+- `src/meta/agent.ts` hints and hidden names must exist in the sales SDL, hints
+  must not be hidden, and hidden names stay limited to client portal `cp*`
+  operations (`src/meta/__tests__/agent.test.ts`). A new `cp*` operation with
+  `forClientPortal` belongs in `hiddenOperations`.
 - Set property handlers pass `targetActionId: action.targetActionId` to
   `getSetPropertySelector`, so a Manage properties action targeting an earlier
   action (Find object, Create) updates that action's record, not the trigger's.
@@ -564,6 +577,8 @@
 
 ## Validation
 
+- `pnpm nx test sales_api` (`src/modules/sales/meta/automations/__tests__/builderConfigContract.test.ts`: action schemas accept every config in the neighbouring `builderActionConfigs.json`, which the builder wrote)
+- `pnpm nx test sales_api` (`src/modules/sales/meta/automations/__tests__/configSchemas.test.ts`)
 - `pnpm exec tsc --noEmit -p backend/plugins/sales_api/tsconfig.json`
 - `pnpm nx run sales_api:schema:print --skip-nx-cache` prints this subgraph offline for `gateway:schema:compose`.
 - `pnpm nx lint sales_api`
@@ -578,6 +593,9 @@
   before receipt/refund service calls or deletion, including `billType: '9'`.
 - `pnpm nx build:packageJson sales_api`
 - `pnpm nx test sales_api`
+- Agent smoke: with sales running, the core agent's capabilities catalog
+  (`agentsTools`) omits `cpDeals` and lists `deals`, and a pipeline question
+  activates `sales-pipeline-analysis`.
 - Smoke scenario: with an `everyBoard` rule (Won earns, Lost refunds) move a
   deal with a customer to Won, edit its products, move it to Lost and back;
   the customer's points follow the current amount and end equal to one Won.

@@ -21,7 +21,7 @@ import {
   IUserDocument,
   IUserMovementDocument,
 } from 'erxes-api-shared/core-types';
-import { redis } from 'erxes-api-shared/utils';
+import { escapeRegExp, redis } from 'erxes-api-shared/utils';
 import * as jwt from 'jsonwebtoken';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
@@ -858,10 +858,12 @@ export const loadUserClass = (
     }) {
       email = (email || '').toLowerCase().trim();
 
+      const loginPattern = new RegExp(`^${escapeRegExp(email)}$`, 'i');
+
       const user = await models.Users.findOne({
         $or: [
-          { email: { $regex: new RegExp(`^${email}$`, 'i') } },
-          { username: { $regex: new RegExp(`^${email}$`, 'i') } },
+          { email: { $regex: loginPattern } },
+          { username: { $regex: loginPattern } },
         ],
         isActive: true,
       });

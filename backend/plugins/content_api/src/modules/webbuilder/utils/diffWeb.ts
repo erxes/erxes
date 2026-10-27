@@ -11,6 +11,7 @@ const TRACKED_FIELDS = [
   'integrations',
   'environmentVariables',
   'externalLinks',
+  'texts',
 ];
 
 export const diffWeb = (

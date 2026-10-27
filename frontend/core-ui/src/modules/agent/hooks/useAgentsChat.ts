@@ -2,12 +2,17 @@ import { isToolUIPart } from 'ai';
 import { hasAgentsApprovalDecision } from '../approvalDecisions';
 import type { UIMessage } from 'ai';
 import { Chat, useChat } from '@ai-sdk/react';
-import { useLazyQuery } from '@apollo/client';
+import { useApolloClient, useLazyQuery } from '@apollo/client';
 import { useSetAtom } from 'jotai';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { AGENTS_THREAD_DETAIL } from '../graphql/threads';
 import type { IAgentsThreadDetailData } from '../graphql/threads';
+import {
+  evictThreadDetail as evictCachedDetail,
+  readCachedThreadDetail as readCachedDetail,
+  rememberThreadDetail as rememberCachedDetail,
+} from '../utils/threadDetailCache';
 import {
   buildAskUserResult,
   readAskUserQuestionsFromInput,
@@ -15,6 +20,7 @@ import {
 import type { IAskUserQuestionEntry } from '../components/AskUserPrompt';
 import { mapStoredMessagesToUIMessages } from '../mapStoredMessages';
 import { extractPageContext } from '../utils/pageContext';
+import { withAgentMentionsParts } from '../agentMentions';
 import { useNavigationCatalog } from './useNavigationCatalog';
 import { agentNavigationCatalogState } from '../states/agentNavigationCatalogState';
 import type {
@@ -22,6 +28,7 @@ import type {
   IAgentsRequestSelection,
   IPendingAnswer,
 } from '../transport';
+import { isAgentsStreamStalled } from '../streamHealth';
 import { AgentsChatTransport } from '../transport';
 import {
   decodeInFlightTurn,
@@ -30,13 +37,15 @@ import {
   type IInFlightTurn,
 } from '../inFlightPrompt';
 
-/** Thinking depth selectable per turn in the chat UI. */
+/** Thinking depth selectable per turn in the chat UI, shallowest first. */
 export type IAgentsThinkingLevel =
   | 'off'
   | 'minimal'
   | 'low'
   | 'medium'
-  | 'high';
+  | 'high'
+  | 'xhigh'
+  | 'max';
 
 const DEFAULT_THINKING_LEVEL: IAgentsThinkingLevel = 'high';
 
@@ -319,16 +328,20 @@ export const useAgentsChat = (options?: {
   );
   const [modelProvider, setModelProvider] = useState('');
   const [modelId, setModelId] = useState('');
-  const [thinkingLevel, setThinkingLevel] =
-    useState<IAgentsThinkingLevel>(DEFAULT_THINKING_LEVEL);
+  const [thinkingLevel, setThinkingLevel] = useState<IAgentsThinkingLevel>(
+    DEFAULT_THINKING_LEVEL,
+  );
   const [answerBusy, setAnswerBusy] = useState(false);
   const [canReconnect, setCanReconnect] = useState(false);
 
   const threadIdRef = useRef<string | undefined>(undefined);
   const threadSelectionRef = useRef(0);
-  const selectionRef = useRef<IAgentsRequestSelection>({
+  const selectionRef = useRef<
+    IAgentsRequestSelection & { thinkingLevel: IAgentsThinkingLevel }
+  >({
     thinkingLevel: DEFAULT_THINKING_LEVEL,
   });
+  // Empty until the panel reports the run model's levels: send as chosen.
   const pageContextRef = useRef<IAgentsPageContext | undefined>(undefined);
   const navigation = useNavigationCatalog();
   const navigationRef = useRef(navigation);
@@ -364,6 +377,50 @@ export const useAgentsChat = (options?: {
    */
   const reconnectOutcomeRef = useRef<boolean | undefined>(undefined);
 
+  // Apollo's normalized cache is the transcript cache: `openThread` renders a
+  // cached `AgentsThreadDetail` instantly and revalidates it in the
+  // background. A send evicts that thread's entry (the stored transcript is
+  // about to change) and leaving a thread re-reads it into the cache. At
+  // most `AGENTS_THREAD_DETAIL_CACHE_LIMIT` recently used transcripts stay
+  // cached; eviction removes only this module's entries (no global gc).
+  const apolloClient = useApolloClient();
+
+  const readCachedThreadDetail = useCallback(
+    (id: string) => readCachedDetail(apolloClient.cache, id),
+    [apolloClient],
+  );
+
+  /** Records that a thread's detail was just read or written to the cache. */
+  const rememberThreadDetail = useCallback(
+    (id: string) => rememberCachedDetail(apolloClient.cache, id),
+    [apolloClient],
+  );
+
+  const evictThreadDetail = useCallback(
+    (id: string | undefined) => {
+      if (id) evictCachedDetail(apolloClient.cache, id);
+    },
+    [apolloClient],
+  );
+
+  /** Fills the cache for a thread the user is leaving, so returning is instant. */
+  const prefetchThreadDetail = useCallback(
+    (id: string) => {
+      if (readCachedThreadDetail(id)) return;
+      apolloClient
+        .query<IAgentsThreadDetailData>({
+          query: AGENTS_THREAD_DETAIL,
+          variables: { threadId: id },
+          fetchPolicy: 'network-only',
+        })
+        .then((result) => {
+          if (result.data?.agentsThreadDetail) rememberThreadDetail(id);
+        })
+        .catch(() => undefined);
+    },
+    [apolloClient, readCachedThreadDetail, rememberThreadDetail],
+  );
+
   /** Generates the conversation's thread id on first use. */
   const ensureThreadId = useCallback(() => {
     if (!threadIdRef.current) {
@@ -386,6 +443,8 @@ export const useAgentsChat = (options?: {
     () =>
       new AgentsChatTransport({
         getThreadId: () => threadIdRef.current,
+        // The chosen level is sent as chosen; the server clamps it to the
+        // selected model's levels (single source of truth).
         getRequestSelection: () => selectionRef.current,
         getPageContext: () => pageContextRef.current,
         getNavigation: () => navigationRef.current,
@@ -398,7 +457,12 @@ export const useAgentsChat = (options?: {
           writeSelectedThreadId(sessionScope, nextThreadId);
         },
         getActiveRunId: () => activeRunIdRef.current,
-        onActiveRunId: setActiveRunId,
+        onActiveRunId: (runId) => {
+          setActiveRunId(runId);
+          // A new run (send, edit, regenerate, answer or approval resume)
+          // changes the stored transcript: drop the stale cached copy.
+          if (runId) evictThreadDetail(threadIdRef.current);
+        },
         onPendingMessage: (message) => {
           if (!threadIdRef.current) return;
           try {
@@ -431,7 +495,7 @@ export const useAgentsChat = (options?: {
           return answer;
         },
       }),
-    [setActiveRunId, sessionScope],
+    [setActiveRunId, sessionScope, evictThreadDetail],
   );
 
   // Own the native Chat instance so the full-replay transport contract is
@@ -442,6 +506,9 @@ export const useAgentsChat = (options?: {
         transport,
         sendAutomaticallyWhen: hasAgentsApprovalDecision,
         onFinish: ({ message, isAbort, isDisconnect }) => {
+          // The run's turns are now persisted (or partially, on abort):
+          // any copy cached during the run is outdated.
+          evictThreadDetail(threadIdRef.current);
           if (
             !isAbort &&
             !isDisconnect &&
@@ -451,7 +518,7 @@ export const useAgentsChat = (options?: {
           }
         },
       }),
-    [transport, setActiveRunId],
+    [transport, setActiveRunId, evictThreadDetail],
   );
   useEffect(
     () => () => {
@@ -533,10 +600,14 @@ export const useAgentsChat = (options?: {
       void sendMessage(
         {
           messageId,
-          parts: [
-            ...parts.filter((part) => part.type !== 'text'),
-            { type: 'text', text: text.trim() },
-          ],
+          // The edited text decides which records stay mentioned.
+          parts: withAgentMentionsParts(
+            [
+              ...parts.filter((part) => part.type !== 'text'),
+              { type: 'text', text: text.trim() },
+            ],
+            text.trim(),
+          ),
           metadata: message.metadata,
         },
         {
@@ -648,6 +719,9 @@ export const useAgentsChat = (options?: {
     [sdkSendMessage, setMessages],
   );
 
+  // Every read below asks for the network explicitly. `nextFetchPolicy:
+  // 'cache-only'` keeps the lazy query's lingering watch from refetching on
+  // its own when this module evicts the thread at a run start or finish.
   const [loadThreadDetail] =
     useLazyQuery<IAgentsThreadDetailData>(AGENTS_THREAD_DETAIL);
 
@@ -658,9 +732,11 @@ export const useAgentsChat = (options?: {
     // cannot land after the transcript is cleared. The durable run can
     // continue server-side and its session entry stays available if the
     // user opens that thread again.
+    const previousThreadId = threadIdRef.current;
     await stop();
     if (selection !== threadSelectionRef.current) return;
     setLoadingThread(false);
+    if (previousThreadId) prefetchThreadDetail(previousThreadId);
 
     // Clear the active run id reactively and in the ref, and drop this
     // surface's selected-thread pointer — but do NOT touch the old
@@ -674,29 +750,45 @@ export const useAgentsChat = (options?: {
     setThreadId(undefined);
     setMessages([]);
     clearError();
-  }, [setMessages, clearError, stop, sessionScope]);
+  }, [setMessages, clearError, stop, sessionScope, prefetchThreadDetail]);
 
   const openThread = useCallback(
     async (nextThreadId: string) => {
       const selection = ++threadSelectionRef.current;
-      setLoadingThread(true);
+      const previousThreadId = threadIdRef.current;
+      // Stale-while-revalidate: a cached transcript renders at once (no
+      // loading state) and is revalidated below. A thread with a stored
+      // active run always reads the network, so reconnect/replay keeps
+      // restoring against the freshest stored history.
+      const cached = readStoredActiveRunId(nextThreadId)
+        ? undefined
+        : readCachedThreadDetail(nextThreadId);
+      setLoadingThread(!cached);
 
       try {
         // Prevent chunks from the previously selected thread from being
         // applied after this hook replaces the shared SDK transcript.
         await stop();
         if (selection !== threadSelectionRef.current) return;
+        if (previousThreadId && previousThreadId !== nextThreadId) {
+          prefetchThreadDetail(previousThreadId);
+        }
 
-        const result = await loadThreadDetail({
-          variables: { threadId: nextThreadId },
-          fetchPolicy: 'network-only',
-        });
+        const detail =
+          cached ??
+          (
+            await loadThreadDetail({
+              variables: { threadId: nextThreadId },
+              fetchPolicy: 'network-only',
+              nextFetchPolicy: 'cache-only',
+            })
+          ).data?.agentsThreadDetail;
         if (selection !== threadSelectionRef.current) return;
-        const detail = result.data?.agentsThreadDetail;
 
         if (!detail) {
           throw new Error('Thread not found.');
         }
+        rememberThreadDetail(nextThreadId);
 
         threadIdRef.current = nextThreadId;
         setThreadId(nextThreadId);
@@ -723,6 +815,39 @@ export const useAgentsChat = (options?: {
         setMessages(restoreMessages);
         clearError();
         setActiveRunId(storedRunId);
+
+        if (cached) {
+          // Background revalidation: replace the cached transcript only when
+          // the server's differs, and only while the user is still on this
+          // thread with no run or stream in flight (a send sets a new active
+          // run id synchronously in the transport).
+          void loadThreadDetail({
+            variables: { threadId: nextThreadId },
+            fetchPolicy: 'network-only',
+            nextFetchPolicy: 'cache-only',
+          })
+            .then((fresh) => {
+              const freshMessages = fresh.data?.agentsThreadDetail?.messages;
+              if (freshMessages) rememberThreadDetail(nextThreadId);
+
+              if (
+                !freshMessages ||
+                selection !== threadSelectionRef.current ||
+                threadIdRef.current !== nextThreadId ||
+                activeRunIdRef.current ||
+                statusRef.current !== 'ready' ||
+                JSON.stringify(freshMessages) ===
+                  JSON.stringify(cached.messages)
+              ) {
+                return;
+              }
+
+              setMessages(mapStoredMessagesToUIMessages(freshMessages));
+            })
+            .catch(() => {
+              // Keep the cached transcript; the next open retries.
+            });
+        }
 
         if (storedRunId && !messageHasPendingSuspension(lastAssistant)) {
           // Reset the transport-reported outcome before the attempt, then
@@ -772,9 +897,11 @@ export const useAgentsChat = (options?: {
                 const refetch = await loadThreadDetail({
                   variables: { threadId: nextThreadId },
                   fetchPolicy: 'network-only',
+                  nextFetchPolicy: 'cache-only',
                 });
                 const refetchedMessages =
                   refetch.data?.agentsThreadDetail?.messages;
+                if (refetchedMessages) rememberThreadDetail(nextThreadId);
 
                 if (
                   !refetchedMessages ||
@@ -852,6 +979,9 @@ export const useAgentsChat = (options?: {
       setActiveRunId,
       stop,
       sessionScope,
+      readCachedThreadDetail,
+      rememberThreadDetail,
+      prefetchThreadDetail,
     ],
   );
 
@@ -894,6 +1024,27 @@ export const useAgentsChat = (options?: {
   const resumeStream = useCallback(async () => {
     if (threadIdRef.current) await openThread(threadIdRef.current);
   }, [openThread]);
+
+  // A stalled stream is a lost connection, not a verdict on the run: ask the
+  // server once per run whether its producer survived. The reconnect replays
+  // the reply, finds it finished, or reports the restart.
+  const autoReconnectedRunRef = useRef<string | undefined>(undefined);
+
+  useEffect(() => {
+    const runId = activeRunIdRef.current;
+
+    if (
+      status !== 'error' ||
+      !isAgentsStreamStalled(error) ||
+      !runId ||
+      autoReconnectedRunRef.current === runId
+    ) {
+      return;
+    }
+
+    autoReconnectedRunRef.current = runId;
+    void resumeStream();
+  }, [status, error, resumeStream]);
 
   const retryLastTurn = useCallback(() => {
     void regenerate().catch(() => {

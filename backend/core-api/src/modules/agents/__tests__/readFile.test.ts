@@ -23,6 +23,11 @@ jest.mock('dns/promises', () => ({
   }),
 }));
 
+// The shared core-modules barrel loads Mongoose models built from the mocked
+// utils; the agents module only needs the agent contract from it.
+jest.mock('erxes-api-shared/core-modules', () =>
+  jest.requireActual('erxes-api-shared/core-modules/agent'),
+);
 jest.mock('erxes-api-shared/utils', () => ({
   readFileStreamFromStorage: jest.fn(),
   readFileFromStorage: jest.fn(),
@@ -54,6 +59,7 @@ import {
 } from '@/agents/readFile';
 
 import { prepareAgentsFileMessage } from '@/agents/fileBinding';
+import { docxFixture, pdfFixture, wordParagraph } from './fixtures/documents';
 
 const originalDownload = httpTransport.download;
 afterEach(() => {
@@ -406,6 +412,62 @@ describe('readAgentsUploadedFile', () => {
         allowedUrls: ['https://imagedelivery.net/abc/shot.svg'],
       }),
     ).resolves.toMatchObject({ kind: 'binary' });
+  });
+
+  it('reads Office documents and PDFs as text for the model', async () => {
+    jest
+      .mocked(readFileStreamFromStorage)
+      .mockResolvedValueOnce(
+        Readable.from([docxFixture(wordParagraph('Renewal terms'))]),
+      )
+      .mockResolvedValueOnce(Readable.from([pdfFixture(['Brief summary'])]));
+    const tool = await buildReadFileTool();
+    // The storage key name says nothing; the format comes from the bytes.
+    const readDocx = await readAgentsUploadedFile({
+      subdomain: 'acme',
+      url: 'upload-1',
+      allowedUrls: ['upload-1'],
+    });
+    expect(readDocx).toEqual({
+      url: 'upload-1',
+      kind: 'text',
+      mimeType:
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      text: 'Renewal terms',
+    });
+    expect(tool.toModelOutput?.(readDocx)).toEqual({
+      type: 'text',
+      value: 'Renewal terms',
+    });
+    await expect(
+      readAgentsUploadedFile({
+        subdomain: 'acme',
+        url: 'brief.pdf',
+        allowedUrls: ['brief.pdf'],
+      }),
+    ).resolves.toMatchObject({
+      kind: 'text',
+      mimeType: 'application/pdf',
+      text: 'Brief summary',
+    });
+  }, 30_000);
+
+  it('reports corrupt documents as unreadable', async () => {
+    const docx = docxFixture(wordParagraph('x'));
+    // Without its end-of-central-directory record the archive cannot open.
+    const corrupt = docx.subarray(0, docx.length - 22);
+    jest
+      .mocked(readFileStreamFromStorage)
+      .mockResolvedValue(Readable.from([corrupt]));
+    await expect(
+      readAgentsUploadedFile({
+        subdomain: 'acme',
+        url: 'broken.docx',
+        allowedUrls: ['broken.docx'],
+      }),
+    ).rejects.toThrow(
+      'The document could not be read. Upload a valid, unprotected file.',
+    );
   });
 });
 

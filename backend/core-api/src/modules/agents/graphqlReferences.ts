@@ -25,6 +25,7 @@ export const AGENTS_GRAPHQL_RECORD_TYPES: Record<string, string> = {
   Deal: 'deal',
   SalesDeal: 'deal',
   Conversation: 'conversation',
+  Automation: 'automation',
 };
 const recordOf = (value: unknown): Record<string, unknown> | undefined =>
   value !== null && typeof value === 'object' && !Array.isArray(value)

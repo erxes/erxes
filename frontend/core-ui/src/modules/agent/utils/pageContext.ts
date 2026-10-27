@@ -36,6 +36,31 @@ export const extractPageContext = (
   return { context: parsePageContextText(first.text), parts: parts.slice(1) };
 };
 
+/**
+ * Restored user turns keep their stored `[Page context] …` line (Edit reads
+ * it back). The server prepends the current context to every send, so the
+ * newest user message drops the stored line before it is sent again;
+ * otherwise Regenerate/Retry after a reload would give the model two.
+ */
+export const withoutResentPageContext = (
+  messages: UIMessage[],
+): UIMessage[] => {
+  const index = messages.map((message) => message.role).lastIndexOf('user');
+  const newest = messages[index];
+
+  if (!newest) {
+    return messages;
+  }
+
+  const { context, parts } = extractPageContext(newest.parts);
+
+  return context
+    ? messages.map((message, position) =>
+        position === index ? { ...message, parts } : message,
+      )
+    : messages;
+};
+
 const RECORD_TYPES: ReadonlySet<string> = new Set(AGENT_REFERENCE_TYPES);
 
 export const parsePageContextText = (text: string): IAgentPageContext => {

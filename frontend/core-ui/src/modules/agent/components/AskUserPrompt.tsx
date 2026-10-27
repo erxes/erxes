@@ -1,6 +1,7 @@
 import {
   IconArrowRight,
   IconCheck,
+  IconChevronDown,
   IconChevronLeft,
   IconCircle,
   IconCircleCheckFilled,
@@ -10,10 +11,13 @@ import {
   IconSquare,
   IconSquareCheckFilled,
 } from '@tabler/icons-react';
-import { Button, Textarea, cn } from 'erxes-ui';
+import { Badge, Button, Textarea, cn } from 'erxes-ui';
 import { useEffect, useId, useRef, useState } from 'react';
 
-import type { IAskUserAnswerEntry } from '../askUserAnswers';
+import {
+  splitAskUserAnswer,
+  type IAskUserAnswerEntry,
+} from '../askUserAnswers';
 import { buildQuestionAnswer, hasQuestionAnswer } from '../questionDrafts';
 
 export interface IAskUserQuestionEntry {
@@ -31,6 +35,59 @@ export interface IAskUserPromptProps {
   busy: boolean;
   onAnswer: (answer: string | string[] | (string | string[])[]) => void;
 }
+
+/** Shared by the live card and its answered summary so both read as one. */
+const CARD_CLASS =
+  'my-2 min-w-0 overflow-hidden rounded-xl border bg-card text-foreground';
+const HEADER_CLASS =
+  'flex items-center justify-between gap-3 border-b bg-muted/20 px-4 py-2.5';
+const QUESTION_CLASS =
+  'text-xs leading-5 text-muted-foreground [overflow-wrap:anywhere]';
+
+/**
+ * One answer as the user gave it: picked options as chips, their own words
+ * as a separate text line.
+ */
+const AnswerValue = ({
+  answer,
+  question,
+}: {
+  answer: string | string[];
+  question?: IAskUserQuestionEntry;
+}) => {
+  const { choices, custom } = splitAskUserAnswer(answer, question);
+  const hasOptions = Boolean(question?.options?.length);
+
+  return (
+    <dd className="mt-1.5 flex min-w-0 flex-wrap items-start gap-1.5">
+      {choices.map((choice) => (
+        <Badge
+          key={choice}
+          className="h-auto min-h-6 max-w-full whitespace-normal rounded-md py-0.5 leading-5 [overflow-wrap:anywhere]"
+        >
+          <IconCheck aria-hidden="true" className="size-3 shrink-0" />
+          {choice}
+        </Badge>
+      ))}
+      {custom && (
+        <p className="flex w-full min-w-0 items-start gap-1.5 rounded-md bg-muted/50 px-2 py-1 text-sm leading-6">
+          {hasOptions && (
+            <>
+              <IconPencil
+                aria-hidden="true"
+                className="mt-1 size-3.5 shrink-0 text-muted-foreground"
+              />
+              <span className="sr-only">Your own answer: </span>
+            </>
+          )}
+          <span className="min-w-0 whitespace-pre-wrap [overflow-wrap:anywhere]">
+            {custom}
+          </span>
+        </p>
+      )}
+    </dd>
+  );
+};
 
 /** Choices and custom answers share one explicit submission path. */
 export const AskUserPrompt = ({
@@ -100,11 +157,15 @@ export const AskUserPrompt = ({
         event.preventDefault();
         submit();
       }}
-      className="my-3 min-w-0 overflow-hidden rounded-2xl border bg-card text-foreground"
+      className={cn(
+        CARD_CLASS,
+        'transition-opacity motion-reduce:transition-none',
+        busy && 'opacity-80',
+      )}
       aria-label="Questions from your agent"
       aria-busy={busy}
     >
-      <div className="flex items-center justify-between gap-3 border-b bg-muted/20 px-4 py-3 sm:px-5">
+      <div className={HEADER_CLASS}>
         <div className="flex min-w-0 items-center gap-2 text-xs font-medium">
           <IconMessageQuestion className="size-4 shrink-0 text-muted-foreground" />
           <span>{reviewing ? 'Review your answers' : 'Your input'}</span>
@@ -121,10 +182,7 @@ export const AskUserPrompt = ({
         </span>
       </div>
       {questions.length > 1 && (
-        <nav
-          className="flex gap-1.5 px-4 pt-4 sm:px-5"
-          aria-label="Question progress"
-        >
+        <nav className="flex gap-1.5 px-4 pt-3" aria-label="Question progress">
           {questions.map((entry, index) => (
             <Button
               key={index}
@@ -155,33 +213,27 @@ export const AskUserPrompt = ({
         </nav>
       )}
       {reviewing ? (
-        <section className="px-4 py-5 sm:px-5" aria-labelledby={labelId}>
+        <section className="px-4 pt-4" aria-labelledby={labelId}>
           <h3
             ref={headingRef}
             id={labelId}
             tabIndex={-1}
-            className="text-base font-semibold outline-none"
+            className="text-sm font-semibold leading-6 outline-none"
           >
             Everything look right?
           </h3>
-          <p className="mt-1 text-xs leading-5 text-muted-foreground">
+          <p className="mt-0.5 text-xs leading-5 text-muted-foreground">
             Send these answers to continue the conversation.
           </p>
-          <dl className="mt-4 divide-y">
+          <dl className="mt-2 divide-y">
             {questions.map((entry, index) => (
               <div
                 key={index}
-                className="flex items-start justify-between gap-3 py-3 first:pt-0 last:pb-0"
+                className="flex items-start justify-between gap-3 py-3"
               >
-                <div className="min-w-0">
-                  <dt className="text-xs leading-5 text-muted-foreground">
-                    {entry.question}
-                  </dt>
-                  <dd className="mt-1 whitespace-pre-wrap text-sm leading-6 [overflow-wrap:anywhere]">
-                    {Array.isArray(answers[index])
-                      ? answers[index].join(', ')
-                      : answers[index]}
-                  </dd>
+                <div className="min-w-0 flex-1">
+                  <dt className={QUESTION_CLASS}>{entry.question}</dt>
+                  <AnswerValue answer={answers[index] ?? ''} question={entry} />
                 </div>
                 <Button
                   type="button"
@@ -200,20 +252,17 @@ export const AskUserPrompt = ({
         </section>
       ) : (
         question && (
-          <section
-            className="space-y-4 px-4 py-5 sm:px-5"
-            aria-labelledby={labelId}
-          >
+          <section className="space-y-3.5 px-4 py-4" aria-labelledby={labelId}>
             <div>
               <h3
                 ref={headingRef}
                 id={labelId}
                 tabIndex={-1}
-                className="text-base font-semibold leading-6 tracking-tight outline-none [overflow-wrap:anywhere]"
+                className="text-sm font-semibold leading-6 outline-none [overflow-wrap:anywhere]"
               >
                 {question.question}
               </h3>
-              <p className="mt-1.5 text-xs leading-5 text-muted-foreground">
+              <p className="mt-0.5 text-xs leading-5 text-muted-foreground">
                 {hasOptions
                   ? multi
                     ? 'Select all that apply, or write your own answer.'
@@ -223,7 +272,7 @@ export const AskUserPrompt = ({
             </div>
             {hasOptions && (
               <div
-                className="flex flex-col gap-2"
+                className="flex flex-col gap-1.5"
                 role="group"
                 aria-labelledby={labelId}
               >
@@ -245,9 +294,9 @@ export const AskUserPrompt = ({
                       aria-pressed={active}
                       onClick={() => togglePick(step, option.label)}
                       className={cn(
-                        'h-auto min-h-12 w-full items-start justify-start gap-3 whitespace-normal rounded-xl border px-3.5 py-3 text-left shadow-none transition-colors',
+                        'h-auto min-h-10 w-full items-start justify-start gap-2.5 whitespace-normal rounded-lg border px-3 py-2.5 text-left shadow-none transition-colors',
                         active
-                          ? 'border-primary/60 bg-primary/5 hover:bg-primary/10'
+                          ? 'border-primary/40 bg-primary/5 hover:bg-primary/10'
                           : 'border-border/70 bg-transparent hover:border-foreground/25 hover:bg-muted/40',
                       )}
                     >
@@ -302,13 +351,13 @@ export const AskUserPrompt = ({
                 aria-label={`Your answer: ${question.question}`}
                 disabled={busy}
                 rows={3}
-                className="max-h-48 min-h-20 resize-y rounded-xl border bg-background px-3 py-2.5 text-sm leading-6 shadow-none placeholder:text-muted-foreground/60 focus-visible:border-primary/50"
+                className="max-h-48 min-h-20 resize-y rounded-lg border bg-background px-3 py-2.5 text-sm leading-6 shadow-none placeholder:text-muted-foreground/60 focus-visible:border-primary/50"
               />
             </div>
           </section>
         )
       )}
-      <div className="flex items-center justify-between gap-3 border-t px-4 py-3 sm:px-5">
+      <div className="flex items-center justify-between gap-3 border-t px-4 py-2.5">
         {step > 0 ? (
           <Button
             type="button"
@@ -352,24 +401,77 @@ export const AskUserPrompt = ({
   );
 };
 
-/** Compact persisted summary replaces the active form after submission. */
+/** Longer groups show this many pairs until the reader expands them. */
+const COLLAPSED_ANSWER_COUNT = 3;
+
+/**
+ * Persisted summary that replaces the live card after submission: the same
+ * surface and header bar, each question with its answer as chips (picked
+ * options) and/or a text line (the user's own words). It settles in with a
+ * short fade (none for reduced motion).
+ */
 export const AskUserAnswered = ({
   answers,
+  questions,
 }: {
   answers: IAskUserAnswerEntry[];
-}) => (
-  <div className="my-2 space-y-3 border-l-2 border-primary/25 py-1 pl-4 text-foreground">
-    <p className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
-      <IconCheck className="size-3.5 text-primary" />
-      Your answers
-    </p>
-    {answers.map((entry, index) => (
-      <div key={index}>
-        <p className="text-xs text-muted-foreground">{entry.question}</p>
-        <p className="mt-1 whitespace-pre-wrap break-words text-sm leading-6">
-          {entry.answer}
-        </p>
+  /** The asked questions, positionally; lets picks render as chips. */
+  questions?: IAskUserQuestionEntry[];
+}) => {
+  const [expanded, setExpanded] = useState(false);
+  const collapsible = answers.length > COLLAPSED_ANSWER_COUNT + 1;
+  const visible =
+    collapsible && !expanded
+      ? answers.slice(0, COLLAPSED_ANSWER_COUNT)
+      : answers;
+
+  return (
+    <section
+      className={cn(CARD_CLASS, 'agent-ask-settle')}
+      aria-label="Your answers"
+    >
+      <div className={HEADER_CLASS}>
+        <div className="flex min-w-0 items-center gap-2 text-xs font-medium">
+          <span className="flex size-4 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">
+            <IconCheck aria-hidden="true" className="size-2.5" stroke={3} />
+          </span>
+          <span>Answered</span>
+        </div>
+        {answers.length > 1 && (
+          <span className="shrink-0 text-xs tabular-nums text-muted-foreground">
+            {answers.length} questions
+          </span>
+        )}
       </div>
-    ))}
-  </div>
-);
+      <dl className="divide-y px-4">
+        {visible.map((entry, index) => (
+          <div key={index} className="py-3">
+            <dt className={QUESTION_CLASS}>{entry.question}</dt>
+            <AnswerValue answer={entry.answer} question={questions?.[index]} />
+          </div>
+        ))}
+      </dl>
+      {collapsible && (
+        <div className="border-t px-2 py-1">
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="w-full gap-1 text-xs text-muted-foreground"
+            aria-expanded={expanded}
+            onClick={() => setExpanded((value) => !value)}
+          >
+            {expanded ? 'Show fewer' : `Show all ${answers.length} answers`}
+            <IconChevronDown
+              aria-hidden="true"
+              className={cn(
+                'size-3.5 transition-transform motion-reduce:transition-none',
+                expanded && 'rotate-180',
+              )}
+            />
+          </Button>
+        </div>
+      )}
+    </section>
+  );
+};
