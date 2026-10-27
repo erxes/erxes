@@ -24,6 +24,7 @@ const mutations: Record<string, Resolver<any, any, IContext>> = {
        contentType: input.contentType,
        contentTypeId: input.contentTypeId,
        amount: input.amount,
+       paymentIds: input.paymentIds,
        status: PAYMENT_STATUS.PENDING,
        createdAt: { $gte: new Date(Date.now() - 24 * 60 * 60 * 1000) },
      })
