@@ -26,6 +26,7 @@ import {
   IconQuestionMark,
   IconSquareRotated,
   IconUsersGroup,
+  IconUserStar,
 } from '@tabler/icons-react';
 
 export const ActivityItem = ({ activity }: { activity: IActivity }) => {
@@ -84,9 +85,10 @@ export const ActivityIcon = ({ activity }: { activity: IActivity }) => {
     case ACTIVITY_MODULES.END_DATE:
       return <IconCalendar className="size-4 text-accent-foreground" />;
     case ACTIVITY_MODULES.ASSIGNEE:
-    case ACTIVITY_MODULES.LEAD:
     case ACTIVITY_MODULES.TRIAGE_ACCEPTANCE:
       return <ActivityActor.Avatar />;
+    case ACTIVITY_MODULES.LEAD:
+      return <IconUserStar className="size-4 text-accent-foreground" />;
     case ACTIVITY_MODULES.NOTE:
       return <IconNote className="size-4 text-accent-foreground" />;
 

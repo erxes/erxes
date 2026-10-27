@@ -3,12 +3,26 @@ import { act, fireEvent, render, screen } from '@testing-library/react';
 import { useState } from 'react';
 import { RecordSidePanel } from '../RecordSidePanel';
 
-jest.mock('erxes-ui', () => ({
-  cn: (...classes: string[]) => classes.filter(Boolean).join(' '),
-  Button: ({ children, ...props }: React.ComponentProps<'button'>) => (
-    <button {...props}>{children}</button>
-  ),
-}));
+jest.mock('erxes-ui', () => {
+  const ReactModule = jest.requireActual<typeof import('react')>('react');
+  const primitives = jest.requireActual<typeof import('radix-ui')>('radix-ui');
+  return {
+    cn: (...classes: string[]) => classes.filter(Boolean).join(' '),
+    Button: ReactModule.forwardRef<
+      HTMLButtonElement,
+      React.ComponentProps<'button'>
+    >(({ children, ...props }, ref) => (
+      <button ref={ref} {...props}>
+        {children}
+      </button>
+    )),
+    Tabs: Object.assign(primitives.Tabs.Root, primitives.Tabs),
+    DropdownMenu: Object.assign(
+      primitives.DropdownMenu.Root,
+      primitives.DropdownMenu,
+    ),
+  };
+});
 jest.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (_key: string, fallback: string) => fallback }),
 }));
@@ -232,3 +246,122 @@ it('keeps an explicitly supplied expand handler', () => {
   expect(expand).toHaveBeenCalledTimes(1);
   expect(screen.getByRole('complementary').style.width).toBe('400px');
 });
+
+it.each([{ ctrlKey: true }, { metaKey: true }])(
+  'toggles with the exact fullscreen shortcut and preserves other Enter shortcuts (%o)',
+  (modifier) => {
+    render(
+      <RecordSidePanel width={480}>
+        <RecordSidePanel.Header title="Task" onClose={jest.fn()} />
+        <input aria-label="Draft" />
+        <div contentEditable aria-label="Description" />
+      </RecordSidePanel>,
+    );
+    const panel = screen.getByRole('complementary');
+    const shortcut = { key: 'Enter', shiftKey: true, ...modifier };
+    fireEvent.keyDown(document, { key: 'Enter', ...modifier });
+    fireEvent.keyDown(document, { ...shortcut, altKey: true });
+    fireEvent.keyDown(document, { ...shortcut, repeat: true });
+    fireEvent.keyDown(document, { ...shortcut, isComposing: true });
+    fireEvent.keyDown(screen.getByRole('textbox'), shortcut);
+    fireEvent.keyDown(screen.getByLabelText('Description'), shortcut);
+    expect(panel.hasAttribute('data-expanded')).toBe(false);
+    fireEvent.keyDown(document, shortcut);
+    expect(panel.getAttribute('data-expanded')).toBe('true');
+    fireEvent.keyDown(document, shortcut);
+    expect(panel.style.width).toBe('480px');
+  },
+);
+
+it('does not toggle through an open menu or a previously handled shortcut', () => {
+  render(
+    <RecordSidePanel>
+      <RecordSidePanel.Header title="Task" onClose={jest.fn()} />
+      <div role="menu" data-state="open" />
+    </RecordSidePanel>,
+  );
+  const shortcut = { key: 'Enter', ctrlKey: true, shiftKey: true };
+  fireEvent.keyDown(document, shortcut);
+  expect(screen.getByRole('complementary').hasAttribute('data-expanded')).toBe(
+    false,
+  );
+  screen.getByRole('menu').remove();
+  const handled = new KeyboardEvent('keydown', {
+    ...shortcut,
+    cancelable: true,
+  });
+  handled.preventDefault();
+  fireEvent(document, handled);
+  expect(screen.getByRole('complementary').hasAttribute('data-expanded')).toBe(
+    false,
+  );
+});
+
+it('exposes every tab vertically in fullscreen and keeps the active editor mounted', () => {
+  const { IconId } = jest.requireActual<typeof import('@tabler/icons-react')>(
+    '@tabler/icons-react',
+  );
+  const TabbedPanel = () => {
+    const [value, setValue] = useState('detail');
+    return (
+      <RecordSidePanel>
+        <RecordSidePanel.Header title="Task" onClose={jest.fn()} />
+        <RecordSidePanel.Tabs
+          value={value}
+          onValueChange={setValue}
+          visibleCount={2}
+          tabs={['detail', 'properties', 'activity', 'files'].map((tab) => ({
+            value: tab,
+            label: tab,
+            icon: IconId,
+            content:
+              tab === 'detail' ? (
+                <input aria-label="Draft" defaultValue="Unsaved" />
+              ) : (
+                tab
+              ),
+          }))}
+        />
+      </RecordSidePanel>
+    );
+  };
+  render(<TabbedPanel />);
+  const draft = screen.getByRole('textbox');
+  fireEvent.click(screen.getByRole('button', { name: 'Expand record' }));
+  expect(screen.getByRole('tablist').getAttribute('aria-orientation')).toBe(
+    'vertical',
+  );
+  expect(screen.getAllByRole('tab')).toHaveLength(4);
+  expect(screen.getByRole('textbox')).toBe(draft);
+  fireEvent.click(screen.getByRole('button', { name: 'Collapse record' }));
+  expect(screen.getByRole('tablist').getAttribute('aria-orientation')).toBe(
+    'horizontal',
+  );
+  expect(screen.getByRole('textbox')).toBe(draft);
+});
+
+it.each([false, true])(
+  'respects reduced motion when toggling (%s)',
+  (reducedMotion) => {
+    const animate = jest.fn();
+    const originalAnimate = HTMLElement.prototype.animate;
+    const originalMatchMedia = window.matchMedia;
+    HTMLElement.prototype.animate = animate;
+    window.matchMedia = jest.fn().mockReturnValue({ matches: reducedMotion });
+    try {
+      render(
+        <RecordSidePanel>
+          <RecordSidePanel.Header title="Task" onClose={jest.fn()} />
+        </RecordSidePanel>,
+      );
+      fireEvent.click(screen.getByRole('button', { name: 'Expand record' }));
+      expect(animate).toHaveBeenCalledTimes(reducedMotion ? 0 : 1);
+      expect(
+        screen.getByRole('complementary').getAttribute('data-expanded'),
+      ).toBe('true');
+    } finally {
+      HTMLElement.prototype.animate = originalAnimate;
+      window.matchMedia = originalMatchMedia;
+    }
+  },
+);

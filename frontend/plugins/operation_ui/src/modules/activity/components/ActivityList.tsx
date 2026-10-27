@@ -1,5 +1,5 @@
-import { Button, cn, ScrollArea, Spinner, useToast } from 'erxes-ui';
-import { useLayoutEffect, useRef } from 'react';
+import { Button, cn, Empty, ScrollArea, Spinner, useToast } from 'erxes-ui';
+import { useLayoutEffect, useRef, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useActivities } from '@/activity/hooks/useActivities';
 import { ITaskDetail } from '@/task/types';
@@ -78,59 +78,71 @@ export const ActivityList = ({
     }
   };
 
+  const renderTimelineContent = (): ReactNode => {
+    if (loading && !activities.length) {
+      return <Spinner containerClassName="py-8" />;
+    }
+    if (error && !activities.length) {
+      return (
+        <Empty role="alert" className="gap-2 px-0 py-8 md:px-0 md:py-8">
+          <Empty.Header>
+            <Empty.Description>
+              {t('failed-to-load-activity', 'Failed to load activity')}
+            </Empty.Description>
+          </Empty.Header>
+          <Empty.Content>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => {
+                void refetch().catch(() => undefined);
+              }}
+            >
+              {t('retry', 'Retry')}
+            </Button>
+          </Empty.Content>
+        </Empty>
+      );
+    }
+    return (
+      <ActivityListProvider contentDetail={contentDetail}>
+        {pageInfo?.hasPreviousPage && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="mb-4 w-full"
+            disabled={loading}
+            onClick={handleLoadOlder}
+          >
+            {loading ? (
+              <Spinner />
+            ) : (
+              t('load-older-activity', 'Load older activity')
+            )}
+          </Button>
+        )}
+        <div className="relative ml-2.5 flex min-w-0 flex-col gap-5 before:absolute before:bottom-1 before:left-0 before:top-1 before:w-px before:-translate-x-1/2 before:bg-border">
+          {!pageInfo?.hasPreviousPage && (
+            <CreatorInfo contentDetail={contentDetail} />
+          )}
+          {activities.map((activity) =>
+            activity.module === ACTIVITY_MODULES.TEAM ? null : (
+              <div className="flex min-w-0 flex-col gap-2" key={activity._id}>
+                <ActivityItemWrapper activity={activity} />
+                {activity.module === ACTIVITY_MODULES.NOTE && (
+                  <NoteInputReadOnly newValueId={activity.metadata?.newValue} />
+                )}
+              </div>
+            ),
+          )}
+        </div>
+      </ActivityListProvider>
+    );
+  };
+
   const timeline = (
     <div ref={timelineRef} className="mx-auto w-full min-w-0 max-w-3xl p-4">
-      {loading && !activities.length ? (
-        <Spinner containerClassName="py-8" />
-      ) : error && !activities.length ? (
-        <div className="flex flex-col items-center gap-2 py-8 text-sm text-muted-foreground">
-          {t('failed-to-load-activity', 'Failed to load activity')}
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={() => {
-              void refetch().catch(() => undefined);
-            }}
-          >
-            {t('retry', 'Retry')}
-          </Button>
-        </div>
-      ) : (
-        <ActivityListProvider contentDetail={contentDetail}>
-          {pageInfo?.hasPreviousPage && (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="mb-4 w-full"
-              disabled={loading}
-              onClick={handleLoadOlder}
-            >
-              {loading ? (
-                <Spinner />
-              ) : (
-                t('load-older-activity', 'Load older activity')
-              )}
-            </Button>
-          )}
-          <div className="relative ml-2.5 flex min-w-0 flex-col gap-5 before:absolute before:bottom-1 before:left-0 before:top-1 before:w-px before:-translate-x-1/2 before:bg-border">
-            {!pageInfo?.hasPreviousPage && (
-              <CreatorInfo contentDetail={contentDetail} />
-            )}
-            {activities.map((activity) =>
-              activity.module === ACTIVITY_MODULES.TEAM ? null : (
-                <div className="flex min-w-0 flex-col gap-2" key={activity._id}>
-                  <ActivityItemWrapper activity={activity} />
-                  {activity.module === ACTIVITY_MODULES.NOTE && (
-                    <NoteInputReadOnly
-                      newValueId={activity.metadata?.newValue}
-                    />
-                  )}
-                </div>
-              ),
-            )}
-          </div>
-        </ActivityListProvider>
-      )}
+      {renderTimelineContent()}
     </div>
   );
 

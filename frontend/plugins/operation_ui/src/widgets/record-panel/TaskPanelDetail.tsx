@@ -44,6 +44,7 @@ import {
   TagsSelect,
 } from 'ui-modules';
 import { RecordContactsField } from './RecordContactsField';
+import { RecordTagsValue } from './RecordTagsValue';
 
 const SCOPE = 'side-panel-task';
 
@@ -177,7 +178,7 @@ export const TaskPanelDetail = ({ taskId }: { taskId: string }) => {
               />
             </PanelField>
           )}
-          <PanelField icon={IconTags} label={t('tags')}>
+          <PanelField icon={IconTags} label={t('tags')} cell={false}>
             <TagsSelect.Provider
               type={TASK_CONTENT_TYPE}
               mode="multiple"
@@ -192,16 +193,8 @@ export const TaskPanelDetail = ({ taskId }: { taskId: string }) => {
                 },
               })}
             >
-              <RecordTableInlineCell.Trigger className="rounded-sm font-normal">
-                {compactList(tagIds).length ? (
-                  <div className="flex min-w-0 flex-wrap gap-1">
-                    <TagsSelect.SelectedList />
-                  </div>
-                ) : (
-                  <span className="text-muted-foreground">
-                    {t('add-tags', 'Add tags')}
-                  </span>
-                )}
+              <RecordTableInlineCell.Trigger className="h-7 gap-1 rounded-sm py-0 text-xs font-normal">
+                <RecordTagsValue count={compactList(tagIds).length} />
               </RecordTableInlineCell.Trigger>
               <RecordTableInlineCell.Content>
                 <TagsSelect.Content />

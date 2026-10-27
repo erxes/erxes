@@ -20,8 +20,13 @@ import {
   TextField,
 } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { PANEL_TEXT_FIELD_CLASS_NAME, PanelField } from 'ui-modules';
+import {
+  PANEL_TEXT_FIELD_CLASS_NAME,
+  PanelField,
+  TagsSelect,
+} from 'ui-modules';
 import { RecordContactsField } from './RecordContactsField';
+import { RecordTagsValue } from './RecordTagsValue';
 
 const SCOPE = 'side-panel-triage';
 
@@ -88,7 +93,7 @@ export const TriagePanelDetail = ({ triageId }: { triageId: string }) => {
           <PanelField icon={IconUsersGroup} label={t('team')} cell={false}>
             <TeamInline teamId={teamId} className="h-7 px-2 font-normal" />
           </PanelField>
-          <PanelField icon={IconTags} label={t('tags')}>
+          <PanelField icon={IconTags} label={t('tags')} cell={false}>
             <TagsSelect.Provider
               type={TASK_CONTENT_TYPE}
               mode="multiple"
@@ -98,16 +103,8 @@ export const TriagePanelDetail = ({ triageId }: { triageId: string }) => {
                 update({ tagIds: Array.isArray(tagIds) ? tagIds : [tagIds] })
               }
             >
-              <RecordTableInlineCell.Trigger className="rounded-sm font-normal">
-                {compactList(triage.tagIds).length ? (
-                  <div className="flex min-w-0 flex-wrap gap-1">
-                    <TagsSelect.SelectedList />
-                  </div>
-                ) : (
-                  <span className="text-muted-foreground">
-                    {t('add-tags', 'Add tags')}
-                  </span>
-                )}
+              <RecordTableInlineCell.Trigger className="h-7 gap-1 rounded-sm py-0 text-xs font-normal">
+                <RecordTagsValue count={compactList(triage.tagIds).length} />
               </RecordTableInlineCell.Trigger>
               <RecordTableInlineCell.Content>
                 <TagsSelect.Content />

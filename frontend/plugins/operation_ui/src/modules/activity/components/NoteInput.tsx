@@ -7,6 +7,7 @@ import { IconCommand, IconCornerDownLeft } from '@tabler/icons-react';
 import {
   BlockEditor,
   Button,
+  Card,
   getMentionedUserIds,
   Kbd,
   useBlockEditor,
@@ -100,30 +101,32 @@ export const NoteInput = ({
   };
   useScopedHotkeys('mod+enter', onSend, TaskHotKeyScope.NoteInput);
   return (
-    <div className="flex min-w-0 flex-col gap-2 rounded-lg border bg-background px-3 py-2">
-      <BlockEditor
-        editor={editor}
-        disabled={loading}
-        onChange={() =>
-          setHasContent(
-            editor.document.some(
-              (block) =>
-                block.type !== 'paragraph' ||
-                (Array.isArray(block.content) && block.content.length > 0) ||
-                block.children.length > 0,
-            ),
-          )
-        }
-        onFocus={() =>
-          setHotkeyScopeAndMemorizePreviousScope(TaskHotKeyScope.NoteInput)
-        }
-        onBlur={() => goBackToPreviousHotkeyScope()}
-        className="max-h-[30svh] min-h-10 overflow-y-auto read-only [&_.bn-editor]:px-1"
-        slashMenuOnTop
-      >
-        <AssignMemberInEditor editor={editor} />
-      </BlockEditor>
-      <div className="flex justify-end">
+    <Card className="min-w-0 rounded-lg border bg-background text-foreground shadow-none">
+      <Card.Content className="px-3 pb-0 pt-2">
+        <BlockEditor
+          editor={editor}
+          disabled={loading}
+          onChange={() =>
+            setHasContent(
+              editor.document.some(
+                (block) =>
+                  block.type !== 'paragraph' ||
+                  (Array.isArray(block.content) && block.content.length > 0) ||
+                  block.children.length > 0,
+              ),
+            )
+          }
+          onFocus={() =>
+            setHotkeyScopeAndMemorizePreviousScope(TaskHotKeyScope.NoteInput)
+          }
+          onBlur={() => goBackToPreviousHotkeyScope()}
+          className="max-h-[30svh] min-h-10 overflow-y-auto read-only [&_.bn-editor]:px-1"
+          slashMenuOnTop
+        >
+          <AssignMemberInEditor editor={editor} />
+        </BlockEditor>
+      </Card.Content>
+      <Card.Footer className="justify-end px-3 pb-2 pt-2">
         <Button
           size="sm"
           className="ml-auto"
@@ -136,7 +139,7 @@ export const NoteInput = ({
             <IconCornerDownLeft size={12} />
           </Kbd>
         </Button>
-      </div>
-    </div>
+      </Card.Footer>
+    </Card>
   );
 };
