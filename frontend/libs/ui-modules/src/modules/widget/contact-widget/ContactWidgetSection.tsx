@@ -66,7 +66,7 @@ export const ContactWidgetSection = ({
             {loading ? '…' : ids.length}
           </span>
         </Button>
-        {onCreate && (
+        {onCreate && overview?.access !== 'read' && (
           <Button
             type="button"
             variant="ghost"

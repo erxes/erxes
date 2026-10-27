@@ -1,7 +1,14 @@
-import { useQueryState } from 'erxes-ui';
-import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { useMultiQueryState } from 'erxes-ui';
+import { atom, useAtomValue, useSetAtom } from 'jotai';
 import { atomWithStorage } from 'jotai/utils';
-import { useCallback, useContext, useMemo } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+} from 'react';
 import { matchPath } from 'react-router-dom';
 import { TRelationEntity } from '../utils';
 import { SIDE_PANEL_WIDTH } from './RecordSidePanel';
@@ -11,6 +18,8 @@ import { SidePanelNavigatorContext } from './recordView';
 // `/contacts/customers?panel=/detail/customer/<id>`, so it can be linked,
 // survives a reload and stays open while the page underneath changes.
 export const SIDE_PANEL_QUERY_KEY = 'panel';
+export const SIDE_PANEL_HISTORY_QUERY_KEY = 'panelHistory';
+const MAX_PANEL_HISTORY = 20;
 
 // The width the user dragged the panel to, kept across reloads.
 export const sidePanelWidthState = atomWithStorage<number>(
@@ -21,6 +30,7 @@ export const sidePanelWidthState = atomWithStorage<number>(
 // Panel routes left by opening a related record from inside the panel,
 // newest last; the panel's back button returns to them.
 export const sidePanelHistoryState = atom<string[]>([]);
+export const sidePanelSessionState = atom(0);
 
 export interface IOpenRecordOptions {
   // Opened from inside the panel (a related record): Back returns here.
@@ -44,18 +54,25 @@ export interface ISidePanelDraft {
 }
 
 export const sidePanelDraftState = atom<ISidePanelDraft | null>(null);
+export const SidePanelDraftContext = createContext<
+  ISidePanelDraft | null | undefined
+>(undefined);
 
 // The defaults of the draft of `contentType` open in the panel, if any.
 export const useSidePanelDraft = <T extends Record<string, unknown>>(
   contentType: string,
 ): Partial<T> => {
-  const draft = useAtomValue(sidePanelDraftState);
+  const currentDraft = useAtomValue(sidePanelDraftState);
+  const scopedDraft = useContext(SidePanelDraftContext);
+  const draft = scopedDraft === undefined ? currentDraft : scopedDraft;
 
   return draft?.contentType === contentType ? (draft.defaults as T) : {};
 };
 
+export const SidePanelRecordPathContext = createContext<string | null>(null);
+
 export const SIDE_PANEL_ROOT_PATH = '/';
-export const SIDE_PANEL_DETAIL_PATH = '/detail/:typeName/:recordId';
+export const SIDE_PANEL_DETAIL_PATH = '/detail/:typeName/:recordId/:draftId?';
 // The assistant chat.
 export const SIDE_PANEL_CHAT_PATH = '/chat';
 
@@ -101,66 +118,148 @@ export const parseSidePanelRecord = (
  */
 export const useSidePanel = () => {
   const navigator = useContext(SidePanelNavigatorContext);
-  const [path, setPath] = useQueryState<string>(SIDE_PANEL_QUERY_KEY);
-  const [history, setHistory] = useAtom(sidePanelHistoryState);
+  const sourcePath = useContext(SidePanelRecordPathContext);
+  const [queries, setRoute] = useMultiQueryState<{
+    panel: string;
+    panelHistory: string[];
+  }>([SIDE_PANEL_QUERY_KEY, SIDE_PANEL_HISTORY_QUERY_KEY]);
+  const path = typeof queries.panel === 'string' ? queries.panel : null;
+  const historyKey = JSON.stringify(queries.panelHistory ?? null);
+  const history = useMemo(() => {
+    const entries: unknown = JSON.parse(historyKey);
+    return Array.isArray(entries)
+      ? entries
+          .filter(
+            (entry: unknown): entry is string =>
+              typeof entry === 'string' && entry.startsWith('/'),
+          )
+          .slice(-MAX_PANEL_HISTORY)
+      : [];
+  }, [historyKey]);
+  const setHistory = useSetAtom(sidePanelHistoryState);
+  useEffect(() => {
+    setHistory((previous) =>
+      JSON.stringify(previous) === JSON.stringify(history) ? previous : history,
+    );
+  }, [history, setHistory]);
+  const navigate = (
+    nextPath: string | null,
+    nextHistory: string[],
+    replace = false,
+  ) => {
+    setHistory(nextHistory);
+    setRoute(
+      {
+        panel: nextPath,
+        panelHistory: nextHistory.length ? nextHistory : null,
+      },
+      { replace },
+    );
+  };
+  const latest = useRef({ path, history, navigate, navigator, sourcePath });
+  latest.current = { path, history, navigate, navigator, sourcePath };
+  const replaceRecord = useCallback(
+    (previous: TRelationEntity, next: TRelationEntity) => {
+      const current = latest.current;
+      if (current.navigator) {
+        current.navigator.openRecord(next, { replace: true });
+        return;
+      }
+      const scopedRecord = parseSidePanelRecord(current.sourcePath);
+      const previousPath =
+        previous.contentId === NEW_RECORD_ID &&
+        scopedRecord?.contentType === previous.contentType &&
+        scopedRecord.contentId === NEW_RECORD_ID &&
+        current.sourcePath
+          ? current.sourcePath
+          : getSidePanelRecordPath(previous);
+      const nextPath = getSidePanelRecordPath(next);
+      const nextHistory = current.history.map((entry) =>
+        entry === previousPath ? nextPath : entry,
+      );
+      if (
+        current.path === previousPath ||
+        nextHistory.some((entry, index) => entry !== current.history[index])
+      ) {
+        current.navigate(
+          current.path === previousPath ? nextPath : current.path,
+          nextHistory,
+          true,
+        );
+      }
+    },
+    [],
+  );
+
+  const setSession = useSetAtom(sidePanelSessionState);
 
   const open = !!path;
   const record = useMemo(() => parseSidePanelRecord(path), [path]);
 
-  const openPath = useCallback(
-    (nextPath: string) => setPath(nextPath),
-    [setPath],
-  );
+  const openPath = (nextPath: string, options?: IOpenRecordOptions) => {
+    if (nextPath === path) return;
+    const nextHistory = options?.replace
+      ? history
+      : options?.stack && path
+      ? [...history, path].slice(-MAX_PANEL_HISTORY)
+      : [];
+    if (!options?.stack && !options?.replace)
+      setSession((session) => session + 1);
+    navigate(nextPath, nextHistory, !!options?.replace);
+  };
 
-  // Opening from a list starts afresh; from inside the panel it stacks.
-  const openRecord = useCallback(
-    (entity: TRelationEntity, options?: IOpenRecordOptions) => {
-      const nextPath = getSidePanelRecordPath(entity);
-
-      if (nextPath === path) {
-        return;
+  const openRecord = (
+    entity: TRelationEntity,
+    options?: IOpenRecordOptions,
+  ) => {
+    const nextPath = getSidePanelRecordPath(entity);
+    if (nextPath === path && entity.contentId === NEW_RECORD_ID) {
+      if (!options?.stack && !options?.replace) {
+        setSession((session) => session + 1);
+        navigate(nextPath, []);
       }
-
-      if (!options?.replace) {
-        setHistory((previous) =>
-          options?.stack && path ? [...previous, path] : [],
-        );
-      }
-
-      setPath(nextPath);
-    },
-    [path, setPath, setHistory],
-  );
+      return;
+    }
+    openPath(nextPath, options);
+  };
 
   const setDraft = useSetAtom(sidePanelDraftState);
 
-  const back = useCallback(() => {
+  const back = () => {
     const previous = history[history.length - 1];
+    if (previous) navigate(previous, history.slice(0, -1));
+  };
 
-    if (!previous) {
-      return;
+  // A hidden editor can finish saving while a related record stays active.
+  const dismissPath = (targetPath: string) => {
+    if (path === targetPath) {
+      const previous = history[history.length - 1];
+      navigate(previous || null, history.slice(0, -1), true);
+    } else if (history.includes(targetPath)) {
+      navigate(
+        path,
+        history.filter((entry) => entry !== targetPath),
+        true,
+      );
     }
+  };
 
-    setHistory(history.slice(0, -1));
-    setPath(previous);
-  }, [history, setHistory, setPath]);
+  const close = () => {
+    setDraft(null);
+    navigate(null, []);
+  };
 
-  const close = useCallback(() => {
-    setHistory([]);
-    setPath(null);
-  }, [setHistory, setPath]);
-
-  const toggle = useCallback(
-    () => setPath(path ? null : SIDE_PANEL_ROOT_PATH),
-    [path, setPath],
-  );
+  const toggle = () => (path ? close() : openPath(SIDE_PANEL_ROOT_PATH));
 
   const panel = {
     open,
     path,
+    history,
     record,
     openPath,
     openRecord,
+    replaceRecord,
+    dismissPath,
     // Opens a draft of `contentType` starting with `defaults`.
     openNewRecord: (
       contentType: string,
@@ -168,10 +267,19 @@ export const useSidePanel = () => {
       options?: IOpenRecordOptions,
     ) => {
       setDraft({ contentType, defaults });
-      (navigator?.openRecord ?? openRecord)(
-        { contentType, contentId: NEW_RECORD_ID },
-        options,
-      );
+      if (navigator)
+        navigator.openRecord(
+          { contentType, contentId: NEW_RECORD_ID },
+          options,
+        );
+      else
+        openPath(
+          `${getSidePanelRecordPath({
+            contentType,
+            contentId: NEW_RECORD_ID,
+          })}/${crypto.randomUUID()}`,
+          options,
+        );
     },
     canGoBack: history.length > 0,
     back,
