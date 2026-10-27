@@ -6,7 +6,7 @@
 - **Project:** `insurance_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/insurance_ui`
-- **Last synchronized:** `2026-10-18`
+- **Last synchronized:** `2026-10-27`
 
 ## Scope
 
@@ -59,6 +59,9 @@
 
 ## Local Invariants
 
+- The settings `AppLayout` title is itself the way back: a ghost `Button` wrapping a
+  `Link` (chevron + "<Plugin> settings") to the app's main page. There is no
+  footer Back link on settings pages.
 - The plugin owns its whole app sidebar. `src/modules/insurance/Main.tsx` (the `./insurance`
   expose) wraps its routes in `erxes-ui` `AppLayout` (`id="insurance"`) with
   `InsuranceSidebar`. Core-ui draws only the top `CoreTab` bar; `navigationGroup` in

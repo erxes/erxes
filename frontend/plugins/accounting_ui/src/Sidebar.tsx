@@ -1,8 +1,9 @@
 import { PluginSharedSettingsNavigation } from 'ui-modules';
 import { SettingsNavigation } from '@/SettingsNavigation';
 import type { ReactNode } from 'react';
-import { IconSettings, IconArrowLeft } from '@tabler/icons-react';
-import { AppLayoutFooterLink, Sidebar, AppLayout } from 'erxes-ui';
+import { Link } from 'react-router-dom';
+import { IconSettings, IconChevronLeft } from '@tabler/icons-react';
+import { AppLayoutFooterLink, Sidebar, AppLayout, Button } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { AdjustmentNavigation } from '@/AdjustmentNavigation';
 import { InventoriesNavigation } from '@/InventoriesNavigation';
@@ -51,7 +52,24 @@ export const AccountingSettingsLayout = ({
   return (
     <AppLayout
       id="accounting:settings"
-      title={t('plugin-settings-title', { name: 'Accounting' })}
+      title={
+        <Button
+          asChild
+          variant="ghost"
+          size="sm"
+          className="-ml-2 h-7 max-w-full gap-1 px-1.5 font-medium"
+        >
+          <Link
+            to="/accounting/main"
+            title={t('back-to-app', { name: 'Accounting' })}
+          >
+            <IconChevronLeft />
+            <span className="truncate">
+              {t('plugin-settings-title', { name: 'Accounting' })}
+            </span>
+          </Link>
+        </Button>
+      }
       sidebar={
         <>
           <SettingsNavigation />
@@ -60,13 +78,6 @@ export const AccountingSettingsLayout = ({
             pathPrefix="accounting/settings"
           />
         </>
-      }
-      footer={
-        <AppLayoutFooterLink
-          path="accounting/main"
-          name={t('back-to-app', { name: 'Accounting' })}
-          icon={IconArrowLeft}
-        />
       }
     >
       {children}

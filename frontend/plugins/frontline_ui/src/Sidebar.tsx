@@ -1,12 +1,14 @@
 import { PluginSharedSettingsNavigation } from 'ui-modules';
 import { FrontlineSettingsNavigation } from '@/FrontlineSettingsNavigation';
 import type { ReactNode } from 'react';
-import { IconSettings, IconArrowLeft } from '@tabler/icons-react';
+import { Link } from 'react-router-dom';
+import { IconSettings, IconChevronLeft } from '@tabler/icons-react';
 import {
   AppLayoutFooterLink,
   Sidebar,
   AppLayout,
   useQueryState,
+  Button,
 } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { FrontlineNavigation } from '@/FrontlineNavigation';
@@ -56,7 +58,24 @@ export const FrontlineSettingsLayout = ({
   return (
     <AppLayout
       id="frontline:settings"
-      title={t('plugin-settings-title', { name: 'Frontline' })}
+      title={
+        <Button
+          asChild
+          variant="ghost"
+          size="sm"
+          className="-ml-2 h-7 max-w-full gap-1 px-1.5 font-medium"
+        >
+          <Link
+            to="/frontline/inbox"
+            title={t('back-to-app', { name: 'Frontline' })}
+          >
+            <IconChevronLeft />
+            <span className="truncate">
+              {t('plugin-settings-title', { name: 'Frontline' })}
+            </span>
+          </Link>
+        </Button>
+      }
       sidebar={
         <>
           <FrontlineSettingsNavigation />
@@ -65,13 +84,6 @@ export const FrontlineSettingsLayout = ({
             pathPrefix="frontline/settings"
           />
         </>
-      }
-      footer={
-        <AppLayoutFooterLink
-          path="frontline/inbox"
-          name={t('back-to-app', { name: 'Frontline' })}
-          icon={IconArrowLeft}
-        />
       }
     >
       {children}

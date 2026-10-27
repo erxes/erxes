@@ -1,6 +1,6 @@
 import { PluginSharedSettingsNavigation } from 'ui-modules';
 import {
-  IconArrowLeft,
+  IconChevronLeft,
   IconFileInvoice,
   IconSettings,
 } from '@tabler/icons-react';
@@ -9,8 +9,10 @@ import {
   AppLayoutFooterLink,
   NavigationMenuLinkItem,
   Sidebar,
+  Button,
 } from 'erxes-ui';
 import type { ReactNode } from 'react';
+import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { PaymentSettingsNavigation } from '@/PaymentSettingsNavigation';
 
@@ -58,7 +60,24 @@ export const PaymentSettingsLayout = ({
   return (
     <AppLayout
       id="payment:settings"
-      title={t('plugin-settings-title', { name: 'Payment' })}
+      title={
+        <Button
+          asChild
+          variant="ghost"
+          size="sm"
+          className="-ml-2 h-7 max-w-full gap-1 px-1.5 font-medium"
+        >
+          <Link
+            to="/payment/invoices"
+            title={t('back-to-app', { name: 'Payment' })}
+          >
+            <IconChevronLeft />
+            <span className="truncate">
+              {t('plugin-settings-title', { name: 'Payment' })}
+            </span>
+          </Link>
+        </Button>
+      }
       sidebar={
         <>
           <PaymentSettingsNavigation />
@@ -67,13 +86,6 @@ export const PaymentSettingsLayout = ({
             pathPrefix="payment/settings"
           />
         </>
-      }
-      footer={
-        <AppLayoutFooterLink
-          path="payment/invoices"
-          name={t('back-to-app', { name: 'Payment' })}
-          icon={IconArrowLeft}
-        />
       }
     >
       {children}

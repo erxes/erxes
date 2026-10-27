@@ -6,7 +6,7 @@
 - **Project:** `accounting_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/accounting_ui`
-- **Last synchronized:** `2026-10-26`
+- **Last synchronized:** `2026-10-27`
 
 ## Scope
 
@@ -245,8 +245,8 @@
 - `AccountingSidebarFooter` pins a Settings link to the bottom of the app
   sidebar. The plugin owns its settings at `/accounting/settings/*`, served by its
   own entry: the entry's top-level `<Routes>` sends `settings/*` to
-  `AccountingSettingsLayout` (`src/Sidebar.tsx`, an `AppLayout` titled
-  "<Plugin> settings" with a Back link to the app) and `*` to the app
+  `AccountingSettingsLayout` (`src/Sidebar.tsx`, an `AppLayout` whose title
+  "<Plugin> settings" is a chevron Back link to the app; no footer link) and `*` to the app
   `AppLayout`. Settings pages render inside `PluginSettingsRoutes`
   (`ui-modules`), which also serves `tags` and `properties/*` scoped to
   this plugin's types; the settings sidebar appends

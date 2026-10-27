@@ -6,7 +6,7 @@
 - **Project:** `payment_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/payment_ui`
-- **Last synchronized:** `2026-10-18`
+- **Last synchronized:** `2026-10-27`
 
 ## Scope
 
@@ -81,6 +81,9 @@
 
 ## Local Invariants
 
+- The settings `AppLayout` title is itself the way back: a ghost `Button` wrapping a
+  `Link` (chevron + "<Plugin> settings") to the app's main page. There is no
+  footer Back link on settings pages.
 - Page header breadcrumbs follow the shared pattern: crumbs are default ghost `Button`s (no `font-semibold`), the first crumb carries a 16px icon in the default text color, crumbs are separated by `Separator.Inline` or `Breadcrumb.Separator`, and settings pages carry no favorite toggle.
 - Sales board/pipeline/stage pickers must come from `ui-modules`. Do not add payment-local
   GraphQL documents for `salesBoards` / `salesPipelines` / `salesStages`.

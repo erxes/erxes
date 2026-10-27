@@ -1,12 +1,14 @@
 import { PluginSharedSettingsNavigation } from 'ui-modules';
 import type { ReactNode } from 'react';
+import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { IconSettings, IconArrowLeft } from '@tabler/icons-react';
+import { IconSettings, IconChevronLeft } from '@tabler/icons-react';
 import {
   Sidebar,
   AppLayoutFooterLink,
   NavigationMenuLinkItem,
   AppLayout,
+  Button,
 } from 'erxes-ui';
 import { InsuranceNavigation } from '@/InsuranceNavigation';
 
@@ -65,7 +67,24 @@ export const InsuranceSettingsLayout = ({
   return (
     <AppLayout
       id="insurance:settings"
-      title={t('plugin-settings-title', { name: 'Insurance' })}
+      title={
+        <Button
+          asChild
+          variant="ghost"
+          size="sm"
+          className="-ml-2 h-7 max-w-full gap-1 px-1.5 font-medium"
+        >
+          <Link
+            to="/insurance/types"
+            title={t('back-to-app', { name: 'Insurance' })}
+          >
+            <IconChevronLeft />
+            <span className="truncate">
+              {t('plugin-settings-title', { name: 'Insurance' })}
+            </span>
+          </Link>
+        </Button>
+      }
       sidebar={
         <>
           <InsuranceSettingsNavigation />
@@ -74,13 +93,6 @@ export const InsuranceSettingsLayout = ({
             pathPrefix="insurance/settings"
           />
         </>
-      }
-      footer={
-        <AppLayoutFooterLink
-          path="insurance/types"
-          name={t('back-to-app', { name: 'Insurance' })}
-          icon={IconArrowLeft}
-        />
       }
     >
       {children}

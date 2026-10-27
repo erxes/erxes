@@ -1,8 +1,9 @@
 import { PluginSharedSettingsNavigation } from 'ui-modules';
 import { OperationSettingsNavigation } from '@/OperationSettingsNavigation';
 import type { ReactNode } from 'react';
-import { IconSettings, IconArrowLeft } from '@tabler/icons-react';
-import { AppLayoutFooterLink, Sidebar, AppLayout } from 'erxes-ui';
+import { Link } from 'react-router-dom';
+import { IconSettings, IconChevronLeft } from '@tabler/icons-react';
+import { AppLayoutFooterLink, Sidebar, AppLayout, Button } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { MainNavigation } from '@/navigation/MainNavigation';
 import { TeamsNavigation } from '@/navigation/TeamsNavigation';
@@ -45,7 +46,24 @@ export const OperationSettingsLayout = ({
   return (
     <AppLayout
       id="operation:settings"
-      title={t('plugin-settings-title', { name: 'Operation' })}
+      title={
+        <Button
+          asChild
+          variant="ghost"
+          size="sm"
+          className="-ml-2 h-7 max-w-full gap-1 px-1.5 font-medium"
+        >
+          <Link
+            to="/operation/projects"
+            title={t('back-to-app', { name: 'Operation' })}
+          >
+            <IconChevronLeft />
+            <span className="truncate">
+              {t('plugin-settings-title', { name: 'Operation' })}
+            </span>
+          </Link>
+        </Button>
+      }
       sidebar={
         <>
           <OperationSettingsNavigation />
@@ -54,13 +72,6 @@ export const OperationSettingsLayout = ({
             pathPrefix="operation/settings"
           />
         </>
-      }
-      footer={
-        <AppLayoutFooterLink
-          path="operation/projects"
-          name={t('back-to-app', { name: 'Operation' })}
-          icon={IconArrowLeft}
-        />
       }
     >
       {children}

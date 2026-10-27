@@ -1,8 +1,9 @@
 import { PluginSharedSettingsNavigation } from 'ui-modules';
 import { LoyaltySettingsNavigation } from '~/LoyaltySettingsNavigation';
 import type { ReactNode } from 'react';
-import { IconSettings, IconArrowLeft } from '@tabler/icons-react';
-import { AppLayoutFooterLink, Sidebar, AppLayout } from 'erxes-ui';
+import { Link } from 'react-router-dom';
+import { IconSettings, IconChevronLeft } from '@tabler/icons-react';
+import { AppLayoutFooterLink, Sidebar, AppLayout, Button } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { MainNavigation } from '@/navigation/MainNavigation';
 
@@ -41,7 +42,24 @@ export const LoyaltySettingsLayout = ({
   return (
     <AppLayout
       id="loyalty:settings"
-      title={t('plugin-settings-title', { name: 'Loyalty' })}
+      title={
+        <Button
+          asChild
+          variant="ghost"
+          size="sm"
+          className="-ml-2 h-7 max-w-full gap-1 px-1.5 font-medium"
+        >
+          <Link
+            to="/loyalty/scores"
+            title={t('back-to-app', { name: 'Loyalty' })}
+          >
+            <IconChevronLeft />
+            <span className="truncate">
+              {t('plugin-settings-title', { name: 'Loyalty' })}
+            </span>
+          </Link>
+        </Button>
+      }
       sidebar={
         <>
           <LoyaltySettingsNavigation />
@@ -50,13 +68,6 @@ export const LoyaltySettingsLayout = ({
             pathPrefix="loyalty/settings"
           />
         </>
-      }
-      footer={
-        <AppLayoutFooterLink
-          path="loyalty/scores"
-          name={t('back-to-app', { name: 'Loyalty' })}
-          icon={IconArrowLeft}
-        />
       }
     >
       {children}
