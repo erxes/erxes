@@ -1,6 +1,7 @@
 import type { Block } from '@blocknote/core';
 import { readFacebookDelivery } from '@/integrations/facebook/types/FacebookReplyDelivery';
 import { getInstagramSendError } from '@/integrations/instagram/utils/instagramSendError';
+import { readInstagramDelivery } from '@/integrations/instagram/utils/instagramReplyDelivery';
 import {
   getBlockAttachments,
   toast,
@@ -121,6 +122,8 @@ export const useComposerSend = ({
         onCompleted: (result) => {
           const delivery = isFacebook
             ? readFacebookDelivery(result.conversationMessageAdd?.extraData)
+            : isInstagram
+            ? readInstagramDelivery(result.conversationMessageAdd?.extraData)
             : undefined;
           if (delivery?.status === 'partial') {
             const remainingAttachments = allAttachments.filter(
@@ -143,6 +146,11 @@ export const useComposerSend = ({
                     'message-partially-sent-description',
                     '{{count}} attachment(s) were not sent. Only these remain for retry.',
                     { count: remainingAttachments.length },
+                  )
+                : isInstagram
+                ? t(
+                    'instagram-message-history-update-failed',
+                    'Instagram accepted the message, but saving its history failed. Do not resend it.',
                   )
                 : t(
                     'message-history-update-failed',

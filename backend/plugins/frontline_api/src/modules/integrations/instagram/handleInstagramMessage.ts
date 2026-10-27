@@ -13,6 +13,11 @@ import {
   sanitizeMessageHtml,
 } from '@/integrations/utils';
 import { replaceSenderReaction } from '@/integrations/instagram/services/messageEvents';
+import { z } from 'zod';
+import { escape } from 'lodash';
+import { normalizeStoredInstagramMessage } from './normalizeMessage';
+import type { IInstagramConversationMessage } from './@types/conversationMessages';
+import { sendInstagramReplyParts } from './services/sendReplyParts';
 
 interface IMsg {
   action: string;
@@ -147,13 +152,18 @@ const handleInstagramPostReply = async (
       throw new Error('Conversation not found');
     }
 
-    await sendReply(
+    const response: unknown = await sendReply(
       models,
       `${commentConversation.comment_id}/replies`,
       { message: strippedContent },
       inboxConversation.integrationId,
     );
-    await models.InstagramCommentConversationReply.create({
+    const { id: commentId } = z
+      .object({ id: z.string().min(1) })
+      .parse(response);
+    const reply = await models.InstagramCommentConversationReply.create({
+      comment_id: commentId,
+      mid: commentId,
       recipientId: commentConversation.recipientId,
       senderId: commentConversation.senderId,
       attachments: [],
@@ -181,7 +191,15 @@ const handleInstagramPostReply = async (
       });
     }
 
-    return { status: 'success' };
+    return {
+      status: 'success',
+      data: {
+        ...reply.toObject(),
+        conversationId,
+        messageKind: 'text',
+        providerData: { messageId: commentId },
+      },
+    };
   } catch (error) {
     const message = getErrorMessage(error);
     debugError(`Instagram comment reply error: ${message}`);
@@ -214,11 +232,19 @@ const handleInstagramMessengerReply = async (
   } = doc;
   const tag = extraInfo?.tag || '';
   const forwardedFrom = extraInfo?.forwardedFrom;
-  appendContentImages(content, attachments);
+  const allAttachments = [...attachments];
+  appendContentImages(content, allAttachments);
+  const uniqueAttachments = allAttachments.filter(
+    (attachment, index) =>
+      allAttachments.findIndex(({ url }) => url === attachment.url) === index,
+  );
   const providerContent = forwardedFrom
     ? stripForwardedMarker(content)
     : content;
   const strippedContent = sanitizeMessageHtml(providerContent);
+  const textContent = strippedContent
+    ? `<p>${escape(strippedContent).replace(/\n/g, '<br/>')}</p>`
+    : '';
   const conversation = await models.InstagramConversations.findOne({
     erxesApiId: conversationId,
   });
@@ -226,65 +252,71 @@ const handleInstagramMessengerReply = async (
     throw new Error('Conversation not found');
   }
 
-  const messageDoc = {
-    ...doc,
-    content: providerContent,
+  const extraData = {
     ...(forwardedFrom && {
-      extraData: {
-        forwardedFrom,
-        forwardedNote: extraInfo?.forwardedNote,
-        forwardedSnapshot: extraInfo?.forwardedSnapshot,
-      },
+      forwardedFrom,
+      forwardedNote: extraInfo?.forwardedNote,
+      forwardedSnapshot: extraInfo?.forwardedSnapshot,
     }),
-    conversationId: conversation._id,
-    integrationId: conversation.integrationId,
-    ...(replyToMessageId && { replyTo: { messageId: replyToMessageId } }),
   };
-
-  const sendAndStore = async (message: object) => {
-    const response = await sendReply(
-      models,
-      'me/messages',
-      {
-        recipient: { id: conversation.senderId },
-        message,
-        ...(replyToMessageId && { reply_to: { mid: replyToMessageId } }),
-        messaging_type: tag ? 'MESSAGE_TAG' : 'RESPONSE',
-        ...(tag && { tag }),
-      },
-      integrationId,
-    );
-    if (!response) return undefined;
-    return models.InstagramConversationMessages.addMessage(
-      { ...messageDoc, mid: response.message_id },
-      userId,
-    );
-  };
-
-  let localMessage;
-  try {
-    if (strippedContent) {
-      localMessage = await sendAndStore({ text: strippedContent });
-    }
-    for (const message of generateAttachmentMessages(subdomain, attachments)) {
-      localMessage = (await sendAndStore(message)) || localMessage;
-    }
-  } catch (error) {
-    if (localMessage) {
-      await models.InstagramConversationMessages.deleteOne({
-        _id: localMessage._id,
+  const acceptedParts: IInstagramConversationMessage[] = [];
+  const parts = [
+    ...(textContent ? [{ content: textContent, attachments: [] }] : []),
+    ...uniqueAttachments.map((attachment) => ({
+      content: '',
+      attachments: [attachment],
+    })),
+  ];
+  const delivery = await sendInstagramReplyParts(parts, {
+    send: async (part) => {
+      const message = part.content
+        ? { text: strippedContent }
+        : generateAttachmentMessages(subdomain, part.attachments)[0];
+      const response: unknown = await sendReply(
+        models,
+        'me/messages',
+        {
+          recipient: { id: conversation.senderId },
+          message,
+          ...(replyToMessageId && { reply_to: { mid: replyToMessageId } }),
+          messaging_type: tag ? 'MESSAGE_TAG' : 'RESPONSE',
+          ...(tag && { tag }),
+        },
+        integrationId,
+      );
+      return z.object({ message_id: z.string().min(1) }).parse(response)
+        .message_id;
+    },
+    persist: async (part, mid) => {
+      const message = normalizeStoredInstagramMessage({
+        ...part,
+        mid,
+        conversationId,
+        userId,
+        createdAt: new Date(),
+        extraData,
+        ...(replyToMessageId && { replyTo: { messageId: replyToMessageId } }),
       });
-    }
-    throw new Error(getErrorMessage(error));
-  }
-
-  if (!localMessage) {
-    throw new Error('Failed to send message: no response from Instagram API');
-  }
+      // Keep the acknowledgement for canonical inbox storage, including when
+      // the provider copy cannot be saved. Never delete already delivered parts.
+      acceptedParts.push(message);
+      await models.InstagramConversationMessages.addMessage(
+        { ...message, conversationId: conversation._id },
+        userId,
+      );
+    },
+  });
 
   return {
     status: 'success',
-    data: { ...localMessage.toObject(), conversationId },
+    data: {
+      conversationId,
+      content: delivery.textSent ? textContent : '',
+      parts: acceptedParts.map((part) => ({
+        ...part,
+        extraData: { ...extraData, instagramDelivery: delivery },
+      })),
+    },
   };
 };
 

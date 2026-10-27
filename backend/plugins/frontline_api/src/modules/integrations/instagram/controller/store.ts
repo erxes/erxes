@@ -1,4 +1,3 @@
-import { pConversationClientMessageInserted } from '@/inbox/graphql/resolvers/mutations/widget';
 import { receiveInboxMessage } from '@/inbox/receiveMessage';
 import { IInstagramCustomer } from '@/integrations/instagram/@types/customers';
 import { IInstagramIntegrationDocument } from '@/integrations/instagram/@types/integrations';
@@ -15,6 +14,17 @@ import {
   getPostLink,
 } from '@/integrations/instagram/utils';
 import { IModels } from '~/connectionResolvers';
+import { getErrorMessage } from '@/integrations/utils';
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { z } from 'zod';
+import {
+  getOrCreateInstagramRecord,
+  instagramRecordId,
+  syncInstagramInboxMessage,
+  withInstagramDeliveryLease,
+} from '@/integrations/instagram/services/persistence';
+
+const entityResponseSchema = z.object({ _id: z.string().min(1) });
 
 export const getOrCreateCustomer = async (
   models: IModels,
@@ -22,6 +32,7 @@ export const getOrCreateCustomer = async (
   pageId: string,
   userId: string,
   kind: string,
+  username?: string,
 ) => {
   const integration = await models.InstagramIntegrations.findOne({
     instagramPageId: pageId,
@@ -31,71 +42,82 @@ export const getOrCreateCustomer = async (
     throw new Error('Instagram Integration not found ');
   }
   let customer = await models.InstagramCustomers.findOne({ userId });
-  if (customer) {
+  if (customer?.erxesApiId) {
     return customer;
   }
-  // create customer
-  let instagramUser = {} as {
-    name: string;
-    username: string;
-    profile_pic: string;
-    id: string;
-  };
-  let firstName;
+  let instagramUser: {
+    name?: string | null;
+    username?: string | null;
+    profile_pic?: string | null;
+  } = {};
   try {
-    instagramUser = await getInstagramUser(
-      userId,
-      integration.facebookPageId || '',
-      integration.facebookPageTokensMap,
-    );
-    if (instagramUser) {
-      firstName = instagramUser.username || instagramUser.name;
-    }
+    instagramUser =
+      (await getInstagramUser(
+        userId,
+        integration.facebookPageId || '',
+        integration.facebookPageTokensMap,
+      )) || {};
   } catch (e) {
-    debugError(`Failed to fetch Instagram user profile: ${e.message}`);
+    debugError(`Failed to fetch Instagram user profile: ${getErrorMessage(e)}`);
   }
-  if (firstName) {
-    try {
-      customer = await models.InstagramCustomers.create({
+  // Like Facebook, identify the sender by provider ID; profile data is optional.
+  const firstName =
+    instagramUser.username || username || instagramUser.name || undefined;
+  customer = await getOrCreateInstagramRecord(
+    () => models.InstagramCustomers.findOne({ userId }),
+    () =>
+      models.InstagramCustomers.create({
         userId,
         firstName,
         integrationId: integration.erxesApiId,
         profilePic: instagramUser.profile_pic,
-      });
-    } catch (e) {
+      }),
+  );
+  if (customer.erxesApiId) return customer;
+
+  // Reuse the Core ID after a crash between Core creation and saving its link.
+  const coreId = `instagram-${customer._id}`;
+  const existing: unknown = await sendTRPCMessage({
+    subdomain,
+    pluginName: 'core',
+    method: 'query',
+    module: 'customers',
+    action: 'findOne',
+    input: { query: { _id: coreId } },
+  });
+  const recovered = entityResponseSchema.safeParse(existing);
+  if (recovered.success) {
+    customer.erxesApiId = recovered.data._id;
+    await customer.save();
+    return customer;
+  }
+
+  try {
+    const data = {
+      action: 'get-create-update-customer',
+      payload: JSON.stringify({
+        _id: coreId,
+        integrationId: integration.erxesApiId,
+        firstName: customer.firstName,
+        avatar: customer.profilePic,
+        isUser: true,
+      }),
+    };
+
+    const apiCustomerResponse = await receiveInboxMessage(subdomain, data);
+
+    if (apiCustomerResponse.status === 'success') {
+      customer.erxesApiId = entityResponseSchema.parse(
+        apiCustomerResponse.data,
+      )._id;
+      await customer.save();
+    } else {
       throw new Error(
-        e.message.includes('duplicate')
-          ? 'Concurrent request: customer duplication'
-          : e.message,
+        `Customer creation failed: ${JSON.stringify(apiCustomerResponse)}`,
       );
     }
-
-    // save on api
-    try {
-      const data = {
-        action: 'get-create-update-customer',
-        payload: JSON.stringify({
-          integrationId: integration.erxesApiId,
-          firstName: firstName,
-          avatar: instagramUser.profile_pic,
-          isUser: true,
-        }),
-      };
-
-      const apiCustomerResponse = await receiveInboxMessage(subdomain, data);
-
-      if (apiCustomerResponse.status === 'success') {
-        customer.erxesApiId = apiCustomerResponse.data._id;
-        await customer.save();
-      } else {
-        throw new Error(
-          `Customer creation failed: ${JSON.stringify(apiCustomerResponse)}`,
-        );
-      }
-    } catch (e) {
-      await models.InstagramCustomers.deleteOne({ _id: customer._id });
-      throw new Error(`Failed to sync with API: ${e.stack || e.message || e}`);
-    }
+  } catch (e) {
+    throw new Error(`Failed to sync with API: ${getErrorMessage(e)}`);
   }
 
   return customer;
@@ -110,118 +132,108 @@ export const getOrCreateComment = async (
   integration: IInstagramIntegrationDocument,
   customer: IInstagramCustomer,
 ) => {
-  const mainConversation = await models.InstagramCommentConversation.findOne({
-    comment_id: commentParams.comment_id,
-  });
-  const parentConversation = await models.InstagramCommentConversation.findOne({
-    comment_id: commentParams.parent_id,
-  });
-  const replyConversation =
-    await models.InstagramCommentConversationReply.findOne({
-      comment_id: commentParams.comment_id,
-    });
-  if (mainConversation || replyConversation) {
-    return;
-  }
+  const commentId = commentParams.comment_id;
+  if (!commentId) throw new Error('Instagram comment ID is required');
+  const selector = { comment_id: commentId, recipientId: pageId };
+  let mainConversation = await models.InstagramCommentConversation.findOne(
+    selector,
+  );
+  let replyConversation =
+    await models.InstagramCommentConversationReply.findOne(selector);
+  const existing = mainConversation || replyConversation;
+  // Historical rows have no pending marker; preserve their duplicate handling.
+  if (existing && existing.inboxSyncPending !== true) return;
+
+  const parentConversation = commentParams.parent_id
+    ? await models.InstagramCommentConversation.findOne({
+        comment_id: commentParams.parent_id,
+        recipientId: pageId,
+      })
+    : null;
   const post = await models.InstagramPostConversations.findOne({
     postId: commentParams.post_id,
   });
-  let attachment: any[] = [];
-  if (commentParams.photo) {
-    attachment = [
-      {
-        name: 'Photo', // You can set a name for the attachment
-        url: commentParams.photo,
-        type: 'image',
-      },
-    ];
-  }
-  if (!post) {
-    throw new Error('Post not found');
-  }
+  if (!post) throw new Error('Post not found');
+
+  const attachments = commentParams.photo
+    ? [{ name: 'Photo', url: commentParams.photo, type: 'image' }]
+    : [];
   const doc = {
-    attachments: attachment,
+    _id: instagramRecordId('comment', pageId, commentId),
+    attachments,
     recipientId: pageId,
     senderId: userId,
     createdAt: commentParams.post?.updated_time || new Date(),
     postId: commentParams.post_id,
-    comment_id: commentParams.comment_id,
+    comment_id: commentId,
     content: commentParams.message,
     customerId: customer.erxesApiId,
     parentId: commentParams.parent_id,
+    inboxSyncPending: true,
   };
-  if (parentConversation) {
-    await models.InstagramCommentConversationReply.create({
-      ...doc,
-    });
-  } else {
-    await models.InstagramCommentConversation.create({
-      ...doc,
-    });
-  }
-  const conversation =
-    (await models.InstagramCommentConversation.findOne({
-      comment_id: commentParams.comment_id,
-    })) ||
-    (await models.InstagramCommentConversation.findOne({
-      comment_id: commentParams.parent_id,
-    }));
 
-  if (!conversation) {
+  if (!existing) {
+    if (parentConversation) {
+      replyConversation = await getOrCreateInstagramRecord(
+        () => models.InstagramCommentConversationReply.findOne(selector),
+        () => models.InstagramCommentConversationReply.create(doc),
+      );
+    } else {
+      mainConversation = await getOrCreateInstagramRecord(
+        () => models.InstagramCommentConversation.findOne(selector),
+        () => models.InstagramCommentConversation.create(doc),
+      );
+    }
+  }
+
+  const stored = mainConversation || replyConversation;
+  const conversation = mainConversation || parentConversation;
+  if (!stored || !conversation) {
     throw new Error('Comment conversation not found after creation');
   }
 
-  const isNewConversation = !conversation.erxesApiId;
-
-  try {
-    const data = {
-      action: 'create-or-update-conversation',
-      payload: JSON.stringify({
-        customerId: customer.erxesApiId,
-        integrationId: integration.erxesApiId,
-        content: commentParams.message,
-        attachments: attachment,
-        conversationId: conversation.erxesApiId,
-      }),
-    };
-
-    const apiConversationResponse = await receiveInboxMessage(subdomain, data);
-
-    if (apiConversationResponse.status === 'success') {
-      conversation.erxesApiId = apiConversationResponse.data._id;
-      await conversation.save();
-    } else {
-      throw new Error(
-        `Conversation creation failed: ${JSON.stringify(apiConversationResponse)}`,
-      );
-    }
-  } catch (error) {
-    if (isNewConversation) {
-      await models.InstagramCommentConversation.deleteOne({
-        _id: conversation._id,
+  await withInstagramDeliveryLease(
+    mainConversation
+      ? models.InstagramCommentConversation
+      : models.InstagramCommentConversationReply,
+    String(stored._id),
+    async () => {
+      const response = await receiveInboxMessage(subdomain, {
+        action: 'create-or-update-conversation',
+        payload: JSON.stringify({
+          customerId: customer.erxesApiId,
+          integrationId: integration.erxesApiId,
+          content: commentParams.message,
+          attachments,
+          conversationId:
+            conversation.erxesApiId || `instagram-${conversation._id}`,
+        }),
       });
-    }
-    throw new Error(error.message);
-  }
-  try {
-    const message = await models.ConversationMessages.createMessage({
-      conversationId: conversation.erxesApiId,
-      content: commentParams.message || '',
-      customerId: customer.erxesApiId,
-      attachments: attachment,
-      createdAt: new Date(),
-    } as any);
+      if (response.status !== 'success') {
+        throw new Error(
+          `Conversation creation failed: ${response.errorMessage}`,
+        );
+      }
+      conversation.erxesApiId = entityResponseSchema.parse(response.data)._id;
+      await conversation.save();
 
-    await pConversationClientMessageInserted(subdomain, {
-      ...message.toObject(),
-      conversationId: conversation.erxesApiId,
-    });
-  } catch {
-    throw new Error(
-      `Failed to update the database with the Erxes API response for this conversation.`,
-    );
-  }
+      await syncInstagramInboxMessage(
+        models,
+        subdomain,
+        `instagram-${stored._id}`,
+        {
+          conversationId: conversation.erxesApiId,
+          content: commentParams.message || '',
+          customerId: customer.erxesApiId,
+          attachments,
+          createdAt: stored.createdAt || new Date(),
+          providerData: { messageId: commentId },
+        },
+      );
+    },
+  );
 };
+
 export const generatePostDoc = (
   postParams: any,
   pageId: string,
@@ -240,52 +252,68 @@ export const generatePostDoc = (
   };
 };
 
+const postDetailsSchema = z.object({
+  id: z.string().min(1),
+  caption: z.string().nullish(),
+  permalink: z.string().min(1),
+  timestamp: z.coerce.date().optional(),
+});
+
 export const getOrCreatePostConversation = async (
   models: IModels,
   pageId: string,
   postId: string,
 ) => {
-  try {
-     let postConversation = await models.InstagramPostConversations.findOne({
-    postId
+  let post = await models.InstagramPostConversations.findOne({ postId });
+  if (post && !post.metadataPending) return post;
+
+  const integration = await models.InstagramIntegrations.findOne({
+    instagramPageId: pageId,
+    kind: INTEGRATION_KINDS.POST,
   });
-  if (!postConversation) {
-    const integration = await models.InstagramIntegrations.findOne({
-      instagramPageId: { $in: pageId }
-    });
+  if (!integration) throw new Error('Instagram Post integration not found');
+  const account = await models.InstagramAccounts.findOne({
+    _id: integration.accountId,
+  });
+  if (!account) throw new Error('Instagram account not found');
 
-    if (!integration) {
-      throw new Error("Integration not found");
-    }
-    const { accountId } = integration;
-    const account = await models.InstagramAccounts.findOne({ _id: accountId });
-    if (!account) {
-      throw new Error("account not found");
-    }
-
-    const getPostDetail = await getPostLink(account.token, postId);
-    const instagramPost = {
-      postId: postId,
-      content: getPostDetail.caption,
-      recipientId: getPostDetail.ig_id,
-      senderId: getPostDetail.ig_id,
-      permalink_url: getPostDetail.permalink,
-      timestamp: getPostDetail.timestamp
-    };
-    postConversation = await models.InstagramPostConversations.create(instagramPost);
-  }
-  return postConversation;
-
+  let details: z.infer<typeof postDetailsSchema> | undefined;
+  try {
+    details = postDetailsSchema.parse(await getPostLink(account.token, postId));
   } catch (error) {
-    throw new Error(
-      `Failed to get or create post conversation: ${error.message}`,
+    // Post previews are optional. Retry on a later comment while preserving
+    // this comment's known post ID and sender, as for optional profile data.
+    debugError(
+      `Failed to fetch Instagram post preview: ${getErrorMessage(error)}`,
     );
   }
+  const metadata = {
+    content: details?.caption || '',
+    permalink_url: details?.permalink || '',
+    timestamp: details?.timestamp,
+    metadataPending: !details,
+  };
+  if (post) {
+    if (details) {
+      Object.assign(post, metadata);
+      await post.save();
+    }
+    return post;
+  }
+  post = await getOrCreateInstagramRecord(
+    () => models.InstagramPostConversations.findOne({ postId }),
+    () =>
+      models.InstagramPostConversations.create({
+        _id: instagramRecordId('post', pageId, postId),
+        postId,
+        recipientId: pageId,
+        senderId: pageId,
+        integrationId: integration._id,
+        ...metadata,
+      }),
+  );
+  return post;
 };
-
-
-
-
 
 export const getOrCreatePost = async (
   models: IModels,

@@ -1,6 +1,7 @@
 import type {
   IConversationMessageAdd,
   IMessage,
+  IMessageDocument,
 } from '@/inbox/@types/conversationMessages';
 import type { IConversationDocument } from '@/inbox/@types/conversations';
 import { pConversationClientMessageInserted } from '@/inbox/graphql/resolvers/mutations/widget';
@@ -14,8 +15,10 @@ type DispatchedMessageData = {
   conversationId?: string;
   content?: string;
   displayContent?: string;
+  createdAt?: Date;
   extraData?: Record<string, unknown>;
   attachments?: IConversationMessageAdd['attachments'];
+  parts?: DispatchedMessageData[];
 } & Pick<
   IMessage,
   'messageKind' | 'providerData' | 'replyTo' | 'deliveryStatus'
@@ -97,10 +100,30 @@ export const storeDispatchedMessage = async ({
     ...(deliveryStatus ? { deliveryStatus } : {}),
   };
 
-  const message = await models.ConversationMessages.addMessage(
-    messageDoc,
-    userId,
-  );
+  const deliveredParts =
+    kind === 'instagram-messenger' && data.parts?.length
+      ? data.parts
+      : undefined;
+  const messageDocs = deliveredParts
+    ? deliveredParts.map((part) => ({
+        ...messageDoc,
+        ...part,
+        conversationId: doc.conversationId,
+        ...getDispatchedMessageExtraData(
+          part.extraData,
+          forwardedSnapshot,
+          doc,
+        ),
+      }))
+    : [messageDoc];
+  const messages: IMessageDocument[] = [];
+  for (const deliveredDoc of messageDocs) {
+    const message = await models.ConversationMessages.addMessage(
+      deliveredDoc,
+      userId,
+    );
+    messages.push(await models.ConversationMessages.getMessage(message._id));
+  }
   if (kind === 'telegram-messenger' && responseConversationId && content) {
     await models.Conversations.updateConversation(responseConversationId, {
       content,
@@ -113,8 +136,9 @@ export const storeDispatchedMessage = async ({
     models,
     subdomain,
   });
-  const dbMessage = await models.ConversationMessages.getMessage(message._id);
   await markAutomatedReplyHumanActive({ models, conversation, userId });
-  await pConversationClientMessageInserted(subdomain, dbMessage);
-  return dbMessage;
+  for (const message of messages) {
+    await pConversationClientMessageInserted(subdomain, message);
+  }
+  return messages[messages.length - 1];
 };

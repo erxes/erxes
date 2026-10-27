@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-10-23`
+- **Last synchronized:** `2026-10-27`
 
 ## Scope
 
@@ -1070,6 +1070,16 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
   state and deliberately not persisted.
 
 ## Local Invariants
+
+- Instagram history includes internal notes in the same paginated timeline.
+  Match live events and fetched rows by `_id` or Meta `mid`/`providerData.messageId`;
+  merge all message fields so deletion, receipt and reaction updates remain
+  visible without duplicates. Keep `subscribeToMore` in a ref and allow only
+  one pagination request at a time, as in the Facebook message hook.
+- Instagram replies and forwards read `extraData.instagramDelivery` with
+  `readInstagramDelivery`. Like Facebook, partial delivery leaves only unsent
+  attachments for retry; an acknowledgement followed by a history failure
+  warns against resending accepted content.
 
 - Relation widgets go only through contacts: each lists the records whose
   own `customerId` / `companyId` is the host's customer or company

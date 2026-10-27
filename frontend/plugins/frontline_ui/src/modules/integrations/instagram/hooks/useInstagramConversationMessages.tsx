@@ -1,15 +1,20 @@
 import { useQuery } from '@apollo/client';
 import { GET_CONVERSATION_MESSAGES } from '@/integrations/instagram/graphql/queries/igConversationQueries';
 import { useQueryState } from 'erxes-ui';
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { CONVERSATION_MESSAGE_INSERTED } from '@/inbox/conversations/graphql/subscriptions/inboxSubscriptions';
 import { toMessage } from '@/inbox/conversation-messages/utils/toMessage';
 import { compactList } from '@/shared/utils/cursorList';
+import { isSameInstagramMessage } from '../utils/messageIdentity';
 
 export const INSTAGRAM_CONVERSATION_MESSAGES_LIMIT = 20;
 
 export const useInstagramConversationMessages = () => {
   const [conversationId] = useQueryState<string>('conversationId');
+  const paginationRef = useRef({ fetching: false });
+  useEffect(() => {
+    paginationRef.current = { fetching: false };
+  }, [conversationId]);
 
   const { data, loading, error, fetchMore, subscribeToMore, client } = useQuery(
     GET_CONVERSATION_MESSAGES,
@@ -19,8 +24,13 @@ export const useInstagramConversationMessages = () => {
         : undefined,
       skip: !conversationId,
       fetchPolicy: 'cache-and-network',
+      notifyOnNetworkStatusChange: true,
     },
   );
+  const subscribeToMoreRef = useRef(subscribeToMore);
+  useEffect(() => {
+    subscribeToMoreRef.current = subscribeToMore;
+  }, [subscribeToMore]);
 
   const instagramConversationMessages = useMemo(
     () =>
@@ -37,9 +47,11 @@ export const useInstagramConversationMessages = () => {
 
   const handleFetchMore = useCallback((): Promise<unknown> => {
     const loadedCount = instagramConversationMessages?.length || 0;
-    if (loading || totalCount <= loadedCount) {
+    const pagination = paginationRef.current;
+    if (loading || pagination.fetching || totalCount <= loadedCount) {
       return Promise.resolve();
     }
+    pagination.fetching = true;
     return fetchMore({
       variables: {
         skip: loadedCount,
@@ -49,10 +61,14 @@ export const useInstagramConversationMessages = () => {
         const previousMessages = compactList(
           prev.instagramConversationMessages,
         );
-        const existingIds = new Set(previousMessages.map((m) => m._id));
         const uniqueNewMessages = compactList(
           fetchMoreResult.instagramConversationMessages,
-        ).filter((m) => !existingIds.has(m._id));
+        ).filter(
+          (message) =>
+            !previousMessages.some((previous) =>
+              isSameInstagramMessage(previous, message),
+            ),
+        );
         if (!uniqueNewMessages.length) {
           return prev;
         }
@@ -65,12 +81,14 @@ export const useInstagramConversationMessages = () => {
             fetchMoreResult.instagramConversationMessagesCount,
         };
       },
+    }).finally(() => {
+      pagination.fetching = false;
     });
   }, [fetchMore, instagramConversationMessages, loading, totalCount]);
 
   useEffect(() => {
     if (!conversationId) return;
-    const unsubscribe = subscribeToMore({
+    const unsubscribe = subscribeToMoreRef.current({
       document: CONVERSATION_MESSAGE_INSERTED,
       variables: { _id: conversationId },
       updateQuery: (prev, { subscriptionData }) => {
@@ -81,38 +99,50 @@ export const useInstagramConversationMessages = () => {
         const previousMessages = compactList(
           prev.instagramConversationMessages,
         );
-        const messageExists = previousMessages.some(
-          (msg) => msg._id === newMessage._id,
+        const messageExists = previousMessages.some((msg) =>
+          isSameInstagramMessage(msg, newMessage),
         );
 
         if (messageExists) {
           return {
             ...prev,
             instagramConversationMessages: previousMessages.map((message) =>
-              message._id === newMessage._id
-                ? { ...message, reactions: newMessage.reactions }
+              isSameInstagramMessage(message, newMessage)
+                ? {
+                    ...message,
+                    ...newMessage,
+                    _id: message._id,
+                    mid: newMessage.mid || message.mid,
+                    conversationId,
+                    __typename: 'InstagramConversationMessage',
+                  }
                 : message,
             ),
           };
         }
 
-        try {
-          const conversationCacheId = client.cache.identify({
-            __typename: 'Conversation',
-            _id: conversationId,
-          });
+        const oldestMessage = previousMessages[0];
+        if (
+          oldestMessage &&
+          previousMessages.length <
+            (prev.instagramConversationMessagesCount ?? 0) &&
+          new Date(newMessage.createdAt ?? 0) <
+            new Date(oldestMessage.createdAt ?? 0)
+        )
+          return prev;
 
-          if (conversationCacheId && !newMessage.internal) {
-            client.cache.modify({
-              id: conversationCacheId,
-              fields: {
-                content: () => newMessage.content,
-                updatedAt: () => newMessage.createdAt,
-              },
-            });
-          }
-        } catch (error) {
-          console.error('Error updating cache:', error);
+        const conversationCacheId = client.cache.identify({
+          __typename: 'Conversation',
+          _id: conversationId,
+        });
+        if (conversationCacheId && !newMessage.internal) {
+          client.cache.modify({
+            id: conversationCacheId,
+            fields: {
+              content: () => newMessage.content,
+              updatedAt: () => newMessage.createdAt,
+            },
+          });
         }
 
         return {
@@ -131,7 +161,7 @@ export const useInstagramConversationMessages = () => {
       },
     });
     return unsubscribe;
-  }, [client.cache, conversationId, subscribeToMore]);
+  }, [client.cache, conversationId]);
 
   return {
     instagramConversationMessages,

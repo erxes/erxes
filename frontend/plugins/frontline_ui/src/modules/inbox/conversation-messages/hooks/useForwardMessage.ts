@@ -8,6 +8,7 @@ import { useConversationContext } from '@/inbox/conversations/conversation-detai
 import { useConversationMessageContext } from '@/inbox/conversations/conversation-detail/hooks/useConversationMessageContext';
 import { GET_CONVERSATIONS } from '@/inbox/conversations/graphql/queries/getConversations';
 import { readFacebookDelivery } from '@/integrations/facebook/types/FacebookReplyDelivery';
+import { readInstagramDelivery } from '@/integrations/instagram/utils/instagramReplyDelivery';
 import { compactList } from '@/shared/utils/cursorList';
 import {
   forwardMessageSchema,
@@ -78,11 +79,12 @@ export const useForwardMessage = (
           'ConversationCounts',
           'FrontlineInboxSidebarWorkCounts',
           'FacebookConversationMessages',
+          'InstagramConversationMessages',
         ],
       });
-      const delivery = readFacebookDelivery(
-        result.data?.conversationMessageAdd?.extraData,
-      );
+      const extraData = result.data?.conversationMessageAdd?.extraData;
+      const instagramDelivery = readInstagramDelivery(extraData);
+      const delivery = readFacebookDelivery(extraData) || instagramDelivery;
       if (delivery?.status === 'partial') {
         const remaining = outgoingAttachments.filter(
           ({ url }) => !delivery.sentAttachmentUrls.includes(url),
@@ -97,6 +99,11 @@ export const useForwardMessage = (
             : t('message-forwarded-with-warning'),
           description: remaining.length
             ? t('retry-sends-remaining-attachments')
+            : instagramDelivery
+            ? t(
+                'instagram-forward-history-failed',
+                'Instagram accepted the message, but saving its history failed. Do not resend it.',
+              )
             : t('facebook-forward-history-failed'),
           variant: 'destructive',
         });

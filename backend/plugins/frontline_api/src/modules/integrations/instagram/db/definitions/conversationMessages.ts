@@ -11,6 +11,9 @@ export const conversationMessageSchema = schemaWrapper(
   new Schema({
     _id: mongooseStringRandomId,
     mid: { type: String, label: 'Instagram message id' },
+    inboxSyncPending: Boolean,
+    processingToken: String,
+    processingUntil: Date,
     content: { type: String },
     attachments: [attachmentSchema],
     conversationId: { type: String, index: true },
