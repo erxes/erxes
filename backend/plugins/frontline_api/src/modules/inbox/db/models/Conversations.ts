@@ -158,7 +158,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
         const current = await models.Conversations.getConversation(_id);
         // Provider updates may repeat the primary assignee without changing ownership.
         if (doc.assignedUserId !== current.assignedUserId) {
-          doc.assignedUserIds = doc.assignedUserId ? [doc.assignedUserId] : [];
+          doc.assignedUserIds = getConversationAssigneeIds(doc);
         } else {
           delete doc.assignedUserId;
         }
