@@ -773,7 +773,7 @@ export const permissions: IPermissionConfig = {
           plugin: 'loyalty',
           module: 'donate',
           actions: ['donateView', 'donateCreate'],
-          scope: 'own',
+          scope: 'all',
         },
         {
           plugin: 'loyalty',
@@ -803,7 +803,7 @@ export const permissions: IPermissionConfig = {
           plugin: 'loyalty',
           module: 'scoreLog',
           actions: ['scoreLogView'],
-          scope: 'own',
+          scope: 'all',
         },
         {
           plugin: 'loyalty',

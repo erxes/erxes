@@ -1368,6 +1368,9 @@ tagIds, propertiesData: JSON)` (the customer comes from the widget session) — 
 
 ## Local Invariants
 
+- Default permission group templates in `src/meta/permissions.ts` use scope
+  `all`. Record scoping is opt-in through a module's `scopeCollections`, which
+  this plugin does not declare, so its records are not filtered by scope.
 - Permission groups are editable tenant data seeded from `meta/permissions.ts`
   templates. Grant access by action (`canGroup`), never by a group id such as
   `frontline:admin`.
