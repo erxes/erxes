@@ -5,14 +5,16 @@ import { ResetPasswordDialog } from '@/settings/team-member/details/components/R
 import { MemberDetail } from '@/settings/team-member/details/components/MemberDetail';
 
 export function TeamMemberPage() {
-  const [userId] = useQueryState('user_id');
+  const [userId] = useQueryState<string>('user_id');
   const [resetId] = useQueryState('reset_password_id');
 
   return (
-    <div className="w-full overflow-hidden flex flex-col">
-      <TeamMemberFilterBar />
-      <TeamMemberTable />
-      {!!userId && <MemberDetail />}
+    <div className="w-full overflow-hidden flex">
+      <div className="flex-1 min-w-0 overflow-hidden flex flex-col">
+        <TeamMemberFilterBar />
+        <TeamMemberTable />
+      </div>
+      {!!userId && <MemberDetail key={userId} />}
       {!!resetId && <ResetPasswordDialog />}
     </div>
   );
