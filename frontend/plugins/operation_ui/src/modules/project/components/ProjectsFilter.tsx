@@ -15,7 +15,7 @@ import { useParams } from 'react-router-dom';
 import { PROJECTS_CURSOR_SESSION_KEY } from '@/project/constants/ProjectSessionKey';
 import { SelectTeam } from '@/team/components/SelectTeam';
 import { SelectPriority } from '@/operation/components/SelectPriority';
-import { TagsFilter } from 'ui-modules';
+import { SelectCompany, SelectCustomer, TagsFilter } from 'ui-modules';
 
 const ProjectsFilterPopover = () => {
   const { t } = useTranslation('operation');
@@ -28,7 +28,18 @@ const ProjectsFilterPopover = () => {
     priority: string;
     status: string;
     tags: string[];
-  }>(['name', 'lead', 'team', 'priority', 'status', 'tags']);
+    customerId: string;
+    companyId: string;
+  }>([
+    'name',
+    'lead',
+    'team',
+    'priority',
+    'status',
+    'tags',
+    'customerId',
+    'companyId',
+  ]);
 
   const hasFilters = Object.values(queries || {}).some(
     (value) => value !== null,
@@ -68,6 +79,14 @@ const ProjectsFilterPopover = () => {
                   {t('status')}
                 </Filter.Item>
                 <TagsFilter />
+                <SelectCustomer.FilterItem
+                  value="customerId"
+                  label={t('customer', 'Customer')}
+                />
+                <SelectCompany.FilterItem
+                  value="companyId"
+                  label={t('company', 'Company')}
+                />
               </Command.List>
             </Command>
           </Filter.View>
@@ -76,6 +95,8 @@ const ProjectsFilterPopover = () => {
           <SelectPriority.FilterView />
           <SelectStatus.FilterView />
           <TagsFilter.View tagType="operation:project" />
+          <SelectCustomer.FilterView mode="single" filterKey="customerId" />
+          <SelectCompany.FilterView mode="single" filterKey="companyId" />
         </Combobox.Content>
       </Filter.Popover>
       <Filter.Dialog>
@@ -98,7 +119,18 @@ export const ProjectsFilter = () => {
     priority: string;
     status: string;
     tags: string[];
-  }>(['name', 'lead', 'team', 'priority', 'status', 'tags']);
+    customerId: string;
+    companyId: string;
+  }>([
+    'name',
+    'lead',
+    'team',
+    'priority',
+    'status',
+    'tags',
+    'customerId',
+    'companyId',
+  ]);
   const { name } = queries || {};
 
   return (
@@ -141,6 +173,16 @@ export const ProjectsFilter = () => {
           <SelectStatus.FilterBar />
         </Filter.BarItem>
         <TagsFilter.Bar tagType="operation:project" />
+        <SelectCustomer.FilterBar
+          mode="single"
+          filterKey="customerId"
+          label={t('customer', 'Customer')}
+        />
+        <SelectCompany.FilterBar
+          mode="single"
+          filterKey="companyId"
+          label={t('company', 'Company')}
+        />
         <ProjectsTotalCount />
       </Filter.Bar>
     </Filter>

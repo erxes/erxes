@@ -22,6 +22,7 @@ export const triageMutations = {
         status: input.status || STATUS_TYPES.TRIAGE,
         customerId: input.customerId || null,
         companyId: input.companyId || null,
+        tagIds: input.tagIds || [],
       },
       subdomain: subdomain,
     });
@@ -81,11 +82,12 @@ export const triageMutations = {
     }
 
     // The task takes the triage's _id (see Task.createTask) and keeps its
-    // customer and company.
+    // customer, company and tags.
     const task = await models.Task.createTask({
       doc: {
         customerId: triage.customerId ?? null,
         companyId: triage.companyId ?? null,
+        tagIds: triage.tagIds || [],
         name: triage.name,
         description: triage.description,
         teamId: triage.teamId,

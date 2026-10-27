@@ -18,6 +18,7 @@ export const GET_TRIAGE = gql(`
       githubRepoName
       customerId
       companyId
+      tagIds
     }
   }
 `);

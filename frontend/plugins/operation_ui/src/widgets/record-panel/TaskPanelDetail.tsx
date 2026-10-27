@@ -171,7 +171,7 @@ export const TaskPanelDetail = ({ taskId }: { taskId: string }) => {
             })}
           />
         </PanelField>
-        <PanelField label={t('customers', 'Customers')}>
+        <PanelField label={t('customer', 'Customer')}>
           <RecordContactsField
             kind="customer"
             value={task.customerId}
@@ -184,7 +184,7 @@ export const TaskPanelDetail = ({ taskId }: { taskId: string }) => {
             }
           />
         </PanelField>
-        <PanelField label={t('companies', 'Companies')}>
+        <PanelField label={t('company', 'Company')}>
           <RecordContactsField
             kind="company"
             value={task.companyId}

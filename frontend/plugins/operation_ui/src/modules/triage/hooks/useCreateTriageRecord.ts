@@ -14,6 +14,8 @@ export type TTriageDraft = {
   description?: string;
   customerId?: string | null;
   companyId?: string | null;
+  // Task tags (`operation:task`), kept by the task it becomes.
+  tagIds?: string[];
 };
 
 /**
@@ -65,6 +67,7 @@ export const useCreateTriageRecord = () => {
     description,
     customerId,
     companyId,
+    tagIds,
   }: TTriageDraft & { name: string }) => {
     if (loading || !draftTeamId) {
       return;
@@ -79,6 +82,7 @@ export const useCreateTriageRecord = () => {
           description,
           customerId,
           companyId,
+          tagIds,
         },
       },
       // Contacts' triage lists may be unmounted (the draft replaced their
