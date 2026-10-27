@@ -300,7 +300,7 @@ export interface IFacebookBotModel extends Model<IFacebookBotDocument> {
   removeBot(_id: string): Promise<{ status: 'success' }>;
   repair(
     _id: string,
-    options: TBotActorContext,
+    options?: Partial<TBotActorContext>,
   ): Promise<{ status: 'success' }>;
   markBrokenByAccount(
     accountId: string,
@@ -334,7 +334,6 @@ export interface IFacebookBotModel extends Model<IFacebookBotDocument> {
     pageId: string;
     accountId: string;
     token: string;
-    userId?: string;
   }): Promise<{ status: 'success' } | null>;
 }
 
@@ -648,12 +647,10 @@ export const loadFacebookBotClass = (models: IModels, subdomain: string) => {
       pageId,
       accountId,
       token,
-      userId,
     }: {
       pageId: string;
       accountId: string;
       token: string;
-      userId?: string;
     }) {
       const bot = await models.FacebookBots.findOne({ pageId }).lean();
 
@@ -666,7 +663,7 @@ export const loadFacebookBotClass = (models: IModels, subdomain: string) => {
         { $set: { token, accountId, updatedAt: new Date() } },
       );
 
-      return await this.repair(bot._id, { userId });
+      return await this.repair(bot._id);
     }
 
     static async updatePageToken(
@@ -1163,7 +1160,11 @@ export const loadFacebookBotClass = (models: IModels, subdomain: string) => {
       }
     }
 
-    public static async repair(_id, { userId }: TBotActorContext) {
+    // No actor when the system repairs a bot, e.g. on integration reconnect.
+    public static async repair(
+      _id,
+      { userId }: Partial<TBotActorContext> = {},
+    ) {
       const bot = await this.getBot(_id);
       const previousHealthStatus = bot.health?.status;
       const shouldNotifyRevived =
