@@ -4,9 +4,14 @@ import { ACTIVITY_CHANGED } from '@/activity/graphql/subsciptions/activityChange
 import { compactList, toCursorPageInfo } from '@/operation/utils/cursorList';
 
 export const useActivities = (contentId: string) => {
-  const { data, loading, refetch } = useQuery(GET_ACTIVITIES, {
-    variables: { contentId },
-  });
+  const variables = { contentId, direction: 'backward' as const, limit: 30 };
+  const { data, loading, error, refetch, fetchMore } = useQuery(
+    GET_ACTIVITIES,
+    {
+      variables,
+      notifyOnNetworkStatusChange: true,
+    },
+  );
 
   const result = data?.getOperationActivities;
   const activities = compactList(result?.list);
@@ -29,7 +34,7 @@ export const useActivities = (contentId: string) => {
           client.cache.gc();
         }
         client.cache.updateQuery(
-          { query: GET_ACTIVITIES, variables: { contentId } },
+          { query: GET_ACTIVITIES, variables },
           (prev) => {
             const result = prev?.getOperationActivities;
             if (!result) return;
@@ -47,7 +52,7 @@ export const useActivities = (contentId: string) => {
 
       if (event?.type === 'created') {
         client.cache.updateQuery(
-          { query: GET_ACTIVITIES, variables: { contentId } },
+          { query: GET_ACTIVITIES, variables },
           (prev) => {
             const result = prev?.getOperationActivities;
             if (!result?.list) return;
@@ -71,6 +76,39 @@ export const useActivities = (contentId: string) => {
   return {
     activities,
     loading,
+    error,
+    loadOlder: () =>
+      fetchMore({
+        variables: { ...variables, cursor: result?.pageInfo?.startCursor },
+        updateQuery: (previous, { fetchMoreResult }) => {
+          const older = fetchMoreResult?.getOperationActivities;
+          const current = previous.getOperationActivities;
+          if (!older || !current) return previous;
+          const currentIds = new Set(
+            compactList(current.list).map((item) => item._id),
+          );
+          return {
+            ...previous,
+            getOperationActivities: {
+              ...current,
+              list: [
+                ...compactList(older.list).filter(
+                  (item) => !currentIds.has(item._id),
+                ),
+                ...compactList(current.list),
+              ],
+              pageInfo:
+                current.pageInfo && older.pageInfo
+                  ? {
+                      ...current.pageInfo,
+                      startCursor: older.pageInfo.startCursor,
+                      hasPreviousPage: older.pageInfo.hasPreviousPage,
+                    }
+                  : current.pageInfo,
+            },
+          };
+        },
+      }),
     refetch,
     pageInfo: toCursorPageInfo(result?.pageInfo),
     totalCount: result?.totalCount,

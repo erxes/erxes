@@ -3,10 +3,13 @@ import {
   IconChevronDown,
   IconChevronLeft,
   IconMaximize,
+  IconMinimize,
   IconX,
 } from '@tabler/icons-react';
 import { Button, cn, DropdownMenu, Tabs } from 'erxes-ui';
 import {
+  createContext,
+  useContext,
   useCallback,
   useEffect,
   useLayoutEffect,
@@ -28,6 +31,11 @@ export const SIDE_PANEL_WIDTH = { min: 320, max: 600, default: 400 };
 
 const clampWidth = (width: number, maxWidth: number) =>
   Math.min(maxWidth, Math.max(SIDE_PANEL_WIDTH.min, width));
+
+const PanelExpansionContext = createContext<{
+  expanded: boolean;
+  toggle: () => void;
+} | null>(null);
 
 // Dragging the panel's left edge resizes it; leftwards makes it wider.
 const RecordSidePanelResizeHandle = ({
@@ -193,27 +201,34 @@ const RecordSidePanelRoot = ({
   onWidthChange?: (width: number) => void;
   children: React.ReactNode;
 }) => {
+  const [expanded, setExpanded] = useState(false);
   const upperBound = Math.max(SIDE_PANEL_WIDTH.min, maxWidth);
   const panelWidth = clampWidth(width, upperBound);
   return (
-    <aside
-      style={{ width: panelWidth }}
-      className={cn(
-        'relative flex flex-col flex-none max-w-full min-h-0 border-l bg-background transition-none',
-        // Animate entry only: duration-200 must never ease drag width changes.
-        'animate-in fade-in-0 slide-in-from-right-8 duration-200 ease-out motion-reduce:animate-none',
-        className,
-      )}
+    <PanelExpansionContext.Provider
+      value={{ expanded, toggle: () => setExpanded((value) => !value) }}
     >
-      {onWidthChange && (
-        <RecordSidePanelResizeHandle
-          width={panelWidth}
-          maxWidth={upperBound}
-          onWidthChange={onWidthChange}
-        />
-      )}
-      {children}
-    </aside>
+      <aside
+        data-expanded={expanded || undefined}
+        style={{ width: expanded ? '100%' : panelWidth }}
+        className={cn(
+          '@container/record-panel relative flex flex-col flex-none max-w-full min-h-0 border-l bg-background transition-none',
+          expanded && 'fixed inset-0 z-40 h-svh',
+          // Animate entry only: duration-200 must never ease drag width changes.
+          'animate-in fade-in-0 slide-in-from-right-8 duration-200 ease-out motion-reduce:animate-none',
+          className,
+        )}
+      >
+        {onWidthChange && !expanded && (
+          <RecordSidePanelResizeHandle
+            width={panelWidth}
+            maxWidth={upperBound}
+            onWidthChange={onWidthChange}
+          />
+        )}
+        {children}
+      </aside>
+    </PanelExpansionContext.Provider>
   );
 };
 
@@ -235,6 +250,12 @@ const RecordSidePanelHeader = ({
   onClose: () => void;
 }) => {
   const { t } = useTranslation('common', { keyPrefix: 'side-panel' });
+  const expansion = useContext(PanelExpansionContext);
+  const expand = onExpand ?? expansion?.toggle;
+  const expanded = !onExpand && expansion?.expanded;
+  const expandLabel = expanded
+    ? t('collapse', 'Collapse record')
+    : t('expand', 'Expand record');
 
   return (
     // Same height and surface as the app's top bar, so the two read as one.
@@ -258,15 +279,21 @@ const RecordSidePanelHeader = ({
       {actions && (
         <div className="flex flex-none items-center gap-1">{actions}</div>
       )}
-      {onExpand && (
+      {expand && (
         <Button
           variant="ghost"
           size="icon"
           className="size-7"
-          onClick={onExpand}
-          title={t('expand', 'Open full view')}
+          onClick={expand}
+          title={expandLabel}
+          aria-label={expandLabel}
+          aria-expanded={!!expanded}
         >
-          <IconMaximize className="size-4" />
+          {expanded ? (
+            <IconMinimize className="size-4" />
+          ) : (
+            <IconMaximize className="size-4" />
+          )}
         </Button>
       )}
       <Button
@@ -421,7 +448,7 @@ const RecordSidePanelTabs = ({
               key={tab.value}
               value={tab.value}
               data-panel-tab={tab.value}
-              className="h-full gap-1.5 rounded-none after:-mb-px"
+              className="h-full gap-1.5 rounded-none text-xs after:-mb-px"
             >
               <tab.icon className="size-4" />
               {tab.label}

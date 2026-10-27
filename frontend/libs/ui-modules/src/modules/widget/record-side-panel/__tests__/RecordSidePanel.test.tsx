@@ -5,6 +5,9 @@ import { RecordSidePanel } from '../RecordSidePanel';
 
 jest.mock('erxes-ui', () => ({
   cn: (...classes: string[]) => classes.filter(Boolean).join(' '),
+  Button: ({ children, ...props }: React.ComponentProps<'button'>) => (
+    <button {...props}>{children}</button>
+  ),
 }));
 jest.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (_key: string, fallback: string) => fallback }),
@@ -186,4 +189,46 @@ it('does not start on right click or resize just by hovering', () => {
   paint();
   expect(screen.getByText('Chat').style.width).toBe('400px');
   expect(document.querySelector('[data-side-panel-resize-shield]')).toBeNull();
+});
+
+it('expands and collapses in place while preserving the draft and resized width', () => {
+  render(
+    <RecordSidePanel width={480} onWidthChange={jest.fn()}>
+      <RecordSidePanel.Header title="Task" onClose={jest.fn()} />
+      <input aria-label="Draft" defaultValue="Keep my edits" />
+    </RecordSidePanel>,
+  );
+  const panel = screen.getByRole('complementary');
+  const draft = screen.getByRole('textbox');
+  fireEvent.change(draft, { target: { value: 'Unsaved edit' } });
+  fireEvent.click(screen.getByRole('button', { name: 'Expand record' }));
+  expect(panel.style.width).toBe('100%');
+  expect(panel.getAttribute('data-expanded')).toBe('true');
+  expect(screen.queryByRole('separator')).toBeNull();
+  expect(screen.getByRole('textbox')).toBe(draft);
+  fireEvent.click(screen.getByRole('button', { name: 'Collapse record' }));
+  expect(panel.style.width).toBe('480px');
+  expect(panel.hasAttribute('data-expanded')).toBe(false);
+  expect(screen.getByRole('separator').getAttribute('aria-valuenow')).toBe(
+    '480',
+  );
+  expect((screen.getByRole('textbox') as HTMLInputElement).value).toBe(
+    'Unsaved edit',
+  );
+});
+
+it('keeps an explicitly supplied expand handler', () => {
+  const expand = jest.fn();
+  render(
+    <RecordSidePanel width={400}>
+      <RecordSidePanel.Header
+        title="Task"
+        onExpand={expand}
+        onClose={jest.fn()}
+      />
+    </RecordSidePanel>,
+  );
+  fireEvent.click(screen.getByRole('button', { name: 'Expand record' }));
+  expect(expand).toHaveBeenCalledTimes(1);
+  expect(screen.getByRole('complementary').style.width).toBe('400px');
 });

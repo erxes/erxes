@@ -18,6 +18,8 @@ import { ActivityActor } from '@/activity/components/ActivityActor';
 import {
   IconAlertSquareRounded,
   IconCalendar,
+  IconBriefcase,
+  IconRefresh,
   IconLabel,
   IconNote,
   IconProgressCheck,
@@ -82,6 +84,7 @@ export const ActivityIcon = ({ activity }: { activity: IActivity }) => {
     case ACTIVITY_MODULES.END_DATE:
       return <IconCalendar className="size-4 text-accent-foreground" />;
     case ACTIVITY_MODULES.ASSIGNEE:
+    case ACTIVITY_MODULES.LEAD:
     case ACTIVITY_MODULES.TRIAGE_ACCEPTANCE:
       return <ActivityActor.Avatar />;
     case ACTIVITY_MODULES.NOTE:
@@ -91,6 +94,10 @@ export const ActivityIcon = ({ activity }: { activity: IActivity }) => {
       return (
         <IconAlertSquareRounded className="size-4 text-accent-foreground" />
       );
+    case ACTIVITY_MODULES.CYCLE:
+      return <IconRefresh className="size-4 text-accent-foreground" />;
+    case ACTIVITY_MODULES.CONVERT:
+      return <IconBriefcase className="size-4 text-accent-foreground" />;
     case ACTIVITY_MODULES.MILESTONE:
       return <IconSquareRotated className="size-4 text-accent-foreground" />;
     default:
