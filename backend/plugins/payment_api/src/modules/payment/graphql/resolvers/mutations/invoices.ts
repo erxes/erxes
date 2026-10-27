@@ -12,7 +12,7 @@ import {
 
 const mutations: Record<string, Resolver<any, any, IContext>> = {
   async generateInvoiceUrl(
-    _root,
+    _root,  
     { input }: { input: IInvoice },
     { models, subdomain }: IContext,
   ) {
@@ -25,6 +25,7 @@ const mutations: Record<string, Resolver<any, any, IContext>> = {
        contentTypeId: input.contentTypeId,
        amount: input.amount,
        status: PAYMENT_STATUS.PENDING,
+       createdAt: { $gte: new Date(Date.now() - 24 * 60 * 60 * 1000) },
      })
        .sort({ createdAt: -1 })
        .lean();
