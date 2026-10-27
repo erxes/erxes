@@ -2,6 +2,7 @@ import { IRelationWidgetProps } from 'ui-modules';
 import { CustomerWidgets } from './customer/CustomerWidgets';
 import { CompanyWidgets } from './company/CompanyWidgets';
 import { TrackedDataWidgets } from './tracked-data/TrackedDataWidgets';
+import { DataExtensionsWidgets } from './data-extensions/DataExtensionsWidgets';
 
 export const CoreWidgets = (props: IRelationWidgetProps) => {
   const { module } = props;
@@ -16,6 +17,10 @@ export const CoreWidgets = (props: IRelationWidgetProps) => {
 
   if (module === 'trackedData') {
     return <TrackedDataWidgets {...props} />;
+  }
+
+  if (module === 'dataExtensions') {
+    return <DataExtensionsWidgets {...props} />;
   }
 
   return null;
