@@ -5,6 +5,7 @@ import {
 } from '@/inbox/db/definitions/constants';
 import { escapeRegExp, fixDate, sendTRPCMessage } from 'erxes-api-shared/utils';
 import * as _ from 'underscore';
+import { buildClosedAtFilter } from '@/inbox/utils/closedAtFilter';
 import { IModels } from '~/connectionResolvers';
 import {
   buildAssigneeFilter,
@@ -39,6 +40,8 @@ export interface IListArgs {
   ids?: string[];
   startDate?: string;
   endDate?: string;
+  closedAtFrom?: string;
+  closedAtTo?: string;
   only?: string;
   page?: number;
   perPage?: number;
@@ -127,7 +130,11 @@ export default class Builder {
       CONVERSATION_STATUSES.OPEN,
     ]);
 
-    if (this.params.status === 'closed') {
+    if (
+      this.params.status === CONVERSATION_STATUSES.CLOSED ||
+      (!this.params.status &&
+        (this.params.closedAtFrom || this.params.closedAtTo))
+    ) {
       statusFilter = this.statusFilter([CONVERSATION_STATUSES.CLOSED]);
     }
 
@@ -576,6 +583,7 @@ export default class Builder {
       ...this.queries.starred,
       ...this.queries.tag,
       ...this.queries.createdAt,
+      ...buildClosedAtFilter(this.params),
       ...this.queries.awaitingResponse,
       ...this.queries.automationStatus,
       ...this.queries.withSurvey,

@@ -7,6 +7,7 @@ import {
   TAutomationProducers,
   TAutomationProducersInput,
 } from 'erxes-api-shared/core-modules';
+import { publishReportUpdate } from '@/reports/realtime';
 import { IModels } from '~/connectionResolvers';
 import { prepareTicketPropertyWrite } from '~/modules/ticket/meta/automations/ticketPropertyWrites';
 import { createTicketAction } from '~/modules/ticket/meta/automations/actions/createTicketAction';
@@ -61,8 +62,8 @@ export const ticketAutomationProducers = {
       selector,
       fetchItems: async (itemSelector) =>
         await models.Ticket.find(itemSelector).lean(),
-      update: async ({ selector: itemSelector, modifier, item }) =>
-        await models.Ticket.updateMany(
+      update: async ({ selector: itemSelector, modifier, item }) => {
+        const result = await models.Ticket.updateMany(
           itemSelector,
           await prepareTicketPropertyWrite({
             models,
@@ -70,7 +71,11 @@ export const ticketAutomationProducers = {
             item,
             target: (execution.target || {}) as Record<string, unknown>,
           }),
-        ),
+        );
+        if (result.modifiedCount)
+          await publishReportUpdate(subdomain, ['ticket']);
+        return result;
+      },
       targetType,
     });
   },

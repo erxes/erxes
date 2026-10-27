@@ -39,7 +39,7 @@ const Ticket = lazy(() =>
 
 const Report = lazy(() =>
   import('~/pages/ReportIndexPage').then((module) => ({
-    default: module.default,
+    default: module.ReportIndexPage,
   })),
 );
 

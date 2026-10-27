@@ -12,6 +12,7 @@ import {
 import { InboxHotkeyScope } from '@/inbox/types/InboxHotkeyScope';
 import {
   IconCalendarPlus,
+  IconCalendarCheck,
   IconAt,
   IconBuildingStore,
   IconCheck,
@@ -56,6 +57,7 @@ type ConversationFilterQueries = {
   integrationType: string;
   brandId: string;
   created: string;
+  closed: string;
   searchValue: string;
 };
 
@@ -149,8 +151,8 @@ const ConversationFilterCommand = ({
         <ConversationFilterCommandItem
           count={counts?.unresolved}
           loading={loading}
-          selected={status === null}
-          onSelect={() => setQueries({ status: null })}
+          selected={status === null && !queries.closed}
+          onSelect={() => setQueries({ status: null, closed: null })}
         >
           <IconSquare />
           {t('unresolved', 'Unresolved')}
@@ -158,7 +160,9 @@ const ConversationFilterCommand = ({
         <ConversationFilterCommandItem
           count={counts?.resolved}
           loading={loading}
-          selected={status === ConversationStatus.CLOSED}
+          selected={
+            status === ConversationStatus.CLOSED || Boolean(queries.closed)
+          }
           onSelect={() => setQueries({ status: ConversationStatus.CLOSED })}
         >
           <IconCheckbox />
@@ -203,6 +207,10 @@ const ConversationFilterCommand = ({
         <SelectChannel.FilterItem />
         <IntegrationTypeFilterItem />
         <Command.Separator className="my-1" />
+        <Filter.Item value="closed">
+          <IconCalendarCheck />
+          {t('field.closedAt', { keyPrefix: '' })}
+        </Filter.Item>
         <Filter.Item value="created">
           <IconCalendarPlus />
           {t('created-at', 'Created at')}
@@ -224,9 +232,11 @@ export const FilterConversationsPopover = () => {
     'integrationType',
     'brandId',
     'created',
+    'closed',
     'searchValue',
   ]);
   const parsedDate = parseDateRangeFromString(queries.created || '');
+  const closedDate = parseDateRangeFromString(queries.closed || '');
   const { counts, loading } = useConversationFilterCounts({
     channelId: queries.channelId,
     integrationId: queries.integrationId,
@@ -234,6 +244,8 @@ export const FilterConversationsPopover = () => {
     brandId: queries.brandId,
     startDate: getDateFilterVariable(parsedDate?.from),
     endDate: getDateFilterVariable(parsedDate?.to),
+    closedAtFrom: getDateFilterVariable(closedDate?.from),
+    closedAtTo: getDateFilterVariable(closedDate?.to),
     searchValue: queries.searchValue,
   });
 
@@ -254,6 +266,9 @@ export const FilterConversationsPopover = () => {
         />
         <SelectChannel.FilterView />
         <AutomationStatusFilterView counts={counts} loading={loading} />
+        <Filter.View filterKey="closed">
+          <Filter.DateView filterKey="closed" />
+        </Filter.View>
         <Filter.View filterKey="created">
           <Filter.DateView filterKey="created" />
         </Filter.View>
@@ -281,6 +296,7 @@ export const ConversationFilterBar = ({
     participating: boolean;
     mentioned: boolean;
     created: Date;
+    closed: Date;
     channelId: string;
     integrationId: string;
     integrationType: string;
@@ -295,6 +311,7 @@ export const ConversationFilterBar = ({
     'participating',
     'mentioned',
     'created',
+    'closed',
     'channelId',
     'integrationId',
     'integrationType',
@@ -323,6 +340,14 @@ export const ConversationFilterBar = ({
           </Filter.BarName>
         </Filter.BarItem>
       )}
+
+      <Filter.BarItem queryKey="closed">
+        <Filter.BarName>
+          <IconCalendarCheck />
+          {t('field.closedAt', { keyPrefix: '' })}
+        </Filter.BarName>
+        <Filter.Date filterKey="closed" />
+      </Filter.BarItem>
 
       <Filter.BarItem queryKey="created">
         <Filter.Date filterKey="created" className="rounded-l" />

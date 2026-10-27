@@ -1,3 +1,6 @@
+import type { FilterQuery, PipelineStage } from 'mongoose';
+import type { IConversationDocument } from '@/inbox/@types/conversations';
+import type { IIntegrationDocument } from '@/inbox/@types/integrations';
 import { buildAssigneeFilter } from '@/inbox/utils/conversationAssignees';
 import { propertyDataPath } from 'erxes-api-shared/core-modules';
 import { IReportChartFilters } from '@/reports/@types/chart';
@@ -53,68 +56,44 @@ export async function generateConversationReportFilter(
     dateField?: 'createdAt' | 'closedAt';
     statusOverride?: string;
   } = {},
-): Promise<Record<string, any>> {
-  const match: Record<string, any> = {};
-
+): Promise<FilterQuery<IConversationDocument>> {
   const status = options.statusOverride ?? normalizeStatus(filters.status);
-  if (status) match.status = status;
+  const match: FilterQuery<IConversationDocument> = {
+    status: status || { $nin: ['archived', 'deleted'] },
+    ...buildDateMatch(filters, options.dateField ?? 'createdAt'),
+  };
 
-  const dateField = options.dateField ?? 'createdAt';
-  Object.assign(match, buildDateMatch(filters, dateField));
-
+  // Keep the report aligned with the inbox without removing historical data.
+  const integrationFilter: FilterQuery<IIntegrationDocument> = {
+    isActive: { $ne: false },
+  };
   if (filters.channelIds?.length) {
-    const integrations = await models.Integrations.find({
-      channelId: { $in: filters.channelIds },
-    }).lean();
-
-    if (!integrations.length) {
-      return { integrationId: { $in: [] } };
-    }
-
-    match.integrationId = { $in: integrations.map((i) => i._id) };
+    integrationFilter.channelId = { $in: filters.channelIds };
   }
+  if (filters.source && sourceMap[filters.source]) {
+    integrationFilter.kind = sourceMap[filters.source];
+  }
+  const integrations = await models.Integrations.find(integrationFilter, {
+    _id: 1,
+  }).lean();
+  match.integrationId = { $in: integrations.map(({ _id }) => _id) };
 
   if (filters.memberIds?.length) {
     Object.assign(match, buildAssigneeFilter(filters.memberIds));
   }
 
-  if (filters.source && sourceMap[filters.source]) {
-    const sourceIntegrations = await models.Integrations.find({
-      kind: sourceMap[filters.source],
-    }).lean();
-
-    if (match.integrationId) {
-      const channelIdSet = new Set(
-        (match.integrationId.$in as any[]).map(String),
-      );
-      const intersection = sourceIntegrations
-        .filter((i) => channelIdSet.has(i._id.toString()))
-        .map((i) => i._id);
-      match.integrationId = { $in: intersection };
-    } else {
-      match.integrationId = { $in: sourceIntegrations.map((i) => i._id) };
-    }
-  }
-
-  if (
-    filters.callStatus &&
-    filters.source &&
-    sourceMap[filters.source] === 'calls'
-  ) {
-    const callHistories = await models.CallHistory.find(
+  if (status === 'archived' || status === 'deleted') {
+    match._id = { $in: [] };
+  } else if (filters.callStatus && filters.source === 'calls') {
+    const histories = await models.CallHistory.find(
       { callStatus: filters.callStatus },
       { conversationId: 1 },
     ).lean();
-
-    const conversationIds = (callHistories as any[])
-      .map((h) => h.conversationId)
-      .filter(Boolean);
-
-    if (!conversationIds.length) {
-      return { _id: { $in: [] } };
-    }
-
-    match._id = { $in: conversationIds };
+    match._id = {
+      $in: histories
+        .map(({ conversationId }) => conversationId)
+        .filter(Boolean),
+    };
   }
 
   return match;
@@ -125,7 +104,7 @@ export const buildConversationPipeline = async (
   models: IModels,
   options: { withPagination?: boolean } = {},
 ) => {
-  const pipeline: any[] = [];
+  const pipeline: PipelineStage[] = [];
   const match = await generateConversationReportFilter(filters, models);
 
   if (Object.keys(match).length) {
@@ -201,78 +180,32 @@ export async function buildConversationDateReport(
 export async function buildConversationResponsesPipeline(
   filters: IReportFilters,
   models: IModels,
-): Promise<any[] | null> {
-  const pipeline: any[] = [];
-  const messageMatch: {
-    internal: boolean;
-    userId: { $exists: boolean; $ne: null };
-    createdAt?: { $gte?: Date; $lte?: Date };
-    [key: string]: unknown;
-  } = {
-    internal: false,
-    userId: { $exists: true, $ne: null },
-  };
-
-  if (filters.fromDate || filters.toDate) {
-    const range: { $gte?: Date; $lte?: Date } = {};
-    if (filters.fromDate) range.$gte = new Date(filters.fromDate);
-    if (filters.toDate) range.$lte = new Date(filters.toDate);
-    messageMatch.createdAt = range;
-  }
-
-  const needsConversationJoin =
-    filters.channelIds?.length || filters.memberIds?.length || filters.source;
-
-  if (needsConversationJoin) {
-    pipeline.push(
-      {
-        $lookup: {
-          from: 'conversations',
-          localField: 'conversationId',
-          foreignField: '_id',
-          as: 'conversation',
-        },
+): Promise<PipelineStage[]> {
+  // A response only counts while its parent conversation still belongs in reports.
+  // The date range applies to the message, not the conversation's creation date.
+  const conversationMatch = await generateConversationReportFilter(
+    { ...filters, fromDate: undefined, toDate: undefined },
+    models,
+  );
+  return [
+    {
+      $match: {
+        internal: false,
+        userId: { $exists: true, $ne: null },
+        ...buildDateMatch(filters, 'createdAt'),
       },
-      { $unwind: '$conversation' },
-    );
-
-    if (filters.channelIds?.length) {
-      const integrations = await models.Integrations.find({
-        channelId: { $in: filters.channelIds },
-      }).lean();
-
-      if (!integrations.length) return null;
-
-      messageMatch['conversation.integrationId'] = {
-        $in: integrations.map((i) => i._id),
-      };
-    }
-
-    if (filters.memberIds?.length) {
-      Object.assign(
-        messageMatch,
-        buildAssigneeFilter(filters.memberIds, 'conversation.'),
-      );
-    }
-
-    if (filters.source && sourceMap[filters.source]) {
-      pipeline.push(
-        {
-          $lookup: {
-            from: 'integrations',
-            localField: 'conversation.integrationId',
-            foreignField: '_id',
-            as: 'integration',
-          },
-        },
-        { $unwind: '$integration' },
-      );
-      messageMatch['integration.kind'] = sourceMap[filters.source];
-    }
-  }
-
-  pipeline.push({ $match: messageMatch });
-  return pipeline;
+    },
+    {
+      $lookup: {
+        from: models.Conversations.collection.name,
+        localField: 'conversationId',
+        foreignField: '_id',
+        pipeline: [{ $match: conversationMatch }],
+        as: 'conversation',
+      },
+    },
+    { $unwind: '$conversation' },
+  ];
 }
 
 export function normalizeDateField(field: string) {
@@ -285,10 +218,13 @@ export function normalizeDateField(field: string) {
   };
 }
 
-export function buildDateGroupPipeline(field: string, frequency?: string) {
+export function buildDateGroupPipeline(
+  field: string,
+  frequency?: string,
+): PipelineStage[] {
   const freq = frequency?.toLowerCase();
 
-  let groupId: any;
+  let groupId: Record<string, unknown>;
   if (freq === 'year') {
     groupId = { $dateToString: { format: '%Y', date: '$__date' } };
   } else if (freq === 'month') {
@@ -570,10 +506,7 @@ export function narrowTicketMatchByContacts(
 }
 
 export const buildTicketPipeline = (filters: IReportFilters): any[] => {
-  const match = narrowTicketMatchByContacts(
-    buildTicketMatch(filters),
-    filters,
-  );
+  const match = narrowTicketMatchByContacts(buildTicketMatch(filters), filters);
 
   return [{ $match: match }];
 };

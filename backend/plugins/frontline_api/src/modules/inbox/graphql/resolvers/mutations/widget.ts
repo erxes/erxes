@@ -1,4 +1,5 @@
 import crypto from 'crypto';
+import { publishReportUpdate } from '@/reports/realtime';
 import {
   IAttachment,
   IBrowserInfo,
@@ -802,6 +803,8 @@ export const widgetMutations: Record<string, Resolver> = {
       },
     );
 
+    await publishReportUpdate(subdomain, ['inbox']);
+
     await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
@@ -1265,6 +1268,7 @@ export const widgetMutations: Record<string, Resolver> = {
         number: Date.now().toString(),
         createdBy: user?._id,
       });
+      await publishReportUpdate(subdomain, ['ticket']);
       return ticket;
     } catch (e) {
       throw new Error(e.message);
