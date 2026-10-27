@@ -1,6 +1,7 @@
 import { Job, UnrecoverableError } from 'bullmq';
 import { nanoid } from 'nanoid';
 import * as fs from 'fs';
+import { Readable } from 'stream';
 import { splitType } from '../../../core-modules/automations';
 import { readFileStreamFromStorage } from '../../../utils/file/read';
 import { IImportExportContext, TImportHandlers, ImportJobData } from '../types';
@@ -20,6 +21,19 @@ import {
 } from './tempWorkspace';
 
 type ImportErrorRow = Record<string, any>;
+
+/**
+ * The resume point of an import: the last data row whose batch was handed to
+ * `insertImportRows` and finished, with the tallies at that moment. A failed
+ * or interrupted job saves this, never the row it was reading, so a retry or
+ * Resume replays the unfinished batch instead of skipping it.
+ */
+type ImportCheckpoint = {
+  lastProcessedRow: number;
+  processedRows: number;
+  successRows: number;
+  errorRows: number;
+};
 
 interface ImportErrorRowWriter {
   writeRows(rows: ImportErrorRow[]): Promise<void>;
@@ -247,6 +261,7 @@ export const createImportBatchProcessor = (
     let processedRows = 0;
     let successRows = 0;
     let errorRows = 0;
+    let checkpoint: ImportCheckpoint | undefined;
     const startedAt = Date.now();
 
     logImportExportEvent({
@@ -310,6 +325,13 @@ export const createImportBatchProcessor = (
         errorRows = importDoc.errorRows || 0;
       }
 
+      checkpoint = {
+        lastProcessedRow: resumeFromRow,
+        processedRows,
+        successRows,
+        errorRows,
+      };
+
       totalRows = await withImportExportStage({
         stage: 'FETCH_FILE',
         fallbackMessage: 'Failed to read import file',
@@ -329,21 +351,6 @@ export const createImportBatchProcessor = (
             totalRows,
           });
         },
-      });
-
-      // Native Readable stream from storage — the file is never fully
-      // buffered in memory. Storage errors (NoSuchKey, connection drop,
-      // etc.) surface via the stream's 'error' event, which is forwarded
-      // into the parser by processCSVStream and then
-      // thrown out of the for-await loop below, landing in the outer catch.
-      const fileStream = await withImportExportStage({
-        stage: 'FETCH_FILE',
-        fallbackMessage: 'Failed to fetch import file',
-        run: async () =>
-          await readFileStreamFromStorage({
-            subdomain,
-            key: fileKey,
-          }),
       });
 
       const batchSize = 5000;
@@ -378,8 +385,6 @@ export const createImportBatchProcessor = (
           ),
       });
 
-      const rowIterator = processCSVStream(fileStream);
-
       let rowIndex = 0;
       let headerRow: string[] = [];
       const columnToKeyMap: Record<number, string> = {};
@@ -394,6 +399,8 @@ export const createImportBatchProcessor = (
       const tempWorkspace = await createImportExportTempWorkspace({
         kind: 'import',
       });
+      let openErrorRowWriter: ImportErrorRowWriter | undefined;
+      let openFileStream: Readable | undefined;
 
       try {
         const errorRowWriter = await withImportExportStage({
@@ -407,6 +414,25 @@ export const createImportBatchProcessor = (
               tempWorkspace,
             }),
         });
+        openErrorRowWriter = errorRowWriter;
+
+        // Native Readable stream from storage — the file is never fully
+        // buffered in memory. Storage errors (NoSuchKey, connection drop,
+        // etc.) surface via the stream's 'error' event, which is forwarded
+        // into the parser by processCSVStream and then
+        // thrown out of the for-await loop below, landing in the outer catch.
+        const fileStream = await withImportExportStage({
+          stage: 'FETCH_FILE',
+          fallbackMessage: 'Failed to fetch import file',
+          run: async () =>
+            await readFileStreamFromStorage({
+              subdomain,
+              key: fileKey,
+            }),
+        });
+        openFileStream = fileStream;
+
+        const rowIterator = processCSVStream(fileStream);
 
         for await (const row of rowIterator) {
           if (rowIndex === 0) {
@@ -538,6 +564,14 @@ export const createImportBatchProcessor = (
               });
             }
 
+            const batchCheckpoint: ImportCheckpoint = {
+              lastProcessedRow: dataRowIndex - 1,
+              processedRows,
+              successRows,
+              errorRows,
+            };
+            checkpoint = batchCheckpoint;
+
             await safeProgressUpdate({
               entity: 'import',
               id: importId,
@@ -545,11 +579,8 @@ export const createImportBatchProcessor = (
               stage: 'batch-progress',
               update: async () => {
                 await coreClient.updateImportProgress(subdomain, importId, {
-                  processedRows,
-                  successRows,
-                  errorRows,
+                  ...batchCheckpoint,
                   totalRows,
-                  lastProcessedRow: dataRowIndex,
                 });
               },
             });
@@ -561,11 +592,8 @@ export const createImportBatchProcessor = (
               stage: 'PROCESS_BATCH',
               event: 'batch_processed',
               extra: {
-                processedRows,
-                successRows,
-                errorRows,
+                ...batchCheckpoint,
                 totalRows,
-                lastProcessedRow: dataRowIndex,
               },
             });
 
@@ -677,6 +705,13 @@ export const createImportBatchProcessor = (
           }
         }
 
+        checkpoint = {
+          lastProcessedRow: dataRowIndex,
+          processedRows,
+          successRows,
+          errorRows,
+        };
+
         let errorFileUrl: string | null = null;
         await withImportExportStage({
           stage: 'FINALIZE_UPLOAD',
@@ -692,6 +727,9 @@ export const createImportBatchProcessor = (
               await coreClient.saveErrorFile(subdomain, {
                 importId,
                 headerRow,
+                columnKeys: headerRow.map(
+                  (_header, index) => columnToKeyMap[index] || '',
+                ),
                 errorRows: errorRowWriter.getErrorRows(),
                 keyToHeaderMap,
               }),
@@ -727,6 +765,12 @@ export const createImportBatchProcessor = (
 
         return { success: true };
       } finally {
+        if (openFileStream && !openFileStream.destroyed) {
+          openFileStream.destroy();
+        }
+
+        await openErrorRowWriter?.cleanup();
+
         await safeCleanup({
           label: `import temp workspace ${importId}`,
           run: async () => {
@@ -755,13 +799,14 @@ export const createImportBatchProcessor = (
           successRows,
           errorRows,
           totalRows,
-          lastProcessedRow: dataRowIndex,
+          readRow: dataRowIndex,
+          lastProcessedRow: checkpoint?.lastProcessedRow,
           durationMs: Date.now() - startedAt,
         },
       });
       await coreClient.updateImportProgress(subdomain, importId, {
         status: 'failed',
-        lastProcessedRow: dataRowIndex,
+        ...checkpoint,
         errorMessage: `${errorCode}: ${
           error?.message || 'Import worker failed'
         }`,
