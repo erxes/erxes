@@ -119,7 +119,7 @@ type TMessengerProfileRequest = {
   get_started: {
     payload: string;
   };
-  persistent_menu: [
+  persistent_menu?: [
     {
       locale: 'default';
       composer_input_disabled: false;
@@ -330,6 +330,12 @@ export interface IFacebookBotModel extends Model<IFacebookBotDocument> {
     token: string,
     options?: { userId?: string },
   ): Promise<void>;
+  reconnectByPageId(input: {
+    pageId: string;
+    accountId: string;
+    token: string;
+    userId?: string;
+  }): Promise<{ status: 'success' } | null>;
 }
 
 export const loadFacebookBotClass = (models: IModels, subdomain: string) => {
@@ -633,6 +639,36 @@ export const loadFacebookBotClass = (models: IModels, subdomain: string) => {
       });
     }
 
+    /**
+     * A page connected again after its integration was removed: the bot kept
+     * its config but was marked broken. Hands it the new token and account,
+     * then repairs it, which re-syncs the profile and checks the result.
+     */
+    static async reconnectByPageId({
+      pageId,
+      accountId,
+      token,
+      userId,
+    }: {
+      pageId: string;
+      accountId: string;
+      token: string;
+      userId?: string;
+    }) {
+      const bot = await models.FacebookBots.findOne({ pageId }).lean();
+
+      if (!bot) {
+        return null;
+      }
+
+      await models.FacebookBots.updateOne(
+        { _id: bot._id },
+        { $set: { token, accountId, updatedAt: new Date() } },
+      );
+
+      return await this.repair(bot._id, { userId });
+    }
+
     static async updatePageToken(
       pageId: string,
       token: string,
@@ -668,13 +704,7 @@ export const loadFacebookBotClass = (models: IModels, subdomain: string) => {
       isEnabledBackBtn?: boolean;
       backButtonText?: string;
     }) {
-      const expectedMenus: TExpectedPersistentMenu[] = [
-        {
-          type: 'postback',
-          title: getStartedText || DEFAULT_GET_STARTED_TITLE,
-          payload: JSON.stringify({ botId }),
-        },
-      ];
+      const expectedMenus: TExpectedPersistentMenu[] = [];
 
       let hasBackButtonMenu = false;
 
@@ -730,7 +760,19 @@ export const loadFacebookBotClass = (models: IModels, subdomain: string) => {
         });
       }
 
-      return expectedMenus;
+      // No menu of the user's own means no menu on Facebook at all.
+      if (!expectedMenus.length) {
+        return expectedMenus;
+      }
+
+      return [
+        {
+          type: 'postback',
+          title: getStartedText || DEFAULT_GET_STARTED_TITLE,
+          payload: JSON.stringify({ botId }),
+        },
+        ...expectedMenus,
+      ];
     }
 
     static normalizePersistentMenuItem(menu: {
@@ -972,8 +1014,9 @@ export const loadFacebookBotClass = (models: IModels, subdomain: string) => {
       };
 
       const pageAccessToken = bot.token || '';
-      const { subscribedData, profileData } =
-        await this.fetchBotProfileState(pageAccessToken);
+      const { subscribedData, profileData } = await this.fetchBotProfileState(
+        pageAccessToken,
+      );
       const verification = this.buildVerificationResult({
         subscribedData,
         profileData,
@@ -1391,7 +1434,13 @@ export const loadFacebookBotClass = (models: IModels, subdomain: string) => {
 
       const doc: TMessengerProfileRequest = {
         get_started: { payload: JSON.stringify({ botId: botId }) },
-        persistent_menu: [
+      };
+      // A field left out of the POST keeps its old value on Facebook, so an
+      // emptied one has to be deleted.
+      const clearedFields: string[] = [];
+
+      if (generatedPersistentMenus.length) {
+        doc.persistent_menu = [
           {
             locale: 'default',
             composer_input_disabled: false,
@@ -1404,8 +1453,10 @@ export const loadFacebookBotClass = (models: IModels, subdomain: string) => {
               ...generatedPersistentMenus,
             ],
           },
-        ],
-      };
+        ];
+      } else {
+        clearedFields.push('persistent_menu');
+      }
 
       if (greetText) {
         doc.greeting = [
@@ -1425,9 +1476,18 @@ export const loadFacebookBotClass = (models: IModels, subdomain: string) => {
             call_to_actions: generatedIceBreakers,
           },
         ];
+      } else {
+        clearedFields.push('ice_breakers');
       }
 
       await graphRequest.post('/me/messenger_profile', pageAccessToken, doc);
+
+      if (clearedFields.length) {
+        await graphRequest.delete('/me/messenger_profile', pageAccessToken, {
+          fields: clearedFields,
+          access_token: pageAccessToken,
+        });
+      }
 
       return { status: 'success' };
     }
