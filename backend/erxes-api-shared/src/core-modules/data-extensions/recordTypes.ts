@@ -61,6 +61,8 @@ const teamMemberFields: IDataExtensionNativeField[] = [
 export const DATA_EXTENSION_RECORD_TYPES: IDataExtensionRecordType[] = [
   {
     recordType: 'core:company',
+    contentTypes: ['core:company'],
+    createMutations: ['companiesAdd'],
     owner: 'core',
     typeName: 'Company',
     label: 'Companies',
@@ -72,6 +74,8 @@ export const DATA_EXTENSION_RECORD_TYPES: IDataExtensionRecordType[] = [
   },
   {
     recordType: 'core:customer',
+    contentTypes: ['core:customer'],
+    createMutations: ['customersAdd'],
     owner: 'core',
     typeName: 'Customer',
     label: 'Customers',
@@ -84,6 +88,8 @@ export const DATA_EXTENSION_RECORD_TYPES: IDataExtensionRecordType[] = [
   },
   {
     recordType: 'core:lead',
+    contentTypes: ['core:customer'],
+    createMutations: ['customersAdd'],
     owner: 'core',
     typeName: 'Lead',
     label: 'Leads',
@@ -96,6 +102,7 @@ export const DATA_EXTENSION_RECORD_TYPES: IDataExtensionRecordType[] = [
   },
   {
     recordType: 'core:vendor',
+    contentTypes: ['core:company', 'core:customer'],
     owner: 'core',
     typeName: 'Vendor',
     label: 'Vendors',
@@ -108,6 +115,7 @@ export const DATA_EXTENSION_RECORD_TYPES: IDataExtensionRecordType[] = [
   },
   {
     recordType: 'core:client',
+    contentTypes: ['core:company', 'core:customer'],
     owner: 'core',
     typeName: 'Client',
     label: 'Clients',
@@ -120,6 +128,7 @@ export const DATA_EXTENSION_RECORD_TYPES: IDataExtensionRecordType[] = [
   },
   {
     recordType: 'core:teamMember',
+    contentTypes: ['core:user'],
     owner: 'core',
     typeName: 'TeamMember',
     label: 'Team members',
@@ -131,6 +140,8 @@ export const DATA_EXTENSION_RECORD_TYPES: IDataExtensionRecordType[] = [
   },
   {
     recordType: 'operation:task',
+    contentTypes: ['operation:task'],
+    createMutations: ['createTask'],
     owner: 'operation',
     typeName: 'OperationTask',
     label: 'Tasks',
@@ -157,6 +168,7 @@ export const DATA_EXTENSION_RECORD_TYPES: IDataExtensionRecordType[] = [
   },
   {
     recordType: 'operation:triage',
+    contentTypes: ['operation:triage'],
     owner: 'operation',
     typeName: 'OperationTriage',
     label: 'Triage',
@@ -176,6 +188,8 @@ export const DATA_EXTENSION_RECORD_TYPES: IDataExtensionRecordType[] = [
   },
   {
     recordType: 'operation:project',
+    contentTypes: ['operation:project'],
+    createMutations: ['createProject'],
     owner: 'operation',
     typeName: 'OperationProject',
     label: 'Projects',
@@ -197,6 +211,7 @@ export const DATA_EXTENSION_RECORD_TYPES: IDataExtensionRecordType[] = [
   },
   {
     recordType: 'operation:milestone',
+    contentTypes: ['operation:milestone'],
     owner: 'operation',
     typeName: 'OperationMilestone',
     label: 'Milestones',
@@ -214,6 +229,7 @@ export const DATA_EXTENSION_RECORD_TYPES: IDataExtensionRecordType[] = [
   },
   {
     recordType: 'operation:team',
+    contentTypes: ['operation:team'],
     owner: 'operation',
     typeName: 'OperationTeam',
     label: 'Teams',
@@ -231,6 +247,7 @@ export const DATA_EXTENSION_RECORD_TYPES: IDataExtensionRecordType[] = [
   },
   {
     recordType: 'operation:cycle',
+    contentTypes: ['operation:cycle'],
     owner: 'operation',
     typeName: 'OperationCycle',
     label: 'Cycles',
@@ -252,6 +269,7 @@ export const DATA_EXTENSION_RECORD_TYPES: IDataExtensionRecordType[] = [
   },
   {
     recordType: 'operation:status',
+    contentTypes: ['operation:status'],
     owner: 'operation',
     typeName: 'OperationStatus',
     label: 'Statuses',
@@ -271,6 +289,7 @@ export const DATA_EXTENSION_RECORD_TYPES: IDataExtensionRecordType[] = [
   },
   {
     recordType: 'operation:note',
+    contentTypes: ['operation:note'],
     owner: 'operation',
     typeName: 'OperationNote',
     label: 'Notes',

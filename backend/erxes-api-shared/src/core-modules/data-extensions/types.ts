@@ -55,6 +55,13 @@ export interface IDataExtensionRecordType {
   updateAction: string;
   nativeFields: IDataExtensionNativeField[];
   scope?: IDataExtensionRecordScope;
+  /** erxes content types whose screens show records of this type. */
+  contentTypes: string[];
+  /**
+   * Root mutation fields that create a record of this type from a module's
+   * create form; the UI writes the form's values right after they return.
+   */
+  createMutations?: string[];
 }
 
 export type DataExtensionRelationKind =

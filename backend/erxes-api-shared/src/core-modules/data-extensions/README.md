@@ -94,6 +94,21 @@ the new type, permissions, limits, caching and the Data Extensions UI pick
 it up automatically. Write a test that a legacy update keeps
 `dataExtensions` and that a patch with a forged proof is refused.
 
+## How a module's screens show the fields
+
+The same way Twenty does, from metadata and the tenant endpoint only:
+
+- `contentTypes` in the registry entry says which erxes screens show the
+  record type. The core `dataExtensions` relation widget is registered for
+  every content type that has fields, so detail pages that render relation
+  widgets list and edit them with no page code. Each field saves on its own
+  through the generated `<type>DataExtensionsPatch`.
+- `createMutations` names the module mutations that create the record. A
+  create form only mounts `DataExtensionCreateFields` with its record type;
+  the host Apollo link (`createDataExtensionsCreateLink`) writes the typed
+  values through the same patch once one of those mutations returns, before
+  the form's success handler runs.
+
 ## Rules that keep it safe
 
 - Tenants are chosen only by the gateway's signed subdomain.

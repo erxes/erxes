@@ -33,6 +33,8 @@ export const types = `
     label: String!
     typeName: String!
     owner: String!
+    contentTypes: [String!]!
+    createMutations: [String!]!
     fieldCount: Int!
   }
 

@@ -67,13 +67,24 @@ export const listDataExtensionRecordTypes = async (models: IModels) => {
 
   return DATA_EXTENSION_RECORD_TYPES.filter(
     (descriptor) => descriptor.owner === 'core' || operationEnabled,
-  ).map(({ recordType, label, typeName, owner }) => ({
-    recordType,
-    label,
-    typeName,
-    owner,
-    fieldCount: countByType.get(recordType) || 0,
-  }));
+  ).map(
+    ({
+      recordType,
+      label,
+      typeName,
+      owner,
+      contentTypes,
+      createMutations,
+    }) => ({
+      recordType,
+      label,
+      typeName,
+      owner,
+      contentTypes,
+      createMutations: createMutations || [],
+      fieldCount: countByType.get(recordType) || 0,
+    }),
+  );
 };
 
 export const listDataExtensionFields = async (
