@@ -63,8 +63,9 @@ describe.each(['deal', 'order'] as const)('%s sale payment sync', (source) => {
     paymentAccountId?: string,
     debtAccountId = '',
     allowRealJobProduction = false,
+    hasProducts = true,
   ) => {
-    const config: Parameters<typeof orderToTrs>[0]['config'] = {
+    const config: Parameters<typeof dealToTrs>[0]['config'] = {
       dateRule: 'alwaysNow',
       saleAccountId: 'sale-account',
       saleOutAccountId: 'inventory-account',
@@ -94,7 +95,10 @@ describe.each(['deal', 'order'] as const)('%s sale payment sync', (source) => {
         ...context,
         order: {
           _id: 'order',
-          items: [{ productId: 'product', count: 1, unitPrice: 100 }],
+          paidDate: '2026-10-20T08:00:00.000Z',
+          items: hasProducts
+            ? [{ productId: 'product', count: 1, unitPrice: 100 }]
+            : [],
           cashAmount: paidAmount,
         },
       });
@@ -103,9 +107,16 @@ describe.each(['deal', 'order'] as const)('%s sale payment sync', (source) => {
         ...context,
         deal: {
           _id: 'deal',
-          productsData: [
-            { productId: 'product', quantity: 1, amount: 100, tickUsed: true },
-          ],
+          productsData: hasProducts
+            ? [
+                {
+                  productId: 'product',
+                  quantity: 1,
+                  amount: 100,
+                  tickUsed: true,
+                },
+              ]
+            : [],
           paymentsData: { cash: { amount: paidAmount } },
         },
       });
@@ -165,6 +176,25 @@ describe.each(['deal', 'order'] as const)('%s sale payment sync', (source) => {
       journal: JOURNALS.CASH,
       details: [{ accountId: 'cash-account', amount: 100 }],
     });
+  });
+
+  it('propagates transaction errors to the sync caller', async () => {
+    createPTransaction.mockRejectedValueOnce(
+      new Error('Transaction validation failed'),
+    );
+    await expect(sync(100, 'cash-account')).rejects.toThrow(
+      'Transaction validation failed',
+    );
+  });
+
+  it('rejects missing products before accounting reads or writes', async () => {
+    await expect(sync(100, 'cash-account', '', false, false)).rejects.toThrow(
+      source === 'order'
+        ? 'POS order has no items'
+        : 'Deal has no selected products',
+    );
+    expect(models.Transactions.find).not.toHaveBeenCalled();
+    expect(createPTransaction).not.toHaveBeenCalled();
   });
 
   it.each([false, true])(
