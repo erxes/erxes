@@ -1,5 +1,6 @@
+import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
 import { IBroadcastMethodEnum } from '@/broadcast/types';
-import { Sheet, useMultiQueryState } from 'erxes-ui';
+import { useMultiQueryState } from 'erxes-ui';
 import { useBroadcastContacts } from '../hooks/useBroadcastContacts';
 import { useBroadcastScheduleRange } from '../hooks/useBroadcastScheduleRange';
 import { useBroadcastSegmentSeed } from '../hooks/useBroadcastSegmentSeed';
@@ -41,7 +42,10 @@ export const BroadcastSheet = ({
   };
 
   return (
-    <Sheet
+    <CoreModulePanel
+      maxWidth={1200}
+      defaultWidth={900}
+      name={'broadcast/BroadcastSheet'}
       open={!!method && !editMessageId}
       onOpenChange={(open) => !open && handleClose()}
     >
@@ -50,6 +54,6 @@ export const BroadcastSheet = ({
       <BroadcastStepsSheetView method={method}>
         <BroadcastSteps onClose={handleClose} />
       </BroadcastStepsSheetView>
-    </Sheet>
+    </CoreModulePanel>
   );
 };

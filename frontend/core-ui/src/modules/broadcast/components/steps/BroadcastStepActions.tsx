@@ -1,4 +1,5 @@
-import { Button, Sheet } from 'erxes-ui';
+import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
+import { Button } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useBroadcastSteps } from '../../context/BroadcastStepsContext';
 
@@ -8,7 +9,7 @@ export const BroadcastStepActions = () => {
     useBroadcastSteps();
 
   return (
-    <Sheet.Footer>
+    <CoreModulePanel.Footer>
       <Button onClick={goPrevious} variant="secondary">
         {t(isFirstStep ? 'steps.cancel' : 'steps.previous')}
       </Button>
@@ -24,6 +25,6 @@ export const BroadcastStepActions = () => {
       ) : (
         <Button onClick={goNext}>{t('steps.next')}</Button>
       )}
-    </Sheet.Footer>
+    </CoreModulePanel.Footer>
   );
 };

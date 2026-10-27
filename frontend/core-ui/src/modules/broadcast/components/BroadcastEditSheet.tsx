@@ -1,10 +1,11 @@
+import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
 import { useAutomationDetail } from '@/automations/hooks/useAutomationDetail';
 import { BroadcastSteps } from '@/broadcast/components/steps/BroadcastSteps';
 import { useBroadcastMessage } from '@/broadcast/hooks/useBroadcastMessage';
 import { IBroadcastMethodEnum } from '@/broadcast/types';
 import { messageToFormValues } from '@/broadcast/utils/messageToFormValues';
 import { BroadcastStepsSheetView } from './steps/BroadcastStepsSheetView';
-import { Sheet, Skeleton, useMultiQueryState } from 'erxes-ui';
+import { Skeleton, useMultiQueryState } from 'erxes-ui';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BroadcastErrorState } from './list/BroadcastStates';
@@ -29,7 +30,10 @@ export const BroadcastEditSheet = () => {
     setQueryParams({ editMessageId: null, method: null });
 
   return (
-    <Sheet
+    <CoreModulePanel
+      maxWidth={1200}
+      defaultWidth={900}
+      name={'broadcast/BroadcastEditSheet'}
       open={!!editMessageId}
       onOpenChange={(open) => !open && handleClose()}
     >
@@ -41,7 +45,7 @@ export const BroadcastEditSheet = () => {
           />
         )}
       </BroadcastStepsSheetView>
-    </Sheet>
+    </CoreModulePanel>
   );
 };
 

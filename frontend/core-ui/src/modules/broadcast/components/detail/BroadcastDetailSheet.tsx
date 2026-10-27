@@ -1,3 +1,4 @@
+import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
 import {
   IconCalendarClock,
   IconCalendarOff,
@@ -6,13 +7,7 @@ import {
   IconPlayerPauseFilled,
   IconPlayerPlayFilled,
 } from '@tabler/icons-react';
-import {
-  Button,
-  cn,
-  Sheet,
-  TextOverflowTooltip,
-  useQueryState,
-} from 'erxes-ui';
+import { Button, cn, TextOverflowTooltip, useQueryState } from 'erxes-ui';
 import {
   ApprovalLockButton,
   ApprovalLockedBadge,
@@ -34,28 +29,29 @@ export const BroadcastDetailSheet = () => {
   const [messageId, setMessageId] = useQueryState<string>('messageId');
 
   return (
-    <Sheet
+    <CoreModulePanel
+      name={'broadcast/BroadcastDetailSheet'}
       open={!!messageId}
-      onOpenChange={() => {
-        setMessageId(null);
+      onOpenChange={(open) => {
+        if (!open) setMessageId(null);
       }}
     >
-      <Sheet.View
+      <CoreModulePanel.View
         className={cn(
           'p-0 md:max-w-5xl md:w-[calc(100vw-(--spacing(4)))] xl:w-3/4 flex flex-col gap-0 transition-all duration-100 ease-out overflow-hidden flex-none',
         )}
       >
         <BroadcastDetailProvider>
-          <Sheet.Header>
+          <CoreModulePanel.Header>
             <BroadcastDetailSheetHeader />
-            <Sheet.Close />
-          </Sheet.Header>
-          <Sheet.Content className="overflow-y-auto">
+            <CoreModulePanel.Close />
+          </CoreModulePanel.Header>
+          <CoreModulePanel.Content className="overflow-y-auto">
             <BroadcastDetail />
-          </Sheet.Content>
+          </CoreModulePanel.Content>
         </BroadcastDetailProvider>
-      </Sheet.View>
-    </Sheet>
+      </CoreModulePanel.View>
+    </CoreModulePanel>
   );
 };
 
@@ -87,9 +83,9 @@ const BroadcastDetailSheetHeader = () => {
 
   return (
     <div className="flex flex-1 items-center gap-2">
-      <Sheet.Title className="lg:max-w-xl max-w-[18rem] sm:max-w-sm truncate">
+      <CoreModulePanel.Title className="lg:max-w-xl max-w-[18rem] sm:max-w-sm truncate">
         <TextOverflowTooltip value={message?.title} />
-      </Sheet.Title>
+      </CoreModulePanel.Title>
 
       <ApprovalLockedBadge state={lockState ?? undefined} />
 

@@ -1,8 +1,9 @@
+import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
 import { AutomationAiAgentDetail } from '@/automations/components/settings/components/agents/components/AutomationAiAgentDetail';
 import { AiAgentDetailSheetShell } from '@/automations/components/settings/components/agents/components/detail/AiAgentDetailSheetShell';
 import { useAiAgentDetail } from '@/automations/components/settings/components/agents/hooks/useAiAgentDetail';
 import { AUTOMATION_APPROVAL_CONTENT_TYPES } from '@/automations/constants';
-import { Sheet, Spinner } from 'erxes-ui';
+import { Spinner } from 'erxes-ui';
 import { useRef } from 'react';
 import { ApprovalLockScreen, useApprovalLockState } from 'ui-modules';
 
@@ -49,7 +50,9 @@ export const AiAgentDetailSheetContent = ({
     if (lockLoading || (isEdit && loading && !detail)) {
       return (
         <>
-          <Sheet.Title className="sr-only">Loading agent</Sheet.Title>
+          <CoreModulePanel.Title className="sr-only">
+            Loading agent
+          </CoreModulePanel.Title>
           <Spinner />
         </>
       );
@@ -58,7 +61,9 @@ export const AiAgentDetailSheetContent = ({
     if (isLockedOut && lockState) {
       return (
         <>
-          <Sheet.Title className="sr-only">Agent is locked</Sheet.Title>
+          <CoreModulePanel.Title className="sr-only">
+            Agent is locked
+          </CoreModulePanel.Title>
           <ApprovalLockScreen
             state={lockState}
             onRequestCompleted={() => refetchLockState()}

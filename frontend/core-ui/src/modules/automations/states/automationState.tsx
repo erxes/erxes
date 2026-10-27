@@ -53,7 +53,7 @@ export const automationAiAgentIsStartedTrainingState = atomWithStorage<boolean>(
 export const automationHistoryViewModeState =
   atomWithStorage<AutomationHistoryViewMode>(
     'automationHistoryViewMode',
-    AutomationHistoryViewMode.Sheet,
+    AutomationHistoryViewMode.Panel,
   );
 
 export const automationHistorySplitDirectionState =
@@ -61,13 +61,6 @@ export const automationHistorySplitDirectionState =
     'automationHistorySplitDirection',
     AutomationHistorySplitDirection.Vertical,
   );
-
-export const automationHistorySelectedExecutionState = atom<{
-  automationId: string;
-  executionId: string;
-} | null>(null);
-
-// export const automationBuilder
 
 export type TAutomationEdgeInsertTarget = {
   source: string;
