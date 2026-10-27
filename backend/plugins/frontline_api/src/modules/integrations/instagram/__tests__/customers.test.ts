@@ -2,7 +2,6 @@ import type { IModels } from '~/connectionResolvers';
 import { receiveInboxMessage } from '@/inbox/receiveMessage';
 import { getOrCreateCustomer } from '../controller/store';
 import { getInstagramUser } from '../utils';
-import { INTEGRATION_KINDS } from '../constants';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 
 jest.mock('@/inbox/receiveMessage', () => ({ receiveInboxMessage: jest.fn() }));
@@ -24,14 +23,12 @@ const customer: {
 const findCustomer = jest.fn();
 const createCustomer = jest.fn();
 const deleteCustomer = jest.fn();
+const integration = {
+  erxesApiId: 'inbox-integration',
+  facebookPageId: 'fb-page',
+  facebookPageTokensMap: { 'fb-page': 'page-token' },
+};
 const models = {
-  InstagramIntegrations: {
-    findOne: jest.fn().mockResolvedValue({
-      erxesApiId: 'inbox-integration',
-      facebookPageId: 'fb-page',
-      facebookPageTokensMap: { 'fb-page': 'page-token' },
-    }),
-  },
   InstagramCustomers: {
     findOne: findCustomer,
     create: createCustomer,
@@ -43,9 +40,8 @@ const getCustomer = (username?: string) =>
   getOrCreateCustomer(
     models,
     'test',
-    'ig-page',
+    integration,
     'ig-sender',
-    INTEGRATION_KINDS.MESSENGER,
     username,
   );
 

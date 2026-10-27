@@ -12,11 +12,13 @@ import { getInstagramUser } from '../utils';
 import { triggerInstagramAutomation } from '../meta/automation/utils/messageUtils';
 import { customerSchema } from '../db/definitions/customers';
 import { conversationSchema } from '../db/definitions/conversations';
+import { integrationSchema } from '../db/definitions/integrations';
 import { conversationMessageSchema } from '../db/definitions/conversationMessages';
 import { commentConversationSchema } from '../db/definitions/comment_conversations';
 import { commentConversationReplySchema } from '../db/definitions/comment_conversations_reply';
 import type { IInstagramCustomerDocument } from '../@types/customers';
 import type { IInstagramConversationDocument } from '../@types/conversations';
+import type { IInstagramIntegrationDocument } from '../@types/integrations';
 import type { IInstagramConversationMessageDocument } from '../@types/conversationMessages';
 import type { IInstagramCommentConversationDocument } from '../@types/comment_conversations';
 import type { IInstagramCommentConversationReplyDocument } from '../@types/comment_conversations_reply';
@@ -148,22 +150,10 @@ mongoSuite('Instagram delivery recovery against isolated local MongoDB', () => {
         return conversations.findByIdAndUpdate(id, doc, { new: true }).exec();
       },
     } as unknown as IModels['Conversations'];
-    models.InstagramIntegrations = {
-      findOne: async (query: Record<string, unknown>) => {
-        const selector = query.$and
-          ? Object.assign({}, ...(query.$and as object[]))
-          : query;
-        const kind = selector.kind || INTEGRATION_KINDS.POST;
-        return {
-          _id: `provider-${kind}`,
-          erxesApiId: kind,
-          kind,
-          instagramPageId: 'page',
-          facebookPageId: 'fb-page',
-          facebookPageTokensMap: { 'fb-page': 'test-token' },
-        };
-      },
-    } as unknown as IModels['InstagramIntegrations'];
+    models.InstagramIntegrations = connection.model<
+      IInstagramIntegrationDocument,
+      IModels['InstagramIntegrations']
+    >('integrations_instagram', integrationSchema);
     models.InstagramPostConversations = {
       findOne: async () => ({ postId: 'media' }),
     } as unknown as IModels['InstagramPostConversations'];
@@ -177,9 +167,19 @@ mongoSuite('Instagram delivery recovery against isolated local MongoDB', () => {
     );
   });
 
-  beforeEach(() => {
+  beforeEach(async () => {
     jest.clearAllMocks();
     failure = undefined;
+    await models.InstagramIntegrations.insertMany(
+      [INTEGRATION_KINDS.POST, INTEGRATION_KINDS.MESSENGER].map((kind) => ({
+        _id: `provider-${kind}`,
+        erxesApiId: kind,
+        kind,
+        instagramPageId: 'page',
+        facebookPageId: 'fb-page',
+        facebookPageTokensMap: { 'fb-page': 'test-token' },
+      })),
+    );
     jest
       .mocked(getInstagramUser)
       .mockRejectedValue(new Error('User consent is required'));
@@ -316,6 +316,128 @@ mongoSuite('Instagram delivery recovery against isolated local MongoDB', () => {
       );
       if (kind === 'comment')
         expect((await contacts.findOne({}))?.firstName).toBe('comment_author');
+    },
+  );
+
+  test.each(['existing', 'concurrent insert'])(
+    'keeps the %s DM conversation in its stored owner inbox',
+    async (scenario) => {
+      await models.InstagramIntegrations.create({
+        _id: 'owner-provider',
+        erxesApiId: 'owner-inbox',
+        kind: INTEGRATION_KINDS.MESSENGER,
+        instagramPageId: 'page',
+        facebookPageId: 'fb-page',
+        facebookPageTokensMap: { 'fb-page': 'owner-token' },
+      });
+      await models.InstagramConversations.create({
+        _id: 'original-provider-conversation',
+        senderId: 'sender',
+        recipientId: 'page',
+        integrationId: 'owner-provider',
+        erxesApiId: 'original-inbox-conversation',
+      });
+      await conversations.create({
+        _id: 'original-inbox-conversation',
+        integrationId: 'owner-inbox',
+        content: 'Previous message',
+      });
+
+      // Simulate a competing insert winning after the initial lookup misses.
+      const findConversation = jest.spyOn(
+        models.InstagramConversations,
+        'findOne',
+      );
+      if (scenario === 'concurrent insert')
+        findConversation.mockResolvedValueOnce(null);
+      try {
+        expect(await deliver(bodyFor('DM'))).toBe(200);
+      } finally {
+        findConversation.mockRestore();
+      }
+
+      expect(
+        await conversations.findById('original-inbox-conversation').lean(),
+      ).toMatchObject({
+        integrationId: 'owner-inbox',
+        content: 'event-1',
+      });
+      expect(
+        await models.InstagramConversations.findOne({}).lean(),
+      ).toMatchObject({
+        integrationId: 'owner-provider',
+        erxesApiId: 'original-inbox-conversation',
+      });
+      expect(await models.ConversationMessages.findOne({}).lean()).toMatchObject({
+        conversationId: 'original-inbox-conversation',
+        content: 'event-1',
+      });
+      expect(await models.InstagramCustomers.findOne({}).lean()).toMatchObject({
+        integrationId: 'owner-inbox',
+      });
+      expect(getInstagramUser).toHaveBeenCalledWith('sender', 'fb-page', {
+        'fb-page': 'owner-token',
+      });
+      expect(await models.InstagramConversations.countDocuments({})).toBe(1);
+      expect(await conversations.countDocuments({})).toBe(1);
+    },
+  );
+
+  test.each(['missing', 'wrong kind', 'wrong page'])(
+    'a %s owner fails without moving the DM, then recovers after repair',
+    async (scenario) => {
+      if (scenario !== 'missing') {
+        await models.InstagramIntegrations.create({
+          _id: 'owner-provider',
+          erxesApiId: 'owner-inbox',
+          kind:
+            scenario === 'wrong kind'
+              ? INTEGRATION_KINDS.POST
+              : INTEGRATION_KINDS.MESSENGER,
+          instagramPageId: scenario === 'wrong page' ? 'another-page' : 'page',
+        });
+      }
+      await models.InstagramConversations.create({
+        _id: 'original-provider-conversation',
+        senderId: 'sender',
+        recipientId: 'page',
+        integrationId: 'owner-provider',
+        erxesApiId: 'original-inbox-conversation',
+      });
+      await conversations.create({
+        _id: 'original-inbox-conversation',
+        integrationId: 'owner-inbox',
+        content: 'Previous message',
+      });
+
+      expect(await deliver(bodyFor('DM'))).toBe(500);
+      expect(
+        await conversations.findById('original-inbox-conversation').lean(),
+      ).toMatchObject({
+        integrationId: 'owner-inbox',
+        content: 'Previous message',
+      });
+      expect(await models.ConversationMessages.countDocuments({})).toBe(0);
+
+      await models.InstagramIntegrations.updateOne(
+        { _id: 'owner-provider' },
+        {
+          $set: {
+            erxesApiId: 'owner-inbox',
+            kind: INTEGRATION_KINDS.MESSENGER,
+            instagramPageId: 'page',
+          },
+        },
+        { upsert: true },
+      );
+      expect(await deliver(bodyFor('DM'))).toBe(200);
+      expect(
+        await conversations.findById('original-inbox-conversation').lean(),
+      ).toMatchObject({
+        integrationId: 'owner-inbox',
+        content: 'event-1',
+      });
+      expect(await models.ConversationMessages.countDocuments({})).toBe(1);
     },
   );
 

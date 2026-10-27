@@ -227,18 +227,6 @@ export const receiveMessage = async (
     text,
   });
 
-  const customer = await getOrCreateCustomer(
-    models,
-    subdomain,
-    pageId,
-    userId,
-    kind,
-  );
-
-  if (!customer) {
-    throw new Error('Customer not found');
-  }
-
   const selector = { senderId: userId, recipientId: pageId };
   const bot = await checkIsBot(models, message, recipient.id);
   const botId = bot?._id;
@@ -255,6 +243,27 @@ export const receiveMessage = async (
         botId,
       }),
   );
+  // Resolve the stored owner after creation so a concurrent insert wins too.
+  const conversationIntegration = await models.InstagramIntegrations.findOne({
+    _id: conversation.integrationId,
+    instagramPageId: pageId,
+    kind,
+  });
+  if (!conversationIntegration?.erxesApiId) {
+    throw new Error('Instagram conversation Messenger integration not found');
+  }
+
+  const customer = await getOrCreateCustomer(
+    models,
+    subdomain,
+    conversationIntegration,
+    userId,
+  );
+
+  if (!customer) {
+    throw new Error('Customer not found');
+  }
+
   const messageSelector = { mid, conversationId: conversation._id };
   const existingMessage = await models.InstagramConversationMessages.findOne(
     messageSelector,
@@ -286,7 +295,7 @@ export const receiveMessage = async (
     action: 'create-or-update-conversation',
     payload: JSON.stringify({
       customerId: customer.erxesApiId,
-      integrationId: integration.erxesApiId,
+      integrationId: conversationIntegration.erxesApiId,
       content: text || '',
       attachments: formattedAttachments,
       conversationId:

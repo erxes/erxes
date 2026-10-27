@@ -41,9 +41,8 @@ export const receiveComment = async (
   const customer = await getOrCreateCustomer(
     models,
     subdomain,
-    pageId,
+    integration,
     userId,
-    INTEGRATION_KINDS.POST,
     params.from.username,
   );
 

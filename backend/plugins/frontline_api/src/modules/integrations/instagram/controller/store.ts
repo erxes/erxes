@@ -29,18 +29,13 @@ const entityResponseSchema = z.object({ _id: z.string().min(1) });
 export const getOrCreateCustomer = async (
   models: IModels,
   subdomain: string,
-  pageId: string,
+  integration: Pick<
+    IInstagramIntegrationDocument,
+    'erxesApiId' | 'facebookPageId' | 'facebookPageTokensMap'
+  >,
   userId: string,
-  kind: string,
   username?: string,
 ) => {
-  const integration = await models.InstagramIntegrations.findOne({
-    instagramPageId: pageId,
-    kind,
-  });
-  if (!integration) {
-    throw new Error('Instagram Integration not found ');
-  }
   let customer = await models.InstagramCustomers.findOne({ userId });
   if (customer?.erxesApiId) {
     return customer;

@@ -1578,6 +1578,12 @@ tagIds, propertiesData: JSON)` (the customer comes from the widget session) — 
   connections: provider conversations/posts and inbox conversations retain
   references to their original connection IDs. Duplicate cleanup requires an
   explicit history-preserving lifecycle; it is not part of Repair.
+- Incoming Instagram DMs resolve the Messenger connection from the stored
+  provider conversation after get-or-create, including a concurrent insert's
+  winner. Use that connection for profile lookup, customer creation and inbox
+  sync; page-level selection is only the fallback for a new conversation.
+  A missing owner or a different page/kind must fail delivery for retry rather
+  than reassign an existing conversation to another connection's inbox.
 - Instagram message state changes (reactions, deletions, read/delivery
   receipts) are written to both `instagram_conversation_messages` and the inbox
   `conversation_messages` row matched by `providerData.messageId`/`mid`, then
