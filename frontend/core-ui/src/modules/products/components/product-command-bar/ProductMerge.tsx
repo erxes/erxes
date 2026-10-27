@@ -1,3 +1,4 @@
+import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
 import { useMutation } from '@apollo/client';
 import { IconArrowMerge, IconCheck } from '@tabler/icons-react';
 import {
@@ -6,7 +7,6 @@ import {
   Command,
   Input,
   ScrollArea,
-  Sheet,
   Spinner,
   toast,
 } from 'erxes-ui';
@@ -146,15 +146,23 @@ export const ProductMerge = ({
 
   return (
     <Can action="productsMerge">
-      <Sheet open={open} onOpenChange={onOpenChange}>
-        <Sheet.View className="flex flex-col gap-0 p-0 sm:max-w-4xl">
-          <Sheet.Header className="flex-row items-center gap-3 space-y-0 border-b p-3">
-            <Sheet.Title>{t('merge-products', 'Merge products')}</Sheet.Title>
-            <Sheet.Close />
-            <Sheet.Description className="sr-only">
+      <CoreModulePanel
+        maxWidth={1000}
+        defaultWidth={800}
+        name={'products/product-command-bar/ProductMerge'}
+        open={open}
+        onOpenChange={onOpenChange}
+      >
+        <CoreModulePanel.View className="flex flex-col gap-0 p-0 sm:max-w-4xl">
+          <CoreModulePanel.Header className="flex-row items-center gap-3 space-y-0 border-b p-3">
+            <CoreModulePanel.Title>
               {t('merge-products', 'Merge products')}
-            </Sheet.Description>
-          </Sheet.Header>
+            </CoreModulePanel.Title>
+            <CoreModulePanel.Close />
+            <CoreModulePanel.Description className="sr-only">
+              {t('merge-products', 'Merge products')}
+            </CoreModulePanel.Description>
+          </CoreModulePanel.Header>
           {canMerge && (
             <ProductMergeBody
               productIds={productIds}
@@ -162,8 +170,8 @@ export const ProductMerge = ({
               setOpen={onOpenChange}
             />
           )}
-        </Sheet.View>
-      </Sheet>
+        </CoreModulePanel.View>
+      </CoreModulePanel>
     </Can>
   );
 };
@@ -314,7 +322,7 @@ const ProductMergeBody = ({
 
   return (
     <>
-      <Sheet.Content className="min-h-0 flex-auto overflow-hidden">
+      <CoreModulePanel.Content className="min-h-0 flex-auto overflow-hidden">
         <ScrollArea className="h-full">
           <div className="p-6">
             <div className="overflow-hidden rounded-xl border">
@@ -445,18 +453,18 @@ const ProductMergeBody = ({
             </div>
           </div>
         </ScrollArea>
-      </Sheet.Content>
-      <Sheet.Footer className="flex justify-end border-t p-5">
-        <Sheet.Close asChild>
+      </CoreModulePanel.Content>
+      <CoreModulePanel.Footer className="flex justify-end border-t p-5">
+        <CoreModulePanel.Close asChild>
           <Button variant="secondary" type="button">
             {t('discard', 'Discard')}
           </Button>
-        </Sheet.Close>
+        </CoreModulePanel.Close>
         <Button onClick={handleSave} disabled={loading}>
           {loading && <Spinner />}
           {t('save', 'Save')}
         </Button>
-      </Sheet.Footer>
+      </CoreModulePanel.Footer>
     </>
   );
 };

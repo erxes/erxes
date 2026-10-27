@@ -1,4 +1,5 @@
-import { Button, Form, InfoCard, Sheet, toast } from 'erxes-ui';
+import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
+import { Button, Form, InfoCard, toast } from 'erxes-ui';
 import { IconLoader2 } from '@tabler/icons-react';
 import { FieldErrors, useFormContext, useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
@@ -46,19 +47,19 @@ const BulkProductSheetFields = ({
 
   return (
     <>
-      <Sheet.Header className="flex-row items-center gap-3 space-y-0 p-5 border-b">
-        <Sheet.Title>
+      <CoreModulePanel.Header className="flex-row items-center gap-3 space-y-0 p-5 border-b">
+        <CoreModulePanel.Title>
           {similarity?._id
             ? t('edit-similarity', 'Edit similarity')
             : t('new-similarity', 'New similarity')}
-        </Sheet.Title>
-        <Sheet.Close />
-        <Sheet.Description className="sr-only">
+        </CoreModulePanel.Title>
+        <CoreModulePanel.Close />
+        <CoreModulePanel.Description className="sr-only">
           {t('form-description', 'Similarity product form')}
-        </Sheet.Description>
-      </Sheet.Header>
+        </CoreModulePanel.Description>
+      </CoreModulePanel.Header>
 
-      <Sheet.Content className="flex-auto overflow-auto">
+      <CoreModulePanel.Content className="flex-auto overflow-auto">
         <div className="flex flex-col gap-4 p-5">
           <BulkBaseInfo />
 
@@ -87,9 +88,9 @@ const BulkProductSheetFields = ({
             </InfoCard.Content>
           </InfoCard>
         </div>
-      </Sheet.Content>
+      </CoreModulePanel.Content>
 
-      <Sheet.Footer className="flex-col items-stretch sm:items-stretch gap-2 bg-muted p-2.5 h-auto shrink-0">
+      <CoreModulePanel.Footer className="flex-col items-stretch sm:items-stretch gap-2 bg-muted p-2.5 h-auto shrink-0">
         <div className="flex justify-end gap-1">
           <Button
             type="button"
@@ -104,7 +105,7 @@ const BulkProductSheetFields = ({
             {saving ? t('saving', 'Saving…') : t('save', 'Save')}
           </Button>
         </div>
-      </Sheet.Footer>
+      </CoreModulePanel.Footer>
     </>
   );
 };
@@ -138,8 +139,15 @@ export const BulkProductSheetForm = ({
   };
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange} modal>
-      <Sheet.View className="p-0 w-[70%] md:w-[70%] lg:w-3/4 sm:max-w-screen-2xl">
+    <CoreModulePanel
+      maxWidth={1200}
+      defaultWidth={900}
+      name={`products/bulk-similarity/${similarity?._id || 'new'}`}
+      open={open}
+      onOpenChange={onOpenChange}
+      modal
+    >
+      <CoreModulePanel.View className="p-0 w-[70%] md:w-[70%] lg:w-3/4 sm:max-w-screen-2xl">
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(handleSave, handleInvalid)}
@@ -153,7 +161,7 @@ export const BulkProductSheetForm = ({
             />
           </form>
         </Form>
-      </Sheet.View>
-    </Sheet>
+      </CoreModulePanel.View>
+    </CoreModulePanel>
   );
 };

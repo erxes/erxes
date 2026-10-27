@@ -1,3 +1,4 @@
+import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
 import { useQuery } from '@apollo/client';
 import {
   Badge,
@@ -5,7 +6,6 @@ import {
   EnumCursorDirection,
   ICursorListResponse,
   Input,
-  Sheet,
   Spinner,
 } from 'erxes-ui';
 import { IconCheck, IconX } from '@tabler/icons-react';
@@ -47,19 +47,25 @@ export const ProductChooserSheet = ({
   const [open, setOpen] = useState(false);
 
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
-      <Sheet.Trigger asChild>{children}</Sheet.Trigger>
-      <Sheet.View className="sm:max-w-2xl">
-        <Sheet.Header>
-          <Sheet.Title>{t('products', 'Products')}</Sheet.Title>
-          <Sheet.Close />
-          <Sheet.Description className="sr-only">
+    <CoreModulePanel
+      name={'products/bulk-similarity/ProductChooserSheet'}
+      open={open}
+      onOpenChange={setOpen}
+    >
+      <CoreModulePanel.Trigger asChild>{children}</CoreModulePanel.Trigger>
+      <CoreModulePanel.View className="sm:max-w-2xl">
+        <CoreModulePanel.Header>
+          <CoreModulePanel.Title>
+            {t('products', 'Products')}
+          </CoreModulePanel.Title>
+          <CoreModulePanel.Close />
+          <CoreModulePanel.Description className="sr-only">
             {t(
               'chooser-description',
               'Search and choose a product to link into this similarity group',
             )}
-          </Sheet.Description>
-        </Sheet.Header>
+          </CoreModulePanel.Description>
+        </CoreModulePanel.Header>
         {open && (
           <ChooserBody
             excludeIds={excludeIds}
@@ -74,8 +80,8 @@ export const ProductChooserSheet = ({
             }}
           />
         )}
-      </Sheet.View>
-    </Sheet>
+      </CoreModulePanel.View>
+    </CoreModulePanel>
   );
 };
 
@@ -147,10 +153,13 @@ const ChooserBody = ({
           autoFocus
         />
         <span className="text-xs text-muted-foreground shrink-0">
-          {t('results', { count: totalCount, defaultValue: '{{count}} results' })}
+          {t('results', {
+            count: totalCount,
+            defaultValue: '{{count}} results',
+          })}
         </span>
       </div>
-      <Sheet.Content className="overflow-auto p-0">
+      <CoreModulePanel.Content className="overflow-auto p-0">
         <div className="flex flex-col gap-1 p-4">
           {value && (
             <Button
@@ -165,7 +174,9 @@ const ChooserBody = ({
                 <span className="font-mono text-xs bg-muted border rounded px-1.5 py-0.5 text-muted-foreground shrink-0">
                   {valueCode}
                 </span>
-                <span className="text-muted-foreground">{t('linked', 'Linked')}</span>
+                <span className="text-muted-foreground">
+                  {t('linked', 'Linked')}
+                </span>
               </div>
               <IconX size={14} className="ml-auto shrink-0" />
             </Button>
@@ -194,7 +205,11 @@ const ChooserBody = ({
                   </span>
                   <span className="truncate">{product.name}</span>
                   <span className="flex gap-2 items-center ml-auto shrink-0">
-                    {inGroup && <Badge variant="secondary">{t('in-a-group', 'in a group')}</Badge>}
+                    {inGroup && (
+                      <Badge variant="secondary">
+                        {t('in-a-group', 'in a group')}
+                      </Badge>
+                    )}
                     {product.unitPrice != null && (
                       <span className="text-xs font-medium tabular-nums">
                         <span className="mr-0.5 font-normal text-muted-foreground">
@@ -224,7 +239,7 @@ const ChooserBody = ({
             </div>
           )}
         </div>
-      </Sheet.Content>
+      </CoreModulePanel.Content>
     </>
   );
 };

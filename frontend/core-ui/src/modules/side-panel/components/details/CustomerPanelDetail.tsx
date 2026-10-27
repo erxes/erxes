@@ -31,6 +31,7 @@ import {
   PrintDocument,
 } from 'ui-modules';
 import { PanelAvatarField } from './PanelAvatarField';
+import { ContactPanelRelations } from './ContactPanelRelations';
 
 const SCOPE = 'side-panel-customer';
 
@@ -302,6 +303,10 @@ export const CustomerPanelDetail = ({ customerId }: { customerId: string }) => {
             inTable
           />
         </PanelField>
+        <ContactPanelRelations
+          contentType="core:customer"
+          contentId={customer._id}
+        />
         <PanelField label={addT('code', 'Code')}>
           <CustomerTextField
             customer={customer}

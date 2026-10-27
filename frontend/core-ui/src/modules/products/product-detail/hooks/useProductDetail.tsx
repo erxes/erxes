@@ -5,6 +5,7 @@ import { renderingProductDetailAtom } from '../../states/productDetailStates';
 import { useQueryState } from 'erxes-ui';
 import { PRODUCT_QUERY_KEY } from '../../constants/productQueryKey';
 import { ProductDetail } from '../types/detailTypes';
+import { useProductPanelId } from '../contexts/ProductPanelIdContext';
 
 type ProductDetailQueryData = {
   productDetail: ProductDetail | null;
@@ -23,6 +24,7 @@ type ProductDetailQueryOptions = QueryHookOptions<
 
 export const useProductDetail = (options?: ProductDetailQueryOptions) => {
   const [_id] = useQueryState<string>(PRODUCT_QUERY_KEY);
+  const panelId = useProductPanelId();
   const setRendering = useSetAtom(renderingProductDetailAtom);
 
   const {
@@ -35,7 +37,7 @@ export const useProductDetail = (options?: ProductDetailQueryOptions) => {
     ...queryOptions
   } = options || {};
 
-  const productId = optionVariables?._id || optionId || _id || '';
+  const productId = optionVariables?._id || optionId || panelId || _id || '';
 
   const { data, loading, error, refetch } = useQuery<
     ProductDetailQueryData,

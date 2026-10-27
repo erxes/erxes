@@ -1,7 +1,7 @@
+import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
 import {
   Button,
   Kbd,
-  Sheet,
   usePreviousHotkeyScope,
   useScopedHotkeys,
 } from 'erxes-ui';
@@ -63,24 +63,32 @@ export const BundleConditionSheet = () => {
   );
 
   return (
-    <Sheet onOpenChange={handleSheetOpenChange} open={open} modal>
+    <CoreModulePanel
+      requiredPermission="bundleConditionsManage"
+      name={
+        'products/settings/productsConfig/bundleCondition/BundleConditionSheet'
+      }
+      onOpenChange={handleSheetOpenChange}
+      open={open}
+      modal
+    >
       <Can action="bundleConditionsManage">
-        <Sheet.Trigger asChild>
+        <CoreModulePanel.Trigger asChild>
           <Button className="whitespace-nowrap shrink-0">
             <IconPlus />
             {t('add-bundle-condition')}
             <Kbd>C</Kbd>
           </Button>
-        </Sheet.Trigger>
+        </CoreModulePanel.Trigger>
       </Can>
-      <Sheet.View
+      <CoreModulePanel.View
         className="p-0 sm:max-w-lg"
         onEscapeKeyDown={(e) => {
           e.preventDefault();
         }}
       >
         <BundleConditionForm onOpenChange={handleFormOpenChange} />
-      </Sheet.View>
-    </Sheet>
+      </CoreModulePanel.View>
+    </CoreModulePanel>
   );
 };

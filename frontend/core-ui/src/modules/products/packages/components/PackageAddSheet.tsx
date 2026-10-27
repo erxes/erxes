@@ -1,3 +1,4 @@
+import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IconPackage, IconPlus } from '@tabler/icons-react';
 import {
@@ -8,7 +9,6 @@ import {
   Input,
   ScrollArea,
   Select,
-  Sheet,
   Spinner,
   Textarea,
   toast,
@@ -99,29 +99,32 @@ export const PackageAddSheet = () => {
   };
 
   return (
-    <Sheet
+    <CoreModulePanel
+      name={'products/packages/PackageAddSheet'}
       open={open}
       onOpenChange={(v) => (v ? setOpen(true) : handleClose())}
     >
-      <Sheet.Trigger asChild>
+      <CoreModulePanel.Trigger asChild>
         <Button>
           <IconPlus />
           {t('new-package', 'New package')}
         </Button>
-      </Sheet.Trigger>
-      <Sheet.View className="p-0 sm:max-w-5xl">
+      </CoreModulePanel.Trigger>
+      <CoreModulePanel.View className="p-0 sm:max-w-5xl">
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
             className="flex flex-col flex-auto overflow-hidden"
           >
-            <Sheet.Header className="flex gap-2">
+            <CoreModulePanel.Header className="flex gap-2">
               <IconPackage />
-              <Sheet.Title>{t('new-package', 'New package')}</Sheet.Title>
-              <Sheet.Close />
-            </Sheet.Header>
+              <CoreModulePanel.Title>
+                {t('new-package', 'New package')}
+              </CoreModulePanel.Title>
+              <CoreModulePanel.Close />
+            </CoreModulePanel.Header>
 
-            <Sheet.Content className="flex flex-auto p-0 overflow-hidden">
+            <CoreModulePanel.Content className="flex flex-auto p-0 overflow-hidden">
               <ScrollArea className="border-r w-2/5 h-full shrink-0">
                 <div className="flex flex-col gap-4 p-5">
                   <InfoCard title={t('basic-information', 'Basic information')}>
@@ -204,8 +207,8 @@ export const PackageAddSheet = () => {
                                     Array.isArray(value)
                                       ? value
                                       : value
-                                        ? [value]
-                                        : [],
+                                      ? [value]
+                                      : [],
                                   )
                                 }
                               />
@@ -310,9 +313,9 @@ export const PackageAddSheet = () => {
                   disabled={saving}
                 />
               </div>
-            </Sheet.Content>
+            </CoreModulePanel.Content>
 
-            <Sheet.Footer className="flex-none">
+            <CoreModulePanel.Footer className="flex-none">
               <Button
                 type="button"
                 variant="outline"
@@ -325,10 +328,10 @@ export const PackageAddSheet = () => {
                 {saving && <Spinner containerClassName="flex-none" />}
                 {t('create', 'Create')}
               </Button>
-            </Sheet.Footer>
+            </CoreModulePanel.Footer>
           </form>
         </Form>
-      </Sheet.View>
-    </Sheet>
+      </CoreModulePanel.View>
+    </CoreModulePanel>
   );
 };

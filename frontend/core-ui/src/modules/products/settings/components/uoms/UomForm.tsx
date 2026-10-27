@@ -1,13 +1,6 @@
+import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
 import { zodResolver } from '@hookform/resolvers/zod';
-import {
-  Button,
-  Checkbox,
-  Form,
-  Input,
-  Select,
-  Sheet,
-  useToast,
-} from 'erxes-ui';
+import { Button, Checkbox, Form, Input, Select, useToast } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { IUom } from 'ui-modules';
@@ -197,14 +190,16 @@ export const UomForm = ({ uom, onOpenChange }: IUomFormProps) => {
         onSubmit={form.handleSubmit(onSubmit)}
         className="flex overflow-hidden flex-col h-full"
       >
-        <Sheet.Header className="flex-row gap-3 items-center p-5 space-y-0 border-b">
-          <Sheet.Title>{uom ? t('edit-uom') : t('add-uom')}</Sheet.Title>
-          <Sheet.Close />
-          <Sheet.Description className="sr-only">
+        <CoreModulePanel.Header className="flex-row gap-3 items-center p-5 space-y-0 border-b">
+          <CoreModulePanel.Title>
             {uom ? t('edit-uom') : t('add-uom')}
-          </Sheet.Description>
-        </Sheet.Header>
-        <Sheet.Content className="overflow-hidden flex-auto">
+          </CoreModulePanel.Title>
+          <CoreModulePanel.Close />
+          <CoreModulePanel.Description className="sr-only">
+            {uom ? t('edit-uom') : t('add-uom')}
+          </CoreModulePanel.Description>
+        </CoreModulePanel.Header>
+        <CoreModulePanel.Content className="overflow-hidden flex-auto">
           <div className="flex flex-col gap-6 p-5 w-full">
             <div className="flex gap-2 w-full">
               <Form.Field
@@ -553,15 +548,15 @@ export const UomForm = ({ uom, onOpenChange }: IUomFormProps) => {
               )}
             </div>
           </div>
-        </Sheet.Content>
-        <Sheet.Footer className="flex justify-end shrink-0 p-2.5 gap-1 bg-muted">
+        </CoreModulePanel.Content>
+        <CoreModulePanel.Footer className="flex justify-end shrink-0 p-2.5 gap-1 bg-muted">
           <Button type="button" variant="outline" onClick={handleCancel}>
             {t('cancel')}
           </Button>
           <Button type="submit" disabled={loadingAdd || loadingEdit}>
             {loadingAdd || loadingEdit ? t('creating') : t('create')}
           </Button>
-        </Sheet.Footer>
+        </CoreModulePanel.Footer>
       </form>
     </Form>
   );

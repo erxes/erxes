@@ -1,9 +1,10 @@
+import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
+import { PRODUCT_CATEGORY_CREATE_PANEL } from '../constants/categoryPanel';
 import { IconPlus } from '@tabler/icons-react';
 
 import {
   Button,
   Kbd,
-  Sheet,
   usePreviousHotkeyScope,
   useScopedHotkeys,
   useSetHotkeyScope,
@@ -54,29 +55,31 @@ export const ProductCategoryAddSheet = () => {
   );
 
   return (
-    <Sheet
+    <CoreModulePanel
+      requiredPermission="productCategoriesManage"
+      name={PRODUCT_CATEGORY_CREATE_PANEL}
       onOpenChange={(open) => (open ? onOpen() : onClose())}
       open={open}
       modal
     >
       <Can action="productCategoriesManage">
-        <Sheet.Trigger asChild>
+        <CoreModulePanel.Trigger asChild>
           <Button>
             <IconPlus />
             {t('add-category')}
             <Kbd>C</Kbd>
           </Button>
-        </Sheet.Trigger>
+        </CoreModulePanel.Trigger>
       </Can>
-      <Sheet.View
+      <CoreModulePanel.View
         className="p-0 sm:max-w-lg"
         onEscapeKeyDown={(e) => {
           e.preventDefault();
         }}
       >
         <AddCategoryForm onOpenChange={setOpen} />
-      </Sheet.View>
-    </Sheet>
+      </CoreModulePanel.View>
+    </CoreModulePanel>
   );
 };
 
@@ -85,8 +88,9 @@ export const CategoryAddSheetHeader = () => {
     keyPrefix: 'product-category',
   });
   return (
-    <Sheet.Header className="gap-3 border-b">
-      <Sheet.Title>{t('create-category')}</Sheet.Title> <Sheet.Close />
-    </Sheet.Header>
+    <CoreModulePanel.Header className="gap-3 border-b">
+      <CoreModulePanel.Title>{t('create-category')}</CoreModulePanel.Title>{' '}
+      <CoreModulePanel.Close />
+    </CoreModulePanel.Header>
   );
 };

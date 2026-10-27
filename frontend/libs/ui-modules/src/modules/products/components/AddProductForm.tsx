@@ -27,6 +27,9 @@ export function AddProductForm({
   onShowMoreInfoChange,
   options,
   form,
+  activeTab,
+  extraContent,
+  onCreated,
 }: Readonly<{
   embed?: boolean;
   onOpenChange: (open: boolean) => void;
@@ -34,6 +37,9 @@ export function AddProductForm({
   onShowMoreInfoChange?: (showMoreInfo: boolean) => void;
   options?: MutationHookOptions<{ productsAdd: { _id: string } }>;
   form: UseFormReturn<IProductFormValues>;
+  activeTab?: string;
+  extraContent?: React.ReactNode;
+  onCreated?: (id: string) => void;
 }>) {
   const { productsAdd, loading } = useAddProduct();
   const { linkFiles } = useProductFileLinks();
@@ -51,17 +57,25 @@ export function AddProductForm({
       if (Array.isArray(value) && value.length === 0) return;
 
       if (key === 'barcodes' && Array.isArray(value)) {
-        cleanData[key] = value.map((barcode: any) =>
-          typeof barcode === 'object' && barcode?.code ? barcode.code : barcode,
+        cleanData[key] = value.map((barcode: unknown) =>
+          typeof barcode === 'object' && barcode !== null && 'code' in barcode
+            ? barcode.code
+            : barcode,
         );
         return;
       }
 
       if (key === 'variants' && typeof value === 'object' && value !== null) {
-        const variantsObj = value as Record<string, any>;
-        const hasValidVariants = Object.keys(variantsObj).some(
-          (code) => variantsObj[code]?.name || variantsObj[code]?.image,
-        );
+        const variantsObj = value as Record<string, unknown>;
+        const hasValidVariants = Object.keys(variantsObj).some((code) => {
+          const variant = variantsObj[code];
+          return (
+            typeof variant === 'object' &&
+            variant !== null &&
+            (('name' in variant && !!variant.name) ||
+              ('image' in variant && !!variant.image))
+          );
+        });
         if (hasValidVariants) {
           cleanData[key] = variantsObj;
         }
@@ -127,7 +141,8 @@ export function AddProductForm({
         const newShowMoreInfo = false;
         setShowMoreInfo(newShowMoreInfo);
         onShowMoreInfoChange?.(newShowMoreInfo);
-        onOpenChange(false);
+        if (onCreated) onCreated(data.productsAdd._id);
+        else onOpenChange(false);
       },
     });
   }
@@ -147,7 +162,7 @@ export function AddProductForm({
     }
     onShowMoreInfoChange?.(value);
   };
-  const isPropertiesTab = selectedTab === 'properties';
+  const isPropertiesTab = (activeTab ?? selectedTab) === 'properties';
 
   const footerButtons = (
     <>
@@ -165,6 +180,23 @@ export function AddProductForm({
   );
 
   if (embed) {
+    if (extraContent) {
+      return (
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="flex min-h-0 flex-1 flex-col overflow-hidden"
+          >
+            <div className="flex min-h-0 flex-1 flex-col overflow-auto">
+              {extraContent}
+            </div>
+            <div className="flex shrink-0 justify-end gap-1 border-t p-2.5">
+              {footerButtons}
+            </div>
+          </form>
+        </Form>
+      );
+    }
     if (isPropertiesTab) {
       return (
         <Form {...form}>

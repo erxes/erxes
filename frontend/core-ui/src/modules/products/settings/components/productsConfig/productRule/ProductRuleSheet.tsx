@@ -1,7 +1,7 @@
+import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
 import {
   Button,
   Kbd,
-  Sheet,
   usePreviousHotkeyScope,
   useScopedHotkeys,
 } from 'erxes-ui';
@@ -43,21 +43,23 @@ export const ProductRuleSheet = () => {
   );
 
   return (
-    <Sheet
+    <CoreModulePanel
+      requiredPermission="productRulesManage"
+      name={'products/settings/productsConfig/productRule/ProductRuleSheet'}
       onOpenChange={(isOpen) => (isOpen ? onOpen() : onClose())}
       open={open}
       modal
     >
       <Can action="productRulesManage">
-        <Sheet.Trigger asChild>
+        <CoreModulePanel.Trigger asChild>
           <Button className="whitespace-nowrap shrink-0">
             <IconPlus />
             {t('add-product-rule')}
             <Kbd>C</Kbd>
           </Button>
-        </Sheet.Trigger>
+        </CoreModulePanel.Trigger>
       </Can>
-      <Sheet.View
+      <CoreModulePanel.View
         className="p-0 sm:max-w-lg"
         onEscapeKeyDown={(e) => {
           e.preventDefault();
@@ -72,7 +74,7 @@ export const ProductRuleSheet = () => {
             }
           }}
         />
-      </Sheet.View>
-    </Sheet>
+      </CoreModulePanel.View>
+    </CoreModulePanel>
   );
 };

@@ -139,6 +139,7 @@ export const ContactsRelationField = ({
   variant = 'inline',
   label,
   onOpen,
+  readOnly = false,
 }: {
   kind: TContactKind;
   // The record's one customer or company.
@@ -150,6 +151,7 @@ export const ContactsRelationField = ({
   // Opens the linked contact somewhere else than the side panel, e.g. the
   // sheet's own rail where the panel cannot be reached.
   onOpen?: (contactId: string) => void;
+  readOnly?: boolean;
 }) => {
   const { t } = useTranslation('common', { keyPrefix: 'side-panel' });
   const { openRecord } = useSidePanel();
@@ -202,6 +204,21 @@ export const ContactsRelationField = ({
       <CompanyChip key={id} companyId={id} onOpen={() => openContact(id)} />
     ),
   );
+
+  if (readOnly) {
+    return (
+      <div className="flex min-h-7 flex-wrap items-center gap-1 px-1">
+        {label && <span className="text-muted-foreground">{label}</span>}
+        {chips.length ? (
+          chips
+        ) : (
+          <span className="text-xs text-muted-foreground">
+            {t('not-specified', 'Not specified')}
+          </span>
+        )}
+      </div>
+    );
+  }
 
   if (variant === 'chip') {
     return (

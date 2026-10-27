@@ -2,7 +2,10 @@ import { IconPlus } from '@tabler/icons-react';
 import { Button, CommandBar, RecordTable, Separator } from 'erxes-ui';
 import { CategoriesDelete } from './delete/CategoryDelete';
 import { useState } from 'react';
-import { Can, TemplateSheet } from 'ui-modules';
+import { Can, useSidePanel } from 'ui-modules';
+import { CoreTemplatePanel } from '@/templates/components/CoreTemplatePanel';
+import { getModulePanelPath } from '@/side-panel/states/modulePanelState';
+import { PRODUCT_CATEGORY_CREATE_PANEL } from '../../constants/categoryPanel';
 import { useTranslation } from 'react-i18next';
 
 export const CategoryCommandBar = () => {
@@ -10,6 +13,7 @@ export const CategoryCommandBar = () => {
     keyPrefix: 'product-category',
   });
   const { table } = RecordTable.useRecordTable();
+  const { openPath } = useSidePanel();
   const [refreshKey, setRefreshKey] = useState(0);
   const selectedRows = table.getFilteredSelectedRowModel().rows;
   const selectedCategories = selectedRows.map((row) => row.original);
@@ -32,14 +36,19 @@ export const CategoryCommandBar = () => {
         />
         <Separator.Inline />
         <Can action="productCategoriesManage">
-          <Button variant="secondary">
+          <Button
+            variant="secondary"
+            onClick={() =>
+              openPath(getModulePanelPath(PRODUCT_CATEGORY_CREATE_PANEL))
+            }
+          >
             <IconPlus />
             {t('create')}
           </Button>
         </Can>
 
         <Separator.Inline />
-        <TemplateSheet
+        <CoreTemplatePanel
           contentType="core:product:productCategory"
           contentId={selectedCategories[0]?._id}
         />

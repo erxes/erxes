@@ -44,7 +44,6 @@ const SelectCompanyProvider = ({
 }: SelectCompanyProviderProps) => {
   const [companies, setCompanies] = useState<ICompany[]>([]);
   const [createOpen, setCreateOpen] = useState(false);
-  const companyIds = companies.map((c) => c._id);
 
   const valueIds = useMemo(() => {
     if (!value) {
@@ -53,6 +52,7 @@ const SelectCompanyProvider = ({
 
     return Array.isArray(value) ? value : [value];
   }, [value]);
+  const companyIds = valueIds;
 
   const { companies: fetchedCompanies } = useCompanies({
     variables: {
@@ -69,10 +69,11 @@ const SelectCompanyProvider = ({
 
   const onSelect = (company: ICompany) => {
     if (!company) return;
-    if (companies.some((c) => c._id === company._id)) {
-      const newCompanies = companies.filter((c) => c._id !== company._id);
-      setCompanies(newCompanies);
-      onValueChange?.(mode === 'single' ? '' : newCompanies.map((c) => c._id));
+    if (valueIds.includes(company._id)) {
+      setCompanies((previous) => previous.filter((c) => c._id !== company._id));
+      onValueChange?.(
+        mode === 'single' ? '' : valueIds.filter((id) => id !== company._id),
+      );
       return;
     }
     const isSingleMode = mode === 'single';
@@ -81,7 +82,7 @@ const SelectCompanyProvider = ({
       : [...companies, company];
     const newSelectedCompanyIds = isSingleMode
       ? company._id
-      : newSelectedCompanies.map((c) => c._id);
+      : [...valueIds, company._id];
 
     setCompanies(newSelectedCompanies);
     onValueChange?.(newSelectedCompanyIds);
@@ -404,7 +405,6 @@ export const SelectCompanyFilterBar = ({
   label,
   variant,
   scope,
-  targetId,
   initialValue,
   value,
   onValueChange,

@@ -1,10 +1,6 @@
+import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
 import { CellContext } from '@tanstack/react-table';
-import {
-  TextOverflowTooltip,
-  Badge,
-  RecordTableInlineCell,
-  Sheet,
-} from 'erxes-ui';
+import { TextOverflowTooltip, Badge, RecordTableInlineCell } from 'erxes-ui';
 import { useState } from 'react';
 import { Can, IUom } from 'ui-modules';
 import { UomForm } from './UomForm';
@@ -15,18 +11,24 @@ export const UomNameColumnCell = (props: CellContext<IUom, unknown>) => {
 
   return (
     <RecordTableInlineCell>
-      <Sheet open={open} onOpenChange={setOpen} modal>
+      <CoreModulePanel
+        requiredPermission="uomsManage"
+        name={`products/settings/uoms/UomNameColumn/${uom._id}`}
+        open={open}
+        onOpenChange={setOpen}
+        modal
+      >
         <Can action="uomsManage">
-          <Sheet.Trigger asChild>
+          <CoreModulePanel.Trigger asChild>
             <Badge variant="secondary" className="cursor-pointer">
               <TextOverflowTooltip value={props.getValue() as string} />
             </Badge>
-          </Sheet.Trigger>
+          </CoreModulePanel.Trigger>
         </Can>
-        <Sheet.View className="p-0 sm:max-w-lg">
+        <CoreModulePanel.View className="p-0 sm:max-w-lg">
           <UomForm uom={uom} onOpenChange={(isOpen) => setOpen(isOpen)} />
-        </Sheet.View>
-      </Sheet>
+        </CoreModulePanel.View>
+      </CoreModulePanel>
     </RecordTableInlineCell>
   );
 };

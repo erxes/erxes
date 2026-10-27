@@ -1,9 +1,9 @@
+import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
 import {
   Badge,
   Button,
   Collapsible,
   IconComponent,
-  Sheet,
   Table,
   toast,
   Tooltip,
@@ -112,7 +112,9 @@ export const VariantFieldPicker = () => {
                     <IconX size={14} />
                   </Button>
                 </Tooltip.Trigger>
-                <Tooltip.Content>{t('remove-field', 'Remove field')}</Tooltip.Content>
+                <Tooltip.Content>
+                  {t('remove-field', 'Remove field')}
+                </Tooltip.Content>
               </Tooltip>
             </Tooltip.Provider>
           </div>
@@ -197,8 +199,12 @@ const AddFieldSheet = ({
   };
 
   return (
-    <Sheet open={open} onOpenChange={handleOpenChange}>
-      <Sheet.Trigger asChild>
+    <CoreModulePanel
+      name={'products/bulk-similarity/VariantFieldPicker'}
+      open={open}
+      onOpenChange={handleOpenChange}
+    >
+      <CoreModulePanel.Trigger asChild>
         <Button
           variant="ghost"
           size="icon"
@@ -206,9 +212,9 @@ const AddFieldSheet = ({
         >
           <IconPlus className="size-4" />
         </Button>
-      </Sheet.Trigger>
-      <Sheet.View className="flex flex-col p-0 sm:max-w-md">
-        <Sheet.Header className="gap-3">
+      </CoreModulePanel.Trigger>
+      <CoreModulePanel.View className="flex flex-col p-0 sm:max-w-md">
+        <CoreModulePanel.Header className="gap-3">
           {createGroup && (
             <Button
               variant="ghost"
@@ -219,19 +225,19 @@ const AddFieldSheet = ({
               <IconArrowLeft className="size-4" />
             </Button>
           )}
-          <Sheet.Title>
+          <CoreModulePanel.Title>
             {createGroup
               ? t('new-property', 'New property')
               : t('add-variant-field', 'Add variant field')}
-          </Sheet.Title>
-          <Sheet.Close />
-          <Sheet.Description className="sr-only">
+          </CoreModulePanel.Title>
+          <CoreModulePanel.Close />
+          <CoreModulePanel.Description className="sr-only">
             {t(
               'add-field-description',
               'Pick a property to use as a variant axis, or create a new one.',
             )}
-          </Sheet.Description>
-        </Sheet.Header>
+          </CoreModulePanel.Description>
+        </CoreModulePanel.Header>
 
         {createGroup ? (
           <CreatePropertyForm
@@ -240,7 +246,7 @@ const AddFieldSheet = ({
             onCreated={handleCreated}
           />
         ) : (
-          <Sheet.Content className="flex-auto p-5 overflow-auto">
+          <CoreModulePanel.Content className="flex-auto p-5 overflow-auto">
             <div className="flex flex-col gap-2">
               {groups.map((group) => (
                 <Collapsible
@@ -319,10 +325,10 @@ const AddFieldSheet = ({
                 </Collapsible>
               ))}
             </div>
-          </Sheet.Content>
+          </CoreModulePanel.Content>
         )}
-      </Sheet.View>
-    </Sheet>
+      </CoreModulePanel.View>
+    </CoreModulePanel>
   );
 };
 
@@ -350,7 +356,10 @@ const CreatePropertyForm = ({
         const newId = res?.fieldAdd?._id;
         const firstValue = data.options?.[0]?.value;
         if (newId && firstValue) onCreated(newId, firstValue);
-        toast({ title: t('property-created', 'Property created'), variant: 'success' });
+        toast({
+          title: t('property-created', 'Property created'),
+          variant: 'success',
+        });
       },
       onError: (error) =>
         toast({
@@ -362,7 +371,7 @@ const CreatePropertyForm = ({
   };
 
   return (
-    <Sheet.Content className="flex-auto p-5 overflow-auto">
+    <CoreModulePanel.Content className="flex-auto p-5 overflow-auto">
       <div className="flex flex-col gap-5">
         <div onSubmit={(e) => e.stopPropagation()}>
           <PropertyForm
@@ -382,6 +391,6 @@ const CreatePropertyForm = ({
           />
         </div>
       </div>
-    </Sheet.Content>
+    </CoreModulePanel.Content>
   );
 };

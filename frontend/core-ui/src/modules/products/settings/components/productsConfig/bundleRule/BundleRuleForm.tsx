@@ -1,5 +1,6 @@
+import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, Form, Input, Sheet, Textarea, useToast } from 'erxes-ui';
+import { Button, Form, Input, Textarea, useToast } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { useTranslation } from 'react-i18next';
@@ -140,16 +141,16 @@ export const BundleRuleForm = ({
         onSubmit={form.handleSubmit(onSubmit)}
         className="flex overflow-hidden flex-col h-full"
       >
-        <Sheet.Header className="flex-row gap-3 items-center p-5 space-y-0 border-b">
-          <Sheet.Title>
+        <CoreModulePanel.Header className="flex-row gap-3 items-center p-5 space-y-0 border-b">
+          <CoreModulePanel.Title>
             {bundleRule ? t('edit-bundle-rule') : t('add-bundle-rule')}
-          </Sheet.Title>
-          <Sheet.Close />
-          <Sheet.Description className="sr-only">
+          </CoreModulePanel.Title>
+          <CoreModulePanel.Close />
+          <CoreModulePanel.Description className="sr-only">
             {bundleRule ? t('edit-bundle-rule') : t('add-bundle-rule')}
-          </Sheet.Description>
-        </Sheet.Header>
-        <Sheet.Content className="overflow-hidden flex-auto">
+          </CoreModulePanel.Description>
+        </CoreModulePanel.Header>
+        <CoreModulePanel.Content className="overflow-hidden flex-auto">
           <div className="flex flex-col gap-4 p-5 w-full">
             <Form.Field
               control={form.control}
@@ -248,8 +249,8 @@ export const BundleRuleForm = ({
               </div>
             )}
           </div>
-        </Sheet.Content>
-        <Sheet.Footer className="flex justify-end shrink-0 p-2.5 gap-1 bg-muted">
+        </CoreModulePanel.Content>
+        <CoreModulePanel.Footer className="flex justify-end shrink-0 p-2.5 gap-1 bg-muted">
           <Button type="button" variant="outline" onClick={handleCancel}>
             {t('cancel')}
           </Button>
@@ -259,10 +260,10 @@ export const BundleRuleForm = ({
                 ? t('updating')
                 : t('creating')
               : bundleRule
-                ? t('update')
-                : t('create')}
+              ? t('update')
+              : t('create')}
           </Button>
-        </Sheet.Footer>
+        </CoreModulePanel.Footer>
       </form>
 
       <BundleRuleItemForm
