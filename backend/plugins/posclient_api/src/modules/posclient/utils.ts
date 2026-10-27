@@ -40,7 +40,7 @@ export const segmentProductIds = async (
   let cursor: string | undefined;
 
   do {
-    const page: { ids?: string[]; cursor?: string } = await sendTRPCMessage({
+    const page: { ids?: string[]; nextCursor?: string } = await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
       method: 'query',
@@ -51,7 +51,7 @@ export const segmentProductIds = async (
     });
 
     ids.push(...(page.ids || []));
-    cursor = page.cursor;
+    cursor = page.nextCursor;
   } while (cursor);
 
   return ids;

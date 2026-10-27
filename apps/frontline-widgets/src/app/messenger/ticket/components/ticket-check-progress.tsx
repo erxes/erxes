@@ -15,7 +15,6 @@ import {
   Dialog,
   Form,
   Input,
-  PhoneInput,
   Spinner,
   toast,
   InfoCard,
@@ -27,12 +26,7 @@ import {
 } from 'erxes-ui';
 import { useCallback, useEffect, useState } from 'react';
 import { useTicketProgressForms } from '../hooks/useTicketProgressForms';
-import { useForgotTicketNumber } from '../hooks/useForgotTicketNumber';
-import {
-  ITicketStatus,
-  TTicketCheckProgressForm,
-  TTicketForgotProgressForm,
-} from '../types';
+import { ITicketStatus, TTicketCheckProgressForm } from '../types';
 import { useGetTicketProgress } from '../hooks/useGetTicketProgress';
 import { SubmitHandler } from 'react-hook-form';
 import { useAtom, useAtomValue } from 'jotai';
@@ -48,7 +42,6 @@ export const TicketCheckProgress = ({
   const [userTicketCreatedNumber, setUserTicketCreatedNumber] = useAtom(
     userTicketCreatedNumberAtom,
   );
-
 
   useEffect(() => {
     if (userTicketCreatedNumber) {
@@ -161,18 +154,6 @@ export const TicketCheckProgress = ({
 
 export const TicketSubmissionProgress = () => {
   const [open, setOpen] = useState(false);
-  const [forget, setForget] = useState<string | null>('get-number');
-
-  const render = () => {
-    switch (forget) {
-      case 'forget-number':
-        return <TicketForgetNumberForm setForget={setForget} />;
-      case 'get-number':
-        return <TicketProgressForm setForget={setForget} setOpen={setOpen} />;
-      default:
-        return <TicketProgressForm setForget={setForget} setOpen={setOpen} />;
-    }
-  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -188,22 +169,20 @@ export const TicketSubmissionProgress = () => {
       </Dialog.Trigger>
       <Dialog.Content className="max-w-xs rounded-lg">
         <Dialog.HeaderCombined
-          title={
-            forget === 'forget-number' ? 'Get ticket number' : 'Check progress'
-          }
+          title="Check progress"
           description="Check the progress of your ticket"
         />
-        <div className="flex flex-col gap-2">{render()}</div>
+        <div className="flex flex-col gap-2">
+          <TicketProgressForm setOpen={setOpen} />
+        </div>
       </Dialog.Content>
     </Dialog>
   );
 };
 
 export const TicketProgressForm = ({
-  setForget,
   setOpen,
 }: {
-  setForget: (value: string) => void;
   setOpen: (value: boolean) => void;
 }) => {
   const { method } = useTicketProgressForms();
@@ -254,100 +233,6 @@ export const TicketProgressForm = ({
           {loading ? <Spinner size="sm" /> : <IconReload />}
           Check progress
         </Button>
-        <Button
-          type="button"
-          variant="ghost"
-          className="w-full text-accent-foreground text-xs"
-          onClick={() => setForget('forget-number')}
-        >
-          Forgot ticket number?
-        </Button>
-      </form>
-    </Form>
-  );
-};
-
-export const TicketForgetNumberForm = ({
-  setForget,
-}: {
-  setForget: (value: string) => void;
-}) => {
-  const { forgotMethod } = useTicketProgressForms();
-  const { forgotTicketNumber, loading } = useForgotTicketNumber();
-
-  function handleBack() {
-    forgotMethod.reset();
-    setForget('get-number');
-  }
-
-  const onSubmit = (data: TTicketForgotProgressForm) => {
-    forgotTicketNumber({
-      variables: data,
-      onCompleted: () => {
-        forgotMethod.reset();
-        toast({
-          title: 'Ticket number has been sent to your phone',
-          variant: 'success',
-        });
-        setForget('get-number');
-      },
-      onError: (error) => {
-        toast({
-          title: 'Error',
-          description: error.message,
-          variant: 'warning',
-        });
-      },
-    });
-  };
-
-  return (
-    <Form {...forgotMethod}>
-      <form
-        className="space-y-2"
-        onSubmit={forgotMethod.handleSubmit(onSubmit)}
-      >
-        <Form.Field
-          name="phoneNumber"
-          control={forgotMethod.control}
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>Phone Number</Form.Label>
-              <Form.Control>
-                <PhoneInput
-                  defaultCountry="MN"
-                  className="bg-background"
-                  {...field}
-                />
-              </Form.Control>
-              <Form.Message />
-            </Form.Item>
-          )}
-        />
-        <Form.Field
-          name="email"
-          control={forgotMethod.control}
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>Email</Form.Label>
-              <Form.Control>
-                <Input type="email" placeholder="Enter email" {...field} />
-              </Form.Control>
-              <Form.Message />
-            </Form.Item>
-          )}
-        />
-        <Button type="submit" className="w-full">
-          {loading ? <Spinner size="sm" /> : 'Get Ticket Number'}
-        </Button>
-        <Button
-          type="button"
-          variant="ghost"
-          className="w-full text-accent-foreground text-xs"
-          onClick={handleBack}
-        >
-          Back
-        </Button>
       </form>
     </Form>
   );
@@ -387,7 +272,9 @@ export const TicketStatusInlineValue = ({
     return null;
   }
 
-  const iconElement = <StatusIconComponent {...props} className='size-4' color={status.color} />;
+  const iconElement = (
+    <StatusIconComponent {...props} className="size-4" color={status.color} />
+  );
 
   return (
     <Tooltip.Provider>

@@ -156,7 +156,7 @@ export const MessageTriggerForm = ({
   onSaveTriggerConfig,
   formRef,
 }: AutomationTriggerFormProps<TMessageTriggerForm>) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.instagram' });
   const form = useForm<TMessageTriggerForm>({
     resolver: zodResolver(triggerFormSchema),
     values: { ...((activeTrigger?.config || {}) as TMessageTriggerForm) },

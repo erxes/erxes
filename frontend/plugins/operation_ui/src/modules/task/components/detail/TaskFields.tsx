@@ -1,8 +1,9 @@
+import { PrintDocument } from 'ui-modules';
 import type { TaskFieldsProps } from '@/task/types/taskFields';
 import { compactList } from '@/operation/utils/cursorList';
 import { useTranslation } from 'react-i18next';
+import { OperationTagsChip } from '@/operation/components/OperationChips';
 import { ActivityList } from '@/activity/components/ActivityList';
-import { ConvertToProject } from '@/task/components/task-selects/ConvertToProject';
 import { DateSelectTask } from '@/task/components/task-selects/DateSelectTask';
 import { SelectAssigneeTask } from '@/task/components/task-selects/SelectAssigneeTask';
 import { SelectCycle } from '@/task/components/task-selects/SelectCycle';
@@ -11,11 +12,11 @@ import { SelectMilestone } from '@/task/components/task-selects/SelectMilestone'
 import { SelectProject } from '@/task/components/task-selects/SelectProjectTask';
 import { SelectStatusTask } from '@/task/components/task-selects/SelectStatusTask';
 import { SelectTaskPriority } from '@/task/components/task-selects/SelectTaskPriority';
-import { SelectTagsTask } from '@/task/components/task-selects/SelectTagsTask';
 import { SelectTeamTask } from '@/task/components/task-selects/SelectTeamTask';
 import { BlockEditor, Separator, Textarea, Button, Spinner } from 'erxes-ui';
 import { IconBrandGithub, IconExternalLink } from '@tabler/icons-react';
 import { useTaskFieldsEditor } from '@/task/hooks/useTaskFieldsEditor';
+import { useTaskOptionalFields } from '@/task/hooks/useTaskOptionalFields';
 
 export const TaskFields = ({ task, titleAction }: TaskFieldsProps) => {
   const { t } = useTranslation('operation');
@@ -37,6 +38,10 @@ export const TaskFields = ({ task, titleAction }: TaskFieldsProps) => {
   } = task || {};
 
   const startDate = task.startDate;
+  const { showCycle, showEstimate, showMilestone } = useTaskOptionalFields({
+    teamId,
+    projectId,
+  });
   const {
     name,
     setName,
@@ -122,13 +127,15 @@ export const TaskFields = ({ task, titleAction }: TaskFieldsProps) => {
           variant="detail"
           label={t('team')}
         />
-        <SelectCycle
-          value={cycleId || ''}
-          taskId={taskId}
-          variant="detail"
-          teamId={teamId}
-          label={t('cycle')}
-        />
+        {showCycle && (
+          <SelectCycle
+            value={cycleId || ''}
+            taskId={taskId}
+            variant="detail"
+            teamId={teamId}
+            label={t('cycle')}
+          />
+        )}
         <SelectProject
           value={projectId}
           taskId={taskId}
@@ -136,26 +143,31 @@ export const TaskFields = ({ task, titleAction }: TaskFieldsProps) => {
           teamId={teamId}
           label={t('project')}
         />
-        <SelectEstimatedPoint
-          value={estimatePoint}
-          taskId={taskId}
-          teamId={teamId}
-          variant="detail"
-          label={t('estimate')}
-        />
-        <SelectMilestone
-          value={milestoneId || ''}
-          taskId={taskId}
-          projectId={projectId}
-          variant="detail"
-          label={t('milestone')}
-        />
-        <SelectTagsTask
-          taskId={taskId}
+        {showEstimate && (
+          <SelectEstimatedPoint
+            value={estimatePoint}
+            taskId={taskId}
+            teamId={teamId}
+            variant="detail"
+            label={t('estimate')}
+          />
+        )}
+        {showMilestone && (
+          <SelectMilestone
+            value={milestoneId || ''}
+            taskId={taskId}
+            projectId={projectId}
+            variant="detail"
+            label={t('milestone')}
+          />
+        )}
+        <OperationTagsChip
+          type="operation:task"
+          targetIds={[taskId]}
           value={compactList(tagIds)}
           label={t('tags')}
         />
-        <ConvertToProject task={task} />
+        <PrintDocument items={[{ _id: taskId }]} contentType="operation:task" />
       </div>
       <Separator className="mb-4 mt-2" />
       <div className="min-h-56 overflow-y-auto">

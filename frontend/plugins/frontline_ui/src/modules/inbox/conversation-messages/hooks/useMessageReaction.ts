@@ -25,7 +25,7 @@ export const useMessageReaction = (isInstagram = false) => {
         variables: { conversationId, messageId, reaction, remove },
       });
       toast({
-        title: remove ? 'Reaction removed' : 'Reaction added',
+        title: remove ? t('reaction-removed') : t('reaction-added'),
         variant: 'default',
       });
     } catch (error) {

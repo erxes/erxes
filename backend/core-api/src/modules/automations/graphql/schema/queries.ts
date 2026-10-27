@@ -58,13 +58,17 @@ const queries = `
   automationsTotalCount(status: String): automationsTotalCountResponse
   automationConstants: JSON
   automationSetPropertyTargets(sourceType: String!): JSON
-  automationNodeOutput(nodeType: String!): JSON
+  automationNodeOutput(nodeType: String!, config: JSON): JSON
+  automationNodeCatalog: JSON
+  automationNodeSchema(type: String!): JSON
+  automationValidate(_id: String, status: String, triggers: [TriggerInput], actions: [ActionInput], workflows: [WorkflowInput]): JSON
   automationReferenceFields(type: String!, field: String!): JSON
   automationBotsConstants:JSON
   automationsAiAgents(kind:String):JSON
   automationsAiAgentTotalCounts:JSON
   automationsAiAgentDetail(_id:String):JSON
   automationsAiAgentHealth(agentId: String!): AiAgentHealth!
+  automationsAiAgentModels(agentId: String, provider: String!, selectedModel: String): [AiAgentModelOption!]!
   automationsAiAgentKnowledgeSourceStatuses(agentId: String!): JSON
   getAutomationWebhookEndpoint(_id:String!,waitEventActionId:String):String
   getAutomationExecutionDetail(executionId: String!): AutomationHistory

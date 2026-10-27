@@ -126,6 +126,11 @@ export const CategoriesFilter = () => {
   return (
     <Filter id="categories-filter" sessionKey={CATEGORIES_CURSOR_SESSION_KEY}>
       <Filter.Bar>
+        <SimpleSearchFilterPopover
+          extraQueryKeys={['status']}
+          extraItems={<CategoryStatusFilterItem />}
+          extraViews={<CategoryStatusFilterView />}
+        />
         <Filter.BarItem queryKey="searchValue">
           <Filter.BarName>
             <IconSearch />
@@ -136,11 +141,6 @@ export const CategoriesFilter = () => {
           </Filter.BarButton>
         </Filter.BarItem>
         <CategoryStatusFilterBar />
-        <SimpleSearchFilterPopover
-          extraQueryKeys={['status']}
-          extraItems={<CategoryStatusFilterItem />}
-          extraViews={<CategoryStatusFilterView />}
-        />
         <CategoriesTotalCount />
       </Filter.Bar>
     </Filter>

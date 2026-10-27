@@ -1,15 +1,19 @@
+import type { ThreadStore, User } from '@blocknote/core/comments';
 import { Block } from '@blocknote/core';
 import { useCreateBlockNote } from '@blocknote/react';
 import { useCallback, useEffect } from 'react';
 import { useErxesUpload, useUploadChunked, useToast } from 'erxes-ui/hooks';
 import { readImage } from 'erxes-ui/utils';
-import { BLOCK_SCHEMA, TABLE_SCHEMA } from '../constant';
-import type { IBlockEditor } from '../types';
+import { BLOCK_SCHEMA, TABLE_SCHEMA } from 'erxes-ui/modules/blocks/constant';
+import type { IBlockEditor } from 'erxes-ui/modules/blocks/types';
+import { removeCodeFormattingFromHTML } from 'erxes-ui/modules/blocks/utils/removeCodeFormattingFromHTML';
 
 export const useBlockEditor = (args?: {
   initialContent?: Block[];
   placeholder?: string;
   uploadFile?: (file: File) => Promise<string>;
+  comments?: { threadStore: ThreadStore };
+  resolveUsers?: (userIds: string[]) => Promise<User[]>;
 }): IBlockEditor => {
   const { placeholder, uploadFile, ...restArgs } = args || {};
 
@@ -50,16 +54,29 @@ export const useBlockEditor = (args?: {
     [uploadEditorFile, uploadVideo],
   );
 
-  const editor = useCreateBlockNote({
-    schema: BLOCK_SCHEMA,
-    tables: TABLE_SCHEMA,
-    placeholders: {
-      default: placeholder || "Type '/' for commands...",
+  const editor = useCreateBlockNote(
+    {
+      schema: BLOCK_SCHEMA,
+      tables: TABLE_SCHEMA,
+      placeholders: {
+        default: placeholder || "Type '/' for commands...",
+      },
+      uploadFile: uploadFile ?? defaultUploadFile,
+      resolveFileUrl: (url) => Promise.resolve(readImage(url)),
+      ...restArgs,
     },
-    uploadFile: uploadFile ?? defaultUploadFile,
-    resolveFileUrl: (url) => Promise.resolve(readImage(url)),
-    ...restArgs,
-  });
+    [restArgs.comments?.threadStore],
+  );
+
+  useEffect(() => {
+    const exportHTML = editor.blocksToHTMLLossy;
+    editor.blocksToHTMLLossy = async (blocks) =>
+      removeCodeFormattingFromHTML(await exportHTML.call(editor, blocks));
+
+    return () => {
+      editor.blocksToHTMLLossy = exportHTML;
+    };
+  }, [editor]);
 
   return editor;
 };

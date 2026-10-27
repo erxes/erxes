@@ -1,14 +1,19 @@
-import { IconMail } from '@tabler/icons-react';
-import { Breadcrumb, Button, Separator } from 'erxes-ui';
-import { PageHeader, createFavoriteBreadcrumb } from 'ui-modules';
-import { Link } from 'react-router-dom';
 import { InboxLayout } from '@/inbox/components/InboxLayout';
-import { ConversationDetail } from '@/inbox/conversations/conversation-detail/components/ConversationDetail';
 import { Conversations } from '@/inbox/conversations/components/Conversations';
+import { ConversationDetail } from '@/inbox/conversations/conversation-detail/components/ConversationDetail';
+import { IconMail, IconPencil } from '@tabler/icons-react';
+import { Breadcrumb, Button, Separator } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
+import {
+  PageHeader,
+  createFavoriteBreadcrumb,
+  useComposeEmail,
+} from 'ui-modules';
 
-const InboxIndexPage = () => {
+export const InboxIndexPage = () => {
   const { t } = useTranslation('frontline');
+  const { canComposeEmail, composeEmail } = useComposeEmail();
   const favoriteBreadcrumb = createFavoriteBreadcrumb(
     'Frontline',
     t('team-inbox', 'Team inbox'),
@@ -36,6 +41,14 @@ const InboxIndexPage = () => {
             icon="IconMail"
           />
         </PageHeader.Start>
+        <PageHeader.End>
+          {canComposeEmail && (
+            <Button type="button" onClick={() => composeEmail()}>
+              <IconPencil />
+              {t('send-email')}
+            </Button>
+          )}
+        </PageHeader.End>
       </PageHeader>
       <InboxLayout
         conversations={<Conversations />}
@@ -44,5 +57,3 @@ const InboxIndexPage = () => {
     </div>
   );
 };
-
-export default InboxIndexPage;

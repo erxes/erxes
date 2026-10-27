@@ -1,6 +1,7 @@
 import type { TFunction } from 'i18next';
 import { ColumnDef } from '@tanstack/react-table';
 import {
+  cn,
   Combobox,
   Command,
   Popover,
@@ -10,11 +11,15 @@ import {
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 
 import { useTranslation } from 'react-i18next';
+import { AccountingEmptyState } from '@/layout/components/AccountingEmptyState';
 
 interface SettingsRowsTableProps<TData> {
   columns: ColumnDef<TData>[];
   data: TData[];
   loading: boolean;
+  error?: { message: string };
+  emptyAction?: React.ReactNode;
+  emptyDescription?: React.ReactNode;
   totalCount?: number;
   handleFetchMore?: () => void;
   Commandbar: React.ComponentType;
@@ -28,6 +33,9 @@ export const SettingsRowsTable = <TData,>({
   columns,
   data,
   loading,
+  error,
+  emptyAction,
+  emptyDescription,
   totalCount,
   handleFetchMore,
   Commandbar,
@@ -36,7 +44,10 @@ export const SettingsRowsTable = <TData,>({
   stickyColumns,
   className,
 }: SettingsRowsTableProps<TData>) => {
+  const { t } = useTranslation('accounting');
   const isInitialLoading = loading && !data?.length;
+
+  const isEmpty = !loading && !data?.length;
 
   return (
     <RecordTable.Provider
@@ -44,7 +55,7 @@ export const SettingsRowsTable = <TData,>({
       data={isInitialLoading ? [] : data || []}
       stickyColumns={stickyColumns ?? ['more', 'checkbox']}
       tableId={tableId}
-      className={className}
+      className={cn('relative', className)}
     >
       <RecordTable.Scroll>
         <RecordTable>
@@ -62,13 +73,32 @@ export const SettingsRowsTable = <TData,>({
         </RecordTable>
       </RecordTable.Scroll>
       <Commandbar />
+      {isEmpty && (
+        <AccountingEmptyState
+          overlay
+          error={error}
+          description={
+            emptyDescription ??
+            (emptyAction ? t('empty-list-description') : undefined)
+          }
+          action={emptyAction}
+        />
+      )}
     </RecordTable.Provider>
   );
 };
 
+export type SettingsRowTextFieldName = 'number' | 'name';
+
+export interface SettingsRowTextFieldProps<T> {
+  row: T;
+  field: SettingsRowTextFieldName;
+}
+
 export const getSharedRowColumns = <T,>(
   moreColumn: ColumnDef<T>,
   t: TFunction<'accounting'>,
+  RowTextField: React.ComponentType<SettingsRowTextFieldProps<T>>,
 ): ColumnDef<T>[] => [
   moreColumn,
   RecordTable.checkboxColumn as ColumnDef<T>,
@@ -76,18 +106,14 @@ export const getSharedRowColumns = <T,>(
     id: 'number',
     accessorKey: 'number',
     header: () => <RecordTable.InlineHead label={t('number')} />,
-    cell: ({ cell }) => (
-      <RecordTableInlineCell>{cell.getValue() as string}</RecordTableInlineCell>
-    ),
+    cell: ({ cell }) => <RowTextField row={cell.row.original} field="number" />,
     size: 250,
   },
   {
     id: 'name',
     accessorKey: 'name',
     header: () => <RecordTable.InlineHead label={t('name')} />,
-    cell: ({ cell }) => (
-      <RecordTableInlineCell>{cell.getValue() as string}</RecordTableInlineCell>
-    ),
+    cell: ({ cell }) => <RowTextField row={cell.row.original} field="name" />,
     size: 250,
   },
   {

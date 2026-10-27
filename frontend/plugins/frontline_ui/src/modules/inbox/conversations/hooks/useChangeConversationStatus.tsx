@@ -18,7 +18,7 @@ type ChangeConversationStatusOptions = Omit<
 };
 
 export const useChangeConversationStatus = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const [changeConversationStatus, { loading }] = useMutation(
     CONVERSATION_CHANGE_STATUS,
   );

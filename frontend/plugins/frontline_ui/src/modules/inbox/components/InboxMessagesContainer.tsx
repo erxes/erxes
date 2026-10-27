@@ -1,4 +1,4 @@
-import { Empty, ScrollArea } from 'erxes-ui';
+import { cn, Empty, ScrollArea } from 'erxes-ui';
 import { IconMessages } from '@tabler/icons-react';
 import {
   useCallback,
@@ -17,14 +17,16 @@ export const InboxMessagesContainer = ({
   loading,
   conversationId,
   children,
+  fullWidth = false,
 }: React.PropsWithChildren<{
   fetchMore: () => unknown;
   messagesLength: number;
   totalCount: number;
   loading: boolean;
   conversationId?: string;
+  fullWidth?: boolean;
 }>) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const viewportRef = useRef<HTMLDivElement>(null);
   const messagesRef = useRef<HTMLDivElement>(null);
   const shouldFollowNewestRef = useRef(true);
@@ -200,7 +202,10 @@ export const InboxMessagesContainer = ({
         ) : (
           <div
             ref={messagesRef}
-            className="mx-auto flex w-full max-w-[720px] min-w-0 flex-col overflow-x-hidden px-3 py-6 sm:px-4 md:px-6"
+            className={cn(
+              'mx-auto flex w-full min-w-0 flex-col overflow-x-hidden px-3 py-6 sm:px-4 md:px-6',
+              !fullWidth && 'max-w-[720px]',
+            )}
           >
             {children}
           </div>

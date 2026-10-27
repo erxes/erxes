@@ -1,4 +1,3 @@
-import { CellContext } from '@tanstack/react-table';
 import { AddErxesMessengerSheet } from './AddErxesMessenger';
 import { IIntegration } from '@/integrations/types/Integration';
 import { IconEdit } from '@tabler/icons-react';
@@ -16,16 +15,18 @@ export const ErxesMessengerDetail = () => {
 };
 
 export const ErxesMessengerActions = ({
-  cell,
+  integration,
 }: {
-  cell: CellContext<IIntegration, unknown>;
+  integration: IIntegration;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const setEditId = useSetAtom(erxesMessengerSetupEditSheetOpenAtom);
   return (
     <div className="flex flex-col gap-2 w-full">
       <div
-        onClick={() => setEditId(cell.row.original._id)}
+        onClick={() => setEditId(integration._id)}
         className="flex items-center gap-2 w-full cursor-pointer"
       >
         <IconEdit size={16} />

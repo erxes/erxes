@@ -40,6 +40,23 @@ export const permissions: IPermissionConfig = {
       ],
     },
     {
+      name: 'notificationTemplates',
+      description: 'Notification email templates',
+      scopeField: null,
+      ownerFields: [],
+
+      scopes: [{ name: 'all', description: 'All templates' }],
+
+      actions: [
+        {
+          title: 'Manage notification templates',
+          name: 'notificationTemplatesManage',
+          description:
+            'Edit, publish and revert notification emails and the email brand',
+        },
+      ],
+    },
+    {
       name: 'contacts',
       description: 'Contact management',
       scopeField: null,
@@ -181,6 +198,27 @@ export const permissions: IPermissionConfig = {
           title: 'Export products',
           name: 'productsExportManage',
           description: 'Export products',
+        },
+      ],
+    },
+    {
+      name: 'files',
+      description: 'File manager',
+      scopeField: null,
+      ownerFields: [],
+
+      scopes: [{ name: 'all', description: 'All records' }],
+
+      actions: [
+        {
+          title: 'Use files',
+          name: 'filesRead',
+          description: 'Use Files; what each person sees and changes is set by folder access',
+        },
+        {
+          title: 'Files admin',
+          name: 'filesAdmin',
+          description: 'See and download every file and folder (read only); each use is logged',
         },
       ],
     },
@@ -726,6 +764,34 @@ export const permissions: IPermissionConfig = {
         },
       ],
     },
+    {
+      name: 'agents',
+      description: 'AI agents',
+      scopeField: null,
+      ownerFields: [],
+
+      scopes: [{ name: 'all', description: 'All agents access' }],
+
+      actions: [
+        {
+          title: 'View agents',
+          name: 'showAgents',
+          description: 'View agents',
+          always: true,
+        },
+        {
+          title: 'Use agents chat',
+          name: 'agentsChat',
+          description: 'Use agents chat',
+        },
+        {
+          title: 'Manage agents settings',
+          name: 'manageAgentsSettings',
+          description:
+            'Manage tenant-wide agents settings (code mode toggle)',
+        },
+      ],
+    },
   ],
   defaultGroups: [
     {
@@ -887,6 +953,18 @@ export const permissions: IPermissionConfig = {
           actions: ['logsRead'],
           scope: 'all',
         },
+        {
+          plugin: 'core',
+          module: 'agents',
+          actions: ['showAgents', 'agentsChat', 'manageAgentsSettings'],
+          scope: 'all',
+        },
+        {
+          plugin: 'core',
+          module: 'files',
+          actions: ['filesRead'],
+          scope: 'all',
+        },
       ],
     },
     {
@@ -923,6 +1001,19 @@ export const permissions: IPermissionConfig = {
           module: 'broadcasts',
           actions: ['broadcastRead', 'broadcastCreate', 'broadcastUpdate'],
           scope: 'own',
+        },
+        {
+          plugin: 'core',
+          module: 'agents',
+          actions: ['showAgents', 'agentsChat'],
+          scope: 'all',
+        },
+        // What each person sees inside Files is decided by folder access.
+        {
+          plugin: 'core',
+          module: 'files',
+          actions: ['filesRead'],
+          scope: 'all',
         },
       ],
     },
@@ -1063,6 +1154,18 @@ export const permissions: IPermissionConfig = {
           module: 'internalNotes',
           actions: ['internalNotesManage'],
           scope: 'own',
+        },
+        {
+          plugin: 'core',
+          module: 'agents',
+          actions: ['showAgents'],
+          scope: 'all',
+        },
+        {
+          plugin: 'core',
+          module: 'files',
+          actions: ['filesRead'],
+          scope: 'all',
         },
       ],
     },

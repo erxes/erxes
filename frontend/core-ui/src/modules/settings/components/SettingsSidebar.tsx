@@ -74,12 +74,12 @@ export function SettingsSidebar() {
 
         <SettingsNavigationGroup name={t('developer')}>
           {filteredDeveloper.map((item) => (
-            <NavigationMenuLinkItem
-              pathPrefix={AppPath.Settings}
+            <SettingsNavigationItem
+              key={item.name}
               path={item.path}
               name={item.name}
               icon={item.icon}
-              key={item.name}
+              subPaths={subNavigation[item.path]?.items}
             />
           ))}
         </SettingsNavigationGroup>

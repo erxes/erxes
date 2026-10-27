@@ -1,4 +1,3 @@
-import { CellContext } from '@tanstack/react-table';
 import { InstagramIntegrationFormSheet } from './InstagramIntegrationForm';
 import { IIntegration } from '@/integrations/types/Integration';
 import {
@@ -72,15 +71,17 @@ export const InstagramIntegrationDetail = ({
 };
 
 export const InstagramIntegrationActions = ({
-  cell,
+  integration,
 }: {
-  cell: CellContext<IIntegration, unknown>;
+  integration: IIntegration;
 }) => {
-  return <InstagramIntegrationEditSheet id={cell.row.original._id} />;
+  return <InstagramIntegrationEditSheet id={integration._id} />;
 };
 
 export const InstagramIntegrationEditSheet = ({ id }: { id: string }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const [open, setOpen] = useState(false);
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -104,7 +105,9 @@ export const InstagramIntegrationEditForm = ({
   id: string;
   setOpen: (open: boolean) => void;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const { loading, integrationDetail } = useIntegrationDetail({
     integrationId: id,
   });

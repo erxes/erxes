@@ -1,4 +1,5 @@
 import { sendNotification } from 'erxes-api-shared/core-modules';
+import { TFrontlineNotificationEvent } from '~/meta/notifications';
 
 const getTitle = (contentType: string) => {
   if (contentType === 'ticket') {
@@ -18,14 +19,20 @@ const getTitle = (contentType: string) => {
   }
 };
 
-const getMessage = (contentType: string, notificationType: string) => {
+const getMessage = (
+  contentType: string,
+  notificationType: string,
+  action: string,
+) => {
   switch (notificationType) {
     case 'ticketAssignee':
       return 'You have been assigned to ticket';
     case 'ticketStatus':
       return 'Ticket status updated';
     case 'inboxAssignee':
-      return 'You have been assigned to conversation';
+      return action === 'unassign'
+        ? 'You have been unassigned from conversation'
+        : 'You have been assigned to conversation';
     case 'internalNote':
       return `You have been mentioned in ${contentType}'s conversation`;
     case 'updateTicket':
@@ -51,6 +58,7 @@ export const createNotifications = async ({
   notificationType,
   userIds,
   action,
+  event,
 }: {
   contentType: string;
   contentTypeId: string;
@@ -59,10 +67,11 @@ export const createNotifications = async ({
   notificationType: string;
   userIds: string[];
   action: string;
+  event: TFrontlineNotificationEvent;
 }) => {
   sendNotification(subdomain, {
     title: getTitle(contentType),
-    message: getMessage(contentType, notificationType),
+    message: getMessage(contentType, notificationType, action),
     type: 'info',
     userIds,
     priority: 'low',
@@ -71,6 +80,7 @@ export const createNotifications = async ({
     contentType: `frontline:${contentType}`,
     contentTypeId,
     notificationType,
+    event,
     action,
     metadata: {
       contentTypeId,

@@ -36,11 +36,6 @@ export const createCustomerSchema = z
     }
   });
 
-export const TicketForgotProgressSchema = z.object({
-  phoneNumber: z.string().optional(),
-  email: z.string().email().optional(),
-});
-
 export const TicketCheckProgressSchema = z.object({
   number: z.string().min(1, 'Ticket number is required'),
 });

@@ -1,4 +1,3 @@
-import { useQuery } from '@apollo/client';
 import {
   IconMaximize,
   IconRestore,
@@ -16,7 +15,7 @@ import {
 } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { PAPER_TYPES, PX_PER_MM } from 'ui-modules/modules/documents/constants';
-import { PROCESS_DOCUMENT } from 'ui-modules/modules/documents/graphql/queries';
+import { useDocumentProcess } from '../hooks/useDocumentProcess';
 import { PrintFormValues } from 'ui-modules/modules/documents/types/print';
 import * as utils from 'ui-modules/modules/documents/utils';
 import { useDebounce } from 'use-debounce';
@@ -41,8 +40,10 @@ const roundMm = (value: number) => Math.round(value * 10) / 10;
 
 export const PrintPreview = ({
   iframeRef,
+  onReadyChange,
 }: {
   iframeRef: RefObject<HTMLIFrameElement>;
+  onReadyChange?: (ready: boolean) => void;
 }) => {
   const { watch, setValue, trigger } = useFormContext<PrintFormValues>();
 
@@ -80,19 +81,26 @@ export const PrintPreview = ({
 
   const [debouncedSpacing] = useDebounce(spacing, 500);
 
-  const {
-    data: { documentsProcess: content } = {},
+  const { content, loading, error } = useDocumentProcess({
+    _id,
+    replacerIds,
+    config: { copies: Number(copies), width, height, type },
+  });
+
+  useEffect(() => {
+    onReadyChange?.(false);
+    if (iframeRef.current) iframeRef.current.dataset.printReady = 'false';
+  }, [
+    _id,
+    replacerIds,
+    copies,
+    width,
+    height,
     loading,
     error,
-  } = useQuery(PROCESS_DOCUMENT, {
-    variables: {
-      _id,
-      replacerIds,
-      config: { copies: Number(copies), width, height, type },
-    },
-    fetchPolicy: 'network-only',
-    skip: !_id,
-  });
+    iframeRef,
+    onReadyChange,
+  ]);
 
   const fitZoom =
     paperSize.width && paperSize.height && viewport.width && viewport.height
@@ -213,7 +221,7 @@ export const PrintPreview = ({
   useEffect(() => {
     const iframe = iframeRef.current;
 
-    if (!iframe || !content) {
+    if (!iframe || !content || !_id || loading || error) {
       return;
     }
 
@@ -240,6 +248,7 @@ export const PrintPreview = ({
 
     const onLoad = () => {
       iframe.dataset.printReady = 'true';
+      onReadyChange?.(true);
 
       const container =
         iframe.contentDocument?.querySelector('.scaled-content');
@@ -281,6 +290,10 @@ export const PrintPreview = ({
     };
   }, [
     content,
+    _id,
+    replacerIds,
+    loading,
+    error,
     size,
     orientation,
     width,
@@ -288,6 +301,7 @@ export const PrintPreview = ({
     isRoll,
     debouncedSpacing,
     iframeRef,
+    onReadyChange,
   ]);
 
   useEffect(() => {

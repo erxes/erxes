@@ -1,40 +1,28 @@
+import { BlockEditorEditableContext } from '../hooks/useBlockEditorEditable';
+import { BlockEditorComments } from './BlockEditorComments';
+import { KeyboardEvent, MouseEvent, useRef, useState } from 'react';
 import {
-  createReactInlineContentSpec,
-  DefaultReactSuggestionItem,
-  getDefaultReactSlashMenuItems,
   SuggestionMenuController,
   TableHandlesController,
 } from '@blocknote/react';
-import { filterSuggestionItems } from '@blocknote/core';
+
+import { BlockEditorProps } from 'erxes-ui/modules/blocks/types';
 import { BlockNoteView } from '@blocknote/shadcn';
-
-import { Button, Tooltip } from 'erxes-ui/components';
+import { SlashMenu } from 'erxes-ui/modules/blocks/components/SlashMenu';
+import { TableHandleWithRemove } from 'erxes-ui/modules/blocks/components/TableHandleWithRemove';
+import { Toolbar } from 'erxes-ui/modules/blocks/components/Toolbar';
 import { cn } from 'erxes-ui/lib';
+import { editorUIComponents } from 'erxes-ui/modules/blocks/constant/toolbar/editorUIComponents';
+import { getSlashMenuItems } from 'erxes-ui/modules/blocks/utils/getSlashMenuItems';
+import { isCodeFormattingShortcut } from 'erxes-ui/modules/blocks/utils/toolbar/isCodeFormattingShortcut';
+import { isEmptyBlock } from 'erxes-ui/modules/blocks/utils/isEmptyBlock';
 import { themeState } from 'erxes-ui/state';
-import { IconPhoto } from '@tabler/icons-react';
 import { useAtomValue } from 'jotai';
-import { KeyboardEvent, useState } from 'react';
-import { BlockEditorProps } from '../types';
-import { SlashMenu } from './SlashMenu';
-import { Toolbar } from './Toolbar';
-import { BarcodeAttribute } from './BarcodeAttribute';
-import { TableHandleWithRemove } from './TableHandleWithRemove';
-
-type EditorBlock = ReturnType<
-  BlockEditorProps['editor']['getTextCursorPosition']
->['block'];
-
-const isEmptyBlock = (block?: EditorBlock) =>
-  !!block &&
-  Array.isArray(block.content) &&
-  !block.content.length &&
-  !block.children?.length;
 
 export const BlockEditor = ({
   editor,
   onFocus,
   onBlur,
-  onPaste,
   onChange,
   readonly,
   children,
@@ -43,73 +31,37 @@ export const BlockEditor = ({
   disabled,
   variant = 'default',
   sideMenu = true,
+  formattingToolbar = true,
   linkToolbar = true,
   slashMenuOnTop = false,
+  floatingThread = true,
   additionalSlashMenuItems,
 }: BlockEditorProps) => {
   const theme = useAtomValue(themeState);
   const [focus, setFocus] = useState(false);
-  const getSlashMenuItems = (query: string) => {
-    const items = getDefaultReactSlashMenuItems(editor);
-    const hasImageItem = items.some((item) => item.title === 'Image');
-    const hasCustomImageBlock = 'image' in editor.schema.blockSchema;
-    const filePanelPlugin = editor.filePanel?.plugins[0];
-
-    if (!hasImageItem && hasCustomImageBlock && filePanelPlugin) {
-      items.splice(9, 0, {
-        title: editor.dictionary.slash_menu.image.title,
-        subtext: editor.dictionary.slash_menu.image.subtext,
-        aliases: editor.dictionary.slash_menu.image.aliases,
-        badge: undefined,
-        group: editor.dictionary.slash_menu.image.group,
-        onItemClick: () => {
-          const currentBlock = editor.getTextCursorPosition().block;
-          const insertedBlock = editor.insertBlocks(
-            [{ type: 'image' }],
-            currentBlock,
-            'after',
-          )[0];
-
-          editor.transact((tr) =>
-            tr.setMeta(filePanelPlugin, {
-              block: insertedBlock,
-            }),
-          );
-        },
-      } satisfies DefaultReactSuggestionItem);
-    }
-
-    if ('gallery' in editor.schema.blockSchema) {
-      items.push({
-        title: 'Gallery',
-        subtext: 'Insert a multi-image gallery grid',
-        aliases: ['gallery', 'images', 'grid'],
-        badge: undefined,
-        group: editor.dictionary.slash_menu.image.group,
-        icon: <IconPhoto size={18} />,
-        onItemClick: () => {
-          const currentBlock = editor.getTextCursorPosition().block;
-          editor.insertBlocks([{ type: 'gallery' }], currentBlock, 'after');
-        },
-      } satisfies DefaultReactSuggestionItem);
-    }
-
-    const customItems =
-      typeof additionalSlashMenuItems === 'function'
-        ? additionalSlashMenuItems(editor)
-        : additionalSlashMenuItems;
-
-    if (customItems?.length) {
-      items.push(...customItems);
-    }
-
-    return Promise.resolve(filterSuggestionItems(items, query));
-  };
+  const deletingText = useRef(false);
 
   const handleKeyDownCapture = (e: KeyboardEvent<HTMLDivElement>) => {
-    if (readonly || disabled || (e.key !== 'Backspace' && e.key !== 'Delete')) {
+    if (
+      readonly ||
+      disabled ||
+      !(e.target instanceof Node) ||
+      !editor.domElement?.contains(e.target)
+    ) {
       return;
     }
+
+    if (editor.getActiveStyles().code && isCodeFormattingShortcut(e)) {
+      e.preventDefault();
+      e.stopPropagation();
+      return;
+    }
+
+    if (e.key !== 'Backspace' && e.key !== 'Delete') {
+      return;
+    }
+
+    deletingText.current = true;
 
     const { block, prevBlock, nextBlock, parentBlock } =
       editor.getTextCursorPosition();
@@ -132,6 +84,19 @@ export const BlockEditor = ({
   return (
     <div
       onKeyDownCapture={handleKeyDownCapture}
+      onKeyUpCapture={() => {
+        deletingText.current = false;
+      }}
+      onMouseDownCapture={(event: MouseEvent<HTMLDivElement>) => {
+        if (
+          event.button === 0 &&
+          event.target instanceof Element &&
+          event.target.closest('.bn-formatting-toolbar button:not(:disabled)')
+        ) {
+          // Toolbar clicks must preserve the editor selection for formatting.
+          event.preventDefault();
+        }
+      }}
       className={cn(
         'erxes-blocknote',
         'transition-shadow',
@@ -139,110 +104,62 @@ export const BlockEditor = ({
         className,
       )}
     >
-      <BlockNoteView
-        theme={theme as 'light' | 'dark'}
-        editor={editor}
-        slashMenu={false}
-        sideMenu={sideMenu}
-        linkToolbar={linkToolbar}
-        onFocus={() => {
-          setFocus(true);
-          onFocus?.();
-        }}
-        onBlur={() => {
-          setFocus(false);
-          onBlur?.();
-        }}
-        editable={!readonly && !disabled}
-        onChange={onChange}
-        formattingToolbar={false}
-        tableHandles={false}
-        shadCNComponents={{
-          Button: { Button },
-          Tooltip: {
-            Tooltip,
-            TooltipContent: Tooltip.Content,
-            TooltipProvider: Tooltip.Provider,
-            TooltipTrigger: Tooltip.Trigger,
-          },
-        }}
-        style={style}
-      >
-        <SuggestionMenuController
-          triggerCharacter="/"
-          getItems={getSlashMenuItems}
-          suggestionMenuComponent={SlashMenu}
-          floatingOptions={
-            slashMenuOnTop ? { placement: 'top-start' } : undefined
-          }
-        />
-        <Toolbar />
-        <TableHandlesController tableHandle={TableHandleWithRemove} />
-        {children}
-      </BlockNoteView>
+      <BlockEditorEditableContext.Provider value={!readonly && !disabled}>
+        <BlockNoteView
+          theme={theme === 'system' ? undefined : theme}
+          editor={editor}
+          slashMenu={false}
+          sideMenu={sideMenu}
+          linkToolbar={linkToolbar}
+          onFocus={() => {
+            setFocus(true);
+            onFocus?.();
+          }}
+          onBlur={() => {
+            setFocus(false);
+            onBlur?.();
+          }}
+          editable={!readonly && !disabled}
+          onChange={() => {
+            if (deletingText.current) {
+              deletingText.current = false;
+              if (isEmptyBlock(editor.getTextCursorPosition().block)) {
+                const view = editor._tiptapEditor.view;
+                if (view) {
+                  view.dispatch(view.state.tr.setStoredMarks([]));
+                }
+              }
+            }
+            onChange?.();
+          }}
+          comments={false}
+          formattingToolbar={false}
+          tableHandles={false}
+          shadCNComponents={editorUIComponents}
+          style={style}
+        >
+          <SuggestionMenuController
+            triggerCharacter="/"
+            getItems={(query) =>
+              getSlashMenuItems(query, editor, additionalSlashMenuItems)
+            }
+            suggestionMenuComponent={SlashMenu}
+            floatingOptions={
+              slashMenuOnTop ? { placement: 'top-start' } : undefined
+            }
+          />
+          {formattingToolbar && <Toolbar />}
+          <TableHandlesController tableHandle={TableHandleWithRemove} />
+          <BlockEditorComments
+            enabled={!!editor.comments}
+            floatingThread={floatingThread}
+          >
+            {children}
+          </BlockEditorComments>
+        </BlockNoteView>
+      </BlockEditorEditableContext.Provider>
     </div>
   );
 };
 
-export const Mention = createReactInlineContentSpec(
-  {
-    type: 'mention',
-    propSchema: {
-      fullName: {
-        default: 'Unknown',
-      },
-      _id: {
-        default: '',
-      },
-    },
-    content: 'none',
-  },
-  {
-    render: (props) => (
-      <span className="bg-primary/10 p-1 rounded font-bold text-sm text-primary inline-flex items-center">
-        @{props.inlineContent.props.fullName}
-      </span>
-    ),
-  },
-);
-
-export const Attribute = createReactInlineContentSpec(
-  {
-    type: 'attribute',
-    propSchema: {
-      name: {
-        default: 'Unknown',
-      },
-      value: {
-        default: '',
-      },
-      width: {
-        default: 150,
-      },
-      height: {
-        default: 50,
-      },
-    },
-    content: 'none',
-  },
-  {
-    render: (props) =>
-      props.inlineContent.props.value === 'barcode' ? (
-        <BarcodeAttribute
-          editable={props.editor.isEditable}
-          height={props.inlineContent.props.height}
-          width={props.inlineContent.props.width}
-          onResize={({ width, height }) =>
-            props.updateInlineContent({
-              type: 'attribute',
-              props: { ...props.inlineContent.props, width, height },
-            })
-          }
-        />
-      ) : (
-        <span className="bg-yellow-50 p-1 rounded font-bold text-sm text-yellow-900 inline-flex items-center">
-          {props.inlineContent.props.name}
-        </span>
-      ),
-  },
-);
+export { Attribute, Mention } from './BlockEditorInlineContent';

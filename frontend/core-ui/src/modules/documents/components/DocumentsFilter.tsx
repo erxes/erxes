@@ -11,6 +11,7 @@ import { useSearchParams } from 'react-router';
 import { SelectMember, TagsSelect } from 'ui-modules';
 import { DocumentFilterState } from '../types';
 import { useTranslation } from 'react-i18next';
+import { DocumentsTotalCount } from './DocumentsTotalCount';
 import { DocumentsViewControl } from './DocumentsViewControl';
 
 const EMPTY_TAG_IDS: string[] = [];
@@ -39,7 +40,6 @@ export const DocumentsFilter = () => {
     <PageSubHeader>
       <Filter id="documents-filter">
         <Filter.Bar className="overflow-auto styled-scroll">
-          <DocumentFilterBar queries={queries} />
           <div className="flex flex-wrap items-center gap-2 flex-1">
             <Filter.Popover scope={'documents-page'}>
               <Filter.Trigger isFiltered={hasFilters} />
@@ -47,6 +47,7 @@ export const DocumentsFilter = () => {
                 <DocumentFilterView />
               </Combobox.Content>
             </Filter.Popover>
+            <DocumentsTotalCount />
             <Filter.Dialog>
               <Filter.View filterKey="searchValue" inDialog>
                 <Filter.DialogStringView filterKey="searchValue" />
@@ -55,6 +56,7 @@ export const DocumentsFilter = () => {
                 <Filter.DialogDateView filterKey="createdAt" />
               </Filter.View>
             </Filter.Dialog>
+            <DocumentFilterBar queries={queries} />
           </div>
         </Filter.Bar>
       </Filter>

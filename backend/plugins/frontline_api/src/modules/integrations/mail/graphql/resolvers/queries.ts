@@ -13,7 +13,7 @@ import {
 import { readSendingReadiness } from '@/integrations/mail/utils/transports/readiness';
 import { assertMailConversationAccess } from '@/integrations/mail/utils/access';
 import { readMailVerifiedContacts } from '@/integrations/mail/utils/recipients';
-import { MAIL_HEALTH_STATUSES } from '@/integrations/mail/constants';
+import { readMailSenders } from '@/integrations/mail/utils/senders';
 
 export const mailQueries = {
   async mailVerifiedContacts(
@@ -35,55 +35,7 @@ export const mailQueries = {
   ) {
     await checkPermission('conversationMessageAdd');
 
-    if (!user?._id) {
-      throw new Error('Unauthorized');
-    }
-
-    const channelIds = await models.Channels.find(
-      await visibleChannelsFilter({ models, subdomain, user }),
-    ).distinct('_id');
-
-    const inboxes = await models.Integrations.find({
-      kind: 'mail',
-      isActive: { $ne: false },
-      channelId: { $in: channelIds },
-      ...(user.isOwner
-        ? {}
-        : {
-            $or: [
-              { visibility: { $exists: false } },
-              { visibility: 'public' },
-              {
-                visibility: 'private',
-                $or: [
-                  { createdUserId: user._id },
-                  { departmentIds: { $in: user.departmentIds ?? [] } },
-                ],
-              },
-            ],
-          }),
-    })
-      .select(['_id', 'name'])
-      .sort({ name: 1 })
-      .lean();
-
-    const mailIntegrations = await models.MailIntegrations.find({
-      inboxId: { $in: inboxes.map(({ _id }) => _id) },
-      disabledAt: null,
-      healthStatus: { $ne: MAIL_HEALTH_STATUSES.UNHEALTHY },
-    })
-      .select(['inboxId', 'address'])
-      .lean();
-    const addressByInboxId = new Map(
-      mailIntegrations.map(({ inboxId, address }) => [inboxId, address]),
-    );
-
-    return inboxes.flatMap(({ _id, name }) => {
-      const address = addressByInboxId.get(_id);
-      return address
-        ? [{ integrationId: _id, name: name || address, address }]
-        : [];
-    });
+    return readMailSenders({ models, subdomain, user });
   },
   async mailCloudflareConnection(
     _root: undefined,

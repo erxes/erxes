@@ -4,7 +4,7 @@ import { useUserDetail } from '../../hooks/useUserDetail';
 import { MemberDetailSidebar } from './MemberDetailSidebar';
 import { MemberDetailMainContents } from './MemberDetailMainContents';
 import { MemberDetailErrorState } from './MemberDetailErrorState';
-import { RelationWidgetSideTabs } from 'ui-modules';
+import { PrintDocument } from 'ui-modules';
 import { MemberDetailEmptyState } from './MemberDetailEmptyState';
 import { useTranslation } from 'react-i18next';
 
@@ -29,13 +29,17 @@ export const MemberDetail = () => {
           </FocusSheet.SideBar>
           <div className="flex-1 flex flex-col overflow-hidden">
             <MemberDetailGeneral />
+            {userDetail?._id && (
+              <div className="flex flex-wrap items-center gap-2 px-8 pb-5">
+                <PrintDocument
+                  items={[{ _id: userDetail._id }]}
+                  contentType="core:user"
+                />
+              </div>
+            )}
             <Separator />
             <MemberDetailMainContents />
           </div>
-          <RelationWidgetSideTabs
-            contentId={userDetail?._id || ''}
-            contentType="core:user"
-          />
         </FocusSheet.Content>
       </FocusSheet.View>
     </FocusSheet>

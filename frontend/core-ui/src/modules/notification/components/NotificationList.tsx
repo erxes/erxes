@@ -1,84 +1,147 @@
-import { IconInbox } from '@tabler/icons-react';
-import { Button, ScrollArea, Spinner } from 'erxes-ui';
+import { Fragment } from 'react';
+import { useAtomValue } from 'jotai';
+import {
+  Button,
+  ScrollArea,
+  Spinner,
+  useNonNullMultiQueryState,
+} from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import { NOTIFICATION_FILTER_QUERY_KEYS } from '@/notification/constants/notifications';
+import type { NotificationFilterQueryState } from '@/notification/types/notificationFilters';
 import { NotificationItem } from '@/notification/components/NotificationItem';
 import { NotificationSelectionToolbar } from '@/notification/components/NotificationSelectionToolbar';
+import { NotificationEmptyState } from '@/notification/components/NotificationEmptyState';
 import { useNotificationList } from '@/notification/hooks/useNotificationList';
 import { useNotificationListActions } from '@/notification/hooks/useNotificationListActions';
+import { inboxDisplayOptionsState } from '@/notification/states/notificationState';
 
 export const NotificationList = () => {
   const { t } = useTranslation('common', { keyPrefix: 'notification' });
-  const { notifications, loading, inViewRef, isEmpty, hasMore } =
-    useNotificationList();
+  const filters = useNonNullMultiQueryState<NotificationFilterQueryState>(
+    NOTIFICATION_FILTER_QUERY_KEYS,
+  );
+  const { grouping, unreadFirst } = useAtomValue(inboxDisplayOptionsState);
   const {
-    selectedIds,
-    focusedId,
-    clear,
-    markingAsRead,
-    markSelectedAsRead,
-    onOpen,
-  } = useNotificationListActions({ notifications, loading });
-
-  if (isEmpty) {
+    notifications,
+    groups,
+    loading,
+    inViewRef,
+    isEmpty,
+    hasMore,
+    error,
+    retry,
+    fetchingMore,
+    fetchMoreError,
+    loadMore,
+  } = useNotificationList();
+  const actions = useNotificationListActions({ notifications, loading });
+  if (loading) return <Spinner />;
+  if (error && !notifications.length)
     return (
-      <div className="h-full w-full flex flex-col gap-4 justify-center items-center text-accent-foreground">
-        <div className="border border-dashed p-6 bg-sidebar rounded-xl">
-          <IconInbox />
-        </div>
-        <span className="text-sm">{t('no-notifications')}</span>
+      <div
+        role="alert"
+        className="flex h-full flex-col items-center justify-center gap-3 p-6 text-center"
+      >
+        <p className="text-sm text-destructive">
+          {t('list-load-failed', 'Unable to load notifications')}
+        </p>
+        <Button variant="secondary" onClick={() => void retry()}>
+          {t('retry', 'Retry')}
+        </Button>
       </div>
     );
-  }
-
+  if (isEmpty) return <NotificationEmptyState />;
   return (
     <div className="relative flex flex-col h-full min-h-0">
-      <ScrollArea.Root className="w-full h-full overflow-hidden relative bg-sidebar">
-        {loading ? (
-          <Spinner />
-        ) : (
-          <ScrollArea.Viewport className="[&>div]:block!">
-            <div className="py-3 px-4 flex flex-col gap-2 w-full overflow-hidden">
-              {notifications.map((notification) => (
-                <NotificationItem
-                  key={notification._id}
-                  _id={notification._id}
-                  createdAt={notification.createdAt}
-                  message={notification.message}
-                  isRead={notification.isRead}
-                  contentType={notification.contentType}
-                  priority={notification.priority}
-                  selected={selectedIds.includes(notification._id)}
-                  selectionFocused={focusedId === notification._id}
-                  onOpen={(event) => onOpen(notification._id, event)}
-                />
-              ))}
-              {!loading && hasMore && (
+      <ScrollArea.Root
+        key={JSON.stringify([filters, grouping, unreadFirst])}
+        className="relative h-full w-full overflow-hidden bg-sidebar"
+      >
+        <ScrollArea.Viewport className="[&>div]:block!">
+          <div className="flex w-full min-w-0 flex-col gap-2 px-3 py-3">
+            {error && (
+              <div role="alert" className="text-xs text-destructive">
+                {t('refresh-failed', 'Unable to refresh notifications')}{' '}
+                <Button variant="ghost" size="sm" onClick={() => void retry()}>
+                  {t('retry', 'Retry')}
+                </Button>
+              </div>
+            )}
+            {groups.map(([label, items]) => (
+              <Fragment key={`${label}:${unreadFirst && items[0].isRead}`}>
+                {label && (
+                  <h3 className="flex items-center justify-between px-2 pt-2 text-xs font-semibold text-muted-foreground capitalize">
+                    <span>{label}</span>
+                    <span
+                      className="tabular-nums"
+                      title={t('notification-count', { count: items.length })}
+                    >
+                      {items.length}
+                    </span>
+                  </h3>
+                )}
+                {items.map((item) => (
+                  <NotificationItem
+                    key={item._id}
+                    {...item}
+                    selected={actions.selectedIds.includes(item._id)}
+                    selectionDisabled={actions.pending}
+                    selectionFocused={actions.focusedId === item._id}
+                    onToggleSelection={(shiftKey) =>
+                      actions.select(item._id, shiftKey)
+                    }
+                    onOpen={(event) => actions.onOpen(item._id, event)}
+                  />
+                ))}
+              </Fragment>
+            ))}
+            {fetchMoreError ? (
+              <div
+                role="alert"
+                className="p-2 text-center text-xs text-destructive"
+              >
+                {t('load-more-failed', 'Unable to load more notifications')}
+                <Button
+                  variant="ghost"
+                  className="w-full"
+                  onClick={() => void loadMore()}
+                >
+                  {t('retry', 'Retry')}
+                </Button>
+              </div>
+            ) : (
+              hasMore && (
                 <Button
                   variant="ghost"
                   ref={inViewRef}
                   className="h-8 w-full text-muted-foreground"
-                  asChild
+                  disabled={fetchingMore}
+                  onClick={() => void loadMore()}
                 >
-                  <div>
+                  {fetchingMore && (
                     <Spinner containerClassName="inline-flex flex-none" />
-                    {t('loading-more')}
-                  </div>
+                  )}
+                  {fetchingMore
+                    ? t('loading-more')
+                    : t('load-more', 'Load more')}
                 </Button>
-              )}
-            </div>
-          </ScrollArea.Viewport>
-        )}
-
+              )
+            )}
+          </div>
+        </ScrollArea.Viewport>
         <ScrollArea.Bar orientation="vertical" />
       </ScrollArea.Root>
-      {selectedIds.length > 0 && (
-        <NotificationSelectionToolbar
-          selectedCount={selectedIds.length}
-          markingAsRead={markingAsRead}
-          onMarkAsRead={markSelectedAsRead}
-          onClear={clear}
-        />
-      )}
+      <NotificationSelectionToolbar
+        selectedCount={actions.selectedIds.length}
+        visibleCount={notifications.length}
+        pending={actions.pending}
+        allRead={actions.allRead}
+        onToggleAll={actions.toggleAll}
+        onMarkAsRead={actions.markSelectedAsRead}
+        onDelete={actions.deleteSelected}
+        onClear={actions.clear}
+      />
     </div>
   );
 };

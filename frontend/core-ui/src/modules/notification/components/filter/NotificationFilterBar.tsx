@@ -1,89 +1,101 @@
-import { NotificationPriorityCommandBar } from '@/notification/components/filter/NotificationPriorityCommandBar';
-import { NotificationTypeCommandBar } from '@/notification/components/filter/NotificationTypeCommandBar';
-import { MyInboxHotkeyScope } from '@/notification/types/notifications';
 import {
-  IconCalendarPlus,
-  IconEyeUp,
+  IconCalendar,
+  IconFlag,
+  IconFilterOff,
+  IconLock,
   IconNotification,
 } from '@tabler/icons-react';
 import {
+  Combobox,
+  Button,
   Filter,
   PageSubHeader,
   Popover,
-  ScrollArea,
   useMultiQueryState,
 } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import { NotificationPriorityCommandBar } from './NotificationPriorityCommandBar';
+import { NotificationTypeCommandBar } from './NotificationTypeCommandBar';
+import { NotificationPriority } from '@/notification/components/NotificationPriority';
+import { NotificationPluginFilterBarItem } from './NotificationPluginFilterBarItem';
+import { NotificationSenderFilterBarItem } from './NotificationSenderFilterBarItem';
+import type { NotificationFilterQueries } from '@/notification/types/notificationFilters';
+import { useNotificationFilterControls } from '@/notification/hooks/useNotificationFilterControls';
+import { NOTIFICATION_CONTENT_FILTER_QUERY_KEYS } from '@/notification/constants/notifications';
 
 export const NotificationFilterBar = () => {
   const { t } = useTranslation('common', { keyPrefix: 'notification' });
-  const [queries, setQueries] = useMultiQueryState<{
-    priority?: string;
-    type?: string;
-    createdAt: string;
-  }>(['priority', 'type', 'createdAt']);
-
-  const hasFilters = Object.values(queries || {}).some(
-    (value) => value !== null,
+  const { hasActiveFilters, clearFilters } = useNotificationFilterControls();
+  const [queries] = useMultiQueryState<NotificationFilterQueries>(
+    NOTIFICATION_CONTENT_FILTER_QUERY_KEYS,
   );
 
-  if (!hasFilters) {
-    return null;
-  }
+  if (!hasActiveFilters) return null;
 
   return (
-    <PageSubHeader className="p-0">
-      <ScrollArea className="w-full">
-        <div className="flex gap-1 p-2">
-          <Filter id={MyInboxHotkeyScope.MainPage}>
-            <Filter.Bar className="flex-nowrap">
-              <Filter.BarItem queryKey="type">
-                <Filter.BarName className="whitespace-nowrap">
-                  <IconNotification />
-                  {t('notification-type')}
-                </Filter.BarName>
-                <Popover>
-                  <Popover.Trigger>
-                    <Filter.BarButton filterKey="type">
-                      {queries.type}
-                    </Filter.BarButton>
-                  </Popover.Trigger>
-                  <Popover.Content className="p-0">
-                    <NotificationTypeCommandBar />
-                  </Popover.Content>
-                </Popover>
-              </Filter.BarItem>
-              <Filter.BarItem queryKey="priority">
-                <Filter.BarName className="whitespace-nowrap">
-                  <IconEyeUp />
-                  {t('priority')}
-                </Filter.BarName>
-                <Popover>
-                  <Popover.Trigger>
-                    <Filter.BarButton filterKey="priority">
-                      {queries.priority}
-                    </Filter.BarButton>
-                  </Popover.Trigger>
-                  <Popover.Content className="p-0">
-                    <NotificationPriorityCommandBar
-                      priority={queries.priority || ''}
-                      setQueries={setQueries}
-                    />
-                  </Popover.Content>
-                </Popover>
-              </Filter.BarItem>
-              <Filter.BarItem queryKey="createdAt">
-                <Filter.BarName className="whitespace-nowrap">
-                  <IconCalendarPlus />
-                  {t('created-at')}
-                </Filter.BarName>
-                <Filter.Date filterKey="createdAt" />
-              </Filter.BarItem>
-            </Filter.Bar>
-          </Filter>
-        </div>
-        <ScrollArea.Bar orientation="horizontal" />
-      </ScrollArea>
+    <PageSubHeader>
+      <Filter id="notification-active-filters">
+        <Filter.Bar aria-label={t('active-filters', 'Active filters')}>
+          <NotificationPluginFilterBarItem />
+          <Filter.BarItem queryKey="notificationPriority">
+            <Filter.BarName>
+              <IconFlag />
+              {t('priority')}
+            </Filter.BarName>
+            <Popover>
+              <Popover.Trigger asChild>
+                <Filter.BarButton className="capitalize">
+                  <NotificationPriority
+                    priority={queries.notificationPriority}
+                  />
+                </Filter.BarButton>
+              </Popover.Trigger>
+              <Combobox.Content>
+                <NotificationPriorityCommandBar />
+              </Combobox.Content>
+            </Popover>
+          </Filter.BarItem>
+          <Filter.BarItem queryKey="notificationType">
+            <Filter.BarName>
+              <IconNotification />
+              {t('notification-type')}
+            </Filter.BarName>
+            <Popover>
+              <Popover.Trigger asChild>
+                <Filter.BarButton className="capitalize">
+                  {queries.notificationType}
+                </Filter.BarButton>
+              </Popover.Trigger>
+              <Combobox.Content>
+                <NotificationTypeCommandBar />
+              </Combobox.Content>
+            </Popover>
+          </Filter.BarItem>
+          <Filter.BarItem queryKey="notificationCreatedAt">
+            <Filter.BarName>
+              <IconCalendar />
+              {t('created-at')}
+            </Filter.BarName>
+            <Filter.Date filterKey="notificationCreatedAt" />
+          </Filter.BarItem>
+          <NotificationSenderFilterBarItem />
+          <Filter.BarItem queryKey="notificationModule">
+            <Filter.BarName>
+              <IconLock />
+              {t('approval')}
+            </Filter.BarName>
+          </Filter.BarItem>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="shrink-0 text-muted-foreground"
+            onClick={clearFilters}
+          >
+            <IconFilterOff />
+            {t('clear-filters')}
+          </Button>
+        </Filter.Bar>
+      </Filter>
     </PageSubHeader>
   );
 };

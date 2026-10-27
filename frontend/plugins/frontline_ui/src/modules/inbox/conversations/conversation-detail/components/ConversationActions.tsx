@@ -7,7 +7,7 @@ import { refetchConversationsAtom } from '../../states/refetchConversationState'
 import { useTranslation } from 'react-i18next';
 
 export const ConversationActions = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const { changeConversationStatus, loading } = useChangeConversationStatus();
   const refetchConversations = useAtomValue(refetchConversationsAtom);
 

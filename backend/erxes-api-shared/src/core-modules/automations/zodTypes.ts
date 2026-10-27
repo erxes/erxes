@@ -133,6 +133,13 @@ export const ResolveOutputPathsInputData = z.object({
   defaultValue: z.any().optional(),
 });
 
+export const ResolveOutputVariablesInputData = z.object({
+  moduleName: z.string(),
+  collectionType: z.string().optional(),
+  nodeType: z.string(),
+  config: z.record(z.any()),
+});
+
 export const SetPropertiesInputData = z.object({
   moduleName: z.string(),
   triggerType: z.string(),
@@ -171,6 +178,18 @@ export const LookupAiToolInputData = z.object({
   filters: z.record(z.unknown()).optional(),
 });
 
+export const ValidateConfigsInputData = z.object({
+  nodes: z
+    .array(
+      z.object({
+        id: z.string(),
+        type: z.string(),
+        config: z.unknown().optional(),
+      }),
+    )
+    .max(500),
+});
+
 export const CheckCustomTriggerInput = AutomationBaseInput.extend({
   data: CheckCustomTriggerInputData,
 });
@@ -181,6 +200,10 @@ export const FindObjectInput = AutomationBaseInput.extend({
 
 export const ResolveOutputPathsInput = AutomationBaseInput.extend({
   data: ResolveOutputPathsInputData,
+});
+
+export const ResolveOutputVariablesInput = AutomationBaseInput.extend({
+  data: ResolveOutputVariablesInputData,
 });
 
 export const SetPropertiesInput = AutomationBaseInput.extend({
@@ -199,6 +222,10 @@ export const LookupAiToolInput = AutomationBaseInput.extend({
   data: LookupAiToolInputData,
 });
 
+export const ValidateConfigsInput = AutomationBaseInput.extend({
+  data: ValidateConfigsInputData,
+});
+
 export type TAutomationProducersInput = {
   [TAutomationProducers.RECEIVE_ACTIONS]: z.infer<
     typeof ReceiveActionsInputData
@@ -210,6 +237,9 @@ export type TAutomationProducersInput = {
   [TAutomationProducers.RESOLVE_OUTPUT_PATHS]: z.infer<
     typeof ResolveOutputPathsInputData
   >;
+  [TAutomationProducers.RESOLVE_OUTPUT_VARIABLES]: z.infer<
+    typeof ResolveOutputVariablesInputData
+  >;
   [TAutomationProducers.SET_PROPERTIES]: z.infer<typeof SetPropertiesInputData>;
 
   [TAutomationProducers.GENERATE_AI_CONTEXT]: z.infer<
@@ -219,4 +249,7 @@ export type TAutomationProducersInput = {
     typeof LoadAiKnowledgeDocumentBatchInputData
   >;
   [TAutomationProducers.LOOKUP_AI_TOOL]: z.infer<typeof LookupAiToolInputData>;
+  [TAutomationProducers.VALIDATE_CONFIGS]: z.infer<
+    typeof ValidateConfigsInputData
+  >;
 };

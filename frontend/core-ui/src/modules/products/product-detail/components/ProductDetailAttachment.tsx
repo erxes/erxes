@@ -14,6 +14,8 @@ import {
   PRODUCT_VIDEO_LIMIT,
   ProductVideosUpload,
 } from 'ui-modules/modules/products/components/ProductVideoUploads';
+import { ProductFilesUpload } from 'ui-modules/modules/products/components/ProductFilesUpload';
+import { ProductFileItem } from 'ui-modules/modules/products/hooks/useProductFiles';
 import { ProductFormValues } from '@/products/constants/ProductFormSchema';
 import { ProductAttachment } from '../types/detailTypes';
 
@@ -21,10 +23,12 @@ export const ProductDetailAttachment = ({
   attachment,
   attachmentMore = [],
   videos = [],
+  files,
 }: {
   attachment?: ProductAttachment | null;
   attachmentMore?: ProductAttachment[] | ProductAttachment | null;
   videos?: ProductAttachment[] | ProductAttachment | null;
+  files?: ProductAttachment[] | null;
 }) => {
   const { t } = useTranslation('product', { keyPrefix: 'detail' });
   const form = useFormContext<ProductFormValues>();
@@ -36,6 +40,9 @@ export const ProductDetailAttachment = ({
   );
   const [videoItems, setVideoItems] = useState<ProductAttachmentItem[]>(() =>
     toProductAttachmentList(videos),
+  );
+  const [fileItems, setFileItems] = useState<ProductFileItem[]>(() =>
+    toProductAttachmentList(files),
   );
 
   useEffect(() => {
@@ -51,6 +58,10 @@ export const ProductDetailAttachment = ({
   }, [videos]);
 
   useEffect(() => {
+    setFileItems(toProductAttachmentList(files));
+  }, [files]);
+
+  useEffect(() => {
     form.setValue('attachment', featured ?? undefined);
   }, [featured]);
 
@@ -61,6 +72,10 @@ export const ProductDetailAttachment = ({
   useEffect(() => {
     form.setValue('videos', videoItems);
   }, [videoItems]);
+
+  useEffect(() => {
+    form.setValue('files', fileItems);
+  }, [fileItems]);
 
   return (
     <div className="space-y-4">
@@ -94,6 +109,11 @@ export const ProductDetailAttachment = ({
             onChange={setVideoItems}
             maxVideos={PRODUCT_VIDEO_LIMIT}
           />
+        </InfoCard.Content>
+      </InfoCard>
+      <InfoCard title={t('files', 'Files')}>
+        <InfoCard.Content>
+          <ProductFilesUpload value={fileItems} onChange={setFileItems} />
         </InfoCard.Content>
       </InfoCard>
     </div>

@@ -107,7 +107,7 @@ const TextField = ({
       <Form.Item>
         <FieldLabel required={required}>{label}</FieldLabel>
         <Form.Control>
-          <Input className="h-8 rounded-md" {...field} />
+          <Input className="rounded-md" {...field} />
         </Form.Control>
         <Form.Message className="text-destructive" />
       </Form.Item>
@@ -136,7 +136,7 @@ const SelectField = ({
         <FieldLabel required={required}>{label}</FieldLabel>
         <Select onValueChange={field.onChange} value={field.value ?? ''}>
           <Form.Control>
-            <Select.Trigger className="truncate w-full rounded-md justify-between text-foreground h-8">
+            <Select.Trigger className="truncate w-full rounded-md justify-between text-foreground">
               <Select.Value placeholder="Choose">
                 {options.find((option) => option.value === field.value)?.label}
               </Select.Value>
@@ -258,7 +258,7 @@ const PhoneStatusSelect = ({
       return (
         <Select value={current.value} onValueChange={field.onChange}>
           <Select.Trigger
-            className="absolute left-1 top-1/2 z-10 size-7 -translate-y-1/2 justify-center border-0 bg-transparent p-0 shadow-none [&>svg:last-child]:hidden"
+            className="absolute left-1 top-1/2 z-10 size-6 -translate-y-1/2 justify-center border-0 bg-transparent p-0 shadow-none [&>svg:last-child]:hidden"
             aria-label={current.label}
             title={current.label}
           >
@@ -299,7 +299,7 @@ export const PrimaryPhoneField = ({
           <div className="relative">
             <PhoneStatusSelect control={control} />
             <Form.Control>
-              <Input className="h-8 rounded-md pl-9" {...field} />
+              <Input className="rounded-md pl-9" {...field} />
             </Form.Control>
           </div>
           <Form.Message className="text-destructive" />
@@ -377,7 +377,7 @@ export const SexField = ({ control }: TCustomerFieldProps) => {
             value={String(field.value ?? 0)}
           >
             <Form.Control>
-              <Select.Trigger className="truncate w-full rounded-md justify-between text-foreground h-8">
+              <Select.Trigger className="truncate w-full rounded-md justify-between text-foreground">
                 <Select.Value placeholder="Choose">
                   {
                     CUSTOMER_SEX_OPTIONS.find(

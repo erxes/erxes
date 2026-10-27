@@ -5,7 +5,7 @@ import { IChannelDetail } from '@/channels/types';
 import { useSurveyTotalCount } from '@/survey/hooks/useSurveyTotalCount';
 
 export const SurveysSection = ({ channel }: { channel: IChannelDetail }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.channels' });
   const navigate = useNavigate();
   const { totalCount } = useSurveyTotalCount({
     variables: {

@@ -1,6 +1,10 @@
 import type { TFunction } from 'i18next';
 import { useTranslation } from 'react-i18next';
-import { IconArrowRight, IconCircleOff } from '@tabler/icons-react';
+import {
+  IconArrowRight,
+  IconCircleOff,
+  IconUserOff,
+} from '@tabler/icons-react';
 import { Cell, ColumnDef } from '@tanstack/react-table';
 import {
   Combobox,
@@ -13,6 +17,7 @@ import {
 } from 'erxes-ui';
 import { useMemo } from 'react';
 import { SelectMember } from 'ui-modules';
+import { AccountingEmptyState } from '@/layout/components/AccountingEmptyState';
 import { useFixedAssetCategories } from '@/settings/fixed-assets/hooks/useFixedAssetCategories';
 import { useFixedAssets } from '@/settings/fixed-assets/hooks/useFixedAssets';
 import { useFxaOwnerRecords } from '@/settings/fixed-assets/hooks/useFxaOwnerRecords';
@@ -21,7 +26,7 @@ import {
   IFixedAssetCategory,
   IFxaOwnerRecord,
 } from '@/settings/fixed-assets/types/FixedAsset';
-import { FxaOwnerRecordActionSheet } from './FxaOwnerRecordActionSheet';
+import { FxaOwnerRecordActionSheet } from '@/fixedAssets/ownerRecords/components/FxaOwnerRecordActionSheet';
 
 const OWNER_RECORD_STATUS_LABELS: Record<string, string> = {
   active: 'active',
@@ -256,7 +261,7 @@ const FxaOwnerRecordsSkeleton = ({ rows = 20 }: { rows?: number }) => {
 
 export const FxaOwnerRecordsTable = () => {
   const { t } = useTranslation('accounting');
-  const { fxaOwnerRecords, handleFetchMore, loading, totalCount } =
+  const { fxaOwnerRecords, handleFetchMore, loading, error, totalCount } =
     useFxaOwnerRecords();
   const { fixedAssets } = useFixedAssets();
   const { fixedAssetCategories } = useFixedAssetCategories();
@@ -295,13 +300,15 @@ export const FxaOwnerRecordsTable = () => {
   }));
   const isInitialLoading = loading && !fxaOwnerRecords?.length;
 
+  const isEmpty = !loading && !records.length;
+
   return (
     <RecordTable.Provider
       columns={columns}
       data={isInitialLoading ? [] : records}
       stickyColumns={['more', 'checkbox', 'code']}
       tableId="accounting_fxa_owner_records_table"
-      className="m-3"
+      className="relative m-3"
     >
       <RecordTable.Scroll>
         <RecordTable>
@@ -318,6 +325,15 @@ export const FxaOwnerRecordsTable = () => {
           </RecordTable.Body>
         </RecordTable>
       </RecordTable.Scroll>
+      {isEmpty && (
+        <AccountingEmptyState
+          overlay
+          error={error}
+          icon={IconUserOff}
+          title={t('no-asset-custodian-records-found')}
+          description={t('empty-generated-description')}
+        />
+      )}
     </RecordTable.Provider>
   );
 };

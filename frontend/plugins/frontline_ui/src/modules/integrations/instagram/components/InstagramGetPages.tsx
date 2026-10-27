@@ -13,7 +13,9 @@ import { useInstagramPages } from '@/integrations/instagram/hooks/useInstagramPa
 import { useIgIntegrationContext } from '@/integrations/instagram/context/IgIntegrationContext';
 
 export const InstagramGetPages = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const { isPost } = useIgIntegrationContext();
   const [selectedPage, setSelectedPage] = useAtom(selectedInstagramPageAtom);
   const { instagramGetPages } = useInstagramPages({
@@ -85,6 +87,15 @@ export const InstagramGetPages = () => {
                     onClick={() => setSelectedPage(page.id ?? undefined)}
                   />
                   <div className="font-semibold">{page.name}</div>
+                  {page.usage && (
+                    <div className="ml-auto text-xs text-muted-foreground truncate">
+                      {`${page.usage.channelName || t('no-channel')} › ${
+                        page.usage.integrationName ||
+                        page.usage.integrationId ||
+                        ''
+                      }`}
+                    </div>
+                  )}
                 </Command.Item>
               ))}
             </Command.List>

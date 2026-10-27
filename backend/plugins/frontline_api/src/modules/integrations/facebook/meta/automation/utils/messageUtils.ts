@@ -9,6 +9,7 @@ import {
 } from '@/integrations/facebook/meta/automation/types/automationTypes';
 import { sendAutomationTrigger } from 'erxes-api-shared/core-modules';
 import { getReplyDebounceMs } from '@/integrations/facebook/meta/automation/utils/turnTaking';
+import { claimFacebookInputReply } from '@/integrations/facebook/meta/automation/messages/inputWait';
 
 type TFacebookAutomationPayload = {
   executionId?: string;
@@ -95,7 +96,8 @@ export const parseAutomationPayload = (
 export const isPostbackPayload = (payload?: TFacebookAutomationPayload) =>
   Object.values(payload || {}).some((value) => value !== undefined);
 
-export const triggerFacebookMessageAutomation = (
+export const triggerFacebookMessageAutomation = async (
+  models: IModels,
   subdomain: string,
   {
     conversationMessage,
@@ -112,7 +114,9 @@ export const triggerFacebookMessageAutomation = (
   }
 
   const target: TFacebookAutomationTarget = { ...conversationMessage };
-  let repeatOptions;
+  let repeatOptions:
+    | { executionId: string; actionId: string; optionalConnectId?: string }
+    | undefined;
 
   if (payload) {
     target.payload = parseAutomationPayload(payload);
@@ -137,9 +141,17 @@ export const triggerFacebookMessageAutomation = (
     target.entryType = 'direct';
   }
 
+  if (target.entryType === 'direct' && !payload) {
+    repeatOptions = await claimFacebookInputReply(
+      models,
+      conversationMessage.conversationId,
+    );
+  }
+
   // Taps and replies to a waiting step answer immediately; a typed message
   // waits for the person to finish, see checkMessageTrigger.
-  const isTypedMessage = target.entryType === 'direct' && !payload;
+  const isTypedMessage =
+    target.entryType === 'direct' && !payload && !repeatOptions;
 
   sendAutomationTrigger(
     subdomain,

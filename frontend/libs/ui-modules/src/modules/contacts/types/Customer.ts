@@ -11,6 +11,19 @@ export interface ITrackedDataItem {
   dateValue?: string;
 }
 
+// Every status the backend stores for a phone (PHONE_VALIDATION_STATUSES in
+// erxes-api-shared), not only valid/invalid.
+export const PHONE_VALIDATION_STATUS_VALUES = [
+  'valid',
+  'invalid',
+  'unknown',
+  'receives_sms',
+  'unverifiable',
+] as const;
+
+export type TPhoneValidationStatus =
+  (typeof PHONE_VALIDATION_STATUS_VALUES)[number];
+
 export interface ICustomerInline {
   _id: string;
   firstName?: string;
@@ -25,7 +38,7 @@ export interface ICustomer extends ICustomerInline {
   links?: object;
   code?: string;
   emailValidationStatus?: ValidationStatus;
-  phoneValidationStatus?: ValidationStatus;
+  phoneValidationStatus?: TPhoneValidationStatus;
   emails?: string[];
   phones?: string[];
   tagIds?: string[];

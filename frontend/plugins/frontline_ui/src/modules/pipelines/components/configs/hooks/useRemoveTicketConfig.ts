@@ -4,7 +4,7 @@ import { toast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
 export const useRemoveTicketConfig = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.pipelines' });
   const [removeTicketConfig, { loading }] = useMutation(REMOVE_TICKET_CONFIG, {
     refetchQueries: ['TicketConfig'],
     onCompleted: () => {

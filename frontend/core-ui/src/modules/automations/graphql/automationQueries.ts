@@ -18,8 +18,8 @@ export const AUTOMATION_CONSTANTS = gql`
 `;
 
 export const AUTOMATION_NODE_OUTPUT = gql`
-  query AutomationNodeOutput($nodeType: String!) {
-    automationNodeOutput(nodeType: $nodeType)
+  query AutomationNodeOutput($nodeType: String!, $config: JSON) {
+    automationNodeOutput(nodeType: $nodeType, config: $config)
   }
 `;
 
@@ -207,5 +207,22 @@ export const AUTOMATION_EXECUTION_COUNTS = gql`
       key
       count
     }
+  }
+`;
+
+export const AUTOMATION_PREFLIGHT = gql`
+  query automationPreflight(
+    $_id: String
+    $triggers: [TriggerInput]
+    $actions: [ActionInput]
+    $workflows: [WorkflowInput]
+  ) {
+    automationValidate(
+      _id: $_id
+      status: "active"
+      triggers: $triggers
+      actions: $actions
+      workflows: $workflows
+    )
   }
 `;

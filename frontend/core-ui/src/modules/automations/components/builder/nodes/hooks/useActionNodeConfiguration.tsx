@@ -13,6 +13,8 @@ import {
 } from 'ui-modules';
 import { TAutomationActionComponent } from '@/automations/components/builder/nodes/types/coreAutomationActionTypes';
 import { useMemo } from 'react';
+import { ErrorBoundary } from 'react-error-boundary';
+import { NodeContentErrorState } from '@/automations/components/builder/nodes/components/NodeContentErrorState';
 
 export const useActionNodeConfiguration = (
   data: NodeData,
@@ -37,7 +39,12 @@ export const useActionNodeConfiguration = (
       );
 
       if (CoreActionComponent) {
-        component = <CoreActionComponent nodeData={data} config={config} />;
+        // One step whose config cannot be drawn must not take the canvas down.
+        component = (
+          <ErrorBoundary fallback={<NodeContentErrorState />}>
+            <CoreActionComponent nodeData={data} config={config} />
+          </ErrorBoundary>
+        );
       }
     } else if (pluginName && moduleName && actionData) {
       const actionNodeProps: AutomationActionNodeConfigProps = {

@@ -22,7 +22,9 @@ export const InstagramIntegrationFormSheet = ({
 }: {
   isPost?: boolean;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const [instagramFormSheet, setInstagramFormSheet] = useAtom(
     instagramFormSheetAtom,
   );
@@ -67,7 +69,9 @@ export const InstagramIntegrationFormLayout = ({
   children: React.ReactNode;
   actions: React.ReactNode;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const resetForm = useSetAtom(resetInstagramAddStateAtom);
   const { isPost } = useIgIntegrationContext();
 

@@ -23,11 +23,16 @@ export const useIntegrationReauth = (
   authMessageType: string,
   onAuthorized: () => void,
 ) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const [loading, setLoading] = useState(false);
   const mountedRef = useRef(true);
 
   useEffect(() => {
+    // StrictMode runs this cleanup and the effect again; without re-arming the
+    // ref stays false and the spinner never clears after the popup closes.
+    mountedRef.current = true;
     return () => {
       mountedRef.current = false;
     };
@@ -57,7 +62,6 @@ export const useIntegrationReauth = (
     }
 
     setLoading(true);
-
 
     let succeeded = false;
 

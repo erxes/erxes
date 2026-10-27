@@ -1,13 +1,7 @@
+import type { ComposerModeTabsProps } from '@/inbox/conversations/conversation-detail/types/composerUi';
 import { IconLock, IconMessage2 } from '@tabler/icons-react';
-import { Tabs } from 'erxes-ui';
+import { Tabs, cn } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-
-type ComposerModeTabsProps = {
-  isInternalNote: boolean;
-  disabled: boolean;
-  replyDisabled?: boolean;
-  onInternalNoteChange: (internal: boolean) => void;
-};
 
 export const ComposerModeTabs = ({
   isInternalNote,
@@ -15,7 +9,7 @@ export const ComposerModeTabs = ({
   replyDisabled = false,
   onInternalNoteChange,
 }: ComposerModeTabsProps) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
 
   return (
     <Tabs
@@ -25,7 +19,12 @@ export const ComposerModeTabs = ({
     >
       <Tabs.List
         variant="segment"
-        className="grid h-8 w-full max-w-xs grid-cols-2 gap-0 rounded-lg bg-muted/70 p-0.5"
+        className={cn(
+          'grid h-8 w-full max-w-xs grid-cols-2 gap-0 rounded-lg p-0.5',
+          isInternalNote
+            ? 'bg-[#E8D99B]/25 dark:bg-[#E8D99B]/5'
+            : 'bg-muted/70',
+        )}
       >
         <Tabs.Trigger
           value="reply"
@@ -38,7 +37,13 @@ export const ComposerModeTabs = ({
         <Tabs.Trigger
           value="internal"
           disabled={disabled}
-          className="h-7 gap-1.5 rounded-md px-3 py-1 text-xs shadow-none data-[state=active]:bg-warning/15 data-[state=active]:text-warning data-[state=active]:shadow-none data-[state=active]:hover:bg-warning/15"
+          className={
+            'h-7 gap-1.5 rounded-md px-3 py-1 text-xs shadow-none ' +
+            'data-[state=active]:bg-white data-[state=active]:text-[#272727] ' +
+            'data-[state=active]:shadow-sm data-[state=active]:hover:bg-[#FFF8E6] ' +
+            'dark:data-[state=active]:bg-[#E8D99B]/20 dark:data-[state=active]:text-[#E8D99B] ' +
+            'dark:data-[state=active]:hover:bg-[#E8D99B]/20'
+          }
         >
           <IconLock className="size-3.5" />
           {t('internal-note', 'Internal Note')}

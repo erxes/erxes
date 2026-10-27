@@ -15,6 +15,8 @@ export const NOTIFICATIONS = gql`
     $endDate: String
     $fromUserId: String
     $module: String
+    $plugin: String
+    $unreadFirst: Boolean
   ) {
     notifications(
       ids: $ids
@@ -30,6 +32,8 @@ export const NOTIFICATIONS = gql`
       endDate: $endDate
       fromUserId: $fromUserId
       module: $module
+      plugin: $plugin
+      unreadFirst: $unreadFirst
     ) {
       list {
         _id
@@ -47,6 +51,7 @@ export const NOTIFICATIONS = gql`
         }
         priority
         isRead
+        readAt
         contentType
         contentTypeId
         action
@@ -85,6 +90,7 @@ export const NOTIFICATION_DETAIL = gql`
       metadata
       createdAt
       isRead
+      readAt
       contentType
       contentTypeId
       action

@@ -1,4 +1,9 @@
+import { useCanManageChannels } from '@/channels/hooks/useCanManageChannels';
 import { useGetChannels } from '@/channels/hooks/useGetChannels';
+import {
+  PIPELINE_TAB_SEGMENTS,
+  getPipelinePath,
+} from '@/pipelines/constants/pipelineTabs';
 import { useGetPipelines } from '@/pipelines/hooks/useGetPipelines';
 import { TICKET_LIST_CHANGED } from '@/ticket/graphql/subscriptions/ticketListChanged';
 import { useSubscription } from '@apollo/client';
@@ -18,7 +23,12 @@ import { IChannel } from '@/channels/types';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { IconGitBranch, IconMinus, IconPlus } from '@tabler/icons-react';
+import {
+  IconGitBranch,
+  IconMinus,
+  IconPlus,
+  IconSettings,
+} from '@tabler/icons-react';
 
 const PIPELINES_PER_PAGE = 100;
 
@@ -32,19 +42,39 @@ function LoadingSkeleton() {
   );
 }
 
+function SettingsLink({ to, label }: Readonly<{ to: string; label: string }>) {
+  return (
+    <Sidebar.MenuAction
+      asChild
+      showOnHover
+      className="text-muted-foreground hover:text-foreground"
+    >
+      <Link to={to} aria-label={label} title={label}>
+        <IconSettings />
+      </Link>
+    </Sidebar.MenuAction>
+  );
+}
+
 interface ChannelItemProps {
   channel: IChannel;
   pipelineId?: string;
+  canManage: boolean;
 }
 
-function ChannelItem({ channel, pipelineId }: Readonly<ChannelItemProps>) {
+function ChannelItem({
+  channel,
+  pipelineId,
+  canManage,
+}: Readonly<ChannelItemProps>) {
+  const { t } = useTranslation('frontline');
   const [channelId] = useQueryState<string | null>('channelId');
   const isActive = channelId === channel._id;
   return (
     <Sidebar.MenuItem>
       <Sidebar.MenuButton asChild isActive={isActive}>
         <Link
-          to={`frontline/tickets?channelId=${channel._id}${
+          to={`/frontline/tickets?channelId=${channel._id}${
             pipelineId ? `&pipelineId=${pipelineId}` : ''
           }`}
         >
@@ -60,12 +90,18 @@ function ChannelItem({ channel, pipelineId }: Readonly<ChannelItemProps>) {
           <span className="flex-1 min-w-0 truncate">{channel.name}</span>
         </Link>
       </Sidebar.MenuButton>
+      {canManage && (
+        <SettingsLink
+          to={`/frontline/settings/channels/${channel._id}`}
+          label={t('channel-settings', 'Channel settings')}
+        />
+      )}
     </Sidebar.MenuItem>
   );
 }
 
 export function TicketNavigations() {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   const { channels, loading, refetch } = useGetChannels();
   useSubscription(TICKET_LIST_CHANGED, {
     onData: ({ data }) => {
@@ -112,6 +148,10 @@ export function TicketNavigations() {
       ),
     };
   }, [channels]);
+
+  const canManageChannel = useCanManageChannels(
+    (channels ?? []).map((channel) => channel._id),
+  );
 
   const navigationLoading = loading || pipelinesLoading;
 
@@ -171,7 +211,7 @@ export function TicketNavigations() {
 
   return (
     <>
-      <NavigationMenuGroup name="Channels">
+      <NavigationMenuGroup name={t('channels')}>
         {navigationLoading ? (
           <LoadingSkeleton />
         ) : (
@@ -181,10 +221,15 @@ export function TicketNavigations() {
                 key={channel._id}
                 channel={channel}
                 pipelineId={channelPipelineIds[channel._id] || undefined}
+                canManage={canManageChannel(channel._id)}
               />
             ))}
             {visibleUnconfiguredChannels.map((channel) => (
-              <ChannelItem key={channel._id} channel={channel} />
+              <ChannelItem
+                key={channel._id}
+                channel={channel}
+                canManage={canManageChannel(channel._id)}
+              />
             ))}
             {unconfiguredChannels.length > 0 && (
               <Button
@@ -219,7 +264,7 @@ export function TicketNavigations() {
         )}
       </NavigationMenuGroup>
       {channelId && (
-        <NavigationMenuGroup name="Pipelines">
+        <NavigationMenuGroup name={t('pipelines')}>
           <Pipelines />
         </NavigationMenuGroup>
       )}
@@ -228,7 +273,7 @@ export function TicketNavigations() {
 }
 
 const Pipelines = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   const [channelId] = useQueryState<string | null>('channelId');
   const [pipelineId, setPipelineId] = useQueryState<string | null>(
     'pipelineId',
@@ -238,6 +283,8 @@ const Pipelines = () => {
       filter: { channelId: channelId || '', applyVisibilityFilter: true },
     },
   });
+  const canManageChannel = useCanManageChannels(channelId ? [channelId] : []);
+  const canManage = canManageChannel(channelId);
   useEffect(() => {
     if (!channelId || !pipelines) {
       return;
@@ -270,6 +317,16 @@ const Pipelines = () => {
                     {pipeline.name}
                   </span>
                 </Sidebar.MenuButton>
+                {canManage && channelId && (
+                  <SettingsLink
+                    to={getPipelinePath(
+                      channelId,
+                      pipeline._id,
+                      PIPELINE_TAB_SEGMENTS.general,
+                    )}
+                    label={t('pipeline-settings', 'Pipeline settings')}
+                  />
+                )}
               </Sidebar.MenuItem>
             ))
           )}

@@ -57,7 +57,7 @@ export const useConversationDetail = (
         if (!prev || !subscriptionData.data) return prev;
 
         const newMessage = subscriptionData.data.conversationMessageInserted;
-        if (!newMessage) return prev;
+        if (!newMessage || newMessage.internal) return prev;
 
         if (newMessage.fromBot) {
           stopBotTyping();

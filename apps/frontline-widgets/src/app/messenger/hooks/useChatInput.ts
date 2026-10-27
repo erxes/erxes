@@ -41,7 +41,6 @@ export function useChatInput() {
       variables: {
         contentType: 'text',
         message: finalMessage,
-        customerId: customerId || __customerId || undefined,
         attachments: attachments.length > 0 ? attachments : undefined,
       },
       onCompleted: (data) => {

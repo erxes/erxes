@@ -1,5 +1,148 @@
 
 
+## [3.4.2](https://github.com/erxes/erxes/compare/3.4.1...3.4.2) (2026-10-27)
+
+
+### Bug Fixes
+
+* **accounting:** persist inline account, branch and department edits in deal movement rules table ([#9959](https://github.com/erxes/erxes/issues/9959)) ([22e59c9](https://github.com/erxes/erxes/commit/22e59c93b977a419f3421e5b6db96ce43cb8567a))
+* **core-ui:** move the Assistant redirect to /assistant ([#9972](https://github.com/erxes/erxes/issues/9972)) ([f9e7e90](https://github.com/erxes/erxes/commit/f9e7e90cfa4aa5bd5e2feecae12334f68b6c7246))
+* **core:** add product type change action ([#9908](https://github.com/erxes/erxes/issues/9908)) ([c752841](https://github.com/erxes/erxes/commit/c75284142d3ce879185b4ce7a36284c5349ef72b))
+* **core:** improve My Inbox filtering and selection ([#9899](https://github.com/erxes/erxes/issues/9899)) ([e74c952](https://github.com/erxes/erxes/commit/e74c9521a260d6a55bde3d0b5cfa010d9233ac71))
+* fix loader placement ([aec980d](https://github.com/erxes/erxes/commit/aec980d9b0f5eb5a9c8dd8d1545d9ce402c87122))
+* **frontline:** i18n for inbox and reports ([#9785](https://github.com/erxes/erxes/issues/9785)) ([c83c88b](https://github.com/erxes/erxes/commit/c83c88bad38f5c01cc8c152cd9240f13af2bccec))
+* **frontline:** i18n for integrations, help center and automation widgets ([#9784](https://github.com/erxes/erxes/issues/9784)) ([963dfe8](https://github.com/erxes/erxes/commit/963dfe8ae57571497e7e05a228c9bbcaf2527eb6))
+* **frontline:** i18n for tickets, knowledge base and Facebook widget ([#9786](https://github.com/erxes/erxes/issues/9786)) ([b38ab38](https://github.com/erxes/erxes/commit/b38ab38142199d81f4dd8e2f5e5b9f4b6f5a8d3e))
+* keep app switcher columns visible with long favorites ([#9974](https://github.com/erxes/erxes/issues/9974)) ([599bce8](https://github.com/erxes/erxes/commit/599bce82ec2f24912db2b315d00bee49ce1d8bd2))
+* **operation:** correct team member removal and inactive labels ([#9928](https://github.com/erxes/erxes/issues/9928)) ([f76a4e8](https://github.com/erxes/erxes/commit/f76a4e88adefdfa4bde920e1a8efefb6f52c1d95))
+* posclient products categories clean ([b2660d2](https://github.com/erxes/erxes/commit/b2660d2932782bd05d240292c082287a11bbf3ba))
+* **segments:** tidy the segment sheet layout and added empty states([#9859](https://github.com/erxes/erxes/issues/9859)) ([5c58ba2](https://github.com/erxes/erxes/commit/5c58ba20bd83ea901e838aeb3d1e7c291ba3fbca))
+* **task:** enhance cycle filtering in task queries and UI hook ([#9960](https://github.com/erxes/erxes/issues/9960)) ([16240e8](https://github.com/erxes/erxes/commit/16240e89e98bb31cf95b848ab7d91a1ec8d60685))
+* truncate long favorite module names in app switcher ([#9998](https://github.com/erxes/erxes/issues/9998)) ([b0c8f40](https://github.com/erxes/erxes/commit/b0c8f4056ab1770e6a9994e11326933f1af75fa7))
+
+
+### Features
+
+* **accounting:** nest settings under sidebar sections with feedback and inline edits ([#9919](https://github.com/erxes/erxes/issues/9919)) ([6156fed](https://github.com/erxes/erxes/commit/6156feddb22ba78c3197f69ed7dae13959de99fe))
+* add location features to branch settings ([5d8a3da](https://github.com/erxes/erxes/commit/5d8a3da5d6f2ccbb214f26e004eed3663e747c39))
+* add tag in triage and add customer company select ([dc1a1a8](https://github.com/erxes/erxes/commit/dc1a1a8a373c3cbceeb995a86bd6bd7cdf2750de))
+* **agent:** AI Assistant mentions, documents, model catalog, turn timeline and cleanup ([#9964](https://github.com/erxes/erxes/issues/9964)) ([fb03c09](https://github.com/erxes/erxes/commit/fb03c0904b830db5abe56f43d045d0f274c49116)), closes [#9845](https://github.com/erxes/erxes/issues/9845) [#9965](https://github.com/erxes/erxes/issues/9965)
+* **auth:** enhance login process with rate limiting and failure tracking ([333f6f6](https://github.com/erxes/erxes/commit/333f6f6704bdb56b8eb2ea6debe45e17ebcdb55b))
+* **content:** store site-wide texts on Web Builder webs ([#9975](https://github.com/erxes/erxes/issues/9975)) ([107bb60](https://github.com/erxes/erxes/commit/107bb60494f583acd8c4880f02392bd66e943801))
+* **documents:** Print button added on each document types, document … ([#9677](https://github.com/erxes/erxes/issues/9677)) ([d9fb1b3](https://github.com/erxes/erxes/commit/d9fb1b36c1d3323ebbacdebfc236f20caeeecdde)), closes [#9911](https://github.com/erxes/erxes/issues/9911) [#9911](https://github.com/erxes/erxes/issues/9911) [#9911](https://github.com/erxes/erxes/issues/9911)
+* Implement preflight checks for automation builder ([89ef1fd](https://github.com/erxes/erxes/commit/89ef1fdeb9c74e42c8bf86629fd0c7ee208bec1e))
+* implement structure chart components and context ([c8fe771](https://github.com/erxes/erxes/commit/c8fe771d248137bab60844eceb5ba378ae2bc1d6))
+* **notification:** add notification templates management ([2c1b0ea](https://github.com/erxes/erxes/commit/2c1b0ead61a47f48331f6ff1dc47242c46f7398e))
+* refactor file configuration handling for SaaS compatibility ([1a55e89](https://github.com/erxes/erxes/commit/1a55e899fba1fbf550da7d916863a3ea628a9063))
+* **sales:** add tag filter to sales pipeline deals filter ([#9971](https://github.com/erxes/erxes/issues/9971)) ([0636b89](https://github.com/erxes/erxes/commit/0636b89e5ae738283ae934fcaea9e94d411cae26))
+
+## [3.4.1](https://github.com/erxes/erxes/compare/3.4.0...3.4.1) (2026-10-23)
+
+
+### Reverts
+
+* unset customerIds and companyIds ([#9952](https://github.com/erxes/erxes/issues/9952)) ([15daf84](https://github.com/erxes/erxes/commit/15daf84b025a3a70822d666860c4c0ebba218a42))
+
+# [3.4.0](https://github.com/erxes/erxes/compare/3.3.10...3.4.0) (2026-10-23)
+
+
+### Features
+
+* remove deal relations from operations ([e9eaa4a](https://github.com/erxes/erxes/commit/e9eaa4af9b6fd9f337b87b5243ba542dbe395bb2))
+* remove relations collections and change relations  ([d83e2fa](https://github.com/erxes/erxes/commit/d83e2fa8e4be557bce37df0882aeb234bea74d63))
+
+## [3.3.10](https://github.com/erxes/erxes/compare/3.3.9...3.3.10) (2026-10-22)
+
+
+### Bug Fixes
+
+* posclient orders log with expire ([a9cfe27](https://github.com/erxes/erxes/commit/a9cfe278a1209e8af65855be353c326c5c157b49))
+
+
+### Features
+
+* **accounting:** add production jobs(techcart) and executions, refine accounting workflows ([#9781](https://github.com/erxes/erxes/issues/9781)) ([742afc7](https://github.com/erxes/erxes/commit/742afc7a241588d4d4be7899588abfe260426a34))
+
+## [3.3.9](https://github.com/erxes/erxes/compare/3.3.8...3.3.9) (2026-10-22)
+
+### Bug Fixes
+
+* **content:** keep CMS editors usable when custom dropdown fields contain blank choices ([#9924](https://github.com/erxes/erxes/pull/9924)) ([dfd1def](https://github.com/erxes/erxes/commit/dfd1def0ddf153a5c9e3505fabe6d0905074d620))
+
+## [3.3.8](https://github.com/erxes/erxes/compare/3.3.7...3.3.8) (2026-10-22)
+
+
+### Reverts
+
+* Revert "feat(core-ui): group notifications by author and add status tabs (#9912)" (#9915) ([e6fac5a](https://github.com/erxes/erxes/commit/e6fac5a4602cae22ad18c3feedf5af04cb9fad62)), closes [#9912](https://github.com/erxes/erxes/issues/9912) [#9915](https://github.com/erxes/erxes/issues/9915)
+* Revert "feat(core): add provider-first workspace connections (#9905)" (#9914) ([9ebe4f8](https://github.com/erxes/erxes/commit/9ebe4f84a0b61bcedfd7413d109ca797dfe3ede2)), closes [#9905](https://github.com/erxes/erxes/issues/9905) [#9914](https://github.com/erxes/erxes/issues/9914)
+
+# Changelog
+
+## [3.3.7](https://github.com/erxes/erxes/compare/3.3.4...3.3.7) (2026-10-22)
+
+
+### Bug Fixes
+
+* **accounting:** correct check-sync label spelling and casing ([#9893](https://github.com/erxes/erxes/issues/9893)) ([550293c](https://github.com/erxes/erxes/commit/550293c275a4fb7d308f22d518b7964ca9e902ca))
+* align plugin scaffolding and host federation contracts ([#9888](https://github.com/erxes/erxes/issues/9888)) ([e9e7ab1](https://github.com/erxes/erxes/commit/e9e7ab167e4f3a5beabea52e741c1489fbf56cda))
+* clientportal documentation ([#9892](https://github.com/erxes/erxes/issues/9892)) ([f19e3ef](https://github.com/erxes/erxes/commit/f19e3effe1c6a9c754e6ab8986f1251c1eefcad4))
+* clientportal verification & contacts customer state ([#9896](https://github.com/erxes/erxes/issues/9896)) ([c520283](https://github.com/erxes/erxes/commit/c52028356948edfbb9f1c40cd06ea1bafef1b96b))
+* **contacts:** launch mail compose from contact emails ([#9341](https://github.com/erxes/erxes/issues/9341)) ([a50941d](https://github.com/erxes/erxes/commit/a50941d3e00be7a48381580810fd317c85d35b52))
+* **documents:** show access denied on permission errors and stop retry crash ([#9895](https://github.com/erxes/erxes/issues/9895)) ([36ed5f5](https://github.com/erxes/erxes/commit/36ed5f5f6d840874718b7d58f3c45ae778207410))
+* **frontline:** hide internal notes from messenger widget and client … ([#9897](https://github.com/erxes/erxes/issues/9897)) ([80697bd](https://github.com/erxes/erxes/commit/80697bdd7879d9b67cf65956bd843ef8990195bb))
+* **frontline:** improve inbox assignment and conversation lists ([#9757](https://github.com/erxes/erxes/issues/9757)) ([2b4037b](https://github.com/erxes/erxes/commit/2b4037b728de3a0949f32dd3040996198f4eb1bb))
+* **frontline:** signed widget sessions instead of trusting browser ids ([7838ae1](https://github.com/erxes/erxes/commit/7838ae11c047783cedcb06f4f7c34528241281ab))
+* **frontline:** stabilize editor toolbar and frontline composers ([#9606](https://github.com/erxes/erxes/issues/9606)) ([a575b38](https://github.com/erxes/erxes/commit/a575b38c78ac01c127f8e9162eea21599e6bab2b))
+* **frontline:** translation for forms, channels, surveys and pipelines ([#9787](https://github.com/erxes/erxes/issues/9787)) ([09a9fbc](https://github.com/erxes/erxes/commit/09a9fbcf4cc137ee159a4125a482a77687f56736))
+* keep filter icon first in filter bars ([#9817](https://github.com/erxes/erxes/issues/9817)) ([9bbf09c](https://github.com/erxes/erxes/commit/9bbf09cee05c79af008399f9229a230cdbf5b4d4))
+* **notifications:** improve My Inbox filtering and workflows ([#9878](https://github.com/erxes/erxes/issues/9878)) ([bfa171e](https://github.com/erxes/erxes/commit/bfa171e648aabf422a3c5cd0f80f211100280df9))
+* **payment:** scope StorePay token cache by user ([#9894](https://github.com/erxes/erxes/issues/9894)) ([5b52111](https://github.com/erxes/erxes/commit/5b521112ee8902d50751a7311cd89fc4031f0273))
+* use normal weight for inactive sidebar sub items ([#9881](https://github.com/erxes/erxes/issues/9881)) ([d5303e1](https://github.com/erxes/erxes/commit/d5303e152e93dad412add206869f39b7bd55f4f1))
+
+
+### Features
+
+* **accounting:** receipts side panel for branch, department and journal ([#9780](https://github.com/erxes/erxes/issues/9780)) ([ed52ae8](https://github.com/erxes/erxes/commit/ed52ae8bf872b74e51b18469a6068f606787418d))
+* **accounting:** show empty and error states on accounting list tables ([#9882](https://github.com/erxes/erxes/issues/9882)) ([b63f133](https://github.com/erxes/erxes/commit/b63f13333daeebe0969810f1875fe21c5d7c7257))
+* add AI model catalog and selection functionality ([a8f6aa9](https://github.com/erxes/erxes/commit/a8f6aa94a5bf8819f19de16f6227d7d52e2de5d7))
+* add form submitted trigger functionality ([0a4f372](https://github.com/erxes/erxes/commit/0a4f372082e00e450804fb3ca84d1f0ab1c7c1c8))
+* choose existing project, task widgets on deals ([#9890](https://github.com/erxes/erxes/issues/9890)) ([acd7ec3](https://github.com/erxes/erxes/commit/acd7ec3bd91d23156718cae6e2593cb078e8b69e))
+* **contacts:** add standard filters to the client portal users ([#9822](https://github.com/erxes/erxes/issues/9822)) ([75fdbdc](https://github.com/erxes/erxes/commit/75fdbdc6732cce4043769b181d8fe32ec5bef7e6))
+* **core-ui:** group notifications by author and add status tabs ([#9912](https://github.com/erxes/erxes/issues/9912)) ([1d1b68e](https://github.com/erxes/erxes/commit/1d1b68e2c58481858bd8e097831cf358346a6a3c))
+* **core:** add provider-first workspace connections ([#9905](https://github.com/erxes/erxes/issues/9905)) ([970c9b8](https://github.com/erxes/erxes/commit/970c9b80bad32fc1a7815b8f3516a10676bc26b2))
+* enhance Facebook and Instagram integrations with usage tracking and page linking ([1f7dfb8](https://github.com/erxes/erxes/commit/1f7dfb8646240721a899b2547dde670732579f55))
+* **frontline:** messenger setup with clickable steps and inline config ([4fd6801](https://github.com/erxes/erxes/commit/4fd6801c2257a5bc49e2d6d77bdc120015306935))
+* implement pipeline create form layout and validation ([1deb5c7](https://github.com/erxes/erxes/commit/1deb5c77e58eb22710ae1d1f260079e4c384688f))
+* **operation:** labelled task chips and inline date picker ([#9775](https://github.com/erxes/erxes/issues/9775)) ([175866b](https://github.com/erxes/erxes/commit/175866bdc143a1c307bc3862aa3d514e4b84bb97))
+* **sales:** implement board archiving functionality ([#9789](https://github.com/erxes/erxes/issues/9789)) ([343c8bc](https://github.com/erxes/erxes/commit/343c8bc4cb4ed976b27e7a5707319b714506647b))
+
+## [3.3.4](https://github.com/erxes/erxes/compare/3.3.3...3.3.4) (2026-10-20)
+
+
+### Features
+
+* **files:** add Files module with folder access control, previews and public links ([#9887](https://github.com/erxes/erxes/issues/9887)) ([bc32a44](https://github.com/erxes/erxes/commit/bc32a44c0bf2e7671ed412ef140624481888162f))
+
+## [3.3.3](https://github.com/erxes/erxes/compare/3.3.2...3.3.3) (2026-10-20)
+
+
+### Bug Fixes
+
+* **content:** save CMS page edits and open the selected CMS card ([#9880](https://github.com/erxes/erxes/issues/9880)) ([44a0f63](https://github.com/erxes/erxes/commit/44a0f6399506664c591affd26643ca3975277cc6))
+* **erxes-ui:** publish compiled JavaScript and styles ([#9830](https://github.com/erxes/erxes/issues/9830)) ([8b3c282](https://github.com/erxes/erxes/commit/8b3c282997d273a9aebc17eaf2f28e37e44425e7))
+* filter ([29a95a4](https://github.com/erxes/erxes/commit/29a95a41d46f81fd43835e9aa48c3aed9cc44296))
+* **frontline:** use absolute path for ticket navigation links ([ec2e9bf](https://github.com/erxes/erxes/commit/ec2e9bfc0ee196c9f0114d9e3d06ae760bebdb43))
+* **notifications:** standardize My Inbox detail views and layout ([#9815](https://github.com/erxes/erxes/issues/9815)) ([9aa855f](https://github.com/erxes/erxes/commit/9aa855f9e721e81c7b3cd77c1d9682ef6ad6d51f))
+
+
+### Features
+
+* **codegen:** one composed gateway schema for every plugin's codegen ([#9603](https://github.com/erxes/erxes/issues/9603)) ([a5dd1bd](https://github.com/erxes/erxes/commit/a5dd1bd9de4cf34321e8c9a31a1aa7fe7f6793cc))
+* **core:** Removed test files ([#9879](https://github.com/erxes/erxes/issues/9879)) ([b8d6cc4](https://github.com/erxes/erxes/commit/b8d6cc41ecce62f3361ff5d4e4debea9aadea615))
+* **frontline:** add cpGetTicketPipelines client portal query ([4715f36](https://github.com/erxes/erxes/commit/4715f36b9ba4865bf3e75591113923ff90ca8698))
+* **notifications:** add mobile push channel with per-event delivery ([fd1a658](https://github.com/erxes/erxes/commit/fd1a658e20a1a7e5a943286da4f734e8c2e43f11))
+
 ## [3.3.2](https://github.com/erxes/erxes/compare/3.3.1...3.3.2) (2026-10-18)
 
 
@@ -64,7 +207,7 @@
 * posclient worker ([c50435a](https://github.com/erxes/erxes/commit/c50435aa74a3d0c4fb5f4e83b850a3fc7f944b1a))
 * some int to float ([2e0bc86](https://github.com/erxes/erxes/commit/2e0bc8623672042e1b381e7577f22d813aa5287e))
 
-# Changelog
+
 
 ## [3.2.24](https://github.com/erxes/erxes/compare/3.2.23...3.2.24) (2026-10-14)
 

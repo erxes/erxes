@@ -16,25 +16,43 @@ import {
   BlockEditor,
   cn,
   IBlockEditor,
+  Textarea,
+  toast,
   useBlockEditor,
 } from 'erxes-ui';
 
+import { useTranslation } from 'react-i18next';
 import { ChangeEvent, KeyboardEvent, useEffect, useRef, useState } from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
-import { AttributeInEditor } from 'ui-modules';
-import { useTranslation } from 'react-i18next';
+import { AttributeInEditor, usePermissionCheck } from 'ui-modules';
+import { DocumentAttribute, IDocument } from '../types';
+import { FormType } from '../hooks/useDocumentForm';
+import { useDocumentComments } from '../hooks/useDocumentComments';
+import {
+  DocumentThreadStore,
+  restoreDocumentCommentAnchors,
+  serializeDocumentComments,
+  readDocumentComments,
+} from '../utils/DocumentThreadStore';
+import { DocumentCommentsSidebar } from './DocumentCommentsSidebar';
+import { loadDocumentBlocks } from '../utils/normalizeDocumentBlocks';
 
 const EditorController = ({
   editor,
   onChange,
   attributes,
   loading,
+  readonly,
+  commentsOpen,
 }: {
   editor: IBlockEditor;
   onChange: (value: string) => void;
-  attributes: any[];
+  attributes: DocumentAttribute[];
   loading: boolean;
+  readonly: boolean;
+  commentsOpen: boolean;
 }) => {
+  const { t } = useTranslation('documents', { keyPrefix: 'document' });
   const dropRef = useRef<HTMLDivElement>(null);
   const [isDropTarget, setIsDropTarget] = useState(false);
 
@@ -47,6 +65,7 @@ const EditorController = ({
   }, [editor, onChange]);
 
   useEffect(() => {
+    if (readonly) return;
     const node = dropRef.current;
 
     if (!node) return;
@@ -95,7 +114,7 @@ const EditorController = ({
       node.removeEventListener('dragleave', handleDragLeave, true);
       node.removeEventListener('drop', handleDrop, true);
     };
-  }, [editor]);
+  }, [editor, readonly]);
 
   return (
     <div
@@ -107,8 +126,10 @@ const EditorController = ({
     >
       <BlockEditor
         editor={editor}
+        readonly={readonly}
+        floatingThread={!commentsOpen}
         className={cn(
-          'w-full flex-1 overflow-y-auto overflow-x-hidden px-5 pb-16',
+          'document-block-editor w-full flex-1 overflow-y-auto overflow-x-hidden px-5 pb-16',
         )}
       >
         <AttributeInEditor
@@ -116,6 +137,14 @@ const EditorController = ({
           attributes={attributes}
           loading={loading}
         />
+        {commentsOpen && editor.comments && (
+          <div className="document-comments-sidebar">
+            <p className="px-3 py-2 text-xs text-muted-foreground">
+              {t('save-comments-hint')}
+            </p>
+            <DocumentCommentsSidebar />
+          </div>
+        )}
       </BlockEditor>
     </div>
   );
@@ -123,45 +152,99 @@ const EditorController = ({
 
 const DocumentContentEditor = ({
   editor,
-  document,
+  document: documentItem,
   attributes,
   attributesLoading,
-}: any) => {
-  const { control } = useFormContext();
+  store,
+  readonly,
+  commentsOpen,
+}: {
+  editor: IBlockEditor;
+  document: IDocument | null;
+  attributes: DocumentAttribute[];
+  attributesLoading: boolean;
+  store: DocumentThreadStore;
+  readonly: boolean;
+  commentsOpen: boolean;
+}) => {
+  const { control, setValue } = useFormContext<FormType>();
+  const loadingContent = useRef(false);
+  const loadedDocument = useRef<{
+    id: string | undefined;
+    editor: IBlockEditor;
+  }>();
 
   useEffect(() => {
-    if (!document?.content || !editor) return;
-
-    const loadInitialContent = async () => {
-      let blocks;
-
+    let cancelled = false;
+    loadingContent.current = true;
+    const load = async () => {
       try {
-        blocks = JSON.parse(document.content);
-      } catch (_error) {
-        try {
-          blocks = await editor.tryParseHTMLToBlocks(document.content);
-        } catch (_htmlError) {
-          blocks = await editor.tryParseMarkdownToBlocks(document.content);
+        if (
+          loadedDocument.current?.id !== documentItem?._id ||
+          loadedDocument.current?.editor !== editor
+        ) {
+          editor.comments?.stopPendingComment();
+          editor.comments?.selectThread(undefined);
         }
+        loadedDocument.current = { id: documentItem?._id, editor };
+        const blocks = await loadDocumentBlocks(editor, documentItem?.content);
+        if (cancelled) return;
+        editor.replaceBlocks(editor.document, blocks);
+        const state = readDocumentComments(documentItem?.commentState);
+        store.load(state.threads);
+        restoreDocumentCommentAnchors(editor, state.anchors);
+      } catch (error) {
+        toast({
+          title: 'Could not load document content',
+          description: error instanceof Error ? error.message : String(error),
+          variant: 'destructive',
+        });
+      } finally {
+        if (!cancelled) loadingContent.current = false;
       }
-
-      editor.replaceBlocks(editor.document, blocks);
     };
+    void load();
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    documentItem?._id,
+    documentItem?.content,
+    documentItem?.commentState,
+    editor,
+    store,
+  ]);
 
-    loadInitialContent();
-  }, [document?.content, editor]);
+  useEffect(() => {
+    const update = () => {
+      if (!loadingContent.current && !readonly) {
+        setValue('commentState', serializeDocumentComments(editor, store), {
+          shouldDirty: true,
+        });
+      }
+    };
+    const unsubscribe = store.subscribe(update);
+    const unsubscribeEditor = editor.onChange(update);
+    return () => {
+      unsubscribe();
+      unsubscribeEditor?.();
+    };
+  }, [editor, readonly, setValue, store]);
 
   return (
     <Controller
       name="content"
       control={control}
-      rules={{ required: 'Content is required' }}
       render={({ field }) => (
         <EditorController
           editor={editor}
-          onChange={field.onChange}
+          onChange={(value) => {
+            if (!loadingContent.current) field.onChange(value);
+          }}
           attributes={attributes}
           loading={attributesLoading}
+          readonly={readonly}
+          commentsOpen={commentsOpen}
         />
       )}
     />
@@ -172,10 +255,12 @@ const DocumentTitleEditor = ({
   value,
   onChange,
   onEnterPress,
+  readonly,
 }: {
   value: string;
   onChange: (value: string) => void;
   onEnterPress: () => void;
+  readonly: boolean;
 }) => {
   const { t } = useTranslation('documents', { keyPrefix: 'document' });
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -215,29 +300,45 @@ const DocumentTitleEditor = ({
   };
 
   return (
-    <textarea
+    <Textarea
+      readOnly={readonly}
       ref={textareaRef}
       value={value}
       rows={1}
       onChange={handleChange}
       onKeyDown={handleKeyDown}
+      aria-label={t('name')}
       placeholder={t('untitled')}
-      className="w-full min-w-0 flex-1 resize-none overflow-hidden border-none bg-transparent px-8 pb-3 pt-10 text-[2.25rem] font-bold leading-tight tracking-tight outline-hidden placeholder:text-muted-foreground/40 focus:outline-hidden focus:ring-0"
+      className="min-h-10 min-w-0 flex-1 resize-none overflow-hidden border-0 bg-transparent px-2 py-1 text-2xl font-semibold leading-tight tracking-tight text-foreground shadow-none placeholder:text-muted-foreground/50 hover:bg-accent/30 focus-visible:bg-accent/40 focus-visible:shadow-none read-only:hover:bg-transparent read-only:focus-visible:bg-transparent md:text-2xl"
     />
   );
 };
 
 export const DocumentEditor = () => {
   const { t } = useTranslation('documents', { keyPrefix: 'document' });
-  const { document, documentId, hasError, loading, refetch } = useDocument();
-  const editor = useBlockEditor({});
-  const { attributes, loading: attributesLoading } = useDocumentAttributes();
+  const { document, documentId, error, hasError, loading, refetch } =
+    useDocument({
+      initializeForm: true,
+    });
+  const { store, resolveUsers } = useDocumentComments();
+  const { hasActionPermission } = usePermissionCheck();
+  const readonly = !hasActionPermission('manageDocuments');
+  const editor = useBlockEditor({
+    comments: readonly ? undefined : { threadStore: store },
+    resolveUsers,
+  });
+  const {
+    attributes,
+    loading: attributesLoading,
+    error: attributesError,
+    refetch: refetchAttributes,
+  } = useDocumentAttributes(document?.contentType);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [commentsOpen, setCommentsOpen] = useState(false);
 
-  const { control } = useFormContext();
+  const { control } = useFormContext<FormType>();
 
   const isCreating = !documentId;
-  const hasAttributes = attributes.length > 0;
 
   const handleEnterPress = () => {
     if (!editor) return;
@@ -254,7 +355,10 @@ export const DocumentEditor = () => {
       <DocumentsErrorState
         title={t('load-error-title')}
         description={t('load-error-description')}
-        onRetry={refetch}
+        error={error}
+        onRetry={() => {
+          void refetch().catch(() => undefined);
+        }}
       />
     );
   }
@@ -276,29 +380,43 @@ export const DocumentEditor = () => {
   return (
     <div className="flex h-full w-full overflow-hidden bg-background">
       <div className="flex min-h-0 min-w-0 flex-1 flex-col">
-        <div className="flex flex-none items-start gap-2 overflow-hidden">
+        <div className="flex flex-none flex-col gap-3 px-6 pb-4 pt-6 sm:flex-row sm:items-start sm:gap-4 sm:px-8">
           <Controller
             name="name"
             control={control}
             rules={{ required: 'Title is required' }}
             render={({ field }) => (
               <DocumentTitleEditor
-                value={field.value}
+                value={field.value || ''}
                 onChange={field.onChange}
                 onEnterPress={handleEnterPress}
+                readonly={readonly}
               />
             )}
           />
-          {hasAttributes && !sidebarOpen && (
-            <Button
-              variant="outline"
-              size="sm"
-              className="mr-5 mt-10 shrink-0 gap-1.5"
-              onClick={() => setSidebarOpen(true)}
-            >
-              {t('attributes')}
-              <IconLayoutSidebarRightExpand className="size-4" />
-            </Button>
+          {!readonly && (
+            <div className="flex shrink-0 items-center gap-2 sm:pt-1">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setCommentsOpen((open) => !open)}
+              >
+                {t('comments')}
+              </Button>
+              {!sidebarOpen && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="gap-1.5"
+                  onClick={() => setSidebarOpen(true)}
+                >
+                  {t('attributes')}
+                  <IconLayoutSidebarRightExpand className="size-4" />
+                </Button>
+              )}
+            </div>
           )}
         </div>
         <DocumentContentEditor
@@ -306,13 +424,20 @@ export const DocumentEditor = () => {
           document={document}
           attributes={attributes}
           attributesLoading={attributesLoading}
+          store={store}
+          readonly={readonly}
+          commentsOpen={commentsOpen}
         />
       </div>
-      {hasAttributes && sidebarOpen && (
+      {!readonly && sidebarOpen && (
         <DocumentAttributesSidebar
           editor={editor}
           attributes={attributes}
           loading={attributesLoading}
+          error={attributesError}
+          onRetry={() => {
+            void refetchAttributes().catch(() => undefined);
+          }}
           onClose={() => setSidebarOpen(false)}
         />
       )}

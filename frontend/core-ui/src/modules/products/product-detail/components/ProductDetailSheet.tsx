@@ -13,7 +13,12 @@ import { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ActivityLogs, AddInternalNote, FieldsInDetail } from 'ui-modules';
+import {
+  ActivityLogs,
+  AddInternalNote,
+  FieldsInDetail,
+  PrintDocument,
+} from 'ui-modules';
 import { productCustomActivities } from './ProductActivityRows';
 import { useProductDetailWithQuery } from '@/products/product-detail/hooks/useProductDetailWithQuery';
 import { useProductCustomFieldEdit } from '@/products/product-detail/hooks/useProductCustomFieldEdit';
@@ -34,6 +39,7 @@ import {
   ProductFormValues,
 } from '@/products/constants/ProductFormSchema';
 import { useProductsEdit } from '@/products/hooks/useProductsEdit';
+import { useProductFileLinks } from 'ui-modules/modules/products/hooks/useProductFiles';
 
 export const ProductDetailSheet = () => {
   const { t } = useTranslation('product', {
@@ -56,6 +62,7 @@ export const ProductDetailSheet = () => {
   const { productDetail, productId, loading, error, refetch } = useProductDetailWithQuery();
   
   const { productsEdit, loading: editLoading } = useProductsEdit();
+  const { linkFiles } = useProductFileLinks();
 
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(ProductFormSchema),
@@ -112,7 +119,7 @@ export const ProductDetailSheet = () => {
     };
   };
 
-  const handleSave = (data: ProductFormValues) => {
+  const handleSave = async (data: ProductFormValues) => {
     if (!productDetail?._id) {
       toast({
         title: t('errorTitle'),
@@ -121,7 +128,16 @@ export const ProductDetailSheet = () => {
       });
       return;
     }
-    const variables = { ...normalizePayload(data), _id: productDetail._id };
+    const files = await linkFiles(data.files);
+
+    if (!files) {
+      return;
+    }
+
+    const variables = {
+      ...normalizePayload({ ...data, files }),
+      _id: productDetail._id,
+    };
     productsEdit({
       variables,
       onCompleted: () => {
@@ -175,6 +191,14 @@ export const ProductDetailSheet = () => {
             <ProductDetailSidebar />
           </FocusSheet.SideBar>
           <div className="flex overflow-hidden flex-col flex-1 min-w-0 min-h-0">
+            {productDetail?._id && (
+              <div className="flex flex-wrap items-center gap-2 px-4 pt-4 pb-2">
+                <PrintDocument
+                  items={[{ _id: productDetail._id }]}
+                  contentType="core:product"
+                />
+              </div>
+            )}
             <Form {...form}>
               <form
                 onSubmit={form.handleSubmit(handleSave, handleInvalid)}

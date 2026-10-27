@@ -2,18 +2,19 @@ import { INSTAGRAM_AUTH_SUCCESS_MESSAGE } from '@/integrations/constants/authMes
 import { useIntegrationReauth } from '@/integrations/hooks/useIntegrationReauth';
 import { IIntegration } from '@/integrations/types/Integration';
 import { IconTool } from '@tabler/icons-react';
-import { CellContext } from '@tanstack/react-table';
 import { Spinner, toast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useIgIntegrationsRepair } from '../hooks/useIgIntegrationsRepair';
 
 type Props = {
-  cell: CellContext<IIntegration, unknown>;
+  integration: IIntegration;
 };
 
-export const InstagramIntegrationRepair = ({ cell }: Props) => {
-  const { t } = useTranslation('frontline');
-  const { _id, healthStatus } = cell.row.original;
+export const InstagramIntegrationRepair = ({ integration }: Props) => {
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
+  const { _id, healthStatus } = integration;
   const { repairIntegration, loading: repairLoading } =
     useIgIntegrationsRepair();
 
@@ -23,7 +24,7 @@ export const InstagramIntegrationRepair = ({ cell }: Props) => {
   const runRepair = () => {
     repairIntegration({
       variables: { _id },
-      refetchQueries: ['Integrations'],
+      refetchQueries: ['Integrations', 'ChannelIntegrationsPeek'],
       onCompleted: () => {
         toast({ title: t('repaired-successfully') });
       },
@@ -40,7 +41,6 @@ export const InstagramIntegrationRepair = ({ cell }: Props) => {
   );
 
   const handleRepair = () => {
-
     if (isUnhealthy) {
       reauth();
     } else {

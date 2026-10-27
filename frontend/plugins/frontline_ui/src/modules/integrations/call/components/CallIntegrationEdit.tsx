@@ -11,7 +11,6 @@ import { useEffect } from 'react';
 import { useIntegrationDetail } from '@/integrations/hooks/useIntegrationDetail';
 import { useCallIntegrationDetail } from '@/integrations/call/hooks/useCallIntegrationDetail';
 import { useIntegrationEdit } from '@/integrations/hooks/useIntegrationEdit';
-import { useParams } from 'react-router';
 
 export const CallIntegrationSheetEdit = () => {
   const [callEditSheet, setCallEditSheet] = useAtom(callEditSheetAtom);
@@ -26,8 +25,9 @@ export const CallIntegrationSheetEdit = () => {
 };
 
 export const CallIntegrationEdit = () => {
-  const { t } = useTranslation('frontline');
-  const { id } = useParams();
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
 
   const [integrationId, setEditSheet] = useAtom(callEditSheetAtom);
   const { integrationDetail, loading } = useIntegrationDetail({
@@ -43,12 +43,13 @@ export const CallIntegrationEdit = () => {
   });
 
   const onSubmit = (data: z.infer<typeof CALL_INTEGRATION_FORM_SCHEMA>) => {
-    if (!integrationId) return;
+    // The channel comes from the record, so editing works from any page.
+    if (!integrationId || !integrationDetail) return;
     editIntegration({
       variables: {
         _id: integrationId,
         name: data.name,
-        channelId: id || '',
+        channelId: integrationDetail.channelId ?? '',
         brandId: data.brandId,
         details: {
           phone: data.phone,
@@ -68,6 +69,7 @@ export const CallIntegrationEdit = () => {
         'Integrations',
         'callsIntegrationDetail',
         'IntegrationDetail',
+        'ChannelIntegrationsPeek',
       ],
       onCompleted() {
         setEditSheet(null);

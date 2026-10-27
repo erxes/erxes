@@ -11,7 +11,7 @@ export const ConversationDetailLayout = ({
   children: React.ReactNode;
   input: React.ReactNode;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const collapsed = useAtomValue(isInternalNoteCollapsedState);
   const {
     panelGroupRef,
@@ -45,7 +45,7 @@ export const ConversationDetailLayout = ({
               className={
                 collapsed
                   ? 'z-30 bg-border/60 after:hidden'
-                  : 'z-30 bg-border/60 hover:bg-border [&>div]:h-9 [&>div]:w-4 [&>div]:rounded-md [&>div]:border-border [&>div]:bg-background [&>div]:text-muted-foreground [&>div]:shadow-sm'
+                  : 'z-50 bg-border/60 hover:bg-border [&>div]:h-9 [&>div]:w-4 [&>div]:rounded-md [&>div]:border-border [&>div]:bg-background [&>div]:text-muted-foreground [&>div]:shadow-sm'
               }
               onDragging={resetAutoResize}
               onKeyUp={collapsed ? undefined : resetAutoResize}
@@ -57,7 +57,7 @@ export const ConversationDetailLayout = ({
               minSize={collapsed ? 0 : minSize}
               maxSize={100}
             >
-              <div className="relative z-20 h-full min-h-0 border-t border-border/60 bg-background/95 backdrop-blur">
+              <div className="relative z-40 h-full min-h-0 border-t border-border/60 bg-background/95 backdrop-blur">
                 {input}
               </div>
             </Resizable.Panel>

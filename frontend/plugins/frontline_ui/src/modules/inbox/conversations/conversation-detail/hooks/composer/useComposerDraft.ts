@@ -8,6 +8,7 @@ import {
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { currentUserState } from 'ui-modules';
+import { useDebouncedCallback } from 'use-debounce';
 import {
   isInternalState,
   isInternalNoteCollapsedState,
@@ -51,6 +52,24 @@ export const useComposerDraft = ({
   const draftKey = currentUserId
     ? getConversationDraftKey(currentUserId, conversationId)
     : null;
+  const saveDraft = useDebouncedCallback(
+    (key: string, blocks: Block[], internal: boolean) => {
+      composerStorage.setItem(key, JSON.stringify({ blocks, internal }));
+    },
+    300,
+    { maxWait: 1000 },
+  );
+
+  useEffect(() => {
+    const flushDraft = () => saveDraft.flush();
+    window.addEventListener('pagehide', flushDraft);
+
+    return () => {
+      window.removeEventListener('pagehide', flushDraft);
+      saveDraft.flush();
+    };
+  }, [draftKey, saveDraft]);
+
   useEffect(() => {
     clearLegacyConversationDrafts();
   }, []);
@@ -105,6 +124,7 @@ export const useComposerDraft = ({
 
   const handleInternalNoteChange = useCallback(
     (internal: boolean) => {
+      saveDraft.cancel();
       setIsInternalNoteCollapsed(false);
       setIsInternalNote(internal);
       resetSuggestions();
@@ -120,6 +140,7 @@ export const useComposerDraft = ({
       content,
       draftKey,
       resetSuggestions,
+      saveDraft,
       setIsInternalNote,
       setIsInternalNoteCollapsed,
       setResponseTemplateId,
@@ -136,21 +157,27 @@ export const useComposerDraft = ({
     const nextContent = plain || hasBlockAttachments ? blocks : undefined;
 
     setContent(nextContent);
-    setSearchValue(plain);
+    if (!isInternalNote) setSearchValue(plain);
     if (plain) pingAgentTyping();
     setMentionedUserIds(getMentionedUserIds(blocks));
 
     if (nextContent && draftKey) {
-      composerStorage.setItem(
-        draftKey,
-        JSON.stringify({ blocks, internal: isInternalNote }),
-      );
+      saveDraft(draftKey, blocks, isInternalNote);
     } else if (draftKey) {
+      saveDraft.cancel();
       composerStorage.removeItem(draftKey);
     }
-  }, [draftKey, editor, isInternalNote, pingAgentTyping, setSearchValue]);
+  }, [
+    draftKey,
+    editor,
+    isInternalNote,
+    pingAgentTyping,
+    saveDraft,
+    setSearchValue,
+  ]);
 
   const resetComposer = useCallback(() => {
+    saveDraft.cancel();
     editor.replaceBlocks(editor.document, []);
     setContent(() => undefined);
     setMentionedUserIds([]);
@@ -164,6 +191,7 @@ export const useComposerDraft = ({
     onlyInternal,
     resetAttachments,
     resetSuggestions,
+    saveDraft,
     setIsInternalNote,
     setReplyTo,
     setResponseTemplateId,

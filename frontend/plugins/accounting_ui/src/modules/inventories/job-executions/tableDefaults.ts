@@ -1,0 +1,15 @@
+export const JOB_EXECUTION_COLUMN_ORDER = [
+  'more',
+  'date',
+  'status',
+  'inputAccountId',
+  'inputBranchId',
+  'inputDepartmentId',
+  'outputAccountId',
+  'outputBranchId',
+  'outputDepartmentId',
+  'description',
+  'jobName',
+  'quantity',
+  'checkbox',
+];

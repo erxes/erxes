@@ -919,92 +919,58 @@ export const getAmountsMap = async (
   return amountsMap;
 };
 
-export const getCompanyIds = async (
-  subdomain: string,
+type TDealContactKind = 'customer' | 'company';
+
+// A deal's customer or company, as a list of at most one: kept on the deal.
+const getDealContactIds = async (
+  models: IModels,
   dealId: string,
+  kind: TDealContactKind,
 ): Promise<string[]> => {
-  return await sendTRPCMessage({
-    subdomain,
-    pluginName: 'core',
-    module: 'relation',
-    action: 'getRelationIds',
-    input: {
-      contentType: 'sales:deal',
-      contentId: dealId,
-      relatedContentType: 'core:company',
-    },
-    defaultValue: [],
-  });
+  const deal = await models.Deals.findOne(
+    { _id: dealId },
+    { customerId: 1, companyId: 1 },
+  ).lean();
+  const contactId = kind === 'customer' ? deal?.customerId : deal?.companyId;
+
+  return contactId ? [contactId] : [];
 };
 
-export const getCustomerIds = async (
+export const getCompanyIds = (
   subdomain: string,
+  models: IModels,
   dealId: string,
-): Promise<string[]> => {
-  return await sendTRPCMessage({
-    subdomain,
-    pluginName: 'core',
-    module: 'relation',
-    action: 'getRelationIds',
-    input: {
-      contentType: 'sales:deal',
-      contentId: dealId,
-      relatedContentType: 'core:customer',
-    },
-    defaultValue: [],
-  });
-};
+): Promise<string[]> => getDealContactIds(models, dealId, 'company');
 
-export const createRelations = async (
+export const getCustomerIds = (
   subdomain: string,
+  models: IModels,
+  dealId: string,
+): Promise<string[]> => getDealContactIds(models, dealId, 'customer');
+
+/**
+ * Sets a deal's customer / company. Sales keeps its deals' contact itself
+ * (`customerId` / `companyId`, one each); core only reports merged or
+ * removed contacts (`contactFields.sync`).
+ */
+export const setDealContacts = async (
+  models: IModels,
   {
     dealId,
-    companyIds,
-    customerIds,
-  }: { dealId: string; companyIds?: string[]; customerIds?: string[] },
+    companyId,
+    customerId,
+  }: { dealId: string; companyId?: string | null; customerId?: string | null },
 ) => {
-  const companyEntities =
-    companyIds?.map((companyId) => ({
-      entities: [
-        {
-          contentType: 'sales:deal',
-          contentId: dealId,
-        },
-        {
-          contentType: 'core:company',
-          contentId: companyId,
-        },
-      ],
-    })) ?? [];
+  const set = {
+    ...(customerId ? { customerId } : {}),
+    ...(companyId ? { companyId } : {}),
+  };
 
-  const customerEntities =
-    customerIds?.map((customerId) => ({
-      entities: [
-        {
-          contentType: 'sales:deal',
-          contentId: dealId,
-        },
-        {
-          contentType: 'core:customer',
-          contentId: customerId,
-        },
-      ],
-    })) ?? [];
-
-  if (!(companyEntities.length + customerEntities.length)) {
+  if (!Object.keys(set).length) {
     return;
   }
 
-  await sendTRPCMessage({
-    subdomain,
-    method: 'mutation',
-    pluginName: 'core',
-    module: 'relation',
-    action: 'createMultipleRelations',
-    input: {
-      relations: [...companyEntities, ...customerEntities],
-    },
-  });
+  await models.Deals.updateOne({ _id: dealId }, { $set: set });
 };
 
 export const getTotalAmounts = async (productsData: IProductData[]) => {
@@ -1048,41 +1014,6 @@ export const convertNestedDate = (obj: any) => {
   return obj;
 };
 
-export const sendNotification = async ({
-  subdomain,
-  userIds,
-  data,
-  allowMultiple,
-}: {
-  subdomain: string;
-  userIds?: string[];
-  data: {
-    title: string;
-    message: string;
-    type?: 'info' | 'success' | 'warning' | 'error';
-    fromUserId?: string;
-    contentType: string;
-    contentTypeId?: string;
-    priority?: 'low' | 'medium' | 'high' | 'urgent';
-    priorityLevel?: 1 | 2 | 3 | 4;
-    metadata?: any; // plugin-specific data
-    action?: string; // crud
-    kind?: 'system' | 'user';
-  };
-  allowMultiple?: boolean;
-}) => {
-  await sendTRPCMessage({
-    subdomain,
-
-    method: 'mutation',
-    pluginName: 'core',
-    action: 'create',
-    module: 'notifications',
-    input: { userIds, data: { ...data, allowMultiple } },
-    defaultValue: undefined,
-  });
-};
-
 export const notifiedUserIds = async (
   models: IModels,
   item: IDealDocument,
@@ -1105,106 +1036,6 @@ export const notifiedUserIds = async (
   userIds = userIds.concat(pipeline.watchedUserIds || []);
 
   return userIds;
-};
-
-export const sendNotifications = async (
-  models: IModels,
-  subdomain: string,
-  {
-    item,
-    user,
-    action,
-    content,
-    invitedUsers,
-    removedUsers,
-  }: {
-    item: IDealDocument;
-    user: IUserDocument;
-    action: string;
-    content: string;
-    invitedUsers?: string[];
-    removedUsers?: string[];
-  },
-) => {
-  const stage = await models.Stages.getStage(item.stageId);
-  const pipeline = await models.Pipelines.getPipeline(stage.pipelineId);
-
-  const title = `deal updated`;
-
-  if (!content) {
-    content = `deal '${item.name}'`;
-  }
-
-  const usersToExclude = [
-    ...(removedUsers || []),
-    ...(invitedUsers || []),
-    user._id,
-  ];
-
-  const allNotified = await notifiedUserIds(models, item, stage, pipeline);
-  // keep only assigned + watched, exclude pipeline watchers
-  const pipelineWatchers = pipeline.watchedUserIds || [];
-  const receivers = allNotified
-    .filter(
-      (id) =>
-        !pipelineWatchers.includes(id) || item.assignedUserIds?.includes(id),
-    ) // keep if assigned (already in list) but not pure pipeline watchers
-    .filter((id) => usersToExclude.indexOf(id) < 0);
-
-  const notificationDoc = {
-    createdUser: user,
-    fromUserId: user._id,
-    title,
-    contentType: 'sales:deal',
-    contentTypeId: item._id,
-    action: action ? action : `has updated deal`,
-    message: content,
-    link: `/deal/board?id=${pipeline.boardId}&pipelineId=${pipeline._id}&itemId=${item._id}`,
-  };
-
-  // removed users
-  if (removedUsers?.length) {
-    sendNotification({
-      subdomain,
-      userIds: removedUsers.filter((id) => id !== user._id),
-      data: {
-        ...notificationDoc,
-        action: `removed you from deal`,
-        message: `'${item.name}'`,
-      },
-      allowMultiple: false,
-    });
-  }
-
-  // invited users
-  if (invitedUsers?.length) {
-    sendNotification({
-      subdomain,
-      userIds: invitedUsers.filter((id) => id !== user._id),
-      data: {
-        ...notificationDoc,
-        action: `invited you to the deal`,
-        message: `'${item.name}'`,
-      },
-      allowMultiple: false,
-    });
-  }
-
-  const excludedSet = new Set([...(removedUsers || []), user._id]);
-
-  const invitedSet = new Set(invitedUsers || []);
-
-  const filteredReceivers = receivers.filter(
-    (id) => !invitedSet.has(id) && !excludedSet.has(id),
-  );
-
-  if (filteredReceivers.length > 0) {
-    sendNotification({
-      subdomain,
-      userIds: filteredReceivers,
-      data: notificationDoc,
-    });
-  }
 };
 
 export const itemsAdd = async (

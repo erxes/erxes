@@ -1,3 +1,4 @@
+import type { ComposerToolbarProps } from '@/inbox/conversations/conversation-detail/types/composerUi';
 import { Button, Input, Kbd, Spinner, cn } from 'erxes-ui';
 import {
   IconArrowUp,
@@ -9,29 +10,14 @@ import {
 } from '@tabler/icons-react';
 import { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-
 import {
-  PollComposer,
-  type PollDraft,
-} from '@/inbox/conversations/conversation-detail/components/PollComposer';
+  INTERNAL_NOTE_BUTTON,
+  INTERNAL_NOTE_ICON,
+} from '@/inbox/constants/internalNoteStyles';
+
+import { PollComposer } from '@/inbox/conversations/conversation-detail/components/PollComposer';
 import { ResponseTemplateSelector } from '@/inbox/conversations/conversation-detail/components/ResponseTemplateSelector';
 import { SendSurveyDialog } from '@/inbox/conversations/conversation-detail/components/SendSurveyDialog';
-
-type ComposerToolbarProps = {
-  conversationId: string;
-  integrationChannelId?: string;
-  isDiscord: boolean;
-  isTelegram?: boolean;
-  isMessenger: boolean;
-  isInternalNote: boolean;
-  isUploading: boolean;
-  loading: boolean;
-  sendDisabled: boolean;
-  onFilesSelected: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  onTemplateSelect: (content: string, templateId?: string) => void;
-  onSendPoll: (poll: PollDraft) => Promise<boolean>;
-  onSubmit: () => void;
-};
 
 export const ComposerToolbar = ({
   conversationId,
@@ -48,7 +34,7 @@ export const ComposerToolbar = ({
   onSendPoll,
   onSubmit,
 }: ComposerToolbarProps) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const fileInputRef = useRef<HTMLInputElement>(null);
   const isBusy = loading || isUploading;
   const submitLabel = isInternalNote
@@ -65,7 +51,7 @@ export const ComposerToolbar = ({
   return (
     <div
       data-composer-footer
-      className="mt-1 flex min-w-0 flex-none flex-wrap items-center gap-1 border-t border-border/50 px-2 py-2 sm:gap-2 sm:px-3"
+      className="flex min-w-0 flex-none items-center gap-1 px-3 py-2 sm:gap-2"
     >
       {!isInternalNote && (
         <ResponseTemplateSelector onSelect={onTemplateSelect} disabled={isBusy}>
@@ -74,7 +60,7 @@ export const ComposerToolbar = ({
             variant="ghost"
             size="icon"
             aria-label={t('response-templates', 'Response templates')}
-            className="size-8 rounded-full text-muted-foreground hover:bg-muted hover:text-foreground"
+            className="size-8 rounded-lg text-muted-foreground hover:bg-foreground/5 hover:text-foreground"
             disabled={isBusy}
           >
             <IconMessage2 className="size-4" />
@@ -87,7 +73,10 @@ export const ComposerToolbar = ({
         variant="ghost"
         size="icon"
         aria-label={t('attach-file', 'Attach file')}
-        className="size-8 flex-none rounded-full text-muted-foreground hover:bg-muted hover:text-foreground"
+        className={cn(
+          'size-8 flex-none rounded-lg text-muted-foreground hover:bg-foreground/5 hover:text-foreground',
+          isInternalNote && INTERNAL_NOTE_ICON,
+        )}
         onClick={() => fileInputRef.current?.click()}
         disabled={isBusy}
       >
@@ -116,25 +105,30 @@ export const ComposerToolbar = ({
         />
       )}
 
-      <div className="ml-auto flex min-w-0 items-center justify-end gap-1 sm:gap-2">
+      <div className="ml-auto flex min-w-0 items-center justify-end gap-3">
+        <Kbd
+          className={cn(
+            'hidden gap-0.5 border-0 bg-transparent px-0 text-muted-foreground opacity-100 sm:inline-flex',
+            isInternalNote && INTERNAL_NOTE_ICON,
+          )}
+        >
+          <IconCommand size={12} />
+          <IconCornerDownLeft size={12} />
+        </Kbd>
         <Button
           type="button"
           size="sm"
           aria-label={submitLabel}
           className={cn(
-            'h-9 flex-none rounded-lg px-2.5 sm:px-4',
-            isInternalNote &&
-              'border-warning bg-warning text-foreground hover:bg-warning/80',
+            'h-8 flex-none gap-1.5 rounded-full px-3 shadow-none',
+            'before:hidden after:hidden [text-shadow:none]',
+            isInternalNote && INTERNAL_NOTE_BUTTON,
           )}
           disabled={sendDisabled}
           onClick={onSubmit}
         >
           {submitIcon}
           <span>{submitLabel}</span>
-          <Kbd className="ml-1 hidden lg:flex">
-            <IconCommand size={12} />
-            <IconCornerDownLeft size={12} />
-          </Kbd>
         </Button>
       </div>
     </div>

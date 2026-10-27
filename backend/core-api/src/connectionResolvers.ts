@@ -161,6 +161,11 @@ import {
   IEmailTemplateModel,
   loadEmailTemplateClass,
 } from './modules/emailTemplates/db/models/EmailTemplates';
+import { INotificationTemplateDocument } from './modules/notificationTemplates/db/definitions/notificationTemplates';
+import {
+  INotificationTemplateModel,
+  loadNotificationTemplateClass,
+} from './modules/notificationTemplates/db/models/NotificationTemplates';
 import {
   IAutomationWorkflowTemplateDocument,
   IAutomationWorkflowTemplateModel,
@@ -327,6 +332,30 @@ import {
 } from '@/approval/db/models/ApprovalRequests';
 import { IApprovalLockDocument } from '@/approval/db/definitions/approvalLocks';
 import { IApprovalRequestDocument } from '@/approval/db/definitions/approvalRequests';
+import { IFileDocument } from '@/files/db/definitions/files';
+import { IFileFolderDocument } from '@/files/db/definitions/folders';
+import {
+  fileUploadSchema,
+  IFileUploadDocument,
+} from '@/files/db/definitions/uploads';
+import { IFileUsageDocument } from '@/files/db/definitions/usage';
+import {
+  fileVersionSchema,
+  IFileVersionDocument,
+} from '@/files/db/definitions/versions';
+import { IFileModel, loadFileClass } from '@/files/db/models/Files';
+import {
+  IFileFolderModel,
+  loadFileFolderClass,
+} from '@/files/db/models/FileFolders';
+import {
+  IFileUsageModel,
+  loadFileUsageClass,
+} from '@/files/db/models/FileUsage';
+import { IFilePinDocument } from '@/files/db/definitions/pins';
+import { IFileShareDocument } from '@/files/db/definitions/shares';
+import { IFilePinModel, loadFilePinClass } from '@/files/db/models/FilePins';
+import { IFileShareModel, loadFileShareClass } from '@/files/db/models/FileShares';
 import {
   ITemplateCategoryModal,
   loadTemplateCategoryClass,
@@ -343,6 +372,16 @@ import {
   IActivityLogsModel,
   loadActivityLogsClass,
 } from '@/logs/db/models/ActivityLogs';
+import { IAgentsConnectionsDocument } from '@/agents/@types/connection';
+import {
+  IAgentsConnectionModel,
+  loadAgentsConnectionClass,
+} from '@/agents/db/models/Connection';
+import { IAgentsSettingsDocument } from '@/agents/@types/settings';
+import {
+  IAgentsSettingsModel,
+  loadAgentsSettingsClass,
+} from '@/agents/db/models/Settings';
 
 export interface IModels {
   Brands: IBrandModel;
@@ -383,6 +422,7 @@ export interface IModels {
   Automations: IAutomationModel;
   AutomationExecutions: IExecutionModel;
   EmailTemplates: IEmailTemplateModel;
+  NotificationTemplates: INotificationTemplateModel;
   AutomationWorkflowTemplates: IAutomationWorkflowTemplateModel;
   Logs: ILogModel;
   Imports: IImportModel;
@@ -416,6 +456,13 @@ export interface IModels {
   PermissionGroups: IPermissionGroupModel;
   ApprovalLocks: IApprovalLockModel;
   ApprovalRequests: IApprovalRequestModel;
+  Files: IFileModel;
+  FileFolders: IFileFolderModel;
+  FileVersions: Model<IFileVersionDocument>;
+  FileUploads: Model<IFileUploadDocument>;
+  FileUsage: IFileUsageModel;
+  FilePins: IFilePinModel;
+  FileShares: IFileShareModel;
 
   NotificationSettings: Model<NotificationSettings>;
 
@@ -423,6 +470,9 @@ export interface IModels {
   TemplateCategory: ITemplateCategoryModal;
   OAuthDeviceCodes: Model<IOAuthDeviceCodeDocument>;
   OAuthRefreshTokens: Model<IOAuthRefreshTokenDocument>;
+
+  AgentsConnection: IAgentsConnectionModel;
+  AgentsSettings: IAgentsSettingsModel;
 }
 
 export interface IContext extends IMainContext {
@@ -692,6 +742,11 @@ export const loadClasses = (
     loadEmailTemplateClass(models),
   );
 
+  models.NotificationTemplates = db.model<
+    INotificationTemplateDocument,
+    INotificationTemplateModel
+  >('notification_templates', loadNotificationTemplateClass(models));
+
   models.AutomationWorkflowTemplates = db.model<
     IAutomationWorkflowTemplateDocument,
     IAutomationWorkflowTemplateModel
@@ -865,6 +920,35 @@ export const loadClasses = (
     IApprovalRequestModel
   >('approval_requests', loadApprovalRequestClass(models));
 
+  models.Files = db.model<IFileDocument, IFileModel>(
+    'files',
+    loadFileClass(models, subdomain),
+  );
+  models.FileFolders = db.model<IFileFolderDocument, IFileFolderModel>(
+    'files_folders',
+    loadFileFolderClass(models, subdomain),
+  );
+  models.FileVersions = db.model<IFileVersionDocument>(
+    'file_versions',
+    fileVersionSchema,
+  );
+  models.FileUploads = db.model<IFileUploadDocument>(
+    'file_uploads',
+    fileUploadSchema,
+  );
+  models.FileUsage = db.model<IFileUsageDocument, IFileUsageModel>(
+    'files_usage',
+    loadFileUsageClass(models),
+  );
+  models.FilePins = db.model<IFilePinDocument, IFilePinModel>(
+    'file_pins',
+    loadFilePinClass(models),
+  );
+  models.FileShares = db.model<IFileShareDocument, IFileShareModel>(
+    'file_shares',
+    loadFileShareClass(models),
+  );
+
   models.Template = db.model<ITemplateDocument, ITemplateModal>(
     'templates',
     loadTemplateClass(models, subdomain),
@@ -884,6 +968,18 @@ export const loadClasses = (
     IOAuthRefreshTokenDocument,
     Model<IOAuthRefreshTokenDocument>
   >('oauth_refresh_tokens', oauthRefreshTokenSchema);
+
+  // Per-user BYOK agents connection; one document per user per tenant.
+  models.AgentsConnection = db.model<
+    IAgentsConnectionsDocument,
+    IAgentsConnectionModel
+  >('agents_user_connections', loadAgentsConnectionClass(models));
+
+  // Tenant-wide agents settings singleton (admin-controlled code mode flag).
+  models.AgentsSettings = db.model<
+    IAgentsSettingsDocument,
+    IAgentsSettingsModel
+  >('agents_settings', loadAgentsSettingsClass(models));
 
   const db_name = db.name;
 

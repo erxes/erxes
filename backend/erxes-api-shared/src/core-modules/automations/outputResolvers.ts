@@ -7,11 +7,17 @@ import {
   AutomationConstants,
   IAutomationsActionConfig,
   IAutomationsTriggerConfig,
+  TAutomationNodeConfigContract,
   TAutomationOutputDefinition,
   TAutomationProducers,
   TAutomationRuntimeOutputDefinition,
 } from './types';
 import { splitType } from './typeUtils';
+import {
+  isAutomationConfigSchema,
+  TAutomationConfigContract,
+  toTransportConfigSchema,
+} from './configSchema';
 
 type TAutomationNodeConfig =
   | IAutomationsTriggerConfig
@@ -1155,6 +1161,18 @@ export const getAutomationNodeType = ({
   }`;
 };
 
+/** The live schema and the validator stay in the declaring service. */
+const withoutOwnerContract = <T extends TAutomationNodeConfigContract>(
+  node: T,
+): T => {
+  const transport = { ...node };
+
+  delete transport.configSchema;
+  delete transport.validateConfig;
+
+  return transport;
+};
+
 export const toTransportOutput = (
   output?: TAutomationRuntimeOutputDefinition,
 ): TAutomationOutputDefinition | undefined => {
@@ -1166,6 +1184,7 @@ export const toTransportOutput = (
     variables: output.variables,
     propertySource: output.propertySource,
     resolverKeys: Object.keys(output.resolvers || {}),
+    dynamicVariables: output.dynamicVariables,
   };
 };
 
@@ -1174,23 +1193,27 @@ export const normalizeAutomationConstantsForTransport = (
   constants?: AutomationConstants,
 ): AutomationConstants => {
   const triggers = (constants?.triggers || []).map((trigger) => ({
-    ...trigger,
+    ...withoutOwnerContract(trigger),
     type: getAutomationNodeType({
       pluginName,
       node: trigger,
       kind: 'trigger',
     }),
     output: toTransportOutput(trigger.output),
+    configJsonSchema:
+      toTransportConfigSchema(trigger.configSchema) ?? trigger.configJsonSchema,
   }));
 
   const actions = (constants?.actions || []).map((action) => ({
-    ...action,
+    ...withoutOwnerContract(action),
     type: getAutomationNodeType({
       pluginName,
       node: action,
       kind: 'action',
     }),
     output: toTransportOutput(action.output),
+    configJsonSchema:
+      toTransportConfigSchema(action.configSchema) ?? action.configJsonSchema,
   }));
 
   return {
@@ -1202,6 +1225,37 @@ export const normalizeAutomationConstantsForTransport = (
       output: toTransportOutput(target.output),
     })),
   };
+};
+
+/** Node type → its config contract, kept in the declaring service to validate with. */
+export const buildConfigContractIndex = (
+  pluginName: string,
+  constants?: AutomationConstants,
+) => {
+  const contracts: Record<string, TAutomationConfigContract> = {};
+  const nodes = [
+    ...(constants?.triggers || []).map((node) => ({
+      node,
+      kind: 'trigger' as const,
+    })),
+    ...(constants?.actions || []).map((node) => ({
+      node,
+      kind: 'action' as const,
+    })),
+  ];
+
+  for (const { node, kind } of nodes) {
+    const type = getAutomationNodeType({ pluginName, node, kind });
+
+    if (type && isAutomationConfigSchema(node.configSchema)) {
+      contracts[type] = {
+        schema: node.configSchema,
+        validate: node.validateConfig,
+      };
+    }
+  }
+
+  return contracts;
 };
 
 export const buildRuntimeOutputsIndex = (

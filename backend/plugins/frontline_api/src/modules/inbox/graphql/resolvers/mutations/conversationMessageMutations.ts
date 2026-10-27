@@ -1,6 +1,7 @@
 import { authorizeConversationAccess } from '@/inbox/utils/conversationAccess';
 import type { IConversationMessageAdd } from '@/inbox/@types/conversationMessages';
 import { resolveForwardedSnapshotForMessage } from '@/inbox/forwardedMessage';
+import { noteContentToHtml } from '@/integrations/mail/utils/noteContent';
 import { createNotifications } from '~/utils/notifications';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import type { IContext } from '~/connectionResolvers';
@@ -65,7 +66,8 @@ export const conversationMessageMutations = {
         conversations: [conversation],
         type: 'conversationAddMessage',
         mobile: true,
-        messageContent: content,
+        messageContent: internal ? noteContentToHtml(content) : content,
+        internal,
       });
 
       const { kind } = integration;
@@ -116,6 +118,7 @@ export const conversationMessageMutations = {
           fromUserId: userId,
           subdomain,
           notificationType: 'internalNote',
+          event: 'frontline:conversations:conversationMention',
           userIds,
           action: 'created',
         });

@@ -7,10 +7,28 @@ import {
   LookupAiToolInput,
   ReceiveActionsInput,
   ResolveOutputPathsInput,
+  ResolveOutputVariablesInput,
   SetPropertiesInput,
 } from './zodTypes';
 import { IAutomationExecution } from './definitions';
 import type { TKnowledgeDocument } from '../../utils/knowledge';
+import type {
+  TAutomationConfigSchema,
+  TAutomationConfigValidator,
+  TAutomationJsonSchema,
+} from './configSchema';
+
+export type TAutomationNodeConfigContract = {
+  /**
+   * What the engine reads from this node's config. It stays in the declaring
+   * service, which validates against it; only configJsonSchema is published.
+   */
+  configSchema?: TAutomationConfigSchema;
+  /** Tenant-data rules for the same config; never leaves the declaring service. */
+  validateConfig?: TAutomationConfigValidator;
+  /** Published form of configSchema, filled by transport; never set by hand. */
+  configJsonSchema?: TAutomationJsonSchema;
+};
 
 export type IAutomationContext = {
   subdomain: string;
@@ -29,6 +47,8 @@ export type TAutomationOutputVariable = {
   referenceType?: string;
   sourceType?: string;
   type?: string;
+  // Fixed choices, when the value can only be one of them
+  options?: { label: string; value: string }[];
 };
 
 export type TAutomationOutputPropertySource = {
@@ -41,6 +61,9 @@ export type TAutomationOutputDefinition = {
   variables: TAutomationOutputVariable[];
   propertySource?: TAutomationOutputPropertySource;
   resolverKeys?: string[];
+  // The node's config adds variables (a form's fields); the owning plugin
+  // lists them through resolveOutputVariables
+  dynamicVariables?: boolean;
 };
 
 export type TAutomationSetPropertyTarget = {
@@ -102,7 +125,7 @@ export type TAutomationTriggerActionInputs = Record<
   Record<string, string>
 >;
 
-export type IAutomationsTriggerConfig = {
+export type IAutomationsTriggerConfig = TAutomationNodeConfigContract & {
   type?: string;
   moduleName?: string;
   collectionName?: string;
@@ -194,7 +217,10 @@ export type TAutomationActionPlacement = {
   accepts?: TAutomationActionContribution[];
 };
 
-export type IAutomationsActionConfig = TAutomationActionPlacement & {
+type TAutomationActionNode = TAutomationActionPlacement &
+  TAutomationNodeConfigContract;
+
+export type IAutomationsActionConfig = TAutomationActionNode & {
   type?: string;
   moduleName?: string;
   collectionName?: string;
@@ -468,6 +494,11 @@ export interface AutomationProducers {
     context: IAutomationContext,
   ) => Promise<TAiToolLookupResult>;
 
+  resolveOutputVariables?: (
+    args: z.infer<typeof ResolveOutputVariablesInput>,
+    context: IAutomationContext,
+  ) => Promise<TAutomationOutputVariable[]>;
+
   resolveOutputPaths?: (
     args: z.infer<typeof ResolveOutputPathsInput>,
     context: IAutomationContext,
@@ -615,12 +646,14 @@ export type AutomationExecutionSetWaitCondition =
 export enum TAutomationProducers {
   RECEIVE_ACTIONS = 'receiveActions',
   RESOLVE_OUTPUT_PATHS = 'resolveOutputPaths',
+  RESOLVE_OUTPUT_VARIABLES = 'resolveOutputVariables',
   CHECK_CUSTOM_TRIGGER = 'checkCustomTrigger',
   FIND_OBJECT = 'findObject',
   SET_PROPERTIES = 'setProperties',
   GENERATE_AI_CONTEXT = 'generateAiContext',
   LOAD_AI_KNOWLEDGE_DOCUMENT_BATCH = 'loadAiKnowledgeDocumentBatch',
   LOOKUP_AI_TOOL = 'lookupAiTool',
+  VALIDATE_CONFIGS = 'validateConfigs',
 }
 
 export enum TAutomationActionFolks {

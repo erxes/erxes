@@ -1,46 +1,25 @@
-import {
-  telegramChatLabel,
-  useTelegramChats,
-} from '@/integrations/telegram/useTelegramChats';
-import { IconInbox, IconLoader } from '@tabler/icons-react';
+import { Empty, Filter, ScrollArea, Separator, Spinner } from 'erxes-ui';
 
-import { ConversationContext } from '@/inbox/conversations/context/ConversationContext';
-import { toCustomerInline } from '@/inbox/conversations/utils/conversationContext';
-import { compactList } from '@/shared/utils/cursorList';
-import { ConversationListContext } from '@/inbox/conversations/context/ConversationListContext';
-import { IConversation } from '@/inbox/types/Conversation';
-import { useConversations } from '@/inbox/conversations/hooks/useConversations';
-
-import { Empty, Filter, Separator, Skeleton } from 'erxes-ui';
-
-import { ConversationsHeader } from '@/inbox/conversations/components/ConversationsHeader';
-import { ConversationItem } from '@/inbox/conversations/components/ConversationItem';
-import { ConversationThreadList } from '@/inbox/conversations/components/ConversationChannelSection';
-import { isDiscordConversation } from '@/inbox/conversations/utils/channelGroups';
-import { useDiscordConversationChannels } from '@/integrations/discord/hooks/useDiscordSetup';
-import { useMemo } from 'react';
 import { ConversationActions } from '@/inbox/conversations/components/ConversationActions';
+import { ConversationContext } from '@/inbox/conversations/context/ConversationContext';
+import { ConversationItem } from '@/inbox/conversations/components/ConversationItem';
+import { ConversationListContext } from '@/inbox/conversations/context/ConversationListContext';
+import { ConversationThreadList } from '@/inbox/conversations/components/ConversationChannelSection';
+import { ConversationsHeader } from '@/inbox/conversations/components/ConversationsHeader';
+import { ConversationsLoading } from '@/inbox/conversations/components/ConversationsLoading';
+import { IConversation } from '@/inbox/types/Conversation';
+import { IconInbox } from '@tabler/icons-react';
+import { compactList } from '@/shared/utils/cursorList';
+import { isDiscordConversation } from '@/inbox/conversations/utils/channelGroups';
+import { telegramChatLabel } from '@/integrations/telegram/useTelegramChats';
+import { toCustomerInline } from '@/inbox/conversations/utils/conversationContext';
+import { useConversationListChannels } from '@/inbox/conversations/hooks/useConversationListChannels';
+import { useConversations } from '@/inbox/conversations/hooks/useConversations';
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
-const ConversationsLoading = () => (
-  <div className="divide-y" aria-label="Loading conversations">
-    {Array.from({ length: 8 }).map((_, index) => (
-      <div key={index} className="flex items-start gap-3 px-4 py-3">
-        <Skeleton className="size-9 shrink-0 rounded-full" />
-        <div className="min-w-0 flex-1 space-y-2">
-          <div className="flex items-center justify-between gap-3">
-            <Skeleton className="h-3.5 w-28" />
-            <Skeleton className="h-3 w-10" />
-          </div>
-          <Skeleton className="h-3 w-4/5" />
-        </div>
-      </div>
-    ))}
-  </div>
-);
-
 export const Conversations = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const {
     totalCount,
     conversations,
@@ -56,39 +35,11 @@ export const Conversations = () => {
     [conversations, loading, totalCount],
   );
 
-  const discordConversationIds = useMemo(
-    () =>
-      (conversations || [])
-        .filter(isDiscordConversation)
-        .map((conversation) => conversation._id),
-    [conversations],
-  );
-  const { channelMap, loading: channelInfoLoading } =
-    useDiscordConversationChannels(discordConversationIds);
-
-  const telegramIds = useMemo(
-    () =>
-      (conversations || [])
-        .filter(
-          (conversation) =>
-            conversation.integration?.kind === 'telegram-messenger',
-        )
-        .map((conversation) => conversation._id),
-    [conversations],
-  );
-  const { chats: telegramChats, loading: telegramLoading } =
-    useTelegramChats(telegramIds);
+  const { channelMap, channelInfoLoading, telegramChats, telegramLoading } =
+    useConversationListChannels(conversations);
 
   const renderConversationItem = (conversation: IConversation) => (
-    <ConversationContext.Provider
-      key={conversation._id}
-      value={{
-        ...conversation,
-        customer: toCustomerInline(conversation.customer),
-        integration: conversation.integration ?? undefined,
-        tagIds: compactList(conversation.tagIds),
-      }}
-    >
+    <ConversationRowProvider key={conversation._id} conversation={conversation}>
       <ConversationItem
         channelInfo={{
           channelName:
@@ -105,7 +56,7 @@ export const Conversations = () => {
         }
         onConversationSelect={handleConversationSelect}
       />
-    </ConversationContext.Provider>
+    </ConversationRowProvider>
   );
 
   const renderContent = () => {
@@ -159,22 +110,48 @@ export const Conversations = () => {
         </Filter>
         <Separator />
         <div className="relative min-h-0 flex-1">
-          <div
-            className="h-full w-full overflow-y-auto pb-10"
-            ref={containerRef}
-            onScroll={handleScroll}
-          >
-            {renderContent()}
-          </div>
+          <ScrollArea.Root className="h-full w-full">
+            <ScrollArea.Viewport
+              className="pb-10"
+              ref={containerRef}
+              onScroll={handleScroll}
+            >
+              {renderContent()}
+            </ScrollArea.Viewport>
+            <ScrollArea.Bar />
+          </ScrollArea.Root>
           {fetchingMore && (
             <div className="pointer-events-none absolute inset-x-0 bottom-2 flex justify-center">
               <div className="flex size-8 items-center justify-center rounded-full border bg-background/95 text-muted-foreground shadow-sm backdrop-blur-sm">
-                <IconLoader className="size-4 animate-spin" />
+                <Spinner size="default" />
               </div>
             </div>
           )}
         </div>
       </div>
     </ConversationListContext.Provider>
+  );
+};
+
+const ConversationRowProvider = ({
+  conversation,
+  children,
+}: {
+  conversation: IConversation;
+  children: ReactNode;
+}) => {
+  const value = useMemo(
+    () => ({
+      ...conversation,
+      customer: toCustomerInline(conversation.customer),
+      integration: conversation.integration ?? undefined,
+      tagIds: compactList(conversation.tagIds),
+    }),
+    [conversation],
+  );
+  return (
+    <ConversationContext.Provider value={value}>
+      {children}
+    </ConversationContext.Provider>
   );
 };

@@ -8,7 +8,7 @@ import {
 } from '~/widgets/automations/modules/facebook/components/bots/graphql/automationBotsMutations';
 
 export const useFacebookBotMoreColumn = (_id: string) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.facebook' });
   const [, setFacebookBotId] = useQueryState('facebookBotId');
 
   const [repairBot, { loading: loadingRepair }] = useMutation(

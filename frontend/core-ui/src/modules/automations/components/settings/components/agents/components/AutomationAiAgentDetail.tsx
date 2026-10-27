@@ -6,6 +6,7 @@ import {
   TAiAgentProvider,
 } from '@/automations/components/settings/components/agents/constants/providers';
 import { AiAgentDetailProvider } from '@/automations/components/settings/components/agents/context/AiAgentDetailContext';
+import { useAiAgentDefaultModel } from '@/automations/components/settings/components/agents/hooks/useAiAgentDefaultModel';
 import { AiAgentInput } from '@/automations/components/settings/components/agents/hooks/useAiAgentDetail';
 import { useAiAgentDetailState } from '@/automations/components/settings/components/agents/hooks/useAiAgentDetailState';
 import {
@@ -42,6 +43,8 @@ const AiAgentDetailView = ({
     close,
     persistStepInUrl,
   });
+
+  useAiAgentDefaultModel(!detail?._id);
 
   useEffect(() => {
     requestCloseRef.current = state.requestClose;

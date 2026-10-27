@@ -1,3 +1,4 @@
+import { ConversationCountValue } from './ConversationCountValue';
 import { Filter, Skeleton, cn } from 'erxes-ui';
 
 import { ConversationFilterBar } from '@/inbox/conversations/components/ConversationsFilter';
@@ -6,7 +7,7 @@ import { useInboxLayout } from '@/inbox/hooks/useInboxLayout';
 import { useTranslation } from 'react-i18next';
 
 export const ConversationCount = ({ className }: { className?: string }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const { totalCount, loading } = useConversationListContext();
 
   return (
@@ -19,7 +20,9 @@ export const ConversationCount = ({ className }: { className?: string }) => {
       {loading ? (
         <Skeleton className="w-4 h-4 flex-none" />
       ) : (
-        <span className="flex-none">{totalCount}</span>
+        <span className="flex-none">
+          <ConversationCountValue count={totalCount} />
+        </span>
       )}
       <span className="truncate">{t('conversations', 'conversations')}</span>
     </span>

@@ -77,6 +77,7 @@ export const initRecordReferences = async (
   app.use(
     '/references',
     trpcExpress.createExpressMiddleware({
+      allowMethodOverride: true,
       router: t.router(procedures),
       createContext: createTRPCContext(async (_subdomain, context) => context),
     }),

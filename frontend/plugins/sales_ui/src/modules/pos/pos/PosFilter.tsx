@@ -131,6 +131,7 @@ export const PosFilter = () => {
   return (
     <Filter id="pos-filter" sessionKey={sessionKey}>
       <Filter.Bar>
+        <PosFilterPopover />
         <Filter.BarItem queryKey="searchValue">
           <Filter.BarName>
             <IconSearch />
@@ -171,7 +172,6 @@ export const PosFilter = () => {
         </Filter.BarItem>
         <SelectMember.FilterBar />
         <SelectBrand.FilterBar />
-        <PosFilterPopover />
         <TotalCountDisplay />
       </Filter.Bar>
     </Filter>

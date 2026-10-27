@@ -16,7 +16,6 @@ import {
   isDev,
   joinErxesGateway,
   leaveErxesGateway,
-  mountAgentTools,
   MAX_HEADER_BYTES,
 } from 'erxes-api-shared/utils';
 import { logs as coreLogsConfig } from './meta/logs';
@@ -32,6 +31,8 @@ import meta from './meta';
 import { approval } from './meta/approval';
 import { initAutomation } from './meta/automations/automations';
 import { initBroadcast } from './meta/broadcast';
+import { startFilesWorker } from '@/files/worker';
+import { interruptAgentsStreams } from '@/agents/agentsStream';
 import initImportExport from './meta/import-export';
 import { references } from './meta/references';
 import { initSegmentCoreProducers } from './meta/segments';
@@ -129,6 +130,7 @@ app.get('/subscriptionPlugin.js', fileLimiter, async (_req, res) => {
 app.use(
   '/trpc',
   trpcExpress.createExpressMiddleware({
+    allowMethodOverride: true,
     router: appRouter,
     createContext: createTRPCContext(async (subdomain, context) => {
       const models = await generateModels(subdomain, context);
@@ -139,21 +141,6 @@ app.use(
     }),
   }),
 );
-
-// Core predates startPlugin, so it mounts the agent capability endpoints
-// itself. Only tRPC procedures declaring agent metadata are exposed.
-mountAgentTools(app, {
-  plugin: PLUGIN_NAME,
-  trpcRouter: appRouter,
-  createContext: async (
-    subdomain: string,
-    context: Record<string, unknown>,
-  ) => {
-    const models = await generateModels(subdomain, context);
-
-    return { ...context, models };
-  },
-});
 
 app.get('/health', async (_req, res) => {
   res.end('ok');
@@ -208,6 +195,7 @@ httpServer.listen(port, async () => {
   await initSegmentCoreProducers(app);
   await initImportExport(app);
   await initBroadcast(app);
+  startFilesWorker();
 });
 
 // GRACEFULL SHUTDOWN
@@ -241,6 +229,9 @@ async function closeHttpServer() {
 // If the Node process ends, close the http-server and mongoose.connection and leaveErxesGateway service discovery.
 (['SIGINT', 'SIGTERM'] as NodeJS.Signals[]).forEach((sig) => {
   process.on(sig, async () => {
+    // Open agents streams would hold the server open and their runs die with
+    // the process: end them with the restart error first.
+    interruptAgentsStreams();
     await closeHttpServer();
     await closeMongooose();
     await leaveServiceDiscovery();

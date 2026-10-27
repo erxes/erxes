@@ -49,7 +49,9 @@ export const MailThread: React.FC<MailThreadProps> = ({
   beforeCompose,
   scrollViewportRef,
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const [composeMode, setComposeMode] = useState<ComposeMode | null>(null);
   const [composeTarget, setComposeTarget] = useState<MailMessage | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -182,8 +184,8 @@ export const MailThread: React.FC<MailThreadProps> = ({
         followLatestRef.current = false;
       }}
     >
-      <div className="flex min-h-12 flex-col items-stretch gap-2 border-b border-border px-1 pb-3 sm:flex-row sm:items-center sm:justify-between">
-        <h2 className="min-w-0 truncate text-lg font-medium text-foreground">
+      <div className="flex min-h-12 flex-col items-stretch gap-3 border-b border-border px-1 py-3 sm:flex-row sm:items-start sm:justify-between">
+        <h2 className="min-w-0 flex-1 whitespace-normal wrap-break-word text-lg font-medium leading-7 text-foreground">
           {baseSubject || t('no-subject', '(No subject)')}
         </h2>
         {!readOnly && (

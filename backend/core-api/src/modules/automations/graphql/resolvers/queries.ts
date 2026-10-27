@@ -1,4 +1,5 @@
 import {
+  AUTOMATION_STATUSES,
   IAutomationDocument,
   IAutomationExecutionDocument,
   splitType,
@@ -18,9 +19,16 @@ import { AUTOMATION_APPROVAL_CONTENT_TYPES } from '../../constants';
 import { IAutomationActivityParams } from '../../db/models/Executions';
 import { sanitizeAiAgent, sanitizeAiAgents } from '../../utils/aiAgent';
 import {
+  getAutomationNodeCatalog,
+  getAutomationNodeSchema,
+  withoutConfigJsonSchemas,
+} from '../../utils/automationAuthoring';
+import { checkAutomationGraph } from '../../utils/automationGraphCheck';
+import {
   generateAutomationHistoriesFilter,
   generateAutomationStatsFilter,
   generateAutomationsFilter,
+  addDynamicOutputVariables,
   addReferenceExtensionsToAutomationOutput,
   getAutomationReferenceFields,
   getAutomationConstants,
@@ -318,7 +326,42 @@ export const automationQueries = {
   },
 
   async automationConstants() {
-    return getAutomationConstants();
+    return withoutConfigJsonSchemas(await getAutomationConstants());
+  },
+
+  async automationNodeCatalog() {
+    return getAutomationNodeCatalog();
+  },
+
+  async automationNodeSchema(_root, { type }: { type: string }) {
+    return getAutomationNodeSchema(type);
+  },
+
+  /** Dry run of a save: what it would refuse, and what still blocks activation. */
+  async automationValidate(
+    _root,
+    {
+      _id,
+      ...doc
+    }: Partial<
+      Pick<IAutomationDocument, 'status' | 'triggers' | 'actions' | 'workflows'>
+    > & {
+      _id?: string;
+    },
+    { models, subdomain }: IContext,
+  ) {
+    const previous = _id ? await models.Automations.getAutomation(_id) : null;
+
+    return checkAutomationGraph(subdomain, {
+      next: {
+        status: doc.status ?? previous?.status ?? AUTOMATION_STATUSES.DRAFT,
+        triggers: doc.triggers ?? previous?.triggers ?? [],
+        actions: doc.actions ?? previous?.actions ?? [],
+        workflows: doc.workflows ?? previous?.workflows ?? [],
+      },
+      previous,
+      scope: 'report',
+    });
   },
 
   async automationSetPropertyTargets(
@@ -331,13 +374,25 @@ export const automationQueries = {
     );
   },
 
-  async automationNodeOutput(_root, { nodeType }: { nodeType: string }) {
+  async automationNodeOutput(
+    _root,
+    {
+      nodeType,
+      config,
+    }: { nodeType: string; config?: Record<string, unknown> | null },
+    { subdomain }: IContext,
+  ) {
     const { triggersConst, actionsConst } = await getAutomationConstants();
 
     const matchedTrigger = triggersConst.find(({ type }) => type === nodeType);
 
     const matchedAction = actionsConst.find(({ type }) => type === nodeType);
-    const output = matchedTrigger?.output || matchedAction?.output || null;
+    const output = await addDynamicOutputVariables({
+      subdomain,
+      nodeType,
+      output: matchedTrigger?.output || matchedAction?.output || null,
+      config,
+    });
 
     return await addReferenceExtensionsToAutomationOutput({
       nodeType,
@@ -514,6 +569,37 @@ export const automationQueries = {
       jobName: 'checkAiAgentHealth',
       subdomain,
       data: { agentId },
+      timeout: 10000,
+    });
+  },
+
+  async automationsAiAgentModels(
+    _root,
+    {
+      agentId,
+      provider,
+      selectedModel,
+    }: { agentId?: string; provider: string; selectedModel?: string },
+    { models, subdomain, user, checkPermission }: IContext,
+  ) {
+    // Without an agent this lists with the platform key, so gate it like create.
+    if (agentId) {
+      await models.ApprovalLocks.assertAccess({
+        user,
+        contentType: AUTOMATION_APPROVAL_CONTENT_TYPES.AUTOMATION_AI_AGENT,
+        contentId: agentId,
+        action: 'view',
+      });
+    } else {
+      await checkPermission('automationsAiAgentAdd');
+    }
+
+    return await sendWorkerMessage({
+      pluginName: 'automations',
+      queueName: 'aiAgent',
+      jobName: 'listAiAgentModels',
+      subdomain,
+      data: { agentId, provider, selectedModel },
       timeout: 10000,
     });
   },

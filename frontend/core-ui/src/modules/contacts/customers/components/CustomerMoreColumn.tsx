@@ -1,10 +1,10 @@
 import { useBroadcastContacts } from '@/broadcast/hooks/useBroadcastContacts';
 import { IconEdit, IconSend } from '@tabler/icons-react';
-import { useTranslation } from 'react-i18next';
 import { Cell } from '@tanstack/react-table';
 import { Combobox, Command, Popover, RecordTable } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
-import { Can, ICustomer } from 'ui-modules';
+import { Can, ICustomer, useSidePanel } from 'ui-modules';
 
 export const CustomerMoreColumnCell = ({
   cell,
@@ -17,13 +17,8 @@ export const CustomerMoreColumnCell = ({
   });
   const { setContacts } = useBroadcastContacts();
   const [searchParams, setSearchParams] = useSearchParams();
+  const { openRecord } = useSidePanel();
   const { _id } = cell.row.original;
-
-  const setOpen = (customerId: string) => {
-    const newSearchParams = new URLSearchParams(searchParams);
-    newSearchParams.set('contactId', customerId);
-    setSearchParams(newSearchParams);
-  };
 
   const sendBroadcast = (customerId: string) => {
     setContacts([customerId]);
@@ -43,7 +38,12 @@ export const CustomerMoreColumnCell = ({
       <Combobox.Content>
         <Command shouldFilter={false}>
           <Command.List>
-            <Command.Item value="edit" onSelect={() => setOpen(_id)}>
+            <Command.Item
+              value="edit"
+              onSelect={() =>
+                openRecord({ contentType: 'core:customer', contentId: _id })
+              }
+            >
               <IconEdit /> {tContact('action-edit')}
             </Command.Item>
             <Can action="broadcastCreate">
@@ -63,7 +63,7 @@ export const CustomerMoreColumnCell = ({
 
 export const customerMoreColumn = {
   id: 'more',
-  header: RecordTable.ColumnSelector,
+  header: () => <RecordTable.ColumnSelector />,
   cell: CustomerMoreColumnCell,
   size: 33,
 };

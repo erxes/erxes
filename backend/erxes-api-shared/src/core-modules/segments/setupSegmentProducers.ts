@@ -65,6 +65,7 @@ export const initSegmentProducers = async (
   const segmentsRouter = t.router(segmentProducers);
 
   const trpcMiddleware = trpcExpress.createExpressMiddleware({
+    allowMethodOverride: true,
     router: segmentsRouter,
     createContext: createTRPCContext(async (_subdomain, context) => {
       const processId = nanoid(12);

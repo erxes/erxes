@@ -1,5 +1,6 @@
 import { useLayoutEffect, useRef, useState } from 'react';
 import { UseFormReturn } from 'react-hook-form';
+import { toProductAttachmentList } from 'ui-modules/modules/products/components/ProductImageUploads';
 import { ProductDetail } from '../types/detailTypes';
 import {
   EMPTY_PRODUCT_FORM_VALUES,
@@ -72,6 +73,7 @@ export function getProductFormDefaultValues(
     attachment: toSingleAttachment(productDetail.attachment),
     attachmentMore: toAttachmentMore(productDetail.attachmentMore),
     videos: toAttachmentMore(productDetail.videos),
+    files: toProductAttachmentList(productDetail.files),
     customFieldsData:
       productDetail.customFieldsData || productDetail.propertiesData || {},
     currency: productDetail.currency || '',

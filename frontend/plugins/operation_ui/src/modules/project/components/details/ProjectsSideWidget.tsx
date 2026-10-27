@@ -62,6 +62,7 @@ const ProjectPropertiesSidePanel = ({ projectId }: { projectId: string }) => {
 
 export const ProjectsSideWidget = ({ projectId }: { projectId: string }) => {
   const { t } = useTranslation('operation');
+
   return (
     <SideMenu defaultValue="project">
       <SideMenu.Content value="project">
@@ -104,6 +105,7 @@ export const ProjectsSideWidget = ({ projectId }: { projectId: string }) => {
       <SideMenu.Content value={PROPERTIES_TAB}>
         <ProjectPropertiesSidePanel projectId={projectId} />
       </SideMenu.Content>
+
       <SideMenu.Sidebar>
         <SideMenu.Trigger
           value="project"

@@ -121,6 +121,7 @@ export const types = `
     type: CPUserType
     isVerified: Boolean
     clientPortalId: String
+    dateFilters: String
   }
 `;
 

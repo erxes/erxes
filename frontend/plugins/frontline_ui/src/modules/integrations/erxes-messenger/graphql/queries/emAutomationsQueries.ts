@@ -6,6 +6,10 @@ export const EM_MESSENGER_AUTOMATIONS = gql(`
       _id
       name
       status
+      triggers {
+        type
+        config
+      }
     }
   }
 `);

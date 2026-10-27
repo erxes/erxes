@@ -127,7 +127,7 @@ const SelectChartRoot = ({
   onValueChange: (value: ResponsesChartType) => void;
   hideCircularCharts?: boolean;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const [open, setOpen] = useState(false);
   return (
     <SelectChartProvider

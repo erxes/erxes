@@ -177,6 +177,7 @@ export const PermissionsFilter = () => {
   return (
     <Filter id="permissions-filter">
       <Filter.Bar>
+        <PermissionsFilterPopover />
         <FilterBarStringItem queryKey="searchValue" value={searchValue} />
         <FilterBarUser />
         <FilterBarReads />
@@ -191,7 +192,6 @@ export const PermissionsFilter = () => {
         <FilterBarIsTemp />
         <FilterBarIsOutBalance />
         <FilterBarStatus />
-        <PermissionsFilterPopover />
         <PermissionsTotalCount />
       </Filter.Bar>
     </Filter>

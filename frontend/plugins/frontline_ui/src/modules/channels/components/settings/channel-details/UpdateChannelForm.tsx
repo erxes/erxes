@@ -11,7 +11,7 @@ export const UpdateChannelForm = ({
 }: {
   channel: Pick<IChannelDetail, '_id' | 'name' | 'description' | 'icon'>;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.channels' });
   const { toast } = useToast();
   const { updateChannel } = useChannelUpdate();
   const form = useChannelsForm({

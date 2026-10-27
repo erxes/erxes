@@ -6,7 +6,7 @@
 - **Project:** `content_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/content_ui`
-- **Last synchronized:** `2026-10-18`
+- **Last synchronized:** `2026-10-22`
 
 ## Scope
 
@@ -34,15 +34,15 @@
 
 ## Architecture
 
-| Area          | Path                                                  | Responsibility                                                                          |
-| ------------- | ----------------------------------------------------- | --------------------------------------------------------------------------------------- |
-| App sidebar | `frontend/plugins/content_ui/src/Sidebar.tsx` | `ContentSidebar`: the plugin's whole app sidebar, rendered by the `./content` entry through `AppLayout` |
-| Configuration | `frontend/plugins/content_ui/src/config.tsx`          | Registers content navigation and modules.                                               |
-| Dev server    | `frontend/plugins/content_ui/rspack.config.ts`        | Configures image assets, Module Federation development serving, and watch ignore rules. |
-| CMS           | `frontend/plugins/content_ui/src/modules/cms`         | Owns CMS routes and feature UI.                                                         |
-| Web Builder   | `frontend/plugins/content_ui/src/modules/web-builder` | Owns Web Builder UI.                                                                    |
-| Pages         | `frontend/plugins/content_ui/src/pages`               | Provides route-level pages.                                                             |
-| Widgets       | `frontend/plugins/content_ui/src/widgets`             | Provides plugin widget exports.                                                         |
+| Area          | Path                                                  | Responsibility                                                                                          |
+| ------------- | ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| App sidebar   | `frontend/plugins/content_ui/src/Sidebar.tsx`         | `ContentSidebar`: the plugin's whole app sidebar, rendered by the `./content` entry through `AppLayout` |
+| Configuration | `frontend/plugins/content_ui/src/config.tsx`          | Registers content navigation and modules.                                                               |
+| Dev server    | `frontend/plugins/content_ui/rspack.config.ts`        | Configures image assets, Module Federation development serving, and watch ignore rules.                 |
+| CMS           | `frontend/plugins/content_ui/src/modules/cms`         | Owns CMS routes and feature UI.                                                                         |
+| Web Builder   | `frontend/plugins/content_ui/src/modules/web-builder` | Owns Web Builder UI.                                                                                    |
+| Pages         | `frontend/plugins/content_ui/src/pages`               | Provides route-level pages.                                                                             |
+| Widgets       | `frontend/plugins/content_ui/src/widgets`             | Provides plugin widget exports.                                                                         |
 
 ## Contracts
 
@@ -94,6 +94,14 @@
   plus the non-lossy editor document before the existing submission boundary.
 - CMS post serialization must invalidate stale asynchronous HTML output after
   edits, external document replacement, and editor unmount.
+- CMS routes are keyed by `clientPortalId` (the `websiteId` param), so each
+  CMS must use its own real client portal. The CMS drawer has no default
+  portal, rejects unknown portals and disables portals bound to another CMS;
+  an edit that keeps a CMS's stored portal is allowed so content never moves.
+- The page form schema accepts only `active`/`inactive` status, while table and
+  bulk edits store `published`/`draft`/`scheduled`; the page editor maps stored
+  values and null attachment fields on load. Page save reports validation
+  failures with a toast instead of silently doing nothing.
 - Post form category option labels show the full parent path, while option
   values remain category IDs and multiple selections remain available.
 - Asynchronous legacy HTML restoration must capture a revision before parsing
@@ -101,6 +109,9 @@
 - `src/widgets` is for plugin widget exports, not general shared CMS UI.
 - Keep hooks, GraphQL documents, states, constants, and types near the feature
   they support.
+- Custom-field choices use `getValidCustomFieldOptions` when saved and rendered.
+  Ignore blank and non-string choices from JSON field definitions; preserve valid
+  stored values and their order so existing selections continue to match.
 
 ### UI Conventions
 
@@ -187,11 +198,16 @@
 4. Check whether GraphQL operations already exist
 5. Keep changes minimal and scoped to the feature
 
+- CMS list filters (posts, categories, tags, pages) render the filter popover trigger as the first child of `Filter.Bar`, so the filter icon stays fixed while selected filter chips appear after it; total counts stay last.
+
 ## Validation
 
 - `pnpm nx lint content_ui` (when a lint target is defined)
 - `pnpm nx build content_ui`
 - `pnpm nx test content_ui`
+- Open a CMS editor with a dropdown custom field containing empty or
+  whitespace-only choices and verify the editor renders and valid choices remain
+  selectable.
 - Create or edit a CMS post with blank paragraphs and a Tab-indented paragraph,
   save it, reopen it, and verify the structure remains visible.
 - Directly select a CMS file custom field and verify a file no larger than

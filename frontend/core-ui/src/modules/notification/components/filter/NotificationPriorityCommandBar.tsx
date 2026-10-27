@@ -1,33 +1,32 @@
 import { IconCheck } from '@tabler/icons-react';
-import { Command } from 'erxes-ui';
+import { NotificationPriority } from '@/notification/components/NotificationPriority';
+import { NOTIFICATION_PRIORITIES } from '@/notification/constants/notifications';
+import { Command, useMultiQueryState } from 'erxes-ui';
+import type { NotificationFilterQueries } from '@/notification/types/notificationFilters';
 import { useTranslation } from 'react-i18next';
 
-export const NotificationPriorityCommandBar = ({
-  priority,
-  setQueries,
-}: {
-  priority?: string;
-  setQueries: (
-    values: Partial<{
-      priority?: string | null;
-    }>,
-  ) => void;
-}) => {
+export const NotificationPriorityCommandBar = () => {
   const { t } = useTranslation('common', { keyPrefix: 'notification' });
+  const [{ notificationPriority: priority }, setQueries] = useMultiQueryState<
+    Pick<NotificationFilterQueries, 'notificationPriority'>
+  >(['notificationPriority']);
   return (
     <Command>
       <Command.Input placeholder={t('search')} />
       <Command.List>
         <Command.Empty />
-        {['low', 'medium', 'high', 'urgent'].map((value) => (
+        {NOTIFICATION_PRIORITIES.map(({ value, label, translationKey }) => (
           <Command.Item
             key={value}
             value={value}
+            keywords={[label, t(translationKey, label)]}
             onSelect={() =>
-              setQueries({ priority: priority === value ? null : value })
+              setQueries({
+                notificationPriority: priority === value ? null : value,
+              })
             }
           >
-            <span className="capitalize">{value}</span>
+            <NotificationPriority priority={value} />
             {priority === value && <IconCheck className="ml-auto" />}
           </Command.Item>
         ))}

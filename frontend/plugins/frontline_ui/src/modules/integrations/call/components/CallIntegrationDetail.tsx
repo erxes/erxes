@@ -1,4 +1,3 @@
-import { CellContext } from '@tanstack/react-table';
 import { IIntegration } from '@/integrations/types/Integration';
 import { Switch, Tooltip } from 'erxes-ui';
 import { IconEdit } from '@tabler/icons-react';
@@ -20,18 +19,20 @@ export const CallIntegrationDetail = () => {
 };
 
 export const CallIntegrationActions = ({
-  cell,
+  integration,
 }: {
-  cell: CellContext<IIntegration, unknown>;
+  integration: IIntegration;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const setEditId = useSetAtom(callEditSheetAtom);
 
   return (
     <>
-      <CallIntegrationConnect integrationId={cell.row.original._id} />
+      <CallIntegrationConnect integrationId={integration._id} />
       <div
-        onClick={() => setEditId(cell.row.original._id)}
+        onClick={() => setEditId(integration._id)}
         className="flex items-center gap-2 w-full"
       >
         <IconEdit size={16} />
@@ -46,7 +47,9 @@ export const CallIntegrationConnect = ({
 }: {
   integrationId: string;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const { callUserIntegrations } = useCallUserIntegration();
   const { isEnabled, toggleIntegration } = useCallEnabledIntegrations();
 

@@ -166,10 +166,5 @@ export const handleCoreMergeMutation = async (
     return;
   }
 
-  await replaceArrayReferences(
-    models,
-    { model: 'Ticket', path: 'companyIds' },
-    mergeIds.oldIds,
-    mergeIds.newId,
-  );
+  // Tickets' `companyId` follows through core's contactFields.sync.
 };

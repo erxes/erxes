@@ -12,6 +12,7 @@ import {
   requestScheduleReconcile,
   resumeHeldExecutions,
 } from '../../utils/service';
+import { prepareAutomationFlow } from '../../utils/automationGraphCheck';
 import {
   buildDuplicatedAutomation,
   generateDuplicateName,
@@ -57,8 +58,14 @@ export const loadClass = (
       const bornRunning = doc.status === AUTOMATION_STATUSES.ACTIVE;
       const now = new Date();
 
+      const { triggers, actions } = await prepareAutomationFlow(subdomain, {
+        next: doc,
+      });
+
       const created = await models.Automations.create({
         ...doc,
+        triggers,
+        actions,
         createdAt: now,
         createdBy: userId,
         updatedBy: userId,
@@ -109,6 +116,16 @@ export const loadClass = (
         }
       }
 
+      const prepared = await prepareAutomationFlow(subdomain, {
+        next: {
+          status: nextStatus,
+          triggers: changes.triggers ?? automation.triggers,
+          actions: changes.actions ?? automation.actions,
+          workflows: changes.workflows ?? automation.workflows,
+        },
+        previous: automation,
+      });
+
       const isUntouchedDuplicate =
         !!automation.duplicatedFrom && !hasFlowChanged(automation, changes);
 
@@ -136,6 +153,8 @@ export const loadClass = (
         {
           $set: {
             ...changes,
+            ...(changes.triggers && { triggers: prepared.triggers }),
+            ...(changes.actions && { actions: prepared.actions }),
             updatedAt: new Date(),
             ...(isStatusOnly ? {} : { updatedBy: userId }),
             ...(startedRunning && {

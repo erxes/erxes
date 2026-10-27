@@ -9,6 +9,8 @@ module.exports = [
       '**/dist',
       '**/node_modules',
       'apps/client-portal-template/eslint.config.mjs',
+      // Vendored bloub bot engine — kept verbatim from upstream.
+      'frontend/core-ui/src/modules/agent/bloub/engine/**',
     ],
   },
   {

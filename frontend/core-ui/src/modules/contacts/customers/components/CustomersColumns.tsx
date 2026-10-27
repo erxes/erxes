@@ -1,5 +1,9 @@
+import { CustomerEmailsCell } from '@/contacts/customers/components/cells/CustomerEmailsCell';
+import { CustomerNameCell } from '@/contacts/customers/components/cells/CustomerNameCell';
+import { CustomerSexCell } from '@/contacts/customers/components/cells/CustomerSexCell';
+import { customerMoreColumn } from '@/contacts/customers/components/CustomerMoreColumn';
+import { CustomerCellContext } from '@/contacts/contexts/ContactTableCellContext';
 import { ContactsHotKeyScope } from '@/contacts/types/ContactsHotKeyScope';
-import { useEmailLane } from '@/settings/email-addresses/contexts/EmailLanes';
 import {
   IconCalendarPlus,
   IconChartBar,
@@ -17,53 +21,17 @@ import {
   RecordTable,
   RecordTableInlineCell,
   RelativeDateDisplay,
-  SexCode,
-  SexDisplay,
-  SexField,
   readImage,
-  useQueryState,
-  PopoverScoped,
-  FullNameValue,
-  ValidationStatus,
 } from 'erxes-ui';
-import { useState } from 'react';
+import { TFunction } from 'i18next';
 import {
-  CustomerEmails,
-  CustomerName,
   CustomerOwner,
   CustomerPhones,
   ICustomer,
   TagsSelect,
-  useCustomerEdit,
 } from 'ui-modules';
-import { useSetAtom } from 'jotai';
-import { renderingCustomerDetailAtom } from '@/contacts/states/customerDetailStates';
-import clsx from 'clsx';
-import { TFunction } from 'i18next';
-import { customerMoreColumn } from './CustomerMoreColumn';
 
 const checkBoxColumn = RecordTable.checkboxColumn as ColumnDef<ICustomer>;
-
-const LANE_AS_STATUS: Record<string, ValidationStatus | undefined> = {
-  proven: ValidationStatus.Valid,
-  suppressed: ValidationStatus.Invalid,
-  unknown: undefined,
-};
-
-const CustomerEmailsCell = ({ customer }: { customer: ICustomer }) => {
-  const laneOf = useEmailLane();
-
-  return (
-    <CustomerEmails
-      primaryEmail={customer.primaryEmail || ''}
-      _id={customer._id}
-      emailValidationStatus={LANE_AS_STATUS[laneOf(customer.primaryEmail)]}
-      emails={customer.emails || []}
-      scope={ContactsHotKeyScope.CustomersTableInlinePopover}
-      Trigger={RecordTableInlineCell.Trigger}
-    />
-  );
-};
 
 export const createCustomersColumns = (
   t: TFunction,
@@ -99,41 +67,11 @@ export const createCustomersColumns = (
         icon={IconLabelFilled}
       />
     ),
-    cell: ({ cell }) => {
-      const [, setDetailOpen] = useQueryState('contactId');
-      const setRenderingCustomerDetail = useSetAtom(
-        renderingCustomerDetailAtom,
-      );
-
-      const {
-        firstName = '',
-        lastName = '',
-        _id,
-        middleName = '',
-      } = cell.row.original;
-
-      return (
-        <CustomerName
-          _id={_id}
-          firstName={firstName}
-          lastName={`${middleName || ''}${middleName ? ' ' : ''}${
-            lastName || ''
-          }`}
-          scope={clsx(ContactsHotKeyScope.CustomersPage, _id, 'Name')}
-        >
-          <RecordTableInlineCell.Trigger>
-            <RecordTableInlineCell.Anchor
-              onClick={() => {
-                setDetailOpen(_id);
-                setRenderingCustomerDetail(false);
-              }}
-            >
-              <FullNameValue />
-            </RecordTableInlineCell.Anchor>
-          </RecordTableInlineCell.Trigger>
-        </CustomerName>
-      );
-    },
+    cell: (context) => (
+      <CustomerCellContext.Provider value={context}>
+        <CustomerNameCell />
+      </CustomerCellContext.Provider>
+    ),
     size: 240,
   },
   {
@@ -142,7 +80,11 @@ export const createCustomersColumns = (
     header: () => (
       <RecordTable.InlineHead label={t('customer.emails')} icon={IconMail} />
     ),
-    cell: ({ cell }) => <CustomerEmailsCell customer={cell.row.original} />,
+    cell: (context) => (
+      <CustomerCellContext.Provider value={context}>
+        <CustomerEmailsCell />
+      </CustomerCellContext.Provider>
+    ),
     size: 250,
   },
   {
@@ -207,35 +149,11 @@ export const createCustomersColumns = (
     header: () => (
       <RecordTable.InlineHead label={t('customer.sex')} icon={IconGenderMale} />
     ),
-    cell: ({ cell }) => {
-      const { customerEdit } = useCustomerEdit();
-      const [open, setOpen] = useState(false);
-      const { _id } = cell.row.original;
-      return (
-        <PopoverScoped
-          scope={ContactsHotKeyScope.CustomersTableInlinePopover}
-          open={open}
-          onOpenChange={setOpen}
-        >
-          <RecordTableInlineCell.Trigger>
-            <SexDisplay value={cell.getValue() as SexCode} />
-          </RecordTableInlineCell.Trigger>
-          <RecordTableInlineCell.Content>
-            <SexField
-              value={cell.getValue() as SexCode}
-              onValueChange={(value) => {
-                if (value !== (cell.getValue() as SexCode)) {
-                  customerEdit({
-                    variables: { _id, sex: value },
-                  });
-                }
-                setOpen(false);
-              }}
-            />
-          </RecordTableInlineCell.Content>
-        </PopoverScoped>
-      );
-    },
+    cell: (context) => (
+      <CustomerCellContext.Provider value={context}>
+        <CustomerSexCell />
+      </CustomerCellContext.Provider>
+    ),
   },
   {
     id: 'owner',

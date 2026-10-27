@@ -12,7 +12,9 @@ import { BroadcastRoutes } from '@/app/components/BroadcastRoutes';
 import { ComponentsRoutes } from '../components/ComponentsRoutes';
 import { ContactsRoutes } from '@/app/components/ContactsRoutes';
 import { DefaultLayout } from '@/app/components/MainLayout';
+import { LegacyAgentRedirect } from '@/agent/components/LegacyAgentRedirect';
 import { DocumentsRoutes } from '@/app/components/DocumentsRoutes';
+import { FilesRoutes } from '@/app/components/FilesRoutes';
 import ForgotPasswordPage from '~/pages/auth/ForgotPasswordPage';
 import { HomePage } from '~/pages/home/HomePage';
 import { ImportExportRoutes } from '../components/ImportExportRoutes';
@@ -135,6 +137,15 @@ export const useCreateAppRouter = () => {
               />
 
               <Route
+                path={AppPath.FilesCatchAll}
+                element={
+                  <PermissionRouteGuard module="files">
+                    <FilesRoutes />
+                  </PermissionRouteGuard>
+                }
+              />
+
+              <Route
                 path={AppPath.BroadcastsCatchAll}
                 element={
                   <PermissionRouteGuard module="broadcasts">
@@ -153,6 +164,11 @@ export const useCreateAppRouter = () => {
               <Route
                 path={AppPath.ImportExportCatchAll}
                 element={<ImportExportRoutes />}
+              />
+
+              <Route
+                path={AppPath.AssistantCatchAll}
+                element={<LegacyAgentRedirect />}
               />
 
               <Route

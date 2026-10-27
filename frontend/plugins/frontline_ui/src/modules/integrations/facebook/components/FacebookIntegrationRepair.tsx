@@ -2,22 +2,20 @@ import { FACEBOOK_AUTH_SUCCESS_MESSAGE } from '@/integrations/constants/authMess
 import { useIntegrationReauth } from '@/integrations/hooks/useIntegrationReauth';
 import { IIntegration } from '@/integrations/types/Integration';
 import { IconTool } from '@tabler/icons-react';
-import { CellContext } from '@tanstack/react-table';
 import { Spinner, toast } from 'erxes-ui';
-import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useFbIntegrationsRepair } from '../hooks/useFbIntegrationsRepair';
 import { parseRepairResult } from '@/integrations/utils/repairResult';
 
 type Props = {
-  cell: CellContext<IIntegration, unknown>;
+  integration: IIntegration;
 };
 
-export const FacebookIntegrationRepair = ({ cell }: Props) => {
-  const { t } = useTranslation('frontline');
-  const { _id, healthStatus } = cell.row.original;
-  const { integrationType } = useParams();
-  const kind = integrationType || 'facebook-messenger';
+export const FacebookIntegrationRepair = ({ integration }: Props) => {
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
+  const { _id, healthStatus, kind } = integration;
   const { repairIntegrations, loading: repairLoading } =
     useFbIntegrationsRepair();
 
@@ -27,7 +25,7 @@ export const FacebookIntegrationRepair = ({ cell }: Props) => {
   const runRepair = () => {
     repairIntegrations({
       variables: { _id, kind },
-      refetchQueries: ['Integrations'],
+      refetchQueries: ['Integrations', 'ChannelIntegrationsPeek'],
       onCompleted: (data) => {
         const result = parseRepairResult(data?.integrationsRepair);
 

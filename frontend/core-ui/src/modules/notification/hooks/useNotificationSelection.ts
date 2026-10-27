@@ -39,7 +39,7 @@ export const useNotificationSelection = (
     const anchorIndex = anchor.current ? ids.indexOf(anchor.current) : -1;
     const targetIndex = ids.indexOf(id);
     if (targetIndex === -1) return;
-    setFocusedId(id);
+    setFocusedId(shiftKey ? id : null);
     keyboardBase.current = null;
 
     if (shiftKey && anchorIndex !== -1) {
@@ -87,6 +87,18 @@ export const useNotificationSelection = (
     selectedIds: selected.filter((id) => ids.includes(id)),
     focusedId,
     select,
+    toggleAll: () => {
+      if (ids.length === 0) return;
+      const allSelected = ids.every((id) => selected.includes(id));
+      setSelected((previous) =>
+        allSelected
+          ? previous.filter((id) => !ids.includes(id))
+          : [...new Set([...previous, ...ids])],
+      );
+      anchor.current = ids[0];
+      setFocusedId(null);
+      keyboardBase.current = null;
+    },
     extend,
     setAnchor: (id) => {
       anchor.current = id;

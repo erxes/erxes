@@ -27,6 +27,7 @@ import { InboxHotkeyScope } from '@/inbox/types/InboxHotkeyScope';
 import clsx from 'clsx';
 import { IntegrationType } from '@/types/Integration';
 import { integrationMoreColumn } from './IntegrationMoreColumn';
+import { FacebookPageLink } from '@/integrations/facebook/components/FacebookPageLink';
 import { REMOVE_INTEGRATION } from '@/integrations/graphql/mutations/RemoveIntegration';
 import { IconMessagesOff, IconTrash } from '@tabler/icons-react';
 import { INTEGRATIONS } from '../constants/integrations';
@@ -39,7 +40,9 @@ const FacebookIntegrationBotCell = lazy(() =>
 );
 
 export const IntegrationsRecordTable = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const params = useParams();
   const isDiscord =
     params?.integrationType === IntegrationType.DISCORD_MESSENGER;
@@ -103,7 +106,7 @@ export const IntegrationsRecordTable = () => {
       data={(integrations || []).filter((integration) => integration)}
       tableId={`frontline_${params?.integrationType}_integrations_record_table`}
       stickyColumns={
-        isDiscord ? ['more', 'checkbox', 'name'] : ['more', 'name']
+        isDiscord ? ['more', 'checkbox', 'name'] : ['more', 'page', 'name']
       }
     >
       {isDiscord ? (
@@ -124,7 +127,9 @@ export const IntegrationsRecordTable = () => {
 };
 
 const IntegrationsCommandBar = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const { table } = RecordTable.useRecordTable();
   const { confirm } = useConfirm();
   const client = useApolloClient();
@@ -266,13 +271,39 @@ export const BrandField = () => {
 export const useIntegrationTypeColumns = (
   withSelection = false,
 ): ColumnDef<IIntegration>[] => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const { integrationType } = useParams();
 
   return [
     integrationMoreColumn(withSelection),
     ...(withSelection
       ? [RecordTable.checkboxColumn as ColumnDef<IIntegration>]
+      : []),
+    ...(integrationType === IntegrationType.FACEBOOK_MESSENGER ||
+    integrationType === IntegrationType.FACEBOOK_POST
+      ? [
+          {
+            id: 'page',
+            header: () => <RecordTable.InlineHead label={t('page')} />,
+            cell: (cell: CellContext<IIntegration, unknown>) => (
+              <RecordTableInlineCell className="gap-2">
+                {(cell.row.original.facebookPage ?? []).map(
+                  (page) =>
+                    page && (
+                      <FacebookPageLink
+                        key={page.pageId}
+                        pageId={page.pageId}
+                        name={page.name}
+                      />
+                    ),
+                )}
+              </RecordTableInlineCell>
+            ),
+            size: 240,
+          } as ColumnDef<IIntegration>,
+        ]
       : []),
     {
       id: 'name',

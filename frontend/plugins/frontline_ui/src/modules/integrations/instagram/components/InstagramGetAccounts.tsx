@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
+  Badge,
   Button,
   cn,
   Command,
@@ -8,6 +9,7 @@ import {
   REACT_APP_API_URL,
   RadioGroup,
   Spinner,
+  Tooltip,
 } from 'erxes-ui';
 import { useInstagramAccounts } from '@/integrations/instagram/hooks/useInstagramAccounts';
 import { IconBrandInstagram } from '@tabler/icons-react';
@@ -24,9 +26,15 @@ import { useInstagramPages } from '@/integrations/instagram/hooks/useInstagramPa
 import { useIgAuthPopup } from '@/integrations/instagram/hooks/useIgAuthPopup';
 
 export const InstagramGetAccounts = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const { instagramGetAccounts, loading, refetch } = useInstagramAccounts();
-  const { instagramGetPages } = useInstagramPages();
+  const {
+    instagramGetPages,
+    loading: pagesLoading,
+    error: pagesError,
+  } = useInstagramPages();
   const [selectedAccount, setSelectedAccount] = useAtom(
     selectedInstagramAccountAtom,
   );
@@ -142,11 +150,31 @@ export const InstagramGetAccounts = () => {
                     onClick={() => setSelectedAccount(account._id)}
                   />
                   <div className="font-semibold">{account.name}</div>
-                  {selectedAccount && instagramGetPages?.length ? (
+                  {selectedAccount === account._id && (
                     <div className="text-sm text-muted-foreground font-mono uppercase ml-auto">
-                      {t('pages-found', { count: instagramGetPages.length })}
+                      {pagesLoading && <Spinner className="w-3 h-3" />}
+                      {!pagesLoading && pagesError && (
+                        <Tooltip.Provider>
+                          <Tooltip delayDuration={0}>
+                            <Tooltip.Trigger asChild>
+                              <Badge
+                                variant="destructive"
+                                className="normal-case"
+                              >
+                                {t('reconnect', 'Reconnect')}
+                              </Badge>
+                            </Tooltip.Trigger>
+                            <Tooltip.Content className="max-w-80 whitespace-pre-wrap break-words normal-case font-sans">
+                              {pagesError.message}
+                            </Tooltip.Content>
+                          </Tooltip>
+                        </Tooltip.Provider>
+                      )}
+                      {!pagesLoading &&
+                        !pagesError &&
+                        t('pages-found', { count: instagramGetPages.length })}
                     </div>
-                  ) : null}
+                  )}
                 </Command.Item>
               ))}
             </Command.List>

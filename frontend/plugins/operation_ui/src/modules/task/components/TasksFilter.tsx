@@ -41,7 +41,7 @@ import {
 import clsx from 'clsx';
 import { useParams } from 'react-router-dom';
 import { SelectMilestone } from './task-selects/SelectMilestone';
-import { TagsFilter } from 'ui-modules';
+import { SelectCompany, SelectCustomer, TagsFilter } from 'ui-modules';
 import { useGetTeam } from '@/team/hooks/useGetTeam';
 import { useGetProject } from '@/project/hooks/useGetProject';
 import { SelectEstimatedPoint } from '@/task/components/task-selects/SelectEstimatedPointTask';
@@ -55,8 +55,8 @@ const TasksFilterPopover = () => {
   const resolvedTeamIds = teamId
     ? [teamId]
     : project?.teamIds?.length
-      ? project.teamIds
-      : undefined;
+    ? project.teamIds
+    : undefined;
   const [queries] = useMultiQueryState<{
     searchValue: string;
     assignee: string;
@@ -77,6 +77,8 @@ const TasksFilterPopover = () => {
     projectPriority: string;
     projectLeadId: string;
     projectMilestoneName: string;
+    customerId: string;
+    companyId: string;
   }>([
     'searchValue',
     'assignee',
@@ -97,6 +99,8 @@ const TasksFilterPopover = () => {
     'projectPriority',
     'projectLeadId',
     'projectMilestoneName',
+    'customerId',
+    'companyId',
   ]);
 
   const hasFilters = Object.values(queries || {}).some(
@@ -160,6 +164,14 @@ const TasksFilterPopover = () => {
                   </Filter.Item>
                 )}
                 <TagsFilter />
+                <SelectCustomer.FilterItem
+                  value="customerId"
+                  label={t('customer', 'Customer')}
+                />
+                <SelectCompany.FilterItem
+                  value="companyId"
+                  label={t('company', 'Company')}
+                />
                 {projectId && !queries?.milestone && (
                   <Filter.Item value="milestone">
                     <IconSquareRotated />
@@ -243,6 +255,8 @@ const TasksFilterPopover = () => {
             <SelectEstimatedPoint.FilterView />
           )}
           <TagsFilter.View tagType="operation:task" />
+          <SelectCustomer.FilterView mode="single" filterKey="customerId" />
+          <SelectCompany.FilterView mode="single" filterKey="companyId" />
           {projectId && !queries?.milestone && (
             <SelectMilestone.FilterView projectId={projectId || ''} />
           )}
@@ -271,8 +285,8 @@ export const TasksFilter = () => {
   const resolvedTeamIds = teamId
     ? [teamId]
     : project?.teamIds?.length
-      ? project.teamIds
-      : undefined;
+    ? project.teamIds
+    : undefined;
   const [queries] = useMultiQueryState<{
     searchValue: string;
     assignee: string;
@@ -294,6 +308,8 @@ export const TasksFilter = () => {
     projectPriority: string;
     projectLeadId: string;
     projectMilestoneName: string;
+    customerId: string;
+    companyId: string;
   }>([
     'searchValue',
     'assignee',
@@ -315,12 +331,15 @@ export const TasksFilter = () => {
     'projectPriority',
     'projectLeadId',
     'projectMilestoneName',
+    'customerId',
+    'companyId',
   ]);
   const { searchValue, milestone, cycleFilter, estimatePoint } = queries || {};
 
   return (
     <Filter id="Tasks-filter" sessionKey={TASKS_CURSOR_SESSION_KEY}>
       <Filter.Bar>
+        <TasksFilterPopover />
         {searchValue && (
           <Filter.BarItem queryKey="searchValue">
             <Filter.BarName>
@@ -427,6 +446,16 @@ export const TasksFilter = () => {
             </Filter.BarItem>
           )}
         <TagsFilter.Bar tagType="operation:task" />
+        <SelectCustomer.FilterBar
+          mode="single"
+          filterKey="customerId"
+          label={t('customer', 'Customer')}
+        />
+        <SelectCompany.FilterBar
+          mode="single"
+          filterKey="companyId"
+          label={t('company', 'Company')}
+        />
         {projectId && milestone && (
           <Filter.BarItem queryKey="milestone">
             <Filter.BarName>
@@ -478,7 +507,6 @@ export const TasksFilter = () => {
           </Filter.BarName>
           <SelectCompletedDateFilter.FilterBar />
         </Filter.BarItem>
-        <TasksFilterPopover />
         <TasksTotalCount />
       </Filter.Bar>
     </Filter>

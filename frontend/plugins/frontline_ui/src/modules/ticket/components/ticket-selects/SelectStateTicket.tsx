@@ -37,9 +37,9 @@ const useSelectStateContext = () => {
 };
 
 const STATES = [
-  { value: 'active', label: 'Active', icon: IconCircleCheck },
-  { value: 'archived', label: 'Archived', icon: IconArchive },
-  { value: 'deleted', label: 'Deleted', icon: IconTrash },
+  { value: 'active', labelKey: 'state-active', icon: IconCircleCheck },
+  { value: 'archived', labelKey: 'state-archived', icon: IconArchive },
+  { value: 'deleted', labelKey: 'state-deleted', icon: IconTrash },
 ];
 
 const SelectStateProvider = ({
@@ -61,7 +61,7 @@ const SelectStateProvider = ({
 };
 
 const SelectStateValue = ({ placeholder }: { placeholder?: string }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   const { value } = useSelectStateContext();
   if (value === 'all') return <span>{t('all-states', 'All States')}</span>;
   const selected = STATES.find((s) => s.value === value);
@@ -69,7 +69,7 @@ const SelectStateValue = ({ placeholder }: { placeholder?: string }) => {
   if (!selected) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || 'Select state'}
+        {placeholder || t('select-state')}
       </span>
     );
   }
@@ -79,7 +79,7 @@ const SelectStateValue = ({ placeholder }: { placeholder?: string }) => {
   return (
     <div className="flex items-center gap-2">
       <Icon className="size-4" />
-      <span className="font-medium text-sm">{selected.label}</span>
+      <span className="font-medium text-sm">{t(selected.labelKey)}</span>
     </div>
   );
 };
@@ -89,6 +89,7 @@ const SelectStateCommandItem = ({
 }: {
   state: (typeof STATES)[number];
 }) => {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   const { onValueChange, value } = useSelectStateContext();
   const Icon = state.icon;
 
@@ -99,7 +100,7 @@ const SelectStateCommandItem = ({
     >
       <div className="flex items-center gap-2 flex-1">
         <Icon className="size-4" />
-        <span className="font-medium capitalize">{state.label}</span>
+        <span className="font-medium capitalize">{t(state.labelKey)}</span>
       </div>
       <Combobox.Check checked={value === state.value} />
     </Command.Item>
@@ -111,7 +112,7 @@ const SelectStateContent = ({
 }: {
   includeAll?: boolean;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   const { value, onValueChange } = useSelectStateContext();
   return (
     <Command>
@@ -200,7 +201,7 @@ const SelectStateFilterView = () => {
 };
 
 const SelectStateTicketFilterBar = ({ scope }: { scope?: string }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   const [state, setState] = useQueryState<string>('state');
   const [open, setOpen] = useState(false);
 
