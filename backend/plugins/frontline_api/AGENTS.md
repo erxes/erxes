@@ -1670,12 +1670,6 @@ tagIds, propertiesData: JSON)` (the customer comes from the widget session) — 
 - `pnpm nx build frontline_api`
 - `pnpm nx test frontline_api` — Jest over `src/**/*.test.ts` and the
   Telegram `src/**/*.spec.ts` suites (`jest.config.ts`, `tsconfig.spec.json`).
-  Set `INSTAGRAM_MONGO_TESTS=1` to include Instagram delivery/recovery tests in a
-  throwaway local Mongo database; the developer's inbox is never used.
-  Those suites open `127.0.0.1:27017` with `directConnection`, so a local
-  replica set that advertises another host name (for example `mongo`) still
-  works. The history `$lookup` explain assertion needs MongoDB 5.0+; older
-  servers only verify that the provider identity index exists.
   Both suffixes are excluded from `tsconfig.build.json`; prefer `.test.ts` for
   new tests. Set `TELEGRAM_MONGO_TESTS=1` to include the isolated local Mongo suite.
 - Instagram: connect Post before Messenger for the same account and confirm each
