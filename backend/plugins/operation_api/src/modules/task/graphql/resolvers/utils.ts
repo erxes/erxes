@@ -8,26 +8,22 @@ import {
 import { FilterQuery, PipelineStage } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 
-const TASK_STATUS_NAMES = [
-  'todo',
-  'in progress',
-  'pull request',
-  'in planning',
-  'merged',
-  'updated',
-  'cancelled',
-  'on hold',
-  'backlog',
-] as const;
-
+// Tasks group by status type as projects do (in progress, todo, backlog,
+// done, cancelled: STATUS_TYPES ascending), then by the team's own status
+// order within a type, newest updated first.
 const TASK_STATUS_SORT = {
   statusOrder: 1,
+  statusPosition: 1,
   normalizedStatusName: 1,
   updatedAt: -1,
 } as const;
 
+// A task without a status type sorts after every typed one.
+const UNTYPED_STATUS_ORDER = 99;
+
 interface IOrderedTaskDocument extends ITaskDocument {
   statusOrder?: number;
+  statusPosition?: number;
   normalizedStatusName?: string;
 }
 
@@ -71,29 +67,17 @@ export const taskCursorPaginateByStatus = async ({
     },
     {
       $addFields: {
+        statusOrder: {
+          $cond: [
+            { $gt: ['$statusType', 0] },
+            '$statusType',
+            UNTYPED_STATUS_ORDER,
+          ],
+        },
+        statusPosition: { $ifNull: ['$statusDoc.order', 0] },
         normalizedStatusName: {
           $toLower: {
             $trim: { input: { $ifNull: ['$statusDoc.name', ''] } },
-          },
-        },
-      },
-    },
-    {
-      $addFields: {
-        statusOrder: {
-          $let: {
-            vars: {
-              statusIndex: {
-                $indexOfArray: [TASK_STATUS_NAMES, '$normalizedStatusName'],
-              },
-            },
-            in: {
-              $cond: [
-                { $eq: ['$$statusIndex', -1] },
-                TASK_STATUS_NAMES.length,
-                '$$statusIndex',
-              ],
-            },
           },
         },
       },
@@ -104,6 +88,7 @@ export const taskCursorPaginateByStatus = async ({
   const cursorQuery = cursor
     ? buildCursorQuery(cursor, TASK_STATUS_SORT, direction, {
         statusOrder: 'number',
+        statusPosition: 'number',
         updatedAt: 'date',
       })
     : null;

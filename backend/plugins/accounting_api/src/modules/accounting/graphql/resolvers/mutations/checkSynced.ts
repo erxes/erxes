@@ -234,7 +234,6 @@ const checkSyncedMutations = {
 
     const config = rule.value;
     const returnConfig: OrderReturnSyncConfig = {
-      dateRule: config.dateRule,
       defaultPayment: config.defaultPayment,
       posId: config.posId,
       returnType: config.returnType || 'fullTr',

@@ -6,7 +6,7 @@
 - **Project:** `accounting_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/accounting_api`
-- **Last synchronized:** `2026-10-25`
+- **Last synchronized:** `2026-10-27`
 
 ## Scope
 
@@ -155,6 +155,10 @@
 - Fixed asset owner records generated from transactions must assign a per-fixed-asset fallback sequence when the source row omits one so legacy databases with a unique `fixedAssetId + sequence` index do not reject multiple unsequenced owner rows.
 
 ## Local Invariants
+
+- POS order sale sync uses valid `order.paidDate` for sale and payment transaction dates on initial sync and resync, without `dateRule`.
+- POS order return sync uses valid `order.returnInfo.returnAt` for return and refund transaction dates on initial sync and resync, without `dateRule`.
+- Sale, movement, and return sync handlers throw actionable errors for failed prerequisites (missing/invalid POS dates, missing sale/movement products, or missing original sale for a return). Event and manual-sync callers catch these errors and persist them through `setOrderAccountingResponse` or the configured deal response property through `setDealAccountingResponse`; failed validation must never resolve as success. Missing payment-account configuration remains an intentional row skip.
 
 - Fixed asset adjustment headers and depreciation details are one feature: keep both schemas in `db/definitions/adjustFixedAsset.ts`, both model loaders in `db/models/AdjustFixedAssets.ts`, their types in `@types/adjustFixedAsset.ts`, and their queries and SDL in the corresponding `adjustFixedAssets.ts` / `adjustFixedAsset.ts` files. Details belong to the parent adjustment and have no independent lifecycle. Keep `adjust_fixed_assets`, `adjust_fxa_details`, permissions and public GraphQL field names stable.
 

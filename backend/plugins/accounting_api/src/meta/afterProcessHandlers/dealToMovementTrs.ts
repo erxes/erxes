@@ -136,7 +136,6 @@ const getProductLocation = ({
 };
 
 export const dealToMovementTrs = async ({
-  subdomain,
   models,
   userId,
   deal,
@@ -160,7 +159,9 @@ export const dealToMovementTrs = async ({
   );
 
   if (!activeProductsData?.length) {
-    return;
+    throw new Error(
+      'Deal has no selected products with positive quantity for inventory movement.',
+    );
   }
 
   let mainId = nanoid();

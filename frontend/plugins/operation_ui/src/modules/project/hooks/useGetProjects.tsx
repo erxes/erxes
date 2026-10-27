@@ -38,14 +38,26 @@ export const useProjectsVariables = (
   const { cursor } = useRecordTableCursor({
     sessionKey: PROJECTS_CURSOR_SESSION_KEY,
   });
-  const [{ name, team, priority, status, lead, tags }] = useMultiQueryState<{
-    name: string;
-    team: string;
-    priority: string;
-    status: string;
-    lead: string;
-    tags: string[];
-  }>(['name', 'team', 'priority', 'status', 'lead', 'tags']);
+  const [{ name, team, priority, status, lead, tags, customerId, companyId }] =
+    useMultiQueryState<{
+      name: string;
+      team: string;
+      priority: string;
+      status: string;
+      lead: string;
+      tags: string[];
+      customerId: string;
+      companyId: string;
+    }>([
+      'name',
+      'team',
+      'priority',
+      'status',
+      'lead',
+      'tags',
+      'customerId',
+      'companyId',
+    ]);
   const currentUser = useAtomValue(currentUserState);
 
   return {
@@ -60,6 +72,8 @@ export const useProjectsVariables = (
     status: status ? Number(status) : undefined,
     leadId: lead || undefined,
     tagIds: tags || undefined,
+    customerId: customerId || undefined,
+    companyId: companyId || undefined,
     ...variables,
     ...(variables?.teamIds || variables?.memberId || !currentUser?._id
       ? {}
@@ -136,8 +150,8 @@ export const useProjects = (
               event.type === 'create'
                 ? (prev.getProjects.totalCount ?? 0) + 1
                 : event.type === 'delete'
-                  ? (prev.getProjects.totalCount ?? 0) - 1
-                  : prev.getProjects.totalCount,
+                ? (prev.getProjects.totalCount ?? 0) - 1
+                : prev.getProjects.totalCount,
           },
         };
       },
