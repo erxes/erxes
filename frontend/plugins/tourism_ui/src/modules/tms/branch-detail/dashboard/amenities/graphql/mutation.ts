@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const CREATE_AMENITY = gql`
+export const CREATE_AMENITY = gql(`
   mutation BmsAmenityAdd(
     $name: String
     $icon: String
@@ -20,9 +20,9 @@ export const CREATE_AMENITY = gql`
       _id
     }
   }
-`;
+`);
 
-export const EDIT_AMENITY = gql`
+export const EDIT_AMENITY = gql(`
   mutation BmsAmenityEdit(
     $id: String!
     $name: String
@@ -42,10 +42,10 @@ export const EDIT_AMENITY = gql`
       _id
     }
   }
-`;
+`);
 
-export const REMOVE_AMENITY = gql`
+export const REMOVE_AMENITY = gql(`
   mutation BmsAmenityRemove($ids: [String!]!) {
     bmsElementRemove(ids: $ids)
   }
-`;
+`);

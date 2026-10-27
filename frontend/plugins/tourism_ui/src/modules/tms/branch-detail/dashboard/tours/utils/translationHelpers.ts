@@ -2,6 +2,8 @@ import {
   TourFormValues,
   TourTranslationFormValue,
 } from '../constants/formSchema';
+import type { ITourDetail } from '../hooks/useTourDetail';
+import { compactList } from '~/utils/cursorList';
 
 export interface IPricingOptionTranslationInput {
   optionId: string;
@@ -57,51 +59,37 @@ export const buildEmptyTourTranslations = (
 
 export const buildTranslationsFromTour = (
   tour: {
-    translations?: Array<{
-      language: string;
-      name?: string;
-      refNumber?: string;
-      content?: string;
-      info1?: string;
-      info2?: string;
-      info3?: string;
-      info4?: string;
-      info5?: string;
-      pricingOptions?: Array<{
-        optionId: string;
-        title?: string;
-        accommodationType?: string;
-        note?: string;
-        prices?: Array<{ type: string; price: number }>;
-        pricePerPerson?: number;
-        domesticFlightPerPerson?: number;
-        singleSupplement?: number;
-      }>;
-    }>;
-    pricingOptions?: Array<{ _id: string }>;
+    translations?: ITourDetail['translations'];
+    pricingOptions?: ReadonlyArray<{
+      _id?: string | number | null;
+    } | null> | null;
   },
   translationLanguages: string[],
 ): TourTranslation[] => {
-  const pricingOptionIds = (tour.pricingOptions || []).map((p) => p._id);
+  const pricingOptionIds = compactList(tour.pricingOptions).flatMap((p) =>
+    typeof p._id === 'string' ? [p._id] : [],
+  );
+  const translations = compactList(tour.translations);
 
   return translationLanguages.map((lang) => {
-    const existing = (tour.translations || []).find((t) => t.language === lang);
+    const existing = translations.find((t) => t.language === lang);
 
     const pricingOptions = pricingOptionIds.map((optionId) => {
-      const existingOpt = (existing?.pricingOptions || []).find(
+      const existingOpt = compactList(existing?.pricingOptions).find(
         (p) => p.optionId === optionId,
       );
+      const existingPrices = compactList(existingOpt?.prices);
 
       const adultPrice =
-        existingOpt?.prices?.find((p) => p.type === 'adult')?.price ??
+        existingPrices.find((p) => p.type === 'adult')?.price ??
         existingOpt?.pricePerPerson ??
         '';
 
       const childPrice =
-        existingOpt?.prices?.find((p) => p.type === 'child')?.price ?? '';
+        existingPrices.find((p) => p.type === 'child')?.price ?? '';
 
       const infantPrice =
-        existingOpt?.prices?.find((p) => p.type === 'infant')?.price ?? '';
+        existingPrices.find((p) => p.type === 'infant')?.price ?? '';
 
       return {
         optionId,
@@ -243,17 +231,13 @@ export const syncTranslationPricingOptions = (
  * Fallback chain: translations[mainLang] → tour.name → ''
  */
 export const resolveMainLanguageName = (
-  tour: {
-    name?: string;
-    language?: string;
-    translations?: Array<{ language: string; name?: string }>;
-  },
+  tour: Pick<ITourDetail, 'name' | 'language' | 'translations'>,
   mainLanguage: string | undefined,
 ): string => {
   const effectiveLang = mainLanguage || tour.language;
   if (!effectiveLang) return tour.name || '';
 
-  const mainTranslation = tour.translations?.find(
+  const mainTranslation = compactList(tour.translations).find(
     (t) => t.language === effectiveLang,
   );
 

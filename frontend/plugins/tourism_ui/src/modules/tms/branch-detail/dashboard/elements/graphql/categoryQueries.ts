@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const GET_ELEMENT_CATEGORIES = gql`
+export const GET_ELEMENT_CATEGORIES = gql(`
   query BmsElementCategories($parentId: String) {
     bmsElementCategories(parentId: $parentId) {
       _id
@@ -8,4 +8,4 @@ export const GET_ELEMENT_CATEGORIES = gql`
       parentId
     }
   }
-`;
+`);

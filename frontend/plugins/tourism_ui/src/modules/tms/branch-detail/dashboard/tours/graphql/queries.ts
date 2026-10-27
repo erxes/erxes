@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const GET_TOURS = gql`
+export const GET_TOURS = gql(`
   query BmsTours(
     $branchId: String
     $name: String
@@ -59,9 +59,9 @@ export const GET_TOURS = gql`
       }
     }
   }
-`;
+`);
 
-export const GET_TOUR_ORDER_DETAIL = gql`
+export const GET_TOUR_ORDER_DETAIL = gql(`
   query BmsOrderDetail($id: String!) {
     bmsOrderDetail(_id: $id) {
       _id
@@ -80,9 +80,9 @@ export const GET_TOUR_ORDER_DETAIL = gql`
       createdAt
     }
   }
-`;
+`);
 
-export const GET_TOUR_GROUPS = gql`
+export const GET_TOUR_GROUPS = gql(`
   query BmToursGroup(
     $branchId: String
     $status: String
@@ -122,9 +122,9 @@ export const GET_TOUR_GROUPS = gql`
       }
     }
   }
-`;
+`);
 
-export const GET_TOUR_DETAIL = gql`
+export const GET_TOUR_DETAIL = gql(`
   query BmsTourDetail($id: String!, $language: String) {
     bmsTourDetail(_id: $id, language: $language) {
       _id
@@ -224,9 +224,9 @@ export const GET_TOUR_DETAIL = gql`
       modifiedAt
     }
   }
-`;
+`);
 
-export const GET_TOUR_ORDERS = gql`
+export const GET_TOUR_ORDERS = gql(`
   query BmsOrders(
     $tourId: String
     $orderBy: JSON
@@ -272,10 +272,10 @@ export const GET_TOUR_ORDERS = gql`
       }
     }
   }
-`;
+`);
 
-export const GET_TOUR_ORDER_CUSTOMER_IDS = gql`
+export const GET_TOUR_ORDER_CUSTOMER_IDS = gql(`
   query BmsOrderCustomerIds($tourId: String!) {
     bmsOrderCustomerIds(tourId: $tourId)
   }
-`;
+`);

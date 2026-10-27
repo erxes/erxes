@@ -3,24 +3,11 @@ import { CREATE_BRANCH } from '@/tms/graphql/mutation';
 import { IBranch } from '../types/branch';
 import { toast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-
-interface DuplicateBranchVariables {
-  name: string;
-  description?: string;
-  generalManagerIds?: string[];
-  managerIds?: string[];
-  paymentIds?: string[];
-  paymentTypes?: any[];
-  prepaid?: boolean;
-  prepaidPercent?: number | null;
-  erxesAppToken?: string;
-  permissionConfig?: any[];
-  uiOptions?: Record<string, any>;
-}
+import type { BmsBranchAddMutationVariables } from '~/gql/graphql';
 
 interface UseBranchDuplicateOptions {
   onSuccess?: () => void;
-  onError?: (error: any) => void;
+  onError?: (error: unknown) => void;
 }
 
 export const useBranchDuplicate = (options?: UseBranchDuplicateOptions) => {
@@ -28,7 +15,7 @@ export const useBranchDuplicate = (options?: UseBranchDuplicateOptions) => {
   const [createBranch, { loading }] = useMutation(CREATE_BRANCH);
 
   const duplicateBranch = async (variables: {
-    variables: DuplicateBranchVariables;
+    variables: BmsBranchAddMutationVariables;
     onCompleted?: () => void;
   }) => {
     try {
@@ -47,7 +34,7 @@ export const useBranchDuplicate = (options?: UseBranchDuplicateOptions) => {
 
   const handleDuplicateBranch = async (
     branch: IBranch,
-    refetch?: () => Promise<any>,
+    refetch?: () => Promise<unknown>,
   ) => {
     const prepaid = branch.prepaid ?? false;
 
@@ -55,11 +42,9 @@ export const useBranchDuplicate = (options?: UseBranchDuplicateOptions) => {
       await duplicateBranch({
         variables: {
           name: `${branch.name} (Copy)`,
-          description: branch.description,
           generalManagerIds: branch.generalManagerIds || [],
           managerIds: branch.managerIds || [],
           paymentIds: branch.paymentIds || [],
-          paymentTypes: branch.paymentTypes || [],
           prepaid,
           prepaidPercent: prepaid ? branch.prepaidPercent : undefined,
           erxesAppToken: branch.erxesAppToken,
@@ -78,7 +63,8 @@ export const useBranchDuplicate = (options?: UseBranchDuplicateOptions) => {
     } catch (error) {
       toast({
         title: t('failed-to-duplicate-branch'),
-        description: error?.message || t('unknown-error-occurred'),
+        description:
+          error instanceof Error ? error.message : t('unknown-error-occurred'),
         variant: 'destructive',
       });
       throw error;

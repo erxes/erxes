@@ -7,6 +7,7 @@ import { ActionMenu } from '@/tms/components/ActionMenu';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
+import { toBranchUiOptions } from '@/tms/utils/branchUiOptions';
 
 interface BranchCardProps {
   branch: IBranch;
@@ -16,7 +17,13 @@ interface BranchCardProps {
   duplicateLoading: boolean;
 }
 
-const BranchImage = ({ logo, name }: { logo?: string; name?: string }) => {
+const BranchImage = ({
+  logo,
+  name,
+}: {
+  logo?: string;
+  name?: string | null;
+}) => {
   const [imageLoading, setImageLoading] = useState(true);
 
   if (!logo) {
@@ -77,7 +84,10 @@ export const BranchCard = ({
         to={`branches/${branch._id}`}
         className="w-full h-[140px] bg-accent/30 overflow-hidden flex items-center justify-center"
       >
-        <BranchImage logo={branch.uiOptions?.logo} name={branch.name} />
+        <BranchImage
+          logo={toBranchUiOptions(branch.uiOptions).logo}
+          name={branch.name}
+        />
       </Link>
 
       <div className="flex items-center justify-between px-3 py-2 border-t">
@@ -91,7 +101,9 @@ export const BranchCard = ({
           </span>
         </div>
 
-        <MembersInline.Provider memberIds={[branch.userId]}>
+        <MembersInline.Provider
+          memberIds={branch.userId ? [branch.userId] : []}
+        >
           <MembersInline.Avatar size="lg" />
         </MembersInline.Provider>
       </div>

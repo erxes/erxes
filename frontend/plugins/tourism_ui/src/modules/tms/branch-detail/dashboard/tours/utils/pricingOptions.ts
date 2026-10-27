@@ -2,6 +2,7 @@ import { nanoid } from 'nanoid';
 
 import type { TourFormValues } from '../constants/formSchema';
 import type { IPricingOption } from '../hooks/useTourDetail';
+import { compactList } from '~/utils/cursorList';
 
 export type PassengerType = 'adult' | 'child' | 'infant';
 
@@ -23,17 +24,6 @@ export interface PricingOptionInput {
 }
 
 type PricingOptionFormValue = TourFormValues['pricingOptions'][number];
-
-type WithTypename = {
-  __typename?: string;
-};
-
-type PricingOptionPriceSource = PricingOptionPriceInput & WithTypename;
-
-type PricingOptionSource = Omit<IPricingOption, 'prices'> &
-  WithTypename & {
-    prices?: PricingOptionPriceSource[];
-  };
 
 const toOptionalNumber = (value: number | string | undefined) => {
   if (typeof value === 'number') {
@@ -96,31 +86,25 @@ export const normalizePricingOptionsForApi = (
   });
 
 export const normalizeTourDetailPricingOptionsForApi = (
-  pricingOptions: PricingOptionSource[],
+  pricingOptions: readonly (IPricingOption | null)[],
 ): PricingOptionInput[] =>
-  pricingOptions.map((option) => {
-    const {
-      __typename: _typename,
-      pricePerPerson,
-      prices = [],
-      ...rest
-    } = option;
-
-    const normalizedPrices = prices.map(
-      ({ __typename: _priceTypename, type, price }) => ({
-        type,
-        price,
-      }),
-    );
+  compactList(pricingOptions).map((option) => {
+    const prices = option.prices.map(({ type, price }) => ({ type, price }));
 
     return {
-      ...rest,
-      _id: rest._id || nanoid(8),
+      _id: option._id || nanoid(8),
+      title: option.title,
+      minPersons: option.minPersons,
+      maxPersons: option.maxPersons ?? undefined,
+      accommodationType: option.accommodationType ?? undefined,
+      domesticFlightPerPerson: option.domesticFlightPerPerson ?? undefined,
+      singleSupplement: option.singleSupplement ?? undefined,
+      note: option.note ?? undefined,
       prices:
-        normalizedPrices.length > 0
-          ? normalizedPrices
-          : typeof pricePerPerson === 'number'
-          ? [{ type: 'adult', price: pricePerPerson }]
+        prices.length > 0
+          ? prices
+          : typeof option.pricePerPerson === 'number'
+          ? [{ type: 'adult', price: option.pricePerPerson }]
           : [],
     };
   });

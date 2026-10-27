@@ -1,8 +1,10 @@
 import { IBranch } from '@/tms/types/branch';
 import { PageSubHeader } from 'erxes-ui';
 import { ItineraryFilter, ItineraryRecordTable } from '../itinerary';
+import { useBranchLanguages } from '@/tms/hooks/useBranchLanguages';
 
 export const ItineraryPage = ({ branch }: { branch: IBranch }) => {
+  const branchLanguageProps = useBranchLanguages(branch);
   return (
     <div className="flex flex-col h-full">
       <PageSubHeader>
@@ -12,8 +14,7 @@ export const ItineraryPage = ({ branch }: { branch: IBranch }) => {
         <div className="flex flex-col h-full min-h-0">
           <ItineraryRecordTable
             branchId={branch._id}
-            branchLanguages={branch.languages}
-            mainLanguage={branch.language}
+            {...branchLanguageProps}
           />
         </div>
       </div>

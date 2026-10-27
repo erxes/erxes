@@ -7,7 +7,7 @@ import { SelectItineraryContext } from '../contexts/SelectItineraryContext';
 import { GET_ITINERARY_DETAIL } from '../graphql/queries';
 import { useItinerariesForSelect } from '../hooks/useItinerariesForSelect';
 import { useSelectItineraryContext } from '../hooks/useSelectItineraryContext';
-import { IItinerary } from '../types/itinerary';
+import { IItineraryOption } from '../types/itinerary';
 
 // ─── Provider ────────────────────────────────────────────────────────────────
 
@@ -27,15 +27,16 @@ const SelectItineraryProvider = ({
   language,
 }: ISelectItineraryProviderProps) => {
   const { data } = useQuery(GET_ITINERARY_DETAIL, {
-    variables: { id: value, language },
+    variables: value ? { id: value, language } : undefined,
     skip: !value,
     fetchPolicy: 'cache-first',
   });
 
-  const resolvedItinerary: IItinerary | null = data?.bmsItineraryDetail || null;
+  const resolvedItinerary: IItineraryOption | null =
+    data?.bmsItineraryDetail || null;
 
   const onSelect = useCallback(
-    (itinerary: IItinerary) => {
+    (itinerary: IItineraryOption) => {
       onValueChange?.(itinerary._id);
     },
     [onValueChange],
@@ -58,7 +59,7 @@ const SelectItineraryProvider = ({
 
 // ─── Item label ──────────────────────────────────────────────────────────────
 
-const ItineraryItemLabel = ({ itinerary }: { itinerary: IItinerary }) => {
+const ItineraryItemLabel = ({ itinerary }: { itinerary: IItineraryOption }) => {
   const { t } = useTranslation('tourism');
   return (
     <div className="flex items-center flex-1 min-w-0 gap-2">
@@ -77,7 +78,7 @@ const ItineraryItemLabel = ({ itinerary }: { itinerary: IItinerary }) => {
 const SelectItineraryCommandItem = ({
   itinerary,
 }: {
-  itinerary: IItinerary;
+  itinerary: IItineraryOption;
 }) => {
   const { onSelect, itineraryId } = useSelectItineraryContext();
   return (

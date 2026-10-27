@@ -37,11 +37,13 @@ import {
   TOUR_CUSTOM_TYPE_REMOVE,
   TOUR_CUSTOM_TYPES,
 } from '../tours/graphql/customFields';
-import type {
-  ITourCustomField,
-  ITourCustomFieldGroup,
-  ITourCustomPostType,
+import {
+  toTourCustomFieldGroup,
+  type ITourCustomField,
+  type ITourCustomFieldGroup,
+  type ITourCustomPostType,
 } from '../tours/hooks/useTourCustomFields';
+import { compactList } from '~/utils/cursorList';
 
 type TourTypeForm = {
   label: string;
@@ -81,10 +83,12 @@ const FIELD_TYPES = [
 
 const SYSTEM_TOUR_TYPE: ITourCustomPostType = {
   _id: 'tour',
+  branchId: '',
   code: 'tour',
   name: 'tour',
   label: 'Tour',
   pluralLabel: 'Tours',
+  description: null,
   isActive: true,
 };
 
@@ -132,34 +136,33 @@ export const CustomFieldsPage = ({ branch }: { branch: IBranch }) => {
     data: typesData,
     loading: typesLoading,
     refetch: refetchTypes,
-  } = useQuery<{ bmsCustomTourTypes: ITourCustomPostType[] }>(
-    TOUR_CUSTOM_TYPES,
-    {
-      variables: { branchId: branch._id },
-      fetchPolicy: 'cache-and-network',
-    },
-  );
+  } = useQuery(TOUR_CUSTOM_TYPES, {
+    variables: { branchId: branch._id },
+    fetchPolicy: 'cache-and-network',
+  });
 
   const {
     data: groupsData,
     loading: groupsLoading,
     refetch: refetchGroups,
-  } = useQuery<{
-    bmsCustomTourGroupList: {
-      list: ITourCustomFieldGroup[];
-      totalCount: number;
-    };
-  }>(TOUR_CUSTOM_FIELD_GROUPS, {
+  } = useQuery(TOUR_CUSTOM_FIELD_GROUPS, {
     variables: { branchId: branch._id },
     fetchPolicy: 'cache-and-network',
   });
 
-  const customTypes = typesData?.bmsCustomTourTypes || [];
+  const customTypes = useMemo(
+    () => compactList(typesData?.bmsCustomTourTypes),
+    [typesData?.bmsCustomTourTypes],
+  );
   const typeOptions = useMemo(
     () => [SYSTEM_TOUR_TYPE, ...customTypes],
     [customTypes],
   );
-  const groups = groupsData?.bmsCustomTourGroupList?.list || [];
+  const groupList = groupsData?.bmsCustomTourGroupList?.list;
+  const groups = useMemo(
+    () => compactList(groupList).map(toTourCustomFieldGroup),
+    [groupList],
+  );
 
   useEffect(() => {
     if (groupsLoading) return;
@@ -298,11 +301,11 @@ export const CustomFieldsPage = ({ branch }: { branch: IBranch }) => {
       },
       onCompleted: async () => {
         const result = await refetchGroups();
-        const latestGroup = result.data?.bmsCustomTourGroupList?.list?.find(
-          (item: ITourCustomFieldGroup) => item._id === group._id,
-        );
+        const latestGroup = compactList(
+          result.data?.bmsCustomTourGroupList?.list,
+        ).find((item) => item._id === group._id);
         if (latestGroup) {
-          setSelectedGroup(latestGroup);
+          setSelectedGroup(toTourCustomFieldGroup(latestGroup));
         }
       },
     });
@@ -949,7 +952,7 @@ const FieldGroupDrawer = ({
     form.reset({
       label: editingGroup?.label || '',
       code: editingGroup?.code || '',
-      customTourTypeIds: editingGroup?.customTourTypeIds || [],
+      customTourTypeIds: compactList(editingGroup?.customTourTypeIds),
     });
   }, [editingGroup, form, open]);
 

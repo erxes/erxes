@@ -17,6 +17,8 @@ import {
   sanitizeTourTranslations,
 } from '../utils/translationHelpers';
 import { normalizeTourDetailPricingOptionsForApi } from '../utils/pricingOptions';
+import { compactList } from '~/utils/cursorList';
+import { toAttachmentInput } from '~/utils/attachment';
 import { RHFDatePicker } from './RHFDatePicker';
 
 const GroupTourAddSchema = z.object({
@@ -43,19 +45,11 @@ interface TourGroupAddSheetProps {
   onOpenChange: (open: boolean) => void;
 }
 
-const stripTypename = <T extends Record<string, any>>(
-  obj: T,
-): Omit<T, '__typename'> => {
-  const rest = { ...(obj as any) };
-  delete rest.__typename;
-  return rest;
-};
-
 const getPrimaryTourTranslation = (
   tour: ITourDetail,
   primaryLanguage: string,
 ) =>
-  tour.translations?.find(
+  compactList(tour.translations).find(
     (translation) => translation.language === primaryLanguage,
   );
 
@@ -99,7 +93,7 @@ const calculateEndDate = (startDate: Date, duration?: number) => {
   return endDate;
 };
 
-const resolveTemplateDuration = (tour?: ITourDetail) => {
+const resolveTemplateDuration = (tour?: ITourDetail | null) => {
   if (!tour) {
     return 0;
   }
@@ -122,7 +116,7 @@ const dateFormatter = new Intl.DateTimeFormat('en-US', {
 });
 
 const buildDefaultTranslations = (
-  tour: ITourDetail,
+  tour: Parameters<typeof buildTranslationsFromTour>[0],
   translationLanguages: string[],
 ) =>
   buildTranslationsFromTour(tour, translationLanguages).map((translation) => ({
@@ -301,9 +295,7 @@ export const TourGroupAddSheet = ({
         info5: primaryTranslation?.info5 ?? tourDetail.info5,
         images: tourDetail.images,
         imageThumbnail: tourDetail.imageThumbnail,
-        attachment: tourDetail.attachment
-          ? stripTypename(tourDetail.attachment)
-          : tourDetail.attachment,
+        attachment: toAttachmentInput(tourDetail.attachment) ?? null,
         advancePercent: tourDetail.advancePercent,
         advanceCheck: tourDetail.advanceCheck,
         joinPercent: tourDetail.joinPercent,

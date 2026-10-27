@@ -1,24 +1,9 @@
 import { NetworkStatus, useQuery } from '@apollo/client';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { GET_ITINERARIES } from '../graphql/queries';
-import { IItinerary } from '../types/itinerary';
+import { compactList } from '~/utils/cursorList';
 
 const LIMIT = 20;
-
-interface IPageInfo {
-  hasNextPage: boolean;
-  hasPreviousPage: boolean;
-  startCursor: string;
-  endCursor: string;
-}
-
-interface IItinerariesData {
-  bmsItineraries: {
-    list: IItinerary[];
-    totalCount: number;
-    pageInfo: IPageInfo;
-  };
-}
 
 interface IUseItinerariesForSelectOptions {
   branchId?: string;
@@ -31,8 +16,9 @@ export const useItinerariesForSelect = ({
   language,
   search,
 }: IUseItinerariesForSelectOptions) => {
-  const { data, loading, fetchMore, networkStatus } =
-    useQuery<IItinerariesData>(GET_ITINERARIES, {
+  const { data, loading, fetchMore, networkStatus } = useQuery(
+    GET_ITINERARIES,
+    {
       variables: {
         branchId,
         language,
@@ -42,17 +28,17 @@ export const useItinerariesForSelect = ({
       },
       fetchPolicy: 'cache-and-network',
       notifyOnNetworkStatusChange: true,
-    });
+    },
+  );
 
   const isInitialLoading =
     networkStatus === NetworkStatus.loading ||
     networkStatus === NetworkStatus.setVariables;
 
-  const {
-    list: itineraries = [],
-    totalCount = 0,
-    pageInfo,
-  } = data?.bmsItineraries || {};
+  const list = data?.bmsItineraries?.list;
+  const itineraries = useMemo(() => compactList(list), [list]);
+  const totalCount = data?.bmsItineraries?.totalCount ?? 0;
+  const pageInfo = data?.bmsItineraries?.pageInfo;
 
   const handleFetchMore = useCallback(() => {
     if (!pageInfo?.hasNextPage || loading) return;
@@ -63,14 +49,14 @@ export const useItinerariesForSelect = ({
         limit: LIMIT,
       },
       updateQuery: (prev, { fetchMoreResult }) => {
-        if (!fetchMoreResult) return prev;
+        if (!fetchMoreResult.bmsItineraries) return prev;
         return {
           ...prev,
           bmsItineraries: {
             ...fetchMoreResult.bmsItineraries,
             list: [
               ...(prev.bmsItineraries?.list ?? []),
-              ...fetchMoreResult.bmsItineraries.list,
+              ...(fetchMoreResult.bmsItineraries.list ?? []),
             ],
           },
         };
