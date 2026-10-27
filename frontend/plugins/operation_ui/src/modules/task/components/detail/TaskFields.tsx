@@ -2,7 +2,6 @@ import { PrintDocument } from 'ui-modules';
 import type { TaskFieldsProps } from '@/task/types/taskFields';
 import { compactList } from '@/operation/utils/cursorList';
 import { useTranslation } from 'react-i18next';
-import { DataExtensionRecordSection } from 'ui-modules';
 import { OperationTagsChip } from '@/operation/components/OperationChips';
 import { ActivityList } from '@/activity/components/ActivityList';
 import { DateSelectTask } from '@/task/components/task-selects/DateSelectTask';
@@ -170,10 +169,6 @@ export const TaskFields = ({ task, titleAction }: TaskFieldsProps) => {
         />
         <PrintDocument items={[{ _id: taskId }]} contentType="operation:task" />
       </div>
-      <DataExtensionRecordSection
-        recordType="operation:task"
-        recordId={taskId}
-      />
       <Separator className="mb-4 mt-2" />
       <div className="min-h-56 overflow-y-auto">
         {isDescriptionReady ? (

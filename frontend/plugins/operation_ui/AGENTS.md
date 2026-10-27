@@ -38,6 +38,7 @@
 - Task, project, and triage activity timelines use action-specific icons; assignee changes and triage acceptance show the actor's avatar and hover label instead. The sentence names each entry's creator, while assignee changes show the new assignee only in the change detail.
 - The My Inbox notification widget shows task, triage, project and team details; task notifications include the task side widgets with a pinned icon column.
 - Task and project detail right rails expose configured custom properties in an editable Properties panel with a header action linking to the matching property settings, evenly padded width-constrained scrollable content, and an empty state centered within the remaining rail height.
+- Data Extension fields follow the shared metadata-driven path: the add-task and add-project forms mount `DataExtensionCreateFields` (`operation:task` / `operation:project`) and hold no saving code, because the host Apollo link writes the values after `createTask` / `createProject` returns. Task and project detail rails show the core `dataExtensions` relation widget, which `TaskSideWidgets` (passing `contentType: 'operation:task'`) and `ProjectsSideWidget` (rendering every widget registered for `operation:project`) pick up like any other relation widget.
 - Imports plain Markdown descriptions from GitHub issues into editable task and triage blocks while retaining BlockNote JSON for locally edited descriptions.
 - Development Rspack serving ignores generated dependency/cache/output folders to keep local file watchers bounded.
 - GraphQL codegen (`client-preset`) validates every operation document against the composed gateway schema and generates result and variable types into `src/gql/`.
@@ -88,6 +89,7 @@
 - The host i18next `operation` namespace, loaded from gateway English and Mongolian locale JSON files; acceptance activity uses `accepted-triage`.
 - The composed client-facing schema from the `gateway:schema:compose` Nx target, consumed only at codegen time.
 - Core property-field queries and the public `FieldsInDetail` renderer from `ui-modules` for `operation:task` and `operation:project`.
+- `DataExtensionCreateFields` from `ui-modules` on create forms, and content-type-targeted relation widgets (`IRelationModules.contentTypes`) such as the core `dataExtensions` widget on detail rails.
 - React Router host mounting contracts from core UI Module Federation.
 
 ## Data and State
