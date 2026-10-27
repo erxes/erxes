@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-10-25`
+- **Last synchronized:** `2026-10-27`
 
 ## Scope
 
@@ -330,6 +330,43 @@
   integration attaches to the caller's personal channel regardless of kind.
 - Receives Facebook and Instagram webhooks over Express and turns them into
   customers, conversations, comment conversations, and post conversations.
+- Instagram DMs select only `instagram-messenger` integrations; comments select
+  `instagram-post`. Sender profile fields are optional, as in Facebook: keep the
+  Instagram user ID and use the comment author username when profile lookup is
+  unavailable. Existing customer profiles are reused without automatic refresh.
+- Instagram Repair marks healthy only after token refresh, Meta subscription,
+  and forwarding-helper registration succeed. Helper HTTP failures are errors.
+  Like Discord Repair, it restores the selected connection in place and keeps
+  other connection records and their history intact, including on OAuth login.
+  Failed registration removes its new provider row; removing Post or Messenger
+  preserves the shared subscription and forwarding endpoint until the last
+  integration using that page is removed.
+  Post removal also preserves page-scoped posts, comments and replies while
+  another Post connection uses that Instagram page; removing the last Post
+  cleans up only that page's Post history, even if Messenger remains connected.
+- Missing Instagram post previews do not block comments. Store the known post
+  ID with `metadataPending` and retry metadata on later comments. Database
+  failures still propagate for webhook retry.
+- Instagram history merges provider messages with canonical internal notes and
+  outbound parts, preferring a canonical copy with the same Meta message ID.
+  Messenger replies send and store text and attachments separately, following
+  Facebook's partial-delivery contract. Accepted parts survive a failed later
+  send; canonical history also retains parts whose provider-copy save failed.
+  `extraData.instagramDelivery` reports accepted text and attachment URLs so
+  the composer retries only remaining attachments. Legacy provider-only rows
+  remain readable. History paginates the combined timeline and checks
+  conversation/channel access.
+  Forwarded multipart replies keep their snapshot, source and agent note only
+  on the first accepted part. Canonical storage uses the agent note for that
+  part and preserves later parts' content and attachments. Store and publish
+  parts sequentially to retain conversation-preview and live-message order.
+  Preserve legacy provider history and retain Meta comment IDs on sent replies.
+- Instagram ingestion retains incomplete customer and conversation links and
+  uses stable Core/inbox IDs to resume redeliveries. New DM/comment records carry
+  `inboxSyncPending`; processing uses a renewable Mongo lease before marking
+  them complete. Webhooks acknowledge completed/unsupported events with 200 and
+  return 500 for processing failures. Historical comment rows without the marker
+  retain their previous duplicate handling; this is not a historical replay.
 - Sends agent replies and bot messages through the Graph Send API, including
   private replies addressed by `comment_id`.
 - Publishes posts to a connected page (`facebookCreatePost`), optionally with up
@@ -607,6 +644,7 @@ The root router mounts its authenticated webhook at `/telegram`.
 | FB messenger services    | `src/modules/integrations/facebook/services/`                                                                                                                    | `messengerSend` (messaging params, bot text send with tag retry), `messageEvents` (reaction replace, message publish, reply-to), `automatedReplyControl`, `conversationSync`, `messageNormalization`, `messagePreview` |
 | IG messenger services    | `src/modules/integrations/instagram/services/`, `normalizeMessage.ts`                                                                                            | `messageEvents` (sender reaction replace, inbox publish), `copyInstagramImage` (allow-listed image proxy), webhook payload normalization to the shared message contract                                                |
 | Ticket                   | `src/modules/ticket/`                                                                                                                                            | Boards, pipelines, statuses, tickets, activities, notes                                                                                                                                                                |
+| Dispatched reply storage | `src/modules/inbox/services/storeDispatchedMessage.ts`                                                                                                           | Canonical copy of a provider-delivered agent reply: content priority (forwarded note, Facebook delivery, display content, Instagram forward, composer), Instagram multipart storage and ordered publish                |
 | Forms                    | `src/modules/form/`                                                                                                                                              | Forms, fields, submissions                                                                                                                                                                                             |
 | Surveys                  | `src/modules/survey/`                                                                                                                                            | Survey definitions, vote ledger, message snapshot, tally refresh                                                                                                                                                       |
 | Survey ticket automation | `src/modules/survey/ticketAutomation.ts`                                                                                                                         | Threshold evaluation, atomic single-ticket claim, ticket creation                                                                                                                                                      |
@@ -1534,6 +1572,26 @@ tagIds, propertiesData: JSON)` (the customer comes from the widget session) — 
   update. `startDate`/`targetDate` must be compared by timestamp, never by
   reference: `toObject()` returns new `Date` instances and a reference compare
   logs a "changed start date X → X" activity on every unrelated edit.
+- Instagram provider records must survive a failed inbox sync. A provider row
+  alone does not mean a new event is delivered: finish the inbox row, conversation
+  metadata and publication before clearing `inboxSyncPending`. Stable message IDs
+  and tenant-scoped Mongo leases prevent concurrent retry inserts. Keep the
+  original raw-body HMAC verification on webhook delivery.
+- Instagram history's provider-copy lookup uses the non-unique
+  `(conversationId, mid)` index. Repair must not delete or merge other
+  connections: provider conversations/posts and inbox conversations retain
+  references to their original connection IDs. Duplicate cleanup requires an
+  explicit history-preserving lifecycle; it is not part of Repair.
+- Before deleting Instagram Post history, check for other `instagram-post`
+  connections with the same `instagramPageId`, excluding the selected record.
+  Messenger connections and other pages do not own that Post history. A failed
+  shared-use check must leave the connection and history intact for retry.
+- Incoming Instagram DMs resolve the Messenger connection from the stored
+  provider conversation after get-or-create, including a concurrent insert's
+  winner. Use that connection for profile lookup, customer creation and inbox
+  sync; page-level selection is only the fallback for a new conversation.
+  A missing owner or a different page/kind must fail delivery for retry rather
+  than reassign an existing conversation to another connection's inbox.
 - Instagram message state changes (reactions, deletions, read/delivery
   receipts) are written to both `instagram_conversation_messages` and the inbox
   `conversation_messages` row matched by `providerData.messageId`/`mid`, then
@@ -1605,6 +1663,7 @@ tagIds, propertiesData: JSON)` (the customer comes from the widget session) — 
 
 - `pnpm nx test frontline_api` (`src/meta/__tests__/builderConfigContract.test.ts`: action schemas accept every config in the neighbouring `builderActionConfigs.json`, which the builder wrote)
 - `pnpm nx test frontline_api` (`src/meta/__tests__/automationConfigSchemas.test.ts`)
+- `pnpm nx test frontline_api` (`src/modules/inbox/services/__tests__/storeDispatchedMessage.test.ts`: content priority, Facebook delivery trimming, forwarded snapshot on the first Instagram part only, ordered multipart storage and publish)
 - `pnpm nx run frontline_api:schema:print` - prints this subgraph's SDL to `generated/schema.graphql` (gitignored) offline, for `gateway:schema:compose`.
 - `pnpm nx lint frontline_api` - runs ESLint with the plugin-local
   `eslint.config.js` (regex-escaping rules).
@@ -1613,6 +1672,11 @@ tagIds, propertiesData: JSON)` (the customer comes from the widget session) — 
   Telegram `src/**/*.spec.ts` suites (`jest.config.ts`, `tsconfig.spec.json`).
   Both suffixes are excluded from `tsconfig.build.json`; prefer `.test.ts` for
   new tests. Set `TELEGRAM_MONGO_TESTS=1` to include the isolated local Mongo suite.
+- Instagram: connect Post before Messenger for the same account and confirm each
+  event reaches its own inbox. A new sender with an unavailable profile must
+  still be linked to a Core customer; failed Repair must not report success.
+  Fail an inbox write after the provider row exists, redeliver its signed webhook,
+  and confirm one inbox message, correct channel, and HTTP 200 only after recovery.
 - Knowledge base: schedule an article a few minutes ahead, confirm it stays
   `scheduled` and absent from the help center, then becomes `publish` with
   `publishedAt` at that time; reschedule another one later and confirm the old
@@ -1653,67 +1717,3 @@ tagIds, propertiesData: JSON)` (the customer comes from the widget session) — 
   rejection throws instead of silently keeping the unvalidated input, and
   clearing every property to `{}` stays `{}` on the next read rather than
   reverting to any legacy value.
-
-## Recent Changes
-
-<!-- Newest first. Keep at most 10 entries. -->
-
-### `2026-10-24` — Notifications named by their settings key
-
-- **Summary:** Senders pass `event` (`frontline:<module>:<event>`) so email and push follow the user's settings; before, keys built from `contentType` matched no saved setting and only in-app items were written. Chat pushes now honor settings (default mobile on) and skip the actor. Meta gains a `tickets` module and `conversationMention`; `conversationCreated`, `conversationParticipantAdded` and `conversationTagged` (no sender) are gone.
-- **Affected areas:** `src/meta/notifications.ts`, `src/utils/notifications.ts`, `conversationNotifications.ts` (+ spec), conversation, ticket, channel and integration-health senders.
-- **Contracts changed:** notifications meta modules/events; consumes `sendNotification` `event`/`inApp`/`pushData` instead of `notifications.sendMobileNotification`.
-
-### `2026-10-19` — Conversation segment filter on the paged contract
-
-- **Summary:** The inbox `segment` filter sends `{ segmentId, cursor, limit }` and collects every `ids` page; it used the pre-cutover `options` input and read `_id` from an array, so it matched nothing.
-- **Affected areas:** `conversationQueryBuilder.ts` (+ `__tests__/conversationQueryBuilder.segment.test.ts`).
-- **Contracts changed:** none provided; consumes core `segment.fetchSegment` paging.
-
-### `2026-10-18` — Ticket remembered through action placement
-
-- **Summary:** Create ticket declares what it remembers behind an AI agent (`defaultsWhenAfter`) instead of output `memorize` flags; ticket find object reports `acceptsFollowUp`; conversation media is stored on tickets with a MIME type.
-- **Affected areas:** ticket automation constants, `findTicketObject.ts`, `conversationTickets.ts`.
-- **Contracts changed:** `defaultsWhenAfter` on Create ticket; `acceptsFollowUp` on the find object result; `memorize` removed.
-
-### `2026-10-17` — AI long-term memory scopes
-
-- **Summary:** Messenger and Facebook AI context names the conversation and customer as memory scopes; ticket output marks the fields the agent remembers.
-- **Affected areas:** Facebook and inbox automation context, ticket automation constants.
-- **Contracts changed:** `TAiContext.memory.scopes`; `memorize` flag on ticket output variables.
-
-### `2026-10-16` — AI agent turns, media and tickets on Messenger
-
-- **Summary:** Debounced Messenger AI turns, media-only messages, media markers and open-ticket facts for the agent, ticket attachments and conversation relations, and topic/category scope for the knowledge base source.
-- **Affected areas:** Facebook automation trigger and context, ticket automation actions, knowledge base AI provider.
-- **Contracts changed:** `createTicket` config gains `attachmentIds`; AI context facts gain `mediaIds` and `openTickets`; knowledge source config accepts `topicIds`, `categoryIds`, `articleIds`.
-
-### `2026-10-06` — Telegram group upgrades and attachment URLs
-
-- **Summary:** Retains the reply target for first-seen group upgrades and downloads absolute attachment URLs from their stated host.
-- **Affected areas:** Telegram conversation mapping, reply attachment reader and regression tests.
-- **Contracts changed:** None; existing migration metadata and attachment input shapes are preserved.
-
-### `2026-10-06` — Telegram previews and review hygiene
-
-- **Summary:** Preserves captionless media and poll previews and documents Telegram lifecycle contracts while cleaning up test fixtures.
-- **Affected areas:** Telegram ingestion/content adapters, module documentation and regression tests.
-- **Contracts changed:** None; previews use the existing conversation content field.
-
-### `2026-10-06` — Complete long Telegram replies and connection edits
-
-- **Summary:** Sends long text and caption overflow in ordered parts and lets Telegram common-field edits complete successfully.
-- **Affected areas:** Telegram reply delivery, edit synchronization, inbox integration dispatcher and regression tests.
-- **Contracts changed:** Optional `extraData.telegram.textChunked` metadata; existing inbox and GraphQL shapes are preserved.
-
-### `2026-10-06` — Telegram review fixes
-
-- **Summary:** Restores Telegram kind discovery, permits local disconnect/removal during provider failures and bounds link parsing work.
-- **Affected areas:** Inbox kind map, Telegram lifecycle, link previews and regression tests.
-- **Contracts changed:** `telegramDisconnectBot` returns remote-cleanup confirmation after local deactivation; provider cleanup failures no longer block removal.
-
-### `2026-10-06` — Telegram integration on the current inbox architecture
-
-- **Summary:** Adds Telegram setup, webhook ingestion and replies through the existing provider dispatcher and inbox persistence flow.
-- **Affected areas:** `src/modules/integrations/telegram`, inbox provider dispatch, model registration and routes.
-- **Contracts changed:** Telegram bot lifecycle/status GraphQL and `/telegram/receive/:_id`; provider metadata uses `extraData.telegram`.

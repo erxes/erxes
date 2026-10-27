@@ -1071,6 +1071,19 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
 
 ## Local Invariants
 
+- Instagram history includes internal notes in the same paginated timeline.
+  Match live events and fetched rows by `_id` or Meta `mid`/`providerData.messageId`;
+  merge all message fields so deletion, receipt and reaction updates remain
+  visible without duplicates. Keep `subscribeToMore` in a ref and allow only
+  one pagination request at a time, as in the Facebook message hook.
+- Instagram replies and forwards read `extraData.instagramDelivery` with
+  `readInstagramDelivery`. Like Facebook, partial delivery leaves only unsent
+  attachments for retry; an acknowledgement followed by a history failure
+  warns against resending accepted content.
+  The composer builds this feedback through `getPartialDeliveryFeedback`;
+  preserve the distinct remaining-attachment and accepted-message warnings
+  for both Facebook and Instagram.
+
 - Relation widgets go only through contacts: each lists the records whose
   own `customerId` / `companyId` is the host's customer or company
   (ui-modules `getHostContacts`: the host itself when it is a contact, else
