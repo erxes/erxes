@@ -32,6 +32,13 @@
 
 ## Current Capabilities
 
+- Deals are scoped by the requesting user's `deal` permission scope (`self`,
+  `unit`, `position`, `department`, `branch`, `all`). The `deal` module in
+  `src/meta/permissions.ts` opts the `deals` collection in through
+  `scopeCollections`; `userId` / `assignedUserIds` are matched against users
+  in scope and `branchIds` / `departmentIds` against the structure in scope.
+  Reads, counts and aggregates return in-scope deals, writes to out-of-scope
+  deals fail, and deals created in a user request get that user as `userId`.
 - `pnpm nx run sales_api:schema:print` exports the existing subgraph schema,
   including subscriptions, to `generated/schema.graphql` for type-generation
   tooling without starting the Sales service or executing resolvers.
@@ -275,6 +282,13 @@
 
 ## Local Invariants
 
+- Work that must see every deal inside a user request runs in
+  `withoutPermissionScope` from `erxes-api-shared/utils`: deal number lookup
+  (`generateLastNum`), board archive preview, access check and archive
+  (`utils/boardArchive.ts`), stage and pipeline item removal
+  (`graphql/resolvers/utils.ts`) and pipeline label removal
+  (`db/models/Labels.ts`). `dealsArchive` archives only the deals the user can
+  see. tRPC, workers and after-process handlers run unscoped.
 - Default permission group templates in `src/meta/permissions.ts` use scope
   `all`. Record scoping is opt-in through a module's `scopeCollections`, which
   this plugin does not declare, so its records are not filtered by scope.

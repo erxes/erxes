@@ -261,7 +261,7 @@ export const dealMutations: Record<string, Resolver> = {
     }).lean();
 
     await models.Deals.updateMany(
-      { stageId, status: { $ne: SALES_STATUSES.ARCHIVED } },
+      { _id: { $in: items.map((item) => item._id) } },
       { $set: { status: SALES_STATUSES.ARCHIVED } },
     );
 

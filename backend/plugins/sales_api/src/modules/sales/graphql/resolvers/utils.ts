@@ -1,5 +1,9 @@
 import { IUserDocument } from 'erxes-api-shared/core-types';
-import { checkUserIds, graphqlPubsub } from 'erxes-api-shared/utils';
+import {
+  checkUserIds,
+  graphqlPubsub,
+  withoutPermissionScope,
+} from 'erxes-api-shared/utils';
 import { DeleteResult } from 'mongoose';
 import * as _ from 'underscore';
 import { IModels } from '~/connectionResolvers';
@@ -415,15 +419,19 @@ export const removeStageWithItems = async (
 
   const stageIds = await models.Stages.find(selector).distinct('_id');
 
-  await models.Deals.deleteMany({ stageId: { $in: stageIds } });
+  await withoutPermissionScope(() =>
+    models.Deals.deleteMany({ stageId: { $in: stageIds } }),
+  );
 
   return models.Stages.deleteMany(selector);
 };
 
 export const removeItems = async (models: IModels, stageIds: string[]) => {
-  await models.Deals.updateMany(
-    { stageId: { $in: stageIds }, status: { $ne: SALES_STATUSES.ARCHIVED } },
-    { $set: { status: SALES_STATUSES.ARCHIVED } },
+  await withoutPermissionScope(() =>
+    models.Deals.updateMany(
+      { stageId: { $in: stageIds }, status: { $ne: SALES_STATUSES.ARCHIVED } },
+      { $set: { status: SALES_STATUSES.ARCHIVED } },
+    ),
   );
 };
 

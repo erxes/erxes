@@ -1,3 +1,4 @@
+import { withoutPermissionScope } from 'erxes-api-shared/utils';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import {
@@ -143,9 +144,11 @@ export const loadPipelineLabelClass = (
         docId: pipelineLabel._id,
       });
 
-      await models.Deals.updateMany(
-        { labelIds: pipelineLabel._id },
-        { $pull: { labelIds: pipelineLabel._id } },
+      await withoutPermissionScope(() =>
+        models.Deals.updateMany(
+          { labelIds: pipelineLabel._id },
+          { $pull: { labelIds: pipelineLabel._id } },
+        ),
       );
 
       await pipelineLabel.deleteOne();

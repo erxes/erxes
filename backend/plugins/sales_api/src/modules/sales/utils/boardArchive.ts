@@ -1,6 +1,10 @@
 import { checkApprovalLock } from 'erxes-api-shared/core-modules';
 import type { IUserDocument } from 'erxes-api-shared/core-types';
-import { ExpectedError, sendTRPCMessage } from 'erxes-api-shared/utils';
+import {
+  ExpectedError,
+  sendTRPCMessage,
+  withoutPermissionScope,
+} from 'erxes-api-shared/utils';
 import type { IContext, IModels } from '~/connectionResolvers';
 import { SALES_STATUSES } from '../constants';
 import { getBoardLocalConnections } from './boardConnections';
@@ -119,101 +123,105 @@ export const getBoardArchivePreview = async (
   models: IModels,
   subdomain: string,
   scope: BoardArchiveScope,
-): Promise<BoardArchivePreview> => {
-  const [pipelineCount, dealCount, automationCount, connections] =
-    await Promise.all([
-      models.Pipelines.countDocuments({
-        _id: { $in: scope.pipelineIds },
-        status: { $ne: SALES_STATUSES.ARCHIVED },
-      }),
-      models.Deals.countDocuments(activeBoardDealsFilter(scope.stageIds)),
-      sendTRPCMessage({
-        subdomain,
-        pluginName: 'core',
-        module: 'automation',
-        action: 'count',
-        method: 'query',
-        input: { query: boardAutomationFilter(scope) },
-        defaultValue: 0,
-        throwOnError: true,
-      }),
-      getBoardLocalConnections(models, scope),
-    ]);
-  if (
-    typeof automationCount !== 'number' ||
-    !Number.isSafeInteger(automationCount) ||
-    automationCount < 0
-  ) {
-    throw new ExpectedError(
-      'Could not check automation connections. Please try again.',
-      'SERVICE_UNAVAILABLE',
-    );
-  }
-  return { pipelineCount, dealCount, automationCount, ...connections };
-};
+): Promise<BoardArchivePreview> =>
+  withoutPermissionScope(async () => {
+    const [pipelineCount, dealCount, automationCount, connections] =
+      await Promise.all([
+        models.Pipelines.countDocuments({
+          _id: { $in: scope.pipelineIds },
+          status: { $ne: SALES_STATUSES.ARCHIVED },
+        }),
+        models.Deals.countDocuments(activeBoardDealsFilter(scope.stageIds)),
+        sendTRPCMessage({
+          subdomain,
+          pluginName: 'core',
+          module: 'automation',
+          action: 'count',
+          method: 'query',
+          input: { query: boardAutomationFilter(scope) },
+          defaultValue: 0,
+          throwOnError: true,
+        }),
+        getBoardLocalConnections(models, scope),
+      ]);
+    if (
+      typeof automationCount !== 'number' ||
+      !Number.isSafeInteger(automationCount) ||
+      automationCount < 0
+    ) {
+      throw new ExpectedError(
+        'Could not check automation connections. Please try again.',
+        'SERVICE_UNAVAILABLE',
+      );
+    }
+    return { pipelineCount, dealCount, automationCount, ...connections };
+  });
 
 export const assertBoardArchiveAccess = async (
   models: IModels,
   subdomain: string,
   scope: BoardArchiveScope,
   user: IUserDocument,
-): Promise<void> => {
-  const restrictedStages = await models.Stages.find({
-    _id: { $in: scope.stageIds },
-    'canEditMemberIds.0': { $exists: true },
-    canEditMemberIds: { $ne: user._id },
-  }).distinct('_id');
-  if (
-    restrictedStages.length &&
-    (await models.Deals.exists(activeBoardDealsFilter(restrictedStages)))
-  ) {
-    throw new ExpectedError(
-      'Some deals cannot be archived because their stage restricts editing.',
-      'FORBIDDEN',
-    );
-  }
-
-  const cursor = models.Deals.find(activeBoardDealsFilter(scope.stageIds))
-    .select({ _id: 1, userId: 1 })
-    .cursor();
-  let batch: { _id: string; userId?: string }[] = [];
-  const checkBatch = async (): Promise<void> => {
-    const states = await checkApprovalLock.states({
-      subdomain,
-      userId: user._id,
-      contentType: 'sales:deal',
-      contentIds: batch.map((deal) => deal._id),
-      ownerIdsByContentId: Object.fromEntries(
-        batch.flatMap((deal) => (deal.userId ? [[deal._id, deal.userId]] : [])),
-      ),
-      action: 'archive',
-    });
-    const accessById = new Map(
-      states.map((state) => [state.contentId, state.hasAccess]),
-    );
+): Promise<void> =>
+  withoutPermissionScope(async () => {
+    const restrictedStages = await models.Stages.find({
+      _id: { $in: scope.stageIds },
+      'canEditMemberIds.0': { $exists: true },
+      canEditMemberIds: { $ne: user._id },
+    }).distinct('_id');
     if (
-      states.length !== batch.length ||
-      batch.some((deal) => accessById.get(deal._id) !== true)
+      restrictedStages.length &&
+      (await models.Deals.exists(activeBoardDealsFilter(restrictedStages)))
     ) {
       throw new ExpectedError(
-        'Some deals are locked or their approval access could not be checked.',
+        'Some deals cannot be archived because their stage restricts editing.',
         'FORBIDDEN',
       );
     }
-  };
-  try {
-    for await (const deal of cursor) {
-      batch.push({ _id: deal._id, userId: deal.userId });
-      if (batch.length === 500) {
-        await checkBatch();
-        batch = [];
+
+    const cursor = models.Deals.find(activeBoardDealsFilter(scope.stageIds))
+      .select({ _id: 1, userId: 1 })
+      .cursor();
+    let batch: { _id: string; userId?: string }[] = [];
+    const checkBatch = async (): Promise<void> => {
+      const states = await checkApprovalLock.states({
+        subdomain,
+        userId: user._id,
+        contentType: 'sales:deal',
+        contentIds: batch.map((deal) => deal._id),
+        ownerIdsByContentId: Object.fromEntries(
+          batch.flatMap((deal) =>
+            deal.userId ? [[deal._id, deal.userId]] : [],
+          ),
+        ),
+        action: 'archive',
+      });
+      const accessById = new Map(
+        states.map((state) => [state.contentId, state.hasAccess]),
+      );
+      if (
+        states.length !== batch.length ||
+        batch.some((deal) => accessById.get(deal._id) !== true)
+      ) {
+        throw new ExpectedError(
+          'Some deals are locked or their approval access could not be checked.',
+          'FORBIDDEN',
+        );
       }
+    };
+    try {
+      for await (const deal of cursor) {
+        batch.push({ _id: deal._id, userId: deal.userId });
+        if (batch.length === 500) {
+          await checkBatch();
+          batch = [];
+        }
+      }
+      if (batch.length) await checkBatch();
+    } finally {
+      await cursor.close();
     }
-    if (batch.length) await checkBatch();
-  } finally {
-    await cursor.close();
-  }
-};
+  });
 
 export const archiveBoardDescendants = async (
   models: IModels,
@@ -222,8 +230,8 @@ export const archiveBoardDescendants = async (
   userId: string,
 ): Promise<void> => {
   const current = await getBoardDescendants(models, scope.boardId);
-  const currentDealCount = await models.Deals.countDocuments(
-    activeBoardDealsFilter(current.stageIds),
+  const currentDealCount = await withoutPermissionScope(() =>
+    models.Deals.countDocuments(activeBoardDealsFilter(current.stageIds)),
   );
   if (
     !sameIds(current.pipelineIds, scope.pipelineIds) ||
@@ -235,13 +243,15 @@ export const archiveBoardDescendants = async (
       'CONFLICT',
     );
   }
-  await models.Deals.updateMany(activeBoardDealsFilter(scope.stageIds), {
-    $set: {
-      status: SALES_STATUSES.ARCHIVED,
-      modifiedBy: userId,
-      modifiedAt: new Date(),
-    },
-  });
+  await withoutPermissionScope(() =>
+    models.Deals.updateMany(activeBoardDealsFilter(scope.stageIds), {
+      $set: {
+        status: SALES_STATUSES.ARCHIVED,
+        modifiedBy: userId,
+        modifiedAt: new Date(),
+      },
+    }),
+  );
   await models.Pipelines.updateMany(
     { boardId: scope.boardId, status: { $ne: SALES_STATUSES.ARCHIVED } },
     { $set: { status: SALES_STATUSES.ARCHIVED } },

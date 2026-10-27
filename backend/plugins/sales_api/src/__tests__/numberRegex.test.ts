@@ -4,6 +4,7 @@ import { boardNumberGenerator, generateLastNum } from '../modules/sales/utils';
 jest.mock('erxes-api-shared/utils', () => ({
   escapeRegExp:
     jest.requireActual<typeof import('lodash')>('lodash').escapeRegExp,
+  withoutPermissionScope: (callback: () => unknown) => callback(),
 }));
 jest.mock('../modules/sales/graphql/resolvers/queries/deals', () => ({}));
 

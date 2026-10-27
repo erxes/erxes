@@ -7,6 +7,7 @@ import {
   regexSearchText,
   sendTRPCMessage,
   validSearchText,
+  withoutPermissionScope,
 } from 'erxes-api-shared/utils';
 import moment from 'moment';
 import type { Model } from 'mongoose';
@@ -228,9 +229,11 @@ export const generateLastNum = async (models: IModels, doc: IPipeline) => {
     return pipeline.lastNum || '';
   }
 
-  const item = await models.Deals.findOne({
-    number: new RegExp(`^${escapeRegExp(replacedConfig)}[0-9]+$`),
-  }).sort({ createdAt: -1 });
+  const item = await withoutPermissionScope(() =>
+    models.Deals.findOne({
+      number: new RegExp(`^${escapeRegExp(replacedConfig)}[0-9]+$`),
+    }).sort({ createdAt: -1 }),
+  );
 
   if (item) {
     return item.number;

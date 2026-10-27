@@ -9,6 +9,9 @@ export const permissions: IPermissionConfig = {
       description: 'Deals management',
       scopeField: null,
       ownerFields: ['userId', 'assignedUserIds'],
+      scopeCollections: ['deals'],
+      branchField: 'branchIds',
+      departmentField: 'departmentIds',
       scopes: [
         { name: 'own', description: 'Deals created by or assigned to user' },
         { name: 'group', description: 'Deals in user departments' },
