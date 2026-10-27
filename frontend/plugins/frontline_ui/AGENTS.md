@@ -518,7 +518,8 @@
 - Previews a Facebook bot beside its form: a Messenger frame showing the
   welcome screen (greeting plus Get Started) and the persistent menu exactly as
   `connectBotPageMessenger` composes it, on a phone or the desktop chat window,
-  including the Get Started action the backend prepends, and flagging menu items
+  including the Get Started action the backend prepends (only when the bot has
+  at least one menu item; with none, the preview shows no ☰ button), and flagging menu items
   that never reach Facebook. Tapping a menu action in the preview names what it
   actually does — opens a webview, hands off to a person, resumes a paused step,
   starts a listed automation, or reaches nothing. Only a plain button menu item
@@ -535,6 +536,16 @@
 - Starts an automation from a saved bot: the bot sheet links to the automation
   builder with a `frontline:facebook.messages` trigger already carrying that
   `botId`, built through `buildAutomationSeedLink` from `ui-modules`.
+- Starts an AI reply flow from a saved bot: "AI messenger reply" / "AI comment
+  reply" in the same menu open `FacebookBotAiReplyDialog`, which picks an agent
+  (`FacebookBotAiAgents` → core `automationsAiAgents`; "Create AI agent" goes
+  to `/settings/automations/agents/create` in the same tab with a `returnTo`
+  link back to the current URL, whose `botId` and `aiReply` query reopen the
+  sheet and this dialog) and seeds trigger → `aiAgent` (`generateText`, input
+  `{{ trigger.content }}`) → Facebook message/comment reply whose text is
+  `{{ actions.<agentNodeId>.text }}` (`utils/buildAiReplySeedLink.ts`). The
+  messenger trigger is a direct condition with no keyword rules (any text);
+  the comment trigger is `postType: 'any'`.
 - Attaches a Facebook Messenger bot to an integration from the integration list
   itself: a `Bot` column on the facebook-messenger table and a bot section in the
   integration edit dialog, both showing the bot's name and health, and both
@@ -1070,6 +1081,30 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
   state and deliberately not persisted.
 
 ## Local Invariants
+
+- `useIntegrationTypeColumns` returns memoized columns. A fresh `cell` function is a new component type to `flexRender`, so unstable columns remount every cell on any URL change; the bot Sheet inside the Bot cell then remounts while Radix's body `pointer-events: none` is set and records `none` as the original, locking the next page.
+- Integration create and remove stay visible until the list has caught up: the Facebook setup sheet closes only after `addIntegration` succeeds (with `awaitRefetchQueries`), and `useIntegrationRemove` puts the id in `removingIntegrationIdsAtom`, which `IntegrationRecordRow` dims and locks and `NameField` marks with a spinner until the refetch lands or the mutation fails.
+- The integration list's Bot cell resolves its page from `FacebookGetIntegrations`, not `Integrations`; every Facebook integration create or repair refetches both, or a new row shows "No single page" until reload.
+- Persistent menu and ice breakers are optional: the bot form never fills a
+  default item, and an empty list is saved as empty. `buildMessengerProfilePreview`
+  mirrors the server rule — Get Started joins `items` only when there is a user
+  menu item — and keeps `getStartedTitle` apart for the welcome-screen button.
+- An AI reply seed always ends in a Facebook reply action: the `aiAgent` node
+  only writes text. `FacebookBotAiReplyDialog` blocks when another **active**
+  automation on the bot already answers any text (`directCatchAll`) or any post
+  (`anyPost`); a draft one is shown, never blocking.
+- Instagram history includes internal notes in the same paginated timeline.
+  Match live events and fetched rows by `_id` or Meta `mid`/`providerData.messageId`;
+  merge all message fields so deletion, receipt and reaction updates remain
+  visible without duplicates. Keep `subscribeToMore` in a ref and allow only
+  one pagination request at a time, as in the Facebook message hook.
+- Instagram replies and forwards read `extraData.instagramDelivery` with
+  `readInstagramDelivery`. Like Facebook, partial delivery leaves only unsent
+  attachments for retry; an acknowledgement followed by a history failure
+  warns against resending accepted content.
+  The composer builds this feedback through `getPartialDeliveryFeedback`;
+  preserve the distinct remaining-attachment and accepted-message warnings
+  for both Facebook and Instagram.
 
 - Relation widgets go only through contacts: each lists the records whose
   own `customerId` / `companyId` is the host's customer or company
