@@ -301,6 +301,23 @@ test.each([INTEGRATION_KINDS.POST, INTEGRATION_KINDS.MESSENGER])(
   },
 );
 
+test('Post removal retains the connection and history when the shared-use check fails', async () => {
+  rows = [makeIntegration(INTEGRATION_KINDS.POST)];
+  collection.countDocuments.mockRejectedValueOnce(
+    new Error('Database unavailable'),
+  );
+
+  await expect(
+    removeIntegration('test', INTEGRATION_KINDS.POST),
+  ).rejects.toThrow('Database unavailable');
+
+  expect(rows).toHaveLength(1);
+  expect(collection.deleteOne).not.toHaveBeenCalled();
+  expect(deletePosts).not.toHaveBeenCalled();
+  expect(fetch).not.toHaveBeenCalled();
+  expect(unsubscribePage).not.toHaveBeenCalled();
+});
+
 test('a failed new Post registration does not remove the working Messenger', async () => {
   rows = [makeIntegration(INTEGRATION_KINDS.MESSENGER)];
   jest.mocked(fetch).mockResolvedValueOnce(new Response('{}', { status: 500 }));

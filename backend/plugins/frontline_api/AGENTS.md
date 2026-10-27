@@ -341,6 +341,9 @@
   Failed registration removes its new provider row; removing Post or Messenger
   preserves the shared subscription and forwarding endpoint until the last
   integration using that page is removed.
+  Post removal also preserves page-scoped posts, comments and replies while
+  another Post connection uses that Instagram page; removing the last Post
+  cleans up only that page's Post history, even if Messenger remains connected.
 - Missing Instagram post previews do not block comments. Store the known post
   ID with `metadataPending` and retry metadata on later comments. Database
   failures still propagate for webhook retry.
@@ -1578,6 +1581,10 @@ tagIds, propertiesData: JSON)` (the customer comes from the widget session) — 
   connections: provider conversations/posts and inbox conversations retain
   references to their original connection IDs. Duplicate cleanup requires an
   explicit history-preserving lifecycle; it is not part of Repair.
+- Before deleting Instagram Post history, check for other `instagram-post`
+  connections with the same `instagramPageId`, excluding the selected record.
+  Messenger connections and other pages do not own that Post history. A failed
+  shared-use check must leave the connection and history intact for retry.
 - Incoming Instagram DMs resolve the Messenger connection from the stored
   provider conversation after get-or-create, including a concurrent insert's
   winner. Use that connection for profile lookup, customer creation and inbox

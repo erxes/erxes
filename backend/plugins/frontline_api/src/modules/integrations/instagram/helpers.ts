@@ -61,7 +61,16 @@ export const removeIntegration = async (
   const { _id, kind, accountId, erxesApiId, instagramPageId, facebookPageId } =
     integration;
   const selector = { integrationId: _id };
-  if (kind === INTEGRATION_KINDS.POST && instagramPageId) {
+  // Like shared subscriptions, page-scoped history belongs to all Post connections.
+  if (
+    kind === INTEGRATION_KINDS.POST &&
+    instagramPageId &&
+    !(await models.InstagramIntegrations.countDocuments({
+      _id: { $ne: _id },
+      instagramPageId,
+      kind: INTEGRATION_KINDS.POST,
+    }))
+  ) {
     await models.InstagramPostConversations.deleteMany({
       recipientId: instagramPageId,
     });

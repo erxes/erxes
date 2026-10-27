@@ -1,20 +1,27 @@
 import { randomUUID } from 'node:crypto';
 import mongoose, { Schema, type Connection, type PipelineStage } from 'mongoose';
-import type { IModels } from '~/connectionResolvers';
+import { generateModels, type IModels } from '~/connectionResolvers';
 import type { IMessageDocument } from '@/inbox/@types/conversationMessages';
 import { messageSchema } from '@/inbox/db/definitions/conversationMessages';
 import { conversationMessageSchema } from '../db/definitions/conversationMessages';
 import { commentConversationSchema } from '../db/definitions/comment_conversations';
 import { commentConversationReplySchema } from '../db/definitions/comment_conversations_reply';
+import { integrationSchema } from '../db/definitions/integrations';
+import { postConversationSchema } from '../db/definitions/postConversations';
 import type { IInstagramConversationMessageDocument } from '../@types/conversationMessages';
 import type { IInstagramCommentConversationDocument } from '../@types/comment_conversations';
 import type { IInstagramCommentConversationReplyDocument } from '../@types/comment_conversations_reply';
+import type { IInstagramIntegrationDocument } from '../@types/integrations';
+import type { IInstagramPostConversationDocument } from '../@types/postConversations';
+import { INTEGRATION_KINDS } from '../constants';
+import { removeIntegration } from '../helpers';
 import {
   countInstagramHistory,
   readInstagramHistory,
 } from '../services/history';
 
 jest.mock('erxes-api-shared/utils', () => ({
+  getEnv: jest.fn(),
   schemaWrapper: (schema: unknown) => schema,
   mongooseStringRandomId: {
     type: String,
@@ -24,6 +31,10 @@ jest.mock('erxes-api-shared/utils', () => ({
         .randomUUID(),
   },
 }));
+jest.mock('~/connectionResolvers', () => ({ generateModels: jest.fn() }));
+jest.mock('../utils', () => ({}));
+jest.mock('../debuggers', () => ({ debugError: jest.fn() }));
+jest.mock('node-fetch', () => jest.fn());
 jest.mock('erxes-api-shared/core-modules', () => ({
   attachmentSchema: new (jest.requireActual<typeof import('mongoose')>(
     'mongoose',
@@ -48,6 +59,14 @@ mongoSuite('Instagram history against isolated local MongoDB', () => {
       )
       .asPromise();
     models = {} as IModels;
+    models.InstagramIntegrations = connection.model<
+      IInstagramIntegrationDocument,
+      IModels['InstagramIntegrations']
+    >('ig_integrations', integrationSchema);
+    models.InstagramPostConversations = connection.model<
+      IInstagramPostConversationDocument,
+      IModels['InstagramPostConversations']
+    >('ig_posts', postConversationSchema);
     models.InstagramConversations = connection.model(
       'ig_conversations',
       new Schema({ _id: String, erxesApiId: String }),
@@ -68,6 +87,9 @@ mongoSuite('Instagram history against isolated local MongoDB', () => {
       IMessageDocument,
       IModels['ConversationMessages']
     >('inbox_messages', messageSchema);
+  });
+  beforeEach(() => {
+    jest.mocked(generateModels).mockResolvedValue(models);
   });
   afterEach(async () => {
     for (const collection of Object.values(connection.collections))
@@ -174,6 +196,111 @@ mongoSuite('Instagram history against isolated local MongoDB', () => {
         mid: 'mid1',
         providerData: { messageId: 'mid1' },
       });
+    },
+  );
+
+  test.each(['first', 'second'])(
+    'removing the %s Post connection preserves shared history until the last Post is removed',
+    async (removedId) => {
+      const remainingId = removedId === 'first' ? 'second' : 'first';
+      await models.InstagramIntegrations.insertMany([
+        ...['first', 'second'].map((id) => ({
+          _id: id,
+          erxesApiId: id,
+          accountId: `account-${id}`,
+          instagramPageId: 'page',
+          facebookPageId: 'fb-page',
+          kind: INTEGRATION_KINDS.POST,
+        })),
+        {
+          _id: 'messenger',
+          erxesApiId: 'messenger',
+          instagramPageId: 'page',
+          facebookPageId: 'fb-page',
+          kind: INTEGRATION_KINDS.MESSENGER,
+        },
+        {
+          _id: 'other-post',
+          erxesApiId: 'other-post',
+          instagramPageId: 'other-page',
+          facebookPageId: 'other-fb-page',
+          kind: INTEGRATION_KINDS.POST,
+        },
+      ]);
+      for (const pageId of ['page', 'other-page']) {
+        await models.InstagramPostConversations.create({
+          _id: `post-${pageId}`,
+          postId: `post-${pageId}`,
+          recipientId: pageId,
+          integrationId: pageId === 'page' ? remainingId : 'other-post',
+        });
+        await models.InstagramCommentConversation.create({
+          _id: `comment-${pageId}`,
+          comment_id: `comment-${pageId}`,
+          postId: `post-${pageId}`,
+          recipientId: pageId,
+          erxesApiId: `inbox-${pageId}`,
+          content: 'Root comment',
+          createdAt: date(1),
+        });
+        await models.ConversationMessages.create({
+          _id: `note-${pageId}`,
+          conversationId: `inbox-${pageId}`,
+          internal: true,
+          content: 'Internal note',
+          createdAt: date(2),
+        });
+        await models.InstagramCommentConversationReply.create({
+          _id: `reply-${pageId}`,
+          parentId: `comment-${pageId}`,
+          comment_id: `reply-${pageId}`,
+          recipientId: pageId,
+          content: 'Reply',
+          createdAt: date(3),
+        });
+      }
+      await models.InstagramConversations.create({
+        _id: 'dm',
+        erxesApiId: 'dm-inbox',
+      });
+      await models.InstagramConversationMessages.create({
+        conversationId: 'dm',
+        mid: 'dm-mid',
+        content: 'Keep Messenger history',
+        createdAt: date(1),
+      });
+
+      await expect(removeIntegration('test', removedId)).resolves.toBe(
+        removedId,
+      );
+
+      expect(await models.InstagramIntegrations.findById(removedId)).toBeNull();
+      expect(
+        await models.InstagramIntegrations.findById(remainingId),
+      ).not.toBeNull();
+      expect(await models.InstagramPostConversations.countDocuments({})).toBe(2);
+      expect(await countInstagramHistory(models, 'inbox-page')).toBe(3);
+      expect(
+        (await readInstagramHistory(models, { conversationId: 'inbox-page' })).map(
+          ({ _id }) => _id,
+        ),
+      ).toEqual(['comment-page', 'note-page', 'reply-page']);
+
+      await removeIntegration('test', remainingId);
+
+      for (const collection of [
+        models.InstagramPostConversations,
+        models.InstagramCommentConversation,
+        models.InstagramCommentConversationReply,
+      ]) {
+        expect(await collection.countDocuments({ recipientId: 'page' })).toBe(0);
+        expect(
+          await collection.countDocuments({ recipientId: 'other-page' }),
+        ).toBe(1);
+      }
+      expect(await countInstagramHistory(models, 'inbox-other-page')).toBe(3);
+      expect(await countInstagramHistory(models, 'dm-inbox')).toBe(1);
+      expect(await models.InstagramIntegrations.countDocuments({})).toBe(2);
     },
   );
 
