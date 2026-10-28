@@ -99,8 +99,6 @@ export const importTemplates: Record<
       'Description',
       'Operator Phone',
       'Brands',
-      'Departments',
-      'Branches',
     ],
   },
   'accounting:account.account': {

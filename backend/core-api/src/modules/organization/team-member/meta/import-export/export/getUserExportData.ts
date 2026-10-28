@@ -7,14 +7,44 @@ import {
 import { IModels } from '~/connectionResolvers';
 import { buildUserExportRow } from './buildUserExportRow';
 import { escapeRegExp } from 'erxes-api-shared/utils';
+import { activeMembershipFilter } from '@/organization/structure/utils';
+import { getStructureMemberIds } from '../../../utils';
+
+const getStructureEntityTitles = async (models: IModels, userIds: string[]) => {
+  const memberships = await models.StructureEntityMembers.find(
+    { userId: { $in: userIds }, ...activeMembershipFilter() },
+    { userId: 1, entityId: 1 },
+  )
+    .sort({ isPrimary: -1, startsAt: 1 })
+    .lean();
+
+  const entities = await models.StructureEntities.find(
+    { _id: { $in: memberships.map((membership) => membership.entityId) } },
+    { title: 1 },
+  ).lean();
+
+  const titles = new Map<string, string[]>();
+
+  for (const membership of memberships) {
+    const entity = entities.find((item) => item._id === membership.entityId);
+
+    if (entity) {
+      titles.set(membership.userId, [
+        ...(titles.get(membership.userId) || []),
+        entity.title,
+      ]);
+    }
+  }
+
+  return titles;
+};
 
 export async function getUserExportData(
   data: GetExportData & {
     isActive?: boolean;
     searchValue?: string;
     brandIds?: string[];
-    departmentIds?: string[];
-    branchIds?: string[];
+    entityIds?: string[];
     status?: string;
   },
   { models }: IImportExportContext<IModels>,
@@ -29,9 +59,8 @@ export async function getUserExportData(
 
   if (typeof data.isActive === 'boolean') query.isActive = data.isActive;
   if (data.brandIds?.length) query.brandIds = { $in: data.brandIds };
-  if (data.departmentIds?.length)
-    query.departmentIds = { $in: data.departmentIds };
-  if (data.branchIds?.length) query.branchIds = { $in: data.branchIds };
+  if (data.entityIds?.length)
+    query._id = { $in: await getStructureMemberIds(models, data.entityIds) };
   if (data.status === 'Verified') {
     query.registrationToken = { $eq: null };
   } else if (data.status === 'Not verified') {
@@ -68,55 +97,32 @@ export async function getUserExportData(
   const collect = (arr?: string[]) => (arr || []).filter(Boolean);
 
   const brandIds = new Set<string>();
-  const departmentIds = new Set<string>();
-  const branchIds = new Set<string>();
 
   for (const u of users) {
     collect(u.brandIds).forEach((id) => {
       brandIds.add(id);
     });
-    collect(u.departmentIds).forEach((id) => {
-      departmentIds.add(id);
-    });
-    collect(u.branchIds).forEach((id) => {
-      branchIds.add(id);
-    });
   }
-  const [brands, departments, branches] = await Promise.all([
+  const [brands, structureEntityMap] = await Promise.all([
     brandIds.size
       ? models.Brands?.find?.({ _id: { $in: Array.from(brandIds) } })
           .select('_id name')
           .lean()
       : [],
-    departmentIds.size
-      ? models.Departments?.find?.({ _id: { $in: Array.from(departmentIds) } })
-          ?.select('_id title')
-          ?.lean()
-      : [],
-    branchIds.size
-      ? models.Branches?.find?.({ _id: { $in: Array.from(branchIds) } })
-          ?.select('_id title')
-          ?.lean()
-      : [],
+    getStructureEntityTitles(
+      models,
+      users.map((u) => u._id),
+    ),
   ]);
   const brandMap = new Map<string, string>();
-  const departmentMap = new Map<string, string>();
-  const branchMap = new Map<string, string>();
   (brands || []).forEach((b: any) => {
     brandMap.set(String(b._id), b.name || '');
-  });
-  (departments || []).forEach((d: any) => {
-    departmentMap.set(String(d._id), d.title || '');
-  });
-  (branches || []).forEach((b: any) => {
-    branchMap.set(String(b._id), b.title || '');
   });
 
   return users.map((u: any) =>
     buildUserExportRow(u, selectedFields, {
       brandMap,
-      departmentMap,
-      branchMap,
+      structureEntityMap,
     }),
   );
 }

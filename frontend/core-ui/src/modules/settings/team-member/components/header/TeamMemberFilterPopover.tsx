@@ -2,12 +2,7 @@ import { IconChecks } from '@tabler/icons-react';
 import { Combobox, Command, Filter } from 'erxes-ui';
 import { IsActiveBar } from './IsActiveBar';
 import { SettingsHotKeyScope } from '@/types/SettingsHotKeyScope';
-import {
-  SelectBranches,
-  SelectBrands,
-  SelectDepartments,
-  SelectUnit,
-} from 'ui-modules';
+import { SelectBrands, SelectStructureEntities } from 'ui-modules';
 import { useTranslation } from 'react-i18next';
 
 export function TeamMemberFilterPopover() {
@@ -26,15 +21,10 @@ export function TeamMemberFilterPopover() {
             <Command.List className="p-1">
               <Filter.SearchValueTrigger />
               <SelectBrands.FilterItem value="brandIds" label={t('brands')} />
-              <SelectBranches.FilterItem
-                value="branchIds"
-                label={t('branches')}
+              <SelectStructureEntities.FilterItem
+                value="entityIds"
+                label={t('structure')}
               />
-              <SelectDepartments.FilterItem
-                value="departmentIds"
-                label={t('departments')}
-              />
-              <SelectUnit.FilterItem />
               <Command.Item className="flex items-center gap-1">
                 <IconChecks />
                 {t('is-active')}
@@ -44,12 +34,10 @@ export function TeamMemberFilterPopover() {
           </Command>
         </Filter.View>
         <SelectBrands.FilterView mode="multiple" filterKey="brandIds" />
-        <SelectBranches.FilterView mode="multiple" filterKey="branchIds" />
-        <SelectDepartments.FilterView
+        <SelectStructureEntities.FilterView
           mode="multiple"
-          filterKey="departmentIds"
+          filterKey="entityIds"
         />
-        <SelectUnit.FilterView />
       </Combobox.Content>
     </Filter.Popover>
   );

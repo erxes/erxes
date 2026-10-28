@@ -21,34 +21,25 @@ const useUsers = (options?: QueryHookOptions<IUsersQuery>) => {
   const { cursor } = useRecordTableCursor({
     sessionKey: TEAM_MEMBER_CURSOR_SESSION_KEY,
   });
-  const [
-    { branchIds, departmentIds, unitId, searchValue, isActive, brandIds },
-  ] = useMultiQueryState([
-    'branchIds',
-    'departmentIds',
-    'unitId',
-    'searchValue',
-    'isActive',
-    'brandIds',
-  ]);
+  const [{ entityIds, searchValue, isActive, brandIds }] = useMultiQueryState<{
+    entityIds: string[];
+    searchValue: string;
+    isActive: boolean;
+    brandIds: string[];
+  }>(['entityIds', 'searchValue', 'isActive', 'brandIds']);
 
   const { data, loading, error, fetchMore } = useQuery<IUsersQuery>(
     queries.GET_USERS_QUERY,
     {
       ...options,
       variables: {
-        branchIds: branchIds ?? undefined,
-        departmentIds: departmentIds ?? undefined,
-        unitId: unitId ?? undefined,
+        entityIds: entityIds ?? undefined,
         limit: USERS_PER_PAGE,
         cursor,
         searchValue: searchValue ?? undefined,
         isActive: isActive ?? undefined,
         brandIds: brandIds ?? undefined,
         ...options?.variables,
-      },
-      onError(error) {
-        console.error('An error occoured on fetch', error.message);
       },
     },
   );

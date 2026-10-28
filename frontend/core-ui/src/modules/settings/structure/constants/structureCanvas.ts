@@ -1,0 +1,13 @@
+export const STRUCTURE_CANVAS_NODE_WIDTH = 240;
+export const STRUCTURE_CANVAS_NODE_HEIGHT = 84;
+export const STRUCTURE_CANVAS_H_GAP = 24;
+export const STRUCTURE_CANVAS_V_GAP = 64;
+export const STRUCTURE_CANVAS_ROW_GAP = 16;
+export const STRUCTURE_CANVAS_INDENT = 28;
+export const STRUCTURE_CANVAS_COMPACT_AFTER = 6;
+export const STRUCTURE_CANVAS_COMPACT_ROWS = 8;
+export const STRUCTURE_CANVAS_MIN_ZOOM = 0.1;
+export const STRUCTURE_CANVAS_FOCUS_ZOOM = 1;
+export const STRUCTURE_CANVAS_FIT_VIEW_OPTIONS = { padding: 0.2, maxZoom: 1 };
+export const STRUCTURE_CANVAS_ANIMATION = { duration: 300 };
+export const STRUCTURE_DRAWER_SPACE = 464;

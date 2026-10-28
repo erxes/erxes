@@ -31,7 +31,10 @@ export const GET_PERMISSION_GROUPS = gql`
       _id
       name
       description
+      plugin
+      templateId
       permissions {
+        plugin
         module
         actions
         scope

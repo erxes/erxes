@@ -36,19 +36,9 @@ const LOCATION_RECORD_MATCHERS: {
     type: 'product',
   },
   {
-    pathPrefix: '/settings/structures/branches',
-    param: 'branch_id',
-    type: 'branch',
-  },
-  {
-    pathPrefix: '/settings/structures/departments',
-    param: 'department_id',
-    type: 'department',
-  },
-  {
-    pathPrefix: '/settings/structures/units',
-    param: 'unit_id',
-    type: 'unit',
+    pathPrefix: '/settings/structures',
+    param: 'entity_id',
+    type: 'structureEntity',
   },
   { pathPrefix: '/settings/brands', param: 'brand_id', type: 'brand' },
   { pathPrefix: '/sales/deals', param: 'salesItemId', type: 'deal' },

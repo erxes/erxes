@@ -2,7 +2,11 @@ import { Combobox, Command, Popover } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useFieldGroups } from '../hooks/useFieldGroups';
-import { IField, IFieldGroup } from '../types/fieldsTypes';
+import {
+  IField,
+  IFieldGroup,
+  IPropertyContentScope,
+} from '../types/fieldsTypes';
 
 const groupFields = (fields: IField[], groups: IFieldGroup[]) =>
   groups
@@ -17,15 +21,15 @@ export const PropertyLogicFieldSelect = ({
   onValueChange,
   fields,
   contentType,
-}: {
+  contentTypeId,
+}: IPropertyContentScope & {
   value: string;
   onValueChange: (value: string) => void;
   fields: IField[];
-  contentType: string;
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });
   const [open, setOpen] = useState(false);
-  const { fieldGroups } = useFieldGroups({ contentType });
+  const { fieldGroups } = useFieldGroups({ contentType, contentTypeId });
 
   const selected = fields.find((field) => field._id === value);
 

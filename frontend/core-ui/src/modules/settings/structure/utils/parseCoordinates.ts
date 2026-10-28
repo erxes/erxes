@@ -1,4 +1,4 @@
-import { TLatLng } from '../types/branchLocation';
+import { TLatLng } from '../types/structureLocation';
 
 const NUMBER = String.raw`(-?\d+(?:\.\d+)?)`;
 

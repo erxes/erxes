@@ -10,18 +10,11 @@ import { IUserDocument } from 'erxes-api-shared/core-types';
 import { IModels } from '~/connectionResolvers';
 
 const USER_ACTIVITY_CONFIG: Config<ActivityLogInput> = {
-  assignmentFields: [
-    'branchIds',
-    'departmentIds',
-    'positionIds',
-    'permissionGroupIds',
-  ],
   commonFields: [
     ...USER_ACTIVITY_FIELDS.map(({ field }) => field),
     'isActive',
     'role',
     'links.*',
-    'customPermissions',
   ],
   resolvers: userActivityResolvers,
   buildTarget: (document) => buildTarget(document),

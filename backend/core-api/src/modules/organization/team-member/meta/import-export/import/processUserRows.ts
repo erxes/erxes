@@ -101,9 +101,6 @@ export async function processUserRows(
       const extraSet: any = {};
       if (doc.employeeId) extraSet.employeeId = doc.employeeId;
       if (doc.brandIds) extraSet.brandIds = doc.brandIds;
-      if (doc.departmentIds) extraSet.departmentIds = doc.departmentIds;
-      if (doc.branchIds) extraSet.branchIds = doc.branchIds;
-      if (doc.positionIds) extraSet.positionIds = doc.positionIds;
 
       try {
           if (Object.keys(extraSet).length)

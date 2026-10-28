@@ -1,5 +1,6 @@
 import { escapeRegExp } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
+import { STRUCTURE_ENTITY_STATUSES } from '@/organization/structure/constants';
 
 type TGlobalSearchItem = {
   id: string;
@@ -346,45 +347,12 @@ export const globalSearchQueries = {
         }
       : { isActive: { $ne: false }, role: { $ne: 'system' } };
 
-    const branchQuery = searchRegex
+    const structureEntityQuery = searchRegex
       ? {
-          status: { $ne: 'deleted' },
-          $or: [
-            { title: searchRegex },
-            { code: searchRegex },
-            { address: searchRegex },
-          ],
-        }
-      : { status: { $ne: 'deleted' } };
-
-    const departmentQuery = searchRegex
-      ? {
-          status: { $ne: 'deleted' },
-          $or: [
-            { title: searchRegex },
-            { code: searchRegex },
-            { description: searchRegex },
-          ],
-        }
-      : { status: { $ne: 'deleted' } };
-
-    const unitQuery = searchRegex
-      ? {
-          status: { $ne: 'deleted' },
-          $or: [
-            { title: searchRegex },
-            { code: searchRegex },
-            { description: searchRegex },
-          ],
-        }
-      : { status: { $ne: 'deleted' } };
-
-    const positionQuery = searchRegex
-      ? {
-          status: { $ne: 'deleted' },
+          status: STRUCTURE_ENTITY_STATUSES.ACTIVE,
           $or: [{ title: searchRegex }, { code: searchRegex }],
         }
-      : { status: { $ne: 'deleted' } };
+      : { status: STRUCTURE_ENTITY_STATUSES.ACTIVE };
 
     const brandQuery = searchRegex
       ? {
@@ -424,9 +392,10 @@ export const globalSearchQueries = {
         },
       },
       {
-        count: () => models.Branches.countDocuments(branchQuery),
+        count: () =>
+          models.StructureEntities.countDocuments(structureEntityQuery),
         fetch: async (skip, limit) => {
-          const docs = await models.Branches.find(branchQuery)
+          const docs = await models.StructureEntities.find(structureEntityQuery)
             .sort({ createdAt: sortDirection, _id: sortDirection })
             .skip(skip)
             .limit(limit)
@@ -434,91 +403,17 @@ export const globalSearchQueries = {
 
           return docs.map((doc) => ({
             id: doc._id.toString(),
-            title: doc.title || doc.code || 'Branch',
-            description: doc.code || doc.address || undefined,
-            icon: 'git-branch',
-            module: 'settings-branch',
-            category: 'settings',
-            path: `/settings/structures/branches?branch_id=${doc._id}`,
-            createdAt: getCreatedAt(doc),
-            matchFields: compactMatchFields([
-              { label: 'Branch', value: doc.title },
-              { label: 'Code', value: doc.code },
-              { label: 'Address', value: doc.address },
-            ]),
-          }));
-        },
-      },
-      {
-        count: () => models.Departments.countDocuments(departmentQuery),
-        fetch: async (skip, limit) => {
-          const docs = await models.Departments.find(departmentQuery)
-            .sort({ createdAt: sortDirection, _id: sortDirection })
-            .skip(skip)
-            .limit(limit)
-            .lean();
-
-          return docs.map((doc) => ({
-            id: doc._id.toString(),
-            title: doc.title || doc.code || 'Department',
-            description: doc.code || doc.description || undefined,
-            icon: 'building',
-            module: 'settings-department',
-            category: 'settings',
-            path: `/settings/structures/departments?department_id=${doc._id}`,
-            createdAt: getCreatedAt(doc),
-            matchFields: compactMatchFields([
-              { label: 'Department', value: doc.title },
-              { label: 'Code', value: doc.code },
-              { label: 'Description', value: doc.description },
-            ]),
-          }));
-        },
-      },
-      {
-        count: () => models.Units.countDocuments(unitQuery),
-        fetch: async (skip, limit) => {
-          const docs = await models.Units.find(unitQuery)
-            .sort({ createdAt: sortDirection, _id: sortDirection })
-            .skip(skip)
-            .limit(limit)
-            .lean();
-
-          return docs.map((doc) => ({
-            id: doc._id.toString(),
-            title: doc.title || doc.code || 'Unit',
+            title: doc.title,
             description: doc.code || doc.description || undefined,
             icon: 'hierarchy',
-            module: 'settings-unit',
+            module: 'settings-structure',
             category: 'settings',
-            path: `/settings/structures/units?unit_id=${doc._id}`,
+            path: `/settings/structures?entity_id=${doc._id}`,
             createdAt: getCreatedAt(doc),
             matchFields: compactMatchFields([
-              { label: 'Unit', value: doc.title },
+              { label: 'Title', value: doc.title },
               { label: 'Code', value: doc.code },
-              { label: 'Description', value: doc.description },
             ]),
-          }));
-        },
-      },
-      {
-        count: () => models.Positions.countDocuments(positionQuery),
-        fetch: async (skip, limit) => {
-          const docs = await models.Positions.find(positionQuery)
-            .sort({ createdAt: sortDirection, _id: sortDirection })
-            .skip(skip)
-            .limit(limit)
-            .lean();
-
-          return docs.map((doc) => ({
-            id: doc._id.toString(),
-            title: doc.title || doc.code || 'Position',
-            description: doc.code || undefined,
-            icon: 'briefcase',
-            module: 'settings-position',
-            category: 'settings',
-            path: `/settings/structures/positions?position_id=${doc._id}`,
-            createdAt: getCreatedAt(doc),
           }));
         },
       },

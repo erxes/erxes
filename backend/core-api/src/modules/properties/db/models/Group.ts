@@ -10,6 +10,7 @@ import { IModels } from '~/connectionResolvers';
 import { fieldGroupSchema } from '~/modules/properties/db/definitions/group';
 import { IFieldGroup, IFieldGroupDocument } from '../../@types';
 import { ORDER_GAP } from '../../constants';
+import { assertContentTypeScope } from '@/properties/utils/contentTypeScope';
 
 // What a user may still change on a group a plugin owns.
 const OWNED_GROUP_EDITABLE = ['name', 'description', 'order'] as const;
@@ -59,10 +60,11 @@ export const loadFieldGroupClass = (models: IModels) => {
 
     public static async createGroup(doc: IFieldGroup, user: IUserDocument) {
       await this.validateGroup(doc);
+      await assertContentTypeScope(models, doc);
 
-      const { contentType } = doc || {};
+      const { contentType, contentTypeId } = doc || {};
 
-      doc.order = await this.generateOrder({ contentType });
+      doc.order = await this.generateOrder({ contentType, contentTypeId });
 
       return models.FieldsGroups.create({ ...doc, createdBy: user._id });
     }
@@ -200,10 +202,15 @@ export const loadFieldGroupClass = (models: IModels) => {
 
     public static async generateOrder({
       contentType,
+      contentTypeId,
     }: {
       contentType: string;
+      contentTypeId?: string;
     }) {
-      const group = await models.FieldsGroups.findOne({ contentType })
+      const group = await models.FieldsGroups.findOne({
+        contentType,
+        ...(contentTypeId ? { contentTypeId } : {}),
+      })
         .sort({ order: -1 })
         .lean();
 

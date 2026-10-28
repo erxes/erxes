@@ -19,6 +19,7 @@ import { notificationQueries } from '@/notifications/graphql/resolver/queries';
 import { brandQueries } from '@/organization/brand/graphql/queries';
 import { organizationConfigQueries } from '@/organization/settings/graphql/configs/queries';
 import { favoriteQueries } from '@/organization/settings/graphql/favorites/queries';
+import { legacyQueries } from '@/organization/structure/graphql/resolvers/legacy';
 import { structureQueries } from '@/organization/structure/graphql/resolvers/queries';
 import { userQueries } from '@/organization/team-member/graphql/queries';
 import { permissionQueries } from '~/modules/permissions/graphql/resolvers/queries/permission';
@@ -73,6 +74,7 @@ export const queries = {
   ...relationsQueries,
   ...favoriteQueries,
   ...structureQueries,
+  ...legacyQueries,
   ...brandQueries,
   ...organizationConfigQueries,
   ...permissionQueries,

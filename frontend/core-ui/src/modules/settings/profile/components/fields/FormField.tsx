@@ -1,7 +1,6 @@
 import { ControllerRenderProps, Path, useFormContext } from 'react-hook-form';
 import { FormType } from '@/settings/profile/hooks/useProfileForm';
 import { DatePicker, Form, Input, PhoneInput } from 'erxes-ui';
-import { SelectPositions } from 'ui-modules';
 
 type RenderProps = {
   field: ControllerRenderProps;

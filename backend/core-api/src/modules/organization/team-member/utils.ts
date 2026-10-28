@@ -1,6 +1,28 @@
 import { getEnv } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { sendEmail } from '~/utils/email';
+import {
+  getActiveMemberIds,
+  getDescendantIds,
+} from '@/organization/structure/utils';
+
+export const getStructureMemberIds = async (
+  models: IModels,
+  entityIds: string[],
+) => {
+  const entities = await models.StructureEntities.find(
+    { _id: { $in: entityIds } },
+    { order: 1 },
+  ).lean();
+
+  return getActiveMemberIds(
+    models,
+    await getDescendantIds(
+      models,
+      entities.map((entity) => entity.order),
+    ),
+  );
+};
 
 /**
  * Create default or ses transporter

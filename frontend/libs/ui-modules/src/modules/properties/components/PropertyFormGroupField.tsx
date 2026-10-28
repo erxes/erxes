@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { useFieldGroups } from '../hooks/useFieldGroups';
+import { IPropertyContentScope } from '../types/fieldsTypes';
 import { IPropertyForm } from '../types/propertyFormTypes';
 import { useAddPropertyGroup } from '../hooks/useAddPropertyGroup';
 import { PropertyGroupForm } from './PropertyGroupForm';
@@ -11,13 +12,16 @@ import { PropertyGroupForm } from './PropertyGroupForm';
 export const PropertyFormGroupField = ({
   form,
   contentType,
-}: {
+  contentTypeId,
+}: IPropertyContentScope & {
   form: UseFormReturn<IPropertyForm>;
-  contentType: string;
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });
-  const { fieldGroups } = useFieldGroups({ contentType });
-  const { addPropertyGroup, loading } = useAddPropertyGroup(contentType);
+  const { fieldGroups } = useFieldGroups({ contentType, contentTypeId });
+  const { addPropertyGroup, loading } = useAddPropertyGroup(
+    contentType,
+    contentTypeId,
+  );
   const [open, setOpen] = useState(false);
   const [pendingGroupId, setPendingGroupId] = useState<string | null>(null);
 
@@ -40,7 +44,12 @@ export const PropertyFormGroupField = ({
 
   const handleCreateGroup = async (data: { name: string; code?: string }) => {
     const result = await addPropertyGroup({
-      variables: { name: data.name, code: data.code, contentType },
+      variables: {
+        name: data.name,
+        code: data.code,
+        contentType,
+        contentTypeId,
+      },
     });
     const newGroupId = result?.data?.fieldGroupAdd?._id;
     if (newGroupId) {

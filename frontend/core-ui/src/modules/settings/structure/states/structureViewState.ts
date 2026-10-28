@@ -1,14 +1,24 @@
+import { atom } from 'jotai';
 import { atomWithStorage } from 'jotai/utils';
 
-export type TStructureView = 'list' | 'chart';
+export type TStructureView = 'canvas' | 'list';
+
+export type TStructureTypeTab = 'general' | 'capabilities' | 'fields';
 
 export const structureViewState = atomWithStorage<TStructureView>(
-  'structureView',
-  'list',
+  'structureEntitiesView',
+  'canvas',
 );
 
-// Shows the chart's "+" buttons and placeholders to users who can edit
-export const structureChartEditModeState = atomWithStorage<boolean>(
-  'structureChartEditMode',
-  true,
-);
+export const structureShowArchivedState = atom<boolean>(false);
+
+export const structureDraftParentState = atom<string | null>(null);
+
+export const structureFocusState = atom<string | null>(null);
+
+export const structureTypeSettingsState = atom<{
+  typeId: string;
+  tab: TStructureTypeTab;
+} | null>(null);
+
+export const structureNodeTypesOpenState = atom<boolean>(false);

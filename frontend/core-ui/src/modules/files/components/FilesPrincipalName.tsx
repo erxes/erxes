@@ -1,10 +1,8 @@
 import { useTranslation } from 'react-i18next';
 import {
-  BranchesInline,
-  DepartmentsInline,
   IFilesAccessGrant,
   MembersInline,
-  SelectUnit,
+  StructureEntitiesInline,
 } from 'ui-modules';
 
 export const FilesPrincipalName = ({ grant }: { grant: IFilesAccessGrant }) => {
@@ -14,16 +12,8 @@ export const FilesPrincipalName = ({ grant }: { grant: IFilesAccessGrant }) => {
   switch (grant.type) {
     case 'user':
       return <MembersInline memberIds={[id]} />;
-    case 'department':
-      return <DepartmentsInline departmentIds={[id]} />;
-    case 'branch':
-      return <BranchesInline branchIds={[id]} />;
-    case 'unit':
-      return (
-        <SelectUnit.Provider value={id}>
-          <SelectUnit.Value />
-        </SelectUnit.Provider>
-      );
+    case 'entity':
+      return <StructureEntitiesInline entityIds={[id]} />;
     default:
       return <span>{t('principal-everyone')}</span>;
   }

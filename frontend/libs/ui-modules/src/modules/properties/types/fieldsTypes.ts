@@ -72,6 +72,11 @@ export interface IFieldGroup {
   configs?: Record<string, unknown>;
 }
 
+export interface IPropertyContentScope {
+  contentType: string;
+  contentTypeId?: string;
+}
+
 export interface IMutateCallbacks {
   onCompleted?: () => void;
   onError?: () => void;

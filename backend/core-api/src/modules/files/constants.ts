@@ -59,9 +59,7 @@ export const FILE_ACCESS_ROLE_RANK: Record<TFileAccessRole, number> = {
 
 export const FILE_PRINCIPAL_TYPES = {
   USER: 'user',
-  DEPARTMENT: 'department',
-  BRANCH: 'branch',
-  UNIT: 'unit',
+  ENTITY: 'entity',
   EVERYONE: 'everyone',
 } as const;
 

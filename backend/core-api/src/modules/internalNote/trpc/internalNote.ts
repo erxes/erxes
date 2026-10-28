@@ -19,7 +19,7 @@ const requireAgentUser = async (ctx: {
   const user = ctx.userId
     ? await ctx.models.Users.findOne(
         { _id: ctx.userId, isActive: { $ne: false } },
-        '_id email details isOwner groupIds brandIds username code branchIds departmentIds permissionGroupIds customPermissions',
+        '_id email details isOwner groupIds brandIds username code',
       ).lean()
     : null;
 

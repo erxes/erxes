@@ -5,23 +5,19 @@ import { ActivityLogActorName } from './ActivityLogActor';
 const ASSIGNMENT_ACTIVITY_TYPES = [
   'tag.added',
   'tag.removed',
-  'branch.assigned',
-  'branch.unassigned',
-  'department.assigned',
-  'department.unassigned',
-  'position.assigned',
-  'position.unassigned',
+  'structure_entity.assigned',
+  'structure_entity.unassigned',
+  'structure_seat.assigned',
+  'structure_seat.unassigned',
 ] as const;
 
 const ASSIGNMENT_ACTIVITY_LABELS: Record<string, string> = {
   'tag.added': 'added tag',
   'tag.removed': 'removed tag',
-  'branch.assigned': 'assigned branch',
-  'branch.unassigned': 'removed branch',
-  'department.assigned': 'assigned department',
-  'department.unassigned': 'removed department',
-  'position.assigned': 'assigned position',
-  'position.unassigned': 'removed position',
+  'structure_entity.assigned': 'added to',
+  'structure_entity.unassigned': 'removed from',
+  'structure_seat.assigned': 'got seat',
+  'structure_seat.unassigned': 'lost seat',
 };
 
 export const isAssignmentActivityType = (activityType?: string) =>

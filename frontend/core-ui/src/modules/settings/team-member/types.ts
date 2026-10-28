@@ -1,9 +1,10 @@
-import { z } from 'zod';
-import {
-  USER_SUBMIT_SCHEMA,
-  USER_DETAIL_SCHEMA,
-} from '@/settings/team-member/schema/users';
 import { CountryCode } from 'libphonenumber-js';
+import {
+  IStructureEntity,
+  IStructureEntityMember,
+  IStructureEntityType,
+  IStructureSeat,
+} from 'ui-modules';
 
 export interface IUserInline {
   _id: string;
@@ -31,17 +32,32 @@ export enum EStatus {
   NotVerified = 'Not verified',
 }
 
+export interface IUserStructureMembershipSeat
+  extends Pick<IStructureSeat, '_id' | 'coverage'> {
+  position?: { _id: string; name: string };
+}
+
+export interface IUserStructureMembership
+  extends Pick<
+    IStructureEntityMember,
+    '_id' | 'entityId' | 'seatIds' | 'isPrimary'
+  > {
+  seats?: IUserStructureMembershipSeat[];
+  entity?: Pick<
+    IStructureEntity,
+    '_id' | 'typeId' | 'title' | 'code' | 'order'
+  > & {
+    type?: Pick<IStructureEntityType, '_id' | 'name' | 'code'>;
+  };
+}
+
 export interface IUser extends IUserInline {
   email: string;
   status: EStatus;
   employeeId: string;
   isActive: boolean;
   isOwner?: boolean;
-  positionIds: string[];
-  branchIds?: string[];
-  departmentIds?: string[];
-  unitId?: string;
-  permissionGroupIds?: string[];
+  structureMemberships?: IUserStructureMembership[];
 
   links?: object;
   isSubscribed?: string;
@@ -50,37 +66,11 @@ export interface IUser extends IUserInline {
   propertiesData?: Record<string, unknown>;
 }
 
-export interface IUserDetail extends IUser {
-  branchIds?: string[];
-  departmentIds?: string[];
-  permissionGroupIds?: string[];
-}
-
-export interface IUserEntry {
+export interface IInvitationEntry {
   email: string;
-  permissionGroupIds?: string[];
+  entityId?: string;
+  seatIds?: string[];
 }
-
-export type TUserInviteVars = {
-  entries: IUserEntry[];
-};
-export interface IUserInviteContext {
-  selectedUsers: string[];
-  setSelectedUsers: (selectedUsers: string[]) => void;
-  fields: IUserEntry & { id: string }[];
-}
-export interface IInviteUserRowContext {
-  userIndex: number;
-  user: IUserEntry & { id: string };
-}
-export interface IBranch {
-  _id: string;
-  title: string;
-  code: string;
-  parentId: string;
-}
-export type TUserForm = z.infer<typeof USER_SUBMIT_SCHEMA>;
-export type TUserDetailForm = z.infer<typeof USER_DETAIL_SCHEMA>;
 
 export enum UsersHotKeyScope {
   UsersPage = 'users-page',

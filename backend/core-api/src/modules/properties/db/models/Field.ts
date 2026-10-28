@@ -46,6 +46,7 @@ import {
   mergeFeaturedOptions,
   ownerSelector,
 } from '~/modules/properties/utils/featuredFields';
+import { assertContentTypeScope } from '@/properties/utils/contentTypeScope';
 
 export interface IFieldValueValidationOptions {
   /** Also check the value against the shape its field type implies. */
@@ -93,6 +94,7 @@ const CORE_RECORD_LABELS: Record<
   'core:user': (doc) =>
     text((doc.details as Record<string, unknown> | undefined)?.fullName) ||
     text(doc.email),
+  'core:structureEntity': (doc) => text(doc.title) || text(doc.code),
 };
 
 export type TrackedValue =
@@ -377,6 +379,7 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
     public static async createField(doc: IField, user: IUserDocument) {
       await this.validateField(doc);
       await models.Fields.assertGroupAcceptsFields(doc.groupId);
+      await assertContentTypeScope(models, doc);
 
       const { contentType, contentTypeId, groupId } = doc;
 

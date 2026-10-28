@@ -1,33 +1,105 @@
 import {
-  Button,
-  Spinner,
-  useToast,
-  Input,
   Badge,
-  TextOverflowTooltip,
-  cn,
+  Button,
   Checkbox,
+  cn,
+  Form,
+  Input,
   Label,
+  Skeleton,
+  Spinner,
+  TextOverflowTooltip,
+  useToast,
 } from 'erxes-ui';
-import { useCallback, useMemo, useState } from 'react';
+import { useId, useMemo, useState } from 'react';
 import { IconSend, IconX } from '@tabler/icons-react';
-import { useUsersInvite } from '@/settings/team-member/hooks/useUsersInvite';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { ApolloError } from '@apollo/client';
+import { useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
-import { usePermissionCheck } from 'ui-modules';
+import { currentUserState, SelectStructureEntities } from 'ui-modules';
 import {
-  useGetPermissionDefaultGroups,
-  useGetPermissionGroups,
-} from '@/settings/permissions/hooks/useGetPermissionGroups';
+  getStructureSeatCoverageLabel,
+  useStructureSeats,
+} from '@/structure-access';
+import { useUsersInvite } from '@/settings/team-member/hooks/useUsersInvite';
 import {
-  IDefaultPermissionGroup,
-  IPermissionGroup,
-} from '@/settings/permissions/types';
+  getInviteFormSchema,
+  TInviteForm,
+} from '@/settings/team-member/schema/invite';
+import { buildInvitationEntries } from '@/settings/team-member/utils/invitationEntries';
 
 const emailSchema = z.string().email();
-type InviteStep = 'emails' | 'permissions';
 const normalizeEmail = (value: string) => value.trim().toLowerCase();
+const single = (value?: string[] | string) =>
+  (Array.isArray(value) ? value[0] : value) || undefined;
+
+const InviteSeatsField = ({
+  entityId,
+  value,
+  onValueChange,
+}: {
+  entityId: string;
+  value: string[];
+  onValueChange: (seatIds: string[]) => void;
+}) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
+  const { t: tStructure } = useTranslation('settings', {
+    keyPrefix: 'structure',
+  });
+  const idPrefix = useId();
+  const { seats, loading, error } = useStructureSeats({ entityId });
+
+  const toggle = (seatId: string, checked: boolean) => {
+    const rest = value.filter((id) => id !== seatId);
+
+    onValueChange(checked ? [...rest, seatId] : rest);
+  };
+
+  if (loading) {
+    return <Skeleton className="h-10 w-full" />;
+  }
+
+  if (error) {
+    return <p className="text-sm text-destructive">{error.message}</p>;
+  }
+
+  if (!seats.length) {
+    return (
+      <p className="text-sm text-muted-foreground">{t('no-seats-at-node')}</p>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-2">
+      {seats.map((seat) => {
+        const inputId = `${idPrefix}-${seat._id}`;
+
+        return (
+          <div key={seat._id} className="flex items-start gap-2">
+            <Checkbox
+              id={inputId}
+              checked={value.includes(seat._id)}
+              onCheckedChange={(checked) => toggle(seat._id, checked === true)}
+            />
+            <Label
+              variant="peer"
+              htmlFor={inputId}
+              className="flex flex-col gap-0.5"
+            >
+              <span>{seat.position?.name ?? seat.positionId}</span>
+              <span className="text-xs font-normal text-muted-foreground">
+                {getStructureSeatCoverageLabel(seat, tStructure)}
+              </span>
+            </Label>
+          </div>
+        );
+      })}
+    </div>
+  );
+};
 
 export function InviteForm({
   setIsOpen,
@@ -36,59 +108,51 @@ export function InviteForm({
 }) {
   const { toast } = useToast();
   const { handleInvitations, loading } = useUsersInvite();
-  const [tags, setTags] = useState<string[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [error, setError] = useState('');
-  const [step, setStep] = useState<InviteStep>('emails');
-  const [selectedPermissionGroupIds, setSelectedPermissionGroupIds] = useState<
-    string[]
-  >([]);
   const { t } = useTranslation('settings', {
     keyPrefix: 'team-member',
   });
-  const { hasActionPermission } = usePermissionCheck();
-  const canManagePermissions = hasActionPermission('permissionsManage');
-  const shouldLoadPermissionGroups =
-    canManagePermissions && step === 'permissions';
-  const {
-    defaultGroups,
-    loading: defaultGroupsLoading,
-    error: defaultGroupsError,
-  } = useGetPermissionDefaultGroups({
-    skip: !shouldLoadPermissionGroups,
+  const currentUser = useAtomValue(currentUserState);
+
+  const schema = useMemo(() => getInviteFormSchema(t), [t]);
+  const form = useForm<TInviteForm>({
+    resolver: zodResolver(schema),
+    defaultValues: { emails: [], seatIds: [] },
   });
-  const {
-    permissionGroups,
-    loading: customGroupsLoading,
-    error: customGroupsError,
-  } = useGetPermissionGroups({
-    skip: !shouldLoadPermissionGroups,
-  });
-  const permissionGroupsError = defaultGroupsError || customGroupsError;
+
+  const [emails, entityId] = form.watch(['emails', 'entityId']);
+  const emailError = error || form.formState.errors.emails?.message;
+  const placementRequired = !currentUser?.isOwner;
 
   const addTag = (value: string) => {
     const normalizedValue = normalizeEmail(value);
 
-    if (!normalizedValue) return;
+    if (!normalizedValue) return true;
 
-    const validation = emailSchema.safeParse(normalizedValue);
-    if (!validation.success) {
+    if (!emailSchema.safeParse(normalizedValue).success) {
       setError(t('invalid-email'));
-      return;
+      return false;
     }
 
-    if (tags.includes(normalizedValue)) {
+    if (emails.includes(normalizedValue)) {
       setError(t('email-already-added'));
-      return;
+      return false;
     }
 
-    setTags([...tags, normalizedValue]);
+    form.setValue('emails', [...emails, normalizedValue], {
+      shouldValidate: !!form.formState.errors.emails,
+    });
     setInputValue('');
     setError('');
+    return true;
   };
 
   const removeTag = (tagToRemove: string) => {
-    setTags(tags.filter((tag) => tag !== tagToRemove));
+    form.setValue(
+      'emails',
+      emails.filter((tag) => tag !== tagToRemove),
+    );
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -109,92 +173,9 @@ export function InviteForm({
     }
   };
 
-  const getDraftState = useCallback(() => {
-    const draftEmail = normalizeEmail(inputValue);
-
-    if (!draftEmail) {
-      return {
-        draftEmail,
-        isEmpty: true,
-        isValid: false,
-        isDuplicate: false,
-      };
-    }
-
-    return {
-      draftEmail,
-      isEmpty: false,
-      isValid: emailSchema.safeParse(draftEmail).success,
-      isDuplicate: tags.includes(draftEmail),
-    };
-  }, [inputValue, tags]);
-
-  const validateInvitations = useCallback(() => {
-    const { isDuplicate, isEmpty, isValid } = getDraftState();
-
-    setError('');
-
-    if (tags.length === 0 && isEmpty) {
-      toast({
-        title: t('add-at-least-one-email'),
-        variant: 'destructive',
-      });
-      return false;
-    }
-
-    if (!isEmpty && !isValid) {
-      setError(t('invalid-email'));
-      return false;
-    }
-
-    if (isDuplicate) {
-      setError(t('email-already-added'));
-      return false;
-    }
-
-    return true;
-  }, [getDraftState, t, tags.length, toast]);
-
-  const getInvitationEntries = useCallback(() => {
-    const { draftEmail, isDuplicate, isValid } = getDraftState();
-    const permissionGroupIds =
-      selectedPermissionGroupIds.length > 0
-        ? { permissionGroupIds: selectedPermissionGroupIds }
-        : {};
-
-    return [
-      ...tags.map((tag) => ({
-        email: tag,
-        ...permissionGroupIds,
-      })),
-      ...(isValid && !isDuplicate
-        ? [
-            {
-              email: draftEmail,
-              ...permissionGroupIds,
-            },
-          ]
-        : []),
-    ];
-  }, [getDraftState, selectedPermissionGroupIds, tags]);
-
-  const submitHandler = useCallback(async () => {
-    if (!validateInvitations()) {
-      return;
-    }
-
-    if (step === 'permissions' && permissionGroupsError) {
-      toast({
-        title: t('permission-groups-load-failed'),
-        variant: 'destructive',
-      });
-      return;
-    }
-
+  const submit = form.handleSubmit((values) => {
     handleInvitations({
-      variables: {
-        entries: getInvitationEntries(),
-      },
+      variables: { entries: buildInvitationEntries(values) },
       onCompleted() {
         toast({
           title: t('invitation-sent'),
@@ -210,250 +191,120 @@ export function InviteForm({
         });
       },
     });
-  }, [
-    getInvitationEntries,
-    handleInvitations,
-    permissionGroupsError,
-    setIsOpen,
-    step,
-    t,
-    toast,
-    validateInvitations,
-  ]);
-
-  const handleNext = useCallback(() => {
-    if (!validateInvitations()) {
-      return;
-    }
-
-    const { draftEmail, isEmpty } = getDraftState();
-
-    if (!isEmpty) {
-      setTags((current) =>
-        current.includes(draftEmail) ? current : [...current, draftEmail],
-      );
-      setInputValue('');
-    }
-
-    setStep('permissions');
-  }, [getDraftState, validateInvitations]);
-
-  const defaultGroupPluginById = useMemo(() => {
-    return defaultGroups.reduce<Map<string, string>>((groups, group) => {
-      groups.set(group.id, group.plugin || 'other');
-      return groups;
-    }, new Map());
-  }, [defaultGroups]);
-
-  const groupedDefaultGroups = useMemo(() => {
-    return defaultGroups.reduce<Record<string, IDefaultPermissionGroup[]>>(
-      (groups, group) => {
-        const plugin = group.plugin || 'other';
-        groups[plugin] = [...(groups[plugin] || []), group];
-        return groups;
-      },
-      {},
-    );
-  }, [defaultGroups]);
-
-  const handlePermissionGroupChange = useCallback(
-    (groupId: string, checked: boolean, plugin?: string) => {
-      setSelectedPermissionGroupIds((current) => {
-        if (checked) {
-          if (plugin) {
-            return [
-              ...current.filter(
-                (id) => defaultGroupPluginById.get(id) !== plugin,
-              ),
-              groupId,
-            ];
-          }
-
-          if (current.includes(groupId)) {
-            return current;
-          }
-
-          return [...current, groupId];
-        }
-
-        return current.filter((id) => id !== groupId);
-      });
-    },
-    [defaultGroupPluginById],
-  );
-
-  const renderPermissionGroup = (
-    group: IDefaultPermissionGroup | IPermissionGroup,
-    groupId: string,
-    plugin?: string,
-  ) => {
-    const inputId = `invite-permission-${groupId}`;
-
-    return (
-      <div
-        key={groupId}
-        className="flex items-start gap-3 rounded-md border border-border px-3 py-2.5"
-      >
-        <Checkbox
-          id={inputId}
-          checked={selectedPermissionGroupIds.includes(groupId)}
-          onCheckedChange={(checked) =>
-            handlePermissionGroupChange(groupId, checked as boolean, plugin)
-          }
-        />
-        <div className="min-w-0 flex-1">
-          <Label
-            variant="peer"
-            htmlFor={inputId}
-            className="block cursor-pointer text-sm font-medium"
-          >
-            {group.name}
-          </Label>
-          {group.description && (
-            <p className="mt-1 text-sm text-muted-foreground">
-              {group.description}
-            </p>
-          )}
-        </div>
-      </div>
-    );
-  };
-
-  const isPermissionGroupsLoading =
-    shouldLoadPermissionGroups && (defaultGroupsLoading || customGroupsLoading);
+  });
 
   return (
-    <div className="flex flex-col gap-4">
-      {step === 'emails' && (
-        <>
-          <div className="flex flex-col gap-3">
-            <div className="w-full">
-              <Input
-                name="email"
-                placeholder={t('enter-email-addresses')}
-                value={inputValue}
-                autoFocus
-                onChange={handleChange}
-                onKeyDown={handleKeyDown}
-                className={cn(
-                  error && 'focus-visible:shadow-focus-destructive',
-                )}
-              />
-              {error && (
-                <p className="text-sm text-destructive mt-1.5">{error}</p>
+    <Form {...form}>
+      <form
+        className="flex flex-col gap-4"
+        onSubmit={(e) => {
+          e.preventDefault();
+
+          if (addTag(inputValue)) {
+            submit();
+          }
+        }}
+      >
+        <div className="flex flex-col gap-3">
+          <div className="w-full">
+            <Input
+              name="email"
+              placeholder={t('enter-email-addresses')}
+              value={inputValue}
+              autoFocus
+              onChange={handleChange}
+              onKeyDown={handleKeyDown}
+              className={cn(
+                emailError && 'focus-visible:shadow-focus-destructive',
               )}
-              {!error && (
-                <p className="text-sm text-muted-foreground mt-1.5">
-                  {t('separate-emails')}
-                </p>
-              )}
-            </div>
-            {tags.length > 0 && (
-              <div className="flex flex-wrap gap-2">
-                {tags.map((tag) => (
-                  <Badge
-                    key={tag}
-                    variant="secondary"
-                    className="gap-1.5 pr-1.5 max-w-full"
-                  >
-                    <TextOverflowTooltip value={tag} className="truncate" />
-                    <button
-                      type="button"
-                      aria-label={`Remove ${tag}`}
-                      onClick={() => removeTag(tag)}
-                      className="hover:bg-secondary-foreground/20 rounded-sm p-0.5 shrink-0"
-                    >
-                      <IconX className="size-3" />
-                    </button>
-                  </Badge>
-                ))}
-              </div>
-            )}
-          </div>
-          <div className="w-full flex gap-3 justify-end">
-            {canManagePermissions ? (
-              <Button onClick={handleNext} className="text-sm">
-                {t('next')}
-              </Button>
+            />
+            {emailError ? (
+              <p className="text-sm text-destructive mt-1.5">{emailError}</p>
             ) : (
-              <Button
-                onClick={submitHandler}
-                disabled={loading}
-                className="text-sm"
-              >
-                {loading ? (
-                  <Spinner size={'sm'} className="stroke-white" />
-                ) : (
-                  <IconSend size={16} />
-                )}
-                {t('send-invites')}
-              </Button>
+              <p className="text-sm text-muted-foreground mt-1.5">
+                {t('separate-emails')}
+              </p>
             )}
           </div>
-        </>
-      )}
-
-      {step === 'permissions' && (
-        <>
-          {isPermissionGroupsLoading ? (
-            <Spinner containerClassName="py-10" />
-          ) : permissionGroupsError ? (
-            <p className="text-sm text-destructive">
-              {t('permission-groups-load-failed')}
-            </p>
-          ) : (
-            <div className="flex max-h-80 flex-col gap-4 overflow-y-auto pr-1 styled-scroll">
-              {Object.entries(groupedDefaultGroups).map(([plugin, groups]) => (
-                <div key={plugin} className="space-y-2">
-                  <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                    {plugin}
-                  </div>
-                  <div className="space-y-2">
-                    {groups.map((group) =>
-                      renderPermissionGroup(group, group.id, plugin),
-                    )}
-                  </div>
-                </div>
+          {emails.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {emails.map((tag) => (
+                <Badge
+                  key={tag}
+                  variant="secondary"
+                  className="gap-1.5 pr-1.5 max-w-full"
+                >
+                  <TextOverflowTooltip value={tag} className="truncate" />
+                  <button
+                    type="button"
+                    aria-label={`Remove ${tag}`}
+                    onClick={() => removeTag(tag)}
+                    className="hover:bg-secondary-foreground/20 rounded-sm p-0.5 shrink-0"
+                  >
+                    <IconX className="size-3" />
+                  </button>
+                </Badge>
               ))}
-
-              {permissionGroups.length > 0 && (
-                <div className="space-y-2">
-                  <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                    {t('custom-groups')}
-                  </div>
-                  <div className="space-y-2">
-                    {permissionGroups.map((group) =>
-                      renderPermissionGroup(group, group._id),
-                    )}
-                  </div>
-                </div>
-              )}
             </div>
           )}
-
-          <div className="w-full flex gap-3 justify-between">
-            <Button
-              variant="secondary"
-              onClick={() => setStep('emails')}
-              className="text-sm"
-            >
-              {t('back')}
-            </Button>
-            <Button
-              onClick={submitHandler}
-              disabled={loading || Boolean(permissionGroupsError)}
-              className="text-sm"
-            >
-              {loading ? (
-                <Spinner size={'sm'} className="stroke-white" />
-              ) : (
-                <IconSend size={16} />
-              )}
-              {t('send-invites')}
-            </Button>
-          </div>
-        </>
-      )}
-    </div>
+        </div>
+        <Form.Field
+          control={form.control}
+          name="entityId"
+          render={({ field }) => (
+            <Form.Item>
+              <Form.Label>
+                {t('structure-node')}
+                {placementRequired && (
+                  <span className="text-destructive"> *</span>
+                )}
+              </Form.Label>
+              <SelectStructureEntities.FormItem
+                mode="single"
+                value={field.value}
+                onValueChange={(value) => {
+                  field.onChange(single(value));
+                  form.setValue('seatIds', []);
+                }}
+              />
+              <Form.Description>
+                {placementRequired
+                  ? t('placement-required-hint')
+                  : t('placement-hint')}
+              </Form.Description>
+              <Form.Message />
+            </Form.Item>
+          )}
+        />
+        {entityId && (
+          <Form.Field
+            control={form.control}
+            name="seatIds"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label>{t('seats')}</Form.Label>
+                <InviteSeatsField
+                  entityId={entityId}
+                  value={field.value}
+                  onValueChange={field.onChange}
+                />
+                <Form.Description>{t('seats-hint')}</Form.Description>
+                <Form.Message />
+              </Form.Item>
+            )}
+          />
+        )}
+        <div className="w-full flex gap-3 justify-end">
+          <Button type="submit" disabled={loading} className="text-sm">
+            {loading ? (
+              <Spinner size={'sm'} className="stroke-white" />
+            ) : (
+              <IconSend size={16} />
+            )}
+            {t('send-invites')}
+          </Button>
+        </div>
+      </form>
+    </Form>
   );
 }

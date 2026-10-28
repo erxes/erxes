@@ -485,6 +485,7 @@ export const MultipleSelector = React.forwardRef<
                 >
                   {option.label}
                   <button
+                    type="button"
                     className="absolute -inset-y-px -end-px flex size-7 items-center justify-center rounded-e-lg border border-transparent p-0 text-muted-foreground/80 outline-0 transition-colors hover:text-foreground focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-ring/70"
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') {

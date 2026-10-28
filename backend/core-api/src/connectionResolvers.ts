@@ -41,29 +41,24 @@ import {
   loadFavoritesClass,
 } from '@/organization/settings/db/models/Favorites';
 import {
-  IBranchDocument,
-  IDepartmentDocument,
-  IPositionDocument,
-  IStructureDocument,
-  IUnitDocument,
-} from '@/organization/structure/@types/structure';
-import {
-  IBranchModel,
-  IDepartmentModel,
-  IPositionModel,
-  IStructureModel,
-  IUnitModel,
-  loadBranchClass,
-  loadDepartmentClass,
-  loadPositionClass,
-  loadStructureClass,
-  loadUnitClass,
+  IStructureEntityMemberModel,
+  IStructureEntityModel,
+  IStructureEntityTypeModel,
+  loadStructureEntityClass,
+  loadStructureEntityMemberClass,
+  loadStructureEntityTypeClass,
 } from '@/organization/structure/db/models/Structure';
 import {
+  IStructurePositionModel,
+  loadStructurePositionClass,
+} from '@/organization/structure/db/models/Positions';
+import {
+  IStructureSeatModel,
+  loadStructureSeatClass,
+} from '@/organization/structure/db/models/Seats';
+import {
   IUserModel,
-  IUserMovemmentModel,
   loadUserClass,
-  loadUserMovemmentClass,
 } from '@/organization/team-member/db/models/Users';
 import { IProductRuleDocument } from '@/products/@types/rule';
 import { IProductConditionDocument } from '@/products/@types/condition';
@@ -120,10 +115,14 @@ import {
   IProductDocument,
   IProductsConfigDocument,
   IRelationDocument,
+  IStructureEntityDocument,
+  IStructureEntityMemberDocument,
+  IStructureEntityTypeDocument,
+  IStructurePositionDocument,
+  IStructureSeatDocument,
   ITagDocument,
   IUomDocument,
   IUserDocument,
-  IUserMovementDocument,
 } from 'erxes-api-shared/core-types';
 
 import { createGenerateModels } from 'erxes-api-shared/utils';
@@ -388,7 +387,6 @@ export interface IModels {
   Customers: ICustomerModel;
   Companies: ICompanyModel;
   Users: IUserModel;
-  UserMovements: IUserMovemmentModel;
   Configs: IConfigModel;
   Tags: ITagModel;
   InternalNotes: IInternalNoteModel;
@@ -398,11 +396,11 @@ export interface IModels {
   ProductsConfigs: IProductsConfigModel;
   ProductSimilarities: IProductSimilarityModel;
   Uoms: IUomModel;
-  Structures: IStructureModel;
-  Departments: IDepartmentModel;
-  Units: IUnitModel;
-  Branches: IBranchModel;
-  Positions: IPositionModel;
+  StructureEntityTypes: IStructureEntityTypeModel;
+  StructureEntities: IStructureEntityModel;
+  StructureEntityMembers: IStructureEntityMemberModel;
+  StructurePositions: IStructurePositionModel;
+  StructureSeats: IStructureSeatModel;
   Apps: IAppModel;
   OAuthClientApps: IOAuthClientAppModel;
   Fields: IFieldModel;
@@ -529,11 +527,6 @@ export const loadClasses = (
     ),
   );
 
-  models.UserMovements = db.model<IUserMovementDocument, IUserMovemmentModel>(
-    'user_movements',
-    loadUserMovemmentClass(models, subdomain, coreEventHandlers),
-  );
-
   models.Configs = db.model<IConfigDocument, IConfigModel>(
     'configs',
     loadConfigClass(
@@ -617,28 +610,28 @@ export const loadClasses = (
     ),
   );
 
-  models.Structures = db.model<IStructureDocument, IStructureModel>(
-    'structures',
-    loadStructureClass(models),
+  models.StructureEntityTypes = db.model<
+    IStructureEntityTypeDocument,
+    IStructureEntityTypeModel
+  >('structure_entity_types', loadStructureEntityTypeClass(models));
+  models.StructureEntities = db.model<
+    IStructureEntityDocument,
+    IStructureEntityModel
+  >('structure_entities', loadStructureEntityClass(models, subdomain));
+  models.StructureEntityMembers = db.model<
+    IStructureEntityMemberDocument,
+    IStructureEntityMemberModel
+  >(
+    'structure_entity_members',
+    loadStructureEntityMemberClass(models, subdomain),
   );
-  models.Departments = db.model<IDepartmentDocument, IDepartmentModel>(
-    'departments',
-    loadDepartmentClass(
-      models,
-      coreEventHandlers('organization', 'departments'),
-    ),
-  );
-  models.Units = db.model<IUnitDocument, IUnitModel>(
-    'units',
-    loadUnitClass(models),
-  );
-  models.Branches = db.model<IBranchDocument, IBranchModel>(
-    'branches',
-    loadBranchClass(models, coreEventHandlers('organization', 'branches')),
-  );
-  models.Positions = db.model<IPositionDocument, IPositionModel>(
-    'positions',
-    loadPositionClass(models, coreEventHandlers('organization', 'positions')),
+  models.StructurePositions = db.model<
+    IStructurePositionDocument,
+    IStructurePositionModel
+  >('structure_positions', loadStructurePositionClass(models, subdomain));
+  models.StructureSeats = db.model<IStructureSeatDocument, IStructureSeatModel>(
+    'structure_seats',
+    loadStructureSeatClass(models, subdomain),
   );
   models.Apps = db.model<IAppDocument, IAppModel>(
     'app_tokens',

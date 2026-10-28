@@ -1,11 +1,6 @@
 export type TFilesRole = 'viewer' | 'contributor' | 'manager';
 
-export type TFilesPrincipalType =
-  | 'user'
-  | 'department'
-  | 'branch'
-  | 'unit'
-  | 'everyone';
+export type TFilesPrincipalType = 'user' | 'entity' | 'everyone';
 
 export type TFilesSpace = 'personal' | 'org' | 'shared';
 

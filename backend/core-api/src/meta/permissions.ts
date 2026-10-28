@@ -390,46 +390,30 @@ export const permissions: IPermissionConfig = {
       description: 'Organization structure management',
       scopeField: null,
       ownerFields: [],
+      scopeCollections: ['structure_entities'],
+      entityField: '_id',
 
-      scopes: [{ name: 'all', description: 'All records' }],
+      scopes: [{ name: 'entity', description: 'Granted structure nodes' }],
 
       actions: [
         {
           title: 'View organization structure',
-          name: 'organizationRead',
-          description:
-            'View structures, departments, branches, units, positions',
+          name: 'structuresRead',
+          description: 'View structure nodes, types and members',
           oauthScope: 'organization:read',
           always: true,
         },
         {
-          title: 'Manage structures',
-          name: 'structuresManage',
-          description: 'Create, edit, delete structures',
+          title: 'Manage structure nodes',
+          name: 'structureEntitiesManage',
+          description:
+            'Create, edit, move, archive nodes and manage members and seats',
           oauthScope: 'organization:manage',
         },
         {
-          title: 'Manage departments',
-          name: 'departmentsManage',
-          description: 'Create, edit, delete departments',
-          oauthScope: 'organization:manage',
-        },
-        {
-          title: 'Manage branches',
-          name: 'branchesManage',
-          description: 'Create, edit, delete branches',
-          oauthScope: 'organization:manage',
-        },
-        {
-          title: 'Manage units',
-          name: 'unitsManage',
-          description: 'Create, edit, delete units',
-          oauthScope: 'organization:manage',
-        },
-        {
-          title: 'Manage positions',
-          name: 'positionsManage',
-          description: 'Create, edit, delete positions',
+          title: 'Manage structure types',
+          name: 'structureEntityTypesManage',
+          description: 'Create, edit and remove node types',
           oauthScope: 'organization:manage',
         },
       ],
@@ -438,7 +422,8 @@ export const permissions: IPermissionConfig = {
       name: 'teamMembers',
       description: 'Team member management',
       scopeField: null,
-      ownerFields: [],
+      ownerFields: ['_id'],
+      scopeCollections: ['users'],
 
       scopes: [
         {
@@ -600,8 +585,7 @@ export const permissions: IPermissionConfig = {
         {
           title: 'Manage permissions',
           name: 'permissionsManage',
-          description:
-            'Create, edit, delete permission groups and assign permissions',
+          description: 'Create, edit, delete permission groups and positions',
         },
       ],
     },
@@ -864,13 +848,7 @@ export const permissions: IPermissionConfig = {
         {
           plugin: 'core',
           module: 'organization',
-          actions: [
-            'structuresManage',
-            'departmentsManage',
-            'branchesManage',
-            'unitsManage',
-            'positionsManage',
-          ],
+          actions: ['structureEntitiesManage', 'structureEntityTypesManage'],
           scope: 'all',
         },
         {
@@ -976,13 +954,13 @@ export const permissions: IPermissionConfig = {
           plugin: 'core',
           module: 'teamMembers',
           actions: ['teamMembersUpdate'],
-          scope: 'own',
+          scope: 'all',
         },
         {
           plugin: 'core',
           module: 'contacts',
           actions: ['contactsCreate', 'contactsUpdate'],
-          scope: 'own',
+          scope: 'all',
         },
         {
           plugin: 'core',
@@ -1000,7 +978,7 @@ export const permissions: IPermissionConfig = {
           plugin: 'core',
           module: 'broadcasts',
           actions: ['broadcastRead', 'broadcastCreate', 'broadcastUpdate'],
-          scope: 'own',
+          scope: 'all',
         },
         {
           plugin: 'core',
@@ -1033,7 +1011,7 @@ export const permissions: IPermissionConfig = {
           plugin: 'core',
           module: 'contacts',
           actions: ['contactsCreate', 'contactsUpdate'],
-          scope: 'own',
+          scope: 'all',
         },
         {
           plugin: 'core',
@@ -1069,7 +1047,7 @@ export const permissions: IPermissionConfig = {
           plugin: 'core',
           module: 'documents',
           actions: ['manageDocuments', 'removeDocuments'],
-          scope: 'own',
+          scope: 'all',
         },
         {
           plugin: 'core',
@@ -1080,7 +1058,7 @@ export const permissions: IPermissionConfig = {
         {
           plugin: 'core',
           module: 'organization',
-          actions: ['organizationRead'],
+          actions: ['structuresRead'],
           scope: 'all',
         },
         {
@@ -1093,7 +1071,7 @@ export const permissions: IPermissionConfig = {
           plugin: 'core',
           module: 'teamMembers',
           actions: ['teamMembersUpdate'],
-          scope: 'own',
+          scope: 'all',
         },
         {
           plugin: 'core',
@@ -1105,7 +1083,7 @@ export const permissions: IPermissionConfig = {
           plugin: 'core',
           module: 'broadcasts',
           actions: ['broadcastCreate', 'broadcastUpdate'],
-          scope: 'own',
+          scope: 'all',
         },
         {
           plugin: 'core',
@@ -1153,7 +1131,7 @@ export const permissions: IPermissionConfig = {
           plugin: 'core',
           module: 'internalNotes',
           actions: ['internalNotesManage'],
-          scope: 'own',
+          scope: 'all',
         },
         {
           plugin: 'core',

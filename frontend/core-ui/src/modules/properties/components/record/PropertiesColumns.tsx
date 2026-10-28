@@ -1,4 +1,4 @@
-import { usePropertiesScope } from '@/properties/context/PropertiesScopeContext';
+import { usePropertyFieldActions } from '@/properties/context/PropertyFieldActionsContext';
 import {
   Badge,
   Checkbox,
@@ -18,7 +18,6 @@ import type { Cell, ColumnDef } from '@tanstack/react-table';
 import { IconTrash, IconEdit } from '@tabler/icons-react';
 import { useAtom, useSetAtom } from 'jotai';
 
-import { Link } from 'react-router-dom';
 import React from 'react';
 import type { TFunction } from 'i18next';
 import { selectedFieldIdsState } from '../../states/selectedFieldsState';
@@ -101,7 +100,7 @@ const PropertiesMoreColumnCell = ({
   cell: Cell<IField, unknown>;
   contentType: string;
 }) => {
-  const { basePath: propertiesBasePath } = usePropertiesScope();
+  const { editField } = usePropertyFieldActions(contentType);
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });
   const { _id, groupId, owner, name } = cell.row.original;
   const setArchiveTarget = useSetAtom(archiveTargetState);
@@ -127,13 +126,9 @@ const PropertiesMoreColumnCell = ({
         </Can>
         <DropdownMenu.Content className="min-w-48">
           <Can action="fieldsManage">
-            <DropdownMenu.Item asChild>
-              <Link
-                to={`${propertiesBasePath}/${contentType}/${groupId}/${_id}`}
-              >
-                <IconEdit />
-                {t('edit', 'Edit')}
-              </Link>
+            <DropdownMenu.Item onClick={() => editField({ _id, groupId })}>
+              <IconEdit />
+              {t('edit', 'Edit')}
             </DropdownMenu.Item>
           </Can>
           {/* The owning plugin releases a featured field; people cannot. */}

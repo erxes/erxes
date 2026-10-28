@@ -1,9 +1,6 @@
 import { IWorkDay, WorkDay } from '@/settings/structure/types/workhours';
-import { parse } from 'date-fns';
 
-type Workhours = Partial<Record<WorkDay, IWorkDay>>;
-
-export const workingHours: Workhours = {
+export const workingHours: Record<WorkDay, IWorkDay> = {
   Monday: {
     inactive: true,
     startFrom: '09:00',

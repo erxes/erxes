@@ -10,6 +10,7 @@ export const types = `
         code: String
         description: String
         contentType: String
+        contentTypeId: String
         order: Float
         logics: JSON
         configs: JSON
@@ -28,6 +29,7 @@ export const types = `
 
     input FieldGroupParams {
         contentType: String!
+        contentTypeId: String
         codes: [String]
         archived: Boolean
 
@@ -41,6 +43,7 @@ export const types = `
 
     input CpFieldGroupParams {
         contentType: String!
+        contentTypeId: String
         codes: [String]
 
         ${GQL_OFFSET_PARAM_DEFS}
@@ -57,6 +60,7 @@ const mutationParams = `
     code: String
     description: String
     contentType: String
+    contentTypeId: String
     logics: JSON
     configs: JSON
 `;

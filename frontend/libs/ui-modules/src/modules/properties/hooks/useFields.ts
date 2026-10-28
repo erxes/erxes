@@ -6,7 +6,7 @@ import {
   mergeCursorData,
   validateFetchMore,
 } from 'erxes-ui';
-import { IField } from '../types/fieldsTypes';
+import { IField, IPropertyContentScope } from '../types/fieldsTypes';
 
 type FieldsQueryResponse = {
   fields: {
@@ -19,10 +19,10 @@ type FieldsQueryResponse = {
 export const useFields = ({
   groupId,
   contentType,
+  contentTypeId,
   limit,
-}: {
+}: IPropertyContentScope & {
   groupId?: string;
-  contentType: string;
   limit?: number;
 }) => {
   const { data, loading, refetch, fetchMore } = useQuery<FieldsQueryResponse>(
@@ -32,6 +32,7 @@ export const useFields = ({
         params: {
           groupId,
           contentType,
+          contentTypeId,
           limit,
         },
       },
@@ -56,6 +57,7 @@ export const useFields = ({
         params: {
           groupId,
           contentType,
+          contentTypeId,
           limit,
           direction,
           cursor:

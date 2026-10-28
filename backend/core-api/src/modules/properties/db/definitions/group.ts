@@ -12,6 +12,7 @@ export const fieldGroupSchema = schemaWrapper(
       code: { type: String, label: 'Code', required: true, index: true },
       description: { type: String, label: 'Description' },
       contentType: { type: String, label: 'Content type' },
+      contentTypeId: { type: String, label: 'Content type ID', index: true },
 
       order: { type: Number, label: 'Order', index: true },
 

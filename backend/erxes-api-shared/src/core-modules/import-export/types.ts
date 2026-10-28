@@ -179,6 +179,7 @@ export interface ExportJobData {
   data: {
     exportId: string;
     entityType: string;
+    userId?: string;
   };
 }
 

@@ -44,12 +44,10 @@ export const TEAM_MEMBER_TRIGGER_OUTPUT: TAutomationRuntimeOutputDefinition = {
     { key: '_id', label: 'Record ID' },
     { key: 'groupIds', label: 'Groups' },
     { key: 'brandIds', label: 'Brands' },
-    { key: 'branchIds', label: 'Branches', exposure: 'reference' },
-    { key: 'departmentIds', label: 'Departments', exposure: 'reference' },
-    { key: 'positionIds', label: 'Positions' },
     {
-      key: 'permissionGroupIds',
-      label: 'Permission Groups',
+      key: 'structureEntities',
+      label: 'Structure nodes',
+      exposure: 'reference',
     },
   ],
   propertySource: {

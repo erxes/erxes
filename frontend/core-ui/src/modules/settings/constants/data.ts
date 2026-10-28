@@ -27,7 +27,6 @@ import {
   IconUsersGroup,
 } from '@tabler/icons-react';
 import { TFunction } from 'i18next';
-import { SETTINGS_ROUTES as STRUCTURE_ROUTES } from '@/settings/structure/constants/structure-routes';
 import { TeamMembersPath } from '@/settings/team-member/constants/teamMemberRoutes';
 import { AutomationSettingsPath } from '@/types/paths/AutomationPath';
 import { ImportExportSettingsPath } from '@/import-export/settings/constants/importExportSettingsPaths';
@@ -295,13 +294,6 @@ export const GET_SETTINGS_SUB_NAVIGATION = (
         path: `${TeamMembersPath.Index}${TeamMembersPath.TeamPermissions}`,
       },
     ],
-  },
-  [SettingsWorkspacePath.Structure]: {
-    name: sidebarT('structure'),
-    items: Object.entries(STRUCTURE_ROUTES).map(([path, name]) => ({
-      name,
-      path,
-    })),
   },
   [SettingsWorkspacePath.Automations]: {
     name: sidebarT('automations'),

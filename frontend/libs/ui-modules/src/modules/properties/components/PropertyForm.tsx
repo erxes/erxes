@@ -42,6 +42,7 @@ export const PropertyForm = ({
   locked,
   onCancel,
   contentType,
+  contentTypeId,
   fieldId,
 }: {
   onSubmit: (data: IPropertyForm) => void;
@@ -53,6 +54,7 @@ export const PropertyForm = ({
   locked?: boolean;
   onCancel: () => void;
   contentType: string;
+  contentTypeId?: string;
   fieldId?: string;
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });
@@ -184,6 +186,7 @@ export const PropertyForm = ({
                   <PropertyFormGroupField
                     form={form}
                     contentType={contentType}
+                    contentTypeId={contentTypeId}
                   />
                 </>
               )}
@@ -270,6 +273,7 @@ export const PropertyForm = ({
                   <PropertyFormLogicFields
                     form={form}
                     contentType={contentType}
+                    contentTypeId={contentTypeId}
                     excludeFieldId={fieldId}
                   />
                 </>

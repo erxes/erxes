@@ -13,6 +13,7 @@ import {
   TFilePrincipalType,
 } from '@/files/constants';
 import { IFileAccessGrant, IFilesAccessFields } from '@/files/db/definitions/folders';
+import { getUserStructureContext } from '@/organization/structure/utils';
 
 export type TFilesActor = {
   subdomain: string;
@@ -280,29 +281,9 @@ export const myRole = (actor: TFilesActor, item: TFilesAccessItem) =>
 
 export const roleFromRank = (rank: number) => ROLE_BY_RANK[rank];
 
-type TParentsOf = (ids: string[]) => Promise<{ parentId?: string }[]>;
-
-// One query per tree level, not per id.
-const withAncestors = async (parentsOf: TParentsOf, ids: string[] = []) => {
-  const seen = new Set(ids);
-  let level = ids;
-
-  while (level.length) {
-    const parents = await parentsOf(level);
-
-    level = parents
-      .map((p) => p.parentId)
-      .filter((id): id is string => !!id && !seen.has(id));
-    level.forEach((id) => seen.add(id));
-  }
-
-  return [...seen];
-};
-
 const principalsKey = (subdomain: string, userId: string) =>
   `files:principals:${subdomain}:${userId}`;
 
-// Cached per user; org-structure and unit changes apply when it expires.
 const getPrincipals = async (models: IModels, subdomain: string, user: IUserDocument) => {
   const key = principalsKey(subdomain, user._id);
   const cached = await redis.get(key);
@@ -319,24 +300,12 @@ const getPrincipals = async (models: IModels, subdomain: string, user: IUserDocu
     }
   }
 
-  const [departmentIds, branchIds, units] = await Promise.all([
-    withAncestors(
-      (ids) => models.Departments.find({ _id: { $in: ids } }, { parentId: 1 }).lean(),
-      user.departmentIds,
-    ),
-    withAncestors(
-      (ids) => models.Branches.find({ _id: { $in: ids } }, { parentId: 1 }).lean(),
-      user.branchIds,
-    ),
-    models.Units.find({ userIds: user._id }, { _id: 1 }).lean<{ _id: string }[]>(),
-  ]);
+  const { principalEntityIds } = await getUserStructureContext(models, user._id);
 
   const principals = [
     FILE_PRINCIPAL_TYPES.EVERYONE,
     principalKey(FILE_PRINCIPAL_TYPES.USER, user._id),
-    ...departmentIds.map((id) => principalKey(FILE_PRINCIPAL_TYPES.DEPARTMENT, id)),
-    ...branchIds.map((id) => principalKey(FILE_PRINCIPAL_TYPES.BRANCH, id)),
-    ...units.map((u) => principalKey(FILE_PRINCIPAL_TYPES.UNIT, u._id)),
+    ...principalEntityIds.map((id) => principalKey(FILE_PRINCIPAL_TYPES.ENTITY, id)),
   ];
 
   await redis.set(key, JSON.stringify(principals), 'EX', FILES_PRINCIPALS_TTL_SECONDS);

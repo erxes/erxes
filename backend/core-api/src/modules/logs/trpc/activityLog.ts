@@ -47,8 +47,6 @@ export const activityLogRouter = t.router({
             isActive: 1,
             role: 1,
             code: 1,
-            branchIds: 1,
-            departmentIds: 1,
             customFieldsData: 1,
           },
         );

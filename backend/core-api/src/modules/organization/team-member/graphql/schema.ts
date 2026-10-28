@@ -30,7 +30,8 @@ export const types = `
   input InvitationEntry {
     email: String
     password: String
-    permissionGroupIds: [String!]
+    entityId: String
+    seatIds: [String!]
   }
 
   enum UserChatStatus{
@@ -86,8 +87,6 @@ export const types = `
     organizations: [CookieOrganization]
     onboardedPlugins: [String]
     groupIds: [String]
-    permissionGroupIds: [String]
-    customPermissions: [CustomPermission]
     isSubscribed: String
     isShowNotification: Boolean
     propertiesData: JSON
@@ -95,37 +94,16 @@ export const types = `
     isOwner: Boolean
     configs: JSON
     configsConstants: [JSON]
-  
-    department: Department
 
-    departmentIds: [String]
     brandIds: [String]
     brands: [Brand]
-    departments: [Department]
-    branchIds: [String]
-    branches: [Branch]
-    positionIds: [String]
-    positions: [Position]
-    unitId: String
+    structureMemberships: [StructureEntityMember]
     score: Float
     leaderBoardPosition: Int
     employeeId: String
     isOnboarded: Boolean
     hasPassword: Boolean
     cursor: String
-  }
-
-  type UserMovement {
-    _id: String
-    createdAt: Date
-    createdBy: String
-    createdByDetail:JSON
-    userId:String
-    userDetail:JSON
-    contentType:String
-    contentTypeId:String
-    contentTypeDetail:JSON
-    status:String
   }
 
   type UsersListResponse {
@@ -143,10 +121,6 @@ const commonParams = `
   channelIds: [String],
   groupIds: [String]
   brandIds: [String]
-  branchIds: [String]
-  positionIds: [String]
-  departmentIds: [String]
-  unitId: String
   propertiesData: JSON
   employeeId: String
   password: String
@@ -160,12 +134,8 @@ const commonSelector = `
   requireUsername: Boolean,
   ids: [String],
   brandIds: [String]
-  departmentId: String
-  branchId: String
   isAssignee: Boolean
-  branchIds: [String]
-  departmentIds: [String]
-  unitId: String
+  entityIds: [String]
   segment: String
 `;
 
@@ -174,7 +144,6 @@ export const queries = `
   allUsers(isActive: Boolean,ids:[String],assignedToMe:String,searchValue:String): [User]
   userDetail(_id: String): User
   usersTotalCount(${commonSelector}): Int
-  userMovements(userId: String!,contentType: String):[UserMovement]
 `;
 
 export const mutations = `
@@ -185,7 +154,6 @@ export const mutations = `
     details: UserDetails,
     links: JSON
     employeeId: String
-    positionIds: [String]
   ): User
   usersEdit(_id: String!, ${commonParams}): User
   usersChangePassword(currentPassword: String!, newPassword: String!): User

@@ -2,7 +2,7 @@ import { Schema } from 'mongoose';
 import { mongooseField, schemaWrapper } from '../../../../utils';
 
 import { customFieldSchema } from '../../../common/db/definitions/common';
-import { USER_MOVEMENT_STATUSES, USER_ROLES } from '../../constants';
+import { USER_ROLES } from '../../constants';
 
 enum IUserChatStatus {
   online = 'online',
@@ -84,9 +84,6 @@ export const userSchema = schemaWrapper(
       type: Boolean,
       default: false,
     },
-    departmentIds: mongooseField({ type: [String], label: 'Department Ids' }),
-    branchIds: mongooseField({ type: [String], label: 'Branch Ids' }),
-    positionIds: mongooseField({ type: [String], label: 'Position Ids' }),
     email: mongooseField({
       type: String,
       unique: true,
@@ -190,37 +187,10 @@ export const userSchema = schemaWrapper(
       optional: true,
       label: 'Properties data',
     }),
-    permissionGroupIds: mongooseField({
-      type: [String],
-      default: [],
-      label: 'Permission Groups',
-    }),
-
     lastSeenAt: mongooseField({
       type: Date,
       optional: true,
       label: 'Last seen at',
-    }),
-  }),
-);
-
-export const userMovemmentSchema = schemaWrapper(
-  new Schema({
-    _id: mongooseField({ pkey: true }),
-    contentType: mongooseField({ type: String, label: 'Content Type' }),
-    contentTypeId: mongooseField({ type: String, label: 'Content Type Id' }),
-    userId: mongooseField({ type: String, label: 'User Id' }),
-    createdBy: mongooseField({ type: String, label: 'Created By' }),
-    isActive: mongooseField({ type: Boolean, label: 'Is Active' }),
-    status: mongooseField({
-      type: String,
-      label: 'User Movement Status',
-      default: USER_MOVEMENT_STATUSES.CREATED,
-    }),
-    createdAt: mongooseField({
-      type: Date,
-      label: 'Created At',
-      default: Date.now,
     }),
   }),
 );

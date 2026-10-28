@@ -12,8 +12,6 @@ const GET_USER = gql`
       username
       email
       isOwner
-      positionIds
-      permissionGroupIds
       score
       details {
         avatar
@@ -29,8 +27,6 @@ const GET_USER = gql`
       }
       links
       employeeId
-      branchIds
-      departmentIds
       isSubscribed
       propertiesData
     }
@@ -44,11 +40,7 @@ const GET_USERS_QUERY = gql`
     $excludeIds: Boolean
     $searchValue: String
     $brandIds: [String]
-    $departmentId: String
-    $branchId: String
-    $branchIds: [String]
-    $departmentIds: [String]
-    $unitId: String
+    $entityIds: [String]
     $segment: String
     $isActive: Boolean
   ) {
@@ -58,11 +50,7 @@ const GET_USERS_QUERY = gql`
       excludeIds: $excludeIds
       searchValue: $searchValue
       brandIds: $brandIds
-      departmentId: $departmentId
-      branchId: $branchId
-      branchIds: $branchIds
-      departmentIds: $departmentIds
-      unitId: $unitId
+      entityIds: $entityIds
       segment: $segment
       isActive: $isActive
     ) {
@@ -75,8 +63,6 @@ const GET_USERS_QUERY = gql`
         groupIds
         brandIds
         score
-        positionIds
-        permissionGroupIds
         details {
           avatar
           shortName
@@ -91,74 +77,28 @@ const GET_USERS_QUERY = gql`
         }
         links
         employeeId
-        branchIds
-        departmentIds
-        unitId
-        propertiesData
-      }
-      ${GQL_PAGE_INFO}
-    }
-  }
-`;
-
-const GET_USERS_GROUPS_QUERY = gql`
-  query usersGroups($page: Int, $perPage: Int) {
-    usersGroups(page: $page, perPage: $perPage) {
-      _id
-      name
-      description
-      memberIds
-      members {
-        _id
-        isActive
-        details {
-          fullName
-          avatar
+        structureMemberships {
+          _id
+          entityId
+          seatIds
+          seats {
+            _id
+            coverage
+            position {
+              _id
+              name
+            }
+          }
+          isPrimary
+          entity {
+            _id
+            typeId
+            title
+            code
+            order
+          }
         }
-      }
-      departmentIds
-      branchIds
-    }
-  }
-`;
-
-const GET_BRANCHES_QUERY = gql`
-  query branches($withoutUserFilter: Boolean) {
-    branches(withoutUserFilter: $withoutUserFilter) {
-      list {
-        _id
-        title
-        code
-        parentId
-        userCount
-      }
-      ${GQL_PAGE_INFO}
-    }
-  }
-`;
-
-const GET_DEPARTMENTS_QUERY = gql`
-  query departments($withoutUserFilter: Boolean) {
-    departments(withoutUserFilter: $withoutUserFilter) {
-      list {
-        _id
-        title
-        code
-        parentId
-      }
-      ${GQL_PAGE_INFO}
-    }
-  }
-`;
-
-const GET_UNITS_QUERY = gql`
-  query units {
-    units {
-      list {
-        _id
-        title
-        code
-        userCount
+        propertiesData
       }
       ${GQL_PAGE_INFO}
     }
@@ -178,32 +118,9 @@ const GET_SEGMENTS_QUERY = gql`
   }
 `;
 
-const GET_USER_COUNT_BY_OPTION_QUERY = gql`
-  query usersTotalCount(
-    $departmentId: String
-    $unitId: String
-    $branchId: String
-    $departmentIds: [String]
-    $branchIds: [String]
-  ) {
-    usersTotalCount(
-      departmentId: $departmentId
-      unitId: $unitId
-      branchId: $branchId
-      departmentIds: $departmentIds
-      branchIds: $branchIds
-    )
-  }
-`;
-
 const queries = {
-  GET_BRANCHES_QUERY,
-  GET_DEPARTMENTS_QUERY,
-  GET_UNITS_QUERY,
-  GET_USERS_GROUPS_QUERY,
   GET_USERS_QUERY,
   GET_SEGMENTS_QUERY,
-  GET_USER_COUNT_BY_OPTION_QUERY,
   GET_USER,
 };
 

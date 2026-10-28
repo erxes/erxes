@@ -1,5 +1,6 @@
 import { TRecordReferencesConfig } from 'erxes-api-shared/core-modules';
 import { IModels } from '~/connectionResolvers';
+import { activeMembershipFilter } from '@/organization/structure/utils';
 
 const joinNames = (...names: Array<string | undefined>) =>
   names.filter(Boolean).join(' ');
@@ -22,4 +23,10 @@ export const coreReferenceCustomResolvers: TRecordReferencesConfig<IModels>['res
       target.primaryEmail ||
       target.primaryPhone ||
       target._id,
+
+    userStructureEntities: ({ models, target }) =>
+      models.StructureEntityMembers.distinct('entityId', {
+        userId: target._id,
+        ...activeMembershipFilter(),
+      }),
   };

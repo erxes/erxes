@@ -1,9 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import {
-  SelectBranches,
-  SelectDepartments,
   SelectMember,
-  SelectUnit,
+  SelectStructureEntities,
   TFilesPrincipalType,
 } from 'ui-modules';
 
@@ -33,24 +31,14 @@ export const FilesPrincipalSelect = ({
           onValueChange={(next) => onChange(single(next))}
         />
       );
-    case 'department':
+    case 'entity':
       return (
-        <SelectDepartments.FormItem
+        <SelectStructureEntities.FormItem
           mode="single"
           value={value}
           onValueChange={(next) => onChange(single(next))}
         />
       );
-    case 'branch':
-      return (
-        <SelectBranches.FormItem
-          mode="single"
-          value={value}
-          onValueChange={(next) => onChange(single(next))}
-        />
-      );
-    case 'unit':
-      return <SelectUnit.FormItem value={value} onValueChange={onChange} />;
     default:
       return (
         <span className="flex h-8 items-center text-sm text-muted-foreground">

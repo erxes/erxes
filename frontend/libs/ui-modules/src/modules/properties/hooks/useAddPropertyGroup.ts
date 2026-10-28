@@ -2,13 +2,31 @@ import { useMutation } from '@apollo/client';
 import { FIELD_GROUP_ADD } from '../graphql/propertyFormMutations';
 import { toast } from 'erxes-ui';
 import { FIELD_GROUPS_QUERY } from '../graphql/fieldsQueries';
+import { IPropertyContentScope } from '../types/fieldsTypes';
 
-export const useAddPropertyGroup = (contentType: string) => {
-  const [addPropertyGroup, { loading }] = useMutation(FIELD_GROUP_ADD, {
+type TFieldGroupAddData = {
+  fieldGroupAdd: { _id: string };
+};
+
+type TFieldGroupAddVariables = IPropertyContentScope & {
+  name: string;
+  code?: string;
+  logics?: Record<string, unknown>;
+  configs?: Record<string, unknown>;
+};
+
+export const useAddPropertyGroup = (
+  contentType: string,
+  contentTypeId?: string,
+) => {
+  const [addPropertyGroup, { loading }] = useMutation<
+    TFieldGroupAddData,
+    TFieldGroupAddVariables
+  >(FIELD_GROUP_ADD, {
     refetchQueries: [
       {
         query: FIELD_GROUPS_QUERY,
-        variables: { params: { contentType } },
+        variables: { params: { contentType, contentTypeId } },
       },
     ],
     onCompleted: () => {

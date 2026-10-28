@@ -12,7 +12,8 @@ import internalNoteResolvers from '@/internalNote/graphql/customResolvers';
 import logResolvers from '@/logs/graphql/resolvers/customResolvers';
 import notificationResolvers from '@/notifications/graphql/customResolvers';
 import brandResolvers from '@/organization/brand/graphql/customResolver/brand';
-import structureResolvers from '@/organization/structure/graphql/resolvers/customResolvers';
+import { structureCustomResolvers } from '@/organization/structure/graphql/resolvers/customResolvers';
+import { legacyCustomResolvers } from '@/organization/structure/graphql/resolvers/legacy';
 import userResolvers from '@/organization/team-member/graphql/customResolver';
 import productResolvers from '@/products/graphql/resolvers/customResolvers';
 import propertiesResolvers from '@/properties/graphql/resolvers/customResolvers';
@@ -25,7 +26,8 @@ export const customResolvers = {
   ...contactResolvers,
   ...productResolvers,
   ...segmentResolvers,
-  ...structureResolvers,
+  ...structureCustomResolvers,
+  ...legacyCustomResolvers,
   ...logResolvers,
   ...automationsResolvers,
   EmailTemplate: emailTemplateCustomResolvers,

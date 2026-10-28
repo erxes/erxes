@@ -14,10 +14,7 @@ import {
   directPrinterState,
 } from 'ui-modules/modules/documents/states/printSettings';
 import { PrintFormValues } from 'ui-modules/modules/documents/types/print';
-import {
-  SelectBranches,
-  SelectDepartments,
-} from 'ui-modules/modules/structure';
+import { SelectStructureEntities } from 'ui-modules/modules/structure';
 import { SelectCustomer } from 'ui-modules/modules/contacts';
 
 const Section = ({
@@ -168,27 +165,12 @@ export const PrintSettings = ({
               )}
             />
             <Form.Field
-              name="branchId"
+              name="entityId"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Branch</Form.Label>
+                  <Form.Label>Structure</Form.Label>
                   <Form.Control>
-                    <SelectBranches.FormItem
-                      value={field.value}
-                      onValueChange={field.onChange}
-                    />
-                  </Form.Control>
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
-            <Form.Field
-              name="departmentId"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>Department</Form.Label>
-                  <Form.Control>
-                    <SelectDepartments.FormItem
+                    <SelectStructureEntities.FormItem
                       value={field.value}
                       onValueChange={field.onChange}
                     />

@@ -4,8 +4,10 @@ import { MemberLinks } from './MemberLinks';
 import { ActivityLogs, FieldsInDetail } from 'ui-modules';
 import { useUserDetail } from '../../hooks/useUserDetail';
 import { useUserCustomFieldEdit } from '../../hooks/useUserEdit';
+import { MemberPermissionsGate } from './MemberPermissionsGate';
 import { MembersPermissions } from './MembersPermissions';
 import { memberCustomActivities } from './MemberActivityRows';
+import { MemberStructure } from './structure/MemberStructure';
 
 export const MemberDetailMainContents = () => {
   const [selectedTab, setSelectedTab] = useQueryState<string>('tab');
@@ -21,8 +23,13 @@ export const MemberDetailMainContents = () => {
         <Tabs.Content value="overview">
           <MemberGeneral />
         </Tabs.Content>
+        <Tabs.Content value="structure">
+          <MemberStructure />
+        </Tabs.Content>
         <Tabs.Content value="permissions">
-          <MembersPermissions />
+          <MemberPermissionsGate>
+            <MembersPermissions />
+          </MemberPermissionsGate>
         </Tabs.Content>
         <Tabs.Content value="links">
           <MemberLinks />

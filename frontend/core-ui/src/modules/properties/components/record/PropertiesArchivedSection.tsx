@@ -3,7 +3,7 @@ import { IconRestore, IconTrash } from '@tabler/icons-react';
 import { Badge, Button, Collapsible } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
-import { Can } from 'ui-modules';
+import { Can, IPropertyContentScope } from 'ui-modules';
 import {
   ARCHIVED_FIELD_GROUPS_QUERY,
   ARCHIVED_FIELDS_QUERY,
@@ -18,8 +18,11 @@ interface IArchivedItem {
   groupId?: string;
 }
 
-const useArchivedProperties = (contentType: string) => {
-  const variables = { contentType };
+const useArchivedProperties = ({
+  contentType,
+  contentTypeId,
+}: IPropertyContentScope) => {
+  const variables = { contentType, contentTypeId };
   const { data: groupsData } = useQuery<{
     fieldGroups: { list: IArchivedItem[] };
   }>(ARCHIVED_FIELD_GROUPS_QUERY, { variables });
@@ -45,11 +48,13 @@ const useArchivedProperties = (contentType: string) => {
 
 export const PropertiesArchivedSection = ({
   contentType,
-}: {
-  contentType: string;
-}) => {
+  contentTypeId,
+}: IPropertyContentScope) => {
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });
-  const { groups, fields } = useArchivedProperties(contentType);
+  const { groups, fields } = useArchivedProperties({
+    contentType,
+    contentTypeId,
+  });
   const { restoreField, restoreGroup, loading } = usePropertyRestore();
   const setTarget = useSetAtom(archiveTargetState);
   const total = groups.length + fields.length;

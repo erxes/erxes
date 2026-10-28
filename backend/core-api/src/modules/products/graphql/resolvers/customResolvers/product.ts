@@ -1,10 +1,17 @@
-import { IProductDocument } from 'erxes-api-shared/core-types';
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { IInventory, IProductDocument } from 'erxes-api-shared/core-types';
+import {
+  sendTRPCMessage,
+  withoutPermissionScope,
+} from 'erxes-api-shared/utils';
+import { pathIdsOf } from '@/organization/structure/utils';
 import { PRODUCT_SIMILARITY_STATUSES } from '@/products/constants';
 import { IContext } from '~/connectionResolvers';
 import { IProductParams } from '~/modules/products/@types';
 
 type DiscountConditions = Record<string, unknown>;
+export type RequestDiscountConditions = DiscountConditions & {
+  placeEntityId?: string[];
+};
 type ProductDiscount = {
   planId: string;
   discount: number;
@@ -14,62 +21,90 @@ type ProductDiscount = {
   base?: boolean | null;
 };
 
-const inventoryKey = (id?: string) => id || '_';
-
 type PipelineInventoryScope = {
-  branchIds?: string[];
-  departmentIds?: string[];
+  placeEntityIds?: string[];
   initialCategoryIds?: string[];
   excludeCategoryIds?: string[];
   excludeProductIds?: string[];
 };
 
-const pipelineInventoryScopeByRequest = new WeakMap<
-  IContext,
-  Map<string, Promise<PipelineInventoryScope>>
->();
+const memoizeByRequest = <T>() => {
+  const cacheByRequest = new WeakMap<IContext, Map<string, Promise<T>>>();
+
+  return (context: IContext, key: string, load: () => Promise<T>) => {
+    let requestCache = cacheByRequest.get(context);
+
+    if (!requestCache) {
+      requestCache = new Map();
+      cacheByRequest.set(context, requestCache);
+    }
+
+    let value = requestCache.get(key);
+
+    if (!value) {
+      value = load();
+      requestCache.set(key, value);
+    }
+
+    return value;
+  };
+};
+
+const pipelineInventoryScopeByRequest =
+  memoizeByRequest<PipelineInventoryScope>();
+
+const placePathIdsByRequest = memoizeByRequest<string[]>();
 
 export const getPipelineInventoryScope = (
   context: IContext,
   pipelineId: string,
 ) => {
   const { subdomain } = context;
-  const cacheKey = `${subdomain}:${pipelineId}`;
-  let requestCache = pipelineInventoryScopeByRequest.get(context);
 
-  if (!requestCache) {
-    requestCache = new Map();
-    pipelineInventoryScopeByRequest.set(context, requestCache);
-  }
-
-  const cachedScope = requestCache.get(cacheKey);
-
-  if (cachedScope) {
-    return cachedScope;
-  }
-
-  const scope = sendTRPCMessage({
-    subdomain,
-    pluginName: 'sales',
-    module: 'pipeline',
-    action: 'findOne',
-    input: {
-      query: { _id: pipelineId },
-      fields: {
-        branchIds: 1,
-        departmentIds: 1,
-        initialCategoryIds: 1,
-        excludeCategoryIds: 1,
-        excludeProductIds: 1,
-      },
-    },
-    defaultValue: {},
-  });
-
-  requestCache.set(cacheKey, scope);
-
-  return scope;
+  return pipelineInventoryScopeByRequest(
+    context,
+    `${subdomain}:${pipelineId}`,
+    () =>
+      sendTRPCMessage({
+        subdomain,
+        pluginName: 'sales',
+        module: 'pipeline',
+        action: 'findOne',
+        input: {
+          query: { _id: pipelineId },
+          fields: {
+            placeEntityIds: 1,
+            initialCategoryIds: 1,
+            excludeCategoryIds: 1,
+            excludeProductIds: 1,
+          },
+        },
+        defaultValue: {},
+      }),
+  );
 };
+
+export const getPlacePathIds = (context: IContext, placeEntityId?: string) =>
+  placePathIdsByRequest(context, placeEntityId || '', async () => {
+    const place = placeEntityId
+      ? await withoutPermissionScope(() =>
+          context.models.StructureEntities.findOne(
+            { _id: placeEntityId },
+            { order: 1 },
+          ).lean(),
+        )
+      : null;
+
+    if (place) {
+      return pathIdsOf(place.order);
+    }
+
+    const root = await withoutPermissionScope(() =>
+      context.models.StructureEntities.getRoot(),
+    );
+
+    return placeEntityId ? [root._id, placeEntityId] : [root._id];
+  });
 
 const compactDiscountConditions = (conditions: DiscountConditions = {}) =>
   Object.entries(conditions).reduce<DiscountConditions>(
@@ -84,22 +119,27 @@ const compactDiscountConditions = (conditions: DiscountConditions = {}) =>
     {},
   );
 
-const getDiscountConditions = (
+export const getDiscountConditions = async (
+  context: IContext,
   params: Partial<IProductParams> = {},
-): DiscountConditions =>
-  compactDiscountConditions({
+): Promise<RequestDiscountConditions> => ({
+  ...compactDiscountConditions({
     ...params.discountConditions,
-    branchId: params.branchId,
-    departmentId: params.departmentId,
     pipelineId: params.pipelineId,
-  });
+  }),
+  placeEntityId: await getPlacePathIds(context, params.placeEntityId),
+});
 
 const isRangeCondition = (
   value: unknown,
 ): value is { start?: string | number; end?: string | number } =>
   !!value && typeof value === 'object' && !Array.isArray(value);
 
-const conditionMatches = (expected: unknown, actual: unknown) => {
+const conditionMatches = (expected: unknown, actual: unknown): boolean => {
+  if (Array.isArray(actual)) {
+    return actual.some((value) => conditionMatches(expected, value));
+  }
+
   if (actual === undefined || actual === null) {
     return false;
   }
@@ -130,9 +170,27 @@ const conditionMatches = (expected: unknown, actual: unknown) => {
   return expected === actual;
 };
 
+const getPlaceDepth = (
+  discount: ProductDiscount,
+  { placeEntityId: placePathIds = [] }: RequestDiscountConditions,
+) =>
+  placePathIds.reduce(
+    (depth, placeId, index) =>
+      conditionMatches(discount.conditions?.placeEntityId, placeId)
+        ? index
+        : depth,
+    0,
+  );
+
+const byClosestPlace =
+  (conditions: RequestDiscountConditions) =>
+  (a: ProductDiscount, b: ProductDiscount) =>
+    getPlaceDepth(b, conditions) - getPlaceDepth(a, conditions) ||
+    b.discount - a.discount;
+
 export const getMatchingDiscount = (
   discounts: unknown,
-  conditions: DiscountConditions,
+  conditions: RequestDiscountConditions,
   base = false,
 ) => {
   return ((Array.isArray(discounts) ? discounts : []) as ProductDiscount[])
@@ -143,14 +201,14 @@ export const getMatchingDiscount = (
           conditionMatches(discount.conditions?.[prefix], conditions[prefix]),
         ),
     )
-    .sort((a, b) => b.discount - a.discount)[0];
+    .sort(byClosestPlace(conditions))[0];
 };
 
-const BASE_SCOPE_FIELDS = ['branchId', 'departmentId', 'pipelineId'] as const;
+const BASE_SCOPE_FIELDS = ['placeEntityId', 'pipelineId'] as const;
 
 export const getMatchingBaseDiscount = (
   discounts: unknown,
-  conditions: DiscountConditions,
+  conditions: RequestDiscountConditions,
 ) => {
   return ((Array.isArray(discounts) ? discounts : []) as ProductDiscount[])
     .filter((discount) => {
@@ -171,7 +229,7 @@ export const getMatchingBaseDiscount = (
         )
       );
     })
-    .sort((a, b) => b.discount - a.discount)[0];
+    .sort(byClosestPlace(conditions))[0];
 };
 
 export default {
@@ -205,56 +263,45 @@ export default {
   },
 
   remainder: async (
-    product: IProductDocument,
+    product: { inventories?: IInventory },
     _args: undefined,
     context: IContext,
     info: any,
   ) => {
-    const { branchId, departmentId, pipelineId } = info?.variableValues || {};
-    let { branchIds, departmentIds } = info?.variableValues || {};
+    const { placeEntityId, pipelineId } = info?.variableValues || {};
+    let { placeEntityIds } = info?.variableValues || {};
 
-    if (branchId || departmentId) {
-      const branchKey = inventoryKey(branchId);
-      const departmentKey = inventoryKey(departmentId);
+    if (placeEntityId) {
       const { remainder, cost, soonIn, soonOut } =
-        product?.inventories?.[branchKey]?.[departmentKey] || {};
+        product?.inventories?.[placeEntityId] || {};
       return { remainder, cost, soonIn, soonOut };
     }
 
-    if (pipelineId && !branchIds?.length && !departmentIds?.length) {
+    if (pipelineId && !placeEntityIds?.length) {
       const pipeline = await getPipelineInventoryScope(context, pipelineId);
 
-      branchIds = pipeline?.branchIds?.length ? pipeline?.branchIds : ['_'];
-      departmentIds = pipeline?.departmentIds?.length
-        ? pipeline?.departmentIds
+      placeEntityIds = pipeline?.placeEntityIds?.length
+        ? pipeline.placeEntityIds
         : ['_'];
     }
 
     const result = { remainder: 0, cost: 0, soonIn: 0, soonOut: 0 };
 
-    for (const branchID of Object.keys(product.inventories || {})) {
-      if (branchIds?.length && !branchIds.includes(branchID)) {
+    for (const placeId of Object.keys(product.inventories || {})) {
+      if (placeEntityIds?.length && !placeEntityIds.includes(placeId)) {
         continue;
       }
 
-      for (const departmentID of Object.keys(
-        product.inventories?.[branchID] || {},
-      )) {
-        if (departmentIds?.length && !departmentIds.includes(departmentID)) {
-          continue;
-        }
-
-        const {
-          remainder = 0,
-          cost = 0,
-          soonIn = 0,
-          soonOut = 0,
-        } = product.inventories?.[branchID]?.[departmentID] || {};
-        result.remainder += remainder;
-        result.cost += cost;
-        result.soonIn += soonIn;
-        result.soonOut += soonOut;
-      }
+      const {
+        remainder = 0,
+        cost = 0,
+        soonIn = 0,
+        soonOut = 0,
+      } = product.inventories?.[placeId] || {};
+      result.remainder += remainder;
+      result.cost += cost;
+      result.soonIn += soonIn;
+      result.soonOut += soonOut;
     }
     return result;
   },
@@ -262,12 +309,12 @@ export default {
   discount: async (
     product: IProductDocument,
     args: IProductParams,
-    _context: IContext,
+    context: IContext,
     info: any,
   ) => {
     return getMatchingDiscount(
       product.discounts,
-      getDiscountConditions({
+      await getDiscountConditions(context, {
         ...info?.variableValues,
         ...args,
       }),

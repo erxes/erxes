@@ -6,7 +6,7 @@ import {
   validateFetchMore,
 } from 'erxes-ui';
 import { FIELD_GROUPS_QUERY } from '../graphql/fieldsQueries';
-import { IFieldGroup } from '../types/fieldsTypes';
+import { IFieldGroup, IPropertyContentScope } from '../types/fieldsTypes';
 
 type FieldGroupsQueryResponse = {
   fieldGroups: {
@@ -18,10 +18,10 @@ type FieldGroupsQueryResponse = {
 
 export const useFieldGroups = ({
   contentType,
+  contentTypeId,
   limit,
   skip,
-}: {
-  contentType: string;
+}: IPropertyContentScope & {
   limit?: number;
   skip?: boolean;
 }) => {
@@ -31,6 +31,7 @@ export const useFieldGroups = ({
       variables: {
         params: {
           contentType,
+          contentTypeId,
           limit,
         },
       },
@@ -53,6 +54,7 @@ export const useFieldGroups = ({
       variables: {
         params: {
           contentType,
+          contentTypeId,
           limit,
           direction,
           cursor:

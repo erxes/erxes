@@ -17,9 +17,7 @@ export const AGENT_REFERENCE_TYPES = [
   'company',
   'user',
   'product',
-  'branch',
-  'department',
-  'unit',
+  'structureEntity',
   'brand',
   'deal',
   'conversation',
@@ -96,9 +94,8 @@ const LABEL_PICKERS: Record<
     );
   },
   product: (doc) => stringField(doc, 'name') ?? stringField(doc, 'code'),
-  branch: (doc) => stringField(doc, 'title') ?? stringField(doc, 'code'),
-  department: (doc) => stringField(doc, 'title') ?? stringField(doc, 'code'),
-  unit: (doc) => stringField(doc, 'title') ?? stringField(doc, 'code'),
+  structureEntity: (doc) =>
+    stringField(doc, 'title') ?? stringField(doc, 'code'),
   brand: (doc) => stringField(doc, 'name'),
   deal: (doc) => stringField(doc, 'name'),
   // Conversation rows carry no customer name; a short content snippet or the

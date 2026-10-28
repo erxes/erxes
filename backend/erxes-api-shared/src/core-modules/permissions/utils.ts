@@ -1,4 +1,5 @@
 import {
+  IEffectivePermissionGrant,
   IPermissionAction,
   IPermissionModule,
   IUserDocument,
@@ -11,6 +12,12 @@ import {
   getActivePlugins,
   ExpectedError,
 } from '../../utils';
+import { recordPermissionAction } from '../../utils/mongo/permission-scope';
+import {
+  bumpPermissionCacheVersion,
+  getPermissionCacheVersion,
+  permissionScopeCacheKey,
+} from './scope';
 
 export const checkLogin = (user?: IUserDocument) => {
   if (!user?._id) {
@@ -63,94 +70,57 @@ const applyPermissions = async (
   }
 };
 
-const applyDefaultGroupActions = async (
-  actionsMap: Record<string, boolean>,
-  defaultGroupIds: string[],
-) => {
-  const plugins = await getActivePlugins();
-
-  for (const pluginName of plugins) {
-    const plugin = await getPlugin(pluginName);
-    const defaultGroups = plugin?.config?.meta?.permissions?.defaultGroups;
-
-    if (!defaultGroups) continue;
-
-    for (const group of defaultGroups) {
-      if (defaultGroupIds.includes(group.id)) {
-        await applyPermissions(actionsMap, group.permissions);
-      }
-    }
-  }
-};
-
-const applyCustomGroupActions = async (
-  actionsMap: Record<string, boolean>,
-  subdomain: string,
-  customGroupIds: string[],
-) => {
-  const groups = await sendTRPCMessage({
-    subdomain,
-    pluginName: 'core',
-    method: 'query',
-    module: 'permissionGroups',
-    action: 'find',
-    input: {
-      query: { _id: { $in: customGroupIds } },
-    },
-    defaultValue: [],
-  });
-
-  for (const group of groups) {
-    await applyPermissions(actionsMap, group.permissions || []);
-  }
-};
-
 export const getGroupActionsMap = async (
   subdomain: string,
   user: IUserDocument,
 ): Promise<Record<string, boolean>> => {
   const cacheKey = `user_actions_${user._id}`;
-
+  const version = await getPermissionCacheVersion(subdomain);
   const cached = await redis.get(cacheKey);
 
   if (cached) {
     try {
-      const cachedActions: unknown = JSON.parse(cached);
+      const parsed: unknown = JSON.parse(cached);
 
       if (
-        cachedActions &&
-        typeof cachedActions === 'object' &&
-        !Array.isArray(cachedActions) &&
-        Object.values(cachedActions).every(
+        parsed &&
+        typeof parsed === 'object' &&
+        'version' in parsed &&
+        'actions' in parsed &&
+        parsed.version === `${subdomain}:${version}` &&
+        parsed.actions &&
+        typeof parsed.actions === 'object' &&
+        Object.values(parsed.actions).every(
           (isAllowed) => typeof isAllowed === 'boolean',
         )
       ) {
-        return cachedActions as Record<string, boolean>;
+        return parsed.actions as Record<string, boolean>;
       }
     } catch {
       // Rebuild malformed permission cache entries below.
     }
-
-    await redis.del(cacheKey);
   }
+
+  const grants: IEffectivePermissionGrant[] = await sendTRPCMessage({
+    subdomain,
+    pluginName: 'core',
+    method: 'query',
+    module: 'permissions',
+    action: 'effectiveGrants',
+    input: { userId: user._id },
+    defaultValue: [],
+  });
 
   const actionsMap: Record<string, boolean> = {};
-  const groupIds = user.permissionGroupIds || [];
 
-  const defaultGroupIds = groupIds.filter((id) => id.includes(':'));
-  const customGroupIds = groupIds.filter((id) => !id.includes(':'));
-
-  if (defaultGroupIds.length) {
-    await applyDefaultGroupActions(actionsMap, defaultGroupIds);
+  for (const grant of grants) {
+    await applyPermissions(actionsMap, grant.permissions || []);
   }
 
-  if (customGroupIds.length) {
-    await applyCustomGroupActions(actionsMap, subdomain, customGroupIds);
-  }
-
-  await applyPermissions(actionsMap, user.customPermissions || []);
-
-  await redis.set(cacheKey, JSON.stringify(actionsMap));
+  await redis.set(
+    cacheKey,
+    JSON.stringify({ version: `${subdomain}:${version}`, actions: actionsMap }),
+  );
 
   return actionsMap;
 };
@@ -165,26 +135,11 @@ export const clearGroupActionsCache = async ({
   groupId?: string;
 }) => {
   if (userId) {
-    await redis.del(`user_actions_${userId}`);
+    await redis.del(`user_actions_${userId}`, permissionScopeCacheKey(userId));
   }
 
   if (groupId && subdomain) {
-    const users = await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      method: 'query',
-      module: 'users',
-      action: 'find',
-      input: {
-        query: { permissionGroupIds: groupId },
-        fields: { _id: 1 },
-      },
-      defaultValue: [],
-    });
-
-    for (const u of users) {
-      await redis.del(`user_actions_${u._id}`);
-    }
+    await bumpPermissionCacheVersion(subdomain);
   }
 };
 
@@ -295,6 +250,8 @@ export const checkPermissionGroup = (
     }
 
     await checkOAuthScope(action, user);
+
+    recordPermissionAction(action);
   };
 };
 

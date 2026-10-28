@@ -3,14 +3,8 @@ import * as bcrypt from 'bcryptjs';
 import * as crypto from 'crypto';
 import {
   EventDispatcherReturn,
-  sendNotification,
-  USER_MOVEMENT_STATUSES,
   USER_ROLES,
-  userMovemmentSchema,
   userSchema,
-  buildBranchAssignmentActivity,
-  buildDepartmentAssignmentActivity,
-  buildPositionAssignmentActivity,
 } from 'erxes-api-shared/core-modules';
 import {
   IDetail,
@@ -19,9 +13,12 @@ import {
   IPropertyField,
   IUser,
   IUserDocument,
-  IUserMovementDocument,
 } from 'erxes-api-shared/core-types';
-import { escapeRegExp, redis } from 'erxes-api-shared/utils';
+import {
+  escapeRegExp,
+  redis,
+  withoutPermissionScope,
+} from 'erxes-api-shared/utils';
 import * as jwt from 'jsonwebtoken';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
@@ -42,7 +39,6 @@ interface IEditProfile {
   details?: IDetail;
   links?: ILink;
   employeeId?: string;
-  positionIds?: string[];
   propertiesData?: IPropertyField;
 }
 
@@ -50,13 +46,11 @@ interface IUpdateUser extends IEditProfile {
   password?: string;
   groupIds?: string[];
   brandIds?: string[];
-  permissionGroupIds?: string[];
 }
 
 interface IInviteParams {
   email: string;
   password?: string;
-  permissionGroupIds?: string[];
 }
 
 interface ILoginParams {
@@ -227,7 +221,9 @@ export const loadUserClass = (
 
       // Checking if user has email
       if (email) {
-        previousEntry = await models.Users.findUsers({ ...query, email });
+        previousEntry = await withoutPermissionScope(() =>
+          models.Users.findUsers({ ...query, email }),
+        );
 
         // Checking if duplicated
         if (previousEntry.length > 0) {
@@ -237,7 +233,9 @@ export const loadUserClass = (
 
       // Checking employeeId
       if (employeeId) {
-        previousEntry = await models.Users.findOne({ ...query, employeeId });
+        previousEntry = await withoutPermissionScope(() =>
+          models.Users.findOne({ ...query, employeeId }),
+        );
 
         // Checking if duplicated
         if (previousEntry) {
@@ -247,7 +245,9 @@ export const loadUserClass = (
 
       //Checking username
       if (username) {
-        previousEntry = await models.Users.findOne({ ...query, username });
+        previousEntry = await withoutPermissionScope(() =>
+          models.Users.findOne({ ...query, username }),
+        );
 
         // Checking if duplicated
         if (previousEntry) {
@@ -409,11 +409,7 @@ export const loadUserClass = (
     /**
      * Create new user with invitation token
      */
-    public static async invite({
-      email,
-      password,
-      permissionGroupIds,
-    }: IInviteParams) {
+    public static async invite({ email, password }: IInviteParams) {
       email = (email || '').toLowerCase().trim();
       password = (password || '').trim();
 
@@ -432,7 +428,6 @@ export const loadUserClass = (
         registrationToken: token,
         registrationTokenExpires: expires,
         code: await this.generateUserCode(),
-        ...(permissionGroupIds?.length ? { permissionGroupIds } : {}),
         ...(password && { password: await this.generatePassword(password) }),
       });
 
@@ -481,14 +476,7 @@ export const loadUserClass = (
      */
     public static async editProfile(
       _id: string,
-      {
-        username,
-        email,
-        details,
-        links,
-        employeeId,
-        positionIds,
-      }: IEditProfile,
+      { username, email, details, links, employeeId }: IEditProfile,
     ) {
       const user = await models.Users.getUser(_id);
 
@@ -505,7 +493,7 @@ export const loadUserClass = (
 
       await models.Users.updateOne(
         { _id },
-        { $set: { username, email, details, links, employeeId, positionIds } },
+        { $set: { username, email, details, links, employeeId } },
       );
 
       const updatedUser = await models.Users.findOne({ _id });
@@ -781,7 +769,6 @@ export const loadUserClass = (
         brandIds: _user.brandIds,
         username: _user.username,
         code: _user.code,
-        departmentIds: _user.departmentIds,
       };
 
       return user;
@@ -970,9 +957,11 @@ export const loadUserClass = (
     }
 
     public static async generateUserCode() {
-      const users = await models.Users.find({ code: { $exists: true } })
-        .sort({ code: -1 })
-        .limit(1);
+      const users = await withoutPermissionScope(() =>
+        models.Users.find({ code: { $exists: true } })
+          .sort({ code: -1 })
+          .limit(1),
+      );
 
       if (users.length === 0) {
         return '000';
@@ -1060,460 +1049,4 @@ export const loadUserClass = (
   userSchema.loadClass(User);
 
   return userSchema;
-};
-
-type ICommonUserMovement = {
-  userId?: string;
-  user?: IUserDocument;
-  userIds?: string[];
-  contentType?: string;
-  contentTypeIds?: string[];
-  contentTypeId?: string;
-  createdBy?: string;
-  processId?: string;
-};
-
-type TStructureType = 'branch' | 'department' | 'position';
-
-const STRUCTURE_NOTIFICATION_TYPES: Record<string, string | undefined> = {
-  department: 'departmentAssigneeChanged',
-  branch: 'branchAssigneeChanged',
-  position: 'positionAssigneeChanged',
-};
-
-const STRUCTURE_FIELDS = {
-  branch: 'branchIds',
-  department: 'departmentIds',
-  position: 'positionIds',
-} as const;
-
-type IUserStructureAssignee = {
-  subdomain: string;
-  models: IModels;
-  fieldName: string;
-  contentType?: string;
-  contentTypeId?: string;
-  userIds?: string[];
-  createdBy?: string;
-  processId?: string;
-};
-
-export interface IUserMovemmentModel extends Model<IUserMovementDocument> {
-  manageStructureUsersMovement(
-    params: ICommonUserMovement,
-  ): Promise<IUserMovementDocument>;
-  manageUserMovement(
-    params: ICommonUserMovement,
-  ): Promise<IUserMovementDocument>;
-  notifyStructureChanges(params: {
-    previous: IUserDocument;
-    updated: IUserDocument;
-    createdBy: string;
-  }): void;
-}
-
-export const loadUserMovemmentClass = (
-  models: IModels,
-  subdomain: string,
-  coreEventHandlers: (
-    moduleName: string,
-    collectionName: string,
-  ) => EventDispatcherReturn,
-) => {
-  const { createActivityLog } = coreEventHandlers(
-    'organization',
-    'userMovements',
-  );
-  class UserMovemment {
-    static getAssignmentConfig() {
-      return {
-        branch: {
-          model: models.Branches,
-          collectionName: 'branches',
-          assignedType: 'branch.assigned',
-          unassignedType: 'branch.unassigned',
-          build: buildBranchAssignmentActivity,
-        },
-        department: {
-          model: models.Departments,
-          collectionName: 'departments',
-          assignedType: 'department.assigned',
-          unassignedType: 'department.unassigned',
-          build: buildDepartmentAssignmentActivity,
-        },
-        position: {
-          model: models.Positions,
-          collectionName: 'positions',
-          assignedType: 'position.assigned',
-          unassignedType: 'position.unassigned',
-          build: buildPositionAssignmentActivity,
-        },
-      } as const;
-    }
-
-    static async getAssignmentContentLabel(params: {
-      contentType: string;
-      contentTypeId: string;
-    }) {
-      const { contentType, contentTypeId } = params;
-      const config = this.getAssignmentConfig()[contentType];
-
-      const content = await config.model
-        .findOne({ _id: contentTypeId }, { title: 1 })
-        .lean();
-
-      return content?.title || `unknown ${contentType}`;
-    }
-
-    static async buildAssignmentActivities(params: {
-      targetUserIds: string[];
-      contentType: string;
-      contentTypeId: string;
-      action: string;
-      createdBy?: string;
-    }) {
-      const { targetUserIds, contentType, contentTypeId, action, createdBy } =
-        params;
-      const config = this.getAssignmentConfig()[contentType];
-      const label = await this.getAssignmentContentLabel({
-        contentType,
-        contentTypeId,
-      });
-
-      return targetUserIds.map((userId) =>
-        config.build({
-          activityType:
-            action === 'assigned' ? config.assignedType : config.unassignedType,
-          target: {
-            moduleName: 'organization',
-            collectionName: 'users',
-            _id: userId,
-          },
-          context: {
-            moduleName: 'organization',
-            collectionName: config.collectionName,
-            text: label,
-          },
-          ids: [contentTypeId],
-          labels: [label],
-          metadata: {
-            contentType,
-            contentTypeId,
-            action,
-            createdBy,
-          },
-        }),
-      );
-    }
-
-    static async createAssignmentActivities(params: {
-      createdBy?: string;
-      targetUserIds: string[];
-      contentType: string;
-      contentTypeId: string;
-      action: string;
-    }) {
-      const { createdBy, targetUserIds, contentType, contentTypeId, action } =
-        params;
-
-      const activities = await this.buildAssignmentActivities({
-        targetUserIds,
-        contentType,
-        contentTypeId,
-        action,
-        createdBy,
-      });
-
-      if (!activities.length) {
-        return;
-      }
-      createActivityLog(activities);
-    }
-
-    public static async manageUserMovement(params: ICommonUserMovement) {
-      const user = params.user as IUserDocument;
-      // who made the change, not whose record it is
-      const createdBy = params.createdBy || user._id;
-
-      for (const contentType of ['department', 'branch']) {
-        const contentTypeIds = user[`${contentType}Ids`] || [];
-
-        const removed = (
-          await models.UserMovements.find({
-            userId: user._id,
-            contentType,
-            contentTypeId: { $nin: contentTypeIds },
-            status: USER_MOVEMENT_STATUSES.CREATED,
-            isActive: true,
-          })
-        ).map((movement) => ({
-          userId: user._id,
-          contentType,
-          contentTypeId: movement.contentTypeId,
-          createdBy,
-          status: USER_MOVEMENT_STATUSES.REMOVED,
-          isActive: false,
-        }));
-
-        if (removed.length) {
-          await models.UserMovements.updateMany(
-            {
-              userId: user._id,
-              contentType,
-              contentTypeId: { $in: contentTypeIds },
-              status: USER_MOVEMENT_STATUSES.CREATED,
-              isActive: true,
-            },
-            {
-              $set: { isActive: false },
-            },
-          );
-          await models.UserMovements.insertMany(removed);
-        }
-
-        await models.UserMovements.updateMany(
-          {
-            contentType,
-            contentTypeId: { $in: contentTypeIds },
-            userId: user._id,
-            isActive: true,
-            status: { $ne: USER_MOVEMENT_STATUSES.REMOVED },
-          },
-          { $set: { isActive: false } },
-        );
-
-        for (const contentTypeId of contentTypeIds) {
-          const movement = await models.UserMovements.findOne({
-            contentType,
-            contentTypeId,
-            userId: user._id,
-          }).sort({ createdAt: -1 });
-
-          if (
-            !movement ||
-            movement?.status === USER_MOVEMENT_STATUSES.REMOVED
-          ) {
-            await models.UserMovements.create({
-              contentType,
-              contentTypeId,
-              userId: user._id,
-              createdBy,
-              isActive: true,
-            });
-          }
-        }
-      }
-    }
-
-    public static async manageStructureUsersMovement(
-      params: ICommonUserMovement,
-    ) {
-      const { createdBy, userIds, contentType, contentTypeId, processId } =
-        params;
-      const fieldName = `${contentType}Ids`;
-
-      this.handleUsersStructureAssignee({
-        subdomain,
-        models,
-        fieldName,
-        contentType,
-        contentTypeId,
-        userIds,
-        createdBy,
-        processId,
-      });
-
-      const userMovements = await models.UserMovements.find({
-        contentType,
-        contentTypeId,
-        isActive: true,
-      });
-
-      const removedFromContentType = userMovements
-        .filter(
-          (movement) =>
-            !userIds?.some((userId) => userId === movement.userId) && movement,
-        )
-        .map(({ createdBy, contentType, contentTypeId, userId }) => ({
-          createdBy,
-          contentType,
-          contentTypeId,
-          userId,
-          status: USER_MOVEMENT_STATUSES.REMOVED,
-          isActive: false,
-        }));
-
-      await models.UserMovements.insertMany([...removedFromContentType]);
-
-      await models.UserMovements.updateOne(
-        {
-          contentType,
-          contentTypeId,
-          userId: { $in: userIds },
-          status: { $ne: USER_MOVEMENT_STATUSES.REMOVED },
-          isActive: true,
-        },
-        { $set: { isActive: false } },
-      );
-
-      for (const userId of userIds || []) {
-        const movement = await models.UserMovements.findOne({
-          contentType,
-          contentTypeId,
-          userId,
-        }).sort({ createdAt: -1 });
-
-        if (!movement || movement?.status === USER_MOVEMENT_STATUSES.REMOVED) {
-          await models.UserMovements.create({
-            contentType,
-            contentTypeId,
-            userId,
-            createdBy,
-            isActive: true,
-          });
-        }
-      }
-
-      return 'edited';
-    }
-
-    // the one sender for both ways a member joins or leaves a structure
-    static notifyStructureAssignees({
-      contentType,
-      contentTypeId,
-      createdBy,
-      action,
-      targetUserIds,
-    }: {
-      contentType: string;
-      contentTypeId: string;
-      createdBy?: string;
-      action: string;
-      targetUserIds: string[];
-    }) {
-      const notificationType = STRUCTURE_NOTIFICATION_TYPES[contentType];
-      // the member who made the change is not told about it
-      const userIds = targetUserIds.filter((id) => id !== createdBy);
-
-      if (!createdBy || !notificationType || !userIds.length) {
-        return;
-      }
-
-      const assigned = action === 'assigned';
-
-      sendNotification(subdomain, {
-        title: assigned
-          ? `Assigned to ${contentType}`
-          : `Unassigned from ${contentType}`,
-        message: assigned
-          ? `You have been assigned to ${contentType}.`
-          : `You have been unassigned from ${contentType}.`,
-        type: 'info',
-        fromUserId: createdBy,
-        userIds,
-        contentType: `core:structure.${contentType}`,
-        contentTypeId,
-        action,
-        priority: 'medium',
-        notificationType,
-        event: `core:structure:${notificationType}`,
-      }).catch((e: Error) =>
-        console.error(`Structure notification failed: ${e.message}`),
-      );
-    }
-
-    // a member's own record changed: tell them about each structure joined or left
-    public static notifyStructureChanges({
-      previous,
-      updated,
-      createdBy,
-    }: {
-      previous: IUserDocument;
-      updated: IUserDocument;
-      createdBy: string;
-    }) {
-      for (const contentType of Object.keys(
-        STRUCTURE_FIELDS,
-      ) as TStructureType[]) {
-        const field = STRUCTURE_FIELDS[contentType];
-        const before = previous[field] || [];
-        const after = updated[field] || [];
-
-        for (const [action, contentTypeIds] of [
-          ['assigned', after.filter((id) => !before.includes(id))],
-          ['removed', before.filter((id) => !after.includes(id))],
-        ] as const) {
-          for (const contentTypeId of contentTypeIds) {
-            this.notifyStructureAssignees({
-              contentType,
-              contentTypeId,
-              createdBy,
-              action,
-              targetUserIds: [updated._id],
-            });
-          }
-        }
-      }
-    }
-
-    static async handleUsersStructureAssignee({
-      models,
-      fieldName,
-      contentType,
-      contentTypeId,
-      userIds,
-      createdBy,
-      processId,
-    }: IUserStructureAssignee) {
-      const removedAssigneeUserIds = await models.Users.find({
-        _id: { $nin: userIds },
-        [fieldName]: { $in: [contentTypeId] },
-      }).distinct('_id');
-
-      const newlyAssignedUserIds = await models.Users.find({
-        _id: { $in: userIds },
-        [fieldName]: { $ne: contentTypeId },
-      }).distinct('_id');
-
-      for (const { targetUserIds, update, action } of [
-        {
-          action: 'removed',
-          targetUserIds: removedAssigneeUserIds,
-          update: { $pull: { [fieldName]: contentTypeId } },
-        },
-        {
-          action: 'assigned',
-          targetUserIds: newlyAssignedUserIds,
-          update: { $addToSet: { [fieldName]: contentTypeId } },
-        },
-      ]) {
-        if (targetUserIds.length > 0) {
-          await models.Users.updateMany(
-            { _id: { $in: targetUserIds } },
-            update,
-          );
-
-          if (contentType && contentTypeId) {
-            await this.createAssignmentActivities({
-              createdBy,
-              targetUserIds,
-              contentType,
-              contentTypeId,
-              action,
-            });
-
-            this.notifyStructureAssignees({
-              contentType,
-              contentTypeId,
-              createdBy,
-              action,
-              targetUserIds,
-            });
-          }
-        }
-      }
-    }
-  }
-  userMovemmentSchema.loadClass(UserMovemment);
-  return userMovemmentSchema;
 };

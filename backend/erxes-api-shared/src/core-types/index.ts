@@ -10,6 +10,7 @@ export * from './modules/products/productCategory';
 export * from './modules/products/productConfig';
 export * from './modules/products/uom';
 export * from './modules/tags/tag';
+export * from './modules/structure/structure';
 export * from './modules/team-member/structure';
 export * from './modules/team-member/user';
 export * from './modules/relations/relations';

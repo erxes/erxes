@@ -22,29 +22,9 @@ import {
   types as BrandTypes,
 } from '@/organization/brand/graphql/schema';
 
-import {
-  mutations as branchsMutations,
-  queries as branchsQueries,
-  BranchTypes,
-} from '@/organization/structure/graphql/schemas/branch';
 
-import {
-  mutations as departmentsMutations,
-  queries as departmentsQueries,
-  DepartmentTypes,
-} from '@/organization/structure/graphql/schemas/department';
 
-import {
-  mutations as structuresMutations,
-  queries as structuresQueries,
-  StructureTypes,
-} from '@/organization/structure/graphql/schemas/structure';
 
-import {
-  mutations as unitsMutations,
-  queries as unitsQueries,
-  UnitTypes,
-} from '@/organization/structure/graphql/schemas/units';
 
 import {
   mutations as ConfigsMutations,
@@ -64,11 +44,17 @@ import {
   types as AppTypes,
 } from '@/apps/graphql/schemas';
 
+
 import {
-  mutations as positionsMutations,
-  queries as positionsQueries,
-  PositionTypes,
-} from '@/organization/structure/graphql/schemas/position';
+  mutations as StructureMutations,
+  queries as StructureQueries,
+  types as StructureTypes,
+} from '@/organization/structure/graphql/schemas/structure';
+
+import {
+  queries as StructureLegacyQueries,
+  types as StructureLegacyTypes,
+} from '@/organization/structure/graphql/schemas/legacy';
 
 import {
   mutations as UserMutations,
@@ -276,11 +262,8 @@ export const types = `
     ${ConfigTypes}
     ${TagTypes}
     ${ProductTypes}
-    ${BranchTypes}
-    ${DepartmentTypes}
-    ${PositionTypes}
     ${StructureTypes}
-    ${UnitTypes}
+    ${StructureLegacyTypes}
     ${BrandTypes}
     ${AppTypes}
     ${SegmentTypes}
@@ -325,11 +308,8 @@ export const queries = `
     ${ConfigsQueries}
     ${TagQueries}
     ${ProductQueries}
-    ${branchsQueries}
-    ${departmentsQueries}
-    ${positionsQueries}
-    ${structuresQueries}
-    ${unitsQueries}
+    ${StructureQueries}
+    ${StructureLegacyQueries}
     ${BrandQueries}
     ${AppQueries}
     ${FormQueries}
@@ -373,11 +353,7 @@ export const mutations = `
     ${ConfigsMutations}
     ${TagMutations}
     ${ProductMutations}
-    ${branchsMutations}
-    ${departmentsMutations}
-    ${positionsMutations}
-    ${structuresMutations}
-    ${unitsMutations}
+    ${StructureMutations}
     ${BrandMutations}
     ${AppMutations}
     ${SegmentMutations}

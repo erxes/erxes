@@ -56,8 +56,7 @@ export const types = `
 
     remainder: JSON
     discount(
-      branchId: String
-      departmentId: String
+      placeEntityId: String
       pipelineId: String
       discountConditions: JSON
     ): JSON
@@ -104,8 +103,7 @@ const queryParams = `
   image: String,
   brand: String,
 
-  branchId: String,
-  departmentId: String,
+  placeEntityId: String,
   minRemainder: Float,
   maxRemainder: Float,
   minPrice: Float,

@@ -1,14 +1,10 @@
 import { ActivityLogInput } from '../../common/eventHandlers';
 
 type AssignmentActivityType =
-  | 'branch.assigned'
-  | 'branch.unassigned'
-  | 'department.assigned'
-  | 'department.unassigned'
-  | 'position.assigned'
-  | 'position.unassigned'
-  | 'permission_group.assigned'
-  | 'permission_group.unassigned';
+  | 'structure_entity.assigned'
+  | 'structure_entity.unassigned'
+  | 'structure_seat.assigned'
+  | 'structure_seat.unassigned';
 
 type BuildEntityAssignmentActivityParams = {
   activityType: AssignmentActivityType;
@@ -58,38 +54,20 @@ const buildEntityAssignmentActivity = ({
   };
 };
 
-export const buildBranchAssignmentActivity = (
+export const buildStructureMembershipActivity = (
   params: Omit<BuildEntityAssignmentActivityParams, 'entityLabel' | 'field'>,
 ) =>
   buildEntityAssignmentActivity({
     ...params,
-    entityLabel: 'branch',
-    field: 'branchIds',
+    entityLabel: 'structure node',
+    field: 'structureEntityIds',
   });
 
-export const buildDepartmentAssignmentActivity = (
+export const buildStructureSeatActivity = (
   params: Omit<BuildEntityAssignmentActivityParams, 'entityLabel' | 'field'>,
 ) =>
   buildEntityAssignmentActivity({
     ...params,
-    entityLabel: 'department',
-    field: 'departmentIds',
-  });
-
-export const buildPositionAssignmentActivity = (
-  params: Omit<BuildEntityAssignmentActivityParams, 'entityLabel' | 'field'>,
-) =>
-  buildEntityAssignmentActivity({
-    ...params,
-    entityLabel: 'position',
-    field: 'positionIds',
-  });
-
-export const buildPermissionGroupAssignmentActivity = (
-  params: Omit<BuildEntityAssignmentActivityParams, 'entityLabel' | 'field'>,
-) =>
-  buildEntityAssignmentActivity({
-    ...params,
-    entityLabel: 'permission group',
-    field: 'permissionGroupIds',
+    entityLabel: 'seat',
+    field: 'structureSeatIds',
   });

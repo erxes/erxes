@@ -58,11 +58,7 @@ const USERS_INLINE_EDIT = gql`
     $email: String
     $details: UserDetails
     $employeeId: String
-    $positionIds: [String]
     $links: JSON
-    $branchIds: [String]
-    $departmentIds: [String]
-    $unitId: String
     $password: String
     $isOnboarded: Boolean
     $propertiesData: JSON
@@ -74,11 +70,7 @@ const USERS_INLINE_EDIT = gql`
       email: $email
       details: $details
       employeeId: $employeeId
-      positionIds: $positionIds
       links: $links
-      branchIds: $branchIds
-      departmentIds: $departmentIds
-      unitId: $unitId
       password: $password
       isOnboarded: $isOnboarded
       propertiesData: $propertiesData
@@ -87,7 +79,6 @@ const USERS_INLINE_EDIT = gql`
       _id
       username
       email
-      positionIds
       score
       details {
         shortName
@@ -102,9 +93,6 @@ const USERS_INLINE_EDIT = gql`
       propertiesData
       links
       employeeId
-      branchIds
-      departmentIds
-      unitId
       isOnboarded
     }
   }

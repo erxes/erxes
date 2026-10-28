@@ -7,9 +7,8 @@ export type PrintItem = {
 export type PrintFormValues = {
   _id: string;
   brandId: string;
-  branchId: string;
   copies: number;
-  departmentId: string;
+  entityId: string;
   height: number;
   margin: number;
   offsetX: number;

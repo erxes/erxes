@@ -27,9 +27,9 @@ rules still apply.
 Plugins keep local guides at `backend/plugins/<name>_api/AGENTS.md` and
 `frontend/plugins/<name>_ui/AGENTS.md`. A plugin guide is loaded on demand:
 read it whenever that plugin is in scope, and do not load guides for unrelated
-plugins. Every plugin implementation change must create the applicable guide if
-it is absent and update it before delivery. Keep only durable facts and rules
-in a plugin guide; never use it as a task journal or backlog.
+plugins. Structural, architectural, public-contract, or invariant changes must
+create or update the applicable guide before delivery. Git records change
+history; keep only durable facts and rules, never a task journal or backlog.
 
 ---
 
@@ -224,9 +224,9 @@ private implementation details from another plugin.
 
 ### Mandatory plugin guide maintenance
 
-Every change to plugin source, configuration, schema, migration, dependency,
-test, route, or user-visible behavior must update the `AGENTS.md` at the root of
-each changed plugin project.
+Changes to plugin structure, architecture, public contracts, or invariants must
+update the `AGENTS.md` at the root of each affected plugin project. Routine
+source or test edits do not require guide updates; Git records change history.
 
 - Backend changes update `backend/plugins/<name>_api/AGENTS.md`.
 - Frontend changes update `frontend/plugins/<name>_ui/AGENTS.md`.

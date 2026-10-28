@@ -3,7 +3,7 @@ import { arrayMove } from '@dnd-kit/sortable';
 import { toast } from 'erxes-ui';
 import { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FIELD_GROUPS_QUERY } from 'ui-modules';
+import { FIELD_GROUPS_QUERY, IPropertyContentScope } from 'ui-modules';
 import { FIELD_GROUPS_UPDATE_ORDER } from '../graphql/mutations/propertiesMutations';
 import { IFieldGroup } from '../types/Properties';
 
@@ -18,9 +18,8 @@ type FieldGroupsReorder = {
 
 export const useFieldGroupsReorder = ({
   contentType,
-}: {
-  contentType: string;
-}): FieldGroupsReorder => {
+  contentTypeId,
+}: IPropertyContentScope): FieldGroupsReorder => {
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });
   const client = useApolloClient();
   const [mutate, { loading }] = useMutation(FIELD_GROUPS_UPDATE_ORDER);
@@ -52,7 +51,10 @@ export const useFieldGroupsReorder = ({
 
     const writeList = (list: IFieldGroup[]) =>
       client.cache.updateQuery(
-        { query: FIELD_GROUPS_QUERY, variables: { params: { contentType } } },
+        {
+          query: FIELD_GROUPS_QUERY,
+          variables: { params: { contentType, contentTypeId } },
+        },
         (data) =>
           data && {
             ...data,

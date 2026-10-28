@@ -1,67 +1,49 @@
 import { StructureSettingsBreadcrumb } from '@/settings/structure/components/StructureSettingsBreadcrumb';
 import { StructureTopbar } from '@/settings/structure/components/StructureTopbar';
+import {
+  STRUCTURE_READ_ACTION,
+  STRUCTURE_SETTINGS_PATH,
+} from '@/settings/structure/constants/structureCapabilities';
+import { ReactFlowProvider } from '@xyflow/react';
 import { PageContainer, Spinner } from 'erxes-ui';
 import { lazy, Suspense } from 'react';
-import { Route, Routes } from 'react-router-dom';
-import { SettingsHeader } from 'ui-modules';
+import { Navigate, Route, Routes } from 'react-router-dom';
+import { Can, SettingsHeader } from 'ui-modules';
+import { NoAccessPage } from '~/pages/no-access/NoAccessPage';
 
-export const StructureMain = lazy(() =>
-  import('@/settings/structure/components/Structure').then((module) => ({
-    default: module.Structure,
-  })),
-);
-export const BranchesSettings = lazy(() =>
-  import('@/settings/structure/components/branches/BranchesSettings').then(
+const StructureWorkspace = lazy(() =>
+  import('@/settings/structure/components/StructureWorkspace').then(
     (module) => ({
-      default: module.BranchesSettings,
-    }),
-  ),
-);
-export const DepartmentsSettings = lazy(() =>
-  import('@/settings/structure/components/departments/DepartmentSettings').then(
-    (module) => ({
-      default: module.DepartmentSettings,
-    }),
-  ),
-);
-export const UnitsSettings = lazy(() =>
-  import('@/settings/structure/components/units/UnitsSettings').then(
-    (module) => ({
-      default: module.UnitsSettings,
-    }),
-  ),
-);
-export const PositionsSettings = lazy(() =>
-  import('@/settings/structure/components/positions/PositionsSettings').then(
-    (module) => ({
-      default: module.PositionsSettings,
+      default: module.StructureWorkspace,
     }),
   ),
 );
 
-export function StructureSettingsPage() {
-  return (
+export const StructureSettingsPage = () => (
+  <ReactFlowProvider>
     <PageContainer>
       <SettingsHeader breadcrumbs={<StructureSettingsBreadcrumb />}>
         <StructureTopbar />
       </SettingsHeader>
       <div className="flex flex-auto w-full overflow-hidden">
-        <Suspense
-          fallback={
-            <div className="flex justify-center items-center h-full">
-              <Spinner />
-            </div>
-          }
-        >
-          <Routes>
-            <Route path="/" element={<StructureMain />} />
-            <Route path="branches" element={<BranchesSettings />} />
-            <Route path="departments" element={<DepartmentsSettings />} />
-            <Route path="units" element={<UnitsSettings />} />
-            <Route path="positions" element={<PositionsSettings />} />
-          </Routes>
-        </Suspense>
+        <Can action={STRUCTURE_READ_ACTION} fallback={<NoAccessPage />}>
+          <Suspense
+            fallback={
+              <div className="flex justify-center items-center h-full w-full">
+                <Spinner />
+              </div>
+            }
+          >
+            <Routes>
+              <Route index element={<StructureWorkspace />} />
+              <Route
+                path="types"
+                element={<Navigate to={STRUCTURE_SETTINGS_PATH} replace />}
+              />
+            </Routes>
+          </Suspense>
+        </Can>
       </div>
     </PageContainer>
-  );
-}
+  </ReactFlowProvider>
+);

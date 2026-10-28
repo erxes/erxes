@@ -47,8 +47,14 @@ export const FIELD_USAGE_QUERY = gql`
 `;
 
 export const ARCHIVED_FIELD_GROUPS_QUERY = gql`
-  query ArchivedFieldGroups($contentType: String!) {
-    fieldGroups(params: { contentType: $contentType, archived: true }) {
+  query ArchivedFieldGroups($contentType: String!, $contentTypeId: String) {
+    fieldGroups(
+      params: {
+        contentType: $contentType
+        contentTypeId: $contentTypeId
+        archived: true
+      }
+    ) {
       list {
         _id
         name
@@ -59,8 +65,15 @@ export const ARCHIVED_FIELD_GROUPS_QUERY = gql`
 `;
 
 export const ARCHIVED_FIELDS_QUERY = gql`
-  query ArchivedFields($contentType: String!) {
-    fields(params: { contentType: $contentType, archived: true, limit: 100 }) {
+  query ArchivedFields($contentType: String!, $contentTypeId: String) {
+    fields(
+      params: {
+        contentType: $contentType
+        contentTypeId: $contentTypeId
+        archived: true
+        limit: 100
+      }
+    ) {
       list {
         _id
         name

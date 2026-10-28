@@ -1,8 +1,6 @@
 import {
   IconAlignLeft,
-  IconGitBranch,
-  IconFolder,
-  IconUsers,
+  IconHierarchy,
   IconLabelFilled,
   IconMail,
   IconMailCheck,
@@ -26,7 +24,6 @@ import {
   toast,
 } from 'erxes-ui';
 import { IUser } from '@/settings/team-member/types';
-import { SelectBranches, SelectDepartments, SelectUnit } from 'ui-modules';
 import { useSetAtom } from 'jotai';
 import { renderingTeamMemberDetailAtom } from '../../states/teamMemberDetailStates';
 import { useUserEdit } from '../../hooks/useUserEdit';
@@ -37,6 +34,7 @@ import { ApolloError } from '@apollo/client';
 import { TeamMemberEmailField } from '@/settings/team-member/components/record/team-member-edit/TeammemberEmailField';
 import clsx from 'clsx';
 import { teamMemberMoreColumn } from './TeamMemberMoreColumn';
+import { TeamMemberStructureCell } from './TeamMemberStructureCell';
 
 export const teamMemberColumns: (t: TFunction) => ColumnDef<IUser>[] = (t) => {
   return [
@@ -182,98 +180,18 @@ export const teamMemberColumns: (t: TFunction) => ColumnDef<IUser>[] = (t) => {
       },
     })),
     {
-      id: 'branchIds',
-      accessorKey: 'branchIds',
+      id: 'structureMemberships',
+      accessorKey: 'structureMemberships',
       header: () => (
-        <RecordTable.InlineHead icon={IconGitBranch} label={t('branches')} />
+        <RecordTable.InlineHead icon={IconHierarchy} label={t('structure')} />
       ),
-      cell: ({ cell }: { cell: Cell<IUser, unknown> }) => {
-        const { _id } = cell.row.original;
-        const { usersEdit } = useUserEdit();
-        return (
-          <SelectBranches.InlineCell
-            scope={clsx(SettingsHotKeyScope.UsersPage, _id, 'Branch')}
-            mode="multiple"
-            value={cell.getValue() as string[]}
-            onValueChange={(value) =>
-              usersEdit({ variables: { _id, branchIds: value } })
-            }
-          />
-        );
-      },
-      size: 200,
-    },
-    {
-      id: 'departmentIds',
-      accessorKey: 'departmentIds',
-      header: () => (
-        <RecordTable.InlineHead icon={IconFolder} label={t('departments')} />
+      cell: ({ cell }: { cell: Cell<IUser, unknown> }) => (
+        <TeamMemberStructureCell
+          memberships={cell.row.original.structureMemberships}
+        />
       ),
-      cell: ({ cell }: { cell: Cell<IUser, unknown> }) => {
-        const { _id } = cell.row.original;
-        const { usersEdit } = useUserEdit();
-        return (
-          <SelectDepartments.InlineCell
-            scope={clsx(SettingsHotKeyScope.UsersPage, _id, 'Department')}
-            mode="multiple"
-            value={cell.getValue() as string[]}
-            onValueChange={(value) =>
-              usersEdit({ variables: { _id, departmentIds: value } })
-            }
-          />
-        );
-      },
-      size: 200,
+      size: 240,
     },
-    {
-      id: 'unitId',
-      accessorKey: 'unitId',
-      header: () => (
-        <RecordTable.InlineHead icon={IconUsers} label={t('unit')} />
-      ),
-      cell: ({ cell }: { cell: Cell<IUser, unknown> }) => {
-        const { _id } = cell.row.original;
-        const { usersEdit } = useUserEdit();
-        return (
-          <SelectUnit.InlineCell
-            scope={clsx(SettingsHotKeyScope.UsersPage, _id, 'Unit')}
-            value={cell.getValue() as string}
-            onValueChange={(value) =>
-              usersEdit({ variables: { _id, unitId: value } })
-            }
-          />
-        );
-      },
-      size: 200,
-    },
-    // {
-    //   id: 'positionIds',
-    //   accessorKey: 'positionIds',
-    //   header: () => (
-    //     <RecordTable.InlineHead icon={IconAlignLeft} label="Positions" />
-    //   ),
-    //   cell: ({ cell }) => {
-    //     const { _id } = cell.row.original;
-    //     const { usersEdit } = useUserEdit();
-
-    //     return (
-    //       <SelectPositions.InlineCell
-    //         scope={clsx(SettingsHotKeyScope.UsersPage, _id, 'Position')}
-    //         mode="multiple"
-    //         value={cell.getValue() as string[]}
-    //         onValueChange={(value) =>
-    //           usersEdit({
-    //             variables: {
-    //               _id,
-    //               positionIds: value,
-    //             },
-    //           })
-    //         }
-    //       />
-    //     );
-    //   },
-    //   size: 240,
-    // },
     {
       id: 'workStartedDate',
       accessorKey: 'workStartedDate',

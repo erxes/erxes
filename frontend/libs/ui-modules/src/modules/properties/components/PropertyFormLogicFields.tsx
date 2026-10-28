@@ -3,7 +3,7 @@ import { Button, Input, InfoCard, Select, Switch } from 'erxes-ui';
 import { UseFormReturn } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { useFields } from '../hooks/useFields';
-import { IField } from '../types/fieldsTypes';
+import { IField, IPropertyContentScope } from '../types/fieldsTypes';
 import { IPropertyForm } from '../types/propertyFormTypes';
 import { PropertyLogicFieldSelect } from './PropertyLogicFieldSelect';
 
@@ -34,14 +34,14 @@ const DEFAULT_RULE: LogicRule = {
 export const PropertyFormLogicFields = ({
   form,
   contentType,
+  contentTypeId,
   excludeFieldId,
-}: {
+}: IPropertyContentScope & {
   form: UseFormReturn<IPropertyForm>;
-  contentType: string;
   excludeFieldId?: string;
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });
-  const { fields: siblingFields } = useFields({ contentType });
+  const { fields: siblingFields } = useFields({ contentType, contentTypeId });
   const availableFields = siblingFields.filter(
     (field) =>
       field._id !== excludeFieldId && !NON_COMPARABLE_TYPES.has(field.type),
@@ -128,6 +128,7 @@ export const PropertyFormLogicFields = ({
                   rule={rule}
                   availableFields={availableFields}
                   contentType={contentType}
+                  contentTypeId={contentTypeId}
                   onChange={(key, value) => handleChangeRule(index, key, value)}
                   onRemove={() => handleRemoveRule(index)}
                 />
@@ -153,12 +154,12 @@ const LogicRuleRow = ({
   rule,
   availableFields,
   contentType,
+  contentTypeId,
   onChange,
   onRemove,
-}: {
+}: IPropertyContentScope & {
   rule: LogicRule;
   availableFields: IField[];
-  contentType: string;
   onChange: (key: 'field' | 'operator' | 'value', value: string) => void;
   onRemove: () => void;
 }) => {
@@ -173,6 +174,7 @@ const LogicRuleRow = ({
           onValueChange={(value) => onChange('field', value)}
           fields={availableFields}
           contentType={contentType}
+          contentTypeId={contentTypeId}
         />
         <Button
           type="button"

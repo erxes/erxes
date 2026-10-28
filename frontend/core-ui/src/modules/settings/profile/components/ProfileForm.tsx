@@ -8,6 +8,7 @@ import {
   LinkFields,
 } from '@/settings/profile/components/fields';
 import { ProfileLoading } from '@/settings/profile/components/ProfileLoading';
+import { ProfileStructureMemberships } from '@/settings/profile/components/ProfileStructureMemberships';
 import { useProfile } from '@/settings/profile/hooks/useProfile';
 import {
   FormType,
@@ -37,7 +38,6 @@ export const ProfileForm = () => {
     if (profile && Object.keys(profile).length > 0) {
       form.reset({
         username: profile.username,
-        positionIds: profile.positionIds,
         email: profile.email,
         details: profile.details,
         links: profile.links,
@@ -105,6 +105,7 @@ export const ProfileForm = () => {
             }}
           />
         </div>
+        <ProfileStructureMemberships />
         <div className="flex flex-col gap-3">
           <AdvancedFields />
         </div>

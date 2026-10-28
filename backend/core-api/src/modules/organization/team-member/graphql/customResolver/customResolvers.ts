@@ -1,10 +1,14 @@
 import { IUserDocument } from 'erxes-api-shared/core-types';
+import { withoutPermissionScope } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import { USER_ROLES } from 'erxes-api-shared/core-modules';
+import { activeMembershipFilter } from '@/organization/structure/utils';
 
 export default {
   __resolveReference: async ({ _id }, { models }: IContext) => {
-    const user = await models.Users.findOne({ _id });
+    const user = await withoutPermissionScope(() =>
+      models.Users.findOne({ _id }),
+    );
 
     if (!user) {
       return null;
@@ -141,29 +145,35 @@ export default {
     }).lean();
   },
 
-  async departments(user: IUserDocument, _args, { models }: IContext) {
-    return models.Departments.find({ _id: { $in: user.departmentIds } });
-  },
+  async structureMemberships(
+    user: IUserDocument,
+    _args: undefined,
+    { models }: IContext,
+  ) {
+    const memberships = await models.StructureEntityMembers.find({
+      userId: user._id,
+      ...activeMembershipFilter(),
+    })
+      .sort({ isPrimary: -1, startsAt: 1 })
+      .lean();
 
-  async branches(user: IUserDocument, _args, { models }: IContext) {
-    return models.Branches.find({ _id: { $in: user.branchIds } });
-  },
+    const visibleIds = await models.StructureEntities.distinct('_id', {
+      _id: { $in: memberships.map((membership) => membership.entityId) },
+    });
 
-  async positions(user: IUserDocument, _args, { models }: IContext) {
-    return models.Positions.find({ _id: { $in: user.positionIds } });
-  },
-
-  async unitId(user: IUserDocument, _args, { models }: IContext) {
-    const unit = await models.Units.findOne({ userIds: user._id }).lean();
-    return unit?._id ?? null;
+    return memberships.filter((membership) =>
+      visibleIds.includes(membership.entityId),
+    );
   },
 
   async leaderBoardPosition(user: IUserDocument, _args, { models }: IContext) {
-    return (
-      (await models.Users.find({
+    const higher = await withoutPermissionScope(() =>
+      models.Users.countDocuments({
         score: { $gt: user.score || 0 },
         role: { $ne: USER_ROLES.SYSTEM },
-      }).countDocuments()) + 1
+      }),
     );
+
+    return higher + 1;
   },
 };

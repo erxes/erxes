@@ -169,8 +169,7 @@ export const productsTrpcRouter = t.router({
     setInventories: t.procedure
       .input(
         z.object({
-          branchId: z.string().optional(),
-          departmentId: z.string().optional(),
+          placeEntityId: z.string().optional(),
           productsInfo: z.array(
             z.object({
               productId: z.string(),
@@ -186,8 +185,7 @@ export const productsTrpcRouter = t.router({
       .mutation(async ({ ctx, input }) => {
         const { models } = ctx;
         const { productsInfo } = input;
-        const branchId = inventoryKey(input.branchId);
-        const departmentId = inventoryKey(input.departmentId);
+        const placeKey = inventoryKey(input.placeEntityId);
 
         await models.Products.bulkWrite(
           productsInfo.map((info) => {
@@ -195,31 +193,27 @@ export const productsTrpcRouter = t.router({
             const unSet: any = {};
 
             if (info.remainder) {
-              updateSet[`inventories.${branchId}.${departmentId}.remainder`] =
-                info.remainder;
+              updateSet[`inventories.${placeKey}.remainder`] = info.remainder;
             } else {
-              unSet[`inventories.${branchId}.${departmentId}.remainder`] = 0;
+              unSet[`inventories.${placeKey}.remainder`] = 0;
             }
 
             if (info.cost) {
-              updateSet[`inventories.${branchId}.${departmentId}.cost`] =
-                info.cost;
+              updateSet[`inventories.${placeKey}.cost`] = info.cost;
             } else {
-              unSet[`inventories.${branchId}.${departmentId}.cost`] = 0;
+              unSet[`inventories.${placeKey}.cost`] = 0;
             }
 
             if (info.soonIn) {
-              updateSet[`inventories.${branchId}.${departmentId}.soonIn`] =
-                info.soonIn;
+              updateSet[`inventories.${placeKey}.soonIn`] = info.soonIn;
             } else {
-              unSet[`inventories.${branchId}.${departmentId}.soonIn`] = 0;
+              unSet[`inventories.${placeKey}.soonIn`] = 0;
             }
 
             if (info.soonOut) {
-              updateSet[`inventories.${branchId}.${departmentId}.soonOut`] =
-                info.soonOut;
+              updateSet[`inventories.${placeKey}.soonOut`] = info.soonOut;
             } else {
-              unSet[`inventories.${branchId}.${departmentId}.soonOut`] = 0;
+              unSet[`inventories.${placeKey}.soonOut`] = 0;
             }
 
             return {
@@ -236,8 +230,7 @@ export const productsTrpcRouter = t.router({
     increaseInventories: t.procedure
       .input(
         z.object({
-          branchId: z.string().optional(),
-          departmentId: z.string().optional(),
+          placeEntityId: z.string().optional(),
           productsInfo: z.array(
             z.object({
               productId: z.string(),
@@ -253,8 +246,7 @@ export const productsTrpcRouter = t.router({
       .mutation(async ({ ctx, input }) => {
         const { models } = ctx;
         const { productsInfo } = input;
-        const branchId = inventoryKey(input.branchId);
-        const departmentId = inventoryKey(input.departmentId);
+        const placeKey = inventoryKey(input.placeEntityId);
 
         await models.Products.bulkWrite(
           productsInfo.map((info) => ({
@@ -262,14 +254,10 @@ export const productsTrpcRouter = t.router({
               filter: { _id: info.productId },
               update: {
                 $inc: {
-                  [`inventories.${branchId}.${departmentId}.remainder`]:
-                    info.diffCount ?? 0,
-                  [`inventories.${branchId}.${departmentId}.cost`]:
-                    info.diffCost ?? 0,
-                  [`inventories.${branchId}.${departmentId}.soonIn`]:
-                    info.diffSoonIn ?? 0,
-                  [`inventories.${branchId}.${departmentId}.soonOut`]:
-                    info.diffSoonOut ?? 0,
+                  [`inventories.${placeKey}.remainder`]: info.diffCount ?? 0,
+                  [`inventories.${placeKey}.cost`]: info.diffCost ?? 0,
+                  [`inventories.${placeKey}.soonIn`]: info.diffSoonIn ?? 0,
+                  [`inventories.${placeKey}.soonOut`]: info.diffSoonOut ?? 0,
                 },
               },
               upsert: true,

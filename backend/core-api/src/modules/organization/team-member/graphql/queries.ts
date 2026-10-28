@@ -5,6 +5,7 @@ import {
 } from 'erxes-api-shared/core-types';
 import { cursorPaginate } from 'erxes-api-shared/utils';
 import { IContext, IModels } from '~/connectionResolvers';
+import { getStructureMemberIds } from '../utils';
 
 type IListArgs = {
   sortDirection?: number;
@@ -17,12 +18,8 @@ type IListArgs = {
   email?: string;
   status?: string;
   brandIds?: string[];
-  departmentId?: string;
-  branchId?: string;
   isAssignee?: boolean;
-  departmentIds: string[];
-  branchIds: string[];
-  unitId?: string;
+  entityIds?: string[];
   segment?: string;
 };
 
@@ -37,11 +34,7 @@ const queryBuilder = async (params: IListArgs, models: IModels) => {
     status,
     excludeIds,
     brandIds,
-    departmentId,
-    branchId,
-    departmentIds,
-    branchIds,
-    unitId,
+    entityIds,
   } = params;
 
   const selector: any = {
@@ -83,38 +76,16 @@ const queryBuilder = async (params: IListArgs, models: IModels) => {
     selector.brandIds = { $in: brandIds };
   }
 
-  if (branchId) {
-    selector.branchIds = { $in: [branchId] };
-  }
-
-  if (departmentId) {
-    selector.departmentIds = { $in: [departmentId] };
-  }
-
-  if (branchIds && branchIds.length > 0) {
-    selector.branchIds = { $in: branchIds };
-  }
-
-  if (departmentIds && departmentIds.length > 0) {
-    selector.departmentIds = { $in: departmentIds };
-  }
-
-  if (unitId) {
-    const unit = await models.Units.findOne({ _id: unitId }).lean();
-    const unitUserIds = unit?.userIds || [];
-
-    selector._id = selector._id
-      ? { ...selector._id, $in: unitUserIds }
-      : { $in: unitUserIds };
+  if (entityIds && entityIds.length > 0) {
+    selector.$and = [
+      { _id: { $in: await getStructureMemberIds(models, entityIds) } },
+    ];
   }
 
   return selector;
 };
 
 export const userQueries = {
-  async userMovements(_parent, args, { models }: IContext) {
-    return await models.UserMovements.find(args).sort({ createdAt: -1 });
-  },
   async usersTotalCount(
     _parent: undefined,
     args: IListArgs,

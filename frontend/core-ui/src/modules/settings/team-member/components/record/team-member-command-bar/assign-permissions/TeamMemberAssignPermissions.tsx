@@ -1,38 +1,53 @@
-import { useState } from 'react';
+import { zodResolver } from '@hookform/resolvers/zod';
 import {
+  IconArmchair,
   IconArrowLeft,
   IconChevronRight,
-  IconShieldCheck,
 } from '@tabler/icons-react';
 import {
   Button,
-  Checkbox,
   Command,
+  Form,
   RecordTable,
   Spinner,
   useToast,
 } from 'erxes-ui';
+import { useAtomValue } from 'jotai';
+import { useMemo } from 'react';
+import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { Can } from 'ui-modules';
+import { Can, currentUserState } from 'ui-modules';
 import {
-  useGetPermissionDefaultGroups,
-  useGetPermissionGroups,
-} from '@/settings/permissions/hooks/useGetPermissionGroups';
-import { useUsersUpdatePermissionGroups } from '@/settings/permissions/hooks/useUsersUpdatePermissionGroups';
-import { IGroupedByPlugin } from '@/settings/permissions/types';
+  EMPTY_STRUCTURE_SEAT_TARGET,
+  getStructureSeatTargetSchema,
+  resolveStructureSeatTarget,
+  StructureSeatTargetFields,
+  TStructureSeatTargetForm,
+  useStructureSeatMutations,
+} from '@/structure-access';
 
 export const TeamMemberAssignPermissionsTrigger = ({
+  teamMemberIds,
   onSelect,
 }: {
+  teamMemberIds: string[];
   onSelect: () => void;
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
+  const currentUserId = useAtomValue(currentUserState)?._id;
+  const hasRecipients =
+    !!currentUserId && teamMemberIds.some((id) => id !== currentUserId);
+
   return (
-    <Can action="permissionsManage">
-      <Command.Item className="w-full justify-between" onSelect={onSelect}>
+    <Can action="structureEntitiesManage">
+      <Command.Item
+        className="w-full justify-between"
+        disabled={!hasRecipients}
+        onSelect={onSelect}
+      >
         <span className="flex items-center gap-2">
-          <IconShieldCheck />
-          {t('assign-permissions')}
+          <IconArmchair />
+          {t('assign-seat')}
         </span>
         <IconChevronRight />
       </Command.Item>
@@ -42,161 +57,107 @@ export const TeamMemberAssignPermissionsTrigger = ({
 
 export const TeamMemberAssignPermissionsContent = ({
   teamMemberIds,
-  initialGroupIds,
   onBack,
   onClose,
 }: {
   teamMemberIds: string[];
-  initialGroupIds: string[];
   onBack: () => void;
   onClose: () => void;
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
-  const [selectedGroupIds, setSelectedGroupIds] =
-    useState<string[]>(initialGroupIds);
+  const { t: tStructure } = useTranslation('settings', {
+    keyPrefix: 'structure',
+  });
   const { toast } = useToast();
   const { table } = RecordTable.useRecordTable();
+  const currentUserId = useAtomValue(currentUserState)?._id;
+  const recipientIds = currentUserId
+    ? teamMemberIds.filter((id) => id !== currentUserId)
+    : [];
+  const schema = useMemo(
+    () => getStructureSeatTargetSchema(tStructure),
+    [tStructure],
+  );
+  const form = useForm<TStructureSeatTargetForm>({
+    resolver: zodResolver(schema),
+    defaultValues: EMPTY_STRUCTURE_SEAT_TARGET,
+  });
+  const { addSeat, addHolders, loading } = useStructureSeatMutations();
 
-  const { defaultGroups, loading: defaultLoading } =
-    useGetPermissionDefaultGroups();
-  const { permissionGroups, loading: customLoading } = useGetPermissionGroups();
-  const { updatePermissionGroups, loading: updateLoading } =
-    useUsersUpdatePermissionGroups();
+  const onSubmit = async (values: TStructureSeatTargetForm) => {
+    if (!recipientIds.length) {
+      return;
+    }
 
-  const toggle = (id: string) => {
-    setSelectedGroupIds((prev) => {
-      if (prev.includes(id)) {
-        return prev.filter((groupId) => groupId !== id);
+    try {
+      const seatId = await resolveStructureSeatTarget(values, async (input) => {
+        const { data } = await addSeat({ variables: input });
+
+        return data?.structureSeatsAdd._id;
+      });
+
+      if (!seatId) {
+        return;
       }
 
-      if (id.includes(':')) {
-        const pluginPrefix = id.split(':')[0];
-        return [
-          ...prev.filter((groupId) => groupId.split(':')[0] !== pluginPrefix),
-          id,
-        ];
-      }
+      form.setValue('seatId', seatId);
 
-      return [...prev, id];
-    });
+      await addHolders({ variables: { seatId, userIds: recipientIds } });
+      toast({
+        title: t('seat-assigned'),
+        description: t('updated-team-members', {
+          count: recipientIds.length,
+        }),
+        variant: 'success',
+      });
+      onClose();
+      table.setRowSelection({});
+    } catch (error) {
+      toast({
+        title: t('error'),
+        description: error instanceof Error ? error.message : undefined,
+        variant: 'destructive',
+      });
+    }
   };
-
-  const handleApply = () => {
-    if (!selectedGroupIds.length) return;
-
-    updatePermissionGroups({
-      variables: {
-        userIds: teamMemberIds,
-        groupIds: selectedGroupIds,
-      },
-      refetchQueries: ['Users'],
-      awaitRefetchQueries: true,
-      onCompleted: () => {
-        toast({
-          title: t('permission-groups-assigned'),
-          description: t('updated-team-members', {
-            count: teamMemberIds.length,
-          }),
-          variant: 'success',
-        });
-        setSelectedGroupIds([]);
-        onClose();
-        table.setRowSelection({});
-      },
-      onError: (error) => {
-        toast({
-          title: t('error'),
-          description: error.message,
-          variant: 'destructive',
-        });
-      },
-    });
-  };
-
-  const groupedByPlugin: IGroupedByPlugin = {};
-  for (const group of defaultGroups) {
-    const plugin = group.plugin || 'other';
-    if (!groupedByPlugin[plugin]) groupedByPlugin[plugin] = [];
-    groupedByPlugin[plugin].push(group);
-  }
-
-  const loading = defaultLoading || customLoading;
 
   return (
-    <Command className="w-96">
-      <Command.Input />
-      <Command.List className="max-h-96">
-        <Command.Group className="p-1">
-          <Command.Item onSelect={onBack}>
-            <IconArrowLeft />
-            {t('back')}
-          </Command.Item>
-        </Command.Group>
-        <Command.Separator />
-        {loading ? (
-          <Command.Item disabled>
-            <Spinner size="sm" />
-          </Command.Item>
-        ) : (
-          <>
-            {Object.entries(groupedByPlugin).map(([plugin, groups]) => (
-              <Command.Group
-                key={plugin}
-                heading={<span className="capitalize">{plugin}</span>}
-              >
-                {groups.map((group) => (
-                  <Command.Item
-                    key={group.id}
-                    value={`${plugin} ${group.name}`}
-                    disabled={updateLoading}
-                    onSelect={() => toggle(group.id)}
-                  >
-                    <Checkbox
-                      checked={selectedGroupIds.includes(group.id)}
-                      className="pointer-events-none"
-                      aria-label={group.name}
-                    />
-                    {group.name}
-                  </Command.Item>
-                ))}
-              </Command.Group>
-            ))}
-
-            {permissionGroups.length > 0 && (
-              <Command.Group heading={t('custom-permission-groups')}>
-                {permissionGroups.map((group) => (
-                  <Command.Item
-                    key={group._id}
-                    value={`custom ${group.name}`}
-                    disabled={updateLoading}
-                    onSelect={() => toggle(group._id)}
-                  >
-                    <Checkbox
-                      checked={selectedGroupIds.includes(group._id)}
-                      className="pointer-events-none"
-                      aria-label={group.name}
-                    />
-                    {group.name}
-                  </Command.Item>
-                ))}
-              </Command.Group>
-            )}
-          </>
-        )}
-      </Command.List>
-      <div className="flex items-center justify-between gap-2 border-t p-3">
-        <span className="text-xs text-muted-foreground">
-          {t('groups-count', { count: selectedGroupIds.length })} ·{' '}
-          {t('members-count', { count: teamMemberIds.length })}
-        </span>
+    <div className="flex w-96 flex-col">
+      <div className="border-b p-1">
         <Button
+          variant="ghost"
           size="sm"
-          onClick={handleApply}
-          disabled={!selectedGroupIds.length || updateLoading}
+          className="w-full justify-start"
+          onClick={onBack}
         >
-          {updateLoading ? <Spinner size="sm" /> : t('apply')}
+          <IconArrowLeft />
+          {t('back')}
         </Button>
       </div>
-    </Command>
+      <Form {...form}>
+        <form
+          className="flex flex-col gap-4 p-3"
+          onSubmit={form.handleSubmit(onSubmit)}
+        >
+          <div className="flex max-h-80 flex-col gap-4 overflow-y-auto pr-1 styled-scroll">
+            <StructureSeatTargetFields
+              disabled={loading || !recipientIds.length}
+            />
+          </div>
+          <div className="flex items-center justify-between gap-2 border-t pt-3">
+            <span className="text-xs text-muted-foreground">
+              {t('members-count', { count: recipientIds.length })}
+            </span>
+            <Button
+              size="sm"
+              type="submit"
+              disabled={loading || !recipientIds.length}
+            >
+              {loading ? <Spinner size="sm" /> : t('apply')}
+            </Button>
+          </div>
+        </form>
+      </Form>
+    </div>
   );
 };

@@ -7,9 +7,8 @@ import { usePrintJob } from './usePrintJob';
 const DEFAULT_VALUES: PrintFormValues = {
   _id: '',
   brandId: '',
-  branchId: '',
   copies: 1,
-  departmentId: '',
+  entityId: '',
   height: PAPER_SIZES.A4.height,
   margin: 15,
   offsetX: 0,

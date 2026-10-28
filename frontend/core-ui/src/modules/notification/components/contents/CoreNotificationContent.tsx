@@ -8,44 +8,36 @@ const WelcomeNotificationContent = lazy(() =>
   ),
 );
 
-const BranchNotificationContent = lazy(() =>
-  import('@/notification/components/contents/structure/BranchNotificationContent').then(
-    (module) => ({
-      default: module.BranchNotificationContent,
-    }),
-  ),
+const StructureEntityNotificationContent = lazy(() =>
+  import(
+    '@/notification/components/contents/structure/StructureEntityNotificationContent'
+  ).then((module) => ({
+    default: module.StructureEntityNotificationContent,
+  })),
 );
 
-const DepartmentNotificationContent = lazy(() =>
-  import('@/notification/components/contents/structure/DepartmentNotificationContent').then(
-    (module) => ({
-      default: module.DepartmentNotificationContent,
-    }),
-  ),
-);
-
-const PositionNotificationContent = lazy(() =>
-  import('@/notification/components/contents/structure/PositionNotificationContent').then(
-    (module) => ({
-      default: module.PositionNotificationContent,
-    }),
-  ),
+const StructureSeatNotificationContent = lazy(() =>
+  import(
+    '@/notification/components/contents/structure/StructureSeatNotificationContent'
+  ).then((module) => ({
+    default: module.StructureSeatNotificationContent,
+  })),
 );
 
 const ExportNotificationContent = lazy(() =>
-  import('@/notification/components/contents/import-export/export/components/ExportNotificationContent').then(
-    (module) => ({
-      default: module.ExportNotificationContent,
-    }),
-  ),
+  import(
+    '@/notification/components/contents/import-export/export/components/ExportNotificationContent'
+  ).then((module) => ({
+    default: module.ExportNotificationContent,
+  })),
 );
 
 const ImportNotificationContent = lazy(() =>
-  import('@/notification/components/contents/import-export/import/components/ImportNotificationContent').then(
-    (module) => ({
-      default: module.ImportNotificationContent,
-    }),
-  ),
+  import(
+    '@/notification/components/contents/import-export/import/components/ImportNotificationContent'
+  ).then((module) => ({
+    default: module.ImportNotificationContent,
+  })),
 );
 
 const ApprovalNotificationContent = lazy(() =>
@@ -56,12 +48,20 @@ const ApprovalNotificationContent = lazy(() =>
   ),
 );
 
+const PermissionGroupNotificationContent = lazy(() =>
+  import(
+    '@/notification/components/contents/permissions/PermissionGroupNotificationContent'
+  ).then((module) => ({
+    default: module.PermissionGroupNotificationContent,
+  })),
+);
+
 export const CoreNotificationContent = {
   welcome: WelcomeNotificationContent,
   approval: ApprovalNotificationContent,
-  branch: BranchNotificationContent,
-  department: DepartmentNotificationContent,
-  position: PositionNotificationContent,
+  entity: StructureEntityNotificationContent,
+  seat: StructureSeatNotificationContent,
   exports: ExportNotificationContent,
   imports: ImportNotificationContent,
+  permissionGroup: PermissionGroupNotificationContent,
 };

@@ -107,32 +107,6 @@ export async function prepareUserDoc(models: IModels, row: any) {
     else doc.brandIds = ids;
   }
 
-  const departmentNames = toArray(row.departments || row.Departments);
-  if (departmentNames.length) {
-    const { ids, missing } = await mapNamesToIdsStrict(
-      models.Departments,
-      'title',
-      departmentNames,
-      'Departments',
-    );
-    if (missing.length)
-      errors.push(`Departments not found: ${missing.join(', ')}`);
-    else doc.departmentIds = ids;
-  }
-
-  const branchNames = toArray(row.branches || row.Branches);
-  if (branchNames.length) {
-    const { ids, missing } = await mapNamesToIdsStrict(
-      models.Branches,
-      'title',
-      branchNames,
-      'Branches',
-    );
-    if (missing.length)
-      errors.push(`Branches not found: ${missing.join(', ')}`);
-    else doc.branchIds = ids;
-  }
-
   if (errors.length) throw new Error(errors.join(' | '));
 
   return doc;

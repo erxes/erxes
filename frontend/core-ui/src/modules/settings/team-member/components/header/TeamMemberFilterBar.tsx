@@ -3,36 +3,23 @@ import {
   Can,
   Export,
   Import,
-  SelectBranches,
   SelectBrands,
-  SelectDepartments,
-  SelectUnit,
+  SelectStructureEntities,
 } from 'ui-modules';
 import { TeamMemberFilterPopover } from './TeamMemberFilterPopover';
 import { TeamMemberCounts } from '../TeamMemberCounts';
 import { TEAM_MEMBER_CURSOR_SESSION_KEY } from '../../constants/teamMemberCursorSessionKey';
-import { useTeamMemberVariables } from '@/settings/team-member/hooks/useTeamMember';
+import { useTeamMemberFilters } from '@/settings/team-member/hooks/useTeamMemberFilters';
 import { useTranslation } from 'react-i18next';
 
 export const TeamMemberFilterBar = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
-  const [queries] = useMultiQueryState<{
-    branchIds: string[];
-    departmentIds: string[];
-    unitId: string;
-    isActive: boolean;
+  const [{ brandIds, entityIds }] = useMultiQueryState<{
     brandIds: string[];
-  }>(['branchIds', 'departmentIds', 'unitId', 'isActive', 'brandIds']);
+    entityIds: string[];
+  }>(['brandIds', 'entityIds']);
 
-  const { brandIds, branchIds, departmentIds } = queries;
-
-  const variables = useTeamMemberVariables();
-
-  const getFilters = () => {
-    // IMPORTANT: remove cursor/limit/orderBy so export receives only filters
-    const { cursor, limit, orderBy, ...filters } = variables as any;
-    return filters;
-  };
+  const filters = useTeamMemberFilters();
 
   return (
     <PageSubHeader>
@@ -56,23 +43,13 @@ export const TeamMemberFilterBar = () => {
             />
           )}
 
-          {!!branchIds?.length && (
-            <SelectBranches.FilterBar
+          {!!entityIds?.length && (
+            <SelectStructureEntities.FilterBar
               mode="multiple"
-              filterKey="branchIds"
-              label={t('branches')}
+              filterKey="entityIds"
+              label={t('structure')}
             />
           )}
-
-          {!!departmentIds?.length && (
-            <SelectDepartments.FilterBar
-              mode="multiple"
-              filterKey="departmentIds"
-              label={t('departments')}
-            />
-          )}
-
-          <SelectUnit.FilterBar />
 
           <TeamMemberCounts />
         </Filter.Bar>
@@ -89,7 +66,7 @@ export const TeamMemberFilterBar = () => {
           pluginName="core"
           moduleName="organization"
           collectionName="users"
-          getFilters={getFilters}
+          getFilters={() => filters}
         />
       </Can>
     </PageSubHeader>

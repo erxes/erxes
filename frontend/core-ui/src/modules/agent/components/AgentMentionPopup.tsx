@@ -57,12 +57,11 @@ const GROUP_LABELS: Record<TAgentMentionType, string> = {
   customer: 'Customers',
   company: 'Companies',
   product: 'Products',
-  branch: 'Branches',
-  department: 'Departments',
-  unit: 'Units',
+  structureEntity: 'Structure nodes',
   brand: 'Brands',
   deal: 'Deals',
   conversation: 'Conversations',
+  automation: 'Automations',
 };
 
 const optionId = (listboxId: string, option: IAgentMentionOption) =>

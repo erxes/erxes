@@ -84,6 +84,7 @@ export const TeamMemberCommandBar = () => {
                 <Command.List className="p-0">
                   <Command.Group className="p-1">
                     <TeamMemberAssignPermissionsTrigger
+                      teamMemberIds={teamMemberIds}
                       onSelect={() => setCurrentContent('permissions')}
                     />
                     <TeamMemberResendInvite
@@ -108,11 +109,6 @@ export const TeamMemberCommandBar = () => {
             {currentContent === 'permissions' && (
               <TeamMemberAssignPermissionsContent
                 teamMemberIds={teamMemberIds}
-                initialGroupIds={
-                  teamMembers.length === 1
-                    ? teamMembers[0].permissionGroupIds || []
-                    : []
-                }
                 onBack={() => setCurrentContent('main')}
                 onClose={closeActions}
               />

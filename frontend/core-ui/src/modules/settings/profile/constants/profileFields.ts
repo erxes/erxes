@@ -8,7 +8,9 @@ import {
 } from '@tabler/icons-react';
 import { TFunction } from 'i18next';
 
-const PROFILE_ADVANCED_FIELDS = (t: TFunction): Array<{
+const PROFILE_ADVANCED_FIELDS = (
+  t: TFunction,
+): Array<{
   fieldLabel: string;
   fieldName: string;
   fieldPath: string;
@@ -53,7 +55,12 @@ const PROFILE_ADVANCED_FIELDS = (t: TFunction): Array<{
     fieldPath: 'details',
     field: { element: 'date', attributes: { withPresent: true } },
   },
-  // { fieldLabel: 'Positions', fieldName: 'positionIds', field: { element: 'select' } },
+  {
+    fieldLabel: t('job-title'),
+    fieldName: 'position',
+    fieldPath: 'details',
+    field: { element: 'input', attributes: { type: 'text' } },
+  },
   // { fieldLabel: 'Location', fieldName: 'location', fieldPath: 'details', field: { element: 'select' } },
 ];
 

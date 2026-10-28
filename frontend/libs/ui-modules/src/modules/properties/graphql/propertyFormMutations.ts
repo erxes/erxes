@@ -5,6 +5,7 @@ export const FIELD_GROUP_ADD = gql`
     $name: String
     $code: String
     $contentType: String
+    $contentTypeId: String
     $logics: JSON
     $configs: JSON
   ) {
@@ -12,6 +13,7 @@ export const FIELD_GROUP_ADD = gql`
       name: $name
       code: $code
       contentType: $contentType
+      contentTypeId: $contentTypeId
       logics: $logics
       configs: $configs
     ) {
@@ -26,6 +28,7 @@ export const FIELD_ADD = gql`
     $code: String
     $groupId: String
     $contentType: String
+    $contentTypeId: String
     $type: String
     $options: [FieldOptionInput]
     $validations: JSON
@@ -42,6 +45,7 @@ export const FIELD_ADD = gql`
       code: $code
       groupId: $groupId
       contentType: $contentType
+      contentTypeId: $contentTypeId
       type: $type
       options: $options
       validations: $validations

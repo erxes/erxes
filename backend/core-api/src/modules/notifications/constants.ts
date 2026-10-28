@@ -8,20 +8,15 @@ export const CORE_NOTIFICATION_MODULES = [
         icon: 'IconBuilding',
         events: [
           {
-            name: 'branchAssigneeChanged',
-            title: 'Branch assignee changed',
-            description: 'Triggered when the assignee of a branch is changed',
-          },
-          {
-            name: 'departmentAssigneeChanged',
-            title: 'Department assignee changed',
+            name: 'structureAssignment',
+            title: 'Structure membership changed',
             description:
-              'Triggered when the assignee of a department is changed',
+              'Triggered when you are added to or removed from a structure node',
           },
           {
-            name: 'positionAssigneeChanged',
-            title: 'Position assignee changed',
-            description: 'Triggered when the assignee of a position is changed',
+            name: 'structureSeatAssignment',
+            title: 'Seat changed',
+            description: 'Triggered when you receive or lose a seat',
           },
         ],
       },

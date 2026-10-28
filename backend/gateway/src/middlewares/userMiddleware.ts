@@ -29,7 +29,7 @@ const hashToken = (token: string) =>
 // Fields forwarded to subgraphs inside the `user` header; shared by the
 // session-JWT branch and the agent-auth branch below.
 const USER_HEADER_PROJECTION =
-  '_id email details isOwner groupIds brandIds username code branchIds departmentIds permissionGroupIds customPermissions';
+  '_id email details isOwner groupIds brandIds username code';
 
 const debugAuth = (
   req: Request & { user?: any; cpUser?: any; clientPortal?: any },
@@ -113,26 +113,7 @@ export default async function userMiddleware(
       }).then((r) => r.text());
 
       if (response === 'ok') {
-        req.user = {
-          _id: 'userId',
-          customPermissions: [
-            {
-              action: 'showIntegrations',
-              allowed: true,
-              requiredActions: [],
-            },
-            {
-              action: 'showKnowledgeBase',
-              allowed: true,
-              requiredActions: [],
-            },
-            {
-              action: 'showScripts',
-              allowed: true,
-              requiredActions: [],
-            },
-          ],
-        };
+        req.user = { _id: 'userId' };
       }
     } catch {
       debugAuth(req, 'website-token-check-error', {

@@ -17,11 +17,12 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import { EnumCursorDirection, Spinner } from 'erxes-ui';
+import { IconListDetails } from '@tabler/icons-react';
+import { Button, cn, EnumCursorDirection, Spinner } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 import { useInView } from 'react-intersection-observer';
-import { useParams } from 'react-router-dom';
-import { useFieldGroups } from 'ui-modules';
+import { IPropertyContentScope, useFieldGroups } from 'ui-modules';
 import { useFieldGroupsReorder } from '../hooks/useFieldGroupsReorder';
 import { PropertiesCommandBar } from './record/PropertiesCommandBar';
 import { PropertiesGroupSection } from './record/PropertiesGroupSection';
@@ -30,16 +31,24 @@ import { PropertyGroupEditSheet } from './PropertyGroupEdit';
 import { PropertyGroupLayoutSheet } from './PropertyGroupLayoutSheet';
 import { PropertyArchiveDialog } from './PropertyArchiveDialog';
 import { PropertiesArchivedSection } from './record/PropertiesArchivedSection';
+import { getPerTypePropertiesPath } from '../constants/perTypeContentTypes';
 
-export const PropertyFieldsGroupSettings = () => {
+export const PropertyFieldsGroupSettings = ({
+  contentType,
+  contentTypeId,
+  className,
+}: IPropertyContentScope & { className?: string }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });
-  const { type: contentType } = useParams<{ type: string }>();
+  const perTypePath = getPerTypePropertiesPath(contentType, contentTypeId);
   const { fieldGroups, loading, handleFetchMore, pageInfo } = useFieldGroups({
-    contentType: contentType || '',
+    contentType,
+    contentTypeId,
+    skip: !!perTypePath,
   });
 
   const { reorderFieldGroups } = useFieldGroupsReorder({
-    contentType: contentType || '',
+    contentType,
+    contentTypeId,
   });
 
   const [loadMoreRef] = useInView({
@@ -77,10 +86,24 @@ export const PropertyFieldsGroupSettings = () => {
     <>
       <PropertyGroupEditSheet />
       <PropertyGroupLayoutSheet />
-      <PropertyArchiveDialog contentType={contentType || ''} />
-      <div className="m-3 max-w-4xl mx-auto flex flex-col gap-2">
-        <PropertiesSystemFieldsSection contentType={contentType || ''} />
-        {loading ? (
+      <PropertyArchiveDialog contentType={contentType} />
+      <div
+        className={cn('m-3 max-w-4xl mx-auto flex flex-col gap-2', className)}
+      >
+        {!contentTypeId && (
+          <PropertiesSystemFieldsSection contentType={contentType} />
+        )}
+        {perTypePath ? (
+          <div className="flex flex-col items-center gap-3 py-12 text-center text-muted-foreground">
+            {t('per-type-fields')}
+            <Button variant="outline" asChild>
+              <Link to={perTypePath}>
+                <IconListDetails />
+                {t('manage-per-type')}
+              </Link>
+            </Button>
+          </div>
+        ) : loading ? (
           <Spinner containerClassName="py-12" />
         ) : fieldGroups.length === 0 ? (
           <div className="py-12 text-center text-muted-foreground">
@@ -102,7 +125,7 @@ export const PropertyFieldsGroupSettings = () => {
                   <PropertiesGroupSection
                     key={group._id}
                     group={group}
-                    contentType={contentType || ''}
+                    contentType={contentType}
                   />
                 ))}
               </SortableContext>
@@ -114,7 +137,12 @@ export const PropertyFieldsGroupSettings = () => {
             )}
           </>
         )}
-        <PropertiesArchivedSection contentType={contentType || ''} />
+        {!perTypePath && (
+          <PropertiesArchivedSection
+            contentType={contentType}
+            contentTypeId={contentTypeId}
+          />
+        )}
       </div>
       <PropertiesCommandBar />
     </>

@@ -2,7 +2,7 @@ import { IFilesAccessGrant } from 'ui-modules';
 
 type TGroupType = Exclude<IFilesAccessGrant['type'], 'user'>;
 
-const GROUP_ORDER: TGroupType[] = ['everyone', 'department', 'branch', 'unit'];
+const GROUP_ORDER: TGroupType[] = ['everyone', 'entity'];
 
 export const useFilesSharedWith = ({
   sharedWith,

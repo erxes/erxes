@@ -12,10 +12,5 @@ export const MembersPermissions = () => {
     return null;
   }
 
-  return (
-    <MemberPermission
-      userId={userDetail._id}
-      permissionGroupIds={userDetail.permissionGroupIds}
-    />
-  );
+  return <MemberPermission userId={userDetail._id} />;
 };

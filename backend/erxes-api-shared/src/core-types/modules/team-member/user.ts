@@ -7,13 +7,6 @@ export interface IEmailSignature {
 }
 export interface IEmailSignatureDocument extends IEmailSignature, Document {}
 
-export interface ICustomPermission {
-  plugin?: string;
-  module: string;
-  actions: string[];
-  scope: 'own' | 'group' | 'all';
-}
-
 export interface IDetail {
   avatar?: string;
   coverPhoto?: string;
@@ -57,16 +50,11 @@ export interface IUser {
   score?: number;
   customFieldsData?: ICustomField[];
   propertiesData?: IPropertyField;
-  departmentIds?: string[];
-  branchIds?: string[];
-  positionIds?: string[];
   employeeId?: string;
   chatStatus?: IUserChatStatus;
   lastSeenAt?: Date;
   onboardedPlugins?: string[];
   isOnboarded?: boolean;
-  permissionGroupIds?: string[];
-  customPermissions?: ICustomPermission[];
 }
 
 enum IUserChatStatus {
@@ -80,14 +68,4 @@ export interface IUserDocument extends Omit<IUser, 'links'>, Document {
   details?: IDetail;
   role?: string;
   appId?: string;
-}
-export interface IUserMovementDocument extends Document {
-  _id: string;
-  contentType: string;
-  contentTypeId: string;
-  userId: string;
-  createdAt: string;
-  createdBy: string;
-  status: string;
-  isActive: boolean;
 }

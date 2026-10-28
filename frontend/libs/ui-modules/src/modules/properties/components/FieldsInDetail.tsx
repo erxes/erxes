@@ -97,6 +97,7 @@ export const PropertyGroupCard = ({
 const FieldGroupContent = ({
   group,
   contentType,
+  contentTypeId,
   propertiesData,
   mutateHook,
   id,
@@ -105,6 +106,7 @@ const FieldGroupContent = ({
   id: string;
   inCell?: boolean;
   contentType: string;
+  contentTypeId?: string;
   propertiesData: Record<string, any>;
   mutateHook: () => {
     mutate: mutateFunction;
@@ -112,7 +114,11 @@ const FieldGroupContent = ({
   };
 }) => {
   const { configs } = group || {};
-  const { fields, loading } = useFields({ groupId: group._id, contentType });
+  const { fields, loading } = useFields({
+    groupId: group._id,
+    contentType,
+    contentTypeId,
+  });
 
   const visibleFields = fields
     .filter((field) => field.isVisible !== false)
@@ -157,13 +163,16 @@ const FieldGroupContent = ({
 
 export const FieldsInDetail = ({
   fieldContentType,
+  fieldContentTypeId,
   propertiesData,
   mutateHook,
   id,
   className,
+  emptyState,
   bare = false,
 }: {
   fieldContentType: string;
+  fieldContentTypeId?: string;
   propertiesData: Record<string, any>;
   mutateHook: () => {
     mutate: mutateFunction;
@@ -171,12 +180,14 @@ export const FieldsInDetail = ({
   };
   id: string;
   className?: string;
+  emptyState?: React.ReactNode;
   // Only the property groups, without the outer "… Properties" card; for
   // hosts that already say what they show (a side panel tab).
   bare?: boolean;
 }) => {
   const { fieldGroups, loading: fieldGroupsLoading } = useFieldGroups({
     contentType: fieldContentType,
+    contentTypeId: fieldContentTypeId,
   });
 
   if (fieldGroupsLoading) {
@@ -185,20 +196,19 @@ export const FieldsInDetail = ({
   const [, propertyName] = fieldContentType.split(':');
 
   const groups =
-    fieldGroups.length === 0 ? (
-      <EmptyProperties fieldContentType={fieldContentType} />
-    ) : (
-      fieldGroups.map((group) => (
-        <FieldGroupContent
-          key={group._id}
-          group={group}
-          id={id}
-          contentType={fieldContentType}
-          propertiesData={propertiesData}
-          mutateHook={mutateHook}
-        />
-      ))
-    );
+    fieldGroups.length === 0
+      ? emptyState ?? <EmptyProperties fieldContentType={fieldContentType} />
+      : fieldGroups.map((group) => (
+          <FieldGroupContent
+            key={group._id}
+            group={group}
+            id={id}
+            contentType={fieldContentType}
+            contentTypeId={fieldContentTypeId}
+            propertiesData={propertiesData}
+            mutateHook={mutateHook}
+          />
+        ));
 
   if (bare) {
     return <div className={cn('flex flex-col gap-2', className)}>{groups}</div>;

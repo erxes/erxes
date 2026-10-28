@@ -1,54 +1,50 @@
 import { Button, Sheet } from 'erxes-ui';
 import { useState } from 'react';
-import { SubmitHandler, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useParams, useLocation } from 'react-router-dom';
 import {
   Can,
+  IPropertyContentScope,
   IPropertyGroupForm,
   PropertyGroupForm,
-  propertyGroupSchema,
   useAddPropertyGroup,
 } from 'ui-modules';
 
-export const AddPropertyGroup = () => {
-  const { t } = useTranslation('settings', { keyPrefix: 'properties' });
-  const { type } = useParams<{ type: string }>();
-  const location = useLocation();
+const EMPTY_GROUP: IPropertyGroupForm = {
+  name: '',
+  code: '',
+  isMultiple: false,
+};
 
-  const { addPropertyGroup, loading } = useAddPropertyGroup(type || '');
-  const form = useForm<IPropertyGroupForm>({
-    resolver: zodResolver(propertyGroupSchema),
-    defaultValues: {
-      name: '',
-      code: '',
-      isMultiple: false,
-    },
-  });
+export const AddPropertyGroup = ({
+  contentType,
+  contentTypeId,
+}: IPropertyContentScope) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'properties' });
+  const { addPropertyGroup, loading } = useAddPropertyGroup(
+    contentType,
+    contentTypeId,
+  );
   const [open, setOpen] = useState<boolean>(false);
 
-  const submitHandler: SubmitHandler<IPropertyGroupForm> = (data) => {
-    addPropertyGroup({
+  const submitHandler = async ({
+    name,
+    code,
+    isMultiple,
+  }: IPropertyGroupForm) => {
+    const { data } = await addPropertyGroup({
       variables: {
-        name: data.name,
-        code: data.code,
-        contentType: type,
-        configs: { isMultiple: data.isMultiple },
-      },
-      onCompleted: () => {
-        form.reset();
-        setOpen(false);
+        name,
+        code,
+        contentType,
+        contentTypeId,
+        configs: { isMultiple },
       },
     });
-  };
 
-  if (
-    location.pathname.includes('add') ||
-    location.pathname.split(type || '')[1]?.length > 2
-  ) {
-    return null;
-  }
+    if (data) {
+      setOpen(false);
+    }
+  };
 
   return (
     <Sheet onOpenChange={setOpen} open={open}>
@@ -66,9 +62,9 @@ export const AddPropertyGroup = () => {
         <PropertyGroupForm
           onSubmit={submitHandler}
           loading={loading}
-          defaultValues={form.getValues()}
+          defaultValues={EMPTY_GROUP}
           onCancel={() => setOpen(false)}
-          contentType={type || ''}
+          contentType={contentType}
         />
       </Sheet.View>
     </Sheet>

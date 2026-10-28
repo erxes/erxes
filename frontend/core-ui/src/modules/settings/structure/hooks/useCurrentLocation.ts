@@ -1,7 +1,7 @@
 import { toast } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { TLatLng } from '../types/branchLocation';
+import { TLatLng } from '../types/structureLocation';
 
 const GEOLOCATION_OPTIONS = { enableHighAccuracy: true, timeout: 10000 };
 
@@ -19,7 +19,6 @@ export const useCurrentLocation = (onLocate: (place: TLatLng) => void) => {
   };
 
   const locate = () => {
-    // Browsers only expose GPS on https or localhost
     if (!navigator.geolocation) {
       fail();
       return;

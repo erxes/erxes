@@ -11,6 +11,7 @@ import {
   IPermissionGroupPermission,
 } from '@/settings/permissions/types';
 import { IconPlugConnected } from '@tabler/icons-react';
+import { getDefaultScope } from '@/settings/permissions/utils/permissionScopes';
 
 const getPermission = (
   permissions: IPermissionGroupPermission[],
@@ -67,7 +68,7 @@ export const PermissionModulesForm = ({
           plugin,
           module: module.name,
           actions: ['*'],
-          scope: 'all' as const,
+          scope: getDefaultScope(module),
         })),
       );
     }
@@ -96,7 +97,7 @@ export const PermissionModulesForm = ({
           plugin,
           module: module.name,
           actions: ['*'],
-          scope: 'all',
+          scope: getDefaultScope(module),
         },
       ]);
     } else {
@@ -122,7 +123,12 @@ export const PermissionModulesForm = ({
     if (!perm && module.always) {
       form.setValue('permissions', [
         ...current,
-        { plugin, module: module.name, actions: ['*'], scope: 'all' },
+        {
+          plugin,
+          module: module.name,
+          actions: ['*'],
+          scope: getDefaultScope(module),
+        },
       ]);
       current = form.getValues('permissions');
       perm = getPermission(current, plugin, module.name);
@@ -243,7 +249,7 @@ export const PermissionModulesForm = ({
                           plugin,
                           module: module.name,
                           actions: ['*'],
-                          scope: 'all',
+                          scope: getDefaultScope(module),
                         }
                       : undefined);
 
@@ -285,21 +291,19 @@ export const PermissionModulesForm = ({
                               <Select
                                 value={permOrDefault.scope}
                                 onValueChange={(value) =>
-                                  setModuleScope(
-                                    plugin,
-                                    module.name,
-                                    value as IPermissionGroupPermission['scope'],
-                                  )
+                                  setModuleScope(plugin, module.name, value)
                                 }
                               >
                                 <Select.Trigger className="w-min min-w-32 h-7">
-                                  <Select.Value />
+                                  <Select.Value
+                                    placeholder={t('select-scope')}
+                                  />
                                 </Select.Trigger>
                                 <Select.Content
                                   className="rounded-lg min-w-32"
                                   position="item-aligned"
                                 >
-                                  {module.scopes.map((s) => (
+                                  {(module.scopes ?? []).map((s) => (
                                     <Select.Item
                                       key={s.name}
                                       value={s.name}

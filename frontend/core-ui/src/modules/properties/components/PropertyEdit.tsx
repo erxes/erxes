@@ -1,37 +1,33 @@
-import { usePropertiesScope } from '@/properties/context/PropertiesScopeContext';
-import { useNavigate, useParams } from 'react-router';
-import { Sheet, toast } from 'erxes-ui';
+import { Sheet, Spinner, toast } from 'erxes-ui';
 import { useFieldDetail } from '../hooks/useFieldDetail';
 import { useEditProperty } from '../hooks/useEditProperty';
 import { useSetAtom } from 'jotai';
 import { needsToRefreshState } from '../states/needsToRefresh';
 import { useTranslation } from 'react-i18next';
-import { IPropertyForm, PropertyForm } from 'ui-modules';
+import { IPropertyContentScope, IPropertyForm, PropertyForm } from 'ui-modules';
 
-export const PropertyEdit = () => {
-  const { basePath: propertiesBasePath } = usePropertiesScope();
+export const PropertyEdit = ({
+  contentType,
+  contentTypeId,
+  fieldId,
+  onClose,
+}: IPropertyContentScope & {
+  fieldId: string;
+  onClose: () => void;
+}) => {
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });
-  const { id, type } = useParams<{
-    groupId: string;
-    id: string;
-    type: string;
-  }>();
 
-  const { fieldDetail, loading } = useFieldDetail({ id: id || '' });
+  const { fieldDetail, loading } = useFieldDetail({ id: fieldId });
   const { editProperty, loading: editPropertyLoading } = useEditProperty();
   const setNeedsToRefresh = useSetAtom(needsToRefreshState);
-
-  const navigate = useNavigate();
-
-  const handleClose = () => navigate(`${propertiesBasePath}/${type}`);
 
   const [fieldType, ...relationType] = fieldDetail?.type?.split(':') || [];
 
   const handleSubmit = (data: IPropertyForm) => {
     editProperty({
       variables: {
-        id,
-        contentType: type,
+        id: fieldId,
+        contentType,
         ...data,
       },
       onCompleted: () => {
@@ -40,7 +36,7 @@ export const PropertyEdit = () => {
           variant: 'success',
         });
         setNeedsToRefresh(true);
-        handleClose();
+        onClose();
       },
       onError: (error) => {
         toast({
@@ -53,13 +49,14 @@ export const PropertyEdit = () => {
   };
 
   return (
-    <Sheet open onOpenChange={handleClose}>
+    <Sheet open onOpenChange={onClose}>
       <Sheet.View
         className="p-0"
         onEscapeKeyDown={(e) => {
           e.preventDefault();
         }}
       >
+        {loading && <Spinner containerClassName="py-12" />}
         {!loading && fieldDetail && (
           <PropertyForm
             onSubmit={handleSubmit}
@@ -73,9 +70,10 @@ export const PropertyEdit = () => {
             }}
             isEdit
             locked={!!fieldDetail.owner}
-            onCancel={handleClose}
-            contentType={type || ''}
-            fieldId={id}
+            onCancel={onClose}
+            contentType={contentType}
+            contentTypeId={contentTypeId}
+            fieldId={fieldId}
           />
         )}
       </Sheet.View>

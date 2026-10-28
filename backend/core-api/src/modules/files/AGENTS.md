@@ -24,9 +24,10 @@ previews).
 
 - Roles: `viewer` < `contributor` (upload, new folders) < `manager` (rename,
   move, trash, share links, change access). Highest role across grants wins.
-- Principals: `user:<id>`, `department:<id>`, `branch:<id>`, `unit:<id>`,
-  `everyone`. A department/branch grant covers its sub-tree: a user's
-  principals include all ancestors of their own (cached in Redis
+- Principals: `user:<id>`, `entity:<id>` (structure node), `everyone`. An
+  entity grant covers that node and everything below it: a user's principals
+  hold their active membership nodes and all their ancestors
+  (`getUserStructureContext(...).principalEntityIds`, cached in Redis
   `files:principals:<subdomain>:<userId>`, TTL 60s).
 - Folders own an `access` list, optional `restricted` (stop inheriting), and
   denormalized `readers` / `contributors` / `managers` keys. Files own extra
@@ -84,5 +85,6 @@ previews).
   role merge, `assertRole` NOT_FOUND/FORBIDDEN, admin read-only except the Org
   root), image header sizes, and the share pages (escaping, mn/en); Redis,
   queue and `canGroup` are mocked.
-- Smoke: an "Only me" folder is invisible to a second user; a department
-  share shows under that user's Shared with me; a viewer cannot open Share.
+- Smoke: an "Only me" folder is invisible to a second user; a structure node
+  share shows under Shared with me for a member of a node below it; a viewer
+  cannot open Share.

@@ -2,9 +2,7 @@ import { TFilesPrincipalType, TFilesRole } from 'ui-modules';
 
 export const FILES_PRINCIPAL_TYPES = [
   'user',
-  'department',
-  'branch',
-  'unit',
+  'entity',
   'everyone',
 ] as const satisfies readonly TFilesPrincipalType[];
 

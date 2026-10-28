@@ -11,15 +11,15 @@ interface ISubUom {
   ratio: number;
 }
 
-interface IInventory {
-  [branchId: string]: {
-    [departmentId: string]: {
-      remainder: number;
-      cost: number;
-      soonIn: number;
-      soonOut: number;
-    };
-  };
+export interface IPlaceInventory {
+  remainder?: number;
+  cost?: number;
+  soonIn?: number;
+  soonOut?: number;
+}
+
+export interface IInventory {
+  [placeEntityId: string]: IPlaceInventory;
 }
 
 export type ProductDiscountConditionValue =

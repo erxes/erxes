@@ -1,4 +1,5 @@
 import { Job, UnrecoverableError } from 'bullmq';
+import { runAsPermissionScopeUser } from '../../../utils/mongo/permission-scope';
 import { nanoid } from 'nanoid';
 import * as fs from 'fs';
 import { splitType } from '../../../core-modules/automations';
@@ -219,7 +220,7 @@ export const createImportBatchProcessor = (
   coreClient: CoreImportClient,
   pluginName: string,
 ) => {
-  return async (job: Job<ImportJobData>) => {
+  const processJob = async (job: Job<ImportJobData>) => {
     const { subdomain, data } = job.data;
     const { importId, entityType, fileKey, userId } = data;
     const [jobPluginName, moduleName, collectionName] = splitType(entityType);
@@ -777,4 +778,9 @@ export const createImportBatchProcessor = (
       throw error;
     }
   };
+
+  return (job: Job<ImportJobData>) =>
+    runAsPermissionScopeUser(job.data.subdomain, job.data.data.userId, () =>
+      processJob(job),
+    );
 };

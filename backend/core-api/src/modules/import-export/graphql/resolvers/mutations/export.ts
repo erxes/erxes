@@ -78,6 +78,7 @@ export const exportMutations = {
         data: {
           exportId: exportDoc._id,
           entityType,
+          userId: exportDoc.userId,
         },
       },
       getImportExportJobOptions({
@@ -186,6 +187,7 @@ export const exportMutations = {
         data: {
           exportId: exportDoc._id,
           entityType: exportDoc.entityType,
+          userId: exportDoc.userId,
         },
       },
       getImportExportJobOptions({

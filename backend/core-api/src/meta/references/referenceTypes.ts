@@ -247,45 +247,23 @@ export const CORE_REFERENCE_TYPES: TRecordReferencesConfig['types'] = [
       { key: 'status', label: 'Status' },
 
       {
-        key: 'branches',
-        label: 'Branches',
+        key: 'structureEntities',
+        label: 'Structure nodes',
+        resolver: 'userStructureEntities',
         reference: {
-          type: 'branch',
+          type: 'structureEntity',
           kind: 'field',
-          path: 'branchIds',
-        },
-      },
-
-      {
-        key: 'departments',
-        label: 'Departments',
-        reference: {
-          type: 'department',
-          kind: 'field',
-          path: 'departmentIds',
         },
       },
     ],
   },
 
   {
-    type: 'branch',
-    label: 'Branch',
+    type: 'structureEntity',
+    label: 'Structure node',
     fields: [
       { key: 'displayName', label: 'Display name', path: 'title' },
-      { key: '_id', label: 'Branch ID' },
-      { key: 'title', label: 'Title' },
-      { key: 'code', label: 'Code' },
-      { key: 'description', label: 'Description' },
-    ],
-  },
-
-  {
-    type: 'department',
-    label: 'Department',
-    fields: [
-      { key: 'displayName', label: 'Display name', path: 'title' },
-      { key: '_id', label: 'Department ID' },
+      { key: '_id', label: 'Structure node ID' },
       { key: 'title', label: 'Title' },
       { key: 'code', label: 'Code' },
       { key: 'description', label: 'Description' },

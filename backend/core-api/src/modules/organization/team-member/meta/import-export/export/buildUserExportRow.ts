@@ -19,18 +19,13 @@ export const buildUserExportRow = (
   selectedFields?: string[],
   maps?: {
     brandMap?: Map<string, string>;
-    departmentMap?: Map<string, string>;
-    branchMap?: Map<string, string>;
+    structureEntityMap?: Map<string, string[]>;
   },
   formatter = defaultUserFieldFormatter,
 ): Record<string, any> => {
   const formatValue = formatter || defaultUserFieldFormatter;
 
-  const {
-    brandMap,
-    departmentMap,
-    branchMap,
-  } = maps || {};
+  const { brandMap, structureEntityMap } = maps || {};
 
   const allFields: Record<string, any> = {
     _id: formatValue(user._id),
@@ -57,8 +52,7 @@ export const buildUserExportRow = (
 
 
     brandIds: formatValue(joinNames(user.brandIds, brandMap)),
-    departmentIds: formatValue(joinNames(user.departmentIds, departmentMap)),
-    branchIds: formatValue(joinNames(user.branchIds, branchMap)),
+    structureEntities: formatValue(structureEntityMap?.get(user._id)),
 
 
     createdAt: formatValue(user.createdAt ? new Date(user.createdAt) : ''),
@@ -68,9 +62,10 @@ export const buildUserExportRow = (
     const result: Record<string, any> = { _id: String(user._id || '') };
 
     for (const key of selectedFields) {
-      if (key === 'brandIds') result[key] = formatValue(joinNames(user.brandIds, brandMap));
-      else if (key === 'departmentIds') result[key] = formatValue(joinNames(user.departmentIds, departmentMap));
-      else if (key === 'branchIds') result[key] = formatValue(joinNames(user.branchIds, branchMap));
+      if (key === 'brandIds')
+        result[key] = formatValue(joinNames(user.brandIds, brandMap));
+      else if (key === 'structureEntities')
+        result[key] = formatValue(structureEntityMap?.get(user._id));
       else result[key] = formatValue(getDeepValue(user, key));
     }
 

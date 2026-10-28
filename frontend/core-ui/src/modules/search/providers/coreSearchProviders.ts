@@ -20,12 +20,7 @@ const CORE_RESULT_PATHS: Record<string, (id: string) => string> = {
   'contacts-company': (id) => `/contacts/companies?companyId=${id}`,
   'products-product': (id) => `/settings/products?product_id=${id}`,
   'settings-team-member': (id) => `/settings/team/members?user_id=${id}`,
-  'settings-branch': (id) => `/settings/structures/branches?branch_id=${id}`,
-  'settings-department': (id) =>
-    `/settings/structures/departments?department_id=${id}`,
-  'settings-unit': (id) => `/settings/structures/units?unit_id=${id}`,
-  'settings-position': (id) =>
-    `/settings/structures/positions?position_id=${id}`,
+  'settings-structure': (id) => `/settings/structures?entity_id=${id}`,
   'settings-brand': (id) => `/settings/brands?brand_id=${id}`,
 };
 

@@ -218,12 +218,6 @@ export const SelectComponentIndexPage = () => {
                 }}
               />
             </SelectContainer>
-            {/* <SelectContainer
-              label="Branch Select"
-              description="Browse and select branches"
-            >
-              <SelectBranches value={branchId} onValueChange={setBranchId} />
-            </SelectContainer> */}
           </SelectContainerGroup>
           <SelectContainerGroup
             label="Content"

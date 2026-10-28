@@ -1,4 +1,5 @@
 import { TRecordReferencesConfig } from 'erxes-api-shared/core-modules';
+import { withoutPermissionScope } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 
 export const coreReferenceFetchers: TRecordReferencesConfig<IModels>['fetchers'] =
@@ -43,19 +44,15 @@ export const coreReferenceFetchers: TRecordReferencesConfig<IModels>['fetchers']
       return await models.Users.findOne({ _id: id }).lean();
     },
 
-    branch: async ({ models, id, ids }) => {
+    structureEntity: async ({ models, id, ids }) => {
       if (ids.length > 1) {
-        return await models.Branches.find({ _id: { $in: ids } }).lean();
+        return await withoutPermissionScope(() =>
+          models.StructureEntities.find({ _id: { $in: ids } }).lean(),
+        );
       }
 
-      return await models.Branches.findOne({ _id: id }).lean();
-    },
-
-    department: async ({ models, id, ids }) => {
-      if (ids.length > 1) {
-        return await models.Departments.find({ _id: { $in: ids } }).lean();
-      }
-
-      return await models.Departments.findOne({ _id: id }).lean();
+      return await withoutPermissionScope(() =>
+        models.StructureEntities.findOne({ _id: id }).lean(),
+      );
     },
   };

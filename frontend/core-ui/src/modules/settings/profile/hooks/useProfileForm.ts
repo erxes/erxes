@@ -23,6 +23,7 @@ export const profileValidationSchema = z
         workStartedDate: z.date().or(z.string()).optional().nullable(),
         location: z.string().optional().nullable(),
         employeeId: z.string().optional().nullable(),
+        position: z.string().optional().nullable(),
       })
       .optional()
       .nullable(),
@@ -88,7 +89,6 @@ export const profileValidationSchema = z
       .optional(),
     username: z.string().min(3, 'Username must be at least 3 characters'),
     email: z.string().trim().email('Email must be a valid email'),
-    positionIds: z.array(z.string()).optional(),
   })
   .required();
 
@@ -107,7 +107,6 @@ const useProfileForm = () => {
       },
       username: '',
       email: '',
-      positionIds: [],
     },
     resolver: zodResolver(profileValidationSchema),
   });

@@ -1,22 +1,18 @@
-import { useTranslation } from 'react-i18next';
 import { Form, Switch } from 'erxes-ui';
-import { useFormContext } from 'react-hook-form';
-import { IWorkhoursForm, WorkDay } from '@/settings/structure/types/workhours';
-import { WorkTimeField } from '@/settings/structure/components/workhours/WorkTimeField';
+import { useFormContext, useWatch } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
+import { IWorkhoursForm, WorkDay } from '../../types/workhours';
+import { WorkTimeField } from './WorkTimeField';
 
-/**
- * One weekday row (active toggle + work hours + lunch hours). Shared between the
- * branch and department working-hours sheets.
- */
 export const WeekDayRow = ({ weekDay }: { weekDay: WorkDay }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'structure' });
-  const form = useFormContext<IWorkhoursForm>();
-  const isInactive = form.watch(`${weekDay}.inactive`) as boolean;
+  const { control } = useFormContext<IWorkhoursForm>();
+  const isInactive = useWatch({ control, name: `${weekDay}.inactive` });
 
   return (
     <div className="flex items-center gap-3 py-3" id={weekDay}>
       <Form.Field
-        control={form.control}
+        control={control}
         name={`${weekDay}.inactive`}
         render={({ field }) => (
           <Form.Item>
@@ -29,12 +25,14 @@ export const WeekDayRow = ({ weekDay }: { weekDay: WorkDay }) => {
           </Form.Item>
         )}
       />
-      <span className="font-semibold">{weekDay}</span>
-      {(isInactive && (
+      <span className="font-semibold">
+        {t(`weekday-${weekDay.toLowerCase()}`)}
+      </span>
+      {isInactive ? (
         <span className="font-normal text-sm h-8 text-accent-foreground flex items-center">
           {t('not-working-day')}
         </span>
-      )) || (
+      ) : (
         <div className="flex items-center gap-8 ml-auto">
           <div className="flex items-center gap-3">
             <WorkTimeField name={`${weekDay}.startFrom`} />
@@ -44,9 +42,9 @@ export const WeekDayRow = ({ weekDay }: { weekDay: WorkDay }) => {
             <WorkTimeField name={`${weekDay}.endTo`} />
           </div>
           <div className="flex items-center gap-3">
-            <legend className="font-medium text-sm text-accent-foreground">
+            <span className="font-medium text-sm text-accent-foreground">
               {t('lunch')}
-            </legend>
+            </span>
             <WorkTimeField name={`${weekDay}.lunchStartFrom`} />
             <span className="font-medium text-sm text-accent-foreground">
               {t('to')}

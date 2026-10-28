@@ -1,33 +1,9 @@
-import { useLocation } from 'react-router';
-import { SETTINGS_ROUTES } from '../constants/structure-routes';
-import { BranchesTopbar } from './branches/BranchesTopbar';
-import { DepartmentsTopbar } from './departments/DepartmentsTopbar';
-import { UnitsTopbar } from './units/UnitsTopbar';
-import { PositionsTopbar } from './positions/PositionsTopbar';
+import { StructurePageMenu } from './StructurePageMenu';
+import { StructureViewToggle } from './StructureViewToggle';
 
-export function StructureTopbar() {
-  const { pathname } = useLocation();
-
-  if (pathname === '/settings/structure') {
-    return null;
-  }
-
-  const currentRoute =
-    SETTINGS_ROUTES[pathname as keyof typeof SETTINGS_ROUTES];
-
-  if (currentRoute === 'Branches') {
-    return <BranchesTopbar />;
-  }
-
-  if (currentRoute === 'Departments') {
-    return <DepartmentsTopbar />;
-  }
-  if (currentRoute === 'Units') {
-    return <UnitsTopbar />;
-  }
-  if (currentRoute === 'Positions') {
-    return <PositionsTopbar />;
-  }
-
-  return null;
-}
+export const StructureTopbar = () => (
+  <div className="ml-auto flex items-center gap-2">
+    <StructureViewToggle />
+    <StructurePageMenu />
+  </div>
+);

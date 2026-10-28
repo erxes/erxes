@@ -1,4 +1,4 @@
-import { usePropertiesScope } from '@/properties/context/PropertiesScopeContext';
+import { usePropertyFieldActions } from '@/properties/context/PropertyFieldActionsContext';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import {
@@ -23,8 +23,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
 import { useAtom, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
-import { Link, useNavigate } from 'react-router-dom';
-import { Can, IField, useFields } from 'ui-modules';
+import { Can, useFields } from 'ui-modules';
 import { activePropertyState } from '../../states/activePropertyState';
 import { activeLayoutGroupState } from '../../states/activeLayoutGroupState';
 import { archiveTargetState } from '../../states/archiveTargetState';
@@ -40,7 +39,7 @@ const PropertiesGroupActions = ({
   group: IFieldGroup;
   contentType: string;
 }) => {
-  const { basePath: propertiesBasePath } = usePropertiesScope();
+  const { addField } = usePropertyFieldActions(contentType);
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });
   const setActivePropertyGroup = useSetAtom(activePropertyState);
   const setLayoutGroup = useSetAtom(activeLayoutGroupState);
@@ -65,13 +64,9 @@ const PropertiesGroupActions = ({
         {/* A plugin's group holds only the fields that plugin puts there. */}
         {!group.owner && (
           <Can action="fieldsManage">
-            <DropdownMenu.Item asChild>
-              <Link
-                to={`${propertiesBasePath}/${contentType}/${group._id}/add`}
-              >
-                <IconPlus />
-                {t('add-field', 'Add field')}
-              </Link>
+            <DropdownMenu.Item onClick={() => addField(group._id)}>
+              <IconPlus />
+              {t('add-field', 'Add field')}
             </DropdownMenu.Item>
           </Can>
         )}
@@ -113,9 +108,8 @@ export const PropertiesGroupSection = ({
   group: IFieldGroup;
   contentType: string;
 }) => {
-  const { basePath: propertiesBasePath } = usePropertiesScope();
+  const { addField, editField } = usePropertyFieldActions(contentType);
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });
-  const navigate = useNavigate();
   const [needsToRefresh, setNeedsToRefresh] = useAtom(needsToRefreshState);
   const {
     attributes,
@@ -165,12 +159,6 @@ export const PropertiesGroupSection = ({
       propertiesColumns(t, { contentType, fieldIds: fields.map((f) => f._id) }),
     [t, contentType, fields],
   );
-
-  const handleRowClick = (field: IField) => {
-    navigate(
-      `${propertiesBasePath}/${contentType}/${field.groupId}/${field._id}`,
-    );
-  };
 
   return (
     <Collapsible
@@ -240,7 +228,7 @@ export const PropertiesGroupSection = ({
                 <RecordTable.Body>
                   <RecordTable.RowList
                     Row={(props) => (
-                      <PropertiesRow {...props} onRowClick={handleRowClick} />
+                      <PropertiesRow {...props} onRowClick={editField} />
                     )}
                   />
                 </RecordTable.Body>
@@ -256,13 +244,9 @@ export const PropertiesGroupSection = ({
         {!group.owner && (
           <div className="flex items-center justify-end mt-2">
             <Can action="fieldsManage">
-              <Button variant="secondary" asChild>
-                <Link
-                  to={`${propertiesBasePath}/${contentType}/${group._id}/add`}
-                >
-                  <IconPlus />
-                  {t('add-field', 'Add field')}
-                </Link>
+              <Button variant="secondary" onClick={() => addField(group._id)}>
+                <IconPlus />
+                {t('add-field', 'Add field')}
               </Button>
             </Can>
           </div>

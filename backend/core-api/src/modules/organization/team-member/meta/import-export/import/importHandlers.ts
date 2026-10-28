@@ -52,18 +52,6 @@ const userImportMap = {
         dataType: 'multiSelect' as const,
         example: 'Brand A, Brand B',
       },
-      {
-        label: 'Departments',
-        key: 'departments',
-        dataType: 'multiSelect' as const,
-        example: 'Sales, Finance',
-      },
-      {
-        label: 'Branches',
-        key: 'branches',
-        dataType: 'multiSelect' as const,
-        example: 'Head Office, Branch 2',
-      },
     ],
     propertiesType: 'core:user',
     processRows: (models: IModels, rows: any[]) =>

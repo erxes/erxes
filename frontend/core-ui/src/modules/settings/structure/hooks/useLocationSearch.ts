@@ -1,8 +1,8 @@
 import { toast } from 'erxes-ui';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { NOMINATIM_SEARCH_URL } from '../constants/branchLocation';
-import { TLatLng, TLocationSearchResult } from '../types/branchLocation';
+import { NOMINATIM_SEARCH_URL } from '../constants/structureLocation';
+import { TLatLng, TLocationSearchResult } from '../types/structureLocation';
 import { isShortMapLink, parseCoordinates } from '../utils/parseCoordinates';
 
 type TNominatimPlace = {

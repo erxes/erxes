@@ -8,6 +8,7 @@ import { getPlugin, getPlugins } from 'erxes-api-shared/utils';
 import { Collection } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { FieldOption, IFieldDocument } from '~/modules/properties/@types';
+import { STRUCTURE_PROPERTIES_CONTENT_TYPE } from '@/organization/structure/constants';
 
 type TPropertyValueWriter = (
   _id: string,
@@ -43,6 +44,12 @@ export const getFeaturedContent = (
         collection: models.Users.collection,
         setPropertyValues: (_id, values) =>
           models.Users.setPropertyValues(_id, values),
+      };
+    case STRUCTURE_PROPERTIES_CONTENT_TYPE:
+      return {
+        collection: models.StructureEntities.collection,
+        setPropertyValues: (_id, values) =>
+          models.StructureEntities.setPropertyValues(_id, values),
       };
     default:
       return null;

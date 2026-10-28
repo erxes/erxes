@@ -1,6 +1,7 @@
 import { Sheet, toast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useAddProperty } from '../hooks/useAddProperty';
+import { IPropertyContentScope } from '../types/fieldsTypes';
 import { IPropertyForm } from '../types/propertyFormTypes';
 import { PropertyForm } from './PropertyForm';
 
@@ -22,11 +23,11 @@ const EMPTY_PROPERTY: IPropertyForm = {
 // Adds a property without leaving the page that needs it.
 export const PropertyAddSheet = ({
   contentType,
+  contentTypeId,
   open,
   onClose,
   onCreated,
-}: {
-  contentType: string;
+}: IPropertyContentScope & {
   open: boolean;
   onClose: () => void;
   onCreated?: (fieldId: string) => void;
@@ -36,7 +37,7 @@ export const PropertyAddSheet = ({
 
   const onSubmit = (data: IPropertyForm) =>
     addProperty({
-      variables: { ...data, contentType },
+      variables: { ...data, contentType, contentTypeId },
       refetchQueries: ['Fields'],
       awaitRefetchQueries: true,
       onCompleted: (result: { fieldAdd?: { _id: string } }) => {
@@ -74,6 +75,7 @@ export const PropertyAddSheet = ({
             defaultValues={EMPTY_PROPERTY}
             onCancel={onClose}
             contentType={contentType}
+            contentTypeId={contentTypeId}
           />
         )}
       </Sheet.View>

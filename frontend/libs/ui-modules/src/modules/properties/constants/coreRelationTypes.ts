@@ -16,11 +16,7 @@ export const CORE_RELATION_TYPES = [
     value: 'core:user',
   },
   {
-    label: 'Branches',
-    value: 'core:branch',
-  },
-  {
-    label: 'Departments',
-    value: 'core:department',
+    label: 'Structure nodes',
+    value: 'core:structureEntity',
   },
 ];

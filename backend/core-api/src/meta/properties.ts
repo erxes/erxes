@@ -193,5 +193,14 @@ export const properties: IPropertyMeta = {
         { code: 'details.description', name: 'Description', type: 'textarea' },
       ],
     },
+    {
+      description: 'Structure node',
+      type: 'structureEntity',
+      systemFields: [
+        { code: 'title', name: 'Title', type: 'text' },
+        { code: 'code', name: 'Code', type: 'text' },
+        { code: 'description', name: 'Description', type: 'textarea' },
+      ],
+    },
   ],
 };

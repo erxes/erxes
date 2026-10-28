@@ -25,8 +25,7 @@ import {
       { label: 'Operator Phone', key: 'details.operatorPhone' },
 
       { label: 'Brands', key: 'brandIds', isDefault: true },
-      { label: 'Departments', key: 'departmentIds', isDefault: true },
-      { label: 'Branches', key: 'branchIds', isDefault: true },
+      { label: 'Structure nodes', key: 'structureEntities', isDefault: true },
   
       { label: 'Created At', key: 'createdAt' },
     ];

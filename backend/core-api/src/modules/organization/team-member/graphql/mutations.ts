@@ -5,18 +5,21 @@ import {
   IUser,
   Resolver,
 } from 'erxes-api-shared/core-types';
+import { clearGroupActionsCache } from 'erxes-api-shared/core-modules';
 import {
   authCookieOptions,
   getEnv,
-  getPlugin,
-  getPlugins,
   getSaasOrganizationDetail,
   graphqlPubsub,
+  withoutPermissionScope,
 } from 'erxes-api-shared/utils';
-import { IContext, IModels } from '~/connectionResolvers';
+import { IContext } from '~/connectionResolvers';
+import { assertCanManageSeat } from '@/organization/structure/access';
+import { resolvePermissionScope } from '@/permissions/scope';
 import { saveValidatedToken } from '~/modules/auth/utils';
 import { sendInvitationEmail } from '../utils';
 import { sendOnboardNotification } from '~/modules/notifications/utils';
+import { ensurePermissionGroups } from '~/modules/permissions/utils';
 
 export interface IUsersEdit extends IUser {
   channelIds?: string[];
@@ -34,53 +37,6 @@ const publishUserStatusChanged = (
     graphqlPubsub.publish(`userStatusChanged:${subdomain}:${userId}`, payload),
     graphqlPubsub.publish(`userStatusChanged:${subdomain}`, payload),
   ]);
-};
-
-const validatePermissionGroupIds = async (
-  models: IModels,
-  permissionGroupIds: string[],
-) => {
-  const validPermissionGroupIds = new Set<string>();
-  const plugins = await getPlugins();
-
-  for (const name of plugins) {
-    const service = await getPlugin(name);
-    const defaultGroups = service?.config?.meta?.permissions?.defaultGroups;
-
-    if (!defaultGroups) continue;
-
-    for (const group of defaultGroups) {
-      validPermissionGroupIds.add(group.id);
-    }
-  }
-
-  const customPermissionGroupIds = permissionGroupIds.filter(
-    (id) => !validPermissionGroupIds.has(id),
-  );
-
-  if (customPermissionGroupIds.length > 0) {
-    const permissionGroups = await models.PermissionGroups.find({
-      _id: { $in: customPermissionGroupIds },
-    })
-      .select('_id')
-      .lean();
-
-    for (const group of permissionGroups) {
-      validPermissionGroupIds.add(String(group._id));
-    }
-  }
-
-  const invalidPermissionGroupIds = permissionGroupIds.filter(
-    (id) => !validPermissionGroupIds.has(id),
-  );
-
-  if (invalidPermissionGroupIds.length > 0) {
-    throw new Error(
-      `One or more permission groups are invalid: ${invalidPermissionGroupIds.join(
-        ', ',
-      )}`,
-    );
-  }
 };
 
 export const userMutations: Record<string, Resolver<any, any, IContext>> = {
@@ -101,13 +57,15 @@ export const userMutations: Record<string, Resolver<any, any, IContext>> = {
       lastName?: string;
       subscribeEmail?: boolean;
     },
-    { models }: IContext,
+    { models, subdomain }: IContext,
   ) {
     const userCount = await models.Users.countDocuments();
 
     if (userCount > 0) {
       throw new Error('Access denied');
     }
+
+    await ensurePermissionGroups(models, subdomain);
 
     const doc: IUser = {
       isOwner: true,
@@ -167,10 +125,10 @@ export const userMutations: Record<string, Resolver<any, any, IContext>> = {
    */
   async usersEdit(
     _parent: undefined,
-    args: IUsersEdit & { unitId?: string },
+    args: IUsersEdit,
     { user, models, checkPermission }: IContext,
   ) {
-    const { _id, unitId, ...doc } = args as any;
+    const { _id, ...doc } = args;
 
     if (user._id !== _id) {
       await checkPermission('teamMembersUpdate', _id);
@@ -190,36 +148,7 @@ export const userMutations: Record<string, Resolver<any, any, IContext>> = {
       };
     }
 
-    const previous = await models.Users.getUser(_id);
-    const updatedUser = await models.Users.updateUser(_id, updatedDoc);
-
-    if (args.departmentIds || args.branchIds) {
-      await models.UserMovements.manageUserMovement({
-        user: updatedUser,
-        createdBy: user._id,
-      });
-    }
-
-    models.UserMovements.notifyStructureChanges({
-      previous,
-      updated: updatedUser,
-      createdBy: user._id,
-    });
-
-    if (unitId !== undefined) {
-      await models.Units.updateMany(
-        { userIds: _id },
-        { $pull: { userIds: _id } },
-      );
-      if (unitId) {
-        await models.Units.updateOne(
-          { _id: unitId },
-          { $addToSet: { userIds: _id } },
-        );
-      }
-    }
-
-    return updatedUser;
+    return models.Users.updateUser(_id, updatedDoc);
   },
 
   /*
@@ -233,14 +162,12 @@ export const userMutations: Record<string, Resolver<any, any, IContext>> = {
       details,
       links,
       employeeId,
-      positionIds,
     }: {
       username: string;
       email: string;
       details: IDetail;
       links: ILink;
       employeeId: string;
-      positionIds: string[];
     },
     { user, models }: IContext,
   ) {
@@ -253,7 +180,6 @@ export const userMutations: Record<string, Resolver<any, any, IContext>> = {
       },
       links,
       employeeId,
-      positionIds,
     };
 
     const updatedUser = await models.Users.editProfile(user._id, doc);
@@ -308,9 +234,6 @@ export const userMutations: Record<string, Resolver<any, any, IContext>> = {
     return true;
   },
 
-  /*
-   * Invites users to team members
-   */
   async usersInvite(
     _parent: undefined,
     {
@@ -319,39 +242,86 @@ export const userMutations: Record<string, Resolver<any, any, IContext>> = {
       entries: Array<{
         email: string;
         password: string;
-        permissionGroupIds?: string[];
+        entityId?: string;
+        seatIds?: string[];
       }>;
     },
     { models, subdomain, user, checkPermission }: IContext,
   ) {
     await checkPermission('teamMembersInvite');
 
-    const permissionGroupIds = [
-      ...new Set(
-        entries.reduce<string[]>(
-          (ids, entry) => ids.concat(entry.permissionGroupIds || []),
-          [],
-        ),
-      ),
-    ];
+    const invitesEverywhere =
+      user.isOwner ||
+      (
+        await resolvePermissionScope(models, {
+          userId: user._id,
+          plugin: 'core',
+          module: 'teamMembers',
+          actions: ['teamMembersInvite'],
+        })
+      ).all;
 
-    if (permissionGroupIds.length > 0) {
-      await checkPermission('permissionsManage');
-      await validatePermissionGroupIds(models, permissionGroupIds);
+    const placements = new Map<
+      string,
+      { entityId: string; seatIds: string[] }
+    >();
+
+    for (const entry of entries) {
+      if (!entry.entityId) {
+        if (!invitesEverywhere || entry.seatIds?.length) {
+          throw new Error(`Choose a structure node for ${entry.email}`);
+        }
+
+        continue;
+      }
+
+      await checkPermission('structureEntitiesManage');
+
+      const entity = await models.StructureEntities.getEntity(entry.entityId);
+      const seatIds = [...new Set(entry.seatIds || [])];
+      const seats = seatIds.length
+        ? await models.StructureSeats.find({ _id: { $in: seatIds } })
+        : [];
+
+      if (
+        seats.length !== seatIds.length ||
+        seats.some((seat) => seat.entityId !== entity._id)
+      ) {
+        throw new Error('Seats must belong to the chosen node');
+      }
+
+      for (const seat of seats) {
+        await assertCanManageSeat(models, user, seat);
+      }
+
+      placements.set(entry.email, { entityId: entity._id, seatIds });
     }
 
     for (const entry of entries) {
       await models.Users.checkDuplication({ email: entry.email });
 
-      const doc: any = entry;
+      const token = await models.Users.invite({
+        email: entry.email,
+        password: entry.password,
+      });
+      const placement = placements.get(entry.email);
 
-      const docModified = doc;
+      if (placement) {
+        const invited = await withoutPermissionScope(() =>
+          models.Users.findOne(
+            { email: entry.email.toLowerCase().trim() },
+            { _id: 1 },
+          ),
+        );
 
-      if (docModified?.scopeBrandIds?.length) {
-        doc.brandIds = docModified.scopeBrandIds;
+        if (invited) {
+          await models.StructureEntityMembers.addMember(
+            { ...placement, userId: invited._id, isPrimary: true },
+            user._id,
+          );
+          await clearGroupActionsCache({ userId: invited._id });
+        }
       }
-
-      const token = await models.Users.invite(doc);
 
       sendInvitationEmail(models, subdomain, {
         email: entry.email,

@@ -38,10 +38,8 @@ import {
 } from 'ui-modules/modules/contacts';
 import { ProductsInline, SelectProduct } from 'ui-modules/modules/products';
 import {
-  BranchesInline,
-  DepartmentsInline,
-  SelectBranches,
-  SelectDepartments,
+  SelectStructureEntities,
+  StructureEntitiesInline,
 } from 'ui-modules/modules/structure';
 import { MembersInline, SelectMember } from 'ui-modules/modules/team-members';
 
@@ -376,16 +374,9 @@ const RelationValueInput = ({
       return <SelectProduct {...commonProps} />;
     case 'relation:core:teamMembers':
       return <SelectMember {...commonProps} />;
-    case 'relation:core:branch':
+    case 'relation:core:structureEntity':
       return (
-        <SelectBranches.Root
-          {...commonProps}
-          onValueChange={(val) => onChange(val ?? null)}
-        />
-      );
-    case 'relation:core:department':
-      return (
-        <SelectDepartments.Root
+        <SelectStructureEntities.Root
           {...commonProps}
           onValueChange={(val) => onChange(val ?? null)}
         />
@@ -413,10 +404,8 @@ const RelationValueDisplay = ({
       return <ProductsInline productIds={ids} />;
     case 'relation:core:teamMembers':
       return <MembersInline memberIds={ids} />;
-    case 'relation:core:branch':
-      return <BranchesInline branchIds={ids} />;
-    case 'relation:core:department':
-      return <DepartmentsInline departmentIds={ids} />;
+    case 'relation:core:structureEntity':
+      return <StructureEntitiesInline entityIds={ids} />;
     default:
       return <>{ids.join(', ')}</>;
   }

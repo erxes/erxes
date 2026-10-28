@@ -1,9 +1,4 @@
-import {
-  IconBuilding,
-  IconSitemap,
-  IconUsers,
-  IconWorld,
-} from '@tabler/icons-react';
+import { IconHierarchy, IconWorld } from '@tabler/icons-react';
 import { Tooltip } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { MembersInline } from 'ui-modules';
@@ -11,9 +6,7 @@ import { useFilesSharedWith } from '../hooks/useFilesSharedWith';
 
 const GROUP_ICONS = {
   everyone: IconWorld,
-  department: IconSitemap,
-  branch: IconBuilding,
-  unit: IconUsers,
+  entity: IconHierarchy,
 };
 
 export const FilesSharedWith = ({

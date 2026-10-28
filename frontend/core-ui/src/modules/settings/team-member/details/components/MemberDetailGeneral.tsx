@@ -1,6 +1,6 @@
 import { useUserDetail } from '@/settings/team-member/hooks/useUserDetail';
 import {
-  IUserDetail,
+  IUser,
   IUserDetailsType,
   UsersHotKeyScope,
 } from '@/settings/team-member/types';
@@ -26,9 +26,7 @@ export const MemberDetailGeneral = () => {
   const { usersEdit } = useUserEdit();
   const currentUser = useAtomValue(currentUserState);
 
-  const handleEditDetails = (
-    changedDetails: Partial<IUserDetail['details']>,
-  ) => {
+  const handleEditDetails = (changedDetails: Partial<IUser['details']>) => {
     const { __typename, ...rest } = details || {};
     usersEdit({
       variables: {

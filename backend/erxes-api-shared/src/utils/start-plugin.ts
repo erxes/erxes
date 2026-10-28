@@ -40,7 +40,7 @@ import {
 import { AutomationConfigs } from '../core-modules/automations/types';
 import type { ImportExportConfigs } from '../core-modules/import-export/types';
 import { startImportExportWorker } from '../core-modules/import-export/worker';
-import { IMainContext, IPermissionConfig } from '../core-types';
+import { IMainContext, IPermissionConfig, IStructureMeta } from '../core-types';
 import {
   generateApolloContext,
   startBeforeResolvers,
@@ -50,7 +50,8 @@ import {
 import { BeforeResolversConfig } from './apollo/beforeResolvers';
 import { extractUserFromHeader } from './headers';
 import { AfterProcessConfigs, logHandler, startAfterProcess } from './logs';
-import { closeMongooose } from './mongo';
+import { closeMongooose, registerPermissionScopes } from './mongo';
+import { permissionScopeMiddleware } from '../core-modules/permissions/scope';
 import {
   initializePluginConfig,
   joinErxesGateway,
@@ -103,6 +104,7 @@ type IMeta = {
   // Text-only skills and agent-hidden GraphQL operations for the core AI
   // assistant; core re-validates them when it reads service discovery.
   agent?: IAgentPluginMeta;
+  structure?: IStructureMeta;
 };
 
 type ApiHandler = {
@@ -373,8 +375,11 @@ export async function startPlugin(
   const apolloServer = await generateApolloServer();
   await apolloServer.start();
 
+  registerPermissionScopes(name, meta?.permissions);
+
   app.use(
     '/graphql',
+    permissionScopeMiddleware,
     expressMiddleware(apolloServer, {
       context: generateApolloContext<IMainContext>(apolloServerContext),
     }),

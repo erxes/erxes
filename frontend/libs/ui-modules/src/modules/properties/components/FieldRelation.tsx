@@ -2,10 +2,7 @@ import { SelectCompany, SelectCustomer } from 'ui-modules/modules/contacts';
 import { SpecificFieldProps } from './Field';
 import { ComponentType, useState } from 'react';
 import { SelectProduct } from 'ui-modules/modules/products';
-import {
-  SelectBranches,
-  SelectDepartments,
-} from 'ui-modules/modules/structure';
+import { SelectStructureEntities } from 'ui-modules/modules/structure';
 import { SelectMember } from 'ui-modules/modules/team-members';
 
 type RelationSelectProps = {
@@ -45,17 +42,11 @@ const RELATION_SELECT_BY_TYPE: Record<
     ) : (
       <SelectMember {...props} {...COMMON_PROPS} />
     ),
-  'core:branch': ({ inCell, ...props }) =>
+  'core:structureEntity': ({ inCell, ...props }) =>
     inCell ? (
-      <SelectBranches.InlineCell {...props} {...COMMON_PROPS} />
+      <SelectStructureEntities.InlineCell {...props} {...COMMON_PROPS} />
     ) : (
-      <SelectBranches.Root {...props} {...COMMON_PROPS} />
-    ),
-  'core:department': ({ inCell, ...props }) =>
-    inCell ? (
-      <SelectDepartments.InlineCell {...props} {...COMMON_PROPS} />
-    ) : (
-      <SelectDepartments.Root {...props} {...COMMON_PROPS} />
+      <SelectStructureEntities.Root {...props} {...COMMON_PROPS} />
     ),
 };
 

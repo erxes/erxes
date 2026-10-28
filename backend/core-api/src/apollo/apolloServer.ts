@@ -4,12 +4,15 @@ import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHt
 import { buildSubgraphSchema } from '@apollo/subgraph';
 import * as dotenv from 'dotenv';
 import { IMainContext } from 'erxes-api-shared/core-types';
+import { permissionScopeMiddleware } from 'erxes-api-shared/core-modules';
 import {
   generateApolloContext,
   wrapApolloResolvers,
   expectedErrorPlugin,
+  registerPermissionScopes,
 } from 'erxes-api-shared/utils';
 import { generateModels } from '../connectionResolvers';
+import { permissions } from '../meta/permissions';
 import resolvers from './resolvers';
 import { typeDefs } from './typeDefs';
 
@@ -34,8 +37,11 @@ export const initApolloServer = async (app, httpServer) => {
 
   await apolloServer.start();
 
+  registerPermissionScopes('core', permissions);
+
   app.use(
     '/graphql',
+    permissionScopeMiddleware,
     expressMiddleware(apolloServer, {
       context: generateApolloContext<IMainContext>(
         async (subdomain, context) => {

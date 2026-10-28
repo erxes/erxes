@@ -304,7 +304,7 @@ export const loadFormClass = (models: IModels) => {
             integrationId: 1,
             visibility: 1,
             languageCode: 1,
-            departmentIds: 1,
+            sharedEntityIds: 1,
             code: 1,
           },
         },

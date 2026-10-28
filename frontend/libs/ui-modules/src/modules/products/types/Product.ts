@@ -12,8 +12,7 @@ export interface IProduct {
   categoryId: string;
   category?: IProductCategory;
   tagIds: string[];
-  branchId?: string;
-  departmentId?: string;
+  placeEntityId?: string;
   uom: string;
   type: 'product' | 'service' | 'unique' | 'subscription';
   duration?: number;
@@ -81,8 +80,7 @@ export interface IProductData {
   isVatApplied?: boolean;
   assignUserId?: string;
   maxQuantity: number;
-  branchId?: string;
-  departmentId?: string;
+  placeEntityId?: string;
   assignedUserId?: string;
   conditions?: IDealBundleItem[];
 }
