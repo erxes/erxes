@@ -112,7 +112,6 @@ export const ClientPortalUsersFilter = () => {
           </Filter.BarName>
           <Filter.Date filterKey="created" />
         </Filter.BarItem>
-        <ClientPortalUsersFilterPopover />
         <ClientPortalUsersTotalCount />
       </Filter.Bar>
     </Filter>

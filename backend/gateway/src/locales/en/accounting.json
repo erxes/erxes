@@ -512,7 +512,7 @@
   "preparing-excel-file": "Preparing Excel file...",
   "download-excel": "Download Excel",
   "unable-to-generate-the-excel-file": "Unable to generate the Excel file",
-  "headerless-code-count-rows-the-system-retrieves-the-recorded-total-cost": "Headerless code,count rows. The system retrieves the recorded total cost.",
+  "headerless-code-count-rows-the-system-retrieves-the-recorded-total-cost": "Headerless [code,count] rows. The system retrieves the recorded total cost.",
   "add-allocation": "Add allocation (",
   "open-pos-order": "Open POS order",
   "pos-order-rule": "POS order rule",
