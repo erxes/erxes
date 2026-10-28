@@ -62,7 +62,7 @@ export const StructureDraftInput = ({
   const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter') {
       event.preventDefault();
-      submit();
+      void submit();
     }
 
     if (event.key === 'Escape') {
@@ -81,7 +81,7 @@ export const StructureDraftInput = ({
     pickType(nextTypeId);
 
     if (title.trim()) {
-      submit(nextTypeId);
+      void submit(nextTypeId);
     }
   };
 

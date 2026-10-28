@@ -149,7 +149,7 @@ export const StructureDrawerProperties = ({
     const code = value.trim();
 
     if (code !== (entity.code ?? '')) {
-      save({ _id: entity._id, code }, savedMessage);
+      void save({ _id: entity._id, code }, savedMessage);
     }
   };
 
@@ -157,7 +157,7 @@ export const StructureDrawerProperties = ({
     const description = value.trim();
 
     if (description !== (entity.description ?? '')) {
-      save({ _id: entity._id, description }, savedMessage);
+      void save({ _id: entity._id, description }, savedMessage);
     }
   };
 

@@ -47,6 +47,8 @@ export const StructurePersonChip = ({
       ref={setNodeRef}
       {...attributes}
       {...listeners}
+      role="button"
+      tabIndex={0}
       title={person.name}
       onClick={onClick}
       onKeyDown={handleKeyDown}

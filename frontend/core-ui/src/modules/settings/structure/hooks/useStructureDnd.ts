@@ -131,11 +131,11 @@ export const useStructureDnd = () => {
 
     if (result.kind === 'move-entity' && item.kind === 'entity') {
       expand(target._id);
-      moveEntity(item.entity, target);
+      void moveEntity(item.entity, target);
     }
 
     if (result.kind === 'person' && item.kind === 'person') {
-      dropPerson(result.plan, item.person, target);
+      void dropPerson(result.plan, item.person, target);
     }
   };
 

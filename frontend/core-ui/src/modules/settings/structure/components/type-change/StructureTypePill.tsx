@@ -65,14 +65,16 @@ const StructureTypePillMenu = ({
     setOpen(false);
 
     if (type._id !== entity.typeId) {
-      change(entity, type);
+      void change(entity, type);
     }
   };
 
   return (
     <span
+      role="presentation"
       className="contents"
       onClick={stopPropagation}
+      onKeyDown={stopPropagation}
       onPointerDown={stopPropagation}
     >
       <Popover open={open} onOpenChange={setOpen}>

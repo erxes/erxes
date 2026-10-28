@@ -141,7 +141,7 @@ const resolveScope = async (
 ): Promise<IPermissionScopeResolution | undefined> => {
   const actions = store.actions
     .filter((action) => scoped.actions.includes(action))
-    .sort();
+    .sort((a, b) => a.localeCompare(b));
   const key = `${scoped.plugin}:${scoped.module}:${actions.join(',')}`;
   let pending = store.cache.get(key);
 
