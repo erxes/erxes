@@ -6,7 +6,11 @@ import {
   useSideMenuContext,
 } from 'erxes-ui';
 import { RefObject, useEffect, useRef } from 'react';
-import { useSidePanel } from 'ui-modules';
+import {
+  getRelationWidgetLabel,
+  useRelationWidget,
+  useSidePanel,
+} from 'ui-modules';
 import { IconHierarchy2, IconUser } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { ConversationProperties } from './ConversationProperties';
@@ -62,6 +66,10 @@ const SideWidgetOutsideClose = ({
 };
 
 const CUSTOMER_CONTENT_TYPE = 'core:customer';
+const CONVERSATION_CONTENT_TYPE = 'frontline:conversation';
+// Records listed by the conversation's customer: the tickets and deals that
+// keep that customer (`customerId`), not the conversation they came from.
+const CUSTOMER_RECORD_MODULES = ['ticket', 'deals'];
 
 // Opens the customer in the app side panel, where everything linked to them is.
 const CustomerTrigger = ({ customerId }: { customerId: string }) => {
@@ -83,7 +91,7 @@ const CustomerTrigger = ({ customerId }: { customerId: string }) => {
           aria-label={label}
           aria-pressed={isOpen}
           className={cn(
-            'size-10 rounded bg-sidebar hover:bg-primary/10 [&_svg]:size-5 [&_svg]:text-primary',
+            'size-10 rounded bg-sidebar hover:bg-primary/10 [&>svg]:size-5 [&_svg]:text-primary',
             isOpen && 'bg-primary/10',
           )}
           onClick={() => {
@@ -104,7 +112,8 @@ const CustomerTrigger = ({ customerId }: { customerId: string }) => {
 
 /**
  * The conversation's right rail: its customer, opened in the app side
- * panel, and the conversation's own properties.
+ * panel, the customer's tickets and deals, and the conversation's own
+ * properties.
  */
 export const ConversationSideWidget = ({
   customerId,
@@ -121,6 +130,15 @@ export const ConversationSideWidget = ({
 }) => {
   const { t } = useTranslation(['frontline', 'common']);
   const sideMenuRef = useRef<HTMLDivElement>(null);
+  const { RelationWidget, relationWidgetsModules } = useRelationWidget({
+    contentType: CONVERSATION_CONTENT_TYPE,
+  });
+  // Without a customer there is nothing to list the records by.
+  const recordModules = customerId
+    ? relationWidgetsModules.filter((module) =>
+        CUSTOMER_RECORD_MODULES.includes(module.name),
+      )
+    : [];
 
   return (
     <SideMenu ref={sideMenuRef} className="flex-none">
@@ -136,9 +154,32 @@ export const ConversationSideWidget = ({
       >
         <ConversationProperties id={_id} propertiesData={propertiesData} />
       </SideMenu.Content>
+      {recordModules.map((module) => (
+        <SideMenu.Content
+          key={module.name}
+          value={module.name}
+          className={sideMenuContentClass(asSheet)}
+        >
+          <RelationWidget
+            module={module.name}
+            pluginName={module.pluginName}
+            contentId={_id}
+            contentType={CONVERSATION_CONTENT_TYPE}
+            customerId={customerId}
+          />
+        </SideMenu.Content>
+      ))}
 
       <SideMenu.Sidebar>
         {customerId && <CustomerTrigger customerId={customerId} />}
+        {recordModules.map((module) => (
+          <SideMenu.Trigger
+            key={module.name}
+            value={module.name}
+            label={getRelationWidgetLabel(module)}
+            Icon={module.icon}
+          />
+        ))}
         <SideMenu.Trigger
           value="properties"
           label={t('common:properties', 'Properties')}

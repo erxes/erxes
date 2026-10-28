@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-10-27`
+- **Last synchronized:** `2026-10-28`
 
 ## Scope
 
@@ -401,8 +401,8 @@
   video, audio or file (never a sticker or share) still starts a run.
   `generateAiContext` merges every customer message since the last reply into
   the input, shows media as `[media <messageId>-<index> <type>]` markers, and
-  adds `facts.mediaIds` and `facts.openTickets` (tickets keeping the inbox
-  conversation in `sourceConversationIds` that are not resolved or closed). `actionCreateMessage` skips an
+  adds `facts.mediaIds` and `facts.openTickets` (the conversation's
+  customer's tickets, by `customerId`, that are not resolved or closed). `actionCreateMessage` skips an
   AI-written reply as `superseded-by-newer-message` when a newer customer
   message exists.
 - AI long-term memory scopes: Facebook and Messenger `generateAiContext` set
@@ -414,8 +414,9 @@
 'ticket', fields: ['name', 'number'] }`, so behind an agent's tool the
   ticket is remembered and a later turn names it as `ticketId`.
 - Ticket automations: **Create ticket** attaches `attachmentIds` (media ids
-  resolved only against the triggering conversation's messages) and relates
-  the ticket to the inbox conversation and customer, as a manual convert does.
+  resolved only against the triggering conversation's messages) and saves the
+  conversation's customer as the ticket's `customerId`; the ticket keeps no
+  link to the conversation.
   (Media added to an existing ticket goes through Find object and Manage
   properties' `attachments` field; there is no separate add-to-ticket action.)
   Conversation media is stored on the ticket with a MIME `type` (from the URL
@@ -555,11 +556,6 @@
   SES or SendGrid path: mail enters and leaves through Cloudflare only.
 - Ticket boards/pipelines, response templates, forms, knowledgebase articles,
   and report aggregations.
-- Converts an inbox conversation into a ticket (created here) or a deal
-  (created by `sales` over tRPC), relates the new item to the conversation and
-  its customer, and refuses a second item of the same kind for one
-  conversation. There is no task target; `conversationConvertToCard` rejects
-  `type: "task"` as an unsupported convert type.
 - Agents use the public GraphQL API as the acting user; tRPC remains an
   internal service contract without agent metadata.
 - A help center points at a client portal by **`clientPortalId`**, and keeps
@@ -678,7 +674,6 @@ The root router mounts its authenticated webhook at `/telegram`.
 | FB messenger services    | `src/modules/integrations/facebook/services/`                                                                                                                    | `messengerSend` (messaging params, bot text send with tag retry), `messageEvents` (reaction replace, message publish, reply-to), `automatedReplyControl`, `conversationSync`, `messageNormalization`, `messagePreview` |
 | IG messenger services    | `src/modules/integrations/instagram/services/`, `normalizeMessage.ts`                                                                                            | `messageEvents` (sender reaction replace, inbox publish), `copyInstagramImage` (allow-listed image proxy), webhook payload normalization to the shared message contract                                                |
 | Ticket                   | `src/modules/ticket/`                                                                                                                                            | Boards, pipelines, statuses, tickets, activities, notes                                                                                                                                                                |
-| Conversation convert     | `src/modules/inbox/services/conversationConvert{,Targets}.ts`                                                                                                    | Conversion orchestration and relations; one handler per target (permission, existing-item lookup, URL, create)                                                                                                         |
 | Forms                    | `src/modules/form/`                                                                                                                                              | Forms, fields, submissions                                                                                                                                                                                             |
 | Surveys                  | `src/modules/survey/`                                                                                                                                            | Survey definitions, vote ledger, message snapshot, tally refresh                                                                                                                                                       |
 | Survey ticket automation | `src/modules/survey/ticketAutomation.ts`                                                                                                                         | Threshold evaluation, atomic single-ticket claim, ticket creation                                                                                                                                                      |
@@ -699,7 +694,7 @@ The root router mounts its authenticated webhook at `/telegram`.
 ### Provides
 
 - Internal `contactFields.sync` tRPC mutation (`TContactFieldsSync`) — core broadcasts contact merges and removals to every plugin declaring `meta.contactFields` (frontline declares `frontline:ticket` in `main.ts`); applied with `applyContactFieldsSync`. Not agent-callable.
-- `createTicket` / `updateTicket` accept `customerId` / `companyId` (one of each) and save them on the ticket; `getTickets` filters by them. Tickets made elsewhere save their customer the same way: mail (`createTicketFromMail`), the messenger widget, client portal (`cpCreateTicket`), conversation convert and the create-ticket automation. No core relation is made for a ticket: a ticket made from a conversation (convert or the create-ticket automation) keeps it in `sourceConversationIds` (indexed); convert's "already converted" check, the converted-items list, open-ticket facts (`findOpenConversationTickets`) and the ticket source-channel report read that field, and the conversation's form submissions are logged on the new ticket or deal directly (`inbox/utils/conversationFormSubmission.ts`). `backend/saas-migrations/core/commands/migrateConversationRelationsToSourceFields.ts` copies old conversation ↔ ticket / deal relations and `customerFieldData.sourceConversationIds` into the field. The `customer.tickets` / `company.tickets` segments and the ticket `customers` reference join on `customerId` / `companyId`.
+- `createTicket` / `updateTicket` accept `customerId` / `companyId` (one of each) and save them on the ticket; `getTickets` filters by them. Tickets made elsewhere save their customer the same way: mail (`createTicketFromMail`), the messenger widget, client portal (`cpCreateTicket`) and the create-ticket automation. No core relation and no conversation link is kept on a ticket: there is no conversation convert, tickets have no `sourceConversationIds` field, and a ticket made from a conversation (the create-ticket automation) only gets the conversation's customer. Open-ticket facts (`findOpenConversationTickets`) list the conversation's customer's open tickets, the ticket source-channel report groups the tickets' customers' conversations by integration, and the conversation's form submissions are logged on the new ticket or deal directly (`inbox/utils/conversationFormSubmission.ts`). `backend/saas-migrations/core/commands/migrateRelationsToContactFields.ts` gives tickets and deals still without a customer the customer of their old source conversation (relations, the old field or `customerFieldData.sourceConversationIds`); stored `sourceConversationIds` values are left in place but nothing reads them. The `customer.tickets` / `company.tickets` segments and the ticket `customers` reference join on `customerId` / `companyId`.
 - Telegram: `POST /telegram/receive/:_id` authenticates the stored webhook
   secret. `telegramBots`, `telegramConversationChats`, `telegramBotWebhookInfo` and
   `telegramMessageLinkPreviews` expose permission-checked setup/status and
@@ -1564,10 +1559,6 @@ tagIds, propertiesData: JSON)` (the customer comes from the widget session) — 
   `CpTicketPipeline` type (`_id`, `name`, `description`, `channelId`), never
   the staff `Pipeline` type with its member, department, numbering and
   `createdUser` fields. Keep any new client portal read on its own narrow type.
-- A converted ticket's "Go to" URL (`conversationConvertedItems`, built in
-  `src/modules/inbox/services/conversationConvertTargets.ts`) carries the
-  ticket's `channelId` and `pipelineId` with `ticketId`; without them the
-  tickets page falls back to the channel's first pipeline.
 - Ticket activity logging (`createActivity` in
   `src/modules/ticket/utils/ticket.ts`) receives the whole ticket as `newDoc`
   (`{ ...ticket.toObject(), ...rest }`), so every field is compared on every

@@ -83,7 +83,6 @@ export interface IDeal {
   order?: number;
   searchText?: string;
   priority?: string;
-  sourceConversationIds?: string[];
   status?: string;
   timeTrack?: {
     status: string;
