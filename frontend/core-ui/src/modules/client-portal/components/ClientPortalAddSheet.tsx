@@ -1,8 +1,8 @@
+import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
 import {
   Button,
   Form,
   Kbd,
-  Sheet,
   Spinner,
   usePreviousHotkeyScope,
   useScopedHotkeys,
@@ -85,31 +85,38 @@ export const CreateClientPortalSheet = () => {
   );
 
   return (
-    <Sheet open={_open} onOpenChange={(open) => (open ? onOpen() : onClose())}>
+    <CoreModulePanel
+      requiredPermission="clientPortalManage"
+      name={'client-portal/ClientPortalAddSheet'}
+      open={_open}
+      onOpenChange={(open) => (open ? onOpen() : onClose())}
+    >
       <Can action="clientPortalManage">
-        <Sheet.Trigger asChild>
+        <CoreModulePanel.Trigger asChild>
           <Button>
             <IconPlus />
             {t('create-client-portal')}
             <Kbd>C</Kbd>
           </Button>
-        </Sheet.Trigger>
+        </CoreModulePanel.Trigger>
       </Can>
-      <Sheet.View className="p-0">
+      <CoreModulePanel.View className="p-0">
         <Form {...methods}>
           <form
             className="flex flex-col gap-0 size-full"
             onSubmit={handleSubmit(submitHandler)}
           >
-            <Sheet.Header>
+            <CoreModulePanel.Header>
               <IconChessKnight />
-              <Sheet.Title>{t('create-client-portal')}</Sheet.Title>
-              <Sheet.Close />
-            </Sheet.Header>
-            <Sheet.Content className="grow size-full flex flex-col px-5 py-4">
+              <CoreModulePanel.Title>
+                {t('create-client-portal')}
+              </CoreModulePanel.Title>
+              <CoreModulePanel.Close />
+            </CoreModulePanel.Header>
+            <CoreModulePanel.Content className="grow size-full flex flex-col px-5 py-4">
               <ClientPortalCreateForm />
-            </Sheet.Content>
-            <Sheet.Footer>
+            </CoreModulePanel.Content>
+            <CoreModulePanel.Footer>
               <Button
                 variant={'secondary'}
                 onClick={onClose}
@@ -120,10 +127,10 @@ export const CreateClientPortalSheet = () => {
               <Button type="submit">
                 {loading ? <Spinner /> : t('create')}
               </Button>
-            </Sheet.Footer>
+            </CoreModulePanel.Footer>
           </form>
         </Form>
-      </Sheet.View>
-    </Sheet>
+      </CoreModulePanel.View>
+    </CoreModulePanel>
   );
 };

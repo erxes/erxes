@@ -1,12 +1,6 @@
+import { CoreFocusPanel } from '@/side-panel/components/CoreModulePanel';
 import { IconPlus } from '@tabler/icons-react';
-import {
-  Button,
-  FocusSheet,
-  ScrollArea,
-  Separator,
-  Tabs,
-  useQueryState,
-} from 'erxes-ui';
+import { Button, ScrollArea, Separator, Tabs, useQueryState } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -16,9 +10,9 @@ import {
   SegmentUnsavedBadge,
   useSegmentDetail,
 } from 'ui-modules';
-import { SegmentAutomationCreateButton } from './SegmentAutomationCreateButton';
-import { SegmentAutomations } from './SegmentAutomations';
-import { SegmentDetailSidebar } from './SegmentDetailSidebar';
+import { SegmentAutomationCreateButton } from '@/segments/components/SegmentAutomationCreateButton';
+import { SegmentAutomations } from '@/segments/components/SegmentAutomations';
+import { SegmentDetailSidebar } from '@/segments/components/SegmentDetailSidebar';
 
 type Props = {
   onRefresh: () => void;
@@ -47,25 +41,25 @@ const SegmentDetailBody = ({
 
   return (
     <>
-      <FocusSheet.Header
+      <CoreFocusPanel.Header
         title={title}
         description={segmentId ? segment?.description : undefined}
       >
         <SegmentUnsavedBadge />
-      </FocusSheet.Header>
-      <FocusSheet.Content>
+      </CoreFocusPanel.Header>
+      <CoreFocusPanel.Content>
         {/* A segment that does not exist yet has nothing to look back on, so it
           opens straight into its definition with no sidebar to choose from. */}
         {!!segmentId && (
-          <FocusSheet.SideBar>
+          <CoreFocusPanel.SideBar>
             <SegmentDetailSidebar />
-          </FocusSheet.SideBar>
+          </CoreFocusPanel.SideBar>
         )}
         <div className="flex-1 flex flex-col overflow-hidden">
           <Separator />
           <div className="flex-1 min-h-0">
             <Tabs
-              value={segmentId ? (selectedTab ?? 'overview') : 'definition'}
+              value={segmentId ? selectedTab ?? 'overview' : 'definition'}
               onValueChange={setSelectedTab}
               className="h-full"
             >
@@ -100,7 +94,7 @@ const SegmentDetailBody = ({
             </Tabs>
           </div>
         </div>
-      </FocusSheet.Content>
+      </CoreFocusPanel.Content>
     </>
   );
 };
@@ -123,7 +117,11 @@ export function SegmentDetail({ onRefresh }: Props) {
         </Button>
       </Can>
 
-      <FocusSheet
+      <CoreFocusPanel
+        requiredPermission={segmentId ? undefined : 'segmentsManage'}
+        maxWidth={1100}
+        defaultWidth={800}
+        name={'segments/SegmentDetail'}
         open={!!segmentId || isCreatingNew}
         onOpenChange={(open) => {
           if (open) {
@@ -134,7 +132,7 @@ export function SegmentDetail({ onRefresh }: Props) {
           setIsCreatingNew(false);
         }}
       >
-        <FocusSheet.View
+        <CoreFocusPanel.View
           className={segmentId ? 'lg:max-w-6xl' : 'lg:max-w-5xl'}
         >
           <SegmentDetailBody
@@ -147,8 +145,8 @@ export function SegmentDetail({ onRefresh }: Props) {
               setOpen(id);
             }}
           />
-        </FocusSheet.View>
-      </FocusSheet>
+        </CoreFocusPanel.View>
+      </CoreFocusPanel>
     </>
   );
 }

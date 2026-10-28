@@ -7,7 +7,7 @@ import {
 } from '@tabler/icons-react';
 import { Avatar, Empty, readImage, ScrollArea, Skeleton } from 'erxes-ui';
 import { useAtom } from 'jotai';
-import { useState } from 'react';
+import { lazy, Suspense, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { companyCustomActivities } from '@/contacts/companies/company-detail/CompanyActivityRows';
 import { AssistantPanel } from './chat/AssistantPanel';
@@ -48,6 +48,12 @@ const DETAIL_TAB = 'detail';
 const PROPERTIES_TAB = 'properties';
 const RELATIONS_TAB = 'relations';
 const ACTIVITY_TAB = 'activity';
+
+const ApprovalRequestRecordPanel = lazy(() =>
+  import('@/settings/approval/components/ApprovalRequestRecordPanel').then(
+    (module) => ({ default: module.ApprovalRequestRecordPanel }),
+  ),
+);
 
 // The record's own views, for the types core knows how to show.
 const getRecordViews = ({ contentType, contentId }: TRelationEntity) => {
@@ -478,7 +484,11 @@ const SidePanelDraft = ({
 export const SidePanelRecord = (
   props: React.ComponentProps<typeof SidePanelSavedRecord>,
 ) =>
-  props.record.contentId === NEW_RECORD_ID ? (
+  props.record.contentType === 'core:approvalRequest' ? (
+    <Suspense fallback={<Skeleton className="m-3 h-32" />}>
+      <ApprovalRequestRecordPanel {...props} />
+    </Suspense>
+  ) : props.record.contentId === NEW_RECORD_ID ? (
     <SidePanelDraft {...props} />
   ) : (
     <SidePanelSavedRecord {...props} />

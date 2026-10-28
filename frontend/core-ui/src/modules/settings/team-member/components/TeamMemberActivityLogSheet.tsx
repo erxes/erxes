@@ -1,6 +1,7 @@
+import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
 import { EmailAddressesRecordTable } from '@/settings/email-addresses/components/EmailAddressesRecordTable';
 import { EmailDeliveriesRecordTable } from '@/settings/email-deliveries/components/EmailDeliveriesRecordTable';
-import { Sheet, Tabs, useQueryState } from 'erxes-ui';
+import { Tabs, useQueryState } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
 export const TeamMemberActivityLogSheet = ({
@@ -16,19 +17,20 @@ export const TeamMemberActivityLogSheet = ({
   const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
 
   return (
-    <Sheet
+    <CoreModulePanel
+      name={`settings/team-member/activity/${email}`}
       open={open}
       onOpenChange={(nextOpen) => {
         if (!nextOpen) setDeliveryId(null);
         onOpenChange(nextOpen);
       }}
     >
-      <Sheet.View className="flex flex-col gap-0 sm:max-w-6xl">
-        <Sheet.Header>
-          <Sheet.Title>{t('activity-log')}</Sheet.Title>
-          <Sheet.Close />
-        </Sheet.Header>
-        <Sheet.Content className="min-h-0 flex-1 overflow-auto">
+      <CoreModulePanel.View className="flex flex-col gap-0 sm:max-w-6xl">
+        <CoreModulePanel.Header>
+          <CoreModulePanel.Title>{t('activity-log')}</CoreModulePanel.Title>
+          <CoreModulePanel.Close />
+        </CoreModulePanel.Header>
+        <CoreModulePanel.Content className="min-h-0 flex-1 overflow-auto">
           {open &&
             (email.trim() ? (
               <Tabs key={email} defaultValue="messages">
@@ -60,8 +62,8 @@ export const TeamMemberActivityLogSheet = ({
                 {t('no-email-address')}
               </p>
             ))}
-        </Sheet.Content>
-      </Sheet.View>
-    </Sheet>
+        </CoreModulePanel.Content>
+      </CoreModulePanel.View>
+    </CoreModulePanel>
   );
 };

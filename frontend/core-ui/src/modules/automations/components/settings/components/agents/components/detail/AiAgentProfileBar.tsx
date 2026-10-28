@@ -1,10 +1,11 @@
+import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
 import { AiAgentBot } from '@/automations/components/settings/components/agents/components/bot/AiAgentBot';
 import { TAiAgentStepStatus } from '@/automations/components/settings/components/agents/constants/aiAgentSteps';
 import { useAiAgentDetailContext } from '@/automations/components/settings/components/agents/context/AiAgentDetailContext';
 import { useAiAgentProfile } from '@/automations/components/settings/components/agents/hooks/useAiAgentProfile';
 import { useSessionTab } from '@/automations/hooks/useSessionTab';
 import { IconAlertTriangle, IconArrowBackUp, IconX } from '@tabler/icons-react';
-import { Badge, BadgeProps, Button, cn, Sheet } from 'erxes-ui';
+import { Badge, BadgeProps, Button, cn } from 'erxes-ui';
 import { Link, useSearchParams } from 'react-router';
 import { parseAutomationReturnLink } from 'ui-modules';
 
@@ -46,9 +47,9 @@ export const AiAgentProfileBar = () => {
 
         <div className="min-w-40 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <Sheet.Title className="truncate text-base font-semibold">
+            <CoreModulePanel.Title className="truncate text-base font-semibold">
               {name}
-            </Sheet.Title>
+            </CoreModulePanel.Title>
             <Badge variant={HEADLINE_VARIANTS[headline.status]}>
               {headline.label}
             </Badge>
@@ -58,9 +59,9 @@ export const AiAgentProfileBar = () => {
               </span>
             )}
           </div>
-          <Sheet.Description className="truncate text-sm text-muted-foreground">
+          <CoreModulePanel.Description className="truncate text-sm text-muted-foreground">
             {summary}
-          </Sheet.Description>
+          </CoreModulePanel.Description>
         </div>
 
         <div className="ml-auto flex shrink-0 items-center gap-1 self-start">

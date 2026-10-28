@@ -1,16 +1,29 @@
-import { Sheet } from 'erxes-ui';
-import { useFilesPreviewMode } from '../hooks/useFilesPreviewMode';
-import { FilesPreviewPanel } from './FilesPreviewPanel';
+import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
+import { useFilesPage } from '@/files/context/FilesPageContext';
+import { FilesPreviewPanel } from '@/files/components/FilesPreviewPanel';
 
 export const FilesPreviewSheet = () => {
-  const { sheetOpen, sheetTitle, close } = useFilesPreviewMode();
-
+  const { previewFile, previewLoading, previewError, setPreviewFile } =
+    useFilesPage();
   return (
-    <Sheet open={sheetOpen} onOpenChange={(next) => !next && close()}>
-      <Sheet.View className="flex flex-col p-0 sm:max-w-3xl">
-        <Sheet.Title className="sr-only">{sheetTitle}</Sheet.Title>
+    <CoreModulePanel
+      name="files/preview"
+      open={!!previewFile}
+      onOpenChange={(next) => !next && setPreviewFile(null)}
+      maxWidth={1000}
+      defaultWidth={600}
+    >
+      <CoreModulePanel.View
+        className="p-0"
+        loading={previewLoading && !previewFile}
+        error={!!previewError}
+        notFound={!previewLoading && !previewFile}
+      >
+        <CoreModulePanel.Title className="sr-only">
+          {previewFile?.name || 'File preview'}
+        </CoreModulePanel.Title>
         <FilesPreviewPanel />
-      </Sheet.View>
-    </Sheet>
+      </CoreModulePanel.View>
+    </CoreModulePanel>
   );
 };
