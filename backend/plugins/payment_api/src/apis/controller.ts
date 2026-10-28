@@ -4,6 +4,7 @@ import {
   graphqlPubsub,
   isEnabled,
   sendWorkerMessage,
+  sendWorkerQueue,
 } from 'erxes-api-shared/utils';
 
 import { golomtCallbackHandler } from '~/apis/golomt/api';
@@ -18,7 +19,6 @@ import { stripeCallbackHandler } from '~/apis/stripe/api';
 import { tdbCallbackHandler } from '~/apis/tdb/api';
 import { generateModels } from '~/connectionResolvers';
 import { PAYMENT_STATUS, PAYMENTS } from '~/constants';
-import { enqueuePaidInvoiceCallback } from '~/modules/payment/services/paidInvoiceCallback';
 import { ITransactionDocument } from '~/modules/payment/@types/transactions';
 import { tokiCallbackHandler } from '~/apis/toki/api';
 import redis from '~/utils/redis';
@@ -169,18 +169,32 @@ export const callbackHandler = async (req, res) => {
       }
 
       if (result === 'paid') {
-        const paymentId = transaction.paymentId || invoice.paymentIds?.[0];
-        const payment = paymentId
-          ? await models.PaymentMethods.findOne({ _id: paymentId }).lean()
-          : null;
+        if (invoice.contentType) {
+          const [pluginName, moduleName, collectionType] = splitType(
+            invoice.contentType,
+          );
 
-        enqueuePaidInvoiceCallback(
-          subdomain,
-          models,
-          invoice,
-          payment,
-          'paymentCallback',
-        );
+          sendWorkerQueue(pluginName, 'payments')
+            .add(
+              'callback',
+              {
+                subdomain,
+                data: {
+                  ...invoice,
+                  status: 'paid',
+                  moduleName,
+                  collectionType,
+                  apiResponse: 'success',
+                },
+              },
+              { attempts: 3, backoff: { type: 'exponential', delay: 2000 } },
+            )
+            .catch((err) => {
+              process.stderr.write(
+                `[paymentCallback] Failed to enqueue worker job for invoice ${invoice._id}: ${err.message}\n`,
+              );
+            });
+        }
       }
 
       if (invoice.callback) {

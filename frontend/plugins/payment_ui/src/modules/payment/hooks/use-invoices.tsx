@@ -9,10 +9,7 @@ import {
 } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
 import { useEffect, useMemo } from 'react';
-import {
-  INVOICE_SCANNED_SUBSCRIPTION,
-  INVOICES,
-} from '~/modules/payment/graphql/queries';
+import { INVOICES } from '~/modules/payment/graphql/queries';
 import { invoicesTotalCountAtom } from '~/modules/payment/states/invoiceCounts';
 import { IInvoice } from '~/modules/payment/types/Payment';
 
@@ -25,10 +22,6 @@ interface InvoicesQueryResult {
     pageInfo?: IRecordTableCursorPageInfo;
     totalCount?: number;
   };
-}
-
-interface InvoiceScannedSubscriptionResult {
-  invoiceScanned?: Partial<IInvoice> & Pick<IInvoice, '_id'>;
 }
 
 interface InvoicesQueryVariables extends OperationVariables {
@@ -81,7 +74,7 @@ export const useInvoices = (
 
   const shouldSyncInvoiceTotalCount = !contentType && !contentTypeId;
 
-  const { data, error, loading, fetchMore, subscribeToMore } = useQuery<
+  const { data, error, loading, fetchMore } = useQuery<
     InvoicesQueryResult,
     InvoicesQueryVariables
   >(INVOICES, {
@@ -89,29 +82,6 @@ export const useInvoices = (
     variables,
     fetchPolicy: options?.fetchPolicy || 'network-only',
   });
-
-  useEffect(() => {
-    return subscribeToMore<InvoiceScannedSubscriptionResult>({
-      document: INVOICE_SCANNED_SUBSCRIPTION,
-      updateQuery: (prev, { subscriptionData }) => {
-        const scanned = subscriptionData?.data?.invoiceScanned;
-        if (!scanned) return prev;
-
-        const list = prev?.invoices?.list || [];
-        const updated = list.map((invoice) =>
-          invoice._id === scanned._id ? { ...invoice, ...scanned } : invoice,
-        );
-
-        return {
-          ...prev,
-          invoices: {
-            ...prev.invoices,
-            list: updated,
-          },
-        };
-      },
-    });
-  }, [subscribeToMore]);
 
   const invoices = data?.invoices?.list || [];
   const totalCount = data?.invoices?.totalCount || 0;
