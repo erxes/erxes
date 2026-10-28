@@ -1,5 +1,4 @@
 import gql from 'graphql-tag';
-import { configFields } from './fragments';
 
 export const addConfig = gql`
   mutation tdbConfigsAdd(
@@ -18,10 +17,16 @@ export const addConfig = gql`
       clientSecret: $clientSecret
       testMode: $testMode
     ) {
-      ${configFields}
+      _id
+      name
+      description
+      apiUrl
+      clientId
+      testMode
     }
   }
 `;
+
 export const editConfig = gql`
   mutation tdbConfigsEdit(
     $_id: String!
@@ -41,7 +46,12 @@ export const editConfig = gql`
       clientSecret: $clientSecret
       testMode: $testMode
     ) {
-      ${configFields}
+      _id
+      name
+      description
+      apiUrl
+      clientId
+      testMode
     }
   }
 `;

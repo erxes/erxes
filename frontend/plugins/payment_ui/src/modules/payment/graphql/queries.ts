@@ -1,12 +1,12 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const INVOICE_SCANNED_SUBSCRIPTION = gql`
+export const INVOICE_SCANNED_SUBSCRIPTION = gql(`
   subscription InvoiceScanned {
     invoiceScanned
   }
-`;
+`);
 
-export const COUNTS = gql`
+export const COUNTS = gql(`
   query paymentsTotalCount($kind: String, $status: String) {
     paymentsTotalCount(kind: $kind, status: $status) {
       byKind
@@ -14,9 +14,9 @@ export const COUNTS = gql`
       __typename
     }
   }
-`;
+`);
 
-export const PAYMENTS = gql`
+export const PAYMENTS = gql(`
   query payments($status: String, $kind: String) {
     payments(status: $status, kind: $kind) {
       _id
@@ -34,15 +34,18 @@ export const PAYMENTS = gql`
       createdAt
     }
   }
-`;
+`);
 
-export const DISTRICTS = gql`
-  query qpayGetDistricts($cityCode: String!) {
-    qpayGetDistricts(cityCode: $cityCode)
+export const DISTRICTS = gql(`
+    query qpayGetDistricts($cityCode: String!) {
+    qpayGetDistricts(cityCode: $cityCode) {
+      code
+      name
+    }
   }
-`;
+`);
 
-export const INVOICES = gql`
+export const INVOICES = gql(`
   query Invoices(
     $kind: String
     $status: String
@@ -95,4 +98,4 @@ export const INVOICES = gql`
       }
     }
   }
-`;
+`);
