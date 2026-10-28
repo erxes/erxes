@@ -94,23 +94,37 @@ export function normalizeQueue(
   return { label: queue.name || String(value), value: String(value) };
 }
 
+export interface IReportIntegrationOption {
+  inboxId: string;
+  name: string;
+  phone: string;
+}
+
 export function deduplicateIntegrations(
   integrations: Array<{
     inboxId: string | null;
+    name?: string | null;
     phone: string | null;
   }>,
-): Array<{ inboxId: string; phone: string }> {
-  const map = new Map<string, { inboxId: string; phone: string }>();
+): IReportIntegrationOption[] {
+  const map = new Map<string, IReportIntegrationOption>();
   for (const integration of integrations) {
     if (!integration.inboxId) continue;
     const phone = formatPhoneStr(integration.phone ?? '');
-    if (map.has(integration.inboxId)) {
-      const existing = map.get(integration.inboxId)!;
+    const existing = map.get(integration.inboxId);
+    if (existing) {
       if (!existing.phone.includes(phone)) {
         existing.phone += `, ${phone}`;
       }
+      if (!existing.name && integration.name) {
+        existing.name = integration.name;
+      }
     } else {
-      map.set(integration.inboxId, { inboxId: integration.inboxId, phone });
+      map.set(integration.inboxId, {
+        inboxId: integration.inboxId,
+        name: integration.name ?? '',
+        phone,
+      });
     }
   }
   return Array.from(map.values());
