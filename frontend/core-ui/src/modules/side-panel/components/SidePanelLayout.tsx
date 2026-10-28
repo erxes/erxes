@@ -6,31 +6,37 @@ import {
   IconLayoutSidebarRight,
 } from '@tabler/icons-react';
 import { Avatar, Empty, readImage, ScrollArea, Skeleton } from 'erxes-ui';
-import { useAtom } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { companyCustomActivities } from '@/contacts/companies/company-detail/CompanyActivityRows';
-import { AssistantPanel } from './chat/AssistantPanel';
-import { ContactOverview } from './relations/ContactOverview';
+import { AssistantPanel } from '@/side-panel/components/chat/AssistantPanel';
+import { SidePanelRecordStack } from '@/side-panel/components/SidePanelRecordStack';
+import {
+  isModulePanelPath,
+  modulePanelEntriesState,
+} from '@/side-panel/states/modulePanelState';
+import { ContactOverview } from '@/side-panel/components/relations/ContactOverview';
 import {
   buildContactOverviewEntries,
   TContactOverviewEntry,
-} from './relations/contactOverviewEntries';
+} from '@/side-panel/components/relations/contactOverviewEntries';
 import { contactOverviewLayoutState } from '@/side-panel/states/contactOverviewState';
 import { RenderPluginsComponent } from '~/plugins/components/RenderPluginsComponent';
-import { SidePanelRelations } from './relations/SidePanelRelations';
+import { SidePanelRelations } from '@/side-panel/components/relations/SidePanelRelations';
 import { useContactWidgetModules } from '@/side-panel/hooks/useContactWidgetModules';
-import { CompanyPanelDetail } from './details/CompanyPanelDetail';
-import { CompanyPanelProperties } from './details/CompanyPanelProperties';
-import { CompanyPanelNew } from './details/CompanyPanelNew';
-import { CustomerPanelDetail } from './details/CustomerPanelDetail';
-import { CustomerPanelNew } from './details/CustomerPanelNew';
-import { CustomerPanelProperties } from './details/CustomerPanelProperties';
-import { PluginRecordPanel } from './PluginRecordPanel';
+import { CompanyPanelDetail } from '@/side-panel/components/details/CompanyPanelDetail';
+import { CompanyPanelProperties } from '@/side-panel/components/details/CompanyPanelProperties';
+import { CompanyPanelNew } from '@/side-panel/components/details/CompanyPanelNew';
+import { CustomerPanelDetail } from '@/side-panel/components/details/CustomerPanelDetail';
+import { CustomerPanelNew } from '@/side-panel/components/details/CustomerPanelNew';
+import { CustomerPanelProperties } from '@/side-panel/components/details/CustomerPanelProperties';
+import { PluginRecordPanel } from '@/side-panel/components/PluginRecordPanel';
 import { useRecordPanelPlugin } from '@/side-panel/hooks/useRecordPanelPlugin';
 import {
   ActivityLogs,
   AddInternalNote,
+  ContactOverviewSectionContext,
   IRecordSidePanelTab,
   NEW_RECORD_ID,
   RecordSidePanel,
@@ -41,6 +47,7 @@ import {
   useCompanyDetail,
   useCustomerDetail,
   useRelationWidgetTabs,
+  usePermissionCheck,
   useSidePanel,
 } from 'ui-modules';
 
@@ -53,9 +60,7 @@ const ACTIVITY_TAB = 'activity';
 const getRecordViews = ({ contentType, contentId }: TRelationEntity) => {
   if (contentType === 'core:customer') {
     return {
-      detail: (
-<CustomerPanelDetail customerId={contentId} />
-      ),
+      detail: <CustomerPanelDetail customerId={contentId} />,
       properties: <CustomerPanelProperties customerId={contentId} />,
     };
   }
@@ -186,29 +191,38 @@ const PinnedModuleTab = ({
   entry,
   contactType,
   contentId,
+  access,
   onUnavailable,
 }: {
   entry: TContactOverviewEntry;
   contactType: 'core:customer' | 'core:company';
   contentId: string;
+  access: 'read' | 'write';
   onUnavailable: (moduleKey: string) => void;
-}) =>
-  entry.kind === 'section' ? (
-    <ScrollArea className="flex-1 min-h-0" viewportClassName="[&>div]:block!">
-      <RenderPluginsComponent
-        pluginName={`${entry.module.pluginName}_ui`}
-        remoteModuleName="contactWidget"
-        props={{
-          module: entry.module.name,
-          contentType: contactType,
-          contentId,
-        }}
-        onLoadError={() => onUnavailable(entry.key)}
-      />
-    </ScrollArea>
+}) => {
+  const [folded, setFolded] = useState(false);
+  return entry.kind === 'section' ? (
+    <ContactOverviewSectionContext.Provider
+      value={{ folded, setFolded, access }}
+    >
+      <ScrollArea className="flex-1 min-h-0" viewportClassName="[&>div]:block!">
+        <RenderPluginsComponent
+          pluginName={`${entry.module.pluginName}_ui`}
+          remoteModuleName="contactWidget"
+          props={{
+            module: entry.module.name,
+            contentType: contactType,
+            contentId,
+            access,
+          }}
+          onLoadError={() => onUnavailable(entry.key)}
+        />
+      </ScrollArea>
+    </ContactOverviewSectionContext.Provider>
   ) : (
     <div className="flex flex-1 min-h-0 flex-col">{entry.tab.content}</div>
   );
+};
 
 const SidePanelSavedRecord = ({
   record,
@@ -221,15 +235,20 @@ const SidePanelSavedRecord = ({
 }) => {
   const { t } = useTranslation('common', { keyPrefix: 'side-panel' });
   const coreViews = getRecordViews(record);
+  const { hasActionPermission } = usePermissionCheck();
+  const access =
+    coreViews && !hasActionPermission('contactsUpdate') ? 'read' : 'write';
   // Types core has no views for may be drawn by the plugin owning them.
   const { pluginName, hasProperties } = useRecordPanelPlugin(
     record.contentType,
   );
   const panelPluginName = coreViews ? null : pluginName;
   const { title, avatar } = useRecordHeading(record, panelPluginName);
-  const views = coreViews || getPluginRecordViews(record, panelPluginName, hasProperties);
+  const views =
+    coreViews || getPluginRecordViews(record, panelPluginName, hasProperties);
   const relationTabs = useRelationWidgetTabs({
     ...record,
+    access,
     // Linked customers and companies are in a contact's Detail tab already.
     hiddenModules: coreViews ? ['customer', 'company'] : [],
     // A plugin's record keeps its customers and companies in its detail,
@@ -291,6 +310,7 @@ const SidePanelSavedRecord = ({
             entry={entry}
             contactType={contactType}
             contentId={record.contentId}
+            access={access}
             onUnavailable={onUnavailable}
           />
         ),
@@ -330,6 +350,7 @@ const SidePanelSavedRecord = ({
               <ContactOverview
                 contactType={contactType}
                 contentId={record.contentId}
+                access={access}
                 entries={overviewEntries}
                 customize={{
                   entries: allEntries,
@@ -351,48 +372,48 @@ const SidePanelSavedRecord = ({
         ]
       : []),
     ...[
-          {
-            value: ACTIVITY_TAB,
-            label: t('activity', 'Activity'),
-            icon: IconHistory,
-            content: panelPluginName ? (
-              // A plugin keeps its records' activity (and comments) itself.
-              <PluginRecordPanel
-                pluginName={panelPluginName}
-                contentType={record.contentType}
-                contentId={record.contentId}
-                view="activity"
-              />
-            ) : (
-              <div className="flex flex-col flex-1 min-h-0">
-                {/* The log and note box are spaced for the wide detail sheet; in the
+      {
+        value: ACTIVITY_TAB,
+        label: t('activity', 'Activity'),
+        icon: IconHistory,
+        content: panelPluginName ? (
+          // A plugin keeps its records' activity (and comments) itself.
+          <PluginRecordPanel
+            pluginName={panelPluginName}
+            contentType={record.contentType}
+            contentId={record.contentId}
+            view="activity"
+          />
+        ) : (
+          <div className="flex flex-col flex-1 min-h-0">
+            {/* The log and note box are spaced for the wide detail sheet; in the
                     panel both sit 16px in, and the log never widens the panel. */}
-                <ScrollArea
-                  className="flex-1 min-h-0"
-                  viewportClassName="[&>div]:block!"
-                >
-                  <div className="pt-3 [&_.px-6]:px-2">
-                    <ActivityLogs
-                      targetId={record.contentId}
-                      customActivities={
-                        record.contentType === 'core:company'
-                          ? companyCustomActivities
-                          : undefined
-                      }
-                      variant="backward"
-                    />
-                  </div>
-                </ScrollArea>
-                <div className="shrink-0 pb-4 pt-2 [&_.ml-10]:ml-4 [&_.mr-8]:mr-4">
-                  <AddInternalNote
-                    contentTypeId={record.contentId}
-                    contentType={record.contentType}
-                  />
-                </div>
+            <ScrollArea
+              className="flex-1 min-h-0"
+              viewportClassName="[&>div]:block!"
+            >
+              <div className="pt-3 [&_.px-6]:px-2">
+                <ActivityLogs
+                  targetId={record.contentId}
+                  customActivities={
+                    record.contentType === 'core:company'
+                      ? companyCustomActivities
+                      : undefined
+                  }
+                  variant="backward"
+                />
               </div>
-            ),
-          },
-        ],
+            </ScrollArea>
+            <div className="shrink-0 pb-4 pt-2 [&_.ml-10]:ml-4 [&_.mr-8]:mr-4">
+              <AddInternalNote
+                contentTypeId={record.contentId}
+                contentType={record.contentType}
+              />
+            </div>
+          </div>
+        ),
+      },
+    ],
   ];
 
   return (
@@ -438,7 +459,14 @@ const SidePanelDraft = ({
   const { t } = useTranslation('common', { keyPrefix: 'side-panel' });
   const { pluginName } = useRecordPanelPlugin(record.contentType);
 
+  const { hasActionPermission } = usePermissionCheck();
   const renderDraft = () => {
+    if (
+      ['core:customer', 'core:company'].includes(record.contentType) &&
+      !hasActionPermission('contactsCreate')
+    ) {
+      return <div className="p-4">{t('access-denied', 'Access denied')}</div>;
+    }
     if (record.contentType === 'core:customer') {
       return <CustomerPanelNew />;
     }
@@ -523,16 +551,21 @@ const SidePanelEmpty = ({
  */
 export const SidePanelLayout = () => {
   const { t } = useTranslation('common', { keyPrefix: 'side-panel' });
-  const { open, path, record, close, canGoBack, back } = useSidePanel();
+  const { open, path, history, record, close, canGoBack, back } =
+    useSidePanel();
   const onBack = canGoBack ? back : undefined;
   const [width, setWidth] = useAtom(sidePanelWidthState);
+  const [moduleWidths, setModuleWidths] = useState<Record<string, number>>({});
+  const moduleEntries = useAtomValue(modulePanelEntriesState);
+  const moduleEntry = path ? moduleEntries[path] : undefined;
 
   const renderRoute = () => {
-    if (record) {
+    if (record || isModulePanelPath(path)) {
       return (
-        <SidePanelRecord
-          key={`${record.contentType}:${record.contentId}`}
-          record={record}
+        <SidePanelRecordStack
+          path={path || ''}
+          history={history}
+          View={SidePanelRecord}
           onBack={onBack}
           onClose={close}
         />
@@ -567,7 +600,25 @@ export const SidePanelLayout = () => {
   return (
     <>
       {open && path !== SIDE_PANEL_CHAT_PATH && (
-        <RecordSidePanel key="record" width={width} onWidthChange={setWidth}>
+        <RecordSidePanel
+          key="record"
+          width={
+            moduleEntry && path
+              ? moduleWidths[path] ??
+                Math.max(width, moduleEntry.defaultWidth || 0)
+              : width
+          }
+          maxWidth={moduleEntry?.maxWidth}
+          onWidthChange={
+            moduleEntry && path
+              ? (nextWidth) =>
+                  setModuleWidths((previous) => ({
+                    ...previous,
+                    [path]: nextWidth,
+                  }))
+              : setWidth
+          }
+        >
           {renderRoute()}
         </RecordSidePanel>
       )}

@@ -18,18 +18,21 @@ import {
   useQueryState,
 } from 'erxes-ui';
 import { Fragment, useState } from 'react';
-import { useFields } from '../hooks/useFields';
-import { useFieldGroups } from '../hooks/useFieldGroups';
-import { useFieldDetail } from '../hooks/useFieldDetail';
+import { useFields } from 'ui-modules/modules/properties/hooks/useFields';
+import { useFieldGroups } from 'ui-modules/modules/properties/hooks/useFieldGroups';
+import { useFieldDetail } from 'ui-modules/modules/properties/hooks/useFieldDetail';
 import {
   IField,
   IFieldGroup,
   IPropertyFilterCondition,
   PropertyFilterOperator,
-} from '../types/fieldsTypes';
-import { OPERATOR_BY_TYPE } from '../constants/field_operators';
-import { parsePropertyDataKey, toPropertyRowKey } from '../propertyUtils';
-import { FIELD_ICON_BY_TYPE } from '../constants/field_icons';
+} from 'ui-modules/modules/properties/types/fieldsTypes';
+import { OPERATOR_BY_TYPE } from 'ui-modules/modules/properties/constants/field_operators';
+import {
+  parsePropertyDataKey,
+  toPropertyRowKey,
+} from 'ui-modules/modules/properties/propertyUtils';
+import { FIELD_ICON_BY_TYPE } from 'ui-modules/modules/properties/constants/field_icons';
 import {
   CompaniesInline,
   CustomersInline,
@@ -374,6 +377,7 @@ const RelationValueInput = ({
       return <SelectCompany {...commonProps} />;
     case 'relation:core:product':
       return <SelectProduct {...commonProps} />;
+    case 'relation:core:user':
     case 'relation:core:teamMembers':
       return <SelectMember {...commonProps} />;
     case 'relation:core:branch':
@@ -411,6 +415,7 @@ const RelationValueDisplay = ({
       return <CompaniesInline companyIds={ids} />;
     case 'relation:core:product':
       return <ProductsInline productIds={ids} />;
+    case 'relation:core:user':
     case 'relation:core:teamMembers':
       return <MembersInline memberIds={ids} />;
     case 'relation:core:branch':
