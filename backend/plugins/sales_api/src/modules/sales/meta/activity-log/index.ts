@@ -6,7 +6,6 @@ import {
 import { IModels } from '~/connectionResolvers';
 import { DEAL_ACTIVITY_FIELDS } from './constants';
 import {
-  generateDealConvertedActivityLog,
   generateDealCreatedActivityLog,
   generateDealMovedActivityLog,
   generateDealWatchActivityLog,
@@ -53,7 +52,6 @@ export async function generateDealUpdateActivityLogs(
 }
 
 export {
-  generateDealConvertedActivityLog,
   generateDealCreatedActivityLog,
   generateDealMovedActivityLog,
   generateDealWatchActivityLog,

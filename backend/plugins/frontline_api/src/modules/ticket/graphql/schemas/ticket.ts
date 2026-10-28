@@ -47,7 +47,6 @@ export const types = `
     attachments: [Attachment]
     customerId: String
     companyId: String
-    sourceConversationIds: [String]
     customerFieldData: JSON
     sourceSurvey: TicketSourceSurvey
   }

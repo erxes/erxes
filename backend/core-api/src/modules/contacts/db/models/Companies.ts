@@ -216,9 +216,10 @@ export const loadCompanyClass = (
         doc.propertiesData = propertiesData;
       }
 
-      const searchText = this.fillSearchText(
-        Object.assign({}, company, doc) as ICompany,
-      );
+      const searchText = this.fillSearchText({
+        ...company.toObject(),
+        ...doc,
+      });
 
       await models.Companies.updateOne(
         { _id },

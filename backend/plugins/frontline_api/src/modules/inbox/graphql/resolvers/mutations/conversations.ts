@@ -4,8 +4,6 @@ import {
   AUTO_BOT_MESSAGES,
   CONVERSATION_STATUSES,
 } from '@/inbox/db/definitions/constants';
-import { convertConversation } from '@/inbox/services/conversationConvert';
-import { IConversationConvert } from '@/inbox/@types/conversationConvert';
 import {
   graphqlPubsub,
   markResolvers,
@@ -316,19 +314,6 @@ export const conversationMutations = {
     });
 
     return models.Conversations.getConversation(_id);
-  },
-
-  async conversationConvertToCard(
-    _root,
-    params: IConversationConvert,
-    { user, models, subdomain, checkPermission }: IContext,
-  ) {
-    await checkPermission('conversationConvertToCard');
-
-    return convertConversation(
-      { models, subdomain, user, checkPermission },
-      params,
-    );
   },
 
   async conversationEditCustomFields(

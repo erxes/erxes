@@ -56,14 +56,6 @@ export const loadDealClass = (
     /** Create deal */
     public static async createDeal(doc: IDeal) {
       await assertDealBoardIsActive(models, doc.stageId);
-      // Prevent duplicate conversion from conversation
-      if (doc.sourceConversationIds?.length) {
-        const existing = await models.Deals.findOne({
-          sourceConversationIds: { $in: doc.sourceConversationIds },
-        });
-        if (existing) throw new Error('Already converted a deal');
-      }
-
       // Calculate totals
       if (doc.productsData) {
         doc.productsData = normalizeProductDiscountInfos(
